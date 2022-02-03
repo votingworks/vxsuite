@@ -322,10 +322,7 @@ test('printing ballots, print report, and test decks', async () => {
   getByText('Mock General Election Choctaw 2020');
   getByText(
     hasTextAcrossElements(
-      `Election Hash: ${eitherNeitherElectionDefinition.electionHash.slice(
-        0,
-        10
-      )}`
+      `Election ID${eitherNeitherElectionDefinition.electionHash.slice(0, 10)}`
     )
   );
 

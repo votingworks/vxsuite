@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import { Button, UsbControllerButton } from '@votingworks/ui';
+import { Button, UsbControllerButton, ElectionInfoBar } from '@votingworks/ui';
 import { AppContext } from '../contexts/app_context';
 
 import { routerPaths } from '../router_paths';
@@ -9,7 +9,6 @@ import { Screen } from './screen';
 import { Main, MainChild } from './main';
 import { Navigation } from './navigation';
 import { LinkButton } from './link_button';
-import { StatusFooter } from './status_footer';
 
 interface Props {
   children: React.ReactNode;
@@ -120,7 +119,12 @@ export function NavigationScreen({
           {children}
         </MainChild>
       </Main>
-      <StatusFooter />
+      <ElectionInfoBar
+        mode="admin"
+        electionDefinition={electionDefinition}
+        codeVersion={machineConfig.codeVersion}
+        machineId={machineConfig.machineId}
+      />
     </Screen>
   );
 }

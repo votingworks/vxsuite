@@ -70,13 +70,13 @@ exports[`printing ballots, print report, and test decks 1`] = `
         class="sc-fubCfw kBiVZq"
       >
         <button
-          class="sc-gsDJrp gwgkfw"
+          class="sc-hKwCoD fVjCYw"
           type="button"
         >
           Lock Machine
         </button>
         <button
-          class="sc-gsDJrp gwgkfw"
+          class="sc-hKwCoD fVjCYw"
           type="button"
         >
           Eject USB
@@ -90,7 +90,7 @@ exports[`printing ballots, print report, and test decks 1`] = `
         class="sc-dlfnbm kzZCED"
       >
         <div
-          class="sc-hBEYos eoEHwy"
+          class="sc-crrsfI vnUTr"
         >
           <h1>
             Test Deck
@@ -129,27 +129,71 @@ exports[`printing ballots, print report, and test decks 1`] = `
       </div>
     </main>
     <div
-      class="sc-kstrdz hFgVdI"
+      class="sc-bdvvaa iyFMHU"
     >
       <div
-        class="sc-crrsfI KbGmM"
+        class="sc-jrQzUz flpjSV"
       >
-        <strong>
+        <strong
+          class="sc-iqsfdx hiQcdB"
+        >
           Mock General Election Choctaw 2020
         </strong>
-         — 
-        Wednesday, August 26, 2020
          —
          
-        Choctaw County
-        , 
-        State of Mississippi
-         
+        <span
+          class="sc-iqsfdx hiQcdB"
+        >
+          Wednesday, August 26, 2020
+        </span>
+        <div
+          class="sc-kDThTU GXyzE"
+        >
+          <span
+            class="sc-iqsfdx hiQcdB"
+          >
+            Choctaw County
+            ,
+             
+            State of Mississippi
+          </span>
+        </div>
       </div>
       <div
-        class="sc-crrsfI KbGmM"
+        class="sc-gsDJrp jyOfHF"
+      />
+      <div
+        class="sc-jrQzUz iMHqDR"
       >
-        Election Hash: 
+        <div
+          class="sc-kDThTU GXyzE"
+        >
+          Software Version
+        </div>
+        <strong>
+          TEST
+        </strong>
+      </div>
+      <div
+        class="sc-jrQzUz iMHqDR"
+      >
+        <div
+          class="sc-kDThTU GXyzE"
+        >
+          Machine ID
+        </div>
+        <strong>
+          0000
+        </strong>
+      </div>
+      <div
+        class="sc-jrQzUz iMHqDR"
+      >
+        <div
+          class="sc-kDThTU GXyzE"
+        >
+          Election ID
+        </div>
         <strong>
           61cf15c77e
         </strong>
@@ -271,13 +315,13 @@ exports[`printing ballots, print report, and test decks 2`] = `
         class="sc-fubCfw kBiVZq"
       >
         <button
-          class="sc-gsDJrp gwgkfw"
+          class="sc-hKwCoD fVjCYw"
           type="button"
         >
           Lock Machine
         </button>
         <button
-          class="sc-gsDJrp gwgkfw"
+          class="sc-hKwCoD fVjCYw"
           type="button"
         >
           Eject USB
@@ -298,10 +342,10 @@ exports[`printing ballots, print report, and test decks 2`] = `
           Mock General Election Choctaw 2020
         </div>
         <div
-          class="sc-hBEYos eoEHwy"
+          class="sc-crrsfI vnUTr"
         >
           <h1
-            class="sc-kfPtPH fHRvBA"
+            class="sc-bBHwJV cFbtNy"
             style="margin-bottom: 0.75em; margin-top: 0.25em;"
           >
             
@@ -319,7 +363,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
             State of Mississippi
             <br />
             <span
-              class="sc-pVTma fWDBLk"
+              class="sc-kDThTU GXyzE"
             >
               This report was created on 
               Tuesday, November 3, 2020, 10:22:00 PM PST
@@ -354,27 +398,71 @@ exports[`printing ballots, print report, and test decks 2`] = `
       </div>
     </main>
     <div
-      class="sc-kstrdz hFgVdI"
+      class="sc-bdvvaa iyFMHU"
     >
       <div
-        class="sc-crrsfI KbGmM"
+        class="sc-jrQzUz flpjSV"
       >
-        <strong>
+        <strong
+          class="sc-iqsfdx hiQcdB"
+        >
           Mock General Election Choctaw 2020
         </strong>
-         — 
-        Wednesday, August 26, 2020
          —
          
-        Choctaw County
-        , 
-        State of Mississippi
-         
+        <span
+          class="sc-iqsfdx hiQcdB"
+        >
+          Wednesday, August 26, 2020
+        </span>
+        <div
+          class="sc-kDThTU GXyzE"
+        >
+          <span
+            class="sc-iqsfdx hiQcdB"
+          >
+            Choctaw County
+            ,
+             
+            State of Mississippi
+          </span>
+        </div>
       </div>
       <div
-        class="sc-crrsfI KbGmM"
+        class="sc-gsDJrp jyOfHF"
+      />
+      <div
+        class="sc-jrQzUz iMHqDR"
       >
-        Election Hash: 
+        <div
+          class="sc-kDThTU GXyzE"
+        >
+          Software Version
+        </div>
+        <strong>
+          TEST
+        </strong>
+      </div>
+      <div
+        class="sc-jrQzUz iMHqDR"
+      >
+        <div
+          class="sc-kDThTU GXyzE"
+        >
+          Machine ID
+        </div>
+        <strong>
+          0000
+        </strong>
+      </div>
+      <div
+        class="sc-jrQzUz iMHqDR"
+      >
+        <div
+          class="sc-kDThTU GXyzE"
+        >
+          Election ID
+        </div>
         <strong>
           61cf15c77e
         </strong>
@@ -385,11 +473,11 @@ exports[`printing ballots, print report, and test decks 2`] = `
     class="print-only"
   >
     <section
-      class="sc-dlVyqM cFJAGc"
+      class="sc-fKVsgm kyXjRp"
     >
       <img
         alt="VotingWorks logo"
-        class="sc-hBURRC fIVStr"
+        class="sc-fFehDp eMjPQq"
         src="/votingworks-wordmark-black.svg"
       />
       <div>
@@ -400,10 +488,10 @@ exports[`printing ballots, print report, and test decks 2`] = `
          Mock General Election Choctaw 2020
       </div>
       <div
-        class="sc-hBEYos eWOkWl"
+        class="sc-crrsfI kVGBFI"
       >
         <h1
-          class="sc-kfPtPH fHRvBA"
+          class="sc-bBHwJV cFbtNy"
           style="margin-bottom: 0.75em; margin-top: 0.25em;"
         >
           
@@ -421,7 +509,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
           State of Mississippi
           <br />
           <span
-            class="sc-pVTma fWDBLk"
+            class="sc-kDThTU GXyzE"
           >
             This report was created on 
             Tuesday, November 3, 2020, 10:22:00 PM PST
@@ -429,17 +517,17 @@ exports[`printing ballots, print report, and test decks 2`] = `
         </p>
       </div>
       <div
-        class="sc-fKVsgm fcllTh"
+        class="sc-iwjezw gzPonb"
       >
         <div
-          class="sc-iqsfdx FMoYd"
+          class="sc-egiSv fvmgCK"
         >
           <div
-            class="sc-furvIG gnyyZs"
+            class="sc-jrQzUz fsZsuB"
             data-testid="results-table-775020876"
           >
             <p
-              class="sc-pVTma fWDBLk"
+              class="sc-kDThTU GXyzE"
             >
               United States
             </p>
@@ -447,30 +535,30 @@ exports[`printing ballots, print report, and test decks 2`] = `
               President
             </h3>
             <p
-              class="sc-pVTma fWDBLk"
+              class="sc-kDThTU GXyzE"
             >
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 39 ballots
                  cast /
               </span>
                
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 0 overvotes
                  /
               </span>
                
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-gKckTs fsbCTJ"
+              class="sc-furvIG eLkmOD"
             >
               <tbody>
                 <tr
@@ -480,7 +568,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
                     Presidential Electors for Joe Biden for President and Kamala Harris for Vice President
                   </td>
                   <td
-                    class="sc-iCfLBT kfaIQL"
+                    class="sc-pVTma byeHzH"
                   >
                     13
                   </td>
@@ -492,7 +580,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
                     Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President
                   </td>
                   <td
-                    class="sc-iCfLBT kfaIQL"
+                    class="sc-pVTma byeHzH"
                   >
                     13
                   </td>
@@ -504,7 +592,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
                     Presidential Electors for Phil Collins for President and Bill Parker for Vice President
                   </td>
                   <td
-                    class="sc-iCfLBT kfaIQL"
+                    class="sc-pVTma byeHzH"
                   >
                     13
                   </td>
@@ -516,7 +604,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
                     Write-In
                   </td>
                   <td
-                    class="sc-iCfLBT kfaIQL"
+                    class="sc-pVTma byeHzH"
                   >
                     0
                   </td>
@@ -526,14 +614,14 @@ exports[`printing ballots, print report, and test decks 2`] = `
           </div>
         </div>
         <div
-          class="sc-iqsfdx FMoYd"
+          class="sc-egiSv fvmgCK"
         >
           <div
-            class="sc-furvIG gnyyZs"
+            class="sc-jrQzUz fsZsuB"
             data-testid="results-table-775020877"
           >
             <p
-              class="sc-pVTma fWDBLk"
+              class="sc-kDThTU GXyzE"
             >
               United States
             </p>
@@ -541,30 +629,30 @@ exports[`printing ballots, print report, and test decks 2`] = `
               Senate 
             </h3>
             <p
-              class="sc-pVTma fWDBLk"
+              class="sc-kDThTU GXyzE"
             >
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 39 ballots
                  cast /
               </span>
                
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 0 overvotes
                  /
               </span>
                
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-gKckTs fsbCTJ"
+              class="sc-furvIG eLkmOD"
             >
               <tbody>
                 <tr
@@ -574,7 +662,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
                     Mike Espy
                   </td>
                   <td
-                    class="sc-iCfLBT kfaIQL"
+                    class="sc-pVTma byeHzH"
                   >
                     13
                   </td>
@@ -586,7 +674,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
                     Cindy Hyde-Smith
                   </td>
                   <td
-                    class="sc-iCfLBT kfaIQL"
+                    class="sc-pVTma byeHzH"
                   >
                     13
                   </td>
@@ -598,7 +686,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
                     Jimmy Edwards
                   </td>
                   <td
-                    class="sc-iCfLBT kfaIQL"
+                    class="sc-pVTma byeHzH"
                   >
                     13
                   </td>
@@ -610,7 +698,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
                     Write-In
                   </td>
                   <td
-                    class="sc-iCfLBT kfaIQL"
+                    class="sc-pVTma byeHzH"
                   >
                     0
                   </td>
@@ -620,14 +708,14 @@ exports[`printing ballots, print report, and test decks 2`] = `
           </div>
         </div>
         <div
-          class="sc-iqsfdx FMoYd"
+          class="sc-egiSv fvmgCK"
         >
           <div
-            class="sc-furvIG gnyyZs"
+            class="sc-jrQzUz fsZsuB"
             data-testid="results-table-775020872"
           >
             <p
-              class="sc-pVTma fWDBLk"
+              class="sc-kDThTU GXyzE"
             >
               US House Of Representatives
             </p>
@@ -635,30 +723,30 @@ exports[`printing ballots, print report, and test decks 2`] = `
               1st Congressional District
             </h3>
             <p
-              class="sc-pVTma fWDBLk"
+              class="sc-kDThTU GXyzE"
             >
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 39 ballots
                  cast /
               </span>
                
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 0 overvotes
                  /
               </span>
                
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-gKckTs fsbCTJ"
+              class="sc-furvIG eLkmOD"
             >
               <tbody>
                 <tr
@@ -668,7 +756,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
                     Antonia Eliason
                   </td>
                   <td
-                    class="sc-iCfLBT kfaIQL"
+                    class="sc-pVTma byeHzH"
                   >
                     26
                   </td>
@@ -680,7 +768,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
                     Trent Kelly
                   </td>
                   <td
-                    class="sc-iCfLBT kfaIQL"
+                    class="sc-pVTma byeHzH"
                   >
                     13
                   </td>
@@ -692,7 +780,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
                     Write-In
                   </td>
                   <td
-                    class="sc-iCfLBT kfaIQL"
+                    class="sc-pVTma byeHzH"
                   >
                     0
                   </td>
@@ -702,14 +790,14 @@ exports[`printing ballots, print report, and test decks 2`] = `
           </div>
         </div>
         <div
-          class="sc-iqsfdx FMoYd"
+          class="sc-egiSv fvmgCK"
         >
           <div
-            class="sc-furvIG gnyyZs"
+            class="sc-jrQzUz fsZsuB"
             data-testid="results-table-775020870"
           >
             <p
-              class="sc-pVTma fWDBLk"
+              class="sc-kDThTU GXyzE"
             >
               Northern District
             </p>
@@ -717,30 +805,30 @@ exports[`printing ballots, print report, and test decks 2`] = `
               Supreme Court District 3(Northern) Position 3
             </h3>
             <p
-              class="sc-pVTma fWDBLk"
+              class="sc-kDThTU GXyzE"
             >
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 39 ballots
                  cast /
               </span>
                
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 0 overvotes
                  /
               </span>
                
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-gKckTs fsbCTJ"
+              class="sc-furvIG eLkmOD"
             >
               <tbody>
                 <tr
@@ -750,7 +838,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
                     Josiah Dennis Coleman
                   </td>
                   <td
-                    class="sc-iCfLBT kfaIQL"
+                    class="sc-pVTma byeHzH"
                   >
                     26
                   </td>
@@ -762,7 +850,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
                     Percy L. Lynchard
                   </td>
                   <td
-                    class="sc-iCfLBT kfaIQL"
+                    class="sc-pVTma byeHzH"
                   >
                     13
                   </td>
@@ -774,7 +862,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
                     Write-In
                   </td>
                   <td
-                    class="sc-iCfLBT kfaIQL"
+                    class="sc-pVTma byeHzH"
                   >
                     0
                   </td>
@@ -784,14 +872,14 @@ exports[`printing ballots, print report, and test decks 2`] = `
           </div>
         </div>
         <div
-          class="sc-iqsfdx FMoYd"
+          class="sc-egiSv fvmgCK"
         >
           <div
-            class="sc-furvIG gnyyZs"
+            class="sc-jrQzUz fsZsuB"
             data-testid="results-table-775020899"
           >
             <p
-              class="sc-pVTma fWDBLk"
+              class="sc-kDThTU GXyzE"
             >
               Election Commissioner 01
             </p>
@@ -799,30 +887,30 @@ exports[`printing ballots, print report, and test decks 2`] = `
               Election Commissioner  01
             </h3>
             <p
-              class="sc-pVTma fWDBLk"
+              class="sc-kDThTU GXyzE"
             >
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 9 ballots
                  cast /
               </span>
                
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 0 overvotes
                  /
               </span>
                
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-gKckTs fsbCTJ"
+              class="sc-furvIG eLkmOD"
             >
               <tbody>
                 <tr
@@ -832,7 +920,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
                     Glynda Chaney Fulce
                   </td>
                   <td
-                    class="sc-iCfLBT kfaIQL"
+                    class="sc-pVTma byeHzH"
                   >
                     9
                   </td>
@@ -844,7 +932,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
                     Write-In
                   </td>
                   <td
-                    class="sc-iCfLBT kfaIQL"
+                    class="sc-pVTma byeHzH"
                   >
                     0
                   </td>
@@ -854,14 +942,14 @@ exports[`printing ballots, print report, and test decks 2`] = `
           </div>
         </div>
         <div
-          class="sc-iqsfdx FMoYd"
+          class="sc-egiSv fvmgCK"
         >
           <div
-            class="sc-furvIG gnyyZs"
+            class="sc-jrQzUz fsZsuB"
             data-testid="results-table-775020900"
           >
             <p
-              class="sc-pVTma fWDBLk"
+              class="sc-kDThTU GXyzE"
             >
               Election Commissioner 02
             </p>
@@ -869,30 +957,30 @@ exports[`printing ballots, print report, and test decks 2`] = `
               Election Commissioner 02
             </h3>
             <p
-              class="sc-pVTma fWDBLk"
+              class="sc-kDThTU GXyzE"
             >
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 9 ballots
                  cast /
               </span>
                
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 0 overvotes
                  /
               </span>
                
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-gKckTs fsbCTJ"
+              class="sc-furvIG eLkmOD"
             >
               <tbody>
                 <tr
@@ -902,7 +990,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
                     Charles Beck
                   </td>
                   <td
-                    class="sc-iCfLBT kfaIQL"
+                    class="sc-pVTma byeHzH"
                   >
                     6
                   </td>
@@ -914,7 +1002,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
                     Sharon Brooks
                   </td>
                   <td
-                    class="sc-iCfLBT kfaIQL"
+                    class="sc-pVTma byeHzH"
                   >
                     3
                   </td>
@@ -926,7 +1014,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
                     Write-In
                   </td>
                   <td
-                    class="sc-iCfLBT kfaIQL"
+                    class="sc-pVTma byeHzH"
                   >
                     0
                   </td>
@@ -936,14 +1024,14 @@ exports[`printing ballots, print report, and test decks 2`] = `
           </div>
         </div>
         <div
-          class="sc-iqsfdx FMoYd"
+          class="sc-egiSv fvmgCK"
         >
           <div
-            class="sc-furvIG gnyyZs"
+            class="sc-jrQzUz fsZsuB"
             data-testid="results-table-775020901"
           >
             <p
-              class="sc-pVTma fWDBLk"
+              class="sc-kDThTU GXyzE"
             >
               Election Commissioner 03
             </p>
@@ -951,30 +1039,30 @@ exports[`printing ballots, print report, and test decks 2`] = `
               Election Commissioner 03
             </h3>
             <p
-              class="sc-pVTma fWDBLk"
+              class="sc-kDThTU GXyzE"
             >
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 9 ballots
                  cast /
               </span>
                
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 0 overvotes
                  /
               </span>
                
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-gKckTs fsbCTJ"
+              class="sc-furvIG eLkmOD"
             >
               <tbody>
                 <tr
@@ -984,7 +1072,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
                     Dorothy Anderson
                   </td>
                   <td
-                    class="sc-iCfLBT kfaIQL"
+                    class="sc-pVTma byeHzH"
                   >
                     9
                   </td>
@@ -996,7 +1084,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
                     Write-In
                   </td>
                   <td
-                    class="sc-iCfLBT kfaIQL"
+                    class="sc-pVTma byeHzH"
                   >
                     0
                   </td>
@@ -1006,14 +1094,14 @@ exports[`printing ballots, print report, and test decks 2`] = `
           </div>
         </div>
         <div
-          class="sc-iqsfdx FMoYd"
+          class="sc-egiSv fvmgCK"
         >
           <div
-            class="sc-furvIG gnyyZs"
+            class="sc-jrQzUz fsZsuB"
             data-testid="results-table-775020902"
           >
             <p
-              class="sc-pVTma fWDBLk"
+              class="sc-kDThTU GXyzE"
             >
               Election Commissioner 04
             </p>
@@ -1021,30 +1109,30 @@ exports[`printing ballots, print report, and test decks 2`] = `
               Election Commissioner 04
             </h3>
             <p
-              class="sc-pVTma fWDBLk"
+              class="sc-kDThTU GXyzE"
             >
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 9 ballots
                  cast /
               </span>
                
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 0 overvotes
                  /
               </span>
                
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-gKckTs fsbCTJ"
+              class="sc-furvIG eLkmOD"
             >
               <tbody>
                 <tr
@@ -1054,7 +1142,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
                     Willie Mae Guillory
                   </td>
                   <td
-                    class="sc-iCfLBT kfaIQL"
+                    class="sc-pVTma byeHzH"
                   >
                     6
                   </td>
@@ -1066,7 +1154,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
                     Lewis Wright
                   </td>
                   <td
-                    class="sc-iCfLBT kfaIQL"
+                    class="sc-pVTma byeHzH"
                   >
                     3
                   </td>
@@ -1078,7 +1166,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
                     Write-In
                   </td>
                   <td
-                    class="sc-iCfLBT kfaIQL"
+                    class="sc-pVTma byeHzH"
                   >
                     0
                   </td>
@@ -1088,14 +1176,14 @@ exports[`printing ballots, print report, and test decks 2`] = `
           </div>
         </div>
         <div
-          class="sc-iqsfdx FMoYd"
+          class="sc-egiSv fvmgCK"
         >
           <div
-            class="sc-furvIG gnyyZs"
+            class="sc-jrQzUz fsZsuB"
             data-testid="results-table-775020903"
           >
             <p
-              class="sc-pVTma fWDBLk"
+              class="sc-kDThTU GXyzE"
             >
               Election Commissioner 05
             </p>
@@ -1103,30 +1191,30 @@ exports[`printing ballots, print report, and test decks 2`] = `
               Election Commissioner 05
             </h3>
             <p
-              class="sc-pVTma fWDBLk"
+              class="sc-kDThTU GXyzE"
             >
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 3 ballots
                  cast /
               </span>
                
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 0 overvotes
                  /
               </span>
                
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-gKckTs fsbCTJ"
+              class="sc-furvIG eLkmOD"
             >
               <tbody>
                 <tr
@@ -1136,7 +1224,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
                     Ouida A Loper
                   </td>
                   <td
-                    class="sc-iCfLBT kfaIQL"
+                    class="sc-pVTma byeHzH"
                   >
                     2
                   </td>
@@ -1148,7 +1236,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
                     Wayne McLeod
                   </td>
                   <td
-                    class="sc-iCfLBT kfaIQL"
+                    class="sc-pVTma byeHzH"
                   >
                     1
                   </td>
@@ -1160,7 +1248,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
                     Write-In
                   </td>
                   <td
-                    class="sc-iCfLBT kfaIQL"
+                    class="sc-pVTma byeHzH"
                   >
                     0
                   </td>
@@ -1170,14 +1258,14 @@ exports[`printing ballots, print report, and test decks 2`] = `
           </div>
         </div>
         <div
-          class="sc-iqsfdx FMoYd"
+          class="sc-egiSv fvmgCK"
         >
           <div
-            class="sc-furvIG gnyyZs"
+            class="sc-jrQzUz fsZsuB"
             data-testid="results-table-775020904"
           >
             <p
-              class="sc-pVTma fWDBLk"
+              class="sc-kDThTU GXyzE"
             >
               School Board District 5
             </p>
@@ -1185,30 +1273,30 @@ exports[`printing ballots, print report, and test decks 2`] = `
               School Board 05
             </h3>
             <p
-              class="sc-pVTma fWDBLk"
+              class="sc-kDThTU GXyzE"
             >
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 3 ballots
                  cast /
               </span>
                
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 0 overvotes
                  /
               </span>
                
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-gKckTs fsbCTJ"
+              class="sc-furvIG eLkmOD"
             >
               <tbody>
                 <tr
@@ -1218,7 +1306,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
                     Michael D Thomas
                   </td>
                   <td
-                    class="sc-iCfLBT kfaIQL"
+                    class="sc-pVTma byeHzH"
                   >
                     3
                   </td>
@@ -1230,7 +1318,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
                     Write-In
                   </td>
                   <td
-                    class="sc-iCfLBT kfaIQL"
+                    class="sc-pVTma byeHzH"
                   >
                     0
                   </td>
@@ -1240,14 +1328,14 @@ exports[`printing ballots, print report, and test decks 2`] = `
           </div>
         </div>
         <div
-          class="sc-iqsfdx FMoYd"
+          class="sc-egiSv fvmgCK"
         >
           <div
-            class="sc-furvIG gnyyZs"
+            class="sc-jrQzUz fsZsuB"
             data-testid="results-table-750000017"
           >
             <p
-              class="sc-pVTma fWDBLk"
+              class="sc-kDThTU GXyzE"
             >
               State Of Mississippi
             </p>
@@ -1256,30 +1344,30 @@ exports[`printing ballots, print report, and test decks 2`] = `
 House Concurrent Resolution No. 47
             </h3>
             <p
-              class="sc-pVTma fWDBLk"
+              class="sc-kDThTU GXyzE"
             >
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 39 ballots
                  cast /
               </span>
                
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 0 overvotes
                  /
               </span>
                
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-gKckTs fsbCTJ"
+              class="sc-furvIG eLkmOD"
             >
               <tbody>
                 <tr
@@ -1289,7 +1377,7 @@ House Concurrent Resolution No. 47
                     Yes
                   </td>
                   <td
-                    class="sc-iCfLBT kfaIQL"
+                    class="sc-pVTma byeHzH"
                   >
                     26
                   </td>
@@ -1301,7 +1389,7 @@ House Concurrent Resolution No. 47
                     No
                   </td>
                   <td
-                    class="sc-iCfLBT kfaIQL"
+                    class="sc-pVTma byeHzH"
                   >
                     13
                   </td>
@@ -1311,14 +1399,14 @@ House Concurrent Resolution No. 47
           </div>
         </div>
         <div
-          class="sc-iqsfdx FMoYd"
+          class="sc-egiSv fvmgCK"
         >
           <div
-            class="sc-furvIG gnyyZs"
+            class="sc-jrQzUz fsZsuB"
             data-testid="results-table-750000018"
           >
             <p
-              class="sc-pVTma fWDBLk"
+              class="sc-kDThTU GXyzE"
             >
               State Of Mississippi
             </p>
@@ -1327,30 +1415,30 @@ House Concurrent Resolution No. 47
 House Bill 1796 - Flag Referendum
             </h3>
             <p
-              class="sc-pVTma fWDBLk"
+              class="sc-kDThTU GXyzE"
             >
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 39 ballots
                  cast /
               </span>
                
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 0 overvotes
                  /
               </span>
                
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-gKckTs fsbCTJ"
+              class="sc-furvIG eLkmOD"
             >
               <tbody>
                 <tr
@@ -1360,7 +1448,7 @@ House Bill 1796 - Flag Referendum
                     Yes
                   </td>
                   <td
-                    class="sc-iCfLBT kfaIQL"
+                    class="sc-pVTma byeHzH"
                   >
                     26
                   </td>
@@ -1372,7 +1460,7 @@ House Bill 1796 - Flag Referendum
                     No
                   </td>
                   <td
-                    class="sc-iCfLBT kfaIQL"
+                    class="sc-pVTma byeHzH"
                   >
                     13
                   </td>
@@ -1382,14 +1470,14 @@ House Bill 1796 - Flag Referendum
           </div>
         </div>
         <div
-          class="sc-iqsfdx FMoYd"
+          class="sc-egiSv fvmgCK"
         >
           <div
-            class="sc-furvIG gnyyZs"
+            class="sc-jrQzUz fsZsuB"
             data-testid="results-table-750000015"
           >
             <p
-              class="sc-pVTma fWDBLk"
+              class="sc-kDThTU GXyzE"
             >
               State Of Mississippi
             </p>
@@ -1397,30 +1485,30 @@ House Bill 1796 - Flag Referendum
               Ballot Measure 1 – Either/Neither
             </h3>
             <p
-              class="sc-pVTma fWDBLk"
+              class="sc-kDThTU GXyzE"
             >
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 39 ballots
                  cast /
               </span>
                
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 0 overvotes
                  /
               </span>
                
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-gKckTs fsbCTJ"
+              class="sc-furvIG eLkmOD"
             >
               <tbody>
                 <tr
@@ -1430,7 +1518,7 @@ House Bill 1796 - Flag Referendum
                     Yes
                   </td>
                   <td
-                    class="sc-iCfLBT kfaIQL"
+                    class="sc-pVTma byeHzH"
                   >
                     26
                   </td>
@@ -1442,7 +1530,7 @@ House Bill 1796 - Flag Referendum
                     No
                   </td>
                   <td
-                    class="sc-iCfLBT kfaIQL"
+                    class="sc-pVTma byeHzH"
                   >
                     13
                   </td>
@@ -1452,14 +1540,14 @@ House Bill 1796 - Flag Referendum
           </div>
         </div>
         <div
-          class="sc-iqsfdx FMoYd"
+          class="sc-egiSv fvmgCK"
         >
           <div
-            class="sc-furvIG gnyyZs"
+            class="sc-jrQzUz fsZsuB"
             data-testid="results-table-750000016"
           >
             <p
-              class="sc-pVTma fWDBLk"
+              class="sc-kDThTU GXyzE"
             >
               State Of Mississippi
             </p>
@@ -1467,30 +1555,30 @@ House Bill 1796 - Flag Referendum
               Ballot Measure 1 – Pick One
             </h3>
             <p
-              class="sc-pVTma fWDBLk"
+              class="sc-kDThTU GXyzE"
             >
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 39 ballots
                  cast /
               </span>
                
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 0 overvotes
                  /
               </span>
                
               <span
-                class="sc-jrQzUz jTxFnM"
+                class="sc-iqsfdx hiQcdB"
               >
                 0 undervotes
               </span>
             </p>
             <table
-              class="sc-gKckTs fsbCTJ"
+              class="sc-furvIG eLkmOD"
             >
               <tbody>
                 <tr
@@ -1500,7 +1588,7 @@ House Bill 1796 - Flag Referendum
                     Yes
                   </td>
                   <td
-                    class="sc-iCfLBT kfaIQL"
+                    class="sc-pVTma byeHzH"
                   >
                     26
                   </td>
@@ -1512,7 +1600,7 @@ House Bill 1796 - Flag Referendum
                     No
                   </td>
                   <td
-                    class="sc-iCfLBT kfaIQL"
+                    class="sc-pVTma byeHzH"
                   >
                     13
                   </td>
@@ -1530,16 +1618,16 @@ House Bill 1796 - Flag Referendum
 
 exports[`tabulating CVRs 1`] = `
 <section
-  class="sc-dlVyqM cFJAGc"
+  class="sc-fKVsgm kyXjRp"
   data-testid="election-full-tally-report"
 >
   <img
     alt="VotingWorks logo"
-    class="sc-hBURRC fIVStr"
+    class="sc-fFehDp eMjPQq"
     src="/votingworks-wordmark-black.svg"
   />
   <div
-    class="sc-hBEYos eWOkWl"
+    class="sc-crrsfI kVGBFI"
   >
     <h1>
       Official
@@ -1555,7 +1643,7 @@ exports[`tabulating CVRs 1`] = `
       State of Mississippi
       <br />
       <span
-        class="sc-pVTma fWDBLk"
+        class="sc-kDThTU GXyzE"
       >
         This report was created on 
         Tuesday, November 3, 2020, 10:22:00 PM PST
@@ -1563,16 +1651,16 @@ exports[`tabulating CVRs 1`] = `
     </p>
   </div>
   <div
-    class="sc-fKVsgm fcllTh"
+    class="sc-iwjezw gzPonb"
   >
     <div
-      class="sc-bYoCmx jyAXv"
+      class="sc-ikJzcn gSXRom"
     >
       <h3>
         Ballots by Voting Method
       </h3>
       <table
-        class="sc-gKckTs cPiIfo"
+        class="sc-furvIG bNYIzu"
         data-testid="voting-method-table"
       >
         <tbody>
@@ -1580,12 +1668,12 @@ exports[`tabulating CVRs 1`] = `
             data-testid="absentee"
           >
             <td
-              class="sc-iCfLBT dRQtgr"
+              class="sc-pVTma gFUBdL"
             >
               Absentee
             </td>
             <td
-              class="sc-iCfLBT cAordn"
+              class="sc-pVTma iqDtHn"
             >
               50
             </td>
@@ -1594,12 +1682,12 @@ exports[`tabulating CVRs 1`] = `
             data-testid="standard"
           >
             <td
-              class="sc-iCfLBT dRQtgr"
+              class="sc-pVTma gFUBdL"
             >
               Precinct
             </td>
             <td
-              class="sc-iCfLBT cAordn"
+              class="sc-pVTma iqDtHn"
             >
               50
             </td>
@@ -1608,14 +1696,14 @@ exports[`tabulating CVRs 1`] = `
             data-testid="total"
           >
             <td
-              class="sc-iCfLBT dRQtgr"
+              class="sc-pVTma gFUBdL"
             >
               <strong>
                 Total Ballots Cast
               </strong>
             </td>
             <td
-              class="sc-iCfLBT cAordn"
+              class="sc-pVTma iqDtHn"
             >
               <strong>
                 100
@@ -1626,14 +1714,14 @@ exports[`tabulating CVRs 1`] = `
       </table>
     </div>
     <div
-      class="sc-iqsfdx FMoYd"
+      class="sc-egiSv fvmgCK"
     >
       <div
-        class="sc-furvIG gnyyZs"
+        class="sc-jrQzUz fsZsuB"
         data-testid="results-table-775020876"
       >
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           United States
         </p>
@@ -1641,30 +1729,30 @@ exports[`tabulating CVRs 1`] = `
           President
         </h3>
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             100 ballots
              cast /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             1 overvote
              /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             7 undervotes
           </span>
         </p>
         <table
-          class="sc-gKckTs fsbCTJ"
+          class="sc-furvIG eLkmOD"
         >
           <tbody>
             <tr
@@ -1674,7 +1762,7 @@ exports[`tabulating CVRs 1`] = `
                 Presidential Electors for Joe Biden for President and Kamala Harris for Vice President
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 27
               </td>
@@ -1686,7 +1774,7 @@ exports[`tabulating CVRs 1`] = `
                 Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 36
               </td>
@@ -1698,7 +1786,7 @@ exports[`tabulating CVRs 1`] = `
                 Presidential Electors for Phil Collins for President and Bill Parker for Vice President
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 29
               </td>
@@ -1710,7 +1798,7 @@ exports[`tabulating CVRs 1`] = `
                 Write-In
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 0
               </td>
@@ -1720,14 +1808,14 @@ exports[`tabulating CVRs 1`] = `
       </div>
     </div>
     <div
-      class="sc-iqsfdx FMoYd"
+      class="sc-egiSv fvmgCK"
     >
       <div
-        class="sc-furvIG gnyyZs"
+        class="sc-jrQzUz fsZsuB"
         data-testid="results-table-775020877"
       >
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           United States
         </p>
@@ -1735,30 +1823,30 @@ exports[`tabulating CVRs 1`] = `
           Senate 
         </h3>
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             100 ballots
              cast /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             4 overvotes
              /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             4 undervotes
           </span>
         </p>
         <table
-          class="sc-gKckTs fsbCTJ"
+          class="sc-furvIG eLkmOD"
         >
           <tbody>
             <tr
@@ -1768,7 +1856,7 @@ exports[`tabulating CVRs 1`] = `
                 Mike Espy
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 29
               </td>
@@ -1780,7 +1868,7 @@ exports[`tabulating CVRs 1`] = `
                 Cindy Hyde-Smith
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 35
               </td>
@@ -1792,7 +1880,7 @@ exports[`tabulating CVRs 1`] = `
                 Jimmy Edwards
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 28
               </td>
@@ -1804,7 +1892,7 @@ exports[`tabulating CVRs 1`] = `
                 Write-In
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 0
               </td>
@@ -1814,14 +1902,14 @@ exports[`tabulating CVRs 1`] = `
       </div>
     </div>
     <div
-      class="sc-iqsfdx FMoYd"
+      class="sc-egiSv fvmgCK"
     >
       <div
-        class="sc-furvIG gnyyZs"
+        class="sc-jrQzUz fsZsuB"
         data-testid="results-table-775020872"
       >
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           US House Of Representatives
         </p>
@@ -1829,30 +1917,30 @@ exports[`tabulating CVRs 1`] = `
           1st Congressional District
         </h3>
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             100 ballots
              cast /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             3 overvotes
              /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             5 undervotes
           </span>
         </p>
         <table
-          class="sc-gKckTs fsbCTJ"
+          class="sc-furvIG eLkmOD"
         >
           <tbody>
             <tr
@@ -1862,7 +1950,7 @@ exports[`tabulating CVRs 1`] = `
                 Antonia Eliason
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 46
               </td>
@@ -1874,7 +1962,7 @@ exports[`tabulating CVRs 1`] = `
                 Trent Kelly
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 46
               </td>
@@ -1886,7 +1974,7 @@ exports[`tabulating CVRs 1`] = `
                 Write-In
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 0
               </td>
@@ -1896,14 +1984,14 @@ exports[`tabulating CVRs 1`] = `
       </div>
     </div>
     <div
-      class="sc-iqsfdx FMoYd"
+      class="sc-egiSv fvmgCK"
     >
       <div
-        class="sc-furvIG gnyyZs"
+        class="sc-jrQzUz fsZsuB"
         data-testid="results-table-775020870"
       >
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           Northern District
         </p>
@@ -1911,30 +1999,30 @@ exports[`tabulating CVRs 1`] = `
           Supreme Court District 3(Northern) Position 3
         </h3>
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             100 ballots
              cast /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             0 overvotes
              /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             5 undervotes
           </span>
         </p>
         <table
-          class="sc-gKckTs fsbCTJ"
+          class="sc-furvIG eLkmOD"
         >
           <tbody>
             <tr
@@ -1944,7 +2032,7 @@ exports[`tabulating CVRs 1`] = `
                 Josiah Dennis Coleman
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 37
               </td>
@@ -1956,7 +2044,7 @@ exports[`tabulating CVRs 1`] = `
                 Percy L. Lynchard
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 58
               </td>
@@ -1968,7 +2056,7 @@ exports[`tabulating CVRs 1`] = `
                 Write-In
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 0
               </td>
@@ -1978,14 +2066,14 @@ exports[`tabulating CVRs 1`] = `
       </div>
     </div>
     <div
-      class="sc-iqsfdx FMoYd"
+      class="sc-egiSv fvmgCK"
     >
       <div
-        class="sc-furvIG gnyyZs"
+        class="sc-jrQzUz fsZsuB"
         data-testid="results-table-775020899"
       >
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           Election Commissioner 01
         </p>
@@ -1993,30 +2081,30 @@ exports[`tabulating CVRs 1`] = `
           Election Commissioner  01
         </h3>
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             18 ballots
              cast /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             0 overvotes
              /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             1 undervote
           </span>
         </p>
         <table
-          class="sc-gKckTs fsbCTJ"
+          class="sc-furvIG eLkmOD"
         >
           <tbody>
             <tr
@@ -2026,7 +2114,7 @@ exports[`tabulating CVRs 1`] = `
                 Glynda Chaney Fulce
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 17
               </td>
@@ -2038,7 +2126,7 @@ exports[`tabulating CVRs 1`] = `
                 Write-In
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 0
               </td>
@@ -2048,14 +2136,14 @@ exports[`tabulating CVRs 1`] = `
       </div>
     </div>
     <div
-      class="sc-iqsfdx FMoYd"
+      class="sc-egiSv fvmgCK"
     >
       <div
-        class="sc-furvIG gnyyZs"
+        class="sc-jrQzUz fsZsuB"
         data-testid="results-table-775020900"
       >
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           Election Commissioner 02
         </p>
@@ -2063,30 +2151,30 @@ exports[`tabulating CVRs 1`] = `
           Election Commissioner 02
         </h3>
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             15 ballots
              cast /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             0 overvotes
              /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             1 undervote
           </span>
         </p>
         <table
-          class="sc-gKckTs fsbCTJ"
+          class="sc-furvIG eLkmOD"
         >
           <tbody>
             <tr
@@ -2096,7 +2184,7 @@ exports[`tabulating CVRs 1`] = `
                 Charles Beck
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 5
               </td>
@@ -2108,7 +2196,7 @@ exports[`tabulating CVRs 1`] = `
                 Sharon Brooks
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 9
               </td>
@@ -2120,7 +2208,7 @@ exports[`tabulating CVRs 1`] = `
                 Write-In
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 0
               </td>
@@ -2130,14 +2218,14 @@ exports[`tabulating CVRs 1`] = `
       </div>
     </div>
     <div
-      class="sc-iqsfdx FMoYd"
+      class="sc-egiSv fvmgCK"
     >
       <div
-        class="sc-furvIG gnyyZs"
+        class="sc-jrQzUz fsZsuB"
         data-testid="results-table-775020901"
       >
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           Election Commissioner 03
         </p>
@@ -2145,30 +2233,30 @@ exports[`tabulating CVRs 1`] = `
           Election Commissioner 03
         </h3>
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             23 ballots
              cast /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             0 overvotes
              /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             1 undervote
           </span>
         </p>
         <table
-          class="sc-gKckTs fsbCTJ"
+          class="sc-furvIG eLkmOD"
         >
           <tbody>
             <tr
@@ -2178,7 +2266,7 @@ exports[`tabulating CVRs 1`] = `
                 Dorothy Anderson
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 22
               </td>
@@ -2190,7 +2278,7 @@ exports[`tabulating CVRs 1`] = `
                 Write-In
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 0
               </td>
@@ -2200,14 +2288,14 @@ exports[`tabulating CVRs 1`] = `
       </div>
     </div>
     <div
-      class="sc-iqsfdx FMoYd"
+      class="sc-egiSv fvmgCK"
     >
       <div
-        class="sc-furvIG gnyyZs"
+        class="sc-jrQzUz fsZsuB"
         data-testid="results-table-775020902"
       >
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           Election Commissioner 04
         </p>
@@ -2215,30 +2303,30 @@ exports[`tabulating CVRs 1`] = `
           Election Commissioner 04
         </h3>
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             25 ballots
              cast /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             1 overvote
              /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             0 undervotes
           </span>
         </p>
         <table
-          class="sc-gKckTs fsbCTJ"
+          class="sc-furvIG eLkmOD"
         >
           <tbody>
             <tr
@@ -2248,7 +2336,7 @@ exports[`tabulating CVRs 1`] = `
                 Willie Mae Guillory
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 10
               </td>
@@ -2260,7 +2348,7 @@ exports[`tabulating CVRs 1`] = `
                 Lewis Wright
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 14
               </td>
@@ -2272,7 +2360,7 @@ exports[`tabulating CVRs 1`] = `
                 Write-In
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 0
               </td>
@@ -2282,14 +2370,14 @@ exports[`tabulating CVRs 1`] = `
       </div>
     </div>
     <div
-      class="sc-iqsfdx FMoYd"
+      class="sc-egiSv fvmgCK"
     >
       <div
-        class="sc-furvIG gnyyZs"
+        class="sc-jrQzUz fsZsuB"
         data-testid="results-table-775020903"
       >
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           Election Commissioner 05
         </p>
@@ -2297,30 +2385,30 @@ exports[`tabulating CVRs 1`] = `
           Election Commissioner 05
         </h3>
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             19 ballots
              cast /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             2 overvotes
              /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             2 undervotes
           </span>
         </p>
         <table
-          class="sc-gKckTs fsbCTJ"
+          class="sc-furvIG eLkmOD"
         >
           <tbody>
             <tr
@@ -2330,7 +2418,7 @@ exports[`tabulating CVRs 1`] = `
                 Ouida A Loper
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 9
               </td>
@@ -2342,7 +2430,7 @@ exports[`tabulating CVRs 1`] = `
                 Wayne McLeod
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 6
               </td>
@@ -2354,7 +2442,7 @@ exports[`tabulating CVRs 1`] = `
                 Write-In
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 0
               </td>
@@ -2364,14 +2452,14 @@ exports[`tabulating CVRs 1`] = `
       </div>
     </div>
     <div
-      class="sc-iqsfdx FMoYd"
+      class="sc-egiSv fvmgCK"
     >
       <div
-        class="sc-furvIG gnyyZs"
+        class="sc-jrQzUz fsZsuB"
         data-testid="results-table-775020904"
       >
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           School Board District 5
         </p>
@@ -2379,30 +2467,30 @@ exports[`tabulating CVRs 1`] = `
           School Board 05
         </h3>
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             19 ballots
              cast /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             0 overvotes
              /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             0 undervotes
           </span>
         </p>
         <table
-          class="sc-gKckTs fsbCTJ"
+          class="sc-furvIG eLkmOD"
         >
           <tbody>
             <tr
@@ -2412,7 +2500,7 @@ exports[`tabulating CVRs 1`] = `
                 Michael D Thomas
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 19
               </td>
@@ -2424,7 +2512,7 @@ exports[`tabulating CVRs 1`] = `
                 Write-In
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 0
               </td>
@@ -2434,14 +2522,14 @@ exports[`tabulating CVRs 1`] = `
       </div>
     </div>
     <div
-      class="sc-iqsfdx FMoYd"
+      class="sc-egiSv fvmgCK"
     >
       <div
-        class="sc-furvIG gnyyZs"
+        class="sc-jrQzUz fsZsuB"
         data-testid="results-table-750000017"
       >
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           State Of Mississippi
         </p>
@@ -2450,30 +2538,30 @@ exports[`tabulating CVRs 1`] = `
 House Concurrent Resolution No. 47
         </h3>
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             100 ballots
              cast /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             2 overvotes
              /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             5 undervotes
           </span>
         </p>
         <table
-          class="sc-gKckTs fsbCTJ"
+          class="sc-furvIG eLkmOD"
         >
           <tbody>
             <tr
@@ -2483,7 +2571,7 @@ House Concurrent Resolution No. 47
                 Yes
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 40
               </td>
@@ -2495,7 +2583,7 @@ House Concurrent Resolution No. 47
                 No
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 53
               </td>
@@ -2505,14 +2593,14 @@ House Concurrent Resolution No. 47
       </div>
     </div>
     <div
-      class="sc-iqsfdx FMoYd"
+      class="sc-egiSv fvmgCK"
     >
       <div
-        class="sc-furvIG gnyyZs"
+        class="sc-jrQzUz fsZsuB"
         data-testid="results-table-750000018"
       >
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           State Of Mississippi
         </p>
@@ -2521,30 +2609,30 @@ House Concurrent Resolution No. 47
 House Bill 1796 - Flag Referendum
         </h3>
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             100 ballots
              cast /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             3 overvotes
              /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             2 undervotes
           </span>
         </p>
         <table
-          class="sc-gKckTs fsbCTJ"
+          class="sc-furvIG eLkmOD"
         >
           <tbody>
             <tr
@@ -2554,7 +2642,7 @@ House Bill 1796 - Flag Referendum
                 Yes
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 43
               </td>
@@ -2566,7 +2654,7 @@ House Bill 1796 - Flag Referendum
                 No
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 52
               </td>
@@ -2576,14 +2664,14 @@ House Bill 1796 - Flag Referendum
       </div>
     </div>
     <div
-      class="sc-iqsfdx FMoYd"
+      class="sc-egiSv fvmgCK"
     >
       <div
-        class="sc-furvIG gnyyZs"
+        class="sc-jrQzUz fsZsuB"
         data-testid="results-table-750000015"
       >
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           State Of Mississippi
         </p>
@@ -2591,30 +2679,30 @@ House Bill 1796 - Flag Referendum
           Ballot Measure 1 – Either/Neither
         </h3>
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             98 ballots
              cast /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             3 overvotes
              /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             3 undervotes
           </span>
         </p>
         <table
-          class="sc-gKckTs fsbCTJ"
+          class="sc-furvIG eLkmOD"
         >
           <tbody>
             <tr
@@ -2624,7 +2712,7 @@ House Bill 1796 - Flag Referendum
                 Yes
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 39
               </td>
@@ -2636,7 +2724,7 @@ House Bill 1796 - Flag Referendum
                 No
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 53
               </td>
@@ -2646,14 +2734,14 @@ House Bill 1796 - Flag Referendum
       </div>
     </div>
     <div
-      class="sc-iqsfdx FMoYd"
+      class="sc-egiSv fvmgCK"
     >
       <div
-        class="sc-furvIG gnyyZs"
+        class="sc-jrQzUz fsZsuB"
         data-testid="results-table-750000016"
       >
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           State Of Mississippi
         </p>
@@ -2661,30 +2749,30 @@ House Bill 1796 - Flag Referendum
           Ballot Measure 1 – Pick One
         </h3>
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             98 ballots
              cast /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             4 overvotes
              /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             5 undervotes
           </span>
         </p>
         <table
-          class="sc-gKckTs fsbCTJ"
+          class="sc-furvIG eLkmOD"
         >
           <tbody>
             <tr
@@ -2694,7 +2782,7 @@ House Bill 1796 - Flag Referendum
                 Yes
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 40
               </td>
@@ -2706,7 +2794,7 @@ House Bill 1796 - Flag Referendum
                 No
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 49
               </td>
@@ -2721,16 +2809,16 @@ House Bill 1796 - Flag Referendum
 
 exports[`tabulating CVRs with SEMS file 1`] = `
 <section
-  class="sc-dlVyqM cFJAGc"
+  class="sc-fKVsgm kyXjRp"
   data-testid="election-full-tally-report"
 >
   <img
     alt="VotingWorks logo"
-    class="sc-hBURRC fIVStr"
+    class="sc-fFehDp eMjPQq"
     src="/votingworks-wordmark-black.svg"
   />
   <div
-    class="sc-hBEYos eWOkWl"
+    class="sc-crrsfI kVGBFI"
   >
     <h1>
       Unofficial
@@ -2746,7 +2834,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
       State of Mississippi
       <br />
       <span
-        class="sc-pVTma fWDBLk"
+        class="sc-kDThTU GXyzE"
       >
         This report was created on 
         Tuesday, November 3, 2020, 10:22:00 PM PST
@@ -2754,16 +2842,16 @@ exports[`tabulating CVRs with SEMS file 1`] = `
     </p>
   </div>
   <div
-    class="sc-fKVsgm fcllTh"
+    class="sc-iwjezw gzPonb"
   >
     <div
-      class="sc-bYoCmx jyAXv"
+      class="sc-ikJzcn gSXRom"
     >
       <h3>
         Ballots by Voting Method
       </h3>
       <table
-        class="sc-gKckTs cPiIfo"
+        class="sc-furvIG bNYIzu"
         data-testid="voting-method-table"
       >
         <tbody>
@@ -2771,12 +2859,12 @@ exports[`tabulating CVRs with SEMS file 1`] = `
             data-testid="absentee"
           >
             <td
-              class="sc-iCfLBT dRQtgr"
+              class="sc-pVTma gFUBdL"
             >
               Absentee
             </td>
             <td
-              class="sc-iCfLBT cAordn"
+              class="sc-pVTma iqDtHn"
             >
               50
             </td>
@@ -2785,12 +2873,12 @@ exports[`tabulating CVRs with SEMS file 1`] = `
             data-testid="standard"
           >
             <td
-              class="sc-iCfLBT dRQtgr"
+              class="sc-pVTma gFUBdL"
             >
               Precinct
             </td>
             <td
-              class="sc-iCfLBT cAordn"
+              class="sc-pVTma iqDtHn"
             >
               150
             </td>
@@ -2799,14 +2887,14 @@ exports[`tabulating CVRs with SEMS file 1`] = `
             data-testid="total"
           >
             <td
-              class="sc-iCfLBT dRQtgr"
+              class="sc-pVTma gFUBdL"
             >
               <strong>
                 Total Ballots Cast
               </strong>
             </td>
             <td
-              class="sc-iCfLBT cAordn"
+              class="sc-pVTma iqDtHn"
             >
               <strong>
                 200
@@ -2817,14 +2905,14 @@ exports[`tabulating CVRs with SEMS file 1`] = `
       </table>
     </div>
     <div
-      class="sc-iqsfdx FMoYd"
+      class="sc-egiSv fvmgCK"
     >
       <div
-        class="sc-furvIG gnyyZs"
+        class="sc-jrQzUz fsZsuB"
         data-testid="results-table-775020876"
       >
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           United States
         </p>
@@ -2832,30 +2920,30 @@ exports[`tabulating CVRs with SEMS file 1`] = `
           President
         </h3>
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             200 ballots
              cast /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             2 overvotes
              /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             14 undervotes
           </span>
         </p>
         <table
-          class="sc-gKckTs fsbCTJ"
+          class="sc-furvIG eLkmOD"
         >
           <tbody>
             <tr
@@ -2865,7 +2953,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
                 Presidential Electors for Joe Biden for President and Kamala Harris for Vice President
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 54
               </td>
@@ -2877,7 +2965,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
                 Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 72
               </td>
@@ -2889,7 +2977,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
                 Presidential Electors for Phil Collins for President and Bill Parker for Vice President
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 58
               </td>
@@ -2901,7 +2989,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
                 Write-In
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 0
               </td>
@@ -2911,14 +2999,14 @@ exports[`tabulating CVRs with SEMS file 1`] = `
       </div>
     </div>
     <div
-      class="sc-iqsfdx FMoYd"
+      class="sc-egiSv fvmgCK"
     >
       <div
-        class="sc-furvIG gnyyZs"
+        class="sc-jrQzUz fsZsuB"
         data-testid="results-table-775020877"
       >
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           United States
         </p>
@@ -2926,30 +3014,30 @@ exports[`tabulating CVRs with SEMS file 1`] = `
           Senate 
         </h3>
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             200 ballots
              cast /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             8 overvotes
              /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             8 undervotes
           </span>
         </p>
         <table
-          class="sc-gKckTs fsbCTJ"
+          class="sc-furvIG eLkmOD"
         >
           <tbody>
             <tr
@@ -2959,7 +3047,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
                 Mike Espy
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 58
               </td>
@@ -2971,7 +3059,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
                 Cindy Hyde-Smith
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 70
               </td>
@@ -2983,7 +3071,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
                 Jimmy Edwards
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 56
               </td>
@@ -2995,7 +3083,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
                 Write-In
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 0
               </td>
@@ -3005,14 +3093,14 @@ exports[`tabulating CVRs with SEMS file 1`] = `
       </div>
     </div>
     <div
-      class="sc-iqsfdx FMoYd"
+      class="sc-egiSv fvmgCK"
     >
       <div
-        class="sc-furvIG gnyyZs"
+        class="sc-jrQzUz fsZsuB"
         data-testid="results-table-775020872"
       >
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           US House Of Representatives
         </p>
@@ -3020,30 +3108,30 @@ exports[`tabulating CVRs with SEMS file 1`] = `
           1st Congressional District
         </h3>
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             200 ballots
              cast /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             6 overvotes
              /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             10 undervotes
           </span>
         </p>
         <table
-          class="sc-gKckTs fsbCTJ"
+          class="sc-furvIG eLkmOD"
         >
           <tbody>
             <tr
@@ -3053,7 +3141,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
                 Antonia Eliason
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 92
               </td>
@@ -3065,7 +3153,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
                 Trent Kelly
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 92
               </td>
@@ -3077,7 +3165,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
                 Write-In
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 0
               </td>
@@ -3087,14 +3175,14 @@ exports[`tabulating CVRs with SEMS file 1`] = `
       </div>
     </div>
     <div
-      class="sc-iqsfdx FMoYd"
+      class="sc-egiSv fvmgCK"
     >
       <div
-        class="sc-furvIG gnyyZs"
+        class="sc-jrQzUz fsZsuB"
         data-testid="results-table-775020870"
       >
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           Northern District
         </p>
@@ -3102,30 +3190,30 @@ exports[`tabulating CVRs with SEMS file 1`] = `
           Supreme Court District 3(Northern) Position 3
         </h3>
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             200 ballots
              cast /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             0 overvotes
              /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             10 undervotes
           </span>
         </p>
         <table
-          class="sc-gKckTs fsbCTJ"
+          class="sc-furvIG eLkmOD"
         >
           <tbody>
             <tr
@@ -3135,7 +3223,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
                 Josiah Dennis Coleman
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 74
               </td>
@@ -3147,7 +3235,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
                 Percy L. Lynchard
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 116
               </td>
@@ -3159,7 +3247,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
                 Write-In
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 0
               </td>
@@ -3169,14 +3257,14 @@ exports[`tabulating CVRs with SEMS file 1`] = `
       </div>
     </div>
     <div
-      class="sc-iqsfdx FMoYd"
+      class="sc-egiSv fvmgCK"
     >
       <div
-        class="sc-furvIG gnyyZs"
+        class="sc-jrQzUz fsZsuB"
         data-testid="results-table-775020899"
       >
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           Election Commissioner 01
         </p>
@@ -3184,30 +3272,30 @@ exports[`tabulating CVRs with SEMS file 1`] = `
           Election Commissioner  01
         </h3>
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             36 ballots
              cast /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             0 overvotes
              /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             2 undervotes
           </span>
         </p>
         <table
-          class="sc-gKckTs fsbCTJ"
+          class="sc-furvIG eLkmOD"
         >
           <tbody>
             <tr
@@ -3217,7 +3305,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
                 Glynda Chaney Fulce
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 34
               </td>
@@ -3229,7 +3317,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
                 Write-In
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 0
               </td>
@@ -3239,14 +3327,14 @@ exports[`tabulating CVRs with SEMS file 1`] = `
       </div>
     </div>
     <div
-      class="sc-iqsfdx FMoYd"
+      class="sc-egiSv fvmgCK"
     >
       <div
-        class="sc-furvIG gnyyZs"
+        class="sc-jrQzUz fsZsuB"
         data-testid="results-table-775020900"
       >
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           Election Commissioner 02
         </p>
@@ -3254,30 +3342,30 @@ exports[`tabulating CVRs with SEMS file 1`] = `
           Election Commissioner 02
         </h3>
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             30 ballots
              cast /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             0 overvotes
              /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             2 undervotes
           </span>
         </p>
         <table
-          class="sc-gKckTs fsbCTJ"
+          class="sc-furvIG eLkmOD"
         >
           <tbody>
             <tr
@@ -3287,7 +3375,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
                 Charles Beck
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 10
               </td>
@@ -3299,7 +3387,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
                 Sharon Brooks
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 18
               </td>
@@ -3311,7 +3399,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
                 Write-In
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 0
               </td>
@@ -3321,14 +3409,14 @@ exports[`tabulating CVRs with SEMS file 1`] = `
       </div>
     </div>
     <div
-      class="sc-iqsfdx FMoYd"
+      class="sc-egiSv fvmgCK"
     >
       <div
-        class="sc-furvIG gnyyZs"
+        class="sc-jrQzUz fsZsuB"
         data-testid="results-table-775020901"
       >
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           Election Commissioner 03
         </p>
@@ -3336,30 +3424,30 @@ exports[`tabulating CVRs with SEMS file 1`] = `
           Election Commissioner 03
         </h3>
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             46 ballots
              cast /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             0 overvotes
              /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             2 undervotes
           </span>
         </p>
         <table
-          class="sc-gKckTs fsbCTJ"
+          class="sc-furvIG eLkmOD"
         >
           <tbody>
             <tr
@@ -3369,7 +3457,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
                 Dorothy Anderson
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 44
               </td>
@@ -3381,7 +3469,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
                 Write-In
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 0
               </td>
@@ -3391,14 +3479,14 @@ exports[`tabulating CVRs with SEMS file 1`] = `
       </div>
     </div>
     <div
-      class="sc-iqsfdx FMoYd"
+      class="sc-egiSv fvmgCK"
     >
       <div
-        class="sc-furvIG gnyyZs"
+        class="sc-jrQzUz fsZsuB"
         data-testid="results-table-775020902"
       >
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           Election Commissioner 04
         </p>
@@ -3406,30 +3494,30 @@ exports[`tabulating CVRs with SEMS file 1`] = `
           Election Commissioner 04
         </h3>
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             50 ballots
              cast /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             2 overvotes
              /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             0 undervotes
           </span>
         </p>
         <table
-          class="sc-gKckTs fsbCTJ"
+          class="sc-furvIG eLkmOD"
         >
           <tbody>
             <tr
@@ -3439,7 +3527,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
                 Willie Mae Guillory
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 20
               </td>
@@ -3451,7 +3539,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
                 Lewis Wright
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 28
               </td>
@@ -3463,7 +3551,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
                 Write-In
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 0
               </td>
@@ -3473,14 +3561,14 @@ exports[`tabulating CVRs with SEMS file 1`] = `
       </div>
     </div>
     <div
-      class="sc-iqsfdx FMoYd"
+      class="sc-egiSv fvmgCK"
     >
       <div
-        class="sc-furvIG gnyyZs"
+        class="sc-jrQzUz fsZsuB"
         data-testid="results-table-775020903"
       >
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           Election Commissioner 05
         </p>
@@ -3488,30 +3576,30 @@ exports[`tabulating CVRs with SEMS file 1`] = `
           Election Commissioner 05
         </h3>
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             38 ballots
              cast /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             4 overvotes
              /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             4 undervotes
           </span>
         </p>
         <table
-          class="sc-gKckTs fsbCTJ"
+          class="sc-furvIG eLkmOD"
         >
           <tbody>
             <tr
@@ -3521,7 +3609,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
                 Ouida A Loper
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 18
               </td>
@@ -3533,7 +3621,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
                 Wayne McLeod
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 12
               </td>
@@ -3545,7 +3633,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
                 Write-In
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 0
               </td>
@@ -3555,14 +3643,14 @@ exports[`tabulating CVRs with SEMS file 1`] = `
       </div>
     </div>
     <div
-      class="sc-iqsfdx FMoYd"
+      class="sc-egiSv fvmgCK"
     >
       <div
-        class="sc-furvIG gnyyZs"
+        class="sc-jrQzUz fsZsuB"
         data-testid="results-table-775020904"
       >
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           School Board District 5
         </p>
@@ -3570,30 +3658,30 @@ exports[`tabulating CVRs with SEMS file 1`] = `
           School Board 05
         </h3>
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             38 ballots
              cast /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             0 overvotes
              /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             0 undervotes
           </span>
         </p>
         <table
-          class="sc-gKckTs fsbCTJ"
+          class="sc-furvIG eLkmOD"
         >
           <tbody>
             <tr
@@ -3603,7 +3691,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
                 Michael D Thomas
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 38
               </td>
@@ -3615,7 +3703,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
                 Write-In
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 0
               </td>
@@ -3625,14 +3713,14 @@ exports[`tabulating CVRs with SEMS file 1`] = `
       </div>
     </div>
     <div
-      class="sc-iqsfdx FMoYd"
+      class="sc-egiSv fvmgCK"
     >
       <div
-        class="sc-furvIG gnyyZs"
+        class="sc-jrQzUz fsZsuB"
         data-testid="results-table-750000017"
       >
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           State Of Mississippi
         </p>
@@ -3641,30 +3729,30 @@ exports[`tabulating CVRs with SEMS file 1`] = `
 House Concurrent Resolution No. 47
         </h3>
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             200 ballots
              cast /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             4 overvotes
              /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             10 undervotes
           </span>
         </p>
         <table
-          class="sc-gKckTs fsbCTJ"
+          class="sc-furvIG eLkmOD"
         >
           <tbody>
             <tr
@@ -3674,7 +3762,7 @@ House Concurrent Resolution No. 47
                 Yes
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 80
               </td>
@@ -3686,7 +3774,7 @@ House Concurrent Resolution No. 47
                 No
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 106
               </td>
@@ -3696,14 +3784,14 @@ House Concurrent Resolution No. 47
       </div>
     </div>
     <div
-      class="sc-iqsfdx FMoYd"
+      class="sc-egiSv fvmgCK"
     >
       <div
-        class="sc-furvIG gnyyZs"
+        class="sc-jrQzUz fsZsuB"
         data-testid="results-table-750000018"
       >
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           State Of Mississippi
         </p>
@@ -3712,30 +3800,30 @@ House Concurrent Resolution No. 47
 House Bill 1796 - Flag Referendum
         </h3>
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             200 ballots
              cast /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             6 overvotes
              /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             4 undervotes
           </span>
         </p>
         <table
-          class="sc-gKckTs fsbCTJ"
+          class="sc-furvIG eLkmOD"
         >
           <tbody>
             <tr
@@ -3745,7 +3833,7 @@ House Bill 1796 - Flag Referendum
                 Yes
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 86
               </td>
@@ -3757,7 +3845,7 @@ House Bill 1796 - Flag Referendum
                 No
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 104
               </td>
@@ -3767,14 +3855,14 @@ House Bill 1796 - Flag Referendum
       </div>
     </div>
     <div
-      class="sc-iqsfdx FMoYd"
+      class="sc-egiSv fvmgCK"
     >
       <div
-        class="sc-furvIG gnyyZs"
+        class="sc-jrQzUz fsZsuB"
         data-testid="results-table-750000015"
       >
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           State Of Mississippi
         </p>
@@ -3782,30 +3870,30 @@ House Bill 1796 - Flag Referendum
           Ballot Measure 1 – Either/Neither
         </h3>
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             196 ballots
              cast /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             6 overvotes
              /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             6 undervotes
           </span>
         </p>
         <table
-          class="sc-gKckTs fsbCTJ"
+          class="sc-furvIG eLkmOD"
         >
           <tbody>
             <tr
@@ -3815,7 +3903,7 @@ House Bill 1796 - Flag Referendum
                 Yes
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 78
               </td>
@@ -3827,7 +3915,7 @@ House Bill 1796 - Flag Referendum
                 No
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 106
               </td>
@@ -3837,14 +3925,14 @@ House Bill 1796 - Flag Referendum
       </div>
     </div>
     <div
-      class="sc-iqsfdx FMoYd"
+      class="sc-egiSv fvmgCK"
     >
       <div
-        class="sc-furvIG gnyyZs"
+        class="sc-jrQzUz fsZsuB"
         data-testid="results-table-750000016"
       >
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           State Of Mississippi
         </p>
@@ -3852,30 +3940,30 @@ House Bill 1796 - Flag Referendum
           Ballot Measure 1 – Pick One
         </h3>
         <p
-          class="sc-pVTma fWDBLk"
+          class="sc-kDThTU GXyzE"
         >
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             196 ballots
              cast /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             8 overvotes
              /
           </span>
            
           <span
-            class="sc-jrQzUz jTxFnM"
+            class="sc-iqsfdx hiQcdB"
           >
             10 undervotes
           </span>
         </p>
         <table
-          class="sc-gKckTs fsbCTJ"
+          class="sc-furvIG eLkmOD"
         >
           <tbody>
             <tr
@@ -3885,7 +3973,7 @@ House Bill 1796 - Flag Referendum
                 Yes
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 80
               </td>
@@ -3897,7 +3985,7 @@ House Bill 1796 - Flag Referendum
                 No
               </td>
               <td
-                class="sc-iCfLBT kfaIQL"
+                class="sc-pVTma byeHzH"
               >
                 98
               </td>
