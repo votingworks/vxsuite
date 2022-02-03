@@ -417,10 +417,10 @@ exports[`renders StartPage 1`] = `
   class="c0"
 >
   <main
-    class="sc-fotPbf kpwCyO"
+    class="sc-bkkfTU enzCGe"
   >
     <div
-      class="sc-fFehDp iiZhyw"
+      class="sc-ieebsP eIrKxl"
     >
       <div
         class="c1"
@@ -468,7 +468,7 @@ exports[`renders StartPage 1`] = `
         >
           <button
             aria-label="Press the right button to advance to the first contest."
-            class="sc-gsDJrp kiClTd"
+            class="sc-hKwCoD dVNIPF"
             id="next"
             role="option"
             type="button"
@@ -498,11 +498,11 @@ exports[`renders StartPage 1`] = `
               class="c11"
             >
               <span
-                class="sc-dkPtyc bMgDJv"
+                class="sc-eCImvq jqbRdj"
                 data-testid="change-text-size-buttons"
               >
                 <button
-                  class="sc-gsDJrp gwgkfw"
+                  class="sc-hKwCoD fVjCYw"
                   data-size="0"
                   type="button"
                   value="0"
@@ -510,7 +510,7 @@ exports[`renders StartPage 1`] = `
                   A
                 </button>
                 <button
-                  class="sc-gsDJrp eRXSeO"
+                  class="sc-hKwCoD ahhFa"
                   data-size="1"
                   type="button"
                   value="1"
@@ -518,7 +518,7 @@ exports[`renders StartPage 1`] = `
                   A
                 </button>
                 <button
-                  class="sc-gsDJrp gwgkfw"
+                  class="sc-hKwCoD fVjCYw"
                   data-size="2"
                   type="button"
                   value="2"
@@ -1012,10 +1012,10 @@ exports[`renders StartPage with inline SVG 1`] = `
   class="c0"
 >
   <main
-    class="sc-fotPbf kpwCyO"
+    class="sc-bkkfTU enzCGe"
   >
     <div
-      class="sc-fFehDp iiZhyw"
+      class="sc-ieebsP eIrKxl"
     >
       <div
         class="c1"
@@ -1063,7 +1063,7 @@ exports[`renders StartPage with inline SVG 1`] = `
         >
           <button
             aria-label="Press the right button to advance to the first contest."
-            class="sc-gsDJrp kiClTd"
+            class="sc-hKwCoD dVNIPF"
             id="next"
             role="option"
             type="button"
@@ -1093,11 +1093,11 @@ exports[`renders StartPage with inline SVG 1`] = `
               class="c11"
             >
               <span
-                class="sc-dkPtyc bMgDJv"
+                class="sc-eCImvq jqbRdj"
                 data-testid="change-text-size-buttons"
               >
                 <button
-                  class="sc-gsDJrp gwgkfw"
+                  class="sc-hKwCoD fVjCYw"
                   data-size="0"
                   type="button"
                   value="0"
@@ -1105,7 +1105,7 @@ exports[`renders StartPage with inline SVG 1`] = `
                   A
                 </button>
                 <button
-                  class="sc-gsDJrp eRXSeO"
+                  class="sc-hKwCoD ahhFa"
                   data-size="1"
                   type="button"
                   value="1"
@@ -1113,7 +1113,7 @@ exports[`renders StartPage with inline SVG 1`] = `
                   A
                 </button>
                 <button
-                  class="sc-gsDJrp gwgkfw"
+                  class="sc-hKwCoD fVjCYw"
                   data-size="2"
                   type="button"
                   value="2"
@@ -1765,10 +1765,10 @@ exports[`renders StartPage with no seal 1`] = `
   class="c0"
 >
   <main
-    class="sc-fotPbf kpwCyO"
+    class="sc-bkkfTU enzCGe"
   >
     <div
-      class="sc-fFehDp iiZhyw"
+      class="sc-ieebsP eIrKxl"
     >
       <div
         class="c1"
@@ -1816,7 +1816,7 @@ exports[`renders StartPage with no seal 1`] = `
         >
           <button
             aria-label="Press the right button to advance to the first contest."
-            class="sc-gsDJrp kiClTd"
+            class="sc-hKwCoD dVNIPF"
             id="next"
             role="option"
             type="button"
@@ -1846,11 +1846,11 @@ exports[`renders StartPage with no seal 1`] = `
               class="c11"
             >
               <span
-                class="sc-dkPtyc bMgDJv"
+                class="sc-eCImvq jqbRdj"
                 data-testid="change-text-size-buttons"
               >
                 <button
-                  class="sc-gsDJrp gwgkfw"
+                  class="sc-hKwCoD fVjCYw"
                   data-size="0"
                   type="button"
                   value="0"
@@ -1858,7 +1858,7 @@ exports[`renders StartPage with no seal 1`] = `
                   A
                 </button>
                 <button
-                  class="sc-gsDJrp eRXSeO"
+                  class="sc-hKwCoD ahhFa"
                   data-size="1"
                   type="button"
                   value="1"
@@ -1866,7 +1866,7 @@ exports[`renders StartPage with no seal 1`] = `
                   A
                 </button>
                 <button
-                  class="sc-gsDJrp gwgkfw"
+                  class="sc-hKwCoD fVjCYw"
                   data-size="2"
                   type="button"
                   value="2"

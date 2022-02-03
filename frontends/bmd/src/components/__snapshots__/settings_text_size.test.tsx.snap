@@ -64,11 +64,11 @@ exports[`renders SettingsTextSize 1`] = `
         class="c3"
       >
         <span
-          class="sc-dkPtyc bMgDJv"
+          class="sc-eCImvq jqbRdj"
           data-testid="change-text-size-buttons"
         >
           <button
-            class="sc-gsDJrp gwgkfw"
+            class="sc-hKwCoD fVjCYw"
             data-size="0"
             type="button"
             value="0"
@@ -76,7 +76,7 @@ exports[`renders SettingsTextSize 1`] = `
             A
           </button>
           <button
-            class="sc-gsDJrp eRXSeO"
+            class="sc-hKwCoD ahhFa"
             data-size="1"
             type="button"
             value="1"
@@ -84,7 +84,7 @@ exports[`renders SettingsTextSize 1`] = `
             A
           </button>
           <button
-            class="sc-gsDJrp gwgkfw"
+            class="sc-hKwCoD fVjCYw"
             data-size="2"
             type="button"
             value="2"
