@@ -5,29 +5,23 @@ import {
 } from '@votingworks/types';
 import {
   Button,
+  CurrentDateAndTime,
   Loading,
   Modal,
   Prose,
   SegmentedButton,
   Select,
+  SetClockButton,
   UsbDrive,
-  useNow,
   Bar,
 } from '@votingworks/ui';
-import {
-  assert,
-  format,
-  formatFullDateTimeZone,
-  usbstick,
-} from '@votingworks/utils';
-import { DateTime } from 'luxon';
+import { assert, format, usbstick } from '@votingworks/utils';
 import React, { useCallback, useContext, useState } from 'react';
 import { Absolute } from '../components/absolute';
 import { CalibrateScannerModal } from '../components/calibrate_scanner_modal';
 import { ExportBackupModal } from '../components/export_backup_modal';
 import { ExportResultsModal } from '../components/export_results_modal';
 import { CenteredScreen } from '../components/layout';
-import { PickDateTimeModal } from '../components/pick_date_time_modal';
 import { AppContext } from '../contexts/app_context';
 
 interface Props {
@@ -53,30 +47,9 @@ export function AdminScreen({
   assert(electionDefinition);
   const { election } = electionDefinition;
 
-  const systemDate = useNow();
-  const [isSystemDateModalActive, setIsSystemDateModalActive] = useState(false);
-  const [isSettingClock, setIsSettingClock] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isExportingResults, setIsExportingResults] = useState(false);
   const [isExportingBackup, setIsExportingBackup] = useState(false);
-
-  const setClock = useCallback(
-    async (date: DateTime) => {
-      setIsSettingClock(true);
-      try {
-        await window.kiosk?.setClock({
-          isoDatetime: date.toISO(),
-          // TODO: Rename to `ianaZone` in kiosk-browser and update here.
-          // eslint-disable-next-line vx/gts-identifiers
-          IANAZone: date.zoneName,
-        });
-        setIsSystemDateModalActive(false);
-      } finally {
-        setIsSettingClock(false);
-      }
-    },
-    [setIsSettingClock, setIsSystemDateModalActive]
-  );
 
   const [confirmUnconfigure, setConfirmUnconfigure] = useState(false);
   const openConfirmUnconfigureModal = useCallback(
@@ -87,7 +60,6 @@ export function AdminScreen({
     () => setConfirmUnconfigure(false),
     []
   );
-
   const [isCalibratingScanner, setIsCalibratingScanner] = useState(false);
   const openCalibrateScannerModal = useCallback(
     () => setIsCalibratingScanner(true),
@@ -159,12 +131,12 @@ export function AdminScreen({
           </SegmentedButton>
         </p>
         <p>
-          <Button large onPress={() => setIsSystemDateModalActive(true)}>
+          <SetClockButton large>
             <span role="img" aria-label="Clock">
               🕓
             </span>{' '}
-            {formatFullDateTimeZone(systemDate, { includeTimezone: true })}
-          </Button>
+            <CurrentDateAndTime />
+          </SetClockButton>
         </p>
         <p>
           <Button onPress={() => setIsExportingResults(true)}>
@@ -198,15 +170,6 @@ export function AdminScreen({
           </div>
         </Bar>
       </Absolute>
-      {isSystemDateModalActive && (
-        <PickDateTimeModal
-          disabled={isSettingClock}
-          onCancel={() => setIsSystemDateModalActive(false)}
-          onSave={setClock}
-          saveLabel={isSettingClock ? 'Saving…' : 'Save'}
-          value={systemDate}
-        />
-      )}
       {confirmUnconfigure && (
         <Modal
           content={
