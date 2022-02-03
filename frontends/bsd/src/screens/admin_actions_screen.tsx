@@ -2,7 +2,7 @@ import { ElectionDefinition, MarkThresholds } from '@votingworks/types';
 import React, { useCallback, useEffect, useState, useContext } from 'react';
 import { LogEventId } from '@votingworks/logging';
 import { LogFileType } from '@votingworks/utils';
-import { Loading, Modal } from '@votingworks/ui';
+import { Loading, Modal, SetClockButton } from '@votingworks/ui';
 import { Button } from '../components/button';
 import { LinkButton } from '../components/link_button';
 import { Main, MainChild } from '../components/main';
@@ -142,12 +142,13 @@ export function AdminActionsScreen({
               <p>
                 <Button onPress={() => setExportingLogType(LogFileType.Raw)}>
                   Export Logs…
-                </Button>
-              </p>
-              <p>
+                </Button>{' '}
                 <Button onPress={() => setExportingLogType(LogFileType.Cdf)}>
                   Export Logs as CDF…
                 </Button>
+              </p>
+              <p>
+                <SetClockButton>Update Date and Time…</SetClockButton>
               </p>
               <p>
                 <Button danger onPress={toggleIsConfirmingUnconfigure}>
