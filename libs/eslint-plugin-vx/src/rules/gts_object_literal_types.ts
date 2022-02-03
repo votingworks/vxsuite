@@ -17,7 +17,7 @@ export default createRule({
     },
     messages: {
       noObjectLiteralTypeAssertions:
-        'Do not use type assertions on object literals; prefer type assertions instead',
+        'Do not use type assertions on object literals; prefer type annotations instead',
       useTypeAnnotation:
         'Type literal must be declared with a type annotation or `as const`.',
       convertToTypeAnnotation: 'Convert to type annotation',
