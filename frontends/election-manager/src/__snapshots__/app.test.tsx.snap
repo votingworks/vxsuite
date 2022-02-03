@@ -366,7 +366,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
               class="sc-kDThTU GXyzE"
             >
               This report was created on 
-              Tuesday, November 3, 2020, 10:22:00 PM PST
+              Tuesday, November 3, 2020, 10:22:00 PM UTC
             </span>
           </p>
           <p>
@@ -512,7 +512,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
             class="sc-kDThTU GXyzE"
           >
             This report was created on 
-            Tuesday, November 3, 2020, 10:22:00 PM PST
+            Tuesday, November 3, 2020, 10:22:00 PM UTC
           </span>
         </p>
       </div>
@@ -1646,7 +1646,7 @@ exports[`tabulating CVRs 1`] = `
         class="sc-kDThTU GXyzE"
       >
         This report was created on 
-        Tuesday, November 3, 2020, 10:22:00 PM PST
+        Tuesday, November 3, 2020, 10:22:00 PM UTC
       </span>
     </p>
   </div>
@@ -2837,7 +2837,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
         class="sc-kDThTU GXyzE"
       >
         This report was created on 
-        Tuesday, November 3, 2020, 10:22:00 PM PST
+        Tuesday, November 3, 2020, 10:22:00 PM UTC
       </span>
     </p>
   </div>
