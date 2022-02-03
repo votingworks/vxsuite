@@ -1,8 +1,10 @@
 /* istanbul ignore file */
+export * from './bar';
 export * from './button';
 export * from './button_bar';
 export * from './button_list';
 export * from './contest_tally';
+export * from './election_info_bar';
 export * from './hooks/use_autocomplete';
 export * from './hooks/use_cancelable_promise';
 export * from './hooks/use_hardware';

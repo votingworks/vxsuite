@@ -11,6 +11,7 @@ import {
   Side,
 } from '@votingworks/types/api/services/scan';
 import { assert } from '@votingworks/utils';
+import { ElectionInfoBar } from '@votingworks/ui';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { fetchNextBallotSheetToReview } from '../api/hmpb';
@@ -20,7 +21,6 @@ import { Main } from '../components/main';
 import { MainNav } from '../components/main_nav';
 import { Prose } from '../components/prose';
 import { Screen } from '../components/screen';
-import { StatusFooter } from '../components/status_footer';
 import { Text } from '../components/text';
 import { AppContext } from '../contexts/app_context';
 import { WriteInAdjudicationScreen } from './write_in_adjudication_screen';
@@ -87,7 +87,12 @@ export function BallotEjectScreen({
   continueScanning,
   isTestMode,
 }: Props): JSX.Element {
-  const { currentUserSession, logger } = useContext(AppContext);
+  const {
+    currentUserSession,
+    logger,
+    electionDefinition,
+    machineConfig,
+  } = useContext(AppContext);
   const [reviewInfo, setReviewInfo] = useState<GetNextReviewSheetResponse>();
   const [ballotState, setBallotState] = useState<EjectState>();
   assert(currentUserSession);
@@ -529,7 +534,12 @@ export function BallotEjectScreen({
           </RectoVerso>
         </MainChildColumns>
       </Main>
-      <StatusFooter />
+      <ElectionInfoBar
+        mode="admin"
+        electionDefinition={electionDefinition}
+        codeVersion={machineConfig.codeVersion}
+        machineId={machineConfig.machineId}
+      />
     </Screen>
   );
 }

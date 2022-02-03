@@ -6,12 +6,12 @@ import {
   OvervoteAdjudicationReasonInfo,
   UndervoteAdjudicationReasonInfo,
 } from '@votingworks/types';
-import { Button, Modal, Prose, Text } from '@votingworks/ui';
+import { Button, Modal, Prose, Text, Bar } from '@votingworks/ui';
 import { assert, integers, take } from '@votingworks/utils';
 import pluralize from 'pluralize';
 import React, { useCallback, useContext, useState } from 'react';
 import { Absolute } from '../components/absolute';
-import { Bar } from '../components/bar';
+
 import { ExclamationTriangle } from '../components/graphics';
 import { CenteredLargeProse, CenteredScreen } from '../components/layout';
 

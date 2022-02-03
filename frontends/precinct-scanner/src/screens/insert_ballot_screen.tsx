@@ -1,10 +1,9 @@
 import React from 'react';
 import { format } from '@votingworks/utils';
-import { TestMode, Text } from '@votingworks/ui';
+import { TestMode, Text, Bar } from '@votingworks/ui';
 import { Absolute } from '../components/absolute';
 import { InsertBallot } from '../components/graphics';
 import { CenteredLargeProse, CenteredScreen } from '../components/layout';
-import { Bar } from '../components/bar';
 
 interface Props {
   isLiveMode: boolean;

@@ -6,11 +6,11 @@ import {
   NumberPad,
   Prose,
   Text,
+  ElectionInfoBar,
 } from '@votingworks/ui';
 import React, { useState, useContext, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { Screen } from '../components/screen';
-import { StatusFooter } from '../components/status_footer';
 import { SECURITY_PIN_LENGTH } from '../config/globals';
 import { AppContext } from '../contexts/app_context';
 
@@ -33,9 +33,12 @@ export const EnteredCode = styled.div`
 `;
 
 export function UnlockMachineScreen(): JSX.Element {
-  const { attemptToAuthenticateAdminUser, saveElection } = useContext(
-    AppContext
-  );
+  const {
+    attemptToAuthenticateAdminUser,
+    saveElection,
+    electionDefinition,
+    machineConfig,
+  } = useContext(AppContext);
   const [currentPasscode, setCurrentPasscode] = useState('');
   const [showError, setShowError] = useState(false);
   // This is temporary while we improve the bootstrapping process. If PI is entered
@@ -103,7 +106,12 @@ export function UnlockMachineScreen(): JSX.Element {
           </Prose>
         </MainChild>
       </Main>
-      <StatusFooter />
+      <ElectionInfoBar
+        mode="admin"
+        electionDefinition={electionDefinition}
+        codeVersion={machineConfig.codeVersion}
+        machineId={machineConfig.machineId}
+      />
     </Screen>
   );
 }

@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { Theme } from '@votingworks/ui';
+import { Theme } from './themes';
 
 interface Props {
   theme?: Theme;

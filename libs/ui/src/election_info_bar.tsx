@@ -1,20 +1,30 @@
-import React, { useContext } from 'react';
+import React from 'react';
 
-import { Prose, Text, contrastTheme, NoWrap } from '@votingworks/ui';
-import { getPrecinctById } from '@votingworks/types';
+import { ElectionDefinition, getPrecinctById } from '@votingworks/types';
 import { format } from '@votingworks/utils';
+import { Prose } from './prose';
+import { Text, NoWrap } from './text';
+import { contrastTheme, Theme } from './themes';
 import { Bar, BarSpacer } from './bar';
-import { AppContext } from '../contexts/app_context';
 
 export type InfoBarMode = 'voter' | 'pollworker' | 'admin';
 
 interface Props {
   mode?: InfoBarMode;
+  electionDefinition?: ElectionDefinition;
+  codeVersion: string;
+  machineId: string;
+  showPrecinctInfo?: boolean;
+  precinctId?: string;
 }
-export function ElectionInfoBar({ mode = 'voter' }: Props): JSX.Element {
-  const { electionDefinition, currentPrecinctId, machineConfig } = useContext(
-    AppContext
-  );
+export function ElectionInfoBar({
+  mode = 'voter',
+  showPrecinctInfo = false,
+  electionDefinition,
+  codeVersion,
+  machineId,
+  precinctId,
+}: Props): JSX.Element {
   if (!electionDefinition) {
     return <React.Fragment />;
   }
@@ -22,19 +32,27 @@ export function ElectionInfoBar({ mode = 'voter' }: Props): JSX.Element {
     new Date(electionDefinition.election.date)
   );
   const precinct =
-    currentPrecinctId !== undefined
+    precinctId !== undefined
       ? getPrecinctById({
           election: electionDefinition.election,
-          precinctId: currentPrecinctId,
+          precinctId,
         })
       : undefined;
+
+  /* istanbul ignore next */
+  const theme: Theme = { ...(contrastTheme.dark ?? {}) };
+
   return (
-    <Bar theme={{ ...(contrastTheme.dark ?? {}) }}>
+    <Bar theme={theme}>
       <Prose maxWidth={false} compact>
         <NoWrap as="strong">{electionDefinition.election.title}</NoWrap> —{' '}
         <NoWrap>{electionDate}</NoWrap>
         <Text as="div" small>
-          <NoWrap>{precinct?.name ?? 'All Precincts'}</NoWrap> —{' '}
+          {showPrecinctInfo && (
+            <React.Fragment>
+              <NoWrap>{precinct?.name ?? 'All Precincts'}</NoWrap> —{' '}
+            </React.Fragment>
+          )}
           <NoWrap>
             {electionDefinition.election.county.name},{' '}
             {electionDefinition.election.state}
@@ -48,13 +66,13 @@ export function ElectionInfoBar({ mode = 'voter' }: Props): JSX.Element {
             <Text as="div" small>
               Software Version
             </Text>
-            <strong>{machineConfig.codeVersion}</strong>
+            <strong>{codeVersion}</strong>
           </Prose>
           <Prose maxWidth={false} compact textRight>
             <Text as="div" small>
               Machine ID
             </Text>
-            <strong>{machineConfig.machineId}</strong>
+            <strong>{machineId}</strong>
           </Prose>
         </React.Fragment>
       )}

@@ -44,13 +44,13 @@ exports[`calls out live ballot sheets in test mode 1`] = `
       class="sc-eCssSg jJQcwm"
     >
       <div
-        class="sc-hHftDr hXZiDL"
+        class="sc-dIUggk gvbXNc"
       >
         <div
           class="sc-crrsfI dvOODA"
         >
           <div
-            class="sc-dIUggk hZaEGa"
+            class="sc-idOhPF eXcWnR"
           >
             Live Ballot
           </div>
@@ -66,7 +66,7 @@ exports[`calls out live ballot sheets in test mode 1`] = `
           </p>
         </div>
         <div
-          class="sc-dmlrTW esDPKT"
+          class="sc-hHftDr kAQrHz"
         >
           <div
             style="position: relative;"
@@ -90,33 +90,71 @@ exports[`calls out live ballot sheets in test mode 1`] = `
       </div>
     </main>
     <div
-      class="sc-kstrdz kvxcls"
+      class="sc-bdvvaa iyFMHU"
     >
       <div
-        class="sc-bqyKva kbFFdu"
+        class="sc-jrQzUz flpjSV"
       >
-        Scanner ID: 
+        <strong
+          class="sc-iqsfdx hiQcdB"
+        >
+          General Election
+        </strong>
+         —
+         
+        <span
+          class="sc-iqsfdx hiQcdB"
+        >
+          Tuesday, November 3, 2020
+        </span>
+        <div
+          class="sc-kDThTU GXyzE"
+        >
+          <span
+            class="sc-iqsfdx hiQcdB"
+          >
+            Franklin County
+            ,
+             
+            State of Hamilton
+          </span>
+        </div>
+      </div>
+      <div
+        class="sc-gsDJrp jyOfHF"
+      />
+      <div
+        class="sc-jrQzUz iMHqDR"
+      >
+        <div
+          class="sc-kDThTU GXyzE"
+        >
+          Software Version
+        </div>
+        <strong>
+          TEST
+        </strong>
+      </div>
+      <div
+        class="sc-jrQzUz iMHqDR"
+      >
+        <div
+          class="sc-kDThTU GXyzE"
+        >
+          Machine ID
+        </div>
         <strong>
           0000
         </strong>
       </div>
       <div
-        class="sc-bqyKva kbFFdu"
+        class="sc-jrQzUz iMHqDR"
       >
-        <strong>
-          General Election
-        </strong>
-         — 
-        Tuesday, November 3, 2020
-         
-        — 
-        Franklin County
-        ,
-         
-        State of Hamilton
-         
-        — Election Hash:
-         
+        <div
+          class="sc-kDThTU GXyzE"
+        >
+          Election ID
+        </div>
         <strong>
           2f6b1553c7
         </strong>
@@ -170,13 +208,13 @@ exports[`calls out test ballot sheets in live mode 1`] = `
       class="sc-eCssSg jJQcwm"
     >
       <div
-        class="sc-hHftDr hXZiDL"
+        class="sc-dIUggk gvbXNc"
       >
         <div
           class="sc-crrsfI dvOODA"
         >
           <div
-            class="sc-dIUggk hZaEGa"
+            class="sc-idOhPF eXcWnR"
           >
             Test Ballot
           </div>
@@ -192,7 +230,7 @@ exports[`calls out test ballot sheets in live mode 1`] = `
           </p>
         </div>
         <div
-          class="sc-dmlrTW esDPKT"
+          class="sc-hHftDr kAQrHz"
         >
           <div
             style="position: relative;"
@@ -216,33 +254,71 @@ exports[`calls out test ballot sheets in live mode 1`] = `
       </div>
     </main>
     <div
-      class="sc-kstrdz kvxcls"
+      class="sc-bdvvaa iyFMHU"
     >
       <div
-        class="sc-bqyKva kbFFdu"
+        class="sc-jrQzUz flpjSV"
       >
-        Scanner ID: 
+        <strong
+          class="sc-iqsfdx hiQcdB"
+        >
+          General Election
+        </strong>
+         —
+         
+        <span
+          class="sc-iqsfdx hiQcdB"
+        >
+          Tuesday, November 3, 2020
+        </span>
+        <div
+          class="sc-kDThTU GXyzE"
+        >
+          <span
+            class="sc-iqsfdx hiQcdB"
+          >
+            Franklin County
+            ,
+             
+            State of Hamilton
+          </span>
+        </div>
+      </div>
+      <div
+        class="sc-gsDJrp jyOfHF"
+      />
+      <div
+        class="sc-jrQzUz iMHqDR"
+      >
+        <div
+          class="sc-kDThTU GXyzE"
+        >
+          Software Version
+        </div>
+        <strong>
+          TEST
+        </strong>
+      </div>
+      <div
+        class="sc-jrQzUz iMHqDR"
+      >
+        <div
+          class="sc-kDThTU GXyzE"
+        >
+          Machine ID
+        </div>
         <strong>
           0000
         </strong>
       </div>
       <div
-        class="sc-bqyKva kbFFdu"
+        class="sc-jrQzUz iMHqDR"
       >
-        <strong>
-          General Election
-        </strong>
-         — 
-        Tuesday, November 3, 2020
-         
-        — 
-        Franklin County
-        ,
-         
-        State of Hamilton
-         
-        — Election Hash:
-         
+        <div
+          class="sc-kDThTU GXyzE"
+        >
+          Election ID
+        </div>
         <strong>
           2f6b1553c7
         </strong>
@@ -297,13 +373,13 @@ exports[`says the ballot sheet is blank if it is 1`] = `
       class="sc-eCssSg jJQcwm"
     >
       <div
-        class="sc-hHftDr hXZiDL"
+        class="sc-dIUggk gvbXNc"
       >
         <div
           class="sc-crrsfI dvOODA"
         >
           <div
-            class="sc-dIUggk hZaEGa"
+            class="sc-idOhPF eXcWnR"
           >
             Blank Ballot
           </div>
@@ -346,7 +422,7 @@ exports[`says the ballot sheet is blank if it is 1`] = `
           </p>
         </div>
         <div
-          class="sc-dmlrTW esDPKT"
+          class="sc-hHftDr kAQrHz"
         >
           <div
             style="position: relative;"
@@ -370,33 +446,71 @@ exports[`says the ballot sheet is blank if it is 1`] = `
       </div>
     </main>
     <div
-      class="sc-kstrdz kvxcls"
+      class="sc-bdvvaa iyFMHU"
     >
       <div
-        class="sc-bqyKva kbFFdu"
+        class="sc-jrQzUz flpjSV"
       >
-        Scanner ID: 
+        <strong
+          class="sc-iqsfdx hiQcdB"
+        >
+          General Election
+        </strong>
+         —
+         
+        <span
+          class="sc-iqsfdx hiQcdB"
+        >
+          Tuesday, November 3, 2020
+        </span>
+        <div
+          class="sc-kDThTU GXyzE"
+        >
+          <span
+            class="sc-iqsfdx hiQcdB"
+          >
+            Franklin County
+            ,
+             
+            State of Hamilton
+          </span>
+        </div>
+      </div>
+      <div
+        class="sc-gsDJrp jyOfHF"
+      />
+      <div
+        class="sc-jrQzUz iMHqDR"
+      >
+        <div
+          class="sc-kDThTU GXyzE"
+        >
+          Software Version
+        </div>
+        <strong>
+          TEST
+        </strong>
+      </div>
+      <div
+        class="sc-jrQzUz iMHqDR"
+      >
+        <div
+          class="sc-kDThTU GXyzE"
+        >
+          Machine ID
+        </div>
         <strong>
           0000
         </strong>
       </div>
       <div
-        class="sc-bqyKva kbFFdu"
+        class="sc-jrQzUz iMHqDR"
       >
-        <strong>
-          General Election
-        </strong>
-         — 
-        Tuesday, November 3, 2020
-         
-        — 
-        Franklin County
-        ,
-         
-        State of Hamilton
-         
-        — Election Hash:
-         
+        <div
+          class="sc-kDThTU GXyzE"
+        >
+          Election ID
+        </div>
         <strong>
           2f6b1553c7
         </strong>
@@ -451,13 +565,13 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
       class="sc-eCssSg jJQcwm"
     >
       <div
-        class="sc-hHftDr hXZiDL"
+        class="sc-dIUggk gvbXNc"
       >
         <div
           class="sc-crrsfI dvOODA"
         >
           <div
-            class="sc-dIUggk hZaEGa"
+            class="sc-idOhPF eXcWnR"
           >
             Overvote
           </div>
@@ -501,7 +615,7 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
           </p>
         </div>
         <div
-          class="sc-dmlrTW esDPKT"
+          class="sc-hHftDr kAQrHz"
         >
           <div
             style="position: relative;"
@@ -525,33 +639,71 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
       </div>
     </main>
     <div
-      class="sc-kstrdz kvxcls"
+      class="sc-bdvvaa iyFMHU"
     >
       <div
-        class="sc-bqyKva kbFFdu"
+        class="sc-jrQzUz flpjSV"
       >
-        Scanner ID: 
+        <strong
+          class="sc-iqsfdx hiQcdB"
+        >
+          General Election
+        </strong>
+         —
+         
+        <span
+          class="sc-iqsfdx hiQcdB"
+        >
+          Tuesday, November 3, 2020
+        </span>
+        <div
+          class="sc-kDThTU GXyzE"
+        >
+          <span
+            class="sc-iqsfdx hiQcdB"
+          >
+            Franklin County
+            ,
+             
+            State of Hamilton
+          </span>
+        </div>
+      </div>
+      <div
+        class="sc-gsDJrp jyOfHF"
+      />
+      <div
+        class="sc-jrQzUz iMHqDR"
+      >
+        <div
+          class="sc-kDThTU GXyzE"
+        >
+          Software Version
+        </div>
+        <strong>
+          TEST
+        </strong>
+      </div>
+      <div
+        class="sc-jrQzUz iMHqDR"
+      >
+        <div
+          class="sc-kDThTU GXyzE"
+        >
+          Machine ID
+        </div>
         <strong>
           0000
         </strong>
       </div>
       <div
-        class="sc-bqyKva kbFFdu"
+        class="sc-jrQzUz iMHqDR"
       >
-        <strong>
-          General Election
-        </strong>
-         — 
-        Tuesday, November 3, 2020
-         
-        — 
-        Franklin County
-        ,
-         
-        State of Hamilton
-         
-        — Election Hash:
-         
+        <div
+          class="sc-kDThTU GXyzE"
+        >
+          Election ID
+        </div>
         <strong>
           2f6b1553c7
         </strong>
@@ -606,13 +758,13 @@ exports[`says the ballot sheet is undervoted if it is 1`] = `
       class="sc-eCssSg jJQcwm"
     >
       <div
-        class="sc-hHftDr hXZiDL"
+        class="sc-dIUggk gvbXNc"
       >
         <div
           class="sc-crrsfI dvOODA"
         >
           <div
-            class="sc-dIUggk hZaEGa"
+            class="sc-idOhPF eXcWnR"
           >
             Undervote
           </div>
@@ -651,7 +803,7 @@ exports[`says the ballot sheet is undervoted if it is 1`] = `
           </p>
         </div>
         <div
-          class="sc-dmlrTW esDPKT"
+          class="sc-hHftDr kAQrHz"
         >
           <div
             style="position: relative;"
@@ -675,33 +827,71 @@ exports[`says the ballot sheet is undervoted if it is 1`] = `
       </div>
     </main>
     <div
-      class="sc-kstrdz kvxcls"
+      class="sc-bdvvaa iyFMHU"
     >
       <div
-        class="sc-bqyKva kbFFdu"
+        class="sc-jrQzUz flpjSV"
       >
-        Scanner ID: 
+        <strong
+          class="sc-iqsfdx hiQcdB"
+        >
+          General Election
+        </strong>
+         —
+         
+        <span
+          class="sc-iqsfdx hiQcdB"
+        >
+          Tuesday, November 3, 2020
+        </span>
+        <div
+          class="sc-kDThTU GXyzE"
+        >
+          <span
+            class="sc-iqsfdx hiQcdB"
+          >
+            Franklin County
+            ,
+             
+            State of Hamilton
+          </span>
+        </div>
+      </div>
+      <div
+        class="sc-gsDJrp jyOfHF"
+      />
+      <div
+        class="sc-jrQzUz iMHqDR"
+      >
+        <div
+          class="sc-kDThTU GXyzE"
+        >
+          Software Version
+        </div>
+        <strong>
+          TEST
+        </strong>
+      </div>
+      <div
+        class="sc-jrQzUz iMHqDR"
+      >
+        <div
+          class="sc-kDThTU GXyzE"
+        >
+          Machine ID
+        </div>
         <strong>
           0000
         </strong>
       </div>
       <div
-        class="sc-bqyKva kbFFdu"
+        class="sc-jrQzUz iMHqDR"
       >
-        <strong>
-          General Election
-        </strong>
-         — 
-        Tuesday, November 3, 2020
-         
-        — 
-        Franklin County
-        ,
-         
-        State of Hamilton
-         
-        — Election Hash:
-         
+        <div
+          class="sc-kDThTU GXyzE"
+        >
+          Election ID
+        </div>
         <strong>
           2f6b1553c7
         </strong>
@@ -755,13 +945,13 @@ exports[`says the sheet is unreadable if it is 1`] = `
       class="sc-eCssSg jJQcwm"
     >
       <div
-        class="sc-hHftDr hXZiDL"
+        class="sc-dIUggk gvbXNc"
       >
         <div
           class="sc-crrsfI dvOODA"
         >
           <div
-            class="sc-dIUggk hZaEGa"
+            class="sc-idOhPF eXcWnR"
           >
             Unreadable
           </div>
@@ -780,7 +970,7 @@ exports[`says the sheet is unreadable if it is 1`] = `
           </p>
         </div>
         <div
-          class="sc-dmlrTW esDPKT"
+          class="sc-hHftDr kAQrHz"
         >
           <div
             style="position: relative;"
@@ -804,33 +994,71 @@ exports[`says the sheet is unreadable if it is 1`] = `
       </div>
     </main>
     <div
-      class="sc-kstrdz kvxcls"
+      class="sc-bdvvaa iyFMHU"
     >
       <div
-        class="sc-bqyKva kbFFdu"
+        class="sc-jrQzUz flpjSV"
       >
-        Scanner ID: 
+        <strong
+          class="sc-iqsfdx hiQcdB"
+        >
+          General Election
+        </strong>
+         —
+         
+        <span
+          class="sc-iqsfdx hiQcdB"
+        >
+          Tuesday, November 3, 2020
+        </span>
+        <div
+          class="sc-kDThTU GXyzE"
+        >
+          <span
+            class="sc-iqsfdx hiQcdB"
+          >
+            Franklin County
+            ,
+             
+            State of Hamilton
+          </span>
+        </div>
+      </div>
+      <div
+        class="sc-gsDJrp jyOfHF"
+      />
+      <div
+        class="sc-jrQzUz iMHqDR"
+      >
+        <div
+          class="sc-kDThTU GXyzE"
+        >
+          Software Version
+        </div>
+        <strong>
+          TEST
+        </strong>
+      </div>
+      <div
+        class="sc-jrQzUz iMHqDR"
+      >
+        <div
+          class="sc-kDThTU GXyzE"
+        >
+          Machine ID
+        </div>
         <strong>
           0000
         </strong>
       </div>
       <div
-        class="sc-bqyKva kbFFdu"
+        class="sc-jrQzUz iMHqDR"
       >
-        <strong>
-          General Election
-        </strong>
-         — 
-        Tuesday, November 3, 2020
-         
-        — 
-        Franklin County
-        ,
-         
-        State of Hamilton
-         
-        — Election Hash:
-         
+        <div
+          class="sc-kDThTU GXyzE"
+        >
+          Election ID
+        </div>
         <strong>
           2f6b1553c7
         </strong>

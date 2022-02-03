@@ -2,16 +2,16 @@
 
 exports[`renders SetupCardReaderPage triggers useEffect property 1`] = `
 <div
-  class="sc-ikJzcn gRNMqs"
+  class="sc-hiCivh ePVVDe"
 >
   <main
-    class="sc-fotPbf kpwCyO"
+    class="sc-bkkfTU enzCGe"
   >
     <div
-      class="sc-fFehDp AAPaQ"
+      class="sc-ieebsP iIuUkJ"
     >
       <div
-        class="sc-furvIG eYFtVL"
+        class="sc-jrQzUz dRAoti"
       >
         <h1>
           Card Reader Not Detected
@@ -27,16 +27,16 @@ exports[`renders SetupCardReaderPage triggers useEffect property 1`] = `
 
 exports[`renders SetupCardReaderPage with no useEffect trigger as expected 1`] = `
 <div
-  class="sc-ikJzcn gRNMqs"
+  class="sc-hiCivh ePVVDe"
 >
   <main
-    class="sc-fotPbf kpwCyO"
+    class="sc-bkkfTU enzCGe"
   >
     <div
-      class="sc-fFehDp AAPaQ"
+      class="sc-ieebsP iIuUkJ"
     >
       <div
-        class="sc-furvIG eYFtVL"
+        class="sc-jrQzUz dRAoti"
       >
         <h1>
           Card Reader Not Detected

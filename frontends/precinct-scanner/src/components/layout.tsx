@@ -1,6 +1,14 @@
-import React from 'react';
-import { Screen, Main, MainChild, Prose, fontSizeTheme } from '@votingworks/ui';
-import { ElectionInfoBar, InfoBarMode } from './election_info_bar';
+import React, { useContext } from 'react';
+import {
+  Screen,
+  Main,
+  MainChild,
+  Prose,
+  fontSizeTheme,
+  ElectionInfoBar,
+  InfoBarMode,
+} from '@votingworks/ui';
+import { AppContext } from '../contexts/app_context';
 
 interface CenteredScreenProps {
   children: React.ReactNode;
@@ -13,6 +21,9 @@ export function CenteredScreen({
   infoBar = true,
   infoBarMode,
 }: CenteredScreenProps): JSX.Element {
+  const { electionDefinition, currentPrecinctId, machineConfig } = useContext(
+    AppContext
+  );
   return (
     <Screen flexDirection="column">
       <Main padded>
@@ -20,7 +31,16 @@ export function CenteredScreen({
           {children}
         </MainChild>
       </Main>
-      {infoBar && <ElectionInfoBar mode={infoBarMode} />}
+      {infoBar && (
+        <ElectionInfoBar
+          mode={infoBarMode}
+          showPrecinctInfo
+          precinctId={currentPrecinctId}
+          electionDefinition={electionDefinition}
+          codeVersion={machineConfig.codeVersion}
+          machineId={machineConfig.machineId}
+        />
+      )}
     </Screen>
   );
 }

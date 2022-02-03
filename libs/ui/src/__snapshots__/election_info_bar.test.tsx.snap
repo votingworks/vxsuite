@@ -1,0 +1,221 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Renders ElectionInfoBar with all precincts wording 1`] = `
+<div>
+  <div
+    class="sc-eCImvq dHkUPT"
+  >
+    <div
+      class="sc-bdvvaa fLugxj"
+    >
+      <strong
+        class="sc-dkPtyc gbBfTJ"
+      >
+        General Election
+      </strong>
+       —
+       
+      <span
+        class="sc-dkPtyc gbBfTJ"
+      >
+        Tuesday, November 3, 2020
+      </span>
+      <div
+        class="sc-gsDJrp hIGrZm"
+      >
+        <span
+          class="sc-dkPtyc gbBfTJ"
+        >
+          All Precincts
+        </span>
+         —
+         
+        <span
+          class="sc-dkPtyc gbBfTJ"
+        >
+          Franklin County
+          ,
+           
+          State of Hamilton
+        </span>
+      </div>
+    </div>
+    <div
+      class="sc-jRQAMF kSgACi"
+    />
+    <div
+      class="sc-bdvvaa iOQknX"
+    >
+      <div
+        class="sc-gsDJrp hIGrZm"
+      >
+        Election ID
+      </div>
+      <strong>
+        2f6b1553c7
+      </strong>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Renders ElectionInfoBar without precinct information by default 1`] = `
+<div>
+  <div
+    class="sc-eCImvq dHkUPT"
+  >
+    <div
+      class="sc-bdvvaa fLugxj"
+    >
+      <strong
+        class="sc-dkPtyc gbBfTJ"
+      >
+        General Election
+      </strong>
+       —
+       
+      <span
+        class="sc-dkPtyc gbBfTJ"
+      >
+        Tuesday, November 3, 2020
+      </span>
+      <div
+        class="sc-gsDJrp hIGrZm"
+      >
+        <span
+          class="sc-dkPtyc gbBfTJ"
+        >
+          Franklin County
+          ,
+           
+          State of Hamilton
+        </span>
+      </div>
+    </div>
+    <div
+      class="sc-jRQAMF kSgACi"
+    />
+    <div
+      class="sc-bdvvaa iOQknX"
+    >
+      <div
+        class="sc-gsDJrp hIGrZm"
+      >
+        Software Version
+      </div>
+      <strong>
+        DEV
+      </strong>
+    </div>
+    <div
+      class="sc-bdvvaa iOQknX"
+    >
+      <div
+        class="sc-gsDJrp hIGrZm"
+      >
+        Machine ID
+      </div>
+      <strong>
+        0000
+      </strong>
+    </div>
+    <div
+      class="sc-bdvvaa iOQknX"
+    >
+      <div
+        class="sc-gsDJrp hIGrZm"
+      >
+        Election ID
+      </div>
+      <strong>
+        2f6b1553c7
+      </strong>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Renders admin ElectionInfoBar with precinct set 1`] = `
+<div>
+  <div
+    class="sc-eCImvq dHkUPT"
+  >
+    <div
+      class="sc-bdvvaa fLugxj"
+    >
+      <strong
+        class="sc-dkPtyc gbBfTJ"
+      >
+        General Election
+      </strong>
+       —
+       
+      <span
+        class="sc-dkPtyc gbBfTJ"
+      >
+        Tuesday, November 3, 2020
+      </span>
+      <div
+        class="sc-gsDJrp hIGrZm"
+      >
+        <span
+          class="sc-dkPtyc gbBfTJ"
+        >
+          Center Springfield
+        </span>
+         —
+         
+        <span
+          class="sc-dkPtyc gbBfTJ"
+        >
+          Franklin County
+          ,
+           
+          State of Hamilton
+        </span>
+      </div>
+    </div>
+    <div
+      class="sc-jRQAMF kSgACi"
+    />
+    <div
+      class="sc-bdvvaa iOQknX"
+    >
+      <div
+        class="sc-gsDJrp hIGrZm"
+      >
+        Software Version
+      </div>
+      <strong>
+        DEV
+      </strong>
+    </div>
+    <div
+      class="sc-bdvvaa iOQknX"
+    >
+      <div
+        class="sc-gsDJrp hIGrZm"
+      >
+        Machine ID
+      </div>
+      <strong>
+        0002
+      </strong>
+    </div>
+    <div
+      class="sc-bdvvaa iOQknX"
+    >
+      <div
+        class="sc-gsDJrp hIGrZm"
+      >
+        Election ID
+      </div>
+      <strong>
+        2f6b1553c7
+      </strong>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Renders nothing when there is no election 1`] = `<div />`;

@@ -1,9 +1,15 @@
-import { fontSizeTheme, Prose, Text, NumberPad } from '@votingworks/ui';
-import React, { useState, useEffect, useCallback } from 'react';
+import {
+  fontSizeTheme,
+  Prose,
+  Text,
+  NumberPad,
+  ElectionInfoBar,
+} from '@votingworks/ui';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
 import styled from 'styled-components';
 import { Screen } from '../components/screen';
 import { Main, MainChild } from '../components/main';
-import { StatusFooter } from '../components/status_footer';
+import { AppContext } from '../contexts/app_context';
 import * as GLOBALS from '../config/globals';
 
 const NumberPadWrapper = styled.div`
@@ -31,6 +37,7 @@ export interface Props {
 export function UnlockMachineScreen({
   attemptToAuthenticateAdminUser,
 }: Props): JSX.Element {
+  const { electionDefinition, machineConfig } = useContext(AppContext);
   const [currentPasscode, setCurrentPasscode] = useState('');
   const [showError, setShowError] = useState(false);
   const handleNumberEntry = useCallback((digit: number) => {
@@ -82,7 +89,12 @@ export function UnlockMachineScreen({
           </Prose>
         </MainChild>
       </Main>
-      <StatusFooter />
+      <ElectionInfoBar
+        mode="admin"
+        electionDefinition={electionDefinition}
+        codeVersion={machineConfig.codeVersion}
+        machineId={machineConfig.machineId}
+      />
     </Screen>
   );
 }
