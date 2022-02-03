@@ -362,6 +362,7 @@ importers:
       fast-text-encoding: 1.0.3
       http-proxy-middleware: 1.0.6
       js-file-download: 0.4.12
+      mockdate: 3.0.5
       moment: 2.29.1
       normalize.css: 8.0.1
       pluralize: 7.0.0
@@ -468,6 +469,7 @@ importers:
       jest-fetch-mock: ^3.0.3
       js-file-download: ^0.4.6
       lint-staged: ^10.2.3
+      mockdate: ^3.0.2
       moment: ^2.29.1
       node-fetch: ^2.6.0
       normalize.css: ^8.0.1
