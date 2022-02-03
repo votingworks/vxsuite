@@ -23,6 +23,7 @@ import { getUsEnglishVoice } from './utils/voices';
 import { AppRoot, Props as AppRootProps } from './app_root';
 import { FocusManager } from './components/focus_manager';
 import { machineConfigProvider } from './utils/machine_config';
+import { ScreenReaderSandbox } from './screen_reader_sandbox';
 
 window.oncontextmenu = (e: MouseEvent): void => {
   e.preventDefault();
@@ -130,15 +131,19 @@ export function App({
   }
   return (
     <BrowserRouter>
-      <FocusManager
-        screenReader={screenReader}
-        onKeyPress={onKeyPress}
-        onClickCapture={onClick}
-        onFocusCapture={onFocus}
-      >
-        <Route
-          path="/"
-          render={(props) => (
+      <Route exact path="/screen-reader">
+        <ScreenReaderSandbox screenReader={screenReader} />
+      </Route>
+      <Route
+        path="/"
+        exact
+        render={(props) => (
+          <FocusManager
+            screenReader={screenReader}
+            onKeyPress={onKeyPress}
+            onClickCapture={onClick}
+            onFocusCapture={onFocus}
+          >
             <AppRoot
               card={card}
               printer={printer}
@@ -149,9 +154,9 @@ export function App({
               reload={reload}
               {...props}
             />
-          )}
-        />
-      </FocusManager>
+          </FocusManager>
+        )}
+      />
     </BrowserRouter>
   );
 }
