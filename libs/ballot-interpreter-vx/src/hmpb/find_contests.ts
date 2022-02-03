@@ -15,7 +15,7 @@ import { getImageChannelCount } from '../utils/image_format_utils';
 import { VisitedPoints } from '../utils/visited_points';
 import { findShape, parseRectangle, Shape } from './shapes';
 
-const debug = makeDebug('hmpb-interpreter:findContests');
+const debug = makeDebug('ballot-interpreter-vx:findContests');
 
 export interface ContestShape {
   bounds: Rect;

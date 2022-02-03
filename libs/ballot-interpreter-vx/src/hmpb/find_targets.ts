@@ -5,7 +5,7 @@ import { rectCenter } from '../utils/geometry';
 import { VisitedPoints } from '../utils/visited_points';
 import { findShape, Shape } from './shapes';
 
-const debug = makeDebug('hmpb-interpreter:findTargets');
+const debug = makeDebug('ballot-interpreter-vx:findTargets');
 
 export function* findTargets(
   ballotImage: ImageData,

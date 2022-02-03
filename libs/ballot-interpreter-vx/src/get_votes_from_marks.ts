@@ -2,7 +2,7 @@ import { BallotMark, VotesDict } from '@votingworks/types';
 import makeDebug from 'debug';
 import { addVote } from './hmpb/votes';
 
-const debug = makeDebug('hmpb-interpreter:getVotesFromMarks');
+const debug = makeDebug('ballot-interpreter-vx:getVotesFromMarks');
 
 /**
  * Gets the votes where the given marks have a high enough score to count, where

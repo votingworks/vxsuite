@@ -2,7 +2,7 @@ import makeDebug from 'debug';
 import { DetectQrCodeResult } from '../../types';
 import { withCropping } from './with_cropping';
 
-const debug = makeDebug('hmpb-interpreter:quirc');
+const debug = makeDebug('ballot-interpreter-vx:quirc');
 
 /**
  * Uses quirc to detect QR codes in a ballot image.

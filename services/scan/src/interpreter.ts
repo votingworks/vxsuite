@@ -13,7 +13,7 @@ import {
   DetectQrCodeResult,
   Interpreter as HmpbInterpreter,
   metadataFromBytes,
-} from '@votingworks/hmpb-interpreter';
+} from '@votingworks/ballot-interpreter-vx';
 import {
   AdjudicationReason,
   AdjudicationReasonInfo,

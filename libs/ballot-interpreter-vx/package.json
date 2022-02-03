@@ -1,15 +1,14 @@
 {
-  "name": "@votingworks/hmpb-interpreter",
+  "name": "@votingworks/ballot-interpreter-vx",
   "version": "5.2.16",
   "description": "Interprets hand-marked paper ballots.",
-  "repository": "https://github.com/votingworks/hmpb-interpreter",
+  "repository": "https://github.com/votingworks/ballot-interpreter-vx",
   "license": "GPL-3.0",
   "author": "VotingWorks Eng <eng@voting.works>",
   "main": "build/index.js",
   "types": "build/index.d.ts",
   "bin": {
-    "hmpb": "bin/hmpb-interpreter.js",
-    "hmpb-interpreter": "bin/hmpb-interpreter.js"
+    "ballot-interpreter-vx": "bin/ballot-interpreter-vx.js"
   },
   "files": [
     "build"

@@ -71,7 +71,7 @@
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "@types/styled-components": "^5.1.7",
-    "@votingworks/hmpb-interpreter": "workspace:*",
+    "@votingworks/ballot-interpreter-vx": "workspace:*",
     "@votingworks/logging": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/ui": "workspace:*",

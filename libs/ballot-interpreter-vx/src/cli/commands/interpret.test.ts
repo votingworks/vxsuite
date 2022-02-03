@@ -18,7 +18,7 @@ test('parse options: --election', async () => {
       await parseOptions(
         parseGlobalOptions([
           'node',
-          'hmpb-interpreter',
+          'ballot-interpreter-vx',
           'interpret',
           electionFlag,
           electionPath,
@@ -38,7 +38,7 @@ test('parse options: --min-mark-score', async () => {
       await parseOptions(
         parseGlobalOptions([
           'node',
-          'hmpb-interpreter',
+          'ballot-interpreter-vx',
           'interpret',
           '--election',
           electionPath,
@@ -56,7 +56,7 @@ test('parse options: --min-mark-score', async () => {
       await parseOptions(
         parseGlobalOptions([
           'node',
-          'hmpb-interpreter',
+          'ballot-interpreter-vx',
           'interpret',
           '--election',
           electionPath,
@@ -75,7 +75,7 @@ test('parse options: --min-mark-score', async () => {
     parseOptions(
       parseGlobalOptions([
         'node',
-        'hmpb-interpreter',
+        'ballot-interpreter-vx',
         'interpret',
         '--election',
         electionPath,
@@ -92,7 +92,7 @@ test('parse options: --test-mode', async () => {
       await parseOptions(
         parseGlobalOptions([
           'node',
-          'hmpb-interpreter',
+          'ballot-interpreter-vx',
           'interpret',
           '--election',
           electionPath,
@@ -112,7 +112,7 @@ test('parse options: --format', async () => {
     await parseOptions(
       parseGlobalOptions([
         'node',
-        'hmpb-interpreter',
+        'ballot-interpreter-vx',
         'interpret',
         '--election',
         electionPath,
@@ -129,7 +129,7 @@ test('parse options: --format', async () => {
       await parseOptions(
         parseGlobalOptions([
           'node',
-          'hmpb-interpreter',
+          'ballot-interpreter-vx',
           'interpret',
           '--election',
           electionPath,
@@ -148,7 +148,7 @@ test('parse options: --format', async () => {
     parseOptions(
       parseGlobalOptions([
         'node',
-        'hmpb-interpreter',
+        'ballot-interpreter-vx',
         'interpret',
         '--election',
         electionPath,
@@ -161,12 +161,14 @@ test('parse options: --format', async () => {
 
 test('parse options requires election', async () => {
   await expect(
-    parseOptions(parseGlobalOptions(['node', 'hmpb-interpreter', 'interpret']))
+    parseOptions(
+      parseGlobalOptions(['node', 'ballot-interpreter-vx', 'interpret'])
+    )
   ).rejects.toThrowError(`Required option 'election' is missing.`);
 
   await expect(
     parseOptions(
-      parseGlobalOptions(['node', 'hmpb-interpreter', 'interpret', '-e'])
+      parseGlobalOptions(['node', 'ballot-interpreter-vx', 'interpret', '-e'])
     )
   ).rejects.toThrowError(
     `Expected election definition file after -e, but got nothing.`
@@ -174,7 +176,13 @@ test('parse options requires election', async () => {
 
   await expect(
     parseOptions(
-      parseGlobalOptions(['node', 'hmpb-interpreter', 'interpret', '-e', '-t'])
+      parseGlobalOptions([
+        'node',
+        'ballot-interpreter-vx',
+        'interpret',
+        '-e',
+        '-t',
+      ])
     )
   ).rejects.toThrowError(
     `Expected election definition file after -e, but got -t.`
@@ -184,7 +192,12 @@ test('parse options requires election', async () => {
 test('invalid options', async () => {
   await expect(
     parseOptions(
-      parseGlobalOptions(['node', 'hmpb-interpreter', 'interpret', '--wrong'])
+      parseGlobalOptions([
+        'node',
+        'ballot-interpreter-vx',
+        'interpret',
+        '--wrong',
+      ])
     )
   ).rejects.toThrowError('Unknown option: --wrong');
 });
@@ -193,7 +206,7 @@ test('template and ballot flags', async () => {
   const options = await parseOptions(
     parseGlobalOptions([
       'node',
-      'hmpb-interpreter',
+      'ballot-interpreter-vx',
       'interpret',
       '-e',
       electionPath,
@@ -210,7 +223,7 @@ test('template and ballot flags', async () => {
     parseOptions(
       parseGlobalOptions([
         'node',
-        'hmpb-interpreter',
+        'ballot-interpreter-vx',
         'interpret',
         '-e',
         electionPath,
@@ -225,7 +238,7 @@ test('template and ballot flags', async () => {
     parseOptions(
       parseGlobalOptions([
         'node',
-        'hmpb-interpreter',
+        'ballot-interpreter-vx',
         'interpret',
         '-e',
         electionPath,
@@ -238,7 +251,7 @@ test('template and ballot flags', async () => {
     parseOptions(
       parseGlobalOptions([
         'node',
-        'hmpb-interpreter',
+        'ballot-interpreter-vx',
         'interpret',
         '-e',
         electionPath,
@@ -254,7 +267,7 @@ test('file paths without explicit template/ballot flags', async () => {
   const parsed = await parseOptions(
     parseGlobalOptions([
       'node',
-      'hmpb-interpreter',
+      'ballot-interpreter-vx',
       'interpret',
       '-e',
       electionPath,
@@ -271,29 +284,29 @@ test('file paths without explicit template/ballot flags', async () => {
 test('help', async () => {
   const stdout = new MemoryStream();
 
-  printHelp('hmpb-interpreter', stdout);
+  printHelp('ballot-interpreter-vx', stdout);
   expect(Buffer.from(stdout.read()).toString('utf-8')).toMatchInlineSnapshot(`
-    "hmpb-interpreter interpret -e JSON IMG1 [IMG2 …]
+    "ballot-interpreter-vx interpret -e JSON IMG1 [IMG2 …]
 
     Examples
 
     # Interpret ballots based on a single template.
-    hmpb-interpreter interpret -e election.json -t template.png ballot*.png
+    ballot-interpreter-vx interpret -e election.json -t template.png ballot*.png
 
     # Interpret test mode ballots.
-    hmpb-interpreter interpret -e election.json -T -t template.png ballot*.png
+    ballot-interpreter-vx interpret -e election.json -T -t template.png ballot*.png
 
     # Interpret ballots to JSON.
-    hmpb-interpreter interpret -e election.json -f json template*.png ballot*.png
+    ballot-interpreter-vx interpret -e election.json -f json template*.png ballot*.png
 
     # Specify image metadata (file:metdata-file).
-    hmpb-interpreter interpret -e election.json template1.png:template1-metadata.json template2.png:template2-metdata.json ballot1.png:ballot1-metadata.json
+    ballot-interpreter-vx interpret -e election.json template1.png:template1-metadata.json template2.png:template2-metdata.json ballot1.png:ballot1-metadata.json
 
     # Set an explicit minimum mark score (0-1).
-    hmpb-interpreter interpret -e election.json -m 0.5 template*.png ballot*.png
+    ballot-interpreter-vx interpret -e election.json -m 0.5 template*.png ballot*.png
 
     # Automatically process images as templates until all pages are found.
-    hmpb-interpreter interpret -e election.json image*.png
+    ballot-interpreter-vx interpret -e election.json image*.png
     "
   `);
 });
@@ -307,7 +320,7 @@ test('run interpret', async () => {
       await parseOptions(
         parseGlobalOptions([
           'node',
-          'hmpb-interpreter',
+          'ballot-interpreter-vx',
           'interpret',
           '-e',
           electionPath,
@@ -368,7 +381,7 @@ test('run interpret with auto inputs', async () => {
       await parseOptions(
         parseGlobalOptions([
           'node',
-          'hmpb-interpreter',
+          'ballot-interpreter-vx',
           'interpret',
           '-e',
           electionPath,
@@ -420,7 +433,7 @@ test('run interpret with JSON output', async () => {
       await parseOptions(
         parseGlobalOptions([
           'node',
-          'hmpb-interpreter',
+          'ballot-interpreter-vx',
           'interpret',
           '-e',
           electionPath,

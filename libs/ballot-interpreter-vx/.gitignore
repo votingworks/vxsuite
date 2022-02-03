@@ -9,4 +9,4 @@ node_modules
 !bin/*.js
 
 debug*.png
-votingworks-hmpb-interpreter*.tgz
+votingworks-ballot-interpreter-vx*.tgz

@@ -54,7 +54,7 @@ import { KeyedMap } from './utils/keyed_map';
 import { offsets } from './utils/offsets';
 import { outline } from './utils/outline';
 
-const debug = makeDebug('hmpb-interpreter:Interpreter');
+const debug = makeDebug('ballot-interpreter-vx:Interpreter');
 
 export interface Options {
   readonly election: Election;

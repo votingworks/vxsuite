@@ -1,4 +1,4 @@
-import { Interpreter } from '@votingworks/hmpb-interpreter';
+import { Interpreter } from '@votingworks/ballot-interpreter-vx';
 import {
   BallotMetadata,
   BallotPageLayout,

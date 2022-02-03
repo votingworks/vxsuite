@@ -3,7 +3,7 @@ import { Corners, Point } from '@votingworks/types';
 import { Edge, Shape } from '../hmpb/shapes';
 import { editDistance, median, rectCorners } from './geometry';
 
-const debug = makeDebug('hmpb-interpreter:corners');
+const debug = makeDebug('ballot-interpreter-vx:corners');
 
 const MIN_INSET_PIXELS = 10;
 const MEDIAN_INSET_MULTIPLIER = 2.5;
