@@ -19,9 +19,9 @@
   },
   "references": [
     { "path": "../../libs/ballot-encoder/tsconfig.build.json" },
+    { "path": "../../libs/ballot-interpreter-vx/tsconfig.build.json" },
     { "path": "../../libs/eslint-plugin-vx/tsconfig.build.json" },
     { "path": "../../libs/fixtures/tsconfig.build.json" },
-    { "path": "../../libs/hmpb-interpreter/tsconfig.build.json" },
     { "path": "../../libs/logging/tsconfig.build.json" },
     { "path": "../../libs/plustek-sdk/tsconfig.build.json" },
     { "path": "../../libs/types/tsconfig.build.json" },

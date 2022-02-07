@@ -1,4 +1,4 @@
-# hmpb-interpreter
+# ballot-interpreter-vx
 
 Interprets VotingWorks ballots marked by hand and scanned into images.
 
@@ -6,8 +6,8 @@ Interprets VotingWorks ballots marked by hand and scanned into images.
 
 This package is private and is not intended to be published to NPM, but is for
 use within the `vxsuite` monorepo. To use it from a library or app within the
-monorepo, run `pnpm i -S '@votingworks/hmpb-interpreter@workspace:*'` in the library/app
-root.
+monorepo, run `pnpm i -S '@votingworks/ballot-interpreter-vx@workspace:*'` in
+the library/app root.
 
 Follow the instructions in the [VxSuite README](../../README.md) to get set up,
 then get started like so:
@@ -23,7 +23,7 @@ pnpm test:watch
 ## API Usage
 
 ```ts
-import { Interpreter } from '@votingworks/hmpb-interpreter'
+import { Interpreter } from '@votingworks/ballot-interpreter-vx';
 
 const interpreter = new Interpreter({
   // Configure contests via an election.json. Contests on printed ballots must
@@ -32,19 +32,19 @@ const interpreter = new Interpreter({
 
   // Require at least 20% filled in targets.
   markScoreVoteThreshold: 0.2,
-})
+});
 
 while (interpreter.hasMissingTemplates()) {
   // Templates are images of blank ballots.
-  await interpreter.addTemplate(await getNextImage())
+  await interpreter.addTemplate(await getNextImage());
 }
 
-console.log('Interpreter has templates for all ballot styles and contests!')
+console.log('Interpreter has templates for all ballot styles and contests!');
 
-const imageData = await getNextImage()
-const { ballot } = await interpreter.interpretBallot(imageData)
+const imageData = await getNextImage();
+const { ballot } = await interpreter.interpretBallot(imageData);
 
-console.log('Interpreted ballot:', ballot)
+console.log('Interpreted ballot:', ballot);
 ```
 
 ### Customizing QR Code Decoder
@@ -56,7 +56,7 @@ codes. If you wish to supply your own decoder, pass `decodeQRCode` to
 ```ts
 // Example custom QR code reader using jsQR
 import jsQR from 'jsqr'
-import { Interpreter } from '@votingworks/hmpb-interpreter'
+import { Interpreter } from '@votingworks/ballot-interpreter-vx'
 
 const interpreter = new Interpreter({
   election,
@@ -72,7 +72,7 @@ const interpreter = new Interpreter({
 ```sh
 # To try this example out, install globally then clone the repository and `cd`
 # to `test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library`.
-$ hmpb interpret -e election.json \
+$ ballot-interpreter-vx interpret -e election.json \
   blank-p1.jpg \
   blank-p2.jpg \
   filled-in-p1.jpg \
@@ -104,7 +104,7 @@ $ hmpb interpret -e election.json \
 ╚═══════════════════════════════════════════════════════╧═══════════════════════╧══════════════════╝
 
 # You can also request output as JSON.
-$ hmpb interpret -e election.json -f json \
+$ ballot-interpreter-vx interpret -e election.json -f json \
   blank-p1.jpg \
   blank-p2.jpg \
   filled-in-p1.jpg \

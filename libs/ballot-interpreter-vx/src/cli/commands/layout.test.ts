@@ -12,7 +12,7 @@ test('options', async () => {
     await parseOptions(
       parseGlobalOptions([
         'node',
-        'hmpb-interpreter',
+        'ballot-interpreter-vx',
         'layout',
         'ballot01.png',
         'ballot02.png',
@@ -24,24 +24,24 @@ test('options', async () => {
 test('invalid options', async () => {
   await expect(
     parseOptions(
-      parseGlobalOptions(['node', 'hmpb-interpreter', 'layout', '--wrong'])
+      parseGlobalOptions(['node', 'ballot-interpreter-vx', 'layout', '--wrong'])
     )
   ).rejects.toThrowError(`unexpected option passed to 'layout': --wrong`);
 });
 
 test('help', () => {
   const stdout = new MemoryStream();
-  printHelp('hmpb-interpreter', stdout);
+  printHelp('ballot-interpreter-vx', stdout);
   expect(Buffer.from(stdout.read()).toString('utf-8')).toMatchInlineSnapshot(`
-    "hmpb-interpreter layout IMG1 [IMG2 …]
+    "ballot-interpreter-vx layout IMG1 [IMG2 …]
 
     Examples
 
     # Annotate layout for a single ballot page.
-    hmpb-interpreter layout ballot01.jpg
+    ballot-interpreter-vx layout ballot01.jpg
 
     # Annotate layout for many ballot pages.
-    hmpb-interpreter layout ballot*.jpg
+    ballot-interpreter-vx layout ballot*.jpg
     "
   `);
 });
@@ -55,7 +55,7 @@ test('creates a layout file adjacent to the input file', async () => {
   await fs.copyFile(blankPage1.filePath(), imagePath);
   await run(
     await parseOptions(
-      parseGlobalOptions(['node', 'hmpb-interpreter', 'layout', imagePath])
+      parseGlobalOptions(['node', 'ballot-interpreter-vx', 'layout', imagePath])
     ),
     stdin,
     stdout

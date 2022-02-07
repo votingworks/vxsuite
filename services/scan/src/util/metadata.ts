@@ -1,5 +1,5 @@
 import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
-import { metadataFromBytes } from '@votingworks/hmpb-interpreter';
+import { metadataFromBytes } from '@votingworks/ballot-interpreter-vx';
 import { BallotPageMetadata, Election } from '@votingworks/types';
 import { BallotPageQrcode, SheetOf } from '../types';
 

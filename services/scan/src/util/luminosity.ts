@@ -1,4 +1,4 @@
-import { otsu } from '@votingworks/hmpb-interpreter';
+import { otsu } from '@votingworks/ballot-interpreter-vx';
 import makeDebug from 'debug';
 
 const debug = makeDebug('scan:threshold');

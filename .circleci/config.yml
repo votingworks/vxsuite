@@ -191,6 +191,24 @@ jobs:
           command: |
             pnpm --dir libs/ballot-encoder test
 
+  test-libs-ballot-interpreter-vx:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/ballot-interpreter-vx build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/ballot-interpreter-vx lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/ballot-interpreter-vx test
+
   test-libs-cdf-schema-builder:
     executor: nodejs
     resource_class: xlarge
@@ -262,24 +280,6 @@ jobs:
           name: Test
           command: |
             pnpm --dir libs/fixtures test
-
-  test-libs-hmpb-interpreter:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/hmpb-interpreter build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir libs/hmpb-interpreter lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir libs/hmpb-interpreter test
 
   test-libs-logging:
     executor: nodejs
@@ -492,11 +492,11 @@ workflows:
       - test-integration-testing-bsd
       - test-integration-testing-election-manager
       - test-libs-ballot-encoder
+      - test-libs-ballot-interpreter-vx
       - test-libs-cdf-schema-builder
       - test-libs-cdf-types-election-event-logging
       - test-libs-eslint-plugin-vx
       - test-libs-fixtures
-      - test-libs-hmpb-interpreter
       - test-libs-logging
       - test-libs-lsd
       - test-libs-plustek-sdk

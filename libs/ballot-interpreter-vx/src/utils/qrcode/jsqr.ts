@@ -3,7 +3,7 @@ import jsQr from 'jsqr';
 import { DetectQrCodeResult } from '../../types';
 import { withCropping } from './with_cropping';
 
-const debug = makeDebug('hmpb-interpreter:jsqr');
+const debug = makeDebug('ballot-interpreter-vx:jsqr');
 
 /**
  * Uses jsQR to detect QR codes in a ballot image.

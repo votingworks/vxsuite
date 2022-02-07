@@ -96,13 +96,13 @@ MOCK_SCANNER_FILES=test/fixtures/2020-choctaw/ballot-p1.jpg,test/fixtures/2020-c
 First init `services/smartcards` with:
 
 ```
-./mockCardReader.py enable --admin ../../libs/hmpb-interpreter/test/fixtures/choctaw-county-2020-general-election/election.json
+./mockCardReader.py enable --admin ../../libs/ballot-interpreter-vx/test/fixtures/choctaw-county-2020-general-election/election.json
 ```
 
 Init `services/scan` with:
 
 ```
-MOCK_SCANNER_FILES=../../libs/hmpb-interpreter/test/fixtures/choctaw-county-2020-general-election/filled-in-p1-03.png,../../libs/hmpb-interpreter/test/fixtures/choctaw-county-2020-general-election/filled-in-p2-03.png pnpm dev
+MOCK_SCANNER_FILES=../../libs/ballot-interpreter-vx/test/fixtures/choctaw-county-2020-general-election/filled-in-p1-03.png,../../libs/ballot-interpreter-vx/test/fixtures/choctaw-county-2020-general-election/filled-in-p2-03.png pnpm dev
 ```
 
 ## Switching Workspaces

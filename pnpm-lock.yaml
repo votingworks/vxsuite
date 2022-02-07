@@ -354,7 +354,7 @@ importers:
       '@types/react': 17.0.0
       '@types/react-dom': 17.0.0
       '@types/styled-components': 5.1.7
-      '@votingworks/hmpb-interpreter': link:../../libs/hmpb-interpreter
+      '@votingworks/ballot-interpreter-vx': link:../../libs/ballot-interpreter-vx
       '@votingworks/logging': link:../../libs/logging
       '@votingworks/types': link:../../libs/types
       '@votingworks/ui': link:../../libs/ui
@@ -443,7 +443,7 @@ importers:
       '@typescript-eslint/parser': ^4.28.4
       '@votingworks/ballot-encoder': workspace:*
       '@votingworks/fixtures': workspace:*
-      '@votingworks/hmpb-interpreter': workspace:*
+      '@votingworks/ballot-interpreter-vx': workspace:*
       '@votingworks/logging': workspace:*
       '@votingworks/test-utils': workspace:*
       '@votingworks/types': workspace:*
@@ -703,7 +703,7 @@ importers:
       '@types/react-router-dom': 5.1.7
       '@types/styled-components': 5.1.9
       '@votingworks/fixtures': link:../../libs/fixtures
-      '@votingworks/hmpb-interpreter': link:../../libs/hmpb-interpreter
+      '@votingworks/ballot-interpreter-vx': link:../../libs/ballot-interpreter-vx
       '@votingworks/logging': link:../../libs/logging
       '@votingworks/qrcode.react': 1.0.2_react@17.0.1
       '@votingworks/types': link:../../libs/types
@@ -786,7 +786,7 @@ importers:
       '@typescript-eslint/eslint-plugin': ^4.28.4
       '@typescript-eslint/parser': ^4.28.4
       '@votingworks/fixtures': workspace:*
-      '@votingworks/hmpb-interpreter': workspace:*
+      '@votingworks/ballot-interpreter-vx': workspace:*
       '@votingworks/logging': workspace:*
       '@votingworks/qrcode.react': ^1.0.2
       '@votingworks/test-utils': workspace:*
@@ -1316,7 +1316,7 @@ importers:
       ts-node: ^9.1.1
       typescript: ^4.3.5
       yargs: ^16.2.0
-  libs/hmpb-interpreter:
+  libs/ballot-interpreter-vx:
     dependencies:
       '@votingworks/ballot-encoder': link:../ballot-encoder
       '@votingworks/types': link:../types
@@ -1938,7 +1938,7 @@ importers:
     dependencies:
       '@votingworks/ballot-encoder': link:../../libs/ballot-encoder
       '@votingworks/fixtures': link:../../libs/fixtures
-      '@votingworks/hmpb-interpreter': link:../../libs/hmpb-interpreter
+      '@votingworks/ballot-interpreter-vx': link:../../libs/ballot-interpreter-vx
       '@votingworks/logging': link:../../libs/logging
       '@votingworks/plustek-sdk': link:../../libs/plustek-sdk
       '@votingworks/qrdetect': 1.0.1
@@ -2033,7 +2033,7 @@ importers:
       '@typescript-eslint/parser': ^4.28.4
       '@votingworks/ballot-encoder': workspace:*
       '@votingworks/fixtures': workspace:*
-      '@votingworks/hmpb-interpreter': workspace:*
+      '@votingworks/ballot-interpreter-vx': workspace:*
       '@votingworks/logging': workspace:*
       '@votingworks/plustek-sdk': workspace:*
       '@votingworks/qrdetect': ^1.0.1

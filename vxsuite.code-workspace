@@ -37,6 +37,10 @@
       "path": "libs/ballot-encoder"
     },
     {
+      "name": "libs/ballot-interpreter-vx",
+      "path": "libs/ballot-interpreter-vx"
+    },
+    {
       "name": "libs/cdf-schema-builder",
       "path": "libs/cdf-schema-builder"
     },
@@ -47,10 +51,6 @@
     {
       "name": "libs/cdf-types-election-event-logging",
       "path": "libs/cdf-types-election-event-logging"
-    },
-    {
-      "name": "libs/hmpb-interpreter",
-      "path": "libs/hmpb-interpreter"
     },
     {
       "name": "libs/logging",

@@ -14,12 +14,12 @@ async function readStream(stream: Readable): Promise<string> {
 test('prints usage examples to stdout', async () => {
   const stdout = new MemoryStream();
   await run(
-    { $0: 'hmpb-interpreter' },
+    { $0: 'ballot-interpreter-vx' },
     Readable.from('') as NodeJS.ReadStream,
     stdout as NodeJS.WriteStream
   );
   stdout.end();
-  expect(await readStream(stdout)).toContain('hmpb-interpreter COMMAND');
+  expect(await readStream(stdout)).toContain('ballot-interpreter-vx COMMAND');
 });
 
 test('expects an optional command', async () => {
@@ -27,20 +27,20 @@ test('expects an optional command', async () => {
     await parseOptions({
       command: 'help',
       commandArgs: [],
-      executablePath: 'hmpb-interpreter',
+      executablePath: 'ballot-interpreter-vx',
       nodePath: 'node',
       help: true,
     })
-  ).toEqual({ $0: 'hmpb-interpreter', command: undefined });
+  ).toEqual({ $0: 'ballot-interpreter-vx', command: undefined });
   expect(
     await parseOptions({
       command: 'help',
       commandArgs: ['foo'],
-      executablePath: 'hmpb-interpreter',
+      executablePath: 'ballot-interpreter-vx',
       nodePath: 'node',
       help: true,
     })
-  ).toEqual({ $0: 'hmpb-interpreter', command: 'foo' });
+  ).toEqual({ $0: 'ballot-interpreter-vx', command: 'foo' });
 });
 
 test('help command help', () => {

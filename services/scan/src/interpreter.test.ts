@@ -1,5 +1,5 @@
 import { electionSample } from '@votingworks/fixtures';
-import { metadataFromBytes } from '@votingworks/hmpb-interpreter';
+import { metadataFromBytes } from '@votingworks/ballot-interpreter-vx';
 import {
   AdjudicationReason,
   BallotIdSchema,
