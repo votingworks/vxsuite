@@ -41,6 +41,10 @@
       "path": "libs/ballot-interpreter-vx"
     },
     {
+      "name": "libs/ballot-interpreter-nh",
+      "path": "libs/ballot-interpreter-nh"
+    },
+    {
       "name": "libs/cdf-schema-builder",
       "path": "libs/cdf-schema-builder"
     },

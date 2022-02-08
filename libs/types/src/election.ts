@@ -434,6 +434,23 @@ export const MarkThresholdsSchema: z.ZodSchema<MarkThresholds> = z
     'marginal mark threshold must be less than or equal to definite mark threshold'
   );
 
+export interface GridPosition {
+  readonly x: number;
+  readonly y: number;
+  readonly column: number;
+  readonly row: number;
+  readonly contestId: ContestId;
+  readonly optionId: Id | WriteInId;
+}
+
+export interface GridLayout {
+  readonly precinctId: PrecinctId;
+  readonly ballotStyleId: BallotStyleId;
+  readonly columns: number;
+  readonly rows: number;
+  readonly gridPositions: readonly GridPosition[];
+}
+
 export interface Election {
   readonly _lang?: Translations;
   /** @deprecated Use `precinctScanAdjudicationReasons` or `centralScanAdjudicationReasons` */
@@ -443,6 +460,7 @@ export interface Election {
   readonly ballotStyles: readonly BallotStyle[];
   readonly centralScanAdjudicationReasons?: readonly AdjudicationReason[];
   readonly contests: Contests;
+  readonly gridLayouts?: readonly GridLayout[];
   readonly county: County;
   readonly date: string;
   readonly districts: readonly District[];
