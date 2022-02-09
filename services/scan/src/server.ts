@@ -38,6 +38,8 @@ import {
   PatchTestModeConfigRequest,
   PatchTestModeConfigRequestSchema,
   PatchTestModeConfigResponse,
+  PutConfigPackageRequest,
+  PutConfigPackageResponse,
   PutCurrentPrecinctConfigRequest,
   PutCurrentPrecinctConfigRequestSchema,
   PutCurrentPrecinctConfigResponse,
@@ -53,7 +55,7 @@ import bodyParser from 'body-parser';
 import express, { Application } from 'express';
 import { readFile } from 'fs-extra';
 import multer from 'multer';
-import { assert } from '@votingworks/utils';
+import { assert, ballotPackageUtils } from '@votingworks/utils';
 import { backup } from './backup';
 import {
   SCAN_ALWAYS_HOLD_ON_REJECT,
@@ -161,6 +163,49 @@ export function buildApp({ store, importer }: AppOptions): Application {
     '/config/election',
     async (_request, response) => {
       await importer.unconfigure();
+      response.json({ status: 'ok' });
+    }
+  );
+
+  app.put<NoParams, PutConfigPackageResponse, PutConfigPackageRequest>(
+    '/config/package',
+    upload.fields([{ name: 'package', maxCount: 1 }]),
+    async (request, response) => {
+      const file = !Array.isArray(request.files)
+        ? request.files?.package?.[0]
+        : undefined;
+
+      if (!file) {
+        response.status(400).json({
+          status: 'error',
+          errors: [
+            {
+              type: 'invalid-value',
+              message: 'expected file field to be named "package"',
+            },
+          ],
+        });
+        return;
+      }
+
+      const pkg = await ballotPackageUtils.readBallotPackageFromZip(
+        await readFile(file.path),
+        file.filename,
+        file.size
+      );
+
+      await importer.configure(pkg.electionDefinition);
+      for (const { ballotConfig, pdf } of pkg.ballots) {
+        await importer.addHmpbTemplates(pdf, {
+          electionHash: pkg.electionDefinition.electionHash,
+          ballotType: BallotType.Standard,
+          ballotStyleId: ballotConfig.ballotStyleId,
+          precinctId: ballotConfig.precinctId,
+          isTestMode: !ballotConfig.isLiveMode,
+          locales: ballotConfig.locales,
+        });
+      }
+
       response.json({ status: 'ok' });
     }
   );

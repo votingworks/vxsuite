@@ -4,7 +4,11 @@ import {
 } from '@votingworks/fixtures';
 import { Logger, LogSource } from '@votingworks/logging';
 import * as plusteksdk from '@votingworks/plustek-sdk';
-import { BallotType, ok } from '@votingworks/types';
+import {
+  BallotType,
+  ok,
+  safeParseElectionDefinition,
+} from '@votingworks/types';
 import {
   GetNextReviewSheetResponse,
   GetScanStatusResponse,
@@ -13,7 +17,7 @@ import {
 } from '@votingworks/types/api/services/scan';
 import { typedAs } from '@votingworks/utils';
 import { Application } from 'express';
-import { promises as fs } from 'fs';
+import { createReadStream, promises as fs } from 'fs';
 import { Server } from 'http';
 import { join } from 'path';
 import request from 'supertest';
@@ -228,6 +232,32 @@ test('DELETE /config/election', async () => {
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' });
   expect(importer.unconfigure).toBeCalled();
+});
+
+test('PUT /config/package', async () => {
+  const fixtureRoot = join(
+    __dirname,
+    '../test/fixtures/hamilton-seal-049e9e66cd'
+  );
+  const electionDefinition = safeParseElectionDefinition(
+    await fs.readFile(join(fixtureRoot, 'election.json'), 'utf-8')
+  ).unsafeUnwrap();
+  importer.configure.mockResolvedValue();
+  importer.addHmpbTemplates.mockResolvedValue([]);
+
+  await request(app)
+    .put('/config/package')
+    .set('Accept', 'application/json')
+    .field('package', createReadStream(join(fixtureRoot, 'ballot-package.zip')))
+    .expect(200, { status: 'ok' });
+  expect(importer.configure).toBeCalledWith(electionDefinition);
+});
+
+test('PUT /config/package missing package', async () => {
+  await request(app)
+    .put('/config/package')
+    .set('Accept', 'application/json')
+    .expect(400);
 });
 
 test('PATCH /config/testMode', async () => {

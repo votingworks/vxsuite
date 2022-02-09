@@ -156,6 +156,32 @@ export type DeleteElectionConfigResponse = OkResponse;
 export const DeleteElectionConfigResponseSchema: z.ZodSchema<DeleteElectionConfigResponse> = OkResponseSchema;
 
 /**
+ * @url /config/package
+ * @method PUT
+ */
+export type PutConfigPackageRequest = never;
+
+/**
+ * @url /config/package
+ * @method PUT
+ */
+export const PutConfigPackageRequestSchema: z.ZodSchema<PutConfigPackageRequest> = z.never();
+
+/**
+ * @url /config/package
+ * @method PUT
+ */
+export type PutConfigPackageResponse = OkResponse | ErrorsResponse;
+
+/**
+ * @url /config/package
+ * @method PUT
+ */
+export const PutConfigPackageResponseSchema: z.ZodSchema<PutConfigPackageResponse> = z.union(
+  [OkResponseSchema, ErrorsResponseSchema]
+);
+
+/**
  * @url /config/testMode
  * @method GET
  */
