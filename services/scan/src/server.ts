@@ -55,7 +55,7 @@ import bodyParser from 'body-parser';
 import express, { Application } from 'express';
 import { readFile } from 'fs-extra';
 import multer from 'multer';
-import { assert, ballotPackageUtils } from '@votingworks/utils';
+import { assert, readBallotPackageFromBuffer } from '@votingworks/utils';
 import { backup } from './backup';
 import {
   SCAN_ALWAYS_HOLD_ON_REJECT,
@@ -188,7 +188,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
         return;
       }
 
-      const pkg = await ballotPackageUtils.readBallotPackageFromBuffer(
+      const pkg = await readBallotPackageFromBuffer(
         await readFile(file.path),
         file.filename,
         file.size

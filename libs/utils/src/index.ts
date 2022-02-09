@@ -1,6 +1,6 @@
 /* istanbul ignore file */
 export * from './assert';
-export * as ballotPackageUtils from './ballot_package';
+export * from './ballot_package';
 export * from './Card';
 export * from './compressed_tallies';
 export * from './date';
