@@ -1,7 +1,6 @@
 
 install-python:
-	sudo add-apt-repository -y ppa:deadsnakes/ppa
-	sudo apt install -y python3.7 python3.7-dev python3-pip
+	sudo apt install -y python3-dev python3-pip
 	python3 -m pip install pipenv
 
 install-smartcard:

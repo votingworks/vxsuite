@@ -409,7 +409,7 @@ jobs:
 
   test-services-converter-ms-sems:
     docker:
-      - image: circleci/python:3.7.7
+      - image: circleci/python:3.9.2
     steps:
       - checkout
       - run:
@@ -447,7 +447,7 @@ jobs:
 
   test-services-smartcards:
     docker:
-      - image: circleci/python:3.7.7
+      - image: circleci/python:3.9.2
     steps:
       - checkout
       - run:
