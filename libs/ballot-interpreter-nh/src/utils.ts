@@ -1,4 +1,5 @@
-import { Point, Rect, Segment, Vector } from './types';
+import { assert } from '@votingworks/utils';
+import { Bit, Point, Rect, Segment, Vector } from './types';
 
 /**
  * Builds a point from the given `x` and `y` values.
@@ -298,4 +299,25 @@ export function calculateIntersection(
   const m2 = Math.tan(angle2);
   const x = (m1 * point1.x - m2 * point2.x - (point1.y - point2.y)) / (m1 - m2);
   return loc(x, m1 * (x - point1.x) + point1.y);
+}
+
+/**
+ * Computes a number from `bits` or a subset.
+ *
+ * @param bits Bits in LSB to MSB order.
+ */
+export function bitsToNumber(
+  bits: readonly Bit[],
+  startIndex = 0,
+  endIndex = bits.length
+): number {
+  assert(startIndex >= 0);
+  assert(endIndex <= bits.length);
+  assert(startIndex <= endIndex);
+
+  let result = 0;
+  for (let i = endIndex - 1; i >= startIndex; i -= 1) {
+    result = result * 2 + (bits[i] as number);
+  }
+  return result;
 }

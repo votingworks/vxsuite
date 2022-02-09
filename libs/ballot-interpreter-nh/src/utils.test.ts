@@ -1,6 +1,7 @@
 import * as fc from 'fast-check';
 import { Segment } from './types';
 import {
+  bitsToNumber,
   calculateIntersection,
   closestPointOnLineSegmentToPoint,
   crossProduct,
@@ -287,4 +288,13 @@ test('calculateIntersection', () => {
   );
   expect(point?.x).toBeCloseTo(2.5);
   expect(point?.y).toBeCloseTo(2.5);
+});
+
+test('bitsToNumber', () => {
+  expect(bitsToNumber([])).toBe(0);
+  expect(bitsToNumber([1])).toBe(1);
+  expect(bitsToNumber([0, 1])).toBe(2);
+  expect(bitsToNumber([0, 1], 0, 1)).toBe(0);
+  expect(bitsToNumber([0, 1], 1, 2)).toBe(1);
+  expect(bitsToNumber([1, 1, 1, 1, 1, 1, 1, 1])).toBe(0xff);
 });

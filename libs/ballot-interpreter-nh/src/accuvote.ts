@@ -12,6 +12,7 @@ import {
   ThirtyTwoBits,
 } from './types';
 import {
+  bitsToNumber,
   centerOfRect,
   findOverlappingRects,
   loc,
@@ -394,46 +395,15 @@ export function decodeFrontTimingMarkBits(
 
   const bitsRightToLeft = bits as unknown as ThirtyTwoBits;
   const computedMod4CheckSum =
-    bitsRightToLeft.slice(2).reduce<number>((sum, bit) => sum + bit, 0) % 4;
+    bitsRightToLeft.reduce<number>(
+      (sum, bit, index) => (index >= 2 ? sum + bit : sum),
+      0
+    ) % 4;
 
-  const mod4CheckSum =
-    bitsRightToLeft[0] * (1 << 0) + bitsRightToLeft[1] * (1 << 1);
-
-  const batchOrPrecinctNumber =
-    bitsRightToLeft[2] * (1 << 0) +
-    bitsRightToLeft[3] * (1 << 1) +
-    bitsRightToLeft[4] * (1 << 2) +
-    bitsRightToLeft[5] * (1 << 3) +
-    bitsRightToLeft[6] * (1 << 4) +
-    bitsRightToLeft[7] * (1 << 5) +
-    bitsRightToLeft[8] * (1 << 6) +
-    bitsRightToLeft[9] * (1 << 7) +
-    bitsRightToLeft[10] * (1 << 8) +
-    bitsRightToLeft[11] * (1 << 9) +
-    bitsRightToLeft[12] * (1 << 10) +
-    bitsRightToLeft[13] * (1 << 11) +
-    bitsRightToLeft[14] * (1 << 12);
-
-  const cardNumber =
-    bitsRightToLeft[15] * (1 << 0) +
-    bitsRightToLeft[16] * (1 << 1) +
-    bitsRightToLeft[17] * (1 << 2) +
-    bitsRightToLeft[18] * (1 << 3) +
-    bitsRightToLeft[19] * (1 << 4) +
-    bitsRightToLeft[20] * (1 << 5) +
-    bitsRightToLeft[21] * (1 << 6) +
-    bitsRightToLeft[22] * (1 << 7) +
-    bitsRightToLeft[23] * (1 << 8) +
-    bitsRightToLeft[24] * (1 << 9) +
-    bitsRightToLeft[25] * (1 << 10) +
-    bitsRightToLeft[26] * (1 << 11) +
-    bitsRightToLeft[27] * (1 << 12);
-
-  const sequenceNumber =
-    bitsRightToLeft[28] * (1 << 0) +
-    bitsRightToLeft[29] * (1 << 1) +
-    bitsRightToLeft[30] * (1 << 2);
-
+  const mod4CheckSum = bitsToNumber(bitsRightToLeft, 0, 2);
+  const batchOrPrecinctNumber = bitsToNumber(bitsRightToLeft, 2, 15);
+  const cardNumber = bitsToNumber(bitsRightToLeft, 15, 28);
+  const sequenceNumber = bitsToNumber(bitsRightToLeft, 28, 31);
   const startBit = bitsRightToLeft[31];
 
   return {
