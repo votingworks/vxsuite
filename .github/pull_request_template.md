@@ -1,7 +1,7 @@
 ## Overview
-[link to Github Issue]
+<!-- add a link to a Github Issue here -->
 
-## Demo Video 
+## Demo Video or Screenshot
 
 ## Testing Plan 
 
