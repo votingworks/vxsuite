@@ -2,7 +2,12 @@ import { electionSample } from '@votingworks/fixtures';
 import { fakeKiosk, zipFile } from '@votingworks/test-utils';
 import { promises as fs } from 'fs';
 import { join } from 'path';
-import { ballotPackageUtils, BallotPackageManifest } from './ballot_package';
+import {
+  BallotPackageManifest,
+  readBallotPackageFromBuffer,
+  readBallotPackageFromFile,
+  readBallotPackageFromFilePointer,
+} from './ballot_package';
 
 test('readBallotPackageFromFile finds all expected ballots', async () => {
   const file = new File(
@@ -16,7 +21,32 @@ test('readBallotPackageFromFile finds all expected ballots', async () => {
   const {
     ballots,
     electionDefinition: { election },
-  } = await ballotPackageUtils.readBallotPackageFromFile(file);
+  } = await readBallotPackageFromFile(file);
+  const ballotStyleIds = election.ballotStyles.map(({ id }) => id);
+  const precinctIds = election.precincts.map(({ id }) => id);
+  expect(election.title).toEqual('General Election');
+  expect(election.state).toEqual('State of Hamilton');
+  expect(ballots.length).toEqual(16);
+
+  for (const { ballotConfig, pdf } of ballots) {
+    expect(ballotStyleIds).toContain(ballotConfig.ballotStyleId);
+    expect(precinctIds).toContain(ballotConfig.precinctId);
+    expect(pdf).toBeInstanceOf(Buffer);
+  }
+});
+
+test('readBallotPackageFromBuffer finds all expected ballots', async () => {
+  const buffer = await fs.readFile(
+    join(__dirname, 'data/ballot-package-state-of-hamilton.zip')
+  );
+  const {
+    ballots,
+    electionDefinition: { election },
+  } = await readBallotPackageFromBuffer(
+    buffer,
+    'ballot-package-state-of-hamilton.zip',
+    buffer.length
+  );
   const ballotStyleIds = election.ballotStyles.map(({ id }) => id);
   const precinctIds = election.precincts.map(({ id }) => id);
   expect(election.title).toEqual('General Election');
@@ -46,7 +76,7 @@ test('readBallotPackageFromFilePointer finds all expected ballots', async () => 
   const {
     ballots,
     electionDefinition: { election },
-  } = await ballotPackageUtils.readBallotPackageFromFilePointer({
+  } = await readBallotPackageFromFilePointer({
     name: fileName,
     path: pathToFile,
     size: 0,
@@ -67,9 +97,7 @@ test('readBallotPackageFromFilePointer finds all expected ballots', async () => 
 test('readBallotPackageFromFile throws when an election.json is not present', async () => {
   const pkg = await zipFile({});
   await expect(
-    ballotPackageUtils.readBallotPackageFromFile(
-      new File([pkg], 'election-ballot-package.zip')
-    )
+    readBallotPackageFromFile(new File([pkg], 'election-ballot-package.zip'))
   ).rejects.toThrowError(
     "ballot package does not have a file called 'election.json': election-ballot-package.zip"
   );
@@ -80,9 +108,7 @@ test('readBallotPackageFromFile throws when an manifest.json is not present', as
     'election.json': JSON.stringify(electionSample),
   });
   await expect(
-    ballotPackageUtils.readBallotPackageFromFile(
-      new File([pkg], 'election-ballot-package.zip')
-    )
+    readBallotPackageFromFile(new File([pkg], 'election-ballot-package.zip'))
   ).rejects.toThrowError(
     "ballot package does not have a file called 'manifest.json': election-ballot-package.zip"
   );
@@ -107,9 +133,7 @@ test('readBallotPackageFromFile throws when the manifest does not match ballots'
   });
 
   await expect(
-    ballotPackageUtils.readBallotPackageFromFile(
-      new File([pkg], 'election-ballot-package.zip')
-    )
+    readBallotPackageFromFile(new File([pkg], 'election-ballot-package.zip'))
   ).rejects.toThrowError(
     "ballot package is malformed; found 0 file(s) matching entries in the manifest ('manifest.json'), but the manifest has 1. perhaps this ballot package is using a different version of the software?"
   );
@@ -117,7 +141,7 @@ test('readBallotPackageFromFile throws when the manifest does not match ballots'
 
 test('readBallotPackageFromFile throws when given an invalid zip file', async () => {
   await expect(
-    ballotPackageUtils.readBallotPackageFromFile(
+    readBallotPackageFromFile(
       new File(['not-a-zip'], 'election-ballot-package.zip')
     )
   ).rejects.toThrowError();
@@ -129,7 +153,7 @@ test('readBallotPackageFromFilePointer throws when given an invalid zip file', a
   window.kiosk = mockKiosk;
 
   await expect(
-    ballotPackageUtils.readBallotPackageFromFilePointer({
+    readBallotPackageFromFilePointer({
       name: 'file-name',
       path: 'path',
       size: 0,
@@ -139,13 +163,13 @@ test('readBallotPackageFromFilePointer throws when given an invalid zip file', a
 
 test('readBallotPackageFromFile throws when the file cannot be read', async () => {
   await expect(
-    ballotPackageUtils.readBallotPackageFromFile({} as unknown as File)
+    readBallotPackageFromFile({} as unknown as File)
   ).rejects.toThrowError();
 });
 
 test('readBallotPackageFromFilePointer throws when the file cannot be read', async () => {
   await expect(
-    ballotPackageUtils.readBallotPackageFromFilePointer(
+    readBallotPackageFromFilePointer(
       {} as unknown as KioskBrowser.FileSystemEntry
     )
   ).rejects.toThrowError();

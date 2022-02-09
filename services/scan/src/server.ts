@@ -188,7 +188,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
         return;
       }
 
-      const pkg = await ballotPackageUtils.readBallotPackageFromZip(
+      const pkg = await ballotPackageUtils.readBallotPackageFromBuffer(
         await readFile(file.path),
         file.filename,
         file.size
