@@ -133,10 +133,11 @@ async function readJsonEntry(zipfile: ZipFile, entry: Entry): Promise<unknown> {
 }
 
 async function readBallotPackageFromZip(
-  zipfile: ZipFile,
+  source: Buffer,
   fileName: string,
   fileSize: number
 ): Promise<BallotPackage> {
+  const zipfile = await openZip(source);
   const entries = await getEntries(zipfile);
   const electionEntry = entries.find(
     (entry) => entry.fileName === 'election.json'
@@ -191,19 +192,22 @@ async function readBallotPackageFromZip(
 }
 
 async function readBallotPackageFromFile(file: File): Promise<BallotPackage> {
-  const zipFile = await openZip(await readFile(file));
-  return readBallotPackageFromZip(zipFile, file.name, file.size);
+  return readBallotPackageFromZip(await readFile(file), file.name, file.size);
 }
 
 async function readBallotPackageFromFilePointer(
   file: KioskBrowser.FileSystemEntry
 ): Promise<BallotPackage> {
   assert(window.kiosk);
-  const zipFile = await openZip(await window.kiosk.readFile(file.path));
-  return readBallotPackageFromZip(zipFile, file.name, file.size);
+  return readBallotPackageFromZip(
+    Buffer.from(await window.kiosk.readFile(file.path)),
+    file.name,
+    file.size
+  );
 }
 
 export const ballotPackageUtils = {
   readBallotPackageFromFile,
   readBallotPackageFromFilePointer,
+  readBallotPackageFromZip,
 } as const;
