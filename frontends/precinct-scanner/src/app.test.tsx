@@ -14,10 +14,10 @@ import {
 import {
   TallySourceMachineType,
   MemoryCard,
-  ballotPackageUtils,
   MemoryHardware,
   MemoryStorage,
   typedAs,
+  readBallotPackageFromFilePointer,
 } from '@votingworks/utils';
 import {
   render,
@@ -41,6 +41,7 @@ import { electionSampleDefinition } from '@votingworks/fixtures';
 import { DateTime } from 'luxon';
 import { AdjudicationReason, PrecinctSelectionKind } from '@votingworks/types';
 
+import { mocked } from 'ts-jest/utils';
 import { App } from './app';
 import { interpretedHmpb } from '../test/fixtures';
 
@@ -52,6 +53,18 @@ import {
 import { MachineConfigResponse } from './config/types';
 
 jest.setTimeout(20000);
+
+// Mock just `readBallotPackageFromFilePointer` from `@votingworks/utils`.
+const readBallotPackageFromFilePointerMock = mocked(
+  readBallotPackageFromFilePointer
+);
+const { readBallotPackageFromFile } = jest.requireActual('@votingworks/utils');
+
+jest.mock('@votingworks/utils/build/ballot_package', () => ({
+  ...jest.requireActual('@votingworks/utils/build/ballot_package'),
+  readBallotPackageFromFilePointer: jest.fn(),
+}));
+// End mocking `readBallotPackageFromFilePointer`.
 
 beforeEach(() => {
   jest.useFakeTimers();
@@ -178,16 +191,14 @@ test('app can load and configure from a usb stick', async () => {
   ]);
   const fileContent = await fs.readFile(pathToFile);
   kiosk.readFile.mockResolvedValue((fileContent as unknown) as string);
-  const ballotPackage = await ballotPackageUtils.readBallotPackageFromFile(
+  const ballotPackage = await readBallotPackageFromFile(
     new File([fileContent], 'ballot-package-new.zip')
   );
   /* This function can take too long when the test is running for the results to be seen in time for the
    * test to pass consistently. By running it above and mocking out the result we guarantee the test will
    * pass consistently.
    */
-  jest
-    .spyOn(ballotPackageUtils, 'readBallotPackageFromFilePointer')
-    .mockResolvedValue(ballotPackage);
+  readBallotPackageFromFilePointerMock.mockResolvedValue(ballotPackage);
 
   fetchMock
     .patchOnce('/config/testMode', {
@@ -224,9 +235,7 @@ test('app can load and configure from a usb stick', async () => {
   expect(fetchMock.calls('/scan/hmpb/addTemplates')).toHaveLength(16);
   expect(fetchMock.calls('/scan/hmpb/doneTemplates')).toHaveLength(1);
 
-  expect(
-    ballotPackageUtils.readBallotPackageFromFilePointer
-  ).toHaveBeenCalledWith(
+  expect(readBallotPackageFromFilePointerMock).toHaveBeenCalledWith(
     expect.objectContaining({
       name: 'ballot-package-new.zip',
     })

@@ -4,7 +4,11 @@ import {
   OptionalElectionDefinition,
   getPrecinctById,
 } from '@votingworks/types';
-import { assert, ballotPackageUtils, usbstick } from '@votingworks/utils';
+import {
+  assert,
+  readBallotPackageFromFilePointer,
+  usbstick,
+} from '@votingworks/utils';
 import { addTemplates, doneTemplates } from '../api/hmpb';
 import { PRECINCT_SCANNER_FOLDER } from '../config/globals';
 import { CenteredLargeProse, CenteredScreen } from '../components/layout';
@@ -72,7 +76,7 @@ export function UnconfiguredElectionScreen({
         }
 
         // Get the most recently-created ballot package.
-        const ballotPackage = await ballotPackageUtils.readBallotPackageFromFilePointer(
+        const ballotPackage = await readBallotPackageFromFilePointer(
           // eslint-disable-next-line vx/gts-safe-number-parse
           [...ballotPackages].sort((a, b) => +b.ctime - +a.ctime)[0]
         );

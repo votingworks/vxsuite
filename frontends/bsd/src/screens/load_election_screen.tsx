@@ -3,7 +3,12 @@ import {
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import React, { useContext, useState } from 'react';
-import { assert, BallotPackage, ballotPackageUtils } from '@votingworks/utils';
+import {
+  assert,
+  BallotPackage,
+  readBallotPackageFromFile,
+  readBallotPackageFromFilePointer,
+} from '@votingworks/utils';
 import { LogEventId } from '@votingworks/logging';
 import * as config from '../api/config';
 import { addTemplates, doneTemplates } from '../api/hmpb';
@@ -100,9 +105,7 @@ export function LoadElectionScreen({
       });
     } else {
       try {
-        const ballotPackage = await ballotPackageUtils.readBallotPackageFromFile(
-          file
-        );
+        const ballotPackage = await readBallotPackageFromFile(file);
         await logger.log(
           LogEventId.BallotPackagedLoadedFromUsb,
           currentUserType,
@@ -133,9 +136,7 @@ export function LoadElectionScreen({
   async function onAutomaticFileImport(file: KioskBrowser.FileSystemEntry) {
     // All automatic file imports will be on zip packages
     try {
-      const ballotPackage = await ballotPackageUtils.readBallotPackageFromFilePointer(
-        file
-      );
+      const ballotPackage = await readBallotPackageFromFilePointer(file);
       await logger.log(
         LogEventId.BallotPackagedLoadedFromUsb,
         currentUserType,
