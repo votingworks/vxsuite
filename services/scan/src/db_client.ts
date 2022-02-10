@@ -50,7 +50,7 @@ export class DbClient {
   }
 
   /**
-   * Builds and returns a new client whose data is kept in memory.
+   * Builds and returns a new store whose data is kept in memory.
    */
   static memoryClient(schemaPath?: string): DbClient {
     const client = new DbClient(MEMORY_DB_PATH, schemaPath);
@@ -59,7 +59,7 @@ export class DbClient {
   }
 
   /**
-   * Builds and returns a new client at `dbPath`.
+   * Builds and returns a new store at `dbPath`.
    */
   static fileClient(dbPath: string, schemaPath?: string): DbClient {
     const client = new DbClient(dbPath, schemaPath);

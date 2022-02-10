@@ -1,0 +1,13 @@
+#!/usr/bin/env node
+
+require('esbuild-runner/register');
+
+require('../src/cli/convert-nh')
+  .main(process.argv.slice(2))
+  .then((code) => {
+    process.exit(code);
+  })
+  .catch((err) => {
+    console.error(err.stack);
+    process.exit(1);
+  });

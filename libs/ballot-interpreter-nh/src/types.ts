@@ -1,4 +1,4 @@
-import { NewType } from '@votingworks/types';
+import { GridPosition, NewType } from '@votingworks/types';
 import { z } from 'zod';
 
 /**
@@ -407,3 +407,40 @@ export const BackMarksMetadataSchema: z.ZodSchema<BackMarksMetadata> = z
       enderCode.every((bit, i) => bit === expectedEnderCode[i]),
     'enderCode must be the expected value'
   );
+
+/**
+ * An interpretation of an oval mark on a ballot.
+ */
+export interface InterpretedOvalMark {
+  readonly gridPosition: GridPosition;
+  readonly score: number;
+  readonly scoredOffset: Vector;
+  readonly bounds: Rect;
+}
+
+/**
+ * Interpreted front ballot scan page layout.
+ */
+export interface ScannedBallotFrontPageLayout {
+  readonly side: 'front';
+  readonly metadata: FrontMarksMetadata;
+  readonly partialMarks: PartialTimingMarks;
+  readonly completeMarks: CompleteTimingMarks;
+}
+
+/**
+ * Interpreted back ballot scan page layout.
+ */
+export interface ScannedBallotBackPageLayout {
+  readonly side: 'back';
+  readonly metadata: BackMarksMetadata;
+  readonly partialMarks: PartialTimingMarks;
+  readonly completeMarks: CompleteTimingMarks;
+}
+
+/**
+ * Interpreted ballot scan page.
+ */
+export type ScannedBallotPageLayout =
+  | ScannedBallotFrontPageLayout
+  | ScannedBallotBackPageLayout;

@@ -51,7 +51,7 @@ test('fujitsu scanner can scan with letter size', async () => {
   });
 
   exec.mockReturnValueOnce(scanimage);
-  scanner.scanSheets({ pageSize: BallotPaperSize.Letter });
+  scanner.scanSheets({ paperSize: BallotPaperSize.Letter });
 
   scanimage.stderr.append(
     [
@@ -74,7 +74,7 @@ test('fujitsu scanner can scan with legal size', async () => {
   });
 
   exec.mockReturnValueOnce(scanimage);
-  scanner.scanSheets({ pageSize: BallotPaperSize.Legal });
+  scanner.scanSheets({ paperSize: BallotPaperSize.Legal });
 
   scanimage.stderr.append(
     [

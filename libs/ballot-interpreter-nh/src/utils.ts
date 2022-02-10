@@ -1,4 +1,5 @@
 import { assert } from '@votingworks/utils';
+import { JSDOM } from 'jsdom';
 import { Bit, Point, Rect, Segment, Vector } from './types';
 
 /**
@@ -32,6 +33,22 @@ export function median(values: number[]): number {
     return sorted[Math.floor(mid)] as number;
   }
   return ((sorted[mid - 1] as number) + (sorted[mid] as number)) / 2;
+}
+
+/**
+ * Computes the average value of a list of numbers.
+ */
+export function average(values: readonly number[]): number {
+  return values.reduce((a, b) => a + b, 0) / values.length;
+}
+
+/**
+ * Computes the standard deviation of the given values.
+ */
+export function stddev(values: readonly number[]): number {
+  const mean = average(values);
+  const squaredDifferences = values.map((value) => (value - mean) ** 2);
+  return Math.sqrt(average(squaredDifferences));
 }
 
 /**
@@ -320,4 +337,41 @@ export function bitsToNumber(
     result = result * 2 + (bits[i] as number);
   }
   return result;
+}
+
+/**
+ * Parses {@link xml} and returns the root element.
+ */
+export function parseXml(xml: string): Element {
+  const jsdom = new JSDOM(xml, { contentType: 'text/xml' });
+  return jsdom.window.document.documentElement;
+}
+
+/**
+ * Splits an array into chunks at split points determined by a predicate.
+ */
+export function splitAt<T>(
+  array: readonly T[],
+  predicate: (left: T, right: T) => boolean
+): Array<T[]> {
+  if (array.length < 2) {
+    return [[...array]];
+  }
+
+  const chunks: Array<T[]> = [];
+  let currentChunk: T[] = [];
+
+  for (let i = 0; i < array.length; i += 1) {
+    currentChunk.push(array[i] as T);
+    if (i !== array.length - 1 && predicate(array[i] as T, array[i + 1] as T)) {
+      chunks.push(currentChunk);
+      currentChunk = [];
+    }
+  }
+
+  if (currentChunk.length > 0) {
+    chunks.push(currentChunk);
+  }
+
+  return chunks;
 }

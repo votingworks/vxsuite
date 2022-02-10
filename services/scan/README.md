@@ -44,10 +44,6 @@ front-02.jpeg
 back-02.jpeg
 EOS
 MOCK_SCANNER_FILES=@manifest pnpm dev
-
-# scanning from an election backup file
-./bin/extract-backup /path/to/election-backup.zip
-MOCK_SCANNER_FILES=@/path/to/election-backup/manifest pnpm dev
 ```
 
 If you are seeing unhandled promise rejection errors you may have an issue with

@@ -15,7 +15,7 @@ export interface BatchControl {
 
 export interface ScanOptions {
   directory?: string;
-  pageSize?: BallotPaperSize;
+  paperSize?: BallotPaperSize;
 }
 
 export interface Scanner {

@@ -434,15 +434,49 @@ export const MarkThresholdsSchema: z.ZodSchema<MarkThresholds> = z
     'marginal mark threshold must be less than or equal to definite mark threshold'
   );
 
-export interface GridPosition {
-  readonly x: number;
-  readonly y: number;
+export interface GridPositionOption {
+  readonly type: 'option';
+  readonly side: 'front' | 'back';
   readonly column: number;
   readonly row: number;
   readonly contestId: ContestId;
-  readonly optionId: Id | WriteInId;
+  readonly optionId: Id;
 }
+export const GridPositionOptionSchema: z.ZodSchema<GridPositionOption> = z.object(
+  {
+    type: z.literal('option'),
+    side: z.union([z.literal('front'), z.literal('back')]),
+    column: z.number().int().nonnegative(),
+    row: z.number().int().nonnegative(),
+    contestId: ContestIdSchema,
+    optionId: IdSchema,
+  }
+);
 
+export interface GridPositionWriteIn {
+  readonly type: 'write-in';
+  readonly side: 'front' | 'back';
+  readonly column: number;
+  readonly row: number;
+  readonly contestId: ContestId;
+  readonly writeInIndex: number;
+}
+export const GridPositionWriteInSchema: z.ZodSchema<GridPositionWriteIn> = z.object(
+  {
+    type: z.literal('write-in'),
+    side: z.union([z.literal('front'), z.literal('back')]),
+    column: z.number().int().nonnegative(),
+    row: z.number().int().nonnegative(),
+    contestId: ContestIdSchema,
+    writeInIndex: z.number().int().nonnegative(),
+  }
+);
+
+export type GridPosition = GridPositionOption | GridPositionWriteIn;
+export const GridPositionSchema: z.ZodSchema<GridPosition> = z.union([
+  GridPositionOptionSchema,
+  GridPositionWriteInSchema,
+]);
 export interface GridLayout {
   readonly precinctId: PrecinctId;
   readonly ballotStyleId: BallotStyleId;
@@ -450,6 +484,13 @@ export interface GridLayout {
   readonly rows: number;
   readonly gridPositions: readonly GridPosition[];
 }
+export const GridLayoutSchema: z.ZodSchema<GridLayout> = z.object({
+  precinctId: PrecinctIdSchema,
+  ballotStyleId: BallotStyleIdSchema,
+  columns: z.number().int().nonnegative(),
+  rows: z.number().int().nonnegative(),
+  gridPositions: z.array(GridPositionSchema),
+});
 
 export interface Election {
   readonly _lang?: Translations;
@@ -491,6 +532,7 @@ export const ElectionSchema: z.ZodSchema<Election> = z
       .array(z.lazy(() => AdjudicationReasonSchema))
       .optional(),
     contests: ContestsSchema,
+    gridLayouts: z.array(GridLayoutSchema).optional(),
     county: CountySchema,
     date: Iso8601Date,
     districts: DistrictsSchema,
@@ -1175,6 +1217,19 @@ export const PageInterpretationSchema: z.ZodSchema<PageInterpretation> = z.union
     UninterpretedHmpbPageSchema,
     UnreadablePageSchema,
   ]
+);
+
+export interface PageInterpretationWithFiles {
+  originalFilename: string;
+  normalizedFilename: string;
+  interpretation: PageInterpretation;
+}
+export const PageInterpretationWithFilesSchema: z.ZodSchema<PageInterpretationWithFiles> = z.object(
+  {
+    originalFilename: z.string(),
+    normalizedFilename: z.string(),
+    interpretation: PageInterpretationSchema,
+  }
 );
 
 export interface BallotPageInfo {

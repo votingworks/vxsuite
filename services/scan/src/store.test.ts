@@ -1,46 +1,41 @@
 import { asElectionDefinition } from '@votingworks/fixtures';
-import {
-  AdjudicationReason,
-  BallotMetadata,
-  BallotType,
-  CandidateContest,
-  SerializableBallotPageLayout,
-  YesNoContest,
-} from '@votingworks/types';
-import { typedAs } from '@votingworks/utils';
-import * as tmp from 'tmp';
-import { v4 as uuid } from 'uuid';
 import { election } from '../test/fixtures/state-of-hamilton';
-import { zeroRect } from '../test/fixtures/zero_rect';
 import { Store } from './store';
-import { PageInterpretationWithFiles, SheetOf } from './types';
 
-test('get/set election', () => {
+test('get/set current election', () => {
   const store = Store.memoryStore();
 
-  expect(store.getElectionDefinition()).toBeUndefined();
+  expect(store.getCurrentElection()).toBeUndefined();
 
-  store.setElection(asElectionDefinition(election));
-  expect(store.getElectionDefinition()?.election).toEqual(election);
+  const addedElection = store.addElection(asElectionDefinition(election));
+  store.setCurrentElection(addedElection.test.id);
+  expect(store.getCurrentElection()?.definition.election).toEqual(election);
 
-  store.setElection(undefined);
-  expect(store.getElectionDefinition()).toBeUndefined();
+  store.setCurrentElection();
+  expect(store.getCurrentElection()).toBeUndefined();
 });
 
 test('get/set test mode', () => {
   const store = Store.memoryStore();
 
-  expect(store.getTestMode()).toBe(false);
+  expect(store.getTestMode()).toBeUndefined();
 
-  store.setTestMode(true);
+  const addedElection = store.addElection(asElectionDefinition(election));
+
+  store.setCurrentElection(addedElection.test.id);
   expect(store.getTestMode()).toBe(true);
 
-  store.setTestMode(false);
+  expect(store.setTestMode(false)).toEqual(addedElection.live.id);
   expect(store.getTestMode()).toBe(false);
+
+  expect(store.setTestMode(true)).toEqual(addedElection.test.id);
+  expect(store.getTestMode()).toBe(true);
 });
 
 test('get/set mark threshold overrides', () => {
   const store = Store.memoryStore();
+  const { live } = store.addElection(asElectionDefinition(election));
+  store.setCurrentElection(live.id);
 
   expect(store.getMarkThresholdOverrides()).toBe(undefined);
 
@@ -54,113 +49,12 @@ test('get/set mark threshold overrides', () => {
   expect(store.getMarkThresholdOverrides()).toBe(undefined);
 });
 
-test('get current mark thresholds falls back to election definition defaults', () => {
-  const store = Store.memoryStore();
-  store.setElection(asElectionDefinition(election));
-  expect(store.getCurrentMarkThresholds()).toStrictEqual({
-    definite: 0.17,
-    marginal: 0.12,
-  });
-
-  store.setMarkThresholdOverrides({ definite: 0.6, marginal: 0.5 });
-  expect(store.getCurrentMarkThresholds()).toStrictEqual({
-    definite: 0.6,
-    marginal: 0.5,
-  });
-
-  store.setMarkThresholdOverrides(undefined);
-  expect(store.getCurrentMarkThresholds()).toStrictEqual({
-    definite: 0.17,
-    marginal: 0.12,
-  });
-});
-
-test('HMPB template handling', () => {
-  const store = Store.memoryStore();
-  const metadata: BallotMetadata = {
-    electionHash: '',
-    locales: { primary: 'en-US' },
-    ballotStyleId: '12',
-    precinctId: '23',
-    isTestMode: false,
-    ballotType: BallotType.Standard,
-  };
-
-  expect(store.getHmpbTemplates()).toEqual([]);
-
-  store.addHmpbTemplate(Buffer.of(1, 2, 3), metadata, [
-    {
-      ballotImage: {
-        imageData: { width: 1, height: 1 },
-        metadata: {
-          ...metadata,
-          pageNumber: 1,
-        },
-      },
-      contests: [],
-    },
-    {
-      ballotImage: {
-        imageData: { width: 1, height: 1 },
-        metadata: {
-          ...metadata,
-          pageNumber: 2,
-        },
-      },
-      contests: [],
-    },
-  ]);
-
-  expect(store.getHmpbTemplates()).toEqual(
-    typedAs<Array<[Buffer, SerializableBallotPageLayout[]]>>([
-      [
-        Buffer.of(1, 2, 3),
-        [
-          {
-            ballotImage: {
-              imageData: { width: 1, height: 1 },
-              metadata: {
-                electionHash: '',
-                ballotType: BallotType.Standard,
-                locales: { primary: 'en-US' },
-                ballotStyleId: '12',
-                precinctId: '23',
-                isTestMode: false,
-                pageNumber: 1,
-              },
-            },
-            contests: [],
-          },
-          {
-            ballotImage: {
-              imageData: { width: 1, height: 1 },
-              metadata: {
-                electionHash: '',
-                ballotType: BallotType.Standard,
-                locales: { primary: 'en-US' },
-                ballotStyleId: '12',
-                precinctId: '23',
-                isTestMode: false,
-                pageNumber: 2,
-              },
-            },
-            contests: [],
-          },
-        ],
-      ],
-    ])
-  );
-});
-
 test('batch cleanup works correctly', () => {
-  const dbFile = tmp.fileSync();
-  const store = Store.fileStore(dbFile.name);
-
-  store.reset();
+  const store = Store.memoryStore();
 
   const firstBatchId = store.addBatch();
   store.addBatch();
-  store.finishBatch({ batchId: firstBatchId });
+  store.finishCurrentBatch();
   store.cleanupIncompleteBatches();
 
   const batches = store.batchStatus();
@@ -170,7 +64,7 @@ test('batch cleanup works correctly', () => {
 
   const thirdBatchId = store.addBatch();
   store.addBatch();
-  store.finishBatch({ batchId: thirdBatchId });
+  store.finishCurrentBatch();
   store.cleanupIncompleteBatches();
   const updatedBatches = store.batchStatus();
   expect(
@@ -185,163 +79,4 @@ test('batch cleanup works correctly', () => {
       label: 'Batch 3',
     }),
   ]);
-});
-
-test('adjudication', () => {
-  const candidateContests = election.contests.filter(
-    (contest): contest is CandidateContest => contest.type === 'candidate'
-  );
-  const yesnoContests = election.contests.filter(
-    (contest): contest is YesNoContest => contest.type === 'yesno'
-  );
-  const yesnoOption = 'yes';
-
-  const store = Store.memoryStore();
-  const metadata: BallotMetadata = {
-    electionHash: '',
-    ballotStyleId: '12',
-    precinctId: '23',
-    isTestMode: false,
-    locales: { primary: 'en-US' },
-    ballotType: BallotType.Standard,
-  };
-  store.setElection(asElectionDefinition(election));
-  store.addHmpbTemplate(
-    Buffer.of(),
-    metadata,
-    [1, 2].map((pageNumber) => ({
-      ballotImage: {
-        imageData: { width: 1, height: 1 },
-        metadata: {
-          ...metadata,
-          pageNumber,
-        },
-      },
-      contests: [
-        {
-          bounds: zeroRect,
-          corners: [
-            { x: 0, y: 0 },
-            { x: 0, y: 0 },
-            { x: 0, y: 0 },
-            { x: 0, y: 0 },
-          ],
-          options: [
-            {
-              bounds: zeroRect,
-              target: {
-                bounds: zeroRect,
-                inner: zeroRect,
-              },
-            },
-          ],
-        },
-        {
-          bounds: zeroRect,
-          corners: [
-            { x: 0, y: 0 },
-            { x: 0, y: 0 },
-            { x: 0, y: 0 },
-            { x: 0, y: 0 },
-          ],
-          options: [
-            {
-              bounds: zeroRect,
-              target: {
-                bounds: zeroRect,
-                inner: zeroRect,
-              },
-            },
-          ],
-        },
-      ],
-    }))
-  );
-  const batchId = store.addBatch();
-  const ballotId = store.addSheet(
-    uuid(),
-    batchId,
-    [0, 1].map((i) =>
-      typedAs<PageInterpretationWithFiles>({
-        originalFilename:
-          i === 0 ? '/front-original.png' : '/back-original.png',
-        normalizedFilename:
-          i === 0 ? '/front-normalized.png' : '/back-normalized.png',
-        interpretation: {
-          type: 'InterpretedHmpbPage',
-          votes: {},
-          markInfo: {
-            ballotSize: { width: 800, height: 1000 },
-            marks: [
-              {
-                type: 'candidate',
-                contestId: candidateContests[i].id,
-                optionId: candidateContests[i].candidates[0].id,
-                score: 0.12, // marginal
-                scoredOffset: { x: 0, y: 0 },
-                bounds: zeroRect,
-                target: {
-                  bounds: zeroRect,
-                  inner: zeroRect,
-                },
-              },
-              {
-                type: 'yesno',
-                contestId: yesnoContests[i].id,
-                optionId: yesnoOption,
-                score: 1, // definite
-                scoredOffset: { x: 0, y: 0 },
-                bounds: zeroRect,
-                target: {
-                  bounds: zeroRect,
-                  inner: zeroRect,
-                },
-              },
-            ],
-          },
-          metadata: {
-            electionHash: '',
-            ballotStyleId: '12',
-            precinctId: '23',
-            isTestMode: false,
-            pageNumber: 1,
-            locales: { primary: 'en-US' },
-            ballotType: BallotType.Standard,
-          },
-          adjudicationInfo: {
-            requiresAdjudication: true,
-            enabledReasons: [
-              AdjudicationReason.UninterpretableBallot,
-              AdjudicationReason.MarginalMark,
-            ],
-            enabledReasonInfos: [
-              {
-                type: AdjudicationReason.MarginalMark,
-                contestId: candidateContests[i].id,
-                optionId: candidateContests[i].candidates[0].id,
-                optionIndex: 0,
-              },
-              {
-                type: AdjudicationReason.Undervote,
-                contestId: candidateContests[i].id,
-                expected: 1,
-                optionIds: [],
-                optionIndexes: [],
-              },
-            ],
-            ignoredReasonInfos: [],
-          },
-        },
-      })
-    ) as SheetOf<PageInterpretationWithFiles>
-  );
-
-  // check the review paths
-  const reviewSheet = store.getNextAdjudicationSheet();
-  expect(reviewSheet?.id).toEqual(ballotId);
-
-  store.finishBatch({ batchId });
-
-  // cleaning up batches now should have no impact
-  store.cleanupIncompleteBatches();
 });

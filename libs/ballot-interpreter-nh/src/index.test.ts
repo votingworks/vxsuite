@@ -1,164 +1,213 @@
-import { promises as fs } from 'fs';
-import { join } from 'path';
-import { convertElectionDefinition, NewHampshireBallotCardDefinition } from '.';
-import { readGrayscaleImage } from './images';
-
-async function readHudsonBallotCardDefinition(): Promise<NewHampshireBallotCardDefinition> {
-  return {
-    metadata: await fs.readFile(
-      join(__dirname, '../test/fixtures/hudson.xml'),
-      'utf8'
-    ),
-    front: await readGrayscaleImage(
-      join(__dirname, '../test/fixtures/hudson_p1.jpg')
-    ),
-    back: await readGrayscaleImage(
-      join(__dirname, '../test/fixtures/hudson_p2.jpg')
-    ),
-  };
-}
+import { BallotPaperSize, safeParseElection } from '@votingworks/types';
+import {
+  convertElectionDefinition,
+  convertElectionDefinitionHeader,
+  readGridFromElectionDefinition,
+} from '.';
+import {
+  HudsonFixtureName,
+  readFixtureBallotCardDefinition,
+  readFixtureDefinition,
+  readFixtureJson,
+} from '../test/fixtures';
+import { asciiOvalGrid } from '../test/utils';
+import { getBallotTemplateOvalImage } from './accuvote';
+import { setDebug, withSvgDebugger } from './debug';
 
 test('converting a single ballot card definition', async () => {
-  const hudsonBallotCardDefinition = await readHudsonBallotCardDefinition();
-  expect(convertElectionDefinition([hudsonBallotCardDefinition]).unsafeUnwrap())
-    .toMatchInlineSnapshot(`
-    Object {
-      "ballotStyles": Array [
-        Object {
-          "districts": Array [
-            "town-id-12101-precinct-id-",
-          ],
-          "id": "default",
-          "precincts": Array [
-            "town-id-12101-precinct-id-",
-          ],
-        },
-      ],
-      "contests": Array [],
-      "county": Object {
-        "id": "12101",
-        "name": "Hudson",
-      },
-      "date": "2020-11-03T12:00:00.000-05:00",
-      "districts": Array [
-        Object {
-          "id": "town-id-12101-precinct-id-",
-          "name": "Hudson",
-        },
-      ],
-      "parties": Array [],
-      "precincts": Array [
-        Object {
-          "id": "town-id-12101-precinct-id-",
-          "name": "Hudson",
-        },
-      ],
-      "state": "NH",
-      "title": "General Election",
-    }
-  `);
+  setDebug(true);
+  const ovalTemplate = await getBallotTemplateOvalImage();
+  const hudsonBallotCardDefinition = await readFixtureBallotCardDefinition(
+    HudsonFixtureName
+  );
+  const electionDefinition = withSvgDebugger((debug) => {
+    debug.imageData(0, 0, hudsonBallotCardDefinition.front);
+    return convertElectionDefinition(hudsonBallotCardDefinition, {
+      ovalTemplate,
+      debug,
+    }).unsafeUnwrap();
+  });
+  const election = safeParseElection(
+    await readFixtureJson(HudsonFixtureName, 'election')
+  ).unsafeUnwrap();
+  expect(electionDefinition).toEqual(election);
 });
 
-test('not enough card definitions', () => {
-  expect(() =>
-    convertElectionDefinition([]).unsafeUnwrap()
-  ).toThrowErrorMatchingInlineSnapshot(
-    `"at least one ballot card definition is required"`
+test('letter-size card definition', async () => {
+  const hudsonBallotCardDefinition = await readFixtureDefinition(
+    HudsonFixtureName
+  );
+
+  hudsonBallotCardDefinition.querySelector('BallotSize')!.textContent =
+    '8.5X11';
+
+  const electionDefinition = convertElectionDefinitionHeader(
+    hudsonBallotCardDefinition
+  ).unsafeUnwrap();
+
+  expect(electionDefinition.ballotLayout?.paperSize).toEqual(
+    BallotPaperSize.Letter
   );
 });
 
 test('missing ElectionID', async () => {
-  const hudsonBallotCardDefinition = await readHudsonBallotCardDefinition();
+  const hudsonBallotCardDefinition = await readFixtureDefinition(
+    HudsonFixtureName
+  );
+
+  const electionIdElement =
+    hudsonBallotCardDefinition.querySelector('ElectionID')!;
+  electionIdElement.parentElement?.removeChild(electionIdElement);
 
   expect(() =>
-    convertElectionDefinition([
-      {
-        ...hudsonBallotCardDefinition,
-        metadata: hudsonBallotCardDefinition.metadata.replace(
-          /<ElectionID>.*<\/ElectionID>/,
-          ''
-        ),
-      },
-    ]).unsafeUnwrap()
+    convertElectionDefinitionHeader(hudsonBallotCardDefinition).unsafeUnwrap()
   ).toThrowErrorMatchingInlineSnapshot('"ElectionID is required"');
 });
 
 test('missing ElectionName', async () => {
-  const hudsonBallotCardDefinition = await readHudsonBallotCardDefinition();
+  const hudsonBallotCardDefinition = await readFixtureDefinition(
+    HudsonFixtureName
+  );
+
+  const electionNameElement =
+    hudsonBallotCardDefinition.querySelector('ElectionName')!;
+  electionNameElement.parentElement?.removeChild(electionNameElement);
 
   expect(() =>
-    convertElectionDefinition([
-      {
-        ...hudsonBallotCardDefinition,
-        metadata: hudsonBallotCardDefinition.metadata.replace(
-          /<ElectionName>.*<\/ElectionName>/,
-          ''
-        ),
-      },
-    ]).unsafeUnwrap()
+    convertElectionDefinitionHeader(hudsonBallotCardDefinition).unsafeUnwrap()
   ).toThrowErrorMatchingInlineSnapshot('"ElectionName is required"');
 });
 
 test('missing TownName', async () => {
-  const hudsonBallotCardDefinition = await readHudsonBallotCardDefinition();
+  const hudsonBallotCardDefinition = await readFixtureDefinition(
+    HudsonFixtureName
+  );
+
+  const townNameElement = hudsonBallotCardDefinition.querySelector('TownName')!;
+  townNameElement.parentElement?.removeChild(townNameElement);
 
   expect(() =>
-    convertElectionDefinition([
-      {
-        ...hudsonBallotCardDefinition,
-        metadata: hudsonBallotCardDefinition.metadata.replace(
-          /<TownName>.*<\/TownName>/,
-          ''
-        ),
-      },
-    ]).unsafeUnwrap()
+    convertElectionDefinitionHeader(hudsonBallotCardDefinition).unsafeUnwrap()
   ).toThrowErrorMatchingInlineSnapshot('"TownName is required"');
 });
 
 test('missing TownID', async () => {
-  const hudsonBallotCardDefinition = await readHudsonBallotCardDefinition();
+  const hudsonBallotCardDefinition = await readFixtureDefinition(
+    HudsonFixtureName
+  );
+
+  const townIdElement = hudsonBallotCardDefinition.querySelector('TownID')!;
+  townIdElement.parentElement?.removeChild(townIdElement);
 
   expect(() =>
-    convertElectionDefinition([
-      {
-        ...hudsonBallotCardDefinition,
-        metadata: hudsonBallotCardDefinition.metadata.replace(
-          /<TownID>.*<\/TownID/,
-          ''
-        ),
-      },
-    ]).unsafeUnwrap()
+    convertElectionDefinitionHeader(hudsonBallotCardDefinition).unsafeUnwrap()
   ).toThrowErrorMatchingInlineSnapshot('"TownID is required"');
 });
 
 test('missing ElectionDate', async () => {
-  const hudsonBallotCardDefinition = await readHudsonBallotCardDefinition();
+  const hudsonBallotCardDefinition = await readFixtureDefinition(
+    HudsonFixtureName
+  );
+
+  const electionDateElement =
+    hudsonBallotCardDefinition.querySelector('ElectionDate')!;
+  electionDateElement.parentElement?.removeChild(electionDateElement);
 
   expect(() =>
-    convertElectionDefinition([
-      {
-        ...hudsonBallotCardDefinition,
-        metadata: hudsonBallotCardDefinition.metadata.replace(
-          /<ElectionDate>.*<\/ElectionDate>/,
-          ''
-        ),
-      },
-    ]).unsafeUnwrap()
+    convertElectionDefinitionHeader(hudsonBallotCardDefinition).unsafeUnwrap()
   ).toThrowErrorMatchingInlineSnapshot('"ElectionDate is required"');
 });
 
 test('missing PrecinctID', async () => {
-  const hudsonBallotCardDefinition = await readHudsonBallotCardDefinition();
+  const hudsonBallotCardDefinition = await readFixtureDefinition(
+    HudsonFixtureName
+  );
+
+  const precinctIdElement =
+    hudsonBallotCardDefinition.querySelector('PrecinctID')!;
+  precinctIdElement.parentElement?.removeChild(precinctIdElement);
 
   expect(() =>
-    convertElectionDefinition([
-      {
-        ...hudsonBallotCardDefinition,
-        metadata: hudsonBallotCardDefinition.metadata.replace(
-          /<PrecinctID>(.|[\r\n])*<\/PrecinctID>/,
-          ''
-        ),
-      },
-    ]).unsafeUnwrap()
+    convertElectionDefinitionHeader(hudsonBallotCardDefinition).unsafeUnwrap()
   ).toThrowErrorMatchingInlineSnapshot('"PrecinctID is required"');
+});
+
+test('readGridFromElectionDefinition', async () => {
+  const definition = await readFixtureDefinition(
+    HudsonFixtureName,
+    'definition-fixed'
+  );
+  const grid = readGridFromElectionDefinition(definition);
+  expect(asciiOvalGrid(grid)).toMatchInlineSnapshot(`
+    "                                 
+                                     
+                                     
+                                     
+                                     
+                                     
+                                     
+                                     
+                                     
+                O      O      O     O
+                                     
+                                     
+                                     
+                O      O      O     O
+                                     
+                                     
+                O      O      O     O
+                                     
+                                     
+                O      O      O     O
+                                     
+                                     
+                O      O            O
+                                     
+                                     
+                O      O            O
+                                     
+                                     
+                       O            O
+                O                    
+                       O            O
+                O                    
+                       O            O
+                O                    
+                       O            O
+                O                    
+                       O            O
+                O                    
+                       O            O
+                O                    
+                       O            O
+                O                    
+                       O            O
+                O                    
+                       O            O
+                O                    
+                       O            O
+                O                    
+                       O            O
+                O                    
+                                     
+                                     
+                                     
+                O      O            O
+                                     
+                                     
+                O      O      O     O
+                                     
+                                     
+                O      O      O     O
+                                     
+                                     
+                O      O            O
+                                     
+                                     
+                O      O            O
+                                     
+                                     
+                O      O            O
+    "
+  `);
 });

@@ -1,0 +1,882 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AVSInterface>
+  <AccuvoteHeaderInfo>
+    <ElectionDate>11/3/2020 12:00:00 </ElectionDate>
+    <ElectionName>General Election</ElectionName>
+    <TownName>Hudson</TownName>
+    <PartyName>
+    </PartyName>
+    <TownID>12101</TownID>
+    <PrecinctID>
+    </PrecinctID>
+    <ElectionID>16710</ElectionID>
+    <BallotType> Regular </BallotType>
+    <BallotSize>8.5X14</BallotSize>
+  </AccuvoteHeaderInfo>
+  <Candidates>
+    <OfficeName>
+      <Name>President and Vice-President of the United States</Name>
+      <WinnerNote> Vote for not more than 1</WinnerNote>
+      <X>95.327</X>
+      <Y>242.961</Y>
+    </OfficeName>
+    <CandidateName>
+      <Party>Republican</Party>
+      <Name>Donald J. Trump  and Michael R. Pence</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>150.777</CX>
+      <CY>245.768</CY>
+      <OX>236.126</OX>
+      <OY>245.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Party>Democratic</Party>
+      <Name>Joseph R. Biden  and Kamala D. Harris</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>260.926</CX>
+      <CY>245.768</CY>
+      <OX>344.126</OX>
+      <OY>245.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Party>OC</Party>
+      <PX>371.0744</PX>
+      <PY>232.76803401574804</PY>
+      <Name>Jo Jorgensen  and Jeremy Cohen</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>371.074</CX>
+      <CY>262.018</CY>
+      <OX>452.126</OX>
+      <OY>245.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Name>President and Vice-President</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>481.223</CX>
+      <CY>245.768</CY>
+      <OX>544.571</OX>
+      <OY>245.768</OY>
+      <WriteIn>True</WriteIn>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>Governor</Name>
+      <WinnerNote> Vote for not more than 1</WinnerNote>
+      <X>95.327</X>
+      <Y>302.643</Y>
+    </OfficeName>
+    <CandidateName>
+      <Party>Republican</Party>
+      <Name>Chris Sununu</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>150.777</CX>
+      <CY>281.768</CY>
+      <OX>236.126</OX>
+      <OY>281.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Party>Democratic</Party>
+      <Name>Dan Feltes</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>260.926</CX>
+      <CY>281.768</CY>
+      <OX>344.126</OX>
+      <OY>281.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Party>OC</Party>
+      <PX>371.0744</PX>
+      <PY>291.26802078740155</PY>
+      <Name>Darryl W. Perry</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>371.074</CX>
+      <CY>316.018</CY>
+      <OX>452.126</OX>
+      <OY>281.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Name>Governor</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>481.223</CX>
+      <CY>281.768</CY>
+      <OX>544.571</OX>
+      <OY>281.768</OY>
+      <WriteIn>True</WriteIn>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>United States Senator</Name>
+      <WinnerNote> Vote for not more than 1</WinnerNote>
+      <X>95.327</X>
+      <Y>340.018</Y>
+    </OfficeName>
+    <CandidateName>
+      <Party>Republican</Party>
+      <Name>Corky Messner</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>150.777</CX>
+      <CY>308.768</CY>
+      <OX>236.126</OX>
+      <OY>308.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Party>Democratic</Party>
+      <Name>Jeanne Shaheen</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>260.926</CX>
+      <CY>308.768</CY>
+      <OX>344.126</OX>
+      <OY>308.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Party>OC</Party>
+      <PX>371.0744</PX>
+      <PY>327.26802078740155</PY>
+      <Name>Justin O'Donnell</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>371.074</CX>
+      <CY>352.018</CY>
+      <OX>452.126</OX>
+      <OY>308.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Name>US Senator</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>481.223</CX>
+      <CY>308.768</CY>
+      <OX>544.571</OX>
+      <OY>308.768</OY>
+      <WriteIn>True</WriteIn>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>Representative in Congress</Name>
+      <WinnerNote> Vote for not more than 1</WinnerNote>
+      <X>81.452</X>
+      <Y>379.268</Y>
+    </OfficeName>
+    <CandidateName>
+      <Party>Republican</Party>
+      <Name>Steven Negron</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>150.777</CX>
+      <CY>336.768</CY>
+      <OX>236.126</OX>
+      <OY>336.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Party>Democratic</Party>
+      <Name>Ann McLane Kuster</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>260.926</CX>
+      <CY>336.768</CY>
+      <OX>344.126</OX>
+      <OY>336.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Party>OC</Party>
+      <PX>371.0744</PX>
+      <PY>363.26802078740155</PY>
+      <Name>Andrew Olding</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>371.074</CX>
+      <CY>388.018</CY>
+      <OX>452.126</OX>
+      <OY>336.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Name>Rep in Congress</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>481.223</CX>
+      <CY>336.768</CY>
+      <OX>544.571</OX>
+      <OY>336.768</OY>
+      <WriteIn>True</WriteIn>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>Executive Councilor</Name>
+      <WinnerNote> Vote for not more than 1</WinnerNote>
+      <X>95.327</X>
+      <Y>427.268</Y>
+    </OfficeName>
+    <CandidateName>
+      <Party>Republican</Party>
+      <Name>Dave Wheeler</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>150.777</CX>
+      <CY>363.768</CY>
+      <OX>236.126</OX>
+      <OY>363.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Party>Democratic</Party>
+      <Name>Debora B. Pignatelli</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>260.926</CX>
+      <CY>363.768</CY>
+      <OX>344.126</OX>
+      <OY>363.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Name>Executive Councilor</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>481.223</CX>
+      <CY>363.768</CY>
+      <OX>544.571</OX>
+      <OY>363.768</OY>
+      <WriteIn>True</WriteIn>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>State Senator</Name>
+      <WinnerNote> Vote for not more than 1</WinnerNote>
+      <X>95.327</X>
+      <Y>463.268</Y>
+    </OfficeName>
+    <CandidateName>
+      <Party>Republican</Party>
+      <Name>Sharon M. Carson</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>150.777</CX>
+      <CY>390.768</CY>
+      <OX>236.126</OX>
+      <OY>390.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Party>Democratic</Party>
+      <Name>Nancy Hendricks</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>260.926</CX>
+      <CY>390.768</CY>
+      <OX>344.126</OX>
+      <OY>390.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Name>State Senator</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>481.223</CX>
+      <CY>390.768</CY>
+      <OX>544.571</OX>
+      <OY>390.768</OY>
+      <WriteIn>True</WriteIn>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>State Representatives</Name>
+      <WinnerNote> Vote for not more than 11</WinnerNote>
+      <X>95.327</X>
+      <Y>589.268</Y>
+    </OfficeName>
+    <CandidateName>
+      <Party>Republican</Party>
+      <Name>Tony Lekas</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>150.777</CX>
+      <CY>427.768</CY>
+      <OX>236.126</OX>
+      <OY>427.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Party>Republican</Party>
+      <Name>Hershel Nunez</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>150.777</CX>
+      <CY>445.768</CY>
+      <OX>236.126</OX>
+      <OY>445.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Party>Republican</Party>
+      <Name>Lynne Ober</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>150.777</CX>
+      <CY>463.768</CY>
+      <OX>236.126</OX>
+      <OY>463.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Party>Republican</Party>
+      <Name>Russell Ober</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>150.777</CX>
+      <CY>481.768</CY>
+      <OX>236.126</OX>
+      <OY>481.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Party>Republican</Party>
+      <Name>Andrew Prout</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>150.777</CX>
+      <CY>499.768</CY>
+      <OX>236.126</OX>
+      <OY>499.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Party>Republican</Party>
+      <Name>Andrew Renzullo</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>150.777</CX>
+      <CY>517.768</CY>
+      <OX>236.126</OX>
+      <OY>517.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Party>Republican</Party>
+      <Name>Kimberly Rice</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>150.777</CX>
+      <CY>535.768</CY>
+      <OX>236.126</OX>
+      <OY>535.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Party>Republican</Party>
+      <Name>Denise Smith</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>150.777</CX>
+      <CY>553.768</CY>
+      <OX>236.126</OX>
+      <OY>553.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Party>Republican</Party>
+      <Name>Jordan Ulery</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>150.777</CX>
+      <CY>571.768</CY>
+      <OX>236.126</OX>
+      <OY>571.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Party>Republican</Party>
+      <Name>Bob Greene</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>150.777</CX>
+      <CY>589.768</CY>
+      <OX>236.126</OX>
+      <OY>589.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Party>Republican</Party>
+      <Name>Alicia Lekas</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>150.777</CX>
+      <CY>607.768</CY>
+      <OX>236.126</OX>
+      <OY>607.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Party>Democratic</Party>
+      <Name>Brett Gagnon</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>260.926</CX>
+      <CY>418.768</CY>
+      <OX>344.126</OX>
+      <OY>418.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Party>Democratic</Party>
+      <Name>David Hennessey</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>260.926</CX>
+      <CY>436.768</CY>
+      <OX>344.126</OX>
+      <OY>436.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Party>Democratic</Party>
+      <Name>Beatriz Jauregui</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>260.926</CX>
+      <CY>454.768</CY>
+      <OX>344.126</OX>
+      <OY>454.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Party>Democratic</Party>
+      <Name>Steven Katsos</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>260.926</CX>
+      <CY>472.768</CY>
+      <OX>344.126</OX>
+      <OY>472.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Party>Democratic</Party>
+      <Name>Harold Lynde</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>260.926</CX>
+      <CY>490.768</CY>
+      <OX>344.126</OX>
+      <OY>490.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Party>Democratic</Party>
+      <Name>Lana Paliy</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>260.926</CX>
+      <CY>508.768</CY>
+      <OX>344.126</OX>
+      <OY>508.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Party>Democratic</Party>
+      <Name>Robert S. Sherman</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>260.926</CX>
+      <CY>526.768</CY>
+      <OX>344.126</OX>
+      <OY>526.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Party>Democratic</Party>
+      <Name>Alejandro Urrutia</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>260.926</CX>
+      <CY>544.768</CY>
+      <OX>344.126</OX>
+      <OY>544.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Party>Democratic</Party>
+      <Name>Timothy Wyatt</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>260.926</CX>
+      <CY>562.768</CY>
+      <OX>344.126</OX>
+      <OY>562.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Party>Democratic</Party>
+      <Name>Barbara A. Blue</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>260.926</CX>
+      <CY>580.768</CY>
+      <OX>344.126</OX>
+      <OY>580.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Party>Democratic</Party>
+      <Name>Nancy S. Brucker</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>260.926</CX>
+      <CY>598.768</CY>
+      <OX>344.126</OX>
+      <OY>598.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Name>State Representative</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>481.223</CX>
+      <CY>598.768</CY>
+      <OX>544.571</OX>
+      <OY>598.768</OY>
+      <WriteIn>True</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Name>State Representative</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>481.223</CX>
+      <CY>580.768</CY>
+      <OX>544.571</OX>
+      <OY>580.768</OY>
+      <WriteIn>True</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Name>State Representative</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>481.223</CX>
+      <CY>562.768</CY>
+      <OX>544.571</OX>
+      <OY>562.768</OY>
+      <WriteIn>True</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Name>State Representative</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>481.223</CX>
+      <CY>544.768</CY>
+      <OX>544.571</OX>
+      <OY>544.768</OY>
+      <WriteIn>True</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Name>State Representative</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>481.223</CX>
+      <CY>526.768</CY>
+      <OX>544.571</OX>
+      <OY>526.768</OY>
+      <WriteIn>True</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Name>State Representative</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>481.223</CX>
+      <CY>508.768</CY>
+      <OX>544.571</OX>
+      <OY>508.768</OY>
+      <WriteIn>True</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Name>State Representative</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>481.223</CX>
+      <CY>490.768</CY>
+      <OX>544.571</OX>
+      <OY>490.768</OY>
+      <WriteIn>True</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Name>State Representative</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>481.223</CX>
+      <CY>472.768</CY>
+      <OX>544.571</OX>
+      <OY>472.768</OY>
+      <WriteIn>True</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Name>State Representative</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>481.223</CX>
+      <CY>454.768</CY>
+      <OX>544.571</OX>
+      <OY>454.768</OY>
+      <WriteIn>True</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Name>State Representative</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>481.223</CX>
+      <CY>436.768</CY>
+      <OX>544.571</OX>
+      <OY>436.768</OY>
+      <WriteIn>True</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Name>State Representative</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>481.223</CX>
+      <CY>418.768</CY>
+      <OX>544.571</OX>
+      <OY>418.768</OY>
+      <WriteIn>True</WriteIn>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>Sheriff</Name>
+      <WinnerNote> Vote for not more than 1</WinnerNote>
+      <X>95.327</X>
+      <Y>715.268</Y>
+    </OfficeName>
+    <CandidateName>
+      <Party>Republican</Party>
+      <Name>Christopher Connelly</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>150.777</CX>
+      <CY>643.768</CY>
+      <OX>236.126</OX>
+      <OY>643.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Party>Democratic</Party>
+      <Name>Bill Barry</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>260.926</CX>
+      <CY>643.768</CY>
+      <OX>344.126</OX>
+      <OY>643.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Name>Sheriff</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>481.223</CX>
+      <CY>643.768</CY>
+      <OX>544.571</OX>
+      <OY>643.768</OY>
+      <WriteIn>True</WriteIn>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>County Attorney</Name>
+      <WinnerNote> Vote for not more than 1</WinnerNote>
+      <X>95.327</X>
+      <Y>752.643</Y>
+    </OfficeName>
+    <CandidateName>
+      <Party>Republican</Party>
+      <Name>John J. Coughlin</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>150.777</CX>
+      <CY>670.768</CY>
+      <OX>236.126</OX>
+      <OY>670.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Party>Democratic</Party>
+      <Name>Michael Conlon</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>260.926</CX>
+      <CY>670.768</CY>
+      <OX>344.126</OX>
+      <OY>670.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Party>OC</Party>
+      <PX>371.0744</PX>
+      <PY>741.2680207874016</PY>
+      <Name>Nicholas Sarwark</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>371.074</CX>
+      <CY>766.018</CY>
+      <OX>452.126</OX>
+      <OY>670.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Name>County Attorney</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>481.223</CX>
+      <CY>670.768</CY>
+      <OX>544.571</OX>
+      <OY>670.768</OY>
+      <WriteIn>True</WriteIn>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>County Treasurer</Name>
+      <WinnerNote> Vote for not more than 1</WinnerNote>
+      <X>95.327</X>
+      <Y>790.018</Y>
+    </OfficeName>
+    <CandidateName>
+      <Party>Republican</Party>
+      <Name>David G. Fredette</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>150.777</CX>
+      <CY>697.768</CY>
+      <OX>236.126</OX>
+      <OY>697.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Party>Democratic</Party>
+      <Name>William Bryk</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>260.926</CX>
+      <CY>697.768</CY>
+      <OX>344.126</OX>
+      <OY>697.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Party>OC</Party>
+      <PX>371.0744</PX>
+      <PY>777.2680207874016</PY>
+      <Name>Richard Manzo</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>371.074</CX>
+      <CY>802.018</CY>
+      <OX>452.126</OX>
+      <OY>697.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Name>County Treasurer</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>481.223</CX>
+      <CY>697.768</CY>
+      <OX>544.571</OX>
+      <OY>697.768</OY>
+      <WriteIn>True</WriteIn>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>Register of Deeds</Name>
+      <WinnerNote> Vote for not more than 1</WinnerNote>
+      <X>95.327</X>
+      <Y>825.518</Y>
+    </OfficeName>
+    <CandidateName>
+      <Party>Republican</Party>
+      <Name>Jack Flanagan</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>150.777</CX>
+      <CY>724.768</CY>
+      <OX>236.126</OX>
+      <OY>724.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Party>Democratic</Party>
+      <Name>Mary Ann Crowell</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>260.926</CX>
+      <CY>724.768</CY>
+      <OX>344.126</OX>
+      <OY>724.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Name>Register of Deeds</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>481.223</CX>
+      <CY>724.768</CY>
+      <OX>544.571</OX>
+      <OY>724.768</OY>
+      <WriteIn>True</WriteIn>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>Register of Probate</Name>
+      <WinnerNote> Vote for not more than 1</WinnerNote>
+      <X>95.327</X>
+      <Y>859.268</Y>
+    </OfficeName>
+    <CandidateName>
+      <Party>Republican</Party>
+      <Name>Elizabeth Ann Moreau</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>150.777</CX>
+      <CY>751.768</CY>
+      <OX>236.126</OX>
+      <OY>751.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Party>Democratic</Party>
+      <Name>Elizabeth Ropp</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>260.926</CX>
+      <CY>751.768</CY>
+      <OX>344.126</OX>
+      <OY>751.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Name>Register of Probate</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>481.223</CX>
+      <CY>751.768</CY>
+      <OX>544.571</OX>
+      <OY>751.768</OY>
+      <WriteIn>True</WriteIn>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>County Commissioner</Name>
+      <WinnerNote> Vote for not more than 1</WinnerNote>
+      <X>95.327</X>
+      <Y>894.768</Y>
+    </OfficeName>
+    <CandidateName>
+      <Party>Republican</Party>
+      <Name>Michael Soucy</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>150.777</CX>
+      <CY>778.768</CY>
+      <OX>236.126</OX>
+      <OY>778.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Party>Democratic</Party>
+      <Name>Daniel C. Hansberry</Name>
+      <Pronunciation>undefined</Pronunciation>
+      <CX>260.926</CX>
+      <CY>778.768</CY>
+      <OX>344.126</OX>
+      <OY>778.768</OY>
+      <WriteIn>False</WriteIn>
+    </CandidateName>
+    <CandidateName>
+      <Name>County Commissioner</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>481.223</CX>
+      <CY>778.768</CY>
+      <OX>544.571</OX>
+      <OY>778.768</OY>
+      <WriteIn>True</WriteIn>
+    </CandidateName>
+  </Candidates>
+</AVSInterface>

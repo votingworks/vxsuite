@@ -1,5 +1,6 @@
+import { safeParseInt } from '@votingworks/types';
 import { assert } from '@votingworks/utils';
-import { createCanvas, createImageData } from 'canvas';
+import { Canvas, createCanvas, createImageData } from 'canvas';
 import { writeFileSync } from 'fs';
 import { JSDOM } from 'jsdom';
 
@@ -16,11 +17,6 @@ export interface Debugger {
    * Ends a layer, analogous to `console.groupEnd`.
    */
   layerEnd(name: string): Debugger;
-
-  /**
-   * Renders an image from a URL to the specified area.
-   */
-  image(x: number, y: number, w: number, h: number, url: string): Debugger;
 
   /**
    * Renders an image from a URL to the specified area.
@@ -90,7 +86,7 @@ function toJpeg(imageData: ImageData): Buffer {
 /**
  * Builds a debugger that renders SVG.
  */
-export function svg(rootElement: SVGElement): SvgDebugger {
+export function svgDebugger(rootElement: SVGElement): SvgDebugger {
   const document = rootElement.ownerDocument;
   const root: SvgLayer = {
     name: 'root',
@@ -112,6 +108,7 @@ export function svg(rootElement: SVGElement): SvgDebugger {
         element: document.createElementNS('http://www.w3.org/2000/svg', 'svg'),
       };
       layer.element.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+      layer.element.setAttribute('style', '/* display: none */');
       currentLayer.children.push(layer);
       currentLayer.element.appendChild(
         document.createComment(`layer: ${name}`)
@@ -124,24 +121,9 @@ export function svg(rootElement: SVGElement): SvgDebugger {
     layerEnd(name: string): Debugger {
       assert(
         currentLayer.name === name,
-        `Expected layer ${name} but got ${currentLayer.name}`
+        `Expected layer '${currentLayer.name}' but got '${name}'`
       );
       currentLayer = currentLayer.parent ?? root;
-      return this;
-    },
-
-    image(x: number, y: number, w: number, h: number, url: string): Debugger {
-      const image = document.createElementNS(
-        'http://www.w3.org/2000/svg',
-        'image'
-      );
-      image.style.imageRendering = 'pixelated';
-      image.setAttributeNS('http://www.w3.org/1999/xlink', 'href', url);
-      image.setAttribute('x', `${x}`);
-      image.setAttribute('y', `${y}`);
-      image.setAttribute('width', `${w}`);
-      image.setAttribute('height', `${h}`);
-      currentLayer.element.appendChild(image);
       return this;
     },
 
@@ -161,6 +143,24 @@ export function svg(rootElement: SVGElement): SvgDebugger {
       image.setAttribute('width', `${imageData.width}`);
       image.setAttribute('height', `${imageData.height}`);
       currentLayer.element.appendChild(image);
+      currentLayer.element.setAttribute(
+        'width',
+        `${Math.max(
+          safeParseInt(
+            currentLayer.element.getAttribute('width') ?? '0'
+          ).unsafeUnwrap(),
+          x + imageData.width
+        )}`
+      );
+      currentLayer.element.setAttribute(
+        'height',
+        `${Math.max(
+          safeParseInt(
+            currentLayer.element.getAttribute('height') ?? '0'
+          ).unsafeUnwrap(),
+          y + imageData.height
+        )}`
+      );
       return this;
     },
 
@@ -213,29 +213,275 @@ export function svg(rootElement: SVGElement): SvgDebugger {
   };
 }
 
+interface CanvasDebugger extends Debugger {
+  toBuffer(): Buffer;
+}
+
+interface CanvasLayer {
+  readonly name: string;
+  readonly parent?: CanvasLayer;
+  readonly canvas: Canvas;
+  readonly context: CanvasRenderingContext2D;
+}
+
+/**
+ * Provides callbacks for various canvas debugger operations.
+ */
+export interface CanvasDebuggerCallbacks {
+  makeCanvas(): Canvas;
+  onLayerEnd(canvasLayer: CanvasLayer): void;
+}
+
+/**
+ * Creates a debugger that renders to a canvas.
+ */
+export function canvasDebugger(
+  callbacks: CanvasDebuggerCallbacks
+): CanvasDebugger {
+  const rootCanvas = callbacks.makeCanvas();
+  const rootContext = rootCanvas.getContext('2d');
+  const rootLayer: CanvasLayer = {
+    name: 'root',
+    canvas: rootCanvas,
+    context: rootContext,
+  };
+  const layers: CanvasLayer[] = [rootLayer];
+
+  return {
+    line(x1: number, y1: number, x2: number, y2: number, color: string) {
+      for (const { context } of layers) {
+        context.beginPath();
+        context.moveTo(x1, y1);
+        context.lineTo(x2, y2);
+        context.strokeStyle = color;
+        context.stroke();
+      }
+      return this;
+    },
+
+    rect(x: number, y: number, w: number, h: number, color: string) {
+      for (const { context } of layers) {
+        context.fillStyle = color;
+        context.fillRect(x, y, w, h);
+      }
+      return this;
+    },
+
+    text(x: number, y: number, value: string, color: string) {
+      for (const { context } of layers) {
+        context.fillStyle = color;
+        context.fillText(value, x, y);
+      }
+      return this;
+    },
+
+    imageData(x: number, y: number, imageData: ImageData) {
+      for (const { context } of layers) {
+        context.putImageData(toRgba(imageData), x, y);
+      }
+      return this;
+    },
+
+    layer(name: string): CanvasDebugger {
+      const currentLayer = layers[layers.length - 1] ?? rootLayer;
+      const newLayerCanvas = callbacks.makeCanvas();
+      const newLayerContext = newLayerCanvas.getContext('2d');
+      newLayerContext.drawImage(currentLayer.canvas, 0, 0);
+      layers.push({
+        name,
+        parent: currentLayer,
+        canvas: newLayerCanvas,
+        context: newLayerContext,
+      });
+      return this;
+    },
+
+    layerEnd(name: string): CanvasDebugger {
+      const currentLayer = layers.pop();
+      if (currentLayer?.name !== name) {
+        throw new Error(
+          `expected layer ${name} but got ${currentLayer?.name ?? 'none'}`
+        );
+      }
+      callbacks.onLayerEnd(currentLayer);
+      return this;
+    },
+
+    toBuffer(): Buffer {
+      return rootCanvas.toBuffer();
+    },
+  };
+}
+
+let debugEnabled = false;
 const debugFilenameCounterByTestPathAndTestName = new Map<string, number>();
+
+function returnThis<T>(this: T): T {
+  return this;
+}
+
+/**
+ * Builds a no-op debugger for passing to code with image debugging.
+ */
+export function noDebug(): Debugger {
+  return {
+    layer: returnThis,
+    layerEnd: returnThis,
+    imageData: returnThis,
+    line: returnThis,
+    rect: returnThis,
+    text: returnThis,
+  };
+}
+
+/**
+ * Enables or disables the SVG debugger.
+ */
+export function setDebug(enabled: boolean): void {
+  debugEnabled = enabled;
+}
+
+function getCurrentTestPath(): string {
+  const { testPath, currentTestName } = expect.getState();
+  const key = `${testPath}/${currentTestName}`;
+  const count = debugFilenameCounterByTestPathAndTestName.get(key) ?? 0;
+  debugFilenameCounterByTestPathAndTestName.set(key, count + 1);
+  return `${testPath}-debug-${currentTestName.replace(
+    /[^-_\w]+/g,
+    '-'
+  )}-${count}`;
+}
 
 /**
  * Run a function with an SVG debugger, and write the result to a file.
  */
-export function withSvgDebugger<T>(callback: (debug: Debugger) => T): T {
+export function withSvgDebugger<T>(callback: (debug: Debugger) => T): T;
+
+/**
+ * Run a function with an SVG debugger, and write the result to the given file.
+ */
+export function withSvgDebugger<T>(
+  fileName: string,
+  callback: (debug: Debugger) => T
+): T;
+
+/**
+ * Run a function with an SVG debugger, and write the result to a file.
+ */
+export function withSvgDebugger<T>(
+  fileNameOrCallback: string | ((debug: Debugger) => T),
+  callbackOrNothing?: (debug: Debugger) => T
+): T {
+  if (
+    typeof fileNameOrCallback === 'function' &&
+    typeof callbackOrNothing === 'undefined'
+  ) {
+    const callback = fileNameOrCallback;
+    const fileName = `${getCurrentTestPath()}.svg`;
+
+    if (!debugEnabled) {
+      return callback(noDebug());
+    }
+
+    return withSvgDebugger(fileName, callback);
+  }
+
+  assert(
+    typeof fileNameOrCallback === 'string' &&
+      typeof callbackOrNothing === 'function'
+  );
+
+  const fileName = fileNameOrCallback;
+  const callback = callbackOrNothing;
   const { document } = new JSDOM().window;
   const root = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   root.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-  const debug = svg(root);
+  const debug = svgDebugger(root);
   let result: T;
   try {
     result = callback(debug);
+    if (typeof result !== 'undefined' && 'then' in result) {
+      return (result as unknown as Promise<any>).then(
+        () => {
+          writeFileSync(fileName, root.outerHTML);
+          return result;
+        },
+        (error) => {
+          writeFileSync(fileName, root.outerHTML);
+          throw error;
+        }
+      ) as unknown as T;
+    }
   } finally {
-    const { testPath, currentTestName } = expect.getState();
-    const key = `${testPath}/${currentTestName}`;
-    const count = debugFilenameCounterByTestPathAndTestName.get(key) ?? 0;
-    debugFilenameCounterByTestPathAndTestName.set(key, count + 1);
-    const fileName = `${testPath}-debug-${currentTestName.replace(
-      /[^-_\w]+/g,
-      '-'
-    )}${count === 0 ? '' : `-${count}`}.svg`;
     writeFileSync(fileName, root.outerHTML);
+  }
+  return result;
+}
+
+/**
+ * Run a function with a canvas debugger, and write the result to a file.
+ */
+export function withCanvasDebugger<T>(
+  width: number,
+  height: number,
+  callback: (debug: Debugger) => Promise<T>
+): Promise<T>;
+/**
+ * Run a function with a canvas debugger, and write the result to a file.
+ */
+export function withCanvasDebugger<T>(
+  width: number,
+  height: number,
+  callback: (debug: Debugger) => T
+): T;
+/**
+ * Run a function with a canvas debugger, and write the result to a file.
+ */
+export function withCanvasDebugger<T>(
+  width: number,
+  height: number,
+  callback: (debug: Debugger) => T
+): T {
+  if (!debugEnabled) {
+    return callback(noDebug());
+  }
+
+  const fileNameRoot = getCurrentTestPath();
+  const fileName = `${fileNameRoot}.png`;
+  const debug = canvasDebugger({
+    makeCanvas() {
+      return createCanvas(width, height);
+    },
+
+    onLayerEnd(layer) {
+      let layerFileName = '';
+      for (let parentLayer = layer; parentLayer.parent; ) {
+        layerFileName = `${parentLayer.name}--${layerFileName}`;
+      }
+      writeFileSync(
+        `${fileNameRoot}--${layerFileName}.png`,
+        layer.canvas.toBuffer()
+      );
+    },
+  });
+  let result: T;
+
+  try {
+    result = callback(debug);
+    if ('then' in result) {
+      return (result as unknown as Promise<any>).then(
+        () => {
+          writeFileSync(fileName, debug.toBuffer());
+          return result;
+        },
+        (error) => {
+          writeFileSync(fileName, debug.toBuffer());
+          throw error;
+        }
+      ) as unknown as T;
+    }
+  } finally {
+    writeFileSync(fileName, debug.toBuffer());
   }
   return result;
 }

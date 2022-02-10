@@ -1,4 +1,5 @@
-import { assert, map, zip } from '@votingworks/utils';
+import { assert, integers, map, zip, zipMin } from '@votingworks/utils';
+import { BallotCardGeometry } from './accuvote';
 import { Debugger } from './debug';
 import {
   Bit,
@@ -180,23 +181,17 @@ export function findBestFitLineSegmentThrough({
  * Groups rects into left/right/top/bottom groups of timing marks.
  */
 export function findBorder({
-  canvasSize,
+  geometry,
   rects,
   debug,
 }: {
-  canvasSize: Size;
+  geometry: BallotCardGeometry;
   rects: Iterable<Rect>;
   debug?: Debugger;
 }): PartialTimingMarks | undefined {
   debug?.layer(findBorder.name);
 
-  const canvasRect = makeRect({
-    minX: 0,
-    minY: 0,
-    maxX: canvasSize.width - 1,
-    maxY: canvasSize.height - 1,
-  });
-
+  const { contentArea } = geometry;
   const bottom = new Set<Rect>();
   const left = new Set<Rect>();
   const right = new Set<Rect>();
@@ -204,24 +199,21 @@ export function findBorder({
 
   // Step 1: Separate into left & right search areas
   const rectsLeftToRight = [...rects].sort((a, b) => a.x - b.x);
-  const leftCandidates = rectsLeftToRight.filter(
-    (rect) => rect.x < canvasSize.width / 2
-  );
-  const rightCandidates = rectsLeftToRight.filter(
-    (rect) => rect.x >= canvasSize.width / 2
-  );
+  const midX = contentArea.x + contentArea.width / 2;
+  const leftCandidates = rectsLeftToRight.filter((rect) => rect.x < midX);
+  const rightCandidates = rectsLeftToRight.filter((rect) => rect.x >= midX);
 
   // Step 2: Find best fit line segment through left & right search areas,
   //         where the best fit line segment is the one with the most rects.
   const leftSideBestFitLineResult = findBestFitLineSegmentThrough({
-    canvasSize,
+    canvasSize: geometry.canvasSize,
     rects: leftCandidates,
-    // debug,
+    debug,
   });
   const rightSideBestFitLineResult = findBestFitLineSegmentThrough({
-    canvasSize,
+    canvasSize: geometry.canvasSize,
     rects: rightCandidates,
-    // debug,
+    debug,
   });
 
   if (leftSideBestFitLineResult) {
@@ -264,16 +256,89 @@ export function findBorder({
   }
 
   const leftSortedTopToBottom = [...left].sort((a, b) => a.minY - b.minY);
+
+  debug?.layer('trim left');
+  while (leftSortedTopToBottom.length > geometry.gridSize.height) {
+    const first = leftSortedTopToBottom[0];
+    const second = leftSortedTopToBottom[1];
+    const last = leftSortedTopToBottom[leftSortedTopToBottom.length - 1];
+    const penultimate = leftSortedTopToBottom[leftSortedTopToBottom.length - 2];
+
+    if (first && second && last && penultimate) {
+      const distanceFromFirstToSecond = distance(
+        centerOfRect(first),
+        centerOfRect(second)
+      );
+      const distanceFromLastToPenultimate = distance(
+        centerOfRect(last),
+        centerOfRect(penultimate)
+      );
+
+      const removed =
+        distanceFromFirstToSecond > distanceFromLastToPenultimate
+          ? leftSortedTopToBottom.shift()
+          : leftSortedTopToBottom.pop();
+      if (debug && removed) {
+        debug.rect(
+          removed.x,
+          removed.y,
+          removed.width,
+          removed.height,
+          '#ff000077'
+        );
+      }
+    }
+  }
+  debug?.layerEnd('trim left');
+
   const topLeft = leftSortedTopToBottom[0];
   const bottomLeft = leftSortedTopToBottom[leftSortedTopToBottom.length - 1];
   if (!topLeft || !bottomLeft) {
+    debug?.layerEnd(findBorder.name);
     return;
   }
 
   const rightSortedTopToBottom = [...right].sort((a, b) => a.minY - b.minY);
+
+  debug?.layer('trim right');
+  while (rightSortedTopToBottom.length > geometry.gridSize.height) {
+    const first = rightSortedTopToBottom[0];
+    const second = rightSortedTopToBottom[1];
+    const last = rightSortedTopToBottom[rightSortedTopToBottom.length - 1];
+    const penultimate =
+      rightSortedTopToBottom[rightSortedTopToBottom.length - 2];
+
+    if (first && second && last && penultimate) {
+      const distanceFromFirstToSecond = distance(
+        centerOfRect(first),
+        centerOfRect(second)
+      );
+      const distanceFromLastToPenultimate = distance(
+        centerOfRect(last),
+        centerOfRect(penultimate)
+      );
+
+      const removed =
+        distanceFromFirstToSecond > distanceFromLastToPenultimate
+          ? rightSortedTopToBottom.shift()
+          : rightSortedTopToBottom.pop();
+      if (debug && removed) {
+        debug.rect(
+          removed.x,
+          removed.y,
+          removed.width,
+          removed.height,
+          '#ff000077'
+        );
+      }
+    }
+  }
+  debug?.layerEnd('trim right');
+
   const topRight = rightSortedTopToBottom[0];
   const bottomRight = rightSortedTopToBottom[rightSortedTopToBottom.length - 1];
   if (!topRight || !bottomRight) {
+    debug?.layerEnd(findBorder.name);
     return;
   }
 
@@ -284,11 +349,12 @@ export function findBorder({
     to: centerOfRect(topRight),
   };
   const expandedTopLineSegment = segmentIntersectionWithRect(
-    canvasRect,
+    contentArea,
     topLineSegment,
     { bounded: false }
   );
   if (!expandedTopLineSegment) {
+    debug?.layerEnd(findBorder.name);
     return;
   }
 
@@ -326,11 +392,12 @@ export function findBorder({
     to: centerOfRect(bottomRight),
   };
   const expandedBottomLineSegment = segmentIntersectionWithRect(
-    canvasRect,
+    contentArea,
     bottomLineSegment,
     { bounded: false }
   );
   if (!expandedBottomLineSegment) {
+    debug?.layerEnd(findBorder.name);
     return;
   }
 
@@ -673,7 +740,19 @@ export function computeTimingMarkGrid(
 ): PossibleOptionBubblesGrid {
   debug?.layer(computeTimingMarkGrid.name);
 
-  const { top, bottom, left, right } = completeTimingMarks;
+  const rotated =
+    completeTimingMarks.bottomLeft.y < completeTimingMarks.topLeft.y;
+  const xComparator: (a: Rect, b: Rect) => number = rotated
+    ? (a, b) => b.x - a.x
+    : (a, b) => a.x - b.x;
+  const yComparator: (a: Rect, b: Rect) => number = rotated
+    ? (a, b) => b.y - a.y
+    : (a, b) => a.y - b.y;
+  const top = [...completeTimingMarks.top].sort(xComparator);
+  const bottom = [...completeTimingMarks.bottom].sort(xComparator);
+  const left = [...completeTimingMarks.left].sort(yComparator);
+  const right = [...completeTimingMarks.right].sort(yComparator);
+  console.log({ rotated });
   assert(
     top.length === bottom.length,
     `top and bottom must be the same length (${top.length} vs ${bottom.length})`
@@ -684,46 +763,46 @@ export function computeTimingMarkGrid(
   );
 
   const columnAngles = [
-    ...map(zip(top, bottom), ([topShape, bottomShape]) =>
+    ...map(zip(top, bottom), ([topRect, bottomRect]) =>
       Math.atan2(
-        centerOfRect(bottomShape).y - centerOfRect(topShape).y,
-        centerOfRect(bottomShape).x - centerOfRect(topShape).x
+        centerOfRect(bottomRect).y - centerOfRect(topRect).y,
+        centerOfRect(bottomRect).x - centerOfRect(topRect).x
       )
     ),
   ];
   const rowAngles = [
-    ...map(zip(left, right), ([leftShape, rightShape]) =>
+    ...map(zip(left, right), ([leftRect, rightRect]) =>
       Math.atan2(
-        centerOfRect(rightShape).y - centerOfRect(leftShape).y,
-        centerOfRect(rightShape).x - centerOfRect(leftShape).x
+        centerOfRect(rightRect).y - centerOfRect(leftRect).y,
+        centerOfRect(rightRect).x - centerOfRect(leftRect).x
       )
     ),
   ];
 
   /* istanbul ignore next */
   if (debug) {
-    for (const [topShape, bottomShape] of zip(top, bottom)) {
-      const topShapeCenter = centerOfRect(topShape);
-      const bottomShapeCenter = centerOfRect(bottomShape);
+    for (const [topRect, bottomRect] of zip(top, bottom)) {
+      const topRectCenter = centerOfRect(topRect);
+      const bottomRectCenter = centerOfRect(bottomRect);
 
       debug.line(
-        topShapeCenter.x,
-        topShapeCenter.y,
-        bottomShapeCenter.x,
-        bottomShapeCenter.y,
+        topRectCenter.x,
+        topRectCenter.y,
+        bottomRectCenter.x,
+        bottomRectCenter.y,
         'red'
       );
     }
 
-    for (const [leftShape, rightShape] of zip(left, right)) {
-      const leftShapeCenter = centerOfRect(leftShape);
-      const rightShapeCenter = centerOfRect(rightShape);
+    for (const [leftRect, rightRect] of zip(left, right)) {
+      const leftRectCenter = centerOfRect(leftRect);
+      const rightRectCenter = centerOfRect(rightRect);
 
       debug.line(
-        leftShapeCenter.x,
-        leftShapeCenter.y,
-        rightShapeCenter.x,
-        rightShapeCenter.y,
+        leftRectCenter.x,
+        leftRectCenter.y,
+        rightRectCenter.x,
+        rightRectCenter.y,
         'green'
       );
     }
@@ -731,16 +810,20 @@ export function computeTimingMarkGrid(
 
   const rows: Array<Point[]> = [];
 
-  for (let row = 1; row < rowAngles.length - 1; row += 1) {
-    const leftShape = left[row] as Rect;
+  for (const [leftShape, rowAngle, column] of zipMin(
+    left,
+    rowAngles,
+    integers()
+  )) {
     const leftShapeCenter = centerOfRect(leftShape);
-    const rowAngle = rowAngles[row] as number;
     const intersections: Point[] = [];
 
-    for (let column = 1; column < columnAngles.length - 1; column += 1) {
-      const topShape = top[column] as Rect;
+    for (const [topShape, columnAngle, row] of zipMin(
+      top,
+      columnAngles,
+      integers()
+    )) {
       const topShapeCenter = centerOfRect(topShape);
-      const columnAngle = columnAngles[column] as number;
 
       // compute intersection of lines from top and left shapes
       const intersection = calculateIntersection(

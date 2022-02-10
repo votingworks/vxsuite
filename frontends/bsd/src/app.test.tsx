@@ -10,10 +10,7 @@ import fileDownload from 'js-file-download';
 import { fakeKiosk } from '@votingworks/test-utils';
 import { MemoryCard, MemoryHardware, sleep, typedAs } from '@votingworks/utils';
 import {
-  GetElectionConfigResponse,
-  GetMarkThresholdOverridesConfigResponse,
   GetScanStatusResponse,
-  GetTestModeConfigResponse,
   ScanBatchResponse,
   ScannerStatus,
 } from '@votingworks/types/api/services/scan';

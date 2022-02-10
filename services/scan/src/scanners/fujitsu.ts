@@ -56,7 +56,7 @@ export class FujitsuScanner implements Scanner {
 
   scanSheets({
     directory = dirSync().name,
-    pageSize = BallotPaperSize.Letter,
+    paperSize = BallotPaperSize.Letter,
   }: ScanOptions = {}): BatchControl {
     const args: string[] = [
       '-d',
@@ -72,14 +72,14 @@ export class FujitsuScanner implements Scanner {
       `--batch-prompt`,
     ];
 
-    if (pageSize === BallotPaperSize.Legal) {
+    if (paperSize === BallotPaperSize.Legal) {
       args.push('--page-width', '215.872', '--page-height', '355.6'); // values in millimeters
-    } else if (pageSize === BallotPaperSize.Custom8Point5X17) {
+    } else if (paperSize === BallotPaperSize.Custom8Point5X17) {
       args.push('--page-width', '215.872', '--page-height', '431.8'); // values in millimeters
-    } else if (pageSize === BallotPaperSize.Letter) {
+    } else if (paperSize === BallotPaperSize.Letter) {
       // this is the default, no changes needed.
     } else {
-      throwIllegalValue(pageSize);
+      throwIllegalValue(paperSize);
     }
 
     if (this.mode) {

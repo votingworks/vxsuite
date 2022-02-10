@@ -1,11 +1,9 @@
-import { unsafeParse } from '@votingworks/types';
+import { BallotPaperSize, unsafeParse } from '@votingworks/types';
 import { assert, typedAs } from '@votingworks/utils';
 import {
   generateTemplateTimingMarkRects,
-  HudsonBackPageBottomTimingMarkBits,
-  HudsonFrontPageBottomTimingMarkBits,
-  LetterTemplateCanvasSize,
-  noDebug,
+  Hudson03Nov2020BackPageBottomTimingMarkBits,
+  Hudson03Nov2020FrontPageBottomTimingMarkBits,
 } from '../test/fixtures';
 import {
   decodeBackTimingMarkBits,
@@ -177,14 +175,37 @@ test('findBestFitLineSegmentThrough prefers centers', () => {
 
 test('findBorder no rects', () => {
   expect(
-    findBorder({ canvasSize: { width: 10, height: 10 }, rects: [] })
+    findBorder({
+      geometry: {
+        ballotPaperSize: BallotPaperSize.Letter,
+        pixelsPerInch: 200,
+        canvasSize: { width: 10, height: 10 },
+        contentArea: makeRect({ minX: 0, minY: 0, maxX: 10 - 1, maxY: 10 - 1 }),
+        timingMarkSize: { width: 1, height: 1 },
+        ovalSize: { width: 1, height: 1 },
+        gridSize: { width: 3, height: 3 },
+        frontUsableArea: makeRect({ minX: 1, minY: 1, maxX: 1, maxY: 1 }),
+        backUsableArea: makeRect({ minX: 1, minY: 1, maxX: 1, maxY: 1 }),
+      },
+      rects: [],
+    })
   ).toBeUndefined();
 });
 
 test('findBorder minimal border', () => {
   expect(
     findBorder({
-      canvasSize: { width: 10, height: 10 },
+      geometry: {
+        ballotPaperSize: BallotPaperSize.Letter,
+        pixelsPerInch: 200,
+        canvasSize: { width: 10, height: 10 },
+        contentArea: makeRect({ minX: 0, minY: 0, maxX: 10 - 1, maxY: 10 - 1 }),
+        timingMarkSize: { width: 1, height: 1 },
+        ovalSize: { width: 1, height: 1 },
+        gridSize: { width: 2, height: 2 },
+        frontUsableArea: makeRect({ minX: 1, minY: 1, maxX: 0, maxY: 0 }),
+        backUsableArea: makeRect({ minX: 1, minY: 1, maxX: 0, maxY: 0 }),
+      },
       rects: [
         makeRect({ minX: 1, minY: 1, maxX: 2, maxY: 2 }),
         makeRect({ minX: 7, minY: 1, maxX: 8, maxY: 2 }),
@@ -223,17 +244,16 @@ test('findBorder letter-size paper', () => {
 
   expect(
     findBorder({
-      canvasSize: LetterTemplateCanvasSize,
+      geometry: generated.geometry,
       rects: generated.allRects,
-      debug: noDebug(),
     })
   ).toEqual(generated.complete);
 });
 
 test('findBorder letter-size paper with some missing bottom marks', () => {
   const generated = generateTemplateTimingMarkRects();
-  const bottomPattern = HudsonBackPageBottomTimingMarkBits;
-  assert(bottomPattern.length + 2 === generated.complete.bottom.length);
+  const bottomPattern = Hudson03Nov2020BackPageBottomTimingMarkBits;
+  expect(generated.complete.bottom.length).toBe(bottomPattern.length + 2);
   const bottomRectsToRemove = generated.complete.bottom.filter(
     (r, i) => i > 0 && bottomPattern[i - 1] === 0
   );
@@ -241,7 +261,7 @@ test('findBorder letter-size paper with some missing bottom marks', () => {
   expect(
     withSvgDebugger((debug) =>
       findBorder({
-        canvasSize: LetterTemplateCanvasSize,
+        geometry: generated.geometry,
         rects: generated.allRects.filter(
           (r) => !bottomRectsToRemove.includes(r)
         ),
@@ -273,7 +293,7 @@ test('findBorder letter-size paper with some random missing marks', () => {
   );
   const partialTimingMarks = withSvgDebugger((debug) =>
     findBorder({
-      canvasSize: LetterTemplateCanvasSize,
+      geometry: generated.geometry,
       rects: [...filtered, ...corners],
       debug,
     })
@@ -318,7 +338,7 @@ test('decodeBottomRowTimingMarks no marks', () => {
 
 test('decodeBottomRowTimingMarks letter-size paper back side', () => {
   const generated = generateTemplateTimingMarkRects();
-  const bottomBits = HudsonBackPageBottomTimingMarkBits;
+  const bottomBits = Hudson03Nov2020BackPageBottomTimingMarkBits;
   expect(generated.complete.bottom.length).toEqual(bottomBits.length + 2);
 
   const bottomRectsToRemove = generated.complete.bottom.filter(
@@ -354,7 +374,7 @@ test('decodeBottomRowTimingMarks letter-size paper back side', () => {
 
 test('decodeBottomRowTimingMarks letter-size paper front side', () => {
   const generated = generateTemplateTimingMarkRects();
-  const bottomBits = HudsonFrontPageBottomTimingMarkBits;
+  const bottomBits = Hudson03Nov2020FrontPageBottomTimingMarkBits;
   expect(generated.complete.bottom.length).toEqual(bottomBits.length + 2);
 
   const bottomRectsToRemove = generated.complete.bottom.filter(
@@ -382,7 +402,7 @@ test('decodeBottomRowTimingMarks letter-size paper front side', () => {
 
 test('decodeBottomRowTimingMarks letter-size paper back side rotated', () => {
   const generated = generateTemplateTimingMarkRects();
-  const bottomPattern = HudsonBackPageBottomTimingMarkBits;
+  const bottomPattern = Hudson03Nov2020BackPageBottomTimingMarkBits;
   assert(bottomPattern.length + 2 === generated.complete.top.length);
   const topRectsToRemove = generated.complete.top.filter(
     (r, i) => i > 0 && bottomPattern[bottomPattern.length - i] === 0
@@ -408,15 +428,38 @@ test('decodeBottomRowTimingMarks letter-size paper back side rotated', () => {
 });
 
 test('computeTimingMarkGrid minimal', () => {
-  const timingMarks = findBorder({
-    canvasSize: { width: 10, height: 10 },
-    rects: [
-      makeRect({ minX: 1, minY: 1, maxX: 2, maxY: 2 }),
-      makeRect({ minX: 7, minY: 1, maxX: 8, maxY: 2 }),
-      makeRect({ minX: 1, minY: 7, maxX: 2, maxY: 8 }),
-      makeRect({ minX: 7, minY: 7, maxX: 8, maxY: 8 }),
-    ],
-  });
+  const timingMarks = withSvgDebugger((debug) =>
+    findBorder({
+      geometry: {
+        ballotPaperSize: BallotPaperSize.Letter,
+        pixelsPerInch: 200,
+        canvasSize: { width: 100, height: 100 },
+        contentArea: makeRect({
+          minX: 0,
+          minY: 0,
+          maxX: 100 - 1,
+          maxY: 100 - 1,
+        }),
+        timingMarkSize: { width: 1, height: 1 },
+        ovalSize: { width: 1, height: 1 },
+        gridSize: { width: 3, height: 3 },
+        frontUsableArea: makeRect({ minX: 1, minY: 1, maxX: 1, maxY: 1 }),
+        backUsableArea: makeRect({ minX: 1, minY: 1, maxX: 1, maxY: 1 }),
+      },
+      rects: [
+        makeRect({ minX: 10, minY: 10, maxX: 11, maxY: 11 }),
+        makeRect({ minX: 40, minY: 10, maxX: 41, maxY: 11 }),
+        makeRect({ minX: 70, minY: 10, maxX: 71, maxY: 11 }),
+        makeRect({ minX: 40, minY: 40, maxX: 41, maxY: 41 }),
+        makeRect({ minX: 10, minY: 40, maxX: 11, maxY: 41 }),
+        makeRect({ minX: 70, minY: 40, maxX: 71, maxY: 41 }),
+        makeRect({ minX: 10, minY: 70, maxX: 11, maxY: 71 }),
+        makeRect({ minX: 40, minY: 70, maxX: 41, maxY: 71 }),
+        makeRect({ minX: 70, minY: 70, maxX: 71, maxY: 71 }),
+      ],
+      debug,
+    })
+  );
 
   assert(
     timingMarks?.topLeft &&
@@ -427,16 +470,18 @@ test('computeTimingMarkGrid minimal', () => {
 
   expect(
     computeTimingMarkGrid(timingMarks as CompleteTimingMarks).rows
-  ).toHaveLength(0);
+  ).toHaveLength(3);
 });
 
-test('computeTimingMarkGrid letter-size ballot card', () => {
+test('computeTimingMarkGrid legal-size ballot card', () => {
   const generated = generateTemplateTimingMarkRects();
   const grid = withSvgDebugger((debug) =>
-    computeTimingMarkGrid(generated.complete, { debug })
+    computeTimingMarkGrid(generated.complete, {
+      debug,
+    })
   );
-  expect(grid.rows).toHaveLength(generated.complete.left.length - 2);
+  expect(grid.rows).toHaveLength(generated.complete.left.length);
   for (const row of grid.rows) {
-    expect(row).toHaveLength(generated.complete.top.length - 2);
+    expect(row).toHaveLength(generated.complete.top.length);
   }
 });

@@ -1,10 +1,7 @@
-import { BallotType, getPrecinctById } from '@votingworks/types';
-import { throwIllegalValue } from '@votingworks/utils';
 import chalk from 'chalk';
 import { promises as fs } from 'fs';
 import { basename, dirname, extname, join } from 'path';
 import { ScannerImageFormat } from '../scanners';
-import { Store } from '../store';
 
 export function printHelp(out: typeof process.stdout): void {
   out.write(
@@ -87,66 +84,15 @@ export async function main(
     const dir = dirname(path);
     const ext = extname(path);
     const base = basename(path, ext);
-    const queue: Array<{ pdf: Buffer; base: string }> = [];
+    const pdf = await fs.readFile(path);
 
-    if (ext === '.pdf') {
-      queue.push({ pdf: await fs.readFile(path), base });
-    } else if (ext === '.db') {
-      const store = Store.fileStore(path);
-      const electionDefinition = store.getElectionDefinition();
-
-      if (!electionDefinition) {
-        stderr.write(`✘ ${path} has no election definition\n`);
-        return 1;
-      }
-
-      const { election } = electionDefinition;
-
-      for (const [pdf, layouts] of store.getHmpbTemplates()) {
-        const {
-          ballotStyleId,
-          precinctId,
-          isTestMode,
-          ballotType,
-        } = layouts[0].ballotImage.metadata;
-        const precinct =
-          getPrecinctById({ election, precinctId })?.name ?? precinctId;
-        queue.push({
-          pdf,
-          base: [
-            base,
-            ballotStyleId,
-            precinct,
-            isTestMode ? 'TEST' : 'LIVE',
-            ballotType === BallotType.Absentee
-              ? 'absentee'
-              : ballotType === BallotType.Provisional
-              ? 'provisional'
-              : ballotType === BallotType.Standard
-              ? ''
-              : /* istanbul ignore next - compile time check for completeness */
-                throwIllegalValue(ballotType),
-          ]
-            .join('-')
-            .replace(/[^-\w\d]+/g, '-')
-            .replace(/-+/g, '-')
-            .replace(/(^-+|-+$)/g, ''),
-        });
-      }
-    } else {
-      stderr.write(`✘ ${path} is not a known template container type\n`);
-      return 1;
-    }
-
-    for (const entry of queue) {
-      for await (const imagePath of renderPages(
-        entry.pdf,
-        dir,
-        entry.base,
-        format === ScannerImageFormat.JPEG ? '.jpg' : '.png'
-      )) {
-        stdout.write(`📝 ${imagePath}\n`);
-      }
+    for await (const imagePath of renderPages(
+      pdf,
+      dir,
+      base,
+      format === ScannerImageFormat.JPEG ? '.jpg' : '.png'
+    )) {
+      stdout.write(`📝 ${imagePath}\n`);
     }
   }
 

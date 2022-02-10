@@ -1,62 +1,286 @@
 import { unsafeParse } from '@votingworks/types';
-import { assert } from '@votingworks/utils';
+import { assert, typedAs } from '@votingworks/utils';
 import { join } from 'path';
+import { pairColumnEntries, readGridFromElectionDefinition } from '.';
 import {
+  HudsonFixtureName,
+  readFixtureBallotCardDefinition,
+  readFixtureImage,
+} from '../test/fixtures';
+import { asciiOvalGrid } from '../test/utils';
+import {
+  decodeBackTimingMarkBits,
   decodeFrontTimingMarkBits,
+  findTemplateOvals,
   findTimingMarks,
   scanForTimingMarksByScoringBlocks,
+  ScannedBallotCardGeometry8pt5x14,
+  TemplateBallotCardGeometry8pt5x14,
 } from './accuvote';
-import { withSvgDebugger } from './debug';
+import { withCanvasDebugger, withSvgDebugger } from './debug';
 import { readGrayscaleImage } from './images';
-import { decodeBottomRowTimingMarks } from './timing_marks';
-import { FrontMarksMetadataSchema } from './types';
+import {
+  decodeBottomRowTimingMarks,
+  interpolateMissingTimingMarks,
+  renderTimingMarks,
+} from './timing_marks';
+import {
+  BackMarksMetadata,
+  BackMarksMetadataSchema,
+  FrontMarksMetadata,
+  FrontMarksMetadataSchema,
+} from './types';
 
-test('hudson p1 front', async () => {
-  const imageData = await readGrayscaleImage(
-    join(__dirname, '../test/fixtures/hudson_p1.jpg')
+test('hudson template', async () => {
+  const hudson = await readFixtureBallotCardDefinition(
+    HudsonFixtureName,
+    'definition-fixed'
   );
-  const rects = withSvgDebugger((debug) => {
-    debug.imageData(0, 0, imageData);
-    return scanForTimingMarksByScoringBlocks(imageData, {
+  const frontRects = withSvgDebugger((debug) => {
+    debug.imageData(0, 0, hudson.front);
+    return scanForTimingMarksByScoringBlocks(hudson.front, {
       minimumScore: 0.75,
       debug,
     });
   });
-  const timingMarks = withSvgDebugger((debug) => {
-    debug.imageData(0, 0, imageData);
-    return findTimingMarks({
-      canvasSize: { width: imageData.width, height: imageData.height },
-      rects,
+  const backRects = withSvgDebugger((debug) => {
+    debug.imageData(0, 0, hudson.back);
+    return scanForTimingMarksByScoringBlocks(hudson.back, {
+      minimumScore: 0.75,
       debug,
     });
   });
-  assert(timingMarks, 'findTimingMarks failed');
-
-  expect(timingMarks.topLeft).toBeDefined();
-  expect(timingMarks.topRight).toBeDefined();
-  expect(timingMarks.bottomLeft).toBeDefined();
-  expect(timingMarks.bottomRight).toBeDefined();
-  expect(timingMarks.left).toHaveLength(53);
-  expect(timingMarks.right).toHaveLength(53);
-  expect(timingMarks.top).toHaveLength(34);
-  expect(timingMarks.bottom).toHaveLength(12);
-
-  const bits = decodeBottomRowTimingMarks(timingMarks);
-  assert(bits, 'decodeBottomRowTimingMarks failed');
-  bits.reverse(); // make LSB first
-
-  const metadata = decodeFrontTimingMarkBits(bits);
-  expect(metadata).toEqual({
-    batchOrPrecinctNumber: 53,
-    bits: [
-      1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0,
-      0, 0, 0, 0, 0, 0, 1,
-    ],
-    cardNumber: 54,
-    computedMod4CheckSum: 1,
-    mod4CheckSum: 1,
-    sequenceNumber: 0,
-    startBit: 1,
+  const frontTimingMarks = withSvgDebugger((debug) => {
+    debug.imageData(0, 0, hudson.front);
+    return findTimingMarks({
+      geometry: TemplateBallotCardGeometry8pt5x14,
+      rects: frontRects,
+      debug,
+    });
   });
-  unsafeParse(FrontMarksMetadataSchema, metadata);
+  if (!frontTimingMarks) {
+    return;
+  }
+  const backTimingMarks = withSvgDebugger((debug) => {
+    debug.imageData(0, 0, hudson.back);
+    return findTimingMarks({
+      geometry: TemplateBallotCardGeometry8pt5x14,
+      rects: backRects,
+      debug,
+    });
+  });
+  assert(frontTimingMarks && backTimingMarks, 'findTimingMarks failed');
+
+  const { gridSize } = TemplateBallotCardGeometry8pt5x14;
+  expect(frontTimingMarks.topLeft).toBeDefined();
+  expect(frontTimingMarks.topRight).toBeDefined();
+  expect(frontTimingMarks.bottomLeft).toBeDefined();
+  expect(frontTimingMarks.bottomRight).toBeDefined();
+  expect(frontTimingMarks.left).toHaveLength(gridSize.height);
+  expect(frontTimingMarks.right).toHaveLength(gridSize.height);
+  expect(frontTimingMarks.top).toHaveLength(gridSize.width);
+  expect(frontTimingMarks.bottom).toHaveLength(12);
+
+  expect(backTimingMarks.topLeft).toBeDefined();
+  expect(backTimingMarks.topRight).toBeDefined();
+  expect(backTimingMarks.bottomLeft).toBeDefined();
+  expect(backTimingMarks.bottomRight).toBeDefined();
+  expect(backTimingMarks.left).toHaveLength(gridSize.height);
+  expect(backTimingMarks.right).toHaveLength(gridSize.height);
+  expect(backTimingMarks.top).toHaveLength(gridSize.width);
+  expect(backTimingMarks.bottom).toHaveLength(19);
+
+  const frontCompleteTimingMarks =
+    interpolateMissingTimingMarks(frontTimingMarks);
+  const backCompleteTimingMarks =
+    interpolateMissingTimingMarks(backTimingMarks);
+  const ovalTemplate = await readGrayscaleImage(
+    join(__dirname, '../data/templates/oval.png')
+  );
+  const frontTemplateOvals = withSvgDebugger((debug) =>
+    findTemplateOvals(hudson.front, ovalTemplate, frontCompleteTimingMarks, {
+      usableArea: TemplateBallotCardGeometry8pt5x14.frontUsableArea,
+      debug,
+    })
+  );
+  expect(frontTemplateOvals).toHaveLength(55);
+  expect(asciiOvalGrid(frontTemplateOvals)).toMatchInlineSnapshot(`
+    "                                 
+                                     
+                                     
+                                     
+                                     
+                                     
+                                     
+                                     
+                                     
+                O      O      O     O
+                                     
+                                     
+                                     
+                O      O      O     O
+                                     
+                                     
+                O      O      O     O
+                                     
+                                     
+                O      O      O     O
+                                     
+                                     
+                O      O            O
+                                     
+                                     
+                O      O            O
+                                     
+                                     
+                       O            O
+                O                    
+                       O            O
+                O                    
+                       O            O
+                O                    
+                       O            O
+                O                    
+                       O            O
+                O                    
+                       O            O
+                O                    
+                       O            O
+                O                    
+                       O            O
+                O                    
+                       O            O
+                O                    
+                       O            O
+                O                    
+                       O            O
+                O                    
+    "
+  `);
+  const backTemplateOvals = withSvgDebugger((debug) =>
+    findTemplateOvals(hudson.back, ovalTemplate, backCompleteTimingMarks, {
+      usableArea: TemplateBallotCardGeometry8pt5x14.backUsableArea,
+      debug,
+    })
+  );
+  expect(backTemplateOvals).toHaveLength(20);
+  expect(asciiOvalGrid(backTemplateOvals)).toMatchInlineSnapshot(`
+    "                                 
+                                     
+                                     
+                                     
+                O      O            O
+                                     
+                                     
+                O      O      O     O
+                                     
+                                     
+                O      O      O     O
+                                     
+                                     
+                O      O            O
+                                     
+                                     
+                O      O            O
+                                     
+                                     
+                O      O            O
+    "
+  `);
+
+  const grid = readGridFromElectionDefinition(hudson.definition);
+  const paired = pairColumnEntries(
+    grid.map((entry) => ({ ...entry, side: 'front' as const })),
+    [
+      ...frontTemplateOvals.map((oval) => ({
+        ...oval,
+        side: 'front' as const,
+      })),
+      ...backTemplateOvals.map((oval) => ({
+        ...oval,
+        side: 'back' as const,
+      })),
+    ]
+  );
+  expect(paired).toHaveLength(
+    frontTemplateOvals.length + backTemplateOvals.length
+  );
+
+  const frontBits = decodeBottomRowTimingMarks(frontTimingMarks);
+  assert(frontBits, 'decodeBottomRowTimingMarks failed');
+  frontBits.reverse(); // make LSB first
+
+  const backBits = decodeBottomRowTimingMarks(backTimingMarks);
+  assert(backBits, 'decodeBottomRowTimingMarks failed');
+  backBits.reverse(); // make LSB first
+
+  const frontMetadata = decodeFrontTimingMarkBits(frontBits);
+  expect(frontMetadata).toEqual(
+    typedAs<FrontMarksMetadata>({
+      batchOrPrecinctNumber: 53,
+      bits: [
+        1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 1,
+      ],
+      cardNumber: 54,
+      computedMod4CheckSum: 1,
+      mod4CheckSum: 1,
+      sequenceNumber: 0,
+      startBit: 1,
+    })
+  );
+  unsafeParse(FrontMarksMetadataSchema, frontMetadata);
+
+  const backMetadata = decodeBackTimingMarkBits(backBits);
+  expect(backMetadata).toEqual(
+    typedAs<BackMarksMetadata>({
+      bits: [
+        1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1,
+        1, 1, 0, 1, 1, 1, 1, 0,
+      ],
+      electionYear: 20,
+      electionMonth: 11,
+      electionDay: 3,
+      electionType: 'G',
+      enderCode: [0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0],
+      expectedEnderCode: [0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0],
+    })
+  );
+  unsafeParse(BackMarksMetadataSchema, backMetadata);
+});
+
+test('scanned front', async () => {
+  const imageData = await readFixtureImage(
+    HudsonFixtureName,
+    'scan-unmarked-front'
+  );
+  const rects = withCanvasDebugger(
+    imageData.width,
+    imageData.height,
+    (debug) => {
+      debug.imageData(0, 0, imageData);
+      return scanForTimingMarksByScoringBlocks(imageData, {
+        minimumScore: 0.75,
+        debug,
+      });
+    }
+  );
+  const timingMarks = withCanvasDebugger(
+    imageData.width,
+    imageData.height,
+    (debug) => {
+      debug.imageData(0, 0, imageData);
+      return findTimingMarks({
+        geometry: ScannedBallotCardGeometry8pt5x14,
+        rects,
+        debug,
+      });
+    }
+  );
+  if (timingMarks) {
+    withCanvasDebugger(imageData.width, imageData.height, (debug) => {
+      debug.imageData(0, 0, imageData);
+      renderTimingMarks(debug, timingMarks);
+    });
+  }
 });

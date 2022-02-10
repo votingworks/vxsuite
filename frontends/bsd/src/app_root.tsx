@@ -1,5 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { Route, Switch, useHistory } from 'react-router-dom';
+import { LogEventId, Logger, LogSource } from '@votingworks/logging';
 import {
   CardDataTypes,
   ElectionDefinition,
@@ -7,62 +6,55 @@ import {
   Optional,
   safeParseJson,
 } from '@votingworks/types';
-import styled from 'styled-components';
-
 import {
-  ScannerStatus,
   GetScanStatusResponse,
   GetScanStatusResponseSchema,
   ScanBatchResponseSchema,
-  ScanContinueRequest,
-  ScanContinueResponseSchema,
+  ScannerStatus,
   ZeroResponseSchema,
 } from '@votingworks/types/api/services/scan';
 import {
-  usbstick,
-  KioskStorage,
-  LocalStorage,
+  ElectionInfoBar,
+  SetupCardReaderPage,
+  UsbControllerButton,
+  useDevices,
+  useSmartcard,
+  useUsbDrive,
+  useUserSession,
+} from '@votingworks/ui';
+import {
   Card,
   Hardware,
+  KioskStorage,
+  LocalStorage,
+  usbstick,
 } from '@votingworks/utils';
-import {
-  useUsbDrive,
-  UsbControllerButton,
-  useSmartcard,
-  SetupCardReaderPage,
-  useUserSession,
-  useDevices,
-  ElectionInfoBar,
-} from '@votingworks/ui';
-import { LogEventId, Logger, LogSource } from '@votingworks/logging';
+import 'normalize.css';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Route, Switch, useHistory } from 'react-router-dom';
+import styled from 'styled-components';
+import * as config from './api/config';
+import './App.css';
+import { Button } from './components/button';
+import { ExportResultsModal } from './components/export_results_modal';
+import { LinkButton } from './components/link_button';
+import { Main, MainChild } from './components/main';
+import { MainNav } from './components/main_nav';
+import { Prose } from './components/prose';
+import { ScanButton } from './components/scan_button';
+import { Screen } from './components/screen';
+import { Text } from './components/text';
 import { MachineConfig } from './config/types';
 import { AppContext, AppContextInterface } from './contexts/app_context';
-
-import { Button } from './components/button';
-import { Main, MainChild } from './components/main';
-import { Screen } from './components/screen';
-import { Prose } from './components/prose';
-import { Text } from './components/text';
-import { ScanButton } from './components/scan_button';
 import { useInterval } from './hooks/use_interval';
-
-import { LoadElectionScreen } from './screens/load_election_screen';
-import { DashboardScreen } from './screens/dashboard_screen';
-import { BallotEjectScreen } from './screens/ballot_eject_screen';
 import { AdminActionsScreen } from './screens/admin_actions_screen';
-
-import 'normalize.css';
-import './App.css';
-import { download } from './util/download';
-import * as config from './api/config';
-import { LinkButton } from './components/link_button';
-import { MainNav } from './components/main_nav';
-
-import { ExportResultsModal } from './components/export_results_modal';
-import { machineConfigProvider } from './util/machine_config';
-import { MachineLockedScreen } from './screens/machine_locked_screen';
+import { DashboardScreen } from './screens/dashboard_screen';
 import { InvalidCardScreen } from './screens/invalid_card_screen';
+import { LoadElectionScreen } from './screens/load_election_screen';
+import { MachineLockedScreen } from './screens/machine_locked_screen';
 import { UnlockMachineScreen } from './screens/unlock_machine_screen';
+import { download } from './util/download';
+import { machineConfigProvider } from './util/machine_config';
 
 const Buttons = styled.div`
   padding: 10px 0;
@@ -146,25 +138,16 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
   const currentUserType = currentUserSession?.type ?? 'unknown';
 
   const refreshConfig = useCallback(async () => {
-    setElectionDefinition(await config.getElectionDefinition());
-    setTestMode(await config.getTestMode());
-    setMarkThresholds(await config.getMarkThresholdOverrides());
+    const cfg = await config.getConfig();
+    setElectionDefinition(cfg?.definition);
+    setTestMode(cfg?.testMode ?? false);
+    setMarkThresholds(cfg?.markThresholdOverrides);
     await logger.log(LogEventId.ScannerConfigReloaded, currentUserType, {
       message:
         'Loaded election, test mode, and mark threshold information from the scanner service.',
       disposition: 'success',
     });
   }, [logger, currentUserType]);
-
-  async function updateElectionDefinition(e: ElectionDefinition) {
-    setElectionDefinition(e);
-    void logger.log(LogEventId.ElectionConfigured, currentUserType, {
-      message: `Machine configured for election with hash: ${e.electionHash}`,
-      disposition: 'success',
-      electionHash: e.electionHash,
-    });
-    setElectionJustLoaded(true);
-  }
 
   useEffect(() => {
     async function initialize() {
@@ -274,7 +257,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
 
   const unconfigureServer = useCallback(async () => {
     try {
-      await config.setElection(undefined);
+      // await config.setElection(undefined);
       await refreshConfig();
       await logger.log(LogEventId.ElectionUnconfigured, currentUserType, {
         disposition: 'success',
@@ -297,7 +280,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
     try {
       const result = safeParseJson(
         await (
-          await fetch('/scan/scanBatch', {
+          await fetch('/scan/batch', {
             method: 'post',
           })
         ).text(),
@@ -331,51 +314,6 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
       });
     }
   }, [logger, currentUserType]);
-
-  const continueScanning = useCallback(
-    async (request: ScanContinueRequest) => {
-      setIsScanning(true);
-      try {
-        const result = safeParseJson(
-          await (
-            await fetch('/scan/scanContinue', {
-              method: 'post',
-              body: JSON.stringify(request),
-              headers: {
-                'Content-Type': 'application/json',
-              },
-            })
-          ).text(),
-          ScanContinueResponseSchema
-        ).unsafeUnwrap();
-        if (result.status === 'ok') {
-          await logger.log(LogEventId.ScanBatchContinue, currentUserType, {
-            disposition: 'success',
-            message: request.forceAccept
-              ? 'Sheet tabulated with warnings and scanning of batch continued.'
-              : 'User indicated removing the sheet from tabulation and scanning continued without sheet.',
-            sheetRemoved: !request.forceAccept,
-          });
-        } else {
-          await logger.log(LogEventId.ScanBatchContinue, currentUserType, {
-            disposition: 'failure',
-            message: 'Request to continue scanning failed.',
-            error: JSON.stringify(result.errors),
-            result: 'Scanning not continued, user asked to try again.',
-          });
-        }
-      } catch (error) {
-        console.log('failed handleFileInput()', error); // eslint-disable-line no-console
-        await logger.log(LogEventId.ScanBatchContinue, currentUserType, {
-          disposition: 'failure',
-          message: 'Request to continue scanning failed.',
-          error: error.message,
-          result: 'Scanning not continued, user asked to try again.',
-        });
-      }
-    },
-    [logger, currentUserType]
-  );
 
   const zeroData = useCallback(async () => {
     try {
@@ -417,7 +355,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
       await logger.log(LogEventId.TogglingTestMode, currentUserType, {
         message: `Toggling to ${isTestMode ? 'Live' : 'Test'} Mode...`,
       });
-      await config.setTestMode(!isTestMode);
+      // await config.setTestMode(!isTestMode);
       await refreshConfig();
       await logger.log(LogEventId.ToggledTestMode, currentUserType, {
         disposition: 'success',
@@ -439,7 +377,8 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
 
   const setMarkThresholdOverrides = useCallback(
     async (markThresholdOverrides?: MarkThresholds) => {
-      await config.setMarkThresholdOverrides(markThresholdOverrides);
+      // await config.setMarkThresholdOverrides(markThresholdOverrides);
+      console.log({ markThresholdOverrides });
       await refreshConfig();
       history.replace('/');
     },
@@ -581,17 +520,6 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
         </AppContext.Provider>
       );
     }
-    if (adjudication.remaining > 0 && !isScanning) {
-      return (
-        <AppContext.Provider value={currentContext}>
-          <BallotEjectScreen
-            continueScanning={continueScanning}
-            isTestMode={isTestMode}
-          />
-        </AppContext.Provider>
-      );
-    }
-
     let exportButtonTitle;
     if (adjudication.remaining > 0) {
       exportButtonTitle =
@@ -680,7 +608,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
   if (isConfigLoaded) {
     return (
       <AppContext.Provider value={currentContext}>
-        <LoadElectionScreen setElectionDefinition={updateElectionDefinition} />
+        <LoadElectionScreen onLoad={refreshConfig} />
       </AppContext.Provider>
     );
   }

@@ -10,6 +10,7 @@ import {
   intersectionOfLineSegments,
   loc,
   median,
+  splitAt,
   vec,
   vectorAdd,
   vectorMult,
@@ -297,4 +298,19 @@ test('bitsToNumber', () => {
   expect(bitsToNumber([0, 1], 0, 1)).toBe(0);
   expect(bitsToNumber([0, 1], 1, 2)).toBe(1);
   expect(bitsToNumber([1, 1, 1, 1, 1, 1, 1, 1])).toBe(0xff);
+});
+
+test('splitAt', () => {
+  expect(splitAt([1, 2, 3, 4, 5], () => false)).toEqual([[1, 2, 3, 4, 5]]);
+  expect(splitAt([1, 2, 3, 4, 5], () => true)).toEqual([
+    [1],
+    [2],
+    [3],
+    [4],
+    [5],
+  ]);
+  expect(splitAt([1, 2, 3, 4, 5], (a, b) => a === 3 && b === 4)).toEqual([
+    [1, 2, 3],
+    [4, 5],
+  ]);
 });

@@ -17,11 +17,14 @@
   "license": "GPL-3.0",
   "devDependencies": {
     "@jest/types": "^27.5.0",
+    "@types/debug": "^4.1.7",
     "@types/jest": "^27.4.0",
     "@types/jsdom": "^16.2.14",
     "@types/luxon": "^2.0.9",
     "@typescript-eslint/eslint-plugin": "^5.10.2",
     "@typescript-eslint/parser": "^5.10.2",
+    "esbuild": "^0.14.23",
+    "esbuild-runner": "^2.2.1",
     "eslint": "^7",
     "eslint-config-prettier": "^8.3.0",
     "eslint-import-resolver-node": "^0.3.6",
@@ -39,6 +42,8 @@
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
     "canvas": "^2.9.0",
+    "debug": "^4.3.3",
+    "js-sha256": "^0.9.0",
     "jsdom": "^19.0.0",
     "luxon": "^2.3.0",
     "zod": "3.2.0"

@@ -38,6 +38,7 @@
   },
   "dependencies": {
     "@votingworks/ballot-encoder": "workspace:*",
+    "@votingworks/ballot-interpreter-nh": "workspace:*",
     "@votingworks/ballot-interpreter-vx": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/logging": "workspace:*",
@@ -53,6 +54,8 @@
     "chalk": "^4.1.0",
     "debug": "^4.3.1",
     "deep-eql": "^4.0.0",
+    "esbuild": "^0.14.21",
+    "esbuild-runner": "^2.2.1",
     "express": "^4.17.1",
     "fs-extra": "^9.0.1",
     "got": "^11.8.2",

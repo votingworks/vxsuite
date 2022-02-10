@@ -92,9 +92,9 @@ export class PlustekScanner implements Scanner {
     return await this.getHardwareStatus();
   }
 
-  scanSheets({ directory, pageSize }: ScanOptions = {}): BatchControl {
+  scanSheets({ directory, paperSize }: ScanOptions = {}): BatchControl {
     debug('scanSheets: ignoring directory: %s', directory);
-    debug('scanSheets: ignoring pageSize: %s', pageSize);
+    debug('scanSheets: ignoring paperSize: %s', paperSize);
 
     async function waitForStatus(
       client: ScannerClient,

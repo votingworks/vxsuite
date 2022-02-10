@@ -1,68 +1,51 @@
 // Import the rest of our application.
-import { MockScannerClient, ScannerClient } from '@votingworks/plustek-sdk';
-import { ok, Result } from '@votingworks/types';
-import { Logger, LogSource, LogEventId } from '@votingworks/logging';
-import {
-  MOCK_SCANNER_FILES,
-  MOCK_SCANNER_HTTP,
-  MOCK_SCANNER_PORT,
-  SCAN_ALWAYS_HOLD_ON_REJECT,
-  VX_MACHINE_TYPE,
-} from './globals';
+import { interpret } from '@votingworks/ballot-interpreter-nh';
+import { LogEventId, Logger, LogSource } from '@votingworks/logging';
+import { ElectionDefinition, Result } from '@votingworks/types';
+import { join } from 'path';
+import { Importer } from './importer';
 import { LoopScanner, parseBatchesFromEnv } from './loop_scanner';
-import { plustekMockServer, PlustekScanner, Scanner } from './scanners';
+import { FujitsuScanner, Scanner } from './scanners';
 import * as server from './server';
+import { Store } from './store';
+import { PageInterpretationWithFiles, SheetOf } from './types';
 
 const logger = new Logger(LogSource.VxScanService);
 
-async function getScanner(): Promise<Scanner | undefined> {
-  if (VX_MACHINE_TYPE === 'precinct-scanner') {
-    if (MOCK_SCANNER_HTTP) {
-      const client = new MockScannerClient();
-      await client.connect();
-      const port = MOCK_SCANNER_PORT;
-      process.stdout.write(
-        `Starting mock plustek scanner API at http://localhost:${port}/mock\n`
-      );
-      process.stdout.write(
-        `→ Load paper: curl -X PUT -d '{"files":["/path/to/front.jpg", "/path/to/back.jpg"]}' -H 'Content-Type: application/json' http://localhost:${port}/mock\n`
-      );
-      process.stdout.write(
-        `→ Remove paper: curl -X DELETE http://localhost:${port}/mock\n`
-      );
-      plustekMockServer(client).listen(port);
-      return new PlustekScanner(
-        {
-          get: async (): Promise<Result<ScannerClient, Error>> => ok(client),
-        },
-        SCAN_ALWAYS_HOLD_ON_REJECT
-      );
-    }
-  } else {
-    const mockScannerFiles = parseBatchesFromEnv(MOCK_SCANNER_FILES);
-
-    if (mockScannerFiles) {
-      process.stdout.write(
-        `Using mock scanner that scans ${mockScannerFiles.reduce(
-          (count, sheets) => count + sheets.length,
-          0
-        )} sheet(s) in ${mockScannerFiles.length} batch(es) repeatedly.\n`
-      );
-      return new LoopScanner(mockScannerFiles);
-    }
-  }
-
-  return undefined;
+function getScanner(): Scanner {
+  const batches = parseBatchesFromEnv(process.env.MOCK_SCANNER_FILES);
+  return batches ? new LoopScanner(batches) : new FujitsuScanner({ logger });
 }
 
 async function main(): Promise<number> {
-  await server.start({ scanner: await getScanner() });
+  const store = await Store.fileStore(join(__dirname, '..', 'dev-workspace'));
+  const scanner = getScanner();
+  const importer = new Importer({
+    store,
+    scanner,
+    interpreters: [
+      {
+        name: 'nh',
+        async interpret(
+          electionDefinition: ElectionDefinition,
+          sheet: SheetOf<string>
+        ): Promise<Result<SheetOf<PageInterpretationWithFiles>, Error>> {
+          console.log('nh interpret');
+          const result = await interpret(electionDefinition, sheet);
+          console.log('result', result.ok(), 'err', result.err());
+          return result;
+        },
+      },
+    ],
+  });
+  await server.start({ importer, store });
   return 0;
 }
 
 if (require.main === module) {
   void main()
     .catch((error) => {
+      console.error(error.stack);
       void logger.log(LogEventId.ApplicationStartup, 'system', {
         message: `Error in starting Scan Service: ${error}`,
         disposition: 'failure',
