@@ -8,7 +8,6 @@ import {
   YesNoContest,
 } from '@votingworks/types';
 import { typedAs } from '@votingworks/utils';
-import { promises as fs } from 'fs';
 import * as tmp from 'tmp';
 import { v4 as uuid } from 'uuid';
 import { election } from '../test/fixtures/state-of-hamilton';
@@ -151,17 +150,6 @@ test('HMPB template handling', async () => {
       ],
     ])
   );
-});
-
-test('destroy database', async () => {
-  const dbFile = tmp.fileSync();
-  const store = await Store.fileStore(dbFile.name);
-
-  await store.reset();
-  await fs.access(dbFile.name);
-
-  await store.dbDestroy();
-  await expect(fs.access(dbFile.name)).rejects.toThrowError('ENOENT');
 });
 
 test('batch cleanup works correctly', async () => {
