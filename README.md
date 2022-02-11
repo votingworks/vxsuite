@@ -36,7 +36,7 @@ a nicer way.
 ```sh
 # install some prerequisites:
 sudo apt update
-sudo apt install -y git curl
+sudo apt install -y git curl python
 
 # change this to wherever you want:
 NODE_ROOT="${HOME}/usr/local/nodejs"
