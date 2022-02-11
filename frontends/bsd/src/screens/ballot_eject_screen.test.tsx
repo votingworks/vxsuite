@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 import fetchMock from 'fetch-mock';
 import React from 'react';
 import { act } from 'react-dom/test-utils';
-import { BallotType, AdjudicationReason } from '@votingworks/types';
+import { BallotType, AdjudicationReason, DistrictId } from '@votingworks/types';
 import { typedAs } from '@votingworks/utils';
 import { GetNextReviewSheetResponse } from '@votingworks/types/api/services/scan';
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
@@ -708,7 +708,55 @@ test('does NOT say ballot is blank if one side is blank and the other requires w
               type: 'InterpretedHmpbPage',
               markInfo: {
                 ballotSize: { width: 1, height: 1 },
-                marks: [],
+                marks: [
+                  {
+                    type: 'candidate',
+                    bounds: {
+                      x: 454,
+                      y: 163,
+                      width: 32,
+                      height: 22,
+                    },
+                    contest: {
+                      id: 'contest1',
+                      districtId: 'district1' as DistrictId,
+                      section: 'testsection',
+                      title: 'President',
+                      type: 'candidate',
+                      seats: 1,
+                      candidates: [
+                        {
+                          id: 'Candidate1',
+                          name: 'Mickey Mouse',
+                        },
+                      ],
+                      allowWriteIns: true,
+                    },
+                    option: {
+                      id: 'Candidate1',
+                      name: 'Mickey Mouse',
+                    },
+                    score: 0.78,
+                    scoredOffset: {
+                      x: 0,
+                      y: 0,
+                    },
+                    target: {
+                      bounds: {
+                        x: 454,
+                        y: 163,
+                        width: 32,
+                        height: 22,
+                      },
+                      inner: {
+                        x: 456,
+                        y: 165,
+                        width: 28,
+                        height: 18,
+                      },
+                    },
+                  },
+                ],
               },
               metadata: {
                 ballotStyleId: '1',

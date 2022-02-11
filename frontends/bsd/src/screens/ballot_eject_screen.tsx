@@ -195,9 +195,10 @@ export function BallotEjectScreen({
       !frontAdjudication.enabledReasonInfos.some(
         (info) => info.type === AdjudicationReason.UnmarkedWriteIn
       ) &&
-      backAdjudication.enabledReasonInfos.some(
+      (backAdjudication.enabledReasonInfos.some(
         (info) => info.type === AdjudicationReason.BlankBallot
-      ) &&
+      ) ||
+        backInterpretation.markInfo.marks.length === 0) &&
       !backAdjudication.enabledReasonInfos.some(
         (info) => info.type === AdjudicationReason.UnmarkedWriteIn
       );
@@ -374,7 +375,12 @@ export function BallotEjectScreen({
     !isInvalidPrecinctSheet &&
     !isUnreadableSheet;
 
-  const isBlankSheet = isFrontBlank && isBackBlank;
+  const backInterpretation = reviewInfo.interpreted.back.interpretation;
+  const isBackIntentionallyLeftBlank =
+    backInterpretation.type === 'InterpretedHmpbPage' &&
+    backInterpretation.markInfo.marks.length === 0;
+  const isBlankSheet =
+    isFrontBlank && (isBackBlank || isBackIntentionallyLeftBlank);
 
   return (
     <Screen>
