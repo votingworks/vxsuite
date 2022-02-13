@@ -35,12 +35,12 @@ import makeDebug from 'debug';
 import { promises as fs } from 'fs';
 import { DateTime } from 'luxon';
 import { dirname, join } from 'path';
-import * as sqlite3 from 'sqlite3';
 import { Writable } from 'stream';
 import { inspect } from 'util';
 import { v4 as uuid } from 'uuid';
 import { z } from 'zod';
 import { buildCastVoteRecord } from './build_cast_vote_record';
+import { DbClient } from './db_client';
 import { sheetRequiresAdjudication } from './interpreter';
 import { PageInterpretationWithFiles, SheetOf } from './types';
 import { normalizeAndJoin } from './util/path';
@@ -70,15 +70,10 @@ export const DefaultMarkThresholds: Readonly<MarkThresholds> = {
  * interpreted by reading the sheets.
  */
 export class Store {
-  private db?: sqlite3.Database;
-
-  /**
-   * @param dbPath a file system path, or ":memory:" for an in-memory database
-   */
-  private constructor(private readonly dbPath: string) {}
+  private constructor(private readonly client: DbClient) {}
 
   getDbPath(): string {
-    return this.dbPath;
+    return this.client.getDatabasePath();
   }
 
   /**
@@ -93,67 +88,14 @@ export class Store {
    * Builds and returns a new store whose data is kept in memory.
    */
   static async memoryStore(): Promise<Store> {
-    const store = new Store(':memory:');
-    await store.dbCreate();
-    return store;
+    return new Store(await DbClient.memoryClient(SchemaPath));
   }
 
   /**
    * Builds and returns a new store at `dbPath`.
    */
   static async fileStore(dbPath: string): Promise<Store> {
-    const schemaDigestPath = `${dbPath}.digest`;
-    let schemaDigest: string | undefined;
-    try {
-      schemaDigest = (await fs.readFile(schemaDigestPath, 'utf-8')).trim();
-    } catch {
-      debug(
-        'could not read %s, assuming the database needs to be created',
-        schemaDigestPath
-      );
-    }
-    const newSchemaDigest = await this.getSchemaDigest();
-    const shouldResetDatabase = newSchemaDigest !== schemaDigest;
-
-    if (shouldResetDatabase) {
-      debug(
-        'database schema has changed (%s ≉ %s)',
-        schemaDigest,
-        newSchemaDigest
-      );
-      try {
-        const backupPath = `${dbPath}.backup-${new Date()
-          .toISOString()
-          .replace(/[^\d]+/g, '-')
-          .replace(/-+$/, '')}`;
-        await fs.rename(dbPath, backupPath);
-        debug('backed up database to be reset to %s', backupPath);
-      } catch {
-        // ignore for now
-      }
-    }
-
-    const store = new Store(dbPath);
-
-    if (shouldResetDatabase) {
-      debug('resetting database to updated schema');
-      await store.reset();
-      await fs.writeFile(schemaDigestPath, newSchemaDigest, 'utf-8');
-    } else {
-      debug('database schema appears to be up to date');
-    }
-
-    return store;
-  }
-
-  /**
-   * Gets the underlying sqlite3 database.
-   */
-  private async getDb(): Promise<sqlite3.Database> {
-    if (!this.db) {
-      return this.dbConnect();
-    }
-    return this.db;
+    return new Store(await DbClient.fileClient(dbPath, SchemaPath));
   }
 
   /**
@@ -162,22 +104,14 @@ export class Store {
    * @example
    *
    * await store.dbRunAsync('insert into muppets (name) values (?)', 'Kermit')
+   *
+   * @deprecated provide a method to do whatever callers need to do
    */
   async dbRunAsync<P extends unknown[]>(
     sql: string,
     ...params: P
   ): Promise<void> {
-    const db = await this.getDb();
-    return new Promise((resolve, reject) => {
-      db.run(sql, ...params, (err: unknown) => {
-        if (err) {
-          debug('failed to execute %s (%o): %s', sql, params, err);
-          reject(err);
-        } else {
-          resolve();
-        }
-      });
-    });
+    return this.client.run(sql, ...params);
   }
 
   /**
@@ -191,19 +125,11 @@ export class Store {
    *   create table if not exist muppets (name varchar(255));
    *   create table if not exist images (url integer unique not null);
    * `)
+   *
+   * @deprecated provide a method to do whatever callers need to do
    */
   async dbExecAsync(sql: string): Promise<void> {
-    const db = await this.getDb();
-    return new Promise((resolve, reject) => {
-      db.exec(sql, (err: unknown) => {
-        if (err) {
-          debug('failed to execute %s (%o): %s', sql, err);
-          reject(err);
-        } else {
-          resolve();
-        }
-      });
-    });
+    return this.client.exec(sql);
   }
 
   /**
@@ -212,21 +138,14 @@ export class Store {
    * @example
    *
    * await store.dbAllAsync('select * from muppets')
+   *
+   * @deprecated provide a method to do whatever callers need to do
    */
   async dbAllAsync<P extends unknown[] = []>(
     sql: string,
     ...params: P
   ): Promise<unknown[]> {
-    const db = await this.getDb();
-    return new Promise((resolve, reject) => {
-      db.all(sql, params, (err: unknown, rows: unknown[]) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(rows);
-        }
-      });
-    });
+    return this.client.all(sql, ...params);
   }
 
   /**
@@ -235,91 +154,28 @@ export class Store {
    * @example
    *
    * await store.dbGetAsync('select count(*) as count from muppets')
+   *
+   * @deprecated provide a method to do whatever callers need to do
    */
   async dbGetAsync<P extends unknown[] = []>(
     sql: string,
     ...params: P
   ): Promise<unknown> {
-    const db = await this.getDb();
-    return new Promise<unknown>((resolve, reject) => {
-      db.get(sql, params, (err: unknown, row: unknown) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(row);
-        }
-      });
-    });
-  }
-
-  /**
-   * Deletes the entire database, including its on-disk representation.
-   */
-  async dbDestroy(): Promise<void> {
-    const db = await this.getDb();
-    return new Promise((resolve) => {
-      db.close(async () => {
-        try {
-          debug('deleting the database file at %s', this.getDbPath());
-          await fs.unlink(this.getDbPath());
-        } catch (error) {
-          debug(
-            'failed to delete database file %s: %s',
-            this.getDbPath(),
-            error.message
-          );
-        }
-
-        resolve();
-      });
-    });
-  }
-
-  async dbConnect(): Promise<sqlite3.Database> {
-    debug('connecting to the database at %s', this.getDbPath());
-    this.db = await new Promise<sqlite3.Database>((resolve, reject) => {
-      const db = new sqlite3.Database(this.getDbPath(), (err: unknown) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(db);
-        }
-      });
-    });
-
-    // Enforce foreign key constraints. This is not in schema.sql because that
-    // only runs on db creation.
-    await this.dbRunAsync('pragma foreign_keys = 1');
-
-    return this.db;
-  }
-
-  /**
-   * Creates the database including its tables.
-   */
-  async dbCreate(): Promise<sqlite3.Database> {
-    debug('creating the database at %s', this.getDbPath());
-    const db = await this.dbConnect();
-    await this.dbExecAsync(await fs.readFile(SchemaPath, 'utf-8'));
-    return db;
+    return this.client.one(sql, ...params);
   }
 
   /**
    * Writes a copy of the database to the given path.
    */
   async backup(filepath: string): Promise<void> {
-    await this.dbRunAsync('vacuum into ?', filepath);
+    await this.client.run('vacuum into ?', filepath);
   }
 
   /**
    * Resets the database.
    */
   async reset(): Promise<void> {
-    if (this.db) {
-      await this.dbDestroy();
-    }
-
-    await this.dbCreate();
+    await this.client.reset();
   }
 
   /**
