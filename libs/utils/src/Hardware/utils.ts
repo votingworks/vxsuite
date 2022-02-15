@@ -43,13 +43,13 @@ export function isPrinter(device: KioskBrowser.Device): boolean {
 
 export const FujitsuScannerVendorId = 0x4c5;
 export const FujitsuFi7160ScannerProductId = 0x132e;
-export function isFujitsuScanner(device: KioskBrowser.Device): boolean {
+export function isBatchScanner(device: KioskBrowser.Device): boolean {
   return device.vendorId === FujitsuScannerVendorId;
 }
 
 export const PlustekScannerVendorId = 0x7b3;
 export const PlustekVtm300ScannerProductId = 0xe37;
-export function isPlustekVtm300Scanner(device: KioskBrowser.Device): boolean {
+export function isPrecinctScanner(device: KioskBrowser.Device): boolean {
   return (
     device.vendorId === PlustekScannerVendorId &&
     device.productId === PlustekVtm300ScannerProductId

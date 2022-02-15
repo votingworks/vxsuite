@@ -1,31 +1,53 @@
 import { act, renderHook } from '@testing-library/react-hooks';
 import { Logger, LogSource, LogEventId } from '@votingworks/logging';
+import { advanceTimers } from '@votingworks/test-utils';
 import {
   AccessibleControllerProductId,
   AccessibleControllerVendorId,
   FujitsuFi7160ScannerProductId,
   FujitsuScannerVendorId,
   MemoryHardware,
+  OmniKeyCardReaderDeviceName,
+  OmniKeyCardReaderManufacturer,
   OmniKeyCardReaderProductId,
   OmniKeyCardReaderVendorId,
   PlustekScannerVendorId,
   PlustekVtm300ScannerProductId,
 } from '@votingworks/utils';
-import { useHardware } from './use_hardware';
+import { BATTERY_POLLING_INTERVAL, Devices, useDevices } from './use_devices';
+
+const emptyDevices: Devices = {
+  printer: undefined,
+  computer: {
+    battery: undefined,
+  },
+  cardReader: undefined,
+  accessibleController: undefined,
+  batchScanner: undefined,
+  precinctScanner: undefined,
+};
 
 test('can connect printer as expected', async () => {
   const hardware = new MemoryHardware();
   const fakeLogger = new Logger(LogSource.VxCentralScanFrontend);
   const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
   const { result, rerender } = renderHook(() =>
-    useHardware({ hardware, logger: fakeLogger })
+    useDevices({ hardware, logger: fakeLogger })
   );
-  expect(result.current.hasPrinterAttached).toBe(false);
+  expect(result.current).toEqual(emptyDevices);
   expect(logSpy).toHaveBeenCalledTimes(0);
+
+  const expectedPrinter: Devices['printer'] = {
+    connected: true,
+    description: 'Brother',
+    isDefault: true,
+    name: 'HL-L5100DN_series',
+    status: 0,
+  };
 
   await act(async () => await hardware.setPrinterConnected(true));
   rerender();
-  expect(result.current.hasPrinterAttached).toBe(true);
+  expect(result.current.printer).toEqual(expectedPrinter);
   expect(logSpy).toHaveBeenCalledTimes(2);
   expect(logSpy).toHaveBeenNthCalledWith(
     1,
@@ -36,14 +58,10 @@ test('can connect printer as expected', async () => {
       connected: true,
     })
   );
-  expect(result.current.hasCardReaderAttached).toBe(false);
-  expect(result.current.hasBatchScannerAttached).toBe(false);
-  expect(result.current.hasPrecinctScannerAttached).toBe(false);
-  expect(result.current.hasAccessibleControllerAttached).toBe(false);
 
   await act(async () => await hardware.setPrinterConnected(false));
   rerender();
-  expect(result.current.hasPrinterAttached).toBe(false);
+  expect(result.current.printer).toBeUndefined();
   expect(logSpy).toHaveBeenCalledWith(
     LogEventId.PrinterConnectionUpdate,
     'system',
@@ -55,7 +73,7 @@ test('can connect printer as expected', async () => {
 
   await act(async () => await hardware.setPrinterConnected(true));
   rerender();
-  expect(result.current.hasPrinterAttached).toBe(true);
+  expect(result.current.printer).toEqual(expectedPrinter);
   expect(logSpy).toHaveBeenCalledWith(
     LogEventId.PrinterConnectionUpdate,
     'system',
@@ -67,7 +85,7 @@ test('can connect printer as expected', async () => {
 
   await act(async () => await hardware.detachAllPrinters());
   rerender();
-  expect(result.current.hasPrinterAttached).toBe(false);
+  expect(result.current.printer).toBeUndefined();
   expect(logSpy).toHaveBeenCalledWith(
     LogEventId.PrinterConfigurationRemoved,
     'system',
@@ -82,14 +100,24 @@ test('can connect card reader as expected', async () => {
   const fakeLogger = new Logger(LogSource.VxCentralScanFrontend);
   const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
   const { result, rerender } = renderHook(() =>
-    useHardware({ hardware, logger: fakeLogger })
+    useDevices({ hardware, logger: fakeLogger })
   );
-  expect(result.current.hasCardReaderAttached).toBe(false);
+  expect(result.current).toEqual(emptyDevices);
   expect(logSpy).toHaveBeenCalledTimes(0);
+
+  const expectedCardReader: Devices['cardReader'] = {
+    deviceAddress: 0,
+    deviceName: OmniKeyCardReaderDeviceName,
+    locationId: 0,
+    manufacturer: OmniKeyCardReaderManufacturer,
+    productId: OmniKeyCardReaderProductId,
+    serialNumber: '',
+    vendorId: OmniKeyCardReaderVendorId,
+  };
 
   await act(async () => await hardware.setCardReaderConnected(true));
   rerender();
-  expect(result.current.hasCardReaderAttached).toBe(true);
+  expect(result.current.cardReader).toEqual(expectedCardReader);
   expect(logSpy).toHaveBeenCalledTimes(1);
   expect(logSpy).toHaveBeenCalledWith(
     LogEventId.DeviceAttached,
@@ -100,14 +128,10 @@ test('can connect card reader as expected', async () => {
       vendorId: OmniKeyCardReaderVendorId,
     })
   );
-  expect(result.current.hasAccessibleControllerAttached).toBe(false);
-  expect(result.current.hasBatchScannerAttached).toBe(false);
-  expect(result.current.hasPrecinctScannerAttached).toBe(false);
-  expect(result.current.hasPrinterAttached).toBe(false);
 
   await act(async () => await hardware.setCardReaderConnected(false));
   rerender();
-  expect(result.current.hasCardReaderAttached).toBe(false);
+  expect(result.current.cardReader).toBeUndefined();
   expect(logSpy).toHaveBeenCalledTimes(2);
   expect(logSpy).toHaveBeenLastCalledWith(
     LogEventId.DeviceUnattached,
@@ -125,14 +149,26 @@ test('can connect accessible controller as expected', async () => {
   const fakeLogger = new Logger(LogSource.VxCentralScanFrontend);
   const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
   const { result, rerender } = renderHook(() =>
-    useHardware({ hardware, logger: fakeLogger })
+    useDevices({ hardware, logger: fakeLogger })
   );
-  expect(result.current.hasAccessibleControllerAttached).toBe(false);
+  expect(result.current).toEqual(emptyDevices);
   expect(logSpy).toHaveBeenCalledTimes(0);
+
+  const expectedAccessibleController: Devices['accessibleController'] = {
+    deviceAddress: 0,
+    deviceName: 'USB Advanced Audio Device',
+    locationId: 0,
+    manufacturer: 'C-Media Electronics Inc.',
+    productId: AccessibleControllerProductId,
+    serialNumber: '',
+    vendorId: AccessibleControllerVendorId,
+  };
 
   await act(async () => await hardware.setAccessibleControllerConnected(true));
   rerender();
-  expect(result.current.hasAccessibleControllerAttached).toBe(true);
+  expect(result.current.accessibleController).toEqual(
+    expectedAccessibleController
+  );
   expect(logSpy).toHaveBeenCalledTimes(1);
   expect(logSpy).toHaveBeenCalledWith(
     LogEventId.DeviceAttached,
@@ -143,14 +179,10 @@ test('can connect accessible controller as expected', async () => {
       vendorId: AccessibleControllerVendorId,
     })
   );
-  expect(result.current.hasCardReaderAttached).toBe(false);
-  expect(result.current.hasBatchScannerAttached).toBe(false);
-  expect(result.current.hasPrecinctScannerAttached).toBe(false);
-  expect(result.current.hasPrinterAttached).toBe(false);
 
   await act(async () => await hardware.setAccessibleControllerConnected(false));
   rerender();
-  expect(result.current.hasAccessibleControllerAttached).toBe(false);
+  expect(result.current.accessibleController).toBeUndefined();
   expect(logSpy).toHaveBeenCalledTimes(2);
   expect(logSpy).toHaveBeenLastCalledWith(
     LogEventId.DeviceUnattached,
@@ -163,50 +195,56 @@ test('can connect accessible controller as expected', async () => {
   );
 });
 
-test('can connect fujitsu scanner as expected', async () => {
+test('can connect batch scanner as expected', async () => {
   const hardware = new MemoryHardware();
   const fakeLogger = new Logger(LogSource.VxCentralScanFrontend);
   const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
   const { result, rerender } = renderHook(() =>
-    useHardware({ hardware, logger: fakeLogger })
+    useDevices({ hardware, logger: fakeLogger })
   );
-  expect(result.current.hasBatchScannerAttached).toBe(false);
+  expect(result.current).toEqual(emptyDevices);
   expect(logSpy).toHaveBeenCalledTimes(0);
+
+  const expectedBatchScanner: Devices['batchScanner'] = {
+    deviceAddress: 0,
+    deviceName: 'Scanner',
+    locationId: 0,
+    manufacturer: 'Fujitsu',
+    productId: FujitsuFi7160ScannerProductId,
+    serialNumber: '',
+    vendorId: FujitsuScannerVendorId,
+  };
 
   await act(async () => await hardware.setBatchScannerConnected(true));
   rerender();
-  expect(result.current.hasBatchScannerAttached).toBe(true);
+  expect(result.current.batchScanner).toEqual(expectedBatchScanner);
   expect(logSpy).toHaveBeenCalledTimes(1);
   expect(logSpy).toHaveBeenCalledWith(
     LogEventId.DeviceAttached,
     'system',
     expect.objectContaining({
-      message: expect.stringContaining('New Fujitsu Scanner (Scanner)'),
+      message: expect.stringContaining('New Batch Scanner (Scanner)'),
       productId: FujitsuFi7160ScannerProductId,
       vendorId: FujitsuScannerVendorId,
     })
   );
-  expect(result.current.hasCardReaderAttached).toBe(false);
-  expect(result.current.hasAccessibleControllerAttached).toBe(false);
-  expect(result.current.hasPrecinctScannerAttached).toBe(false);
-  expect(result.current.hasPrinterAttached).toBe(false);
 
   await act(async () => await hardware.setBatchScannerConnected(false));
   rerender();
-  expect(result.current.hasBatchScannerAttached).toBe(false);
+  expect(result.current.batchScanner).toBeUndefined();
   expect(logSpy).toHaveBeenCalledTimes(2);
   expect(logSpy).toHaveBeenLastCalledWith(
     LogEventId.DeviceUnattached,
     'system',
     expect.objectContaining({
-      message: expect.stringContaining('Fujitsu Scanner (Scanner)'),
+      message: expect.stringContaining('Batch Scanner (Scanner)'),
       productId: FujitsuFi7160ScannerProductId,
       vendorId: FujitsuScannerVendorId,
     })
   );
 });
 
-test('can connect plustek scanner as expected', async () => {
+test('can connect precinct scanner as expected', async () => {
   const plustekDevice: KioskBrowser.Device = {
     productId: PlustekVtm300ScannerProductId,
     vendorId: PlustekScannerVendorId,
@@ -220,40 +258,36 @@ test('can connect plustek scanner as expected', async () => {
   const fakeLogger = new Logger(LogSource.VxCentralScanFrontend);
   const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
   const { result, rerender } = renderHook(() =>
-    useHardware({ hardware, logger: fakeLogger })
+    useDevices({ hardware, logger: fakeLogger })
   );
-  expect(result.current.hasPrecinctScannerAttached).toBe(false);
+  expect(result.current).toEqual(emptyDevices);
   expect(logSpy).toHaveBeenCalledTimes(0);
 
   act(() => hardware.addDevice(plustekDevice));
   rerender();
-  expect(result.current.hasPrecinctScannerAttached).toBe(true);
+  expect(result.current.precinctScanner).toEqual(plustekDevice);
   expect(logSpy).toHaveBeenCalledTimes(1);
   expect(logSpy).toHaveBeenCalledWith(
     LogEventId.DeviceAttached,
     'system',
     expect.objectContaining({
       message: expect.stringContaining(
-        'New Plustek Scanner (Sheetfed Scanner)'
+        'New Precinct Scanner (Sheetfed Scanner)'
       ),
       productId: PlustekVtm300ScannerProductId,
       vendorId: PlustekScannerVendorId,
     })
   );
-  expect(result.current.hasCardReaderAttached).toBe(false);
-  expect(result.current.hasAccessibleControllerAttached).toBe(false);
-  expect(result.current.hasBatchScannerAttached).toBe(false);
-  expect(result.current.hasPrinterAttached).toBe(false);
 
   await act(async () => await hardware.removeDevice(plustekDevice));
   rerender();
-  expect(result.current.hasBatchScannerAttached).toBe(false);
+  expect(result.current.batchScanner).toBeUndefined();
   expect(logSpy).toHaveBeenCalledTimes(2);
   expect(logSpy).toHaveBeenLastCalledWith(
     LogEventId.DeviceUnattached,
     'system',
     expect.objectContaining({
-      message: expect.stringContaining('Plustek Scanner (Sheetfed Scanner)'),
+      message: expect.stringContaining('Precinct Scanner (Sheetfed Scanner)'),
       productId: PlustekVtm300ScannerProductId,
       vendorId: PlustekScannerVendorId,
     })
@@ -274,7 +308,7 @@ test('can handle logs for a random device as expected', async () => {
   const fakeLogger = new Logger(LogSource.VxCentralScanFrontend);
   const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
   const { result, rerender } = renderHook(() =>
-    useHardware({ hardware, logger: fakeLogger })
+    useDevices({ hardware, logger: fakeLogger })
   );
   expect(logSpy).toHaveBeenCalledTimes(0);
 
@@ -290,11 +324,7 @@ test('can handle logs for a random device as expected', async () => {
       vendorId: 5678,
     })
   );
-  expect(result.current.hasCardReaderAttached).toBe(false);
-  expect(result.current.hasAccessibleControllerAttached).toBe(false);
-  expect(result.current.hasBatchScannerAttached).toBe(false);
-  expect(result.current.hasPrecinctScannerAttached).toBe(false);
-  expect(result.current.hasPrinterAttached).toBe(false);
+  expect(result.current).toEqual(emptyDevices);
 
   await act(async () => await hardware.removeDevice(randomDevice));
   rerender();
@@ -308,4 +338,43 @@ test('can handle logs for a random device as expected', async () => {
       vendorId: 5678,
     })
   );
+});
+
+test('periodically polls for computer battery status', async () => {
+  jest.useFakeTimers();
+  const hardware = new MemoryHardware();
+  const fakeLogger = new Logger(LogSource.VxCentralScanFrontend);
+  const { result, waitForNextUpdate } = renderHook(() =>
+    useDevices({ hardware, logger: fakeLogger })
+  );
+  expect(result.current).toEqual(emptyDevices);
+
+  await waitForNextUpdate();
+
+  // Should immediately load the battery status
+  expect(result.current.computer.battery).toEqual({
+    discharging: false,
+    isBelowLowBatteryThreshold: false,
+    level: 0.8,
+  });
+
+  // Change the battery status to low
+  await act(async () => await hardware.setBatteryLevel(0.2));
+  advanceTimers(BATTERY_POLLING_INTERVAL / 1000);
+  await waitForNextUpdate();
+  expect(result.current.computer.battery).toEqual({
+    discharging: false,
+    isBelowLowBatteryThreshold: true,
+    level: 0.2,
+  });
+
+  // Disconnect the charger
+  await act(async () => await hardware.setBatteryDischarging(true));
+  advanceTimers(BATTERY_POLLING_INTERVAL / 1000);
+  await waitForNextUpdate();
+  expect(result.current.computer.battery).toEqual({
+    discharging: true,
+    isBelowLowBatteryThreshold: true,
+    level: 0.2,
+  });
 });

@@ -3,6 +3,10 @@ import { act, render, screen } from '@testing-library/react';
 import { makeAdminCard } from '@votingworks/test-utils';
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
 
+import {
+  BATTERY_POLLING_INTERVAL,
+  LOW_BATTERY_THRESHOLD,
+} from '@votingworks/ui';
 import { electionSampleDefinition } from './data';
 
 import { App } from './app';
@@ -16,10 +20,6 @@ import {
 } from '../test/helpers/election';
 import { withMarkup } from '../test/helpers/with_markup';
 import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
-import {
-  HARDWARE_POLLING_INTERVAL,
-  LOW_BATTERY_THRESHOLD,
-} from './config/globals';
 import { PrintOnly } from './config/types';
 
 beforeEach(() => {
@@ -65,7 +65,7 @@ describe('Displays setup warning messages and errors screens', () => {
     await act(async () => {
       await hardware.setAccessibleControllerConnected(false);
     });
-    await advanceTimersAndPromises(HARDWARE_POLLING_INTERVAL / 1000);
+    await advanceTimersAndPromises();
     screen.getByText(accessibleControllerWarningText);
     screen.getByText(insertCardScreenText);
 
@@ -73,7 +73,7 @@ describe('Displays setup warning messages and errors screens', () => {
     await act(async () => {
       await hardware.setAccessibleControllerConnected(true);
     });
-    await advanceTimersAndPromises(HARDWARE_POLLING_INTERVAL / 1000);
+    await advanceTimersAndPromises();
     expect(screen.queryByText(accessibleControllerWarningText)).toBeFalsy();
     screen.getByText(insertCardScreenText);
   });
@@ -146,14 +146,14 @@ describe('Displays setup warning messages and errors screens', () => {
     await act(async () => {
       await hardware.setPrinterConnected(false);
     });
-    await advanceTimersAndPromises(HARDWARE_POLLING_INTERVAL / 1000);
+    await advanceTimersAndPromises();
     screen.getByText('No Printer Detected');
 
     // Reconnect Printer
     await act(async () => {
       await hardware.setPrinterConnected(true);
     });
-    await advanceTimersAndPromises(HARDWARE_POLLING_INTERVAL / 1000);
+    await advanceTimersAndPromises();
     screen.getByText(printOnlyInsertCardScreenText);
   });
 
@@ -186,14 +186,14 @@ describe('Displays setup warning messages and errors screens', () => {
     await act(async () => {
       await hardware.setBatteryDischarging(true);
     });
-    await advanceTimersAndPromises(HARDWARE_POLLING_INTERVAL / 1000);
+    await advanceTimersAndPromises(BATTERY_POLLING_INTERVAL / 1000);
     screen.getByText(noPowerDetectedWarningText);
 
     // Reconnect Power
     await act(async () => {
       await hardware.setBatteryDischarging(false);
     });
-    await advanceTimersAndPromises(HARDWARE_POLLING_INTERVAL / 1000);
+    await advanceTimersAndPromises(BATTERY_POLLING_INTERVAL / 1000);
     expect(screen.queryByText(noPowerDetectedWarningText)).toBeFalsy();
     screen.getByText(printOnlyInsertCardScreenText);
   });
@@ -230,7 +230,7 @@ describe('Displays setup warning messages and errors screens', () => {
     await act(async () => {
       await hardware.setPrinterConnected(false);
     });
-    await advanceTimersAndPromises(HARDWARE_POLLING_INTERVAL / 1000);
+    await advanceTimersAndPromises();
     screen.getByText('No Printer Detected');
 
     // Insert admin card
@@ -270,7 +270,7 @@ describe('Displays setup warning messages and errors screens', () => {
       await hardware.setBatteryDischarging(true);
       await hardware.setBatteryLevel(0.6);
     });
-    await advanceTimersAndPromises(HARDWARE_POLLING_INTERVAL / 1000);
+    await advanceTimersAndPromises(BATTERY_POLLING_INTERVAL / 1000);
     screen.getByText(noPowerDetectedWarningText);
     screen.getByText(insertCardScreenText);
 
@@ -278,14 +278,14 @@ describe('Displays setup warning messages and errors screens', () => {
     await act(async () => {
       await hardware.setBatteryLevel(LOW_BATTERY_THRESHOLD / 2);
     });
-    await advanceTimersAndPromises(HARDWARE_POLLING_INTERVAL / 1000);
+    await advanceTimersAndPromises(BATTERY_POLLING_INTERVAL / 1000);
     getByTextWithMarkup(lowBatteryErrorScreenText);
 
     // Attach charger and back on Insert Card screen
     await act(async () => {
       await hardware.setBatteryDischarging(false);
     });
-    await advanceTimersAndPromises(HARDWARE_POLLING_INTERVAL / 1000);
+    await advanceTimersAndPromises(BATTERY_POLLING_INTERVAL / 1000);
     expect(screen.queryByText(noPowerDetectedWarningText)).toBeFalsy();
     screen.getByText(insertCardScreenText);
 
@@ -293,14 +293,14 @@ describe('Displays setup warning messages and errors screens', () => {
     await act(async () => {
       await hardware.setBatteryDischarging(true);
     });
-    await advanceTimersAndPromises(HARDWARE_POLLING_INTERVAL / 1000);
+    await advanceTimersAndPromises(BATTERY_POLLING_INTERVAL / 1000);
     getByTextWithMarkup(lowBatteryErrorScreenText);
 
     // Remove battery, i.e. we're on a desktop
     await act(async () => {
       await hardware.removeBattery();
     });
-    await advanceTimersAndPromises(HARDWARE_POLLING_INTERVAL / 1000);
+    await advanceTimersAndPromises(BATTERY_POLLING_INTERVAL / 1000);
     expect(screen.queryByText(noPowerDetectedWarningText)).toBeFalsy();
     screen.getByText(insertCardScreenText);
   });

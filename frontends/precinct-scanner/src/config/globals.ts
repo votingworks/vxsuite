@@ -12,8 +12,6 @@ export const POLLING_INTERVAL_FOR_TOTP = 2000;
 export const TIME_TO_DISMISS_ERROR_SUCCESS_SCREENS_MS = 5000;
 export const CARD_POLLING_INTERVAL = 200;
 export const STATUS_POLLING_EXTRA_CHECKS = 2;
-export const HARDWARE_POLLING_INTERVAL = 3000;
-export const LOW_BATTERY_THRESHOLD = 0.25;
 
 export const CHECK_ICON = '✓';
 export const TEXT_SIZE = 1;
