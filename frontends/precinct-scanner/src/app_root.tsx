@@ -19,7 +19,7 @@ import {
   useUsbDrive,
   SetupCardReaderPage,
   useUserSession,
-  useHardware,
+  useDevices,
 } from '@votingworks/ui';
 import {
   assert,
@@ -45,8 +45,6 @@ import {
 import {
   POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
   TIME_TO_DISMISS_ERROR_SUCCESS_SCREENS_MS,
-  HARDWARE_POLLING_INTERVAL,
-  LOW_BATTERY_THRESHOLD,
 } from './config/globals';
 
 import * as config from './api/config';
@@ -85,8 +83,6 @@ export interface Props extends RouteComponentProps {
 }
 
 interface HardwareState {
-  hasChargerAttached: boolean;
-  hasLowBattery: boolean;
   adminCardElectionHash: string;
   invalidCardPresent: boolean;
   machineConfig: Readonly<MachineConfig>;
@@ -115,8 +111,6 @@ export interface State
     ScanInformationState {}
 
 const initialHardwareState: Readonly<HardwareState> = {
-  hasChargerAttached: true,
-  hasLowBattery: false,
   adminCardElectionHash: '',
   // TODO add concept for invalid card to current user session object
   invalidCardPresent: false,
@@ -190,8 +184,7 @@ type AppAction =
   | { type: 'enableStatusPolling' }
   | { type: 'updatePrecinctId'; precinctId?: PrecinctId }
   | { type: 'togglePollsOpen' }
-  | { type: 'setMachineConfig'; machineConfig: MachineConfig }
-  | { type: 'updateHardwareState'; hardwareState: Partial<HardwareState> };
+  | { type: 'setMachineConfig'; machineConfig: MachineConfig };
 
 function appReducer(state: State, action: AppAction): State {
   debug(
@@ -305,11 +298,6 @@ function appReducer(state: State, action: AppAction): State {
         machineConfig:
           action.machineConfig ?? initialHardwareState.machineConfig,
       };
-    case 'updateHardwareState':
-      return {
-        ...state,
-        ...action.hardwareState,
-      };
     default:
       throwIllegalValue(action);
   }
@@ -335,8 +323,6 @@ export function AppRoot({
     currentPrecinctId,
     isPollsOpen,
     machineConfig,
-    hasLowBattery,
-    hasChargerAttached,
   } = appState;
 
   const logger = useMemo(
@@ -347,13 +333,13 @@ export function AppRoot({
   const usbDriveDisplayStatus =
     usbDrive.status ?? usbstick.UsbDriveStatus.absent;
 
-  const { hasCardReaderAttached, hasPrinterAttached } = useHardware({
+  const { cardReader, computer, printer: printerInfo } = useDevices({
     hardware,
     logger,
   });
   const smartcard = useSmartcard({
     card,
-    hasCardReaderAttached,
+    cardReader,
   });
   const { currentUserSession, attemptToAuthenticateAdminUser } = useUserSession(
     {
@@ -486,46 +472,6 @@ export function AppRoot({
       });
     }
   }, [dispatchAppState]);
-
-  // Hardware status polling to set hasCharger and hasLowBattery parameters
-  const hardwareStatusInterval = useInterval(
-    async () => {
-      const battery = await hardware.readBatteryStatus();
-      if (!battery) {
-        dispatchAppState({
-          type: 'updateHardwareState',
-          hardwareState: {
-            hasChargerAttached: true,
-            hasLowBattery: false,
-          },
-        });
-      } else {
-        const newHasLowBattery = battery.level < LOW_BATTERY_THRESHOLD;
-        const hasHardwareStateChanged =
-          hasChargerAttached !== !battery.discharging ||
-          hasLowBattery !== newHasLowBattery;
-        if (hasHardwareStateChanged) {
-          dispatchAppState({
-            type: 'updateHardwareState',
-            hardwareState: {
-              hasChargerAttached: !battery.discharging,
-              hasLowBattery: newHasLowBattery,
-            },
-          });
-        }
-      }
-    },
-    HARDWARE_POLLING_INTERVAL,
-    true
-  );
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const startHardwareStatusPolling = useCallback(hardwareStatusInterval[0], [
-    hardware,
-  ]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const stopHardwareStatusPolling = useCallback(hardwareStatusInterval[1], [
-    hardware,
-  ]);
 
   const [startBallotStatusPolling, endBallotStatusPolling] = useInterval(
     async () => {
@@ -707,17 +653,8 @@ export function AppRoot({
 
     void initializeScanner();
     void updateStateFromStorage();
-    startHardwareStatusPolling();
-    return () => {
-      stopHardwareStatusPolling();
-    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    refreshConfig,
-    storage,
-    startHardwareStatusPolling,
-    stopHardwareStatusPolling,
-  ]);
+  }, [refreshConfig, storage]);
 
   const updatePrecinctId = useCallback(
     async (precinctId: PrecinctId) => {
@@ -746,7 +683,7 @@ export function AppRoot({
     dispatchAppState({ type: 'readyToInsertBallot' });
   }
 
-  if (!hasCardReaderAttached) {
+  if (!cardReader) {
     return <SetupCardReaderPage />;
   }
 
@@ -754,7 +691,7 @@ export function AppRoot({
     return <CardErrorScreen />;
   }
 
-  if (hasLowBattery && !hasChargerAttached) {
+  if (computer.batteryIsLow && !computer.batteryIsCharging) {
     return <SetupPowerPage />;
   }
 
@@ -820,7 +757,7 @@ export function AppRoot({
           saveTallyToCard={saveTallyToCard}
           getCvrsFromExport={getCvrsFromExport}
           printer={printer}
-          hasPrinterAttached={hasPrinterAttached}
+          hasPrinterAttached={!!printerInfo}
           isLiveMode={!isTestMode}
           usbDrive={usbDrive}
         />
@@ -841,7 +778,7 @@ export function AppRoot({
   let voterScreen = (
     <PollsClosedScreen
       isLiveMode={!isTestMode}
-      showNoChargerWarning={!hasChargerAttached}
+      showNoChargerWarning={!computer.batteryIsCharging}
     />
   );
 
@@ -853,7 +790,7 @@ export function AppRoot({
           <InsertBallotScreen
             isLiveMode={!isTestMode}
             scannedBallotCount={scannedBallotCount}
-            showNoChargerWarning={!hasChargerAttached}
+            showNoChargerWarning={!computer.batteryIsCharging}
           />
         );
         break;

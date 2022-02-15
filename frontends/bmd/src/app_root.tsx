@@ -48,7 +48,7 @@ import {
 
 import { Logger, LogSource } from '@votingworks/logging';
 
-import { SetupCardReaderPage, useHardware, usePrevious } from '@votingworks/ui';
+import { SetupCardReaderPage, useDevices, usePrevious } from '@votingworks/ui';
 import { Ballot } from './components/ballot';
 import * as GLOBALS from './config/globals';
 import {
@@ -114,8 +114,6 @@ interface UserState {
 }
 
 interface HardwareState {
-  hasChargerAttached: boolean;
-  hasLowBattery: boolean;
   machineConfig: Readonly<MachineConfig>;
 }
 
@@ -188,8 +186,6 @@ const initialVoterState: Readonly<UserState> = {
 };
 
 const initialHardwareState: Readonly<HardwareState> = {
-  hasChargerAttached: true,
-  hasLowBattery: false,
   machineConfig: { appMode: MarkOnly, machineId: '0000', codeVersion: 'dev' },
 };
 
@@ -249,7 +245,6 @@ type AppAction =
   | { type: 'updateElectionDefinition'; electionDefinition: ElectionDefinition }
   | { type: 'startWritingLongValue' }
   | { type: 'finishWritingLongValue' }
-  | { type: 'updateHardwareState'; hardwareState: Partial<HardwareState> }
   | { type: 'initializeAppState'; appState: Partial<State> }
   | { type: 'updateLastCardDataString'; currentCardDataString: string }
   | {
@@ -419,11 +414,6 @@ function appReducer(state: State, action: AppAction): State {
         ...state,
         writingVoteToCard: false,
       };
-    case 'updateHardwareState':
-      return {
-        ...state,
-        ...action.hardwareState,
-      };
     case 'initializeAppState':
       return {
         ...state,
@@ -507,8 +497,6 @@ export function AppRoot({
     lastCardDataString,
     machineConfig,
     pauseProcessingUntilNoCardPresent,
-    hasChargerAttached,
-    hasLowBattery,
     precinctId,
     shortValue,
     showPostVotingInstructions,
@@ -527,10 +515,12 @@ export function AppRoot({
   );
 
   const {
-    hasCardReaderAttached,
-    hasAccessibleControllerAttached,
-    hasPrinterAttached,
-  } = useHardware({ hardware, logger });
+    cardReader,
+    printer: printerInfo,
+    accessibleController,
+    computer,
+  } = useDevices({ hardware, logger });
+  const hasPrinterAttached = printerInfo !== undefined;
   const previousHasPrinterAttached = usePrevious(hasPrinterAttached);
 
   const ballotStyle =
@@ -1042,45 +1032,6 @@ export function AppRoot({
     writeCard,
   ]);
 
-  const hardwareStatusInterval = useInterval(
-    async () => {
-      const battery = await hardware.readBatteryStatus();
-      if (!battery) {
-        dispatchAppState({
-          type: 'updateHardwareState',
-          hardwareState: {
-            hasChargerAttached: true,
-            hasLowBattery: false,
-          },
-        });
-      } else {
-        const newHasLowBattery = battery.level < GLOBALS.LOW_BATTERY_THRESHOLD;
-        const hasHardwareStateChanged =
-          hasChargerAttached !== !battery.discharging ||
-          hasLowBattery !== newHasLowBattery;
-        if (hasHardwareStateChanged) {
-          dispatchAppState({
-            type: 'updateHardwareState',
-            hardwareState: {
-              hasChargerAttached: !battery.discharging,
-              hasLowBattery: newHasLowBattery,
-            },
-          });
-        }
-      }
-    },
-    GLOBALS.HARDWARE_POLLING_INTERVAL,
-    true
-  );
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const startHardwareStatusPolling = useCallback(hardwareStatusInterval[0], [
-    hardware,
-  ]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const stopHardwareStatusPolling = useCallback(hardwareStatusInterval[1], [
-    hardware,
-  ]);
-
   // Handle Hardware Observer Subscription
   useEffect(() => {
     async function resetBallotOnPrinterDetach() {
@@ -1181,17 +1132,13 @@ export function AppRoot({
     void updateStorage();
     startCardShortValueReadPolling();
     startLongValueWritePolling();
-    startHardwareStatusPolling();
     return /* istanbul ignore next - triggering keystrokes issue - https://github.com/votingworks/bmd/issues/62 */ () => {
       stopCardShortValueReadPolling();
-      stopHardwareStatusPolling();
     };
   }, [
     startCardShortValueReadPolling,
-    startHardwareStatusPolling,
     startLongValueWritePolling,
     stopCardShortValueReadPolling,
-    stopHardwareStatusPolling,
     storage,
   ]);
 
@@ -1235,7 +1182,7 @@ export function AppRoot({
     initializedFromStorage,
   ]);
 
-  if (!hasCardReaderAttached) {
+  if (!cardReader) {
     return (
       <SetupCardReaderPage
         useEffectToggleLargeDisplay={useEffectToggleLargeDisplay}
@@ -1249,7 +1196,7 @@ export function AppRoot({
       />
     );
   }
-  if (hasLowBattery && !hasChargerAttached) {
+  if (computer.batteryIsLow && !computer.batteryIsCharging) {
     return (
       <SetupPowerPage
         useEffectToggleLargeDisplay={useEffectToggleLargeDisplay}
@@ -1392,7 +1339,7 @@ export function AppRoot({
             precinctId={precinctId}
             printer={printer}
             useEffectToggleLargeDisplay={useEffectToggleLargeDisplay}
-            showNoChargerAttachedWarning={!hasChargerAttached}
+            showNoChargerAttachedWarning={!computer.batteryIsCharging}
             updateTally={updateTally}
             votes={votes}
           />
@@ -1439,9 +1386,9 @@ export function AppRoot({
           appPrecinct={appPrecinct}
           electionDefinition={optionalElectionDefinition}
           showNoAccessibleControllerWarning={
-            appMode.isMark && !hasAccessibleControllerAttached
+            appMode.isMark && !accessibleController
           }
-          showNoChargerAttachedWarning={!hasChargerAttached}
+          showNoChargerAttachedWarning={!computer.batteryIsCharging}
           isLiveMode={isLiveMode}
           isPollsOpen={isPollsOpen}
           machineConfig={machineConfig}

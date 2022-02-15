@@ -3,24 +3,35 @@ import {
   isCardReader,
   Hardware,
   isAccessibleController,
-  isPlustekVtm300Scanner,
-  isFujitsuScanner,
+  isPrecinctScanner,
+  isBatchScanner,
 } from '@votingworks/utils';
 import { map } from 'rxjs/operators';
 import { LogEventId, Logger } from '@votingworks/logging';
+import useInterval from 'use-interval';
 import { usePrevious } from '..';
 
-export interface UseHardwareProps {
+export const LOW_BATTERY_THRESHOLD = 0.25;
+export const BATTERY_POLLING_INTERVAL = 3000;
+
+export interface Props {
   hardware: Hardware;
   logger: Logger;
 }
 
-export interface UseHardwareResult {
-  hasCardReaderAttached: boolean;
-  hasAccessibleControllerAttached: boolean;
-  hasPrecinctScannerAttached: boolean;
-  hasBatchScannerAttached: boolean;
-  hasPrinterAttached: boolean;
+export interface ComputerStatus {
+  batteryLevel?: number;
+  batteryIsLow: boolean;
+  batteryIsCharging: boolean;
+}
+
+export interface Devices {
+  computer: ComputerStatus;
+  cardReader?: KioskBrowser.Device;
+  accessibleController?: KioskBrowser.Device;
+  precinctScanner?: KioskBrowser.Device;
+  batchScanner?: KioskBrowser.Device;
+  printer?: KioskBrowser.PrinterInfo;
 }
 
 function getDeviceName(device: KioskBrowser.Device) {
@@ -30,65 +41,48 @@ function getDeviceName(device: KioskBrowser.Device) {
   if (isAccessibleController(device)) {
     return `Accessible Controller (${device.deviceName})`;
   }
-  if (isFujitsuScanner(device)) {
-    return `Fujitsu Scanner (${device.deviceName})`;
+  if (isBatchScanner(device)) {
+    return `Batch Scanner (${device.deviceName})`;
   }
-  if (isPlustekVtm300Scanner(device)) {
-    return `Plustek Scanner (${device.deviceName})`;
+  if (isPrecinctScanner(device)) {
+    return `Precinct Scanner (${device.deviceName})`;
   }
   return `Device (${device.deviceName})`;
 }
 
-export function useHardware({
-  hardware,
-  logger,
-}: UseHardwareProps): UseHardwareResult {
-  const [hasCardReaderAttached, setHasCardReaderAttached] = useState(false);
-  const [
-    hasAccessibleControllerAttached,
-    setHasAccessibleControllerAttached,
-  ] = useState(false);
-  const [hasPlustekScannerAttached, setHasPlustekScannerAttached] = useState(
-    false
-  );
-  const [hasFujitsuScannerAttached, setHasFujitsuScannerAttached] = useState(
-    false
-  );
-  const [hasPrinterAttached, setHasPrinterAttached] = useState(false);
+export function useDevices({ hardware, logger }: Props): Devices {
   const [allDevices, setAllDevices] = useState<KioskBrowser.Device[]>([]);
   const [allPrinters, setAllPrinters] = useState<KioskBrowser.PrinterInfo[]>(
     []
   );
+  const [battery, setBattery] = useState<
+    KioskBrowser.BatteryInfo | undefined
+  >();
   const previousDevices = usePrevious(allDevices);
   const previousPrinters = usePrevious(allPrinters);
 
   useEffect(() => {
     const hardwareStatusSubscription = hardware.devices
       .pipe(map((devices) => Array.from(devices)))
-      .subscribe(async (devices) => {
-        setHasCardReaderAttached(devices.some(isCardReader));
-        setHasAccessibleControllerAttached(
-          devices.some(isAccessibleController)
-        );
-        setHasPlustekScannerAttached(devices.some(isPlustekVtm300Scanner));
-        setHasFujitsuScannerAttached(devices.some(isFujitsuScanner));
-        setAllDevices(devices);
-      });
+      .subscribe(setAllDevices);
 
     const printerStatusSubscription = hardware.printers
       .pipe(map((printers) => Array.from(printers)))
-      .subscribe(async (printers) => {
-        const newHasPrinterAttached = printers.some(
-          ({ connected }) => connected
-        );
-        setHasPrinterAttached(newHasPrinterAttached);
-        setAllPrinters(printers);
-      });
+      .subscribe(setAllPrinters);
+
     return () => {
       hardwareStatusSubscription.unsubscribe();
       printerStatusSubscription.unsubscribe();
     };
   }, [hardware]);
+
+  useInterval(
+    async () => {
+      setBattery(await hardware.readBatteryStatus());
+    },
+    BATTERY_POLLING_INTERVAL,
+    true
+  );
 
   // Handle logging of printers
   useEffect(() => {
@@ -165,11 +159,18 @@ export function useHardware({
     }
   }, [previousDevices, allDevices, logger]);
 
+  const computer: ComputerStatus = {
+    batteryLevel: battery?.level,
+    batteryIsCharging: battery ? !battery.discharging : true,
+    batteryIsLow: battery ? battery.level < LOW_BATTERY_THRESHOLD : false,
+  };
+
   return {
-    hasCardReaderAttached,
-    hasAccessibleControllerAttached,
-    hasBatchScannerAttached: hasFujitsuScannerAttached,
-    hasPrecinctScannerAttached: hasPlustekScannerAttached,
-    hasPrinterAttached,
+    computer,
+    cardReader: allDevices.find(isCardReader),
+    accessibleController: allDevices.find(isAccessibleController),
+    batchScanner: allDevices.find(isBatchScanner),
+    precinctScanner: allDevices.find(isPrecinctScanner),
+    printer: allPrinters.find((printer) => printer.connected),
   };
 }

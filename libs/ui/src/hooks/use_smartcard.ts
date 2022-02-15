@@ -11,12 +11,13 @@ import { Card, CardApi, CardApiNotReady } from '@votingworks/utils';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import useInterval from 'use-interval';
 import { useCancelablePromise } from './use_cancelable_promise';
+import { Devices } from './use_devices';
 
 export const CARD_POLLING_INTERVAL = 100;
 
 export interface UseSmartcardProps {
   card: Card;
-  hasCardReaderAttached: boolean;
+  cardReader?: Devices['cardReader'];
 }
 
 interface SmartcardReady {
@@ -53,10 +54,10 @@ const initialState: State = {
  *
  * @example
  *
- * const { hasCardReaderAttached } = useHardware({ hardware, logger })
- * const smartcard = useSmartcard({ card, hasCardReaderAttached })
+ * const { cardReader } = useDevices({ hardware, logger })
+ * const smartcard = useSmartcard({ card, cardReader })
  * useEffect(() => {
- *    if (!hasCardReaderAttached) {
+ *    if (!cardReader) {
  *      console.log('No card reader')
  *    } else if (smartcard.status === 'ready' && smartcard.data) {
  *      console.log(
@@ -68,11 +69,11 @@ const initialState: State = {
  *    } else {
  *      console.log('No smartcard')
  *    }
- * }, [smartcard, hasCardReaderAttached])
+ * }, [smartcard, cardReader])
  */
 export function useSmartcard({
   card,
-  hasCardReaderAttached,
+  cardReader,
 }: UseSmartcardProps): Smartcard {
   const [
     { cardData, status, lastCardDataString, longValueExists },
@@ -144,7 +145,7 @@ export function useSmartcard({
 
   useInterval(
     async () => {
-      if (isReading.current || isWriting.current || !hasCardReaderAttached) {
+      if (isReading.current || isWriting.current || !cardReader) {
         return;
       }
 

@@ -31,7 +31,7 @@ import {
   useSmartcard,
   SetupCardReaderPage,
   useUserSession,
-  useHardware,
+  useDevices,
   ElectionInfoBar,
 } from '@votingworks/ui';
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
@@ -109,11 +109,14 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
 
   const usbDrive = useUsbDrive({ logger });
 
-  const { hasCardReaderAttached, hasBatchScannerAttached } = useHardware({
+  const { cardReader, batchScanner } = useDevices({
     hardware,
     logger,
   });
-  const smartcard = useSmartcard({ card, hasCardReaderAttached });
+  const smartcard = useSmartcard({
+    card,
+    cardReader,
+  });
   const {
     currentUserSession,
     attemptToAuthenticateAdminUser,
@@ -503,7 +506,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
     ? new KioskStorage(window.kiosk)
     : new LocalStorage();
 
-  if (!hasCardReaderAttached) {
+  if (!cardReader) {
     return <SetupCardReaderPage />;
   }
   const currentContext: AppContextInterface = {
@@ -650,7 +653,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
                 <ScanButton
                   onPress={scanBatch}
                   disabled={isScanning}
-                  isScannerAttached={hasBatchScannerAttached}
+                  isScannerAttached={!!batchScanner}
                 />
               </MainNav>
               <ElectionInfoBar

@@ -7,7 +7,7 @@ export * from './contest_tally';
 export * from './election_info_bar';
 export * from './hooks/use_autocomplete';
 export * from './hooks/use_cancelable_promise';
-export * from './hooks/use_hardware';
+export * from './hooks/use_devices';
 export * from './hooks/use_now';
 export * from './hooks/use_previous';
 export * from './hooks/use_smartcard';
