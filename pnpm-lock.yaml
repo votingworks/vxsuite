@@ -442,8 +442,8 @@ importers:
       '@typescript-eslint/eslint-plugin': ^4.28.4
       '@typescript-eslint/parser': ^4.28.4
       '@votingworks/ballot-encoder': workspace:*
-      '@votingworks/fixtures': workspace:*
       '@votingworks/ballot-interpreter-vx': workspace:*
+      '@votingworks/fixtures': workspace:*
       '@votingworks/logging': workspace:*
       '@votingworks/test-utils': workspace:*
       '@votingworks/types': workspace:*
@@ -702,8 +702,8 @@ importers:
       '@types/react-dom': 17.0.0
       '@types/react-router-dom': 5.1.7
       '@types/styled-components': 5.1.9
-      '@votingworks/fixtures': link:../../libs/fixtures
       '@votingworks/ballot-interpreter-vx': link:../../libs/ballot-interpreter-vx
+      '@votingworks/fixtures': link:../../libs/fixtures
       '@votingworks/logging': link:../../libs/logging
       '@votingworks/qrcode.react': 1.0.2_react@17.0.1
       '@votingworks/types': link:../../libs/types
@@ -785,8 +785,8 @@ importers:
       '@types/styled-components': ^5.1.9
       '@typescript-eslint/eslint-plugin': ^4.28.4
       '@typescript-eslint/parser': ^4.28.4
-      '@votingworks/fixtures': workspace:*
       '@votingworks/ballot-interpreter-vx': workspace:*
+      '@votingworks/fixtures': workspace:*
       '@votingworks/logging': workspace:*
       '@votingworks/qrcode.react': ^1.0.2
       '@votingworks/test-utils': workspace:*
@@ -1034,6 +1034,98 @@ importers:
       ts-jest: ^27.0.7
       typescript: ^4.3.5
       zod: 3.2.0
+  libs/ballot-interpreter-vx:
+    dependencies:
+      '@votingworks/ballot-encoder': link:../ballot-encoder
+      '@votingworks/types': link:../types
+      '@votingworks/utils': link:../utils
+      canvas: 2.6.1
+      chalk: 4.1.0
+      debug: 4.3.1
+      jsfeat: 0.0.8
+      jsqr: 1.3.1
+      node-quirc: 2.3.0
+      table: 6.0.7
+      uuid: 8.3.2
+    devDependencies:
+      '@types/benchmark': 1.0.33
+      '@types/debug': 4.1.5
+      '@types/jest': 27.0.3
+      '@types/jsfeat': link:../@types/jsfeat
+      '@types/memorystream': 0.3.0
+      '@types/node': 12.19.3
+      '@types/node-quirc': link:../@types/node-quirc
+      '@types/table': 6.0.0
+      '@types/tmp': 0.2.0
+      '@types/uuid': 8.3.0
+      '@typescript-eslint/eslint-plugin': 4.28.4_852673d3af9c7ab8ae779b8d717157c6
+      '@typescript-eslint/parser': 4.28.4_eslint@7.17.0+typescript@4.3.5
+      benchmark: 2.1.4
+      eslint: 7.17.0
+      eslint-config-airbnb-base: 14.2.1_a48282ca36857a4742d209c622f39c11
+      eslint-config-prettier: 8.3.0_eslint@7.17.0
+      eslint-import-resolver-node: 0.3.6
+      eslint-plugin-import: 2.24.2_eslint@7.17.0+typescript@4.3.5
+      eslint-plugin-jsx-a11y: 6.4.1_eslint@7.17.0
+      eslint-plugin-prettier: 3.3.1_7c5f1f59332aa465fcd97b1399d2f1c7
+      eslint-plugin-react: 7.24.0_eslint@7.17.0
+      eslint-plugin-vx: link:../eslint-plugin-vx
+      is-ci-cli: 2.2.0
+      jest: 27.3.1_canvas@2.6.1+ts-node@9.1.1
+      jest-watch-typeahead: 0.6.4_jest@27.3.1
+      lint-staged: 10.5.3
+      memorystream: 0.3.1
+      prettier: 2.2.1
+      sort-package-json: 1.50.0
+      tmp: 0.2.1
+      ts-jest: 27.0.7_9fd3d618a8f56b72434a4d1d442dbc9f
+      ts-node: 9.1.1_typescript@4.3.5
+      typescript: 4.3.5
+    specifiers:
+      '@types/benchmark': ^1.0.33
+      '@types/debug': ^4.1.5
+      '@types/jest': ^27.0.3
+      '@types/jsfeat': workspace:*
+      '@types/memorystream': ^0.3.0
+      '@types/node': 12.19.3
+      '@types/node-quirc': workspace:*
+      '@types/table': ^6.0.0
+      '@types/tmp': ^0.2.0
+      '@types/uuid': ^8.3.0
+      '@typescript-eslint/eslint-plugin': ^4.28.4
+      '@typescript-eslint/parser': ^4.28.4
+      '@votingworks/ballot-encoder': workspace:*
+      '@votingworks/types': workspace:*
+      '@votingworks/utils': workspace:*
+      benchmark: ^2.1.4
+      canvas: ^2.6.1
+      chalk: ^4.1.0
+      debug: ^4.2.0
+      eslint: ^7.17.0
+      eslint-config-airbnb-base: ^14.2.1
+      eslint-config-prettier: ^8.3.0
+      eslint-import-resolver-node: ^0.3.6
+      eslint-plugin-import: ^2.24.2
+      eslint-plugin-jsx-a11y: ^6.4.1
+      eslint-plugin-prettier: ^3.1.4
+      eslint-plugin-react: ^7.24.0
+      eslint-plugin-vx: workspace:*
+      is-ci-cli: ^2.2.0
+      jest: ^27.3.1
+      jest-watch-typeahead: ^0.6.4
+      jsfeat: ^0.0.8
+      jsqr: ^1.3.1
+      lint-staged: ^10.4.2
+      memorystream: ^0.3.1
+      node-quirc: ^2.2.1
+      prettier: ^2.1.2
+      sort-package-json: ^1.50.0
+      table: ^6.0.3
+      tmp: ^0.2.1
+      ts-jest: ^27.0.7
+      ts-node: ^9.0.0
+      typescript: ^4.3.5
+      uuid: ^8.3.1
   libs/cdf-schema-builder:
     dependencies:
       '@votingworks/types': link:../types
@@ -1316,98 +1408,6 @@ importers:
       ts-node: ^9.1.1
       typescript: ^4.3.5
       yargs: ^16.2.0
-  libs/ballot-interpreter-vx:
-    dependencies:
-      '@votingworks/ballot-encoder': link:../ballot-encoder
-      '@votingworks/types': link:../types
-      '@votingworks/utils': link:../utils
-      canvas: 2.6.1
-      chalk: 4.1.0
-      debug: 4.3.1
-      jsfeat: 0.0.8
-      jsqr: 1.3.1
-      node-quirc: 2.3.0
-      table: 6.0.7
-      uuid: 8.3.2
-    devDependencies:
-      '@types/benchmark': 1.0.33
-      '@types/debug': 4.1.5
-      '@types/jest': 27.0.3
-      '@types/jsfeat': link:../@types/jsfeat
-      '@types/memorystream': 0.3.0
-      '@types/node': 12.19.3
-      '@types/node-quirc': link:../@types/node-quirc
-      '@types/table': 6.0.0
-      '@types/tmp': 0.2.0
-      '@types/uuid': 8.3.0
-      '@typescript-eslint/eslint-plugin': 4.28.4_852673d3af9c7ab8ae779b8d717157c6
-      '@typescript-eslint/parser': 4.28.4_eslint@7.17.0+typescript@4.3.5
-      benchmark: 2.1.4
-      eslint: 7.17.0
-      eslint-config-airbnb-base: 14.2.1_a48282ca36857a4742d209c622f39c11
-      eslint-config-prettier: 8.3.0_eslint@7.17.0
-      eslint-import-resolver-node: 0.3.6
-      eslint-plugin-import: 2.24.2_eslint@7.17.0+typescript@4.3.5
-      eslint-plugin-jsx-a11y: 6.4.1_eslint@7.17.0
-      eslint-plugin-prettier: 3.3.1_7c5f1f59332aa465fcd97b1399d2f1c7
-      eslint-plugin-react: 7.24.0_eslint@7.17.0
-      eslint-plugin-vx: link:../eslint-plugin-vx
-      is-ci-cli: 2.2.0
-      jest: 27.3.1_canvas@2.6.1+ts-node@9.1.1
-      jest-watch-typeahead: 0.6.4_jest@27.3.1
-      lint-staged: 10.5.3
-      memorystream: 0.3.1
-      prettier: 2.2.1
-      sort-package-json: 1.50.0
-      tmp: 0.2.1
-      ts-jest: 27.0.7_9fd3d618a8f56b72434a4d1d442dbc9f
-      ts-node: 9.1.1_typescript@4.3.5
-      typescript: 4.3.5
-    specifiers:
-      '@types/benchmark': ^1.0.33
-      '@types/debug': ^4.1.5
-      '@types/jest': ^27.0.3
-      '@types/jsfeat': workspace:*
-      '@types/memorystream': ^0.3.0
-      '@types/node': 12.19.3
-      '@types/node-quirc': workspace:*
-      '@types/table': ^6.0.0
-      '@types/tmp': ^0.2.0
-      '@types/uuid': ^8.3.0
-      '@typescript-eslint/eslint-plugin': ^4.28.4
-      '@typescript-eslint/parser': ^4.28.4
-      '@votingworks/ballot-encoder': workspace:*
-      '@votingworks/types': workspace:*
-      '@votingworks/utils': workspace:*
-      benchmark: ^2.1.4
-      canvas: ^2.6.1
-      chalk: ^4.1.0
-      debug: ^4.2.0
-      eslint: ^7.17.0
-      eslint-config-airbnb-base: ^14.2.1
-      eslint-config-prettier: ^8.3.0
-      eslint-import-resolver-node: ^0.3.6
-      eslint-plugin-import: ^2.24.2
-      eslint-plugin-jsx-a11y: ^6.4.1
-      eslint-plugin-prettier: ^3.1.4
-      eslint-plugin-react: ^7.24.0
-      eslint-plugin-vx: workspace:*
-      is-ci-cli: ^2.2.0
-      jest: ^27.3.1
-      jest-watch-typeahead: ^0.6.4
-      jsfeat: ^0.0.8
-      jsqr: ^1.3.1
-      lint-staged: ^10.4.2
-      memorystream: ^0.3.1
-      node-quirc: ^2.2.1
-      prettier: ^2.1.2
-      sort-package-json: ^1.50.0
-      table: ^6.0.3
-      tmp: ^0.2.1
-      ts-jest: ^27.0.7
-      ts-node: ^9.0.0
-      typescript: ^4.3.5
-      uuid: ^8.3.1
   libs/logging:
     dependencies:
       '@types/kiosk-browser': link:../@types/kiosk-browser
@@ -1729,7 +1729,7 @@ importers:
       '@codemod/parser': 1.1.0
       '@testing-library/jest-dom': 4.2.4
       '@testing-library/react': 11.2.6_react-dom@17.0.1+react@17.0.1
-      '@testing-library/react-hooks': 6.0.0_react-dom@17.0.1+react@17.0.1
+      '@testing-library/react-hooks': 8.0.0-alpha.1_react-dom@17.0.1+react@17.0.1
       '@testing-library/user-event': 13.2.1
       '@types/debug': 4.1.7
       '@types/deep-eql': link:../@types/deep-eql
@@ -1778,7 +1778,7 @@ importers:
       '@codemod/parser': ^1.0.6
       '@testing-library/jest-dom': ^4.2.4
       '@testing-library/react': ^11.2.6
-      '@testing-library/react-hooks': ^6.0.0
+      '@testing-library/react-hooks': ^8.0.0-alpha.1
       '@testing-library/user-event': ^13.2.1
       '@types/debug': ^4.1.7
       '@types/deep-eql': workspace:*
@@ -1937,8 +1937,8 @@ importers:
   services/scan:
     dependencies:
       '@votingworks/ballot-encoder': link:../../libs/ballot-encoder
-      '@votingworks/fixtures': link:../../libs/fixtures
       '@votingworks/ballot-interpreter-vx': link:../../libs/ballot-interpreter-vx
+      '@votingworks/fixtures': link:../../libs/fixtures
       '@votingworks/logging': link:../../libs/logging
       '@votingworks/plustek-sdk': link:../../libs/plustek-sdk
       '@votingworks/qrdetect': 1.0.1
@@ -2032,8 +2032,8 @@ importers:
       '@typescript-eslint/eslint-plugin': ^4.28.4
       '@typescript-eslint/parser': ^4.28.4
       '@votingworks/ballot-encoder': workspace:*
-      '@votingworks/fixtures': workspace:*
       '@votingworks/ballot-interpreter-vx': workspace:*
+      '@votingworks/fixtures': workspace:*
       '@votingworks/logging': workspace:*
       '@votingworks/plustek-sdk': workspace:*
       '@votingworks/qrdetect': ^1.0.1
@@ -6655,13 +6655,12 @@ packages:
       yarn: '>=1'
     resolution:
       integrity: sha512-N9Y82b2Z3j6wzIoAqajlKVF1Zt7sOH0pPee0sUHXHc5cv2Fdn23r+vpWm0MBBoGJtPOly5+Bdx1lnc3CD+A+ow==
-  /@testing-library/react-hooks/6.0.0_react-dom@17.0.1+react@17.0.1:
+  /@testing-library/react-hooks/8.0.0-alpha.1_react-dom@17.0.1+react@17.0.1:
     dependencies:
-      '@babel/runtime': 7.15.4
-      '@types/react': 17.0.22
+      '@babel/runtime': 7.16.7
+      '@types/react': 17.0.38
       '@types/react-dom': 17.0.9
       '@types/react-test-renderer': 17.0.1
-      filter-console: 0.1.1
       react: 17.0.1
       react-dom: 17.0.1_react@17.0.1
       react-error-boundary: 3.1.3_react@17.0.1
@@ -6678,7 +6677,7 @@ packages:
       react-test-renderer:
         optional: true
     resolution:
-      integrity: sha512-Y8ayCUFPiNttX9zmwP2bDv4uYzgsgOMHxAsOrD7th7Xuj1j1rHkxf+VzRqdr7zJlSeYPzl67754qAnZ9O1ahYg==
+      integrity: sha512-YrIrBXQLKcucFuEiSkHEycR7Yk5lOHH8tTxB+km+XdQiN1af0YlblWt+n9Zx6OX1crIN3JNy8hJ7VvdYivriCg==
   /@testing-library/react/11.2.3_react-dom@17.0.1+react@17.0.1:
     dependencies:
       '@babel/runtime': 7.12.5
@@ -7254,7 +7253,7 @@ packages:
       integrity: sha512-lUqY7OlkF/RbNtD5nIq7ot8NquXrdFrjSOR6+w9a9RFQevGi1oZO1dcJbXMeONAPKtZ2UrZOEJ5UOCVsxbLk/g==
   /@types/react-dom/17.0.9:
     dependencies:
-      '@types/react': 17.0.22
+      '@types/react': 17.0.38
     dev: true
     resolution:
       integrity: sha512-wIvGxLfgpVDSAMH5utdL9Ngm5Owu0VsGmldro3ORLXV8CShrL8awVj06NuEXFQ5xyaYfdca7Sgbk/50Ri1GdPg==
@@ -7285,7 +7284,7 @@ packages:
       integrity: sha512-z3UlMG/x91SFEVmmvykk9FLTliDvfdIUky4k2rCfXWQ0NKbrP8o9BTCaCTPuYsB8gDkUnUmkcA2vYlm2DR+HAA==
   /@types/react-test-renderer/17.0.1:
     dependencies:
-      '@types/react': 17.0.22
+      '@types/react': 17.0.38
     dev: true
     resolution:
       integrity: sha512-3Fi2O6Zzq/f3QR9dRnlnHso9bMl7weKCviFmfF6B4LS1Uat6Hkm15k0ZAQuDz+UBq6B3+g+NM6IT2nr5QgPzCw==
@@ -7326,20 +7325,11 @@ packages:
     dev: false
     resolution:
       integrity: sha512-GzzXCpOthOjXvrAUFQwU/svyxu658cwu00Q9ugujS4qc1zXgLFaO0kS2SLOaMWLt2Jik781yuHCWB7UcYdGAeQ==
-  /@types/react/17.0.22:
-    dependencies:
-      '@types/prop-types': 15.7.4
-      '@types/scheduler': 0.16.2
-      csstype: 3.0.9
-    dev: true
-    resolution:
-      integrity: sha512-kq/BMeaAVLJM6Pynh8C2rnr/drCK+/5ksH0ch9asz+8FW3DscYCIEFtCeYTFeIx/ubvOsMXmRfy7qEJ76gM96A==
   /@types/react/17.0.38:
     dependencies:
       '@types/prop-types': 15.7.4
       '@types/scheduler': 0.16.2
       csstype: 3.0.10
-    dev: false
     resolution:
       integrity: sha512-SI92X1IA+FMnP3qM5m4QReluXzhcmovhZnLNm3pyeQlooi02qI7sLiepEYqT678uNiyc25XfCqxREFpy3W7YhQ==
   /@types/react/17.0.4:
@@ -11601,7 +11591,6 @@ packages:
     resolution:
       integrity: sha512-AZL67abkUzIuvcHqk7c09cezpGNcxUxU4Ioi/05xHk4DQeTkWmGYftIE6ctU6AEt+Gn4n1lDStOtj7FKycP71A==
   /csstype/3.0.10:
-    dev: false
     resolution:
       integrity: sha512-2u44ZG2OcNUO9HDp/Jl8C07x6pU/eTR3ncV91SiK3dhG9TWvRVsCoJw14Ckx5DgWkzGA3waZWO3d7pgqpUI/XA==
   /csstype/3.0.6:
@@ -11611,6 +11600,7 @@ packages:
     resolution:
       integrity: sha512-jXKhWqXPmlUeoQnF/EhTtTl4C9SnrxSH/jZUih3jmO6lBKr99rP3/+FmrMj4EFpOXzMtXHAZkd3x0E6h6Fgflw==
   /csstype/3.0.9:
+    dev: false
     resolution:
       integrity: sha512-rpw6JPxK6Rfg1zLOYCSwle2GFOOsnjmDYDaBwEcwoOg4qlsIVCN789VkBZDJAGi4T07gI4YSutR43t9Zz4Lzuw==
   /csv-writer/1.6.0:
@@ -15441,12 +15431,6 @@ packages:
       node: '>=8'
     resolution:
       integrity: sha512-qOo9F+dMUmC2Lcb4BbVvnKJxTPjCm+RRpe4gDuGrzkL7mEVl/djYSu2OdQ2Pa302N4oqkSg9ir6jaLWJ2USVpQ==
-  /filter-console/0.1.1:
-    dev: true
-    engines:
-      node: '>=8'
-    resolution:
-      integrity: sha512-zrXoV1Uaz52DqPs+qEwNJWJFAWZpYJ47UNmpN9q4j+/EYsz85uV0DC9k8tRND5kYmoVzL0W+Y75q4Rg8sRJCdg==
   /finalhandler/1.1.2:
     dependencies:
       debug: 2.6.9
@@ -23380,7 +23364,7 @@ packages:
       integrity: sha512-EGSvK2CxFTuc28WxwuJCICyuYFX8b+sRumwU6Bs6sTbElV2HtQkT0d6C+HEee6XfbjiLIZ+Th9uji27rvo2wGw==
   /react-error-boundary/3.1.3_react@17.0.1:
     dependencies:
-      '@babel/runtime': 7.15.4
+      '@babel/runtime': 7.16.7
       react: 17.0.1
     dev: true
     engines:

@@ -1,22 +1,20 @@
 import { fakeDevice, fakeKiosk } from '@votingworks/test-utils';
-import {
-  FujitsuScannerVendorId,
-  getHardware,
-  isFujitsuScanner,
-  PlustekScannerVendorId,
-  PlustekVtm300ScannerProductId,
-} from '.';
+import { getHardware } from '.';
 import { KioskHardware } from './kiosk_hardware';
 import {
   AccessibleControllerProductId,
   AccessibleControllerVendorId,
   isAccessibleController,
   isCardReader,
-  isPlustekVtm300Scanner,
   OmniKeyCardReaderDeviceName,
   OmniKeyCardReaderManufacturer,
   OmniKeyCardReaderProductId,
   OmniKeyCardReaderVendorId,
+  FujitsuScannerVendorId,
+  PlustekScannerVendorId,
+  PlustekVtm300ScannerProductId,
+  isBatchScanner,
+  isPrecinctScanner,
 } from './utils';
 
 it('getHardware returns KioskHardware when window.kiosk is set', async () => {
@@ -87,13 +85,13 @@ it('isAccessibleController matches a device with the right vendor and product id
   ).toBe(true);
 });
 
-it('isFujitsuScanner does not match just any device', () => {
-  expect(isFujitsuScanner(fakeDevice())).toBe(false);
+it('isBatchScanner does not match just any device', () => {
+  expect(isBatchScanner(fakeDevice())).toBe(false);
 });
 
-it('isFujitsuScanner matches a device with the right vendor and product id', () => {
+it('isBatchScanner matches a device with the right vendor and product id', () => {
   expect(
-    isFujitsuScanner(
+    isBatchScanner(
       fakeDevice({
         vendorId: FujitsuScannerVendorId,
       })
@@ -101,13 +99,13 @@ it('isFujitsuScanner matches a device with the right vendor and product id', () 
   ).toBe(true);
 });
 
-it('isPlustekVtm300Scanner does not match just any device', () => {
-  expect(isPlustekVtm300Scanner(fakeDevice())).toBe(false);
+it('isPrecinctScanner does not match just any device', () => {
+  expect(isPrecinctScanner(fakeDevice())).toBe(false);
 });
 
-it('isFujitsuScanner matches a device with the right vendor and product id', () => {
+it('isPrecinctScanner matches a device with the right vendor and product id', () => {
   expect(
-    isPlustekVtm300Scanner(
+    isPrecinctScanner(
       fakeDevice({
         vendorId: PlustekScannerVendorId,
         productId: PlustekVtm300ScannerProductId,

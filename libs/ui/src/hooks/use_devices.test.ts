@@ -1,6 +1,5 @@
 import { act, renderHook } from '@testing-library/react-hooks';
 import { Logger, LogSource, LogEventId } from '@votingworks/logging';
-import { advanceTimers } from '@votingworks/test-utils';
 import {
   AccessibleControllerProductId,
   AccessibleControllerVendorId,
@@ -362,7 +361,7 @@ test('periodically polls for computer battery status', async () => {
 
   // Change the battery status to low
   await act(async () => await hardware.setBatteryLevel(0.2));
-  advanceTimers(BATTERY_POLLING_INTERVAL / 1000);
+  jest.advanceTimersByTime(BATTERY_POLLING_INTERVAL);
   await waitForNextUpdate();
   expect(result.current.computer).toEqual({
     batteryIsCharging: true,
@@ -372,7 +371,7 @@ test('periodically polls for computer battery status', async () => {
 
   // Disconnect the charger
   await act(async () => await hardware.setBatteryDischarging(true));
-  advanceTimers(BATTERY_POLLING_INTERVAL / 1000);
+  jest.advanceTimersByTime(BATTERY_POLLING_INTERVAL);
   await waitForNextUpdate();
   expect(result.current.computer).toEqual({
     batteryIsCharging: false,

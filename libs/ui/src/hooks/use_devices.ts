@@ -161,7 +161,7 @@ export function useDevices({ hardware, logger }: Props): Devices {
 
   const computer: ComputerStatus = {
     batteryLevel: battery?.level,
-    batteryIsCharging: battery ? battery.discharging : true,
+    batteryIsCharging: battery ? !battery.discharging : true,
     batteryIsLow: battery ? battery.level < LOW_BATTERY_THRESHOLD : false,
   };
 
