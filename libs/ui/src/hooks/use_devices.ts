@@ -19,12 +19,14 @@ export interface Props {
   logger: Logger;
 }
 
-export interface BatteryStatus extends KioskBrowser.BatteryInfo {
-  isBelowLowBatteryThreshold: boolean;
+export interface ComputerStatus {
+  batteryLevel?: number;
+  batteryIsLow: boolean;
+  batteryIsCharging: boolean;
 }
 
 export interface Devices {
-  computer: { battery?: BatteryStatus };
+  computer: ComputerStatus;
   cardReader?: KioskBrowser.Device;
   accessibleController?: KioskBrowser.Device;
   precinctScanner?: KioskBrowser.Device;
@@ -157,13 +159,14 @@ export function useDevices({ hardware, logger }: Props): Devices {
     }
   }, [previousDevices, allDevices, logger]);
 
-  const batteryStatus = battery && {
-    ...battery,
-    isBelowLowBatteryThreshold: battery.level < LOW_BATTERY_THRESHOLD,
+  const computer: ComputerStatus = {
+    batteryLevel: battery?.level,
+    batteryIsCharging: battery ? battery.discharging : true,
+    batteryIsLow: battery ? battery.level < LOW_BATTERY_THRESHOLD : false,
   };
 
   return {
-    computer: { battery: batteryStatus },
+    computer,
     cardReader: allDevices.find(isCardReader),
     accessibleController: allDevices.find(isAccessibleController),
     batchScanner: allDevices.find(isBatchScanner),

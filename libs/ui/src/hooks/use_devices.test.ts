@@ -19,7 +19,9 @@ import { BATTERY_POLLING_INTERVAL, Devices, useDevices } from './use_devices';
 const emptyDevices: Devices = {
   printer: undefined,
   computer: {
-    battery: undefined,
+    batteryLevel: undefined,
+    batteryIsLow: false,
+    batteryIsCharging: true,
   },
   cardReader: undefined,
   accessibleController: undefined,
@@ -352,29 +354,29 @@ test('periodically polls for computer battery status', async () => {
   await waitForNextUpdate();
 
   // Should immediately load the battery status
-  expect(result.current.computer.battery).toEqual({
-    discharging: false,
-    isBelowLowBatteryThreshold: false,
-    level: 0.8,
+  expect(result.current.computer).toEqual({
+    batteryIsCharging: true,
+    batteryIsLow: false,
+    batteryLevel: 0.8,
   });
 
   // Change the battery status to low
   await act(async () => await hardware.setBatteryLevel(0.2));
   advanceTimers(BATTERY_POLLING_INTERVAL / 1000);
   await waitForNextUpdate();
-  expect(result.current.computer.battery).toEqual({
-    discharging: false,
-    isBelowLowBatteryThreshold: true,
-    level: 0.2,
+  expect(result.current.computer).toEqual({
+    batteryIsCharging: true,
+    batteryIsLow: true,
+    batteryLevel: 0.2,
   });
 
   // Disconnect the charger
   await act(async () => await hardware.setBatteryDischarging(true));
   advanceTimers(BATTERY_POLLING_INTERVAL / 1000);
   await waitForNextUpdate();
-  expect(result.current.computer.battery).toEqual({
-    discharging: true,
-    isBelowLowBatteryThreshold: true,
-    level: 0.2,
+  expect(result.current.computer).toEqual({
+    batteryIsCharging: false,
+    batteryIsLow: true,
+    batteryLevel: 0.2,
   });
 });

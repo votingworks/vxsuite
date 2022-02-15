@@ -11,7 +11,7 @@ import {
 import { Logger, LogSource } from '@votingworks/logging';
 import {
   useCancelablePromise,
-  useHardware,
+  useDevices,
   useSmartcard,
   useStoredState,
 } from '@votingworks/ui';
@@ -76,7 +76,7 @@ export function AppRoot({ card, hardware, storage }: Props): JSX.Element {
     () => new Logger(LogSource.VxBallotActivationFrontend, window.kiosk),
     []
   );
-  const { hasCardReaderAttached } = useHardware({ hardware, logger });
+  const { cardReader } = useDevices({ hardware, logger });
 
   const unconfigure = useCallback(() => {
     setElection(undefined);
@@ -136,7 +136,10 @@ export function AppRoot({ card, hardware, storage }: Props): JSX.Element {
   }
 
   const makeCancelable = useCancelablePromise();
-  const smartcard = useSmartcard({ card, hasCardReaderAttached });
+  const smartcard = useSmartcard({
+    card,
+    cardReader,
+  });
 
   const fetchElection = useCallback(async () => {
     setIsLoadingElection(true);

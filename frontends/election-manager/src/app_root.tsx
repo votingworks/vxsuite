@@ -37,7 +37,7 @@ import {
   useSmartcard,
   useUsbDrive,
   useUserSession,
-  useHardware,
+  useDevices,
 } from '@votingworks/ui';
 import {
   computeFullElectionTally,
@@ -107,7 +107,7 @@ export function AppRoot({
 
   const printBallotRef = useRef<HTMLDivElement>(null);
 
-  const { hasCardReaderAttached } = useHardware({ hardware, logger });
+  const { cardReader } = useDevices({ hardware, logger });
 
   const getElectionDefinition = useCallback(async (): Promise<
     ElectionDefinition | undefined
@@ -162,7 +162,10 @@ export function AppRoot({
     codeVersion: '',
   });
 
-  const smartcard = useSmartcard({ card, hasCardReaderAttached });
+  const smartcard = useSmartcard({
+    card,
+    cardReader,
+  });
   const {
     currentUserSession,
     attemptToAuthenticateAdminUser,
@@ -617,7 +620,7 @@ export function AppRoot({
         attemptToAuthenticateAdminUser,
         lockMachine,
         machineConfig,
-        hasCardReaderAttached,
+        hasCardReaderAttached: !!cardReader,
         logger,
       }}
     >

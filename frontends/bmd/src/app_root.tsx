@@ -514,9 +514,13 @@ export function AppRoot({
     []
   );
 
-  const devices = useDevices({ hardware, logger });
-  const { battery } = devices.computer;
-  const hasPrinterAttached = devices.printer !== undefined;
+  const {
+    cardReader,
+    printer: printerInfo,
+    accessibleController,
+    computer,
+  } = useDevices({ hardware, logger });
+  const hasPrinterAttached = printerInfo !== undefined;
   const previousHasPrinterAttached = usePrevious(hasPrinterAttached);
 
   const ballotStyle =
@@ -1178,7 +1182,7 @@ export function AppRoot({
     initializedFromStorage,
   ]);
 
-  if (!devices.cardReader) {
+  if (!cardReader) {
     return (
       <SetupCardReaderPage
         useEffectToggleLargeDisplay={useEffectToggleLargeDisplay}
@@ -1192,7 +1196,7 @@ export function AppRoot({
       />
     );
   }
-  if (battery?.isBelowLowBatteryThreshold && battery.discharging) {
+  if (computer.batteryIsLow && !computer.batteryIsCharging) {
     return (
       <SetupPowerPage
         useEffectToggleLargeDisplay={useEffectToggleLargeDisplay}
@@ -1335,7 +1339,7 @@ export function AppRoot({
             precinctId={precinctId}
             printer={printer}
             useEffectToggleLargeDisplay={useEffectToggleLargeDisplay}
-            showNoChargerAttachedWarning={!!battery?.discharging}
+            showNoChargerAttachedWarning={!computer.batteryIsCharging}
             updateTally={updateTally}
             votes={votes}
           />
@@ -1382,9 +1386,9 @@ export function AppRoot({
           appPrecinct={appPrecinct}
           electionDefinition={optionalElectionDefinition}
           showNoAccessibleControllerWarning={
-            appMode.isMark && !devices.accessibleController
+            appMode.isMark && !accessibleController
           }
-          showNoChargerAttachedWarning={!!battery?.discharging}
+          showNoChargerAttachedWarning={!computer.batteryIsCharging}
           isLiveMode={isLiveMode}
           isPollsOpen={isPollsOpen}
           machineConfig={machineConfig}

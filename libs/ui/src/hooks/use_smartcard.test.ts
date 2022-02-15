@@ -9,8 +9,25 @@ import {
   makePollWorkerCard,
   makeVoterCard,
 } from '@votingworks/test-utils';
-import { assert, MemoryCard } from '@votingworks/utils';
+import {
+  assert,
+  MemoryCard,
+  OmniKeyCardReaderDeviceName,
+  OmniKeyCardReaderManufacturer,
+  OmniKeyCardReaderProductId,
+  OmniKeyCardReaderVendorId,
+} from '@votingworks/utils';
 import { CARD_POLLING_INTERVAL, useSmartcard } from './use_smartcard';
+
+const cardReader: KioskBrowser.Device = {
+  deviceAddress: 0,
+  deviceName: OmniKeyCardReaderDeviceName,
+  locationId: 0,
+  manufacturer: OmniKeyCardReaderManufacturer,
+  productId: OmniKeyCardReaderProductId,
+  serialNumber: '',
+  vendorId: OmniKeyCardReaderVendorId,
+};
 
 beforeEach(() => {
   jest.useFakeTimers('legacy');
@@ -20,7 +37,7 @@ test('no card reader attached', async () => {
   const card = new MemoryCard();
 
   const { result } = renderHook(() =>
-    useSmartcard({ card, hasCardReaderAttached: false })
+    useSmartcard({ card, cardReader: undefined })
   );
   await advanceTimersAndPromises(CARD_POLLING_INTERVAL / 1000);
   const smartcard = result.current;
@@ -32,9 +49,7 @@ test('no card reader attached', async () => {
 test('with card reader but no card', async () => {
   const card = new MemoryCard();
 
-  const { result } = renderHook(() =>
-    useSmartcard({ card, hasCardReaderAttached: true })
-  );
+  const { result } = renderHook(() => useSmartcard({ card, cardReader }));
   await advanceTimersAndPromises(CARD_POLLING_INTERVAL / 1000);
   const smartcard = result.current;
   expect({ smartcard }).toEqual({
@@ -46,9 +61,7 @@ test('with card reader but card connection error', async () => {
   const card = new MemoryCard();
   card.insertCard(undefined, undefined, 'error');
 
-  const { result } = renderHook(() =>
-    useSmartcard({ card, hasCardReaderAttached: true })
-  );
+  const { result } = renderHook(() => useSmartcard({ card, cardReader }));
   await advanceTimersAndPromises(CARD_POLLING_INTERVAL / 1000);
   const smartcard = result.current;
   expect({ smartcard }).toEqual({
@@ -61,9 +74,7 @@ test('with card reader and a voter card', async () => {
 
   card.insertCard(makeVoterCard(electionSample));
 
-  const { result } = renderHook(() =>
-    useSmartcard({ card, hasCardReaderAttached: true })
-  );
+  const { result } = renderHook(() => useSmartcard({ card, cardReader }));
   await advanceTimersAndPromises(CARD_POLLING_INTERVAL / 1000);
   const smartcard = result.current;
   expect({ smartcard }).toEqual({
@@ -81,9 +92,7 @@ test('with card reader and a pollworker card', async () => {
 
   card.insertCard(makePollWorkerCard(electionSampleDefinition.electionHash));
 
-  const { result } = renderHook(() =>
-    useSmartcard({ card, hasCardReaderAttached: true })
-  );
+  const { result } = renderHook(() => useSmartcard({ card, cardReader }));
   await advanceTimersAndPromises(CARD_POLLING_INTERVAL / 1000);
   const smartcard = result.current;
   expect({ smartcard }).toEqual({
@@ -102,9 +111,7 @@ test('with card reader and an admin card', async () => {
 
   card.insertCard(makeAdminCard(electionSampleDefinition.electionHash));
 
-  const { result } = renderHook(() =>
-    useSmartcard({ card, hasCardReaderAttached: true })
-  );
+  const { result } = renderHook(() => useSmartcard({ card, cardReader }));
   await advanceTimersAndPromises(CARD_POLLING_INTERVAL / 1000);
   const smartcard = result.current;
   expect({ smartcard }).toEqual({
@@ -123,9 +130,7 @@ test('with card reader and a gibberish card', async () => {
 
   card.insertCard('not JSON');
 
-  const { result } = renderHook(() =>
-    useSmartcard({ card, hasCardReaderAttached: true })
-  );
+  const { result } = renderHook(() => useSmartcard({ card, cardReader }));
   await advanceTimersAndPromises(CARD_POLLING_INTERVAL / 1000);
   const smartcard = result.current;
   expect({ smartcard }).toEqual({
@@ -140,9 +145,7 @@ test('writing short value succeeds', async () => {
 
   card.insertCard();
 
-  const { result } = renderHook(() =>
-    useSmartcard({ card, hasCardReaderAttached: true })
-  );
+  const { result } = renderHook(() => useSmartcard({ card, cardReader }));
   await advanceTimersAndPromises(CARD_POLLING_INTERVAL / 1000);
 
   const voterCard = makeVoterCard(electionSample);
@@ -182,9 +185,7 @@ test('writing short value fails', async () => {
 
   card.insertCard();
 
-  const { result } = renderHook(() =>
-    useSmartcard({ card, hasCardReaderAttached: true })
-  );
+  const { result } = renderHook(() => useSmartcard({ card, cardReader }));
   await advanceTimersAndPromises(CARD_POLLING_INTERVAL / 1000);
 
   jest.spyOn(card, 'writeShortValue').mockRejectedValue(new Error('oh no'));
@@ -207,9 +208,7 @@ test('writing concurrently fails', async () => {
 
   card.insertCard();
 
-  const { result } = renderHook(() =>
-    useSmartcard({ card, hasCardReaderAttached: true })
-  );
+  const { result } = renderHook(() => useSmartcard({ card, cardReader }));
   await advanceTimersAndPromises(CARD_POLLING_INTERVAL / 1000);
 
   jest.spyOn(card, 'writeShortValue').mockResolvedValue();
@@ -250,9 +249,7 @@ test('reading long string value succeeds', async () => {
   card.insertCard();
   await card.writeLongObject({ some: 'object' });
 
-  const { result } = renderHook(() =>
-    useSmartcard({ card, hasCardReaderAttached: true })
-  );
+  const { result } = renderHook(() => useSmartcard({ card, cardReader }));
 
   // read short
   await advanceTimersAndPromises(CARD_POLLING_INTERVAL / 1000);
@@ -274,9 +271,7 @@ test('reading long string value fails', async () => {
 
   card.insertCard();
 
-  const { result } = renderHook(() =>
-    useSmartcard({ card, hasCardReaderAttached: true })
-  );
+  const { result } = renderHook(() => useSmartcard({ card, cardReader }));
   await advanceTimersAndPromises(CARD_POLLING_INTERVAL / 1000);
 
   jest.spyOn(card, 'readLongString').mockRejectedValue(new Error('oh no'));
@@ -294,9 +289,7 @@ test('reading long binary value succeeds', async () => {
   card.insertCard();
   await card.writeLongUint8Array(Uint8Array.of(1, 2, 3));
 
-  const { result } = renderHook(() =>
-    useSmartcard({ card, hasCardReaderAttached: true })
-  );
+  const { result } = renderHook(() => useSmartcard({ card, cardReader }));
 
   // read short
   await advanceTimersAndPromises(CARD_POLLING_INTERVAL / 1000);
@@ -318,9 +311,7 @@ test('reading long binary value fails', async () => {
 
   card.insertCard();
 
-  const { result } = renderHook(() =>
-    useSmartcard({ card, hasCardReaderAttached: true })
-  );
+  const { result } = renderHook(() => useSmartcard({ card, cardReader }));
   await advanceTimersAndPromises(CARD_POLLING_INTERVAL / 1000);
 
   jest.spyOn(card, 'readLongUint8Array').mockRejectedValue(new Error('oh no'));
@@ -339,9 +330,7 @@ test('writing long object value succeeds', async () => {
 
   card.insertCard();
 
-  const { result } = renderHook(() =>
-    useSmartcard({ card, hasCardReaderAttached: true })
-  );
+  const { result } = renderHook(() => useSmartcard({ card, cardReader }));
 
   await advanceTimersAndPromises(CARD_POLLING_INTERVAL / 1000);
 
@@ -359,9 +348,7 @@ test('writing long object value fails', async () => {
 
   card.insertCard();
 
-  const { result } = renderHook(() =>
-    useSmartcard({ card, hasCardReaderAttached: true })
-  );
+  const { result } = renderHook(() => useSmartcard({ card, cardReader }));
   await advanceTimersAndPromises(CARD_POLLING_INTERVAL / 1000);
 
   jest.spyOn(card, 'writeLongObject').mockRejectedValue(new Error('oh no'));
@@ -380,9 +367,7 @@ test('writing long binary value fails', async () => {
 
   card.insertCard();
 
-  const { result } = renderHook(() =>
-    useSmartcard({ card, hasCardReaderAttached: true })
-  );
+  const { result } = renderHook(() => useSmartcard({ card, cardReader }));
   await advanceTimersAndPromises(CARD_POLLING_INTERVAL / 1000);
 
   jest.spyOn(card, 'writeLongUint8Array').mockRejectedValue(new Error('oh no'));

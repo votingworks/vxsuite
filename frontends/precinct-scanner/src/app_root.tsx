@@ -333,14 +333,13 @@ export function AppRoot({
   const usbDriveDisplayStatus =
     usbDrive.status ?? usbstick.UsbDriveStatus.absent;
 
-  const devices = useDevices({
+  const { cardReader, computer, printer: printerInfo } = useDevices({
     hardware,
     logger,
   });
-  const { battery } = devices.computer;
   const smartcard = useSmartcard({
     card,
-    hasCardReaderAttached: !!devices.cardReader,
+    cardReader,
   });
   const { currentUserSession, attemptToAuthenticateAdminUser } = useUserSession(
     {
@@ -684,7 +683,7 @@ export function AppRoot({
     dispatchAppState({ type: 'readyToInsertBallot' });
   }
 
-  if (!devices.cardReader) {
+  if (!cardReader) {
     return <SetupCardReaderPage />;
   }
 
@@ -692,7 +691,7 @@ export function AppRoot({
     return <CardErrorScreen />;
   }
 
-  if (battery?.isBelowLowBatteryThreshold && battery.discharging) {
+  if (computer.batteryIsLow && !computer.batteryIsCharging) {
     return <SetupPowerPage />;
   }
 
@@ -758,7 +757,7 @@ export function AppRoot({
           saveTallyToCard={saveTallyToCard}
           getCvrsFromExport={getCvrsFromExport}
           printer={printer}
-          hasPrinterAttached={!!devices.printer}
+          hasPrinterAttached={!!printerInfo}
           isLiveMode={!isTestMode}
           usbDrive={usbDrive}
         />
@@ -779,7 +778,7 @@ export function AppRoot({
   let voterScreen = (
     <PollsClosedScreen
       isLiveMode={!isTestMode}
-      showNoChargerWarning={!!battery?.discharging}
+      showNoChargerWarning={!computer.batteryIsCharging}
     />
   );
 
@@ -791,7 +790,7 @@ export function AppRoot({
           <InsertBallotScreen
             isLiveMode={!isTestMode}
             scannedBallotCount={scannedBallotCount}
-            showNoChargerWarning={!!battery?.discharging}
+            showNoChargerWarning={!computer.batteryIsCharging}
           />
         );
         break;
