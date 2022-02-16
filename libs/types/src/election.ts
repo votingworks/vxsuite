@@ -187,6 +187,27 @@ export const CandidateContestSchema: z.ZodSchema<CandidateContest> = ContestInte
       message: `Duplicate candidate '${id}' found.`,
     });
   }
+
+  if (!contest.allowWriteIns) {
+    for (const [index, candidate] of contest.candidates.entries()) {
+      if (candidate.isWriteIn) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['candidates', index, 'isWriteIn'],
+          message: `Contest '${contest.id}' does not allow write-ins.`,
+        });
+      }
+    }
+  } else {
+    const writeInsCount = contest.candidates.filter((c) => c.isWriteIn).length;
+    if (writeInsCount > 0 && writeInsCount !== contest.seats) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['candidates'],
+        message: `Contest has ${writeInsCount} write-in candidate(s), but ${contest.seats} seat(s) are available.`,
+      });
+    }
+  }
 });
 
 export type YesNoOptionId = Id;
