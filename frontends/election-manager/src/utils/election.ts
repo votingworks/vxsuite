@@ -9,9 +9,7 @@ import {
   getPrecinctById,
   Party,
   VotesDict,
-  ContestVoteOption,
   writeInCandidate,
-  YesNoVoteOption,
   PartyId,
   BallotStyleId,
   PrecinctId,
@@ -36,22 +34,6 @@ export function getPartiesWithPrimaryElections(election: Election): Party[] {
     .map((bs) => bs.partyId)
     .filter((id): id is PartyId => id !== undefined);
   return election.parties.filter((party) => partyIds.includes(party.id));
-}
-
-export function getContestOptionsForContest(
-  contest: AnyContest
-): readonly ContestVoteOption[] {
-  if (contest.type === 'candidate') {
-    const options = contest.candidates;
-    if (contest.allowWriteIns) {
-      return options.concat(writeInCandidate);
-    }
-    return options;
-  }
-  if (contest.type === 'yesno') {
-    return [['yes'] as YesNoVoteOption, ['no'] as YesNoVoteOption];
-  }
-  throw new Error(`Unexpected contest type: ${contest.type}`);
 }
 
 const sortOptions: Intl.CollatorOptions = {

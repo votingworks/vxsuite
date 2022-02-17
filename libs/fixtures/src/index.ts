@@ -61,7 +61,7 @@ export const electionSampleRotationDefinition = asElectionDefinition(
 export const electionWithMsEitherNeitherDefinition = asElectionDefinition(
   electionWithMsEitherNeither
 );
-export const electionMinimalExhaustiveSampleDefintion = asElectionDefinition(
+export const electionMinimalExhaustiveSampleDefinition = asElectionDefinition(
   electionMinimalExhaustiveSample
 );
 
@@ -97,7 +97,7 @@ export const electionWithMsEitherNeitherWithDataFiles = {
 } as const;
 
 export const electionMinimalExhaustiveSampleWithDataFiles = {
-  electionDefinition: electionMinimalExhaustiveSampleDefintion,
+  electionDefinition: electionMinimalExhaustiveSampleDefinition,
   semsData: electionMinimalExhaustiveSemsData as string,
   cvrData: electionMinimalExhaustiveCvrData as string,
 } as const;

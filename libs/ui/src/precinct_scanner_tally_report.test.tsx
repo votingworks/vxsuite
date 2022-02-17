@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, within } from '@testing-library/react';
 import {
-  electionMinimalExhaustiveSampleDefintion,
+  electionMinimalExhaustiveSampleDefinition,
   electionSample,
   electionSampleDefinition,
 } from '@votingworks/fixtures';
@@ -136,14 +136,14 @@ const primaryCvr: CastVoteRecord = {
 test('renders as expected for all precincts in a primary election', async () => {
   const party0 = unsafeParse(PartyIdSchema, '0');
   const tally = calculateTallyForCastVoteRecords(
-    electionMinimalExhaustiveSampleDefintion.election,
+    electionMinimalExhaustiveSampleDefinition.election,
     new Set([primaryCvr]),
     party0
   );
   render(
     <PrecinctScannerTallyReport
       reportSavedTime={time}
-      electionDefinition={electionMinimalExhaustiveSampleDefintion}
+      electionDefinition={electionMinimalExhaustiveSampleDefinition}
       precinctSelection={{
         kind: PrecinctSelectionKind.AllPrecincts,
       }}
@@ -210,14 +210,14 @@ const primaryCvr2: CastVoteRecord = {
 test('renders as expected for a single precincts in a primary election', async () => {
   const party1 = unsafeParse(PartyIdSchema, '1');
   const tally = calculateTallyForCastVoteRecords(
-    electionMinimalExhaustiveSampleDefintion.election,
+    electionMinimalExhaustiveSampleDefinition.election,
     new Set([primaryCvr2]),
     party1
   );
   render(
     <PrecinctScannerTallyReport
       reportSavedTime={time}
-      electionDefinition={electionMinimalExhaustiveSampleDefintion}
+      electionDefinition={electionMinimalExhaustiveSampleDefinition}
       precinctSelection={{
         kind: PrecinctSelectionKind.SinglePrecinct,
         precinctId: 'precinct-1',

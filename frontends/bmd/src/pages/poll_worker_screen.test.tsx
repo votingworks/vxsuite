@@ -1,20 +1,25 @@
 import React from 'react';
 import {
   asElectionDefinition,
-  electionMinimalExhaustiveSampleDefintion,
+  electionMinimalExhaustiveSampleDefinition,
 } from '@votingworks/fixtures';
 import {
+  CandidateContestWithoutWriteInsCompressedTally,
+  CandidateContestWithWriteInsCompressedTally,
   CompressedTally,
   ContestId,
   Dictionary,
   Election,
+  MsEitherNeitherContestCompressedTally,
   safeParseElection,
+  YesNoContestCompressedTally,
 } from '@votingworks/types';
 
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import {
   TallySourceMachineType,
   PrecinctScannerCardTally,
+  typedAs,
 } from '@votingworks/utils';
 import { getZeroCompressedTally } from '@votingworks/test-utils';
 import { PrecinctSelectionKind, MarkOnly, PrintOnly } from '../config/types';
@@ -51,9 +56,15 @@ function expectBallotCountsInReport(
 function expectContestResultsInReport(
   container: HTMLElement,
   contestId: ContestId,
-  ballotsCast: number,
-  undervotes: number,
-  overvotes: number,
+  {
+    undervotes,
+    overvotes,
+    ballotsCast,
+  }: {
+    undervotes: number;
+    overvotes: number;
+    ballotsCast: number;
+  },
   options: Dictionary<number>
 ): void {
   const table = within(container).getByTestId(`results-table-${contestId}`);
@@ -62,6 +73,7 @@ function expectContestResultsInReport(
   );
   within(table).getByText(new RegExp(`${undervotes} undervote`));
   within(table).getByText(new RegExp(`${overvotes} overvote`));
+
   for (const [optionId, tally] of Object.entries(options)) {
     if (tally) {
       within(within(table).getByTestId(`${contestId}-${optionId}`)).getByText(
@@ -198,7 +210,18 @@ test('printing precinct scanner report works as expected with all precinct data 
   const printFn = jest.fn();
 
   const existingTally = getZeroCompressedTally(election);
-  existingTally[0] = [6, 0, 34, 6, 5, 6, 5, 3, 0, 3]; // add tallies to the president contest
+  // add tallies to the president contest
+  existingTally[0] = typedAs<CandidateContestWithoutWriteInsCompressedTally>([
+    6 /* undervotes */,
+    0 /* overvotes */,
+    34 /* ballotsCast */,
+    6 /* for 'barchi-hallaren' */,
+    5 /* for 'cramer-vuocolo' */,
+    6 /* for 'court-blumhardt' */,
+    5 /* for 'boone-lian' */,
+    3 /* for 'hildebrand-garritty' */,
+    0 /* for 'patterson-lariviere' */,
+  ]);
   const tallyOnCard: PrecinctScannerCardTally = {
     tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
     tally: existingTally,
@@ -251,14 +274,19 @@ test('printing precinct scanner report works as expected with all precinct data 
   );
   expect(allPrecinctsReports).toHaveLength(2);
   expectBallotCountsInReport(allPrecinctsReports[0], 20, 5, 25);
-  expectContestResultsInReport(allPrecinctsReports[0], 'president', 34, 6, 0, {
-    'barchi-hallaren': 6,
-    'cramer-vuocolo': 5,
-    'court-blumhardt': 6,
-    'boone-lian': 5,
-    'hildebrand-garritty': 3,
-    'patterson-lariviere': 0,
-  });
+  expectContestResultsInReport(
+    allPrecinctsReports[0],
+    'president',
+    { ballotsCast: 34, undervotes: 6, overvotes: 0 },
+    {
+      'barchi-hallaren': 6,
+      'cramer-vuocolo': 5,
+      'court-blumhardt': 6,
+      'boone-lian': 5,
+      'hildebrand-garritty': 3,
+      'patterson-lariviere': 0,
+    }
+  );
   const senatorContest = screen.getAllByTestId('results-table-senator')[0];
   within(senatorContest).getByText(/0 ballots/);
   within(senatorContest).getByText(/0 undervotes/);
@@ -272,7 +300,18 @@ test('printing precinct scanner report works as expected with single precinct da
   const printFn = jest.fn();
 
   const existingTally = getZeroCompressedTally(election);
-  existingTally[0] = [6, 0, 34, 6, 5, 6, 5, 3, 0, 3]; // add tallies to the president contest
+  // add tallies to the president contest
+  existingTally[0] = typedAs<CandidateContestWithoutWriteInsCompressedTally>([
+    6 /* undervotes */,
+    0 /* overvotes */,
+    34 /* ballotsCast */,
+    6 /* for 'barchi-hallaren' */,
+    5 /* for 'cramer-vuocolo' */,
+    6 /* for 'court-blumhardt' */,
+    5 /* for 'boone-lian' */,
+    3 /* for 'hildebrand-garritty' */,
+    0 /* for 'patterson-lariviere' */,
+  ]);
   const tallyOnCard: PrecinctScannerCardTally = {
     tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
     tally: existingTally,
@@ -335,9 +374,11 @@ test('printing precinct scanner report works as expected with single precinct da
   expectContestResultsInReport(
     centerSpringfieldReports[0],
     'president',
-    34,
-    6,
-    0,
+    {
+      ballotsCast: 34,
+      undervotes: 6,
+      overvotes: 0,
+    },
     {
       'barchi-hallaren': 6,
       'cramer-vuocolo': 5,
@@ -363,9 +404,45 @@ test('printing precinct scanner report works as expected with all precinct speci
   const northSpringfield = getZeroCompressedTally(election);
   const southSpringfield = getZeroCompressedTally(election);
   const combinedTally = getZeroCompressedTally(election);
-  centerSpringfield[0] = [1, 1, 10, 4, 2, 1, 1, 0, 0, 0]; // add tallies to the president contest
-  northSpringfield[0] = [2, 3, 15, 4, 2, 1, 1, 1, 1, 0]; // add tallies to the president contest
-  combinedTally[0] = [3, 4, 25, 8, 4, 2, 2, 1, 1, 0];
+  // add tallies to the president contest
+  centerSpringfield[0] = typedAs<CandidateContestWithoutWriteInsCompressedTally>(
+    [
+      1 /* undervotes */,
+      1 /* overvotes */,
+      10 /* ballotsCast */,
+      4 /* for 'barchi-hallaren' */,
+      2 /* for 'cramer-vuocolo' */,
+      1 /* for 'court-blumhardt' */,
+      1 /* for 'boone-lian' */,
+      0 /* for 'hildebrand-garritty' */,
+      0 /* for 'patterson-lariviere' */,
+    ]
+  );
+  // add tallies to the president contest
+  northSpringfield[0] = typedAs<CandidateContestWithoutWriteInsCompressedTally>(
+    [
+      2 /* undervotes */,
+      3 /* overvotes */,
+      15 /* ballotsCast */,
+      4 /* for 'barchi-hallaren' */,
+      2 /* for 'cramer-vuocolo' */,
+      1 /* for 'court-blumhardt' */,
+      1 /* for 'boone-lian' */,
+      1 /* for 'hildebrand-garritty' */,
+      1 /* for 'patterson-lariviere' */,
+    ]
+  );
+  combinedTally[0] = typedAs<CandidateContestWithoutWriteInsCompressedTally>([
+    3 /* undervotes */,
+    4 /* overvotes */,
+    25 /* ballotsCast */,
+    8 /* for 'barchi-hallaren' */,
+    4 /* for 'cramer-vuocolo' */,
+    2 /* for 'court-blumhardt' */,
+    2 /* for 'boone-lian' */,
+    1 /* for 'hildebrand-garritty' */,
+    1 /* for 'patterson-lariviere' */,
+  ]);
   const tallyOnCard: PrecinctScannerCardTally = {
     tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
     tally: combinedTally,
@@ -434,9 +511,11 @@ test('printing precinct scanner report works as expected with all precinct speci
   expectContestResultsInReport(
     centerSpringfieldReports[0],
     'president',
-    10,
-    1,
-    1,
+    {
+      ballotsCast: 10,
+      undervotes: 1,
+      overvotes: 1,
+    },
     {
       'barchi-hallaren': 4,
       'cramer-vuocolo': 2,
@@ -455,9 +534,11 @@ test('printing precinct scanner report works as expected with all precinct speci
   expectContestResultsInReport(
     northSpringfieldReports[0],
     'president',
-    15,
-    2,
-    3,
+    {
+      ballotsCast: 15,
+      undervotes: 2,
+      overvotes: 3,
+    },
     {
       'barchi-hallaren': 4,
       'cramer-vuocolo': 2,
@@ -476,9 +557,11 @@ test('printing precinct scanner report works as expected with all precinct speci
   expectContestResultsInReport(
     southSpringfieldReports[0],
     'president',
-    0,
-    0,
-    0,
+    {
+      ballotsCast: 0,
+      undervotes: 0,
+      overvotes: 0,
+    },
     {
       'barchi-hallaren': 0,
       'cramer-vuocolo': 0,
@@ -495,29 +578,192 @@ test('printing precinct scanner report works as expected with all precinct speci
   const printFn = jest.fn();
 
   const combinedTally: CompressedTally = [
-    [0, 1, 2, 0, 1, 0, 0], // best animal mammal
-    [0, 0, 1, 1, 0, 0], // best animal fish
-    [3, 0, 2, 1, 0, 0, 1, 1], // zoo council
-    [0, 0, 1, 1, 0, 0, 1, 0], // aquarium council
-    [2, 0, 0, 0, 0, 1, 1, 0, 2], // new zoo either neither
-    [0, 0, 1, 0, 1], // fishing ban yes no
+    // best animal mammal
+    typedAs<CandidateContestWithoutWriteInsCompressedTally>([
+      0 /* undervotes */,
+      1 /* overvotes */,
+      2 /* ballotsCast */,
+      0 /* for 'horse' */,
+      1 /* for 'otter' */,
+      0 /* for 'fox' */,
+      0 /* writeIns */,
+    ]),
+    // best animal fish
+    typedAs<CandidateContestWithoutWriteInsCompressedTally>([
+      0 /* undervotes */,
+      0 /* overvotes */,
+      1 /* ballotsCast */,
+      1 /* for 'seahorse' */,
+      0 /* for 'salmon' */,
+      0 /* writeIns */,
+    ]),
+    // zoo council
+    typedAs<CandidateContestWithWriteInsCompressedTally>([
+      3 /* undervotes */,
+      0 /* overvotes */,
+      2 /* ballotsCast */,
+      1 /* for 'zebra' */,
+      0 /* for 'lion' */,
+      0 /* for 'kangaroo' */,
+      1 /* for 'elephant' */,
+      1 /* writeIns */,
+    ]),
+    // aquarium council
+    typedAs<CandidateContestWithWriteInsCompressedTally>([
+      0 /* undervotes */,
+      0 /* overvotes */,
+      1 /* ballotsCast */,
+      1 /* for 'manta-ray' */,
+      0 /* for 'pufferfish' */,
+      0 /* for 'rockfish' */,
+      1 /* for 'triggerfish' */,
+      0 /* writeIns */,
+    ]),
+    // new zoo either neither
+    typedAs<MsEitherNeitherContestCompressedTally>([
+      2 /* eitherOption */,
+      0 /* neitherOption */,
+      0 /* eitherNeitherUndervotes */,
+      0 /* eitherNeitherOvervotes */,
+      0 /* firstOption */,
+      1 /* secondOption */,
+      1 /* pickOneUndervotes */,
+      0 /* pickOneOvervotes */,
+      2 /* ballotsCast */,
+    ]),
+    // fishing ban yes no
+    typedAs<YesNoContestCompressedTally>([
+      0 /* undervotes */,
+      0 /* overvotes */,
+      1 /* ballotsCast */,
+      0 /* for 'yes' */,
+      1 /* for 'no' */,
+    ]),
   ];
   const talliesByPrecinct: Dictionary<CompressedTally> = {
     'precinct-1': [
-      [0, 0, 1, 0, 1, 0, 0], // best animal mammal
-      [0, 0, 0, 0, 0, 0], // best animal fish
-      [1, 0, 1, 1, 0, 0, 0, 1], // zoo council
-      [0, 0, 0, 0, 0, 0, 0, 0], // aquarium council
-      [1, 0, 0, 0, 0, 0, 1, 0, 1], // new zoo either neither
-      [0, 0, 0, 0, 0], // fishing ban yes no
+      // best animal mammal
+      typedAs<CandidateContestWithoutWriteInsCompressedTally>([
+        0 /* undervotes */,
+        0 /* overvotes */,
+        1 /* ballotsCast */,
+        0 /* for 'horse' */,
+        1 /* for 'otter' */,
+        0 /* for 'fox' */,
+        0 /* writeIns */,
+      ]),
+      // best animal fish
+      typedAs<CandidateContestWithoutWriteInsCompressedTally>([
+        0 /* undervotes */,
+        0 /* overvotes */,
+        0 /* ballotsCast */,
+        0 /* for 'seahorse' */,
+        0 /* for 'salmon' */,
+        0 /* writeIns */,
+      ]),
+      // zoo council
+      typedAs<CandidateContestWithWriteInsCompressedTally>([
+        1 /* undervotes */,
+        0 /* overvotes */,
+        1 /* ballotsCast */,
+        1 /* for 'zebra' */,
+        0 /* for 'lion' */,
+        0 /* for 'kangaroo' */,
+        0 /* for 'elephant' */,
+        1 /* writeIns */,
+      ]),
+      // aquarium council
+      typedAs<CandidateContestWithWriteInsCompressedTally>([
+        0 /* undervotes */,
+        0 /* overvotes */,
+        0 /* ballotsCast */,
+        0 /* for 'manta-ray' */,
+        0 /* for 'pufferfish' */,
+        0 /* for 'rockfish' */,
+        0 /* for 'triggerfish' */,
+        0 /* writeIns */,
+      ]),
+      // new zoo either neither
+      typedAs<MsEitherNeitherContestCompressedTally>([
+        1 /* eitherOption */,
+        0 /* neitherOption */,
+        0 /* eitherNeitherUndervotes */,
+        0 /* eitherNeitherOvervotes */,
+        0 /* firstOption */,
+        0 /* secondOption */,
+        1 /* pickOneUndervotes */,
+        0 /* pickOneOvervotes */,
+        1 /* ballotsCast */,
+      ]),
+      // fishing ban yes no
+      typedAs<YesNoContestCompressedTally>([
+        0 /* undervotes */,
+        0 /* overvotes */,
+        0 /* ballotsCast */,
+        0 /* for 'yes' */,
+        0 /* for 'no' */,
+      ]),
     ],
     'precinct-2': [
-      [0, 1, 1, 0, 0, 0, 0], // best animal mammal
-      [0, 0, 1, 1, 0, 0], // best animal fish
-      [2, 0, 1, 0, 0, 0, 1, 0], // zoo council
-      [0, 0, 1, 1, 0, 0, 1, 0], // aquarium council
-      [1, 0, 0, 0, 0, 1, 0, 0, 1], // new zoo either neither
-      [0, 0, 1, 0, 1], // fishing ban yes no
+      // best animal mammal
+      typedAs<CandidateContestWithoutWriteInsCompressedTally>([
+        0 /* undervotes */,
+        1 /* overvotes */,
+        1 /* ballotsCast */,
+        0 /* for 'horse' */,
+        0 /* for 'otter' */,
+        0 /* for 'fox' */,
+      ]),
+      // best animal fish
+      typedAs<CandidateContestWithoutWriteInsCompressedTally>([
+        0 /* undervotes */,
+        0 /* overvotes */,
+        1 /* ballotsCast */,
+        1 /* for 'seahorse' */,
+        0 /* for 'salmon' */,
+      ]),
+      // zoo council
+      typedAs<CandidateContestWithWriteInsCompressedTally>([
+        2 /* undervotes */,
+        0 /* overvotes */,
+        1 /* ballotsCast */,
+        0 /* for 'zebra' */,
+        0 /* for 'lion' */,
+        0 /* for 'kangaroo' */,
+        1 /* for 'elephant' */,
+        1 /* writeIns */,
+      ]),
+      // aquarium council
+      typedAs<CandidateContestWithWriteInsCompressedTally>([
+        0 /* undervotes */,
+        0 /* overvotes */,
+        1 /* ballotsCast */,
+        1 /* for 'manta-ray' */,
+        0 /* for 'pufferfish' */,
+        0 /* for 'rockfish' */,
+        1 /* for 'triggerfish' */,
+        0 /* writeIns */,
+      ]),
+      // new zoo either neither
+      typedAs<MsEitherNeitherContestCompressedTally>([
+        1 /* eitherOption */,
+        0 /* neitherOption */,
+        0 /* eitherNeitherUndervotes */,
+        0 /* eitherNeitherOvervotes */,
+        0 /* firstOption */,
+        1 /* secondOption */,
+        0 /* pickOneUndervotes */,
+        0 /* pickOneOvervotes */,
+        1 /* ballotsCast */,
+      ]),
+      // fishing ban yes no
+      typedAs<YesNoContestCompressedTally>([
+        0 /* undervotes */,
+        0 /* overvotes */,
+        1 /* ballotsCast */,
+        0 /* for 'yes' */,
+        1 /* for 'no' */,
+      ]),
     ],
   };
 
@@ -551,7 +797,7 @@ test('printing precinct scanner report works as expected with all precinct speci
         kind: PrecinctSelectionKind.SinglePrecinct,
         precinctId: 'precinct-1',
       }}
-      electionDefinition={electionMinimalExhaustiveSampleDefintion}
+      electionDefinition={electionMinimalExhaustiveSampleDefinition}
       enableLiveMode={jest.fn()}
       hasVotes={false}
       isLiveMode
@@ -580,7 +826,7 @@ test('printing precinct scanner report works as expected with all precinct speci
   });
 
   // Check that the expected results are on the tally report for Precinct 1 Mammal Party
-  const precinct1MammalReports = await screen.getAllByTestId(
+  const precinct1MammalReports = screen.getAllByTestId(
     'tally-report-0-precinct-1'
   );
   expect(precinct1MammalReports).toHaveLength(2);
@@ -593,37 +839,45 @@ test('printing precinct scanner report works as expected with all precinct speci
   expectContestResultsInReport(
     precinct1MammalReports[0],
     'best-animal-mammal',
-    1,
-    0,
-    0,
+    {
+      ballotsCast: 1,
+      undervotes: 0,
+      overvotes: 0,
+    },
     { horse: 0, otter: 1, fox: 0 }
   );
   expectContestResultsInReport(
     precinct1MammalReports[0],
     'zoo-council-mammal',
-    1,
-    1,
-    0,
+    {
+      ballotsCast: 1,
+      undervotes: 1,
+      overvotes: 0,
+    },
     { zebra: 1, lion: 0, kangaroo: 0, elephant: 0, '__write-in': 1 }
   );
   expectContestResultsInReport(
     precinct1MammalReports[0],
     'new-zoo-either',
-    1,
-    0,
-    0,
+    {
+      ballotsCast: 1,
+      undervotes: 0,
+      overvotes: 0,
+    },
     { yes: 1, no: 0 }
   );
   expectContestResultsInReport(
     precinct1MammalReports[0],
     'new-zoo-pick',
-    1,
-    1,
-    0,
+    {
+      ballotsCast: 1,
+      undervotes: 1,
+      overvotes: 0,
+    },
     { yes: 0, no: 0 }
   );
   // Check that the expected results are on the tally report for Precinct 1 Fish Party
-  const precinct1FishReports = await screen.getAllByTestId(
+  const precinct1FishReports = screen.getAllByTestId(
     'tally-report-1-precinct-1'
   );
   expect(precinct1FishReports).toHaveLength(2);
@@ -636,31 +890,37 @@ test('printing precinct scanner report works as expected with all precinct speci
   expectContestResultsInReport(
     precinct1FishReports[0],
     'best-animal-fish',
-    0,
-    0,
-    0,
+    {
+      ballotsCast: 0,
+      undervotes: 0,
+      overvotes: 0,
+    },
     { seahorse: 0, salmon: 0 }
   );
   expectContestResultsInReport(
     precinct1FishReports[0],
     'aquarium-council-fish',
-    0,
-    0,
-    0,
+    {
+      ballotsCast: 0,
+      undervotes: 0,
+      overvotes: 0,
+    },
     {
       'manta-ray': 0,
       pufferfish: 0,
-      triggerfish: 0,
       rockfish: 0,
+      triggerfish: 0,
       '__write-in': 0,
     }
   );
-  expectContestResultsInReport(precinct1FishReports[0], 'fishing', 0, 0, 0, {
-    yes: 0,
-    no: 0,
-  });
+  expectContestResultsInReport(
+    precinct1FishReports[0],
+    'fishing',
+    { ballotsCast: 0, undervotes: 0, overvotes: 0 },
+    { yes: 0, no: 0 }
+  );
   // Check that the expected results are on the tally report for Precinct 2 Mammal Party
-  const precinct2MammalReports = await screen.getAllByTestId(
+  const precinct2MammalReports = screen.getAllByTestId(
     'tally-report-0-precinct-2'
   );
   expect(precinct2MammalReports).toHaveLength(2);
@@ -673,37 +933,45 @@ test('printing precinct scanner report works as expected with all precinct speci
   expectContestResultsInReport(
     precinct2MammalReports[0],
     'best-animal-mammal',
-    1,
-    0,
-    1,
+    {
+      ballotsCast: 1,
+      undervotes: 0,
+      overvotes: 1,
+    },
     { horse: 0, otter: 0, fox: 0 }
   );
   expectContestResultsInReport(
     precinct2MammalReports[0],
     'zoo-council-mammal',
-    1,
-    2,
-    0,
+    {
+      ballotsCast: 1,
+      undervotes: 2,
+      overvotes: 0,
+    },
     { zebra: 0, lion: 0, kangaroo: 0, elephant: 1, '__write-in': 0 }
   );
   expectContestResultsInReport(
     precinct2MammalReports[0],
     'new-zoo-either',
-    1,
-    0,
-    0,
+    {
+      ballotsCast: 1,
+      undervotes: 0,
+      overvotes: 0,
+    },
     { yes: 1, no: 0 }
   );
   expectContestResultsInReport(
     precinct2MammalReports[0],
     'new-zoo-pick',
-    1,
-    0,
-    0,
+    {
+      ballotsCast: 1,
+      undervotes: 0,
+      overvotes: 0,
+    },
     { yes: 0, no: 1 }
   );
   // Check that the expected results are on the tally report for Precinct 2 Fish Party
-  const precinct2FishReports = await screen.getAllByTestId(
+  const precinct2FishReports = screen.getAllByTestId(
     'tally-report-1-precinct-2'
   );
   expect(precinct2FishReports).toHaveLength(2);
@@ -716,29 +984,35 @@ test('printing precinct scanner report works as expected with all precinct speci
   expectContestResultsInReport(
     precinct2FishReports[0],
     'best-animal-fish',
-    1,
-    0,
-    0,
+    {
+      ballotsCast: 1,
+      undervotes: 0,
+      overvotes: 0,
+    },
     { seahorse: 1, salmon: 0 }
   );
   expectContestResultsInReport(
     precinct2FishReports[0],
     'aquarium-council-fish',
-    1,
-    0,
-    0,
+    {
+      ballotsCast: 1,
+      undervotes: 0,
+      overvotes: 0,
+    },
     {
       'manta-ray': 1,
       pufferfish: 0,
-      triggerfish: 1,
       rockfish: 0,
+      triggerfish: 1,
       '__write-in': 0,
     }
   );
-  expectContestResultsInReport(precinct2FishReports[0], 'fishing', 1, 0, 0, {
-    yes: 0,
-    no: 1,
-  });
+  expectContestResultsInReport(
+    precinct2FishReports[0],
+    'fishing',
+    { ballotsCast: 1, undervotes: 0, overvotes: 0 },
+    { yes: 0, no: 1 }
+  );
 });
 
 test('printing precinct scanner report works as expected with all precinct combined data for primary election', async () => {
@@ -746,12 +1020,65 @@ test('printing precinct scanner report works as expected with all precinct combi
   const printFn = jest.fn();
 
   const combinedTally: CompressedTally = [
-    [0, 1, 2, 0, 1, 0, 0], // best animal mammal
-    [0, 0, 1, 1, 0, 0], // best animal fish
-    [3, 0, 2, 1, 0, 0, 1, 1], // zoo council
-    [0, 0, 1, 1, 0, 0, 1, 0], // aquarium council
-    [2, 0, 0, 0, 0, 1, 1, 0, 2], // new zoo either neither
-    [0, 0, 1, 0, 1], // fishing ban yes no
+    // best animal mammal
+    typedAs<CandidateContestWithoutWriteInsCompressedTally>([
+      0 /* undervotes */,
+      1 /* overvotes */,
+      2 /* ballotsCast */,
+      0 /* for 'horse' */,
+      1 /* for 'otter' */,
+      0 /* for 'fox' */,
+    ]),
+    // best animal fish
+    typedAs<CandidateContestWithoutWriteInsCompressedTally>([
+      0 /* undervotes */,
+      0 /* overvotes */,
+      1 /* ballotsCast */,
+      1 /* for 'seahorse' */,
+      0 /* for 'salmon' */,
+    ]),
+    // zoo council
+    typedAs<CandidateContestWithWriteInsCompressedTally>([
+      3 /* undervotes */,
+      0 /* overvotes */,
+      2 /* ballotsCast */,
+      1 /* for 'zebra' */,
+      0 /* for 'lion' */,
+      0 /* for 'kangaroo' */,
+      1 /* for 'elephant' */,
+      1 /* writeIns */,
+    ]),
+    // aquarium council
+    typedAs<CandidateContestWithWriteInsCompressedTally>([
+      0 /* undervotes */,
+      0 /* overvotes */,
+      1 /* ballotsCast */,
+      1 /* for 'manta-ray' */,
+      0 /* for 'pufferfish' */,
+      0 /* for 'rockfish' */,
+      1 /* for 'triggerfish' */,
+      0 /* writeIns */,
+    ]),
+    // new zoo either neither
+    typedAs<MsEitherNeitherContestCompressedTally>([
+      2 /* eitherOption */,
+      0 /* neitherOption */,
+      0 /* eitherNeitherUndervotes */,
+      0 /* eitherNeitherOvervotes */,
+      0 /* firstOption */,
+      1 /* secondOption */,
+      1 /* pickOneUndervotes */,
+      0 /* pickOneOvervotes */,
+      2 /* ballotsCast */,
+    ]),
+    // fishing ban yes no
+    typedAs<YesNoContestCompressedTally>([
+      0 /* undervotes */,
+      0 /* overvotes */,
+      1 /* ballotsCast */,
+      0 /* for 'yes' */,
+      1 /* for 'no' */,
+    ]),
   ];
 
   const tallyOnCard: PrecinctScannerCardTally = {
@@ -783,7 +1110,7 @@ test('printing precinct scanner report works as expected with all precinct combi
         kind: PrecinctSelectionKind.SinglePrecinct,
         precinctId: 'precinct-1',
       }}
-      electionDefinition={electionMinimalExhaustiveSampleDefintion}
+      electionDefinition={electionMinimalExhaustiveSampleDefinition}
       enableLiveMode={jest.fn()}
       hasVotes={false}
       isLiveMode
@@ -812,7 +1139,7 @@ test('printing precinct scanner report works as expected with all precinct combi
   });
 
   // Check that the expected results are on the tally report for Precinct 1 Mammal Party
-  const allPrecinctMammalReports = await screen.getAllByTestId(
+  const allPrecinctMammalReports = screen.getAllByTestId(
     'tally-report-0-undefined'
   );
   expect(allPrecinctMammalReports).toHaveLength(2);
@@ -825,37 +1152,45 @@ test('printing precinct scanner report works as expected with all precinct combi
   expectContestResultsInReport(
     allPrecinctMammalReports[0],
     'best-animal-mammal',
-    2,
-    0,
-    1,
+    {
+      ballotsCast: 2,
+      undervotes: 0,
+      overvotes: 1,
+    },
     { horse: 0, otter: 1, fox: 0 }
   );
   expectContestResultsInReport(
     allPrecinctMammalReports[0],
     'zoo-council-mammal',
-    2,
-    3,
-    0,
+    {
+      ballotsCast: 2,
+      undervotes: 3,
+      overvotes: 0,
+    },
     { zebra: 1, lion: 0, kangaroo: 0, elephant: 1, '__write-in': 1 }
   );
   expectContestResultsInReport(
     allPrecinctMammalReports[0],
     'new-zoo-either',
-    2,
-    0,
-    0,
+    {
+      ballotsCast: 2,
+      undervotes: 0,
+      overvotes: 0,
+    },
     { yes: 2, no: 0 }
   );
   expectContestResultsInReport(
     allPrecinctMammalReports[0],
     'new-zoo-pick',
-    2,
-    1,
-    0,
+    {
+      ballotsCast: 2,
+      undervotes: 1,
+      overvotes: 0,
+    },
     { yes: 0, no: 1 }
   );
   // Check that the expected results are on the tally report for Precinct 1 Fish Party
-  const allPrecinctFishReports = await screen.getAllByTestId(
+  const allPrecinctFishReports = screen.getAllByTestId(
     'tally-report-1-undefined'
   );
   expect(allPrecinctFishReports).toHaveLength(2);
@@ -868,29 +1203,39 @@ test('printing precinct scanner report works as expected with all precinct combi
   expectContestResultsInReport(
     allPrecinctFishReports[0],
     'best-animal-fish',
-    1,
-    0,
-    0,
+    {
+      ballotsCast: 1,
+      undervotes: 0,
+      overvotes: 0,
+    },
     { seahorse: 1, salmon: 0 }
   );
   expectContestResultsInReport(
     allPrecinctFishReports[0],
     'aquarium-council-fish',
-    1,
-    0,
-    0,
+    {
+      ballotsCast: 1,
+      undervotes: 0,
+      overvotes: 0,
+    },
     {
       'manta-ray': 1,
       pufferfish: 0,
-      triggerfish: 1,
       rockfish: 0,
+      triggerfish: 1,
       '__write-in': 0,
     }
   );
-  expectContestResultsInReport(allPrecinctFishReports[0], 'fishing', 1, 0, 0, {
-    yes: 0,
-    no: 1,
-  });
+  expectContestResultsInReport(
+    allPrecinctFishReports[0],
+    'fishing',
+    {
+      ballotsCast: 1,
+      undervotes: 0,
+      overvotes: 0,
+    },
+    { yes: 0, no: 1 }
+  );
 });
 
 test('printing precinct scanner report works as expected with a single precinct for primary election', async () => {
@@ -898,12 +1243,65 @@ test('printing precinct scanner report works as expected with a single precinct 
   const printFn = jest.fn();
 
   const combinedTally: CompressedTally = [
-    [0, 1, 2, 0, 1, 0, 0], // best animal mammal
-    [0, 0, 1, 1, 0, 0], // best animal fish
-    [3, 0, 2, 1, 0, 0, 1, 1], // zoo council
-    [0, 0, 1, 1, 0, 0, 1, 0], // aquarium council
-    [2, 0, 0, 0, 0, 1, 1, 0, 2], // new zoo either neither
-    [0, 0, 1, 0, 1], // fishing ban yes no
+    // best animal mammal
+    typedAs<CandidateContestWithoutWriteInsCompressedTally>([
+      0 /* undervotes */,
+      1 /* overvotes */,
+      2 /* ballotsCast */,
+      0 /* for 'horse' */,
+      1 /* for 'otter' */,
+      0 /* for 'fox' */,
+    ]),
+    // best animal fish
+    typedAs<CandidateContestWithoutWriteInsCompressedTally>([
+      0 /* undervotes */,
+      0 /* overvotes */,
+      1 /* ballotsCast */,
+      1 /* for 'seahorse' */,
+      0 /* for 'salmon' */,
+    ]),
+    // zoo council
+    typedAs<CandidateContestWithWriteInsCompressedTally>([
+      3 /* undervotes */,
+      0 /* overvotes */,
+      2 /* ballotsCast */,
+      1 /* for 'zebra' */,
+      0 /* for 'lion' */,
+      0 /* for 'kangaroo' */,
+      1 /* for 'elephant' */,
+      1 /* writeIns */,
+    ]),
+    // aquarium council
+    typedAs<CandidateContestWithWriteInsCompressedTally>([
+      0 /* undervotes */,
+      0 /* overvotes */,
+      1 /* ballotsCast */,
+      1 /* for 'manta-ray' */,
+      0 /* for 'pufferfish' */,
+      0 /* for 'rockfish' */,
+      1 /* for 'triggerfish' */,
+      0 /* writeIns */,
+    ]),
+    // new zoo either neither
+    typedAs<MsEitherNeitherContestCompressedTally>([
+      2 /* eitherOption */,
+      0 /* neitherOption */,
+      0 /* eitherNeitherUndervotes */,
+      0 /* eitherNeitherOvervotes */,
+      0 /* firstOption */,
+      1 /* secondOption */,
+      1 /* pickOneUndervotes */,
+      0 /* pickOneOvervotes */,
+      2 /* ballotsCast */,
+    ]),
+    // fishing ban yes no
+    typedAs<YesNoContestCompressedTally>([
+      0 /* undervotes */,
+      0 /* overvotes */,
+      1 /* ballotsCast */,
+      0 /* for 'yes' */,
+      1 /* for 'no' */,
+    ]),
   ];
 
   const tallyOnCard: PrecinctScannerCardTally = {
@@ -934,7 +1332,7 @@ test('printing precinct scanner report works as expected with a single precinct 
         kind: PrecinctSelectionKind.SinglePrecinct,
         precinctId: 'precinct-1',
       }}
-      electionDefinition={electionMinimalExhaustiveSampleDefintion}
+      electionDefinition={electionMinimalExhaustiveSampleDefinition}
       enableLiveMode={jest.fn()}
       hasVotes={false}
       isLiveMode
@@ -963,7 +1361,7 @@ test('printing precinct scanner report works as expected with a single precinct 
   });
 
   // Check that the expected results are on the tally report for Precinct 1 Mammal Party
-  const allPrecinctMammalReports = await screen.getAllByTestId(
+  const allPrecinctMammalReports = screen.getAllByTestId(
     'tally-report-0-precinct-1'
   );
   expect(allPrecinctMammalReports).toHaveLength(2);
@@ -976,37 +1374,45 @@ test('printing precinct scanner report works as expected with a single precinct 
   expectContestResultsInReport(
     allPrecinctMammalReports[0],
     'best-animal-mammal',
-    2,
-    0,
-    1,
+    {
+      ballotsCast: 2,
+      undervotes: 0,
+      overvotes: 1,
+    },
     { horse: 0, otter: 1, fox: 0 }
   );
   expectContestResultsInReport(
     allPrecinctMammalReports[0],
     'zoo-council-mammal',
-    2,
-    3,
-    0,
+    {
+      ballotsCast: 2,
+      undervotes: 3,
+      overvotes: 0,
+    },
     { zebra: 1, lion: 0, kangaroo: 0, elephant: 1, '__write-in': 1 }
   );
   expectContestResultsInReport(
     allPrecinctMammalReports[0],
     'new-zoo-either',
-    2,
-    0,
-    0,
+    {
+      ballotsCast: 2,
+      undervotes: 0,
+      overvotes: 0,
+    },
     { yes: 2, no: 0 }
   );
   expectContestResultsInReport(
     allPrecinctMammalReports[0],
     'new-zoo-pick',
-    2,
-    1,
-    0,
+    {
+      ballotsCast: 2,
+      undervotes: 1,
+      overvotes: 0,
+    },
     { yes: 0, no: 1 }
   );
   // Check that the expected results are on the tally report for Precinct 1 Fish Party
-  const allPrecinctFishReports = await screen.getAllByTestId(
+  const allPrecinctFishReports = screen.getAllByTestId(
     'tally-report-1-precinct-1'
   );
   expect(allPrecinctFishReports).toHaveLength(2);
@@ -1019,27 +1425,37 @@ test('printing precinct scanner report works as expected with a single precinct 
   expectContestResultsInReport(
     allPrecinctFishReports[0],
     'best-animal-fish',
-    1,
-    0,
-    0,
+    {
+      ballotsCast: 1,
+      undervotes: 0,
+      overvotes: 0,
+    },
     { seahorse: 1, salmon: 0 }
   );
   expectContestResultsInReport(
     allPrecinctFishReports[0],
     'aquarium-council-fish',
-    1,
-    0,
-    0,
+    {
+      ballotsCast: 1,
+      undervotes: 0,
+      overvotes: 0,
+    },
     {
       'manta-ray': 1,
       pufferfish: 0,
-      triggerfish: 1,
       rockfish: 0,
+      triggerfish: 1,
       '__write-in': 0,
     }
   );
-  expectContestResultsInReport(allPrecinctFishReports[0], 'fishing', 1, 0, 0, {
-    yes: 0,
-    no: 1,
-  });
+  expectContestResultsInReport(
+    allPrecinctFishReports[0],
+    'fishing',
+    {
+      ballotsCast: 1,
+      undervotes: 0,
+      overvotes: 0,
+    },
+    { yes: 0, no: 1 }
+  );
 });
