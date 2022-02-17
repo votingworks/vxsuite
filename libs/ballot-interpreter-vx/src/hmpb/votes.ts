@@ -1,58 +1,52 @@
 import {
-  AnyContest,
-  Candidate,
-  CandidateContest,
+  CandidateId,
   CandidateVote,
-  MsEitherNeitherContest,
+  ContestId,
+  Election,
   VotesDict,
-  YesNoContest,
+  WriteInCandidate,
   YesNoOption,
+  YesNoOptionId,
   YesNoVote,
 } from '@votingworks/types';
-import { inspect } from 'util';
+import { assert, find, throwIllegalValue } from '@votingworks/utils';
 
 export function addVote(
+  election: Election,
   votes: VotesDict,
-  contest: CandidateContest,
-  candidate: Candidate
+  contestId: ContestId,
+  option: CandidateId | 'yes' | 'no' | YesNoOptionId | WriteInCandidate
 ): void;
 export function addVote(
+  election: Election,
   votes: VotesDict,
-  contest: YesNoContest,
-  yesNo: 'yes' | 'no'
-): void;
-export function addVote(
-  votes: VotesDict,
-  contest: MsEitherNeitherContest,
-  option: YesNoOption
-): void;
-export function addVote(
-  votes: VotesDict,
-  contest: AnyContest,
-  candidateOrYesNoOrEitherNeither: Candidate | 'yes' | 'no' | YesNoOption
+  contestId: ContestId,
+  option:
+    | WriteInCandidate
+    | 'yes'
+    | 'no'
+    | YesNoOption
+    | CandidateId
+    | YesNoOptionId
 ): void {
+  const contest = find(election.contests, (c) => c.id === contestId);
   /* eslint-disable no-param-reassign */
-  if (
-    contest.type === 'candidate' &&
-    typeof candidateOrYesNoOrEitherNeither === 'object'
-  ) {
+  if (contest.type === 'candidate') {
+    const candidate =
+      typeof option === 'string'
+        ? find(contest.candidates, (c) => c.id === option)
+        : option;
     votes[contest.id] = [
       ...(votes[contest.id] ?? []),
-      candidateOrYesNoOrEitherNeither,
+      candidate,
     ] as CandidateVote;
-  } else if (
-    contest.type === 'yesno' &&
-    typeof candidateOrYesNoOrEitherNeither === 'string'
-  ) {
-    votes[contest.id] = [
-      ...(votes[contest.id] ?? []),
-      candidateOrYesNoOrEitherNeither,
-    ] as YesNoVote;
-  } else if (
-    contest.type === 'ms-either-neither' &&
-    typeof candidateOrYesNoOrEitherNeither === 'object'
-  ) {
-    switch (candidateOrYesNoOrEitherNeither.id) {
+  } else if (contest.type === 'yesno') {
+    assert(typeof option === 'string');
+    const yesNo = option;
+    votes[contest.id] = [...(votes[contest.id] ?? []), yesNo] as YesNoVote;
+  } else if (contest.type === 'ms-either-neither') {
+    const optionId = typeof option === 'string' ? option : option.id;
+    switch (optionId) {
       case contest.eitherOption.id:
         votes[contest.eitherNeitherContestId] = [
           ...(votes[contest.eitherNeitherContestId] ?? []),
@@ -83,15 +77,11 @@ export function addVote(
 
       default:
         throw new Error(
-          `unexpected option in ${contest.type} contest: ${candidateOrYesNoOrEitherNeither.id}`
+          `unexpected option in ${contest.type} contest: ${optionId}`
         );
     }
   } else {
-    throw new Error(
-      `Invalid vote for '${contest.type}' contest type: ${inspect(
-        candidateOrYesNoOrEitherNeither
-      )}`
-    );
+    throwIllegalValue(contest, 'type');
   }
   /* eslint-enable no-param-reassign */
 }

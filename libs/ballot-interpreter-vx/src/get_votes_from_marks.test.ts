@@ -25,8 +25,8 @@ const msEitherNeitherContest = find(
 
 const candidateMark: BallotMark = {
   type: 'candidate',
-  contest: candidateContest,
-  option: candidateContest.candidates[0],
+  contestId: candidateContest.id,
+  optionId: candidateContest.candidates[0].id,
   bounds: { x: 0, y: 0, width: 0, height: 0 },
   score: 0.2,
   scoredOffset: { x: 0, y: 0 },
@@ -38,8 +38,8 @@ const candidateMark: BallotMark = {
 
 const yesnoMark: BallotMark = {
   type: 'yesno',
-  contest: yesnoContest,
-  option: 'yes',
+  contestId: yesnoContest.id,
+  optionId: 'yes',
   bounds: { x: 0, y: 0, width: 0, height: 0 },
   score: 0.2,
   scoredOffset: { x: 0, y: 0 },
@@ -51,8 +51,8 @@ const yesnoMark: BallotMark = {
 
 const msEitherNeitherMark: BallotMark = {
   type: 'ms-either-neither',
-  contest: msEitherNeitherContest,
-  option: msEitherNeitherContest.eitherOption,
+  contestId: msEitherNeitherContest.id,
+  optionId: msEitherNeitherContest.eitherOption.id,
   bounds: { x: 0, y: 0, width: 0, height: 0 },
   score: 0.2,
   scoredOffset: { x: 0, y: 0 },
@@ -64,33 +64,43 @@ const msEitherNeitherMark: BallotMark = {
 
 test('candidate contest', () => {
   expect(
-    getVotesFromMarks([candidateMark], { markScoreVoteThreshold: 0.12 })
+    getVotesFromMarks(election, [candidateMark], {
+      markScoreVoteThreshold: 0.12,
+    })
   ).toEqual({
-    [candidateContest.id]: [candidateMark.option],
+    [candidateContest.id]: [
+      expect.objectContaining({ id: candidateMark.optionId }),
+    ],
   });
   expect(
-    getVotesFromMarks([candidateMark], { markScoreVoteThreshold: 0.6 })
+    getVotesFromMarks(election, [candidateMark], {
+      markScoreVoteThreshold: 0.6,
+    })
   ).toEqual({});
 });
 
 test('yesno contest', () => {
   expect(
-    getVotesFromMarks([yesnoMark], { markScoreVoteThreshold: 0.12 })
+    getVotesFromMarks(election, [yesnoMark], { markScoreVoteThreshold: 0.12 })
   ).toEqual({
-    [yesnoContest.id]: [yesnoMark.option],
+    [yesnoContest.id]: ['yes'],
   });
   expect(
-    getVotesFromMarks([yesnoMark], { markScoreVoteThreshold: 0.6 })
+    getVotesFromMarks(election, [yesnoMark], { markScoreVoteThreshold: 0.6 })
   ).toEqual({});
 });
 
 test('ms-either-neither contest', () => {
   expect(
-    getVotesFromMarks([msEitherNeitherMark], { markScoreVoteThreshold: 0.12 })
+    getVotesFromMarks(election, [msEitherNeitherMark], {
+      markScoreVoteThreshold: 0.12,
+    })
   ).toEqual({
-    [msEitherNeitherContest.eitherNeitherContestId]: [yesnoMark.option],
+    [msEitherNeitherContest.eitherNeitherContestId]: ['yes'],
   });
   expect(
-    getVotesFromMarks([msEitherNeitherMark], { markScoreVoteThreshold: 0.6 })
+    getVotesFromMarks(election, [msEitherNeitherMark], {
+      markScoreVoteThreshold: 0.6,
+    })
   ).toEqual({});
 });

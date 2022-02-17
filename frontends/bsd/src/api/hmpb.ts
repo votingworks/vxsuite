@@ -1,15 +1,11 @@
+import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
 import { ElectionDefinition, unsafeParse } from '@votingworks/types';
-import { EventEmitter } from 'events';
-import {
-  fetchJson,
-  BallotPackage,
-  BallotPackageEntry,
-} from '@votingworks/utils';
 import {
   GetNextReviewSheetResponse,
   GetNextReviewSheetResponseSchema,
 } from '@votingworks/types/api/services/scan';
-import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
+import { BallotPackage, BallotPackageEntry } from '@votingworks/utils';
+import { EventEmitter } from 'events';
 import { setElection } from './config';
 
 export interface AddTemplatesEvents extends EventEmitter {
@@ -141,12 +137,15 @@ export async function doneTemplates(): Promise<void> {
 export async function fetchNextBallotSheetToReview(): Promise<
   GetNextReviewSheetResponse | undefined
 > {
-  try {
-    return unsafeParse(
-      GetNextReviewSheetResponseSchema,
-      await fetchJson('/scan/hmpb/review/next-sheet')
-    );
-  } catch {
+  const response = await fetch('/scan/hmpb/review/next-sheet');
+
+  if (response.status === 404) {
     return undefined;
   }
+
+  if (!response.ok) {
+    throw new Error('fetch response is not ok');
+  }
+
+  return unsafeParse(GetNextReviewSheetResponseSchema, await response.json());
 }

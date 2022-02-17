@@ -1,14 +1,14 @@
-import { waitFor, fireEvent, screen } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { LogEventId, Logger, LogSource } from '@votingworks/logging';
+import { AdjudicationReason, BallotType } from '@votingworks/types';
+import { GetNextReviewSheetResponse } from '@votingworks/types/api/services/scan';
+import { typedAs } from '@votingworks/utils';
 import fetchMock from 'fetch-mock';
 import React from 'react';
 import { act } from 'react-dom/test-utils';
-import { BallotType, AdjudicationReason, DistrictId } from '@votingworks/types';
-import { typedAs } from '@votingworks/utils';
-import { GetNextReviewSheetResponse } from '@votingworks/types/api/services/scan';
-import { LogEventId, Logger, LogSource } from '@votingworks/logging';
-import { BallotEjectScreen } from './ballot_eject_screen';
 import { renderInAppContext } from '../../test/render_in_app_context';
+import { BallotEjectScreen } from './ballot_eject_screen';
 
 test('says the sheet is unreadable if it is', async () => {
   fetchMock.getOnce(
@@ -717,25 +717,8 @@ test('does NOT say ballot is blank if one side is blank and the other requires w
                       width: 32,
                       height: 22,
                     },
-                    contest: {
-                      id: 'contest1',
-                      districtId: 'district1' as DistrictId,
-                      section: 'testsection',
-                      title: 'President',
-                      type: 'candidate',
-                      seats: 1,
-                      candidates: [
-                        {
-                          id: 'Candidate1',
-                          name: 'Mickey Mouse',
-                        },
-                      ],
-                      allowWriteIns: true,
-                    },
-                    option: {
-                      id: 'Candidate1',
-                      name: 'Mickey Mouse',
-                    },
+                    contestId: 'contest1',
+                    optionId: 'Candidate1',
                     score: 0.78,
                     scoredOffset: {
                       x: 0,

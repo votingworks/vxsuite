@@ -419,7 +419,9 @@ export class Interpreter {
       ballotType: BallotType.Standard,
       isTestMode: metadata.isTestMode,
       precinctId: metadata.precinctId,
-      votes: getVotesFromMarks(marks, { markScoreVoteThreshold }),
+      votes: getVotesFromMarks(this.election, marks, {
+        markScoreVoteThreshold,
+      }),
     };
   }
 
@@ -513,8 +515,8 @@ export class Interpreter {
       const mark: BallotCandidateTargetMark = {
         type: 'candidate',
         bounds: layout.target.bounds,
-        contest,
-        option,
+        contestId: contest.id,
+        optionId: option.id,
         score,
         scoredOffset: offset,
         target: layout.target,
@@ -526,19 +528,19 @@ export class Interpreter {
     const addYesNoMark = (
       contest: YesNoContest,
       layout: BallotPageContestOptionLayout,
-      option: 'yes' | 'no'
+      optionId: 'yes' | 'no'
     ): void => {
       const { score, offset } = this.targetMarkScore(
         template.ballotImage.imageData,
         mappedBallot,
         layout.target
       );
-      debug(`'${option}' mark score: %d`, score);
+      debug(`'${optionId}' mark score: %d`, score);
       const mark: BallotYesNoTargetMark = {
         type: 'yesno',
         bounds: layout.target.bounds,
-        contest,
-        option,
+        contestId: contest.id,
+        optionId,
         score,
         scoredOffset: offset,
         target: layout.target,
@@ -571,8 +573,8 @@ export class Interpreter {
       const mark: BallotMsEitherNeitherTargetMark = {
         type: 'ms-either-neither',
         bounds: layout.target.bounds,
-        contest,
-        option,
+        contestId: contest.id,
+        optionId: option.id,
         score,
         scoredOffset: offset,
         target: layout.target,

@@ -58,13 +58,9 @@ export function changesFromMarks(
   const result: MarksByContestId = {};
 
   for (const mark of marks) {
-    result[mark.contest.id] = {
-      ...(result[mark.contest.id] ?? {}),
-      // mark.option.id works for both candidate and ms-either-neither marks
-      [mark.type === 'yesno' ? mark.option : mark.option.id]: getMarkStatus(
-        mark,
-        markThresholds
-      ),
+    result[mark.contestId] = {
+      ...(result[mark.contestId] ?? {}),
+      [mark.optionId]: getMarkStatus(mark, markThresholds),
     };
   }
 

@@ -261,76 +261,79 @@ test('adjudication', async () => {
   const ballotId = await store.addSheet(
     uuid(),
     batchId,
-    [0, 1].map<PageInterpretationWithFiles>((i) => ({
-      originalFilename: i === 0 ? '/front-original.png' : '/back-original.png',
-      normalizedFilename:
-        i === 0 ? '/front-normalized.png' : '/back-normalized.png',
-      interpretation: {
-        type: 'InterpretedHmpbPage',
-        votes: {},
-        markInfo: {
-          ballotSize: { width: 800, height: 1000 },
-          marks: [
-            {
-              type: 'candidate',
-              contest: candidateContests[i],
-              option: candidateContests[i].candidates[0],
-              score: 0.12, // marginal
-              scoredOffset: { x: 0, y: 0 },
-              bounds: zeroRect,
-              target: {
+    [0, 1].map((i) =>
+      typedAs<PageInterpretationWithFiles>({
+        originalFilename:
+          i === 0 ? '/front-original.png' : '/back-original.png',
+        normalizedFilename:
+          i === 0 ? '/front-normalized.png' : '/back-normalized.png',
+        interpretation: {
+          type: 'InterpretedHmpbPage',
+          votes: {},
+          markInfo: {
+            ballotSize: { width: 800, height: 1000 },
+            marks: [
+              {
+                type: 'candidate',
+                contestId: candidateContests[i].id,
+                optionId: candidateContests[i].candidates[0].id,
+                score: 0.12, // marginal
+                scoredOffset: { x: 0, y: 0 },
                 bounds: zeroRect,
-                inner: zeroRect,
+                target: {
+                  bounds: zeroRect,
+                  inner: zeroRect,
+                },
               },
-            },
-            {
-              type: 'yesno',
-              contest: yesnoContests[i],
-              option: yesnoOption,
-              score: 1, // definite
-              scoredOffset: { x: 0, y: 0 },
-              bounds: zeroRect,
-              target: {
+              {
+                type: 'yesno',
+                contestId: yesnoContests[i].id,
+                optionId: yesnoOption,
+                score: 1, // definite
+                scoredOffset: { x: 0, y: 0 },
                 bounds: zeroRect,
-                inner: zeroRect,
+                target: {
+                  bounds: zeroRect,
+                  inner: zeroRect,
+                },
               },
-            },
-          ],
+            ],
+          },
+          metadata: {
+            electionHash: '',
+            ballotStyleId: '12',
+            precinctId: '23',
+            isTestMode: false,
+            pageNumber: 1,
+            locales: { primary: 'en-US' },
+            ballotType: BallotType.Standard,
+          },
+          adjudicationInfo: {
+            requiresAdjudication: true,
+            enabledReasons: [
+              AdjudicationReason.UninterpretableBallot,
+              AdjudicationReason.MarginalMark,
+            ],
+            enabledReasonInfos: [
+              {
+                type: AdjudicationReason.MarginalMark,
+                contestId: candidateContests[i].id,
+                optionId: candidateContests[i].candidates[0].id,
+                optionIndex: 0,
+              },
+              {
+                type: AdjudicationReason.Undervote,
+                contestId: candidateContests[i].id,
+                expected: 1,
+                optionIds: [],
+                optionIndexes: [],
+              },
+            ],
+            ignoredReasonInfos: [],
+          },
         },
-        metadata: {
-          electionHash: '',
-          ballotStyleId: '12',
-          precinctId: '23',
-          isTestMode: false,
-          pageNumber: 1,
-          locales: { primary: 'en-US' },
-          ballotType: BallotType.Standard,
-        },
-        adjudicationInfo: {
-          requiresAdjudication: true,
-          enabledReasons: [
-            AdjudicationReason.UninterpretableBallot,
-            AdjudicationReason.MarginalMark,
-          ],
-          enabledReasonInfos: [
-            {
-              type: AdjudicationReason.MarginalMark,
-              contestId: candidateContests[i].id,
-              optionId: candidateContests[i].candidates[0].id,
-              optionIndex: 0,
-            },
-            {
-              type: AdjudicationReason.Undervote,
-              contestId: candidateContests[i].id,
-              expected: 1,
-              optionIds: [],
-              optionIndexes: [],
-            },
-          ],
-          ignoredReasonInfos: [],
-        },
-      },
-    })) as SheetOf<PageInterpretationWithFiles>
+      })
+    ) as SheetOf<PageInterpretationWithFiles>
   );
 
   // check the review paths

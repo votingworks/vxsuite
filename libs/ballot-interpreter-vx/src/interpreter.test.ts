@@ -1568,97 +1568,95 @@ test('interpret votes', async () => {
   `);
 
   expect(
-    marks.map((mark) =>
-      mark.type === 'yesno'
-        ? { type: mark.type, option: mark.option, score: mark.score }
-        : mark.type === 'candidate'
-        ? { type: mark.type, option: mark.option.name, score: mark.score }
-        : { type: mark.type, bounds: mark.bounds }
-    )
+    marks.map((mark) => ({
+      type: mark.type,
+      option: mark.optionId,
+      score: mark.score,
+    }))
   ).toMatchInlineSnapshot(`
     Array [
       Object {
-        "option": "John Cornyn",
+        "option": "john-cornyn",
         "score": 0,
         "type": "candidate",
       },
       Object {
-        "option": "James Brumley",
+        "option": "james-brumley",
         "score": 0,
         "type": "candidate",
       },
       Object {
-        "option": "Cedric Jefferson",
+        "option": "cedric-jefferson",
         "score": 0,
         "type": "candidate",
       },
       Object {
-        "option": "Tim Smith",
+        "option": "tim-smith",
         "score": 0.8765432098765432,
         "type": "candidate",
       },
       Object {
-        "option": "Arjun Srinivasan",
+        "option": "arjun-srinivasan",
         "score": 0.0024630541871921183,
         "type": "candidate",
       },
       Object {
-        "option": "Ricardo Turullols-Bonilla",
+        "option": "ricardo-turullols-bonilla",
         "score": 0.007407407407407408,
         "type": "candidate",
       },
       Object {
-        "option": "Eddie Bernice Johnson",
+        "option": "eddie-bernice-johnson",
         "score": 0.7832512315270936,
         "type": "candidate",
       },
       Object {
-        "option": "Tre Pennie",
+        "option": "tre-pennie",
         "score": 0.0024449877750611247,
         "type": "candidate",
       },
       Object {
-        "option": "Jane Bland",
+        "option": "jane-bland",
         "score": 0.7524509803921569,
         "type": "candidate",
       },
       Object {
-        "option": "Kathy Cheng",
+        "option": "kathy-cheng",
         "score": 0.004889975550122249,
         "type": "candidate",
       },
       Object {
-        "option": "Yvonne Davis",
+        "option": "yvonne-davis",
         "score": 0,
         "type": "candidate",
       },
       Object {
-        "option": "Write-In",
+        "option": "__write-in-0",
         "score": 0.8029556650246306,
         "type": "candidate",
       },
       Object {
-        "option": "John Ames",
+        "option": "john-ames",
         "score": 0.8866995073891626,
         "type": "candidate",
       },
       Object {
-        "option": "Write-In",
+        "option": "__write-in-0",
         "score": 0,
         "type": "candidate",
       },
       Object {
-        "option": "Marian Brown",
+        "option": "marian-brown",
         "score": 0,
         "type": "candidate",
       },
       Object {
-        "option": "Chad Prda",
+        "option": "chad-prda",
         "score": 0.7,
         "type": "candidate",
       },
       Object {
-        "option": "Write-In",
+        "option": "__write-in-0",
         "score": 0,
         "type": "candidate",
       },
@@ -1728,37 +1726,8 @@ test('invalid marks', async () => {
           "x": 67,
           "y": 242,
         },
-        "contest": Object {
-          "allowWriteIns": true,
-          "candidates": Array [
-            Object {
-              "id": "john-wiley-price",
-              "name": "John Wiley Price",
-              "partyId": "2",
-            },
-            Object {
-              "id": "s-t-russell",
-              "name": "S.T. Russell",
-              "partyId": "3",
-            },
-            Object {
-              "id": "andrew-jewell",
-              "name": "Andrew Jewell",
-              "partyId": "7",
-            },
-          ],
-          "districtId": "12",
-          "id": "dallas-county-commissioners-court-pct-3",
-          "seats": 2,
-          "section": "Dallas County",
-          "title": "Member, Dallas County Commissioners Court, Precinct 3",
-          "type": "candidate",
-        },
-        "option": Object {
-          "id": "john-wiley-price",
-          "name": "John Wiley Price",
-          "partyId": "2",
-        },
+        "contestId": "dallas-county-commissioners-court-pct-3",
+        "optionId": "john-wiley-price",
         "score": 0.009950248756218905,
         "scoredOffset": Object {
           "x": 0,
@@ -1788,37 +1757,8 @@ test('invalid marks', async () => {
           "x": 67,
           "y": 320,
         },
-        "contest": Object {
-          "allowWriteIns": true,
-          "candidates": Array [
-            Object {
-              "id": "john-wiley-price",
-              "name": "John Wiley Price",
-              "partyId": "2",
-            },
-            Object {
-              "id": "s-t-russell",
-              "name": "S.T. Russell",
-              "partyId": "3",
-            },
-            Object {
-              "id": "andrew-jewell",
-              "name": "Andrew Jewell",
-              "partyId": "7",
-            },
-          ],
-          "districtId": "12",
-          "id": "dallas-county-commissioners-court-pct-3",
-          "seats": 2,
-          "section": "Dallas County",
-          "title": "Member, Dallas County Commissioners Court, Precinct 3",
-          "type": "candidate",
-        },
-        "option": Object {
-          "id": "s-t-russell",
-          "name": "S.T. Russell",
-          "partyId": "3",
-        },
+        "contestId": "dallas-county-commissioners-court-pct-3",
+        "optionId": "s-t-russell",
         "score": 0,
         "scoredOffset": Object {
           "x": 0,
@@ -1848,37 +1788,8 @@ test('invalid marks', async () => {
           "x": 67,
           "y": 398,
         },
-        "contest": Object {
-          "allowWriteIns": true,
-          "candidates": Array [
-            Object {
-              "id": "john-wiley-price",
-              "name": "John Wiley Price",
-              "partyId": "2",
-            },
-            Object {
-              "id": "s-t-russell",
-              "name": "S.T. Russell",
-              "partyId": "3",
-            },
-            Object {
-              "id": "andrew-jewell",
-              "name": "Andrew Jewell",
-              "partyId": "7",
-            },
-          ],
-          "districtId": "12",
-          "id": "dallas-county-commissioners-court-pct-3",
-          "seats": 2,
-          "section": "Dallas County",
-          "title": "Member, Dallas County Commissioners Court, Precinct 3",
-          "type": "candidate",
-        },
-        "option": Object {
-          "id": "andrew-jewell",
-          "name": "Andrew Jewell",
-          "partyId": "7",
-        },
+        "contestId": "dallas-county-commissioners-court-pct-3",
+        "optionId": "andrew-jewell",
         "score": 0.8271604938271605,
         "scoredOffset": Object {
           "x": 0,
@@ -1908,37 +1819,8 @@ test('invalid marks', async () => {
           "x": 67,
           "y": 476,
         },
-        "contest": Object {
-          "allowWriteIns": true,
-          "candidates": Array [
-            Object {
-              "id": "john-wiley-price",
-              "name": "John Wiley Price",
-              "partyId": "2",
-            },
-            Object {
-              "id": "s-t-russell",
-              "name": "S.T. Russell",
-              "partyId": "3",
-            },
-            Object {
-              "id": "andrew-jewell",
-              "name": "Andrew Jewell",
-              "partyId": "7",
-            },
-          ],
-          "districtId": "12",
-          "id": "dallas-county-commissioners-court-pct-3",
-          "seats": 2,
-          "section": "Dallas County",
-          "title": "Member, Dallas County Commissioners Court, Precinct 3",
-          "type": "candidate",
-        },
-        "option": Object {
-          "id": "__write-in-0",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
+        "contestId": "dallas-county-commissioners-court-pct-3",
+        "optionId": "__write-in-0",
         "score": 0,
         "scoredOffset": Object {
           "x": 0,
@@ -1968,37 +1850,8 @@ test('invalid marks', async () => {
           "x": 67,
           "y": 526,
         },
-        "contest": Object {
-          "allowWriteIns": true,
-          "candidates": Array [
-            Object {
-              "id": "john-wiley-price",
-              "name": "John Wiley Price",
-              "partyId": "2",
-            },
-            Object {
-              "id": "s-t-russell",
-              "name": "S.T. Russell",
-              "partyId": "3",
-            },
-            Object {
-              "id": "andrew-jewell",
-              "name": "Andrew Jewell",
-              "partyId": "7",
-            },
-          ],
-          "districtId": "12",
-          "id": "dallas-county-commissioners-court-pct-3",
-          "seats": 2,
-          "section": "Dallas County",
-          "title": "Member, Dallas County Commissioners Court, Precinct 3",
-          "type": "candidate",
-        },
-        "option": Object {
-          "id": "__write-in-1",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
+        "contestId": "dallas-county-commissioners-court-pct-3",
+        "optionId": "__write-in-1",
         "score": 0,
         "scoredOffset": Object {
           "x": 0,
@@ -2028,15 +1881,8 @@ test('invalid marks', async () => {
           "x": 67,
           "y": 869,
         },
-        "contest": Object {
-          "description": "Shall Robert Demergue be retained as Chief Justice of the Dallas County Court of Appeals?",
-          "districtId": "12",
-          "id": "dallas-county-retain-chief-justice",
-          "section": "Dallas County",
-          "title": "Retain Robert Demergue as Chief Justice?",
-          "type": "yesno",
-        },
-        "option": "yes",
+        "contestId": "dallas-county-retain-chief-justice",
+        "optionId": "yes",
         "score": 0.18610421836228289,
         "scoredOffset": Object {
           "x": 0,
@@ -2065,15 +1911,8 @@ test('invalid marks', async () => {
           "x": 67,
           "y": 919,
         },
-        "contest": Object {
-          "description": "Shall Robert Demergue be retained as Chief Justice of the Dallas County Court of Appeals?",
-          "districtId": "12",
-          "id": "dallas-county-retain-chief-justice",
-          "section": "Dallas County",
-          "title": "Retain Robert Demergue as Chief Justice?",
-          "type": "yesno",
-        },
-        "option": "no",
+        "contestId": "dallas-county-retain-chief-justice",
+        "optionId": "no",
         "score": 0,
         "scoredOffset": Object {
           "x": 0,
@@ -2102,15 +1941,8 @@ test('invalid marks', async () => {
           "x": 470,
           "y": 315,
         },
-        "contest": Object {
-          "description": "Shall the Dallas County extend the Recycling Program countywide?",
-          "districtId": "12",
-          "id": "dallas-county-proposition-r",
-          "section": "Dallas County",
-          "title": "Proposition R: Countywide Recycling Program",
-          "type": "yesno",
-        },
-        "option": "yes",
+        "contestId": "dallas-county-proposition-r",
+        "optionId": "yes",
         "score": 0,
         "scoredOffset": Object {
           "x": 0,
@@ -2139,15 +1971,8 @@ test('invalid marks', async () => {
           "x": 470,
           "y": 365,
         },
-        "contest": Object {
-          "description": "Shall the Dallas County extend the Recycling Program countywide?",
-          "districtId": "12",
-          "id": "dallas-county-proposition-r",
-          "section": "Dallas County",
-          "title": "Proposition R: Countywide Recycling Program",
-          "type": "yesno",
-        },
-        "option": "no",
+        "contestId": "dallas-county-proposition-r",
+        "optionId": "no",
         "score": 0.8215158924205379,
         "scoredOffset": Object {
           "x": -1,
@@ -2176,52 +2001,8 @@ test('invalid marks', async () => {
           "x": 470,
           "y": 569,
         },
-        "contest": Object {
-          "allowWriteIns": true,
-          "candidates": Array [
-            Object {
-              "id": "harvey-eagle",
-              "name": "Harvey Eagle",
-              "partyId": "2",
-            },
-            Object {
-              "id": "randall-rupp",
-              "name": "Randall Rupp",
-              "partyId": "2",
-            },
-            Object {
-              "id": "carroll-shry",
-              "name": "Carroll Shry",
-              "partyId": "2",
-            },
-            Object {
-              "id": "beverly-barker",
-              "name": "Beverly Barker",
-              "partyId": "3",
-            },
-            Object {
-              "id": "donald-davis",
-              "name": "Donald Davis",
-              "partyId": "3",
-            },
-            Object {
-              "id": "hugo-smith",
-              "name": "Hugo Smith",
-              "partyId": "3",
-            },
-          ],
-          "districtId": "12",
-          "id": "dallas-city-council",
-          "seats": 3,
-          "section": "City of Dallas",
-          "title": "City Council",
-          "type": "candidate",
-        },
-        "option": Object {
-          "id": "harvey-eagle",
-          "name": "Harvey Eagle",
-          "partyId": "2",
-        },
+        "contestId": "dallas-city-council",
+        "optionId": "harvey-eagle",
         "score": 0,
         "scoredOffset": Object {
           "x": 0,
@@ -2251,52 +2032,8 @@ test('invalid marks', async () => {
           "x": 470,
           "y": 647,
         },
-        "contest": Object {
-          "allowWriteIns": true,
-          "candidates": Array [
-            Object {
-              "id": "harvey-eagle",
-              "name": "Harvey Eagle",
-              "partyId": "2",
-            },
-            Object {
-              "id": "randall-rupp",
-              "name": "Randall Rupp",
-              "partyId": "2",
-            },
-            Object {
-              "id": "carroll-shry",
-              "name": "Carroll Shry",
-              "partyId": "2",
-            },
-            Object {
-              "id": "beverly-barker",
-              "name": "Beverly Barker",
-              "partyId": "3",
-            },
-            Object {
-              "id": "donald-davis",
-              "name": "Donald Davis",
-              "partyId": "3",
-            },
-            Object {
-              "id": "hugo-smith",
-              "name": "Hugo Smith",
-              "partyId": "3",
-            },
-          ],
-          "districtId": "12",
-          "id": "dallas-city-council",
-          "seats": 3,
-          "section": "City of Dallas",
-          "title": "City Council",
-          "type": "candidate",
-        },
-        "option": Object {
-          "id": "randall-rupp",
-          "name": "Randall Rupp",
-          "partyId": "2",
-        },
+        "contestId": "dallas-city-council",
+        "optionId": "randall-rupp",
         "score": 0.1921182266009852,
         "scoredOffset": Object {
           "x": 0,
@@ -2326,52 +2063,8 @@ test('invalid marks', async () => {
           "x": 470,
           "y": 725,
         },
-        "contest": Object {
-          "allowWriteIns": true,
-          "candidates": Array [
-            Object {
-              "id": "harvey-eagle",
-              "name": "Harvey Eagle",
-              "partyId": "2",
-            },
-            Object {
-              "id": "randall-rupp",
-              "name": "Randall Rupp",
-              "partyId": "2",
-            },
-            Object {
-              "id": "carroll-shry",
-              "name": "Carroll Shry",
-              "partyId": "2",
-            },
-            Object {
-              "id": "beverly-barker",
-              "name": "Beverly Barker",
-              "partyId": "3",
-            },
-            Object {
-              "id": "donald-davis",
-              "name": "Donald Davis",
-              "partyId": "3",
-            },
-            Object {
-              "id": "hugo-smith",
-              "name": "Hugo Smith",
-              "partyId": "3",
-            },
-          ],
-          "districtId": "12",
-          "id": "dallas-city-council",
-          "seats": 3,
-          "section": "City of Dallas",
-          "title": "City Council",
-          "type": "candidate",
-        },
-        "option": Object {
-          "id": "carroll-shry",
-          "name": "Carroll Shry",
-          "partyId": "2",
-        },
+        "contestId": "dallas-city-council",
+        "optionId": "carroll-shry",
         "score": 0.0024752475247524753,
         "scoredOffset": Object {
           "x": -1,
@@ -2401,52 +2094,8 @@ test('invalid marks', async () => {
           "x": 470,
           "y": 803,
         },
-        "contest": Object {
-          "allowWriteIns": true,
-          "candidates": Array [
-            Object {
-              "id": "harvey-eagle",
-              "name": "Harvey Eagle",
-              "partyId": "2",
-            },
-            Object {
-              "id": "randall-rupp",
-              "name": "Randall Rupp",
-              "partyId": "2",
-            },
-            Object {
-              "id": "carroll-shry",
-              "name": "Carroll Shry",
-              "partyId": "2",
-            },
-            Object {
-              "id": "beverly-barker",
-              "name": "Beverly Barker",
-              "partyId": "3",
-            },
-            Object {
-              "id": "donald-davis",
-              "name": "Donald Davis",
-              "partyId": "3",
-            },
-            Object {
-              "id": "hugo-smith",
-              "name": "Hugo Smith",
-              "partyId": "3",
-            },
-          ],
-          "districtId": "12",
-          "id": "dallas-city-council",
-          "seats": 3,
-          "section": "City of Dallas",
-          "title": "City Council",
-          "type": "candidate",
-        },
-        "option": Object {
-          "id": "beverly-barker",
-          "name": "Beverly Barker",
-          "partyId": "3",
-        },
+        "contestId": "dallas-city-council",
+        "optionId": "beverly-barker",
         "score": 0.0024752475247524753,
         "scoredOffset": Object {
           "x": -1,
@@ -2476,52 +2125,8 @@ test('invalid marks', async () => {
           "x": 470,
           "y": 881,
         },
-        "contest": Object {
-          "allowWriteIns": true,
-          "candidates": Array [
-            Object {
-              "id": "harvey-eagle",
-              "name": "Harvey Eagle",
-              "partyId": "2",
-            },
-            Object {
-              "id": "randall-rupp",
-              "name": "Randall Rupp",
-              "partyId": "2",
-            },
-            Object {
-              "id": "carroll-shry",
-              "name": "Carroll Shry",
-              "partyId": "2",
-            },
-            Object {
-              "id": "beverly-barker",
-              "name": "Beverly Barker",
-              "partyId": "3",
-            },
-            Object {
-              "id": "donald-davis",
-              "name": "Donald Davis",
-              "partyId": "3",
-            },
-            Object {
-              "id": "hugo-smith",
-              "name": "Hugo Smith",
-              "partyId": "3",
-            },
-          ],
-          "districtId": "12",
-          "id": "dallas-city-council",
-          "seats": 3,
-          "section": "City of Dallas",
-          "title": "City Council",
-          "type": "candidate",
-        },
-        "option": Object {
-          "id": "donald-davis",
-          "name": "Donald Davis",
-          "partyId": "3",
-        },
+        "contestId": "dallas-city-council",
+        "optionId": "donald-davis",
         "score": 0.19801980198019803,
         "scoredOffset": Object {
           "x": -1,
@@ -2551,52 +2156,8 @@ test('invalid marks', async () => {
           "x": 470,
           "y": 959,
         },
-        "contest": Object {
-          "allowWriteIns": true,
-          "candidates": Array [
-            Object {
-              "id": "harvey-eagle",
-              "name": "Harvey Eagle",
-              "partyId": "2",
-            },
-            Object {
-              "id": "randall-rupp",
-              "name": "Randall Rupp",
-              "partyId": "2",
-            },
-            Object {
-              "id": "carroll-shry",
-              "name": "Carroll Shry",
-              "partyId": "2",
-            },
-            Object {
-              "id": "beverly-barker",
-              "name": "Beverly Barker",
-              "partyId": "3",
-            },
-            Object {
-              "id": "donald-davis",
-              "name": "Donald Davis",
-              "partyId": "3",
-            },
-            Object {
-              "id": "hugo-smith",
-              "name": "Hugo Smith",
-              "partyId": "3",
-            },
-          ],
-          "districtId": "12",
-          "id": "dallas-city-council",
-          "seats": 3,
-          "section": "City of Dallas",
-          "title": "City Council",
-          "type": "candidate",
-        },
-        "option": Object {
-          "id": "hugo-smith",
-          "name": "Hugo Smith",
-          "partyId": "3",
-        },
+        "contestId": "dallas-city-council",
+        "optionId": "hugo-smith",
         "score": 0.009950248756218905,
         "scoredOffset": Object {
           "x": 0,
@@ -2626,52 +2187,8 @@ test('invalid marks', async () => {
           "x": 470,
           "y": 1037,
         },
-        "contest": Object {
-          "allowWriteIns": true,
-          "candidates": Array [
-            Object {
-              "id": "harvey-eagle",
-              "name": "Harvey Eagle",
-              "partyId": "2",
-            },
-            Object {
-              "id": "randall-rupp",
-              "name": "Randall Rupp",
-              "partyId": "2",
-            },
-            Object {
-              "id": "carroll-shry",
-              "name": "Carroll Shry",
-              "partyId": "2",
-            },
-            Object {
-              "id": "beverly-barker",
-              "name": "Beverly Barker",
-              "partyId": "3",
-            },
-            Object {
-              "id": "donald-davis",
-              "name": "Donald Davis",
-              "partyId": "3",
-            },
-            Object {
-              "id": "hugo-smith",
-              "name": "Hugo Smith",
-              "partyId": "3",
-            },
-          ],
-          "districtId": "12",
-          "id": "dallas-city-council",
-          "seats": 3,
-          "section": "City of Dallas",
-          "title": "City Council",
-          "type": "candidate",
-        },
-        "option": Object {
-          "id": "__write-in-0",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
+        "contestId": "dallas-city-council",
+        "optionId": "__write-in-0",
         "score": 0,
         "scoredOffset": Object {
           "x": 0,
@@ -2701,52 +2218,8 @@ test('invalid marks', async () => {
           "x": 470,
           "y": 1087,
         },
-        "contest": Object {
-          "allowWriteIns": true,
-          "candidates": Array [
-            Object {
-              "id": "harvey-eagle",
-              "name": "Harvey Eagle",
-              "partyId": "2",
-            },
-            Object {
-              "id": "randall-rupp",
-              "name": "Randall Rupp",
-              "partyId": "2",
-            },
-            Object {
-              "id": "carroll-shry",
-              "name": "Carroll Shry",
-              "partyId": "2",
-            },
-            Object {
-              "id": "beverly-barker",
-              "name": "Beverly Barker",
-              "partyId": "3",
-            },
-            Object {
-              "id": "donald-davis",
-              "name": "Donald Davis",
-              "partyId": "3",
-            },
-            Object {
-              "id": "hugo-smith",
-              "name": "Hugo Smith",
-              "partyId": "3",
-            },
-          ],
-          "districtId": "12",
-          "id": "dallas-city-council",
-          "seats": 3,
-          "section": "City of Dallas",
-          "title": "City Council",
-          "type": "candidate",
-        },
-        "option": Object {
-          "id": "__write-in-1",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
+        "contestId": "dallas-city-council",
+        "optionId": "__write-in-1",
         "score": 0.15403422982885084,
         "scoredOffset": Object {
           "x": 0,
@@ -2776,52 +2249,8 @@ test('invalid marks', async () => {
           "x": 470,
           "y": 1137,
         },
-        "contest": Object {
-          "allowWriteIns": true,
-          "candidates": Array [
-            Object {
-              "id": "harvey-eagle",
-              "name": "Harvey Eagle",
-              "partyId": "2",
-            },
-            Object {
-              "id": "randall-rupp",
-              "name": "Randall Rupp",
-              "partyId": "2",
-            },
-            Object {
-              "id": "carroll-shry",
-              "name": "Carroll Shry",
-              "partyId": "2",
-            },
-            Object {
-              "id": "beverly-barker",
-              "name": "Beverly Barker",
-              "partyId": "3",
-            },
-            Object {
-              "id": "donald-davis",
-              "name": "Donald Davis",
-              "partyId": "3",
-            },
-            Object {
-              "id": "hugo-smith",
-              "name": "Hugo Smith",
-              "partyId": "3",
-            },
-          ],
-          "districtId": "12",
-          "id": "dallas-city-council",
-          "seats": 3,
-          "section": "City of Dallas",
-          "title": "City Council",
-          "type": "candidate",
-        },
-        "option": Object {
-          "id": "__write-in-2",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
+        "contestId": "dallas-city-council",
+        "optionId": "__write-in-2",
         "score": 0.007371007371007371,
         "scoredOffset": Object {
           "x": 0,
@@ -2851,32 +2280,8 @@ test('invalid marks', async () => {
           "x": 872,
           "y": 176,
         },
-        "contest": Object {
-          "allowWriteIns": true,
-          "candidates": Array [
-            Object {
-              "id": "orville-white",
-              "name": "Orville White",
-              "partyId": "2",
-            },
-            Object {
-              "id": "gregory-seldon",
-              "name": "Gregory Seldon",
-              "partyId": "3",
-            },
-          ],
-          "districtId": "12",
-          "id": "dallas-mayor",
-          "seats": 1,
-          "section": "City of Dallas",
-          "title": "Mayor",
-          "type": "candidate",
-        },
-        "option": Object {
-          "id": "orville-white",
-          "name": "Orville White",
-          "partyId": "2",
-        },
+        "contestId": "dallas-mayor",
+        "optionId": "orville-white",
         "score": 0,
         "scoredOffset": Object {
           "x": 0,
@@ -2906,32 +2311,8 @@ test('invalid marks', async () => {
           "x": 872,
           "y": 255,
         },
-        "contest": Object {
-          "allowWriteIns": true,
-          "candidates": Array [
-            Object {
-              "id": "orville-white",
-              "name": "Orville White",
-              "partyId": "2",
-            },
-            Object {
-              "id": "gregory-seldon",
-              "name": "Gregory Seldon",
-              "partyId": "3",
-            },
-          ],
-          "districtId": "12",
-          "id": "dallas-mayor",
-          "seats": 1,
-          "section": "City of Dallas",
-          "title": "Mayor",
-          "type": "candidate",
-        },
-        "option": Object {
-          "id": "gregory-seldon",
-          "name": "Gregory Seldon",
-          "partyId": "3",
-        },
+        "contestId": "dallas-mayor",
+        "optionId": "gregory-seldon",
         "score": 0,
         "scoredOffset": Object {
           "x": 0,
@@ -2961,32 +2342,8 @@ test('invalid marks', async () => {
           "x": 872,
           "y": 333,
         },
-        "contest": Object {
-          "allowWriteIns": true,
-          "candidates": Array [
-            Object {
-              "id": "orville-white",
-              "name": "Orville White",
-              "partyId": "2",
-            },
-            Object {
-              "id": "gregory-seldon",
-              "name": "Gregory Seldon",
-              "partyId": "3",
-            },
-          ],
-          "districtId": "12",
-          "id": "dallas-mayor",
-          "seats": 1,
-          "section": "City of Dallas",
-          "title": "Mayor",
-          "type": "candidate",
-        },
-        "option": Object {
-          "id": "__write-in-0",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
+        "contestId": "dallas-mayor",
+        "optionId": "__write-in-0",
         "score": 0.0024691358024691358,
         "scoredOffset": Object {
           "x": 0,
@@ -3515,8 +2872,8 @@ test('choctaw 2020 general', async () => {
   );
   expect(
     p1Interpreted.marks.map((mark) => ({
-      contest: mark.contest.id,
-      option: typeof mark.option === 'string' ? mark.option : mark.option.id,
+      contest: mark.contestId,
+      option: mark.optionId,
       score: mark.score,
     }))
   ).toMatchInlineSnapshot(`
@@ -3615,8 +2972,8 @@ test('choctaw 2020 general', async () => {
   );
   expect(
     p2Interpreted.marks.map((mark) => ({
-      contest: mark.contest.id,
-      option: typeof mark.option === 'string' ? mark.option : mark.option.id,
+      contest: mark.contestId,
+      option: mark.optionId,
       score: mark.score,
     }))
   ).toMatchInlineSnapshot(`
@@ -3678,198 +3035,104 @@ test('regression: overvote on choctaw county p1-05', async () => {
     await fixtures.filledInPage1_05.imageData()
   );
 
-  expect(interpretation.marks.map((mark) => [mark.score, mark.option]))
+  expect(interpretation.marks.map((mark) => [mark.score, mark.optionId]))
     .toMatchInlineSnapshot(`
     Array [
       Array [
         0.0053475935828877,
-        Object {
-          "id": "775032091",
-          "name": "Presidential Electors for Joseph R. Biden Jr. for President and Kamala D. Harris for Vice President",
-          "partyId": "2",
-        },
+        "775032091",
       ],
       Array [
         0,
-        Object {
-          "id": "775032092",
-          "name": "Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President",
-          "partyId": "3",
-        },
+        "775032092",
       ],
       Array [
         0.002717391304347826,
-        Object {
-          "id": "775032126",
-          "name": "Presidential Electors for Don Blankenship for President and William Mohr for Vice President",
-          "partyId": "775000002",
-        },
+        "775032126",
       ],
       Array [
         0,
-        Object {
-          "id": "775032100",
-          "name": "Presidential Electors for Brian Carroll for President and Amar Patel for Vice President",
-          "partyId": "775000001",
-        },
+        "775032100",
       ],
       Array [
         0.005434782608695652,
-        Object {
-          "id": "775032096",
-          "name": "Presidential Electors for Phil Collins for President and Bill Parker for Vice President",
-          "partyId": "11",
-        },
+        "775032096",
       ],
       Array [
         0.8913043478260869,
-        Object {
-          "id": "775032099",
-          "name": "Presidential Electors for Howie Hawkins for President and Angela Nicole Walker for Vice President",
-          "partyId": "9",
-        },
+        "775032099",
       ],
       Array [
         0,
-        Object {
-          "id": "775032102",
-          "name": "Presidential Electors for Jo Jorgensen for President and Jeremy 'Spike' Cohen for Vice President",
-          "partyId": "4",
-        },
+        "775032102",
       ],
       Array [
         0,
-        Object {
-          "id": "775032117",
-          "name": "Presidential Electors for Brock Pierce for President and Karla Ballard for Vice President",
-          "partyId": "11",
-        },
+        "775032117",
       ],
       Array [
         0.005434782608695652,
-        Object {
-          "id": "775032098",
-          "name": "Presidential Electors for Kanye West for President and Michelle Tidball for Vice President",
-          "partyId": "11",
-        },
+        "775032098",
       ],
       Array [
         0,
-        Object {
-          "id": "__write-in-0",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
+        "__write-in-0",
       ],
       Array [
         0,
-        Object {
-          "id": "775032093",
-          "name": "Mike Espy",
-          "partyId": "2",
-        },
+        "775032093",
       ],
       Array [
         0.008152173913043478,
-        Object {
-          "id": "775032094",
-          "name": "Cindy Hyde-Smith",
-          "partyId": "3",
-        },
+        "775032094",
       ],
       Array [
         0.8913043478260869,
-        Object {
-          "id": "775032105",
-          "name": "Jimmy L. Edwards",
-          "partyId": "4",
-        },
+        "775032105",
       ],
       Array [
         0,
-        Object {
-          "id": "__write-in-0",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
+        "__write-in-0",
       ],
       Array [
         0,
-        Object {
-          "id": "775032084",
-          "name": "Antonia Eliason",
-          "partyId": "2",
-        },
+        "775032084",
       ],
       Array [
         0.8913043478260869,
-        Object {
-          "id": "775032085",
-          "name": "Trent Kelly",
-          "partyId": "3",
-        },
+        "775032085",
       ],
       Array [
         0,
-        Object {
-          "id": "__write-in-0",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
+        "__write-in-0",
       ],
       Array [
         0.002717391304347826,
-        Object {
-          "id": "775032082",
-          "name": "Josiah Dennis Coleman",
-          "partyId": "12",
-        },
+        "775032082",
       ],
       Array [
         0.8913043478260869,
-        Object {
-          "id": "775032110",
-          "name": "Percy L. Lynchard",
-          "partyId": "12",
-        },
+        "775032110",
       ],
       Array [
         0.00267379679144385,
-        Object {
-          "id": "__write-in-0",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
+        "__write-in-0",
       ],
       Array [
         0.8983957219251337,
-        Object {
-          "id": "775032689",
-          "name": "Wayne McLeod",
-        },
+        "775032689",
       ],
       Array [
         0.008152173913043478,
-        Object {
-          "id": "__write-in-0",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
+        "__write-in-0",
       ],
       Array [
         0.8913043478260869,
-        Object {
-          "id": "775032690",
-          "name": "Michael D Thomas",
-        },
+        "775032690",
       ],
       Array [
         0,
-        Object {
-          "id": "__write-in-0",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
+        "__write-in-0",
       ],
     ]
   `);

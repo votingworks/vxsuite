@@ -98,14 +98,19 @@ export const DistrictsSchema = z
   });
 
 // Candidates
-export type WriteInId = Id;
-export const WriteInIdSchema: z.ZodSchema<WriteInId> = z
+export type WriteInId =
+  | `__write-in`
+  | `__write-in-${string}`
+  // TODO: Remove this in favor of `__write-in-${string}` or some other unified
+  // format for BMD and HMPB write-in IDs.
+  | `write-in__${string}`;
+export const WriteInIdSchema = z
   .string()
   .nonempty()
   .refine(
-    (id) => id.startsWith('__write-in'),
-    'Write-In IDs must start with __write-in'
-  );
+    (id) => /^(__write-in(-.+)?|write-in__(.+))$/.test(id),
+    `Write-In ID does not match expected format.`
+  ) as z.ZodSchema<WriteInId>;
 export type CandidateId = Id;
 export const CandidateIdSchema: z.ZodSchema<CandidateId> = IdSchema;
 export interface Candidate {
@@ -120,6 +125,20 @@ export const CandidateSchema: z.ZodSchema<Candidate> = z.object({
   name: z.string().nonempty(),
   partyId: PartyIdSchema.optional(),
   isWriteIn: z.boolean().optional(),
+});
+
+export interface WriteInCandidate {
+  readonly id: WriteInId;
+  readonly name: string;
+  readonly isWriteIn: true;
+  readonly partyId?: PartyId;
+}
+export const WriteInCandidateSchema: z.ZodSchema<WriteInCandidate> = z.object({
+  _lang: TranslationsSchema.optional(),
+  id: WriteInIdSchema,
+  name: z.string().nonempty(),
+  isWriteIn: z.literal(true),
+  partyId: PartyIdSchema.optional(),
 });
 
 export const writeInCandidate: Candidate = {
@@ -918,9 +937,9 @@ export const TargetShapeSchema: z.ZodSchema<TargetShape> = z.object({
 export interface BallotCandidateTargetMark {
   type: CandidateContest['type'];
   bounds: Rect;
-  contest: CandidateContest;
+  contestId: ContestId;
   target: TargetShape;
-  option: Candidate;
+  optionId: CandidateId | WriteInId;
   score: number;
   scoredOffset: Offset;
   writeInTextScore?: number;
@@ -929,9 +948,9 @@ export const BallotCandidateTargetMarkSchema: z.ZodSchema<BallotCandidateTargetM
   {
     type: z.literal('candidate'),
     bounds: RectSchema,
-    contest: CandidateContestSchema,
+    contestId: ContestIdSchema,
     target: TargetShapeSchema,
-    option: CandidateSchema,
+    optionId: z.union([CandidateIdSchema, WriteInIdSchema]),
     score: z.number().min(0).max(1),
     scoredOffset: OffsetSchema,
     writeInTextScore: z.number().min(0).max(1).optional(),
@@ -941,9 +960,9 @@ export const BallotCandidateTargetMarkSchema: z.ZodSchema<BallotCandidateTargetM
 export interface BallotYesNoTargetMark {
   type: YesNoContest['type'];
   bounds: Rect;
-  contest: YesNoContest;
+  contestId: ContestId;
   target: TargetShape;
-  option: 'yes' | 'no';
+  optionId: 'yes' | 'no';
   score: number;
   scoredOffset: Offset;
 }
@@ -951,9 +970,9 @@ export const BallotYesNoTargetMarkSchema: z.ZodSchema<BallotYesNoTargetMark> = z
   {
     type: z.literal('yesno'),
     bounds: RectSchema,
-    contest: YesNoContestSchema,
+    contestId: ContestIdSchema,
     target: TargetShapeSchema,
-    option: z.union([z.literal('yes'), z.literal('no')]),
+    optionId: z.union([z.literal('yes'), z.literal('no')]),
     score: z.number(),
     scoredOffset: OffsetSchema,
   }
@@ -962,9 +981,9 @@ export const BallotYesNoTargetMarkSchema: z.ZodSchema<BallotYesNoTargetMark> = z
 export interface BallotMsEitherNeitherTargetMark {
   type: MsEitherNeitherContest['type'];
   bounds: Rect;
-  contest: MsEitherNeitherContest;
+  contestId: ContestId;
   target: TargetShape;
-  option: YesNoOption;
+  optionId: YesNoOptionId;
   score: number;
   scoredOffset: Offset;
 }
@@ -972,9 +991,9 @@ export const BallotMsEitherNeitherTargetMarkSchema: z.ZodSchema<BallotMsEitherNe
   {
     type: z.literal('ms-either-neither'),
     bounds: RectSchema,
-    contest: MsEitherNeitherContestSchema,
+    contestId: ContestIdSchema,
     target: TargetShapeSchema,
-    option: YesNoOptionSchema,
+    optionId: YesNoOptionIdSchema,
     score: z.number(),
     scoredOffset: OffsetSchema,
   }

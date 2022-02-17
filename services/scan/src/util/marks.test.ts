@@ -1,9 +1,4 @@
-import {
-  BallotMark,
-  DistrictIdSchema,
-  MarkStatus,
-  unsafeParse,
-} from '@votingworks/types';
+import { BallotMark, MarkStatus } from '@votingworks/types';
 import { changesFromMarks, mergeChanges } from './marks';
 
 test('returns an empty object when no changes are given', () => {
@@ -87,45 +82,12 @@ test('changesFromMarks works with ms-either-neither', () => {
     {
       type: 'ms-either-neither',
       bounds: { x: 50, y: 50, width: 50, height: 50 },
-      contest: {
-        id: 'either-neither-1',
-        section: 'State',
-        districtId: unsafeParse(DistrictIdSchema, '1'),
-        type: 'ms-either-neither',
-        title: 'Ballot Measure 1',
-        eitherNeitherContestId: 'either-neither-id',
-        pickOneContestId: 'pick-one-id',
-        description: 'Blah blah',
-        eitherNeitherLabel: 'VOTE FOR APPROVAL OF EITHER, OR AGAINST BOTH',
-        pickOneLabel: 'AND VOTE FOR ONE',
-        eitherOption: {
-          id: 'either-id',
-          label:
-            'FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A',
-        },
-        neitherOption: {
-          id: 'neither-id',
-          label:
-            'AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A',
-        },
-        firstOption: {
-          id: 'first-id',
-          label: 'FOR Initiative Measure No. 65',
-        },
-        secondOption: {
-          id: 'second-id',
-          label: 'FOR Alternative Measure 65 A',
-        },
-      },
+      contestId: 'either-neither-1',
       target: {
         bounds: { x: 50, y: 50, width: 50, height: 50 },
         inner: { x: 50, y: 50, width: 50, height: 50 },
       },
-      option: {
-        id: 'either-id',
-        label:
-          'FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A',
-      },
+      optionId: 'either-id',
       score: 0.9,
       scoredOffset: { x: 0, y: 0 },
     },

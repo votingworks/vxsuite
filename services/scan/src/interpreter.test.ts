@@ -1,10 +1,9 @@
-import { electionSample } from '@votingworks/fixtures';
 import { metadataFromBytes } from '@votingworks/ballot-interpreter-vx';
+import { electionSample } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
   BallotIdSchema,
   BlankPage,
-  DistrictIdSchema,
   Election,
   InterpretedBmdPage,
   InterpretedHmpbPage,
@@ -13,6 +12,7 @@ import {
   UnreadablePage,
   unsafeParse,
 } from '@votingworks/types';
+import { throwIllegalValue } from '@votingworks/utils';
 import { readFile } from 'fs-extra';
 import { join } from 'path';
 import { election as choctaw2020Election } from '../test/fixtures/2020-choctaw';
@@ -20,8 +20,8 @@ import * as general2020Fixtures from '../test/fixtures/2020-general';
 import * as choctaw2020SpecialFixtures from '../test/fixtures/choctaw-2020-09-22-f30480cc99';
 import { election as stateOfHamiltonElection } from '../test/fixtures/state-of-hamilton';
 import {
-  Interpreter,
   getBallotImageData,
+  Interpreter,
   sheetRequiresAdjudication,
 } from './interpreter';
 import { pdfToImages } from './util/pdf_to_images';
@@ -302,58 +302,8 @@ test('interprets marks on an upside-down HMPB', async () => {
               "x": 451,
               "y": 232,
             },
-            "contest": Object {
-              "_lang": Object {
-                "es-US": Object {
-                  "section": "Estados Unidos",
-                  "title": "Presidente y Vicepresidente",
-                },
-              },
-              "allowWriteIns": false,
-              "candidates": Array [
-                Object {
-                  "id": "barchi-hallaren",
-                  "name": "Joseph Barchi and Joseph Hallaren",
-                  "partyId": "0",
-                },
-                Object {
-                  "id": "cramer-vuocolo",
-                  "name": "Adam Cramer and Greg Vuocolo",
-                  "partyId": "1",
-                },
-                Object {
-                  "id": "court-blumhardt",
-                  "name": "Daniel Court and Amy Blumhardt",
-                  "partyId": "2",
-                },
-                Object {
-                  "id": "boone-lian",
-                  "name": "Alvin Boone and James Lian",
-                  "partyId": "3",
-                },
-                Object {
-                  "id": "hildebrand-garritty",
-                  "name": "Ashley Hildebrand-McDougall and James Garritty",
-                  "partyId": "4",
-                },
-                Object {
-                  "id": "patterson-lariviere",
-                  "name": "Martin Patterson and Clay Lariviere",
-                  "partyId": "5",
-                },
-              ],
-              "districtId": "district-1",
-              "id": "president",
-              "seats": 1,
-              "section": "United States",
-              "title": "President and Vice-President",
-              "type": "candidate",
-            },
-            "option": Object {
-              "id": "barchi-hallaren",
-              "name": "Joseph Barchi and Joseph Hallaren",
-              "partyId": "0",
-            },
+            "contestId": "president",
+            "optionId": "barchi-hallaren",
             "score": 0.6550802139037433,
             "scoredOffset": Object {
               "x": 0,
@@ -383,58 +333,8 @@ test('interprets marks on an upside-down HMPB', async () => {
               "x": 451,
               "y": 334,
             },
-            "contest": Object {
-              "_lang": Object {
-                "es-US": Object {
-                  "section": "Estados Unidos",
-                  "title": "Presidente y Vicepresidente",
-                },
-              },
-              "allowWriteIns": false,
-              "candidates": Array [
-                Object {
-                  "id": "barchi-hallaren",
-                  "name": "Joseph Barchi and Joseph Hallaren",
-                  "partyId": "0",
-                },
-                Object {
-                  "id": "cramer-vuocolo",
-                  "name": "Adam Cramer and Greg Vuocolo",
-                  "partyId": "1",
-                },
-                Object {
-                  "id": "court-blumhardt",
-                  "name": "Daniel Court and Amy Blumhardt",
-                  "partyId": "2",
-                },
-                Object {
-                  "id": "boone-lian",
-                  "name": "Alvin Boone and James Lian",
-                  "partyId": "3",
-                },
-                Object {
-                  "id": "hildebrand-garritty",
-                  "name": "Ashley Hildebrand-McDougall and James Garritty",
-                  "partyId": "4",
-                },
-                Object {
-                  "id": "patterson-lariviere",
-                  "name": "Martin Patterson and Clay Lariviere",
-                  "partyId": "5",
-                },
-              ],
-              "districtId": "district-1",
-              "id": "president",
-              "seats": 1,
-              "section": "United States",
-              "title": "President and Vice-President",
-              "type": "candidate",
-            },
-            "option": Object {
-              "id": "cramer-vuocolo",
-              "name": "Adam Cramer and Greg Vuocolo",
-              "partyId": "1",
-            },
+            "contestId": "president",
+            "optionId": "cramer-vuocolo",
             "score": 0,
             "scoredOffset": Object {
               "x": 0,
@@ -464,58 +364,8 @@ test('interprets marks on an upside-down HMPB', async () => {
               "x": 451,
               "y": 436,
             },
-            "contest": Object {
-              "_lang": Object {
-                "es-US": Object {
-                  "section": "Estados Unidos",
-                  "title": "Presidente y Vicepresidente",
-                },
-              },
-              "allowWriteIns": false,
-              "candidates": Array [
-                Object {
-                  "id": "barchi-hallaren",
-                  "name": "Joseph Barchi and Joseph Hallaren",
-                  "partyId": "0",
-                },
-                Object {
-                  "id": "cramer-vuocolo",
-                  "name": "Adam Cramer and Greg Vuocolo",
-                  "partyId": "1",
-                },
-                Object {
-                  "id": "court-blumhardt",
-                  "name": "Daniel Court and Amy Blumhardt",
-                  "partyId": "2",
-                },
-                Object {
-                  "id": "boone-lian",
-                  "name": "Alvin Boone and James Lian",
-                  "partyId": "3",
-                },
-                Object {
-                  "id": "hildebrand-garritty",
-                  "name": "Ashley Hildebrand-McDougall and James Garritty",
-                  "partyId": "4",
-                },
-                Object {
-                  "id": "patterson-lariviere",
-                  "name": "Martin Patterson and Clay Lariviere",
-                  "partyId": "5",
-                },
-              ],
-              "districtId": "district-1",
-              "id": "president",
-              "seats": 1,
-              "section": "United States",
-              "title": "President and Vice-President",
-              "type": "candidate",
-            },
-            "option": Object {
-              "id": "court-blumhardt",
-              "name": "Daniel Court and Amy Blumhardt",
-              "partyId": "2",
-            },
+            "contestId": "president",
+            "optionId": "court-blumhardt",
             "score": 0,
             "scoredOffset": Object {
               "x": 0,
@@ -545,58 +395,8 @@ test('interprets marks on an upside-down HMPB', async () => {
               "x": 451,
               "y": 538,
             },
-            "contest": Object {
-              "_lang": Object {
-                "es-US": Object {
-                  "section": "Estados Unidos",
-                  "title": "Presidente y Vicepresidente",
-                },
-              },
-              "allowWriteIns": false,
-              "candidates": Array [
-                Object {
-                  "id": "barchi-hallaren",
-                  "name": "Joseph Barchi and Joseph Hallaren",
-                  "partyId": "0",
-                },
-                Object {
-                  "id": "cramer-vuocolo",
-                  "name": "Adam Cramer and Greg Vuocolo",
-                  "partyId": "1",
-                },
-                Object {
-                  "id": "court-blumhardt",
-                  "name": "Daniel Court and Amy Blumhardt",
-                  "partyId": "2",
-                },
-                Object {
-                  "id": "boone-lian",
-                  "name": "Alvin Boone and James Lian",
-                  "partyId": "3",
-                },
-                Object {
-                  "id": "hildebrand-garritty",
-                  "name": "Ashley Hildebrand-McDougall and James Garritty",
-                  "partyId": "4",
-                },
-                Object {
-                  "id": "patterson-lariviere",
-                  "name": "Martin Patterson and Clay Lariviere",
-                  "partyId": "5",
-                },
-              ],
-              "districtId": "district-1",
-              "id": "president",
-              "seats": 1,
-              "section": "United States",
-              "title": "President and Vice-President",
-              "type": "candidate",
-            },
-            "option": Object {
-              "id": "boone-lian",
-              "name": "Alvin Boone and James Lian",
-              "partyId": "3",
-            },
+            "contestId": "president",
+            "optionId": "boone-lian",
             "score": 0,
             "scoredOffset": Object {
               "x": 0,
@@ -626,58 +426,8 @@ test('interprets marks on an upside-down HMPB', async () => {
               "x": 451,
               "y": 613,
             },
-            "contest": Object {
-              "_lang": Object {
-                "es-US": Object {
-                  "section": "Estados Unidos",
-                  "title": "Presidente y Vicepresidente",
-                },
-              },
-              "allowWriteIns": false,
-              "candidates": Array [
-                Object {
-                  "id": "barchi-hallaren",
-                  "name": "Joseph Barchi and Joseph Hallaren",
-                  "partyId": "0",
-                },
-                Object {
-                  "id": "cramer-vuocolo",
-                  "name": "Adam Cramer and Greg Vuocolo",
-                  "partyId": "1",
-                },
-                Object {
-                  "id": "court-blumhardt",
-                  "name": "Daniel Court and Amy Blumhardt",
-                  "partyId": "2",
-                },
-                Object {
-                  "id": "boone-lian",
-                  "name": "Alvin Boone and James Lian",
-                  "partyId": "3",
-                },
-                Object {
-                  "id": "hildebrand-garritty",
-                  "name": "Ashley Hildebrand-McDougall and James Garritty",
-                  "partyId": "4",
-                },
-                Object {
-                  "id": "patterson-lariviere",
-                  "name": "Martin Patterson and Clay Lariviere",
-                  "partyId": "5",
-                },
-              ],
-              "districtId": "district-1",
-              "id": "president",
-              "seats": 1,
-              "section": "United States",
-              "title": "President and Vice-President",
-              "type": "candidate",
-            },
-            "option": Object {
-              "id": "hildebrand-garritty",
-              "name": "Ashley Hildebrand-McDougall and James Garritty",
-              "partyId": "4",
-            },
+            "contestId": "president",
+            "optionId": "hildebrand-garritty",
             "score": 0.00267379679144385,
             "scoredOffset": Object {
               "x": 1,
@@ -707,58 +457,8 @@ test('interprets marks on an upside-down HMPB', async () => {
               "x": 451,
               "y": 742,
             },
-            "contest": Object {
-              "_lang": Object {
-                "es-US": Object {
-                  "section": "Estados Unidos",
-                  "title": "Presidente y Vicepresidente",
-                },
-              },
-              "allowWriteIns": false,
-              "candidates": Array [
-                Object {
-                  "id": "barchi-hallaren",
-                  "name": "Joseph Barchi and Joseph Hallaren",
-                  "partyId": "0",
-                },
-                Object {
-                  "id": "cramer-vuocolo",
-                  "name": "Adam Cramer and Greg Vuocolo",
-                  "partyId": "1",
-                },
-                Object {
-                  "id": "court-blumhardt",
-                  "name": "Daniel Court and Amy Blumhardt",
-                  "partyId": "2",
-                },
-                Object {
-                  "id": "boone-lian",
-                  "name": "Alvin Boone and James Lian",
-                  "partyId": "3",
-                },
-                Object {
-                  "id": "hildebrand-garritty",
-                  "name": "Ashley Hildebrand-McDougall and James Garritty",
-                  "partyId": "4",
-                },
-                Object {
-                  "id": "patterson-lariviere",
-                  "name": "Martin Patterson and Clay Lariviere",
-                  "partyId": "5",
-                },
-              ],
-              "districtId": "district-1",
-              "id": "president",
-              "seats": 1,
-              "section": "United States",
-              "title": "President and Vice-President",
-              "type": "candidate",
-            },
-            "option": Object {
-              "id": "patterson-lariviere",
-              "name": "Martin Patterson and Clay Lariviere",
-              "partyId": "5",
-            },
+            "contestId": "president",
+            "optionId": "patterson-lariviere",
             "score": 0,
             "scoredOffset": Object {
               "x": 0,
@@ -788,63 +488,8 @@ test('interprets marks on an upside-down HMPB', async () => {
               "x": 837,
               "y": 168,
             },
-            "contest": Object {
-              "_lang": Object {
-                "es-US": Object {
-                  "section": "Estados Unidos",
-                  "title": "Senador",
-                },
-              },
-              "allowWriteIns": false,
-              "candidates": Array [
-                Object {
-                  "id": "weiford",
-                  "name": "Dennis Weiford",
-                  "partyId": "0",
-                },
-                Object {
-                  "id": "garriss",
-                  "name": "Lloyd Garriss",
-                  "partyId": "1",
-                },
-                Object {
-                  "id": "wentworthfarthington",
-                  "name": "Sylvia Wentworth-Farthington",
-                  "partyId": "2",
-                },
-                Object {
-                  "id": "hewetson",
-                  "name": "Heather Hewetson",
-                  "partyId": "3",
-                },
-                Object {
-                  "id": "martinez",
-                  "name": "Victor Martinez",
-                  "partyId": "4",
-                },
-                Object {
-                  "id": "brown",
-                  "name": "David Brown",
-                  "partyId": "6",
-                },
-                Object {
-                  "id": "pound",
-                  "name": "David Pound",
-                  "partyId": "6",
-                },
-              ],
-              "districtId": "district-2",
-              "id": "senator",
-              "seats": 1,
-              "section": "United States",
-              "title": "Senator",
-              "type": "candidate",
-            },
-            "option": Object {
-              "id": "weiford",
-              "name": "Dennis Weiford",
-              "partyId": "0",
-            },
+            "contestId": "senator",
+            "optionId": "weiford",
             "score": 0.01358695652173913,
             "scoredOffset": Object {
               "x": 0,
@@ -874,63 +519,8 @@ test('interprets marks on an upside-down HMPB', async () => {
               "x": 837,
               "y": 243,
             },
-            "contest": Object {
-              "_lang": Object {
-                "es-US": Object {
-                  "section": "Estados Unidos",
-                  "title": "Senador",
-                },
-              },
-              "allowWriteIns": false,
-              "candidates": Array [
-                Object {
-                  "id": "weiford",
-                  "name": "Dennis Weiford",
-                  "partyId": "0",
-                },
-                Object {
-                  "id": "garriss",
-                  "name": "Lloyd Garriss",
-                  "partyId": "1",
-                },
-                Object {
-                  "id": "wentworthfarthington",
-                  "name": "Sylvia Wentworth-Farthington",
-                  "partyId": "2",
-                },
-                Object {
-                  "id": "hewetson",
-                  "name": "Heather Hewetson",
-                  "partyId": "3",
-                },
-                Object {
-                  "id": "martinez",
-                  "name": "Victor Martinez",
-                  "partyId": "4",
-                },
-                Object {
-                  "id": "brown",
-                  "name": "David Brown",
-                  "partyId": "6",
-                },
-                Object {
-                  "id": "pound",
-                  "name": "David Pound",
-                  "partyId": "6",
-                },
-              ],
-              "districtId": "district-2",
-              "id": "senator",
-              "seats": 1,
-              "section": "United States",
-              "title": "Senator",
-              "type": "candidate",
-            },
-            "option": Object {
-              "id": "garriss",
-              "name": "Lloyd Garriss",
-              "partyId": "1",
-            },
+            "contestId": "senator",
+            "optionId": "garriss",
             "score": 0.008152173913043478,
             "scoredOffset": Object {
               "x": 0,
@@ -960,63 +550,8 @@ test('interprets marks on an upside-down HMPB', async () => {
               "x": 837,
               "y": 318,
             },
-            "contest": Object {
-              "_lang": Object {
-                "es-US": Object {
-                  "section": "Estados Unidos",
-                  "title": "Senador",
-                },
-              },
-              "allowWriteIns": false,
-              "candidates": Array [
-                Object {
-                  "id": "weiford",
-                  "name": "Dennis Weiford",
-                  "partyId": "0",
-                },
-                Object {
-                  "id": "garriss",
-                  "name": "Lloyd Garriss",
-                  "partyId": "1",
-                },
-                Object {
-                  "id": "wentworthfarthington",
-                  "name": "Sylvia Wentworth-Farthington",
-                  "partyId": "2",
-                },
-                Object {
-                  "id": "hewetson",
-                  "name": "Heather Hewetson",
-                  "partyId": "3",
-                },
-                Object {
-                  "id": "martinez",
-                  "name": "Victor Martinez",
-                  "partyId": "4",
-                },
-                Object {
-                  "id": "brown",
-                  "name": "David Brown",
-                  "partyId": "6",
-                },
-                Object {
-                  "id": "pound",
-                  "name": "David Pound",
-                  "partyId": "6",
-                },
-              ],
-              "districtId": "district-2",
-              "id": "senator",
-              "seats": 1,
-              "section": "United States",
-              "title": "Senator",
-              "type": "candidate",
-            },
-            "option": Object {
-              "id": "wentworthfarthington",
-              "name": "Sylvia Wentworth-Farthington",
-              "partyId": "2",
-            },
+            "contestId": "senator",
+            "optionId": "wentworthfarthington",
             "score": 0.01358695652173913,
             "scoredOffset": Object {
               "x": 0,
@@ -1046,63 +581,8 @@ test('interprets marks on an upside-down HMPB', async () => {
               "x": 837,
               "y": 420,
             },
-            "contest": Object {
-              "_lang": Object {
-                "es-US": Object {
-                  "section": "Estados Unidos",
-                  "title": "Senador",
-                },
-              },
-              "allowWriteIns": false,
-              "candidates": Array [
-                Object {
-                  "id": "weiford",
-                  "name": "Dennis Weiford",
-                  "partyId": "0",
-                },
-                Object {
-                  "id": "garriss",
-                  "name": "Lloyd Garriss",
-                  "partyId": "1",
-                },
-                Object {
-                  "id": "wentworthfarthington",
-                  "name": "Sylvia Wentworth-Farthington",
-                  "partyId": "2",
-                },
-                Object {
-                  "id": "hewetson",
-                  "name": "Heather Hewetson",
-                  "partyId": "3",
-                },
-                Object {
-                  "id": "martinez",
-                  "name": "Victor Martinez",
-                  "partyId": "4",
-                },
-                Object {
-                  "id": "brown",
-                  "name": "David Brown",
-                  "partyId": "6",
-                },
-                Object {
-                  "id": "pound",
-                  "name": "David Pound",
-                  "partyId": "6",
-                },
-              ],
-              "districtId": "district-2",
-              "id": "senator",
-              "seats": 1,
-              "section": "United States",
-              "title": "Senator",
-              "type": "candidate",
-            },
-            "option": Object {
-              "id": "hewetson",
-              "name": "Heather Hewetson",
-              "partyId": "3",
-            },
+            "contestId": "senator",
+            "optionId": "hewetson",
             "score": 0,
             "scoredOffset": Object {
               "x": 0,
@@ -1132,63 +612,8 @@ test('interprets marks on an upside-down HMPB', async () => {
               "x": 837,
               "y": 495,
             },
-            "contest": Object {
-              "_lang": Object {
-                "es-US": Object {
-                  "section": "Estados Unidos",
-                  "title": "Senador",
-                },
-              },
-              "allowWriteIns": false,
-              "candidates": Array [
-                Object {
-                  "id": "weiford",
-                  "name": "Dennis Weiford",
-                  "partyId": "0",
-                },
-                Object {
-                  "id": "garriss",
-                  "name": "Lloyd Garriss",
-                  "partyId": "1",
-                },
-                Object {
-                  "id": "wentworthfarthington",
-                  "name": "Sylvia Wentworth-Farthington",
-                  "partyId": "2",
-                },
-                Object {
-                  "id": "hewetson",
-                  "name": "Heather Hewetson",
-                  "partyId": "3",
-                },
-                Object {
-                  "id": "martinez",
-                  "name": "Victor Martinez",
-                  "partyId": "4",
-                },
-                Object {
-                  "id": "brown",
-                  "name": "David Brown",
-                  "partyId": "6",
-                },
-                Object {
-                  "id": "pound",
-                  "name": "David Pound",
-                  "partyId": "6",
-                },
-              ],
-              "districtId": "district-2",
-              "id": "senator",
-              "seats": 1,
-              "section": "United States",
-              "title": "Senator",
-              "type": "candidate",
-            },
-            "option": Object {
-              "id": "martinez",
-              "name": "Victor Martinez",
-              "partyId": "4",
-            },
+            "contestId": "senator",
+            "optionId": "martinez",
             "score": 0.021739130434782608,
             "scoredOffset": Object {
               "x": 0,
@@ -1218,63 +643,8 @@ test('interprets marks on an upside-down HMPB', async () => {
               "x": 837,
               "y": 570,
             },
-            "contest": Object {
-              "_lang": Object {
-                "es-US": Object {
-                  "section": "Estados Unidos",
-                  "title": "Senador",
-                },
-              },
-              "allowWriteIns": false,
-              "candidates": Array [
-                Object {
-                  "id": "weiford",
-                  "name": "Dennis Weiford",
-                  "partyId": "0",
-                },
-                Object {
-                  "id": "garriss",
-                  "name": "Lloyd Garriss",
-                  "partyId": "1",
-                },
-                Object {
-                  "id": "wentworthfarthington",
-                  "name": "Sylvia Wentworth-Farthington",
-                  "partyId": "2",
-                },
-                Object {
-                  "id": "hewetson",
-                  "name": "Heather Hewetson",
-                  "partyId": "3",
-                },
-                Object {
-                  "id": "martinez",
-                  "name": "Victor Martinez",
-                  "partyId": "4",
-                },
-                Object {
-                  "id": "brown",
-                  "name": "David Brown",
-                  "partyId": "6",
-                },
-                Object {
-                  "id": "pound",
-                  "name": "David Pound",
-                  "partyId": "6",
-                },
-              ],
-              "districtId": "district-2",
-              "id": "senator",
-              "seats": 1,
-              "section": "United States",
-              "title": "Senator",
-              "type": "candidate",
-            },
-            "option": Object {
-              "id": "brown",
-              "name": "David Brown",
-              "partyId": "6",
-            },
+            "contestId": "senator",
+            "optionId": "brown",
             "score": 0.5869565217391305,
             "scoredOffset": Object {
               "x": -1,
@@ -1304,63 +674,8 @@ test('interprets marks on an upside-down HMPB', async () => {
               "x": 837,
               "y": 663,
             },
-            "contest": Object {
-              "_lang": Object {
-                "es-US": Object {
-                  "section": "Estados Unidos",
-                  "title": "Senador",
-                },
-              },
-              "allowWriteIns": false,
-              "candidates": Array [
-                Object {
-                  "id": "weiford",
-                  "name": "Dennis Weiford",
-                  "partyId": "0",
-                },
-                Object {
-                  "id": "garriss",
-                  "name": "Lloyd Garriss",
-                  "partyId": "1",
-                },
-                Object {
-                  "id": "wentworthfarthington",
-                  "name": "Sylvia Wentworth-Farthington",
-                  "partyId": "2",
-                },
-                Object {
-                  "id": "hewetson",
-                  "name": "Heather Hewetson",
-                  "partyId": "3",
-                },
-                Object {
-                  "id": "martinez",
-                  "name": "Victor Martinez",
-                  "partyId": "4",
-                },
-                Object {
-                  "id": "brown",
-                  "name": "David Brown",
-                  "partyId": "6",
-                },
-                Object {
-                  "id": "pound",
-                  "name": "David Pound",
-                  "partyId": "6",
-                },
-              ],
-              "districtId": "district-2",
-              "id": "senator",
-              "seats": 1,
-              "section": "United States",
-              "title": "Senator",
-              "type": "candidate",
-            },
-            "option": Object {
-              "id": "pound",
-              "name": "David Pound",
-              "partyId": "6",
-            },
+            "contestId": "senator",
+            "optionId": "pound",
             "score": 0.016304347826086956,
             "scoredOffset": Object {
               "x": 0,
@@ -1390,53 +705,8 @@ test('interprets marks on an upside-down HMPB', async () => {
               "x": 837,
               "y": 913,
             },
-            "contest": Object {
-              "_lang": Object {
-                "es-US": Object {
-                  "section": "Estados Unidos",
-                  "title": "Representante, Distrito 6",
-                },
-              },
-              "allowWriteIns": false,
-              "candidates": Array [
-                Object {
-                  "id": "plunkard",
-                  "name": "Brad Plunkard",
-                  "partyId": "0",
-                },
-                Object {
-                  "id": "reeder",
-                  "name": "Bruce Reeder",
-                  "partyId": "1",
-                },
-                Object {
-                  "id": "schott",
-                  "name": "Brad Schott",
-                  "partyId": "2",
-                },
-                Object {
-                  "id": "tawney",
-                  "name": "Glen Tawney",
-                  "partyId": "3",
-                },
-                Object {
-                  "id": "forrest",
-                  "name": "Carroll Forrest",
-                  "partyId": "4",
-                },
-              ],
-              "districtId": "district-1",
-              "id": "representative-district-6",
-              "seats": 1,
-              "section": "United States",
-              "title": "Representative, District 6",
-              "type": "candidate",
-            },
-            "option": Object {
-              "id": "plunkard",
-              "name": "Brad Plunkard",
-              "partyId": "0",
-            },
+            "contestId": "representative-district-6",
+            "optionId": "plunkard",
             "score": 0,
             "scoredOffset": Object {
               "x": 1,
@@ -1466,53 +736,8 @@ test('interprets marks on an upside-down HMPB', async () => {
               "x": 837,
               "y": 988,
             },
-            "contest": Object {
-              "_lang": Object {
-                "es-US": Object {
-                  "section": "Estados Unidos",
-                  "title": "Representante, Distrito 6",
-                },
-              },
-              "allowWriteIns": false,
-              "candidates": Array [
-                Object {
-                  "id": "plunkard",
-                  "name": "Brad Plunkard",
-                  "partyId": "0",
-                },
-                Object {
-                  "id": "reeder",
-                  "name": "Bruce Reeder",
-                  "partyId": "1",
-                },
-                Object {
-                  "id": "schott",
-                  "name": "Brad Schott",
-                  "partyId": "2",
-                },
-                Object {
-                  "id": "tawney",
-                  "name": "Glen Tawney",
-                  "partyId": "3",
-                },
-                Object {
-                  "id": "forrest",
-                  "name": "Carroll Forrest",
-                  "partyId": "4",
-                },
-              ],
-              "districtId": "district-1",
-              "id": "representative-district-6",
-              "seats": 1,
-              "section": "United States",
-              "title": "Representative, District 6",
-              "type": "candidate",
-            },
-            "option": Object {
-              "id": "reeder",
-              "name": "Bruce Reeder",
-              "partyId": "1",
-            },
+            "contestId": "representative-district-6",
+            "optionId": "reeder",
             "score": 0,
             "scoredOffset": Object {
               "x": 1,
@@ -1542,53 +767,8 @@ test('interprets marks on an upside-down HMPB', async () => {
               "x": 837,
               "y": 1063,
             },
-            "contest": Object {
-              "_lang": Object {
-                "es-US": Object {
-                  "section": "Estados Unidos",
-                  "title": "Representante, Distrito 6",
-                },
-              },
-              "allowWriteIns": false,
-              "candidates": Array [
-                Object {
-                  "id": "plunkard",
-                  "name": "Brad Plunkard",
-                  "partyId": "0",
-                },
-                Object {
-                  "id": "reeder",
-                  "name": "Bruce Reeder",
-                  "partyId": "1",
-                },
-                Object {
-                  "id": "schott",
-                  "name": "Brad Schott",
-                  "partyId": "2",
-                },
-                Object {
-                  "id": "tawney",
-                  "name": "Glen Tawney",
-                  "partyId": "3",
-                },
-                Object {
-                  "id": "forrest",
-                  "name": "Carroll Forrest",
-                  "partyId": "4",
-                },
-              ],
-              "districtId": "district-1",
-              "id": "representative-district-6",
-              "seats": 1,
-              "section": "United States",
-              "title": "Representative, District 6",
-              "type": "candidate",
-            },
-            "option": Object {
-              "id": "schott",
-              "name": "Brad Schott",
-              "partyId": "2",
-            },
+            "contestId": "representative-district-6",
+            "optionId": "schott",
             "score": 0.8850267379679144,
             "scoredOffset": Object {
               "x": 1,
@@ -1618,53 +798,8 @@ test('interprets marks on an upside-down HMPB', async () => {
               "x": 837,
               "y": 1138,
             },
-            "contest": Object {
-              "_lang": Object {
-                "es-US": Object {
-                  "section": "Estados Unidos",
-                  "title": "Representante, Distrito 6",
-                },
-              },
-              "allowWriteIns": false,
-              "candidates": Array [
-                Object {
-                  "id": "plunkard",
-                  "name": "Brad Plunkard",
-                  "partyId": "0",
-                },
-                Object {
-                  "id": "reeder",
-                  "name": "Bruce Reeder",
-                  "partyId": "1",
-                },
-                Object {
-                  "id": "schott",
-                  "name": "Brad Schott",
-                  "partyId": "2",
-                },
-                Object {
-                  "id": "tawney",
-                  "name": "Glen Tawney",
-                  "partyId": "3",
-                },
-                Object {
-                  "id": "forrest",
-                  "name": "Carroll Forrest",
-                  "partyId": "4",
-                },
-              ],
-              "districtId": "district-1",
-              "id": "representative-district-6",
-              "seats": 1,
-              "section": "United States",
-              "title": "Representative, District 6",
-              "type": "candidate",
-            },
-            "option": Object {
-              "id": "tawney",
-              "name": "Glen Tawney",
-              "partyId": "3",
-            },
+            "contestId": "representative-district-6",
+            "optionId": "tawney",
             "score": 0,
             "scoredOffset": Object {
               "x": 1,
@@ -1694,53 +829,8 @@ test('interprets marks on an upside-down HMPB', async () => {
               "x": 837,
               "y": 1213,
             },
-            "contest": Object {
-              "_lang": Object {
-                "es-US": Object {
-                  "section": "Estados Unidos",
-                  "title": "Representante, Distrito 6",
-                },
-              },
-              "allowWriteIns": false,
-              "candidates": Array [
-                Object {
-                  "id": "plunkard",
-                  "name": "Brad Plunkard",
-                  "partyId": "0",
-                },
-                Object {
-                  "id": "reeder",
-                  "name": "Bruce Reeder",
-                  "partyId": "1",
-                },
-                Object {
-                  "id": "schott",
-                  "name": "Brad Schott",
-                  "partyId": "2",
-                },
-                Object {
-                  "id": "tawney",
-                  "name": "Glen Tawney",
-                  "partyId": "3",
-                },
-                Object {
-                  "id": "forrest",
-                  "name": "Carroll Forrest",
-                  "partyId": "4",
-                },
-              ],
-              "districtId": "district-1",
-              "id": "representative-district-6",
-              "seats": 1,
-              "section": "United States",
-              "title": "Representative, District 6",
-              "type": "candidate",
-            },
-            "option": Object {
-              "id": "forrest",
-              "name": "Carroll Forrest",
-              "partyId": "4",
-            },
+            "contestId": "representative-district-6",
+            "optionId": "forrest",
             "score": 0.00267379679144385,
             "scoredOffset": Object {
               "x": 1,
@@ -1876,32 +966,8 @@ test('interprets marks in PNG ballots', async () => {
                 "x": 451,
                 "y": 166,
               },
-              "contest": Object {
-                "allowWriteIns": true,
-                "candidates": Array [
-                  Object {
-                    "id": "1",
-                    "name": "Joe Biden",
-                    "partyId": "2",
-                  },
-                  Object {
-                    "id": "2",
-                    "name": "Donald Trump",
-                    "partyId": "3",
-                  },
-                ],
-                "districtId": "100000275",
-                "id": "1",
-                "seats": 1,
-                "section": "United States",
-                "title": "United States President",
-                "type": "candidate",
-              },
-              "option": Object {
-                "id": "1",
-                "name": "Joe Biden",
-                "partyId": "2",
-              },
+              "contestId": "1",
+              "optionId": "1",
               "score": 0.4090909090909091,
               "scoredOffset": Object {
                 "x": 1,
@@ -1931,32 +997,8 @@ test('interprets marks in PNG ballots', async () => {
                 "x": 451,
                 "y": 241,
               },
-              "contest": Object {
-                "allowWriteIns": true,
-                "candidates": Array [
-                  Object {
-                    "id": "1",
-                    "name": "Joe Biden",
-                    "partyId": "2",
-                  },
-                  Object {
-                    "id": "2",
-                    "name": "Donald Trump",
-                    "partyId": "3",
-                  },
-                ],
-                "districtId": "100000275",
-                "id": "1",
-                "seats": 1,
-                "section": "United States",
-                "title": "United States President",
-                "type": "candidate",
-              },
-              "option": Object {
-                "id": "2",
-                "name": "Donald Trump",
-                "partyId": "3",
-              },
+              "contestId": "1",
+              "optionId": "2",
               "score": 0,
               "scoredOffset": Object {
                 "x": 0,
@@ -1986,32 +1028,8 @@ test('interprets marks in PNG ballots', async () => {
                 "x": 451,
                 "y": 316,
               },
-              "contest": Object {
-                "allowWriteIns": true,
-                "candidates": Array [
-                  Object {
-                    "id": "1",
-                    "name": "Joe Biden",
-                    "partyId": "2",
-                  },
-                  Object {
-                    "id": "2",
-                    "name": "Donald Trump",
-                    "partyId": "3",
-                  },
-                ],
-                "districtId": "100000275",
-                "id": "1",
-                "seats": 1,
-                "section": "United States",
-                "title": "United States President",
-                "type": "candidate",
-              },
-              "option": Object {
-                "id": "__write-in-0",
-                "isWriteIn": true,
-                "name": "Write-In",
-              },
+              "contestId": "1",
+              "optionId": "__write-in-0",
               "score": 0,
               "scoredOffset": Object {
                 "x": 0,
@@ -2041,37 +1059,8 @@ test('interprets marks in PNG ballots', async () => {
                 "x": 451,
                 "y": 525,
               },
-              "contest": Object {
-                "allowWriteIns": true,
-                "candidates": Array [
-                  Object {
-                    "id": "21",
-                    "name": "Mike Espy",
-                    "partyId": "2",
-                  },
-                  Object {
-                    "id": "22",
-                    "name": "Cindy Hyde-Smith",
-                    "partyId": "3",
-                  },
-                  Object {
-                    "id": "23",
-                    "name": "Jimmy Edwards",
-                    "partyId": "4",
-                  },
-                ],
-                "districtId": "100000275",
-                "id": "2",
-                "seats": 1,
-                "section": "United States",
-                "title": "United States Senate",
-                "type": "candidate",
-              },
-              "option": Object {
-                "id": "21",
-                "name": "Mike Espy",
-                "partyId": "2",
-              },
+              "contestId": "2",
+              "optionId": "21",
               "score": 0.008152173913043478,
               "scoredOffset": Object {
                 "x": 0,
@@ -2101,37 +1090,8 @@ test('interprets marks in PNG ballots', async () => {
                 "x": 451,
                 "y": 600,
               },
-              "contest": Object {
-                "allowWriteIns": true,
-                "candidates": Array [
-                  Object {
-                    "id": "21",
-                    "name": "Mike Espy",
-                    "partyId": "2",
-                  },
-                  Object {
-                    "id": "22",
-                    "name": "Cindy Hyde-Smith",
-                    "partyId": "3",
-                  },
-                  Object {
-                    "id": "23",
-                    "name": "Jimmy Edwards",
-                    "partyId": "4",
-                  },
-                ],
-                "districtId": "100000275",
-                "id": "2",
-                "seats": 1,
-                "section": "United States",
-                "title": "United States Senate",
-                "type": "candidate",
-              },
-              "option": Object {
-                "id": "22",
-                "name": "Cindy Hyde-Smith",
-                "partyId": "3",
-              },
+              "contestId": "2",
+              "optionId": "22",
               "score": 0.010869565217391304,
               "scoredOffset": Object {
                 "x": 0,
@@ -2161,37 +1121,8 @@ test('interprets marks in PNG ballots', async () => {
                 "x": 451,
                 "y": 675,
               },
-              "contest": Object {
-                "allowWriteIns": true,
-                "candidates": Array [
-                  Object {
-                    "id": "21",
-                    "name": "Mike Espy",
-                    "partyId": "2",
-                  },
-                  Object {
-                    "id": "22",
-                    "name": "Cindy Hyde-Smith",
-                    "partyId": "3",
-                  },
-                  Object {
-                    "id": "23",
-                    "name": "Jimmy Edwards",
-                    "partyId": "4",
-                  },
-                ],
-                "districtId": "100000275",
-                "id": "2",
-                "seats": 1,
-                "section": "United States",
-                "title": "United States Senate",
-                "type": "candidate",
-              },
-              "option": Object {
-                "id": "23",
-                "name": "Jimmy Edwards",
-                "partyId": "4",
-              },
+              "contestId": "2",
+              "optionId": "23",
               "score": 0.5706521739130435,
               "scoredOffset": Object {
                 "x": 0,
@@ -2221,37 +1152,8 @@ test('interprets marks in PNG ballots', async () => {
                 "x": 451,
                 "y": 750,
               },
-              "contest": Object {
-                "allowWriteIns": true,
-                "candidates": Array [
-                  Object {
-                    "id": "21",
-                    "name": "Mike Espy",
-                    "partyId": "2",
-                  },
-                  Object {
-                    "id": "22",
-                    "name": "Cindy Hyde-Smith",
-                    "partyId": "3",
-                  },
-                  Object {
-                    "id": "23",
-                    "name": "Jimmy Edwards",
-                    "partyId": "4",
-                  },
-                ],
-                "districtId": "100000275",
-                "id": "2",
-                "seats": 1,
-                "section": "United States",
-                "title": "United States Senate",
-                "type": "candidate",
-              },
-              "option": Object {
-                "id": "__write-in-0",
-                "isWriteIn": true,
-                "name": "Write-In",
-              },
+              "contestId": "2",
+              "optionId": "__write-in-0",
               "score": 0.016304347826086956,
               "scoredOffset": Object {
                 "x": 0,
@@ -2281,32 +1183,8 @@ test('interprets marks in PNG ballots', async () => {
                 "x": 451,
                 "y": 1021,
               },
-              "contest": Object {
-                "allowWriteIns": true,
-                "candidates": Array [
-                  Object {
-                    "id": "31",
-                    "name": "Antonia Eliason",
-                    "partyId": "2",
-                  },
-                  Object {
-                    "id": "32",
-                    "name": "Trent Kelly",
-                    "partyId": "3",
-                  },
-                ],
-                "districtId": "100000275",
-                "id": "3",
-                "seats": 1,
-                "section": "United States",
-                "title": "United States US House of Representatives 1st Congressional District",
-                "type": "candidate",
-              },
-              "option": Object {
-                "id": "31",
-                "name": "Antonia Eliason",
-                "partyId": "2",
-              },
+              "contestId": "3",
+              "optionId": "31",
               "score": 0.00267379679144385,
               "scoredOffset": Object {
                 "x": 0,
@@ -2336,32 +1214,8 @@ test('interprets marks in PNG ballots', async () => {
                 "x": 451,
                 "y": 1096,
               },
-              "contest": Object {
-                "allowWriteIns": true,
-                "candidates": Array [
-                  Object {
-                    "id": "31",
-                    "name": "Antonia Eliason",
-                    "partyId": "2",
-                  },
-                  Object {
-                    "id": "32",
-                    "name": "Trent Kelly",
-                    "partyId": "3",
-                  },
-                ],
-                "districtId": "100000275",
-                "id": "3",
-                "seats": 1,
-                "section": "United States",
-                "title": "United States US House of Representatives 1st Congressional District",
-                "type": "candidate",
-              },
-              "option": Object {
-                "id": "32",
-                "name": "Trent Kelly",
-                "partyId": "3",
-              },
+              "contestId": "3",
+              "optionId": "32",
               "score": 0.8529411764705882,
               "scoredOffset": Object {
                 "x": 0,
@@ -2391,32 +1245,8 @@ test('interprets marks in PNG ballots', async () => {
                 "x": 451,
                 "y": 1171,
               },
-              "contest": Object {
-                "allowWriteIns": true,
-                "candidates": Array [
-                  Object {
-                    "id": "31",
-                    "name": "Antonia Eliason",
-                    "partyId": "2",
-                  },
-                  Object {
-                    "id": "32",
-                    "name": "Trent Kelly",
-                    "partyId": "3",
-                  },
-                ],
-                "districtId": "100000275",
-                "id": "3",
-                "seats": 1,
-                "section": "United States",
-                "title": "United States US House of Representatives 1st Congressional District",
-                "type": "candidate",
-              },
-              "option": Object {
-                "id": "__write-in-0",
-                "isWriteIn": true,
-                "name": "Write-In",
-              },
+              "contestId": "3",
+              "optionId": "__write-in-0",
               "score": 0,
               "scoredOffset": Object {
                 "x": 1,
@@ -2446,32 +1276,8 @@ test('interprets marks in PNG ballots', async () => {
                 "x": 837,
                 "y": 198,
               },
-              "contest": Object {
-                "allowWriteIns": true,
-                "candidates": Array [
-                  Object {
-                    "id": "41",
-                    "name": "Josiah Coleman",
-                    "partyId": "12",
-                  },
-                  Object {
-                    "id": "42",
-                    "name": "Percy L. Lynchard Jr.",
-                    "partyId": "12",
-                  },
-                ],
-                "districtId": "100000285",
-                "id": "4",
-                "seats": 1,
-                "section": "State of Mississippi",
-                "title": "Supreme Court District 3 (Northern) Position 1",
-                "type": "candidate",
-              },
-              "option": Object {
-                "id": "41",
-                "name": "Josiah Coleman",
-                "partyId": "12",
-              },
+              "contestId": "4",
+              "optionId": "41",
               "score": 0.010869565217391304,
               "scoredOffset": Object {
                 "x": 0,
@@ -2501,32 +1307,8 @@ test('interprets marks in PNG ballots', async () => {
                 "x": 837,
                 "y": 285,
               },
-              "contest": Object {
-                "allowWriteIns": true,
-                "candidates": Array [
-                  Object {
-                    "id": "41",
-                    "name": "Josiah Coleman",
-                    "partyId": "12",
-                  },
-                  Object {
-                    "id": "42",
-                    "name": "Percy L. Lynchard Jr.",
-                    "partyId": "12",
-                  },
-                ],
-                "districtId": "100000285",
-                "id": "4",
-                "seats": 1,
-                "section": "State of Mississippi",
-                "title": "Supreme Court District 3 (Northern) Position 1",
-                "type": "candidate",
-              },
-              "option": Object {
-                "id": "42",
-                "name": "Percy L. Lynchard Jr.",
-                "partyId": "12",
-              },
+              "contestId": "4",
+              "optionId": "42",
               "score": 0.01358695652173913,
               "scoredOffset": Object {
                 "x": 0,
@@ -2556,32 +1338,8 @@ test('interprets marks in PNG ballots', async () => {
                 "x": 837,
                 "y": 360,
               },
-              "contest": Object {
-                "allowWriteIns": true,
-                "candidates": Array [
-                  Object {
-                    "id": "41",
-                    "name": "Josiah Coleman",
-                    "partyId": "12",
-                  },
-                  Object {
-                    "id": "42",
-                    "name": "Percy L. Lynchard Jr.",
-                    "partyId": "12",
-                  },
-                ],
-                "districtId": "100000285",
-                "id": "4",
-                "seats": 1,
-                "section": "State of Mississippi",
-                "title": "Supreme Court District 3 (Northern) Position 1",
-                "type": "candidate",
-              },
-              "option": Object {
-                "id": "__write-in-0",
-                "isWriteIn": true,
-                "name": "Write-In",
-              },
+              "contestId": "4",
+              "optionId": "__write-in-0",
               "score": 0.7445652173913043,
               "scoredOffset": Object {
                 "x": 0,
@@ -2611,16 +1369,8 @@ test('interprets marks in PNG ballots', async () => {
                 "x": 837,
                 "y": 705,
               },
-              "contest": Object {
-                "description": "Should Mississippi allow qualified patients with debilitating medical conditions, as certified by Mississippi licensed physicians, to use medical marijuana?",
-                "districtId": "100000275",
-                "id": "initiative-65",
-                "section": "State of Mississippi",
-                "shortTitle": "Initiative 65",
-                "title": "Medical Marijuana Amendment - Initiative 65",
-                "type": "yesno",
-              },
-              "option": "yes",
+              "contestId": "initiative-65",
+              "optionId": "yes",
               "score": 0.6005434782608695,
               "scoredOffset": Object {
                 "x": 0,
@@ -2649,16 +1399,8 @@ test('interprets marks in PNG ballots', async () => {
                 "x": 837,
                 "y": 753,
               },
-              "contest": Object {
-                "description": "Should Mississippi allow qualified patients with debilitating medical conditions, as certified by Mississippi licensed physicians, to use medical marijuana?",
-                "districtId": "100000275",
-                "id": "initiative-65",
-                "section": "State of Mississippi",
-                "shortTitle": "Initiative 65",
-                "title": "Medical Marijuana Amendment - Initiative 65",
-                "type": "yesno",
-              },
-              "option": "no",
+              "contestId": "initiative-65",
+              "optionId": "no",
               "score": 0.41847826086956524,
               "scoredOffset": Object {
                 "x": 1,
@@ -2687,16 +1429,8 @@ test('interprets marks in PNG ballots', async () => {
                 "x": 837,
                 "y": 1080,
               },
-              "contest": Object {
-                "description": "Shall Mississippi establish a program to allow the medical use of marijuana products by qualified persons with debilitating medical conditions?",
-                "districtId": "100000275",
-                "id": "initiative-65-a",
-                "section": "State of Mississippi",
-                "shortTitle": "Initiative 65A",
-                "title": "Medical Marijuana Amendment - Initiative 65A",
-                "type": "yesno",
-              },
-              "option": "yes",
+              "contestId": "initiative-65-a",
+              "optionId": "yes",
               "score": 0.41847826086956524,
               "scoredOffset": Object {
                 "x": 0,
@@ -2725,16 +1459,8 @@ test('interprets marks in PNG ballots', async () => {
                 "x": 837,
                 "y": 1128,
               },
-              "contest": Object {
-                "description": "Shall Mississippi establish a program to allow the medical use of marijuana products by qualified persons with debilitating medical conditions?",
-                "districtId": "100000275",
-                "id": "initiative-65-a",
-                "section": "State of Mississippi",
-                "shortTitle": "Initiative 65A",
-                "title": "Medical Marijuana Amendment - Initiative 65A",
-                "type": "yesno",
-              },
-              "option": "no",
+              "contestId": "initiative-65-a",
+              "optionId": "no",
               "score": 0,
               "scoredOffset": Object {
                 "x": 1,
@@ -2842,18 +1568,8 @@ test('interprets marks in PNG ballots', async () => {
                 "x": 64,
                 "y": 501,
               },
-              "contest": Object {
-                "description": "Shall the State of Mississippi adopt the following proposed state flag to replace the current state flag? 
-
-       <svg xmlns=\\"http://www.w3.org/2000/svg\\" xmlns:xlink=\\"http://www.w3.org/1999/xlink\\" viewBox=\\"0 0 625 375\\"><path fill=\\"#fff\\" d=\\"M0 0v375h625V0z\\"/><path fill=\\"#012369\\" d=\\"M243 243H0V0h243z\\"/><path fill=\\"#bc0a29\\" d=\\"M0 250h625v125H0z\\"/><path fill=\\"#012369\\" d=\\"M625 0v125H250V0z\\"/><path id=\\"a\\" fill=\\"#fff\\" d=\\"M121.499 57.502l3.407 10.716 11.092-.021-8.986 6.602 3.448 10.702-8.961-6.635-8.961 6.635 3.448-10.702L107 68.197l11.091.021z\\"/><use transform=\\"translate(43.298 26.307)\\" xlink:href=\\"#a\\"/><use transform=\\"translate(43.299 76.301)\\" xlink:href=\\"#a\\"/><use transform=\\"translate(0 101.305)\\" xlink:href=\\"#a\\"/><use transform=\\"translate(-43.296 76.301)\\" xlink:href=\\"#a\\"/><use transform=\\"translate(-43.297 26.308)\\" xlink:href=\\"#a\\"/><use transform=\\"translate(-74.06 0.186)\\" xlink:href=\\"#a\\"/><use transform=\\"translate(-89.326 40.456)\\" xlink:href=\\"#a\\"/><use transform=\\"translate(-84.155 83.219)\\" xlink:href=\\"#a\\"/><use transform=\\"translate(-59.667 118.656)\\" xlink:href=\\"#a\\"/><use transform=\\"translate(-21.539 138.691)\\" xlink:href=\\"#a\\"/><use transform=\\"translate(21.54 138.69)\\" xlink:href=\\"#a\\"/><use transform=\\"translate(59.669 118.656)\\" xlink:href=\\"#a\\"/><use transform=\\"translate(84.157 83.219)\\" xlink:href=\\"#a\\"/><use transform=\\"translate(89.327 40.458)\\" xlink:href=\\"#a\\"/><use transform=\\"translate(74.062 0.186)\\" xlink:href=\\"#a\\"/><use transform=\\"translate(41.823 -28.386)\\" xlink:href=\\"#a\\"/><use transform=\\"translate(0 -40)\\" xlink:href=\\"#a\\"/><use transform=\\"translate(-41.822 -29.688)\\" xlink:href=\\"#a\\"/><use transform=\\"scale(1.65) translate(-47.9 2.904)\\" xlink:href=\\"#a\\"/></svg>",
-                "districtId": "100000275",
-                "id": "flag-question",
-                "section": "State of Mississippi",
-                "shortTitle": "Mississippi State Flag Referendum",
-                "title": "Mississippi State Flag Referendum",
-                "type": "yesno",
-              },
-              "option": "yes",
+              "contestId": "flag-question",
+              "optionId": "yes",
               "score": 0.6048387096774194,
               "scoredOffset": Object {
                 "x": 0,
@@ -2882,18 +1598,8 @@ test('interprets marks in PNG ballots', async () => {
                 "x": 64,
                 "y": 549,
               },
-              "contest": Object {
-                "description": "Shall the State of Mississippi adopt the following proposed state flag to replace the current state flag? 
-
-       <svg xmlns=\\"http://www.w3.org/2000/svg\\" xmlns:xlink=\\"http://www.w3.org/1999/xlink\\" viewBox=\\"0 0 625 375\\"><path fill=\\"#fff\\" d=\\"M0 0v375h625V0z\\"/><path fill=\\"#012369\\" d=\\"M243 243H0V0h243z\\"/><path fill=\\"#bc0a29\\" d=\\"M0 250h625v125H0z\\"/><path fill=\\"#012369\\" d=\\"M625 0v125H250V0z\\"/><path id=\\"a\\" fill=\\"#fff\\" d=\\"M121.499 57.502l3.407 10.716 11.092-.021-8.986 6.602 3.448 10.702-8.961-6.635-8.961 6.635 3.448-10.702L107 68.197l11.091.021z\\"/><use transform=\\"translate(43.298 26.307)\\" xlink:href=\\"#a\\"/><use transform=\\"translate(43.299 76.301)\\" xlink:href=\\"#a\\"/><use transform=\\"translate(0 101.305)\\" xlink:href=\\"#a\\"/><use transform=\\"translate(-43.296 76.301)\\" xlink:href=\\"#a\\"/><use transform=\\"translate(-43.297 26.308)\\" xlink:href=\\"#a\\"/><use transform=\\"translate(-74.06 0.186)\\" xlink:href=\\"#a\\"/><use transform=\\"translate(-89.326 40.456)\\" xlink:href=\\"#a\\"/><use transform=\\"translate(-84.155 83.219)\\" xlink:href=\\"#a\\"/><use transform=\\"translate(-59.667 118.656)\\" xlink:href=\\"#a\\"/><use transform=\\"translate(-21.539 138.691)\\" xlink:href=\\"#a\\"/><use transform=\\"translate(21.54 138.69)\\" xlink:href=\\"#a\\"/><use transform=\\"translate(59.669 118.656)\\" xlink:href=\\"#a\\"/><use transform=\\"translate(84.157 83.219)\\" xlink:href=\\"#a\\"/><use transform=\\"translate(89.327 40.458)\\" xlink:href=\\"#a\\"/><use transform=\\"translate(74.062 0.186)\\" xlink:href=\\"#a\\"/><use transform=\\"translate(41.823 -28.386)\\" xlink:href=\\"#a\\"/><use transform=\\"translate(0 -40)\\" xlink:href=\\"#a\\"/><use transform=\\"translate(-41.822 -29.688)\\" xlink:href=\\"#a\\"/><use transform=\\"scale(1.65) translate(-47.9 2.904)\\" xlink:href=\\"#a\\"/></svg>",
-                "districtId": "100000275",
-                "id": "flag-question",
-                "section": "State of Mississippi",
-                "shortTitle": "Mississippi State Flag Referendum",
-                "title": "Mississippi State Flag Referendum",
-                "type": "yesno",
-              },
-              "option": "no",
+              "contestId": "flag-question",
+              "optionId": "no",
               "score": 0.01881720430107527,
               "scoredOffset": Object {
                 "x": 0,
@@ -2922,16 +1628,8 @@ test('interprets marks in PNG ballots', async () => {
                 "x": 451,
                 "y": 597,
               },
-              "contest": Object {
-                "description": "Should the state remove the requirement that a candidate for governor or elected state office receive the most votes in a majority of the state's 122 House of Representatives districts (the electoral vote requirement), remove the role of the Mississippi House of Representatives in choosing a winner if no candidate receives majority approval, and provide that a candidate for governor or state office must receive a majority vote of the people to win and that a runoff election will be held between the two highest vote-getters in the event that no candidate receives a majority vote?",
-                "districtId": "100000275",
-                "id": "runoffs-question",
-                "section": "State of Mississippi",
-                "shortTitle": "Remove Electoral Vote Requirement and Establish Runoffs",
-                "title": "Remove Electoral Vote Requirement and Establish Runoffs for Gubernatorial and State Office Elections",
-                "type": "yesno",
-              },
-              "option": "yes",
+              "contestId": "runoffs-question",
+              "optionId": "yes",
               "score": 0.008064516129032258,
               "scoredOffset": Object {
                 "x": 0,
@@ -2960,16 +1658,8 @@ test('interprets marks in PNG ballots', async () => {
                 "x": 451,
                 "y": 645,
               },
-              "contest": Object {
-                "description": "Should the state remove the requirement that a candidate for governor or elected state office receive the most votes in a majority of the state's 122 House of Representatives districts (the electoral vote requirement), remove the role of the Mississippi House of Representatives in choosing a winner if no candidate receives majority approval, and provide that a candidate for governor or state office must receive a majority vote of the people to win and that a runoff election will be held between the two highest vote-getters in the event that no candidate receives a majority vote?",
-                "districtId": "100000275",
-                "id": "runoffs-question",
-                "section": "State of Mississippi",
-                "shortTitle": "Remove Electoral Vote Requirement and Establish Runoffs",
-                "title": "Remove Electoral Vote Requirement and Establish Runoffs for Gubernatorial and State Office Elections",
-                "type": "yesno",
-              },
-              "option": "no",
+              "contestId": "runoffs-question",
+              "optionId": "no",
               "score": 0.46774193548387094,
               "scoredOffset": Object {
                 "x": 0,
@@ -3094,16 +1784,7 @@ const pageInterpretationBoilerplate: InterpretedHmpbPage = {
           x: 451,
           y: 645,
         },
-        contest: {
-          id: 'contest-id',
-          type: 'candidate',
-          candidates: [],
-          seats: 1,
-          allowWriteIns: true,
-          districtId: unsafeParse(DistrictIdSchema, 'foo'),
-          section: 'section',
-          title: 'contest title',
-        },
+        contestId: 'contest-id',
         target: {
           bounds: {
             height: 20,
@@ -3118,7 +1799,7 @@ const pageInterpretationBoilerplate: InterpretedHmpbPage = {
             y: 647,
           },
         },
-        option: { id: '42', name: 'the meaning of life' },
+        optionId: '42',
         score: 0.8,
         scoredOffset: { x: 0, y: 0 },
       },
@@ -3156,9 +1837,7 @@ function withPageNumber(
       return page;
 
     default:
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-expect-error
-      throw new Error(`unknown page type: ${page.type}`);
+      throwIllegalValue(page, 'type');
   }
 }
 
