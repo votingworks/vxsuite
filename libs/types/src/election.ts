@@ -894,24 +894,6 @@ export const TargetShapeSchema: z.ZodSchema<TargetShape> = z.object({
   inner: RectSchema,
 });
 
-export interface BallotStrayMark {
-  type: 'stray';
-  bounds: Rect;
-  contest?: AnyContest;
-  option?: Candidate | 'yes' | 'no' | YesNoOption;
-}
-export const BallotStrayMarkSchema: z.ZodSchema<BallotStrayMark> = z.object({
-  type: z.literal('stray'),
-  bounds: RectSchema,
-  contest: AnyContestSchema.optional(),
-  option: z.union([
-    CandidateSchema,
-    z.literal('yes'),
-    z.literal('no'),
-    YesNoOptionSchema,
-  ]),
-});
-
 export interface BallotCandidateTargetMark {
   type: CandidateContest['type'];
   bounds: Rect;
@@ -987,11 +969,8 @@ export const BallotTargetMarkSchema: z.ZodSchema<BallotTargetMark> = z.union([
   BallotMsEitherNeitherTargetMarkSchema,
 ]);
 
-export type BallotMark = BallotStrayMark | BallotTargetMark;
-export const BallotMarkSchema: z.ZodSchema<BallotMark> = z.union([
-  BallotStrayMarkSchema,
-  BallotTargetMarkSchema,
-]);
+export type BallotMark = BallotTargetMark;
+export const BallotMarkSchema: z.ZodSchema<BallotMark> = BallotTargetMarkSchema;
 
 export interface MarkInfo {
   marks: BallotMark[];

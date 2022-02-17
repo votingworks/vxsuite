@@ -399,7 +399,6 @@ export class Interpreter {
       ...ballotAdjudicationReasons(
         marks.reduce<Contests>(
           (contests, mark) =>
-            mark.type === 'stray' ||
             contests.some(({ id }) => id === mark.contest.id)
               ? contests
               : [...contests, mark.contest],
