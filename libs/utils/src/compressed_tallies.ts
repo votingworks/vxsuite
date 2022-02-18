@@ -1,19 +1,28 @@
 import {
   AnyContest,
+  CandidateContestCompressedTally,
+  CandidateContestCompressedTallySchema,
+  CompressedTally,
+  CompressedTallyEntry,
   ContestOptionTally,
   ContestTally,
   Dictionary,
   Election,
   expandEitherNeitherContests,
-  Tally,
-  writeInCandidate,
-  CompressedTally,
-  VotingMethod,
+  MsEitherNeitherContestCompressedTally,
+  MsEitherNeitherContestCompressedTallySchema,
   PartyId,
   PrecinctId,
+  Tally,
+  unsafeParse,
+  VotingMethod,
+  writeInCandidate,
+  YesNoContestCompressedTally,
+  YesNoContestCompressedTallySchema,
 } from '@votingworks/types';
 import { BallotCountDetails } from '.';
-import { throwIllegalValue, assert } from './assert';
+import { assert, throwIllegalValue } from './assert';
+import { typedAs } from './types';
 import { filterContestTalliesByPartyId } from './votes';
 
 const ALL_PRECINCTS = '__ALL_PRECINCTS';
@@ -37,13 +46,13 @@ export function compressTally(
     switch (contest.type) {
       case 'yesno': {
         const contestTally = tally.contestTallies[contest.id];
-        return [
+        return typedAs<YesNoContestCompressedTally>([
           contestTally?.metadata.undervotes ?? 0, // undervotes
           contestTally?.metadata.overvotes ?? 0, // overvotes
           contestTally?.metadata.ballots ?? 0, // ballots cast
           contestTally?.tallies.yes?.tally ?? 0, // yes
           contestTally?.tallies.no?.tally ?? 0, // no
-        ];
+        ]);
       }
 
       case 'ms-either-neither': {
@@ -51,7 +60,7 @@ export function compressTally(
           tally.contestTallies[contest.eitherNeitherContestId];
         const pickOneContestTally =
           tally.contestTallies[contest.pickOneContestId];
-        return [
+        return typedAs<MsEitherNeitherContestCompressedTally>([
           eitherNeitherContestTally?.tallies.yes?.tally ?? 0, // eitherOption
           eitherNeitherContestTally?.tallies.no?.tally ?? 0, // neitherOption
           eitherNeitherContestTally?.metadata.undervotes ?? 0, // eitherNeitherUndervotes
@@ -61,12 +70,12 @@ export function compressTally(
           pickOneContestTally?.metadata.undervotes ?? 0, // pickOneUndervotes
           pickOneContestTally?.metadata.overvotes ?? 0, // pickOneOvervotes
           pickOneContestTally?.metadata.ballots ?? 0, // ballotsCast
-        ];
+        ]);
       }
 
       case 'candidate': {
         const contestTally = tally.contestTallies[contest.id];
-        return [
+        return typedAs<CandidateContestCompressedTally>([
           contestTally?.metadata.undervotes ?? 0, // undervotes
           contestTally?.metadata.overvotes ?? 0, // overvotes
           contestTally?.metadata.ballots ?? 0, // ballotsCast
@@ -74,7 +83,7 @@ export function compressTally(
             (candidate) => contestTally?.tallies[candidate.id]?.tally ?? 0
           ),
           contestTally?.tallies[writeInCandidate.id]?.tally ?? 0, // writeIns
-        ];
+        ]);
       }
 
       /* istanbul ignore next - compile time check for completeness */
@@ -86,17 +95,13 @@ export function compressTally(
 
 function getContestTalliesForCompressedContest(
   contest: AnyContest,
-  compressedContest: number[]
+  compressedContest: CompressedTallyEntry
 ): ContestTally[] {
   switch (contest.type) {
     case 'yesno': {
-      const [undervotes, overvotes, ballots, yes, no] = compressedContest;
-      assert(
-        undervotes !== undefined &&
-          overvotes !== undefined &&
-          ballots !== undefined &&
-          yes !== undefined &&
-          no !== undefined
+      const [undervotes, overvotes, ballots, yes, no] = unsafeParse(
+        YesNoContestCompressedTallySchema,
+        compressedContest
       );
       return [
         {
@@ -114,17 +119,21 @@ function getContestTalliesForCompressedContest(
       ];
     }
     case 'candidate': {
-      const [undervotes, overvotes, ballots, ...tallyByCandidate] =
-        compressedContest;
-      assert(
-        undervotes !== undefined &&
-          overvotes !== undefined &&
-          ballots !== undefined
+      const [undervotes, overvotes, ballots, ...tallyByCandidate] = unsafeParse(
+        CandidateContestCompressedTallySchema,
+        compressedContest
       );
       const candidateTallies: Dictionary<ContestOptionTally> = {};
       for (const [candidateIdx, candidate] of contest.candidates.entries()) {
-        const tally = tallyByCandidate[candidateIdx]; // We add 3 here to offset from the undervotes, overvotes and total ballots
-        assert(tally !== undefined);
+        const tally = tallyByCandidate[candidateIdx];
+        assert(
+          tally !== undefined,
+          `tally for contest '${
+            contest.id
+          }' by candidate missing value at index ${candidateIdx}: ${JSON.stringify(
+            tallyByCandidate
+          )} (full tally: ${JSON.stringify(compressedContest)})`
+        );
         candidateTallies[candidate.id] = {
           option: candidate,
           tally,
@@ -162,17 +171,9 @@ function getContestTalliesForCompressedContest(
         pickOneUndervotes,
         pickOneOvervotes,
         ballots,
-      ] = compressedContest;
-      assert(
-        eitherOption !== undefined &&
-          neitherOption !== undefined &&
-          eitherNeitherUndervotes !== undefined &&
-          eitherNeitherOvervotes !== undefined &&
-          firstOption !== undefined &&
-          secondOption !== undefined &&
-          pickOneUndervotes !== undefined &&
-          pickOneOvervotes !== undefined &&
-          ballots !== undefined
+      ] = unsafeParse(
+        MsEitherNeitherContestCompressedTallySchema,
+        compressedContest
       );
       const newYesNoContests = expandEitherNeitherContests([contest]);
       return newYesNoContests.map((yesno) => {

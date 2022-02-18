@@ -2,7 +2,7 @@ import React from 'react';
 import fetchMock from 'fetch-mock';
 import { render, fireEvent, screen, act, within } from '@testing-library/react';
 import {
-  electionMinimalExhaustiveSampleDefintion,
+  electionMinimalExhaustiveSampleDefinition,
   electionSample2Definition,
 } from '@votingworks/fixtures';
 import {
@@ -118,10 +118,12 @@ test('expected tally reports are printed for a primary election with all precinc
   const kiosk = fakeKiosk();
   kiosk.getUsbDrives.mockResolvedValue([]);
   window.kiosk = kiosk;
-  const { election } = electionMinimalExhaustiveSampleDefintion;
+  const { election } = electionMinimalExhaustiveSampleDefinition;
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
-    .get('/config/election', { body: electionMinimalExhaustiveSampleDefintion })
+    .get('/config/election', {
+      body: electionMinimalExhaustiveSampleDefinition,
+    })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
     .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody })
@@ -136,7 +138,7 @@ test('expected tally reports are printed for a primary election with all precinc
   // Insert a pollworker card
   fetchMock.post('/scan/export', {});
   const pollWorkerCard = makePollWorkerCard(
-    electionMinimalExhaustiveSampleDefintion.electionHash
+    electionMinimalExhaustiveSampleDefinition.electionHash
   );
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
@@ -179,7 +181,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
   const kiosk = fakeKiosk();
   kiosk.getUsbDrives.mockResolvedValue([]);
   window.kiosk = kiosk;
-  const { election } = electionMinimalExhaustiveSampleDefintion;
+  const { election } = electionMinimalExhaustiveSampleDefinition;
 
   const scanStatus: GetScanStatusResponse = {
     scanner: ScannerStatus.WaitingForPaper,
@@ -196,7 +198,9 @@ test('expected tally reports for a primary election with all precincts with CVRs
   };
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
-    .get('/config/election', { body: electionMinimalExhaustiveSampleDefintion })
+    .get('/config/election', {
+      body: electionMinimalExhaustiveSampleDefinition,
+    })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
     .get('/scan/status', { body: scanStatus })
@@ -256,7 +260,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
     ])
   );
   const pollWorkerCard = makePollWorkerCard(
-    electionMinimalExhaustiveSampleDefintion.electionHash
+    electionMinimalExhaustiveSampleDefinition.electionHash
   );
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
@@ -567,7 +571,7 @@ test('expected tally reports for a primary election with a single precincts with
   const kiosk = fakeKiosk();
   kiosk.getUsbDrives.mockResolvedValue([]);
   window.kiosk = kiosk;
-  const { election } = electionMinimalExhaustiveSampleDefintion;
+  const { election } = electionMinimalExhaustiveSampleDefinition;
 
   const scanStatus: GetScanStatusResponse = {
     scanner: ScannerStatus.WaitingForPaper,
@@ -584,7 +588,9 @@ test('expected tally reports for a primary election with a single precincts with
   };
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
-    .get('/config/election', { body: electionMinimalExhaustiveSampleDefintion })
+    .get('/config/election', {
+      body: electionMinimalExhaustiveSampleDefinition,
+    })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigPrecinct1ResponseBody })
     .get('/scan/status', { body: scanStatus })
@@ -644,7 +650,7 @@ test('expected tally reports for a primary election with a single precincts with
     ])
   );
   const pollWorkerCard = makePollWorkerCard(
-    electionMinimalExhaustiveSampleDefintion.electionHash
+    electionMinimalExhaustiveSampleDefinition.electionHash
   );
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);

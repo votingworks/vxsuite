@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import { fakeKiosk } from '@votingworks/test-utils';
 import { readFileSync } from 'fs-extra';
-import { electionMinimalExhaustiveSampleDefintion } from '@votingworks/fixtures';
+import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
 import MockDate from 'mockdate';
 import { join } from 'path';
 import { safeParseJson } from '@votingworks/types';
@@ -123,7 +123,7 @@ describe('test cdf conversion', () => {
   test('builds device and election info properly', () => {
     const logger = new Logger(LogSource.VxAdminFrontend);
     const cdfLogContent = logger.buildCDFLog(
-      electionMinimalExhaustiveSampleDefintion,
+      electionMinimalExhaustiveSampleDefinition,
       '',
       '12machine34',
       'thisisacodeversion',
@@ -135,7 +135,7 @@ describe('test cdf conversion', () => {
     assert(cdfLog);
     expect(cdfLog.Device).toHaveLength(1);
     expect(cdfLog.ElectionId).toBe(
-      electionMinimalExhaustiveSampleDefintion.electionHash
+      electionMinimalExhaustiveSampleDefinition.electionHash
     );
     expect(cdfLog.GeneratedTime).toMatchInlineSnapshot(
       `"2020-07-24T00:00:00.000Z"`
@@ -152,7 +152,7 @@ describe('test cdf conversion', () => {
     const logger = new Logger(LogSource.VxAdminFrontend);
     const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
     const cdfLogContent = logger.buildCDFLog(
-      electionMinimalExhaustiveSampleDefintion,
+      electionMinimalExhaustiveSampleDefinition,
       '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","source":"vx-admin-frontend","eventId":"usb-drive-status-update","eventType":"application-status","user":"system","message":"i know the deal","disposition":"na"}',
       '12machine34',
       'thisisacodeversion',
@@ -191,7 +191,7 @@ describe('test cdf conversion', () => {
   test('log with unspecified disposition as expected', () => {
     const logger = new Logger(LogSource.VxAdminFrontend);
     const cdfLogContent = logger.buildCDFLog(
-      electionMinimalExhaustiveSampleDefintion,
+      electionMinimalExhaustiveSampleDefinition,
       '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","source":"vx-admin-frontend","eventId":"usb-drive-status-update","eventType":"application-status","user":"system","message":"i know the deal","disposition":""}',
       '12machine34',
       'thisisacodeversion',
@@ -213,7 +213,7 @@ describe('test cdf conversion', () => {
   test('converts log with custom disposition and extra details as expected', () => {
     const logger = new Logger(LogSource.VxAdminFrontend);
     const cdfLogContent = logger.buildCDFLog(
-      electionMinimalExhaustiveSampleDefintion,
+      electionMinimalExhaustiveSampleDefinition,
       '{"timeLogWritten":"2021-11-03T16:38:09.384062-07:00","host":"ubuntu","timeLogInitiated":"1635982689382","source":"vx-admin-frontend","eventId":"usb-drive-status-update","eventType":"application-status","user":"system","message":"glistened as it fell","disposition":"dinosaurs","newStatus":"absent"}',
       '12machine34',
       'thisisacodeversion',
@@ -246,7 +246,7 @@ describe('test cdf conversion', () => {
     const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
     expect(() =>
       logger.buildCDFLog(
-        electionMinimalExhaustiveSampleDefintion,
+        electionMinimalExhaustiveSampleDefinition,
         '',
         '12machine34',
         'thisisacodeversion',
@@ -280,7 +280,7 @@ describe('test cdf conversion', () => {
       timeLogWritten: '2020-07-24T00:00:00.000Z',
     });
     const output = logger.buildCDFLog(
-      electionMinimalExhaustiveSampleDefintion,
+      electionMinimalExhaustiveSampleDefinition,
       `rawr\n${properLog}\n`,
       '12machine34',
       'thisisacodeversion',
@@ -302,7 +302,7 @@ describe('test cdf conversion', () => {
     expect(cdfLog.Device?.[0]!.Event).toHaveLength(1);
 
     const output2 = logger.buildCDFLog(
-      electionMinimalExhaustiveSampleDefintion,
+      electionMinimalExhaustiveSampleDefinition,
       missingTimeLog,
       '12machine34',
       'thisisacodeversion',
@@ -327,7 +327,7 @@ describe('test cdf conversion', () => {
     const logFile = readFileSync(join(__dirname, '../fixtures/samplelog.log'));
     const logger = new Logger(LogSource.VxAdminFrontend);
     const cdfLogContent = logger.buildCDFLog(
-      electionMinimalExhaustiveSampleDefintion,
+      electionMinimalExhaustiveSampleDefinition,
       logFile.toString(),
       '1234',
       'codeversion',
@@ -339,7 +339,7 @@ describe('test cdf conversion', () => {
     assert(cdfLog);
     expect(cdfLog.Device).toHaveLength(1);
     expect(cdfLog.ElectionId).toBe(
-      electionMinimalExhaustiveSampleDefintion.electionHash
+      electionMinimalExhaustiveSampleDefinition.electionHash
     );
     expect(cdfLog.GeneratedTime).toMatchInlineSnapshot(
       `"2020-07-24T00:00:00.000Z"`
