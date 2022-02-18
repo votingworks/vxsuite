@@ -1,4 +1,4 @@
-import { BallotTargetMark, BallotType } from '@votingworks/types';
+import { BallotType } from '@votingworks/types';
 import { fail } from 'assert';
 import * as choctaw2020Special from '../test/fixtures/choctaw-2020-09-22-f30480cc99';
 import * as choctaw2020LegalSize from '../test/fixtures/choctaw-county-2020-general-election';
@@ -3514,13 +3514,11 @@ test('choctaw 2020 general', async () => {
     await choctaw2020.filledInPage1.metadata()
   );
   expect(
-    p1Interpreted.marks
-      .filter((mark): mark is BallotTargetMark => mark.type !== 'stray')
-      .map((mark) => ({
-        contest: mark.contest.id,
-        option: typeof mark.option === 'string' ? mark.option : mark.option.id,
-        score: mark.score,
-      }))
+    p1Interpreted.marks.map((mark) => ({
+      contest: mark.contest.id,
+      option: typeof mark.option === 'string' ? mark.option : mark.option.id,
+      score: mark.score,
+    }))
   ).toMatchInlineSnapshot(`
     Array [
       Object {
@@ -3616,13 +3614,11 @@ test('choctaw 2020 general', async () => {
     await choctaw2020.filledInPage2.metadata()
   );
   expect(
-    p2Interpreted.marks
-      .filter((mark): mark is BallotTargetMark => mark.type !== 'stray')
-      .map((mark) => ({
-        contest: mark.contest.id,
-        option: typeof mark.option === 'string' ? mark.option : mark.option.id,
-        score: mark.score,
-      }))
+    p2Interpreted.marks.map((mark) => ({
+      contest: mark.contest.id,
+      option: typeof mark.option === 'string' ? mark.option : mark.option.id,
+      score: mark.score,
+    }))
   ).toMatchInlineSnapshot(`
     Array [
       Object {
@@ -3682,11 +3678,8 @@ test('regression: overvote on choctaw county p1-05', async () => {
     await fixtures.filledInPage1_05.imageData()
   );
 
-  expect(
-    interpretation.marks
-      .filter((mark): mark is BallotTargetMark => mark.type !== 'stray')
-      .map((mark) => [mark.score, mark.option])
-  ).toMatchInlineSnapshot(`
+  expect(interpretation.marks.map((mark) => [mark.score, mark.option]))
+    .toMatchInlineSnapshot(`
     Array [
       Array [
         0.0053475935828877,

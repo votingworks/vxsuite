@@ -1,4 +1,5 @@
 import { BallotMark, VotesDict } from '@votingworks/types';
+import { throwIllegalValue } from '@votingworks/utils';
 import makeDebug from 'debug';
 import { addVote } from './hmpb/votes';
 
@@ -60,7 +61,7 @@ export function getVotesFromMarks(
         break;
 
       default:
-        throw new Error(`mark type '${mark.type}' is not yet supported`);
+        throwIllegalValue(mark, 'type');
     }
   }
 

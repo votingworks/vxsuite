@@ -66,8 +66,5 @@ export function isMarginalMark(
   mark: BallotMark,
   markThresholds: MarkThresholds
 ): boolean {
-  return (
-    mark.type !== 'stray' &&
-    getMarkStatus(mark, markThresholds) === MarkStatus.Marginal
-  );
+  return getMarkStatus(mark, markThresholds) === MarkStatus.Marginal;
 }

@@ -22,10 +22,7 @@ export function optionMarkStatus({
   optionId: ContestOption['id'];
 }): MarkStatus {
   for (const mark of marks) {
-    if (
-      mark.type === 'stray' ||
-      (mark.type !== 'ms-either-neither' && mark.contest.id !== contestId)
-    ) {
+    if (mark.type !== 'ms-either-neither' && mark.contest.id !== contestId) {
       continue;
     }
 

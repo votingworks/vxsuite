@@ -94,12 +94,3 @@ test('ms-either-neither contest', () => {
     getVotesFromMarks([msEitherNeitherMark], { markScoreVoteThreshold: 0.6 })
   ).toEqual({});
 });
-
-test('stray marks', () => {
-  expect(() =>
-    getVotesFromMarks(
-      [{ type: 'stray', bounds: { x: 0, y: 0, width: 0, height: 0 } }],
-      { markScoreVoteThreshold: 0.12 }
-    )
-  ).toThrowError("mark type 'stray' is not yet supported");
-});

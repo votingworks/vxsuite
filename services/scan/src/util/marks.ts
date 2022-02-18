@@ -58,10 +58,6 @@ export function changesFromMarks(
   const result: MarksByContestId = {};
 
   for (const mark of marks) {
-    if (mark.type === 'stray') {
-      continue;
-    }
-
     result[mark.contest.id] = {
       ...(result[mark.contest.id] ?? {}),
       // mark.option.id works for both candidate and ms-either-neither marks
