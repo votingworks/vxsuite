@@ -26,58 +26,81 @@ disable this feature, run with this environment variable:
 `ESLINT_NO_DEV_ERRORS=true`. If you always prefer not to have this behavior,
 consider setting that in your shell configuration (e.g. `.bashrc`).
 
-### Ubuntu Quickstart
+### Developing on a VM from MacOS
+We strongly recommend development in this repo on a VM running Debian. Our production machines are configured with Debian so this will allow for you to develop in the environment most similar to production. Additionally VM features such as snapshots make development much more straightforward. See the [Virtual Machine Setup Guide](./VirtualMachineSetup.md) for more details on how to best configure this VM. Then come back and follow the steps in the Debian quickstart below to get developing. 
 
-This expects Ubuntu 20.04, though it may work on other versions. This installs
-the right version of NodeJS manually. You can use a tool like
-[nvm](https://github.com/nvm-sh/nvm) or [volta](https://volta.sh) to do this in
-a nicer way.
+### Debian Quickstart
+
+This expects Debian 11.02, though it may work on other versions. 
+
+Debian, by default, does not give your primary user account sudo access. Most of our scripts are designed assuming you will have sudo access so is most straightforward to simply add yourself to the sudoers file. You can do this with the following commands.
 
 ```sh
-# install some prerequisites:
+su - # this will prompt for the root password
+usermod -aG sudo <USERNAME> # use your user account username
+exit
+```
+Restart your machine or open a new terminal for the changes to take effect. You can verify it worked after restart by entering `sudo whoami` in the terminal and you should see `root`. 
+
+Next install git, and create an SSH key following the [github guide](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent). You will need to add the key to your github account. Then clone the vxsuite repositories. 
+
+```sh
 sudo apt update
-sudo apt install -y git curl python
+sudo apt install -y git
+echo "export PATH=\${PATH}:/usr/sbin" >> ~/.bashrc # Only for debian, add sbin to your path
+ssh-keygen -t ed25519 -C "your_github_email@example.com" # Save to the default location, and chose a passphrase
+eval "$(ssh-agent -s)" # start the ssh agent
+ssh-add ~/.ssh/id_ed25519 # add your ssh key to the agent
+cat ~/.ssh/id_ed25519.pub # Copy the public key and add it to your github account
+ssh -T git@github.com # This should return `Hi username! You've successfully authenticated, but GitHub does not provide shell access.
+mkdir code
+cd code
+git clone git@github.com:votingworks/vxsuite.git
 
-# change this to wherever you want:
-NODE_ROOT="${HOME}/usr/local/nodejs"
+# If you are doing a lot of development in vxsuite you will likely eventually need the following repos. 
+# kiosk-browser is an electron-based browser where our apps run in production.
+git clone git@github.com:votingworks/kiosk-browser.git
+# vxsuite-complete-system packages vxsuite and kiosk-browser for running in production with various setup scripts for production machines. If you want to test your code through kiosk-browser without needing to develop on kiosk-browser it is recommended you run kiosk-browser through the instructions in this repo.
+git clone git@github.com:votingworks/vxsuite-complete-system.git
+```
 
-# support x86 or ARM (e.g. Apple Silicon):
-ARCH=$(uname -m | sed 's/x86_/x/' | sed 's/aarch/arm/')
+Once you finish setting up your VM before you start develop you should also set up [GPG Keys](#setting-up-gpg-keys) for your github account. 
 
-# download and install:
-mkdir -p "$NODE_ROOT"
-curl -sLo- "https://nodejs.org/dist/v12.19.0/node-v12.19.0-linux-${ARCH}.tar.gz" | \
-    tar xz --strip-components 1 -C "${NODE_ROOT}"
+Install Node, npm, yarn, and pnpm by running the following script:
 
-# configure your shell; this assumes bash:
-echo "export PATH=\$PATH:${NODE_ROOT}/bin" >> ~/.bashrc
-export PATH="${PATH}:${NODE_ROOT}/bin"
-node -v # should print "v12.19.0"
-
-# install pnpm:
-npm i -g pnpm@5
-pnpm -v # should print "v5.x.x"
-
-# clone the repository:
-mkdir -p ~/src && cd ~/src
-git clone https://github.com/votingworks/vxsuite.git
-
-# install dependencies:
+```sh
 cd vxsuite
-./script/bootstrap
+./script/setup-dev
+node -v # this should return 12.x.x
+pnpm -v # this should return 5.x.x
+```
 
+Automatically install all dependencies in the vxsuite repo with the following command
+```sh
+./script/bootstrap
+```
+
+Test that you can run the code
+
+```sh
 # try out BMD:
 make -C services/smartcards build run &
 # ^ wait for this to settle, then…
 cd frontends/bmd
-pnpm build:watch &
-# ^ wait for this to settle, then…
+pnpm build
 pnpm start
-# if it worked, go to http://localhost:3000/
+# if it worked, go to http://localhost:3000/ in your VM
 ```
+
+If you have VS Code open and connected to your VM remotely it should automatically forward the port for you, and you can visit `http://localhost:3000` on your home machine as well.
 
 See the individual README documents for more information on how to run the
 individual services.
+
+See the [README](https://github.com/votingworks/vxsuite-complete-system) in `vxsuite-complete-system` for information on how to test the apps in this repo through kiosk-browser (electron-based browser that runs our apps in production). 
+
+### Setting up GPG Keys
+Setting up GPG keys with your github account will allow you to sign tags and commits locally. These are verified by GitHub which gives everyone confidence about the origin of changes you've made. You can follow the [steps in the github docs](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification) to set this up. Note that this is a step that happens in ADDITION to ssh keys, not in substitute of them. Debian comes with gpg installed so you can skip the first step about installing GPG tools if you are on your Debian machine. You will want to follow the instructions in *Generating a new GPG key*, *Add a new GPG key*, *Tell Git your signing key*. Then follow the steps in *Signing commits* to test signing a commit and pushing to github to make sure it is **verified**.
 
 ### Adding a monorepo project
 
