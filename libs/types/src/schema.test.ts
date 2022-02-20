@@ -808,3 +808,86 @@ test('safeParseElectionDefinition computes the election hash', () => {
 test('safeParseElectionDefinition error result', () => {
   expect(t.safeParseElectionDefinition('').err()).toBeDefined();
 });
+
+test('specifying write-in candidates', () => {
+  const candidateContest: t.CandidateContest = {
+    id: 'CC',
+    type: 'candidate',
+    title: 'CC',
+    section: 'Section',
+    districtId: unsafeParse(t.DistrictIdSchema, 'D'),
+    allowWriteIns: true,
+    seats: 1,
+    candidates: [
+      {
+        id: 'C',
+        name: 'C',
+      },
+      {
+        id: '__write-in-0',
+        name: 'W',
+        isWriteIn: true,
+      },
+    ],
+  };
+
+  unsafeParse(t.CandidateContestSchema, candidateContest);
+});
+
+test('specifying all write-in candidates is required if any are specified', () => {
+  const candidateContest: t.CandidateContest = {
+    id: 'CC',
+    type: 'candidate',
+    title: 'CC',
+    section: 'Section',
+    districtId: unsafeParse(t.DistrictIdSchema, 'D'),
+    allowWriteIns: true,
+    seats: 2,
+    candidates: [
+      {
+        id: 'C',
+        name: 'C',
+      },
+      {
+        id: '__write-in-0',
+        name: 'W',
+        isWriteIn: true,
+      },
+    ],
+  };
+
+  expect(
+    safeParse(t.CandidateContestSchema, candidateContest).unsafeUnwrapErr()
+      .errors[0].message
+  ).toEqual(
+    'Contest has 1 write-in candidate(s), but 2 seat(s) are available.'
+  );
+});
+
+test('no write-in candidates may be specified if write-ins are not allowed', () => {
+  const candidateContest: t.CandidateContest = {
+    id: 'CC',
+    type: 'candidate',
+    title: 'CC',
+    section: 'Section',
+    districtId: unsafeParse(t.DistrictIdSchema, 'D'),
+    allowWriteIns: false,
+    seats: 1,
+    candidates: [
+      {
+        id: 'C',
+        name: 'C',
+      },
+      {
+        id: '__write-in-0',
+        name: 'W',
+        isWriteIn: true,
+      },
+    ],
+  };
+
+  expect(
+    safeParse(t.CandidateContestSchema, candidateContest).unsafeUnwrapErr()
+      .errors[0].message
+  ).toEqual(`Contest 'CC' does not allow write-ins.`);
+});

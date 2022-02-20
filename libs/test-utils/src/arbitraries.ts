@@ -219,7 +219,6 @@ export function arbitraryCandidate({
   return fc.record({
     id,
     name: fc.string({ minLength: 1 }),
-    isWriteIn: arbitraryOptional(fc.boolean()),
     partyId,
   });
 }
