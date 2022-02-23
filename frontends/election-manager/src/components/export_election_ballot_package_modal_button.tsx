@@ -218,11 +218,11 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
         case UsbDriveStatus.mounted: {
           actions = (
             <React.Fragment>
-              <LinkButton onPress={closeModal}>Cancel</LinkButton>
-              <Button onPress={() => saveFileCallback(true)}>Custom</Button>
-              <Button onPress={() => saveFileCallback(false)} primary>
+              <Button primary onPress={() => saveFileCallback(false)}>
                 Export
               </Button>
+              <LinkButton onPress={closeModal}>Cancel</LinkButton>
+              <Button onPress={() => saveFileCallback(true)}>Custom</Button>
             </React.Fragment>
           );
           mainContent = (
@@ -325,13 +325,13 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
       if (usbDriveStatus !== UsbDriveStatus.recentlyEjected) {
         actions = (
           <React.Fragment>
-            <LinkButton onPress={closeModal}>Close</LinkButton>
             <UsbControllerButton
               primary
               small={false}
               usbDriveEject={() => usbDriveEject(currentUserSession.type)}
               usbDriveStatus={usbDriveStatus}
             />
+            <LinkButton onPress={closeModal}>Close</LinkButton>
           </React.Fragment>
         );
       } else {

@@ -449,10 +449,10 @@ export function TallyScreen(): JSX.Element {
           }
           actions={
             <React.Fragment>
-              <Button onPress={cancelConfirmingOfficial}>Cancel</Button>
               <Button primary onPress={setOfficial}>
                 Mark Tally Results as Official
               </Button>
+              <Button onPress={cancelConfirmingOfficial}>Cancel</Button>
             </React.Fragment>
           }
           onOverlayClick={cancelConfirmingOfficial}

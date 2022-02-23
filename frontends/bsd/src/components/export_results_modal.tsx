@@ -245,7 +245,6 @@ export function ExportResultsModal({
           onOverlayClick={onClose}
           actions={
             <React.Fragment>
-              <LinkButton onPress={onClose}>Cancel</LinkButton>
               {!window.kiosk && (
                 <Button
                   data-testid="manual-export"
@@ -253,7 +252,8 @@ export function ExportResultsModal({
                 >
                   Export
                 </Button>
-              )}{' '}
+              )}
+              <LinkButton onPress={onClose}>Cancel</LinkButton>
             </React.Fragment>
           }
         />
@@ -292,8 +292,8 @@ export function ExportResultsModal({
           onOverlayClick={onClose}
           actions={
             <React.Fragment>
-              <LinkButton onPress={onClose}>Cancel</LinkButton>
               <Button onPress={() => exportResults(true)}>Custom</Button>
+              <LinkButton onPress={onClose}>Cancel</LinkButton>
               <Button primary onPress={() => exportResults(false)}>
                 Export
               </Button>
