@@ -1,5 +1,12 @@
-import { BallotMark, VotesDict } from '@votingworks/types';
-import { throwIllegalValue } from '@votingworks/utils';
+import {
+  BallotMark,
+  CandidateContest,
+  Election,
+  unsafeParse,
+  VotesDict,
+  WriteInCandidateSchema,
+} from '@votingworks/types';
+import { find, throwIllegalValue } from '@votingworks/utils';
 import makeDebug from 'debug';
 import { addVote } from './hmpb/votes';
 
@@ -11,6 +18,7 @@ const debug = makeDebug('ballot-interpreter-vx:getVotesFromMarks');
  * filled in.
  */
 export function getVotesFromMarks(
+  election: Election,
   marks: readonly BallotMark[],
   { markScoreVoteThreshold }: { markScoreVoteThreshold: number }
 ): VotesDict {
@@ -23,12 +31,33 @@ export function getVotesFromMarks(
           debug(
             `'%s' contest '%s' mark score (%d) for '%s' meets vote threshold (%d)`,
             mark.type,
-            mark.contest.id,
+            mark.contestId,
             mark.score,
-            mark.option.name,
+            mark.optionId,
             markScoreVoteThreshold
           );
-          addVote(votes, mark.contest, mark.option);
+          const contest = find(
+            election.contests,
+            (c): c is CandidateContest => c.id === mark.contestId
+          );
+          const option = contest.candidates.find((c) => c.id === mark.optionId);
+          if (!option || option.isWriteIn) {
+            addVote(
+              election,
+              votes,
+              mark.contestId,
+              unsafeParse(
+                WriteInCandidateSchema,
+                option ?? {
+                  id: mark.optionId,
+                  name: 'Write-In',
+                  isWriteIn: true,
+                }
+              )
+            );
+          } else {
+            addVote(election, votes, mark.contestId, mark.optionId);
+          }
         }
         break;
 
@@ -37,12 +66,12 @@ export function getVotesFromMarks(
           debug(
             `'%s' contest '%s' mark score (%d) for '%s' meets vote threshold (%d)`,
             mark.type,
-            mark.contest.id,
+            mark.contestId,
             mark.score,
-            mark.option,
+            mark.optionId,
             markScoreVoteThreshold
           );
-          addVote(votes, mark.contest, mark.option);
+          addVote(election, votes, mark.contestId, mark.optionId);
         }
         break;
 
@@ -51,12 +80,12 @@ export function getVotesFromMarks(
           debug(
             `'%s' contest '%s' mark score (%d) for '%s' meets vote threshold (%d)`,
             mark.type,
-            mark.contest.id,
+            mark.contestId,
             mark.score,
-            mark.option.label,
+            mark.optionId,
             markScoreVoteThreshold
           );
-          addVote(votes, mark.contest, mark.option);
+          addVote(election, votes, mark.contestId, mark.optionId);
         }
         break;
 

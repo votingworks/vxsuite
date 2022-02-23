@@ -27,14 +27,15 @@ test('a yesno mark', () => {
     (c) => c.type === 'yesno'
   ) as YesNoContest;
   const result = optionMarkStatus({
+    contests: election.contests,
     markThresholds,
     marks: [
       {
         type: 'yesno',
         bounds: defaultShape.bounds,
-        contest,
+        contestId: contest.id,
         target: defaultShape,
-        option: 'yes',
+        optionId: 'yes',
         score: 0.5,
         scoredOffset: { x: 1, y: 1 },
       },
@@ -46,6 +47,7 @@ test('a yesno mark', () => {
   expect(result).toBe(MarkStatus.Marked);
 
   const emptyResult = optionMarkStatus({
+    contests: election.contests,
     markThresholds,
     marks: [],
     contestId: contest.id,
@@ -60,14 +62,15 @@ test('a candidate mark', () => {
     (c) => c.type === 'candidate'
   ) as CandidateContest;
   const result = optionMarkStatus({
+    contests: election.contests,
     markThresholds,
     marks: [
       {
         type: 'candidate',
         bounds: defaultShape.bounds,
-        contest,
+        contestId: contest.id,
         target: defaultShape,
-        option: contest.candidates[2],
+        optionId: contest.candidates[2].id,
         score: 0.5,
         scoredOffset: { x: 1, y: 1 },
       },
@@ -79,6 +82,7 @@ test('a candidate mark', () => {
   expect(result).toBe(MarkStatus.Marked);
 
   const emptyResult = optionMarkStatus({
+    contests: election.contests,
     markThresholds,
     marks: [],
     contestId: contest.id,
@@ -94,18 +98,15 @@ test('a candidate write-in mark', () => {
   ) as CandidateContest;
   const optionId = '__write-in-0';
   const result = optionMarkStatus({
+    contests: election.contests,
     markThresholds,
     marks: [
       {
         type: 'candidate',
         bounds: defaultShape.bounds,
-        contest,
+        contestId: contest.id,
         target: defaultShape,
-        option: {
-          id: optionId,
-          name: 'Write-In',
-          isWriteIn: true,
-        },
+        optionId,
         score: 0,
         scoredOffset: { x: 0, y: 0 },
         writeInTextScore: 0.05,
@@ -123,14 +124,15 @@ test('a ms-either-neither mark', () => {
     (c) => c.type === 'ms-either-neither'
   ) as MsEitherNeitherContest;
   const eitherResult = optionMarkStatus({
+    contests: eitherNeitherElection.contests,
     markThresholds,
     marks: [
       {
         type: 'ms-either-neither',
         bounds: defaultShape.bounds,
-        contest,
+        contestId: contest.id,
         target: defaultShape,
-        option: contest.neitherOption,
+        optionId: contest.neitherOption.id,
         score: 0.5,
         scoredOffset: { x: 1, y: 1 },
       },
@@ -142,14 +144,15 @@ test('a ms-either-neither mark', () => {
   expect(eitherResult).toBe(MarkStatus.Marked);
 
   const pickOneResult = optionMarkStatus({
+    contests: eitherNeitherElection.contests,
     markThresholds,
     marks: [
       {
         type: 'ms-either-neither',
         bounds: defaultShape.bounds,
-        contest,
+        contestId: contest.id,
         target: defaultShape,
-        option: contest.firstOption,
+        optionId: contest.firstOption.id,
         score: 0.5,
         scoredOffset: { x: 1, y: 1 },
       },
@@ -161,6 +164,7 @@ test('a ms-either-neither mark', () => {
   expect(pickOneResult).toBe(MarkStatus.Marked);
 
   const emptyResult = optionMarkStatus({
+    contests: eitherNeitherElection.contests,
     markThresholds,
     marks: [],
     contestId: contest.id,

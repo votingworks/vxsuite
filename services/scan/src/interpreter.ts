@@ -20,7 +20,6 @@ import {
   BallotPageLayout,
   BallotPageMetadata,
   BallotType,
-  Contests,
   Election,
   err,
   InterpretedBmdPage,
@@ -30,6 +29,7 @@ import {
   Result,
 } from '@votingworks/types';
 import makeDebug from 'debug';
+import { getContestsFromIds } from './build_cast_vote_record';
 import { BallotPageQrcode, SheetOf } from './types';
 import {
   ballotAdjudicationReasons,
@@ -397,16 +397,14 @@ export class Interpreter {
 
     const allReasonInfos: readonly AdjudicationReasonInfo[] = [
       ...ballotAdjudicationReasons(
-        marks.reduce<Contests>(
-          (contests, mark) =>
-            contests.some(({ id }) => id === mark.contest.id)
-              ? contests
-              : [...contests, mark.contest],
-          []
+        getContestsFromIds(
+          this.election,
+          marks.map((m) => m.contestId)
         ),
         {
           optionMarkStatus: (contestId, optionId) =>
             optionMarkStatus({
+              contests: this.election.contests,
               markThresholds: this.markThresholds,
               marks,
               contestId,

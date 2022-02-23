@@ -191,7 +191,9 @@ export function getContestsFromIds(
   election: Election,
   contestIds: readonly string[]
 ): Contests {
-  return contestIds.map((id) => find(election.contests, (c) => c.id === id));
+  return Array.from(new Set(contestIds)).map((id) =>
+    find(election.contests, (c) => c.id === id)
+  );
 }
 
 export function getContestsForBallotStyle(

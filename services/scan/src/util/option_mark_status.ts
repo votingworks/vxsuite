@@ -1,75 +1,106 @@
 import {
   BallotMark,
   Contest,
+  ContestId,
   ContestOption,
+  Contests,
   MarkStatus,
   MarkThresholds,
+  MsEitherNeitherContest,
 } from '@votingworks/types';
+import { assert, throwIllegalValue } from '@votingworks/utils';
 import { getMarkStatus } from '../types';
+
+function findMsEitherNeitherContestFromSubContest(
+  contests: Contests,
+  contestId: ContestId
+): MsEitherNeitherContest {
+  for (const contest of contests) {
+    if (contest.type !== 'ms-either-neither') {
+      continue;
+    }
+
+    if (
+      contest.id === contestId ||
+      contest.eitherNeitherContestId === contestId ||
+      contest.pickOneContestId === contestId
+    ) {
+      return contest;
+    }
+  }
+
+  throw new Error(`could not find ms-either-neither contest for ${contestId}`);
+}
 
 /**
  * state of the mark for a given contest and option
  */
 export function optionMarkStatus({
+  contests,
   markThresholds,
   marks,
   contestId,
   optionId,
 }: {
+  contests: Contests;
   markThresholds: MarkThresholds;
   marks: BallotMark[];
   contestId: Contest['id'];
   optionId: ContestOption['id'];
 }): MarkStatus {
   for (const mark of marks) {
-    if (mark.type !== 'ms-either-neither' && mark.contest.id !== contestId) {
+    if (mark.type !== 'ms-either-neither' && mark.contestId !== contestId) {
       continue;
     }
 
     // the criteria for ms-either-neither is more complex, handling it in the switch.
 
     switch (mark.type) {
-      case 'ms-either-neither':
-        if (mark.contest.eitherNeitherContestId === contestId) {
+      case 'ms-either-neither': {
+        const contest = findMsEitherNeitherContestFromSubContest(
+          contests,
+          mark.contestId
+        );
+
+        assert(
+          contest?.type === 'ms-either-neither',
+          `contest ${contestId} is not ms-either-neither: got ${contest?.type}`
+        );
+        if (contest.eitherNeitherContestId === contestId) {
           if (
-            (mark.contest.eitherOption.id === mark.option.id &&
-              optionId === 'yes') ||
-            (mark.contest.neitherOption.id === mark.option.id &&
-              optionId === 'no')
+            (contest.eitherOption.id === mark.optionId && optionId === 'yes') ||
+            (contest.neitherOption.id === mark.optionId && optionId === 'no')
           ) {
             return getMarkStatus(mark, markThresholds);
           }
         }
 
-        if (mark.contest.pickOneContestId === contestId) {
+        if (contest.pickOneContestId === contestId) {
           if (
-            (mark.contest.firstOption.id === mark.option.id &&
-              optionId === 'yes') ||
-            (mark.contest.secondOption.id === mark.option.id &&
-              optionId === 'no')
+            (contest.firstOption.id === mark.optionId && optionId === 'yes') ||
+            (contest.secondOption.id === mark.optionId && optionId === 'no')
           ) {
             return getMarkStatus(mark, markThresholds);
           }
         }
 
         break;
+      }
+
       case 'candidate':
-        if (mark.option.id === optionId) {
+        if (mark.optionId === optionId) {
           return getMarkStatus(mark, markThresholds);
         }
         break;
 
       case 'yesno':
-        if (mark.option === optionId) {
+        if (mark.optionId === optionId) {
           return getMarkStatus(mark, markThresholds);
         }
         break;
 
       default:
-        throw new Error(
-          // @ts-expect-error - `mark` is of type `never` since we exhausted all branches, in theory
-          `contest type is not yet supported: ${mark.type}`
-        );
+        throwIllegalValue(mark, 'type');
     }
   }
 

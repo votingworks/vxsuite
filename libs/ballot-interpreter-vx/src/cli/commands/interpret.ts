@@ -250,40 +250,15 @@ export async function run(
               metadata: interpreted.metadata,
               votes: interpreted.ballot.votes,
               marks: interpreted.marks
-                .filter((mark) =>
-                  mark.type === 'candidate' || mark.type === 'yesno'
-                    ? mark.score > 0
-                    : true
-                )
-                .map((mark) =>
-                  mark.type === 'candidate'
-                    ? {
-                        type: mark.type,
-                        contest: mark.contest.id,
-                        option: mark.option.id,
-                        score: mark.score,
-                        bounds: mark.bounds,
-                        target: mark.target,
-                      }
-                    : mark.type === 'yesno'
-                    ? {
-                        type: mark.type,
-                        contest: mark.contest.id,
-                        option: mark.option,
-                        score: mark.score,
-                        bounds: mark.bounds,
-                        target: mark.target,
-                      }
-                    : {
-                        type: mark.type,
-                        contest: mark.contest?.id,
-                        option:
-                          typeof mark.option === 'string'
-                            ? mark.option
-                            : mark.option?.id,
-                        bounds: mark.bounds,
-                      }
-                ),
+                .filter((mark) => mark.score > 0)
+                .map((mark) => ({
+                  type: mark.type,
+                  contest: mark.contestId,
+                  option: mark.optionId,
+                  score: mark.score,
+                  bounds: mark.bounds,
+                  target: mark.target,
+                })),
             },
           })),
           undefined,
