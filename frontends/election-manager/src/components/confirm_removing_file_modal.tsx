@@ -109,10 +109,10 @@ export function ConfirmRemovingFileModal({
       content={<Prose textCenter>{mainContent}</Prose>}
       actions={
         <React.Fragment>
-          <Button onPress={onCancel}>Cancel</Button>
           <Button danger onPress={() => onConfirm(fileType)}>
             Remove {!singleFileRemoval && 'All'} {fileTypeName}
           </Button>
+          <Button onPress={onCancel}>Cancel</Button>
         </React.Fragment>
       }
       onOverlayClick={onCancel}

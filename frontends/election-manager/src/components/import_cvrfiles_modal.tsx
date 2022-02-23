@@ -262,11 +262,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
           </Prose>
         }
         onOverlayClick={onClose}
-        actions={
-          <React.Fragment>
-            <LinkButton onPress={onClose}>Close</LinkButton>
-          </React.Fragment>
-        }
+        actions={<LinkButton onPress={onClose}>Close</LinkButton>}
       />
     );
   }
@@ -325,11 +321,9 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
         content={<Loading />}
         onOverlayClick={onClose}
         actions={
-          <React.Fragment>
-            <LinkButton onPress={onClose} disabled>
-              Cancel
-            </LinkButton>
-          </React.Fragment>
+          <LinkButton disabled onPress={onClose}>
+            Cancel
+          </LinkButton>
         }
       />
     );
@@ -355,15 +349,15 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
         onOverlayClick={onClose}
         actions={
           <React.Fragment>
-            <LinkButton onPress={onClose}>Cancel</LinkButton>
             {(!window.kiosk || process.env.NODE_ENV === 'development') && (
               <FileInputButton
-                onChange={processCastVoteRecordFileFromFilePicker}
                 data-testid="manual-input"
+                onChange={processCastVoteRecordFileFromFilePicker}
               >
                 Select Files…
               </FileInputButton>
-            )}{' '}
+            )}
+            <LinkButton onPress={onClose}>Cancel</LinkButton>
           </React.Fragment>
         }
       />
@@ -490,13 +484,13 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
         onOverlayClick={onClose}
         actions={
           <React.Fragment>
-            <LinkButton onPress={onClose}>Cancel</LinkButton>
             <FileInputButton
-              onChange={processCastVoteRecordFileFromFilePicker}
               data-testid="manual-input"
+              onChange={processCastVoteRecordFileFromFilePicker}
             >
               Select File Manually…
             </FileInputButton>
+            <LinkButton onPress={onClose}>Cancel</LinkButton>
           </React.Fragment>
         }
       />

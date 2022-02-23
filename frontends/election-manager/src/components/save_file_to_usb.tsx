@@ -168,13 +168,13 @@ export function SaveFileToUsb({
     if (promptToEjectUsb && usbDriveStatus !== UsbDriveStatus.recentlyEjected) {
       actions = (
         <React.Fragment>
-          <LinkButton onPress={onClose}>Close</LinkButton>
           <UsbControllerButton
             small={false}
             primary
             usbDriveStatus={usbDriveStatus}
             usbDriveEject={() => usbDriveEject(currentUserSession.type)}
           />
+          <LinkButton onPress={onClose}>Close</LinkButton>
         </React.Fragment>
       );
     }
@@ -231,7 +231,6 @@ export function SaveFileToUsb({
           onOverlayClick={onClose}
           actions={
             <React.Fragment>
-              <LinkButton onPress={onClose}>Cancel</LinkButton>
               {(!window.kiosk || process.env.NODE_ENV === 'development') && (
                 <Button
                   data-testid="manual-export"
@@ -239,7 +238,8 @@ export function SaveFileToUsb({
                 >
                   Save
                 </Button>
-              )}{' '}
+              )}
+              <LinkButton onPress={onClose}>Cancel</LinkButton>
             </React.Fragment>
           }
         />
@@ -250,11 +250,7 @@ export function SaveFileToUsb({
         <Modal
           content={<Loading />}
           onOverlayClick={onClose}
-          actions={
-            <React.Fragment>
-              <LinkButton onPress={onClose}>Cancel</LinkButton>
-            </React.Fragment>
-          }
+          actions={<LinkButton onPress={onClose}>Cancel</LinkButton>}
         />
       );
     case UsbDriveStatus.mounted: {
@@ -274,11 +270,11 @@ export function SaveFileToUsb({
           onOverlayClick={onClose}
           actions={
             <React.Fragment>
-              <LinkButton onPress={onClose}>Cancel</LinkButton>
-              <Button onPress={() => exportResults(true)}>Save As…</Button>
               <Button primary onPress={() => exportResults(false)}>
                 Save
               </Button>
+              <LinkButton onPress={onClose}>Cancel</LinkButton>
+              <Button onPress={() => exportResults(true)}>Save As…</Button>
             </React.Fragment>
           }
         />

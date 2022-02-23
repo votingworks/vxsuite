@@ -266,15 +266,15 @@ export function SmartcardsScreen(): JSX.Element {
           }
           actions={
             <React.Fragment>
-              <Button onPress={() => setIsPromptingForAdminPasscode(false)}>
-                Cancel
-              </Button>
               <Button
                 primary
                 disabled={currentPasscode.length !== SECURITY_PIN_LENGTH}
                 onPress={() => programAdminCard(currentPasscode)}
               >
                 Create Card
+              </Button>
+              <Button onPress={() => setIsPromptingForAdminPasscode(false)}>
+                Cancel
               </Button>
             </React.Fragment>
           }

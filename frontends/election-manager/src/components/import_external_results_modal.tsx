@@ -159,10 +159,10 @@ export function ImportExternalResultsModal({
       onOverlayClick={onClose}
       actions={
         <React.Fragment>
-          <LinkButton onPress={onClose}>Cancel</LinkButton>
-          <LinkButton onPress={saveImportedFile} primary>
+          <LinkButton primary onPress={saveImportedFile}>
             Import Results
           </LinkButton>
+          <LinkButton onPress={onClose}>Cancel</LinkButton>
         </React.Fragment>
       }
       content={

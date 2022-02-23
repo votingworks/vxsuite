@@ -93,10 +93,10 @@ export function PrintButton({
           content={confirmModal?.content}
           actions={
             <React.Fragment>
-              <Button onPress={cancelPrint}>Cancel</Button>
-              <Button onPress={confirmPrint} primary>
+              <Button primary onPress={confirmPrint}>
                 {confirmModal?.confirmButtonLabel ?? 'Print'}
               </Button>
+              <Button onPress={cancelPrint}>Cancel</Button>
             </React.Fragment>
           }
         />
@@ -109,11 +109,7 @@ export function PrintButton({
               <p>Please connect the printer and try again.</p>
             </Prose>
           }
-          actions={
-            <React.Fragment>
-              <Button onPress={donePrintingError}>OK</Button>
-            </React.Fragment>
-          }
+          actions={<Button onPress={donePrintingError}>Okay</Button>}
         />
       )}
     </React.Fragment>
