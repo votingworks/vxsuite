@@ -86,7 +86,7 @@ async function readJsonEntry(zipfile: ZipFile, entry: Entry): Promise<unknown> {
 }
 
 test('unconfigured', async () => {
-  const store = await Store.memoryStore();
+  const store = Store.memoryStore();
 
   await expect(
     new Promise((resolve, reject) => {
@@ -96,8 +96,8 @@ test('unconfigured', async () => {
 });
 
 test('configured', async () => {
-  const store = await Store.memoryStore();
-  await store.setElection(asElectionDefinition(election));
+  const store = Store.memoryStore();
+  store.setElection(asElectionDefinition(election));
   const result = new WritableStream();
   const onError = jest.fn();
 
@@ -109,7 +109,7 @@ test('configured', async () => {
 });
 
 test('zip entry fails', async () => {
-  const store = await Store.memoryStore();
+  const store = Store.memoryStore();
   const zip = new ZipStream();
   const b = new Backup(zip, store);
 
@@ -126,8 +126,8 @@ test('zip entry fails', async () => {
 });
 
 test('has election.json', async () => {
-  const store = await Store.memoryStore();
-  await store.setElection(asElectionDefinition(election));
+  const store = Store.memoryStore();
+  store.setElection(asElectionDefinition(election));
   const result = new WritableStream();
 
   await new Promise((resolve, reject) => {
@@ -143,9 +143,9 @@ test('has election.json', async () => {
 });
 
 test('has ballots.db', async () => {
-  const store = await Store.memoryStore();
+  const store = Store.memoryStore();
   const electionDefinition = asElectionDefinition(election);
-  await store.setElection(electionDefinition);
+  store.setElection(electionDefinition);
   const output = new WritableStream();
 
   await new Promise((resolve, reject) => {
@@ -168,10 +168,10 @@ test('has ballots.db', async () => {
 });
 
 test('has all files referenced in the database', async () => {
-  const store = await Store.memoryStore();
+  const store = Store.memoryStore();
   const electionDefinition = asElectionDefinition(election);
-  await store.setElection(electionDefinition);
-  const batchId = await store.addBatch();
+  store.setElection(electionDefinition);
+  const batchId = store.addBatch();
 
   const frontOriginalFile = fileSync();
   await writeFile(frontOriginalFile.fd, 'front original');
@@ -182,7 +182,7 @@ test('has all files referenced in the database', async () => {
   const backOriginalFile = fileSync();
   await writeFile(backOriginalFile.fd, 'back original');
 
-  await store.addSheet('sheet-1', batchId, [
+  store.addSheet('sheet-1', batchId, [
     {
       interpretation: { type: 'UnreadablePage' },
       originalFilename: frontOriginalFile.name,
@@ -251,14 +251,14 @@ test('has all files referenced in the database', async () => {
 });
 
 test('has cvrs.jsonl', async () => {
-  const store = await Store.memoryStore();
-  await store.setElection(asElectionDefinition(election));
+  const store = Store.memoryStore();
+  store.setElection(asElectionDefinition(election));
   const result = new WritableStream();
 
-  const batchId = await store.addBatch();
+  const batchId = store.addBatch();
   const imageFile = fileSync();
   await writeFile(imageFile.fd, 'front original');
-  await store.addSheet('sheet-1', batchId, [
+  store.addSheet('sheet-1', batchId, [
     {
       interpretation: {
         type: 'InterpretedBmdPage',

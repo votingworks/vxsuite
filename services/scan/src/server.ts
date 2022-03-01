@@ -100,7 +100,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
   app.get<NoParams, GetElectionConfigResponse>(
     '/config/election',
     async (request, response) => {
-      const electionDefinition = await store.getElectionDefinition();
+      const electionDefinition = store.getElectionDefinition();
 
       if (request.accepts('application/octet-stream')) {
         if (electionDefinition) {
@@ -118,7 +118,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
 
   app.patch<NoParams, PatchElectionConfigResponse, PatchElectionConfigRequest>(
     '/config/election',
-    async (request, response) => {
+    (request, response) => {
       const { body } = request;
 
       if (!Buffer.isBuffer(body)) {
@@ -154,7 +154,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
         return;
       }
 
-      await importer.configure(bodyParseResult.ok());
+      importer.configure(bodyParseResult.ok());
       response.json({ status: 'ok' });
     }
   );
@@ -194,7 +194,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
         file.size
       );
 
-      await importer.configure(pkg.electionDefinition);
+      importer.configure(pkg.electionDefinition);
       for (const { ballotConfig, pdf } of pkg.ballots) {
         await importer.addHmpbTemplates(pdf, {
           electionHash: pkg.electionDefinition.electionHash,
@@ -213,7 +213,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
   app.get<NoParams, GetTestModeConfigResponse>(
     '/config/testMode',
     async (_request, response) => {
-      const testMode = await store.getTestMode();
+      const testMode = store.getTestMode();
       response.json({ status: 'ok', testMode });
     }
   );
@@ -243,7 +243,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
   app.get<NoParams, GetCurrentPrecinctConfigResponse>(
     '/config/precinct',
     async (_request, response) => {
-      const precinctId = await store.getCurrentPrecinctId();
+      const precinctId = store.getCurrentPrecinctId();
       response.json({ status: 'ok', precinctId });
     }
   );
@@ -267,14 +267,14 @@ export function buildApp({ store, importer }: AppOptions): Application {
       return;
     }
 
-    await store.setCurrentPrecinctId(bodyParseResult.ok().precinctId);
+    store.setCurrentPrecinctId(bodyParseResult.ok().precinctId);
     response.json({ status: 'ok' });
   });
 
   app.delete<NoParams, DeleteCurrentPrecinctConfigResponse>(
     '/config/precinct',
     async (_request, response) => {
-      await store.setCurrentPrecinctId(undefined);
+      store.setCurrentPrecinctId(undefined);
       response.json({ status: 'ok' });
     }
   );
@@ -282,7 +282,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
   app.get<NoParams, GetMarkThresholdOverridesConfigResponse>(
     '/config/markThresholdOverrides',
     async (_request, response) => {
-      const markThresholdOverrides = await store.getMarkThresholdOverrides();
+      const markThresholdOverrides = store.getMarkThresholdOverrides();
       response.json({ status: 'ok', markThresholdOverrides });
     }
   );
@@ -324,7 +324,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
     NoParams,
     PatchSkipElectionHashCheckConfigResponse,
     PatchSkipElectionHashCheckConfigRequest
-  >('/config/skipElectionHashCheck', async (request, response) => {
+  >('/config/skipElectionHashCheck', (request, response) => {
     const bodyParseResult = safeParse(
       PatchSkipElectionHashCheckConfigRequestSchema,
       request.body
@@ -339,7 +339,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
       return;
     }
 
-    await importer.setSkipElectionHashCheck(
+    importer.setSkipElectionHashCheck(
       bodyParseResult.ok().skipElectionHashCheck
     );
     response.json({ status: 'ok' });
@@ -415,7 +415,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
 
       try {
         const { ballots = [], metadatas = [] } = request.files;
-        const electionDefinition = await store.getElectionDefinition();
+        const electionDefinition = store.getElectionDefinition();
         assert(electionDefinition);
 
         for (let i = 0; i < ballots.length; i += 1) {
@@ -554,7 +554,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
         response.status(404);
         return;
       }
-      const filenames = await store.getBallotFilenames(sheetId, side);
+      const filenames = store.getBallotFilenames(sheetId, side);
 
       if (filenames && version in filenames) {
         response.sendFile(filenames[version]);
@@ -565,7 +565,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
   );
 
   app.delete('/scan/batch/:batchId', async (request, response) => {
-    if (await store.deleteBatch(request.params.batchId)) {
+    if (store.deleteBatch(request.params.batchId)) {
       response.json({ status: 'ok' });
     } else {
       response.status(404).end();
@@ -575,7 +575,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
   app.get<NoParams, GetNextReviewSheetResponse>(
     '/scan/hmpb/review/next-sheet',
     async (_request, response) => {
-      const sheet = await store.getNextAdjudicationSheet();
+      const sheet = store.getNextAdjudicationSheet();
 
       if (sheet) {
         let frontLayout: SerializableBallotPageLayout | undefined;
@@ -589,29 +589,25 @@ export function buildApp({ store, importer }: AppOptions): Application {
 
         if (sheet.front.interpretation.type === 'InterpretedHmpbPage') {
           const front = sheet.front.interpretation;
-          const layouts = await store.getBallotLayoutsForMetadata(
-            front.metadata
-          );
+          const layouts = store.getBallotLayoutsForMetadata(front.metadata);
           frontLayout = layouts.find(
             ({ ballotImage: { metadata } }) =>
               metadata.pageNumber === front.metadata.pageNumber
           );
           frontDefinition = {
-            contestIds: await store.getContestIdsForMetadata(front.metadata),
+            contestIds: store.getContestIdsForMetadata(front.metadata),
           };
         }
 
         if (sheet.back.interpretation.type === 'InterpretedHmpbPage') {
           const back = sheet.back.interpretation;
-          const layouts = await store.getBallotLayoutsForMetadata(
-            back.metadata
-          );
+          const layouts = store.getBallotLayoutsForMetadata(back.metadata);
           backLayout = layouts.find(
             ({ ballotImage: { metadata } }) =>
               metadata.pageNumber === back.metadata.pageNumber
           );
           backDefinition = {
-            contestIds: await store.getContestIdsForMetadata(back.metadata),
+            contestIds: store.getContestIdsForMetadata(back.metadata),
           };
         }
 
@@ -641,7 +637,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
   );
 
   app.get('/scan/backup', async (_request, response) => {
-    const electionDefinition = await store.getElectionDefinition();
+    const electionDefinition = store.getElectionDefinition();
 
     if (!electionDefinition) {
       response.status(500).json({

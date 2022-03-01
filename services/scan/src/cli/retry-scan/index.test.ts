@@ -143,14 +143,14 @@ test('query with sheet ids', () => {
   const inputWorkspace = await createWorkspace(dirSync().name);
   const { store } = inputWorkspace;
 
-  await store.setElection({
+  store.setElection({
     election: fixtures.election,
     electionData: JSON.stringify(fixtures.election),
     electionHash: '02f807b005e006da160b',
   });
 
-  const batchId = await store.addBatch();
-  await store.addSheet('a-test-sheet-id', batchId, [
+  const batchId = store.addBatch();
+  store.addSheet('a-test-sheet-id', batchId, [
     {
       interpretation: {
         type: 'UnreadablePage',
@@ -227,14 +227,14 @@ test('query with sheet ids', () => {
     const outputWorkspace = await createWorkspace(dirSync().name);
     const inputDb = inputWorkspace.store;
 
-    await inputDb.setElection({
+    inputDb.setElection({
       election: fixtures.election,
       electionData: JSON.stringify(fixtures.election),
       electionHash: '02f807b005e006da160b',
     });
 
-    const batchId = await inputDb.addBatch();
-    await inputDb.addSheet('a-test-sheet-id', batchId, [
+    const batchId = inputDb.addBatch();
+    inputDb.addSheet('a-test-sheet-id', batchId, [
       {
         interpretation: {
           type: 'UnreadablePage',
@@ -301,7 +301,7 @@ test('query with sheet ids', () => {
 
     const outputDb = outputWorkspace.store;
     expect(
-      await outputDb.dbAllAsync(
+      outputDb.dbAll(
         'select id, front_interpretation_json, back_interpretation_json from sheets'
       )
     ).toMatchInlineSnapshot(`

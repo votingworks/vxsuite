@@ -32,7 +32,7 @@ import {
 import { assert } from '@votingworks/utils';
 import { createHash } from 'crypto';
 import makeDebug from 'debug';
-import { promises as fs } from 'fs';
+import * as fs from 'fs-extra';
 import { DateTime } from 'luxon';
 import { dirname, join } from 'path';
 import { Writable } from 'stream';
@@ -79,23 +79,23 @@ export class Store {
   /**
    * Gets the sha256 digest of the current schema file.
    */
-  static async getSchemaDigest(): Promise<string> {
-    const schemaSql = await fs.readFile(SchemaPath, 'utf-8');
+  static getSchemaDigest(): string {
+    const schemaSql = fs.readFileSync(SchemaPath, 'utf-8');
     return createHash('sha256').update(schemaSql).digest('hex');
   }
 
   /**
    * Builds and returns a new store whose data is kept in memory.
    */
-  static async memoryStore(): Promise<Store> {
-    return new Store(await DbClient.memoryClient(SchemaPath));
+  static memoryStore(): Store {
+    return new Store(DbClient.memoryClient(SchemaPath));
   }
 
   /**
    * Builds and returns a new store at `dbPath`.
    */
-  static async fileStore(dbPath: string): Promise<Store> {
-    return new Store(await DbClient.fileClient(dbPath, SchemaPath));
+  static fileStore(dbPath: string): Store {
+    return new Store(DbClient.fileClient(dbPath, SchemaPath));
   }
 
   /**
@@ -103,14 +103,11 @@ export class Store {
    *
    * @example
    *
-   * await store.dbRunAsync('insert into muppets (name) values (?)', 'Kermit')
+   * store.dbRun('insert into muppets (name) values (?)', 'Kermit')
    *
    * @deprecated provide a method to do whatever callers need to do
    */
-  async dbRunAsync<P extends Bindable[]>(
-    sql: string,
-    ...params: P
-  ): Promise<void> {
+  dbRun<P extends Bindable[]>(sql: string, ...params: P): void {
     return this.client.run(sql, ...params);
   }
 
@@ -119,7 +116,7 @@ export class Store {
    *
    * @example
    *
-   * await store.dbExecAsync(`
+   * store.dbExec(`
    *   pragma foreign_keys = 1;
    *
    *   create table if not exist muppets (name varchar(255));
@@ -128,7 +125,7 @@ export class Store {
    *
    * @deprecated provide a method to do whatever callers need to do
    */
-  async dbExecAsync(sql: string): Promise<void> {
+  dbExec(sql: string): void {
     return this.client.exec(sql);
   }
 
@@ -137,14 +134,11 @@ export class Store {
    *
    * @example
    *
-   * await store.dbAllAsync('select * from muppets')
+   * store.dbAll('select * from muppets')
    *
    * @deprecated provide a method to do whatever callers need to do
    */
-  async dbAllAsync<P extends Bindable[] = []>(
-    sql: string,
-    ...params: P
-  ): Promise<unknown[]> {
+  dbAll<P extends Bindable[] = []>(sql: string, ...params: P): unknown[] {
     return this.client.all(sql, ...params);
   }
 
@@ -153,38 +147,33 @@ export class Store {
    *
    * @example
    *
-   * await store.dbGetAsync('select count(*) as count from muppets')
+   * store.dbGet('select count(*) as count from muppets')
    *
    * @deprecated provide a method to do whatever callers need to do
    */
-  async dbGetAsync<P extends Bindable[] = []>(
-    sql: string,
-    ...params: P
-  ): Promise<unknown> {
+  dbGet<P extends Bindable[] = []>(sql: string, ...params: P): unknown {
     return this.client.one(sql, ...params);
   }
 
   /**
    * Writes a copy of the database to the given path.
    */
-  async backup(filepath: string): Promise<void> {
-    await this.client.run('vacuum into ?', filepath);
+  backup(filepath: string): void {
+    this.client.run('vacuum into ?', filepath);
   }
 
   /**
    * Resets the database.
    */
-  async reset(): Promise<void> {
-    await this.client.reset();
+  reset(): void {
+    this.client.reset();
   }
 
   /**
    * Gets the current election definition.
    */
-  async getElectionDefinition(): Promise<ElectionDefinition | undefined> {
-    const electionDefinition:
-      | ElectionDefinition
-      | undefined = await this.getConfig(
+  getElectionDefinition(): ElectionDefinition | undefined {
+    const electionDefinition: ElectionDefinition | undefined = this.getConfig(
       ConfigKey.Election,
       ElectionDefinitionSchema
     );
@@ -205,67 +194,58 @@ export class Store {
   /**
    * Sets the current election definition.
    */
-  async setElection(electionDefinition?: ElectionDefinition): Promise<void> {
-    await this.setConfig(ConfigKey.Election, electionDefinition);
+  setElection(electionDefinition?: ElectionDefinition): void {
+    this.setConfig(ConfigKey.Election, electionDefinition);
   }
 
   /**
    * Gets the current test mode setting value.
    */
-  async getTestMode(): Promise<boolean> {
-    return await this.getConfig(ConfigKey.TestMode, false, z.boolean());
+  getTestMode(): boolean {
+    return this.getConfig(ConfigKey.TestMode, false, z.boolean());
   }
 
   /**
    * Gets whether to skip election hash checks.
    */
-  async getSkipElectionHashCheck(): Promise<boolean> {
-    return await this.getConfig(
-      ConfigKey.SkipElectionHashCheck,
-      false,
-      z.boolean()
-    );
+  getSkipElectionHashCheck(): boolean {
+    return this.getConfig(ConfigKey.SkipElectionHashCheck, false, z.boolean());
   }
 
   /**
    * Sets the current test mode setting value.
    */
-  async setTestMode(testMode: boolean): Promise<void> {
-    await this.setConfig(ConfigKey.TestMode, testMode);
+  setTestMode(testMode: boolean): void {
+    this.setConfig(ConfigKey.TestMode, testMode);
   }
 
   /**
    * Sets whether to check the election hash.
    */
-  async setSkipElectionHashCheck(
-    skipElectionHashCheck: boolean
-  ): Promise<void> {
-    await this.setConfig(
-      ConfigKey.SkipElectionHashCheck,
-      skipElectionHashCheck
-    );
+  setSkipElectionHashCheck(skipElectionHashCheck: boolean): void {
+    this.setConfig(ConfigKey.SkipElectionHashCheck, skipElectionHashCheck);
   }
 
   /**
    * Gets the current override values for mark thresholds if they are set.
    * If there are no overrides set, returns undefined.
    */
-  async getMarkThresholdOverrides(): Promise<Optional<MarkThresholds>> {
-    return await this.getConfig(
+  getMarkThresholdOverrides(): Optional<MarkThresholds> {
+    return this.getConfig(
       ConfigKey.MarkThresholdOverrides,
       MarkThresholdsSchema
     );
   }
 
-  async getCurrentMarkThresholds(): Promise<Optional<MarkThresholds>> {
+  getCurrentMarkThresholds(): Optional<MarkThresholds> {
     return (
-      (await this.getMarkThresholdOverrides()) ??
-      (await this.getElectionDefinition())?.election.markThresholds
+      this.getMarkThresholdOverrides() ??
+      this.getElectionDefinition()?.election.markThresholds
     );
   }
 
-  async getBallotPaperSizeForElection(): Promise<BallotPaperSize> {
-    const electionDefinition = await this.getElectionDefinition();
+  getBallotPaperSizeForElection(): BallotPaperSize {
+    const electionDefinition = this.getElectionDefinition();
     return (
       electionDefinition?.election.ballotLayout?.paperSize ??
       BallotPaperSize.Letter
@@ -277,10 +257,8 @@ export class Store {
    * will remove overrides and cause thresholds to fallback to the default values
    * in the election definition.
    */
-  async setMarkThresholdOverrides(
-    markThresholds?: MarkThresholds
-  ): Promise<void> {
-    await this.setConfig(ConfigKey.MarkThresholdOverrides, markThresholds);
+  setMarkThresholdOverrides(markThresholds?: MarkThresholds): void {
+    this.setConfig(ConfigKey.MarkThresholdOverrides, markThresholds);
   }
 
   /**
@@ -288,7 +266,7 @@ export class Store {
    * `undefined`, ballots from all precincts will be accepted (this is the
    * default).
    */
-  async getCurrentPrecinctId(): Promise<Optional<Precinct['id']>> {
+  getCurrentPrecinctId(): Optional<Precinct['id']> {
     return this.getConfig(ConfigKey.CurrentPrecinctId, z.string());
   }
 
@@ -296,35 +274,30 @@ export class Store {
    * Sets the current precinct `scan` is accepting ballots for. Set to
    * `undefined` to accept from all precincts (this is the default).
    */
-  async setCurrentPrecinctId(
-    currentPrecinctId?: Precinct['id']
-  ): Promise<void> {
-    await this.setConfig(ConfigKey.CurrentPrecinctId, currentPrecinctId);
+  setCurrentPrecinctId(currentPrecinctId?: Precinct['id']): void {
+    this.setConfig(ConfigKey.CurrentPrecinctId, currentPrecinctId);
   }
 
   /**
    * Gets a config value by key.
    */
-  private async getConfig<T>(
-    key: ConfigKey,
-    schema: z.ZodSchema<T>
-  ): Promise<T | undefined>;
-  private async getConfig<T>(
+  private getConfig<T>(key: ConfigKey, schema: z.ZodSchema<T>): T | undefined;
+  private getConfig<T>(
     key: ConfigKey,
     defaultValue: T,
     schema: z.ZodSchema<T>
-  ): Promise<T>;
-  private async getConfig<T>(
+  ): T;
+  private getConfig<T>(
     key: ConfigKey,
     defaultValueOrSchema: z.ZodSchema<T> | T,
     maybeSchema?: z.ZodSchema<T>
-  ): Promise<T | undefined> {
+  ): T | undefined {
     debug('get config %s', key);
 
-    const row = (await this.dbGetAsync<[string]>(
+    const row = this.client.one<[string]>(
       'select value from configs where key = ?',
       key
-    )) as { value: string } | undefined;
+    ) as { value: string } | undefined;
 
     let defaultValue: T | undefined;
     let schema: z.ZodSchema<T>;
@@ -360,12 +333,12 @@ export class Store {
   /**
    * Sets the current election definition.
    */
-  private async setConfig<T>(key: ConfigKey, value?: T): Promise<void> {
+  private setConfig<T>(key: ConfigKey, value?: T): void {
     debug('set config %s=%O', key, value);
     if (typeof value === 'undefined') {
-      await this.dbRunAsync('delete from configs where key = ?', key);
+      this.client.run('delete from configs where key = ?', key);
     } else {
-      await this.dbRunAsync(
+      this.client.run(
         'insert or replace into configs (key, value) values (?, ?)',
         key,
         JSON.stringify(value)
@@ -376,10 +349,10 @@ export class Store {
   /**
    * Adds a batch and returns its id.
    */
-  async addBatch(): Promise<string> {
+  addBatch(): string {
     const id = uuid();
-    await this.dbRunAsync('insert into batches (id) values (?)', id);
-    await this.dbRunAsync(
+    this.client.run('insert into batches (id) values (?)', id);
+    this.client.run(
       `update batches set label = 'Batch ' || batch_number WHERE id = ?`,
       id
     );
@@ -389,23 +362,17 @@ export class Store {
   /**
    * Marks the batch with id `batchId` as finished.
    */
-  async finishBatch({
-    batchId,
-    error,
-  }: {
-    batchId: string;
-    error?: string;
-  }): Promise<void> {
-    await this.dbRunAsync(
+  finishBatch({ batchId, error }: { batchId: string; error?: string }): void {
+    this.client.run(
       'update batches set ended_at = current_timestamp, error = ? where id = ?',
       error ?? null,
       batchId
     );
   }
 
-  async addBallotCard(batchId: string): Promise<string> {
+  addBallotCard(batchId: string): string {
     const id = uuid();
-    await this.dbRunAsync(
+    this.client.run(
       'insert into ballot_cards (id, batch_id) values (?, ?)',
       id,
       batchId
@@ -416,11 +383,11 @@ export class Store {
   /**
    * Adds a sheet to an existing batch.
    */
-  async addSheet(
+  addSheet(
     sheetId: string,
     batchId: string,
     [front, back]: SheetOf<PageInterpretationWithFiles>
-  ): Promise<string> {
+  ): string {
     try {
       const frontFinishedAdjudicationAt =
         front.interpretation.type === 'InterpretedHmpbPage' &&
@@ -432,7 +399,7 @@ export class Store {
         !back.interpretation.adjudicationInfo.requiresAdjudication
           ? DateTime.now().toISOTime()
           : undefined;
-      await this.dbRunAsync(
+      this.client.run(
         `insert into sheets (
             id,
             batch_id,
@@ -469,10 +436,10 @@ export class Store {
         back.originalFilename
       );
 
-      const row = (await this.dbGetAsync<[string]>(
+      const row = this.client.one<[string]>(
         'select id from sheets where front_original_filename = ?',
         front.originalFilename
-      )) as { id: string } | undefined;
+      ) as { id: string } | undefined;
 
       if (row) {
         return row.id;
@@ -487,22 +454,22 @@ export class Store {
   /**
    * Mark a sheet as deleted
    */
-  async deleteSheet(sheetId: string): Promise<void> {
-    await this.dbRunAsync(
+  deleteSheet(sheetId: string): void {
+    this.client.run(
       'update sheets set deleted_at = current_timestamp where id = ?',
       sheetId
     );
   }
 
-  async zero(): Promise<void> {
-    await this.dbRunAsync('delete from batches');
+  zero(): void {
+    this.client.run('delete from batches');
   }
 
-  async getBallotFilenames(
+  getBallotFilenames(
     sheetId: string,
     side: Side
-  ): Promise<{ original: string; normalized: string } | undefined> {
-    const row = (await this.dbGetAsync<[string]>(
+  ): { original: string; normalized: string } | undefined {
+    const row = this.client.one<[string]>(
       `
       select
         ${side}_original_filename as original,
@@ -513,7 +480,7 @@ export class Store {
         id = ?
     `,
       sheetId
-    )) as { original: string; normalized: string } | undefined;
+    ) as { original: string; normalized: string } | undefined;
 
     if (!row) {
       return;
@@ -525,8 +492,8 @@ export class Store {
     };
   }
 
-  async getNextAdjudicationSheet(): Promise<BallotSheetInfo | undefined> {
-    const row = (await this.dbGetAsync(
+  getNextAdjudicationSheet(): BallotSheetInfo | undefined {
+    const row = this.client.one(
       `
       select
         id,
@@ -542,7 +509,7 @@ export class Store {
       order by created_at asc
       limit 1
       `
-    )) as
+    ) as
       | {
           id: string;
           frontInterpretationJson: string;
@@ -577,7 +544,7 @@ export class Store {
     debug('no review sheets requiring adjudication');
   }
 
-  async *getSheets(): AsyncGenerator<{
+  *getSheets(): Generator<{
     id: string;
     front: { original: string; normalized: string };
     back: { original: string; normalized: string };
@@ -588,7 +555,7 @@ export class Store {
       frontNormalizedFilename,
       backOriginalFilename,
       backNormalizedFilename,
-    } of (await this.dbAllAsync(`
+    } of this.client.each(`
       select
         id,
         front_original_filename as frontOriginalFilename,
@@ -597,7 +564,7 @@ export class Store {
         back_normalized_filename as backNormalizedFilename
       from sheets
       order by created_at asc
-    `)) as Array<{
+    `) as Iterable<{
       id: string;
       frontOriginalFilename: string;
       frontNormalizedFilename: string;
@@ -618,11 +585,11 @@ export class Store {
     }
   }
 
-  async adjudicateSheet(
+  adjudicateSheet(
     sheetId: string,
     side: Side,
     adjudications: readonly MarkAdjudication[]
-  ): Promise<boolean> {
+  ): boolean {
     debug(
       'saving mark adjudications for sheet %s %s: %O',
       side,
@@ -630,7 +597,7 @@ export class Store {
       adjudications
     );
 
-    await this.dbRunAsync(
+    this.client.run(
       `
       update
         sheets
@@ -650,27 +617,27 @@ export class Store {
   /**
    * Deletes the batch with id `batchId`.
    */
-  async deleteBatch(batchId: string): Promise<boolean> {
-    const { count } = (await this.dbGetAsync(
+  deleteBatch(batchId: string): boolean {
+    const { count } = this.client.one(
       'select count(*) as count from batches where id = ?',
       batchId
-    )) as { count: number };
-    await this.dbRunAsync('delete from batches where id = ?', batchId);
+    ) as { count: number };
+    this.client.run('delete from batches where id = ?', batchId);
     return count > 0;
   }
 
   /**
    * Cleanup partial batches
    */
-  async cleanupIncompleteBatches(): Promise<void> {
+  cleanupIncompleteBatches(): void {
     // cascades to the sheets
-    await this.dbRunAsync('delete from batches where ended_at is null');
+    this.client.run('delete from batches where ended_at is null');
   }
 
   /**
    * Gets all batches, including their sheet count.
    */
-  async batchStatus(): Promise<BatchInfo[]> {
+  batchStatus(): BatchInfo[] {
     interface SqliteBatchInfo {
       id: string;
       label: string;
@@ -679,7 +646,7 @@ export class Store {
       error: string | null;
       count: number;
     }
-    const batchInfo = (await this.dbAllAsync(`
+    const batchInfo = this.client.all(`
       select
         batches.id as id,
         batches.label as label,
@@ -700,7 +667,7 @@ export class Store {
         error
       order by
         batches.started_at desc
-    `)) as SqliteBatchInfo[];
+    `) as SqliteBatchInfo[];
     return batchInfo.map((info) => ({
       id: info.id,
       label: info.label,
@@ -718,32 +685,30 @@ export class Store {
   /**
    * Gets adjudication status.
    */
-  async adjudicationStatus(): Promise<AdjudicationStatus> {
-    const [{ remaining }, { adjudicated }] = await Promise.all([
-      this.dbGetAsync(`
+  adjudicationStatus(): AdjudicationStatus {
+    const { remaining } = this.client.one(`
         select count(*) as remaining
         from sheets
         where
           requires_adjudication = 1
           and deleted_at is null
           and (front_finished_adjudication_at is null or back_finished_adjudication_at is null)
-      `) as Promise<{ remaining: number }>,
-      this.dbGetAsync(`
+      `) as { remaining: number };
+    const { adjudicated } = this.client.one(`
         select count(*) as adjudicated
         from sheets
         where
           requires_adjudication = 1
           and (front_finished_adjudication_at is not null and back_finished_adjudication_at is not null)
-      `) as Promise<{ adjudicated: number }>,
-    ]);
+      `) as { adjudicated: number };
     return { adjudicated, remaining };
   }
 
   /**
    * Exports all CVR JSON data to a stream.
    */
-  async exportCvrs(writeStream: Writable): Promise<void> {
-    const electionDefinition = await this.getElectionDefinition();
+  exportCvrs(writeStream: Writable): void {
+    const electionDefinition = this.getElectionDefinition();
 
     if (!electionDefinition) {
       throw new Error('no election configured');
@@ -773,7 +738,7 @@ export class Store {
       backInterpretationJson,
       frontAdjudicationJson,
       backAdjudicationJson,
-    } of (await this.dbAllAsync(sql)) as Array<{
+    } of this.client.each(sql) as Iterable<{
       id: string;
       batchId: string;
       batchLabel: string | null;
@@ -810,9 +775,7 @@ export class Store {
             contestIds:
               frontInterpretation.type === 'InterpretedHmpbPage' ||
               frontInterpretation.type === 'UninterpretedHmpbPage'
-                ? await this.getContestIdsForMetadata(
-                    frontInterpretation.metadata
-                  )
+                ? this.getContestIdsForMetadata(frontInterpretation.metadata)
                 : undefined,
             markAdjudications: frontAdjudications,
           },
@@ -821,9 +784,7 @@ export class Store {
             contestIds:
               backInterpretation.type === 'InterpretedHmpbPage' ||
               backInterpretation.type === 'UninterpretedHmpbPage'
-                ? await this.getContestIdsForMetadata(
-                    backInterpretation.metadata
-                  )
+                ? this.getContestIdsForMetadata(backInterpretation.metadata)
                 : undefined,
             markAdjudications: backAdjudications,
           },
@@ -837,14 +798,14 @@ export class Store {
     }
   }
 
-  async addHmpbTemplate(
+  addHmpbTemplate(
     pdf: Buffer,
     metadata: BallotMetadata,
     layouts: readonly SerializableBallotPageLayout[]
-  ): Promise<string> {
+  ): string {
     debug('storing HMPB template: %O', metadata);
 
-    await this.dbRunAsync(
+    this.client.run(
       `
       delete from hmpb_templates
       where json_extract(metadata_json, '$.locales.primary') = ?
@@ -861,7 +822,7 @@ export class Store {
     );
 
     const id = uuid();
-    await this.dbRunAsync(
+    this.client.run(
       `
       insert into hmpb_templates (
         id,
@@ -880,10 +841,8 @@ export class Store {
     return id;
   }
 
-  async getHmpbTemplates(): Promise<
-    Array<[Buffer, SerializableBallotPageLayout[]]>
-  > {
-    const rows = (await this.dbAllAsync(
+  getHmpbTemplates(): Array<[Buffer, SerializableBallotPageLayout[]]> {
+    const rows = this.client.all(
       `
         select
           id,
@@ -893,7 +852,7 @@ export class Store {
         from hmpb_templates
         order by created_at asc
       `
-    )) as Array<{
+    ) as Array<{
       id: string;
       pdf: Buffer;
       layoutsJson: string;
@@ -923,17 +882,17 @@ export class Store {
     return results;
   }
 
-  async getBallotLayoutsForMetadata(
+  getBallotLayoutsForMetadata(
     metadata: BallotPageMetadata
-  ): Promise<SerializableBallotPageLayout[]> {
-    const rows = (await this.dbAllAsync(
+  ): SerializableBallotPageLayout[] {
+    const rows = this.client.all(
       `
         select
           layouts_json as layoutsJson,
           metadata_json as metadataJson
         from hmpb_templates
       `
-    )) as Array<{
+    ) as Array<{
       layoutsJson: string;
       metadataJson: string;
     }>;
@@ -962,16 +921,16 @@ export class Store {
     );
   }
 
-  async getContestIdsForMetadata(
+  getContestIdsForMetadata(
     metadata: BallotPageMetadata
-  ): Promise<Array<AnyContest['id']>> {
-    const electionDefinition = await this.getElectionDefinition();
+  ): Array<AnyContest['id']> {
+    const electionDefinition = this.getElectionDefinition();
 
     if (!electionDefinition) {
       throw new Error('no election configured');
     }
 
-    const layouts = await this.getBallotLayoutsForMetadata(metadata);
+    const layouts = this.getBallotLayoutsForMetadata(metadata);
     let contestOffset = 0;
 
     for (const layout of layouts) {

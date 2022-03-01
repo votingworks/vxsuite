@@ -113,7 +113,7 @@ export class Importer {
     pdf: Buffer,
     metadata: BallotMetadata
   ): Promise<BallotPageLayout[]> {
-    const electionDefinition = await this.workspace.store.getElectionDefinition();
+    const electionDefinition = this.workspace.store.getElectionDefinition();
     const result: BallotPageLayout[] = [];
 
     if (!electionDefinition) {
@@ -140,7 +140,7 @@ export class Importer {
       }
     }
 
-    await this.workspace.store.addHmpbTemplate(
+    this.workspace.store.addHmpbTemplate(
       pdf,
       result[0].ballotImage.metadata,
       // remove ballot image for storage
@@ -171,32 +171,30 @@ export class Importer {
   /**
    * Sets the election information used to encode and decode ballots.
    */
-  async configure(electionDefinition: ElectionDefinition): Promise<void> {
-    await this.workspace.store.setElection(electionDefinition);
+  configure(electionDefinition: ElectionDefinition): void {
+    this.workspace.store.setElection(electionDefinition);
   }
 
   async setTestMode(testMode: boolean): Promise<void> {
     debug('setting test mode to %s', testMode);
     await this.doZero();
-    await this.workspace.store.setTestMode(testMode);
+    this.workspace.store.setTestMode(testMode);
     await this.restoreConfig();
   }
 
-  async setSkipElectionHashCheck(
-    skipElectionHashCheck: boolean
-  ): Promise<void> {
+  setSkipElectionHashCheck(skipElectionHashCheck: boolean): void {
     debug(
       'setting skip check election hash setting to %s',
       skipElectionHashCheck
     );
-    await this.workspace.store.setSkipElectionHashCheck(skipElectionHashCheck);
+    this.workspace.store.setSkipElectionHashCheck(skipElectionHashCheck);
   }
 
   async setMarkThresholdOverrides(
     markThresholds?: MarkThresholds
   ): Promise<void> {
     debug('setting mark thresholds overrides to %s', markThresholds);
-    await this.workspace.store.setMarkThresholdOverrides(markThresholds);
+    this.workspace.store.setMarkThresholdOverrides(markThresholds);
     await this.restoreConfig();
   }
 
@@ -233,11 +231,11 @@ export class Importer {
     backImagePath: string
   ): Promise<string> {
     let sheetId = uuid();
-    const electionDefinition = await this.workspace.store.getElectionDefinition();
+    const electionDefinition = this.workspace.store.getElectionDefinition();
     if (!electionDefinition) {
       throw new Error('missing election definition');
     }
-    const currentPrecinctId = await this.workspace.store.getCurrentPrecinctId();
+    const currentPrecinctId = this.workspace.store.getCurrentPrecinctId();
 
     const workerPool = await this.getWorkerPool();
     const frontDetectQrcodePromise = workerPool.call({
@@ -398,7 +396,7 @@ export class Importer {
       }
     }
 
-    const ballotId = await this.workspace.store.addSheet(uuid(), batchId, [
+    const ballotId = this.workspace.store.addSheet(uuid(), batchId, [
       {
         originalFilename: frontOriginalBallotImagePath,
         normalizedFilename: frontNormalizedBallotImagePath,
@@ -416,7 +414,7 @@ export class Importer {
 
   private async finishBatch(error?: string): Promise<void> {
     if (this.batchId) {
-      await this.workspace.store.finishBatch({ batchId: this.batchId, error });
+      this.workspace.store.finishBatch({ batchId: this.batchId, error });
       this.batchId = undefined;
     }
 
@@ -444,7 +442,7 @@ export class Importer {
       const sheetId = await this.sheetAdded(sheet, this.batchId);
       debug('got a ballot card: %o, %s', sheet, sheetId);
 
-      const adjudicationStatus = await this.workspace.store.adjudicationStatus();
+      const adjudicationStatus = this.workspace.store.adjudicationStatus();
       if (adjudicationStatus.remaining === 0) {
         if (!(await this.sheetGenerator.acceptSheet())) {
           debug('failed to accept interpreted sheet: %s', sheetId);
@@ -464,7 +462,7 @@ export class Importer {
   }
 
   async getNextAdjudicationCastability(): Promise<Castability | undefined> {
-    const sheet = await this.workspace.store.getNextAdjudicationSheet();
+    const sheet = this.workspace.store.getNextAdjudicationSheet();
     if (sheet) {
       return checkSheetCastability([
         sheet.front.interpretation,
@@ -477,7 +475,7 @@ export class Importer {
    * Create a new batch and begin the scanning process
    */
   async startImport(): Promise<string> {
-    const election = await this.workspace.store.getElectionDefinition();
+    const election = this.workspace.store.getElectionDefinition();
 
     if (!election) {
       throw new Error('no election configuration');
@@ -491,7 +489,7 @@ export class Importer {
       throw new Error('interpreter still loading');
     }
 
-    this.batchId = await this.workspace.store.addBatch();
+    this.batchId = this.workspace.store.addBatch();
     const batchScanDirectory = join(
       this.workspace.ballotImagesPath,
       `batch-${this.batchId}`
@@ -502,7 +500,7 @@ export class Importer {
       this.batchId,
       batchScanDirectory
     );
-    const ballotPaperSize = await this.workspace.store.getBallotPaperSizeForElection();
+    const ballotPaperSize = this.workspace.store.getBallotPaperSizeForElection();
     this.sheetGenerator = this.scanner.scanSheets({
       directory: batchScanDirectory,
       pageSize: ballotPaperSize,
@@ -527,24 +525,24 @@ export class Importer {
     frontMarkAdjudications?: MarkAdjudications;
     backMarkAdjudications?: MarkAdjudications;
   }): Promise<void> {
-    const sheet = await this.workspace.store.getNextAdjudicationSheet();
+    const sheet = this.workspace.store.getNextAdjudicationSheet();
 
     if (sheet) {
       if (options.forceAccept) {
         await this.sheetGenerator?.acceptSheet();
-        await this.workspace.store.adjudicateSheet(
+        this.workspace.store.adjudicateSheet(
           sheet.id,
           'front',
           options.frontMarkAdjudications ?? []
         );
-        await this.workspace.store.adjudicateSheet(
+        this.workspace.store.adjudicateSheet(
           sheet.id,
           'back',
           options.backMarkAdjudications ?? []
         );
       } else {
         await this.sheetGenerator?.rejectSheet();
-        await this.workspace.store.deleteSheet(sheet.id);
+        this.workspace.store.deleteSheet(sheet.id);
       }
     }
 
@@ -566,7 +564,7 @@ export class Importer {
       return;
     }
 
-    const adjudicationStatus = await this.workspace.store.adjudicationStatus();
+    const adjudicationStatus = this.workspace.store.adjudicationStatus();
     if (adjudicationStatus.remaining > 0) {
       return;
     }
@@ -587,15 +585,15 @@ export class Importer {
   /**
    * Export the current CVRs to a string.
    */
-  async doExport(): Promise<string> {
-    const election = await this.workspace.store.getElectionDefinition();
+  doExport(): string {
+    const election = this.workspace.store.getElectionDefinition();
 
     if (!election) {
       return '';
     }
 
     const outputStream = new streams.WritableStream();
-    await this.workspace.store.exportCvrs(outputStream);
+    this.workspace.store.exportCvrs(outputStream);
     return outputStream.toString();
   }
 
@@ -603,7 +601,7 @@ export class Importer {
    * Reset all the data, both in the store and the ballot images.
    */
   async doZero(): Promise<void> {
-    await this.workspace.store.zero();
+    this.workspace.store.zero();
     await this.setMarkThresholdOverrides(undefined);
     fsExtra.emptyDirSync(this.workspace.ballotImagesPath);
   }
@@ -612,9 +610,9 @@ export class Importer {
    * Get the imported batches and current election info, if any.
    */
   async getStatus(): Promise<ScanStatus> {
-    const electionDefinition = await this.workspace.store.getElectionDefinition();
-    const batches = await this.workspace.store.batchStatus();
-    const adjudication = await this.workspace.store.adjudicationStatus();
+    const electionDefinition = this.workspace.store.getElectionDefinition();
+    const batches = this.workspace.store.batchStatus();
+    const adjudication = this.workspace.store.adjudicationStatus();
     const scanner = await this.scanner.getStatus();
 
     return {
@@ -634,6 +632,6 @@ export class Importer {
   async unconfigure(): Promise<void> {
     this.invalidateInterpreterConfig();
     await this.doZero();
-    await this.workspace.store.reset(); // destroy all data
+    this.workspace.store.reset(); // destroy all data
   }
 }

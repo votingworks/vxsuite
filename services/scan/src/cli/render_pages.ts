@@ -92,8 +92,8 @@ export async function main(
     if (ext === '.pdf') {
       queue.push({ pdf: await fs.readFile(path), base });
     } else if (ext === '.db') {
-      const store = await Store.fileStore(path);
-      const electionDefinition = await store.getElectionDefinition();
+      const store = Store.fileStore(path);
+      const electionDefinition = store.getElectionDefinition();
 
       if (!electionDefinition) {
         stderr.write(`✘ ${path} has no election definition\n`);
@@ -102,7 +102,7 @@ export async function main(
 
       const { election } = electionDefinition;
 
-      for (const [pdf, layouts] of await store.getHmpbTemplates()) {
+      for (const [pdf, layouts] of store.getHmpbTemplates()) {
         const {
           ballotStyleId,
           precinctId,
