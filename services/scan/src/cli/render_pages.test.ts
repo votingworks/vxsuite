@@ -74,8 +74,8 @@ test('generates one image per PDF page per DB', async () => {
   const tmpDir = tmpNameSync();
   await fs.mkdir(tmpDir);
   const tmpDbPath = join(tmpDir, 'ballots.db');
-  const store = await Store.fileStore(tmpDbPath);
-  await store.setElection(asElectionDefinition(election));
+  const store = Store.fileStore(tmpDbPath);
+  store.setElection(asElectionDefinition(election));
   const metadata: BallotMetadata = {
     ballotStyleId: '1',
     ballotType: BallotType.Standard,
@@ -84,7 +84,7 @@ test('generates one image per PDF page per DB', async () => {
     locales: { primary: 'en-US' },
     precinctId: '6538',
   };
-  await store.addHmpbTemplate(await fs.readFile(ballotPdf), metadata, [
+  store.addHmpbTemplate(await fs.readFile(ballotPdf), metadata, [
     {
       ballotImage: {
         imageData: { width: 1, height: 1 },
@@ -147,7 +147,7 @@ test('fails when a DB has no election', async () => {
   const stderr = fakeOutput();
   const tmpDir = tmpNameSync();
   await fs.mkdir(tmpDir);
-  const store = await Store.fileStore(join(tmpDir, 'ballots.db'));
+  const store = Store.fileStore(join(tmpDir, 'ballots.db'));
 
   expect(await main([store.getDbPath()], { stdout, stderr })).toEqual(1);
   expect(stderr.toString()).toEqual(

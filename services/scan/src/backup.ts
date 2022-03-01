@@ -2,7 +2,7 @@ import makeDebug from 'debug';
 import { createReadStream } from 'fs-extra';
 import { WritableStream } from 'memory-streams';
 import { basename } from 'path';
-import { Database } from 'sqlite3';
+import Database from 'better-sqlite3';
 import { fileSync } from 'tmp';
 import ZipStream from 'zip-stream';
 import { Store } from './store';
@@ -62,7 +62,7 @@ export class Backup {
   async backup(): Promise<void> {
     debug('starting a backup');
 
-    const electionDefinition = await this.store.getElectionDefinition();
+    const electionDefinition = this.store.getElectionDefinition();
 
     if (!electionDefinition) {
       throw new Error('cannot backup without election configuration');
@@ -71,17 +71,17 @@ export class Backup {
     await this.addEntry('election.json', electionDefinition.electionData);
 
     const cvrStream = new WritableStream();
-    await this.store.exportCvrs(cvrStream);
+    this.store.exportCvrs(cvrStream);
     await this.addEntry('cvrs.jsonl', cvrStream.toBuffer());
 
     const dbBackupFile = fileSync();
-    await this.store.backup(dbBackupFile.name);
+    this.store.backup(dbBackupFile.name);
     await this.rewriteFilePaths(dbBackupFile.name);
     await this.addFileEntry(dbBackupFile.name, 'ballots.db');
-    await this.addEntry('ballots.db.digest', await Store.getSchemaDigest());
+    await this.addEntry('ballots.db.digest', Store.getSchemaDigest());
     dbBackupFile.removeCallback();
 
-    for await (const sheet of this.store.getSheets()) {
+    for (const sheet of this.store.getSheets()) {
       await this.addFileEntry(sheet.front.original);
       await this.addFileEntry(sheet.front.normalized);
       await this.addFileEntry(sheet.back.original);
@@ -97,71 +97,37 @@ export class Backup {
    * paths and don't map well to the unzipped files.
    */
   private async rewriteFilePaths(dbPath: string): Promise<void> {
-    const db = await new Promise<Database>((resolve, reject) => {
-      const result = new Database(dbPath, (error) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(result);
-        }
-      });
-    });
+    const db = new Database(dbPath);
+    const selectSheets = db.prepare<[]>(`
+      select
+        id,
+        front_original_filename,
+        front_normalized_filename,
+        back_original_filename,
+        back_normalized_filename
+      from sheets
+      `);
+    const updateSheet = db.prepare<[string, string, string, string, string]>(
+      `
+      update sheets
+      set front_original_filename = ?,
+          front_normalized_filename = ?,
+          back_original_filename = ?,
+          back_normalized_filename = ?
+      where id = ?
+      `
+    );
 
     const updates: Array<Promise<void>> = [];
-    await new Promise<void>((resolve, reject) => {
-      db.each(
-        `
-        select
-          id,
-          front_original_filename,
-          front_normalized_filename,
-          back_original_filename,
-          back_normalized_filename
-        from sheets
-      `,
-        (error, row) => {
-          if (error) {
-            reject(error);
-          } else {
-            updates.push(
-              new Promise((updateResolve, updateReject) =>
-                db.run(
-                  `
-            update sheets
-            set front_original_filename = ?,
-                front_normalized_filename = ?,
-                back_original_filename = ?,
-                back_normalized_filename = ?
-            where id = ?
-          `,
-                  [
-                    basename(row.front_original_filename),
-                    basename(row.front_normalized_filename),
-                    basename(row.back_original_filename),
-                    basename(row.back_normalized_filename),
-                    row.id,
-                  ],
-                  (updateError) => {
-                    if (updateError) {
-                      updateReject(updateError);
-                    } else {
-                      updateResolve();
-                    }
-                  }
-                )
-              )
-            );
-          }
-        },
-        (error) => {
-          if (error) {
-            reject(error);
-          } else {
-            resolve();
-          }
-        }
+    for (const row of selectSheets.all()) {
+      updateSheet.run(
+        basename(row.front_original_filename),
+        basename(row.front_normalized_filename),
+        basename(row.back_original_filename),
+        basename(row.back_normalized_filename),
+        row.id
       );
-    });
+    }
 
     await Promise.all(updates);
   }

@@ -2,141 +2,169 @@ import * as fs from 'fs-extra';
 import * as tmp from 'tmp';
 import { DbClient } from './db_client';
 
-test('file database client', async () => {
+test('file database client', () => {
   const dbFile = tmp.fileSync();
-  const client = await DbClient.fileClient(dbFile.name);
+  const client = DbClient.fileClient(dbFile.name);
 
-  await client.reset();
-  await fs.access(dbFile.name);
+  client.reset();
+  fs.accessSync(dbFile.name);
 
   expect(client.getDatabasePath()).toBe(dbFile.name);
   expect(client.isMemoryDatabase()).toBe(false);
 
-  await client.exec(
+  client.exec(
     'create table if not exists muppets (name varchar(255) unique not null)'
   );
-  await client.run('insert into muppets (name) values (?)', 'Kermit');
-  await client.run('insert into muppets (name) values (?)', 'Fozzie');
+  client.run('insert into muppets (name) values (?)', 'Kermit');
+  client.run('insert into muppets (name) values (?)', 'Fozzie');
 
   const backupDbFile = tmp.fileSync();
-  await client.backup(backupDbFile.name);
+  client.backup(backupDbFile.name);
 
-  const clientForBackup = await DbClient.fileClient(backupDbFile.name);
-  expect(await clientForBackup.all('select * from muppets')).toEqual([
+  const clientForBackup = DbClient.fileClient(backupDbFile.name);
+  expect(clientForBackup.all('select * from muppets')).toEqual([
     { name: 'Kermit' },
     { name: 'Fozzie' },
   ]);
 
-  await client.destroy();
-  await expect(fs.access(dbFile.name)).rejects.toThrowError('ENOENT');
+  expect([...clientForBackup.each('select * from muppets')]).toEqual([
+    { name: 'Kermit' },
+    { name: 'Fozzie' },
+  ]);
+
+  client.destroy();
+  expect(() => fs.accessSync(dbFile.name)).toThrowError('ENOENT');
 });
 
-test('memory database client', async () => {
-  const client = await DbClient.memoryClient();
+test('memory database client', () => {
+  const client = DbClient.memoryClient();
 
-  await client.reset();
+  client.reset();
 
   expect(client.getDatabasePath()).toEqual(':memory:');
   expect(client.isMemoryDatabase()).toBe(true);
 
-  await client.destroy();
+  client.destroy();
 });
 
-test('read/write', async () => {
-  const client = await DbClient.memoryClient();
+test('read/write', () => {
+  const client = DbClient.memoryClient();
 
-  await client.exec(
+  client.exec(
     'create table if not exists muppets (name varchar(255) unique not null)'
   );
-  expect(await client.all('select * from muppets')).toEqual([]);
-  expect(await client.one('select * from muppets')).toBeUndefined();
+  expect(client.all('select * from muppets')).toEqual([]);
+  expect(client.one('select * from muppets')).toBeUndefined();
 
-  await client.run('insert into muppets (name) values (?)', 'Kermit');
-  await client.run('insert into muppets (name) values (?)', 'Fozzie');
+  client.run('insert into muppets (name) values (?)', 'Kermit');
+  client.run('insert into muppets (name) values (?)', 'Fozzie');
 
-  expect(await client.all('select * from muppets')).toEqual([
+  expect(client.all('select * from muppets')).toEqual([
     { name: 'Kermit' },
     { name: 'Fozzie' },
   ]);
-  expect(await client.one('select * from muppets')).toEqual({ name: 'Kermit' });
+  expect([...client.each('select * from muppets')]).toEqual([
+    { name: 'Kermit' },
+    { name: 'Fozzie' },
+  ]);
+  expect(client.one('select * from muppets')).toEqual({ name: 'Kermit' });
   expect(
-    await client.one('select * from muppets where name != ?', 'Kermit')
+    client.one('select * from muppets where name != ?', 'Kermit')
   ).toEqual({ name: 'Fozzie' });
 });
 
-test('transactions', async () => {
-  const client = await DbClient.memoryClient();
+test('transactions', () => {
+  const client = DbClient.memoryClient();
 
-  await client.exec(
+  client.exec(
     'create table if not exists muppets (name varchar(255) unique not null)'
   );
 
-  await client.run('insert into muppets (name) values (?)', 'Kermit');
-  expect(await client.one('select count(*) as count from muppets')).toEqual({
+  client.run('insert into muppets (name) values (?)', 'Kermit');
+  expect(client.one('select count(*) as count from muppets')).toEqual({
     count: 1,
   });
 
-  await expect(
-    client.transaction(async () => {
-      await client.run('insert into muppets (name) values (?)', 'Fozzie');
-      expect(
-        await client.one('select count(*) as count from muppets')
-      ).toEqual({ count: 2 });
+  expect(() =>
+    client.transaction(() => {
+      client.run('insert into muppets (name) values (?)', 'Fozzie');
+      expect(client.one('select count(*) as count from muppets')).toEqual({
+        count: 2,
+      });
       throw new Error('rollback');
     })
-  ).rejects.toThrow('rollback');
-  expect(await client.one('select count(*) as count from muppets')).toEqual({
+  ).toThrow('rollback');
+  expect(client.one('select count(*) as count from muppets')).toEqual({
     count: 1,
   });
 
-  await client.transaction(async () => {
-    await client.run('insert into muppets (name) values (?)', 'Fozzie');
+  client.transaction(() => {
+    client.run('insert into muppets (name) values (?)', 'Fozzie');
   });
-  expect(await client.one('select count(*) as count from muppets')).toEqual({
+  expect(client.one('select count(*) as count from muppets')).toEqual({
     count: 2,
   });
 });
 
-test('schema loading', async () => {
+test('schema loading', () => {
   const schemaFile = tmp.fileSync();
-  await fs.writeFile(
+  fs.writeFileSync(
     schemaFile.name,
     `create table if not exists muppets (name varchar(255) unique not null);`
   );
 
-  const client = await DbClient.memoryClient(schemaFile.name);
-  await client.run('insert into muppets (name) values (?)', 'Kermit');
+  const client = DbClient.memoryClient(schemaFile.name);
+  client.run('insert into muppets (name) values (?)', 'Kermit');
 });
 
-test('runtime errors', async () => {
-  const client = await DbClient.memoryClient();
+test('runtime errors', () => {
+  const client = DbClient.memoryClient();
 
-  await expect(client.run('select * from muppets')).rejects.toThrow(
-    'SQLITE_ERROR: no such table: muppets'
+  expect(() => client.run('select * from muppets')).toThrow(
+    'no such table: muppets'
   );
 
-  await expect(client.exec('select * from muppets')).rejects.toThrow(
-    'SQLITE_ERROR: no such table: muppets'
+  expect(() => client.exec('select * from muppets')).toThrow(
+    'no such table: muppets'
   );
 
-  await expect(client.all('select * from muppets')).rejects.toThrow(
-    'SQLITE_ERROR: no such table: muppets'
+  expect(() => client.all('select * from muppets')).toThrow(
+    'no such table: muppets'
   );
 
-  await expect(client.one('select * from muppets')).rejects.toThrow(
-    'SQLITE_ERROR: no such table: muppets'
+  expect(() => client.one('select * from muppets')).toThrow(
+    'no such table: muppets'
+  );
+
+  expect(() => [...client.each('select * from muppets')]).toThrow(
+    'no such table: muppets'
   );
 });
 
-test('connect errors', async () => {
-  const client = await DbClient.fileClient('/not/a/real/path');
-  await expect(client.connect()).rejects.toThrow();
+test('#each', () => {
+  const client = DbClient.memoryClient();
+
+  client.exec(
+    'create table if not exists muppets (name varchar(255) unique not null)'
+  );
+  client.run('insert into muppets (name) values (?)', 'Kermit');
+  client.run('insert into muppets (name) values (?)', 'Fozzie');
+
+  for (const row of client.each('select * from muppets')) {
+    expect(row).toEqual({ name: 'Kermit' });
+    break;
+  }
 });
 
-test('destroy errors', async () => {
+test('connect errors', () => {
+  const client = DbClient.fileClient('/not/a/real/path');
+  expect(() => client.connect()).toThrow();
+});
+
+test('destroy errors', () => {
   const file = tmp.fileSync();
-  const client = await DbClient.fileClient(file.name);
-  await client.connect();
+  const client = DbClient.fileClient(file.name);
+  client.connect();
   file.removeCallback();
-  await expect(client.destroy()).rejects.toThrow();
+  expect(() => client.destroy()).toThrow();
 });

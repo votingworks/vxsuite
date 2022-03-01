@@ -1,18 +1,22 @@
 import { assert } from '@votingworks/utils';
 import { createHash } from 'crypto';
 import makeDebug from 'debug';
-import { promises as fs } from 'fs';
-import * as sqlite3 from 'sqlite3';
+import * as fs from 'fs';
+import Database = require('better-sqlite3');
+
+type Database = Database.Database;
 
 const debug = makeDebug('scan:db-client');
 
 const MEMORY_DB_PATH = ':memory:';
 
+export type Bindable = string | number | bigint | Buffer | null;
+
 /**
  * Manages a connection for a SQLite database.
  */
 export class DbClient {
-  private db?: sqlite3.Database;
+  private db?: Database;
 
   /**
    * @param dbPath a file system path, or ":memory:" for an in-memory database
@@ -33,34 +37,31 @@ export class DbClient {
    * Determines whether this client is connected to an in-memory database.
    */
   isMemoryDatabase(): boolean {
-    return this.dbPath === MEMORY_DB_PATH;
+    return this.getDatabase().memory;
   }
 
   /**
    * Gets the sha256 digest of the current schema file.
    */
-  private async getSchemaDigest(): Promise<string> {
+  private getSchemaDigest(): string {
     assert(typeof this.schemaPath === 'string', 'schemaPath is required');
-    const schemaSql = await fs.readFile(this.schemaPath, 'utf-8');
+    const schemaSql = fs.readFileSync(this.schemaPath, 'utf-8');
     return createHash('sha256').update(schemaSql).digest('hex');
   }
 
   /**
    * Builds and returns a new client whose data is kept in memory.
    */
-  static async memoryClient(schemaPath?: string): Promise<DbClient> {
+  static memoryClient(schemaPath?: string): DbClient {
     const client = new DbClient(MEMORY_DB_PATH, schemaPath);
-    await client.create();
+    client.create();
     return client;
   }
 
   /**
    * Builds and returns a new client at `dbPath`.
    */
-  static async fileClient(
-    dbPath: string,
-    schemaPath?: string
-  ): Promise<DbClient> {
+  static fileClient(dbPath: string, schemaPath?: string): DbClient {
     const client = new DbClient(dbPath, schemaPath);
 
     if (!schemaPath) {
@@ -70,14 +71,14 @@ export class DbClient {
     const schemaDigestPath = `${dbPath}.digest`;
     let schemaDigest: string | undefined;
     try {
-      schemaDigest = (await fs.readFile(schemaDigestPath, 'utf-8')).trim();
+      schemaDigest = fs.readFileSync(schemaDigestPath, 'utf-8').trim();
     } catch {
       debug(
         'could not read %s, assuming the database needs to be created',
         schemaDigestPath
       );
     }
-    const newSchemaDigest = await client.getSchemaDigest();
+    const newSchemaDigest = client.getSchemaDigest();
     const shouldResetDatabase = newSchemaDigest !== schemaDigest;
 
     if (shouldResetDatabase) {
@@ -91,7 +92,7 @@ export class DbClient {
           .toISOString()
           .replace(/[^\d]+/g, '-')
           .replace(/-+$/, '')}`;
-        await fs.rename(dbPath, backupPath);
+        fs.renameSync(dbPath, backupPath);
         debug('backed up database to be reset to %s', backupPath);
       } catch {
         // ignore for now
@@ -100,8 +101,8 @@ export class DbClient {
 
     if (shouldResetDatabase) {
       debug('resetting database to updated schema');
-      await client.reset();
-      await fs.writeFile(schemaDigestPath, newSchemaDigest, 'utf-8');
+      client.reset();
+      fs.writeFileSync(schemaDigestPath, newSchemaDigest, 'utf-8');
     } else {
       debug('database schema appears to be up to date');
     }
@@ -112,7 +113,7 @@ export class DbClient {
   /**
    * Gets the underlying sqlite3 database.
    */
-  private async getDatabase(): Promise<sqlite3.Database> {
+  private getDatabase(): Database {
     if (!this.db) {
       return this.connect();
     }
@@ -122,15 +123,9 @@ export class DbClient {
   /**
    * Run {@link fn} within a transaction.
    */
-  async transaction(fn: () => Promise<void>): Promise<void> {
-    await this.run('begin transaction');
-    try {
-      await fn();
-      await this.run('commit');
-    } catch (err) {
-      await this.run('rollback');
-      throw err;
-    }
+  transaction(fn: () => void): void {
+    const db = this.getDatabase();
+    db.transaction(fn)();
   }
 
   /**
@@ -138,20 +133,12 @@ export class DbClient {
    *
    * @example
    *
-   * await client.run('insert into muppets (name) values (?)', 'Kermit')
+   * client.run('insert into muppets (name) values (?)', 'Kermit')
    */
-  async run<P extends unknown[]>(sql: string, ...params: P): Promise<void> {
-    const db = await this.getDatabase();
-    return new Promise((resolve, reject) => {
-      db.run(sql, ...params, (err: unknown) => {
-        if (err) {
-          debug('failed to execute %s (%o): %s', sql, params, err);
-          reject(err);
-        } else {
-          resolve();
-        }
-      });
-    });
+  run<P extends Bindable[]>(sql: string, ...params: P): void {
+    const db = this.getDatabase();
+    const stmt = db.prepare<P>(sql);
+    stmt.run(...params);
   }
 
   /**
@@ -159,25 +146,16 @@ export class DbClient {
    *
    * @example
    *
-   * await client.exec(`
+   * client.exec(`
    *   pragma foreign_keys = 1;
    *
    *   create table if not exist muppets (name varchar(255));
    *   create table if not exist images (url integer unique not null);
    * `)
    */
-  async exec(sql: string): Promise<void> {
-    const db = await this.getDatabase();
-    return new Promise((resolve, reject) => {
-      db.exec(sql, (err: unknown) => {
-        if (err) {
-          debug('failed to execute %s (%o): %s', sql, err);
-          reject(err);
-        } else {
-          resolve();
-        }
-      });
-    });
+  exec(sql: string): void {
+    const db = this.getDatabase();
+    db.exec(sql);
   }
 
   /**
@@ -185,23 +163,24 @@ export class DbClient {
    *
    * @example
    *
-   * await client.all('select * from muppets')
+   * client.all('select * from muppets')
    */
-  async all<P extends unknown[] = []>(
+  all<P extends Bindable[] = []>(sql: string, ...params: P): unknown[] {
+    const db = this.getDatabase();
+    const stmt = db.prepare<P>(sql);
+    return stmt.all(...params);
+  }
+
+  /**
+   * Runs `sql` to iterate over rows.
+   */
+  each<P extends Bindable[] = []>(
     sql: string,
     ...params: P
-  ): Promise<unknown[]> {
-    const db = await this.getDatabase();
-    return new Promise((resolve, reject) => {
-      db.all(sql, params, (err: unknown, rows: unknown[]) => {
-        if (err) {
-          debug('failed to execute %s (%o): %s', sql, params, err);
-          reject(err);
-        } else {
-          resolve(rows);
-        }
-      });
-    });
+  ): IterableIterator<unknown> {
+    const db = this.getDatabase();
+    const stmt = db.prepare<P>(sql);
+    return stmt.iterate(...params);
   }
 
   /**
@@ -209,70 +188,45 @@ export class DbClient {
    *
    * @example
    *
-   * await client.one('select count(*) as count from muppets')
+   * client.one('select count(*) as count from muppets')
    */
-  async one<P extends unknown[] = []>(
-    sql: string,
-    ...params: P
-  ): Promise<unknown> {
-    const db = await this.getDatabase();
-    return new Promise<unknown>((resolve, reject) => {
-      db.get(sql, params, (err: unknown, row: unknown) => {
-        if (err) {
-          debug('failed to execute %s (%o): %s', sql, params, err);
-          reject(err);
-        } else {
-          resolve(row);
-        }
-      });
-    });
+  one<P extends Bindable[] = []>(sql: string, ...params: P): unknown {
+    const db = this.getDatabase();
+    const stmt = db.prepare<P>(sql);
+    return stmt.get(...params);
   }
 
   /**
    * Deletes the entire database, including its on-disk representation.
    */
-  async destroy(): Promise<void> {
-    const db = await this.getDatabase();
-    return new Promise((resolve, reject) => {
-      db.close(async () => {
-        if (!this.isMemoryDatabase()) {
-          const dbPath = this.getDatabasePath();
-          try {
-            debug('deleting the database file at %s', dbPath);
-            await fs.unlink(dbPath);
-          } catch (error) {
-            debug(
-              'failed to delete database file %s: %s',
-              dbPath,
-              error.message
-            );
-            reject(error);
-          }
-        }
+  destroy(): void {
+    const db = this.getDatabase();
+    db.close();
 
-        resolve();
-      });
-    });
+    if (this.isMemoryDatabase()) {
+      return;
+    }
+
+    const dbPath = this.getDatabasePath();
+    try {
+      debug('deleting the database file at %s', dbPath);
+      fs.unlinkSync(dbPath);
+    } catch (error) {
+      debug('failed to delete database file %s: %s', dbPath, error.message);
+      throw error;
+    }
   }
 
-  async connect(): Promise<sqlite3.Database> {
+  /**
+   * Connects to the database, creating it if it doesn't exist.
+   */
+  connect(): Database {
     debug('connecting to the database at %s', this.getDatabasePath());
-    this.db = await new Promise<sqlite3.Database>((resolve, reject) => {
-      const db = new sqlite3.Database(
-        this.getDatabasePath(),
-        (err: unknown) => {
-          if (err) {
-            reject(err);
-          } else {
-            resolve(db);
-          }
-        }
-      );
-    });
+    this.db = new Database(this.getDatabasePath());
 
     // Enforce foreign key constraints. This is not in schema.sql because that
     // only runs on db creation.
-    await this.run('pragma foreign_keys = 1');
+    this.run('pragma foreign_keys = 1');
 
     return this.db;
   }
@@ -280,12 +234,12 @@ export class DbClient {
   /**
    * Creates the database including its tables.
    */
-  async create(): Promise<sqlite3.Database> {
+  create(): Database {
     debug('creating the database at %s', this.getDatabasePath());
-    const db = await this.connect();
+    const db = this.connect();
     if (this.schemaPath) {
-      const schema = await fs.readFile(this.schemaPath, 'utf-8');
-      await this.exec(schema);
+      const schema = fs.readFileSync(this.schemaPath, 'utf-8');
+      this.exec(schema);
     }
     return db;
   }
@@ -293,19 +247,19 @@ export class DbClient {
   /**
    * Writes a copy of the database to the given path.
    */
-  async backup(filePath: string): Promise<void> {
+  backup(filePath: string): void {
     assert(!this.isMemoryDatabase(), 'cannot backup a memory database');
-    await this.run('vacuum into ?', filePath);
+    this.run('vacuum into ?', filePath);
   }
 
   /**
    * Resets the database.
    */
-  async reset(): Promise<void> {
+  reset(): void {
     if (this.db) {
-      await this.destroy();
+      this.destroy();
     }
 
-    await this.create();
+    this.create();
   }
 }

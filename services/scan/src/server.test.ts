@@ -40,8 +40,8 @@ let importer: jest.Mocked<Importer>;
 beforeEach(async () => {
   importer = makeMock(Importer);
   workspace = await createWorkspace(dirSync().name);
-  await workspace.store.setElection(asElectionDefinition(election));
-  await workspace.store.addHmpbTemplate(
+  workspace.store.setElection(asElectionDefinition(election));
+  workspace.store.addHmpbTemplate(
     Buffer.of(),
     {
       locales: { primary: 'en-US' },
@@ -102,9 +102,9 @@ test('GET /scan/status', async () => {
 });
 
 test('GET /config/election (application/octet-stream)', async () => {
-  await workspace.store.setElection(testElectionDefinition);
-  await workspace.store.setTestMode(true);
-  await workspace.store.setMarkThresholdOverrides(undefined);
+  workspace.store.setElection(testElectionDefinition);
+  workspace.store.setTestMode(true);
+  workspace.store.setMarkThresholdOverrides(undefined);
   const response = await request(app)
     .get('/config/election')
     .accept('application/octet-stream')
@@ -113,7 +113,7 @@ test('GET /config/election (application/octet-stream)', async () => {
     testElectionDefinition.electionData
   );
 
-  await workspace.store.setElection(undefined);
+  workspace.store.setElection(undefined);
   await request(app)
     .get('/config/election')
     .accept('application/octet-stream')
@@ -121,9 +121,9 @@ test('GET /config/election (application/octet-stream)', async () => {
 });
 
 test('GET /config/election (application/json)', async () => {
-  await workspace.store.setElection(testElectionDefinition);
-  await workspace.store.setTestMode(true);
-  await workspace.store.setMarkThresholdOverrides(undefined);
+  workspace.store.setElection(testElectionDefinition);
+  workspace.store.setTestMode(true);
+  workspace.store.setMarkThresholdOverrides(undefined);
   const response = await request(app)
     .get('/config/election')
     .accept('application/json')
@@ -140,7 +140,7 @@ test('GET /config/election (application/json)', async () => {
     })
   );
 
-  await workspace.store.setElection(undefined);
+  workspace.store.setElection(undefined);
   await request(app)
     .get('/config/election')
     .accept('application/json')
@@ -148,9 +148,9 @@ test('GET /config/election (application/json)', async () => {
 });
 
 test('GET /config/testMode', async () => {
-  await workspace.store.setElection(testElectionDefinition);
-  await workspace.store.setTestMode(true);
-  await workspace.store.setMarkThresholdOverrides(undefined);
+  workspace.store.setElection(testElectionDefinition);
+  workspace.store.setTestMode(true);
+  workspace.store.setMarkThresholdOverrides(undefined);
   const response = await request(app).get('/config/testMode').expect(200);
   expect(response.body).toEqual({
     status: 'ok',
@@ -158,10 +158,10 @@ test('GET /config/testMode', async () => {
   });
 });
 
-test('GET /config/markThresholdOverrrides', async () => {
-  await workspace.store.setElection(testElectionDefinition);
-  await workspace.store.setTestMode(true);
-  await workspace.store.setMarkThresholdOverrides({
+test('GET /config/markThresholdOverrides', async () => {
+  workspace.store.setElection(testElectionDefinition);
+  workspace.store.setTestMode(true);
+  workspace.store.setMarkThresholdOverrides({
     definite: 0.5,
     marginal: 0.4,
   });
@@ -242,7 +242,7 @@ test('PUT /config/package', async () => {
   const electionDefinition = safeParseElectionDefinition(
     await fs.readFile(join(fixtureRoot, 'election.json'), 'utf-8')
   ).unsafeUnwrap();
-  importer.configure.mockResolvedValue();
+  importer.configure.mockReturnValue();
   importer.addHmpbTemplates.mockResolvedValue([]);
 
   await request(app)
@@ -343,7 +343,7 @@ test('POST /scan/scanBatch errors', async () => {
 });
 
 test('POST /scan/export', async () => {
-  importer.doExport.mockResolvedValue('');
+  importer.doExport.mockReturnValue('');
 
   await request(app)
     .post('/scan/export')
@@ -379,8 +379,8 @@ test('GET /scan/hmpb/ballot/:ballotId/:side/image', async () => {
     __dirname,
     '../test/fixtures/state-of-hamilton/filled-in-dual-language-p2.jpg'
   );
-  const batchId = await workspace.store.addBatch();
-  const sheetId = await workspace.store.addSheet(uuid(), batchId, [
+  const batchId = workspace.store.addBatch();
+  const sheetId = workspace.store.addSheet(uuid(), batchId, [
     {
       originalFilename: frontOriginal,
       normalizedFilename: frontNormalized,
@@ -436,7 +436,7 @@ test('GET /scan/hmpb/ballot/:ballotId/:side/image', async () => {
       },
     },
   ]);
-  await workspace.store.finishBatch({ batchId });
+  workspace.store.finishBatch({ batchId });
 
   await request(app)
     .get(`/scan/hmpb/ballot/${sheetId}/front/image`)
@@ -613,21 +613,17 @@ test('start as precinct-scanner rejects a held sheet at startup', async () => {
 });
 
 test('get next sheet', async () => {
-  jest
-    .spyOn(workspace.store, 'getNextAdjudicationSheet')
-    .mockImplementationOnce(async () => {
-      return {
-        id: 'mock-review-sheet',
-        front: {
-          image: { url: '/url/front' },
-          interpretation: { type: 'BlankPage' },
-        },
-        back: {
-          image: { url: '/url/back' },
-          interpretation: { type: 'BlankPage' },
-        },
-      };
-    });
+  jest.spyOn(workspace.store, 'getNextAdjudicationSheet').mockReturnValueOnce({
+    id: 'mock-review-sheet',
+    front: {
+      image: { url: '/url/front' },
+      interpretation: { type: 'BlankPage' },
+    },
+    back: {
+      image: { url: '/url/back' },
+      interpretation: { type: 'BlankPage' },
+    },
+  });
 
   await request(app)
     .get(`/scan/hmpb/review/next-sheet`)

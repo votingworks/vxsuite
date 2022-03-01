@@ -15,68 +15,68 @@ import { zeroRect } from '../test/fixtures/zero_rect';
 import { Store } from './store';
 import { PageInterpretationWithFiles, SheetOf } from './types';
 
-test('get/set election', async () => {
-  const store = await Store.memoryStore();
+test('get/set election', () => {
+  const store = Store.memoryStore();
 
-  expect(await store.getElectionDefinition()).toBeUndefined();
+  expect(store.getElectionDefinition()).toBeUndefined();
 
-  await store.setElection(asElectionDefinition(election));
-  expect((await store.getElectionDefinition())?.election).toEqual(election);
+  store.setElection(asElectionDefinition(election));
+  expect(store.getElectionDefinition()?.election).toEqual(election);
 
-  await store.setElection(undefined);
-  expect(await store.getElectionDefinition()).toBeUndefined();
+  store.setElection(undefined);
+  expect(store.getElectionDefinition()).toBeUndefined();
 });
 
-test('get/set test mode', async () => {
-  const store = await Store.memoryStore();
+test('get/set test mode', () => {
+  const store = Store.memoryStore();
 
-  expect(await store.getTestMode()).toBe(false);
+  expect(store.getTestMode()).toBe(false);
 
-  await store.setTestMode(true);
-  expect(await store.getTestMode()).toBe(true);
+  store.setTestMode(true);
+  expect(store.getTestMode()).toBe(true);
 
-  await store.setTestMode(false);
-  expect(await store.getTestMode()).toBe(false);
+  store.setTestMode(false);
+  expect(store.getTestMode()).toBe(false);
 });
 
-test('get/set mark threshold overrides', async () => {
-  const store = await Store.memoryStore();
+test('get/set mark threshold overrides', () => {
+  const store = Store.memoryStore();
 
-  expect(await store.getMarkThresholdOverrides()).toBe(undefined);
+  expect(store.getMarkThresholdOverrides()).toBe(undefined);
 
-  await store.setMarkThresholdOverrides({ definite: 0.6, marginal: 0.5 });
-  expect(await store.getMarkThresholdOverrides()).toStrictEqual({
+  store.setMarkThresholdOverrides({ definite: 0.6, marginal: 0.5 });
+  expect(store.getMarkThresholdOverrides()).toStrictEqual({
     definite: 0.6,
     marginal: 0.5,
   });
 
-  await store.setMarkThresholdOverrides(undefined);
-  expect(await store.getMarkThresholdOverrides()).toBe(undefined);
+  store.setMarkThresholdOverrides(undefined);
+  expect(store.getMarkThresholdOverrides()).toBe(undefined);
 });
 
-test('get current mark thresholds falls back to election definition defaults', async () => {
-  const store = await Store.memoryStore();
-  await store.setElection(asElectionDefinition(election));
-  expect(await store.getCurrentMarkThresholds()).toStrictEqual({
+test('get current mark thresholds falls back to election definition defaults', () => {
+  const store = Store.memoryStore();
+  store.setElection(asElectionDefinition(election));
+  expect(store.getCurrentMarkThresholds()).toStrictEqual({
     definite: 0.17,
     marginal: 0.12,
   });
 
-  await store.setMarkThresholdOverrides({ definite: 0.6, marginal: 0.5 });
-  expect(await store.getCurrentMarkThresholds()).toStrictEqual({
+  store.setMarkThresholdOverrides({ definite: 0.6, marginal: 0.5 });
+  expect(store.getCurrentMarkThresholds()).toStrictEqual({
     definite: 0.6,
     marginal: 0.5,
   });
 
-  await store.setMarkThresholdOverrides(undefined);
-  expect(await store.getCurrentMarkThresholds()).toStrictEqual({
+  store.setMarkThresholdOverrides(undefined);
+  expect(store.getCurrentMarkThresholds()).toStrictEqual({
     definite: 0.17,
     marginal: 0.12,
   });
 });
 
-test('HMPB template handling', async () => {
-  const store = await Store.memoryStore();
+test('HMPB template handling', () => {
+  const store = Store.memoryStore();
   const metadata: BallotMetadata = {
     electionHash: '',
     locales: { primary: 'en-US' },
@@ -86,9 +86,9 @@ test('HMPB template handling', async () => {
     ballotType: BallotType.Standard,
   };
 
-  expect(await store.getHmpbTemplates()).toEqual([]);
+  expect(store.getHmpbTemplates()).toEqual([]);
 
-  await store.addHmpbTemplate(Buffer.of(1, 2, 3), metadata, [
+  store.addHmpbTemplate(Buffer.of(1, 2, 3), metadata, [
     {
       ballotImage: {
         imageData: { width: 1, height: 1 },
@@ -111,7 +111,7 @@ test('HMPB template handling', async () => {
     },
   ]);
 
-  expect(await store.getHmpbTemplates()).toEqual(
+  expect(store.getHmpbTemplates()).toEqual(
     typedAs<Array<[Buffer, SerializableBallotPageLayout[]]>>([
       [
         Buffer.of(1, 2, 3),
@@ -152,27 +152,27 @@ test('HMPB template handling', async () => {
   );
 });
 
-test('batch cleanup works correctly', async () => {
+test('batch cleanup works correctly', () => {
   const dbFile = tmp.fileSync();
-  const store = await Store.fileStore(dbFile.name);
+  const store = Store.fileStore(dbFile.name);
 
-  await store.reset();
+  store.reset();
 
-  const firstBatchId = await store.addBatch();
-  await store.addBatch();
-  await store.finishBatch({ batchId: firstBatchId });
-  await store.cleanupIncompleteBatches();
+  const firstBatchId = store.addBatch();
+  store.addBatch();
+  store.finishBatch({ batchId: firstBatchId });
+  store.cleanupIncompleteBatches();
 
-  const batches = await store.batchStatus();
+  const batches = store.batchStatus();
   expect(batches).toHaveLength(1);
   expect(batches[0].id).toEqual(firstBatchId);
   expect(batches[0].label).toEqual('Batch 1');
 
-  const thirdBatchId = await store.addBatch();
-  await store.addBatch();
-  await store.finishBatch({ batchId: thirdBatchId });
-  await store.cleanupIncompleteBatches();
-  const updatedBatches = await store.batchStatus();
+  const thirdBatchId = store.addBatch();
+  store.addBatch();
+  store.finishBatch({ batchId: thirdBatchId });
+  store.cleanupIncompleteBatches();
+  const updatedBatches = store.batchStatus();
   expect(
     [...updatedBatches].sort((a, b) => a.label.localeCompare(b.label))
   ).toEqual([
@@ -187,7 +187,7 @@ test('batch cleanup works correctly', async () => {
   ]);
 });
 
-test('adjudication', async () => {
+test('adjudication', () => {
   const candidateContests = election.contests.filter(
     (contest): contest is CandidateContest => contest.type === 'candidate'
   );
@@ -196,7 +196,7 @@ test('adjudication', async () => {
   );
   const yesnoOption = 'yes';
 
-  const store = await Store.memoryStore();
+  const store = Store.memoryStore();
   const metadata: BallotMetadata = {
     electionHash: '',
     ballotStyleId: '12',
@@ -205,8 +205,8 @@ test('adjudication', async () => {
     locales: { primary: 'en-US' },
     ballotType: BallotType.Standard,
   };
-  await store.setElection(asElectionDefinition(election));
-  await store.addHmpbTemplate(
+  store.setElection(asElectionDefinition(election));
+  store.addHmpbTemplate(
     Buffer.of(),
     metadata,
     [1, 2].map((pageNumber) => ({
@@ -257,8 +257,8 @@ test('adjudication', async () => {
       ],
     }))
   );
-  const batchId = await store.addBatch();
-  const ballotId = await store.addSheet(
+  const batchId = store.addBatch();
+  const ballotId = store.addSheet(
     uuid(),
     batchId,
     [0, 1].map((i) =>
@@ -337,11 +337,11 @@ test('adjudication', async () => {
   );
 
   // check the review paths
-  const reviewSheet = await store.getNextAdjudicationSheet();
+  const reviewSheet = store.getNextAdjudicationSheet();
   expect(reviewSheet?.id).toEqual(ballotId);
 
-  await store.finishBatch({ batchId });
+  store.finishBatch({ batchId });
 
   // cleaning up batches now should have no impact
-  await store.cleanupIncompleteBatches();
+  store.cleanupIncompleteBatches();
 });

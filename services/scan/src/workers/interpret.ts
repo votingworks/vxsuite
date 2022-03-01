@@ -42,7 +42,7 @@ export async function configure(store: Store): Promise<void> {
   interpreter = undefined;
 
   debug('configuring from %s', store.getDbPath());
-  const electionDefinition = await store.getElectionDefinition();
+  const electionDefinition = store.getElectionDefinition();
 
   if (!electionDefinition) {
     debug('no election configured');
@@ -50,16 +50,16 @@ export async function configure(store: Store): Promise<void> {
   }
 
   debug('election: %o', electionDefinition.election.title);
-  const templates = await store.getHmpbTemplates();
+  const templates = store.getHmpbTemplates();
 
   debug('creating a new interpreter');
   interpreter = new Interpreter({
     election: electionDefinition.election,
-    electionHash: (await store.getSkipElectionHashCheck())
+    electionHash: store.getSkipElectionHashCheck()
       ? undefined
       : electionDefinition.electionHash,
-    testMode: await store.getTestMode(),
-    markThresholdOverrides: await store.getMarkThresholdOverrides(),
+    testMode: store.getTestMode(),
+    markThresholdOverrides: store.getMarkThresholdOverrides(),
     adjudicationReasons: (SCANNER_LOCATION === ScannerLocation.Central
       ? electionDefinition.election.centralScanAdjudicationReasons
       : electionDefinition.election.precinctScanAdjudicationReasons) ?? [
@@ -131,7 +131,7 @@ export async function interpret(
 export async function call(input: Input): Promise<Output> {
   switch (input.action) {
     case 'configure': {
-      const store = await Store.fileStore(input.dbPath);
+      const store = Store.fileStore(input.dbPath);
       return await configure(store);
     }
 

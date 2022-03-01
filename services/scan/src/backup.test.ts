@@ -1,7 +1,7 @@
 import { writeFile } from 'fs-extra';
 import { WritableStream } from 'memory-streams';
 import { basename } from 'path';
-import { Database } from 'sqlite3';
+import Database from 'better-sqlite3';
 import { fileSync } from 'tmp';
 import { Entry, fromBuffer, ZipFile } from 'yauzl';
 import ZipStream from 'zip-stream';
@@ -9,7 +9,7 @@ import { asElectionDefinition } from '@votingworks/fixtures';
 import { BallotIdSchema, BallotType, unsafeParse } from '@votingworks/types';
 import { election } from '../test/fixtures/2020-choctaw';
 import { backup, Backup } from './backup';
-import { Store } from './store';
+import { ConfigKey, Store } from './store';
 
 function getEntries(zipfile: ZipFile): Promise<Entry[]> {
   return new Promise((resolve, reject) => {
@@ -86,7 +86,7 @@ async function readJsonEntry(zipfile: ZipFile, entry: Entry): Promise<unknown> {
 }
 
 test('unconfigured', async () => {
-  const store = await Store.memoryStore();
+  const store = Store.memoryStore();
 
   await expect(
     new Promise((resolve, reject) => {
@@ -96,8 +96,8 @@ test('unconfigured', async () => {
 });
 
 test('configured', async () => {
-  const store = await Store.memoryStore();
-  await store.setElection(asElectionDefinition(election));
+  const store = Store.memoryStore();
+  store.setElection(asElectionDefinition(election));
   const result = new WritableStream();
   const onError = jest.fn();
 
@@ -109,7 +109,7 @@ test('configured', async () => {
 });
 
 test('zip entry fails', async () => {
-  const store = await Store.memoryStore();
+  const store = Store.memoryStore();
   const zip = new ZipStream();
   const b = new Backup(zip, store);
 
@@ -126,8 +126,8 @@ test('zip entry fails', async () => {
 });
 
 test('has election.json', async () => {
-  const store = await Store.memoryStore();
-  await store.setElection(asElectionDefinition(election));
+  const store = Store.memoryStore();
+  store.setElection(asElectionDefinition(election));
   const result = new WritableStream();
 
   await new Promise((resolve, reject) => {
@@ -143,9 +143,9 @@ test('has election.json', async () => {
 });
 
 test('has ballots.db', async () => {
-  const store = await Store.memoryStore();
+  const store = Store.memoryStore();
   const electionDefinition = asElectionDefinition(election);
-  await store.setElection(electionDefinition);
+  store.setElection(electionDefinition);
   const output = new WritableStream();
 
   await new Promise((resolve, reject) => {
@@ -159,36 +159,19 @@ test('has ballots.db', async () => {
   const dbEntry = entries.find((entry) => entry.fileName === 'ballots.db');
   const dbFile = fileSync();
   await writeFile(dbFile.fd, await readEntry(zipfile, dbEntry!));
-  const db = await new Promise<Database>((resolve, reject) => {
-    const result = new Database(dbFile.name, (error) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve(result);
-      }
-    });
-  });
-  const row = await new Promise<{ value: string }>((resolve, reject) => {
-    db.get(
-      'select value from configs where key = ?',
-      ['election'],
-      (error, result) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(result);
-        }
-      }
-    );
-  });
+  const db = new Database(dbFile.name);
+  const stmt = db.prepare<[ConfigKey]>(
+    'select value from configs where key = ?'
+  );
+  const row: { value: string } = stmt.get(ConfigKey.Election);
   expect(JSON.parse(row.value)).toEqual(electionDefinition);
 });
 
 test('has all files referenced in the database', async () => {
-  const store = await Store.memoryStore();
+  const store = Store.memoryStore();
   const electionDefinition = asElectionDefinition(election);
-  await store.setElection(electionDefinition);
-  const batchId = await store.addBatch();
+  store.setElection(electionDefinition);
+  const batchId = store.addBatch();
 
   const frontOriginalFile = fileSync();
   await writeFile(frontOriginalFile.fd, 'front original');
@@ -199,7 +182,7 @@ test('has all files referenced in the database', async () => {
   const backOriginalFile = fileSync();
   await writeFile(backOriginalFile.fd, 'back original');
 
-  await store.addSheet('sheet-1', batchId, [
+  store.addSheet('sheet-1', batchId, [
     {
       interpretation: { type: 'UnreadablePage' },
       originalFilename: frontOriginalFile.name,
@@ -257,41 +240,25 @@ test('has all files referenced in the database', async () => {
   const dbEntry = entries.find((entry) => entry.fileName === 'ballots.db');
   const dbFile = fileSync();
   await writeFile(dbFile.fd, await readEntry(zipfile, dbEntry!));
-  const db = await new Promise<Database>((resolve, reject) => {
-    const result = new Database(dbFile.name, (error) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve(result);
-      }
-    });
-  });
-  const row = await new Promise<{ filename: string }>((resolve, reject) => {
-    db.get(
-      'select front_original_filename as filename from sheets',
-      (error, result) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(result);
-        }
-      }
-    );
-  });
+  const db = new Database(dbFile.name);
+  const stmt = db.prepare<[]>(
+    'select front_original_filename as filename from sheets'
+  );
+  const row: { filename: string } = stmt.get();
   expect(row).toEqual({
     filename: basename(frontOriginalFile.name),
   });
 });
 
 test('has cvrs.jsonl', async () => {
-  const store = await Store.memoryStore();
-  await store.setElection(asElectionDefinition(election));
+  const store = Store.memoryStore();
+  store.setElection(asElectionDefinition(election));
   const result = new WritableStream();
 
-  const batchId = await store.addBatch();
+  const batchId = store.addBatch();
   const imageFile = fileSync();
   await writeFile(imageFile.fd, 'front original');
-  await store.addSheet('sheet-1', batchId, [
+  store.addSheet('sheet-1', batchId, [
     {
       interpretation: {
         type: 'InterpretedBmdPage',

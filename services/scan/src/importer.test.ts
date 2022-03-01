@@ -49,7 +49,7 @@ test('startImport calls scanner.scanSheet', async () => {
     'no election configuration'
   );
 
-  await importer.configure(asElectionDefinition(election));
+  importer.configure(asElectionDefinition(election));
 
   // failed scan
   const batchControl: BatchControl = {
@@ -68,7 +68,7 @@ test('startImport calls scanner.scanSheet', async () => {
 
   expect(batchControl.endBatch).toHaveBeenCalled();
 
-  const batches = await workspace.store.batchStatus();
+  const batches = workspace.store.batchStatus();
   expect(batches[0].error).toEqual('Error: scanner is a banana');
 
   // successful scan
@@ -101,10 +101,10 @@ test('unconfigure clears all data.', async () => {
     scanner,
   });
 
-  await importer.configure(asElectionDefinition(election));
-  expect(await workspace.store.getElectionDefinition()).toBeDefined();
+  importer.configure(asElectionDefinition(election));
+  expect(workspace.store.getElectionDefinition()).toBeDefined();
   await importer.unconfigure();
-  expect(await workspace.store.getElectionDefinition()).toBeUndefined();
+  expect(workspace.store.getElectionDefinition()).toBeUndefined();
 });
 
 test('setTestMode zeroes and sets test mode on the interpreter', async () => {
@@ -131,9 +131,9 @@ test('setTestMode zeroes and sets test mode on the interpreter', async () => {
     ...frontMetadata,
     pageNumber: 2,
   };
-  await importer.configure(asElectionDefinition(election));
-  const batchId = await workspace.store.addBatch();
-  await workspace.store.addSheet(uuid(), batchId, [
+  importer.configure(asElectionDefinition(election));
+  const batchId = workspace.store.addBatch();
+  workspace.store.addSheet(uuid(), batchId, [
     {
       originalFilename: '/tmp/front-page.png',
       normalizedFilename: '/tmp/front-normalized-page.png',
@@ -238,7 +238,7 @@ test('manually importing files', async () => {
     ...frontMetadata,
     pageNumber: 2,
   };
-  await workspace.store.setElection(asElectionDefinition(election));
+  workspace.store.setElection(asElectionDefinition(election));
 
   const frontImagePath = await makeImageFile();
   const backImagePath = await makeImageFile();
@@ -300,7 +300,7 @@ test('manually importing files', async () => {
   });
 
   const sheetId = await importer.importFile(
-    await workspace.store.addBatch(),
+    workspace.store.addBatch(),
     frontImagePath,
     backImagePath
   );
@@ -310,13 +310,11 @@ test('manually importing files', async () => {
     dbPath: workspace.store.getDbPath(),
   });
 
-  expect((await workspace.store.getBallotFilenames(sheetId, 'front'))!).toEqual(
-    {
-      original: '/tmp/front.png',
-      normalized: '/tmp/front-normalized.png',
-    }
-  );
-  expect((await workspace.store.getBallotFilenames(sheetId, 'back'))!).toEqual({
+  expect(workspace.store.getBallotFilenames(sheetId, 'front')!).toEqual({
+    original: '/tmp/front.png',
+    normalized: '/tmp/front-normalized.png',
+  });
+  expect(workspace.store.getBallotFilenames(sheetId, 'back')!).toEqual({
     original: '/tmp/back.png',
     normalized: '/tmp/back-normalized.png',
   });
@@ -328,7 +326,7 @@ test('scanning pauses on adjudication then continues', async () => {
     scanSheets: jest.fn(),
     calibrate: jest.fn(),
   };
-  async function mockGetNextAdjudicationSheet(): Promise<BallotSheetInfo> {
+  function mockGetNextAdjudicationSheet(): BallotSheetInfo {
     return {
       id: 'mock-sheet-id',
       front: {
@@ -347,28 +345,28 @@ test('scanning pauses on adjudication then continues', async () => {
     scanner,
   });
 
-  await importer.configure(asElectionDefinition(election));
+  importer.configure(asElectionDefinition(election));
 
   jest.spyOn(workspace.store, 'deleteSheet');
   jest.spyOn(workspace.store, 'adjudicateSheet');
 
   jest
     .spyOn(workspace.store, 'addSheet')
-    .mockImplementationOnce(async () => {
+    .mockImplementationOnce(() => {
       return 'sheet-1';
     })
-    .mockImplementationOnce(async () => {
+    .mockImplementationOnce(() => {
       jest
         .spyOn(workspace.store, 'adjudicationStatus')
-        .mockImplementation(async () => {
+        .mockImplementation(() => {
           return { adjudicated: 0, remaining: 1 };
         });
       return 'sheet-2';
     })
-    .mockImplementationOnce(async () => {
+    .mockImplementationOnce(() => {
       jest
         .spyOn(workspace.store, 'adjudicationStatus')
-        .mockImplementation(async () => {
+        .mockImplementation(() => {
           return { adjudicated: 0, remaining: 1 };
         });
       return 'sheet-3';
@@ -412,9 +410,7 @@ test('scanning pauses on adjudication then continues', async () => {
 
   jest
     .spyOn(workspace.store, 'adjudicationStatus')
-    .mockImplementation(async () => {
-      return { adjudicated: 0, remaining: 0 };
-    });
+    .mockReturnValue({ adjudicated: 0, remaining: 0 });
 
   await importer.continueImport({ forceAccept: false });
   await importer.waitForEndOfBatchOrScanningPause();
@@ -428,9 +424,7 @@ test('scanning pauses on adjudication then continues', async () => {
 
   jest
     .spyOn(workspace.store, 'adjudicationStatus')
-    .mockImplementation(async () => {
-      return { adjudicated: 0, remaining: 0 };
-    });
+    .mockReturnValue({ adjudicated: 0, remaining: 0 });
 
   await importer.continueImport({
     forceAccept: true,
@@ -462,8 +456,8 @@ test('importing a sheet normalizes and orders HMPB pages', async () => {
     workerPoolProvider,
   });
 
-  await importer.configure(asElectionDefinition(election));
-  jest.spyOn(workspace.store, 'addSheet').mockResolvedValueOnce('sheet-id');
+  importer.configure(asElectionDefinition(election));
+  jest.spyOn(workspace.store, 'addSheet').mockReturnValueOnce('sheet-id');
 
   workerCall.mockImplementationOnce(async (input) => {
     expect(input.action).toEqual('configure');
@@ -587,9 +581,9 @@ test('rejects pages that do not match the current precinct', async () => {
     workerPoolProvider,
   });
 
-  await importer.configure(asElectionDefinition(election));
-  await workspace.store.setCurrentPrecinctId(election.precincts[1].id);
-  jest.spyOn(workspace.store, 'addSheet').mockResolvedValueOnce('sheet-id');
+  importer.configure(asElectionDefinition(election));
+  workspace.store.setCurrentPrecinctId(election.precincts[1].id);
+  jest.spyOn(workspace.store, 'addSheet').mockReturnValueOnce('sheet-id');
 
   workerCall.mockImplementationOnce(async (input) => {
     expect(input.action).toEqual('configure');
@@ -716,9 +710,9 @@ test('rejects sheets that would not produce a valid CVR', async () => {
   });
 
   const currentPrecinctId = election.precincts[0].id;
-  await importer.configure(asElectionDefinition(election));
-  await workspace.store.setCurrentPrecinctId(currentPrecinctId);
-  jest.spyOn(workspace.store, 'addSheet').mockResolvedValueOnce('sheet-id');
+  importer.configure(asElectionDefinition(election));
+  workspace.store.setCurrentPrecinctId(currentPrecinctId);
+  jest.spyOn(workspace.store, 'addSheet').mockReturnValueOnce('sheet-id');
 
   workerCall.mockImplementationOnce(async (input) => {
     expect(input.action).toEqual('configure');

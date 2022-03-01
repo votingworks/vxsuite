@@ -94,7 +94,7 @@ export async function retryScan(
   const output = await createWorkspace(
     options.outputWorkspace ?? dirSync().name
   );
-  const outputBatchId = await output.store.addBatch();
+  const outputBatchId = output.store.addBatch();
 
   listeners?.configured?.({
     ...options,
@@ -104,10 +104,7 @@ export async function retryScan(
 
   listeners?.sheetsLoading?.();
   const [sql, params] = queryFromOptions(options);
-  const sheets = (await input.store.dbAllAsync<typeof params>(
-    sql,
-    ...params
-  )) as Array<{
+  const sheets = input.store.dbAll<typeof params>(sql, ...params) as Array<{
     id: string;
     frontOriginalFilename: string;
     backOriginalFilename: string;
@@ -116,7 +113,7 @@ export async function retryScan(
     frontInterpretationJson: string;
     backInterpretationJson: string;
   }>;
-  const electionDefinition = await input.store.getElectionDefinition();
+  const electionDefinition = input.store.getElectionDefinition();
   if (!electionDefinition) {
     throw new Error('no configured election');
   }
