@@ -46,7 +46,7 @@ Next install git, and create an SSH key following the [github guide](https://doc
 
 ```sh
 sudo apt update
-sudo apt install -y git
+sudo apt install -y git make
 echo "export PATH=\${PATH}:/usr/sbin" >> ~/.bashrc # Only for debian, add sbin to your path
 ssh-keygen -t ed25519 -C "your_github_email@example.com" # Save to the default location, and chose a passphrase
 eval "$(ssh-agent -s)" # start the ssh agent
