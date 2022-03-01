@@ -1,7 +1,7 @@
 import { writeFile } from 'fs-extra';
 import { WritableStream } from 'memory-streams';
 import { basename } from 'path';
-import { Database } from 'sqlite3';
+import Database from 'better-sqlite3';
 import { fileSync } from 'tmp';
 import { Entry, fromBuffer, ZipFile } from 'yauzl';
 import ZipStream from 'zip-stream';
@@ -9,7 +9,7 @@ import { asElectionDefinition } from '@votingworks/fixtures';
 import { BallotIdSchema, BallotType, unsafeParse } from '@votingworks/types';
 import { election } from '../test/fixtures/2020-choctaw';
 import { backup, Backup } from './backup';
-import { Store } from './store';
+import { ConfigKey, Store } from './store';
 
 function getEntries(zipfile: ZipFile): Promise<Entry[]> {
   return new Promise((resolve, reject) => {
@@ -159,28 +159,11 @@ test('has ballots.db', async () => {
   const dbEntry = entries.find((entry) => entry.fileName === 'ballots.db');
   const dbFile = fileSync();
   await writeFile(dbFile.fd, await readEntry(zipfile, dbEntry!));
-  const db = await new Promise<Database>((resolve, reject) => {
-    const result = new Database(dbFile.name, (error) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve(result);
-      }
-    });
-  });
-  const row = await new Promise<{ value: string }>((resolve, reject) => {
-    db.get(
-      'select value from configs where key = ?',
-      ['election'],
-      (error, result) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(result);
-        }
-      }
-    );
-  });
+  const db = new Database(dbFile.name);
+  const stmt = db.prepare<[ConfigKey]>(
+    'select value from configs where key = ?'
+  );
+  const row: { value: string } = stmt.get(ConfigKey.Election);
   expect(JSON.parse(row.value)).toEqual(electionDefinition);
 });
 
@@ -257,27 +240,11 @@ test('has all files referenced in the database', async () => {
   const dbEntry = entries.find((entry) => entry.fileName === 'ballots.db');
   const dbFile = fileSync();
   await writeFile(dbFile.fd, await readEntry(zipfile, dbEntry!));
-  const db = await new Promise<Database>((resolve, reject) => {
-    const result = new Database(dbFile.name, (error) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve(result);
-      }
-    });
-  });
-  const row = await new Promise<{ filename: string }>((resolve, reject) => {
-    db.get(
-      'select front_original_filename as filename from sheets',
-      (error, result) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(result);
-        }
-      }
-    );
-  });
+  const db = new Database(dbFile.name);
+  const stmt = db.prepare<[]>(
+    'select front_original_filename as filename from sheets'
+  );
+  const row: { filename: string } = stmt.get();
   expect(row).toEqual({
     filename: basename(frontOriginalFile.name),
   });

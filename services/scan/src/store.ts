@@ -40,7 +40,7 @@ import { inspect } from 'util';
 import { v4 as uuid } from 'uuid';
 import { z } from 'zod';
 import { buildCastVoteRecord } from './build_cast_vote_record';
-import { DbClient } from './db_client';
+import { Bindable, DbClient } from './db_client';
 import { sheetRequiresAdjudication } from './interpreter';
 import { PageInterpretationWithFiles, SheetOf } from './types';
 import { normalizeAndJoin } from './util/path';
@@ -107,7 +107,7 @@ export class Store {
    *
    * @deprecated provide a method to do whatever callers need to do
    */
-  async dbRunAsync<P extends unknown[]>(
+  async dbRunAsync<P extends Bindable[]>(
     sql: string,
     ...params: P
   ): Promise<void> {
@@ -141,7 +141,7 @@ export class Store {
    *
    * @deprecated provide a method to do whatever callers need to do
    */
-  async dbAllAsync<P extends unknown[] = []>(
+  async dbAllAsync<P extends Bindable[] = []>(
     sql: string,
     ...params: P
   ): Promise<unknown[]> {
@@ -157,7 +157,7 @@ export class Store {
    *
    * @deprecated provide a method to do whatever callers need to do
    */
-  async dbGetAsync<P extends unknown[] = []>(
+  async dbGetAsync<P extends Bindable[] = []>(
     sql: string,
     ...params: P
   ): Promise<unknown> {
@@ -380,7 +380,7 @@ export class Store {
     const id = uuid();
     await this.dbRunAsync('insert into batches (id) values (?)', id);
     await this.dbRunAsync(
-      'update batches set label= "Batch " || batch_number WHERE id = ?',
+      `update batches set label = 'Batch ' || batch_number WHERE id = ?`,
       id
     );
     return id;
@@ -398,7 +398,7 @@ export class Store {
   }): Promise<void> {
     await this.dbRunAsync(
       'update batches set ended_at = current_timestamp, error = ? where id = ?',
-      error,
+      error ?? null,
       batchId
     );
   }
@@ -456,9 +456,11 @@ export class Store {
         back.originalFilename,
         back.normalizedFilename,
         JSON.stringify(back.interpretation ?? {}),
-        sheetRequiresAdjudication([front.interpretation, back.interpretation]),
-        frontFinishedAdjudicationAt,
-        backFinishedAdjudicationAt
+        sheetRequiresAdjudication([front.interpretation, back.interpretation])
+          ? 1
+          : 0,
+        frontFinishedAdjudicationAt ?? null,
+        backFinishedAdjudicationAt ?? null
       );
     } catch (error) {
       debug(
@@ -852,10 +854,10 @@ export class Store {
       and json_extract(metadata_json, '$.isTestMode') = ?
       `,
       metadata.locales.primary,
-      metadata.locales.secondary,
+      metadata.locales.secondary ?? null,
       metadata.ballotStyleId,
       metadata.precinctId,
-      metadata.isTestMode
+      metadata.isTestMode ? 1 : 0
     );
 
     const id = uuid();
