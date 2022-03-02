@@ -75,6 +75,13 @@ interface Props {
    * "Save") should be first under a fragment, and the secondary actions (such
    * as "Cancel") should be after that in the order they should be presented
    * from left to right.
+   *
+   * This ordering is primarily for accessibility. The primary action being
+   * first makes it the easiest one to activate when using an accessible
+   * controller. The first secondary action is likely a cancellation or
+   * dismissal action and is still common, albeit less than the primary
+   * action. Further actions are likely a variation on the primary action
+   * (such as "Save As") and are less common.
    */
   actions?: ReactNode;
   onAfterOpen?: () => void;
