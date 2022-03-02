@@ -73,8 +73,8 @@ interface Props {
   /**
    * Modal actions go here, most likely buttons. The primary action (such as
    * "Save") should be first under a fragment, and the secondary actions (such
-   * as "Cancel") should after that in the order they should be presented from
-   * left to right.
+   * as "Cancel") should be after that in the order they should be presented
+   * from left to right.
    */
   actions?: ReactNode;
   onAfterOpen?: () => void;
