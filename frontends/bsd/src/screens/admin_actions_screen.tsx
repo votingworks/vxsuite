@@ -50,10 +50,10 @@ export function AdminActionsScreen({
   const [isBackingUp, setIsBackingUp] = useState(false);
   const [backupError, setBackupError] = useState('');
   function toggleIsConfirmingUnconfigure() {
-    return setIsConfirmingUnconfigure((s) => !s);
+    setIsConfirmingUnconfigure((s) => !s);
   }
   function toggleIsDoubleConfirmingUnconfigure() {
-    return setIsDoubleConfirmingUnconfigure((s) => !s);
+    setIsDoubleConfirmingUnconfigure((s) => !s);
   }
   const [isConfirmingZero, setIsConfirmingZero] = useState(false);
   const [exportingLogType, setExportingLogType] = useState<LogFileType>();
@@ -134,11 +134,6 @@ export function AdminActionsScreen({
                   {isBackingUp ? 'Exporting…' : 'Export Backup…'}
                 </Button>
               </p>
-              {process.env.NODE_ENV === 'development' && (
-                <p>
-                  <LinkButton to="/debug">Debug…</LinkButton>
-                </p>
-              )}
               <p>
                 <Button onPress={() => setExportingLogType(LogFileType.Raw)}>
                   Export Logs…
@@ -205,7 +200,6 @@ export function AdminActionsScreen({
           }
           actions={
             <React.Fragment>
-              <Button onPress={toggleIsConfirmingUnconfigure}>Cancel</Button>
               <Button
                 danger
                 onPress={() => {
@@ -215,6 +209,7 @@ export function AdminActionsScreen({
               >
                 Yes, Delete Election Data
               </Button>
+              <Button onPress={toggleIsConfirmingUnconfigure}>Cancel</Button>
             </React.Fragment>
           }
           onOverlayClick={toggleIsConfirmingUnconfigure}
@@ -231,9 +226,6 @@ export function AdminActionsScreen({
           }
           actions={
             <React.Fragment>
-              <Button onPress={toggleIsDoubleConfirmingUnconfigure}>
-                Cancel
-              </Button>
               <Button
                 danger
                 onPress={() => {
@@ -242,6 +234,9 @@ export function AdminActionsScreen({
                 }}
               >
                 I am sure. Delete all election data.
+              </Button>
+              <Button onPress={toggleIsDoubleConfirmingUnconfigure}>
+                Cancel
               </Button>
             </React.Fragment>
           }

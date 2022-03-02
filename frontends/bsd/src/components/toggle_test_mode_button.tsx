@@ -67,7 +67,6 @@ export function ToggleTestModeButton({
           actions={
             !isTogglingTestMode && (
               <React.Fragment>
-                <Button onPress={toggleIsConfirming}>Cancel</Button>
                 <Button
                   data-testid="confirm-toggle"
                   ref={defaultButtonRef}
@@ -76,6 +75,7 @@ export function ToggleTestModeButton({
                 >
                   {isTestMode ? 'Toggle to Live Mode' : 'Toggle to Test Mode'}
                 </Button>
+                <Button onPress={toggleIsConfirming}>Cancel</Button>
               </React.Fragment>
             )
           }

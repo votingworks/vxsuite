@@ -116,11 +116,7 @@ export function SetMarkThresholdsModal({
             </Prose>
           }
           onOverlayClick={onClose}
-          actions={
-            <React.Fragment>
-              <LinkButton onPress={onClose}>Close</LinkButton>
-            </React.Fragment>
-          }
+          actions={<LinkButton onPress={onClose}>Close</LinkButton>}
         />
       );
     case ModalState.CONFIRM_INTENT:
@@ -139,7 +135,6 @@ export function SetMarkThresholdsModal({
           onOverlayClick={onClose}
           actions={
             <React.Fragment>
-              <LinkButton onPress={onClose}>Close</LinkButton>
               {
                 <Button
                   danger
@@ -148,6 +143,7 @@ export function SetMarkThresholdsModal({
                   Proceed to Override Thresholds
                 </Button>
               }{' '}
+              <LinkButton onPress={onClose}>Close</LinkButton>
             </React.Fragment>
           }
         />
@@ -179,17 +175,15 @@ export function SetMarkThresholdsModal({
           onOverlayClick={onClose}
           actions={
             <React.Fragment>
+              <Button
+                danger
+                onPress={() =>
+                  overrideThresholds(definiteThreshold, marginalThreshold)
+                }
+              >
+                Override Thresholds
+              </Button>{' '}
               <LinkButton onPress={onClose}>Close</LinkButton>
-              {
-                <Button
-                  danger
-                  onPress={() =>
-                    overrideThresholds(definiteThreshold, marginalThreshold)
-                  }
-                >
-                  Override Thresholds
-                </Button>
-              }{' '}
             </React.Fragment>
           }
         />
@@ -225,12 +219,10 @@ export function SetMarkThresholdsModal({
           onOverlayClick={onClose}
           actions={
             <React.Fragment>
+              <Button primary onPress={resetThresholds}>
+                Reset Thresholds
+              </Button>{' '}
               <LinkButton onPress={onClose}>Close</LinkButton>
-              {
-                <Button primary onPress={resetThresholds}>
-                  Reset Thresholds
-                </Button>
-              }{' '}
             </React.Fragment>
           }
         />

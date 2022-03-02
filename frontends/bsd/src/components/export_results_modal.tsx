@@ -199,13 +199,13 @@ export function ExportResultsModal({
         onOverlayClick={onClose}
         actions={
           <React.Fragment>
-            <LinkButton onPress={onClose}>Cancel</LinkButton>
             <UsbControllerButton
               small={false}
               primary
               usbDriveStatus={usbDriveStatus}
               usbDriveEject={() => usbDriveEject(currentUserSession.type)}
             />
+            <LinkButton onPress={onClose}>Cancel</LinkButton>
           </React.Fragment>
         }
       />
@@ -292,11 +292,11 @@ export function ExportResultsModal({
           onOverlayClick={onClose}
           actions={
             <React.Fragment>
-              <Button onPress={() => exportResults(true)}>Custom</Button>
-              <LinkButton onPress={onClose}>Cancel</LinkButton>
               <Button primary onPress={() => exportResults(false)}>
                 Export
               </Button>
+              <LinkButton onPress={onClose}>Cancel</LinkButton>
+              <Button onPress={() => exportResults(true)}>Custom</Button>
             </React.Fragment>
           }
         />
