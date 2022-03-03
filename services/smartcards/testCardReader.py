@@ -25,7 +25,7 @@ def wait_for_card():
         print("Insert card")
     while True:
         time.sleep(REFRESH_INTERVAL)
-        if CardInterface.card:
+        if CardInterface.card and CardInterface.card_ready:
             break
     print("Card inserted")
     if not CardInterface.card.write_enabled:
