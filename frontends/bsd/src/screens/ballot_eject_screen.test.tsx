@@ -769,38 +769,34 @@ test('does NOT say ballot is blank if one side is blank and the other requires w
         },
         layouts: {
           front: {
-            ballotImage: {
-              metadata: {
-                ballotStyleId: '1',
-                precinctId: '1',
-                ballotType: BallotType.Standard,
-                electionHash: 'abcde',
-                isTestMode: false,
-                locales: { primary: 'en-US' },
-                pageNumber: 1,
-              },
-              imageData: {
-                width: 20,
-                height: 20,
-              },
+            pageSize: {
+              width: 20,
+              height: 20,
+            },
+            metadata: {
+              ballotStyleId: '1',
+              precinctId: '1',
+              ballotType: BallotType.Standard,
+              electionHash: 'abcde',
+              isTestMode: false,
+              locales: { primary: 'en-US' },
+              pageNumber: 1,
             },
             contests: [],
           },
           back: {
-            ballotImage: {
-              metadata: {
-                ballotStyleId: '1',
-                precinctId: '1',
-                ballotType: BallotType.Standard,
-                electionHash: 'abcde',
-                isTestMode: false,
-                locales: { primary: 'en-US' },
-                pageNumber: 2,
-              },
-              imageData: {
-                width: 20,
-                height: 20,
-              },
+            pageSize: {
+              width: 20,
+              height: 20,
+            },
+            metadata: {
+              ballotStyleId: '1',
+              precinctId: '1',
+              ballotType: BallotType.Standard,
+              electionHash: 'abcde',
+              isTestMode: false,
+              locales: { primary: 'en-US' },
+              pageNumber: 2,
             },
             contests: [
               {

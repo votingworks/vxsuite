@@ -5,7 +5,7 @@ import {
   BallotMark,
   BallotMsEitherNeitherTargetMark,
   BallotPageContestOptionLayout,
-  BallotPageLayout,
+  BallotPageLayoutWithImage,
   BallotPageMetadata,
   BallotType,
   BallotYesNoTargetMark,
@@ -26,20 +26,18 @@ import {
   YesNoContest,
   YesNoOption,
 } from '@votingworks/types';
-import { map, reversed, zip, zipMin } from '@votingworks/utils';
+import { map, zip, zipMin } from '@votingworks/utils';
 import { strict as assert } from 'assert';
 import makeDebug from 'debug';
 import * as jsfeat from 'jsfeat';
 import { inspect } from 'util';
 import { v4 as uuid } from 'uuid';
 import { getVotesFromMarks } from './get_votes_from_marks';
-import { findContestOptions } from './hmpb/find_contest_options';
+import { findBallotLayoutCorrespondence } from './hmpb/find_contests';
 import {
-  findContests,
-  ContestShape,
-  findBallotLayoutCorrespondence,
-} from './hmpb/find_contests';
-import { findTargets } from './hmpb/find_targets';
+  findContestsWithUnknownColumnLayout,
+  interpretTemplate,
+} from './layout';
 import { detect } from './metadata';
 import { DetectQrCode, FindMarksResult, Interpreted } from './types';
 import { binarize, PIXEL_BLACK, PIXEL_WHITE } from './utils/binarize';
@@ -47,7 +45,7 @@ import { crop } from './utils/crop';
 import { defined } from './utils/defined';
 import { vh as flipVH } from './utils/flip';
 import { rectCorners } from './utils/geometry';
-import { diff, countPixels } from './utils/jsfeat/diff';
+import { countPixels, diff } from './utils/jsfeat/diff';
 import { matToImageData } from './utils/jsfeat/mat_to_image_data';
 import { readGrayscaleImage } from './utils/jsfeat/read_grayscale_image';
 import { KeyedMap } from './utils/keyed_map';
@@ -92,7 +90,7 @@ export class Interpreter {
       BallotPageMetadata['precinctId'],
       number
     ],
-    BallotPageLayout | undefined
+    BallotPageLayoutWithImage | undefined
   >(([locales, ballotStyleId, precinctId, pageNumber]) =>
     [
       locales?.primary,
@@ -119,27 +117,13 @@ export class Interpreter {
 
   /**
    * Adds a template so that this `Interpreter` will be able to scan ballots
-   * printed from it. The template image should be an image of a blank ballot,
-   * either scanned or otherwise rendered as an image.
+   * printed from it. The template is an object describing the layout of the
+   * ballot.
    */
   async addTemplate(
-    imageData: ImageData,
-    metadata?: BallotPageMetadata,
-    { flipped }?: { flipped?: boolean }
-  ): Promise<BallotPageLayout>;
-  async addTemplate(template: BallotPageLayout): Promise<BallotPageLayout>;
-  async addTemplate(
-    imageDataOrTemplate: ImageData | BallotPageLayout,
-    metadata?: BallotPageMetadata,
-    { flipped }: { flipped?: boolean } = {}
-  ): Promise<BallotPageLayout> {
-    const template =
-      'data' in imageDataOrTemplate
-        ? await this.interpretTemplate(imageDataOrTemplate, metadata, {
-            flipped,
-          })
-        : imageDataOrTemplate;
-    const effectiveMetadata = metadata ?? template.ballotImage.metadata;
+    template: BallotPageLayoutWithImage
+  ): Promise<BallotPageLayoutWithImage> {
+    const effectiveMetadata = template.ballotPageLayout.metadata;
 
     if (effectiveMetadata.isTestMode !== this.testMode) {
       throw new Error(
@@ -159,7 +143,7 @@ export class Interpreter {
     ballotStyleId,
     precinctId,
     pageNumber,
-  }: TemplateKey): BallotPageLayout | undefined {
+  }: TemplateKey): BallotPageLayoutWithImage | undefined {
     return this.templates.get([locales, ballotStyleId, precinctId, pageNumber]);
   }
 
@@ -168,7 +152,7 @@ export class Interpreter {
    */
   private setTemplate(
     { locales, ballotStyleId, precinctId, pageNumber }: TemplateKey,
-    template: BallotPageLayout
+    template: BallotPageLayoutWithImage
   ): void {
     this.templates.set(
       [locales, ballotStyleId, precinctId, pageNumber],
@@ -185,62 +169,14 @@ export class Interpreter {
     imageData: ImageData,
     metadata?: BallotPageMetadata,
     { flipped = false } = {}
-  ): Promise<BallotPageLayout> {
-    debug(
-      'interpretTemplate: looking for contests in %d×%d image',
-      imageData.width,
-      imageData.height
-    );
-    const normalized = await this.normalizeImageDataAndMetadata(
+  ): Promise<BallotPageLayoutWithImage> {
+    return interpretTemplate({
+      election: this.election,
       imageData,
       metadata,
-      {
-        flipped,
-      }
-    );
-
-    debug('using metadata for template: %O', normalized.metadata);
-
-    const contests = findContestOptions([
-      ...map(
-        this.findContests(normalized.imageData).contests,
-        ({ bounds, corners }) => ({
-          bounds,
-          corners,
-          targets: [...reversed(findTargets(normalized.imageData, bounds))],
-        })
-      ),
-    ]);
-
-    return {
-      ballotImage: normalized,
-      contests,
-    };
-  }
-
-  private findContests(
-    imageData: ImageData
-  ): { contests: ContestShape[]; columns: number } {
-    // Try three columns, i.e. candidate pages.
-    const shapesWithThreeColumns = [
-      ...findContests(imageData, {
-        columns: [true, true, true],
-      }),
-    ];
-
-    if (shapesWithThreeColumns.length > 0) {
-      return { contests: shapesWithThreeColumns, columns: 3 };
-    }
-
-    // Try two columns, i.e. measure pages.
-    return {
-      contests: [
-        ...findContests(imageData, {
-          columns: [true, true],
-        }),
-      ],
-      columns: 2,
-    };
+      flipped,
+      detectQrCode: this.detectQrCode,
+    });
   }
 
   /**
@@ -266,7 +202,8 @@ export class Interpreter {
 
       if (
         pageNumber === metadata.pageNumber &&
-        pageTemplate.ballotImage.metadata.isTestMode !== metadata.isTestMode
+        pageTemplate.ballotPageLayout.metadata.isTestMode !==
+          metadata.isTestMode
       ) {
         debug(
           'cannot scan ballot because template page %d does not match the expected test ballot value (%s)',
@@ -335,20 +272,27 @@ export class Interpreter {
       );
     }
 
-    const { contests } = this.findContests(imageData);
-    const ballotLayout: BallotPageLayout = {
-      ballotImage: { imageData, metadata },
-      contests: [
-        ...map(contests, ({ bounds, corners }) => ({
-          bounds,
-          corners,
-          options: [],
-        })),
-      ],
+    const { contests } = findContestsWithUnknownColumnLayout(imageData);
+    const ballotLayout: BallotPageLayoutWithImage = {
+      imageData,
+      ballotPageLayout: {
+        pageSize: {
+          width: imageData.width,
+          height: imageData.height,
+        },
+        metadata,
+        contests: [
+          ...map(contests, ({ bounds, corners }) => ({
+            bounds,
+            corners,
+            options: [],
+          })),
+        ],
+      },
     };
     debug(
       'found contest areas: %O',
-      ballotLayout.contests.map(({ bounds }) => bounds)
+      ballotLayout.ballotPageLayout.contests.map(({ bounds }) => bounds)
     );
 
     const { locales, ballotStyleId, precinctId, pageNumber } = metadata;
@@ -367,14 +311,16 @@ export class Interpreter {
   /**
    * Get the contests for the given template.
    */
-  private getContestsForTemplate(template: BallotPageLayout): Contests {
+  private getContestsForTemplate(
+    template: BallotPageLayoutWithImage
+  ): Contests {
     const { election } = this;
     const {
       locales,
       ballotStyleId,
       pageNumber,
       precinctId,
-    } = template.ballotImage.metadata;
+    } = template.ballotPageLayout.metadata;
     const ballotStyle = defined(
       getBallotStyle({
         ballotStyleId,
@@ -387,12 +333,12 @@ export class Interpreter {
       const pageTemplate = defined(
         this.getTemplate({ locales, ballotStyleId, precinctId, pageNumber: i })
       );
-      contestOffset += pageTemplate.contests.length;
+      contestOffset += pageTemplate.ballotPageLayout.contests.length;
     }
 
     return getContests({ ballotStyle, election }).slice(
       contestOffset,
-      contestOffset + template.contests.length
+      contestOffset + template.ballotPageLayout.contests.length
     );
   }
 
@@ -443,20 +389,20 @@ export class Interpreter {
   }
 
   private getMarksForBallot(
-    ballotLayout: BallotPageLayout,
-    template: BallotPageLayout,
+    ballotLayout: BallotPageLayoutWithImage,
+    template: BallotPageLayoutWithImage,
     contests: Contests
   ): [ImageData, BallotMark[]] {
     assert.equal(
-      template.contests.length,
+      template.ballotPageLayout.contests.length,
       contests.length,
-      `template and election definition have different numbers of contests (${template.contests.length} vs ${contests.length}); maybe the template is from an old version of the election definition?`
+      `template and election definition have different numbers of contests (${template.ballotPageLayout.contests.length} vs ${contests.length}); maybe the template is from an old version of the election definition?`
     );
 
     assert.equal(
-      ballotLayout.contests.length,
+      ballotLayout.ballotPageLayout.contests.length,
       contests.length,
-      `ballot and election definition have different numbers of contests (${ballotLayout.contests.length} vs ${contests.length}); maybe the ballot is from an old version of the election definition?`
+      `ballot and election definition have different numbers of contests (${ballotLayout.ballotPageLayout.contests.length} vs ${contests.length}); maybe the ballot is from an old version of the election definition?`
     );
 
     const correspondence = findBallotLayoutCorrespondence(
@@ -488,7 +434,7 @@ export class Interpreter {
 
       if (option.isWriteIn) {
         writeInTextScore = this.writeInTextScore(
-          template.ballotImage.imageData,
+          template.imageData,
           mappedBallot,
           layout,
           contest,
@@ -497,7 +443,7 @@ export class Interpreter {
       }
 
       const { score, offset } = this.targetMarkScore(
-        template.ballotImage.imageData,
+        template.imageData,
         mappedBallot,
         layout.target
       );
@@ -521,7 +467,7 @@ export class Interpreter {
       optionId: 'yes' | 'no'
     ): void => {
       const { score, offset } = this.targetMarkScore(
-        template.ballotImage.imageData,
+        template.imageData,
         mappedBallot,
         layout.target
       );
@@ -544,7 +490,7 @@ export class Interpreter {
       option: YesNoOption
     ): void => {
       const { score, offset } = this.targetMarkScore(
-        template.ballotImage.imageData,
+        template.imageData,
         mappedBallot,
         layout.target
       );
@@ -572,7 +518,10 @@ export class Interpreter {
       marks.push(mark);
     };
 
-    for (const [{ options }, contest] of zip(template.contests, contests)) {
+    for (const [{ options }, contest] of zip(
+      template.ballotPageLayout.contests,
+      contests
+    )) {
       debug(`getting marks for %s contest '%s'`, contest.type, contest.id);
 
       if (contest.type === 'candidate') {
@@ -821,22 +770,22 @@ export class Interpreter {
   }
 
   private mapBallotOntoTemplate(
-    ballot: BallotPageLayout,
-    template: BallotPageLayout,
+    ballot: BallotPageLayoutWithImage,
+    template: BallotPageLayoutWithImage,
     { leftSideOnly }: { leftSideOnly: boolean }
   ): ImageData {
-    const ballotMat = readGrayscaleImage(ballot.ballotImage.imageData);
-    const templateSize: Size = {
-      width: template.ballotImage.imageData.width,
-      height: template.ballotImage.imageData.height,
-    };
+    const ballotMat = readGrayscaleImage(ballot.imageData);
+    const templateSize = template.ballotPageLayout.pageSize;
     const ballotPoints: Point[] = [];
     const templatePoints: Point[] = [];
 
     for (const [
       { corners: ballotContestCorners },
       { bounds: templateContestBounds },
-    ] of zip(ballot.contests, template.contests)) {
+    ] of zip(
+      ballot.ballotPageLayout.contests,
+      template.ballotPageLayout.contests
+    )) {
       const [
         ballotTopLeft,
         ballotTopRight,

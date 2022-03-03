@@ -21,8 +21,10 @@ import {
   PageInterpretation,
   Precinct,
   safeParseJson,
-  SerializableBallotPageLayout,
+  BallotPageLayout,
   unsafeParse,
+  BallotMetadataSchema,
+  BallotPageLayoutSchema,
 } from '@votingworks/types';
 import {
   AdjudicationStatus,
@@ -801,7 +803,7 @@ export class Store {
   addHmpbTemplate(
     pdf: Buffer,
     metadata: BallotMetadata,
-    layouts: readonly SerializableBallotPageLayout[]
+    layouts: readonly BallotPageLayout[]
   ): string {
     debug('storing HMPB template: %O', metadata);
 
@@ -841,7 +843,7 @@ export class Store {
     return id;
   }
 
-  getHmpbTemplates(): Array<[Buffer, SerializableBallotPageLayout[]]> {
+  getHmpbTemplates(): Array<[Buffer, BallotPageLayout[]]> {
     const rows = this.client.all(
       `
         select
@@ -858,22 +860,25 @@ export class Store {
       layoutsJson: string;
       metadataJson: string;
     }>;
-    const results: Array<[Buffer, SerializableBallotPageLayout[]]> = [];
+    const results: Array<[Buffer, BallotPageLayout[]]> = [];
 
     for (const { id, pdf, metadataJson, layoutsJson } of rows) {
-      const metadata: BallotMetadata = JSON.parse(metadataJson);
+      const metadata = safeParseJson(
+        metadataJson,
+        BallotMetadataSchema
+      ).unsafeUnwrap();
       debug('loading stored HMPB template id=%s: %O', id, metadata);
-      const layouts: SerializableBallotPageLayout[] = JSON.parse(layoutsJson);
+      const layouts: BallotPageLayout[] = safeParseJson(
+        layoutsJson,
+        z.array(BallotPageLayoutSchema)
+      ).unsafeUnwrap();
       results.push([
         pdf,
         layouts.map((layout, i) => ({
           ...layout,
-          ballotImage: {
-            ...layout.ballotImage,
-            metadata: {
-              ...metadata,
-              pageNumber: i + 1,
-            },
+          metadata: {
+            ...metadata,
+            pageNumber: i + 1,
           },
         })),
       ]);
@@ -884,7 +889,7 @@ export class Store {
 
   getBallotLayoutsForMetadata(
     metadata: BallotPageMetadata
-  ): SerializableBallotPageLayout[] {
+  ): BallotPageLayout[] {
     const rows = this.client.all(
       `
         select
@@ -898,12 +903,10 @@ export class Store {
     }>;
 
     for (const row of rows) {
-      const {
-        locales,
-        ballotStyleId,
-        precinctId,
-        isTestMode,
-      }: BallotMetadata = JSON.parse(row.metadataJson);
+      const { locales, ballotStyleId, precinctId, isTestMode } = safeParseJson(
+        row.metadataJson,
+        BallotMetadataSchema
+      ).unsafeUnwrap();
 
       if (
         metadata.locales.primary === locales.primary &&
@@ -912,7 +915,10 @@ export class Store {
         metadata.precinctId === precinctId &&
         metadata.isTestMode === isTestMode
       ) {
-        return JSON.parse(row.layoutsJson);
+        return safeParseJson(
+          row.layoutsJson,
+          z.array(BallotPageLayoutSchema)
+        ).unsafeUnwrap();
       }
     }
 
@@ -934,7 +940,7 @@ export class Store {
     let contestOffset = 0;
 
     for (const layout of layouts) {
-      if (layout.ballotImage.metadata.pageNumber === metadata.pageNumber) {
+      if (layout.metadata.pageNumber === metadata.pageNumber) {
         const ballotStyle = getBallotStyle({
           election: electionDefinition.election,
           ballotStyleId: metadata.ballotStyleId,

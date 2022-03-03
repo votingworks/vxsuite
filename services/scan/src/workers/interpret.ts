@@ -71,13 +71,10 @@ export async function configure(store: Store): Promise<void> {
   debug('hand-marked paper ballot templates: %d', templates.length);
   for (const [pdf, layouts] of templates) {
     for await (const { page, pageNumber } of pdfToImages(pdf, { scale: 2 })) {
-      const layout = layouts[pageNumber - 1];
+      const ballotPageLayout = layouts[pageNumber - 1];
       await interpreter.addHmpbTemplate({
-        ...layout,
-        ballotImage: {
-          ...layout.ballotImage,
-          imageData: page,
-        },
+        ballotPageLayout,
+        imageData: page,
       });
     }
   }

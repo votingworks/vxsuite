@@ -10,8 +10,8 @@ import {
 import {
   MarkAdjudications,
   MarkAdjudicationsSchema,
-  SerializableBallotPageLayout,
-  SerializableBallotPageLayoutSchema,
+  BallotPageLayout,
+  BallotPageLayoutSchema,
 } from '../../../hmpb';
 import {
   BallotSheetInfo,
@@ -619,8 +619,8 @@ export const CalibrateResponseSchema: z.ZodSchema<CalibrateResponse> = z.union([
 export interface GetNextReviewSheetResponse {
   interpreted: BallotSheetInfo;
   layouts: {
-    front?: SerializableBallotPageLayout;
-    back?: SerializableBallotPageLayout;
+    front?: BallotPageLayout;
+    back?: BallotPageLayout;
   };
   definitions: {
     front?: {
@@ -640,8 +640,8 @@ export const GetNextReviewSheetResponseSchema: z.ZodSchema<GetNextReviewSheetRes
   {
     interpreted: BallotSheetInfoSchema,
     layouts: z.object({
-      front: SerializableBallotPageLayoutSchema.optional(),
-      back: SerializableBallotPageLayoutSchema.optional(),
+      front: BallotPageLayoutSchema.optional(),
+      back: BallotPageLayoutSchema.optional(),
     }),
     definitions: z.object({
       front: z.object({ contestIds: z.array(IdSchema) }).optional(),

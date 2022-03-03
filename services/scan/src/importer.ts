@@ -1,7 +1,7 @@
 import { Interpreter } from '@votingworks/ballot-interpreter-vx';
 import {
   BallotMetadata,
-  BallotPageLayout,
+  BallotPageLayoutWithImage,
   ElectionDefinition,
   MarkAdjudications,
   MarkThresholds,
@@ -112,9 +112,9 @@ export class Importer {
   async addHmpbTemplates(
     pdf: Buffer,
     metadata: BallotMetadata
-  ): Promise<BallotPageLayout[]> {
+  ): Promise<BallotPageLayoutWithImage[]> {
     const electionDefinition = this.workspace.store.getElectionDefinition();
-    const result: BallotPageLayout[] = [];
+    const result: BallotPageLayoutWithImage[] = [];
 
     if (!electionDefinition) {
       throw new HmpbInterpretationError(
@@ -144,18 +144,9 @@ export class Importer {
 
     this.workspace.store.addHmpbTemplate(
       pdf,
-      result[0].ballotImage.metadata,
+      result[0].ballotPageLayout.metadata,
       // remove ballot image for storage
-      result.map((layout) => ({
-        ...layout,
-        ballotImage: {
-          imageData: {
-            width: layout.ballotImage.imageData.width,
-            height: layout.ballotImage.imageData.height,
-          },
-          metadata: layout.ballotImage.metadata,
-        },
-      }))
+      result.map(({ ballotPageLayout }) => ballotPageLayout)
     );
 
     this.invalidateInterpreterConfig();

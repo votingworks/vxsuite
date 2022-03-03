@@ -205,7 +205,9 @@ test('interprets marks on a HMPB', async () => {
     await readFile(join(stateOfHamiltonFixturesRoot, 'ballot.pdf')),
     { scale: 2 }
   )) {
-    await interpreter.addHmpbTemplate(page);
+    await interpreter.addHmpbTemplate(
+      await interpreter.interpretHmpbTemplate(page)
+    );
 
     if (pageNumber === 1) {
       break;
@@ -262,7 +264,9 @@ test('interprets marks on an upside-down HMPB', async () => {
     await readFile(join(stateOfHamiltonFixturesRoot, 'ballot.pdf')),
     { scale: 2 }
   )) {
-    await interpreter.addHmpbTemplate(page);
+    await interpreter.addHmpbTemplate(
+      await interpreter.interpretHmpbTemplate(page)
+    );
 
     if (pageNumber === 1) {
       break;
@@ -912,7 +916,9 @@ test('interprets marks in PNG ballots', async () => {
     await readFile(join(choctaw2020FixturesRoot, 'ballot.pdf')),
     { scale: 2 }
   )) {
-    await interpreter.addHmpbTemplate(page);
+    await interpreter.addHmpbTemplate(
+      await interpreter.interpretHmpbTemplate(page)
+    );
   }
 
   {
@@ -1719,7 +1725,9 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
     await readFile(join(stateOfHamiltonFixturesRoot, 'ballot.pdf')),
     { scale: 2 }
   )) {
-    await interpreter.addHmpbTemplate(page);
+    await interpreter.addHmpbTemplate(
+      await interpreter.interpretHmpbTemplate(page)
+    );
 
     if (pageNumber === 3) {
       break;

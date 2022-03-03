@@ -8,7 +8,7 @@ import {
   BallotType,
   safeParse,
   safeParseElectionDefinition,
-  SerializableBallotPageLayout,
+  BallotPageLayout,
 } from '@votingworks/types';
 import { Logger, LogEventId, LogSource } from '@votingworks/logging';
 import {
@@ -578,8 +578,8 @@ export function buildApp({ store, importer }: AppOptions): Application {
       const sheet = store.getNextAdjudicationSheet();
 
       if (sheet) {
-        let frontLayout: SerializableBallotPageLayout | undefined;
-        let backLayout: SerializableBallotPageLayout | undefined;
+        let frontLayout: BallotPageLayout | undefined;
+        let backLayout: BallotPageLayout | undefined;
         let frontDefinition:
           | GetNextReviewSheetResponse['definitions']['front']
           | undefined;
@@ -591,8 +591,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
           const front = sheet.front.interpretation;
           const layouts = store.getBallotLayoutsForMetadata(front.metadata);
           frontLayout = layouts.find(
-            ({ ballotImage: { metadata } }) =>
-              metadata.pageNumber === front.metadata.pageNumber
+            ({ metadata }) => metadata.pageNumber === front.metadata.pageNumber
           );
           frontDefinition = {
             contestIds: store.getContestIdsForMetadata(front.metadata),
@@ -603,8 +602,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
           const back = sheet.back.interpretation;
           const layouts = store.getBallotLayoutsForMetadata(back.metadata);
           backLayout = layouts.find(
-            ({ ballotImage: { metadata } }) =>
-              metadata.pageNumber === back.metadata.pageNumber
+            ({ metadata }) => metadata.pageNumber === back.metadata.pageNumber
           );
           backDefinition = {
             contestIds: store.getContestIdsForMetadata(back.metadata),

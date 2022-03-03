@@ -8,12 +8,12 @@
 import {
   AdjudicationReason,
   BallotPageContestLayout,
+  BallotPageLayout,
   CandidateContest,
   Contest,
   ElectionDefinition,
   InterpretedHmpbPage,
   Rect,
-  SerializableBallotPageLayout,
   UnmarkedWriteInAdjudicationReasonInfo,
   WriteInAdjudicationReasonInfo,
   WriteInMarkAdjudication,
@@ -21,9 +21,9 @@ import {
 import { Side } from '@votingworks/types/api/services/scan';
 import {
   Text,
+  useAutocomplete,
   useCancelablePromise,
   useStoredState,
-  useAutocomplete,
 } from '@votingworks/ui';
 import { assert, find } from '@votingworks/utils';
 import React, {
@@ -425,7 +425,7 @@ function WriteInAdjudicationByContest({
   electionDefinition: ElectionDefinition;
   imageUrl: string;
   interpretation: InterpretedHmpbPage;
-  layout: SerializableBallotPageLayout;
+  layout: BallotPageLayout;
   contestIds: ReadonlyArray<Contest['id']>;
   adjudications: readonly WriteInMarkAdjudication[];
   onContestChange?(contestId?: Contest['id']): void;
@@ -549,7 +549,7 @@ export interface Props {
   side: Side;
   imageUrl: string;
   interpretation: InterpretedHmpbPage;
-  layout: SerializableBallotPageLayout;
+  layout: BallotPageLayout;
   contestIds: ReadonlyArray<Contest['id']>;
   onAdjudicationComplete?(
     sheetId: string,

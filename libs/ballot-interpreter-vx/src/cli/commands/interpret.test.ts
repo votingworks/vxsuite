@@ -12,6 +12,8 @@ import {
 } from '../../../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library';
 import { OutputFormat, parseOptions, printHelp, run } from './interpret';
 
+jest.setTimeout(10000);
+
 test('parse options: --election', async () => {
   for (const electionFlag of ['--election', '-e']) {
     expect(

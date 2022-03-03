@@ -53,32 +53,28 @@ beforeEach(async () => {
     },
     [
       {
-        ballotImage: {
-          imageData: { width: 1, height: 1 },
-          metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: '',
-            ballotType: BallotType.Standard,
-            ballotStyleId: '12',
-            precinctId: '23',
-            isTestMode: false,
-            pageNumber: 1,
-          },
+        pageSize: { width: 1, height: 1 },
+        metadata: {
+          locales: { primary: 'en-US' },
+          electionHash: '',
+          ballotType: BallotType.Standard,
+          ballotStyleId: '12',
+          precinctId: '23',
+          isTestMode: false,
+          pageNumber: 1,
         },
         contests: [],
       },
       {
-        ballotImage: {
-          imageData: { width: 1, height: 1 },
-          metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: '',
-            ballotType: BallotType.Standard,
-            ballotStyleId: '12',
-            precinctId: '23',
-            isTestMode: false,
-            pageNumber: 2,
-          },
+        pageSize: { width: 1, height: 1 },
+        metadata: {
+          locales: { primary: 'en-US' },
+          electionHash: '',
+          ballotType: BallotType.Standard,
+          ballotStyleId: '12',
+          precinctId: '23',
+          isTestMode: false,
+          pageNumber: 2,
         },
         contests: [],
       },
@@ -518,12 +514,13 @@ test('POST /scan/hmpb/addTemplates bad metadata', async () => {
 test('POST /scan/hmpb/addTemplates', async () => {
   importer.addHmpbTemplates.mockResolvedValueOnce([
     {
-      ballotImage: {
-        imageData: {
-          data: Uint8ClampedArray.of(0, 0, 0, 0),
-          width: 1,
-          height: 1,
-        },
+      imageData: {
+        data: Uint8ClampedArray.of(0, 0, 0, 0),
+        width: 1,
+        height: 1,
+      },
+      ballotPageLayout: {
+        pageSize: { width: 1, height: 1 },
         metadata: {
           locales: { primary: 'en-US' },
           electionHash: '',
@@ -533,8 +530,8 @@ test('POST /scan/hmpb/addTemplates', async () => {
           isTestMode: false,
           pageNumber: 1,
         },
+        contests: [],
       },
-      contests: [],
     },
   ]);
 

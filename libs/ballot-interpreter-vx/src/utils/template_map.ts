@@ -1,6 +1,6 @@
 import {
   BallotLocales,
-  BallotPageLayout,
+  BallotPageLayoutWithImage,
   BallotPageMetadata,
 } from '@votingworks/types';
 import { KeyedMap } from './keyed_map';
@@ -13,7 +13,7 @@ export type TemplateMapKey = [
 ];
 export type TemplateMap = KeyedMap<
   TemplateMapKey,
-  BallotPageLayout | undefined
+  BallotPageLayoutWithImage | undefined
 >;
 
 export function templateMap(): TemplateMap {

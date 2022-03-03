@@ -17,7 +17,7 @@ import {
 import {
   AdjudicationReason,
   AdjudicationReasonInfo,
-  BallotPageLayout,
+  BallotPageLayoutWithImage,
   BallotPageMetadata,
   BallotType,
   Election,
@@ -188,49 +188,43 @@ export class Interpreter {
   }
 
   async addHmpbTemplate(
-    imageData: ImageData,
-    metadata?: BallotPageMetadata
-  ): Promise<BallotPageLayout>;
-  async addHmpbTemplate(layout: BallotPageLayout): Promise<BallotPageLayout>;
-  async addHmpbTemplate(
-    imageDataOrLayout: ImageData | BallotPageLayout,
-    metadata?: BallotPageMetadata
-  ): Promise<BallotPageLayout> {
+    layout: BallotPageLayoutWithImage
+  ): Promise<BallotPageLayoutWithImage> {
     const interpreter = this.getHmpbInterpreter();
-    let layout: BallotPageLayout;
-
-    if ('data' in imageDataOrLayout) {
-      layout = await interpreter.interpretTemplate(imageDataOrLayout, metadata);
-    } else {
-      layout = imageDataOrLayout;
-    }
-
-    const resolvedMetadata = layout.ballotImage.metadata;
+    const { metadata } = layout.ballotPageLayout;
 
     debug(
       'Adding HMPB template page %d: ballotStyleId=%s precinctId=%s isTestMode=%s',
-      resolvedMetadata.pageNumber,
-      resolvedMetadata.ballotStyleId,
-      resolvedMetadata.precinctId,
-      resolvedMetadata.isTestMode
+      metadata.pageNumber,
+      metadata.ballotStyleId,
+      metadata.precinctId,
+      metadata.isTestMode
     );
 
-    if (resolvedMetadata.isTestMode === this.testMode) {
+    if (metadata.isTestMode === this.testMode) {
       debug(
         'template test mode (%s) matches current test mode (%s), adding to underlying interpreter',
-        resolvedMetadata.isTestMode,
+        metadata.isTestMode,
         this.testMode
       );
       await interpreter.addTemplate(layout);
     } else {
       debug(
         'template test mode (%s) does not match current test mode (%s), skipping',
-        resolvedMetadata.isTestMode,
+        metadata.isTestMode,
         this.testMode
       );
     }
 
     return layout;
+  }
+
+  async interpretHmpbTemplate(
+    imageData: ImageData,
+    metadata?: BallotPageMetadata
+  ): Promise<BallotPageLayoutWithImage> {
+    const interpreter = this.getHmpbInterpreter();
+    return await interpreter.interpretTemplate(imageData, metadata);
   }
 
   async interpretFile({

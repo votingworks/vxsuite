@@ -1,7 +1,7 @@
 import {
   BallotImage,
   BallotMark,
-  BallotPageLayout,
+  BallotPageLayoutWithImage,
   BallotPageMetadata,
   CompletedBallot,
   ImageData,
@@ -12,7 +12,7 @@ export interface GetBallotOptions {
 }
 
 export interface Interpreted {
-  matchedTemplate: BallotPageLayout;
+  matchedTemplate: BallotPageLayoutWithImage;
   mappedBallot: ImageData;
   metadata: BallotPageMetadata;
   marks: BallotMark[];
@@ -20,7 +20,7 @@ export interface Interpreted {
 }
 
 export interface FindMarksResult {
-  matchedTemplate: BallotPageLayout;
+  matchedTemplate: BallotPageLayoutWithImage;
   mappedBallot: ImageData;
   metadata: BallotPageMetadata;
   marks: BallotMark[];

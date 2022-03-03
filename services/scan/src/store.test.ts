@@ -4,7 +4,7 @@ import {
   BallotMetadata,
   BallotType,
   CandidateContest,
-  SerializableBallotPageLayout,
+  BallotPageLayout,
   YesNoContest,
 } from '@votingworks/types';
 import { typedAs } from '@votingworks/utils';
@@ -78,7 +78,7 @@ test('get current mark thresholds falls back to election definition defaults', (
 test('HMPB template handling', () => {
   const store = Store.memoryStore();
   const metadata: BallotMetadata = {
-    electionHash: '',
+    electionHash: 'd34db33f',
     locales: { primary: 'en-US' },
     ballotStyleId: '12',
     precinctId: '23',
@@ -90,59 +90,51 @@ test('HMPB template handling', () => {
 
   store.addHmpbTemplate(Buffer.of(1, 2, 3), metadata, [
     {
-      ballotImage: {
-        imageData: { width: 1, height: 1 },
-        metadata: {
-          ...metadata,
-          pageNumber: 1,
-        },
+      pageSize: { width: 1, height: 1 },
+      metadata: {
+        ...metadata,
+        pageNumber: 1,
       },
       contests: [],
     },
     {
-      ballotImage: {
-        imageData: { width: 1, height: 1 },
-        metadata: {
-          ...metadata,
-          pageNumber: 2,
-        },
+      pageSize: { width: 1, height: 1 },
+      metadata: {
+        ...metadata,
+        pageNumber: 2,
       },
       contests: [],
     },
   ]);
 
   expect(store.getHmpbTemplates()).toEqual(
-    typedAs<Array<[Buffer, SerializableBallotPageLayout[]]>>([
+    typedAs<Array<[Buffer, BallotPageLayout[]]>>([
       [
         Buffer.of(1, 2, 3),
         [
           {
-            ballotImage: {
-              imageData: { width: 1, height: 1 },
-              metadata: {
-                electionHash: '',
-                ballotType: BallotType.Standard,
-                locales: { primary: 'en-US' },
-                ballotStyleId: '12',
-                precinctId: '23',
-                isTestMode: false,
-                pageNumber: 1,
-              },
+            pageSize: { width: 1, height: 1 },
+            metadata: {
+              electionHash: 'd34db33f',
+              ballotType: BallotType.Standard,
+              locales: { primary: 'en-US' },
+              ballotStyleId: '12',
+              precinctId: '23',
+              isTestMode: false,
+              pageNumber: 1,
             },
             contests: [],
           },
           {
-            ballotImage: {
-              imageData: { width: 1, height: 1 },
-              metadata: {
-                electionHash: '',
-                ballotType: BallotType.Standard,
-                locales: { primary: 'en-US' },
-                ballotStyleId: '12',
-                precinctId: '23',
-                isTestMode: false,
-                pageNumber: 2,
-              },
+            pageSize: { width: 1, height: 1 },
+            metadata: {
+              electionHash: 'd34db33f',
+              ballotType: BallotType.Standard,
+              locales: { primary: 'en-US' },
+              ballotStyleId: '12',
+              precinctId: '23',
+              isTestMode: false,
+              pageNumber: 2,
             },
             contests: [],
           },
@@ -210,12 +202,10 @@ test('adjudication', () => {
     Buffer.of(),
     metadata,
     [1, 2].map((pageNumber) => ({
-      ballotImage: {
-        imageData: { width: 1, height: 1 },
-        metadata: {
-          ...metadata,
-          pageNumber,
-        },
+      pageSize: { width: 1, height: 1 },
+      metadata: {
+        ...metadata,
+        pageNumber,
       },
       contests: [
         {

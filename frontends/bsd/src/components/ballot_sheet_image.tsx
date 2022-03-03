@@ -1,10 +1,10 @@
-import { Contest, SerializableBallotPageLayout } from '@votingworks/types';
+import { BallotPageLayout, Contest } from '@votingworks/types';
 import { zip } from '@votingworks/utils';
 import React, { useCallback, useRef, useState } from 'react';
 
 export interface Props {
   imageUrl: string;
-  layout?: SerializableBallotPageLayout;
+  layout?: BallotPageLayout;
   contestIds?: ReadonlyArray<Contest['id']>;
   styleForContest?(contestId: Contest['id']): React.CSSProperties;
   onMouseEnterContest?(contestId: Contest['id']): void;
@@ -31,8 +31,8 @@ export function BallotSheetImage({
 
     const width = imageRef.current.clientWidth;
     const height = imageRef.current.clientHeight;
-    setXScaleValue(width / layout.ballotImage.imageData.width);
-    setYScaleValue(height / layout.ballotImage.imageData.height);
+    setXScaleValue(width / layout.pageSize.width);
+    setYScaleValue(height / layout.pageSize.height);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [layout, imageRef.current]);
 
