@@ -4,43 +4,39 @@ import hashlib
 import secrets
 import time
 import sys
-from smartcards.core import CardInterface
+from smartcards.card import VXCardObserver
 import smartcard
 
 REFRESH_INTERVAL = 0.2
 
+observer = VXCardObserver()
+
 
 def wait_for_reader():
-    if not CardInterface.is_reader_connected():
+    if not observer.is_reader_connected():
         print("Insert card reader")
-    while True:
+    while not observer.is_reader_connected():
         time.sleep(REFRESH_INTERVAL)
-        if CardInterface.is_reader_connected():
-            break
     print("Card reader connected")
 
 
 def wait_for_card():
-    if not CardInterface.card:
+    if not observer.card:
         print("Insert card")
-    while True:
+    while not (observer.card and observer.card_ready):
         time.sleep(REFRESH_INTERVAL)
-        if CardInterface.card and CardInterface.card_ready:
-            break
     print("Card inserted")
-    if not CardInterface.card.write_enabled:
-        CardInterface.override_protection()
+    if not observer.card.write_enabled:
+        observer.override_protection()
         print("Overrode write protection")
 
 
 def wait_for_disconnect():
     print("Disconnect card reader")
     # Disconnect card so the reader can be unplugged safely
-    del CardInterface.card
-    while True:
+    del observer.card
+    while observer.is_reader_connected():
         time.sleep(REFRESH_INTERVAL)
-        if not CardInterface.is_reader_connected():
-            break
     print("Card reader disconnected")
 
 
@@ -55,18 +51,18 @@ def check_equal_bytes(wrote, read, label):
 
 def test_card():
     print("Clearing card")
-    CardInterface.write(b"{}")
-    check_equal_bytes(b"{}", CardInterface.read()[0], "Short value")
-    check_equal_bytes(b"", CardInterface.read_long(), "Long value")
+    observer.write(b"{}")
+    check_equal_bytes(b"{}", observer.read()[0], "Short value")
+    check_equal_bytes(b"", observer.read_long(), "Long value")
 
     print("Testing random bytes")
     short_bytes = secrets.token_bytes(61)
     long_bytes = secrets.token_bytes(3500)
 
-    CardInterface.write(short_bytes)
-    CardInterface.write_long(long_bytes)
-    check_equal_bytes(short_bytes, CardInterface.read()[0], "Short value")
-    check_equal_bytes(long_bytes, CardInterface.read_long(), "Long value")
+    observer.write(short_bytes)
+    observer.write_long(long_bytes)
+    check_equal_bytes(short_bytes, observer.read()[0], "Short value")
+    check_equal_bytes(long_bytes, observer.read_long(), "Long value")
 
     print("Testing admin card")
     with open("fixtures/admin/long.json", "r") as long_file:
@@ -80,11 +76,11 @@ def test_card():
             short_file.read()
         ).encode('utf-8')
 
-    CardInterface.write(short_bytes)
-    CardInterface.write_long(long_bytes)
+    observer.write(short_bytes)
+    observer.write_long(long_bytes)
 
-    check_equal_bytes(short_bytes, CardInterface.read()[0], "Short value")
-    check_equal_bytes(long_bytes, CardInterface.read_long(), "Long value")
+    check_equal_bytes(short_bytes, observer.read()[0], "Short value")
+    check_equal_bytes(long_bytes, observer.read_long(), "Long value")
 
     print("\u2705 Test passed")
 
