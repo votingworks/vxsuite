@@ -13,7 +13,7 @@ import { DetectQrCodeResult } from './types';
 test('interpret three-column template with instructions', async () => {
   const fixtures = oaklawn;
   const { election } = fixtures;
-  const interpreter = new Interpreter(election);
+  const interpreter = new Interpreter({ election });
   const imageData = await fixtures.blankPage1.imageData();
   const template = await interpreter.interpretTemplate(imageData);
 
@@ -581,7 +581,7 @@ test('interpret three-column template with instructions', async () => {
 
 test('interpret two-column template', async () => {
   const { election } = choctawMock2020;
-  const interpreter = new Interpreter(election);
+  const interpreter = new Interpreter({ election });
 
   {
     const imageData = await choctawMock2020.blankPage1.imageData();
@@ -1483,7 +1483,7 @@ test('interpret two-column template', async () => {
 test('interpret empty ballot', async () => {
   const fixtures = oaklawn;
   const { election } = fixtures;
-  const interpreter = new Interpreter(election);
+  const interpreter = new Interpreter({ election });
 
   await expect(
     interpreter.interpretBallot(await fixtures.blankPage1.imageData())
@@ -1513,7 +1513,7 @@ test('interpret empty ballot', async () => {
 test('interpret votes', async () => {
   const fixtures = oaklawn;
   const { election } = fixtures;
-  const interpreter = new Interpreter(election);
+  const interpreter = new Interpreter({ election });
 
   await interpreter.addTemplate(await fixtures.blankPage1.imageData());
 
@@ -1667,7 +1667,7 @@ test('interpret votes', async () => {
 test('invalid marks', async () => {
   const fixtures = oaklawn;
   const { election } = fixtures;
-  const interpreter = new Interpreter(election);
+  const interpreter = new Interpreter({ election });
 
   await interpreter.addTemplate(
     await fixtures.blankPage1.imageData(),
@@ -2397,7 +2397,7 @@ test('custom QR code reader', async () => {
 test('upside-down ballot', async () => {
   const fixtures = oaklawn;
   const { election } = fixtures;
-  const interpreter = new Interpreter(election);
+  const interpreter = new Interpreter({ election });
 
   await interpreter.addTemplate(
     await fixtures.blankPage1.imageData(),
@@ -2472,7 +2472,7 @@ test('upside-down ballot', async () => {
 test('enforcing test vs live mode', async () => {
   const fixtures = oaklawn;
   const { election } = fixtures;
-  const interpreter = new Interpreter(election);
+  const interpreter = new Interpreter({ election });
 
   await expect(
     interpreter.addTemplate(
@@ -2633,7 +2633,7 @@ test('yesno overvotes', async () => {
 test('regression: page outline', async () => {
   const fixtures = oaklawn;
   const { election } = fixtures;
-  const interpreter = new Interpreter(election);
+  const interpreter = new Interpreter({ election });
 
   await interpreter.addTemplate(
     await fixtures.blankPage1.imageData(),
@@ -2686,7 +2686,7 @@ test('regression: page outline', async () => {
 test('choctaw general 2019', async () => {
   jest.setTimeout(10000);
   const { election } = choctaw2019;
-  const interpreter = new Interpreter(election);
+  const interpreter = new Interpreter({ election });
 
   await interpreter.addTemplate(
     await choctaw2019.blankPage1.imageData(),
@@ -2801,7 +2801,7 @@ test('choctaw general 2019', async () => {
 
 test('determining layout of a ballot with borders', async () => {
   const { election } = choctaw2019;
-  const interpreter = new Interpreter(election);
+  const interpreter = new Interpreter({ election });
 
   await interpreter.addTemplate(
     await choctaw2019.blankPage1.imageData(),
@@ -2841,10 +2841,12 @@ test('takes the mark score vote threshold from the election definition if presen
   const fixtures = oaklawn;
   const { election } = fixtures;
   const interpreter = new Interpreter({
-    ...election,
-    markThresholds: {
-      definite: 0.99,
-      marginal: 0.98,
+    election: {
+      ...election,
+      markThresholds: {
+        definite: 0.99,
+        marginal: 0.98,
+      },
     },
   });
 
@@ -2854,7 +2856,7 @@ test('takes the mark score vote threshold from the election definition if presen
 
 test('choctaw 2020 general', async () => {
   const { election } = choctaw2020;
-  const interpreter = new Interpreter(election);
+  const interpreter = new Interpreter({ election });
 
   await interpreter.addTemplate(
     await choctaw2020.blankPage1.imageData(),
@@ -3005,7 +3007,7 @@ test('choctaw 2020 general', async () => {
 test('normalizes intentionally empty pages correctly', async () => {
   const fixtures = choctaw2020Special;
   const { election } = fixtures;
-  const interpreter = new Interpreter(election);
+  const interpreter = new Interpreter({ election });
 
   await interpreter.addTemplate(await fixtures.blankPage1.imageData());
   const page2Template = await interpreter.addTemplate(

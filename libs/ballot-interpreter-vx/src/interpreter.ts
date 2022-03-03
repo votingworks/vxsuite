@@ -107,24 +107,14 @@ export class Interpreter {
   private readonly detectQrCode?: DetectQrCode;
   private readonly markScoreVoteThreshold: number;
 
-  constructor(election: Election);
-  constructor(options: Options);
-  constructor(optionsOrElection: Options | Election) {
-    if ('election' in optionsOrElection) {
-      this.election = optionsOrElection.election;
-      this.detectQrCode = optionsOrElection.detectQrCode;
-      this.markScoreVoteThreshold =
-        optionsOrElection.markScoreVoteThreshold ??
-        this.election.markThresholds?.definite ??
-        DEFAULT_MARK_SCORE_VOTE_THRESHOLD;
-      this.testMode = optionsOrElection.testMode ?? false;
-    } else {
-      this.election = optionsOrElection;
-      this.markScoreVoteThreshold =
-        this.election.markThresholds?.definite ??
-        DEFAULT_MARK_SCORE_VOTE_THRESHOLD;
-      this.testMode = false;
-    }
+  constructor(options: Options) {
+    this.election = options.election;
+    this.detectQrCode = options.detectQrCode;
+    this.markScoreVoteThreshold =
+      options.markScoreVoteThreshold ??
+      this.election.markThresholds?.definite ??
+      DEFAULT_MARK_SCORE_VOTE_THRESHOLD;
+    this.testMode = options.testMode ?? false;
   }
 
   /**

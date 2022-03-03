@@ -122,7 +122,9 @@ export class Importer {
       );
     }
 
-    const interpreter = new Interpreter(electionDefinition.election);
+    const interpreter = new Interpreter({
+      election: electionDefinition.election,
+    });
     for await (const { page, pageNumber } of pdfToImages(pdf, {
       scale: 2,
     })) {
