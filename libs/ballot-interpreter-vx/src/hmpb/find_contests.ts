@@ -4,7 +4,7 @@ import {
   Corners,
   Rect,
   BallotPageContestLayout,
-  BallotPageLayoutWithImage,
+  BallotPageLayout,
 } from '@votingworks/types';
 import { zip } from '@votingworks/utils';
 import makeDebug from 'debug';
@@ -240,21 +240,21 @@ export interface BallotLayoutCorrespondence {
 
 export function findBallotLayoutCorrespondence(
   contests: Contests,
-  ballot: BallotPageLayoutWithImage,
-  template: BallotPageLayoutWithImage,
+  ballot: BallotPageLayout,
+  template: BallotPageLayout,
   { allowedScaleErrorRatio = 0.1 } = {}
 ): BallotLayoutCorrespondence {
   const expectedAreaScale =
-    (ballot.imageData.width * ballot.imageData.height) /
-    (template.imageData.width * template.imageData.height);
+    (ballot.pageSize.width * ballot.pageSize.height) /
+    (template.pageSize.width * template.pageSize.height);
   const minAreaScale = expectedAreaScale * (1 - allowedScaleErrorRatio);
   const maxAreaScale = expectedAreaScale * (1 + allowedScaleErrorRatio);
   const mismatchedContests: BallotLayoutCorrespondence['mismatchedContests'] = [];
 
   for (const [definition, templateContest, ballotContest] of zip(
     contests,
-    template.ballotPageLayout.contests,
-    ballot.ballotPageLayout.contests
+    template.contests,
+    ballot.contests
   )) {
     const templateArea = poly4Area(templateContest.corners);
     const ballotArea = poly4Area(ballotContest.corners);

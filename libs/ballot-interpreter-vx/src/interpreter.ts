@@ -5,6 +5,7 @@ import {
   BallotMark,
   BallotMsEitherNeitherTargetMark,
   BallotPageContestOptionLayout,
+  BallotPageLayout,
   BallotPageLayoutWithImage,
   BallotPageMetadata,
   BallotType,
@@ -302,7 +303,7 @@ export class Interpreter {
     const [mappedBallot, marks] = this.getMarksForBallot(
       ballotLayout,
       matchedTemplate,
-      this.getContestsForTemplate(matchedTemplate)
+      this.getContestsForTemplate(matchedTemplate.ballotPageLayout)
     );
 
     return { matchedTemplate, mappedBallot, metadata, marks };
@@ -311,16 +312,14 @@ export class Interpreter {
   /**
    * Get the contests for the given template.
    */
-  private getContestsForTemplate(
-    template: BallotPageLayoutWithImage
-  ): Contests {
+  private getContestsForTemplate(template: BallotPageLayout): Contests {
     const { election } = this;
     const {
       locales,
       ballotStyleId,
       pageNumber,
       precinctId,
-    } = template.ballotPageLayout.metadata;
+    } = template.metadata;
     const ballotStyle = defined(
       getBallotStyle({
         ballotStyleId,
@@ -338,7 +337,7 @@ export class Interpreter {
 
     return getContests({ ballotStyle, election }).slice(
       contestOffset,
-      contestOffset + template.ballotPageLayout.contests.length
+      contestOffset + template.contests.length
     );
   }
 
@@ -407,8 +406,8 @@ export class Interpreter {
 
     const correspondence = findBallotLayoutCorrespondence(
       contests,
-      ballotLayout,
-      template
+      ballotLayout.ballotPageLayout,
+      template.ballotPageLayout
     );
 
     assert(
@@ -420,9 +419,11 @@ export class Interpreter {
       )}`
     );
 
-    const mappedBallot = this.mapBallotOntoTemplate(ballotLayout, template, {
-      leftSideOnly: false,
-    });
+    const mappedBallot = this.mapBallotOntoTemplate(
+      ballotLayout,
+      template.ballotPageLayout,
+      { leftSideOnly: false }
+    );
     const marks: BallotMark[] = [];
 
     const addCandidateMark = (
@@ -771,21 +772,18 @@ export class Interpreter {
 
   private mapBallotOntoTemplate(
     ballot: BallotPageLayoutWithImage,
-    template: BallotPageLayoutWithImage,
+    template: BallotPageLayout,
     { leftSideOnly }: { leftSideOnly: boolean }
   ): ImageData {
     const ballotMat = readGrayscaleImage(ballot.imageData);
-    const templateSize = template.ballotPageLayout.pageSize;
+    const templateSize = template.pageSize;
     const ballotPoints: Point[] = [];
     const templatePoints: Point[] = [];
 
     for (const [
       { corners: ballotContestCorners },
       { bounds: templateContestBounds },
-    ] of zip(
-      ballot.ballotPageLayout.contests,
-      template.ballotPageLayout.contests
-    )) {
+    ] of zip(ballot.ballotPageLayout.contests, template.contests)) {
       const [
         ballotTopLeft,
         ballotTopRight,
