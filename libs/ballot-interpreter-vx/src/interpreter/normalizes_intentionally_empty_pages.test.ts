@@ -1,5 +1,5 @@
-import * as choctaw2020Special from '../test/fixtures/choctaw-2020-09-22-f30480cc99';
-import { Interpreter } from './interpreter';
+import * as choctaw2020Special from '../../test/fixtures/choctaw-2020-09-22-f30480cc99';
+import { Interpreter } from '.';
 
 jest.setTimeout(10000);
 

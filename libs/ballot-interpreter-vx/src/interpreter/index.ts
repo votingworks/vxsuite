@@ -33,25 +33,25 @@ import makeDebug from 'debug';
 import * as jsfeat from 'jsfeat';
 import { inspect } from 'util';
 import { v4 as uuid } from 'uuid';
-import { getVotesFromMarks } from './get_votes_from_marks';
-import { findBallotLayoutCorrespondence } from './hmpb/find_contests';
+import { getVotesFromMarks } from '../get_votes_from_marks';
+import { findBallotLayoutCorrespondence } from '../hmpb/find_contests';
 import {
   findContestsWithUnknownColumnLayout,
   interpretTemplate,
-} from './layout';
-import { detect } from './metadata';
-import { DetectQrCode, FindMarksResult, Interpreted } from './types';
-import { binarize, PIXEL_BLACK, PIXEL_WHITE } from './utils/binarize';
-import { crop } from './utils/crop';
-import { defined } from './utils/defined';
-import { vh as flipVH } from './utils/flip';
-import { rectCorners } from './utils/geometry';
-import { countPixels, diff } from './utils/jsfeat/diff';
-import { matToImageData } from './utils/jsfeat/mat_to_image_data';
-import { readGrayscaleImage } from './utils/jsfeat/read_grayscale_image';
-import { KeyedMap } from './utils/keyed_map';
-import { offsets } from './utils/offsets';
-import { outline } from './utils/outline';
+} from '../layout';
+import { detect } from '../metadata';
+import { DetectQrCode, FindMarksResult, Interpreted } from '../types';
+import { binarize, PIXEL_BLACK, PIXEL_WHITE } from '../utils/binarize';
+import { crop } from '../utils/crop';
+import { defined } from '../utils/defined';
+import { vh as flipVH } from '../utils/flip';
+import { rectCorners } from '../utils/geometry';
+import { countPixels, diff } from '../utils/jsfeat/diff';
+import { matToImageData } from '../utils/jsfeat/mat_to_image_data';
+import { readGrayscaleImage } from '../utils/jsfeat/read_grayscale_image';
+import { KeyedMap } from '../utils/keyed_map';
+import { offsets } from '../utils/offsets';
+import { outline } from '../utils/outline';
 
 const debug = makeDebug('ballot-interpreter-vx:Interpreter');
 

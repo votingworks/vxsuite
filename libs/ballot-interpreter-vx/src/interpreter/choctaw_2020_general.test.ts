@@ -1,5 +1,5 @@
-import * as choctaw2020 from '../test/fixtures/election-7c61368c3b-choctaw-general-2020';
-import { Interpreter } from './interpreter';
+import * as choctaw2020 from '../../test/fixtures/election-7c61368c3b-choctaw-general-2020';
+import { Interpreter } from '.';
 
 jest.setTimeout(10000);
 

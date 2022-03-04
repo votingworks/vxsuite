@@ -1,5 +1,5 @@
-import * as choctaw2020LegalSize from '../test/fixtures/choctaw-county-2020-general-election';
-import { Interpreter } from './interpreter';
+import * as choctaw2020LegalSize from '../../test/fixtures/choctaw-county-2020-general-election';
+import { Interpreter } from '.';
 
 jest.setTimeout(10000);
 

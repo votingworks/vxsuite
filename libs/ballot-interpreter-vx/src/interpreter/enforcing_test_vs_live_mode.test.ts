@@ -1,5 +1,5 @@
-import * as oaklawn from '../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library';
-import { Interpreter } from './interpreter';
+import * as oaklawn from '../../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library';
+import { Interpreter } from '.';
 
 jest.setTimeout(10000);
 

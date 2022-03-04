@@ -1,5 +1,5 @@
-import * as choctawMock2020 from '../test/fixtures/choctaw-county-mock-general-election-choctaw-2020-e87f23ca2c';
-import { Interpreter } from './interpreter';
+import * as choctawMock2020 from '../../test/fixtures/choctaw-county-mock-general-election-choctaw-2020-e87f23ca2c';
+import { Interpreter } from '.';
 
 jest.setTimeout(10000);
 
