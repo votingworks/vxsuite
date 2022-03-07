@@ -1,15 +1,11 @@
-import { createImageData } from './canvas';
+import { createImageData } from 'canvas';
 import { fromGray, fromRgba } from './grayscale';
 
 test('fromGray with grayscale image', () => {
   const imageData = createImageData(Uint8ClampedArray.of(127), 1, 1);
 
   fromGray(imageData);
-  expect(imageData).toEqual({
-    data: Uint8ClampedArray.of(127),
-    width: 1,
-    height: 1,
-  });
+  expect(imageData).toEqual(createImageData(Uint8ClampedArray.of(127), 1, 1));
 });
 
 test('fromGray with grayscale image copied', () => {
@@ -32,11 +28,9 @@ test('fromRGBA with grayscale image', () => {
   );
 
   fromRgba(imageData);
-  expect(imageData).toEqual({
-    data: Uint8ClampedArray.of(127, 127, 127, 255),
-    width: 1,
-    height: 1,
-  });
+  expect(imageData).toEqual(
+    createImageData(Uint8ClampedArray.of(127, 127, 127, 255), 1, 1)
+  );
 });
 
 test('fromRGBA with grayscale image copied', () => {
@@ -55,11 +49,9 @@ test('fromRGBA with color image', () => {
   const imageData = createImageData(Uint8ClampedArray.of(255, 0, 0, 255), 1, 1);
 
   fromRgba(imageData);
-  expect(imageData).toEqual({
-    data: Uint8ClampedArray.of(53, 53, 53, 255),
-    width: 1,
-    height: 1,
-  });
+  expect(imageData).toEqual(
+    createImageData(Uint8ClampedArray.of(53, 53, 53, 255), 1, 1)
+  );
 });
 
 test('fromRGBA with color image copied RGBA image', () => {
@@ -71,11 +63,9 @@ test('fromRGBA with color image copied RGBA image', () => {
   );
 
   fromRgba(src, dst);
-  expect(dst).toEqual({
-    data: Uint8ClampedArray.of(53, 53, 53, 255),
-    width: 1,
-    height: 1,
-  });
+  expect(dst).toEqual(
+    createImageData(Uint8ClampedArray.of(53, 53, 53, 255), 1, 1)
+  );
 });
 
 test('fromRGBA with color image copied to single-channel image', () => {
@@ -87,9 +77,5 @@ test('fromRGBA with color image copied to single-channel image', () => {
   );
 
   fromRgba(src, dst);
-  expect(dst).toEqual({
-    data: Uint8ClampedArray.of(53),
-    width: 1,
-    height: 1,
-  });
+  expect(dst).toEqual(createImageData(Uint8ClampedArray.of(53), 1, 1));
 });
