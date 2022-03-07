@@ -1,11 +1,10 @@
 import { BehaviorSubject, Observable } from 'rxjs';
-import { Hardware, PrinterStatus } from '../types';
+import { Hardware } from '../types';
 import {
   AccessibleControllerProductId,
   AccessibleControllerVendorId,
   BrotherHll5100DnProductId,
   BrotherHll5100DnVendorId,
-  isPrinter,
   OmniKeyCardReaderDeviceName,
   OmniKeyCardReaderManufacturer,
   OmniKeyCardReaderProductId,
@@ -187,14 +186,14 @@ export class MemoryHardware implements Hardware {
     this.setDeviceConnected(this.cardReader, connected);
   }
 
-  /**
-   * Reads Printer status
-   */
-  async readPrinterStatus(): Promise<PrinterStatus> {
-    return {
-      connected: Array.from(this.connectedDevices).some(isPrinter),
-    };
-  }
+  // /**
+  //  * Reads Printer status
+  //  */
+  // async readPrinterStatus(): Promise<PrinterStatus> {
+  //   return {
+  //     connected: Array.from(this.connectedDevices).some(isPrinter),
+  //   };
+  // }
 
   /**
    * Sets Printer connected
@@ -207,7 +206,18 @@ export class MemoryHardware implements Hardware {
         description: this.printer.manufacturer,
         connected,
         isDefault: true,
-        status: 0,
+        state: 'idle' as KioskBrowser.IppPrinterState,
+        stateReasons: ['none'],
+        markerInfos: [
+          {
+            color: '#000000',
+            highLevel: 100,
+            level: 92,
+            lowLevel: 2,
+            name: 'black cartridge',
+            type: 'toner-cartridge',
+          },
+        ],
       },
     ]);
   }

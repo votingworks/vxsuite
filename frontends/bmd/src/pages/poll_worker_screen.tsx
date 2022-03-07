@@ -22,6 +22,7 @@ import {
   PrintableContainer,
   TallyReport,
   Modal,
+  Devices,
 } from '@votingworks/ui';
 
 import {
@@ -48,6 +49,7 @@ import { ElectionInfo } from '../components/election_info';
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from '../config/globals';
 import { VersionsData } from '../components/versions_data';
 import { triggerAudioFocus } from '../utils/trigger_audio_focus';
+import { DiagnosticsScreen } from './diagnostics_screen';
 
 interface Props {
   activateCardlessVoterSession: (
@@ -64,6 +66,7 @@ interface Props {
   isLiveMode: boolean;
   isPollsOpen: boolean;
   machineConfig: MachineConfig;
+  devices: Devices;
   printer: Printer;
   togglePollsOpen: () => void;
   tallyOnCard?: PrecinctScannerCardTally;
@@ -93,6 +96,7 @@ export function PollWorkerScreen({
   isLiveMode,
   isPollsOpen,
   machineConfig,
+  devices,
   printer,
   togglePollsOpen,
   hasVotes,
@@ -134,6 +138,8 @@ export function PollWorkerScreen({
     isPrintingPrecinctScannerReport,
     setIsPrintingPrecinctScannerReport,
   ] = useState(false);
+
+  const [isDiagnosticsScreenOpen, setIsDiagnosticsScreenOpen] = useState(false);
 
   const parties = useMemo(() => getPartyIdsInBallotStyles(election), [
     election,
@@ -330,6 +336,18 @@ export function PollWorkerScreen({
     );
   }
 
+  if (isDiagnosticsScreenOpen) {
+    return (
+      <DiagnosticsScreen
+        devices={devices}
+        onBackButtonPress={() => setIsDiagnosticsScreenOpen(false)}
+        machineConfig={machineConfig}
+        electionDefinition={electionDefinition}
+        appPrecinct={appPrecinct}
+      />
+    );
+  }
+
   return (
     <React.Fragment>
       <Screen flexDirection="row-reverse" voterMode={false}>
@@ -409,7 +427,11 @@ export function PollWorkerScreen({
                     : `Open Polls for ${precinctName}`}
                 </Button>
               </p>
+
               <h1>Advanced</h1>
+              <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
+                System Diagnostics
+              </Button>
               <Button onPress={reload}>Reset Accessible Controller</Button>
             </Prose>
           </MainChild>

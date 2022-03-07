@@ -166,10 +166,6 @@ export interface Card {
   writeLongUint8Array(value: Uint8Array): Promise<void>;
 }
 
-export interface PrinterStatus {
-  connected: boolean;
-}
-
 /**
  * Defines the API for accessing hardware status.
  */
@@ -179,10 +175,10 @@ export interface Hardware {
    */
   readBatteryStatus(): Promise<KioskBrowser.BatteryInfo | undefined>;
 
-  /**
-   * Reads Printer status
-   */
-  readPrinterStatus(): Promise<PrinterStatus>;
+  // /**
+  //  * Reads Printer status
+  //  */
+  // readPrinterStatus(): Promise<KioskBrowser.PrinterInfo | undefined>;
 
   /**
    * Subscribe to USB device updates.
