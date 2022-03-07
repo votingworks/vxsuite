@@ -5,6 +5,8 @@ import { promises as fs } from 'fs';
 import { basename, dirname, extname, join } from 'path';
 import { ScannerImageFormat } from '../scanners';
 import { Store } from '../store';
+import { writeImageData } from '../util/images';
+import { pdfToImages } from '../util/pdf_to_images';
 
 export function printHelp(out: typeof process.stdout): void {
   out.write(
@@ -65,10 +67,6 @@ export async function main(
         paths.push(arg);
     }
   }
-
-  // Defer loading the heavy dependencies until we're sure we need them.
-  const { pdfToImages } = await import('../util/pdf_to_images');
-  const { writeImageData } = await import('../util/images');
 
   async function* renderPages(
     pdf: Buffer,
