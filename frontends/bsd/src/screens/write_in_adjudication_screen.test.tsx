@@ -84,7 +84,8 @@ function renderWriteInAdjudicationScreen(
         votes: {},
       }}
       layout={{
-        ballotImage: { imageData: { width: 1, height: 1 }, metadata },
+        pageSize: { width: 1, height: 1 },
+        metadata,
         contests: [
           {
             bounds: { x: 0, y: 0, width: 100, height: 100 },

@@ -55,7 +55,7 @@ create table hmpb_templates (
   pdf blob not null,
   -- @type {BallotMetadata}
   metadata_json text not null,
-  -- @type {SerializableBallotPageLayout[]}
+  -- @type {BallotPageLayout[]}
   layouts_json text not null,
   created_at datetime default current_timestamp not null
 );

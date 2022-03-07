@@ -1,12 +1,12 @@
 import {
   BallotId,
+  BallotPageLayout,
   BallotStyleId,
   Dictionary,
   ElectionDefinition,
   MachineId,
   MarkInfo,
   PrecinctId,
-  SerializableBallotPageLayout,
 } from '@votingworks/types';
 import { z } from 'zod';
 
@@ -57,7 +57,7 @@ export interface HmpbBallotInfo {
   filename: string;
   cvr: CastVoteRecord;
   marks: MarkInfo;
-  layout: SerializableBallotPageLayout;
+  layout: BallotPageLayout;
 }
 
 export interface UnreadableBallotInfo {

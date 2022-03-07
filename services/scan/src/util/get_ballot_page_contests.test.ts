@@ -3,7 +3,7 @@ import {
   BallotType,
   getBallotStyle,
   getContests,
-  SerializableBallotPageLayout,
+  BallotPageLayout,
 } from '@votingworks/types';
 import { election } from '../../test/fixtures/state-of-hamilton';
 import { getBallotPageContests } from './get_ballot_page_contests';
@@ -22,26 +22,22 @@ function metadataForPage(pageNumber: number): BallotPageMetadata {
 test('gets contests broken across pages according to the layout', () => {
   const ballotStyle = getBallotStyle({ ballotStyleId: '12', election })!;
   const allContestsForBallot = getContests({ ballotStyle, election });
-  const layouts = Array.from({ length: 5 }).map<SerializableBallotPageLayout>(
-    (_, i) => ({
-      ballotImage: {
-        imageData: { width: 1, height: 1 },
-        metadata: metadataForPage(i),
+  const layouts = Array.from({ length: 5 }).map<BallotPageLayout>((_, i) => ({
+    pageSize: { width: 1, height: 1 },
+    metadata: metadataForPage(i),
+    contests: [
+      {
+        bounds: { x: 0, y: 0, width: 0, height: 0 },
+        corners: [
+          { x: 0, y: 0 },
+          { x: 0, y: 0 },
+          { x: 0, y: 0 },
+          { x: 0, y: 0 },
+        ],
+        options: [],
       },
-      contests: [
-        {
-          bounds: { x: 0, y: 0, width: 0, height: 0 },
-          corners: [
-            { x: 0, y: 0 },
-            { x: 0, y: 0 },
-            { x: 0, y: 0 },
-            { x: 0, y: 0 },
-          ],
-          options: [],
-        },
-      ],
-    })
-  );
+    ],
+  }));
 
   for (let pageNumber = 1; pageNumber <= layouts.length; pageNumber += 1) {
     expect(

@@ -5,7 +5,7 @@ import {
   Election,
   getBallotStyle,
   getContests,
-  SerializableBallotPageLayout,
+  BallotPageLayout,
 } from '@votingworks/types';
 
 /**
@@ -14,7 +14,7 @@ import {
 export function getBallotPageContests(
   election: Election,
   metadata: BallotPageMetadata,
-  layouts: readonly SerializableBallotPageLayout[]
+  layouts: readonly BallotPageLayout[]
 ): Contests {
   const ballotStyle = getBallotStyle({
     election,

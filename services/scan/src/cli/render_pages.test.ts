@@ -75,28 +75,25 @@ test('generates one image per PDF page per DB', async () => {
   await fs.mkdir(tmpDir);
   const tmpDbPath = join(tmpDir, 'ballots.db');
   const store = Store.fileStore(tmpDbPath);
-  store.setElection(asElectionDefinition(election));
+  const electionDefinition = asElectionDefinition(election);
+  store.setElection(electionDefinition);
   const metadata: BallotMetadata = {
     ballotStyleId: '1',
     ballotType: BallotType.Standard,
-    electionHash: '',
+    electionHash: electionDefinition.electionHash,
     isTestMode: false,
     locales: { primary: 'en-US' },
     precinctId: '6538',
   };
   store.addHmpbTemplate(await fs.readFile(ballotPdf), metadata, [
     {
-      ballotImage: {
-        imageData: { width: 1, height: 1 },
-        metadata: { ...metadata, pageNumber: 1 },
-      },
+      pageSize: { width: 1, height: 1 },
+      metadata: { ...metadata, pageNumber: 1 },
       contests: [],
     },
     {
-      ballotImage: {
-        imageData: { width: 1, height: 1 },
-        metadata: { ...metadata, pageNumber: 2 },
-      },
+      pageSize: { width: 1, height: 1 },
+      metadata: { ...metadata, pageNumber: 2 },
       contests: [],
     },
   ]);

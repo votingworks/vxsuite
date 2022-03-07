@@ -214,15 +214,22 @@ export async function run(
 
   for (const templateInput of options.templateInputs) {
     await interpreter.addTemplate(
-      await templateInput.imageData(),
-      await templateInput.metadata?.()
+      await interpreter.interpretTemplate(
+        await templateInput.imageData(),
+        await templateInput.metadata?.()
+      )
     );
   }
 
   for (const autoInput of options.autoInputs) {
     const metadata = await autoInput.metadata?.();
     if (!(metadata && interpreter.canScanBallot(metadata))) {
-      await interpreter.addTemplate(await autoInput.imageData(), metadata);
+      await interpreter.addTemplate(
+        await interpreter.interpretTemplate(
+          await autoInput.imageData(),
+          metadata
+        )
+      );
     } else {
       ballotInputs.push(autoInput);
     }

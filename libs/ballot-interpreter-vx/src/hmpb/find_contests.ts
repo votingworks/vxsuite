@@ -245,9 +245,8 @@ export function findBallotLayoutCorrespondence(
   { allowedScaleErrorRatio = 0.1 } = {}
 ): BallotLayoutCorrespondence {
   const expectedAreaScale =
-    (ballot.ballotImage.imageData.width * ballot.ballotImage.imageData.height) /
-    (template.ballotImage.imageData.width *
-      template.ballotImage.imageData.height);
+    (ballot.pageSize.width * ballot.pageSize.height) /
+    (template.pageSize.width * template.pageSize.height);
   const minAreaScale = expectedAreaScale * (1 - allowedScaleErrorRatio);
   const maxAreaScale = expectedAreaScale * (1 + allowedScaleErrorRatio);
   const mismatchedContests: BallotLayoutCorrespondence['mismatchedContests'] = [];

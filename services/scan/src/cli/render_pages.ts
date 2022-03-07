@@ -108,7 +108,7 @@ export async function main(
           precinctId,
           isTestMode,
           ballotType,
-        } = layouts[0].ballotImage.metadata;
+        } = layouts[0].metadata;
         const precinct =
           getPrecinctById({ election, precinctId })?.name ?? precinctId;
         queue.push({

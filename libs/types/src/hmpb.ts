@@ -58,29 +58,24 @@ export const BallotPageContestLayoutSchema: z.ZodSchema<BallotPageContestLayout>
 );
 
 export interface BallotPageLayout {
-  ballotImage: BallotImage;
+  pageSize: Size;
+  metadata: BallotPageMetadata;
   contests: readonly BallotPageContestLayout[];
 }
 export const BallotPageLayoutSchema: z.ZodSchema<BallotPageLayout> = z.object({
-  ballotImage: BallotImageSchema,
+  pageSize: SizeSchema,
+  metadata: BallotPageMetadataSchema,
   contests: z.array(BallotPageContestLayoutSchema),
 });
 
-export type SerializableBallotPageLayout = Omit<
-  BallotPageLayout,
-  'ballotImage'
-> & {
-  ballotImage: Omit<BallotPageLayout['ballotImage'], 'imageData'> & {
-    imageData: Size;
-  };
-};
-export const SerializableBallotPageLayoutSchema: z.ZodSchema<SerializableBallotPageLayout> = z.object(
+export interface BallotPageLayoutWithImage {
+  imageData: ImageData;
+  ballotPageLayout: BallotPageLayout;
+}
+export const BallotPageLayoutWithImageSchema: z.ZodSchema<BallotPageLayoutWithImage> = z.object(
   {
-    ballotImage: z.object({
-      imageData: SizeSchema,
-      metadata: BallotPageMetadataSchema,
-    }),
-    contests: z.array(BallotPageContestLayoutSchema),
+    imageData: ImageDataSchema,
+    ballotPageLayout: BallotPageLayoutSchema,
   }
 );
 
