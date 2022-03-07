@@ -1,7 +1,7 @@
 import { Rect } from '@votingworks/types';
 import { assert } from '@votingworks/utils';
 import { randomBytes } from 'crypto';
-import { createImageData } from '../src/utils/canvas';
+import { createImageData } from 'canvas';
 
 export function randomImage({
   width = 0,

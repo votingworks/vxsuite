@@ -1,5 +1,5 @@
 import { Rect } from '@votingworks/types';
-import { createImageData } from './canvas';
+import { createImageData } from 'canvas';
 
 /**
  * Returns a new image cropped to the specified bounds.

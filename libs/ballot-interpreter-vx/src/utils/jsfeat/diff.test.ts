@@ -1,7 +1,7 @@
 import { Rect } from '@votingworks/types';
+import { createImageData } from 'canvas';
 import { croppedQrCode } from '../../../test/fixtures';
 import { PIXEL_BLACK, PIXEL_WHITE } from '../binarize';
-import { createImageData } from '../canvas';
 import { crop } from '../crop';
 import { diff, countPixels, ratio } from './diff';
 

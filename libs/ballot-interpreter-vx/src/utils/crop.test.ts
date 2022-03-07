@@ -1,6 +1,6 @@
 import { Rect } from '@votingworks/types';
+import { createImageData } from 'canvas';
 import { randomImage, randomInset } from '../../test/utils';
-import { createImageData } from './canvas';
 import { crop } from './crop';
 
 /**

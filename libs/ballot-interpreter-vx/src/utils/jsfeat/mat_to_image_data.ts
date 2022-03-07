@@ -1,5 +1,5 @@
 import * as jsfeat from 'jsfeat';
-import { createImageData } from '../canvas';
+import { createImageData } from 'canvas';
 
 export function matToImageData(mat: jsfeat.matrix_t): ImageData {
   const imageData = createImageData(mat.cols, mat.rows);
