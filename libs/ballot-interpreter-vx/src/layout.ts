@@ -1,17 +1,16 @@
-import makeDebug from 'debug';
 import {
   BallotPageLayoutWithImage,
   BallotPageMetadata,
   Election,
 } from '@votingworks/types';
 import { map, reversed } from '@votingworks/utils';
+import makeDebug from 'debug';
+import { ContestShape, findContests } from './hmpb/find_contests';
 import { findContestOptions } from './hmpb/find_contest_options';
 import { findTargets } from './hmpb/find_targets';
 import { detect } from './metadata';
-import { DetectQrCode } from './types';
 import { binarize } from './utils/binarize';
 import { vh as flipVH } from './utils/flip';
-import { ContestShape, findContests } from './hmpb/find_contests';
 
 const debug = makeDebug('ballot-interpreter-vx:layout');
 
@@ -24,13 +23,11 @@ export async function normalizeImageDataAndMetadata({
   imageData,
   flipped = false,
   metadata,
-  detectQrCode,
 }: {
   election: Election;
   imageData: ImageData;
   flipped?: boolean;
   metadata?: BallotPageMetadata;
-  detectQrCode?: DetectQrCode;
 }): Promise<{ imageData: ImageData; metadata: BallotPageMetadata }> {
   binarize(imageData);
 
@@ -42,9 +39,7 @@ export async function normalizeImageDataAndMetadata({
     return { imageData, metadata };
   }
 
-  const detectResult = await detect(election, imageData, {
-    detectQrCode,
-  });
+  const detectResult = await detect(election, imageData);
 
   if (detectResult.flipped) {
     debug('detected image is flipped, correcting orientation');
@@ -91,12 +86,10 @@ export async function interpretTemplate({
   election,
   imageData,
   metadata,
-  detectQrCode,
 }: {
   election: Election;
   imageData: ImageData;
   metadata?: BallotPageMetadata;
-  detectQrCode?: DetectQrCode;
 }): Promise<BallotPageLayoutWithImage> {
   debug(
     'interpretTemplate: looking for contests in %d×%d image',
@@ -107,7 +100,6 @@ export async function interpretTemplate({
     election,
     imageData,
     metadata,
-    detectQrCode,
   });
 
   debug('using metadata for template: %O', normalized.metadata);

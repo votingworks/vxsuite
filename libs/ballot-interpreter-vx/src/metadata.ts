@@ -5,13 +5,8 @@ import {
   BallotType,
   Election,
 } from '@votingworks/types';
-import { DetectQrCode } from './types';
 import { defined } from './utils/defined';
-import * as qrcode from './utils/qrcode';
-
-export interface DetectOptions {
-  detectQrCode?: DetectQrCode;
-}
+import { detect as detectQrCode } from './utils/qrcode';
 
 export interface DetectResult {
   metadata: BallotPageMetadata;
@@ -87,8 +82,7 @@ export function fromBytes(
 
 export async function detect(
   election: Election,
-  imageData: ImageData,
-  { detectQrCode = qrcode.detect }: DetectOptions = {}
+  imageData: ImageData
 ): Promise<DetectResult> {
   const result = await detectQrCode(imageData);
 
@@ -98,6 +92,6 @@ export async function detect(
 
   return {
     metadata: fromBytes(election, result.data),
-    flipped: result.rightSideUp === false,
+    flipped: result.position === 'top',
   };
 }

@@ -10,7 +10,6 @@ import {
   ELECTION_HASH_LENGTH,
 } from '@votingworks/ballot-encoder';
 import {
-  DetectQrCodeResult,
   Interpreter as HmpbInterpreter,
   metadataFromBytes,
 } from '@votingworks/ballot-interpreter-vx';
@@ -38,7 +37,6 @@ import {
 import { loadImageData } from './util/images';
 import { optionMarkStatus } from './util/option_mark_status';
 import { time } from './util/perf';
-import { detectQrCode } from './util/qrcode';
 import * as qrcodeWorker from './workers/qrcode';
 
 const debug = makeDebug('scan:interpreter');
@@ -463,18 +461,6 @@ export class Interpreter {
       this.hmpbInterpreter = new HmpbInterpreter({
         election: this.election,
         testMode: this.testMode,
-        detectQrCode: async (
-          imageData
-        ): Promise<DetectQrCodeResult | undefined> => {
-          const result = await detectQrCode(imageData);
-
-          if (result) {
-            return {
-              data: result.data,
-              rightSideUp: result.position === 'bottom',
-            };
-          }
-        },
       });
     }
     return this.hmpbInterpreter;

@@ -1,11 +1,11 @@
 import { Election } from '@votingworks/types';
 import makeDebug from 'debug';
 import * as z from 'zod';
+import { detectQrCode } from '@votingworks/ballot-interpreter-vx';
 import { BallotPageQrcode, SheetOf } from '../types';
 import { loadImageData } from '../util/images';
 import { stats } from '../util/luminosity';
 import { normalizeSheetMetadata } from '../util/metadata';
-import { detectQrCode } from '../util/qrcode';
 
 const debug = makeDebug('scan:workers:qrcode');
 

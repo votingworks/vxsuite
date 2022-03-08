@@ -12,3 +12,5 @@ export const blankPage1 = new Fixture(join(__dirname, 'blank-p1.png'));
 export const blankPage2 = new Fixture(join(__dirname, 'blank-p2.png'));
 export const absenteePage1 = new Fixture(join(__dirname, 'absentee-p1.png'));
 export const absenteePage2 = new Fixture(join(__dirname, 'absentee-p2.png'));
+export const hardQrCodePage1 = join(__dirname, 'hard-qr-code-p1.png');
+export const hardQrCodePage2 = join(__dirname, 'hard-qr-code-p2.png');

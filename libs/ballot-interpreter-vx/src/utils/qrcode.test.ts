@@ -1,7 +1,7 @@
 import { join } from 'path';
 import { hardQrCodePage1 } from '../../test/fixtures/choctaw-2020-09-22-f30480cc99';
 import { loadImageData } from './images';
-import { detectQrCode } from './qrcode';
+import { detect as detectQrCode } from './qrcode';
 
 test('falls back to jsQR if the other QR code readers cannot read them', async () => {
   const imageData = await loadImageData(
