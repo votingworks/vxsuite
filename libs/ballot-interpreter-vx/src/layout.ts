@@ -91,13 +91,11 @@ export async function interpretTemplate({
   election,
   imageData,
   metadata,
-  flipped = false,
   detectQrCode,
 }: {
   election: Election;
   imageData: ImageData;
   metadata?: BallotPageMetadata;
-  flipped?: boolean;
   detectQrCode?: DetectQrCode;
 }): Promise<BallotPageLayoutWithImage> {
   debug(
@@ -109,7 +107,6 @@ export async function interpretTemplate({
     election,
     imageData,
     metadata,
-    flipped,
     detectQrCode,
   });
 
