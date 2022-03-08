@@ -1,9 +1,13 @@
 #!/usr/bin/env node
-const main = require('../dist/src/cli').default
 
-main(process.argv, process.stdin, process.stdout, process.stderr).catch(
-  (error) => {
-    console.error(error)
-    process.exit(1)
-  }
-)
+require('esbuild-runner/register');
+
+require('../src/cli')
+  .main(process.argv, process.stdin, process.stdout, process.stderr)
+  .then((code) => {
+    process.exitCode = code;
+  })
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });

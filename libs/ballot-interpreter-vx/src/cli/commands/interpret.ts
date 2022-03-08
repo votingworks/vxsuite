@@ -1,9 +1,17 @@
-import { Candidate, Election, parseElection } from '@votingworks/types';
+import {
+  Candidate,
+  Election,
+  err,
+  ok,
+  parseElection,
+  Result,
+} from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/utils';
 import chalk from 'chalk';
 import { promises as fs } from 'fs';
 import { table } from 'table';
-import { GlobalOptions, OptionParseError } from '..';
+import { basename } from 'path';
+import { Command, GlobalOptions } from '../types';
 import { Interpreter } from '../..';
 import { DEFAULT_MARK_SCORE_VOTE_THRESHOLD } from '../../interpreter';
 import { Input, Interpreted } from '../../types';
@@ -17,21 +25,29 @@ export enum OutputFormat {
   Table = 'table',
 }
 
-export interface Options {
+export interface HelpOptions {
+  help: true;
+}
+
+export interface InterpretOptions {
+  help: false;
   election: Election;
   testMode: boolean;
-  autoInputs: readonly Input[];
   templateInputs: readonly Input[];
   ballotInputs: readonly Input[];
   markScoreVoteThreshold: number;
   format: OutputFormat;
 }
 
+export type Options = HelpOptions | InterpretOptions;
+
 function makeInputFromBallotArgument(arg: string): Input {
   const [ballotPath, metadataPath] = arg.split(':');
   const input: Input = {
     id: () => ballotPath,
     imageData: () => loadImageData(ballotPath),
+    /* istanbul ignore next */
+    metadataPath: () => metadataPath,
     metadata: async () =>
       metadataPath
         ? JSON.parse(await fs.readFile(metadataPath, 'utf-8'))
@@ -40,7 +56,11 @@ function makeInputFromBallotArgument(arg: string): Input {
   return input;
 }
 
-export function printHelp($0: string, out: NodeJS.WritableStream): void {
+export function printHelp(
+  globalOptions: GlobalOptions,
+  out: NodeJS.WritableStream
+): void {
+  const $0 = basename(globalOptions.executablePath);
   out.write(`${$0} interpret -e JSON IMG1 [IMG2 …]\n`);
   out.write(`\n`);
   out.write(chalk.italic(`Examples\n`));
@@ -67,21 +87,13 @@ export function printHelp($0: string, out: NodeJS.WritableStream): void {
   out.write(
     `${$0} interpret -e election.json -m 0.5 template*.png ballot*.png\n`
   );
-  out.write(`\n`);
-  out.write(
-    chalk.gray(
-      `# Automatically process images as templates until all pages are found.\n`
-    )
-  );
-  out.write(`${$0} interpret -e election.json image*.png\n`);
 }
 
 export async function parseOptions({
   commandArgs: args,
-}: GlobalOptions): Promise<Options> {
+}: GlobalOptions): Promise<Result<Options, Error>> {
   let election: Election | undefined;
   let testMode = false;
-  const autoInputs: Input[] = [];
   const templateInputs: Input[] = [];
   const ballotInputs: Input[] = [];
   let markScoreVoteThreshold = DEFAULT_MARK_SCORE_VOTE_THRESHOLD;
@@ -91,16 +103,22 @@ export async function parseOptions({
     const arg = args[i];
 
     switch (arg) {
+      case '-h':
+      case '--help':
+        return ok({ help: true });
+
       case '-e':
       case '--election': {
         i += 1;
         const electionJsonFile = args[i];
 
         if (!electionJsonFile || electionJsonFile.startsWith('-')) {
-          throw new OptionParseError(
-            `Expected election definition file after ${arg}, but got ${
-              electionJsonFile || 'nothing'
-            }.`
+          return err(
+            new Error(
+              `Expected election definition file after ${arg}, but got ${
+                electionJsonFile || 'nothing'
+              }.`
+            )
           );
         }
 
@@ -119,7 +137,7 @@ export async function parseOptions({
           parseFloat(thresholdString) *
           (thresholdString.endsWith('%') ? 0.01 : 1);
         if (Number.isNaN(markScoreVoteThreshold)) {
-          throw new OptionParseError(`Invalid minimum mark score: ${args[i]}`);
+          return err(new Error(`Invalid minimum mark score: ${args[i]}`));
         }
         break;
       }
@@ -129,7 +147,7 @@ export async function parseOptions({
         i += 1;
         format = args[i].toLowerCase() as OutputFormat;
         if (format !== OutputFormat.Table && format !== OutputFormat.JSON) {
-          throw new OptionParseError(`Unknown output format: ${format}`);
+          return err(new Error(`Unknown output format: ${format}`));
         }
         break;
 
@@ -139,10 +157,12 @@ export async function parseOptions({
         const templateFile = args[i];
 
         if (!templateFile || templateFile.startsWith('-')) {
-          throw new OptionParseError(
-            `Expected template file after ${arg}, but got ${
-              templateFile || 'nothing'
-            }`
+          return err(
+            new Error(
+              `Expected template file after ${arg}, but got ${
+                templateFile || 'nothing'
+              }`
+            )
           );
         }
 
@@ -156,10 +176,12 @@ export async function parseOptions({
         const ballotFile = args[i];
 
         if (!ballotFile || ballotFile.startsWith('-')) {
-          throw new OptionParseError(
-            `Expected ballot file after ${arg}, but got ${
-              ballotFile || 'nothing'
-            }`
+          return err(
+            new Error(
+              `Expected ballot file after ${arg}, but got ${
+                ballotFile || 'nothing'
+              }`
+            )
           );
         }
 
@@ -176,35 +198,50 @@ export async function parseOptions({
 
       default: {
         if (arg.startsWith('-')) {
-          throw new OptionParseError(`Unknown option: ${arg}`);
+          return err(new Error(`Unknown option: ${arg}`));
         }
 
-        autoInputs.push(makeInputFromBallotArgument(arg));
-        break;
+        return err(new Error(`Unknown argument: ${arg}`));
       }
     }
   }
 
   if (!election) {
-    throw new OptionParseError(`Required option 'election' is missing.`);
+    return err(new Error(`Required option 'election' is missing.`));
   }
 
-  return {
+  return ok({
+    help: false,
     election,
     testMode,
-    autoInputs,
     templateInputs,
     ballotInputs,
     markScoreVoteThreshold,
     format,
-  };
+  });
 }
 
 export async function run(
-  options: Options,
+  _commands: readonly Command[],
+  globalOptions: GlobalOptions,
   _stdin: NodeJS.ReadableStream,
-  stdout: NodeJS.WritableStream
+  stdout: NodeJS.WritableStream,
+  stderr: NodeJS.WritableStream
 ): Promise<number> {
+  const optionsResult = await parseOptions(globalOptions);
+
+  if (optionsResult.isErr()) {
+    stderr.write(`${optionsResult.err().message}\n`);
+    return 1;
+  }
+
+  const options = optionsResult.ok();
+
+  if (options.help) {
+    printHelp(globalOptions, stdout);
+    return 0;
+  }
+
   const interpreter = new Interpreter({
     election: options.election,
     testMode: options.testMode,
@@ -219,20 +256,6 @@ export async function run(
         await templateInput.metadata?.()
       )
     );
-  }
-
-  for (const autoInput of options.autoInputs) {
-    const metadata = await autoInput.metadata?.();
-    if (!(metadata && interpreter.canScanBallot(metadata))) {
-      await interpreter.addTemplate(
-        await interpreter.interpretTemplate(
-          await autoInput.imageData(),
-          metadata
-        )
-      );
-    } else {
-      ballotInputs.push(autoInput);
-    }
   }
 
   const results: Array<{ input: Input; interpreted: Interpreted }> = [];
@@ -317,6 +340,7 @@ export async function run(
       break;
 
     default:
+      /* istanbul ignore next */
       throwIllegalValue(options.format);
   }
 

@@ -1,8 +1,9 @@
-import { Point, Rect } from '@votingworks/types';
+import { err, ok, Point, Rect, Result } from '@votingworks/types';
 import { assert } from '@votingworks/utils';
 import chalk from 'chalk';
 import { createImageData } from 'canvas';
-import { GlobalOptions, OptionParseError } from '..';
+import { basename } from 'path';
+import { Command, GlobalOptions } from '../types';
 import { findContests, ContestShape } from '../../hmpb/find_contests';
 import { binarize, RGBA } from '../../utils/binarize';
 import { vh } from '../../utils/flip';
@@ -10,9 +11,16 @@ import { getImageChannelCount } from '../../utils/image_format_utils';
 import { loadImageData, writeImageData } from '../../utils/images';
 import { adjacentFile } from '../../utils/path';
 
-export interface Options {
+export interface HelpOptions {
+  help: true;
+}
+
+export interface LayoutOptions {
+  help: false;
   ballotImagePaths: readonly string[];
 }
+
+export type Options = HelpOptions | LayoutOptions;
 
 const RGBA_CHANNELS = 4;
 const RED_OVERLAY_COLOR: RGBA = [0xff, 0, 0, 0x60];
@@ -21,7 +29,11 @@ const GREEN_OVERLAY_COLOR: RGBA = [0, 0xff, 0, 0x60];
 export const name = 'layout';
 export const description = 'Annotate the interpreted layout of a ballot page';
 
-export function printHelp($0: string, out: NodeJS.WritableStream): void {
+export function printHelp(
+  globalOptions: GlobalOptions,
+  out: NodeJS.WritableStream
+): void {
+  const $0 = basename(globalOptions.executablePath);
   out.write(`${$0} layout IMG1 [IMG2 …]\n`);
   out.write(`\n`);
   out.write(chalk.italic(`Examples\n`));
@@ -35,20 +47,21 @@ export function printHelp($0: string, out: NodeJS.WritableStream): void {
 
 export async function parseOptions({
   commandArgs: args,
-}: GlobalOptions): Promise<Options> {
+}: GlobalOptions): Promise<Result<Options, Error>> {
+  let help = false;
   const ballotImagePaths: string[] = [];
 
   for (const arg of args) {
-    if (arg.startsWith('-')) {
-      throw new OptionParseError(
-        `unexpected option passed to 'layout': ${arg}`
-      );
+    if (arg === '--help' || arg === '-h') {
+      help = true;
+    } else if (arg.startsWith('-')) {
+      return err(new Error(`unexpected option passed to 'layout': ${arg}`));
+    } else {
+      ballotImagePaths.push(arg);
     }
-
-    ballotImagePaths.push(arg);
   }
 
-  return { ballotImagePaths };
+  return ok({ help, ballotImagePaths });
 }
 
 interface AnalyzeImageResult {
@@ -170,10 +183,31 @@ function fill(
  * those features.
  */
 export async function run(
-  options: Options,
+  _commands: readonly Command[],
+  globalOptions: GlobalOptions,
   _stdin: NodeJS.ReadableStream,
-  stdout: NodeJS.WritableStream
+  stdout: NodeJS.WritableStream,
+  stderr: NodeJS.WritableStream
 ): Promise<number> {
+  const optionsResult = await parseOptions(globalOptions);
+
+  if (optionsResult.isErr()) {
+    stderr.write(`${optionsResult.err().message}\n`);
+    return 1;
+  }
+
+  const options = optionsResult.ok();
+
+  if (options.help) {
+    printHelp(globalOptions, stdout);
+    return 0;
+  }
+
+  if (options.ballotImagePaths.length === 0) {
+    printHelp(globalOptions, stdout);
+    return 1;
+  }
+
   for (const ballotImagePath of options.ballotImagePaths) {
     const imageData = await loadImageData(ballotImagePath);
     const { contests, rotated } = analyzeImage(imageData);
