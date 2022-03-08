@@ -403,7 +403,7 @@ export function PollWorkerScreen({
                 )}
               </Text>
               <p>
-                <Button large onPress={togglePollsOpen}>
+                <Button primary large onPress={togglePollsOpen}>
                   {isPollsOpen
                     ? `Close Polls for ${precinctName}`
                     : `Open Polls for ${precinctName}`}
