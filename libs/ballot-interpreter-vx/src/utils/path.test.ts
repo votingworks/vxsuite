@@ -1,4 +1,4 @@
-import { adjacentFile } from '../../utils/path';
+import { adjacentFile } from './path';
 
 test('adjacentFile with no directory', () => {
   expect(adjacentFile('-rotated', 'an-image.png')).toEqual(
