@@ -12,6 +12,8 @@ import {
   OmniKeyCardReaderVendorId,
   FujitsuScannerVendorId,
   FujitsuFi7160ScannerProductId,
+  PlustekScannerVendorId,
+  PlustekVtm300ScannerProductId,
 } from './utils';
 
 const DEFAULT_BATTERY_STATUS: KioskBrowser.BatteryInfo = {
@@ -67,16 +69,28 @@ export class MemoryHardware implements Hardware {
     serialNumber: '',
   };
 
+  private precinctScanner: Readonly<KioskBrowser.Device> = {
+    deviceAddress: 0,
+    deviceName: 'Sheetfed Scanner',
+    locationId: 0,
+    manufacturer: 'Plustek Inc.',
+    vendorId: PlustekScannerVendorId,
+    productId: PlustekVtm300ScannerProductId,
+    serialNumber: '',
+  };
+
   static async build({
     connectPrinter = false,
     connectAccessibleController = false,
     connectCardReader = false,
     connectBatchScanner = false,
+    connectPrecinctScanner = false,
   }: {
     connectPrinter?: boolean;
     connectAccessibleController?: boolean;
     connectCardReader?: boolean;
     connectBatchScanner?: boolean;
+    connectPrecinctScanner?: boolean;
   } = {}): Promise<MemoryHardware> {
     const newMemoryHardware = new MemoryHardware();
     await newMemoryHardware.setPrinterConnected(connectPrinter);
@@ -85,6 +99,7 @@ export class MemoryHardware implements Hardware {
     );
     await newMemoryHardware.setCardReaderConnected(connectCardReader);
     await newMemoryHardware.setBatchScannerConnected(connectBatchScanner);
+    newMemoryHardware.setPrecinctScannerConnected(connectPrecinctScanner);
     return newMemoryHardware;
   }
 
@@ -94,6 +109,7 @@ export class MemoryHardware implements Hardware {
       connectAccessibleController: true,
       connectCardReader: true,
       connectBatchScanner: true,
+      connectPrecinctScanner: true,
     });
   }
 
@@ -103,6 +119,7 @@ export class MemoryHardware implements Hardware {
       connectAccessibleController: false,
       connectCardReader: true,
       connectBatchScanner: true,
+      connectPrecinctScanner: true,
     });
   }
 
@@ -118,6 +135,13 @@ export class MemoryHardware implements Hardware {
    */
   async setBatchScannerConnected(connected: boolean): Promise<void> {
     this.setDeviceConnected(this.batchScanner, connected);
+  }
+
+  /**
+   * Sets Precinct Scanner connected
+   */
+  setPrecinctScannerConnected(connected: boolean): void {
+    this.setDeviceConnected(this.precinctScanner, connected);
   }
 
   /**
