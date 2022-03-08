@@ -1,4 +1,4 @@
-const shared = require('../../jest.config.shared')
+const shared = require('../../jest.config.shared');
 
 module.exports = {
   ...shared,
@@ -11,4 +11,4 @@ module.exports = {
       lines: 94,
     },
   },
-}
+};

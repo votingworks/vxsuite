@@ -1,38 +1,50 @@
 import { promises as fs } from 'fs';
-import MemoryStream from 'memorystream';
 import { tmpNameSync } from 'tmp';
 import { parseGlobalOptions } from '..';
 import { blankPage1 } from '../../../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library';
+import { runCli } from '../../../test/utils';
 import { loadImageData } from '../../utils/images';
 import { adjacentFile } from '../../utils/path';
-import { parseOptions, printHelp, run } from './layout';
+import { parseOptions } from './layout';
 
 test('options', async () => {
   expect(
-    await parseOptions(
-      parseGlobalOptions([
-        'node',
-        'ballot-interpreter-vx',
-        'layout',
-        'ballot01.png',
-        'ballot02.png',
-      ])
-    )
-  ).toEqual({ ballotImagePaths: ['ballot01.png', 'ballot02.png'] });
+    (
+      await parseOptions(
+        parseGlobalOptions([
+          'node',
+          'ballot-interpreter-vx',
+          'layout',
+          'ballot01.png',
+          'ballot02.png',
+        ]).unsafeUnwrap()
+      )
+    ).unsafeUnwrap()
+  ).toEqual({
+    help: false,
+    ballotImagePaths: ['ballot01.png', 'ballot02.png'],
+  });
 });
 
 test('invalid options', async () => {
-  await expect(
-    parseOptions(
-      parseGlobalOptions(['node', 'ballot-interpreter-vx', 'layout', '--wrong'])
-    )
-  ).rejects.toThrowError(`unexpected option passed to 'layout': --wrong`);
+  expect(
+    (
+      await parseOptions(
+        parseGlobalOptions([
+          'node',
+          'ballot-interpreter-vx',
+          'layout',
+          '--wrong',
+        ]).unsafeUnwrap()
+      )
+    ).unsafeUnwrapErr().message
+  ).toEqual(`unexpected option passed to 'layout': --wrong`);
 });
 
-test('help', () => {
-  const stdout = new MemoryStream();
-  printHelp('ballot-interpreter-vx', stdout);
-  expect(Buffer.from(stdout.read()).toString('utf-8')).toMatchInlineSnapshot(`
+test('help', async () => {
+  const { stdout } = await runCli(['layout', '-h']);
+
+  expect(stdout).toMatchInlineSnapshot(`
     "ballot-interpreter-vx layout IMG1 [IMG2 …]
 
     Examples
@@ -49,21 +61,11 @@ test('help', () => {
 test('creates a layout file adjacent to the input file', async () => {
   const imagePath = tmpNameSync();
   const layoutImagePath = adjacentFile('-layout', imagePath);
-  const stdin = new MemoryStream();
-  const stdout = new MemoryStream();
 
   await fs.copyFile(blankPage1.filePath(), imagePath);
-  await run(
-    await parseOptions(
-      parseGlobalOptions(['node', 'ballot-interpreter-vx', 'layout', imagePath])
-    ),
-    stdin,
-    stdout
-  );
+  const { stdout } = await runCli(['layout', imagePath]);
 
-  expect(Buffer.from(stdout.read()).toString('utf-8')).toContain(
-    layoutImagePath
-  );
+  expect(stdout).toContain(layoutImagePath);
 
   const imageData = await loadImageData(imagePath);
   const layoutImageData = await loadImageData(layoutImagePath);

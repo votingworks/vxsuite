@@ -1,111 +1,69 @@
-import MemoryStream from 'memorystream';
-import { Readable } from 'stream';
-import { parseOptions, printHelp, run } from './help';
+import { runCli } from '../../../test/utils';
 
-async function readStream(stream: Readable): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const chunks: string[] = [];
-    stream.on('data', (chunk) => chunks.push(chunk));
-    stream.on('end', () => resolve(chunks.join('')));
-    stream.on('error', reject);
+test('print help when no args given', async () => {
+  expect(await runCli([])).toEqual({
+    code: -1,
+    stdout: expect.stringContaining('ballot-interpreter-vx COMMAND'),
+    stderr: '',
   });
-}
-
-test('prints usage examples to stdout', async () => {
-  const stdout = new MemoryStream();
-  await run(
-    { $0: 'ballot-interpreter-vx' },
-    Readable.from('') as NodeJS.ReadStream,
-    stdout as NodeJS.WriteStream
-  );
-  stdout.end();
-  expect(await readStream(stdout)).toContain('ballot-interpreter-vx COMMAND');
 });
 
-test('expects an optional command', async () => {
-  expect(
-    await parseOptions({
-      command: 'help',
-      commandArgs: [],
-      executablePath: 'ballot-interpreter-vx',
-      nodePath: 'node',
-      help: true,
-    })
-  ).toEqual({ $0: 'ballot-interpreter-vx', command: undefined });
-  expect(
-    await parseOptions({
-      command: 'help',
-      commandArgs: ['foo'],
-      executablePath: 'ballot-interpreter-vx',
-      nodePath: 'node',
-      help: true,
-    })
-  ).toEqual({ $0: 'ballot-interpreter-vx', command: 'foo' });
+test('print general help via help command', async () => {
+  expect(await runCli(['help'])).toEqual({
+    code: 0,
+    stdout: expect.stringContaining('ballot-interpreter-vx COMMAND'),
+    stderr: '',
+  });
 });
 
-test('help command help', () => {
-  const stdout = new MemoryStream();
-
-  printHelp({ $0: 'hmpb-interpret', command: 'help' }, stdout);
-  expect(Buffer.from(stdout.read()).toString('utf-8')).toMatchInlineSnapshot(`
-    "Usage: hmpb-interpret help COMMAND
-
-    Print usage information for COMMAND.
-    "
-  `);
+test('print general help via global flag', async () => {
+  expect(await runCli(['-h'])).toEqual({
+    code: 0,
+    stdout: expect.stringContaining('ballot-interpreter-vx COMMAND'),
+    stderr: '',
+  });
 });
 
-test('interpret command help', () => {
-  const stdout = new MemoryStream();
-
-  printHelp({ $0: 'hmpb-interpret', command: 'interpret' }, stdout);
-  expect(Buffer.from(stdout.read()).toString('utf-8')).toMatchInlineSnapshot(`
-    "hmpb-interpret interpret -e JSON IMG1 [IMG2 …]
-
-    Examples
-
-    # Interpret ballots based on a single template.
-    hmpb-interpret interpret -e election.json -t template.png ballot*.png
-
-    # Interpret test mode ballots.
-    hmpb-interpret interpret -e election.json -T -t template.png ballot*.png
-
-    # Interpret ballots to JSON.
-    hmpb-interpret interpret -e election.json -f json template*.png ballot*.png
-
-    # Specify image metadata (file:metdata-file).
-    hmpb-interpret interpret -e election.json template1.png:template1-metadata.json template2.png:template2-metdata.json ballot1.png:ballot1-metadata.json
-
-    # Set an explicit minimum mark score (0-1).
-    hmpb-interpret interpret -e election.json -m 0.5 template*.png ballot*.png
-
-    # Automatically process images as templates until all pages are found.
-    hmpb-interpret interpret -e election.json image*.png
-    "
-  `);
+test('help command help', async () => {
+  expect(await runCli(['help', '-h'])).toEqual({
+    code: 0,
+    stdout: expect.stringContaining('ballot-interpreter-vx help COMMAND'),
+    stderr: '',
+  });
 });
 
-test('layout command help', () => {
-  const stdout = new MemoryStream();
-
-  printHelp({ $0: 'hmpb-interpret', command: 'layout' }, stdout);
-  expect(Buffer.from(stdout.read()).toString('utf-8')).toMatchInlineSnapshot(`
-    "hmpb-interpret layout IMG1 [IMG2 …]
-
-    Examples
-
-    # Annotate layout for a single ballot page.
-    hmpb-interpret layout ballot01.jpg
-
-    # Annotate layout for many ballot pages.
-    hmpb-interpret layout ballot*.jpg
-    "
-  `);
+test('interpret command help', async () => {
+  expect(await runCli(['help', 'interpret'])).toEqual({
+    code: 0,
+    stdout: expect.stringContaining(
+      'ballot-interpreter-vx interpret -e JSON IMG1 [IMG2 …]'
+    ),
+    stderr: '',
+  });
 });
 
-test('unknown command', () => {
-  expect(() =>
-    // @ts-expect-error - intentionally invalid command
-    printHelp({ $0: 'hmpb-interpret', command: 'nope' }, new MemoryStream())
-  ).toThrowError('unknown command: nope');
+test('layout command help', async () => {
+  expect(await runCli(['help', 'layout'])).toEqual({
+    code: 0,
+    stdout: expect.stringContaining(
+      'ballot-interpreter-vx layout IMG1 [IMG2 …]'
+    ),
+    stderr: '',
+  });
+});
+
+test('unknown command via global', async () => {
+  expect(await runCli(['nope'])).toEqual({
+    code: -1,
+    stdout: '',
+    stderr: 'error: Unknown command: nope\n',
+  });
+});
+
+test('unknown command via help', async () => {
+  expect(await runCli(['help', 'nope'])).toEqual({
+    code: 1,
+    stdout: '',
+    stderr: 'error: Unknown command: nope\n',
+  });
 });

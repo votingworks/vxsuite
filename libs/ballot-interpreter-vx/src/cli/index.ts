@@ -1,71 +1,11 @@
-import { throwIllegalValue } from '@votingworks/utils';
-import * as helpCommand from './commands/help';
-import * as interpretCommand from './commands/interpret';
-import * as layoutCommand from './commands/layout';
+import { err, ok, Result } from '@votingworks/types';
+import { find } from '@votingworks/utils';
+import { get as getCommands } from './commands';
+import { GlobalOptions } from './types';
 
-export interface Command<O> {
-  name: string;
-  description: string;
-  parseOptions(globalOptions: GlobalOptions): Promise<O>;
-  run(
-    options: O,
-    stdin: typeof process.stdin,
-    stdout: typeof process.stdout
-  ): Promise<number>;
-}
-
-export class OptionParseError extends Error {}
-
-export interface GlobalOptions {
-  nodePath: string;
-  executablePath: string;
-  help: boolean;
-  command: string;
-  commandArgs: readonly string[];
-}
-
-export function getCommands(): [
-  Command<helpCommand.Options>,
-  Command<interpretCommand.Options>,
-  Command<layoutCommand.Options>
-] {
-  return [
-    {
-      name: helpCommand.name,
-      description: helpCommand.description,
-      parseOptions: helpCommand.parseOptions,
-      run: helpCommand.run,
-    },
-    {
-      name: interpretCommand.name,
-      description: interpretCommand.description,
-      parseOptions: interpretCommand.parseOptions,
-      run: interpretCommand.run,
-    },
-    {
-      name: layoutCommand.name,
-      description: layoutCommand.description,
-      parseOptions: layoutCommand.parseOptions,
-      run: layoutCommand.run,
-    },
-  ];
-}
-
-export type Options =
-  | {
-      command: typeof helpCommand.name;
-      options: helpCommand.Options;
-    }
-  | {
-      command: typeof interpretCommand.name;
-      options: interpretCommand.Options;
-    }
-  | {
-      command: typeof layoutCommand.name;
-      options: layoutCommand.Options;
-    };
-
-export function parseGlobalOptions(args: readonly string[]): GlobalOptions {
+export function parseGlobalOptions(
+  args: readonly string[]
+): Result<GlobalOptions, Error> {
   let help = false;
   let i = 2;
   let done = false;
@@ -84,54 +24,19 @@ export function parseGlobalOptions(args: readonly string[]): GlobalOptions {
           done = true;
           i -= 1;
         } else {
-          throw new OptionParseError(`Unknown global option: ${arg}`);
+          return err(new Error(`Unknown global option: ${arg}`));
         }
         break;
     }
   }
 
-  return {
+  return ok({
     nodePath: args[0],
     executablePath: args[1],
     help,
     command: args[i],
     commandArgs: args.slice(i + 1),
-  };
-}
-
-export async function parseOptions(args: readonly string[]): Promise<Options> {
-  const globalOptions = parseGlobalOptions(args);
-
-  if (globalOptions.help) {
-    return {
-      command: helpCommand.name,
-      options: await helpCommand.parseOptions(globalOptions),
-    };
-  }
-
-  const { command } = globalOptions;
-  switch (command) {
-    case 'help':
-      return {
-        command,
-        options: await helpCommand.parseOptions(globalOptions),
-      };
-
-    case 'interpret':
-      return {
-        command,
-        options: await interpretCommand.parseOptions(globalOptions),
-      };
-
-    case 'layout':
-      return {
-        command,
-        options: await layoutCommand.parseOptions(globalOptions),
-      };
-
-    default:
-      throw new OptionParseError(`Unknown command: ${command}`);
-  }
+  });
 }
 
 export async function main(
@@ -140,40 +45,34 @@ export async function main(
   stdout: NodeJS.WritableStream,
   stderr: NodeJS.WritableStream
 ): Promise<number> {
-  try {
-    const commandOptions = await parseOptions(args);
+  const commands = getCommands();
+  const globalOptionsResult = parseGlobalOptions(args);
 
-    switch (commandOptions.command) {
-      case 'help':
-        return await helpCommand.run(commandOptions.options, stdin, stdout);
-
-      case 'interpret':
-        return await interpretCommand.run(
-          commandOptions.options,
-          stdin,
-          stdout
-        );
-
-      case 'layout':
-        return await layoutCommand.run(commandOptions.options, stdin, stdout);
-
-      default:
-        throwIllegalValue(commandOptions);
-    }
-  } catch (error) {
-    if (error instanceof OptionParseError) {
-      stderr.write(`error: ${error.message}\n`);
-      const options = await helpCommand.parseOptions({
-        nodePath: args[0],
-        executablePath: args[1],
-        help: true,
-        command: 'help',
-        commandArgs: [],
-      });
-      helpCommand.printHelp(options, stderr);
-      return -1;
-    }
-
-    throw error;
+  if (globalOptionsResult.isErr()) {
+    stderr.write(`error: ${globalOptionsResult.err().message}\n`);
+    return -1;
   }
+
+  const globalOptions = globalOptionsResult.ok();
+
+  if (globalOptions.help || !globalOptions.command) {
+    const helpCommand = find(commands, (cmd) => cmd.name === 'help');
+    const code = await helpCommand.run(
+      commands,
+      globalOptions,
+      stdin,
+      stdout,
+      stderr
+    );
+    return globalOptions.help ? code : -1;
+  }
+
+  const command = commands.find((cmd) => cmd.name === globalOptions.command);
+
+  if (!command) {
+    stderr.write(`error: Unknown command: ${globalOptions.command}\n`);
+    return -1;
+  }
+
+  return command.run(commands, globalOptions, stdin, stdout, stderr);
 }

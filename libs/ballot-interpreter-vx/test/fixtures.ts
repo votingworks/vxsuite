@@ -33,12 +33,16 @@ export class Fixture implements Input {
     return imageData;
   }
 
+  metadataPath(): string {
+    return adjacentMetadataFile(this.filePath());
+  }
+
   async metadata(
     overrides: Partial<BallotPageMetadata> = {}
   ): Promise<BallotPageMetadata> {
     return {
       ...safeParseJson(
-        await fs.readFile(adjacentMetadataFile(this.filePath()), 'utf8'),
+        await fs.readFile(this.metadataPath(), 'utf-8'),
         BallotPageMetadataSchema
       ).unsafeUnwrap(),
       ...overrides,

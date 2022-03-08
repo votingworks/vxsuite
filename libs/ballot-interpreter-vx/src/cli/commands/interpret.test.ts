@@ -1,7 +1,8 @@
-import MemoryStream from 'memorystream';
+import { assert } from '@votingworks/utils';
+import { writeFileSync } from 'fs';
 import { relative } from 'path';
+import { tmpNameSync } from 'tmp';
 import { parseGlobalOptions } from '..';
-import { adjacentMetadataFile } from '../../../test/fixtures';
 import {
   blankPage1,
   blankPage2,
@@ -10,22 +11,25 @@ import {
   filledInPage1,
   filledInPage2,
 } from '../../../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library';
-import { OutputFormat, parseOptions, printHelp, run } from './interpret';
+import { runCli } from '../../../test/utils';
+import { OutputFormat, parseOptions } from './interpret';
 
 jest.setTimeout(10000);
 
 test('parse options: --election', async () => {
   for (const electionFlag of ['--election', '-e']) {
     expect(
-      await parseOptions(
-        parseGlobalOptions([
-          'node',
-          'ballot-interpreter-vx',
-          'interpret',
-          electionFlag,
-          electionPath,
-        ])
-      )
+      (
+        await parseOptions(
+          parseGlobalOptions([
+            'node',
+            'ballot-interpreter-vx',
+            'interpret',
+            electionFlag,
+            electionPath,
+          ]).unsafeUnwrap()
+        )
+      ).unsafeUnwrap()
     ).toEqual(
       expect.objectContaining({
         election,
@@ -37,17 +41,19 @@ test('parse options: --election', async () => {
 test('parse options: --min-mark-score', async () => {
   for (const minMarkScoreFlag of ['--min-mark-score', '-m']) {
     expect(
-      await parseOptions(
-        parseGlobalOptions([
-          'node',
-          'ballot-interpreter-vx',
-          'interpret',
-          '--election',
-          electionPath,
-          minMarkScoreFlag,
-          '0.9',
-        ])
-      )
+      (
+        await parseOptions(
+          parseGlobalOptions([
+            'node',
+            'ballot-interpreter-vx',
+            'interpret',
+            '--election',
+            electionPath,
+            minMarkScoreFlag,
+            '0.9',
+          ]).unsafeUnwrap()
+        )
+      ).unsafeUnwrap()
     ).toEqual(
       expect.objectContaining({
         markScoreVoteThreshold: 0.9,
@@ -55,17 +61,19 @@ test('parse options: --min-mark-score', async () => {
     );
 
     expect(
-      await parseOptions(
-        parseGlobalOptions([
-          'node',
-          'ballot-interpreter-vx',
-          'interpret',
-          '--election',
-          electionPath,
-          minMarkScoreFlag,
-          '42%',
-        ])
-      )
+      (
+        await parseOptions(
+          parseGlobalOptions([
+            'node',
+            'ballot-interpreter-vx',
+            'interpret',
+            '--election',
+            electionPath,
+            minMarkScoreFlag,
+            '42%',
+          ]).unsafeUnwrap()
+        )
+      ).unsafeUnwrap()
     ).toEqual(
       expect.objectContaining({
         markScoreVoteThreshold: 0.42,
@@ -73,24 +81,8 @@ test('parse options: --min-mark-score', async () => {
     );
   }
 
-  await expect(
-    parseOptions(
-      parseGlobalOptions([
-        'node',
-        'ballot-interpreter-vx',
-        'interpret',
-        '--election',
-        electionPath,
-        '-m',
-        'I am not a number',
-      ])
-    )
-  ).rejects.toThrowError('Invalid minimum mark score: I am not a number');
-});
-
-test('parse options: --test-mode', async () => {
-  for (const testModeFlag of ['--test-mode', '-T', '--no-test-mode']) {
-    expect(
+  expect(
+    (
       await parseOptions(
         parseGlobalOptions([
           'node',
@@ -98,9 +90,29 @@ test('parse options: --test-mode', async () => {
           'interpret',
           '--election',
           electionPath,
-          testModeFlag,
-        ])
+          '-m',
+          'I am not a number',
+        ]).unsafeUnwrap()
       )
+    ).unsafeUnwrapErr().message
+  ).toEqual('Invalid minimum mark score: I am not a number');
+});
+
+test('parse options: --test-mode', async () => {
+  for (const testModeFlag of ['--test-mode', '-T', '--no-test-mode']) {
+    expect(
+      (
+        await parseOptions(
+          parseGlobalOptions([
+            'node',
+            'ballot-interpreter-vx',
+            'interpret',
+            '--election',
+            electionPath,
+            testModeFlag,
+          ]).unsafeUnwrap()
+        )
+      ).unsafeUnwrap()
     ).toEqual(
       expect.objectContaining({
         testMode: testModeFlag !== '--no-test-mode',
@@ -111,15 +123,17 @@ test('parse options: --test-mode', async () => {
 
 test('parse options: --format', async () => {
   expect(
-    await parseOptions(
-      parseGlobalOptions([
-        'node',
-        'ballot-interpreter-vx',
-        'interpret',
-        '--election',
-        electionPath,
-      ])
-    )
+    (
+      await parseOptions(
+        parseGlobalOptions([
+          'node',
+          'ballot-interpreter-vx',
+          'interpret',
+          '--election',
+          electionPath,
+        ]).unsafeUnwrap()
+      )
+    ).unsafeUnwrap()
   ).toEqual(
     expect.objectContaining({
       format: OutputFormat.Table,
@@ -128,17 +142,19 @@ test('parse options: --format', async () => {
 
   for (const formatFlag of ['--format', '-f']) {
     expect(
-      await parseOptions(
-        parseGlobalOptions([
-          'node',
-          'ballot-interpreter-vx',
-          'interpret',
-          '--election',
-          electionPath,
-          formatFlag,
-          'JSON',
-        ])
-      )
+      (
+        await parseOptions(
+          parseGlobalOptions([
+            'node',
+            'ballot-interpreter-vx',
+            'interpret',
+            '--election',
+            electionPath,
+            formatFlag,
+            'JSON',
+          ]).unsafeUnwrap()
+        )
+      ).unsafeUnwrap()
     ).toEqual(
       expect.objectContaining({
         format: OutputFormat.JSON,
@@ -146,111 +162,75 @@ test('parse options: --format', async () => {
     );
   }
 
-  await expect(
-    parseOptions(
-      parseGlobalOptions([
-        'node',
-        'ballot-interpreter-vx',
-        'interpret',
-        '--election',
-        electionPath,
-        '-f',
-        'yaml',
-      ])
-    )
-  ).rejects.toThrowError('Unknown output format: yaml');
+  expect(
+    (
+      await parseOptions(
+        parseGlobalOptions([
+          'node',
+          'ballot-interpreter-vx',
+          'interpret',
+          '--election',
+          electionPath,
+          '-f',
+          'yaml',
+        ]).unsafeUnwrap()
+      )
+    ).unsafeUnwrapErr().message
+  ).toEqual('Unknown output format: yaml');
 });
 
 test('parse options requires election', async () => {
-  await expect(
-    parseOptions(
-      parseGlobalOptions(['node', 'ballot-interpreter-vx', 'interpret'])
-    )
-  ).rejects.toThrowError(`Required option 'election' is missing.`);
+  expect(
+    (
+      await parseOptions(
+        parseGlobalOptions([
+          'node',
+          'ballot-interpreter-vx',
+          'interpret',
+        ]).unsafeUnwrap()
+      )
+    ).unsafeUnwrapErr().message
+  ).toContain(`Required option 'election' is missing.`);
 
-  await expect(
-    parseOptions(
-      parseGlobalOptions(['node', 'ballot-interpreter-vx', 'interpret', '-e'])
-    )
-  ).rejects.toThrowError(
-    `Expected election definition file after -e, but got nothing.`
-  );
+  expect(
+    (
+      await parseOptions(
+        parseGlobalOptions([
+          'node',
+          'ballot-interpreter-vx',
+          'interpret',
+          '-e',
+        ]).unsafeUnwrap()
+      )
+    ).unsafeUnwrapErr().message
+  ).toEqual(`Expected election definition file after -e, but got nothing.`);
 
-  await expect(
-    parseOptions(
-      parseGlobalOptions([
-        'node',
-        'ballot-interpreter-vx',
-        'interpret',
-        '-e',
-        '-t',
-      ])
-    )
-  ).rejects.toThrowError(
-    `Expected election definition file after -e, but got -t.`
-  );
+  expect(
+    (
+      await parseOptions(
+        parseGlobalOptions([
+          'node',
+          'ballot-interpreter-vx',
+          'interpret',
+          '-e',
+          '-t',
+        ]).unsafeUnwrap()
+      )
+    ).unsafeUnwrapErr().message
+  ).toEqual(`Expected election definition file after -e, but got -t.`);
 });
 
 test('invalid options', async () => {
-  await expect(
-    parseOptions(
-      parseGlobalOptions([
-        'node',
-        'ballot-interpreter-vx',
-        'interpret',
-        '--wrong',
-      ])
-    )
-  ).rejects.toThrowError('Unknown option: --wrong');
+  expect(await runCli(['interpret', '--wrong'])).toEqual({
+    code: 1,
+    stdout: '',
+    stderr: expect.stringContaining('Unknown option: --wrong'),
+  });
 });
 
 test('template and ballot flags', async () => {
-  const options = await parseOptions(
-    parseGlobalOptions([
-      'node',
-      'ballot-interpreter-vx',
-      'interpret',
-      '-e',
-      electionPath,
-      '-t',
-      'template.png',
-      '-b',
-      'ballot.png',
-    ])
-  );
-  expect(options.ballotInputs.map((bi) => bi.id())).toEqual(['ballot.png']);
-  expect(options.templateInputs.map((ti) => ti.id())).toEqual(['template.png']);
-
-  await expect(
-    parseOptions(
-      parseGlobalOptions([
-        'node',
-        'ballot-interpreter-vx',
-        'interpret',
-        '-e',
-        electionPath,
-        '-t',
-        '-b',
-        'ballot.png',
-      ])
-    )
-  ).rejects.toThrowError('Expected template file after -t, but got -b');
-
-  await expect(
-    parseOptions(
-      parseGlobalOptions([
-        'node',
-        'ballot-interpreter-vx',
-        'interpret',
-        '-e',
-        electionPath,
-        '-t',
-      ])
-    )
-  ).rejects.toThrowError('Expected template file after -t, but got nothing');
-
-  await expect(
-    parseOptions(
+  const options = (
+    await parseOptions(
       parseGlobalOptions([
         'node',
         'ballot-interpreter-vx',
@@ -260,34 +240,124 @@ test('template and ballot flags', async () => {
         '-t',
         'template.png',
         '-b',
-      ])
+        'ballot.png',
+      ]).unsafeUnwrap()
     )
-  ).rejects.toThrowError('Expected ballot file after -b, but got nothing');
+  ).unsafeUnwrap();
+  assert(!options.help);
+  expect(options.ballotInputs.map((bi) => bi.id())).toEqual(['ballot.png']);
+  expect(options.templateInputs.map((ti) => ti.id())).toEqual(['template.png']);
+
+  expect(
+    (
+      await parseOptions(
+        parseGlobalOptions([
+          'node',
+          'ballot-interpreter-vx',
+          'interpret',
+          '-e',
+          electionPath,
+          '-t',
+          '-b',
+          'ballot.png',
+        ]).unsafeUnwrap()
+      )
+    ).unsafeUnwrapErr().message
+  ).toEqual('Expected template file after -t, but got -b');
+
+  expect(
+    (
+      await parseOptions(
+        parseGlobalOptions([
+          'node',
+          'ballot-interpreter-vx',
+          'interpret',
+          '-e',
+          electionPath,
+          '-t',
+        ]).unsafeUnwrap()
+      )
+    ).unsafeUnwrapErr().message
+  ).toEqual('Expected template file after -t, but got nothing');
+
+  expect(
+    (
+      await parseOptions(
+        parseGlobalOptions([
+          'node',
+          'ballot-interpreter-vx',
+          'interpret',
+          '-e',
+          electionPath,
+          '-t',
+          'template.png',
+          '-b',
+        ]).unsafeUnwrap()
+      )
+    ).unsafeUnwrapErr().message
+  ).toEqual('Expected ballot file after -b, but got nothing');
+});
+
+test('explicit metadata for templates and ballots', async () => {
+  const metadataPath = tmpNameSync();
+  writeFileSync(metadataPath, '{}');
+
+  const options = (
+    await parseOptions(
+      parseGlobalOptions([
+        'node',
+        'ballot-interpreter-vx',
+        'interpret',
+        '-e',
+        electionPath,
+        '-t',
+        `template.png:${metadataPath}`,
+        '-b',
+        `ballot.png:${metadataPath}`,
+      ]).unsafeUnwrap()
+    )
+  ).unsafeUnwrap();
+  assert(!options.help);
+  expect(
+    await Promise.all(
+      options.ballotInputs.map(async (bi) => ({
+        id: bi.id(),
+        metadata: await bi.metadata?.(),
+      }))
+    )
+  ).toEqual([{ id: 'ballot.png', metadata: {} }]);
+  expect(
+    await Promise.all(
+      options.templateInputs.map(async (bi) => ({
+        id: bi.id(),
+        metadata: await bi.metadata?.(),
+      }))
+    )
+  ).toEqual([{ id: 'template.png', metadata: {} }]);
 });
 
 test('file paths without explicit template/ballot flags', async () => {
-  const parsed = await parseOptions(
-    parseGlobalOptions([
-      'node',
-      'ballot-interpreter-vx',
-      'interpret',
-      '-e',
-      electionPath,
-      'img01.png',
-      'img02.png',
-    ])
-  );
-  expect(parsed.autoInputs.map((ai) => ai.id())).toEqual([
-    'img01.png',
-    'img02.png',
-  ]);
+  expect(
+    (
+      await parseOptions(
+        parseGlobalOptions([
+          'node',
+          'ballot-interpreter-vx',
+          'interpret',
+          '-e',
+          electionPath,
+          'img01.png',
+          'img02.png',
+        ]).unsafeUnwrap()
+      )
+    ).unsafeUnwrapErr().message
+  ).toEqual(`Unknown argument: img01.png`);
 });
 
 test('help', async () => {
-  const stdout = new MemoryStream();
+  const { stdout } = await runCli(['interpret', '-h']);
 
-  printHelp('ballot-interpreter-vx', stdout);
-  expect(Buffer.from(stdout.read()).toString('utf-8')).toMatchInlineSnapshot(`
+  expect(stdout).toMatchInlineSnapshot(`
     "ballot-interpreter-vx interpret -e JSON IMG1 [IMG2 …]
 
     Examples
@@ -306,42 +376,30 @@ test('help', async () => {
 
     # Set an explicit minimum mark score (0-1).
     ballot-interpreter-vx interpret -e election.json -m 0.5 template*.png ballot*.png
-
-    # Automatically process images as templates until all pages are found.
-    ballot-interpreter-vx interpret -e election.json image*.png
     "
   `);
 });
 
 test('run interpret', async () => {
-  const stdin = new MemoryStream();
-  const stdout = new MemoryStream();
+  const { code, stdout, stderr } = await runCli([
+    'interpret',
+    '-e',
+    electionPath,
+    '-t',
+    `${blankPage1.filePath()}:${blankPage1.metadataPath()}`,
+    '-t',
+    blankPage2.filePath(),
+    '-b',
+    `${relative(
+      process.cwd(),
+      filledInPage1.filePath()
+    )}:${filledInPage1.metadataPath()}`,
+    '-b',
+    relative(process.cwd(), filledInPage2.filePath()),
+  ]);
 
-  expect(
-    await run(
-      await parseOptions(
-        parseGlobalOptions([
-          'node',
-          'ballot-interpreter-vx',
-          'interpret',
-          '-e',
-          electionPath,
-          '-t',
-          blankPage1.filePath(),
-          '-t',
-          blankPage2.filePath(),
-          '-b',
-          relative(process.cwd(), filledInPage1.filePath()),
-          '-b',
-          relative(process.cwd(), filledInPage2.filePath()),
-        ])
-      ),
-      stdin,
-      stdout
-    )
-  ).toEqual(0);
-
-  expect(Buffer.from(stdout.read()).toString('utf-8')).toMatchInlineSnapshot(`
+  expect({ code, stderr }).toEqual({ code: 0, stderr: '' });
+  expect(stdout).toMatchInlineSnapshot(`
     "╔═══════════════════════════════════════════════════════╤════════════════════════════════════════════════════════════════════════════════════════════════════╤════════════════════════════════════════════════════════════════════════════════════════════════════╗
     ║ Contest                                               │ test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library/filled-in-p1.jpg │ test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library/filled-in-p2.jpg ║
     ╟───────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────╢
@@ -371,88 +429,21 @@ test('run interpret', async () => {
   `);
 });
 
-test('run interpret with auto inputs', async () => {
-  const stdin = new MemoryStream();
-  const stdout = new MemoryStream();
-
-  const templatePath = blankPage1.filePath();
-  const ballotPath = relative(process.cwd(), filledInPage1.filePath());
-
-  expect(
-    await run(
-      await parseOptions(
-        parseGlobalOptions([
-          'node',
-          'ballot-interpreter-vx',
-          'interpret',
-          '-e',
-          electionPath,
-          `${templatePath}:${adjacentMetadataFile(templatePath)}`,
-          `${ballotPath}:${adjacentMetadataFile(ballotPath)}`,
-        ])
-      ),
-      stdin,
-      stdout
-    )
-  ).toEqual(0);
-
-  expect(Buffer.from(stdout.read()).toString('utf-8')).toMatchInlineSnapshot(`
-    "╔═══════════════════════════════════════════════════════╤════════════════════════════════════════════════════════════════════════════════════════════════════╗
-    ║ Contest                                               │ test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library/filled-in-p1.jpg ║
-    ╟───────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────╢
-    ║ Member, U.S. Senate                                   │ Tim Smith                                                                                          ║
-    ╟───────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────╢
-    ║ Member, U.S. House, District 30                       │ Eddie Bernice Johnson                                                                              ║
-    ╟───────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────╢
-    ║ Judge, Texas Supreme Court, Place 6                   │ Jane Bland                                                                                         ║
-    ╟───────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────╢
-    ║ Member, Texas House of Representatives, District 111  │ Write-In                                                                                           ║
-    ╟───────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────╢
-    ║ Dallas County Tax Assessor-Collector                  │ John Ames                                                                                          ║
-    ╟───────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────╢
-    ║ Dallas County Sheriff                                 │ Chad Prda                                                                                          ║
-    ╟───────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────╢
-    ║ Member, Dallas County Commissioners Court, Precinct 3 │                                                                                                    ║
-    ╟───────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────╢
-    ║ Retain Robert Demergue as Chief Justice?              │                                                                                                    ║
-    ╟───────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────╢
-    ║ Proposition R: Countywide Recycling Program           │                                                                                                    ║
-    ╟───────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────╢
-    ║ City Council                                          │                                                                                                    ║
-    ╟───────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────────────────────────────╢
-    ║ Mayor                                                 │                                                                                                    ║
-    ╚═══════════════════════════════════════════════════════╧════════════════════════════════════════════════════════════════════════════════════════════════════╝
-    "
-  `);
-});
-
 test('run interpret with JSON output', async () => {
-  const stdin = new MemoryStream();
-  const stdout = new MemoryStream();
+  const { code, stdout, stderr } = await runCli([
+    'interpret',
+    '-e',
+    electionPath,
+    '-t',
+    blankPage1.filePath(),
+    '-b',
+    relative(process.cwd(), filledInPage1.filePath()),
+    '-f',
+    'JSON',
+  ]);
 
-  expect(
-    await run(
-      await parseOptions(
-        parseGlobalOptions([
-          'node',
-          'ballot-interpreter-vx',
-          'interpret',
-          '-e',
-          electionPath,
-          '-t',
-          blankPage1.filePath(),
-          '-b',
-          relative(process.cwd(), filledInPage1.filePath()),
-          '-f',
-          'JSON',
-        ])
-      ),
-      stdin,
-      stdout
-    )
-  ).toEqual(0);
-
-  expect(Buffer.from(stdout.read()).toString('utf-8')).toMatchInlineSnapshot(`
+  expect({ code, stderr }).toEqual({ code: 0, stderr: '' });
+  expect(stdout).toMatchInlineSnapshot(`
     "[
       {
         \\"input\\": \\"test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library/filled-in-p1.jpg\\",

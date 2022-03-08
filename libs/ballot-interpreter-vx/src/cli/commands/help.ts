@@ -1,38 +1,49 @@
 import chalk from 'chalk';
 import { basename } from 'path';
-import { getCommands, GlobalOptions } from '..';
-import * as helpCommand from './help';
-import * as interpretCommand from './interpret';
-import * as layoutCommand from './layout';
+import { Command, GlobalOptions } from '../types';
 
 export const name = 'help';
 export const description = 'Show help about a command';
 
 export interface Options {
   readonly $0: string;
-  readonly command?:
-    | typeof helpCommand['name']
-    | typeof interpretCommand['name']
-    | typeof layoutCommand['name'];
+  readonly command?: string;
 }
 
 export async function parseOptions({
   commandArgs,
   executablePath,
 }: GlobalOptions): Promise<Options> {
-  return {
-    $0: basename(executablePath),
-    command: commandArgs[0] as Options['command'],
-  };
+  const $0 = basename(executablePath);
+
+  if (commandArgs.length === 0) {
+    return { $0 };
+  }
+
+  const command = commandArgs[0];
+  switch (command) {
+    case '-h':
+    case '--help':
+      return {
+        $0,
+        command: 'help',
+      };
+
+    default:
+      return { $0, command };
+  }
 }
 
-function printGlobalHelp(options: Options, out: NodeJS.WritableStream): void {
+function printGlobalHelp(
+  commands: Command[],
+  options: Options,
+  out: NodeJS.WritableStream
+): number {
   out.write(`Usage: ${options.$0} COMMAND [ARGS]\n`);
   out.write(`\n`);
   out.write(chalk.bold(`Commands:\n`));
   out.write(`\n`);
 
-  const commands = getCommands();
   const commandNameSpace =
     Math.max(...commands.map((command) => command.name.length)) + 3;
 
@@ -44,45 +55,48 @@ function printGlobalHelp(options: Options, out: NodeJS.WritableStream): void {
     );
   }
   out.write(`\n`);
+  return 0;
 }
 
-export function printCommandHelp(
+function printCommandHelp(
+  commands: readonly Command[],
+  globalOptions: GlobalOptions,
   options: Options,
+  stdout: NodeJS.WritableStream,
+  stderr: NodeJS.WritableStream
+): number {
+  const command = commands.find((cmd) => cmd.name === options.command);
+
+  if (!command) {
+    stderr.write(`error: Unknown command: ${options.command}\n`);
+    return 1;
+  }
+
+  command.printHelp(globalOptions, stdout);
+  return 0;
+}
+
+export function printHelp(
+  globalOptions: GlobalOptions,
   out: NodeJS.WritableStream
 ): void {
-  out.write(`Usage: ${options.$0} help COMMAND\n`);
+  out.write(`Usage: ${basename(globalOptions.executablePath)} help COMMAND\n`);
   out.write(`\n`);
   out.write(`Print usage information for COMMAND.\n`);
 }
 
-export function printHelp(options: Options, out: NodeJS.WritableStream): void {
-  switch (options.command) {
-    case undefined:
-      printGlobalHelp(options, out);
-      break;
-
-    case 'help':
-      printCommandHelp(options, out);
-      break;
-
-    case 'interpret':
-      interpretCommand.printHelp(options.$0, out);
-      break;
-
-    case 'layout':
-      layoutCommand.printHelp(options.$0, out);
-      break;
-
-    default:
-      throw new Error(`unknown command: ${options.command}`);
-  }
-}
-
 export async function run(
-  options: Options,
+  commands: Command[],
+  globalOptions: GlobalOptions,
   _stdin: NodeJS.ReadableStream,
-  stdout: NodeJS.WritableStream
+  stdout: NodeJS.WritableStream,
+  stderr: NodeJS.WritableStream
 ): Promise<number> {
-  printHelp(options, stdout);
-  return 0;
+  const options = await parseOptions(globalOptions);
+
+  if (options.command) {
+    return printCommandHelp(commands, globalOptions, options, stdout, stderr);
+  }
+
+  return printGlobalHelp(commands, options, stdout);
 }

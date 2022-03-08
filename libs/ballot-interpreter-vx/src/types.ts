@@ -34,6 +34,7 @@ export interface UninterpretedBallot {
 export interface Input {
   id(): string;
   imageData(): Promise<ImageData>;
+  metadataPath(): string;
   metadata?: () => Promise<BallotPageMetadata | undefined>;
 }
 
