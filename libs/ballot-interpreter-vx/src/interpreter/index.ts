@@ -168,14 +168,12 @@ export class Interpreter {
    */
   async interpretTemplate(
     imageData: ImageData,
-    metadata?: BallotPageMetadata,
-    { flipped = false } = {}
+    metadata?: BallotPageMetadata
   ): Promise<BallotPageLayoutWithImage> {
     return interpretTemplate({
       election: this.election,
       imageData,
       metadata,
-      flipped,
       detectQrCode: this.detectQrCode,
     });
   }
