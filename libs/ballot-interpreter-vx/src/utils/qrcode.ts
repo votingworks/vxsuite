@@ -1,13 +1,13 @@
-import { detect } from '@votingworks/ballot-encoder';
+import { detect as detectMetadata } from '@votingworks/ballot-encoder';
 import { Rect, Size } from '@votingworks/types';
-import { crop } from '@votingworks/ballot-interpreter-vx';
 import { detect as qrdetect } from '@votingworks/qrdetect';
 import makeDebug from 'debug';
 import jsQr from 'jsqr';
 import { decode as quircDecode, QRCode } from 'node-quirc';
-import { time } from './perf';
+import { DetectQrCodeResult } from '../types';
+import { crop } from './crop';
 
-const debug = makeDebug('scan:qrcode');
+const debug = makeDebug('ballot-interpreter-vx:qrcode');
 
 function isBase64(string: string): boolean {
   return Buffer.from(string, 'base64').toString('base64') === string;
@@ -15,7 +15,7 @@ function isBase64(string: string): boolean {
 
 function maybeDecodeBase64(data: Buffer): Buffer {
   try {
-    if (detect(data)) {
+    if (detectMetadata(data)) {
       // BMD ballot, leave it
       return data;
     }
@@ -33,7 +33,7 @@ function maybeDecodeBase64(data: Buffer): Buffer {
   }
 }
 
-export function* getSearchAreas(
+function* getSearchAreas(
   size: Size
 ): Generator<{ position: 'top' | 'bottom'; bounds: Rect }> {
   // QR code for HMPB is bottom right of legal, so appears bottom right or top left
@@ -80,16 +80,13 @@ export function* getSearchAreas(
   };
 }
 
-export async function detectQrCode(
+/**
+ * Detects QR codes in a ballot image.
+ */
+export async function detect(
   imageData: ImageData
-): Promise<
-  { data: Buffer; position: 'top' | 'bottom'; detector: string } | undefined
-> {
-  debug(
-    'detectQrCode: checking %dˣ%d image',
-    imageData.width,
-    imageData.height
-  );
+): Promise<DetectQrCodeResult | undefined> {
+  debug('detect: checking %dˣ%d image', imageData.width, imageData.height);
 
   const detectors = [
     {
@@ -115,32 +112,29 @@ export async function detectQrCode(
     },
   ];
 
-  const timer = time('detectQrCode');
-  try {
-    for (const detector of detectors) {
-      for (const { position, bounds } of getSearchAreas(imageData)) {
-        debug('cropping %s to check for QR code: %o', position, bounds);
-        const cropped = crop(imageData, bounds);
-        debug('scanning with %s', detector.name);
-        const results = await detector.detect(cropped);
+  for (const detector of detectors) {
+    for (const { position, bounds } of getSearchAreas(imageData)) {
+      debug('cropping %s to check for QR code: %o', position, bounds);
+      const cropped = crop(imageData, bounds);
+      debug('scanning with %s', detector.name);
+      const results = await detector.detect(cropped);
 
-        if (results.length === 0) {
-          debug('%s found no QR codes in %s', detector.name, position);
-          continue;
-        }
-
-        debug(
-          '%s found QR code in %s! data length=%d',
-          detector.name,
-          position,
-          results[0].length
-        );
-        const data = maybeDecodeBase64(results[0]);
-
-        return { data, position, detector: detector.name };
+      if (results.length === 0) {
+        debug('%s found no QR codes in %s', detector.name, position);
+        continue;
       }
+
+      debug(
+        '%s found QR code in %s! data length=%d',
+        detector.name,
+        position,
+        results[0].length
+      );
+      const data = maybeDecodeBase64(results[0]);
+
+      return { data, position, detector: detector.name };
     }
-  } finally {
-    timer.end();
   }
+
+  return undefined;
 }

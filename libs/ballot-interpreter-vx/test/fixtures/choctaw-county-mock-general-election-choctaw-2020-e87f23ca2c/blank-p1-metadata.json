@@ -1,0 +1,11 @@
+{
+  "ballotStyleId": "1",
+  "ballotType": 0,
+  "electionHash": "e87f23ca2cc9feed24cf252920cecd26f1777746c634ea78debd1dc50e48a762",
+  "isTestMode": false,
+  "locales": {
+    "primary": "en-US"
+  },
+  "pageNumber": 1,
+  "precinctId": "6525"
+}

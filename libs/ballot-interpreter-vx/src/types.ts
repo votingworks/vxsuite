@@ -40,7 +40,8 @@ export interface Input {
 
 export interface DetectQrCodeResult {
   data: Buffer;
-  rightSideUp?: boolean;
+  position: 'top' | 'bottom';
+  detector: string;
 }
 
 export interface DetectQrCode {

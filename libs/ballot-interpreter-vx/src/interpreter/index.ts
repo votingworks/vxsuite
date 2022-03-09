@@ -40,7 +40,7 @@ import {
   interpretTemplate,
 } from '../layout';
 import { detect } from '../metadata';
-import { DetectQrCode, FindMarksResult, Interpreted } from '../types';
+import { FindMarksResult, Interpreted } from '../types';
 import { binarize, PIXEL_BLACK, PIXEL_WHITE } from '../utils/binarize';
 import { crop } from '../utils/crop';
 import { defined } from '../utils/defined';
@@ -57,7 +57,6 @@ const debug = makeDebug('ballot-interpreter-vx:Interpreter');
 
 export interface Options {
   readonly election: Election;
-  readonly detectQrCode?: DetectQrCode;
   readonly markScoreVoteThreshold?: number;
   readonly testMode?: boolean;
 }
@@ -103,12 +102,10 @@ export class Interpreter {
   );
   private readonly election: Election;
   private readonly testMode: boolean;
-  private readonly detectQrCode?: DetectQrCode;
   private readonly markScoreVoteThreshold: number;
 
   constructor(options: Options) {
     this.election = options.election;
-    this.detectQrCode = options.detectQrCode;
     this.markScoreVoteThreshold =
       options.markScoreVoteThreshold ??
       this.election.markThresholds?.definite ??
@@ -174,7 +171,6 @@ export class Interpreter {
       election: this.election,
       imageData,
       metadata,
-      detectQrCode: this.detectQrCode,
     });
   }
 
@@ -373,9 +369,7 @@ export class Interpreter {
       return { imageData, metadata };
     }
 
-    const detectResult = await detect(this.election, imageData, {
-      detectQrCode: this.detectQrCode,
-    });
+    const detectResult = await detect(this.election, imageData);
 
     if (detectResult.flipped) {
       debug('detected image is flipped, correcting orientation');

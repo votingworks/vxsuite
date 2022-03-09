@@ -8,21 +8,23 @@ test('interpret two-column template', async () => {
   const interpreter = new Interpreter({ election });
 
   {
-    const imageData = await choctawMock2020.blankPage1.imageData();
     const template = await interpreter.addTemplate(
-      await interpreter.interpretTemplate(imageData)
+      await interpreter.interpretTemplate(
+        await choctawMock2020.blankPage1.imageData(),
+        // provide the metadata because the QR code uses raw binary, not base64
+        // binary. this causes qrdetect (zbar) to read it incorrectly
+        await choctawMock2020.blankPage1.metadata()
+      )
     );
 
     expect(template.ballotPageLayout.metadata).toMatchInlineSnapshot(`
       Object {
-        "ballotId": undefined,
         "ballotStyleId": "1",
         "ballotType": 0,
         "electionHash": "e87f23ca2cc9feed24cf252920cecd26f1777746c634ea78debd1dc50e48a762",
         "isTestMode": false,
         "locales": Object {
           "primary": "en-US",
-          "secondary": undefined,
         },
         "pageNumber": 1,
         "precinctId": "6525",
@@ -550,21 +552,21 @@ test('interpret two-column template', async () => {
   }
 
   {
-    const imageData = await choctawMock2020.blankPage2.imageData();
     const template = await interpreter.addTemplate(
-      await interpreter.interpretTemplate(imageData)
+      await interpreter.interpretTemplate(
+        await choctawMock2020.blankPage2.imageData(),
+        await choctawMock2020.blankPage2.metadata()
+      )
     );
 
     expect(template.ballotPageLayout.metadata).toMatchInlineSnapshot(`
           Object {
-            "ballotId": undefined,
             "ballotStyleId": "1",
             "ballotType": 0,
             "electionHash": "e87f23ca2cc9feed24cf252920cecd26f1777746c634ea78debd1dc50e48a762",
             "isTestMode": false,
             "locales": Object {
               "primary": "en-US",
-              "secondary": undefined,
             },
             "pageNumber": 2,
             "precinctId": "6525",
@@ -841,7 +843,8 @@ test('interpret two-column template', async () => {
     const {
       ballot: { votes },
     } = await interpreter.interpretBallot(
-      await choctawMock2020.filledInPage1.imageData()
+      await choctawMock2020.filledInPage1.imageData(),
+      await choctawMock2020.filledInPage1.metadata()
     );
     expect(votes).toMatchInlineSnapshot(`
       Object {
@@ -887,7 +890,8 @@ test('interpret two-column template', async () => {
     const {
       ballot: { votes },
     } = await interpreter.interpretBallot(
-      await choctawMock2020.filledInPage2.imageData()
+      await choctawMock2020.filledInPage2.imageData(),
+      await choctawMock2020.filledInPage2.metadata()
     );
     expect(votes).toMatchInlineSnapshot(`
       Object {

@@ -1,35 +1,9 @@
-import { BallotType } from '@votingworks/types';
 import { fail } from 'assert';
+import { Interpreter } from '.';
 import * as choctaw2020LegalSize from '../../test/fixtures/choctaw-county-2020-general-election';
 import * as oaklawn from '../../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library';
-import { Interpreter } from '.';
-import { DetectQrCodeResult } from '../types';
 
 jest.setTimeout(10000);
-
-test('custom QR code reader', async () => {
-  const fixtures = oaklawn;
-  const { election } = fixtures;
-  const interpreter = new Interpreter({
-    election,
-    detectQrCode: async (): Promise<DetectQrCodeResult> => ({
-      data: Buffer.from('https://ballot.page?t=_&pr=11&bs=22&p=3-4'),
-    }),
-  });
-  const template = await interpreter.interpretTemplate(
-    await fixtures.blankPage1.imageData()
-  );
-
-  expect(template.ballotPageLayout.metadata).toEqual({
-    locales: { primary: 'en-US' },
-    ballotStyleId: '22',
-    precinctId: '11',
-    isTestMode: false,
-    pageNumber: 3,
-    electionHash: '',
-    ballotType: BallotType.Standard,
-  });
-});
 
 test('can interpret a template that is not in the same mode as the interpreter', async () => {
   const fixtures = oaklawn;

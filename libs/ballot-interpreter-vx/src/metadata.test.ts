@@ -1,16 +1,11 @@
 import { BallotType } from '@votingworks/types';
 import { croppedQrCode } from '../test/fixtures';
-import {
-  election as urlQrCodeElection,
-  blankPage1 as urlQrCodePage1,
-} from '../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library';
-import {
-  election as binaryQrCodeElection,
-  blankPage1 as binaryQrCodePage1,
-} from '../test/fixtures/choctaw-county-mock-general-election-choctaw-2020-e87f23ca2c';
 import * as choctaw2020Special from '../test/fixtures/choctaw-2020-09-22-f30480cc99';
+import {
+  blankPage1 as urlQrCodePage1,
+  election as urlQrCodeElection,
+} from '../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library';
 import { decodeSearchParams, detect } from './metadata';
-import { jsqr } from './utils/qrcode';
 
 test('read base64-encoded binary metadata from QR code image', async () => {
   expect(
@@ -31,24 +26,6 @@ test('read base64-encoded binary metadata from QR code image', async () => {
       },
       pageNumber: 1,
       precinctId: '6538',
-    },
-    flipped: false,
-  });
-});
-
-test('read binary metadata from QR code image', async () => {
-  expect(
-    await detect(binaryQrCodeElection, await binaryQrCodePage1.imageData())
-  ).toEqual({
-    metadata: {
-      locales: { primary: 'en-US', secondary: undefined },
-      ballotStyleId: '1',
-      precinctId: '6525',
-      isTestMode: false,
-      pageNumber: 1,
-      electionHash:
-        'e87f23ca2cc9feed24cf252920cecd26f1777746c634ea78debd1dc50e48a762',
-      ballotType: BallotType.Standard,
     },
     flipped: false,
   });
@@ -130,46 +107,6 @@ describe('old-style URL-based metadata', () => {
         precinctId: '42',
         isTestMode: false,
         pageNumber: 1,
-        electionHash: '',
-        ballotType: BallotType.Standard,
-      },
-      flipped: false,
-    });
-  });
-
-  test('alternate QR code reader', async () => {
-    expect(
-      await detect(urlQrCodeElection, await urlQrCodePage1.imageData(), {
-        detectQrCode: jsqr,
-      })
-    ).toEqual({
-      metadata: {
-        locales: { primary: 'en-US' },
-        ballotStyleId: '77',
-        precinctId: '42',
-        isTestMode: false,
-        pageNumber: 1,
-        electionHash: '',
-        ballotType: BallotType.Standard,
-      },
-      flipped: false,
-    });
-  });
-
-  test('custom QR code reader', async () => {
-    expect(
-      await detect(urlQrCodeElection, await urlQrCodePage1.imageData(), {
-        detectQrCode: async () => ({
-          data: Buffer.from('https://ballot.page?t=_&pr=11&bs=22&p=3-4'),
-        }),
-      })
-    ).toEqual({
-      metadata: {
-        locales: { primary: 'en-US' },
-        ballotStyleId: '22',
-        precinctId: '11',
-        isTestMode: false,
-        pageNumber: 3,
         electionHash: '',
         ballotType: BallotType.Standard,
       },
