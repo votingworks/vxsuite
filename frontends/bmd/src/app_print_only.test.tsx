@@ -46,7 +46,7 @@ test('PrintOnly flow', async () => {
   const adminCard = makeAdminCard(electionHash);
   const pollWorkerCard = makePollWorkerCard(electionHash);
   const printer = fakePrinter();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   const machineConfig = fakeMachineConfigProvider({ appMode: PrintOnly });
   render(
@@ -382,7 +382,7 @@ test('PrintOnly retains app mode when unconfigured', async () => {
   const adminCard = makeAdminCard(electionHash);
   const pollWorkerCard = makePollWorkerCard(electionHash);
   const printer = fakePrinter();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   const machineConfig = fakeMachineConfigProvider({ appMode: PrintOnly });
   render(
@@ -483,7 +483,7 @@ test('PrintOnly prompts to change to live mode on election day', async () => {
   const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
   const card = new MemoryCard();
   const printer = fakePrinter();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   const machineConfig = fakeMachineConfigProvider({ appMode: PrintOnly });
   render(

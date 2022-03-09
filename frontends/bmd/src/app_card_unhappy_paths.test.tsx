@@ -38,7 +38,7 @@ test('Display App Card Unhappy Paths', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   const machineConfig = fakeMachineConfigProvider();
 
@@ -156,7 +156,7 @@ test('Inserting voter card when machine is unconfigured does nothing', async () 
   // ====================== BEGIN CONTEST SETUP ====================== //
 
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   const machineConfig = fakeMachineConfigProvider();
 
@@ -188,7 +188,7 @@ test('Inserting pollworker card with invalid long data fall back as if there is 
   // ====================== BEGIN CONTEST SETUP ====================== //
 
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   const machineConfig = fakeMachineConfigProvider({ appMode: PrintOnly });
 
@@ -227,7 +227,7 @@ test('Inserting pollworker card with invalid long data fall back as if there is 
 
 test('Shows card backwards screen when card connection error occurs', async () => {
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   const machineConfig = fakeMachineConfigProvider();
 

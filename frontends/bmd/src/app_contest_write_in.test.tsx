@@ -38,7 +38,7 @@ it('Single Seat Contest with Write In', async () => {
 
   const card = new MemoryCard();
   const printer = fakePrinter();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   const machineConfig = fakeMachineConfigProvider({
     appMode: MarkAndPrint,

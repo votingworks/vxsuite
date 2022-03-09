@@ -20,7 +20,7 @@ it('Displays testing message if not live mode', async () => {
   const card = new MemoryCard();
   const storage = new MemoryStorage();
   const machineConfig = fakeMachineConfigProvider();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   await setElectionInStorage(storage);
   await setStateInStorage(storage, {
     isLiveMode: false,

@@ -21,7 +21,7 @@ jest.setTimeout(15000);
 
 test('replacing a loaded election with one from a card', async () => {
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   const machineConfig = fakeMachineConfigProvider();
 

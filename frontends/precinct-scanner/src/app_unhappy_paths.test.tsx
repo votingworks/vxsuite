@@ -196,7 +196,7 @@ test('show card backwards screen when card connection error occurs', async () =>
 test('shows setup scanner screen when there is no plustek scanner', async () => {
   const card = new MemoryCard();
   const storage = new MemoryStorage();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   hardware.setPrecinctScannerConnected(false);
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })

@@ -29,7 +29,7 @@ it('Refresh window and expect to be on same contest', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   const machineConfig = fakeMachineConfigProvider();
 

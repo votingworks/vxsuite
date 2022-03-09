@@ -51,7 +51,7 @@ jest.setTimeout(15000);
 it('MarkAndPrint end-to-end flow', async () => {
   const electionDefinition = electionSampleDefinition;
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   const printer = fakePrinter();
   const storage = new MemoryStorage();
   const machineConfig = fakeMachineConfigProvider({
