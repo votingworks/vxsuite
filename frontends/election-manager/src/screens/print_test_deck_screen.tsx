@@ -69,6 +69,17 @@ function TestDeckBallots({
   );
 }
 
+// FIXME: We're using `React.memo` to prevent re-rendering `TestDeckBallots`,
+// but this is explicitly against the React docs: https://reactjs.org/docs/react-api.html#reactmemo
+//
+// > This method only exists as a performance optimization. Do not rely on it to
+// > “prevent” a render, as this can lead to bugs.
+//
+// What happens if we remove `React.memo`? See https://github.com/votingworks/vxsuite/issues/1416.
+// We need to figure out a better way to handle renders that happen at times we
+// don't expect, not by preventing them but by being resilient to them.
+//
+// https://github.com/votingworks/vxsuite/issues/1531
 const TestDeckBallotsMemoized = React.memo(TestDeckBallots);
 
 export function PrintTestDeckScreen(): JSX.Element {
@@ -133,26 +144,29 @@ export function PrintTestDeckScreen(): JSX.Element {
   }
 
   const onAllRendered = useCallback(
-    async (pIndex, numBallots) => {
+    async (numBallots) => {
+      if (typeof precinctIndex !== 'number') {
+        return;
+      }
+
       await printer.print({ sides: 'two-sided-long-edge' });
       await logger.log(LogEventId.TestDeckPrinted, currentUserType, {
         disposition: 'success',
-        message: `Test Deck printed for precinct id: ${precinctIds[pIndex]}`,
-        precinctId: precinctIds[pIndex],
+        message: `Test Deck printed for precinct id: ${precinctIds[precinctIndex]}`,
+        precinctId: precinctIds[precinctIndex],
       });
 
-      if (pIndex < precinctIds.length - 1) {
+      if (precinctIndex < precinctIds.length - 1) {
         // wait 5s per ballot printed
         // that's how long printing takes in duplex, no reason to get ahead of it.
         await sleep(numBallots * 5000);
-        setPrecinctIndex(pIndex + 1);
+        setPrecinctIndex(precinctIndex + 1);
       } else {
         await sleep(3000);
         setPrecinctIndex(undefined);
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [setPrecinctIndex, precinctIds]
+    [printer, logger, currentUserType, precinctIds, precinctIndex]
   );
 
   const currentPrecinct =
@@ -202,9 +216,7 @@ export function PrintTestDeckScreen(): JSX.Element {
             election={election}
             electionHash={electionHash}
             precinctId={precinctIds[precinctIndex]}
-            onAllRendered={(numBallots) =>
-              onAllRendered(precinctIndex, numBallots)
-            }
+            onAllRendered={onAllRendered}
           />
         )}
       </React.Fragment>
