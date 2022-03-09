@@ -9,6 +9,7 @@ import {
   getByTestId as domGetByTestId,
   getByText as domGetByText,
   getAllByRole as domGetAllByRole,
+  act,
 } from '@testing-library/react';
 import fetchMock from 'fetch-mock';
 import { electionWithMsEitherNeitherWithDataFiles } from '@votingworks/fixtures';
@@ -212,10 +213,10 @@ test('authentication works', async () => {
   };
 
   // Disconnect card reader
-  await hardware.setCardReaderConnected(false);
+  act(() => hardware.setCardReaderConnected(false));
   await advanceTimersAndPromises(1);
   await screen.findByText('Card Reader Not Detected');
-  await hardware.setCardReaderConnected(true);
+  act(() => hardware.setCardReaderConnected(true));
   await advanceTimersAndPromises(1);
   await screen.findByText('Machine Locked');
 
