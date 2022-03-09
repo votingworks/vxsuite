@@ -203,7 +203,7 @@ export function AdminScreen({
                 <Text as="span" voteIcon>
                   Election definition is loaded.
                 </Text>{' '}
-                <Button small onPress={unconfigure}>
+                <Button danger small onPress={unconfigure}>
                   Remove
                 </Button>
               </p>
