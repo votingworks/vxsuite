@@ -36,7 +36,7 @@ describe('BSD and services/Scan', () => {
     cy.get('button[data-testid="confirm-toggle"]')
       .contains('Toggle to Live Mode')
       .click();
-    cy.contains('No ballots have been scanned');
+    cy.contains('No ballots have been scanned', { timeout: 30000 });
     cy.contains('Scan New Batch').click();
     cy.contains('A total of 1 ballot have been scanned in 1 batch.');
     cy.contains('Admin').click();
