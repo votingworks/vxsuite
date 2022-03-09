@@ -20,7 +20,7 @@ import {
 it('getHardware returns KioskHardware when window.kiosk is set', async () => {
   try {
     window.kiosk = fakeKiosk();
-    const hardware = await getHardware();
+    const hardware = getHardware();
     expect(hardware).toBeInstanceOf(KioskHardware);
   } finally {
     window.kiosk = undefined;
@@ -29,7 +29,7 @@ it('getHardware returns KioskHardware when window.kiosk is set', async () => {
 
 it('getHardware does not return KioskHardware when window.kiosk is not set', async () => {
   expect(window.kiosk).toBeUndefined();
-  const hardware = await getHardware();
+  const hardware = getHardware();
   expect(hardware).not.toBeInstanceOf(KioskHardware);
 });
 

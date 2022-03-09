@@ -19,7 +19,7 @@ export function App({
   useEffect(() => {
     async function updateHardware() {
       if (internalHardware === undefined) {
-        setInternalHardware(await getHardware());
+        setInternalHardware(getHardware());
       }
     }
     void updateHardware();

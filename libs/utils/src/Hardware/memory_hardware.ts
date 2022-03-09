@@ -79,7 +79,7 @@ export class MemoryHardware implements Hardware {
     serialNumber: '',
   };
 
-  static async build({
+  static build({
     connectPrinter = false,
     connectAccessibleController = false,
     connectCardReader = false,
@@ -91,20 +91,20 @@ export class MemoryHardware implements Hardware {
     connectCardReader?: boolean;
     connectBatchScanner?: boolean;
     connectPrecinctScanner?: boolean;
-  } = {}): Promise<MemoryHardware> {
+  } = {}): MemoryHardware {
     const newMemoryHardware = new MemoryHardware();
-    await newMemoryHardware.setPrinterConnected(connectPrinter);
-    await newMemoryHardware.setAccessibleControllerConnected(
+    newMemoryHardware.setPrinterConnected(connectPrinter);
+    newMemoryHardware.setAccessibleControllerConnected(
       connectAccessibleController
     );
-    await newMemoryHardware.setCardReaderConnected(connectCardReader);
-    await newMemoryHardware.setBatchScannerConnected(connectBatchScanner);
+    newMemoryHardware.setCardReaderConnected(connectCardReader);
+    newMemoryHardware.setBatchScannerConnected(connectBatchScanner);
     newMemoryHardware.setPrecinctScannerConnected(connectPrecinctScanner);
     return newMemoryHardware;
   }
 
-  static async buildStandard(): Promise<MemoryHardware> {
-    return await MemoryHardware.build({
+  static buildStandard(): MemoryHardware {
+    return MemoryHardware.build({
       connectPrinter: true,
       connectAccessibleController: true,
       connectCardReader: true,
@@ -113,8 +113,8 @@ export class MemoryHardware implements Hardware {
     });
   }
 
-  static async buildDemo(): Promise<MemoryHardware> {
-    return await MemoryHardware.build({
+  static buildDemo(): MemoryHardware {
+    return MemoryHardware.build({
       connectPrinter: true,
       connectAccessibleController: false,
       connectCardReader: true,
@@ -126,14 +126,14 @@ export class MemoryHardware implements Hardware {
   /**
    * Sets Accessible Controller connected
    */
-  async setAccessibleControllerConnected(connected: boolean): Promise<void> {
+  setAccessibleControllerConnected(connected: boolean): void {
     this.setDeviceConnected(this.accessibleController, connected);
   }
 
   /**
    * Sets Batch Scanner connected
    */
-  async setBatchScannerConnected(connected: boolean): Promise<void> {
+  setBatchScannerConnected(connected: boolean): void {
     this.setDeviceConnected(this.batchScanner, connected);
   }
 
@@ -156,7 +156,7 @@ export class MemoryHardware implements Hardware {
   /**
    * Sets Battery discharging
    */
-  async setBatteryDischarging(discharging: boolean): Promise<void> {
+  setBatteryDischarging(discharging: boolean): void {
     this.batteryStatus = {
       ...(this.batteryStatus ?? DEFAULT_BATTERY_STATUS),
       discharging,
@@ -166,7 +166,7 @@ export class MemoryHardware implements Hardware {
   /**
    * Sets Battery level. Number between 0–1.
    */
-  async setBatteryLevel(level: number): Promise<void> {
+  setBatteryLevel(level: number): void {
     this.batteryStatus = {
       ...(this.batteryStatus ?? DEFAULT_BATTERY_STATUS),
       level,
@@ -176,14 +176,14 @@ export class MemoryHardware implements Hardware {
   /**
    * Removes the battery from the device.
    */
-  async removeBattery(): Promise<void> {
+  removeBattery(): void {
     this.batteryStatus = undefined;
   }
 
   /**
    * Sets Card Reader connected
    */
-  async setCardReaderConnected(connected: boolean): Promise<void> {
+  setCardReaderConnected(connected: boolean): void {
     this.setDeviceConnected(this.cardReader, connected);
   }
 
@@ -199,7 +199,7 @@ export class MemoryHardware implements Hardware {
   /**
    * Sets Printer connected
    */
-  async setPrinterConnected(connected: boolean): Promise<void> {
+  setPrinterConnected(connected: boolean): void {
     this.setDeviceConnected(this.printer, connected);
     this.printersSubject.next([
       {
@@ -215,7 +215,7 @@ export class MemoryHardware implements Hardware {
   /**
    * Detaches all printers
    */
-  async detachAllPrinters(): Promise<void> {
+  detachAllPrinters(): void {
     this.printersSubject.next([]);
   }
 
