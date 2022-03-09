@@ -31,7 +31,7 @@ export function App({
 }: Props): JSX.Element {
   const [internalHardware, setInternalHardware] = useState(hardware);
   useEffect(() => {
-    async function updateHardware() {
+    function updateHardware() {
       const newInternalHardware = getHardware();
       setInternalHardware((prev) => prev ?? newInternalHardware);
     }
