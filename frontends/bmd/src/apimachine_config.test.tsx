@@ -3,7 +3,7 @@ import { render } from '@testing-library/react';
 
 import fetchMock from 'fetch-mock';
 import { Provider } from '@votingworks/types';
-import { MemoryStorage, typedAs } from '@votingworks/utils';
+import { MemoryCard, MemoryStorage, typedAs } from '@votingworks/utils';
 import { App } from './app';
 
 import { MarkOnly, MachineConfigResponse, MachineConfig } from './config/types';
@@ -24,7 +24,13 @@ test('machineConfig is fetched from /machine-config by default', async () => {
     })
   );
 
-  render(<App storage={new MemoryStorage()} reload={jest.fn()} />);
+  render(
+    <App
+      card={new MemoryCard()}
+      storage={new MemoryStorage()}
+      reload={jest.fn()}
+    />
+  );
   await advanceTimersAndPromises();
 
   expect(fetchMock.called('/machine-config')).toBe(true);
@@ -38,6 +44,7 @@ test('machineConfig fetch fails', async () => {
   // Render app which gets machineConfig in componentDidMount
   render(
     <App
+      card={new MemoryCard()}
       storage={new MemoryStorage()}
       machineConfig={machineConfig}
       reload={jest.fn()}
@@ -60,6 +67,7 @@ test('machineId is empty', async () => {
   // Render app which gets machineConfig in componentDidMount
   render(
     <App
+      card={new MemoryCard()}
       storage={new MemoryStorage()}
       machineConfig={machineConfig}
       reload={jest.fn()}
@@ -83,6 +91,7 @@ test('machineConfig is empty', async () => {
   // Render app which gets machineConfig in componentDidMount
   render(
     <App
+      card={new MemoryCard()}
       storage={new MemoryStorage()}
       machineConfig={machineConfig}
       reload={jest.fn()}

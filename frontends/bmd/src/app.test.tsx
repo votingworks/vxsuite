@@ -19,7 +19,11 @@ beforeEach(() => {
 
 it('prevents context menus from appearing', async () => {
   render(
-    <App machineConfig={fakeMachineConfigProvider()} reload={jest.fn()} />
+    <App
+      card={new MemoryCard()}
+      machineConfig={fakeMachineConfigProvider()}
+      reload={jest.fn()}
+    />
   );
 
   const { oncontextmenu } = window;
@@ -40,7 +44,11 @@ it('uses kiosk storage when in kiosk-browser', async () => {
   const kiosk = fakeKiosk();
   window.kiosk = kiosk;
   render(
-    <App machineConfig={fakeMachineConfigProvider()} reload={jest.fn()} />
+    <App
+      card={new MemoryCard()}
+      machineConfig={fakeMachineConfigProvider()}
+      reload={jest.fn()}
+    />
   );
   await advanceTimersAndPromises();
   expect(kiosk.storage.get).toHaveBeenCalled();
