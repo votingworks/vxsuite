@@ -45,8 +45,7 @@ make coverage
 ## Mock a Smart Card
 
 Once you're running the server, you can enable a mock card reader with fixture
-data as in the examples below. Supply your own election definition, or use one
-of the existing [`fixtures/`](./fixtures).
+data as in the examples below. 
 
 ### Using your own election definition
 
@@ -59,18 +58,8 @@ of the existing [`fixtures/`](./fixtures).
 ./mockCardReader.py enable --voter /path/to/election.json --precinct 123 --ballot-style 1R
 ```
 
-### Using fixtures
-
-Use any fixture paths you like. This shows using the default fixtures:
-
-```sh
-# configure with admin card
-./mockCardReader.py enable --fixture fixtures/admin
-# open polls with poll worker card
-./mockCardReader.py enable --fixture fixtures/pollworker
-# vote with voter card
-./mockCardReader.py enable --fixture fixtures/voter
-```
+There are useful election definitions in 
+[`../../libs/fixtures/src/data`](../../libs/fixtures/src/data).
 
 ### Blank Card
 
