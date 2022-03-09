@@ -124,7 +124,9 @@ export class MemoryHardware implements Hardware {
    * Reads Battery status
    */
   async readBatteryStatus(): Promise<KioskBrowser.BatteryInfo | undefined> {
-    return this.batteryStatus;
+    // Return a copy of the battery status to more realistically simulate the
+    // behavior of `KioskHardware`.
+    return this.batteryStatus ? { ...this.batteryStatus } : undefined;
   }
 
   /**
