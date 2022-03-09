@@ -152,7 +152,7 @@ export function AdminScreen({
                   Election definition is loaded.
                 </Text>{' '}
                 <Button danger small onPress={unconfigure}>
-                  Remove
+                  Unconfigure Machine
                 </Button>
               </p>
             ) : (
