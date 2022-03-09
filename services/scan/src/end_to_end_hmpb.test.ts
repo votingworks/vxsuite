@@ -79,6 +79,13 @@ test('going through the whole process works', async () => {
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' });
 
+  await request(app)
+    .patch('/config/testMode')
+    .send({ testMode: true })
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json')
+    .expect(200, { status: 'ok' });
+
   const manifest: BallotPackageManifest = JSON.parse(
     await fs.readFile(join(electionFixturesRoot, 'manifest.json'), 'utf8')
   );
