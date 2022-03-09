@@ -64,6 +64,7 @@ import { AppContext } from './contexts/app_context';
 import { SetupPowerPage } from './screens/setup_power_page';
 import { UnlockAdminScreen } from './screens/unlock_admin_screen';
 import { CardErrorScreen } from './screens/card_error_screen';
+import { SetupScannerScreen } from './screens/setup_scanner_screen';
 
 const debug = makeDebug('precinct-scanner:app-root');
 
@@ -333,7 +334,12 @@ export function AppRoot({
   const usbDriveDisplayStatus =
     usbDrive.status ?? usbstick.UsbDriveStatus.absent;
 
-  const { cardReader, computer, printer: printerInfo } = useDevices({
+  const {
+    cardReader,
+    computer,
+    printer: printerInfo,
+    precinctScanner,
+  } = useDevices({
     hardware,
     logger,
   });
@@ -560,6 +566,7 @@ export function AppRoot({
 
   useEffect(() => {
     if (
+      precinctScanner &&
       isScannerConfigured &&
       electionDefinition &&
       isPollsOpen &&
@@ -570,7 +577,13 @@ export function AppRoot({
       endBallotStatusPolling();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isScannerConfigured, electionDefinition, isPollsOpen, hasCardInserted]);
+  }, [
+    precinctScanner,
+    isScannerConfigured,
+    electionDefinition,
+    isPollsOpen,
+    hasCardInserted,
+  ]);
 
   const setElectionDefinition = useCallback(
     async (newElectionDefinition: OptionalElectionDefinition) => {
@@ -693,6 +706,10 @@ export function AppRoot({
 
   if (computer.batteryIsLow && !computer.batteryIsCharging) {
     return <SetupPowerPage />;
+  }
+
+  if (!precinctScanner) {
+    return <SetupScannerScreen />;
   }
 
   if (!isScannerConfigured) {

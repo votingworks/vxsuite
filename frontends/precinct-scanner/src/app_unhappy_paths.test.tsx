@@ -1,4 +1,10 @@
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import {
   electionSampleDefinition,
   electionWithMsEitherNeitherDefinition,
@@ -185,6 +191,31 @@ test('show card backwards screen when card connection error occurs', async () =>
   card.removeCard();
   await advanceTimersAndPromises(1);
   await screen.findByText('Polls Closed');
+});
+
+test('shows setup scanner screen when there is no plustek scanner', async () => {
+  const card = new MemoryCard();
+  const storage = new MemoryStorage();
+  const hardware = await MemoryHardware.buildStandard();
+  hardware.setPrecinctScannerConnected(false);
+  fetchMock
+    .get('/machine-config', { body: getMachineConfigBody })
+    .get('/config/election', { body: electionSampleDefinition })
+    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
+    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody });
+  // Note that we don't mock /scan/status here because we want to make sure that we
+  // don't poll for scan status when the scanner is disconnected.
+  render(<App card={card} storage={storage} hardware={hardware} />);
+  await screen.findByRole('heading', { name: 'Scanner Not Detected' });
+  screen.getByText('Please ask a poll worker to connect scanner.');
+
+  fetchMock.get('/scan/status', {
+    body: scanStatusWaitingForPaperResponseBody,
+  });
+  act(() => hardware.setPrecinctScannerConnected(true));
+  await screen.findByRole('heading', { name: 'Polls Closed' });
+  await waitFor(() => expect(fetchMock.lastUrl()).toEqual('/scan/status'));
+  expect(fetchMock.done()).toBe(true);
 });
 
 test('error from services/scan in accepting a reviewable ballot', async () => {

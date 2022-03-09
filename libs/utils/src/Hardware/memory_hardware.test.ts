@@ -15,6 +15,7 @@ it('has a standard config with all the typical hardware', async () => {
           'USB Advanced Audio Device',
           'HL-L5100DN_series',
           'Scanner',
+          'Sheetfed Scanner',
         ])
       );
 
