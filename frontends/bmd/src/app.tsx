@@ -54,13 +54,12 @@ export function App({
   const [internalHardware, setInternalHardware] = useState(hardware);
 
   useEffect(() => {
-    async function updateHardware() {
-      if (internalHardware === undefined) {
-        setInternalHardware(await getHardware());
-      }
+    function updateHardware() {
+      const newInternalHardware = getHardware();
+      setInternalHardware((prev) => prev ?? newInternalHardware);
     }
     void updateHardware();
-  }, [internalHardware]);
+  });
 
   /* istanbul ignore next - need to figure out how to test this */
   useEffect(() => {

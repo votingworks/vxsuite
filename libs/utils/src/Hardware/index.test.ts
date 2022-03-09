@@ -17,7 +17,7 @@ import {
   isPrecinctScanner,
 } from './utils';
 
-it('getHardware returns KioskHardware when window.kiosk is set', async () => {
+it('getHardware returns KioskHardware when window.kiosk is set', () => {
   try {
     window.kiosk = fakeKiosk();
     const hardware = getHardware();
@@ -27,7 +27,7 @@ it('getHardware returns KioskHardware when window.kiosk is set', async () => {
   }
 });
 
-it('getHardware does not return KioskHardware when window.kiosk is not set', async () => {
+it('getHardware does not return KioskHardware when window.kiosk is not set', () => {
   expect(window.kiosk).toBeUndefined();
   const hardware = getHardware();
   expect(hardware).not.toBeInstanceOf(KioskHardware);

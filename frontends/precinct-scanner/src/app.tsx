@@ -32,13 +32,11 @@ export function App({
   const [internalHardware, setInternalHardware] = useState(hardware);
   useEffect(() => {
     async function updateHardware() {
-      if (internalHardware === undefined) {
-        setInternalHardware(getHardware());
-      }
+      const newInternalHardware = getHardware();
+      setInternalHardware((prev) => prev ?? newInternalHardware);
     }
     void updateHardware();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hardware]);
+  });
 
   if (!internalHardware) {
     return <BrowserRouter />;
