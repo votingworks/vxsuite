@@ -31,6 +31,11 @@ describe('BSD and services/Scan', () => {
     cy.contains('Preparing VxCentralScan', { timeout: 10000 });
     cy.contains('Successfully Configured', { timeout: 20000 });
     cy.contains('Close').click();
+    cy.contains('Admin').click();
+    cy.contains('Toggle to Live Mode').click();
+    cy.get('button[data-testid="confirm-toggle"]')
+      .contains('Toggle to Live Mode')
+      .click();
     cy.contains('No ballots have been scanned');
     cy.contains('Scan New Batch').click();
     cy.contains('A total of 1 ballot have been scanned in 1 batch.');
