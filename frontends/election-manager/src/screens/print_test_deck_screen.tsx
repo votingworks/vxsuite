@@ -78,6 +78,8 @@ function TestDeckBallots({
 // What happens if we remove `React.memo`? See https://github.com/votingworks/vxsuite/issues/1416.
 // We need to figure out a better way to handle renders that happen at times we
 // don't expect, not by preventing them but by being resilient to them.
+//
+// https://github.com/votingworks/vxsuite/issues/1531
 const TestDeckBallotsMemoized = React.memo(TestDeckBallots);
 
 export function PrintTestDeckScreen(): JSX.Element {
