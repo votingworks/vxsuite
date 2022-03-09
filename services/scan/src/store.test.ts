@@ -30,13 +30,13 @@ test('get/set election', () => {
 test('get/set test mode', () => {
   const store = Store.memoryStore();
 
-  expect(store.getTestMode()).toBe(false);
-
-  store.setTestMode(true);
   expect(store.getTestMode()).toBe(true);
 
   store.setTestMode(false);
   expect(store.getTestMode()).toBe(false);
+
+  store.setTestMode(true);
+  expect(store.getTestMode()).toBe(true);
 });
 
 test('get/set mark threshold overrides', () => {
