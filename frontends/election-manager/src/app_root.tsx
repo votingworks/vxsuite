@@ -625,7 +625,7 @@ export function AppRoot({
       }}
     >
       <ElectionManager />
-      <div ref={printBallotRef} />
+      <div ref={printBallotRef} id="printBallots" />
     </AppContext.Provider>
   );
 }

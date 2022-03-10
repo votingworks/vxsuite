@@ -1,14 +1,16 @@
-import React, { useState, useContext, useCallback, useEffect } from 'react';
+import React, { useState, useContext, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import {
-  Election,
+  // Election,
   getPrecinctById,
-  PrecinctId,
+  // PrecinctId,
   VotesDict,
 } from '@votingworks/types';
-import { assert, sleep } from '@votingworks/utils';
+import { Previewer } from 'pagedjs';
+import { assert } from '@votingworks/utils';
 import { LogEventId } from '@votingworks/logging';
 import { Modal } from '@votingworks/ui';
+import ReactDom from 'react-dom';
 import { routerPaths } from '../router_paths';
 
 import { AppContext } from '../contexts/app_context';
@@ -25,62 +27,7 @@ import { PrecinctReportScreenProps } from '../config/types';
 import { HandMarkedPaperBallot } from '../components/hand_marked_paper_ballot';
 
 import { generateTestDeckBallots } from '../utils/election';
-
-interface TestDeckBallotsParams {
-  election: Election;
-  electionHash: string;
-  precinctId: PrecinctId;
-  onAllRendered: (numBallots: number) => void;
-}
-
-function TestDeckBallots({
-  election,
-  electionHash,
-  precinctId,
-  onAllRendered,
-}: TestDeckBallotsParams) {
-  const ballots = generateTestDeckBallots({ election, precinctId });
-
-  let numRendered = 0;
-  async function onRendered() {
-    numRendered += 1;
-    if (numRendered === ballots.length) {
-      onAllRendered(ballots.length);
-    }
-  }
-
-  return (
-    <div className="print-only">
-      {ballots.map((ballot, i) => (
-        <HandMarkedPaperBallot
-          key={`ballot-${i}`} // eslint-disable-line react/no-array-index-key
-          ballotStyleId={ballot.ballotStyleId as string}
-          election={election}
-          electionHash={electionHash}
-          isLiveMode={false}
-          isAbsentee={false}
-          precinctId={ballot.precinctId as string}
-          locales={{ primary: 'en-US' }}
-          votes={ballot.votes as VotesDict}
-          onRendered={() => onRendered()}
-        />
-      ))}
-    </div>
-  );
-}
-
-// FIXME: We're using `React.memo` to prevent re-rendering `TestDeckBallots`,
-// but this is explicitly against the React docs: https://reactjs.org/docs/react-api.html#reactmemo
-//
-// > This method only exists as a performance optimization. Do not rely on it to
-// > “prevent” a render, as this can lead to bugs.
-//
-// What happens if we remove `React.memo`? See https://github.com/votingworks/vxsuite/issues/1416.
-// We need to figure out a better way to handle renders that happen at times we
-// don't expect, not by preventing them but by being resilient to them.
-//
-// https://github.com/votingworks/vxsuite/issues/1531
-const TestDeckBallotsMemoized = React.memo(TestDeckBallots);
+import { getBallotLayoutPageSize } from '../utils/get_ballot_layout_page_size';
 
 export function PrintTestDeckScreen(): JSX.Element {
   const {
@@ -95,6 +42,8 @@ export function PrintTestDeckScreen(): JSX.Element {
   const { election, electionHash } = electionDefinition;
   const [precinctIds, setPrecinctIds] = useState<string[]>([]);
   const [precinctIndex, setPrecinctIndex] = useState<number>();
+  const { printBallotRef } = useContext(AppContext);
+  const ballotsRef = useRef<HTMLDivElement>(null);
 
   const {
     precinctId: precinctIdFromParams = '',
@@ -126,9 +75,7 @@ export function PrintTestDeckScreen(): JSX.Element {
   async function startPrint() {
     if (window.kiosk) {
       const printers = await window.kiosk.getPrinterInfo();
-      if (printers.some((p) => p.connected)) {
-        setPrecinctIndex(0);
-      } else {
+      if (!printers.some((p) => p.connected)) {
         // eslint-disable-next-line no-alert
         window.alert('please connect the printer.');
         await logger.log(LogEventId.TestDeckPrinted, currentUserType, {
@@ -137,37 +84,55 @@ export function PrintTestDeckScreen(): JSX.Element {
           result: 'User shown error message, asked to try again.',
           error: 'No printer connected.',
         });
-      }
-    } else {
-      setPrecinctIndex(0);
-    }
-  }
-
-  const onAllRendered = useCallback(
-    async (numBallots) => {
-      if (typeof precinctIndex !== 'number') {
         return;
       }
+    }
+    assert(ballotsRef.current);
 
+    const ballotStylesheets = [
+      `/ballot/ballot-layout-paper-size-${getBallotLayoutPageSize(
+        election
+      )}.css`,
+      '/ballot/ballot.css',
+    ];
+    for (let i = 0; i < precinctIds.length; i += 1) {
+      setPrecinctIndex(i);
+      for (const ballot of generateTestDeckBallots({ election, precinctId })) {
+        await new Promise((resolve) =>
+          ReactDom.render(
+            (
+              <HandMarkedPaperBallot
+                ballotStyleId={ballot.ballotStyleId as string}
+                election={election}
+                electionHash={electionHash}
+                isLiveMode={false}
+                isAbsentee={false}
+                precinctId={ballot.precinctId as string}
+                locales={{ primary: 'en-US' }}
+                votes={ballot.votes as VotesDict}
+              />
+            ) as any,
+            ballotsRef.current,
+            () => {
+              void resolve(null);
+            }
+          )
+        );
+        await new Previewer().preview(
+          ballotsRef.current.innerHTML,
+          ballotStylesheets,
+          printBallotRef?.current
+        );
+      }
       await printer.print({ sides: 'two-sided-long-edge' });
       await logger.log(LogEventId.TestDeckPrinted, currentUserType, {
         disposition: 'success',
-        message: `Test Deck printed for precinct id: ${precinctIds[precinctIndex]}`,
-        precinctId: precinctIds[precinctIndex],
+        message: `Test Deck printed for precinct id: ${precinctIds[i]}`,
+        precinctId: precinctIds[i],
       });
-
-      if (precinctIndex < precinctIds.length - 1) {
-        // wait 5s per ballot printed
-        // that's how long printing takes in duplex, no reason to get ahead of it.
-        await sleep(numBallots * 5000);
-        setPrecinctIndex(precinctIndex + 1);
-      } else {
-        await sleep(3000);
-        setPrecinctIndex(undefined);
-      }
-    },
-    [printer, logger, currentUserType, precinctIds, precinctIndex]
-  );
+    }
+    setPrecinctIndex(undefined);
+  }
 
   const currentPrecinct =
     precinctIndex === undefined
@@ -211,14 +176,7 @@ export function PrintTestDeckScreen(): JSX.Element {
             </p>
           </Prose>
         </NavigationScreen>
-        {precinctIndex !== undefined && (
-          <TestDeckBallotsMemoized
-            election={election}
-            electionHash={electionHash}
-            precinctId={precinctIds[precinctIndex]}
-            onAllRendered={onAllRendered}
-          />
-        )}
+        <div ref={ballotsRef} id="ballots" />
       </React.Fragment>
     );
   }

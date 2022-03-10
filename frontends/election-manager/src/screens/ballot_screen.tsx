@@ -1,11 +1,5 @@
 import { assert } from '@votingworks/utils';
-import React, {
-  useCallback,
-  useContext,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import React, { useContext, useMemo, useRef, useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import {
@@ -86,7 +80,6 @@ export function BallotScreen(): JSX.Element {
   const {
     addPrintedBallot,
     electionDefinition,
-    printBallotRef,
     logger,
     currentUserSession,
   } = useContext(AppContext);
@@ -107,7 +100,7 @@ export function BallotScreen(): JSX.Element {
   const ballotContests = getContests({ ballotStyle, election });
 
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
-  const [ballotPages, setBallotPages] = useState(0);
+  const [ballotPages] = useState(0);
   const [isSampleBallot, setIsSampleBallot] = useState(false);
   const [isLiveMode, setIsLiveMode] = useState(true);
   function updateSetIsLiveMode(mode: boolean) {
@@ -184,19 +177,19 @@ export function BallotScreen(): JSX.Element {
     });
   }
 
-  const onRendered = useCallback(() => {
-    if (ballotPreviewRef?.current && printBallotRef?.current) {
-      ballotPreviewRef.current.innerHTML = printBallotRef.current.innerHTML;
-    }
-    // eslint-disable-next-line vx/gts-safe-number-parse
-    const pagedJsPageCount = Number(
-      (ballotPreviewRef.current?.getElementsByClassName(
-        'pagedjs_pages'
-      )[0] as HTMLElement)?.style.getPropertyValue('--pagedjs-page-count') || 0
-    );
-    setBallotPages(pagedJsPageCount);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ballotPreviewRef]);
+  // const onRendered = useCallback(() => {
+  //   if (ballotPreviewRef?.current && printBallotRef?.current) {
+  //     ballotPreviewRef.current.innerHTML = printBallotRef.current.innerHTML;
+  //   }
+  //   // eslint-disable-next-line vx/gts-safe-number-parse
+  //   const pagedJsPageCount = Number(
+  //     (ballotPreviewRef.current?.getElementsByClassName(
+  //       'pagedjs_pages'
+  //     )[0] as HTMLElement)?.style.getPropertyValue('--pagedjs-page-count') || 0
+  //   );
+  //   setBallotPages(pagedJsPageCount);
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [ballotPreviewRef]);
 
   return (
     <React.Fragment>
@@ -367,7 +360,7 @@ export function BallotScreen(): JSX.Element {
         isAbsentee={isAbsentee}
         precinctId={precinctId}
         locales={locales}
-        onRendered={onRendered}
+        // onRendered={onRendered}
       />
     </React.Fragment>
   );

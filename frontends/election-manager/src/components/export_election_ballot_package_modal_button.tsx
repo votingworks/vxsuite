@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import pluralize from 'pluralize';
 import styled from 'styled-components';
 import { join } from 'path';
@@ -14,7 +14,7 @@ import {
 import { UsbControllerButton, Modal } from '@votingworks/ui';
 import { LogEventId } from '@votingworks/logging';
 import { DEFAULT_LOCALE } from '../config/globals';
-import { getBallotPath, getHumanBallotLanguageFormat } from '../utils/election';
+import { getHumanBallotLanguageFormat } from '../utils/election';
 
 import { AppContext } from '../contexts/app_context';
 import { HandMarkedPaperBallot } from './hand_marked_paper_ballot';
@@ -90,34 +90,34 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
    * rendered. Once this happens, we generate a PDF and move on to the next one
    * or finish up if that was the last one.
    */
-  const onRendered = useCallback(async () => {
-    if (state.type !== 'RenderBallot') {
-      throw new Error(
-        `unexpected state '${state.type}' found during onRendered callback`
-      );
-    }
+  // const onRendered = useCallback(async () => {
+  //   if (state.type !== 'RenderBallot') {
+  //     throw new Error(
+  //       `unexpected state '${state.type}' found during onRendered callback`
+  //     );
+  //   }
 
-    const {
-      ballotStyleId,
-      precinctId,
-      locales,
-      isLiveMode,
-      isAbsentee,
-    } = state.currentBallotConfig;
-    const path = getBallotPath({
-      ballotStyleId,
-      election,
-      electionHash,
-      precinctId,
-      locales,
-      isLiveMode,
-      isAbsentee,
-    });
-    assert(window.kiosk);
-    const data = await window.kiosk.printToPDF();
-    await state.archive.file(path, Buffer.from(data));
-    setState(workflow.next);
-  }, [election, electionHash, state]);
+  //   const {
+  //     ballotStyleId,
+  //     precinctId,
+  //     locales,
+  //     isLiveMode,
+  //     isAbsentee,
+  //   } = state.currentBallotConfig;
+  //   const path = getBallotPath({
+  //     ballotStyleId,
+  //     election,
+  //     electionHash,
+  //     precinctId,
+  //     locales,
+  //     isLiveMode,
+  //     isAbsentee,
+  //   });
+  //   assert(window.kiosk);
+  //   const data = await window.kiosk.printToPDF();
+  //   await state.archive.file(path, Buffer.from(data));
+  //   setState(workflow.next);
+  // }, [election, electionHash, state]);
 
   function closeModal() {
     setIsModalOpen(false);
@@ -295,7 +295,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
             isLiveMode={isLiveMode}
             isAbsentee={isAbsentee}
             precinctId={precinctId}
-            onRendered={onRendered}
+            // onRendered={onRendered}
             locales={locales}
           />
         </Prose>

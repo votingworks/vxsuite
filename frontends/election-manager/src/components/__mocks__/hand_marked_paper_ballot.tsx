@@ -5,11 +5,11 @@ export function HandMarkedPaperBallot({
   ballotStyleId,
   election,
   precinctId,
-  onRendered,
-}: HandMarkedPaperBallotProps): JSX.Element {
-  if (onRendered) {
-    setImmediate(onRendered);
-  }
+}: // onRendered,
+HandMarkedPaperBallotProps): JSX.Element {
+  // if (onRendered) {
+  //   setImmediate(onRendered);
+  // }
 
   return (
     <div>

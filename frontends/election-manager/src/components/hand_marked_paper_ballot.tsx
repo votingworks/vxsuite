@@ -1,12 +1,11 @@
 import { assert } from '@votingworks/utils';
-import React, { useLayoutEffect, useRef, useContext } from 'react';
-import ReactDom from 'react-dom';
+import React from 'react';
 import styled from 'styled-components';
 import DomPurify from 'dompurify';
+import ReactDom from 'react-dom';
 import moment from 'moment';
 import 'moment/min/locales';
-import { fromByteArray } from 'base64-js';
-import { Handler, Previewer, registerHandlers } from 'pagedjs';
+import { Handler, registerHandlers } from 'pagedjs';
 import { TFunction, StringMap } from 'i18next';
 import { useTranslation, Trans } from 'react-i18next';
 import {
@@ -29,26 +28,24 @@ import {
   getPartyFullNameFromBallotStyle,
   getPrecinctById,
   withLocale,
-  safeParseElection,
   ContestOption,
   BallotStyleId,
   PrecinctId,
   BallotId,
+  safeParseElection,
 } from '@votingworks/types';
-
 import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
-import { AppContext } from '../contexts/app_context';
+import { fromByteArray } from 'base64-js';
+import { QrCode } from './qrcode';
 
 import { findPartyById } from '../utils/find_party_by_id';
 
 import { BubbleMark } from './bubble_mark';
 import { WriteInLine } from './write_in_line';
-import { QrCode } from './qrcode';
 import { Prose } from './prose';
 import { Text } from './text';
 import { HorizontalRule } from './horizontal_rule';
 import { ABSENTEE_TINT_COLOR } from '../config/globals';
-import { getBallotLayoutPageSize } from '../utils/get_ballot_layout_page_size';
 import { getBallotLayoutDensity } from '../utils/get_ballot_layout_density';
 
 function hasVote(
@@ -242,9 +239,7 @@ class PostRenderBallotProcessor extends Handler {
 }
 registerHandlers(PostRenderBallotProcessor);
 
-const Ballot = styled.div`
-  display: none;
-`;
+const Ballot = styled.div``;
 const SealImage = styled.img`
   max-width: 1in;
 `;
@@ -526,7 +521,6 @@ export interface HandMarkedPaperBallotProps {
   locales: BallotLocale;
   ballotId?: BallotId;
   votes?: VotesDict;
-  onRendered?(props: Omit<HandMarkedPaperBallotProps, 'onRendered'>): void;
 }
 
 export function HandMarkedPaperBallot({
@@ -540,7 +534,6 @@ export function HandMarkedPaperBallot({
   locales,
   ballotId,
   votes,
-  onRendered,
 }: HandMarkedPaperBallotProps): JSX.Element {
   const layoutDensity = getBallotLayoutDensity(election);
   assert(
@@ -549,7 +542,6 @@ export function HandMarkedPaperBallot({
   );
 
   const { t, i18n } = useTranslation();
-  const { printBallotRef } = useContext(AppContext);
   const {
     county,
     date,
@@ -599,63 +591,6 @@ export function HandMarkedPaperBallot({
   const precinct = getPrecinctById({ election, precinctId });
   assert(precinct);
 
-  const ballotRef = useRef<HTMLDivElement>(null);
-
-  useLayoutEffect(() => {
-    if (!printBallotRef?.current) {
-      return;
-    }
-
-    const ballotStylesheets = [
-      `/ballot/ballot-layout-paper-size-${getBallotLayoutPageSize(
-        election
-      )}.css`,
-      '/ballot/ballot.css',
-    ];
-
-    void (async () => {
-      assert(ballotRef.current);
-      await new Previewer().preview(
-        ballotRef.current.innerHTML,
-        ballotStylesheets,
-        printBallotRef?.current
-      );
-      onRendered?.({
-        ballotStyleId,
-        election,
-        electionHash,
-        isLiveMode,
-        isAbsentee,
-        isSampleBallot,
-        precinctId,
-        votes,
-        locales,
-      });
-    })();
-
-    return () => {
-      if (printBallotRef.current) {
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        printBallotRef.current.innerHTML = '';
-      }
-      document.head
-        .querySelectorAll('[data-pagedjs-inserted-styles]')
-        .forEach((e) => e.parentNode?.removeChild(e));
-    };
-  }, [
-    ballotStyleId,
-    election,
-    electionHash,
-    isLiveMode,
-    isSampleBallot,
-    onRendered,
-    precinctId,
-    isAbsentee,
-    printBallotRef,
-    locales,
-    votes,
-  ]);
-
   const dualLanguageWithSlash = dualLanguageComposer(t, locales);
   const dualLanguageWithBreak = dualLanguageComposer(t, locales, 'break');
 
@@ -677,7 +612,7 @@ export function HandMarkedPaperBallot({
   );
 
   return (
-    <Ballot aria-hidden data-ballot ref={ballotRef}>
+    <Ballot aria-hidden data-ballot>
       <div className="ballot-footer">
         <PageFooter>
           {isAbsentee && (

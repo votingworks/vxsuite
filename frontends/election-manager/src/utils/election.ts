@@ -196,11 +196,12 @@ export function generateTestDeckBallots({
           ballotStyle.partyId === c.partyId
       );
 
-      const numBallots = Math.max(
-        ...contests.map((c) =>
-          c.type === 'candidate' ? c.candidates.length : 2
-        )
-      );
+      const numBallots = 2;
+      // Math.max(
+      //   ...contests.map((c) =>
+      //     c.type === 'candidate' ? c.candidates.length : 2
+      //   )
+      // );
 
       for (let ballotNum = 0; ballotNum < numBallots; ballotNum += 1) {
         const votes: VotesDict = {};
