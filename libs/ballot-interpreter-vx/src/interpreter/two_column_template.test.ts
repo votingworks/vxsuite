@@ -1,4 +1,4 @@
-import * as choctawMock2020 from '../../test/fixtures/choctaw-county-mock-general-election-choctaw-2020-e87f23ca2c';
+import * as choctawMock2020 from '../../test/fixtures/choctaw-county-mock-general-election-choctaw-2020-a63f5c1f68';
 import { Interpreter } from '.';
 
 jest.setTimeout(10000);
@@ -21,7 +21,7 @@ test('interpret two-column template', async () => {
       Object {
         "ballotStyleId": "1",
         "ballotType": 0,
-        "electionHash": "e87f23ca2cc9feed24cf252920cecd26f1777746c634ea78debd1dc50e48a762",
+        "electionHash": "a63f5c1f68ad809d879d91310ff98026fb293ff446ac3354b5c5b2c3b5600357",
         "isTestMode": false,
         "locales": Object {
           "primary": "en-US",
@@ -560,18 +560,18 @@ test('interpret two-column template', async () => {
     );
 
     expect(template.ballotPageLayout.metadata).toMatchInlineSnapshot(`
-          Object {
-            "ballotStyleId": "1",
-            "ballotType": 0,
-            "electionHash": "e87f23ca2cc9feed24cf252920cecd26f1777746c634ea78debd1dc50e48a762",
-            "isTestMode": false,
-            "locales": Object {
-              "primary": "en-US",
-            },
-            "pageNumber": 2,
-            "precinctId": "6525",
-          }
-      `);
+      Object {
+        "ballotStyleId": "1",
+        "ballotType": 0,
+        "electionHash": "a63f5c1f68ad809d879d91310ff98026fb293ff446ac3354b5c5b2c3b5600357",
+        "isTestMode": false,
+        "locales": Object {
+          "primary": "en-US",
+        },
+        "pageNumber": 2,
+        "precinctId": "6525",
+      }
+    `);
 
     expect(template.ballotPageLayout.contests).toMatchInlineSnapshot(`
       Array [

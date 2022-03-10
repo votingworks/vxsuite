@@ -1,10 +1,13 @@
-import { parseElection } from '@votingworks/types';
+import { safeParseElectionDefinition } from '@votingworks/types';
 import { BallotPackageManifest } from '@votingworks/utils';
 import { readFileSync } from 'fs-extra';
 import { join } from 'path';
-import electionJson from './election.json';
 
-export const election = parseElection(electionJson);
+const electionJson = readFileSync(join(__dirname, 'election.json'), 'utf8');
+export const electionDefinition = safeParseElectionDefinition(
+  electionJson
+).unsafeUnwrap();
+export const { election } = electionDefinition;
 export const root = __dirname;
 export const manifest: BallotPackageManifest = JSON.parse(
   readFileSync(join(__dirname, 'manifest.json'), 'utf8')
