@@ -3,7 +3,6 @@ import { BrowserRouter, Route } from 'react-router-dom';
 
 import './App.css';
 
-import { useCancelablePromise } from '@votingworks/ui';
 import {
   LocalStorage,
   KioskStorage,
@@ -35,15 +34,14 @@ export function App({
   machineConfig = machineConfigProvider,
 }: Props): JSX.Element {
   const [internalHardware, setInternalHardware] = useState(hardware);
-  const makeCancelable = useCancelablePromise();
 
   useEffect(() => {
-    async function updateHardware() {
-      const newHardware = await makeCancelable(getHardware());
+    function updateHardware() {
+      const newHardware = getHardware();
       setInternalHardware((prev) => prev ?? newHardware);
     }
     void updateHardware();
-  }, [makeCancelable]);
+  });
 
   if (!internalHardware) {
     return <React.Fragment />;

@@ -28,7 +28,7 @@ const emptyDevices: Devices = {
   precinctScanner: undefined,
 };
 
-test('can connect printer as expected', async () => {
+test('can connect printer as expected', () => {
   const hardware = new MemoryHardware();
   const fakeLogger = new Logger(LogSource.VxCentralScanFrontend);
   const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
@@ -46,7 +46,7 @@ test('can connect printer as expected', async () => {
     status: 0,
   };
 
-  await act(async () => await hardware.setPrinterConnected(true));
+  act(() => hardware.setPrinterConnected(true));
   rerender();
   expect(result.current.printer).toEqual(expectedPrinter);
   expect(logSpy).toHaveBeenCalledTimes(2);
@@ -60,7 +60,7 @@ test('can connect printer as expected', async () => {
     })
   );
 
-  await act(async () => await hardware.setPrinterConnected(false));
+  act(() => hardware.setPrinterConnected(false));
   rerender();
   expect(result.current.printer).toBeUndefined();
   expect(logSpy).toHaveBeenCalledWith(
@@ -72,7 +72,7 @@ test('can connect printer as expected', async () => {
     })
   );
 
-  await act(async () => await hardware.setPrinterConnected(true));
+  act(() => hardware.setPrinterConnected(true));
   rerender();
   expect(result.current.printer).toEqual(expectedPrinter);
   expect(logSpy).toHaveBeenCalledWith(
@@ -84,7 +84,7 @@ test('can connect printer as expected', async () => {
     })
   );
 
-  await act(async () => await hardware.detachAllPrinters());
+  act(() => hardware.detachAllPrinters());
   rerender();
   expect(result.current.printer).toBeUndefined();
   expect(logSpy).toHaveBeenCalledWith(
@@ -96,7 +96,7 @@ test('can connect printer as expected', async () => {
   );
 });
 
-test('can connect card reader as expected', async () => {
+test('can connect card reader as expected', () => {
   const hardware = new MemoryHardware();
   const fakeLogger = new Logger(LogSource.VxCentralScanFrontend);
   const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
@@ -116,7 +116,7 @@ test('can connect card reader as expected', async () => {
     vendorId: OmniKeyCardReaderVendorId,
   };
 
-  await act(async () => await hardware.setCardReaderConnected(true));
+  act(() => hardware.setCardReaderConnected(true));
   rerender();
   expect(result.current.cardReader).toEqual(expectedCardReader);
   expect(logSpy).toHaveBeenCalledTimes(1);
@@ -130,7 +130,7 @@ test('can connect card reader as expected', async () => {
     })
   );
 
-  await act(async () => await hardware.setCardReaderConnected(false));
+  act(() => hardware.setCardReaderConnected(false));
   rerender();
   expect(result.current.cardReader).toBeUndefined();
   expect(logSpy).toHaveBeenCalledTimes(2);
@@ -145,7 +145,7 @@ test('can connect card reader as expected', async () => {
   );
 });
 
-test('can connect accessible controller as expected', async () => {
+test('can connect accessible controller as expected', () => {
   const hardware = new MemoryHardware();
   const fakeLogger = new Logger(LogSource.VxCentralScanFrontend);
   const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
@@ -165,7 +165,7 @@ test('can connect accessible controller as expected', async () => {
     vendorId: AccessibleControllerVendorId,
   };
 
-  await act(async () => await hardware.setAccessibleControllerConnected(true));
+  act(() => hardware.setAccessibleControllerConnected(true));
   rerender();
   expect(result.current.accessibleController).toEqual(
     expectedAccessibleController
@@ -181,7 +181,7 @@ test('can connect accessible controller as expected', async () => {
     })
   );
 
-  await act(async () => await hardware.setAccessibleControllerConnected(false));
+  act(() => hardware.setAccessibleControllerConnected(false));
   rerender();
   expect(result.current.accessibleController).toBeUndefined();
   expect(logSpy).toHaveBeenCalledTimes(2);
@@ -196,7 +196,7 @@ test('can connect accessible controller as expected', async () => {
   );
 });
 
-test('can connect batch scanner as expected', async () => {
+test('can connect batch scanner as expected', () => {
   const hardware = new MemoryHardware();
   const fakeLogger = new Logger(LogSource.VxCentralScanFrontend);
   const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
@@ -216,7 +216,7 @@ test('can connect batch scanner as expected', async () => {
     vendorId: FujitsuScannerVendorId,
   };
 
-  await act(async () => await hardware.setBatchScannerConnected(true));
+  act(() => hardware.setBatchScannerConnected(true));
   rerender();
   expect(result.current.batchScanner).toEqual(expectedBatchScanner);
   expect(logSpy).toHaveBeenCalledTimes(1);
@@ -230,7 +230,7 @@ test('can connect batch scanner as expected', async () => {
     })
   );
 
-  await act(async () => await hardware.setBatchScannerConnected(false));
+  act(() => hardware.setBatchScannerConnected(false));
   rerender();
   expect(result.current.batchScanner).toBeUndefined();
   expect(logSpy).toHaveBeenCalledTimes(2);
@@ -245,7 +245,7 @@ test('can connect batch scanner as expected', async () => {
   );
 });
 
-test('can connect precinct scanner as expected', async () => {
+test('can connect precinct scanner as expected', () => {
   const plustekDevice: KioskBrowser.Device = {
     productId: PlustekVtm300ScannerProductId,
     vendorId: PlustekScannerVendorId,
@@ -280,7 +280,7 @@ test('can connect precinct scanner as expected', async () => {
     })
   );
 
-  await act(async () => await hardware.removeDevice(plustekDevice));
+  act(() => hardware.removeDevice(plustekDevice));
   rerender();
   expect(result.current.batchScanner).toBeUndefined();
   expect(logSpy).toHaveBeenCalledTimes(2);
@@ -295,7 +295,7 @@ test('can connect precinct scanner as expected', async () => {
   );
 });
 
-test('can handle logs for a random device as expected', async () => {
+test('can handle logs for a random device as expected', () => {
   const randomDevice: KioskBrowser.Device = {
     productId: 1234,
     vendorId: 5678,
@@ -327,7 +327,7 @@ test('can handle logs for a random device as expected', async () => {
   );
   expect(result.current).toEqual(emptyDevices);
 
-  await act(async () => await hardware.removeDevice(randomDevice));
+  act(() => hardware.removeDevice(randomDevice));
   rerender();
   expect(logSpy).toHaveBeenCalledTimes(2);
   expect(logSpy).toHaveBeenLastCalledWith(
@@ -360,7 +360,7 @@ test('periodically polls for computer battery status', async () => {
   });
 
   // Change the battery status to low
-  await act(async () => await hardware.setBatteryLevel(0.2));
+  act(() => hardware.setBatteryLevel(0.2));
   jest.advanceTimersByTime(BATTERY_POLLING_INTERVAL);
   await waitForNextUpdate();
   expect(result.current.computer).toEqual({
@@ -370,7 +370,7 @@ test('periodically polls for computer battery status', async () => {
   });
 
   // Disconnect the charger
-  await act(async () => await hardware.setBatteryDischarging(true));
+  act(() => hardware.setBatteryDischarging(true));
   jest.advanceTimersByTime(BATTERY_POLLING_INTERVAL);
   await waitForNextUpdate();
   expect(result.current.computer).toEqual({

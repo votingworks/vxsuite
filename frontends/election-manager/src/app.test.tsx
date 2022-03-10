@@ -9,6 +9,7 @@ import {
   getByTestId as domGetByTestId,
   getByText as domGetByText,
   getAllByRole as domGetAllByRole,
+  act,
 } from '@testing-library/react';
 import fetchMock from 'fetch-mock';
 import { electionWithMsEitherNeitherWithDataFiles } from '@votingworks/fixtures';
@@ -137,7 +138,7 @@ async function authenticateWithAdminCard(card: MemoryCard) {
 test('create election works', async () => {
   jest.useFakeTimers();
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   const { getByText, getAllByText, queryAllByText, getByTestId } = render(
     <App card={card} hardware={hardware} />
   );
@@ -194,7 +195,7 @@ test('create election works', async () => {
 test('authentication works', async () => {
   jest.useFakeTimers();
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   const storage = await createMemoryStorageWith({
     electionDefinition: eitherNeitherElectionDefinition,
   });
@@ -212,10 +213,10 @@ test('authentication works', async () => {
   };
 
   // Disconnect card reader
-  await hardware.setCardReaderConnected(false);
+  act(() => hardware.setCardReaderConnected(false));
   await advanceTimersAndPromises(1);
   await screen.findByText('Card Reader Not Detected');
-  await hardware.setCardReaderConnected(true);
+  act(() => hardware.setCardReaderConnected(true));
   await advanceTimersAndPromises(1);
   await screen.findByText('Machine Locked');
 
@@ -304,7 +305,7 @@ test('printing ballots, print report, and test decks', async () => {
 
   const printer = fakePrinter();
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   const {
     container,
     getByText,
@@ -450,7 +451,7 @@ test('tabulating CVRs', async () => {
 
   await storage.set(cvrsStorageKey, castVoteRecordFiles.export());
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   const { getByText, getAllByText, getByTestId } = render(
     <App storage={storage} card={card} hardware={hardware} />
   );
@@ -621,7 +622,7 @@ test('tabulating CVRs with SEMS file', async () => {
   );
 
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   const { getByText, getByTestId, getAllByTestId, getAllByText } = render(
     <App storage={storage} card={card} hardware={hardware} />
   );
@@ -730,7 +731,7 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
   );
 
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
 
   const {
     getByText,
@@ -917,7 +918,7 @@ test('changing election resets sems, cvr, and manual data files', async () => {
   );
 
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
 
   const { getByText, getByTestId } = render(
     <App storage={storage} card={card} hardware={hardware} />
@@ -979,7 +980,7 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
   );
 
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   const { getByText, getByTestId } = render(
     <App storage={storage} card={card} hardware={hardware} />
   );

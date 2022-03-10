@@ -109,8 +109,8 @@ async function authenticateAdminCard() {
 
 test('shows setup card reader screen when there is no card reader', async () => {
   const storage = new MemoryStorage();
-  const hardware = await MemoryHardware.buildStandard();
-  await hardware.setCardReaderConnected(false);
+  const hardware = MemoryHardware.buildStandard();
+  hardware.setCardReaderConnected(false);
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
     .get('/config/election', { body: electionSampleDefinition })
@@ -124,7 +124,7 @@ test('shows setup card reader screen when there is no card reader', async () => 
 test('app can load and configure from a usb stick', async () => {
   const storage = new MemoryStorage();
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   const kiosk = fakeKiosk();
   kiosk.getUsbDrives.mockResolvedValue([]);
   window.kiosk = kiosk;
@@ -244,7 +244,7 @@ test('app can load and configure from a usb stick', async () => {
 
 test('admin and pollworker configuration', async () => {
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   await storage.set(stateStorageKey, { isPollsOpen: false });
   const writeLongObjectMock = jest.spyOn(card, 'writeLongObject');
@@ -280,8 +280,8 @@ test('admin and pollworker configuration', async () => {
   fireEvent.click(await screen.findByText('Cancel'));
 
   // Disconnect Printer to test saving report to card
-  await act(async () => {
-    await hardware.setPrinterConnected(false);
+  act(() => {
+    hardware.setPrinterConnected(false);
   });
   fireEvent.click(await screen.findByText('Open Polls for All Precincts'));
   fireEvent.click(await screen.findByText('Save Report and Open Polls'));
@@ -439,8 +439,8 @@ test('admin and pollworker configuration', async () => {
 
 test('voter can cast a ballot that scans successfully ', async () => {
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
-  await hardware.setPrinterConnected(false);
+  const hardware = MemoryHardware.buildStandard();
+  hardware.setPrinterConnected(false);
   const storage = new MemoryStorage();
   await storage.set(stateStorageKey, { isPollsOpen: true });
   const writeLongObjectMock = jest.spyOn(card, 'writeLongObject');
@@ -593,7 +593,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
     .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody });
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   render(<App storage={storage} card={card} hardware={hardware} />);
   advanceTimers(1);
   await screen.findByText('Insert Your Ballot Below');
@@ -826,7 +826,7 @@ test('voter can cast a rejected ballot', async () => {
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
     .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody });
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   render(<App storage={storage} card={card} hardware={hardware} />);
   advanceTimers(1);
   await screen.findByText('Insert Your Ballot Below');
@@ -944,7 +944,7 @@ test('voter can cast another ballot while the success screen is showing', async 
   const storage = new MemoryStorage();
   await storage.set(stateStorageKey, { isPollsOpen: true });
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
     .get('/config/election', { body: electionSampleDefinition })
@@ -1095,7 +1095,7 @@ test('scanning is not triggered when polls closed or cards present', async () =>
   const storage = new MemoryStorage();
   await storage.set(stateStorageKey, { isPollsOpen: false });
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
     .get('/config/election', { body: electionSampleDefinition })
@@ -1154,8 +1154,8 @@ test('scanning is not triggered when polls closed or cards present', async () =>
 
 test('no printer: poll worker can open and close polls without scanning any ballots', async () => {
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
-  await hardware.setPrinterConnected(false);
+  const hardware = MemoryHardware.buildStandard();
+  hardware.setPrinterConnected(false);
   const storage = new MemoryStorage();
   await storage.set(stateStorageKey, { isPollsOpen: false });
   const kiosk = fakeKiosk();
@@ -1207,7 +1207,7 @@ test('no printer: poll worker can open and close polls without scanning any ball
 
 test('with printer: poll worker can open and close polls without scanning any ballots', async () => {
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   await storage.set(stateStorageKey, { isPollsOpen: false });
   const kiosk = fakeKiosk();
@@ -1257,8 +1257,8 @@ test('with printer: poll worker can open and close polls without scanning any ba
 
 test('no printer: open polls, scan ballot, close polls, export results', async () => {
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
-  await hardware.setPrinterConnected(false);
+  const hardware = MemoryHardware.buildStandard();
+  hardware.setPrinterConnected(false);
   const storage = new MemoryStorage();
   await storage.set(stateStorageKey, { isPollsOpen: false });
   const writeLongObjectMock = jest.spyOn(card, 'writeLongObject');

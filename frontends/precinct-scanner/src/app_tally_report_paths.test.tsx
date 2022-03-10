@@ -112,7 +112,7 @@ function expectContestResultsInReport(
 
 test('expected tally reports are printed for a primary election with all precinct', async () => {
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   await storage.set(stateStorageKey, { isPollsOpen: false });
   const kiosk = fakeKiosk();
@@ -147,35 +147,33 @@ test('expected tally reports are printed for a primary election with all precinc
 
   const NUMBER_REPORT_PURPOSES = 2;
   expect(
-    await screen.queryAllByText(
-      'All Precincts Unofficial TEST Polls Opened Report'
-    )
+    screen.queryAllByText('All Precincts Unofficial TEST Polls Opened Report')
   ).toHaveLength(1 * NUMBER_REPORT_PURPOSES);
   // Check that there is a report for each precinct per report purpose per party
   expect(
-    await screen.queryAllByText('Precinct 1 Polls Opened Tally Report')
+    screen.queryAllByText('Precinct 1 Polls Opened Tally Report')
   ).toHaveLength(1 * NUMBER_REPORT_PURPOSES * election.parties.length);
   expect(
-    await screen.queryAllByText('Precinct 2 Polls Opened Tally Report')
+    screen.queryAllByText('Precinct 2 Polls Opened Tally Report')
   ).toHaveLength(1 * NUMBER_REPORT_PURPOSES * election.parties.length);
 
   expect(
-    await screen.queryAllByText('Mammal Party Example Primary Election')
+    screen.queryAllByText('Mammal Party Example Primary Election')
   ).toHaveLength(1 * NUMBER_REPORT_PURPOSES * election.precincts.length);
   expect(
-    await screen.queryAllByText('Fish Party Example Primary Election')
+    screen.queryAllByText('Fish Party Example Primary Election')
   ).toHaveLength(1 * NUMBER_REPORT_PURPOSES * election.precincts.length);
 
   // Check there there are no QR code pages since we are opening polls
   expect(
-    await screen.queryAllByText('Automatic Election Results Reporting')
+    screen.queryAllByText('Automatic Election Results Reporting')
   ).toHaveLength(0);
 });
 
 test('expected tally reports for a primary election with all precincts with CVRs', async () => {
   const card = new MemoryCard();
   const writeLongObjectMock = jest.spyOn(card, 'writeLongObject');
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   await storage.set(stateStorageKey, { isPollsOpen: true });
   const kiosk = fakeKiosk();
@@ -269,32 +267,30 @@ test('expected tally reports for a primary election with all precincts with CVRs
 
   const NUMBER_REPORT_PURPOSES = 2;
   expect(
-    await screen.queryAllByText(
-      'All Precincts Unofficial TEST Polls Closed Report'
-    )
+    screen.queryAllByText('All Precincts Unofficial TEST Polls Closed Report')
   ).toHaveLength(1 * NUMBER_REPORT_PURPOSES);
   // Check that there is a report for each precinct per report purpose per party
   expect(
-    await screen.queryAllByText('Precinct 1 Polls Closed Tally Report')
+    screen.queryAllByText('Precinct 1 Polls Closed Tally Report')
   ).toHaveLength(1 * NUMBER_REPORT_PURPOSES * election.parties.length);
   expect(
-    await screen.queryAllByText('Precinct 2 Polls Closed Tally Report')
+    screen.queryAllByText('Precinct 2 Polls Closed Tally Report')
   ).toHaveLength(1 * NUMBER_REPORT_PURPOSES * election.parties.length);
 
   expect(
-    await screen.queryAllByText('Mammal Party Example Primary Election')
+    screen.queryAllByText('Mammal Party Example Primary Election')
   ).toHaveLength(1 * NUMBER_REPORT_PURPOSES * election.precincts.length);
   expect(
-    await screen.queryAllByText('Fish Party Example Primary Election')
+    screen.queryAllByText('Fish Party Example Primary Election')
   ).toHaveLength(1 * NUMBER_REPORT_PURPOSES * election.precincts.length);
 
   // Check there there is 1 QR code page per report purpose since we are closing polls
   expect(
-    await screen.queryAllByText('Automatic Election Results Reporting')
+    screen.queryAllByText('Automatic Election Results Reporting')
   ).toHaveLength(1 * NUMBER_REPORT_PURPOSES);
 
   // Check that the expected results are on the tally report for Precinct 1 Mammal Party
-  const precinct1MammalReports = await screen.getAllByTestId(
+  const precinct1MammalReports = screen.getAllByTestId(
     'tally-report-0-precinct-1'
   );
   expect(precinct1MammalReports).toHaveLength(2);
@@ -337,7 +333,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
     { yes: 0, no: 0 }
   );
   // Check that the expected results are on the tally report for Precinct 1 Fish Party
-  const precinct1FishReports = await screen.getAllByTestId(
+  const precinct1FishReports = screen.getAllByTestId(
     'tally-report-1-precinct-1'
   );
   expect(precinct1FishReports).toHaveLength(2);
@@ -374,7 +370,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
     no: 0,
   });
   // Check that the expected results are on the tally report for Precinct 2 Mammal Party
-  const precinct2MammalReports = await screen.getAllByTestId(
+  const precinct2MammalReports = screen.getAllByTestId(
     'tally-report-0-precinct-2'
   );
   expect(precinct2MammalReports).toHaveLength(2);
@@ -417,7 +413,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
     { yes: 0, no: 1 }
   );
   // Check that the expected results are on the tally report for Precinct 2 Fish Party
-  const precinct2FishReports = await screen.getAllByTestId(
+  const precinct2FishReports = screen.getAllByTestId(
     'tally-report-1-precinct-2'
   );
   expect(precinct2FishReports).toHaveLength(2);
@@ -458,8 +454,8 @@ test('expected tally reports for a primary election with all precincts with CVRs
   fireEvent.click(await screen.findByText('Close Polls for All Precincts'));
   await screen.findByText('Print Report and Close Polls');
 
-  await act(async () => {
-    await hardware.setPrinterConnected(false);
+  act(() => {
+    hardware.setPrinterConnected(false);
   });
 
   fireEvent.click(await screen.findByText('Save Report and Close Polls'));
@@ -565,7 +561,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
 test('expected tally reports for a primary election with a single precincts with CVRs', async () => {
   const card = new MemoryCard();
   const writeLongObjectMock = jest.spyOn(card, 'writeLongObject');
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   await storage.set(stateStorageKey, { isPollsOpen: true });
   const kiosk = fakeKiosk();
@@ -659,32 +655,30 @@ test('expected tally reports for a primary election with a single precincts with
 
   const NUMBER_REPORT_PURPOSES = 2;
   expect(
-    await screen.queryAllByText(
-      'Precinct 1 Unofficial TEST Polls Closed Report'
-    )
+    screen.queryAllByText('Precinct 1 Unofficial TEST Polls Closed Report')
   ).toHaveLength(1 * NUMBER_REPORT_PURPOSES);
   // Check that there is a report per report purpose per party
   expect(
-    await screen.queryAllByText('Precinct 1 Polls Closed Tally Report')
+    screen.queryAllByText('Precinct 1 Polls Closed Tally Report')
   ).toHaveLength(1 * NUMBER_REPORT_PURPOSES * election.parties.length);
   expect(
-    await screen.queryAllByText('Precinct 2 Polls Closed Tally Report')
+    screen.queryAllByText('Precinct 2 Polls Closed Tally Report')
   ).toHaveLength(0);
 
   expect(
-    await screen.queryAllByText('Mammal Party Example Primary Election')
+    screen.queryAllByText('Mammal Party Example Primary Election')
   ).toHaveLength(1 * NUMBER_REPORT_PURPOSES);
   expect(
-    await screen.queryAllByText('Fish Party Example Primary Election')
+    screen.queryAllByText('Fish Party Example Primary Election')
   ).toHaveLength(1 * NUMBER_REPORT_PURPOSES);
 
   // Check there there is 1 QR code page per report purpose since we are closing polls
   expect(
-    await screen.queryAllByText('Automatic Election Results Reporting')
+    screen.queryAllByText('Automatic Election Results Reporting')
   ).toHaveLength(1 * NUMBER_REPORT_PURPOSES);
 
   // Check that the expected results are on the tally report for Precinct 1 Mammal Party
-  const precinct1MammalReports = await screen.getAllByTestId(
+  const precinct1MammalReports = screen.getAllByTestId(
     'tally-report-0-precinct-1'
   );
   expect(precinct1MammalReports).toHaveLength(2);
@@ -727,7 +721,7 @@ test('expected tally reports for a primary election with a single precincts with
     { yes: 0, no: 1 }
   );
   // Check that the expected results are on the tally report for Precinct 1 Fish Party
-  const precinct1FishReports = await screen.getAllByTestId(
+  const precinct1FishReports = screen.getAllByTestId(
     'tally-report-1-precinct-1'
   );
   expect(precinct1FishReports).toHaveLength(2);
@@ -768,8 +762,8 @@ test('expected tally reports for a primary election with a single precincts with
   fireEvent.click(await screen.findByText('Close Polls for Precinct 1'));
   await screen.findByText('Print Report and Close Polls');
 
-  await act(async () => {
-    await hardware.setPrinterConnected(false);
+  act(() => {
+    hardware.setPrinterConnected(false);
   });
 
   fireEvent.click(await screen.findByText('Save Report and Close Polls'));
@@ -867,7 +861,7 @@ test('expected tally reports for a primary election with a single precincts with
 test('expected tally reports for a general election with all precincts with CVRs', async () => {
   const card = new MemoryCard();
   const writeLongObjectMock = jest.spyOn(card, 'writeLongObject');
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   await storage.set(stateStorageKey, { isPollsOpen: true });
   const kiosk = fakeKiosk();
@@ -942,28 +936,26 @@ test('expected tally reports for a general election with all precincts with CVRs
 
   const NUMBER_REPORT_PURPOSES = 2;
   expect(
-    await screen.queryAllByText(
-      'All Precincts Unofficial TEST Polls Closed Report'
-    )
+    screen.queryAllByText('All Precincts Unofficial TEST Polls Closed Report')
   ).toHaveLength(1 * NUMBER_REPORT_PURPOSES);
   // Check that there is a report for each precinct per report purpose
   expect(
-    await screen.queryAllByText('Center Springfield Polls Closed Tally Report')
+    screen.queryAllByText('Center Springfield Polls Closed Tally Report')
   ).toHaveLength(1 * NUMBER_REPORT_PURPOSES);
   expect(
-    await screen.queryAllByText('North Springfield Polls Closed Tally Report')
+    screen.queryAllByText('North Springfield Polls Closed Tally Report')
   ).toHaveLength(1 * NUMBER_REPORT_PURPOSES);
   expect(
-    await screen.queryAllByText('South Springfield Polls Closed Tally Report')
+    screen.queryAllByText('South Springfield Polls Closed Tally Report')
   ).toHaveLength(1 * NUMBER_REPORT_PURPOSES);
 
   // Check there there is 1 QR code page per report purpose since we are closing polls
   expect(
-    await screen.queryAllByText('Automatic Election Results Reporting')
+    screen.queryAllByText('Automatic Election Results Reporting')
   ).toHaveLength(1 * NUMBER_REPORT_PURPOSES);
 
   // Check that the expected results are on the tally report for Center Springfield
-  const centerSpringfieldReports = await screen.getAllByTestId(
+  const centerSpringfieldReports = screen.getAllByTestId(
     'tally-report-undefined-23'
   );
   expect(centerSpringfieldReports).toHaveLength(2);
@@ -989,7 +981,7 @@ test('expected tally reports for a general election with all precincts with CVRs
   });
 
   // Check that the expected results are on the tally report for South Springfield
-  const southSpringfieldReports = await screen.getAllByTestId(
+  const southSpringfieldReports = screen.getAllByTestId(
     'tally-report-undefined-20'
   );
   expect(southSpringfieldReports).toHaveLength(2);
@@ -1015,7 +1007,7 @@ test('expected tally reports for a general election with all precincts with CVRs
   });
 
   // Check that the expected results are on the tally report for North Springfield
-  const northSpringfieldReports = await screen.getAllByTestId(
+  const northSpringfieldReports = screen.getAllByTestId(
     'tally-report-undefined-21'
   );
   expect(northSpringfieldReports).toHaveLength(2);
@@ -1044,8 +1036,8 @@ test('expected tally reports for a general election with all precincts with CVRs
   fireEvent.click(await screen.findByText('Close Polls for All Precincts'));
   await screen.findByText('Print Report and Close Polls');
 
-  await act(async () => {
-    await hardware.setPrinterConnected(false);
+  act(() => {
+    hardware.setPrinterConnected(false);
   });
 
   fireEvent.click(await screen.findByText('Save Report and Close Polls'));
@@ -1137,7 +1129,7 @@ test('expected tally reports for a general election with all precincts with CVRs
 test('expected tally reports for a general election with a single precincts with CVRs', async () => {
   const card = new MemoryCard();
   const writeLongObjectMock = jest.spyOn(card, 'writeLongObject');
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   await storage.set(stateStorageKey, { isPollsOpen: true });
   const kiosk = fakeKiosk();
@@ -1212,28 +1204,28 @@ test('expected tally reports for a general election with a single precincts with
 
   const NUMBER_REPORT_PURPOSES = 2;
   expect(
-    await screen.queryAllByText(
+    screen.queryAllByText(
       'Center Springfield Unofficial TEST Polls Closed Report'
     )
   ).toHaveLength(1 * NUMBER_REPORT_PURPOSES);
   // Check that there is a report for each precinct per report purpose
   expect(
-    await screen.queryAllByText('Center Springfield Polls Closed Tally Report')
+    screen.queryAllByText('Center Springfield Polls Closed Tally Report')
   ).toHaveLength(1 * NUMBER_REPORT_PURPOSES);
   expect(
-    await screen.queryAllByText('North Springfield Polls Closed Tally Report')
+    screen.queryAllByText('North Springfield Polls Closed Tally Report')
   ).toHaveLength(0);
   expect(
-    await screen.queryAllByText('South Springfield Polls Closed Tally Report')
+    screen.queryAllByText('South Springfield Polls Closed Tally Report')
   ).toHaveLength(0);
 
   // Check there there is 1 QR code page per report purpose since we are closing polls
   expect(
-    await screen.queryAllByText('Automatic Election Results Reporting')
+    screen.queryAllByText('Automatic Election Results Reporting')
   ).toHaveLength(1 * NUMBER_REPORT_PURPOSES);
 
   // Check that the expected results are on the tally report for Center Springfield
-  const centerSpringfieldReports = await screen.getAllByTestId(
+  const centerSpringfieldReports = screen.getAllByTestId(
     'tally-report-undefined-23'
   );
   expect(centerSpringfieldReports).toHaveLength(2);
@@ -1264,8 +1256,8 @@ test('expected tally reports for a general election with a single precincts with
   );
   await screen.findByText('Print Report and Close Polls');
 
-  await act(async () => {
-    await hardware.setPrinterConnected(false);
+  act(() => {
+    hardware.setPrinterConnected(false);
   });
 
   fireEvent.click(await screen.findByText('Save Report and Close Polls'));

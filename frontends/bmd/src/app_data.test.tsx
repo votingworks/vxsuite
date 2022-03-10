@@ -21,7 +21,7 @@ beforeEach(() => {
 
 describe('loads election', () => {
   it('Machine is not configured by default', async () => {
-    const hardware = await MemoryHardware.buildStandard();
+    const hardware = MemoryHardware.buildStandard();
     render(
       <App
         machineConfig={fakeMachineConfigProvider()}
@@ -41,7 +41,7 @@ describe('loads election', () => {
     const card = new MemoryCard();
     const storage = new MemoryStorage();
     const machineConfig = fakeMachineConfigProvider();
-    const hardware = await MemoryHardware.buildStandard();
+    const hardware = MemoryHardware.buildStandard();
     await setElectionInStorage(storage);
     await setStateInStorage(storage);
     render(

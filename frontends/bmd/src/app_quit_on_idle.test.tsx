@@ -27,7 +27,7 @@ afterEach(() => {
 
 test('Insert Card screen idle timeout to quit app', async () => {
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   const machineConfig = fakeMachineConfigProvider({
     // machineId used to determine whether we quit. Now they all do.

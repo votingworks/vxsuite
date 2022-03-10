@@ -75,7 +75,7 @@ test('when services/scan does not respond shows loading screen', async () => {
   fetchMock.get('/machine-config', { body: getMachineConfigBody });
 
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   render(<App card={card} hardware={hardware} />);
   await screen.findByText('Loading Configuration…');
 });
@@ -92,7 +92,7 @@ test('services/scan fails to unconfigure', async () => {
     .deleteOnce('/config/election', { status: 404 });
 
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   render(<App card={card} hardware={hardware} />);
   const adminCard = makeAdminCard(
     electionSampleDefinition.electionHash,
@@ -127,7 +127,7 @@ test('Show invalid card screen when unsupported cards are given', async () => {
     .get('/scan/status', scanStatusWaitingForPaperResponseBody);
 
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   render(<App card={card} hardware={hardware} />);
   await screen.findByText('Polls Closed');
   const voterCard = makeVoterCard(electionSampleDefinition.election);
@@ -180,7 +180,7 @@ test('show card backwards screen when card connection error occurs', async () =>
     .get('/scan/status', scanStatusWaitingForPaperResponseBody);
 
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   render(<App card={card} hardware={hardware} />);
   await screen.findByText('Polls Closed');
   card.insertCard(undefined, undefined, 'error');
@@ -196,7 +196,7 @@ test('show card backwards screen when card connection error occurs', async () =>
 test('shows setup scanner screen when there is no plustek scanner', async () => {
   const card = new MemoryCard();
   const storage = new MemoryStorage();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   hardware.setPrecinctScannerConnected(false);
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
@@ -230,7 +230,7 @@ test('error from services/scan in accepting a reviewable ballot', async () => {
     })
     .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody });
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   render(<App storage={storage} card={card} hardware={hardware} />);
   advanceTimers(1);
   await screen.findByText('Insert Your Ballot Below');
@@ -342,7 +342,7 @@ test('error from services/scan in ejecting a reviewable ballot', async () => {
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
     .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody });
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   render(<App storage={storage} card={card} hardware={hardware} />);
   advanceTimers(1);
   await screen.findByText('Insert Your Ballot Below');
@@ -453,9 +453,9 @@ test('error from services/scan in ejecting a reviewable ballot', async () => {
 });
 test('App shows message to connect to power when disconnected and battery is low', async () => {
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
-  await hardware.setBatteryDischarging(true);
-  await hardware.setBatteryLevel(0.1);
+  const hardware = MemoryHardware.buildStandard();
+  hardware.setBatteryDischarging(true);
+  hardware.setBatteryLevel(0.1);
   const storage = new MemoryStorage();
   const kiosk = fakeKiosk();
   window.kiosk = kiosk;
@@ -476,10 +476,10 @@ test('App shows message to connect to power when disconnected and battery is low
 
 test('App shows warning message to connect to power when disconnected', async () => {
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
-  await hardware.setBatteryDischarging(true);
-  await hardware.setBatteryLevel(0.9);
-  await hardware.setPrinterConnected(false);
+  const hardware = MemoryHardware.buildStandard();
+  hardware.setBatteryDischarging(true);
+  hardware.setBatteryLevel(0.9);
+  hardware.setPrinterConnected(false);
   const storage = new MemoryStorage();
   const kiosk = fakeKiosk();
   window.kiosk = kiosk;
@@ -498,8 +498,8 @@ test('App shows warning message to connect to power when disconnected', async ()
     'Please ask a poll worker to plug in the power cord for this machine.'
   );
   // Plug in power and see that warning goes away
-  await act(async () => {
-    await hardware.setBatteryDischarging(false);
+  act(() => {
+    hardware.setBatteryDischarging(false);
   });
   await advanceTimersAndPromises(3);
   await screen.findByText('Polls Closed');
@@ -523,8 +523,8 @@ test('App shows warning message to connect to power when disconnected', async ()
   // There should be no warning about power
   expect(screen.queryByText('No Power Detected.')).toBeNull();
   // Disconnect from power and check for warning
-  await act(async () => {
-    await hardware.setBatteryDischarging(true);
+  act(() => {
+    hardware.setBatteryDischarging(true);
   });
   await advanceTimersAndPromises(3);
   await screen.findByText('No Power Detected.');

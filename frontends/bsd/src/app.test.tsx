@@ -94,7 +94,7 @@ test('renders without crashing', async () => {
     });
 
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   render(<App card={card} hardware={hardware} />);
   await waitFor(() => fetchMock.called());
 });
@@ -116,7 +116,7 @@ test('shows a "Test mode" button if the app is in Live Mode', async () => {
     });
 
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   const result = render(<App card={card} hardware={hardware} />);
   await authenticateWithAdminCard(card);
 
@@ -142,7 +142,7 @@ test('shows a "Live mode" button if the app is in Test Mode', async () => {
     });
 
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
 
   const result = render(<App card={card} hardware={hardware} />);
   await authenticateWithAdminCard(card);
@@ -176,7 +176,7 @@ test('clicking Scan Batch will scan a batch', async () => {
   const mockAlert = jest.fn();
   window.alert = mockAlert;
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
 
   await act(async () => {
     const { getByText } = render(<App card={card} hardware={hardware} />);
@@ -233,7 +233,7 @@ test('clicking export shows modal and makes a request to export', async () => {
     });
 
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
 
   const { getByText, queryByText, getByTestId } = render(
     <App card={card} hardware={hardware} />
@@ -281,7 +281,7 @@ test('configuring election from usb ballot package works end to end', async () =
     });
 
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   const { getByText, getByTestId } = render(
     <App card={card} hardware={hardware} />
   );
@@ -349,8 +349,8 @@ test('configuring election from usb ballot package works end to end', async () =
 
 test('authentication works', async () => {
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
-  await hardware.setBatchScannerConnected(false);
+  const hardware = MemoryHardware.buildStandard();
+  hardware.setBatchScannerConnected(false);
   const getElectionResponseBody: GetElectionConfigResponse = electionSampleDefinition;
   const getTestModeResponseBody: GetTestModeConfigResponse = {
     status: 'ok',
@@ -381,12 +381,12 @@ test('authentication works', async () => {
   };
 
   // Disconnect card reader
-  await act(async () => {
-    await hardware.setCardReaderConnected(false);
+  act(() => {
+    hardware.setCardReaderConnected(false);
   });
   await screen.findByText('Card Reader Not Detected');
-  await act(async () => {
-    await hardware.setCardReaderConnected(true);
+  act(() => {
+    hardware.setCardReaderConnected(true);
   });
   await screen.findByText('Machine Locked');
 

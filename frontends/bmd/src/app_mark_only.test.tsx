@@ -36,7 +36,7 @@ it('MarkOnly flow', async () => {
   const card = new MemoryCard();
   const adminCard = makeAdminCard(electionDefinition.electionHash);
   const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   const machineConfig = fakeMachineConfigProvider();
   render(

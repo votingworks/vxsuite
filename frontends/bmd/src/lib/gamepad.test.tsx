@@ -27,7 +27,7 @@ beforeEach(() => {
 
 it('gamepad controls work', async () => {
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   const machineConfig = fakeMachineConfigProvider();
 

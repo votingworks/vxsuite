@@ -82,13 +82,11 @@ export function DemoApp({
 }: Props): JSX.Element {
   const [internalHardware, setInternalHardware] = React.useState(hardware);
   React.useEffect(() => {
-    async function updateHardware() {
-      if (internalHardware === undefined) {
-        setInternalHardware(await MemoryHardware.buildDemo());
-      }
+    function updateHardware() {
+      setInternalHardware((prev) => prev ?? MemoryHardware.buildDemo());
     }
     void updateHardware();
-  }, [internalHardware]);
+  });
   if (internalHardware === undefined) {
     return <div />;
   }

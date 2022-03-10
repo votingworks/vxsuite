@@ -1,6 +1,7 @@
 import { fireEvent, screen } from '@testing-library/react';
 import { fakeKiosk, makePollWorkerCard } from '@votingworks/test-utils';
 import { MemoryCard, MemoryHardware, MemoryStorage } from '@votingworks/utils';
+import fetchMock from 'fetch-mock';
 import * as React from 'react';
 import {
   setElectionInStorage,
@@ -17,9 +18,32 @@ beforeEach(() => {
   jest.useFakeTimers();
 });
 
+it('uses the card service and machine config service by default', async () => {
+  fetchMock
+    .get('/machine-config', {
+      machineId: '0002',
+      codeVersion: '3.14',
+    })
+    .get('/card/read', {
+      body: {
+        status: 'error',
+      },
+    });
+  const hardware = MemoryHardware.buildStandard();
+
+  render(<App hardware={hardware} />);
+
+  await screen.findByText('Card is Backwards');
+  expect(fetchMock.done()).toBe(true);
+});
+
 it('prevents context menus from appearing', async () => {
   render(
-    <App machineConfig={fakeMachineConfigProvider()} reload={jest.fn()} />
+    <App
+      card={new MemoryCard()}
+      machineConfig={fakeMachineConfigProvider()}
+      reload={jest.fn()}
+    />
   );
 
   const { oncontextmenu } = window;
@@ -40,7 +64,11 @@ it('uses kiosk storage when in kiosk-browser', async () => {
   const kiosk = fakeKiosk();
   window.kiosk = kiosk;
   render(
-    <App machineConfig={fakeMachineConfigProvider()} reload={jest.fn()} />
+    <App
+      card={new MemoryCard()}
+      machineConfig={fakeMachineConfigProvider()}
+      reload={jest.fn()}
+    />
   );
   await advanceTimersAndPromises();
   expect(kiosk.storage.get).toHaveBeenCalled();
@@ -60,7 +88,7 @@ it('uses window.location.reload by default', async () => {
   // Set up in an already-configured state.
   const electionDefinition = electionSampleDefinition;
   const card = new MemoryCard();
-  const hardware = await MemoryHardware.buildStandard();
+  const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
   const machineConfig = fakeMachineConfigProvider({

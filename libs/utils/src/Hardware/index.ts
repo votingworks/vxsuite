@@ -9,10 +9,10 @@ export * from './utils';
 /**
  * Get Hardware based upon environment.
  */
-export async function getHardware(): Promise<Hardware> {
+export function getHardware(): Hardware {
   return window.kiosk
     ? // Running in kiosk-browser, so use that to access real hardware.
       new KioskHardware(window.kiosk)
     : // Running in normal browser, so emulate hardware.
-      await MemoryHardware.buildDemo();
+      MemoryHardware.buildDemo();
 }
