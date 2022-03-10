@@ -44,11 +44,17 @@ import {
   PrecinctScannerCardTallySchema,
   throwIllegalValue,
   CardApiReady,
+  usbstick,
 } from '@votingworks/utils';
 
 import { Logger, LogSource } from '@votingworks/logging';
 
-import { SetupCardReaderPage, useDevices, usePrevious } from '@votingworks/ui';
+import {
+  SetupCardReaderPage,
+  useDevices,
+  usePrevious,
+  useUsbDrive,
+} from '@votingworks/ui';
 import { Ballot } from './components/ballot';
 import * as GLOBALS from './config/globals';
 import {
@@ -84,12 +90,14 @@ import { utcTimestamp } from './utils/utc_timestamp';
 import { ScreenReader } from './utils/ScreenReader';
 import { ReplaceElectionScreen } from './pages/replace_election_screen';
 import { CardErrorScreen } from './pages/card_error_screen';
+import { SuperAdminScreen } from './pages/superadmin_screen';
 
 const debug = makeDebug('bmd:AppRoot');
 
 interface CardState {
   adminCardElectionHash?: string;
   isAdminCardPresent: boolean;
+  isSuperAdminCardPresent: boolean;
   isCardlessVoter: boolean;
   isPollWorkerCardPresent: boolean;
   isVoterCardExpired: boolean;
@@ -163,6 +171,7 @@ export const blankBallotVotes: VotesDict = {};
 const initialCardState: Readonly<CardState> = {
   adminCardElectionHash: undefined,
   isAdminCardPresent: false,
+  isSuperAdminCardPresent: false,
   isCardlessVoter: false,
   isPollWorkerCardPresent: false,
   isVoterCardExpired: false,
@@ -221,6 +230,7 @@ const initialAppState: Readonly<State> = {
 // Sets State. All side effects done outside: storage, fetching, etc
 type AppAction =
   | { type: 'processAdminCard'; electionHash: string }
+  | { type: 'processSuperAdminCard' }
   | {
       type: 'processPollWorkerCard';
       isPollWorkerCardValid: boolean;
@@ -270,6 +280,12 @@ function appReducer(state: State, action: AppAction): State {
         ...initialCardState,
         isAdminCardPresent: true,
         adminCardElectionHash: action.electionHash,
+      };
+    case 'processSuperAdminCard':
+      return {
+        ...state,
+        ...initialCardState,
+        isSuperAdminCardPresent: true,
       };
     case 'processPollWorkerCard':
       return {
@@ -484,6 +500,7 @@ export function AppRoot({
     isCardlessVoter,
     electionDefinition: optionalElectionDefinition,
     isAdminCardPresent,
+    isSuperAdminCardPresent,
     isLiveMode,
     isPollsOpen,
     isPollWorkerCardPresent,
@@ -520,6 +537,8 @@ export function AppRoot({
     accessibleController,
     computer,
   } = useDevices({ hardware, logger });
+  const usbDrive = useUsbDrive({ logger });
+  const displayUsbStatus = usbDrive.status ?? usbstick.UsbDriveStatus.absent;
   const hasPrinterAttached = printerInfo !== undefined;
   const previousHasPrinterAttached = usePrevious(hasPrinterAttached);
 
@@ -746,7 +765,10 @@ export function AppRoot({
         return;
       }
       const cardData = parseShortValueResult.ok();
-      if (!optionalElectionDefinition && cardData.t !== 'admin') {
+      if (
+        !optionalElectionDefinition &&
+        !['admin', 'superadmin'].includes(cardData.t)
+      ) {
         return;
       }
       switch (cardData.t) {
@@ -818,6 +840,12 @@ export function AppRoot({
               electionHash: cardData.h,
             });
           }
+          break;
+        }
+        case 'superadmin': {
+          dispatchAppState({
+            type: 'processSuperAdminCard',
+          });
           break;
         }
         /* istanbul ignore next - compile time check for completeness */
@@ -1200,6 +1228,15 @@ export function AppRoot({
     return (
       <SetupPowerPage
         useEffectToggleLargeDisplay={useEffectToggleLargeDisplay}
+      />
+    );
+  }
+  if (isSuperAdminCardPresent) {
+    return (
+      <SuperAdminScreen
+        useEffectToggleLargeDisplay={useEffectToggleLargeDisplay}
+        usbDriveStatus={displayUsbStatus}
+        logger={logger}
       />
     );
   }

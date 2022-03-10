@@ -318,3 +318,15 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** Error seen when converting a single log to the CDF format. This log line will be skipped. Disposition of this log is always failure.  
 **Machines:** All
+### prepare-boot-from-usb-init
+**Type:** [user-action](#user-action)  
+**Description:** Message that a user triggered an attempt to reboot the machine and boot from an inserted USB drive.  
+**Machines:** All
+### prepare-boot-from-usb-complete
+**Type:** [user-action](#user-action)  
+**Description:** Message that the machine has completed preparing to boot from USB. Success or failure indicated by the disposition.  
+**Machines:** All
+### reboot-machine
+**Type:** [user-action](#user-action)  
+**Description:** User has triggered a reboot of the machine.  
+**Machines:** All

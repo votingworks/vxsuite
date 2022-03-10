@@ -94,7 +94,12 @@ test('bypass authentication flow when not persisting authentication', async () =
   let smartcard: Smartcard = { status: 'no_card' };
   const fakeLogger = new Logger(LogSource.VxCentralScanFrontend);
   const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
-  const validUserTypes: CardDataTypes[] = ['admin', 'pollworker', 'voter'];
+  const validUserTypes: CardDataTypes[] = [
+    'admin',
+    'pollworker',
+    'voter',
+    'superadmin',
+  ];
   const { result, rerender } = renderHook(() =>
     useUserSession({
       smartcard,
@@ -133,6 +138,27 @@ test('bypass authentication flow when not persisting authentication', async () =
     })
   );
 
+  // update smartcard to a superadmin card, and see we now have a superadmin session
+  smartcard = fakeSmartcard({
+    data: { t: 'superadmin' },
+  });
+  // update smartcard to an admin card, and see we immediately have an authenticated session
+
+  rerender();
+  expect(result.current.currentUserSession).toStrictEqual({
+    type: 'superadmin',
+    authenticated: true,
+  });
+  // There should be a corresponding log for the new admin session.
+  expect(logSpy).toHaveBeenCalledTimes(2);
+  expect(logSpy).toHaveBeenLastCalledWith(
+    LogEventId.UserSessionActivationAttempt,
+    'superadmin',
+    expect.objectContaining({
+      disposition: 'success',
+    })
+  );
+
   // update smartcard to a pollworker card, and see we now have a pollworker session
   smartcard = fakeSmartcard({
     data: makePollWorkerCard(electionSampleDefinition.electionHash),
@@ -143,7 +169,7 @@ test('bypass authentication flow when not persisting authentication', async () =
     isElectionHashValid: true,
     authenticated: true,
   });
-  expect(logSpy).toHaveBeenCalledTimes(2);
+  expect(logSpy).toHaveBeenCalledTimes(3);
   expect(logSpy).toHaveBeenLastCalledWith(
     LogEventId.UserSessionActivationAttempt,
     'pollworker',
@@ -162,7 +188,7 @@ test('bypass authentication flow when not persisting authentication', async () =
     isElectionHashValid: false,
     authenticated: false,
   });
-  expect(logSpy).toHaveBeenCalledTimes(3);
+  expect(logSpy).toHaveBeenCalledTimes(4);
   expect(logSpy).toHaveBeenLastCalledWith(
     LogEventId.UserSessionActivationAttempt,
     'pollworker',
@@ -180,7 +206,7 @@ test('bypass authentication flow when not persisting authentication', async () =
     type: 'voter',
     authenticated: true,
   });
-  expect(logSpy).toHaveBeenCalledTimes(4);
+  expect(logSpy).toHaveBeenCalledTimes(5);
   expect(logSpy).toHaveBeenLastCalledWith(
     LogEventId.UserSessionActivationAttempt,
     'voter',
@@ -198,7 +224,7 @@ test('bypass authentication flow when not persisting authentication', async () =
     type: 'unknown',
     authenticated: false,
   });
-  expect(logSpy).toHaveBeenCalledTimes(5);
+  expect(logSpy).toHaveBeenCalledTimes(6);
   expect(logSpy).toHaveBeenLastCalledWith(
     LogEventId.UserSessionActivationAttempt,
     'unknown',
@@ -211,7 +237,7 @@ test('bypass authentication flow when not persisting authentication', async () =
   smartcard = { status: 'no_card' };
   rerender();
   expect(result.current.currentUserSession).toStrictEqual(undefined);
-  expect(logSpy).toHaveBeenCalledTimes(6);
+  expect(logSpy).toHaveBeenCalledTimes(7);
   expect(logSpy).toHaveBeenLastCalledWith(
     LogEventId.UserLoggedOut,
     'unknown',
@@ -224,7 +250,7 @@ test('bypass authentication flow when not persisting authentication', async () =
   smartcard = { status: 'error' };
   rerender();
   expect(result.current.currentUserSession).toStrictEqual(undefined);
-  expect(logSpy).toHaveBeenCalledTimes(6);
+  expect(logSpy).toHaveBeenCalledTimes(7);
 });
 
 test('basic persist authentication flow works as expected', () => {

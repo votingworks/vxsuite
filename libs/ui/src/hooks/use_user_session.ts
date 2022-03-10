@@ -81,6 +81,20 @@ export function useUserSession({
             });
           }
           return;
+        case 'superadmin':
+          /* istanbul ignore else - not possible but will be in the future */
+          if (currentUserSession.authenticated) {
+            await logger.log(
+              LogEventId.UserSessionActivationAttempt,
+              'superadmin',
+              {
+                disposition: LogDispositionStandardTypes.Success,
+                message:
+                  'Superadmin card was insertted and successfully authenticated.',
+              }
+            );
+          }
+          return;
         case 'pollworker':
           if (currentUserSession.authenticated) {
             await logger.log(
@@ -185,6 +199,15 @@ export function useUserSession({
             return prev;
           }
           if (smartcard.data?.t) {
+            if (
+              smartcard.data.t === 'superadmin' &&
+              validUserTypes.includes('superadmin')
+            ) {
+              return {
+                type: smartcard.data.t,
+                authenticated: true, // TODO in the future we will have a passcode that is check for super admins
+              };
+            }
             if (
               smartcard.data.t === 'pollworker' &&
               validUserTypes.includes('pollworker')

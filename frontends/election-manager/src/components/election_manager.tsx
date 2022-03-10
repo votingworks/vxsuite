@@ -1,10 +1,19 @@
 import React, { useContext } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 
-import { SetupCardReaderPage } from '@votingworks/ui';
+import {
+  ElectionInfoBar,
+  fontSizeTheme,
+  Main,
+  MainChild,
+  Prose,
+  RebootFromUsbButton,
+  SetupCardReaderPage,
+} from '@votingworks/ui';
 import { AppContext } from '../contexts/app_context';
 
 import { routerPaths } from '../router_paths';
+import { Screen } from './screen';
 import { DefinitionScreen } from '../screens/definition_screen';
 import { BallotListScreen } from '../screens/ballot_list_screen';
 import { BallotScreen } from '../screens/ballot_screen';
@@ -31,6 +40,9 @@ export function ElectionManager(): JSX.Element {
     configuredAt,
     currentUserSession,
     hasCardReaderAttached,
+    machineConfig,
+    usbDriveStatus,
+    logger,
   } = useContext(AppContext);
   const election = electionDefinition?.election;
 
@@ -56,6 +68,29 @@ export function ElectionManager(): JSX.Element {
 
   if (!currentUserSession) {
     return <MachineLockedScreen />;
+  }
+
+  if (currentUserSession.type === 'superadmin') {
+    return (
+      <Screen>
+        <Main>
+          <MainChild center>
+            <Prose textCenter maxWidth={false} theme={fontSizeTheme.large}>
+              <RebootFromUsbButton
+                usbDriveStatus={usbDriveStatus}
+                logger={logger}
+              />
+            </Prose>
+          </MainChild>
+        </Main>
+        <ElectionInfoBar
+          mode="admin"
+          electionDefinition={electionDefinition}
+          codeVersion={machineConfig.codeVersion}
+          machineId={machineConfig.machineId}
+        />
+      </Screen>
+    );
   }
 
   if (currentUserSession.type !== 'admin') {

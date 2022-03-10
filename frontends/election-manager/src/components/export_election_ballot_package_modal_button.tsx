@@ -195,7 +195,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
               <h1>No USB Drive Detected</h1>
               <p>
                 <UsbImage
-                  src="usb-drive.svg"
+                  src="assets/usb-drive.svg"
                   alt="Insert USB Image"
                   // hidden feature to export with file dialog by double-clicking
                   onDoubleClick={() => saveFileCallback(true)}
@@ -229,10 +229,10 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
             <Prose>
               <h1>Export Ballot Package</h1>
               <p>
-                <UsbImage src="usb-drive.svg" alt="Insert USB Image" />A zip
-                archive will automatically be saved to the default location on
-                the mounted USB drive. Optionally, you may pick a custom export
-                location.
+                <UsbImage src="assets/usb-drive.svg" alt="Insert USB Image" />A
+                zip archive will automatically be saved to the default location
+                on the mounted USB drive. Optionally, you may pick a custom
+                export location.
               </p>
             </Prose>
           );

@@ -233,7 +233,7 @@ export function ExportResultsModal({
               <h1>No USB Drive Detected</h1>
               <p>
                 <UsbImage
-                  src="usb-stick.svg"
+                  src="assets/usb-drive.svg"
                   alt="Insert USB Image"
                   onDoubleClick={() => exportResults(true)}
                 />
@@ -278,7 +278,7 @@ export function ExportResultsModal({
             <Prose>
               <h1>Export Results</h1>
               <UsbImage
-                src="usb-stick.svg"
+                src="assets/usb-drive.svg"
                 alt="Insert USB Image"
                 onDoubleClick={() => exportResults(true)}
               />

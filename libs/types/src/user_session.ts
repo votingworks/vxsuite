@@ -4,6 +4,7 @@ export type UserSession =
   | PollworkerUserSession
   | VoterUserSession
   | AdminUserSession
+  | SuperAdminUserSession
   | UnknownUserSession;
 export interface PollworkerUserSession {
   readonly type: 'pollworker';
@@ -16,6 +17,10 @@ export interface VoterUserSession {
 }
 export interface AdminUserSession {
   readonly type: 'admin';
+  readonly authenticated: boolean;
+}
+export interface SuperAdminUserSession {
+  readonly type: 'superadmin';
   readonly authenticated: boolean;
 }
 export interface UnknownUserSession {

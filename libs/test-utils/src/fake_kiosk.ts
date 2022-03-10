@@ -81,5 +81,7 @@ export function fakeKiosk({
     },
     sign: jest.fn(),
     log: jest.fn(),
+    reboot: jest.fn(),
+    prepareToBootFromUsb: jest.fn(),
   };
 }

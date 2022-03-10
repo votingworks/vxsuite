@@ -1194,11 +1194,12 @@ export interface CompletedBallot {
 }
 
 // Smart Card Content
-export type CardDataTypes = 'voter' | 'pollworker' | 'admin';
+export type CardDataTypes = 'voter' | 'pollworker' | 'admin' | 'superadmin';
 export const CardDataTypesSchema: z.ZodSchema<CardDataTypes> = z.union([
   z.literal('voter'),
   z.literal('pollworker'),
   z.literal('admin'),
+  z.literal('superadmin'),
 ]);
 export interface CardData {
   readonly t: CardDataTypes;
@@ -1265,11 +1266,29 @@ export const AdminCardDataSchema: z.ZodSchema<AdminCardData> = CardDataInternalS
   }
 );
 
-export type AnyCardData = VoterCardData | PollworkerCardData | AdminCardData;
+/**
+ * Beginning of the SuperAdmin card schema. More will be added to this as we fully flesh out this role
+ * This is a minimal implementation for the purposes of rebooting from usb.
+ */
+export interface SuperAdminCardData extends CardData {
+  readonly t: 'superadmin';
+}
+export const SuperAdminCardDataSchema: z.ZodSchema<SuperAdminCardData> = CardDataInternalSchema.extend(
+  {
+    t: z.literal('superadmin'),
+  }
+);
+
+export type AnyCardData =
+  | VoterCardData
+  | PollworkerCardData
+  | AdminCardData
+  | SuperAdminCardData;
 export const AnyCardDataSchema: z.ZodSchema<AnyCardData> = z.union([
   VoterCardDataSchema,
   PollworkerCardDataSchema,
   AdminCardDataSchema,
+  SuperAdminCardDataSchema,
 ]);
 
 /**

@@ -91,7 +91,7 @@ export const printedBallotsStorageKey = 'printedBallots';
 export const configuredAtStorageKey = 'configuredAt';
 export const externalVoteTalliesFileStorageKey = 'externalVoteTallies';
 
-const VALID_USERS: CardDataTypes[] = ['admin'];
+const VALID_USERS: CardDataTypes[] = ['admin', 'superadmin'];
 
 export function AppRoot({
   storage,

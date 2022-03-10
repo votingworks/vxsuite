@@ -40,6 +40,7 @@ def usage(file=sys.stdout, code=0):
         % argv0,
         file=file,
     )
+    print("%s enable --superadmin" % argv0, file=file)
     print("", file=file)
     print(
         "# enable mock reader with a card and set long/short values from fixture data",
@@ -142,6 +143,18 @@ def enable_pollworker(election_definition: ElectionDefinition):
     )
 
 
+def enable_superadmin():
+    set_mock(
+        {
+            "enabled": True,
+            "shortValue": json.dumps(
+                {"t": "superadmin"}
+            ),
+            "longValue": None,
+        }
+    )
+
+
 def enable_voter(
     election_definition: ElectionDefinition,
     precinct_id: str,
@@ -197,6 +210,8 @@ if command == "enable":
             i += 1
             election_path = sys.argv[i]
             card_type = "pollworker"
+        elif arg == "--superadmin":
+            card_type = "superadmin"
         elif arg == "--voter":
             i += 1
             election_path = sys.argv[i]
@@ -236,6 +251,8 @@ if command == "enable":
                 fatal("--voter requires --ballot-style")
 
             enable_voter(election_definition, precinct_id, ballot_style_id)
+    elif card_type == "superadmin":
+        enable_superadmin()
     else:
         enable_no_card()
 
