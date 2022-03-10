@@ -3,7 +3,6 @@ import { randomInt } from '../../test/utils';
 import {
   angleBetweenPoints,
   flipRectVerticalAndHorizontal,
-  poly4Area,
   rectCenter,
   rectCorners,
   roundPoint,
@@ -137,36 +136,4 @@ test('triangleArea', () => {
   expect(triangleArea({ x: 0, y: 0 }, { x: 3, y: 3 }, { x: 4, y: 0 })).toEqual(
     6
   );
-});
-
-test('poly4area', () => {
-  // simple square
-  expect(
-    poly4Area([
-      { x: 0, y: 0 },
-      { x: 1, y: 0 },
-      { x: 0, y: 1 },
-      { x: 1, y: 1 },
-    ])
-  ).toEqual(1);
-
-  // rotated square
-  expect(
-    poly4Area([
-      { x: 0, y: 2 },
-      { x: 2, y: 4 },
-      { x: 4, y: 2 },
-      { x: 2, y: 0 },
-    ])
-  ).toEqual(8);
-
-  // irregular
-  expect(
-    poly4Area([
-      { x: 2, y: 1 },
-      { x: 7, y: 0 },
-      { x: 0, y: 6 },
-      { x: 5, y: 8 },
-    ])
-  ).toEqual(33.5);
 });
