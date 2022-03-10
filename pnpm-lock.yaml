@@ -112,7 +112,6 @@ importers:
       stylelint-config-palantir: 5.0.0_stylelint@13.8.0
       stylelint-config-prettier: 8.0.2_stylelint@13.8.0
       stylelint-config-styled-components: 0.1.1
-      stylelint-processor-styled-components: 1.10.0
     specifiers:
       '@types/history': ^4.7.8
       '@types/jest': 24.0.11
@@ -157,7 +156,6 @@ importers:
       stylelint-config-palantir: ^5.0.0
       stylelint-config-prettier: ^8.0.2
       stylelint-config-styled-components: ^0.1.1
-      stylelint-processor-styled-components: ^1.10.0
       typescript: ^4.3.5
       zod: 3.2.0
   frontends/bas/prodserver:
@@ -15818,9 +15816,7 @@ packages:
       node: '>=0.10.0'
     resolution:
       integrity: sha1-UhTXU3pNBqSjAcDMJi/rhBiAAuc=
-  /follow-redirects/1.14.1_debug@4.3.1:
-    dependencies:
-      debug: 4.3.1
+  /follow-redirects/1.14.1:
     dev: false
     engines:
       node: '>=4.0'
@@ -16773,7 +16769,7 @@ packages:
   /http-proxy/1.18.1:
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.14.1_debug@4.3.1
+      follow-redirects: 1.14.1
       requires-port: 1.0.0
     dev: false
     engines:

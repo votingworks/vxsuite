@@ -100,8 +100,7 @@
     "stylelint": "^13.7.2",
     "stylelint-config-palantir": "^5.0.0",
     "stylelint-config-prettier": "^8.0.2",
-    "stylelint-config-styled-components": "^0.1.1",
-    "stylelint-processor-styled-components": "^1.10.0"
+    "stylelint-config-styled-components": "^0.1.1"
   },
   "vx": {
     "isBundled": true,
