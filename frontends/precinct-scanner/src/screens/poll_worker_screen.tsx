@@ -39,7 +39,6 @@ import {
   CompressedTally,
   getPartyIdsInBallotStyles,
 } from '@votingworks/types';
-import pluralize from 'pluralize';
 import { POLLING_INTERVAL_FOR_TOTP } from '../config/globals';
 import { CenteredLargeProse, CenteredScreen } from '../components/layout';
 import { Absolute } from '../components/absolute';
@@ -47,39 +46,15 @@ import { Absolute } from '../components/absolute';
 import { ExportResultsModal } from '../components/export_results_modal';
 
 import { AppContext } from '../contexts/app_context';
+import { IndeterminateProgressBar } from '../components/graphics';
 
 enum PollWorkerFlowState {
-  INIT = 'init',
-  POLLS_OPENED_COMPLETE = 'opened polls complete',
-  POLLS_CLOSED_NEEDS_EXPORT = 'polls closed needs export',
-  POLLS_CLOSED_COMPLETE = 'polls closed complete',
-}
-
-function SaveAndPrintReportInstructions({ title }: { title: string }) {
-  return (
-    <Prose>
-      <h1>{title}</h1>
-      <p>The report will be saved on the poll worker card.</p>
-      <p>
-        Insert the card into a VxMark to <strong>print the report</strong>.
-      </p>
-    </Prose>
-  );
-}
-
-function PrintReportInstructions({
-  title,
-  count,
-}: {
-  title: string;
-  count: number;
-}) {
-  return (
-    <Prose>
-      <h1>{title}</h1>
-      <p>A total of {pluralize('report', count, true)} will be printed.</p>
-    </Prose>
-  );
+  OPEN_POLLS_FLOW__CONFIRM = 'open polls flow: confirm',
+  OPEN_POLLS_FLOW__PROCESSING = 'open polls flow: processing',
+  OPEN_POLLS_FLOW__COMPLETE = 'open polls flow: complete',
+  CLOSE_POLLS_FLOW__CONFIRM = 'close polls flow: confirm',
+  CLOSE_POLLS_FLOW__PROCESSING = 'close polls flow: processing',
+  CLOSE_POLLS_FLOW__COMPLETE = 'close polls flow: complete',
 }
 
 const debug = makeDebug('precinct-scanner:pollworker-screen');
@@ -112,7 +87,6 @@ export function PollWorkerScreen({
     AppContext
   );
   assert(electionDefinition);
-  const [isHandlingTallyReport, setIsHandlingTallyReport] = useState(false);
   const [currentTally, setCurrentTally] = useState<FullElectionTally>();
   const [currentSubTallies, setCurrentSubTallies] = useState<
     ReadonlyMap<string, Tally>
@@ -286,7 +260,7 @@ export function PollWorkerScreen({
       debug(
         'Error saving tally information to card, trying again without precinct-specific data'
       );
-      // TODO show an error message if this attempt also fails
+      // TODO show an error message if this attempt also fails.
       await saveTallyToCard({
         ...fullTallyInformation,
         talliesByPrecinct: undefined,
@@ -299,120 +273,125 @@ export function PollWorkerScreen({
     await printer.print({ sides: 'one-sided' });
   }
 
-  const [confirmOpenPolls, setConfirmOpenPolls] = useState(false);
-  const [
-    pollWorkerFlowState,
-    setPollWorkerFlowState,
-  ] = useState<PollWorkerFlowState>(PollWorkerFlowState.INIT);
-  function openConfirmOpenPollsModal() {
-    return setConfirmOpenPolls(true);
-  }
-  function closeConfirmOpenPollsModal() {
-    return setConfirmOpenPolls(false);
-  }
-  async function openPollsAndHandleZeroReport() {
-    setIsHandlingTallyReport(true);
-    if (hasPrinterAttached) {
-      await printTallyReport();
-    } else {
-      await saveTally();
-    }
-    togglePollsOpen();
-    setIsHandlingTallyReport(false);
-    setPollWorkerFlowState(PollWorkerFlowState.POLLS_OPENED_COMPLETE);
-    closeConfirmOpenPollsModal();
+  const [pollWorkerFlowState, setPollWorkerFlowState] = useState<
+    PollWorkerFlowState | undefined
+  >(
+    isPollsOpen
+      ? PollWorkerFlowState.CLOSE_POLLS_FLOW__CONFIRM
+      : PollWorkerFlowState.OPEN_POLLS_FLOW__CONFIRM
+  );
+  function showAllPollWorkerActions() {
+    return setPollWorkerFlowState(undefined);
   }
 
-  const [confirmClosePolls, setConfirmClosePolls] = useState(false);
-  function openConfirmClosePollsModal() {
-    return setConfirmClosePolls(true);
-  }
-  function closeConfirmClosePollsModal() {
-    return setConfirmClosePolls(false);
-  }
-  async function closePollsAndHandleTabulationReport() {
-    setIsHandlingTallyReport(true);
+  async function openPolls() {
+    setPollWorkerFlowState(PollWorkerFlowState.OPEN_POLLS_FLOW__PROCESSING);
     if (hasPrinterAttached) {
       await printTallyReport();
     } else {
       await saveTally();
     }
     togglePollsOpen();
-    setIsHandlingTallyReport(false);
-    setPollWorkerFlowState(
-      scannedBallotCount > 0
-        ? PollWorkerFlowState.POLLS_CLOSED_NEEDS_EXPORT
-        : PollWorkerFlowState.POLLS_CLOSED_COMPLETE
-    );
-    closeConfirmClosePollsModal();
+    setPollWorkerFlowState(PollWorkerFlowState.OPEN_POLLS_FLOW__COMPLETE);
+  }
+
+  async function closePolls() {
+    setPollWorkerFlowState(PollWorkerFlowState.CLOSE_POLLS_FLOW__PROCESSING);
+    if (hasPrinterAttached) {
+      await printTallyReport();
+    } else {
+      await saveTally();
+    }
+    if (scannedBallotCount > 0) {
+      // TODO export results to mounted USB Drive
+    }
+    togglePollsOpen();
+    setPollWorkerFlowState(PollWorkerFlowState.CLOSE_POLLS_FLOW__COMPLETE);
   }
 
   const precinctName = precinct === undefined ? 'All Precincts' : precinct.name;
   const currentTime = Date.now();
 
-  if (pollWorkerFlowState === PollWorkerFlowState.POLLS_OPENED_COMPLETE) {
+  if (pollWorkerFlowState === PollWorkerFlowState.OPEN_POLLS_FLOW__CONFIRM) {
     return (
-      <CenteredScreen>
+      <CenteredScreen infoBarMode="pollworker">
         <CenteredLargeProse>
+          <p>Do you want to open the polls?</p>
+          <p>
+            <Button primary onPress={openPolls}>
+              Yes, Open the Polls
+            </Button>{' '}
+            <Button onPress={showAllPollWorkerActions}>No</Button>
+          </p>
+        </CenteredLargeProse>
+      </CenteredScreen>
+    );
+  }
+
+  if (pollWorkerFlowState === PollWorkerFlowState.OPEN_POLLS_FLOW__PROCESSING) {
+    return (
+      <CenteredScreen infoBarMode="pollworker">
+        <IndeterminateProgressBar />
+        <CenteredLargeProse>
+          <h1>Opening Polls…</h1>
+        </CenteredLargeProse>
+      </CenteredScreen>
+    );
+  }
+
+  if (pollWorkerFlowState === PollWorkerFlowState.OPEN_POLLS_FLOW__COMPLETE) {
+    return (
+      <CenteredScreen infoBarMode="pollworker">
+        <CenteredLargeProse>
+          <h1>Polls are open.</h1>
           {hasPrinterAttached ? (
-            <React.Fragment>
-              <h1>Polls are open.</h1>
-              <p>You may remove the poll worker card.</p>
-            </React.Fragment>
+            <p>Remove the poll worker card.</p>
           ) : (
-            <React.Fragment>
-              <h1>Print the Open Polls Report</h1>
-              <p>
-                Insert the poll worker card into a VxMark to print the report.
-              </p>
-            </React.Fragment>
+            <p>Insert poll worker card into VxMark to print the report.</p>
           )}
         </CenteredLargeProse>
       </CenteredScreen>
     );
   }
 
-  if (pollWorkerFlowState === PollWorkerFlowState.POLLS_CLOSED_NEEDS_EXPORT) {
+  if (pollWorkerFlowState === PollWorkerFlowState.CLOSE_POLLS_FLOW__CONFIRM) {
     return (
-      <CenteredScreen>
-        <Prose textCenter>
+      <CenteredScreen infoBarMode="pollworker">
+        <CenteredLargeProse>
+          <p>Do you want to close the polls?</p>
           <p>
-            <Button primary onPress={() => setIsExportingResults(true)}>
-              Export Results to USB Drive
-            </Button>
+            <Button primary onPress={closePolls}>
+              Yes, Close the Polls
+            </Button>{' '}
+            <Button onPress={showAllPollWorkerActions}>No</Button>
           </p>
-        </Prose>
-        {isExportingResults && (
-          <ExportResultsModal
-            onClose={() => {
-              setIsExportingResults(false);
-              setPollWorkerFlowState(PollWorkerFlowState.POLLS_CLOSED_COMPLETE);
-            }}
-            usbDrive={usbDrive}
-            isTestMode={!isLiveMode}
-            scannedBallotCount={scannedBallotCount}
-          />
-        )}
+        </CenteredLargeProse>
       </CenteredScreen>
     );
   }
 
-  if (pollWorkerFlowState === PollWorkerFlowState.POLLS_CLOSED_COMPLETE) {
+  if (
+    pollWorkerFlowState === PollWorkerFlowState.CLOSE_POLLS_FLOW__PROCESSING
+  ) {
     return (
-      <CenteredScreen>
+      <CenteredScreen infoBarMode="pollworker">
+        <IndeterminateProgressBar />
         <CenteredLargeProse>
+          <h1>Closing Polls…</h1>
+        </CenteredLargeProse>
+      </CenteredScreen>
+    );
+  }
+
+  if (pollWorkerFlowState === PollWorkerFlowState.CLOSE_POLLS_FLOW__COMPLETE) {
+    return (
+      <CenteredScreen infoBarMode="pollworker">
+        <CenteredLargeProse>
+          <h1>Polls are closed.</h1>
           {hasPrinterAttached ? (
-            <React.Fragment>
-              <h1>Polls are closed.</h1>
-              <p>You may remove the poll worker card.</p>
-            </React.Fragment>
+            <p>Remove the poll worker card.</p>
           ) : (
-            <React.Fragment>
-              <h1>Print the Close Polls Report</h1>
-              <p>
-                Insert the poll worker card into a VxMark to print the report.
-              </p>
-            </React.Fragment>
+            <p>Insert poll worker card into VxMark to print the report.</p>
           )}
         </CenteredLargeProse>
       </CenteredScreen>
@@ -426,11 +405,11 @@ export function PollWorkerScreen({
           <h1>Poll Worker Actions</h1>
           <p>
             {isPollsOpen ? (
-              <Button primary large onPress={openConfirmClosePollsModal}>
+              <Button primary large onPress={openPolls}>
                 Close Polls for {precinctName}
               </Button>
             ) : (
-              <Button primary large onPress={openConfirmOpenPollsModal}>
+              <Button primary large onPress={closePolls}>
                 Open Polls for {precinctName}
               </Button>
             )}
@@ -454,64 +433,6 @@ export function PollWorkerScreen({
             </div>
           </Bar>
         </Absolute>
-        {(confirmOpenPolls || confirmClosePolls) && !currentTally && (
-          <Modal content={<Loading>Loading Tally</Loading>} />
-        )}
-        {confirmOpenPolls && currentTally && !isHandlingTallyReport && (
-          <Modal
-            content={
-              hasPrinterAttached ? (
-                <PrintReportInstructions
-                  title="Print the Open Polls Report"
-                  count={reportPurposes.length}
-                />
-              ) : (
-                <SaveAndPrintReportInstructions title="Save the Open Polls Report" />
-              )
-            }
-            actions={
-              <React.Fragment>
-                <Button onPress={openPollsAndHandleZeroReport} primary>
-                  {hasPrinterAttached ? 'Print' : 'Save'} Report and Open Polls
-                </Button>
-                <Button onPress={closeConfirmOpenPollsModal}>Cancel</Button>
-              </React.Fragment>
-            }
-          />
-        )}
-        {confirmClosePolls && currentTally && !isHandlingTallyReport && (
-          <Modal
-            content={
-              hasPrinterAttached ? (
-                <PrintReportInstructions
-                  title="Print the Close Polls Report"
-                  count={reportPurposes.length}
-                />
-              ) : (
-                <SaveAndPrintReportInstructions title="Save the Close Polls Report" />
-              )
-            }
-            actions={
-              <React.Fragment>
-                <Button onPress={closePollsAndHandleTabulationReport} primary>
-                  {hasPrinterAttached ? 'Print' : 'Save'} Report and Close Polls
-                </Button>
-                <Button onPress={closeConfirmClosePollsModal}>Cancel</Button>
-              </React.Fragment>
-            }
-          />
-        )}
-        {isHandlingTallyReport && (
-          <Modal
-            content={
-              <Loading>
-                {hasPrinterAttached
-                  ? 'Printing Tally Report'
-                  : 'Saving to Card'}
-              </Loading>
-            }
-          />
-        )}
         {isExportingResults && (
           <ExportResultsModal
             onClose={() => setIsExportingResults(false)}
@@ -520,6 +441,7 @@ export function PollWorkerScreen({
             scannedBallotCount={scannedBallotCount}
           />
         )}
+        {!currentTally && <Modal content={<Loading>Loading Tally</Loading>} />}
       </CenteredScreen>
       {currentTally &&
         reportPurposes.map((reportPurpose) => {
