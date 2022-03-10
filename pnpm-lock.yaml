@@ -587,7 +587,6 @@ importers:
       stylelint-config-palantir: 4.0.1_stylelint@13.8.0
       stylelint-config-prettier: 8.0.2_stylelint@13.8.0
       stylelint-config-styled-components: 0.1.1
-      stylelint-processor-styled-components: 1.10.0
     specifiers:
       '@codemod/parser': ^1.0.6
       '@testing-library/jest-dom': ^4.2.4
@@ -672,7 +671,6 @@ importers:
       stylelint-config-palantir: ^4.0.1
       stylelint-config-prettier: ^8.0.1
       stylelint-config-styled-components: ^0.1.1
-      stylelint-processor-styled-components: ^1.10.0
       typescript: ^4.3.5
       use-interval: ^1.2.1
       zip-stream: ^3.0.1
