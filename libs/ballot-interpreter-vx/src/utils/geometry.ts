@@ -74,12 +74,12 @@ export function median(numbers: ArrayLike<number>): number {
 
   const sorted = Array.from(numbers).sort();
 
+  const halfway = Math.ceil(sorted.length / 2 - 1);
   if (sorted.length % 2 === 0) {
-    const halfway = sorted.length / 2;
     return (sorted[halfway] + sorted[halfway + 1]) / 2;
   }
 
-  return sorted[Math.ceil(sorted.length / 2)];
+  return sorted[halfway];
 }
 
 /**
