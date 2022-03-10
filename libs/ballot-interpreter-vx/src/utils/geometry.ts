@@ -104,18 +104,3 @@ export function triangleArea(a: Point, b: Point, c: Point): number {
     (a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y)) / 2
   );
 }
-
-/**
- * Compute the area of a 4-sided polygon.
- */
-export function poly4Area([
-  topLeft,
-  topRight,
-  bottomLeft,
-  bottomRight,
-]: Corners): number {
-  return (
-    triangleArea(topLeft, bottomLeft, bottomRight) +
-    triangleArea(topLeft, topRight, bottomRight)
-  );
-}

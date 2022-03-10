@@ -1,16 +1,16 @@
 import {
   AnyContest,
+  BallotPageContestLayout,
+  BallotPageLayout,
   Contests,
   Corners,
   Rect,
-  BallotPageContestLayout,
-  BallotPageLayout,
 } from '@votingworks/types';
 import { zip } from '@votingworks/utils';
 import makeDebug from 'debug';
 import { PIXEL_BLACK } from '../utils/binarize';
 import { getCorners } from '../utils/corners';
-import { euclideanDistance, poly4Area } from '../utils/geometry';
+import { euclideanDistance } from '../utils/geometry';
 import { getImageChannelCount } from '../utils/image_format_utils';
 import { VisitedPoints } from '../utils/visited_points';
 import { findShape, parseRectangle, Shape } from './shapes';
@@ -238,17 +238,15 @@ export interface BallotLayoutCorrespondence {
   }>;
 }
 
+/**
+ * Determines whether the ballot layout matches the template layout.
+ */
 export function findBallotLayoutCorrespondence(
   contests: Contests,
   ballot: BallotPageLayout,
   template: BallotPageLayout,
-  { allowedScaleErrorRatio = 0.1 } = {}
+  { maxCorrespondenceError = 0.05 } = {}
 ): BallotLayoutCorrespondence {
-  const expectedAreaScale =
-    (ballot.pageSize.width * ballot.pageSize.height) /
-    (template.pageSize.width * template.pageSize.height);
-  const minAreaScale = expectedAreaScale * (1 - allowedScaleErrorRatio);
-  const maxAreaScale = expectedAreaScale * (1 + allowedScaleErrorRatio);
   const mismatchedContests: BallotLayoutCorrespondence['mismatchedContests'] = [];
 
   for (const [definition, templateContest, ballotContest] of zip(
@@ -256,10 +254,41 @@ export function findBallotLayoutCorrespondence(
     template.contests,
     ballot.contests
   )) {
-    const templateArea = poly4Area(templateContest.corners);
-    const ballotArea = poly4Area(ballotContest.corners);
-    const areaScale = ballotArea / templateArea;
-    if (areaScale < minAreaScale || areaScale > maxAreaScale) {
+    const [
+      templateTopLeft,
+      templateTopRight,
+      templateBottomLeft,
+    ] = templateContest.corners;
+    const [
+      ballotTopLeft,
+      ballotTopRight,
+      ballotBottomLeft,
+    ] = ballotContest.corners;
+    const templateContestWidth = euclideanDistance(
+      templateTopLeft,
+      templateTopRight
+    );
+    const ballotContestWidth = euclideanDistance(ballotTopLeft, ballotTopRight);
+    const templateContestHeight = euclideanDistance(
+      templateTopLeft,
+      templateBottomLeft
+    );
+    const ballotContestHeight = euclideanDistance(
+      ballotTopLeft,
+      ballotBottomLeft
+    );
+
+    // The closer this value is to 1, the better the correspondence between the
+    // template and the ballot contest shapes.
+    const correspondence =
+      (ballotContestWidth / templateContestWidth) *
+      (templateContestHeight / ballotContestHeight);
+
+    // How far from perfect is this correspondence?
+    const correspondenceError = Math.abs(1 - correspondence);
+
+    // If the correspondence is too far from perfect, count it as a mismatch.
+    if (correspondenceError > maxCorrespondenceError) {
       mismatchedContests.push({
         definition,
         template: templateContest,

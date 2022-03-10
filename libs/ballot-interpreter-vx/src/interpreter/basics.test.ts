@@ -37,6 +37,13 @@ test('takes the mark score vote threshold from the election definition if presen
   expect(interpreter['markScoreVoteThreshold']).toEqual(0.99);
 });
 
+/**
+ * Because this image has a cropped contest, it should not correspond to the
+ * template. The cropped contest has a correspondence error of ~0.09, which is
+ * higher than the maximum default correspondence error of 0.05.
+ *
+ * @see {@link findBallotLayoutCorrespondence}
+ */
 test('rejects an incorrect-but-plausible contest layout', async () => {
   const fixtures = choctaw2020LegalSize;
   const interpreter = new Interpreter({
