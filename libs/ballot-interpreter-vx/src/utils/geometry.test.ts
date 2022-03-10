@@ -3,6 +3,7 @@ import { randomInt } from '../../test/utils';
 import {
   angleBetweenPoints,
   flipRectVerticalAndHorizontal,
+  median,
   rectCenter,
   rectCorners,
   roundPoint,
@@ -136,4 +137,12 @@ test('triangleArea', () => {
   expect(triangleArea({ x: 0, y: 0 }, { x: 3, y: 3 }, { x: 4, y: 0 })).toEqual(
     6
   );
+});
+
+test('median', () => {
+  expect(() => median([])).toThrow();
+  expect(median([1])).toEqual(1);
+  expect(median([1, 2])).toEqual(1.5);
+  expect(median([1, 3, 2])).toEqual(2);
+  expect(median([1, 3, 2, 4])).toEqual(2.5);
 });
