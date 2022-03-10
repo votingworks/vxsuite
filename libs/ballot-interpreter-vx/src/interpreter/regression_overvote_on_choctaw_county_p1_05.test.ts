@@ -14,14 +14,14 @@ test('regression: overvote on choctaw county p1-05', async () => {
     )
   );
   const interpretation = await interpreter.interpretBallot(
-    await fixtures.filledInPage1_05.imageData()
+    await fixtures.p1BestCaseScenario.imageData()
   );
 
   expect(interpretation.marks.map((mark) => [mark.score, mark.optionId]))
     .toMatchInlineSnapshot(`
     Array [
       Array [
-        0.0053475935828877,
+        0,
         "775032091",
       ],
       Array [
@@ -29,19 +29,19 @@ test('regression: overvote on choctaw county p1-05', async () => {
         "775032092",
       ],
       Array [
-        0.002717391304347826,
+        0,
         "775032126",
       ],
       Array [
-        0,
+        0.0026595744680851063,
         "775032100",
       ],
       Array [
-        0.005434782608695652,
+        0.015957446808510637,
         "775032096",
       ],
       Array [
-        0.8913043478260869,
+        0.568,
         "775032099",
       ],
       Array [
@@ -53,7 +53,7 @@ test('regression: overvote on choctaw county p1-05', async () => {
         "775032117",
       ],
       Array [
-        0.005434782608695652,
+        0,
         "775032098",
       ],
       Array [
@@ -61,27 +61,27 @@ test('regression: overvote on choctaw county p1-05', async () => {
         "__write-in-0",
       ],
       Array [
-        0,
+        0.005319148936170213,
         "775032093",
       ],
       Array [
-        0.008152173913043478,
+        0,
         "775032094",
       ],
       Array [
-        0.8913043478260869,
+        0.5238095238095238,
         "775032105",
       ],
       Array [
-        0,
+        0.0026666666666666666,
         "__write-in-0",
       ],
       Array [
-        0,
+        0.002631578947368421,
         "775032084",
       ],
       Array [
-        0.8913043478260869,
+        0.6587926509186351,
         "775032085",
       ],
       Array [
@@ -89,31 +89,31 @@ test('regression: overvote on choctaw county p1-05', async () => {
         "__write-in-0",
       ],
       Array [
-        0.002717391304347826,
+        0.016216216216216217,
         "775032082",
       ],
       Array [
-        0.8913043478260869,
+        0.7024128686327078,
         "775032110",
       ],
       Array [
-        0.00267379679144385,
+        0,
         "__write-in-0",
       ],
       Array [
-        0.8983957219251337,
+        0.7681940700808625,
         "775032689",
       ],
       Array [
-        0.008152173913043478,
+        0,
         "__write-in-0",
       ],
       Array [
-        0.8913043478260869,
+        0.774798927613941,
         "775032690",
       ],
       Array [
-        0,
+        0.002680965147453083,
         "__write-in-0",
       ],
     ]

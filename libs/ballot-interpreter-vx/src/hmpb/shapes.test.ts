@@ -6,13 +6,13 @@ import { findShape, parseRectangle } from './shapes';
 test('target size', async () => {
   const imageData = await fixtures.district5BlankPage1.imageData();
   binarize(imageData);
-  expect(findShape(imageData, { x: 451, y: 1325 }).bounds)
+  expect(findShape(imageData, { x: 464, y: 164 }).bounds)
     .toMatchInlineSnapshot(`
     Object {
       "height": 22,
       "width": 32,
-      "x": 451,
-      "y": 1315,
+      "x": 454,
+      "y": 163,
     }
   `);
 });

@@ -64,7 +64,7 @@ test('rejects an incorrect-but-plausible contest layout', async () => {
 
   try {
     await interpreter.interpretBallot(
-      await fixtures.filledInPage2_06.imageData(),
+      await fixtures.p2EvenContestBoxFoldGaps.imageData(),
       p2.ballotPageLayout.metadata
     );
     fail('expected interpretation to fail');
