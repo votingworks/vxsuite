@@ -128,6 +128,9 @@ export function SmartcardsScreen(): JSX.Element {
     setIsProgrammingCard(false);
   }
   async function programAdminCard(passcode: string) {
+    // automatically override write protection when writing a new admin card
+    await overrideWriteProtection();
+
     assert(currentUserSession); // TODO(auth) check permissions for writing smartcards
     await logger.log(LogEventId.SmartcardProgramInit, currentUserSession.type, {
       message: 'Programming an admin card...',
