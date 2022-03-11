@@ -154,6 +154,18 @@ test('GET /config/testMode', async () => {
   });
 });
 
+test('GET /config/hasExportedBackup', async () => {
+  workspace.store.setElection(testElectionDefinition);
+  workspace.store.setHasExportedBackup(true);
+  const response = await request(app)
+    .get('/config/hasExportedBackup')
+    .expect(200);
+  expect(response.body).toEqual({
+    status: 'ok',
+    hasExportedBackup: true,
+  });
+});
+
 test('GET /config/markThresholdOverrides', async () => {
   workspace.store.setElection(testElectionDefinition);
   workspace.store.setTestMode(true);

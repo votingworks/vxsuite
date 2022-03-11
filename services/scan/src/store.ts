@@ -55,6 +55,7 @@ export enum ConfigKey {
   Election = 'election',
   TestMode = 'testMode',
   MarkThresholdOverrides = 'markThresholdOverrides',
+  HasExportedBackup = 'hasExportedBackup',
   // @deprecated
   SkipElectionHashCheck = 'skipElectionHashCheck',
   CurrentPrecinctId = 'currentPrecinctId',
@@ -211,6 +212,13 @@ export class Store {
   }
 
   /**
+   * Gets whether a backup has been exported.
+   */
+  getHasExportedBackup(): boolean {
+    return this.getConfig(ConfigKey.HasExportedBackup, false, z.boolean());
+  }
+
+  /**
    * Gets whether to skip election hash checks.
    */
   getSkipElectionHashCheck(): boolean {
@@ -222,6 +230,13 @@ export class Store {
    */
   setTestMode(testMode: boolean): void {
     this.setConfig(ConfigKey.TestMode, testMode);
+  }
+
+  /**
+   * Sets whether a backup has been exported.
+   */
+  setHasExportedBackup(hasExportedBackup: boolean): void {
+    this.setConfig(ConfigKey.HasExportedBackup, hasExportedBackup);
   }
 
   /**

@@ -156,6 +156,25 @@ export type DeleteElectionConfigResponse = OkResponse;
 export const DeleteElectionConfigResponseSchema: z.ZodSchema<DeleteElectionConfigResponse> = OkResponseSchema;
 
 /**
+ * @url /config/hasExportedBackup
+ * @method GET
+ */
+export type GetHasExportedBackupConfigResponse = OkResponse<{
+  hasExportedBackup: boolean;
+}>;
+
+/**
+ * @url /config/hasExportedBackup
+ * @method GET
+ */
+export const GetHasExportedBackupConfigResponseSchema: z.ZodSchema<GetHasExportedBackupConfigResponse> = z.object(
+  {
+    status: z.literal('ok'),
+    hasExportedBackup: z.boolean(),
+  }
+);
+
+/**
  * @url /config/package
  * @method PUT
  */

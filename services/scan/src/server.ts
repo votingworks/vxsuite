@@ -25,6 +25,7 @@ import {
   ExportResponse,
   GetCurrentPrecinctConfigResponse,
   GetElectionConfigResponse,
+  GetHasExportedBackupConfigResponse,
   GetMarkThresholdOverridesConfigResponse,
   GetNextReviewSheetResponse,
   GetScanStatusResponse,
@@ -247,6 +248,14 @@ export function buildApp({ store, importer }: AppOptions): Application {
 
       await importer.setTestMode(bodyParseResult.ok().testMode);
       response.json({ status: 'ok' });
+    }
+  );
+
+  app.get<NoParams, GetHasExportedBackupConfigResponse>(
+    '/config/hasExportedBackup',
+    async (_request, response) => {
+      const hasExportedBackup = store.getHasExportedBackup();
+      response.json({ status: 'ok', hasExportedBackup });
     }
   );
 
