@@ -7,62 +7,61 @@ export const electionDefinition = safeParseElectionDefinition(
   readFileSync(join(__dirname, 'election.json'), 'utf-8')
 ).unsafeUnwrap();
 export const { election } = electionDefinition;
-export const filledInPage1_01 = new Fixture(
-  join(__dirname, 'filled-in-p1-01.png')
+
+/**
+ * This ballot is well-marked, scanned straight, has no artifacts, etc.
+ */
+export const p1BestCaseScenario = new Fixture(
+  join(__dirname, 'p1-best-case-scenario.jpeg')
 );
-export const filledInPage1_02 = new Fixture(
-  join(__dirname, 'filled-in-p1-02.png')
+
+/**
+ * This one has contest bounding boxes that overlap with each other.
+ */
+export const p1OverlappingBoundingBoxes = new Fixture(
+  join(__dirname, 'p1-overlapping-bounding-boxes.jpeg')
 );
-export const filledInPage1_03 = new Fixture(
-  join(__dirname, 'filled-in-p1-03.png')
-);
-export const filledInPage1_04 = new Fixture(
-  join(__dirname, 'filled-in-p1-04.png')
-);
-export const filledInPage1_05 = new Fixture(
-  join(__dirname, 'filled-in-p1-05.png')
-);
-export const filledInPage1_06 = new Fixture(
-  join(__dirname, 'filled-in-p1-06.png')
-);
-export const filledInPage2 = new Fixture(join(__dirname, 'filled-in-p2.png'));
-export const filledInPage2_02 = new Fixture(
-  join(__dirname, 'filled-in-p2-02.png')
-);
-export const filledInPage2_03 = new Fixture(
-  join(__dirname, 'filled-in-p2-03.png')
-);
-export const filledInPage2_04 = new Fixture(
-  join(__dirname, 'filled-in-p2-04.png')
-);
+
+/**
+ * This one is a little skewed/rotated.
+ */
+export const p2Skewed = new Fixture(join(__dirname, 'p2-skewed.jpeg'));
+
 /**
  * This one has uneven gaps due to folds on the either/neither contest.
  */
-export const filledInPage2_05 = new Fixture(
-  join(__dirname, 'filled-in-p2-05.png')
+export const p2UnevenContestBoxFoldGaps = new Fixture(
+  join(__dirname, 'p2-uneven-contest-box-fold-gaps.png')
 );
+
 /**
  * This one has even gaps due to folds on the either/neither contest.
  */
-export const filledInPage2_06 = new Fixture(
-  join(__dirname, 'filled-in-p2-06.png')
+export const p2EvenContestBoxFoldGaps = new Fixture(
+  join(__dirname, 'p2-even-contest-box-fold-gaps.png')
 );
+
 /**
  * This one has a fold line sticking out of a contest.
  */
-export const filledInPage2_07 = new Fixture(
-  join(__dirname, 'filled-in-p2-07.png')
+export const p2FoldLines = new Fixture(join(__dirname, 'p2-fold-lines.png'));
+
+/**
+ * Template image for District 5, page 1.
+ */
+export const district5BlankPage1 = new Fixture(
+  join(
+    __dirname,
+    'election-e5a8525177-precinct-district-5-id-6522-style-5-English-test-p1.jpeg'
+  )
 );
 
-export const district5BlankPage1 = new Fixture(
-  join(__dirname, 'ballot-p1.png')
-);
+/**
+ * Template image for District 5, page 2.
+ */
 export const district5BlankPage2 = new Fixture(
-  join(__dirname, 'ballot-p2.png')
-);
-export const eastWeirBlankPage1 = new Fixture(
-  join(__dirname, 'ballot-east-weir-p1.png')
-);
-export const eastWeirBlankPage2 = new Fixture(
-  join(__dirname, 'ballot-east-weir-p2.png')
+  join(
+    __dirname,
+    'election-e5a8525177-precinct-district-5-id-6522-style-5-English-test-p2.jpeg'
+  )
 );

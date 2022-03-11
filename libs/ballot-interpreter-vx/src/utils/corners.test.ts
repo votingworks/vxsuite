@@ -1,3 +1,8 @@
+import {
+  skewedLongContest,
+  topLeftCornerRegressionTest,
+  topRightCornerRegressionTest,
+} from '../../test/fixtures';
 import * as choctaw from '../../test/fixtures/choctaw-county-2020-general-election';
 import * as oaklawn from '../../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library';
 import * as hamilton from '../../test/fixtures/election-5c6e578acf-state-of-hamilton-2020';
@@ -61,54 +66,54 @@ test('skewed', async () => {
 });
 
 test('a little skewed', async () => {
-  const imageData = await choctaw.filledInPage2.imageData();
+  const imageData = await choctaw.p2Skewed.imageData();
   binarize(imageData);
 
-  expect(getCorners(findShape(imageData, { x: 80, y: 90 })))
+  expect(getCorners(findShape(imageData, { x: 193, y: 53 })))
     .toMatchInlineSnapshot(`
     Array [
       Object {
-        "x": 75,
-        "y": 88,
+        "x": 53,
+        "y": 51,
       },
       Object {
-        "x": 1237,
-        "y": 83,
+        "x": 825,
+        "y": 46,
       },
       Object {
-        "x": 86,
-        "y": 2522,
+        "x": 63,
+        "y": 1502,
       },
       Object {
-        "x": 1252,
-        "y": 2512,
+        "x": 835,
+        "y": 1495,
       },
     ]
   `);
 });
 
 test('regression: choctaw county filled-in-p1-01', async () => {
-  const imageData = await choctaw.filledInPage1_01.imageData();
+  const imageData = await skewedLongContest.imageData();
   binarize(imageData);
 
-  expect(getCorners(findShape(imageData, { x: 930, y: 90 })))
+  expect(getCorners(findShape(imageData, { x: 80, y: 30 })))
     .toMatchInlineSnapshot(`
     Array [
       Object {
-        "x": 928,
-        "y": 86,
+        "x": 34,
+        "y": 27,
       },
       Object {
-        "x": 1690,
-        "y": 97,
+        "x": 796,
+        "y": 38,
       },
       Object {
-        "x": 899,
-        "y": 2882,
+        "x": 5,
+        "y": 2823,
       },
       Object {
-        "x": 1661,
-        "y": 2888,
+        "x": 767,
+        "y": 2829,
       },
     ]
   `);
@@ -142,108 +147,81 @@ test('regression: state of hamilton p4', async () => {
 });
 
 test('overlapping bounding boxes', async () => {
-  const imageData = await choctaw.filledInPage1_06.imageData();
+  const imageData = await choctaw.p1OverlappingBoundingBoxes.imageData();
   binarize(imageData);
 
-  expect(getCorners(findShape(imageData, { x: 870, y: 80 })))
+  expect(getCorners(findShape(imageData, { x: 605, y: 55 })))
     .toMatchInlineSnapshot(`
     Array [
       Object {
-        "x": 867,
-        "y": 79,
+        "x": 602,
+        "y": 53,
       },
       Object {
-        "x": 1630,
-        "y": 67,
+        "x": 1110,
+        "y": 63,
       },
       Object {
-        "x": 924,
-        "y": 2868,
+        "x": 562,
+        "y": 1982,
       },
       Object {
-        "x": 1685,
-        "y": 2848,
-      },
-    ]
-  `);
-});
-
-test('another issue', async () => {
-  const imageData = await choctaw.filledInPage2_02.imageData();
-  binarize(imageData);
-
-  expect(getCorners(findShape(imageData, { x: 150, y: 90 })))
-    .toMatchInlineSnapshot(`
-    Array [
-      Object {
-        "x": 90,
-        "y": 88,
-      },
-      Object {
-        "x": 1251,
-        "y": 88,
-      },
-      Object {
-        "x": 89,
-        "y": 2525,
-      },
-      Object {
-        "x": 1248,
-        "y": 2523,
+        "x": 1069,
+        "y": 1994,
       },
     ]
   `);
 });
 
 test('top-right corner bug', async () => {
-  const imageData = await choctaw.filledInPage2_03.imageData();
+  const imageData = await topRightCornerRegressionTest.imageData();
   binarize(imageData);
 
-  expect(getCorners(findShape(imageData, { x: 2450, y: 100 })))
+  expect(getCorners(findShape(imageData, { x: 1170, y: 20 })))
     .toMatchInlineSnapshot(`
     Array [
       Object {
-        "x": 1290,
-        "y": 98,
+        "x": 18,
+        "y": 10,
       },
       Object {
-        "x": 2451,
-        "y": 100,
+        "x": 1179,
+        "y": 12,
       },
       Object {
-        "x": 1292,
-        "y": 905,
+        "x": 20,
+        "y": 817,
       },
       Object {
-        "x": 2454,
-        "y": 902,
+        "x": 1182,
+        "y": 814,
       },
     ]
   `);
 });
 
 test('top-left corner bug', async () => {
-  const imageData = await choctaw.filledInPage2_04.imageData();
+  const imageData = await topLeftCornerRegressionTest.imageData();
   binarize(imageData);
 
-  expect(getCorners(findShape(imageData, { x: 100, y: 105 })))
+  expect(getCorners(findShape(imageData, { x: 50, y: 30 })))
     .toMatchInlineSnapshot(`
     Array [
       Object {
-        "x": 83,
-        "y": 105,
+        "x": 7,
+        "y": 25,
       },
       Object {
-        "x": 1246,
-        "y": 93,
+        "x": 1170,
+        "y": 13,
       },
       Object {
-        "x": 99,
-        "y": 2533,
+        "x": 23,
+        "y": 2453,
       },
       Object {
-        "x": 1261,
-        "y": 2530,
+        "x": 1185,
+        "y": 2450,
       },
     ]
   `);

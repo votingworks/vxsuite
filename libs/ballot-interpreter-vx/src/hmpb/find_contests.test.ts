@@ -1,12 +1,12 @@
 import {
-  filledInPage2_05,
-  filledInPage2_07,
+  p2UnevenContestBoxFoldGaps,
+  p2FoldLines,
 } from '../../test/fixtures/choctaw-county-2020-general-election';
 import { findContests } from './find_contests';
 
 test('repairs contests with small gaps', async () => {
   expect([
-    ...findContests(await filledInPage2_05.imageData(), {
+    ...findContests(await p2UnevenContestBoxFoldGaps.imageData(), {
       columns: [true, true],
     }),
   ]).toMatchInlineSnapshot(`
@@ -95,7 +95,7 @@ test('repairs contests with small gaps', async () => {
 
 test('handles fold lines sticking out of a contest', async () => {
   expect([
-    ...findContests(await filledInPage2_07.imageData(), {
+    ...findContests(await p2FoldLines.imageData(), {
       columns: [true, true],
     }),
   ]).toMatchInlineSnapshot(`
