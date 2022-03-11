@@ -619,7 +619,14 @@ export function AppRoot({
 
   const getCvrsFromExport = useCallback(async (): Promise<CastVoteRecord[]> => {
     if (electionDefinition) {
-      return await scan.getExport();
+      const castVoteRecordsString = await scan.getExport();
+
+      const lines = castVoteRecordsString.split('\n');
+      const cvrs = lines.flatMap((line) =>
+        line.length > 0 ? (JSON.parse(line) as CastVoteRecord) : []
+      );
+      // TODO add more validation of the CVR, move the validation code from election-manager to utils
+      return cvrs.filter((cvr) => cvr._precinctId !== undefined);
     }
     return [];
     // eslint-disable-next-line react-hooks/exhaustive-deps
