@@ -79,6 +79,14 @@ test('going through the whole process works', async () => {
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' });
 
+  // need to turn off test mode after election is loaded
+  await request(app)
+    .patch('/config/testMode')
+    .send({ testMode: false })
+    .set('Content-Type', 'application/json')
+    .set('Accept', 'application/json')
+    .expect(200, { status: 'ok' });
+
   const manifest: BallotPackageManifest = JSON.parse(
     await fs.readFile(join(electionFixturesRoot, 'manifest.json'), 'utf8')
   );
@@ -198,6 +206,14 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
     .patch('/config/election')
     .send(asElectionDefinition(election).electionData)
     .set('Content-Type', 'application/octet-stream')
+    .set('Accept', 'application/json')
+    .expect(200, { status: 'ok' });
+
+  // need to turn off test mode after election is loaded
+  await request(app)
+    .patch('/config/testMode')
+    .send({ testMode: false })
+    .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' });
 
@@ -350,6 +366,14 @@ test('ms-either-neither end-to-end', async () => {
     .patch('/config/election')
     .send(asElectionDefinition(election).electionData)
     .set('Content-Type', 'application/octet-stream')
+    .set('Accept', 'application/json')
+    .expect(200, { status: 'ok' });
+
+  // need to turn off test mode after election is loaded
+  await request(app)
+    .patch('/config/testMode')
+    .send({ testMode: false })
+    .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' });
 

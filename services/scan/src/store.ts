@@ -204,7 +204,8 @@ export class Store {
    * Gets the current test mode setting value.
    */
   getTestMode(): boolean {
-    return this.getConfig(ConfigKey.TestMode, false, z.boolean());
+    // service should default to test mode if not set
+    return this.getConfig(ConfigKey.TestMode, true, z.boolean());
   }
 
   /**
