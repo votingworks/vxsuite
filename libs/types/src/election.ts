@@ -4,7 +4,7 @@ import * as z from 'zod';
 import { Iso8601Timestamp, Iso8601TimestampSchema } from './api';
 import {
   Dictionary,
-  HexString,
+  ElectionHash,
   Id,
   IdSchema,
   Iso8601Date,
@@ -627,7 +627,7 @@ export const ElectionDefinitionSchema: z.ZodSchema<ElectionDefinition> = z.objec
   {
     election: ElectionSchema,
     electionData: z.string().nonempty(),
-    electionHash: HexString,
+    electionHash: ElectionHash,
   }
 );
 export type OptionalElectionDefinition = Optional<ElectionDefinition>;
@@ -901,7 +901,7 @@ export interface HmpbBallotPageMetadata {
 }
 export const HmpbBallotPageMetadataSchema: z.ZodSchema<HmpbBallotPageMetadata> = z.object(
   {
-    electionHash: HexString,
+    electionHash: ElectionHash,
     precinctId: PrecinctIdSchema,
     ballotStyleId: BallotStyleIdSchema,
     locales: BallotLocaleSchema,
@@ -917,7 +917,7 @@ export type BallotMetadata = Omit<
   'pageNumber' | 'ballotId'
 >;
 export const BallotMetadataSchema: z.ZodSchema<BallotMetadata> = z.object({
-  electionHash: HexString,
+  electionHash: ElectionHash,
   precinctId: PrecinctIdSchema,
   ballotStyleId: BallotStyleIdSchema,
   locales: BallotLocaleSchema,
@@ -1246,7 +1246,7 @@ export interface PollworkerCardData extends CardData {
 export const PollworkerCardDataSchema: z.ZodSchema<PollworkerCardData> = CardDataInternalSchema.extend(
   {
     t: z.literal('pollworker'),
-    h: HexString,
+    h: ElectionHash,
   }
 );
 
@@ -1260,7 +1260,7 @@ export interface AdminCardData extends CardData {
 export const AdminCardDataSchema: z.ZodSchema<AdminCardData> = CardDataInternalSchema.extend(
   {
     t: z.literal('admin'),
-    h: HexString,
+    h: ElectionHash,
     p: z.string().optional(),
   }
 );
