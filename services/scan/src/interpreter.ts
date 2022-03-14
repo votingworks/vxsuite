@@ -356,7 +356,7 @@ export class Interpreter {
         type: 'InterpretedBmdPage',
         ballotId: ballot.ballotId,
         metadata: {
-          electionHash: '',
+          electionHash: ballot.electionHash,
           ballotType: BallotType.Standard,
           locales: { primary: 'en-US' },
           ballotStyleId: ballot.ballotStyleId,
