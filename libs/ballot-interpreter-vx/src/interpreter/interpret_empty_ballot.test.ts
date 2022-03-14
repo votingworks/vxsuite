@@ -5,8 +5,8 @@ jest.setTimeout(10000);
 
 test('interpret empty ballot', async () => {
   const fixtures = oaklawn;
-  const { election } = fixtures;
-  const interpreter = new Interpreter({ election });
+  const { electionDefinition } = fixtures;
+  const interpreter = new Interpreter({ electionDefinition });
 
   await expect(
     interpreter.interpretBallot(await fixtures.blankPage1.imageData())

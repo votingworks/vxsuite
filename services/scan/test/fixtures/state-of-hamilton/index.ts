@@ -7,7 +7,12 @@ export const electionDefinition = safeParseElectionDefinition(
   electionJson
 ).unsafeUnwrap();
 export const { election } = electionDefinition;
+export const root = __dirname;
 export const ballotPdf = join(__dirname, 'ballot.pdf');
+export const filledInPage1Flipped = join(
+  __dirname,
+  'filled-in-dual-language-p1-flipped.jpg'
+);
 export const filledInPage1 = join(__dirname, 'filled-in-dual-language-p1.jpg');
 export const filledInPage2 = join(__dirname, 'filled-in-dual-language-p2.jpg');
 export const filledInPage3 = join(__dirname, 'filled-in-dual-language-p3.jpg');

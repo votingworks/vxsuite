@@ -4,8 +4,8 @@ import { Interpreter } from '.';
 jest.setTimeout(10000);
 
 test('choctaw general 2019', async () => {
-  const { election } = choctaw2019;
-  const interpreter = new Interpreter({ election });
+  const { electionDefinition } = choctaw2019;
+  const interpreter = new Interpreter({ electionDefinition });
 
   await interpreter.addTemplate(
     await interpreter.interpretTemplate(
@@ -123,8 +123,8 @@ test('choctaw general 2019', async () => {
 });
 
 test('determining layout of a ballot with borders', async () => {
-  const { election } = choctaw2019;
-  const interpreter = new Interpreter({ election });
+  const { electionDefinition } = choctaw2019;
+  const interpreter = new Interpreter({ electionDefinition });
 
   await interpreter.addTemplate(
     await interpreter.interpretTemplate(

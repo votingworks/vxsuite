@@ -5,8 +5,8 @@ jest.setTimeout(10000);
 
 test('interpret three-column template with instructions', async () => {
   const fixtures = oaklawn;
-  const { election } = fixtures;
-  const interpreter = new Interpreter({ election });
+  const { electionDefinition } = fixtures;
+  const interpreter = new Interpreter({ electionDefinition });
   const imageData = await fixtures.blankPage1.imageData();
   const template = await interpreter.interpretTemplate(imageData);
 
@@ -14,7 +14,7 @@ test('interpret three-column template with instructions', async () => {
     Object {
       "ballotStyleId": "77",
       "ballotType": 0,
-      "electionHash": "",
+      "electionHash": "e012488b8fd567899e4d1b931343ac74e9a8803e33adf8657ab27bbb4408a492",
       "isTestMode": false,
       "locales": Object {
         "primary": "en-US",

@@ -7,7 +7,7 @@ import { Entry, fromBuffer, ZipFile } from 'yauzl';
 import ZipStream from 'zip-stream';
 import { asElectionDefinition } from '@votingworks/fixtures';
 import { BallotIdSchema, BallotType, unsafeParse } from '@votingworks/types';
-import { election } from '../test/fixtures/2020-choctaw';
+import { election, electionDefinition } from '../test/fixtures/2020-choctaw';
 import { backup, Backup } from './backup';
 import { ConfigKey, Store } from './store';
 
@@ -97,7 +97,7 @@ test('unconfigured', async () => {
 
 test('configured', async () => {
   const store = Store.memoryStore();
-  store.setElection(asElectionDefinition(election));
+  store.setElection(electionDefinition);
   const result = new WritableStream();
   const onError = jest.fn();
 
@@ -144,7 +144,6 @@ test('has election.json', async () => {
 
 test('has ballots.db', async () => {
   const store = Store.memoryStore();
-  const electionDefinition = asElectionDefinition(election);
   store.setElection(electionDefinition);
   const output = new WritableStream();
 
@@ -169,7 +168,6 @@ test('has ballots.db', async () => {
 
 test('has all files referenced in the database', async () => {
   const store = Store.memoryStore();
-  const electionDefinition = asElectionDefinition(election);
   store.setElection(electionDefinition);
   const batchId = store.addBatch();
 
@@ -252,7 +250,7 @@ test('has all files referenced in the database', async () => {
 
 test('has cvrs.jsonl', async () => {
   const store = Store.memoryStore();
-  store.setElection(asElectionDefinition(election));
+  store.setElection(electionDefinition);
   const result = new WritableStream();
 
   const batchId = store.addBatch();
@@ -267,7 +265,7 @@ test('has cvrs.jsonl', async () => {
           ballotStyleId: '1',
           precinctId: '6522',
           ballotType: BallotType.Standard,
-          electionHash: '',
+          electionHash: electionDefinition.electionHash,
           isTestMode: false,
           locales: { primary: 'en-US' },
         },

@@ -54,10 +54,8 @@ export async function configure(store: Store): Promise<void> {
 
   debug('creating a new interpreter');
   interpreter = new Interpreter({
-    election: electionDefinition.election,
-    electionHash: store.getSkipElectionHashCheck()
-      ? undefined
-      : electionDefinition.electionHash,
+    electionDefinition,
+    skipElectionHashCheck: store.getSkipElectionHashCheck(),
     testMode: store.getTestMode(),
     markThresholdOverrides: store.getMarkThresholdOverrides(),
     adjudicationReasons: (SCANNER_LOCATION === ScannerLocation.Central

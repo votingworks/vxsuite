@@ -1,10 +1,10 @@
 import {
   Candidate,
-  Election,
+  ElectionDefinition,
   err,
   ok,
-  parseElection,
   Result,
+  safeParseElectionDefinition,
 } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/utils';
 import chalk from 'chalk';
@@ -31,7 +31,7 @@ export interface HelpOptions {
 
 export interface InterpretOptions {
   help: false;
-  election: Election;
+  electionDefinition: ElectionDefinition;
   testMode: boolean;
   templateInputs: readonly Input[];
   ballotInputs: readonly Input[];
@@ -92,7 +92,7 @@ export function printHelp(
 export async function parseOptions({
   commandArgs: args,
 }: GlobalOptions): Promise<Result<Options, Error>> {
-  let election: Election | undefined;
+  let electionDefinition: ElectionDefinition | undefined;
   let testMode = false;
   const templateInputs: Input[] = [];
   const ballotInputs: Input[] = [];
@@ -122,9 +122,9 @@ export async function parseOptions({
           );
         }
 
-        election = parseElection(
-          JSON.parse(await fs.readFile(electionJsonFile, 'utf8'))
-        );
+        electionDefinition = safeParseElectionDefinition(
+          await fs.readFile(electionJsonFile, 'utf8')
+        ).unsafeUnwrap();
         break;
       }
 
@@ -206,13 +206,13 @@ export async function parseOptions({
     }
   }
 
-  if (!election) {
+  if (!electionDefinition) {
     return err(new Error(`Required option 'election' is missing.`));
   }
 
   return ok({
     help: false,
-    election,
+    electionDefinition,
     testMode,
     templateInputs,
     ballotInputs,
@@ -243,7 +243,7 @@ export async function run(
   }
 
   const interpreter = new Interpreter({
-    election: options.election,
+    electionDefinition: options.electionDefinition,
     testMode: options.testMode,
     markScoreVoteThreshold: options.markScoreVoteThreshold,
   });
@@ -304,7 +304,7 @@ export async function run(
             chalk.bold('Contest'),
             ...results.map(({ input }) => chalk.bold(input.id())),
           ],
-          ...options.election.contests.map((contest) => [
+          ...options.electionDefinition.election.contests.map((contest) => [
             contest.title,
             ...results.map(({ interpreted }) => {
               const vote = interpreted.ballot.votes[contest.id];

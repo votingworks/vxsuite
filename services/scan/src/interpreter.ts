@@ -19,7 +19,7 @@ import {
   BallotPageLayoutWithImage,
   BallotPageMetadata,
   BallotType,
-  Election,
+  ElectionDefinition,
   err,
   InterpretedBmdPage,
   MarkThresholds,
@@ -147,41 +147,40 @@ export function sheetRequiresAdjudication([
 }
 
 export interface InterpreterOptions {
-  // TODO: consolidate these into an election definition
-  election: Election;
-  electionHash?: string;
-  // END TODO
+  electionDefinition: ElectionDefinition;
   testMode: boolean;
   markThresholdOverrides?: MarkThresholds;
+  skipElectionHashCheck?: boolean;
   adjudicationReasons: readonly AdjudicationReason[];
 }
 
 export class Interpreter {
   private hmpbInterpreter?: HmpbInterpreter;
-  private election: Election;
-  private electionHash?: string;
+  private electionDefinition: ElectionDefinition;
   private testMode: boolean;
   private markThresholds: MarkThresholds;
+  private skipElectionHashCheck?: boolean;
   private adjudicationReasons: readonly AdjudicationReason[];
 
   constructor({
-    election,
-    electionHash,
+    electionDefinition,
     testMode,
     markThresholdOverrides,
+    skipElectionHashCheck,
     adjudicationReasons,
   }: InterpreterOptions) {
-    this.election = election;
-    this.electionHash = electionHash;
+    this.electionDefinition = electionDefinition;
     this.testMode = testMode;
 
-    const markThresholds = markThresholdOverrides ?? election.markThresholds;
+    const markThresholds =
+      markThresholdOverrides ?? electionDefinition.election.markThresholds;
 
     if (!markThresholds) {
       throw new Error('missing mark thresholds');
     }
 
     this.markThresholds = markThresholds;
+    this.skipElectionHashCheck = skipElectionHashCheck;
     this.adjudicationReasons = adjudicationReasons;
   }
 
@@ -243,10 +242,10 @@ export class Interpreter {
     }
 
     const ballotImageData = result.ok();
-    if (typeof this.electionHash === 'string') {
+    if (!this.skipElectionHashCheck) {
       const actualElectionHash =
         decodeElectionHash(ballotImageData.qrcode.data) ?? 'not found';
-      const expectedElectionHash = this.electionHash.slice(
+      const expectedElectionHash = this.electionDefinition.electionHash.slice(
         0,
         ELECTION_HASH_LENGTH
       );
@@ -303,7 +302,7 @@ export class Interpreter {
         new TextDecoder().decode(ballotImageData.qrcode.data)
       );
       const metadata = metadataFromBytes(
-        this.election,
+        this.electionDefinition,
         Buffer.from(ballotImageData.qrcode.data)
       );
 
@@ -348,7 +347,7 @@ export class Interpreter {
     }
 
     debug('decoding BMD ballot: %o', qrcode);
-    const ballot = decodeBallot(this.election, qrcode.data);
+    const ballot = decodeBallot(this.electionDefinition.election, qrcode.data);
     debug('decoded BMD ballot: %o', ballot.votes);
 
     return {
@@ -380,7 +379,7 @@ export class Interpreter {
       metadata,
     } = await hmpbInterpreter.interpretBallot(
       image,
-      metadataFromBytes(this.election, Buffer.from(qrcode.data)),
+      metadataFromBytes(this.electionDefinition, Buffer.from(qrcode.data)),
       { flipped: qrcode.position === 'top' }
     );
     const { votes } = ballot;
@@ -390,13 +389,13 @@ export class Interpreter {
     const allReasonInfos: readonly AdjudicationReasonInfo[] = [
       ...ballotAdjudicationReasons(
         getContestsFromIds(
-          this.election,
+          this.electionDefinition.election,
           marks.map((m) => m.contestId)
         ),
         {
           optionMarkStatus: (contestId, optionId) =>
             optionMarkStatus({
-              contests: this.election.contests,
+              contests: this.electionDefinition.election.contests,
               markThresholds: this.markThresholds,
               marks,
               contestId,
@@ -459,7 +458,7 @@ export class Interpreter {
       }
 
       this.hmpbInterpreter = new HmpbInterpreter({
-        election: this.election,
+        electionDefinition: this.electionDefinition,
         testMode: this.testMode,
       });
     }

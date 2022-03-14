@@ -14,7 +14,7 @@ import {
   CandidateContest,
   CompletedBallot,
   Contests,
-  Election,
+  ElectionDefinition,
   getBallotStyle,
   getContests,
   MsEitherNeitherContest,
@@ -56,7 +56,7 @@ import { outline } from '../utils/outline';
 const debug = makeDebug('ballot-interpreter-vx:Interpreter');
 
 export interface Options {
-  readonly election: Election;
+  readonly electionDefinition: ElectionDefinition;
   readonly markScoreVoteThreshold?: number;
   readonly testMode?: boolean;
 }
@@ -100,15 +100,15 @@ export class Interpreter {
       pageNumber,
     ].join('-')
   );
-  private readonly election: Election;
+  private readonly electionDefinition: ElectionDefinition;
   private readonly testMode: boolean;
   private readonly markScoreVoteThreshold: number;
 
   constructor(options: Options) {
-    this.election = options.election;
+    this.electionDefinition = options.electionDefinition;
     this.markScoreVoteThreshold =
       options.markScoreVoteThreshold ??
-      this.election.markThresholds?.definite ??
+      this.electionDefinition.election.markThresholds?.definite ??
       DEFAULT_MARK_SCORE_VOTE_THRESHOLD;
     this.testMode = options.testMode ?? false;
   }
@@ -168,7 +168,7 @@ export class Interpreter {
     metadata?: BallotPageMetadata
   ): Promise<BallotPageLayoutWithImage> {
     return interpretTemplate({
-      election: this.election,
+      electionDefinition: this.electionDefinition,
       imageData,
       metadata,
     });
@@ -307,7 +307,9 @@ export class Interpreter {
    * Get the contests for the given template.
    */
   private getContestsForTemplate(template: BallotPageLayout): Contests {
-    const { election } = this;
+    const {
+      electionDefinition: { election },
+    } = this;
     const {
       locales,
       ballotStyleId,
@@ -348,7 +350,7 @@ export class Interpreter {
       ballotType: BallotType.Standard,
       isTestMode: metadata.isTestMode,
       precinctId: metadata.precinctId,
-      votes: getVotesFromMarks(this.election, marks, {
+      votes: getVotesFromMarks(this.electionDefinition.election, marks, {
         markScoreVoteThreshold,
       }),
     };
@@ -369,7 +371,7 @@ export class Interpreter {
       return { imageData, metadata };
     }
 
-    const detectResult = await detect(this.election, imageData);
+    const detectResult = await detect(this.electionDefinition, imageData);
 
     if (detectResult.flipped) {
       debug('detected image is flipped, correcting orientation');

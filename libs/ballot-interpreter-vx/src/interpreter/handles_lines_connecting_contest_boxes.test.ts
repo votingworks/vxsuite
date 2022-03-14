@@ -11,8 +11,8 @@ jest.setTimeout(10000);
  * someone draws lines connecting boxes then we can't distinguish them.
  */
 test.skip('handles lines connecting contest boxes', async () => {
-  const { election } = hamilton;
-  const interpreter = new Interpreter({ election });
+  const { electionDefinition } = hamilton;
+  const interpreter = new Interpreter({ electionDefinition });
 
   await interpreter.addTemplate(
     await interpreter.interpretTemplate(

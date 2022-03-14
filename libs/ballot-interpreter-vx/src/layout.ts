@@ -1,7 +1,7 @@
 import {
   BallotPageLayoutWithImage,
   BallotPageMetadata,
-  Election,
+  ElectionDefinition,
 } from '@votingworks/types';
 import { map, reversed } from '@votingworks/utils';
 import makeDebug from 'debug';
@@ -19,12 +19,12 @@ const debug = makeDebug('ballot-interpreter-vx:layout');
  * image, so make a copy if you need to keep the original.
  */
 export async function normalizeImageDataAndMetadata({
-  election,
+  electionDefinition,
   imageData,
   flipped = false,
   metadata,
 }: {
-  election: Election;
+  electionDefinition: ElectionDefinition;
   imageData: ImageData;
   flipped?: boolean;
   metadata?: BallotPageMetadata;
@@ -39,7 +39,7 @@ export async function normalizeImageDataAndMetadata({
     return { imageData, metadata };
   }
 
-  const detectResult = await detect(election, imageData);
+  const detectResult = await detect(electionDefinition, imageData);
 
   if (detectResult.flipped) {
     debug('detected image is flipped, correcting orientation');
@@ -83,11 +83,11 @@ export function findContestsWithUnknownColumnLayout(
  * i.e. rendered as an image from a PDF.
  */
 export async function interpretTemplate({
-  election,
+  electionDefinition,
   imageData,
   metadata,
 }: {
-  election: Election;
+  electionDefinition: ElectionDefinition;
   imageData: ImageData;
   metadata?: BallotPageMetadata;
 }): Promise<BallotPageLayoutWithImage> {
@@ -97,7 +97,7 @@ export async function interpretTemplate({
     imageData.height
   );
   const normalized = await normalizeImageDataAndMetadata({
-    election,
+    electionDefinition,
     imageData,
     metadata,
   });

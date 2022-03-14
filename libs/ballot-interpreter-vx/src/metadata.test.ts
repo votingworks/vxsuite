@@ -3,14 +3,14 @@ import { croppedQrCode } from '../test/fixtures';
 import * as choctaw2020Special from '../test/fixtures/choctaw-2020-09-22-f30480cc99';
 import {
   blankPage1 as urlQrCodePage1,
-  election as urlQrCodeElection,
+  electionDefinition as urlQrCodeElectionDefinition,
 } from '../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library';
 import { decodeSearchParams, detect } from './metadata';
 
 test('read base64-encoded binary metadata from QR code image', async () => {
   expect(
     await detect(
-      choctaw2020Special.election,
+      choctaw2020Special.electionDefinition,
       await choctaw2020Special.blankPage1.imageData()
     )
   ).toEqual({
@@ -35,6 +35,7 @@ describe('old-style URL-based metadata', () => {
   test('URL decoding', () => {
     expect(
       decodeSearchParams(
+        choctaw2020Special.electionDefinition,
         new URLSearchParams([
           ['t', 'tt'],
           ['pr', 'Acme & Co'],
@@ -50,7 +51,8 @@ describe('old-style URL-based metadata', () => {
       precinctId: 'Acme & Co',
       isTestMode: true,
       pageNumber: 2,
-      electionHash: '',
+      electionHash:
+        '51c1e18baa5050683a4e0e647c3835c5f6ba550fed8bac779029902bd5bad7a4',
       ballotType: BallotType.Standard,
     });
   });
@@ -58,6 +60,7 @@ describe('old-style URL-based metadata', () => {
   test('omitted secondary locale code', () => {
     expect(
       decodeSearchParams(
+        choctaw2020Special.electionDefinition,
         new URLSearchParams([
           ['t', 'tt'],
           ['pr', 'Acme & Co'],
@@ -72,7 +75,8 @@ describe('old-style URL-based metadata', () => {
       precinctId: 'Acme & Co',
       isTestMode: true,
       pageNumber: 2,
-      electionHash: '',
+      electionHash:
+        '51c1e18baa5050683a4e0e647c3835c5f6ba550fed8bac779029902bd5bad7a4',
       ballotType: BallotType.Standard,
     });
   });
@@ -80,6 +84,7 @@ describe('old-style URL-based metadata', () => {
   test('live mode', () => {
     expect(
       decodeSearchParams(
+        choctaw2020Special.electionDefinition,
         new URLSearchParams([
           ['t', '_t'],
           ['pr', ''],
@@ -93,13 +98,16 @@ describe('old-style URL-based metadata', () => {
 
   test('cropped QR code', async () => {
     await expect(
-      detect(urlQrCodeElection, await croppedQrCode.imageData())
+      detect(urlQrCodeElectionDefinition, await croppedQrCode.imageData())
     ).rejects.toThrow('Expected QR code not found.');
   });
 
   test('ballot', async () => {
     expect(
-      await detect(urlQrCodeElection, await urlQrCodePage1.imageData())
+      await detect(
+        urlQrCodeElectionDefinition,
+        await urlQrCodePage1.imageData()
+      )
     ).toEqual({
       metadata: {
         locales: { primary: 'en-US' },
@@ -107,7 +115,7 @@ describe('old-style URL-based metadata', () => {
         precinctId: '42',
         isTestMode: false,
         pageNumber: 1,
-        electionHash: '',
+        electionHash: urlQrCodeElectionDefinition.electionHash,
         ballotType: BallotType.Standard,
       },
       flipped: false,
@@ -117,7 +125,7 @@ describe('old-style URL-based metadata', () => {
   test('upside-down ballot images', async () => {
     expect(
       await detect(
-        urlQrCodeElection,
+        urlQrCodeElectionDefinition,
         await urlQrCodePage1.imageData({ flipped: true })
       )
     ).toEqual({
@@ -127,7 +135,7 @@ describe('old-style URL-based metadata', () => {
         precinctId: '42',
         isTestMode: false,
         pageNumber: 1,
-        electionHash: '',
+        electionHash: urlQrCodeElectionDefinition.electionHash,
         ballotType: BallotType.Standard,
       },
       flipped: true,

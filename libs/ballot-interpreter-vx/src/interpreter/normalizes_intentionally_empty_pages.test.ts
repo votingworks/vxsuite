@@ -5,8 +5,8 @@ jest.setTimeout(10000);
 
 test('normalizes intentionally-empty pages correctly', async () => {
   const fixtures = choctaw2020Special;
-  const { election } = fixtures;
-  const interpreter = new Interpreter({ election });
+  const { electionDefinition } = fixtures;
+  const interpreter = new Interpreter({ electionDefinition });
 
   await interpreter.addTemplate(
     await interpreter.interpretTemplate(await fixtures.blankPage1.imageData())

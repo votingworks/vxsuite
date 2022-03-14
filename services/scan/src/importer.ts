@@ -123,7 +123,7 @@ export class Importer {
     }
 
     const interpreter = new Interpreter({
-      election: electionDefinition.election,
+      electionDefinition,
     });
     for await (const { page, pageNumber } of pdfToImages(pdf, {
       scale: 2,
@@ -242,7 +242,7 @@ export class Importer {
     const [
       frontDetectQrcodeOutput,
       backDetectQrcodeOutput,
-    ] = qrcodeWorker.normalizeSheetOutput(electionDefinition.election, [
+    ] = qrcodeWorker.normalizeSheetOutput(electionDefinition, [
       (await frontDetectQrcodePromise) as qrcodeWorker.Output,
       (await backDetectQrcodePromise) as qrcodeWorker.Output,
     ]);

@@ -7,8 +7,8 @@ jest.setTimeout(10000);
 
 test('can interpret a template that is not in the same mode as the interpreter', async () => {
   const fixtures = oaklawn;
-  const { election } = fixtures;
-  const interpreter = new Interpreter({ election, testMode: true });
+  const { electionDefinition } = fixtures;
+  const interpreter = new Interpreter({ electionDefinition, testMode: true });
 
   expect(
     (
@@ -22,13 +22,16 @@ test('can interpret a template that is not in the same mode as the interpreter',
 
 test('takes the mark score vote threshold from the election definition if present', () => {
   const fixtures = oaklawn;
-  const { election } = fixtures;
+  const { electionDefinition } = fixtures;
   const interpreter = new Interpreter({
-    election: {
-      ...election,
-      markThresholds: {
-        definite: 0.99,
-        marginal: 0.98,
+    electionDefinition: {
+      ...electionDefinition,
+      election: {
+        ...electionDefinition.election,
+        markThresholds: {
+          definite: 0.99,
+          marginal: 0.98,
+        },
       },
     },
   });
@@ -47,7 +50,7 @@ test('takes the mark score vote threshold from the election definition if presen
 test('rejects an incorrect-but-plausible contest layout', async () => {
   const fixtures = choctaw2020LegalSize;
   const interpreter = new Interpreter({
-    election: fixtures.election,
+    electionDefinition: fixtures.electionDefinition,
     testMode: true,
   });
 

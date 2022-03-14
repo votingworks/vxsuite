@@ -1,7 +1,7 @@
 import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
 import {
-  asElectionDefinition,
   electionSample as election,
+  electionSampleDefinition as electionDefinition,
 } from '@votingworks/fixtures';
 import {
   BallotPageMetadata,
@@ -49,7 +49,7 @@ test('startImport calls scanner.scanSheet', async () => {
     'no election configuration'
   );
 
-  importer.configure(asElectionDefinition(election));
+  importer.configure(electionDefinition);
 
   // failed scan
   const batchControl: BatchControl = {
@@ -101,7 +101,7 @@ test('unconfigure clears all data.', async () => {
     scanner,
   });
 
-  importer.configure(asElectionDefinition(election));
+  importer.configure(electionDefinition);
   expect(workspace.store.getElectionDefinition()).toBeDefined();
   await importer.unconfigure();
   expect(workspace.store.getElectionDefinition()).toBeUndefined();
@@ -120,7 +120,7 @@ test('setTestMode zeroes and sets test mode on the interpreter', async () => {
 
   const frontMetadata: BallotPageMetadata = {
     locales: { primary: 'en-US' },
-    electionHash: '',
+    electionHash: electionDefinition.electionHash,
     ballotType: BallotType.Standard,
     ballotStyleId: election.ballotStyles[0].id,
     precinctId: election.precincts[0].id,
@@ -131,7 +131,7 @@ test('setTestMode zeroes and sets test mode on the interpreter', async () => {
     ...frontMetadata,
     pageNumber: 2,
   };
-  importer.configure(asElectionDefinition(election));
+  importer.configure(electionDefinition);
   const batchId = workspace.store.addBatch();
   workspace.store.addSheet(uuid(), batchId, [
     {
@@ -196,7 +196,7 @@ test('cannot add HMPB templates before configuring an election', async () => {
 
   await expect(
     importer.addHmpbTemplates(Buffer.of(), {
-      electionHash: '',
+      electionHash: electionDefinition.electionHash,
       ballotType: BallotType.Standard,
       locales: { primary: 'en-US' },
       ballotStyleId: '77',
@@ -226,7 +226,7 @@ test('manually importing files', async () => {
   });
 
   const frontMetadata: BallotPageMetadata = {
-    electionHash: '',
+    electionHash: electionDefinition.electionHash,
     ballotType: BallotType.Standard,
     locales: { primary: 'en-US' },
     ballotStyleId: election.ballotStyles[0].id,
@@ -238,7 +238,7 @@ test('manually importing files', async () => {
     ...frontMetadata,
     pageNumber: 2,
   };
-  workspace.store.setElection(asElectionDefinition(election));
+  workspace.store.setElection(electionDefinition);
 
   const frontImagePath = await makeImageFile();
   const backImagePath = await makeImageFile();
@@ -345,7 +345,7 @@ test('scanning pauses on adjudication then continues', async () => {
     scanner,
   });
 
-  importer.configure(asElectionDefinition(election));
+  importer.configure(electionDefinition);
 
   jest.spyOn(workspace.store, 'deleteSheet');
   jest.spyOn(workspace.store, 'adjudicateSheet');
@@ -456,7 +456,7 @@ test('importing a sheet normalizes and orders HMPB pages', async () => {
     workerPoolProvider,
   });
 
-  importer.configure(asElectionDefinition(election));
+  importer.configure(electionDefinition);
   jest.spyOn(workspace.store, 'addSheet').mockReturnValueOnce('sheet-id');
 
   workerCall.mockImplementationOnce(async (input) => {
@@ -467,7 +467,7 @@ test('importing a sheet normalizes and orders HMPB pages', async () => {
     ballotStyleId: election.ballotStyles[0].id,
     precinctId: election.precincts[0].id,
     ballotType: BallotType.Standard,
-    electionHash: '',
+    electionHash: electionDefinition.electionHash,
     isTestMode: false,
     locales: { primary: 'en-US' },
     pageNumber: 1,
@@ -581,7 +581,7 @@ test('rejects pages that do not match the current precinct', async () => {
     workerPoolProvider,
   });
 
-  importer.configure(asElectionDefinition(election));
+  importer.configure(electionDefinition);
   workspace.store.setCurrentPrecinctId(election.precincts[1].id);
   jest.spyOn(workspace.store, 'addSheet').mockReturnValueOnce('sheet-id');
 
@@ -593,7 +593,7 @@ test('rejects pages that do not match the current precinct', async () => {
     ballotStyleId: election.ballotStyles[0].id,
     precinctId: election.precincts[0].id,
     ballotType: BallotType.Standard,
-    electionHash: '',
+    electionHash: electionDefinition.electionHash,
     isTestMode: false,
     locales: { primary: 'en-US' },
     pageNumber: 1,
@@ -710,7 +710,7 @@ test('rejects sheets that would not produce a valid CVR', async () => {
   });
 
   const currentPrecinctId = election.precincts[0].id;
-  importer.configure(asElectionDefinition(election));
+  importer.configure(electionDefinition);
   workspace.store.setCurrentPrecinctId(currentPrecinctId);
   jest.spyOn(workspace.store, 'addSheet').mockReturnValueOnce('sheet-id');
 
@@ -722,7 +722,7 @@ test('rejects sheets that would not produce a valid CVR', async () => {
     ballotStyleId: election.ballotStyles[0].id,
     precinctId: currentPrecinctId,
     ballotType: BallotType.Standard,
-    electionHash: '',
+    electionHash: electionDefinition.electionHash,
     isTestMode: false,
     locales: { primary: 'en-US' },
     pageNumber: 1,

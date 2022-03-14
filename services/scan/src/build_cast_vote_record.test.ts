@@ -13,7 +13,7 @@ import {
   vote,
   YesNoContest,
 } from '@votingworks/types';
-import { election } from '../test/fixtures/2020-choctaw';
+import { election, electionDefinition } from '../test/fixtures/2020-choctaw';
 import {
   buildCastVoteRecord,
   getCvrBallotType,
@@ -139,7 +139,7 @@ test('generates a CVR from a completed BMD ballot', () => {
             ballotId,
             metadata: {
               locales: { primary: 'en-US' },
-              electionHash: '',
+              electionHash: electionDefinition.electionHash,
               ballotType: BallotType.Standard,
               ballotStyleId,
               precinctId,
@@ -210,7 +210,7 @@ test('generates a CVR from a completed BMD ballot with write in and overvotes', 
             ballotId,
             metadata: {
               locales: { primary: 'en-US' },
-              electionHash: '',
+              electionHash: electionDefinition.electionHash,
               ballotType: BallotType.Standard,
               ballotStyleId,
               precinctId,
@@ -281,7 +281,7 @@ test('generates a CVR from a completed HMPB page', () => {
           ballotId,
           metadata: {
             locales: { primary: 'en-US' },
-            electionHash: '',
+            electionHash: electionDefinition.electionHash,
             ballotType: BallotType.Standard,
             ballotStyleId,
             precinctId,
@@ -308,7 +308,7 @@ test('generates a CVR from a completed HMPB page', () => {
           ballotId,
           metadata: {
             locales: { primary: 'en-US' },
-            electionHash: '',
+            electionHash: electionDefinition.electionHash,
             ballotType: BallotType.Standard,
             ballotStyleId,
             precinctId,
@@ -378,7 +378,7 @@ test('generates a CVR from a completed HMPB page with write in votes and overvot
           ballotId,
           metadata: {
             locales: { primary: 'en-US' },
-            electionHash: '',
+            electionHash: electionDefinition.electionHash,
             ballotType: BallotType.Standard,
             ballotStyleId,
             precinctId,
@@ -405,7 +405,7 @@ test('generates a CVR from a completed HMPB page with write in votes and overvot
           ballotId,
           metadata: {
             locales: { primary: 'en-US' },
-            electionHash: '',
+            electionHash: electionDefinition.electionHash,
             ballotType: BallotType.Standard,
             ballotStyleId,
             precinctId,
@@ -476,7 +476,7 @@ test('generates a CVR from a completed absentee HMPB page', () => {
           ballotId,
           metadata: {
             locales: { primary: 'en-US' },
-            electionHash: '',
+            electionHash: electionDefinition.electionHash,
             ballotType: BallotType.Absentee,
             ballotStyleId,
             precinctId,
@@ -503,7 +503,7 @@ test('generates a CVR from a completed absentee HMPB page', () => {
           ballotId,
           metadata: {
             locales: { primary: 'en-US' },
-            electionHash: '',
+            electionHash: electionDefinition.electionHash,
             ballotType: BallotType.Absentee,
             ballotStyleId,
             precinctId,
@@ -573,7 +573,7 @@ test('generates a CVR from an adjudicated HMPB page', () => {
           ballotId,
           metadata: {
             locales: { primary: 'en-US' },
-            electionHash: '',
+            electionHash: electionDefinition.electionHash,
             ballotType: BallotType.Standard,
             ballotStyleId,
             precinctId,
@@ -615,7 +615,7 @@ test('generates a CVR from an adjudicated HMPB page', () => {
           ballotId,
           metadata: {
             locales: { primary: 'en-US' },
-            electionHash: '',
+            electionHash: electionDefinition.electionHash,
             ballotType: BallotType.Standard,
             ballotStyleId,
             precinctId,
@@ -682,7 +682,7 @@ test('fails to generate a CVR from an invalid HMPB sheet with two pages having t
           type: 'InterpretedHmpbPage',
           metadata: {
             locales: { primary: 'en-US' },
-            electionHash: '',
+            electionHash: electionDefinition.electionHash,
             ballotType: BallotType.Standard,
             ballotStyleId,
             precinctId,
@@ -707,7 +707,7 @@ test('fails to generate a CVR from an invalid HMPB sheet with two pages having t
           type: 'UninterpretedHmpbPage',
           metadata: {
             locales: { primary: 'en-US' },
-            electionHash: '',
+            electionHash: electionDefinition.electionHash,
             ballotType: BallotType.Standard,
             ballotStyleId,
             precinctId,
@@ -737,7 +737,7 @@ test('fails to generate a CVR from an invalid HMPB sheet with two non-consecutiv
           type: 'InterpretedHmpbPage',
           metadata: {
             locales: { primary: 'en-US' },
-            electionHash: '',
+            electionHash: electionDefinition.electionHash,
             ballotType: BallotType.Standard,
             ballotStyleId,
             precinctId,
@@ -762,7 +762,7 @@ test('fails to generate a CVR from an invalid HMPB sheet with two non-consecutiv
           type: 'UninterpretedHmpbPage',
           metadata: {
             locales: { primary: 'en-US' },
-            electionHash: '',
+            electionHash: electionDefinition.electionHash,
             ballotType: BallotType.Standard,
             ballotStyleId,
             precinctId,
@@ -791,7 +791,7 @@ test('fails to generate a CVR from an invalid HMPB sheet with different ballot s
           type: 'InterpretedHmpbPage',
           metadata: {
             locales: { primary: 'en-US' },
-            electionHash: '',
+            electionHash: electionDefinition.electionHash,
             ballotType: BallotType.Standard,
             ballotStyleId: '1',
             precinctId,
@@ -816,7 +816,7 @@ test('fails to generate a CVR from an invalid HMPB sheet with different ballot s
           type: 'UninterpretedHmpbPage',
           metadata: {
             locales: { primary: 'en-US' },
-            electionHash: '',
+            electionHash: electionDefinition.electionHash,
             ballotType: BallotType.Standard,
             ballotStyleId: '2',
             precinctId,
@@ -845,7 +845,7 @@ test('fails to generate a CVR from an invalid HMPB sheet with different precinct
           type: 'InterpretedHmpbPage',
           metadata: {
             locales: { primary: 'en-US' },
-            electionHash: '',
+            electionHash: electionDefinition.electionHash,
             ballotType: BallotType.Standard,
             ballotStyleId,
             precinctId: '6522',
@@ -870,7 +870,7 @@ test('fails to generate a CVR from an invalid HMPB sheet with different precinct
           type: 'UninterpretedHmpbPage',
           metadata: {
             locales: { primary: 'en-US' },
-            electionHash: '',
+            electionHash: electionDefinition.electionHash,
             ballotType: BallotType.Standard,
             ballotStyleId,
             precinctId: '6523',
@@ -900,7 +900,7 @@ test('generates a CVR from an adjudicated uninterpreted HMPB page', () => {
           type: 'InterpretedHmpbPage',
           metadata: {
             locales: { primary: 'en-US' },
-            electionHash: '',
+            electionHash: electionDefinition.electionHash,
             ballotType: BallotType.Standard,
             ballotStyleId,
             precinctId,
@@ -934,7 +934,7 @@ test('generates a CVR from an adjudicated uninterpreted HMPB page', () => {
           type: 'UninterpretedHmpbPage',
           metadata: {
             locales: { primary: 'en-US' },
-            electionHash: '',
+            electionHash: electionDefinition.electionHash,
             ballotType: BallotType.Standard,
             ballotStyleId,
             precinctId,
@@ -996,7 +996,7 @@ test('generates a CVR from an adjudicated write-in', () => {
           type: 'InterpretedHmpbPage',
           metadata: {
             locales: { primary: 'en-US' },
-            electionHash: '',
+            electionHash: electionDefinition.electionHash,
             ballotType: BallotType.Standard,
             ballotStyleId,
             precinctId,
@@ -1044,7 +1044,7 @@ test('generates a CVR from an adjudicated write-in', () => {
           type: 'InterpretedHmpbPage',
           metadata: {
             locales: { primary: 'en-US' },
-            electionHash: '',
+            electionHash: electionDefinition.electionHash,
             ballotType: BallotType.Standard,
             ballotStyleId,
             precinctId,
@@ -1106,7 +1106,7 @@ test('generates a CVR from an adjudicated unmarked write-in', () => {
           type: 'InterpretedHmpbPage',
           metadata: {
             locales: { primary: 'en-US' },
-            electionHash: '',
+            electionHash: electionDefinition.electionHash,
             ballotType: BallotType.Standard,
             ballotStyleId,
             precinctId,
@@ -1148,7 +1148,7 @@ test('generates a CVR from an adjudicated unmarked write-in', () => {
           type: 'InterpretedHmpbPage',
           metadata: {
             locales: { primary: 'en-US' },
-            electionHash: '',
+            electionHash: electionDefinition.electionHash,
             ballotType: BallotType.Standard,
             ballotStyleId,
             precinctId,
@@ -1224,7 +1224,7 @@ test('fails to generate CVRs from invalid test mode pages', () => {
           type: 'InvalidTestModePage',
           metadata: {
             locales: { primary: 'en-US' },
-            electionHash: '',
+            electionHash: electionDefinition.electionHash,
             ballotType: BallotType.Standard,
             ballotStyleId,
             precinctId,

@@ -1,4 +1,4 @@
-import { Election, Rect } from '@votingworks/types';
+import { ElectionDefinition, Rect } from '@votingworks/types';
 import makeDebug from 'debug';
 import * as z from 'zod';
 import {
@@ -126,14 +126,14 @@ export async function call(input: unknown): Promise<Output> {
 }
 
 export function normalizeSheetOutput(
-  election: Election,
+  electionDefinition: ElectionDefinition,
   output: SheetOf<Output>
 ): SheetOf<Output> {
   const [frontOutput, backOutput] = output;
   const [
     normalizedFrontMetadata,
     normalizedBackMetadata,
-  ] = normalizeSheetMetadata(election, [
+  ] = normalizeSheetMetadata(electionDefinition, [
     frontOutput.blank ? undefined : frontOutput.qrcode,
     backOutput.blank ? undefined : backOutput.qrcode,
   ]);
