@@ -6,4 +6,7 @@ export {
 export * from './types';
 export { otsu } from './utils/otsu';
 export { crop } from './utils/crop';
-export { detect as detectQrCode } from './utils/qrcode';
+export {
+  detect as detectQrCode,
+  getSearchAreas as getQrCodeSearchAreas,
+} from './utils/qrcode';

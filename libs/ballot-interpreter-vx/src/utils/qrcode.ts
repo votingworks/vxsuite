@@ -33,7 +33,7 @@ function maybeDecodeBase64(data: Buffer): Buffer {
   }
 }
 
-function* getSearchAreas(
+export function* getSearchAreas(
   size: Size
 ): Generator<{ position: 'top' | 'bottom'; bounds: Rect }> {
   // QR code for HMPB is bottom right of legal, so appears bottom right or top left
