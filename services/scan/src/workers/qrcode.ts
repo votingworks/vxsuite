@@ -1,10 +1,13 @@
-import { Election } from '@votingworks/types';
+import { Election, Rect } from '@votingworks/types';
 import makeDebug from 'debug';
 import * as z from 'zod';
-import { detectQrCode } from '@votingworks/ballot-interpreter-vx';
+import {
+  detectQrCode,
+  getQrCodeSearchAreas,
+} from '@votingworks/ballot-interpreter-vx';
 import { BallotPageQrcode, SheetOf } from '../types';
 import { loadImageData } from '../util/images';
-import { stats } from '../util/luminosity';
+import { Stats, stats } from '../util/luminosity';
 import { normalizeSheetMetadata } from '../util/metadata';
 
 const debug = makeDebug('scan:workers:qrcode');
@@ -54,17 +57,48 @@ export async function detectQrcodeInFilePath(
   imagePath: string
 ): Promise<Output> {
   const imageData = await loadImageData(imagePath);
-  const luminosityStats = stats(imageData, {
-    threshold: MINIMUM_BACKGROUND_COLOR_THRESHOLD,
-  });
+  let foundDarkRegion = false;
+  let darkestRegionStats: Stats | undefined;
+  let darkestRegion: Rect | undefined;
 
-  if (
-    luminosityStats.foreground.ratio < MAXIMUM_BLANK_PAGE_FOREGROUND_PIXEL_RATIO
-  ) {
+  for (const { position, bounds } of getQrCodeSearchAreas({
+    width: imageData.width,
+    height: imageData.height,
+  })) {
+    const regionStats = stats(imageData, {
+      threshold: MINIMUM_BACKGROUND_COLOR_THRESHOLD,
+      bounds,
+    });
+
+    if (
+      !darkestRegionStats ||
+      regionStats.foreground.ratio > darkestRegionStats.foreground.ratio
+    ) {
+      darkestRegionStats = regionStats;
+      darkestRegion = bounds;
+    }
+
+    if (
+      regionStats.foreground.ratio > MAXIMUM_BLANK_PAGE_FOREGROUND_PIXEL_RATIO
+    ) {
+      debug(
+        '[path=%s] found dark region in %s QR code search area (%o): %O',
+        imagePath,
+        position,
+        bounds,
+        regionStats
+      );
+      foundDarkRegion = true;
+      break;
+    }
+  }
+
+  if (!foundDarkRegion) {
     debug(
-      '[path=%s] appears to be a blank page, skipping: %O',
+      '[path=%s] appears to be a blank page, skipping. darkest region: %o stats=%O',
       imagePath,
-      luminosityStats
+      darkestRegion,
+      darkestRegionStats
     );
     return { blank: true };
   }
