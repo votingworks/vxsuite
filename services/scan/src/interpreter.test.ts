@@ -81,7 +81,7 @@ test('extracts votes encoded in a QR code', async () => {
       "metadata": Object {
         "ballotStyleId": "12",
         "ballotType": 0,
-        "electionHash": "",
+        "electionHash": "b52e9f4728bb34e7ff48",
         "isTestMode": true,
         "locales": Object {
           "primary": "en-US",

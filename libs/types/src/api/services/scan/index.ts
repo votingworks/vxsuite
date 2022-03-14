@@ -24,7 +24,7 @@ import {
   PrecinctId,
   PrecinctIdSchema,
 } from '../../../election';
-import { HexString, IdSchema } from '../../../generic';
+import { ElectionHash, IdSchema } from '../../../generic';
 
 export type Side = 'front' | 'back';
 export const SideSchema = z.union([z.literal('front'), z.literal('back')]);
@@ -82,7 +82,7 @@ export interface ScanStatus {
 }
 
 export const ScanStatusSchema: z.ZodSchema<ScanStatus> = z.object({
-  electionHash: z.optional(HexString),
+  electionHash: z.optional(ElectionHash),
   batches: z.array(BatchInfoSchema),
   adjudication: AdjudicationStatusSchema,
   scanner: ScannerStatusSchema,

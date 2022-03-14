@@ -223,12 +223,12 @@ export const IdSchema: z.ZodSchema<Id> = z
     (id) => /^[-_a-z\d]+$/i.test(id),
     'IDs may only contain letters, numbers, dashes, and underscores'
   );
-export const HexString: z.ZodSchema<string> = z
+export const ElectionHash: z.ZodSchema<string> = z
   .string()
   .nonempty()
   .refine(
-    (hex) => /^[0-9a-f]*$/i.test(hex),
-    'hex strings must contain only 0-9 and a-f'
+    (hash) => /^[0-9a-f]*$/i.test(hash),
+    'Election hashes must be hex strings containing only 0-9 and a-f'
   );
 export const Iso8601Date = z
   .string()

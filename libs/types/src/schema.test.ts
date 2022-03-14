@@ -788,7 +788,7 @@ test('validates admin cards have hex-encoded hashes', () => {
     [Error: [
       {
         "code": "custom",
-        "message": "hex strings must contain only 0-9 and a-f",
+        "message": "Election hashes must be hex strings containing only 0-9 and a-f",
         "path": [
           "h"
         ]
