@@ -1,6 +1,5 @@
 import {
   AdjudicationReasonInfo,
-  CastVoteRecord,
   safeParseJson,
   unsafeParse,
 } from '@votingworks/types';
@@ -186,7 +185,7 @@ export async function calibrate(): Promise<boolean> {
   );
 }
 
-export async function getExport(): Promise<CastVoteRecord[]> {
+export async function getExport(): Promise<string> {
   const response = await fetch('/scan/export', {
     method: 'post',
   });
@@ -194,11 +193,5 @@ export async function getExport(): Promise<CastVoteRecord[]> {
     debug('failed to get scan export: %o', response);
     throw new Error('failed to generate scan export');
   }
-  const castVoteRecordsString = await response.text();
-  const lines = castVoteRecordsString.split('\n');
-  const cvrs = lines.flatMap((line) =>
-    line.length > 0 ? (JSON.parse(line) as CastVoteRecord) : []
-  );
-  // TODO add more validation of the CVR, move the validation code from election-manager to utils
-  return cvrs.filter((cvr) => cvr._precinctId !== undefined);
+  return await response.text();
 }

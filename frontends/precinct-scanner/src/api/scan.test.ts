@@ -2,7 +2,11 @@ import {
   electionSampleDefinition,
   electionWithMsEitherNeitherWithDataFiles,
 } from '@votingworks/fixtures';
-import { AdjudicationReason, BallotType } from '@votingworks/types';
+import {
+  AdjudicationReason,
+  BallotType,
+  CastVoteRecord,
+} from '@votingworks/types';
 import {
   GetNextReviewSheetResponse,
   GetScanStatusResponse,
@@ -418,7 +422,11 @@ test('calibrate returns false on failure', async () => {
 test('getExport returns CVRs on success', async () => {
   const fileContent = electionWithMsEitherNeitherWithDataFiles.cvrData;
   fetchMock.postOnce('/scan/export', fileContent);
-  const cvrs = await scan.getExport();
+  const cvrsFileString = await scan.getExport();
+  const lines = cvrsFileString.split('\n');
+  const cvrs = lines.flatMap((line) =>
+    line.length > 0 ? (JSON.parse(line) as CastVoteRecord) : []
+  );
   expect(cvrs).toHaveLength(100);
 });
 
