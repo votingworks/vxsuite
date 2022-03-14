@@ -19,3 +19,4 @@ export enum YES_NO_VOTES {
 }
 export const WRITE_IN_CANDIDATE_MAX_LENGTH = 40;
 export const QUIT_KIOSK_IDLE_SECONDS = 5 * 60; // 5 minutes
+export const POLLING_INTERVAL_FOR_TOTP = 2000;

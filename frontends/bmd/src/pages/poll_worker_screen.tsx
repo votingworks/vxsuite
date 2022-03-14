@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon';
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import useInterval from '@rooks/use-interval';
 
 import {
   BallotStyleId,
@@ -45,7 +46,10 @@ import { Screen } from '../components/screen';
 import { Text } from '../components/text';
 import { Sidebar } from '../components/sidebar';
 import { ElectionInfo } from '../components/election_info';
-import { REPORT_PRINTING_TIMEOUT_SECONDS } from '../config/globals';
+import {
+  REPORT_PRINTING_TIMEOUT_SECONDS,
+  POLLING_INTERVAL_FOR_TOTP,
+} from '../config/globals';
 import { VersionsData } from '../components/versions_data';
 import { triggerAudioFocus } from '../utils/trigger_audio_focus';
 
@@ -134,6 +138,9 @@ export function PollWorkerScreen({
     isPrintingPrecinctScannerReport,
     setIsPrintingPrecinctScannerReport,
   ] = useState(false);
+  const [systemAuthenticationCode, setSystemAuthenticationCode] = useState(
+    '---·---'
+  );
 
   const parties = useMemo(() => getPartyIdsInBallotStyles(election), [
     election,
@@ -220,6 +227,18 @@ export function PollWorkerScreen({
     isPrintingPrecinctScannerReport,
     isConfirmingEnableLiveMode,
   ]);
+
+  useInterval(
+    async () => {
+      const totpResult = await window.kiosk?.totp?.get();
+      if (totpResult) {
+        const codeChunks = totpResult.code.match(/.{1,3}/g);
+        if (codeChunks) setSystemAuthenticationCode(codeChunks.join('·'));
+      }
+    },
+    POLLING_INTERVAL_FOR_TOTP,
+    true
+  );
 
   const isPrintMode = machineConfig.appMode.isPrint;
   const isMarkAndPrintMode =
@@ -435,6 +454,10 @@ export function PollWorkerScreen({
         >
           <Prose>
             <Text center>Remove card when finished.</Text>
+
+            <Text center>
+              System Authentication Code: {systemAuthenticationCode}
+            </Text>
           </Prose>
         </Sidebar>
         {isConfirmingEnableLiveMode && (
