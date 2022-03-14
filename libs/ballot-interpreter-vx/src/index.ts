@@ -1,4 +1,5 @@
 export { Interpreter } from './interpreter';
+export { interpretTemplate } from './layout';
 export {
   fromBytes as metadataFromBytes,
   fromString as metadataFromString,

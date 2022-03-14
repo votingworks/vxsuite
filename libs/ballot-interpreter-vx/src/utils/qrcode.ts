@@ -1,13 +1,32 @@
 import { detect as detectMetadata } from '@votingworks/ballot-encoder';
 import { Rect, Size } from '@votingworks/types';
-import { detect as qrdetect } from '@votingworks/qrdetect';
 import makeDebug from 'debug';
 import jsQr from 'jsqr';
-import { decode as quircDecode, QRCode } from 'node-quirc';
+import { QRCode } from 'node-quirc';
 import { DetectQrCodeResult } from '../types';
 import { crop } from './crop';
 
 const debug = makeDebug('ballot-interpreter-vx:qrcode');
+
+// Loads these libraries dynamically because they are not available in
+// the browser.
+let qrdetect: typeof import('@votingworks/qrdetect').detect = (
+  data,
+  width,
+  height
+) => {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires, global-require
+  const mod = require('@votingworks/qrdetect');
+  qrdetect = mod.detect;
+  return qrdetect(data, width, height);
+};
+
+let quircDecode: typeof import('node-quirc').decode = (imageData) => {
+  // eslint-disable-next-line @typescript-eslint/no-var-requires, global-require
+  const mod = require('node-quirc');
+  quircDecode = mod.decode;
+  return quircDecode(imageData);
+};
 
 function isBase64(string: string): boolean {
   return Buffer.from(string, 'base64').toString('base64') === string;

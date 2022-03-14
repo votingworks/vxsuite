@@ -6,7 +6,10 @@
 /* eslint-disable */
 /* istanbul ignore file */
 
+const resolve = require('resolve');
+const express = require('express');
 const { createProxyMiddleware: proxy } = require('http-proxy-middleware');
+const { dirname, join } = require('path');
 
 /**
  * @param {string} envVar
@@ -48,4 +51,9 @@ module.exports = function (app) {
       bypassAuthentication: asBoolean(process.env.BYPASS_AUTHENTICATION),
     });
   });
+
+  const pdfjsDistBuildPath = dirname(
+    resolve.sync('pdfjs-dist', { basedir: join(__dirname, '..') })
+  );
+  app.use('/pdfjs-dist', express.static(pdfjsDistBuildPath));
 };
