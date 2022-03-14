@@ -208,7 +208,7 @@ it('MarkOnly flow', async () => {
   card.insertCard(adminCard, electionDefinition.electionData);
   await advanceTimersAndPromises();
   screen.getByText('Election definition is loaded.');
-  fireEvent.click(screen.getByText('Remove'));
+  fireEvent.click(screen.getByText('Unconfigure Machine'));
   await advanceTimersAndPromises();
 
   // Default Unconfigured
