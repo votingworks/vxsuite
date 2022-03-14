@@ -369,7 +369,7 @@ test('PrintOnly flow', async () => {
   card.insertCard(adminCard, electionData);
   await advanceTimersAndPromises();
   screen.getByText('Election definition is loaded.');
-  fireEvent.click(screen.getByText('Remove'));
+  fireEvent.click(screen.getByText('Unconfigure Machine'));
   await advanceTimersAndPromises();
 
   // Default Unconfigured
@@ -440,7 +440,7 @@ test('PrintOnly retains app mode when unconfigured', async () => {
     card.insertCard(adminCard, electionData);
     await advanceTimersAndPromises();
     screen.getByText('Election definition is loaded.');
-    fireEvent.click(screen.getByText('Remove'));
+    fireEvent.click(screen.getByText('Unconfigure Machine'));
     await advanceTimersAndPromises();
 
     // Default Unconfigured

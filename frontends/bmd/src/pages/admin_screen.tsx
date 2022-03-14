@@ -203,8 +203,8 @@ export function AdminScreen({
                 <Text as="span" voteIcon>
                   Election definition is loaded.
                 </Text>{' '}
-                <Button small onPress={unconfigure}>
-                  Remove
+                <Button danger small onPress={unconfigure}>
+                  Unconfigure Machine
                 </Button>
               </p>
             ) : isFetchingElection ? (
