@@ -82,13 +82,13 @@ sqlite3 dev-workspace/ballots.db 'update sheets set requires_adjudication = 1;'
 First init `services/smartcards` with:
 
 ```
-./mockCardReader.py enable --admin ../scan/test/fixtures/2020-choctaw/election.json
+./mockCardReader.py enable --admin ../scan/test/fixtures/choctaw-2020-09-22-f30480cc99/election.json
 ```
 
 Init `services/scan` with:
 
 ```
-MOCK_SCANNER_FILES=test/fixtures/2020-choctaw/ballot-p1.jpg,test/fixtures/2020-choctaw/ballot-p2.jpg pnpm dev
+MOCK_SCANNER_FILES=test/fixtures/choctaw-2020-09-22-f30480cc99/blank-p1.png,test/fixtures/choctaw-2020-09-22-f30480cc99/blank-p2.png pnpm dev
 ```
 
 #### Legal-sized ballots
