@@ -64,7 +64,7 @@ test('"Delete Ballot Data…" and Delete Election Data from VxCentralScan…" di
   const component = render(
     <Router history={createMemoryHistory()}>
       <AdminActionsScreen
-        hasBatches={false}
+        hasBatches
         unconfigureServer={unconfigureServer}
         zeroData={zeroData}
         backup={jest.fn()}
@@ -92,6 +92,38 @@ test('"Delete Ballot Data…" and Delete Election Data from VxCentralScan…" di
   deleteBallotsButton.click();
   expect(zeroData).not.toHaveBeenCalled();
   expect(component.queryByText('Delete All Scanned Ballot Data?')).toBeNull();
+});
+
+test('"Delete Ballot Data…" and Delete Election Data from VxCentralScan…" enabled in test mode even if data not backed up', async () => {
+  const component = render(
+    <Router history={createMemoryHistory()}>
+      <AdminActionsScreen
+        hasBatches
+        unconfigureServer={jest.fn()}
+        zeroData={jest.fn()}
+        backup={jest.fn()}
+        canUnconfigure={false}
+        isTestMode
+        isTogglingTestMode={false}
+        toggleTestMode={jest.fn()}
+        setMarkThresholdOverrides={jest.fn()}
+        markThresholds={undefined}
+        electionDefinition={testElectionDefinition}
+      />
+    </Router>
+  );
+
+  // Clicking the disabled "Delete Election Data" button should bring up a confirmation modal
+  const unconfigureButton = component.getByText(
+    'Delete Election Data from VxCentralScan…'
+  );
+  unconfigureButton.click();
+  component.getByText('Delete all election data?');
+
+  // Clicking the disabled "Delete Ballot Data" button should bring up a confirmation modal
+  const deleteBallotsButton = component.getByText('Delete Ballot Data…');
+  deleteBallotsButton.click();
+  component.getByText('Delete All Scanned Ballot Data?');
 });
 
 test('clicking "Delete Election Data from VxCentralScan…" shows progress', async () => {
