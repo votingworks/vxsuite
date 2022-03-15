@@ -570,9 +570,7 @@ export class Importer {
         );
       } else {
         await this.sheetGenerator?.rejectSheet();
-        if (this.batchId) {
-          this.workspace.store.deleteSheet(sheet.id, this.batchId);
-        }
+        this.workspace.store.deleteSheet(sheet.id);
       }
     }
 
