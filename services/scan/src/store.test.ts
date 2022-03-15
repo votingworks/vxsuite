@@ -217,12 +217,38 @@ test('batchStatus', () => {
       },
     },
   ]);
+
+  // Add a second sheet
+  const sheetId2 = store.addSheet(uuid(), batchId, [
+    {
+      originalFilename: '/tmp/front-page2.png',
+      normalizedFilename: '/tmp/front-normalized-page2.png',
+      interpretation: {
+        type: 'UninterpretedHmpbPage',
+        metadata: frontMetadata,
+      },
+    },
+    {
+      originalFilename: '/tmp/back-page2.png',
+      normalizedFilename: '/tmp/back-normalized-page2.png',
+      interpretation: {
+        type: 'UninterpretedHmpbPage',
+        metadata: backMetadata,
+      },
+    },
+  ]);
   let batches = store.batchStatus();
+  expect(batches).toHaveLength(1);
+  expect(batches[0].count).toEqual(2);
+
+  // Delete one of the sheets
+  store.deleteSheet(sheetId);
+  batches = store.batchStatus();
   expect(batches).toHaveLength(1);
   expect(batches[0].count).toEqual(1);
 
-  // Delete the sheet we created, then confirm that store.batchStatus() results still include the batch
-  store.deleteSheet(sheetId);
+  // Delete the last sheet, then confirm that store.batchStatus() results still include the batch
+  store.deleteSheet(sheetId2);
   batches = store.batchStatus();
   expect(batches).toHaveLength(1);
   expect(batches[0].count).toEqual(0);
