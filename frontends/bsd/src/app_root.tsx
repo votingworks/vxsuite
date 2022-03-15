@@ -640,9 +640,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
               hasBatches={status.batches.length > 0}
               isTestMode={isTestMode}
               toggleTestMode={toggleTestMode}
-              hasExportedBackupForAllBatches={status.batches.every(
-                (b) => b.exportedAt
-              )}
+              canUnconfigure={status.batches.every((b) => b.exportedAt)}
               exportedAt={status.batches[0] ? status.batches[0].exportedAt : ''}
               setMarkThresholdOverrides={setMarkThresholdOverrides}
               markThresholds={markThresholds}

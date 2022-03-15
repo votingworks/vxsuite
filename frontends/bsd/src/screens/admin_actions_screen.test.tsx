@@ -24,7 +24,7 @@ test('clicking "Export Backup…" shows progress', async () => {
         unconfigureServer={jest.fn()}
         zeroData={jest.fn()}
         backup={backup}
-        hasExportedBackupForAllBatches={false}
+        canUnconfigure={false}
         isTestMode={false}
         isTogglingTestMode={false}
         toggleTestMode={jest.fn()}
@@ -58,7 +58,7 @@ test('clicking "Export Backup…" shows progress', async () => {
   });
 });
 
-test('"Delete Election Data from VxCentralScan…" is disabled when hasExportedBackupForAllBatches is falsy', async () => {
+test('"Delete Election Data from VxCentralScan…" is disabled when canUnconfigure is falsy', async () => {
   const unconfigureServer = jest.fn();
   const component = render(
     <Router history={createMemoryHistory()}>
@@ -67,7 +67,7 @@ test('"Delete Election Data from VxCentralScan…" is disabled when hasExportedB
         unconfigureServer={unconfigureServer}
         zeroData={jest.fn()}
         backup={jest.fn()}
-        hasExportedBackupForAllBatches={false}
+        canUnconfigure={false}
         isTestMode={false}
         isTogglingTestMode={false}
         toggleTestMode={jest.fn()}
@@ -96,7 +96,7 @@ test('clicking "Delete Election Data from VxCentralScan…" shows progress', asy
         unconfigureServer={unconfigureServer}
         zeroData={jest.fn()}
         backup={jest.fn()}
-        hasExportedBackupForAllBatches
+        canUnconfigure
         isTestMode={false}
         isTogglingTestMode={false}
         toggleTestMode={jest.fn()}
@@ -196,7 +196,7 @@ test('backup error shows message', async () => {
         unconfigureServer={jest.fn()}
         zeroData={jest.fn()}
         backup={backup}
-        hasExportedBackupForAllBatches
+        canUnconfigure
         isTestMode={false}
         isTogglingTestMode={false}
         toggleTestMode={jest.fn()}
@@ -271,7 +271,7 @@ test('override mark thresholds button shows when there are no overrides', async 
           unconfigureServer={jest.fn()}
           zeroData={jest.fn()}
           backup={backup}
-          hasExportedBackupForAllBatches={false}
+          canUnconfigure={false}
           isTestMode={false}
           isTogglingTestMode={false}
           toggleTestMode={jest.fn()}
@@ -303,7 +303,7 @@ test('clicking "Update Date and Time…" shows modal to set clock', async () => 
         unconfigureServer={jest.fn()}
         zeroData={jest.fn()}
         backup={jest.fn()}
-        hasExportedBackupForAllBatches={false}
+        canUnconfigure={false}
         isTestMode={false}
         isTogglingTestMode={false}
         toggleTestMode={jest.fn()}

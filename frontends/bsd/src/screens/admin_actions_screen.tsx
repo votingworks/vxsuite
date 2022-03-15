@@ -23,7 +23,7 @@ interface Props {
   hasBatches: boolean;
   isTestMode: boolean;
   isTogglingTestMode: boolean;
-  hasExportedBackupForAllBatches: boolean;
+  canUnconfigure: boolean;
   exportedAt?: string;
   toggleTestMode: () => Promise<void>;
   setMarkThresholdOverrides: (markThresholds?: MarkThresholds) => Promise<void>;
@@ -39,7 +39,7 @@ export function AdminActionsScreen({
   isTestMode,
   isTogglingTestMode,
   toggleTestMode,
-  hasExportedBackupForAllBatches,
+  canUnconfigure,
   exportedAt,
   setMarkThresholdOverrides,
   markThresholds,
@@ -159,12 +159,12 @@ export function AdminActionsScreen({
               <p>
                 <SetClockButton>Update Date and Time…</SetClockButton>
               </p>
-              {!hasExportedBackupForAllBatches && (
+              {!canUnconfigure && (
                 <Text italic muted>
                   Export a backup in order to delete election data.
                 </Text>
               )}
-              {hasExportedBackupForAllBatches && exportedAt && (
+              {canUnconfigure && exportedAt && (
                 <Text italic muted>
                   Election data backed up at {shortDateTime(exportedAt)}
                 </Text>
@@ -172,7 +172,7 @@ export function AdminActionsScreen({
               <p>
                 <Button
                   danger
-                  disabled={!hasExportedBackupForAllBatches}
+                  disabled={!canUnconfigure}
                   onPress={toggleIsConfirmingUnconfigure}
                 >
                   Delete Election Data from VxCentralScan…
