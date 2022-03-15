@@ -1,16 +1,22 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { HandMarkedPaperBallotProps } from '../hand_marked_paper_ballot';
 
 export function HandMarkedPaperBallot({
-  ballotStyleId,
-  election,
-  precinctId,
   onRendered,
+  ...rest
 }: HandMarkedPaperBallotProps): JSX.Element {
-  if (onRendered) {
-    setImmediate(onRendered);
-  }
+  useEffect(() => {
+    if (!onRendered) {
+      return;
+    }
 
+    const immediate = setImmediate(() => {
+      onRendered(rest);
+    });
+    return () => clearImmediate(immediate);
+  }, [onRendered, rest]);
+
+  const { election, ballotStyleId, precinctId } = rest;
   return (
     <div>
       <h1>Mocked HMPB</h1>
