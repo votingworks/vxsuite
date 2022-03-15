@@ -55,7 +55,6 @@ export enum ConfigKey {
   Election = 'election',
   TestMode = 'testMode',
   MarkThresholdOverrides = 'markThresholdOverrides',
-  HasExportedBackup = 'hasExportedBackup',
   // @deprecated
   SkipElectionHashCheck = 'skipElectionHashCheck',
   CurrentPrecinctId = 'currentPrecinctId',
@@ -212,13 +211,6 @@ export class Store {
   }
 
   /**
-   * Gets whether a backup has been exported.
-   */
-  getHasExportedBackup(): boolean {
-    return this.getConfig(ConfigKey.HasExportedBackup, false, z.boolean());
-  }
-
-  /**
    * Gets whether to skip election hash checks.
    */
   getSkipElectionHashCheck(): boolean {
@@ -230,13 +222,6 @@ export class Store {
    */
   setTestMode(testMode: boolean): void {
     this.setConfig(ConfigKey.TestMode, testMode);
-  }
-
-  /**
-   * Sets whether a backup has been exported.
-   */
-  setHasExportedBackup(hasExportedBackup: boolean): void {
-    this.setConfig(ConfigKey.HasExportedBackup, hasExportedBackup);
   }
 
   /**
@@ -388,6 +373,13 @@ export class Store {
       error ?? null,
       batchId
     );
+  }
+
+  /**
+   * Marks all batches as exported.
+   */
+  exportBatches(): void {
+    this.client.run('update batches set exported_at = current_timestamp');
   }
 
   addBallotCard(batchId: string): string {
@@ -667,6 +659,7 @@ export class Store {
       label: string;
       startedAt: string;
       endedAt: string | null;
+      exportedAt: string | null;
       error: string | null;
       count: number;
     }
@@ -676,6 +669,7 @@ export class Store {
         batches.label as label,
         strftime('%s', started_at) as startedAt,
         (case when ended_at is null then ended_at else strftime('%s', ended_at) end) as endedAt,
+        (case when exported_at is null then exported_at else strftime('%s', exported_at) end) as exportedAt,
         error,
         sum(case when sheets.id is null then 0 else 1 end) as count
       from
@@ -702,6 +696,11 @@ export class Store {
       endedAt:
         // eslint-disable-next-line vx/gts-safe-number-parse
         (info.endedAt && DateTime.fromSeconds(Number(info.endedAt)).toISO()) ||
+        undefined,
+      exportedAt:
+        (info.exportedAt &&
+          // eslint-disable-next-line vx/gts-safe-number-parse
+          DateTime.fromSeconds(Number(info.exportedAt)).toISO()) ||
         undefined,
       error: info.error || undefined,
       count: info.count,
