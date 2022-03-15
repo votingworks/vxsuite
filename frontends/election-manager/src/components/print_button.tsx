@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 
-import { Modal } from '@votingworks/ui';
+import { Modal, useCancelablePromise, useMountedState } from '@votingworks/ui';
 import { Button, StyledButtonProps } from './button';
 import { Loading } from './loading';
 import { Prose } from './prose';
@@ -31,6 +31,8 @@ export function PrintButton({
   confirmModal,
   ...rest
 }: React.PropsWithChildren<PrintButtonProps>): JSX.Element {
+  const isMounted = useMountedState();
+  const makeCancelable = useCancelablePromise();
   const { printer } = useContext(AppContext);
   const [isConfirming, setIsConfirming] = useState(false);
   const [isPrinting, setIsPrinting] = useState(false);
@@ -38,7 +40,7 @@ export function PrintButton({
 
   async function print() {
     if (window.kiosk) {
-      const printers = await window.kiosk.getPrinterInfo();
+      const printers = await makeCancelable(window.kiosk.getPrinterInfo());
       if (!printers.some((p) => p.connected)) {
         setShowPrintingError(true);
         afterPrintError?.('No printer connected.');
@@ -48,13 +50,14 @@ export function PrintButton({
 
     setIsPrinting(true);
     setTimeout(() => {
+      if (!isMounted()) return;
       setIsPrinting(false);
     }, 3000);
     const documentTitle = document.title;
     if (title) {
       document.title = title;
     }
-    await printer.print({ sides, copies });
+    await makeCancelable(printer.print({ sides, copies }));
     if (title) {
       document.title = documentTitle;
     }

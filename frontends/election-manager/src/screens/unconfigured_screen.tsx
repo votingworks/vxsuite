@@ -3,7 +3,7 @@ import { useHistory, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { parseElection } from '@votingworks/types';
 
-import { Modal } from '@votingworks/ui';
+import { Modal, useCancelablePromise } from '@votingworks/ui';
 import { ConverterClient, VxFile } from '../lib/converter_client';
 import { readFileAsync } from '../lib/read_file_async';
 
@@ -53,6 +53,7 @@ const newElection = JSON.stringify(defaultElection);
 export function UnconfiguredScreen(): JSX.Element {
   const history = useHistory();
   const location = useLocation();
+  const makeCancelable = useCancelablePromise();
 
   const { saveElection } = useContext(AppContext);
 
@@ -143,7 +144,7 @@ export function UnconfiguredScreen(): JSX.Element {
 
   const updateStatus = useCallback(async () => {
     try {
-      const files = await client.getFiles();
+      const files = await makeCancelable(client.getFiles());
 
       setIsLoading(true);
 
@@ -163,7 +164,7 @@ export function UnconfiguredScreen(): JSX.Element {
     } catch (error) {
       setIsLoading(false);
     }
-  }, [client, getOutputFile, processInputFiles]);
+  }, [client, getOutputFile, makeCancelable, processInputFiles]);
 
   async function submitFile({ file, name }: InputFile) {
     try {
