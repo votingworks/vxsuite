@@ -58,6 +58,7 @@ describe('BSD and services/Scan', () => {
     cy.contains('Confirm Ballot Removed and Continue Scanning').click();
     cy.contains('Admin').click();
     cy.contains('Toggle to Live Mode');
+    cy.contains('Export Backup…').click();
     cy.contains('Delete Election Data from VxCentralScan…').click();
     cy.contains('Yes, Delete Election Data').click();
     cy.contains('Are you sure?');
