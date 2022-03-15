@@ -1,4 +1,3 @@
-import { metadataFromBytes } from '@votingworks/ballot-interpreter-vx';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
@@ -16,33 +15,14 @@ import { throwIllegalValue } from '@votingworks/utils';
 import { readFile } from 'fs-extra';
 import { join } from 'path';
 import * as choctaw2020Fixtures from '../test/fixtures/2020-choctaw';
-import * as general2020Fixtures from '../test/fixtures/2020-general';
-import * as choctaw2020SpecialFixtures from '../test/fixtures/choctaw-2020-09-22-f30480cc99';
 import * as stateOfHamiltonFixtures from '../test/fixtures/state-of-hamilton';
-import {
-  getBallotImageData,
-  Interpreter,
-  sheetRequiresAdjudication,
-} from './interpreter';
+import { Interpreter, sheetRequiresAdjudication } from './interpreter';
 import { pdfToImages } from './util/pdf_to_images';
 import { detectQrcodeInFilePath } from './workers/qrcode';
 
 const sampleBallotImagesPath = join(__dirname, '..', 'sample-ballot-images/');
 
 jest.setTimeout(10000);
-
-test('does not find QR codes when there are none to find', async () => {
-  const filepath = join(sampleBallotImagesPath, 'not-a-ballot.jpg');
-  expect(
-    (
-      await getBallotImageData(
-        await readFile(filepath),
-        filepath,
-        await detectQrcodeInFilePath(filepath)
-      )
-    ).unsafeUnwrapErr()
-  ).toEqual({ type: 'UnreadablePage', reason: 'No QR code found' });
-});
 
 test('extracts votes encoded in a QR code', async () => {
   const ballotImagePath = join(
@@ -125,75 +105,6 @@ test('properly detects test ballot in live mode', async () => {
   expect(interpretationResult.interpretation.type).toEqual(
     'InvalidTestModePage'
   );
-});
-
-test('can read metadata encoded in a QR code with base64', async () => {
-  const fixtures = choctaw2020SpecialFixtures;
-  const { electionDefinition } = fixtures;
-  const { qrcode } = (
-    await getBallotImageData(
-      await readFile(fixtures.blankPage1),
-      fixtures.blankPage1,
-      await detectQrcodeInFilePath(fixtures.blankPage1)
-    )
-  ).unsafeUnwrap();
-
-  expect(metadataFromBytes(electionDefinition, Buffer.from(qrcode.data)))
-    .toMatchInlineSnapshot(`
-    Object {
-      "ballotId": undefined,
-      "ballotStyleId": "1",
-      "ballotType": 0,
-      "electionHash": "02f807b005e006da160b",
-      "isTestMode": false,
-      "locales": Object {
-        "primary": "en-US",
-        "secondary": undefined,
-      },
-      "pageNumber": 1,
-      "precinctId": "6538",
-    }
-  `);
-});
-
-test('can read metadata in QR code with skewed / dirty ballot', async () => {
-  const fixtures = general2020Fixtures;
-  const { qrcode } = (
-    await getBallotImageData(
-      await readFile(fixtures.skewedQrCodeBallotPage),
-      fixtures.skewedQrCodeBallotPage,
-      await detectQrcodeInFilePath(fixtures.skewedQrCodeBallotPage)
-    )
-  ).unsafeUnwrap();
-
-  expect(qrcode.data).toMatchInlineSnapshot(`
-    Object {
-      "data": Array [
-        86,
-        80,
-        1,
-        20,
-        111,
-        111,
-        156,
-        219,
-        48,
-        24,
-        169,
-        41,
-        115,
-        168,
-        20,
-        5,
-        17,
-        0,
-        0,
-        6,
-        0,
-      ],
-      "type": "Buffer",
-    }
-  `);
 });
 
 test('interprets marks on a HMPB', async () => {
