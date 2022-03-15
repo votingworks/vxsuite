@@ -188,8 +188,8 @@ test('batchStatus', () => {
     locales: { primary: 'en-US' },
     electionHash: '',
     ballotType: BallotType.Standard,
-    ballotStyleId: election.ballotStyles[0].id,
-    precinctId: election.precincts[0].id,
+    ballotStyleId: stateOfHamilton.election.ballotStyles[0].id,
+    precinctId: stateOfHamilton.election.precincts[0].id,
     isTestMode: false,
     pageNumber: 1,
   };
