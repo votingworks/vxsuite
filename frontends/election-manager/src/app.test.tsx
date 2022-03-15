@@ -65,8 +65,6 @@ const EITHER_NEITHER_SEMS_DATA =
 jest.mock('./components/hand_marked_paper_ballot');
 
 beforeEach(() => {
-  // we don't care about network errors logged to the console, they're crowding things
-  jest.spyOn(console, 'error').mockImplementation(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
   Object.defineProperty(window, 'location', {
     writable: true,
     value: { assign: jest.fn() },
@@ -155,11 +153,11 @@ test('create election works', async () => {
   fireEvent.click(getByText('English/Spanish'));
 
   // You can view the advanced screen and export log files when there is an election.
-  await fireEvent.click(screen.getByText('Advanced'));
-  await fireEvent.click(screen.getByText('Export Log File'));
+  fireEvent.click(screen.getByText('Advanced'));
+  fireEvent.click(screen.getByText('Export Log File'));
   await screen.findByText('No Log File Present');
-  await fireEvent.click(screen.getByText('Close'));
-  await fireEvent.click(screen.getByText('Export Log File as CDF'));
+  fireEvent.click(screen.getByText('Close'));
+  fireEvent.click(screen.getByText('Export Log File as CDF'));
   await screen.findByText('No Log File Present');
 
   fireEvent.click(getByText('Definition'));
@@ -180,15 +178,15 @@ test('create election works', async () => {
   );
 
   // You can view the advanced screen and export log files when there is no election.
-  await fireEvent.click(screen.getByText('Advanced'));
-  await fireEvent.click(screen.getByText('Export Log File'));
+  fireEvent.click(screen.getByText('Advanced'));
+  fireEvent.click(screen.getByText('Export Log File'));
   await screen.findByText('No Log File Present');
-  await fireEvent.click(screen.getByText('Close'));
-  await fireEvent.click(screen.getByText('Export Log File as CDF'));
+  fireEvent.click(screen.getByText('Close'));
+  fireEvent.click(screen.getByText('Export Log File as CDF'));
   // You can not export as CDF when there is no election.
-  expect(await screen.queryAllByText('No Log File Present')).toHaveLength(0);
+  expect(screen.queryAllByText('No Log File Present')).toHaveLength(0);
 
-  await fireEvent.click(screen.getByText('Configure'));
+  fireEvent.click(screen.getByText('Configure'));
   await screen.findByText('Create New Election Definition');
 });
 

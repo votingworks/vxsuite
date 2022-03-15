@@ -13,7 +13,7 @@ import {
   format,
   find,
 } from '@votingworks/utils';
-import { Table, TD, Modal } from '@votingworks/ui';
+import { Table, TD, Modal, useCancelablePromise } from '@votingworks/ui';
 import { TallyCategory, ExternalTallySourceType } from '@votingworks/types';
 import { LogEventId } from '@votingworks/logging';
 import { InputEventFunction, ResultsFileType } from '../config/types';
@@ -40,6 +40,8 @@ import { ImportExternalResultsModal } from '../components/import_external_result
 import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';
 
 export function TallyScreen(): JSX.Element {
+  const makeCancelable = useCancelablePromise();
+
   const {
     castVoteRecordFiles,
     electionDefinition,
@@ -143,13 +145,13 @@ export function TallyScreen(): JSX.Element {
   useEffect(() => {
     void (async () => {
       try {
-        await new ConverterClient('tallies').getFiles();
+        await makeCancelable(new ConverterClient('tallies').getFiles());
         setHasConverter(true);
       } catch {
         setHasConverter(false);
       }
     })();
-  }, []);
+  }, [makeCancelable]);
 
   const fileMode = castVoteRecordFiles?.fileMode;
   const fileModeText =
