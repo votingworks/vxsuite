@@ -661,8 +661,8 @@ export class Store {
         batches left join sheets
       on
         sheets.batch_id = batches.id
-      where
-        deleted_at is null
+      and
+        sheets.deleted_at is null
       group by
         batches.id,
         batches.started_at,

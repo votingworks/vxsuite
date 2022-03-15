@@ -4,6 +4,7 @@ import {
   BallotMetadata,
   BallotType,
   CandidateContest,
+  BallotPageMetadata,
   BallotPageLayout,
   YesNoContest,
 } from '@votingworks/types';
@@ -177,6 +178,80 @@ test('batch cleanup works correctly', () => {
       label: 'Batch 3',
     }),
   ]);
+});
+
+test('batchStatus', () => {
+  const store = Store.memoryStore();
+
+  const frontMetadata: BallotPageMetadata = {
+    locales: { primary: 'en-US' },
+    electionHash: '',
+    ballotType: BallotType.Standard,
+    ballotStyleId: election.ballotStyles[0].id,
+    precinctId: election.precincts[0].id,
+    isTestMode: false,
+    pageNumber: 1,
+  };
+  const backMetadata: BallotPageMetadata = {
+    ...frontMetadata,
+    pageNumber: 2,
+  };
+
+  // Create a batch and add a sheet to it
+  const batchId = store.addBatch();
+  const sheetId = store.addSheet(uuid(), batchId, [
+    {
+      originalFilename: '/tmp/front-page.png',
+      normalizedFilename: '/tmp/front-normalized-page.png',
+      interpretation: {
+        type: 'UninterpretedHmpbPage',
+        metadata: frontMetadata,
+      },
+    },
+    {
+      originalFilename: '/tmp/back-page.png',
+      normalizedFilename: '/tmp/back-normalized-page.png',
+      interpretation: {
+        type: 'UninterpretedHmpbPage',
+        metadata: backMetadata,
+      },
+    },
+  ]);
+
+  // Add a second sheet
+  const sheetId2 = store.addSheet(uuid(), batchId, [
+    {
+      originalFilename: '/tmp/front-page2.png',
+      normalizedFilename: '/tmp/front-normalized-page2.png',
+      interpretation: {
+        type: 'UninterpretedHmpbPage',
+        metadata: frontMetadata,
+      },
+    },
+    {
+      originalFilename: '/tmp/back-page2.png',
+      normalizedFilename: '/tmp/back-normalized-page2.png',
+      interpretation: {
+        type: 'UninterpretedHmpbPage',
+        metadata: backMetadata,
+      },
+    },
+  ]);
+  let batches = store.batchStatus();
+  expect(batches).toHaveLength(1);
+  expect(batches[0].count).toEqual(2);
+
+  // Delete one of the sheets
+  store.deleteSheet(sheetId);
+  batches = store.batchStatus();
+  expect(batches).toHaveLength(1);
+  expect(batches[0].count).toEqual(1);
+
+  // Delete the last sheet, then confirm that store.batchStatus() results still include the batch
+  store.deleteSheet(sheetId2);
+  batches = store.batchStatus();
+  expect(batches).toHaveLength(1);
+  expect(batches[0].count).toEqual(0);
 });
 
 test('adjudication', () => {
