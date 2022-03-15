@@ -65,8 +65,6 @@ const EITHER_NEITHER_SEMS_DATA =
 jest.mock('./components/hand_marked_paper_ballot');
 
 beforeEach(() => {
-  // we don't care about network errors logged to the console, they're crowding things
-  jest.spyOn(console, 'error').mockImplementation(() => {}); // eslint-disable-line @typescript-eslint/no-empty-function
   Object.defineProperty(window, 'location', {
     writable: true,
     value: { assign: jest.fn() },
