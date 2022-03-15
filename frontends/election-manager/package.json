@@ -112,7 +112,7 @@
     "node-fetch": "^2.6.0",
     "normalize.css": "^8.0.1",
     "pagedjs": "^0.1.40",
-    "pdfjs-dist": "2.3.200",
+    "pdfjs-dist": "2.4.456",
     "pluralize": "^8.0.0",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",

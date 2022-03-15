@@ -545,7 +545,7 @@ importers:
       node-fetch: 2.6.1
       normalize.css: 8.0.1
       pagedjs: 0.1.43
-      pdfjs-dist: 2.3.200
+      pdfjs-dist: 2.4.456
       pluralize: 8.0.0
       react: 17.0.1
       react-dom: 17.0.1_react@17.0.1
@@ -668,7 +668,7 @@ importers:
       node-fetch: ^2.6.0
       normalize.css: ^8.0.1
       pagedjs: ^0.1.40
-      pdfjs-dist: 2.3.200
+      pdfjs-dist: 2.4.456
       pluralize: ^8.0.0
       prettier: ^2.0.5
       react: ^17.0.1
@@ -20052,7 +20052,7 @@ packages:
     dependencies:
       ansi-escapes: 4.3.1
       chalk: 4.1.0
-      jest: 26.6.0
+      jest: 26.6.0_canvas@2.9.0
       jest-regex-util: 26.0.0
       jest-watcher: 26.6.2
       slash: 3.0.0
@@ -22793,6 +22793,10 @@ packages:
       webpack: ^3.0.0 || ^4.0.0-alpha.0 || ^4.0.0
     resolution:
       integrity: sha512-+8wBjU5h8LPZOIvR9X2uCrp/8xWQG1DRDKMLg5lzGN1qyIAZlYUxA0KQyy12Nw5jN7ozulC6v97PMaDcLgAcFg==
+  /pdfjs-dist/2.4.456:
+    dev: false
+    resolution:
+      integrity: sha512-yckJEHq3F48hcp6wStEpbN9McOj328Ib09UrBlGAKxvN2k+qYPN5iq6TH6jD1C0pso7zTep+g/CKsYgdrQd5QA==
   /pend/1.2.0:
     resolution:
       integrity: sha1-elfrVQpng/kRUzH89GY9XI4AelA=
