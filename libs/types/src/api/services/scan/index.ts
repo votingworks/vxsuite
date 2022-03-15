@@ -46,6 +46,7 @@ export interface BatchInfo {
   label: string;
   startedAt: Iso8601Timestamp;
   endedAt?: Iso8601Timestamp;
+  exportedAt?: Iso8601Timestamp;
   error?: string;
   count: number;
 }
@@ -55,6 +56,7 @@ export const BatchInfoSchema: z.ZodSchema<BatchInfo> = z.object({
   label: z.string(),
   startedAt: Iso8601TimestampSchema,
   endedAt: z.optional(Iso8601TimestampSchema),
+  exportedAt: z.optional(Iso8601TimestampSchema),
   error: z.optional(z.string()),
   count: z.number().nonnegative(),
 });
@@ -147,32 +149,13 @@ export const PatchElectionConfigRequestSchema: z.ZodSchema<PatchElectionConfigRe
  * @url /config/election
  * @method DELETE
  */
-export type DeleteElectionConfigResponse = OkResponse;
+export type DeleteElectionConfigResponse = OkResponse | ErrorsResponse;
 
 /**
  * @url /config/election
  * @method DELETE
  */
 export const DeleteElectionConfigResponseSchema: z.ZodSchema<DeleteElectionConfigResponse> = OkResponseSchema;
-
-/**
- * @url /config/hasExportedBackup
- * @method GET
- */
-export type GetHasExportedBackupConfigResponse = OkResponse<{
-  hasExportedBackup: boolean;
-}>;
-
-/**
- * @url /config/hasExportedBackup
- * @method GET
- */
-export const GetHasExportedBackupConfigResponseSchema: z.ZodSchema<GetHasExportedBackupConfigResponse> = z.object(
-  {
-    status: z.literal('ok'),
-    hasExportedBackup: z.boolean(),
-  }
-);
 
 /**
  * @url /config/package
