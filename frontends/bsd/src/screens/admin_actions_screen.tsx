@@ -127,11 +127,6 @@ export function AdminActionsScreen({
                 />
               </p>
               <p>
-                <Button disabled={!hasBatches} onPress={toggleIsConfirmingZero}>
-                  Delete Ballot Data…
-                </Button>
-              </p>
-              <p>
                 <Button
                   onPress={() => setIsMarkThresholdModalOpen(true)}
                   disabled={hasBatches}
@@ -168,6 +163,17 @@ export function AdminActionsScreen({
                   Election data backed up at {shortDateTime(exportedAt)}
                 </Text>
               )}
+
+              <p>
+                <Button
+                  danger
+                  disabled={!(hasBatches && canUnconfigure)}
+                  onPress={toggleIsConfirmingZero}
+                >
+                  Delete Ballot Data…
+                </Button>
+              </p>
+
               <p>
                 <Button
                   danger

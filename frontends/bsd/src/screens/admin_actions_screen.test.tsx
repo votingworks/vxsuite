@@ -58,14 +58,15 @@ test('clicking "Export Backup…" shows progress', async () => {
   });
 });
 
-test('"Delete Election Data from VxCentralScan…" is disabled when canUnconfigure is falsy', async () => {
+test('"Delete Ballot Data…" and Delete Election Data from VxCentralScan…" disabled when canUnconfigure is falsy', async () => {
   const unconfigureServer = jest.fn();
+  const zeroData = jest.fn();
   const component = render(
     <Router history={createMemoryHistory()}>
       <AdminActionsScreen
         hasBatches={false}
         unconfigureServer={unconfigureServer}
-        zeroData={jest.fn()}
+        zeroData={zeroData}
         backup={jest.fn()}
         canUnconfigure={false}
         isTestMode={false}
@@ -79,12 +80,18 @@ test('"Delete Election Data from VxCentralScan…" is disabled when canUnconfigu
   );
 
   // Clicking the disabled "Delete Election Data" button should do nothing
-  const resetButton = component.getByText(
+  const unconfigureButton = component.getByText(
     'Delete Election Data from VxCentralScan…'
   );
-  resetButton.click();
+  unconfigureButton.click();
   expect(unconfigureServer).not.toHaveBeenCalled();
   expect(component.queryByText('Delete all election data?')).toBeNull();
+
+  // Clicking the disabled "Delete Ballot Data" button should do nothing
+  const deleteBallotsButton = component.getByText('Delete Ballot Data…');
+  deleteBallotsButton.click();
+  expect(zeroData).not.toHaveBeenCalled();
+  expect(component.queryByText('Delete All Scanned Ballot Data?')).toBeNull();
 });
 
 test('clicking "Delete Election Data from VxCentralScan…" shows progress', async () => {
