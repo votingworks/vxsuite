@@ -8,6 +8,7 @@ import {
 } from '@votingworks/types/api/services/scan';
 
 import { Modal } from '@votingworks/ui';
+import { shortDateTime } from '@votingworks/utils';
 import { Prose } from '../components/prose';
 import { Table, TD } from '../components/table';
 import { Button } from '../components/button';
@@ -19,17 +20,6 @@ pluralize.addIrregularRule('has', 'have');
 const Scanning = styled.em`
   color: rgb(71, 167, 75);
 `;
-
-function z2(number: number) {
-  return number.toString().padStart(2, '0');
-}
-
-function shortDateTime(iso8601Timestamp: string) {
-  const d = new Date(iso8601Timestamp);
-  return `${d.getFullYear()}-${z2(d.getMonth() + 1)}-${z2(
-    d.getDate()
-  )} ${d.getHours()}:${z2(d.getMinutes())}:${z2(d.getSeconds())}`;
-}
 
 interface Props {
   isScanning: boolean;
