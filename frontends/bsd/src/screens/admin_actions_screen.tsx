@@ -1,8 +1,7 @@
 import { ElectionDefinition, MarkThresholds } from '@votingworks/types';
-import { shortDateTime } from '@votingworks/utils';
 import React, { useCallback, useEffect, useState, useContext } from 'react';
 import { LogEventId } from '@votingworks/logging';
-import { LogFileType } from '@votingworks/utils';
+import { shortDateTime, LogFileType } from '@votingworks/utils';
 import { Loading, Modal, SetClockButton } from '@votingworks/ui';
 import { Button } from '../components/button';
 import { LinkButton } from '../components/link_button';
