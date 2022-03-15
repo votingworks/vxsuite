@@ -1,10 +1,9 @@
-import { render, screen } from '@testing-library/react';
+import { renderHook } from '@testing-library/react-hooks';
 import {
   GetScanStatusResponse,
   ScannerStatus,
 } from '@votingworks/types/api/services/scan';
 import { sleep } from '@votingworks/utils';
-import React from 'react';
 import fetchMock, { MockResponseFunction } from 'fetch-mock';
 import { advanceTimersAndPromises } from '@votingworks/test-utils';
 import { usePrecinctScanner } from './use_precinct_scanner';
@@ -21,34 +20,26 @@ const scanStatusReadyToScanResponse: GetScanStatusResponse = {
   scanner: ScannerStatus.ReadyToScan,
 };
 
-const TestComponent: React.FC<{ interval?: number | false }> = ({
-  interval = 1,
-} = {}) => {
-  return (
-    <React.Fragment>
-      {usePrecinctScanner(interval)?.status.scannerState ?? 'none'}
-    </React.Fragment>
-  );
-};
-
 beforeEach(() => {
   jest.useFakeTimers();
 });
 
 test('initial state', async () => {
-  render(<TestComponent />);
-  screen.getByText('none');
+  const { result } = renderHook(() => usePrecinctScanner());
+  expect(result.current).toBeUndefined();
 });
 
 test('updates from /scan/status', async () => {
-  render(<TestComponent />);
+  const { result } = renderHook(() => usePrecinctScanner());
 
   // first update
   fetchMock.getOnce('/scan/status', {
     body: scanStatusWaitingForPaperResponse,
   });
   await advanceTimersAndPromises(1);
-  screen.getByText(ScannerStatus.WaitingForPaper);
+  expect(result.current?.status.scannerState).toBe(
+    ScannerStatus.WaitingForPaper
+  );
 
   // second update
   fetchMock.getOnce(
@@ -57,18 +48,18 @@ test('updates from /scan/status', async () => {
     { overwriteRoutes: false }
   );
   await advanceTimersAndPromises(1);
-  screen.getByText(ScannerStatus.ReadyToScan);
+  expect(result.current?.status.scannerState).toBe(ScannerStatus.ReadyToScan);
 });
 
 test('disabling', async () => {
-  render(<TestComponent interval={false} />);
+  const { result } = renderHook(() => usePrecinctScanner(false));
 
   fetchMock.getOnce('/scan/status', {
     body: scanStatusWaitingForPaperResponse,
   });
   await advanceTimersAndPromises(100);
 
-  screen.getByText('none');
+  expect(result.current).toBeUndefined();
 });
 
 test('issues one status check at a time', async () => {
@@ -82,13 +73,17 @@ test('issues one status check at a time', async () => {
     });
   });
 
-  render(<TestComponent />);
+  const { result } = renderHook(() => usePrecinctScanner());
 
   fetchMock.get('/scan/status', statusEndpoint);
-  screen.getByText('none');
+  expect(result.current).toBeUndefined();
 
   await advanceTimersAndPromises(6);
-  screen.getByText(ScannerStatus.WaitingForPaper);
+  expect(result.current).toEqual({
+    status: expect.objectContaining({
+      scannerState: ScannerStatus.WaitingForPaper,
+    }),
+  });
 
   await advanceTimersAndPromises(6);
   expect(statusEndpoint.mock.calls.length).toEqual(2);
