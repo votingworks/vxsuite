@@ -26,6 +26,7 @@ import {
   PrecinctScannerCardTally,
   Printer,
   TallySourceMachineType,
+  sleep,
 } from '@votingworks/utils';
 import {
   CastVoteRecord,
@@ -47,6 +48,7 @@ import { ExportResultsModal } from '../components/export_results_modal';
 
 import { AppContext } from '../contexts/app_context';
 import { IndeterminateProgressBar } from '../components/graphics';
+import { saveCvrExportToUsb } from '../utils/save_cvr_export_to_usb';
 
 enum PollWorkerFlowState {
   OPEN_POLLS_FLOW__CONFIRM = 'open polls flow: confirm',
@@ -83,9 +85,12 @@ export function PollWorkerScreen({
   printer,
   usbDrive,
 }: Props): JSX.Element {
-  const { electionDefinition, currentPrecinctId, machineConfig } = useContext(
-    AppContext
-  );
+  const {
+    electionDefinition,
+    currentPrecinctId,
+    machineConfig,
+    currentUserSession,
+  } = useContext(AppContext);
   assert(electionDefinition);
   const [currentTally, setCurrentTally] = useState<FullElectionTally>();
   const [currentSubTallies, setCurrentSubTallies] = useState<
@@ -296,6 +301,8 @@ export function PollWorkerScreen({
   }
 
   async function closePolls() {
+    assert(electionDefinition);
+    assert(currentUserSession);
     setPollWorkerFlowState(PollWorkerFlowState.CLOSE_POLLS_FLOW__PROCESSING);
     if (hasPrinterAttached) {
       await printTallyReport();
@@ -303,8 +310,16 @@ export function PollWorkerScreen({
       await saveTally();
     }
     if (scannedBallotCount > 0) {
-      // TODO export results to mounted USB Drive
+      await saveCvrExportToUsb({
+        electionDefinition,
+        machineConfig,
+        scannedBallotCount,
+        isTestMode: !isLiveMode,
+        openFilePickerDialog: false,
+      });
     }
+    await sleep(1000);
+    await usbDrive.eject(currentUserSession.type);
     togglePollsOpen();
     setPollWorkerFlowState(PollWorkerFlowState.CLOSE_POLLS_FLOW__COMPLETE);
   }
