@@ -24,6 +24,7 @@ test('clicking "Export Backup…" shows progress', async () => {
         unconfigureServer={jest.fn()}
         zeroData={jest.fn()}
         backup={backup}
+        hasExportedBackupForAllBatches={false}
         isTestMode={false}
         isTogglingTestMode={false}
         toggleTestMode={jest.fn()}
@@ -57,6 +58,35 @@ test('clicking "Export Backup…" shows progress', async () => {
   });
 });
 
+test('"Delete Election Data from VxCentralScan…" is disabled when hasExportedBackupForAllBatches is falsy', async () => {
+  const unconfigureServer = jest.fn();
+  const component = render(
+    <Router history={createMemoryHistory()}>
+      <AdminActionsScreen
+        hasBatches={false}
+        unconfigureServer={unconfigureServer}
+        zeroData={jest.fn()}
+        backup={jest.fn()}
+        hasExportedBackupForAllBatches={false}
+        isTestMode={false}
+        isTogglingTestMode={false}
+        toggleTestMode={jest.fn()}
+        setMarkThresholdOverrides={jest.fn()}
+        markThresholds={undefined}
+        electionDefinition={testElectionDefinition}
+      />
+    </Router>
+  );
+
+  // Clicking the disabled "Delete Election Data" button should do nothing
+  const resetButton = component.getByText(
+    'Delete Election Data from VxCentralScan…'
+  );
+  resetButton.click();
+  expect(unconfigureServer).not.toHaveBeenCalled();
+  expect(component.queryByText('Delete all election data?')).toBeNull();
+});
+
 test('clicking "Delete Election Data from VxCentralScan…" shows progress', async () => {
   const unconfigureServer = jest.fn();
   const component = render(
@@ -66,6 +96,7 @@ test('clicking "Delete Election Data from VxCentralScan…" shows progress', asy
         unconfigureServer={unconfigureServer}
         zeroData={jest.fn()}
         backup={jest.fn()}
+        hasExportedBackupForAllBatches
         isTestMode={false}
         isTogglingTestMode={false}
         toggleTestMode={jest.fn()}
@@ -165,6 +196,7 @@ test('backup error shows message', async () => {
         unconfigureServer={jest.fn()}
         zeroData={jest.fn()}
         backup={backup}
+        hasExportedBackupForAllBatches
         isTestMode={false}
         isTogglingTestMode={false}
         toggleTestMode={jest.fn()}
@@ -239,6 +271,7 @@ test('override mark thresholds button shows when there are no overrides', async 
           unconfigureServer={jest.fn()}
           zeroData={jest.fn()}
           backup={backup}
+          hasExportedBackupForAllBatches={false}
           isTestMode={false}
           isTogglingTestMode={false}
           toggleTestMode={jest.fn()}
@@ -270,6 +303,7 @@ test('clicking "Update Date and Time…" shows modal to set clock', async () => 
         unconfigureServer={jest.fn()}
         zeroData={jest.fn()}
         backup={jest.fn()}
+        hasExportedBackupForAllBatches={false}
         isTestMode={false}
         isTogglingTestMode={false}
         toggleTestMode={jest.fn()}

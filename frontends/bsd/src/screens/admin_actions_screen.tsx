@@ -1,4 +1,5 @@
 import { ElectionDefinition, MarkThresholds } from '@votingworks/types';
+import { shortDateTime } from '@votingworks/utils';
 import React, { useCallback, useEffect, useState, useContext } from 'react';
 import { LogEventId } from '@votingworks/logging';
 import { LogFileType } from '@votingworks/utils';
@@ -8,6 +9,7 @@ import { LinkButton } from '../components/link_button';
 import { Main, MainChild } from '../components/main';
 import { MainNav } from '../components/main_nav';
 import { Prose } from '../components/prose';
+import { Text } from '../components/text';
 import { Screen } from '../components/screen';
 import { ToggleTestModeButton } from '../components/toggle_test_mode_button';
 import { SetMarkThresholdsModal } from '../components/set_mark_thresholds_modal';
@@ -21,6 +23,8 @@ interface Props {
   hasBatches: boolean;
   isTestMode: boolean;
   isTogglingTestMode: boolean;
+  hasExportedBackupForAllBatches: boolean;
+  exportedAt?: string;
   toggleTestMode: () => Promise<void>;
   setMarkThresholdOverrides: (markThresholds?: MarkThresholds) => Promise<void>;
   markThresholds?: MarkThresholds;
@@ -35,6 +39,8 @@ export function AdminActionsScreen({
   isTestMode,
   isTogglingTestMode,
   toggleTestMode,
+  hasExportedBackupForAllBatches,
+  exportedAt,
   setMarkThresholdOverrides,
   markThresholds,
   electionDefinition,
@@ -153,8 +159,22 @@ export function AdminActionsScreen({
               <p>
                 <SetClockButton>Update Date and Time…</SetClockButton>
               </p>
+              {!hasExportedBackupForAllBatches && (
+                <Text italic muted>
+                  Export a backup in order to delete election data.
+                </Text>
+              )}
+              {hasExportedBackupForAllBatches && exportedAt && (
+                <Text italic muted>
+                  Election data backed up at {shortDateTime(exportedAt)}
+                </Text>
+              )}
               <p>
-                <Button danger onPress={toggleIsConfirmingUnconfigure}>
+                <Button
+                  danger
+                  disabled={!hasExportedBackupForAllBatches}
+                  onPress={toggleIsConfirmingUnconfigure}
+                >
                   Delete Election Data from VxCentralScan…
                 </Button>
               </p>
