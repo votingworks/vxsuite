@@ -168,6 +168,21 @@ export function buildApp({ store, importer }: AppOptions): Application {
   app.delete<NoParams, DeleteElectionConfigResponse>(
     '/config/election',
     async (_request, response) => {
+      const batches = await store.batchStatus();
+      if (!batches.every((b) => b.exportedAt)) {
+        response.status(400).json({
+          status: 'error',
+          errors: [
+            {
+              type: 'no-backup',
+              message:
+                'cannot unconfigure an election that has not been backed up',
+            },
+          ],
+        });
+        return;
+      }
+
       await importer.unconfigure();
       response.json({ status: 'ok' });
     }

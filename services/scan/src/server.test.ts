@@ -220,8 +220,32 @@ test('PATCH /config/election', async () => {
     });
 });
 
+test('DELETE /config/election error', async () => {
+  importer.unconfigure.mockResolvedValue();
+
+  // Add a new batch that hasn't been backed up yet
+  await workspace.store.addBatch();
+
+  await request(app)
+    .delete('/config/election')
+    .set('Accept', 'application/json')
+    .expect(400, {
+      status: 'error',
+      errors: [
+        {
+          type: 'no-backup',
+          message: 'cannot unconfigure an election that has not been backed up',
+        },
+      ],
+    });
+  expect(importer.unconfigure).not.toBeCalled();
+});
+
 test('DELETE /config/election', async () => {
   importer.unconfigure.mockResolvedValue();
+
+  // Set exported_at for all batches
+  workspace.store.exportBatches();
 
   await request(app)
     .delete('/config/election')
