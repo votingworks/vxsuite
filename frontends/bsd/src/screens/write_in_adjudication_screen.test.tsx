@@ -30,7 +30,7 @@ function renderWriteInAdjudicationScreen(
   optionId: ContestOption['id'];
   onAdjudicationComplete: onAdjudicationCompleteType;
 } {
-  const { election } = electionSampleDefinition;
+  const { election, electionHash } = electionSampleDefinition;
   const ballotStyle = election.ballotStyles[0];
   const precinctId = ballotStyle.precincts[0];
   const contests = getContests({ election, ballotStyle });
@@ -43,7 +43,7 @@ function renderWriteInAdjudicationScreen(
     ballotStyleId: ballotStyle.id,
     precinctId,
     ballotType: BallotType.Standard,
-    electionHash: '',
+    electionHash,
     isTestMode: true,
     locales: { primary: 'en-US' },
     pageNumber: 1,

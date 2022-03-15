@@ -5,8 +5,8 @@ jest.setTimeout(10000);
 
 test('regression: page outline', async () => {
   const fixtures = oaklawn;
-  const { election } = fixtures;
-  const interpreter = new Interpreter({ election });
+  const { electionDefinition } = fixtures;
+  const interpreter = new Interpreter({ electionDefinition });
 
   await interpreter.addTemplate(
     await interpreter.interpretTemplate(

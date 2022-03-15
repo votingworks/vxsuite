@@ -5,8 +5,8 @@ jest.setTimeout(10000);
 
 test('enforcing test vs live mode', async () => {
   const fixtures = oaklawn;
-  const { election } = fixtures;
-  const interpreter = new Interpreter({ election });
+  const { electionDefinition } = fixtures;
+  const interpreter = new Interpreter({ electionDefinition });
 
   await expect(
     interpreter.addTemplate(

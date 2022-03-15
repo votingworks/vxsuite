@@ -143,11 +143,9 @@ test('query with sheet ids', () => {
   const inputWorkspace = await createWorkspace(dirSync().name);
   const { store } = inputWorkspace;
 
-  store.setElection({
-    election: fixtures.election,
-    electionData: JSON.stringify(fixtures.election),
-    electionHash: '02f807b005e006da160b',
-  });
+  store.setElection(fixtures.electionDefinition);
+  store.setTestMode(false);
+  store.setSkipElectionHashCheck(true);
 
   const batchId = store.addBatch();
   store.addSheet('a-test-sheet-id', batchId, [
@@ -188,7 +186,11 @@ test('query with sheet ids', () => {
   );
 
   expect(sheetsLoading).toHaveBeenCalledTimes(1);
-  expect(sheetsLoaded).toHaveBeenNthCalledWith(1, 1, fixtures.election);
+  expect(sheetsLoaded).toHaveBeenNthCalledWith(
+    1,
+    1,
+    fixtures.electionDefinition
+  );
   expect(interpreterLoading).toHaveBeenCalledTimes(1);
   expect(interpreterLoaded).toHaveBeenCalledTimes(1);
   expect(pageInterpreted).toHaveBeenCalledTimes(2);
@@ -227,11 +229,9 @@ test('query with sheet ids', () => {
     const outputWorkspace = await createWorkspace(dirSync().name);
     const inputDb = inputWorkspace.store;
 
-    inputDb.setElection({
-      election: fixtures.election,
-      electionData: JSON.stringify(fixtures.election),
-      electionHash: '02f807b005e006da160b',
-    });
+    inputDb.setElection(fixtures.electionDefinition);
+    inputDb.setTestMode(false);
+    inputDb.setSkipElectionHashCheck(true);
 
     const batchId = inputDb.addBatch();
     inputDb.addSheet('a-test-sheet-id', batchId, [

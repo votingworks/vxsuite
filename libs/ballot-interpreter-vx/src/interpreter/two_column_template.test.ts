@@ -4,8 +4,8 @@ import { Interpreter } from '.';
 jest.setTimeout(10000);
 
 test('interpret two-column template', async () => {
-  const { election } = choctawMock2020;
-  const interpreter = new Interpreter({ election });
+  const { electionDefinition } = choctawMock2020;
+  const interpreter = new Interpreter({ electionDefinition });
 
   {
     const template = await interpreter.addTemplate(

@@ -4,8 +4,8 @@ import { Interpreter } from '.';
 jest.setTimeout(10000);
 
 test('dual language ballot', async () => {
-  const { election } = hamilton;
-  const interpreter = new Interpreter({ election });
+  const { electionDefinition } = hamilton;
+  const interpreter = new Interpreter({ electionDefinition });
 
   await interpreter.addTemplate(
     await interpreter.interpretTemplate(

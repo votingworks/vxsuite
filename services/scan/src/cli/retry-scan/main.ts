@@ -104,11 +104,11 @@ export async function main(
       }).start();
     },
 
-    sheetsLoaded: (count, election) => {
+    sheetsLoaded: (count, { election }) => {
       assert(fetchSpinner);
       fetchSpinner.text = `Found ${count} sheet(s) / ${count * 2} pages from ${
-        election?.title
-      } in ${election?.county.name} (${election?.date})`;
+        election.title
+      } in ${election.county.name} (${election.date})`;
       fetchSpinner.succeed();
       fetchSpinner = undefined;
 

@@ -52,17 +52,20 @@ test('normalizing sheet metadata', () => {
 
   // front HMPB / back HMPB
   expect(
-    normalizeSheetMetadata(election, [frontHmpbQrcode, backHmpbQrcode])
+    normalizeSheetMetadata(electionDefinition, [
+      frontHmpbQrcode,
+      backHmpbQrcode,
+    ])
   ).toEqual([frontHmpbQrcode, backHmpbQrcode]);
 
   // front HMPB / back missing
   expect(
-    normalizeSheetMetadata(election, [frontHmpbQrcode, undefined])
+    normalizeSheetMetadata(electionDefinition, [frontHmpbQrcode, undefined])
   ).toEqual([frontHmpbQrcode, backHmpbQrcode]);
 
   // front missing / back rotated HMPB
   expect(
-    normalizeSheetMetadata(election, [
+    normalizeSheetMetadata(electionDefinition, [
       undefined,
       { ...backHmpbQrcode, position: 'top' },
     ])
@@ -73,7 +76,7 @@ test('normalizing sheet metadata', () => {
 
   // front rotated HMPB / back missing
   expect(
-    normalizeSheetMetadata(election, [
+    normalizeSheetMetadata(electionDefinition, [
       { ...backHmpbQrcode, position: 'top' },
       undefined,
     ])
@@ -84,30 +87,27 @@ test('normalizing sheet metadata', () => {
 
   // front missing / back HMPB
   expect(
-    normalizeSheetMetadata(election, [undefined, backHmpbQrcode])
+    normalizeSheetMetadata(electionDefinition, [undefined, backHmpbQrcode])
   ).toEqual([frontHmpbQrcode, backHmpbQrcode]);
 
   // front missing / back missing
-  expect(normalizeSheetMetadata(election, [undefined, undefined])).toEqual([
-    undefined,
-    undefined,
-  ]);
+  expect(
+    normalizeSheetMetadata(electionDefinition, [undefined, undefined])
+  ).toEqual([undefined, undefined]);
 
   // front BMD / back missing
-  expect(normalizeSheetMetadata(election, [bmdQrcode, undefined])).toEqual([
-    bmdQrcode,
-    undefined,
-  ]);
+  expect(
+    normalizeSheetMetadata(electionDefinition, [bmdQrcode, undefined])
+  ).toEqual([bmdQrcode, undefined]);
 
   // front missing / back BMD
-  expect(normalizeSheetMetadata(election, [undefined, bmdQrcode])).toEqual([
-    undefined,
-    bmdQrcode,
-  ]);
+  expect(
+    normalizeSheetMetadata(electionDefinition, [undefined, bmdQrcode])
+  ).toEqual([undefined, bmdQrcode]);
 
   // front rotated BMD / back missing
   expect(
-    normalizeSheetMetadata(election, [
+    normalizeSheetMetadata(electionDefinition, [
       { ...bmdQrcode, position: 'bottom' },
       undefined,
     ])
@@ -115,7 +115,7 @@ test('normalizing sheet metadata', () => {
 
   // front rotated BMD / back missing
   expect(
-    normalizeSheetMetadata(election, [
+    normalizeSheetMetadata(electionDefinition, [
       undefined,
       { ...bmdQrcode, position: 'bottom' },
     ])

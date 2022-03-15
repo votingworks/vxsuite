@@ -5,8 +5,8 @@ jest.setTimeout(10000);
 
 test('upside-down ballot', async () => {
   const fixtures = oaklawn;
-  const { election } = fixtures;
-  const interpreter = new Interpreter({ election });
+  const { electionDefinition } = fixtures;
+  const interpreter = new Interpreter({ electionDefinition });
 
   await interpreter.addTemplate(
     await interpreter.interpretTemplate(

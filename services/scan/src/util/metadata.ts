@@ -1,14 +1,14 @@
 import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
 import { metadataFromBytes } from '@votingworks/ballot-interpreter-vx';
-import { BallotPageMetadata, Election } from '@votingworks/types';
+import { BallotPageMetadata, ElectionDefinition } from '@votingworks/types';
 import { BallotPageQrcode, SheetOf } from '../types';
 
 function tryMetadataFromBytes(
-  election: Election,
+  electionDefinition: ElectionDefinition,
   bytes: Buffer
 ): BallotPageMetadata | undefined {
   try {
-    return metadataFromBytes(election, bytes);
+    return metadataFromBytes(electionDefinition, bytes);
   } catch {
     return undefined;
   }
@@ -19,7 +19,7 @@ function tryMetadataFromBytes(
  * HMPB QR code when possible.
  */
 export function normalizeSheetMetadata(
-  election: Election,
+  electionDefinition: ElectionDefinition,
   [frontQrcode, backQrcode]: SheetOf<BallotPageQrcode | undefined>
 ): SheetOf<BallotPageQrcode | undefined> {
   if (!frontQrcode === !backQrcode) {
@@ -30,13 +30,13 @@ export function normalizeSheetMetadata(
 
   if (presentQrcode) {
     const presentMetadata = tryMetadataFromBytes(
-      election,
+      electionDefinition,
       Buffer.from(presentQrcode.data)
     );
 
     if (presentMetadata) {
       const inferredQrcode: BallotPageQrcode = {
-        data: encodeHmpbBallotPageMetadata(election, {
+        data: encodeHmpbBallotPageMetadata(electionDefinition.election, {
           ...presentMetadata,
           pageNumber:
             presentMetadata.pageNumber % 2 === 0

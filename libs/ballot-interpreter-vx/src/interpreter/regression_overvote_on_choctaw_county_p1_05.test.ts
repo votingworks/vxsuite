@@ -5,8 +5,8 @@ jest.setTimeout(10000);
 
 test('regression: overvote on choctaw county p1-05', async () => {
   const fixtures = choctaw2020LegalSize;
-  const { election } = fixtures;
-  const interpreter = new Interpreter({ election, testMode: true });
+  const { electionDefinition } = fixtures;
+  const interpreter = new Interpreter({ electionDefinition, testMode: true });
 
   await interpreter.addTemplate(
     await interpreter.interpretTemplate(

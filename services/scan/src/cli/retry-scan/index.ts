@@ -1,4 +1,4 @@
-import { Election, PageInterpretation } from '@votingworks/types';
+import { ElectionDefinition, PageInterpretation } from '@votingworks/types';
 import { zip } from '@votingworks/utils';
 import { cpus } from 'os';
 import { isAbsolute, join, resolve } from 'path';
@@ -71,7 +71,7 @@ export interface PageScan {
 export interface RetryScanListeners {
   configured?(options: Options): void;
   sheetsLoading?(): void;
-  sheetsLoaded?(count: number, election?: Election): void;
+  sheetsLoaded?(count: number, electionDefinition: ElectionDefinition): void;
   interpreterLoading?(): void;
   interpreterLoaded?(): void;
   interpreterUnloaded?(): void;
@@ -118,7 +118,7 @@ export async function retryScan(
     throw new Error('no configured election');
   }
 
-  listeners?.sheetsLoaded?.(sheets.length, electionDefinition.election);
+  listeners?.sheetsLoaded?.(sheets.length, electionDefinition);
 
   listeners?.interpreterLoading?.();
   const pool = childProcessPool(
@@ -173,7 +173,7 @@ export async function retryScan(
           frontDetectQrcodeOutput,
           backDetectQrcodeOutput,
         ] = qrcodeWorker.normalizeSheetOutput(
-          electionDefinition.election,
+          electionDefinition,
           await Promise.all(
             originalScans.map(
               async (scan) =>

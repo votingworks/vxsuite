@@ -1,10 +1,10 @@
 import { metadataFromBytes } from '@votingworks/ballot-interpreter-vx';
-import { electionSample } from '@votingworks/fixtures';
+import { electionSampleDefinition } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
   BallotIdSchema,
   BlankPage,
-  Election,
+  ElectionDefinition,
   InterpretedBmdPage,
   InterpretedHmpbPage,
   PageInterpretation,
@@ -15,10 +15,10 @@ import {
 import { throwIllegalValue } from '@votingworks/utils';
 import { readFile } from 'fs-extra';
 import { join } from 'path';
-import { election as choctaw2020Election } from '../test/fixtures/2020-choctaw';
+import * as choctaw2020Fixtures from '../test/fixtures/2020-choctaw';
 import * as general2020Fixtures from '../test/fixtures/2020-general';
 import * as choctaw2020SpecialFixtures from '../test/fixtures/choctaw-2020-09-22-f30480cc99';
-import { election as stateOfHamiltonElection } from '../test/fixtures/state-of-hamilton';
+import * as stateOfHamiltonFixtures from '../test/fixtures/state-of-hamilton';
 import {
   getBallotImageData,
   Interpreter,
@@ -28,16 +28,6 @@ import { pdfToImages } from './util/pdf_to_images';
 import { detectQrcodeInFilePath } from './workers/qrcode';
 
 const sampleBallotImagesPath = join(__dirname, '..', 'sample-ballot-images/');
-const stateOfHamiltonFixturesRoot = join(
-  __dirname,
-  '..',
-  'test/fixtures/state-of-hamilton'
-);
-const choctaw2020FixturesRoot = join(
-  __dirname,
-  '..',
-  'test/fixtures/2020-choctaw'
-);
 
 jest.setTimeout(10000);
 
@@ -62,13 +52,19 @@ test('extracts votes encoded in a QR code', async () => {
   expect(
     (
       await new Interpreter({
-        election: {
-          ...electionSample,
-          markThresholds: { definite: 0.2, marginal: 0.17 },
+        electionDefinition: {
+          ...electionSampleDefinition,
+          election: {
+            ...electionSampleDefinition.election,
+            markThresholds: { definite: 0.2, marginal: 0.17 },
+          },
         },
         testMode: true,
+        // TODO: remove this once the QR code is fixed (https://github.com/votingworks/vxsuite/issues/1524)
+        skipElectionHashCheck: true,
         adjudicationReasons:
-          electionSample.centralScanAdjudicationReasons ?? [],
+          electionSampleDefinition.election.centralScanAdjudicationReasons ??
+          [],
       }).interpretFile({
         ballotImagePath,
         ballotImageFile: await readFile(ballotImagePath),
@@ -108,12 +104,18 @@ test('properly detects test ballot in live mode', async () => {
     'sample-batch-1-ballot-1.png'
   );
   const interpretationResult = await new Interpreter({
-    election: {
-      ...electionSample,
-      markThresholds: { definite: 0.2, marginal: 0.17 },
+    electionDefinition: {
+      ...electionSampleDefinition,
+      election: {
+        ...electionSampleDefinition.election,
+        markThresholds: { definite: 0.2, marginal: 0.17 },
+      },
     },
     testMode: false, // this is the test mode
-    adjudicationReasons: electionSample.centralScanAdjudicationReasons ?? [],
+    // TODO: remove this once the QR code is fixed (https://github.com/votingworks/vxsuite/issues/1524)
+    skipElectionHashCheck: true,
+    adjudicationReasons:
+      electionSampleDefinition.election.centralScanAdjudicationReasons ?? [],
   }).interpretFile({
     ballotImagePath,
     ballotImageFile: await readFile(ballotImagePath),
@@ -127,7 +129,7 @@ test('properly detects test ballot in live mode', async () => {
 
 test('can read metadata encoded in a QR code with base64', async () => {
   const fixtures = choctaw2020SpecialFixtures;
-  const { election } = fixtures;
+  const { electionDefinition } = fixtures;
   const { qrcode } = (
     await getBallotImageData(
       await readFile(fixtures.blankPage1),
@@ -136,7 +138,7 @@ test('can read metadata encoded in a QR code with base64', async () => {
     )
   ).unsafeUnwrap();
 
-  expect(metadataFromBytes(election, Buffer.from(qrcode.data)))
+  expect(metadataFromBytes(electionDefinition, Buffer.from(qrcode.data)))
     .toMatchInlineSnapshot(`
     Object {
       "ballotId": undefined,
@@ -196,13 +198,16 @@ test('can read metadata in QR code with skewed / dirty ballot', async () => {
 
 test('interprets marks on a HMPB', async () => {
   const interpreter = new Interpreter({
-    election: stateOfHamiltonElection,
+    electionDefinition: stateOfHamiltonFixtures.electionDefinition,
     testMode: false,
-    adjudicationReasons: electionSample.centralScanAdjudicationReasons ?? [],
+    adjudicationReasons:
+      electionSampleDefinition.election.centralScanAdjudicationReasons ?? [],
+    // TODO: remove this once the QR code is fixed (https://github.com/votingworks/vxsuite/issues/1524)
+    skipElectionHashCheck: true,
   });
 
   for await (const { page, pageNumber } of pdfToImages(
-    await readFile(join(stateOfHamiltonFixturesRoot, 'ballot.pdf')),
+    await readFile(stateOfHamiltonFixtures.ballotPdf),
     { scale: 2 }
   )) {
     await interpreter.addHmpbTemplate(
@@ -214,10 +219,7 @@ test('interprets marks on a HMPB', async () => {
     }
   }
 
-  const ballotImagePath = join(
-    stateOfHamiltonFixturesRoot,
-    'filled-in-dual-language-p1.jpg'
-  );
+  const ballotImagePath = stateOfHamiltonFixtures.filledInPage1;
   const { votes } = (
     await interpreter.interpretFile({
       ballotImagePath,
@@ -255,13 +257,16 @@ test('interprets marks on a HMPB', async () => {
 
 test('interprets marks on an upside-down HMPB', async () => {
   const interpreter = new Interpreter({
-    election: stateOfHamiltonElection,
+    electionDefinition: stateOfHamiltonFixtures.electionDefinition,
     testMode: false,
-    adjudicationReasons: electionSample.centralScanAdjudicationReasons ?? [],
+    adjudicationReasons:
+      electionSampleDefinition.election.centralScanAdjudicationReasons ?? [],
+    // TODO: remove this once the QR code is fixed (https://github.com/votingworks/vxsuite/issues/1524)
+    skipElectionHashCheck: true,
   });
 
   for await (const { page, pageNumber } of pdfToImages(
-    await readFile(join(stateOfHamiltonFixturesRoot, 'ballot.pdf')),
+    await readFile(stateOfHamiltonFixtures.ballotPdf),
     { scale: 2 }
   )) {
     await interpreter.addHmpbTemplate(
@@ -273,10 +278,7 @@ test('interprets marks on an upside-down HMPB', async () => {
     }
   }
 
-  const ballotImagePath = join(
-    stateOfHamiltonFixturesRoot,
-    'filled-in-dual-language-p1-flipped.jpg'
-  );
+  const ballotImagePath = stateOfHamiltonFixtures.filledInPage1Flipped;
   expect(
     (
       await interpreter.interpretFile({
@@ -862,7 +864,7 @@ test('interprets marks on an upside-down HMPB', async () => {
       "metadata": Object {
         "ballotStyleId": "12",
         "ballotType": 0,
-        "electionHash": "",
+        "electionHash": "965aa0b918b9bab9a2a445ede07b23b65f84dfbdf6012621eb5b6b7e984442cb",
         "isTestMode": false,
         "locales": Object {
           "primary": "en-US",
@@ -902,18 +904,24 @@ test('interprets marks on an upside-down HMPB', async () => {
 test('interprets marks in PNG ballots', async () => {
   jest.setTimeout(15000);
 
-  const election: Election = {
-    markThresholds: { definite: 0.2, marginal: 0.12 },
-    ...choctaw2020Election,
+  const electionDefinition: ElectionDefinition = {
+    ...choctaw2020Fixtures.electionDefinition,
+    election: {
+      markThresholds: { definite: 0.2, marginal: 0.12 },
+      ...choctaw2020Fixtures.election,
+    },
   };
   const interpreter = new Interpreter({
-    election,
+    electionDefinition,
     testMode: false,
-    adjudicationReasons: electionSample.centralScanAdjudicationReasons ?? [],
+    adjudicationReasons:
+      electionSampleDefinition.election.centralScanAdjudicationReasons ?? [],
+    // TODO: remove this once the QR code is fixed (https://github.com/votingworks/vxsuite/issues/1524)
+    skipElectionHashCheck: true,
   });
 
   for await (const { page } of pdfToImages(
-    await readFile(join(choctaw2020FixturesRoot, 'ballot.pdf')),
+    await readFile(choctaw2020Fixtures.ballotPdf),
     { scale: 2 }
   )) {
     await interpreter.addHmpbTemplate(
@@ -922,7 +930,7 @@ test('interprets marks in PNG ballots', async () => {
   }
 
   {
-    const ballotImagePath = join(choctaw2020FixturesRoot, 'filled-in-p1.png');
+    const ballotImagePath = choctaw2020Fixtures.filledInPage1;
     expect(
       (
         await interpreter.interpretFile({
@@ -1493,7 +1501,7 @@ test('interprets marks in PNG ballots', async () => {
         "metadata": Object {
           "ballotStyleId": "1",
           "ballotType": 0,
-          "electionHash": "",
+          "electionHash": "0428fbdfff6eee2364599b650f150e029267109898db7d61db9e3c48209aa72d",
           "isTestMode": false,
           "locales": Object {
             "primary": "en-US",
@@ -1544,7 +1552,7 @@ test('interprets marks in PNG ballots', async () => {
   }
 
   {
-    const ballotImagePath = join(choctaw2020FixturesRoot, 'filled-in-p2.png');
+    const ballotImagePath = choctaw2020Fixtures.filledInPage2;
     expect(
       (
         await interpreter.interpretFile({
@@ -1692,7 +1700,7 @@ test('interprets marks in PNG ballots', async () => {
         "metadata": Object {
           "ballotStyleId": "1",
           "ballotType": 0,
-          "electionHash": "",
+          "electionHash": "0428fbdfff6eee2364599b650f150e029267109898db7d61db9e3c48209aa72d",
           "isTestMode": false,
           "locales": Object {
             "primary": "en-US",
@@ -1716,13 +1724,16 @@ test('interprets marks in PNG ballots', async () => {
 
 test('returns metadata if the QR code is readable but the HMPB ballot is not', async () => {
   const interpreter = new Interpreter({
-    election: stateOfHamiltonElection,
+    electionDefinition: stateOfHamiltonFixtures.electionDefinition,
     testMode: false,
-    adjudicationReasons: electionSample.centralScanAdjudicationReasons ?? [],
+    adjudicationReasons:
+      electionSampleDefinition.election.centralScanAdjudicationReasons ?? [],
+    // TODO: remove this once the QR code is fixed (https://github.com/votingworks/vxsuite/issues/1524)
+    skipElectionHashCheck: true,
   });
 
   for await (const { page, pageNumber } of pdfToImages(
-    await readFile(join(stateOfHamiltonFixturesRoot, 'ballot.pdf')),
+    await readFile(stateOfHamiltonFixtures.ballotPdf),
     { scale: 2 }
   )) {
     await interpreter.addHmpbTemplate(
@@ -1734,10 +1745,7 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
     }
   }
 
-  const ballotImagePath = join(
-    stateOfHamiltonFixturesRoot,
-    'filled-in-dual-language-p3.jpg'
-  );
+  const ballotImagePath = stateOfHamiltonFixtures.filledInPage3;
   expect(
     (
       await interpreter.interpretFile({
@@ -1751,7 +1759,7 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
       "metadata": Object {
         "ballotStyleId": "12",
         "ballotType": 0,
-        "electionHash": "",
+        "electionHash": "965aa0b918b9bab9a2a445ede07b23b65f84dfbdf6012621eb5b6b7e984442cb",
         "isTestMode": false,
         "locales": Object {
           "primary": "en-US",
@@ -1770,7 +1778,7 @@ const pageInterpretationBoilerplate: InterpretedHmpbPage = {
   metadata: {
     ballotStyleId: '12',
     ballotType: 0,
-    electionHash: '',
+    electionHash: stateOfHamiltonFixtures.electionDefinition.electionHash,
     isTestMode: false,
     locales: {
       primary: 'en-US',

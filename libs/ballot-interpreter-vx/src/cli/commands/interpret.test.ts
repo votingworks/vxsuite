@@ -6,7 +6,7 @@ import { parseGlobalOptions } from '..';
 import {
   blankPage1,
   blankPage2,
-  election,
+  electionDefinition,
   electionPath,
   filledInPage1,
   filledInPage2,
@@ -32,7 +32,7 @@ test('parse options: --election', async () => {
       ).unsafeUnwrap()
     ).toEqual(
       expect.objectContaining({
-        election,
+        electionDefinition,
       })
     );
   }
@@ -449,7 +449,7 @@ test('run interpret with JSON output', async () => {
         \\"input\\": \\"test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library/filled-in-p1.jpg\\",
         \\"interpreted\\": {
           \\"metadata\\": {
-            \\"electionHash\\": \\"\\",
+            \\"electionHash\\": \\"e012488b8fd567899e4d1b931343ac74e9a8803e33adf8657ab27bbb4408a492\\",
             \\"ballotType\\": 0,
             \\"locales\\": {
               \\"primary\\": \\"en-US\\"

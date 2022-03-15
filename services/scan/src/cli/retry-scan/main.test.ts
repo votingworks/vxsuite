@@ -1,4 +1,4 @@
-import { electionSample } from '@votingworks/fixtures';
+import { electionSampleDefinition } from '@votingworks/fixtures';
 import { BallotType } from '@votingworks/types';
 import { WritableStream } from 'memory-streams';
 import { mocked } from 'ts-jest/utils';
@@ -94,7 +94,7 @@ test('successful rescan with one non-type change', async () => {
         ballotStyleId: '1',
         precinctId: '2',
         ballotType: BallotType.Standard,
-        electionHash: '',
+        electionHash: electionSampleDefinition.electionHash,
         isTestMode: false,
         locales: { primary: 'en-US' },
       },
@@ -110,7 +110,7 @@ test('successful rescan with one non-type change', async () => {
   } as const;
 
   listeners?.sheetsLoading?.();
-  listeners?.sheetsLoaded?.(1, electionSample);
+  listeners?.sheetsLoaded?.(1, electionSampleDefinition);
   listeners?.interpreterLoading?.();
   listeners?.interpreterLoaded?.();
   listeners?.pageInterpreted?.('a-test-sheet-id', 'front', frontScan, {
@@ -139,7 +139,7 @@ test('successful rescan with one non-type change', async () => {
         \\"metadata\\": Object {
           \\"ballotStyleId\\": \\"1\\",
           \\"ballotType\\": 0,
-          \\"electionHash\\": \\"\\",
+          \\"electionHash\\": \\"2f6b1553c75fb2c5ad8b3f2994644e6f36f9abfcb8198e812d383c0df3640d43\\",
           \\"isTestMode\\": false,
           \\"locales\\": Object {
             \\"primary\\": \\"en-US\\",

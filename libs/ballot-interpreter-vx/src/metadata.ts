@@ -3,7 +3,7 @@ import {
   BallotLocales,
   BallotPageMetadata,
   BallotType,
-  Election,
+  ElectionDefinition,
 } from '@votingworks/types';
 import { defined } from './utils/defined';
 import { detect as detectQrCode } from './utils/qrcode';
@@ -16,6 +16,7 @@ export interface DetectResult {
 export class MetadataDecodeError extends Error {}
 
 export function decodeSearchParams(
+  electionDefinition: ElectionDefinition,
   searchParams: URLSearchParams
 ): BallotPageMetadata {
   const type = defined(searchParams.get('t'));
@@ -44,7 +45,7 @@ export function decodeSearchParams(
   const pageNumber = parseInt(pageInfoNumber, 10);
 
   return {
-    electionHash: '',
+    electionHash: electionDefinition.electionHash,
     ballotType: BallotType.Standard,
     locales,
     ballotStyleId,
@@ -59,29 +60,29 @@ function isBase64(string: string): boolean {
 }
 
 export function fromString(
-  election: Election,
+  electionDefinition: ElectionDefinition,
   text: string
 ): BallotPageMetadata {
   if (isBase64(text)) {
     // eslint-disable-next-line @typescript-eslint/no-use-before-define
-    return fromBytes(election, Buffer.from(text, 'base64'));
+    return fromBytes(electionDefinition, Buffer.from(text, 'base64'));
   }
-  return decodeSearchParams(new URL(text).searchParams);
+  return decodeSearchParams(electionDefinition, new URL(text).searchParams);
 }
 
 export function fromBytes(
-  election: Election,
+  electionDefinition: ElectionDefinition,
   data: Buffer
 ): BallotPageMetadata {
   if (data[0] === 'V'.charCodeAt(0) && data[1] === 'P'.charCodeAt(0)) {
-    return decodeHmpbBallotPageMetadata(election, data);
+    return decodeHmpbBallotPageMetadata(electionDefinition.election, data);
   }
 
-  return fromString(election, new TextDecoder().decode(data));
+  return fromString(electionDefinition, new TextDecoder().decode(data));
 }
 
 export async function detect(
-  election: Election,
+  electionDefinition: ElectionDefinition,
   imageData: ImageData
 ): Promise<DetectResult> {
   const result = await detectQrCode(imageData);
@@ -91,7 +92,7 @@ export async function detect(
   }
 
   return {
-    metadata: fromBytes(election, result.data),
+    metadata: fromBytes(electionDefinition, result.data),
     flipped: result.position === 'top',
   };
 }

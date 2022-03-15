@@ -1,4 +1,3 @@
-import { asElectionDefinition } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
   BallotMetadata,
@@ -11,7 +10,7 @@ import {
 import { typedAs } from '@votingworks/utils';
 import * as tmp from 'tmp';
 import { v4 as uuid } from 'uuid';
-import { election } from '../test/fixtures/state-of-hamilton';
+import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { zeroRect } from '../test/fixtures/zero_rect';
 import { Store } from './store';
 import { PageInterpretationWithFiles, SheetOf } from './types';
@@ -21,8 +20,10 @@ test('get/set election', () => {
 
   expect(store.getElectionDefinition()).toBeUndefined();
 
-  store.setElection(asElectionDefinition(election));
-  expect(store.getElectionDefinition()?.election).toEqual(election);
+  store.setElection(stateOfHamilton.electionDefinition);
+  expect(store.getElectionDefinition()?.election).toEqual(
+    stateOfHamilton.election
+  );
 
   store.setElection(undefined);
   expect(store.getElectionDefinition()).toBeUndefined();
@@ -57,7 +58,7 @@ test('get/set mark threshold overrides', () => {
 
 test('get current mark thresholds falls back to election definition defaults', () => {
   const store = Store.memoryStore();
-  store.setElection(asElectionDefinition(election));
+  store.setElection(stateOfHamilton.electionDefinition);
   expect(store.getCurrentMarkThresholds()).toStrictEqual({
     definite: 0.17,
     marginal: 0.12,
@@ -255,24 +256,24 @@ test('batchStatus', () => {
 });
 
 test('adjudication', () => {
-  const candidateContests = election.contests.filter(
+  const candidateContests = stateOfHamilton.election.contests.filter(
     (contest): contest is CandidateContest => contest.type === 'candidate'
   );
-  const yesnoContests = election.contests.filter(
+  const yesnoContests = stateOfHamilton.election.contests.filter(
     (contest): contest is YesNoContest => contest.type === 'yesno'
   );
   const yesnoOption = 'yes';
 
   const store = Store.memoryStore();
   const metadata: BallotMetadata = {
-    electionHash: '',
+    electionHash: stateOfHamilton.electionDefinition.electionHash,
     ballotStyleId: '12',
     precinctId: '23',
     isTestMode: false,
     locales: { primary: 'en-US' },
     ballotType: BallotType.Standard,
   };
-  store.setElection(asElectionDefinition(election));
+  store.setElection(stateOfHamilton.electionDefinition);
   store.addHmpbTemplate(
     Buffer.of(),
     metadata,
@@ -365,7 +366,7 @@ test('adjudication', () => {
             ],
           },
           metadata: {
-            electionHash: '',
+            electionHash: stateOfHamilton.electionDefinition.electionHash,
             ballotStyleId: '12',
             precinctId: '23',
             isTestMode: false,

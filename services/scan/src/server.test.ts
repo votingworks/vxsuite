@@ -1,7 +1,4 @@
-import {
-  asElectionDefinition,
-  electionSampleDefinition as testElectionDefinition,
-} from '@votingworks/fixtures';
+import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures';
 import { Logger, LogSource } from '@votingworks/logging';
 import * as plusteksdk from '@votingworks/plustek-sdk';
 import {
@@ -24,7 +21,7 @@ import request from 'supertest';
 import { dirSync } from 'tmp';
 import { mocked } from 'ts-jest/dist/utils/testing';
 import { v4 as uuid } from 'uuid';
-import { election } from '../test/fixtures/state-of-hamilton';
+import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { makeMock } from '../test/util/mocks';
 import { Importer } from './importer';
 import { buildApp, start } from './server';
@@ -40,12 +37,12 @@ let importer: jest.Mocked<Importer>;
 beforeEach(async () => {
   importer = makeMock(Importer);
   workspace = await createWorkspace(dirSync().name);
-  workspace.store.setElection(asElectionDefinition(election));
+  workspace.store.setElection(stateOfHamilton.electionDefinition);
   workspace.store.addHmpbTemplate(
     Buffer.of(),
     {
       locales: { primary: 'en-US' },
-      electionHash: '',
+      electionHash: stateOfHamilton.electionDefinition.electionHash,
       ballotType: BallotType.Standard,
       ballotStyleId: '12',
       precinctId: '23',
@@ -56,7 +53,7 @@ beforeEach(async () => {
         pageSize: { width: 1, height: 1 },
         metadata: {
           locales: { primary: 'en-US' },
-          electionHash: '',
+          electionHash: stateOfHamilton.electionDefinition.electionHash,
           ballotType: BallotType.Standard,
           ballotStyleId: '12',
           precinctId: '23',
@@ -69,7 +66,7 @@ beforeEach(async () => {
         pageSize: { width: 1, height: 1 },
         metadata: {
           locales: { primary: 'en-US' },
-          electionHash: '',
+          electionHash: stateOfHamilton.electionDefinition.electionHash,
           ballotType: BallotType.Standard,
           ballotStyleId: '12',
           precinctId: '23',
@@ -235,7 +232,7 @@ test('PUT /config/package', async () => {
     __dirname,
     '../test/fixtures/hamilton-seal-049e9e66cd'
   );
-  const electionDefinition = safeParseElectionDefinition(
+  const hamiltonSealElectionDefinition = safeParseElectionDefinition(
     await fs.readFile(join(fixtureRoot, 'election.json'), 'utf-8')
   ).unsafeUnwrap();
   importer.configure.mockReturnValue();
@@ -246,7 +243,7 @@ test('PUT /config/package', async () => {
     .set('Accept', 'application/json')
     .field('package', createReadStream(join(fixtureRoot, 'ballot-package.zip')))
     .expect(200, { status: 'ok' });
-  expect(importer.configure).toBeCalledWith(electionDefinition);
+  expect(importer.configure).toBeCalledWith(hamiltonSealElectionDefinition);
 });
 
 test('PUT /config/package missing package', async () => {
@@ -359,22 +356,10 @@ test('POST /scan/zero', async () => {
 });
 
 test('GET /scan/hmpb/ballot/:ballotId/:side/image', async () => {
-  const frontOriginal = join(
-    __dirname,
-    '../test/fixtures/state-of-hamilton/filled-in-dual-language-p1-flipped.jpg'
-  );
-  const frontNormalized = join(
-    __dirname,
-    '../test/fixtures/state-of-hamilton/filled-in-dual-language-p1.jpg'
-  );
-  const backOriginal = join(
-    __dirname,
-    '../test/fixtures/state-of-hamilton/filled-in-dual-language-p2.jpg'
-  );
-  const backNormalized = join(
-    __dirname,
-    '../test/fixtures/state-of-hamilton/filled-in-dual-language-p2.jpg'
-  );
+  const frontOriginal = stateOfHamilton.filledInPage1Flipped;
+  const frontNormalized = stateOfHamilton.filledInPage1;
+  const backOriginal = stateOfHamilton.filledInPage2;
+  const backNormalized = stateOfHamilton.filledInPage2;
   const batchId = workspace.store.addBatch();
   const sheetId = workspace.store.addSheet(uuid(), batchId, [
     {
@@ -384,7 +369,7 @@ test('GET /scan/hmpb/ballot/:ballotId/:side/image', async () => {
         type: 'InterpretedHmpbPage',
         metadata: {
           locales: { primary: 'en-US' },
-          electionHash: '',
+          electionHash: stateOfHamilton.electionDefinition.electionHash,
           ballotType: BallotType.Standard,
           ballotStyleId: '12',
           precinctId: '23',
@@ -411,7 +396,7 @@ test('GET /scan/hmpb/ballot/:ballotId/:side/image', async () => {
         type: 'InterpretedHmpbPage',
         metadata: {
           locales: { primary: 'en-US' },
-          electionHash: '',
+          electionHash: stateOfHamilton.electionDefinition.electionHash,
           ballotType: BallotType.Standard,
           ballotStyleId: '12',
           precinctId: '23',
@@ -523,7 +508,7 @@ test('POST /scan/hmpb/addTemplates', async () => {
         pageSize: { width: 1, height: 1 },
         metadata: {
           locales: { primary: 'en-US' },
-          electionHash: '',
+          electionHash: stateOfHamilton.electionDefinition.electionHash,
           ballotType: BallotType.Standard,
           ballotStyleId: '77',
           precinctId: '42',

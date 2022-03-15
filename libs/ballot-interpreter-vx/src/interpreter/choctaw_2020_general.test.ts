@@ -4,8 +4,8 @@ import { Interpreter } from '.';
 jest.setTimeout(10000);
 
 test('choctaw 2020 general', async () => {
-  const { election } = choctaw2020;
-  const interpreter = new Interpreter({ election });
+  const { electionDefinition } = choctaw2020;
+  const interpreter = new Interpreter({ electionDefinition });
 
   await interpreter.addTemplate(
     await interpreter.interpretTemplate(
