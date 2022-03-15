@@ -17,4 +17,11 @@ describe('renders SetupCardReaderPage', () => {
     expect(container.firstChild).toMatchSnapshot();
     expect(triggerFn).toHaveBeenCalled();
   });
+
+  test('renders SetupCardReaderPage with usePollWorkerLanguage set to false', async () => {
+    const { container } = render(
+      <SetupCardReaderPage usePollWorkerLanguage={false} />
+    );
+    expect(container.firstChild).toMatchSnapshot();
+  });
 });

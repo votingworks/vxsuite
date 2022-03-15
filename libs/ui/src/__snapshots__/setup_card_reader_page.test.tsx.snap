@@ -1,5 +1,30 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`renders SetupCardReaderPage renders SetupCardReaderPage with usePollWorkerLanguage set to false 1`] = `
+<div
+  class="sc-hiCivh ePVVDe"
+>
+  <main
+    class="sc-bkkfTU enzCGe"
+  >
+    <div
+      class="sc-ieebsP iIuUkJ"
+    >
+      <div
+        class="sc-jrQzUz dRAoti"
+      >
+        <h1>
+          Card Reader Not Detected
+        </h1>
+        <p>
+          Please connect the card reader to continue.
+        </p>
+      </div>
+    </div>
+  </main>
+</div>
+`;
+
 exports[`renders SetupCardReaderPage triggers useEffect property 1`] = `
 <div
   class="sc-gWXaA-D gHnxHO"

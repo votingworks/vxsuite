@@ -510,7 +510,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
     : new LocalStorage();
 
   if (!cardReader) {
-    return <SetupCardReaderPage />;
+    return <SetupCardReaderPage usePollWorkerLanguage={false} />;
   }
   const currentContext: AppContextInterface = {
     usbDriveStatus: displayUsbStatus,
