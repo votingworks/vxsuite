@@ -744,6 +744,9 @@ export function buildApp({ store, importer }: AppOptions): Application {
           ],
         });
       })
+      .on('end', () => {
+        store.exportBatches();
+      })
       .pipe(response);
   });
 
