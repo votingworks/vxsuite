@@ -285,7 +285,7 @@ test('invalidateBatchesExported', () => {
 
   // Create a batch and add a sheet to it, then mark it as exported
   const batchId = store.addBatch();
-  store.exportBatches();
+  store.markAllBatchesAsExported();
   expect(allBatchesExported()).toBe(true);
 
   // Add a sheet to the batch and confirm that invalidates the backup/export
@@ -310,7 +310,7 @@ test('invalidateBatchesExported', () => {
   expect(allBatchesExported()).toBe(false);
 
   // Mark the batch as exported again
-  store.exportBatches();
+  store.markAllBatchesAsExported();
   expect(allBatchesExported()).toBe(true);
 
   // Delete the sheet, confirm that invalidates the backup/export
@@ -319,7 +319,7 @@ test('invalidateBatchesExported', () => {
 
   // Add another batch, then mark all batches as exported
   const batchId2 = store.addBatch();
-  store.exportBatches();
+  store.markAllBatchesAsExported();
   expect(allBatchesExported()).toBe(true);
 
   // Delete the second batch, confirm that invalidates the backup/export

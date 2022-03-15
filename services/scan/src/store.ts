@@ -378,7 +378,7 @@ export class Store {
   /**
    * Marks all batches as exported.
    */
-  exportBatches(): void {
+  markAllBatchesAsExported(): void {
     this.client.run('update batches set exported_at = current_timestamp');
   }
 

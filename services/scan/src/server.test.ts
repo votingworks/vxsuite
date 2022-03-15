@@ -245,7 +245,7 @@ test('DELETE /config/election', async () => {
   importer.unconfigure.mockResolvedValue();
 
   // Set exported_at for all batches
-  workspace.store.exportBatches();
+  workspace.store.markAllBatchesAsExported();
 
   await request(app)
     .delete('/config/election')

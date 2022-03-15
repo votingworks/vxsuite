@@ -745,7 +745,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
         });
       })
       .on('end', () => {
-        store.exportBatches();
+        store.markAllBatchesAsExported();
       })
       .pipe(response);
   });
