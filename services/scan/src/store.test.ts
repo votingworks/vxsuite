@@ -262,6 +262,71 @@ test('batchStatus', () => {
   expect(batches).toHaveLength(0);
 });
 
+test('invalidateBatchesExported', () => {
+  const store = Store.memoryStore();
+
+  const frontMetadata: BallotPageMetadata = {
+    locales: { primary: 'en-US' },
+    electionHash: '',
+    ballotType: BallotType.Standard,
+    ballotStyleId: election.ballotStyles[0].id,
+    precinctId: election.precincts[0].id,
+    isTestMode: false,
+    pageNumber: 1,
+  };
+  const backMetadata: BallotPageMetadata = {
+    ...frontMetadata,
+    pageNumber: 2,
+  };
+
+  function allBatchesExported() {
+    return store.batchStatus().every((b) => b.exportedAt);
+  }
+
+  // Create a batch and add a sheet to it, then mark it as exported
+  const batchId = store.addBatch();
+  store.exportBatches();
+  expect(allBatchesExported()).toBe(true);
+
+  // Add a sheet to the batch and confirm that invalidates the backup/export
+  const sheetId = store.addSheet(uuid(), batchId, [
+    {
+      originalFilename: '/tmp/front-page.png',
+      normalizedFilename: '/tmp/front-normalized-page.png',
+      interpretation: {
+        type: 'UninterpretedHmpbPage',
+        metadata: frontMetadata,
+      },
+    },
+    {
+      originalFilename: '/tmp/back-page.png',
+      normalizedFilename: '/tmp/back-normalized-page.png',
+      interpretation: {
+        type: 'UninterpretedHmpbPage',
+        metadata: backMetadata,
+      },
+    },
+  ]);
+  expect(allBatchesExported()).toBe(false);
+
+  // Mark the batch as exported again
+  store.exportBatches();
+  expect(allBatchesExported()).toBe(true);
+
+  // Delete the sheet, confirm that invalidates the backup/export
+  store.deleteSheet(sheetId);
+  expect(allBatchesExported()).toBe(false);
+
+  // Add another batch, then mark all batches as exported
+  const batchId2 = store.addBatch();
+  store.exportBatches();
+  expect(allBatchesExported()).toBe(true);
+
+  // Delete the second batch, confirm that invalidates the backup/export
+  store.deleteBatch(batchId2);
+  expect(allBatchesExported()).toBe(false);
+});
+
 test('adjudication', () => {
   const candidateContests = stateOfHamilton.election.contests.filter(
     (contest): contest is CandidateContest => contest.type === 'candidate'
