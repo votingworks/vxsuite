@@ -10,6 +10,7 @@ import { map } from 'rxjs/operators';
 import { LogEventId, Logger } from '@votingworks/logging';
 import useInterval from 'use-interval';
 import { usePrevious } from '..';
+import { useCancelablePromise } from './use_cancelable_promise';
 
 export const LOW_BATTERY_THRESHOLD = 0.25;
 export const BATTERY_POLLING_INTERVAL = 3000;
@@ -51,6 +52,7 @@ function getDeviceName(device: KioskBrowser.Device) {
 }
 
 export function useDevices({ hardware, logger }: Props): Devices {
+  const makeCancelable = useCancelablePromise();
   const [allDevices, setAllDevices] = useState<KioskBrowser.Device[]>([]);
   const [allPrinters, setAllPrinters] = useState<KioskBrowser.PrinterInfo[]>(
     []
@@ -78,7 +80,7 @@ export function useDevices({ hardware, logger }: Props): Devices {
 
   useInterval(
     async () => {
-      setBattery(await hardware.readBatteryStatus());
+      setBattery(await makeCancelable(hardware.readBatteryStatus()));
     },
     BATTERY_POLLING_INTERVAL,
     true
