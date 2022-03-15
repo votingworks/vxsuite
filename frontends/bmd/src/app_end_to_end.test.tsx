@@ -389,6 +389,11 @@ it('MarkAndPrint end-to-end flow', async () => {
   expect(writeLongUint8ArrayMock).toHaveBeenCalledTimes(4);
   expect(writeLongUint8ArrayMock).toHaveBeenNthCalledWith(4, new Uint8Array());
 
+  // Insert SuperAdmin card
+  card.insertCard({ t: 'superadmin' });
+  await advanceTimersAndPromises();
+  await screen.getByText('Reboot from USB');
+
   // ---------------
 
   // Unconfigure with Admin Card
@@ -400,4 +405,9 @@ it('MarkAndPrint end-to-end flow', async () => {
 
   // Default Unconfigured
   screen.getByText('Device Not Configured');
+
+  // Insert SuperAdmin card works when unconfigured
+  card.insertCard({ t: 'superadmin' });
+  await advanceTimersAndPromises();
+  await screen.getByText('Reboot from USB');
 });

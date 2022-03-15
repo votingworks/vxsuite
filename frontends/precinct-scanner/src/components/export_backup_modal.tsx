@@ -181,7 +181,7 @@ export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
               <p>
                 Please insert a USB drive to export the backup.
                 <UsbImage
-                  src={`${process.env.PUBLIC_URL}/assets/usb-stick.svg`}
+                  src={`${process.env.PUBLIC_URL}/assets/usb-drive.svg`}
                   onDoubleClick={() => exportBackup(true)}
                   alt="Insert USB Image"
                 />
@@ -224,7 +224,7 @@ export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
             <Prose>
               <h1>Export Backup</h1>
               <UsbImage
-                src={`${process.env.PUBLIC_URL}/assets/usb-stick.svg`}
+                src={`${process.env.PUBLIC_URL}/assets/usb-drive.svg`}
                 onDoubleClick={() => exportBackup(true)}
                 alt="Insert USB Image"
               />

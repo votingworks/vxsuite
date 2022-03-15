@@ -200,6 +200,10 @@ declare namespace KioskBrowser {
     };
 
     sign(params: SignParams): Promise<string>;
+
+    reboot(): Promise<void>;
+
+    prepareToBootFromUsb(): Promise<boolean>;
   }
 }
 

@@ -96,6 +96,9 @@ export enum LogEventId {
   FujitsuScanMessage = 'fujitsu-scan-message',
   LogConversionToCdfComplete = 'convert-log-cdf-complete',
   LogConversionToCdfLogLineError = 'convert-log-cdf-log-line-error',
+  PrepareBootFromUsbInit = 'prepare-boot-from-usb-init',
+  PrepareBootFromUsbComplete = 'prepare-boot-from-usb-complete',
+  RebootMachine = 'reboot-machine',
 }
 
 export interface LogDetails {
@@ -697,6 +700,24 @@ const FujitsuScanMessage: LogDetails = {
   restrictInDocumentationToApps: [LogSource.VxCentralScanFrontend],
 };
 
+const PrepareBootFromUsbInit: LogDetails = {
+  eventId: LogEventId.PrepareBootFromUsbInit,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'Message that a user triggered an attempt to reboot the machine and boot from an inserted USB drive.',
+};
+const PrepareBootFromUsbComplete: LogDetails = {
+  eventId: LogEventId.PrepareBootFromUsbComplete,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'Message that the machine has completed preparing to boot from USB. Success or failure indicated by the disposition.',
+};
+const RebootMachine: LogDetails = {
+  eventId: LogEventId.RebootMachine,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'User has triggered a reboot of the machine.',
+};
+
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
   switch (eventId) {
     case LogEventId.ElectionConfigured:
@@ -851,6 +872,12 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return LogConversionToCdfComplete;
     case LogEventId.LogConversionToCdfLogLineError:
       return LogConversionToCdfLogLineError;
+    case LogEventId.PrepareBootFromUsbInit:
+      return PrepareBootFromUsbInit;
+    case LogEventId.PrepareBootFromUsbComplete:
+      return PrepareBootFromUsbComplete;
+    case LogEventId.RebootMachine:
+      return RebootMachine;
     /* istanbul ignore next - compile time check for completeness */
     default:
       throwIllegalValue(eventId);

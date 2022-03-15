@@ -1,0 +1,416 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns="http://www.w3.org/2000/svg"
+    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+    xmlns:cc="http://creativecommons.org/ns#"
+    xmlns:xlink="http://www.w3.org/1999/xlink"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:svg="http://www.w3.org/2000/svg"
+    xmlns:ns1="http://sozi.baierouge.fr"
+    id="svg4451"
+    sodipodi:docname="USB Thumb Drive 1.svg"
+    inkscape:export-filename="C:\Resources\Images\Icons\Computers\USB Thumb Drive 1.png"
+    viewBox="0 0 85.129 65.349"
+    inkscape:export-xdpi="708.60999"
+    version="1.1"
+    inkscape:export-ydpi="708.60999"
+    inkscape:version="0.48.2 r9819"
+  >
+  <title
+      id="title4534"
+    >USB Thumbdrive 3</title
+  >
+  <defs
+      id="defs4453"
+    >
+    <linearGradient
+        id="linearGradient5477"
+        y2="781.13"
+        gradientUnits="userSpaceOnUse"
+        x2="368.22"
+        gradientTransform="matrix(.051129 0 0 .051129 601.44 393.73)"
+        y1="781.13"
+        x1="245.5"
+        inkscape:collect="always"
+      >
+      <stop
+          id="stop2582-6"
+          style="stop-color:#cccccc;stop-opacity:0"
+          offset="0"
+      />
+      <stop
+          id="stop2588-1"
+          style="stop-color:#a5a5a5"
+          offset=".5"
+      />
+      <stop
+          id="stop2584-38"
+          style="stop-color:#555555"
+          offset="1"
+      />
+    </linearGradient
+    >
+    <filter
+        id="filter5446"
+        height="1.2278"
+        width="1.3139"
+        color-interpolation-filters="sRGB"
+        y="-.11389"
+        x="-.15696"
+        inkscape:collect="always"
+      >
+      <feGaussianBlur
+          id="feGaussianBlur5448"
+          stdDeviation="0.41034746"
+          inkscape:collect="always"
+      />
+    </filter
+    >
+    <filter
+        id="filter5398"
+        inkscape:collect="always"
+        color-interpolation-filters="sRGB"
+      >
+      <feGaussianBlur
+          id="feGaussianBlur5400"
+          stdDeviation="5.8264232"
+          inkscape:collect="always"
+      />
+    </filter
+    >
+    <filter
+        id="filter3406-4"
+        color-interpolation-filters="sRGB"
+      >
+      <feGaussianBlur
+          id="feGaussianBlur3408-4"
+          stdDeviation="0.85320467"
+          inkscape:collect="always"
+      />
+    </filter
+    >
+  </defs
+  >
+  <sodipodi:namedview
+      id="base"
+      bordercolor="#666666"
+      inkscape:pageshadow="2"
+      inkscape:window-y="-8"
+      fit-margin-left="10"
+      pagecolor="#ffffff"
+      fit-margin-top="10"
+      inkscape:window-maximized="1"
+      inkscape:zoom="3.959798"
+      inkscape:window-x="1592"
+      inkscape:window-height="1028"
+      showgrid="false"
+      borderopacity="1.0"
+      inkscape:current-layer="layer1"
+      inkscape:cx="20.69736"
+      inkscape:cy="15.036496"
+      fit-margin-right="10"
+      fit-margin-bottom="10"
+      inkscape:window-width="1680"
+      inkscape:pageopacity="0.0"
+      inkscape:document-units="px"
+  />
+  <g
+      id="layer1"
+      inkscape:label="Layer 1"
+      inkscape:groupmode="layer"
+      transform="translate(-332.42 -499.69)"
+    >
+    <g
+        id="g4271"
+        transform="translate(-249.8 113.37)"
+      >
+      <g
+          id="g3295"
+        >
+        <path
+            id="path4774"
+            inkscape:connector-curvature="0"
+            sodipodi:nodetypes="sccccccccccss"
+            style="fill-rule:evenodd;fill:#ffffff"
+            d="m641.5 400.78c-2.124 0.0179-4.1162 0.33566-5.5982 1.1913l-33.111 19.426c-0.33157 0.19143-0.49734 0.42343-0.50205 0.66941l-0.00006 7.2494c-0.004 0.32201 0.2674 0.66773 0.80409 0.97758l12.525 7.2316c0.94884 0.54781 2.0926 0.61767 2.8552 0.17736l33.117-19.426c1.5154-0.8749 2.2523-2.0521 2.2516-3.3094l0.0002-7.2951c-0.0256-1.6437-1.3068-3.419-3.7537-4.8317-2.5125-1.4506-5.6779-2.085-8.5885-2.0605z"
+        />
+        <path
+            id="path4776"
+            inkscape:connector-curvature="0"
+            sodipodi:nodetypes="ccccccccc"
+            style="opacity:.3;fill-rule:evenodd;filter:url(#filter5446);fill:url(#linearGradient5477)"
+            d="m614 429.34v7.2459c0.36558 0.21108 1.6217 0.9363 1.6217 0.9363 0.94884 0.54781 2.0926 0.61767 2.8552 0.17736 0 0 1.4037-0.80962 1.7975-1.037v-7.2459c-0.39378 0.22734-1.7975 1.037-1.7975 1.037-0.76265 0.44031-1.9064 0.37045-2.8552-0.17736 0 0-1.2562-0.72522-1.6217-0.9363z"
+        />
+        <path
+            id="path4778"
+            inkscape:connector-curvature="0"
+            sodipodi:nodetypes="csssscccc"
+            style="fill-rule:evenodd;fill:#ffffff"
+            d="m603.09 423.05 12.525 7.2311c0.94884 0.54781 2.0946 0.62114 2.8553 0.17751l33.126-19.318c3.504-2.0434 2.844-5.6808-1.502-8.19-4.346-2.5091-10.675-2.8965-14.187-0.86831l-33.12 19.317c-0.76696 0.4428-0.6457 1.1032 0.30314 1.651"
+        />
+        <path
+            id="path4780"
+            style="filter:url(#filter5398);stroke:#000000;stroke-width:4;fill:none"
+            d="m1024.8 275.73c-1.39 24.612-14.32 42.96-31.243 56.476l-655.18 383.07c-28.689 16.447-44.443 6.9636-63.971-2.0231l-233.1-135.35c-32.065-15.81-27.879-26.86-14.944-36.77"
+            sodipodi:nodetypes="cccccc"
+            transform="matrix(.051129 0 0 .051129 601.44 393.73)"
+            inkscape:connector-curvature="0"
+        />
+        <path
+            id="path4782"
+            sodipodi:nodetypes="ccccccccccccccccccc"
+            style="stroke-linejoin:round;stroke:#000000;stroke-linecap:round;stroke-width:1.3137;fill:none"
+            inkscape:connector-curvature="0"
+            d="m641.38 400.15c-2.4087 0.009-4.8261 0.677-6.8192 2.044-4.5061 2.6211-27.864 16.3-32.343 18.965-0.62734 0.55245-0.40249 1.4664-0.43046 2.199v1.6354c-3.1007 1.8032-6.2244 3.553-9.3006 5.4006-0.36566 0.57754-0.0832 1.2982-0.16794 1.9362 0.033 1.3779-0.1012 2.7742 0.0787 4.1405 0.51945 0.566 1.3006 0.77307 1.9164 1.215 3.1294 1.7905 6.2329 3.6321 9.3768 5.3904 0.68008 0.0447 1.1393-0.55542 1.7285-0.79179l8.6924-5.0202c1.1165 0.67418 2.3582 1.495 3.7289 1.2464 1.2139-0.24793 2.1568-1.1212 3.2484-1.6515 4.2608-2.4847 27.388-16.005 31.609-18.554 1.1865-0.86556 1.8006-2.3177 1.7954-3.829-0.0374-2.4875-0.0309-4.9339-0.0713-7.4647-0.42486-2.032-2.0869-3.5064-3.8015-4.5224-2.77-1.6534-6.0311-2.371-9.2401-2.339z"
+        />
+        <g
+            id="g4784"
+            transform="matrix(.051129 0 0 .051129 601.44 393.73)"
+          >
+          <path
+              id="path4786"
+              style="fill-rule:evenodd;fill:#808080"
+              inkscape:connector-curvature="0"
+              d="m-168.77 830.91 214.8 124.01 214.8-124.01-214.8-124.02-214.8 124.02z"
+          />
+          <path
+              id="path4788"
+              style="fill-rule:evenodd;fill:#4d4d4d"
+              inkscape:connector-curvature="0"
+              d="m-165.7 829.13 217.87-125.79v-99.213l-217.87 125.79v99.213z"
+          />
+          <path
+              id="path4790"
+              style="fill-rule:evenodd;fill:#b3b3b3"
+              inkscape:connector-curvature="0"
+              d="m30.686 928.35 228.14-132.87v-17.717l-228.14 132.87v17.717z"
+          />
+          <path
+              id="path4792"
+              style="fill-rule:evenodd;fill:#ececec"
+              inkscape:connector-curvature="0"
+              d="m-153.43 822.05v-17.717l184.12 106.3v17.717l-184.12-106.3z"
+          />
+          <path
+              id="path4794"
+              style="fill-rule:evenodd;fill:#cccccc"
+              inkscape:connector-curvature="0"
+              d="m30.686 910.63-184.12-106.3 230.14-132.87 184.12 106.3-230.14 132.87z"
+          />
+          <path
+              id="path4796"
+              style="fill-rule:evenodd;fill:#808080"
+              inkscape:connector-curvature="0"
+              d="m-103.86 802.29l23.014 13.287 203.59-117.54-23.014-13.287-203.59 117.54m38.357 22.146l23.014 13.287 203.59-117.54-23.014-13.287-203.59 117.54m38.357 22.146l23.014 13.287 203.59-117.54-23.014-13.287-203.59 117.54m38.357 22.146l23.014 13.287 203.59-117.54-23.014-13.287-203.59 117.54"
+          />
+          <path
+              id="path4798"
+              style="fill-rule:evenodd;fill:#808080"
+              inkscape:connector-curvature="0"
+              d="m46.031 600.59-214.81 124 214.81 124.03 214.81-124.03-214.81-124zm-15.343 79.72 30.687 17.72-61.375 35.44-30.688-17.72 61.376-35.44zm61.374 35.44 30.688 17.72-61.375 35.44-30.687-17.72 61.374-35.44z"
+          />
+          <path
+              id="path4800"
+              style="fill-rule:evenodd;fill:#4d4d4d"
+              inkscape:connector-curvature="0"
+              d="m46.029 954.92v-106.3l214.8-124.02v106.3l-214.8 124.02z"
+          />
+          <path
+              id="path4802"
+              style="fill-rule:evenodd;fill:#333333"
+              inkscape:connector-curvature="0"
+              d="m-27.617 717.52-3.0686-1.7716 61.372-35.433v3.5433l-58.303 33.661z"
+          />
+          <path
+              id="path4804"
+              style="fill-rule:evenodd;fill:#e6e6e6"
+              inkscape:connector-curvature="0"
+              d="m30.686 680.31v3.5433l27.617 15.945 3.0686-1.7717-30.686-17.717z"
+          />
+          <path
+              id="path4806"
+              style="fill-rule:evenodd;fill:#e6e6e6"
+              inkscape:connector-curvature="0"
+              d="m-168.78 724.59v106.31l214.81 124v-106.28l-214.81-124.03zm3.0625 5.3125 208.69 120.5v99.188l-208.69-120.47v-99.219z"
+          />
+          <path
+              id="path4808"
+              style="fill-rule:evenodd;fill:#333333"
+              inkscape:connector-curvature="0"
+              d="m33.755 752.95-3.0686-1.7716 61.372-35.433v3.5433l-58.303 33.661z"
+          />
+          <path
+              id="path4810"
+              style="fill-rule:evenodd;fill:#e6e6e6"
+              inkscape:connector-curvature="0"
+              d="m92.058 715.75v3.5433l27.617 15.945 3.0686-1.7717-30.686-17.717z"
+          />
+          <path
+              id="path4812"
+              style="opacity:.6;fill-rule:evenodd;fill:#000000"
+              inkscape:connector-curvature="0"
+              d="m33.755 752.95 58.303-33.66 27.622 15.95-58.308 33.66-27.617-15.95z"
+          />
+          <path
+              id="path4814"
+              style="opacity:.6;fill-rule:evenodd;fill:#000000"
+              inkscape:connector-curvature="0"
+              d="m-27.617 717.52 58.303-33.66 27.617 15.94-58.303 33.66-27.617-15.94z"
+          />
+          <path
+              id="path4816"
+              style="opacity:0.24;filter:url(#filter3406-4);stroke:#ffffff;stroke-width:4;fill:none"
+              inkscape:connector-curvature="0"
+              d="m47.104 848.01 211.29-122"
+          />
+        </g
+        >
+      </g
+      >
+      <path
+          id="path4265"
+          style="opacity:.76549;fill:#000000"
+          inkscape:connector-curvature="0"
+          d="m617.19 417.71c-0.47841 0.27621-0.48947 0.74039-0.0849 1.1445l-2.2906 1.3225c-0.0589 0.0339-0.0968 0.0788-0.11001 0.13003l-0.91345 3.5934-0.73609 0.42498c-0.71567-0.25803-1.5575-0.26063-2.052 0.0249-0.60292 0.3481-0.46159 0.99472 0.31547 1.4434 0.77705 0.44863 1.897 0.53022 2.5 0.18213 0.47731-0.27558 0.48705-0.7392 0.0853-1.1426l0.92603-0.53465 0.005 0.001 0.00059-0.005 2.056-1.187 0.002 0.003 5.555-0.47168c0.0893-0.007 0.1676-0.0287 0.22702-0.0625l2.0937-1.2088 0.57604 0.33258 0.28803 0.16629 0.22348-0.12902 1.7599-1.0161 0.22348-0.12903-0.28802-0.16629-2.1206-1.2243-0.28802-0.16629-0.22348 0.12902-1.7599 1.0161-0.22348 0.12903 0.28803 0.16629 0.68045 0.39286-2.0029 1.1564-3.6756 0.31163 7.8888-4.5546 1.1089 0.64022 0.39784 0.22969 0.0702-0.26915 0.5233-2.0606 0.0716-0.26997-0.46799 0.0395-3.5724 0.3019-0.46619 0.0405 0.39783 0.22969 1.0729 0.61943-10.118 5.8416 0.63605-2.502 2.1873-1.2628c0.71466 0.25637 1.5536 0.25874 2.047-0.0261 0.60292-0.3481 0.46339-0.99368-0.31366-1.4423-0.77706-0.44863-1.897-0.53023-2.5-0.18213"
+      />
+    </g
+    >
+  </g
+  >
+  <metadata
+    >
+    <rdf:RDF
+      >
+      <cc:Work
+        >
+        <dc:format
+          >image/svg+xml</dc:format
+        >
+        <dc:type
+            rdf:resource="http://purl.org/dc/dcmitype/StillImage"
+        />
+        <cc:license
+            rdf:resource="http://creativecommons.org/licenses/publicdomain/"
+        />
+        <dc:publisher
+          >
+          <cc:Agent
+              rdf:about="http://openclipart.org/"
+            >
+            <dc:title
+              >Openclipart</dc:title
+            >
+          </cc:Agent
+          >
+        </dc:publisher
+        >
+        <dc:title
+          >USB Thumb Drive 3</dc:title
+        >
+        <dc:date
+          >2012-01-16T19:54:06</dc:date
+        >
+        <dc:description
+          >USB Thumb Drive 3</dc:description
+        >
+        <dc:source
+          >https://openclipart.org/detail/167170/usb-thumb-drive-3-by-rygle</dc:source
+        >
+        <dc:creator
+          >
+          <cc:Agent
+            >
+            <dc:title
+              >rygle</dc:title
+            >
+          </cc:Agent
+          >
+        </dc:creator
+        >
+        <dc:subject
+          >
+          <rdf:Bag
+            >
+            <rdf:li
+              >computer</rdf:li
+            >
+            <rdf:li
+              >disc</rdf:li
+            >
+            <rdf:li
+              >disk</rdf:li
+            >
+            <rdf:li
+              >icon</rdf:li
+            >
+            <rdf:li
+              >isometric</rdf:li
+            >
+            <rdf:li
+              >memory</rdf:li
+            >
+            <rdf:li
+              >memory stick</rdf:li
+            >
+            <rdf:li
+              >pc</rdf:li
+            >
+            <rdf:li
+              >pen drive</rdf:li
+            >
+            <rdf:li
+              >pendrive</rdf:li
+            >
+            <rdf:li
+              >serial</rdf:li
+            >
+            <rdf:li
+              >stick</rdf:li
+            >
+            <rdf:li
+              >storage</rdf:li
+            >
+            <rdf:li
+              >thumb drive</rdf:li
+            >
+            <rdf:li
+              >thumbdrive</rdf:li
+            >
+            <rdf:li
+              >token</rdf:li
+            >
+            <rdf:li
+              >universal serial bus</rdf:li
+            >
+            <rdf:li
+              >usb</rdf:li
+            >
+          </rdf:Bag
+          >
+        </dc:subject
+        >
+      </cc:Work
+      >
+      <cc:License
+          rdf:about="http://creativecommons.org/licenses/publicdomain/"
+        >
+        <cc:permits
+            rdf:resource="http://creativecommons.org/ns#Reproduction"
+        />
+        <cc:permits
+            rdf:resource="http://creativecommons.org/ns#Distribution"
+        />
+        <cc:permits
+            rdf:resource="http://creativecommons.org/ns#DerivativeWorks"
+        />
+      </cc:License
+      >
+    </rdf:RDF
+    >
+  </metadata
+  >
+</svg
+>

@@ -33,6 +33,9 @@ import {
   useUserSession,
   useDevices,
   ElectionInfoBar,
+  RebootFromUsbButton,
+  fontSizeTheme,
+  Prose,
 } from '@votingworks/ui';
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
 import { MachineConfig } from './config/types';
@@ -41,7 +44,7 @@ import { AppContext, AppContextInterface } from './contexts/app_context';
 import { Button } from './components/button';
 import { Main, MainChild } from './components/main';
 import { Screen } from './components/screen';
-import { Prose } from './components/prose';
+
 import { Text } from './components/text';
 import { ScanButton } from './components/scan_button';
 import { useInterval } from './hooks/use_interval';
@@ -70,7 +73,7 @@ const Buttons = styled.div`
     margin-right: 10px;
   }
 `;
-const VALID_USERS: CardDataTypes[] = ['admin'];
+const VALID_USERS: CardDataTypes[] = ['admin', 'superadmin'];
 
 export interface AppRootProps {
   card: Card;
@@ -524,6 +527,31 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
     return (
       <AppContext.Provider value={currentContext}>
         <MachineLockedScreen />
+      </AppContext.Provider>
+    );
+  }
+
+  if (currentUserSession.type === 'superadmin') {
+    return (
+      <AppContext.Provider value={currentContext}>
+        <Screen>
+          <Main>
+            <MainChild center>
+              <Prose theme={fontSizeTheme.large}>
+                <RebootFromUsbButton
+                  usbDriveStatus={displayUsbStatus}
+                  logger={logger}
+                />
+              </Prose>
+            </MainChild>
+          </Main>
+          <ElectionInfoBar
+            mode="admin"
+            electionDefinition={electionDefinition}
+            codeVersion={machineConfig.codeVersion}
+            machineId={machineConfig.machineId}
+          />
+        </Screen>
       </AppContext.Provider>
     );
   }

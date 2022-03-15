@@ -20,6 +20,7 @@ import {
   SetupCardReaderPage,
   useUserSession,
   useDevices,
+  RebootFromUsbButton,
 } from '@votingworks/ui';
 import {
   assert,
@@ -65,6 +66,7 @@ import { SetupPowerPage } from './screens/setup_power_page';
 import { UnlockAdminScreen } from './screens/unlock_admin_screen';
 import { CardErrorScreen } from './screens/card_error_screen';
 import { SetupScannerScreen } from './screens/setup_scanner_screen';
+import { CenteredScreen, CenteredLargeProse } from './components/layout';
 
 const debug = makeDebug('precinct-scanner:app-root');
 
@@ -73,7 +75,7 @@ export interface AppStorage {
 }
 
 export const stateStorageKey = 'state';
-const VALID_USERS: CardDataTypes[] = ['admin', 'pollworker'];
+const VALID_USERS: CardDataTypes[] = ['admin', 'pollworker', 'superadmin'];
 
 export interface Props extends RouteComponentProps {
   hardware: Hardware;
@@ -713,6 +715,19 @@ export function AppRoot({
 
   if (computer.batteryIsLow && !computer.batteryIsCharging) {
     return <SetupPowerPage />;
+  }
+
+  if (currentUserSession?.type === 'superadmin') {
+    return (
+      <CenteredScreen infoBar>
+        <CenteredLargeProse>
+          <RebootFromUsbButton
+            usbDriveStatus={usbDriveDisplayStatus}
+            logger={logger}
+          />
+        </CenteredLargeProse>
+      </CenteredScreen>
+    );
   }
 
   if (!precinctScanner) {

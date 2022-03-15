@@ -2,7 +2,7 @@
 
 exports[`renders SetupCardReaderPage triggers useEffect property 1`] = `
 <div
-  class="sc-hiCivh ePVVDe"
+  class="sc-gWXaA-D gHnxHO"
 >
   <main
     class="sc-bkkfTU enzCGe"
@@ -27,7 +27,7 @@ exports[`renders SetupCardReaderPage triggers useEffect property 1`] = `
 
 exports[`renders SetupCardReaderPage with no useEffect trigger as expected 1`] = `
 <div
-  class="sc-hiCivh ePVVDe"
+  class="sc-gWXaA-D gHnxHO"
 >
   <main
     class="sc-bkkfTU enzCGe"

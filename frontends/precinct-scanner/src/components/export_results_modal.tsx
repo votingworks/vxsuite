@@ -149,7 +149,7 @@ export function ExportResultsModal({
               <p>
                 Please insert a USB drive in order to export results.
                 <UsbImage
-                  src={`${process.env.PUBLIC_URL}/assets/usb-stick.svg`}
+                  src={`${process.env.PUBLIC_URL}/assets/usb-drive.svg`}
                   alt="Insert USB Image"
                 />
               </p>
@@ -191,7 +191,7 @@ export function ExportResultsModal({
             <Prose>
               <h1>Export Results</h1>
               <UsbImage
-                src={`${process.env.PUBLIC_URL}/assets/usb-stick.svg`}
+                src={`${process.env.PUBLIC_URL}/assets/usb-drive.svg`}
                 alt="Insert USB Image"
               />
               <p>
