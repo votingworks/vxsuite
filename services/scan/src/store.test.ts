@@ -245,13 +245,13 @@ test('batchStatus', () => {
   expect(batches[0].count).toEqual(2);
 
   // Delete one of the sheets
-  store.deleteSheet(sheetId);
+  store.deleteSheet(sheetId, batchId);
   batches = store.batchStatus();
   expect(batches).toHaveLength(1);
   expect(batches[0].count).toEqual(1);
 
   // Delete the last sheet, then confirm that store.batchStatus() results still include the batch
-  store.deleteSheet(sheetId2);
+  store.deleteSheet(sheetId2, batchId);
   batches = store.batchStatus();
   expect(batches).toHaveLength(1);
   expect(batches[0].count).toEqual(0);

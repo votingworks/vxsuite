@@ -382,6 +382,16 @@ export class Store {
     this.client.run('update batches set exported_at = current_timestamp');
   }
 
+  /**
+   * Marks the batch with id `batchId` as not exported.
+   */
+  invalidateBatchExport(batchId: string): void {
+    this.client.run(
+      'update batches set exported_at = null where id = ?',
+      batchId
+    );
+  }
+
   addBallotCard(batchId: string): string {
     const id = uuid();
     this.client.run(
@@ -441,6 +451,7 @@ export class Store {
         frontFinishedAdjudicationAt ?? null,
         backFinishedAdjudicationAt ?? null
       );
+      this.invalidateBatchExport(batchId);
     } catch (error) {
       debug(
         'sheet insert failed; maybe a duplicate? filenames=[%s, %s]',
@@ -466,11 +477,12 @@ export class Store {
   /**
    * Mark a sheet as deleted
    */
-  deleteSheet(sheetId: string): void {
+  deleteSheet(sheetId: string, batchId: string): void {
     this.client.run(
       'update sheets set deleted_at = current_timestamp where id = ?',
       sheetId
     );
+    this.invalidateBatchExport(batchId);
   }
 
   zero(): void {
