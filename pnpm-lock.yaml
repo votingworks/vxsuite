@@ -8,8 +8,11 @@ importers:
       pnpm: 5.18.10
       prettier: 2.3.2
       sort-package-json: 1.50.0
+    optionalDependencies:
+      fsevents: 2.3.2
     specifiers:
       eslint: ^7.29.0
+      fsevents: ^2.3.2
       husky: ^7.0.0
       lint-staged: ^11.0.0
       ora: ^5.2.0

@@ -16,5 +16,8 @@
     "pnpm": "^5.18.10",
     "prettier": "^2.3.2",
     "sort-package-json": "^1.50.0"
+  },
+  "optionalDependencies": {
+    "fsevents": "^2.3.2"
   }
 }
