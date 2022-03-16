@@ -112,6 +112,8 @@ export function getBallotPath({
   locales,
   isLiveMode,
   isAbsentee,
+  variant,
+  extension = '.pdf',
 }: {
   ballotStyleId: BallotStyleId;
   election: Election;
@@ -120,6 +122,8 @@ export function getBallotPath({
   locales: BallotLocale;
   isLiveMode: boolean;
   isAbsentee: boolean;
+  variant?: string;
+  extension?: string;
 }): string {
   const precinctName = getPrecinctById({
     election,
@@ -133,7 +137,7 @@ export function getBallotPath({
     locales
   ).replace(/[^a-z]+/gi, '-')}-${isLiveMode ? 'live' : 'test'}${
     isAbsentee ? '-absentee' : ''
-  }.pdf`;
+  }${variant ? `-${variant}` : ''}${extension}`;
 }
 
 export function getAllPossibleCandidatesForCandidateContest(

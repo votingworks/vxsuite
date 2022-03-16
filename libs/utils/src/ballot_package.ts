@@ -32,6 +32,7 @@ export interface BallotStyleData {
 
 export interface BallotConfig extends BallotStyleData {
   filename: string;
+  layoutFilename?: string;
   locales: BallotLocales;
   isLiveMode: boolean;
   isAbsentee: boolean;
