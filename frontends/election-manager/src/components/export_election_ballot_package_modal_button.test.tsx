@@ -1,15 +1,16 @@
-import React from 'react';
 import { fireEvent, waitFor } from '@testing-library/react';
+import { LogEventId, Logger, LogSource } from '@votingworks/logging';
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 import { usbstick } from '@votingworks/utils';
-import { LogEventId, Logger, LogSource } from '@votingworks/logging';
+import React from 'react';
+import { fakeFileWriter } from '../../test/helpers/fake_file_writer';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ExportElectionBallotPackageModalButton } from './export_election_ballot_package_modal_button';
-import { fakeFileWriter } from '../../test/helpers/fake_file_writer';
 
 const { UsbDriveStatus } = usbstick;
 
 jest.mock('../components/hand_marked_paper_ballot');
+jest.mock('../utils/pdf_to_images');
 
 beforeEach(() => {
   const mockKiosk = fakeKiosk();
