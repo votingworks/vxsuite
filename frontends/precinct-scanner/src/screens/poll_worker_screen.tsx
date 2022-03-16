@@ -317,7 +317,7 @@ export function PollWorkerScreen({
         openFilePickerDialog: false,
       });
     }
-    await sleep(1000);
+    await sleep(4000);
     await usbDrive.eject(currentUserSession.type);
     togglePollsOpen();
     setPollWorkerFlowState(PollWorkerFlowState.CLOSE_POLLS_FLOW__COMPLETE);

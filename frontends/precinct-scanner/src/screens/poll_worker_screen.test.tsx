@@ -1,6 +1,10 @@
-import { act, screen, render } from '@testing-library/react';
+import { act, screen, render, fireEvent } from '@testing-library/react';
 import { electionSampleDefinition } from '@votingworks/fixtures';
-import { fakeKiosk, mockOf } from '@votingworks/test-utils';
+import {
+  advanceTimersAndPromises,
+  fakeKiosk,
+  mockOf,
+} from '@votingworks/test-utils';
 import { NullPrinter, usbstick } from '@votingworks/utils';
 import MockDate from 'mockdate';
 import React from 'react';
@@ -63,6 +67,7 @@ test('shows system authentication code', async () => {
     renderScreen({});
     jest.advanceTimersByTime(2000);
   });
+  await fireEvent.click(screen.getAllByText('No')[0]);
 
   screen.getByText('System Authentication Code: 123·456');
 });
@@ -75,49 +80,64 @@ test('shows dashes when no totp', async () => {
   await act(async () => {
     renderScreen({});
   });
+  await fireEvent.click(screen.getAllByText('No')[0]);
 
   screen.getByText('System Authentication Code: ---·---');
 });
 
-test('shows Export Results button only when polls are closed and more than 0 ballots have been cast', async () => {
+describe('shows Export Results button only when polls are closed and more than 0 ballots have been cast', () => {
   const exportButtonText = 'Export Results to USB Drive';
 
-  await act(async () => {
-    renderScreen({
-      scannedBallotCount: 0,
-      isPollsOpen: false,
+  test('no ballots and polls closed should not show button', async () => {
+    await act(async () => {
+      renderScreen({
+        scannedBallotCount: 0,
+        isPollsOpen: false,
+      });
+      jest.advanceTimersByTime(2000);
     });
-    jest.advanceTimersByTime(2000);
+    await fireEvent.click(screen.getAllByText('No')[0]);
+
+    expect(screen.queryByText(exportButtonText)).toBeNull();
   });
 
-  expect(screen.queryByText(exportButtonText)).toBeNull();
-
-  await act(async () => {
-    renderScreen({
-      scannedBallotCount: 0,
-      isPollsOpen: true,
+  test('no ballots and polls open should not show button', async () => {
+    await act(async () => {
+      renderScreen({
+        scannedBallotCount: 0,
+        isPollsOpen: true,
+      });
     });
+    await fireEvent.click(screen.getAllByText('No')[0]);
+    expect(screen.queryByText(exportButtonText)).toBeNull();
   });
 
-  expect(screen.queryByText(exportButtonText)).toBeNull();
-
-  await act(async () => {
-    renderScreen({
-      scannedBallotCount: 5,
-      isPollsOpen: true,
+  test('five ballots and polls open should not show button', async () => {
+    await act(async () => {
+      renderScreen({
+        scannedBallotCount: 5,
+        isPollsOpen: true,
+      });
+      jest.advanceTimersByTime(2000);
     });
-    jest.advanceTimersByTime(2000);
+    await fireEvent.click(screen.getAllByText('No')[0]);
+
+    expect(screen.queryByText(exportButtonText)).toBeNull();
   });
 
-  expect(screen.queryByText(exportButtonText)).toBeNull();
-
-  await act(async () => {
-    renderScreen({
-      scannedBallotCount: 5,
-      isPollsOpen: false,
+  test('five ballots and polls closed should show button', async () => {
+    await act(async () => {
+      renderScreen({
+        scannedBallotCount: 5,
+        isPollsOpen: false,
+      });
+      jest.advanceTimersByTime(2000);
     });
-    jest.advanceTimersByTime(2000);
-  });
+    await fireEvent.click(screen.getAllByText('No')[0]);
+    await advanceTimersAndPromises(1);
+    await advanceTimersAndPromises(1);
+    await screen.findByText('Export Results to USB Drive');
 
-  expect(screen.queryByText(exportButtonText)).toBeTruthy();
+    expect(screen.queryByText(exportButtonText)).toBeTruthy();
+  });
 });

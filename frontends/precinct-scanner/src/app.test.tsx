@@ -272,22 +272,15 @@ test('admin and pollworker configuration', async () => {
   );
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  await screen.findByText('Poll Worker Actions');
+  await screen.findByText('Do you want to open the polls?');
 
   // Open Polls
-  fireEvent.click(await screen.findByText('Open Polls for All Precincts'));
-  await screen.findByText('Print Report and Open Polls');
-  fireEvent.click(await screen.findByText('Cancel'));
-
-  // Disconnect Printer to test saving report to card
   act(() => {
     hardware.setPrinterConnected(false);
   });
-  fireEvent.click(await screen.findByText('Open Polls for All Precincts'));
-  fireEvent.click(await screen.findByText('Save Report and Open Polls'));
-  await screen.findByText('Saving to Card');
+  fireEvent.click(await screen.findByText('Yes, Open the Polls'));
   await screen.findByText(
-    'Insert the poll worker card into a VxMark to print the report.'
+    'Insert poll worker card into VxMark to print the report.'
   );
   expect(writeLongObjectMock).toHaveBeenCalledTimes(1);
   expect(writeLongObjectMock).toHaveBeenCalledWith(
@@ -351,10 +344,9 @@ test('admin and pollworker configuration', async () => {
   // Open Polls again
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  fireEvent.click(await screen.findByText('Open Polls for All Precincts'));
-  fireEvent.click(await screen.findByText('Save Report and Open Polls'));
+  fireEvent.click(await screen.findByText('Yes, Open the Polls'));
   await screen.findByText(
-    'Insert the poll worker card into a VxMark to print the report.'
+    'Insert poll worker card into VxMark to print the report.'
   );
 
   // Switch back to admin screen
@@ -383,7 +375,7 @@ test('admin and pollworker configuration', async () => {
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
   // Polls should be reset to closed.
-  await screen.findByText('Open Polls for Center Springfield');
+  await screen.findByText('Yes, Open the Polls');
 
   // Switch back to admin screen
   card.removeCard();
@@ -518,13 +510,19 @@ test('voter can cast a ballot that scans successfully ', async () => {
   );
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  await screen.findByText('Poll Worker Actions');
+  // Insert usb drive
+  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+  await advanceTimersAndPromises(2);
+  await screen.findByText('Do you want to close the polls?');
 
   // Close Polls
-  fireEvent.click(await screen.findByText('Close Polls for All Precincts'));
-  fireEvent.click(await screen.findByText('Save Report and Close Polls'));
-  await screen.findByText('Saving to Card');
-  await screen.findByText('Export Results to USB Drive');
+  fireEvent.click(await screen.findByText('Yes, Close the Polls'));
+  await screen.findByText('Closing Polls…');
+  // Wait for sleep after saving the results
+  await advanceTimersAndPromises(4);
+  // Wait for sleep after ejecting the usb
+  await advanceTimersAndPromises(10);
+  await screen.findByText('Polls are closed.');
   expect(writeLongObjectMock).toHaveBeenCalledTimes(1);
   expect(writeLongObjectMock).toHaveBeenCalledWith(
     expect.objectContaining({
@@ -544,7 +542,27 @@ test('voter can cast a ballot that scans successfully ', async () => {
       ]),
     })
   );
-  expect(fetchMock.calls('/scan/export')).toHaveLength(1);
+  expect(kiosk.writeFile).toHaveBeenCalledTimes(1);
+  expect(kiosk.writeFile).toHaveBeenCalledWith(
+    expect.stringMatching(
+      `fake mount point/cast-vote-records/franklin-county_general-election_${electionSampleDefinition.electionHash.slice(
+        0,
+        10
+      )}/TEST__machine_0002__1_ballots`
+    ),
+    expect.anything()
+  );
+  expect(fetchMock.calls('/scan/export')).toHaveLength(2);
+  expect(kiosk.unmountUsbDrive).toHaveBeenCalled();
+
+  // Simulate unmounted usb drive
+  kiosk.getUsbDrives.mockResolvedValue([
+    fakeUsbDrive({ mountPoint: undefined }),
+  ]);
+  await advanceTimersAndPromises(2);
+  // Remove the usb drive
+  kiosk.getUsbDrives.mockResolvedValue([]);
+  await advanceTimersAndPromises(2);
 
   // Insert Admin Card
   const adminCard = makeAdminCard(
@@ -559,15 +577,20 @@ test('voter can cast a ballot that scans successfully ', async () => {
   fireEvent.click(await screen.findByText('Cancel'));
   expect(screen.queryByText('No USB Drive Detected')).toBeNull();
   fireEvent.click(await screen.findByText('Export Results to USB Drive'));
-
+  await screen.findByText('No USB Drive Detected');
+  fireEvent.click(await screen.findByText('Cancel'));
+  expect(screen.queryByText('No USB Drive Detected')).toBeNull();
   // Insert usb drive
   kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
   await advanceTimersAndPromises(2);
+  fireEvent.click(await screen.findByText('Export Results to USB Drive'));
+
   await screen.findByText('Export Results');
   fireEvent.click(await screen.findByText('Export'));
   await screen.findByText('Results Exported to USB Drive');
-  expect(kiosk.writeFile).toHaveBeenCalledTimes(1);
-  expect(kiosk.writeFile).toHaveBeenCalledWith(
+  expect(kiosk.writeFile).toHaveBeenCalledTimes(2);
+  expect(kiosk.writeFile).toHaveBeenNthCalledWith(
+    2,
     expect.stringMatching(
       `fake mount point/cast-vote-records/franklin-county_general-election_${electionSampleDefinition.electionHash.slice(
         0,
@@ -576,11 +599,11 @@ test('voter can cast a ballot that scans successfully ', async () => {
     ),
     expect.anything()
   );
-  expect(fetchMock.calls('/scan/export')).toHaveLength(2);
+  expect(fetchMock.calls('/scan/export')).toHaveLength(3);
   fireEvent.click(await screen.findByText('Eject USB'));
   expect(screen.queryByText('Eject USB')).toBeNull();
   await advanceTimersAndPromises(1);
-  expect(kiosk.unmountUsbDrive).toHaveBeenCalled();
+  expect(kiosk.unmountUsbDrive).toHaveBeenCalledTimes(2);
 });
 
 test('voter can cast a ballot that needs review and adjudicate as desired', async () => {
@@ -1096,6 +1119,9 @@ test('scanning is not triggered when polls closed or cards present', async () =>
   await storage.set(stateStorageKey, { isPollsOpen: false });
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
+  const kiosk = fakeKiosk();
+  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+  window.kiosk = kiosk;
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
     .get('/config/election', { body: electionSampleDefinition })
@@ -1129,16 +1155,15 @@ test('scanning is not triggered when polls closed or cards present', async () =>
   );
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  await screen.findByText('Poll Worker Actions');
+  await screen.findByText('Do you want to open the polls?');
   // We should see 15 ballots were scanned
+  fireEvent.click(await screen.getAllByText('No')[0]);
   expect((await screen.findByTestId('ballot-count')).textContent).toBe('15');
   // Make sure we haven't tried to scan
   await advanceTimersAndPromises(1);
   expect(fetchMock.calls('/scan/scanBatch')).toHaveLength(0);
   // Open Polls
   fireEvent.click(await screen.findByText('Open Polls for All Precincts'));
-  fireEvent.click(await screen.findByText('Print Report and Open Polls'));
-  await screen.findByText('Printing Tally Report');
   await screen.findByText('Polls are open.');
   // Make sure we haven't tried to scan
   await advanceTimersAndPromises(1);
@@ -1182,12 +1207,10 @@ test('no printer: poll worker can open and close polls without scanning any ball
   // Open Polls Flow
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  await screen.findByText('Poll Worker Actions');
-  fireEvent.click(await screen.findByText('Open Polls for All Precincts'));
-  fireEvent.click(await screen.findByText('Save Report and Open Polls'));
-  await screen.findByText('Saving to Card');
+  await screen.findByText('Do you want to open the polls?');
+  fireEvent.click(await screen.findByText('Yes, Open the Polls'));
   await screen.findByText(
-    'Insert the poll worker card into a VxMark to print the report.'
+    'Insert poll worker card into VxMark to print the report.'
   );
   card.removeCard();
   await screen.findByText('Insert Your Ballot Below');
@@ -1195,11 +1218,15 @@ test('no printer: poll worker can open and close polls without scanning any ball
   // Close Polls Flow
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  await screen.findByText('Poll Worker Actions');
-  fireEvent.click(await screen.findByText('Close Polls for All Precincts'));
-  fireEvent.click(await screen.findByText('Save Report and Close Polls'));
+  await screen.findByText('Do you want to close the polls?');
+  fireEvent.click(await screen.findByText('Yes, Close the Polls'));
+  await screen.findByText('Closing Polls…');
+  // Wait for sleep after saving the results
+  await advanceTimersAndPromises(4);
+  // Wait for sleep after ejecting the usb
+  await advanceTimersAndPromises(10);
   await screen.findByText(
-    'Insert the poll worker card into a VxMark to print the report.'
+    'Insert poll worker card into VxMark to print the report.'
   );
   card.removeCard();
   await screen.findByText('Polls Closed');
@@ -1234,23 +1261,25 @@ test('with printer: poll worker can open and close polls without scanning any ba
   // Open Polls Flow
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  await screen.findByText('Poll Worker Actions');
-  fireEvent.click(await screen.findByText('Open Polls for All Precincts'));
-  fireEvent.click(await screen.findByText('Print Report and Open Polls'));
-  await screen.findByText('Printing Tally Report');
+  await screen.findByText('Do you want to open the polls?');
+  fireEvent.click(await screen.findByText('Yes, Open the Polls'));
   await screen.findByText('Polls are open.');
-  await screen.findByText('You may remove the poll worker card.');
+  await screen.findByText('Remove the poll worker card.');
   card.removeCard();
   await screen.findByText('Insert Your Ballot Below');
 
   // Close Polls Flow
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  await screen.findByText('Poll Worker Actions');
+  await screen.findByText('Do you want to close the polls?');
+  fireEvent.click(await screen.getAllByText('No')[0]);
   fireEvent.click(await screen.findByText('Close Polls for All Precincts'));
-  fireEvent.click(await screen.findByText('Print Report and Close Polls'));
+  // Wait for sleep after saving the results
+  await advanceTimersAndPromises(4);
+  // Wait for sleep after ejecting the usb
+  await advanceTimersAndPromises(10);
   await screen.findByText('Polls are closed.');
-  await screen.findByText('You may remove the poll worker card.');
+  await screen.findByText('Remove the poll worker card.');
   card.removeCard();
   await screen.findByText('Polls Closed');
 });
@@ -1286,13 +1315,11 @@ test('no printer: open polls, scan ballot, close polls, export results', async (
   // Open Polls Flow
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  await screen.findByText('Poll Worker Actions');
-  fireEvent.click(await screen.findByText('Open Polls for All Precincts'));
-  fireEvent.click(await screen.findByText('Save Report and Open Polls'));
-  await screen.findByText('Saving to Card');
+  await screen.findByText('Do you want to open the polls?');
+  fireEvent.click(await screen.findByText('Yes, Open the Polls'));
   expect(writeLongObjectMock).toHaveBeenCalledTimes(1);
   await screen.findByText(
-    'Insert the poll worker card into a VxMark to print the report.'
+    'Insert poll worker card into VxMark to print the report.'
   );
   card.removeCard();
   await screen.findByText('Insert Your Ballot Below');
@@ -1348,12 +1375,18 @@ test('no printer: open polls, scan ballot, close polls, export results', async (
   );
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  await screen.findByText('Poll Worker Actions');
+  await screen.findByText('Do you want to close the polls?');
 
-  fireEvent.click(await screen.findByText('Close Polls for All Precincts'));
-  fireEvent.click(await screen.findByText('Save Report and Close Polls'));
-  await screen.findByText('Saving to Card');
-  await screen.findByText('Export Results to USB Drive');
+  fireEvent.click(await screen.findByText('Yes, Close the Polls'));
+  await screen.findByText('Closing Polls…');
+  // Wait for sleep after saving the results
+  await advanceTimersAndPromises(4);
+  // Wait for sleep after ejecting the usb
+  await advanceTimersAndPromises(10);
+  await screen.findByText('Polls are closed.');
+  await screen.findByText(
+    'Insert poll worker card into VxMark to print the report.'
+  );
   expect(writeLongObjectMock).toHaveBeenCalledTimes(2);
   expect(writeLongObjectMock).toHaveBeenCalledWith(
     expect.objectContaining({
@@ -1373,12 +1406,8 @@ test('no printer: open polls, scan ballot, close polls, export results', async (
       ]),
     })
   );
-  expect(fetchMock.calls('/scan/export')).toHaveLength(2);
+  expect(fetchMock.calls('/scan/export')).toHaveLength(3);
 
-  fireEvent.click(await screen.findByText('Export Results to USB Drive'));
-  await screen.findByText('Export Results');
-  fireEvent.click(await screen.findByText('Export'));
-  await screen.findByText('Results Exported to USB Drive');
   expect(kiosk.writeFile).toHaveBeenCalledTimes(1);
   expect(kiosk.writeFile).toHaveBeenCalledWith(
     expect.stringMatching(
@@ -1389,17 +1418,9 @@ test('no printer: open polls, scan ballot, close polls, export results', async (
     ),
     expect.anything()
   );
-  expect(fetchMock.calls('/scan/export')).toHaveLength(3);
-  fireEvent.click(await screen.findByText('Eject USB'));
-  expect(screen.queryByText('Eject USB')).toBeNull();
   await advanceTimersAndPromises(1);
   expect(kiosk.unmountUsbDrive).toHaveBeenCalled();
-  fireEvent.click(await screen.findByText('Close'));
 
-  await screen.findByText('Print the Close Polls Report');
-  await screen.findByText(
-    'Insert the poll worker card into a VxMark to print the report.'
-  );
   card.removeCard();
   await screen.findByText('Polls Closed');
 });
