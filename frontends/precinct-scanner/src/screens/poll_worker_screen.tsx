@@ -6,7 +6,6 @@ import {
   Button,
   Prose,
   Loading,
-  Modal,
   PrecinctScannerPollsReport,
   PrecinctScannerTallyReport,
   PrecinctScannerTallyQrCode,
@@ -327,30 +326,105 @@ export function PollWorkerScreen({
   const precinctName = precinct === undefined ? 'All Precincts' : precinct.name;
   const currentTime = Date.now();
 
-  if (pollWorkerFlowState === PollWorkerFlowState.OPEN_POLLS_FLOW__CONFIRM) {
+  if (!currentTally) {
     return (
       <CenteredScreen infoBarMode="pollworker">
         <CenteredLargeProse>
-          <p>Do you want to open the polls?</p>
-          <p>
-            <Button primary onPress={openPolls}>
-              Yes, Open the Polls
-            </Button>{' '}
-            <Button onPress={showAllPollWorkerActions}>No</Button>
-          </p>
+          <Loading />
         </CenteredLargeProse>
       </CenteredScreen>
     );
   }
 
+  const printableReport =
+    currentTally &&
+    reportPurposes.map((reportPurpose) => {
+      // TODO filter to precinct tally, (unless this is the only precinct then use overallTally)
+      return (
+        <React.Fragment key={reportPurpose}>
+          <PrecinctScannerPollsReport
+            ballotCount={scannedBallotCount}
+            currentTime={currentTime}
+            election={election}
+            isLiveMode={isLiveMode}
+            isPollsOpen={!isPollsOpen} // When we print the report we are about to change the polls status and want to reflect the new status
+            precinctScannerMachineId={machineConfig.machineId}
+            precinctSelection={precinctSelection}
+            reportPurpose={reportPurpose}
+          />
+          <PrintableContainer>
+            <TallyReport>
+              {precinctList.map((precinctId) =>
+                parties.map((partyId) => {
+                  const tallyForReport = currentSubTallies.get(
+                    getTallyIdentifier(partyId, precinctId)
+                  );
+                  assert(tallyForReport);
+                  return (
+                    <PrecinctScannerTallyReport
+                      key={getTallyIdentifier(partyId, precinctId)}
+                      data-testid={getTallyIdentifier(partyId, precinctId)}
+                      electionDefinition={electionDefinition}
+                      tally={tallyForReport}
+                      precinctSelection={{
+                        kind: PrecinctSelectionKind.SinglePrecinct,
+                        precinctId,
+                      }}
+                      partyId={partyId}
+                      reportPurpose={reportPurpose}
+                      isPollsOpen={!isPollsOpen}
+                      reportSavedTime={currentTime}
+                    />
+                  );
+                })
+              )}
+              {currentCompressedTally && scannedBallotCount > 0 && (
+                <PrecinctScannerTallyQrCode
+                  electionDefinition={electionDefinition}
+                  signingMachineId={machineConfig.machineId}
+                  compressedTally={currentCompressedTally}
+                  reportPurpose={reportPurpose}
+                  isPollsOpen={!isPollsOpen}
+                  isLiveMode={isLiveMode}
+                  reportSavedTime={currentTime}
+                />
+              )}
+            </TallyReport>
+          </PrintableContainer>
+        </React.Fragment>
+      );
+    });
+
+  if (pollWorkerFlowState === PollWorkerFlowState.OPEN_POLLS_FLOW__CONFIRM) {
+    return (
+      <React.Fragment>
+        <CenteredScreen infoBarMode="pollworker">
+          <CenteredLargeProse>
+            <p>Do you want to open the polls?</p>
+            <p>
+              <Button primary onPress={openPolls}>
+                Yes, Open the Polls
+              </Button>{' '}
+              <Button onPress={showAllPollWorkerActions}>No</Button>
+            </p>
+          </CenteredLargeProse>
+        </CenteredScreen>
+        {printableReport}
+      </React.Fragment>
+    );
+  }
+
   if (pollWorkerFlowState === PollWorkerFlowState.OPEN_POLLS_FLOW__PROCESSING) {
     return (
-      <CenteredScreen infoBarMode="pollworker">
-        <IndeterminateProgressBar />
-        <CenteredLargeProse>
-          <h1>Opening Polls…</h1>
-        </CenteredLargeProse>
-      </CenteredScreen>
+      <React.Fragment>
+        <CenteredScreen infoBarMode="pollworker">
+          <IndeterminateProgressBar />
+          <CenteredLargeProse>
+            <h1>Opening Polls…</h1>
+          </CenteredLargeProse>
+        </CenteredScreen>
+        {printableReport}
+      </React.Fragment>
     );
   }
 
@@ -371,17 +445,20 @@ export function PollWorkerScreen({
 
   if (pollWorkerFlowState === PollWorkerFlowState.CLOSE_POLLS_FLOW__CONFIRM) {
     return (
-      <CenteredScreen infoBarMode="pollworker">
-        <CenteredLargeProse>
-          <p>Do you want to close the polls?</p>
-          <p>
-            <Button primary onPress={closePolls}>
-              Yes, Close the Polls
-            </Button>{' '}
-            <Button onPress={showAllPollWorkerActions}>No</Button>
-          </p>
-        </CenteredLargeProse>
-      </CenteredScreen>
+      <React.Fragment>
+        <CenteredScreen infoBarMode="pollworker">
+          <CenteredLargeProse>
+            <p>Do you want to close the polls?</p>
+            <p>
+              <Button primary onPress={closePolls}>
+                Yes, Close the Polls
+              </Button>{' '}
+              <Button onPress={showAllPollWorkerActions}>No</Button>
+            </p>
+          </CenteredLargeProse>
+        </CenteredScreen>
+        {printableReport}
+      </React.Fragment>
     );
   }
 
@@ -389,12 +466,15 @@ export function PollWorkerScreen({
     pollWorkerFlowState === PollWorkerFlowState.CLOSE_POLLS_FLOW__PROCESSING
   ) {
     return (
-      <CenteredScreen infoBarMode="pollworker">
-        <IndeterminateProgressBar />
-        <CenteredLargeProse>
-          <h1>Closing Polls…</h1>
-        </CenteredLargeProse>
-      </CenteredScreen>
+      <React.Fragment>
+        <CenteredScreen infoBarMode="pollworker">
+          <IndeterminateProgressBar />
+          <CenteredLargeProse>
+            <h1>Closing Polls…</h1>
+          </CenteredLargeProse>
+        </CenteredScreen>
+        {printableReport}
+      </React.Fragment>
     );
   }
 
@@ -412,7 +492,6 @@ export function PollWorkerScreen({
       </CenteredScreen>
     );
   }
-
   return (
     <React.Fragment>
       <CenteredScreen infoBarMode="pollworker">
@@ -420,11 +499,11 @@ export function PollWorkerScreen({
           <h1>Poll Worker Actions</h1>
           <p>
             {isPollsOpen ? (
-              <Button primary large onPress={openPolls}>
+              <Button primary large onPress={closePolls}>
                 Close Polls for {precinctName}
               </Button>
             ) : (
-              <Button primary large onPress={closePolls}>
+              <Button primary large onPress={openPolls}>
                 Open Polls for {precinctName}
               </Button>
             )}
@@ -456,65 +535,8 @@ export function PollWorkerScreen({
             scannedBallotCount={scannedBallotCount}
           />
         )}
-        {!currentTally && <Modal content={<Loading>Loading Tally</Loading>} />}
       </CenteredScreen>
-      {currentTally &&
-        reportPurposes.map((reportPurpose) => {
-          // TODO filter to precinct tally, (unless this is the only precinct then use overallTally)
-          return (
-            <React.Fragment key={reportPurpose}>
-              <PrecinctScannerPollsReport
-                ballotCount={scannedBallotCount}
-                currentTime={currentTime}
-                election={election}
-                isLiveMode={isLiveMode}
-                isPollsOpen={!isPollsOpen} // When we print the report we are about to change the polls status and want to reflect the new status
-                precinctScannerMachineId={machineConfig.machineId}
-                precinctSelection={precinctSelection}
-                reportPurpose={reportPurpose}
-              />
-              <PrintableContainer>
-                <TallyReport>
-                  {precinctList.map((precinctId) =>
-                    parties.map((partyId) => {
-                      const tallyForReport = currentSubTallies.get(
-                        getTallyIdentifier(partyId, precinctId)
-                      );
-                      assert(tallyForReport);
-                      return (
-                        <PrecinctScannerTallyReport
-                          key={getTallyIdentifier(partyId, precinctId)}
-                          data-testid={getTallyIdentifier(partyId, precinctId)}
-                          electionDefinition={electionDefinition}
-                          tally={tallyForReport}
-                          precinctSelection={{
-                            kind: PrecinctSelectionKind.SinglePrecinct,
-                            precinctId,
-                          }}
-                          partyId={partyId}
-                          reportPurpose={reportPurpose}
-                          isPollsOpen={!isPollsOpen}
-                          reportSavedTime={currentTime}
-                        />
-                      );
-                    })
-                  )}
-                  {currentCompressedTally && scannedBallotCount > 0 && (
-                    <PrecinctScannerTallyQrCode
-                      electionDefinition={electionDefinition}
-                      signingMachineId={machineConfig.machineId}
-                      compressedTally={currentCompressedTally}
-                      reportPurpose={reportPurpose}
-                      isPollsOpen={!isPollsOpen}
-                      isLiveMode={isLiveMode}
-                      reportSavedTime={currentTime}
-                    />
-                  )}
-                </TallyReport>
-              </PrintableContainer>
-            </React.Fragment>
-          );
-        })}
+      {printableReport}
     </React.Fragment>
   );
 }
