@@ -9,7 +9,7 @@ export function fakeFileWriter(): jest.Mocked<FakeFileWriter> {
 
   return {
     filename: '/fake/file',
-    write: jest.fn().mockImplementation((chunk) => {
+    write: jest.fn().mockImplementation(async (chunk) => {
       chunks.push(chunk);
     }),
     end: jest.fn().mockResolvedValue(undefined),
