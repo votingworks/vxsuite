@@ -57,6 +57,7 @@ const EITHER_NEITHER_SEMS_DATA =
   electionWithMsEitherNeitherWithDataFiles.semsData;
 
 jest.mock('./components/hand_marked_paper_ballot');
+jest.mock('./utils/pdf_to_images');
 
 let mockKiosk!: jest.Mocked<KioskBrowser.Kiosk>;
 

@@ -1,15 +1,23 @@
-import React from 'react';
 import { fireEvent, waitFor } from '@testing-library/react';
-import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
-import { usbstick } from '@votingworks/utils';
+import { interpretTemplate } from '@votingworks/ballot-interpreter-vx';
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
-import { renderInAppContext } from '../../test/render_in_app_context';
-import { ExportElectionBallotPackageModalButton } from './export_election_ballot_package_modal_button';
+import { fakeKiosk, fakeUsbDrive, mockOf } from '@votingworks/test-utils';
+import { usbstick } from '@votingworks/utils';
+import React from 'react';
+import { BallotPageLayoutWithImage, BallotType } from '@votingworks/types';
 import { fakeFileWriter } from '../../test/helpers/fake_file_writer';
+import {
+  eitherNeitherElectionDefinition,
+  renderInAppContext,
+} from '../../test/render_in_app_context';
+import { ExportElectionBallotPackageModalButton } from './export_election_ballot_package_modal_button';
+import { pdfToImages } from '../utils/pdf_to_images';
 
 const { UsbDriveStatus } = usbstick;
 
+jest.mock('@votingworks/ballot-interpreter-vx');
 jest.mock('../components/hand_marked_paper_ballot');
+jest.mock('../utils/pdf_to_images');
 
 beforeEach(() => {
   const mockKiosk = fakeKiosk();
@@ -18,6 +26,51 @@ beforeEach(() => {
   mockKiosk.saveAs = jest.fn().mockResolvedValue(fileWriter);
   mockKiosk.writeFile = jest.fn().mockResolvedValue(fileWriter);
   window.kiosk = mockKiosk;
+
+  mockOf(pdfToImages).mockImplementation(
+    async function* pdfToImagesMock(): AsyncGenerator<{
+      page: ImageData;
+      pageNumber: number;
+      pageCount: number;
+    }> {
+      yield {
+        page: { data: Uint8ClampedArray.of(0, 0, 0, 0), width: 1, height: 1 },
+        pageNumber: 1,
+        pageCount: 2,
+      };
+      yield {
+        page: { data: Uint8ClampedArray.of(0, 0, 0, 0), width: 1, height: 1 },
+        pageNumber: 2,
+        pageCount: 2,
+      };
+    }
+  );
+
+  mockOf(interpretTemplate).mockImplementation(
+    async ({
+      electionDefinition,
+      imageData,
+      metadata,
+    }): Promise<BallotPageLayoutWithImage> => ({
+      imageData,
+      ballotPageLayout: {
+        contests: [],
+        metadata: metadata ?? {
+          ballotType: BallotType.Standard,
+          ballotStyleId: '123',
+          precinctId: '123',
+          electionHash: electionDefinition.electionHash,
+          isTestMode: false,
+          locales: { primary: 'en-US' },
+          pageNumber: 1,
+        },
+        pageSize: {
+          width: imageData.width,
+          height: imageData.height,
+        },
+      },
+    })
+  );
 });
 
 afterEach(() => {
@@ -97,6 +150,14 @@ test('Modal renders export confirmation screen when usb detected and manual link
   fireEvent.click(getByText('Custom'));
   await waitFor(() => getByText(/Download Complete/));
   await waitFor(() => {
+    expect(interpretTemplate).toHaveBeenCalledTimes(
+      2 /* pages per ballot */ *
+        2 /* test & live */ *
+        eitherNeitherElectionDefinition.election.ballotStyles.reduce(
+          (acc, bs) => acc + bs.precincts.length,
+          0
+        )
+    );
     expect(window.kiosk!.saveAs).toHaveBeenCalledTimes(1);
   });
   expect(logSpy).toHaveBeenCalledWith(

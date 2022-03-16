@@ -1,4 +1,4 @@
-import { assert } from '@votingworks/utils';
+import { assert, deferred } from '@votingworks/utils';
 import ZipStream from 'zip-stream';
 import path from 'path';
 
@@ -57,10 +57,8 @@ export class DownloadableArchive {
       throw new Error('could not begin download; an error occurred');
     }
 
-    let endResolve: () => void;
-    this.endPromise = new Promise((resolve) => {
-      endResolve = resolve;
-    });
+    const { promise: endPromise, resolve: endResolve } = deferred<void>();
+    this.endPromise = endPromise;
     this.zip = new ZipStream()
       .on('data', (chunk) => fileWriter.write(chunk))
       .on('end', () => fileWriter.end().then(endResolve));

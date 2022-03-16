@@ -1,8 +1,15 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import pluralize from 'pluralize';
 import styled from 'styled-components';
-import { join } from 'path';
-import { getElectionLocales, getPrecinctById } from '@votingworks/types';
+import { basename, dirname, extname, join } from 'path';
+import { interpretTemplate } from '@votingworks/ballot-interpreter-vx';
+import {
+  BallotPageLayout,
+  BallotType,
+  getElectionLocales,
+  getPrecinctById,
+  HmpbBallotPageMetadata,
+} from '@votingworks/types';
 
 import {
   assert,
@@ -15,6 +22,7 @@ import { UsbControllerButton, Modal } from '@votingworks/ui';
 import { LogEventId } from '@votingworks/logging';
 import { DEFAULT_LOCALE } from '../config/globals';
 import { getBallotPath, getHumanBallotLanguageFormat } from '../utils/election';
+import { pdfToImages } from '../utils/pdf_to_images';
 
 import { AppContext } from '../contexts/app_context';
 import { HandMarkedPaperBallot } from './hand_marked_paper_ballot';
@@ -106,18 +114,42 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
     } = state.currentBallotConfig;
     const path = getBallotPath({
       ballotStyleId,
-      election,
-      electionHash,
+      election: electionDefinition.election,
+      electionHash: electionDefinition.electionHash,
       precinctId,
       locales,
       isLiveMode,
       isAbsentee,
     });
     assert(window.kiosk);
-    const data = await window.kiosk.printToPDF();
-    await state.archive.file(path, Buffer.from(data));
+    const ballotPdfData = Buffer.from(await window.kiosk.printToPDF());
+    const layouts: BallotPageLayout[] = [];
+    for await (const { page, pageNumber } of pdfToImages(ballotPdfData, {
+      scale: 2,
+    })) {
+      const metadata: HmpbBallotPageMetadata = {
+        ballotStyleId,
+        electionHash: electionDefinition.electionHash,
+        ballotType: BallotType.Standard,
+        precinctId,
+        locales,
+        isTestMode: !isLiveMode,
+        pageNumber,
+      };
+      const { ballotPageLayout } = await interpretTemplate({
+        electionDefinition,
+        imageData: page,
+        metadata,
+      });
+      layouts.push(ballotPageLayout);
+    }
+    await state.archive.file(
+      join(dirname(path), `${basename(path, extname(path))}-layout.json`),
+      JSON.stringify(layouts, undefined, 2)
+    );
+    await state.archive.file(path, ballotPdfData);
     setState(workflow.next);
-  }, [election, electionHash, state]);
+  }, [electionDefinition, state]);
 
   function closeModal() {
     setIsModalOpen(false);
