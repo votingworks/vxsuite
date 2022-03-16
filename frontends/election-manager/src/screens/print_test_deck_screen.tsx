@@ -8,7 +8,7 @@ import {
 } from '@votingworks/types';
 import { assert, sleep } from '@votingworks/utils';
 import { LogEventId } from '@votingworks/logging';
-import { Modal } from '@votingworks/ui';
+import { useCancelablePromise, Modal } from '@votingworks/ui';
 import { routerPaths } from '../router_paths';
 
 import { AppContext } from '../contexts/app_context';
@@ -83,6 +83,7 @@ function TestDeckBallots({
 const TestDeckBallotsMemoized = React.memo(TestDeckBallots);
 
 export function PrintTestDeckScreen(): JSX.Element {
+  const makeCancelable = useCancelablePromise();
   const {
     electionDefinition,
     printer,
@@ -159,14 +160,21 @@ export function PrintTestDeckScreen(): JSX.Element {
       if (precinctIndex < precinctIds.length - 1) {
         // wait 5s per ballot printed
         // that's how long printing takes in duplex, no reason to get ahead of it.
-        await sleep(numBallots * 5000);
+        await makeCancelable(sleep(numBallots * 5000));
         setPrecinctIndex(precinctIndex + 1);
       } else {
-        await sleep(3000);
+        await makeCancelable(sleep(3000));
         setPrecinctIndex(undefined);
       }
     },
-    [printer, logger, currentUserType, precinctIds, precinctIndex]
+    [
+      precinctIndex,
+      printer,
+      logger,
+      currentUserType,
+      precinctIds,
+      makeCancelable,
+    ]
   );
 
   const currentPrecinct =
