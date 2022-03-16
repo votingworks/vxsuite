@@ -57,19 +57,19 @@ export function main({ stdout }: IO): void {
   deleteScript(outRoot, 'prepare');
   stdout.write(`📦 Installing dependencies in workspace\n`);
   execSync('pnpm', ['install', '--frozen-lockfile'], { cwd: outRoot });
-  removeDependencies(outRoot, { dev: false });
-  removeDependencies(outRoot, { dev: true });
+  // removeDependencies(outRoot, { dev: false });
+  // removeDependencies(outRoot, { dev: true });
 
   for (const { path, isBundled } of allPackages) {
     stdout.write(`🪚 prune ${path}\n`);
     const depBuildRoot = inBuildDir(path, outRoot);
     if (existsSync(join(depBuildRoot, 'package.json'))) {
       stdout.write(`→ removing devDependencies\n`);
-      removeDependencies(depBuildRoot, { dev: true });
+      // removeDependencies(depBuildRoot, { dev: true });
 
       if (isBundled) {
         stdout.write(`→ removing dependencies\n`);
-        removeDependencies(depBuildRoot, { dev: false });
+        // removeDependencies(depBuildRoot, { dev: false });
       }
     }
   }
@@ -78,10 +78,10 @@ export function main({ stdout }: IO): void {
     if (!prodPackages.has(pkg)) {
       stdout.write(`🪚 prune dev ${pkg.path}\n`);
       const depBuildRoot = inBuildDir(pkg.path, outRoot);
-      rmrf(depBuildRoot);
+      // rmrf(depBuildRoot);
     }
   }
 
   stdout.write(`🪚 prune dev package dependencies\n`);
-  execSync('pnpm', ['install', '--offline'], { cwd: outRoot });
+  // execSync('pnpm', ['install', '--offline'], { cwd: outRoot });
 }
