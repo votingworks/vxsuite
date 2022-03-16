@@ -122,9 +122,11 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
       isAbsentee,
     });
     assert(window.kiosk);
-    const data = Buffer.from(await window.kiosk.printToPDF());
+    const ballotPdfData = Buffer.from(await window.kiosk.printToPDF());
     const layouts: BallotPageLayout[] = [];
-    for await (const { page, pageNumber } of pdfToImages(data, { scale: 2 })) {
+    for await (const { page, pageNumber } of pdfToImages(ballotPdfData, {
+      scale: 2,
+    })) {
       const metadata: HmpbBallotPageMetadata = {
         ballotStyleId,
         electionHash: electionDefinition.electionHash,
@@ -145,7 +147,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
       join(dirname(path), `${basename(path, extname(path))}-layout.json`),
       JSON.stringify(layouts, undefined, 2)
     );
-    await state.archive.file(path, data);
+    await state.archive.file(path, ballotPdfData);
     setState(workflow.next);
   }, [electionDefinition, state]);
 
