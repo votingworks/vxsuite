@@ -12,6 +12,7 @@ import {
   generateFileContentFromCvrs,
   generateCvr,
   getZeroCompressedTally,
+  fakeUsbDrive,
 } from '@votingworks/test-utils';
 import {
   GetCurrentPrecinctConfigResponse,
@@ -116,7 +117,7 @@ test('expected tally reports are printed for a primary election with all precinc
   const storage = new MemoryStorage();
   await storage.set(stateStorageKey, { isPollsOpen: false });
   const kiosk = fakeKiosk();
-  kiosk.getUsbDrives.mockResolvedValue([]);
+  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
   window.kiosk = kiosk;
   const { election } = electionMinimalExhaustiveSampleDefinition;
   fetchMock
@@ -142,7 +143,7 @@ test('expected tally reports are printed for a primary election with all precinc
   );
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  await screen.findByText('Poll Worker Actions');
+  await screen.findByText('Do you want to open the polls?');
   expect(fetchMock.calls('/scan/export')).toHaveLength(1);
 
   const NUMBER_REPORT_PURPOSES = 2;
@@ -177,7 +178,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
   const storage = new MemoryStorage();
   await storage.set(stateStorageKey, { isPollsOpen: true });
   const kiosk = fakeKiosk();
-  kiosk.getUsbDrives.mockResolvedValue([]);
+  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
   window.kiosk = kiosk;
   const { election } = electionMinimalExhaustiveSampleDefinition;
 
@@ -262,7 +263,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
   );
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  await screen.findByText('Poll Worker Actions');
+  await screen.findByText('Do you want to close the polls?');
   expect(fetchMock.calls('/scan/export')).toHaveLength(1);
 
   const NUMBER_REPORT_PURPOSES = 2;
@@ -451,16 +452,17 @@ test('expected tally reports for a primary election with all precincts with CVRs
   });
 
   // Save the tally to card and get the expected tallies
-  fireEvent.click(await screen.findByText('Close Polls for All Precincts'));
-  await screen.findByText('Print Report and Close Polls');
-
   act(() => {
     hardware.setPrinterConnected(false);
   });
-
-  fireEvent.click(await screen.findByText('Save Report and Close Polls'));
-  await screen.findByText('Saving to Card');
-  await screen.findByText('Export Results to USB Drive');
+  fireEvent.click(await screen.findByText('Yes, Close the Polls'));
+  // Run promises
+  await advanceTimersAndPromises();
+  // Wait for sleep after saving the results
+  await advanceTimersAndPromises(4);
+  // Wait for sleep after ejecting the usb
+  await advanceTimersAndPromises(10);
+  await screen.findByText('Polls are closed.');
   card.removeCard();
   await advanceTimersAndPromises(1);
   const expectedCombinedTally: CompressedTally = [
@@ -520,10 +522,8 @@ test('expected tally reports for a primary election with all precincts with CVRs
     .mockResolvedValue(err(new Error('bad read')));
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  fireEvent.click(await screen.findByText('Open Polls for All Precincts'));
-  fireEvent.click(await screen.findByText('Save Report and Open Polls'));
-  await screen.findByText('Saving to Card');
-  await screen.findByText('Print the Open Polls Report');
+  fireEvent.click(await screen.findByText('Yes, Open the Polls'));
+  await screen.findByText('Polls are open.');
   expect(writeLongObjectMock).toHaveBeenCalledTimes(3);
   expect(writeLongObjectMock).toHaveBeenNthCalledWith(
     2,
@@ -565,7 +565,7 @@ test('expected tally reports for a primary election with a single precincts with
   const storage = new MemoryStorage();
   await storage.set(stateStorageKey, { isPollsOpen: true });
   const kiosk = fakeKiosk();
-  kiosk.getUsbDrives.mockResolvedValue([]);
+  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
   window.kiosk = kiosk;
   const { election } = electionMinimalExhaustiveSampleDefinition;
 
@@ -650,7 +650,7 @@ test('expected tally reports for a primary election with a single precincts with
   );
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  await screen.findByText('Poll Worker Actions');
+  await screen.findByText('Do you want to close the polls?');
   expect(fetchMock.calls('/scan/export')).toHaveLength(1);
 
   const NUMBER_REPORT_PURPOSES = 2;
@@ -759,16 +759,18 @@ test('expected tally reports for a primary election with a single precincts with
   });
 
   // Save the tally to card and get the expected tallies
-  fireEvent.click(await screen.findByText('Close Polls for Precinct 1'));
-  await screen.findByText('Print Report and Close Polls');
-
   act(() => {
     hardware.setPrinterConnected(false);
   });
-
-  fireEvent.click(await screen.findByText('Save Report and Close Polls'));
-  await screen.findByText('Saving to Card');
-  await screen.findByText('Export Results to USB Drive');
+  fireEvent.click(await screen.getAllByText('No')[0]);
+  fireEvent.click(await screen.findByText('Close Polls for Precinct 1'));
+  // Run promises
+  await advanceTimersAndPromises();
+  // Wait for sleep after saving the results
+  await advanceTimersAndPromises(4);
+  // Wait for sleep after ejecting the usb
+  await advanceTimersAndPromises(10);
+  await screen.findByText('Polls are closed.');
   card.removeCard();
   await advanceTimersAndPromises(1);
   const expectedCombinedTally: CompressedTally = [
@@ -814,10 +816,9 @@ test('expected tally reports for a primary election with a single precincts with
     .mockResolvedValue(err(new Error('bad read')));
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
+  fireEvent.click(await screen.getAllByText('No')[0]);
   fireEvent.click(await screen.findByText('Open Polls for Precinct 1'));
-  fireEvent.click(await screen.findByText('Save Report and Open Polls'));
-  await screen.findByText('Saving to Card');
-  await screen.findByText('Print the Open Polls Report');
+  await screen.findByText('Polls are open.');
   expect(writeLongObjectMock).toHaveBeenCalledTimes(3);
   expect(writeLongObjectMock).toHaveBeenNthCalledWith(
     2,
@@ -865,7 +866,7 @@ test('expected tally reports for a general election with all precincts with CVRs
   const storage = new MemoryStorage();
   await storage.set(stateStorageKey, { isPollsOpen: true });
   const kiosk = fakeKiosk();
-  kiosk.getUsbDrives.mockResolvedValue([]);
+  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
   window.kiosk = kiosk;
   const { election } = electionSample2Definition;
 
@@ -931,7 +932,7 @@ test('expected tally reports for a general election with all precincts with CVRs
   );
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  await screen.findByText('Poll Worker Actions');
+  await screen.findByText('Do you want to close the polls?');
   expect(fetchMock.calls('/scan/export')).toHaveLength(1);
 
   const NUMBER_REPORT_PURPOSES = 2;
@@ -1033,16 +1034,17 @@ test('expected tally reports for a general election with all precincts with CVRs
   });
 
   // Save the tally to card and get the expected tallies
-  fireEvent.click(await screen.findByText('Close Polls for All Precincts'));
-  await screen.findByText('Print Report and Close Polls');
-
   act(() => {
     hardware.setPrinterConnected(false);
   });
-
-  fireEvent.click(await screen.findByText('Save Report and Close Polls'));
-  await screen.findByText('Saving to Card');
-  await screen.findByText('Export Results to USB Drive');
+  fireEvent.click(await screen.findByText('Yes, Close the Polls'));
+  // Run promises
+  await advanceTimersAndPromises();
+  // Wait for sleep after saving the results
+  await advanceTimersAndPromises(4);
+  // Wait for sleep after ejecting the usb
+  await advanceTimersAndPromises(10);
+  await screen.findByText('Polls are closed.');
   card.removeCard();
   await advanceTimersAndPromises(1);
   const expectedCombinedTally = election.contests.map(() => expect.anything());
@@ -1088,10 +1090,8 @@ test('expected tally reports for a general election with all precincts with CVRs
     .mockResolvedValue(err(new Error('bad read')));
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  fireEvent.click(await screen.findByText('Open Polls for All Precincts'));
-  fireEvent.click(await screen.findByText('Save Report and Open Polls'));
-  await screen.findByText('Saving to Card');
-  await screen.findByText('Print the Open Polls Report');
+  fireEvent.click(await screen.findByText('Yes, Open the Polls'));
+  await screen.findByText('Polls are open.');
   expect(writeLongObjectMock).toHaveBeenCalledTimes(3);
   expect(writeLongObjectMock).toHaveBeenNthCalledWith(
     2,
@@ -1133,7 +1133,7 @@ test('expected tally reports for a general election with a single precincts with
   const storage = new MemoryStorage();
   await storage.set(stateStorageKey, { isPollsOpen: true });
   const kiosk = fakeKiosk();
-  kiosk.getUsbDrives.mockResolvedValue([]);
+  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
   window.kiosk = kiosk;
   const { election } = electionSample2Definition;
 
@@ -1199,7 +1199,7 @@ test('expected tally reports for a general election with a single precincts with
   );
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  await screen.findByText('Poll Worker Actions');
+  await screen.findByText('Do you want to close the polls?');
   expect(fetchMock.calls('/scan/export')).toHaveLength(1);
 
   const NUMBER_REPORT_PURPOSES = 2;
@@ -1251,18 +1251,18 @@ test('expected tally reports for a general election with a single precincts with
   });
 
   // Save the tally to card and get the expected tallies
-  fireEvent.click(
-    await screen.findByText('Close Polls for Center Springfield')
-  );
-  await screen.findByText('Print Report and Close Polls');
-
   act(() => {
     hardware.setPrinterConnected(false);
   });
+  fireEvent.click(await screen.findByText('Yes, Close the Polls'));
+  // Run promises
+  await advanceTimersAndPromises();
+  // Wait for sleep after saving the results
+  await advanceTimersAndPromises(4);
+  // Wait for sleep after ejecting the usb
+  await advanceTimersAndPromises(10);
+  await screen.findByText('Polls are closed.');
 
-  fireEvent.click(await screen.findByText('Save Report and Close Polls'));
-  await screen.findByText('Saving to Card');
-  await screen.findByText('Export Results to USB Drive');
   card.removeCard();
   await advanceTimersAndPromises(1);
   const expectedCombinedTally = election.contests.map(() => expect.anything());
@@ -1301,10 +1301,8 @@ test('expected tally reports for a general election with a single precincts with
     .mockResolvedValue(err(new Error('bad read')));
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  fireEvent.click(await screen.findByText('Open Polls for Center Springfield'));
-  fireEvent.click(await screen.findByText('Save Report and Open Polls'));
-  await screen.findByText('Saving to Card');
-  await screen.findByText('Print the Open Polls Report');
+  fireEvent.click(await screen.findByText('Yes, Open the Polls'));
+  await screen.findByText('Polls are open.');
   expect(writeLongObjectMock).toHaveBeenCalledTimes(3);
   expect(writeLongObjectMock).toHaveBeenNthCalledWith(
     2,

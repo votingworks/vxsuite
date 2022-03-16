@@ -511,10 +511,8 @@ test('App shows warning message to connect to power when disconnected', async ()
   );
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  fireEvent.click(await screen.findByText('Open Polls for All Precincts'));
-  fireEvent.click(await screen.findByText('Save Report and Open Polls'));
-  await screen.findByText('Saving to Card');
-  await screen.findByText('Print the Open Polls Report');
+  fireEvent.click(await screen.findByText('Yes, Open the Polls'));
+  await screen.findByText('Polls are open.');
 
   // Remove pollworker card
   card.removeCard();
