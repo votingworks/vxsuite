@@ -235,6 +235,13 @@ test('PUT /config/package', async () => {
   expect(importer.configure).toBeCalledWith(
     hamiltonSealFixtures.electionDefinition
   );
+  expect(importer.addHmpbTemplates).toHaveBeenCalledTimes(
+    2 /* test & live */ *
+      hamiltonSealFixtures.election.ballotStyles.reduce(
+        (acc, bs) => acc + bs.precincts.length,
+        0
+      )
+  );
 });
 
 test('PUT /config/package missing package', async () => {
