@@ -1,11 +1,7 @@
 import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures';
 import { Logger, LogSource } from '@votingworks/logging';
 import * as plusteksdk from '@votingworks/plustek-sdk';
-import {
-  BallotType,
-  ok,
-  safeParseElectionDefinition,
-} from '@votingworks/types';
+import { BallotType, ok } from '@votingworks/types';
 import {
   GetNextReviewSheetResponse,
   GetScanStatusResponse,
@@ -16,11 +12,11 @@ import { typedAs } from '@votingworks/utils';
 import { Application } from 'express';
 import { createReadStream, promises as fs } from 'fs';
 import { Server } from 'http';
-import { join } from 'path';
 import request from 'supertest';
 import { dirSync } from 'tmp';
 import { mocked } from 'ts-jest/dist/utils/testing';
 import { v4 as uuid } from 'uuid';
+import * as hamiltonSealFixtures from '../test/fixtures/hamilton-seal-049e9e66cd';
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { makeMock } from '../test/util/mocks';
 import { Importer } from './importer';
@@ -228,22 +224,17 @@ test('DELETE /config/election', async () => {
 });
 
 test('PUT /config/package', async () => {
-  const fixtureRoot = join(
-    __dirname,
-    '../test/fixtures/hamilton-seal-049e9e66cd'
-  );
-  const hamiltonSealElectionDefinition = safeParseElectionDefinition(
-    await fs.readFile(join(fixtureRoot, 'election.json'), 'utf-8')
-  ).unsafeUnwrap();
   importer.configure.mockReturnValue();
   importer.addHmpbTemplates.mockResolvedValue([]);
 
   await request(app)
     .put('/config/package')
     .set('Accept', 'application/json')
-    .field('package', createReadStream(join(fixtureRoot, 'ballot-package.zip')))
+    .field('package', createReadStream(hamiltonSealFixtures.ballotPackage))
     .expect(200, { status: 'ok' });
-  expect(importer.configure).toBeCalledWith(hamiltonSealElectionDefinition);
+  expect(importer.configure).toBeCalledWith(
+    hamiltonSealFixtures.electionDefinition
+  );
 });
 
 test('PUT /config/package missing package', async () => {
