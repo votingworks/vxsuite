@@ -123,6 +123,7 @@ test('readBallotPackageFromFile throws when the manifest does not match ballots'
         filename: 'test/election-deadbeef-whatever.pdf',
         contestIds: ['1', '2'],
         isLiveMode: false,
+        isAbsentee: false,
         locales: { primary: 'en-US' },
       },
     ],

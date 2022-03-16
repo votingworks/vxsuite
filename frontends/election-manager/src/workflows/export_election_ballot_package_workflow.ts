@@ -1,5 +1,5 @@
 import { Election } from '@votingworks/types';
-import { BallotConfig } from '../config/types';
+import { BallotConfig } from '@votingworks/utils';
 import { DownloadableArchive } from '../utils/downloadable_archive';
 import { getAllBallotConfigs } from '../utils/get_all_ballot_configs';
 

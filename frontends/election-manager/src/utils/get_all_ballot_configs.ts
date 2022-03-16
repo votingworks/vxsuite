@@ -1,6 +1,6 @@
 import { Election } from '@votingworks/types';
+import { BallotConfig } from '@votingworks/utils';
 import { DEFAULT_LOCALE } from '../config/globals';
-import { BallotConfig } from '../config/types';
 import { getBallotPath, getBallotStylesDataByStyle } from './election';
 
 export function getAllBallotConfigs(

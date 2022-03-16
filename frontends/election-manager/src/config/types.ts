@@ -11,7 +11,6 @@ import {
   PrecinctId,
   VotingMethod,
 } from '@votingworks/types';
-import { BallotStyleData } from '@votingworks/utils';
 import { z } from 'zod';
 
 // Events
@@ -28,13 +27,6 @@ export type ButtonEventFunction = (
 
 // Election
 export type SaveElection = (electionJson?: string) => Promise<void>;
-
-export interface BallotConfig extends BallotStyleData {
-  filename: string;
-  locales: BallotLocale;
-  isLiveMode: boolean;
-  isAbsentee: boolean;
-}
 
 export const PrintableBallotType = {
   Absentee: 'absentee',

@@ -34,6 +34,7 @@ export interface BallotConfig extends BallotStyleData {
   filename: string;
   locales: BallotLocales;
   isLiveMode: boolean;
+  isAbsentee: boolean;
 }
 
 function readFile(file: File): Promise<Buffer> {
