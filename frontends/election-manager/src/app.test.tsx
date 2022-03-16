@@ -13,12 +13,7 @@ import {
 } from '@testing-library/react';
 import fetchMock from 'fetch-mock';
 import { electionWithMsEitherNeitherWithDataFiles } from '@votingworks/fixtures';
-import {
-  sleep,
-  MemoryStorage,
-  MemoryCard,
-  MemoryHardware,
-} from '@votingworks/utils';
+import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
 import {
   advanceTimersAndPromises,
   fakeKiosk,
@@ -44,7 +39,6 @@ import { CastVoteRecordFiles } from './utils/cast_vote_record_files';
 
 import { App } from './app';
 
-import { fakeFileWriter } from '../test/helpers/fake_file_writer';
 import { fakePrinter } from '../test/helpers/fake_printer';
 import { eitherNeitherElectionDefinition } from '../test/render_in_app_context';
 import { hasTextAcrossElements } from '../test/util/has_text_across_elements';
@@ -64,13 +58,15 @@ const EITHER_NEITHER_SEMS_DATA =
 
 jest.mock('./components/hand_marked_paper_ballot');
 
+let mockKiosk!: jest.Mocked<KioskBrowser.Kiosk>;
+
 beforeEach(() => {
   Object.defineProperty(window, 'location', {
     writable: true,
     value: { assign: jest.fn() },
   });
   window.location.href = '/';
-  const mockKiosk = fakeKiosk();
+  mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
   mockKiosk.getPrinterInfo.mockResolvedValue([
     {
@@ -102,7 +98,6 @@ beforeEach(() => {
 afterEach(() => {
   delete window.kiosk;
   MockDate.reset();
-  jest.useRealTimers();
 });
 
 async function createMemoryStorageWith({
@@ -144,7 +139,7 @@ test('create election works', async () => {
   fireEvent.click(getByText('Create New Election Definition'));
 
   await screen.findByText('Ballots');
-  expect(window.kiosk!.log).toHaveBeenCalledWith(
+  expect(mockKiosk.log).toHaveBeenCalledWith(
     expect.stringContaining(LogEventId.ElectionConfigured)
   );
 
@@ -173,7 +168,7 @@ test('create election works', async () => {
   fireEvent.click(getByText('Remove Election Definition'));
 
   await screen.findByText('Configure VxAdmin');
-  expect(window.kiosk!.log).toHaveBeenCalledWith(
+  expect(mockKiosk.log).toHaveBeenCalledWith(
     expect.stringContaining(LogEventId.ElectionUnconfigured)
   );
 
@@ -221,7 +216,7 @@ test('authentication works', async () => {
   // Insert an admin card and enter the wrong code.
   card.insertCard(adminCard);
   await advanceTimersAndPromises(1);
-  expect(window.kiosk!.log).toHaveBeenCalledWith(
+  expect(mockKiosk.log).toHaveBeenCalledWith(
     expect.stringContaining(LogEventId.AdminCardInserted)
   );
   await screen.findByText('Enter the card security code to unlock.');
@@ -232,7 +227,7 @@ test('authentication works', async () => {
   fireEvent.click(screen.getByText('1'));
   fireEvent.click(screen.getByText('1'));
   await screen.findByText('Invalid code. Please try again.');
-  expect(window.kiosk!.log).toHaveBeenLastCalledWith(
+  expect(mockKiosk.log).toHaveBeenLastCalledWith(
     expect.stringMatching(/"admin-authentication-2fac".*disposition":"failure"/)
   );
 
@@ -259,10 +254,10 @@ test('authentication works', async () => {
 
   // Machine should be unlocked
   await screen.findByText('Definition');
-  expect(window.kiosk!.log).toHaveBeenCalledWith(
+  expect(mockKiosk.log).toHaveBeenCalledWith(
     expect.stringMatching(/"admin-authentication-2fac".*disposition":"success"/)
   );
-  expect(window.kiosk!.log).toHaveBeenLastCalledWith(
+  expect(mockKiosk.log).toHaveBeenLastCalledWith(
     expect.stringMatching(
       /"user-session-activation".*"user":"admin".*disposition":"success"/
     )
@@ -289,13 +284,12 @@ test('authentication works', async () => {
   // Lock the machine
   fireEvent.click(screen.getByText('Lock Machine'));
   await screen.findByText('Machine Locked');
-  expect(window.kiosk!.log).toHaveBeenCalledWith(
+  expect(mockKiosk.log).toHaveBeenCalledWith(
     expect.stringContaining(LogEventId.MachineLocked)
   );
 });
 
 test('printing ballots, print report, and test decks', async () => {
-  const mockKiosk = window.kiosk! as jest.Mocked<KioskBrowser.Kiosk>;
   const storage = await createMemoryStorageWith({
     electionDefinition: eitherNeitherElectionDefinition,
   });
@@ -325,39 +319,6 @@ test('printing ballots, print report, and test decks', async () => {
     )
   );
 
-  // go print some ballots
-  fireEvent.click(getByText('Export Ballot Package'));
-  fireEvent.click(getByText('Export'));
-  expect(window.kiosk!.log).toHaveBeenCalledWith(
-    expect.stringContaining(LogEventId.ExportBallotPackageInit)
-  );
-
-  jest.useRealTimers();
-
-  // we're not mocking the filestream yet
-  await screen.findByText(/Download Failed/);
-  expect(window.kiosk!.log).toHaveBeenCalledWith(
-    expect.stringMatching(
-      /"export-ballot-package-complete".*disposition":"failure"/
-    )
-  );
-  expect(mockKiosk.makeDirectory).toHaveBeenCalledTimes(1);
-  expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
-  fireEvent.click(getByText('Close'));
-
-  // Mock the file stream and export again
-  mockKiosk.writeFile = jest.fn().mockResolvedValue(fakeFileWriter());
-  fireEvent.click(getByText('Export Ballot Package'));
-  fireEvent.click(getByText('Export'));
-  await screen.findByText(/Generating Ballot/);
-  expect(mockKiosk.makeDirectory).toHaveBeenCalledTimes(2);
-  expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1); // Since we recreated the jest function to mock the response this will be 1
-  expect(window.kiosk!.log).toHaveBeenCalledWith(
-    expect.stringMatching(
-      /"export-ballot-package-complete".*disposition":"success"/
-    )
-  );
-
   fireEvent.click(getByText('Ballots'));
   fireEvent.click(getAllByText('View Ballot')[0]);
   fireEvent.click(getByText('Precinct'));
@@ -370,7 +331,7 @@ test('printing ballots, print report, and test decks', async () => {
   fireEvent.click(getByText('Yes, Print'));
   await waitFor(() => getByText('Printing'));
   expect(printer.print).toHaveBeenCalledTimes(1);
-  expect(window.kiosk!.log).toHaveBeenCalledWith(
+  expect(mockKiosk.log).toHaveBeenCalledWith(
     expect.stringContaining(LogEventId.BallotPrinted)
   );
   fireEvent.click(getByText('Print 1 Official', { exact: false }));
@@ -383,8 +344,7 @@ test('printing ballots, print report, and test decks', async () => {
   await waitFor(() => getByText('Printing'));
   expect(printer.print).toHaveBeenCalledTimes(3);
 
-  // this is ugly but necessary for now to wait just a bit for the data to be stored
-  await sleep(0);
+  await waitFor(() => !getByText('Printing'));
 
   fireEvent.click(getByText('Ballots'));
   getByText('3 official ballots', { exact: false });
@@ -401,7 +361,7 @@ test('printing ballots, print report, and test decks', async () => {
 
   await waitFor(() => getByText('Printing'));
   expect(printer.print).toHaveBeenCalledTimes(4);
-  expect(window.kiosk!.log).toHaveBeenCalledWith(
+  expect(mockKiosk.log).toHaveBeenCalledWith(
     expect.stringContaining(LogEventId.PrintedBallotReportPrinted)
   );
 
@@ -418,7 +378,7 @@ test('printing ballots, print report, and test decks', async () => {
   expect(container).toMatchSnapshot();
 
   expect(printer.print).toHaveBeenCalledTimes(5);
-  expect(window.kiosk!.log).toHaveBeenCalledWith(
+  expect(mockKiosk.log).toHaveBeenCalledWith(
     expect.stringContaining(LogEventId.TestDeckPrinted)
   );
 
@@ -431,7 +391,7 @@ test('printing ballots, print report, and test decks', async () => {
 
   await waitFor(() => getByText('Printing'));
   expect(printer.print).toHaveBeenCalledTimes(6);
-  expect(window.kiosk!.log).toHaveBeenCalledWith(
+  expect(mockKiosk.log).toHaveBeenCalledWith(
     expect.stringContaining(LogEventId.TestDeckTallyReportPrinted)
   );
 });
@@ -468,7 +428,7 @@ test('tabulating CVRs', async () => {
   fireEvent.click(getByText('Mark Tally Results as Official…'));
   getByText('Mark Unofficial Tally Results as Official Tally Results?');
   fireEvent.click(getByText('Mark Tally Results as Official'));
-  expect(window.kiosk!.log).toHaveBeenCalledWith(
+  expect(mockKiosk.log).toHaveBeenCalledWith(
     expect.stringContaining(LogEventId.MarkedTallyResultsOfficial)
   );
 
@@ -481,7 +441,7 @@ test('tabulating CVRs', async () => {
   // TODO: Snapshots without clear definition of what they are for cause future developers to have to figure out what the test is for each time this test breaks.
   expect(getByTestId('election-full-tally-report')).toMatchSnapshot();
   fireEvent.click(getByText('Preview Report'));
-  expect(window.kiosk!.log).toHaveBeenCalledWith(
+  expect(mockKiosk.log).toHaveBeenCalledWith(
     expect.stringContaining(LogEventId.TallyReportPreviewed)
   );
 
@@ -502,8 +462,8 @@ test('tabulating CVRs', async () => {
   jest.advanceTimersByTime(2001);
   await waitFor(() => getByText(/Batch Results Saved/));
   await waitFor(() => {
-    expect(window.kiosk!.writeFile).toHaveBeenCalledTimes(1);
-    expect(window.kiosk!.writeFile).toHaveBeenNthCalledWith(
+    expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
+    expect(mockKiosk.writeFile).toHaveBeenNthCalledWith(
       1,
       'fake mount point/votingworks-live-batch-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.csv',
       expect.stringContaining(
@@ -511,7 +471,7 @@ test('tabulating CVRs', async () => {
       )
     );
   });
-  expect(window.kiosk!.log).toHaveBeenCalledWith(
+  expect(mockKiosk.log).toHaveBeenCalledWith(
     expect.stringContaining(LogEventId.FileSaved)
   );
 
@@ -561,14 +521,14 @@ test('tabulating CVRs', async () => {
   jest.advanceTimersByTime(2001);
   await waitFor(() => getByText(/Results Saved/));
   await waitFor(() => {
-    expect(window.kiosk!.writeFile).toHaveBeenCalledTimes(2);
-    expect(window.kiosk!.writeFile).toHaveBeenNthCalledWith(
+    expect(mockKiosk.writeFile).toHaveBeenCalledTimes(2);
+    expect(mockKiosk.writeFile).toHaveBeenNthCalledWith(
       2,
       'fake mount point/votingworks-live-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.csv',
       'test-content'
     );
   });
-  expect(window.kiosk!.log).toHaveBeenCalledWith(
+  expect(mockKiosk.log).toHaveBeenCalledWith(
     expect.stringContaining(LogEventId.ConvertingResultsToSemsFormat)
   );
   expect(fetchMock.called('/convert/tallies/files')).toBe(true);
@@ -585,7 +545,7 @@ test('tabulating CVRs', async () => {
   await waitFor(() =>
     expect(getByTestId('total-ballot-count').textContent).toEqual('0')
   );
-  expect(window.kiosk!.log).toHaveBeenCalledWith(
+  expect(mockKiosk.log).toHaveBeenCalledWith(
     expect.stringContaining(LogEventId.RemovedTallyFile)
   );
 
@@ -678,8 +638,8 @@ test('tabulating CVRs with SEMS file', async () => {
   jest.advanceTimersByTime(2001);
   await waitFor(() => getByText(/Results Saved/));
   await waitFor(() => {
-    expect(window.kiosk!.writeFile).toHaveBeenCalledTimes(1);
-    expect(window.kiosk!.writeFile).toHaveBeenNthCalledWith(
+    expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
+    expect(mockKiosk.writeFile).toHaveBeenNthCalledWith(
       1,
       'fake mount point/votingworks-live-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.csv',
       'test-content'
