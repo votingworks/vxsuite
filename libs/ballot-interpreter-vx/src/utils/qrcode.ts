@@ -9,7 +9,7 @@ import { crop } from './crop';
 const debug = makeDebug('ballot-interpreter-vx:qrcode');
 
 // Loads these libraries dynamically because they are not available in
-// the browser.
+// the browser since they contain NodeJS native extensions.
 let qrdetect: typeof import('@votingworks/qrdetect').detect = (
   data,
   width,
