@@ -37,6 +37,10 @@
       "path": "libs/ballot-encoder"
     },
     {
+      "name": "libs/ballot-interpreter-nh",
+      "path": "libs/ballot-interpreter-nh"
+    },
+    {
       "name": "libs/ballot-interpreter-vx",
       "path": "libs/ballot-interpreter-vx"
     },
@@ -98,6 +102,7 @@
       "source.fixAll": true
     },
     "cSpell.words": [
+      "accuvote",
       "AGPL",
       "castability",
       "cvrs",
