@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useState, useContext } from 'react';
 import { LogEventId } from '@votingworks/logging';
 import { shortDateTime, LogFileType } from '@votingworks/utils';
 import { Loading, Modal, SetClockButton } from '@votingworks/ui';
+import { Iso8601Timestamp } from '@votingworks/types/src/api';
 import { Button } from '../components/button';
 import { LinkButton } from '../components/link_button';
 import { Main, MainChild } from '../components/main';
@@ -23,7 +24,7 @@ interface Props {
   isTestMode: boolean;
   isTogglingTestMode: boolean;
   canUnconfigure: boolean;
-  exportedAt?: string;
+  exportedAt?: Iso8601Timestamp;
   toggleTestMode: () => Promise<void>;
   setMarkThresholdOverrides: (markThresholds?: MarkThresholds) => Promise<void>;
   markThresholds?: MarkThresholds;
