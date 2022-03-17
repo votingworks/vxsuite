@@ -24,6 +24,7 @@ test('builds a list of configs for single-language ballots', () => {
         "filename": "election-abcde-precinct-north-springfield-id-21-style-5-English-live-absentee.pdf",
         "isAbsentee": true,
         "isLiveMode": true,
+        "layoutFilename": "election-abcde-precinct-north-springfield-id-21-style-5-English-live-absentee-layout.json",
         "locales": Object {
           "primary": "en-US",
           "secondary": undefined,
@@ -48,6 +49,7 @@ test('builds a list of configs for single-language ballots', () => {
         "filename": "election-abcde-precinct-north-springfield-id-21-style-5-English-test-absentee.pdf",
         "isAbsentee": true,
         "isLiveMode": false,
+        "layoutFilename": "election-abcde-precinct-north-springfield-id-21-style-5-English-test-absentee-layout.json",
         "locales": Object {
           "primary": "en-US",
           "secondary": undefined,
@@ -72,6 +74,7 @@ test('builds a list of configs for single-language ballots', () => {
         "filename": "election-abcde-precinct-north-springfield-id-21-style-5-English-live.pdf",
         "isAbsentee": false,
         "isLiveMode": true,
+        "layoutFilename": "election-abcde-precinct-north-springfield-id-21-style-5-English-live-layout.json",
         "locales": Object {
           "primary": "en-US",
           "secondary": undefined,
@@ -96,6 +99,7 @@ test('builds a list of configs for single-language ballots', () => {
         "filename": "election-abcde-precinct-north-springfield-id-21-style-5-English-test.pdf",
         "isAbsentee": false,
         "isLiveMode": false,
+        "layoutFilename": "election-abcde-precinct-north-springfield-id-21-style-5-English-test-layout.json",
         "locales": Object {
           "primary": "en-US",
           "secondary": undefined,
@@ -110,6 +114,7 @@ test('builds a list of configs for single-language ballots', () => {
         "filename": "election-abcde-precinct-south-springfield-id-20-style-7C-English-live-absentee.pdf",
         "isAbsentee": true,
         "isLiveMode": true,
+        "layoutFilename": "election-abcde-precinct-south-springfield-id-20-style-7C-English-live-absentee-layout.json",
         "locales": Object {
           "primary": "en-US",
           "secondary": undefined,
@@ -124,6 +129,7 @@ test('builds a list of configs for single-language ballots', () => {
         "filename": "election-abcde-precinct-south-springfield-id-20-style-7C-English-test-absentee.pdf",
         "isAbsentee": true,
         "isLiveMode": false,
+        "layoutFilename": "election-abcde-precinct-south-springfield-id-20-style-7C-English-test-absentee-layout.json",
         "locales": Object {
           "primary": "en-US",
           "secondary": undefined,
@@ -138,6 +144,7 @@ test('builds a list of configs for single-language ballots', () => {
         "filename": "election-abcde-precinct-south-springfield-id-20-style-7C-English-live.pdf",
         "isAbsentee": false,
         "isLiveMode": true,
+        "layoutFilename": "election-abcde-precinct-south-springfield-id-20-style-7C-English-live-layout.json",
         "locales": Object {
           "primary": "en-US",
           "secondary": undefined,
@@ -152,6 +159,7 @@ test('builds a list of configs for single-language ballots', () => {
         "filename": "election-abcde-precinct-south-springfield-id-20-style-7C-English-test.pdf",
         "isAbsentee": false,
         "isLiveMode": false,
+        "layoutFilename": "election-abcde-precinct-south-springfield-id-20-style-7C-English-test-layout.json",
         "locales": Object {
           "primary": "en-US",
           "secondary": undefined,
@@ -185,6 +193,7 @@ test('builds a list of configs for single-language ballots', () => {
         "filename": "election-abcde-precinct-center-springfield-id-23-style-12-English-live-absentee.pdf",
         "isAbsentee": true,
         "isLiveMode": true,
+        "layoutFilename": "election-abcde-precinct-center-springfield-id-23-style-12-English-live-absentee-layout.json",
         "locales": Object {
           "primary": "en-US",
           "secondary": undefined,
@@ -218,6 +227,7 @@ test('builds a list of configs for single-language ballots', () => {
         "filename": "election-abcde-precinct-center-springfield-id-23-style-12-English-test-absentee.pdf",
         "isAbsentee": true,
         "isLiveMode": false,
+        "layoutFilename": "election-abcde-precinct-center-springfield-id-23-style-12-English-test-absentee-layout.json",
         "locales": Object {
           "primary": "en-US",
           "secondary": undefined,
@@ -251,6 +261,7 @@ test('builds a list of configs for single-language ballots', () => {
         "filename": "election-abcde-precinct-center-springfield-id-23-style-12-English-live.pdf",
         "isAbsentee": false,
         "isLiveMode": true,
+        "layoutFilename": "election-abcde-precinct-center-springfield-id-23-style-12-English-live-layout.json",
         "locales": Object {
           "primary": "en-US",
           "secondary": undefined,
@@ -284,6 +295,7 @@ test('builds a list of configs for single-language ballots', () => {
         "filename": "election-abcde-precinct-center-springfield-id-23-style-12-English-test.pdf",
         "isAbsentee": false,
         "isLiveMode": false,
+        "layoutFilename": "election-abcde-precinct-center-springfield-id-23-style-12-English-test-layout.json",
         "locales": Object {
           "primary": "en-US",
           "secondary": undefined,
@@ -317,6 +329,7 @@ test('builds a list of configs for single-language ballots', () => {
         "filename": "election-abcde-precinct-north-springfield-id-21-style-12-English-live-absentee.pdf",
         "isAbsentee": true,
         "isLiveMode": true,
+        "layoutFilename": "election-abcde-precinct-north-springfield-id-21-style-12-English-live-absentee-layout.json",
         "locales": Object {
           "primary": "en-US",
           "secondary": undefined,
@@ -350,6 +363,7 @@ test('builds a list of configs for single-language ballots', () => {
         "filename": "election-abcde-precinct-north-springfield-id-21-style-12-English-test-absentee.pdf",
         "isAbsentee": true,
         "isLiveMode": false,
+        "layoutFilename": "election-abcde-precinct-north-springfield-id-21-style-12-English-test-absentee-layout.json",
         "locales": Object {
           "primary": "en-US",
           "secondary": undefined,
@@ -383,6 +397,7 @@ test('builds a list of configs for single-language ballots', () => {
         "filename": "election-abcde-precinct-north-springfield-id-21-style-12-English-live.pdf",
         "isAbsentee": false,
         "isLiveMode": true,
+        "layoutFilename": "election-abcde-precinct-north-springfield-id-21-style-12-English-live-layout.json",
         "locales": Object {
           "primary": "en-US",
           "secondary": undefined,
@@ -416,6 +431,7 @@ test('builds a list of configs for single-language ballots', () => {
         "filename": "election-abcde-precinct-north-springfield-id-21-style-12-English-test.pdf",
         "isAbsentee": false,
         "isLiveMode": false,
+        "layoutFilename": "election-abcde-precinct-north-springfield-id-21-style-12-English-test-layout.json",
         "locales": Object {
           "primary": "en-US",
           "secondary": undefined,

@@ -1,13 +1,17 @@
 import {
-  BallotStyle,
-  Contest,
-  ElectionDefinition,
-  Precinct,
-  safeParseElectionDefinition,
   BallotLocales,
+  BallotPageLayout,
+  BallotPageLayoutSchema,
+  BallotStyleId,
+  ContestId,
+  ElectionDefinition,
+  PrecinctId,
+  safeParseElectionDefinition,
+  safeParseJson,
 } from '@votingworks/types';
 import 'fast-text-encoding';
 import { Entry, fromBuffer, ZipFile } from 'yauzl';
+import { z } from 'zod';
 import { assert } from './assert';
 
 export interface BallotPackage {
@@ -18,6 +22,10 @@ export interface BallotPackage {
 export interface BallotPackageEntry {
   pdf: Buffer;
   ballotConfig: BallotConfig;
+  // TODO: Make this required.
+  // For now we have fixtures that don't have this, but we should fix that.
+  // https://github.com/votingworks/vxsuite/issues/1595
+  layout?: BallotPageLayout[];
 }
 
 export interface BallotPackageManifest {
@@ -25,15 +33,20 @@ export interface BallotPackageManifest {
 }
 
 export interface BallotStyleData {
-  ballotStyleId: BallotStyle['id'];
-  contestIds: Array<Contest['id']>;
-  precinctId: Precinct['id'];
+  ballotStyleId: BallotStyleId;
+  contestIds: ContestId[];
+  precinctId: PrecinctId;
 }
 
 export interface BallotConfig extends BallotStyleData {
   filename: string;
+  // TODO: Make this required.
+  // For now we have fixtures that don't have this, but we should fix that.
+  // https://github.com/votingworks/vxsuite/issues/1595
+  layoutFilename?: string;
   locales: BallotLocales;
   isLiveMode: boolean;
+  isAbsentee: boolean;
 }
 
 function readFile(file: File): Promise<Buffer> {
@@ -163,26 +176,36 @@ export async function readBallotPackageFromBuffer(
     zipfile,
     manifestEntry
   )) as BallotPackageManifest;
-  const ballots: BallotPackageEntry[] = [];
+  const ballots = await Promise.all(
+    manifest.ballots.map<Promise<BallotPackageEntry>>(async (ballotConfig) => {
+      const ballotEntry = entries.find(
+        (entry) => entry.fileName === ballotConfig.filename
+      );
 
-  for (const entry of entries) {
-    const ballotConfig = manifest.ballots.find(
-      (b) => b.filename === entry.fileName
-    );
+      if (!ballotEntry) {
+        throw new Error(
+          `ballot package does not have a file called '${ballotConfig.filename}': ${fileName} (size=${fileSize})`
+        );
+      }
 
-    if (ballotConfig) {
-      ballots.push({
+      const layoutEntry = entries.find(
+        (entry) => entry.fileName === ballotConfig.layoutFilename
+      );
+
+      const pdf = await readEntry(zipfile, ballotEntry);
+      const layout = layoutEntry
+        ? safeParseJson(
+            await readTextEntry(zipfile, layoutEntry),
+            z.array(BallotPageLayoutSchema)
+          ).unsafeUnwrap()
+        : undefined;
+      return {
+        pdf,
+        layout,
         ballotConfig,
-        pdf: await readEntry(zipfile, entry),
-      });
-    }
-  }
-
-  if (ballots.length !== manifest.ballots.length) {
-    throw new Error(
-      `ballot package is malformed; found ${ballots.length} file(s) matching entries in the manifest ('manifest.json'), but the manifest has ${manifest.ballots.length}. perhaps this ballot package is using a different version of the software?`
-    );
-  }
+      };
+    })
+  );
 
   return {
     electionDefinition:

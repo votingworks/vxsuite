@@ -1,17 +1,21 @@
-import { Election } from '@votingworks/types';
+import { BallotLocales, Election } from '@votingworks/types';
+import { BallotConfig } from '@votingworks/utils';
 import { DEFAULT_LOCALE } from '../config/globals';
-import { BallotConfig } from '../config/types';
 import { getBallotPath, getBallotStylesDataByStyle } from './election';
 
 export function getAllBallotConfigs(
   election: Election,
   electionHash: string,
   localeCodes: readonly string[]
-): readonly BallotConfig[] {
+): BallotConfig[] {
   const ballotStyles = getBallotStylesDataByStyle(election);
+  const allLocaleConfigs = localeCodes.map<BallotLocales>((localeCode) => ({
+    primary: DEFAULT_LOCALE,
+    secondary: localeCode !== DEFAULT_LOCALE ? localeCode : undefined,
+  }));
 
   return ballotStyles.flatMap((ballotStyle) =>
-    localeCodes.flatMap((localeCode) =>
+    allLocaleConfigs.flatMap((locales) =>
       [true, false].flatMap<BallotConfig>((isAbsentee) =>
         [true, false].flatMap<BallotConfig>((isLiveMode) => ({
           ballotStyleId: ballotStyle.ballotStyleId,
@@ -19,20 +23,24 @@ export function getAllBallotConfigs(
           contestIds: ballotStyle.contestIds,
           isLiveMode,
           isAbsentee,
-          locales: {
-            primary: DEFAULT_LOCALE,
-            secondary: localeCode !== DEFAULT_LOCALE ? localeCode : undefined,
-          },
+          locales,
           filename: getBallotPath({
             ...ballotStyle,
             election,
             electionHash,
-            locales: {
-              primary: DEFAULT_LOCALE,
-              secondary: localeCode !== DEFAULT_LOCALE ? localeCode : undefined,
-            },
+            locales,
             isLiveMode,
             isAbsentee,
+          }),
+          layoutFilename: getBallotPath({
+            ...ballotStyle,
+            election,
+            electionHash,
+            locales,
+            isLiveMode,
+            isAbsentee,
+            variant: 'layout',
+            extension: '.json',
           }),
         }))
       )

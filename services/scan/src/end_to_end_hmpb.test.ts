@@ -381,11 +381,14 @@ test('ms-either-neither end-to-end', async () => {
 
   for (const config of manifest.ballots) {
     void addTemplatesRequest
-      .attach('ballots', join(root, config.filename))
+      .attach('ballots', join(root, config.filename), {
+        filename: config.filename,
+        contentType: 'application/pdf',
+      })
       .attach(
         'metadatas',
         Buffer.from(new TextEncoder().encode(JSON.stringify(config))),
-        { filename: 'config.json', contentType: 'application/json' }
+        { filename: 'ballot-config.json', contentType: 'application/json' }
       );
   }
 

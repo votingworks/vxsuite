@@ -1,13 +1,16 @@
 import { electionSample } from '@votingworks/fixtures';
 import { fakeKiosk, zipFile } from '@votingworks/test-utils';
+import { BallotPageLayout, BallotType } from '@votingworks/types';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import {
+  BallotPackageEntry,
   BallotPackageManifest,
   readBallotPackageFromBuffer,
   readBallotPackageFromFile,
   readBallotPackageFromFilePointer,
 } from './ballot_package';
+import { typedAs } from './types';
 
 test('readBallotPackageFromFile finds all expected ballots', async () => {
   const file = new File(
@@ -94,6 +97,59 @@ test('readBallotPackageFromFilePointer finds all expected ballots', async () => 
   }
 });
 
+test('readBallotPackageFromFilePointer finds all expected ballots with layouts', async () => {
+  const manifest: BallotPackageManifest = {
+    ballots: [
+      {
+        ballotStyleId: '5',
+        precinctId: '21',
+        filename: 'election-deadbeef-whatever.pdf',
+        layoutFilename: 'election-deadbeef-whatever-layout.json',
+        contestIds: ['1', '2'],
+        isLiveMode: false,
+        isAbsentee: false,
+        locales: { primary: 'en-US' },
+      },
+    ],
+  };
+  const layouts: BallotPageLayout[] = [
+    {
+      contests: [],
+      metadata: {
+        ballotStyleId: '5',
+        precinctId: '21',
+        isTestMode: true,
+        ballotType: BallotType.Standard,
+        electionHash: 'deadbeef',
+        locales: { primary: 'en-US' },
+        pageNumber: 1,
+      },
+      pageSize: { width: 1224, height: 1584 },
+    },
+  ];
+
+  const pkg = await zipFile({
+    'election.json': JSON.stringify(electionSample),
+    'manifest.json': JSON.stringify(manifest),
+    'election-deadbeef-whatever.pdf': Buffer.from('%PDF'),
+    'election-deadbeef-whatever-layout.json': JSON.stringify(layouts),
+  });
+
+  expect(
+    (
+      await readBallotPackageFromFile(
+        new File([pkg], 'election-ballot-package.zip')
+      )
+    ).ballots
+  ).toEqual([
+    expect.objectContaining(
+      typedAs<Partial<BallotPackageEntry>>({
+        layout: layouts,
+      })
+    ),
+  ]);
+});
+
 test('readBallotPackageFromFile throws when an election.json is not present', async () => {
   const pkg = await zipFile({});
   await expect(
@@ -123,6 +179,7 @@ test('readBallotPackageFromFile throws when the manifest does not match ballots'
         filename: 'test/election-deadbeef-whatever.pdf',
         contestIds: ['1', '2'],
         isLiveMode: false,
+        isAbsentee: false,
         locales: { primary: 'en-US' },
       },
     ],
@@ -135,7 +192,7 @@ test('readBallotPackageFromFile throws when the manifest does not match ballots'
   await expect(
     readBallotPackageFromFile(new File([pkg], 'election-ballot-package.zip'))
   ).rejects.toThrowError(
-    "ballot package is malformed; found 0 file(s) matching entries in the manifest ('manifest.json'), but the manifest has 1. perhaps this ballot package is using a different version of the software?"
+    "ballot package does not have a file called 'test/election-deadbeef-whatever.pdf': election-ballot-package.zip"
   );
 });
 

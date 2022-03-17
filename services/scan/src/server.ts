@@ -9,6 +9,8 @@ import {
   safeParse,
   safeParseElectionDefinition,
   BallotPageLayout,
+  safeParseJson,
+  BallotPageLayoutSchema,
 } from '@votingworks/types';
 import { Logger, LogEventId, LogSource } from '@votingworks/logging';
 import {
@@ -56,6 +58,8 @@ import express, { Application } from 'express';
 import { readFile } from 'fs-extra';
 import multer from 'multer';
 import { assert, readBallotPackageFromBuffer } from '@votingworks/utils';
+import { z } from 'zod';
+import makeDebug from 'debug';
 import { backup } from './backup';
 import {
   SCAN_ALWAYS_HOLD_ON_REJECT,
@@ -77,6 +81,8 @@ import { BallotConfig } from './types';
 import { createWorkspace, Workspace } from './util/workspace';
 import * as workers from './workers/combined';
 import { childProcessPool, WorkerPool } from './workers/pool';
+
+const debug = makeDebug('scan:server');
 
 type NoParams = never;
 
@@ -195,15 +201,19 @@ export function buildApp({ store, importer }: AppOptions): Application {
       );
 
       importer.configure(pkg.electionDefinition);
-      for (const { ballotConfig, pdf } of pkg.ballots) {
-        await importer.addHmpbTemplates(pdf, {
-          electionHash: pkg.electionDefinition.electionHash,
-          ballotType: BallotType.Standard,
-          ballotStyleId: ballotConfig.ballotStyleId,
-          precinctId: ballotConfig.precinctId,
-          isTestMode: !ballotConfig.isLiveMode,
-          locales: ballotConfig.locales,
-        });
+      for (const { ballotConfig, pdf, layout } of pkg.ballots) {
+        await importer.addHmpbTemplates(
+          pdf,
+          {
+            electionHash: pkg.electionDefinition.electionHash,
+            ballotType: BallotType.Standard,
+            ballotStyleId: ballotConfig.ballotStyleId,
+            precinctId: ballotConfig.precinctId,
+            isTestMode: !ballotConfig.isLiveMode,
+            locales: ballotConfig.locales,
+          },
+          layout
+        );
       }
 
       response.json({ status: 'ok' });
@@ -397,7 +407,11 @@ export function buildApp({ store, importer }: AppOptions): Application {
 
   app.post<NoParams, AddTemplatesResponse, AddTemplatesRequest>(
     '/scan/hmpb/addTemplates',
-    upload.fields([{ name: 'ballots' }, { name: 'metadatas' }]),
+    upload.fields([
+      { name: 'ballots' },
+      { name: 'metadatas' },
+      { name: 'layouts' },
+    ]),
     async (request, response) => {
       /* istanbul ignore next */
       if (Array.isArray(request.files)) {
@@ -406,7 +420,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
           errors: [
             {
               type: 'missing-ballot-files',
-              message: `expected ballot files in "ballots" and "metadatas" fields, but no files were found`,
+              message: `expected ballot files in "ballots", "metadatas", and "layouts" fields, but no files were found`,
             },
           ],
         });
@@ -414,13 +428,28 @@ export function buildApp({ store, importer }: AppOptions): Application {
       }
 
       try {
-        const { ballots = [], metadatas = [] } = request.files;
+        const { ballots = [], metadatas = [], layouts = [] } = request.files;
+
+        if (ballots.length === 0) {
+          response.status(400).json({
+            status: 'error',
+            errors: [
+              {
+                type: 'missing-ballot-files',
+                message: `expected ballot files in "ballots", "metadatas", and "layouts" fields, but no files were found`,
+              },
+            ],
+          });
+          return;
+        }
+
         const electionDefinition = store.getElectionDefinition();
         assert(electionDefinition);
 
         for (let i = 0; i < ballots.length; i += 1) {
           const ballotFile = ballots[i];
           const metadataFile = metadatas[i];
+          const layoutFile = layouts[i];
 
           if (ballotFile?.mimetype !== 'application/pdf') {
             response.status(400).json({
@@ -448,22 +477,50 @@ export function buildApp({ store, importer }: AppOptions): Application {
             return;
           }
 
-          const metadata: BallotConfig = JSON.parse(
-            new TextDecoder().decode(await readFile(metadataFile.path))
-          );
+          if (layoutFile && layoutFile.mimetype !== 'application/json') {
+            response.status(400).json({
+              status: 'error',
+              errors: [
+                {
+                  type: 'invalid-layout-type',
+                  message: `expected ballot layout to be application/json, but got ${layoutFile?.mimetype}`,
+                },
+              ],
+            });
+            return;
+          }
 
-          await importer.addHmpbTemplates(await readFile(ballotFile.path), {
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Standard,
-            ballotStyleId: metadata.ballotStyleId,
-            precinctId: metadata.precinctId,
-            isTestMode: !metadata.isLiveMode,
-            locales: metadata.locales,
-          });
+          const metadata = safeParseJson(
+            await readFile(metadataFile.path, 'utf8')
+            // TODO: use BallotConfigSchema and delete the cast once it exists
+          ).unsafeUnwrap() as BallotConfig;
+
+          // TODO: require the layout to be provided
+          // https://github.com/votingworks/vxsuite/issues/1595
+          const layout = layoutFile
+            ? safeParseJson(
+                await readFile(layoutFile.path, 'utf8'),
+                z.array(BallotPageLayoutSchema)
+              ).unsafeUnwrap()
+            : undefined;
+
+          await importer.addHmpbTemplates(
+            await readFile(ballotFile.path),
+            {
+              electionHash: electionDefinition.electionHash,
+              ballotType: BallotType.Standard,
+              ballotStyleId: metadata.ballotStyleId,
+              precinctId: metadata.precinctId,
+              isTestMode: !metadata.isLiveMode,
+              locales: metadata.locales,
+            },
+            layout
+          );
         }
 
         response.json({ status: 'ok' });
       } catch (error) {
+        debug('error adding templates: %s', error.stack);
         response.status(500).json({
           status: 'error',
           errors: [

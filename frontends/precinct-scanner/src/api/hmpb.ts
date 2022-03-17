@@ -60,15 +60,27 @@ export function addTemplates(pkg: BallotPackage): AddTemplatesEvents {
 
         body.append(
           'ballots',
-          new Blob([ballot.pdf], { type: 'application/pdf' })
+          new Blob([ballot.pdf], { type: 'application/pdf' }),
+          ballot.ballotConfig.filename
         );
 
         body.append(
           'metadatas',
           new Blob([JSON.stringify(ballot.ballotConfig)], {
             type: 'application/json',
-          })
+          }),
+          'ballot-config.json'
         );
+
+        if (ballot.layout) {
+          body.append(
+            'layouts',
+            new Blob([JSON.stringify(ballot.layout)], {
+              type: 'application/json',
+            }),
+            ballot.ballotConfig.layoutFilename
+          );
+        }
 
         await fetch('/scan/hmpb/addTemplates', { method: 'POST', body });
       }

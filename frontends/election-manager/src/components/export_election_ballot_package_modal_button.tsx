@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import pluralize from 'pluralize';
 import styled from 'styled-components';
-import { basename, dirname, extname, join } from 'path';
+import { join } from 'path';
 import { interpretTemplate } from '@votingworks/ballot-interpreter-vx';
 import {
   BallotPageLayout,
@@ -21,7 +21,7 @@ import {
 import { UsbControllerButton, Modal } from '@votingworks/ui';
 import { LogEventId } from '@votingworks/logging';
 import { DEFAULT_LOCALE } from '../config/globals';
-import { getBallotPath, getHumanBallotLanguageFormat } from '../utils/election';
+import { getHumanBallotLanguageFormat } from '../utils/election';
 import { pdfToImages } from '../utils/pdf_to_images';
 
 import { AppContext } from '../contexts/app_context';
@@ -110,18 +110,11 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
       precinctId,
       locales,
       isLiveMode,
-      isAbsentee,
+      filename,
+      layoutFilename,
     } = state.currentBallotConfig;
-    const path = getBallotPath({
-      ballotStyleId,
-      election: electionDefinition.election,
-      electionHash: electionDefinition.electionHash,
-      precinctId,
-      locales,
-      isLiveMode,
-      isAbsentee,
-    });
     assert(window.kiosk);
+    assert(typeof layoutFilename === 'string');
     const ballotPdfData = Buffer.from(await window.kiosk.printToPDF());
     const layouts: BallotPageLayout[] = [];
     for await (const { page, pageNumber } of pdfToImages(ballotPdfData, {
@@ -144,10 +137,10 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
       layouts.push(ballotPageLayout);
     }
     await state.archive.file(
-      join(dirname(path), `${basename(path, extname(path))}-layout.json`),
+      layoutFilename,
       JSON.stringify(layouts, undefined, 2)
     );
-    await state.archive.file(path, ballotPdfData);
+    await state.archive.file(filename, ballotPdfData);
     setState(workflow.next);
   }, [electionDefinition, state]);
 
