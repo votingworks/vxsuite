@@ -374,6 +374,27 @@ test('POST /scan/export', async () => {
   expect(importer.doExport).toBeCalled();
 });
 
+test('POST /scan/zero error', async () => {
+  importer.doZero.mockResolvedValue();
+
+  // Add a new batch that hasn't been backed up yet
+  await workspace.store.addBatch();
+
+  await request(app)
+    .post('/scan/zero')
+    .set('Accept', 'application/json')
+    .expect(400, {
+      status: 'error',
+      errors: [
+        {
+          type: 'no-backup',
+          message: 'cannot unconfigure an election that has not been backed up',
+        },
+      ],
+    });
+  expect(importer.doZero).not.toBeCalled();
+});
+
 test('POST /scan/zero', async () => {
   importer.doZero.mockResolvedValue();
 

@@ -575,7 +575,7 @@ export const ZeroRequestSchema: z.ZodSchema<ZeroRequest> = z.never();
  * @url /scan/zero
  * @method POST
  */
-export type ZeroResponse = OkResponse;
+export type ZeroResponse = OkResponse | ErrorsResponse;
 
 /**
  * @url /scan/zero
