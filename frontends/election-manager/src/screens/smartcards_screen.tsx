@@ -202,6 +202,8 @@ export function SmartcardsScreen(): JSX.Element {
     .padEnd(SECURITY_PIN_LENGTH, '-')
     .split('')
     .join(' ');
+  const readyToProgramAdminCard =
+    currentPasscode.length === SECURITY_PIN_LENGTH;
 
   return (
     <React.Fragment>
@@ -262,6 +264,9 @@ export function SmartcardsScreen(): JSX.Element {
                   onButtonPress={addNumberToPin}
                   onBackspace={deleteFromEndOfPin}
                   onClear={clearPin}
+                  onEnter={() =>
+                    readyToProgramAdminCard && programAdminCard(currentPasscode)
+                  }
                 />
               </NumberPadWrapper>
               <p>This code will be required when using the new card.</p>
@@ -271,7 +276,7 @@ export function SmartcardsScreen(): JSX.Element {
             <React.Fragment>
               <Button
                 primary
-                disabled={currentPasscode.length !== SECURITY_PIN_LENGTH}
+                disabled={!readyToProgramAdminCard}
                 onPress={() => programAdminCard(currentPasscode)}
               >
                 Create Card

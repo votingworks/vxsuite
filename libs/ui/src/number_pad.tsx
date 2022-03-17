@@ -17,12 +17,14 @@ export interface NumberPadProps {
   onButtonPress: (buttonValue: number) => void;
   onBackspace: () => void;
   onClear: () => void;
+  onEnter?: () => void;
 }
 
 export function NumberPad({
   onButtonPress,
   onBackspace,
   onClear,
+  onEnter,
 }: NumberPadProps): JSX.Element {
   const container = useRef<HTMLDivElement>(null);
   const onKeyPress: React.KeyboardEventHandler = useCallback(
@@ -32,9 +34,11 @@ export function NumberPad({
         onButtonPress(Number(event.key));
       } else if (event.key === 'x') {
         onClear();
+      } else if (onEnter !== undefined && event.key === 'Enter') {
+        onEnter();
       }
     },
-    [onButtonPress, onClear]
+    [onButtonPress, onClear, onEnter]
   );
   const onKeyDown: React.KeyboardEventHandler = useCallback(
     (event) => {
