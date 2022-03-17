@@ -25,7 +25,6 @@ import {
   PrecinctScannerCardTally,
   Printer,
   TallySourceMachineType,
-  sleep,
 } from '@votingworks/utils';
 import {
   CastVoteRecord,
@@ -317,8 +316,6 @@ export function PollWorkerScreen({
         openFilePickerDialog: false,
       });
     }
-    await sleep(4000);
-    await usbDrive.eject(currentUserSession.type);
     togglePollsOpen();
     setPollWorkerFlowState(PollWorkerFlowState.CLOSE_POLLS_FLOW__COMPLETE);
   }
