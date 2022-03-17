@@ -154,17 +154,6 @@ export function AdminActionsScreen({
               <p>
                 <SetClockButton>Update Date and Time…</SetClockButton>
               </p>
-              {!canUnconfigure && !isTestMode && (
-                <Text italic muted>
-                  Export a backup in order to delete election data.
-                </Text>
-              )}
-              {canUnconfigure && exportedAt && (
-                <Text italic muted>
-                  Election data backed up at {shortDateTime(exportedAt)}
-                </Text>
-              )}
-
               <p>
                 <Button
                   danger
@@ -182,7 +171,19 @@ export function AdminActionsScreen({
                   onPress={toggleIsConfirmingUnconfigure}
                 >
                   Delete Election Data from VxCentralScan…
-                </Button>
+                </Button>{' '}
+                {!canUnconfigure && !isTestMode && (
+                  <Text as="span" warning warningIcon>
+                    You must &quot;Export Backup&quot; before you may delete
+                    election data.
+                  </Text>
+                )}
+                {canUnconfigure && exportedAt && (
+                  <Text as="span" muted>
+                    Election data was last backed up at{' '}
+                    {shortDateTime(exportedAt)}
+                  </Text>
+                )}
               </p>
             </Prose>
           </MainChild>
