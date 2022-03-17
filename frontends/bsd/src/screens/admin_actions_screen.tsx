@@ -124,6 +124,7 @@ export function AdminActionsScreen({
                   isTestMode={isTestMode}
                   isTogglingTestMode={isTogglingTestMode}
                   toggleTestMode={toggleTestMode}
+                  canUnconfigure={canUnconfigure}
                 />
               </p>
               <p>

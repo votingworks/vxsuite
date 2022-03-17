@@ -33,6 +33,7 @@ import {
   BatchInfo,
   Side,
 } from '@votingworks/types/api/services/scan';
+import { Iso8601Timestamp } from '@votingworks/types/src/api';
 import { assert } from '@votingworks/utils';
 import { createHash } from 'crypto';
 import makeDebug from 'debug';
@@ -383,10 +384,27 @@ export class Store {
   }
 
   /**
-   * Marks all batches as not exported.
+   * Marks all CVRs as exported.
    */
-  invalidateBatchesExportedAt(): void {
+  markAllCvrsAsExported(): void {
+    this.client.run('update sheets set exported_as_cvr_at = current_timestamp');
+  }
+
+  /**
+   * Marks all batches and CVRs as not exported.
+   */
+  invalidateExport(): void {
     this.client.run('update batches set exported_at = null');
+    this.client.run('update sheets set exported_as_cvr_at = null');
+  }
+
+  getCanUnconfigureMachine(): boolean {
+    const batches = this.batchStatus();
+    const sheets = [...this.getSheets()];
+    return (
+      batches.every((b) => b.exportedAt) &&
+      sheets.every((s) => s.exportedAsCvrAt)
+    );
   }
 
   addBallotCard(batchId: string): string {
@@ -448,7 +466,7 @@ export class Store {
         frontFinishedAdjudicationAt ?? null,
         backFinishedAdjudicationAt ?? null
       );
-      this.invalidateBatchesExportedAt();
+      this.invalidateExport();
     } catch (error) {
       debug(
         'sheet insert failed; maybe a duplicate? filenames=[%s, %s]',
@@ -479,7 +497,7 @@ export class Store {
       'update sheets set deleted_at = current_timestamp where id = ?',
       sheetId
     );
-    this.invalidateBatchesExportedAt();
+    this.invalidateExport();
   }
 
   zero(): void {
@@ -569,6 +587,7 @@ export class Store {
     id: string;
     front: { original: string; normalized: string };
     back: { original: string; normalized: string };
+    exportedAsCvrAt: Iso8601Timestamp;
   }> {
     for (const {
       id,
@@ -576,13 +595,15 @@ export class Store {
       frontNormalizedFilename,
       backOriginalFilename,
       backNormalizedFilename,
+      exportedAsCvrAt,
     } of this.client.each(`
       select
         id,
         front_original_filename as frontOriginalFilename,
         front_normalized_filename as frontNormalizedFilename,
         back_original_filename as backOriginalFilename,
-        back_normalized_filename as backNormalizedFilename
+        back_normalized_filename as backNormalizedFilename,
+        exported_as_cvr_at exportedAsCvrAt
       from sheets
       order by created_at asc
     `) as Iterable<{
@@ -591,6 +612,7 @@ export class Store {
       frontNormalizedFilename: string;
       backOriginalFilename: string;
       backNormalizedFilename: string;
+      exportedAsCvrAt: Iso8601Timestamp;
     }>) {
       yield {
         id,
@@ -602,6 +624,7 @@ export class Store {
           original: backOriginalFilename,
           normalized: backNormalizedFilename,
         },
+        exportedAsCvrAt,
       };
     }
   }

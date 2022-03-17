@@ -5,6 +5,7 @@ import { ToggleTestModeButton } from './toggle_test_mode_button';
 test('shows a button to toggle to live mode when in test mode', async () => {
   const { getByText } = render(
     <ToggleTestModeButton
+      canUnconfigure={false}
       isTestMode
       isTogglingTestMode={false}
       toggleTestMode={jest.fn()}
@@ -17,6 +18,7 @@ test('shows a button to toggle to live mode when in test mode', async () => {
 test('shows a button to toggle to test mode when in live mode', async () => {
   const { getByText } = render(
     <ToggleTestModeButton
+      canUnconfigure
       isTestMode={false}
       isTogglingTestMode={false}
       toggleTestMode={jest.fn()}
@@ -26,9 +28,25 @@ test('shows a button to toggle to test mode when in live mode', async () => {
   getByText('Toggle to Test Mode');
 });
 
+test('shows a disabled button when in live mode but the machine cannot be unconfigured', async () => {
+  const { getByText } = render(
+    <ToggleTestModeButton
+      canUnconfigure={false}
+      isTestMode={false}
+      isTogglingTestMode={false}
+      toggleTestMode={jest.fn()}
+    />
+  );
+
+  expect((getByText('Toggle to Test Mode') as HTMLButtonElement).disabled).toBe(
+    true
+  );
+});
+
 test('shows a disabled button with "Toggling" when toggling', async () => {
   const { getByText } = render(
     <ToggleTestModeButton
+      canUnconfigure
       isTestMode
       isTogglingTestMode
       toggleTestMode={jest.fn()}
@@ -42,6 +60,7 @@ test('calls the callback on confirmation', () => {
   const toggleTestMode = jest.fn();
   const { getByText, getAllByText } = render(
     <ToggleTestModeButton
+      canUnconfigure
       isTestMode
       isTogglingTestMode={false}
       toggleTestMode={toggleTestMode}
@@ -64,6 +83,7 @@ test('shows a modal when toggling to live mode', () => {
   const toggleTestMode = jest.fn();
   const { getByText } = render(
     <ToggleTestModeButton
+      canUnconfigure
       isTestMode
       isTogglingTestMode
       toggleTestMode={toggleTestMode}
@@ -78,6 +98,7 @@ test('shows a modal when toggling to test mode', () => {
   const toggleTestMode = jest.fn();
   const { getByText } = render(
     <ToggleTestModeButton
+      canUnconfigure
       isTestMode={false}
       isTogglingTestMode
       toggleTestMode={toggleTestMode}

@@ -37,8 +37,8 @@ create table sheets (
   back_finished_adjudication_at datetime,
 
   created_at datetime default current_timestamp not null,
-
   deleted_at datetime,
+  exported_as_cvr_at datetime,
 
   foreign key (batch_id)
   references batches (id)

@@ -168,8 +168,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
   app.delete<NoParams, DeleteElectionConfigResponse>(
     '/config/election',
     async (_request, response) => {
-      const batches = await store.batchStatus();
-      if (!batches.every((b) => b.exportedAt)) {
+      if (!store.getCanUnconfigureMachine()) {
         response.status(400).json({
           status: 'error',
           errors: [
@@ -558,6 +557,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
     '/scan/export',
     async (_request, response) => {
       const cvrs = await importer.doExport();
+      store.markAllCvrsAsExported();
       response.set('Content-Type', 'text/plain; charset=utf-8');
       response.send(cvrs);
     }
