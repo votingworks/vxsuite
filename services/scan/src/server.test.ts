@@ -246,9 +246,6 @@ test('DELETE /config/election error', async () => {
 test('DELETE /config/election', async () => {
   importer.unconfigure.mockResolvedValue();
 
-  // Set exported_at for all batches
-  workspace.store.markAllBatchesAsExported();
-
   await request(app)
     .delete('/config/election')
     .set('Accept', 'application/json')
