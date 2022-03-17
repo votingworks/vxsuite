@@ -1,6 +1,7 @@
 import { Interpreter } from '@votingworks/ballot-interpreter-vx';
 import {
   BallotMetadata,
+  BallotPageLayout,
   BallotPageLayoutWithImage,
   ElectionDefinition,
   MarkAdjudications,
@@ -111,7 +112,8 @@ export class Importer {
 
   async addHmpbTemplates(
     pdf: Buffer,
-    metadata: BallotMetadata
+    metadata: BallotMetadata,
+    layouts?: readonly BallotPageLayout[]
   ): Promise<BallotPageLayoutWithImage[]> {
     const electionDefinition = this.workspace.store.getElectionDefinition();
     const result: BallotPageLayoutWithImage[] = [];
@@ -129,11 +131,19 @@ export class Importer {
       scale: 2,
     })) {
       try {
+        // TODO: Replace metadata with layouts, which also has the metadata,
+        // and remove the `interpretTemplate` call.
+        // https://github.com/votingworks/vxsuite/issues/1595
+        const ballotPageLayout = layouts?.find(
+          (l) => l.metadata.pageNumber === pageNumber
+        );
         result.push(
-          await interpreter.interpretTemplate(page, {
-            ...metadata,
-            pageNumber,
-          })
+          ballotPageLayout
+            ? { ballotPageLayout, imageData: page }
+            : await interpreter.interpretTemplate(page, {
+                ...metadata,
+                pageNumber,
+              })
         );
       } catch (error) {
         throw new HmpbInterpretationError(

@@ -1,14 +1,14 @@
 import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures';
 import { Logger, LogSource } from '@votingworks/logging';
 import * as plusteksdk from '@votingworks/plustek-sdk';
-import { BallotType, ok } from '@votingworks/types';
+import { BallotPageLayoutWithImage, BallotType, ok } from '@votingworks/types';
 import {
   GetNextReviewSheetResponse,
   GetScanStatusResponse,
   ScanContinueRequest,
   ScannerStatus,
 } from '@votingworks/types/api/services/scan';
-import { typedAs } from '@votingworks/utils';
+import { BallotConfig, typedAs } from '@votingworks/utils';
 import { Application } from 'express';
 import { createReadStream, promises as fs } from 'fs';
 import { Server } from 'http';
@@ -495,51 +495,70 @@ test('POST /scan/hmpb/addTemplates bad metadata', async () => {
 });
 
 test('POST /scan/hmpb/addTemplates', async () => {
-  importer.addHmpbTemplates.mockResolvedValueOnce([
-    {
-      imageData: {
-        data: Uint8ClampedArray.of(0, 0, 0, 0),
-        width: 1,
-        height: 1,
-      },
-      ballotPageLayout: {
-        pageSize: { width: 1, height: 1 },
-        metadata: {
-          locales: { primary: 'en-US' },
-          electionHash: stateOfHamilton.electionDefinition.electionHash,
-          ballotType: BallotType.Standard,
-          ballotStyleId: '77',
-          precinctId: '42',
-          isTestMode: false,
-          pageNumber: 1,
-        },
-        contests: [],
-      },
+  const ballotConfig: BallotConfig = {
+    ballotStyleId: '77',
+    precinctId: '42',
+    isLiveMode: true,
+    isAbsentee: false,
+    contestIds: [],
+    locales: { primary: 'en-US' },
+    filename: 'ballot.pdf',
+  };
+  const ballotPageLayoutWithImage: BallotPageLayoutWithImage = {
+    imageData: {
+      data: Uint8ClampedArray.of(0, 0, 0, 0),
+      width: 1,
+      height: 1,
     },
-  ]);
+    ballotPageLayout: {
+      pageSize: { width: 1, height: 1 },
+      metadata: {
+        locales: { primary: 'en-US' },
+        electionHash: stateOfHamilton.electionDefinition.electionHash,
+        ballotType: BallotType.Standard,
+        ballotStyleId: '77',
+        precinctId: '42',
+        isTestMode: false,
+        pageNumber: 1,
+      },
+      contests: [],
+    },
+  };
+  importer.addHmpbTemplates.mockResolvedValueOnce([ballotPageLayoutWithImage]);
 
   const response = await request(app)
     .post('/scan/hmpb/addTemplates')
-    .attach('ballots', Buffer.of(4, 5, 6), {
+    .attach('ballots', Buffer.from('%PDF'), {
       filename: 'ballot.pdf',
       contentType: 'application/pdf',
     })
     .attach(
       'metadatas',
-      Buffer.from(
-        new TextEncoder().encode(
-          JSON.stringify({
-            ballotStyleId: '77',
-            precinctId: '42',
-            isTestMode: false,
-          })
-        )
-      ),
+      Buffer.from(new TextEncoder().encode(JSON.stringify(ballotConfig))),
       { filename: 'metadata.json', contentType: 'application/json' }
     )
+    .attach(
+      'layouts',
+      Buffer.from(
+        new TextEncoder().encode(
+          JSON.stringify([ballotPageLayoutWithImage.ballotPageLayout])
+        )
+      ),
+      { filename: 'layout.json', contentType: 'application/json' }
+    )
     .expect(200);
+  const {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    pageNumber,
+    ...metadata
+  } = ballotPageLayoutWithImage.ballotPageLayout.metadata;
 
   expect(JSON.parse(response.text)).toEqual({ status: 'ok' });
+  expect(importer.addHmpbTemplates).toHaveBeenCalledWith(
+    Buffer.from('%PDF'),
+    metadata,
+    [ballotPageLayoutWithImage.ballotPageLayout]
+  );
 });
 
 test('start reloads configuration from the store', async () => {
