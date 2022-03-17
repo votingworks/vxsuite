@@ -135,15 +135,15 @@ export function PrintOnlyScreen({
         <React.Fragment>
           <p>
             <Graphic
-              src="/images/verify-and-cast.svg"
-              alt="Printing Ballot"
+              src="/images/verify-and-scan.svg"
+              alt="Verify and Scan Your Official Ballot"
               aria-hidden
             />
           </p>
-          <h1>Verify and Cast Your Printed Ballot</h1>
+          <h1>Verify and Scan Your Official Ballot</h1>
           <p>
-            Verify your votes on printed ballot are correct. <br />
-            Cast your official ballot in the ballot box.
+            Verify the votes on your official ballot are correct. <br />
+            Insert your ballot into the ballot scanner.
           </p>
         </React.Fragment>
       );

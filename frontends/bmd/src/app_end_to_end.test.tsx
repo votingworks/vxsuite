@@ -318,7 +318,7 @@ it('MarkAndPrint end-to-end flow', async () => {
   await advanceTimersAndPromises(GLOBALS.BALLOT_PRINTING_TIMEOUT_SECONDS);
 
   // Reset Ballot is called with instructions type "card"
-  // Show Verify and Cast Instructions
+  // Show Verify and Scan Instructions
   screen.getByText('You’re Almost Done');
   screen.getByText('3. Return the card to a poll worker.');
 

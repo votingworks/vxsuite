@@ -232,9 +232,9 @@ test('PrintOnly flow', async () => {
   await advanceTimersAndPromises();
   screen.getByText('Printing your official ballot');
 
-  // After timeout, show Verify and Cast Instructions
+  // After timeout, show Verify and Scan Instructions
   await advanceTimersAndPromises(GLOBALS.BALLOT_PRINTING_TIMEOUT_SECONDS);
-  screen.getByText('Verify and Cast Your Printed Ballot');
+  screen.getByText('Verify and Scan Your Official Ballot');
   expect(printer.print).toHaveBeenCalledTimes(1);
 
   // Remove card
@@ -268,9 +268,9 @@ test('PrintOnly flow', async () => {
   await advanceTimersAndPromises();
   screen.getByText('Printing your official ballot');
 
-  // After timeout, show Verify and Cast Instructions
+  // After timeout, show Verify and Scan Instructions
   await advanceTimersAndPromises(GLOBALS.BALLOT_PRINTING_TIMEOUT_SECONDS);
-  screen.getByText('Verify and Cast Your Printed Ballot');
+  screen.getByText('Verify and Scan Your Official Ballot');
   expect(printer.print).toHaveBeenCalledTimes(2);
 
   // Remove card
@@ -301,9 +301,9 @@ test('PrintOnly flow', async () => {
   await advanceTimersAndPromises();
   screen.getByText('Printing your official ballot');
 
-  // After timeout, show Verify and Cast Instructions
+  // After timeout, show Verify and Scan Instructions
   await advanceTimersAndPromises(GLOBALS.BALLOT_PRINTING_TIMEOUT_SECONDS);
-  screen.getByText('Verify and Cast Your Printed Ballot');
+  screen.getByText('Verify and Scan Your Official Ballot');
   expect(printer.print).toHaveBeenCalledTimes(3);
 
   // Remove card
@@ -334,9 +334,9 @@ test('PrintOnly flow', async () => {
 
   expect(getAllByTextWithMarkup('[no selection]')).toHaveLength(20);
 
-  // After timeout, show Verify and Cast Instructions
+  // After timeout, show Verify and Scan Instructions
   await advanceTimersAndPromises(GLOBALS.BALLOT_PRINTING_TIMEOUT_SECONDS);
-  screen.getByText('Verify and Cast Your Printed Ballot');
+  screen.getByText('Verify and Scan Your Official Ballot');
   expect(printer.print).toHaveBeenCalledTimes(4);
 
   // Remove card
