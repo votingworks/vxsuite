@@ -5,7 +5,18 @@ import styled from 'styled-components';
 
 import { ButtonBar } from './button_bar';
 
-const ReactModalContent = styled.div`
+/**
+ * Controls the maximum width the modal can expand to.
+ */
+export enum ModalWidth {
+  Standard = '30rem',
+  Wide = '45rem',
+}
+
+interface ReactModalContentInterface {
+  modalWidth?: ModalWidth;
+}
+const ReactModalContent = styled('div')<ReactModalContentInterface>`
   display: flex;
   flex-direction: column;
   position: absolute;
@@ -22,7 +33,7 @@ const ReactModalContent = styled.div`
   @media (min-width: 480px) {
     position: static;
     border-radius: 0.25rem;
-    max-width: 30rem;
+    max-width: ${({ modalWidth = ModalWidth.Standard }) => modalWidth};
   }
   @media print {
     display: none;
@@ -86,6 +97,7 @@ interface Props {
   actions?: ReactNode;
   onAfterOpen?: () => void;
   onOverlayClick?: () => void;
+  modalWidth?: ModalWidth;
 }
 
 /* istanbul ignore next - unclear why this isn't covered */
@@ -107,6 +119,7 @@ export function Modal({
   ariaHideApp = true,
   onAfterOpen = focusModalAudio,
   onOverlayClick,
+  modalWidth,
 }: Props): JSX.Element {
   /* istanbul ignore next - can't get document.getElementById working in test */
   const appElement =
@@ -125,7 +138,9 @@ export function Modal({
       onRequestClose={onOverlayClick}
       testId="modal"
       contentElement={(props, children) => (
-        <ReactModalContent {...props}>{children}</ReactModalContent>
+        <ReactModalContent modalWidth={modalWidth} {...props}>
+          {children}
+        </ReactModalContent>
       )}
       overlayElement={(props, contentElement) => (
         <ReactModalOverlay {...props}>{contentElement}</ReactModalOverlay>
