@@ -518,10 +518,6 @@ test('voter can cast a ballot that scans successfully ', async () => {
   // Close Polls
   fireEvent.click(await screen.findByText('Yes, Close the Polls'));
   await screen.findByText('Closing Polls…');
-  // Wait for sleep after saving the results
-  await advanceTimersAndPromises(4);
-  // Wait for sleep after ejecting the usb
-  await advanceTimersAndPromises(10);
   await screen.findByText('Polls are closed.');
   expect(writeLongObjectMock).toHaveBeenCalledTimes(1);
   expect(writeLongObjectMock).toHaveBeenCalledWith(
@@ -553,7 +549,6 @@ test('voter can cast a ballot that scans successfully ', async () => {
     expect.anything()
   );
   expect(fetchMock.calls('/scan/export')).toHaveLength(2);
-  expect(kiosk.unmountUsbDrive).toHaveBeenCalled();
 
   // Simulate unmounted usb drive
   kiosk.getUsbDrives.mockResolvedValue([
@@ -603,7 +598,6 @@ test('voter can cast a ballot that scans successfully ', async () => {
   fireEvent.click(await screen.findByText('Eject USB'));
   expect(screen.queryByText('Eject USB')).toBeNull();
   await advanceTimersAndPromises(1);
-  expect(kiosk.unmountUsbDrive).toHaveBeenCalledTimes(2);
 });
 
 test('voter can cast a ballot that needs review and adjudicate as desired', async () => {
@@ -1221,10 +1215,6 @@ test('no printer: poll worker can open and close polls without scanning any ball
   await screen.findByText('Do you want to close the polls?');
   fireEvent.click(await screen.findByText('Yes, Close the Polls'));
   await screen.findByText('Closing Polls…');
-  // Wait for sleep after saving the results
-  await advanceTimersAndPromises(4);
-  // Wait for sleep after ejecting the usb
-  await advanceTimersAndPromises(10);
   await screen.findByText(
     'Insert poll worker card into VxMark to print the report.'
   );
@@ -1274,10 +1264,6 @@ test('with printer: poll worker can open and close polls without scanning any ba
   await screen.findByText('Do you want to close the polls?');
   fireEvent.click(await screen.getAllByText('No')[0]);
   fireEvent.click(await screen.findByText('Close Polls for All Precincts'));
-  // Wait for sleep after saving the results
-  await advanceTimersAndPromises(4);
-  // Wait for sleep after ejecting the usb
-  await advanceTimersAndPromises(10);
   await screen.findByText('Polls are closed.');
   await screen.findByText('Remove the poll worker card.');
   card.removeCard();
@@ -1379,10 +1365,6 @@ test('no printer: open polls, scan ballot, close polls, export results', async (
 
   fireEvent.click(await screen.findByText('Yes, Close the Polls'));
   await screen.findByText('Closing Polls…');
-  // Wait for sleep after saving the results
-  await advanceTimersAndPromises(4);
-  // Wait for sleep after ejecting the usb
-  await advanceTimersAndPromises(10);
   await screen.findByText('Polls are closed.');
   await screen.findByText(
     'Insert poll worker card into VxMark to print the report.'
@@ -1419,7 +1401,6 @@ test('no printer: open polls, scan ballot, close polls, export results', async (
     expect.anything()
   );
   await advanceTimersAndPromises(1);
-  expect(kiosk.unmountUsbDrive).toHaveBeenCalled();
 
   card.removeCard();
   await screen.findByText('Polls Closed');

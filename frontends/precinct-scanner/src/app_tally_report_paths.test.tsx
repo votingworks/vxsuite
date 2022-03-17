@@ -456,12 +456,6 @@ test('expected tally reports for a primary election with all precincts with CVRs
     hardware.setPrinterConnected(false);
   });
   fireEvent.click(await screen.findByText('Yes, Close the Polls'));
-  // Run promises
-  await advanceTimersAndPromises();
-  // Wait for sleep after saving the results
-  await advanceTimersAndPromises(4);
-  // Wait for sleep after ejecting the usb
-  await advanceTimersAndPromises(10);
   await screen.findByText('Polls are closed.');
   card.removeCard();
   await advanceTimersAndPromises(1);
@@ -764,12 +758,6 @@ test('expected tally reports for a primary election with a single precincts with
   });
   fireEvent.click(await screen.getAllByText('No')[0]);
   fireEvent.click(await screen.findByText('Close Polls for Precinct 1'));
-  // Run promises
-  await advanceTimersAndPromises();
-  // Wait for sleep after saving the results
-  await advanceTimersAndPromises(4);
-  // Wait for sleep after ejecting the usb
-  await advanceTimersAndPromises(10);
   await screen.findByText('Polls are closed.');
   card.removeCard();
   await advanceTimersAndPromises(1);
@@ -1038,12 +1026,6 @@ test('expected tally reports for a general election with all precincts with CVRs
     hardware.setPrinterConnected(false);
   });
   fireEvent.click(await screen.findByText('Yes, Close the Polls'));
-  // Run promises
-  await advanceTimersAndPromises();
-  // Wait for sleep after saving the results
-  await advanceTimersAndPromises(4);
-  // Wait for sleep after ejecting the usb
-  await advanceTimersAndPromises(10);
   await screen.findByText('Polls are closed.');
   card.removeCard();
   await advanceTimersAndPromises(1);
@@ -1255,12 +1237,6 @@ test('expected tally reports for a general election with a single precincts with
     hardware.setPrinterConnected(false);
   });
   fireEvent.click(await screen.findByText('Yes, Close the Polls'));
-  // Run promises
-  await advanceTimersAndPromises();
-  // Wait for sleep after saving the results
-  await advanceTimersAndPromises(4);
-  // Wait for sleep after ejecting the usb
-  await advanceTimersAndPromises(10);
   await screen.findByText('Polls are closed.');
 
   card.removeCard();
