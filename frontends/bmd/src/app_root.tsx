@@ -615,7 +615,7 @@ export function AppRoot({
     dispatchAppState({ type: 'resetBallot' });
   }
 
-  // Hide Verify and Cast Instructions
+  // Hide Verify and Scan Instructions
   useEffect(() => {
     if (showPostVotingInstructions) {
       PostVotingInstructionsTimeout.current = window.setTimeout(

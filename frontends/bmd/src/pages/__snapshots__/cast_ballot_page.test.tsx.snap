@@ -184,18 +184,18 @@ exports[`renders CastBallotPage 1`] = `
               style="left: -0.75em;"
             />
             <p>
-              1. Review the votes on your printed ballot.
+              1. Verify your official ballot.
             </p>
           </li>
           <li>
             <img
-              alt="Cast Your Ballot"
+              alt="Scan Your Ballot"
               aria-hidden="true"
               class="c3"
-              src="/images/instructions-2-cast.svg"
+              src="/images/instructions-2-scan.svg"
             />
             <p>
-              2. Place your ballot in the ballot box.
+              2. Scan your official ballot.
             </p>
           </li>
         </ol>

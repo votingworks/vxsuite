@@ -61,15 +61,15 @@ export function CastBallotPage({
                   src="/images/instructions-1-verify.svg"
                   style={{ left: '-0.75em' }}
                 />
-                <p>1. Review the votes on your printed ballot.</p>
+                <p>1. Verify your official ballot.</p>
               </li>
               <li>
                 <SingleGraphic
                   aria-hidden
-                  alt="Cast Your Ballot"
-                  src="/images/instructions-2-cast.svg"
+                  alt="Scan Your Ballot"
+                  src="/images/instructions-2-scan.svg"
                 />
-                <p>2. Place your ballot in the ballot box.</p>
+                <p>2. Scan your official ballot.</p>
               </li>
               {showPostVotingInstructions === 'card' && (
                 <li>

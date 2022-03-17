@@ -187,7 +187,7 @@ test('Cardless Voting Flow', async () => {
   await advanceTimersAndPromises(GLOBALS.BALLOT_PRINTING_TIMEOUT_SECONDS);
 
   // Reset Ballot is called with instructions type "cardless"
-  // Show Verify and Cast Instructions
+  // Show Verify and Scan Instructions
   screen.getByText('You’re Almost Done');
   expect(
     screen.queryByText('3. Return the card to a poll worker.')
@@ -271,7 +271,7 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
   await advanceTimersAndPromises(GLOBALS.BALLOT_PRINTING_TIMEOUT_SECONDS);
 
   // Reset Ballot is called with instructions type "cardless"
-  // Show Verify and Cast Instructions
+  // Show Verify and Scan Instructions
   screen.getByText('You’re Almost Done');
   expect(
     screen.queryByText('3. Return the card to a poll worker.')
@@ -448,7 +448,7 @@ test('poll worker must select a precinct first', async () => {
   await advanceTimersAndPromises(GLOBALS.BALLOT_PRINTING_TIMEOUT_SECONDS);
 
   // Reset Ballot is called with instructions type "cardless"
-  // Show Verify and Cast Instructions
+  // Show Verify and Scan Instructions
   screen.getByText('You’re Almost Done');
   expect(
     screen.queryByText('3. Return the card to a poll worker.')
