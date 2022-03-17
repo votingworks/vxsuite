@@ -29,6 +29,7 @@ beforeEach(() => {
   fetchMock.get(
     '/scan/status',
     typedAs<GetScanStatusResponse>({
+      canUnconfigure: false,
       batches: [],
       adjudication: { adjudicated: 0, remaining: 0 },
       scanner: ScannerStatus.Unknown,
@@ -206,6 +207,7 @@ test('clicking export shows modal and makes a request to export', async () => {
     status: 'ok',
   };
   const scanStatusResponseBody: GetScanStatusResponse = {
+    canUnconfigure: false,
     batches: [
       {
         id: 'test-batch',

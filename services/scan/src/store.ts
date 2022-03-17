@@ -402,7 +402,7 @@ export class Store {
    * Returns whether the appropriate backups have been completed and it is safe
    * to unconfigure a machine/zero out data. Always returns true in test mode.
    */
-  getCanUnconfigureMachine(): boolean {
+  getCanUnconfigure(): boolean {
     if (this.getTestMode()) {
       return true;
     }

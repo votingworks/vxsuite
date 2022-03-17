@@ -262,16 +262,16 @@ test('batchStatus', () => {
   expect(batches).toHaveLength(0);
 });
 
-test('canUnconfigureMachine in test mode', () => {
+test('canUnconfigure in test mode', () => {
   const store = Store.memoryStore();
   store.setTestMode(true);
 
   // With an unexported batch, we should be able to unconfigure the machine in test mode
   store.addBatch();
-  expect(store.getCanUnconfigureMachine()).toBe(true);
+  expect(store.getCanUnconfigure()).toBe(true);
 });
 
-test('canUnconfigureMachine not in test mode', () => {
+test('canUnconfigure not in test mode', () => {
   const store = Store.memoryStore();
   store.setTestMode(false);
 
@@ -293,7 +293,7 @@ test('canUnconfigureMachine not in test mode', () => {
   const batchId = store.addBatch();
   store.markAllBatchesAsExported();
   store.markAllCvrsAsExported();
-  expect(store.getCanUnconfigureMachine()).toBe(true);
+  expect(store.getCanUnconfigure()).toBe(true);
 
   // Add a sheet to the batch and confirm that invalidates the backup/export
   const sheetId = store.addSheet(uuid(), batchId, [
@@ -314,26 +314,26 @@ test('canUnconfigureMachine not in test mode', () => {
       },
     },
   ]);
-  expect(store.getCanUnconfigureMachine()).toBe(false);
+  expect(store.getCanUnconfigure()).toBe(false);
 
   // Mark as exported again
   store.markAllBatchesAsExported();
   store.markAllCvrsAsExported();
-  expect(store.getCanUnconfigureMachine()).toBe(true);
+  expect(store.getCanUnconfigure()).toBe(true);
 
   // Delete the sheet, confirm that invalidates the backup/export
   store.deleteSheet(sheetId);
-  expect(store.getCanUnconfigureMachine()).toBe(false);
+  expect(store.getCanUnconfigure()).toBe(false);
 
   // Add another batch, then mark as exported
   const batchId2 = store.addBatch();
   store.markAllBatchesAsExported();
   store.markAllCvrsAsExported();
-  expect(store.getCanUnconfigureMachine()).toBe(true);
+  expect(store.getCanUnconfigure()).toBe(true);
 
   // Delete the second batch, confirm that invalidates the backup/export
   store.deleteBatch(batchId2);
-  expect(store.getCanUnconfigureMachine()).toBe(false);
+  expect(store.getCanUnconfigure()).toBe(false);
 });
 
 test('adjudication', () => {

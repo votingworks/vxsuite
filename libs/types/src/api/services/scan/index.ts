@@ -78,6 +78,7 @@ export const ScannerStatusSchema = z.nativeEnum(ScannerStatus);
 
 export interface ScanStatus {
   electionHash?: string;
+  canUnconfigure: boolean;
   batches: BatchInfo[];
   adjudication: AdjudicationStatus;
   scanner: ScannerStatus;
@@ -85,6 +86,7 @@ export interface ScanStatus {
 
 export const ScanStatusSchema: z.ZodSchema<ScanStatus> = z.object({
   electionHash: z.optional(ElectionHash),
+  canUnconfigure: z.boolean(),
   batches: z.array(BatchInfoSchema),
   adjudication: AdjudicationStatusSchema,
   scanner: ScannerStatusSchema,

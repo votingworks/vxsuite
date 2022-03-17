@@ -639,6 +639,7 @@ export class Importer {
    */
   async getStatus(): Promise<ScanStatus> {
     const electionDefinition = this.workspace.store.getElectionDefinition();
+    const canUnconfigure = this.workspace.store.getCanUnconfigure();
     const batches = this.workspace.store.batchStatus();
     const adjudication = this.workspace.store.adjudicationStatus();
     const scanner = await this.scanner.getStatus();
@@ -646,6 +647,7 @@ export class Importer {
     return {
       electionHash: electionDefinition?.electionHash,
       batches,
+      canUnconfigure,
       adjudication,
       scanner:
         adjudication.remaining > 0 && scanner === ScannerStatus.ReadyToScan

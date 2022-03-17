@@ -168,7 +168,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
   app.delete<NoParams, DeleteElectionConfigResponse>(
     '/config/election',
     async (_request, response) => {
-      if (!store.getCanUnconfigureMachine()) {
+      if (!store.getCanUnconfigure()) {
         response.status(400).json({
           status: 'error',
           errors: [
@@ -699,7 +699,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
   app.post<NoParams, ZeroResponse, ZeroRequest>(
     '/scan/zero',
     async (_request, response) => {
-      if (!store.getCanUnconfigureMachine()) {
+      if (!store.getCanUnconfigure()) {
         response.status(400).json({
           status: 'error',
           errors: [

@@ -41,6 +41,7 @@ beforeEach(async () => {
   importer = makeMock(Importer);
   workspace = await createWorkspace(dirSync().name);
   workspace.store.setElection(stateOfHamilton.electionDefinition);
+  workspace.store.setTestMode(false);
   workspace.store.addHmpbTemplate(
     Buffer.of(),
     {
@@ -85,6 +86,7 @@ beforeEach(async () => {
 
 test('GET /scan/status', async () => {
   const status: GetScanStatusResponse = {
+    canUnconfigure: false,
     batches: [],
     adjudication: { remaining: 0, adjudicated: 0 },
     scanner: ScannerStatus.Unknown,
@@ -224,7 +226,7 @@ test('DELETE /config/election error', async () => {
   importer.unconfigure.mockResolvedValue();
 
   // Add a new batch that hasn't been backed up yet
-  await workspace.store.addBatch();
+  workspace.store.addBatch();
 
   await request(app)
     .delete('/config/election')
