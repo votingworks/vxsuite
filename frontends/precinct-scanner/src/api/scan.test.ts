@@ -26,6 +26,7 @@ import * as scan from './scan';
 
 const scanStatusReadyToScanResponseBody: GetScanStatusResponse = {
   scanner: ScannerStatus.ReadyToScan,
+  canUnconfigure: false,
   batches: [],
   adjudication: { adjudicated: 0, remaining: 0 },
 };
@@ -56,6 +57,7 @@ test('scanDetectedSheet returns rejected ballot if batch has a 0 count', async (
     '/scan/status',
     typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.ReadyToScan,
+      canUnconfigure: false,
       batches: [
         {
           id: 'test-batch',
@@ -83,6 +85,7 @@ test('scanDetectedSheet returns accepted ballot when successful', async () => {
     '/scan/status',
     typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.ReadyToScan,
+      canUnconfigure: false,
       batches: [
         {
           id: 'test-batch',
@@ -107,6 +110,7 @@ test('scanDetectedSheet returns rejected ballot on invalid test mode', async () 
     '/scan/status',
     typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.ReadyToScan,
+      canUnconfigure: false,
       batches: [
         {
           id: 'test-batch',
@@ -165,6 +169,7 @@ test('scanDetectedSheet returns rejected ballot on invalid precinct', async () =
     '/scan/status',
     typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.ReadyToScan,
+      canUnconfigure: false,
       batches: [
         {
           id: 'test-batch',
@@ -223,6 +228,7 @@ test('scanDetectedSheet returns rejected ballot on invalid election hash', async
     '/scan/status',
     typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.ReadyToScan,
+      canUnconfigure: false,
       batches: [
         {
           id: 'test-batch',
@@ -274,6 +280,7 @@ test('scanDetectedSheet returns rejected ballot on unreadable', async () => {
     '/scan/status',
     typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.ReadyToScan,
+      canUnconfigure: false,
       batches: [
         {
           id: 'test-batch',
@@ -323,6 +330,7 @@ test('scanDetectedSheet returns ballot needs review on adjudication', async () =
     '/scan/status',
     typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.ReadyToScan,
+      canUnconfigure: false,
       batches: [
         {
           id: 'test-batch',

@@ -83,12 +83,14 @@ const getTestModeConfigTrueResponseBody: GetTestModeConfigResponse = {
 
 const scanStatusWaitingForPaperResponseBody: GetScanStatusResponse = {
   scanner: ScannerStatus.WaitingForPaper,
+  canUnconfigure: false,
   batches: [],
   adjudication: { adjudicated: 0, remaining: 0 },
 };
 
 const scanStatusReadyToScanResponseBody: GetScanStatusResponse = {
   scanner: ScannerStatus.ReadyToScan,
+  canUnconfigure: false,
   batches: [],
   adjudication: { adjudicated: 0, remaining: 0 },
 };
@@ -465,6 +467,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
       '/scan/status',
       typedAs<GetScanStatusResponse>({
         scanner: ScannerStatus.WaitingForPaper,
+        canUnconfigure: false,
         batches: [
           {
             id: 'test-batch',
@@ -625,6 +628,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
     '/scan/status',
     typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.ReadyToScan,
+      canUnconfigure: false,
       batches: [],
       adjudication: { adjudicated: 0, remaining: 0 },
     }),
@@ -637,6 +641,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
     '/scan/status',
     typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.WaitingForPaper,
+      canUnconfigure: false,
       batches: [
         {
           id: 'test-batch',
@@ -654,6 +659,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
     '/scan/status',
     typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.ReadyToScan,
+      canUnconfigure: false,
       batches: [
         {
           id: 'test-batch',
@@ -707,6 +713,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
     '/scan/status',
     typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.WaitingForPaper,
+      canUnconfigure: false,
       batches: [
         {
           id: 'test-batch',
@@ -731,6 +738,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
     '/scan/status',
     typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.ReadyToScan,
+      canUnconfigure: false,
       batches: [
         {
           id: 'test-batch',
@@ -755,6 +763,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
     '/scan/status',
     typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.WaitingForPaper,
+      canUnconfigure: false,
       batches: [
         {
           id: 'test-batch',
@@ -779,6 +788,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
     '/scan/status',
     typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.ReadyToScan,
+      canUnconfigure: false,
       batches: [
         {
           id: 'test-batch',
@@ -808,6 +818,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
     '/scan/status',
     typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.WaitingForPaper,
+      canUnconfigure: false,
       batches: [
         {
           id: 'test-batch',
@@ -864,6 +875,7 @@ test('voter can cast a rejected ballot', async () => {
     '/scan/status',
     typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.ReadyToScan,
+      canUnconfigure: false,
       batches: [],
       adjudication: { adjudicated: 0, remaining: 0 },
     }),
@@ -873,6 +885,7 @@ test('voter can cast a rejected ballot', async () => {
     '/scan/status',
     typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.WaitingForPaper,
+      canUnconfigure: false,
       batches: [
         {
           id: 'test-batch',
@@ -890,6 +903,7 @@ test('voter can cast a rejected ballot', async () => {
     '/scan/status',
     typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.ReadyToScan,
+      canUnconfigure: false,
       batches: [
         {
           id: 'test-batch',
@@ -942,6 +956,7 @@ test('voter can cast a rejected ballot', async () => {
     '/scan/status',
     typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.WaitingForPaper,
+      canUnconfigure: false,
       batches: [
         {
           id: 'test-batch',
@@ -1000,6 +1015,7 @@ test('voter can cast another ballot while the success screen is showing', async 
       '/scan/status',
       typedAs<GetScanStatusResponse>({
         scanner: ScannerStatus.WaitingForPaper,
+        canUnconfigure: false,
         batches: [batch1],
         adjudication: { adjudicated: 0, remaining: 0 },
       }),
@@ -1028,6 +1044,7 @@ test('voter can cast another ballot while the success screen is showing', async 
     '/scan/status',
     typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.ReadyToScan,
+      canUnconfigure: false,
       batches: [batch1],
       adjudication: { adjudicated: 0, remaining: 0 },
     }),
@@ -1041,6 +1058,7 @@ test('voter can cast another ballot while the success screen is showing', async 
         '/scan/status',
         typedAs<GetScanStatusResponse>({
           scanner: ScannerStatus.WaitingForPaper,
+          canUnconfigure: false,
           batches: [batch1, batch2],
           adjudication: { adjudicated: 0, remaining: 1 },
         }),
@@ -1091,6 +1109,7 @@ test('voter can cast another ballot while the success screen is showing', async 
     '/scan/status',
     typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.ReadyToScan,
+      canUnconfigure: false,
       batches: [batch1, batch2],
       adjudication: { adjudicated: 0, remaining: 1 },
     }),
@@ -1131,6 +1150,7 @@ test('scanning is not triggered when polls closed or cards present', async () =>
       '/scan/status',
       typedAs<GetScanStatusResponse>({
         scanner: ScannerStatus.WaitingForPaper,
+        canUnconfigure: false,
         batches: [
           {
             id: 'test-batch',
@@ -1325,6 +1345,7 @@ test('no printer: open polls, scan ballot, close polls, export results', async (
       '/scan/status',
       typedAs<GetScanStatusResponse>({
         scanner: ScannerStatus.WaitingForPaper,
+        canUnconfigure: false,
         batches: [
           {
             id: 'test-batch',

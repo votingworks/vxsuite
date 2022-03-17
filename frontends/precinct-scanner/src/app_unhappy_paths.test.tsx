@@ -51,12 +51,14 @@ const getTestModeConfigTrueResponseBody: GetTestModeConfigResponse = {
 };
 
 const scanStatusWaitingForPaperResponseBody: GetScanStatusResponse = {
+  canUnconfigure: false,
   scanner: ScannerStatus.WaitingForPaper,
   batches: [],
   adjudication: { adjudicated: 0, remaining: 0 },
 };
 
 const scanStatusReadyToScanResponseBody: GetScanStatusResponse = {
+  canUnconfigure: false,
   scanner: ScannerStatus.ReadyToScan,
   batches: [],
   adjudication: { adjudicated: 0, remaining: 0 },
@@ -254,6 +256,7 @@ test('error from services/scan in accepting a reviewable ballot', async () => {
     '/scan/status',
     typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.WaitingForPaper,
+      canUnconfigure: false,
       batches: [
         {
           id: 'test-batch',
@@ -271,6 +274,7 @@ test('error from services/scan in accepting a reviewable ballot', async () => {
     '/scan/status',
     typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.ReadyToScan,
+      canUnconfigure: false,
       batches: [
         {
           id: 'test-batch',
@@ -358,6 +362,7 @@ test('error from services/scan in ejecting a reviewable ballot', async () => {
     '/scan/status',
     typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.ReadyToScan,
+      canUnconfigure: false,
       batches: [],
       adjudication: { adjudicated: 0, remaining: 0 },
     }),
@@ -370,6 +375,7 @@ test('error from services/scan in ejecting a reviewable ballot', async () => {
     '/scan/status',
     typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.WaitingForPaper,
+      canUnconfigure: false,
       batches: [
         {
           id: 'test-batch',
@@ -387,6 +393,7 @@ test('error from services/scan in ejecting a reviewable ballot', async () => {
     '/scan/status',
     typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.ReadyToScan,
+      canUnconfigure: false,
       batches: [
         {
           id: 'test-batch',
@@ -435,6 +442,7 @@ test('error from services/scan in ejecting a reviewable ballot', async () => {
     '/scan/status',
     typedAs<GetScanStatusResponse>({
       scanner: ScannerStatus.WaitingForPaper,
+      canUnconfigure: false,
       batches: [
         {
           id: 'test-batch',

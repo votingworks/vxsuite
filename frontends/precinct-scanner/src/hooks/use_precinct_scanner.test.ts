@@ -10,12 +10,14 @@ import { usePrecinctScanner } from './use_precinct_scanner';
 
 const scanStatusWaitingForPaperResponse: GetScanStatusResponse = {
   adjudication: { adjudicated: 0, remaining: 0 },
+  canUnconfigure: false,
   batches: [],
   scanner: ScannerStatus.WaitingForPaper,
 };
 
 const scanStatusReadyToScanResponse: GetScanStatusResponse = {
   adjudication: { adjudicated: 0, remaining: 0 },
+  canUnconfigure: false,
   batches: [],
   scanner: ScannerStatus.ReadyToScan,
 };
