@@ -208,6 +208,76 @@ test('full lifecycle with USBControllerButton', async () => {
   );
 });
 
+test('usb drive that is removed while being ejected is updated to absent', async () => {
+  function ThisTestComponent() {
+    const usbDrive = useUsbDrive({ logger: fakeLogger });
+    return (
+      <UsbControllerButton
+        usbDriveStatus={usbDrive.status ?? UsbDriveStatus.absent}
+        usbDriveEject={() => usbDrive.eject('admin')}
+      />
+    );
+  }
+
+  const kiosk = fakeKiosk();
+  kiosk.getUsbDrives.mockResolvedValue([MOUNTED_DRIVE]);
+  window.kiosk = kiosk;
+
+  // wait for initial status
+  render(<ThisTestComponent />);
+  await waitForStatusUpdate();
+  screen.getByText('Eject USB');
+  expect(logSpy).toHaveBeenCalledTimes(2);
+  expect(logSpy).toHaveBeenLastCalledWith(
+    LogEventId.UsbDriveStatusUpdate,
+    'system',
+    expect.objectContaining({
+      previousStatus: undefined,
+      newStatus: 'mounted',
+    })
+  );
+
+  // begin eject
+  userEvent.click(screen.getByText('Eject USB'));
+  screen.getByText('Ejecting…');
+  expect(logSpy).toHaveBeenCalledTimes(3);
+  expect(logSpy).toHaveBeenNthCalledWith(
+    3,
+    LogEventId.UsbDriveEjectInit,
+    'admin'
+  );
+  await advanceTimersAndPromises();
+
+  // mock that the usb drive is removed while ejecting
+  kiosk.getUsbDrives.mockResolvedValue([]);
+
+  await waitForStatusUpdate();
+  expect(kiosk.unmountUsbDrive).toHaveBeenCalled();
+  await waitForStatusUpdate();
+  await advanceTimersAndPromises();
+  // Updates to No USB state as expected
+  await waitForIoFlush();
+  await waitForStatusUpdate();
+  await screen.getByText('No USB');
+
+  expect(logSpy).toHaveBeenCalledTimes(5);
+  expect(logSpy).toHaveBeenNthCalledWith(
+    4,
+    LogEventId.UsbDriveEjected,
+    'admin',
+    expect.objectContaining({ disposition: 'success' })
+  );
+  expect(logSpy).toHaveBeenNthCalledWith(
+    5,
+    LogEventId.UsbDriveStatusUpdate,
+    'system',
+    expect.objectContaining({
+      previousStatus: 'ejecting',
+      newStatus: 'absent',
+    })
+  );
+});
+
 test('usb drive gets mounted from undefined state', async () => {
   const { result } = renderHook(() => useUsbDrive({ logger: fakeLogger }));
   expect(result.current.status).toBeUndefined();

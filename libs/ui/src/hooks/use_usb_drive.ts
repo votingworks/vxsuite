@@ -85,7 +85,8 @@ export function useUsbDrive({ logger }: UsbDriveProps): UsbDrive {
         newStatus,
       });
       if (
-        status === UsbDriveStatus.present &&
+        (status === UsbDriveStatus.present ||
+          status === UsbDriveStatus.ejecting) &&
         newStatus === UsbDriveStatus.absent
       ) {
         debug('USB drive removed');
