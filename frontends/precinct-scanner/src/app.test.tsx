@@ -427,6 +427,7 @@ test('admin and pollworker configuration', async () => {
   await waitFor(() =>
     expect(fetchMock.calls('./config/election', { method: 'DELETE' }))
   );
+  expect(window.kiosk.unmountUsbDrive).toHaveBeenCalledTimes(1);
 });
 
 test('voter can cast a ballot that scans successfully ', async () => {

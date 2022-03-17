@@ -43,7 +43,11 @@ export function AdminScreen({
   calibrate,
   usbDrive,
 }: Props): JSX.Element {
-  const { electionDefinition, currentPrecinctId } = useContext(AppContext);
+  const {
+    electionDefinition,
+    currentPrecinctId,
+    currentUserSession,
+  } = useContext(AppContext);
   assert(electionDefinition);
   const { election } = electionDefinition;
 
@@ -82,6 +86,11 @@ export function AdminScreen({
 
   async function handleUnconfigure() {
     setIsLoading(true);
+    assert(currentUserSession);
+    // If there is a mounted usb eject it so that it doesn't auto reconfigure the machine.
+    if (usbDrive.status === usbstick.UsbDriveStatus.mounted) {
+      await usbDrive.eject(currentUserSession.type);
+    }
     await unconfigure();
   }
 
