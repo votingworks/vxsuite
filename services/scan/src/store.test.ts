@@ -262,8 +262,18 @@ test('batchStatus', () => {
   expect(batches).toHaveLength(0);
 });
 
-test('invalidateBatchesExported', () => {
+test('canUnconfigureMachine in test mode', () => {
   const store = Store.memoryStore();
+  store.setTestMode(true);
+
+  // With an unexported batch, we should be able to unconfigure the machine in test mode
+  store.addBatch();
+  expect(store.getCanUnconfigureMachine()).toBe(true);
+});
+
+test('canUnconfigureMachine not in test mode', () => {
+  const store = Store.memoryStore();
+  store.setTestMode(false);
 
   const frontMetadata: BallotPageMetadata = {
     locales: { primary: 'en-US' },

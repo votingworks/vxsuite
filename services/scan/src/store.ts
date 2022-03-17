@@ -398,7 +398,15 @@ export class Store {
     this.client.run('update sheets set exported_as_cvr_at = null');
   }
 
+  /**
+   * Returns whether the appropriate backups have been completed and it is safe
+   * to unconfigure a machine/zero out data. Always returns true in test mode.
+   */
   getCanUnconfigureMachine(): boolean {
+    if (this.getTestMode()) {
+      return true;
+    }
+
     const batches = this.batchStatus();
     const sheets = [...this.getSheets()];
     return (
