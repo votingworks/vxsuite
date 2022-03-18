@@ -67,6 +67,7 @@ import { UnlockAdminScreen } from './screens/unlock_admin_screen';
 import { CardErrorScreen } from './screens/card_error_screen';
 import { SetupScannerScreen } from './screens/setup_scanner_screen';
 import { CenteredScreen, CenteredLargeProse } from './components/layout';
+import { InsertUsbScreen } from './screens/insert_usb_screen';
 
 const debug = makeDebug('precinct-scanner:app-root');
 
@@ -774,6 +775,10 @@ export function AppRoot({
         )}
       </AppContext.Provider>
     );
+  }
+
+  if (window.kiosk && usbDrive.status !== usbstick.UsbDriveStatus.mounted) {
+    return <InsertUsbScreen />;
   }
 
   if (

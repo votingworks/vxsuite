@@ -263,6 +263,9 @@ test('admin and pollworker configuration', async () => {
     });
   render(<App card={card} hardware={hardware} storage={storage} />);
   await advanceTimersAndPromises(1);
+  await screen.findByText('No USB Drive Detected');
+  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+  await advanceTimersAndPromises(1);
   await screen.findByText('Polls Closed');
 
   // Insert a pollworker card
@@ -305,10 +308,6 @@ test('admin and pollworker configuration', async () => {
   await screen.findByText(/State of Hamilton/);
   await screen.findByText('Election ID');
   await screen.findByText('2f6b1553c7');
-
-  // Remove the USB drive
-  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
-  await advanceTimersAndPromises(1);
 
   // Admin card with no PIN does NOT require authentication screen.
   const noPinAdminCard = makeAdminCard(electionSampleDefinition.electionHash);
@@ -438,7 +437,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
   await storage.set(stateStorageKey, { isPollsOpen: true });
   const writeLongObjectMock = jest.spyOn(card, 'writeLongObject');
   const kiosk = fakeKiosk();
-  kiosk.getUsbDrives.mockResolvedValue([]);
+  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
   window.kiosk = kiosk;
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
@@ -511,9 +510,6 @@ test('voter can cast a ballot that scans successfully ', async () => {
   );
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  // Insert usb drive
-  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
-  await advanceTimersAndPromises(2);
   await screen.findByText('Do you want to close the polls?');
 
   // Close Polls
@@ -604,6 +600,9 @@ test('voter can cast a ballot that scans successfully ', async () => {
 test('voter can cast a ballot that needs review and adjudicate as desired', async () => {
   const storage = new MemoryStorage();
   await storage.set(stateStorageKey, { isPollsOpen: true });
+  const kiosk = fakeKiosk();
+  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+  window.kiosk = kiosk;
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
     .get('/config/election', { body: electionSampleDefinition })
@@ -837,6 +836,9 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
 test('voter can cast a rejected ballot', async () => {
   const storage = new MemoryStorage();
   await storage.set(stateStorageKey, { isPollsOpen: true });
+  const kiosk = fakeKiosk();
+  kiosk.getUsbDrives = jest.fn().mockResolvedValue([fakeUsbDrive()]);
+  window.kiosk = kiosk;
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
     .getOnce('/config/election', { body: electionSampleDefinition })
@@ -963,6 +965,9 @@ test('voter can cast another ballot while the success screen is showing', async 
   await storage.set(stateStorageKey, { isPollsOpen: true });
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
+  const kiosk = fakeKiosk();
+  kiosk.getUsbDrives = jest.fn().mockResolvedValue([fakeUsbDrive()]);
+  window.kiosk = kiosk;
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
     .get('/config/election', { body: electionSampleDefinition })
@@ -1179,7 +1184,7 @@ test('no printer: poll worker can open and close polls without scanning any ball
   const storage = new MemoryStorage();
   await storage.set(stateStorageKey, { isPollsOpen: false });
   const kiosk = fakeKiosk();
-  kiosk.getUsbDrives.mockResolvedValue([]);
+  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
   window.kiosk = kiosk;
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
@@ -1229,7 +1234,7 @@ test('with printer: poll worker can open and close polls without scanning any ba
   const storage = new MemoryStorage();
   await storage.set(stateStorageKey, { isPollsOpen: false });
   const kiosk = fakeKiosk();
-  kiosk.getUsbDrives.mockResolvedValue([]);
+  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
   window.kiosk = kiosk;
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
