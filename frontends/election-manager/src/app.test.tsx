@@ -327,21 +327,16 @@ test('printing ballots, print report, and test decks', async () => {
   fireEvent.click(getByText('Test'));
   fireEvent.click(getByText('Official'));
   fireEvent.click(getByText('Print 1 Official', { exact: false }));
-  fireEvent.click(getByText('Cancel'));
-  fireEvent.click(getByText('Print 1 Official', { exact: false }));
-  fireEvent.click(getByText('Yes, Print'));
   await waitFor(() => getByText('Printing'));
   expect(printer.print).toHaveBeenCalledTimes(1);
   expect(mockKiosk.log).toHaveBeenCalledWith(
     expect.stringContaining(LogEventId.BallotPrinted)
   );
   fireEvent.click(getByText('Print 1 Official', { exact: false }));
-  fireEvent.click(getByText('Yes, Print'));
   await waitFor(() => getByText('Printing'));
   expect(printer.print).toHaveBeenCalledTimes(2);
   fireEvent.click(getByText('Precinct'));
   fireEvent.click(getByText('Print 1 Official', { exact: false }));
-  fireEvent.click(getByText('Yes, Print'));
   await waitFor(() => getByText('Printing'));
   expect(printer.print).toHaveBeenCalledTimes(3);
 
