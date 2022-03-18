@@ -282,18 +282,6 @@ export function BallotScreen(): JSX.Element {
               title={filename}
               afterPrint={() => afterPrint(ballotCopies)}
               afterPrintError={afterPrintError}
-              confirmModal={{
-                content: (
-                  <div>
-                    Is the printer loaded with{' '}
-                    <strong>
-                      {isAbsentee ? 'Absentee' : 'Precinct'} Ballot
-                    </strong>{' '}
-                    paper?
-                  </div>
-                ),
-                confirmButtonLabel: 'Yes, Print',
-              }}
               copies={ballotCopies}
               sides="two-sided-long-edge"
               warning={!isLiveMode || isSampleBallot}
