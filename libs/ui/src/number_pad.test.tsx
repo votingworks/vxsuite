@@ -119,4 +119,55 @@ test('keyboard interaction', async () => {
 
   sendKey('x');
   expect(onClear).toHaveBeenCalledTimes(1);
+
+  sendKey('Enter');
+  // nothing should happen
+  expect(onClear).toHaveBeenCalledTimes(1);
+  expect(onBackspace).toHaveBeenCalledTimes(1);
+  expect(onPress).toHaveBeenCalledTimes(10);
+});
+
+test('keyboard interaction when onEnter is defined', async () => {
+  const onPress = jest.fn();
+  const onBackspace = jest.fn();
+  const onClear = jest.fn();
+  const onEnter = jest.fn();
+  const { container } = render(
+    <NumberPad
+      onButtonPress={onPress}
+      onBackspace={onBackspace}
+      onClear={onClear}
+      onEnter={onEnter}
+    />
+  );
+  container.focus();
+
+  // some keys should be ignored
+  sendKey('z');
+  expect(onPress).not.toHaveBeenCalled();
+  expect(onBackspace).not.toHaveBeenCalled();
+  expect(onClear).not.toHaveBeenCalled();
+  expect(onEnter).not.toHaveBeenCalled();
+
+  for (let digit = 0; digit <= 9; digit += 1) {
+    sendKey(`${digit}`);
+  }
+
+  for (let digit = 0; digit <= 9; digit += 1) {
+    expect(onPress).toHaveBeenCalledWith(digit);
+  }
+
+  expect(onPress).toHaveBeenCalledTimes(10);
+
+  sendKey('Backspace');
+  expect(onBackspace).toHaveBeenCalledTimes(1);
+
+  sendKey('x');
+  expect(onClear).toHaveBeenCalledTimes(1);
+
+  sendKey('Enter');
+  expect(onEnter).toHaveBeenCalledTimes(1);
+  expect(onClear).toHaveBeenCalledTimes(1);
+  expect(onBackspace).toHaveBeenCalledTimes(1);
+  expect(onPress).toHaveBeenCalledTimes(10);
 });
