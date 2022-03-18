@@ -13,6 +13,7 @@ import {
   advanceTimers,
   advanceTimersAndPromises,
   fakeKiosk,
+  fakeUsbDrive,
   makeAdminCard,
   makePollWorkerCard,
   makeVoterCard,
@@ -482,6 +483,7 @@ test('App shows warning message to connect to power when disconnected', async ()
   hardware.setPrinterConnected(false);
   const storage = new MemoryStorage();
   const kiosk = fakeKiosk();
+  kiosk.getUsbDrives = jest.fn().mockResolvedValue([fakeUsbDrive()]);
   window.kiosk = kiosk;
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
