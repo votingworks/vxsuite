@@ -129,3 +129,61 @@ test('export from admin screen', async () => {
 
   fireEvent.click(screen.getByText('Export Backup to USB Drive'));
 });
+
+test('unconfigure ejects a usb drive when it is mounted', async () => {
+  const ejectFn = jest.fn();
+  const unconfigureFn = jest.fn();
+  render(
+    <AppContext.Provider
+      value={{
+        electionDefinition: electionSampleDefinition,
+        machineConfig: { machineId: '0000', codeVersion: 'TEST' },
+        currentUserSession: { type: 'admin', authenticated: true },
+      }}
+    >
+      <AdminScreen
+        scannedBallotCount={10}
+        isTestMode={false}
+        updateAppPrecinctId={jest.fn()}
+        toggleLiveMode={jest.fn()}
+        unconfigure={unconfigureFn}
+        calibrate={jest.fn()}
+        usbDrive={{ status: usbstick.UsbDriveStatus.absent, eject: ejectFn }}
+      />
+    </AppContext.Provider>
+  );
+
+  await fireEvent.click(screen.getByText('Unconfigure Machine'));
+  await fireEvent.click(screen.getByText('Unconfigure'));
+  expect(unconfigureFn).toHaveBeenCalledTimes(1);
+  expect(ejectFn).toHaveBeenCalledTimes(0);
+});
+
+test('unconfigure does not eject a usb drive that is not mounted', async () => {
+  const ejectFn = jest.fn();
+  const unconfigureFn = jest.fn();
+  render(
+    <AppContext.Provider
+      value={{
+        electionDefinition: electionSampleDefinition,
+        machineConfig: { machineId: '0000', codeVersion: 'TEST' },
+        currentUserSession: { type: 'admin', authenticated: true },
+      }}
+    >
+      <AdminScreen
+        scannedBallotCount={10}
+        isTestMode={false}
+        updateAppPrecinctId={jest.fn()}
+        toggleLiveMode={jest.fn()}
+        unconfigure={unconfigureFn}
+        calibrate={jest.fn()}
+        usbDrive={{ status: usbstick.UsbDriveStatus.mounted, eject: ejectFn }}
+      />
+    </AppContext.Provider>
+  );
+
+  await fireEvent.click(screen.getByText('Unconfigure Machine'));
+  await fireEvent.click(screen.getByText('Unconfigure'));
+  expect(unconfigureFn).toHaveBeenCalledTimes(1);
+  expect(ejectFn).toHaveBeenCalledTimes(1);
+});
