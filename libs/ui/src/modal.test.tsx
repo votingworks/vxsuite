@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Modal } from './modal';
+import { Modal, ModalWidth } from './modal';
 import { Button } from './button';
 
 describe('Modal', () => {
@@ -31,10 +31,53 @@ describe('Modal', () => {
     render(<Modal content="Do you want to do the thing?" centerContent />);
 
     const modal = screen.getByRole('alertdialog');
+    expect(modal).toMatchInlineSnapshot(`
+      <div
+        aria-label="Alert Modal"
+        aria-modal="true"
+        class="sc-gsDJrp blYTQX ReactModal__Content _"
+        data-testid="modal"
+        role="alertdialog"
+        tabindex="-1"
+      >
+        <div
+          class="sc-hKwCoD RDMJL"
+        >
+          Do you want to do the thing?
+        </div>
+      </div>
+    `);
     const content = within(modal).getByText('Do you want to do the thing?');
     expect(content).toHaveStyle(`
       align-items: center;
       justify-content: center;
+    `);
+  });
+
+  it('can configure a wider max width', () => {
+    render(
+      <Modal
+        modalWidth={ModalWidth.Wide}
+        content="Do you want to do the thing?"
+      />
+    );
+
+    const modal = screen.getByRole('alertdialog');
+    expect(modal).toMatchInlineSnapshot(`
+      <div
+        aria-label="Alert Modal"
+        aria-modal="true"
+        class="sc-gsDJrp jZBRml ReactModal__Content _"
+        data-testid="modal"
+        role="alertdialog"
+        tabindex="-1"
+      >
+        <div
+          class="sc-hKwCoD kFWWdL"
+        >
+          Do you want to do the thing?
+        </div>
+      </div>
     `);
   });
 
