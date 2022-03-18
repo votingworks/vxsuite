@@ -1,5 +1,11 @@
 import React from 'react';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { createMemoryHistory } from 'history';
 import { Router } from 'react-router-dom';
 import { act } from 'react-dom/test-utils';
@@ -104,6 +110,50 @@ test('clicking "Delete Election Data from VxCentralScan…" shows progress', asy
   // Trigger reset finished, verify back to initial screen.
   resolve();
   await waitFor(() => !component.getByText('Deleting election data'));
+});
+
+test('clicking "Delete Ballot Data…" shows progress', async () => {
+  const zeroData = jest.fn();
+  const component = render(
+    <Router history={createMemoryHistory()}>
+      <AdminActionsScreen
+        hasBatches
+        unconfigureServer={jest.fn()}
+        zeroData={zeroData}
+        backup={jest.fn()}
+        isTestMode={false}
+        isTogglingTestMode={false}
+        toggleTestMode={jest.fn()}
+        setMarkThresholdOverrides={jest.fn()}
+        markThresholds={undefined}
+        electionDefinition={testElectionDefinition}
+      />
+    </Router>
+  );
+
+  let resolve!: () => void;
+  zeroData.mockReturnValueOnce(
+    new Promise<void>((res) => {
+      resolve = res;
+    })
+  );
+
+  expect(zeroData).not.toHaveBeenCalled();
+  await fireEvent.click(component.getByText('Delete Ballot Data…'));
+
+  expect(zeroData).not.toHaveBeenCalled();
+  await screen.findByText('Delete All Scanned Ballot Data?');
+  await fireEvent.click(screen.getByText('Yes, Delete Ballot Data'));
+  expect(zeroData).toHaveBeenCalledTimes(1);
+
+  // Verify progress message is shown.
+  await screen.findByText('Deleting ballot data');
+
+  resolve();
+  // Trigger delete finished, verify back to initial screen.
+  await waitFor(async () => {
+    expect(await screen.queryAllByText('Deleting ballot data')).toHaveLength(0);
+  });
 });
 
 test('backup error shows message', async () => {

@@ -47,6 +47,7 @@ export function AdminActionsScreen({
     setIsDoubleConfirmingUnconfigure,
   ] = useState(false);
   const [isFactoryResetting, setIsFactoryResetting] = useState(false);
+  const [isDeletingBallotData, setIsDeletingBallotData] = useState(false);
   const [isBackingUp, setIsBackingUp] = useState(false);
   const [backupError, setBackupError] = useState('');
   function toggleIsConfirmingUnconfigure() {
@@ -83,6 +84,13 @@ export function AdminActionsScreen({
       setIsBackingUp(false);
     }
   }, [backup, logger, currentUserType]);
+
+  const deleteBallotData = useCallback(async () => {
+    toggleIsConfirmingZero();
+    setIsDeletingBallotData(true);
+    await zeroData();
+    setIsDeletingBallotData(false);
+  }, [zeroData]);
 
   useEffect(() => {
     if (isFactoryResetting) {
@@ -178,7 +186,7 @@ export function AdminActionsScreen({
           actions={
             <React.Fragment>
               <Button onPress={toggleIsConfirmingZero}>Cancel</Button>
-              <Button danger onPress={zeroData}>
+              <Button danger onPress={deleteBallotData}>
                 Yes, Delete Ballot Data
               </Button>
             </React.Fragment>
@@ -247,6 +255,12 @@ export function AdminActionsScreen({
         <Modal
           centerContent
           content={<Loading>Deleting election data</Loading>}
+        />
+      )}
+      {isDeletingBallotData && (
+        <Modal
+          centerContent
+          content={<Loading>Deleting ballot data</Loading>}
         />
       )}
       {isSetMarkThresholdModalOpen && (
