@@ -9,6 +9,7 @@ export * from './find';
 export * as format from './format';
 export * from './fetch_json';
 export * from './filenames';
+export * from './group_by';
 export * from './iterators';
 export * from './Hardware';
 export * from './Printer';

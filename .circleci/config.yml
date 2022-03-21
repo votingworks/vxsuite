@@ -191,6 +191,24 @@ jobs:
           command: |
             pnpm --dir libs/ballot-encoder test
 
+  test-libs-ballot-interpreter-nh:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/ballot-interpreter-nh build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/ballot-interpreter-nh lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/ballot-interpreter-nh test
+
   test-libs-ballot-interpreter-vx:
     executor: nodejs
     resource_class: xlarge
@@ -492,6 +510,7 @@ workflows:
       - test-integration-testing-bsd
       - test-integration-testing-election-manager
       - test-libs-ballot-encoder
+      - test-libs-ballot-interpreter-nh
       - test-libs-ballot-interpreter-vx
       - test-libs-cdf-schema-builder
       - test-libs-cdf-types-election-event-logging
