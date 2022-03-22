@@ -31,7 +31,7 @@ const iconStyles = css<Props>`
     margin-right: 0.25em;
     border-radius: ${({ warningIcon }) => warningIcon && '50%'};
     background: ${({ warningIcon, voteIcon }) =>
-      (warningIcon && 'darkorange') ?? (voteIcon && '#028099')};
+      (warningIcon && 'darkorange') || (voteIcon && '#028099')};
     width: 1em;
     height: 1em;
     vertical-align: middle;
@@ -41,7 +41,7 @@ const iconStyles = css<Props>`
     font-size: 90%;
     font-weight: 800;
     content: ${({ warningIcon, voteIcon }) =>
-      (warningIcon && "'!'") ?? (voteIcon && `'${GLOBALS.CHECK_ICON}'`)};
+      (warningIcon && "'!'") || (voteIcon && `'${GLOBALS.CHECK_ICON}'`)};
   }
 `;
 
@@ -76,7 +76,7 @@ export const Text = styled('p')<Props>`
   font-style: ${({ italic }) => (italic ? 'italic' : undefined)};
   word-break: ${({ wordBreak }) => (wordBreak ? 'break-word' : undefined)};
   /* stylelint-disable-next-line value-keyword-case, order/properties-order */
-  ${({ warningIcon, voteIcon }) => (warningIcon ?? voteIcon) && iconStyles}
+  ${({ warningIcon, voteIcon }) => (warningIcon || voteIcon) && iconStyles}
 `;
 
 export function TextWithLineBreaks({ text }: { text: string }): JSX.Element {

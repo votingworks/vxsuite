@@ -1,5 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react';
+import 'jest-styled-components';
 
 import { Text, TextWithLineBreaks } from './text';
 
@@ -43,6 +44,36 @@ describe('renders Text', () => {
   test('warning icon', async () => {
     const { container } = render(<Text warningIcon>Warning</Text>);
     expect(container.firstChild).toMatchSnapshot();
+  });
+
+  test('warning icon/vote icon toggle', async () => {
+    const toggle = true;
+    let { container } = render(
+      <Text warningIcon={toggle} voteIcon={!toggle}>
+        Warning
+      </Text>
+    );
+    expect(container.firstChild).toHaveStyleRule('content', "'!'", {
+      modifier: '::before',
+    });
+    expect(container.firstChild).toHaveStyleRule('background', 'darkorange', {
+      modifier: '::before',
+    });
+    expect(container.firstChild).toHaveStyleRule('border-radius', '50%', {
+      modifier: '::before',
+    });
+
+    ({ container } = render(
+      <Text warningIcon={!toggle} voteIcon={toggle}>
+        Success
+      </Text>
+    ));
+    expect(container.firstChild).toHaveStyleRule('content', "'✓'", {
+      modifier: '::before',
+    });
+    expect(container.firstChild).toHaveStyleRule('background', '#028099', {
+      modifier: '::before',
+    });
   });
 
   test('align left preLine normal italic', async () => {

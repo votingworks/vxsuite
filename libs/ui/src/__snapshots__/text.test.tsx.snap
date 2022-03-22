@@ -1,72 +1,185 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`renders Text align left preLine normal italic 1`] = `
+.c0 {
+  text-align: left;
+  white-space: pre-line;
+  font-weight: 400;
+  font-style: italic;
+}
+
+@media print {
+
+}
+
 <p
-  class="sc-bdvvaa gaMBRT"
+  class="c0"
 >
   align left preLine
 </p>
 `;
 
 exports[`renders Text align right nowrap light 1`] = `
+.c0 {
+  text-align: right;
+  white-space: nowrap;
+  font-weight: 300;
+}
+
+@media print {
+
+}
+
 <p
-  class="sc-bdvvaa kSkmOo"
+  class="c0"
 >
   align right nowrap
 </p>
 `;
 
 exports[`renders Text as paragraph tag 1`] = `
+@media print {
+
+}
+
 <p
-  class="sc-bdvvaa NLRzK"
+  class=""
 >
   paragraph
 </p>
 `;
 
 exports[`renders Text center muted 1`] = `
+.c0 {
+  text-align: center;
+  color: gray;
+}
+
+@media print {
+  .c0 {
+    color: black;
+  }
+}
+
 <p
-  class="sc-bdvvaa gNjqFD"
+  class="c0"
 >
   center muted?
 </p>
 `;
 
 exports[`renders Text displays error style 1`] = `
+.c0 {
+  color: red;
+}
+
+@media print {
+  .c0 {
+    color: black;
+  }
+}
+
 <p
-  class="sc-bdvvaa fqphgu"
+  class="c0"
 >
   Error Text?
 </p>
 `;
 
 exports[`renders Text narrow wordBreak warning 1`] = `
+.c0 {
+  margin-right: auto;
+  margin-left: auto;
+  max-width: 33ch;
+  color: darkorange;
+  word-break: break-word;
+}
+
+@media print {
+  .c0 {
+    color: black;
+  }
+}
+
 <p
-  class="sc-bdvvaa gaOGIS"
+  class="c0"
 >
   narrow wordBreak
 </p>
 `;
 
 exports[`renders Text small white bold 1`] = `
+.c0 {
+  color: #FFFFFF;
+  font-size: 0.8em;
+  font-weight: 600;
+}
+
+@media print {
+  .c0 {
+    color: #FFFFFF;
+  }
+}
+
 <p
-  class="sc-bdvvaa bvaQuG"
+  class="c0"
 >
   small white bold
 </p>
 `;
 
 exports[`renders Text vote icon 1`] = `
+.c0::before {
+  display: inline-block;
+  margin-top: -0.3em;
+  margin-right: 0.25em;
+  background: #028099;
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+  text-align: center;
+  line-height: 1.1;
+  color: #ffffff;
+  font-size: 90%;
+  font-weight: 800;
+  content: '✓';
+}
+
+@media print {
+
+}
+
 <p
-  class="sc-bdvvaa jElMFl"
+  class="c0"
 >
   vote!
 </p>
 `;
 
 exports[`renders Text warning icon 1`] = `
+.c0::before {
+  display: inline-block;
+  margin-top: -0.3em;
+  margin-right: 0.25em;
+  border-radius: 50%;
+  background: darkorange;
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+  text-align: center;
+  line-height: 1.1;
+  color: #ffffff;
+  font-size: 90%;
+  font-weight: 800;
+  content: '!';
+}
+
+@media print {
+
+}
+
 <p
-  class="sc-bdvvaa gOYdAO"
+  class="c0"
 >
   Warning
 </p>
