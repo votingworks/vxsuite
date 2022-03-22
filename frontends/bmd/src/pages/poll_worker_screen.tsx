@@ -436,7 +436,9 @@ export function PollWorkerScreen({
               <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
                 System Diagnostics
               </Button>
-              <Button onPress={reload}>Reset Accessible Controller</Button>
+              <p>
+                <Button onPress={reload}>Reset Accessible Controller</Button>
+              </p>
             </Prose>
           </MainChild>
         </Main>

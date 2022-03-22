@@ -66,7 +66,9 @@ const IppPrinterStateReasonMessage: { [reason: string]: string } = {
   'interpreter-resource-unavailable': 'An interpreter resource is unavailable.',
 };
 
-function prettyPrinterStateReasons(printerStateReasons: string[]): string {
+export function prettyPrinterStateReasons(
+  printerStateReasons: string[]
+): string {
   // To make life simpler, just show the highest priority reason
   const [bestReason, bestReasonLevel] =
     printerStateReasons
@@ -201,11 +203,6 @@ export function DiagnosticsScreen({
   assert(devices.cardReader);
   assert(devices.printer);
 
-  // const [diagnostics, setDiagnostics] = useState({ });
-  function onPressRunCardReaderDiagnostic() {
-    // do nothing
-  }
-
   const { computer } = devices;
 
   return (
@@ -224,30 +221,11 @@ export function DiagnosticsScreen({
                 ? 'Power cord connected.'
                 : 'No power cord connected.'}
             </Text>
-            <h2>Card Reader</h2>
-            <Text voteIcon>Test passed at Weds, Feb 16th, 2022, 10:32 AM</Text>
-            <Button
-              style={{ marginTop: '0.5em' }}
-              onPress={onPressRunCardReaderDiagnostic}
-            >
-              Test Card Reader
-            </Button>
             <h2>Printer</h2>
             <PrinterStatus
               connectedPrinter={devices.printer}
               hardware={hardware}
             />
-            <h2>Accessible Controller</h2>
-            {/* <Text warningIcon>Accessible controller is not connected.</Text> */}
-            <Text warningIcon>
-              Test failed at Weds, Feb 16th, 2022, 10:32 AM
-            </Text>
-            <Button
-              style={{ marginTop: '0.5em' }}
-              onPress={onPressRunCardReaderDiagnostic}
-            >
-              Test Accessible Controller
-            </Button>
           </Prose>
         </MainChild>
       </Main>
