@@ -85,6 +85,10 @@
       "path": "libs/plustek-sdk"
     },
     {
+      "name": "libs/res-to-ts",
+      "path": "libs/res-to-ts"
+    },
+    {
       "name": "libs/utils",
       "path": "libs/utils"
     },
