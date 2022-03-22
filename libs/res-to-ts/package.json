@@ -1,0 +1,53 @@
+{
+  "name": "@votingworks/res-to-ts",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Converts a resource file to a TypeScript file",
+  "keywords": [],
+  "license": "AGPL-3.0",
+  "author": "VotingWorks Eng <eng@voting.works>",
+  "main": "build/index.js",
+  "bin": {
+    "res-to-ts": "bin/res-to-ts"
+  },
+  "scripts": {
+    "type-check": "tsc --build",
+    "build": "tsc --build tsconfig.build.json",
+    "build:watch": "tsc --build --watch tsconfig.build.json",
+    "clean": "rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
+    "lint": "pnpm type-check && eslint .",
+    "lint:fix": "pnpm type-check && eslint . --fix",
+    "test": "is-ci test:ci test:watch",
+    "test:ci": "jest --coverage --ci",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch"
+  },
+  "dependencies": {
+    "@votingworks/types": "workspace:*",
+    "globby": "11",
+    "mime": "^3.0.0",
+    "tmp": "^0.2.1"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.4.1",
+    "@types/mime": "^2.0.3",
+    "@types/node": "^17.0.22",
+    "@types/tmp": "^0.2.3",
+    "@typescript-eslint/eslint-plugin": "^5.16.0",
+    "@typescript-eslint/parser": "^5.16.0",
+    "@votingworks/test-utils": "workspace:*",
+    "esbuild": "^0.14.27",
+    "esbuild-runner": "^2.2.1",
+    "eslint": "^8.11.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-import-resolver-node": "^0.3.6",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-vx": "workspace:*",
+    "is-ci-cli": "^2.2.0",
+    "jest": "^27.5.1",
+    "jest-watch-typeahead": "^0.6.4",
+    "ts-jest": "^27.1.3",
+    "typescript": "4.3.5"
+  }
+}

@@ -353,6 +353,24 @@ jobs:
           command: |
             pnpm --dir libs/plustek-sdk test
 
+  test-libs-res-to-ts:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/res-to-ts build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/res-to-ts lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/res-to-ts test:ci
+
   test-libs-test-utils:
     executor: nodejs-browsers
     resource_class: xlarge
@@ -519,6 +537,7 @@ workflows:
       - test-libs-logging
       - test-libs-lsd
       - test-libs-plustek-sdk
+      - test-libs-res-to-ts
       - test-libs-test-utils
       - test-libs-types
       - test-libs-ui
