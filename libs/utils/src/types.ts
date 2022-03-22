@@ -175,10 +175,10 @@ export interface Hardware {
    */
   readBatteryStatus(): Promise<KioskBrowser.BatteryInfo | undefined>;
 
-  // /**
-  //  * Reads Printer status
-  //  */
-  // readPrinterStatus(): Promise<KioskBrowser.PrinterInfo | undefined>;
+  /**
+   * Reads Printer status
+   */
+  readPrinterStatus(): Promise<KioskBrowser.PrinterInfo | undefined>;
 
   /**
    * Subscribe to USB device updates.

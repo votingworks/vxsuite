@@ -1305,6 +1305,7 @@ export function AppRoot({
           isLiveMode={isLiveMode}
           isPollsOpen={isPollsOpen}
           machineConfig={machineConfig}
+          hardware={hardware}
           devices={devices}
           printer={printer}
           togglePollsOpen={togglePollsOpen}

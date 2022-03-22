@@ -63,7 +63,13 @@ declare namespace KioskBrowser {
     level: number; // e.g. 83
   }
 
-  export interface PrinterInfo {
+  export interface PrinterIppAttributes {
+    state: IppPrinterState | null;
+    stateReasons: string[];
+    markerInfos: IppMarkerInfo[];
+  }
+
+  export interface PrinterInfo extends PrinterIppAttributes {
     // Docs: http://electronjs.org/docs/api/structures/printer-info
     description: string;
     isDefault: boolean;
@@ -71,9 +77,6 @@ declare namespace KioskBrowser {
     // Added via kiosk-browser
     connected: boolean;
     options?: { [key: string]: string };
-    state: IppPrinterState | null;
-    stateReasons: string[];
-    markerInfos: IppMarkerInfo[];
   }
 
   export interface Device {

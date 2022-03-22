@@ -62,8 +62,6 @@ export function useDevices({ hardware, logger }: Props): Devices {
   const previousDevices = usePrevious(allDevices);
   const previousPrinters = usePrevious(allPrinters);
 
-  const printer = allPrinters.find((somePrinter) => somePrinter.connected);
-
   const computer: ComputerStatus = {
     batteryLevel: battery?.level,
     batteryIsCharging: battery ? !battery.discharging : true,
@@ -76,7 +74,7 @@ export function useDevices({ hardware, logger }: Props): Devices {
     accessibleController: allDevices.find(isAccessibleController),
     batchScanner: allDevices.find(isBatchScanner),
     precinctScanner: allDevices.find(isPrecinctScanner),
-    printer,
+    printer: allPrinters.find((printer) => printer.connected),
   };
 
   useEffect(() => {

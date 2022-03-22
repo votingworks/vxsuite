@@ -32,6 +32,7 @@ import {
   readCompressedTally,
   PrecinctScannerCardTally,
   getTallyIdentifier,
+  Hardware,
 } from '@votingworks/utils';
 
 import {
@@ -66,6 +67,7 @@ interface Props {
   isLiveMode: boolean;
   isPollsOpen: boolean;
   machineConfig: MachineConfig;
+  hardware: Hardware;
   devices: Devices;
   printer: Printer;
   togglePollsOpen: () => void;
@@ -96,6 +98,7 @@ export function PollWorkerScreen({
   isLiveMode,
   isPollsOpen,
   machineConfig,
+  hardware,
   devices,
   printer,
   togglePollsOpen,
@@ -339,6 +342,7 @@ export function PollWorkerScreen({
   if (isDiagnosticsScreenOpen) {
     return (
       <DiagnosticsScreen
+        hardware={hardware}
         devices={devices}
         onBackButtonPress={() => setIsDiagnosticsScreenOpen(false)}
         machineConfig={machineConfig}

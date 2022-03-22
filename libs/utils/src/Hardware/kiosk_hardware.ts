@@ -15,13 +15,13 @@ export class KioskHardware extends MemoryHardware {
     return this.kiosk.getBatteryInfo();
   }
 
-  // /**
-  //  * Finds a configured & connected printer and returns its status.
-  //  */
-  // async readPrinterStatus(): Promise<KioskBrowser.PrinterInfo | undefined> {
-  //   const printers = await this.kiosk.getPrinterInfo();
-  //   return printers.find((printer) => printer.connected);
-  // }
+  /**
+   * Finds a configured & connected printer and returns its status.
+   */
+  async readPrinterStatus(): Promise<KioskBrowser.PrinterInfo | undefined> {
+    const printers = await this.kiosk.getPrinterInfo();
+    return printers.find((printer) => printer.connected);
+  }
 
   /**
    * Gets an observable that yields the current set of connected USB devices as
