@@ -2,6 +2,7 @@ import { DateTime } from 'luxon';
 import {
   formatFullDateTimeZone,
   formatLongDate,
+  formatTime,
   formatTimeZoneName,
   getDaysInMonth,
 } from './date';
@@ -67,6 +68,16 @@ test('formatLongDate', () => {
       'America/Chicago'
     )
   ).toEqual('December 31, 2021');
+});
+
+test('formatTime', () => {
+  expect(formatTime(DateTime.fromISO('2021-01-01'))).toEqual('12:00 AM');
+  expect(formatTime(DateTime.fromISO('2021-01-01T01:23:45Z'))).toEqual(
+    '1:23 AM'
+  );
+  expect(formatTime(DateTime.fromISO('2021-01-01T14:41:00Z'))).toEqual(
+    '2:41 PM'
+  );
 });
 
 test('getDaysInMonth', () => {

@@ -17,7 +17,9 @@ it('reports printer status as connected if there are any connected printers', as
     fakePrinterInfo({ connected: true }),
   ]);
 
-  expect(await hardware.readPrinterStatus()).toEqual({ connected: true });
+  expect(await hardware.readPrinterStatus()).toEqual(
+    fakePrinterInfo({ connected: true })
+  );
 });
 
 it('reports printer status as not connected if there are no connected printers', async () => {
@@ -28,5 +30,5 @@ it('reports printer status as not connected if there are no connected printers',
     fakePrinterInfo({ connected: false }),
   ]);
 
-  expect(await hardware.readPrinterStatus()).toEqual({ connected: false });
+  expect(await hardware.readPrinterStatus()).toEqual(undefined);
 });

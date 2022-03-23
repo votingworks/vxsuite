@@ -31,7 +31,7 @@ export function fakeMarkerInfo(
   return {
     color: '#000000',
     highLevel: 100,
-    level: 100,
+    level: 92,
     lowLevel: 2,
     name: 'black cartridge',
     type: 'toner-cartridge',

@@ -1,5 +1,6 @@
 import { act, renderHook } from '@testing-library/react-hooks';
 import { Logger, LogSource, LogEventId } from '@votingworks/logging';
+import { fakeMarkerInfo } from '@votingworks/test-utils';
 import {
   AccessibleControllerProductId,
   AccessibleControllerVendorId,
@@ -43,7 +44,9 @@ test('can connect printer as expected', () => {
     description: 'Brother',
     isDefault: true,
     name: 'HL-L5100DN_series',
-    status: 0,
+    state: 'idle' as KioskBrowser.IppPrinterState,
+    stateReasons: ['none'],
+    markerInfos: [fakeMarkerInfo()],
   };
 
   act(() => hardware.setPrinterConnected(true));
