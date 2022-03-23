@@ -49,63 +49,62 @@ test('has various election definitions', () => {
 const testcases = [
   {
     originalFile:
-      './src/data/electionMultiPartyPrimary/semsFiles/standard.original.csv',
+      './data/electionMultiPartyPrimary/semsFiles/standard.original.csv',
     typescriptContent: multiPartyPrimaryElectionSemsData,
   },
   {
     originalFile:
-      './src/data/electionMultiPartyPrimary/cvrFiles/standard.original.jsonl',
+      './data/electionMultiPartyPrimary/cvrFiles/standard.original.jsonl',
     typescriptContent: multiPartyPrimaryElectionCvrData,
   },
   {
-    originalFile: './src/data/electionPrimary/cvrFiles/standard.original.txt',
+    originalFile: './data/electionPrimary/cvrFiles/standard.original.txt',
     typescriptContent: simplePrimaryElectionCvrData,
   },
   {
-    originalFile: './src/data/electionSample2/cvrFiles/small1.original.txt',
+    originalFile: './data/electionSample2/cvrFiles/small1.original.txt',
     typescriptContent: electionSample2CvrSmall1,
   },
   {
-    originalFile: './src/data/electionSample2/cvrFiles/small2.original.txt',
+    originalFile: './data/electionSample2/cvrFiles/small2.original.txt',
     typescriptContent: electionSample2CvrSmall2,
   },
   {
-    originalFile: './src/data/electionSample2/cvrFiles/small3.original.txt',
+    originalFile: './data/electionSample2/cvrFiles/small3.original.txt',
     typescriptContent: electionSample2CvrSmall3,
   },
   {
-    originalFile: './src/data/electionSample2/cvrFiles/standard.original.txt',
+    originalFile: './data/electionSample2/cvrFiles/standard.original.txt',
     typescriptContent: electionSample2CvrStandard1,
   },
   {
-    originalFile: './src/data/electionSample2/cvrFiles/standard2.original.txt',
+    originalFile: './data/electionSample2/cvrFiles/standard2.original.txt',
     typescriptContent: electionSample2CvrStandard2,
   },
   {
     originalFile:
-      './src/data/electionWithMsEitherNeither/semsFiles/standard.original.csv',
+      './data/electionWithMsEitherNeither/semsFiles/standard.original.csv',
     typescriptContent: msEitherNeitherElectionSemsData,
   },
   {
     originalFile:
-      './src/data/electionWithMsEitherNeither/cvrFiles/standard.original.jsonl',
+      './data/electionWithMsEitherNeither/cvrFiles/standard.original.jsonl',
     typescriptContent: msEitherNeitherElectionCvrData,
   },
   {
     originalFile:
-      './src/data/electionMinimalExhaustiveSample/cvrFiles/standard.original.jsonl',
+      './data/electionMinimalExhaustiveSample/cvrFiles/standard.original.jsonl',
     typescriptContent: electionMinimalExhaustiveCvrData,
   },
   {
     originalFile:
-      './src/data/electionMinimalExhaustiveSample/semsFiles/standard.original.csv',
+      './data/electionMinimalExhaustiveSample/semsFiles/standard.original.csv',
     typescriptContent: electionMinimalExhaustiveSemsData,
   },
 ];
 for (const { originalFile, typescriptContent } of testcases) {
   test(`original data file ${originalFile} contains identical data to typescript export file`, () => {
     const originalFileContent = fs.readFileSync(originalFile, 'utf8');
-    // Strip any unnecessary whitespace added to the end of lines before comparison.
-    expect(typescriptContent).toBe(originalFileContent.replace(/\s\n/g, '\n'));
+    expect(typescriptContent).toEqual(originalFileContent);
   });
 }

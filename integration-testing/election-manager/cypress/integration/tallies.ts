@@ -26,9 +26,9 @@ describe('Election Manager can create SEMS tallies', () => {
         i,
         expectedLine,
       ] of electionMultiPartyPrimaryWithDataFiles.semsData
-        .split('\n')
+        .split('\r\n')
         .entries()) {
-        expect(receivedLines[i].replace('\n', ': ')).to.eqls(expectedLine);
+        expect(receivedLines[i].replace('\r\n', ': ')).to.eqls(expectedLine);
       }
     });
   });

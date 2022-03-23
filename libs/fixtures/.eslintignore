@@ -1,4 +1,4 @@
 build
 coverage
 jest.config.js
-src/data/**/**/*.csv.ts
+src/data/**/*.original.*.ts

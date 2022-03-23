@@ -1456,6 +1456,7 @@ importers:
       '@types/yargs': 16.0.0
       '@typescript-eslint/eslint-plugin': 4.28.4_1d3bd85b4b489d1777514df5fe613e8c
       '@typescript-eslint/parser': 4.28.4_eslint@7.19.0+typescript@4.3.5
+      '@votingworks/res-to-ts': link:../res-to-ts
       eslint: 7.19.0
       eslint-config-prettier: 8.3.0_eslint@7.19.0
       eslint-import-resolver-node: 0.3.6
@@ -1476,6 +1477,7 @@ importers:
       '@types/yargs': ^16.0.0
       '@typescript-eslint/eslint-plugin': ^4.28.4
       '@typescript-eslint/parser': ^4.28.4
+      '@votingworks/res-to-ts': workspace:*
       '@votingworks/types': workspace:*
       csv-writer: ^1.6.0
       eslint: ^7.19.0
@@ -29103,7 +29105,7 @@ packages:
       '@types/jest': 27.0.3
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
-      jest: 27.3.1
+      jest: 27.3.1_canvas@2.6.1
       jest-util: 27.3.1
       json5: 2.2.0
       lodash.memoize: 4.1.2
