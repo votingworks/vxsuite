@@ -9,10 +9,8 @@ import {
   PageInterpretationWithFiles,
   Result,
 } from '@votingworks/types';
-import {
-  getBallotScanOvalImage,
-  getScannedBallotCardGeometry,
-} from '../accuvote';
+import { getScannedBallotCardGeometry } from '../accuvote';
+import * as templates from '../data/templates';
 import { readGrayscaleImage } from '../images';
 import { convertMarksToMarkInfo } from './convert_marks_to_mark_info';
 import { convertMarksToVotes } from './convert_marks_to_votes';
@@ -100,7 +98,7 @@ export async function interpret(
     );
   }
 
-  const ovalTemplate = await getBallotScanOvalImage();
+  const ovalTemplate = await templates.getOvalScanTemplate();
   const interpretedOvalMarks = interpretOvalMarks({
     geometry,
     ovalTemplate,

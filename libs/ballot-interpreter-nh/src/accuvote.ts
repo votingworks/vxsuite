@@ -1,7 +1,6 @@
 import { BallotPaperSize } from '@votingworks/types';
-import { join } from 'path';
 import { Debugger } from './debug';
-import { matchTemplate, readGrayscaleImage } from './images';
+import { matchTemplate } from './images';
 import { otsu } from './otsu';
 import { computeTimingMarkGrid, findBorder } from './timing_marks';
 import {
@@ -281,24 +280,6 @@ export const ScannedBallotCardGeometry8pt5x14: BallotCardGeometry = {
     maxY: 52 /* index of bottom row */ - 1 /* timing mark row */,
   }),
 };
-
-/**
- * Reads the template ballot oval as a grayscale image.
- */
-export async function getBallotTemplateOvalImage(): Promise<ImageData> {
-  return await readGrayscaleImage(
-    join(__dirname, '../data/templates/oval.png')
-  );
-}
-
-/**
- * Reads the scanned ballot oval as a grayscale image.
- */
-export async function getBallotScanOvalImage(): Promise<ImageData> {
-  return await readGrayscaleImage(
-    join(__dirname, '../data/templates/oval-scan.png')
-  );
-}
 
 /**
  * Gets the amount of pixels to search inward from the edges of an image.

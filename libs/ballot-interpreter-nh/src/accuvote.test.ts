@@ -1,7 +1,5 @@
 import { unsafeParse } from '@votingworks/types';
 import { assert, typedAs } from '@votingworks/utils';
-import { join } from 'path';
-import { pairColumnEntries, readGridFromElectionDefinition } from './convert';
 import {
   HudsonFixtureName,
   readFixtureBallotCardDefinition,
@@ -17,8 +15,9 @@ import {
   ScannedBallotCardGeometry8pt5x14,
   TemplateBallotCardGeometry8pt5x14,
 } from './accuvote';
+import { pairColumnEntries, readGridFromElectionDefinition } from './convert';
+import * as templates from './data/templates';
 import { withCanvasDebugger, withSvgDebugger } from './debug';
-import { readGrayscaleImage } from './images';
 import {
   decodeBottomRowTimingMarks,
   interpolateMissingTimingMarks,
@@ -94,14 +93,16 @@ test('hudson template', async () => {
     interpolateMissingTimingMarks(frontTimingMarks);
   const backCompleteTimingMarks =
     interpolateMissingTimingMarks(backTimingMarks);
-  const ovalTemplate = await readGrayscaleImage(
-    join(__dirname, '../data/templates/oval.png')
-  );
-  const frontTemplateOvals = withSvgDebugger((debug) =>
-    findTemplateOvals(hudson.front, ovalTemplate, frontCompleteTimingMarks, {
-      usableArea: TemplateBallotCardGeometry8pt5x14.frontUsableArea,
-      debug,
-    })
+  const frontTemplateOvals = await withSvgDebugger(async (debug) =>
+    findTemplateOvals(
+      hudson.front,
+      await templates.getOvalTemplate(),
+      frontCompleteTimingMarks,
+      {
+        usableArea: TemplateBallotCardGeometry8pt5x14.frontUsableArea,
+        debug,
+      }
+    )
   );
   expect(frontTemplateOvals).toHaveLength(55);
   expect(asciiOvalGrid(frontTemplateOvals)).toMatchInlineSnapshot(`
@@ -157,11 +158,16 @@ test('hudson template', async () => {
                 O                    
     "
   `);
-  const backTemplateOvals = withSvgDebugger((debug) =>
-    findTemplateOvals(hudson.back, ovalTemplate, backCompleteTimingMarks, {
-      usableArea: TemplateBallotCardGeometry8pt5x14.backUsableArea,
-      debug,
-    })
+  const backTemplateOvals = await withSvgDebugger(async (debug) =>
+    findTemplateOvals(
+      hudson.back,
+      await templates.getOvalTemplate(),
+      backCompleteTimingMarks,
+      {
+        usableArea: TemplateBallotCardGeometry8pt5x14.backUsableArea,
+        debug,
+      }
+    )
   );
   expect(backTemplateOvals).toHaveLength(20);
   expect(asciiOvalGrid(backTemplateOvals)).toMatchInlineSnapshot(`
