@@ -1,6 +1,6 @@
 import React from 'react';
 import { act, fireEvent, waitFor } from '@testing-library/react';
-import { fakeKiosk } from '@votingworks/test-utils';
+import { fakeKiosk, fakePrinterInfo } from '@votingworks/test-utils';
 
 import { PrintButton } from './print_button';
 import { fakePrinter } from '../../test/helpers/fake_printer';
@@ -17,20 +17,8 @@ afterAll(() => {
 test('if only disconnected printers, show error modal', async () => {
   const mockKiosk = window.kiosk! as jest.Mocked<KioskBrowser.Kiosk>;
   mockKiosk.getPrinterInfo.mockResolvedValue([
-    {
-      description: 'banana',
-      isDefault: true,
-      name: 'banana',
-      status: 1,
-      connected: false,
-    },
-    {
-      description: 'VxPrinter',
-      isDefault: false,
-      name: 'VxPrinter',
-      status: 0,
-      connected: false,
-    },
+    fakePrinterInfo({ connected: false }),
+    fakePrinterInfo({ name: 'VxPrinter', connected: false }),
   ]);
 
   const printer = fakePrinter();
@@ -59,20 +47,8 @@ test('if only disconnected printers, show error modal', async () => {
 test('if connected printers, show printing modal', async () => {
   const mockKiosk = window.kiosk! as jest.Mocked<KioskBrowser.Kiosk>;
   mockKiosk.getPrinterInfo.mockResolvedValue([
-    {
-      description: 'banana',
-      isDefault: true,
-      name: 'banana',
-      status: 1,
-      connected: false,
-    },
-    {
-      description: 'VxPrinter',
-      isDefault: false,
-      name: 'VxPrinter',
-      status: 0,
-      connected: true,
-    },
+    fakePrinterInfo({ connected: false }),
+    fakePrinterInfo({ name: 'VxPrinter', connected: true }),
   ]);
 
   const printer = fakePrinter();
