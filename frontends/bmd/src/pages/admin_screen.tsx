@@ -5,7 +5,6 @@ import { Printer } from '@votingworks/utils';
 import {
   Button,
   CurrentDateAndTime,
-  LinkButton,
   Main,
   MainChild,
   SegmentedButton,
@@ -198,16 +197,6 @@ export function AdminScreen({
             <p>
               <SetClockButton>Update Date and Time</SetClockButton>
             </p>
-            <h1>Status</h1>
-            <p>
-              {/* <Text voteIcon style={{ margin: 0 }}>
-                    System check passed at Feb 15, 2021, 10:21am.
-                  </Text> */}
-              <Text warningIcon style={{ margin: 0 }}>
-                System check failed at Feb 15, 2021, 10:21am.
-              </Text>
-            </p>
-            <LinkButton to="nowhere">View System Check Report</LinkButton>
             <h1>Configuration</h1>
             {election ? (
               <p>
