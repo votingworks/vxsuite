@@ -20,8 +20,10 @@ import {
   TallySourceMachineType,
   PrecinctScannerCardTally,
   typedAs,
+  MemoryHardware,
 } from '@votingworks/utils';
 import { getZeroCompressedTally } from '@votingworks/test-utils';
+import userEvent from '@testing-library/user-event';
 import { PrecinctSelectionKind, MarkOnly, PrintOnly } from '../config/types';
 
 import { render } from '../../test/test_utils';
@@ -32,6 +34,7 @@ import { defaultPrecinctId } from '../../test/helpers/election';
 import { PollWorkerScreen } from './poll_worker_screen';
 import { fakePrinter } from '../../test/helpers/fake_printer';
 import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
+import { fakeDevices } from '../../test/helpers/fake_devices';
 
 const electionSampleWithSeal = safeParseElection(
   electionSampleWithSealUntyped
@@ -99,6 +102,8 @@ test('renders PollWorkerScreen', async () => {
       isLiveMode={false}
       isPollsOpen
       machineConfig={fakeMachineConfig({ appMode: MarkOnly })}
+      hardware={MemoryHardware.buildStandard()}
+      devices={fakeDevices()}
       printer={fakePrinter()}
       togglePollsOpen={jest.fn()}
       tallyOnCard={undefined}
@@ -130,6 +135,8 @@ test('switching out of test mode on election day', async () => {
       isLiveMode={false}
       isPollsOpen
       machineConfig={fakeMachineConfig({ appMode: MarkOnly })}
+      hardware={MemoryHardware.buildStandard()}
+      devices={fakeDevices()}
       printer={fakePrinter()}
       togglePollsOpen={jest.fn()}
       tallyOnCard={undefined}
@@ -163,6 +170,8 @@ test('keeping test mode on election day', async () => {
       isLiveMode={false}
       isPollsOpen
       machineConfig={fakeMachineConfig({ appMode: MarkOnly })}
+      hardware={MemoryHardware.buildStandard()}
+      devices={fakeDevices()}
       printer={fakePrinter()}
       togglePollsOpen={jest.fn()}
       tallyOnCard={undefined}
@@ -193,6 +202,8 @@ test('live mode on election day', async () => {
       isLiveMode
       isPollsOpen
       machineConfig={fakeMachineConfig({ appMode: MarkOnly })}
+      hardware={MemoryHardware.buildStandard()}
+      devices={fakeDevices()}
       printer={fakePrinter()}
       togglePollsOpen={jest.fn()}
       tallyOnCard={undefined}
@@ -251,6 +262,8 @@ test('printing precinct scanner report works as expected with all precinct data 
         appMode: PrintOnly,
         machineId: '314',
       })}
+      hardware={MemoryHardware.buildStandard()}
+      devices={fakeDevices()}
       printer={{
         ...fakePrinter(),
         print: printFn,
@@ -348,6 +361,8 @@ test('printing precinct scanner report works as expected with single precinct da
         appMode: PrintOnly,
         machineId: '314',
       })}
+      hardware={MemoryHardware.buildStandard()}
+      devices={fakeDevices()}
       printer={{
         ...fakePrinter(),
         print: printFn,
@@ -485,6 +500,8 @@ test('printing precinct scanner report works as expected with all precinct speci
         appMode: PrintOnly,
         machineId: '314',
       })}
+      hardware={MemoryHardware.buildStandard()}
+      devices={fakeDevices()}
       printer={{
         ...fakePrinter(),
         print: printFn,
@@ -806,6 +823,8 @@ test('printing precinct scanner report works as expected with all precinct speci
         appMode: PrintOnly,
         machineId: '314',
       })}
+      hardware={MemoryHardware.buildStandard()}
+      devices={fakeDevices()}
       printer={{
         ...fakePrinter(),
         print: printFn,
@@ -1119,6 +1138,8 @@ test('printing precinct scanner report works as expected with all precinct combi
         appMode: PrintOnly,
         machineId: '314',
       })}
+      hardware={MemoryHardware.buildStandard()}
+      devices={fakeDevices()}
       printer={{
         ...fakePrinter(),
         print: printFn,
@@ -1341,6 +1362,8 @@ test('printing precinct scanner report works as expected with a single precinct 
         appMode: PrintOnly,
         machineId: '314',
       })}
+      hardware={MemoryHardware.buildStandard()}
+      devices={fakeDevices()}
       printer={{
         ...fakePrinter(),
         print: printFn,
@@ -1458,4 +1481,37 @@ test('printing precinct scanner report works as expected with a single precinct 
     },
     { yes: 0, no: 1 }
   );
+});
+
+test('navigates to System Diagnostics screen', async () => {
+  render(
+    <PollWorkerScreen
+      activateCardlessVoterSession={jest.fn()}
+      resetCardlessVoterSession={jest.fn()}
+      appPrecinct={{
+        kind: PrecinctSelectionKind.SinglePrecinct,
+        precinctId: defaultPrecinctId,
+      }}
+      electionDefinition={asElectionDefinition(electionSampleWithSeal)}
+      enableLiveMode={jest.fn()}
+      hasVotes={false}
+      isLiveMode={false}
+      isPollsOpen
+      machineConfig={fakeMachineConfig({ appMode: MarkOnly })}
+      hardware={MemoryHardware.buildStandard()}
+      devices={fakeDevices()}
+      printer={fakePrinter()}
+      togglePollsOpen={jest.fn()}
+      tallyOnCard={undefined}
+      clearTalliesOnCard={jest.fn()}
+      reload={jest.fn()}
+    />
+  );
+
+  userEvent.click(screen.getByRole('button', { name: 'System Diagnostics' }));
+  screen.getByRole('heading', { name: 'System Diagnostics' });
+  await screen.findByText('Printer status: Ready'); // Wait for printer status request to avoid test error
+
+  userEvent.click(screen.getByRole('button', { name: 'Back' }));
+  screen.getByRole('heading', { name: 'Open/Close Polls' });
 });

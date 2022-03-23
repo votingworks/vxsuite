@@ -64,6 +64,8 @@ export class MemoryHardware implements Hardware {
     serialNumber: '',
   };
 
+  private printerIppAttributes = DEFAULT_PRINTER_IPP_ATTRIBUTES;
+
   private cardReader: Readonly<KioskBrowser.Device> = {
     deviceAddress: 0,
     deviceName: OmniKeyCardReaderDeviceName,
@@ -213,7 +215,7 @@ export class MemoryHardware implements Hardware {
         name: connectedPrinter.deviceName,
         description: connectedPrinter.manufacturer,
         isDefault: true,
-        ...DEFAULT_PRINTER_IPP_ATTRIBUTES,
+        ...this.printerIppAttributes,
       };
     }
     return undefined;
@@ -230,9 +232,16 @@ export class MemoryHardware implements Hardware {
         description: this.printer.manufacturer,
         connected,
         isDefault: true,
-        ...DEFAULT_PRINTER_IPP_ATTRIBUTES,
+        ...this.printerIppAttributes,
       },
     ]);
+  }
+
+  /**
+   * Sets Printer IPP attributes
+   */
+  setPrinterIppAttributes(attributes: KioskBrowser.PrinterIppAttributes): void {
+    this.printerIppAttributes = attributes;
   }
 
   /**
