@@ -1,15 +1,11 @@
-export interface VxFile {
-  name: string;
-  path: string;
-}
+import { ConverterClient, VxFiles } from './types';
 
-export interface VxFiles {
-  inputFiles: VxFile[];
-  outputFiles: VxFile[];
-}
-
-export class ConverterClient {
+export class MsSemsConverterClient implements ConverterClient {
   constructor(private readonly target: string) {}
+
+  getDisplayName(): string {
+    return 'SEMS';
+  }
 
   async setInputFile(name: string, content: File): Promise<void> {
     const formData = new FormData();

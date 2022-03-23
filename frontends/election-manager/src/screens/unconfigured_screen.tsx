@@ -4,10 +4,15 @@ import styled from 'styled-components';
 import { parseElection } from '@votingworks/types';
 
 import { Modal, useCancelablePromise } from '@votingworks/ui';
-import { ConverterClient, VxFile } from '../lib/converter_client';
+import { assert } from '@votingworks/utils';
+import {
+  ConverterClient,
+  getElectionDefinitionConverterClient,
+  VxFile,
+} from '../lib/converters';
 import { readFileAsync } from '../lib/read_file_async';
 
-import { InputEventFunction } from '../config/types';
+import { ConverterClientType, InputEventFunction } from '../config/types';
 
 import defaultElection from '../data/defaultElection.json';
 
@@ -50,7 +55,11 @@ function someFilesExist(files: VxFile[]) {
 
 const newElection = JSON.stringify(defaultElection);
 
-export function UnconfiguredScreen(): JSX.Element {
+export function UnconfiguredScreen({
+  converter,
+}: {
+  converter?: ConverterClientType;
+}): JSX.Element {
   const history = useHistory();
   const location = useLocation();
   const makeCancelable = useCancelablePromise();
@@ -65,8 +74,12 @@ export function UnconfiguredScreen(): JSX.Element {
   );
   const [isLoading, setIsLoading] = useState(true);
   const [vxElectionFileIsInvalid, setVxElectionFileIsInvalid] = useState(false);
-  const [client] = useState(new ConverterClient('election'));
-  const [isConvertSems, setIsConvertSems] = useState(false);
+  const [client, setClient] = useState<ConverterClient>();
+  const [isUsingConverter, setIsUsingConverter] = useState(false);
+
+  useEffect(() => {
+    setClient(getElectionDefinitionConverterClient(converter));
+  }, [converter]);
 
   async function createNewElection() {
     await saveElection(newElection);
@@ -105,6 +118,7 @@ export function UnconfiguredScreen(): JSX.Element {
   };
 
   const resetServerFiles = useCallback(async () => {
+    assert(client);
     try {
       await client.reset();
     } catch (error) {
@@ -114,6 +128,7 @@ export function UnconfiguredScreen(): JSX.Element {
 
   const getOutputFile = useCallback(
     async (electionFileName: string) => {
+      assert(client);
       try {
         const blob = await client.getOutputFile(electionFileName);
         await resetServerFiles();
@@ -130,6 +145,7 @@ export function UnconfiguredScreen(): JSX.Element {
 
   const processInputFiles = useCallback(
     async (electionFileName: string) => {
+      assert(client);
       try {
         await client.process();
         await getOutputFile(electionFileName);
@@ -144,6 +160,7 @@ export function UnconfiguredScreen(): JSX.Element {
 
   const updateStatus = useCallback(async () => {
     try {
+      assert(client);
       const files = await makeCancelable(client.getFiles());
 
       setIsLoading(true);
@@ -168,6 +185,7 @@ export function UnconfiguredScreen(): JSX.Element {
 
   async function submitFile({ file, name }: InputFile) {
     try {
+      assert(client);
       await client.setInputFile(name, file);
       await updateStatus();
     } catch (error) {
@@ -193,7 +211,7 @@ export function UnconfiguredScreen(): JSX.Element {
 
   async function resetUploadFilesAndGoBack() {
     await resetUploadFiles();
-    setIsConvertSems(false);
+    setIsUsingConverter(false);
   }
 
   useEffect(() => {
@@ -229,19 +247,19 @@ export function UnconfiguredScreen(): JSX.Element {
     );
   }
 
-  if (isConvertSems && inputConversionFiles.length > 0) {
+  if (isUsingConverter && inputConversionFiles.length > 0) {
     return (
       <NavigationScreen mainChildCenter>
         <Prose textCenter>
-          <h1>Convert from SEMS files</h1>
+          <h1>Convert from {client?.getDisplayName()} files</h1>
           <p> Select the following files from a USB drive, etc.</p>
-          {inputConversionFiles.map((file: VxFile) =>
+          {inputConversionFiles.map((file) =>
             file.path ? (
               <Loaded key={file.name}>{`Loaded ${file.name}`}</Loaded>
             ) : (
               <p key={file.name}>
                 <FileInputButton
-                  accept=".txt"
+                  // accept=".txt"
                   buttonProps={{
                     fullWidth: true,
                   }}
@@ -300,12 +318,12 @@ export function UnconfiguredScreen(): JSX.Element {
           </FileInputButton>
         </p>
 
-        {inputConversionFiles.length > 0 && (
+        {client && inputConversionFiles.length > 0 && (
           <React.Fragment>
             <HorizontalRule>or</HorizontalRule>
-            {!isConvertSems && (
-              <Button onPress={() => setIsConvertSems(true)}>
-                Convert from SEMS files
+            {!isUsingConverter && (
+              <Button onPress={() => setIsUsingConverter(true)}>
+                Convert from {client.getDisplayName()} files
               </Button>
             )}
           </React.Fragment>

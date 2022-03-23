@@ -108,6 +108,7 @@ beforeEach(() => {
       machineId: '0000',
       codeVersion: 'TEST',
       bypassAuthentication: false,
+      converter: 'ms',
     })
   );
 });

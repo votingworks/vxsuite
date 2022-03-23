@@ -144,14 +144,18 @@ export type OptionalVoteCounts = Optional<Dictionary<Dictionary<number>>>;
 
 export type Iso8601Timestamp = string;
 
+export type ConverterClientType = 'ms' | 'nh';
+
 export interface MachineConfig {
   machineId: string;
   codeVersion: string;
   bypassAuthentication: boolean;
+  converter?: ConverterClientType;
 }
 
 export const MachineConfigSchema: z.ZodSchema<MachineConfig> = z.object({
   machineId: MachineId,
   codeVersion: z.string().nonempty(),
   bypassAuthentication: z.boolean(),
+  converter: z.union([z.literal('ms'), z.literal('nh')]).optional(),
 });

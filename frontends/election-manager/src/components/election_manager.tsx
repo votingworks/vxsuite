@@ -54,13 +54,13 @@ export function ElectionManager(): JSX.Element {
     return (
       <Switch>
         <Route exact path={routerPaths.root}>
-          <UnconfiguredScreen />
+          <UnconfiguredScreen converter={machineConfig.converter} />
         </Route>
         <Route exact path={routerPaths.advanced}>
           <AdvancedScreen />
         </Route>
         <Route exact path={routerPaths.electionDefinition}>
-          <UnconfiguredScreen />
+          <UnconfiguredScreen converter={machineConfig.converter} />
         </Route>
       </Switch>
     );
