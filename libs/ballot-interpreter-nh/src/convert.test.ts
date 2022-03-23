@@ -1,28 +1,27 @@
 import { BallotPaperSize, safeParseElection } from '@votingworks/types';
 import {
-  convertElectionDefinition,
-  convertElectionDefinitionHeader,
-  readGridFromElectionDefinition,
-} from './convert';
-import {
   HudsonFixtureName,
   readFixtureBallotCardDefinition,
   readFixtureDefinition,
   readFixtureJson,
 } from '../test/fixtures';
 import { asciiOvalGrid } from '../test/utils';
-import { getBallotTemplateOvalImage } from './accuvote';
+import {
+  convertElectionDefinition,
+  convertElectionDefinitionHeader,
+  readGridFromElectionDefinition,
+} from './convert';
+import * as templates from './data/templates';
 import { withSvgDebugger } from './debug';
 
 test('converting a single ballot card definition', async () => {
-  const ovalTemplate = await getBallotTemplateOvalImage();
   const hudsonBallotCardDefinition = await readFixtureBallotCardDefinition(
     HudsonFixtureName
   );
-  const electionDefinition = withSvgDebugger((debug) => {
+  const electionDefinition = await withSvgDebugger(async (debug) => {
     debug.imageData(0, 0, hudsonBallotCardDefinition.front);
     return convertElectionDefinition(hudsonBallotCardDefinition, {
-      ovalTemplate,
+      ovalTemplate: await templates.getOvalTemplate(),
       debug,
     }).unsafeUnwrap();
   });

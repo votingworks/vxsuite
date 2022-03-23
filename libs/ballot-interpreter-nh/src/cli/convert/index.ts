@@ -1,13 +1,13 @@
 import { err, ok, Result } from '@votingworks/types';
 import { promises as fs } from 'fs';
+import { RealIo, Stdio } from '..';
 import {
   convertElectionDefinition,
   NewHampshireBallotCardDefinition,
 } from '../../convert';
-import { getBallotTemplateOvalImage } from '../../accuvote';
+import * as templates from '../../data/templates';
 import { readGrayscaleImage } from '../../images';
 import { parseXml } from '../../utils';
-import { RealIo, Stdio } from '..';
 
 interface ConvertOptions {
   readonly type: 'convert';
@@ -133,9 +133,8 @@ export async function main(
     back: backBallotImage,
   };
 
-  const ovalTemplate = await getBallotTemplateOvalImage();
   const convertResult = convertElectionDefinition(cardDefinition, {
-    ovalTemplate,
+    ovalTemplate: await templates.getOvalTemplate(),
   });
 
   if (convertResult.isErr()) {

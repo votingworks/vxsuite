@@ -6,10 +6,10 @@ import {
   readFixtureJson,
 } from '../../test/fixtures';
 import {
-  getBallotScanOvalImage,
   getScannedBallotCardGeometry,
   ScannedBallotCardGeometry8pt5x14,
 } from '../accuvote';
+import * as templates from '../data/templates';
 import { withSvgDebugger } from '../debug';
 import { interpretOvalMarks } from './interpret_oval_marks';
 import { interpretPageLayout } from './interpret_page_layout';
@@ -49,7 +49,7 @@ test('interpretOvalMarks unmarked front', async () => {
   assert(backLayout?.side === 'back', 'backLayout could not be read');
   assert(gridLayout, 'gridLayout is not present');
 
-  const ovalTemplate = await getBallotScanOvalImage();
+  const ovalTemplate = await templates.getOvalScanTemplate();
 
   const unmarkedOvalMarks = interpretOvalMarks({
     geometry,
@@ -162,7 +162,7 @@ test('interpretOvalMarks marked front', async () => {
   assert(backLayout?.side === 'back', 'backLayout could not be read');
   assert(gridLayout, 'gridLayout is not present');
 
-  const ovalTemplate = await getBallotScanOvalImage();
+  const ovalTemplate = await templates.getOvalScanTemplate();
 
   const markedOvalMarks = interpretOvalMarks({
     geometry,
@@ -288,7 +288,7 @@ test('interpretOvalMarks marked rotated front', async () => {
   assert(backLayout?.side === 'back', 'backLayout could not be read');
   assert(gridLayout, 'gridLayout is not present');
 
-  const ovalTemplate = await getBallotScanOvalImage();
+  const ovalTemplate = await templates.getOvalScanTemplate();
 
   const markedOvalMarks = interpretOvalMarks({
     geometry,
