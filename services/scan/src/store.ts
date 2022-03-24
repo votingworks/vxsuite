@@ -618,14 +618,18 @@ export class Store {
   }
 
   /**
-   * Deletes the batch with id `batchId`.
+   * Mark a batch as deleted
    */
   deleteBatch(batchId: string): boolean {
     const { count } = this.client.one(
-      'select count(*) as count from batches where id = ?',
+      'select count(*) as count from batches where deleted_at is null and id = ?',
       batchId
     ) as { count: number };
-    this.client.run('delete from batches where id = ?', batchId);
+
+    this.client.run(
+      'update batches set deleted_at = current_timestamp where id = ?',
+      batchId
+    );
     return count > 0;
   }
 
@@ -663,6 +667,8 @@ export class Store {
         sheets.batch_id = batches.id
       and
         sheets.deleted_at is null
+      where
+        batches.deleted_at is null
       group by
         batches.id,
         batches.started_at,
@@ -731,7 +737,8 @@ export class Store {
       where
         (requires_adjudication = 0 or
         (front_finished_adjudication_at is not null and back_finished_adjudication_at is not null))
-        and deleted_at is null
+        and sheets.deleted_at is null
+        and batches.deleted_at is null
     `;
     for (const {
       id,
