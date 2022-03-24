@@ -13,7 +13,12 @@ import {
 } from '@testing-library/react';
 import fetchMock from 'fetch-mock';
 import { electionWithMsEitherNeitherWithDataFiles } from '@votingworks/fixtures';
-import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
+import {
+  MemoryStorage,
+  MemoryCard,
+  MemoryHardware,
+  typedAs,
+} from '@votingworks/utils';
 import {
   advanceTimersAndPromises,
   fakeKiosk,
@@ -48,6 +53,8 @@ import {
   convertExternalTalliesToStorageString,
   convertTalliesByPrecinctToFullExternalTally,
 } from './utils/external_tallies';
+import { MachineConfig } from './config/types';
+import { VxFiles } from './lib/converters';
 
 const EITHER_NEITHER_CVR_DATA =
   electionWithMsEitherNeitherWithDataFiles.cvrData;
@@ -81,19 +88,29 @@ beforeEach(() => {
   mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
   MockDate.set(new Date('2020-11-03T22:22:00'));
   fetchMock.reset();
-  fetchMock.get('/convert/election/files', {
-    inputFiles: [{ name: 'name' }, { name: 'name' }],
-    outputFiles: [{ name: 'name' }],
-  });
-  fetchMock.get('/convert/tallies/files', {
-    inputFiles: [{ name: 'name' }, { name: 'name' }],
-    outputFiles: [{ name: 'name' }],
-  });
-  fetchMock.get('/machine-config', {
-    machineId: '0000',
-    codeVersion: 'TEST',
-    bypassAuthentication: false,
-  });
+  fetchMock.get(
+    '/convert/election/files',
+    typedAs<VxFiles>({
+      inputFiles: [{ name: 'name' }, { name: 'name' }],
+      outputFiles: [{ name: 'name' }],
+    })
+  );
+  fetchMock.get(
+    '/convert/tallies/files',
+    typedAs<VxFiles>({
+      inputFiles: [{ name: 'name' }, { name: 'name' }],
+      outputFiles: [{ name: 'name' }],
+    })
+  );
+  fetchMock.get(
+    '/machine-config',
+    typedAs<MachineConfig>({
+      machineId: '0000',
+      codeVersion: 'TEST',
+      bypassAuthentication: false,
+      converter: 'ms-sems',
+    })
+  );
 });
 
 afterEach(() => {

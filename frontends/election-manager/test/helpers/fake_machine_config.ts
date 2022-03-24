@@ -5,8 +5,9 @@ export function fakeMachineConfig({
   machineId = '000',
   codeVersion = 'test',
   bypassAuthentication = false,
+  converter = 'ms-sems',
 }: Partial<MachineConfig> = {}): MachineConfig {
-  return { machineId, codeVersion, bypassAuthentication };
+  return { machineId, codeVersion, bypassAuthentication, converter };
 }
 
 export function fakeMachineConfigProvider(

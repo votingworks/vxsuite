@@ -87,6 +87,7 @@
     "@types/react-router-dom": "^5.1.5",
     "@types/styled-components": "^5.1.7",
     "@votingworks/ballot-encoder": "workspace:*",
+    "@votingworks/ballot-interpreter-nh": "workspace:*",
     "@votingworks/ballot-interpreter-vx": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/logging": "workspace:*",

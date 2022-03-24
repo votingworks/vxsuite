@@ -19,7 +19,7 @@ import { LogEventId } from '@votingworks/logging';
 import { InputEventFunction, ResultsFileType } from '../config/types';
 
 import { AppContext } from '../contexts/app_context';
-import { ConverterClient } from '../lib/converter_client';
+import { MsSemsConverterClient } from '../lib/converters/ms_sems_converter_client';
 import { getPrecinctIdsInExternalTally } from '../utils/external_tallies';
 
 import { Button } from '../components/button';
@@ -38,6 +38,7 @@ import { TIME_FORMAT } from '../config/globals';
 import { getPartiesWithPrimaryElections } from '../utils/election';
 import { ImportExternalResultsModal } from '../components/import_external_results_modal';
 import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';
+import { getTallyConverterClient } from '../lib/converters';
 
 export function TallyScreen(): JSX.Element {
   const makeCancelable = useCancelablePromise();
@@ -53,9 +54,11 @@ export function TallyScreen(): JSX.Element {
     resetFiles,
     logger,
     currentUserSession,
+    machineConfig,
   } = useContext(AppContext);
   assert(electionDefinition);
   const { election } = electionDefinition;
+  const { converter } = machineConfig;
   const isTestMode = castVoteRecordFiles?.fileMode === 'test';
   const externalFileInput = useRef<HTMLInputElement>(null);
 
@@ -145,13 +148,16 @@ export function TallyScreen(): JSX.Element {
   useEffect(() => {
     void (async () => {
       try {
-        await makeCancelable(new ConverterClient('tallies').getFiles());
-        setHasConverter(true);
+        const client = getTallyConverterClient(converter);
+        if (client) {
+          await makeCancelable(client.getFiles());
+          setHasConverter(true);
+        }
       } catch {
         setHasConverter(false);
       }
     })();
-  }, [makeCancelable]);
+  }, [converter, makeCancelable]);
 
   const fileMode = castVoteRecordFiles?.fileMode;
   const fileModeText =
@@ -232,7 +238,7 @@ export function TallyScreen(): JSX.Element {
     );
     const exportableTallies = generateExportableTallies();
     // process on the server
-    const client = new ConverterClient('tallies');
+    const client = new MsSemsConverterClient('tallies');
     const { inputFiles, outputFiles } = await client.getFiles();
     const [electionDefinitionFile, talliesFile] = inputFiles;
     const resultsFile = outputFiles[0];
@@ -341,15 +347,19 @@ export function TallyScreen(): JSX.Element {
           >
             Import CVR Files
           </Button>{' '}
-          <FileInputButton
-            innerRef={externalFileInput}
-            onChange={importExternalSemsFile}
-            accept="*"
-            data-testid="import-sems-button"
-            disabled={hasExternalSemsFile || isOfficialResults}
-          >
-            Import External Results File
-          </FileInputButton>{' '}
+          {converter === 'ms-sems' && (
+            <React.Fragment>
+              <FileInputButton
+                innerRef={externalFileInput}
+                onChange={importExternalSemsFile}
+                accept="*"
+                data-testid="import-sems-button"
+                disabled={hasExternalSemsFile || isOfficialResults}
+              >
+                Import External Results File
+              </FileInputButton>{' '}
+            </React.Fragment>
+          )}
           <LinkButton
             to={routerPaths.manualDataImport}
             disabled={isOfficialResults}
@@ -386,13 +396,17 @@ export function TallyScreen(): JSX.Element {
             >
               Remove CVR Files…
             </Button>{' '}
-            <Button
-              danger
-              disabled={!hasExternalSemsFile}
-              onPress={() => beginConfirmRemoveFiles(ResultsFileType.SEMS)}
-            >
-              Remove External Results File…
-            </Button>{' '}
+            {converter === 'ms-sems' && (
+              <React.Fragment>
+                <Button
+                  danger
+                  disabled={!hasExternalSemsFile}
+                  onPress={() => beginConfirmRemoveFiles(ResultsFileType.SEMS)}
+                >
+                  Remove External Results File…
+                </Button>{' '}
+              </React.Fragment>
+            )}
             <Button
               danger
               disabled={!hasExternalManualData}
