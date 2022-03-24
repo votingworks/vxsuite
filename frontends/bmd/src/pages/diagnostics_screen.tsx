@@ -1,12 +1,14 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
+  Button,
+  ButtonBar,
+  ComputerStatus as ComputerStatusType,
   Devices,
   Main,
   MainChild,
+  Modal,
   Prose,
-  Button,
   Text,
-  ComputerStatus as ComputerStatusType,
   useCancelablePromise,
 } from '@votingworks/ui';
 import { Optional } from '@votingworks/types';
@@ -201,6 +203,106 @@ function PrinterStatus({ hardware }: PrinterStatusProps) {
   );
 }
 
+type AccessibleControllerDiagnosticResults =
+  | {
+      passed: true;
+      completedAt: DateTime;
+    }
+  | {
+      passed: false;
+      completedAt: DateTime;
+      message: string;
+    };
+
+interface AccessibleControllerTestProps {
+  onComplete: (results: AccessibleControllerDiagnosticResults) => void;
+  onCancel: () => void;
+}
+
+function AccessibleControllerTest({
+  onComplete,
+  onCancel,
+}: AccessibleControllerTestProps) {
+  return (
+    <div>
+      <h2>Accessible Controller Test</h2>
+      <ul>
+        <li>
+          <Text>Press the up button</Text>
+        </li>
+      </ul>
+      <ButtonBar>
+        <Button onPress={onCancel}>Cancel</Button>
+        <Button
+          onPress={() =>
+            onComplete({
+              passed: true,
+              completedAt: DateTime.now(),
+            })
+          }
+        >
+          Next
+        </Button>
+      </ButtonBar>
+    </div>
+  );
+}
+
+interface AccessibleControllerStatusProps {
+  accessibleController?: KioskBrowser.Device;
+}
+
+function AccessibleControllerStatus({
+  accessibleController,
+}: AccessibleControllerStatusProps) {
+  // TODO hoist so this state persists
+  const [
+    diagnosticResults,
+    setDiagnosticResults,
+  ] = useState<AccessibleControllerDiagnosticResults>();
+  const [isDiagnosticModalOpen, setIsDiagnosticModalOpen] = useState(false);
+
+  if (!accessibleController) {
+    return <Text warningIcon>No accessible controller connected.</Text>;
+  }
+
+  return (
+    <React.Fragment>
+      <Text voteIcon>Accessible controller connected.</Text>
+      {diagnosticResults &&
+        (diagnosticResults.passed ? (
+          <Text voteIcon>Test passed.</Text>
+        ) : (
+          <Text warningIcon>Test failed: {diagnosticResults.message}</Text>
+        ))}
+      <div style={{ display: 'flex', alignItems: 'baseline' }}>
+        <Button onPress={() => setIsDiagnosticModalOpen(true)}>
+          Start Accessible Controller Test
+        </Button>
+        {diagnosticResults && (
+          <Text small>
+            Last tested at {formatTime(diagnosticResults.completedAt)}
+          </Text>
+        )}
+      </div>
+      {isDiagnosticModalOpen && (
+        <Modal
+          onOverlayClick={() => setIsDiagnosticModalOpen(false)}
+          content={
+            <AccessibleControllerTest
+              onComplete={(results) => {
+                setDiagnosticResults(results);
+                setIsDiagnosticModalOpen(false);
+              }}
+              onCancel={() => setIsDiagnosticModalOpen(false)}
+            />
+          }
+        />
+      )}
+    </React.Fragment>
+  );
+}
+
 interface DiagnosticsScreenProps {
   hardware: Hardware;
   devices: Devices;
@@ -229,6 +331,12 @@ export function DiagnosticsScreen({
           <section>
             <h2>Printer</h2>
             <PrinterStatus hardware={hardware} />
+          </section>
+          <section>
+            <h2>Accessible Controller</h2>
+            <AccessibleControllerStatus
+              accessibleController={devices.accessibleController}
+            />
           </section>
         </Prose>
       </MainChild>
