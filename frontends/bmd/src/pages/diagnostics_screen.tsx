@@ -140,7 +140,7 @@ function PrinterStatus({ hardware }: PrinterStatusProps) {
   }, [loadPrinterStatus]);
 
   if (printerStatus.isLoading) {
-    return <Text>Loading printer status...</Text>;
+    return <Text>Loading printer status…</Text>;
   }
   const { printer, loadedAt } = printerStatus;
 
