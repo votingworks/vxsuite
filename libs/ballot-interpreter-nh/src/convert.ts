@@ -152,16 +152,18 @@ export interface CandidateGridElement {
 export function readGridFromElectionDefinition(
   root: Element
 ): CandidateGridElement[] {
-  return [...root.querySelectorAll('CandidateName')].map((candidateElement) => {
-    const ox = safeParseNumber(
-      candidateElement.querySelector('OX')?.textContent
-    ).unsafeUnwrap();
-    const oy = safeParseNumber(
-      candidateElement.querySelector('OY')?.textContent
-    ).unsafeUnwrap();
-    const { column, row } = timingMarkCoordinatesFromOxOy(ox, oy);
-    return { element: candidateElement, column, row };
-  });
+  return Array.from(root.getElementsByTagName('CandidateName')).map(
+    (candidateElement) => {
+      const ox = safeParseNumber(
+        candidateElement.getElementsByTagName('OX')[0]?.textContent
+      ).unsafeUnwrap();
+      const oy = safeParseNumber(
+        candidateElement.getElementsByTagName('OY')[0]?.textContent
+      ).unsafeUnwrap();
+      const { column, row } = timingMarkCoordinatesFromOxOy(ox, oy);
+      return { element: candidateElement, column, row };
+    }
+  );
 }
 
 /**
@@ -172,35 +174,33 @@ export function convertElectionDefinitionHeader(
   definition: NewHampshireBallotCardDefinition['definition']
 ): Result<Election, Error> {
   const root = definition;
-  const electionId = root.querySelector(
-    'AccuvoteHeaderInfo > ElectionID'
-  )?.textContent;
+  const accuvoteHeaderInfo = root.getElementsByTagName('AccuvoteHeaderInfo')[0];
+  const electionId =
+    accuvoteHeaderInfo?.getElementsByTagName('ElectionID')[0]?.textContent;
   if (typeof electionId !== 'string') {
     return err(new Error('ElectionID is required'));
   }
 
-  const title = root.querySelector(
-    'AccuvoteHeaderInfo > ElectionName'
-  )?.textContent;
+  const title =
+    accuvoteHeaderInfo?.getElementsByTagName('ElectionName')[0]?.textContent;
   if (typeof title !== 'string') {
     return err(new Error('ElectionName is required'));
   }
 
-  const townName = root.querySelector(
-    'AccuvoteHeaderInfo > TownName'
-  )?.textContent;
+  const townName =
+    accuvoteHeaderInfo?.getElementsByTagName('TownName')[0]?.textContent;
   if (typeof townName !== 'string') {
     return err(new Error('TownName is required'));
   }
 
-  const townId = root.querySelector('AccuvoteHeaderInfo > TownID')?.textContent;
+  const townId =
+    accuvoteHeaderInfo?.getElementsByTagName('TownID')[0]?.textContent;
   if (typeof townId !== 'string') {
     return err(new Error('TownID is required'));
   }
 
-  const rawDate = root.querySelector(
-    'AccuvoteHeaderInfo > ElectionDate'
-  )?.textContent;
+  const rawDate =
+    accuvoteHeaderInfo?.getElementsByTagName('ElectionDate')[0]?.textContent;
   if (typeof rawDate !== 'string') {
     return err(new Error('ElectionDate is required'));
   }
@@ -213,9 +213,7 @@ export function convertElectionDefinitionHeader(
     return err(new Error(`invalid date: ${parsedDate.invalidReason}`));
   }
 
-  const rawPrecinctId = root.querySelector(
-    'AccuvoteHeaderInfo > PrecinctID'
-  )?.textContent;
+  const rawPrecinctId = root.getElementsByTagName('PrecinctID')[0]?.textContent;
   if (typeof rawPrecinctId !== 'string') {
     return err(new Error('PrecinctID is required'));
   }
@@ -231,9 +229,7 @@ export function convertElectionDefinitionHeader(
   }
   const districtId = districtIdResult.ok();
 
-  const ballotSize = root.querySelector(
-    'AccuvoteHeaderInfo > BallotSize'
-  )?.textContent;
+  const ballotSize = root.getElementsByTagName('BallotSize')[0]?.textContent;
   if (typeof ballotSize !== 'string') {
     return err(new Error('BallotSize is required'));
   }
@@ -260,17 +256,20 @@ export function convertElectionDefinitionHeader(
     | Omit<GridPositionWriteIn, 'row' | 'column' | 'side'>
   >();
 
-  for (const contestElement of root.querySelectorAll('Candidates')) {
+  for (const contestElement of Array.from(
+    root.getElementsByTagName('Candidates')
+  )) {
+    const officeNameElement =
+      contestElement.getElementsByTagName('OfficeName')[0];
     const officeName =
-      contestElement.querySelector('OfficeName > Name')?.textContent;
+      officeNameElement?.getElementsByTagName('Name')[0]?.textContent;
     if (typeof officeName !== 'string') {
       return err(new Error('OfficeName is required'));
     }
     const contestId = makeId(officeName);
 
-    const winnerNote = contestElement.querySelector(
-      'OfficeName > WinnerNote'
-    )?.textContent;
+    const winnerNote =
+      officeNameElement?.getElementsByTagName('WinnerNote')[0]?.textContent;
     const seats =
       safeParseNumber(
         winnerNote?.match(/Vote for not more than (\d+)/)?.[1]
@@ -278,10 +277,11 @@ export function convertElectionDefinitionHeader(
 
     let writeInIndex = 0;
     const candidates: Candidate[] = [];
-    for (const [i, candidateElement] of contestElement
-      .querySelectorAll('CandidateName')
-      .entries()) {
-      const candidateName = candidateElement.querySelector('Name')?.textContent;
+    for (const [i, candidateElement] of Array.from(
+      contestElement.getElementsByTagName('CandidateName')
+    ).entries()) {
+      const candidateName =
+        candidateElement.getElementsByTagName('Name')[0]?.textContent;
       if (typeof candidateName !== 'string') {
         return err(
           new Error(`Name is missing in candidate ${i + 1} of ${officeName}`)
@@ -289,9 +289,8 @@ export function convertElectionDefinitionHeader(
       }
 
       let party: Party | undefined;
-      const partyName = candidateElement.querySelector(
-        'CandidateName > Party'
-      )?.textContent;
+      const partyName =
+        candidateElement?.getElementsByTagName('Party')[0]?.textContent;
       if (partyName) {
         party = parties.get(partyName);
         if (!party) {
@@ -307,8 +306,8 @@ export function convertElectionDefinitionHeader(
       }
 
       const isWriteIn =
-        candidateElement.querySelector('CandidateName > WriteIn')
-          ?.textContent === 'True';
+        candidateElement?.getElementsByTagName('WriteIn')[0]?.textContent ===
+        'True';
 
       if (!isWriteIn) {
         const candidateId = makeId(candidateName);

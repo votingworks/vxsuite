@@ -1,5 +1,4 @@
 import { assert } from '@votingworks/utils';
-import { JSDOM } from 'jsdom';
 import { Bit, Point, Rect, Segment, Vector } from './types';
 
 /**
@@ -337,14 +336,6 @@ export function bitsToNumber(
     result = result * 2 + (bits[i] as number);
   }
   return result;
-}
-
-/**
- * Parses {@link xml} and returns the root element.
- */
-export function parseXml(xml: string): Element {
-  const jsdom = new JSDOM(xml, { contentType: 'text/xml' });
-  return jsdom.window.document.documentElement;
 }
 
 /**

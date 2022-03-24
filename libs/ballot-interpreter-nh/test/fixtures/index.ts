@@ -2,6 +2,7 @@ import { BallotPaperSize } from '@votingworks/types';
 import { assert, throwIllegalValue } from '@votingworks/utils';
 import { promises as fs } from 'fs';
 import { join } from 'path';
+import { DOMParser } from 'xmldom';
 import { NewHampshireBallotCardDefinition } from '../../src/convert';
 import {
   BallotCardGeometry,
@@ -14,7 +15,7 @@ import {
   Size,
   ThirtyTwoBits,
 } from '../../src/types';
-import { makeRect, parseXml } from '../../src/utils';
+import { makeRect } from '../../src/utils';
 
 /**
  * The size of a single timing mark.
@@ -319,7 +320,7 @@ export async function readFixtureDefinition(
     getFixturePath(fixture, variant, '.xml'),
     'utf8'
   );
-  return parseXml(xml);
+  return new DOMParser().parseFromString(xml).documentElement;
 }
 
 /**
