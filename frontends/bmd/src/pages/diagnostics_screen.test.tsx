@@ -120,9 +120,7 @@ describe('System Diagnostics screen', () => {
       const hardware = MemoryHardware.buildStandard();
       const devices = fakeDevices();
       hardware.setPrinterIppAttributes({
-        state: null,
-        stateReasons: [],
-        markerInfos: [],
+        state: 'unknown' as KioskBrowser.IppPrinterState.Unknown,
       });
       render(<DiagnosticsScreen hardware={hardware} devices={devices} />);
 
@@ -216,7 +214,7 @@ describe('System Diagnostics screen', () => {
         .getByRole('heading', { name: 'Printer' })
         .closest('section')!;
       const tonerLevelText = await within(printerSection).findByText(
-        'Toner level: unknown'
+        'Toner level: Unknown'
       );
       expectToHaveWarningIcon(tonerLevelText);
     });

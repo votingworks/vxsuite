@@ -157,7 +157,7 @@ function PrinterStatus({ hardware }: PrinterStatusProps) {
     </div>
   );
 
-  if (!printer || printer.state === null) {
+  if (!printer || printer.state === 'unknown') {
     return (
       <React.Fragment>
         <Text warningIcon>Could not get printer status.</Text>
@@ -192,7 +192,7 @@ function PrinterStatus({ hardware }: PrinterStatusProps) {
       )}
       <Text voteIcon={!markerLow} warningIcon={markerLow}>
         Toner level:{' '}
-        {marker && marker.level >= 0 ? `${marker.level}%` : 'unknown'}
+        {marker && marker.level >= 0 ? `${marker.level}%` : 'Unknown'}
       </Text>
       {refreshButton}
     </React.Fragment>

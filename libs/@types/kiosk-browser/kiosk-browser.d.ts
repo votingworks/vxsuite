@@ -36,6 +36,7 @@ declare namespace KioskBrowser {
    * Spec: https://datatracker.ietf.org/doc/html/rfc2911#section-4.4.11
    */
   export enum IppPrinterState {
+    Unknown = 'unknown', // We didn't get a response from the printer
     Idle = 'idle', // 3
     Processing = 'processing', // 4
     Stopped = 'stopped', // 5
@@ -63,21 +64,24 @@ declare namespace KioskBrowser {
     level: number; // e.g. 83
   }
 
-  export interface PrinterIppAttributes {
-    state: IppPrinterState | null;
-    stateReasons: string[];
-    markerInfos: IppMarkerInfo[];
-  }
+  export type PrinterIppAttributes =
+    | { state: IppPrinterState.Unknown }
+    | {
+        state: IppPrinterState;
+        stateReasons: IppPrinterStateReason[];
+        markerInfos: IppMarkerInfo[];
+      };
 
-  export interface PrinterInfo extends PrinterIppAttributes {
+  interface PrinterInfoBase {
     // Docs: http://electronjs.org/docs/api/structures/printer-info
     description: string;
     isDefault: boolean;
     name: string;
+    options?: { [key: string]: string };
     // Added via kiosk-browser
     connected: boolean;
-    options?: { [key: string]: string };
   }
+  export type PrinterInfo = PrinterInfoBase & PrinterIppAttributes;
 
   export interface Device {
     locationId: number;
