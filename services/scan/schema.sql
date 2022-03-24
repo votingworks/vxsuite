@@ -4,6 +4,7 @@ create table batches (
   label text,
   started_at datetime default current_timestamp not null,
   ended_at datetime,
+  deleted_at datetime,
   error varchar(4000)
 );
 

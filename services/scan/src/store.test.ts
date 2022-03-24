@@ -253,6 +253,11 @@ test('batchStatus', () => {
   batches = store.batchStatus();
   expect(batches).toHaveLength(1);
   expect(batches[0].count).toEqual(0);
+
+  // Confirm that batches marked as deleted are not included
+  store.deleteBatch(batchId);
+  batches = store.batchStatus();
+  expect(batches).toHaveLength(0);
 });
 
 test('adjudication', () => {
