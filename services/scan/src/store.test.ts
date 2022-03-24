@@ -10,6 +10,7 @@ import {
 import { typedAs } from '@votingworks/utils';
 import * as tmp from 'tmp';
 import { v4 as uuid } from 'uuid';
+import * as streams from 'memory-streams';
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { zeroRect } from '../test/fixtures/zero_rect';
 import { Store } from './store';
@@ -415,4 +416,84 @@ test('adjudication', () => {
 
   // cleaning up batches now should have no impact
   store.cleanupIncompleteBatches();
+});
+
+test('exportCvrs', () => {
+  const store = Store.memoryStore();
+  store.setElection(stateOfHamilton.electionDefinition);
+
+  // No CVRs, export should be empty
+  let stream = new streams.WritableStream();
+  store.exportCvrs(stream);
+  expect(stream.toString()).toEqual('');
+
+  const metadata: BallotPageMetadata = {
+    locales: { primary: 'en-US' },
+    electionHash: stateOfHamilton.electionDefinition.electionHash,
+    ballotType: BallotType.Standard,
+    ballotStyleId: stateOfHamilton.election.ballotStyles[0].id,
+    precinctId: stateOfHamilton.election.precincts[0].id,
+    isTestMode: false,
+    pageNumber: 1,
+  };
+
+  store.addHmpbTemplate(Buffer.of(1, 2, 3), metadata, [
+    {
+      pageSize: { width: 1, height: 1 },
+      metadata: {
+        ...metadata,
+        pageNumber: 1,
+      },
+      contests: [],
+    },
+    {
+      pageSize: { width: 1, height: 1 },
+      metadata: {
+        ...metadata,
+        pageNumber: 2,
+      },
+      contests: [],
+    },
+  ]);
+
+  // Create CVRs, confirm that they are exported should work
+  const batchId = store.addBatch();
+  const sheetId = store.addSheet(uuid(), batchId, [
+    {
+      originalFilename: '/tmp/front-page.png',
+      normalizedFilename: '/tmp/front-normalized-page.png',
+      interpretation: {
+        type: 'UninterpretedHmpbPage',
+        metadata: {
+          ...metadata,
+          pageNumber: 1,
+        },
+      },
+    },
+    {
+      originalFilename: '/tmp/back-page.png',
+      normalizedFilename: '/tmp/back-normalized-page.png',
+      interpretation: {
+        type: 'UninterpretedHmpbPage',
+        metadata: {
+          ...metadata,
+          pageNumber: 2,
+        },
+      },
+    },
+  ]);
+  store.adjudicateSheet(sheetId, 'front', []);
+  store.adjudicateSheet(sheetId, 'back', []);
+
+  stream = new streams.WritableStream();
+  store.exportCvrs(stream);
+  expect(stream.toString()).toEqual(
+    expect.stringContaining(stateOfHamilton.election.precincts[0].id)
+  );
+
+  // Confirm that deleted batches are not included in exported CVRs
+  stream = new streams.WritableStream();
+  store.deleteBatch(batchId);
+  store.exportCvrs(stream);
+  expect(stream.toString()).toEqual('');
 });
