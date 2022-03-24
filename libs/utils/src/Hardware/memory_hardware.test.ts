@@ -141,16 +141,47 @@ it('allows unsubscribing from a device subscription', () => {
   expect(callback).not.toHaveBeenCalled();
 });
 
-it('reports printer status as connected if there are any connected printers', async () => {
+it('readPrinterStatus returns printer info for connected printer', async () => {
   const hardware = MemoryHardware.build();
   hardware.setPrinterConnected(true);
-  expect(await hardware.readPrinterStatus()).toEqual({ connected: true });
+  expect(await hardware.readPrinterStatus()).toMatchInlineSnapshot(`
+    Object {
+      "connected": true,
+      "description": "Brother",
+      "isDefault": true,
+      "markerInfos": Array [
+        Object {
+          "color": "#000000",
+          "highLevel": 100,
+          "level": 92,
+          "lowLevel": 2,
+          "name": "black cartridge",
+          "type": "toner-cartridge",
+        },
+      ],
+      "name": "HL-L5100DN_series",
+      "state": "idle",
+      "stateReasons": Array [
+        "none",
+      ],
+    }
+  `);
 });
 
-it('reports printer status as not connected if there are no connected printers', async () => {
+it('readPrinterStatus returns undefined if there are no connected printers', async () => {
   const hardware = MemoryHardware.build();
   hardware.setPrinterConnected(false);
-  expect(await hardware.readPrinterStatus()).toEqual({ connected: false });
+  expect(await hardware.readPrinterStatus()).toBeUndefined();
+});
+
+it('can set printer IPP attributes', async () => {
+  const hardware = MemoryHardware.build({ connectPrinter: true });
+  const attributes: KioskBrowser.PrinterIppAttributes = {
+    state: 'unknown',
+  };
+  hardware.setPrinterIppAttributes(attributes);
+  const printer = await hardware.readPrinterStatus();
+  expect(printer).toMatchObject(attributes);
 });
 
 it('can remove printers', async () => {

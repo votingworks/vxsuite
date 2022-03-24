@@ -31,16 +31,54 @@ declare namespace KioskBrowser {
     sides?: PrintSides;
   }
 
-  export interface PrinterInfo {
+  /**
+   * IPP printer-state-reasons explain what's going on with a printer in detail.
+   * Spec: https://datatracker.ietf.org/doc/html/rfc2911#section-4.4.12
+   * For a partial list of common printer-state-reasons, see
+   * getPrinterIppAttributes.ts in kiosk-browser. Since we don't know all
+   * possible reasons, we just type as string.
+   */
+  export type IppPrinterStateReason = string;
+
+  /**
+   * "Marker" is a general name for ink/toner/etc. CUPS implements a variety of
+   * marker-related IPP attributes prefixed with "marker-", e.g. "marker-levels".
+   * Spec: https://www.cups.org/doc/spec-ipp.html
+   */
+  export interface IppMarkerInfo {
+    name: string; // e.g. "black cartridge"
+    color: string; // e.g. "#000000"
+    type: string; // e.g. "toner-cartridge"
+    lowLevel: number; // e.g. 2
+    highLevel: number; // e.g. 100
+    level: number; // e.g. 83
+  }
+
+  /**
+   * A collection of status info about a printer we get via IPP.
+   */
+  export type PrinterIppAttributes =
+    | { state: 'unknown' } // We didn't get a response from the printer
+    | {
+        state: 'idle' | 'processing' | 'stopped';
+        stateReasons: IppPrinterStateReason[];
+        markerInfos: IppMarkerInfo[];
+      };
+
+  interface PrinterInfoBase {
     // Docs: http://electronjs.org/docs/api/structures/printer-info
     description: string;
     isDefault: boolean;
     name: string;
-    status: number;
+    options?: { [key: string]: string };
     // Added via kiosk-browser
     connected: boolean;
-    options?: { [key: string]: string };
   }
+  /**
+   * The printer's basic info we get from Electron (e.g. name, description,
+   * options), plus its connection status and IPP attributes.
+   */
+  export type PrinterInfo = PrinterInfoBase & PrinterIppAttributes;
 
   export interface Device {
     locationId: number;

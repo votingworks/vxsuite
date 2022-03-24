@@ -61,6 +61,14 @@ export function formatLongDate(date: DateTime, timeZone?: string): string {
   }).format(date.toJSDate());
 }
 
+export function formatTime(date: DateTime): string {
+  return new Intl.DateTimeFormat(undefined, {
+    timeZone: date.zoneName,
+    hour: 'numeric',
+    minute: 'numeric',
+  }).format(date.toJSDate());
+}
+
 /**
  * Get days in given month and year.
  */

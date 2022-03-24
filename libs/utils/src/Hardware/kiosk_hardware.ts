@@ -1,4 +1,3 @@
-import { PrinterStatus } from '../types';
 import { MemoryHardware } from './memory_hardware';
 
 /**
@@ -17,11 +16,11 @@ export class KioskHardware extends MemoryHardware {
   }
 
   /**
-   * Determines whether there is a configured & connected printer.
+   * Finds a configured & connected printer and returns its status.
    */
-  async readPrinterStatus(): Promise<PrinterStatus> {
+  async readPrinterStatus(): Promise<KioskBrowser.PrinterInfo | undefined> {
     const printers = await this.kiosk.getPrinterInfo();
-    return { connected: printers.some((printer) => printer.connected) };
+    return printers.find((printer) => printer.connected);
   }
 
   /**

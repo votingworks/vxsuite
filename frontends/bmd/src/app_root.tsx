@@ -531,12 +531,13 @@ export function AppRoot({
     []
   );
 
+  const devices = useDevices({ hardware, logger });
   const {
     cardReader,
     printer: printerInfo,
     accessibleController,
     computer,
-  } = useDevices({ hardware, logger });
+  } = devices;
   const usbDrive = useUsbDrive({ logger });
   const displayUsbStatus = usbDrive.status ?? usbstick.UsbDriveStatus.absent;
   const hasPrinterAttached = printerInfo !== undefined;
@@ -1304,6 +1305,8 @@ export function AppRoot({
           isLiveMode={isLiveMode}
           isPollsOpen={isPollsOpen}
           machineConfig={machineConfig}
+          hardware={hardware}
+          devices={devices}
           printer={printer}
           togglePollsOpen={togglePollsOpen}
           tallyOnCard={tallyOnCard}

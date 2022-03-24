@@ -1,6 +1,6 @@
 import React from 'react';
 import { fireEvent, waitFor } from '@testing-library/react';
-import { fakeKiosk } from '@votingworks/test-utils';
+import { fakeKiosk, fakePrinterInfo } from '@votingworks/test-utils';
 import { Route } from 'react-router-dom';
 
 import { PrintTestDeckScreen } from './print_test_deck_screen';
@@ -20,13 +20,7 @@ test('Printing the full test deck sorts precincts', async () => {
   jest.useFakeTimers();
   const mockKiosk = window.kiosk! as jest.Mocked<KioskBrowser.Kiosk>;
   mockKiosk.getPrinterInfo.mockResolvedValue([
-    {
-      description: 'VxPrinter',
-      isDefault: true,
-      name: 'VxPrinter',
-      status: 0,
-      connected: true,
-    },
+    fakePrinterInfo({ name: 'VxPrinter', connected: true }),
   ]);
 
   const { getByText, getByLabelText } = renderInAppContext(

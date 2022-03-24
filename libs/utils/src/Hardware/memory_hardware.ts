@@ -1,11 +1,10 @@
 import { BehaviorSubject, Observable } from 'rxjs';
-import { Hardware, PrinterStatus } from '../types';
+import { Hardware } from '../types';
 import {
   AccessibleControllerProductId,
   AccessibleControllerVendorId,
   BrotherHll5100DnProductId,
   BrotherHll5100DnVendorId,
-  isPrinter,
   OmniKeyCardReaderDeviceName,
   OmniKeyCardReaderManufacturer,
   OmniKeyCardReaderProductId,
@@ -14,11 +13,27 @@ import {
   FujitsuFi7160ScannerProductId,
   PlustekScannerVendorId,
   PlustekVtm300ScannerProductId,
+  isPrinter,
 } from './utils';
 
 const DEFAULT_BATTERY_STATUS: KioskBrowser.BatteryInfo = {
   discharging: false,
   level: 0.8,
+};
+
+const DEFAULT_PRINTER_IPP_ATTRIBUTES: KioskBrowser.PrinterIppAttributes = {
+  state: 'idle',
+  stateReasons: ['none'],
+  markerInfos: [
+    {
+      color: '#000000',
+      highLevel: 100,
+      level: 92,
+      lowLevel: 2,
+      name: 'black cartridge',
+      type: 'toner-cartridge',
+    },
+  ],
 };
 
 /**
@@ -48,6 +63,8 @@ export class MemoryHardware implements Hardware {
     vendorId: BrotherHll5100DnVendorId,
     serialNumber: '',
   };
+
+  private printerIppAttributes = DEFAULT_PRINTER_IPP_ATTRIBUTES;
 
   private cardReader: Readonly<KioskBrowser.Device> = {
     deviceAddress: 0,
@@ -190,10 +207,18 @@ export class MemoryHardware implements Hardware {
   /**
    * Reads Printer status
    */
-  async readPrinterStatus(): Promise<PrinterStatus> {
-    return {
-      connected: Array.from(this.connectedDevices).some(isPrinter),
-    };
+  async readPrinterStatus(): Promise<KioskBrowser.PrinterInfo | undefined> {
+    const connectedPrinter = Array.from(this.connectedDevices).find(isPrinter);
+    if (connectedPrinter) {
+      return {
+        connected: true,
+        name: connectedPrinter.deviceName,
+        description: connectedPrinter.manufacturer,
+        isDefault: true,
+        ...this.printerIppAttributes,
+      };
+    }
+    return undefined;
   }
 
   /**
@@ -207,9 +232,16 @@ export class MemoryHardware implements Hardware {
         description: this.printer.manufacturer,
         connected,
         isDefault: true,
-        status: 0,
+        ...this.printerIppAttributes,
       },
     ]);
+  }
+
+  /**
+   * Sets Printer IPP attributes
+   */
+  setPrinterIppAttributes(attributes: KioskBrowser.PrinterIppAttributes): void {
+    this.printerIppAttributes = attributes;
   }
 
   /**

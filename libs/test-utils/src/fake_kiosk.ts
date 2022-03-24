@@ -25,6 +25,20 @@ export function fakeUsbDrive(
   };
 }
 
+export function fakeMarkerInfo(
+  props: Partial<KioskBrowser.IppMarkerInfo> = {}
+): KioskBrowser.IppMarkerInfo {
+  return {
+    color: '#000000',
+    highLevel: 100,
+    level: 92,
+    lowLevel: 2,
+    name: 'black cartridge',
+    type: 'toner-cartridge',
+    ...props,
+  };
+}
+
 export function fakePrinterInfo(
   props: Partial<KioskBrowser.PrinterInfo> = {}
 ): KioskBrowser.PrinterInfo {
@@ -33,7 +47,9 @@ export function fakePrinterInfo(
     description: props.name ?? 'Fake Printer',
     isDefault: false,
     name: 'Fake Printer',
-    status: 3, // idle
+    state: 'idle',
+    stateReasons: ['none'],
+    markerInfos: [fakeMarkerInfo()],
     ...props,
   };
 }

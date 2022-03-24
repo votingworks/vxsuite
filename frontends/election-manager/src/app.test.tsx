@@ -22,6 +22,7 @@ import {
 import {
   advanceTimersAndPromises,
   fakeKiosk,
+  fakePrinterInfo,
   fakeUsbDrive,
 } from '@votingworks/test-utils';
 import {
@@ -77,13 +78,7 @@ beforeEach(() => {
   mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
   mockKiosk.getPrinterInfo.mockResolvedValue([
-    {
-      description: 'VxPrinter',
-      isDefault: false,
-      name: 'VxPrinter',
-      status: 0,
-      connected: true,
-    },
+    fakePrinterInfo({ name: 'VxPrinter', connected: true }),
   ]);
   mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
   MockDate.set(new Date('2020-11-03T22:22:00'));
