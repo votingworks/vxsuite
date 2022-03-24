@@ -36,8 +36,9 @@ test('letter-size card definition', async () => {
     HudsonFixtureName
   );
 
-  hudsonBallotCardDefinition.querySelector('BallotSize')!.textContent =
-    '8.5X11';
+  hudsonBallotCardDefinition.getElementsByTagName(
+    'BallotSize'
+  )[0]!.textContent = '8.5X11';
 
   const electionDefinition = convertElectionDefinitionHeader(
     hudsonBallotCardDefinition
@@ -54,8 +55,8 @@ test('missing ElectionID', async () => {
   );
 
   const electionIdElement =
-    hudsonBallotCardDefinition.querySelector('ElectionID')!;
-  electionIdElement.parentElement?.removeChild(electionIdElement);
+    hudsonBallotCardDefinition.getElementsByTagName('ElectionID')[0]!;
+  electionIdElement.parentNode?.removeChild(electionIdElement);
 
   expect(() =>
     convertElectionDefinitionHeader(hudsonBallotCardDefinition).unsafeUnwrap()
@@ -68,8 +69,8 @@ test('missing ElectionName', async () => {
   );
 
   const electionNameElement =
-    hudsonBallotCardDefinition.querySelector('ElectionName')!;
-  electionNameElement.parentElement?.removeChild(electionNameElement);
+    hudsonBallotCardDefinition.getElementsByTagName('ElectionName')[0]!;
+  electionNameElement.parentNode?.removeChild(electionNameElement);
 
   expect(() =>
     convertElectionDefinitionHeader(hudsonBallotCardDefinition).unsafeUnwrap()
@@ -81,8 +82,9 @@ test('missing TownName', async () => {
     HudsonFixtureName
   );
 
-  const townNameElement = hudsonBallotCardDefinition.querySelector('TownName')!;
-  townNameElement.parentElement?.removeChild(townNameElement);
+  const townNameElement =
+    hudsonBallotCardDefinition.getElementsByTagName('TownName')[0]!;
+  townNameElement.parentNode?.removeChild(townNameElement);
 
   expect(() =>
     convertElectionDefinitionHeader(hudsonBallotCardDefinition).unsafeUnwrap()
@@ -94,8 +96,9 @@ test('missing TownID', async () => {
     HudsonFixtureName
   );
 
-  const townIdElement = hudsonBallotCardDefinition.querySelector('TownID')!;
-  townIdElement.parentElement?.removeChild(townIdElement);
+  const townIdElement =
+    hudsonBallotCardDefinition.getElementsByTagName('TownID')[0]!;
+  townIdElement.parentNode?.removeChild(townIdElement);
 
   expect(() =>
     convertElectionDefinitionHeader(hudsonBallotCardDefinition).unsafeUnwrap()
@@ -108,8 +111,8 @@ test('missing ElectionDate', async () => {
   );
 
   const electionDateElement =
-    hudsonBallotCardDefinition.querySelector('ElectionDate')!;
-  electionDateElement.parentElement?.removeChild(electionDateElement);
+    hudsonBallotCardDefinition.getElementsByTagName('ElectionDate')[0]!;
+  electionDateElement.parentNode?.removeChild(electionDateElement);
 
   expect(() =>
     convertElectionDefinitionHeader(hudsonBallotCardDefinition).unsafeUnwrap()
@@ -122,8 +125,8 @@ test('missing PrecinctID', async () => {
   );
 
   const precinctIdElement =
-    hudsonBallotCardDefinition.querySelector('PrecinctID')!;
-  precinctIdElement.parentElement?.removeChild(precinctIdElement);
+    hudsonBallotCardDefinition.getElementsByTagName('PrecinctID')[0]!;
+  precinctIdElement.parentNode?.removeChild(precinctIdElement);
 
   expect(() =>
     convertElectionDefinitionHeader(hudsonBallotCardDefinition).unsafeUnwrap()

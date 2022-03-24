@@ -1,5 +1,6 @@
 import { err, ok, Result } from '@votingworks/types';
 import { promises as fs } from 'fs';
+import { DOMParser } from 'xmldom';
 import { RealIo, Stdio } from '..';
 import {
   convertElectionDefinition,
@@ -7,7 +8,6 @@ import {
 } from '../../convert';
 import * as templates from '../../data/templates';
 import { readGrayscaleImage } from '../../images';
-import { parseXml } from '../../utils';
 
 interface ConvertOptions {
   readonly type: 'convert';
@@ -22,6 +22,14 @@ interface HelpOptions {
 }
 
 type Options = ConvertOptions | HelpOptions;
+
+/**
+ * Parses {@link xml} and returns the root element.
+ */
+function parseXml(xml: string): Element {
+  return new DOMParser().parseFromString(xml, 'application/xml')
+    .documentElement;
+}
 
 function parseOptions(args: readonly string[]): Result<Options, Error> {
   let definitionPath: string | undefined;

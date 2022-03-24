@@ -4,7 +4,7 @@ import { safeParseInt } from '@votingworks/types';
 import { assert } from '@votingworks/utils';
 import { Canvas, createCanvas, createImageData } from 'canvas';
 import { writeFileSync } from 'fs';
-import { JSDOM } from 'jsdom';
+import { DOMParser } from 'xmldom';
 
 /**
  * Provides visual debugging for code dealing with image data.
@@ -395,7 +395,10 @@ export function withSvgDebugger<T>(
 
   const fileName = fileNameOrCallback;
   const callback = callbackOrNothing;
-  const { document } = new JSDOM().window;
+  const document = new DOMParser().parseFromString(
+    '<svg></svg>',
+    'image/svg+xml'
+  );
   const root = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   root.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
   const debug = svgDebugger(root);
@@ -405,17 +408,17 @@ export function withSvgDebugger<T>(
     if (typeof result !== 'undefined' && 'then' in result) {
       return (result as unknown as Promise<unknown>).then(
         () => {
-          writeFileSync(fileName, root.outerHTML);
+          writeFileSync(fileName, root.toString());
           return result;
         },
         (error) => {
-          writeFileSync(fileName, root.outerHTML);
+          writeFileSync(fileName, root.toString());
           throw error;
         }
       ) as unknown as T;
     }
   } finally {
-    writeFileSync(fileName, root.outerHTML);
+    writeFileSync(fileName, root.toString());
   }
   return result;
 }
