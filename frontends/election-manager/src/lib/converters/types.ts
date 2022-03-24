@@ -1,5 +1,6 @@
 export interface VxFile {
   name: string;
+  accept?: string;
   path?: string;
 }
 

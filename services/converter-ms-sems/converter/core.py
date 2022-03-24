@@ -15,8 +15,8 @@ app = Flask(__name__)
 # paths
 ELECTION_FILES = {
     "inputFiles": [
-        {"name": "SEMS main file", "path": None},
-        {"name": "SEMS candidate mapping file", "path": None}
+        {"name": "SEMS main file", "accept": ".txt,text/plain", "path": None},
+        {"name": "SEMS candidate mapping file", "accept": ".txt,text/plain", "path": None}
     ],
     "outputFiles": [
         {"name": "Vx Election Definition", "path": None}
@@ -25,8 +25,8 @@ ELECTION_FILES = {
 
 RESULTS_FILES = {
     "inputFiles": [
-        {"name": "Vx Election Definition", "path": None},
-        {"name": "Vx CVRs", "path": None}
+        {"name": "Vx Election Definition", "accept": ".json,application/json", "path": None},
+        {"name": "Vx CVRs", "accept": ".jsonl,application/jsonlines", "path": None}
     ],
     "outputFiles": [
         {"name": "SEMS Results", "path": None}
@@ -35,8 +35,8 @@ RESULTS_FILES = {
 
 RESULT_TALLIES_FILES = {
     "inputFiles": [
-        {"name": "Vx Election Definition", "path": None},
-        {"name": "Vx Tallies", "path": None}
+        {"name": "Vx Election Definition", "accept": ".json,application/json", "path": None},
+        {"name": "Vx Tallies", "accept": ".json,application/json", "path": None}
     ],
     "outputFiles": [
         {"name": "SEMS Results", "path": None}

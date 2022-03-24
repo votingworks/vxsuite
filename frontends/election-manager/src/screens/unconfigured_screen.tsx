@@ -259,7 +259,7 @@ export function UnconfiguredScreen({
             ) : (
               <p key={file.name}>
                 <FileInputButton
-                  // accept=".txt"
+                  accept={file.accept}
                   buttonProps={{
                     fullWidth: true,
                   }}

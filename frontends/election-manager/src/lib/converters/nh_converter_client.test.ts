@@ -64,9 +64,11 @@ test('initial files', async () => {
       inputFiles: [
         {
           name: 'NH Card Definition (XML)',
+          accept: 'application/xml',
         },
         {
           name: 'NH Card Ballot (PDF)',
+          accept: 'application/pdf',
         },
       ],
       outputFiles: [
@@ -89,8 +91,16 @@ test('reset', async () => {
 
   expect((await client.getFiles()).inputFiles).toEqual(
     typedAs<VxFiles['inputFiles']>([
-      { name: 'NH Card Definition (XML)', path: expect.any(String) },
-      { name: 'NH Card Ballot (PDF)', path: expect.any(String) },
+      {
+        name: 'NH Card Definition (XML)',
+        accept: 'application/xml',
+        path: expect.any(String),
+      },
+      {
+        name: 'NH Card Ballot (PDF)',
+        accept: 'application/pdf',
+        path: expect.any(String),
+      },
     ])
   );
 
@@ -98,8 +108,8 @@ test('reset', async () => {
 
   expect((await client.getFiles()).inputFiles).toEqual(
     typedAs<VxFiles['inputFiles']>([
-      { name: 'NH Card Definition (XML)' },
-      { name: 'NH Card Ballot (PDF)' },
+      { name: 'NH Card Definition (XML)', accept: 'application/xml' },
+      { name: 'NH Card Ballot (PDF)', accept: 'application/pdf' },
     ])
   );
 });
@@ -202,10 +212,12 @@ test('process success', async () => {
       inputFiles: [
         {
           name: 'NH Card Definition (XML)',
+          accept: 'application/xml',
           path: expect.any(String),
         },
         {
           name: 'NH Card Ballot (PDF)',
+          accept: 'application/pdf',
           path: expect.any(String),
         },
       ],

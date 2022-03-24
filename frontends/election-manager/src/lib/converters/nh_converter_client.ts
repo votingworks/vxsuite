@@ -2,21 +2,29 @@ import {
   convertElectionDefinition,
   templates,
 } from '@votingworks/ballot-interpreter-nh';
-import { ConverterClient, VxFiles } from './types';
+import { ConverterClient, VxFile, VxFiles } from './types';
 import { pdfToImages } from '../../utils/pdf_to_images';
 import { readBlobAsArrayBuffer, readBlobAsString } from '../blob';
 
-const NhCardDefinitionFileName = 'NH Card Definition (XML)';
-const NhCardBallotFileName = 'NH Card Ballot (PDF)';
-const VxElectionDefinitionFileName = 'VX Election Definition';
+const NhCardDefinitionFile: VxFile = {
+  name: 'NH Card Definition (XML)',
+  accept: 'application/xml',
+};
+const NhCardBallotFile: VxFile = {
+  name: 'NH Card Ballot (PDF)',
+  accept: 'application/pdf',
+};
+const VxElectionDefinitionFile: VxFile = {
+  name: 'VX Election Definition',
+};
 
 export class NhConverterClient implements ConverterClient {
-  private inputFiles: Map<string, File | undefined> = new Map([
-    [NhCardDefinitionFileName, undefined],
-    [NhCardBallotFileName, undefined],
+  private inputFiles: Map<VxFile, File | undefined> = new Map([
+    [NhCardDefinitionFile, undefined],
+    [NhCardBallotFile, undefined],
   ]);
-  private outputFiles: Map<string, Blob | undefined> = new Map([
-    [VxElectionDefinitionFileName, undefined],
+  private outputFiles: Map<VxFile, Blob | undefined> = new Map([
+    [VxElectionDefinitionFile, undefined],
   ]);
 
   getDisplayName(): string {
@@ -25,7 +33,7 @@ export class NhConverterClient implements ConverterClient {
 
   async setInputFile(name: string, content: File): Promise<void> {
     for (const key of this.inputFiles.keys()) {
-      if (key === name) {
+      if (key.name === name) {
         this.inputFiles.set(key, content);
         return;
       }
@@ -35,15 +43,15 @@ export class NhConverterClient implements ConverterClient {
   }
 
   async process(): Promise<void> {
-    const nhCardDefinitionFile = this.inputFiles.get(NhCardDefinitionFileName);
-    const nhCardBallotFile = this.inputFiles.get(NhCardBallotFileName);
+    const nhCardDefinitionFile = this.inputFiles.get(NhCardDefinitionFile);
+    const nhCardBallotFile = this.inputFiles.get(NhCardBallotFile);
 
     if (!nhCardDefinitionFile) {
-      throw new Error(`input file "${NhCardDefinitionFileName}" not found`);
+      throw new Error(`input file "${NhCardDefinitionFile.name}" not found`);
     }
 
     if (!nhCardBallotFile) {
-      throw new Error(`input file "${NhCardBallotFileName}" not found`);
+      throw new Error(`input file "${NhCardBallotFile.name}" not found`);
     }
 
     const nhCardBallotImages: ImageData[] = [];
@@ -64,7 +72,7 @@ export class NhConverterClient implements ConverterClient {
     const parser = new DOMParser();
     const definition = parser.parseFromString(
       await readBlobAsString(nhCardDefinitionFile),
-      'text/xml'
+      'application/xml'
     ).documentElement;
 
     const [front, back] = nhCardBallotImages;
@@ -85,13 +93,16 @@ export class NhConverterClient implements ConverterClient {
     const election = convertResult.ok();
 
     this.outputFiles.set(
-      VxElectionDefinitionFileName,
+      VxElectionDefinitionFile,
       new Blob([JSON.stringify(election, null, 2)])
     );
   }
 
   async getOutputFile(name: string): Promise<Blob> {
-    const outputBlob = this.outputFiles.get(name);
+    const [, outputBlob] =
+      [...this.outputFiles].find(
+        ([{ name: outputName }]) => outputName === name
+      ) ?? [];
 
     if (!outputBlob) {
       throw new Error(`output file "${name}" not found`);
@@ -102,11 +113,14 @@ export class NhConverterClient implements ConverterClient {
 
   async getFiles(): Promise<VxFiles> {
     return {
-      inputFiles: [...this.inputFiles.entries()].map(([name, file]) => ({
-        name,
-        path: file ? name : undefined,
-      })),
-      outputFiles: [...this.outputFiles.entries()].map(([name, blob]) => ({
+      inputFiles: [...this.inputFiles.entries()].map(
+        ([{ name, accept }, file]) => ({
+          name,
+          accept,
+          path: file ? name : undefined,
+        })
+      ),
+      outputFiles: [...this.outputFiles.entries()].map(([{ name }, blob]) => ({
         name,
         path: blob ? name : undefined,
       })),
