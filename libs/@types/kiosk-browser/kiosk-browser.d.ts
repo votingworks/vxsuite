@@ -32,16 +32,6 @@ declare namespace KioskBrowser {
   }
 
   /**
-   * IPP printer-state identifies the basic status of a printer.
-   * Spec: https://datatracker.ietf.org/doc/html/rfc2911#section-4.4.11
-   */
-  export type IppPrinterState =
-    | 'unknown' // We didn't get a response from the printer
-    | 'idle' // 3
-    | 'processing' // 4
-    | 'stopped'; // 5
-
-  /**
    * IPP printer-state-reasons explain what's going on with a printer in detail.
    * Spec: https://datatracker.ietf.org/doc/html/rfc2911#section-4.4.12
    * For a partial list of common printer-state-reasons, see
@@ -64,10 +54,13 @@ declare namespace KioskBrowser {
     level: number; // e.g. 83
   }
 
+  /**
+   * A collection of status info about a printer we get via IPP.
+   */
   export type PrinterIppAttributes =
-    | { state: IppPrinterState.Unknown }
+    | { state: 'unknown' } // We didn't get a response from the printer
     | {
-        state: IppPrinterState;
+        state: 'idle' | 'processing' | 'stopped';
         stateReasons: IppPrinterStateReason[];
         markerInfos: IppMarkerInfo[];
       };
@@ -81,6 +74,10 @@ declare namespace KioskBrowser {
     // Added via kiosk-browser
     connected: boolean;
   }
+  /**
+   * The printer's basic info we get from Electron (e.g. name, description,
+   * options), plus its connection status and IPP attributes.
+   */
   export type PrinterInfo = PrinterInfoBase & PrinterIppAttributes;
 
   export interface Device {
