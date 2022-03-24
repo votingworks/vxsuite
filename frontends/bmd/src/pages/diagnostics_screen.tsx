@@ -7,6 +7,7 @@ import {
   Button,
   Text,
   ComputerStatus as ComputerStatusType,
+  useCancelablePromise,
 } from '@votingworks/ui';
 import { Optional } from '@votingworks/types';
 import assert from 'assert';
@@ -122,6 +123,7 @@ type PrinterStatusState =
     };
 
 function PrinterStatus({ hardware }: PrinterStatusProps) {
+  const makeCancelable = useCancelablePromise();
   const [printerStatus, setPrinterStatus] = useState<PrinterStatusState>({
     isLoading: true,
   });
@@ -131,9 +133,9 @@ function PrinterStatus({ hardware }: PrinterStatusProps) {
   // of paper).
   const loadPrinterStatus = useCallback(async () => {
     setPrinterStatus({ isLoading: true });
-    const printer = await hardware.readPrinterStatus();
+    const printer = await makeCancelable(hardware.readPrinterStatus());
     setPrinterStatus({ isLoading: false, printer, loadedAt: DateTime.now() });
-  }, [hardware]);
+  }, [hardware, makeCancelable]);
 
   useEffect(() => {
     void loadPrinterStatus();

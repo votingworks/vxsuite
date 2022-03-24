@@ -31,7 +31,9 @@ describe('System Diagnostics screen', () => {
       const devices = fakeDevices({
         computer: { batteryLevel: 0.05, batteryIsLow: true },
       });
-      render(<DiagnosticsScreen hardware={hardware} devices={devices} />);
+      const { unmount } = render(
+        <DiagnosticsScreen hardware={hardware} devices={devices} />
+      );
 
       screen.getByRole('heading', { name: 'System Diagnostics' });
 
@@ -48,7 +50,9 @@ describe('System Diagnostics screen', () => {
       );
       expectToHaveSuccessIcon(powerCordText);
 
-      await screen.findByText('Printer status: Ready'); // Wait for printer status request to avoid test error
+      // Explicitly unmount before the printer status has resolved to verify that
+      // we properly cancel the request for printer status.
+      unmount();
     });
 
     it('shows a warning when the power cord is not connected', async () => {
@@ -56,7 +60,9 @@ describe('System Diagnostics screen', () => {
       const devices = fakeDevices({
         computer: { batteryIsCharging: false },
       });
-      render(<DiagnosticsScreen hardware={hardware} devices={devices} />);
+      const { unmount } = render(
+        <DiagnosticsScreen hardware={hardware} devices={devices} />
+      );
 
       const computerSection = screen
         .getByRole('heading', { name: 'Computer' })
@@ -68,7 +74,9 @@ describe('System Diagnostics screen', () => {
       );
       expectToHaveWarningIcon(powerCordText);
 
-      await screen.findByText('Printer status: Ready'); // Wait for printer status request to avoid test error
+      // Explicitly unmount before the printer status has resolved to verify that
+      // we properly cancel the request for printer status.
+      unmount();
     });
   });
 
