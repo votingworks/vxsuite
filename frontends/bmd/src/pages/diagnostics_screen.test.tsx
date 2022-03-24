@@ -89,7 +89,7 @@ describe('System Diagnostics screen', () => {
       const printerSection = screen
         .getByRole('heading', { name: 'Printer' })
         .closest('section')!;
-      within(printerSection).getByText('Loading printer status...');
+      within(printerSection).getByText('Loading printer status…');
 
       let printerStatusText = await within(printerSection).findByText(
         'Printer status: Ready'
@@ -110,7 +110,7 @@ describe('System Diagnostics screen', () => {
       });
       userEvent.click(refreshButton);
 
-      within(printerSection).getByText('Loading printer status...');
+      within(printerSection).getByText('Loading printer status…');
 
       printerStatusText = await within(printerSection).findByText(
         'Printer status: Stopped'
