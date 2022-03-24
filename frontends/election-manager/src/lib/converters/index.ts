@@ -15,10 +15,10 @@ export function getElectionDefinitionConverterClient(
     case undefined:
       return undefined;
 
-    case 'ms':
+    case 'ms-sems':
       return new MsSemsConverterClient('election');
 
-    case 'nh':
+    case 'nh-accuvote':
       return new NhConverterClient();
 
     /* istanbul ignore next */
@@ -34,10 +34,10 @@ export function getTallyConverterClient(
     case undefined:
       return undefined;
 
-    case 'ms':
+    case 'ms-sems':
       return new MsSemsConverterClient('tallies');
 
-    case 'nh':
+    case 'nh-accuvote':
       return undefined;
 
     /* istanbul ignore next */

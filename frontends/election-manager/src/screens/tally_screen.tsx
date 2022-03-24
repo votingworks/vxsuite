@@ -347,7 +347,7 @@ export function TallyScreen(): JSX.Element {
           >
             Import CVR Files
           </Button>{' '}
-          {converter === 'ms' && (
+          {converter === 'ms-sems' && (
             <React.Fragment>
               <FileInputButton
                 innerRef={externalFileInput}
@@ -396,7 +396,7 @@ export function TallyScreen(): JSX.Element {
             >
               Remove CVR Files…
             </Button>{' '}
-            {converter === 'ms' && (
+            {converter === 'ms-sems' && (
               <React.Fragment>
                 <Button
                   danger

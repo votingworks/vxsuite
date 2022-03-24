@@ -49,7 +49,7 @@ module.exports = function (app) {
       machineId: process.env.VX_MACHINE_ID || '0000',
       codeVersion: process.env.VX_CODE_VERSION || 'dev',
       bypassAuthentication: asBoolean(process.env.BYPASS_AUTHENTICATION),
-      converter: process.env.VX_CONVERTER || 'ms',
+      converter: process.env.VX_CONVERTER || 'ms-sems',
     });
   });
 
