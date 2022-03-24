@@ -35,12 +35,12 @@ declare namespace KioskBrowser {
    * IPP printer-state identifies the basic status of a printer.
    * Spec: https://datatracker.ietf.org/doc/html/rfc2911#section-4.4.11
    */
-  export enum IppPrinterState {
-    Unknown = 'unknown', // We didn't get a response from the printer
-    Idle = 'idle', // 3
-    Processing = 'processing', // 4
-    Stopped = 'stopped', // 5
-  }
+  export type IppPrinterState =
+    | 'unknown' // We didn't get a response from the printer
+    | 'idle' // 3
+    | 'processing' // 4
+    | 'stopped'; // 5
+
   /**
    * IPP printer-state-reasons explain what's going on with a printer in detail.
    * Spec: https://datatracker.ietf.org/doc/html/rfc2911#section-4.4.12

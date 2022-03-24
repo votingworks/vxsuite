@@ -47,7 +47,7 @@ export function fakePrinterInfo(
     description: props.name ?? 'Fake Printer',
     isDefault: false,
     name: 'Fake Printer',
-    state: 'idle' as KioskBrowser.IppPrinterState,
+    state: 'idle',
     stateReasons: ['none'],
     markerInfos: [fakeMarkerInfo()],
     ...props,

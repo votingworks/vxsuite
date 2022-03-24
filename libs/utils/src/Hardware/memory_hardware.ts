@@ -22,7 +22,7 @@ const DEFAULT_BATTERY_STATUS: KioskBrowser.BatteryInfo = {
 };
 
 const DEFAULT_PRINTER_IPP_ATTRIBUTES: KioskBrowser.PrinterIppAttributes = {
-  state: 'idle' as KioskBrowser.IppPrinterState,
+  state: 'idle',
   stateReasons: ['none'],
   markerInfos: [
     {

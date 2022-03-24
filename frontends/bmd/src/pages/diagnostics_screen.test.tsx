@@ -104,7 +104,7 @@ describe('System Diagnostics screen', () => {
       within(printerSection).getByText('Last updated at 11:23 AM');
 
       hardware.setPrinterIppAttributes({
-        state: 'stopped' as KioskBrowser.IppPrinterState,
+        state: 'stopped',
         stateReasons: ['marker-supply-low-warning'],
         markerInfos: [fakeMarkerInfo({ level: 2 })],
       });
@@ -128,7 +128,7 @@ describe('System Diagnostics screen', () => {
       const hardware = MemoryHardware.buildStandard();
       const devices = fakeDevices();
       hardware.setPrinterIppAttributes({
-        state: 'unknown' as KioskBrowser.IppPrinterState.Unknown,
+        state: 'unknown',
       });
       render(<DiagnosticsScreen hardware={hardware} devices={devices} />);
 
@@ -150,7 +150,7 @@ describe('System Diagnostics screen', () => {
       const hardware = MemoryHardware.buildStandard();
       const devices = fakeDevices();
       hardware.setPrinterIppAttributes({
-        state: 'stopped' as KioskBrowser.IppPrinterState,
+        state: 'stopped',
         stateReasons: [
           'media-empty',
           'marker-supply-low-report',
@@ -174,7 +174,7 @@ describe('System Diagnostics screen', () => {
       const hardware = MemoryHardware.buildStandard();
       const devices = fakeDevices();
       hardware.setPrinterIppAttributes({
-        state: 'stopped' as KioskBrowser.IppPrinterState,
+        state: 'stopped',
         stateReasons: ['some-other-reason-warning'],
         markerInfos: [fakeMarkerInfo()],
       });
@@ -193,7 +193,7 @@ describe('System Diagnostics screen', () => {
       const hardware = MemoryHardware.buildStandard();
       const devices = fakeDevices();
       hardware.setPrinterIppAttributes({
-        state: 'stopped' as KioskBrowser.IppPrinterState,
+        state: 'stopped',
         stateReasons: ['123'],
         markerInfos: [fakeMarkerInfo()],
       });
@@ -212,7 +212,7 @@ describe('System Diagnostics screen', () => {
       const hardware = MemoryHardware.buildStandard();
       const devices = fakeDevices();
       hardware.setPrinterIppAttributes({
-        state: 'idle' as KioskBrowser.IppPrinterState,
+        state: 'idle',
         stateReasons: ['none'],
         markerInfos: [fakeMarkerInfo({ level: -2 })],
       });

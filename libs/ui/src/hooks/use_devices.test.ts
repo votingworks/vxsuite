@@ -44,7 +44,7 @@ test('can connect printer as expected', () => {
     description: 'Brother',
     isDefault: true,
     name: 'HL-L5100DN_series',
-    state: 'idle' as KioskBrowser.IppPrinterState,
+    state: 'idle',
     stateReasons: ['none'],
     markerInfos: [fakeMarkerInfo()],
   };

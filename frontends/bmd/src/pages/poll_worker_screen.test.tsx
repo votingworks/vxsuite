@@ -1484,7 +1484,7 @@ test('printing precinct scanner report works as expected with a single precinct 
 });
 
 test('navigates to System Diagnostics screen', async () => {
-  render(
+  const { unmount } = render(
     <PollWorkerScreen
       activateCardlessVoterSession={jest.fn()}
       resetCardlessVoterSession={jest.fn()}
@@ -1510,8 +1510,11 @@ test('navigates to System Diagnostics screen', async () => {
 
   userEvent.click(screen.getByRole('button', { name: 'System Diagnostics' }));
   screen.getByRole('heading', { name: 'System Diagnostics' });
-  await screen.findByText('Printer status: Ready'); // Wait for printer status request to avoid test error
 
   userEvent.click(screen.getByRole('button', { name: 'Back' }));
   screen.getByRole('heading', { name: 'Open/Close Polls' });
+
+  // Explicitly unmount before the printer status has resolved to verify that
+  // we properly cancel the request for printer status.
+  unmount();
 });

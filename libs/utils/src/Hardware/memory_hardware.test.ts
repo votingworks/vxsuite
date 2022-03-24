@@ -177,7 +177,7 @@ it('readPrinterStatus returns undefined if there are no connected printers', asy
 it('can set printer IPP attributes', async () => {
   const hardware = MemoryHardware.build({ connectPrinter: true });
   const attributes: KioskBrowser.PrinterIppAttributes = {
-    state: 'unknown' as KioskBrowser.IppPrinterState.Unknown,
+    state: 'unknown',
   };
   hardware.setPrinterIppAttributes(attributes);
   const printer = await hardware.readPrinterStatus();
