@@ -6,6 +6,7 @@ import {
   isPrecinctScanner,
   isBatchScanner,
 } from '@votingworks/utils';
+import { map } from 'rxjs/operators';
 import { LogEventId, Logger } from '@votingworks/logging';
 import useInterval from 'use-interval';
 import { usePrevious } from '..';
@@ -62,29 +63,14 @@ export function useDevices({ hardware, logger }: Props): Devices {
   const previousDevices = usePrevious(allDevices);
   const previousPrinters = usePrevious(allPrinters);
 
-  const computer: ComputerStatus = {
-    batteryLevel: battery?.level,
-    batteryIsCharging: battery ? !battery.discharging : true,
-    batteryIsLow: battery ? battery.level < LOW_BATTERY_THRESHOLD : false,
-  };
-
-  const devices: Devices = {
-    computer,
-    cardReader: allDevices.find(isCardReader),
-    accessibleController: allDevices.find(isAccessibleController),
-    batchScanner: allDevices.find(isBatchScanner),
-    precinctScanner: allDevices.find(isPrecinctScanner),
-    printer: allPrinters.find((printer) => printer.connected),
-  };
-
   useEffect(() => {
-    const hardwareStatusSubscription = hardware.devices.subscribe(
-      (updatedDevices) => setAllDevices(Array.from(updatedDevices))
-    );
+    const hardwareStatusSubscription = hardware.devices
+      .pipe(map((devices) => Array.from(devices)))
+      .subscribe(setAllDevices);
 
-    const printerStatusSubscription = hardware.printers.subscribe(
-      (updatedPrinters) => setAllPrinters(Array.from(updatedPrinters))
-    );
+    const printerStatusSubscription = hardware.printers
+      .pipe(map((printers) => Array.from(printers)))
+      .subscribe(setAllPrinters);
 
     return () => {
       hardwareStatusSubscription.unsubscribe();
@@ -105,9 +91,7 @@ export function useDevices({ hardware, logger }: Props): Devices {
     for (const newPrinter of allPrinters) {
       const previousCopyOfPrinter =
         previousPrinters &&
-        previousPrinters.find(
-          (previousPrinter) => previousPrinter.name === newPrinter.name
-        );
+        previousPrinters.find((printer) => printer.name === newPrinter.name);
       if (!previousCopyOfPrinter) {
         void logger.log(LogEventId.PrinterConfigurationAdded, 'system', {
           message: `New printer configured: ${newPrinter.name} with connection status: ${newPrinter.connected}`,
@@ -126,7 +110,7 @@ export function useDevices({ hardware, logger }: Props): Devices {
     }
     for (const oldPrinter of previousPrinters || []) {
       const newCopyOfPrinter = allPrinters.find(
-        (somePrinter) => somePrinter.name === oldPrinter.name
+        (printer) => printer.name === oldPrinter.name
       );
       if (!newCopyOfPrinter) {
         void logger.log(LogEventId.PrinterConfigurationRemoved, 'system', {
@@ -177,5 +161,18 @@ export function useDevices({ hardware, logger }: Props): Devices {
     }
   }, [previousDevices, allDevices, logger]);
 
-  return devices;
+  const computer: ComputerStatus = {
+    batteryLevel: battery?.level,
+    batteryIsCharging: battery ? !battery.discharging : true,
+    batteryIsLow: battery ? battery.level < LOW_BATTERY_THRESHOLD : false,
+  };
+
+  return {
+    computer,
+    cardReader: allDevices.find(isCardReader),
+    accessibleController: allDevices.find(isAccessibleController),
+    batchScanner: allDevices.find(isBatchScanner),
+    precinctScanner: allDevices.find(isPrecinctScanner),
+    printer: allPrinters.find((printer) => printer.connected),
+  };
 }
