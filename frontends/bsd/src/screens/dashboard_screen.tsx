@@ -166,15 +166,15 @@ export function DashboardScreen({
           }
           actions={
             <React.Fragment>
-              <Button onPress={cancelDeleteBatch} disabled={isDeletingBatch}>
-                Cancel
-              </Button>
               <Button
                 danger
                 onPress={confirmDeleteBatch}
                 disabled={isDeletingBatch}
               >
                 {isDeletingBatch ? 'Deleting…' : 'Yes, Delete Batch'}
+              </Button>
+              <Button onPress={cancelDeleteBatch} disabled={isDeletingBatch}>
+                Cancel
               </Button>
             </React.Fragment>
           }
