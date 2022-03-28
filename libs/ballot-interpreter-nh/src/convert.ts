@@ -421,6 +421,8 @@ export function convertElectionDefinitionHeader(
       AdjudicationReason.Overvote,
       AdjudicationReason.BlankBallot,
     ],
+    // eslint-disable-next-line vx/gts-identifiers
+    sealURL: '/seals/Seal_of_New_Hampshire.svg',
   };
 
   return safeParseElection(election);
