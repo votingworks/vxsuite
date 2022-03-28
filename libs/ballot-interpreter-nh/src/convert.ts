@@ -1,4 +1,5 @@
 import {
+  AdjudicationReason,
   BallotPaperSize,
   Candidate,
   CandidateContest,
@@ -408,6 +409,17 @@ export function convertElectionDefinitionHeader(
               };
         }),
       },
+    ],
+    centralScanAdjudicationReasons: [
+      AdjudicationReason.UninterpretableBallot,
+      AdjudicationReason.Overvote,
+      AdjudicationReason.WriteIn,
+      AdjudicationReason.BlankBallot,
+    ],
+    precinctScanAdjudicationReasons: [
+      AdjudicationReason.UninterpretableBallot,
+      AdjudicationReason.Overvote,
+      AdjudicationReason.BlankBallot,
     ],
   };
 

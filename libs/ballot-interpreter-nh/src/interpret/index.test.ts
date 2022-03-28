@@ -2354,7 +2354,7 @@ test('interpret', async () => {
         "metadata": Object {
           "ballotStyleId": "card-number-54",
           "ballotType": 0,
-          "electionHash": "24e75b5d29a99d13d7209c413f654f9863a32f5e7b8530ead92bd7cab1974e10",
+          "electionHash": "643bb476f81d952e66afbc2f4e894f58bf86263bf167832b897ced9ebf8da6dc",
           "isTestMode": false,
           "locales": Object {
             "primary": "unknown",
@@ -3503,7 +3503,7 @@ test('interpret', async () => {
         "metadata": Object {
           "ballotStyleId": "card-number-54",
           "ballotType": 0,
-          "electionHash": "24e75b5d29a99d13d7209c413f654f9863a32f5e7b8530ead92bd7cab1974e10",
+          "electionHash": "643bb476f81d952e66afbc2f4e894f58bf86263bf167832b897ced9ebf8da6dc",
           "isTestMode": false,
           "locales": Object {
             "primary": "unknown",

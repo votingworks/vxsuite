@@ -1,4 +1,9 @@
-import { BallotPaperSize, safeParseElection } from '@votingworks/types';
+import {
+  AdjudicationReason,
+  BallotPaperSize,
+  safeParseElection,
+} from '@votingworks/types';
+import { typedAs } from '@votingworks/utils';
 import {
   HudsonFixtureName,
   readFixtureBallotCardDefinition,
@@ -224,4 +229,32 @@ test('readGridFromElectionDefinition', async () => {
                 O      O             O
     "
   `);
+});
+
+test('default adjudication reasons', async () => {
+  const hudsonBallotCardDefinition = await readFixtureBallotCardDefinition(
+    HudsonFixtureName
+  );
+  const electionDefinition = await withSvgDebugger(async (debug) => {
+    debug.imageData(0, 0, hudsonBallotCardDefinition.front);
+    return convertElectionDefinition(hudsonBallotCardDefinition, {
+      ovalTemplate: await templates.getOvalTemplate(),
+      debug,
+    }).unsafeUnwrap();
+  });
+  expect(electionDefinition.centralScanAdjudicationReasons).toEqual(
+    typedAs<AdjudicationReason[]>([
+      AdjudicationReason.UninterpretableBallot,
+      AdjudicationReason.Overvote,
+      AdjudicationReason.WriteIn,
+      AdjudicationReason.BlankBallot,
+    ])
+  );
+  expect(electionDefinition.precinctScanAdjudicationReasons).toEqual(
+    typedAs<AdjudicationReason[]>([
+      AdjudicationReason.UninterpretableBallot,
+      AdjudicationReason.Overvote,
+      AdjudicationReason.BlankBallot,
+    ])
+  );
 });

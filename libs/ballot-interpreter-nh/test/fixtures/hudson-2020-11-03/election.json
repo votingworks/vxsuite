@@ -13,6 +13,12 @@
       ]
     }
   ],
+  "centralScanAdjudicationReasons": [
+    "UninterpretableBallot",
+    "Overvote",
+    "WriteIn",
+    "BlankBallot"
+  ],
   "contests": [
     {
       "id": "President-and-Vice-President-of-the-United-States-18d1a55a",
@@ -1062,6 +1068,11 @@
       "fullName": "OC",
       "abbrev": "OC"
     }
+  ],
+  "precinctScanAdjudicationReasons": [
+    "UninterpretableBallot",
+    "Overvote",
+    "BlankBallot"
   ],
   "precincts": [
     {
