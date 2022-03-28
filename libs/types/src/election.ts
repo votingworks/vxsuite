@@ -9,9 +9,7 @@ import {
   IdSchema,
   Iso8601Date,
   NewType,
-  ok,
   Optional,
-  Result,
   safeParse,
   safeParseJson,
 } from './generic';
@@ -23,6 +21,7 @@ import {
   Size,
   SizeSchema,
 } from './geometry';
+import { ok, Result } from './result';
 
 // Generic
 export type Translations = Record<string, Record<string, string> | undefined>;
