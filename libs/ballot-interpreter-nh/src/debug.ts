@@ -2,9 +2,9 @@
 
 import { safeParseInt } from '@votingworks/types';
 import { assert } from '@votingworks/utils';
+import { DOMParser } from '@xmldom/xmldom';
 import { Canvas, createCanvas, createImageData } from 'canvas';
 import { writeFileSync } from 'fs';
-import { DOMParser } from 'xmldom';
 
 /**
  * Provides visual debugging for code dealing with image data.

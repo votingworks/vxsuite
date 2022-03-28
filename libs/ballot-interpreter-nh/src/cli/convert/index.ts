@@ -1,6 +1,6 @@
 import { err, ok, Result } from '@votingworks/types';
+import { DOMParser } from '@xmldom/xmldom';
 import { promises as fs } from 'fs';
-import { DOMParser } from 'xmldom';
 import { RealIo, Stdio } from '..';
 import {
   convertElectionDefinition,
