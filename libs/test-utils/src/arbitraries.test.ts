@@ -11,6 +11,7 @@ import { arbitraryDateTime } from '.';
 import {
   arbitraryCastVoteRecord,
   arbitraryCastVoteRecords,
+  arbitraryCandidateContest,
   arbitraryElection,
   arbitraryElectionDefinition,
   arbitraryId,
@@ -106,5 +107,23 @@ test('arbitraryCastVoteRecord(s) makes valid CVRs', () => {
         expect(cvr._testBallot).toBe(testBallot);
       }
     })
+  );
+});
+
+test('arbitraryCandidateContest allows specifying whether it allows write-ins', () => {
+  fc.assert(
+    fc.property(
+      fc.boolean().chain((allowWriteIns) =>
+        fc.tuple(
+          fc.constant(allowWriteIns),
+          arbitraryCandidateContest({
+            allowWriteIns: fc.constant(allowWriteIns),
+          })
+        )
+      ),
+      ([allowWriteIns, contest]) => {
+        expect(contest.allowWriteIns).toBe(allowWriteIns);
+      }
+    )
   );
 });

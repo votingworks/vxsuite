@@ -230,10 +230,12 @@ export function arbitraryCandidateContest({
   id = arbitraryContestId(),
   districtId = arbitraryDistrictId(),
   partyIds = fc.array(arbitraryPartyId(), { minLength: 1 }),
+  allowWriteIns = fc.boolean(),
 }: {
   id?: fc.Arbitrary<CandidateContest['id']>;
   districtId?: fc.Arbitrary<District['id']>;
   partyIds?: fc.Arbitrary<Array<Party['id']>>;
+  allowWriteIns?: fc.Arbitrary<boolean>;
 } = {}): fc.Arbitrary<CandidateContest> {
   return fc.record({
     type: fc.constant('candidate'),
@@ -241,7 +243,7 @@ export function arbitraryCandidateContest({
     title: fc.string({ minLength: 1 }),
     section: fc.string({ minLength: 1 }),
     districtId,
-    allowWriteIns: fc.boolean(),
+    allowWriteIns,
     seats: fc.integer({ min: 1, max: 5 }),
     candidates: fc
       .array(
