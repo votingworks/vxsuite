@@ -12,6 +12,7 @@ export * from './filenames';
 export * from './group_by';
 export * from './iterators';
 export * from './Hardware';
+export * from './hmpb';
 export * from './Printer';
 export * from './rotation';
 export * from './sleep';

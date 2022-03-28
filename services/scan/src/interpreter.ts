@@ -27,13 +27,13 @@ import {
   PageInterpretation,
   Result,
 } from '@votingworks/types';
+import {
+  adjudicationReasonDescription,
+  ballotAdjudicationReasons,
+} from '@votingworks/utils';
 import makeDebug from 'debug';
 import { getContestsFromIds } from './build_cast_vote_record';
 import { BallotPageQrcode, SheetOf } from './types';
-import {
-  ballotAdjudicationReasons,
-  adjudicationReasonDescription,
-} from './util/ballot_adjudication_reasons';
 import { loadImageData } from './util/images';
 import { optionMarkStatus } from './util/option_mark_status';
 import { time } from './util/perf';
@@ -386,8 +386,8 @@ export class Interpreter {
 
     const enabledReasons = this.adjudicationReasons;
 
-    const allReasonInfos: readonly AdjudicationReasonInfo[] = [
-      ...ballotAdjudicationReasons(
+    const allReasonInfos: readonly AdjudicationReasonInfo[] = Array.from(
+      ballotAdjudicationReasons(
         getContestsFromIds(
           this.electionDefinition.election,
           marks.map((m) => m.contestId)
@@ -402,8 +402,8 @@ export class Interpreter {
               optionId,
             }),
         }
-      ),
-    ];
+      )
+    );
 
     const enabledReasonInfos: AdjudicationReasonInfo[] = [];
     const ignoredReasonInfos: AdjudicationReasonInfo[] = [];

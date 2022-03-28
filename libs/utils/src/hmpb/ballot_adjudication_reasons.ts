@@ -3,11 +3,12 @@ import {
   AdjudicationReasonInfo,
   Contest,
   ContestOption,
+  ContestOptionId,
   Contests,
   MarkStatus,
 } from '@votingworks/types';
-import { assert, throwIllegalValue } from '@votingworks/utils';
 import { allContestOptions } from './all_contest_options';
+import { assert, throwIllegalValue } from '../assert';
 
 export interface Options {
   optionMarkStatus: (
@@ -84,6 +85,7 @@ export function* ballotAdjudicationReasons(
           case MarkStatus.Unmarked:
             break;
 
+          /* istanbul ignore next - compile-time completeness check */
           default:
             throwIllegalValue(status);
         }
@@ -102,6 +104,7 @@ export function* ballotAdjudicationReasons(
             expectedSelectionCount = 1;
             break;
 
+          /* istanbul ignore next - compile-time completeness check */
           default:
             throwIllegalValue(contest, 'type');
         }
@@ -134,6 +137,12 @@ export function* ballotAdjudicationReasons(
   }
 }
 
+function optionIdsAsSentence(optionIds: readonly ContestOptionId[]) {
+  return optionIds.length
+    ? `${optionIds.length}: ${optionIds.map((id) => `'${id}'`).join(', ')}`
+    : 'none';
+}
+
 export function adjudicationReasonDescription(
   reason: AdjudicationReasonInfo
 ): string {
@@ -147,24 +156,12 @@ export function adjudicationReasonDescription(
     case AdjudicationReason.Overvote:
       return `Contest '${reason.contestId}' is overvoted, expected ${
         reason.expected
-      } but got ${
-        reason.optionIds.length
-          ? `${reason.optionIds.length}: ${reason.optionIds
-              .map((id) => `'${id}'`)
-              .join(', ')}`
-          : 'none'
-      }.`;
+      } but got ${optionIdsAsSentence(reason.optionIds)}.`;
 
     case AdjudicationReason.Undervote:
       return `Contest '${reason.contestId}' is undervoted, expected ${
         reason.expected
-      } but got ${
-        reason.optionIds.length
-          ? `${reason.optionIds.length}: ${reason.optionIds
-              .map((id) => `'${id}'`)
-              .join(', ')}`
-          : 'none'
-      }.`;
+      } but got ${optionIdsAsSentence(reason.optionIds)}.`;
 
     case AdjudicationReason.WriteIn:
       return `Contest '${reason.contestId}' has a write-in.`;
@@ -175,6 +172,7 @@ export function adjudicationReasonDescription(
     case AdjudicationReason.BlankBallot:
       return `Ballot has no votes.`;
 
+    /* istanbul ignore next - compile-time completeness check */
     default:
       throwIllegalValue(reason);
   }

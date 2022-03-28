@@ -18,13 +18,17 @@ import {
   UninterpretedHmpbPage,
   VotesDict,
 } from '@votingworks/types';
-import { assert, find, throwIllegalValue } from '@votingworks/utils';
+import {
+  allContestOptions,
+  assert,
+  find,
+  throwIllegalValue,
+} from '@votingworks/utils';
 import { VX_MACHINE_ID } from './globals';
 import {
   PageInterpretationWithAdjudication as BuildCastVoteRecordInput,
   SheetOf,
 } from './types';
-import { allContestOptions } from './util/all_contest_options';
 import {
   describeValidationError,
   validateSheetInterpretation,

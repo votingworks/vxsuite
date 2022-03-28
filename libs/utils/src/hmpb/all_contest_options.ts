@@ -1,5 +1,5 @@
 import { AnyContest, ContestOption } from '@votingworks/types';
-import { throwIllegalValue } from '@votingworks/utils';
+import { throwIllegalValue } from '../assert';
 
 /**
  * Enumerates all contest options in the order they would appear on a HMPB.
@@ -8,6 +8,7 @@ export function* allContestOptions(
   contest: AnyContest,
   writeInOptionIds?: readonly string[]
 ): Generator<ContestOption> {
+  /* istanbul ignore else - compile-time completeness check */
   if (contest.type === 'candidate') {
     for (const [optionIndex, candidate] of contest.candidates.entries()) {
       yield {
@@ -80,14 +81,14 @@ export function* allContestOptions(
       id: 'yes',
       name: contest.firstOption.label,
       contestId: contest.pickOneContestId,
-      optionIndex: 0,
+      optionIndex: 2,
     };
     yield {
       type: 'ms-either-neither',
       id: 'no',
       name: contest.secondOption.label,
       contestId: contest.pickOneContestId,
-      optionIndex: 1,
+      optionIndex: 3,
     };
   } else {
     throwIllegalValue(contest, 'type');
