@@ -4,4 +4,3 @@
 .coverage
 .mypy_cache
 .venv
-Pipfile.lock
