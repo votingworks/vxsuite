@@ -170,6 +170,7 @@ export function DashboardScreen({
                 danger
                 onPress={confirmDeleteBatch}
                 disabled={isDeletingBatch}
+                autoFocus
               >
                 {isDeletingBatch ? 'Deleting…' : 'Yes, Delete Batch'}
               </Button>
