@@ -21,19 +21,19 @@ import {
   BallotType,
   ElectionDefinition,
   err,
+  getContestsFromIds,
   InterpretedBmdPage,
   MarkThresholds,
   ok,
   PageInterpretation,
   Result,
 } from '@votingworks/types';
-import makeDebug from 'debug';
-import { getContestsFromIds } from './build_cast_vote_record';
-import { BallotPageQrcode, SheetOf } from './types';
 import {
-  ballotAdjudicationReasons,
   adjudicationReasonDescription,
-} from './util/ballot_adjudication_reasons';
+  ballotAdjudicationReasons,
+} from '@votingworks/utils';
+import makeDebug from 'debug';
+import { BallotPageQrcode, SheetOf } from './types';
 import { loadImageData } from './util/images';
 import { optionMarkStatus } from './util/option_mark_status';
 import { time } from './util/perf';
@@ -386,24 +386,24 @@ export class Interpreter {
 
     const enabledReasons = this.adjudicationReasons;
 
-    const allReasonInfos: readonly AdjudicationReasonInfo[] = [
-      ...ballotAdjudicationReasons(
+    const allReasonInfos: readonly AdjudicationReasonInfo[] = Array.from(
+      ballotAdjudicationReasons(
         getContestsFromIds(
           this.electionDefinition.election,
           marks.map((m) => m.contestId)
         ),
         {
-          optionMarkStatus: (contestId, optionId) =>
+          optionMarkStatus: (option) =>
             optionMarkStatus({
               contests: this.electionDefinition.election.contests,
               markThresholds: this.markThresholds,
               marks,
-              contestId,
-              optionId,
+              contestId: option.contestId,
+              optionId: option.id,
             }),
         }
-      ),
-    ];
+      )
+    );
 
     const enabledReasonInfos: AdjudicationReasonInfo[] = [];
     const ignoredReasonInfos: AdjudicationReasonInfo[] = [];

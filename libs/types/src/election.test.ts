@@ -15,6 +15,7 @@ import {
 import {
   CandidateContest,
   expandEitherNeitherContests,
+  getContestsFromIds,
   getEitherNeitherContests,
   getElectionLocales,
   getPartyFullNameFromBallotStyle,
@@ -230,6 +231,22 @@ test('getPartyIdsInBallotStyles', () => {
   expect(getPartyIdsInBallotStyles(electionMinimalExhaustive)).toEqual(
     electionMinimalExhaustive.parties.map(({ id }) => id)
   );
+});
+
+test('getContestsFromIds', () => {
+  expect(getContestsFromIds(electionMinimalExhaustive, [])).toEqual([]);
+  expect(
+    getContestsFromIds(electionMinimalExhaustive, ['best-animal-mammal'])
+  ).toEqual([electionMinimalExhaustive.contests[0]]);
+  expect(
+    getContestsFromIds(electionMinimalExhaustive, [
+      'best-animal-mammal',
+      'best-animal-mammal',
+    ])
+  ).toEqual([electionMinimalExhaustive.contests[0]]);
+  expect(() =>
+    getContestsFromIds(electionMinimalExhaustive, ['not-a-contest-id'])
+  ).toThrowError('Contest not-a-contest-id not found');
 });
 
 test('isVotePresent', () => {

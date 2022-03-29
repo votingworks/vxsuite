@@ -8,7 +8,7 @@ import {
   BallotSheetInfo,
   BallotType,
 } from '@votingworks/types';
-import { sleep } from '@votingworks/utils';
+import { assert, sleep } from '@votingworks/utils';
 import * as fs from 'fs-extra';
 import { join } from 'path';
 import { dirSync } from 'tmp';
@@ -272,6 +272,7 @@ test('manually importing files', async () => {
         throw new Error(`unexpected image path: ${input.imagePath}`);
 
       case 'interpret':
+        assert(input.interpreter === 'vx');
         if (input.imagePath === frontImagePath) {
           return {
             interpretation: {
@@ -299,7 +300,7 @@ test('manually importing files', async () => {
     }
   });
 
-  const sheetId = await importer.importFile(
+  const sheetId = await importer.importSheet(
     workspace.store.addBatch(),
     frontImagePath,
     backImagePath
@@ -506,6 +507,7 @@ test('importing a sheet normalizes and orders HMPB pages', async () => {
         };
 
       case 'interpret':
+        assert(input.interpreter === 'vx');
         if (
           input.imagePath !== frontImagePath &&
           input.imagePath !== backImagePath
@@ -539,7 +541,7 @@ test('importing a sheet normalizes and orders HMPB pages', async () => {
     }
   });
 
-  await importer.importFile('batch-id', backImagePath, frontImagePath);
+  await importer.importSheet('batch-id', backImagePath, frontImagePath);
 
   expect(workspace.store.addSheet).toHaveBeenCalledWith(
     expect.any(String),
@@ -632,6 +634,7 @@ test('rejects pages that do not match the current precinct', async () => {
         };
 
       case 'interpret':
+        assert(input.interpreter === 'vx');
         if (
           input.imagePath !== frontImagePath &&
           input.imagePath !== backImagePath
@@ -665,7 +668,7 @@ test('rejects pages that do not match the current precinct', async () => {
     }
   });
 
-  await importer.importFile('batch-id', backImagePath, frontImagePath);
+  await importer.importSheet('batch-id', backImagePath, frontImagePath);
 
   expect(workspace.store.addSheet).toHaveBeenCalledWith(
     expect.any(String),
@@ -762,6 +765,7 @@ test('rejects sheets that would not produce a valid CVR', async () => {
         };
 
       case 'interpret':
+        assert(input.interpreter === 'vx');
         if (
           input.imagePath !== frontImagePath &&
           input.imagePath !== backImagePath
@@ -795,7 +799,7 @@ test('rejects sheets that would not produce a valid CVR', async () => {
     }
   });
 
-  await importer.importFile('batch-id', backImagePath, frontImagePath);
+  await importer.importSheet('batch-id', backImagePath, frontImagePath);
 
   expect(workspace.store.addSheet).toHaveBeenCalledWith(
     expect.any(String),

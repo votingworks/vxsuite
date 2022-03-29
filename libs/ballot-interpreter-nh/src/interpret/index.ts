@@ -1,7 +1,10 @@
 import {
+  AdjudicationReason,
   BallotType,
   ElectionDefinition,
   err,
+  getBallotStyle,
+  getContestsFromIds,
   HmpbBallotPageMetadata,
   InterpretedHmpbPage,
   MarkThresholds,
@@ -12,6 +15,7 @@ import {
 import { getScannedBallotCardGeometry } from '../accuvote';
 import * as templates from '../data/templates';
 import { readGrayscaleImage } from '../images';
+import { convertMarksToAdjudicationInfo } from './convert_marks_to_adjudication_info';
 import { convertMarksToMarkInfo } from './convert_marks_to_mark_info';
 import { convertMarksToVotes } from './convert_marks_to_votes';
 import { interpretOvalMarks } from './interpret_oval_marks';
@@ -21,8 +25,8 @@ import { interpretPageLayout } from './interpret_page_layout';
  * Default thresholds for interpreting marks on a ballot as votes.
  */
 export const DefaultMarkThresholds: MarkThresholds = {
-  definite: 0.05,
-  marginal: 0.03,
+  definite: 0.12,
+  marginal: 0.1,
 };
 
 /**
@@ -34,7 +38,11 @@ export async function interpret(
   {
     markThresholds = electionDefinition.election.markThresholds ??
       DefaultMarkThresholds,
-  }: { markThresholds?: MarkThresholds } = {}
+    adjudicationReasons = [],
+  }: {
+    markThresholds?: MarkThresholds;
+    adjudicationReasons?: readonly AdjudicationReason[];
+  } = {}
 ): Promise<
   Result<[PageInterpretationWithFiles, PageInterpretationWithFiles], Error>
 > {
@@ -86,6 +94,21 @@ export async function interpret(
   }
 
   const ballotStyleId = `card-number-${frontLayout.metadata.cardNumber}`;
+  const ballotStyle = getBallotStyle({
+    election: electionDefinition.election,
+    ballotStyleId,
+  });
+
+  if (!ballotStyle) {
+    return err(new Error(`no ballot style found for ${ballotStyleId}`));
+  }
+
+  const precinctId = ballotStyle.precincts[0];
+
+  if (!precinctId) {
+    return err(new Error('no precinct found for ballot style'));
+  }
+
   const gridLayout = electionDefinition.election.gridLayouts?.find(
     (layout) => layout.ballotStyleId === ballotStyleId
   );
@@ -122,7 +145,7 @@ export async function interpret(
     isTestMode: false,
     locales: { primary: 'unknown' },
     pageNumber: 1,
-    precinctId: '',
+    precinctId,
   };
   const backMetadata: HmpbBallotPageMetadata = {
     ...frontMetadata,
@@ -130,13 +153,15 @@ export async function interpret(
   };
   const frontInterpretation: InterpretedHmpbPage = {
     type: 'InterpretedHmpbPage',
-    // TODO: make this real
-    adjudicationInfo: {
-      requiresAdjudication: false,
-      enabledReasonInfos: [],
-      enabledReasons: [],
-      ignoredReasonInfos: [],
-    },
+    adjudicationInfo: convertMarksToAdjudicationInfo({
+      contests: getContestsFromIds(
+        electionDefinition.election,
+        frontMarks.map(({ gridPosition: { contestId } }) => contestId)
+      ),
+      enabledReasons: adjudicationReasons,
+      markThresholds,
+      ovalMarks: interpretedOvalMarks,
+    }),
     markInfo: convertMarksToMarkInfo(geometry, frontMarks),
     // FIXME: Much of this information is not available in the scanned ballot.
     // We may need a way to set some of this as state while scanning a batch.
@@ -149,13 +174,15 @@ export async function interpret(
   };
   const backInterpretation: InterpretedHmpbPage = {
     type: 'InterpretedHmpbPage',
-    // TODO: make this real
-    adjudicationInfo: {
-      requiresAdjudication: false,
-      enabledReasonInfos: [],
-      enabledReasons: [],
-      ignoredReasonInfos: [],
-    },
+    adjudicationInfo: convertMarksToAdjudicationInfo({
+      contests: getContestsFromIds(
+        electionDefinition.election,
+        backMarks.map(({ gridPosition: { contestId } }) => contestId)
+      ),
+      enabledReasons: adjudicationReasons,
+      markThresholds,
+      ovalMarks: interpretedOvalMarks,
+    }),
     markInfo: convertMarksToMarkInfo(geometry, backMarks),
     // FIXME: Much of this information is not available in the scanned ballot.
     // We may need a way to set some of this as state while scanning a batch.

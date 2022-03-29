@@ -12,19 +12,23 @@ import {
   Election,
   getBallotStyle,
   getContests,
+  getContestsFromIds,
   InterpretedBmdPage,
   InterpretedHmpbPage,
   MarkAdjudications,
   UninterpretedHmpbPage,
   VotesDict,
 } from '@votingworks/types';
-import { assert, find, throwIllegalValue } from '@votingworks/utils';
+import {
+  allContestOptions,
+  assert,
+  throwIllegalValue,
+} from '@votingworks/utils';
 import { VX_MACHINE_ID } from './globals';
 import {
   PageInterpretationWithAdjudication as BuildCastVoteRecordInput,
   SheetOf,
 } from './types';
-import { allContestOptions } from './util/all_contest_options';
 import {
   describeValidationError,
   validateSheetInterpretation,
@@ -185,15 +189,6 @@ export function buildCastVoteRecordVotesEntries(
   }
 
   return result;
-}
-
-export function getContestsFromIds(
-  election: Election,
-  contestIds: readonly string[]
-): Contests {
-  return Array.from(new Set(contestIds)).map((id) =>
-    find(election.contests, (c) => c.id === id)
-  );
 }
 
 export function getContestsForBallotStyle(

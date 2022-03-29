@@ -8,31 +8,45 @@ import {
   WriteInAdjudicationReasonInfo,
   YesNoContest,
 } from '@votingworks/types';
-import { typedAs } from '@votingworks/utils';
-import * as choctawMockGeneral2020 from '../../test/fixtures/choctaw-mock-general-election-2020';
+import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
 import {
   ballotAdjudicationReasons,
   adjudicationReasonDescription,
 } from './ballot_adjudication_reasons';
+import { typedAs } from '../types';
+import { assert } from '../assert';
 
-const president = choctawMockGeneral2020.election.contests.find(
-  ({ id }) => id === '775020876'
-) as CandidateContest;
-const senator = choctawMockGeneral2020.election.contests.find(
-  ({ id }) => id === '775020877'
-) as CandidateContest;
-const [presidentialCandidate1, presidentialCandidate2] = president.candidates;
+const bestAnimalMammal =
+  electionMinimalExhaustiveSampleDefinition.election.contests.find(
+    ({ id }) => id === 'best-animal-mammal'
+  ) as CandidateContest;
+const zooCouncilMammal =
+  electionMinimalExhaustiveSampleDefinition.election.contests.find(
+    ({ id }) => id === 'zoo-council-mammal'
+  ) as CandidateContest;
+const [bestAnimalMammalCandidate1, bestAnimalMammalCandidate2] =
+  bestAnimalMammal.candidates;
+assert(bestAnimalMammalCandidate1 && bestAnimalMammalCandidate2);
 const [
-  senatorialCandidate1,
-  senatorialCandidate2,
-  senatorialCandidate3,
-] = senator.candidates;
-const flagInitiative = choctawMockGeneral2020.election.contests.find(
-  ({ id }) => id === '750000018'
-) as YesNoContest;
-const eitherNeitherQuestion = choctawMockGeneral2020.election.contests.find(
-  ({ id }) => id === '750000015-750000016-either-neither'
-) as MsEitherNeitherContest;
+  zooCouncilMammalCandidate1,
+  zooCouncilMammalCandidate2,
+  zooCouncilMammalCandidate3,
+  zooCouncilMammalCandidate4,
+] = zooCouncilMammal.candidates;
+assert(
+  zooCouncilMammalCandidate1 &&
+    zooCouncilMammalCandidate2 &&
+    zooCouncilMammalCandidate3 &&
+    zooCouncilMammalCandidate4
+);
+const ballotMeasure3 =
+  electionMinimalExhaustiveSampleDefinition.election.contests.find(
+    ({ id }) => id === 'fishing'
+  ) as YesNoContest;
+const eitherNeitherQuestion =
+  electionMinimalExhaustiveSampleDefinition.election.contests.find(
+    ({ id }) => id === 'new-zoo-either-neither'
+  ) as MsEitherNeitherContest;
 
 test('an uninterpretable ballot', () => {
   expect([
@@ -44,14 +58,23 @@ test('an uninterpretable ballot', () => {
       { type: AdjudicationReason.UninterpretableBallot },
     ])
   );
+
+  expect(
+    adjudicationReasonDescription({
+      type: AdjudicationReason.UninterpretableBallot,
+    })
+  ).toEqual(
+    'The ballot could not be interpreted at all, possibly due to a bad scan.'
+  );
 });
 
 test('a ballot with no adjudication reasons', () => {
   expect([
-    ...ballotAdjudicationReasons([president], {
-      optionMarkStatus: (contestId, optionId) =>
+    ...ballotAdjudicationReasons([bestAnimalMammal], {
+      optionMarkStatus: (option) =>
         // mark the expected number of options
-        contestId === president.id && optionId === presidentialCandidate1.id
+        option.contestId === bestAnimalMammal.id &&
+        option.id === bestAnimalMammalCandidate1.id
           ? MarkStatus.Marked
           : MarkStatus.Unmarked,
     }),
@@ -60,15 +83,16 @@ test('a ballot with no adjudication reasons', () => {
 
 test('a ballot with marginal marks', () => {
   const reasons = [
-    ...ballotAdjudicationReasons([president], {
-      optionMarkStatus: (contestId, optionId) => {
-        if (contestId === president.id) {
-          // eslint-disable-next-line default-case
-          switch (optionId) {
-            case presidentialCandidate1.id:
+    ...ballotAdjudicationReasons([bestAnimalMammal], {
+      optionMarkStatus: (option) => {
+        if (option.contestId === bestAnimalMammal.id) {
+          switch (option.id) {
+            case bestAnimalMammalCandidate1.id:
               return MarkStatus.Marked;
-            case presidentialCandidate2.id:
+            case bestAnimalMammalCandidate2.id:
               return MarkStatus.Marginal;
+            default:
+              break;
           }
         }
 
@@ -81,8 +105,8 @@ test('a ballot with marginal marks', () => {
     typedAs<AdjudicationReasonInfo[]>([
       {
         type: AdjudicationReason.MarginalMark,
-        contestId: president.id,
-        optionId: presidentialCandidate2.id,
+        contestId: bestAnimalMammal.id,
+        optionId: bestAnimalMammalCandidate2.id,
         optionIndex: 1,
       },
     ])
@@ -90,14 +114,14 @@ test('a ballot with marginal marks', () => {
 
   expect(reasons.map(adjudicationReasonDescription)).toMatchInlineSnapshot(`
     Array [
-      "Contest '775020876' has a marginal mark for option '775031987'.",
+      "Contest 'best-animal-mammal' has a marginal mark for option 'otter'.",
     ]
   `);
 });
 
 test('a ballot with no marks', () => {
   const reasons = [
-    ...ballotAdjudicationReasons([president], {
+    ...ballotAdjudicationReasons([bestAnimalMammal], {
       optionMarkStatus: () => MarkStatus.Unmarked,
     }),
   ];
@@ -106,7 +130,7 @@ test('a ballot with no marks', () => {
     typedAs<AdjudicationReasonInfo[]>([
       {
         type: AdjudicationReason.Undervote,
-        contestId: president.id,
+        contestId: bestAnimalMammal.id,
         optionIds: [],
         optionIndexes: [],
         expected: 1,
@@ -119,7 +143,7 @@ test('a ballot with no marks', () => {
 
   expect(reasons.map(adjudicationReasonDescription)).toMatchInlineSnapshot(`
     Array [
-      "Contest '775020876' is undervoted, expected 1 but got none.",
+      "Contest 'best-animal-mammal' is undervoted, expected 1 but got none.",
       "Ballot has no votes.",
     ]
   `);
@@ -138,14 +162,15 @@ test('a ballot page with no contests', () => {
 
 test('a ballot with too many marks', () => {
   const reasons = [
-    ...ballotAdjudicationReasons([president], {
-      optionMarkStatus: (contestId, optionId) => {
-        if (contestId === president.id) {
-          // eslint-disable-next-line default-case
-          switch (optionId) {
-            case presidentialCandidate1.id:
-            case presidentialCandidate2.id:
+    ...ballotAdjudicationReasons([bestAnimalMammal], {
+      optionMarkStatus: (option) => {
+        if (option.contestId === bestAnimalMammal.id) {
+          switch (option.id) {
+            case bestAnimalMammalCandidate1.id:
+            case bestAnimalMammalCandidate2.id:
               return MarkStatus.Marked;
+            default:
+              break;
           }
         }
 
@@ -158,8 +183,11 @@ test('a ballot with too many marks', () => {
     typedAs<AdjudicationReasonInfo[]>([
       {
         type: AdjudicationReason.Overvote,
-        contestId: president.id,
-        optionIds: [presidentialCandidate1.id, presidentialCandidate2.id],
+        contestId: bestAnimalMammal.id,
+        optionIds: [
+          bestAnimalMammalCandidate1.id,
+          bestAnimalMammalCandidate2.id,
+        ],
         optionIndexes: [0, 1],
         expected: 1,
       },
@@ -168,20 +196,21 @@ test('a ballot with too many marks', () => {
 
   expect(reasons.map(adjudicationReasonDescription)).toMatchInlineSnapshot(`
     Array [
-      "Contest '775020876' is overvoted, expected 1 but got 2: '775031988', '775031987'.",
+      "Contest 'best-animal-mammal' is overvoted, expected 1 but got 2: 'horse', 'otter'.",
     ]
   `);
 });
 
 test('multiple contests with issues', () => {
   const reasons = [
-    ...ballotAdjudicationReasons([president, senator], {
-      optionMarkStatus: (contestId, optionId) =>
-        // first presidential candidate marginally marked
-        contestId === president.id && optionId === presidentialCandidate1.id
+    ...ballotAdjudicationReasons([bestAnimalMammal, zooCouncilMammal], {
+      optionMarkStatus: (option) =>
+        // first "best animal" candidate marginally marked
+        option.contestId === bestAnimalMammal.id &&
+        option.id === bestAnimalMammalCandidate1.id
           ? MarkStatus.Marginal
-          : // all senatorial options marked
-          contestId === senator.id
+          : // all "zoo council" options marked
+          option.contestId === zooCouncilMammal.id
           ? MarkStatus.Marked
           : // everything else unmarked
             MarkStatus.Unmarked,
@@ -192,51 +221,68 @@ test('multiple contests with issues', () => {
     typedAs<AdjudicationReasonInfo[]>([
       {
         type: AdjudicationReason.MarginalMark,
-        contestId: president.id,
-        optionId: presidentialCandidate1.id,
+        contestId: bestAnimalMammal.id,
+        optionId: bestAnimalMammalCandidate1.id,
         optionIndex: 0,
       },
       {
         type: AdjudicationReason.Undervote,
-        contestId: president.id,
+        contestId: bestAnimalMammal.id,
         optionIds: [],
         expected: 1,
         optionIndexes: [],
       },
       {
         type: AdjudicationReason.WriteIn,
-        contestId: senator.id,
+        contestId: zooCouncilMammal.id,
         optionId: '__write-in-0',
-        optionIndex: 3,
+        optionIndex: 4,
+      },
+      {
+        type: AdjudicationReason.WriteIn,
+        contestId: zooCouncilMammal.id,
+        optionId: '__write-in-1',
+        optionIndex: 5,
+      },
+      {
+        type: AdjudicationReason.WriteIn,
+        contestId: zooCouncilMammal.id,
+        optionId: '__write-in-2',
+        optionIndex: 6,
       },
       {
         type: AdjudicationReason.Overvote,
-        contestId: senator.id,
+        contestId: zooCouncilMammal.id,
         optionIds: [
-          senatorialCandidate1.id,
-          senatorialCandidate2.id,
-          senatorialCandidate3.id,
+          zooCouncilMammalCandidate1.id,
+          zooCouncilMammalCandidate2.id,
+          zooCouncilMammalCandidate3.id,
+          zooCouncilMammalCandidate4.id,
           '__write-in-0',
+          '__write-in-1',
+          '__write-in-2',
         ],
-        optionIndexes: [0, 1, 2, 3],
-        expected: 1,
+        optionIndexes: [0, 1, 2, 3, 4, 5, 6],
+        expected: 3,
       },
     ])
   );
 
   expect(reasons.map(adjudicationReasonDescription)).toMatchInlineSnapshot(`
     Array [
-      "Contest '775020876' has a marginal mark for option '775031988'.",
-      "Contest '775020876' is undervoted, expected 1 but got none.",
-      "Contest '775020877' has a write-in.",
-      "Contest '775020877' is overvoted, expected 1 but got 4: '775031985', '775031986', '775031990', '__write-in-0'.",
+      "Contest 'best-animal-mammal' has a marginal mark for option 'horse'.",
+      "Contest 'best-animal-mammal' is undervoted, expected 1 but got none.",
+      "Contest 'zoo-council-mammal' has a write-in.",
+      "Contest 'zoo-council-mammal' has a write-in.",
+      "Contest 'zoo-council-mammal' has a write-in.",
+      "Contest 'zoo-council-mammal' is overvoted, expected 3 but got 7: 'zebra', 'lion', 'kangaroo', 'elephant', '__write-in-0', '__write-in-1', '__write-in-2'.",
     ]
   `);
 });
 
 test('yesno contest overvotes', () => {
   const reasons = [
-    ...ballotAdjudicationReasons([flagInitiative], {
+    ...ballotAdjudicationReasons([ballotMeasure3], {
       optionMarkStatus: () => MarkStatus.Marked,
     }),
   ];
@@ -245,7 +291,7 @@ test('yesno contest overvotes', () => {
     typedAs<AdjudicationReasonInfo[]>([
       {
         type: AdjudicationReason.Overvote,
-        contestId: flagInitiative.id,
+        contestId: ballotMeasure3.id,
         optionIds: ['yes', 'no'],
         optionIndexes: [0, 1],
         expected: 1,
@@ -255,38 +301,36 @@ test('yesno contest overvotes', () => {
 
   expect(reasons.map(adjudicationReasonDescription)).toMatchInlineSnapshot(`
     Array [
-      "Contest '750000018' is overvoted, expected 1 but got 2: 'yes', 'no'.",
+      "Contest 'fishing' is overvoted, expected 1 but got 2: 'yes', 'no'.",
     ]
   `);
 });
 
 test('a ballot with just a write-in', () => {
   const reasons = [
-    ...ballotAdjudicationReasons([president], {
-      optionMarkStatus: (contestId, optionId) =>
-        contestId === president.id && optionId === '__write-in-0'
+    ...ballotAdjudicationReasons([zooCouncilMammal], {
+      optionMarkStatus: (option) =>
+        option.contestId === zooCouncilMammal.id && option.id === '__write-in-0'
           ? MarkStatus.Marked
           : MarkStatus.Unmarked,
     }),
   ];
 
-  expect(reasons).toEqual(
-    typedAs<WriteInAdjudicationReasonInfo[]>([
-      {
-        type: AdjudicationReason.WriteIn,
-        contestId: president.id,
-        optionId: '__write-in-0',
-        optionIndex: 3,
-      },
-    ])
+  expect(reasons).toContainEqual(
+    typedAs<WriteInAdjudicationReasonInfo>({
+      type: AdjudicationReason.WriteIn,
+      contestId: zooCouncilMammal.id,
+      optionId: '__write-in-0',
+      optionIndex: 4,
+    })
   );
 });
 
 test('a ballot with just an unmarked write-in', () => {
   const reasons = [
-    ...ballotAdjudicationReasons([president], {
-      optionMarkStatus: (contestId, optionId) =>
-        contestId === president.id && optionId === '__write-in-0'
+    ...ballotAdjudicationReasons([zooCouncilMammal], {
+      optionMarkStatus: (option) =>
+        option.contestId === zooCouncilMammal.id && option.id === '__write-in-0'
           ? MarkStatus.UnmarkedWriteIn
           : MarkStatus.Unmarked,
     }),
@@ -294,33 +338,33 @@ test('a ballot with just an unmarked write-in', () => {
 
   const expectedReason: UnmarkedWriteInAdjudicationReasonInfo = {
     type: AdjudicationReason.UnmarkedWriteIn,
-    contestId: president.id,
+    contestId: zooCouncilMammal.id,
     optionId: '__write-in-0',
-    optionIndex: 3,
+    optionIndex: 4,
   };
 
   expect(reasons).toContainEqual(expectedReason);
   expect(adjudicationReasonDescription(expectedReason)).toMatchInlineSnapshot(
-    `"Contest '775020876' has an unmarked write-in."`
+    `"Contest 'zoo-council-mammal' has an unmarked write-in."`
   );
 });
 
 test('a ballot with an ms-either-neither happy path', () => {
   const reasons = [
     ...ballotAdjudicationReasons([eitherNeitherQuestion], {
-      optionMarkStatus: (contestId, optionId) => {
+      optionMarkStatus: (option) => {
         // either
         if (
-          contestId === eitherNeitherQuestion.eitherNeitherContestId &&
-          optionId === 'yes'
+          option.contestId === eitherNeitherQuestion.eitherNeitherContestId &&
+          option.id === 'yes'
         ) {
           return MarkStatus.Marked;
         }
 
         // second
         if (
-          contestId === eitherNeitherQuestion.pickOneContestId &&
-          optionId === 'no'
+          option.contestId === eitherNeitherQuestion.pickOneContestId &&
+          option.id === 'no'
         ) {
           return MarkStatus.Marked;
         }
@@ -336,9 +380,9 @@ test('a ballot with an ms-either-neither happy path', () => {
 test('a ballot with an ms-either-neither either-neither overvote', () => {
   const reasons = [
     ...ballotAdjudicationReasons([eitherNeitherQuestion], {
-      optionMarkStatus: (contestId) =>
+      optionMarkStatus: (option) =>
         // neither & either
-        contestId === eitherNeitherQuestion.eitherNeitherContestId
+        option.contestId === eitherNeitherQuestion.eitherNeitherContestId
           ? MarkStatus.Marked
           : MarkStatus.Unmarked,
     }),
@@ -358,9 +402,9 @@ test('a ballot with an ms-either-neither either-neither overvote', () => {
 test('a ballot with an ms-either-neither pick-one overvote', () => {
   const reasons = [
     ...ballotAdjudicationReasons([eitherNeitherQuestion], {
-      optionMarkStatus: (contestId) =>
+      optionMarkStatus: (option) =>
         // first & second
-        contestId === eitherNeitherQuestion.pickOneContestId
+        option.contestId === eitherNeitherQuestion.pickOneContestId
           ? MarkStatus.Marked
           : MarkStatus.Unmarked,
     }),
@@ -371,7 +415,7 @@ test('a ballot with an ms-either-neither pick-one overvote', () => {
       type: AdjudicationReason.Overvote,
       contestId: eitherNeitherQuestion.pickOneContestId,
       optionIds: ['yes', 'no'],
-      optionIndexes: [0, 1],
+      optionIndexes: [2, 3],
       expected: 1,
     })
   );

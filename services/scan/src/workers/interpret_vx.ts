@@ -18,6 +18,7 @@ export type Input =
   | { action: 'configure'; dbPath: string }
   | {
       action: 'interpret';
+      interpreter: 'vx';
       sheetId: string;
       imagePath: string;
       ballotImagesPath: string;

@@ -1046,8 +1046,8 @@
     }
   ],
   "markThresholds": {
-    "marginal": 0.03,
-    "definite": 0.05
+    "marginal": 0.1,
+    "definite": 0.12
   },
   "parties": [
     {
