@@ -19,6 +19,10 @@ import {
 import * as templates from './data/templates';
 import { withSvgDebugger } from './debug';
 
+if (process.env.CI) {
+  jest.setTimeout(10_000);
+}
+
 test('converting a single ballot card definition', async () => {
   const hudsonBallotCardDefinition = await readFixtureBallotCardDefinition(
     HudsonFixtureName
