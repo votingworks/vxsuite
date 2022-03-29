@@ -32,18 +32,24 @@ export function convertMarksToAdjudicationInfo({
     ballotAdjudicationReasons(contests, {
       optionMarkStatus: (option) => {
         const contest = find(contests, (c) => c.id === option.contestId);
-        const mark = ovalMarks.find(
-          (m) =>
-            m.gridPosition.contestId === option.contestId &&
-            ((m.gridPosition.type === 'option' &&
-              m.gridPosition.optionId === option.id) ||
-              (m.gridPosition.type === 'write-in' &&
-                m.gridPosition.writeInIndex ===
-                  option.optionIndex -
-                    (contest.type === 'candidate'
-                      ? contest.candidates.length
-                      : 0)))
-        );
+        const mark = ovalMarks.find(({ gridPosition }) => {
+          if (gridPosition.contestId !== option.contestId) {
+            return false;
+          }
+
+          if (gridPosition.type === 'option') {
+            return gridPosition.optionId === option.id;
+          }
+
+          if (gridPosition.type === 'write-in') {
+            const expectedWriteInIndex =
+              option.optionIndex -
+              (contest.type === 'candidate' ? contest.candidates.length : 0);
+            return gridPosition.writeInIndex === expectedWriteInIndex;
+          }
+
+          return false;
+        });
         assert(mark, `mark for option ${option.id} not found`);
         return mark.score < markThresholds.marginal
           ? MarkStatus.Unmarked
