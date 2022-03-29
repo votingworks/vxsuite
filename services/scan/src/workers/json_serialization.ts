@@ -1,3 +1,6 @@
+import { err, isResult, ok } from '@votingworks/types';
+import { throwIllegalValue } from '@votingworks/utils';
+
 /* eslint-disable no-underscore-dangle */
 export type SerializedMessage =
   | string
@@ -9,7 +12,9 @@ export type SerializedMessage =
   | SerializedArray
   | SerializedObject
   | SerializedBuffer
-  | SerializedUint8Array;
+  | SerializedUint8Array
+  | SerializedResult
+  | SerializedError;
 
 export interface SerializedUndefined {
   __dataType__: 'undefined';
@@ -37,6 +42,18 @@ export interface SerializedBuffer {
 export interface SerializedUint8Array {
   __dataType__: 'Uint8Array';
   value: ArrayLike<number>;
+}
+
+export interface SerializedResult {
+  __dataType__: 'Result';
+  isOk: boolean;
+  value: SerializedMessage;
+}
+
+export interface SerializedError {
+  __dataType__: 'Error';
+  message: string;
+  stack?: string;
 }
 
 export function serialize(
@@ -72,6 +89,25 @@ export function serialize(
 
       if (data instanceof Uint8Array) {
         return { __dataType__: 'Uint8Array', value: [...data] };
+      }
+
+      if (data instanceof Error) {
+        return {
+          __dataType__: 'Error',
+          message: data.message,
+          stack: data.stack,
+        };
+      }
+
+      if (isResult(data)) {
+        return {
+          __dataType__: 'Result',
+          isOk: data.isOk(),
+          value: serialize(data.isOk() ? data.ok() : data.err(), [
+            ...keypath,
+            'value',
+          ]),
+        };
       }
 
       const toStringValue = Object.prototype.toString.call(data);
@@ -146,16 +182,26 @@ export function deserialize(
         case 'Uint8Array':
           return Uint8Array.from(data.value);
 
+        case 'Error': {
+          const error = new Error(data.message);
+          error.stack = data.stack;
+          return error;
+        }
+
+        case 'Result': {
+          const value = deserialize(data.value, [...keypath, 'value']);
+          return data.isOk ? ok(value) : err(value);
+        }
+
         case 'undefined':
           return undefined;
 
         default:
-          throw new Error(
-            `unknown serialized data type at key path ${keypath.join('.')}`
-          );
+          throwIllegalValue(data, '__dataType__');
       }
     }
 
+    // eslint-disable-next-line no-fallthrough
     default:
       throw new Error(
         `cannot deserialize ${typeof data} in message at key path '${keypath.join(
