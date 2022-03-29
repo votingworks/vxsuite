@@ -1,20 +1,21 @@
 import {
   AdjudicationReason,
   BallotMetadata,
+  BallotPageLayout,
+  BallotPageMetadata,
   BallotType,
   CandidateContest,
-  BallotPageMetadata,
-  BallotPageLayout,
+  PageInterpretationWithFiles,
   YesNoContest,
 } from '@votingworks/types';
 import { typedAs } from '@votingworks/utils';
+import * as streams from 'memory-streams';
 import * as tmp from 'tmp';
 import { v4 as uuid } from 'uuid';
-import * as streams from 'memory-streams';
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { zeroRect } from '../test/fixtures/zero_rect';
 import { Store } from './store';
-import { PageInterpretationWithFiles, SheetOf } from './types';
+import { SheetOf } from './types';
 
 test('get/set election', () => {
   const store = Store.memoryStore();

@@ -25,6 +25,7 @@ import {
   unsafeParse,
   BallotMetadataSchema,
   BallotPageLayoutSchema,
+  PageInterpretationWithFiles,
 } from '@votingworks/types';
 import {
   AdjudicationStatus,
@@ -44,7 +45,7 @@ import { z } from 'zod';
 import { buildCastVoteRecord } from './build_cast_vote_record';
 import { Bindable, DbClient } from './db_client';
 import { sheetRequiresAdjudication } from './interpreter';
-import { PageInterpretationWithFiles, SheetOf } from './types';
+import { SheetOf } from './types';
 import { normalizeAndJoin } from './util/path';
 
 const debug = makeDebug('scan:store');

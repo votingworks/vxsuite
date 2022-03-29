@@ -11,12 +11,6 @@ import { BallotStyleData } from '@votingworks/utils';
 
 export type SheetOf<T> = [T, T];
 
-export interface PageInterpretationWithFiles {
-  originalFilename: string;
-  normalizedFilename: string;
-  interpretation: PageInterpretation;
-}
-
 export interface PageInterpretationWithAdjudication<
   T extends PageInterpretation = PageInterpretation
 > {
