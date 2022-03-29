@@ -104,10 +104,19 @@ export function DashboardScreen({
         {batchCount ? (
           <React.Fragment>
             <p>
-              A total of{' '}
-              <strong>{pluralize('ballot', ballotCount, true)}</strong> have
-              been scanned in{' '}
-              <strong>{pluralize('batch', batchCount, true)}</strong>.
+              {ballotCount === 1 ? (
+                <React.Fragment>
+                  A total of <strong>1 ballot</strong> has been scanned in{' '}
+                  <strong>{pluralize('batch', batchCount, true)}</strong>.
+                </React.Fragment>
+              ) : (
+                <React.Fragment>
+                  A total of{' '}
+                  <strong>{pluralize('ballot', ballotCount, true)}</strong> have
+                  been scanned in{' '}
+                  <strong>{pluralize('batch', batchCount, true)}</strong>.
+                </React.Fragment>
+              )}
             </p>
             <Table>
               <thead>
