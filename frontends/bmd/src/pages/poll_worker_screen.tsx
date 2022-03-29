@@ -45,7 +45,7 @@ import {
 import { Prose } from '../components/prose';
 import { Screen } from '../components/screen';
 import { Text } from '../components/text';
-import { Sidebar } from '../components/sidebar';
+import { Sidebar, SidebarProps } from '../components/sidebar';
 import { ElectionInfo } from '../components/election_info';
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from '../config/globals';
 import { VersionsData } from '../components/versions_data';
@@ -142,7 +142,7 @@ export function PollWorkerScreen({
     setIsPrintingPrecinctScannerReport,
   ] = useState(false);
 
-  const [isDiagnosticsScreenOpen, setIsDiagnosticsScreenOpen] = useState(false);
+  const [isDiagnosticsScreenOpen, setIsDiagnosticsScreenOpen] = useState(true);
 
   const parties = useMemo(() => getPartyIdsInBallotStyles(election), [
     election,
@@ -339,211 +339,211 @@ export function PollWorkerScreen({
     );
   }
 
-  const pollworkerMainScreen = (
-    <React.Fragment>
-      <Main padded>
-        <MainChild>
-          {isMarkAndPrintMode && isPollsOpen && (
-            <React.Fragment>
-              <Prose>
-                <h1>Activate Voter Session</h1>
-              </Prose>
-              {appPrecinct.kind === PrecinctSelectionKind.AllPrecincts && (
-                <React.Fragment>
-                  <h3>Choose Precinct</h3>
-                  <ButtonList data-testid="precincts">
-                    {election.precincts.map((precinct) => (
-                      <Button
-                        fullWidth
-                        key={precinct.id}
-                        aria-label={`Activate Voter Session for Precinct ${precinct.name}`}
-                        onPress={() =>
-                          activateCardlessVoterSession(precinct.id)
-                        }
-                        primary={cardlessVoterSessionPrecinctId === precinct.id}
-                      >
-                        {precinct.name}
-                      </Button>
-                    ))}
-                  </ButtonList>
-                </React.Fragment>
-              )}
-              {cardlessVoterSessionPrecinctId && (
-                <React.Fragment>
-                  <h3>Choose Ballot Style</h3>
-                  <ButtonList data-testid="ballot-styles">
-                    {precinctBallotStyles.map((bs) => (
-                      <Button
-                        fullWidth
-                        key={bs.id}
-                        aria-label={`Activate Voter Session for Ballot Style ${bs.id}`}
-                        onPress={() =>
-                          activateCardlessVoterSession(
-                            cardlessVoterSessionPrecinctId,
-                            bs.id
-                          )
-                        }
-                      >
-                        {bs.id}
-                      </Button>
-                    ))}
-                  </ButtonList>
-                </React.Fragment>
-              )}
-            </React.Fragment>
-          )}
-          <Prose>
-            <h1>Open/Close Polls</h1>
-            <Text warningIcon={!isPollsOpen} voteIcon={isPollsOpen}>
-              {isPollsOpen
-                ? 'Polls are currently open.'
-                : 'Polls are currently closed.'}{' '}
-              {isLiveMode ? (
-                <React.Fragment>
-                  Machine is in Live&nbsp;Election&nbsp;Mode.
-                </React.Fragment>
-              ) : (
-                <React.Fragment>
-                  Machine is in Testing&nbsp;Mode.
-                </React.Fragment>
-              )}
-            </Text>
-            <p>
-              <Button primary large onPress={togglePollsOpen}>
-                {isPollsOpen
-                  ? `Close Polls for ${precinctName}`
-                  : `Open Polls for ${precinctName}`}
-              </Button>
-            </p>
+  const sidebarProps: SidebarProps = {
+    appName: machineConfig.appMode.productName,
+    centerContent: true,
+    title: 'Poll Worker Actions',
+    screenReaderInstructions:
+      'To navigate through the available actions, use the down arrow.',
+    footer: (
+      <React.Fragment>
+        <ElectionInfo
+          electionDefinition={electionDefinition}
+          precinctSelection={appPrecinct}
+          horizontal
+        />
+        <VersionsData
+          machineConfig={machineConfig}
+          electionHash={electionDefinition.electionHash}
+        />
+      </React.Fragment>
+    ),
+  };
 
-            <h1>Advanced</h1>
-            <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
-              System Diagnostics
-            </Button>
-            <p>
-              <Button onPress={reload}>Reset Accessible Controller</Button>
-            </p>
-          </Prose>
-        </MainChild>
-      </Main>
-      {isConfirmingEnableLiveMode && (
-        <Modal
-          centerContent
-          content={
-            <Prose textCenter id="modalaudiofocus">
-              {isPrintMode ? (
-                <h1>
-                  Switch to Live&nbsp;Election&nbsp;Mode and reset the tally of
-                  printed ballots?
-                </h1>
-              ) : (
-                <h1>Switch to Live&nbsp;Election&nbsp;Mode?</h1>
-              )}
-              <p>
-                Today is Election Day and this machine is in{' '}
-                <strong>Testing&nbsp;Mode.</strong>
-              </p>
-              <p>
-                <em>
-                  Note: Switching back to Testing&nbsp;Mode requires an
-                  Admin&nbsp;Card.
-                </em>
-              </p>
-            </Prose>
-          }
-          actions={
-            <React.Fragment>
-              <Button
-                primary
-                danger={isPrintMode}
-                onPress={confirmEnableLiveMode}
-              >
-                Switch to Live&nbsp;Mode
-              </Button>
-              <Button onPress={cancelEnableLiveMode}>Cancel</Button>
-            </React.Fragment>
-          }
-        />
-      )}
-      {isPrintingPrecinctScannerReport && (
-        <Modal
-          content={
-            <Prose textCenter id="modalaudiofocus">
-              <Loading>Printing tally report</Loading>
-            </Prose>
-          }
-        />
-      )}
-      {isConfirmingPrecinctScannerPrint && !precinctScannerTallyInformation && (
-        <Modal
-          ariaHideApp={false}
-          content={
-            <Prose textCenter id="modalaudiofocus">
-              <Loading />
-            </Prose>
-          }
-        />
-      )}
-      {isConfirmingPrecinctScannerPrint && precinctScannerTallyInformation && (
-        <Modal
-          content={
-            <Prose id="modalaudiofocus">
-              <h1>Tally Report on Card</h1>
-              <p>
-                This poll worker card contains a tally report. The report will
-                be cleared from the card after being printed.
-              </p>
-            </Prose>
-          }
-          actions={
-            <React.Fragment>
-              <Button primary onPress={requestPrintPrecinctScannerReport}>
-                Print Tally Report
-              </Button>
-            </React.Fragment>
-          }
-        />
-      )}
-    </React.Fragment>
-  );
+  if (isDiagnosticsScreenOpen) {
+    return (
+      <DiagnosticsScreen
+        hardware={hardware}
+        devices={devices}
+        onBackButtonPress={() => setIsDiagnosticsScreenOpen(false)}
+        sidebarProps={sidebarProps}
+      />
+    );
+  }
 
   return (
     <React.Fragment>
       <Screen flexDirection="row-reverse" voterMode={false}>
-        {isDiagnosticsScreenOpen ? (
-          <DiagnosticsScreen hardware={hardware} devices={devices} />
-        ) : (
-          pollworkerMainScreen
-        )}
-        <Sidebar
-          appName={machineConfig.appMode.productName}
-          centerContent
-          title="Poll Worker Actions"
-          screenReaderInstructions="To navigate through the available actions, use the down arrow."
-          footer={
-            <React.Fragment>
-              <ElectionInfo
-                electionDefinition={electionDefinition}
-                precinctSelection={appPrecinct}
-                horizontal
-              />
-              <VersionsData
-                machineConfig={machineConfig}
-                electionHash={electionDefinition.electionHash}
-              />
-            </React.Fragment>
-          }
-        >
-          <Prose>
-            {isDiagnosticsScreenOpen ? (
-              <Button onPress={() => setIsDiagnosticsScreenOpen(false)}>
-                Back
-              </Button>
-            ) : (
-              <Text center>Remove card when finished.</Text>
+        <Main padded>
+          <MainChild>
+            {isMarkAndPrintMode && isPollsOpen && (
+              <React.Fragment>
+                <Prose>
+                  <h1>Activate Voter Session</h1>
+                </Prose>
+                {appPrecinct.kind === PrecinctSelectionKind.AllPrecincts && (
+                  <React.Fragment>
+                    <h3>Choose Precinct</h3>
+                    <ButtonList data-testid="precincts">
+                      {election.precincts.map((precinct) => (
+                        <Button
+                          fullWidth
+                          key={precinct.id}
+                          aria-label={`Activate Voter Session for Precinct ${precinct.name}`}
+                          onPress={() =>
+                            activateCardlessVoterSession(precinct.id)
+                          }
+                          primary={
+                            cardlessVoterSessionPrecinctId === precinct.id
+                          }
+                        >
+                          {precinct.name}
+                        </Button>
+                      ))}
+                    </ButtonList>
+                  </React.Fragment>
+                )}
+                {cardlessVoterSessionPrecinctId && (
+                  <React.Fragment>
+                    <h3>Choose Ballot Style</h3>
+                    <ButtonList data-testid="ballot-styles">
+                      {precinctBallotStyles.map((bs) => (
+                        <Button
+                          fullWidth
+                          key={bs.id}
+                          aria-label={`Activate Voter Session for Ballot Style ${bs.id}`}
+                          onPress={() =>
+                            activateCardlessVoterSession(
+                              cardlessVoterSessionPrecinctId,
+                              bs.id
+                            )
+                          }
+                        >
+                          {bs.id}
+                        </Button>
+                      ))}
+                    </ButtonList>
+                  </React.Fragment>
+                )}
+              </React.Fragment>
             )}
+            <Prose>
+              <h1>Open/Close Polls</h1>
+              <Text warningIcon={!isPollsOpen} voteIcon={isPollsOpen}>
+                {isPollsOpen
+                  ? 'Polls are currently open.'
+                  : 'Polls are currently closed.'}{' '}
+                {isLiveMode ? (
+                  <React.Fragment>
+                    Machine is in Live&nbsp;Election&nbsp;Mode.
+                  </React.Fragment>
+                ) : (
+                  <React.Fragment>
+                    Machine is in Testing&nbsp;Mode.
+                  </React.Fragment>
+                )}
+              </Text>
+              <p>
+                <Button primary large onPress={togglePollsOpen}>
+                  {isPollsOpen
+                    ? `Close Polls for ${precinctName}`
+                    : `Open Polls for ${precinctName}`}
+                </Button>
+              </p>
+
+              <h1>Advanced</h1>
+              <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
+                System Diagnostics
+              </Button>
+              <p>
+                <Button onPress={reload}>Reset Accessible Controller</Button>
+              </p>
+            </Prose>
+          </MainChild>
+        </Main>
+        <Sidebar {...sidebarProps}>
+          <Prose>
+            <Text center>Remove card when finished.</Text>
           </Prose>
         </Sidebar>
+        {isConfirmingEnableLiveMode && (
+          <Modal
+            centerContent
+            content={
+              <Prose textCenter id="modalaudiofocus">
+                {isPrintMode ? (
+                  <h1>
+                    Switch to Live&nbsp;Election&nbsp;Mode and reset the tally
+                    of printed ballots?
+                  </h1>
+                ) : (
+                  <h1>Switch to Live&nbsp;Election&nbsp;Mode?</h1>
+                )}
+                <p>
+                  Today is Election Day and this machine is in{' '}
+                  <strong>Testing&nbsp;Mode.</strong>
+                </p>
+                <p>
+                  <em>
+                    Note: Switching back to Testing&nbsp;Mode requires an
+                    Admin&nbsp;Card.
+                  </em>
+                </p>
+              </Prose>
+            }
+            actions={
+              <React.Fragment>
+                <Button
+                  primary
+                  danger={isPrintMode}
+                  onPress={confirmEnableLiveMode}
+                >
+                  Switch to Live&nbsp;Mode
+                </Button>
+                <Button onPress={cancelEnableLiveMode}>Cancel</Button>
+              </React.Fragment>
+            }
+          />
+        )}
+        {isPrintingPrecinctScannerReport && (
+          <Modal
+            content={
+              <Prose textCenter id="modalaudiofocus">
+                <Loading>Printing tally report</Loading>
+              </Prose>
+            }
+          />
+        )}
+        {isConfirmingPrecinctScannerPrint && !precinctScannerTallyInformation && (
+          <Modal
+            ariaHideApp={false}
+            content={
+              <Prose textCenter id="modalaudiofocus">
+                <Loading />
+              </Prose>
+            }
+          />
+        )}
+        {isConfirmingPrecinctScannerPrint && precinctScannerTallyInformation && (
+          <Modal
+            content={
+              <Prose id="modalaudiofocus">
+                <h1>Tally Report on Card</h1>
+                <p>
+                  This poll worker card contains a tally report. The report will
+                  be cleared from the card after being printed.
+                </p>
+              </Prose>
+            }
+            actions={
+              <React.Fragment>
+                <Button primary onPress={requestPrintPrecinctScannerReport}>
+                  Print Tally Report
+                </Button>
+              </React.Fragment>
+            }
+          />
+        )}
       </Screen>
       {tallyOnCard &&
         precinctScannerTallyInformation &&

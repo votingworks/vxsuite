@@ -1,12 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   Button,
-  ButtonBar,
   ComputerStatus as ComputerStatusType,
   Devices,
+  LinkButton,
   Main,
   MainChild,
-  Modal,
   Prose,
   Text,
   useCancelablePromise,
@@ -15,6 +14,13 @@ import { Optional } from '@votingworks/types';
 import assert from 'assert';
 import { formatTime, Hardware } from '@votingworks/utils';
 import { DateTime } from 'luxon';
+import { useHistory, Switch, Route } from 'react-router-dom';
+import {
+  AccessibleControllerDiagnosticResults,
+  AccessibleControllerTest,
+} from './accessible_controller_test_screen';
+import { Screen } from '../components/screen';
+import { Sidebar, SidebarProps } from '../components/sidebar';
 
 interface ComputerStatusProps {
   computer: ComputerStatusType;
@@ -203,65 +209,15 @@ function PrinterStatus({ hardware }: PrinterStatusProps) {
   );
 }
 
-type AccessibleControllerDiagnosticResults =
-  | {
-      passed: true;
-      completedAt: DateTime;
-    }
-  | {
-      passed: false;
-      completedAt: DateTime;
-      message: string;
-    };
-
-interface AccessibleControllerTestProps {
-  onComplete: (results: AccessibleControllerDiagnosticResults) => void;
-  onCancel: () => void;
-}
-
-function AccessibleControllerTest({
-  onComplete,
-  onCancel,
-}: AccessibleControllerTestProps) {
-  return (
-    <div>
-      <h2>Accessible Controller Test</h2>
-      <ul>
-        <li>
-          <Text>Press the up button</Text>
-        </li>
-      </ul>
-      <ButtonBar>
-        <Button onPress={onCancel}>Cancel</Button>
-        <Button
-          onPress={() =>
-            onComplete({
-              passed: true,
-              completedAt: DateTime.now(),
-            })
-          }
-        >
-          Next
-        </Button>
-      </ButtonBar>
-    </div>
-  );
-}
-
 interface AccessibleControllerStatusProps {
   accessibleController?: KioskBrowser.Device;
+  diagnosticResults?: AccessibleControllerDiagnosticResults;
 }
 
 function AccessibleControllerStatus({
   accessibleController,
+  diagnosticResults,
 }: AccessibleControllerStatusProps) {
-  // TODO hoist so this state persists
-  const [
-    diagnosticResults,
-    setDiagnosticResults,
-  ] = useState<AccessibleControllerDiagnosticResults>();
-  const [isDiagnosticModalOpen, setIsDiagnosticModalOpen] = useState(false);
-
   if (!accessibleController) {
     return <Text warningIcon>No accessible controller connected.</Text>;
   }
@@ -276,29 +232,15 @@ function AccessibleControllerStatus({
           <Text warningIcon>Test failed: {diagnosticResults.message}</Text>
         ))}
       <div style={{ display: 'flex', alignItems: 'baseline' }}>
-        <Button onPress={() => setIsDiagnosticModalOpen(true)}>
+        <LinkButton to="/accessible-controller">
           Start Accessible Controller Test
-        </Button>
+        </LinkButton>
         {diagnosticResults && (
           <Text small>
             Last tested at {formatTime(diagnosticResults.completedAt)}
           </Text>
         )}
       </div>
-      {isDiagnosticModalOpen && (
-        <Modal
-          onOverlayClick={() => setIsDiagnosticModalOpen(false)}
-          content={
-            <AccessibleControllerTest
-              onComplete={(results) => {
-                setDiagnosticResults(results);
-                setIsDiagnosticModalOpen(false);
-              }}
-              onCancel={() => setIsDiagnosticModalOpen(false)}
-            />
-          }
-        />
-      )}
     </React.Fragment>
   );
 }
@@ -306,11 +248,15 @@ function AccessibleControllerStatus({
 interface DiagnosticsScreenProps {
   hardware: Hardware;
   devices: Devices;
+  onBackButtonPress: () => void;
+  sidebarProps: SidebarProps;
 }
 
 export function DiagnosticsScreen({
   hardware,
   devices,
+  onBackButtonPress,
+  sidebarProps,
 }: DiagnosticsScreenProps): JSX.Element {
   // Since we show full-screen alerts for specific hardware states, there are
   // certain cases that we will never see in this screen
@@ -319,27 +265,55 @@ export function DiagnosticsScreen({
     !(devices.computer.batteryIsLow && !devices.computer.batteryIsCharging)
   );
 
+  // TODO hoist so this state persists
+  const [
+    accessibleControllerDiagnosticResults,
+    setAccessibleControllerDiagnosticResults,
+  ] = useState<AccessibleControllerDiagnosticResults>();
+  const history = useHistory();
+
   return (
-    <Main padded>
-      <MainChild>
-        <Prose compact>
-          <h1>System Diagnostics</h1>
-          <section>
-            <h2>Computer</h2>
-            <ComputerStatus computer={devices.computer} />
-          </section>
-          <section>
-            <h2>Printer</h2>
-            <PrinterStatus hardware={hardware} />
-          </section>
-          <section>
-            <h2>Accessible Controller</h2>
-            <AccessibleControllerStatus
-              accessibleController={devices.accessibleController}
-            />
-          </section>
-        </Prose>
-      </MainChild>
-    </Main>
+    <Switch>
+      <Route path="/" exact>
+        <Screen flexDirection="row-reverse" voterMode={false}>
+          <Main padded>
+            <MainChild>
+              <Prose compact>
+                <h1>System Diagnostics</h1>
+                <section>
+                  <h2>Computer</h2>
+                  <ComputerStatus computer={devices.computer} />
+                </section>
+                <section>
+                  <h2>Printer</h2>
+                  <PrinterStatus hardware={hardware} />
+                </section>
+                <section>
+                  <h2>Accessible Controller</h2>
+                  <AccessibleControllerStatus
+                    accessibleController={devices.accessibleController}
+                    diagnosticResults={accessibleControllerDiagnosticResults}
+                  />
+                </section>
+              </Prose>
+            </MainChild>
+          </Main>
+          <Sidebar {...sidebarProps}>
+            <Prose>
+              <Button onPress={onBackButtonPress}>Back</Button>
+            </Prose>
+          </Sidebar>
+        </Screen>
+      </Route>
+      <Route path="/accessible-controller">
+        <AccessibleControllerTest
+          onComplete={(results) => {
+            setAccessibleControllerDiagnosticResults(results);
+            history.push('/');
+          }}
+          onCancel={() => history.push('/')}
+        />
+      </Route>
+    </Switch>
   );
 }

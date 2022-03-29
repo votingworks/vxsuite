@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Prose } from './prose';
 import { Text } from './text';
 
-interface Props {
+export interface SidebarProps {
   appName?: string;
   centerContent?: boolean;
   children?: React.ReactNode;
@@ -23,7 +23,7 @@ const Header = styled.div`
   margin: 2rem 1rem 1rem;
 `;
 
-const Content = styled.div<Props>`
+const Content = styled.div<SidebarProps>`
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -46,7 +46,7 @@ export function Sidebar({
   children,
   title,
   screenReaderInstructions,
-}: Props): JSX.Element {
+}: SidebarProps): JSX.Element {
   return (
     <StyledSidebar>
       {title && (
