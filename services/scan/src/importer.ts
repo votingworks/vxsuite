@@ -4,9 +4,13 @@ import {
   BallotPageLayout,
   BallotPageLayoutWithImage,
   ElectionDefinition,
+  err,
   MarkAdjudications,
   MarkThresholds,
+  ok,
   PageInterpretation,
+  PageInterpretationWithFiles,
+  Result,
 } from '@votingworks/types';
 import {
   ScannerStatus,
@@ -30,7 +34,8 @@ import {
   validateSheetInterpretation,
 } from './validation';
 import * as workers from './workers/combined';
-import { InterpretOutput } from './workers/interpret';
+import * as interpretNhWorker from './workers/interpret_nh';
+import * as interpretVxWorker from './workers/interpret_vx';
 import { inlinePool, WorkerPool } from './workers/pool';
 import * as qrcodeWorker from './workers/qrcode';
 
@@ -216,7 +221,7 @@ export class Importer {
     const start = Date.now();
     try {
       debug('sheetAdded %o batchId=%s STARTING', paths, batchId);
-      return await this.importFile(batchId, paths[0], paths[1]);
+      return await this.importSheet(batchId, paths[0], paths[1]);
     } finally {
       const end = Date.now();
       debug(
@@ -228,7 +233,7 @@ export class Importer {
     }
   }
 
-  async importFile(
+  async importSheet(
     batchId: string,
     frontImagePath: string,
     backImagePath: string
@@ -239,8 +244,139 @@ export class Importer {
       throw new Error('missing election definition');
     }
     const currentPrecinctId = this.workspace.store.getCurrentPrecinctId();
+    const interpretResult = await this.interpretSheet(sheetId, [
+      frontImagePath,
+      backImagePath,
+    ]);
 
+    if (interpretResult.isErr()) {
+      throw interpretResult.err();
+    }
+
+    const [
+      {
+        originalFilename: frontOriginalFilename,
+        normalizedFilename: frontNormalizedFilename,
+      },
+      {
+        originalFilename: backOriginalFilename,
+        normalizedFilename: backNormalizedFilename,
+      },
+    ] = interpretResult.ok();
+    let [
+      { interpretation: frontInterpretation },
+      { interpretation: backInterpretation },
+    ] = interpretResult.ok();
+
+    debug(
+      'interpreted %s (%s): %O',
+      frontImagePath,
+      frontInterpretation.type,
+      frontInterpretation
+    );
+    debug(
+      'interpreted %s (%s): %O',
+      backImagePath,
+      backInterpretation.type,
+      backInterpretation
+    );
+
+    debug('currentPrecinctId=%s', currentPrecinctId);
+    if (currentPrecinctId) {
+      if (
+        (frontInterpretation.type === 'InterpretedHmpbPage' ||
+          frontInterpretation.type === 'InterpretedBmdPage') &&
+        frontInterpretation.metadata.precinctId !== currentPrecinctId
+      ) {
+        debug(
+          'rejecting front page %s because it does not match the current precinct id: %s',
+          frontImagePath,
+          currentPrecinctId
+        );
+        frontInterpretation = {
+          type: 'InvalidPrecinctPage',
+          metadata: frontInterpretation.metadata,
+        };
+      }
+      if (
+        (backInterpretation.type === 'InterpretedHmpbPage' ||
+          backInterpretation.type === 'InterpretedBmdPage') &&
+        backInterpretation.metadata.precinctId !== currentPrecinctId
+      ) {
+        debug(
+          'rejecting back page %s because it does not match the current precinct id: %s',
+          frontImagePath,
+          currentPrecinctId
+        );
+        backInterpretation = {
+          type: 'InvalidPrecinctPage',
+          metadata: backInterpretation.metadata,
+        };
+      }
+    }
+
+    const validationResult = validateSheetInterpretation([
+      frontInterpretation,
+      backInterpretation,
+    ]);
+    if (validationResult.isErr()) {
+      const error = validationResult.err();
+      const errDescription = describeValidationError(error);
+      debug(
+        'rejecting sheet because it would not produce a valid CVR: error=%s: %o',
+        errDescription,
+        error
+      );
+      // replaces interpretation with something that cannot be accepted
+      frontInterpretation = {
+        type: 'UnreadablePage',
+        reason: `invalid CVR: ${errDescription}`,
+      };
+      backInterpretation = {
+        type: 'UnreadablePage',
+        reason: `invalid CVR: ${errDescription}`,
+      };
+    }
+
+    sheetId = await this.addSheet(
+      batchId,
+      frontOriginalFilename,
+      frontNormalizedFilename,
+      frontInterpretation,
+      backOriginalFilename,
+      backNormalizedFilename,
+      backInterpretation
+    );
+
+    return sheetId;
+  }
+
+  private async interpretSheet(
+    sheetId: string,
+    [frontImagePath, backImagePath]: SheetOf<string>
+  ): Promise<Result<SheetOf<PageInterpretationWithFiles>, Error>> {
     const workerPool = await this.getWorkerPool();
+    const electionDefinition = this.workspace.store.getElectionDefinition();
+
+    if (!electionDefinition) {
+      return err(new Error('missing election definition'));
+    }
+
+    // Carve-out for NH ballots, which are the only ones that use `gridLayouts`
+    // for now.
+    if (electionDefinition.election.gridLayouts) {
+      const nhInterpretPromise = workerPool.call({
+        action: 'interpret',
+        interpreter: 'nh',
+        frontImagePath,
+        backImagePath,
+        sheetId,
+        ballotImagesPath: this.workspace.ballotImagesPath,
+      });
+
+      return (await nhInterpretPromise) as interpretNhWorker.InterpretOutput;
+    }
+
     const frontDetectQrcodePromise = workerPool.call({
       action: 'detect-qrcode',
       imagePath: frontImagePath,
@@ -258,6 +394,7 @@ export class Importer {
     ]);
     const frontInterpretPromise = workerPool.call({
       action: 'interpret',
+      interpreter: 'vx',
       imagePath: frontImagePath,
       sheetId,
       ballotImagesPath: this.workspace.ballotImagesPath,
@@ -265,104 +402,17 @@ export class Importer {
     });
     const backInterpretPromise = workerPool.call({
       action: 'interpret',
+      interpreter: 'vx',
       imagePath: backImagePath,
       sheetId,
       ballotImagesPath: this.workspace.ballotImagesPath,
       detectQrcodeResult: backDetectQrcodeOutput,
     });
 
-    let frontWorkerOutput = (await frontInterpretPromise) as InterpretOutput;
-    let backWorkerOutput = (await backInterpretPromise) as InterpretOutput;
-
-    debug(
-      'interpreted %s (%s): %O',
-      frontImagePath,
-      frontWorkerOutput.interpretation.type,
-      frontWorkerOutput.interpretation
-    );
-    debug(
-      'interpreted %s (%s): %O',
-      backImagePath,
-      backWorkerOutput.interpretation.type,
-      backWorkerOutput.interpretation
-    );
-
-    debug('currentPrecinctId=%s', currentPrecinctId);
-    if (currentPrecinctId) {
-      if (
-        (frontWorkerOutput.interpretation.type === 'InterpretedHmpbPage' ||
-          frontWorkerOutput.interpretation.type === 'InterpretedBmdPage') &&
-        frontWorkerOutput.interpretation.metadata.precinctId !==
-          currentPrecinctId
-      ) {
-        debug(
-          'rejecting front page %s because it does not match the current precinct id: %s',
-          frontImagePath,
-          currentPrecinctId
-        );
-        frontWorkerOutput = {
-          ...frontWorkerOutput,
-          interpretation: {
-            type: 'InvalidPrecinctPage',
-            metadata: frontWorkerOutput.interpretation.metadata,
-          },
-        };
-      }
-      if (
-        (backWorkerOutput.interpretation.type === 'InterpretedHmpbPage' ||
-          backWorkerOutput.interpretation.type === 'InterpretedBmdPage') &&
-        backWorkerOutput.interpretation.metadata.precinctId !==
-          currentPrecinctId
-      ) {
-        debug(
-          'rejecting back page %s because it does not match the current precinct id: %s',
-          frontImagePath,
-          currentPrecinctId
-        );
-        backWorkerOutput = {
-          ...backWorkerOutput,
-          interpretation: {
-            type: 'InvalidPrecinctPage',
-            metadata: backWorkerOutput.interpretation.metadata,
-          },
-        };
-      }
-    }
-
-    const validationResult = validateSheetInterpretation([
-      frontWorkerOutput.interpretation,
-      backWorkerOutput.interpretation,
+    return ok([
+      (await frontInterpretPromise) as interpretVxWorker.InterpretOutput,
+      (await backInterpretPromise) as interpretVxWorker.InterpretOutput,
     ]);
-    if (validationResult.isErr()) {
-      const err = validationResult.err();
-      const errDescription = describeValidationError(err);
-      debug(
-        'rejecting sheet because it would not produce a valid CVR: error=%s: %o',
-        errDescription,
-        err
-      );
-      // replaces interpretation with something that cannot be accepted
-      frontWorkerOutput.interpretation = {
-        type: 'UnreadablePage',
-        reason: `invalid CVR: ${errDescription}`,
-      };
-      backWorkerOutput.interpretation = {
-        type: 'UnreadablePage',
-        reason: `invalid CVR: ${errDescription}`,
-      };
-    }
-
-    sheetId = await this.addSheet(
-      batchId,
-      frontWorkerOutput.originalFilename,
-      frontWorkerOutput.normalizedFilename,
-      frontWorkerOutput.interpretation,
-      backWorkerOutput.originalFilename,
-      backWorkerOutput.normalizedFilename,
-      backWorkerOutput.interpretation
-    );
-
-    return sheetId;
   }
 
   /**
@@ -550,9 +600,9 @@ export class Importer {
     }
 
     if (this.sheetGenerator && this.batchId) {
-      this.scanOneSheet().catch((err) => {
-        debug('processing sheet failed with error: %s', err.stack);
-        void this.finishBatch(err.toString());
+      this.scanOneSheet().catch((error) => {
+        debug('processing sheet failed with error: %s', error.stack);
+        void this.finishBatch(error.toString());
       });
     } else {
       throw new Error('no scanning job in progress');

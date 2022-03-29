@@ -21,6 +21,7 @@ import {
   BallotType,
   ElectionDefinition,
   err,
+  getContestsFromIds,
   InterpretedBmdPage,
   MarkThresholds,
   ok,
@@ -32,7 +33,6 @@ import {
   ballotAdjudicationReasons,
 } from '@votingworks/utils';
 import makeDebug from 'debug';
-import { getContestsFromIds } from './build_cast_vote_record';
 import { BallotPageQrcode, SheetOf } from './types';
 import { loadImageData } from './util/images';
 import { optionMarkStatus } from './util/option_mark_status';

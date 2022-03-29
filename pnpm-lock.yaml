@@ -2087,6 +2087,7 @@ importers:
   services/scan:
     dependencies:
       '@votingworks/ballot-encoder': link:../../libs/ballot-encoder
+      '@votingworks/ballot-interpreter-nh': link:../../libs/ballot-interpreter-nh
       '@votingworks/ballot-interpreter-vx': link:../../libs/ballot-interpreter-vx
       '@votingworks/fixtures': link:../../libs/fixtures
       '@votingworks/logging': link:../../libs/logging
@@ -2180,6 +2181,7 @@ importers:
       '@typescript-eslint/eslint-plugin': ^4.28.4
       '@typescript-eslint/parser': ^4.28.4
       '@votingworks/ballot-encoder': workspace:*
+      '@votingworks/ballot-interpreter-nh': workspace:*
       '@votingworks/ballot-interpreter-vx': workspace:*
       '@votingworks/fixtures': workspace:*
       '@votingworks/logging': workspace:*

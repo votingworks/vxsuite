@@ -12,6 +12,7 @@ import {
   Election,
   getBallotStyle,
   getContests,
+  getContestsFromIds,
   InterpretedBmdPage,
   InterpretedHmpbPage,
   MarkAdjudications,
@@ -21,7 +22,6 @@ import {
 import {
   allContestOptions,
   assert,
-  find,
   throwIllegalValue,
 } from '@votingworks/utils';
 import { VX_MACHINE_ID } from './globals';
@@ -189,15 +189,6 @@ export function buildCastVoteRecordVotesEntries(
   }
 
   return result;
-}
-
-export function getContestsFromIds(
-  election: Election,
-  contestIds: readonly string[]
-): Contests {
-  return Array.from(new Set(contestIds)).map((id) =>
-    find(election.contests, (c) => c.id === id)
-  );
 }
 
 export function getContestsForBallotStyle(

@@ -340,19 +340,19 @@ export function BallotEjectScreen({
             adjudicationReason.type === AdjudicationReason.WriteIn ||
             adjudicationReason.type === AdjudicationReason.UnmarkedWriteIn
           ) {
-            assert(reviewPageInfo.layout);
-            assert(reviewPageInfo.contestIds);
-            return (
-              <WriteInAdjudicationScreen
-                sheetId={reviewInfo.interpreted.id}
-                side={reviewPageInfo.side}
-                imageUrl={reviewPageInfo.imageUrl}
-                interpretation={reviewPageInfo.interpretation}
-                layout={reviewPageInfo.layout}
-                contestIds={reviewPageInfo.contestIds}
-                onAdjudicationComplete={onAdjudicationComplete}
-              />
-            );
+            if (reviewPageInfo.layout && reviewPageInfo.contestIds) {
+              return (
+                <WriteInAdjudicationScreen
+                  sheetId={reviewInfo.interpreted.id}
+                  side={reviewPageInfo.side}
+                  imageUrl={reviewPageInfo.imageUrl}
+                  interpretation={reviewPageInfo.interpretation}
+                  layout={reviewPageInfo.layout}
+                  contestIds={reviewPageInfo.contestIds}
+                  onAdjudicationComplete={onAdjudicationComplete}
+                />
+              );
+            }
           } else if (
             adjudicationReason.type === AdjudicationReason.BlankBallot
           ) {

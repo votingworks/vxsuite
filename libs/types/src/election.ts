@@ -1483,6 +1483,23 @@ export function findContest({
 }
 
 /**
+ * Gets all contests whose IDs are in the given array. Does not special-case Ms
+ * Either/Neither contests.
+ */
+export function getContestsFromIds(
+  election: Election,
+  contestIds: readonly ContestId[]
+): Contests {
+  return Array.from(new Set(contestIds)).map((id) => {
+    const contest = election.contests.find((c) => c.id === id);
+    if (!contest) {
+      throw new Error(`Contest ${id} not found`);
+    }
+    return contest;
+  });
+}
+
+/**
  * Validates the votes for a given ballot style in a given election.
  *
  * @throws When an inconsistency is found.

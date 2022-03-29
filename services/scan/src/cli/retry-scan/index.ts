@@ -5,7 +5,7 @@ import { isAbsolute, join, resolve } from 'path';
 import { dirSync } from 'tmp';
 import { createWorkspace } from '../../util/workspace';
 import * as workers from '../../workers/combined';
-import { InterpretOutput } from '../../workers/interpret';
+import { InterpretOutput } from '../../workers/interpret_vx';
 import { childProcessPool, WorkerPool } from '../../workers/pool';
 import * as qrcodeWorker from '../../workers/qrcode';
 import { Options } from './options';
@@ -197,6 +197,7 @@ export async function retryScan(
               : resolve(input.store.getDbPath(), '..', scan.originalFilename);
             const rescan = (await pool.call({
               action: 'interpret',
+              interpreter: 'vx',
               sheetId: id,
               imagePath,
               detectQrcodeResult: qrcode,
