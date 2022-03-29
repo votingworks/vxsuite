@@ -9,6 +9,7 @@ export * from './geometry';
 export * from './image';
 export * from './numeric';
 export * from './precinct_selection';
+export * from './result';
 export * from './tallies';
 export * from './user_session';
 export * from './voting_method';

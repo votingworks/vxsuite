@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { Result, safeParse } from './generic';
+import { safeParse } from './generic';
+import { Result } from './result';
 
 export interface SafeParseNumberOptions {
   min?: number;
