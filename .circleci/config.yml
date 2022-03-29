@@ -79,7 +79,7 @@ jobs:
       - run:
           name: Test
           command: |
-                  pnpm --dir frontends/bmd test:e2e
+            pnpm --dir frontends/bmd test:e2e
 
   test-frontends-bsd:
     executor: nodejs-browsers
@@ -137,7 +137,7 @@ jobs:
 
   test-integration-testing-bsd:
     docker:
-      - image: circleci/python:3.7.7-node-browsers
+      - image: circleci/python:3.8.2-node-browsers
     resource_class: xlarge
     steps:
       - checkout-and-install
@@ -156,7 +156,7 @@ jobs:
 
   test-integration-testing-election-manager:
     docker:
-      - image: circleci/python:3.7.7-node-browsers
+      - image: circleci/python:3.8.2-node-browsers
     resource_class: xlarge
     steps:
       - checkout-and-install
@@ -445,7 +445,7 @@ jobs:
 
   test-services-converter-ms-sems:
     docker:
-      - image: circleci/python:3.9.2
+      - image: circleci/python:3.8.2
     steps:
       - checkout
       - run:
@@ -483,7 +483,7 @@ jobs:
 
   test-services-smartcards:
     docker:
-      - image: circleci/python:3.9.2
+      - image: circleci/python:3.8.2
     steps:
       - checkout
       - run:
