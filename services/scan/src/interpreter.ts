@@ -393,13 +393,13 @@ export class Interpreter {
           marks.map((m) => m.contestId)
         ),
         {
-          optionMarkStatus: (contestId, optionId) =>
+          optionMarkStatus: (option) =>
             optionMarkStatus({
               contests: this.electionDefinition.election.contests,
               markThresholds: this.markThresholds,
               marks,
-              contestId,
-              optionId,
+              contestId: option.contestId,
+              optionId: option.id,
             }),
         }
       )

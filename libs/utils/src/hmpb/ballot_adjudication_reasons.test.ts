@@ -71,10 +71,10 @@ test('an uninterpretable ballot', () => {
 test('a ballot with no adjudication reasons', () => {
   expect([
     ...ballotAdjudicationReasons([bestAnimalMammal], {
-      optionMarkStatus: (contestId, optionId) =>
+      optionMarkStatus: (option) =>
         // mark the expected number of options
-        contestId === bestAnimalMammal.id &&
-        optionId === bestAnimalMammalCandidate1.id
+        option.contestId === bestAnimalMammal.id &&
+        option.id === bestAnimalMammalCandidate1.id
           ? MarkStatus.Marked
           : MarkStatus.Unmarked,
     }),
@@ -84,14 +84,15 @@ test('a ballot with no adjudication reasons', () => {
 test('a ballot with marginal marks', () => {
   const reasons = [
     ...ballotAdjudicationReasons([bestAnimalMammal], {
-      optionMarkStatus: (contestId, optionId) => {
-        if (contestId === bestAnimalMammal.id) {
-          // eslint-disable-next-line default-case
-          switch (optionId) {
+      optionMarkStatus: (option) => {
+        if (option.contestId === bestAnimalMammal.id) {
+          switch (option.id) {
             case bestAnimalMammalCandidate1.id:
               return MarkStatus.Marked;
             case bestAnimalMammalCandidate2.id:
               return MarkStatus.Marginal;
+            default:
+              break;
           }
         }
 
@@ -162,13 +163,14 @@ test('a ballot page with no contests', () => {
 test('a ballot with too many marks', () => {
   const reasons = [
     ...ballotAdjudicationReasons([bestAnimalMammal], {
-      optionMarkStatus: (contestId, optionId) => {
-        if (contestId === bestAnimalMammal.id) {
-          // eslint-disable-next-line default-case
-          switch (optionId) {
+      optionMarkStatus: (option) => {
+        if (option.contestId === bestAnimalMammal.id) {
+          switch (option.id) {
             case bestAnimalMammalCandidate1.id:
             case bestAnimalMammalCandidate2.id:
               return MarkStatus.Marked;
+            default:
+              break;
           }
         }
 
@@ -202,13 +204,13 @@ test('a ballot with too many marks', () => {
 test('multiple contests with issues', () => {
   const reasons = [
     ...ballotAdjudicationReasons([bestAnimalMammal, zooCouncilMammal], {
-      optionMarkStatus: (contestId, optionId) =>
+      optionMarkStatus: (option) =>
         // first "best animal" candidate marginally marked
-        contestId === bestAnimalMammal.id &&
-        optionId === bestAnimalMammalCandidate1.id
+        option.contestId === bestAnimalMammal.id &&
+        option.id === bestAnimalMammalCandidate1.id
           ? MarkStatus.Marginal
           : // all "zoo council" options marked
-          contestId === zooCouncilMammal.id
+          option.contestId === zooCouncilMammal.id
           ? MarkStatus.Marked
           : // everything else unmarked
             MarkStatus.Unmarked,
@@ -307,8 +309,8 @@ test('yesno contest overvotes', () => {
 test('a ballot with just a write-in', () => {
   const reasons = [
     ...ballotAdjudicationReasons([zooCouncilMammal], {
-      optionMarkStatus: (contestId, optionId) =>
-        contestId === zooCouncilMammal.id && optionId === '__write-in-0'
+      optionMarkStatus: (option) =>
+        option.contestId === zooCouncilMammal.id && option.id === '__write-in-0'
           ? MarkStatus.Marked
           : MarkStatus.Unmarked,
     }),
@@ -327,8 +329,8 @@ test('a ballot with just a write-in', () => {
 test('a ballot with just an unmarked write-in', () => {
   const reasons = [
     ...ballotAdjudicationReasons([zooCouncilMammal], {
-      optionMarkStatus: (contestId, optionId) =>
-        contestId === zooCouncilMammal.id && optionId === '__write-in-0'
+      optionMarkStatus: (option) =>
+        option.contestId === zooCouncilMammal.id && option.id === '__write-in-0'
           ? MarkStatus.UnmarkedWriteIn
           : MarkStatus.Unmarked,
     }),
@@ -350,19 +352,19 @@ test('a ballot with just an unmarked write-in', () => {
 test('a ballot with an ms-either-neither happy path', () => {
   const reasons = [
     ...ballotAdjudicationReasons([eitherNeitherQuestion], {
-      optionMarkStatus: (contestId, optionId) => {
+      optionMarkStatus: (option) => {
         // either
         if (
-          contestId === eitherNeitherQuestion.eitherNeitherContestId &&
-          optionId === 'yes'
+          option.contestId === eitherNeitherQuestion.eitherNeitherContestId &&
+          option.id === 'yes'
         ) {
           return MarkStatus.Marked;
         }
 
         // second
         if (
-          contestId === eitherNeitherQuestion.pickOneContestId &&
-          optionId === 'no'
+          option.contestId === eitherNeitherQuestion.pickOneContestId &&
+          option.id === 'no'
         ) {
           return MarkStatus.Marked;
         }
@@ -378,9 +380,9 @@ test('a ballot with an ms-either-neither happy path', () => {
 test('a ballot with an ms-either-neither either-neither overvote', () => {
   const reasons = [
     ...ballotAdjudicationReasons([eitherNeitherQuestion], {
-      optionMarkStatus: (contestId) =>
+      optionMarkStatus: (option) =>
         // neither & either
-        contestId === eitherNeitherQuestion.eitherNeitherContestId
+        option.contestId === eitherNeitherQuestion.eitherNeitherContestId
           ? MarkStatus.Marked
           : MarkStatus.Unmarked,
     }),
@@ -400,9 +402,9 @@ test('a ballot with an ms-either-neither either-neither overvote', () => {
 test('a ballot with an ms-either-neither pick-one overvote', () => {
   const reasons = [
     ...ballotAdjudicationReasons([eitherNeitherQuestion], {
-      optionMarkStatus: (contestId) =>
+      optionMarkStatus: (option) =>
         // first & second
-        contestId === eitherNeitherQuestion.pickOneContestId
+        option.contestId === eitherNeitherQuestion.pickOneContestId
           ? MarkStatus.Marked
           : MarkStatus.Unmarked,
     }),

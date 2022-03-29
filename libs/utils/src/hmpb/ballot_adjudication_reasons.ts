@@ -11,10 +11,7 @@ import { allContestOptions } from './all_contest_options';
 import { assert, throwIllegalValue } from '../assert';
 
 export interface Options {
-  optionMarkStatus: (
-    contestId: Contest['id'],
-    optionId: ContestOption['id']
-  ) => MarkStatus;
+  optionMarkStatus: (option: ContestOption) => MarkStatus;
 }
 
 /**
@@ -46,7 +43,7 @@ export function* ballotAdjudicationReasons(
           selectedOptionsByContestId.get(option.contestId) ?? [];
         selectedOptionsByContestId.set(option.contestId, selectedOptions);
 
-        const status = optionMarkStatus(option.contestId, option.id);
+        const status = optionMarkStatus(option);
         switch (status) {
           case MarkStatus.Marginal:
             yield {
