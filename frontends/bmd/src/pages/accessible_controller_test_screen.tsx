@@ -8,8 +8,28 @@ import {
   Text,
 } from '@votingworks/ui';
 import { DateTime } from 'luxon';
-// import styled from 'styled-components';
+import styled from 'styled-components';
 import { Screen } from '../components/screen';
+import { ScreenReader } from '../config/types';
+
+const Header = styled(Prose).attrs({
+  maxWidth: false,
+  theme: fontSizeTheme.medium,
+})`
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+`;
+
+const StepContainer = styled.div`
+  display: grid;
+  align-items: center;
+  grid-template-columns: 55% 1fr;
+  flex-grow: 1;
+  > img {
+    justify-self: center;
+  }
+`;
 
 export type AccessibleControllerDiagnosticResults =
   | {
@@ -43,17 +63,18 @@ function AccessibleControllerButtonTest({
       }
     }
     document.addEventListener('keydown', handleKeyDown, { capture: true });
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [buttonKey, onSuccess]);
+    return () =>
+      document.removeEventListener('keydown', handleKeyDown, { capture: true });
+  }, [buttonKey, buttonName, onSuccess]);
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center' }}>
-      <Prose theme={fontSizeTheme.large} textCenter>
-        <h1 style={{ margin: '2em 2em' }}>Press the {buttonName}</h1>
+    <StepContainer>
+      <Prose theme={fontSizeTheme.large}>
+        <h1>Press the {buttonName.toLowerCase()}.</h1>
         <Button onPress={onFailure}>{buttonName} is Not Working</Button>
       </Prose>
       <img src="/images/controller-up-arrow.png" alt="up" />
-    </div>
+    </StepContainer>
   );
 }
 
@@ -68,56 +89,66 @@ function AccessibleControllerButtonTest({
 // }
 
 interface AccessibleControllerHeadphonesTestProps {
+  screenReader: ScreenReader;
   onSuccess: () => void;
   onFailure: () => void;
 }
 
 function AccessibleControllerHeadphonesTest({
+  screenReader,
   onSuccess,
   onFailure,
 }: AccessibleControllerHeadphonesTestProps) {
-  const instructions =
-    'Press the select button to confirm the audio is working.';
+  const [hasPlayedAudio, setHasPlayedAudio] = useState(false);
 
   useEffect(() => {
-    function handleKeyDown(event: KeyboardEvent) {
+    async function handleKeyDown(event: KeyboardEvent) {
       event.stopPropagation();
-      if (event.key === 'Enter') {
-        // TODO play audio
+      if (event.key === 'ArrowRight') {
+        const wasMuted = screenReader.isMuted();
+        screenReader.unmute();
+        await screenReader.speak(
+          'Press the select button to confirm the audio is working.'
+        );
+        if (wasMuted) screenReader.mute();
+        setHasPlayedAudio(true);
+      }
+      if (event.key === 'Enter' && hasPlayedAudio) {
         onSuccess();
       }
     }
     document.addEventListener('keydown', handleKeyDown, { capture: true });
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [onSuccess]);
+    return () =>
+      document.removeEventListener('keydown', handleKeyDown, { capture: true });
+  }, [screenReader, onSuccess, hasPlayedAudio]);
 
   return (
-    <div style={{ display: 'flex', alignItems: 'center' }}>
-      <Prose theme={fontSizeTheme.large} textCenter>
-        <h3 style={{ margin: '2em 2em' }}>
-          Plug the Headphones Into the Accessible Controller, Then Press the Up
-          Button to Play Audio.
+    <StepContainer>
+      <Prose theme={fontSizeTheme.large}>
+        <h3>
+          Plug headphones into the accessible controller, then press the right
+          button to play audio.
         </h3>
-        <Text>{instructions}</Text>
+        <Text style={{ marginTop: '1em' }}>
+          Press the select button to confirm the audio is working.
+        </Text>
         <Button onPress={onFailure}>Audio is Not Working</Button>
       </Prose>
-      <img
-        style={{ display: 'inline' }}
-        src="/images/controller-up-arrow.png"
-        alt="up"
-      />
-    </div>
+      <img src="/images/controller-up-arrow.png" alt="up" />
+    </StepContainer>
   );
 }
 
 interface AccessibleControllerTestProps {
   onComplete: (results: AccessibleControllerDiagnosticResults) => void;
   onCancel: () => void;
+  screenReader: ScreenReader;
 }
 
 export function AccessibleControllerTest({
   onComplete,
   onCancel,
+  screenReader,
 }: AccessibleControllerTestProps): JSX.Element {
   const [currentStep, setCurrentStep] = useState(0);
 
@@ -175,6 +206,7 @@ export function AccessibleControllerTest({
     ),
     () => (
       <AccessibleControllerHeadphonesTest
+        screenReader={screenReader}
         onSuccess={passTest}
         onFailure={() => failTest('Audio is not working.')}
       />
@@ -183,24 +215,15 @@ export function AccessibleControllerTest({
 
   return (
     <Screen voterMode={false}>
-      <Main padded>
-        <MainChild maxWidth={false}>
-          <Prose
-            maxWidth={false}
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              margin: '0.5em 2em 1em 2em',
-              alignItems: 'baseline',
-            }}
-            theme={fontSizeTheme.medium}
-          >
+      <Main padded style={{ paddingLeft: '3em', paddingRight: '3em' }}>
+        <MainChild maxWidth={false} flexContainer>
+          <Header>
             <Text>
               <strong>Accessible Controller Test</strong> &mdash; Step{' '}
               {currentStep + 1} of {steps.length}
             </Text>
             <Button onPress={onCancel}>Exit</Button>
-          </Prose>
+          </Header>
           {steps[currentStep]()}
         </MainChild>
       </Main>

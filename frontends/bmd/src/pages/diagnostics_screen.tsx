@@ -15,12 +15,23 @@ import assert from 'assert';
 import { formatTime, Hardware } from '@votingworks/utils';
 import { DateTime } from 'luxon';
 import { useHistory, Switch, Route } from 'react-router-dom';
+import styled from 'styled-components';
 import {
   AccessibleControllerDiagnosticResults,
   AccessibleControllerTest,
 } from './accessible_controller_test_screen';
 import { Screen } from '../components/screen';
 import { Sidebar, SidebarProps } from '../components/sidebar';
+import { ScreenReader } from '../config/types';
+
+const ButtonAndTimestamp = styled.div`
+  display: flex;
+  align-items: baseline;
+  margin-top: 0.5em;
+  > button {
+    margin-right: 0.5em;
+  }
+`;
 
 interface ComputerStatusProps {
   computer: ComputerStatusType;
@@ -155,16 +166,10 @@ function PrinterStatus({ hardware }: PrinterStatusProps) {
   const { printer, loadedAt } = printerStatus;
 
   const refreshButton = (
-    <div
-      style={{ display: 'flex', alignItems: 'baseline', marginTop: '0.5em' }}
-    >
+    <ButtonAndTimestamp>
       <Button onPress={loadPrinterStatus}>Refresh Printer Status</Button>
-      {loadedAt && (
-        <div style={{ marginLeft: '0.5em' }}>
-          <Text small>Last updated at {formatTime(loadedAt)}</Text>
-        </div>
-      )}
-    </div>
+      {loadedAt && <Text small>Last updated at {formatTime(loadedAt)}</Text>}
+    </ButtonAndTimestamp>
   );
 
   if (!printer || printer.state === 'unknown') {
@@ -231,7 +236,7 @@ function AccessibleControllerStatus({
         ) : (
           <Text warningIcon>Test failed: {diagnosticResults.message}</Text>
         ))}
-      <div style={{ display: 'flex', alignItems: 'baseline' }}>
+      <ButtonAndTimestamp>
         <LinkButton to="/accessible-controller">
           Start Accessible Controller Test
         </LinkButton>
@@ -240,7 +245,7 @@ function AccessibleControllerStatus({
             Last tested at {formatTime(diagnosticResults.completedAt)}
           </Text>
         )}
-      </div>
+      </ButtonAndTimestamp>
     </React.Fragment>
   );
 }
@@ -248,6 +253,7 @@ function AccessibleControllerStatus({
 interface DiagnosticsScreenProps {
   hardware: Hardware;
   devices: Devices;
+  screenReader: ScreenReader;
   onBackButtonPress: () => void;
   sidebarProps: SidebarProps;
 }
@@ -255,6 +261,7 @@ interface DiagnosticsScreenProps {
 export function DiagnosticsScreen({
   hardware,
   devices,
+  screenReader,
   onBackButtonPress,
   sidebarProps,
 }: DiagnosticsScreenProps): JSX.Element {
@@ -307,6 +314,7 @@ export function DiagnosticsScreen({
       </Route>
       <Route path="/accessible-controller">
         <AccessibleControllerTest
+          screenReader={screenReader}
           onComplete={(results) => {
             setAccessibleControllerDiagnosticResults(results);
             history.push('/');

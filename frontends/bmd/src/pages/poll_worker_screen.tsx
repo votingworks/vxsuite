@@ -40,6 +40,7 @@ import {
   PrecinctSelection,
   PrecinctSelectionKind,
   Printer,
+  ScreenReader,
 } from '../config/types';
 
 import { Prose } from '../components/prose';
@@ -69,6 +70,7 @@ export interface PollworkerScreenProps {
   machineConfig: MachineConfig;
   hardware: Hardware;
   devices: Devices;
+  screenReader: ScreenReader;
   printer: Printer;
   togglePollsOpen: () => void;
   tallyOnCard?: PrecinctScannerCardTally;
@@ -100,6 +102,7 @@ export function PollWorkerScreen({
   machineConfig,
   hardware,
   devices,
+  screenReader,
   printer,
   togglePollsOpen,
   hasVotes,
@@ -365,6 +368,7 @@ export function PollWorkerScreen({
       <DiagnosticsScreen
         hardware={hardware}
         devices={devices}
+        screenReader={screenReader}
         onBackButtonPress={() => setIsDiagnosticsScreenOpen(false)}
         sidebarProps={sidebarProps}
       />
