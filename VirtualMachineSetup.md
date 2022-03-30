@@ -16,7 +16,7 @@ Follow the steps below to configure a Virtual Machine for development at VotingW
 
 5. Customize the settings to your liking. Some suggestions:
 
- - **Options/Sharing:** You can keep a shared folder between your VM and your home computer. This can be useful to transfer documents back and forth, etc. You can configure this how you wish, I recommend clicking Custom Folders... and creating a single shared folder.
+ - **Options/Sharing:** You can keep a shared folder between your VM and your home computer. This can be useful to transfer documents back and forth, etc. You can configure this how you wish, I recommend clicking Custom Folders... and creating a single shared folder. Shared folders will be found in your VM under `/media/psf/`.
 
 - **Hardware/CPU & Memory:** Change Memory to at least 8GB. 16GB or more is preferred if your computer has enough RAM. 2 processors should be fine, but if you feel the need you can increase that as well.
  
