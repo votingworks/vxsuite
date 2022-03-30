@@ -10,7 +10,7 @@ import {
   BallotPageContestLayout,
   BallotPageLayout,
   CandidateContest,
-  Contest,
+  ContestId,
   ElectionDefinition,
   InterpretedHmpbPage,
   Rect,
@@ -29,7 +29,6 @@ import { assert, find } from '@votingworks/utils';
 import React, {
   useCallback,
   useContext,
-  useEffect,
   useLayoutEffect,
   useRef,
   useState,
@@ -50,7 +49,7 @@ const CandidateNameListSchema: z.ZodSchema<CandidateNameList> = z.array(
   z.string()
 );
 
-type CandidateNamesByContestId = Record<Contest['id'], CandidateNameList>;
+type CandidateNamesByContestId = Record<ContestId, CandidateNameList>;
 const CandidateNamesByContestIdSchema: z.ZodSchema<CandidateNamesByContestId> = z.record(
   CandidateNameListSchema
 );
@@ -416,6 +415,7 @@ function WriteInAdjudicationByContest({
   interpretation,
   layout,
   contestIds,
+  selectedContestId,
   adjudications,
   onContestChange,
   onAdjudicationChanged,
@@ -426,16 +426,16 @@ function WriteInAdjudicationByContest({
   imageUrl: string;
   interpretation: InterpretedHmpbPage;
   layout: BallotPageLayout;
-  contestIds: ReadonlyArray<Contest['id']>;
+  contestIds: readonly ContestId[];
+  selectedContestId: ContestId;
   adjudications: readonly WriteInMarkAdjudication[];
-  onContestChange?(contestId?: Contest['id']): void;
+  onContestChange?(contestId: ContestId): void;
   onAdjudicationChanged?(adjudication: WriteInMarkAdjudication): void;
   onAdjudicationComplete(): Promise<void>;
   writeInPresets: CandidateNamesByContestId;
 }): JSX.Element {
   const makeCancelable = useCancelablePromise();
   const [isSaving, setIsSaving] = useState(false);
-  const [selectedContestIndex, setSelectedContestIndex] = useState(0);
 
   const writeIns = interpretation.adjudicationInfo.enabledReasonInfos.filter(
     (
@@ -450,7 +450,7 @@ function WriteInAdjudicationByContest({
     [...writeIns].map(({ contestId }) => contestId)
   );
   const contestsWithWriteInsCount = contestsWithWriteIns.size;
-  const selectedContestId = [...contestsWithWriteIns][selectedContestIndex];
+  const selectedContestIndex = contestIds.indexOf(selectedContestId);
   const isFirstContestSelected = selectedContestIndex === 0;
   const isLastContestSelected =
     selectedContestIndex === contestsWithWriteInsCount - 1;
@@ -462,11 +462,6 @@ function WriteInAdjudicationByContest({
     [onAdjudicationChanged]
   );
 
-  useEffect(() => {
-    onContestChange?.(selectedContestId);
-  }, [selectedContestId, onContestChange]);
-
-  const contestIndex = contestIds.findIndex((id) => id === selectedContestId);
   const contestsWithWriteInsIndex = [...contestsWithWriteIns].findIndex(
     (id) => id === selectedContestId
   );
@@ -477,7 +472,7 @@ function WriteInAdjudicationByContest({
   const writeInsForContest = writeIns.filter(
     (writeIn) => writeIn.contestId === selectedContestId
   );
-  const contestLayout = layout.contests[contestIndex];
+  const contestLayout = layout.contests[selectedContestIndex];
   const allWriteInsHaveValues = writeInsForContest.every((writeIn) =>
     adjudications.some(
       (adjudication) =>
@@ -488,8 +483,9 @@ function WriteInAdjudicationByContest({
   );
 
   const goPrevious = useCallback(() => {
-    setSelectedContestIndex((prev) => Math.max(0, prev - 1));
-  }, []);
+    onContestChange?.(contestIds[selectedContestIndex - 1]);
+  }, [selectedContestIndex, contestIds, onContestChange]);
+
   const goNext = useCallback(
     async (event?: React.FormEvent<EventTarget>): Promise<void> => {
       event?.preventDefault();
@@ -501,10 +497,17 @@ function WriteInAdjudicationByContest({
           setIsSaving(false);
         }
       } else {
-        setSelectedContestIndex((prev) => prev + 1);
+        onContestChange?.(contestIds[selectedContestIndex + 1]);
       }
     },
-    [isLastContestSelected, makeCancelable, onAdjudicationComplete]
+    [
+      isLastContestSelected,
+      makeCancelable,
+      onAdjudicationComplete,
+      onContestChange,
+      contestIds,
+      selectedContestIndex,
+    ]
   );
 
   return (
@@ -550,7 +553,7 @@ export interface Props {
   imageUrl: string;
   interpretation: InterpretedHmpbPage;
   layout: BallotPageLayout;
-  contestIds: ReadonlyArray<Contest['id']>;
+  contestIds: readonly ContestId[];
   onAdjudicationComplete?(
     sheetId: string,
     side: Side,
@@ -573,7 +576,7 @@ export function WriteInAdjudicationScreen({
   const [adjudications, setAdjudications] = useState<
     readonly WriteInMarkAdjudication[]
   >([]);
-  const [selectedContestId, setSelectedContestId] = useState<Contest['id']>();
+  const [selectedContestId, setSelectedContestId] = useState<ContestId>();
 
   const writeIns = interpretation.adjudicationInfo.enabledReasonInfos.filter(
     (
@@ -585,7 +588,7 @@ export function WriteInAdjudicationScreen({
       reason.type === AdjudicationReason.UnmarkedWriteIn
   );
   const styleForContest = useCallback(
-    (id: Contest['id']): React.CSSProperties => {
+    (id: ContestId): React.CSSProperties => {
       const contestsWithWriteIns = new Set(
         [...writeIns].map(({ contestId }) => contestId)
       );
@@ -597,10 +600,6 @@ export function WriteInAdjudicationScreen({
     },
     [selectedContestId, writeIns]
   );
-
-  const onContestChange = useCallback((contestId?: Contest['id']): void => {
-    setSelectedContestId(contestId);
-  }, []);
 
   const onAdjudicationChanged = useCallback(
     (adjudication: WriteInMarkAdjudication): void => {
@@ -641,6 +640,7 @@ export function WriteInAdjudicationScreen({
         prev
       )
     );
+    setSelectedContestId(undefined);
     await onAdjudicationComplete?.(sheetId, side, adjudications);
   }, [setStoredWriteIns, onAdjudicationComplete, sheetId, side, adjudications]);
 
@@ -657,8 +657,9 @@ export function WriteInAdjudicationScreen({
               interpretation={interpretation}
               layout={layout}
               contestIds={contestIds}
+              selectedContestId={selectedContestId ?? contestIds[0]}
               adjudications={adjudications}
-              onContestChange={onContestChange}
+              onContestChange={setSelectedContestId}
               onAdjudicationChanged={onAdjudicationChanged}
               onAdjudicationComplete={onAdjudicationCompleteInternal}
               writeInPresets={storedWriteIns}

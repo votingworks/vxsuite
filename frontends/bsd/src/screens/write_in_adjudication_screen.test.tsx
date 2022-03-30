@@ -1,54 +1,61 @@
-import { screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
+  BallotPageLayout,
   BallotType,
   CandidateContest,
-  Contest,
-  ContestOption,
-  getContests,
   HmpbBallotPageMetadata,
+  InterpretedHmpbPage,
+  unsafeParse,
+  WriteInId,
+  WriteInIdSchema,
 } from '@votingworks/types';
-import { find, typedAs } from '@votingworks/utils';
+import { allContestOptions, assert, typedAs } from '@votingworks/utils';
 import React from 'react';
-import { renderInAppContext } from '../../test/render_in_app_context';
+import { makeAppContext } from '../../test/render_in_app_context';
+import { AppContext } from '../contexts/app_context';
 import {
-  WriteInAdjudicationScreen,
   Props as WriteInAdjudicationScreenProps,
+  WriteInAdjudicationScreen,
 } from './write_in_adjudication_screen';
+
+const contestsWithWriteIns = electionSampleDefinition.election.contests.filter(
+  (contest): contest is CandidateContest =>
+    contest.type === 'candidate' && contest.allowWriteIns
+);
+
+function buildMetadata({
+  pageNumber,
+}: {
+  pageNumber: number;
+}): HmpbBallotPageMetadata {
+  return {
+    ballotStyleId: 'ballot-style-id',
+    precinctId: 'precinct-id',
+    ballotType: BallotType.Standard,
+    electionHash: 'd34db33fd43db33f',
+    isTestMode: true,
+    locales: { primary: 'en-US' },
+    pageNumber,
+  };
+}
+
+function getWriteInOptionIds(contest: CandidateContest): WriteInId[] {
+  return Array.from(allContestOptions(contest))
+    .filter((option) => option.type === 'candidate' && option.isWriteIn)
+    .map((option) => unsafeParse(WriteInIdSchema, option.id));
+}
 
 type onAdjudicationCompleteType = Exclude<
   WriteInAdjudicationScreenProps['onAdjudicationComplete'],
   undefined
 >;
 
-function renderWriteInAdjudicationScreen(
-  reason: AdjudicationReason.WriteIn | AdjudicationReason.UnmarkedWriteIn
-): {
-  contest: Contest;
-  optionId: ContestOption['id'];
-  onAdjudicationComplete: onAdjudicationCompleteType;
-} {
-  const { election, electionHash } = electionSampleDefinition;
-  const ballotStyle = election.ballotStyles[0];
-  const precinctId = ballotStyle.precincts[0];
-  const contests = getContests({ election, ballotStyle });
-  const contest = find(
-    contests,
-    (c): c is CandidateContest => c.type === 'candidate' && c.allowWriteIns
-  );
-  const optionId: ContestOption['id'] = '__write-in-0';
-  const metadata: HmpbBallotPageMetadata = {
-    ballotStyleId: ballotStyle.id,
-    precinctId,
-    ballotType: BallotType.Standard,
-    electionHash,
-    isTestMode: true,
-    locales: { primary: 'en-US' },
-    pageNumber: 1,
-  };
-
+test('supports typing in a candidate name', async () => {
+  const [contest] = contestsWithWriteIns;
+  const [optionId] = getWriteInOptionIds(contest);
   const onAdjudicationComplete = jest
     .fn<
       ReturnType<onAdjudicationCompleteType>,
@@ -56,71 +63,67 @@ function renderWriteInAdjudicationScreen(
     >()
     .mockResolvedValue();
 
-  renderInAppContext(
-    <WriteInAdjudicationScreen
-      sheetId="test-sheet"
-      side="front"
-      imageUrl="/test-sheet/front.jpg"
-      interpretation={{
-        type: 'InterpretedHmpbPage',
-        markInfo: {
-          ballotSize: { width: 1, height: 1 },
-          marks: [],
+  const interpretation: InterpretedHmpbPage = {
+    type: 'InterpretedHmpbPage',
+    markInfo: {
+      ballotSize: { width: 1, height: 1 },
+      marks: [],
+    },
+    metadata: buildMetadata({ pageNumber: 1 }),
+    adjudicationInfo: {
+      requiresAdjudication: true,
+      enabledReasons: [AdjudicationReason.WriteIn],
+      enabledReasonInfos: [
+        {
+          type: AdjudicationReason.WriteIn,
+          contestId: contest.id,
+          optionId,
+          optionIndex: 0,
         },
-        metadata,
-        adjudicationInfo: {
-          requiresAdjudication: true,
-          enabledReasons: [reason],
-          enabledReasonInfos: [
-            {
-              type: reason,
-              contestId: contest.id,
-              optionId,
-              optionIndex: 0,
-            },
-          ],
-          ignoredReasonInfos: [],
-        },
-        votes: {},
-      }}
-      layout={{
-        pageSize: { width: 1, height: 1 },
-        metadata,
-        contests: [
+      ],
+      ignoredReasonInfos: [],
+    },
+    votes: {},
+  };
+
+  const layout: BallotPageLayout = {
+    pageSize: { width: 1, height: 1 },
+    metadata: buildMetadata({ pageNumber: 1 }),
+    contests: [
+      {
+        bounds: { x: 0, y: 0, width: 100, height: 100 },
+        corners: [
+          { x: 0, y: 0 },
+          { x: 100, y: 0 },
+          { x: 100, y: 100 },
+          { x: 0, y: 100 },
+        ],
+        options: [
           {
-            bounds: { x: 0, y: 0, width: 100, height: 100 },
-            corners: [
-              { x: 0, y: 0 },
-              { x: 100, y: 0 },
-              { x: 100, y: 100 },
-              { x: 0, y: 100 },
-            ],
-            options: [
-              {
-                bounds: { x: 0, y: 50, width: 100, height: 50 },
-                target: {
-                  bounds: { x: 20, y: 60, width: 20, height: 10 },
-                  inner: { x: 22, y: 62, width: 16, height: 6 },
-                },
-              },
-            ],
+            bounds: { x: 0, y: 50, width: 100, height: 50 },
+            target: {
+              bounds: { x: 20, y: 60, width: 20, height: 10 },
+              inner: { x: 22, y: 62, width: 16, height: 6 },
+            },
           },
         ],
-      }}
-      contestIds={[contest.id]}
-      onAdjudicationComplete={onAdjudicationComplete}
-    />
+      },
+    ],
+  };
+
+  render(
+    <AppContext.Provider value={makeAppContext()}>
+      <WriteInAdjudicationScreen
+        sheetId="test-sheet"
+        side="front"
+        imageUrl="/test-sheet/front.jpg"
+        interpretation={interpretation}
+        layout={layout}
+        contestIds={[contest.id]}
+        onAdjudicationComplete={onAdjudicationComplete}
+      />
+    </AppContext.Provider>
   );
-
-  return { contest, optionId, onAdjudicationComplete };
-}
-
-test('supports typing in a candidate name', async () => {
-  const {
-    contest,
-    optionId,
-    onAdjudicationComplete,
-  } = renderWriteInAdjudicationScreen(AdjudicationReason.WriteIn);
 
   screen.getByText('Write-In Adjudication');
   screen.getByText(contest.title);
@@ -153,11 +156,76 @@ test('supports typing in a candidate name', async () => {
 });
 
 test('supports canceling a write-in', async () => {
-  const {
-    contest,
-    optionId,
-    onAdjudicationComplete,
-  } = renderWriteInAdjudicationScreen(AdjudicationReason.UnmarkedWriteIn);
+  const [contest] = contestsWithWriteIns;
+  const [optionId] = getWriteInOptionIds(contest);
+  const onAdjudicationComplete = jest
+    .fn<
+      ReturnType<onAdjudicationCompleteType>,
+      Parameters<onAdjudicationCompleteType>
+    >()
+    .mockResolvedValue();
+
+  const interpretation: InterpretedHmpbPage = {
+    type: 'InterpretedHmpbPage',
+    markInfo: {
+      ballotSize: { width: 1, height: 1 },
+      marks: [],
+    },
+    metadata: buildMetadata({ pageNumber: 1 }),
+    adjudicationInfo: {
+      requiresAdjudication: true,
+      enabledReasons: [AdjudicationReason.UnmarkedWriteIn],
+      enabledReasonInfos: [
+        {
+          type: AdjudicationReason.UnmarkedWriteIn,
+          contestId: contest.id,
+          optionId,
+          optionIndex: 0,
+        },
+      ],
+      ignoredReasonInfos: [],
+    },
+    votes: {},
+  };
+
+  const layout: BallotPageLayout = {
+    pageSize: { width: 1, height: 1 },
+    metadata: buildMetadata({ pageNumber: 1 }),
+    contests: [
+      {
+        bounds: { x: 0, y: 0, width: 100, height: 100 },
+        corners: [
+          { x: 0, y: 0 },
+          { x: 100, y: 0 },
+          { x: 100, y: 100 },
+          { x: 0, y: 100 },
+        ],
+        options: [
+          {
+            bounds: { x: 0, y: 50, width: 100, height: 50 },
+            target: {
+              bounds: { x: 20, y: 60, width: 20, height: 10 },
+              inner: { x: 22, y: 62, width: 16, height: 6 },
+            },
+          },
+        ],
+      },
+    ],
+  };
+
+  render(
+    <AppContext.Provider value={makeAppContext()}>
+      <WriteInAdjudicationScreen
+        sheetId="test-sheet"
+        side="front"
+        imageUrl="/test-sheet/front.jpg"
+        interpretation={interpretation}
+        layout={layout}
+        contestIds={[contest.id]}
+        onAdjudicationComplete={onAdjudicationComplete}
+      />
+    </AppContext.Provider>
+  );
 
   screen.getByText('Write-In Adjudication');
   screen.getByText(contest.title);
@@ -186,5 +254,200 @@ test('supports canceling a write-in', async () => {
         ],
       ])
     );
+  });
+});
+
+test('can adjudicate front & back in succession', async () => {
+  const [frontContest1, frontContest2, backContest] = contestsWithWriteIns;
+  assert(frontContest1 && frontContest2 && backContest);
+  const frontContest1WriteInId = getWriteInOptionIds(frontContest1)[0];
+  const frontContest2WriteInId = getWriteInOptionIds(frontContest2)[0];
+  const backContestWriteInId = getWriteInOptionIds(backContest)[0];
+  assert(
+    typeof frontContest1WriteInId === 'string' &&
+      typeof frontContest2WriteInId === 'string' &&
+      typeof backContestWriteInId === 'string'
+  );
+  const frontMetadata = buildMetadata({ pageNumber: 1 });
+  const backMetadata = buildMetadata({ pageNumber: 2 });
+  const onAdjudicationComplete = jest
+    .fn<
+      ReturnType<onAdjudicationCompleteType>,
+      Parameters<onAdjudicationCompleteType>
+    >()
+    .mockResolvedValue();
+
+  const frontInterpretation: InterpretedHmpbPage = {
+    type: 'InterpretedHmpbPage',
+    markInfo: {
+      ballotSize: { width: 1, height: 1 },
+      marks: [],
+    },
+    metadata: frontMetadata,
+    adjudicationInfo: {
+      requiresAdjudication: true,
+      enabledReasons: [AdjudicationReason.WriteIn],
+      enabledReasonInfos: [
+        {
+          type: AdjudicationReason.WriteIn,
+          contestId: frontContest1.id,
+          optionId: frontContest1WriteInId,
+          optionIndex: 0,
+        },
+        {
+          type: AdjudicationReason.WriteIn,
+          contestId: frontContest2.id,
+          optionId: frontContest2WriteInId,
+          optionIndex: 0,
+        },
+      ],
+      ignoredReasonInfos: [],
+    },
+    votes: {},
+  };
+
+  const backInterpretation: InterpretedHmpbPage = {
+    type: 'InterpretedHmpbPage',
+    markInfo: {
+      ballotSize: { width: 1, height: 1 },
+      marks: [],
+    },
+    metadata: backMetadata,
+    adjudicationInfo: {
+      requiresAdjudication: true,
+      enabledReasons: [AdjudicationReason.WriteIn],
+      enabledReasonInfos: [
+        {
+          type: AdjudicationReason.WriteIn,
+          contestId: backContest.id,
+          optionId: backContestWriteInId,
+          optionIndex: 0,
+        },
+      ],
+      ignoredReasonInfos: [],
+    },
+    votes: {},
+  };
+
+  const frontLayout: BallotPageLayout = {
+    pageSize: { width: 1, height: 1 },
+    metadata: frontMetadata,
+    contests: [frontContest1, frontContest2].map(() => ({
+      bounds: { x: 0, y: 0, width: 100, height: 100 },
+      corners: [
+        { x: 0, y: 0 },
+        { x: 100, y: 0 },
+        { x: 100, y: 100 },
+        { x: 0, y: 100 },
+      ],
+      options: [
+        {
+          bounds: { x: 0, y: 50, width: 100, height: 50 },
+          target: {
+            bounds: { x: 20, y: 60, width: 20, height: 10 },
+            inner: { x: 22, y: 62, width: 16, height: 6 },
+          },
+        },
+      ],
+    })),
+  };
+
+  const backLayout: BallotPageLayout = {
+    pageSize: { width: 1, height: 1 },
+    metadata: backMetadata,
+    contests: [backContest].map(() => ({
+      bounds: { x: 0, y: 0, width: 100, height: 100 },
+      corners: [
+        { x: 0, y: 0 },
+        { x: 100, y: 0 },
+        { x: 100, y: 100 },
+        { x: 0, y: 100 },
+      ],
+      options: [
+        {
+          bounds: { x: 0, y: 50, width: 100, height: 50 },
+          target: {
+            bounds: { x: 20, y: 60, width: 20, height: 10 },
+            inner: { x: 22, y: 62, width: 16, height: 6 },
+          },
+        },
+      ],
+    })),
+  };
+
+  const appContext = makeAppContext();
+
+  const { rerender } = render(
+    <AppContext.Provider value={appContext}>
+      <WriteInAdjudicationScreen
+        sheetId="test-sheet"
+        side="front"
+        imageUrl="/test-sheet/front.jpg"
+        interpretation={frontInterpretation}
+        layout={frontLayout}
+        contestIds={[frontContest1.id, frontContest2.id]}
+        onAdjudicationComplete={onAdjudicationComplete}
+      />
+    </AppContext.Provider>
+  );
+
+  screen.getByText('Write-In Adjudication');
+  screen.getByText(frontContest1.title);
+
+  {
+    const isNotWriteInCheckbox = screen.getByTestId(
+      `write-in-checkbox-${frontContest1WriteInId}`
+    ) as HTMLInputElement;
+    expect(isNotWriteInCheckbox.checked).toBe(false);
+    userEvent.click(isNotWriteInCheckbox);
+  }
+
+  userEvent.click(screen.getByText('Next Contest'));
+  screen.getByText(frontContest2.title);
+
+  {
+    const isNotWriteInCheckbox = screen.getByTestId(
+      `write-in-checkbox-${frontContest1WriteInId}`
+    ) as HTMLInputElement;
+    expect(isNotWriteInCheckbox.checked).toBe(false);
+    userEvent.click(isNotWriteInCheckbox);
+  }
+
+  userEvent.click(screen.getByText('Save & Continue Scanning'));
+
+  await waitFor(() => {
+    expect(onAdjudicationComplete).toHaveBeenCalled();
+  });
+
+  rerender(
+    <AppContext.Provider value={appContext}>
+      <WriteInAdjudicationScreen
+        sheetId="test-sheet"
+        side="back"
+        imageUrl="/test-sheet/back.jpg"
+        interpretation={backInterpretation}
+        layout={backLayout}
+        contestIds={[backContest.id]}
+        onAdjudicationComplete={onAdjudicationComplete}
+      />
+    </AppContext.Provider>
+  );
+
+  await waitFor(() => {
+    screen.getByText(backContest.title);
+  });
+
+  {
+    const isNotWriteInCheckbox = screen.getByTestId(
+      `write-in-checkbox-${backContestWriteInId}`
+    ) as HTMLInputElement;
+    expect(isNotWriteInCheckbox.checked).toBe(false);
+    userEvent.click(isNotWriteInCheckbox);
+  }
+
+  userEvent.click(screen.getByText('Save & Continue Scanning'));
+
+  await waitFor(() => {
+    expect(onAdjudicationComplete).toHaveBeenCalledTimes(2);
   });
 });
