@@ -2,16 +2,18 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import {
+  UnmarkedWriteInAdjudicationReasonInfo,
   AdjudicationReason,
   BallotPageLayout,
   BallotType,
   CandidateContest,
   HmpbBallotPageMetadata,
-  InterpretedHmpbPage,
   unsafeParse,
+  WriteInAdjudicationReasonInfo,
   WriteInId,
   WriteInIdSchema,
 } from '@votingworks/types';
+
 import { allContestOptions, assert, typedAs } from '@votingworks/utils';
 import React from 'react';
 import { makeAppContext } from '../../test/render_in_app_context';
@@ -63,28 +65,16 @@ test('supports typing in a candidate name', async () => {
     >()
     .mockResolvedValue();
 
-  const interpretation: InterpretedHmpbPage = {
-    type: 'InterpretedHmpbPage',
-    markInfo: {
-      ballotSize: { width: 1, height: 1 },
-      marks: [],
+  const writeIns: Array<
+    WriteInAdjudicationReasonInfo | UnmarkedWriteInAdjudicationReasonInfo
+  > = [
+    {
+      type: AdjudicationReason.WriteIn,
+      contestId: contest.id,
+      optionId,
+      optionIndex: 0,
     },
-    metadata: buildMetadata({ pageNumber: 1 }),
-    adjudicationInfo: {
-      requiresAdjudication: true,
-      enabledReasons: [AdjudicationReason.WriteIn],
-      enabledReasonInfos: [
-        {
-          type: AdjudicationReason.WriteIn,
-          contestId: contest.id,
-          optionId,
-          optionIndex: 0,
-        },
-      ],
-      ignoredReasonInfos: [],
-    },
-    votes: {},
-  };
+  ];
 
   const layout: BallotPageLayout = {
     pageSize: { width: 1, height: 1 },
@@ -117,7 +107,7 @@ test('supports typing in a candidate name', async () => {
         sheetId="test-sheet"
         side="front"
         imageUrl="/test-sheet/front.jpg"
-        interpretation={interpretation}
+        writeIns={writeIns}
         layout={layout}
         contestIds={[contest.id]}
         onAdjudicationComplete={onAdjudicationComplete}
@@ -165,28 +155,16 @@ test('supports canceling a write-in', async () => {
     >()
     .mockResolvedValue();
 
-  const interpretation: InterpretedHmpbPage = {
-    type: 'InterpretedHmpbPage',
-    markInfo: {
-      ballotSize: { width: 1, height: 1 },
-      marks: [],
+  const writeIns: Array<
+    WriteInAdjudicationReasonInfo | UnmarkedWriteInAdjudicationReasonInfo
+  > = [
+    {
+      type: AdjudicationReason.UnmarkedWriteIn,
+      contestId: contest.id,
+      optionId,
+      optionIndex: 0,
     },
-    metadata: buildMetadata({ pageNumber: 1 }),
-    adjudicationInfo: {
-      requiresAdjudication: true,
-      enabledReasons: [AdjudicationReason.UnmarkedWriteIn],
-      enabledReasonInfos: [
-        {
-          type: AdjudicationReason.UnmarkedWriteIn,
-          contestId: contest.id,
-          optionId,
-          optionIndex: 0,
-        },
-      ],
-      ignoredReasonInfos: [],
-    },
-    votes: {},
-  };
+  ];
 
   const layout: BallotPageLayout = {
     pageSize: { width: 1, height: 1 },
@@ -219,7 +197,7 @@ test('supports canceling a write-in', async () => {
         sheetId="test-sheet"
         side="front"
         imageUrl="/test-sheet/front.jpg"
-        interpretation={interpretation}
+        writeIns={writeIns}
         layout={layout}
         contestIds={[contest.id]}
         onAdjudicationComplete={onAdjudicationComplete}
@@ -277,57 +255,33 @@ test('can adjudicate front & back in succession', async () => {
     >()
     .mockResolvedValue();
 
-  const frontInterpretation: InterpretedHmpbPage = {
-    type: 'InterpretedHmpbPage',
-    markInfo: {
-      ballotSize: { width: 1, height: 1 },
-      marks: [],
+  const frontWriteIns: Array<
+    WriteInAdjudicationReasonInfo | UnmarkedWriteInAdjudicationReasonInfo
+  > = [
+    {
+      type: AdjudicationReason.WriteIn,
+      contestId: frontContest1.id,
+      optionId: frontContest1WriteInId,
+      optionIndex: 0,
     },
-    metadata: frontMetadata,
-    adjudicationInfo: {
-      requiresAdjudication: true,
-      enabledReasons: [AdjudicationReason.WriteIn],
-      enabledReasonInfos: [
-        {
-          type: AdjudicationReason.WriteIn,
-          contestId: frontContest1.id,
-          optionId: frontContest1WriteInId,
-          optionIndex: 0,
-        },
-        {
-          type: AdjudicationReason.WriteIn,
-          contestId: frontContest2.id,
-          optionId: frontContest2WriteInId,
-          optionIndex: 0,
-        },
-      ],
-      ignoredReasonInfos: [],
+    {
+      type: AdjudicationReason.WriteIn,
+      contestId: frontContest2.id,
+      optionId: frontContest2WriteInId,
+      optionIndex: 0,
     },
-    votes: {},
-  };
+  ];
 
-  const backInterpretation: InterpretedHmpbPage = {
-    type: 'InterpretedHmpbPage',
-    markInfo: {
-      ballotSize: { width: 1, height: 1 },
-      marks: [],
+  const backWriteIns: Array<
+    WriteInAdjudicationReasonInfo | UnmarkedWriteInAdjudicationReasonInfo
+  > = [
+    {
+      type: AdjudicationReason.WriteIn,
+      contestId: backContest.id,
+      optionId: backContestWriteInId,
+      optionIndex: 0,
     },
-    metadata: backMetadata,
-    adjudicationInfo: {
-      requiresAdjudication: true,
-      enabledReasons: [AdjudicationReason.WriteIn],
-      enabledReasonInfos: [
-        {
-          type: AdjudicationReason.WriteIn,
-          contestId: backContest.id,
-          optionId: backContestWriteInId,
-          optionIndex: 0,
-        },
-      ],
-      ignoredReasonInfos: [],
-    },
-    votes: {},
-  };
+  ];
 
   const frontLayout: BallotPageLayout = {
     pageSize: { width: 1, height: 1 },
@@ -383,7 +337,7 @@ test('can adjudicate front & back in succession', async () => {
         sheetId="test-sheet"
         side="front"
         imageUrl="/test-sheet/front.jpg"
-        interpretation={frontInterpretation}
+        writeIns={frontWriteIns}
         layout={frontLayout}
         contestIds={[frontContest1.id, frontContest2.id]}
         onAdjudicationComplete={onAdjudicationComplete}
@@ -425,7 +379,7 @@ test('can adjudicate front & back in succession', async () => {
         sheetId="test-sheet"
         side="back"
         imageUrl="/test-sheet/back.jpg"
-        interpretation={backInterpretation}
+        writeIns={backWriteIns}
         layout={backLayout}
         contestIds={[backContest.id]}
         onAdjudicationComplete={onAdjudicationComplete}
