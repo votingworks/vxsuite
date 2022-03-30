@@ -16,7 +16,7 @@ Follow the steps below to configure a Virtual Machine for development at VotingW
 
 5. Customize the settings to your liking. Some suggestions:
 
- - **Options/Sharing:** You can keep a shared folder between your VM and your home computer. This can be useful to transfer documents back and forth, etc. You can configure this how you wish, I recommend clicking Custom Folders... and creating a single shared folder.
+ - **Options/Sharing:** You can keep a shared folder between your VM and your home computer. This can be useful to transfer documents back and forth, etc. You can configure this how you wish, I recommend clicking Custom Folders... and creating a single shared folder. Shared folders will be found in your VM under `/media/psf/`.
 
 - **Hardware/CPU & Memory:** Change Memory to at least 8GB. 16GB or more is preferred if your computer has enough RAM. 2 processors should be fine, but if you feel the need you can increase that as well.
  
@@ -147,6 +147,12 @@ If the above command prompted you for a password, run this on your home machine:
 ssh-copy-id <HOSTNAME>
 ```
 Then try the `ssh` command again. It should complete without prompting for a password.
+
+If running the above results in an `ERROR: No identities found`, you likely don't have any SSH keys on your home machine. You can generate one using:
+```
+ssh-keygen
+```
+You can hit enter without typing anything on all prompts to generate an SSH key at the default location without a passphrase. If you generate an SSH key with a passphrase and copy that over to your VM, you'll still be prompted for a password when you run `ssh <HOSTNAME>` (you'll just be prompted for your SSH key passphrase instead of your VM password).
 
 Download and install [VS Code](https://code.visualstudio.com/) if desired for development.
 Install the [Remote SSH extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh) within VS Code. You may need to restart VS Code.
