@@ -59,7 +59,7 @@ export function CalibrateScannerModal({
             <h1>Calibration succeeded!</h1>
           </Prose>
         }
-        actions={<Button onPress={onCancel}>Back</Button>}
+        actions={<Button onPress={onCancel}>Close</Button>}
       />
     );
   }
