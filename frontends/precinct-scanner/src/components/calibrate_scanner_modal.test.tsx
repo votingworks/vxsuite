@@ -92,7 +92,7 @@ test('calibrate success', async () => {
   await screen.findByText('Calibration succeeded!');
 
   // finish
-  fireEvent.click(await screen.findByText('Back'));
+  fireEvent.click(await screen.findByText('Close'));
   expect(onCancel).toHaveBeenCalled();
 });
 
@@ -160,6 +160,6 @@ test('calibrate error & try again', async () => {
   await screen.findByText('Calibration succeeded!');
 
   // finish
-  fireEvent.click(await screen.findByText('Back'));
+  fireEvent.click(await screen.findByText('Close'));
   expect(onCancel).toHaveBeenCalled();
 });
