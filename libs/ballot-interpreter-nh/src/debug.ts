@@ -405,7 +405,7 @@ export function withSvgDebugger<T>(
   let result: T;
   try {
     result = callback(debug);
-    if (typeof result !== 'undefined' && 'then' in result) {
+    if (result && 'then' in result) {
       return (result as unknown as Promise<unknown>).then(
         () => {
           writeFileSync(fileName, root.toString());
@@ -473,7 +473,7 @@ export function withCanvasDebugger<T>(
 
   try {
     result = callback(debug);
-    if ('then' in result) {
+    if (result && 'then' in result) {
       return (result as unknown as Promise<unknown>).then(
         () => {
           writeFileSync(fileName, debug.toBuffer());
