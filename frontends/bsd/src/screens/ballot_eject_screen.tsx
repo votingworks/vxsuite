@@ -4,7 +4,6 @@ import {
   Contest,
   MarkAdjudications,
   PageInterpretation,
-  UnmarkedWriteInAdjudicationReasonInfo,
   WriteInAdjudicationReasonInfo,
 } from '@votingworks/types';
 import {
@@ -339,17 +338,13 @@ export function BallotEjectScreen({
             isUndervotedSheet = true;
             contestIdsWithIssues.add(adjudicationReason.contestId);
           } else if (
-            adjudicationReason.type === AdjudicationReason.WriteIn ||
+            adjudicationReason.type === AdjudicationReason.MarkedWriteIn ||
             adjudicationReason.type === AdjudicationReason.UnmarkedWriteIn
           ) {
             if (reviewPageInfo.layout && reviewPageInfo.contestIds) {
               const writeIns = reviewPageInfo.interpretation.adjudicationInfo.enabledReasonInfos.filter(
-                (
-                  reason
-                ): reason is
-                  | WriteInAdjudicationReasonInfo
-                  | UnmarkedWriteInAdjudicationReasonInfo =>
-                  reason.type === AdjudicationReason.WriteIn ||
+                (reason): reason is WriteInAdjudicationReasonInfo =>
+                  reason.type === AdjudicationReason.MarkedWriteIn ||
                   reason.type === AdjudicationReason.UnmarkedWriteIn
               );
               return (

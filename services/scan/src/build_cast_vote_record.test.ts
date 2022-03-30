@@ -1005,10 +1005,10 @@ test('generates a CVR from an adjudicated write-in', () => {
           },
           adjudicationInfo: {
             requiresAdjudication: true,
-            enabledReasons: [AdjudicationReason.WriteIn],
+            enabledReasons: [AdjudicationReason.MarkedWriteIn],
             enabledReasonInfos: [
               {
-                type: AdjudicationReason.WriteIn,
+                type: AdjudicationReason.MarkedWriteIn,
                 contestId: '2',
                 optionId: '__write-in-0',
                 optionIndex: 3,
@@ -1031,7 +1031,7 @@ test('generates a CVR from an adjudicated write-in', () => {
         contestIds: ['1', '2'],
         markAdjudications: [
           {
-            type: AdjudicationReason.WriteIn,
+            type: AdjudicationReason.MarkedWriteIn,
             contestId: '2',
             optionId: '__write-in-0',
             isMarked: true,

@@ -233,19 +233,19 @@ test('multiple contests with issues', () => {
         optionIndexes: [],
       },
       {
-        type: AdjudicationReason.WriteIn,
+        type: AdjudicationReason.MarkedWriteIn,
         contestId: zooCouncilMammal.id,
         optionId: '__write-in-0',
         optionIndex: 4,
       },
       {
-        type: AdjudicationReason.WriteIn,
+        type: AdjudicationReason.MarkedWriteIn,
         contestId: zooCouncilMammal.id,
         optionId: '__write-in-1',
         optionIndex: 5,
       },
       {
-        type: AdjudicationReason.WriteIn,
+        type: AdjudicationReason.MarkedWriteIn,
         contestId: zooCouncilMammal.id,
         optionId: '__write-in-2',
         optionIndex: 6,
@@ -318,7 +318,7 @@ test('a ballot with just a write-in', () => {
 
   expect(reasons).toContainEqual(
     typedAs<WriteInAdjudicationReasonInfo>({
-      type: AdjudicationReason.WriteIn,
+      type: AdjudicationReason.MarkedWriteIn,
       contestId: zooCouncilMammal.id,
       optionId: '__write-in-0',
       optionIndex: 4,

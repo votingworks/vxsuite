@@ -165,7 +165,7 @@ export function buildCastVoteRecordVotesEntries(
         if (markAdjudication.isMarked) {
           resolvedOptionIds.push([
             option.contestId,
-            markAdjudication.type === AdjudicationReason.WriteIn ||
+            markAdjudication.type === AdjudicationReason.MarkedWriteIn ||
             markAdjudication.type === AdjudicationReason.UnmarkedWriteIn
               ? `${option.id}-${markAdjudication.name}`
               : option.id,

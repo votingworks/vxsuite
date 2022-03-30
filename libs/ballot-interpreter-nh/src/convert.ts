@@ -415,7 +415,7 @@ export function convertElectionDefinitionHeader(
     centralScanAdjudicationReasons: [
       AdjudicationReason.UninterpretableBallot,
       AdjudicationReason.Overvote,
-      AdjudicationReason.WriteIn,
+      AdjudicationReason.MarkedWriteIn,
       AdjudicationReason.BlankBallot,
     ],
     precinctScanAdjudicationReasons: [

@@ -171,7 +171,7 @@ export const MarginalMarkAdjudicationSchema: z.ZodSchema<MarginalMarkAdjudicatio
 
 export interface WriteInMarkAdjudicationMarked {
   readonly type:
-    | AdjudicationReason.WriteIn
+    | AdjudicationReason.MarkedWriteIn
     | AdjudicationReason.UnmarkedWriteIn;
   readonly isMarked: true;
   readonly contestId: Contest['id'];
@@ -181,7 +181,7 @@ export interface WriteInMarkAdjudicationMarked {
 export const WriteInMarkAdjudicationMarkedSchema: z.ZodSchema<WriteInMarkAdjudicationMarked> = z.object(
   {
     type: z.union([
-      z.literal(AdjudicationReason.WriteIn),
+      z.literal(AdjudicationReason.MarkedWriteIn),
       z.literal(AdjudicationReason.UnmarkedWriteIn),
     ]),
     isMarked: z.literal(true),
@@ -193,7 +193,7 @@ export const WriteInMarkAdjudicationMarkedSchema: z.ZodSchema<WriteInMarkAdjudic
 
 export interface WriteInMarkAdjudicationUnmarked {
   readonly type:
-    | AdjudicationReason.WriteIn
+    | AdjudicationReason.MarkedWriteIn
     | AdjudicationReason.UnmarkedWriteIn;
   readonly isMarked: false;
   readonly contestId: Contest['id'];
@@ -202,7 +202,7 @@ export interface WriteInMarkAdjudicationUnmarked {
 export const WriteInMarkAdjudicationUnmarkedSchema: z.ZodSchema<WriteInMarkAdjudicationUnmarked> = z.object(
   {
     type: z.union([
-      z.literal(AdjudicationReason.WriteIn),
+      z.literal(AdjudicationReason.MarkedWriteIn),
       z.literal(AdjudicationReason.UnmarkedWriteIn),
     ]),
     isMarked: z.literal(false),
