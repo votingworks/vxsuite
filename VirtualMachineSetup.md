@@ -148,6 +148,12 @@ ssh-copy-id <HOSTNAME>
 ```
 Then try the `ssh` command again. It should complete without prompting for a password.
 
+If running the above results in an `ERROR: No identities found`, you likely don't have any SSH keys on your home machine. You can generate one using:
+```
+ssh-keygen
+```
+You can hit enter without typing anything on all prompts to generate an SSH key at the default location without a passphrase. If you generate an SSH key with a passphrase and copy that over to your VM, you'll still be prompted for a password when you run `ssh <HOSTNAME>` (you'll just be prompted for your SSH key passphrase instead of your VM password).
+
 Download and install [VS Code](https://code.visualstudio.com/) if desired for development.
 Install the [Remote SSH extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-ssh) within VS Code. You may need to restart VS Code.
 
