@@ -272,7 +272,6 @@ export function DiagnosticsScreen({
     !(devices.computer.batteryIsLow && !devices.computer.batteryIsCharging)
   );
 
-  // TODO hoist so this state persists
   const [
     accessibleControllerDiagnosticResults,
     setAccessibleControllerDiagnosticResults,
