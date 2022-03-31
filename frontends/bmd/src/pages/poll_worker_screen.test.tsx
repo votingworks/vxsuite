@@ -1,4 +1,5 @@
 import React from 'react';
+
 import {
   asElectionDefinition,
   electionMinimalExhaustiveSampleDefinition,
@@ -9,7 +10,6 @@ import {
   CompressedTally,
   ContestId,
   Dictionary,
-  Election,
   MsEitherNeitherContestCompressedTally,
   safeParseElection,
   YesNoContestCompressedTally,
@@ -24,6 +24,7 @@ import {
 } from '@votingworks/utils';
 import { getZeroCompressedTally } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
+
 import { PrecinctSelectionKind, MarkOnly, PrintOnly } from '../config/types';
 
 import { render } from '../../test/test_utils';
@@ -31,7 +32,7 @@ import { render } from '../../test/test_utils';
 import electionSampleWithSealUntyped from '../data/electionSampleWithSeal.json';
 import { defaultPrecinctId } from '../../test/helpers/election';
 
-import { PollWorkerScreen } from './poll_worker_screen';
+import { PollWorkerScreen, PollworkerScreenProps } from './poll_worker_screen';
 import { fakePrinter } from '../../test/helpers/fake_printer';
 import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
 import { fakeDevices } from '../../test/helpers/fake_devices';
@@ -43,6 +44,33 @@ const electionSampleWithSeal = safeParseElection(
 beforeEach(() => {
   jest.useFakeTimers();
 });
+
+function renderScreen(props: Partial<PollworkerScreenProps> = {}) {
+  return render(
+    <PollWorkerScreen
+      activateCardlessVoterSession={jest.fn()}
+      resetCardlessVoterSession={jest.fn()}
+      appPrecinct={{
+        kind: PrecinctSelectionKind.SinglePrecinct,
+        precinctId: defaultPrecinctId,
+      }}
+      electionDefinition={asElectionDefinition(electionSampleWithSeal)}
+      enableLiveMode={jest.fn()}
+      hasVotes={false}
+      isLiveMode={false}
+      isPollsOpen
+      machineConfig={fakeMachineConfig({ appMode: MarkOnly })}
+      hardware={MemoryHardware.buildStandard()}
+      devices={fakeDevices()}
+      printer={fakePrinter()}
+      togglePollsOpen={jest.fn()}
+      tallyOnCard={undefined}
+      clearTalliesOnCard={jest.fn()}
+      reload={jest.fn()}
+      {...props}
+    />
+  );
+}
 
 function expectBallotCountsInReport(
   container: HTMLElement,
@@ -87,63 +115,17 @@ function expectContestResultsInReport(
 }
 
 test('renders PollWorkerScreen', async () => {
-  const election = electionSampleWithSeal;
-  render(
-    <PollWorkerScreen
-      activateCardlessVoterSession={jest.fn()}
-      resetCardlessVoterSession={jest.fn()}
-      appPrecinct={{
-        kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: defaultPrecinctId,
-      }}
-      electionDefinition={asElectionDefinition(election)}
-      enableLiveMode={jest.fn()}
-      hasVotes={false}
-      isLiveMode={false}
-      isPollsOpen
-      machineConfig={fakeMachineConfig({ appMode: MarkOnly })}
-      hardware={MemoryHardware.buildStandard()}
-      devices={fakeDevices()}
-      printer={fakePrinter()}
-      togglePollsOpen={jest.fn()}
-      tallyOnCard={undefined}
-      clearTalliesOnCard={jest.fn()}
-      reload={jest.fn()}
-    />
-  );
-
+  renderScreen();
   screen.getByText(/Polls are currently open./);
 });
 
 test('switching out of test mode on election day', async () => {
-  const election: Election = {
+  const electionDefinition = asElectionDefinition({
     ...electionSampleWithSeal,
     date: new Date().toISOString(),
-  };
+  });
   const enableLiveMode = jest.fn();
-  render(
-    <PollWorkerScreen
-      activateCardlessVoterSession={jest.fn()}
-      resetCardlessVoterSession={jest.fn()}
-      appPrecinct={{
-        kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: defaultPrecinctId,
-      }}
-      electionDefinition={asElectionDefinition(election)}
-      enableLiveMode={enableLiveMode}
-      hasVotes={false}
-      isLiveMode={false}
-      isPollsOpen
-      machineConfig={fakeMachineConfig({ appMode: MarkOnly })}
-      hardware={MemoryHardware.buildStandard()}
-      devices={fakeDevices()}
-      printer={fakePrinter()}
-      togglePollsOpen={jest.fn()}
-      tallyOnCard={undefined}
-      clearTalliesOnCard={jest.fn()}
-      reload={jest.fn()}
-    />
-  );
+  renderScreen({ electionDefinition, enableLiveMode });
 
   screen.getByText('Switch to Live Election Mode?');
   fireEvent.click(screen.getByText('Switch to Live Mode'));
@@ -151,34 +133,12 @@ test('switching out of test mode on election day', async () => {
 });
 
 test('keeping test mode on election day', async () => {
-  const election: Election = {
+  const electionDefinition = asElectionDefinition({
     ...electionSampleWithSeal,
     date: new Date().toISOString(),
-  };
+  });
   const enableLiveMode = jest.fn();
-  render(
-    <PollWorkerScreen
-      activateCardlessVoterSession={jest.fn()}
-      resetCardlessVoterSession={jest.fn()}
-      appPrecinct={{
-        kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: defaultPrecinctId,
-      }}
-      electionDefinition={asElectionDefinition(election)}
-      enableLiveMode={enableLiveMode}
-      hasVotes={false}
-      isLiveMode={false}
-      isPollsOpen
-      machineConfig={fakeMachineConfig({ appMode: MarkOnly })}
-      hardware={MemoryHardware.buildStandard()}
-      devices={fakeDevices()}
-      printer={fakePrinter()}
-      togglePollsOpen={jest.fn()}
-      tallyOnCard={undefined}
-      clearTalliesOnCard={jest.fn()}
-      reload={jest.fn()}
-    />
-  );
+  renderScreen({ electionDefinition, enableLiveMode });
 
   screen.getByText('Switch to Live Election Mode?');
   fireEvent.click(screen.getByText('Cancel'));
@@ -186,41 +146,15 @@ test('keeping test mode on election day', async () => {
 });
 
 test('live mode on election day', async () => {
-  const election = electionSampleWithSeal;
-  const enableLiveMode = jest.fn();
-  render(
-    <PollWorkerScreen
-      activateCardlessVoterSession={jest.fn()}
-      resetCardlessVoterSession={jest.fn()}
-      appPrecinct={{
-        kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: defaultPrecinctId,
-      }}
-      electionDefinition={asElectionDefinition(election)}
-      enableLiveMode={enableLiveMode}
-      hasVotes={false}
-      isLiveMode
-      isPollsOpen
-      machineConfig={fakeMachineConfig({ appMode: MarkOnly })}
-      hardware={MemoryHardware.buildStandard()}
-      devices={fakeDevices()}
-      printer={fakePrinter()}
-      togglePollsOpen={jest.fn()}
-      tallyOnCard={undefined}
-      clearTalliesOnCard={jest.fn()}
-      reload={jest.fn()}
-    />
-  );
-
+  renderScreen({ isLiveMode: true });
   expect(screen.queryByText('Switch to Live Election Mode?')).toBeNull();
 });
 
 test('printing precinct scanner report works as expected with all precinct data for general election', async () => {
-  const election = electionSampleWithSeal;
   const clearTallies = jest.fn();
   const printFn = jest.fn();
 
-  const existingTally = getZeroCompressedTally(election);
+  const existingTally = getZeroCompressedTally(electionSampleWithSeal);
   // add tallies to the president contest
   existingTally[0] = typedAs<CandidateContestWithoutWriteInsCompressedTally>([
     6 /* undervotes */,
@@ -245,35 +179,17 @@ test('printing precinct scanner report works as expected with all precinct data 
     ballotCounts: { 'undefined,__ALL_PRECINCTS': [20, 5] },
   };
 
-  render(
-    <PollWorkerScreen
-      activateCardlessVoterSession={jest.fn()}
-      resetCardlessVoterSession={jest.fn()}
-      appPrecinct={{
-        kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: defaultPrecinctId,
-      }}
-      electionDefinition={asElectionDefinition(election)}
-      enableLiveMode={jest.fn()}
-      hasVotes={false}
-      isLiveMode
-      isPollsOpen={false}
-      machineConfig={fakeMachineConfig({
-        appMode: PrintOnly,
-        machineId: '314',
-      })}
-      hardware={MemoryHardware.buildStandard()}
-      devices={fakeDevices()}
-      printer={{
-        ...fakePrinter(),
-        print: printFn,
-      }}
-      togglePollsOpen={jest.fn()}
-      tallyOnCard={tallyOnCard}
-      clearTalliesOnCard={clearTallies}
-      reload={jest.fn()}
-    />
-  );
+  renderScreen({
+    isLiveMode: true,
+    isPollsOpen: false,
+    machineConfig: fakeMachineConfig({
+      appMode: PrintOnly,
+      machineId: '314',
+    }),
+    printer: { ...fakePrinter(), print: printFn },
+    tallyOnCard,
+    clearTalliesOnCard: clearTallies,
+  });
 
   screen.getByText('Tally Report on Card');
   fireEvent.click(screen.getByText('Print Tally Report'));
@@ -344,35 +260,17 @@ test('printing precinct scanner report works as expected with single precinct da
     },
   };
 
-  render(
-    <PollWorkerScreen
-      activateCardlessVoterSession={jest.fn()}
-      resetCardlessVoterSession={jest.fn()}
-      appPrecinct={{
-        kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: defaultPrecinctId,
-      }}
-      electionDefinition={asElectionDefinition(election)}
-      enableLiveMode={jest.fn()}
-      hasVotes={false}
-      isLiveMode
-      isPollsOpen={false}
-      machineConfig={fakeMachineConfig({
-        appMode: PrintOnly,
-        machineId: '314',
-      })}
-      hardware={MemoryHardware.buildStandard()}
-      devices={fakeDevices()}
-      printer={{
-        ...fakePrinter(),
-        print: printFn,
-      }}
-      togglePollsOpen={jest.fn()}
-      tallyOnCard={tallyOnCard}
-      clearTalliesOnCard={clearTallies}
-      reload={jest.fn()}
-    />
-  );
+  renderScreen({
+    isLiveMode: true,
+    isPollsOpen: false,
+    machineConfig: fakeMachineConfig({
+      appMode: PrintOnly,
+      machineId: '314',
+    }),
+    printer: { ...fakePrinter(), print: printFn },
+    tallyOnCard,
+    clearTalliesOnCard: clearTallies,
+  });
 
   screen.getByText('Tally Report on Card');
   fireEvent.click(screen.getByText('Print Tally Report'));
@@ -483,35 +381,17 @@ test('printing precinct scanner report works as expected with all precinct speci
     },
   };
 
-  render(
-    <PollWorkerScreen
-      activateCardlessVoterSession={jest.fn()}
-      resetCardlessVoterSession={jest.fn()}
-      appPrecinct={{
-        kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: defaultPrecinctId,
-      }}
-      electionDefinition={asElectionDefinition(election)}
-      enableLiveMode={jest.fn()}
-      hasVotes={false}
-      isLiveMode
-      isPollsOpen={false}
-      machineConfig={fakeMachineConfig({
-        appMode: PrintOnly,
-        machineId: '314',
-      })}
-      hardware={MemoryHardware.buildStandard()}
-      devices={fakeDevices()}
-      printer={{
-        ...fakePrinter(),
-        print: printFn,
-      }}
-      togglePollsOpen={jest.fn()}
-      tallyOnCard={tallyOnCard}
-      clearTalliesOnCard={clearTallies}
-      reload={jest.fn()}
-    />
-  );
+  renderScreen({
+    isLiveMode: true,
+    isPollsOpen: false,
+    machineConfig: fakeMachineConfig({
+      appMode: PrintOnly,
+      machineId: '314',
+    }),
+    printer: { ...fakePrinter(), print: printFn },
+    tallyOnCard,
+    clearTalliesOnCard: clearTallies,
+  });
 
   screen.getByText('Tally Report on Card');
   fireEvent.click(screen.getByText('Print Tally Report'));
@@ -806,35 +686,22 @@ test('printing precinct scanner report works as expected with all precinct speci
     },
   };
 
-  render(
-    <PollWorkerScreen
-      activateCardlessVoterSession={jest.fn()}
-      resetCardlessVoterSession={jest.fn()}
-      appPrecinct={{
-        kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: 'precinct-1',
-      }}
-      electionDefinition={electionMinimalExhaustiveSampleDefinition}
-      enableLiveMode={jest.fn()}
-      hasVotes={false}
-      isLiveMode
-      isPollsOpen={false}
-      machineConfig={fakeMachineConfig({
-        appMode: PrintOnly,
-        machineId: '314',
-      })}
-      hardware={MemoryHardware.buildStandard()}
-      devices={fakeDevices()}
-      printer={{
-        ...fakePrinter(),
-        print: printFn,
-      }}
-      togglePollsOpen={jest.fn()}
-      tallyOnCard={tallyOnCard}
-      clearTalliesOnCard={clearTallies}
-      reload={jest.fn()}
-    />
-  );
+  renderScreen({
+    electionDefinition: electionMinimalExhaustiveSampleDefinition,
+    appPrecinct: {
+      kind: PrecinctSelectionKind.SinglePrecinct,
+      precinctId: 'precinct-1',
+    },
+    isLiveMode: true,
+    isPollsOpen: false,
+    machineConfig: fakeMachineConfig({
+      appMode: PrintOnly,
+      machineId: '314',
+    }),
+    printer: { ...fakePrinter(), print: printFn },
+    tallyOnCard,
+    clearTalliesOnCard: clearTallies,
+  });
 
   screen.getByText('Tally Report on Card');
   fireEvent.click(screen.getByText('Print Tally Report'));
@@ -1121,35 +988,22 @@ test('printing precinct scanner report works as expected with all precinct combi
     },
   };
 
-  render(
-    <PollWorkerScreen
-      activateCardlessVoterSession={jest.fn()}
-      resetCardlessVoterSession={jest.fn()}
-      appPrecinct={{
-        kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: 'precinct-1',
-      }}
-      electionDefinition={electionMinimalExhaustiveSampleDefinition}
-      enableLiveMode={jest.fn()}
-      hasVotes={false}
-      isLiveMode
-      isPollsOpen={false}
-      machineConfig={fakeMachineConfig({
-        appMode: PrintOnly,
-        machineId: '314',
-      })}
-      hardware={MemoryHardware.buildStandard()}
-      devices={fakeDevices()}
-      printer={{
-        ...fakePrinter(),
-        print: printFn,
-      }}
-      togglePollsOpen={jest.fn()}
-      tallyOnCard={tallyOnCard}
-      clearTalliesOnCard={clearTallies}
-      reload={jest.fn()}
-    />
-  );
+  renderScreen({
+    electionDefinition: electionMinimalExhaustiveSampleDefinition,
+    appPrecinct: {
+      kind: PrecinctSelectionKind.SinglePrecinct,
+      precinctId: 'precinct-1',
+    },
+    isLiveMode: true,
+    isPollsOpen: false,
+    machineConfig: fakeMachineConfig({
+      appMode: PrintOnly,
+      machineId: '314',
+    }),
+    printer: { ...fakePrinter(), print: printFn },
+    tallyOnCard,
+    clearTalliesOnCard: clearTallies,
+  });
 
   screen.getByText('Tally Report on Card');
   fireEvent.click(screen.getByText('Print Tally Report'));
@@ -1345,35 +1199,22 @@ test('printing precinct scanner report works as expected with a single precinct 
     },
   };
 
-  render(
-    <PollWorkerScreen
-      activateCardlessVoterSession={jest.fn()}
-      resetCardlessVoterSession={jest.fn()}
-      appPrecinct={{
-        kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: 'precinct-1',
-      }}
-      electionDefinition={electionMinimalExhaustiveSampleDefinition}
-      enableLiveMode={jest.fn()}
-      hasVotes={false}
-      isLiveMode
-      isPollsOpen={false}
-      machineConfig={fakeMachineConfig({
-        appMode: PrintOnly,
-        machineId: '314',
-      })}
-      hardware={MemoryHardware.buildStandard()}
-      devices={fakeDevices()}
-      printer={{
-        ...fakePrinter(),
-        print: printFn,
-      }}
-      togglePollsOpen={jest.fn()}
-      tallyOnCard={tallyOnCard}
-      clearTalliesOnCard={clearTallies}
-      reload={jest.fn()}
-    />
-  );
+  renderScreen({
+    electionDefinition: electionMinimalExhaustiveSampleDefinition,
+    appPrecinct: {
+      kind: PrecinctSelectionKind.SinglePrecinct,
+      precinctId: 'precinct-1',
+    },
+    isLiveMode: true,
+    isPollsOpen: false,
+    machineConfig: fakeMachineConfig({
+      appMode: PrintOnly,
+      machineId: '314',
+    }),
+    printer: { ...fakePrinter(), print: printFn },
+    tallyOnCard,
+    clearTalliesOnCard: clearTallies,
+  });
 
   screen.getByText('Tally Report on Card');
   fireEvent.click(screen.getByText('Print Tally Report'));
@@ -1484,29 +1325,7 @@ test('printing precinct scanner report works as expected with a single precinct 
 });
 
 test('navigates to System Diagnostics screen', async () => {
-  const { unmount } = render(
-    <PollWorkerScreen
-      activateCardlessVoterSession={jest.fn()}
-      resetCardlessVoterSession={jest.fn()}
-      appPrecinct={{
-        kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: defaultPrecinctId,
-      }}
-      electionDefinition={asElectionDefinition(electionSampleWithSeal)}
-      enableLiveMode={jest.fn()}
-      hasVotes={false}
-      isLiveMode={false}
-      isPollsOpen
-      machineConfig={fakeMachineConfig({ appMode: MarkOnly })}
-      hardware={MemoryHardware.buildStandard()}
-      devices={fakeDevices()}
-      printer={fakePrinter()}
-      togglePollsOpen={jest.fn()}
-      tallyOnCard={undefined}
-      clearTalliesOnCard={jest.fn()}
-      reload={jest.fn()}
-    />
-  );
+  const { unmount } = renderScreen();
 
   userEvent.click(screen.getByRole('button', { name: 'System Diagnostics' }));
   screen.getByRole('heading', { name: 'System Diagnostics' });
