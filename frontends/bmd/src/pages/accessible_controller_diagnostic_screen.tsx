@@ -51,7 +51,7 @@ interface AccessibleControllerButtonDiagnosticProps {
   buttonName: string;
   buttonKey: string;
   onSuccess: () => void;
-  onFailure: () => void;
+  onFailure: (message: string) => void;
 }
 
 function AccessibleControllerButtonDiagnostic({
@@ -75,8 +75,12 @@ function AccessibleControllerButtonDiagnostic({
   return (
     <StepContainer>
       <div>
-        <h1>Press the {buttonName.toLowerCase()}.</h1>
-        <Button onPress={onFailure}>{buttonName} is Not Working</Button>
+        <h1>Press the {buttonName.toLowerCase()} button.</h1>
+        <Button
+          onPress={() => onFailure(`${buttonName} button is not working.`)}
+        >
+          {buttonName} Button is Not Working
+        </Button>
       </div>
       <img src="/images/controller-up-arrow.png" alt="up" />
     </StepContainer>
@@ -86,7 +90,7 @@ function AccessibleControllerButtonDiagnostic({
 interface AccessibleControllerSoundDiagnosticProps {
   screenReader: ScreenReader;
   onSuccess: () => void;
-  onFailure: () => void;
+  onFailure: (message: string) => void;
 }
 
 function AccessibleControllerSoundDiagnostic({
@@ -126,7 +130,9 @@ function AccessibleControllerSoundDiagnostic({
           <li>Press the right button to play sound.</li>
           <li>Press the select button to confirm sound is working.</li>
         </ol>
-        <Button onPress={onFailure}>Sound is Not Working</Button>
+        <Button onPress={() => onFailure('Sound is not working.')}>
+          Sound is Not Working
+        </Button>
       </div>
       <img src="/images/controller-up-arrow.png" alt="up" />
     </StepContainer>
@@ -144,7 +150,7 @@ export function AccessibleControllerDiagnostic({
   onCancel,
   screenReader,
 }: AccessibleControllerDiagnosticProps): JSX.Element {
-  const [currentStep, setCurrentStep] = useState(0);
+  const [step, setStep] = useState(0);
 
   function passTest() {
     onComplete({ passed: true, completedAt: DateTime.now() });
@@ -154,57 +160,32 @@ export function AccessibleControllerDiagnostic({
   }
 
   function nextStep() {
-    setCurrentStep((previousStep) => previousStep + 1);
+    setStep((previousStep) => previousStep + 1);
   }
 
+  const buttons = [
+    ['Up', 'ArrowUp'],
+    ['Down', 'ArrowDown'],
+    ['Left', 'ArrowLeft'],
+    ['Right', 'ArrowRight'],
+    ['Select', 'Enter'],
+  ];
   const steps = [
-    () => (
+    ...buttons.map(([buttonName, buttonKey]) => (
       <AccessibleControllerButtonDiagnostic
-        buttonName="Up Button"
-        buttonKey="ArrowUp"
+        key={buttonName}
+        buttonName={buttonName}
+        buttonKey={buttonKey}
         onSuccess={nextStep}
-        onFailure={() => failTest('Up button is not working.')}
+        onFailure={failTest}
       />
-    ),
-    () => (
-      <AccessibleControllerButtonDiagnostic
-        buttonName="Down Button"
-        buttonKey="ArrowDown"
-        onSuccess={nextStep}
-        onFailure={() => failTest('Down button is not working.')}
-      />
-    ),
-    () => (
-      <AccessibleControllerButtonDiagnostic
-        buttonName="Left Button"
-        buttonKey="ArrowLeft"
-        onSuccess={nextStep}
-        onFailure={() => failTest('Left button is not working.')}
-      />
-    ),
-    () => (
-      <AccessibleControllerButtonDiagnostic
-        buttonName="Right Button"
-        buttonKey="ArrowRight"
-        onSuccess={nextStep}
-        onFailure={() => failTest('Right button is not working.')}
-      />
-    ),
-    () => (
-      <AccessibleControllerButtonDiagnostic
-        buttonName="Select Button"
-        buttonKey="Enter"
-        onSuccess={nextStep}
-        onFailure={() => failTest('Select button is not working.')}
-      />
-    ),
-    () => (
-      <AccessibleControllerSoundDiagnostic
-        screenReader={screenReader}
-        onSuccess={passTest}
-        onFailure={() => failTest('Sound is not working.')}
-      />
-    ),
+    )),
+    <AccessibleControllerSoundDiagnostic
+      key="sound"
+      screenReader={screenReader}
+      onSuccess={passTest}
+      onFailure={failTest}
+    />,
   ];
 
   return (
@@ -214,11 +195,11 @@ export function AccessibleControllerDiagnostic({
           <Header>
             <Text>
               <strong>Accessible Controller Test</strong> &mdash; Step{' '}
-              {currentStep + 1} of {steps.length}
+              {step + 1} of {steps.length}
             </Text>
             <Button onPress={onCancel}>Cancel Test</Button>
           </Header>
-          {steps[currentStep]()}
+          {steps[step]}
         </MainChild>
       </Main>
     </Screen>
