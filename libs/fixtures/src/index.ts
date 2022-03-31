@@ -25,6 +25,7 @@ import { msEitherNeitherElectionSemsData } from './data/electionWithMsEitherNeit
 import electionMinimalExhaustiveSampleUntyped from './data/electionMinimalExhaustiveSample/electionMinimalExhaustiveSample.json';
 import { electionMinimalExhaustiveCvrData } from './data/electionMinimalExhaustiveSample/cvrFiles/standard.jsonl';
 import { electionMinimalExhaustiveSemsData } from './data/electionMinimalExhaustiveSample/semsFiles/standard.csv';
+import electionMinimalExhaustiveSampleRightSideTargetsUntyped from './data/electionMinimalExhaustiveSampleRightSideTargets/electionMinimalExhaustiveSampleRightSideTargets.json';
 
 export function asElectionDefinition(election: Election): ElectionDefinition {
   const electionData = JSON.stringify(election);
@@ -43,6 +44,7 @@ export const electionSampleLongContent = (electionSampleLongContentUntyped as un
 export const electionSampleRotation = (electionSampleRotationUntyped as unknown) as Election;
 export const electionWithMsEitherNeither = (electionWithMsEitherNeitherUntyped as unknown) as Election;
 export const electionMinimalExhaustiveSample = (electionMinimalExhaustiveSampleUntyped as unknown) as Election;
+export const electionMinimalExhaustiveSampleRightSideTargets = (electionMinimalExhaustiveSampleRightSideTargetsUntyped as unknown) as Election;
 
 export const electionSampleDefinition = asElectionDefinition(electionSample);
 export const electionSample2Definition = asElectionDefinition(electionSample2);
@@ -63,6 +65,9 @@ export const electionWithMsEitherNeitherDefinition = asElectionDefinition(
 );
 export const electionMinimalExhaustiveSampleDefinition = asElectionDefinition(
   electionMinimalExhaustiveSample
+);
+export const electionMinimalExhaustiveSampleRightSideTargetsDefinition = asElectionDefinition(
+  electionMinimalExhaustiveSampleRightSideTargets
 );
 
 export const electionWithMsEitherNeitherRawData = JSON.stringify(
