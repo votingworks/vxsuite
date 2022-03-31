@@ -4,10 +4,13 @@ import {
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import { join } from 'path';
-import { HudsonFixtureName, readFixtureJson } from '../test/fixtures';
+import {
+  HudsonFixtureName,
+  readFixtureImage,
+  readFixtureJson,
+} from '../test/fixtures';
 import { ScannedBallotCardGeometry8pt5x14 } from './accuvote';
 import { withCanvasDebugger } from './debug';
-import { readGrayscaleImage } from './images';
 import {
   generateBallotPageLayouts,
   layoutTimingMarksForGeometry,
@@ -72,15 +75,12 @@ test('generateBallotPageLayouts', async () => {
   );
 
   // Uncomment this to write debug images for each contest & option:
-  (await import('./debug')).setDebug(true);
+  // (await import('./debug')).setDebug(true);
 
-  const frontImageData = await readGrayscaleImage(
-    '/home/brian/src/vxsuite/services/scan/dev-workspace/ballot-images/batch-d3f53f9b-b25a-4c29-9333-4abb6894ac12/20220302_153423-ballot-0001.jpeg'
+  const frontImageData = await readFixtureImage(
+    HudsonFixtureName,
+    'scan-marked-front'
   );
-  // const frontImageData = await readFixtureImage(
-  //   HudsonFixtureName,
-  //   'scan-marked-front'
-  // );
 
   for (const contest of frontLayout.contests) {
     withCanvasDebugger(contest.bounds.width, contest.bounds.height, (debug) => {

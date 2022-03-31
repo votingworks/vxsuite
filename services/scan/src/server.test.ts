@@ -1,7 +1,14 @@
 import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures';
 import { Logger, LogSource } from '@votingworks/logging';
 import * as plusteksdk from '@votingworks/plustek-sdk';
-import { BallotPageLayoutWithImage, BallotType, ok } from '@votingworks/types';
+import {
+  AdjudicationReason,
+  BallotPageLayout,
+  BallotPageLayoutWithImage,
+  BallotType,
+  InterpretedHmpbPage,
+  ok,
+} from '@votingworks/types';
 import {
   GetNextReviewSheetResponse,
   GetScanStatusResponse,
@@ -642,6 +649,99 @@ test('get next sheet', async () => {
         },
         layouts: {},
         definitions: {},
+      })
+    );
+});
+
+test('get next sheet layouts', async () => {
+  const frontInterpretation: InterpretedHmpbPage = {
+    type: 'InterpretedHmpbPage',
+    metadata: {
+      locales: { primary: 'en-US' },
+      electionHash: stateOfHamilton.electionDefinition.electionHash,
+      ballotType: BallotType.Standard,
+      ballotStyleId: '12',
+      precinctId: '23',
+      isTestMode: false,
+      pageNumber: 1,
+    },
+    markInfo: {
+      ballotSize: { width: 1, height: 1 },
+      marks: [],
+    },
+    adjudicationInfo: {
+      requiresAdjudication: true,
+      enabledReasons: [AdjudicationReason.Overvote],
+      enabledReasonInfos: [
+        {
+          type: AdjudicationReason.Overvote,
+          contestId: 'contest-id',
+          expected: 1,
+          optionIds: ['option-id', 'option-id-2'],
+          optionIndexes: [0, 1],
+        },
+      ],
+      ignoredReasonInfos: [],
+    },
+    votes: {},
+  };
+  const backInterpretation: InterpretedHmpbPage = {
+    ...frontInterpretation,
+    metadata: {
+      ...frontInterpretation.metadata,
+      pageNumber: 2,
+    },
+  };
+  jest.spyOn(workspace.store, 'getNextAdjudicationSheet').mockReturnValueOnce({
+    id: 'mock-review-sheet',
+    front: {
+      image: { url: '/url/front' },
+      interpretation: frontInterpretation,
+    },
+    back: {
+      image: { url: '/url/back' },
+      interpretation: backInterpretation,
+    },
+  });
+
+  const frontLayout: BallotPageLayout = {
+    pageSize: { width: 1, height: 1 },
+    metadata: frontInterpretation.metadata,
+    contests: [],
+  };
+  const backLayout: BallotPageLayout = {
+    pageSize: { width: 1, height: 1 },
+    metadata: backInterpretation.metadata,
+    contests: [],
+  };
+  jest
+    .spyOn(workspace.store, 'getBallotLayoutsForMetadata')
+    .mockReturnValue([frontLayout, backLayout]);
+
+  await request(app)
+    .get(`/scan/hmpb/review/next-sheet`)
+    .expect(
+      200,
+      typedAs<GetNextReviewSheetResponse>({
+        interpreted: {
+          id: 'mock-review-sheet',
+          front: {
+            image: { url: '/url/front' },
+            interpretation: frontInterpretation,
+          },
+          back: {
+            image: { url: '/url/back' },
+            interpretation: backInterpretation,
+          },
+        },
+        layouts: {
+          front: frontLayout,
+          back: backLayout,
+        },
+        definitions: {
+          front: { contestIds: [] },
+          back: { contestIds: [] },
+        },
       })
     );
 });
