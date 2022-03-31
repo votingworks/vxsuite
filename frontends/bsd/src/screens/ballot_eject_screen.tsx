@@ -4,6 +4,8 @@ import {
   Contest,
   MarkAdjudications,
   PageInterpretation,
+  UnmarkedWriteInAdjudicationReasonInfo,
+  WriteInAdjudicationReasonInfo,
 } from '@votingworks/types';
 import {
   GetNextReviewSheetResponse,
@@ -341,12 +343,21 @@ export function BallotEjectScreen({
             adjudicationReason.type === AdjudicationReason.UnmarkedWriteIn
           ) {
             if (reviewPageInfo.layout && reviewPageInfo.contestIds) {
+              const writeIns = reviewPageInfo.interpretation.adjudicationInfo.enabledReasonInfos.filter(
+                (
+                  reason
+                ): reason is
+                  | WriteInAdjudicationReasonInfo
+                  | UnmarkedWriteInAdjudicationReasonInfo =>
+                  reason.type === AdjudicationReason.WriteIn ||
+                  reason.type === AdjudicationReason.UnmarkedWriteIn
+              );
               return (
                 <WriteInAdjudicationScreen
                   sheetId={reviewInfo.interpreted.id}
                   side={reviewPageInfo.side}
                   imageUrl={reviewPageInfo.imageUrl}
-                  interpretation={reviewPageInfo.interpretation}
+                  writeIns={writeIns}
                   layout={reviewPageInfo.layout}
                   contestIds={reviewPageInfo.contestIds}
                   onAdjudicationComplete={onAdjudicationComplete}
