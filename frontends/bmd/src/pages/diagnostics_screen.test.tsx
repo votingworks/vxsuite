@@ -1,11 +1,17 @@
 import React from 'react';
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import MockDate from 'mockdate';
 import { fakeMarkerInfo } from '@votingworks/test-utils';
 import { MemoryHardware } from '@votingworks/utils';
-import { DiagnosticsScreen } from './diagnostics_screen';
+import { MemoryRouter } from 'react-router-dom';
+import {
+  DiagnosticsScreen,
+  DiagnosticsScreenProps,
+} from './diagnostics_screen';
 import { fakeDevices } from '../../test/helpers/fake_devices';
+import { AriaScreenReader } from '../utils/ScreenReader';
+import { fakeTts } from '../../test/helpers/fake_tts';
 
 // Unfortunately, since the icons are rendered in CSS ::before pseudo-elements,
 // we can't check for them in the rendered HTML output. The
@@ -20,6 +26,21 @@ function expectToHaveWarningIcon(element: HTMLElement) {
   expect(element).toHaveClass('dikopi');
 }
 
+function renderScreen(props: Partial<DiagnosticsScreenProps> = {}) {
+  return render(
+    <MemoryRouter>
+      <DiagnosticsScreen
+        hardware={MemoryHardware.buildStandard()}
+        devices={fakeDevices()}
+        screenReader={new AriaScreenReader(fakeTts())}
+        onBackButtonPress={jest.fn()}
+        sidebarProps={{}}
+        {...props}
+      />
+    </MemoryRouter>
+  );
+}
+
 describe('System Diagnostics screen', () => {
   beforeAll(() => {
     MockDate.set('2022-03-23T11:23:00.000Z');
@@ -27,13 +48,10 @@ describe('System Diagnostics screen', () => {
 
   describe('Computer section', () => {
     it('shows the battery level and power cord status', async () => {
-      const hardware = MemoryHardware.buildStandard();
       const devices = fakeDevices({
         computer: { batteryLevel: 0.05, batteryIsLow: true },
       });
-      const { unmount } = render(
-        <DiagnosticsScreen hardware={hardware} devices={devices} />
-      );
+      const { unmount } = renderScreen({ devices });
 
       screen.getByRole('heading', { name: 'System Diagnostics' });
 
@@ -56,13 +74,10 @@ describe('System Diagnostics screen', () => {
     });
 
     it('shows a warning when the power cord is not connected', async () => {
-      const hardware = MemoryHardware.buildStandard();
       const devices = fakeDevices({
         computer: { batteryIsCharging: false },
       });
-      const { unmount } = render(
-        <DiagnosticsScreen hardware={hardware} devices={devices} />
-      );
+      const { unmount } = renderScreen({ devices });
 
       const computerSection = screen
         .getByRole('heading', { name: 'Computer' })
@@ -83,8 +98,7 @@ describe('System Diagnostics screen', () => {
   describe('Printer section', () => {
     it('shows the current printer status and has a button to refresh', async () => {
       const hardware = MemoryHardware.buildStandard();
-      const devices = fakeDevices();
-      render(<DiagnosticsScreen hardware={hardware} devices={devices} />);
+      renderScreen({ hardware });
 
       const printerSection = screen
         .getByRole('heading', { name: 'Printer' })
@@ -126,11 +140,10 @@ describe('System Diagnostics screen', () => {
 
     it('shows a warning when the printer status cannot be loaded', async () => {
       const hardware = MemoryHardware.buildStandard();
-      const devices = fakeDevices();
       hardware.setPrinterIppAttributes({
         state: 'unknown',
       });
-      render(<DiagnosticsScreen hardware={hardware} devices={devices} />);
+      renderScreen({ hardware });
 
       const printerSection = screen
         .getByRole('heading', { name: 'Printer' })
@@ -148,7 +161,6 @@ describe('System Diagnostics screen', () => {
 
     it('shows only the highest priority printer state reason', async () => {
       const hardware = MemoryHardware.buildStandard();
-      const devices = fakeDevices();
       hardware.setPrinterIppAttributes({
         state: 'stopped',
         stateReasons: [
@@ -159,7 +171,7 @@ describe('System Diagnostics screen', () => {
         ],
         markerInfos: [fakeMarkerInfo()],
       });
-      render(<DiagnosticsScreen hardware={hardware} devices={devices} />);
+      renderScreen({ hardware });
 
       const printerSection = screen
         .getByRole('heading', { name: 'Printer' })
@@ -172,13 +184,12 @@ describe('System Diagnostics screen', () => {
 
     it('shows the plain printer-state-reasons text for unrecognized printer state reasons', async () => {
       const hardware = MemoryHardware.buildStandard();
-      const devices = fakeDevices();
       hardware.setPrinterIppAttributes({
         state: 'stopped',
         stateReasons: ['some-other-reason-warning'],
         markerInfos: [fakeMarkerInfo()],
       });
-      render(<DiagnosticsScreen hardware={hardware} devices={devices} />);
+      renderScreen({ hardware });
 
       const printerSection = screen
         .getByRole('heading', { name: 'Printer' })
@@ -191,13 +202,12 @@ describe('System Diagnostics screen', () => {
 
     it("doesn't show warning when printer-state-reasons can't be parsed", async () => {
       const hardware = MemoryHardware.buildStandard();
-      const devices = fakeDevices();
       hardware.setPrinterIppAttributes({
         state: 'stopped',
         stateReasons: ['123'],
         markerInfos: [fakeMarkerInfo()],
       });
-      render(<DiagnosticsScreen hardware={hardware} devices={devices} />);
+      renderScreen({ hardware });
 
       const printerSection = screen
         .getByRole('heading', { name: 'Printer' })
@@ -210,13 +220,12 @@ describe('System Diagnostics screen', () => {
 
     it("handles negative toner level (which indicates that the toner level can't be read)", async () => {
       const hardware = MemoryHardware.buildStandard();
-      const devices = fakeDevices();
       hardware.setPrinterIppAttributes({
         state: 'idle',
         stateReasons: ['none'],
         markerInfos: [fakeMarkerInfo({ level: -2 })],
       });
-      render(<DiagnosticsScreen hardware={hardware} devices={devices} />);
+      renderScreen({ hardware });
 
       const printerSection = screen
         .getByRole('heading', { name: 'Printer' })
@@ -225,6 +234,98 @@ describe('System Diagnostics screen', () => {
         'Toner level: Unknown'
       );
       expectToHaveWarningIcon(tonerLevelText);
+    });
+  });
+
+  describe('Accessible Controller section', () => {
+    it('shows the connection status, has a button to open test, and shows test results', async () => {
+      const mockTts = fakeTts();
+      const screenReader = new AriaScreenReader(mockTts);
+      const { unmount } = renderScreen({ screenReader });
+
+      let controllerSection = screen
+        .getByRole('heading', { name: 'Accessible Controller' })
+        .closest('section')!;
+      const connectionText = within(controllerSection).getByText(
+        'Accessible controller connected.'
+      );
+      expectToHaveSuccessIcon(connectionText);
+
+      userEvent.click(
+        within(controllerSection).getByText('Start Accessible Controller Test')
+      );
+
+      // Execute happy path so we can get a test result
+      // We have to wrap key presses in act to avoid a warning. This may be due
+      // to the fact that the keyDown listener is attached to the document
+      // instead of a React component.
+      await screen.findByText('Press the up button.');
+      act(() => void userEvent.keyboard('{ArrowUp}'));
+      await screen.findByText('Press the down button.');
+      act(() => void userEvent.keyboard('{ArrowDown}'));
+      await screen.findByText('Press the left button.');
+      act(() => void userEvent.keyboard('{ArrowLeft}'));
+      await screen.findByText('Press the right button.');
+      act(() => void userEvent.keyboard('{ArrowRight}'));
+      await screen.findByText('Press the select button.');
+      act(() => void userEvent.keyboard('{Enter}'));
+      await screen.findByText('Confirm sound is working.');
+      act(() => void userEvent.keyboard('{ArrowRight}'));
+      await waitFor(() => expect(mockTts.speak).toHaveBeenCalled());
+      act(() => void userEvent.keyboard('{Enter}'));
+
+      controllerSection = (
+        await screen.findByRole('heading', { name: 'Accessible Controller' })
+      ).closest('section')!;
+      const testResultText = within(controllerSection).getByText(
+        'Test passed.'
+      );
+      expectToHaveSuccessIcon(testResultText);
+      within(controllerSection).getByText('Last tested at 11:23 AM');
+
+      unmount();
+    });
+
+    it('shows when the controller is disconnected', async () => {
+      const devices = fakeDevices();
+      devices.accessibleController = undefined;
+      const { unmount } = renderScreen({ devices });
+
+      const controllerSection = screen
+        .getByRole('heading', { name: 'Accessible Controller' })
+        .closest('section')!;
+      const connectionText = within(controllerSection).getByText(
+        'No accessible controller connected.'
+      );
+      expectToHaveWarningIcon(connectionText);
+      expect(
+        within(controllerSection).queryByText(
+          'Start Accessible Controller Test'
+        )
+      ).not.toBeInTheDocument();
+
+      unmount();
+    });
+
+    it('shows failed test results', async () => {
+      const { unmount } = renderScreen();
+
+      userEvent.click(screen.getByText('Start Accessible Controller Test'));
+
+      await screen.findByText('Press the up button.');
+      userEvent.click(
+        screen.getByRole('button', { name: 'Up Button is Not Working' })
+      );
+
+      const controllerSection = (
+        await screen.findByRole('heading', { name: 'Accessible Controller' })
+      ).closest('section')!;
+      const testResultText = within(controllerSection).getByText(
+        'Test failed: Up button is not working.'
+      );
+      expectToHaveWarningIcon(testResultText);
+
+      unmount();
     });
   });
 });

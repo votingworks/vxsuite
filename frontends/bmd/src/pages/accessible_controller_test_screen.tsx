@@ -1,12 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  Button,
-  fontSizeTheme,
-  Main,
-  MainChild,
-  Prose,
-  Text,
-} from '@votingworks/ui';
+import { Button, Main, MainChild, Prose, Text } from '@votingworks/ui';
 import { DateTime } from 'luxon';
 import styled from 'styled-components';
 import { Screen } from '../components/screen';
@@ -14,7 +7,7 @@ import { ScreenReader } from '../config/types';
 
 const Header = styled(Prose).attrs({
   maxWidth: false,
-  theme: fontSizeTheme.medium,
+  // theme: fontSizeTheme.medium,
 })`
   display: flex;
   justify-content: space-between;
@@ -26,8 +19,21 @@ const StepContainer = styled.div`
   align-items: center;
   grid-template-columns: 55% 1fr;
   flex-grow: 1;
-  > img {
+
+  img {
     justify-self: center;
+  }
+
+  button {
+    margin-top: 4em;
+  }
+
+  ol {
+    margin-top: 0;
+    padding-left: 1em;
+    li {
+      margin-bottom: 1em;
+    }
   }
 `;
 
@@ -69,36 +75,26 @@ function AccessibleControllerButtonTest({
 
   return (
     <StepContainer>
-      <Prose theme={fontSizeTheme.large}>
+      <div>
         <h1>Press the {buttonName.toLowerCase()}.</h1>
         <Button onPress={onFailure}>{buttonName} is Not Working</Button>
-      </Prose>
+      </div>
       <img src="/images/controller-up-arrow.png" alt="up" />
     </StepContainer>
   );
 }
 
-// // https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle#The_modern_algorithm
-// function shuffle<T>(array: T[]): T[] {
-//   const shuffled = array.slice();
-//   for (let i = shuffled.length - 1; i > 0; i -= 1) {
-//     const j = Math.floor(Math.random() * (i + 1));
-//     [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-//   }
-//   return shuffled;
-// }
-
-interface AccessibleControllerHeadphonesTestProps {
+interface AccessibleControllerSoundTestProps {
   screenReader: ScreenReader;
   onSuccess: () => void;
   onFailure: () => void;
 }
 
-function AccessibleControllerHeadphonesTest({
+function AccessibleControllerSoundTest({
   screenReader,
   onSuccess,
   onFailure,
-}: AccessibleControllerHeadphonesTestProps) {
+}: AccessibleControllerSoundTestProps) {
   const [hasPlayedAudio, setHasPlayedAudio] = useState(false);
 
   useEffect(() => {
@@ -108,7 +104,7 @@ function AccessibleControllerHeadphonesTest({
         const wasMuted = screenReader.isMuted();
         screenReader.unmute();
         await screenReader.speak(
-          'Press the select button to confirm the audio is working.'
+          'Press the select button to confirm sound is working.'
         );
         if (wasMuted) screenReader.mute();
         setHasPlayedAudio(true);
@@ -124,16 +120,15 @@ function AccessibleControllerHeadphonesTest({
 
   return (
     <StepContainer>
-      <Prose theme={fontSizeTheme.large}>
-        <h3>
-          Plug headphones into the accessible controller, then press the right
-          button to play audio.
-        </h3>
-        <Text style={{ marginTop: '1em' }}>
-          Press the select button to confirm the audio is working.
-        </Text>
-        <Button onPress={onFailure}>Audio is Not Working</Button>
-      </Prose>
+      <div>
+        <h1>Confirm sound is working.</h1>
+        <ol>
+          <li>Plug in headphones.</li>
+          <li>Press the right button to play sound.</li>
+          <li>Press the select button to confirm sound is working.</li>
+        </ol>
+        <Button onPress={onFailure}>Sound is Not Working</Button>
+      </div>
       <img src="/images/controller-up-arrow.png" alt="up" />
     </StepContainer>
   );
@@ -205,24 +200,24 @@ export function AccessibleControllerTest({
       />
     ),
     () => (
-      <AccessibleControllerHeadphonesTest
+      <AccessibleControllerSoundTest
         screenReader={screenReader}
         onSuccess={passTest}
-        onFailure={() => failTest('Audio is not working.')}
+        onFailure={() => failTest('Sound is not working.')}
       />
     ),
   ];
 
   return (
     <Screen voterMode={false}>
-      <Main padded style={{ paddingLeft: '3em', paddingRight: '3em' }}>
+      <Main style={{ padding: '2em 6em' }}>
         <MainChild maxWidth={false} flexContainer>
           <Header>
             <Text>
               <strong>Accessible Controller Test</strong> &mdash; Step{' '}
               {currentStep + 1} of {steps.length}
             </Text>
-            <Button onPress={onCancel}>Exit</Button>
+            <Button onPress={onCancel}>Cancel Test</Button>
           </Header>
           {steps[currentStep]()}
         </MainChild>

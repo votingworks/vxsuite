@@ -250,7 +250,7 @@ function AccessibleControllerStatus({
   );
 }
 
-interface DiagnosticsScreenProps {
+export interface DiagnosticsScreenProps {
   hardware: Hardware;
   devices: Devices;
   screenReader: ScreenReader;
