@@ -3,12 +3,13 @@ import {
   BallotPageContestLayout,
   BallotPageContestOptionLayout,
   BallotPageLayout,
+  CandidateContest,
   Election,
   err,
   ok,
   Result,
 } from '@votingworks/types';
-import { assert, groupBy } from '@votingworks/utils';
+import { allContestOptions, assert, find, groupBy } from '@votingworks/utils';
 import { BallotCardGeometry, getScannedBallotCardGeometry } from './accuvote';
 import { computeTimingMarkGrid } from './timing_marks';
 import { CompleteTimingMarks, Point, Rect, Size, Vector } from './types';
@@ -220,10 +221,22 @@ export function generateBallotPageLayouts(
   ].entries()) {
     const contests: BallotPageContestLayout[] = [];
 
-    for (const gridPositions of gridPositionsByContestId.values()) {
+    for (const [contestId, gridPositions] of gridPositionsByContestId) {
+      const contest = find(election.contests, ({ id }) => id === contestId);
+      const contestOptionDefinitions = Array.from(allContestOptions(contest));
       const options: BallotPageContestOptionLayout[] = [];
 
       for (const gridPosition of Array.from(gridPositions)) {
+        const contestOptionDefinition = find(
+          contestOptionDefinitions,
+          (optionDefinition) =>
+            gridPosition.type === 'option'
+              ? optionDefinition.id === gridPosition.optionId
+              : optionDefinition.optionIndex ===
+                gridPosition.writeInIndex +
+                  (contest as CandidateContest).candidates.length
+        );
+
         const optionTopLeft = timingMarkGrid.rows[
           clampRow(gridPosition.row + optionGridOriginOffset.y)
         ]?.[
@@ -257,6 +270,7 @@ export function generateBallotPageLayouts(
           maxY: Math.round(ovalCenter.y + geometry.ovalSize.height / 2),
         });
         options.push({
+          definition: contestOptionDefinition,
           bounds: optionBounds,
           target: {
             bounds: targetBounds,
@@ -276,6 +290,7 @@ export function generateBallotPageLayouts(
       const bounds = makeRect({ minX, minY, maxX, maxY });
 
       contests.push({
+        contestId,
         options,
         bounds,
         corners: [

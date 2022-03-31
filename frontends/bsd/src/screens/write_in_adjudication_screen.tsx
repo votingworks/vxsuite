@@ -248,7 +248,10 @@ function ContestOptionAdjudication({
   writeInPresets,
 }: ContestOptionAdjudicationProps): JSX.Element {
   const writeInIndex = writeIn.optionIndex;
-  const { bounds } = layout.options[writeInIndex];
+  const { bounds } =
+    layout.options.find(
+      ({ definition }) => definition?.optionIndex === writeIn.optionIndex
+    ) ?? layout.options[writeInIndex];
   const adjudication = adjudications.find(
     ({ contestId, optionId }) =>
       contestId === writeIn.contestId && optionId === writeIn.optionId
