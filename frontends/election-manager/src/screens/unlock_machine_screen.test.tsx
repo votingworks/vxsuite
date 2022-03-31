@@ -64,29 +64,3 @@ test('authentication', async () => {
 
   expect(screen.queryByText('Invalid code. Please try again.')).toBeNull();
 });
-
-test('Unconfigure VxAdmin from secret menu', async () => {
-  const attemptToAuthenticateAdminUser = jest.fn();
-  const saveElection = jest.fn();
-
-  renderInAppContext(<UnlockMachineScreen />, {
-    attemptToAuthenticateAdminUser,
-    saveElection,
-  });
-
-  attemptToAuthenticateAdminUser.mockReturnValueOnce(false);
-
-  userEvent.click(screen.getByText('3'));
-  userEvent.click(screen.getByText('1'));
-  userEvent.click(screen.getByText('4'));
-  userEvent.click(screen.getByText('1'));
-  userEvent.click(screen.getByText('5'));
-  userEvent.click(screen.getByText('9'));
-
-  await waitFor(() =>
-    expect(attemptToAuthenticateAdminUser).toHaveBeenNthCalledWith(1, '314159')
-  );
-
-  userEvent.click(screen.getByText('Remove Current Election'));
-  expect(saveElection).toHaveBeenCalledWith(undefined);
-});
