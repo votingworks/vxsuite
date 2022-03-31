@@ -145,7 +145,7 @@ export function PollWorkerScreen({
     setIsPrintingPrecinctScannerReport,
   ] = useState(false);
 
-  const [isDiagnosticsScreenOpen, setIsDiagnosticsScreenOpen] = useState(true);
+  const [isDiagnosticsScreenOpen, setIsDiagnosticsScreenOpen] = useState(false);
 
   const parties = useMemo(() => getPartyIdsInBallotStyles(election), [
     election,

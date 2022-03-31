@@ -42,7 +42,7 @@ function renderScreen(props: Partial<DiagnosticsScreenProps> = {}) {
 }
 
 describe('System Diagnostics screen', () => {
-  beforeAll(() => {
+  beforeEach(() => {
     MockDate.set('2022-03-23T11:23:00.000Z');
   });
 
@@ -281,6 +281,19 @@ describe('System Diagnostics screen', () => {
         'Test passed.'
       );
       expectToHaveSuccessIcon(testResultText);
+      within(controllerSection).getByText('Last tested at 11:23 AM');
+
+      // Bonus test - if we start a new test and cancel it, last results should still be shown
+      MockDate.set(new Date());
+      userEvent.click(
+        within(controllerSection).getByText('Start Accessible Controller Test')
+      );
+      userEvent.click(screen.getByRole('button', { name: 'Cancel Test' }));
+
+      controllerSection = (
+        await screen.findByRole('heading', { name: 'Accessible Controller' })
+      ).closest('section')!;
+      within(controllerSection).getByText('Test passed.');
       within(controllerSection).getByText('Last tested at 11:23 AM');
 
       unmount();

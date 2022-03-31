@@ -17,9 +17,9 @@ import { DateTime } from 'luxon';
 import { useHistory, Switch, Route } from 'react-router-dom';
 import styled from 'styled-components';
 import {
+  AccessibleControllerDiagnostic,
   AccessibleControllerDiagnosticResults,
-  AccessibleControllerTest,
-} from './accessible_controller_test_screen';
+} from './accessible_controller_diagnostic_screen';
 import { Screen } from '../components/screen';
 import { Sidebar, SidebarProps } from '../components/sidebar';
 import { ScreenReader } from '../config/types';
@@ -313,7 +313,7 @@ export function DiagnosticsScreen({
         </Screen>
       </Route>
       <Route path="/accessible-controller">
-        <AccessibleControllerTest
+        <AccessibleControllerDiagnostic
           screenReader={screenReader}
           onComplete={(results) => {
             setAccessibleControllerDiagnosticResults(results);

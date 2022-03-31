@@ -7,18 +7,17 @@ import { ScreenReader } from '../config/types';
 
 const Header = styled(Prose).attrs({
   maxWidth: false,
-  // theme: fontSizeTheme.medium,
 })`
   display: flex;
-  justify-content: space-between;
   align-items: baseline;
+  justify-content: space-between;
 `;
 
 const StepContainer = styled.div`
   display: grid;
-  align-items: center;
   grid-template-columns: 55% 1fr;
   flex-grow: 1;
+  align-items: center;
 
   img {
     justify-self: center;
@@ -48,19 +47,19 @@ export type AccessibleControllerDiagnosticResults =
       message: string;
     };
 
-interface AccessibleControllerButtonTestProps {
+interface AccessibleControllerButtonDiagnosticProps {
   buttonName: string;
   buttonKey: string;
   onSuccess: () => void;
   onFailure: () => void;
 }
 
-function AccessibleControllerButtonTest({
+function AccessibleControllerButtonDiagnostic({
   buttonName,
   buttonKey,
   onSuccess,
   onFailure,
-}: AccessibleControllerButtonTestProps) {
+}: AccessibleControllerButtonDiagnosticProps) {
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
       event.stopPropagation();
@@ -84,17 +83,17 @@ function AccessibleControllerButtonTest({
   );
 }
 
-interface AccessibleControllerSoundTestProps {
+interface AccessibleControllerSoundDiagnosticProps {
   screenReader: ScreenReader;
   onSuccess: () => void;
   onFailure: () => void;
 }
 
-function AccessibleControllerSoundTest({
+function AccessibleControllerSoundDiagnostic({
   screenReader,
   onSuccess,
   onFailure,
-}: AccessibleControllerSoundTestProps) {
+}: AccessibleControllerSoundDiagnosticProps) {
   const [hasPlayedAudio, setHasPlayedAudio] = useState(false);
 
   useEffect(() => {
@@ -106,7 +105,7 @@ function AccessibleControllerSoundTest({
         await screenReader.speak(
           'Press the select button to confirm sound is working.'
         );
-        if (wasMuted) screenReader.mute();
+        screenReader.toggleMuted(wasMuted);
         setHasPlayedAudio(true);
       }
       if (event.key === 'Enter' && hasPlayedAudio) {
@@ -134,17 +133,17 @@ function AccessibleControllerSoundTest({
   );
 }
 
-interface AccessibleControllerTestProps {
+export interface AccessibleControllerDiagnosticProps {
   onComplete: (results: AccessibleControllerDiagnosticResults) => void;
   onCancel: () => void;
   screenReader: ScreenReader;
 }
 
-export function AccessibleControllerTest({
+export function AccessibleControllerDiagnostic({
   onComplete,
   onCancel,
   screenReader,
-}: AccessibleControllerTestProps): JSX.Element {
+}: AccessibleControllerDiagnosticProps): JSX.Element {
   const [currentStep, setCurrentStep] = useState(0);
 
   function passTest() {
@@ -160,7 +159,7 @@ export function AccessibleControllerTest({
 
   const steps = [
     () => (
-      <AccessibleControllerButtonTest
+      <AccessibleControllerButtonDiagnostic
         buttonName="Up Button"
         buttonKey="ArrowUp"
         onSuccess={nextStep}
@@ -168,7 +167,7 @@ export function AccessibleControllerTest({
       />
     ),
     () => (
-      <AccessibleControllerButtonTest
+      <AccessibleControllerButtonDiagnostic
         buttonName="Down Button"
         buttonKey="ArrowDown"
         onSuccess={nextStep}
@@ -176,7 +175,7 @@ export function AccessibleControllerTest({
       />
     ),
     () => (
-      <AccessibleControllerButtonTest
+      <AccessibleControllerButtonDiagnostic
         buttonName="Left Button"
         buttonKey="ArrowLeft"
         onSuccess={nextStep}
@@ -184,7 +183,7 @@ export function AccessibleControllerTest({
       />
     ),
     () => (
-      <AccessibleControllerButtonTest
+      <AccessibleControllerButtonDiagnostic
         buttonName="Right Button"
         buttonKey="ArrowRight"
         onSuccess={nextStep}
@@ -192,7 +191,7 @@ export function AccessibleControllerTest({
       />
     ),
     () => (
-      <AccessibleControllerButtonTest
+      <AccessibleControllerButtonDiagnostic
         buttonName="Select Button"
         buttonKey="Enter"
         onSuccess={nextStep}
@@ -200,7 +199,7 @@ export function AccessibleControllerTest({
       />
     ),
     () => (
-      <AccessibleControllerSoundTest
+      <AccessibleControllerSoundDiagnostic
         screenReader={screenReader}
         onSuccess={passTest}
         onFailure={() => failTest('Sound is not working.')}
