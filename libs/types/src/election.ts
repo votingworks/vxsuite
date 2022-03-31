@@ -110,17 +110,20 @@ export const WriteInIdSchema = z
     (id) => /^(__write-in(-.+)?|write-in__(.+))$/.test(id),
     `Write-In ID does not match expected format.`
   ) as z.ZodSchema<WriteInId>;
-export type CandidateId = Id;
-export const CandidateIdSchema: z.ZodSchema<CandidateId> = IdSchema;
+export type CandidateId = Id | WriteInId;
+export const CandidateIdSchema: z.ZodSchema<CandidateId> = z.union([
+  IdSchema,
+  WriteInIdSchema,
+]);
 export interface Candidate {
-  readonly id: CandidateId | WriteInId;
+  readonly id: CandidateId;
   readonly name: string;
   readonly partyId?: PartyId;
   readonly isWriteIn?: boolean;
 }
 export const CandidateSchema: z.ZodSchema<Candidate> = z.object({
   _lang: TranslationsSchema.optional(),
-  id: z.union([CandidateIdSchema, WriteInIdSchema]),
+  id: CandidateIdSchema,
   name: z.string().nonempty(),
   partyId: PartyIdSchema.optional(),
   isWriteIn: z.boolean().optional(),
