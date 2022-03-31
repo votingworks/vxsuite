@@ -1149,6 +1149,7 @@ importers:
       '@types/uuid': 8.3.0
       '@typescript-eslint/eslint-plugin': 4.28.4_852673d3af9c7ab8ae779b8d717157c6
       '@typescript-eslint/parser': 4.28.4_eslint@7.17.0+typescript@4.3.5
+      '@votingworks/fixtures': link:../fixtures
       benchmark: 2.1.4
       esbuild: 0.14.25
       esbuild-runner: 2.2.1_esbuild@0.14.25
@@ -1185,6 +1186,7 @@ importers:
       '@typescript-eslint/eslint-plugin': ^4.28.4
       '@typescript-eslint/parser': ^4.28.4
       '@votingworks/ballot-encoder': workspace:*
+      '@votingworks/fixtures': workspace:*
       '@votingworks/qrdetect': ^1.0.1
       '@votingworks/types': workspace:*
       '@votingworks/utils': workspace:*
@@ -29337,7 +29339,7 @@ packages:
       '@types/jest': 27.0.3
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
-      jest: 27.3.1
+      jest: 27.3.1_canvas@2.6.1
       jest-util: 27.3.1
       json5: 2.2.0
       lodash.memoize: 4.1.2
