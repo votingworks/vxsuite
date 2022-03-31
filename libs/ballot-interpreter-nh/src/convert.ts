@@ -1,6 +1,7 @@
 import {
   AdjudicationReason,
   BallotPaperSize,
+  BallotTargetMarkPosition,
   Candidate,
   CandidateContest,
   DistrictIdSchema,
@@ -379,6 +380,7 @@ export function convertElectionDefinitionHeader(
     contests,
     ballotLayout: {
       paperSize,
+      targetMarkPosition: BallotTargetMarkPosition.Right,
     },
     markThresholds: DefaultMarkThresholds,
     gridLayouts: [

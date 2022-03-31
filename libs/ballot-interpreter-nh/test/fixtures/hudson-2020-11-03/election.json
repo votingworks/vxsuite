@@ -1,6 +1,7 @@
 {
   "ballotLayout": {
-    "paperSize": "legal"
+    "paperSize": "legal",
+    "targetMarkPosition": "right"
   },
   "ballotStyles": [
     {
