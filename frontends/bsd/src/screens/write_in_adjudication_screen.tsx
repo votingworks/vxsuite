@@ -409,14 +409,43 @@ function ContestAdjudication({
 }
 
 export interface Props {
+  /**
+   * Database ID of the sheet being adjudicated.
+   */
   sheetId: string;
+
+  /**
+   * Which side of the sheet being adjudicated.
+   */
   side: Side;
+
+  /**
+   * URL of the image to the whole ballot page being adjudicated.
+   */
   imageUrl: string;
+
+  /**
+   * All write-ins flagged for adjudication on this page.
+   */
   writeIns: ReadonlyArray<
     WriteInAdjudicationReasonInfo | UnmarkedWriteInAdjudicationReasonInfo
   >;
+
+  /**
+   * Layout of the ballot page being adjudicated. The number of contests in this
+   * layout must match the number of contests in `allContestIds`.
+   */
   layout: BallotPageLayout;
-  contestIds: readonly ContestId[];
+
+  /**
+   * Contest IDs for every contest on this page, even those without write-ins.
+   */
+  allContestIds: readonly ContestId[];
+
+  /**
+   * Callback for when every contest with write-ins has been adjudicated and
+   * the user has chosen to save their adjudication.
+   */
   onAdjudicationComplete?(
     sheetId: string,
     side: Side,
@@ -430,7 +459,7 @@ export function WriteInAdjudicationScreen({
   imageUrl,
   writeIns,
   layout,
-  contestIds,
+  allContestIds,
   onAdjudicationComplete,
 }: Props): JSX.Element {
   const { electionDefinition, storage } = useContext(AppContext);
@@ -443,11 +472,10 @@ export function WriteInAdjudicationScreen({
   const [selectedContestId, setSelectedContestId] = useState<ContestId>();
   const [isSaving, setIsSaving] = useState(false);
 
-  const contestsWithWriteIns = useMemo(
-    () => new Set([...writeIns].map(({ contestId }) => contestId)),
+  const contestsWithWriteInsIds = useMemo(
+    () => uniq([...writeIns].map(({ contestId }) => contestId)),
     [writeIns]
   );
-  const contestsWithWriteInsCount = contestsWithWriteIns.size;
   const styleForContest = useCallback(
     (contestId: ContestId): React.CSSProperties => {
       return contestId === selectedContestId
@@ -502,13 +530,15 @@ export function WriteInAdjudicationScreen({
     await onAdjudicationComplete?.(sheetId, side, adjudications);
   }, [adjudications, onAdjudicationComplete, setWriteInPresets, sheetId, side]);
 
-  const selectedContestIdOrDefault = selectedContestId ?? contestIds[0];
-  const selectedContestIndex = contestIds.indexOf(selectedContestIdOrDefault);
-  const isFirstContestSelected = selectedContestIndex === 0;
+  const selectedContestIdOrDefault =
+    selectedContestId ?? contestsWithWriteInsIds[0];
+  const isFirstContestSelected =
+    selectedContestIdOrDefault === contestsWithWriteInsIds[0];
   const isLastContestSelected =
-    selectedContestIndex === contestsWithWriteInsCount - 1;
+    selectedContestIdOrDefault ===
+    contestsWithWriteInsIds[contestsWithWriteInsIds.length - 1];
 
-  const contestsWithWriteInsIndex = [...contestsWithWriteIns].findIndex(
+  const contestsWithWriteInsIndex = [...contestsWithWriteInsIds].findIndex(
     (id) => id === selectedContestIdOrDefault
   );
   const contest = find(
@@ -518,7 +548,8 @@ export function WriteInAdjudicationScreen({
   const writeInsForContest = writeIns.filter(
     (writeIn) => writeIn.contestId === selectedContestIdOrDefault
   );
-  const contestLayout = layout.contests[selectedContestIndex];
+  const contestLayout =
+    layout.contests[allContestIds.indexOf(selectedContestIdOrDefault)];
   const allWriteInsHaveValues = writeInsForContest.every((writeIn) =>
     adjudications.some(
       (adjudication) =>
@@ -529,8 +560,12 @@ export function WriteInAdjudicationScreen({
   );
 
   const goPrevious = useCallback(() => {
-    setSelectedContestId(contestIds[selectedContestIndex - 1]);
-  }, [contestIds, selectedContestIndex]);
+    setSelectedContestId(
+      contestsWithWriteInsIds[
+        contestsWithWriteInsIds.indexOf(selectedContestIdOrDefault) - 1
+      ]
+    );
+  }, [contestsWithWriteInsIds, selectedContestIdOrDefault]);
 
   const goNext = useCallback(
     async (event?: React.FormEvent<EventTarget>): Promise<void> => {
@@ -543,15 +578,19 @@ export function WriteInAdjudicationScreen({
           setIsSaving(false);
         }
       } else {
-        setSelectedContestId(contestIds[selectedContestIndex + 1]);
+        setSelectedContestId(
+          contestsWithWriteInsIds[
+            contestsWithWriteInsIds.indexOf(selectedContestIdOrDefault) + 1
+          ]
+        );
       }
     },
     [
-      contestIds,
+      contestsWithWriteInsIds,
       isLastContestSelected,
       makeCancelable,
       onAdjudicationCompleteInternal,
-      selectedContestIndex,
+      selectedContestIdOrDefault,
     ]
   );
 
@@ -590,7 +629,7 @@ export function WriteInAdjudicationScreen({
                 <Spacer />
                 <Text small style={{ marginLeft: '10px' }}>
                   Contest {contestsWithWriteInsIndex + 1} of{' '}
-                  {contestsWithWriteInsCount}
+                  {contestsWithWriteInsIds.length}
                 </Text>
                 <Spacer />
                 <Button onPress={goPrevious} disabled={isFirstContestSelected}>
@@ -602,7 +641,7 @@ export function WriteInAdjudicationScreen({
           <BallotSheetImage
             imageUrl={imageUrl}
             layout={layout}
-            contestIds={contestIds}
+            contestIds={allContestIds}
             styleForContest={styleForContest}
           />
         </MainChildColumns>

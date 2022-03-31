@@ -109,7 +109,7 @@ test('supports typing in a candidate name', async () => {
         imageUrl="/test-sheet/front.jpg"
         writeIns={writeIns}
         layout={layout}
-        contestIds={[contest.id]}
+        allContestIds={[contest.id]}
         onAdjudicationComplete={onAdjudicationComplete}
       />
     </AppContext.Provider>
@@ -199,7 +199,7 @@ test('supports canceling a write-in', async () => {
         imageUrl="/test-sheet/front.jpg"
         writeIns={writeIns}
         layout={layout}
-        contestIds={[contest.id]}
+        allContestIds={[contest.id]}
         onAdjudicationComplete={onAdjudicationComplete}
       />
     </AppContext.Provider>
@@ -339,7 +339,7 @@ test('can adjudicate front & back in succession', async () => {
         imageUrl="/test-sheet/front.jpg"
         writeIns={frontWriteIns}
         layout={frontLayout}
-        contestIds={[frontContest1.id, frontContest2.id]}
+        allContestIds={[frontContest1.id, frontContest2.id]}
         onAdjudicationComplete={onAdjudicationComplete}
       />
     </AppContext.Provider>
@@ -381,7 +381,7 @@ test('can adjudicate front & back in succession', async () => {
         imageUrl="/test-sheet/back.jpg"
         writeIns={backWriteIns}
         layout={backLayout}
-        contestIds={[backContest.id]}
+        allContestIds={[backContest.id]}
         onAdjudicationComplete={onAdjudicationComplete}
       />
     </AppContext.Provider>

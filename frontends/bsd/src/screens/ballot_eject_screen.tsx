@@ -359,7 +359,7 @@ export function BallotEjectScreen({
                   imageUrl={reviewPageInfo.imageUrl}
                   writeIns={writeIns}
                   layout={reviewPageInfo.layout}
-                  contestIds={reviewPageInfo.contestIds}
+                  allContestIds={reviewPageInfo.contestIds}
                   onAdjudicationComplete={onAdjudicationComplete}
                 />
               );
