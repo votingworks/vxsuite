@@ -3,3 +3,4 @@
 export { convertElectionDefinition } from './convert';
 export * as templates from './data/templates';
 export { interpret } from './interpret';
+export * from './layout';

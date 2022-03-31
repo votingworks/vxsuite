@@ -2,10 +2,14 @@
 // The durable datastore for CVRs and configuration info.
 //
 
+import { generateBallotPageLayouts } from '@votingworks/ballot-interpreter-nh';
 import {
   AnyContest,
   BallotIdSchema,
   BallotMetadata,
+  BallotMetadataSchema,
+  BallotPageLayout,
+  BallotPageLayoutSchema,
   BallotPageMetadata,
   BallotPaperSize,
   BallotSheetInfo,
@@ -19,13 +23,10 @@ import {
   MarkThresholdsSchema,
   Optional,
   PageInterpretation,
+  PageInterpretationWithFiles,
   Precinct,
   safeParseJson,
-  BallotPageLayout,
   unsafeParse,
-  BallotMetadataSchema,
-  BallotPageLayoutSchema,
-  PageInterpretationWithFiles,
 } from '@votingworks/types';
 import {
   AdjudicationStatus,
@@ -898,7 +899,15 @@ export class Store {
 
   getBallotLayoutsForMetadata(
     metadata: BallotPageMetadata
-  ): BallotPageLayout[] {
+  ): BallotPageLayout[] | undefined {
+    const electionDefinition = this.getElectionDefinition();
+    if (electionDefinition?.election.gridLayouts) {
+      return generateBallotPageLayouts(
+        electionDefinition.election,
+        metadata
+      ).unsafeUnwrap();
+    }
+
     const rows = this.client.all(
       `
         select
@@ -938,7 +947,7 @@ export class Store {
 
   getContestIdsForMetadata(
     metadata: BallotPageMetadata
-  ): Array<AnyContest['id']> {
+  ): Array<AnyContest['id']> | undefined {
     const electionDefinition = this.getElectionDefinition();
 
     if (!electionDefinition) {
@@ -947,6 +956,10 @@ export class Store {
 
     const layouts = this.getBallotLayoutsForMetadata(metadata);
     let contestOffset = 0;
+
+    if (!layouts) {
+      return;
+    }
 
     for (const layout of layouts) {
       if (layout.metadata.pageNumber === metadata.pageNumber) {
