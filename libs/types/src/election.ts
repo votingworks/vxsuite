@@ -811,7 +811,7 @@ export type ContestOption =
   | CandidateContestOption
   | YesNoContestOption
   | MsEitherNeitherContestOption;
-export const ContestOption: z.ZodSchema<ContestOption> = z.union([
+export const ContestOptionSchema: z.ZodSchema<ContestOption> = z.union([
   CandidateContestOptionSchema,
   YesNoContestOptionSchema,
   MsEitherNeitherContestOptionSchema,
