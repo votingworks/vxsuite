@@ -145,7 +145,7 @@ export interface AccessibleControllerDiagnosticProps {
   screenReader: ScreenReader;
 }
 
-export function AccessibleControllerDiagnostic({
+export function AccessibleControllerDiagnosticScreen({
   onComplete,
   onCancel,
   screenReader,
