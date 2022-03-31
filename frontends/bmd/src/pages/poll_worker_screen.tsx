@@ -52,7 +52,7 @@ import { VersionsData } from '../components/versions_data';
 import { triggerAudioFocus } from '../utils/trigger_audio_focus';
 import { DiagnosticsScreen } from './diagnostics_screen';
 
-interface Props {
+export interface PollworkerScreenProps {
   activateCardlessVoterSession: (
     precinctId: PrecinctId,
     ballotStyleId?: BallotStyleId
@@ -106,7 +106,7 @@ export function PollWorkerScreen({
   tallyOnCard,
   clearTalliesOnCard,
   reload,
-}: Props): JSX.Element {
+}: PollworkerScreenProps): JSX.Element {
   const { election } = electionDefinition;
   const electionDate = DateTime.fromISO(electionDefinition.election.date);
   const isElectionDay = electionDate.hasSame(DateTime.now(), 'day');
