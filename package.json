@@ -2,6 +2,7 @@
   "name": "vxsuite",
   "private": true,
   "scripts": {
+    "clean-all": "git clean -dfX",
     "prepare": "husky install"
   },
   "lint-staged": {
