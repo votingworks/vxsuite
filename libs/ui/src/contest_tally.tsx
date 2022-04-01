@@ -140,7 +140,17 @@ export function ContestTally({
           <Contest key={`div-${contest.id}`} dim={!talliesRelevant}>
             <Prose maxWidth={false} data-testid={`results-table-${contest.id}`}>
               <Text small>{contest.section}</Text>
-              <h3>{contest.title}</h3>
+              <h3>
+                {contest.title}
+                {contest.type === 'candidate' && contest.seats > 1 && (
+                  <React.Fragment>
+                    {' '}
+                    <Text as="span" noWrap small>
+                      ({contest.seats} seats)
+                    </Text>
+                  </React.Fragment>
+                )}
+              </h3>
               <Text small>
                 <NoWrap>{pluralize('ballots', ballots, true)} cast /</NoWrap>{' '}
                 <NoWrap>{pluralize('overvotes', overvotes, true)} /</NoWrap>{' '}
