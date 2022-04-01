@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import MockDate from 'mockdate';
 import { DateTime } from 'luxon';
@@ -38,8 +38,25 @@ describe('Accessible Controller Diagnostic Screen', () => {
 
     screen.getByText('Accessible Controller Test');
 
+    function expectToHaveIllustrationHighlight(
+      highlightTestId: string,
+      hasHeadphones?: boolean
+    ) {
+      const illustration = (screen
+        .getByTitle('Accessible Controller Illustration')
+        .closest('svg') as unknown) as HTMLElement;
+      const path = within(illustration).getByTestId(highlightTestId);
+      expect(path).toHaveAttribute('fill', '#985aa3');
+      if (!hasHeadphones) {
+        expect(
+          within(illustration).queryByTestId('headphones')
+        ).not.toBeInTheDocument();
+      }
+    }
+
     screen.getByText(/Step 1 of 6/);
     screen.getByText('Press the up button.');
+    expectToHaveIllustrationHighlight('up-button');
     // Try out pressing an incorrect button to make sure we actually detect the
     // right button.
     act(() => void userEvent.keyboard('{ArrowDown}'));
@@ -52,22 +69,28 @@ describe('Accessible Controller Diagnostic Screen', () => {
 
     await screen.findByText(/Step 2 of 6/);
     screen.getByText('Press the down button.');
+    expectToHaveIllustrationHighlight('down-button');
     act(() => void userEvent.keyboard('{ArrowDown}'));
 
     await screen.findByText(/Step 3 of 6/);
     screen.getByText('Press the left button.');
+    expectToHaveIllustrationHighlight('left-button');
     act(() => void userEvent.keyboard('{ArrowLeft}'));
 
     await screen.findByText(/Step 4 of 6/);
     screen.getByText('Press the right button.');
+    expectToHaveIllustrationHighlight('right-button');
     act(() => void userEvent.keyboard('{ArrowRight}'));
 
     await screen.findByText(/Step 5 of 6/);
     screen.getByText('Press the select button.');
+    expectToHaveIllustrationHighlight('select-button');
     act(() => void userEvent.keyboard('{Enter}'));
 
     await screen.findByText(/Step 6 of 6/);
     screen.getByText('Confirm sound is working.');
+    expectToHaveIllustrationHighlight('right-button', true);
+    expectToHaveIllustrationHighlight('headphones', true);
     // Try pressing the select button before playing sound to make sure it
     // doesn't work
     act(() => void userEvent.keyboard('{Enter}'));
