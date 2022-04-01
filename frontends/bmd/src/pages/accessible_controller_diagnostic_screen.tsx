@@ -18,6 +18,7 @@ const Header = styled(Prose).attrs({
 const StepContainer = styled.div`
   display: grid;
   grid-template-columns: 55% 1fr;
+  flex-grow: 1;
   align-items: center;
   padding: 0 6em;
 
