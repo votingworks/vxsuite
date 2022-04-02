@@ -26,7 +26,6 @@ import { BatchControl, Scanner } from './scanners';
 import { SheetOf } from './types';
 import { Castability, checkSheetCastability } from './util/castability';
 import { HmpbInterpretationError } from './util/hmpb_interpretation_error';
-import { writeImageData } from './util/images';
 import { pdfToImages } from './util/pdf_to_images';
 import { Workspace } from './util/workspace';
 import {
@@ -45,30 +44,6 @@ export interface Options {
   workspace: Workspace;
   scanner: Scanner;
   workerPoolProvider?: () => WorkerPool<workers.Input, workers.Output>;
-}
-
-export async function saveImages(
-  imagePath: string,
-  originalImagePath: string,
-  normalizedImagePath: string,
-  normalizedImage?: ImageData
-): Promise<{
-  original: string;
-  normalized: string;
-}> {
-  if (imagePath !== originalImagePath) {
-    debug('linking image file %s from %s', imagePath, originalImagePath);
-    await fsExtra.link(imagePath, originalImagePath);
-  }
-
-  if (normalizedImage) {
-    debug('about to write normalized ballot image to %s', normalizedImagePath);
-    await writeImageData(normalizedImagePath, normalizedImage);
-    debug('wrote normalized ballot image to %s', normalizedImagePath);
-    return { original: originalImagePath, normalized: normalizedImagePath };
-  }
-
-  return { original: originalImagePath, normalized: originalImagePath };
 }
 
 /**

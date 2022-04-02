@@ -4,10 +4,10 @@ import makeDebug from 'debug';
 import { readFile } from 'fs-extra';
 import { basename, extname, join } from 'path';
 import { ScannerLocation, SCANNER_LOCATION } from '../globals';
-import { saveImages } from '../importer';
 import { Interpreter, InterpretFileResult } from '../interpreter';
 import { Store } from '../store';
 import { pdfToImages } from '../util/pdf_to_images';
+import { saveImages } from '../util/save_images';
 import * as qrcodeWorker from './qrcode';
 
 const debug = makeDebug('scan:worker:interpret');

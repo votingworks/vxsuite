@@ -12,7 +12,7 @@ import bodyParser from 'body-parser';
 import makeDebug from 'debug';
 import express, { Application } from 'express';
 import * as z from 'zod';
-import { BatchControl, Scanner, ScanOptions } from '.';
+import { BatchControl, Scanner, ScanOptions } from './types';
 import { SheetOf } from '../types';
 
 const debug = makeDebug('scan:scanner');
