@@ -5,6 +5,7 @@ import { otsu } from './otsu';
 import { computeTimingMarkGrid, findBorder } from './timing_marks';
 import {
   BackMarksMetadata,
+  BallotCardGeometry,
   Bit,
   CompleteTimingMarks,
   FrontMarksMetadata,
@@ -73,62 +74,6 @@ function expectedTimingMarkGapSize(canvasWidth: number): Size {
     width: (minTimingMarkGapSize.width + maxTimingMarkGapSize.width) / 2,
     height: (minTimingMarkGapSize.height + maxTimingMarkGapSize.height) / 2,
   };
-}
-
-/**
- * Geometry information about an ballot card with timing marks.
- */
-export interface BallotCardGeometry {
-  /**
-   * The size of the ballot card as a standard paper size.
-   */
-  readonly ballotPaperSize: BallotPaperSize;
-
-  /**
-   * Pixels per inch of the ballot card.
-   */
-  readonly pixelsPerInch: number;
-
-  /**
-   * The size of the ballot card in pixels.
-   */
-  readonly canvasSize: Size;
-
-  /**
-   * The content area of the ballot card in pixels.
-   */
-  readonly contentArea: Rect;
-
-  /**
-   * The size of a timing mark in pixels.
-   */
-  readonly timingMarkSize: Size;
-
-  /**
-   * The size of an oval in pixels.
-   */
-  readonly ovalSize: Size;
-
-  /**
-   * The size of the grid of timing marks, in units of timing marks. For
-   * example, a grid of size `{ width: 20, height: 30 }` means there are 20
-   * columns of timing marks and 30 rows of timing marks.
-   */
-  readonly gridSize: Size;
-
-  /**
-   * The area within the timing mark grid on the front of the ballot card that
-   * may be used for ovals. In practice, there will be at least one edge in each
-   * direction that is not usable for ovals.
-   */
-  readonly frontUsableArea: Rect;
-
-  /**
-   * The area within the timing mark grid on the back of the ballot card that
-   * may be used for ovals. In practice, there will be at least one edge in each
-   * direction that is not usable for ovals.
-   */
-  readonly backUsableArea: Rect;
 }
 
 /**

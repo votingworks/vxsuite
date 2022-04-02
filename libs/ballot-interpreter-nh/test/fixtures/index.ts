@@ -3,13 +3,11 @@ import { assert, throwIllegalValue } from '@votingworks/utils';
 import { DOMParser } from '@xmldom/xmldom';
 import { promises as fs } from 'fs';
 import { join } from 'path';
-import {
-  BallotCardGeometry,
-  BallotCardTemplateMargins,
-} from '../../src/accuvote';
+import { BallotCardTemplateMargins } from '../../src/accuvote';
 import { NewHampshireBallotCardDefinition } from '../../src/convert';
 import { readGrayscaleImage } from '../../src/images';
 import {
+  BallotCardGeometry,
   CompleteTimingMarks,
   Rect,
   Size,

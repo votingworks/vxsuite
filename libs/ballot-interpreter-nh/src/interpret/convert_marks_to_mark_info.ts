@@ -1,6 +1,5 @@
 import { MarkInfo } from '@votingworks/types';
-import { BallotCardGeometry } from '../accuvote';
-import { InterpretedOvalMark } from '../types';
+import { BallotCardGeometry, InterpretedOvalMark } from '../types';
 
 /**
  * Convert a series of oval marks into mark info.

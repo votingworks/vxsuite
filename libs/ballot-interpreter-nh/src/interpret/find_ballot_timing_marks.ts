@@ -1,10 +1,9 @@
 import {
-  BallotCardGeometry,
   findTimingMarks,
   scanForTimingMarksByScoringBlocks,
 } from '../accuvote';
 import { Debugger } from '../debug';
-import { PartialTimingMarks } from '../types';
+import { BallotCardGeometry, PartialTimingMarks } from '../types';
 
 /**
  * Finds timing marks in a ballot image.

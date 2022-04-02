@@ -1,6 +1,5 @@
 import { safeParse } from '@votingworks/types';
 import {
-  BallotCardGeometry,
   decodeBackTimingMarkBits,
   decodeFrontTimingMarkBits,
 } from '../accuvote';
@@ -11,6 +10,7 @@ import {
 } from '../timing_marks';
 import {
   BackMarksMetadataSchema,
+  BallotCardGeometry,
   FrontMarksMetadataSchema,
   ScannedBallotPageLayout,
 } from '../types';
