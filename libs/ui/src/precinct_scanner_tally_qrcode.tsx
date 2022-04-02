@@ -1,10 +1,13 @@
 import QrCodeReact from '@votingworks/qrcode.react';
 import { CompressedTally, ElectionDefinition } from '@votingworks/types';
-import React, { useState, useEffect } from 'react';
-import { DateTime } from 'luxon';
 import { format, formatFullDateTimeZone } from '@votingworks/utils';
-import { Prose, ReportSection, Text, LogoMark } from '.';
+import { DateTime } from 'luxon';
+import React, { useEffect, useState } from 'react';
 import { useCancelablePromise } from './hooks/use_cancelable_promise';
+import { LogoMark } from './logo_mark';
+import { Prose } from './prose';
+import { ReportSection } from './tally_report';
+import { Text } from './text';
 
 interface Props {
   reportSavedTime: number;

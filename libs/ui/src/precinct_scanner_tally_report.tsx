@@ -1,24 +1,24 @@
 import {
   ElectionDefinition,
-  Tally,
+  PartyId,
   PrecinctSelection,
   PrecinctSelectionKind,
-  PartyId,
+  Tally,
 } from '@votingworks/types';
-import React from 'react';
+import { find, format, formatFullDateTimeZone } from '@votingworks/utils';
 import { DateTime } from 'luxon';
-import { format, find, formatFullDateTimeZone } from '@votingworks/utils';
+import React from 'react';
 import { ContestTally } from './contest_tally';
+import { LogoMark } from './logo_mark';
+import { Prose } from './prose';
 import {
   PrintableContainer,
-  Prose,
   ReportSection,
   TallyReport,
   TallyReportColumns,
-  Text,
-  LogoMark,
-} from '.';
+} from './tally_report';
 import { TallyReportSummary } from './tally_report_summary';
+import { Text } from './text';
 
 interface Props {
   reportSavedTime: number;

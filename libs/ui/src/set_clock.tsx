@@ -15,7 +15,7 @@ import { Select } from './select';
 import { Modal } from './modal';
 import { InputGroup } from './input_group';
 import { Button, ButtonProps } from './button';
-import { useNow } from '.';
+import { useNow } from './hooks/use_now';
 
 export const MIN_YEAR = 2020;
 export const MAX_YEAR = 2030;

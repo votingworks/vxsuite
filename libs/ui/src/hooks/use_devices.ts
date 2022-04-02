@@ -1,16 +1,16 @@
-import { useEffect, useState } from 'react';
+import { LogEventId, Logger } from '@votingworks/logging';
 import {
-  isCardReader,
   Hardware,
   isAccessibleController,
-  isPrecinctScanner,
   isBatchScanner,
+  isCardReader,
+  isPrecinctScanner,
 } from '@votingworks/utils';
+import { useEffect, useState } from 'react';
 import { map } from 'rxjs/operators';
-import { LogEventId, Logger } from '@votingworks/logging';
 import useInterval from 'use-interval';
-import { usePrevious } from '..';
 import { useCancelablePromise } from './use_cancelable_promise';
+import { usePrevious } from './use_previous';
 
 export const LOW_BATTERY_THRESHOLD = 0.25;
 export const BATTERY_POLLING_INTERVAL = 3000;

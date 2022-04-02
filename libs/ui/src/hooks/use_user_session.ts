@@ -12,7 +12,7 @@ import {
 import { useCallback, useEffect, useState } from 'react';
 import deepEqual from 'deep-eql';
 import { assert, throwIllegalValue } from '@votingworks/utils';
-import { Smartcard } from '..';
+import { Smartcard } from './use_smartcard';
 import { usePrevious } from './use_previous';
 
 export interface UseUserSessionProps {
