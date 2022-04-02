@@ -2,16 +2,16 @@
 
 exports[`renders SetupCardReaderPage renders SetupCardReaderPage with usePollWorkerLanguage set to false 1`] = `
 <div
-  class="sc-gWXaA-D gHnxHO"
+  class="sc-hKwCoD cQYgz"
 >
   <main
-    class="sc-bkkfTU enzCGe"
+    class="sc-bdvvaa lyEiN"
   >
     <div
-      class="sc-ieebsP iIuUkJ"
+      class="sc-gsDJrp cHLzQJ"
     >
       <div
-        class="sc-jrQzUz dRAoti"
+        class="sc-dkPtyc kYJAvL"
       >
         <h1>
           Card Reader Not Detected
@@ -27,16 +27,16 @@ exports[`renders SetupCardReaderPage renders SetupCardReaderPage with usePollWor
 
 exports[`renders SetupCardReaderPage triggers useEffect property 1`] = `
 <div
-  class="sc-gWXaA-D gHnxHO"
+  class="sc-hKwCoD cQYgz"
 >
   <main
-    class="sc-bkkfTU enzCGe"
+    class="sc-bdvvaa lyEiN"
   >
     <div
-      class="sc-ieebsP iIuUkJ"
+      class="sc-gsDJrp cHLzQJ"
     >
       <div
-        class="sc-jrQzUz dRAoti"
+        class="sc-dkPtyc kYJAvL"
       >
         <h1>
           Card Reader Not Detected
@@ -52,16 +52,16 @@ exports[`renders SetupCardReaderPage triggers useEffect property 1`] = `
 
 exports[`renders SetupCardReaderPage with no useEffect trigger as expected 1`] = `
 <div
-  class="sc-gWXaA-D gHnxHO"
+  class="sc-hKwCoD cQYgz"
 >
   <main
-    class="sc-bkkfTU enzCGe"
+    class="sc-bdvvaa lyEiN"
   >
     <div
-      class="sc-ieebsP iIuUkJ"
+      class="sc-gsDJrp cHLzQJ"
     >
       <div
-        class="sc-jrQzUz dRAoti"
+        class="sc-dkPtyc kYJAvL"
       >
         <h1>
           Card Reader Not Detected
