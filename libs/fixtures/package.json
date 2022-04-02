@@ -42,7 +42,6 @@
     "csv-writer": "^1.6.0",
     "js-sha256": "^0.9.0",
     "ts-command-line-args": "^1.8.0",
-    "ts-node": "^9.1.1",
     "yargs": "^16.2.0"
   },
   "devDependencies": {
@@ -52,6 +51,8 @@
     "@typescript-eslint/eslint-plugin": "^4.28.4",
     "@typescript-eslint/parser": "^4.28.4",
     "@votingworks/res-to-ts": "workspace:*",
+    "esbuild": "^0.14.30",
+    "esbuild-runner": "^2.2.1",
     "eslint": "^7.19.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-import-resolver-node": "^0.3.6",

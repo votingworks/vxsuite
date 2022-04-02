@@ -1162,7 +1162,7 @@ importers:
       eslint-plugin-react: 7.24.0_eslint@7.17.0
       eslint-plugin-vx: link:../eslint-plugin-vx
       is-ci-cli: 2.2.0
-      jest: 27.3.1_canvas@2.6.1+ts-node@9.1.1
+      jest: 27.3.1_canvas@2.6.1
       jest-watch-typeahead: 0.6.4_jest@27.3.1
       lint-staged: 10.5.3
       memorystream: 0.3.1
@@ -1170,7 +1170,6 @@ importers:
       sort-package-json: 1.50.0
       tmp: 0.2.1
       ts-jest: 27.0.7_9fd3d618a8f56b72434a4d1d442dbc9f
-      ts-node: 9.1.1_typescript@4.3.5
       typescript: 4.3.5
     specifiers:
       '@types/benchmark': ^1.0.33
@@ -1217,7 +1216,6 @@ importers:
       table: ^6.0.3
       tmp: ^0.2.1
       ts-jest: ^27.0.7
-      ts-node: ^9.0.0
       typescript: ^4.3.5
       uuid: ^8.3.1
   libs/cdf-schema-builder:
@@ -1454,7 +1452,6 @@ importers:
       csv-writer: 1.6.0
       js-sha256: 0.9.0
       ts-command-line-args: 1.8.0
-      ts-node: 9.1.1_typescript@4.3.5
       yargs: 16.2.0
     devDependencies:
       '@types/jest': 27.0.3
@@ -1463,6 +1460,8 @@ importers:
       '@typescript-eslint/eslint-plugin': 4.28.4_1d3bd85b4b489d1777514df5fe613e8c
       '@typescript-eslint/parser': 4.28.4_eslint@7.19.0+typescript@4.3.5
       '@votingworks/res-to-ts': link:../res-to-ts
+      esbuild: 0.14.30
+      esbuild-runner: 2.2.1_esbuild@0.14.30
       eslint: 7.19.0
       eslint-config-prettier: 8.3.0_eslint@7.19.0
       eslint-import-resolver-node: 0.3.6
@@ -1470,7 +1469,7 @@ importers:
       eslint-plugin-prettier: 3.3.1_39ba6233b33a74e116dcff427ae9b4ae
       eslint-plugin-vx: link:../eslint-plugin-vx
       is-ci-cli: 2.2.0
-      jest: 27.3.1_ts-node@9.1.1
+      jest: 27.3.1
       jest-watch-typeahead: 0.6.4_jest@27.3.1
       lint-staged: 11.0.0
       prettier: 2.2.1
@@ -1486,6 +1485,8 @@ importers:
       '@votingworks/res-to-ts': workspace:*
       '@votingworks/types': workspace:*
       csv-writer: ^1.6.0
+      esbuild: ^0.14.30
+      esbuild-runner: ^2.2.1
       eslint: ^7.19.0
       eslint-config-prettier: ^8.3.0
       eslint-import-resolver-node: ^0.3.6
@@ -1501,7 +1502,6 @@ importers:
       sort-package-json: ^1.50.0
       ts-command-line-args: ^1.8.0
       ts-jest: ^27.0.7
-      ts-node: ^9.1.1
       typescript: ^4.3.5
       yargs: ^16.2.0
   libs/logging:
@@ -1523,6 +1523,8 @@ importers:
       '@typescript-eslint/parser': 4.29.3_eslint@7.29.0+typescript@4.3.5
       '@votingworks/fixtures': link:../fixtures
       '@votingworks/test-utils': link:../test-utils
+      esbuild: 0.14.30
+      esbuild-runner: 2.2.1_esbuild@0.14.30
       eslint: 7.29.0
       eslint-config-prettier: 8.3.0_eslint@7.29.0
       eslint-import-resolver-node: 0.3.6
@@ -1556,6 +1558,8 @@ importers:
       '@votingworks/types': workspace:*
       '@votingworks/utils': workspace:*
       debug: ^4.3.2
+      esbuild: ^0.14.30
+      esbuild-runner: ^2.2.1
       eslint: ^7.26.0
       eslint-config-prettier: ^8.3.0
       eslint-import-resolver-node: ^0.3.6
@@ -1645,6 +1649,8 @@ importers:
       '@typescript-eslint/eslint-plugin': 4.28.4_9308c3eb0582626d69bb7a7a1fefe80e
       '@typescript-eslint/parser': 4.28.4_eslint@7.25.0+typescript@4.3.5
       '@votingworks/test-utils': link:../test-utils
+      esbuild: 0.14.30
+      esbuild-runner: 2.2.1_esbuild@0.14.30
       eslint: 7.25.0
       eslint-config-prettier: 8.3.0_eslint@7.25.0
       eslint-import-resolver-node: 0.3.6
@@ -1652,13 +1658,12 @@ importers:
       eslint-plugin-prettier: 3.4.1_ed07edc0d33fb90bb2bebf56b9b5e0f9
       eslint-plugin-vx: link:../eslint-plugin-vx
       is-ci-cli: 2.2.0
-      jest: 27.3.1_ts-node@9.1.1
+      jest: 27.3.1
       jest-watch-typeahead: 0.6.4_jest@27.3.1
       lint-staged: 11.0.0
       prettier: 2.2.1
       sort-package-json: 1.50.0
       ts-jest: 27.0.7_9fd3d618a8f56b72434a4d1d442dbc9f
-      ts-node: 9.1.1_typescript@4.3.5
       typescript: 4.3.5
     specifiers:
       '@types/debug': ^4.1.5
@@ -1671,6 +1676,8 @@ importers:
       '@votingworks/types': workspace:*
       '@votingworks/utils': workspace:*
       debug: ^4.3.1
+      esbuild: ^0.14.30
+      esbuild-runner: ^2.2.1
       eslint: ^7.25.0
       eslint-config-prettier: ^8.3.0
       eslint-import-resolver-node: ^0.3.6
@@ -1685,7 +1692,6 @@ importers:
       sort-package-json: ^1.50.0
       temp: ^0.9.4
       ts-jest: ^27.0.7
-      ts-node: ^9.1.1
       typescript: ^4.3.5
       zod: 3.2.0
   libs/res-to-ts:
@@ -5758,89 +5764,6 @@ packages:
     peerDependencies:
       canvas: '*'
       node-notifier: ^8.0.1 || ^9.0.0 || ^10.0.0
-    peerDependenciesMeta:
-      node-notifier:
-        optional: true
-    resolution:
-      integrity: sha512-DMNE90RR5QKx0EA+wqe3/TNEwiRpOkhshKNxtLxd4rt3IZpCt+RSL+FoJsGeblRZmqdK4upHA/mKKGPPRAifhg==
-  /@jest/core/27.3.1_canvas@2.6.1+ts-node@9.1.1:
-    dependencies:
-      '@jest/console': 27.3.1
-      '@jest/reporters': 27.3.1
-      '@jest/test-result': 27.3.1
-      '@jest/transform': 27.3.1
-      '@jest/types': 27.2.5
-      '@types/node': 15.3.0
-      ansi-escapes: 4.3.2
-      chalk: 4.1.2
-      emittery: 0.8.1
-      exit: 0.1.2
-      graceful-fs: 4.2.4
-      jest-changed-files: 27.3.0
-      jest-config: 27.3.1_canvas@2.6.1+ts-node@9.1.1
-      jest-haste-map: 27.3.1
-      jest-message-util: 27.3.1
-      jest-regex-util: 27.0.6
-      jest-resolve: 27.3.1
-      jest-resolve-dependencies: 27.3.1
-      jest-runner: 27.3.1_canvas@2.6.1
-      jest-runtime: 27.3.1
-      jest-snapshot: 27.3.1
-      jest-util: 27.3.1
-      jest-validate: 27.3.1
-      jest-watcher: 27.3.1
-      micromatch: 4.0.4
-      rimraf: 3.0.2
-      slash: 3.0.0
-      strip-ansi: 6.0.1
-    dev: true
-    engines:
-      node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0
-    peerDependencies:
-      canvas: '*'
-      node-notifier: ^8.0.1 || ^9.0.0 || ^10.0.0
-      ts-node: '*'
-    peerDependenciesMeta:
-      node-notifier:
-        optional: true
-    resolution:
-      integrity: sha512-DMNE90RR5QKx0EA+wqe3/TNEwiRpOkhshKNxtLxd4rt3IZpCt+RSL+FoJsGeblRZmqdK4upHA/mKKGPPRAifhg==
-  /@jest/core/27.3.1_ts-node@9.1.1:
-    dependencies:
-      '@jest/console': 27.3.1
-      '@jest/reporters': 27.3.1
-      '@jest/test-result': 27.3.1
-      '@jest/transform': 27.3.1
-      '@jest/types': 27.2.5
-      '@types/node': 15.3.0
-      ansi-escapes: 4.3.2
-      chalk: 4.1.2
-      emittery: 0.8.1
-      exit: 0.1.2
-      graceful-fs: 4.2.4
-      jest-changed-files: 27.3.0
-      jest-config: 27.3.1_ts-node@9.1.1
-      jest-haste-map: 27.3.1
-      jest-message-util: 27.3.1
-      jest-regex-util: 27.0.6
-      jest-resolve: 27.3.1
-      jest-resolve-dependencies: 27.3.1
-      jest-runner: 27.3.1
-      jest-runtime: 27.3.1
-      jest-snapshot: 27.3.1
-      jest-util: 27.3.1
-      jest-validate: 27.3.1
-      jest-watcher: 27.3.1
-      micromatch: 4.0.4
-      rimraf: 3.0.2
-      slash: 3.0.0
-      strip-ansi: 6.0.1
-    dev: true
-    engines:
-      node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0
-    peerDependencies:
-      node-notifier: ^8.0.1 || ^9.0.0 || ^10.0.0
-      ts-node: '*'
     peerDependenciesMeta:
       node-notifier:
         optional: true
@@ -10198,9 +10121,6 @@ packages:
       node: '>=10'
     resolution:
       integrity: sha512-Ci/qENmwHnsYo9xKIcUJN5LeDKdJ6R1Z1j9V/J5wyq8nh/mYPEpIKJbBZXtZjG04HiK7zV/p6Vs9952MrMeUIw==
-  /arg/4.1.3:
-    resolution:
-      integrity: sha512-58S9QDqG0Xx27YwPSt9fJxivjYl432YCwfDMfZ+71RAqUrZef7LrKQZ3LHLOwCS4FLNBplP533Zx895SeOCHvA==
   /argparse/1.0.10:
     dependencies:
       sprintf-js: 1.0.3
@@ -10471,7 +10391,7 @@ packages:
       integrity: sha512-/lqqLAmuIPi79WYfRpy2i8z+x+vxU3zX2uAm0gs1q52qTuKwolOj1P8XbufpXcsydrpKx2yGn2wzAnxCMV86QA==
   /axios/0.21.1_debug@4.3.1:
     dependencies:
-      follow-redirects: 1.14.1_debug@4.3.2
+      follow-redirects: 1.14.1_debug@4.3.1
     dev: true
     peerDependencies:
       debug: '*'
@@ -12233,9 +12153,6 @@ packages:
     dev: false
     resolution:
       integrity: sha512-MJG9liiZ+ogc4TzUwuvbER1JRdgvUFSB5+VR/g5h82fGaIRWMWddtKBHi7/sVhfjQZ6SehlyhvQYrcYkaUIpLg==
-  /create-require/1.1.1:
-    resolution:
-      integrity: sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==
   /cross-fetch/3.1.4:
     dependencies:
       node-fetch: 2.6.1
@@ -13114,11 +13031,6 @@ packages:
       node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0
     resolution:
       integrity: sha512-k1gCAXAsNgLwEL+Y8Wvl+M6oEFj5bgazfZULpS5CneoPPXRaCCW7dm+q21Ky2VEE5X+VeRDBVg1Pcvvsr4TtNQ==
-  /diff/4.0.2:
-    engines:
-      node: '>=0.3.1'
-    resolution:
-      integrity: sha512-58lmxKSA4BNyLz+HHMUzlOEpg09FV+ev6ZMe3vJihgdxzgcwZ8VoEEPmALCZG9LmqfVoNMMKpttIYTVG6uDY7A==
   /diffie-hellman/5.0.3:
     dependencies:
       bn.js: 4.11.9
@@ -13589,6 +13501,17 @@ packages:
       - android
     resolution:
       integrity: sha512-tJuaN33SVZyiHxRaVTo1pwW+rn3qetJX/SRuc/83rrKYtyZG0XfsQ1ao1nEudIt9w37ZSNXR236xEfm2C43sbw==
+  /esbuild-android-64/0.14.30:
+    cpu:
+      - x64
+    dev: true
+    engines:
+      node: '>=12'
+    optional: true
+    os:
+      - android
+    resolution:
+      integrity: sha512-vdJ7t8A8msPfKpYUGUV/KaTQRiZ0vDa2XSTlzXVkGGVHLKPeb85PBUtYJcEgw3htW3IdX5i1t1IMdQCwJJgNAg==
   /esbuild-android-arm64/0.13.14:
     cpu:
       - arm64
@@ -13631,6 +13554,17 @@ packages:
       - android
     resolution:
       integrity: sha512-D74dCv6yYnMTlofVy1JKiLM5JdVSQd60/rQfJSDP9qvRAI0laPXIG/IXY1RG6jobmFMUfL38PbFnCqyI/6fPXg==
+  /esbuild-android-arm64/0.14.30:
+    cpu:
+      - arm64
+    dev: true
+    engines:
+      node: '>=12'
+    optional: true
+    os:
+      - android
+    resolution:
+      integrity: sha512-BdgGfxeA5hBQNErLr7BWJUA8xjflEfyaARICy8e0OJYNSAwDbEzOf8LyiKWSrDcgV129mWhi3VpbNQvOIDEHcg==
   /esbuild-darwin-64/0.13.14:
     cpu:
       - x64
@@ -13673,6 +13607,17 @@ packages:
       - darwin
     resolution:
       integrity: sha512-+CJaRvfTkzs9t+CjGa0Oa28WoXa7EeLutQhxus+fFcu0MHhsBhlmeWHac3Cc/Sf/xPi1b2ccDFfzGYJCfV0RrA==
+  /esbuild-darwin-64/0.14.30:
+    cpu:
+      - x64
+    dev: true
+    engines:
+      node: '>=12'
+    optional: true
+    os:
+      - darwin
+    resolution:
+      integrity: sha512-VRaOXMMrsG5n53pl4qFZQdXy2+E0NoLP/QH3aDUI0+bQP+ZHDmbINKcDy2IX7GVFI9kqPS18iJNAs5a6/G2LZg==
   /esbuild-darwin-arm64/0.13.14:
     cpu:
       - arm64
@@ -13715,6 +13660,17 @@ packages:
       - darwin
     resolution:
       integrity: sha512-5Wgz/+zK+8X2ZW7vIbwoZ613Vfr4A8HmIs1XdzRmdC1kG0n5EG5fvKk/jUxhNlrYPx1gSY7XadQ3l4xAManPSw==
+  /esbuild-darwin-arm64/0.14.30:
+    cpu:
+      - arm64
+    dev: true
+    engines:
+      node: '>=12'
+    optional: true
+    os:
+      - darwin
+    resolution:
+      integrity: sha512-qDez+fHMOrO9Oc9qjt/x+sy09RJVh62kik5tVybKRLmezeV4qczM9/sAYY57YN0aWLdHbcCj2YqJUWYJNsgKnw==
   /esbuild-freebsd-64/0.13.14:
     cpu:
       - x64
@@ -13757,6 +13713,17 @@ packages:
       - freebsd
     resolution:
       integrity: sha512-VTfS7Bm9QA12JK1YXF8+WyYOfvD7WMpbArtDj6bGJ5Sy5xp01c/q70Arkn596aGcGj0TvQRplaaCIrfBG1Wdtg==
+  /esbuild-freebsd-64/0.14.30:
+    cpu:
+      - x64
+    dev: true
+    engines:
+      node: '>=12'
+    optional: true
+    os:
+      - freebsd
+    resolution:
+      integrity: sha512-mec1jENcImVVagddZlGWsdAUwBnzR5cgnhzCxv+9fSMxKbx1uZYLLUAnLPp8m/i934zrumR1xGjJ5VoWdPlI2w==
   /esbuild-freebsd-arm64/0.13.14:
     cpu:
       - arm64
@@ -13799,6 +13766,17 @@ packages:
       - freebsd
     resolution:
       integrity: sha512-WP5L4ejwLWWvd3Fo2J5mlXvG3zQHaw5N1KxFGnUc4+2ZFZknP0ST63i0IQhpJLgEJwnQpXv2uZlU1iWZjFqEIg==
+  /esbuild-freebsd-arm64/0.14.30:
+    cpu:
+      - arm64
+    dev: true
+    engines:
+      node: '>=12'
+    optional: true
+    os:
+      - freebsd
+    resolution:
+      integrity: sha512-cpjbTs6Iok/AfeB0JgTzyUJTMStC1SQULmany5nHx6S4GTkSgaAHuJzZO0GcVWqghI4e0YL/bjXAhN5Mn6feNw==
   /esbuild-linux-32/0.13.14:
     cpu:
       - ia32
@@ -13841,6 +13819,17 @@ packages:
       - linux
     resolution:
       integrity: sha512-4myeOvFmQBWdI2U1dEBe2DCSpaZyjdQtmjUY11Zu2eQg4ynqLb8Y5mNjNU9UN063aVsCYYfbs8jbken/PjyidA==
+  /esbuild-linux-32/0.14.30:
+    cpu:
+      - ia32
+    dev: true
+    engines:
+      node: '>=12'
+    optional: true
+    os:
+      - linux
+    resolution:
+      integrity: sha512-liIONVT4F2kZmOMwtwASqZ8WkIjb5HHBR9HUffdHiuotSTF3CyZO+EJf+Og+SYYuuVIvt0qHNSFjBA/iSESteQ==
   /esbuild-linux-64/0.13.14:
     cpu:
       - x64
@@ -13883,6 +13872,17 @@ packages:
       - linux
     resolution:
       integrity: sha512-iaEuLhssReAKE7HMwxwFJFn7D/EXEs43fFy5CJeA4DGmU6JHh0qVJD2p/UP46DvUXLRKXsXw0i+kv5TdJ1w5pg==
+  /esbuild-linux-64/0.14.30:
+    cpu:
+      - x64
+    dev: true
+    engines:
+      node: '>=12'
+    optional: true
+    os:
+      - linux
+    resolution:
+      integrity: sha512-LUnpzoMpRqFON5En4qEj6NWiyH6a1K+Y2qYNKrCy5qPTjDoG/EWeqMz69n8Uv7pRuvDKl3FNGJ1dufTrA5i0sw==
   /esbuild-linux-arm/0.13.14:
     cpu:
       - arm
@@ -13925,6 +13925,17 @@ packages:
       - linux
     resolution:
       integrity: sha512-OXa9D9QL1hwrAnYYAHt/cXAuSCmoSqYfTW/0CEY0LgJNyTxJKtqc5mlwjAZAvgyjmha0auS/sQ0bXfGf2wAokQ==
+  /esbuild-linux-arm/0.14.30:
+    cpu:
+      - arm
+    dev: true
+    engines:
+      node: '>=12'
+    optional: true
+    os:
+      - linux
+    resolution:
+      integrity: sha512-97T+bbXnpqf7mfIG49UR7ZSJFGgvc22byn74qw3Kx2GDCBSQoVFjyWuKOHGXp8nXk3XYrdFF+mQ8yQ7aNsgQvg==
   /esbuild-linux-arm64/0.13.14:
     cpu:
       - arm64
@@ -13967,6 +13978,17 @@ packages:
       - linux
     resolution:
       integrity: sha512-KYf7s8wDfUy+kjKymW3twyGT14OABjGHRkm9gPJ0z4BuvqljfOOUbq9qT3JYFnZJHOgkr29atT//hcdD0Pi7Mw==
+  /esbuild-linux-arm64/0.14.30:
+    cpu:
+      - arm64
+    dev: true
+    engines:
+      node: '>=12'
+    optional: true
+    os:
+      - linux
+    resolution:
+      integrity: sha512-DHZHn6FK5q/KL0fpNT/0jE38Nnyk2rXxKE9WENi95EXtqfOLPgE8tzjTZQNgpr61R95QX4ymQU26ni3IZk8buQ==
   /esbuild-linux-mips64le/0.13.14:
     cpu:
       - mips64el
@@ -14009,6 +14031,17 @@ packages:
       - linux
     resolution:
       integrity: sha512-05jPtWQMsZ1aMGfHOvnR5KrTvigPbU35BtuItSSWLI2sJu5VrM8Pr9Owym4wPvA4153DFcOJ1EPN/2ujcDt54g==
+  /esbuild-linux-mips64le/0.14.30:
+    cpu:
+      - mips64el
+    dev: true
+    engines:
+      node: '>=12'
+    optional: true
+    os:
+      - linux
+    resolution:
+      integrity: sha512-fLUzTFZ7uknC0aPTk7/lM7NmaG/9ZqE3SaHEphcaM009SZK/mDOvZugWi1ss6WGNhk13dUrhkfHcc4FSb9hYhg==
   /esbuild-linux-ppc64le/0.13.14:
     cpu:
       - ppc64
@@ -14051,6 +14084,17 @@ packages:
       - linux
     resolution:
       integrity: sha512-FYhBqn4Ir9xG+f6B5VIQVbRuM4S6qwy29dDNYFPoxLRnwTEKToIYIUESN1qHyUmIbfO0YB4phG2JDV2JDN9Kgw==
+  /esbuild-linux-ppc64le/0.14.30:
+    cpu:
+      - ppc64
+    dev: true
+    engines:
+      node: '>=12'
+    optional: true
+    os:
+      - linux
+    resolution:
+      integrity: sha512-2Oudm2WEfj0dNU9bzIl5L/LrsMEmHWsOsYgJJqu8fDyUDgER+J1d33qz3cUdjsJk7gAENayIxDSpsuCszx0w3A==
   /esbuild-linux-riscv64/0.14.25:
     cpu:
       - riscv64
@@ -14084,6 +14128,17 @@ packages:
       - linux
     resolution:
       integrity: sha512-eqZMqPehkb4nZcffnuOpXJQdGURGd6GXQ4ZsDHSWyIUaA+V4FpMBe+5zMPtXRD2N4BtyzVvnBko6K8IWWr36ew==
+  /esbuild-linux-riscv64/0.14.30:
+    cpu:
+      - riscv64
+    dev: true
+    engines:
+      node: '>=12'
+    optional: true
+    os:
+      - linux
+    resolution:
+      integrity: sha512-RPMucPW47rV4t2jlelaE948iCRtbZf5RhifxSwzlpM1Mqdyu99MMNK0w4jFreGTmLN+oGomxIOxD6n+2E/XqHw==
   /esbuild-linux-s390x/0.14.25:
     cpu:
       - s390x
@@ -14117,6 +14172,17 @@ packages:
       - linux
     resolution:
       integrity: sha512-o7EYajF1rC/4ho7kpSG3gENVx0o2SsHm7cJ5fvewWB/TEczWU7teDgusGSujxCYcMottE3zqa423VTglNTYhjg==
+  /esbuild-linux-s390x/0.14.30:
+    cpu:
+      - s390x
+    dev: true
+    engines:
+      node: '>=12'
+    optional: true
+    os:
+      - linux
+    resolution:
+      integrity: sha512-OZ68r7ok6qO7hdwrwQn2p5jbIRRcUcVaAykB7e0uCA0ODwfeGunILM6phJtq2Oz4dlEEFvd+tSuma3paQKwt+A==
   /esbuild-netbsd-64/0.13.14:
     cpu:
       - x64
@@ -14159,6 +14225,17 @@ packages:
       - netbsd
     resolution:
       integrity: sha512-/esN6tb6OBSot6+JxgeOZeBk6P8V/WdR3GKBFeFpSqhgw4wx7xWUqPrdx4XNpBVO7X4Ipw9SAqgBrWHlXfddww==
+  /esbuild-netbsd-64/0.14.30:
+    cpu:
+      - x64
+    dev: true
+    engines:
+      node: '>=12'
+    optional: true
+    os:
+      - netbsd
+    resolution:
+      integrity: sha512-iyejQUKn0TzpPkufq8pSCxOg9NheycQbMbPCmjefTe9wYuUlBt1TcHvdoJnYbQzsAhAh1BNq+s0ycRsIJFZzaQ==
   /esbuild-openbsd-64/0.13.14:
     cpu:
       - x64
@@ -14201,6 +14278,17 @@ packages:
       - openbsd
     resolution:
       integrity: sha512-jUTdDzhEKrD0pLpjmk0UxwlfNJNg/D50vdwhrVcW/D26Vg0hVbthMfb19PJMatzclbK7cmgk1Nu0eNS+abzoHw==
+  /esbuild-openbsd-64/0.14.30:
+    cpu:
+      - x64
+    dev: true
+    engines:
+      node: '>=12'
+    optional: true
+    os:
+      - openbsd
+    resolution:
+      integrity: sha512-UyK1MTMcy4j5fH260fsE1o6MVgWNhb62eCK2yCKCRazZv8Nqdc2WiP9ygjWidmEdCDS+A6MuVp9ozk9uoQtQpA==
   /esbuild-runner/2.2.1_esbuild@0.13.14:
     dependencies:
       esbuild: 0.13.14
@@ -14237,6 +14325,17 @@ packages:
   /esbuild-runner/2.2.1_esbuild@0.14.29:
     dependencies:
       esbuild: 0.14.29
+      source-map-support: 0.5.19
+      tslib: 2.3.1
+    dev: true
+    hasBin: true
+    peerDependencies:
+      esbuild: '*'
+    resolution:
+      integrity: sha512-VP0VfJJZiZ3cKzdOH59ZceDxx/GzBKra7tiGM8MfFMLv6CR1/cpsvtQ3IsJI3pz7HyeYxtbPyecj3fHwR+3XcQ==
+  /esbuild-runner/2.2.1_esbuild@0.14.30:
+    dependencies:
+      esbuild: 0.14.30
       source-map-support: 0.5.19
       tslib: 2.3.1
     dev: true
@@ -14287,6 +14386,17 @@ packages:
       - sunos
     resolution:
       integrity: sha512-EfhQN/XO+TBHTbkxwsxwA7EfiTHFe+MNDfxcf0nj97moCppD9JHPq48MLtOaDcuvrTYOcrMdJVeqmmeQ7doTcg==
+  /esbuild-sunos-64/0.14.30:
+    cpu:
+      - x64
+    dev: true
+    engines:
+      node: '>=12'
+    optional: true
+    os:
+      - sunos
+    resolution:
+      integrity: sha512-aQRtRTNKHB4YuG+xXATe5AoRTNY48IJg5vjE8ElxfmjO9+KdX7MHFkTLhlKevCD6rNANtB3qOlSIeAiXTwHNqw==
   /esbuild-windows-32/0.13.14:
     cpu:
       - ia32
@@ -14329,6 +14439,17 @@ packages:
       - win32
     resolution:
       integrity: sha512-uoyb0YAJ6uWH4PYuYjfGNjvgLlb5t6b3zIaGmpWPOjgpr1Nb3SJtQiK4YCPGhONgfg2v6DcJgSbOteuKXhwqAw==
+  /esbuild-windows-32/0.14.30:
+    cpu:
+      - ia32
+    dev: true
+    engines:
+      node: '>=12'
+    optional: true
+    os:
+      - win32
+    resolution:
+      integrity: sha512-9/fb1tPtpacMqxAXp3fGHowUDg/l9dVch5hKmCLEZC6PdGljh6h372zMdJwYfH0Bd5CCPT0Wx95uycBLJiqpXA==
   /esbuild-windows-64/0.13.14:
     cpu:
       - x64
@@ -14371,6 +14492,17 @@ packages:
       - win32
     resolution:
       integrity: sha512-X9cW/Wl95QjsH8WUyr3NqbmfdU72jCp71cH3pwPvI4CgBM2IeOUDdbt6oIGljPu2bf5eGDIo8K3Y3vvXCCTd8A==
+  /esbuild-windows-64/0.14.30:
+    cpu:
+      - x64
+    dev: true
+    engines:
+      node: '>=12'
+    optional: true
+    os:
+      - win32
+    resolution:
+      integrity: sha512-DHgITeUhPAnN9I5O6QBa1GVyPOhiYCn4S4TtQr7sO4+X0LNyqnlmA1M0qmGkUdDC1QQfjI8uQ4G/whdWb2pWIQ==
   /esbuild-windows-arm64/0.13.14:
     cpu:
       - arm64
@@ -14413,6 +14545,17 @@ packages:
       - win32
     resolution:
       integrity: sha512-+O/PI+68fbUZPpl3eXhqGHTGK7DjLcexNnyJqtLZXOFwoAjaXlS5UBCvVcR3o2va+AqZTj8o6URaz8D2K+yfQQ==
+  /esbuild-windows-arm64/0.14.30:
+    cpu:
+      - arm64
+    dev: true
+    engines:
+      node: '>=12'
+    optional: true
+    os:
+      - win32
+    resolution:
+      integrity: sha512-F1kLyQH7zSgjh5eLxogGZN7C9+KNs9m+s7Q6WZoMmCWT/6j998zlaoECHyM8izJRRfsvw2eZlEa1jO6/IOU1AQ==
   /esbuild/0.13.14:
     dev: true
     hasBin: true
@@ -14524,6 +14667,35 @@ packages:
     requiresBuild: true
     resolution:
       integrity: sha512-SQS8cO8xFEqevYlrHt6exIhK853Me4nZ4aMW6ieysInLa0FMAL+AKs87HYNRtR2YWRcEIqoXAHh+Ytt5/66qpg==
+  /esbuild/0.14.30:
+    dev: true
+    engines:
+      node: '>=12'
+    hasBin: true
+    optionalDependencies:
+      esbuild-android-64: 0.14.30
+      esbuild-android-arm64: 0.14.30
+      esbuild-darwin-64: 0.14.30
+      esbuild-darwin-arm64: 0.14.30
+      esbuild-freebsd-64: 0.14.30
+      esbuild-freebsd-arm64: 0.14.30
+      esbuild-linux-32: 0.14.30
+      esbuild-linux-64: 0.14.30
+      esbuild-linux-arm: 0.14.30
+      esbuild-linux-arm64: 0.14.30
+      esbuild-linux-mips64le: 0.14.30
+      esbuild-linux-ppc64le: 0.14.30
+      esbuild-linux-riscv64: 0.14.30
+      esbuild-linux-s390x: 0.14.30
+      esbuild-netbsd-64: 0.14.30
+      esbuild-openbsd-64: 0.14.30
+      esbuild-sunos-64: 0.14.30
+      esbuild-windows-32: 0.14.30
+      esbuild-windows-64: 0.14.30
+      esbuild-windows-arm64: 0.14.30
+    requiresBuild: true
+    resolution:
+      integrity: sha512-wCecQSBkIjp2xjuXY+wcXS/PpOQo9rFh4NAKPh4Pm9f3fuLcnxkR0rDzA+mYP88FtXIUcXUyYmaIgfrzRl55jA==
   /escalade/3.1.1:
     engines:
       node: '>=6'
@@ -17511,21 +17683,9 @@ packages:
       node: '>=0.10.0'
     resolution:
       integrity: sha1-UhTXU3pNBqSjAcDMJi/rhBiAAuc=
-  /follow-redirects/1.14.1:
-    dev: false
-    engines:
-      node: '>=4.0'
-    peerDependencies:
-      debug: '*'
-    peerDependenciesMeta:
-      debug:
-        optional: true
-    resolution:
-      integrity: sha512-HWqDgT7ZEkqRzBvc2s64vSZ/hfOceEol3ac/7tKwzuvEyWx3/4UegXh5oBOIotkGsObyk3xznnSRVADBgWSQVg==
   /follow-redirects/1.14.1_debug@4.3.1:
     dependencies:
       debug: 4.3.1
-    dev: false
     engines:
       node: '>=4.0'
     peerDependencies:
@@ -17538,6 +17698,7 @@ packages:
   /follow-redirects/1.14.1_debug@4.3.2:
     dependencies:
       debug: 4.3.2
+    dev: false
     engines:
       node: '>=4.0'
     peerDependencies:
@@ -18529,7 +18690,7 @@ packages:
   /http-proxy/1.18.1:
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.14.1
+      follow-redirects: 1.14.1_debug@4.3.1
       requires-port: 1.0.0
     dev: false
     engines:
@@ -19813,59 +19974,6 @@ packages:
         optional: true
     resolution:
       integrity: sha512-WHnCqpfK+6EvT62me6WVs8NhtbjAS4/6vZJnk7/2+oOr50cwAzG4Wxt6RXX0hu6m1169ZGMlhYYUNeKBXCph/Q==
-  /jest-cli/27.3.1_canvas@2.6.1+ts-node@9.1.1:
-    dependencies:
-      '@jest/core': 27.3.1_canvas@2.6.1+ts-node@9.1.1
-      '@jest/test-result': 27.3.1
-      '@jest/types': 27.2.5
-      chalk: 4.1.2
-      exit: 0.1.2
-      graceful-fs: 4.2.4
-      import-local: 3.0.3
-      jest-config: 27.3.1_canvas@2.6.1+ts-node@9.1.1
-      jest-util: 27.3.1
-      jest-validate: 27.3.1
-      prompts: 2.4.2
-      yargs: 16.2.0
-    dev: true
-    engines:
-      node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0
-    hasBin: true
-    peerDependencies:
-      canvas: '*'
-      node-notifier: ^8.0.1 || ^9.0.0 || ^10.0.0
-      ts-node: '*'
-    peerDependenciesMeta:
-      node-notifier:
-        optional: true
-    resolution:
-      integrity: sha512-WHnCqpfK+6EvT62me6WVs8NhtbjAS4/6vZJnk7/2+oOr50cwAzG4Wxt6RXX0hu6m1169ZGMlhYYUNeKBXCph/Q==
-  /jest-cli/27.3.1_ts-node@9.1.1:
-    dependencies:
-      '@jest/core': 27.3.1_ts-node@9.1.1
-      '@jest/test-result': 27.3.1
-      '@jest/types': 27.2.5
-      chalk: 4.1.2
-      exit: 0.1.2
-      graceful-fs: 4.2.4
-      import-local: 3.0.3
-      jest-config: 27.3.1_ts-node@9.1.1
-      jest-util: 27.3.1
-      jest-validate: 27.3.1
-      prompts: 2.4.2
-      yargs: 16.2.0
-    dev: true
-    engines:
-      node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0
-    hasBin: true
-    peerDependencies:
-      node-notifier: ^8.0.1 || ^9.0.0 || ^10.0.0
-      ts-node: '*'
-    peerDependenciesMeta:
-      node-notifier:
-        optional: true
-    resolution:
-      integrity: sha512-WHnCqpfK+6EvT62me6WVs8NhtbjAS4/6vZJnk7/2+oOr50cwAzG4Wxt6RXX0hu6m1169ZGMlhYYUNeKBXCph/Q==
   /jest-cli/27.4.5:
     dependencies:
       '@jest/core': 27.4.5
@@ -20095,75 +20203,6 @@ packages:
       node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0
     peerDependencies:
       canvas: '*'
-      ts-node: '>=9.0.0'
-    peerDependenciesMeta:
-      ts-node:
-        optional: true
-    resolution:
-      integrity: sha512-KY8xOIbIACZ/vdYCKSopL44I0xboxC751IX+DXL2+Wx6DKNycyEfV3rryC3BPm5Uq/BBqDoMrKuqLEUNJmMKKg==
-  /jest-config/27.3.1_canvas@2.6.1+ts-node@9.1.1:
-    dependencies:
-      '@babel/core': 7.16.0
-      '@jest/test-sequencer': 27.3.1
-      '@jest/types': 27.2.5
-      babel-jest: 27.3.1_@babel+core@7.16.0
-      chalk: 4.1.2
-      ci-info: 3.2.0
-      deepmerge: 4.2.2
-      glob: 7.2.0
-      graceful-fs: 4.2.4
-      jest-circus: 27.3.1
-      jest-environment-jsdom: 27.3.1_canvas@2.6.1
-      jest-environment-node: 27.3.1
-      jest-get-type: 27.3.1
-      jest-jasmine2: 27.3.1
-      jest-regex-util: 27.0.6
-      jest-resolve: 27.3.1
-      jest-runner: 27.3.1_canvas@2.6.1
-      jest-util: 27.3.1
-      jest-validate: 27.3.1
-      micromatch: 4.0.4
-      pretty-format: 27.3.1
-      ts-node: 9.1.1_typescript@4.3.5
-    dev: true
-    engines:
-      node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0
-    peerDependencies:
-      canvas: '*'
-      ts-node: '>=9.0.0'
-    peerDependenciesMeta:
-      ts-node:
-        optional: true
-    resolution:
-      integrity: sha512-KY8xOIbIACZ/vdYCKSopL44I0xboxC751IX+DXL2+Wx6DKNycyEfV3rryC3BPm5Uq/BBqDoMrKuqLEUNJmMKKg==
-  /jest-config/27.3.1_ts-node@9.1.1:
-    dependencies:
-      '@babel/core': 7.16.0
-      '@jest/test-sequencer': 27.3.1
-      '@jest/types': 27.2.5
-      babel-jest: 27.3.1_@babel+core@7.16.0
-      chalk: 4.1.2
-      ci-info: 3.2.0
-      deepmerge: 4.2.2
-      glob: 7.2.0
-      graceful-fs: 4.2.4
-      jest-circus: 27.3.1
-      jest-environment-jsdom: 27.3.1
-      jest-environment-node: 27.3.1
-      jest-get-type: 27.3.1
-      jest-jasmine2: 27.3.1
-      jest-regex-util: 27.0.6
-      jest-resolve: 27.3.1
-      jest-runner: 27.3.1
-      jest-util: 27.3.1
-      jest-validate: 27.3.1
-      micromatch: 4.0.4
-      pretty-format: 27.3.1
-      ts-node: 9.1.1_typescript@4.3.5
-    dev: true
-    engines:
-      node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0
-    peerDependencies:
       ts-node: '>=9.0.0'
     peerDependenciesMeta:
       ts-node:
@@ -22403,41 +22442,6 @@ packages:
     peerDependencies:
       canvas: '*'
       node-notifier: ^8.0.1 || ^9.0.0 || ^10.0.0
-    peerDependenciesMeta:
-      node-notifier:
-        optional: true
-    resolution:
-      integrity: sha512-U2AX0AgQGd5EzMsiZpYt8HyZ+nSVIh5ujQ9CPp9EQZJMjXIiSZpJNweZl0swatKRoqHWgGKM3zaSwm4Zaz87ng==
-  /jest/27.3.1_canvas@2.6.1+ts-node@9.1.1:
-    dependencies:
-      '@jest/core': 27.3.1_canvas@2.6.1+ts-node@9.1.1
-      import-local: 3.0.3
-      jest-cli: 27.3.1_canvas@2.6.1+ts-node@9.1.1
-    dev: true
-    engines:
-      node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0
-    hasBin: true
-    peerDependencies:
-      canvas: '*'
-      node-notifier: ^8.0.1 || ^9.0.0 || ^10.0.0
-      ts-node: '*'
-    peerDependenciesMeta:
-      node-notifier:
-        optional: true
-    resolution:
-      integrity: sha512-U2AX0AgQGd5EzMsiZpYt8HyZ+nSVIh5ujQ9CPp9EQZJMjXIiSZpJNweZl0swatKRoqHWgGKM3zaSwm4Zaz87ng==
-  /jest/27.3.1_ts-node@9.1.1:
-    dependencies:
-      '@jest/core': 27.3.1_ts-node@9.1.1
-      import-local: 3.0.3
-      jest-cli: 27.3.1_ts-node@9.1.1
-    dev: true
-    engines:
-      node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0
-    hasBin: true
-    peerDependencies:
-      node-notifier: ^8.0.1 || ^9.0.0 || ^10.0.0
-      ts-node: '*'
     peerDependenciesMeta:
       node-notifier:
         optional: true
@@ -27896,6 +27900,7 @@ packages:
     dependencies:
       buffer-from: 1.1.2
       source-map: 0.6.1
+    dev: true
     resolution:
       integrity: sha512-Wonm7zOCIJzBGQdB+thsPar0kYuCIzYvxZwlBa87yi/Mdjv7Tip2cyVbLj5o0cFPN4EVkuTwb3GDDyUx2DGnGw==
   /source-map-support/0.5.20:
@@ -29332,7 +29337,7 @@ packages:
       '@types/jest': 27.0.3
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
-      jest: 27.3.1_canvas@2.6.1
+      jest: 27.3.1
       jest-util: 27.3.1
       json5: 2.2.0
       lodash.memoize: 4.1.2
@@ -29506,22 +29511,6 @@ packages:
     dev: false
     resolution:
       integrity: sha512-WHXLtFDcIRwoqaiu0elAoZ/AmI+SwwDafnPKjgJmdwJ2gRVO0jMKBt88rV2liT/c6MTsXyuWbGFiHe9MRddWJw==
-  /ts-node/9.1.1_typescript@4.3.5:
-    dependencies:
-      arg: 4.1.3
-      create-require: 1.1.1
-      diff: 4.0.2
-      make-error: 1.3.6
-      source-map-support: 0.5.19
-      typescript: 4.3.5
-      yn: 3.1.1
-    engines:
-      node: '>=10.0.0'
-    hasBin: true
-    peerDependencies:
-      typescript: '>=2.7'
-    resolution:
-      integrity: sha512-hPlt7ZACERQGf03M253ytLY3dHbGNGrAq9qIHWUY9XHYl1z7wYngSr3OQ5xmui8o2AaxsONxIzjafLUiWBo1Fg==
   /ts-pnp/1.2.0_typescript@4.3.5:
     dependencies:
       typescript: 4.3.5
@@ -30875,11 +30864,6 @@ packages:
       fd-slicer: 1.1.0
     resolution:
       integrity: sha1-x+sXyT4RLLEIb6bY5R+wZnt5pfk=
-  /yn/3.1.1:
-    engines:
-      node: '>=6'
-    resolution:
-      integrity: sha512-Ux4ygGWsu2c7isFWe8Yu1YluJmqVhxqK2cLXNQA5AcC3QfbGNpM7fu0Y8b/z16pXLnFxZYvWhd3fhBY9DLmC6Q==
   /yocto-queue/0.1.0:
     dev: false
     engines:
