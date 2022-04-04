@@ -647,23 +647,21 @@ export function buildApp({ store, importer }: AppOptions): Application {
         if (sheet.front.interpretation.type === 'InterpretedHmpbPage') {
           const front = sheet.front.interpretation;
           const layouts = store.getBallotLayoutsForMetadata(front.metadata);
+          const contestIds = store.getContestIdsForMetadata(front.metadata);
           frontLayout = layouts.find(
             ({ metadata }) => metadata.pageNumber === front.metadata.pageNumber
           );
-          frontDefinition = {
-            contestIds: store.getContestIdsForMetadata(front.metadata),
-          };
+          frontDefinition = { contestIds };
         }
 
         if (sheet.back.interpretation.type === 'InterpretedHmpbPage') {
           const back = sheet.back.interpretation;
           const layouts = store.getBallotLayoutsForMetadata(back.metadata);
+          const contestIds = store.getContestIdsForMetadata(back.metadata);
           backLayout = layouts.find(
             ({ metadata }) => metadata.pageNumber === back.metadata.pageNumber
           );
-          backDefinition = {
-            contestIds: store.getContestIdsForMetadata(back.metadata),
-          };
+          backDefinition = { contestIds };
         }
 
         response.json({
@@ -721,6 +719,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
 
     backup(store)
       .on('error', (error: Error) => {
+        debug('backup error: %s', error.stack);
         response.status(500).json({
           errors: [
             {

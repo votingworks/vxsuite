@@ -354,12 +354,13 @@ export function BallotEjectScreen({
               );
               return (
                 <WriteInAdjudicationScreen
+                  key={reviewPageInfo.side}
                   sheetId={reviewInfo.interpreted.id}
                   side={reviewPageInfo.side}
                   imageUrl={reviewPageInfo.imageUrl}
                   writeIns={writeIns}
                   layout={reviewPageInfo.layout}
-                  contestIds={reviewPageInfo.contestIds}
+                  allContestIds={reviewPageInfo.contestIds}
                   onAdjudicationComplete={onAdjudicationComplete}
                 />
               );

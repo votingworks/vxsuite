@@ -3,7 +3,9 @@ import {
   AdjudicationReason,
   Candidate,
   Contest,
+  ContestId,
   ContestOption,
+  ContestOptionSchema,
   HmpbBallotPageMetadata,
   HmpbBallotPageMetadataSchema,
   TargetShape,
@@ -34,23 +36,27 @@ export const BallotImageSchema: z.ZodSchema<BallotImage> = z.object({
 });
 
 export interface BallotPageContestOptionLayout {
+  definition?: ContestOption;
   bounds: Rect;
   target: TargetShape;
 }
 export const BallotPageContestOptionLayoutSchema: z.ZodSchema<BallotPageContestOptionLayout> = z.object(
   {
+    definition: ContestOptionSchema.optional(),
     bounds: RectSchema,
     target: TargetShapeSchema,
   }
 );
 
 export interface BallotPageContestLayout {
+  contestId?: ContestId;
   bounds: Rect;
   corners: Corners;
   options: readonly BallotPageContestOptionLayout[];
 }
 export const BallotPageContestLayoutSchema: z.ZodSchema<BallotPageContestLayout> = z.object(
   {
+    contestId: IdSchema.optional(),
     bounds: RectSchema,
     corners: CornersSchema,
     options: z.array(BallotPageContestOptionLayoutSchema),

@@ -27,5 +27,12 @@ export function CroppedImage({ src, alt, crop, style }: Props): JSX.Element {
     };
   }, [crop.height, crop.width, crop.x, crop.y, src]);
 
-  return <img src={dataUrl} alt={alt} style={style} />;
+  return (
+    <img
+      src={dataUrl}
+      alt={alt}
+      style={style}
+      data-crop={`x=${crop.x}, y=${crop.y}, width=${crop.width}, height=${crop.height}`}
+    />
+  );
 }

@@ -2,10 +2,14 @@
 // The durable datastore for CVRs and configuration info.
 //
 
+import { generateBallotPageLayouts } from '@votingworks/ballot-interpreter-nh';
 import {
   AnyContest,
   BallotIdSchema,
   BallotMetadata,
+  BallotMetadataSchema,
+  BallotPageLayout,
+  BallotPageLayoutSchema,
   BallotPageMetadata,
   BallotPaperSize,
   BallotSheetInfo,
@@ -19,13 +23,10 @@ import {
   MarkThresholdsSchema,
   Optional,
   PageInterpretation,
+  PageInterpretationWithFiles,
   Precinct,
   safeParseJson,
-  BallotPageLayout,
   unsafeParse,
-  BallotMetadataSchema,
-  BallotPageLayoutSchema,
-  PageInterpretationWithFiles,
 } from '@votingworks/types';
 import {
   AdjudicationStatus,
@@ -899,6 +900,19 @@ export class Store {
   getBallotLayoutsForMetadata(
     metadata: BallotPageMetadata
   ): BallotPageLayout[] {
+    const electionDefinition = this.getElectionDefinition();
+
+    // Handle timing mark ballots differently. We should have the layout from
+    // the scan/interpret process, but since we don't right now we generate it
+    // from what we expect the layout to be instead. This means there could be
+    // some error in the layout, but it's better than nothing.
+    if (electionDefinition?.election.gridLayouts) {
+      return generateBallotPageLayouts(
+        electionDefinition.election,
+        metadata
+      ).unsafeUnwrap();
+    }
+
     const rows = this.client.all(
       `
         select
