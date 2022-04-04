@@ -1,4 +1,8 @@
-import { Rect, TargetShape } from '@votingworks/types';
+import {
+  BallotTargetMarkPosition,
+  Rect,
+  TargetShape,
+} from '@votingworks/types';
 import makeDebug from 'debug';
 import { PIXEL_WHITE } from '../utils/binarize';
 import { rectCenter } from '../utils/geometry';
@@ -12,6 +16,7 @@ export function* findTargets(
   bounds: Rect,
   {
     inset = Math.round(0.0175 * ballotImage.width),
+    targetMarkPosition = BallotTargetMarkPosition.Left,
     aspectRatio = 1.5,
     aspectRatioTolerance = 0.1,
     expectedWidth = Math.round(0.025 * ballotImage.width),
@@ -26,7 +31,13 @@ export function* findTargets(
   const minAspectRatio = aspectRatio - aspectRatioTolerance;
   const maxAspectRatio = aspectRatio + aspectRatioTolerance;
 
-  const x = bounds.x + Math.round(inset + expectedWidth / 2);
+  const x =
+    bounds.x +
+    Math.round(
+      targetMarkPosition === BallotTargetMarkPosition.Right
+        ? bounds.width - 1 - inset - expectedWidth / 2
+        : inset + expectedWidth / 2
+    );
   let lastShape: Shape | undefined;
 
   for (let y = bounds.y + bounds.height - inset; y > bounds.y; y -= 1) {

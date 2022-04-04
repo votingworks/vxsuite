@@ -110,7 +110,14 @@ export async function interpretTemplate({
       ({ bounds, corners }) => ({
         bounds,
         corners,
-        targets: [...reversed(findTargets(normalized.imageData, bounds))],
+        targets: [
+          ...reversed(
+            findTargets(normalized.imageData, bounds, {
+              targetMarkPosition:
+                electionDefinition.election.ballotLayout?.targetMarkPosition,
+            })
+          ),
+        ],
       })
     ),
   ]);

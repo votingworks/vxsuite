@@ -349,7 +349,10 @@ ${fileContent}`;
                     />
                     {['Yes', 'No'].map((answer) => (
                       <Text key={answer} bold noWrap>
-                        <BubbleMark checked={false}>
+                        <BubbleMark
+                          position={election.ballotLayout?.targetMarkPosition}
+                          checked={false}
+                        >
                           <span>{answer}</span>
                         </BubbleMark>
                       </Text>
@@ -367,23 +370,35 @@ ${fileContent}`;
                     />
                     <p>{contest.eitherNeitherLabel}</p>
                     <Text key={contest.eitherOption.id} bold>
-                      <BubbleMark checked={false}>
+                      <BubbleMark
+                        position={election.ballotLayout?.targetMarkPosition}
+                        checked={false}
+                      >
                         <span>{contest.eitherOption.label}</span>
                       </BubbleMark>
                     </Text>
                     <Text key={contest.neitherOption.id} bold>
-                      <BubbleMark checked={false}>
+                      <BubbleMark
+                        position={election.ballotLayout?.targetMarkPosition}
+                        checked={false}
+                      >
                         <span>{contest.neitherOption.label}</span>
                       </BubbleMark>
                     </Text>
                     <p>{contest.pickOneLabel}</p>
                     <Text key={contest.firstOption.id} bold>
-                      <BubbleMark checked={false}>
+                      <BubbleMark
+                        position={election.ballotLayout?.targetMarkPosition}
+                        checked={false}
+                      >
                         <span>{contest.firstOption.label}</span>
                       </BubbleMark>
                     </Text>
                     <Text key={contest.secondOption.id} bold>
-                      <BubbleMark checked={false}>
+                      <BubbleMark
+                        position={election.ballotLayout?.targetMarkPosition}
+                        checked={false}
+                      >
                         <span>{contest.secondOption.label}</span>
                       </BubbleMark>
                     </Text>

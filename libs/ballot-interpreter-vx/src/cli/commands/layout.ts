@@ -1,4 +1,14 @@
-import { err, ok, Point, Rect, Result } from '@votingworks/types';
+import {
+  BallotTargetMarkPosition,
+  BallotTargetMarkPositionSchema,
+  err,
+  ok,
+  Point,
+  Rect,
+  Result,
+  safeParse,
+  TargetShape,
+} from '@votingworks/types';
 import { assert } from '@votingworks/utils';
 import chalk from 'chalk';
 import { createImageData } from 'canvas';
@@ -10,6 +20,8 @@ import { vh } from '../../utils/flip';
 import { getImageChannelCount } from '../../utils/image_format_utils';
 import { loadImageData, writeImageData } from '../../utils/images';
 import { adjacentFile } from '../../utils/path';
+import { findTargets } from '../../hmpb/find_targets';
+import { rectCenter } from '../../utils/geometry';
 
 export interface HelpOptions {
   help: true;
@@ -18,6 +30,7 @@ export interface HelpOptions {
 export interface LayoutOptions {
   help: false;
   ballotImagePaths: readonly string[];
+  targetMarkPosition?: BallotTargetMarkPosition;
 }
 
 export type Options = HelpOptions | LayoutOptions;
@@ -25,6 +38,7 @@ export type Options = HelpOptions | LayoutOptions;
 const RGBA_CHANNELS = 4;
 const RED_OVERLAY_COLOR: RGBA = [0xff, 0, 0, 0x60];
 const GREEN_OVERLAY_COLOR: RGBA = [0, 0xff, 0, 0x60];
+const BLUE_OVERLAY_COLOR: RGBA = [0, 0, 0xff, 0x60];
 
 export const name = 'layout';
 export const description = 'Annotate the interpreted layout of a ballot page';
@@ -49,11 +63,24 @@ export async function parseOptions({
   commandArgs: args,
 }: GlobalOptions): Promise<Result<Options, Error>> {
   let help = false;
+  let targetMarkPosition: BallotTargetMarkPosition | undefined;
   const ballotImagePaths: string[] = [];
 
-  for (const arg of args) {
+  for (let i = 0; i < args.length; i += 1) {
+    const arg = args[i];
     if (arg === '--help' || arg === '-h') {
       help = true;
+    } else if (arg === '--target-mark-position' || arg === '-t') {
+      const argValue = args[i + 1];
+      i += 1;
+      const targetMarkPositionResult = safeParse(
+        BallotTargetMarkPositionSchema,
+        argValue
+      );
+      if (targetMarkPositionResult.isErr()) {
+        return err(new Error(`invalid target mark position: ${argValue}`));
+      }
+      targetMarkPosition = targetMarkPositionResult.ok();
     } else if (arg.startsWith('-')) {
       return err(new Error(`unexpected option passed to 'layout': ${arg}`));
     } else {
@@ -61,15 +88,21 @@ export async function parseOptions({
     }
   }
 
-  return ok({ help, ballotImagePaths });
+  return ok({ help, ballotImagePaths, targetMarkPosition });
 }
 
 interface AnalyzeImageResult {
   contests: ContestShape[];
+  targets: TargetShape[];
   rotated: boolean;
 }
 
-function analyzeImage(imageData: ImageData): AnalyzeImageResult {
+function analyzeImage(
+  imageData: ImageData,
+  {
+    targetMarkPosition = BallotTargetMarkPosition.Left,
+  }: { targetMarkPosition?: BallotTargetMarkPosition } = {}
+): AnalyzeImageResult {
   const binarized = createImageData(imageData.width, imageData.height);
   binarize(imageData, binarized);
 
@@ -99,13 +132,20 @@ function analyzeImage(imageData: ImageData): AnalyzeImageResult {
 
     for (const columns of columnPatterns) {
       const contests = [...findContests(transformed.imageData, { columns })];
+      const targets = contests.flatMap((contest) =>
+        Array.from(
+          findTargets(transformed.imageData, contest.bounds, {
+            targetMarkPosition,
+          })
+        )
+      );
       if (contests.length > 0) {
-        return { contests, rotated: transformed.rotated };
+        return { contests, targets, rotated: transformed.rotated };
       }
     }
   }
 
-  return { contests: [], rotated: false };
+  return { contests: [], targets: [], rotated: false };
 }
 
 /**
@@ -210,7 +250,9 @@ export async function run(
 
   for (const ballotImagePath of options.ballotImagePaths) {
     const imageData = await loadImageData(ballotImagePath);
-    const { contests, rotated } = analyzeImage(imageData);
+    const { contests, targets, rotated } = analyzeImage(imageData, {
+      targetMarkPosition: options.targetMarkPosition,
+    });
     const targetWidth = Math.max(15, Math.round(imageData.width * 0.01));
 
     if (rotated) {
@@ -225,9 +267,20 @@ export async function run(
       }
     }
 
+    for (const target of targets) {
+      drawTarget(
+        imageData,
+        rectCenter(target.bounds, { round: true }),
+        BLUE_OVERLAY_COLOR,
+        targetWidth
+      );
+    }
+
     const layoutFilePath = adjacentFile('-layout', ballotImagePath);
     stdout.write(
-      `📝 ${layoutFilePath} ${chalk.gray(`(${contests.length} contest(s))`)}\n`
+      `📝 ${layoutFilePath} ${chalk.gray(
+        `(${contests.length} contest(s), ${targets.length} target(s))`
+      )}\n`
     );
     await writeImageData(layoutFilePath, imageData);
   }

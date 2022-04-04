@@ -34,6 +34,7 @@ import {
   BallotStyleId,
   PrecinctId,
   BallotId,
+  BallotTargetMarkPosition,
 } from '@votingworks/types';
 
 import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
@@ -456,6 +457,7 @@ export interface CandidateContestChoicesProps {
   parties: Parties;
   vote?: CandidateVote;
   density?: number;
+  targetMarkPosition?: BallotTargetMarkPosition;
 }
 
 export function CandidateContestChoices({
@@ -464,6 +466,7 @@ export function CandidateContestChoices({
   locales,
   parties,
   vote,
+  targetMarkPosition,
 }: CandidateContestChoicesProps): JSX.Element {
   const { t } = useTranslation();
   const writeInCandidates = vote?.filter((c) => c.isWriteIn);
@@ -473,7 +476,10 @@ export function CandidateContestChoices({
     <React.Fragment>
       {contest.candidates.map((candidate) => (
         <Text key={candidate.id} data-candidate>
-          <BubbleMark checked={hasVote(vote, candidate.id)}>
+          <BubbleMark
+            position={targetMarkPosition}
+            checked={hasVote(vote, candidate.id)}
+          >
             <CandidateDescription isSmall>
               <strong data-candidate-name={candidate.name}>
                 {candidate.name}
@@ -492,7 +498,7 @@ export function CandidateContestChoices({
       ))}
       {writeInCandidates?.map((candidate) => (
         <Text key={candidate.name} bold noWrap>
-          <BubbleMark checked>
+          <BubbleMark position={targetMarkPosition} checked>
             <span>
               <strong>{candidate.name}</strong> (
               {dualLanguageWithSlash('write-in')})
@@ -503,7 +509,7 @@ export function CandidateContestChoices({
       {contest.allowWriteIns &&
         remainingChoices.map((k) => (
           <WriteInItem key={k} data-write-in>
-            <BubbleMark>
+            <BubbleMark position={targetMarkPosition}>
               <WriteInLine />
               <Text small noWrap as="span">
                 {dualLanguageWithSlash('write-in')}
@@ -981,6 +987,9 @@ export function HandMarkedPaperBallot({
                     vote={votes?.[contest.id] as CandidateVote | undefined}
                     locales={locales}
                     density={layoutDensity}
+                    targetMarkPosition={
+                      election.ballotLayout?.targetMarkPosition
+                    }
                   />
                 </React.Fragment>
               )}
@@ -1052,7 +1061,10 @@ export function HandMarkedPaperBallot({
                       />
                     )}
                     <Text bold noWrap>
-                      <BubbleMark checked={hasVote(votes?.[contest.id], 'yes')}>
+                      <BubbleMark
+                        position={election.ballotLayout?.targetMarkPosition}
+                        checked={hasVote(votes?.[contest.id], 'yes')}
+                      >
                         <span>
                           {dualLanguageWithSlash(
                             contest.yesOption?.label || 'Yes'
@@ -1061,7 +1073,10 @@ export function HandMarkedPaperBallot({
                       </BubbleMark>
                     </Text>
                     <Text bold noWrap>
-                      <BubbleMark checked={hasVote(votes?.[contest.id], 'no')}>
+                      <BubbleMark
+                        position={election.ballotLayout?.targetMarkPosition}
+                        checked={hasVote(votes?.[contest.id], 'no')}
+                      >
                         <span>
                           {dualLanguageWithSlash(
                             contest.noOption?.label || 'No'
@@ -1095,6 +1110,7 @@ export function HandMarkedPaperBallot({
                     <p>{contest.eitherNeitherLabel}</p>
                     <Text key={contest.eitherOption.id} bold>
                       <BubbleMark
+                        position={election.ballotLayout?.targetMarkPosition}
                         checked={hasVote(
                           votes?.[contest.eitherNeitherContestId],
                           'yes'
@@ -1107,6 +1123,7 @@ export function HandMarkedPaperBallot({
                     </Text>
                     <Text key={contest.neitherOption.id} bold>
                       <BubbleMark
+                        position={election.ballotLayout?.targetMarkPosition}
                         checked={hasVote(
                           votes?.[contest.eitherNeitherContestId],
                           'no'
@@ -1120,6 +1137,7 @@ export function HandMarkedPaperBallot({
                     <p>{contest.pickOneLabel}</p>
                     <Text key={contest.firstOption.id} bold>
                       <BubbleMark
+                        position={election.ballotLayout?.targetMarkPosition}
                         checked={hasVote(
                           votes?.[contest.pickOneContestId],
                           'yes'
@@ -1132,6 +1150,7 @@ export function HandMarkedPaperBallot({
                     </Text>
                     <Text key={contest.secondOption.id} bold>
                       <BubbleMark
+                        position={election.ballotLayout?.targetMarkPosition}
                         checked={hasVote(
                           votes?.[contest.pickOneContestId],
                           'no'
