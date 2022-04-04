@@ -354,6 +354,7 @@ export function BallotEjectScreen({
               );
               return (
                 <WriteInAdjudicationScreen
+                  key={reviewPageInfo.side}
                   sheetId={reviewInfo.interpreted.id}
                   side={reviewPageInfo.side}
                   imageUrl={reviewPageInfo.imageUrl}

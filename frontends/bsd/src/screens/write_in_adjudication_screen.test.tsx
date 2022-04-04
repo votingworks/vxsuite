@@ -109,6 +109,7 @@ test('supports typing in a candidate name', async () => {
   render(
     <AppContext.Provider value={makeAppContext()}>
       <WriteInAdjudicationScreen
+        key="front"
         sheetId="test-sheet"
         side="front"
         imageUrl="/test-sheet/front.jpg"
@@ -199,6 +200,7 @@ test('supports canceling a write-in', async () => {
   render(
     <AppContext.Provider value={makeAppContext()}>
       <WriteInAdjudicationScreen
+        key="front"
         sheetId="test-sheet"
         side="front"
         imageUrl="/test-sheet/front.jpg"
@@ -339,6 +341,7 @@ test('can adjudicate front & back in succession', async () => {
   const { rerender } = render(
     <AppContext.Provider value={appContext}>
       <WriteInAdjudicationScreen
+        key="front"
         sheetId="test-sheet"
         side="front"
         imageUrl="/test-sheet/front.jpg"
@@ -381,6 +384,7 @@ test('can adjudicate front & back in succession', async () => {
   rerender(
     <AppContext.Provider value={appContext}>
       <WriteInAdjudicationScreen
+        key="back"
         sheetId="test-sheet"
         side="back"
         imageUrl="/test-sheet/back.jpg"
@@ -489,6 +493,7 @@ test('uses the layout embedded definition to crop the ballot image correctly if 
   render(
     <AppContext.Provider value={makeAppContext()}>
       <WriteInAdjudicationScreen
+        key="front"
         sheetId="test-sheet"
         side="front"
         imageUrl="/test-sheet/front.jpg"

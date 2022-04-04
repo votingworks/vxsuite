@@ -468,17 +468,19 @@ export function WriteInAdjudicationScreen({
   const { electionDefinition, storage } = useContext(AppContext);
   assert(electionDefinition);
 
-  const makeCancelable = useCancelablePromise();
-  const [adjudications, setAdjudications] = useState<
-    readonly WriteInMarkAdjudication[]
-  >([]);
-  const [selectedContestId, setSelectedContestId] = useState<ContestId>();
-  const [isSaving, setIsSaving] = useState(false);
-
   const contestsWithWriteInsIds = useMemo(
     () => uniq([...writeIns].map(({ contestId }) => contestId)),
     [writeIns]
   );
+
+  const makeCancelable = useCancelablePromise();
+  const [adjudications, setAdjudications] = useState<
+    readonly WriteInMarkAdjudication[]
+  >([]);
+  const [selectedContestIndex, setSelectedContestIndex] = useState(0);
+  const selectedContestId = contestsWithWriteInsIds[selectedContestIndex];
+  const [isSaving, setIsSaving] = useState(false);
+
   const styleForContest = useCallback(
     (contestId: ContestId): React.CSSProperties => {
       return contestId === selectedContestId
@@ -529,30 +531,27 @@ export function WriteInAdjudicationScreen({
         prev
       )
     );
-    setSelectedContestId(undefined);
     await onAdjudicationComplete?.(sheetId, side, adjudications);
   }, [adjudications, onAdjudicationComplete, setWriteInPresets, sheetId, side]);
 
-  const selectedContestIdOrDefault =
-    selectedContestId ?? contestsWithWriteInsIds[0];
   const isFirstContestSelected =
-    selectedContestIdOrDefault === contestsWithWriteInsIds[0];
+    selectedContestId === contestsWithWriteInsIds[0];
   const isLastContestSelected =
-    selectedContestIdOrDefault ===
+    selectedContestId ===
     contestsWithWriteInsIds[contestsWithWriteInsIds.length - 1];
 
   const selectedContestIdOrDefaultIndex = contestsWithWriteInsIds.indexOf(
-    selectedContestIdOrDefault
+    selectedContestId
   );
   const contest = find(
     electionDefinition.election.contests,
-    (c): c is CandidateContest => c.id === selectedContestIdOrDefault
+    (c): c is CandidateContest => c.id === selectedContestId
   );
   const writeInsForContest = writeIns.filter(
-    (writeIn) => writeIn.contestId === selectedContestIdOrDefault
+    (writeIn) => writeIn.contestId === selectedContestId
   );
   const contestLayout =
-    layout.contests[allContestIds.indexOf(selectedContestIdOrDefault)];
+    layout.contests[allContestIds.indexOf(selectedContestId)];
   const allWriteInsHaveValues = writeInsForContest.every((writeIn) =>
     adjudications.some(
       (adjudication) =>
@@ -563,10 +562,8 @@ export function WriteInAdjudicationScreen({
   );
 
   const goPrevious = useCallback(() => {
-    setSelectedContestId(
-      contestsWithWriteInsIds[selectedContestIdOrDefaultIndex - 1]
-    );
-  }, [contestsWithWriteInsIds, selectedContestIdOrDefaultIndex]);
+    setSelectedContestIndex((prev) => prev - 1);
+  }, []);
 
   const goNext = useCallback(
     async (event?: React.FormEvent<EventTarget>): Promise<void> => {
@@ -579,18 +576,10 @@ export function WriteInAdjudicationScreen({
           setIsSaving(false);
         }
       } else {
-        setSelectedContestId(
-          contestsWithWriteInsIds[selectedContestIdOrDefaultIndex + 1]
-        );
+        setSelectedContestIndex((prev) => prev + 1);
       }
     },
-    [
-      contestsWithWriteInsIds,
-      selectedContestIdOrDefaultIndex,
-      isLastContestSelected,
-      makeCancelable,
-      onAdjudicationCompleteInternal,
-    ]
+    [isLastContestSelected, makeCancelable, onAdjudicationCompleteInternal]
   );
 
   return (
@@ -606,7 +595,7 @@ export function WriteInAdjudicationScreen({
                 indicating it is not a write-in.
               </p>
               <ContestAdjudication
-                key={selectedContestIdOrDefault}
+                key={selectedContestId}
                 imageUrl={imageUrl}
                 contest={contest}
                 writeInsForContest={writeInsForContest}
