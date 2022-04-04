@@ -60,7 +60,7 @@ export function* ballotAdjudicationReasons(
 
             if (option.type === 'candidate' && option.isWriteIn) {
               yield {
-                type: AdjudicationReason.WriteIn,
+                type: AdjudicationReason.MarkedWriteIn,
                 contestId: option.contestId,
                 optionId: option.id,
                 optionIndex: option.optionIndex,
@@ -160,7 +160,7 @@ export function adjudicationReasonDescription(
         reason.expected
       } but got ${optionIdsAsSentence(reason.optionIds)}.`;
 
-    case AdjudicationReason.WriteIn:
+    case AdjudicationReason.MarkedWriteIn:
       return `Contest '${reason.contestId}' has a write-in.`;
 
     case AdjudicationReason.UnmarkedWriteIn:

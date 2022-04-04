@@ -668,7 +668,7 @@ test('shows invalid precinct screen when appropriate', async () => {
 
 test('does NOT say ballot is blank if one side is blank and the other requires write-in adjudication (marked or unmarked)', async () => {
   for (const writeInReason of [
-    AdjudicationReason.WriteIn,
+    AdjudicationReason.MarkedWriteIn,
     AdjudicationReason.UnmarkedWriteIn,
   ] as const) {
     fetchMock.getOnce(

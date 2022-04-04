@@ -250,7 +250,7 @@ test('default adjudication reasons', async () => {
     typedAs<AdjudicationReason[]>([
       AdjudicationReason.UninterpretableBallot,
       AdjudicationReason.Overvote,
-      AdjudicationReason.WriteIn,
+      AdjudicationReason.MarkedWriteIn,
       AdjudicationReason.BlankBallot,
     ])
   );

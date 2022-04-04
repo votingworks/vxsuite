@@ -2,7 +2,6 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import {
-  UnmarkedWriteInAdjudicationReasonInfo,
   AdjudicationReason,
   BallotPageLayout,
   BallotType,
@@ -13,7 +12,6 @@ import {
   WriteInId,
   WriteInIdSchema,
 } from '@votingworks/types';
-
 import {
   allContestOptions,
   assert,
@@ -70,11 +68,9 @@ test('supports typing in a candidate name', async () => {
     >()
     .mockResolvedValue();
 
-  const writeIns: Array<
-    WriteInAdjudicationReasonInfo | UnmarkedWriteInAdjudicationReasonInfo
-  > = [
+  const writeIns: WriteInAdjudicationReasonInfo[] = [
     {
-      type: AdjudicationReason.WriteIn,
+      type: AdjudicationReason.MarkedWriteIn,
       contestId: contest.id,
       optionId,
       optionIndex: 0,
@@ -139,7 +135,7 @@ test('supports typing in a candidate name', async () => {
         'front',
         [
           {
-            type: AdjudicationReason.WriteIn,
+            type: AdjudicationReason.MarkedWriteIn,
             isMarked: true,
             contestId: contest.id,
             optionId,
@@ -161,9 +157,7 @@ test('supports canceling a write-in', async () => {
     >()
     .mockResolvedValue();
 
-  const writeIns: Array<
-    WriteInAdjudicationReasonInfo | UnmarkedWriteInAdjudicationReasonInfo
-  > = [
+  const writeIns: WriteInAdjudicationReasonInfo[] = [
     {
       type: AdjudicationReason.UnmarkedWriteIn,
       contestId: contest.id,
@@ -262,28 +256,24 @@ test('can adjudicate front & back in succession', async () => {
     >()
     .mockResolvedValue();
 
-  const frontWriteIns: Array<
-    WriteInAdjudicationReasonInfo | UnmarkedWriteInAdjudicationReasonInfo
-  > = [
+  const frontWriteIns: WriteInAdjudicationReasonInfo[] = [
     {
-      type: AdjudicationReason.WriteIn,
+      type: AdjudicationReason.MarkedWriteIn,
       contestId: frontContest1.id,
       optionId: frontContest1WriteInId,
       optionIndex: 0,
     },
     {
-      type: AdjudicationReason.WriteIn,
+      type: AdjudicationReason.MarkedWriteIn,
       contestId: frontContest2.id,
       optionId: frontContest2WriteInId,
       optionIndex: 0,
     },
   ];
 
-  const backWriteIns: Array<
-    WriteInAdjudicationReasonInfo | UnmarkedWriteInAdjudicationReasonInfo
-  > = [
+  const backWriteIns: WriteInAdjudicationReasonInfo[] = [
     {
-      type: AdjudicationReason.WriteIn,
+      type: AdjudicationReason.MarkedWriteIn,
       contestId: backContest.id,
       optionId: backContestWriteInId,
       optionIndex: 0,
@@ -450,11 +440,9 @@ test('uses the layout embedded definition to crop the ballot image correctly if 
     >()
     .mockResolvedValue();
 
-  const writeIns: Array<
-    WriteInAdjudicationReasonInfo | UnmarkedWriteInAdjudicationReasonInfo
-  > = [
+  const writeIns: WriteInAdjudicationReasonInfo[] = [
     {
-      type: AdjudicationReason.WriteIn,
+      type: AdjudicationReason.MarkedWriteIn,
       contestId: writeInOption.contestId,
       optionId: writeInOption.id,
       // You'd expect this to be `writeInOption.optionIndex`, but because

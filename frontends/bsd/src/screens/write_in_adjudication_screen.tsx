@@ -12,7 +12,6 @@ import {
   ContestId,
   ElectionDefinition,
   Rect,
-  UnmarkedWriteInAdjudicationReasonInfo,
   WriteInAdjudicationReasonInfo,
   WriteInMarkAdjudication,
 } from '@votingworks/types';
@@ -183,9 +182,7 @@ function WriteInLabel({
   writeIn,
 }: {
   contest: CandidateContest;
-  writeIn:
-    | WriteInAdjudicationReasonInfo
-    | UnmarkedWriteInAdjudicationReasonInfo;
+  writeIn: WriteInAdjudicationReasonInfo;
 }) {
   return (
     <HStack>
@@ -227,9 +224,7 @@ function WriteInImage({
 interface ContestOptionAdjudicationProps {
   imageUrl: string;
   contest: CandidateContest;
-  writeIn:
-    | WriteInAdjudicationReasonInfo
-    | UnmarkedWriteInAdjudicationReasonInfo;
+  writeIn: WriteInAdjudicationReasonInfo;
   layout: BallotPageContestLayout;
   adjudications: readonly WriteInMarkAdjudication[];
   onChange?(adjudication: WriteInMarkAdjudication): void;
@@ -372,9 +367,7 @@ interface ContestAdjudicationProps {
   imageUrl: string;
   contest: CandidateContest;
   layout: BallotPageContestLayout;
-  writeInsForContest: ReadonlyArray<
-    WriteInAdjudicationReasonInfo | UnmarkedWriteInAdjudicationReasonInfo
-  >;
+  writeInsForContest: readonly WriteInAdjudicationReasonInfo[];
   onChange?(adjudication: WriteInMarkAdjudication): void;
   adjudications: readonly WriteInMarkAdjudication[];
   writeInPresets: CandidateNamesByContestId;
@@ -430,9 +423,7 @@ export interface Props {
   /**
    * All write-ins flagged for adjudication on this page.
    */
-  writeIns: ReadonlyArray<
-    WriteInAdjudicationReasonInfo | UnmarkedWriteInAdjudicationReasonInfo
-  >;
+  writeIns: readonly WriteInAdjudicationReasonInfo[];
 
   /**
    * Layout of the ballot page being adjudicated. The number of contests in this
