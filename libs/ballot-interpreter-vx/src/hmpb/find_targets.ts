@@ -34,9 +34,9 @@ export function* findTargets(
   const x =
     bounds.x +
     Math.round(
-      targetMarkPosition === BallotTargetMarkPosition.Left
-        ? inset + expectedWidth / 2
-        : bounds.width - 1 - inset - expectedWidth / 2
+      targetMarkPosition === BallotTargetMarkPosition.Right
+        ? bounds.width - 1 - inset - expectedWidth / 2
+        : inset + expectedWidth / 2
     );
   let lastShape: Shape | undefined;
 
