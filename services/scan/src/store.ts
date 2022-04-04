@@ -899,7 +899,7 @@ export class Store {
 
   getBallotLayoutsForMetadata(
     metadata: BallotPageMetadata
-  ): BallotPageLayout[] | undefined {
+  ): BallotPageLayout[] {
     const electionDefinition = this.getElectionDefinition();
     if (electionDefinition?.election.gridLayouts) {
       return generateBallotPageLayouts(
@@ -947,7 +947,7 @@ export class Store {
 
   getContestIdsForMetadata(
     metadata: BallotPageMetadata
-  ): Array<AnyContest['id']> | undefined {
+  ): Array<AnyContest['id']> {
     const electionDefinition = this.getElectionDefinition();
 
     if (!electionDefinition) {
@@ -956,10 +956,6 @@ export class Store {
 
     const layouts = this.getBallotLayoutsForMetadata(metadata);
     let contestOffset = 0;
-
-    if (!layouts) {
-      return;
-    }
 
     for (const layout of layouts) {
       if (layout.metadata.pageNumber === metadata.pageNumber) {

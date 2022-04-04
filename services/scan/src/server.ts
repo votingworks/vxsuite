@@ -647,32 +647,21 @@ export function buildApp({ store, importer }: AppOptions): Application {
         if (sheet.front.interpretation.type === 'InterpretedHmpbPage') {
           const front = sheet.front.interpretation;
           const layouts = store.getBallotLayoutsForMetadata(front.metadata);
-
-          if (layouts) {
-            const contestIds = store.getContestIdsForMetadata(front.metadata);
-            if (contestIds) {
-              frontLayout = layouts.find(
-                ({ metadata }) =>
-                  metadata.pageNumber === front.metadata.pageNumber
-              );
-              frontDefinition = { contestIds };
-            }
-          }
+          const contestIds = store.getContestIdsForMetadata(front.metadata);
+          frontLayout = layouts.find(
+            ({ metadata }) => metadata.pageNumber === front.metadata.pageNumber
+          );
+          frontDefinition = { contestIds };
         }
 
         if (sheet.back.interpretation.type === 'InterpretedHmpbPage') {
           const back = sheet.back.interpretation;
           const layouts = store.getBallotLayoutsForMetadata(back.metadata);
-          if (layouts) {
-            const contestIds = store.getContestIdsForMetadata(back.metadata);
-            if (contestIds) {
-              backLayout = layouts.find(
-                ({ metadata }) =>
-                  metadata.pageNumber === back.metadata.pageNumber
-              );
-              backDefinition = { contestIds };
-            }
-          }
+          const contestIds = store.getContestIdsForMetadata(back.metadata);
+          backLayout = layouts.find(
+            ({ metadata }) => metadata.pageNumber === back.metadata.pageNumber
+          );
+          backDefinition = { contestIds };
         }
 
         response.json({
