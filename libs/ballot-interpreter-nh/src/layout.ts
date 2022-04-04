@@ -10,9 +10,16 @@ import {
   Result,
 } from '@votingworks/types';
 import { allContestOptions, assert, find, groupBy } from '@votingworks/utils';
-import { BallotCardGeometry, getScannedBallotCardGeometry } from './accuvote';
+import { getScannedBallotCardGeometry } from './accuvote';
 import { computeTimingMarkGrid } from './timing_marks';
-import { CompleteTimingMarks, Point, Rect, Size, Vector } from './types';
+import {
+  BallotCardGeometry,
+  CompleteTimingMarks,
+  Point,
+  Rect,
+  Size,
+  Vector,
+} from './types';
 import { makeRect, vec } from './utils';
 
 function timingMarkAt(x: number, y: number, timingMarkSize: Size): Rect {
