@@ -29,11 +29,11 @@ const emptyDevices: Devices = {
   precinctScanner: undefined,
 };
 
-test('can connect printer as expected', () => {
+test('can connect printer as expected', async () => {
   const hardware = new MemoryHardware();
   const fakeLogger = new Logger(LogSource.VxCentralScanFrontend);
   const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
-  const { result, rerender } = renderHook(() =>
+  const { result, rerender, waitForNextUpdate } = renderHook(() =>
     useDevices({ hardware, logger: fakeLogger })
   );
   expect(result.current).toEqual(emptyDevices);
@@ -97,13 +97,16 @@ test('can connect printer as expected', () => {
       message: expect.stringContaining('Printer'),
     })
   );
+
+  // Prevent `act` warning.
+  await waitForNextUpdate();
 });
 
-test('can connect card reader as expected', () => {
+test('can connect card reader as expected', async () => {
   const hardware = new MemoryHardware();
   const fakeLogger = new Logger(LogSource.VxCentralScanFrontend);
   const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
-  const { result, rerender } = renderHook(() =>
+  const { result, rerender, waitForNextUpdate } = renderHook(() =>
     useDevices({ hardware, logger: fakeLogger })
   );
   expect(result.current).toEqual(emptyDevices);
@@ -146,13 +149,16 @@ test('can connect card reader as expected', () => {
       vendorId: OmniKeyCardReaderVendorId,
     })
   );
+
+  // Prevent `act` warning.
+  await waitForNextUpdate();
 });
 
-test('can connect accessible controller as expected', () => {
+test('can connect accessible controller as expected', async () => {
   const hardware = new MemoryHardware();
   const fakeLogger = new Logger(LogSource.VxCentralScanFrontend);
   const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
-  const { result, rerender } = renderHook(() =>
+  const { result, rerender, waitForNextUpdate } = renderHook(() =>
     useDevices({ hardware, logger: fakeLogger })
   );
   expect(result.current).toEqual(emptyDevices);
@@ -197,13 +203,16 @@ test('can connect accessible controller as expected', () => {
       vendorId: AccessibleControllerVendorId,
     })
   );
+
+  // Prevent `act` warning.
+  await waitForNextUpdate();
 });
 
-test('can connect batch scanner as expected', () => {
+test('can connect batch scanner as expected', async () => {
   const hardware = new MemoryHardware();
   const fakeLogger = new Logger(LogSource.VxCentralScanFrontend);
   const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
-  const { result, rerender } = renderHook(() =>
+  const { result, rerender, waitForNextUpdate } = renderHook(() =>
     useDevices({ hardware, logger: fakeLogger })
   );
   expect(result.current).toEqual(emptyDevices);
@@ -246,9 +255,12 @@ test('can connect batch scanner as expected', () => {
       vendorId: FujitsuScannerVendorId,
     })
   );
+
+  // Prevent `act` warning.
+  await waitForNextUpdate();
 });
 
-test('can connect precinct scanner as expected', () => {
+test('can connect precinct scanner as expected', async () => {
   const plustekDevice: KioskBrowser.Device = {
     productId: PlustekVtm300ScannerProductId,
     vendorId: PlustekScannerVendorId,
@@ -261,7 +273,7 @@ test('can connect precinct scanner as expected', () => {
   const hardware = new MemoryHardware();
   const fakeLogger = new Logger(LogSource.VxCentralScanFrontend);
   const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
-  const { result, rerender } = renderHook(() =>
+  const { result, rerender, waitForNextUpdate } = renderHook(() =>
     useDevices({ hardware, logger: fakeLogger })
   );
   expect(result.current).toEqual(emptyDevices);
@@ -296,9 +308,12 @@ test('can connect precinct scanner as expected', () => {
       vendorId: PlustekScannerVendorId,
     })
   );
+
+  // Prevent `act` warning.
+  await waitForNextUpdate();
 });
 
-test('can handle logs for a random device as expected', () => {
+test('can handle logs for a random device as expected', async () => {
   const randomDevice: KioskBrowser.Device = {
     productId: 1234,
     vendorId: 5678,
@@ -311,7 +326,7 @@ test('can handle logs for a random device as expected', () => {
   const hardware = new MemoryHardware();
   const fakeLogger = new Logger(LogSource.VxCentralScanFrontend);
   const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
-  const { result, rerender } = renderHook(() =>
+  const { result, rerender, waitForNextUpdate } = renderHook(() =>
     useDevices({ hardware, logger: fakeLogger })
   );
   expect(logSpy).toHaveBeenCalledTimes(0);
@@ -342,6 +357,9 @@ test('can handle logs for a random device as expected', () => {
       vendorId: 5678,
     })
   );
+
+  // Prevent `act` warning.
+  await waitForNextUpdate();
 });
 
 test('periodically polls for computer battery status', async () => {
