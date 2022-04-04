@@ -1,18 +1,37 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import {
+  Button,
+  ComputerStatus as ComputerStatusType,
   Devices,
+  LinkButton,
   Main,
   MainChild,
   Prose,
-  Button,
   Text,
-  ComputerStatus as ComputerStatusType,
   useCancelablePromise,
 } from '@votingworks/ui';
 import { Optional } from '@votingworks/types';
 import assert from 'assert';
 import { formatTime, Hardware } from '@votingworks/utils';
 import { DateTime } from 'luxon';
+import { useHistory, Switch, Route } from 'react-router-dom';
+import styled from 'styled-components';
+import {
+  AccessibleControllerDiagnosticScreen,
+  AccessibleControllerDiagnosticResults,
+} from './accessible_controller_diagnostic_screen';
+import { Screen } from '../components/screen';
+import { Sidebar, SidebarProps } from '../components/sidebar';
+import { ScreenReader } from '../config/types';
+
+const ButtonAndTimestamp = styled.div`
+  display: flex;
+  align-items: baseline;
+  margin-top: 0.5em;
+  > button {
+    margin-right: 0.5em;
+  }
+`;
 
 interface ComputerStatusProps {
   computer: ComputerStatusType;
@@ -147,16 +166,10 @@ function PrinterStatus({ hardware }: PrinterStatusProps) {
   const { printer, loadedAt } = printerStatus;
 
   const refreshButton = (
-    <div
-      style={{ display: 'flex', alignItems: 'baseline', marginTop: '0.5em' }}
-    >
+    <ButtonAndTimestamp>
       <Button onPress={loadPrinterStatus}>Refresh Printer Status</Button>
-      {loadedAt && (
-        <div style={{ marginLeft: '0.5em' }}>
-          <Text small>Last updated at {formatTime(loadedAt)}</Text>
-        </div>
-      )}
-    </div>
+      {loadedAt && <Text small>Last updated at {formatTime(loadedAt)}</Text>}
+    </ButtonAndTimestamp>
   );
 
   if (!printer || printer.state === 'unknown') {
@@ -201,14 +214,56 @@ function PrinterStatus({ hardware }: PrinterStatusProps) {
   );
 }
 
-interface DiagnosticsScreenProps {
+interface AccessibleControllerStatusProps {
+  accessibleController?: KioskBrowser.Device;
+  diagnosticResults?: AccessibleControllerDiagnosticResults;
+}
+
+function AccessibleControllerStatus({
+  accessibleController,
+  diagnosticResults,
+}: AccessibleControllerStatusProps) {
+  if (!accessibleController) {
+    return <Text warningIcon>No accessible controller connected.</Text>;
+  }
+
+  return (
+    <React.Fragment>
+      <Text voteIcon>Accessible controller connected.</Text>
+      {diagnosticResults &&
+        (diagnosticResults.passed ? (
+          <Text voteIcon>Test passed.</Text>
+        ) : (
+          <Text warningIcon>Test failed: {diagnosticResults.message}</Text>
+        ))}
+      <ButtonAndTimestamp>
+        <LinkButton to="/accessible-controller">
+          Start Accessible Controller Test
+        </LinkButton>
+        {diagnosticResults && (
+          <Text small>
+            Last tested at {formatTime(diagnosticResults.completedAt)}
+          </Text>
+        )}
+      </ButtonAndTimestamp>
+    </React.Fragment>
+  );
+}
+
+export interface DiagnosticsScreenProps {
   hardware: Hardware;
   devices: Devices;
+  screenReader: ScreenReader;
+  onBackButtonPress: () => void;
+  sidebarProps: SidebarProps;
 }
 
 export function DiagnosticsScreen({
   hardware,
   devices,
+  screenReader,
+  onBackButtonPress,
+  sidebarProps,
 }: DiagnosticsScreenProps): JSX.Element {
   // Since we show full-screen alerts for specific hardware states, there are
   // certain cases that we will never see in this screen
@@ -217,21 +272,55 @@ export function DiagnosticsScreen({
     !(devices.computer.batteryIsLow && !devices.computer.batteryIsCharging)
   );
 
+  const [
+    accessibleControllerDiagnosticResults,
+    setAccessibleControllerDiagnosticResults,
+  ] = useState<AccessibleControllerDiagnosticResults>();
+  const history = useHistory();
+
   return (
-    <Main padded>
-      <MainChild>
-        <Prose compact>
-          <h1>System Diagnostics</h1>
-          <section>
-            <h2>Computer</h2>
-            <ComputerStatus computer={devices.computer} />
-          </section>
-          <section>
-            <h2>Printer</h2>
-            <PrinterStatus hardware={hardware} />
-          </section>
-        </Prose>
-      </MainChild>
-    </Main>
+    <Switch>
+      <Route path="/" exact>
+        <Screen flexDirection="row-reverse" voterMode={false}>
+          <Main padded>
+            <MainChild>
+              <Prose compact>
+                <h1>System Diagnostics</h1>
+                <section>
+                  <h2>Computer</h2>
+                  <ComputerStatus computer={devices.computer} />
+                </section>
+                <section>
+                  <h2>Printer</h2>
+                  <PrinterStatus hardware={hardware} />
+                </section>
+                <section>
+                  <h2>Accessible Controller</h2>
+                  <AccessibleControllerStatus
+                    accessibleController={devices.accessibleController}
+                    diagnosticResults={accessibleControllerDiagnosticResults}
+                  />
+                </section>
+              </Prose>
+            </MainChild>
+          </Main>
+          <Sidebar {...sidebarProps}>
+            <Prose>
+              <Button onPress={onBackButtonPress}>Back</Button>
+            </Prose>
+          </Sidebar>
+        </Screen>
+      </Route>
+      <Route path="/accessible-controller">
+        <AccessibleControllerDiagnosticScreen
+          screenReader={screenReader}
+          onComplete={(results) => {
+            setAccessibleControllerDiagnosticResults(results);
+            history.push('/');
+          }}
+          onCancel={() => history.push('/')}
+        />
+      </Route>
+    </Switch>
   );
 }

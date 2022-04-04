@@ -36,6 +36,8 @@ import { PollWorkerScreen, PollworkerScreenProps } from './poll_worker_screen';
 import { fakePrinter } from '../../test/helpers/fake_printer';
 import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
 import { fakeDevices } from '../../test/helpers/fake_devices';
+import { AriaScreenReader } from '../utils/ScreenReader';
+import { fakeTts } from '../../test/helpers/fake_tts';
 
 const electionSampleWithSeal = safeParseElection(
   electionSampleWithSealUntyped
@@ -62,6 +64,7 @@ function renderScreen(props: Partial<PollworkerScreenProps> = {}) {
       machineConfig={fakeMachineConfig({ appMode: MarkOnly })}
       hardware={MemoryHardware.buildStandard()}
       devices={fakeDevices()}
+      screenReader={new AriaScreenReader(fakeTts())}
       printer={fakePrinter()}
       togglePollsOpen={jest.fn()}
       tallyOnCard={undefined}

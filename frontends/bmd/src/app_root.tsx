@@ -1307,6 +1307,7 @@ export function AppRoot({
           machineConfig={machineConfig}
           hardware={hardware}
           devices={devices}
+          screenReader={screenReader}
           printer={printer}
           togglePollsOpen={togglePollsOpen}
           tallyOnCard={tallyOnCard}

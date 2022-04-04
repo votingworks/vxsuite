@@ -1,9 +1,10 @@
-import { fakePrinterInfo } from '@votingworks/test-utils';
+import { fakeDevice, fakePrinterInfo } from '@votingworks/test-utils';
 import { Devices } from '@votingworks/ui';
 
 interface PartialDevices {
   printer?: Partial<Devices['printer']>;
   computer?: Partial<Devices['computer']>;
+  accessibleController?: Devices['accessibleController'];
 }
 export function fakeDevices(devices: PartialDevices = {}): Devices {
   return {
@@ -14,5 +15,6 @@ export function fakeDevices(devices: PartialDevices = {}): Devices {
       batteryIsCharging: true,
       ...(devices.computer ?? {}),
     },
+    accessibleController: fakeDevice(devices.accessibleController),
   };
 }
