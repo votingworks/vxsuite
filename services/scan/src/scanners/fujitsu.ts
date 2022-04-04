@@ -11,7 +11,7 @@ import {
   ScannerImageFormat,
   ScannerMode,
   ScanOptions,
-} from '.';
+} from './types';
 import { streamExecFile } from '../exec';
 import { SheetOf } from '../types';
 import { StreamLines } from '../util/stream_lines';

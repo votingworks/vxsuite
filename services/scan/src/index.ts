@@ -64,7 +64,7 @@ if (require.main === module) {
   void main()
     .catch((error) => {
       void logger.log(LogEventId.ApplicationStartup, 'system', {
-        message: `Error in starting Scan Service: ${error}`,
+        message: `Error in starting Scan Service: ${error.stack}`,
         disposition: 'failure',
       });
       return 1;

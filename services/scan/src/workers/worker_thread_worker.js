@@ -3,7 +3,7 @@
 
 if (process.env.NODE_ENV !== 'production') {
   // eslint-disable-next-line import/no-extraneous-dependencies
-  require('ts-node').register({ transpileOnly: true });
+  require('esbuild-runner/register');
 }
 
 const { resolve } = require('path');

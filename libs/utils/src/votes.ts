@@ -29,9 +29,9 @@ import {
   unsafeParse,
   PartyIdSchema,
 } from '@votingworks/types';
-import { assert } from './assert';
+import { assert, throwIllegalValue } from './assert';
 import { find } from './find';
-import { throwIllegalValue, typedAs } from '.';
+import { typedAs } from './types';
 
 const MISSING_BATCH_ID = 'missing-batch-id';
 

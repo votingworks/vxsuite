@@ -78,7 +78,6 @@ export = {
     // be stricter than eslint-config-airbnb which allows `== null`
     eqeqeq: ['error', 'always'],
     'import/extensions': 'off',
-    'import/no-cycle': 'off',
     'import/no-extraneous-dependencies': [
       'error',
       {

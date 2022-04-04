@@ -1,5 +1,8 @@
 import React, { useEffect } from 'react';
-import { fontSizeTheme, Main, MainChild, Prose, Screen } from '.';
+import { Main, MainChild } from './main';
+import { Prose } from './prose';
+import { Screen } from './screen';
+import { fontSizeTheme } from './themes';
 
 function doNothing() {
   // do nothing

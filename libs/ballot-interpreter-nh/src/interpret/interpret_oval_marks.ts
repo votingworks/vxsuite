@@ -1,6 +1,11 @@
 import { GridLayout } from '@votingworks/types';
 import { assert } from '@votingworks/utils';
-import { BallotCardGeometry } from '../accuvote';
+import {
+  BallotCardGeometry,
+  InterpretedOvalMark,
+  ScannedBallotBackPageLayout,
+  ScannedBallotFrontPageLayout,
+} from '../types';
 import {
   binarize,
   matchTemplateImage,
@@ -8,11 +13,6 @@ import {
   simpleRemoveNoise,
 } from '../images';
 import { computeTimingMarkGrid } from '../timing_marks';
-import {
-  InterpretedOvalMark,
-  ScannedBallotBackPageLayout,
-  ScannedBallotFrontPageLayout,
-} from '../types';
 import { loc, makeRect, vec } from '../utils';
 
 /**

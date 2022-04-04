@@ -1,5 +1,4 @@
 import { assert, integers, map, zip, zipMin } from '@votingworks/utils';
-import { BallotCardGeometry } from './accuvote';
 import { Debugger } from './debug';
 import {
   Bit,
@@ -10,6 +9,7 @@ import {
   Segment,
   Size,
   PossibleOptionBubblesGrid,
+  BallotCardGeometry,
 } from './types';
 import {
   calculateIntersection,

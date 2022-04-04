@@ -3,11 +3,11 @@
  *
  * Run it:
  *
- *   pnpx ts-node -T examples/web
+ *   pnpx esr --cache examples/web
  *
  * With debugging:
  *
- *   DEBUG=* pnpx ts-node -T examples/web
+ *   DEBUG=* pnpx esr --cache examples/web
  */
 
 import { safeParseJson } from '@votingworks/types'
