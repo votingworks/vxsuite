@@ -540,9 +540,6 @@ export function WriteInAdjudicationScreen({
     selectedContestId ===
     contestsWithWriteInsIds[contestsWithWriteInsIds.length - 1];
 
-  const selectedContestIdOrDefaultIndex = contestsWithWriteInsIds.indexOf(
-    selectedContestId
-  );
   const contest = find(
     electionDefinition.election.contests,
     (c): c is CandidateContest => c.id === selectedContestId
@@ -616,7 +613,7 @@ export function WriteInAdjudicationScreen({
                 </Button>
                 <Spacer />
                 <Text small style={{ marginLeft: '10px' }}>
-                  Contest {selectedContestIdOrDefaultIndex + 1} of{' '}
+                  Contest {selectedContestIndex + 1} of{' '}
                   {contestsWithWriteInsIds.length}
                 </Text>
                 <Spacer />
