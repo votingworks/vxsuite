@@ -901,6 +901,11 @@ export class Store {
     metadata: BallotPageMetadata
   ): BallotPageLayout[] {
     const electionDefinition = this.getElectionDefinition();
+
+    // Handle timing mark ballots differently. We should have the layout from
+    // the scan/interpret process, but since we don't right now we generate it
+    // from what we expect the layout to be instead. This means there could be
+    // some error in the layout, but it's better than nothing.
     if (electionDefinition?.election.gridLayouts) {
       return generateBallotPageLayouts(
         electionDefinition.election,
