@@ -541,8 +541,8 @@ export function WriteInAdjudicationScreen({
     selectedContestIdOrDefault ===
     contestsWithWriteInsIds[contestsWithWriteInsIds.length - 1];
 
-  const contestsWithWriteInsIndex = [...contestsWithWriteInsIds].findIndex(
-    (id) => id === selectedContestIdOrDefault
+  const selectedContestIdOrDefaultIndex = contestsWithWriteInsIds.indexOf(
+    selectedContestIdOrDefault
   );
   const contest = find(
     electionDefinition.election.contests,
@@ -564,11 +564,9 @@ export function WriteInAdjudicationScreen({
 
   const goPrevious = useCallback(() => {
     setSelectedContestId(
-      contestsWithWriteInsIds[
-        contestsWithWriteInsIds.indexOf(selectedContestIdOrDefault) - 1
-      ]
+      contestsWithWriteInsIds[selectedContestIdOrDefaultIndex - 1]
     );
-  }, [contestsWithWriteInsIds, selectedContestIdOrDefault]);
+  }, [contestsWithWriteInsIds, selectedContestIdOrDefaultIndex]);
 
   const goNext = useCallback(
     async (event?: React.FormEvent<EventTarget>): Promise<void> => {
@@ -582,18 +580,16 @@ export function WriteInAdjudicationScreen({
         }
       } else {
         setSelectedContestId(
-          contestsWithWriteInsIds[
-            contestsWithWriteInsIds.indexOf(selectedContestIdOrDefault) + 1
-          ]
+          contestsWithWriteInsIds[selectedContestIdOrDefaultIndex + 1]
         );
       }
     },
     [
       contestsWithWriteInsIds,
+      selectedContestIdOrDefaultIndex,
       isLastContestSelected,
       makeCancelable,
       onAdjudicationCompleteInternal,
-      selectedContestIdOrDefault,
     ]
   );
 
@@ -631,7 +627,7 @@ export function WriteInAdjudicationScreen({
                 </Button>
                 <Spacer />
                 <Text small style={{ marginLeft: '10px' }}>
-                  Contest {contestsWithWriteInsIndex + 1} of{' '}
+                  Contest {selectedContestIdOrDefaultIndex + 1} of{' '}
                   {contestsWithWriteInsIds.length}
                 </Text>
                 <Spacer />
