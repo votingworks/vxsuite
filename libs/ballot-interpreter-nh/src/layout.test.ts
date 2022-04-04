@@ -3,7 +3,6 @@ import {
   BallotType,
   safeParseElectionDefinition,
 } from '@votingworks/types';
-import { join } from 'path';
 import {
   HudsonFixtureName,
   readFixtureImage,
@@ -44,16 +43,6 @@ test('generateBallotPageLayouts', async () => {
     electionHash: electionDefinition.electionHash,
     locales: { primary: 'en-US' },
   }).unsafeUnwrap();
-
-  await (
-    await import('fs')
-  ).promises.writeFile(
-    join(
-      __dirname,
-      'layout.test.ts-debug-generateLayoutForVxCentralScan-layout.json'
-    ),
-    JSON.stringify(layout, null, 2)
-  );
 
   expect(layout).toHaveLength(2 /* front and back */);
   const [frontLayout, backLayout] = layout as [
