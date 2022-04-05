@@ -1,7 +1,7 @@
 import { Rect } from '@votingworks/types';
 import { assert } from '@votingworks/utils';
 import { createImageData } from 'canvas';
-import { randomBytes } from 'crypto';
+import randomBytes from 'randombytes';
 import MemoryStream from 'memorystream';
 import { Readable } from 'stream';
 import { main } from '../src/cli';

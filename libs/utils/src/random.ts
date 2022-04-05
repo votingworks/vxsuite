@@ -8,13 +8,10 @@
  * @return string
  *
  */
+import randomBytes from 'randombytes';
 
 export function randomBase64(numBytes: number): string {
   return window
-    .btoa(
-      String.fromCharCode(
-        ...window.crypto.getRandomValues(new Uint8ClampedArray(numBytes))
-      )
-    )
+    .btoa(String.fromCharCode(...randomBytes(numBytes)))
     .replace(/=+$/, '');
 }
