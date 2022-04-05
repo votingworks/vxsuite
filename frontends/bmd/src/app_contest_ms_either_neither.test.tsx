@@ -2,15 +2,8 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
 import { Route } from 'react-router-dom';
-import {
-  getBallotStyle,
-  getContests,
-  parseElection,
-  vote,
-} from '@votingworks/types';
-import { asElectionDefinition } from '@votingworks/fixtures';
+import { getBallotStyle, getContests, vote } from '@votingworks/types';
 import { makeVoterCard } from '@votingworks/test-utils';
-import electionSample from './data/electionSample.json';
 
 import { App } from './app';
 import { PrintPage } from './pages/print_page';
@@ -25,6 +18,7 @@ import {
   setStateInStorage,
 } from '../test/helpers/election';
 import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
+import { electionSampleDefinition } from './data';
 
 jest.setTimeout(10_000);
 
@@ -33,8 +27,8 @@ beforeEach(() => {
   window.location.href = '/';
 });
 
-const election = parseElection(electionSample);
-const electionDefinition = asElectionDefinition(parseElection(electionSample));
+const electionDefinition = electionSampleDefinition;
+const { election } = electionDefinition;
 
 test('Renders Ballot with EitherNeither: blank', async () => {
   renderWithBallotContext(<Route path="/print" component={PrintPage} />, {

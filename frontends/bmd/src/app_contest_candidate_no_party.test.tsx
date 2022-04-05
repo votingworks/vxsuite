@@ -2,7 +2,7 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
 
-import { CandidateContest, Election, parseElection } from '@votingworks/types';
+import { CandidateContest, Election } from '@votingworks/types';
 import { asElectionDefinition } from '@votingworks/fixtures';
 import { makeVoterCard } from '@votingworks/test-utils';
 import { App } from './app';
@@ -10,11 +10,11 @@ import { App } from './app';
 import { advanceTimersAndPromises } from '../test/helpers/smartcards';
 
 import { setStateInStorage } from '../test/helpers/election';
-import electionSample from './data/electionSample.json';
 import { electionStorageKey } from './app_root';
 import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
+import { electionSampleDefinition } from './data';
 
-const election = parseElection(electionSample);
+const { election } = electionSampleDefinition;
 const electionWithNoPartyCandidateContests: Election = {
   ...election,
   contests: election.contests.map((contest) => {

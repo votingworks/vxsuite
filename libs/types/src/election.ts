@@ -1820,16 +1820,3 @@ export function safeParseElectionDefinition(
         electionHash: createHash('sha256').update(value).digest('hex'),
       });
 }
-
-/**
- * @deprecated use `safeParseElection(…)` instead
- */
-export function parseElection(value: unknown): Election {
-  const result = safeParseElection(value);
-
-  if (result.isErr()) {
-    throw result.err();
-  }
-
-  return result.ok();
-}

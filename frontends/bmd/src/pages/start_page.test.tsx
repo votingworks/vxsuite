@@ -1,20 +1,16 @@
+import { screen } from '@testing-library/react';
 import React from 'react';
 import { Route } from 'react-router-dom';
-import { screen } from '@testing-library/react';
-import { asElectionDefinition } from '@votingworks/fixtures';
-import { parseElection } from '@votingworks/types';
-
 import { render } from '../../test/test_utils';
-import electionSampleWithSeal from '../data/electionSampleWithSeal.json';
-import electionSampleNoSeal from '../data/electionSampleNoSeal.json';
-import electionPrimarySample from '../data/electionPrimarySample.json';
-
+import {
+  electionPrimarySampleDefinition,
+  electionSampleNoSealDefinition,
+  electionSampleWithSealDefinition,
+} from '../data';
 import { StartPage } from './start_page';
 
 it('renders StartPage', async () => {
-  const electionDefinition = asElectionDefinition(
-    parseElection(electionPrimarySample)
-  );
+  const electionDefinition = electionPrimarySampleDefinition;
   const { container } = render(<Route path="/" component={StartPage} />, {
     ballotStyleId: '12D',
     electionDefinition,
@@ -29,9 +25,7 @@ it('renders StartPage', async () => {
 });
 
 it('renders StartPage with inline SVG', async () => {
-  const electionDefinition = asElectionDefinition(
-    parseElection(electionSampleWithSeal)
-  );
+  const electionDefinition = electionSampleWithSealDefinition;
   const { container } = render(<Route path="/" component={StartPage} />, {
     electionDefinition,
     ballotStyleId: '12',
@@ -42,9 +36,7 @@ it('renders StartPage with inline SVG', async () => {
 });
 
 it('renders StartPage with no seal', async () => {
-  const electionDefinition = asElectionDefinition(
-    parseElection(electionSampleNoSeal)
-  );
+  const electionDefinition = electionSampleNoSealDefinition;
   const { container } = render(<Route path="/" component={StartPage} />, {
     electionDefinition,
     ballotStyleId: '12',

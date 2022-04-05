@@ -11,7 +11,6 @@ import {
   ContestId,
   Dictionary,
   MsEitherNeitherContestCompressedTally,
-  safeParseElection,
   YesNoContestCompressedTally,
 } from '@votingworks/types';
 
@@ -29,7 +28,6 @@ import { PrecinctSelectionKind, MarkOnly, PrintOnly } from '../config/types';
 
 import { render } from '../../test/test_utils';
 
-import electionSampleWithSealUntyped from '../data/electionSampleWithSeal.json';
 import { defaultPrecinctId } from '../../test/helpers/election';
 
 import { PollWorkerScreen, PollworkerScreenProps } from './poll_worker_screen';
@@ -38,10 +36,9 @@ import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
 import { fakeDevices } from '../../test/helpers/fake_devices';
 import { AriaScreenReader } from '../utils/ScreenReader';
 import { fakeTts } from '../../test/helpers/fake_tts';
+import { electionSampleWithSealDefinition } from '../data';
 
-const electionSampleWithSeal = safeParseElection(
-  electionSampleWithSealUntyped
-).unsafeUnwrap();
+const electionSampleWithSeal = electionSampleWithSealDefinition.election;
 
 beforeEach(() => {
   jest.useFakeTimers();
@@ -56,7 +53,7 @@ function renderScreen(props: Partial<PollworkerScreenProps> = {}) {
         kind: PrecinctSelectionKind.SinglePrecinct,
         precinctId: defaultPrecinctId,
       }}
-      electionDefinition={asElectionDefinition(electionSampleWithSeal)}
+      electionDefinition={electionSampleWithSealDefinition}
       enableLiveMode={jest.fn()}
       hasVotes={false}
       isLiveMode={false}

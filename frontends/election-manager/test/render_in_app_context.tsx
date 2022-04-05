@@ -3,16 +3,12 @@ import React, { RefObject } from 'react';
 import { Router } from 'react-router-dom';
 import { render as testRender, RenderResult } from '@testing-library/react';
 
-import {
-  asElectionDefinition,
-  electionWithMsEitherNeitherRawData,
-} from '@votingworks/fixtures';
+import { electionWithMsEitherNeitherDefinition } from '@votingworks/fixtures';
 import {
   ElectionDefinition,
   FullElectionTally,
   FullElectionExternalTally,
   UserSession,
-  parseElection,
 } from '@votingworks/types';
 import { usbstick, NullPrinter, Printer } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
@@ -31,9 +27,7 @@ import {
 } from '../src/utils/cast_vote_record_files';
 import { getEmptyFullElectionTally } from '../src/lib/votecounting';
 
-export const eitherNeitherElectionDefinition = asElectionDefinition(
-  parseElection(electionWithMsEitherNeitherRawData)
-);
+export const eitherNeitherElectionDefinition = electionWithMsEitherNeitherDefinition;
 
 interface RenderInAppContextParams {
   route?: string;

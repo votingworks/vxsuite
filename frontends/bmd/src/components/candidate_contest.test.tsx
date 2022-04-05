@@ -1,17 +1,17 @@
 import React from 'react';
 import { fireEvent, screen } from '@testing-library/react';
 
+import { CandidateContest as CandidateContestInterface } from '@votingworks/types';
 import {
-  CandidateContest as CandidateContestInterface,
-  parseElection,
-} from '@votingworks/types';
-import { asElectionDefinition, electionSample } from '@votingworks/fixtures';
+  electionSample,
+  electionSampleDefinition,
+} from '@votingworks/fixtures';
 
 import { act } from 'react-dom/test-utils';
 import { render as renderWithBallotContext } from '../../test/test_utils';
 import { CandidateContest } from './candidate_contest';
 
-const electionDefinition = asElectionDefinition(parseElection(electionSample));
+const electionDefinition = electionSampleDefinition;
 const precinctId = electionDefinition.election.precincts[0].id;
 
 const candidateContest = electionDefinition.election.contests.find(

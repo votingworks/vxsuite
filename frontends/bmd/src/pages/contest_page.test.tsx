@@ -3,11 +3,11 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 
 import { render } from '../../test/test_utils';
-
-import electionSample from '../data/electionSample.json';
+import { electionSampleDefinition } from '../data';
 
 import { ContestPage } from './contest_page';
 
+const electionSample = electionSampleDefinition.election;
 const firstContestTitle = electionSample.contests[0].title;
 
 it('Renders ContestPage', () => {

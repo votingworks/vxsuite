@@ -16,7 +16,6 @@ import {
 } from '@votingworks/logging';
 import {
   ElectionDefinition,
-  parseElection,
   safeParseElection,
   FullElectionExternalTally,
   ExternalTallySourceType,
@@ -528,7 +527,6 @@ export function AppRoot({
       setCastVoteRecordFiles,
       setPrintedBallots,
       setElectionDefinition,
-      parseElection,
       setElectionDefinition,
       setConfiguredAt,
     ]

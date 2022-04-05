@@ -9,8 +9,8 @@ import {
   CandidateContest,
   Dictionary,
   Election,
-  parseElection,
   PrecinctId,
+  safeParseElection,
   unsafeParse,
 } from '@votingworks/types';
 
@@ -303,7 +303,7 @@ const testMode = !(args.liveBallots ?? false);
 const scannerNames = (args.scannerNames ?? ['scanner']).map((s) => `${s}`);
 
 const electionRawData = fs.readFileSync(args.electionPath, 'utf8');
-const election = parseElection(JSON.parse(electionRawData));
+const election = safeParseElection(JSON.parse(electionRawData)).unsafeUnwrap();
 
 const castVoteRecords = [...generateCvrs(election, scannerNames, testMode)];
 
