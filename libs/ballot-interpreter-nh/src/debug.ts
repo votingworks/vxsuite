@@ -460,7 +460,11 @@ export function withCanvasDebugger<T>(
 
     onLayerEnd(layer) {
       let layerFileName = '';
-      for (let parentLayer = layer; parentLayer.parent; ) {
+      for (
+        let parentLayer = layer;
+        parentLayer.parent;
+        parentLayer = parentLayer.parent
+      ) {
         layerFileName = `${parentLayer.name}--${layerFileName}`;
       }
       writeFileSync(
