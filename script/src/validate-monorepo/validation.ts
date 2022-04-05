@@ -147,44 +147,15 @@ export async function readdir(directory: string): Promise<string[]> {
   return (await fs.readdir(directory)).map((entry) => join(directory, entry));
 }
 
-export function* checkTsconfigReferences(
+export function* checkTsconfigMatchesPackageJson(
   tsconfig: Tsconfig,
   tsconfigPath: string,
-  otherTsconfig: Tsconfig,
-  otherTsconfigPath: string,
   workspaceDependencies: readonly string[],
   packageJsonPath: string
 ): Generator<ValidationIssue> {
   const tsconfigReferencesPaths = new Set(
     tsconfig.references?.map(({ path }) => join(tsconfigPath, '..', path)) ?? []
   );
-  const otherTsconfigReferencesPaths = new Set(
-    otherTsconfig.references?.map(({ path }) =>
-      join(otherTsconfigPath, '..', path)
-    ) ?? []
-  );
-
-  for (const tsconfigReferencePath of tsconfigReferencesPaths) {
-    if (!otherTsconfigReferencesPaths.has(tsconfigReferencePath)) {
-      yield {
-        kind: ValidationIssueKind.TsconfigMissingReference,
-        tsconfigPath: otherTsconfigPath,
-        referencingPath: tsconfigPath,
-        expectedReferencePath: tsconfigReferencePath,
-      };
-    }
-  }
-
-  for (const otherTsconfigReferencePath of otherTsconfigReferencesPaths) {
-    if (!tsconfigReferencesPaths.has(otherTsconfigReferencePath)) {
-      yield {
-        kind: ValidationIssueKind.TsconfigMissingReference,
-        tsconfigPath,
-        referencingPath: otherTsconfigPath,
-        expectedReferencePath: otherTsconfigReferencePath,
-      };
-    }
-  }
 
   for (const workspaceDependency of workspaceDependencies) {
     if (workspaceDependency.startsWith('@types/')) {
@@ -214,17 +185,42 @@ export function* checkTsconfigReferences(
         expectedReferencePath: expectedWorkspaceDependencyTsconfigBuildPath,
       };
     }
+  }
+}
 
-    if (
-      !otherTsconfigReferencesPaths.has(
-        expectedWorkspaceDependencyTsconfigBuildPath
-      )
-    ) {
+export function* checkTsconfigReferencesMatch(
+  tsconfig: Tsconfig,
+  tsconfigPath: string,
+  otherTsconfig: Tsconfig,
+  otherTsconfigPath: string
+): Generator<ValidationIssue> {
+  const tsconfigReferencesPaths = new Set(
+    tsconfig.references?.map(({ path }) => join(tsconfigPath, '..', path)) ?? []
+  );
+  const otherTsconfigReferencesPaths = new Set(
+    otherTsconfig.references?.map(({ path }) =>
+      join(otherTsconfigPath, '..', path)
+    ) ?? []
+  );
+
+  for (const tsconfigReferencePath of tsconfigReferencesPaths) {
+    if (!otherTsconfigReferencesPaths.has(tsconfigReferencePath)) {
       yield {
         kind: ValidationIssueKind.TsconfigMissingReference,
         tsconfigPath: otherTsconfigPath,
-        referencingPath: packageJsonPath,
-        expectedReferencePath: expectedWorkspaceDependencyTsconfigBuildPath,
+        referencingPath: tsconfigPath,
+        expectedReferencePath: tsconfigReferencePath,
+      };
+    }
+  }
+
+  for (const otherTsconfigReferencePath of otherTsconfigReferencesPaths) {
+    if (!tsconfigReferencesPaths.has(otherTsconfigReferencePath)) {
+      yield {
+        kind: ValidationIssueKind.TsconfigMissingReference,
+        tsconfigPath,
+        referencingPath: otherTsconfigPath,
+        expectedReferencePath: otherTsconfigReferencePath,
       };
     }
   }
