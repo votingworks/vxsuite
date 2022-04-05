@@ -27,8 +27,7 @@ import {
   YesNoContest,
   YesNoOption,
 } from '@votingworks/types';
-import { map, zip, zipMin } from '@votingworks/utils';
-import { strict as assert } from 'assert';
+import { assert, map, zip, zipMin } from '@votingworks/utils';
 import makeDebug from 'debug';
 import * as jsfeat from 'jsfeat';
 import { inspect } from 'util';
@@ -386,15 +385,13 @@ export class Interpreter {
     template: BallotPageLayoutWithImage,
     contests: Contests
   ): [ImageData, BallotMark[]] {
-    assert.equal(
-      template.ballotPageLayout.contests.length,
-      contests.length,
+    assert(
+      template.ballotPageLayout.contests.length === contests.length,
       `template and election definition have different numbers of contests (${template.ballotPageLayout.contests.length} vs ${contests.length}); maybe the template is from an old version of the election definition?`
     );
 
-    assert.equal(
-      ballotLayout.ballotPageLayout.contests.length,
-      contests.length,
+    assert(
+      ballotLayout.ballotPageLayout.contests.length === contests.length,
       `ballot and election definition have different numbers of contests (${ballotLayout.ballotPageLayout.contests.length} vs ${contests.length}); maybe the ballot is from an old version of the election definition?`
     );
 

@@ -4,13 +4,23 @@ import {
   PollworkerCardData,
   VoterCardData,
 } from '@votingworks/types';
-import { strict as assert } from 'assert';
 
 /**
  * Returns current UTC unix timestamp (epoch) in seconds
  */
 function utcTimestamp(): number {
   return Math.round(Date.now() / 1000);
+}
+
+/**
+ * Asserts that `condition` is true. This is a copy of the one in
+ * `@votingworks/utils` since `utils` depends on `test-utils` and so
+ * `test-utils` cannot depend on `utils`.
+ */
+function assert(condition: unknown, message?: string): asserts condition {
+  if (!condition) {
+    throw new Error(message);
+  }
 }
 
 export function makeAdminCard(

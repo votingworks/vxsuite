@@ -5,7 +5,6 @@ import {
   unsafeParse,
   YesNoOptionSchema,
 } from '@votingworks/types';
-import { strict as assert } from 'assert';
 import fc from 'fast-check';
 import { arbitraryDateTime } from '.';
 import {
@@ -76,8 +75,7 @@ test('arbitraryElectionDefinition makes valid election definitions', () => {
 test('arbitraryCastVoteRecord(s) makes valid CVRs', () => {
   fc.assert(
     fc.property(arbitraryCastVoteRecord(), (cvr) => {
-      assert(cvr._pageNumbers);
-      const [frontPage, backPage] = cvr._pageNumbers;
+      const [frontPage, backPage] = cvr._pageNumbers!;
       expect(backPage - frontPage).toEqual(1);
     })
   );
