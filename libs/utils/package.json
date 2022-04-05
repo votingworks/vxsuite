@@ -46,6 +46,7 @@
     "jszip": "^3.9.1",
     "luxon": "^1.27.0",
     "moment": "^2.29.1",
+    "randombytes": "^2.1.0",
     "rxjs": "^6.6.6",
     "zod": "3.2.0"
   },
@@ -55,6 +56,7 @@
     "@types/jest": "^27.0.3",
     "@types/kiosk-browser": "workspace:*",
     "@types/luxon": "^1.26.5",
+    "@types/randombytes": "^2.0.0",
     "@typescript-eslint/eslint-plugin": "^5.21.0",
     "@typescript-eslint/parser": "^5.21.0",
     "@votingworks/fixtures": "workspace:*",

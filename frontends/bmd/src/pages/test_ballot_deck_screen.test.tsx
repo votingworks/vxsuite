@@ -5,7 +5,6 @@ import {
   fakeKiosk,
   fakePrinterInfo,
 } from '@votingworks/test-utils';
-import { randomBase64 } from '@votingworks/utils';
 import { render } from '../../test/test_utils';
 import { TestBallotDeckScreen } from './test_ballot_deck_screen';
 import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
@@ -13,15 +12,15 @@ import { PrecinctSelectionKind, PrintOnly } from '../config/types';
 import { fakePrinter } from '../../test/helpers/fake_printer';
 import { electionSampleDefinition } from '../data';
 
-jest.mock('@votingworks/utils', (): { randomBase64: typeof randomBase64 } => {
-  const original = jest.requireActual<Record<string, unknown>>(
+jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
+  const original = jest.requireActual<typeof import('@votingworks/utils')>(
     '@votingworks/utils'
   );
   // Mock random string generation so that snapshots match, while leaving the rest of the module
   // intact
   return {
     ...original,
-    randomBase64: () => 'CHhgYxfN5GeqnK8KaVOt1w',
+    randomBallotId: () => 'CHhgYxfN5GeqnK8KaVOt1w',
   };
 });
 

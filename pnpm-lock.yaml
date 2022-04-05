@@ -2030,6 +2030,7 @@ importers:
       jszip: 3.9.1
       luxon: 1.27.0
       moment: 2.29.1
+      randombytes: 2.1.0
       rxjs: 6.6.6
       zod: 3.2.0
     devDependencies:
@@ -2038,6 +2039,7 @@ importers:
       '@types/jest': 27.0.3
       '@types/kiosk-browser': link:../@types/kiosk-browser
       '@types/luxon': 1.26.5
+      '@types/randombytes': 2.0.0
       '@typescript-eslint/eslint-plugin': 5.21.0_a7dd5a54129d9dda326f4f755b560b08
       '@typescript-eslint/parser': 5.21.0_eslint@7.26.0+typescript@4.3.5
       '@votingworks/fixtures': link:../fixtures
@@ -2064,6 +2066,7 @@ importers:
       '@types/kiosk-browser': workspace:*
       '@types/luxon': ^1.26.5
       '@types/node': 16.11.29
+      '@types/randombytes': ^2.0.0
       '@typescript-eslint/eslint-plugin': ^5.21.0
       '@typescript-eslint/parser': ^5.21.0
       '@votingworks/fixtures': workspace:*
@@ -2089,6 +2092,7 @@ importers:
       luxon: ^1.27.0
       moment: ^2.29.1
       prettier: ^2.3.0
+      randombytes: ^2.1.0
       rxjs: ^6.6.6
       sort-package-json: ^1.50.0
       ts-jest: ^27.0.7
@@ -8730,7 +8734,7 @@ packages:
       integrity: sha512-FGa1F62FT09qcrueBA6qYTrJPVDzah9a+493+o2PCXsesWHIn27G98TsSMs3WPNbZIEj4+VJf6saSFpvD+3Zsw==
   /@types/randombytes/2.0.0:
     dependencies:
-      '@types/node': 17.0.23
+      '@types/node': 16.11.29
     dev: true
     resolution:
       integrity: sha512-bz8PhAVlwN72vqefzxa14DKNT8jK/mV66CSjwdVQM/k3Th3EPKfUtdMniwZgMedQTFuywAsfjnZsg+pEnltaMA==
@@ -30463,7 +30467,7 @@ packages:
       '@types/jest': 27.0.3
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
-      jest: 27.3.1_canvas@2.9.0
+      jest: 27.3.1
       jest-util: 27.3.1
       json5: 2.2.0
       lodash.memoize: 4.1.2
