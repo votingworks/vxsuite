@@ -1,4 +1,8 @@
-import { Election, ElectionDefinition } from '@votingworks/types';
+import {
+  Election,
+  ElectionDefinition,
+  safeParseElectionDefinition,
+} from '@votingworks/types';
 import { sha256 } from 'js-sha256';
 
 // Objects with election information grouped with any other data files that may be useful for testing
@@ -6,26 +10,26 @@ import { sha256 } from 'js-sha256';
 // raw file and the ts extension stay in sync.
 import { multiPartyPrimaryElectionCsvData } from './data/electionMultiPartyPrimary/csvFiles/batch_results.csv';
 import { multiPartyPrimaryElectionCvrData } from './data/electionMultiPartyPrimary/cvrFiles/standard.jsonl';
-import multiPartyPrimaryElectionUntyped from './data/electionMultiPartyPrimary/electionMultiPartyPrimarySample.json';
+import { asText as multiPartyPrimaryElectionAsText } from './data/electionMultiPartyPrimary/electionMultiPartyPrimarySample.json';
 import { multiPartyPrimaryElectionSemsData } from './data/electionMultiPartyPrimary/semsFiles/standard.csv';
 import { simplePrimaryElectionCvrData } from './data/electionPrimary/cvrFiles/standard.txt';
-import primaryElectionSampleUntyped from './data/electionPrimary/electionPrimarySample.json';
-import electionSampleUntyped from './data/electionSample.json';
+import { asText as primaryElectionSampleAsText } from './data/electionPrimary/electionPrimarySample.json';
+import { asText as electionSampleAsText } from './data/electionSample.json';
 import { electionSample2CvrSmall1 } from './data/electionSample2/cvrFiles/small1.txt';
 import { electionSample2CvrSmall2 } from './data/electionSample2/cvrFiles/small2.txt';
 import { electionSample2CvrSmall3 } from './data/electionSample2/cvrFiles/small3.txt';
 import { electionSample2CvrStandard1 } from './data/electionSample2/cvrFiles/standard.txt';
 import { electionSample2CvrStandard2 } from './data/electionSample2/cvrFiles/standard2.txt';
-import electionSample2Untyped from './data/electionSample2/election.json';
-import electionSampleLongContentUntyped from './data/electionSampleLongContent.json';
-import electionSampleRotationUntyped from './data/electionSampleRotation.json';
+import { asText as electionSample2AsText } from './data/electionSample2/election.json';
+import { asText as electionSampleLongContentAsText } from './data/electionSampleLongContent.json';
+import { asText as electionSampleRotationAsText } from './data/electionSampleRotation.json';
 import { msEitherNeitherElectionCvrData } from './data/electionWithMsEitherNeither/cvrFiles/standard.jsonl';
-import electionWithMsEitherNeitherUntyped from './data/electionWithMsEitherNeither/electionWithMsEitherNeither.json';
+import { asText as electionWithMsEitherNeitherAsText } from './data/electionWithMsEitherNeither/electionWithMsEitherNeither.json';
 import { msEitherNeitherElectionSemsData } from './data/electionWithMsEitherNeither/semsFiles/standard.csv';
-import electionMinimalExhaustiveSampleUntyped from './data/electionMinimalExhaustiveSample/electionMinimalExhaustiveSample.json';
+import { asText as electionMinimalExhaustiveSampleAsText } from './data/electionMinimalExhaustiveSample/electionMinimalExhaustiveSample.json';
 import { electionMinimalExhaustiveCvrData } from './data/electionMinimalExhaustiveSample/cvrFiles/standard.jsonl';
 import { electionMinimalExhaustiveSemsData } from './data/electionMinimalExhaustiveSample/semsFiles/standard.csv';
-import electionMinimalExhaustiveSampleRightSideTargetsUntyped from './data/electionMinimalExhaustiveSampleRightSideTargets/electionMinimalExhaustiveSampleRightSideTargets.json';
+import { asText as electionMinimalExhaustiveSampleRightSideTargetsAsText } from './data/electionMinimalExhaustiveSampleRightSideTargets/electionMinimalExhaustiveSampleRightSideTargets.json';
 
 export function asElectionDefinition(election: Election): ElectionDefinition {
   const electionData = JSON.stringify(election);
@@ -36,43 +40,50 @@ export function asElectionDefinition(election: Election): ElectionDefinition {
   };
 }
 
-export const electionSample = (electionSampleUntyped as unknown) as Election;
-export const electionSample2 = (electionSample2Untyped as unknown) as Election;
-export const primaryElectionSample = (primaryElectionSampleUntyped as unknown) as Election;
-export const multiPartyPrimaryElection = (multiPartyPrimaryElectionUntyped as unknown) as Election;
-export const electionSampleLongContent = (electionSampleLongContentUntyped as unknown) as Election;
-export const electionSampleRotation = (electionSampleRotationUntyped as unknown) as Election;
-export const electionWithMsEitherNeither = (electionWithMsEitherNeitherUntyped as unknown) as Election;
-export const electionMinimalExhaustiveSample = (electionMinimalExhaustiveSampleUntyped as unknown) as Election;
-export const electionMinimalExhaustiveSampleRightSideTargets = (electionMinimalExhaustiveSampleRightSideTargetsUntyped as unknown) as Election;
+export const electionSampleDefinition = safeParseElectionDefinition(
+  electionSampleAsText()
+).unsafeUnwrap();
+export const electionSample2Definition = safeParseElectionDefinition(
+  electionSample2AsText()
+).unsafeUnwrap();
+export const primaryElectionSampleDefinition = safeParseElectionDefinition(
+  primaryElectionSampleAsText()
+).unsafeUnwrap();
+export const multiPartyPrimaryElectionDefinition = safeParseElectionDefinition(
+  multiPartyPrimaryElectionAsText()
+).unsafeUnwrap();
+export const electionSampleLongContentDefinition = safeParseElectionDefinition(
+  electionSampleLongContentAsText()
+).unsafeUnwrap();
+export const electionSampleRotationDefinition = safeParseElectionDefinition(
+  electionSampleRotationAsText()
+).unsafeUnwrap();
+export const electionWithMsEitherNeitherDefinition = safeParseElectionDefinition(
+  electionWithMsEitherNeitherAsText()
+).unsafeUnwrap();
+export const electionMinimalExhaustiveSampleDefinition = safeParseElectionDefinition(
+  electionMinimalExhaustiveSampleAsText()
+).unsafeUnwrap();
+export const electionMinimalExhaustiveSampleRightSideTargetsDefinition = safeParseElectionDefinition(
+  electionMinimalExhaustiveSampleRightSideTargetsAsText()
+).unsafeUnwrap();
 
-export const electionSampleDefinition = asElectionDefinition(electionSample);
-export const electionSample2Definition = asElectionDefinition(electionSample2);
-export const primaryElectionSampleDefinition = asElectionDefinition(
-  primaryElectionSample
-);
-export const multiPartyPrimaryElectionDefinition = asElectionDefinition(
-  multiPartyPrimaryElection
-);
-export const electionSampleLongContentDefinition = asElectionDefinition(
-  electionSampleLongContent
-);
-export const electionSampleRotationDefinition = asElectionDefinition(
-  electionSampleRotation
-);
-export const electionWithMsEitherNeitherDefinition = asElectionDefinition(
-  electionWithMsEitherNeither
-);
-export const electionMinimalExhaustiveSampleDefinition = asElectionDefinition(
-  electionMinimalExhaustiveSample
-);
-export const electionMinimalExhaustiveSampleRightSideTargetsDefinition = asElectionDefinition(
-  electionMinimalExhaustiveSampleRightSideTargets
-);
+export const electionSample = electionSampleDefinition.election;
+export const electionSample2 = electionSample2Definition.election;
+export const primaryElectionSample = primaryElectionSampleDefinition.election;
+export const multiPartyPrimaryElection =
+  multiPartyPrimaryElectionDefinition.election;
+export const electionSampleLongContent =
+  electionSampleLongContentDefinition.election;
+export const electionSampleRotation = electionSampleRotationDefinition.election;
+export const electionWithMsEitherNeither =
+  electionWithMsEitherNeitherDefinition.election;
+export const electionMinimalExhaustiveSample =
+  electionMinimalExhaustiveSampleDefinition.election;
+export const electionMinimalExhaustiveSampleRightSideTargets =
+  electionMinimalExhaustiveSampleRightSideTargetsDefinition.election;
 
-export const electionWithMsEitherNeitherRawData = JSON.stringify(
-  electionWithMsEitherNeitherUntyped
-);
+export const electionWithMsEitherNeitherRawData = electionWithMsEitherNeitherAsText();
 
 export const electionMultiPartyPrimaryWithDataFiles = {
   electionDefinition: multiPartyPrimaryElectionDefinition,
