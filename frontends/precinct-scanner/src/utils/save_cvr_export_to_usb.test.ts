@@ -75,7 +75,7 @@ test('calls kiosk saveAs when opening file picker dialog', async () => {
   });
   expect(window.kiosk.saveAs).toHaveBeenCalledWith({
     defaultPath:
-      'fake mount point/cast-vote-records/sample-county_example-primary-election_147530da13/machine_0003__0_ballots__2020-10-31_00-00-00.jsonl',
+      'fake mount point/cast-vote-records/sample-county_example-primary-election_2840f433b0/machine_0003__0_ballots__2020-10-31_00-00-00.jsonl',
   });
 });
 
@@ -118,13 +118,13 @@ test('saves file to default location when openFilePicker is false in kiosk mode'
     openFilePickerDialog: false,
   });
   expect(window.kiosk.makeDirectory).toHaveBeenCalledWith(
-    'fake mount point/cast-vote-records/sample-county_example-primary-election_147530da13',
+    'fake mount point/cast-vote-records/sample-county_example-primary-election_2840f433b0',
     {
       recursive: true,
     }
   );
   expect(window.kiosk.writeFile).toHaveBeenCalledWith(
-    'fake mount point/cast-vote-records/sample-county_example-primary-election_147530da13/machine_0003__0_ballots__2020-10-31_00-00-00.jsonl',
+    'fake mount point/cast-vote-records/sample-county_example-primary-election_2840f433b0/machine_0003__0_ballots__2020-10-31_00-00-00.jsonl',
     electionMinimalExhaustiveSampleWithDataFiles.cvrData
   );
 });
