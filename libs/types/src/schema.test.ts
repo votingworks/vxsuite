@@ -6,11 +6,6 @@ import {
 import * as t from './election';
 import { safeParse, safeParseJson, unsafeParse } from './generic';
 
-test('parseElection', () => {
-  expect(() => t.parseElection({})).toThrowError();
-  expect(() => t.parseElection(electionSample)).not.toThrowError();
-});
-
 test('parsing fails on an empty object', () => {
   t.safeParseElection({}).unsafeUnwrapErr();
 });

@@ -1,25 +1,18 @@
-import {
-  // electionSample,
-  parseElection,
-} from '@votingworks/types';
-// TODO: Tally: Use electionSample from @votingworks/fixtures once published.
-
 import React from 'react';
 import { fireEvent, waitFor, act, screen } from '@testing-library/react';
-import { asElectionDefinition } from '@votingworks/fixtures';
 import {
   advanceTimersAndPromises,
   fakeKiosk,
   fakePrinterInfo,
   mockOf,
 } from '@votingworks/test-utils';
-import electionSample from '../data/electionSample.json';
 import { render } from '../../test/test_utils';
 import { randomBase64 } from '../utils/random';
 import { TestBallotDeckScreen } from './test_ballot_deck_screen';
 import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
 import { PrecinctSelectionKind, PrintOnly } from '../config/types';
 import { fakePrinter } from '../../test/helpers/fake_printer';
+import { electionSampleDefinition } from '../data';
 
 // mock the random value so the snapshots match
 jest.mock('../utils/random');
@@ -37,7 +30,7 @@ it('renders test decks appropriately', async () => {
         kind: PrecinctSelectionKind.SinglePrecinct,
         precinctId: '23',
       }}
-      electionDefinition={asElectionDefinition(parseElection(electionSample))}
+      electionDefinition={electionSampleDefinition}
       hideTestDeck={jest.fn()}
       machineConfig={fakeMachineConfig({
         appMode: PrintOnly,
@@ -86,7 +79,7 @@ it('shows printer not connected when appropriate', async () => {
         kind: PrecinctSelectionKind.SinglePrecinct,
         precinctId: '23',
       }}
-      electionDefinition={asElectionDefinition(parseElection(electionSample))}
+      electionDefinition={electionSampleDefinition}
       machineConfig={fakeMachineConfig({
         appMode: PrintOnly,
       })}

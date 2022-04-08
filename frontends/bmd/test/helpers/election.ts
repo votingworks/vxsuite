@@ -1,26 +1,17 @@
-import fs from 'fs';
-import * as path from 'path';
-
-import { asElectionDefinition } from '@votingworks/fixtures';
 import {
   CandidateContest,
-  YesNoContest,
-  MsEitherNeitherContest,
-  getContests,
   getBallotStyle,
-  safeParseElection,
+  getContests,
+  MsEitherNeitherContest,
+  YesNoContest,
 } from '@votingworks/types';
 import { assert, Storage } from '@votingworks/utils';
-
-import { electionStorageKey, stateStorageKey, State } from '../../src/app_root';
+import { electionStorageKey, State, stateStorageKey } from '../../src/app_root';
 import { PrecinctSelectionKind } from '../../src/config/types';
+import { electionSampleDefinition } from '../../src/data';
 
-const electionSampleData = fs.readFileSync(
-  path.resolve(__dirname, '../../src/data/electionSample.json'),
-  'utf-8'
-);
-export const election = safeParseElection(electionSampleData).unsafeUnwrap();
-export const electionDefinition = asElectionDefinition(election);
+export const electionDefinition = electionSampleDefinition;
+export const { election } = electionDefinition;
 
 export const contest0 = election.contests[0] as CandidateContest;
 export const contest1 = election.contests[1] as CandidateContest;

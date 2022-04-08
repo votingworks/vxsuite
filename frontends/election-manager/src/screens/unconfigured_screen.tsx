@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
-import { parseElection } from '@votingworks/types';
+import { safeParseElection } from '@votingworks/types';
 
 import { Modal, useCancelablePromise } from '@votingworks/ui';
 import { assert } from '@votingworks/utils';
@@ -88,7 +88,7 @@ export function UnconfiguredScreen({
 
   const saveElectionAndShowSuccess = useCallback(
     (electionJson: string) => {
-      parseElection(JSON.parse(electionJson));
+      safeParseElection(JSON.parse(electionJson)).unsafeUnwrap();
       setShowSuccess(true);
       setTimeout(async () => {
         setShowSuccess(false);

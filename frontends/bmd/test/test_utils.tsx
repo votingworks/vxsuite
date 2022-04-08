@@ -6,18 +6,11 @@ import {
   BallotStyleId,
   Contests,
   ElectionDefinition,
-  parseElection,
   PrecinctId,
   VotesDict,
 } from '@votingworks/types';
-import { asElectionDefinition } from '@votingworks/fixtures';
 
 import * as GLOBALS from '../src/config/globals';
-
-// it's necessary to use the no-seal version, which has neither
-// of the two optional seal fields, because otherwise
-// typescript concludes that sealURL is required.
-import electionSampleNoSeal from '../src/data/electionSampleNoSeal.json';
 
 import {
   MachineConfig,
@@ -30,15 +23,14 @@ import {
 import { BallotContext } from '../src/contexts/ballot_context';
 import { fakePrinter } from './helpers/fake_printer';
 import { fakeMachineConfig } from './helpers/fake_machine_config';
+import { electionSampleNoSealDefinition } from '../src/data';
 
 export function render(
   component: React.ReactNode,
   {
     route = '/',
     ballotStyleId,
-    electionDefinition = asElectionDefinition(
-      parseElection(electionSampleNoSeal)
-    ),
+    electionDefinition = electionSampleNoSealDefinition,
     contests = electionDefinition.election.contests,
     markVoterCardVoided = jest.fn(),
     markVoterCardPrinted = jest.fn(),

@@ -1,18 +1,15 @@
-import { asElectionDefinition, electionSample } from '@votingworks/fixtures';
-import {
-  getBallotStyle,
-  getContests,
-  parseElection,
-  vote,
-} from '@votingworks/types';
+import { electionSample } from '@votingworks/fixtures';
+import { getBallotStyle, getContests, vote } from '@votingworks/types';
 import React from 'react';
 import { Route } from 'react-router-dom';
 import { mockOf } from '@votingworks/test-utils';
 import { render } from '../../test/test_utils';
-import electionSampleNoSeal from '../data/electionSampleNoSeal.json';
-import electionSampleWithSeal from '../data/electionSampleWithSeal.json';
 import { randomBase64 } from '../utils/random';
 import { PrintPage } from './print_page';
+import {
+  electionSampleNoSealDefinition,
+  electionSampleWithSealDefinition,
+} from '../data';
 
 // mock the random value so the snapshots match
 jest.mock('../utils/random');
@@ -54,9 +51,7 @@ it('renders PrintPage with votes', () => {
 });
 
 it('renders PrintPage without votes and inline seal', () => {
-  const electionDefinition = asElectionDefinition(
-    parseElection(electionSampleWithSeal)
-  );
+  const electionDefinition = electionSampleWithSealDefinition;
   const { container } = render(<Route path="/print" component={PrintPage} />, {
     ballotStyleId: '5',
     electionDefinition,
@@ -67,9 +62,7 @@ it('renders PrintPage without votes and inline seal', () => {
 });
 
 it('renders PrintPage without votes and no seal', () => {
-  const electionDefinition = asElectionDefinition(
-    parseElection(electionSampleNoSeal)
-  );
+  const electionDefinition = electionSampleNoSealDefinition;
   const { container } = render(<Route path="/print" component={PrintPage} />, {
     ballotStyleId: '5',
     electionDefinition,
