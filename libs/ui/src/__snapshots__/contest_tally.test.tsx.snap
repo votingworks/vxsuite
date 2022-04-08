@@ -1,0 +1,3519 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ContestTally Renders 1`] = `
+<div>
+  <div
+    class="sc-gKckTs dndKuj"
+  >
+    <div
+      class="sc-dkPtyc erOjAU"
+      data-testid="results-table-president"
+    >
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        United States
+      </p>
+      <h3>
+        President
+      </h3>
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          727 ballots
+           cast /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          0 overvotes
+           /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          32 undervotes
+        </span>
+      </p>
+      <table
+        class="sc-bdvvaa cVvyAA"
+      >
+        <tbody>
+          <tr
+            data-testid="president-marie-curie"
+          >
+            <td>
+              Marie Curie
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              133
+            </td>
+          </tr>
+          <tr
+            data-testid="president-indiana-jones"
+          >
+            <td>
+              Indiana Jones
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              146
+            </td>
+          </tr>
+          <tr
+            data-testid="president-mona-lisa"
+          >
+            <td>
+              Mona Lisa
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              129
+            </td>
+          </tr>
+          <tr
+            data-testid="president-jackie-chan"
+          >
+            <td>
+              Jackie Chan
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              151
+            </td>
+          </tr>
+          <tr
+            data-testid="president-tim-allen"
+          >
+            <td>
+              Tim Allen
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              134
+            </td>
+          </tr>
+          <tr
+            data-testid="president-__write-in"
+          >
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              2
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-gKckTs dndKuj"
+  >
+    <div
+      class="sc-dkPtyc erOjAU"
+      data-testid="results-table-senator"
+    >
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        United States
+      </p>
+      <h3>
+        Senator
+      </h3>
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          331 ballots
+           cast /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          1 overvote
+           /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          12 undervotes
+        </span>
+      </p>
+      <table
+        class="sc-bdvvaa cVvyAA"
+      >
+        <tbody>
+          <tr
+            data-testid="senator-earhart"
+          >
+            <td>
+              Amelia Earhart
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              111
+            </td>
+          </tr>
+          <tr
+            data-testid="senator-bond"
+          >
+            <td>
+              James Bond
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              111
+            </td>
+          </tr>
+          <tr
+            data-testid="senator-antoinette"
+          >
+            <td>
+              Marie Antoinette
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              96
+            </td>
+          </tr>
+          <tr
+            data-testid="senator-__write-in"
+          >
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              0
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-gKckTs dndKuj"
+  >
+    <div
+      class="sc-dkPtyc erOjAU"
+      data-testid="results-table-representative-district-18"
+    >
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        United States
+      </p>
+      <h3>
+        Representative, District 18
+      </h3>
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          727 ballots
+           cast /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          1 overvote
+           /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          30 undervotes
+        </span>
+      </p>
+      <table
+        class="sc-bdvvaa cVvyAA"
+      >
+        <tbody>
+          <tr
+            data-testid="representative-district-18-michael-jordan"
+          >
+            <td>
+              Michael Jordan
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              233
+            </td>
+          </tr>
+          <tr
+            data-testid="representative-district-18-albert-einstein"
+          >
+            <td>
+              Albert Einstein
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              225
+            </td>
+          </tr>
+          <tr
+            data-testid="representative-district-18-neil-armstrong"
+          >
+            <td>
+              Neil Armstrong
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              236
+            </td>
+          </tr>
+          <tr
+            data-testid="representative-district-18-__write-in"
+          >
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              2
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-gKckTs dndKuj"
+  >
+    <div
+      class="sc-dkPtyc erOjAU"
+      data-testid="results-table-governor"
+    >
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        State of Hamilton
+      </p>
+      <h3>
+        Governor
+      </h3>
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          331 ballots
+           cast /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          1 overvote
+           /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          17 undervotes
+        </span>
+      </p>
+      <table
+        class="sc-bdvvaa cVvyAA"
+      >
+        <tbody>
+          <tr
+            data-testid="governor-sherlock-holmes"
+          >
+            <td>
+              Sherlock Holmes
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              149
+            </td>
+          </tr>
+          <tr
+            data-testid="governor-thomas-edison"
+          >
+            <td>
+              Thomas Edison
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              163
+            </td>
+          </tr>
+          <tr
+            data-testid="governor-__write-in"
+          >
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              1
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-gKckTs dndKuj"
+  >
+    <div
+      class="sc-dkPtyc erOjAU"
+      data-testid="results-table-lieutenant-governor"
+    >
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        State of Hamilton
+      </p>
+      <h3>
+        Lieutenant Governor
+      </h3>
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          727 ballots
+           cast /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          0 overvotes
+           /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          29 undervotes
+        </span>
+      </p>
+      <table
+        class="sc-bdvvaa cVvyAA"
+      >
+        <tbody>
+          <tr
+            data-testid="lieutenant-governor-winston-churchill"
+          >
+            <td>
+              Winston Churchill
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              226
+            </td>
+          </tr>
+          <tr
+            data-testid="lieutenant-governor-oprah-winfrey"
+          >
+            <td>
+              Oprah Winfrey
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              235
+            </td>
+          </tr>
+          <tr
+            data-testid="lieutenant-governor-louis-armstrong"
+          >
+            <td>
+              Louis Armstrong
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              234
+            </td>
+          </tr>
+          <tr
+            data-testid="lieutenant-governor-__write-in"
+          >
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              3
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-gKckTs dndKuj"
+  >
+    <div
+      class="sc-dkPtyc erOjAU"
+      data-testid="results-table-ss-justic-3"
+    >
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        State of Hamilton
+      </p>
+      <h3>
+        Justice, Supreme Court, Place 3
+      </h3>
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          331 ballots
+           cast /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          0 overvotes
+           /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          13 undervotes
+        </span>
+      </p>
+      <table
+        class="sc-bdvvaa cVvyAA"
+      >
+        <tbody>
+          <tr
+            data-testid="ss-justic-3-john-snow"
+          >
+            <td>
+              John Snow
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              157
+            </td>
+          </tr>
+          <tr
+            data-testid="ss-justic-3-mark-twain"
+          >
+            <td>
+              Mark Twain
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              160
+            </td>
+          </tr>
+          <tr
+            data-testid="ss-justic-3-__write-in"
+          >
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              1
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-gKckTs dndKuj"
+  >
+    <div
+      class="sc-dkPtyc erOjAU"
+      data-testid="results-table-ss-justic-5"
+    >
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        State of Hamilton
+      </p>
+      <h3>
+        Justice, Supreme Court, Place 5
+      </h3>
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          331 ballots
+           cast /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          1 overvote
+           /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          15 undervotes
+        </span>
+      </p>
+      <table
+        class="sc-bdvvaa cVvyAA"
+      >
+        <tbody>
+          <tr
+            data-testid="ss-justic-5-benjamin-franklin"
+          >
+            <td>
+              Benjamin Franklin
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              105
+            </td>
+          </tr>
+          <tr
+            data-testid="ss-justic-5-robert-downey-jr"
+          >
+            <td>
+              Robert Downey Jr.
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              108
+            </td>
+          </tr>
+          <tr
+            data-testid="ss-justic-5-bill-nye"
+          >
+            <td>
+              Bill Nye
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              102
+            </td>
+          </tr>
+          <tr
+            data-testid="ss-justic-5-__write-in"
+          >
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              0
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-gKckTs dndKuj"
+  >
+    <div
+      class="sc-dkPtyc erOjAU"
+      data-testid="results-table-comptroller"
+    >
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        State of Hamilton
+      </p>
+      <h3>
+        State Comptroller
+      </h3>
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          0 ballots
+           cast /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          0 overvotes
+           /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          0 undervotes
+        </span>
+      </p>
+      <table
+        class="sc-bdvvaa cVvyAA"
+      >
+        <tbody>
+          <tr
+            data-testid="comptroller-natalie-portman"
+          >
+            <td>
+              Natalie Portman
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              0
+            </td>
+          </tr>
+          <tr
+            data-testid="comptroller-frank-sinatra"
+          >
+            <td>
+              Frank Sinatra
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              0
+            </td>
+          </tr>
+          <tr
+            data-testid="comptroller-andy-warhol"
+          >
+            <td>
+              Andy Warhol
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              0
+            </td>
+          </tr>
+          <tr
+            data-testid="comptroller-alfred-hitchcock"
+          >
+            <td>
+              Alfred Hitchcock
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              0
+            </td>
+          </tr>
+          <tr
+            data-testid="comptroller-__write-in"
+          >
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              0
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-gKckTs dndKuj"
+  >
+    <div
+      class="sc-dkPtyc erOjAU"
+      data-testid="results-table-comm-ag"
+    >
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        State of Hamilton
+      </p>
+      <h3>
+        Commissioner of Agriculture
+      </h3>
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          727 ballots
+           cast /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          2 overvotes
+           /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          31 undervotes
+        </span>
+      </p>
+      <table
+        class="sc-bdvvaa cVvyAA"
+      >
+        <tbody>
+          <tr
+            data-testid="comm-ag-helen-keller"
+          >
+            <td>
+              Helen Keller
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              338
+            </td>
+          </tr>
+          <tr
+            data-testid="comm-ag-steve-jobs"
+          >
+            <td>
+              Steve Jobs
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              355
+            </td>
+          </tr>
+          <tr
+            data-testid="comm-ag-__write-in"
+          >
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              1
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-gKckTs dndKuj"
+  >
+    <div
+      class="sc-dkPtyc erOjAU"
+      data-testid="results-table-Chief-Justice-1"
+    >
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        State of Hamilton
+      </p>
+      <h3>
+        Chief Justice, 1st Court of Appeals
+      </h3>
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          727 ballots
+           cast /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          1 overvote
+           /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          22 undervotes
+        </span>
+      </p>
+      <table
+        class="sc-bdvvaa cVvyAA"
+      >
+        <tbody>
+          <tr
+            data-testid="Chief-Justice-1-charles-darwin"
+          >
+            <td>
+              Charles Darwin
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              341
+            </td>
+          </tr>
+          <tr
+            data-testid="Chief-Justice-1-stephen-hawking"
+          >
+            <td>
+              Stephen Hawking
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              362
+            </td>
+          </tr>
+          <tr
+            data-testid="Chief-Justice-1-__write-in"
+          >
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              1
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-gKckTs dndKuj"
+  >
+    <div
+      class="sc-dkPtyc erOjAU"
+      data-testid="results-table-Justice-1-4"
+    >
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        State of Hamilton
+      </p>
+      <h3>
+        Justice, 1st Court of Appeals, Place 4
+      </h3>
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          716 ballots
+           cast /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          2 overvotes
+           /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          27 undervotes
+        </span>
+      </p>
+      <table
+        class="sc-bdvvaa cVvyAA"
+      >
+        <tbody>
+          <tr
+            data-testid="Justice-1-4-mark-antony"
+          >
+            <td>
+              Mark Antony
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              332
+            </td>
+          </tr>
+          <tr
+            data-testid="Justice-1-4-harriet-tubman"
+          >
+            <td>
+              Harriet Tubman
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              354
+            </td>
+          </tr>
+          <tr
+            data-testid="Justice-1-4-__write-in"
+          >
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              1
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-gKckTs dndKuj"
+  >
+    <div
+      class="sc-dkPtyc erOjAU"
+      data-testid="results-table-Justice-14-2"
+    >
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        State of Hamilton
+      </p>
+      <h3>
+        Justice, 14th Court of Appeals, Place 2
+      </h3>
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          716 ballots
+           cast /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          2 overvotes
+           /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          29 undervotes
+        </span>
+      </p>
+      <table
+        class="sc-bdvvaa cVvyAA"
+      >
+        <tbody>
+          <tr
+            data-testid="Justice-14-2-martin-luther-king"
+          >
+            <td>
+              Dr. Martin Luther King Jr.
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              353
+            </td>
+          </tr>
+          <tr
+            data-testid="Justice-14-2-marilyn-monroe"
+          >
+            <td>
+              Marilyn Monroe
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              330
+            </td>
+          </tr>
+          <tr
+            data-testid="Justice-14-2-__write-in"
+          >
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              2
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-gKckTs dndKuj"
+  >
+    <div
+      class="sc-dkPtyc erOjAU"
+      data-testid="results-table-Justice-14-9"
+    >
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        State of Hamilton
+      </p>
+      <h3>
+        Justice, 14th Court of Appeals, Place 9
+      </h3>
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          716 ballots
+           cast /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          0 overvotes
+           /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          28 undervotes
+        </span>
+      </p>
+      <table
+        class="sc-bdvvaa cVvyAA"
+      >
+        <tbody>
+          <tr
+            data-testid="Justice-14-9-nikola-tesla"
+          >
+            <td>
+              Nikola Tesla
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              342
+            </td>
+          </tr>
+          <tr
+            data-testid="Justice-14-9-vincent-van-gogh"
+          >
+            <td>
+              Vincent Van Gogh
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              346
+            </td>
+          </tr>
+          <tr
+            data-testid="Justice-14-9-__write-in"
+          >
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              0
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-gKckTs dndKuj"
+  >
+    <div
+      class="sc-dkPtyc erOjAU"
+      data-testid="results-table-District-judge-11"
+    >
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        State of Hamilton
+      </p>
+      <h3>
+        District Judge, 11th Judicial District
+      </h3>
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          716 ballots
+           cast /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          1 overvote
+           /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          25 undervotes
+        </span>
+      </p>
+      <table
+        class="sc-bdvvaa cVvyAA"
+      >
+        <tbody>
+          <tr
+            data-testid="District-judge-11-bill-gates"
+          >
+            <td>
+              Bill Gates
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              204
+            </td>
+          </tr>
+          <tr
+            data-testid="District-judge-11-pablo-picasso"
+          >
+            <td>
+              Pablo Picasso
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              264
+            </td>
+          </tr>
+          <tr
+            data-testid="District-judge-11-wolfgang-amadeus-mozart"
+          >
+            <td>
+              Wolfgang Amadeus Mozart
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              218
+            </td>
+          </tr>
+          <tr
+            data-testid="District-judge-11-__write-in"
+          >
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              4
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-gKckTs dndKuj"
+  >
+    <div
+      class="sc-dkPtyc erOjAU"
+      data-testid="results-table-District-judge-61"
+    >
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        State of Hamilton
+      </p>
+      <h3>
+        District Judge, 61st Judicial District
+      </h3>
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          719 ballots
+           cast /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          6 overvotes
+           /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          21 undervotes
+        </span>
+      </p>
+      <table
+        class="sc-bdvvaa cVvyAA"
+      >
+        <tbody>
+          <tr
+            data-testid="District-judge-61-george-washington"
+          >
+            <td>
+              George Washington
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              348
+            </td>
+          </tr>
+          <tr
+            data-testid="District-judge-61-steven-spielberg"
+          >
+            <td>
+              Steven Spielberg
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              341
+            </td>
+          </tr>
+          <tr
+            data-testid="District-judge-61-__write-in"
+          >
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              3
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-gKckTs dndKuj"
+  >
+    <div
+      class="sc-dkPtyc erOjAU"
+      data-testid="results-table-District-judge-80"
+    >
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        State of Hamilton
+      </p>
+      <h3>
+        District Judge, 80th Judicial District
+      </h3>
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          719 ballots
+           cast /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          3 overvotes
+           /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          21 undervotes
+        </span>
+      </p>
+      <table
+        class="sc-bdvvaa cVvyAA"
+      >
+        <tbody>
+          <tr
+            data-testid="District-judge-80-johan-sebastian-bach"
+          >
+            <td>
+              Johann Sebastian Bach
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              366
+            </td>
+          </tr>
+          <tr
+            data-testid="District-judge-80-alexander-graham-bell"
+          >
+            <td>
+              Alexander Graham Bell
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              327
+            </td>
+          </tr>
+          <tr
+            data-testid="District-judge-80-__write-in"
+          >
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              2
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-gKckTs dndKuj"
+  >
+    <div
+      class="sc-dkPtyc erOjAU"
+      data-testid="results-table-District-judge-125"
+    >
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        State of Hamilton
+      </p>
+      <h3>
+        District Judge, 125th Judicial District
+      </h3>
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          719 ballots
+           cast /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          3 overvotes
+           /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          21 undervotes
+        </span>
+      </p>
+      <table
+        class="sc-bdvvaa cVvyAA"
+      >
+        <tbody>
+          <tr
+            data-testid="District-judge-125-jane-austen"
+          >
+            <td>
+              Jane Austen
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              354
+            </td>
+          </tr>
+          <tr
+            data-testid="District-judge-125-carrie-fisher"
+          >
+            <td>
+              Carrie Fisher
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              341
+            </td>
+          </tr>
+          <tr
+            data-testid="District-judge-125-__write-in"
+          >
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              0
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-gKckTs dndKuj"
+  >
+    <div
+      class="sc-dkPtyc erOjAU"
+      data-testid="results-table-District-judge-127"
+    >
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        State of Hamilton
+      </p>
+      <h3>
+        District Judge, 127th Judicial District
+      </h3>
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          719 ballots
+           cast /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          2 overvotes
+           /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          30 undervotes
+        </span>
+      </p>
+      <table
+        class="sc-bdvvaa cVvyAA"
+      >
+        <tbody>
+          <tr
+            data-testid="District-judge-127-bob-barker"
+          >
+            <td>
+              Bob Barker
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              331
+            </td>
+          </tr>
+          <tr
+            data-testid="District-judge-127-angelina-jolie"
+          >
+            <td>
+              Angelina Jolie
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              355
+            </td>
+          </tr>
+          <tr
+            data-testid="District-judge-127-__write-in"
+          >
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              1
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-gKckTs dndKuj"
+  >
+    <div
+      class="sc-dkPtyc erOjAU"
+      data-testid="results-table-District-judge-129"
+    >
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        State of Hamilton
+      </p>
+      <h3>
+        District Judge, 129th Judicial District
+      </h3>
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          719 ballots
+           cast /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          2 overvotes
+           /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          29 undervotes
+        </span>
+      </p>
+      <table
+        class="sc-bdvvaa cVvyAA"
+      >
+        <tbody>
+          <tr
+            data-testid="District-judge-129-salvador-dali"
+          >
+            <td>
+              Salvador Dali
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              322
+            </td>
+          </tr>
+          <tr
+            data-testid="District-judge-129-anne-hathaway"
+          >
+            <td>
+              Anne Hathaway
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              364
+            </td>
+          </tr>
+          <tr
+            data-testid="District-judge-129-__write-in"
+          >
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              2
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-gKckTs dndKuj"
+  >
+    <div
+      class="sc-dkPtyc erOjAU"
+      data-testid="results-table-district-attorney"
+    >
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        Franklin County
+      </p>
+      <h3>
+        District Attorney
+      </h3>
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          320 ballots
+           cast /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          0 overvotes
+           /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          9 undervotes
+        </span>
+      </p>
+      <table
+        class="sc-bdvvaa cVvyAA"
+      >
+        <tbody>
+          <tr
+            data-testid="district-attorney-theodore-roosevelt"
+          >
+            <td>
+              Theodore Roosevelt
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              139
+            </td>
+          </tr>
+          <tr
+            data-testid="district-attorney-edgar-allan-poe"
+          >
+            <td>
+              Edgar Allan Poe
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              170
+            </td>
+          </tr>
+          <tr
+            data-testid="district-attorney-__write-in"
+          >
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              2
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-gKckTs dndKuj"
+  >
+    <div
+      class="sc-dkPtyc erOjAU"
+      data-testid="results-table-county-attorney"
+    >
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        Franklin County
+      </p>
+      <h3>
+        County Attorney
+      </h3>
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          299 ballots
+           cast /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          1 overvote
+           /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          17 undervotes
+        </span>
+      </p>
+      <table
+        class="sc-bdvvaa cVvyAA"
+      >
+        <tbody>
+          <tr
+            data-testid="county-attorney-isaac-newton"
+          >
+            <td>
+              Isaac Newton
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              141
+            </td>
+          </tr>
+          <tr
+            data-testid="county-attorney-harry-potter"
+          >
+            <td>
+              Harry Potter
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              140
+            </td>
+          </tr>
+          <tr
+            data-testid="county-attorney-__write-in"
+          >
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              0
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-gKckTs dndKuj"
+  >
+    <div
+      class="sc-dkPtyc erOjAU"
+      data-testid="results-table-sheriff"
+    >
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        Franklin County
+      </p>
+      <h3>
+        Sheriff
+      </h3>
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          299 ballots
+           cast /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          0 overvotes
+           /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          18 undervotes
+        </span>
+      </p>
+      <table
+        class="sc-bdvvaa cVvyAA"
+      >
+        <tbody>
+          <tr
+            data-testid="sheriff-robin-williams"
+          >
+            <td>
+              Robin Williams
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              85
+            </td>
+          </tr>
+          <tr
+            data-testid="sheriff-brad-pitt"
+          >
+            <td>
+              Brad Pitt
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              97
+            </td>
+          </tr>
+          <tr
+            data-testid="sheriff-william-shakespeare"
+          >
+            <td>
+              William Shakespeare
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              99
+            </td>
+          </tr>
+          <tr
+            data-testid="sheriff-__write-in"
+          >
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              0
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-gKckTs dndKuj"
+  >
+    <div
+      class="sc-dkPtyc erOjAU"
+      data-testid="results-table-county-tax-assessor"
+    >
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        Franklin County
+      </p>
+      <h3>
+        Country Tax Assessor-Collector
+      </h3>
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          299 ballots
+           cast /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          1 overvote
+           /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          16 undervotes
+        </span>
+      </p>
+      <table
+        class="sc-bdvvaa cVvyAA"
+      >
+        <tbody>
+          <tr
+            data-testid="county-tax-assessor-bruce-lee"
+          >
+            <td>
+              Bruce Lee
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              151
+            </td>
+          </tr>
+          <tr
+            data-testid="county-tax-assessor-christopher-columbus"
+          >
+            <td>
+              Christopher Columbus
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              131
+            </td>
+          </tr>
+          <tr
+            data-testid="county-tax-assessor-__write-in"
+          >
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              0
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-gKckTs dndKuj"
+  >
+    <div
+      class="sc-dkPtyc erOjAU"
+      data-testid="results-table-Justice-peace-1-1"
+    >
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        Franklin County
+      </p>
+      <h3>
+        Justice of the Peace, Precinct 1, Place 1
+      </h3>
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          299 ballots
+           cast /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          0 overvotes
+           /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          16 undervotes
+        </span>
+      </p>
+      <table
+        class="sc-bdvvaa cVvyAA"
+      >
+        <tbody>
+          <tr
+            data-testid="Justice-peace-1-1-julia-child"
+          >
+            <td>
+              Julia Child
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              143
+            </td>
+          </tr>
+          <tr
+            data-testid="Justice-peace-1-1-paul-mccartney"
+          >
+            <td>
+              Paul McCartney
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              140
+            </td>
+          </tr>
+          <tr
+            data-testid="Justice-peace-1-1-__write-in"
+          >
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              0
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-gKckTs dndKuj"
+  >
+    <div
+      class="sc-dkPtyc erOjAU"
+      data-testid="results-table-constable-1"
+    >
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        Franklin County
+      </p>
+      <h3>
+        Constable, Precinct 1
+      </h3>
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          299 ballots
+           cast /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          2 overvotes
+           /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          9 undervotes
+        </span>
+      </p>
+      <table
+        class="sc-bdvvaa cVvyAA"
+      >
+        <tbody>
+          <tr
+            data-testid="constable-1-beethoven"
+          >
+            <td>
+              Ludwig Van Beethoven
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              137
+            </td>
+          </tr>
+          <tr
+            data-testid="constable-1-walt-disney"
+          >
+            <td>
+              Walt Disney
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              151
+            </td>
+          </tr>
+          <tr
+            data-testid="constable-1-__write-in"
+          >
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              0
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-gKckTs dndKuj"
+  >
+    <div
+      class="sc-dkPtyc erOjAU"
+      data-testid="results-table-prop-1"
+    >
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        State of Hamilton
+      </p>
+      <h3>
+        Proposition 1
+      </h3>
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          299 ballots
+           cast /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          0 overvotes
+           /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          11 undervotes
+        </span>
+      </p>
+      <table
+        class="sc-bdvvaa cVvyAA"
+      >
+        <tbody>
+          <tr
+            data-testid="prop-1-yes"
+          >
+            <td>
+              Yes
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              132
+            </td>
+          </tr>
+          <tr
+            data-testid="prop-1-no"
+          >
+            <td>
+              No
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              156
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-gKckTs dndKuj"
+  >
+    <div
+      class="sc-dkPtyc erOjAU"
+      data-testid="results-table-prop-2"
+    >
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        State of Hamilton
+      </p>
+      <h3>
+        Proposition 2
+      </h3>
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          698 ballots
+           cast /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          1 overvote
+           /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          36 undervotes
+        </span>
+      </p>
+      <table
+        class="sc-bdvvaa cVvyAA"
+      >
+        <tbody>
+          <tr
+            data-testid="prop-2-yes"
+          >
+            <td>
+              Yes
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              324
+            </td>
+          </tr>
+          <tr
+            data-testid="prop-2-no"
+          >
+            <td>
+              No
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              337
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`ContestTally When an election has a contest with multiple seats Renders 1`] = `
+<div>
+  <div
+    class="sc-gKckTs dndKuj"
+  >
+    <div
+      class="sc-dkPtyc erOjAU"
+      data-testid="results-table-governor-contest-liberty"
+    >
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        State
+      </p>
+      <h3>
+        Governor
+      </h3>
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          1710 ballots
+           cast /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          180 overvotes
+           /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          180 undervotes
+        </span>
+      </p>
+      <table
+        class="sc-bdvvaa cVvyAA"
+      >
+        <tbody>
+          <tr
+            data-testid="governor-contest-liberty-aaron-aligator"
+          >
+            <td>
+              Aaron Aligator
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              180
+            </td>
+          </tr>
+          <tr
+            data-testid="governor-contest-liberty-peter-pigeon"
+          >
+            <td>
+              Peter Pigeon
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              990
+            </td>
+          </tr>
+          <tr
+            data-testid="governor-contest-liberty-__write-in"
+          >
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              180
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-gKckTs dndKuj"
+  >
+    <div
+      class="sc-dkPtyc erOjAU"
+      data-testid="results-table-governor-contest-constitution"
+    >
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        State
+      </p>
+      <h3>
+        Governor
+      </h3>
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          2100 ballots
+           cast /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          150 overvotes
+           /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          150 undervotes
+        </span>
+      </p>
+      <table
+        class="sc-bdvvaa cVvyAA"
+      >
+        <tbody>
+          <tr
+            data-testid="governor-contest-constitution-kristen-bell"
+          >
+            <td>
+              Kristen Bell
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              150
+            </td>
+          </tr>
+          <tr
+            data-testid="governor-contest-constitution-dax-shepherd"
+          >
+            <td>
+              Dax Shepherd
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              1500
+            </td>
+          </tr>
+          <tr
+            data-testid="governor-contest-constitution-__write-in"
+          >
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              150
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-gKckTs dndKuj"
+  >
+    <div
+      class="sc-dkPtyc erOjAU"
+      data-testid="results-table-governor-contest-federalist"
+    >
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        State
+      </p>
+      <h3>
+        Governor
+      </h3>
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          720 ballots
+           cast /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          90 overvotes
+           /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          90 undervotes
+        </span>
+      </p>
+      <table
+        class="sc-bdvvaa cVvyAA"
+      >
+        <tbody>
+          <tr
+            data-testid="governor-contest-federalist-eleanor-shellstrop"
+          >
+            <td>
+              Eleanor Shellstrop
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              90
+            </td>
+          </tr>
+          <tr
+            data-testid="governor-contest-federalist-chidi-anagonye"
+          >
+            <td>
+              Chidi Anagonye
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              360
+            </td>
+          </tr>
+          <tr
+            data-testid="governor-contest-federalist-__write-in"
+          >
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              90
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-gKckTs dndKuj"
+  >
+    <div
+      class="sc-dkPtyc erOjAU"
+      data-testid="results-table-mayor-contest-liberty"
+    >
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        City
+      </p>
+      <h3>
+        Mayor
+      </h3>
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          450 ballots
+           cast /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          90 overvotes
+           /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          90 undervotes
+        </span>
+      </p>
+      <table
+        class="sc-bdvvaa cVvyAA"
+      >
+        <tbody>
+          <tr
+            data-testid="mayor-contest-liberty-tahani-al-jamil"
+          >
+            <td>
+              Tahani Al-Jamil
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              90
+            </td>
+          </tr>
+          <tr
+            data-testid="mayor-contest-liberty-jason-mendoza"
+          >
+            <td>
+              Jason Mendoza
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              90
+            </td>
+          </tr>
+          <tr
+            data-testid="mayor-contest-liberty-__write-in"
+          >
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              90
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-gKckTs dndKuj"
+  >
+    <div
+      class="sc-dkPtyc erOjAU"
+      data-testid="results-table-mayor-contest-constitution"
+    >
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        City
+      </p>
+      <h3>
+        Mayor
+      </h3>
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          2100 ballots
+           cast /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          150 overvotes
+           /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          150 undervotes
+        </span>
+      </p>
+      <table
+        class="sc-bdvvaa cVvyAA"
+      >
+        <tbody>
+          <tr
+            data-testid="mayor-contest-constitution-tina-wesson"
+          >
+            <td>
+              Tina Wesson
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              150
+            </td>
+          </tr>
+          <tr
+            data-testid="mayor-contest-constitution-ethan-zohn"
+          >
+            <td>
+              Ethan Zohn
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              1500
+            </td>
+          </tr>
+          <tr
+            data-testid="mayor-contest-constitution-__write-in"
+          >
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              150
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-gKckTs dndKuj"
+  >
+    <div
+      class="sc-dkPtyc erOjAU"
+      data-testid="results-table-mayor-contest-federalist"
+    >
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        City
+      </p>
+      <h3>
+        Mayor
+      </h3>
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          570 ballots
+           cast /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          60 overvotes
+           /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          60 undervotes
+        </span>
+      </p>
+      <table
+        class="sc-bdvvaa cVvyAA"
+      >
+        <tbody>
+          <tr
+            data-testid="mayor-contest-federalist-vecepia-towery"
+          >
+            <td>
+              Vecepia Towery
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              60
+            </td>
+          </tr>
+          <tr
+            data-testid="mayor-contest-federalist-brain-heidik"
+          >
+            <td>
+              Brain Heidik
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              330
+            </td>
+          </tr>
+          <tr
+            data-testid="mayor-contest-federalist-__write-in"
+          >
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              60
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-gKckTs dndKuj"
+  >
+    <div
+      class="sc-dkPtyc erOjAU"
+      data-testid="results-table-assistant-mayor-contest-liberty"
+    >
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        City
+      </p>
+      <h3>
+        Assistant Mayor
+      </h3>
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          450 ballots
+           cast /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          90 overvotes
+           /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          90 undervotes
+        </span>
+      </p>
+      <table
+        class="sc-bdvvaa cVvyAA"
+      >
+        <tbody>
+          <tr
+            data-testid="assistant-mayor-contest-liberty-jenna-morasca"
+          >
+            <td>
+              Jenna Morasca
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              90
+            </td>
+          </tr>
+          <tr
+            data-testid="assistant-mayor-contest-liberty-sandra-diaz-twine"
+          >
+            <td>
+              Sandra Diaz-Twine
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              90
+            </td>
+          </tr>
+          <tr
+            data-testid="assistant-mayor-contest-liberty-__write-in"
+          >
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              90
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-gKckTs dndKuj"
+  >
+    <div
+      class="sc-dkPtyc erOjAU"
+      data-testid="results-table-chief-pokemon-liberty"
+    >
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        City
+      </p>
+      <h3>
+        Chief Pokemon
+      </h3>
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          1260 ballots
+           cast /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          180 overvotes
+           /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          90 undervotes
+        </span>
+      </p>
+      <table
+        class="sc-bdvvaa cVvyAA"
+      >
+        <tbody>
+          <tr
+            data-testid="chief-pokemon-liberty-bulbasaur"
+          >
+            <td>
+              Bulbasaur
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              90
+            </td>
+          </tr>
+          <tr
+            data-testid="chief-pokemon-liberty-charmander"
+          >
+            <td>
+              Charmander
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              90
+            </td>
+          </tr>
+          <tr
+            data-testid="chief-pokemon-liberty-squirtle"
+          >
+            <td>
+              Squirtle
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              720
+            </td>
+          </tr>
+          <tr
+            data-testid="chief-pokemon-liberty-__write-in"
+          >
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              90
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-gKckTs dndKuj"
+  >
+    <div
+      class="sc-dkPtyc erOjAU"
+      data-testid="results-table-chief-pokemon-constitution"
+    >
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        City
+      </p>
+      <h3>
+        Chief Pokemon
+      </h3>
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          2100 ballots
+           cast /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          300 overvotes
+           /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          150 undervotes
+        </span>
+      </p>
+      <table
+        class="sc-bdvvaa cVvyAA"
+      >
+        <tbody>
+          <tr
+            data-testid="chief-pokemon-constitution-flareon"
+          >
+            <td>
+              Flareon
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              150
+            </td>
+          </tr>
+          <tr
+            data-testid="chief-pokemon-constitution-umbreon"
+          >
+            <td>
+              Umbreon
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              150
+            </td>
+          </tr>
+          <tr
+            data-testid="chief-pokemon-constitution-vaporeon"
+          >
+            <td>
+              Vaporeon
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              1200
+            </td>
+          </tr>
+          <tr
+            data-testid="chief-pokemon-constitution-__write-in"
+          >
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              150
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-gKckTs dndKuj"
+  >
+    <div
+      class="sc-dkPtyc erOjAU"
+      data-testid="results-table-chief-pokemon-federalist"
+    >
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        City
+      </p>
+      <h3>
+        Chief Pokemon
+      </h3>
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          420 ballots
+           cast /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          30 overvotes
+           /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          30 undervotes
+        </span>
+      </p>
+      <table
+        class="sc-bdvvaa cVvyAA"
+      >
+        <tbody>
+          <tr
+            data-testid="chief-pokemon-federalist-pikachu"
+          >
+            <td>
+              Pikachu
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              30
+            </td>
+          </tr>
+          <tr
+            data-testid="chief-pokemon-federalist-eevee"
+          >
+            <td>
+              Eevee
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              300
+            </td>
+          </tr>
+          <tr
+            data-testid="chief-pokemon-federalist-__write-in"
+          >
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              30
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-gKckTs dndKuj"
+  >
+    <div
+      class="sc-dkPtyc erOjAU"
+      data-testid="results-table-schoolboard-liberty"
+    >
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        City
+      </p>
+      <h3>
+        Schoolboard
+         
+        <span
+          class="sc-hKwCoD cpXecH"
+        >
+          (
+          2
+           seats)
+        </span>
+      </h3>
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          1260 ballots
+           cast /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          360 overvotes
+           /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          270 undervotes
+        </span>
+      </p>
+      <table
+        class="sc-bdvvaa cVvyAA"
+      >
+        <tbody>
+          <tr
+            data-testid="schoolboard-liberty-amber-brkich"
+          >
+            <td>
+              Amber Brkich
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              450
+            </td>
+          </tr>
+          <tr
+            data-testid="schoolboard-liberty-chris-daugherty"
+          >
+            <td>
+              Chris Daugherty
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              360
+            </td>
+          </tr>
+          <tr
+            data-testid="schoolboard-liberty-tom-westman"
+          >
+            <td>
+              Tom Westman
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              360
+            </td>
+          </tr>
+          <tr
+            data-testid="schoolboard-liberty-danni-boatwright"
+          >
+            <td>
+              Dann Boatwright
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              360
+            </td>
+          </tr>
+          <tr
+            data-testid="schoolboard-liberty-__write-in"
+          >
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              360
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-gKckTs dndKuj"
+  >
+    <div
+      class="sc-dkPtyc erOjAU"
+      data-testid="results-table-schoolboard-constitution"
+    >
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        City
+      </p>
+      <h3>
+        Schoolboard
+         
+        <span
+          class="sc-hKwCoD cpXecH"
+        >
+          (
+          2
+           seats)
+        </span>
+      </h3>
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          2100 ballots
+           cast /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          600 overvotes
+           /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          450 undervotes
+        </span>
+      </p>
+      <table
+        class="sc-bdvvaa cVvyAA"
+      >
+        <tbody>
+          <tr
+            data-testid="schoolboard-constitution-aras-baskauskas"
+          >
+            <td>
+              Aras Baskauskas
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              750
+            </td>
+          </tr>
+          <tr
+            data-testid="schoolboard-constitution-yul-kwon"
+          >
+            <td>
+              Yul Kwon
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              600
+            </td>
+          </tr>
+          <tr
+            data-testid="schoolboard-constitution-earl-cole"
+          >
+            <td>
+              Earl Cole
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              600
+            </td>
+          </tr>
+          <tr
+            data-testid="schoolboard-constitution-todd-herzog"
+          >
+            <td>
+              Todd Herzog
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              600
+            </td>
+          </tr>
+          <tr
+            data-testid="schoolboard-constitution-__write-in"
+          >
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              600
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div
+    class="sc-gKckTs dndKuj"
+  >
+    <div
+      class="sc-dkPtyc erOjAU"
+      data-testid="results-table-schoolboard-federalist"
+    >
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        City
+      </p>
+      <h3>
+        Schoolboard
+         
+        <span
+          class="sc-hKwCoD cpXecH"
+        >
+          (
+          2
+           seats)
+        </span>
+      </h3>
+      <p
+        class="sc-hKwCoD eeDGsu"
+      >
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          420 ballots
+           cast /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          120 overvotes
+           /
+        </span>
+         
+        <span
+          class="sc-eCImvq eGCrOt"
+        >
+          90 undervotes
+        </span>
+      </p>
+      <table
+        class="sc-bdvvaa cVvyAA"
+      >
+        <tbody>
+          <tr
+            data-testid="schoolboard-federalist-parvati-shallow"
+          >
+            <td>
+              Parvati Shallow
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              150
+            </td>
+          </tr>
+          <tr
+            data-testid="schoolboard-federalist-bob-crowley"
+          >
+            <td>
+              Bob Crowley
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              120
+            </td>
+          </tr>
+          <tr
+            data-testid="schoolboard-federalist-jt-thomas"
+          >
+            <td>
+              JT Thomas
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              120
+            </td>
+          </tr>
+          <tr
+            data-testid="schoolboard-federalist-natalie-white"
+          >
+            <td>
+              Natalie White
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              120
+            </td>
+          </tr>
+          <tr
+            data-testid="schoolboard-federalist-__write-in"
+          >
+            <td>
+              Write-In
+            </td>
+            <td
+              class="sc-gsDJrp FBVxN"
+            >
+              120
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+`;
