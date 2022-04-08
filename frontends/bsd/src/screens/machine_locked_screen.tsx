@@ -20,7 +20,7 @@ export function MachineLockedScreen(): JSX.Element {
         <MainChild maxWidth={false} centerHorizontal centerVertical>
           <LockedImage src="locked.svg" alt="Locked Icon" />
           <Prose textCenter theme={fontSizeTheme.medium} maxWidth={false}>
-            <h1>Machine Locked</h1>
+            <h1>VxCentralScan is Locked</h1>
             <p>Insert an admin card to unlock.</p>
           </Prose>
         </MainChild>
