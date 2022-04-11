@@ -1,25 +1,14 @@
 import React from 'react';
-import {
-  CastVoteRecord,
-  Election,
-  ExternalTally,
-  Tally,
-} from '@votingworks/types';
 import { computeTallyWithPrecomputedCategories } from '@votingworks/utils';
+import { Election, ExternalTally, Tally } from '@votingworks/types';
 import {
   electionMultiPartyPrimaryWithDataFiles,
   electionSample2WithDataFiles,
 } from '@votingworks/fixtures';
+import { parseCvrsFileContents } from '@votingworks/test-utils';
 import { render } from '@testing-library/react';
 
 import { ContestTally } from './contest_tally';
-
-function parseCvrsFileContents(cvrsFileContents: string): CastVoteRecord[] {
-  const lines = cvrsFileContents.split('\n');
-  return lines
-    .filter((line) => line.length > 0)
-    .map((line) => JSON.parse(line) as CastVoteRecord);
-}
 
 function constructTally(cvrsFileContents: string, election: Election): Tally {
   const castVoteRecords = parseCvrsFileContents(cvrsFileContents);

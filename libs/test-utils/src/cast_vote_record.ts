@@ -69,3 +69,16 @@ export function generateFileContentFromCvrs(cvrs: CastVoteRecord[]): string {
   }
   return fileContent;
 }
+
+/**
+ * Parses the contents of a file of cast vote records. The inverse of
+ * {@link generateFileContentFromCvrs}
+ */
+export function parseCvrsFileContents(
+  cvrsFileContents: string
+): CastVoteRecord[] {
+  const lines = cvrsFileContents.split('\n');
+  return lines
+    .filter((line) => line.length > 0)
+    .map((line) => JSON.parse(line) as CastVoteRecord);
+}
