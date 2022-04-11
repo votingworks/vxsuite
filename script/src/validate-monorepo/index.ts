@@ -126,7 +126,7 @@ export async function main({ stdout, stderr }: IO): Promise<number> {
   }
 
   stdout.write(
-    `${packageCount} package.json, ${tsconfigCount} tsconfig.json, ${tsconfigBuildCount} tsconfig.build.json, ${errors} error(s)`
+    `${packageCount} package.json, ${tsconfigCount} tsconfig.json, ${tsconfigBuildCount} tsconfig.build.json, ${errors} error(s)\n`
   );
   return errors === 0 ? 0 : 1;
 }
