@@ -60,7 +60,7 @@ afterEach(() => {
 
 async function authenticateWithAdminCard(card: MemoryCard) {
   // Machine should be locked
-  await screen.findByText('Machine Locked');
+  await screen.findByText('VxCentralScan is Locked');
   card.insertCard({
     t: 'admin',
     h: electionSampleDefinition.electionHash,
@@ -369,7 +369,7 @@ test('authentication works', async () => {
 
   render(<App card={card} hardware={hardware} />);
 
-  await screen.findByText('Machine Locked');
+  await screen.findByText('VxCentralScan is Locked');
   const adminCard: AdminCardData = {
     t: 'admin',
     h: electionSampleDefinition.electionHash,
@@ -388,7 +388,7 @@ test('authentication works', async () => {
   act(() => {
     hardware.setCardReaderConnected(true);
   });
-  await screen.findByText('Machine Locked');
+  await screen.findByText('VxCentralScan is Locked');
 
   // Insert an admin card and enter the wrong code.
   card.insertCard(adminCard);
@@ -409,7 +409,7 @@ test('authentication works', async () => {
   await act(async () => {
     await sleep(100);
   });
-  await screen.findByText('Machine Locked');
+  await screen.findByText('VxCentralScan is Locked');
   card.insertCard(pollWorkerCard);
   await act(async () => {
     await sleep(100);
@@ -466,5 +466,5 @@ test('authentication works', async () => {
 
   // Lock the machine
   fireEvent.click(screen.getByText('Lock Machine'));
-  await screen.findByText('Machine Locked');
+  await screen.findByText('VxCentralScan is Locked');
 });

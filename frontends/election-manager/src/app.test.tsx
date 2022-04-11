@@ -126,7 +126,7 @@ async function createMemoryStorageWith({
 
 async function authenticateWithAdminCard(card: MemoryCard) {
   // Machine should be locked
-  await screen.findByText('Machine Locked');
+  await screen.findByText('VxAdmin is Locked');
   card.insertCard({
     t: 'admin',
     h: eitherNeitherElectionDefinition.electionHash,
@@ -207,7 +207,7 @@ test('authentication works', async () => {
   });
   render(<App card={card} hardware={hardware} storage={storage} />);
 
-  await screen.findByText('Machine Locked');
+  await screen.findByText('VxAdmin is Locked');
   const adminCard: AdminCardData = {
     t: 'admin',
     h: eitherNeitherElectionDefinition.electionHash,
@@ -224,7 +224,7 @@ test('authentication works', async () => {
   await screen.findByText('Card Reader Not Detected');
   act(() => hardware.setCardReaderConnected(true));
   await advanceTimersAndPromises(1);
-  await screen.findByText('Machine Locked');
+  await screen.findByText('VxAdmin is Locked');
 
   // Insert an admin card and enter the wrong code.
   card.insertCard(adminCard);
@@ -247,7 +247,7 @@ test('authentication works', async () => {
   // Remove card and insert a pollworker card.
   card.removeCard();
   await advanceTimersAndPromises(1);
-  await screen.findByText('Machine Locked');
+  await screen.findByText('VxAdmin is Locked');
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
   await screen.findByText('Invalid Card');
@@ -296,7 +296,7 @@ test('authentication works', async () => {
 
   // Lock the machine
   fireEvent.click(screen.getByText('Lock Machine'));
-  await screen.findByText('Machine Locked');
+  await screen.findByText('VxAdmin is Locked');
   expect(mockKiosk.log).toHaveBeenCalledWith(
     expect.stringContaining(LogEventId.MachineLocked)
   );
