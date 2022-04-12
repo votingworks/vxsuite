@@ -1,4 +1,4 @@
-import { CardDataTypes } from './election';
+import { UserRole } from './smartcard_auth';
 
 export type UserSession =
   | PollworkerUserSession
@@ -26,5 +26,5 @@ export interface SuperAdminUserSession {
 export interface UnknownUserSession {
   readonly type: 'unknown';
   readonly authenticated: false;
-  readonly attemptedUserType?: CardDataTypes;
+  readonly attemptedUserType?: UserRole;
 }

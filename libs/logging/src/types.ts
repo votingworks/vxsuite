@@ -1,8 +1,4 @@
-import {
-  CardDataTypes,
-  CardDataTypesSchema,
-  Dictionary,
-} from '@votingworks/types';
+import { UserRole, UserRoleSchema, Dictionary } from '@votingworks/types';
 import { z } from 'zod';
 import { DeviceType } from '@votingworks/cdf-types-election-event-logging';
 import { LogEventId } from './log_event_ids';
@@ -15,7 +11,7 @@ export enum LogDispositionStandardTypes {
   NotApplicable = 'na',
 }
 
-export type LoggingUserRole = CardDataTypes | 'vx-staff' | 'system' | 'unknown';
+export type LoggingUserRole = UserRole | 'vx-staff' | 'system' | 'unknown';
 export type LogDisposition = LogDispositionStandardTypes | string;
 
 export interface LogLine extends Dictionary<string> {
@@ -34,7 +30,7 @@ export const LogEventIdSchema: z.ZodSchema<LogEventId> =
 export const LogEventTypeSchema: z.ZodSchema<LogEventType> =
   z.nativeEnum(LogEventType);
 export const LoggingUserRoleSchema: z.ZodSchema<LoggingUserRole> = z.union([
-  CardDataTypesSchema,
+  UserRoleSchema,
   z.literal('vx-staff'),
   z.literal('system'),
   z.literal('unknown'),
