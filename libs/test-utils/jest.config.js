@@ -1,4 +1,4 @@
-const shared = require('../../jest.config.shared')
+const shared = require('../../jest.config.shared');
 
 module.exports = {
   ...shared,
@@ -6,8 +6,8 @@ module.exports = {
     global: {
       statements: 52,
       branches: 45,
-      functions: 61,
+      functions: 58,
       lines: 54,
     },
   },
-}
+};

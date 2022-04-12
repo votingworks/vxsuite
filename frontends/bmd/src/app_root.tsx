@@ -39,9 +39,7 @@ import {
   Card,
   Storage,
   Hardware,
-  PrecinctScannerCardTally,
   CardApi,
-  PrecinctScannerCardTallySchema,
   throwIllegalValue,
   CardApiReady,
   usbstick,
@@ -50,9 +48,13 @@ import {
 import { Logger, LogSource } from '@votingworks/logging';
 
 import {
+  isAdminAuth,
+  isPollworkerAuth,
+  isSuperadminAuth,
   SetupCardReaderPage,
   useDevices,
   usePrevious,
+  useSmartcardAuth,
   useUsbDrive,
 } from '@votingworks/ui';
 import { Ballot } from './components/ballot';
@@ -95,22 +97,15 @@ import { SuperAdminScreen } from './pages/superadmin_screen';
 const debug = makeDebug('bmd:AppRoot');
 
 interface CardState {
-  adminCardElectionHash?: string;
-  isAdminCardPresent: boolean;
-  isSuperAdminCardPresent: boolean;
   isCardlessVoter: boolean;
-  isPollWorkerCardPresent: boolean;
   isVoterCardExpired: boolean;
   isVoterCardVoided: boolean;
   isVoterCardPresent: boolean;
   isVoterCardPrinted: boolean;
   isVoterCardValid: boolean;
-  isPollWorkerCardValid: boolean;
   pauseProcessingUntilNoCardPresent: boolean;
   showPostVotingInstructions?: PostVotingInstructions;
   voterCardCreatedAt: number;
-  tallyOnCard?: PrecinctScannerCardTally;
-  hasCardError: boolean;
 }
 
 interface UserState {
@@ -169,21 +164,15 @@ export const votesStorageKey = 'votes';
 export const blankBallotVotes: VotesDict = {};
 
 const initialCardState: Readonly<CardState> = {
-  adminCardElectionHash: undefined,
-  isAdminCardPresent: false,
-  isSuperAdminCardPresent: false,
   isCardlessVoter: false,
-  isPollWorkerCardPresent: false,
   isVoterCardExpired: false,
   isVoterCardVoided: false,
   isVoterCardPresent: false,
   isVoterCardPrinted: false,
   isVoterCardValid: true,
-  isPollWorkerCardValid: true,
   pauseProcessingUntilNoCardPresent: false,
   showPostVotingInstructions: undefined,
   voterCardCreatedAt: 0,
-  hasCardError: false,
 };
 
 const initialVoterState: Readonly<UserState> = {
@@ -229,15 +218,7 @@ const initialAppState: Readonly<State> = {
 
 // Sets State. All side effects done outside: storage, fetching, etc
 type AppAction =
-  | { type: 'processAdminCard'; electionHash: string }
-  | { type: 'processSuperAdminCard' }
-  | {
-      type: 'processPollWorkerCard';
-      isPollWorkerCardValid: boolean;
-      tallyOnCard?: PrecinctScannerCardTally;
-    }
   | { type: 'processVoterCard'; voterState: Partial<InitialUserState> }
-  | { type: 'setCardError' }
   | { type: 'pauseCardProcessing' }
   | { type: 'resumeCardProcessing' }
   | { type: 'setMachineConfig'; machineConfig: MachineConfig }
@@ -263,39 +244,13 @@ type AppAction =
       ballotStyleId?: BallotStyleId;
     }
   | { type: 'resetCardlessBallot' }
-  | { type: 'maintainCardlessBallot' }
-  | {
-      type: 'updatePollWorkerCardTally';
-      tallyOnCard?: PrecinctScannerCardTally;
-    };
+  | { type: 'maintainCardlessBallot' };
 
 function appReducer(state: State, action: AppAction): State {
   const resetTally: Partial<State> = {
     ballotsPrintedCount: initialAppState.ballotsPrintedCount,
   };
   switch (action.type) {
-    case 'processAdminCard':
-      return {
-        ...state,
-        ...initialCardState,
-        isAdminCardPresent: true,
-        adminCardElectionHash: action.electionHash,
-      };
-    case 'processSuperAdminCard':
-      return {
-        ...state,
-        ...initialCardState,
-        isSuperAdminCardPresent: true,
-      };
-    case 'processPollWorkerCard':
-      return {
-        ...state,
-        ...initialCardState,
-        isCardlessVoter: state.isCardlessVoter,
-        isPollWorkerCardPresent: true,
-        isPollWorkerCardValid: action.isPollWorkerCardValid,
-        tallyOnCard: action.tallyOnCard,
-      };
     case 'processVoterCard':
       assert(typeof action.voterState.voterCardCreatedAt !== 'undefined');
       return {
@@ -307,12 +262,6 @@ function appReducer(state: State, action: AppAction): State {
           utcTimestamp() >=
             action.voterState.voterCardCreatedAt +
               GLOBALS.CARD_EXPIRATION_SECONDS,
-      };
-    case 'setCardError':
-      return {
-        ...state,
-        ...initialCardState,
-        hasCardError: true,
       };
     case 'pauseCardProcessing':
       return {
@@ -411,8 +360,6 @@ function appReducer(state: State, action: AppAction): State {
       return {
         ...state,
         ...initialUserState,
-        isAdminCardPresent: state.isAdminCardPresent,
-        adminCardElectionHash: state.adminCardElectionHash,
         electionDefinition: action.electionDefinition,
       };
     case 'startWritingLongValue':
@@ -466,11 +413,6 @@ function appReducer(state: State, action: AppAction): State {
         ballotStyleId: state.ballotStyleId,
         votes: state.votes,
       };
-    case 'updatePollWorkerCardTally':
-      return {
-        ...state,
-        tallyOnCard: action.tallyOnCard,
-      };
     /* istanbul ignore next - compile time check for completeness */
     default:
       throwIllegalValue(action);
@@ -489,23 +431,18 @@ export function AppRoot({
   const PostVotingInstructionsTimeout = useRef(0);
   const [appState, dispatchAppState] = useReducer(appReducer, initialAppState);
   const {
-    adminCardElectionHash,
     appPrecinct,
     ballotsPrintedCount,
     ballotStyleId,
     isCardlessVoter,
     electionDefinition: optionalElectionDefinition,
-    isAdminCardPresent,
-    isSuperAdminCardPresent,
     isLiveMode,
     isPollsOpen,
-    isPollWorkerCardPresent,
     isVoterCardPresent,
     isVoterCardExpired,
     isVoterCardVoided,
     isVoterCardPrinted,
     isVoterCardValid,
-    isPollWorkerCardValid,
     initializedFromStorage,
     lastCardDataString,
     machineConfig,
@@ -513,11 +450,9 @@ export function AppRoot({
     precinctId,
     shortValue,
     showPostVotingInstructions,
-    tallyOnCard,
     userSettings,
     votes,
     voterCardCreatedAt,
-    hasCardError,
   } = appState;
 
   const history = useHistory();
@@ -538,6 +473,12 @@ export function AppRoot({
   const displayUsbStatus = usbDrive.status ?? usbstick.UsbDriveStatus.absent;
   const hasPrinterAttached = printerInfo !== undefined;
   const previousHasPrinterAttached = usePrevious(hasPrinterAttached);
+
+  const auth = useSmartcardAuth({
+    cardApi: card,
+    electionDefinition: optionalElectionDefinition,
+    allowedUserRoles: ['superadmin', 'admin', 'pollworker', 'voter'],
+  });
 
   const ballotStyle =
     optionalElectionDefinition?.election && ballotStyleId
@@ -683,27 +624,18 @@ export function AppRoot({
     dispatchAppState({ type: 'updateTally' });
   }, []);
 
-  const resetPollWorkerCardTally = useCallback(async () => {
-    const possibleCardTally = await card.readLongObject(
-      PrecinctScannerCardTallySchema
-    );
-    dispatchAppState({
-      type: 'updatePollWorkerCardTally',
-      tallyOnCard: possibleCardTally.ok(),
-    });
-  }, [card]);
-
   const getElectionDefinitionFromCard = useCallback(async (): Promise<
     Optional<ElectionDefinition>
   > => {
-    const electionData = await card.readLongString();
+    assert(auth.status === 'logged_in');
+    const electionData = (await auth.card.readStoredString()).ok();
     /* istanbul ignore else */
     if (electionData) {
       const electionDefinitionResult =
         safeParseElectionDefinition(electionData);
       return electionDefinitionResult.unsafeUnwrap();
     }
-  }, [card]);
+  }, [auth]);
 
   const updateElectionDefinition = useCallback(
     (electionDefinition: ElectionDefinition) => {
@@ -811,42 +743,19 @@ export function AppRoot({
           break;
         }
         case 'pollworker': {
-          const isValid =
-            cardData.h === optionalElectionDefinition?.electionHash;
-
-          const possibleCardTally =
-            isValid && longValueExists
-              ? (await card.readLongObject(PrecinctScannerCardTallySchema)).ok()
-              : undefined;
-          dispatchAppState({
-            type: 'processPollWorkerCard',
-            isPollWorkerCardValid: isValid,
-            tallyOnCard: possibleCardTally,
-          });
           break;
         }
         case 'admin': {
-          /* istanbul ignore else */
-          if (longValueExists) {
-            dispatchAppState({
-              type: 'processAdminCard',
-              electionHash: cardData.h,
-            });
-          }
           break;
         }
-        case 'superadmin': {
-          dispatchAppState({
-            type: 'processSuperAdminCard',
-          });
+        case 'superadmin':
           break;
-        }
         /* istanbul ignore next - compile time check for completeness */
         default:
           throwIllegalValue(cardData);
       }
     },
-    [card, fetchBallotData, optionalElectionDefinition]
+    [fetchBallotData, optionalElectionDefinition]
   );
 
   const cardShortValueReadInterval = useInterval(async () => {
@@ -889,9 +798,6 @@ export function AppRoot({
         return;
       }
       if (insertedCard.status === 'error') {
-        dispatchAppState({
-          type: 'setCardError',
-        });
         return;
       }
 
@@ -948,11 +854,6 @@ export function AppRoot({
     await card.writeLongUint8Array(Uint8Array.of());
     dispatchAppState({ type: 'finishWritingLongValue' });
   }, [card]);
-
-  const clearTalliesOnCard = useCallback(async () => {
-    await clearLongValue();
-    await resetPollWorkerCardTally();
-  }, [clearLongValue, resetPollWorkerCardTally]);
 
   const markVoterCardVoided: MarkVoterCardFunction = useCallback(async () => {
     if (isCardlessVoter) {
@@ -1211,7 +1112,7 @@ export function AppRoot({
       />
     );
   }
-  if (hasCardError) {
+  if (auth.status === 'logged_out' && auth.reason === 'card_error') {
     return (
       <CardErrorScreen
         useEffectToggleLargeDisplay={useEffectToggleLargeDisplay}
@@ -1225,7 +1126,7 @@ export function AppRoot({
       />
     );
   }
-  if (isSuperAdminCardPresent) {
+  if (isSuperadminAuth(auth)) {
     return (
       <SuperAdminScreen
         useEffectToggleLargeDisplay={useEffectToggleLargeDisplay}
@@ -1234,10 +1135,10 @@ export function AppRoot({
       />
     );
   }
-  if (isAdminCardPresent) {
+  if (isAdminAuth(auth)) {
     if (
       optionalElectionDefinition &&
-      adminCardElectionHash !== optionalElectionDefinition.electionHash
+      auth.user.electionHash !== optionalElectionDefinition.electionHash
     ) {
       return (
         <ReplaceElectionScreen
@@ -1276,7 +1177,11 @@ export function AppRoot({
         />
       );
     }
-    if (!isVoterCardValid || !isPollWorkerCardValid) {
+    if (
+      !isVoterCardValid ||
+      (auth.status === 'logged_out' &&
+        auth.reason === 'pollworker_election_hash_mismatch')
+    ) {
       return (
         <WrongElectionScreen
           useEffectToggleLargeDisplay={useEffectToggleLargeDisplay}
@@ -1284,9 +1189,10 @@ export function AppRoot({
         />
       );
     }
-    if (isPollWorkerCardPresent) {
+    if (isPollworkerAuth(auth)) {
       return (
         <PollWorkerScreen
+          pollworkerAuth={auth}
           activateCardlessVoterSession={activateCardlessBallot}
           resetCardlessVoterSession={resetCardlessBallot}
           appPrecinct={appPrecinct}
@@ -1302,8 +1208,6 @@ export function AppRoot({
           screenReader={screenReader}
           printer={printer}
           togglePollsOpen={togglePollsOpen}
-          tallyOnCard={tallyOnCard}
-          clearTalliesOnCard={clearTalliesOnCard}
           hasVotes={!!votes}
           reload={reload}
         />
