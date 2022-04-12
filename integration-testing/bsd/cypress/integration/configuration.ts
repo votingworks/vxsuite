@@ -39,6 +39,7 @@ describe('BSD and services/Scan', () => {
     cy.contains('No ballots have been scanned', { timeout: 30000 });
     cy.contains('Scan New Batch').click();
     cy.contains('A total of 1 ballot has been scanned in 1 batch.');
+    cy.contains('Export').click();
     cy.contains('Admin').click();
     cy.contains('Export Backup').click();
     cy.contains('Delete Ballot Data').click();
