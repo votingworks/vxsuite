@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Route, Switch, useHistory } from 'react-router-dom';
 import {
-  CardDataTypes,
+  UserRole,
   ElectionDefinition,
   MarkThresholds,
   Optional,
@@ -73,7 +73,7 @@ const Buttons = styled.div`
     margin-right: 10px;
   }
 `;
-const VALID_USERS: CardDataTypes[] = ['admin', 'superadmin'];
+const VALID_USERS: UserRole[] = ['admin', 'superadmin'];
 
 export interface AppRootProps {
   card: Card;
