@@ -188,6 +188,7 @@ test('clicking "Delete Ballot Data…" shows progress', async () => {
     <Router history={createMemoryHistory()}>
       <AdminActionsScreen
         hasBatches
+        canUnconfigure
         unconfigureServer={jest.fn()}
         zeroData={zeroData}
         backup={jest.fn()}
