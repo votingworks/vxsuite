@@ -1,5 +1,5 @@
 import {
-  CardDataTypes,
+  UserRole,
   ElectionDefinition,
   Optional,
   UserSession,
@@ -20,7 +20,7 @@ export interface UseUserSessionProps {
   electionDefinition?: ElectionDefinition;
   persistAuthentication: boolean; // Persist an authenticated admin session when the admin card is removed.
   bypassAuthentication?: boolean; // Always maintain an authenticated admin session for frontends persisting authentication, and remove the need to authenticate admin cards for non-persisting admins.
-  validUserTypes: CardDataTypes[]; // List of user types that can authenticate into the given frontend.
+  validUserTypes: UserRole[]; // List of user types that can authenticate into the given frontend.
   logger: Logger;
 }
 

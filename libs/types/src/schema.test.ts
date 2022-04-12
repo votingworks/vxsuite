@@ -3,7 +3,7 @@ import {
   electionData,
   electionWithMsEitherNeither,
 } from '../test/election';
-import * as t from './election';
+import * as t from '.';
 import { safeParse, safeParseJson, unsafeParse } from './generic';
 
 test('parseElection', () => {

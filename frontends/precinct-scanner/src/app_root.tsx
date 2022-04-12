@@ -11,7 +11,7 @@ import {
   Provider,
   CastVoteRecord,
   PrecinctId,
-  CardDataTypes,
+  UserRole,
 } from '@votingworks/types';
 import {
   useCancelablePromise,
@@ -76,7 +76,7 @@ export interface AppStorage {
 }
 
 export const stateStorageKey = 'state';
-const VALID_USERS: CardDataTypes[] = ['admin', 'pollworker', 'superadmin'];
+const VALID_USERS: UserRole[] = ['admin', 'pollworker', 'superadmin'];
 
 export interface Props extends RouteComponentProps {
   hardware: Hardware;

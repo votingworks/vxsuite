@@ -10,7 +10,7 @@ import {
   makePollWorkerCard,
   makeVoterCard,
 } from '@votingworks/test-utils';
-import { CardDataTypes, UserSession } from '@votingworks/types';
+import { UserRole, UserSession } from '@votingworks/types';
 import { Smartcard, useUserSession } from '..';
 
 function fakeSmartcard(props: Partial<Smartcard> = {}): Smartcard {
@@ -94,7 +94,7 @@ test('bypass authentication flow when not persisting authentication', async () =
   let smartcard: Smartcard = { status: 'no_card' };
   const fakeLogger = new Logger(LogSource.VxCentralScanFrontend);
   const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
-  const validUserTypes: CardDataTypes[] = [
+  const validUserTypes: UserRole[] = [
     'admin',
     'pollworker',
     'voter',
@@ -255,7 +255,7 @@ test('bypass authentication flow when not persisting authentication', async () =
 
 test('basic persist authentication flow works as expected', () => {
   let smartcard: Smartcard = { status: 'no_card' };
-  const validUserTypes: CardDataTypes[] = ['admin'];
+  const validUserTypes: UserRole[] = ['admin'];
   const fakeLogger = new Logger(LogSource.VxCentralScanFrontend);
   const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
   const { result, rerender } = renderHook(() =>
@@ -546,7 +546,7 @@ test('basic flow with no persistance of authentication works as expected', async
   let smartcard: Smartcard = { status: 'no_card' };
   const fakeLogger = new Logger(LogSource.VxCentralScanFrontend);
   const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
-  const validUserTypes: CardDataTypes[] = ['admin', 'pollworker'];
+  const validUserTypes: UserRole[] = ['admin', 'pollworker'];
   const { result, rerender } = renderHook(() =>
     useUserSession({
       smartcard,
@@ -940,7 +940,7 @@ test('basic flow with no persistance of authentication works as expected', async
 });
 
 test('if not provided, default to NOT bypassing authentication', () => {
-  const validUserTypes: CardDataTypes[] = ['admin'];
+  const validUserTypes: UserRole[] = ['admin'];
   const fakeLogger = new Logger(LogSource.VxCentralScanFrontend);
   const { result } = renderHook(() =>
     useUserSession({
@@ -958,7 +958,7 @@ test('when there is no election definition, pollworker is never authenticated', 
   const smartcard = fakeSmartcard({
     data: makePollWorkerCard(electionSampleDefinition.electionHash),
   });
-  const validUserTypes: CardDataTypes[] = ['admin', 'pollworker'];
+  const validUserTypes: UserRole[] = ['admin', 'pollworker'];
   const fakeLogger = new Logger(LogSource.VxCentralScanFrontend);
   const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
   const { result } = renderHook(() =>
