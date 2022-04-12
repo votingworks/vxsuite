@@ -38,12 +38,16 @@ create table sheets (
 
   created_at datetime default current_timestamp not null,
   deleted_at datetime,
-  exported_as_cvr_at datetime,
 
   foreign key (batch_id)
   references batches (id)
     on update cascade
     on delete cascade
+);
+
+create table backups (
+  key varchar(255) unique,
+  value datetime not null
 );
 
 create table configs (

@@ -61,6 +61,11 @@ export enum ConfigKey {
   CurrentPrecinctId = 'currentPrecinctId',
 }
 
+export enum BackupKey {
+  Batches = 'batches',
+  Cvrs = 'cvrs',
+}
+
 const SchemaPath = join(__dirname, '../schema.sql');
 
 export const ALLOWED_CONFIG_KEYS: readonly string[] = Object.values(ConfigKey);
@@ -376,26 +381,33 @@ export class Store {
     );
   }
 
-  /**
-   * Marks all batches as exported.
-   */
-  markAllBatchesAsExported(): void {
-    this.client.run('update batches set exported_at = current_timestamp');
+  setBatchesAsBackedUp() {
+    this.setBackupTimestamp(BackupKey.Batches);
+  }
+
+  setCvrsAsBackedUp() {
+    this.setBackupTimestamp(BackupKey.Cvrs);
   }
 
   /**
-   * Marks all CVRs as exported.
+   * Sets the timestamp of a backup
    */
-  markAllCvrsAsExported(): void {
-    this.client.run('update sheets set exported_as_cvr_at = current_timestamp');
+  private setBackupTimestamp(key: BackupKey): void {
+    this.client.run(
+      'insert or replace into backups (key, value) values (?, current_timestamp)',
+      key
+    );
   }
 
   /**
-   * Marks all batches and CVRs as not exported.
+   * Gets a config value by key.
    */
-  invalidateExport(): void {
-    this.client.run('update batches set exported_at = null');
-    this.client.run('update sheets set exported_as_cvr_at = null');
+  private getBackupTimestamp(key: BackupKey): Iso8601Timestamp | undefined {
+    const row = this.client.one<[Iso8601Timestamp]>(
+      'select value from backups where key = ?',
+      key
+    ) as { value: Iso8601Timestamp } | undefined;
+    return row?.value;
   }
 
   /**
@@ -403,16 +415,59 @@ export class Store {
    * to unconfigure a machine/zero out data. Always returns true in test mode.
    */
   getCanUnconfigure(): boolean {
+    // Always allow unconfiguring a machine in test mode
     if (this.getTestMode()) {
       return true;
     }
 
-    const batches = this.batchStatus();
-    const sheets = [...this.getSheets()];
-    return (
-      batches.every((b) => b.exportedAt) &&
-      sheets.every((s) => s.exportedAsCvrAt)
+    const batchesBackedUpAt = this.getBackupTimestamp(BackupKey.Batches);
+    const cvrsBackedUpAt = this.getBackupTimestamp(BackupKey.Cvrs);
+
+    if (!this.batchStatus().length) {
+      return true;
+    }
+
+    // Require both batches and CVRs to have been backed up
+    if (!(cvrsBackedUpAt && batchesBackedUpAt)) {
+      return false;
+    }
+
+    const { maxCvrsCreatedAt } = this.client.one(
+      'select max(created_at) as maxCvrsCreatedAt from sheets'
+    ) as { maxCvrsCreatedAt: Iso8601Timestamp };
+    const { maxCvrsDeletedAt } = this.client.one(
+      'select max(deleted_at) as maxCvrsDeletedAt from sheets'
+    ) as { maxCvrsDeletedAt: Iso8601Timestamp };
+    const { maxBatchesStartedAt } = this.client.one(
+      'select max(started_at) as maxBatchesStartedAt from batches'
+    ) as { maxBatchesStartedAt: Iso8601Timestamp };
+    const { maxBatchesDeletedAt } = this.client.one(
+      'select max(deleted_at) as maxBatchesDeletedAt from batches'
+    ) as { maxBatchesDeletedAt: Iso8601Timestamp };
+
+    // Filter out null values
+    const cvrsInvalidatingEvents = [maxCvrsCreatedAt, maxCvrsDeletedAt].filter(
+      Boolean
     );
+    const batchesInvalidatingEvents: Iso8601Timestamp[] = [
+      maxBatchesStartedAt,
+      maxBatchesDeletedAt,
+    ].filter(Boolean);
+
+    const cvrsLastUpdatedAt = cvrsInvalidatingEvents.reduce(
+      (max, curr) => (max > curr ? max : curr),
+      ''
+    );
+    const batchesLastUpdatedAt = batchesInvalidatingEvents.reduce(
+      (max, curr) => (max > curr ? max : curr),
+      ''
+    );
+
+    const isCvrsBackupUpToDate =
+      !cvrsLastUpdatedAt || cvrsBackedUpAt >= cvrsLastUpdatedAt;
+    const isBatchBackupUpToDate =
+      !batchesLastUpdatedAt || batchesBackedUpAt >= batchesLastUpdatedAt;
+    return isCvrsBackupUpToDate && isBatchBackupUpToDate;
   }
 
   addBallotCard(batchId: string): string {
@@ -474,7 +529,6 @@ export class Store {
         frontFinishedAdjudicationAt ?? null,
         backFinishedAdjudicationAt ?? null
       );
-      this.invalidateExport();
     } catch (error) {
       debug(
         'sheet insert failed; maybe a duplicate? filenames=[%s, %s]',
@@ -505,7 +559,6 @@ export class Store {
       'update sheets set deleted_at = current_timestamp where id = ?',
       sheetId
     );
-    this.invalidateExport();
   }
 
   zero(): void {
@@ -610,8 +663,7 @@ export class Store {
         front_original_filename as frontOriginalFilename,
         front_normalized_filename as frontNormalizedFilename,
         back_original_filename as backOriginalFilename,
-        back_normalized_filename as backNormalizedFilename,
-        exported_as_cvr_at exportedAsCvrAt
+        back_normalized_filename as backNormalizedFilename
       from sheets
       order by created_at asc
     `) as Iterable<{
@@ -709,7 +761,6 @@ export class Store {
         batches.label as label,
         strftime('%s', started_at) as startedAt,
         (case when ended_at is null then ended_at else strftime('%s', ended_at) end) as endedAt,
-        (case when exported_at is null then exported_at else strftime('%s', exported_at) end) as exportedAt,
         error,
         sum(case when sheets.id is null then 0 else 1 end) as count
       from
@@ -736,11 +787,6 @@ export class Store {
       endedAt:
         // eslint-disable-next-line vx/gts-safe-number-parse
         (info.endedAt && DateTime.fromSeconds(Number(info.endedAt)).toISO()) ||
-        undefined,
-      exportedAt:
-        (info.exportedAt &&
-          // eslint-disable-next-line vx/gts-safe-number-parse
-          DateTime.fromSeconds(Number(info.exportedAt)).toISO()) ||
         undefined,
       error: info.error || undefined,
       count: info.count,

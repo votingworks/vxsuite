@@ -557,7 +557,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
     '/scan/export',
     async (_request, response) => {
       const cvrs = await importer.doExport();
-      store.markAllCvrsAsExported();
+      store.setCvrsAsBackedUp();
       response.set('Content-Type', 'text/plain; charset=utf-8');
       response.send(cvrs);
     }
@@ -759,7 +759,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
         });
       })
       .on('end', () => {
-        store.markAllBatchesAsExported();
+        store.setBatchesAsBackedUp();
       })
       .pipe(response);
   });

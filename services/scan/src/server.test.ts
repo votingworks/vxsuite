@@ -245,6 +245,8 @@ test('DELETE /config/election error', async () => {
 
 test('DELETE /config/election', async () => {
   importer.unconfigure.mockResolvedValue();
+  workspace.store.setBatchesAsBackedUp();
+  workspace.store.setCvrsAsBackedUp();
 
   await request(app)
     .delete('/config/election')
@@ -396,6 +398,8 @@ test('POST /scan/zero error', async () => {
 
 test('POST /scan/zero', async () => {
   importer.doZero.mockResolvedValue();
+  workspace.store.setBatchesAsBackedUp();
+  workspace.store.setCvrsAsBackedUp();
 
   await request(app)
     .post('/scan/zero')
