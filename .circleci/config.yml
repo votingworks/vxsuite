@@ -62,6 +62,10 @@ jobs:
           name: Test
           command: |
             pnpm --dir frontends/bmd test
+      - store_artifacts:
+          path: frontends/bmd/cypress/screenshots
+      - store_artifacts:
+          path: frontends/bmd/cypress/videos
 
   test-integration-testing-bmd:
     executor: nodejs-browsers
@@ -80,6 +84,10 @@ jobs:
           name: Test
           command: |
             pnpm --dir frontends/bmd test:e2e
+      - store_artifacts:
+          path: integration-testing/bmd/cypress/screenshots
+      - store_artifacts:
+          path: integration-testing/bmd/cypress/videos
 
   test-frontends-bsd:
     executor: nodejs-browsers
@@ -98,6 +106,10 @@ jobs:
           name: Test
           command: |
             pnpm --dir frontends/bsd test
+      - store_artifacts:
+          path: frontends/bsd/cypress/screenshots
+      - store_artifacts:
+          path: frontends/bsd/cypress/videos
 
   test-frontends-election-manager:
     executor: nodejs-browsers
@@ -116,6 +128,10 @@ jobs:
           name: Test
           command: |
             pnpm --dir frontends/election-manager test
+      - store_artifacts:
+          path: frontends/election-manager/cypress/screenshots
+      - store_artifacts:
+          path: frontends/election-manager/cypress/videos
 
   test-frontends-precinct-scanner:
     executor: nodejs-browsers
@@ -153,6 +169,10 @@ jobs:
           name: Test
           command: |
             pnpm --dir integration-testing/bsd test
+      - store_artifacts:
+          path: integration-testing/bsd/cypress/screenshots
+      - store_artifacts:
+          path: integration-testing/bsd/cypress/videos
 
   test-integration-testing-election-manager:
     docker:
@@ -172,6 +192,10 @@ jobs:
           name: Test
           command: |
             pnpm --dir integration-testing/election-manager test
+      - store_artifacts:
+          path: integration-testing/election-manager/cypress/screenshots
+      - store_artifacts:
+          path: integration-testing/election-manager/cypress/videos
 
   test-libs-ballot-encoder:
     executor: nodejs
