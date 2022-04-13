@@ -1,0 +1,13 @@
+# VxSuite CodeOwners
+
+# These owners are used to automate code reviews, if there is a specific part of the codebase you would like to be tagged on reviews for add yourself as a code owner.
+
+# The order of this file is important. The last matching rule will take precedence.
+
+# By default assign the vxsuite-eng group
+* @votingworks/vxsuite-eng
+
+# Testing more specific assignment
+frontends/election-manager @carolinemodic @votingworks/vxsuite-eng
+
+
