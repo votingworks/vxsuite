@@ -34,6 +34,7 @@ import { find } from './find';
 import { throwIllegalValue, typedAs } from '.';
 
 const MISSING_BATCH_ID = 'missing-batch-id';
+// testing
 
 export function getSingleYesNoVote(vote?: YesNoVote): YesOrNo | undefined {
   if (vote?.length === 1) {
