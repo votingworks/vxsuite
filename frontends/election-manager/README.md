@@ -1,3 +1,5 @@
+TEST
+
 # Election Manager (VxAdmin)
 
 This app is intended to be used on an offline computer by an election admin.
