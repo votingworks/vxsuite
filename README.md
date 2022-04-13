@@ -1,3 +1,4 @@
+TEST
 # vxsuite
 
 The VotingWorks in-person voting system.
