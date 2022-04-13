@@ -1,3 +1,5 @@
+TEST
+
 # VotingWorks Ballot Scanner (BSD) (VxCentralScan)
 
 Scans ballots printed by the VxSuite [Ballot Marking Device (BMD)](../bmd) or
