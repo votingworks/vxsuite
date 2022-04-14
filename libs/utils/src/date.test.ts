@@ -4,7 +4,6 @@ import {
   formatLongDate,
   formatTime,
   formatTimeZoneName,
-  shortDateTime,
   getDaysInMonth,
 } from './date';
 
@@ -89,10 +88,4 @@ test('getDaysInMonth', () => {
   const februaryDays = getDaysInMonth(2021, 2);
   expect(februaryDays).toHaveLength(28);
   expect(februaryDays[0]).toEqual(DateTime.fromISO('2021-02-01'));
-});
-
-test('shortDateTime', () => {
-  expect(
-    shortDateTime(new Date('January 1, 2021 00:00:00').toDateString())
-  ).toBe('2021-01-01 0:00:00');
 });
