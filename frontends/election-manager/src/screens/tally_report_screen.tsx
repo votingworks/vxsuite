@@ -2,25 +2,10 @@ import React, { useContext, useEffect, useRef, useState, useMemo } from 'react';
 import styled from 'styled-components';
 
 import { useParams } from 'react-router-dom';
-import { assert, find, filterTalliesByParams } from '@votingworks/utils';
+import { assert, find } from '@votingworks/utils';
 import { LogEventId } from '@votingworks/logging';
-import {
-  ExternalTally,
-  VotingMethod,
-  getLabelForVotingMethod,
-  Tally,
-  unsafeParse,
-  PartyIdSchema,
-} from '@votingworks/types';
-import {
-  ContestTally,
-  TallyReport,
-  TallyReportColumns,
-  ReportSection,
-  TallyReportMetadata,
-  TallyReportSummary,
-  LogoMark,
-} from '@votingworks/ui';
+import { VotingMethod, getLabelForVotingMethod } from '@votingworks/types';
+import { TallyReport, TallyReportMetadata } from '@votingworks/ui';
 import {
   generateDefaultReportFilename,
   generateFileContentToSaveAsPdf,
@@ -43,10 +28,10 @@ import { LinkButton } from '../components/link_button';
 
 import { routerPaths } from '../router_paths';
 import { filterTalliesByParamsAndBatchId } from '../lib/votecounting';
-import { filterExternalTalliesByParams } from '../utils/external_tallies';
 
 import { Text } from '../components/text';
 import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';
+import { ElectionManagerTallyReport } from '../components/election_manager_tally_report';
 
 const TallyReportPreview = styled(TallyReport)`
   section {
@@ -63,12 +48,10 @@ export function TallyReportScreen(): JSX.Element {
   const previewReportRef = useRef<HTMLDivElement>(null);
   const [showPreview, setShowPreview] = useState(false);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
-  const {
-    precinctId: precinctIdFromProps,
-  } = useParams<PrecinctReportScreenProps>();
+  const { precinctId } = useParams<PrecinctReportScreenProps>();
   const { scannerId } = useParams<ScannerReportScreenProps>();
   const { batchId } = useParams<BatchReportScreenProps>();
-  const { partyId: partyIdFromProps } = useParams<PartyReportScreenProps>();
+  const { partyId } = useParams<PartyReportScreenProps>();
   const {
     votingMethod: votingMethodFromProps,
   } = useParams<VotingMethodReportScreenProps>();
@@ -89,20 +72,10 @@ export function TallyReportScreen(): JSX.Element {
   const { election } = electionDefinition;
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial';
 
-  const ballotStylePartyIds =
-    partyIdFromProps !== undefined
-      ? [unsafeParse(PartyIdSchema, partyIdFromProps)]
-      : Array.from(new Set(election.ballotStyles.map((bs) => bs.partyId)));
-
-  const precinctIds =
-    precinctIdFromProps === 'all'
-      ? election.precincts.map((p) => p.id)
-      : [precinctIdFromProps];
-
   const precinctName =
-    (precinctIdFromProps &&
-      precinctIdFromProps !== 'all' &&
-      find(election.precincts, (p) => p.id === precinctIdFromProps).name) ||
+    (precinctId &&
+      precinctId !== 'all' &&
+      find(election.precincts, (p) => p.id === precinctId).name) ||
     undefined;
 
   const fileSuffix = useMemo(() => {
@@ -112,11 +85,11 @@ export function TallyReportScreen(): JSX.Element {
     if (batchId) {
       return `batch-${batchId}`;
     }
-    if (precinctIdFromProps === 'all') {
+    if (precinctId === 'all') {
       return 'all-precincts';
     }
-    if (partyIdFromProps) {
-      const party = find(election.parties, (p) => p.id === partyIdFromProps);
+    if (partyId) {
+      const party = find(election.parties, (p) => p.id === partyId);
       return party.fullName;
     }
     if (votingMethod) {
@@ -127,9 +100,9 @@ export function TallyReportScreen(): JSX.Element {
   }, [
     batchId,
     scannerId,
-    precinctIdFromProps,
+    precinctId,
     votingMethod,
-    partyIdFromProps,
+    partyId,
     election.parties,
     precinctName,
   ]);
@@ -158,11 +131,11 @@ export function TallyReportScreen(): JSX.Element {
     if (batchId) {
       return `${statusPrefix} Batch Tally Report for ${batchLabel}`;
     }
-    if (precinctIdFromProps === 'all') {
+    if (precinctId === 'all') {
       return `${statusPrefix} ${election.title} Tally Reports for All Precincts`;
     }
-    if (partyIdFromProps) {
-      const party = find(election.parties, (p) => p.id === partyIdFromProps);
+    if (partyId) {
+      const party = find(election.parties, (p) => p.id === partyId);
       return `${statusPrefix} Tally Report for ${party.fullName}`;
     }
     if (votingMethod) {
@@ -173,9 +146,9 @@ export function TallyReportScreen(): JSX.Element {
   }, [
     batchId,
     scannerId,
-    precinctIdFromProps,
+    precinctId,
     votingMethod,
-    partyIdFromProps,
+    partyId,
     batchLabel,
     statusPrefix,
     election,
@@ -292,192 +265,20 @@ export function TallyReportScreen(): JSX.Element {
           fileType={FileType.TallyReport}
         />
       )}
-      <TallyReport ref={printReportRef} className="print-only">
-        {ballotStylePartyIds.map((partyId) =>
-          precinctIds.map((precinctId) => {
-            const party = election.parties.find((p) => p.id === partyId);
-            const electionTitle = party
-              ? `${party.fullName} ${election.title}`
-              : election.title;
-
-            const tallyForReport = filterTalliesByParams(
-              fullElectionTally,
-              election,
-              { precinctId, scannerId, partyId, votingMethod, batchId }
-            );
-            const ballotCountsByVotingMethod: Tally['ballotCountsByVotingMethod'] = {
-              ...tallyForReport.ballotCountsByVotingMethod,
-            };
-            let reportBallotCount = tallyForReport.numberOfBallotsCounted;
-            const externalTalliesForReport: ExternalTally[] = [];
-            for (const t of fullElectionExternalTallies) {
-              const filteredTally = filterExternalTalliesByParams(t, election, {
-                precinctId,
-                partyId,
-                scannerId,
-                batchId,
-                votingMethod,
-              });
-              if (filteredTally !== undefined) {
-                externalTalliesForReport.push(filteredTally);
-                ballotCountsByVotingMethod[t.votingMethod] =
-                  filteredTally.numberOfBallotsCounted +
-                  (ballotCountsByVotingMethod[t.votingMethod] ?? 0);
-                reportBallotCount += filteredTally.numberOfBallotsCounted;
-              }
-            }
-
-            if (precinctId) {
-              const currentPrecinctName = find(
-                election.precincts,
-                (p) => p.id === precinctId
-              ).name;
-              return (
-                <ReportSection key={`${partyId}-${precinctId}`}>
-                  <LogoMark />
-                  <Prose maxWidth={false}>
-                    <h1>
-                      {statusPrefix} Precinct Tally Report for:{' '}
-                      {currentPrecinctName}
-                    </h1>
-                    <h2>{electionTitle}</h2>
-                    <TallyReportMetadata
-                      generatedAtTime={generatedAtTime}
-                      election={election}
-                    />
-                  </Prose>
-                  <TallyReportColumns>
-                    <TallyReportSummary
-                      totalBallotCount={reportBallotCount}
-                      ballotCountsByVotingMethod={ballotCountsByVotingMethod}
-                    />
-                    <ContestTally
-                      election={election}
-                      electionTally={tallyForReport}
-                      externalTallies={externalTalliesForReport}
-                      precinctId={precinctId}
-                    />
-                  </TallyReportColumns>
-                </ReportSection>
-              );
-            }
-
-            if (scannerId) {
-              return (
-                <ReportSection key={`${partyId}-${scannerId}`}>
-                  <LogoMark />
-                  <Prose maxWidth={false}>
-                    <h1>
-                      {statusPrefix} Scanner Tally Report for Scanner:{' '}
-                      {scannerId}
-                    </h1>
-                    <h2>{electionTitle}</h2>
-                    <TallyReportMetadata
-                      generatedAtTime={generatedAtTime}
-                      election={election}
-                    />
-                  </Prose>
-                  <TallyReportColumns>
-                    <TallyReportSummary
-                      totalBallotCount={reportBallotCount}
-                      ballotCountsByVotingMethod={ballotCountsByVotingMethod}
-                    />
-                    <ContestTally
-                      election={election}
-                      electionTally={tallyForReport}
-                      externalTallies={[]}
-                    />
-                  </TallyReportColumns>
-                </ReportSection>
-              );
-            }
-
-            if (batchId) {
-              return (
-                <ReportSection key={`${partyId}-${batchId}`}>
-                  <LogoMark />
-                  <Prose maxWidth={false}>
-                    <h1>
-                      {statusPrefix} Batch Tally Report for {batchLabel}:
-                    </h1>
-                    <h2>{electionTitle}</h2>
-                    <TallyReportMetadata
-                      generatedAtTime={generatedAtTime}
-                      election={election}
-                    />
-                  </Prose>
-                  <TallyReportColumns>
-                    <TallyReportSummary
-                      totalBallotCount={reportBallotCount}
-                      ballotCountsByVotingMethod={ballotCountsByVotingMethod}
-                    />
-                    <ContestTally
-                      election={election}
-                      electionTally={tallyForReport}
-                      externalTallies={[]}
-                    />
-                  </TallyReportColumns>
-                </ReportSection>
-              );
-            }
-
-            if (votingMethod) {
-              const label = getLabelForVotingMethod(votingMethod);
-              return (
-                <ReportSection key={`${partyId}-${votingMethod}`}>
-                  <LogoMark />
-                  <Prose maxWidth={false}>
-                    <h1>
-                      {statusPrefix} “{label}” Ballot Tally Report
-                    </h1>
-                    <h2>{electionTitle}</h2>
-                    <TallyReportMetadata
-                      generatedAtTime={generatedAtTime}
-                      election={election}
-                    />
-                  </Prose>
-                  <TallyReportColumns>
-                    <ContestTally
-                      election={election}
-                      electionTally={tallyForReport}
-                      externalTallies={externalTalliesForReport}
-                    />
-                  </TallyReportColumns>
-                </ReportSection>
-              );
-            }
-
-            return (
-              <ReportSection
-                key={partyId || 'none'}
-                data-testid="election-full-tally-report"
-              >
-                <LogoMark />
-                <Prose maxWidth={false}>
-                  <h1>
-                    {statusPrefix} {electionTitle} Tally Report
-                  </h1>
-                  <TallyReportMetadata
-                    generatedAtTime={generatedAtTime}
-                    election={election}
-                  />
-                </Prose>
-                <TallyReportColumns>
-                  <TallyReportSummary
-                    totalBallotCount={reportBallotCount}
-                    ballotCountsByVotingMethod={ballotCountsByVotingMethod}
-                  />
-                  <ContestTally
-                    election={election}
-                    electionTally={tallyForReport}
-                    externalTallies={externalTalliesForReport}
-                  />
-                </TallyReportColumns>
-              </ReportSection>
-            );
-          })
-        )}
-      </TallyReport>
+      <ElectionManagerTallyReport
+        batchId={batchId}
+        batchLabel={batchLabel}
+        election={election}
+        fullElectionExternalTallies={fullElectionExternalTallies}
+        fullElectionTally={fullElectionTally}
+        generatedAtTime={generatedAtTime}
+        isOfficialResults={isOfficialResults}
+        partyId={partyId}
+        precinctId={precinctId}
+        ref={printReportRef}
+        scannerId={scannerId}
+        votingMethod={votingMethod}
+      />
     </React.Fragment>
   );
 }
