@@ -642,7 +642,6 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
               isTestMode={isTestMode}
               toggleTestMode={toggleTestMode}
               canUnconfigure={status.canUnconfigure}
-              exportedAt={status.batches[0]?.exportedAt}
               setMarkThresholdOverrides={setMarkThresholdOverrides}
               markThresholds={markThresholds}
               isTogglingTestMode={isTogglingTestMode}

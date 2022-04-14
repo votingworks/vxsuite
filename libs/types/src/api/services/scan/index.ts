@@ -46,7 +46,6 @@ export interface BatchInfo {
   label: string;
   startedAt: Iso8601Timestamp;
   endedAt?: Iso8601Timestamp;
-  exportedAt?: Iso8601Timestamp;
   error?: string;
   count: number;
 }
@@ -56,7 +55,6 @@ export const BatchInfoSchema: z.ZodSchema<BatchInfo> = z.object({
   label: z.string(),
   startedAt: Iso8601TimestampSchema,
   endedAt: z.optional(Iso8601TimestampSchema),
-  exportedAt: z.optional(Iso8601TimestampSchema),
   error: z.optional(z.string()),
   count: z.number().nonnegative(),
 });

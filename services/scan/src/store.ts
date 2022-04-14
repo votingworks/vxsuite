@@ -751,7 +751,6 @@ export class Store {
       label: string;
       startedAt: string;
       endedAt: string | null;
-      exportedAt: string | null;
       error: string | null;
       count: number;
     }

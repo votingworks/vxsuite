@@ -1,9 +1,8 @@
 import { ElectionDefinition, MarkThresholds } from '@votingworks/types';
 import React, { useCallback, useEffect, useState, useContext } from 'react';
 import { LogEventId } from '@votingworks/logging';
-import { shortDateTime, LogFileType } from '@votingworks/utils';
+import { LogFileType } from '@votingworks/utils';
 import { Loading, Modal, SetClockButton } from '@votingworks/ui';
-import { Iso8601Timestamp } from '@votingworks/types/src/api';
 import { Button } from '../components/button';
 import { LinkButton } from '../components/link_button';
 import { Main, MainChild } from '../components/main';
@@ -24,7 +23,6 @@ interface Props {
   isTestMode: boolean;
   isTogglingTestMode: boolean;
   canUnconfigure: boolean;
-  exportedAt?: Iso8601Timestamp;
   toggleTestMode: () => Promise<void>;
   setMarkThresholdOverrides: (markThresholds?: MarkThresholds) => Promise<void>;
   markThresholds?: MarkThresholds;
@@ -40,7 +38,6 @@ export function AdminActionsScreen({
   isTogglingTestMode,
   toggleTestMode,
   canUnconfigure,
-  exportedAt,
   setMarkThresholdOverrides,
   markThresholds,
   electionDefinition,
@@ -174,16 +171,13 @@ export function AdminActionsScreen({
                   Delete Election Data from VxCentralScan…
                 </Button>{' '}
                 {!canUnconfigure && !isTestMode && (
-                  <Text as="span" warning warningIcon>
-                    You must &quot;Export Backup&quot; before you may delete
-                    election data.
-                  </Text>
-                )}
-                {canUnconfigure && exportedAt && (
-                  <Text as="span" muted>
-                    Election data was last backed up at{' '}
-                    {shortDateTime(exportedAt)}
-                  </Text>
+                  <React.Fragment>
+                    <br />
+                    <Text as="span" warning warningIcon>
+                      You must &quot;Export Backup&quot; before you may delete
+                      election data.
+                    </Text>
+                  </React.Fragment>
                 )}
               </p>
             </Prose>
