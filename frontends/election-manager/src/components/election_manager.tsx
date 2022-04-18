@@ -33,6 +33,7 @@ import { MachineLockedScreen } from '../screens/machine_locked_screen';
 import { InvalidCardScreen } from '../screens/invalid_card_screen';
 import { UnlockMachineScreen } from '../screens/unlock_machine_screen';
 import { AdvancedScreen } from '../screens/advanced_screen';
+import { LogicAndAccuracyScreen } from '../screens/logic_and_accuracy_screen';
 
 export function ElectionManager(): JSX.Element {
   const {
@@ -136,22 +137,6 @@ export function ElectionManager(): JSX.Element {
       </Route>
       <Route
         path={[
-          routerPaths.printOneTestDeck({ precinctId: ':precinctId' }),
-          routerPaths.printTestDecks,
-        ]}
-      >
-        <PrintTestDeckScreen />
-      </Route>
-      <Route
-        path={[
-          routerPaths.testDeckResultsReport({ precinctId: ':precinctId' }),
-          routerPaths.testDecksTally,
-        ]}
-      >
-        <TestDeckScreen />
-      </Route>
-      <Route
-        path={[
           routerPaths.ballotsViewLanguage({
             ballotStyleId: ':ballotStyleId',
             precinctId: ':precinctId',
@@ -212,6 +197,25 @@ export function ElectionManager(): JSX.Element {
       </Route>
       <Route path={routerPaths.overvoteCombinationReport}>
         <OvervoteCombinationReportScreen />
+      </Route>
+      <Route exact path={routerPaths.logicAndAccuracy}>
+        <LogicAndAccuracyScreen />
+      </Route>
+      <Route
+        path={[
+          routerPaths.printOneTestDeck({ precinctId: ':precinctId' }),
+          routerPaths.printTestDecks,
+        ]}
+      >
+        <PrintTestDeckScreen />
+      </Route>
+      <Route
+        path={[
+          routerPaths.testDeckResultsReport({ precinctId: ':precinctId' }),
+          routerPaths.testDecksTally,
+        ]}
+      >
+        <TestDeckScreen />
       </Route>
       <Redirect to={routerPaths.ballotsList} />
     </Switch>

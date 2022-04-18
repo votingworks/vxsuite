@@ -33,9 +33,6 @@ export const routerPaths = {
     `/tally/manual-data-import/precinct/${precinctId}`,
   printedBallotsReport: '/ballots/printed-report',
   tally: '/tally',
-  printTestDecks: '/tally/print-test-deck',
-  printOneTestDeck: ({ precinctId }: PrecinctReportScreenProps): string =>
-    `/tally/print-test-deck/${precinctId}`,
   tallyPrecinctReport: ({ precinctId }: PrecinctReportScreenProps): string =>
     `/tally/precinct/${precinctId}`,
   tallyPartyReport: ({ partyId }: PartyReportScreenProps): string =>
@@ -49,8 +46,12 @@ export const routerPaths = {
   tallyBatchReport: ({ batchId }: BatchReportScreenProps): string =>
     `/tally/batch/${batchId}`,
   tallyFullReport: '/tally/full',
-  testDecksTally: '/tally/test-ballot-deck',
-  testDeckResultsReport: ({ precinctId }: PrecinctReportScreenProps): string =>
-    `/tally/test-ballot-deck/${precinctId}`,
   overvoteCombinationReport: '/tally/pairs',
+  logicAndAccuracy: '/logic-and-accuracy',
+  printTestDecks: '/logic-and-accuracy/print-test-deck',
+  printOneTestDeck: ({ precinctId }: PrecinctReportScreenProps): string =>
+    `/logic-and-accuracy/print-test-deck/${precinctId}`,
+  testDecksTally: '/logic-and-accuracy/test-ballot-deck',
+  testDeckResultsReport: ({ precinctId }: PrecinctReportScreenProps): string =>
+    `/logic-and-accuracy/test-ballot-deck/${precinctId}`,
 } as const;
