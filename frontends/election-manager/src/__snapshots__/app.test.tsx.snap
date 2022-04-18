@@ -52,7 +52,14 @@ exports[`printing ballots, print report, and test decks 1`] = `
           Ballots
         </button>
         <button
-          class="sc-jrAGrp iWxjsY active-section"
+          class="sc-jrAGrp hAHAue active-section"
+          role="option"
+          type="button"
+        >
+          L&A
+        </button>
+        <button
+          class="sc-jrAGrp iWxjsY"
           role="option"
           type="button"
         >
@@ -297,7 +304,14 @@ exports[`printing ballots, print report, and test decks 2`] = `
           Ballots
         </button>
         <button
-          class="sc-jrAGrp iWxjsY active-section"
+          class="sc-jrAGrp hAHAue active-section"
+          role="option"
+          type="button"
+        >
+          L&A
+        </button>
+        <button
+          class="sc-jrAGrp iWxjsY"
           role="option"
           type="button"
         >

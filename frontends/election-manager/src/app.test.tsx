@@ -373,7 +373,7 @@ test('printing ballots, print report, and test decks', async () => {
     expect.stringContaining(LogEventId.PrintedBallotReportPrinted)
   );
 
-  fireEvent.click(getByText('Tally'));
+  fireEvent.click(getByText('L&A'));
   fireEvent.click(getByText('Print Test Decks'));
   getByText('Chester');
   fireEvent.click(getByText('District 5'));
@@ -390,7 +390,7 @@ test('printing ballots, print report, and test decks', async () => {
     expect.stringContaining(LogEventId.TestDeckPrinted)
   );
 
-  fireEvent.click(getByText('Tally'));
+  fireEvent.click(getByText('L&A'));
   fireEvent.click(getByText('View Test Ballot Deck Tally'));
   fireEvent.click(getByText('All Precincts'));
   await screen.findByText('Print Results Report');
