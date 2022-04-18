@@ -432,18 +432,18 @@ export class Store {
       return false;
     }
 
-    const { maxCvrsCreatedAt } = this.client.one(
-      'select max(created_at) as maxCvrsCreatedAt from sheets'
-    ) as { maxCvrsCreatedAt: Iso8601Timestamp };
-    const { maxCvrsDeletedAt } = this.client.one(
-      'select max(deleted_at) as maxCvrsDeletedAt from sheets'
-    ) as { maxCvrsDeletedAt: Iso8601Timestamp };
-    const { maxBatchesStartedAt } = this.client.one(
-      'select max(started_at) as maxBatchesStartedAt from batches'
-    ) as { maxBatchesStartedAt: Iso8601Timestamp };
-    const { maxBatchesDeletedAt } = this.client.one(
-      'select max(deleted_at) as maxBatchesDeletedAt from batches'
-    ) as { maxBatchesDeletedAt: Iso8601Timestamp };
+    const { maxCvrsCreatedAt, maxCvrsDeletedAt } = this.client.one(
+      'select max(created_at) as maxCvrsCreatedAt, max(deleted_at) as maxCvrsDeletedAt from sheets'
+    ) as {
+      maxCvrsCreatedAt: Iso8601Timestamp;
+      maxCvrsDeletedAt: Iso8601Timestamp;
+    };
+    const { maxBatchesStartedAt, maxBatchesDeletedAt } = this.client.one(
+      'select max(started_at) as maxBatchesStartedAt, max(deleted_at) as maxBatchesDeletedAt from batches'
+    ) as {
+      maxBatchesStartedAt: Iso8601Timestamp;
+      maxBatchesDeletedAt: Iso8601Timestamp;
+    };
 
     // Filter out null values
     const cvrsInvalidatingEvents = [maxCvrsCreatedAt, maxCvrsDeletedAt].filter(
