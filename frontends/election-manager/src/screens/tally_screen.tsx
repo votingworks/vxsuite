@@ -28,7 +28,6 @@ import { Loading } from '../components/loading';
 import { NavigationScreen } from '../components/navigation_screen';
 import { routerPaths } from '../router_paths';
 import { LinkButton } from '../components/link_button';
-import { HorizontalRule } from '../components/horizontal_rule';
 import { Prose } from '../components/prose';
 import { ImportCvrFilesModal } from '../components/import_cvrfiles_modal';
 import { BallotCountsTable } from '../components/ballot_counts_table';
@@ -424,20 +423,6 @@ export function TallyScreen(): JSX.Element {
               <Button onPress={() => setIsExportResultsModalOpen(true)}>
                 Save Results File
               </Button>
-            </p>
-          </React.Fragment>
-        )}
-        {!hasCastVoteRecordFiles && (
-          <React.Fragment>
-            <HorizontalRule />
-            <h2>Pre-Election Features</h2>
-            <p>
-              <LinkButton to={routerPaths.printTestDecks}>
-                Print Test Decks
-              </LinkButton>{' '}
-              <LinkButton to={routerPaths.testDecksTally}>
-                View Test Ballot Deck Tally
-              </LinkButton>
             </p>
           </React.Fragment>
         )}
