@@ -418,8 +418,9 @@ test('tabulating CVRs', async () => {
   await storage.set(cvrsStorageKey, castVoteRecordFiles.export());
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
+  const printer = fakePrinter();
   const { getByText, getAllByText, getByTestId } = render(
-    <App storage={storage} card={card} hardware={hardware} />
+    <App storage={storage} card={card} hardware={hardware} printer={printer} />
   );
   jest.advanceTimersByTime(2001); // Cause the usb drive to be detected
   await authenticateWithAdminCard(card);
@@ -547,7 +548,22 @@ test('tabulating CVRs', async () => {
 
   fireEvent.click(getByText('Close'));
 
+  // Check that a zero report can be generated on the L&A tab even after CVRs have been tabulated
+  fireEvent.click(getByText('L&A'));
+  fireEvent.click(
+    getByText(
+      'Print Pre-Election Unofficial Full Election Tally Report (Zero Report)'
+    )
+  );
+  await waitFor(() => getByText('Printing'));
+  expect(printer.print).toHaveBeenCalledTimes(1);
+  expect(mockKiosk.log).toHaveBeenCalledWith(
+    expect.stringContaining(LogEventId.TallyReportPrinted)
+  );
+  expect(getAllByText('0').length).toBe(40);
+
   // Clear results
+  fireEvent.click(getByText('Tally'));
   fireEvent.click(getByText('Clear All Results…'));
   fireEvent.click(getByText('Remove All Data'));
   await waitFor(() =>
