@@ -11,6 +11,7 @@ import {
   getAllByRole as domGetAllByRole,
   act,
 } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import fetchMock from 'fetch-mock';
 import { electionWithMsEitherNeitherWithDataFiles } from '@votingworks/fixtures';
 import {
@@ -311,30 +312,32 @@ test('L&A (logic and accuracy) flow', async () => {
   const storage = await createMemoryStorageWith({
     electionDefinition: eitherNeitherElectionDefinition,
   });
-  const { container, findByText, getAllByText, getByText } = render(
+  const { container } = render(
     <App card={card} hardware={hardware} printer={printer} storage={storage} />
   );
   jest.advanceTimersByTime(2001); // Cause the usb drive to be detected
   await authenticateWithAdminCard(card);
 
   // Test printing zero report
-  fireEvent.click(getByText('L&A'));
-  fireEvent.click(
-    getByText('Print the pre-election Unofficial Full Election Tally Report')
+  userEvent.click(screen.getByText('L&A'));
+  userEvent.click(
+    screen.getByText(
+      'Print the pre-election Unofficial Full Election Tally Report'
+    )
   );
-  await findByText('Printing');
+  await screen.findByText('Printing');
   expect(printer.print).toHaveBeenCalledTimes(1);
   expect(mockKiosk.log).toHaveBeenCalledWith(
     expect.stringContaining(LogEventId.TallyReportPrinted)
   );
-  expect(getAllByText('0').length).toBe(40);
+  expect(screen.getAllByText('0').length).toBe(40);
 
   // Test printing test deck
-  fireEvent.click(getByText('L&A'));
-  fireEvent.click(getByText('Print Test Decks'));
-  fireEvent.click(getByText('District 5'));
-  fireEvent.click(getByText('Print Test Deck'));
-  await findByText('Printing Test Deck: District 5', {
+  userEvent.click(screen.getByText('L&A'));
+  userEvent.click(screen.getByText('Print Test Decks'));
+  userEvent.click(screen.getByText('District 5'));
+  userEvent.click(screen.getByText('Print Test Deck'));
+  await screen.findByText('Printing Test Deck: District 5', {
     exact: false,
   });
   expect(printer.print).toHaveBeenCalledTimes(2);
@@ -344,11 +347,11 @@ test('L&A (logic and accuracy) flow', async () => {
   expect(container).toMatchSnapshot();
 
   // Test printing test deck tally report
-  fireEvent.click(getByText('L&A'));
-  fireEvent.click(getByText('Print Test Deck Tally Reports'));
-  fireEvent.click(getByText('All Precincts'));
-  fireEvent.click(getByText('Print Results Report'));
-  await findByText('Printing');
+  userEvent.click(screen.getByText('L&A'));
+  userEvent.click(screen.getByText('Print Test Deck Tally Reports'));
+  userEvent.click(screen.getByText('All Precincts'));
+  userEvent.click(screen.getByText('Print Results Report'));
+  await screen.findByText('Printing');
   expect(printer.print).toHaveBeenCalledTimes(3);
   expect(mockKiosk.log).toHaveBeenCalledWith(
     expect.stringContaining(LogEventId.TestDeckTallyReportPrinted)
