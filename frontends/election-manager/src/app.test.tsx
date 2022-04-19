@@ -419,7 +419,7 @@ test('tabulating CVRs', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const printer = fakePrinter();
-  const { getByText, getAllByText, getByTestId } = render(
+  const { getByText, getAllByText, getByTestId, findByText } = render(
     <App storage={storage} card={card} hardware={hardware} printer={printer} />
   );
   jest.advanceTimersByTime(2001); // Cause the usb drive to be detected
@@ -555,7 +555,7 @@ test('tabulating CVRs', async () => {
       'Print Pre-Election Unofficial Full Election Tally Report (Zero Report)'
     )
   );
-  await waitFor(() => getByText('Printing'));
+  await findByText('Printing');
   expect(printer.print).toHaveBeenCalledTimes(1);
   expect(mockKiosk.log).toHaveBeenCalledWith(
     expect.stringContaining(LogEventId.TallyReportPrinted)
