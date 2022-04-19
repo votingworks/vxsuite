@@ -100,7 +100,7 @@ exports[`printing ballots, print report, and test decks 1`] = `
           class="sc-crrsfI vnUTr"
         >
           <h1>
-            Test Deck
+            Test Decks
           </h1>
           <p>
             <strong>
@@ -350,7 +350,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
       >
         <div>
           <strong>
-            Test Ballot Deck Tally
+            Test Deck Tally Reports
           </strong>
            for 
           Mock General Election Choctaw 2020
@@ -496,7 +496,7 @@ exports[`printing ballots, print report, and test decks 2`] = `
       />
       <div>
         <strong>
-          Test Ballot Deck Tally
+          Test Deck Tally Reports
         </strong>
          for 
          Mock General Election Choctaw 2020

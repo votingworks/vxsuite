@@ -48,10 +48,10 @@ export const routerPaths = {
   tallyFullReport: '/tally/full',
   overvoteCombinationReport: '/tally/pairs',
   logicAndAccuracy: '/logic-and-accuracy',
-  printTestDecks: '/logic-and-accuracy/print-test-deck',
-  printOneTestDeck: ({ precinctId }: PrecinctReportScreenProps): string =>
-    `/logic-and-accuracy/print-test-deck/${precinctId}`,
-  testDecksTally: '/logic-and-accuracy/test-ballot-deck',
-  testDeckResultsReport: ({ precinctId }: PrecinctReportScreenProps): string =>
-    `/logic-and-accuracy/test-ballot-deck/${precinctId}`,
+  testDecks: '/logic-and-accuracy/test-decks',
+  testDeck: ({ precinctId }: PrecinctReportScreenProps): string =>
+    `/logic-and-accuracy/test-decks/${precinctId}`,
+  testDeckTallyReports: '/logic-and-accuracy/test-deck-tally-reports',
+  testDeckTallyReport: ({ precinctId }: PrecinctReportScreenProps): string =>
+    `/logic-and-accuracy/test-deck-tally-reports/${precinctId}`,
 } as const;

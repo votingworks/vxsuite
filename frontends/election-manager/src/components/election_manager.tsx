@@ -203,16 +203,16 @@ export function ElectionManager(): JSX.Element {
       </Route>
       <Route
         path={[
-          routerPaths.printOneTestDeck({ precinctId: ':precinctId' }),
-          routerPaths.printTestDecks,
+          routerPaths.testDeck({ precinctId: ':precinctId' }),
+          routerPaths.testDecks,
         ]}
       >
         <PrintTestDeckScreen />
       </Route>
       <Route
         path={[
-          routerPaths.testDeckResultsReport({ precinctId: ':precinctId' }),
-          routerPaths.testDecksTally,
+          routerPaths.testDeckTallyReport({ precinctId: ':precinctId' }),
+          routerPaths.testDeckTallyReports,
         ]}
       >
         <TestDeckScreen />

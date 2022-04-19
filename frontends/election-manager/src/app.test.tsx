@@ -391,7 +391,7 @@ test('printing ballots, print report, and test decks', async () => {
   );
 
   fireEvent.click(getByText('L&A'));
-  fireEvent.click(getByText('View Test Ballot Deck Tally'));
+  fireEvent.click(getByText('Print Test Deck Tally Reports'));
   fireEvent.click(getByText('All Precincts'));
   await screen.findByText('Print Results Report');
   expect(container).toMatchSnapshot();
