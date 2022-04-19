@@ -11,9 +11,7 @@ export function LogicAndAccuracyScreen(): JSX.Element {
     <NavigationScreen>
       <Prose maxWidth={false}>
         <h1>L&amp;A Materials</h1>
-        <p>
-          <ZeroReportPrintButton />
-        </p>
+        <ZeroReportPrintButton />
         <p>
           <LinkButton to={routerPaths.testDecks}>Print Test Decks</LinkButton>
         </p>

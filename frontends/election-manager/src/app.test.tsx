@@ -551,9 +551,7 @@ test('tabulating CVRs', async () => {
   // Check that a zero report can be generated on the L&A tab even after CVRs have been tabulated
   fireEvent.click(getByText('L&A'));
   fireEvent.click(
-    getByText(
-      'Print Pre-Election Unofficial Full Election Tally Report (Zero Report)'
-    )
+    getByText('Print the pre-election Unofficial Full Election Tally Report')
   );
   await findByText('Printing');
   expect(printer.print).toHaveBeenCalledTimes(1);
