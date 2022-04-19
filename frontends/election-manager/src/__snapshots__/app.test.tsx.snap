@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`printing ballots, print report, and test decks 1`] = `
+exports[`L&A (logic and accuracy) flow 1`] = `
 <div
   aria-hidden="true"
 >
@@ -254,8 +254,10 @@ exports[`printing ballots, print report, and test decks 1`] = `
 </div>
 `;
 
-exports[`printing ballots, print report, and test decks 2`] = `
-<div>
+exports[`L&A (logic and accuracy) flow 2`] = `
+<div
+  aria-hidden="true"
+>
   <div
     class="sc-bdfBwQ eVNwUy"
   >

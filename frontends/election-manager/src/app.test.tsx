@@ -302,7 +302,61 @@ test('authentication works', async () => {
   );
 });
 
-test('printing ballots, print report, and test decks', async () => {
+test('L&A (logic and accuracy) flow', async () => {
+  // TODO: Move common setup logic to a beforeEach block
+  jest.useFakeTimers();
+  const card = new MemoryCard();
+  const hardware = MemoryHardware.buildStandard();
+  const printer = fakePrinter();
+  const storage = await createMemoryStorageWith({
+    electionDefinition: eitherNeitherElectionDefinition,
+  });
+  const { container, findByText, getAllByText, getByText } = render(
+    <App card={card} hardware={hardware} printer={printer} storage={storage} />
+  );
+  jest.advanceTimersByTime(2001); // Cause the usb drive to be detected
+  await authenticateWithAdminCard(card);
+
+  // Test printing zero report
+  fireEvent.click(getByText('L&A'));
+  fireEvent.click(
+    getByText('Print the pre-election Unofficial Full Election Tally Report')
+  );
+  await findByText('Printing');
+  expect(printer.print).toHaveBeenCalledTimes(1);
+  expect(mockKiosk.log).toHaveBeenCalledWith(
+    expect.stringContaining(LogEventId.TallyReportPrinted)
+  );
+  expect(getAllByText('0').length).toBe(40);
+
+  // Test printing test deck
+  fireEvent.click(getByText('L&A'));
+  fireEvent.click(getByText('Print Test Decks'));
+  fireEvent.click(getByText('District 5'));
+  fireEvent.click(getByText('Print Test Deck'));
+  await findByText('Printing Test Deck: District 5', {
+    exact: false,
+  });
+  expect(printer.print).toHaveBeenCalledTimes(2);
+  expect(mockKiosk.log).toHaveBeenCalledWith(
+    expect.stringContaining(LogEventId.TestDeckPrinted)
+  );
+  expect(container).toMatchSnapshot();
+
+  // Test printing test deck tally report
+  fireEvent.click(getByText('L&A'));
+  fireEvent.click(getByText('Print Test Deck Tally Reports'));
+  fireEvent.click(getByText('All Precincts'));
+  fireEvent.click(getByText('Print Results Report'));
+  await findByText('Printing');
+  expect(printer.print).toHaveBeenCalledTimes(3);
+  expect(mockKiosk.log).toHaveBeenCalledWith(
+    expect.stringContaining(LogEventId.TestDeckTallyReportPrinted)
+  );
+  expect(container).toMatchSnapshot();
+});
+
+test('printing ballots and printed ballots report', async () => {
   const storage = await createMemoryStorageWith({
     electionDefinition: eitherNeitherElectionDefinition,
   });
@@ -311,13 +365,7 @@ test('printing ballots, print report, and test decks', async () => {
   const printer = fakePrinter();
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
-  const {
-    container,
-    getByText,
-    getAllByText,
-    queryAllByText,
-    getAllByTestId,
-  } = render(
+  const { getByText, getAllByText, queryAllByText, getAllByTestId } = render(
     <App storage={storage} printer={printer} card={card} hardware={hardware} />
   );
   jest.advanceTimersByTime(2001); // Cause the usb drive to be detected
@@ -371,36 +419,6 @@ test('printing ballots, print report, and test decks', async () => {
   expect(printer.print).toHaveBeenCalledTimes(4);
   expect(mockKiosk.log).toHaveBeenCalledWith(
     expect.stringContaining(LogEventId.PrintedBallotReportPrinted)
-  );
-
-  fireEvent.click(getByText('L&A'));
-  fireEvent.click(getByText('Print Test Decks'));
-  getByText('Chester');
-  fireEvent.click(getByText('District 5'));
-
-  await screen.findByText('Print Test Deck');
-  fireEvent.click(getByText('Print Test Deck'));
-  await screen.findByText('Printing Test Deck: District 5', {
-    exact: false,
-  });
-  expect(container).toMatchSnapshot();
-
-  expect(printer.print).toHaveBeenCalledTimes(5);
-  expect(mockKiosk.log).toHaveBeenCalledWith(
-    expect.stringContaining(LogEventId.TestDeckPrinted)
-  );
-
-  fireEvent.click(getByText('L&A'));
-  fireEvent.click(getByText('Print Test Deck Tally Reports'));
-  fireEvent.click(getByText('All Precincts'));
-  await screen.findByText('Print Results Report');
-  expect(container).toMatchSnapshot();
-  fireEvent.click(getByText('Print Results Report'));
-
-  await waitFor(() => getByText('Printing'));
-  expect(printer.print).toHaveBeenCalledTimes(6);
-  expect(mockKiosk.log).toHaveBeenCalledWith(
-    expect.stringContaining(LogEventId.TestDeckTallyReportPrinted)
   );
 });
 
