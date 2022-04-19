@@ -44,7 +44,7 @@
     "@votingworks/qrdetect": "^1.0.1",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
-    "canvas": "^2.6.1",
+    "canvas": "^2.9.0",
     "chalk": "^4.1.0",
     "debug": "^4.2.0",
     "jsfeat": "^0.0.8",
