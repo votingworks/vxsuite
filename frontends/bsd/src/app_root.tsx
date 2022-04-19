@@ -95,6 +95,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
   const [isTestMode, setTestMode] = useState(false);
   const [isTogglingTestMode, setTogglingTestMode] = useState(false);
   const [status, setStatus] = useState<GetScanStatusResponse>({
+    canUnconfigure: true,
     batches: [],
     adjudication: { remaining: 0, adjudicated: 0 },
     scanner: ScannerStatus.Unknown,
@@ -640,6 +641,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
               hasBatches={status.batches.length > 0}
               isTestMode={isTestMode}
               toggleTestMode={toggleTestMode}
+              canUnconfigure={status.canUnconfigure}
               setMarkThresholdOverrides={setMarkThresholdOverrides}
               markThresholds={markThresholds}
               isTogglingTestMode={isTogglingTestMode}

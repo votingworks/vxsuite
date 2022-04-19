@@ -24,6 +24,7 @@ test('clicking "Export Backup…" shows progress', async () => {
         unconfigureServer={jest.fn()}
         zeroData={jest.fn()}
         backup={backup}
+        canUnconfigure={false}
         isTestMode={false}
         isTogglingTestMode={false}
         toggleTestMode={jest.fn()}
@@ -57,6 +58,74 @@ test('clicking "Export Backup…" shows progress', async () => {
   });
 });
 
+test('"Delete Ballot Data…" and Delete Election Data from VxCentralScan…" disabled when canUnconfigure is falsy', async () => {
+  const unconfigureServer = jest.fn();
+  const zeroData = jest.fn();
+  const component = render(
+    <Router history={createMemoryHistory()}>
+      <AdminActionsScreen
+        hasBatches
+        unconfigureServer={unconfigureServer}
+        zeroData={zeroData}
+        backup={jest.fn()}
+        canUnconfigure={false}
+        isTestMode={false}
+        isTogglingTestMode={false}
+        toggleTestMode={jest.fn()}
+        setMarkThresholdOverrides={jest.fn()}
+        markThresholds={undefined}
+        electionDefinition={testElectionDefinition}
+      />
+    </Router>
+  );
+
+  // Clicking the disabled "Delete Election Data" button should do nothing
+  const unconfigureButton = component.getByText(
+    'Delete Election Data from VxCentralScan…'
+  );
+  unconfigureButton.click();
+  expect(unconfigureServer).not.toHaveBeenCalled();
+  expect(component.queryByText('Delete all election data?')).toBeNull();
+
+  // Clicking the disabled "Delete Ballot Data" button should do nothing
+  const deleteBallotsButton = component.getByText('Delete Ballot Data…');
+  deleteBallotsButton.click();
+  expect(zeroData).not.toHaveBeenCalled();
+  expect(component.queryByText('Delete All Scanned Ballot Data?')).toBeNull();
+});
+
+test('"Delete Ballot Data…" and Delete Election Data from VxCentralScan…" enabled in test mode even if data not backed up', async () => {
+  const component = render(
+    <Router history={createMemoryHistory()}>
+      <AdminActionsScreen
+        hasBatches
+        unconfigureServer={jest.fn()}
+        zeroData={jest.fn()}
+        backup={jest.fn()}
+        canUnconfigure={false}
+        isTestMode
+        isTogglingTestMode={false}
+        toggleTestMode={jest.fn()}
+        setMarkThresholdOverrides={jest.fn()}
+        markThresholds={undefined}
+        electionDefinition={testElectionDefinition}
+      />
+    </Router>
+  );
+
+  // Clicking the disabled "Delete Election Data" button should bring up a confirmation modal
+  const unconfigureButton = component.getByText(
+    'Delete Election Data from VxCentralScan…'
+  );
+  unconfigureButton.click();
+  component.getByText('Delete all election data?');
+
+  // Clicking the disabled "Delete Ballot Data" button should bring up a confirmation modal
+  const deleteBallotsButton = component.getByText('Delete Ballot Data…');
+  deleteBallotsButton.click();
+  component.getByText('Delete All Scanned Ballot Data?');
+});
+
 test('clicking "Delete Election Data from VxCentralScan…" shows progress', async () => {
   const unconfigureServer = jest.fn();
   const component = render(
@@ -66,6 +135,7 @@ test('clicking "Delete Election Data from VxCentralScan…" shows progress', asy
         unconfigureServer={unconfigureServer}
         zeroData={jest.fn()}
         backup={jest.fn()}
+        canUnconfigure
         isTestMode={false}
         isTogglingTestMode={false}
         toggleTestMode={jest.fn()}
@@ -118,6 +188,7 @@ test('clicking "Delete Ballot Data…" shows progress', async () => {
     <Router history={createMemoryHistory()}>
       <AdminActionsScreen
         hasBatches
+        canUnconfigure
         unconfigureServer={jest.fn()}
         zeroData={zeroData}
         backup={jest.fn()}
@@ -165,6 +236,7 @@ test('backup error shows message', async () => {
         unconfigureServer={jest.fn()}
         zeroData={jest.fn()}
         backup={backup}
+        canUnconfigure
         isTestMode={false}
         isTogglingTestMode={false}
         toggleTestMode={jest.fn()}
@@ -239,6 +311,7 @@ test('override mark thresholds button shows when there are no overrides', async 
           unconfigureServer={jest.fn()}
           zeroData={jest.fn()}
           backup={backup}
+          canUnconfigure={false}
           isTestMode={false}
           isTogglingTestMode={false}
           toggleTestMode={jest.fn()}
@@ -270,6 +343,7 @@ test('clicking "Update Date and Time…" shows modal to set clock', async () => 
         unconfigureServer={jest.fn()}
         zeroData={jest.fn()}
         backup={jest.fn()}
+        canUnconfigure={false}
         isTestMode={false}
         isTogglingTestMode={false}
         toggleTestMode={jest.fn()}

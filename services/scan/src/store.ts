@@ -33,6 +33,7 @@ import {
   BatchInfo,
   Side,
 } from '@votingworks/types/api/services/scan';
+import { Iso8601Timestamp } from '@votingworks/types/src/api';
 import { assert } from '@votingworks/utils';
 import { createHash } from 'crypto';
 import makeDebug from 'debug';
@@ -58,6 +59,11 @@ export enum ConfigKey {
   // @deprecated
   SkipElectionHashCheck = 'skipElectionHashCheck',
   CurrentPrecinctId = 'currentPrecinctId',
+}
+
+export enum BackupKey {
+  Batches = 'batches',
+  Cvrs = 'cvrs',
 }
 
 const SchemaPath = join(__dirname, '../schema.sql');
@@ -375,6 +381,84 @@ export class Store {
     );
   }
 
+  setBatchesAsBackedUp() {
+    this.setBackupTimestamp(BackupKey.Batches);
+  }
+
+  setCvrsAsBackedUp() {
+    this.setBackupTimestamp(BackupKey.Cvrs);
+  }
+
+  /**
+   * Sets the timestamp of a backup
+   */
+  private setBackupTimestamp(key: BackupKey): void {
+    this.client.run(
+      'insert or replace into backups (key, value) values (?, current_timestamp)',
+      key
+    );
+  }
+
+  /**
+   * Gets a config value by key.
+   */
+  private getBackupTimestamp(key: BackupKey): Iso8601Timestamp | undefined {
+    const row = this.client.one<[Iso8601Timestamp]>(
+      'select value from backups where key = ?',
+      key
+    ) as { value: Iso8601Timestamp } | undefined;
+    return row?.value;
+  }
+
+  /**
+   * Returns whether the appropriate backups have been completed and it is safe
+   * to unconfigure a machine/zero out data. Always returns true in test mode.
+   */
+  getCanUnconfigure(): boolean {
+    // Always allow unconfiguring a machine in test mode
+    if (this.getTestMode()) {
+      return true;
+    }
+
+    const batchesBackedUpAt = this.getBackupTimestamp(BackupKey.Batches);
+    const cvrsBackedUpAt = this.getBackupTimestamp(BackupKey.Cvrs);
+
+    if (!this.batchStatus().length) {
+      return true;
+    }
+
+    // Require both batches and CVRs to have been backed up
+    if (!(cvrsBackedUpAt && batchesBackedUpAt)) {
+      return false;
+    }
+
+    const { maxCvrsCreatedAt, maxCvrsDeletedAt } = this.client.one(
+      'select max(created_at) as maxCvrsCreatedAt, max(deleted_at) as maxCvrsDeletedAt from sheets'
+    ) as {
+      maxCvrsCreatedAt: Iso8601Timestamp;
+      maxCvrsDeletedAt: Iso8601Timestamp;
+    };
+    const { maxBatchesStartedAt, maxBatchesDeletedAt } = this.client.one(
+      'select max(started_at) as maxBatchesStartedAt, max(deleted_at) as maxBatchesDeletedAt from batches'
+    ) as {
+      maxBatchesStartedAt: Iso8601Timestamp;
+      maxBatchesDeletedAt: Iso8601Timestamp;
+    };
+
+    const cvrsLastUpdatedAt = [maxCvrsCreatedAt, maxCvrsDeletedAt]
+      .filter(Boolean)
+      .reduce((max, curr) => (max > curr ? max : curr), '');
+    const batchesLastUpdatedAt = [maxBatchesStartedAt, maxBatchesDeletedAt]
+      .filter(Boolean)
+      .reduce((max, curr) => (max > curr ? max : curr), '');
+
+    const isCvrsBackupUpToDate =
+      !cvrsLastUpdatedAt || cvrsBackedUpAt >= cvrsLastUpdatedAt;
+    const isBatchBackupUpToDate =
+      !batchesLastUpdatedAt || batchesBackedUpAt >= batchesLastUpdatedAt;
+    return isCvrsBackupUpToDate && isBatchBackupUpToDate;
+  }
+
   addBallotCard(batchId: string): string {
     const id = uuid();
     this.client.run(
@@ -553,6 +637,7 @@ export class Store {
     id: string;
     front: { original: string; normalized: string };
     back: { original: string; normalized: string };
+    exportedAsCvrAt: Iso8601Timestamp;
   }> {
     for (const {
       id,
@@ -560,6 +645,7 @@ export class Store {
       frontNormalizedFilename,
       backOriginalFilename,
       backNormalizedFilename,
+      exportedAsCvrAt,
     } of this.client.each(`
       select
         id,
@@ -575,6 +661,7 @@ export class Store {
       frontNormalizedFilename: string;
       backOriginalFilename: string;
       backNormalizedFilename: string;
+      exportedAsCvrAt: Iso8601Timestamp;
     }>) {
       yield {
         id,
@@ -586,6 +673,7 @@ export class Store {
           original: backOriginalFilename,
           normalized: backNormalizedFilename,
         },
+        exportedAsCvrAt,
       };
     }
   }

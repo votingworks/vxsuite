@@ -168,6 +168,20 @@ export function buildApp({ store, importer }: AppOptions): Application {
   app.delete<NoParams, DeleteElectionConfigResponse>(
     '/config/election',
     async (_request, response) => {
+      if (!store.getCanUnconfigure()) {
+        response.status(400).json({
+          status: 'error',
+          errors: [
+            {
+              type: 'no-backup',
+              message:
+                'cannot unconfigure an election that has not been backed up',
+            },
+          ],
+        });
+        return;
+      }
+
       await importer.unconfigure();
       response.json({ status: 'ok' });
     }
@@ -543,6 +557,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
     '/scan/export',
     async (_request, response) => {
       const cvrs = await importer.doExport();
+      store.setCvrsAsBackedUp();
       response.set('Content-Type', 'text/plain; charset=utf-8');
       response.send(cvrs);
     }
@@ -684,6 +699,20 @@ export function buildApp({ store, importer }: AppOptions): Application {
   app.post<NoParams, ZeroResponse, ZeroRequest>(
     '/scan/zero',
     async (_request, response) => {
+      if (!store.getCanUnconfigure()) {
+        response.status(400).json({
+          status: 'error',
+          errors: [
+            {
+              type: 'no-backup',
+              message:
+                'cannot unconfigure an election that has not been backed up',
+            },
+          ],
+        });
+        return;
+      }
+
       await importer.doZero();
       response.json({ status: 'ok' });
     }
@@ -728,6 +757,9 @@ export function buildApp({ store, importer }: AppOptions): Application {
             },
           ],
         });
+      })
+      .on('end', () => {
+        store.setBatchesAsBackedUp();
       })
       .pipe(response);
   });

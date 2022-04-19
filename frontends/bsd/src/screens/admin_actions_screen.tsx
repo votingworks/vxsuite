@@ -8,6 +8,7 @@ import { LinkButton } from '../components/link_button';
 import { Main, MainChild } from '../components/main';
 import { MainNav } from '../components/main_nav';
 import { Prose } from '../components/prose';
+import { Text } from '../components/text';
 import { Screen } from '../components/screen';
 import { ToggleTestModeButton } from '../components/toggle_test_mode_button';
 import { SetMarkThresholdsModal } from '../components/set_mark_thresholds_modal';
@@ -21,6 +22,7 @@ interface Props {
   hasBatches: boolean;
   isTestMode: boolean;
   isTogglingTestMode: boolean;
+  canUnconfigure: boolean;
   toggleTestMode: () => Promise<void>;
   setMarkThresholdOverrides: (markThresholds?: MarkThresholds) => Promise<void>;
   markThresholds?: MarkThresholds;
@@ -35,6 +37,7 @@ export function AdminActionsScreen({
   isTestMode,
   isTogglingTestMode,
   toggleTestMode,
+  canUnconfigure,
   setMarkThresholdOverrides,
   markThresholds,
   electionDefinition,
@@ -119,12 +122,8 @@ export function AdminActionsScreen({
                   isTestMode={isTestMode}
                   isTogglingTestMode={isTogglingTestMode}
                   toggleTestMode={toggleTestMode}
+                  canUnconfigure={canUnconfigure}
                 />
-              </p>
-              <p>
-                <Button disabled={!hasBatches} onPress={toggleIsConfirmingZero}>
-                  Delete Ballot Data…
-                </Button>
               </p>
               <p>
                 <Button
@@ -154,9 +153,32 @@ export function AdminActionsScreen({
                 <SetClockButton>Update Date and Time…</SetClockButton>
               </p>
               <p>
-                <Button danger onPress={toggleIsConfirmingUnconfigure}>
-                  Delete Election Data from VxCentralScan…
+                <Button
+                  danger
+                  disabled={!hasBatches || (!isTestMode && !canUnconfigure)}
+                  onPress={toggleIsConfirmingZero}
+                >
+                  Delete Ballot Data…
                 </Button>
+              </p>
+
+              <p>
+                <Button
+                  danger
+                  disabled={!canUnconfigure && !isTestMode}
+                  onPress={toggleIsConfirmingUnconfigure}
+                >
+                  Delete Election Data from VxCentralScan…
+                </Button>{' '}
+                {!canUnconfigure && !isTestMode && (
+                  <React.Fragment>
+                    <br />
+                    <Text as="span" warning warningIcon>
+                      You must &quot;Export Backup&quot; before you may delete
+                      election data.
+                    </Text>
+                  </React.Fragment>
+                )}
               </p>
             </Prose>
           </MainChild>

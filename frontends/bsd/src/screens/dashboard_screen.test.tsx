@@ -18,6 +18,7 @@ const noneLeftAdjudicationStatus: AdjudicationStatus = {
 test('null state', () => {
   const deleteBatch = jest.fn();
   const status: GetScanStatusResponse = {
+    canUnconfigure: false,
     batches: [],
     adjudication: noneLeftAdjudicationStatus,
     scanner: ScannerStatus.Unknown,
@@ -40,6 +41,7 @@ test('null state', () => {
 test('shows scanned ballot count', () => {
   const deleteBatch = jest.fn();
   const status: GetScanStatusResponse = {
+    canUnconfigure: false,
     batches: [
       {
         id: 'a',
@@ -77,6 +79,7 @@ test('shows scanned ballot count', () => {
 test('shows whether a batch is scanning', () => {
   const deleteBatch = jest.fn();
   const status: GetScanStatusResponse = {
+    canUnconfigure: false,
     batches: [
       {
         id: 'a',
@@ -100,6 +103,7 @@ test('shows whether a batch is scanning', () => {
 test('allows deleting a batch', async () => {
   const deleteBatch = jest.fn();
   const status: GetScanStatusResponse = {
+    canUnconfigure: false,
     batches: [
       {
         id: 'a',

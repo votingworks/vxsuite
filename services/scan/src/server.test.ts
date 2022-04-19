@@ -41,6 +41,7 @@ beforeEach(async () => {
   importer = makeMock(Importer);
   workspace = await createWorkspace(dirSync().name);
   workspace.store.setElection(stateOfHamilton.electionDefinition);
+  workspace.store.setTestMode(false);
   workspace.store.addHmpbTemplate(
     Buffer.of(),
     {
@@ -85,6 +86,7 @@ beforeEach(async () => {
 
 test('GET /scan/status', async () => {
   const status: GetScanStatusResponse = {
+    canUnconfigure: false,
     batches: [],
     adjudication: { remaining: 0, adjudicated: 0 },
     scanner: ScannerStatus.Unknown,
@@ -220,8 +222,31 @@ test('PATCH /config/election', async () => {
     });
 });
 
+test('DELETE /config/election error', async () => {
+  importer.unconfigure.mockResolvedValue();
+
+  // Add a new batch that hasn't been backed up yet
+  workspace.store.addBatch();
+
+  await request(app)
+    .delete('/config/election')
+    .set('Accept', 'application/json')
+    .expect(400, {
+      status: 'error',
+      errors: [
+        {
+          type: 'no-backup',
+          message: 'cannot unconfigure an election that has not been backed up',
+        },
+      ],
+    });
+  expect(importer.unconfigure).not.toBeCalled();
+});
+
 test('DELETE /config/election', async () => {
   importer.unconfigure.mockResolvedValue();
+  workspace.store.setBatchesAsBackedUp();
+  workspace.store.setCvrsAsBackedUp();
 
   await request(app)
     .delete('/config/election')
@@ -350,8 +375,31 @@ test('POST /scan/export', async () => {
   expect(importer.doExport).toBeCalled();
 });
 
+test('POST /scan/zero error', async () => {
+  importer.doZero.mockResolvedValue();
+
+  // Add a new batch that hasn't been backed up yet
+  await workspace.store.addBatch();
+
+  await request(app)
+    .post('/scan/zero')
+    .set('Accept', 'application/json')
+    .expect(400, {
+      status: 'error',
+      errors: [
+        {
+          type: 'no-backup',
+          message: 'cannot unconfigure an election that has not been backed up',
+        },
+      ],
+    });
+  expect(importer.doZero).not.toBeCalled();
+});
+
 test('POST /scan/zero', async () => {
   importer.doZero.mockResolvedValue();
+  workspace.store.setBatchesAsBackedUp();
+  workspace.store.setCvrsAsBackedUp();
 
   await request(app)
     .post('/scan/zero')

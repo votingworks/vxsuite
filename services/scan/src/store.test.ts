@@ -8,7 +8,7 @@ import {
   PageInterpretationWithFiles,
   YesNoContest,
 } from '@votingworks/types';
-import { typedAs } from '@votingworks/utils';
+import { sleep, typedAs } from '@votingworks/utils';
 import * as streams from 'memory-streams';
 import * as tmp from 'tmp';
 import { v4 as uuid } from 'uuid';
@@ -16,6 +16,9 @@ import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { zeroRect } from '../test/fixtures/zero_rect';
 import { Store } from './store';
 import { SheetOf } from './types';
+
+// We pause in some of these tests so we need to increase the timeout
+jest.setTimeout(20000);
 
 test('get/set election', () => {
   const store = Store.memoryStore();
@@ -260,6 +263,88 @@ test('batchStatus', () => {
   store.deleteBatch(batchId);
   batches = store.batchStatus();
   expect(batches).toHaveLength(0);
+});
+
+test('canUnconfigure in test mode', () => {
+  const store = Store.memoryStore();
+  store.setTestMode(true);
+
+  // With an unexported batch, we should be able to unconfigure the machine in test mode
+  store.addBatch();
+  expect(store.getCanUnconfigure()).toBe(true);
+});
+
+test('canUnconfigure not in test mode', async () => {
+  const store = Store.memoryStore();
+  store.setTestMode(false);
+
+  const frontMetadata: BallotPageMetadata = {
+    locales: { primary: 'en-US' },
+    electionHash: '',
+    ballotType: BallotType.Standard,
+    ballotStyleId: stateOfHamilton.election.ballotStyles[0].id,
+    precinctId: stateOfHamilton.election.precincts[0].id,
+    isTestMode: false,
+    pageNumber: 1,
+  };
+  const backMetadata: BallotPageMetadata = {
+    ...frontMetadata,
+    pageNumber: 2,
+  };
+
+  // Create a batch
+  const batchId = store.addBatch();
+
+  // Pause so timestamps are not equal
+  await sleep(1000);
+  store.setBatchesAsBackedUp();
+  store.setCvrsAsBackedUp();
+  expect(store.getCanUnconfigure()).toBe(true);
+
+  await sleep(1000);
+  // Add a sheet to the batch and confirm that invalidates the backup/export
+  const sheetId = store.addSheet(uuid(), batchId, [
+    {
+      originalFilename: '/tmp/front-page.png',
+      normalizedFilename: '/tmp/front-normalized-page.png',
+      interpretation: {
+        type: 'UninterpretedHmpbPage',
+        metadata: frontMetadata,
+      },
+    },
+    {
+      originalFilename: '/tmp/back-page.png',
+      normalizedFilename: '/tmp/back-normalized-page.png',
+      interpretation: {
+        type: 'UninterpretedHmpbPage',
+        metadata: backMetadata,
+      },
+    },
+  ]);
+  expect(store.getCanUnconfigure()).toBe(false);
+
+  await sleep(1000);
+  store.setBatchesAsBackedUp();
+  store.setCvrsAsBackedUp();
+  expect(store.getCanUnconfigure()).toBe(true);
+
+  // Delete the sheet, confirm that invalidates the backup/export
+  await sleep(1000);
+  store.deleteSheet(sheetId);
+  expect(store.getCanUnconfigure()).toBe(false);
+
+  // Add another batch, then mark as exported
+  const batchId2 = store.addBatch();
+  // Pause before marking as exported so timestamps are not equal
+  await sleep(1000);
+  store.setBatchesAsBackedUp();
+  store.setCvrsAsBackedUp();
+  expect(store.getCanUnconfigure()).toBe(true);
+
+  // Delete the second batch, confirm that invalidates the backup/export
+  await sleep(1000);
+  store.deleteBatch(batchId2);
+  expect(store.getCanUnconfigure()).toBe(false);
 });
 
 test('adjudication', () => {

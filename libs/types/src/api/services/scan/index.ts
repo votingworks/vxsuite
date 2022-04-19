@@ -76,6 +76,7 @@ export const ScannerStatusSchema = z.nativeEnum(ScannerStatus);
 
 export interface ScanStatus {
   electionHash?: string;
+  canUnconfigure: boolean;
   batches: BatchInfo[];
   adjudication: AdjudicationStatus;
   scanner: ScannerStatus;
@@ -83,6 +84,7 @@ export interface ScanStatus {
 
 export const ScanStatusSchema: z.ZodSchema<ScanStatus> = z.object({
   electionHash: z.optional(ElectionHash),
+  canUnconfigure: z.boolean(),
   batches: z.array(BatchInfoSchema),
   adjudication: AdjudicationStatusSchema,
   scanner: ScannerStatusSchema,
@@ -147,7 +149,7 @@ export const PatchElectionConfigRequestSchema: z.ZodSchema<PatchElectionConfigRe
  * @url /config/election
  * @method DELETE
  */
-export type DeleteElectionConfigResponse = OkResponse;
+export type DeleteElectionConfigResponse = OkResponse | ErrorsResponse;
 
 /**
  * @url /config/election
@@ -573,7 +575,7 @@ export const ZeroRequestSchema: z.ZodSchema<ZeroRequest> = z.never();
  * @url /scan/zero
  * @method POST
  */
-export type ZeroResponse = OkResponse;
+export type ZeroResponse = OkResponse | ErrorsResponse;
 
 /**
  * @url /scan/zero

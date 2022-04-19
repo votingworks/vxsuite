@@ -4,6 +4,7 @@ import { Button } from './button';
 import { Prose } from './prose';
 
 export interface Props {
+  canUnconfigure: boolean;
   isTestMode: boolean;
   isTogglingTestMode: boolean;
   toggleTestMode(): void;
@@ -13,6 +14,7 @@ export interface Props {
  * Presents a button to toggle between test & live modes with a confirmation.
  */
 export function ToggleTestModeButton({
+  canUnconfigure,
   isTestMode,
   isTogglingTestMode,
   toggleTestMode,
@@ -35,7 +37,9 @@ export function ToggleTestModeButton({
     <React.Fragment>
       <Button
         onPress={toggleIsConfirming}
-        disabled={isTogglingTestMode || isConfirming}
+        disabled={
+          (!canUnconfigure && !isTestMode) || isTogglingTestMode || isConfirming
+        }
       >
         {isTogglingTestMode
           ? 'Toggling…'

@@ -72,6 +72,7 @@ const getPrecinctConfigPrecinct23ResponseBody: GetCurrentPrecinctConfigResponse 
 
 const scanStatusWaitingForPaperResponseBody: GetScanStatusResponse = {
   scanner: ScannerStatus.WaitingForPaper,
+  canUnconfigure: false,
   batches: [],
   adjudication: { adjudicated: 0, remaining: 0 },
 };
@@ -184,6 +185,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
 
   const scanStatus: GetScanStatusResponse = {
     scanner: ScannerStatus.WaitingForPaper,
+    canUnconfigure: false,
     batches: [
       {
         id: 'test-batch',
@@ -565,6 +567,7 @@ test('expected tally reports for a primary election with a single precincts with
 
   const scanStatus: GetScanStatusResponse = {
     scanner: ScannerStatus.WaitingForPaper,
+    canUnconfigure: false,
     batches: [
       {
         id: 'test-batch',
@@ -860,6 +863,7 @@ test('expected tally reports for a general election with all precincts with CVRs
 
   const scanStatus: GetScanStatusResponse = {
     scanner: ScannerStatus.WaitingForPaper,
+    canUnconfigure: false,
     batches: [
       {
         id: 'test-batch',
@@ -1121,6 +1125,7 @@ test('expected tally reports for a general election with a single precincts with
 
   const scanStatus: GetScanStatusResponse = {
     scanner: ScannerStatus.WaitingForPaper,
+    canUnconfigure: false,
     batches: [
       {
         id: 'test-batch',
