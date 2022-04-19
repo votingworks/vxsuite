@@ -445,23 +445,12 @@ export class Store {
       maxBatchesDeletedAt: Iso8601Timestamp;
     };
 
-    // Filter out null values
-    const cvrsInvalidatingEvents = [maxCvrsCreatedAt, maxCvrsDeletedAt].filter(
-      Boolean
-    );
-    const batchesInvalidatingEvents: Iso8601Timestamp[] = [
-      maxBatchesStartedAt,
-      maxBatchesDeletedAt,
-    ].filter(Boolean);
-
-    const cvrsLastUpdatedAt = cvrsInvalidatingEvents.reduce(
-      (max, curr) => (max > curr ? max : curr),
-      ''
-    );
-    const batchesLastUpdatedAt = batchesInvalidatingEvents.reduce(
-      (max, curr) => (max > curr ? max : curr),
-      ''
-    );
+    const cvrsLastUpdatedAt = [maxCvrsCreatedAt, maxCvrsDeletedAt]
+      .filter(Boolean)
+      .reduce((max, curr) => (max > curr ? max : curr), '');
+    const batchesLastUpdatedAt = [maxBatchesStartedAt, maxBatchesDeletedAt]
+      .filter(Boolean)
+      .reduce((max, curr) => (max > curr ? max : curr), '');
 
     const isCvrsBackupUpToDate =
       !cvrsLastUpdatedAt || cvrsBackedUpAt >= cvrsLastUpdatedAt;
