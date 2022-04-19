@@ -15,7 +15,9 @@ export function LogicAndAccuracyScreen(): JSX.Element {
           <ZeroReportPrintButton />
         </p>
         <p>
-          <LinkButton to={routerPaths.testDecks}>Print Test Decks</LinkButton>{' '}
+          <LinkButton to={routerPaths.testDecks}>Print Test Decks</LinkButton>
+        </p>
+        <p>
           <LinkButton to={routerPaths.testDeckTallyReports}>
             Print Test Deck Tally Reports
           </LinkButton>
