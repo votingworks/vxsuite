@@ -73,7 +73,7 @@ const Buttons = styled.div`
     margin-right: 10px;
   }
 `;
-const VALID_USERS: UserRole[] = ['admin', 'superadmin'];
+const VALID_USERS: readonly UserRole[] = ['admin', 'superadmin'];
 
 export interface AppRootProps {
   card: Card;

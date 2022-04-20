@@ -20,7 +20,7 @@ export interface UseUserSessionProps {
   electionDefinition?: ElectionDefinition;
   persistAuthentication: boolean; // Persist an authenticated admin session when the admin card is removed.
   bypassAuthentication?: boolean; // Always maintain an authenticated admin session for frontends persisting authentication, and remove the need to authenticate admin cards for non-persisting admins.
-  validUserTypes: UserRole[]; // List of user types that can authenticate into the given frontend.
+  validUserTypes: readonly UserRole[]; // List of user types that can authenticate into the given frontend.
   logger: Logger;
 }
 
@@ -90,7 +90,7 @@ export function useUserSession({
               {
                 disposition: LogDispositionStandardTypes.Success,
                 message:
-                  'Superadmin card was insertted and successfully authenticated.',
+                  'Superadmin card was inserted and successfully authenticated.',
               }
             );
           }

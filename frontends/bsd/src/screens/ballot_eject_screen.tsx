@@ -75,7 +75,7 @@ function doNothing() {
   console.log('disabled'); // eslint-disable-line no-console
 }
 
-const SHEET_ADJUDICATION_ERRORS: Array<PageInterpretation['type']> = [
+const SHEET_ADJUDICATION_ERRORS: ReadonlyArray<PageInterpretation['type']> = [
   'InvalidTestModePage',
   'InvalidElectionHashPage',
   'InvalidPrecinctPage',

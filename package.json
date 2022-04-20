@@ -10,6 +10,7 @@
     "*.ts,*.md,*.json": "prettier --write"
   },
   "devDependencies": {
+    "@codemod/cli": "^3.1.2",
     "eslint": "^7.29.0",
     "husky": "^7.0.0",
     "lint-staged": "^11.0.0",
