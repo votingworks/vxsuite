@@ -589,7 +589,10 @@ commands:
             "pnpm-lock.yaml" }}
       - run:
           name: Setup Dependencies
-          command: pnpm install --frozen-lockfile
+          command: |
+            sudo apt update -y
+            sudo apt install libx11-dev
+            pnpm install --frozen-lockfile
       - save_cache:
           key:
             dotcache-cache-{{checksum ".circleci/config.yml" }}-{{ checksum
