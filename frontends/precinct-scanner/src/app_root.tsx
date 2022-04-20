@@ -76,7 +76,7 @@ export interface AppStorage {
 }
 
 export const stateStorageKey = 'state';
-const VALID_USERS: UserRole[] = ['admin', 'pollworker', 'superadmin'];
+const VALID_USERS: readonly UserRole[] = ['admin', 'pollworker', 'superadmin'];
 
 export interface Props extends RouteComponentProps {
   hardware: Hardware;

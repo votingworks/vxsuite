@@ -90,7 +90,7 @@ export const printedBallotsStorageKey = 'printedBallots';
 export const configuredAtStorageKey = 'configuredAt';
 export const externalVoteTalliesFileStorageKey = 'externalVoteTallies';
 
-const VALID_USERS: UserRole[] = ['admin', 'superadmin'];
+const VALID_USERS: readonly UserRole[] = ['admin', 'superadmin'];
 
 export function AppRoot({
   storage,
