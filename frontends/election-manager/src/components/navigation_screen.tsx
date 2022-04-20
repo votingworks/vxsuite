@@ -68,6 +68,12 @@ export function NavigationScreen({
                 Ballots
               </LinkButton>
               <LinkButton
+                to={routerPaths.logicAndAccuracy}
+                className={isActiveSection(routerPaths.logicAndAccuracy)}
+              >
+                L&amp;A
+              </LinkButton>
+              <LinkButton
                 small
                 to={routerPaths.tally}
                 className={isActiveSection(routerPaths.tally)}

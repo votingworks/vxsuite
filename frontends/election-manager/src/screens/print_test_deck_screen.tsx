@@ -102,7 +102,7 @@ export function PrintTestDeckScreen(): JSX.Element {
   } = useParams<PrecinctReportScreenProps>();
   const precinctId = precinctIdFromParams.trim();
 
-  const pageTitle = 'Test Deck';
+  const pageTitle = 'Test Decks';
   const precinctName =
     precinctId === 'all'
       ? 'All Precincts'
@@ -213,7 +213,7 @@ export function PrintTestDeckScreen(): JSX.Element {
               </Button>
             </p>
             <p>
-              <LinkButton small to={routerPaths.printTestDecks}>
+              <LinkButton small to={routerPaths.testDecks}>
                 Back to Test Deck list
               </LinkButton>
             </p>
@@ -240,10 +240,7 @@ export function PrintTestDeckScreen(): JSX.Element {
         </p>
       </Prose>
       <p>
-        <LinkButton
-          to={routerPaths.printOneTestDeck({ precinctId: 'all' })}
-          fullWidth
-        >
+        <LinkButton to={routerPaths.testDeck({ precinctId: 'all' })} fullWidth>
           <strong>All Precincts</strong>
         </LinkButton>
       </p>
@@ -257,7 +254,7 @@ export function PrintTestDeckScreen(): JSX.Element {
           .map((p) => (
             <LinkButton
               key={p.id}
-              to={routerPaths.printOneTestDeck({ precinctId: p.id })}
+              to={routerPaths.testDeck({ precinctId: p.id })}
               fullWidth
             >
               {p.name}

@@ -93,7 +93,7 @@ export function TestDeckScreen(): JSX.Element {
     precinct?.name
   );
 
-  const pageTitle = 'Test Ballot Deck Tally';
+  const pageTitle = 'Test Deck Tally Reports';
 
   const generatedAtTime = new Date();
 
@@ -149,7 +149,7 @@ export function TestDeckScreen(): JSX.Element {
               </p>
             )}
             <p>
-              <LinkButton small to={routerPaths.testDecksTally}>
+              <LinkButton small to={routerPaths.testDeckTallyReports}>
                 Back to Test Deck list
               </LinkButton>
             </p>
@@ -217,7 +217,7 @@ export function TestDeckScreen(): JSX.Element {
       </Prose>
       <p>
         <LinkButton
-          to={routerPaths.testDeckResultsReport({ precinctId: 'all' })}
+          to={routerPaths.testDeckTallyReport({ precinctId: 'all' })}
           fullWidth
         >
           <strong>All Precincts</strong>
@@ -233,7 +233,7 @@ export function TestDeckScreen(): JSX.Element {
           .map((p) => (
             <LinkButton
               key={p.id}
-              to={routerPaths.testDeckResultsReport({ precinctId: p.id })}
+              to={routerPaths.testDeckTallyReport({ precinctId: p.id })}
               fullWidth
             >
               {p.name}
