@@ -17,6 +17,7 @@ import {
   getPartyPrimaryAdjectiveFromBallotStyle,
   getPrecinctById,
   getPrecinctIndexById,
+  DisplayTextForYesOrNo,
 } from '@votingworks/types';
 import {
   assert,
@@ -24,8 +25,6 @@ import {
   getSingleYesNoVote,
   getContestVoteInRotatedOrder,
 } from '@votingworks/utils';
-
-import * as GLOBALS from '../config/globals';
 
 import { randomBase64 } from '../utils/random';
 import { findPartyById } from '../utils/find';
@@ -177,7 +176,7 @@ function YesNoContestResult({
   const yesNo = getSingleYesNoVote(vote);
   return yesNo ? (
     <Text bold wordBreak>
-      {GLOBALS.YES_NO_VOTES[yesNo]}{' '}
+      {DisplayTextForYesOrNo[yesNo]}{' '}
       {!!contest.shortTitle && `on ${contest.shortTitle}`}
     </Text>
   ) : (
