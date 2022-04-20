@@ -18,32 +18,33 @@ test('has various election definitions', () => {
     Object.entries(fixtures)
       .filter(([, value]) => typeof value !== 'function')
       .map(([key]) => key)
+      .sort()
   ).toMatchInlineSnapshot(`
     Array [
+      "electionMinimalExhaustiveSample",
+      "electionMinimalExhaustiveSampleDefinition",
+      "electionMinimalExhaustiveSampleRightSideTargets",
+      "electionMinimalExhaustiveSampleRightSideTargetsDefinition",
+      "electionMinimalExhaustiveSampleWithDataFiles",
+      "electionMultiPartyPrimaryWithDataFiles",
       "electionSample",
       "electionSample2",
-      "primaryElectionSample",
-      "multiPartyPrimaryElection",
-      "electionSampleLongContent",
-      "electionSampleRotation",
-      "electionWithMsEitherNeither",
-      "electionMinimalExhaustiveSample",
-      "electionMinimalExhaustiveSampleRightSideTargets",
-      "electionSampleDefinition",
       "electionSample2Definition",
-      "primaryElectionSampleDefinition",
-      "multiPartyPrimaryElectionDefinition",
-      "electionSampleLongContentDefinition",
-      "electionSampleRotationDefinition",
-      "electionWithMsEitherNeitherDefinition",
-      "electionMinimalExhaustiveSampleDefinition",
-      "electionMinimalExhaustiveSampleRightSideTargetsDefinition",
-      "electionWithMsEitherNeitherRawData",
-      "electionMultiPartyPrimaryWithDataFiles",
-      "electionSimplePrimaryWithDataFiles",
       "electionSample2WithDataFiles",
+      "electionSampleDefinition",
+      "electionSampleLongContent",
+      "electionSampleLongContentDefinition",
+      "electionSampleRotation",
+      "electionSampleRotationDefinition",
+      "electionSimplePrimaryWithDataFiles",
+      "electionWithMsEitherNeither",
+      "electionWithMsEitherNeitherDefinition",
+      "electionWithMsEitherNeitherRawData",
       "electionWithMsEitherNeitherWithDataFiles",
-      "electionMinimalExhaustiveSampleWithDataFiles",
+      "multiPartyPrimaryElection",
+      "multiPartyPrimaryElectionDefinition",
+      "primaryElectionSample",
+      "primaryElectionSampleDefinition",
     ]
   `);
 });
@@ -110,3 +111,10 @@ for (const { originalFile, typescriptContent } of testcases) {
     expect(typescriptContent).toEqual(originalFileContent);
   });
 }
+
+test('asElectionDefinition', () => {
+  expect(
+    fixtures.asElectionDefinition(fixtures.electionMinimalExhaustiveSample)
+      .election
+  ).toEqual(fixtures.electionMinimalExhaustiveSample);
+});
