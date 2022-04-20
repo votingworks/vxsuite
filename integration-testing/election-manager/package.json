@@ -44,7 +44,7 @@
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
-    "cypress": "^7.5.0",
+    "cypress": "^9.5.4",
     "cypress-file-upload": "^5.0.7",
     "eslint": "^7.17.0",
     "eslint-config-airbnb-base": "^14.2.1",
