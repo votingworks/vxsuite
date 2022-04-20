@@ -10395,7 +10395,7 @@ packages:
       integrity: sha512-/lqqLAmuIPi79WYfRpy2i8z+x+vxU3zX2uAm0gs1q52qTuKwolOj1P8XbufpXcsydrpKx2yGn2wzAnxCMV86QA==
   /axios/0.21.1_debug@4.3.1:
     dependencies:
-      follow-redirects: 1.14.1_debug@4.3.1
+      follow-redirects: 1.14.1_debug@4.3.2
     dev: true
     peerDependencies:
       debug: '*'
@@ -11186,7 +11186,7 @@ packages:
       chownr: 1.1.4
       figgy-pudding: 3.5.2
       glob: 7.2.0
-      graceful-fs: 4.2.8
+      graceful-fs: 4.2.10
       infer-owner: 1.0.4
       lru-cache: 5.1.1
       mississippi: 3.0.0
@@ -13291,7 +13291,7 @@ packages:
       integrity: sha512-+uw1inIHVPQoaVuHzRyXd21icM+cnt4CzD5rW+NC1wjOUSTOs+Te7FOv7AhN7vS9x/oIyhLP5PR1H+phQAHu5Q==
   /enhanced-resolve/4.5.0:
     dependencies:
-      graceful-fs: 4.2.8
+      graceful-fs: 4.2.10
       memory-fs: 0.5.0
       tapable: 1.1.3
     dev: false
@@ -17687,9 +17687,21 @@ packages:
       node: '>=0.10.0'
     resolution:
       integrity: sha1-UhTXU3pNBqSjAcDMJi/rhBiAAuc=
+  /follow-redirects/1.14.1:
+    dev: false
+    engines:
+      node: '>=4.0'
+    peerDependencies:
+      debug: '*'
+    peerDependenciesMeta:
+      debug:
+        optional: true
+    resolution:
+      integrity: sha512-HWqDgT7ZEkqRzBvc2s64vSZ/hfOceEol3ac/7tKwzuvEyWx3/4UegXh5oBOIotkGsObyk3xznnSRVADBgWSQVg==
   /follow-redirects/1.14.1_debug@4.3.1:
     dependencies:
       debug: 4.3.1
+    dev: false
     engines:
       node: '>=4.0'
     peerDependencies:
@@ -17702,7 +17714,6 @@ packages:
   /follow-redirects/1.14.1_debug@4.3.2:
     dependencies:
       debug: 4.3.2
-    dev: false
     engines:
       node: '>=4.0'
     peerDependencies:
@@ -17824,7 +17835,7 @@ packages:
       integrity: sha512-C5owb14u9eJwizKGdchcDUQeFtlSHHthBk8pbX9Vc1PFZrLombudjDnNns88aYslCyF6IY5SUw3Roz6xShcEIQ==
   /fs-extra/7.0.1:
     dependencies:
-      graceful-fs: 4.2.8
+      graceful-fs: 4.2.10
       jsonfile: 4.0.0
       universalify: 0.1.2
     dev: false
@@ -17878,7 +17889,7 @@ packages:
       integrity: sha512-V/JgOLFCS+R6Vcq0slCuaeWEdNC3ouDlJMNIsacH2VtALiu9mV4LPrHc5cDl8k5aw6J8jwgWWpiTo5RYhmIzvg==
   /fs-write-stream-atomic/1.0.10:
     dependencies:
-      graceful-fs: 4.2.8
+      graceful-fs: 4.2.10
       iferr: 0.1.5
       imurmurhash: 0.1.4
       readable-stream: 2.3.7
@@ -18278,12 +18289,12 @@ packages:
       node: '>=10.19.0'
     resolution:
       integrity: sha512-D0QywKgIe30ODs+fm8wMZiAcZjypcCodPNuMz5H9Mny7RJ+IjJ10BdmGW7OM7fHXP+O7r6ZwapQ/YQmMSvB0UQ==
+  /graceful-fs/4.2.10:
+    resolution:
+      integrity: sha512-9ByhssR2fPVsNZj478qUUbKfmL0+t5BDVyjShtyZZLiK7ZDAArFFfopyOTj0M05wE2tJPisA4iTnnXl2YoPvOA==
   /graceful-fs/4.2.4:
     resolution:
       integrity: sha512-WjKPNJF79dtJAVniUlGGWHYGz2jWxT6VhN/4m1NdkbZ2nOsEF+cI1Edgql5zCRhs/VsQYRvrXctxktVXZUkixw==
-  /graceful-fs/4.2.8:
-    resolution:
-      integrity: sha512-qkIilPUYcNhJpd33n0GBXTB1MMPp14TxEsEs0pTrsSVucApsYzW5V+Q8Qxhik6KU3evy+qkAAowTByymK0avdg==
   /growly/1.3.0:
     optional: true
     resolution:
@@ -18694,7 +18705,7 @@ packages:
   /http-proxy/1.18.1:
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.14.1_debug@4.3.1
+      follow-redirects: 1.14.1
       requires-port: 1.0.0
     dev: false
     engines:
@@ -22770,7 +22781,7 @@ packages:
       integrity: sha512-f+8cldu7X/y7RAJurMEJmdoKXGB/X550w2Nr3tTbezL6RwEE/iMcm+tZnXeoZtKuOq6ft8+CqzEkrIgx1fPoQA==
   /jsonfile/4.0.0:
     optionalDependencies:
-      graceful-fs: 4.2.8
+      graceful-fs: 4.2.4
     resolution:
       integrity: sha1-h3Gq4HmbZAdrdmQPygWPnBDjPss=
   /jsonfile/6.1.0:
@@ -23098,7 +23109,7 @@ packages:
       integrity: sha512-3n8heFQDSk+NcwBn3CgxEibZGaRzx+pC64n3YjpMD1qguV4nWus3Al+Oo3KooqFKTQEJ1v7MmnbnyyNspgx3NA==
   /load-json-file/2.0.0:
     dependencies:
-      graceful-fs: 4.2.4
+      graceful-fs: 4.2.10
       parse-json: 2.2.0
       pify: 2.3.0
       strip-bom: 3.0.0
@@ -23109,7 +23120,7 @@ packages:
       integrity: sha1-eUfkIUmvgNaWy/eXvKq8/h/inKg=
   /load-json-file/4.0.0:
     dependencies:
-      graceful-fs: 4.2.8
+      graceful-fs: 4.2.10
       parse-json: 4.0.0
       pify: 3.0.0
       strip-bom: 3.0.0
@@ -26913,7 +26924,7 @@ packages:
       integrity: sha512-BViHy7LKeTz4oNnkcLJ+lVSL6vpiFeX6/d3oSH8zCW7UxP2onchk+vTGB143xuFjHS3deTgkKoXXymXqymiIdA==
   /readdirp/2.2.1:
     dependencies:
-      graceful-fs: 4.2.8
+      graceful-fs: 4.2.10
       micromatch: 3.1.10
       readable-stream: 2.3.7
     dev: false
@@ -30195,7 +30206,7 @@ packages:
       integrity: sha512-nCFfBIPKr5Sh61s4LPpy1Wtfi0HE8isJ3d2Yb5/Ppw2P2B/3eVSEBjKfN0fmHJSK14+31KwMKmcrzs2GM4P0Ww==
   /watchpack/1.7.5:
     dependencies:
-      graceful-fs: 4.2.8
+      graceful-fs: 4.2.10
       neo-async: 2.6.2
     dev: false
     optionalDependencies:
