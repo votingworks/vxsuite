@@ -90,7 +90,7 @@ export function useUserSession({
               {
                 disposition: LogDispositionStandardTypes.Success,
                 message:
-                  'Superadmin card was insertted and successfully authenticated.',
+                  'Superadmin card was inserted and successfully authenticated.',
               }
             );
           }
