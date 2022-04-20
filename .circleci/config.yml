@@ -591,7 +591,7 @@ commands:
           name: Setup Dependencies
           command: |
             sudo apt update -y
-            sudo apt install libx11-dev
+            sudo apt install libx11-dev libpng-dev
             pnpm install --frozen-lockfile
       - save_cache:
           key:
