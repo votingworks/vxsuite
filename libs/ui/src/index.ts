@@ -26,6 +26,7 @@ export * from './number_pad';
 export * from './precinct_scanner_polls_report';
 export * from './precinct_scanner_tally_report';
 export * from './precinct_scanner_tally_qrcode';
+export * from './printed_ballot';
 export * from './progress_bar';
 export * from './progress_ellipsis';
 export * from './prose';

@@ -15,6 +15,7 @@ import {
   Main,
   MainChild,
   Modal,
+  PrintedBallot,
 } from '@votingworks/ui';
 import { find, throwIllegalValue, Printer } from '@votingworks/utils';
 
@@ -25,7 +26,6 @@ import {
 } from '../config/types';
 
 import { ElectionInfo } from '../components/election_info';
-import { PrintedBallot } from '../components/printed_ballot';
 import { Prose } from '../components/prose';
 import { Sidebar } from '../components/sidebar';
 import { Screen } from '../components/screen';
