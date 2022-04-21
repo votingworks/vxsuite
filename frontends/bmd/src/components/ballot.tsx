@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import IdleTimer from 'react-idle-timer';
 
@@ -11,10 +11,28 @@ import { SaveCardScreen } from '../pages/save_card_screen';
 import { StartPage } from '../pages/start_page';
 import { RemoveCardScreen } from '../pages/remove_card_screen';
 import { CastBallotPage } from '../pages/cast_ballot_page';
-import { IDLE_TIMEOUT_SECONDS } from '../config/globals';
+import {
+  IDLE_TIMEOUT_SECONDS,
+  FONT_SIZES,
+  DEFAULT_FONT_SIZE,
+} from '../config/globals';
+import { BallotContext } from '../contexts/ballot_context';
 
 export function Ballot(): JSX.Element {
   const [isIdle, setIsIdle] = useState(false);
+
+  // Handle changes to text size user setting
+  const {
+    userSettings: { textSize },
+  } = useContext(BallotContext);
+  useEffect(() => {
+    document.documentElement.style.fontSize = `${FONT_SIZES[textSize]}px`;
+    // Trigger application of “See More” buttons based upon scroll-port.
+    window.dispatchEvent(new Event('resize'));
+    return () => {
+      document.documentElement.style.fontSize = `${FONT_SIZES[DEFAULT_FONT_SIZE]}px`;
+    };
+  }, [textSize]);
 
   function onActive() {
     // Delay to avoid passing tap to next screen
