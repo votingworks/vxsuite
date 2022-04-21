@@ -5,7 +5,7 @@ install-python:
 install: install-python
 
 install-dependencies:
-	sudo python3 -m pip install pipenv
+	python3 -m pip install pipenv || sudo python3 -m pip install pipenv
 	python3 -m pipenv install
 
 install-dev-dependencies:

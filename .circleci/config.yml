@@ -1,9 +1,12 @@
 version: 2.1
 
+orbs:
+  browser-tools: circleci/browser-tools@1.1.0
+
 executors:
   nodejs-browsers:
     docker:
-      - image: cimg/node:16.14.2-browsers
+      - image: cimg/python:3.9.12-browsers
   nodejs:
     docker:
       - image: cimg/node:16.14.2
@@ -62,28 +65,6 @@ jobs:
           name: Test
           command: |
             pnpm --dir frontends/bmd test
-      - store_artifacts:
-          path: frontends/bmd/cypress/screenshots
-      - store_artifacts:
-          path: frontends/bmd/cypress/videos
-
-  test-integration-testing-bmd:
-    executor: nodejs-browsers
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir frontends/bmd build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir frontends/bmd lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir frontends/bmd test:e2e
       - store_artifacts:
           path: frontends/bmd/cypress/screenshots
       - store_artifacts:
@@ -151,11 +132,34 @@ jobs:
           command: |
             pnpm --dir frontends/precinct-scanner test
 
-  test-integration-testing-bsd:
-    docker:
-      - image: circleci/python:3.9.2-node-browsers
+  test-integration-testing-bmd:
+    executor: nodejs-browsers
     resource_class: xlarge
     steps:
+      - install-cypress-browser
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir frontends/bmd build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir frontends/bmd lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir frontends/bmd test:e2e
+      - store_artifacts:
+          path: frontends/bmd/cypress/screenshots
+      - store_artifacts:
+          path: frontends/bmd/cypress/videos
+
+  test-integration-testing-bsd:
+    executor: nodejs-browsers
+    resource_class: xlarge
+    steps:
+      - install-cypress-browser
       - checkout-and-install
       - run:
           name: Build
@@ -175,10 +179,10 @@ jobs:
           path: integration-testing/bsd/cypress/videos
 
   test-integration-testing-election-manager:
-    docker:
-      - image: circleci/python:3.9.2-node-browsers
+    executor: nodejs-browsers
     resource_class: xlarge
     steps:
+      - install-cypress-browser
       - checkout-and-install
       - run:
           name: Build
@@ -599,3 +603,8 @@ commands:
             "pnpm-lock.yaml" }}
           paths:
             - ~/.pnpm-store
+  install-cypress-browser:
+    description: Installs a browser for Cypress tests.
+    steps:
+      - browser-tools/install-chrome
+      - browser-tools/install-chromedriver
