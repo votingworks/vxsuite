@@ -128,7 +128,7 @@
   },
   "devDependencies": {
     "@codemod/parser": "^1.0.7",
-    "@testing-library/cypress": "^5.3.1",
+    "@testing-library/cypress": "^8.0.2",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^11.2.3",
     "@testing-library/user-event": "^13.5.0",
@@ -143,7 +143,7 @@
     "@votingworks/res-to-ts": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "chalk": "^4.1.2",
-    "cypress": "^4.5.0",
+    "cypress": "^9.5.4",
     "eslint": "^7.17.0",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-config-prettier": "^8.3.0",
