@@ -85,9 +85,9 @@ jobs:
           command: |
             pnpm --dir frontends/bmd test:e2e
       - store_artifacts:
-          path: integration-testing/bmd/cypress/screenshots
+          path: frontends/bmd/cypress/screenshots
       - store_artifacts:
-          path: integration-testing/bmd/cypress/videos
+          path: frontends/bmd/cypress/videos
 
   test-frontends-bsd:
     executor: nodejs-browsers
