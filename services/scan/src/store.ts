@@ -381,11 +381,17 @@ export class Store {
     );
   }
 
-  setBatchesAsBackedUp() {
+  /**
+   * Records that batches have been backed up.
+   */
+  setBatchesAsBackedUp(): void {
     this.setBackupTimestamp(BackupKey.Batches);
   }
 
-  setCvrsAsBackedUp() {
+  /**
+   * Records that CVRs have been backed up.
+   */
+  setCvrsAsBackedUp(): void {
     this.setBackupTimestamp(BackupKey.Cvrs);
   }
 
