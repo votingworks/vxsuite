@@ -7,17 +7,22 @@ import { encodeBallot } from '@votingworks/ballot-encoder';
 import {
   BallotStyleId,
   BallotType,
+  CandidateContest,
   CandidateVote,
+  DisplayTextForYesOrNo,
+  Election,
   ElectionDefinition,
-  PrecinctId,
-  VotesDict,
-  YesNoVote,
   getBallotStyle,
   getContests,
   getPartyPrimaryAdjectiveFromBallotStyle,
   getPrecinctById,
   getPrecinctIndexById,
-  DisplayTextForYesOrNo,
+  MsEitherNeitherContest,
+  OptionalYesNoVote,
+  PrecinctId,
+  VotesDict,
+  YesNoContest,
+  YesNoVote,
 } from '@votingworks/types';
 import {
   assert,
@@ -27,14 +32,6 @@ import {
   randomBase64,
 } from '@votingworks/utils';
 import { NoWrap, Prose, QrCode, Text } from '@votingworks/ui';
-
-import { findPartyById } from '../utils/find';
-
-import {
-  CandidateContestResultInterface,
-  MsEitherNeitherContestResultInterface,
-  YesNoContestResultInterface,
-} from '../config/types';
 
 const Ballot = styled.div`
   page-break-after: always;
@@ -135,7 +132,12 @@ function CandidateContestResult({
   election,
   precinctId,
   vote = [],
-}: CandidateContestResultInterface): JSX.Element {
+}: {
+  contest: CandidateContest;
+  election: Election;
+  precinctId: PrecinctId;
+  vote: CandidateVote;
+}): JSX.Element {
   const remainingChoices = contest.seats - vote.length;
   const precinctIndex = getPrecinctIndexById({ election, precinctId });
   const sortedVotes = getContestVoteInRotatedOrder({
@@ -154,7 +156,9 @@ function CandidateContestResult({
             {candidate.name}
           </Text>{' '}
           {candidate.partyId &&
-            `/ ${findPartyById(election.parties, candidate.partyId)?.name}`}
+            `/ ${
+              election.parties.find((p) => p.id === candidate.partyId)?.name
+            }`}
           {candidate.isWriteIn && '(write-in)'}
         </Text>
       ))}
@@ -170,7 +174,10 @@ function CandidateContestResult({
 function YesNoContestResult({
   contest,
   vote,
-}: YesNoContestResultInterface): JSX.Element {
+}: {
+  contest: YesNoContest;
+  vote: OptionalYesNoVote;
+}): JSX.Element {
   const yesNo = getSingleYesNoVote(vote);
   return yesNo ? (
     <Text bold wordBreak>
@@ -186,7 +193,11 @@ function MsEitherNeitherContestResult({
   contest,
   eitherNeitherContestVote,
   pickOneContestVote,
-}: MsEitherNeitherContestResultInterface): JSX.Element {
+}: {
+  contest: MsEitherNeitherContest;
+  eitherNeitherContestVote: OptionalYesNoVote;
+  pickOneContestVote: OptionalYesNoVote;
+}): JSX.Element {
   const eitherNeitherVote = eitherNeitherContestVote?.[0];
   const pickOneVote = pickOneContestVote?.[0];
 
