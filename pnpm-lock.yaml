@@ -215,7 +215,7 @@ importers:
       zod: 3.2.0
     devDependencies:
       '@codemod/parser': 1.1.0
-      '@testing-library/cypress': 5.3.1_cypress@9.5.4
+      '@testing-library/cypress': 8.0.2_cypress@9.5.4
       '@testing-library/jest-dom': 4.2.4
       '@testing-library/react': 11.2.3_react-dom@17.0.1+react@17.0.1
       '@testing-library/user-event': 13.5.0
@@ -262,7 +262,7 @@ importers:
     specifiers:
       '@codemod/parser': ^1.0.7
       '@rooks/use-interval': ^4.5.0
-      '@testing-library/cypress': ^5.3.1
+      '@testing-library/cypress': ^8.0.2
       '@testing-library/jest-dom': ^4.2.4
       '@testing-library/react': ^11.2.3
       '@testing-library/user-event': ^13.5.0
@@ -869,7 +869,7 @@ importers:
       http-proxy-middleware: 1.0.6
   integration-testing/bsd:
     devDependencies:
-      '@testing-library/cypress': 5.3.1_cypress@9.5.4
+      '@testing-library/cypress': 8.0.2_cypress@9.5.4
       '@typescript-eslint/eslint-plugin': 4.28.4_7c03a75aea7335694a69bfe42f42321f
       '@typescript-eslint/parser': 4.28.4_eslint@7.28.0+typescript@4.3.5
       '@votingworks/fixtures': link:../../libs/fixtures
@@ -894,7 +894,7 @@ importers:
       start-server-and-test: 1.12.5
       typescript: 4.3.5
     specifiers:
-      '@testing-library/cypress': ^5.3.1
+      '@testing-library/cypress': ^8.0.2
       '@typescript-eslint/eslint-plugin': ^4.28.4
       '@typescript-eslint/parser': ^4.28.4
       '@votingworks/fixtures': workspace:*
@@ -920,7 +920,7 @@ importers:
       typescript: ^4.3.5
   integration-testing/election-manager:
     devDependencies:
-      '@testing-library/cypress': 5.3.1_cypress@9.5.4
+      '@testing-library/cypress': 8.0.2_cypress@9.5.4
       '@typescript-eslint/eslint-plugin': 4.28.4_7c03a75aea7335694a69bfe42f42321f
       '@typescript-eslint/parser': 4.28.4_eslint@7.28.0+typescript@4.3.5
       '@votingworks/fixtures': link:../../libs/fixtures
@@ -946,7 +946,7 @@ importers:
       start-server-and-test: 1.12.5
       typescript: 4.3.5
     specifiers:
-      '@testing-library/cypress': ^5.3.1
+      '@testing-library/cypress': ^8.0.2
       '@typescript-eslint/eslint-plugin': ^4.28.4
       '@typescript-eslint/parser': ^4.28.4
       '@votingworks/fixtures': workspace:*
@@ -7781,10 +7781,6 @@ packages:
         optional: true
     resolution:
       integrity: sha512-c/qwwcHyafOQuVQJj0IlBjf5yYgBI7YPJ77k4fOJYesb41jio65eaJODRUmfYKhTOFBrIZ66kgvGPlNbjuoRdQ==
-  /@sheerun/mutationobserver-shim/0.3.3:
-    dev: true
-    resolution:
-      integrity: sha512-DetpxZw1fzPD5xUBrIAoplLChO2VB8DlL5Gg+I1IR9b2wPqYIca2WSUxL5g1vLeR4MsQq1NeWriXAVffV+U1Fw==
   /@sideway/address/4.1.0:
     dependencies:
       '@hapi/hoek': 9.1.1
@@ -7987,33 +7983,19 @@ packages:
       node: '>=10'
     resolution:
       integrity: sha512-PyRA9sm1Yayuj5OIoJ1hGt2YISX45w9WcFbh6ddT0Z/0yaFxOtGLInr4jUfU1EAFVs0Yfyfev4RNwBlUaHdlDQ==
-  /@testing-library/cypress/5.3.1_cypress@9.5.4:
+  /@testing-library/cypress/8.0.2_cypress@9.5.4:
     dependencies:
       '@babel/runtime': 7.17.9
-      '@testing-library/dom': 6.16.0
-      '@types/testing-library__cypress': 5.0.9
+      '@testing-library/dom': 8.11.3
       cypress: 9.5.4
     dev: true
     engines:
-      node: '>=8'
+      node: '>=12'
+      npm: '>=6'
     peerDependencies:
-      cypress: ^2.1.0 || ^3.0.0 || ^4.0.0
+      cypress: ^2.1.0 || ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0 || ^9.0.0
     resolution:
-      integrity: sha512-MMg1LM+bbz4CUIZpE3LXODBUoDOp6H4DinezI/DJ357UNS1W6zZohxAul5Nol23NKclB/GQOs/4cuge/smt9Gg==
-  /@testing-library/dom/6.16.0:
-    dependencies:
-      '@babel/runtime': 7.17.9
-      '@sheerun/mutationobserver-shim': 0.3.3
-      '@types/testing-library__dom': 6.14.0
-      aria-query: 4.2.2
-      dom-accessibility-api: 0.3.0
-      pretty-format: 25.5.0
-      wait-for-expect: 3.0.2
-    dev: true
-    engines:
-      node: '>=8'
-    resolution:
-      integrity: sha512-lBD88ssxqEfz0wFL6MeUyyWZfV/2cjEZZV3YRpb2IoJRej/4f1jB0TzqIOznTpfR1r34CNesrubxwIlAQ8zgPA==
+      integrity: sha512-KVdm7n37sg/A4e3wKMD4zUl0NpzzVhx06V9Tf0hZHZ7nrZ4yFva6Zwg2EFF1VzHkEfN/ahUzRtT1qiW+vuWnJw==
   /@testing-library/dom/7.29.4:
     dependencies:
       '@babel/code-frame': 7.12.11
@@ -8937,19 +8919,6 @@ packages:
     dev: true
     resolution:
       integrity: sha512-UPoFCczcfwFjlopS9hDP6QR3oqng1YnRyKQSDNNFRAUurRaxV8FIjRbvT7Q2Co2zpXh23CEPEx1pKuITHnFQIA==
-  /@types/testing-library__cypress/5.0.9:
-    dependencies:
-      '@testing-library/dom': 7.30.4
-      cypress: 9.5.4
-    dev: true
-    resolution:
-      integrity: sha512-WTiIZhZKWDnV+Tgo42pxff8YfHdmaNFQz/bFoTlmfw2vbXcstCcb39VRaRi5yFHj/lb7t3K47btKYEbR1fci+Q==
-  /@types/testing-library__dom/6.14.0:
-    dependencies:
-      pretty-format: 24.9.0
-    dev: true
-    resolution:
-      integrity: sha512-sMl7OSv0AvMOqn1UJ6j1unPMIHRXen0Ita1ujnMX912rrOcawe4f7wu0Zt9GIQhBhJvH2BaibqFgQ3lP+Pj2hA==
   /@types/testing-library__jest-dom/5.9.5:
     dependencies:
       '@types/jest': 26.0.23
@@ -14075,10 +14044,6 @@ packages:
       node: '>=6.0.0'
     resolution:
       integrity: sha512-yS+Q5i3hBf7GBkd4KG8a7eBNNWNGLTaEwwYWUijIYM7zrlYDM0BFXHjjPWlWZ1Rg7UaddZeIDmi9jF3HmqiQ2w==
-  /dom-accessibility-api/0.3.0:
-    dev: true
-    resolution:
-      integrity: sha512-PzwHEmsRP3IGY4gv/Ug+rMeaTIyTJvadCb+ujYXYeIylbHJezIyNToe8KfEgHTCEYyC+/bUghYOGg8yMGlZ6vA==
   /dom-accessibility-api/0.5.13:
     dev: true
     resolution:
@@ -26650,6 +26615,7 @@ packages:
       ansi-regex: 5.0.1
       ansi-styles: 4.3.0
       react-is: 16.13.1
+    dev: false
     engines:
       node: '>= 8.3'
     resolution:
@@ -30789,10 +30755,6 @@ packages:
       node: '>=12'
     resolution:
       integrity: sha512-3WFqGEgSXIyGhOmAFtlicJNMjEps8b1MG31NCA0/vOF9+nKMUW1ckhi9cnNHmf88Rzw5V+dwIwsm2C7X8k9aQg==
-  /wait-for-expect/3.0.2:
-    dev: true
-    resolution:
-      integrity: sha512-cfS1+DZxuav1aBYbaO/kE06EOS8yRw7qOFoD3XtjTkYvCvh3zUvNST8DXK/nPaeqIzIv3P3kL3lRJn8iwOiSag==
   /wait-on/5.2.1_debug@4.3.1:
     dependencies:
       axios: 0.21.1_debug@4.3.1
