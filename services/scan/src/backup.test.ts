@@ -1,88 +1,36 @@
-import { writeFile } from 'fs-extra';
-import { WritableStream } from 'memory-streams';
-import { basename } from 'path';
-import Database from 'better-sqlite3';
-import { fileSync } from 'tmp';
-import { Entry, fromBuffer, ZipFile } from 'yauzl';
-import ZipStream from 'zip-stream';
 import { asElectionDefinition } from '@votingworks/fixtures';
 import { BallotIdSchema, BallotType, unsafeParse } from '@votingworks/types';
+import Database from 'better-sqlite3';
+import { writeFile } from 'fs-extra';
+import JsZip, { JSZipObject } from 'jszip';
+import { WritableStream } from 'memory-streams';
+import { basename } from 'path';
+import { fileSync } from 'tmp';
+import ZipStream from 'zip-stream';
 import { election, electionDefinition } from '../test/fixtures/2020-choctaw';
 import { backup, Backup } from './backup';
 import { ConfigKey, Store } from './store';
 
-function getEntries(zipfile: ZipFile): Promise<Entry[]> {
-  return new Promise((resolve, reject) => {
-    const entries: Entry[] = [];
-
-    zipfile
-      .on('entry', (entry: Entry) => {
-        entries.push(entry);
-        zipfile.readEntry();
-      })
-      .on('end', () => {
-        resolve(entries);
-      })
-      .on('error', (error) => {
-        /* istanbul ignore next */
-        reject(error);
-      })
-      .readEntry();
-  });
+function getEntries(zipfile: JsZip): JSZipObject[] {
+  return Object.values(zipfile.files);
 }
 
-function openZip(data: Buffer): Promise<ZipFile> {
-  return new Promise((resolve, reject) => {
-    fromBuffer(
-      data,
-      { lazyEntries: true, validateEntrySizes: true },
-      (error, zipfile) => {
-        if (error || !zipfile) {
-          reject(error);
-        } else {
-          resolve(zipfile);
-        }
-      }
-    );
-  });
+async function openZip(data: Buffer): Promise<JsZip> {
+  return await new JsZip().loadAsync(data);
 }
 
-async function readEntry(zipfile: ZipFile, entry: Entry): Promise<Buffer> {
-  const stream = await new Promise<NodeJS.ReadableStream>((resolve, reject) => {
-    zipfile.openReadStream(entry, (error, value) => {
-      /* istanbul ignore else */
-      if (!error && value) {
-        resolve(value);
-      } else {
-        reject(error);
-      }
-    });
-  });
-
-  return new Promise((resolve, reject) => {
-    const chunks: Buffer[] = [];
-    stream
-      .on('data', (chunk: Buffer) => {
-        chunks.push(chunk);
-      })
-      .on('end', () => {
-        resolve(Buffer.concat(chunks));
-      })
-      .on('error', (error) => {
-        /* istanbul ignore next */
-        reject(error);
-      });
-  });
+async function readEntry(entry: JSZipObject): Promise<Buffer> {
+  return entry.async('nodebuffer');
 }
 
-async function readTextEntry(zipfile: ZipFile, entry: Entry): Promise<string> {
-  const bytes = await readEntry(zipfile, entry);
+async function readTextEntry(entry: JSZipObject): Promise<string> {
+  const bytes = await readEntry(entry);
   const string = new TextDecoder().decode(bytes);
   return string;
 }
 
-async function readJsonEntry(zipfile: ZipFile, entry: Entry): Promise<unknown> {
-  return JSON.parse(await readTextEntry(zipfile, entry));
+async function readJsonEntry(entry: JSZipObject): Promise<unknown> {
+  return readTextEntry(entry).then(JSON.parse);
 }
 
 test('unconfigured', async () => {
@@ -135,11 +83,9 @@ test('has election.json', async () => {
   });
 
   const zipfile = await openZip(result.toBuffer());
-  const entries = await getEntries(zipfile);
-  const electionEntry = entries.find(
-    ({ fileName }) => fileName === 'election.json'
-  )!;
-  expect(await readJsonEntry(zipfile, electionEntry)).toEqual(election);
+  const entries = getEntries(zipfile);
+  const electionEntry = entries.find(({ name }) => name === 'election.json')!;
+  expect(await readJsonEntry(electionEntry)).toEqual(election);
 });
 
 test('has ballots.db', async () => {
@@ -152,12 +98,12 @@ test('has ballots.db', async () => {
   });
 
   const zipfile = await openZip(output.toBuffer());
-  const entries = await getEntries(zipfile);
-  expect(entries.map((entry) => entry.fileName)).toContain('ballots.db');
+  const entries = getEntries(zipfile);
+  expect(entries.map((entry) => entry.name)).toContain('ballots.db');
 
-  const dbEntry = entries.find((entry) => entry.fileName === 'ballots.db');
+  const dbEntry = entries.find((entry) => entry.name === 'ballots.db');
   const dbFile = fileSync();
-  await writeFile(dbFile.fd, await readEntry(zipfile, dbEntry!));
+  await writeFile(dbFile.fd, await readEntry(dbEntry!));
   const db = new Database(dbFile.name);
   const stmt = db.prepare<[ConfigKey]>(
     'select value from configs where key = ?'
@@ -201,11 +147,11 @@ test('has all files referenced in the database', async () => {
   });
 
   const zipfile = await openZip(output.toBuffer());
-  const entries = await getEntries(zipfile);
+  const entries = getEntries(zipfile);
 
   expect(
     entries
-      .map((entry) => entry.fileName)
+      .map((entry) => entry.name)
       .filter(
         (fileName) =>
           fileName !== 'election.json' &&
@@ -227,17 +173,14 @@ test('has all files referenced in the database', async () => {
   ] as const) {
     expect(
       new TextDecoder().decode(
-        await readEntry(
-          zipfile,
-          entries.find((entry) => entry.fileName === basename(name))!
-        )
+        await readEntry(entries.find((entry) => entry.name === basename(name))!)
       )
     ).toEqual(content);
   }
 
-  const dbEntry = entries.find((entry) => entry.fileName === 'ballots.db');
+  const dbEntry = entries.find((entry) => entry.name === 'ballots.db');
   const dbFile = fileSync();
-  await writeFile(dbFile.fd, await readEntry(zipfile, dbEntry!));
+  await writeFile(dbFile.fd, await readEntry(dbEntry!));
   const db = new Database(dbFile.name);
   const stmt = db.prepare<[]>(
     'select front_original_filename as filename from sheets'
@@ -288,11 +231,11 @@ test('has cvrs.jsonl', async () => {
   });
 
   const zipfile = await openZip(result.toBuffer());
-  const entries = await getEntries(zipfile);
-  expect(entries.map(({ fileName }) => fileName)).toContain('cvrs.jsonl');
+  const entries = getEntries(zipfile);
+  expect(entries.map(({ name }) => name)).toContain('cvrs.jsonl');
 
-  const cvrsEntry = entries.find(({ fileName }) => fileName === 'cvrs.jsonl')!;
-  expect(await readTextEntry(zipfile, cvrsEntry)).toEqual(
+  const cvrsEntry = entries.find(({ name }) => name === 'cvrs.jsonl')!;
+  expect(await readTextEntry(cvrsEntry)).toEqual(
     `{"1":[],"2":[],"3":[],"4":[],"_ballotId":"abc","_ballotStyleId":"1","_ballotType":"standard","_batchId":"${batchId}","_batchLabel":"Batch 1","_precinctId":"6522","_scannerId":"000","_testBallot":false,"_locales":{"primary":"en-US"},"initiative-65":[],"initiative-65-a":[],"flag-question":["yes"],"runoffs-question":[]}\n`
   );
 });
