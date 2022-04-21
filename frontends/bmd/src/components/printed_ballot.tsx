@@ -24,9 +24,9 @@ import {
   formatLongDate,
   getSingleYesNoVote,
   getContestVoteInRotatedOrder,
+  randomBase64,
 } from '@votingworks/utils';
 
-import { randomBase64 } from '../utils/random';
 import { findPartyById } from '../utils/find';
 
 import { QrCode } from './qrcode';
