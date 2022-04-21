@@ -369,9 +369,6 @@ function appReducer(state: State, action: AppAction): State {
       if (Object.keys(action.userSettings).join(',') !== 'textSize') {
         throw new Error('unknown userSetting key');
       }
-      if (action.userSettings.textSize === state.userSettings.textSize) {
-        return state;
-      }
       return {
         ...state,
         userSettings: {
