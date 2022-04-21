@@ -49,7 +49,7 @@
     "better-sqlite3": "^7.5.0",
     "body-parser": "^1.19.0",
     "busboy": "^0.3.1",
-    "canvas": "^2.6.1",
+    "canvas": "^2.9.0",
     "chalk": "^4.1.0",
     "debug": "^4.3.1",
     "deep-eql": "^4.0.0",

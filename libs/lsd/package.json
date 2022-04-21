@@ -39,7 +39,7 @@
   },
   "dependencies": {
     "bindings": "^1.5.0",
-    "canvas": "^2.6.1",
+    "canvas": "^2.9.0",
     "chalk": "^4.1.0",
     "node-addon-api": "^3.1.0"
   },
