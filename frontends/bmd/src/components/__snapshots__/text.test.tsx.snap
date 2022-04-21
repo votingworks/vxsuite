@@ -77,3 +77,15 @@ exports[`outputs paragraph tag 1`] = `
   paragraph
 </p>
 `;
+
+exports[`renders italic text 1`] = `
+.c0 {
+  font-style: italic;
+}
+
+<p
+  class="c0"
+>
+  Italic text
+</p>
+`;
