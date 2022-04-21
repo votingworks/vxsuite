@@ -10,7 +10,7 @@ import {
   safeParseJson,
 } from '@votingworks/types';
 import 'fast-text-encoding';
-import { Entry, fromBuffer, ZipFile } from 'yauzl';
+import JsZip, { JSZipObject } from 'jszip';
 import { z } from 'zod';
 import { assert } from './assert';
 
@@ -66,83 +66,25 @@ function readFile(file: File): Promise<Buffer> {
   });
 }
 
-function openZip(data: Uint8Array): Promise<ZipFile> {
-  return new Promise((resolve, reject) => {
-    fromBuffer(
-      Buffer.from(data),
-      { lazyEntries: true, validateEntrySizes: true },
-      (error, zipfile) => {
-        if (error || !zipfile) {
-          reject(error);
-        } else {
-          resolve(zipfile);
-        }
-      }
-    );
-  });
+async function openZip(data: Uint8Array): Promise<JsZip> {
+  return await new JsZip().loadAsync(data);
 }
 
-function getEntries(zipfile: ZipFile): Promise<Entry[]> {
-  return new Promise((resolve, reject) => {
-    const entries: Entry[] = [];
-
-    zipfile
-      .on('entry', (entry: Entry) => {
-        entries.push(entry);
-        zipfile.readEntry();
-      })
-      .on('end', () => {
-        resolve(entries);
-      })
-      .on(
-        'error',
-        /* istanbul ignore next */
-        (error) => {
-          reject(error);
-        }
-      )
-      .readEntry();
-  });
+function getEntries(zipfile: JsZip): JSZipObject[] {
+  return Object.values(zipfile.files);
 }
 
-async function readEntry(zipfile: ZipFile, entry: Entry): Promise<Buffer> {
-  const stream = await new Promise<NodeJS.ReadableStream>((resolve, reject) => {
-    zipfile.openReadStream(entry, (error, value) => {
-      /* istanbul ignore else */
-      if (!error && value) {
-        resolve(value);
-      } else {
-        reject(error);
-      }
-    });
-  });
-
-  return new Promise((resolve, reject) => {
-    const chunks: Buffer[] = [];
-    stream
-      .on('data', (chunk: Buffer) => {
-        chunks.push(chunk);
-      })
-      .on('end', () => {
-        resolve(Buffer.concat(chunks));
-      })
-      .on(
-        'error',
-        /* istanbul ignore next */
-        (error) => {
-          reject(error);
-        }
-      );
-  });
+async function readEntry(entry: JSZipObject): Promise<Buffer> {
+  return entry.async('nodebuffer');
 }
 
-async function readTextEntry(zipfile: ZipFile, entry: Entry): Promise<string> {
-  const bytes = await readEntry(zipfile, entry);
+async function readTextEntry(entry: JSZipObject): Promise<string> {
+  const bytes = await readEntry(entry);
   return new TextDecoder().decode(bytes);
 }
 
-async function readJsonEntry(zipfile: ZipFile, entry: Entry): Promise<unknown> {
-  return JSON.parse(await readTextEntry(zipfile, entry));
+async function readJsonEntry(entry: JSZipObject): Promise<unknown> {
+  return JSON.parse(await readTextEntry(entry));
 }
 
 export async function readBallotPackageFromBuffer(
@@ -151,13 +93,9 @@ export async function readBallotPackageFromBuffer(
   fileSize: number
 ): Promise<BallotPackage> {
   const zipfile = await openZip(source);
-  const entries = await getEntries(zipfile);
-  const electionEntry = entries.find(
-    (entry) => entry.fileName === 'election.json'
-  );
-  const manifestEntry = entries.find(
-    (entry) => entry.fileName === 'manifest.json'
-  );
+  const entries = getEntries(zipfile);
+  const electionEntry = entries.find((entry) => entry.name === 'election.json');
+  const manifestEntry = entries.find((entry) => entry.name === 'manifest.json');
 
   if (!electionEntry) {
     throw new Error(
@@ -171,15 +109,14 @@ export async function readBallotPackageFromBuffer(
     );
   }
 
-  const electionData = await readTextEntry(zipfile, electionEntry);
+  const electionData = await readTextEntry(electionEntry);
   const manifest = (await readJsonEntry(
-    zipfile,
     manifestEntry
   )) as BallotPackageManifest;
   const ballots = await Promise.all(
     manifest.ballots.map<Promise<BallotPackageEntry>>(async (ballotConfig) => {
       const ballotEntry = entries.find(
-        (entry) => entry.fileName === ballotConfig.filename
+        (entry) => entry.name === ballotConfig.filename
       );
 
       if (!ballotEntry) {
@@ -189,13 +126,13 @@ export async function readBallotPackageFromBuffer(
       }
 
       const layoutEntry = entries.find(
-        (entry) => entry.fileName === ballotConfig.layoutFilename
+        (entry) => entry.name === ballotConfig.layoutFilename
       );
 
-      const pdf = await readEntry(zipfile, ballotEntry);
+      const pdf = await readEntry(ballotEntry);
       const layout = layoutEntry
         ? safeParseJson(
-            await readTextEntry(zipfile, layoutEntry),
+            await readTextEntry(layoutEntry),
             z.array(BallotPageLayoutSchema)
           ).unsafeUnwrap()
         : undefined;
