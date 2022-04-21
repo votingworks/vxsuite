@@ -66,6 +66,7 @@ export = {
     'vx/no-import-workspace-subfolders': 'error',
 
     '@typescript-eslint/consistent-type-definitions': ['error', 'interface'],
+    '@typescript-eslint/explicit-module-boundary-types': 'error',
     '@typescript-eslint/no-array-constructor': 'off',
     '@typescript-eslint/no-extra-semi': 'off',
     '@typescript-eslint/no-floating-promises': 'error',
