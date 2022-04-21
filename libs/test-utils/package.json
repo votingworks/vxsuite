@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "@testing-library/react": "^11.2.6",
-    "@types/node": "^14.14.35",
+    "@types/node": "12.19.16",
     "@votingworks/types": "workspace:*",
     "fast-check": "^2.18.0",
     "luxon": "1.26.0",
