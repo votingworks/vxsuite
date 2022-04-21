@@ -525,7 +525,6 @@ export function AppRoot({
   } = appState;
 
   const { appMode } = machineConfig;
-  const { textSize: userSettingsTextSize } = userSettings;
   const logger = useMemo(
     () => new Logger(LogSource.VxBallotMarkingDeviceFrontend, window.kiosk),
     []
@@ -653,19 +652,16 @@ export function AppRoot({
     []
   );
 
-  const useEffectToggleLargeDisplay = useCallback(() => {
-    setUserSettings({ textSize: GLOBALS.LARGE_DISPLAY_FONT_SIZE });
+  function useEffectToggleLargeDisplay() {
+    document.documentElement.style.fontSize = `${
+      GLOBALS.FONT_SIZES[GLOBALS.LARGE_DISPLAY_FONT_SIZE]
+    }px`;
     return () => {
-      setUserSettings({ textSize: GLOBALS.DEFAULT_FONT_SIZE });
+      document.documentElement.style.fontSize = `${
+        GLOBALS.FONT_SIZES[GLOBALS.DEFAULT_FONT_SIZE]
+      }px`;
     };
-  }, [setUserSettings]);
-
-  // Handle Changes to UserSettings
-  useEffect(() => {
-    document.documentElement.style.fontSize = `${GLOBALS.FONT_SIZES[userSettingsTextSize]}px`;
-    // Trigger application of “See More” buttons based upon scroll-port.
-    window.dispatchEvent(new Event('resize'));
-  }, [userSettingsTextSize]);
+  }
 
   const updateAppPrecinct = useCallback((newAppPrecinct: PrecinctSelection) => {
     dispatchAppState({
