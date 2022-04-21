@@ -29,6 +29,7 @@ export * from './precinct_scanner_tally_qrcode';
 export * from './progress_bar';
 export * from './progress_ellipsis';
 export * from './prose';
+export * from './qrcode';
 export * from './reboot_from_usb_button';
 export * from './screen';
 export * from './select';

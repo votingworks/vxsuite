@@ -26,10 +26,10 @@ import {
   getContestVoteInRotatedOrder,
   randomBase64,
 } from '@votingworks/utils';
+import { QrCode } from '@votingworks/ui';
 
 import { findPartyById } from '../utils/find';
 
-import { QrCode } from './qrcode';
 import { Prose } from './prose';
 import { Text, NoWrap } from './text';
 import {
