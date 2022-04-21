@@ -65,7 +65,7 @@
     "pdfjs-dist": "2.3.200",
     "tmp": "^0.2.1",
     "uuid": "^8.3.2",
-    "zip-stream": "^4.0.4",
+    "zip-stream": "^4.1.0",
     "zod": "^3.2.0"
   },
   "devDependencies": {
