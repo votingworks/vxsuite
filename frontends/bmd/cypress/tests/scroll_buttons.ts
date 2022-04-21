@@ -11,8 +11,8 @@ describe('Scroll Buttons', () => {
     cy.contains('Next').click();
     cy.wait(waitTime);
     cy.contains('Brad Plunkard').should('be.visible');
-    cy.findByText('↑ See More', { timeout: 0 }).should('not.be.visible');
-    cy.findByText('↓ See More', { timeout: 0 }).should('not.be.visible');
+    cy.findByText('↑ See More', { timeout: 0 }).should('not.exist');
+    cy.findByText('↓ See More', { timeout: 0 }).should('not.exist');
     cy.contains('Next').click();
     cy.wait(waitTime);
     cy.get('button').should('have.length', 16 + 7); // 16 candidates + 7 UI
