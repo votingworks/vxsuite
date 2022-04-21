@@ -112,7 +112,10 @@ function readPackage(pkg, context) {
   if (/^\^?4\.2\./.test(pkg.dependencies['graceful-fs'])) {
     // Object prototype may only be an Object or null: undefined
     // Caused by https://github.com/isaacs/node-graceful-fs/commit/c55c1b8cb32510f92bd33d7c833364ecd3964dea
-    pkg.dependencies['graceful-fs'] = '4.2.4'
+    //
+    // Also avoids the issue fixed by https://github.com/isaacs/node-graceful-fs/pull/220
+    // where jest thinks it cannot find `ts-jest`.
+    pkg.dependencies['graceful-fs'] = '4.2.10'
     context.log(`${pkg.name}@${pkg.version} may use Object.setPrototypeOf with fs.read, which is undefined in the browser, which crashes`)
   }
 
