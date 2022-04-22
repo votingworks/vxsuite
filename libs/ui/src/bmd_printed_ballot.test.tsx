@@ -14,7 +14,7 @@ import {
 import { randomBase64 } from '@votingworks/utils';
 import { render } from '@testing-library/react';
 
-import { PrintedBallot } from './printed_ballot';
+import { BmdPrintedBallot } from './bmd_printed_ballot';
 
 jest.mock('@votingworks/utils', (): { randomBase64: typeof randomBase64 } => {
   const original = jest.requireActual<Record<string, unknown>>(
@@ -42,7 +42,7 @@ interface TestCase {
 const testCases: TestCase[] = [
   {
     description:
-      'PrintedBallot renders votes for candidate contests and yes-no contests',
+      'BmdPrintedBallot renders votes for candidate contests and yes-no contests',
     electionDefinition: electionSampleDefinition,
     ballotStyleId: '5',
     precinctId: '21',
@@ -55,7 +55,7 @@ const testCases: TestCase[] = [
   },
   {
     description:
-      'PrintedBallot renders votes for MS either-neither contests (both either-neither and pick-one vote provided)',
+      'BmdPrintedBallot renders votes for MS either-neither contests (both either-neither and pick-one vote provided)',
     electionDefinition: electionWithMsEitherNeitherDefinition,
     ballotStyleId: '1',
     precinctId: '6525',
@@ -66,7 +66,7 @@ const testCases: TestCase[] = [
   },
   {
     description:
-      'PrintedBallot renders votes for MS either-neither contests (only either-neither vote provided)',
+      'BmdPrintedBallot renders votes for MS either-neither contests (only either-neither vote provided)',
     electionDefinition: electionWithMsEitherNeitherDefinition,
     ballotStyleId: '1',
     precinctId: '6525',
@@ -76,7 +76,7 @@ const testCases: TestCase[] = [
   },
   {
     description:
-      'PrintedBallot renders votes for MS either-neither contests (only pick-one vote provided)',
+      'BmdPrintedBallot renders votes for MS either-neither contests (only pick-one vote provided)',
     electionDefinition: electionWithMsEitherNeitherDefinition,
     ballotStyleId: '1',
     precinctId: '6525',
@@ -85,14 +85,14 @@ const testCases: TestCase[] = [
     },
   },
   {
-    description: 'PrintedBallot renders when no votes',
+    description: 'BmdPrintedBallot renders when no votes',
     electionDefinition: electionWithMsEitherNeitherDefinition,
     ballotStyleId: '1',
     precinctId: '6525',
     votes: {},
   },
   {
-    description: 'PrintedBallot renders when no votes and in live mode',
+    description: 'BmdPrintedBallot renders when no votes and in live mode',
     electionDefinition: electionWithMsEitherNeitherDefinition,
     ballotStyleId: '1',
     precinctId: '6525',
@@ -100,7 +100,7 @@ const testCases: TestCase[] = [
     isLiveMode: true,
   },
   {
-    description: 'PrintedBallot renders votes for write-in candidates',
+    description: 'BmdPrintedBallot renders votes for write-in candidates',
     electionDefinition: electionWithMsEitherNeitherDefinition,
     ballotStyleId: '1',
     precinctId: '6525',
@@ -114,7 +114,7 @@ const testCases: TestCase[] = [
   },
   {
     description:
-      'PrintedBallot renders remaining choices for multi-seat contests',
+      'BmdPrintedBallot renders remaining choices for multi-seat contests',
     electionDefinition: electionSampleDefinition,
     ballotStyleId: '12',
     precinctId: '23',
@@ -123,7 +123,7 @@ const testCases: TestCase[] = [
     },
   },
   {
-    description: 'PrintedBallot renders when no seal',
+    description: 'BmdPrintedBallot renders when no seal',
     electionDefinition: electionSampleNoSealDefinition,
     ballotStyleId: '5',
     precinctId: '21',
@@ -141,7 +141,7 @@ for (const {
 } of testCases) {
   test(description, () => {
     const { container } = render(
-      <PrintedBallot
+      <BmdPrintedBallot
         ballotStyleId={ballotStyleId}
         electionDefinition={electionDefinition}
         isLiveMode={Boolean(isLiveMode)}

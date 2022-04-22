@@ -8,7 +8,12 @@ import {
   PrecinctId,
   VotesDict,
 } from '@votingworks/types';
-import { Loading, Main, MainChild, PrintedBallot } from '@votingworks/ui';
+import {
+  BmdPrintedBallot as PrintedBallot,
+  Loading,
+  Main,
+  MainChild,
+} from '@votingworks/ui';
 
 import { Prose } from '../components/prose';
 import { Screen } from '../components/screen';

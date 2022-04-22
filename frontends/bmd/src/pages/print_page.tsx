@@ -3,10 +3,10 @@ import React, { useCallback, useContext, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
 import {
-  ProgressEllipsis,
+  BmdPrintedBallot as PrintedBallot,
   Main,
   MainChild,
-  PrintedBallot,
+  ProgressEllipsis,
 } from '@votingworks/ui';
 
 import { Prose } from '../components/prose';

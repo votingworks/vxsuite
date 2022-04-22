@@ -9,13 +9,13 @@ import {
   VotesDict,
 } from '@votingworks/types';
 import {
+  BmdPrintedBallot as PrintedBallot,
   Button,
   ButtonList,
   Loading,
   Main,
   MainChild,
   Modal,
-  PrintedBallot,
 } from '@votingworks/ui';
 import { find, throwIllegalValue, Printer } from '@votingworks/utils';
 
