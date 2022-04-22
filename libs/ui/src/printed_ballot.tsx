@@ -160,6 +160,7 @@ function CandidateContestResult({
           </Text>{' '}
           {candidate.partyId &&
             `/ ${
+              /* istanbul ignore next: This .find should always return something */
               election.parties.find((p) => p.id === candidate.partyId)?.name
             }`}
           {candidate.isWriteIn && '(write-in)'}
