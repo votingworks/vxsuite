@@ -130,17 +130,19 @@ function NoSelection({ prefix }: { prefix?: string }): JSX.Element {
   );
 }
 
+interface CandidateContestResultProps {
+  contest: CandidateContest;
+  election: Election;
+  precinctId: PrecinctId;
+  vote?: CandidateVote;
+}
+
 function CandidateContestResult({
   contest,
   election,
   precinctId,
   vote = [],
-}: {
-  contest: CandidateContest;
-  election: Election;
-  precinctId: PrecinctId;
-  vote: CandidateVote;
-}): JSX.Element {
+}: CandidateContestResultProps): JSX.Element {
   const remainingChoices = contest.seats - vote.length;
   const precinctIndex = getPrecinctIndexById({ election, precinctId });
   const sortedVotes = getContestVoteInRotatedOrder({
@@ -175,13 +177,15 @@ function CandidateContestResult({
   );
 }
 
+interface YesNoContestResultProps {
+  contest: YesNoContest;
+  vote: OptionalYesNoVote;
+}
+
 function YesNoContestResult({
   contest,
   vote,
-}: {
-  contest: YesNoContest;
-  vote: OptionalYesNoVote;
-}): JSX.Element {
+}: YesNoContestResultProps): JSX.Element {
   const yesNo = getSingleYesNoVote(vote);
   return yesNo ? (
     <Text bold wordBreak>
@@ -193,15 +197,17 @@ function YesNoContestResult({
   );
 }
 
+interface MsEitherNeitherContestResultProps {
+  contest: MsEitherNeitherContest;
+  eitherNeitherContestVote: OptionalYesNoVote;
+  pickOneContestVote: OptionalYesNoVote;
+}
+
 function MsEitherNeitherContestResult({
   contest,
   eitherNeitherContestVote,
   pickOneContestVote,
-}: {
-  contest: MsEitherNeitherContest;
-  eitherNeitherContestVote: OptionalYesNoVote;
-  pickOneContestVote: OptionalYesNoVote;
-}): JSX.Element {
+}: MsEitherNeitherContestResultProps): JSX.Element {
   const eitherNeitherVote = eitherNeitherContestVote?.[0];
   const pickOneVote = pickOneContestVote?.[0];
 
