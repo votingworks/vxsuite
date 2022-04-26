@@ -8,12 +8,7 @@ import {
   PrecinctId,
   VotesDict,
 } from '@votingworks/types';
-import {
-  BmdPrintedBallot as PrintedBallot,
-  Loading,
-  Main,
-  MainChild,
-} from '@votingworks/ui';
+import { BmdPaperBallot, Loading, Main, MainChild } from '@votingworks/ui';
 
 import { Prose } from '../components/prose';
 import { Screen } from '../components/screen';
@@ -227,7 +222,7 @@ export function PrintOnlyScreen({
             typeof votes !== 'undefined'
         ),
         (
-          <PrintedBallot
+          <BmdPaperBallot
             ballotStyleId={ballotStyleId}
             electionDefinition={electionDefinition}
             isLiveMode={isLiveMode}

@@ -9,7 +9,7 @@ import {
   VotesDict,
 } from '@votingworks/types';
 import {
-  BmdPrintedBallot as PrintedBallot,
+  BmdPaperBallot,
   Button,
   ButtonList,
   Loading,
@@ -252,7 +252,7 @@ export function TestBallotDeckScreen({
       </Screen>
       {ballots.length &&
         ballots.map((ballot, i) => (
-          <PrintedBallot
+          <BmdPaperBallot
             // eslint-disable-next-line react/no-array-index-key
             key={`ballot-${i}`}
             ballotStyleId={ballot.ballotStyleId}

@@ -248,9 +248,9 @@ interface Props {
 }
 
 /**
- * Renders a ballot as printed by a ballot-marking device
+ * Renders a paper ballot as printed by a ballot-marking device
  */
-export function BmdPrintedBallot({
+export function BmdPaperBallot({
   ballotStyleId,
   electionDefinition,
   isLiveMode,

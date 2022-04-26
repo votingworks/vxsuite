@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`BmdPrintedBallot renders remaining choices for multi-seat contests 1`] = `
+exports[`BmdPaperBallot renders remaining choices for multi-seat contests 1`] = `
 <div>
   <div
     aria-hidden="true"
@@ -607,7 +607,7 @@ exports[`BmdPrintedBallot renders remaining choices for multi-seat contests 1`] 
 </div>
 `;
 
-exports[`BmdPrintedBallot renders votes for MS either-neither contests (both either-neither and pick-one vote provided) 1`] = `
+exports[`BmdPaperBallot renders votes for MS either-neither contests (both either-neither and pick-one vote provided) 1`] = `
 <div>
   <div
     aria-hidden="true"
@@ -851,7 +851,7 @@ House Bill 1796 - Flag Referendum
 </div>
 `;
 
-exports[`BmdPrintedBallot renders votes for MS either-neither contests (only either-neither vote provided) 1`] = `
+exports[`BmdPaperBallot renders votes for MS either-neither contests (only either-neither vote provided) 1`] = `
 <div>
   <div
     aria-hidden="true"
@@ -1094,7 +1094,7 @@ House Bill 1796 - Flag Referendum
 </div>
 `;
 
-exports[`BmdPrintedBallot renders votes for MS either-neither contests (only pick-one vote provided) 1`] = `
+exports[`BmdPaperBallot renders votes for MS either-neither contests (only pick-one vote provided) 1`] = `
 <div>
   <div
     aria-hidden="true"
@@ -1337,7 +1337,7 @@ House Bill 1796 - Flag Referendum
 </div>
 `;
 
-exports[`BmdPrintedBallot renders votes for candidate contests and yes-no contests 1`] = `
+exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests 1`] = `
 <div>
   <div
     aria-hidden="true"
@@ -1790,7 +1790,7 @@ exports[`BmdPrintedBallot renders votes for candidate contests and yes-no contes
 </div>
 `;
 
-exports[`BmdPrintedBallot renders votes for write-in candidates 1`] = `
+exports[`BmdPaperBallot renders votes for write-in candidates 1`] = `
 <div>
   <div
     aria-hidden="true"
@@ -2031,7 +2031,7 @@ House Bill 1796 - Flag Referendum
 </div>
 `;
 
-exports[`BmdPrintedBallot renders when no seal 1`] = `
+exports[`BmdPaperBallot renders when no seal 1`] = `
 <div>
   <div
     aria-hidden="true"
@@ -2301,7 +2301,7 @@ exports[`BmdPrintedBallot renders when no seal 1`] = `
 </div>
 `;
 
-exports[`BmdPrintedBallot renders when no votes 1`] = `
+exports[`BmdPaperBallot renders when no votes 1`] = `
 <div>
   <div
     aria-hidden="true"
@@ -2536,7 +2536,7 @@ House Bill 1796 - Flag Referendum
 </div>
 `;
 
-exports[`BmdPrintedBallot renders when no votes and in live mode 1`] = `
+exports[`BmdPaperBallot renders when no votes and in live mode 1`] = `
 <div>
   <div
     aria-hidden="true"

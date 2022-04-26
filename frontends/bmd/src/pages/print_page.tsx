@@ -3,7 +3,7 @@ import React, { useCallback, useContext, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
 import {
-  BmdPrintedBallot as PrintedBallot,
+  BmdPaperBallot,
   Main,
   MainChild,
   ProgressEllipsis,
@@ -104,7 +104,7 @@ export function PrintPage(): JSX.Element {
           </MainChild>
         </Main>
       </Screen>
-      <PrintedBallot
+      <BmdPaperBallot
         ballotStyleId={ballotStyleId}
         electionDefinition={electionDefinition}
         isLiveMode={isLiveMode}

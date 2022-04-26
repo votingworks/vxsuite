@@ -1,6 +1,6 @@
 /* istanbul ignore file */
 export * from './bar';
-export * from './bmd_printed_ballot';
+export * from './bmd_paper_ballot';
 export * from './button';
 export * from './button_bar';
 export * from './button_list';
