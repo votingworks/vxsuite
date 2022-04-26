@@ -1,9 +1,14 @@
 import { ScannerClient } from '@votingworks/plustek-sdk';
+import {
+  FakeReadable,
+  fakeReadable,
+  FakeWritable,
+  fakeWritable,
+} from '@votingworks/test-utils';
 import { ScannerStatus } from '@votingworks/types/api/services/scan';
 import { throwIllegalValue } from '@votingworks/utils';
 import { ChildProcess } from 'child_process';
 import { EventEmitter } from 'events';
-import { Readable, Writable } from 'stream';
 import { fileSync } from 'tmp';
 import { MaybeMocked, mocked } from 'ts-jest/dist/utils/testing';
 import { BatchControl, Scanner } from '../../src/scanners';
@@ -165,108 +170,10 @@ export function makeMockScanner(): MockScanner {
   };
 }
 
-export interface MockReadable extends Readable {
-  append(chunk: string): void;
-}
-
-export interface MockWritable extends Writable {
-  writes: ReadonlyArray<{ chunk: unknown; encoding?: string }>;
-}
-
-/**
- * Makes a mock readable stream.
- */
-export function makeMockReadable(): MockReadable {
-  const readable = new EventEmitter() as MockReadable;
-  let buffer: string | undefined;
-  readable.append = jest.fn((chunk): void => {
-    buffer = (buffer ?? '') + chunk;
-    readable.emit('readable');
-  });
-  readable.read = jest.fn((size): unknown => {
-    if (typeof buffer === 'string') {
-      const readSize = size ?? buffer.length;
-      const result = buffer.slice(0, readSize);
-      buffer = buffer.length <= readSize ? undefined : buffer.slice(readSize);
-      return result;
-    }
-    return undefined;
-  });
-  return readable;
-}
-
-/**
- * Makes a mock writable stream.
- */
-export function makeMockWritable(): MockWritable {
-  const writable = new EventEmitter() as MockWritable;
-  const writes: Array<{ chunk: unknown; encoding?: string }> = [];
-
-  writable.writes = writes;
-  writable.write = jest.fn((...args: unknown[]): boolean => {
-    let chunk: unknown;
-    let encoding: unknown;
-    let callback: unknown;
-
-    if (args.length === 3) {
-      [chunk, encoding, callback] = args;
-    } else if (args.length === 2) {
-      [chunk, callback] = args;
-    } else {
-      [callback] = args;
-    }
-
-    if (typeof encoding !== 'undefined' && typeof encoding !== 'string') {
-      throw new TypeError('encoding expected to be a string');
-    }
-
-    if (typeof chunk !== 'undefined') {
-      writes.push({ chunk, encoding });
-    }
-
-    process.nextTick(() => {
-      if (typeof callback === 'function') {
-        callback();
-      }
-    });
-
-    return true;
-  });
-
-  writable.end = jest.fn((...args: unknown[]): void => {
-    let chunk: unknown;
-    let encoding: unknown;
-    let callback: unknown;
-
-    if (args.length === 3) {
-      [chunk, encoding, callback] = args;
-    } else if (args.length === 2) {
-      [chunk, callback] = args;
-    } else {
-      [callback] = args;
-    }
-
-    if (typeof encoding !== 'undefined' && typeof encoding !== 'string') {
-      throw new TypeError('encoding expected to be a string');
-    }
-
-    if (typeof chunk !== 'undefined') {
-      writes.push({ chunk, encoding });
-    }
-
-    process.nextTick(() => {
-      if (typeof callback === 'function') {
-        callback();
-      }
-    });
-  });
-
-  return writable;
-}
-
 export interface MockChildProcess extends ChildProcess {
-  stdout: MockReadable;
-  stderr: MockReadable;
+  stdin: FakeWritable;
+  stdout: FakeReadable;
+  stderr: FakeReadable;
 }
 
 /**
@@ -275,9 +182,9 @@ export interface MockChildProcess extends ChildProcess {
 export function makeMockChildProcess(): MockChildProcess {
   const result: Partial<ChildProcess> = {
     pid: Math.floor(Math.random() * 10_000),
-    stdin: makeMockWritable(),
-    stdout: makeMockReadable(),
-    stderr: makeMockReadable(),
+    stdin: fakeWritable(),
+    stdout: fakeReadable(),
+    stderr: fakeReadable(),
   };
 
   return Object.assign(new EventEmitter(), result) as MockChildProcess;
