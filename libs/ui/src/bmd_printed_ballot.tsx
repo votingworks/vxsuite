@@ -9,7 +9,6 @@ import {
   BallotType,
   CandidateContest,
   CandidateVote,
-  DisplayTextForYesOrNo,
   Election,
   ElectionDefinition,
   getBallotStyle,
@@ -32,6 +31,7 @@ import {
   randomBase64,
 } from '@votingworks/utils';
 
+import { DisplayTextForYesOrNo } from './globals';
 import { NoWrap, Text } from './text';
 import { Prose } from './prose';
 import { QrCode } from './qrcode';

@@ -11,9 +11,8 @@ import {
   YesNoContest as YesNoContestInterface,
   Optional,
   YesOrNo,
-  DisplayTextForYesOrNo,
 } from '@votingworks/types';
-import { Button, Main, Modal } from '@votingworks/ui';
+import { Button, DisplayTextForYesOrNo, Main, Modal } from '@votingworks/ui';
 
 import { assert, getSingleYesNoVote } from '@votingworks/utils';
 import {

@@ -12,9 +12,14 @@ import {
   YesNoVote,
   OptionalYesNoVote,
   getPrecinctIndexById,
-  DisplayTextForYesOrNo,
 } from '@votingworks/types';
-import { Button, DecoyButton, LinkButton, Main } from '@votingworks/ui';
+import {
+  Button,
+  DecoyButton,
+  DisplayTextForYesOrNo,
+  LinkButton,
+  Main,
+} from '@votingworks/ui';
 
 import {
   assert,

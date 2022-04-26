@@ -724,10 +724,6 @@ export type YesNoVote =
   | readonly ['no', 'yes']
   | readonly [];
 export type YesOrNo = Exclude<YesNoVote[0] | YesNoVote[1], undefined>;
-export const DisplayTextForYesOrNo: Record<YesOrNo, string> = {
-  yes: 'Yes',
-  no: 'No',
-};
 export const YesNoVoteSchema: z.ZodSchema<YesNoVote> = z.union([
   z.tuple([z.literal('yes')]),
   z.tuple([z.literal('no')]),
