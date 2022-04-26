@@ -53,7 +53,6 @@ import {
   ZeroRequest,
   ZeroResponse,
 } from '@votingworks/types/api/services/scan';
-import bodyParser from 'body-parser';
 import express, { Application } from 'express';
 import { readFile } from 'fs-extra';
 import multer from 'multer';
@@ -99,9 +98,9 @@ export function buildApp({ store, importer }: AppOptions): Application {
   const app: Application = express();
   const upload = multer({ storage: multer.diskStorage({}) });
 
-  app.use(bodyParser.raw());
+  app.use(express.raw());
   app.use(express.json({ limit: '5mb', type: 'application/json' }));
-  app.use(bodyParser.urlencoded({ extended: false }));
+  app.use(express.urlencoded({ extended: false }));
 
   app.get<NoParams, GetElectionConfigResponse>(
     '/config/election',
@@ -187,7 +186,12 @@ export function buildApp({ store, importer }: AppOptions): Application {
     }
   );
 
-  app.put<NoParams, PutConfigPackageResponse, PutConfigPackageRequest>(
+  app.put<
+    '/config/package',
+    NoParams,
+    PutConfigPackageResponse,
+    PutConfigPackageRequest
+  >(
     '/config/package',
     upload.fields([{ name: 'package', maxCount: 1 }]),
     async (request, response) => {
@@ -428,7 +432,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
     ]),
     async (request, response) => {
       /* istanbul ignore next */
-      if (Array.isArray(request.files)) {
+      if (Array.isArray(request.files) || request.files === undefined) {
         response.status(400).json({
           status: 'error',
           errors: [

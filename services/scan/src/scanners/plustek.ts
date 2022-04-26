@@ -8,7 +8,6 @@ import {
 } from '@votingworks/plustek-sdk';
 import { ok, Provider, Result, safeParse } from '@votingworks/types';
 import { ScannerStatus } from '@votingworks/types/api/services/scan';
-import bodyParser from 'body-parser';
 import makeDebug from 'debug';
 import express, { Application } from 'express';
 import * as z from 'zod';
@@ -326,9 +325,9 @@ const PutMockRequestSchema = z.object({
 
 export function plustekMockServer(client: MockScannerClient): Application {
   return express()
-    .use(bodyParser.raw())
+    .use(express.raw())
     .use(express.json({ limit: '5mb', type: 'application/json' }))
-    .use(bodyParser.urlencoded({ extended: false }))
+    .use(express.urlencoded({ extended: false }))
     .put('/mock', async (request, response) => {
       const bodyParseResult = safeParse(PutMockRequestSchema, request.body);
 
