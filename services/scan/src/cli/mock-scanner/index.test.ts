@@ -6,6 +6,10 @@ beforeEach(() => {
   nock.cleanAll();
 });
 
+afterAll(() => {
+  nock.enableNetConnect();
+});
+
 test('no command error', async () => {
   jest.spyOn(process.stderr, 'write').mockReturnValue(true);
   expect(await mockScanner([])).toEqual(-1);
