@@ -13,7 +13,8 @@
     "noUnusedParameters": true,
     "resolveJsonModule": true,
     "composite": true,
-    "noEmit": true
+    "noEmit": true,
+    "skipLibCheck": true
   },
   "include": ["src", "src/data/*.json", "test"],
   "exclude": [],

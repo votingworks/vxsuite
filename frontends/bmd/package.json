@@ -88,7 +88,7 @@
     "@types/fetch-mock": "^7.3.2",
     "@types/jest": "25.2.2",
     "@types/lodash.camelcase": "^4.3.6",
-    "@types/node": "12.19.16",
+    "@types/node": "16.11.29",
     "@types/pluralize": "^0.0.29",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
