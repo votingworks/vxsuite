@@ -6,7 +6,7 @@
   "author": "VotingWorks Eng <eng@voting.works>",
   "license": "GPL-3.0",
   "devDependencies": {
-    "@types/node": "^15.12.4",
+    "@types/node": "^16.11.29",
     "esbuild": "^0.13.13",
     "esbuild-runner": "^2.2.1",
     "prettier": "^2.3.1",

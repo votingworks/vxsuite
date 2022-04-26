@@ -104,7 +104,7 @@ export function fakeWritable(): FakeWritable {
     return true;
   });
 
-  writable.end = jest.fn((...args: unknown[]): void => {
+  writable.end = jest.fn((...args: unknown[]): FakeWritable => {
     let chunk: unknown;
     let encoding: unknown;
     let callback: unknown;
@@ -132,6 +132,8 @@ export function fakeWritable(): FakeWritable {
         callback();
       }
     });
+
+    return writable;
   });
 
   writable.toBuffer = () =>

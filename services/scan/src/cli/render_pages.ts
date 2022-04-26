@@ -8,7 +8,7 @@ import { Store } from '../store';
 import { writeImageData } from '../util/images';
 import { pdfToImages } from '../util/pdf_to_images';
 
-export function printHelp(out: typeof process.stdout): void {
+export function printHelp(out: NodeJS.WritableStream): void {
   out.write(
     `${chalk.bold('render-pages')} SOURCE ${chalk.italic('[SOURCE …]')}\n`
   );
@@ -32,7 +32,10 @@ export function printHelp(out: typeof process.stdout): void {
 
 export async function main(
   args: readonly string[],
-  { stdout = process.stdout, stderr = process.stderr } = {}
+  {
+    stdout = process.stdout,
+    stderr = process.stderr,
+  }: { stdout?: NodeJS.WritableStream; stderr?: NodeJS.WritableStream } = {}
 ): Promise<number> {
   if (args.length === 0) {
     printHelp(stderr);

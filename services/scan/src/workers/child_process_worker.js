@@ -15,16 +15,22 @@ if (typeof process.argv[2] !== 'string') {
 
 const { call } = require(resolve(__dirname, process.argv[2]));
 
-process.on('message', async (input) => {
-  let output;
+process.on(
+  'message',
+  /**
+   * @param {import('./json_serialization').SerializedMessage} input
+   */
+  async (input) => {
+    let output;
 
-  try {
-    output = await call(json.deserialize(input));
-  } catch (error) {
-    output = { type: 'error', error: `${error.stack}` };
-  }
+    try {
+      output = await call(json.deserialize(input));
+    } catch (error) {
+      output = { type: 'error', error: `${error.stack}` };
+    }
 
-  if (process.send) {
-    process.send({ output: json.serialize(output) });
+    if (process.send) {
+      process.send({ output: json.serialize(output) });
+    }
   }
-});
+);

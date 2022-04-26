@@ -50,7 +50,7 @@ test('simple image', () => {
 });
 
 // `global.gc` is only defined when `--expose-gc` is provided to `node`.
-const gctest = (global as { gc?: VoidFunction }).gc ? test : test.skip;
+const gctest = global.gc ? test : test.skip;
 
 gctest('garbage collection reclaims buffer', () => {
   const iterations = 20;
@@ -60,7 +60,7 @@ gctest('garbage collection reclaims buffer', () => {
   let count = 0;
 
   for (let i = 0; i < iterations; i += 1) {
-    global.gc();
+    global.gc?.();
     externalMemory.push(process.memoryUsage().external);
     count += lsd(image).length;
   }
