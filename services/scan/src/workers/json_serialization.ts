@@ -6,8 +6,7 @@ export type SerializedMessage =
   | string
   | boolean
   | number
-  | undefined
-  | null
+  | SerializedNull
   | SerializedUndefined
   | SerializedArray
   | SerializedObject
@@ -15,6 +14,10 @@ export type SerializedMessage =
   | SerializedUint8Array
   | SerializedResult
   | SerializedError;
+
+export interface SerializedNull {
+  __dataType__: 'null';
+}
 
 export interface SerializedUndefined {
   __dataType__: 'undefined';
@@ -71,7 +74,7 @@ export function serialize(
 
     case 'object': {
       if (data === null) {
-        return data;
+        return { __dataType__: 'null' };
       }
 
       if (Array.isArray(data)) {
@@ -177,7 +180,7 @@ export function deserialize(
         }
 
         case 'Buffer':
-          return Buffer.from(data.value);
+          return Buffer.from(Array.from(data.value));
 
         case 'Uint8Array':
           return Uint8Array.from(data.value);
@@ -192,6 +195,9 @@ export function deserialize(
           const value = deserialize(data.value, [...keypath, 'value']);
           return data.isOk ? ok(value) : err(value);
         }
+
+        case 'null':
+          return null;
 
         case 'undefined':
           return undefined;
