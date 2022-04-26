@@ -25,6 +25,7 @@ import {
 } from '@votingworks/types';
 import {
   assert,
+  find,
   formatLongDate,
   getSingleYesNoVote,
   getContestVoteInRotatedOrder,
@@ -162,8 +163,7 @@ function CandidateContestResult({
           </Text>{' '}
           {candidate.partyId &&
             `/ ${
-              /* istanbul ignore next: This .find should always return something */
-              election.parties.find((p) => p.id === candidate.partyId)?.name
+              find(election.parties, (p) => p.id === candidate.partyId).name
             }`}
           {candidate.isWriteIn && '(write-in)'}
         </Text>
