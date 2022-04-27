@@ -1,10 +1,10 @@
 import {
   AST_NODE_TYPES,
   ESLintUtils,
+  TSESLint,
   TSESTree,
 } from '@typescript-eslint/experimental-utils';
 import { strict as assert } from 'assert';
-import { SourceCode } from '@typescript-eslint/experimental-utils/dist/ts-eslint';
 import * as ts from 'typescript';
 
 export const createRule = ESLintUtils.RuleCreator(
@@ -71,7 +71,7 @@ export function getCollectionType(
  * Determines whether there is a comment attached to `node`.
  */
 export function hasAttachedComment(
-  sourceCode: SourceCode,
+  sourceCode: TSESLint.SourceCode,
   node: TSESTree.Node | TSESTree.Token
 ): boolean {
   function hasAttachedCommentInner(

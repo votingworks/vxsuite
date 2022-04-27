@@ -1,11 +1,15 @@
 import {
   AST_NODE_TYPES,
+  TSESLint,
   TSESTree,
 } from '@typescript-eslint/experimental-utils';
 import { strict as assert } from 'assert';
 import { createRule } from '../util';
 
-export default createRule({
+const rule: TSESLint.RuleModule<
+  'noImportType' | 'noExportType',
+  [{ allowReexport: boolean }]
+> = createRule({
   name: 'gts-no-import-export-type',
   meta: {
     docs: {
@@ -170,3 +174,5 @@ export default createRule({
     };
   },
 });
+
+export default rule;

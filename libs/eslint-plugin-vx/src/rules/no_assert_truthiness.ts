@@ -1,6 +1,7 @@
 import {
   AST_NODE_TYPES,
   ESLintUtils,
+  TSESLint,
   TSESTree,
 } from '@typescript-eslint/experimental-utils';
 import * as ts from 'typescript';
@@ -41,7 +42,10 @@ function typeIsBoolean(type: ts.Type): boolean {
   );
 }
 
-export default createRule({
+const rule: TSESLint.RuleModule<
+  'assertStringOrNumber' | 'assertObject',
+  [{ objects: boolean; asserts: string[] }]
+> = createRule({
   name: 'no-assert-truthiness',
   meta: {
     fixable: 'code',
@@ -129,3 +133,5 @@ export default createRule({
     };
   },
 });
+
+export default rule;

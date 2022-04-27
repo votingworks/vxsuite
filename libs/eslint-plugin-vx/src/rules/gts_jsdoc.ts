@@ -1,6 +1,7 @@
 import {
   AST_NODE_TYPES,
   AST_TOKEN_TYPES,
+  TSESLint,
   TSESTree,
 } from '@typescript-eslint/experimental-utils';
 import { strict as assert } from 'assert';
@@ -13,7 +14,16 @@ function isJsDocComment(comment: TSESTree.Comment): boolean {
   );
 }
 
-export default createRule({
+const rule: TSESLint.RuleModule<
+  | 'moduleExportRequiresJsDoc'
+  | 'noJsDocOverride'
+  | 'noJsDocImplements'
+  | 'noJsDocExtends'
+  | 'noJsDocEnum'
+  | 'noJsDocPrivate'
+  | 'noJsDocProtected'
+  | 'noJsDocType'
+> = createRule({
   name: 'gts-jsdoc',
   meta: {
     docs: {
@@ -178,3 +188,5 @@ export default createRule({
     };
   },
 });
+
+export default rule;

@@ -1,10 +1,10 @@
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESLint, TSESTree } from '@typescript-eslint/experimental-utils';
 import { strict as assert } from 'assert';
 import { createRule } from '../util';
 
 const VOTINGWORKS_WORKSPACE_PREFIX = '@votingworks';
 
-export default createRule({
+const rule: TSESLint.RuleModule<'noImportSubfolders', []> = createRule({
   name: 'no-import-workspace-subfolders',
   meta: {
     docs: {
@@ -47,3 +47,5 @@ export default createRule({
     };
   },
 });
+
+export default rule;

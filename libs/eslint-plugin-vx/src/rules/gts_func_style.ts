@@ -1,5 +1,6 @@
 import {
   AST_NODE_TYPES,
+  TSESLint,
   TSESTree,
 } from '@typescript-eslint/experimental-utils';
 import { strict as assert } from 'assert';
@@ -14,7 +15,7 @@ interface PendingReport {
   usesThis: boolean;
 }
 
-export default createRule({
+const rule: TSESLint.RuleModule<'useFunctionDeclaration'> = createRule({
   name: 'gts-func-style',
   meta: {
     docs: {
@@ -191,3 +192,5 @@ export default createRule({
     };
   },
 });
+
+export default rule;

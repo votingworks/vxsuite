@@ -1,4 +1,4 @@
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESLint, TSESTree } from '@typescript-eslint/experimental-utils';
 import { basename } from 'path';
 import { createRule } from '../util';
 
@@ -18,7 +18,7 @@ function shouldBeSnakeCase(filePath: string): boolean {
   );
 }
 
-export default createRule({
+const rule: TSESLint.RuleModule<'useSnakeCase'> = createRule({
   name: 'gts-module-snake-case',
   meta: {
     docs: {
@@ -62,3 +62,5 @@ export default createRule({
     };
   },
 });
+
+export default rule;

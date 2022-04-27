@@ -1,4 +1,4 @@
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESLint, TSESTree } from '@typescript-eslint/experimental-utils';
 import {
   createRule,
   enumerateCharacterCodeEscapes,
@@ -9,7 +9,11 @@ import {
 
 const QUOTE_LENGTH = '"'.length;
 
-export default createRule({
+const rule: TSESLint.RuleModule<
+  | 'escapeSequenceMissingComment'
+  | 'useLiteralPrintableCharacter'
+  | 'useEscapeSequenceForNonPrintableCharacter'
+> = createRule({
   name: 'gts-unicode-escapes',
   meta: {
     docs: {
@@ -131,3 +135,5 @@ export default createRule({
     };
   },
 });
+
+export default rule;

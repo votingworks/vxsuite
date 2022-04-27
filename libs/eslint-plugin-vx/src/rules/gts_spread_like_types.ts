@@ -2,6 +2,7 @@
 import {
   AST_NODE_TYPES,
   ESLintUtils,
+  TSESLint,
   TSESTree,
 } from '@typescript-eslint/experimental-utils';
 import { strict as assert } from 'assert';
@@ -29,7 +30,11 @@ function isObjectType(type: ts.Type): boolean {
   );
 }
 
-export default createRule({
+const rule: TSESLint.RuleModule<
+  | 'requireIterablesInArraySpread'
+  | 'requireObjectsInObjectSpread'
+  | 'requireIterablesInCallSpread'
+> = createRule({
   name: 'gts-spread-like-types',
   meta: {
     docs: {
@@ -104,3 +109,5 @@ export default createRule({
     };
   },
 });
+
+export default rule;
