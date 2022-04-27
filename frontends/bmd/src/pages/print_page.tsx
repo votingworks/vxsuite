@@ -2,9 +2,13 @@ import { assert } from '@votingworks/utils';
 import React, { useCallback, useContext, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
-import { ProgressEllipsis, Main, MainChild } from '@votingworks/ui';
+import {
+  BmdPaperBallot,
+  Main,
+  MainChild,
+  ProgressEllipsis,
+} from '@votingworks/ui';
 
-import { PrintedBallot } from '../components/printed_ballot';
 import { Prose } from '../components/prose';
 import { Screen } from '../components/screen';
 import { BALLOT_PRINTING_TIMEOUT_SECONDS } from '../config/globals';
@@ -100,7 +104,7 @@ export function PrintPage(): JSX.Element {
           </MainChild>
         </Main>
       </Screen>
-      <PrintedBallot
+      <BmdPaperBallot
         ballotStyleId={ballotStyleId}
         electionDefinition={electionDefinition}
         isLiveMode={isLiveMode}

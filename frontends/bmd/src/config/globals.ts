@@ -13,9 +13,5 @@ export const FONT_SIZES = [22, 28, 36, 48];
 export const DEFAULT_FONT_SIZE = 1;
 export const LARGE_DISPLAY_FONT_SIZE = 3;
 export const TEXT_SIZE = 1;
-export enum YES_NO_VOTES {
-  no = 'No',
-  yes = 'Yes',
-}
 export const WRITE_IN_CANDIDATE_MAX_LENGTH = 40;
 export const QUIT_KIOSK_IDLE_SECONDS = 5 * 60; // 5 minutes

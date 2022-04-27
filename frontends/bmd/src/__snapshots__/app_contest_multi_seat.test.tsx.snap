@@ -531,7 +531,7 @@ exports[`Single Seat Contest 1`] = `
     class="c1"
   >
     <main
-      class="sc-bkkfTU enzCGe"
+      class="sc-cxpRKc iyrZoO"
     >
       <div
         class="c2"
@@ -964,7 +964,7 @@ exports[`Single Seat Contest 1`] = `
           </p>
           <p>
             <button
-              class="sc-hKwCoD dVNIPF"
+              class="sc-ksdxAp nabTM"
               id="next"
               role="option"
               type="button"
@@ -978,7 +978,7 @@ exports[`Single Seat Contest 1`] = `
           </p>
           <p>
             <button
-              class="sc-hKwCoD fVjCYw"
+              class="sc-ksdxAp ctUtNB"
               id="previous"
               role="option"
               type="button"
@@ -1012,11 +1012,11 @@ exports[`Single Seat Contest 1`] = `
                 class="c22"
               >
                 <span
-                  class="sc-eCImvq jqbRdj"
+                  class="sc-hBURRC gIPuLO"
                   data-testid="change-text-size-buttons"
                 >
                   <button
-                    class="sc-hKwCoD fVjCYw"
+                    class="sc-ksdxAp ctUtNB"
                     data-size="0"
                     type="button"
                     value="0"
@@ -1024,7 +1024,7 @@ exports[`Single Seat Contest 1`] = `
                     A
                   </button>
                   <button
-                    class="sc-hKwCoD ahhFa"
+                    class="sc-ksdxAp fKeQwD"
                     data-size="1"
                     type="button"
                     value="1"
@@ -1032,7 +1032,7 @@ exports[`Single Seat Contest 1`] = `
                     A
                   </button>
                   <button
-                    class="sc-hKwCoD fVjCYw"
+                    class="sc-ksdxAp ctUtNB"
                     data-size="2"
                     type="button"
                     value="2"

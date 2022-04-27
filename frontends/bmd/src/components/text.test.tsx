@@ -39,6 +39,11 @@ it('narrow style', async () => {
   expect(container.firstChild).toMatchSnapshot();
 });
 
+it('renders italic text', async () => {
+  const { container } = render(<Text italic>Italic text</Text>);
+  expect(container.firstChild).toMatchSnapshot();
+});
+
 it('converts line-breaks into <p> and <br/> tags', () => {
   const { container } = render(
     <TextWithLineBreaks

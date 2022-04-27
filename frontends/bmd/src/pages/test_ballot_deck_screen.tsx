@@ -9,6 +9,7 @@ import {
   VotesDict,
 } from '@votingworks/types';
 import {
+  BmdPaperBallot,
   Button,
   ButtonList,
   Loading,
@@ -25,7 +26,6 @@ import {
 } from '../config/types';
 
 import { ElectionInfo } from '../components/election_info';
-import { PrintedBallot } from '../components/printed_ballot';
 import { Prose } from '../components/prose';
 import { Sidebar } from '../components/sidebar';
 import { Screen } from '../components/screen';
@@ -252,7 +252,7 @@ export function TestBallotDeckScreen({
       </Screen>
       {ballots.length &&
         ballots.map((ballot, i) => (
-          <PrintedBallot
+          <BmdPaperBallot
             // eslint-disable-next-line react/no-array-index-key
             key={`ballot-${i}`}
             ballotStyleId={ballot.ballotStyleId}

@@ -13,7 +13,13 @@ import {
   OptionalYesNoVote,
   getPrecinctIndexById,
 } from '@votingworks/types';
-import { Button, DecoyButton, LinkButton, Main } from '@votingworks/ui';
+import {
+  Button,
+  DecoyButton,
+  DisplayTextForYesOrNo,
+  LinkButton,
+  Main,
+} from '@votingworks/ui';
 
 import {
   assert,
@@ -34,7 +40,7 @@ import {
 
 import { Prose } from '../components/prose';
 import { Text, NoWrap } from '../components/text';
-import { FONT_SIZES, YES_NO_VOTES } from '../config/globals';
+import { FONT_SIZES } from '../config/globals';
 import { BallotContext } from '../contexts/ballot_context';
 import { Screen } from '../components/screen';
 import { Sidebar } from '../components/sidebar';
@@ -262,7 +268,8 @@ function YesNoContestResult({
   const yesNo = getSingleYesNoVote(vote);
   return yesNo ? (
     <Text bold wordBreak voteIcon>
-      {YES_NO_VOTES[yesNo]} {!!contest.shortTitle && `on ${contest.shortTitle}`}
+      {DisplayTextForYesOrNo[yesNo]}{' '}
+      {!!contest.shortTitle && `on ${contest.shortTitle}`}
     </Text>
   ) : (
     <NoSelection />

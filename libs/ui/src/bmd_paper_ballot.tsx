@@ -7,37 +7,35 @@ import { encodeBallot } from '@votingworks/ballot-encoder';
 import {
   BallotStyleId,
   BallotType,
+  CandidateContest,
   CandidateVote,
+  Election,
   ElectionDefinition,
-  PrecinctId,
-  VotesDict,
-  YesNoVote,
   getBallotStyle,
   getContests,
   getPartyPrimaryAdjectiveFromBallotStyle,
   getPrecinctById,
   getPrecinctIndexById,
+  MsEitherNeitherContest,
+  OptionalYesNoVote,
+  PrecinctId,
+  VotesDict,
+  YesNoContest,
+  YesNoVote,
 } from '@votingworks/types';
 import {
   assert,
+  find,
   formatLongDate,
   getSingleYesNoVote,
   getContestVoteInRotatedOrder,
+  randomBase64,
 } from '@votingworks/utils';
 
-import * as GLOBALS from '../config/globals';
-
-import { randomBase64 } from '../utils/random';
-import { findPartyById } from '../utils/find';
-
-import { QrCode } from './qrcode';
+import { DisplayTextForYesOrNo } from './globals';
+import { NoWrap, Text } from './text';
 import { Prose } from './prose';
-import { Text, NoWrap } from './text';
-import {
-  CandidateContestResultInterface,
-  MsEitherNeitherContestResultInterface,
-  YesNoContestResultInterface,
-} from '../config/types';
+import { QrCode } from './qrcode';
 
 const Ballot = styled.div`
   page-break-after: always;
@@ -133,12 +131,19 @@ function NoSelection({ prefix }: { prefix?: string }): JSX.Element {
   );
 }
 
+interface CandidateContestResultProps {
+  contest: CandidateContest;
+  election: Election;
+  precinctId: PrecinctId;
+  vote?: CandidateVote;
+}
+
 function CandidateContestResult({
   contest,
   election,
   precinctId,
   vote = [],
-}: CandidateContestResultInterface): JSX.Element {
+}: CandidateContestResultProps): JSX.Element {
   const remainingChoices = contest.seats - vote.length;
   const precinctIndex = getPrecinctIndexById({ election, precinctId });
   const sortedVotes = getContestVoteInRotatedOrder({
@@ -157,7 +162,9 @@ function CandidateContestResult({
             {candidate.name}
           </Text>{' '}
           {candidate.partyId &&
-            `/ ${findPartyById(election.parties, candidate.partyId)?.name}`}
+            `/ ${
+              find(election.parties, (p) => p.id === candidate.partyId).name
+            }`}
           {candidate.isWriteIn && '(write-in)'}
         </Text>
       ))}
@@ -170,14 +177,19 @@ function CandidateContestResult({
   );
 }
 
+interface YesNoContestResultProps {
+  contest: YesNoContest;
+  vote: OptionalYesNoVote;
+}
+
 function YesNoContestResult({
   contest,
   vote,
-}: YesNoContestResultInterface): JSX.Element {
+}: YesNoContestResultProps): JSX.Element {
   const yesNo = getSingleYesNoVote(vote);
   return yesNo ? (
     <Text bold wordBreak>
-      {GLOBALS.YES_NO_VOTES[yesNo]}{' '}
+      {DisplayTextForYesOrNo[yesNo]}{' '}
       {!!contest.shortTitle && `on ${contest.shortTitle}`}
     </Text>
   ) : (
@@ -185,11 +197,17 @@ function YesNoContestResult({
   );
 }
 
+interface MsEitherNeitherContestResultProps {
+  contest: MsEitherNeitherContest;
+  eitherNeitherContestVote: OptionalYesNoVote;
+  pickOneContestVote: OptionalYesNoVote;
+}
+
 function MsEitherNeitherContestResult({
   contest,
   eitherNeitherContestVote,
   pickOneContestVote,
-}: MsEitherNeitherContestResultInterface): JSX.Element {
+}: MsEitherNeitherContestResultProps): JSX.Element {
   const eitherNeitherVote = eitherNeitherContestVote?.[0];
   const pickOneVote = pickOneContestVote?.[0];
 
@@ -229,7 +247,10 @@ interface Props {
   votes: VotesDict;
 }
 
-export function PrintedBallot({
+/**
+ * Renders a paper ballot as printed by a ballot-marking device
+ */
+export function BmdPaperBallot({
   ballotStyleId,
   electionDefinition,
   isLiveMode,
@@ -268,9 +289,14 @@ export function PrintedBallot({
             className="seal"
             // TODO: Sanitize the SVG content: https://github.com/votingworks/bmd/issues/99
             dangerouslySetInnerHTML={{ __html: seal }} // eslint-disable-line react/no-danger
+            data-testid="printed-ballot-seal"
           />
         ) : sealUrl ? (
-          <div id="printedBallotSealContainer" className="seal">
+          <div
+            id="printedBallotSealContainer"
+            className="seal"
+            data-testid="printed-ballot-seal"
+          >
             <SealImage
               src={sealUrl}
               alt=""

@@ -20,10 +20,10 @@ import { fakeTts } from '../../test/helpers/fake_tts';
 // For now, we just hardcode the styled-components generated class names of the
 // Text components with the various icons.
 function expectToHaveSuccessIcon(element: HTMLElement) {
-  expect(element).toHaveClass('ioTMcB');
+  expect(element).toHaveClass('dUkHpK');
 }
 function expectToHaveWarningIcon(element: HTMLElement) {
-  expect(element).toHaveClass('dikopi');
+  expect(element).toHaveClass('gxPqIV');
 }
 
 function renderScreen(props: Partial<DiagnosticsScreenProps> = {}) {

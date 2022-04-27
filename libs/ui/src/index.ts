@@ -1,10 +1,12 @@
 /* istanbul ignore file */
 export * from './bar';
+export * from './bmd_paper_ballot';
 export * from './button';
 export * from './button_bar';
 export * from './button_list';
 export * from './contest_tally';
 export * from './election_info_bar';
+export * from './globals';
 export * from './hooks/use_autocomplete';
 export * from './hooks/use_cancelable_promise';
 export * from './hooks/use_devices';
@@ -29,6 +31,7 @@ export * from './precinct_scanner_tally_qrcode';
 export * from './progress_bar';
 export * from './progress_ellipsis';
 export * from './prose';
+export * from './qrcode';
 export * from './reboot_from_usb_button';
 export * from './screen';
 export * from './select';

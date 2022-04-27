@@ -1,20 +1,25 @@
 import { electionSample } from '@votingworks/fixtures';
 import { getBallotStyle, getContests, vote } from '@votingworks/types';
 import React from 'react';
+import { randomBase64 } from '@votingworks/utils';
 import { Route } from 'react-router-dom';
-import { mockOf } from '@votingworks/test-utils';
 import { render } from '../../test/test_utils';
-import { randomBase64 } from '../utils/random';
 import { PrintPage } from './print_page';
 import {
   electionSampleNoSealDefinition,
   electionSampleWithSealDefinition,
 } from '../data';
 
-// mock the random value so the snapshots match
-jest.mock('../utils/random');
-beforeEach(() => {
-  mockOf(randomBase64).mockReturnValue('CHhgYxfN5GeqnK8KaVOt1w');
+jest.mock('@votingworks/utils', (): { randomBase64: typeof randomBase64 } => {
+  const original = jest.requireActual<Record<string, unknown>>(
+    '@votingworks/utils'
+  );
+  // Mock random string generation so that snapshots match, while leaving the rest of the module
+  // intact
+  return {
+    ...original,
+    randomBase64: () => 'CHhgYxfN5GeqnK8KaVOt1w',
+  };
 });
 
 it('renders PrintPage without votes', () => {

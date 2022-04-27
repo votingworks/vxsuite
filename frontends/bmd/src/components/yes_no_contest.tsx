@@ -12,7 +12,7 @@ import {
   Optional,
   YesOrNo,
 } from '@votingworks/types';
-import { Button, Main, Modal } from '@votingworks/ui';
+import { Button, DisplayTextForYesOrNo, Main, Modal } from '@votingworks/ui';
 
 import { assert, getSingleYesNoVote } from '@votingworks/utils';
 import {
@@ -23,7 +23,7 @@ import {
 
 import { BallotContext } from '../contexts/ballot_context';
 
-import { FONT_SIZES, YES_NO_VOTES } from '../config/globals';
+import { FONT_SIZES } from '../config/globals';
 import { ChoiceButton } from './choice_button';
 import { Prose } from './prose';
 import { Text, TextWithLineBreaks } from './text';
@@ -255,13 +255,13 @@ export function YesNoContest({
               {overvoteSelection && (
                 <p id="modalaudiofocus">
                   Do you want to change your vote to{' '}
-                  <strong>{YES_NO_VOTES[overvoteSelection]}</strong>? To change
-                  your vote, first unselect your vote for{' '}
+                  <strong>{DisplayTextForYesOrNo[overvoteSelection]}</strong>?
+                  To change your vote, first unselect your vote for{' '}
                   <strong>
                     {
                       {
-                        no: YES_NO_VOTES.yes,
-                        yes: YES_NO_VOTES.no,
+                        no: DisplayTextForYesOrNo.yes,
+                        yes: DisplayTextForYesOrNo.no,
                       }[overvoteSelection]
                     }
                   </strong>

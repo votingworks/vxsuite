@@ -4,22 +4,29 @@ import {
   advanceTimersAndPromises,
   fakeKiosk,
   fakePrinterInfo,
-  mockOf,
 } from '@votingworks/test-utils';
+import { randomBase64 } from '@votingworks/utils';
 import { render } from '../../test/test_utils';
-import { randomBase64 } from '../utils/random';
 import { TestBallotDeckScreen } from './test_ballot_deck_screen';
 import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
 import { PrecinctSelectionKind, PrintOnly } from '../config/types';
 import { fakePrinter } from '../../test/helpers/fake_printer';
 import { electionSampleDefinition } from '../data';
 
-// mock the random value so the snapshots match
-jest.mock('../utils/random');
+jest.mock('@votingworks/utils', (): { randomBase64: typeof randomBase64 } => {
+  const original = jest.requireActual<Record<string, unknown>>(
+    '@votingworks/utils'
+  );
+  // Mock random string generation so that snapshots match, while leaving the rest of the module
+  // intact
+  return {
+    ...original,
+    randomBase64: () => 'CHhgYxfN5GeqnK8KaVOt1w',
+  };
+});
 
 beforeEach(() => {
   jest.useFakeTimers();
-  mockOf(randomBase64).mockReturnValue('CHhgYxfN5GeqnK8KaVOt1w');
 });
 
 it('renders test decks appropriately', async () => {
