@@ -289,9 +289,14 @@ export function BmdPaperBallot({
             className="seal"
             // TODO: Sanitize the SVG content: https://github.com/votingworks/bmd/issues/99
             dangerouslySetInnerHTML={{ __html: seal }} // eslint-disable-line react/no-danger
+            data-testid="printed-ballot-seal"
           />
         ) : sealUrl ? (
-          <div id="printedBallotSealContainer" className="seal">
+          <div
+            id="printedBallotSealContainer"
+            className="seal"
+            data-testid="printed-ballot-seal"
+          >
             <SealImage
               src={sealUrl}
               alt=""

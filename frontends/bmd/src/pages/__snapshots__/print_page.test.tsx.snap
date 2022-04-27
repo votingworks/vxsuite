@@ -448,6 +448,7 @@ exports[`renders PrintPage without votes and inline seal 1`] = `
   >
     <div
       class="seal"
+      data-testid="printed-ballot-seal"
     >
       <svg
         version="1.1"
