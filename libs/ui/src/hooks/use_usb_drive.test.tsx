@@ -325,9 +325,7 @@ test('error in mounting gets logged as expected', async () => {
   const kiosk = fakeKiosk();
   kiosk.getUsbDrives.mockResolvedValue([]);
   window.kiosk = kiosk;
-  kiosk.mountUsbDrive.mockRejectedValueOnce({
-    message: 'autumn leaves falling',
-  });
+  kiosk.mountUsbDrive.mockRejectedValueOnce(new Error('autumn leaves falling'));
   kiosk.getUsbDrives.mockResolvedValue([UNMOUNTED_DRIVE]);
   await waitForStatusUpdate();
   expect(kiosk.mountUsbDrive).toHaveBeenCalled();
@@ -367,9 +365,7 @@ test('error in unmounting gets logged as expected', async () => {
   kiosk.getUsbDrives.mockResolvedValue([MOUNTED_DRIVE]);
   await waitForStatusUpdate();
   screen.getByText('Eject USB');
-  kiosk.unmountUsbDrive.mockRejectedValue({
-    message: 'like pieces into place',
-  });
+  kiosk.unmountUsbDrive.mockRejectedValue(new Error('like pieces into place'));
   userEvent.click(screen.getByText('Eject USB'));
 
   await advanceTimersAndPromises();
