@@ -158,7 +158,7 @@
     "is-ci-cli": "^2.1.2",
     "jest-environment-jsdom-sixteen": "^1.0.3",
     "lint-staged": "^10.0.7",
-    "prettier": "^2.0.5",
+    "prettier": "^2.6.2",
     "react-refresh": "^0.9.0",
     "react-test-renderer": "^16.13.1",
     "sort-package-json": "^1.50.0",

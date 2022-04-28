@@ -107,19 +107,22 @@ export function PreviewDashboard({
   );
   const electionDefinitionFileRef = useRef<HTMLInputElement>(null);
 
-  const onElectionDefinitionSelected: React.ChangeEventHandler<HTMLSelectElement> = useCallback(
-    (event) => {
-      const { value } = event.target.selectedOptions[0];
-      if (value === 'custom') {
-        electionDefinitionFileRef.current?.click();
-      } else {
-        setElectionDefinition(electionDefinitions[event.target.selectedIndex]);
-      }
-    },
-    [electionDefinitions, electionDefinitionFileRef]
-  );
-  const onElectionDefinitionFileChosen: React.ChangeEventHandler<HTMLInputElement> = useCallback(
-    async (event) => {
+  const onElectionDefinitionSelected: React.ChangeEventHandler<HTMLSelectElement> =
+    useCallback(
+      (event) => {
+        const { value } = event.target.selectedOptions[0];
+        if (value === 'custom') {
+          electionDefinitionFileRef.current?.click();
+        } else {
+          setElectionDefinition(
+            electionDefinitions[event.target.selectedIndex]
+          );
+        }
+      },
+      [electionDefinitions, electionDefinitionFileRef]
+    );
+  const onElectionDefinitionFileChosen: React.ChangeEventHandler<HTMLInputElement> =
+    useCallback(async (event) => {
       const file = event.target.files?.[0];
       if (file) {
         const json = await file.text();
@@ -129,9 +132,7 @@ export function PreviewDashboard({
           setElectionDefinition(result.ok());
         }
       }
-    },
-    []
-  );
+    }, []);
 
   return (
     <AppContext.Provider

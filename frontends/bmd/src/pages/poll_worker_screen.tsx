@@ -140,20 +140,17 @@ export function PollWorkerScreen({
     isConfirmingPrecinctScannerPrint,
     setIsConfirmingPrecinctScannerPrint,
   ] = useState(tallyOnCard !== undefined);
-  const [
-    isPrintingPrecinctScannerReport,
-    setIsPrintingPrecinctScannerReport,
-  ] = useState(false);
+  const [isPrintingPrecinctScannerReport, setIsPrintingPrecinctScannerReport] =
+    useState(false);
 
   const [isDiagnosticsScreenOpen, setIsDiagnosticsScreenOpen] = useState(false);
 
-  const parties = useMemo(() => getPartyIdsInBallotStyles(election), [
-    election,
-  ]);
-  const [
-    precinctScannerTallyInformation,
-    setPrecinctScannerTallyInformation,
-  ] = useState<DerivedTallyInformationFromCard>();
+  const parties = useMemo(
+    () => getPartyIdsInBallotStyles(election),
+    [election]
+  );
+  const [precinctScannerTallyInformation, setPrecinctScannerTallyInformation] =
+    useState<DerivedTallyInformationFromCard>();
 
   useEffect(() => {
     if (tallyOnCard) {
@@ -576,9 +573,10 @@ export function PollWorkerScreen({
                           PrecinctSelectionKind.SinglePrecinct
                             ? precinctSel.precinctId
                             : undefined;
-                        const tallyForReport = precinctScannerTallyInformation.subTallies.get(
-                          getTallyIdentifier(partyId, precinctIdIfDefined)
-                        );
+                        const tallyForReport =
+                          precinctScannerTallyInformation.subTallies.get(
+                            getTallyIdentifier(partyId, precinctIdIfDefined)
+                          );
                         assert(tallyForReport);
                         return (
                           <PrecinctScannerTallyReport

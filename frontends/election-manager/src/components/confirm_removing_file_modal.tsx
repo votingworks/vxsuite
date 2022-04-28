@@ -21,9 +21,8 @@ export function ConfirmRemovingFileModal({
   onCancel,
   fileType,
 }: Props): JSX.Element {
-  const { castVoteRecordFiles, fullElectionExternalTallies } = useContext(
-    AppContext
-  );
+  const { castVoteRecordFiles, fullElectionExternalTallies } =
+    useContext(AppContext);
 
   const semsFile = fullElectionExternalTallies.find(
     (t) => t.source === ExternalTallySourceType.SEMS

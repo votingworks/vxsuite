@@ -30,19 +30,16 @@ const NumberPadWrapper = styled.div`
 `;
 
 export function SmartcardsScreen(): JSX.Element {
-  const { electionDefinition, logger, currentUserSession } = useContext(
-    AppContext
-  );
+  const { electionDefinition, logger, currentUserSession } =
+    useContext(AppContext);
   assert(electionDefinition);
   const { electionData, electionHash } = electionDefinition;
 
   const makeCancelable = useCancelablePromise();
 
   const [isProgrammingCard, setIsProgrammingCard] = useState(false);
-  const [
-    isPromptingForAdminPasscode,
-    setIsPromptingForAdminPasscode,
-  ] = useState(false);
+  const [isPromptingForAdminPasscode, setIsPromptingForAdminPasscode] =
+    useState(false);
   const [currentPasscode, setCurrentPasscode] = useState('');
 
   const [isShowingError, setIsShowingError] = useState(false);

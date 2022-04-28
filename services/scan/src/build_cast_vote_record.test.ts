@@ -66,10 +66,10 @@ test('getWriteInOptionIdsForContestVote', () => {
   );
   expect(() =>
     getWriteInOptionIdsForContestVote(
-      ({
+      {
         ...yesnoContest,
         type: 'not-supported-type',
-      } as unknown) as AnyContest,
+      } as unknown as AnyContest,
       {}
     )
   ).toThrowError('contest type not yet supported: not-supported-type');
@@ -110,10 +110,10 @@ test('getOptionIdsForContestVote', () => {
   ]);
   expect(() =>
     getOptionIdsForContestVote(
-      ({
+      {
         ...yesnoContest,
         type: 'not-supported-type',
-      } as unknown) as AnyContest,
+      } as unknown as AnyContest,
       {}
     )
   ).toThrowError('Illegal Value: not-supported-type');

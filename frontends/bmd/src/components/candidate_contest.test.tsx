@@ -18,9 +18,10 @@ const candidateContest = electionDefinition.election.contests.find(
   (c) => c.type === 'candidate'
 )! as CandidateContestInterface;
 
-const candidateContestWithMultipleSeats = electionDefinition.election.contests.find(
-  (c) => c.type === 'candidate' && c.seats > 1
-)! as CandidateContestInterface;
+const candidateContestWithMultipleSeats =
+  electionDefinition.election.contests.find(
+    (c) => c.type === 'candidate' && c.seats > 1
+  )! as CandidateContestInterface;
 
 const candidateContestWithWriteIns = electionDefinition.election.contests.find(
   (c) => c.type === 'candidate' && c.allowWriteIns

@@ -13,7 +13,8 @@ pnpm build
 
 ## Schema Updates
 
-Replace the contents of `data/schema.xml` and `data/schema.json` from https://github.com/usnistgov/CastVoteRecords, then run `pnpm build`.
+Replace the contents of `data/schema.xml` and `data/schema.json` from
+https://github.com/usnistgov/CastVoteRecords, then run `pnpm build`.
 
 ## License
 

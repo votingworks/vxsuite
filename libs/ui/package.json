@@ -98,7 +98,7 @@
     "jest-watch-typeahead": "^0.6.4",
     "lint-staged": "^11.0.0",
     "mockdate": "^3.0.5",
-    "prettier": "^2.1.1",
+    "prettier": "^2.6.2",
     "react": "^17.0.1",
     "sort-package-json": "^1.50.0",
     "stylelint": "^13.1.0",

@@ -95,22 +95,20 @@ export function sheetRequiresAdjudication([
     return false;
   }
 
-  const [
-    frontRequiresAdjudicationNonBlank,
-    backRequiresAdjudicationNonBlank,
-  ] = [front, back].map(
-    (pi) =>
-      pi.type === 'UninterpretedHmpbPage' ||
-      pi.type === 'UnreadablePage' ||
-      pi.type === 'InvalidTestModePage' ||
-      pi.type === 'InvalidElectionHashPage' ||
-      pi.type === 'InvalidPrecinctPage' ||
-      (pi.type === 'InterpretedHmpbPage' &&
-        pi.adjudicationInfo.requiresAdjudication &&
-        !pi.adjudicationInfo.enabledReasonInfos.some(
-          (reasonInfo) => reasonInfo.type === AdjudicationReason.BlankBallot
-        ))
-  );
+  const [frontRequiresAdjudicationNonBlank, backRequiresAdjudicationNonBlank] =
+    [front, back].map(
+      (pi) =>
+        pi.type === 'UninterpretedHmpbPage' ||
+        pi.type === 'UnreadablePage' ||
+        pi.type === 'InvalidTestModePage' ||
+        pi.type === 'InvalidElectionHashPage' ||
+        pi.type === 'InvalidPrecinctPage' ||
+        (pi.type === 'InterpretedHmpbPage' &&
+          pi.adjudicationInfo.requiresAdjudication &&
+          !pi.adjudicationInfo.enabledReasonInfos.some(
+            (reasonInfo) => reasonInfo.type === AdjudicationReason.BlankBallot
+          ))
+    );
 
   // non-blank adjudication reasons are "dominant" traits: one page triggers adjudication
   if (frontRequiresAdjudicationNonBlank || backRequiresAdjudicationNonBlank) {
@@ -372,16 +370,12 @@ export class Interpreter {
     qrcode,
   }: BallotImageData): Promise<InterpretFileResult | undefined> {
     const hmpbInterpreter = this.getHmpbInterpreter();
-    const {
-      ballot,
-      marks,
-      mappedBallot,
-      metadata,
-    } = await hmpbInterpreter.interpretBallot(
-      image,
-      metadataFromBytes(this.electionDefinition, Buffer.from(qrcode.data)),
-      { flipped: qrcode.position === 'top' }
-    );
+    const { ballot, marks, mappedBallot, metadata } =
+      await hmpbInterpreter.interpretBallot(
+        image,
+        metadataFromBytes(this.electionDefinition, Buffer.from(qrcode.data)),
+        { flipped: qrcode.position === 'top' }
+      );
     const { votes } = ballot;
 
     const enabledReasons = this.adjudicationReasons;

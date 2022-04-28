@@ -48,13 +48,14 @@ const interpretedHmpbPage: Readonly<InterpretedHmpbPage> = {
   votes: {},
 };
 
-const interpretedHmpbPageRequiringAdjudication: Readonly<InterpretedHmpbPage> = {
-  ...interpretedHmpbPage,
-  adjudicationInfo: {
-    ...interpretedHmpbPage.adjudicationInfo,
-    requiresAdjudication: true,
-  },
-};
+const interpretedHmpbPageRequiringAdjudication: Readonly<InterpretedHmpbPage> =
+  {
+    ...interpretedHmpbPage,
+    adjudicationInfo: {
+      ...interpretedHmpbPage.adjudicationInfo,
+      requiresAdjudication: true,
+    },
+  };
 
 const unreadablePage: Readonly<UnreadablePage> = { type: 'UnreadablePage' };
 

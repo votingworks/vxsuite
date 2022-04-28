@@ -81,9 +81,10 @@ export const ElectionManagerTallyReport = forwardRef<HTMLDivElement, Props>(
               election,
               { precinctId, scannerId, partyId, votingMethod, batchId }
             );
-            const ballotCountsByVotingMethod: Tally['ballotCountsByVotingMethod'] = {
-              ...tallyForReport.ballotCountsByVotingMethod,
-            };
+            const ballotCountsByVotingMethod: Tally['ballotCountsByVotingMethod'] =
+              {
+                ...tallyForReport.ballotCountsByVotingMethod,
+              };
             let reportBallotCount = tallyForReport.numberOfBallotsCounted;
             const externalTalliesForReport: ExternalTally[] = [];
             for (const t of fullElectionExternalTallies) {

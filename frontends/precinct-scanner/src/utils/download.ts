@@ -106,7 +106,7 @@ async function kioskDownload(
       })
     );
   } else {
-    await downloadTarget.write((body as unknown) as Uint8Array);
+    await downloadTarget.write(body as unknown as Uint8Array);
     await downloadTarget.end();
   }
 

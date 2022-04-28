@@ -360,13 +360,11 @@ export class Importer {
       action: 'detect-qrcode',
       imagePath: backImagePath,
     });
-    const [
-      frontDetectQrcodeOutput,
-      backDetectQrcodeOutput,
-    ] = qrcodeWorker.normalizeSheetOutput(electionDefinition, [
-      (await frontDetectQrcodePromise) as qrcodeWorker.Output,
-      (await backDetectQrcodePromise) as qrcodeWorker.Output,
-    ]);
+    const [frontDetectQrcodeOutput, backDetectQrcodeOutput] =
+      qrcodeWorker.normalizeSheetOutput(electionDefinition, [
+        (await frontDetectQrcodePromise) as qrcodeWorker.Output,
+        (await backDetectQrcodePromise) as qrcodeWorker.Output,
+      ]);
     const frontInterpretPromise = workerPool.call({
       action: 'interpret',
       interpreter: 'vx',
@@ -528,7 +526,8 @@ export class Importer {
       this.batchId,
       batchScanDirectory
     );
-    const ballotPaperSize = this.workspace.store.getBallotPaperSizeForElection();
+    const ballotPaperSize =
+      this.workspace.store.getBallotPaperSizeForElection();
     this.sheetGenerator = this.scanner.scanSheets({
       directory: batchScanDirectory,
       pageSize: ballotPaperSize,

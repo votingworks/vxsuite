@@ -59,7 +59,7 @@
     "eslint-plugin-vx": "workspace:*",
     "is-ci-cli": "^2.1.2",
     "lint-staged": "^11.0.0",
-    "prettier": "^2.0.5",
+    "prettier": "^2.6.2",
     "sort-package-json": "^1.50.0",
     "start-server-and-test": "^1.12.5",
     "typescript": "^4.3.5"

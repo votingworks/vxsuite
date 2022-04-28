@@ -18,14 +18,14 @@ pnpm test:watch
 ## Example
 
 ```ts
-import { decodeBallot, encodeBallot } from '@votingworks/ballot-encoder'
-import { electionSample as election } from '@votingworks/fixtures'
-import { CompletedBallot, getContests, vote } from '@votingworks/types'
+import { decodeBallot, encodeBallot } from '@votingworks/ballot-encoder';
+import { electionSample as election } from '@votingworks/fixtures';
+import { CompletedBallot, getContests, vote } from '@votingworks/types';
 
-const ballotStyle = election.ballotStyles[0]
-const precinct = election.precincts[0]
-const ballotId = 'abcde'
-const contests = getContests({ ballotStyle, election })
+const ballotStyle = election.ballotStyles[0];
+const precinct = election.precincts[0];
+const ballotId = 'abcde';
+const contests = getContests({ ballotStyle, election });
 const votes = vote(contests, {
   'judicial-robert-demergue': 'yes',
   'judicial-elmer-hull': 'yes',
@@ -35,15 +35,15 @@ const votes = vote(contests, {
   'proposition-1': 'yes',
   'measure-101': 'no',
   '102': 'yes',
-})
+});
 const ballot: CompletedBallot = {
   ballotId,
   ballotStyleId: ballotStyle.id,
   precinctId: precinct.id,
   votes,
-}
+};
 
-console.log(encodeBallot(ballot))
+console.log(encodeBallot(ballot));
 /*
 Uint8Array [
   86, 88,  1,  2,  49,  50,  2,
@@ -52,7 +52,7 @@ Uint8Array [
 ]
 */
 
-console.log(decodeBallot(election, encodeBallot(ballot)).votes)
+console.log(decodeBallot(election, encodeBallot(ballot)).votes);
 /*
 {
   '102': 'yes',

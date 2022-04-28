@@ -52,9 +52,8 @@ export function TallyReportScreen(): JSX.Element {
   const { scannerId } = useParams<ScannerReportScreenProps>();
   const { batchId } = useParams<BatchReportScreenProps>();
   const { partyId } = useParams<PartyReportScreenProps>();
-  const {
-    votingMethod: votingMethodFromProps,
-  } = useParams<VotingMethodReportScreenProps>();
+  const { votingMethod: votingMethodFromProps } =
+    useParams<VotingMethodReportScreenProps>();
   const votingMethod = votingMethodFromProps as VotingMethod;
   const {
     electionDefinition,

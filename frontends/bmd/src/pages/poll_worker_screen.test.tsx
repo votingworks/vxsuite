@@ -157,15 +157,10 @@ test('printing precinct scanner report works as expected with all precinct data 
   const existingTally = getZeroCompressedTally(electionSampleWithSeal);
   // add tallies to the president contest
   existingTally[0] = typedAs<CandidateContestWithoutWriteInsCompressedTally>([
-    6 /* undervotes */,
-    0 /* overvotes */,
-    34 /* ballotsCast */,
-    6 /* for 'barchi-hallaren' */,
-    5 /* for 'cramer-vuocolo' */,
-    6 /* for 'court-blumhardt' */,
-    5 /* for 'boone-lian' */,
-    3 /* for 'hildebrand-garritty' */,
-    0 /* for 'patterson-lariviere' */,
+    6 /* undervotes */, 0 /* overvotes */, 34 /* ballotsCast */,
+    6 /* for 'barchi-hallaren' */, 5 /* for 'cramer-vuocolo' */,
+    6 /* for 'court-blumhardt' */, 5 /* for 'boone-lian' */,
+    3 /* for 'hildebrand-garritty' */, 0 /* for 'patterson-lariviere' */,
   ]);
   const tallyOnCard: PrecinctScannerCardTally = {
     tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
@@ -231,15 +226,10 @@ test('printing precinct scanner report works as expected with single precinct da
   const existingTally = getZeroCompressedTally(election);
   // add tallies to the president contest
   existingTally[0] = typedAs<CandidateContestWithoutWriteInsCompressedTally>([
-    6 /* undervotes */,
-    0 /* overvotes */,
-    34 /* ballotsCast */,
-    6 /* for 'barchi-hallaren' */,
-    5 /* for 'cramer-vuocolo' */,
-    6 /* for 'court-blumhardt' */,
-    5 /* for 'boone-lian' */,
-    3 /* for 'hildebrand-garritty' */,
-    0 /* for 'patterson-lariviere' */,
+    6 /* undervotes */, 0 /* overvotes */, 34 /* ballotsCast */,
+    6 /* for 'barchi-hallaren' */, 5 /* for 'cramer-vuocolo' */,
+    6 /* for 'court-blumhardt' */, 5 /* for 'boone-lian' */,
+    3 /* for 'hildebrand-garritty' */, 0 /* for 'patterson-lariviere' */,
   ]);
   const tallyOnCard: PrecinctScannerCardTally = {
     tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
@@ -318,43 +308,27 @@ test('printing precinct scanner report works as expected with all precinct speci
   const southSpringfield = getZeroCompressedTally(election);
   const combinedTally = getZeroCompressedTally(election);
   // add tallies to the president contest
-  centerSpringfield[0] = typedAs<CandidateContestWithoutWriteInsCompressedTally>(
-    [
-      1 /* undervotes */,
-      1 /* overvotes */,
-      10 /* ballotsCast */,
-      4 /* for 'barchi-hallaren' */,
-      2 /* for 'cramer-vuocolo' */,
-      1 /* for 'court-blumhardt' */,
-      1 /* for 'boone-lian' */,
-      0 /* for 'hildebrand-garritty' */,
-      0 /* for 'patterson-lariviere' */,
-    ]
-  );
+  centerSpringfield[0] =
+    typedAs<CandidateContestWithoutWriteInsCompressedTally>([
+      1 /* undervotes */, 1 /* overvotes */, 10 /* ballotsCast */,
+      4 /* for 'barchi-hallaren' */, 2 /* for 'cramer-vuocolo' */,
+      1 /* for 'court-blumhardt' */, 1 /* for 'boone-lian' */,
+      0 /* for 'hildebrand-garritty' */, 0 /* for 'patterson-lariviere' */,
+    ]);
   // add tallies to the president contest
   northSpringfield[0] = typedAs<CandidateContestWithoutWriteInsCompressedTally>(
     [
-      2 /* undervotes */,
-      3 /* overvotes */,
-      15 /* ballotsCast */,
-      4 /* for 'barchi-hallaren' */,
-      2 /* for 'cramer-vuocolo' */,
-      1 /* for 'court-blumhardt' */,
-      1 /* for 'boone-lian' */,
-      1 /* for 'hildebrand-garritty' */,
-      1 /* for 'patterson-lariviere' */,
+      2 /* undervotes */, 3 /* overvotes */, 15 /* ballotsCast */,
+      4 /* for 'barchi-hallaren' */, 2 /* for 'cramer-vuocolo' */,
+      1 /* for 'court-blumhardt' */, 1 /* for 'boone-lian' */,
+      1 /* for 'hildebrand-garritty' */, 1 /* for 'patterson-lariviere' */,
     ]
   );
   combinedTally[0] = typedAs<CandidateContestWithoutWriteInsCompressedTally>([
-    3 /* undervotes */,
-    4 /* overvotes */,
-    25 /* ballotsCast */,
-    8 /* for 'barchi-hallaren' */,
-    4 /* for 'cramer-vuocolo' */,
-    2 /* for 'court-blumhardt' */,
-    2 /* for 'boone-lian' */,
-    1 /* for 'hildebrand-garritty' */,
-    1 /* for 'patterson-lariviere' */,
+    3 /* undervotes */, 4 /* overvotes */, 25 /* ballotsCast */,
+    8 /* for 'barchi-hallaren' */, 4 /* for 'cramer-vuocolo' */,
+    2 /* for 'court-blumhardt' */, 2 /* for 'boone-lian' */,
+    1 /* for 'hildebrand-garritty' */, 1 /* for 'patterson-lariviere' */,
   ]);
   const tallyOnCard: PrecinctScannerCardTally = {
     tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
@@ -477,189 +451,112 @@ test('printing precinct scanner report works as expected with all precinct speci
   const combinedTally: CompressedTally = [
     // best animal mammal
     typedAs<CandidateContestWithoutWriteInsCompressedTally>([
-      0 /* undervotes */,
-      1 /* overvotes */,
-      2 /* ballotsCast */,
-      0 /* for 'horse' */,
-      1 /* for 'otter' */,
-      0 /* for 'fox' */,
+      0 /* undervotes */, 1 /* overvotes */, 2 /* ballotsCast */,
+      0 /* for 'horse' */, 1 /* for 'otter' */, 0 /* for 'fox' */,
       0 /* writeIns */,
     ]),
     // best animal fish
     typedAs<CandidateContestWithoutWriteInsCompressedTally>([
-      0 /* undervotes */,
-      0 /* overvotes */,
-      1 /* ballotsCast */,
-      1 /* for 'seahorse' */,
-      0 /* for 'salmon' */,
-      0 /* writeIns */,
+      0 /* undervotes */, 0 /* overvotes */, 1 /* ballotsCast */,
+      1 /* for 'seahorse' */, 0 /* for 'salmon' */, 0 /* writeIns */,
     ]),
     // zoo council
     typedAs<CandidateContestWithWriteInsCompressedTally>([
-      3 /* undervotes */,
-      0 /* overvotes */,
-      2 /* ballotsCast */,
-      1 /* for 'zebra' */,
-      0 /* for 'lion' */,
-      0 /* for 'kangaroo' */,
-      1 /* for 'elephant' */,
-      1 /* writeIns */,
+      3 /* undervotes */, 0 /* overvotes */, 2 /* ballotsCast */,
+      1 /* for 'zebra' */, 0 /* for 'lion' */, 0 /* for 'kangaroo' */,
+      1 /* for 'elephant' */, 1 /* writeIns */,
     ]),
     // aquarium council
     typedAs<CandidateContestWithWriteInsCompressedTally>([
-      0 /* undervotes */,
-      0 /* overvotes */,
-      1 /* ballotsCast */,
-      1 /* for 'manta-ray' */,
-      0 /* for 'pufferfish' */,
-      0 /* for 'rockfish' */,
-      1 /* for 'triggerfish' */,
-      0 /* writeIns */,
+      0 /* undervotes */, 0 /* overvotes */, 1 /* ballotsCast */,
+      1 /* for 'manta-ray' */, 0 /* for 'pufferfish' */, 0 /* for 'rockfish' */,
+      1 /* for 'triggerfish' */, 0 /* writeIns */,
     ]),
     // new zoo either neither
     typedAs<MsEitherNeitherContestCompressedTally>([
-      2 /* eitherOption */,
-      0 /* neitherOption */,
-      0 /* eitherNeitherUndervotes */,
-      0 /* eitherNeitherOvervotes */,
-      0 /* firstOption */,
-      1 /* secondOption */,
-      1 /* pickOneUndervotes */,
-      0 /* pickOneOvervotes */,
-      2 /* ballotsCast */,
+      2 /* eitherOption */, 0 /* neitherOption */,
+      0 /* eitherNeitherUndervotes */, 0 /* eitherNeitherOvervotes */,
+      0 /* firstOption */, 1 /* secondOption */, 1 /* pickOneUndervotes */,
+      0 /* pickOneOvervotes */, 2 /* ballotsCast */,
     ]),
     // fishing ban yes no
     typedAs<YesNoContestCompressedTally>([
-      0 /* undervotes */,
-      0 /* overvotes */,
-      1 /* ballotsCast */,
-      0 /* for 'yes' */,
-      1 /* for 'no' */,
+      0 /* undervotes */, 0 /* overvotes */, 1 /* ballotsCast */,
+      0 /* for 'yes' */, 1 /* for 'no' */,
     ]),
   ];
   const talliesByPrecinct: Dictionary<CompressedTally> = {
     'precinct-1': [
       // best animal mammal
       typedAs<CandidateContestWithoutWriteInsCompressedTally>([
-        0 /* undervotes */,
-        0 /* overvotes */,
-        1 /* ballotsCast */,
-        0 /* for 'horse' */,
-        1 /* for 'otter' */,
-        0 /* for 'fox' */,
+        0 /* undervotes */, 0 /* overvotes */, 1 /* ballotsCast */,
+        0 /* for 'horse' */, 1 /* for 'otter' */, 0 /* for 'fox' */,
         0 /* writeIns */,
       ]),
       // best animal fish
       typedAs<CandidateContestWithoutWriteInsCompressedTally>([
-        0 /* undervotes */,
-        0 /* overvotes */,
-        0 /* ballotsCast */,
-        0 /* for 'seahorse' */,
-        0 /* for 'salmon' */,
-        0 /* writeIns */,
+        0 /* undervotes */, 0 /* overvotes */, 0 /* ballotsCast */,
+        0 /* for 'seahorse' */, 0 /* for 'salmon' */, 0 /* writeIns */,
       ]),
       // zoo council
       typedAs<CandidateContestWithWriteInsCompressedTally>([
-        1 /* undervotes */,
-        0 /* overvotes */,
-        1 /* ballotsCast */,
-        1 /* for 'zebra' */,
-        0 /* for 'lion' */,
-        0 /* for 'kangaroo' */,
-        0 /* for 'elephant' */,
-        1 /* writeIns */,
+        1 /* undervotes */, 0 /* overvotes */, 1 /* ballotsCast */,
+        1 /* for 'zebra' */, 0 /* for 'lion' */, 0 /* for 'kangaroo' */,
+        0 /* for 'elephant' */, 1 /* writeIns */,
       ]),
       // aquarium council
       typedAs<CandidateContestWithWriteInsCompressedTally>([
-        0 /* undervotes */,
-        0 /* overvotes */,
-        0 /* ballotsCast */,
-        0 /* for 'manta-ray' */,
-        0 /* for 'pufferfish' */,
-        0 /* for 'rockfish' */,
-        0 /* for 'triggerfish' */,
-        0 /* writeIns */,
+        0 /* undervotes */, 0 /* overvotes */, 0 /* ballotsCast */,
+        0 /* for 'manta-ray' */, 0 /* for 'pufferfish' */,
+        0 /* for 'rockfish' */, 0 /* for 'triggerfish' */, 0 /* writeIns */,
       ]),
       // new zoo either neither
       typedAs<MsEitherNeitherContestCompressedTally>([
-        1 /* eitherOption */,
-        0 /* neitherOption */,
-        0 /* eitherNeitherUndervotes */,
-        0 /* eitherNeitherOvervotes */,
-        0 /* firstOption */,
-        0 /* secondOption */,
-        1 /* pickOneUndervotes */,
-        0 /* pickOneOvervotes */,
-        1 /* ballotsCast */,
+        1 /* eitherOption */, 0 /* neitherOption */,
+        0 /* eitherNeitherUndervotes */, 0 /* eitherNeitherOvervotes */,
+        0 /* firstOption */, 0 /* secondOption */, 1 /* pickOneUndervotes */,
+        0 /* pickOneOvervotes */, 1 /* ballotsCast */,
       ]),
       // fishing ban yes no
       typedAs<YesNoContestCompressedTally>([
-        0 /* undervotes */,
-        0 /* overvotes */,
-        0 /* ballotsCast */,
-        0 /* for 'yes' */,
-        0 /* for 'no' */,
+        0 /* undervotes */, 0 /* overvotes */, 0 /* ballotsCast */,
+        0 /* for 'yes' */, 0 /* for 'no' */,
       ]),
     ],
     'precinct-2': [
       // best animal mammal
       typedAs<CandidateContestWithoutWriteInsCompressedTally>([
-        0 /* undervotes */,
-        1 /* overvotes */,
-        1 /* ballotsCast */,
-        0 /* for 'horse' */,
-        0 /* for 'otter' */,
-        0 /* for 'fox' */,
+        0 /* undervotes */, 1 /* overvotes */, 1 /* ballotsCast */,
+        0 /* for 'horse' */, 0 /* for 'otter' */, 0 /* for 'fox' */,
       ]),
       // best animal fish
       typedAs<CandidateContestWithoutWriteInsCompressedTally>([
-        0 /* undervotes */,
-        0 /* overvotes */,
-        1 /* ballotsCast */,
-        1 /* for 'seahorse' */,
-        0 /* for 'salmon' */,
+        0 /* undervotes */, 0 /* overvotes */, 1 /* ballotsCast */,
+        1 /* for 'seahorse' */, 0 /* for 'salmon' */,
       ]),
       // zoo council
       typedAs<CandidateContestWithWriteInsCompressedTally>([
-        2 /* undervotes */,
-        0 /* overvotes */,
-        1 /* ballotsCast */,
-        0 /* for 'zebra' */,
-        0 /* for 'lion' */,
-        0 /* for 'kangaroo' */,
-        1 /* for 'elephant' */,
-        1 /* writeIns */,
+        2 /* undervotes */, 0 /* overvotes */, 1 /* ballotsCast */,
+        0 /* for 'zebra' */, 0 /* for 'lion' */, 0 /* for 'kangaroo' */,
+        1 /* for 'elephant' */, 1 /* writeIns */,
       ]),
       // aquarium council
       typedAs<CandidateContestWithWriteInsCompressedTally>([
-        0 /* undervotes */,
-        0 /* overvotes */,
-        1 /* ballotsCast */,
-        1 /* for 'manta-ray' */,
-        0 /* for 'pufferfish' */,
-        0 /* for 'rockfish' */,
-        1 /* for 'triggerfish' */,
-        0 /* writeIns */,
+        0 /* undervotes */, 0 /* overvotes */, 1 /* ballotsCast */,
+        1 /* for 'manta-ray' */, 0 /* for 'pufferfish' */,
+        0 /* for 'rockfish' */, 1 /* for 'triggerfish' */, 0 /* writeIns */,
       ]),
       // new zoo either neither
       typedAs<MsEitherNeitherContestCompressedTally>([
-        1 /* eitherOption */,
-        0 /* neitherOption */,
-        0 /* eitherNeitherUndervotes */,
-        0 /* eitherNeitherOvervotes */,
-        0 /* firstOption */,
-        1 /* secondOption */,
-        0 /* pickOneUndervotes */,
-        0 /* pickOneOvervotes */,
-        1 /* ballotsCast */,
+        1 /* eitherOption */, 0 /* neitherOption */,
+        0 /* eitherNeitherUndervotes */, 0 /* eitherNeitherOvervotes */,
+        0 /* firstOption */, 1 /* secondOption */, 0 /* pickOneUndervotes */,
+        0 /* pickOneOvervotes */, 1 /* ballotsCast */,
       ]),
       // fishing ban yes no
       typedAs<YesNoContestCompressedTally>([
-        0 /* undervotes */,
-        0 /* overvotes */,
-        1 /* ballotsCast */,
-        0 /* for 'yes' */,
-        1 /* for 'no' */,
+        0 /* undervotes */, 0 /* overvotes */, 1 /* ballotsCast */,
+        0 /* for 'yes' */, 1 /* for 'no' */,
       ]),
     ],
   };
@@ -908,62 +805,37 @@ test('printing precinct scanner report works as expected with all precinct combi
   const combinedTally: CompressedTally = [
     // best animal mammal
     typedAs<CandidateContestWithoutWriteInsCompressedTally>([
-      0 /* undervotes */,
-      1 /* overvotes */,
-      2 /* ballotsCast */,
-      0 /* for 'horse' */,
-      1 /* for 'otter' */,
-      0 /* for 'fox' */,
+      0 /* undervotes */, 1 /* overvotes */, 2 /* ballotsCast */,
+      0 /* for 'horse' */, 1 /* for 'otter' */, 0 /* for 'fox' */,
     ]),
     // best animal fish
     typedAs<CandidateContestWithoutWriteInsCompressedTally>([
-      0 /* undervotes */,
-      0 /* overvotes */,
-      1 /* ballotsCast */,
-      1 /* for 'seahorse' */,
-      0 /* for 'salmon' */,
+      0 /* undervotes */, 0 /* overvotes */, 1 /* ballotsCast */,
+      1 /* for 'seahorse' */, 0 /* for 'salmon' */,
     ]),
     // zoo council
     typedAs<CandidateContestWithWriteInsCompressedTally>([
-      3 /* undervotes */,
-      0 /* overvotes */,
-      2 /* ballotsCast */,
-      1 /* for 'zebra' */,
-      0 /* for 'lion' */,
-      0 /* for 'kangaroo' */,
-      1 /* for 'elephant' */,
-      1 /* writeIns */,
+      3 /* undervotes */, 0 /* overvotes */, 2 /* ballotsCast */,
+      1 /* for 'zebra' */, 0 /* for 'lion' */, 0 /* for 'kangaroo' */,
+      1 /* for 'elephant' */, 1 /* writeIns */,
     ]),
     // aquarium council
     typedAs<CandidateContestWithWriteInsCompressedTally>([
-      0 /* undervotes */,
-      0 /* overvotes */,
-      1 /* ballotsCast */,
-      1 /* for 'manta-ray' */,
-      0 /* for 'pufferfish' */,
-      0 /* for 'rockfish' */,
-      1 /* for 'triggerfish' */,
-      0 /* writeIns */,
+      0 /* undervotes */, 0 /* overvotes */, 1 /* ballotsCast */,
+      1 /* for 'manta-ray' */, 0 /* for 'pufferfish' */, 0 /* for 'rockfish' */,
+      1 /* for 'triggerfish' */, 0 /* writeIns */,
     ]),
     // new zoo either neither
     typedAs<MsEitherNeitherContestCompressedTally>([
-      2 /* eitherOption */,
-      0 /* neitherOption */,
-      0 /* eitherNeitherUndervotes */,
-      0 /* eitherNeitherOvervotes */,
-      0 /* firstOption */,
-      1 /* secondOption */,
-      1 /* pickOneUndervotes */,
-      0 /* pickOneOvervotes */,
-      2 /* ballotsCast */,
+      2 /* eitherOption */, 0 /* neitherOption */,
+      0 /* eitherNeitherUndervotes */, 0 /* eitherNeitherOvervotes */,
+      0 /* firstOption */, 1 /* secondOption */, 1 /* pickOneUndervotes */,
+      0 /* pickOneOvervotes */, 2 /* ballotsCast */,
     ]),
     // fishing ban yes no
     typedAs<YesNoContestCompressedTally>([
-      0 /* undervotes */,
-      0 /* overvotes */,
-      1 /* ballotsCast */,
-      0 /* for 'yes' */,
-      1 /* for 'no' */,
+      0 /* undervotes */, 0 /* overvotes */, 1 /* ballotsCast */,
+      0 /* for 'yes' */, 1 /* for 'no' */,
     ]),
   ];
 
@@ -1120,62 +992,37 @@ test('printing precinct scanner report works as expected with a single precinct 
   const combinedTally: CompressedTally = [
     // best animal mammal
     typedAs<CandidateContestWithoutWriteInsCompressedTally>([
-      0 /* undervotes */,
-      1 /* overvotes */,
-      2 /* ballotsCast */,
-      0 /* for 'horse' */,
-      1 /* for 'otter' */,
-      0 /* for 'fox' */,
+      0 /* undervotes */, 1 /* overvotes */, 2 /* ballotsCast */,
+      0 /* for 'horse' */, 1 /* for 'otter' */, 0 /* for 'fox' */,
     ]),
     // best animal fish
     typedAs<CandidateContestWithoutWriteInsCompressedTally>([
-      0 /* undervotes */,
-      0 /* overvotes */,
-      1 /* ballotsCast */,
-      1 /* for 'seahorse' */,
-      0 /* for 'salmon' */,
+      0 /* undervotes */, 0 /* overvotes */, 1 /* ballotsCast */,
+      1 /* for 'seahorse' */, 0 /* for 'salmon' */,
     ]),
     // zoo council
     typedAs<CandidateContestWithWriteInsCompressedTally>([
-      3 /* undervotes */,
-      0 /* overvotes */,
-      2 /* ballotsCast */,
-      1 /* for 'zebra' */,
-      0 /* for 'lion' */,
-      0 /* for 'kangaroo' */,
-      1 /* for 'elephant' */,
-      1 /* writeIns */,
+      3 /* undervotes */, 0 /* overvotes */, 2 /* ballotsCast */,
+      1 /* for 'zebra' */, 0 /* for 'lion' */, 0 /* for 'kangaroo' */,
+      1 /* for 'elephant' */, 1 /* writeIns */,
     ]),
     // aquarium council
     typedAs<CandidateContestWithWriteInsCompressedTally>([
-      0 /* undervotes */,
-      0 /* overvotes */,
-      1 /* ballotsCast */,
-      1 /* for 'manta-ray' */,
-      0 /* for 'pufferfish' */,
-      0 /* for 'rockfish' */,
-      1 /* for 'triggerfish' */,
-      0 /* writeIns */,
+      0 /* undervotes */, 0 /* overvotes */, 1 /* ballotsCast */,
+      1 /* for 'manta-ray' */, 0 /* for 'pufferfish' */, 0 /* for 'rockfish' */,
+      1 /* for 'triggerfish' */, 0 /* writeIns */,
     ]),
     // new zoo either neither
     typedAs<MsEitherNeitherContestCompressedTally>([
-      2 /* eitherOption */,
-      0 /* neitherOption */,
-      0 /* eitherNeitherUndervotes */,
-      0 /* eitherNeitherOvervotes */,
-      0 /* firstOption */,
-      1 /* secondOption */,
-      1 /* pickOneUndervotes */,
-      0 /* pickOneOvervotes */,
-      2 /* ballotsCast */,
+      2 /* eitherOption */, 0 /* neitherOption */,
+      0 /* eitherNeitherUndervotes */, 0 /* eitherNeitherOvervotes */,
+      0 /* firstOption */, 1 /* secondOption */, 1 /* pickOneUndervotes */,
+      0 /* pickOneOvervotes */, 2 /* ballotsCast */,
     ]),
     // fishing ban yes no
     typedAs<YesNoContestCompressedTally>([
-      0 /* undervotes */,
-      0 /* overvotes */,
-      1 /* ballotsCast */,
-      0 /* for 'yes' */,
-      1 /* for 'no' */,
+      0 /* undervotes */, 0 /* overvotes */, 1 /* ballotsCast */,
+      0 /* for 'yes' */, 1 /* for 'no' */,
     ]),
   ];
 

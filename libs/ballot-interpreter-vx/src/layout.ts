@@ -52,9 +52,10 @@ export async function normalizeImageDataAndMetadata({
 /**
  * Find contests in a ballot image, either with two or three columns.
  */
-export function findContestsWithUnknownColumnLayout(
-  imageData: ImageData
-): { contests: ContestShape[]; columns: number } {
+export function findContestsWithUnknownColumnLayout(imageData: ImageData): {
+  contests: ContestShape[];
+  columns: number;
+} {
   // Try three columns, i.e. candidate pages.
   const shapesWithThreeColumns = [
     ...findContests(imageData, {

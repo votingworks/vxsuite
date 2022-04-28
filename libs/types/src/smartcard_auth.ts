@@ -33,8 +33,8 @@ export interface VoterCardData extends CardData {
   /** Mark machine ID */
   readonly m?: string;
 }
-export const VoterCardDataSchema: z.ZodSchema<VoterCardData> = CardDataInternalSchema.extend(
-  {
+export const VoterCardDataSchema: z.ZodSchema<VoterCardData> =
+  CardDataInternalSchema.extend({
     t: z.literal('voter'),
     c: z.number(),
     bs: IdSchema,
@@ -43,20 +43,18 @@ export const VoterCardDataSchema: z.ZodSchema<VoterCardData> = CardDataInternalS
     bp: z.number().optional(),
     u: z.number().optional(),
     m: IdSchema.optional(),
-  }
-);
+  });
 
 export interface PollworkerCardData extends CardData {
   readonly t: 'pollworker';
   /** Election hash */
   readonly h: string;
 }
-export const PollworkerCardDataSchema: z.ZodSchema<PollworkerCardData> = CardDataInternalSchema.extend(
-  {
+export const PollworkerCardDataSchema: z.ZodSchema<PollworkerCardData> =
+  CardDataInternalSchema.extend({
     t: z.literal('pollworker'),
     h: ElectionHash,
-  }
-);
+  });
 
 export interface AdminCardData extends CardData {
   readonly t: 'admin';
@@ -65,13 +63,12 @@ export interface AdminCardData extends CardData {
   /** Card Passcode */
   readonly p?: string;
 }
-export const AdminCardDataSchema: z.ZodSchema<AdminCardData> = CardDataInternalSchema.extend(
-  {
+export const AdminCardDataSchema: z.ZodSchema<AdminCardData> =
+  CardDataInternalSchema.extend({
     t: z.literal('admin'),
     h: ElectionHash,
     p: z.string().optional(),
-  }
-);
+  });
 
 /**
  * Beginning of the SuperAdmin card schema. More will be added to this as we fully flesh out this role
@@ -80,11 +77,10 @@ export const AdminCardDataSchema: z.ZodSchema<AdminCardData> = CardDataInternalS
 export interface SuperAdminCardData extends CardData {
   readonly t: 'superadmin';
 }
-export const SuperAdminCardDataSchema: z.ZodSchema<SuperAdminCardData> = CardDataInternalSchema.extend(
-  {
+export const SuperAdminCardDataSchema: z.ZodSchema<SuperAdminCardData> =
+  CardDataInternalSchema.extend({
     t: z.literal('superadmin'),
-  }
-);
+  });
 
 export type AnyCardData =
   | VoterCardData

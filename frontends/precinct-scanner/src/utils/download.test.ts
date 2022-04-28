@@ -162,7 +162,7 @@ test('download with kiosk-browser with a target directory', async () => {
   // `writeFile` is overloaded in such a way to have different return types,
   // which confuses TS. There's no good way around this that I can find.
   kiosk.writeFile.mockResolvedValueOnce(
-    (fileWriter as unknown) as ReturnType<KioskBrowser.Kiosk['writeFile']>
+    fileWriter as unknown as ReturnType<KioskBrowser.Kiosk['writeFile']>
   );
   const result = await download('/file.txt', { into: '/some/directory' });
   result.unsafeUnwrap();

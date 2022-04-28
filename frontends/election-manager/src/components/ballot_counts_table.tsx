@@ -70,16 +70,17 @@ export function BallotCountsTable({ breakdownCategory }: Props): JSX.Element {
               .map((precinct) => {
                 const precinctBallotsCount =
                   resultsByPrecinct[precinct.id]?.numberOfBallotsCounted ?? 0;
-                const externalPrecinctBallotsCount = externalResultsByPrecinct.reduce(
-                  (prev, talliesByPrecinct) => {
-                    return (
-                      prev +
-                      (talliesByPrecinct[precinct.id]?.numberOfBallotsCounted ??
-                        0)
-                    );
-                  },
-                  0
-                );
+                const externalPrecinctBallotsCount =
+                  externalResultsByPrecinct.reduce(
+                    (prev, talliesByPrecinct) => {
+                      return (
+                        prev +
+                        (talliesByPrecinct[precinct.id]
+                          ?.numberOfBallotsCounted ?? 0)
+                      );
+                    },
+                    0
+                  );
                 return (
                   <tr key={precinct.id} data-testid="table-row">
                     <TD narrow nowrap>

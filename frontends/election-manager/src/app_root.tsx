@@ -144,10 +144,8 @@ export function AppRoot({
     [storage]
   );
 
-  const [
-    electionDefinition,
-    setElectionDefinition,
-  ] = useState<ElectionDefinition>();
+  const [electionDefinition, setElectionDefinition] =
+    useState<ElectionDefinition>();
   const [configuredAt, setConfiguredAt] = useState<Iso8601Timestamp>();
 
   const [castVoteRecordFiles, setCastVoteRecordFiles] = useState(
@@ -179,9 +177,10 @@ export function AppRoot({
     validUserTypes: VALID_USERS,
   });
 
-  const currentUserType = useMemo(() => currentUserSession?.type ?? 'unknown', [
-    currentUserSession,
-  ]);
+  const currentUserType = useMemo(
+    () => currentUserSession?.type ?? 'unknown',
+    [currentUserSession]
+  );
   async function setStorageKeyAndLog(
     storageKey: string,
     value: unknown,
@@ -242,10 +241,8 @@ export function AppRoot({
     getEmptyFullElectionTally()
   );
 
-  const [
-    fullElectionExternalTallies,
-    setFullElectionExternalTallies,
-  ] = useState<FullElectionExternalTally[]>([]);
+  const [fullElectionExternalTallies, setFullElectionExternalTallies] =
+    useState<FullElectionExternalTally[]>([]);
 
   // Handle Machine Config
   useEffect(() => {

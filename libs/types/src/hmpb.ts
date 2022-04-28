@@ -40,13 +40,12 @@ export interface BallotPageContestOptionLayout {
   bounds: Rect;
   target: TargetShape;
 }
-export const BallotPageContestOptionLayoutSchema: z.ZodSchema<BallotPageContestOptionLayout> = z.object(
-  {
+export const BallotPageContestOptionLayoutSchema: z.ZodSchema<BallotPageContestOptionLayout> =
+  z.object({
     definition: ContestOptionSchema.optional(),
     bounds: RectSchema,
     target: TargetShapeSchema,
-  }
-);
+  });
 
 export interface BallotPageContestLayout {
   contestId?: ContestId;
@@ -54,14 +53,13 @@ export interface BallotPageContestLayout {
   corners: Corners;
   options: readonly BallotPageContestOptionLayout[];
 }
-export const BallotPageContestLayoutSchema: z.ZodSchema<BallotPageContestLayout> = z.object(
-  {
+export const BallotPageContestLayoutSchema: z.ZodSchema<BallotPageContestLayout> =
+  z.object({
     contestId: IdSchema.optional(),
     bounds: RectSchema,
     corners: CornersSchema,
     options: z.array(BallotPageContestOptionLayoutSchema),
-  }
-);
+  });
 
 export interface BallotPageLayout {
   pageSize: Size;
@@ -78,12 +76,11 @@ export interface BallotPageLayoutWithImage {
   imageData: ImageData;
   ballotPageLayout: BallotPageLayout;
 }
-export const BallotPageLayoutWithImageSchema: z.ZodSchema<BallotPageLayoutWithImage> = z.object(
-  {
+export const BallotPageLayoutWithImageSchema: z.ZodSchema<BallotPageLayoutWithImage> =
+  z.object({
     imageData: ImageDataSchema,
     ballotPageLayout: BallotPageLayoutSchema,
-  }
-);
+  });
 
 export enum MarkStatus {
   Marked = 'marked',
@@ -91,9 +88,8 @@ export enum MarkStatus {
   Marginal = 'marginal',
   UnmarkedWriteIn = 'unmarkedWriteIn',
 }
-export const MarkStatusSchema: z.ZodSchema<MarkStatus> = z.nativeEnum(
-  MarkStatus
-);
+export const MarkStatusSchema: z.ZodSchema<MarkStatus> =
+  z.nativeEnum(MarkStatus);
 
 export interface MarksByOptionId {
   [key: string]: MarkStatus | undefined;
@@ -115,14 +111,13 @@ export interface UninterpretableBallotMarkAdjudication {
   readonly optionId: ContestOption['id'];
   readonly isMarked: boolean;
 }
-export const UninterpretableBallotMarkAdjudicationSchema: z.ZodSchema<UninterpretableBallotMarkAdjudication> = z.object(
-  {
+export const UninterpretableBallotMarkAdjudicationSchema: z.ZodSchema<UninterpretableBallotMarkAdjudication> =
+  z.object({
     type: z.literal(AdjudicationReason.UninterpretableBallot),
     contestId: IdSchema,
     optionId: IdSchema,
     isMarked: z.boolean(),
-  }
-);
+  });
 
 export interface OvervoteMarkAdjudication {
   readonly type: AdjudicationReason.Overvote;
@@ -130,14 +125,13 @@ export interface OvervoteMarkAdjudication {
   readonly optionId: ContestOption['id'];
   readonly isMarked: boolean;
 }
-export const OvervoteMarkAdjudicationSchema: z.ZodSchema<OvervoteMarkAdjudication> = z.object(
-  {
+export const OvervoteMarkAdjudicationSchema: z.ZodSchema<OvervoteMarkAdjudication> =
+  z.object({
     type: z.literal(AdjudicationReason.Overvote),
     contestId: IdSchema,
     optionId: IdSchema,
     isMarked: z.boolean(),
-  }
-);
+  });
 
 export interface UndervoteMarkAdjudication {
   readonly type: AdjudicationReason.Undervote;
@@ -145,14 +139,13 @@ export interface UndervoteMarkAdjudication {
   readonly optionId: ContestOption['id'];
   readonly isMarked: boolean;
 }
-export const UndervoteMarkAdjudicationSchema: z.ZodSchema<UndervoteMarkAdjudication> = z.object(
-  {
+export const UndervoteMarkAdjudicationSchema: z.ZodSchema<UndervoteMarkAdjudication> =
+  z.object({
     type: z.literal(AdjudicationReason.Undervote),
     contestId: IdSchema,
     optionId: IdSchema,
     isMarked: z.boolean(),
-  }
-);
+  });
 
 export interface MarginalMarkAdjudication {
   readonly type: AdjudicationReason.MarginalMark;
@@ -160,14 +153,13 @@ export interface MarginalMarkAdjudication {
   readonly optionId: ContestOption['id'];
   readonly isMarked: boolean;
 }
-export const MarginalMarkAdjudicationSchema: z.ZodSchema<MarginalMarkAdjudication> = z.object(
-  {
+export const MarginalMarkAdjudicationSchema: z.ZodSchema<MarginalMarkAdjudication> =
+  z.object({
     type: z.literal(AdjudicationReason.MarginalMark),
     contestId: IdSchema,
     optionId: IdSchema,
     isMarked: z.boolean(),
-  }
-);
+  });
 
 export interface WriteInMarkAdjudicationMarked {
   readonly type:
@@ -178,8 +170,8 @@ export interface WriteInMarkAdjudicationMarked {
   readonly optionId: ContestOption['id'];
   readonly name: Candidate['name'];
 }
-export const WriteInMarkAdjudicationMarkedSchema: z.ZodSchema<WriteInMarkAdjudicationMarked> = z.object(
-  {
+export const WriteInMarkAdjudicationMarkedSchema: z.ZodSchema<WriteInMarkAdjudicationMarked> =
+  z.object({
     type: z.union([
       z.literal(AdjudicationReason.MarkedWriteIn),
       z.literal(AdjudicationReason.UnmarkedWriteIn),
@@ -188,8 +180,7 @@ export const WriteInMarkAdjudicationMarkedSchema: z.ZodSchema<WriteInMarkAdjudic
     contestId: IdSchema,
     optionId: WriteInIdSchema,
     name: z.string(),
-  }
-);
+  });
 
 export interface WriteInMarkAdjudicationUnmarked {
   readonly type:
@@ -199,8 +190,8 @@ export interface WriteInMarkAdjudicationUnmarked {
   readonly contestId: Contest['id'];
   readonly optionId: ContestOption['id'];
 }
-export const WriteInMarkAdjudicationUnmarkedSchema: z.ZodSchema<WriteInMarkAdjudicationUnmarked> = z.object(
-  {
+export const WriteInMarkAdjudicationUnmarkedSchema: z.ZodSchema<WriteInMarkAdjudicationUnmarked> =
+  z.object({
     type: z.union([
       z.literal(AdjudicationReason.MarkedWriteIn),
       z.literal(AdjudicationReason.UnmarkedWriteIn),
@@ -208,15 +199,16 @@ export const WriteInMarkAdjudicationUnmarkedSchema: z.ZodSchema<WriteInMarkAdjud
     isMarked: z.literal(false),
     contestId: IdSchema,
     optionId: WriteInIdSchema,
-  }
-);
+  });
 
 export type WriteInMarkAdjudication =
   | WriteInMarkAdjudicationMarked
   | WriteInMarkAdjudicationUnmarked;
-export const WriteInMarkAdjudicationSchema: z.ZodSchema<WriteInMarkAdjudication> = z.union(
-  [WriteInMarkAdjudicationMarkedSchema, WriteInMarkAdjudicationUnmarkedSchema]
-);
+export const WriteInMarkAdjudicationSchema: z.ZodSchema<WriteInMarkAdjudication> =
+  z.union([
+    WriteInMarkAdjudicationMarkedSchema,
+    WriteInMarkAdjudicationUnmarkedSchema,
+  ]);
 
 export type MarkAdjudication =
   | UninterpretableBallotMarkAdjudication

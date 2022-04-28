@@ -32,7 +32,8 @@ export const PrintableBallotType = {
   Absentee: 'absentee',
   Precinct: 'standard',
 } as const;
-export type PrintableBallotType = typeof PrintableBallotType[keyof typeof PrintableBallotType];
+export type PrintableBallotType =
+  typeof PrintableBallotType[keyof typeof PrintableBallotType];
 
 export interface PrintedBallot {
   ballotStyleId: BallotStyle['id'];

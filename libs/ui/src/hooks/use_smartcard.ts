@@ -75,10 +75,8 @@ export function useSmartcard({
   card,
   cardReader,
 }: UseSmartcardProps): Smartcard {
-  const [
-    { cardData, status, lastCardDataString, longValueExists },
-    setState,
-  ] = useState(initialState);
+  const [{ cardData, status, lastCardDataString, longValueExists }, setState] =
+    useState(initialState);
   const isReading = useRef(false);
   const isWriting = useRef(false);
   const makeCancelable = useCancelablePromise();

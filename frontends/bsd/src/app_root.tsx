@@ -87,10 +87,8 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
   );
   const history = useHistory();
   const [isConfigLoaded, setIsConfigLoaded] = useState(false);
-  const [
-    electionDefinition,
-    setElectionDefinition,
-  ] = useState<ElectionDefinition>();
+  const [electionDefinition, setElectionDefinition] =
+    useState<ElectionDefinition>();
   const [electionJustLoaded, setElectionJustLoaded] = useState(false);
   const [isTestMode, setTestMode] = useState(false);
   const [isTogglingTestMode, setTogglingTestMode] = useState(false);
@@ -121,31 +119,25 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
     card,
     cardReader,
   });
-  const {
-    currentUserSession,
-    attemptToAuthenticateAdminUser,
-    lockMachine,
-  } = useUserSession({
-    smartcard,
-    electionDefinition,
-    persistAuthentication: true,
-    bypassAuthentication: machineConfig.bypassAuthentication,
-    logger,
-    validUserTypes: VALID_USERS,
-  });
+  const { currentUserSession, attemptToAuthenticateAdminUser, lockMachine } =
+    useUserSession({
+      smartcard,
+      electionDefinition,
+      persistAuthentication: true,
+      bypassAuthentication: machineConfig.bypassAuthentication,
+      logger,
+      validUserTypes: VALID_USERS,
+    });
   const [isExportingCvrs, setIsExportingCvrs] = useState(false);
 
-  const [markThresholds, setMarkThresholds] = useState<
-    Optional<MarkThresholds>
-  >();
+  const [markThresholds, setMarkThresholds] =
+    useState<Optional<MarkThresholds>>();
 
   const { adjudication } = status;
 
   const [isScanning, setIsScanning] = useState(false);
-  const [
-    currentScanningBatchId,
-    setCurrentScanningBatchId,
-  ] = useState<string>();
+  const [currentScanningBatchId, setCurrentScanningBatchId] =
+    useState<string>();
   const [lastScannedSheetIdx, setLastScannedSheetIdx] = useState(0);
   const currentUserType = currentUserSession?.type ?? 'unknown';
 

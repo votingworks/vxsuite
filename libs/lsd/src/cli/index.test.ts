@@ -53,7 +53,7 @@ const readGrayscaleImageMock = readGrayscaleImage as jest.MockedFunction<
 function captureNextFileWriter(): WritableStream {
   const writer = new WritableStream();
   createWriteStreamMock.mockReturnValueOnce(
-    (writer as unknown) as fs.WriteStream
+    writer as unknown as fs.WriteStream
   );
   return writer;
 }

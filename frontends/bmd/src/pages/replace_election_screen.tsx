@@ -61,10 +61,8 @@ export function ReplaceElectionScreen({
   unconfigure,
 }: Props): JSX.Element {
   const makeCancelable = useCancelablePromise();
-  const [
-    cardElectionDefinition,
-    setCardElectionDefinition,
-  ] = useState<ElectionDefinition>();
+  const [cardElectionDefinition, setCardElectionDefinition] =
+    useState<ElectionDefinition>();
 
   useEffect(() => {
     void (async () => {

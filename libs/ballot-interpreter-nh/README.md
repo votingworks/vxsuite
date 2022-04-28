@@ -29,7 +29,7 @@ import { interpret } from '@votingworks/ballot-interpreter-nh';
 const interpretResult = await interpret(electionDefinition, [
   frontImagePath,
   backImagePath,
-])
+]);
 
 if (interpretResult.isErr()) {
   console.error(`error: ${interpretResult.err().message}`);

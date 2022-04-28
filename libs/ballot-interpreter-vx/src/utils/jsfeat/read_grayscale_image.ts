@@ -7,7 +7,7 @@ export function readGrayscaleImage(imageData: ImageData): jsfeat.matrix_t {
     jsfeat.U8_t | jsfeat.C1_t
   );
   jsfeat.imgproc.grayscale(
-    (imageData.data as unknown) as Float32Array,
+    imageData.data as unknown as Float32Array,
     imageData.width,
     imageData.height,
     mat

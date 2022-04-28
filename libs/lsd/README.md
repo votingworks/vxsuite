@@ -43,15 +43,15 @@ pnpm test:watch
 # API Usage
 
 ```ts
-import lsd from '@votingworks/lsd'
+import lsd from '@votingworks/lsd';
 
 // get a 1-channel grayscale `ImageData` object somehow
-const gray = await readGrayscaleImage(path)
+const gray = await readGrayscaleImage(path);
 
 // get line segments
-const segments = lsd(gray)
+const segments = lsd(gray);
 
-console.log(segments)
+console.log(segments);
 // [{ x1: 63.59566, x2: 63.59566, y1: 0.625, y2: 126.875, width: 1.25 }, …]
 ```
 

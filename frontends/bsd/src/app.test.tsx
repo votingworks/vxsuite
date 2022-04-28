@@ -79,14 +79,16 @@ async function authenticateWithAdminCard(card: MemoryCard) {
 }
 
 test('renders without crashing', async () => {
-  const getElectionResponseBody: GetElectionConfigResponse = electionSampleDefinition;
+  const getElectionResponseBody: GetElectionConfigResponse =
+    electionSampleDefinition;
   const getTestModeResponseBody: GetTestModeConfigResponse = {
     status: 'ok',
     testMode: true,
   };
-  const getMarkThresholdOverridesResponseBody: GetMarkThresholdOverridesConfigResponse = {
-    status: 'ok',
-  };
+  const getMarkThresholdOverridesResponseBody: GetMarkThresholdOverridesConfigResponse =
+    {
+      status: 'ok',
+    };
   fetchMock
     .getOnce('/config/election', { body: getElectionResponseBody })
     .getOnce('/config/testMode', { body: getTestModeResponseBody })
@@ -101,14 +103,16 @@ test('renders without crashing', async () => {
 });
 
 test('shows a "Test mode" button if the app is in Live Mode', async () => {
-  const getElectionResponseBody: GetElectionConfigResponse = electionSampleDefinition;
+  const getElectionResponseBody: GetElectionConfigResponse =
+    electionSampleDefinition;
   const getTestModeResponseBody: GetTestModeConfigResponse = {
     status: 'ok',
     testMode: false,
   };
-  const getMarkThresholdOverridesResponseBody: GetMarkThresholdOverridesConfigResponse = {
-    status: 'ok',
-  };
+  const getMarkThresholdOverridesResponseBody: GetMarkThresholdOverridesConfigResponse =
+    {
+      status: 'ok',
+    };
   fetchMock
     .get('/config/election', { body: getElectionResponseBody })
     .get('/config/testMode', { body: getTestModeResponseBody })
@@ -127,14 +131,16 @@ test('shows a "Test mode" button if the app is in Live Mode', async () => {
 });
 
 test('shows a "Live mode" button if the app is in Test Mode', async () => {
-  const getElectionResponseBody: GetElectionConfigResponse = electionSampleDefinition;
+  const getElectionResponseBody: GetElectionConfigResponse =
+    electionSampleDefinition;
   const getTestModeResponseBody: GetTestModeConfigResponse = {
     status: 'ok',
     testMode: true,
   };
-  const getMarkThresholdOverridesResponseBody: GetMarkThresholdOverridesConfigResponse = {
-    status: 'ok',
-  };
+  const getMarkThresholdOverridesResponseBody: GetMarkThresholdOverridesConfigResponse =
+    {
+      status: 'ok',
+    };
   fetchMock
     .get('/config/election', { body: getElectionResponseBody })
     .get('/config/testMode', { body: getTestModeResponseBody })
@@ -154,14 +160,16 @@ test('shows a "Live mode" button if the app is in Test Mode', async () => {
 });
 
 test('clicking Scan Batch will scan a batch', async () => {
-  const getElectionResponseBody: GetElectionConfigResponse = electionSampleDefinition;
+  const getElectionResponseBody: GetElectionConfigResponse =
+    electionSampleDefinition;
   const getTestModeResponseBody: GetTestModeConfigResponse = {
     status: 'ok',
     testMode: true,
   };
-  const getMarkThresholdOverridesResponseBody: GetMarkThresholdOverridesConfigResponse = {
-    status: 'ok',
-  };
+  const getMarkThresholdOverridesResponseBody: GetMarkThresholdOverridesConfigResponse =
+    {
+      status: 'ok',
+    };
   const scanBatchResponseBody: ScanBatchResponse = {
     status: 'error',
     errors: [{ type: 'scan-error', message: 'interpreter not ready' }],
@@ -198,14 +206,16 @@ test('clicking Scan Batch will scan a batch', async () => {
 });
 
 test('clicking export shows modal and makes a request to export', async () => {
-  const getElectionResponseBody: GetElectionConfigResponse = electionSampleDefinition;
+  const getElectionResponseBody: GetElectionConfigResponse =
+    electionSampleDefinition;
   const getTestModeResponseBody: GetTestModeConfigResponse = {
     status: 'ok',
     testMode: true,
   };
-  const getMarkThresholdOverridesResponseBody: GetMarkThresholdOverridesConfigResponse = {
-    status: 'ok',
-  };
+  const getMarkThresholdOverridesResponseBody: GetMarkThresholdOverridesConfigResponse =
+    {
+      status: 'ok',
+    };
   const scanStatusResponseBody: GetScanStatusResponse = {
     canUnconfigure: false,
     batches: [
@@ -264,9 +274,10 @@ test('configuring election from usb ballot package works end to end', async () =
     status: 'ok',
     testMode: true,
   };
-  const getMarkThresholdOverridesResponse: GetMarkThresholdOverridesConfigResponse = {
-    status: 'ok',
-  };
+  const getMarkThresholdOverridesResponse: GetMarkThresholdOverridesConfigResponse =
+    {
+      status: 'ok',
+    };
   fetchMock
     .get('/config/election', { body: 'null' })
     .get('/config/testMode', { body: getTestModeConfigResponse })
@@ -353,14 +364,16 @@ test('authentication works', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   hardware.setBatchScannerConnected(false);
-  const getElectionResponseBody: GetElectionConfigResponse = electionSampleDefinition;
+  const getElectionResponseBody: GetElectionConfigResponse =
+    electionSampleDefinition;
   const getTestModeResponseBody: GetTestModeConfigResponse = {
     status: 'ok',
     testMode: true,
   };
-  const getMarkThresholdOverridesResponseBody: GetMarkThresholdOverridesConfigResponse = {
-    status: 'ok',
-  };
+  const getMarkThresholdOverridesResponseBody: GetMarkThresholdOverridesConfigResponse =
+    {
+      status: 'ok',
+    };
 
   fetchMock
     .get('/config/election', { body: getElectionResponseBody })

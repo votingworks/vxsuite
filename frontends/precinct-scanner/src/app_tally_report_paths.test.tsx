@@ -56,19 +56,22 @@ const getTestModeConfigTrueResponseBody: GetTestModeConfigResponse = {
   testMode: true,
 };
 
-const getPrecinctConfigNoPrecinctResponseBody: GetCurrentPrecinctConfigResponse = {
-  status: 'ok',
-};
+const getPrecinctConfigNoPrecinctResponseBody: GetCurrentPrecinctConfigResponse =
+  {
+    status: 'ok',
+  };
 
-const getPrecinctConfigPrecinct1ResponseBody: GetCurrentPrecinctConfigResponse = {
-  status: 'ok',
-  precinctId: 'precinct-1',
-};
+const getPrecinctConfigPrecinct1ResponseBody: GetCurrentPrecinctConfigResponse =
+  {
+    status: 'ok',
+    precinctId: 'precinct-1',
+  };
 
-const getPrecinctConfigPrecinct23ResponseBody: GetCurrentPrecinctConfigResponse = {
-  status: 'ok',
-  precinctId: '23',
-};
+const getPrecinctConfigPrecinct23ResponseBody: GetCurrentPrecinctConfigResponse =
+  {
+    status: 'ok',
+    precinctId: '23',
+  };
 
 const scanStatusWaitingForPaperResponseBody: GetScanStatusResponse = {
   scanner: ScannerStatus.WaitingForPaper,

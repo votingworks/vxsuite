@@ -82,9 +82,9 @@ it('MarkOnly flow', async () => {
   // select precinct
   screen.getByText('State of Hamilton');
   const precinctSelect = screen.getByLabelText('Precinct');
-  const precinctId = (within(precinctSelect).getByText(
-    'Center Springfield'
-  ) as HTMLOptionElement).value;
+  const precinctId = (
+    within(precinctSelect).getByText('Center Springfield') as HTMLOptionElement
+  ).value;
   fireEvent.change(precinctSelect, { target: { value: precinctId } });
   within(screen.getByTestId('election-info')).getByText('Center Springfield');
 

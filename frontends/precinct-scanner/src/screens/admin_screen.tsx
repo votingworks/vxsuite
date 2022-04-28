@@ -43,11 +43,8 @@ export function AdminScreen({
   calibrate,
   usbDrive,
 }: Props): JSX.Element {
-  const {
-    electionDefinition,
-    currentPrecinctId,
-    currentUserSession,
-  } = useContext(AppContext);
+  const { electionDefinition, currentPrecinctId, currentUserSession } =
+    useContext(AppContext);
   assert(electionDefinition);
   const { election } = electionDefinition;
 

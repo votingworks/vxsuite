@@ -277,9 +277,8 @@ describe('System Diagnostics screen', () => {
       controllerSection = (
         await screen.findByRole('heading', { name: 'Accessible Controller' })
       ).closest('section')!;
-      const testResultText = within(controllerSection).getByText(
-        'Test passed.'
-      );
+      const testResultText =
+        within(controllerSection).getByText('Test passed.');
       expectToHaveSuccessIcon(testResultText);
       within(controllerSection).getByText('Last tested at 11:23 AM');
 

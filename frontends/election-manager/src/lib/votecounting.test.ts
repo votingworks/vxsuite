@@ -65,9 +65,8 @@ test('tabulating a set of CVRs gives expected output', async () => {
   expect(jackieChanTally.tally).toBe(1372);
 
   // - Neil Armstrong, 2207 bubbles, of which 10 are overvotes --> 2197
-  const repDistrict18Tallies = fullTally.overallTally.contestTallies[
-    'representative-district-18'
-  ]!;
+  const repDistrict18Tallies =
+    fullTally.overallTally.contestTallies['representative-district-18']!;
   const neilArmstrongTally = repDistrict18Tallies.tallies['neil-armstrong']!;
   expect(neilArmstrongTally.tally).toBe(2197);
 

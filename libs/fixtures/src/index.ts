@@ -59,15 +59,18 @@ export const electionSampleLongContentDefinition = safeParseElectionDefinition(
 export const electionSampleRotationDefinition = safeParseElectionDefinition(
   electionSampleRotationAsText()
 ).unsafeUnwrap();
-export const electionWithMsEitherNeitherDefinition = safeParseElectionDefinition(
-  electionWithMsEitherNeitherAsText()
-).unsafeUnwrap();
-export const electionMinimalExhaustiveSampleDefinition = safeParseElectionDefinition(
-  electionMinimalExhaustiveSampleAsText()
-).unsafeUnwrap();
-export const electionMinimalExhaustiveSampleRightSideTargetsDefinition = safeParseElectionDefinition(
-  electionMinimalExhaustiveSampleRightSideTargetsAsText()
-).unsafeUnwrap();
+export const electionWithMsEitherNeitherDefinition =
+  safeParseElectionDefinition(
+    electionWithMsEitherNeitherAsText()
+  ).unsafeUnwrap();
+export const electionMinimalExhaustiveSampleDefinition =
+  safeParseElectionDefinition(
+    electionMinimalExhaustiveSampleAsText()
+  ).unsafeUnwrap();
+export const electionMinimalExhaustiveSampleRightSideTargetsDefinition =
+  safeParseElectionDefinition(
+    electionMinimalExhaustiveSampleRightSideTargetsAsText()
+  ).unsafeUnwrap();
 export const electionSampleNoSealDefinition = safeParseElectionDefinition(
   electionSampleNoSealAsText()
 ).unsafeUnwrap();
@@ -88,7 +91,8 @@ export const electionMinimalExhaustiveSampleRightSideTargets =
   electionMinimalExhaustiveSampleRightSideTargetsDefinition.election;
 export const electionSampleNoSeal = electionSampleNoSealDefinition.election;
 
-export const electionWithMsEitherNeitherRawData = electionWithMsEitherNeitherAsText();
+export const electionWithMsEitherNeitherRawData =
+  electionWithMsEitherNeitherAsText();
 
 export const electionMultiPartyPrimaryWithDataFiles = {
   electionDefinition: multiPartyPrimaryElectionDefinition,

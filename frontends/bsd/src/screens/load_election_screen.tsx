@@ -29,10 +29,8 @@ export function LoadElectionScreen({
   const { currentUserSession, logger } = useContext(AppContext);
   assert(currentUserSession);
   const currentUserType = currentUserSession.type;
-  const [
-    currentUploadingBallotIndex,
-    setCurrentUploadingBallotIndex,
-  ] = useState(-1);
+  const [currentUploadingBallotIndex, setCurrentUploadingBallotIndex] =
+    useState(-1);
   const [totalTemplates, setTotalTemplates] = useState(0);
   const [currentUploadingBallot, setCurrentUploadingBallot] = useState<{
     ballotStyle: string;

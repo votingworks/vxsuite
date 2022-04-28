@@ -190,9 +190,11 @@ export function BallotScreen(): JSX.Element {
     }
     // eslint-disable-next-line vx/gts-safe-number-parse
     const pagedJsPageCount = Number(
-      (ballotPreviewRef.current?.getElementsByClassName(
-        'pagedjs_pages'
-      )[0] as HTMLElement)?.style.getPropertyValue('--pagedjs-page-count') || 0
+      (
+        ballotPreviewRef.current?.getElementsByClassName(
+          'pagedjs_pages'
+        )[0] as HTMLElement
+      )?.style.getPropertyValue('--pagedjs-page-count') || 0
     );
     setBallotPages(pagedJsPageCount);
     // eslint-disable-next-line react-hooks/exhaustive-deps

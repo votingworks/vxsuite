@@ -323,12 +323,8 @@ export function getCorners(
     (maxSkewRadians * 180) / Math.PI
   );
   const { bounds, edges } = shape;
-  const [
-    boundsTopLeft,
-    boundsTopRight,
-    boundsBottomLeft,
-    boundsBottomRight,
-  ] = rectCorners(bounds);
+  const [boundsTopLeft, boundsTopRight, boundsBottomLeft, boundsBottomRight] =
+    rectCorners(bounds);
   const maxLeftRightSkewDistance = Math.ceil(
     bounds.height * Math.tan(maxSkewRadians)
   );

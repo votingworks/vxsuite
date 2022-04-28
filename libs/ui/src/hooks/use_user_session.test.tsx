@@ -330,9 +330,8 @@ test('basic persist authentication flow works as expected', () => {
 
   // attempting to authenticate with the wrong pin fails
   act(() => {
-    const attemptResult = result.current.attemptToAuthenticateAdminUser(
-      '000000'
-    );
+    const attemptResult =
+      result.current.attemptToAuthenticateAdminUser('000000');
     expect(attemptResult).toBe(false);
   });
   expect(result.current.currentUserSession).toStrictEqual({
@@ -350,9 +349,8 @@ test('basic persist authentication flow works as expected', () => {
 
   // attempting to authenticate with the correct pin succeeds
   act(() => {
-    const attemptResult = result.current.attemptToAuthenticateAdminUser(
-      '123456'
-    );
+    const attemptResult =
+      result.current.attemptToAuthenticateAdminUser('123456');
     expect(attemptResult).toBe(true);
   });
   expect(result.current.currentUserSession).toStrictEqual({
@@ -504,9 +502,8 @@ test('basic persist authentication flow works as expected', () => {
 
   // Attempting to authenticate while we do not have an admin card fails and does not modify the user session
   act(() => {
-    const attemptResult = result.current.attemptToAuthenticateAdminUser(
-      '123456'
-    );
+    const attemptResult =
+      result.current.attemptToAuthenticateAdminUser('123456');
     expect(attemptResult).toBe(false);
   });
   expect(result.current.currentUserSession).toStrictEqual({
@@ -618,9 +615,8 @@ test('basic flow with no persistance of authentication works as expected', async
 
   // attempting to authenticate with the wrong pin fails
   act(() => {
-    const attemptResult = result.current.attemptToAuthenticateAdminUser(
-      '000000'
-    );
+    const attemptResult =
+      result.current.attemptToAuthenticateAdminUser('000000');
     expect(attemptResult).toBe(false);
   });
   expect(result.current.currentUserSession).toStrictEqual({
@@ -638,9 +634,8 @@ test('basic flow with no persistance of authentication works as expected', async
 
   // attempting to authenticate with the correct pin succeeds
   act(() => {
-    const attemptResult = result.current.attemptToAuthenticateAdminUser(
-      '123456'
-    );
+    const attemptResult =
+      result.current.attemptToAuthenticateAdminUser('123456');
     expect(attemptResult).toBe(true);
   });
   expect(result.current.currentUserSession).toStrictEqual({
@@ -753,9 +748,8 @@ test('basic flow with no persistance of authentication works as expected', async
 
   // Attempting to authenticate while we do not have an admin card fails and does not modify the user session
   act(() => {
-    const attemptResult = result.current.attemptToAuthenticateAdminUser(
-      '123456'
-    );
+    const attemptResult =
+      result.current.attemptToAuthenticateAdminUser('123456');
     expect(attemptResult).toBe(false);
   });
   expect(result.current.currentUserSession).toStrictEqual({
@@ -790,9 +784,8 @@ test('basic flow with no persistance of authentication works as expected', async
     })
   );
   act(() => {
-    const attemptResult = result.current.attemptToAuthenticateAdminUser(
-      '123456'
-    );
+    const attemptResult =
+      result.current.attemptToAuthenticateAdminUser('123456');
     expect(attemptResult).toBe(false);
   });
   expect(result.current.currentUserSession).toStrictEqual({
@@ -820,9 +813,8 @@ test('basic flow with no persistance of authentication works as expected', async
     })
   );
   act(() => {
-    const attemptResult = result.current.attemptToAuthenticateAdminUser(
-      '123456'
-    );
+    const attemptResult =
+      result.current.attemptToAuthenticateAdminUser('123456');
     expect(attemptResult).toBe(false);
   });
   expect(result.current.currentUserSession).toStrictEqual(undefined);
@@ -849,9 +841,8 @@ test('basic flow with no persistance of authentication works as expected', async
     })
   );
   act(() => {
-    const attemptResult = result.current.attemptToAuthenticateAdminUser(
-      '123456'
-    );
+    const attemptResult =
+      result.current.attemptToAuthenticateAdminUser('123456');
     expect(attemptResult).toBe(false);
   });
   expect(result.current.currentUserSession).toStrictEqual({
@@ -886,9 +877,8 @@ test('basic flow with no persistance of authentication works as expected', async
   );
   // Attempting to authenticate an admin card without a pin fails
   act(() => {
-    const attemptResult = result.current.attemptToAuthenticateAdminUser(
-      '123456'
-    );
+    const attemptResult =
+      result.current.attemptToAuthenticateAdminUser('123456');
     expect(attemptResult).toBe(false);
   });
   expect(result.current.currentUserSession).toStrictEqual({
@@ -924,9 +914,8 @@ test('basic flow with no persistance of authentication works as expected', async
     })
   );
   act(() => {
-    const attemptResult = result.current.attemptToAuthenticateAdminUser(
-      '123456'
-    );
+    const attemptResult =
+      result.current.attemptToAuthenticateAdminUser('123456');
     expect(attemptResult).toBe(false);
   });
   expect(logSpy).toHaveBeenCalledTimes(24);

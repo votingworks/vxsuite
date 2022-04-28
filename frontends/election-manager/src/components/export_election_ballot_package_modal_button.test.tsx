@@ -123,15 +123,11 @@ test('Modal renders insert usb screen appropriately', async () => {
 test('Modal renders export confirmation screen when usb detected and manual link works as expected', async () => {
   const logger = new Logger(LogSource.VxAdminFrontend);
   const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
-  const {
-    getByText,
-    queryAllByText,
-    queryAllByAltText,
-    queryAllByTestId,
-  } = renderInAppContext(<ExportElectionBallotPackageModalButton />, {
-    usbDriveStatus: UsbDriveStatus.mounted,
-    logger,
-  });
+  const { getByText, queryAllByText, queryAllByAltText, queryAllByTestId } =
+    renderInAppContext(<ExportElectionBallotPackageModalButton />, {
+      usbDriveStatus: UsbDriveStatus.mounted,
+      logger,
+    });
   fireEvent.click(getByText('Export Ballot Package'));
   await waitFor(() =>
     expect(queryAllByText('Export Ballot Package')).toHaveLength(2)

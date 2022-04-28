@@ -40,11 +40,8 @@ const Contest = styled.div`
 `;
 
 export function OvervoteCombinationReportScreen(): JSX.Element {
-  const {
-    castVoteRecordFiles,
-    electionDefinition,
-    isOfficialResults,
-  } = useContext(AppContext);
+  const { castVoteRecordFiles, electionDefinition, isOfficialResults } =
+    useContext(AppContext);
   assert(electionDefinition);
   const { election } = electionDefinition;
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial';

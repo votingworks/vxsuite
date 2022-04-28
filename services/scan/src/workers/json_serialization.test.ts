@@ -34,7 +34,7 @@ function arbitraryMessage(): fc.Arbitrary<SerializedMessage> {
       .array(fc.integer({ min: 0, max: 255 }))
       .map((arr) => Uint8Array.from(arr)),
   }));
-  return (any as unknown) as fc.Arbitrary<SerializedMessage>;
+  return any as unknown as fc.Arbitrary<SerializedMessage>;
 }
 
 test('string', () => {

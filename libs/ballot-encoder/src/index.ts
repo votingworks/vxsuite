@@ -77,18 +77,14 @@ export const HexEncoding = new CustomEncoding('0123456789abcdef');
  * The bytes we expect a BMD ballot to start with.
  */
 export const Prelude: readonly Uint8[] = [
-  /* V */ 86,
-  /* X */ 88,
-  /* version = */ 2,
+  /* V */ 86, /* X */ 88, /* version = */ 2,
 ];
 
 /**
  * The bytes we expect a hand-marked paper ballot to start with.
  */
 export const HmpbPrelude: readonly Uint8[] = [
-  /* V */ 86,
-  /* P = Paper */ 80,
-  /* version = */ 1,
+  /* V */ 86, /* P = Paper */ 80, /* version = */ 1,
 ];
 
 /**
@@ -595,17 +591,12 @@ export function decodeBallotFromReader(
     length: ELECTION_HASH_LENGTH,
   });
 
-  const {
-    ballotId,
-    ballotStyleId,
-    ballotType,
-    isTestMode,
-    precinctId,
-  } = decodeBallotConfigFromReader(
-    election,
-    { readLocales: false, readPageNumber: false },
-    bits
-  );
+  const { ballotId, ballotStyleId, ballotType, isTestMode, precinctId } =
+    decodeBallotConfigFromReader(
+      election,
+      { readLocales: false, readPageNumber: false },
+      bits
+    );
   const ballotStyle = getBallotStyle({ ballotStyleId, election });
   const precinct = getPrecinctById({ precinctId, election });
 

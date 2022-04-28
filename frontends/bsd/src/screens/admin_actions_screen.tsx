@@ -45,10 +45,8 @@ export function AdminActionsScreen({
   const { lockMachine, logger, currentUserSession } = useContext(AppContext);
   const currentUserType = currentUserSession?.type ?? 'unknown';
   const [isConfirmingUnconfigure, setIsConfirmingUnconfigure] = useState(false);
-  const [
-    isDoubleConfirmingUnconfigure,
-    setIsDoubleConfirmingUnconfigure,
-  ] = useState(false);
+  const [isDoubleConfirmingUnconfigure, setIsDoubleConfirmingUnconfigure] =
+    useState(false);
   const [isFactoryResetting, setIsFactoryResetting] = useState(false);
   const [isDeletingBallotData, setIsDeletingBallotData] = useState(false);
   const [isBackingUp, setIsBackingUp] = useState(false);
@@ -61,9 +59,8 @@ export function AdminActionsScreen({
   }
   const [isConfirmingZero, setIsConfirmingZero] = useState(false);
   const [exportingLogType, setExportingLogType] = useState<LogFileType>();
-  const [isSetMarkThresholdModalOpen, setIsMarkThresholdModalOpen] = useState(
-    false
-  );
+  const [isSetMarkThresholdModalOpen, setIsMarkThresholdModalOpen] =
+    useState(false);
   function toggleIsConfirmingZero() {
     return setIsConfirmingZero((s) => !s);
   }

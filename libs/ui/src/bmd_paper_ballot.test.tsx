@@ -16,9 +16,10 @@ import { render, screen } from '@testing-library/react';
 import { BmdPaperBallot } from './bmd_paper_ballot';
 
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
-  const original = jest.requireActual<typeof import('@votingworks/utils')>(
-    '@votingworks/utils'
-  );
+  const original =
+    jest.requireActual<typeof import('@votingworks/utils')>(
+      '@votingworks/utils'
+    );
   // Mock random string generation so that snapshots match, while leaving the rest of the module
   // intact
   return {

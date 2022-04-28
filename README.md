@@ -27,22 +27,38 @@ disable this feature, run with this environment variable:
 consider setting that in your shell configuration (e.g. `.bashrc`).
 
 ### Developing on a VM from MacOS
-We strongly recommend development in this repo on a VM running Debian. Our production machines are configured with Debian so this will allow for you to develop in the environment most similar to production. Additionally VM features such as snapshots make development much more straightforward. See the [Virtual Machine Setup Guide](./VirtualMachineSetup.md) for more details on how to best configure this VM. Then come back and follow the steps in the Debian quickstart below to get developing. 
+
+We strongly recommend development in this repo on a VM running Debian. Our
+production machines are configured with Debian so this will allow for you to
+develop in the environment most similar to production. Additionally VM features
+such as snapshots make development much more straightforward. See the
+[Virtual Machine Setup Guide](./VirtualMachineSetup.md) for more details on how
+to best configure this VM. Then come back and follow the steps in the Debian
+quickstart below to get developing.
 
 ### Debian Quickstart
 
-This expects Debian 11.02, though it may work on other versions. 
+This expects Debian 11.02, though it may work on other versions.
 
-Debian, by default, does not give your primary user account sudo access. Most of our scripts are designed assuming you will have sudo access so is most straightforward to simply add yourself to the sudoers file. You can do this with the following commands.
+Debian, by default, does not give your primary user account sudo access. Most of
+our scripts are designed assuming you will have sudo access so is most
+straightforward to simply add yourself to the sudoers file. You can do this with
+the following commands.
 
 ```sh
 su - # this will prompt for the root password
 usermod -aG sudo <USERNAME> # use your user account username
 exit
 ```
-Restart your machine or open a new terminal for the changes to take effect. You can verify it worked after restart by entering `sudo whoami` in the terminal and you should see `root`. 
 
-Next install git, and create an SSH key following the [github guide](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent). You will need to add the key to your github account. Then clone the vxsuite repositories. 
+Restart your machine or open a new terminal for the changes to take effect. You
+can verify it worked after restart by entering `sudo whoami` in the terminal and
+you should see `root`.
+
+Next install git, and create an SSH key following the
+[github guide](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent).
+You will need to add the key to your github account. Then clone the vxsuite
+repositories.
 
 ```sh
 sudo apt update
@@ -57,14 +73,15 @@ mkdir code
 cd code
 git clone git@github.com:votingworks/vxsuite.git
 
-# If you are doing a lot of development in vxsuite you will likely eventually need the following repos. 
+# If you are doing a lot of development in vxsuite you will likely eventually need the following repos.
 # kiosk-browser is an electron-based browser where our apps run in production.
 git clone git@github.com:votingworks/kiosk-browser.git
 # vxsuite-complete-system packages vxsuite and kiosk-browser for running in production with various setup scripts for production machines. If you want to test your code through kiosk-browser without needing to develop on kiosk-browser it is recommended you run kiosk-browser through the instructions in this repo.
 git clone git@github.com:votingworks/vxsuite-complete-system.git
 ```
 
-Once you finish setting up your VM before you start develop you should also set up [GPG Keys](#setting-up-gpg-keys) for your github account. 
+Once you finish setting up your VM before you start develop you should also set
+up [GPG Keys](#setting-up-gpg-keys) for your github account.
 
 Install Node, npm, yarn, and pnpm by running the following script:
 
@@ -75,7 +92,9 @@ node -v # this should return 12.x.x
 pnpm -v # this should return 5.x.x
 ```
 
-Automatically install all dependencies in the vxsuite repo with the following command
+Automatically install all dependencies in the vxsuite repo with the following
+command
+
 ```sh
 ./script/bootstrap
 ```
@@ -93,15 +112,30 @@ pnpm start
 # if it worked, go to http://localhost:3000/ in your VM
 ```
 
-If you have VS Code open and connected to your VM remotely it should automatically forward the port for you, and you can visit `http://localhost:3000` on your home machine as well.
+If you have VS Code open and connected to your VM remotely it should
+automatically forward the port for you, and you can visit
+`http://localhost:3000` on your home machine as well.
 
 See the individual README documents for more information on how to run the
 individual services.
 
-See the [README](https://github.com/votingworks/vxsuite-complete-system) in `vxsuite-complete-system` for information on how to test the apps in this repo through kiosk-browser (electron-based browser that runs our apps in production). 
+See the [README](https://github.com/votingworks/vxsuite-complete-system) in
+`vxsuite-complete-system` for information on how to test the apps in this repo
+through kiosk-browser (electron-based browser that runs our apps in production).
 
 ### Setting up GPG Keys
-Setting up GPG keys with your github account will allow you to sign tags and commits locally. These are verified by GitHub which gives everyone confidence about the origin of changes you've made. You can follow the [steps in the github docs](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification) to set this up. Note that this is a step that happens in ADDITION to ssh keys, not in substitute of them. Debian comes with gpg installed so you can skip the first step about installing GPG tools if you are on your Debian machine. You will want to follow the instructions in *Generating a new GPG key*, *Add a new GPG key*, *Tell Git your signing key*. Then follow the steps in *Signing commits* to test signing a commit and pushing to github to make sure it is **verified**.
+
+Setting up GPG keys with your github account will allow you to sign tags and
+commits locally. These are verified by GitHub which gives everyone confidence
+about the origin of changes you've made. You can follow the
+[steps in the github docs](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification)
+to set this up. Note that this is a step that happens in ADDITION to ssh keys,
+not in substitute of them. Debian comes with gpg installed so you can skip the
+first step about installing GPG tools if you are on your Debian machine. You
+will want to follow the instructions in _Generating a new GPG key_, _Add a new
+GPG key_, _Tell Git your signing key_. Then follow the steps in _Signing
+commits_ to test signing a commit and pushing to github to make sure it is
+**verified**.
 
 ### Adding a monorepo project
 

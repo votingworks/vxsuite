@@ -32,11 +32,8 @@ export const EnteredCode = styled.div`
 `;
 
 export function UnlockMachineScreen(): JSX.Element {
-  const {
-    attemptToAuthenticateAdminUser,
-    electionDefinition,
-    machineConfig,
-  } = useContext(AppContext);
+  const { attemptToAuthenticateAdminUser, electionDefinition, machineConfig } =
+    useContext(AppContext);
   const [currentPasscode, setCurrentPasscode] = useState('');
   const [showError, setShowError] = useState(false);
   const handleNumberEntry = useCallback((digit: number) => {

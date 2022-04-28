@@ -55,9 +55,8 @@ export function YesNoContest({
   const [isScrollable, setIsScrollable] = useState(false);
   const [isScrollAtBottom, setIsScrollAtBottom] = useState(true);
   const [isScrollAtTop, setIsScrollAtTop] = useState(true);
-  const [overvoteSelection, setOvervoteSelection] = useState<
-    Optional<YesOrNo>
-  >();
+  const [overvoteSelection, setOvervoteSelection] =
+    useState<Optional<YesOrNo>>();
   const [deselectedVote, setDeselectedVote] = useState('');
 
   useEffect(() => {

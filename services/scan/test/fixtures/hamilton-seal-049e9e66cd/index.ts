@@ -7,9 +7,8 @@ const electionJson = readFileSync(join(__dirname, 'election.json'), 'utf8');
 /**
  * Full election definition for Franklin County General Election.
  */
-export const electionDefinition = safeParseElectionDefinition(
-  electionJson
-).unsafeUnwrap();
+export const electionDefinition =
+  safeParseElectionDefinition(electionJson).unsafeUnwrap();
 
 /**
  * Election definition for Franklin County General Election.

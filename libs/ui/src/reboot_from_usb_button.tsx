@@ -90,9 +90,10 @@ export function RebootFromUsbButton({
     }
   }, [usbDriveStatus, currentState, attemptReboot]);
 
-  const onClose = useCallback(() => setCurrentState(State.CLOSED), [
-    setCurrentState,
-  ]);
+  const onClose = useCallback(
+    () => setCurrentState(State.CLOSED),
+    [setCurrentState]
+  );
 
   if (currentState === State.PREPARING_BOOT) {
     return <Modal content={<Loading>Preparing to boot…</Loading>} />;

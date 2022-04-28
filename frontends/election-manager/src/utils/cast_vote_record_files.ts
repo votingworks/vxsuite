@@ -124,12 +124,8 @@ export class CastVoteRecordFiles {
    */
   static import(stringifiedCvrFiles: string): CastVoteRecordFiles {
     // TODO use zod schemas for constructing/deconstructing this.
-    const {
-      signatures,
-      files,
-      duplicateFilenames,
-      parseFailedErrors,
-    } = JSON.parse(stringifiedCvrFiles);
+    const { signatures, files, duplicateFilenames, parseFailedErrors } =
+      JSON.parse(stringifiedCvrFiles);
     const deduplicatedCastVoteRecords = new Map<string, CastVoteRecord>();
     const filesWithDates = [];
     for (const file of files) {
@@ -364,10 +360,8 @@ export class CastVoteRecordFiles {
         fileCastVoteRecords.map((cvr) => cvr._precinctId)
       );
 
-      const [
-        deduplicatedCastVoteRecords,
-        duplicateCount,
-      ] = this.addUniqueCastVoteRecordsToCurrentCollection(fileCastVoteRecords);
+      const [deduplicatedCastVoteRecords, duplicateCount] =
+        this.addUniqueCastVoteRecordsToCurrentCollection(fileCastVoteRecords);
 
       if (mixedTestModeCvrs(deduplicatedCastVoteRecords.values())) {
         throw new Error(

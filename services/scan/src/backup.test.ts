@@ -61,12 +61,12 @@ test('zip entry fails', async () => {
   const zip = new ZipStream();
   const b = new Backup(zip, store);
 
-  jest.spyOn(zip, 'entry').mockImplementationOnce(
-    (_data, _opts, callback): ZipStream => {
+  jest
+    .spyOn(zip, 'entry')
+    .mockImplementationOnce((_data, _opts, callback): ZipStream => {
       callback(new Error('oh no'));
       return zip;
-    }
-  );
+    });
 
   await expect(b.addEntry('readme.txt', 'look it up')).rejects.toThrowError(
     'oh no'

@@ -149,9 +149,8 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
   const currentUserType = currentUserSession.type;
   const { election } = electionDefinition;
   // TODO export the type for this somewhere
-  const {
-    precinctId: currentPrecinctId,
-  } = useParams<ManualDataPrecinctScreenProps>();
+  const { precinctId: currentPrecinctId } =
+    useParams<ManualDataPrecinctScreenProps>();
   const history = useHistory();
 
   const currentPrecinct = election.precincts.find(
@@ -340,9 +339,8 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
       }
     }
     // Update the total number of ballots for this contest.
-    const expectedNumberOfBallots = getExpectedNumberOfBallotsForContestTally(
-      newContestTally
-    );
+    const expectedNumberOfBallots =
+      getExpectedNumberOfBallotsForContestTally(newContestTally);
     newContestTally = {
       ...newContestTally,
       metadata: {

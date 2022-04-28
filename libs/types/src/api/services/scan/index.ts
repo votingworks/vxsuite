@@ -34,12 +34,11 @@ export interface AdjudicationStatus {
   remaining: number;
 }
 
-export const AdjudicationStatusSchema: z.ZodSchema<AdjudicationStatus> = z.object(
-  {
+export const AdjudicationStatusSchema: z.ZodSchema<AdjudicationStatus> =
+  z.object({
     adjudicated: z.number(),
     remaining: z.number(),
-  }
-);
+  });
 
 export interface BatchInfo {
   id: string;
@@ -100,7 +99,8 @@ export type GetScanStatusResponse = ScanStatus;
  * @url /scan/status
  * @method GET
  */
-export const GetScanStatusResponseSchema: z.ZodSchema<GetScanStatusResponse> = ScanStatusSchema;
+export const GetScanStatusResponseSchema: z.ZodSchema<GetScanStatusResponse> =
+  ScanStatusSchema;
 
 /**
  * @url /config/election
@@ -112,9 +112,8 @@ export type GetElectionConfigResponse = ElectionDefinition | null | string;
  * @url /config/election
  * @method GET
  */
-export const GetElectionConfigResponseSchema: z.ZodSchema<GetElectionConfigResponse> = z.union(
-  [ElectionDefinitionSchema, z.null(), z.string()]
-);
+export const GetElectionConfigResponseSchema: z.ZodSchema<GetElectionConfigResponse> =
+  z.union([ElectionDefinitionSchema, z.null(), z.string()]);
 
 /**
  * @url /config/election
@@ -126,9 +125,8 @@ export type PatchElectionConfigResponse = OkResponse | ErrorsResponse;
  * @url /config/election
  * @method PATCH
  */
-export const PatchElectionConfigResponseSchema: z.ZodSchema<PatchElectionConfigResponse> = z.union(
-  [OkResponseSchema, ErrorsResponseSchema]
-);
+export const PatchElectionConfigResponseSchema: z.ZodSchema<PatchElectionConfigResponse> =
+  z.union([OkResponseSchema, ErrorsResponseSchema]);
 
 /**
  * @url /config/election
@@ -140,10 +138,11 @@ export type PatchElectionConfigRequest = Uint8Array; // should be Buffer, but th
  * @url /config/election
  * @method PATCH
  */
-export const PatchElectionConfigRequestSchema: z.ZodSchema<PatchElectionConfigRequest> = z.instanceof(
-  // should be Buffer, but this triggers type errors
-  Uint8Array
-);
+export const PatchElectionConfigRequestSchema: z.ZodSchema<PatchElectionConfigRequest> =
+  z.instanceof(
+    // should be Buffer, but this triggers type errors
+    Uint8Array
+  );
 
 /**
  * @url /config/election
@@ -155,7 +154,8 @@ export type DeleteElectionConfigResponse = OkResponse | ErrorsResponse;
  * @url /config/election
  * @method DELETE
  */
-export const DeleteElectionConfigResponseSchema: z.ZodSchema<DeleteElectionConfigResponse> = OkResponseSchema;
+export const DeleteElectionConfigResponseSchema: z.ZodSchema<DeleteElectionConfigResponse> =
+  OkResponseSchema;
 
 /**
  * @url /config/package
@@ -167,7 +167,8 @@ export type PutConfigPackageRequest = never;
  * @url /config/package
  * @method PUT
  */
-export const PutConfigPackageRequestSchema: z.ZodSchema<PutConfigPackageRequest> = z.never();
+export const PutConfigPackageRequestSchema: z.ZodSchema<PutConfigPackageRequest> =
+  z.never();
 
 /**
  * @url /config/package
@@ -179,9 +180,8 @@ export type PutConfigPackageResponse = OkResponse | ErrorsResponse;
  * @url /config/package
  * @method PUT
  */
-export const PutConfigPackageResponseSchema: z.ZodSchema<PutConfigPackageResponse> = z.union(
-  [OkResponseSchema, ErrorsResponseSchema]
-);
+export const PutConfigPackageResponseSchema: z.ZodSchema<PutConfigPackageResponse> =
+  z.union([OkResponseSchema, ErrorsResponseSchema]);
 
 /**
  * @url /config/testMode
@@ -193,12 +193,11 @@ export type GetTestModeConfigResponse = OkResponse<{ testMode: boolean }>;
  * @url /config/testMode
  * @method GET
  */
-export const GetTestModeConfigResponseSchema: z.ZodSchema<GetTestModeConfigResponse> = z.object(
-  {
+export const GetTestModeConfigResponseSchema: z.ZodSchema<GetTestModeConfigResponse> =
+  z.object({
     status: z.literal('ok'),
     testMode: z.boolean(),
-  }
-);
+  });
 
 /**
  * @url /config/testMode
@@ -212,11 +211,10 @@ export interface PatchTestModeConfigRequest {
  * @url /config/testMode
  * @method PATCH
  */
-export const PatchTestModeConfigRequestSchema: z.ZodSchema<PatchTestModeConfigRequest> = z.object(
-  {
+export const PatchTestModeConfigRequestSchema: z.ZodSchema<PatchTestModeConfigRequest> =
+  z.object({
     testMode: z.boolean(),
-  }
-);
+  });
 
 /**
  * @url /config/testMode
@@ -228,9 +226,8 @@ export type PatchTestModeConfigResponse = OkResponse | ErrorsResponse;
  * @url /config/testMode
  * @method PATCH
  */
-export const PatchTestModeConfigResponseSchema: z.ZodSchema<PatchTestModeConfigResponse> = z.union(
-  [OkResponseSchema, ErrorsResponseSchema]
-);
+export const PatchTestModeConfigResponseSchema: z.ZodSchema<PatchTestModeConfigResponse> =
+  z.union([OkResponseSchema, ErrorsResponseSchema]);
 
 /**
  * @url /config/precinct
@@ -244,12 +241,11 @@ export type GetCurrentPrecinctConfigResponse = OkResponse<{
  * @url /config/precinct
  * @method GET
  */
-export const GetCurrentPrecinctResponseSchema: z.ZodSchema<GetCurrentPrecinctConfigResponse> = z.object(
-  {
+export const GetCurrentPrecinctResponseSchema: z.ZodSchema<GetCurrentPrecinctConfigResponse> =
+  z.object({
     status: z.literal('ok'),
     precinctId: z.optional(PrecinctIdSchema),
-  }
-);
+  });
 
 /**
  * @url /config/precinct
@@ -263,11 +259,10 @@ export interface PutCurrentPrecinctConfigRequest {
  * @url /config/precinct
  * @method PUT
  */
-export const PutCurrentPrecinctConfigRequestSchema: z.ZodSchema<PutCurrentPrecinctConfigRequest> = z.object(
-  {
+export const PutCurrentPrecinctConfigRequestSchema: z.ZodSchema<PutCurrentPrecinctConfigRequest> =
+  z.object({
     precinctId: z.optional(PrecinctIdSchema),
-  }
-);
+  });
 
 /**
  * @url /config/precinct
@@ -279,9 +274,8 @@ export type PutCurrentPrecinctConfigResponse = OkResponse | ErrorsResponse;
  * @url /config/precinct
  * @method PUT
  */
-export const PutCurrentPrecinctConfigResponseSchema: z.ZodSchema<PutCurrentPrecinctConfigResponse> = z.union(
-  [OkResponseSchema, ErrorsResponseSchema]
-);
+export const PutCurrentPrecinctConfigResponseSchema: z.ZodSchema<PutCurrentPrecinctConfigResponse> =
+  z.union([OkResponseSchema, ErrorsResponseSchema]);
 
 /**
  * @url /config/precinct
@@ -307,12 +301,11 @@ export type GetMarkThresholdOverridesConfigResponse = OkResponse<{
  * @url /config/markThresholdOverrides
  * @method GET
  */
-export const GetMarkThresholdOverridesConfigResponseSchema: z.ZodSchema<GetMarkThresholdOverridesConfigResponse> = z.object(
-  {
+export const GetMarkThresholdOverridesConfigResponseSchema: z.ZodSchema<GetMarkThresholdOverridesConfigResponse> =
+  z.object({
     status: z.literal('ok'),
     markThresholdOverrides: z.optional(MarkThresholdsSchema),
-  }
-);
+  });
 
 /**
  * @url /config/markThresholdOverrides
@@ -324,7 +317,8 @@ export type DeleteMarkThresholdOverridesConfigResponse = OkResponse;
  * @url /config/markThresholdOverrides
  * @method DELETE
  */
-export const DeleteMarkThresholdOverridesConfigResponseSchema = OkResponseSchema;
+export const DeleteMarkThresholdOverridesConfigResponseSchema =
+  OkResponseSchema;
 
 /**
  * @url /config/markThresholdOverrides
@@ -338,11 +332,10 @@ export interface PatchMarkThresholdOverridesConfigRequest {
  * @url /config/markThresholdOverrides
  * @method PATCH
  */
-export const PatchMarkThresholdOverridesConfigRequestSchema: z.ZodSchema<PatchMarkThresholdOverridesConfigRequest> = z.object(
-  {
+export const PatchMarkThresholdOverridesConfigRequestSchema: z.ZodSchema<PatchMarkThresholdOverridesConfigRequest> =
+  z.object({
     markThresholdOverrides: z.optional(MarkThresholdsSchema),
-  }
-);
+  });
 
 /**
  * @url /config/markThresholdOverrides
@@ -356,9 +349,8 @@ export type PatchMarkThresholdOverridesConfigResponse =
  * @url /config/markThresholdOverrides
  * @method PATCH
  */
-export const PatchMarkThresholdOverridesConfigResponseSchema: z.ZodSchema<PatchMarkThresholdOverridesConfigResponse> = z.union(
-  [OkResponseSchema, ErrorsResponseSchema]
-);
+export const PatchMarkThresholdOverridesConfigResponseSchema: z.ZodSchema<PatchMarkThresholdOverridesConfigResponse> =
+  z.union([OkResponseSchema, ErrorsResponseSchema]);
 
 /**
  * @url /config/skipElectionHashCheck
@@ -372,11 +364,10 @@ export interface PatchSkipElectionHashCheckConfigRequest {
  * @url /config/skipElectionHashCheck
  * @method PATCH
  */
-export const PatchSkipElectionHashCheckConfigRequestSchema: z.ZodSchema<PatchSkipElectionHashCheckConfigRequest> = z.object(
-  {
+export const PatchSkipElectionHashCheckConfigRequestSchema: z.ZodSchema<PatchSkipElectionHashCheckConfigRequest> =
+  z.object({
     skipElectionHashCheck: z.boolean(),
-  }
-);
+  });
 
 /**
  * @url /config/skipElectionHashCheck
@@ -390,9 +381,8 @@ export type PatchSkipElectionHashCheckConfigResponse =
  * @url /config/skipElectionHashCheck
  * @method PATCH
  */
-export const PatchSkipElectionHashCheckConfigResponseSchema: z.ZodSchema<PatchSkipElectionHashCheckConfigResponse> = z.union(
-  [OkResponseSchema, ErrorsResponseSchema]
-);
+export const PatchSkipElectionHashCheckConfigResponseSchema: z.ZodSchema<PatchSkipElectionHashCheckConfigResponse> =
+  z.union([OkResponseSchema, ErrorsResponseSchema]);
 
 /**
  * @url /scan/scanBatch
@@ -442,16 +432,15 @@ export type ScanContinueRequest =
  * @url /scan/scanContinue
  * @method POST
  */
-export const ScanContinueRequestSchema: z.ZodSchema<ScanContinueRequest> = z.union(
-  [
+export const ScanContinueRequestSchema: z.ZodSchema<ScanContinueRequest> =
+  z.union([
     z.object({ forceAccept: z.literal(false) }),
     z.object({
       forceAccept: z.literal(true),
       frontMarkAdjudications: MarkAdjudicationsSchema,
       backMarkAdjudications: MarkAdjudicationsSchema,
     }),
-  ]
-);
+  ]);
 
 /**
  * @url /scan/scanContinue
@@ -463,9 +452,8 @@ export type ScanContinueResponse = OkResponse | ErrorsResponse;
  * @url /scan/scanContinue
  * @method POST
  */
-export const ScanContinueResponseSchema: z.ZodSchema<ScanContinueResponse> = z.union(
-  [OkResponseSchema, ErrorsResponseSchema]
-);
+export const ScanContinueResponseSchema: z.ZodSchema<ScanContinueResponse> =
+  z.union([OkResponseSchema, ErrorsResponseSchema]);
 
 /**
  * This is `never` because the request is not JSON, but multipart/form-data,
@@ -483,7 +471,8 @@ export type AddTemplatesRequest = never;
  * @url /scan/hmpb/addTemplates
  * @method POST
  */
-export const AddTemplatesRequestSchema: z.ZodSchema<AddTemplatesRequest> = z.never();
+export const AddTemplatesRequestSchema: z.ZodSchema<AddTemplatesRequest> =
+  z.never();
 
 /**
  * @url /scan/hmpb/addTemplates
@@ -495,9 +484,8 @@ export type AddTemplatesResponse = OkResponse | ErrorsResponse;
  * @url /scan/hmpb/addTemplates
  * @method POST
  */
-export const AddTemplatesResponseSchema: z.ZodSchema<AddTemplatesResponse> = z.union(
-  [OkResponseSchema, ErrorsResponseSchema]
-);
+export const AddTemplatesResponseSchema: z.ZodSchema<AddTemplatesResponse> =
+  z.union([OkResponseSchema, ErrorsResponseSchema]);
 
 /**
  * This is `never` because there is no request data.
@@ -513,7 +501,8 @@ export type DoneTemplatesRequest = never;
  * @url /scan/hmpb/doneTemplates
  * @method POST
  */
-export const DoneTemplatesRequestSchema: z.ZodSchema<DoneTemplatesRequest> = z.never();
+export const DoneTemplatesRequestSchema: z.ZodSchema<DoneTemplatesRequest> =
+  z.never();
 
 /**
  * @url /scan/hmpb/doneTemplates
@@ -525,7 +514,8 @@ export type DoneTemplatesResponse = OkResponse;
  * @url /scan/hmpb/doneTemplates
  * @method POST
  */
-export const DoneTemplatesResponseSchema: z.ZodSchema<DoneTemplatesResponse> = OkResponseSchema;
+export const DoneTemplatesResponseSchema: z.ZodSchema<DoneTemplatesResponse> =
+  OkResponseSchema;
 
 /**
  * This is `never` because there is no request data.
@@ -638,8 +628,8 @@ export interface GetNextReviewSheetResponse {
  * @url /scan/hmpb/review/next-sheet
  * @method GET
  */
-export const GetNextReviewSheetResponseSchema: z.ZodSchema<GetNextReviewSheetResponse> = z.object(
-  {
+export const GetNextReviewSheetResponseSchema: z.ZodSchema<GetNextReviewSheetResponse> =
+  z.object({
     interpreted: BallotSheetInfoSchema,
     layouts: z.object({
       front: BallotPageLayoutSchema.optional(),
@@ -649,5 +639,4 @@ export const GetNextReviewSheetResponseSchema: z.ZodSchema<GetNextReviewSheetRes
       front: z.object({ contestIds: z.array(IdSchema) }).optional(),
       back: z.object({ contestIds: z.array(IdSchema) }).optional(),
     }),
-  }
-);
+  });

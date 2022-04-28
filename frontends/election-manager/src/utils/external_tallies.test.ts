@@ -325,9 +325,8 @@ describe('convertExternalTalliesToStorageString, convertStorageStringToExternalT
     const storageString = convertExternalTalliesToStorageString([
       fullTallySems,
     ]);
-    const recreatedTallies = convertStorageStringToExternalTallies(
-      storageString
-    );
+    const recreatedTallies =
+      convertStorageStringToExternalTallies(storageString);
     expect(recreatedTallies).toStrictEqual([fullTallySems]);
 
     // Test with multiple external tallies.
@@ -344,9 +343,8 @@ describe('convertExternalTalliesToStorageString, convertStorageStringToExternalT
       fullTallySems,
       fullTallyManual,
     ]);
-    const recreatedTallies2 = convertStorageStringToExternalTallies(
-      storageString2
-    );
+    const recreatedTallies2 =
+      convertStorageStringToExternalTallies(storageString2);
     expect(recreatedTallies2).toStrictEqual([fullTallySems, fullTallyManual]);
   });
 });

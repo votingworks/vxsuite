@@ -174,9 +174,9 @@ export function AppRoot({ card, hardware, storage }: Props): JSX.Element {
 
   const programCard: EventTargetFunction = useCallback(
     async (event) => {
-      const {
-        ballotStyleId: localBallotStyleId,
-      } = (event.target as HTMLElement).dataset;
+      const { ballotStyleId: localBallotStyleId } = (
+        event.target as HTMLElement
+      ).dataset;
       if (precinctId && localBallotStyleId) {
         setBallotStyleId(localBallotStyleId);
         setIsEncodingCard(true);

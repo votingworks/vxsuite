@@ -2,7 +2,8 @@ import { electionMinimalExhaustiveSampleRightSideTargetsDefinition } from '@voti
 import { join } from 'path';
 import { Fixture } from '../../fixtures';
 
-export const electionDefinition = electionMinimalExhaustiveSampleRightSideTargetsDefinition;
+export const electionDefinition =
+  electionMinimalExhaustiveSampleRightSideTargetsDefinition;
 export const { election } = electionDefinition;
 export const blankPage1 = new Fixture(join(__dirname, 'ballot-p1.jpeg'));
 export const blankPage2 = new Fixture(join(__dirname, 'ballot-p2.jpeg'));

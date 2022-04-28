@@ -104,12 +104,8 @@ export async function main(
       const { election } = electionDefinition;
 
       for (const [pdf, layouts] of store.getHmpbTemplates()) {
-        const {
-          ballotStyleId,
-          precinctId,
-          isTestMode,
-          ballotType,
-        } = layouts[0].metadata;
+        const { ballotStyleId, precinctId, isTestMode, ballotType } =
+          layouts[0].metadata;
         const precinct =
           getPrecinctById({ election, precinctId })?.name ?? precinctId;
         queue.push({

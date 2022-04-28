@@ -304,9 +304,8 @@ describe('convertSemsFileToExternalTally', () => {
     }
 
     // Check some specific contest tallies in the overall tally
-    const presidentTally = convertedTally.overallTally.contestTallies[
-      '775020876'
-    ]!;
+    const presidentTally =
+      convertedTally.overallTally.contestTallies['775020876']!;
     expect(presidentTally.metadata).toStrictEqual({
       undervotes: 7,
       overvotes: 1,
@@ -317,9 +316,8 @@ describe('convertSemsFileToExternalTally', () => {
     expect(presidentTally.tallies['775031989']!.tally).toBe(29);
     expect(presidentTally.tallies['__write-in']!.tally).toBe(0);
 
-    const eitherNeitherTally = convertedTally.overallTally.contestTallies[
-      '750000015'
-    ]!;
+    const eitherNeitherTally =
+      convertedTally.overallTally.contestTallies['750000015']!;
     expect(eitherNeitherTally.metadata).toStrictEqual({
       undervotes: 3,
       overvotes: 3,
@@ -328,9 +326,8 @@ describe('convertSemsFileToExternalTally', () => {
     expect(eitherNeitherTally.tallies.yes?.tally).toBe(39);
     expect(eitherNeitherTally.tallies.no?.tally).toBe(53);
 
-    const pickOneTally = convertedTally.overallTally.contestTallies[
-      '750000016'
-    ]!;
+    const pickOneTally =
+      convertedTally.overallTally.contestTallies['750000016']!;
     expect(pickOneTally.metadata).toStrictEqual({
       undervotes: 5,
       overvotes: 4,
@@ -452,9 +449,8 @@ describe('convertSemsFileToExternalTally', () => {
     const precinct1Tally = convertedTally.resultsByCategory.get(
       TallyCategory.Precinct
     )!['precinct-1']!;
-    const governorConstitution = precinct1Tally.contestTallies[
-      'governor-contest-constitution'
-    ]!;
+    const governorConstitution =
+      precinct1Tally.contestTallies['governor-contest-constitution']!;
     expect(governorConstitution.metadata).toStrictEqual({
       undervotes: 30,
       overvotes: 30,
@@ -464,9 +460,8 @@ describe('convertSemsFileToExternalTally', () => {
     expect(governorConstitution.tallies['dax-shepherd']?.tally).toBe(300);
     expect(governorConstitution.tallies['__write-in']?.tally).toBe(30);
 
-    const schoolboardLiberty = precinct1Tally.contestTallies[
-      'schoolboard-liberty'
-    ]!;
+    const schoolboardLiberty =
+      precinct1Tally.contestTallies['schoolboard-liberty']!;
     expect(schoolboardLiberty.metadata).toStrictEqual({
       undervotes: 0,
       overvotes: 0,
