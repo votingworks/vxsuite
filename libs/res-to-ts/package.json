@@ -24,6 +24,7 @@
   },
   "dependencies": {
     "@votingworks/types": "workspace:*",
+    "@votingworks/utils": "workspace:*",
     "globby": "11",
     "mime": "^3.0.0",
     "tmp": "^0.2.1"

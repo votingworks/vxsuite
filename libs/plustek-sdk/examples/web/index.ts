@@ -12,10 +12,10 @@
 
 import { safeParseJson } from '@votingworks/types'
 import { deferred } from '@votingworks/utils'
-import { createHash } from 'crypto'
 import makeDebug from 'debug'
 import { createReadStream } from 'fs'
 import { createServer, IncomingMessage } from 'http'
+import { sha256 } from 'js-sha256';
 import { join } from 'path'
 import * as z from 'zod'
 import { createClient, MockScannerClient } from '../../src'
@@ -92,7 +92,7 @@ async function main(args: readonly string[]): Promise<number> {
           res.writeHead(200)
           debug('scan result: %o', result.ok())
           for (const file of result.ok().files) {
-            const hash = createHash('sha256').update(file).digest('hex')
+            const hash = sha256(file)
             scannedImages.set(hash, file)
             res.write(`/images/${hash}.jpg\n`)
           }

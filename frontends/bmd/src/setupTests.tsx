@@ -2,18 +2,8 @@
 
 import 'jest-styled-components';
 import '@testing-library/jest-dom/extend-expect';
-import crypto from 'crypto';
 import fetchMock from 'fetch-mock';
 import { TextDecoder, TextEncoder } from 'util';
-
-// globalThis.crypto is not defined in JSDOM
-Object.defineProperty(globalThis, 'crypto', {
-  value: {
-    getRandomValues(arr: Parameters<typeof crypto['randomFillSync']>[0]) {
-      return crypto.randomFillSync(arr);
-    },
-  },
-});
 
 beforeEach(() => {
   // react-gamepad calls this function which does not exist in JSDOM

@@ -1,20 +1,9 @@
-/**
- * Random Base64 string.
- * Get random values to fill an array of prescribed length,
- * b64 encode it, and strip the '=' at the end.
- *
- * @param numBytes Number of bytes
- *
- * @return string
- *
- */
+import { fromByteArray } from 'base64-js';
+import randomBytes from 'randombytes';
 
-export function randomBase64(numBytes: number): string {
-  return window
-    .btoa(
-      String.fromCharCode(
-        ...window.crypto.getRandomValues(new Uint8ClampedArray(numBytes))
-      )
-    )
-    .replace(/=+$/, '');
+/**
+ * Random ballot ID as a base64 string without the `=` padding.
+ */
+export function randomBallotId(numBytes = 10): string {
+  return fromByteArray(randomBytes(numBytes)).replace(/=+$/, '');
 }

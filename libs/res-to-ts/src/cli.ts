@@ -1,5 +1,5 @@
 import { err, ok, Result } from '@votingworks/types';
-import assert from 'assert';
+import { assert } from '@votingworks/utils';
 import { promises as fs } from 'fs';
 import globby from 'globby';
 import { basename, isAbsolute, join, relative } from 'path';

@@ -1,7 +1,7 @@
 import { assert } from '@votingworks/utils';
-import { createHash } from 'crypto';
 import makeDebug from 'debug';
 import * as fs from 'fs';
+import { sha256 } from 'js-sha256';
 import Database = require('better-sqlite3');
 
 type Database = Database.Database;
@@ -46,7 +46,7 @@ export class DbClient {
   private getSchemaDigest(): string {
     assert(typeof this.schemaPath === 'string', 'schemaPath is required');
     const schemaSql = fs.readFileSync(this.schemaPath, 'utf-8');
-    return createHash('sha256').update(schemaSql).digest('hex');
+    return sha256(schemaSql);
   }
 
   /**

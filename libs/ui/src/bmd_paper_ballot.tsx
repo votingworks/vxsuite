@@ -29,7 +29,7 @@ import {
   formatLongDate,
   getSingleYesNoVote,
   getContestVoteInRotatedOrder,
-  randomBase64,
+  randomBallotId,
 } from '@votingworks/utils';
 
 import { DisplayTextForYesOrNo } from './globals';
@@ -257,7 +257,7 @@ export function BmdPaperBallot({
   precinctId,
   votes,
 }: Props): JSX.Element {
-  const ballotId = randomBase64(10);
+  const ballotId = randomBallotId();
   const {
     election,
     election: { county, date, seal, sealURL: sealUrl, state, title },

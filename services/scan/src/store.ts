@@ -35,9 +35,9 @@ import {
 } from '@votingworks/types/api/services/scan';
 import { Iso8601Timestamp } from '@votingworks/types/src/api';
 import { assert } from '@votingworks/utils';
-import { createHash } from 'crypto';
 import makeDebug from 'debug';
 import * as fs from 'fs-extra';
+import { sha256 } from 'js-sha256';
 import { DateTime } from 'luxon';
 import { dirname, join } from 'path';
 import { Writable } from 'stream';
@@ -91,7 +91,7 @@ export class Store {
    */
   static getSchemaDigest(): string {
     const schemaSql = fs.readFileSync(SchemaPath, 'utf-8');
-    return createHash('sha256').update(schemaSql).digest('hex');
+    return sha256(schemaSql);
   }
 
   /**

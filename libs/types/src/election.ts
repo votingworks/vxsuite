@@ -1,5 +1,5 @@
 /* eslint-disable no-underscore-dangle */
-import { createHash } from 'crypto';
+import { sha256 } from 'js-sha256';
 import * as z from 'zod';
 import { Iso8601Timestamp, Iso8601TimestampSchema } from './api';
 import {
@@ -1719,6 +1719,6 @@ export function safeParseElectionDefinition(
     : ok({
         election: result.ok(),
         electionData: value,
-        electionHash: createHash('sha256').update(value).digest('hex'),
+        electionHash: sha256(value),
       });
 }

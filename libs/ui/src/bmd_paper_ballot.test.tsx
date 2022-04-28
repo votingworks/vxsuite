@@ -11,20 +11,19 @@ import {
   electionSampleNoSealDefinition,
   electionWithMsEitherNeitherDefinition,
 } from '@votingworks/fixtures';
-import { randomBase64 } from '@votingworks/utils';
 import { render, screen } from '@testing-library/react';
 
 import { BmdPaperBallot } from './bmd_paper_ballot';
 
-jest.mock('@votingworks/utils', (): { randomBase64: typeof randomBase64 } => {
-  const original = jest.requireActual<Record<string, unknown>>(
+jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
+  const original = jest.requireActual<typeof import('@votingworks/utils')>(
     '@votingworks/utils'
   );
   // Mock random string generation so that snapshots match, while leaving the rest of the module
   // intact
   return {
     ...original,
-    randomBase64: () => 'CHhgYxfN5GeqnK8KaVOt1w',
+    randomBallotId: () => 'CHhgYxfN5GeqnK8KaVOt1w',
   };
 });
 

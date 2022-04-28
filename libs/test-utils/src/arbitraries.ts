@@ -31,7 +31,7 @@ import {
   YesNoContest,
   YesNoOption,
 } from '@votingworks/types';
-import { createHash } from 'crypto';
+import { sha256 } from 'js-sha256';
 
 /**
  * Wraps another arbitrary, making the value possibly missing.
@@ -435,7 +435,7 @@ export function arbitraryElectionDefinition(): fc.Arbitrary<ElectionDefinition> 
     .map(({ election, electionData }) => ({
       election,
       electionData,
-      electionHash: createHash('sha256').update(electionData).digest('hex'),
+      electionHash: sha256(electionData),
     }));
 }
 
