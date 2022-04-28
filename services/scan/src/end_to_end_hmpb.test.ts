@@ -345,13 +345,8 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
 test('ms-either-neither end-to-end', async () => {
   jest.setTimeout(25000);
 
-  const {
-    election,
-    manifest,
-    root,
-    filledInPage1,
-    filledInPage2,
-  } = choctawMockGeneral2020Fixtures;
+  const { election, manifest, root, filledInPage1, filledInPage2 } =
+    choctawMockGeneral2020Fixtures;
   await importer.restoreConfig();
 
   // Do this first so interpreter workers get initialized with the right value.

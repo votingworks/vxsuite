@@ -44,7 +44,7 @@ function* findDuplicateIds<T extends { id: unknown }>(
 }
 
 export type PartyId = NewType<string, 'PartyId'>;
-export const PartyIdSchema = (IdSchema as unknown) as z.ZodSchema<PartyId>;
+export const PartyIdSchema = IdSchema as unknown as z.ZodSchema<PartyId>;
 export interface Party {
   readonly id: PartyId;
   readonly name: string;
@@ -73,7 +73,7 @@ export const PartiesSchema: z.ZodSchema<Parties> = z
   });
 
 export type DistrictId = NewType<string, 'DistrictId'>;
-export const DistrictIdSchema = (IdSchema as unknown) as z.ZodSchema<DistrictId>;
+export const DistrictIdSchema = IdSchema as unknown as z.ZodSchema<DistrictId>;
 export interface District {
   readonly id: DistrictId;
   readonly name: string;
@@ -149,7 +149,8 @@ export const writeInCandidate: Candidate = {
   isWriteIn: true,
 };
 export type OptionalCandidate = Optional<Candidate>;
-export const OptionalCandidateSchema: z.ZodSchema<OptionalCandidate> = CandidateSchema.optional();
+export const OptionalCandidateSchema: z.ZodSchema<OptionalCandidate> =
+  CandidateSchema.optional();
 
 // Contests
 export type ContestTypes = 'candidate' | 'yesno' | 'ms-either-neither';
@@ -192,44 +193,47 @@ export interface CandidateContest extends Contest {
   readonly allowWriteIns: boolean;
   readonly rotation?: Rotation;
 }
-export const CandidateContestSchema: z.ZodSchema<CandidateContest> = ContestInternalSchema.merge(
-  z.object({
-    type: z.literal('candidate'),
-    seats: z.number().int().positive(),
-    candidates: z.array(CandidateSchema),
-    allowWriteIns: z.boolean(),
-    rotation: RotationSchema.optional(),
-  })
-).superRefine((contest, ctx) => {
-  for (const [index, id] of findDuplicateIds(contest.candidates)) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ['candidates', index, 'id'],
-      message: `Duplicate candidate '${id}' found.`,
-    });
-  }
+export const CandidateContestSchema: z.ZodSchema<CandidateContest> =
+  ContestInternalSchema.merge(
+    z.object({
+      type: z.literal('candidate'),
+      seats: z.number().int().positive(),
+      candidates: z.array(CandidateSchema),
+      allowWriteIns: z.boolean(),
+      rotation: RotationSchema.optional(),
+    })
+  ).superRefine((contest, ctx) => {
+    for (const [index, id] of findDuplicateIds(contest.candidates)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['candidates', index, 'id'],
+        message: `Duplicate candidate '${id}' found.`,
+      });
+    }
 
-  if (!contest.allowWriteIns) {
-    for (const [index, candidate] of contest.candidates.entries()) {
-      if (candidate.isWriteIn) {
+    if (!contest.allowWriteIns) {
+      for (const [index, candidate] of contest.candidates.entries()) {
+        if (candidate.isWriteIn) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ['candidates', index, 'isWriteIn'],
+            message: `Contest '${contest.id}' does not allow write-ins.`,
+          });
+        }
+      }
+    } else {
+      const writeInsCount = contest.candidates.filter(
+        (c) => c.isWriteIn
+      ).length;
+      if (writeInsCount > 0 && writeInsCount !== contest.seats) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          path: ['candidates', index, 'isWriteIn'],
-          message: `Contest '${contest.id}' does not allow write-ins.`,
+          path: ['candidates'],
+          message: `Contest has ${writeInsCount} write-in candidate(s), but ${contest.seats} seat(s) are available.`,
         });
       }
     }
-  } else {
-    const writeInsCount = contest.candidates.filter((c) => c.isWriteIn).length;
-    if (writeInsCount > 0 && writeInsCount !== contest.seats) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ['candidates'],
-        message: `Contest has ${writeInsCount} write-in candidate(s), but ${contest.seats} seat(s) are available.`,
-      });
-    }
-  }
-});
+  });
 
 export type YesNoOptionId = Id;
 export const YesNoOptionIdSchema: z.ZodSchema<YesNoOptionId> = IdSchema;
@@ -249,15 +253,16 @@ export interface YesNoContest extends Contest {
   readonly yesOption?: YesNoOption;
   readonly noOption?: YesNoOption;
 }
-export const YesNoContestSchema: z.ZodSchema<YesNoContest> = ContestInternalSchema.merge(
-  z.object({
-    type: z.literal('yesno'),
-    description: z.string().nonempty(),
-    shortTitle: z.string().nonempty().optional(),
-    yesOption: YesNoOptionSchema.optional(),
-    noOption: YesNoOptionSchema.optional(),
-  })
-);
+export const YesNoContestSchema: z.ZodSchema<YesNoContest> =
+  ContestInternalSchema.merge(
+    z.object({
+      type: z.literal('yesno'),
+      description: z.string().nonempty(),
+      shortTitle: z.string().nonempty().optional(),
+      yesOption: YesNoOptionSchema.optional(),
+      noOption: YesNoOptionSchema.optional(),
+    })
+  );
 
 export interface MsEitherNeitherContest extends Contest {
   readonly type: 'ms-either-neither';
@@ -271,20 +276,21 @@ export interface MsEitherNeitherContest extends Contest {
   readonly firstOption: YesNoOption;
   readonly secondOption: YesNoOption;
 }
-export const MsEitherNeitherContestSchema: z.ZodSchema<MsEitherNeitherContest> = ContestInternalSchema.merge(
-  z.object({
-    type: z.literal('ms-either-neither'),
-    eitherNeitherContestId: ContestIdSchema,
-    pickOneContestId: ContestIdSchema,
-    description: z.string().nonempty(),
-    eitherNeitherLabel: z.string().nonempty(),
-    pickOneLabel: z.string().nonempty(),
-    eitherOption: YesNoOptionSchema,
-    neitherOption: YesNoOptionSchema,
-    firstOption: YesNoOptionSchema,
-    secondOption: YesNoOptionSchema,
-  })
-);
+export const MsEitherNeitherContestSchema: z.ZodSchema<MsEitherNeitherContest> =
+  ContestInternalSchema.merge(
+    z.object({
+      type: z.literal('ms-either-neither'),
+      eitherNeitherContestId: ContestIdSchema,
+      pickOneContestId: ContestIdSchema,
+      description: z.string().nonempty(),
+      eitherNeitherLabel: z.string().nonempty(),
+      pickOneLabel: z.string().nonempty(),
+      eitherOption: YesNoOptionSchema,
+      neitherOption: YesNoOptionSchema,
+      firstOption: YesNoOptionSchema,
+      secondOption: YesNoOptionSchema,
+    })
+  );
 
 export type AnyContest =
   | CandidateContest
@@ -393,9 +399,8 @@ export enum BallotPaperSize {
   Legal = 'legal',
   Custom8Point5X17 = 'custom8.5x17',
 }
-export const BallotPaperSizeSchema: z.ZodSchema<BallotPaperSize> = z.nativeEnum(
-  BallotPaperSize
-);
+export const BallotPaperSizeSchema: z.ZodSchema<BallotPaperSize> =
+  z.nativeEnum(BallotPaperSize);
 
 /**
  * Specifies where the target mark appears in relation to the option text.
@@ -408,9 +413,8 @@ export enum BallotTargetMarkPosition {
 /**
  * Schema for {@link BallotTargetMarkPosition}.
  */
-export const BallotTargetMarkPositionSchema: z.ZodSchema<BallotTargetMarkPosition> = z.nativeEnum(
-  BallotTargetMarkPosition
-);
+export const BallotTargetMarkPositionSchema: z.ZodSchema<BallotTargetMarkPosition> =
+  z.nativeEnum(BallotTargetMarkPosition);
 
 export interface BallotLayout {
   paperSize: BallotPaperSize;
@@ -433,9 +437,8 @@ export enum AdjudicationReason {
   UnmarkedWriteIn = 'UnmarkedWriteIn',
   BlankBallot = 'BlankBallot',
 }
-export const AdjudicationReasonSchema: z.ZodSchema<AdjudicationReason> = z.nativeEnum(
-  AdjudicationReason
-);
+export const AdjudicationReasonSchema: z.ZodSchema<AdjudicationReason> =
+  z.nativeEnum(AdjudicationReason);
 
 export interface MarkThresholds {
   readonly marginal: number;
@@ -461,16 +464,15 @@ export interface GridPositionOption {
   readonly contestId: ContestId;
   readonly optionId: Id;
 }
-export const GridPositionOptionSchema: z.ZodSchema<GridPositionOption> = z.object(
-  {
+export const GridPositionOptionSchema: z.ZodSchema<GridPositionOption> =
+  z.object({
     type: z.literal('option'),
     side: z.union([z.literal('front'), z.literal('back')]),
     column: z.number().int().nonnegative(),
     row: z.number().int().nonnegative(),
     contestId: ContestIdSchema,
     optionId: IdSchema,
-  }
-);
+  });
 
 export interface GridPositionWriteIn {
   readonly type: 'write-in';
@@ -480,16 +482,15 @@ export interface GridPositionWriteIn {
   readonly contestId: ContestId;
   readonly writeInIndex: number;
 }
-export const GridPositionWriteInSchema: z.ZodSchema<GridPositionWriteIn> = z.object(
-  {
+export const GridPositionWriteInSchema: z.ZodSchema<GridPositionWriteIn> =
+  z.object({
     type: z.literal('write-in'),
     side: z.union([z.literal('front'), z.literal('back')]),
     column: z.number().int().nonnegative(),
     row: z.number().int().nonnegative(),
     contestId: ContestIdSchema,
     writeInIndex: z.number().int().nonnegative(),
-  }
-);
+  });
 
 export type GridPosition = GridPositionOption | GridPositionWriteIn;
 export const GridPositionSchema: z.ZodSchema<GridPosition> = z.union([
@@ -696,27 +697,27 @@ export const ElectionSchema: z.ZodSchema<Election> = z
     return election;
   });
 export type OptionalElection = Optional<Election>;
-export const OptionalElectionSchema: z.ZodSchema<OptionalElection> = ElectionSchema.optional();
+export const OptionalElectionSchema: z.ZodSchema<OptionalElection> =
+  ElectionSchema.optional();
 export interface ElectionDefinition {
   election: Election;
   electionData: string;
   electionHash: string;
 }
-export const ElectionDefinitionSchema: z.ZodSchema<ElectionDefinition> = z.object(
-  {
+export const ElectionDefinitionSchema: z.ZodSchema<ElectionDefinition> =
+  z.object({
     election: ElectionSchema,
     electionData: z.string().nonempty(),
     electionHash: ElectionHash,
-  }
-);
+  });
 export type OptionalElectionDefinition = Optional<ElectionDefinition>;
-export const OptionalElectionDefinitionSchema: z.ZodSchema<OptionalElectionDefinition> = ElectionDefinitionSchema.optional();
+export const OptionalElectionDefinitionSchema: z.ZodSchema<OptionalElectionDefinition> =
+  ElectionDefinitionSchema.optional();
 
 // Votes
 export type CandidateVote = readonly Candidate[];
-export const CandidateVoteSchema: z.ZodSchema<CandidateVote> = z.array(
-  CandidateSchema
-);
+export const CandidateVoteSchema: z.ZodSchema<CandidateVote> =
+  z.array(CandidateSchema);
 export type YesNoVote =
   | readonly ['yes']
   | readonly ['no']
@@ -732,14 +733,16 @@ export const YesNoVoteSchema: z.ZodSchema<YesNoVote> = z.union([
   z.tuple([]),
 ]);
 export type OptionalYesNoVote = Optional<YesNoVote>;
-export const OptionalYesNoVoteSchema: z.ZodSchema<OptionalYesNoVote> = YesNoVoteSchema.optional();
+export const OptionalYesNoVoteSchema: z.ZodSchema<OptionalYesNoVote> =
+  YesNoVoteSchema.optional();
 export type Vote = CandidateVote | YesNoVote;
 export const VoteSchema: z.ZodSchema<Vote> = z.union([
   CandidateVoteSchema,
   YesNoVoteSchema,
 ]);
 export type OptionalVote = Optional<Vote>;
-export const OptionalVoteSchema: z.ZodSchema<OptionalVote> = VoteSchema.optional();
+export const OptionalVoteSchema: z.ZodSchema<OptionalVote> =
+  VoteSchema.optional();
 export type VotesDict = Dictionary<Vote>;
 export const VotesDictSchema: z.ZodSchema<VotesDict> = z.record(VoteSchema);
 
@@ -748,9 +751,8 @@ export enum BallotType {
   Absentee = 1,
   Provisional = 2,
 }
-export const BallotTypeSchema: z.ZodSchema<BallotType> = z.nativeEnum(
-  BallotType
-);
+export const BallotTypeSchema: z.ZodSchema<BallotType> =
+  z.nativeEnum(BallotType);
 
 // Updating this value is a breaking change.
 export const BallotTypeMaximumValue = 2 ** 4 - 1;
@@ -763,24 +765,22 @@ export interface CandidateContestOption {
   isWriteIn: boolean;
   optionIndex: number;
 }
-export const CandidateContestOptionSchema: z.ZodSchema<CandidateContestOption> = z.object(
-  {
+export const CandidateContestOptionSchema: z.ZodSchema<CandidateContestOption> =
+  z.object({
     type: z.literal('candidate'),
     id: CandidateIdSchema,
     contestId: ContestIdSchema,
     name: z.string(),
     isWriteIn: z.boolean(),
     optionIndex: z.number().nonnegative(),
-  }
-);
+  });
 
 export type YesNoContestOptionId = Exclude<
   YesNoVote[0] | YesNoVote[1],
   undefined
 >;
-export const YesNoContestOptionIdSchema: z.ZodSchema<YesNoContestOptionId> = z.union(
-  [z.literal('yes'), z.literal('no')]
-);
+export const YesNoContestOptionIdSchema: z.ZodSchema<YesNoContestOptionId> =
+  z.union([z.literal('yes'), z.literal('no')]);
 export interface YesNoContestOption {
   type: YesNoContest['type'];
   id: YesNoContestOptionId;
@@ -788,22 +788,22 @@ export interface YesNoContestOption {
   name: string;
   optionIndex: number;
 }
-export const YesNoContestOptionSchema: z.ZodSchema<YesNoContestOption> = z.object(
-  {
+export const YesNoContestOptionSchema: z.ZodSchema<YesNoContestOption> =
+  z.object({
     type: z.literal('yesno'),
     id: z.union([z.literal('yes'), z.literal('no')]),
     contestId: ContestIdSchema,
     name: z.string(),
     optionIndex: z.number().nonnegative(),
-  }
-);
+  });
 
 export type MsEitherNeitherContestOptionId =
   | MsEitherNeitherContest['eitherOption']['id']
   | MsEitherNeitherContest['neitherOption']['id']
   | MsEitherNeitherContest['firstOption']['id']
   | MsEitherNeitherContest['secondOption']['id'];
-export const MsEitherNeitherContestOptionIdSchema: z.ZodSchema<MsEitherNeitherContestOptionId> = YesNoOptionIdSchema;
+export const MsEitherNeitherContestOptionIdSchema: z.ZodSchema<MsEitherNeitherContestOptionId> =
+  YesNoOptionIdSchema;
 
 export interface MsEitherNeitherContestOption {
   type: MsEitherNeitherContest['type'];
@@ -814,15 +814,14 @@ export interface MsEitherNeitherContestOption {
   name: string;
   optionIndex: number;
 }
-export const MsEitherNeitherContestOptionSchema: z.ZodSchema<MsEitherNeitherContestOption> = z.object(
-  {
+export const MsEitherNeitherContestOptionSchema: z.ZodSchema<MsEitherNeitherContestOption> =
+  z.object({
     type: z.literal('ms-either-neither'),
     id: MsEitherNeitherContestOptionIdSchema,
     contestId: ContestIdSchema,
     name: z.string(),
     optionIndex: z.number().nonnegative(),
-  }
-);
+  });
 
 export type ContestOption =
   | CandidateContestOption
@@ -845,11 +844,10 @@ export const ContestOptionIdSchema: z.ZodSchema<ContestOptionId> = z.union([
 export interface UninterpretableBallotAdjudicationReasonInfo {
   type: AdjudicationReason.UninterpretableBallot;
 }
-export const UninterpretableBallotAdjudicationReasonInfoSchema: z.ZodSchema<UninterpretableBallotAdjudicationReasonInfo> = z.object(
-  {
+export const UninterpretableBallotAdjudicationReasonInfoSchema: z.ZodSchema<UninterpretableBallotAdjudicationReasonInfo> =
+  z.object({
     type: z.literal(AdjudicationReason.UninterpretableBallot),
-  }
-);
+  });
 
 export interface MarginalMarkAdjudicationReasonInfo {
   type: AdjudicationReason.MarginalMark;
@@ -857,14 +855,13 @@ export interface MarginalMarkAdjudicationReasonInfo {
   optionId: ContestOptionId;
   optionIndex: number;
 }
-export const MarginalMarkAdjudicationReasonInfoSchema: z.ZodSchema<MarginalMarkAdjudicationReasonInfo> = z.object(
-  {
+export const MarginalMarkAdjudicationReasonInfoSchema: z.ZodSchema<MarginalMarkAdjudicationReasonInfo> =
+  z.object({
     type: z.literal(AdjudicationReason.MarginalMark),
     contestId: ContestIdSchema,
     optionId: ContestOptionIdSchema,
     optionIndex: z.number(),
-  }
-);
+  });
 
 export interface OvervoteAdjudicationReasonInfo {
   type: AdjudicationReason.Overvote;
@@ -873,15 +870,14 @@ export interface OvervoteAdjudicationReasonInfo {
   optionIndexes: readonly number[];
   expected: number;
 }
-export const OvervoteAdjudicationReasonInfoSchema: z.ZodSchema<OvervoteAdjudicationReasonInfo> = z.object(
-  {
+export const OvervoteAdjudicationReasonInfoSchema: z.ZodSchema<OvervoteAdjudicationReasonInfo> =
+  z.object({
     type: z.literal(AdjudicationReason.Overvote),
     contestId: ContestIdSchema,
     optionIds: z.array(ContestOptionIdSchema),
     optionIndexes: z.array(z.number().nonnegative()),
     expected: z.number(),
-  }
-);
+  });
 
 export interface UndervoteAdjudicationReasonInfo {
   type: AdjudicationReason.Undervote;
@@ -890,15 +886,14 @@ export interface UndervoteAdjudicationReasonInfo {
   optionIndexes: readonly number[];
   expected: number;
 }
-export const UndervoteAdjudicationReasonInfoSchema: z.ZodSchema<UndervoteAdjudicationReasonInfo> = z.object(
-  {
+export const UndervoteAdjudicationReasonInfoSchema: z.ZodSchema<UndervoteAdjudicationReasonInfo> =
+  z.object({
     type: z.literal(AdjudicationReason.Undervote),
     contestId: ContestIdSchema,
     optionIds: z.array(ContestOptionIdSchema),
     optionIndexes: z.array(z.number().nonnegative()),
     expected: z.number(),
-  }
-);
+  });
 
 /**
  * Information about a write-in whose target was determined to be marked, i.e.
@@ -914,14 +909,13 @@ export interface MarkedWriteInAdjudicationReasonInfo {
 /**
  * Schema for {@link MarkedWriteInAdjudicationReasonInfo}.
  */
-export const MarkedWriteInAdjudicationReasonInfoSchema: z.ZodSchema<MarkedWriteInAdjudicationReasonInfo> = z.object(
-  {
+export const MarkedWriteInAdjudicationReasonInfoSchema: z.ZodSchema<MarkedWriteInAdjudicationReasonInfo> =
+  z.object({
     type: z.literal(AdjudicationReason.MarkedWriteIn),
     contestId: ContestIdSchema,
     optionId: WriteInIdSchema,
     optionIndex: z.number().nonnegative(),
-  }
-);
+  });
 
 /**
  * Information about a write-in whose target was determined not to be marked
@@ -938,14 +932,13 @@ export interface UnmarkedWriteInAdjudicationReasonInfo {
 /**
  * Schema for {@link UnmarkedWriteInAdjudicationReasonInfo}.
  */
-export const UnmarkedWriteInAdjudicationReasonInfoSchema: z.ZodSchema<UnmarkedWriteInAdjudicationReasonInfo> = z.object(
-  {
+export const UnmarkedWriteInAdjudicationReasonInfoSchema: z.ZodSchema<UnmarkedWriteInAdjudicationReasonInfo> =
+  z.object({
     type: z.literal(AdjudicationReason.UnmarkedWriteIn),
     contestId: ContestIdSchema,
     optionId: WriteInIdSchema,
     optionIndex: z.number().nonnegative(),
-  }
-);
+  });
 
 /**
  * Information about a write-in, whether explicitly marked or not.
@@ -957,21 +950,19 @@ export type WriteInAdjudicationReasonInfo =
 /**
  * Schema for {@link WriteInAdjudicationReasonInfo}.
  */
-export const WriteInAdjudicationReasonInfoSchema: z.ZodSchema<WriteInAdjudicationReasonInfo> = z.union(
-  [
+export const WriteInAdjudicationReasonInfoSchema: z.ZodSchema<WriteInAdjudicationReasonInfo> =
+  z.union([
     MarkedWriteInAdjudicationReasonInfoSchema,
     UnmarkedWriteInAdjudicationReasonInfoSchema,
-  ]
-);
+  ]);
 
 export interface BlankBallotAdjudicationReasonInfo {
   type: AdjudicationReason.BlankBallot;
 }
-export const BlankBallotAdjudicationReasonInfoSchema: z.ZodSchema<BlankBallotAdjudicationReasonInfo> = z.object(
-  {
+export const BlankBallotAdjudicationReasonInfoSchema: z.ZodSchema<BlankBallotAdjudicationReasonInfo> =
+  z.object({
     type: z.literal(AdjudicationReason.BlankBallot),
-  }
-);
+  });
 
 export type AdjudicationReasonInfo =
   | UninterpretableBallotAdjudicationReasonInfo
@@ -981,8 +972,8 @@ export type AdjudicationReasonInfo =
   | MarkedWriteInAdjudicationReasonInfo
   | UnmarkedWriteInAdjudicationReasonInfo
   | BlankBallotAdjudicationReasonInfo;
-export const AdjudicationReasonInfoSchema: z.ZodSchema<AdjudicationReasonInfo> = z.union(
-  [
+export const AdjudicationReasonInfoSchema: z.ZodSchema<AdjudicationReasonInfo> =
+  z.union([
     UninterpretableBallotAdjudicationReasonInfoSchema,
     MarginalMarkAdjudicationReasonInfoSchema,
     OvervoteAdjudicationReasonInfoSchema,
@@ -990,17 +981,16 @@ export const AdjudicationReasonInfoSchema: z.ZodSchema<AdjudicationReasonInfo> =
     MarkedWriteInAdjudicationReasonInfoSchema,
     UnmarkedWriteInAdjudicationReasonInfoSchema,
     BlankBallotAdjudicationReasonInfoSchema,
-  ]
-);
+  ]);
 
 export type BallotId = NewType<string, 'BallotId'>;
-export const BallotIdSchema = (z
+export const BallotIdSchema = z
   .string()
   .nonempty()
   .refine(
     (ballotId) => !ballotId.startsWith('_'),
     'Ballot IDs must not start with an underscore'
-  ) as unknown) as z.ZodSchema<BallotId>;
+  ) as unknown as z.ZodSchema<BallotId>;
 
 export interface HmpbBallotPageMetadata {
   electionHash: string; // a hexadecimal string
@@ -1012,8 +1002,8 @@ export interface HmpbBallotPageMetadata {
   ballotType: BallotType;
   ballotId?: BallotId;
 }
-export const HmpbBallotPageMetadataSchema: z.ZodSchema<HmpbBallotPageMetadata> = z.object(
-  {
+export const HmpbBallotPageMetadataSchema: z.ZodSchema<HmpbBallotPageMetadata> =
+  z.object({
     electionHash: ElectionHash,
     precinctId: PrecinctIdSchema,
     ballotStyleId: BallotStyleIdSchema,
@@ -1022,8 +1012,7 @@ export const HmpbBallotPageMetadataSchema: z.ZodSchema<HmpbBallotPageMetadata> =
     isTestMode: z.boolean(),
     ballotType: BallotTypeSchema,
     ballotId: BallotIdSchema.optional(),
-  }
-);
+  });
 
 export type BallotMetadata = Omit<
   HmpbBallotPageMetadata,
@@ -1057,8 +1046,8 @@ export interface BallotCandidateTargetMark {
   scoredOffset: Offset;
   writeInTextScore?: number;
 }
-export const BallotCandidateTargetMarkSchema: z.ZodSchema<BallotCandidateTargetMark> = z.object(
-  {
+export const BallotCandidateTargetMarkSchema: z.ZodSchema<BallotCandidateTargetMark> =
+  z.object({
     type: z.literal('candidate'),
     bounds: RectSchema,
     contestId: ContestIdSchema,
@@ -1067,8 +1056,7 @@ export const BallotCandidateTargetMarkSchema: z.ZodSchema<BallotCandidateTargetM
     score: z.number().min(0).max(1),
     scoredOffset: OffsetSchema,
     writeInTextScore: z.number().min(0).max(1).optional(),
-  }
-);
+  });
 
 export interface BallotYesNoTargetMark {
   type: YesNoContest['type'];
@@ -1079,8 +1067,8 @@ export interface BallotYesNoTargetMark {
   score: number;
   scoredOffset: Offset;
 }
-export const BallotYesNoTargetMarkSchema: z.ZodSchema<BallotYesNoTargetMark> = z.object(
-  {
+export const BallotYesNoTargetMarkSchema: z.ZodSchema<BallotYesNoTargetMark> =
+  z.object({
     type: z.literal('yesno'),
     bounds: RectSchema,
     contestId: ContestIdSchema,
@@ -1088,8 +1076,7 @@ export const BallotYesNoTargetMarkSchema: z.ZodSchema<BallotYesNoTargetMark> = z
     optionId: z.union([z.literal('yes'), z.literal('no')]),
     score: z.number(),
     scoredOffset: OffsetSchema,
-  }
-);
+  });
 
 export interface BallotMsEitherNeitherTargetMark {
   type: MsEitherNeitherContest['type'];
@@ -1100,8 +1087,8 @@ export interface BallotMsEitherNeitherTargetMark {
   score: number;
   scoredOffset: Offset;
 }
-export const BallotMsEitherNeitherTargetMarkSchema: z.ZodSchema<BallotMsEitherNeitherTargetMark> = z.object(
-  {
+export const BallotMsEitherNeitherTargetMarkSchema: z.ZodSchema<BallotMsEitherNeitherTargetMark> =
+  z.object({
     type: z.literal('ms-either-neither'),
     bounds: RectSchema,
     contestId: ContestIdSchema,
@@ -1109,8 +1096,7 @@ export const BallotMsEitherNeitherTargetMarkSchema: z.ZodSchema<BallotMsEitherNe
     optionId: YesNoOptionIdSchema,
     score: z.number(),
     scoredOffset: OffsetSchema,
-  }
-);
+  });
 
 export type BallotTargetMark =
   | BallotCandidateTargetMark
@@ -1160,14 +1146,13 @@ export interface InterpretedBmdPage {
   metadata: BallotMetadata;
   votes: VotesDict;
 }
-export const InterpretedBmdPageSchema: z.ZodSchema<InterpretedBmdPage> = z.object(
-  {
+export const InterpretedBmdPageSchema: z.ZodSchema<InterpretedBmdPage> =
+  z.object({
     type: z.literal('InterpretedBmdPage'),
     ballotId: BallotIdSchema.optional(),
     metadata: BallotMetadataSchema,
     votes: VotesDictSchema,
-  }
-);
+  });
 
 export interface InterpretedHmpbPage {
   type: 'InterpretedHmpbPage';
@@ -1177,62 +1162,57 @@ export interface InterpretedHmpbPage {
   votes: VotesDict;
   adjudicationInfo: AdjudicationInfo;
 }
-export const InterpretedHmpbPageSchema: z.ZodSchema<InterpretedHmpbPage> = z.object(
-  {
+export const InterpretedHmpbPageSchema: z.ZodSchema<InterpretedHmpbPage> =
+  z.object({
     type: z.literal('InterpretedHmpbPage'),
     ballotId: BallotIdSchema.optional(),
     metadata: HmpbBallotPageMetadataSchema,
     markInfo: MarkInfoSchema,
     votes: VotesDictSchema,
     adjudicationInfo: AdjudicationInfoSchema,
-  }
-);
+  });
 
 export interface InvalidElectionHashPage {
   type: 'InvalidElectionHashPage';
   expectedElectionHash: string;
   actualElectionHash: string;
 }
-export const InvalidElectionHashPageSchema: z.ZodSchema<InvalidElectionHashPage> = z.object(
-  {
+export const InvalidElectionHashPageSchema: z.ZodSchema<InvalidElectionHashPage> =
+  z.object({
     type: z.literal('InvalidElectionHashPage'),
     expectedElectionHash: z.string(),
     actualElectionHash: z.string(),
-  }
-);
+  });
 
 export interface InvalidTestModePage {
   type: 'InvalidTestModePage';
   metadata: BallotMetadata | HmpbBallotPageMetadata;
 }
-export const InvalidTestModePageSchema: z.ZodSchema<InvalidTestModePage> = z.object(
-  {
+export const InvalidTestModePageSchema: z.ZodSchema<InvalidTestModePage> =
+  z.object({
     type: z.literal('InvalidTestModePage'),
     metadata: z.union([BallotMetadataSchema, HmpbBallotPageMetadataSchema]),
-  }
-);
+  });
 
 export interface InvalidPrecinctPage {
   type: 'InvalidPrecinctPage';
   metadata: BallotMetadata | HmpbBallotPageMetadata;
 }
-export const InvalidPrecinctPageSchema: z.ZodSchema<InvalidPrecinctPage> = z.object(
-  {
+export const InvalidPrecinctPageSchema: z.ZodSchema<InvalidPrecinctPage> =
+  z.object({
     type: z.literal('InvalidPrecinctPage'),
     metadata: z.union([BallotMetadataSchema, HmpbBallotPageMetadataSchema]),
-  }
-);
+  });
 
 export interface UninterpretedHmpbPage {
   type: 'UninterpretedHmpbPage';
   metadata: HmpbBallotPageMetadata;
 }
-export const UninterpretedHmpbPageSchema: z.ZodSchema<UninterpretedHmpbPage> = z.object(
-  {
+export const UninterpretedHmpbPageSchema: z.ZodSchema<UninterpretedHmpbPage> =
+  z.object({
     type: z.literal('UninterpretedHmpbPage'),
     metadata: HmpbBallotPageMetadataSchema,
-  }
-);
+  });
 
 export interface UnreadablePage {
   type: 'UnreadablePage';
@@ -1259,8 +1239,8 @@ export type PageInterpretation =
   | InvalidPrecinctPage
   | UninterpretedHmpbPage
   | UnreadablePage;
-export const PageInterpretationSchema: z.ZodSchema<PageInterpretation> = z.union(
-  [
+export const PageInterpretationSchema: z.ZodSchema<PageInterpretation> =
+  z.union([
     BlankPageSchema,
     InterpretedBmdPageSchema,
     InterpretedHmpbPageSchema,
@@ -1269,21 +1249,19 @@ export const PageInterpretationSchema: z.ZodSchema<PageInterpretation> = z.union
     InvalidPrecinctPageSchema,
     UninterpretedHmpbPageSchema,
     UnreadablePageSchema,
-  ]
-);
+  ]);
 
 export interface PageInterpretationWithFiles {
   originalFilename: string;
   normalizedFilename: string;
   interpretation: PageInterpretation;
 }
-export const PageInterpretationWithFilesSchema: z.ZodSchema<PageInterpretationWithFiles> = z.object(
-  {
+export const PageInterpretationWithFilesSchema: z.ZodSchema<PageInterpretationWithFiles> =
+  z.object({
     originalFilename: z.string(),
     normalizedFilename: z.string(),
     interpretation: PageInterpretationSchema,
-  }
-);
+  });
 
 export interface BallotPageInfo {
   image: ImageInfo;
@@ -1633,7 +1611,7 @@ function copyWithLocale<T>(
 ): T | readonly T[] {
   if (Array.isArray(value)) {
     return value.map(
-      (element) => (copyWithLocale(element, locale) as unknown) as T
+      (element) => copyWithLocale(element, locale) as unknown as T
     );
   }
 

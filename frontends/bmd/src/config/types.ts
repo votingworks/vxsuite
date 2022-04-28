@@ -56,13 +56,12 @@ export interface MachineConfigResponse {
   appModeKey: AppModeKeys;
   codeVersion: string;
 }
-export const MachineConfigResponseSchema: z.ZodSchema<MachineConfigResponse> = z.object(
-  {
+export const MachineConfigResponseSchema: z.ZodSchema<MachineConfigResponse> =
+  z.object({
     machineId: MachineId,
     appModeKey: AppModeKeysSchema,
     codeVersion: z.string().nonempty(),
-  }
-);
+  });
 
 export function getAppMode(key: AppModeKeys): AppMode {
   switch (key) {
@@ -81,9 +80,12 @@ export type PostVotingInstructions = 'card' | 'cardless';
 
 // Events
 export type EventTargetFunction = (event: React.FormEvent<EventTarget>) => void;
-export type InputChangeEventFunction = React.ChangeEventHandler<HTMLInputElement>;
-export type TextareaChangeEventFunction = React.ChangeEventHandler<HTMLTextAreaElement>;
-export type SelectChangeEventFunction = React.ChangeEventHandler<HTMLSelectElement>;
+export type InputChangeEventFunction =
+  React.ChangeEventHandler<HTMLInputElement>;
+export type TextareaChangeEventFunction =
+  React.ChangeEventHandler<HTMLTextAreaElement>;
+export type SelectChangeEventFunction =
+  React.ChangeEventHandler<HTMLSelectElement>;
 
 // Election
 export interface ActivationData {

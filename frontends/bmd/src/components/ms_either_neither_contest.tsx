@@ -140,33 +140,32 @@ export function MsEitherNeitherContest({
     setIsScrollAtTop(target.scrollTop === 0);
   }, [userSettings.textSize]);
 
-  const scrollContestChoices: EventTargetFunction = /* istanbul ignore next: Tested by Cypress */ (
-    event
-  ) => {
-    const direction = (event.target as HTMLElement).dataset
-      .direction as ScrollDirections;
-    const sc = scrollContainer.current;
-    assert(sc);
-    const currentScrollTop = sc.scrollTop;
-    const { offsetHeight, scrollHeight } = sc;
-    const idealScrollDistance = Math.round(offsetHeight * 0.75);
-    const maxScrollableDownDistance =
-      scrollHeight - offsetHeight - currentScrollTop;
-    const maxScrollTop =
-      direction === 'down'
-        ? currentScrollTop + maxScrollableDownDistance
-        : currentScrollTop;
-    const idealScrollTop =
-      direction === 'down'
-        ? currentScrollTop + idealScrollDistance
-        : currentScrollTop - idealScrollDistance;
-    const top = idealScrollTop > maxScrollTop ? maxScrollTop : idealScrollTop;
-    sc.scrollTo({
-      behavior: 'smooth',
-      left: 0,
-      top,
-    });
-  };
+  const scrollContestChoices: EventTargetFunction =
+    /* istanbul ignore next: Tested by Cypress */ (event) => {
+      const direction = (event.target as HTMLElement).dataset
+        .direction as ScrollDirections;
+      const sc = scrollContainer.current;
+      assert(sc);
+      const currentScrollTop = sc.scrollTop;
+      const { offsetHeight, scrollHeight } = sc;
+      const idealScrollDistance = Math.round(offsetHeight * 0.75);
+      const maxScrollableDownDistance =
+        scrollHeight - offsetHeight - currentScrollTop;
+      const maxScrollTop =
+        direction === 'down'
+          ? currentScrollTop + maxScrollableDownDistance
+          : currentScrollTop;
+      const idealScrollTop =
+        direction === 'down'
+          ? currentScrollTop + idealScrollDistance
+          : currentScrollTop - idealScrollDistance;
+      const top = idealScrollTop > maxScrollTop ? maxScrollTop : idealScrollTop;
+      sc.scrollTo({
+        behavior: 'smooth',
+        left: 0,
+        top,
+      });
+    };
 
   useEffect(() => {
     updateContestChoicesScrollStates();

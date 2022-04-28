@@ -843,13 +843,15 @@ test('interprets marks in ballots', async () => {
   {
     const ballotImagePath = choctaw2020Fixtures.filledInPage1;
     expect(
-      ((
-        await interpreter.interpretFile({
-          ballotImagePath,
-          ballotImageFile: await readFile(ballotImagePath),
-          detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
-        })
-      ).interpretation as InterpretedHmpbPage).votes
+      (
+        (
+          await interpreter.interpretFile({
+            ballotImagePath,
+            ballotImageFile: await readFile(ballotImagePath),
+            detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
+          })
+        ).interpretation as InterpretedHmpbPage
+      ).votes
     ).toMatchInlineSnapshot(`
       Object {
         "1": Array [
@@ -887,13 +889,15 @@ test('interprets marks in ballots', async () => {
   {
     const ballotImagePath = choctaw2020Fixtures.filledInPage2;
     expect(
-      ((
-        await interpreter.interpretFile({
-          ballotImagePath,
-          ballotImageFile: await readFile(ballotImagePath),
-          detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
-        })
-      ).interpretation as InterpretedHmpbPage).votes
+      (
+        (
+          await interpreter.interpretFile({
+            ballotImagePath,
+            ballotImageFile: await readFile(ballotImagePath),
+            detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
+          })
+        ).interpretation as InterpretedHmpbPage
+      ).votes
     ).toMatchInlineSnapshot(`
       Object {
         "flag-question": Array [

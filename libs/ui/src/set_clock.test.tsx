@@ -253,15 +253,15 @@ describe('SetClockButton', () => {
     );
 
     const selectYear = screen.getByTestId('selectYear');
-    const optionYear = (within(selectYear).getByText(
-      '2025'
-    ) as HTMLOptionElement).value;
+    const optionYear = (
+      within(selectYear).getByText('2025') as HTMLOptionElement
+    ).value;
     fireEvent.change(selectYear, { target: { value: optionYear } });
 
     const selectMonth = screen.getByTestId('selectMonth');
-    const optionMonth = (within(selectMonth).getByText(
-      'Feb'
-    ) as HTMLOptionElement).value;
+    const optionMonth = (
+      within(selectMonth).getByText('Feb') as HTMLOptionElement
+    ).value;
     fireEvent.change(selectMonth, { target: { value: optionMonth } });
 
     // Expect day to change because Feb doesn't have 31 days.
@@ -280,15 +280,15 @@ describe('SetClockButton', () => {
     fireEvent.change(selectHour, { target: { value: optionHour } });
 
     const selectMinute = screen.getByTestId('selectMinute');
-    const optionMinute = (within(selectMinute).getByText(
-      '21'
-    ) as HTMLOptionElement).value;
+    const optionMinute = (
+      within(selectMinute).getByText('21') as HTMLOptionElement
+    ).value;
     fireEvent.change(selectMinute, { target: { value: optionMinute } });
 
     const selectMeridian = screen.getByTestId('selectMeridian');
-    const optionMeridian = (within(selectMeridian).getByText(
-      'PM'
-    ) as HTMLOptionElement).value;
+    const optionMeridian = (
+      within(selectMeridian).getByText('PM') as HTMLOptionElement
+    ).value;
     fireEvent.change(selectMeridian, { target: { value: optionMeridian } });
 
     // Expect day, hour, minute, and meridian to update
@@ -307,9 +307,11 @@ describe('SetClockButton', () => {
 
     expect(selectTimezone.value).toBe('America/Chicago');
     expect(
-      (within(selectTimezone).getByText(
-        'Central Standard Time (Chicago)'
-      ) as HTMLOptionElement).selected
+      (
+        within(selectTimezone).getByText(
+          'Central Standard Time (Chicago)'
+        ) as HTMLOptionElement
+      ).selected
     ).toBeTruthy();
 
     screen.getByText('Mon, Feb 3, 2025, 11:21 PM');
@@ -329,15 +331,15 @@ describe('SetClockButton', () => {
 
     // Choose PM, then change hours
     const selectMeridian2 = screen.getByTestId('selectMeridian');
-    const optionMeridian2 = (within(selectMeridian2).getByText(
-      'PM'
-    ) as HTMLOptionElement).value;
+    const optionMeridian2 = (
+      within(selectMeridian2).getByText('PM') as HTMLOptionElement
+    ).value;
     fireEvent.change(selectMeridian2, { target: { value: optionMeridian2 } });
 
     const selectHour2 = screen.getByTestId('selectHour');
-    const optionHour2 = (within(selectHour2).getByText(
-      '11'
-    ) as HTMLOptionElement).value;
+    const optionHour2 = (
+      within(selectHour2).getByText('11') as HTMLOptionElement
+    ).value;
     fireEvent.change(selectHour2, { target: { value: optionHour2 } });
 
     // Expect time to be in PM
@@ -345,9 +347,9 @@ describe('SetClockButton', () => {
 
     // Choose AM, then change hours
     const selectMeridian3 = screen.getByTestId('selectMeridian');
-    const optionMeridian3 = (within(selectMeridian3).getByText(
-      'AM'
-    ) as HTMLOptionElement).value;
+    const optionMeridian3 = (
+      within(selectMeridian3).getByText('AM') as HTMLOptionElement
+    ).value;
     fireEvent.change(selectMeridian3, { target: { value: optionMeridian3 } });
 
     // Expect time to be in AM

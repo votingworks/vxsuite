@@ -27,7 +27,8 @@ import {
 } from '../src/utils/cast_vote_record_files';
 import { getEmptyFullElectionTally } from '../src/lib/votecounting';
 
-export const eitherNeitherElectionDefinition = electionWithMsEitherNeitherDefinition;
+export const eitherNeitherElectionDefinition =
+  electionWithMsEitherNeitherDefinition;
 
 interface RenderInAppContextParams {
   route?: string;

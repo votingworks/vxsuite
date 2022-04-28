@@ -68,9 +68,9 @@ test('read/write', () => {
     { name: 'Fozzie' },
   ]);
   expect(client.one('select * from muppets')).toEqual({ name: 'Kermit' });
-  expect(
-    client.one('select * from muppets where name != ?', 'Kermit')
-  ).toEqual({ name: 'Fozzie' });
+  expect(client.one('select * from muppets where name != ?', 'Kermit')).toEqual(
+    { name: 'Fozzie' }
+  );
 });
 
 test('transactions', () => {

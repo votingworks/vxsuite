@@ -99,9 +99,8 @@ export class LoopScanner implements Scanner {
    * "Scans" the next sheet by returning the paths for the next two images.
    */
   scanSheets(): BatchControl {
-    const currentBatch = this.batches[
-      this.nextBatchIndex % this.batches.length
-    ];
+    const currentBatch =
+      this.batches[this.nextBatchIndex % this.batches.length];
     this.nextBatchIndex += 1;
     let sheetIndex = 0;
 

@@ -10,9 +10,10 @@ import {
 } from '../data';
 
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
-  const original = jest.requireActual<typeof import('@votingworks/utils')>(
-    '@votingworks/utils'
-  );
+  const original =
+    jest.requireActual<typeof import('@votingworks/utils')>(
+      '@votingworks/utils'
+    );
   // Mock random string generation so that snapshots match, while leaving the rest of the module
   // intact
   return {

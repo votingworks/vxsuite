@@ -182,6 +182,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
       );
       setState(workflow.next);
     } catch (error) {
+      assert(error instanceof Error);
       setState(workflow.error(state, error));
       await logger.log(
         LogEventId.ExportBallotPackageComplete,

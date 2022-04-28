@@ -205,10 +205,8 @@ export async function createClient(
   );
   clientDebug('spawned %s', plustekctlPath);
 
-  const {
-    promise: connectedPromise,
-    resolve: connectedResolve,
-  } = deferred<void>();
+  const { promise: connectedPromise, resolve: connectedResolve } =
+    deferred<void>();
   const { promise: exitPromise, resolve: exitResolve } = deferred<void>();
   let setupError: Error | undefined;
   let connected = false;

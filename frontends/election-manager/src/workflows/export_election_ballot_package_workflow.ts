@@ -99,10 +99,8 @@ export function next(state: State): State {
       };
 
     case 'ArchiveBegin': {
-      const [
-        currentBallotConfig,
-        ...remainingBallotConfigs
-      ] = state.ballotConfigs;
+      const [currentBallotConfig, ...remainingBallotConfigs] =
+        state.ballotConfigs;
 
       return {
         type: 'RenderBallot',
@@ -116,10 +114,8 @@ export function next(state: State): State {
     }
 
     case 'RenderBallot': {
-      const [
-        currentBallotConfig,
-        ...remainingBallotConfigs
-      ] = state.remainingBallotConfigs;
+      const [currentBallotConfig, ...remainingBallotConfigs] =
+        state.remainingBallotConfigs;
 
       if (!currentBallotConfig) {
         return {

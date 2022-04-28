@@ -1,7 +1,7 @@
 import { ElectionDefinition, MarkThresholds } from '@votingworks/types';
 import React, { useCallback, useEffect, useState, useContext } from 'react';
 import { LogEventId } from '@votingworks/logging';
-import { LogFileType } from '@votingworks/utils';
+import { assert, LogFileType } from '@votingworks/utils';
 import { Loading, Modal, SetClockButton } from '@votingworks/ui';
 import { Button } from '../components/button';
 import { LinkButton } from '../components/link_button';
@@ -45,10 +45,8 @@ export function AdminActionsScreen({
   const { lockMachine, logger, currentUserSession } = useContext(AppContext);
   const currentUserType = currentUserSession?.type ?? 'unknown';
   const [isConfirmingUnconfigure, setIsConfirmingUnconfigure] = useState(false);
-  const [
-    isDoubleConfirmingUnconfigure,
-    setIsDoubleConfirmingUnconfigure,
-  ] = useState(false);
+  const [isDoubleConfirmingUnconfigure, setIsDoubleConfirmingUnconfigure] =
+    useState(false);
   const [isFactoryResetting, setIsFactoryResetting] = useState(false);
   const [isDeletingBallotData, setIsDeletingBallotData] = useState(false);
   const [isBackingUp, setIsBackingUp] = useState(false);
@@ -61,9 +59,8 @@ export function AdminActionsScreen({
   }
   const [isConfirmingZero, setIsConfirmingZero] = useState(false);
   const [exportingLogType, setExportingLogType] = useState<LogFileType>();
-  const [isSetMarkThresholdModalOpen, setIsMarkThresholdModalOpen] = useState(
-    false
-  );
+  const [isSetMarkThresholdModalOpen, setIsMarkThresholdModalOpen] =
+    useState(false);
   function toggleIsConfirmingZero() {
     return setIsConfirmingZero((s) => !s);
   }
@@ -77,6 +74,7 @@ export function AdminActionsScreen({
         message: 'User successfully downloaded ballot data backup files.',
       });
     } catch (error) {
+      assert(error instanceof Error);
       setBackupError(error.toString());
       await logger.log(LogEventId.DownloadedScanImageBackup, currentUserType, {
         disposition: 'failure',

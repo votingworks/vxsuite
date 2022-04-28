@@ -84,7 +84,8 @@ export interface FullElectionExternalTally {
 
 export type OptionalExternalTally = Optional<ExternalTally>;
 export type OptionalFullElectionTally = Optional<FullElectionTally>;
-export type OptionalFullElectionExternalTally = Optional<FullElectionExternalTally>;
+export type OptionalFullElectionExternalTally =
+  Optional<FullElectionExternalTally>;
 
 const nonnegativeInteger = z.number().nonnegative().int();
 
@@ -95,15 +96,14 @@ export type YesNoContestCompressedTally = [
   yes: number,
   no: number
 ];
-export const YesNoContestCompressedTallySchema: z.ZodSchema<YesNoContestCompressedTally> = z.tuple(
-  [
+export const YesNoContestCompressedTallySchema: z.ZodSchema<YesNoContestCompressedTally> =
+  z.tuple([
     nonnegativeInteger,
     nonnegativeInteger,
     nonnegativeInteger,
     nonnegativeInteger,
     nonnegativeInteger,
-  ]
-);
+  ]);
 export type CandidateContestWithWriteInsCompressedTally = [
   undervotes: number,
   overvotes: number,
@@ -111,31 +111,32 @@ export type CandidateContestWithWriteInsCompressedTally = [
   ...candidates: number[],
   writeIns: number
 ];
-export const CandidateContestWithWriteInsCompressedTallySchema: z.ZodSchema<CandidateContestWithWriteInsCompressedTally> = (z
-  .array(nonnegativeInteger)
-  .min(
-    4
-  ) as unknown) as z.ZodSchema<CandidateContestWithWriteInsCompressedTally>;
+export const CandidateContestWithWriteInsCompressedTallySchema: z.ZodSchema<CandidateContestWithWriteInsCompressedTally> =
+  z
+    .array(nonnegativeInteger)
+    .min(
+      4
+    ) as unknown as z.ZodSchema<CandidateContestWithWriteInsCompressedTally>;
 export type CandidateContestWithoutWriteInsCompressedTally = [
   undervotes: number,
   overvotes: number,
   ballotsCast: number,
   ...candidates: number[]
 ];
-export const CandidateContestWithoutWriteInsCompressedTallySchema: z.ZodSchema<CandidateContestWithoutWriteInsCompressedTally> = (z
-  .array(nonnegativeInteger)
-  .min(
-    3
-  ) as unknown) as z.ZodSchema<CandidateContestWithoutWriteInsCompressedTally>;
+export const CandidateContestWithoutWriteInsCompressedTallySchema: z.ZodSchema<CandidateContestWithoutWriteInsCompressedTally> =
+  z
+    .array(nonnegativeInteger)
+    .min(
+      3
+    ) as unknown as z.ZodSchema<CandidateContestWithoutWriteInsCompressedTally>;
 export type CandidateContestCompressedTally =
   | CandidateContestWithWriteInsCompressedTally
   | CandidateContestWithoutWriteInsCompressedTally;
-export const CandidateContestCompressedTallySchema: z.ZodSchema<CandidateContestCompressedTally> = z.union(
-  [
+export const CandidateContestCompressedTallySchema: z.ZodSchema<CandidateContestCompressedTally> =
+  z.union([
     CandidateContestWithWriteInsCompressedTallySchema,
     CandidateContestWithoutWriteInsCompressedTallySchema,
-  ]
-);
+  ]);
 export type MsEitherNeitherContestCompressedTally = [
   eitherOption: number,
   neitherOption: number,
@@ -147,8 +148,8 @@ export type MsEitherNeitherContestCompressedTally = [
   pickOneOvervotes: number,
   ballotsCast: number
 ];
-export const MsEitherNeitherContestCompressedTallySchema: z.ZodSchema<MsEitherNeitherContestCompressedTally> = z.tuple(
-  [
+export const MsEitherNeitherContestCompressedTallySchema: z.ZodSchema<MsEitherNeitherContestCompressedTally> =
+  z.tuple([
     nonnegativeInteger,
     nonnegativeInteger,
     nonnegativeInteger,
@@ -158,8 +159,7 @@ export const MsEitherNeitherContestCompressedTallySchema: z.ZodSchema<MsEitherNe
     nonnegativeInteger,
     nonnegativeInteger,
     nonnegativeInteger,
-  ]
-);
+  ]);
 export type CompressedTallyEntry =
   | YesNoContestCompressedTally
   | CandidateContestCompressedTally

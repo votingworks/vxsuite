@@ -169,21 +169,19 @@ export async function retryScan(
           },
         ];
 
-        const [
-          frontDetectQrcodeOutput,
-          backDetectQrcodeOutput,
-        ] = qrcodeWorker.normalizeSheetOutput(
-          electionDefinition,
-          await Promise.all(
-            originalScans.map(
-              async (scan) =>
-                await pool.call({
-                  action: 'detect-qrcode',
-                  imagePath: scan.originalFilename,
-                })
-            ) as [Promise<qrcodeWorker.Output>, Promise<qrcodeWorker.Output>]
-          )
-        );
+        const [frontDetectQrcodeOutput, backDetectQrcodeOutput] =
+          qrcodeWorker.normalizeSheetOutput(
+            electionDefinition,
+            await Promise.all(
+              originalScans.map(
+                async (scan) =>
+                  await pool.call({
+                    action: 'detect-qrcode',
+                    imagePath: scan.originalFilename,
+                  })
+              ) as [Promise<qrcodeWorker.Output>, Promise<qrcodeWorker.Output>]
+            )
+          );
 
         const [front, back] = await Promise.all(
           [

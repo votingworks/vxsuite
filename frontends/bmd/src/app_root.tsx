@@ -699,9 +699,8 @@ export function AppRoot({
     const electionData = await card.readLongString();
     /* istanbul ignore else */
     if (electionData) {
-      const electionDefinitionResult = safeParseElectionDefinition(
-        electionData
-      );
+      const electionDefinitionResult =
+        safeParseElectionDefinition(electionData);
       return electionDefinitionResult.unsafeUnwrap();
     }
   }, [card]);
@@ -1116,7 +1115,7 @@ export function AppRoot({
         return (
           ((await storage.get(activationStorageKey)) as
             | SerializableActivationData
-            | undefined) || (({} as unknown) as SerializableActivationData)
+            | undefined) || ({} as unknown as SerializableActivationData)
         );
       }
 
@@ -1132,7 +1131,8 @@ export function AppRoot({
       } = await retrieveBallotActivation();
       const {
         appPrecinct: storedAppPrecinct = initialAppState.appPrecinct,
-        ballotsPrintedCount: storedBallotsPrintedCount = initialAppState.ballotsPrintedCount,
+        ballotsPrintedCount:
+          storedBallotsPrintedCount = initialAppState.ballotsPrintedCount,
         isLiveMode: storedIsLiveMode = initialAppState.isLiveMode,
         isPollsOpen: storedIsPollsOpen = initialAppState.isPollsOpen,
       } = storedAppState;

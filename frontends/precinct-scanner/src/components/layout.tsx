@@ -21,9 +21,8 @@ export function CenteredScreen({
   infoBar = true,
   infoBarMode,
 }: CenteredScreenProps): JSX.Element {
-  const { electionDefinition, currentPrecinctId, machineConfig } = useContext(
-    AppContext
-  );
+  const { electionDefinition, currentPrecinctId, machineConfig } =
+    useContext(AppContext);
   return (
     <Screen flexDirection="column">
       <Main padded>

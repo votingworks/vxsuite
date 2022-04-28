@@ -212,6 +212,7 @@ export class DbClient {
       debug('deleting the database file at %s', dbPath);
       fs.unlinkSync(dbPath);
     } catch (error) {
+      assert(error instanceof Error);
       debug('failed to delete database file %s: %s', dbPath, error.message);
       throw error;
     }

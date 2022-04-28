@@ -31,10 +31,8 @@ export function UnconfiguredElectionScreen({
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoadingBallotPackage, setIsLoadingBallotPackage] = useState(false);
 
-  const [
-    currentUploadingBallotIndex,
-    setCurrentUploadingBallotIndex,
-  ] = useState(-1);
+  const [currentUploadingBallotIndex, setCurrentUploadingBallotIndex] =
+    useState(-1);
   const [totalTemplates, setTotalTemplates] = useState(0);
   const [currentUploadingBallot, setCurrentUploadingBallot] = useState<{
     ballotStyle: string;

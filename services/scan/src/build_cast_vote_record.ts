@@ -116,11 +116,9 @@ export function getOptionIdsForContestVote(
   }
   if (contest.type === 'ms-either-neither') {
     return [
-      ...((votes[contest.eitherNeitherContestId] ??
-        []) as readonly string[]).map<[string, string]>((id) => [
-        contest.eitherNeitherContestId,
-        id,
-      ]),
+      ...(
+        (votes[contest.eitherNeitherContestId] ?? []) as readonly string[]
+      ).map<[string, string]>((id) => [contest.eitherNeitherContestId, id]),
       ...((votes[contest.pickOneContestId] ?? []) as readonly string[]).map<
         [string, string]
       >((id) => [contest.pickOneContestId, id]),

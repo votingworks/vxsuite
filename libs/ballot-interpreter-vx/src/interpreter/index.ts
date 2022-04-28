@@ -309,12 +309,8 @@ export class Interpreter {
     const {
       electionDefinition: { election },
     } = this;
-    const {
-      locales,
-      ballotStyleId,
-      pageNumber,
-      precinctId,
-    } = template.metadata;
+    const { locales, ballotStyleId, pageNumber, precinctId } =
+      template.metadata;
     const ballotStyle = defined(
       getBallotStyle({
         ballotStyleId,
@@ -549,12 +545,8 @@ export class Interpreter {
           );
         }
 
-        const [
-          eitherLayout,
-          neitherLayout,
-          firstLayout,
-          secondLayout,
-        ] = options;
+        const [eitherLayout, neitherLayout, firstLayout, secondLayout] =
+          options;
         addEitherNeitherMark(contest, eitherLayout, contest.eitherOption);
         addEitherNeitherMark(contest, neitherLayout, contest.neitherOption);
         addEitherNeitherMark(contest, firstLayout, contest.firstOption);

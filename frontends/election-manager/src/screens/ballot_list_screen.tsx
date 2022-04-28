@@ -28,9 +28,8 @@ const Header = styled.div`
 `;
 
 export function BallotListScreen(): JSX.Element {
-  const { electionDefinition, printedBallots, configuredAt } = useContext(
-    AppContext
-  );
+  const { electionDefinition, printedBallots, configuredAt } =
+    useContext(AppContext);
   assert(electionDefinition && typeof configuredAt === 'string');
   const { election } = electionDefinition;
 

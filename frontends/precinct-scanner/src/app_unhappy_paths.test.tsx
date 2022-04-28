@@ -64,9 +64,10 @@ const scanStatusReadyToScanResponseBody: GetScanStatusResponse = {
   adjudication: { adjudicated: 0, remaining: 0 },
 };
 
-const getPrecinctConfigNoPrecinctResponseBody: GetCurrentPrecinctConfigResponse = {
-  status: 'ok',
-};
+const getPrecinctConfigNoPrecinctResponseBody: GetCurrentPrecinctConfigResponse =
+  {
+    status: 'ok',
+  };
 
 beforeEach(() => {
   jest.useFakeTimers();

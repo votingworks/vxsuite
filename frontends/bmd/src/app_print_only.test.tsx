@@ -94,9 +94,9 @@ test('PrintOnly flow', async () => {
   // Select precinct
   screen.getByText('State of Hamilton');
   const precinctSelect = screen.getByLabelText('Precinct');
-  const precinctId = (within(precinctSelect).getByText(
-    'Center Springfield'
-  ) as HTMLOptionElement).value;
+  const precinctId = (
+    within(precinctSelect).getByText('Center Springfield') as HTMLOptionElement
+  ).value;
   fireEvent.change(precinctSelect, { target: { value: precinctId } });
   within(screen.getByTestId('election-info')).getByText('Center Springfield');
 
@@ -410,9 +410,11 @@ test('PrintOnly retains app mode when unconfigured', async () => {
     // Select precinct
     screen.getByText('State of Hamilton');
     const precinctSelect = screen.getByLabelText('Precinct');
-    const precinctId = (within(precinctSelect).getByText(
-      'Center Springfield'
-    ) as HTMLOptionElement).value;
+    const precinctId = (
+      within(precinctSelect).getByText(
+        'Center Springfield'
+      ) as HTMLOptionElement
+    ).value;
     fireEvent.change(precinctSelect, { target: { value: precinctId } });
     within(screen.getByTestId('election-info')).getByText('Center Springfield');
 
@@ -515,9 +517,9 @@ test('PrintOnly prompts to change to live mode on election day', async () => {
   // Select precinct
   screen.getByText('State of Hamilton');
   const precinctSelect = screen.getByLabelText('Precinct');
-  const precinctId = (within(precinctSelect).getByText(
-    'Center Springfield'
-  ) as HTMLOptionElement).value;
+  const precinctId = (
+    within(precinctSelect).getByText('Center Springfield') as HTMLOptionElement
+  ).value;
   fireEvent.change(precinctSelect, { target: { value: precinctId } });
   within(screen.getByTestId('election-info')).getByText('Center Springfield');
 

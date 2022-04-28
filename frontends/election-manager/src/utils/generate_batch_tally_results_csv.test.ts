@@ -16,9 +16,8 @@ import {
 
 describe('generateBatchTallyResultsCSV', () => {
   it('generates correct candidate tallies in primary election', () => {
-    const {
-      election,
-    } = electionMultiPartyPrimaryWithDataFiles.electionDefinition;
+    const { election } =
+      electionMultiPartyPrimaryWithDataFiles.electionDefinition;
     const cvrsFileContent = generateFileContentFromCvrs([
       generateCvr(
         election,
@@ -75,9 +74,8 @@ describe('generateBatchTallyResultsCSV', () => {
   });
 
   it('generates correct candidate tallies in primary election', () => {
-    const {
-      election,
-    } = electionWithMsEitherNeitherWithDataFiles.electionDefinition;
+    const { election } =
+      electionWithMsEitherNeitherWithDataFiles.electionDefinition;
     const cvrsFileContent = generateFileContentFromCvrs([
       generateCvr(
         election,
@@ -144,11 +142,8 @@ describe('generateBatchTallyResultsCSV', () => {
   });
 
   it('conversion of full tally matches snapshot', () => {
-    const {
-      electionDefinition,
-      cvrData,
-      csvData,
-    } = electionMultiPartyPrimaryWithDataFiles;
+    const { electionDefinition, cvrData, csvData } =
+      electionMultiPartyPrimaryWithDataFiles;
     const { election } = electionDefinition;
     const castVoteRecords = parseCvrsAndAssertSuccess(cvrData, election);
     const fullTally = computeFullElectionTally(

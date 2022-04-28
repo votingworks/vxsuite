@@ -94,9 +94,8 @@ export function PollWorkerScreen({
   const [currentSubTallies, setCurrentSubTallies] = useState<
     ReadonlyMap<string, Tally>
   >(new Map());
-  const [systemAuthenticationCode, setSystemAuthenticationCode] = useState(
-    '---·---'
-  );
+  const [systemAuthenticationCode, setSystemAuthenticationCode] =
+    useState('---·---');
   const [isExportingResults, setIsExportingResults] = useState(false);
   const hasPrinterAttached = printerFromProps || !window.kiosk;
   const { election } = electionDefinition;
@@ -126,9 +125,10 @@ export function PollWorkerScreen({
     [precinctSelection, election.precincts]
   );
 
-  const parties = useMemo(() => getPartyIdsInBallotStyles(election), [
-    election,
-  ]);
+  const parties = useMemo(
+    () => getPartyIdsInBallotStyles(election),
+    [election]
+  );
 
   useEffect(() => {
     async function calculateTally() {

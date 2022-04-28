@@ -65,6 +65,7 @@ export async function main(
   try {
     options = parseOptions(args);
   } catch (error) {
+    assert(error instanceof Error);
     stderr.write(`error: ${error.message}\n`);
     printHelp(stderr);
     return -1;

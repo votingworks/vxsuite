@@ -1,4 +1,5 @@
 import { err, ok, Result } from '@votingworks/types';
+import { assert } from '@votingworks/utils';
 import { join } from 'path';
 
 /**
@@ -72,6 +73,7 @@ async function kioskDownload(
     try {
       downloadTarget = await kiosk.writeFile(path);
     } catch (error) {
+      assert(error instanceof Error);
       return err({ kind: DownloadErrorKind.OpenFailed, path, error });
     }
   } else {
@@ -84,6 +86,7 @@ async function kioskDownload(
 
       downloadTarget = saveAsTarget;
     } catch (error) {
+      assert(error instanceof Error);
       return err({ kind: DownloadErrorKind.OpenFailed, path: filename, error });
     }
   }
@@ -106,7 +109,7 @@ async function kioskDownload(
       })
     );
   } else {
-    await downloadTarget.write((body as unknown) as Uint8Array);
+    await downloadTarget.write(body as unknown as Uint8Array);
     await downloadTarget.end();
   }
 

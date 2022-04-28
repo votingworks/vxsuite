@@ -247,23 +247,18 @@ export function findBallotLayoutCorrespondence(
   template: BallotPageLayout,
   { maxCorrespondenceError = 0.05 } = {}
 ): BallotLayoutCorrespondence {
-  const mismatchedContests: BallotLayoutCorrespondence['mismatchedContests'] = [];
+  const mismatchedContests: BallotLayoutCorrespondence['mismatchedContests'] =
+    [];
 
   for (const [definition, templateContest, ballotContest] of zip(
     contests,
     template.contests,
     ballot.contests
   )) {
-    const [
-      templateTopLeft,
-      templateTopRight,
-      templateBottomLeft,
-    ] = templateContest.corners;
-    const [
-      ballotTopLeft,
-      ballotTopRight,
-      ballotBottomLeft,
-    ] = ballotContest.corners;
+    const [templateTopLeft, templateTopRight, templateBottomLeft] =
+      templateContest.corners;
+    const [ballotTopLeft, ballotTopRight, ballotBottomLeft] =
+      ballotContest.corners;
     const templateContestWidth = euclideanDistance(
       templateTopLeft,
       templateTopRight

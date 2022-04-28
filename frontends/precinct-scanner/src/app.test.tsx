@@ -95,9 +95,10 @@ const scanStatusReadyToScanResponseBody: GetScanStatusResponse = {
   adjudication: { adjudicated: 0, remaining: 0 },
 };
 
-const getPrecinctConfigNoPrecinctResponseBody: GetCurrentPrecinctConfigResponse = {
-  status: 'ok',
-};
+const getPrecinctConfigNoPrecinctResponseBody: GetCurrentPrecinctConfigResponse =
+  {
+    status: 'ok',
+  };
 
 async function authenticateAdminCard() {
   await screen.findByText('Enter the card security code to unlock.');
@@ -192,7 +193,7 @@ test('app can load and configure from a usb stick', async () => {
     },
   ]);
   const fileContent = await fs.readFile(pathToFile);
-  kiosk.readFile.mockResolvedValue((fileContent as unknown) as string);
+  kiosk.readFile.mockResolvedValue(fileContent as unknown as string);
   const ballotPackage = await readBallotPackageFromFile(
     new File([fileContent], 'ballot-package-new.zip')
   );

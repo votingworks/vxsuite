@@ -109,8 +109,7 @@ MOCK_SCANNER_FILES=../../libs/ballot-interpreter-vx/test/fixtures/choctaw-county
 
 By default a `ballots.db` file and a `ballot-images` directory will be created
 in a `dev-workspace` folder inside `services/scan` when running this service. To
-choose another location, set `SCAN_WORKSPACE` to the path to another
-folder:
+choose another location, set `SCAN_WORKSPACE` to the path to another folder:
 
 ```sh
 $ SCAN_WORKSPACE=/path/to/workspace pnpm dev

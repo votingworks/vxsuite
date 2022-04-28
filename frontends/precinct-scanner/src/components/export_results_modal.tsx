@@ -41,9 +41,8 @@ export function ExportResultsModal({
   const [currentState, setCurrentState] = useState<ModalState>(ModalState.INIT);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const { electionDefinition, machineConfig, currentUserSession } = useContext(
-    AppContext
-  );
+  const { electionDefinition, machineConfig, currentUserSession } =
+    useContext(AppContext);
   assert(electionDefinition);
   assert(currentUserSession); // TODO(auth) should assert this is an admin or pollworker?
 
@@ -60,6 +59,7 @@ export function ExportResultsModal({
         });
         setCurrentState(ModalState.DONE);
       } catch (error) {
+        assert(error instanceof Error);
         setErrorMessage(`Failed to save results. ${error.message}`);
         setCurrentState(ModalState.ERROR);
       }

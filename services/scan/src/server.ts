@@ -380,6 +380,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
         const batchId = await importer.startImport();
         response.json({ status: 'ok', batchId });
       } catch (err) {
+        assert(err instanceof Error);
         response.json({
           status: 'error',
           errors: [{ type: 'scan-error', message: err.message }],
@@ -415,6 +416,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
         }
         response.json({ status: 'ok' });
       } catch (error) {
+        assert(error instanceof Error);
         response.json({
           status: 'error',
           errors: [{ type: 'scan-error', message: error.message }],
@@ -538,6 +540,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
 
         response.json({ status: 'ok' });
       } catch (error) {
+        assert(error instanceof Error);
         debug('error adding templates: %s', error.stack);
         response.status(500).json({
           status: 'error',

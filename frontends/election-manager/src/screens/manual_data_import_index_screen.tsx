@@ -74,8 +74,8 @@ export function ManualDataImportIndexScreen(): JSX.Element {
     existingManualData?.votingMethod ?? VotingMethod.Precinct
   );
   const [isClearing, setIsClearing] = useState(false);
-  const hasManualData = !!existingManualData?.overallTally
-    .numberOfBallotsCounted;
+  const hasManualData =
+    !!existingManualData?.overallTally.numberOfBallotsCounted;
 
   async function confirmClearManualData(fileType: ResultsFileType) {
     setIsClearing(false);

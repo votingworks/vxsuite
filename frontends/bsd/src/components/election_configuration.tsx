@@ -214,12 +214,8 @@ export function ElectionConfiguration({
     // Create table rows for each found file
     const fileOptions = [];
     for (const { parsedInfo, fileEntry } of parsedFileInformation) {
-      const {
-        electionCounty,
-        electionName,
-        electionHash,
-        timestamp,
-      } = parsedInfo;
+      const { electionCounty, electionName, electionHash, timestamp } =
+        parsedInfo;
       fileOptions.push(
         <tr key={fileEntry.name} data-testid="table-row">
           <td>{timestamp.toLocaleString()}</td>

@@ -345,9 +345,7 @@ test('POST /scan/scanContinue', async () => {
   importer.continueImport.mockResolvedValue(undefined);
   await request(app)
     .post('/scan/scanContinue')
-    .send(
-      typedAs<ScanContinueRequest>({ forceAccept: false })
-    )
+    .send(typedAs<ScanContinueRequest>({ forceAccept: false }))
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' });
   expect(importer.continueImport).toBeCalled();
@@ -620,7 +618,7 @@ test('start reloads configuration from the store', async () => {
   // don't actually listen
   jest.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
     onListening?.();
-    return (undefined as unknown) as Server;
+    return undefined as unknown as Server;
   });
   const fakeLogger = new Logger(LogSource.VxScanService);
   jest.spyOn(fakeLogger, 'log').mockResolvedValue();
@@ -635,10 +633,8 @@ test('start reloads configuration from the store', async () => {
 test('start as precinct-scanner rejects a held sheet at startup', async () => {
   // don't actually listen
   jest.spyOn(app, 'listen').mockImplementation();
-  const {
-    MockScannerClient,
-    PaperStatus,
-  }: typeof plusteksdk = jest.requireActual('@votingworks/plustek-sdk');
+  const { MockScannerClient, PaperStatus }: typeof plusteksdk =
+    jest.requireActual('@votingworks/plustek-sdk');
 
   const mockClient = new MockScannerClient({
     toggleHoldDuration: 0,

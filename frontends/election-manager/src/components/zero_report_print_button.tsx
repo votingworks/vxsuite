@@ -18,9 +18,8 @@ const ButtonAnnotation = styled(Text)`
 `;
 
 export function ZeroReportPrintButton(): JSX.Element {
-  const { currentUserSession, electionDefinition, logger } = useContext(
-    AppContext
-  );
+  const { currentUserSession, electionDefinition, logger } =
+    useContext(AppContext);
 
   // In contexts where this component is rendered, these should always be defined
   assert(currentUserSession);

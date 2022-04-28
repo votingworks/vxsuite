@@ -49,7 +49,7 @@
     "base64-js": "^1.5.1",
     "better-sqlite3": "^7.5.0",
     "busboy": "^0.3.1",
-    "canvas": "^2.9.0",
+    "canvas": "2.9.1",
     "chalk": "^4.1.0",
     "debug": "^4.3.1",
     "deep-eql": "^4.0.0",
@@ -104,11 +104,11 @@
     "jest-watch-typeahead": "^0.6.4",
     "lint-staged": "^10.5.3",
     "nock": "^13.1.0",
-    "prettier": "^2.2.1",
+    "prettier": "^2.6.2",
     "sort-package-json": "^1.50.0",
     "supertest": "^6.0.1",
     "ts-jest": "^26.4.4",
-    "typescript": "^4.3.5"
+    "typescript": "4.6.3"
   },
   "engines": {
     "node": ">= 12"

@@ -48,9 +48,8 @@ const CandidateNameListSchema: z.ZodSchema<CandidateNameList> = z.array(
 );
 
 type CandidateNamesByContestId = Record<ContestId, CandidateNameList>;
-const CandidateNamesByContestIdSchema: z.ZodSchema<CandidateNamesByContestId> = z.record(
-  CandidateNameListSchema
-);
+const CandidateNamesByContestIdSchema: z.ZodSchema<CandidateNamesByContestId> =
+  z.record(CandidateNameListSchema);
 
 function getUsedWriteInsStorageKey(
   electionDefinition: ElectionDefinition
@@ -253,10 +252,8 @@ function ContestOptionAdjudication({
   );
   const isWriteIn = adjudication?.isMarked ?? true;
 
-  const [
-    shouldFocusNameOnNextRender,
-    setShouldFocusNameOnNextRender,
-  ] = useState(false);
+  const [shouldFocusNameOnNextRender, setShouldFocusNameOnNextRender] =
+    useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const onConfirmAutocomplete = useCallback(
@@ -506,24 +503,31 @@ export function WriteInAdjudicationScreen({
     {}
   );
 
-  const onAdjudicationCompleteInternal = useCallback(async (): Promise<void> => {
-    setWriteInPresets((prev) =>
-      adjudications.reduce(
-        (newStoredWriteIns, adjudication) =>
-          adjudication.isMarked
-            ? {
-                ...newStoredWriteIns,
-                [adjudication.contestId]: uniq([
-                  ...(newStoredWriteIns[adjudication.contestId] ?? []),
-                  adjudication.name,
-                ]),
-              }
-            : newStoredWriteIns,
-        prev
-      )
-    );
-    await onAdjudicationComplete?.(sheetId, side, adjudications);
-  }, [adjudications, onAdjudicationComplete, setWriteInPresets, sheetId, side]);
+  const onAdjudicationCompleteInternal =
+    useCallback(async (): Promise<void> => {
+      setWriteInPresets((prev) =>
+        adjudications.reduce(
+          (newStoredWriteIns, adjudication) =>
+            adjudication.isMarked
+              ? {
+                  ...newStoredWriteIns,
+                  [adjudication.contestId]: uniq([
+                    ...(newStoredWriteIns[adjudication.contestId] ?? []),
+                    adjudication.name,
+                  ]),
+                }
+              : newStoredWriteIns,
+          prev
+        )
+      );
+      await onAdjudicationComplete?.(sheetId, side, adjudications);
+    }, [
+      adjudications,
+      onAdjudicationComplete,
+      setWriteInPresets,
+      sheetId,
+      side,
+    ]);
 
   const isFirstContestSelected =
     selectedContestId === contestsWithWriteInsIds[0];

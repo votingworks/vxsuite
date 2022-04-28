@@ -4,7 +4,7 @@ import {
   GetNextReviewSheetResponse,
   GetNextReviewSheetResponseSchema,
 } from '@votingworks/types/api/services/scan';
-import { BallotPackage, BallotPackageEntry } from '@votingworks/utils';
+import { assert, BallotPackage, BallotPackageEntry } from '@votingworks/utils';
 import { EventEmitter } from 'events';
 import { setElection } from './config';
 
@@ -110,6 +110,7 @@ export function addTemplates(
             }
           );
         } catch (error) {
+          assert(error instanceof Error);
           await logger.log(
             LogEventId.BallotConfiguredOnMachine,
             currentUserType,
@@ -136,6 +137,7 @@ export function addTemplates(
 
       result.emit('completed', pkg);
     } catch (error) {
+      assert(error instanceof Error);
       result.emit('error', error);
     }
   });

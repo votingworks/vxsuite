@@ -88,12 +88,8 @@ export function BallotEjectScreen({
   continueScanning,
   isTestMode,
 }: Props): JSX.Element {
-  const {
-    currentUserSession,
-    logger,
-    electionDefinition,
-    machineConfig,
-  } = useContext(AppContext);
+  const { currentUserSession, logger, electionDefinition, machineConfig } =
+    useContext(AppContext);
   const [reviewInfo, setReviewInfo] = useState<GetNextReviewSheetResponse>();
   const [ballotState, setBallotState] = useState<EjectState>();
   assert(currentUserSession);
@@ -116,14 +112,10 @@ export function BallotEjectScreen({
     [contestIdsWithIssues]
   );
 
-  const [
-    frontMarkAdjudications,
-    setFrontMarkAdjudications,
-  ] = useState<MarkAdjudications>();
-  const [
-    backMarkAdjudications,
-    setBackMarkAdjudications,
-  ] = useState<MarkAdjudications>();
+  const [frontMarkAdjudications, setFrontMarkAdjudications] =
+    useState<MarkAdjudications>();
+  const [backMarkAdjudications, setBackMarkAdjudications] =
+    useState<MarkAdjudications>();
 
   // with new reviewInfo, mark each side done if nothing to actually adjudicate
   useEffect(() => {
@@ -342,11 +334,12 @@ export function BallotEjectScreen({
             adjudicationReason.type === AdjudicationReason.UnmarkedWriteIn
           ) {
             if (reviewPageInfo.layout && reviewPageInfo.contestIds) {
-              const writeIns = reviewPageInfo.interpretation.adjudicationInfo.enabledReasonInfos.filter(
-                (reason): reason is WriteInAdjudicationReasonInfo =>
-                  reason.type === AdjudicationReason.MarkedWriteIn ||
-                  reason.type === AdjudicationReason.UnmarkedWriteIn
-              );
+              const writeIns =
+                reviewPageInfo.interpretation.adjudicationInfo.enabledReasonInfos.filter(
+                  (reason): reason is WriteInAdjudicationReasonInfo =>
+                    reason.type === AdjudicationReason.MarkedWriteIn ||
+                    reason.type === AdjudicationReason.UnmarkedWriteIn
+                );
               return (
                 <WriteInAdjudicationScreen
                   key={reviewPageInfo.side}

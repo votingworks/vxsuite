@@ -48,16 +48,14 @@ const allPrecincts: Precinct = {
 };
 
 export function TestDeckScreen(): JSX.Element {
-  const { electionDefinition, logger, currentUserSession } = useContext(
-    AppContext
-  );
+  const { electionDefinition, logger, currentUserSession } =
+    useContext(AppContext);
   assert(electionDefinition);
   assert(currentUserSession); // TODO(auth)
   const currentUserType = currentUserSession.type;
   const { election } = electionDefinition;
-  const {
-    precinctId: precinctIdFromParams = '',
-  } = useParams<PrecinctReportScreenProps>();
+  const { precinctId: precinctIdFromParams = '' } =
+    useParams<PrecinctReportScreenProps>();
   const precinctId = precinctIdFromParams.trim();
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
 

@@ -72,9 +72,8 @@ export const electionData = `
   ],
   "state": "STATE"
 }`;
-export const election: Election = safeParseElection(
-  electionData
-).unsafeUnwrap();
+export const election: Election =
+  safeParseElection(electionData).unsafeUnwrap();
 const democraticPartyId = unsafeParse(PartyIdSchema, 'DEM');
 const republicanPartyId = unsafeParse(PartyIdSchema, 'REP');
 export const primaryElection: Election = {

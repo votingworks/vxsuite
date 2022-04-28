@@ -51,9 +51,8 @@ export function useUserSession({
   logger,
   validUserTypes,
 }: UseUserSessionProps): UseUserSessionResult {
-  const [currentUserSession, setCurrentUserSession] = useState<
-    Optional<UserSession>
-  >();
+  const [currentUserSession, setCurrentUserSession] =
+    useState<Optional<UserSession>>();
   const previousUserSession = usePrevious(currentUserSession);
   // Admins must be able to authenticate into all frontends.
   assert(validUserTypes.includes('admin'));

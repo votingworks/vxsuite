@@ -36,18 +36,14 @@ test('shows insert usb screen when no usb is present with manual upload button',
 
   for (const status of usbStatuses) {
     const manualUpload = jest.fn();
-    const {
-      getByText,
-      unmount,
-      getByAltText,
-      getByTestId,
-    } = renderInAppContext(
-      <ElectionConfiguration
-        acceptManuallyChosenFile={manualUpload}
-        acceptAutomaticallyChosenFile={jest.fn()}
-      />,
-      { usbDriveStatus: status }
-    );
+    const { getByText, unmount, getByAltText, getByTestId } =
+      renderInAppContext(
+        <ElectionConfiguration
+          acceptManuallyChosenFile={manualUpload}
+          acceptAutomaticallyChosenFile={jest.fn()}
+        />,
+        { usbDriveStatus: status }
+      );
     getByText('Load Election Configuration');
     getByText('You may load via the following methods:');
     getByText('Insert a USB drive');
@@ -70,11 +66,7 @@ test('reads files from usb when mounted and shows proper display when there are 
   mockKiosk.getFileSystemEntries = jest.fn().mockResolvedValue([]);
   window.kiosk = mockKiosk;
   const manualUpload = jest.fn();
-  const {
-    getByText,
-    getByAltText,
-    getByTestId,
-  } = renderInAppContext(
+  const { getByText, getByAltText, getByTestId } = renderInAppContext(
     <ElectionConfiguration
       acceptManuallyChosenFile={manualUpload}
       acceptAutomaticallyChosenFile={jest.fn()}
@@ -111,11 +103,7 @@ test('reads files from usb when mounted and shows list of files', async () => {
   window.kiosk = mockKiosk;
   const automaticUpload = jest.fn();
   const manualUpload = jest.fn();
-  const {
-    getByText,
-    getAllByTestId,
-    getByTestId,
-  } = renderInAppContext(
+  const { getByText, getAllByTestId, getByTestId } = renderInAppContext(
     <ElectionConfiguration
       acceptManuallyChosenFile={manualUpload}
       acceptAutomaticallyChosenFile={automaticUpload}
@@ -163,11 +151,7 @@ test('shows errors that occur when importing in file list screen', async () => {
     .fn()
     .mockResolvedValue([{ name: file1, type: 1 }]);
   window.kiosk = mockKiosk;
-  const {
-    getByText,
-    getAllByTestId,
-    queryAllByText,
-  } = renderInAppContext(
+  const { getByText, getAllByTestId, queryAllByText } = renderInAppContext(
     <ElectionConfiguration
       acceptManuallyChosenFile={jest.fn()}
       acceptAutomaticallyChosenFile={jest

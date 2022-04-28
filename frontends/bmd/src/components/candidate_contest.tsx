@@ -100,9 +100,8 @@ export function CandidateContest({
   vote,
   updateVote,
 }: Props): JSX.Element {
-  const { electionDefinition, precinctId, userSettings } = useContext(
-    BallotContext
-  );
+  const { electionDefinition, precinctId, userSettings } =
+    useContext(BallotContext);
   assert(userSettings, 'userSettings is required to render CandidateContest');
   assert(
     electionDefinition,
@@ -115,21 +114,15 @@ export function CandidateContest({
   const { election } = electionDefinition;
   const scrollContainer = useRef<HTMLDivElement>(null);
 
-  const [
-    attemptedOvervoteCandidate,
-    setAttemptedOvervoteCandidate,
-  ] = useState<Candidate>();
-  const [
-    candidatePendingRemoval,
-    setCandidatePendingRemoval,
-  ] = useState<Candidate>();
+  const [attemptedOvervoteCandidate, setAttemptedOvervoteCandidate] =
+    useState<Candidate>();
+  const [candidatePendingRemoval, setCandidatePendingRemoval] =
+    useState<Candidate>();
   const [isScrollable, setIsScrollable] = useState(false);
   const [isScrollAtBottom, setIsScrollAtBottom] = useState(true);
   const [isScrollAtTop, setIsScrollAtTop] = useState(true);
-  const [
-    writeInCandidateModalIsOpen,
-    setWriteInCandidateModalIsOpen,
-  ] = useState(false);
+  const [writeInCandidateModalIsOpen, setWriteInCandidateModalIsOpen] =
+    useState(false);
   const [writeInCandidateName, setWriteInCandidateName] = useState('');
   const [deselectedCandidate, setDeselectedCandidate] = useState('');
 
@@ -232,9 +225,8 @@ export function CandidateContest({
   }
 
   function addWriteInCandidate() {
-    const normalizedCandidateName = normalizeCandidateName(
-      writeInCandidateName
-    );
+    const normalizedCandidateName =
+      normalizeCandidateName(writeInCandidateName);
     updateVote(contest.id, [
       ...vote,
       {

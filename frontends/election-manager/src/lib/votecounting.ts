@@ -240,7 +240,7 @@ export function getContestTallyMeta({
     );
 
     const contestVotes = contestCvrs.map(
-      (cvr) => (cvr[contest.id] as unknown) as Vote
+      (cvr) => cvr[contest.id] as unknown as Vote
     );
     const overvotes = contestVotes.filter((vote) => {
       if (contest.type === 'candidate') {
@@ -416,15 +416,16 @@ export function getOvervotePairTallies({
   election,
   castVoteRecords,
 }: FullTallyParams): Dictionary<ContestOvervotePairTallies> {
-  const overvotePairTallies: Dictionary<ContestOvervotePairTallies> = election.contests
-    .filter((contest) => contest.type === 'candidate')
-    .reduce(
-      (result, contest) => ({
-        ...result,
-        [contest.id]: { contest, tallies: [] },
-      }),
-      {}
-    );
+  const overvotePairTallies: Dictionary<ContestOvervotePairTallies> =
+    election.contests
+      .filter((contest) => contest.type === 'candidate')
+      .reduce(
+        (result, contest) => ({
+          ...result,
+          [contest.id]: { contest, tallies: [] },
+        }),
+        {}
+      );
 
   for (const cvr of castVoteRecords) {
     const safeCvr = processCastVoteRecord({ election, castVoteRecord: cvr });
@@ -434,7 +435,8 @@ export function getOvervotePairTallies({
       const contestOvervotePairTallies = overvotePairTallies[contestId];
       if (!contestOvervotePairTallies) continue;
 
-      const candidateContest = contestOvervotePairTallies.contest as CandidateContest;
+      const candidateContest =
+        contestOvervotePairTallies.contest as CandidateContest;
       const selected = safeCvr[contestId] as string[];
 
       if (!selected || selected.length <= candidateContest.seats) continue;

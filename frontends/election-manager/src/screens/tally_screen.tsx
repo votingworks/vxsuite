@@ -61,14 +61,11 @@ export function TallyScreen(): JSX.Element {
   const isTestMode = castVoteRecordFiles?.fileMode === 'test';
   const externalFileInput = useRef<HTMLInputElement>(null);
 
-  const [
-    confirmingRemoveFileType,
-    setConfirmingRemoveFileType,
-  ] = useState<ResultsFileType>();
+  const [confirmingRemoveFileType, setConfirmingRemoveFileType] =
+    useState<ResultsFileType>();
   const [isImportCvrModalOpen, setIsImportCvrModalOpen] = useState(false);
-  const [isExportResultsModalOpen, setIsExportResultsModalOpen] = useState(
-    false
-  );
+  const [isExportResultsModalOpen, setIsExportResultsModalOpen] =
+    useState(false);
 
   const [isShowingBatchResults, setIsShowingBatchResults] = useState(false);
   const toggleShowingBatchResults = useCallback(() => {
@@ -118,13 +115,10 @@ export function TallyScreen(): JSX.Element {
     (t) => t.source === ExternalTallySourceType.Manual
   );
 
-  const [isImportExternalModalOpen, setIsImportExternalModalOpen] = useState(
-    false
-  );
-  const [
-    externalResultsSelectedFile,
-    setExternalResultsSelectedFile,
-  ] = useState<File>();
+  const [isImportExternalModalOpen, setIsImportExternalModalOpen] =
+    useState(false);
+  const [externalResultsSelectedFile, setExternalResultsSelectedFile] =
+    useState<File>();
 
   const importExternalSemsFile: InputEventFunction = async (event) => {
     const input = event.currentTarget;

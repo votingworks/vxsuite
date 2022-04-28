@@ -8,7 +8,7 @@ import { streamExecFile } from '../exec';
 
 jest.mock('../exec');
 
-const exec = (streamExecFile as unknown) as jest.MockedFunction<
+const exec = streamExecFile as unknown as jest.MockedFunction<
   (file: string, args: readonly string[]) => ChildProcess
 >;
 

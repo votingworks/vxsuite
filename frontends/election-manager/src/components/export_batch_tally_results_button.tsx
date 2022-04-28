@@ -10,11 +10,8 @@ import { generateBatchTallyResultsCsv } from '../utils/generate_batch_tally_resu
 
 export function ExportBatchTallyResultsButton(): JSX.Element {
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
-  const {
-    fullElectionTally,
-    castVoteRecordFiles,
-    electionDefinition,
-  } = useContext(AppContext);
+  const { fullElectionTally, castVoteRecordFiles, electionDefinition } =
+    useContext(AppContext);
   assert(electionDefinition);
   const isTestMode = castVoteRecordFiles?.fileMode === 'test';
   const { election } = electionDefinition;

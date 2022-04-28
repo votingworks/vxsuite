@@ -346,17 +346,17 @@ test('loads prexisting manual data to edit', async () => {
     numberOfBallotsCounted: 100,
     contestTallies: {
       ...(talliesByPrecinct['23']?.contestTallies ?? {}),
-      'county-commissioners': ({
+      'county-commissioners': {
         ...(talliesByPrecinct['23']?.contestTallies['county-commissioners'] ??
           {}),
         tallies: {
-          argent: ({ tally: 80 } as unknown) as ContestOptionTally,
-          '__write-in': ({ tally: 60 } as unknown) as ContestOptionTally,
-          witherspoonsmithson: ({ tally: 40 } as unknown) as ContestOptionTally,
+          argent: { tally: 80 } as unknown as ContestOptionTally,
+          '__write-in': { tally: 60 } as unknown as ContestOptionTally,
+          witherspoonsmithson: { tally: 40 } as unknown as ContestOptionTally,
         },
         metadata: { undervotes: 220, overvotes: 0, ballots: 100 },
-      } as unknown) as ContestTally,
-      'judicial-robert-demergue': ({
+      } as unknown as ContestTally,
+      'judicial-robert-demergue': {
         ...(talliesByPrecinct['23']?.contestTallies[
           'judicial-robert-demergue'
         ] ?? {}),
@@ -365,30 +365,30 @@ test('loads prexisting manual data to edit', async () => {
           no: { option: ['no'], tally: 30 },
         },
         metadata: { ballots: 90, undervotes: 12, overvotes: 8 },
-      } as unknown) as ContestTally,
+      } as unknown as ContestTally,
     },
   };
   talliesByPrecinct['20'] = {
     numberOfBallotsCounted: 50,
     contestTallies: {
       ...(talliesByPrecinct['20']?.contestTallies ?? {}),
-      'primary-constitution-head-of-party': ({
+      'primary-constitution-head-of-party': {
         ...(talliesByPrecinct['20']?.contestTallies[
           'primary-constitution-head-of-party'
         ] ?? {}),
         tallies: {
-          alice: ({ tally: 25 } as unknown) as ContestOptionTally,
-          bob: ({ tally: 5 } as unknown) as ContestOptionTally,
+          alice: { tally: 25 } as unknown as ContestOptionTally,
+          bob: { tally: 5 } as unknown as ContestOptionTally,
         },
         metadata: { undervotes: 4, overvotes: 6, ballots: 50 },
-      } as unknown) as ContestTally,
+      } as unknown as ContestTally,
     },
   };
   talliesByPrecinct['21'] = {
     numberOfBallotsCounted: 7,
     contestTallies: {
       ...(talliesByPrecinct['21']?.contestTallies ?? {}),
-      'judicial-robert-demergue': ({
+      'judicial-robert-demergue': {
         ...(talliesByPrecinct['21']?.contestTallies[
           'judicial-robert-demergue'
         ] ?? {}),
@@ -397,7 +397,7 @@ test('loads prexisting manual data to edit', async () => {
           no: { option: ['no'], tally: 3 },
         },
         metadata: { ballots: 7, undervotes: 0, overvotes: 0 },
-      } as unknown) as ContestTally,
+      } as unknown as ContestTally,
     },
   };
   const resultsByCategory = new Map();

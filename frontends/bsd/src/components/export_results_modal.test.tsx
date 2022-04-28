@@ -138,9 +138,7 @@ test('render export modal when a usb drive is mounted as expected and allows aut
   await waitFor(() => {
     expect(mockKiosk.makeDirectory).toHaveBeenCalledTimes(1);
   });
-  expect(
-    mockKiosk.makeDirectory
-  ).toHaveBeenCalledWith(
+  expect(mockKiosk.makeDirectory).toHaveBeenCalledWith(
     `fake mount point/cast-vote-records/franklin-county_general-election_${electionDefinition.electionHash.slice(
       0,
       10

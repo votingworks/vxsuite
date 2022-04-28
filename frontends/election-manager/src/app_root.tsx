@@ -144,10 +144,8 @@ export function AppRoot({
     [storage]
   );
 
-  const [
-    electionDefinition,
-    setElectionDefinition,
-  ] = useState<ElectionDefinition>();
+  const [electionDefinition, setElectionDefinition] =
+    useState<ElectionDefinition>();
   const [configuredAt, setConfiguredAt] = useState<Iso8601Timestamp>();
 
   const [castVoteRecordFiles, setCastVoteRecordFiles] = useState(
@@ -179,9 +177,10 @@ export function AppRoot({
     validUserTypes: VALID_USERS,
   });
 
-  const currentUserType = useMemo(() => currentUserSession?.type ?? 'unknown', [
-    currentUserSession,
-  ]);
+  const currentUserType = useMemo(
+    () => currentUserSession?.type ?? 'unknown',
+    [currentUserSession]
+  );
   async function setStorageKeyAndLog(
     storageKey: string,
     value: unknown,
@@ -195,6 +194,7 @@ export function AppRoot({
         disposition: 'success',
       });
     } catch (error) {
+      assert(error instanceof Error);
       await logger.log(LogEventId.SaveToStorage, currentUserType, {
         message: `Failed to save ${logDescription} to storage.`,
         storageKey,
@@ -215,6 +215,7 @@ export function AppRoot({
         disposition: 'success',
       });
     } catch (error) {
+      assert(error instanceof Error);
       await logger.log(LogEventId.SaveToStorage, currentUserType, {
         message: `Failed to clear ${logDescription} in storage.`,
         storageKey,
@@ -242,10 +243,8 @@ export function AppRoot({
     getEmptyFullElectionTally()
   );
 
-  const [
-    fullElectionExternalTallies,
-    setFullElectionExternalTallies,
-  ] = useState<FullElectionExternalTally[]>([]);
+  const [fullElectionExternalTallies, setFullElectionExternalTallies] =
+    useState<FullElectionExternalTally[]>([]);
 
   // Handle Machine Config
   useEffect(() => {
@@ -466,6 +465,7 @@ export function AppRoot({
           disposition: 'success',
         });
       } catch (error) {
+        assert(error instanceof Error);
         await logger.log(LogEventId.SaveToStorage, currentUserType, {
           message: 'Failed clearing all current data in storage.',
           disposition: 'failure',

@@ -145,7 +145,7 @@ export function ok<E>(): Result<void, E>;
 // eslint-disable-next-line vx/gts-no-return-type-only-generics
 export function ok<T, E>(value: T): Result<T, E>;
 // eslint-disable-next-line vx/gts-no-return-type-only-generics
-export function ok<T, E>(value: T = (undefined as unknown) as T): Result<T, E> {
+export function ok<T, E>(value: T = undefined as unknown as T): Result<T, E> {
   return new Ok(value);
 }
 

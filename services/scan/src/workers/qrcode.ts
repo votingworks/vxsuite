@@ -130,13 +130,11 @@ export function normalizeSheetOutput(
   output: SheetOf<Output>
 ): SheetOf<Output> {
   const [frontOutput, backOutput] = output;
-  const [
-    normalizedFrontMetadata,
-    normalizedBackMetadata,
-  ] = normalizeSheetMetadata(electionDefinition, [
-    frontOutput.blank ? undefined : frontOutput.qrcode,
-    backOutput.blank ? undefined : backOutput.qrcode,
-  ]);
+  const [normalizedFrontMetadata, normalizedBackMetadata] =
+    normalizeSheetMetadata(electionDefinition, [
+      frontOutput.blank ? undefined : frontOutput.qrcode,
+      backOutput.blank ? undefined : backOutput.qrcode,
+    ]);
   return [
     { blank: !normalizedFrontMetadata, qrcode: normalizedFrontMetadata },
     { blank: !normalizedBackMetadata, qrcode: normalizedBackMetadata },

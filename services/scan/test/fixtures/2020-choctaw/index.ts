@@ -3,9 +3,8 @@ import { readFileSync } from 'fs';
 import { join } from 'path';
 
 const electionJson = readFileSync(join(__dirname, 'election.json'), 'utf8');
-export const electionDefinition = safeParseElectionDefinition(
-  electionJson
-).unsafeUnwrap();
+export const electionDefinition =
+  safeParseElectionDefinition(electionJson).unsafeUnwrap();
 export const { election } = electionDefinition;
 export const root = __dirname;
 export const ballotPdf = join(

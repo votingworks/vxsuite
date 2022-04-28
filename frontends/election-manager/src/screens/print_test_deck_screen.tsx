@@ -84,12 +84,8 @@ const TestDeckBallotsMemoized = React.memo(TestDeckBallots);
 
 export function PrintTestDeckScreen(): JSX.Element {
   const makeCancelable = useCancelablePromise();
-  const {
-    electionDefinition,
-    printer,
-    currentUserSession,
-    logger,
-  } = useContext(AppContext);
+  const { electionDefinition, printer, currentUserSession, logger } =
+    useContext(AppContext);
   assert(electionDefinition);
   assert(currentUserSession); // TODO(auth)
   const currentUserType = currentUserSession.type;
@@ -97,9 +93,8 @@ export function PrintTestDeckScreen(): JSX.Element {
   const [precinctIds, setPrecinctIds] = useState<string[]>([]);
   const [precinctIndex, setPrecinctIndex] = useState<number>();
 
-  const {
-    precinctId: precinctIdFromParams = '',
-  } = useParams<PrecinctReportScreenProps>();
+  const { precinctId: precinctIdFromParams = '' } =
+    useParams<PrecinctReportScreenProps>();
   const precinctId = precinctIdFromParams.trim();
 
   const pageTitle = 'Test Decks';

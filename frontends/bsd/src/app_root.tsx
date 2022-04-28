@@ -24,6 +24,7 @@ import {
   LocalStorage,
   Card,
   Hardware,
+  assert,
 } from '@votingworks/utils';
 import {
   useUsbDrive,
@@ -87,10 +88,8 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
   );
   const history = useHistory();
   const [isConfigLoaded, setIsConfigLoaded] = useState(false);
-  const [
-    electionDefinition,
-    setElectionDefinition,
-  ] = useState<ElectionDefinition>();
+  const [electionDefinition, setElectionDefinition] =
+    useState<ElectionDefinition>();
   const [electionJustLoaded, setElectionJustLoaded] = useState(false);
   const [isTestMode, setTestMode] = useState(false);
   const [isTogglingTestMode, setTogglingTestMode] = useState(false);
@@ -121,31 +120,25 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
     card,
     cardReader,
   });
-  const {
-    currentUserSession,
-    attemptToAuthenticateAdminUser,
-    lockMachine,
-  } = useUserSession({
-    smartcard,
-    electionDefinition,
-    persistAuthentication: true,
-    bypassAuthentication: machineConfig.bypassAuthentication,
-    logger,
-    validUserTypes: VALID_USERS,
-  });
+  const { currentUserSession, attemptToAuthenticateAdminUser, lockMachine } =
+    useUserSession({
+      smartcard,
+      electionDefinition,
+      persistAuthentication: true,
+      bypassAuthentication: machineConfig.bypassAuthentication,
+      logger,
+      validUserTypes: VALID_USERS,
+    });
   const [isExportingCvrs, setIsExportingCvrs] = useState(false);
 
-  const [markThresholds, setMarkThresholds] = useState<
-    Optional<MarkThresholds>
-  >();
+  const [markThresholds, setMarkThresholds] =
+    useState<Optional<MarkThresholds>>();
 
   const { adjudication } = status;
 
   const [isScanning, setIsScanning] = useState(false);
-  const [
-    currentScanningBatchId,
-    setCurrentScanningBatchId,
-  ] = useState<string>();
+  const [currentScanningBatchId, setCurrentScanningBatchId] =
+    useState<string>();
   const [lastScannedSheetIdx, setLastScannedSheetIdx] = useState(0);
   const currentUserType = currentUserSession?.type ?? 'unknown';
 
@@ -326,6 +319,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
         });
       }
     } catch (error) {
+      assert(error instanceof Error);
       console.log('failed handleFileInput()', error); // eslint-disable-line no-console
       await logger.log(LogEventId.ScanBatchInit, currentUserType, {
         disposition: 'failure',
@@ -369,6 +363,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
           });
         }
       } catch (error) {
+        assert(error instanceof Error);
         console.log('failed handleFileInput()', error); // eslint-disable-line no-console
         await logger.log(LogEventId.ScanBatchContinue, currentUserType, {
           disposition: 'failure',
@@ -402,6 +397,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
       });
       history.replace('/');
     } catch (error) {
+      assert(error instanceof Error);
       console.log('failed zeroData()', error); // eslint-disable-line no-console
       await logger.log(LogEventId.ClearedBallotData, currentUserType, {
         disposition: 'failure',
@@ -429,6 +425,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
       });
       history.replace('/');
     } catch (error) {
+      assert(error instanceof Error);
       await logger.log(LogEventId.ToggledTestMode, currentUserType, {
         disposition: 'failure',
         message: `Error toggling to ${isTestMode ? 'Live' : 'Test'} Mode: ${
@@ -470,6 +467,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
           batchId: id,
         });
       } catch (error) {
+        assert(error instanceof Error);
         await logger.log(LogEventId.DeleteScanBatchComplete, currentUserType, {
           disposition: 'failure',
           message: `Error deleting batch id: ${id}.`,

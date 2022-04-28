@@ -98,9 +98,8 @@ export function ContestTally({
         const contestOptionTableRows: JSX.Element[] = [];
         switch (contest.type) {
           case 'candidate': {
-            const candidates = getContestVoteOptionsForCandidateContest(
-              contest
-            );
+            const candidates =
+              getContestVoteOptionsForCandidateContest(contest);
             for (const candidate of candidates) {
               const key = `${contest.id}-${candidate.id}`;
               const tally = tallies[candidate.id];

@@ -42,9 +42,9 @@ describe('Accessible Controller Diagnostic Screen', () => {
       highlightTestId: string,
       hasHeadphones?: boolean
     ) {
-      const illustration = (screen
+      const illustration = screen
         .getByTitle('Accessible Controller Illustration')
-        .closest('svg') as unknown) as HTMLElement;
+        .closest('svg') as unknown as HTMLElement;
       const path = within(illustration).getByTestId(highlightTestId);
       expect(path).toHaveAttribute('fill', '#985aa3');
       if (!hasHeadphones) {

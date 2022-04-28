@@ -665,9 +665,8 @@ export function AppRoot({
       const storedAppState: Partial<State> =
         ((await storage.get(stateStorageKey)) as Partial<State> | undefined) ||
         {};
-      const {
-        isPollsOpen: storedIsPollsOpen = initialAppState.isPollsOpen,
-      } = storedAppState;
+      const { isPollsOpen: storedIsPollsOpen = initialAppState.isPollsOpen } =
+        storedAppState;
       dispatchAppState({
         type: 'initializeAppState',
         isPollsOpen: storedIsPollsOpen,
