@@ -528,7 +528,7 @@ importers:
       '@votingworks/utils': link:../../libs/utils
       array-unique: 0.3.2
       base64-js: 1.5.1
-      canvas: 2.9.0
+      canvas: 2.9.1
       dashify: 2.0.0
       debug: 4.3.2
       dompurify: 2.2.6
@@ -586,7 +586,7 @@ importers:
       eslint-plugin-react-hooks: 4.2.0_eslint@7.17.0
       eslint-plugin-vx: link:../../libs/eslint-plugin-vx
       is-ci-cli: 2.1.2
-      jest-environment-jsdom-sixteen: 1.0.3_canvas@2.9.0
+      jest-environment-jsdom-sixteen: 1.0.3_canvas@2.9.1
       lint-staged: 10.5.3
       prettier: 2.6.2
       react-refresh: 0.9.0
@@ -635,7 +635,7 @@ importers:
       '@votingworks/utils': workspace:*
       array-unique: ^0.3.2
       base64-js: ^1.3.1
-      canvas: ^2.9.0
+      canvas: 2.9.1
       dashify: ^2.0.0
       debug: ^4.3.2
       dompurify: ^2.0.12
@@ -1051,7 +1051,7 @@ importers:
       '@votingworks/types': link:../types
       '@votingworks/utils': link:../utils
       '@xmldom/xmldom': 0.8.1
-      canvas: 2.9.0
+      canvas: 2.9.1
       chalk: 4.1.2
       debug: 4.3.3
       js-sha256: 0.9.0
@@ -1078,7 +1078,7 @@ importers:
       eslint-plugin-vx: link:../eslint-plugin-vx
       fast-check: 2.23.0
       is-ci-cli: 2.2.0
-      jest: 27.5.1_canvas@2.9.0
+      jest: 27.5.1_canvas@2.9.1
       jest-watch-typeahead: 0.6.5_jest@27.5.1
       ts-jest: 27.1.3_ed26b372c538e7c8c69e935c4c69e2d7
       typescript: 4.6.3
@@ -1095,7 +1095,7 @@ importers:
       '@votingworks/types': workspace:*
       '@votingworks/utils': workspace:*
       '@xmldom/xmldom': ^0.8.1
-      canvas: ^2.9.0
+      canvas: 2.9.1
       chalk: '4'
       debug: ^4.3.3
       esbuild: ^0.14.23
@@ -1122,7 +1122,7 @@ importers:
       '@votingworks/qrdetect': 1.0.1
       '@votingworks/types': link:../types
       '@votingworks/utils': link:../utils
-      canvas: 2.9.0
+      canvas: 2.9.1
       chalk: 4.1.0
       debug: 4.3.1
       jsfeat: 0.0.8
@@ -1159,7 +1159,7 @@ importers:
       eslint-plugin-react: 7.24.0_eslint@7.17.0
       eslint-plugin-vx: link:../eslint-plugin-vx
       is-ci-cli: 2.2.0
-      jest: 27.3.1_canvas@2.9.0
+      jest: 27.3.1_canvas@2.9.1
       jest-watch-typeahead: 0.6.4_jest@27.3.1
       lint-staged: 10.5.3
       memorystream: 0.3.1
@@ -1188,7 +1188,7 @@ importers:
       '@votingworks/types': workspace:*
       '@votingworks/utils': workspace:*
       benchmark: ^2.1.4
-      canvas: ^2.9.0
+      canvas: 2.9.1
       chalk: ^4.1.0
       debug: ^4.2.0
       esbuild: ^0.14.25
@@ -1585,7 +1585,7 @@ importers:
   libs/lsd:
     dependencies:
       bindings: 1.5.0
-      canvas: 2.9.0
+      canvas: 2.9.1
       chalk: 4.1.0
       node-addon-api: 3.1.0
     devDependencies:
@@ -1602,7 +1602,7 @@ importers:
       eslint-plugin-prettier: 3.3.1_1fd93b1f4e426240d07849a1492f3af4
       eslint-plugin-vx: link:../eslint-plugin-vx
       is-ci-cli: 2.2.0
-      jest: 27.3.1_canvas@2.9.0
+      jest: 27.3.1_canvas@2.9.1
       jest-watch-typeahead: 0.6.4_jest@27.3.1
       lint-staged: 11.0.0
       memory-streams: 0.1.3
@@ -1617,7 +1617,7 @@ importers:
       '@typescript-eslint/eslint-plugin': ^5.21.0
       '@typescript-eslint/parser': ^5.21.0
       bindings: ^1.5.0
-      canvas: ^2.9.0
+      canvas: 2.9.1
       chalk: ^4.1.0
       eslint: ^7.19.0
       eslint-config-prettier: ^8.3.0
@@ -2122,7 +2122,7 @@ importers:
       base64-js: 1.5.1
       better-sqlite3: 7.5.0
       busboy: 0.3.1
-      canvas: 2.9.0
+      canvas: 2.9.1
       chalk: 4.1.0
       debug: 4.3.1
       deep-eql: 4.0.0
@@ -2172,7 +2172,7 @@ importers:
       eslint-plugin-vx: link:../../libs/eslint-plugin-vx
       fast-check: 2.23.2
       is-ci-cli: 2.1.2
-      jest: 26.6.3_canvas@2.9.0
+      jest: 26.6.3_canvas@2.9.1
       jest-watch-typeahead: 0.6.4_jest@26.6.3
       lint-staged: 10.5.3
       nock: 13.1.0
@@ -2212,7 +2212,7 @@ importers:
       base64-js: ^1.5.1
       better-sqlite3: ^7.5.0
       busboy: ^0.3.1
-      canvas: ^2.9.0
+      canvas: 2.9.1
       chalk: ^4.1.0
       debug: ^4.3.1
       deep-eql: ^4.0.0
@@ -6719,7 +6719,7 @@ packages:
       node: '>= 10.14.2'
     resolution:
       integrity: sha512-xvV1kKbhfUqFVuZ8Cyo+JPpipAHHAV3kcDBftiduK8EICXmTFddryy3P7NfZt8Pv37rA9nEJBKCCkglCPt/Xjw==
-  /@jest/core/26.6.3_canvas@2.9.0:
+  /@jest/core/26.6.3_canvas@2.9.1:
     dependencies:
       '@jest/console': 26.6.2
       '@jest/reporters': 26.6.2
@@ -6732,14 +6732,14 @@ packages:
       exit: 0.1.2
       graceful-fs: 4.2.10
       jest-changed-files: 26.6.2
-      jest-config: 26.6.3_canvas@2.9.0
+      jest-config: 26.6.3_canvas@2.9.1
       jest-haste-map: 26.6.2
       jest-message-util: 26.6.2
       jest-regex-util: 26.0.0
       jest-resolve: 26.6.2
       jest-resolve-dependencies: 26.6.3
-      jest-runner: 26.6.3_canvas@2.9.0
-      jest-runtime: 26.6.3_canvas@2.9.0
+      jest-runner: 26.6.3_canvas@2.9.1
+      jest-runtime: 26.6.3_canvas@2.9.1
       jest-snapshot: 26.6.2
       jest-util: 26.6.2
       jest-validate: 26.6.2
@@ -6796,7 +6796,7 @@ packages:
         optional: true
     resolution:
       integrity: sha512-DMNE90RR5QKx0EA+wqe3/TNEwiRpOkhshKNxtLxd4rt3IZpCt+RSL+FoJsGeblRZmqdK4upHA/mKKGPPRAifhg==
-  /@jest/core/27.3.1_canvas@2.9.0:
+  /@jest/core/27.3.1_canvas@2.9.1:
     dependencies:
       '@jest/console': 27.3.1
       '@jest/reporters': 27.3.1
@@ -6810,7 +6810,7 @@ packages:
       exit: 0.1.2
       graceful-fs: 4.2.10
       jest-changed-files: 27.3.0
-      jest-config: 27.3.1_canvas@2.9.0
+      jest-config: 27.3.1_canvas@2.9.1
       jest-haste-map: 27.3.1
       jest-message-util: 27.3.1
       jest-regex-util: 27.0.6
@@ -6917,7 +6917,7 @@ packages:
         optional: true
     resolution:
       integrity: sha512-AK6/UTrvQD0Cd24NSqmIA6rKsu0tKIxfiCducZvqxYdmMisOYAsdItspT+fQDQYARPf8XgjAFZi0ogW2agH5nQ==
-  /@jest/core/27.5.1_canvas@2.9.0:
+  /@jest/core/27.5.1_canvas@2.9.1:
     dependencies:
       '@jest/console': 27.5.1
       '@jest/reporters': 27.5.1
@@ -6931,7 +6931,7 @@ packages:
       exit: 0.1.2
       graceful-fs: 4.2.10
       jest-changed-files: 27.5.1
-      jest-config: 27.5.1_canvas@2.9.0
+      jest-config: 27.5.1_canvas@2.9.1
       jest-haste-map: 27.5.1
       jest-message-util: 27.5.1
       jest-regex-util: 27.5.1
@@ -7375,13 +7375,13 @@ packages:
       node: '>= 10.14.2'
     resolution:
       integrity: sha512-YHlVIjP5nfEyjlrSr8t/YdNfU/1XEt7c5b4OxcXCjyRhjzLYu/rO69/WHPuYcbCWkz8kAeZVZp2N2+IOLLEPGw==
-  /@jest/test-sequencer/26.6.3_canvas@2.9.0:
+  /@jest/test-sequencer/26.6.3_canvas@2.9.1:
     dependencies:
       '@jest/test-result': 26.6.2
       graceful-fs: 4.2.10
       jest-haste-map: 26.6.2
-      jest-runner: 26.6.3_canvas@2.9.0
-      jest-runtime: 26.6.3_canvas@2.9.0
+      jest-runner: 26.6.3_canvas@2.9.1
+      jest-runtime: 26.6.3_canvas@2.9.1
     dev: true
     engines:
       node: '>= 10.14.2'
@@ -12536,7 +12536,7 @@ packages:
     dev: true
     resolution:
       integrity: sha512-10T30NYOEQtN6C11YGg411yebhvpnC6Z102+B95eAsN0oB6KUs01ivE8u+G6FMIRtIrVlYXhL+LUwQ3/hXwDWw==
-  /canvas/2.9.0:
+  /canvas/2.9.1:
     dependencies:
       '@mapbox/node-pre-gyp': 1.0.8
       nan: 2.15.0
@@ -12546,7 +12546,7 @@ packages:
       node: '>=6'
     requiresBuild: true
     resolution:
-      integrity: sha512-0l93g7uxp7rMyr7H+XRQ28A3ud0dKIUTIEkUe1Dxh4rjUYN7B93+SjC3r1PDKA18xcQN87OFGgUnyw7LSgNLSQ==
+      integrity: sha512-vSQti1uG/2gjv3x6QLOZw7TctfufaerTWbVe+NSduHxxLGB+qf3kFgQ6n66DSnuoINtVUjrLLIK2R+lxrBG07A==
   /capture-exit/2.0.0:
     dependencies:
       rsvp: 4.8.5
@@ -20979,9 +20979,9 @@ packages:
     hasBin: true
     resolution:
       integrity: sha512-GF9noBSa9t08pSyl3CY4frMrqp+aQXFGFkf5hEPbh/pIUFYWMK6ZLTfbmadxJVcJrdRoChlWQsA2VkJcDFK8hg==
-  /jest-cli/26.6.3_canvas@2.9.0:
+  /jest-cli/26.6.3_canvas@2.9.1:
     dependencies:
-      '@jest/core': 26.6.3_canvas@2.9.0
+      '@jest/core': 26.6.3_canvas@2.9.1
       '@jest/test-result': 26.6.2
       '@jest/types': 26.6.2
       chalk: 4.1.2
@@ -20989,7 +20989,7 @@ packages:
       graceful-fs: 4.2.10
       import-local: 3.0.3
       is-ci: 2.0.0
-      jest-config: 26.6.3_canvas@2.9.0
+      jest-config: 26.6.3_canvas@2.9.1
       jest-util: 26.6.2
       jest-validate: 26.6.2
       prompts: 2.4.2
@@ -21027,16 +21027,16 @@ packages:
         optional: true
     resolution:
       integrity: sha512-WHnCqpfK+6EvT62me6WVs8NhtbjAS4/6vZJnk7/2+oOr50cwAzG4Wxt6RXX0hu6m1169ZGMlhYYUNeKBXCph/Q==
-  /jest-cli/27.3.1_canvas@2.9.0:
+  /jest-cli/27.3.1_canvas@2.9.1:
     dependencies:
-      '@jest/core': 27.3.1_canvas@2.9.0
+      '@jest/core': 27.3.1_canvas@2.9.1
       '@jest/test-result': 27.3.1
       '@jest/types': 27.2.5
       chalk: 4.1.2
       exit: 0.1.2
       graceful-fs: 4.2.10
       import-local: 3.0.3
-      jest-config: 27.3.1_canvas@2.9.0
+      jest-config: 27.3.1_canvas@2.9.1
       jest-util: 27.3.1
       jest-validate: 27.3.1
       prompts: 2.4.2
@@ -21103,16 +21103,16 @@ packages:
         optional: true
     resolution:
       integrity: sha512-Hc6HOOwYq4/74/c62dEE3r5elx8wjYqxY0r0G/nFrLDPMFRu6RA/u8qINOIkvhxG7mMQ5EJsOGfRpI8L6eFUVw==
-  /jest-cli/27.5.1_canvas@2.9.0:
+  /jest-cli/27.5.1_canvas@2.9.1:
     dependencies:
-      '@jest/core': 27.5.1_canvas@2.9.0
+      '@jest/core': 27.5.1_canvas@2.9.1
       '@jest/test-result': 27.5.1
       '@jest/types': 27.5.1
       chalk: 4.1.2
       exit: 0.1.2
       graceful-fs: 4.2.10
       import-local: 3.0.3
-      jest-config: 27.5.1_canvas@2.9.0
+      jest-config: 27.5.1_canvas@2.9.1
       jest-util: 27.5.1
       jest-validate: 27.5.1
       prompts: 2.4.2
@@ -21159,20 +21159,20 @@ packages:
         optional: true
     resolution:
       integrity: sha512-t5qdIj/bCj2j7NFVHb2nFB4aUdfucDn3JRKgrZnplb8nieAirAzRSHP8uDEd+qV6ygzg9Pz4YG7UTJf94LPSyg==
-  /jest-config/26.6.3_canvas@2.9.0:
+  /jest-config/26.6.3_canvas@2.9.1:
     dependencies:
       '@babel/core': 7.16.0
-      '@jest/test-sequencer': 26.6.3_canvas@2.9.0
+      '@jest/test-sequencer': 26.6.3_canvas@2.9.1
       '@jest/types': 26.6.2
       babel-jest: 26.6.3_@babel+core@7.16.0
       chalk: 4.1.2
       deepmerge: 4.2.2
       glob: 7.2.0
       graceful-fs: 4.2.10
-      jest-environment-jsdom: 26.6.2_canvas@2.9.0
+      jest-environment-jsdom: 26.6.2_canvas@2.9.1
       jest-environment-node: 26.6.2
       jest-get-type: 26.3.0
-      jest-jasmine2: 26.6.3_canvas@2.9.0
+      jest-jasmine2: 26.6.3_canvas@2.9.1
       jest-regex-util: 26.0.0
       jest-resolve: 26.6.2
       jest-util: 26.6.2
@@ -21223,7 +21223,7 @@ packages:
         optional: true
     resolution:
       integrity: sha512-KY8xOIbIACZ/vdYCKSopL44I0xboxC751IX+DXL2+Wx6DKNycyEfV3rryC3BPm5Uq/BBqDoMrKuqLEUNJmMKKg==
-  /jest-config/27.3.1_canvas@2.9.0:
+  /jest-config/27.3.1_canvas@2.9.1:
     dependencies:
       '@babel/core': 7.16.0
       '@jest/test-sequencer': 27.3.1
@@ -21235,7 +21235,7 @@ packages:
       glob: 7.2.0
       graceful-fs: 4.2.10
       jest-circus: 27.3.1
-      jest-environment-jsdom: 27.3.1_canvas@2.9.0
+      jest-environment-jsdom: 27.3.1_canvas@2.9.1
       jest-environment-node: 27.3.1
       jest-get-type: 27.3.1
       jest-jasmine2: 27.3.1
@@ -21327,7 +21327,7 @@ packages:
         optional: true
     resolution:
       integrity: sha512-5sAsjm6tGdsVbW9ahcChPAFCk4IlkQUknH5AvKjuLTSlcO/wCZKyFdn7Rg0EkC+OGgWODEy2hDpWB1PgzH0JNA==
-  /jest-config/27.5.1_canvas@2.9.0:
+  /jest-config/27.5.1_canvas@2.9.1:
     dependencies:
       '@babel/core': 7.16.5
       '@jest/test-sequencer': 27.5.1
@@ -21339,7 +21339,7 @@ packages:
       glob: 7.2.0
       graceful-fs: 4.2.10
       jest-circus: 27.5.1
-      jest-environment-jsdom: 27.5.1_canvas@2.9.0
+      jest-environment-jsdom: 27.5.1_canvas@2.9.1
       jest-environment-node: 27.5.1
       jest-get-type: 27.5.1
       jest-jasmine2: 27.5.1
@@ -21532,12 +21532,12 @@ packages:
       node: ^10.14.2 || >= 12.0.0
     resolution:
       integrity: sha512-CwMqDUUfSl808uGPWXlNA1UFkWFgRmhHvyAjhCmCry6mYq4b/nn80MMN7tglqo5XgrANIs/w+mzINPzbZ4ZZrQ==
-  /jest-environment-jsdom-sixteen/1.0.3_canvas@2.9.0:
+  /jest-environment-jsdom-sixteen/1.0.3_canvas@2.9.1:
     dependencies:
       '@jest/fake-timers': 25.5.0
       jest-mock: 25.5.0
       jest-util: 25.5.0
-      jsdom: 16.7.0_canvas@2.9.0
+      jsdom: 16.7.0_canvas@2.9.1
     dev: true
     engines:
       node: ^10.14.2 || >= 12.0.0
@@ -21559,7 +21559,7 @@ packages:
       node: '>= 10.14.2'
     resolution:
       integrity: sha512-jgPqCruTlt3Kwqg5/WVFyHIOJHsiAvhcp2qiR2QQstuG9yWox5+iHpU3ZrcBxW14T4fe5Z68jAfLRh7joCSP2Q==
-  /jest-environment-jsdom/26.6.2_canvas@2.9.0:
+  /jest-environment-jsdom/26.6.2_canvas@2.9.1:
     dependencies:
       '@jest/environment': 26.6.2
       '@jest/fake-timers': 26.6.2
@@ -21567,7 +21567,7 @@ packages:
       '@types/node': 16.11.6
       jest-mock: 26.6.2
       jest-util: 26.6.2
-      jsdom: 16.7.0_canvas@2.9.0
+      jsdom: 16.7.0_canvas@2.9.1
     dev: true
     engines:
       node: '>= 10.14.2'
@@ -21589,7 +21589,7 @@ packages:
       node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0
     resolution:
       integrity: sha512-3MOy8qMzIkQlfb3W1TfrD7uZHj+xx8Olix5vMENkj5djPmRqndMaXtpnaZkxmxM+Qc3lo+yVzJjzuXbCcZjAlg==
-  /jest-environment-jsdom/27.3.1_canvas@2.9.0:
+  /jest-environment-jsdom/27.3.1_canvas@2.9.1:
     dependencies:
       '@jest/environment': 27.3.1
       '@jest/fake-timers': 27.3.1
@@ -21597,7 +21597,7 @@ packages:
       '@types/node': 15.3.0
       jest-mock: 27.3.0
       jest-util: 27.3.1
-      jsdom: 16.7.0_canvas@2.9.0
+      jsdom: 16.7.0_canvas@2.9.1
     dev: true
     engines:
       node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0
@@ -21633,7 +21633,7 @@ packages:
       node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0
     resolution:
       integrity: sha512-TFBvkTC1Hnnnrka/fUb56atfDtJ9VMZ94JkjTbggl1PEpwrYtUBKMezB3inLmWqQsXYLcMwNoDQwoBTAvFfsfw==
-  /jest-environment-jsdom/27.5.1_canvas@2.9.0:
+  /jest-environment-jsdom/27.5.1_canvas@2.9.1:
     dependencies:
       '@jest/environment': 27.5.1
       '@jest/fake-timers': 27.5.1
@@ -21641,7 +21641,7 @@ packages:
       '@types/node': 17.0.23
       jest-mock: 27.5.1
       jest-util: 27.5.1
-      jsdom: 16.7.0_canvas@2.9.0
+      jsdom: 16.7.0_canvas@2.9.1
     dev: true
     engines:
       node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0
@@ -21868,7 +21868,7 @@ packages:
       node: '>= 10.14.2'
     resolution:
       integrity: sha512-kPKUrQtc8aYwBV7CqBg5pu+tmYXlvFlSFYn18ev4gPFtrRzB15N2gW/Roew3187q2w2eHuu0MU9TJz6w0/nPEg==
-  /jest-jasmine2/26.6.3_canvas@2.9.0:
+  /jest-jasmine2/26.6.3_canvas@2.9.1:
     dependencies:
       '@babel/traverse': 7.16.3
       '@jest/environment': 26.6.2
@@ -21883,7 +21883,7 @@ packages:
       jest-each: 26.6.2
       jest-matcher-utils: 26.6.2
       jest-message-util: 26.6.2
-      jest-runtime: 26.6.3_canvas@2.9.0
+      jest-runtime: 26.6.3_canvas@2.9.1
       jest-snapshot: 26.6.2
       jest-util: 26.6.2
       pretty-format: 26.6.2
@@ -22442,7 +22442,7 @@ packages:
       node: '>= 10.14.2'
     resolution:
       integrity: sha512-atgKpRHnaA2OvByG/HpGA4g6CSPS/1LK0jK3gATJAoptC1ojltpmVlYC3TYgdmGp+GLuhzpH30Gvs36szSL2JQ==
-  /jest-runner/26.6.3_canvas@2.9.0:
+  /jest-runner/26.6.3_canvas@2.9.1:
     dependencies:
       '@jest/console': 26.6.2
       '@jest/environment': 26.6.2
@@ -22453,13 +22453,13 @@ packages:
       emittery: 0.7.2
       exit: 0.1.2
       graceful-fs: 4.2.10
-      jest-config: 26.6.3_canvas@2.9.0
+      jest-config: 26.6.3_canvas@2.9.1
       jest-docblock: 26.0.0
       jest-haste-map: 26.6.2
       jest-leak-detector: 26.6.2
       jest-message-util: 26.6.2
       jest-resolve: 26.6.2
-      jest-runtime: 26.6.3_canvas@2.9.0
+      jest-runtime: 26.6.3_canvas@2.9.1
       jest-util: 26.6.2
       jest-worker: 26.6.2
       source-map-support: 0.5.20
@@ -22592,7 +22592,7 @@ packages:
     hasBin: true
     resolution:
       integrity: sha512-lrzyR3N8sacTAMeonbqpnSka1dHNux2uk0qqDXVkMv2c/A3wYnvQ4EXuI013Y6+gSKSCxdaczvf4HF0mVXHRdw==
-  /jest-runtime/26.6.3_canvas@2.9.0:
+  /jest-runtime/26.6.3_canvas@2.9.1:
     dependencies:
       '@jest/console': 26.6.2
       '@jest/environment': 26.6.2
@@ -22609,7 +22609,7 @@ packages:
       exit: 0.1.2
       glob: 7.2.0
       graceful-fs: 4.2.10
-      jest-config: 26.6.3_canvas@2.9.0
+      jest-config: 26.6.3_canvas@2.9.1
       jest-haste-map: 26.6.2
       jest-message-util: 26.6.2
       jest-mock: 26.6.2
@@ -23057,7 +23057,7 @@ packages:
     dependencies:
       ansi-escapes: 4.3.2
       chalk: 4.1.1
-      jest: 26.6.3_canvas@2.9.0
+      jest: 26.6.3_canvas@2.9.1
       jest-regex-util: 27.0.1
       jest-watcher: 27.0.2
       slash: 3.0.0
@@ -23266,11 +23266,11 @@ packages:
     hasBin: true
     resolution:
       integrity: sha512-jxTmrvuecVISvKFFhOkjsWRZV7sFqdSUAd1ajOKY+/QE/aLBVstsJ/dX8GczLzwiT6ZEwwmZqtCUHLHHQVzcfA==
-  /jest/26.6.3_canvas@2.9.0:
+  /jest/26.6.3_canvas@2.9.1:
     dependencies:
-      '@jest/core': 26.6.3_canvas@2.9.0
+      '@jest/core': 26.6.3_canvas@2.9.1
       import-local: 3.0.3
-      jest-cli: 26.6.3_canvas@2.9.0
+      jest-cli: 26.6.3_canvas@2.9.1
     dev: true
     engines:
       node: '>= 10.14.2'
@@ -23295,11 +23295,11 @@ packages:
         optional: true
     resolution:
       integrity: sha512-U2AX0AgQGd5EzMsiZpYt8HyZ+nSVIh5ujQ9CPp9EQZJMjXIiSZpJNweZl0swatKRoqHWgGKM3zaSwm4Zaz87ng==
-  /jest/27.3.1_canvas@2.9.0:
+  /jest/27.3.1_canvas@2.9.1:
     dependencies:
-      '@jest/core': 27.3.1_canvas@2.9.0
+      '@jest/core': 27.3.1_canvas@2.9.1
       import-local: 3.0.3
-      jest-cli: 27.3.1_canvas@2.9.0
+      jest-cli: 27.3.1_canvas@2.9.1
     dev: true
     engines:
       node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0
@@ -23344,11 +23344,11 @@ packages:
         optional: true
     resolution:
       integrity: sha512-Yn0mADZB89zTtjkPJEXwrac3LHudkQMR+Paqa8uxJHCBr9agxztUifWCyiYrjhMPBoUVBjyny0I7XH6ozDr7QQ==
-  /jest/27.5.1_canvas@2.9.0:
+  /jest/27.5.1_canvas@2.9.1:
     dependencies:
-      '@jest/core': 27.5.1_canvas@2.9.0
+      '@jest/core': 27.5.1_canvas@2.9.1
       import-local: 3.0.3
-      jest-cli: 27.5.1_canvas@2.9.0
+      jest-cli: 27.5.1_canvas@2.9.1
     dev: true
     engines:
       node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0
@@ -23437,12 +23437,12 @@ packages:
         optional: true
     resolution:
       integrity: sha512-u9Smc2G1USStM+s/x1ru5Sxrl6mPYCbByG1U/hUmqaVsm4tbNyS7CicOSRyuGQYZhTu0h84qkZZQ/I+dzizSVw==
-  /jsdom/16.7.0_canvas@2.9.0:
+  /jsdom/16.7.0_canvas@2.9.1:
     dependencies:
       abab: 2.0.5
       acorn: 8.7.0
       acorn-globals: 6.0.0
-      canvas: 2.9.0
+      canvas: 2.9.1
       cssom: 0.4.4
       cssstyle: 2.3.0
       data-urls: 2.0.0
@@ -30072,7 +30072,7 @@ packages:
       bs-logger: 0.2.6
       buffer-from: 1.1.1
       fast-json-stable-stringify: 2.1.0
-      jest: 26.6.3_canvas@2.9.0
+      jest: 26.6.3_canvas@2.9.1
       jest-util: 26.6.2
       json5: 2.1.3
       lodash.memoize: 4.1.2
@@ -30139,7 +30139,7 @@ packages:
       '@types/jest': 27.0.3
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
-      jest: 27.3.1_canvas@2.9.0
+      jest: 27.3.1_canvas@2.9.1
       jest-util: 27.3.1
       json5: 2.2.0
       lodash.memoize: 4.1.2
@@ -30308,7 +30308,7 @@ packages:
       bs-logger: 0.2.6
       esbuild: 0.14.25
       fast-json-stable-stringify: 2.1.0
-      jest: 27.5.1_canvas@2.9.0
+      jest: 27.5.1_canvas@2.9.1
       jest-util: 27.5.1
       json5: 2.2.0
       lodash.memoize: 4.1.2
