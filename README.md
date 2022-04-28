@@ -71,7 +71,7 @@ Install Node, npm, yarn, and pnpm by running the following script:
 ```sh
 cd vxsuite
 ./script/setup-dev
-node -v # this should return 12.x.x
+node -v # this should return 16.x.x
 pnpm -v # this should return 5.x.x
 ```
 
