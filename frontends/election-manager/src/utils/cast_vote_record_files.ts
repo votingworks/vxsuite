@@ -272,7 +272,6 @@ export class CastVoteRecordFiles {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/prefer-readonly -- false positive
   private async parseFromFileContent(
     fileContent: string,
     fileName: string,
@@ -322,7 +321,6 @@ export class CastVoteRecordFiles {
     };
   }
 
-  // eslint-disable-next-line @typescript-eslint/prefer-readonly -- false positive
   private async addFromFileContent(
     fileContent: string,
     fileName: string,

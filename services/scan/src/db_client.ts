@@ -43,7 +43,6 @@ export class DbClient {
   /**
    * Gets the sha256 digest of the current schema file.
    */
-  // eslint-disable-next-line @typescript-eslint/prefer-readonly -- false positive
   private getSchemaDigest(): string {
     assert(typeof this.schemaPath === 'string', 'schemaPath is required');
     const schemaSql = fs.readFileSync(this.schemaPath, 'utf-8');
@@ -114,7 +113,6 @@ export class DbClient {
   /**
    * Gets the underlying sqlite3 database.
    */
-  // eslint-disable-next-line @typescript-eslint/prefer-readonly -- false positive
   private getDatabase(): Database {
     if (!this.db) {
       return this.connect();

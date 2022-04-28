@@ -340,7 +340,6 @@ export class Interpreter {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/prefer-readonly -- false positive
   private async interpretBMDFile({
     qrcode,
   }: BallotImageData): Promise<InterpretFileResult | undefined> {
@@ -369,7 +368,6 @@ export class Interpreter {
     };
   }
 
-  // eslint-disable-next-line @typescript-eslint/prefer-readonly -- false positive
   private async interpretHMPBFile({
     image,
     qrcode,
@@ -448,7 +446,6 @@ export class Interpreter {
     };
   }
 
-  // eslint-disable-next-line @typescript-eslint/prefer-readonly -- false positive
   private getHmpbInterpreter(): HmpbInterpreter {
     if (!this.hmpbInterpreter) {
       if (typeof this.testMode === 'undefined') {
