@@ -1,4 +1,4 @@
-import { fail } from '@votingworks/utils';
+import { assert, fail } from '@votingworks/utils';
 import { Interpreter } from '.';
 import * as choctaw2020LegalSize from '../../test/fixtures/choctaw-county-2020-general-election';
 import * as oaklawn from '../../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library';
@@ -72,6 +72,7 @@ test('rejects an incorrect-but-plausible contest layout', async () => {
     );
     fail('expected interpretation to fail');
   } catch (error) {
+    assert(error instanceof Error);
     expect(error.message).toMatch(
       'ballot and template contest shapes do not correspond'
     );

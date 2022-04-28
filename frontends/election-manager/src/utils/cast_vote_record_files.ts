@@ -261,6 +261,7 @@ export class CastVoteRecordFiles {
       );
       return result;
     } catch (error) {
+      assert(error instanceof Error);
       return new CastVoteRecordFiles(
         this.signatures,
         this.files,
@@ -271,6 +272,7 @@ export class CastVoteRecordFiles {
     }
   }
 
+  // eslint-disable-next-line @typescript-eslint/prefer-readonly -- false positive
   private async parseFromFileContent(
     fileContent: string,
     fileName: string,
@@ -320,6 +322,7 @@ export class CastVoteRecordFiles {
     };
   }
 
+  // eslint-disable-next-line @typescript-eslint/prefer-readonly -- false positive
   private async addFromFileContent(
     fileContent: string,
     fileName: string,
@@ -385,6 +388,7 @@ export class CastVoteRecordFiles {
         deduplicatedCastVoteRecords
       );
     } catch (error) {
+      assert(error instanceof Error);
       return new CastVoteRecordFiles(
         this.signatures,
         this.files,

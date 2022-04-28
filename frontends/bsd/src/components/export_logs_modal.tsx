@@ -152,6 +152,7 @@ export function ExportLogsModal({ onClose, logFileType }: Props): JSX.Element {
       });
       setCurrentState(ModalState.Done);
     } catch (error) {
+      assert(error instanceof Error);
       setErrorMessage(error.message);
       await logger.log(LogEventId.FileSaved, currentUserSession.type, {
         disposition: 'failure',

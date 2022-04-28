@@ -115,6 +115,7 @@ export function LoadElectionScreen({
         );
         await handleBallotLoading(ballotPackage);
       } catch (error) {
+        assert(error instanceof Error);
         await logger.log(
           LogEventId.BallotPackagedLoadedFromUsb,
           currentUserType,
@@ -146,6 +147,7 @@ export function LoadElectionScreen({
       );
       await handleBallotLoading(ballotPackage);
     } catch (error) {
+      assert(error instanceof Error);
       await logger.log(
         LogEventId.BallotPackagedLoadedFromUsb,
         currentUserType,

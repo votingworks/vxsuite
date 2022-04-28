@@ -1,6 +1,6 @@
 import { ElectionDefinition } from '@votingworks/types';
 import { EventEmitter } from 'events';
-import { BallotPackage, BallotPackageEntry } from '@votingworks/utils';
+import { assert, BallotPackage, BallotPackageEntry } from '@votingworks/utils';
 
 import { setElection } from './config';
 
@@ -87,6 +87,7 @@ export function addTemplates(pkg: BallotPackage): AddTemplatesEvents {
 
       result.emit('completed', pkg);
     } catch (error) {
+      assert(error instanceof Error);
       result.emit('error', error);
     }
   });

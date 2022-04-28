@@ -8,6 +8,7 @@ import {
 } from '@votingworks/types/api/services/scan';
 
 import { Modal } from '@votingworks/ui';
+import { assert } from '@votingworks/utils';
 import { Prose } from '../components/prose';
 import { Table, TD } from '../components/table';
 import { Button } from '../components/button';
@@ -80,6 +81,7 @@ export function DashboardScreen({
             onDeleteBatchSucceeded();
           }
         } catch (error) {
+          assert(error instanceof Error);
           if (isMounted) {
             onDeleteBatchFailed(error);
           }
