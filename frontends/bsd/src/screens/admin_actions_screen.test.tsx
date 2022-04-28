@@ -210,11 +210,11 @@ test('clicking "Delete Ballot Data…" shows progress', async () => {
   );
 
   expect(zeroData).not.toHaveBeenCalled();
-  await fireEvent.click(component.getByText('Delete Ballot Data…'));
+  fireEvent.click(component.getByText('Delete Ballot Data…'));
 
   expect(zeroData).not.toHaveBeenCalled();
   await screen.findByText('Delete All Scanned Ballot Data?');
-  await fireEvent.click(screen.getByText('Yes, Delete Ballot Data'));
+  fireEvent.click(screen.getByText('Yes, Delete Ballot Data'));
   expect(zeroData).toHaveBeenCalledTimes(1);
 
   // Verify progress message is shown.
@@ -223,7 +223,7 @@ test('clicking "Delete Ballot Data…" shows progress', async () => {
   resolve();
   // Trigger delete finished, verify back to initial screen.
   await waitFor(async () => {
-    expect(await screen.queryAllByText('Deleting ballot data')).toHaveLength(0);
+    expect(screen.queryAllByText('Deleting ballot data')).toHaveLength(0);
   });
 });
 

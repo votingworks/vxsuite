@@ -1178,7 +1178,7 @@ test('scanning is not triggered when polls closed or cards present', async () =>
   await advanceTimersAndPromises(1);
   await screen.findByText('Do you want to open the polls?');
   // We should see 15 ballots were scanned
-  fireEvent.click(await screen.getAllByText('No')[0]);
+  fireEvent.click(screen.getAllByText('No')[0]);
   expect((await screen.findByTestId('ballot-count')).textContent).toBe('15');
   // Make sure we haven't tried to scan
   await advanceTimersAndPromises(1);
@@ -1289,7 +1289,7 @@ test('with printer: poll worker can open and close polls without scanning any ba
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
   await screen.findByText('Do you want to close the polls?');
-  fireEvent.click(await screen.getAllByText('No')[0]);
+  fireEvent.click(screen.getAllByText('No')[0]);
   fireEvent.click(await screen.findByText('Close Polls for All Precincts'));
   await screen.findByText('Polls are closed.');
   await screen.findByText('Remove the poll worker card.');

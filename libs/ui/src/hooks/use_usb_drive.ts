@@ -60,7 +60,7 @@ export function useUsbDrive({ logger }: UsbDriveProps): UsbDrive {
           result: 'USB drive not ejected.',
         });
       } finally {
-        await setIsMountingOrUnmounting(false);
+        setIsMountingOrUnmounting(false);
       }
     },
     [makeCancelable, logger]

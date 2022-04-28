@@ -762,7 +762,7 @@ test('expected tally reports for a primary election with a single precincts with
   act(() => {
     hardware.setPrinterConnected(false);
   });
-  fireEvent.click(await screen.getAllByText('No')[0]);
+  fireEvent.click(screen.getAllByText('No')[0]);
   fireEvent.click(await screen.findByText('Close Polls for Precinct 1'));
   await screen.findByText('Polls are closed.');
   card.removeCard();
@@ -810,7 +810,7 @@ test('expected tally reports for a primary election with a single precincts with
     .mockResolvedValue(err(new Error('bad read')));
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  fireEvent.click(await screen.getAllByText('No')[0]);
+  fireEvent.click(screen.getAllByText('No')[0]);
   fireEvent.click(await screen.findByText('Open Polls for Precinct 1'));
   await screen.findByText('Polls are open.');
   expect(writeLongObjectMock).toHaveBeenCalledTimes(3);

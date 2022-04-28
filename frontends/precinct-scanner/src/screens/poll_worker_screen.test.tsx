@@ -67,7 +67,7 @@ test('shows system authentication code', async () => {
     renderScreen({});
     jest.advanceTimersByTime(2000);
   });
-  await fireEvent.click(screen.getAllByText('No')[0]);
+  fireEvent.click(screen.getAllByText('No')[0]);
 
   screen.getByText('System Authentication Code: 123·456');
 });
@@ -80,7 +80,7 @@ test('shows dashes when no totp', async () => {
   await act(async () => {
     renderScreen({});
   });
-  await fireEvent.click(screen.getAllByText('No')[0]);
+  fireEvent.click(screen.getAllByText('No')[0]);
 
   screen.getByText('System Authentication Code: ---·---');
 });
@@ -96,7 +96,7 @@ describe('shows Export Results button only when polls are closed and more than 0
       });
       jest.advanceTimersByTime(2000);
     });
-    await fireEvent.click(screen.getAllByText('No')[0]);
+    fireEvent.click(screen.getAllByText('No')[0]);
 
     expect(screen.queryByText(exportButtonText)).toBeNull();
   });
@@ -108,7 +108,7 @@ describe('shows Export Results button only when polls are closed and more than 0
         isPollsOpen: true,
       });
     });
-    await fireEvent.click(screen.getAllByText('No')[0]);
+    fireEvent.click(screen.getAllByText('No')[0]);
     expect(screen.queryByText(exportButtonText)).toBeNull();
   });
 
@@ -120,7 +120,7 @@ describe('shows Export Results button only when polls are closed and more than 0
       });
       jest.advanceTimersByTime(2000);
     });
-    await fireEvent.click(screen.getAllByText('No')[0]);
+    fireEvent.click(screen.getAllByText('No')[0]);
 
     expect(screen.queryByText(exportButtonText)).toBeNull();
   });
@@ -133,7 +133,7 @@ describe('shows Export Results button only when polls are closed and more than 0
       });
       jest.advanceTimersByTime(2000);
     });
-    await fireEvent.click(screen.getAllByText('No')[0]);
+    fireEvent.click(screen.getAllByText('No')[0]);
     await advanceTimersAndPromises(1);
     await advanceTimersAndPromises(1);
     await screen.findByText('Export Results to USB Drive');

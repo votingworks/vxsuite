@@ -34,9 +34,7 @@ test('renders without a USB drive as expected.', async () => {
       </button>
     </div>
   `);
-  await act(
-    async () => await fireEvent.click(screen.getByText('Reboot from USB'))
-  );
+  await act(async () => fireEvent.click(screen.getByText('Reboot from USB')));
   screen.getByText('No USB Drive Detected');
 });
 
@@ -48,9 +46,7 @@ test('renders with a non-bootable USB as expected', async () => {
       logger={new Logger(LogSource.VxAdminFrontend)}
     />
   );
-  await act(
-    async () => await fireEvent.click(screen.getByText('Reboot from USB'))
-  );
+  await act(async () => fireEvent.click(screen.getByText('Reboot from USB')));
   await waitFor(() =>
     screen.getByText(
       /The USB Drive was not found in the list of bootable devices./
@@ -58,22 +54,20 @@ test('renders with a non-bootable USB as expected', async () => {
   );
   expect(window.kiosk!.prepareToBootFromUsb).toHaveBeenCalledTimes(1);
   expect(window.kiosk!.reboot).toHaveBeenCalledTimes(0);
-  await fireEvent.click(screen.getByText('Close'));
+  fireEvent.click(screen.getByText('Close'));
   expect(
     screen.queryAllByText(
       /The USB Drive was not found in the list of bootable devices./
     )
   ).toHaveLength(0);
-  await act(
-    async () => await fireEvent.click(screen.getByText('Reboot from USB'))
-  );
+  await act(async () => fireEvent.click(screen.getByText('Reboot from USB')));
   await waitFor(() =>
     screen.getByText(
       /The USB Drive was not found in the list of bootable devices./
     )
   );
-  await act(async () => await fireEvent.click(screen.getByText('Reboot')));
-  await screen.getByText('Rebooting…');
+  await act(async () => fireEvent.click(screen.getByText('Reboot')));
+  screen.getByText('Rebooting…');
   expect(window.kiosk!.reboot).toHaveBeenCalledTimes(1);
 });
 
@@ -85,9 +79,7 @@ test('reboots automatically when clicked with a bootable USB', async () => {
       logger={new Logger(LogSource.VxAdminFrontend)}
     />
   );
-  await act(
-    async () => await fireEvent.click(screen.getByText('Reboot from USB'))
-  );
+  await act(async () => fireEvent.click(screen.getByText('Reboot from USB')));
   await waitFor(() => screen.getByText('Rebooting…'));
   expect(window.kiosk!.prepareToBootFromUsb).toHaveBeenCalledTimes(1);
   expect(window.kiosk!.reboot).toHaveBeenCalledTimes(1);
@@ -101,9 +93,7 @@ test('modal state updates when USB drive is inserted.', async () => {
       logger={new Logger(LogSource.VxAdminFrontend)}
     />
   );
-  await act(
-    async () => await fireEvent.click(screen.getByText('Reboot from USB'))
-  );
+  await act(async () => fireEvent.click(screen.getByText('Reboot from USB')));
   await waitFor(() => screen.getByText('No USB Drive Detected'));
   rerender(
     <RebootFromUsbButton

@@ -563,7 +563,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
   app.post<NoParams, ExportResponse, ExportRequest>(
     '/scan/export',
     async (_request, response) => {
-      const cvrs = await importer.doExport();
+      const cvrs = importer.doExport();
       store.setCvrsAsBackedUp();
       response.set('Content-Type', 'text/plain; charset=utf-8');
       response.send(cvrs);
@@ -885,7 +885,7 @@ export async function start({
   await resolvedImporter.restoreConfig();
 
   // cleanup incomplete batches from before
-  await resolvedWorkspace.store.cleanupIncompleteBatches();
+  resolvedWorkspace.store.cleanupIncompleteBatches();
 
   if (usingPrecinctScanner && plustekScannerClientProvider) {
     if (

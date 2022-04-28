@@ -222,7 +222,7 @@ test('Inserting pollworker card with invalid long data fall back as if there is 
   screen.getByText('Open/Close Polls');
 
   // No prompt to print precinct tally report
-  expect(await screen.queryAllByText('Tally Report on Card')).toHaveLength(0);
+  expect(screen.queryAllByText('Tally Report on Card')).toHaveLength(0);
 });
 
 test('Shows card backwards screen when card connection error occurs', async () => {

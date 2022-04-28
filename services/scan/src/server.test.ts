@@ -377,7 +377,7 @@ test('POST /scan/zero error', async () => {
   importer.doZero.mockResolvedValue();
 
   // Add a new batch that hasn't been backed up yet
-  await workspace.store.addBatch();
+  workspace.store.addBatch();
 
   await request(app)
     .post('/scan/zero')

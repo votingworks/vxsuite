@@ -216,7 +216,7 @@ export async function retryScan(
         );
 
         if (front && back) {
-          await output.store.addSheet(id, outputBatchId, [front, back]);
+          output.store.addSheet(id, outputBatchId, [front, back]);
         }
       }
     )
