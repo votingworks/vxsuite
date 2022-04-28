@@ -1,5 +1,5 @@
 import useInterval from 'use-interval';
-import { usbstick } from '@votingworks/utils';
+import { assert, usbstick } from '@votingworks/utils';
 import { useCallback, useState } from 'react';
 import makeDebug from 'debug';
 import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
@@ -52,6 +52,7 @@ export function useUsbDrive({ logger }: UsbDriveProps): UsbDrive {
           message: 'USB Drive successfully ejected.',
         });
       } catch (error) {
+        assert(error instanceof Error);
         await logger.log(LogEventId.UsbDriveEjected, currentUser, {
           disposition: 'failure',
           message: 'USB Drive failed when attempting to eject.',
@@ -105,6 +106,7 @@ export function useUsbDrive({ logger }: UsbDriveProps): UsbDrive {
             message: 'USB Drive successfully mounted',
           });
         } catch (error) {
+          assert(error instanceof Error);
           await logger.log(LogEventId.UsbDriveMounted, 'system', {
             disposition: 'failure',
             message: 'USB Drive failed mounting.',

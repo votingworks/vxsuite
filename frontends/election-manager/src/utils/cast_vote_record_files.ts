@@ -261,6 +261,7 @@ export class CastVoteRecordFiles {
       );
       return result;
     } catch (error) {
+      assert(error instanceof Error);
       return new CastVoteRecordFiles(
         this.signatures,
         this.files,
@@ -385,6 +386,7 @@ export class CastVoteRecordFiles {
         deduplicatedCastVoteRecords
       );
     } catch (error) {
+      assert(error instanceof Error);
       return new CastVoteRecordFiles(
         this.signatures,
         this.files,

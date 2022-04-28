@@ -30,6 +30,7 @@ import {
 } from '@votingworks/types';
 import {
   adjudicationReasonDescription,
+  assert,
   ballotAdjudicationReasons,
 } from '@votingworks/utils';
 import makeDebug from 'debug';
@@ -291,6 +292,7 @@ export class Interpreter {
         return hmpbResult;
       }
     } catch (error) {
+      assert(error instanceof Error);
       debug('interpretHMPBFile failed: %s', error.message);
     }
 
@@ -327,6 +329,7 @@ export class Interpreter {
         },
       };
     } catch (error) {
+      assert(error instanceof Error);
       timer.end();
       return {
         interpretation: {

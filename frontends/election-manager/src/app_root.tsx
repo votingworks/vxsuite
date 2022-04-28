@@ -194,6 +194,7 @@ export function AppRoot({
         disposition: 'success',
       });
     } catch (error) {
+      assert(error instanceof Error);
       await logger.log(LogEventId.SaveToStorage, currentUserType, {
         message: `Failed to save ${logDescription} to storage.`,
         storageKey,
@@ -214,6 +215,7 @@ export function AppRoot({
         disposition: 'success',
       });
     } catch (error) {
+      assert(error instanceof Error);
       await logger.log(LogEventId.SaveToStorage, currentUserType, {
         message: `Failed to clear ${logDescription} in storage.`,
         storageKey,
@@ -463,6 +465,7 @@ export function AppRoot({
           disposition: 'success',
         });
       } catch (error) {
+        assert(error instanceof Error);
         await logger.log(LogEventId.SaveToStorage, currentUserType, {
           message: 'Failed clearing all current data in storage.',
           disposition: 'failure',

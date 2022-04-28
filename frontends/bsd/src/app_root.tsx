@@ -24,6 +24,7 @@ import {
   LocalStorage,
   Card,
   Hardware,
+  assert,
 } from '@votingworks/utils';
 import {
   useUsbDrive,
@@ -318,6 +319,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
         });
       }
     } catch (error) {
+      assert(error instanceof Error);
       console.log('failed handleFileInput()', error); // eslint-disable-line no-console
       await logger.log(LogEventId.ScanBatchInit, currentUserType, {
         disposition: 'failure',
@@ -361,6 +363,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
           });
         }
       } catch (error) {
+        assert(error instanceof Error);
         console.log('failed handleFileInput()', error); // eslint-disable-line no-console
         await logger.log(LogEventId.ScanBatchContinue, currentUserType, {
           disposition: 'failure',
@@ -394,6 +397,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
       });
       history.replace('/');
     } catch (error) {
+      assert(error instanceof Error);
       console.log('failed zeroData()', error); // eslint-disable-line no-console
       await logger.log(LogEventId.ClearedBallotData, currentUserType, {
         disposition: 'failure',
@@ -421,6 +425,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
       });
       history.replace('/');
     } catch (error) {
+      assert(error instanceof Error);
       await logger.log(LogEventId.ToggledTestMode, currentUserType, {
         disposition: 'failure',
         message: `Error toggling to ${isTestMode ? 'Live' : 'Test'} Mode: ${
@@ -462,6 +467,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
           batchId: id,
         });
       } catch (error) {
+        assert(error instanceof Error);
         await logger.log(LogEventId.DeleteScanBatchComplete, currentUserType, {
           disposition: 'failure',
           message: `Error deleting batch id: ${id}.`,

@@ -59,6 +59,7 @@ export function ExportResultsModal({
         });
         setCurrentState(ModalState.DONE);
       } catch (error) {
+        assert(error instanceof Error);
         setErrorMessage(`Failed to save results. ${error.message}`);
         setCurrentState(ModalState.ERROR);
       }

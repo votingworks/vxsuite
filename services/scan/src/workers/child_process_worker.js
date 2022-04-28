@@ -6,6 +6,7 @@ if (process.env.NODE_ENV !== 'production') {
   require('esbuild-runner/register');
 }
 
+const { assert } = require('@votingworks/utils');
 const { resolve } = require('path');
 const json = require('./json_serialization');
 
@@ -26,6 +27,7 @@ process.on(
     try {
       output = await call(json.deserialize(input));
     } catch (error) {
+      assert(error instanceof Error);
       output = { type: 'error', error: `${error.stack}` };
     }
 
