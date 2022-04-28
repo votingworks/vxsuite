@@ -1,8 +1,8 @@
 import {
   AST_NODE_TYPES,
+  TSESLint,
   TSESTree,
 } from '@typescript-eslint/experimental-utils';
-import { ReportFixFunction } from '@typescript-eslint/experimental-utils/dist/ts-eslint';
 import { strict as assert } from 'assert';
 import { createRule, isBindingName } from '../util';
 
@@ -41,7 +41,11 @@ function getOptionalTypeReference(
   }
 }
 
-export default createRule({
+const rule: TSESLint.RuleModule<
+  | 'useOptionalInterfaceProperties'
+  | 'useOptionalClassFields'
+  | 'useOptionalParams'
+> = createRule({
   name: 'gts-use-optionals',
   meta: {
     docs: {
@@ -67,7 +71,7 @@ export default createRule({
 
     function getFixFunction(
       typeAnnotation: TSESTree.TSTypeAnnotation
-    ): ReportFixFunction | undefined {
+    ): TSESLint.ReportFixFunction | undefined {
       const undefinedUnionResult = getUndefinedUnionPart(
         typeAnnotation.typeAnnotation
       );
@@ -137,7 +141,7 @@ export default createRule({
       params: readonly TSESTree.Parameter[];
     }): void {
       const possibleViolations = node.params.map<
-        [TSESTree.BindingName, ReportFixFunction] | undefined
+        [TSESTree.BindingName, TSESLint.ReportFixFunction] | undefined
       >((param) => {
         if (isBindingName(param) && param.typeAnnotation) {
           const fix = getFixFunction(param.typeAnnotation);
@@ -229,3 +233,5 @@ export default createRule({
     };
   },
 });
+
+export default rule;

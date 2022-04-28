@@ -1,5 +1,6 @@
 import {
   AST_NODE_TYPES,
+  TSESLint,
   TSESTree,
 } from '@typescript-eslint/experimental-utils';
 import { createRule } from '../util';
@@ -19,7 +20,13 @@ function escapeRegExp(string: string): string {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
 
-export default createRule({
+const rule: TSESLint.RuleModule<
+  | 'noAbbreviations'
+  | 'identifiersAllowedCharacters'
+  | 'noDollarSign'
+  | 'useCamelCase',
+  [{ allowedNames: string[] }]
+> = createRule({
   name: 'gts-identifiers',
   meta: {
     docs: {
@@ -147,3 +154,5 @@ export default createRule({
     };
   },
 });
+
+export default rule;

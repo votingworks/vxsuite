@@ -1,6 +1,7 @@
 import {
   AST_NODE_TYPES,
   ESLintUtils,
+  TSESLint,
   TSESTree,
 } from '@typescript-eslint/experimental-utils';
 import { strict as assert } from 'assert';
@@ -82,7 +83,7 @@ interface TransformableForEach extends ForEach {
   fixable: boolean;
 }
 
-export default createRule({
+const rule: TSESLint.RuleModule<'noForEach'> = createRule({
   name: 'gts-no-foreach',
   meta: {
     docs: {
@@ -316,3 +317,5 @@ export default createRule({
     };
   },
 });
+
+export default rule;

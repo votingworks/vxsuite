@@ -23,8 +23,9 @@
     "test:coverage": "jest --coverage"
   },
   "dependencies": {
-    "@typescript-eslint/eslint-plugin": "^5.8.0",
-    "@typescript-eslint/experimental-utils": "^5.8.0",
+    "@types/eslint": "^8.4.1",
+    "@typescript-eslint/eslint-plugin": "^5.21.0",
+    "@typescript-eslint/experimental-utils": "^5.21.0",
     "comment-parser": "^1.2.4",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-config-airbnb-base": "^14.2.1",
@@ -39,7 +40,7 @@
     "@types/jest": "^27.0.3",
     "@types/node": "^16.11.29",
     "@types/react": "^17.0.20",
-    "@typescript-eslint/parser": "^5.8.0",
+    "@typescript-eslint/parser": "^5.21.0",
     "@votingworks/types": "workspace:*",
     "eslint": "^7.27.0",
     "eslint-config-prettier": "^8.3.0",

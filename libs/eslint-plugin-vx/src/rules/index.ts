@@ -1,4 +1,5 @@
-import { TSESLint } from '@typescript-eslint/experimental-utils';
+// eslint-disable-next-line import/no-extraneous-dependencies
+import { Rule } from 'eslint';
 import gtsArrayTypeStyle from './gts_array_type_style';
 import gtsConstants from './gts_constants';
 import gtsDirectModuleExportAccessOnly from './gts_direct_module_export_access_only';
@@ -9,8 +10,8 @@ import gtsModuleSnakeCase from './gts_module_snake_case';
 import gtsNoArrayConstructor from './gts_no_array_constructor';
 import gtsNoConstEnum from './gts_no_const_enum';
 import gtsNoDefaultExports from './gts_no_default_exports';
-import gtsNoForInLoop from './gts_no_for_in_loop';
 import gtsNoForeach from './gts_no_foreach';
+import gtsNoForInLoop from './gts_no_for_in_loop';
 import gtsNoImportExportType from './gts_no_import_export_type';
 import gtsNoPrivateFields from './gts_no_private_fields';
 import gtsNoPublicClassFields from './gts_no_public_class_fields';
@@ -29,10 +30,7 @@ import noAssertStringOrNumber from './no_assert_truthiness';
 import noFloatingVoids from './no_floating_results';
 import noImportSubfolders from './no_import_workspace_subfolders';
 
-const rules: Record<
-  string,
-  TSESLint.RuleModule<string, readonly unknown[], TSESLint.RuleListener>
-> = {
+const rules: Record<string, Rule.RuleModule> = {
   'gts-array-type-style': gtsArrayTypeStyle,
   'gts-constants': gtsConstants,
   'gts-direct-module-export-access-only': gtsDirectModuleExportAccessOnly,
@@ -63,6 +61,6 @@ const rules: Record<
   'no-assert-truthiness': noAssertStringOrNumber,
   'no-floating-results': noFloatingVoids,
   'no-import-workspace-subfolders': noImportSubfolders,
-};
+} as unknown as Record<string, Rule.RuleModule>;
 
 export default rules;

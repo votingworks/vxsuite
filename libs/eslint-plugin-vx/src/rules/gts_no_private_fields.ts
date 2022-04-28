@@ -1,5 +1,6 @@
 import {
   AST_NODE_TYPES,
+  TSESLint,
   TSESTree,
 } from '@typescript-eslint/experimental-utils';
 import { createRule } from '../util';
@@ -8,7 +9,7 @@ function isPrivateIdentifier(node: TSESTree.Node): boolean {
   return node.type === AST_NODE_TYPES.PrivateIdentifier;
 }
 
-export default createRule({
+const rule: TSESLint.RuleModule<'noPrivateFields'> = createRule({
   name: 'gts-no-private-fields',
   meta: {
     docs: {
@@ -56,3 +57,5 @@ export default createRule({
     };
   },
 });
+
+export default rule;

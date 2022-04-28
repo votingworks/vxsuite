@@ -1,7 +1,7 @@
-import { TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESLint, TSESTree } from '@typescript-eslint/experimental-utils';
 import { createRule } from '../util';
 
-export default createRule({
+const rule: TSESLint.RuleModule<'noPublicClassFields'> = createRule({
   name: 'gts-no-public-class-fields',
   meta: {
     docs: {
@@ -40,3 +40,5 @@ export default createRule({
     };
   },
 });
+
+export default rule;

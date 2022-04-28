@@ -1,11 +1,12 @@
 import {
   AST_NODE_TYPES,
+  TSESLint,
   TSESTree,
 } from '@typescript-eslint/experimental-utils';
 import { strict as assert } from 'assert';
 import { createRule } from '../util';
 
-export default createRule({
+const rule: TSESLint.RuleModule<'directAccessOnly'> = createRule({
   name: 'gts-direct-module-export-access-only',
   meta: {
     docs: {
@@ -100,3 +101,5 @@ export default createRule({
     };
   },
 });
+
+export default rule;

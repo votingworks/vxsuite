@@ -1,5 +1,6 @@
 import {
   AST_NODE_TYPES,
+  TSESLint,
   TSESTree,
 } from '@typescript-eslint/experimental-utils';
 import { createRule } from '../util';
@@ -36,7 +37,9 @@ function isPropertyInitializerAssignment(
   );
 }
 
-export default createRule({
+const rule: TSESLint.RuleModule<
+  'useParameterProperties' | 'noRedundantAssignment'
+> = createRule({
   name: 'gts-parameter-properties',
   meta: {
     docs: {
@@ -102,3 +105,5 @@ export default createRule({
     };
   },
 });
+
+export default rule;

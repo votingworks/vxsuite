@@ -51,7 +51,10 @@ function isUnhandledResult(
   return isResultType(checker, parserServices.esTreeNodeToTSNodeMap.get(node));
 }
 
-export default createRule({
+const rule: TSESLint.RuleModule<
+  'floating' | 'floatingVoid' | 'floatingFixVoid',
+  [{ ignoreVoid: boolean }]
+> = createRule({
   name: 'no-floating-results',
   meta: {
     docs: {
@@ -120,3 +123,5 @@ export default createRule({
     };
   },
 });
+
+export default rule;

@@ -1,11 +1,12 @@
 import {
   AST_NODE_TYPES,
+  TSESLint,
   TSESTree,
 } from '@typescript-eslint/experimental-utils';
 import { strict as assert } from 'assert';
 import { createRule } from '../util';
 
-export default createRule({
+const rule: TSESLint.RuleModule<'noReturnTypeOnlyGenerics'> = createRule({
   name: 'gts-no-return-type-only-generics',
   meta: {
     docs: {
@@ -90,3 +91,5 @@ export default createRule({
     };
   },
 });
+
+export default rule;

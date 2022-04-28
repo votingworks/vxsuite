@@ -1,12 +1,12 @@
 import {
   AST_NODE_TYPES,
+  TSESLint,
   TSESTree,
 } from '@typescript-eslint/experimental-utils';
-import { RuleFix } from '@typescript-eslint/experimental-utils/dist/ts-eslint';
 import { strict as assert } from 'assert';
 import { createRule } from '../util';
 
-export default createRule({
+const rule: TSESLint.RuleModule<'noArrayConstructor'> = createRule({
   name: 'gts-no-array-constructor',
   meta: {
     docs: {
@@ -40,7 +40,7 @@ export default createRule({
           node,
           messageId: 'noArrayConstructor',
           fix: (fixer) => {
-            const result: RuleFix[] = [];
+            const result: TSESLint.RuleFix[] = [];
 
             const leftParen = sourceCode.getTokenAfter(
               node.typeParameters ?? node.callee
@@ -110,3 +110,5 @@ export default createRule({
     };
   },
 });
+
+export default rule;
