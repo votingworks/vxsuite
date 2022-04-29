@@ -178,7 +178,7 @@ test('allows deleting a batch', async () => {
   await screen.findByText('Deleting…');
   expect(deleteBatch).toHaveBeenNthCalledWith(2, status.batches[1].id);
   act(() => deleteBatch2Reject(new Error('batch is a teapot')));
-  await waitFor(() => screen.getByText('batch is a teapot'));
+  await screen.findByText('batch is a teapot');
 
   // Try again.
   userEvent.click(screen.getByText('Yes, Delete Batch'));

@@ -106,7 +106,7 @@ test('render export modal when a USB drive is mounted as expected and allows cus
   screen.getByAltText('Insert USB Image');
 
   fireEvent.click(screen.getByText('Custom'));
-  await waitFor(() => screen.getByText(/Download Complete/));
+  await screen.findByText(/Download Complete/);
   expect(download).toHaveBeenCalledWith('/scan/backup');
 
   fireEvent.click(screen.getByText('Cancel'));
@@ -153,7 +153,7 @@ test('render export modal when a USB drive is mounted as expected and allows aut
   screen.getByText('Export Backup');
 
   fireEvent.click(screen.getByText('Export'));
-  await waitFor(() => screen.getByText(/Download Complete/));
+  await screen.findByText(/Download Complete/);
   expect(download).toHaveBeenCalledWith('/scan/backup', {
     into: 'fake mount point/scanner-backups/franklin-county_general-election_b52e9f4728',
   });
@@ -260,7 +260,7 @@ test('shows a specific error for fetch failure', async () => {
     })
   );
   fireEvent.click(screen.getByText('Export'));
-  await waitFor(() => screen.getByText('Download Failed'));
+  await screen.findByText('Download Failed');
   screen.getByText('Unable to get backup: FetchFailed (status=Bad Gateway)');
 
   fireEvent.click(screen.getByText('Close'));
