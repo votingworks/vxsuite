@@ -93,7 +93,7 @@ export function CalibrateScannerModal({
           <h1>Calibrate Scanner</h1>
           <p>
             Insert a <strong>blank sheet of white paper</strong> to calibrate
-            the scanner. The sheet will be not be returned out the front of the
+            the scanner. The sheet will not be returned out the front of the
             scanner.
           </p>
         </Prose>
