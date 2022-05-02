@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`ContestTally Renders 1`] = `
+exports[`Renders 1`] = `
 <div>
   <div
     class="sc-gKckTs dndKuj"
@@ -2327,7 +2327,7 @@ exports[`ContestTally Renders 1`] = `
 </div>
 `;
 
-exports[`ContestTally When an election has a contest with multiple seats Renders 1`] = `
+exports[`When an election has a contest with multiple seats Renders 1`] = `
 <div>
   <div
     class="sc-gKckTs dndKuj"

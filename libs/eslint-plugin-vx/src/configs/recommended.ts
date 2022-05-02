@@ -141,5 +141,12 @@ export = {
         'vx/gts-direct-module-export-access-only': 'off',
       },
     },
+    {
+      files: ['**/*.test.ts', '**/*.test.tsx'],
+      plugins: ['jest'],
+      rules: {
+        'jest/max-nested-describe': ['error', { max: 1 }],
+      },
+    },
   ],
 };

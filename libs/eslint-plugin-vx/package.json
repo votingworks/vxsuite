@@ -44,6 +44,7 @@
     "@votingworks/types": "workspace:*",
     "eslint": "^7.27.0",
     "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-jest": "^26.1.5",
     "eslint-plugin-prettier": "^3.4.0",
     "eslint-plugin-vx": "workspace:*",
     "is-ci-cli": "^2.2.0",
