@@ -73,7 +73,7 @@ describe('generateBatchTallyResultsCSV', () => {
     }
   });
 
-  it('generates correct candidate tallies in primary election', () => {
+  it('generates correct candidate tallies in general election', () => {
     const { election } =
       electionWithMsEitherNeitherWithDataFiles.electionDefinition;
     const cvrsFileContent = generateFileContentFromCvrs([

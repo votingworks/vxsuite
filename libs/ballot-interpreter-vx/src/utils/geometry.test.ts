@@ -71,9 +71,6 @@ test('roundPoint', () => {
   const x = randomInt() / randomInt();
   const y = randomInt() / randomInt();
   expect(roundPoint({ x, y })).toEqual({ x: Math.round(x), y: Math.round(y) });
-});
-
-test('roundPoint', () => {
   expect(roundPoint({ x: 0.1, y: 0.9 }, { round: Math.floor })).toEqual({
     x: 0,
     y: 0,

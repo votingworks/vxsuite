@@ -149,7 +149,7 @@ describe('combineContestTallies', () => {
     expect(combineContestTallies(tally1, tally2)).toStrictEqual(tally1);
   });
 
-  it('combines candidate tally with empty tally properly', () => {
+  it('combines candidate tally with non-empty tally properly', () => {
     const tally1: ContestTally = {
       contest: presidentcontest,
       tallies: buildCandidateTallies(1, presidentcontest),
