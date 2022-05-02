@@ -44,7 +44,7 @@ test('render correct invalid precinct screen', async () => {
   expect(screen.queryByText('Dismiss Error')).toBeNull();
 });
 
-test('render correct test ballot error screen when we are in test mode', async () => {
+test('render correct invalid election hash screen', async () => {
   const dismiss = jest.fn();
   render(
     <ScanErrorScreen
@@ -61,7 +61,7 @@ test('render correct test ballot error screen when we are in test mode', async (
   expect(dismiss).toHaveBeenCalled();
 });
 
-test('render correct test ballot error screen when we are in test mode', async () => {
+test('render correct unreadable ballot screen', async () => {
   const dismiss = jest.fn();
   render(
     <ScanErrorScreen

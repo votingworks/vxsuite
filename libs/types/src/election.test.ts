@@ -162,7 +162,7 @@ test('can get a party full name from ballot style', () => {
   ).toEqual('Democratic Party');
 });
 
-test('can get a party full name from ballot style', () => {
+test('failing to get a full party name returns an empty string', () => {
   const ballotStyleId = 'DOES_NOT_EXIST';
   expect(
     getPartyFullNameFromBallotStyle({

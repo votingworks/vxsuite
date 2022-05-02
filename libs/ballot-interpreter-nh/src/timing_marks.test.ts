@@ -325,17 +325,6 @@ test('decodeBottomRowTimingMarks no marks', () => {
   ).toBeUndefined();
 });
 
-test('decodeBottomRowTimingMarks no marks', () => {
-  expect(
-    decodeBottomRowTimingMarks({
-      left: [],
-      right: [],
-      top: [],
-      bottom: [],
-    })
-  ).toBeUndefined();
-});
-
 test('decodeBottomRowTimingMarks letter-size paper back side', () => {
   const generated = generateTemplateTimingMarkRects();
   const bottomBits = Hudson03Nov2020BackPageBottomTimingMarkBits;

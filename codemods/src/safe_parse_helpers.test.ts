@@ -61,6 +61,7 @@ test('ignores malformed safeParse call', () => {
     `safeParse(Parser).unsafeUnwrap();`,
     `safeParse(Parser).unsafeUnwrap();`
   );
+  check(`safeParse(Parser).ok();`, `safeParse(Parser).ok();`);
 });
 
 test('ignores malformed unsafeUnwrap call', () => {
@@ -89,10 +90,6 @@ test('transforms to maybeParse with imports', () => {
 
 test('ignores other safeParse uses', () => {
   check(`safeParse(Parser, value).err();`, `safeParse(Parser, value).err();`);
-});
-
-test('ignores malformed safeParse call', () => {
-  check(`safeParse(Parser).ok();`, `safeParse(Parser).ok();`);
 });
 
 test('ignores malformed ok call', () => {
