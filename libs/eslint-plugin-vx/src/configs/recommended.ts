@@ -147,6 +147,7 @@ export = {
       rules: {
         'jest/max-nested-describe': ['error', { max: 1 }],
         'jest/no-identical-title': 'error',
+        'jest/no-focused-tests': 'error',
       },
     },
   ],
