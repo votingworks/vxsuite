@@ -122,8 +122,8 @@ test('can expand ms-either-neither contests into yes no contests in a primary', 
     } else {
       expect(expandedContests[i].type).toBe('yesno');
       expect(expandedContests[i + 1].type).toBe('yesno');
-      expect(expandedContests[i].partyId === originalContest.partyId);
-      expect(expandedContests[i + 1].partyId === originalContest.partyId);
+      expect(expandedContests[i].partyId).toEqual(originalContest.partyId);
+      expect(expandedContests[i + 1].partyId).toEqual(originalContest.partyId);
     }
   }
 });

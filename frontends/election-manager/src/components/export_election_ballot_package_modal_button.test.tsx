@@ -228,7 +228,7 @@ test('Modal renders error message appropriately', async () => {
 
 test('Modal renders renders loading message while rendering ballots appropriately', async () => {
   const ejectFunction = jest.fn();
-  const { queryAllByTestId, getByText, queryAllByText } = renderInAppContext(
+  const { queryAllByTestId, getByText, queryByText } = renderInAppContext(
     <ExportElectionBallotPackageModalButton />,
     {
       usbDriveStatus: UsbDriveStatus.mounted,
@@ -246,12 +246,12 @@ test('Modal renders renders loading message while rendering ballots appropriatel
 
   expect(queryAllByTestId('modal')).toHaveLength(1);
   expect(
-    queryAllByText(
-      /You may now eject the USB device and connect it with your ballot scanning machine to configure it./
+    queryByText(
+      'You may now eject the USB drive. Use the exported ballot package on this USB drive to configure VxScan or VxCentralScan.'
     )
-  );
+  ).toBeInTheDocument();
 
-  expect(queryAllByText('Eject USB')).toHaveLength(1);
+  expect(queryByText('Eject USB')).toBeInTheDocument();
   fireEvent.click(getByText('Eject USB'));
   expect(ejectFunction).toHaveBeenCalledTimes(1);
 

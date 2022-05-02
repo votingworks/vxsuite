@@ -54,7 +54,7 @@ function assertTalliesAreIdenticalMultiples(
     Object.keys(multipleTally.talliesByPrecinct)
   );
   for (const precinctId of Object.keys(baseTally.talliesByPrecinct)) {
-    expect(precinctId in multipleTally.talliesByPrecinct);
+    expect(precinctId in multipleTally.talliesByPrecinct).toBeTruthy();
     const baseForPrecinct = baseTally.talliesByPrecinct[precinctId];
     const multipleForPrecinct = multipleTally.talliesByPrecinct[precinctId];
     // Both tallies should have the same contests defined
@@ -62,7 +62,7 @@ function assertTalliesAreIdenticalMultiples(
       Object.keys(multipleForPrecinct!)
     );
     for (const contestId of Object.keys(baseForPrecinct!)) {
-      expect(contestId in multipleForPrecinct!);
+      expect(contestId in multipleForPrecinct!).toBeTruthy();
       const baseContestTally = baseForPrecinct![contestId]!;
       const multipleContestTally = multipleForPrecinct![contestId]!;
       // Metadata should be mulitiplied

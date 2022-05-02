@@ -19,7 +19,7 @@ test('queue isEmpty', async () => {
   expect(q.isEmpty()).toBeTruthy();
   q.resolve(1);
   expect(q.isEmpty()).toBeFalsy();
-  expect(await q.get());
+  expect(await q.get()).toEqual(1);
   expect(q.isEmpty()).toBeTruthy();
 });
 
