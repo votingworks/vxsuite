@@ -20,15 +20,38 @@ function constructTally(cvrsFileContents: string, election: Election): Tally {
   return overallTally;
 }
 
-describe('ContestTally', () => {
-  let election: Election;
-  let electionTally: Tally;
-  let externalTallies: ExternalTally[];
+let election: Election;
+let electionTally: Tally;
+let externalTallies: ExternalTally[];
 
+beforeEach(() => {
+  election = electionSample2WithDataFiles.electionDefinition.election;
+  electionTally = constructTally(
+    electionSample2WithDataFiles.cvrDataSmall1,
+    election
+  );
+  externalTallies = [];
+});
+
+it('Renders', () => {
+  const { container } = render(
+    <ContestTally
+      election={election}
+      electionTally={electionTally}
+      externalTallies={externalTallies}
+    />
+  );
+  // Because ContestTally returns a React fragment, we need to check container instead of
+  // container.firstChild as we typically do, as the latter will miss elements
+  expect(container).toMatchSnapshot();
+});
+
+describe('When an election has a contest with multiple seats', () => {
   beforeEach(() => {
-    election = electionSample2WithDataFiles.electionDefinition.election;
+    election =
+      electionMultiPartyPrimaryWithDataFiles.electionDefinition.election;
     electionTally = constructTally(
-      electionSample2WithDataFiles.cvrDataSmall1,
+      electionMultiPartyPrimaryWithDataFiles.cvrData,
       election
     );
     externalTallies = [];
@@ -47,46 +70,21 @@ describe('ContestTally', () => {
     expect(container).toMatchSnapshot();
   });
 
-  describe('When an election has a contest with multiple seats', () => {
-    beforeEach(() => {
-      election =
-        electionMultiPartyPrimaryWithDataFiles.electionDefinition.election;
-      electionTally = constructTally(
-        electionMultiPartyPrimaryWithDataFiles.cvrData,
-        election
-      );
-      externalTallies = [];
-    });
-
-    it('Renders', () => {
-      const { container } = render(
-        <ContestTally
-          election={election}
-          electionTally={electionTally}
-          externalTallies={externalTallies}
-        />
-      );
-      // Because ContestTally returns a React fragment, we need to check container instead of
-      // container.firstChild as we typically do, as the latter will miss elements
-      expect(container).toMatchSnapshot();
-    });
-
-    it('Renders seat count for contests with multiple seats', () => {
-      const { getByTestId } = render(
-        <ContestTally
-          election={election}
-          electionTally={electionTally}
-          externalTallies={externalTallies}
-        />
-      );
-      const singleSeatContestEntry = getByTestId(
-        'results-table-governor-contest-liberty'
-      );
-      const multipleSeatContestEntry = getByTestId(
-        'results-table-schoolboard-liberty'
-      );
-      expect(singleSeatContestEntry).not.toHaveTextContent('seats');
-      expect(multipleSeatContestEntry).toHaveTextContent('(2 seats)');
-    });
+  it('Renders seat count for contests with multiple seats', () => {
+    const { getByTestId } = render(
+      <ContestTally
+        election={election}
+        electionTally={electionTally}
+        externalTallies={externalTallies}
+      />
+    );
+    const singleSeatContestEntry = getByTestId(
+      'results-table-governor-contest-liberty'
+    );
+    const multipleSeatContestEntry = getByTestId(
+      'results-table-schoolboard-liberty'
+    );
+    expect(singleSeatContestEntry).not.toHaveTextContent('seats');
+    expect(multipleSeatContestEntry).toHaveTextContent('(2 seats)');
   });
 });
