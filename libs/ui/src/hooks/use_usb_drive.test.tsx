@@ -258,7 +258,7 @@ test('usb drive that is removed while being ejected is updated to absent', async
   // Updates to No USB state as expected
   await waitForIoFlush();
   await waitForStatusUpdate();
-  await screen.getByText('No USB');
+  screen.getByText('No USB');
 
   expect(logSpy).toHaveBeenCalledTimes(5);
   expect(logSpy).toHaveBeenNthCalledWith(

@@ -380,7 +380,7 @@ it('MarkAndPrint end-to-end flow', async () => {
   expect(writeLongUint8ArrayMock).toHaveBeenCalledTimes(3);
   await advanceTimersAndPromises();
   await screen.findByText('Tally Report on Card');
-  await fireEvent.click(screen.getByText('Print Tally Report'));
+  fireEvent.click(screen.getByText('Print Tally Report'));
   await advanceTimersAndPromises();
   screen.getByText('Printing tally report');
   await advanceTimersAndPromises(REPORT_PRINTING_TIMEOUT_SECONDS);
@@ -392,7 +392,7 @@ it('MarkAndPrint end-to-end flow', async () => {
   // Insert SuperAdmin card
   card.insertCard({ t: 'superadmin' });
   await advanceTimersAndPromises();
-  await screen.getByText('Reboot from USB');
+  screen.getByText('Reboot from USB');
 
   // ---------------
 
@@ -409,5 +409,5 @@ it('MarkAndPrint end-to-end flow', async () => {
   // Insert SuperAdmin card works when unconfigured
   card.insertCard({ t: 'superadmin' });
   await advanceTimersAndPromises();
-  await screen.getByText('Reboot from USB');
+  screen.getByText('Reboot from USB');
 });

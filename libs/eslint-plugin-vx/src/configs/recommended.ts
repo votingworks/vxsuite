@@ -65,6 +65,7 @@ export = {
     'vx/no-floating-results': ['error', { ignoreVoid: true }],
     'vx/no-import-workspace-subfolders': 'error',
 
+    '@typescript-eslint/await-thenable': 'error',
     '@typescript-eslint/consistent-type-definitions': ['error', 'interface'],
     '@typescript-eslint/explicit-module-boundary-types': 'error',
     '@typescript-eslint/no-array-constructor': 'off',

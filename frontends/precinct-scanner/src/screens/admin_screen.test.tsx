@@ -1,4 +1,11 @@
-import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { fakeKiosk } from '@votingworks/test-utils';
 import { usbstick } from '@votingworks/utils';
@@ -153,8 +160,8 @@ test('unconfigure ejects a usb drive when it is mounted', async () => {
     </AppContext.Provider>
   );
 
-  await fireEvent.click(screen.getByText('Unconfigure Machine'));
-  await fireEvent.click(screen.getByText('Unconfigure'));
+  fireEvent.click(screen.getByText('Unconfigure Machine'));
+  fireEvent.click(screen.getByText('Unconfigure'));
   expect(unconfigureFn).toHaveBeenCalledTimes(1);
   expect(ejectFn).toHaveBeenCalledTimes(0);
 });
@@ -182,8 +189,10 @@ test('unconfigure does not eject a usb drive that is not mounted', async () => {
     </AppContext.Provider>
   );
 
-  await fireEvent.click(screen.getByText('Unconfigure Machine'));
-  await fireEvent.click(screen.getByText('Unconfigure'));
-  expect(unconfigureFn).toHaveBeenCalledTimes(1);
-  expect(ejectFn).toHaveBeenCalledTimes(1);
+  fireEvent.click(screen.getByText('Unconfigure Machine'));
+  fireEvent.click(screen.getByText('Unconfigure'));
+  await waitFor(() => {
+    expect(unconfigureFn).toHaveBeenCalledTimes(1);
+    expect(ejectFn).toHaveBeenCalledTimes(1);
+  });
 });

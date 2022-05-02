@@ -147,7 +147,7 @@ it('Single Seat Contest with Write In', async () => {
   }
 
   // Review Screen
-  await waitFor(() => screen.getByText('Review Your Votes'));
+  await screen.findByText('Review Your Votes');
   expect(screen.getByText('SAL')).toBeTruthy();
   expect(screen.getByText('(write-in)')).toBeTruthy();
 

@@ -63,7 +63,7 @@ test('replacing a loaded election with one from a card', async () => {
   await advanceTimersAndPromises();
 
   // load new election
-  await waitFor(() => screen.getByText('Election Admin Actions'));
+  await screen.findByText('Election Admin Actions');
   fireEvent.click(screen.getByText('Load Election Definition'));
   await advanceTimersAndPromises();
   screen.getByText(electionSample2Definition.election.title);
