@@ -63,6 +63,13 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           role="option"
           type="button"
         >
+          Write-Ins
+        </button>
+        <button
+          class="sc-jrAGrp iWxjsY"
+          role="option"
+          type="button"
+        >
           Tally
         </button>
         <button
@@ -71,13 +78,6 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           type="button"
         >
           Advanced
-        </button>
-        <button
-          class="sc-jrAGrp iWxjsY"
-          role="option"
-          type="button"
-        >
-          Write-Ins
         </button>
       </div>
       <div
@@ -324,6 +324,13 @@ exports[`L&A (logic and accuracy) flow 2`] = `
           role="option"
           type="button"
         >
+          Write-Ins
+        </button>
+        <button
+          class="sc-jrAGrp iWxjsY"
+          role="option"
+          type="button"
+        >
           Tally
         </button>
         <button
@@ -332,13 +339,6 @@ exports[`L&A (logic and accuracy) flow 2`] = `
           type="button"
         >
           Advanced
-        </button>
-        <button
-          class="sc-jrAGrp iWxjsY"
-          role="option"
-          type="button"
-        >
-          Write-Ins
         </button>
       </div>
       <div
@@ -375,7 +375,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
           class="sc-crrsfI vnUTr"
         >
           <h1
-            class="sc-ikJzcn hrFjNm"
+            class="sc-jJoQpE dXTmzO"
             style="margin-bottom: 0.75em; margin-top: 0.25em;"
           >
             
@@ -503,7 +503,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
     class="print-only"
   >
     <section
-      class="sc-kLwgWK fnXcLU"
+      class="sc-ikJzcn gFcHpk"
     >
       <img
         alt="VotingWorks logo"
@@ -521,7 +521,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
         class="sc-crrsfI kVGBFI"
       >
         <h1
-          class="sc-ikJzcn hrFjNm"
+          class="sc-jJoQpE dXTmzO"
           style="margin-bottom: 0.75em; margin-top: 0.25em;"
         >
           
@@ -547,7 +547,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
         </p>
       </div>
       <div
-        class="sc-jJoQpE Icimc"
+        class="sc-hiCivh hqTCjy"
       >
         <div
           class="sc-hGPAah dymfDz"
@@ -1648,7 +1648,7 @@ House Bill 1796 - Flag Referendum
 
 exports[`tabulating CVRs 1`] = `
 <section
-  class="sc-kLwgWK fnXcLU"
+  class="sc-ikJzcn gFcHpk"
   data-testid="election-full-tally-report"
 >
   <img
@@ -1681,10 +1681,10 @@ exports[`tabulating CVRs 1`] = `
     </p>
   </div>
   <div
-    class="sc-jJoQpE Icimc"
+    class="sc-hiCivh hqTCjy"
   >
     <div
-      class="sc-iAKVOt kfoWZP"
+      class="sc-efQUeY fyTYfm"
     >
       <h3>
         Ballots by Voting Method
@@ -2839,7 +2839,7 @@ House Bill 1796 - Flag Referendum
 
 exports[`tabulating CVRs with SEMS file 1`] = `
 <section
-  class="sc-kLwgWK fnXcLU"
+  class="sc-ikJzcn gFcHpk"
   data-testid="election-full-tally-report"
 >
   <img
@@ -2872,10 +2872,10 @@ exports[`tabulating CVRs with SEMS file 1`] = `
     </p>
   </div>
   <div
-    class="sc-jJoQpE Icimc"
+    class="sc-hiCivh hqTCjy"
   >
     <div
-      class="sc-iAKVOt kfoWZP"
+      class="sc-efQUeY fyTYfm"
     >
       <h3>
         Ballots by Voting Method
