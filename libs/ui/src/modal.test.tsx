@@ -35,7 +35,7 @@ describe('Modal', () => {
       <div
         aria-label="Alert Modal"
         aria-modal="true"
-        class="sc-gsDJrp blYTQX ReactModal__Content _"
+        class="sc-gsDJrp kSjhGM ReactModal__Content _"
         data-testid="modal"
         role="alertdialog"
         tabindex="-1"
@@ -67,7 +67,7 @@ describe('Modal', () => {
       <div
         aria-label="Alert Modal"
         aria-modal="true"
-        class="sc-gsDJrp jZBRml ReactModal__Content _"
+        class="sc-gsDJrp hCzYbG ReactModal__Content _"
         data-testid="modal"
         role="alertdialog"
         tabindex="-1"

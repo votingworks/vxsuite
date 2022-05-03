@@ -14,6 +14,7 @@ export enum ModalWidth {
 }
 
 interface ReactModalContentInterface {
+  fullscreen?: boolean;
   modalWidth?: ModalWidth;
 }
 const ReactModalContent = styled('div')<ReactModalContentInterface>`
@@ -32,15 +33,20 @@ const ReactModalContent = styled('div')<ReactModalContentInterface>`
   -webkit-overflow-scrolling: touch;
   @media (min-width: 480px) {
     position: static;
-    border-radius: 0.25rem;
-    max-width: ${({ modalWidth = ModalWidth.Standard }) => modalWidth};
+    border-radius: ${({ fullscreen }) => (fullscreen ? '0' : '0.25rem')};
+    max-width: ${({ fullscreen, modalWidth = ModalWidth.Standard }) =>
+      fullscreen ? '100%' : modalWidth};
+    height: ${({ fullscreen }) => (fullscreen ? '100%' : 'auto')};
   }
   @media print {
     display: none;
   }
 `;
 
-const ReactModalOverlay = styled.div`
+interface ReactModalOverlayInterface {
+  fullscreen?: boolean;
+}
+const ReactModalOverlay = styled('div')<ReactModalOverlayInterface>`
   display: flex;
   position: fixed;
   top: 0;
@@ -50,7 +56,7 @@ const ReactModalOverlay = styled.div`
   z-index: 999; /* Should be above all default UI */
   background: rgba(0, 0, 0, 0.75);
   @media (min-width: 480px) {
-    padding: 0.5rem;
+    padding: ${({ fullscreen }) => (fullscreen ? '0' : '0.5rem')};
   }
   @media print {
     display: none;
@@ -97,6 +103,7 @@ interface Props {
   actions?: ReactNode;
   onAfterOpen?: () => void;
   onOverlayClick?: () => void;
+  fullscreen?: boolean;
   modalWidth?: ModalWidth;
 }
 
@@ -116,6 +123,7 @@ export function Modal({
   ariaLabel = 'Alert Modal',
   centerContent,
   content,
+  fullscreen = false,
   ariaHideApp = true,
   onAfterOpen = focusModalAudio,
   onOverlayClick,
@@ -138,12 +146,18 @@ export function Modal({
       onRequestClose={onOverlayClick}
       testId="modal"
       contentElement={(props, children) => (
-        <ReactModalContent modalWidth={modalWidth} {...props}>
+        <ReactModalContent
+          modalWidth={modalWidth}
+          fullscreen={fullscreen}
+          {...props}
+        >
           {children}
         </ReactModalContent>
       )}
       overlayElement={(props, contentElement) => (
-        <ReactModalOverlay {...props}>{contentElement}</ReactModalOverlay>
+        <ReactModalOverlay fullscreen={fullscreen} {...props}>
+          {contentElement}
+        </ReactModalOverlay>
       )}
       // className properties are required to prevent react-modal
       // from overriding the styles defined in contentElement and overlayElement
