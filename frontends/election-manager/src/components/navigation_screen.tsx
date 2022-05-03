@@ -87,6 +87,13 @@ export function NavigationScreen({
               >
                 Advanced
               </LinkButton>
+              <LinkButton
+                small
+                to={routerPaths.writeIns}
+                className={isActiveSection(routerPaths.writeIns)}
+              >
+                Write-Ins
+              </LinkButton>
             </React.Fragment>
           ) : (
             <React.Fragment>

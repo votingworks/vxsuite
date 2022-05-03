@@ -72,6 +72,13 @@ exports[`L&A (logic and accuracy) flow 1`] = `
         >
           Advanced
         </button>
+        <button
+          class="sc-jrAGrp iWxjsY"
+          role="option"
+          type="button"
+        >
+          Write-Ins
+        </button>
       </div>
       <div
         class="sc-fubCfw kBiVZq"
@@ -325,6 +332,13 @@ exports[`L&A (logic and accuracy) flow 2`] = `
           type="button"
         >
           Advanced
+        </button>
+        <button
+          class="sc-jrAGrp iWxjsY"
+          role="option"
+          type="button"
+        >
+          Write-Ins
         </button>
       </div>
       <div
