@@ -75,6 +75,13 @@ export function NavigationScreen({
               </LinkButton>
               <LinkButton
                 small
+                to={routerPaths.writeIns}
+                className={isActiveSection(routerPaths.writeIns)}
+              >
+                Write-Ins
+              </LinkButton>
+              <LinkButton
+                small
                 to={routerPaths.tally}
                 className={isActiveSection(routerPaths.tally)}
               >

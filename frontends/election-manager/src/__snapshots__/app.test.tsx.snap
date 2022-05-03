@@ -63,6 +63,13 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           role="option"
           type="button"
         >
+          Write-Ins
+        </button>
+        <button
+          class="sc-jrAGrp iWxjsY"
+          role="option"
+          type="button"
+        >
           Tally
         </button>
         <button
@@ -311,6 +318,13 @@ exports[`L&A (logic and accuracy) flow 2`] = `
           type="button"
         >
           L&A
+        </button>
+        <button
+          class="sc-jrAGrp iWxjsY"
+          role="option"
+          type="button"
+        >
+          Write-Ins
         </button>
         <button
           class="sc-jrAGrp iWxjsY"

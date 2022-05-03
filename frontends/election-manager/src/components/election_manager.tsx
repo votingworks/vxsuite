@@ -33,6 +33,7 @@ import { MachineLockedScreen } from '../screens/machine_locked_screen';
 import { InvalidCardScreen } from '../screens/invalid_card_screen';
 import { UnlockMachineScreen } from '../screens/unlock_machine_screen';
 import { AdvancedScreen } from '../screens/advanced_screen';
+import { WriteInsScreen } from '../screens/write_ins_screen';
 import { LogicAndAccuracyScreen } from '../screens/logic_and_accuracy_screen';
 
 export function ElectionManager(): JSX.Element {
@@ -127,6 +128,9 @@ export function ElectionManager(): JSX.Element {
       </Route>
       <Route exact path={routerPaths.manualDataImport}>
         <ManualDataImportIndexScreen />
+      </Route>
+      <Route exact path={routerPaths.writeIns}>
+        <WriteInsScreen />
       </Route>
       <Route
         path={routerPaths.manualDataImportForPrecinct({
