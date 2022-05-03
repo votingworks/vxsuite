@@ -35,7 +35,7 @@ describe('Modal', () => {
       <div
         aria-label="Alert Modal"
         aria-modal="true"
-        class="sc-gsDJrp blYTQX ReactModal__Content _"
+        class="sc-gsDJrp kSjhGM ReactModal__Content _"
         data-testid="modal"
         role="alertdialog"
         tabindex="-1"
@@ -67,7 +67,29 @@ describe('Modal', () => {
       <div
         aria-label="Alert Modal"
         aria-modal="true"
-        class="sc-gsDJrp jZBRml ReactModal__Content _"
+        class="sc-gsDJrp hCzYbG ReactModal__Content _"
+        data-testid="modal"
+        role="alertdialog"
+        tabindex="-1"
+      >
+        <div
+          class="sc-hKwCoD kFWWdL"
+        >
+          Do you want to do the thing?
+        </div>
+      </div>
+    `);
+  });
+
+  it('can configure fullscreen', () => {
+    render(<Modal fullscreen content="Do you want to do the thing?" />);
+
+    const modal = screen.getByRole('alertdialog');
+    expect(modal).toMatchInlineSnapshot(`
+      <div
+        aria-label="Alert Modal"
+        aria-modal="true"
+        class="sc-gsDJrp hXVzBN ReactModal__Content _"
         data-testid="modal"
         role="alertdialog"
         tabindex="-1"
