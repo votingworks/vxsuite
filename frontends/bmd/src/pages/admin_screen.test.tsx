@@ -30,7 +30,7 @@ afterEach(() => {
   window.kiosk = undefined;
 });
 
-test('renders AdminScreen for PrintOnly', async () => {
+test('renders AdminScreen for PrintOnly', () => {
   render(
     <AdminScreen
       appPrecinct={{
@@ -117,6 +117,7 @@ test('renders date and time settings modal', async () => {
   fireEvent.change(selectYear, { target: { value: optionYear } });
 
   // Save Date and Timezone
+  // eslint-disable-next-line @typescript-eslint/require-await
   await act(async () => {
     fireEvent.click(within(screen.getByTestId('modal')).getByText('Save'));
   });
@@ -130,7 +131,7 @@ test('renders date and time settings modal', async () => {
   screen.getByText(startDate);
 });
 
-test('select All Precincts', async () => {
+test('select All Precincts', () => {
   const updateAppPrecinct = jest.fn();
   render(
     <AdminScreen
@@ -159,7 +160,7 @@ test('select All Precincts', async () => {
   });
 });
 
-test('blur precinct selector without a selection', async () => {
+test('blur precinct selector without a selection', () => {
   const updateAppPrecinct = jest.fn();
   render(
     <AdminScreen
@@ -181,7 +182,7 @@ test('blur precinct selector without a selection', async () => {
   expect(updateAppPrecinct).not.toHaveBeenCalled();
 });
 
-test('render All Precincts', async () => {
+test('render All Precincts', () => {
   const updateAppPrecinct = jest.fn();
   render(
     <AdminScreen

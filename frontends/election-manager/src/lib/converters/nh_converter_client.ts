@@ -18,6 +18,7 @@ const VxElectionDefinitionFile: VxFile = {
   name: 'VX Election Definition',
 };
 
+/* eslint-disable @typescript-eslint/require-await */
 export class NhConverterClient implements ConverterClient {
   private inputFiles: Map<VxFile, File | undefined> = new Map([
     [NhCardDefinitionFile, undefined],
@@ -136,3 +137,4 @@ export class NhConverterClient implements ConverterClient {
     }
   }
 }
+/* eslint-enable @typescript-eslint/require-await */

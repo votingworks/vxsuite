@@ -75,6 +75,7 @@ export = {
     '@typescript-eslint/no-unnecessary-type-assertion': 'error',
     '@typescript-eslint/no-unused-vars': 'error',
     '@typescript-eslint/prefer-readonly': 'error',
+    '@typescript-eslint/require-await': 'error',
     'class-methods-use-this': 'off',
     'consistent-return': 'off',
     // be stricter than eslint-config-airbnb which allows `== null`

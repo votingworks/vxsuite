@@ -1,6 +1,8 @@
 import { assert } from '../assert';
 import { Storage } from '../types';
 
+/* eslint-disable @typescript-eslint/require-await */
+
 /**
  * Implements the storage API using `localStorage` as the backing store.
  */

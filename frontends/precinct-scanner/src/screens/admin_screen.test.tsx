@@ -61,6 +61,7 @@ test('renders date and time settings modal', async () => {
   fireEvent.change(selectYear, { target: { value: optionYear } });
 
   // Save Date and Timezone
+  // eslint-disable-next-line @typescript-eslint/require-await
   await act(async () => {
     fireEvent.click(within(screen.getByTestId('modal')).getByText('Save'));
   });
@@ -113,7 +114,7 @@ test('setting and un-setting the precinct', async () => {
   expect(updateAppPrecinctId).toHaveBeenNthCalledWith(2, '');
 });
 
-test('export from admin screen', async () => {
+test('export from admin screen', () => {
   render(
     <AppContext.Provider
       value={{
@@ -137,7 +138,7 @@ test('export from admin screen', async () => {
   fireEvent.click(screen.getByText('Export Backup to USB Drive'));
 });
 
-test('unconfigure ejects a usb drive when it is mounted', async () => {
+test('unconfigure ejects a usb drive when it is mounted', () => {
   const ejectFn = jest.fn();
   const unconfigureFn = jest.fn();
   render(

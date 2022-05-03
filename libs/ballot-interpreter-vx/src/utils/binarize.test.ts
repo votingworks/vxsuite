@@ -2,7 +2,7 @@ import { createImageData } from 'canvas';
 import { croppedQrCode } from '../../test/fixtures';
 import { binarize, RGBA_BLACK, RGBA_WHITE } from './binarize';
 
-test('binarize grayscale', async () => {
+test('binarize grayscale', () => {
   const imageData = createImageData(2, 2);
 
   imageData.data.set([0, 0, 0, 255], 0);
@@ -20,7 +20,7 @@ test('binarize grayscale', async () => {
   ]);
 });
 
-test('binarize color', async () => {
+test('binarize color', () => {
   const imageData = createImageData(2, 2);
 
   imageData.data.set([0, 0, 0, 255], 0);

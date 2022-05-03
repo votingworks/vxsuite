@@ -124,7 +124,7 @@ test('allows users to set thresholds properly', async () => {
   });
 });
 
-test('setting thresholds renders an error if given a non number', async () => {
+test('setting thresholds renders an error if given a non number', () => {
   const closeFn = jest.fn();
   const setThresholds = jest.fn();
   const { getByText, getByTestId } = render(
@@ -152,7 +152,7 @@ test('setting thresholds renders an error if given a non number', async () => {
   expect(closeFn).toHaveBeenCalledTimes(0);
 });
 
-test('setting thresholds renders an error if given a number greater than 1', async () => {
+test('setting thresholds renders an error if given a number greater than 1', () => {
   const closeFn = jest.fn();
   const setThresholds = jest.fn();
   const { getByText, getByTestId } = render(

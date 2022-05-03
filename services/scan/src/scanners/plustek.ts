@@ -497,6 +497,7 @@ export function withReconnect(
   };
 
   const wrapperProvider: ScannerClientProvider = {
+    // eslint-disable-next-line @typescript-eslint/require-await
     get: async () => ok(wrapper),
   };
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, act, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import {
   electionSample,
   electionSampleDefinition,
@@ -35,7 +35,7 @@ const cvr: CastVoteRecord = {
   'county-commissioners': ['argent'],
 };
 
-test('renders WITHOUT results reporting when there are CVRs but polls are open', async () => {
+test('renders WITHOUT results reporting when there are CVRs but polls are open', () => {
   const mockKiosk = fakeKiosk();
   mockOf(mockKiosk.sign).mockResolvedValue('FAKESIGNATURE');
   window.kiosk = mockKiosk;
@@ -46,19 +46,17 @@ test('renders WITHOUT results reporting when there are CVRs but polls are open',
   );
   const compressedTally = compressTally(electionSample, tally);
 
-  await act(async () => {
-    render(
-      <PrecinctScannerTallyQrCode
-        reportSavedTime={time}
-        electionDefinition={electionSampleDefinition}
-        reportPurpose="Testing"
-        isPollsOpen
-        isLiveMode
-        compressedTally={compressedTally}
-        signingMachineId="0001"
-      />
-    );
-  });
+  render(
+    <PrecinctScannerTallyQrCode
+      reportSavedTime={time}
+      electionDefinition={electionSampleDefinition}
+      reportPurpose="Testing"
+      isPollsOpen
+      isLiveMode
+      compressedTally={compressedTally}
+      signingMachineId="0001"
+    />
+  );
 
   expect(screen.queryByText('Automatic Election Results Reporting')).toBeNull();
 });
@@ -74,19 +72,17 @@ test('renders with results reporting when there are CVRs and polls are closed', 
   );
   const compressedTally = compressTally(electionSample, tally);
 
-  await act(async () => {
-    render(
-      <PrecinctScannerTallyQrCode
-        reportSavedTime={time}
-        electionDefinition={electionSampleDefinition}
-        reportPurpose="Testing"
-        isPollsOpen={false}
-        isLiveMode
-        compressedTally={compressedTally}
-        signingMachineId="DEMO-0000"
-      />
-    );
-  });
+  render(
+    <PrecinctScannerTallyQrCode
+      reportSavedTime={time}
+      electionDefinition={electionSampleDefinition}
+      reportPurpose="Testing"
+      isPollsOpen={false}
+      isLiveMode
+      compressedTally={compressedTally}
+      signingMachineId="DEMO-0000"
+    />
+  );
 
   const payloadComponents = mockKiosk.sign.mock.calls[0][0].payload.split('.');
   expect(payloadComponents).toEqual([
@@ -97,9 +93,11 @@ test('renders with results reporting when there are CVRs and polls are closed', 
     expect.any(String),
   ]);
 
-  expect(
-    screen.queryByText('Automatic Election Results Reporting')
-  ).toBeTruthy();
+  await waitFor(() =>
+    expect(
+      screen.queryByText('Automatic Election Results Reporting')
+    ).toBeInTheDocument()
+  );
 });
 
 test('renders with results reporting when there are CVRs and polls are closed in testing mode', async () => {
@@ -117,19 +115,17 @@ test('renders with results reporting when there are CVRs and polls are closed in
   );
   const compressedTally = compressTally(electionSample, tally);
 
-  await act(async () => {
-    render(
-      <PrecinctScannerTallyQrCode
-        reportSavedTime={time}
-        electionDefinition={electionSampleDefinition}
-        reportPurpose="Testing"
-        isPollsOpen={false}
-        isLiveMode={false}
-        compressedTally={compressedTally}
-        signingMachineId="DEMO-0000"
-      />
-    );
-  });
+  render(
+    <PrecinctScannerTallyQrCode
+      reportSavedTime={time}
+      electionDefinition={electionSampleDefinition}
+      reportPurpose="Testing"
+      isPollsOpen={false}
+      isLiveMode={false}
+      compressedTally={compressedTally}
+      signingMachineId="DEMO-0000"
+    />
+  );
 
   const payloadComponents = mockKiosk.sign.mock.calls[0][0].payload.split('.');
   expect(payloadComponents).toEqual([
@@ -140,9 +136,11 @@ test('renders with results reporting when there are CVRs and polls are closed in
     expect.any(String),
   ]);
 
-  expect(
-    screen.queryByText('Automatic Election Results Reporting')
-  ).toBeTruthy();
+  await waitFor(() =>
+    expect(
+      screen.queryByText('Automatic Election Results Reporting')
+    ).toBeInTheDocument()
+  );
 });
 
 test('renders with unsigned results reporting when there is no kiosk', async () => {
@@ -153,21 +151,21 @@ test('renders with unsigned results reporting when there is no kiosk', async () 
   );
   const compressedTally = compressTally(electionSample, tally);
 
-  await act(async () => {
-    render(
-      <PrecinctScannerTallyQrCode
-        reportSavedTime={time}
-        electionDefinition={electionSampleDefinition}
-        reportPurpose="Testing"
-        isPollsOpen={false}
-        isLiveMode
-        compressedTally={compressedTally}
-        signingMachineId="DEMO-0000"
-      />
-    );
-  });
+  render(
+    <PrecinctScannerTallyQrCode
+      reportSavedTime={time}
+      electionDefinition={electionSampleDefinition}
+      reportPurpose="Testing"
+      isPollsOpen={false}
+      isLiveMode
+      compressedTally={compressedTally}
+      signingMachineId="DEMO-0000"
+    />
+  );
 
-  expect(
-    screen.queryByText('Automatic Election Results Reporting')
-  ).toBeTruthy();
+  await waitFor(() =>
+    expect(
+      screen.queryByText('Automatic Election Results Reporting')
+    ).toBeInTheDocument()
+  );
 });

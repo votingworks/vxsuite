@@ -7,7 +7,7 @@ import {
   readContentDispositionFilename,
 } from './download';
 
-test('readContentDispositionFilename', async () => {
+test('readContentDispositionFilename', () => {
   expect(readContentDispositionFilename('')).toBeUndefined();
   expect(readContentDispositionFilename('attachment')).toBeUndefined();
   expect(readContentDispositionFilename('inline')).toBeUndefined();

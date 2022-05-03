@@ -90,7 +90,7 @@ test('bypass and persist authentication flow', () => {
   expect(logSpy).toHaveBeenCalledTimes(1);
 });
 
-test('bypass authentication flow when not persisting authentication', async () => {
+test('bypass authentication flow when not persisting authentication', () => {
   let smartcard: Smartcard = { status: 'no_card' };
   const fakeLogger = new Logger(LogSource.VxCentralScanFrontend);
   const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
@@ -539,7 +539,7 @@ test('basic persist authentication flow works as expected', () => {
   );
 });
 
-test('basic flow with no persistance of authentication works as expected', async () => {
+test('basic flow with no persistance of authentication works as expected', () => {
   let smartcard: Smartcard = { status: 'no_card' };
   const fakeLogger = new Logger(LogSource.VxCentralScanFrontend);
   const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();

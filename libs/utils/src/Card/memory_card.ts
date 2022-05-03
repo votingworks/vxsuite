@@ -2,6 +2,8 @@ import { ok, Optional, Result, safeParseJson } from '@votingworks/types';
 import { z } from 'zod';
 import { Card, CardApi } from '../types';
 
+/* eslint-disable @typescript-eslint/require-await */
+
 /**
  * Implements the `Card` API with an in-memory implementation.
  */

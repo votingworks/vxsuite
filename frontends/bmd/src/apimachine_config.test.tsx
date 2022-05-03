@@ -59,6 +59,7 @@ test('machineConfig fetch fails', async () => {
 
 test('machineId is empty', async () => {
   const machineConfig: Provider<MachineConfig> = {
+    // eslint-disable-next-line @typescript-eslint/require-await
     async get() {
       return { appMode: MarkOnly, machineId: '', codeVersion: 'test' };
     },
@@ -82,6 +83,7 @@ test('machineId is empty', async () => {
 
 test('machineConfig is empty', async () => {
   const machineConfig: Provider<MachineConfig> = {
+    // eslint-disable-next-line @typescript-eslint/require-await
     async get(): Promise<MachineConfig> {
       // @ts-expect-error - we're mocking an API failure
       return undefined;

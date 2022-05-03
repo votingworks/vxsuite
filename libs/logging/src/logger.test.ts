@@ -323,7 +323,7 @@ describe('test cdf conversion', () => {
     expect(cdfLog2.Device?.[0]!.Event).toStrictEqual([]);
   });
 
-  test('read and interpret a real log file as expected', async () => {
+  test('read and interpret a real log file as expected', () => {
     const logFile = readFileSync(join(__dirname, '../fixtures/samplelog.log'));
     const logger = new Logger(LogSource.VxAdminFrontend);
     const cdfLogContent = logger.buildCDFLog(

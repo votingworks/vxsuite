@@ -7,7 +7,7 @@ import {
   SpeechSynthesisTextToSpeech,
 } from '../utils/ScreenReader';
 
-it('renders FocusManager', async () => {
+it('renders FocusManager', () => {
   const { container } = render(
     <FocusManager
       screenReader={new AriaScreenReader(new SpeechSynthesisTextToSpeech())}

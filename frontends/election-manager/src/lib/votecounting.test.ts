@@ -36,7 +36,7 @@ export function parseCvrsAndAssertSuccess(
   });
 }
 
-test('tabulating a set of CVRs gives expected output', async () => {
+test('tabulating a set of CVRs gives expected output', () => {
   // get the election
   const election = electionSample2;
 
@@ -85,7 +85,7 @@ test('tabulating a set of CVRs gives expected output', async () => {
   expect(numWriteIns).toBe(260);
 });
 
-test('computeFullTally with no results should produce empty tally objects with contests', async () => {
+test('computeFullTally with no results should produce empty tally objects with contests', () => {
   const election = electionSample2;
 
   const fullTally = computeFullElectionTally(election, new Set());
@@ -319,7 +319,7 @@ test('overvotes counted in single seat contest properly', () => {
   ).toBe(1);
 });
 
-test('overvote report', async () => {
+test('overvote report', () => {
   // get the election
   const election = electionSample2;
 
@@ -719,7 +719,7 @@ test('parsing CVRs with different batch labels in the same id does not error', (
 describe('filterTalliesByParams in a primary election', () => {
   let electionTally: FullElectionTally;
 
-  beforeEach(async () => {
+  beforeEach(() => {
     // get the CVRs
     const cvrsFileContents = electionMultiPartyPrimaryWithDataFiles.cvrData;
     const castVoteRecords = parseCvrsAndAssertSuccess(

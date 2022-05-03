@@ -38,12 +38,12 @@ const proseContent = (
   </React.Fragment>
 );
 describe('renders Prose', () => {
-  test('with defaults', async () => {
+  test('with defaults', () => {
     const { container } = render(<Prose>{proseContent}</Prose>);
     expect(container.firstChild).toMatchSnapshot();
   });
 
-  test('with with non-default options', async () => {
+  test('with with non-default options', () => {
     const { container } = render(
       <Prose compact textCenter maxWidth={false}>
         {proseContent}
@@ -52,12 +52,12 @@ describe('renders Prose', () => {
     expect(container.firstChild).toMatchSnapshot();
   });
 
-  test('with right-aligned text', async () => {
+  test('with right-aligned text', () => {
     const { container } = render(<Prose textRight>{proseContent}</Prose>);
     expect(container.firstChild).toMatchSnapshot();
   });
 
-  test('with theme', async () => {
+  test('with theme', () => {
     const { container } = render(
       <Prose
         theme={{

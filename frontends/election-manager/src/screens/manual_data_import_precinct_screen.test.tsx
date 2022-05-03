@@ -22,7 +22,7 @@ import {
 } from '../utils/external_tallies';
 import { ManualDataImportPrecinctScreen } from './manual_data_import_precinct_screen';
 
-test('displays error screen for invalid precinct', async () => {
+test('displays error screen for invalid precinct', () => {
   const { getByText } = renderInAppContext(
     <Route path="/tally/manual-data-import/precinct/:precinctId">
       <ManualDataImportPrecinctScreen />
@@ -36,7 +36,7 @@ test('displays error screen for invalid precinct', async () => {
   getByText('Back to Index');
 });
 
-test('displays correct contests for each precinct', async () => {
+test('displays correct contests for each precinct', () => {
   const saveExternalTallies = jest.fn();
   const commissionerRaces = [
     'Election Commissioner 01',
@@ -338,7 +338,7 @@ test('can enter data for yes no contests as expected', async () => {
   ]);
 });
 
-test('loads prexisting manual data to edit', async () => {
+test('loads prexisting manual data to edit', () => {
   const talliesByPrecinct = getEmptyExternalTalliesByPrecinct(
     electionSampleDefinition.election
   );

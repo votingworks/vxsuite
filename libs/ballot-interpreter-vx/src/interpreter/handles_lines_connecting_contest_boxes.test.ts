@@ -14,19 +14,19 @@ test.skip('handles lines connecting contest boxes', async () => {
   const { electionDefinition } = hamilton;
   const interpreter = new Interpreter({ electionDefinition });
 
-  await interpreter.addTemplate(
+  interpreter.addTemplate(
     await interpreter.interpretTemplate(
       await hamilton.blankPage1.imageData(),
       await hamilton.blankPage1.metadata()
     )
   );
-  await interpreter.addTemplate(
+  interpreter.addTemplate(
     await interpreter.interpretTemplate(
       await hamilton.blankPage2.imageData(),
       await hamilton.blankPage2.metadata()
     )
   );
-  await interpreter.addTemplate(
+  interpreter.addTemplate(
     await interpreter.interpretTemplate(
       await hamilton.blankPage3.imageData(),
       await hamilton.blankPage3.metadata()

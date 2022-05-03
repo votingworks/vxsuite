@@ -36,6 +36,8 @@ const DEFAULT_PRINTER_IPP_ATTRIBUTES: KioskBrowser.PrinterIppAttributes = {
   ],
 };
 
+/* eslint-disable @typescript-eslint/require-await */
+
 /**
  * Implements the `Hardware` API with an in-memory implementation.
  */

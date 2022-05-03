@@ -11,12 +11,12 @@ const options = (
   </React.Fragment>
 );
 
-it('Inline select', async () => {
+it('Inline select', () => {
   const { container } = render(<Select>{options}</Select>);
   expect(container.firstChild).toMatchSnapshot();
 });
 
-it('Full-width select', async () => {
+it('Full-width select', () => {
   const { container } = render(<Select fullWidth>{options}</Select>);
   expect(container.firstChild).toMatchSnapshot();
 });

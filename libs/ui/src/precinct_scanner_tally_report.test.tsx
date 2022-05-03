@@ -33,7 +33,7 @@ const cvr: CastVoteRecord = {
   'county-commissioners': ['argent'],
 };
 
-test('renders as expected for all precincts in a general election', async () => {
+test('renders as expected for all precincts in a general election', () => {
   const tally = calculateTallyForCastVoteRecords(
     electionSample,
     new Set([cvr])
@@ -74,7 +74,7 @@ test('renders as expected for all precincts in a general election', async () => 
   ).getByText(/0 ballots cast/);
 });
 
-test('renders as expected for a single precinct in a general election', async () => {
+test('renders as expected for a single precinct in a general election', () => {
   const tally = calculateTallyForCastVoteRecords(
     electionSample,
     new Set([cvr])
@@ -133,7 +133,7 @@ const primaryCvr: CastVoteRecord = {
   'new-zoo-pick': ['no'],
 };
 
-test('renders as expected for all precincts in a primary election', async () => {
+test('renders as expected for all precincts in a primary election', () => {
   const party0 = unsafeParse(PartyIdSchema, '0');
   const tally = calculateTallyForCastVoteRecords(
     electionMinimalExhaustiveSampleDefinition.election,
@@ -207,7 +207,7 @@ const primaryCvr2: CastVoteRecord = {
   fishing: ['yes', 'no'],
 };
 
-test('renders as expected for a single precincts in a primary election', async () => {
+test('renders as expected for a single precincts in a primary election', () => {
   const party1 = unsafeParse(PartyIdSchema, '1');
   const tally = calculateTallyForCastVoteRecords(
     electionMinimalExhaustiveSampleDefinition.election,

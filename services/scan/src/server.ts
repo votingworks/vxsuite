@@ -104,7 +104,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
 
   app.get<NoParams, GetElectionConfigResponse>(
     '/config/election',
-    async (request, response) => {
+    (request, response) => {
       const electionDefinition = store.getElectionDefinition();
 
       if (request.accepts('application/octet-stream')) {
@@ -240,7 +240,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
 
   app.get<NoParams, GetTestModeConfigResponse>(
     '/config/testMode',
-    async (_request, response) => {
+    (_request, response) => {
       const testMode = store.getTestMode();
       response.json({ status: 'ok', testMode });
     }
@@ -270,7 +270,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
 
   app.get<NoParams, GetCurrentPrecinctConfigResponse>(
     '/config/precinct',
-    async (_request, response) => {
+    (_request, response) => {
       const precinctId = store.getCurrentPrecinctId();
       response.json({ status: 'ok', precinctId });
     }
@@ -280,7 +280,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
     NoParams,
     PutCurrentPrecinctConfigResponse,
     PutCurrentPrecinctConfigRequest
-  >('/config/precinct', async (request, response) => {
+  >('/config/precinct', (request, response) => {
     const bodyParseResult = safeParse(
       PutCurrentPrecinctConfigRequestSchema,
       request.body
@@ -301,7 +301,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
 
   app.delete<NoParams, DeleteCurrentPrecinctConfigResponse>(
     '/config/precinct',
-    async (_request, response) => {
+    (_request, response) => {
       store.setCurrentPrecinctId(undefined);
       response.json({ status: 'ok' });
     }
@@ -309,7 +309,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
 
   app.get<NoParams, GetMarkThresholdOverridesConfigResponse>(
     '/config/markThresholdOverrides',
-    async (_request, response) => {
+    (_request, response) => {
       const markThresholdOverrides = store.getMarkThresholdOverrides();
       response.json({ status: 'ok', markThresholdOverrides });
     }
@@ -562,7 +562,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
 
   app.post<NoParams, ExportResponse, ExportRequest>(
     '/scan/export',
-    async (_request, response) => {
+    (_request, response) => {
       const cvrs = importer.doExport();
       store.setCvrsAsBackedUp();
       response.set('Content-Type', 'text/plain; charset=utf-8');
@@ -600,29 +600,23 @@ export function buildApp({ store, importer }: AppOptions): Application {
     }
   );
 
-  app.get(
-    '/scan/hmpb/ballot/:sheetId/:side/image',
-    async (request, response) => {
-      const { sheetId, side } = request.params;
+  app.get('/scan/hmpb/ballot/:sheetId/:side/image', (request, response) => {
+    const { sheetId, side } = request.params;
 
-      if (
-        typeof sheetId !== 'string' ||
-        (side !== 'front' && side !== 'back')
-      ) {
-        response.status(404);
-        return;
-      }
-
-      response.redirect(
-        301,
-        `/scan/hmpb/ballot/${sheetId}/${side}/image/normalized`
-      );
+    if (typeof sheetId !== 'string' || (side !== 'front' && side !== 'back')) {
+      response.status(404);
+      return;
     }
-  );
+
+    response.redirect(
+      301,
+      `/scan/hmpb/ballot/${sheetId}/${side}/image/normalized`
+    );
+  });
 
   app.get(
     '/scan/hmpb/ballot/:sheetId/:side/image/:version',
-    async (request, response) => {
+    (request, response) => {
       const { sheetId, side, version } = request.params;
 
       if (
@@ -643,7 +637,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
     }
   );
 
-  app.delete('/scan/batch/:batchId', async (request, response) => {
+  app.delete('/scan/batch/:batchId', (request, response) => {
     if (store.deleteBatch(request.params.batchId)) {
       response.json({ status: 'ok' });
     } else {
@@ -653,7 +647,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
 
   app.get<NoParams, GetNextReviewSheetResponse>(
     '/scan/hmpb/review/next-sheet',
-    async (_request, response) => {
+    (_request, response) => {
       const sheet = store.getNextAdjudicationSheet();
 
       if (sheet) {
@@ -725,7 +719,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
     }
   );
 
-  app.get('/scan/backup', async (_request, response) => {
+  app.get('/scan/backup', (_request, response) => {
     const electionDefinition = store.getElectionDefinition();
 
     if (!electionDefinition) {

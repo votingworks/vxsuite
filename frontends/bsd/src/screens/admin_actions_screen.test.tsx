@@ -58,7 +58,7 @@ test('clicking "Export Backup…" shows progress', async () => {
   });
 });
 
-test('"Delete Ballot Data…" and Delete Election Data from VxCentralScan…" disabled when canUnconfigure is falsy', async () => {
+test('"Delete Ballot Data…" and Delete Election Data from VxCentralScan…" disabled when canUnconfigure is falsy', () => {
   const unconfigureServer = jest.fn();
   const zeroData = jest.fn();
   const component = render(
@@ -94,7 +94,7 @@ test('"Delete Ballot Data…" and Delete Election Data from VxCentralScan…" di
   expect(component.queryByText('Delete All Scanned Ballot Data?')).toBeNull();
 });
 
-test('"Delete Ballot Data…" and Delete Election Data from VxCentralScan…" enabled in test mode even if data not backed up', async () => {
+test('"Delete Ballot Data…" and Delete Election Data from VxCentralScan…" enabled in test mode even if data not backed up', () => {
   const component = render(
     <Router history={createMemoryHistory()}>
       <AdminActionsScreen
@@ -222,6 +222,7 @@ test('clicking "Delete Ballot Data…" shows progress', async () => {
 
   resolve();
   // Trigger delete finished, verify back to initial screen.
+  // eslint-disable-next-line @typescript-eslint/require-await
   await waitFor(async () => {
     expect(screen.queryAllByText('Deleting ballot data')).toHaveLength(0);
   });
@@ -273,7 +274,7 @@ test('backup error shows message', async () => {
   });
 });
 
-test('override mark thresholds button shows when there are no overrides', async () => {
+test('override mark thresholds button shows when there are no overrides', () => {
   const backup = jest.fn();
 
   const testCases = [

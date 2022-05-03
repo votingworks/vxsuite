@@ -8,7 +8,7 @@ export interface Command {
     stdin: NodeJS.ReadableStream,
     stdout: NodeJS.WritableStream,
     stderr: NodeJS.WritableStream
-  ): Promise<number>;
+  ): number | Promise<number>;
 }
 
 export interface GlobalOptions {

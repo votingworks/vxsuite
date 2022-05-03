@@ -24,7 +24,7 @@ const LIVE_FILE1 = 'machine_0002__10_ballots__2020-12-09_15-59-32.jsonl';
 
 const { UsbDriveStatus } = usbstick;
 
-test('No USB screen shows when there is no USB drive', async () => {
+test('No USB screen shows when there is no USB drive', () => {
   const usbStatuses = [
     UsbDriveStatus.absent,
     UsbDriveStatus.recentlyEjected,
@@ -45,7 +45,7 @@ test('No USB screen shows when there is no USB drive', async () => {
   }
 });
 
-test('Loading screen show while usb is mounting or ejecting', async () => {
+test('Loading screen show while usb is mounting or ejecting', () => {
   const usbStatuses = [UsbDriveStatus.present, UsbDriveStatus.ejecting];
 
   for (const usbStatus of usbStatuses) {

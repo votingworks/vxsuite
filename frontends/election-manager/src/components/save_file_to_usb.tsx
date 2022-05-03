@@ -32,7 +32,7 @@ export enum FileType {
 
 export interface Props {
   onClose: () => void;
-  generateFileContent: () => Promise<Uint8Array | string>;
+  generateFileContent: () => Uint8Array | string | Promise<Uint8Array | string>;
   defaultFilename: string;
   fileType: FileType;
   promptToEjectUsb?: boolean;

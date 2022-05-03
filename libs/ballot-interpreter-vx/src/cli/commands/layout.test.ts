@@ -7,18 +7,16 @@ import { loadImageData } from '../../utils/images';
 import { adjacentFile } from '../../utils/path';
 import { parseOptions } from './layout';
 
-test('options', async () => {
+test('options', () => {
   expect(
-    (
-      await parseOptions(
-        parseGlobalOptions([
-          'node',
-          'ballot-interpreter-vx',
-          'layout',
-          'ballot01.png',
-          'ballot02.png',
-        ]).unsafeUnwrap()
-      )
+    parseOptions(
+      parseGlobalOptions([
+        'node',
+        'ballot-interpreter-vx',
+        'layout',
+        'ballot01.png',
+        'ballot02.png',
+      ]).unsafeUnwrap()
     ).unsafeUnwrap()
   ).toEqual({
     help: false,
@@ -26,17 +24,15 @@ test('options', async () => {
   });
 });
 
-test('invalid options', async () => {
+test('invalid options', () => {
   expect(
-    (
-      await parseOptions(
-        parseGlobalOptions([
-          'node',
-          'ballot-interpreter-vx',
-          'layout',
-          '--wrong',
-        ]).unsafeUnwrap()
-      )
+    parseOptions(
+      parseGlobalOptions([
+        'node',
+        'ballot-interpreter-vx',
+        'layout',
+        '--wrong',
+      ]).unsafeUnwrap()
     ).unsafeUnwrapErr().message
   ).toEqual(`unexpected option passed to 'layout': --wrong`);
 });

@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 
 import { Text, TextWithLineBreaks } from './text';
 
-it('outputs paragraph tag', async () => {
+it('outputs paragraph tag', () => {
   const text = 'paragraph';
   render(<Text>{text}</Text>);
   const element = screen.getByText(text);
@@ -11,7 +11,7 @@ it('outputs paragraph tag', async () => {
   expect(element).toMatchSnapshot();
 });
 
-it('outputs "span" tag specified by "as" prop', async () => {
+it('outputs "span" tag specified by "as" prop', () => {
   const text = 'Text in a span?';
   render(<Text as="span">{text}</Text>);
   const element = screen.getByText(text);
@@ -19,27 +19,27 @@ it('outputs "span" tag specified by "as" prop', async () => {
   expect(element).toMatchSnapshot();
 });
 
-it('centers centered style', async () => {
+it('centers centered style', () => {
   const { container } = render(<Text center>Centered Text?</Text>);
   expect(container.firstChild).toMatchSnapshot();
 });
 
-it('displays muted style', async () => {
+it('displays muted style', () => {
   const { container } = render(<Text muted>Muted Text?</Text>);
   expect(container.firstChild).toMatchSnapshot();
 });
 
-it('displays error style', async () => {
+it('displays error style', () => {
   const { container } = render(<Text error>Error Text?</Text>);
   expect(container.firstChild).toMatchSnapshot();
 });
 
-it('narrow style', async () => {
+it('narrow style', () => {
   const { container } = render(<Text narrow>Narrow Wrapper</Text>);
   expect(container.firstChild).toMatchSnapshot();
 });
 
-it('renders italic text', async () => {
+it('renders italic text', () => {
   const { container } = render(<Text italic>Italic text</Text>);
   expect(container.firstChild).toMatchSnapshot();
 });

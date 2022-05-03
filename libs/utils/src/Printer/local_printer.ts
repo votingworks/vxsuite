@@ -1,6 +1,8 @@
 import makeDebug from 'debug';
 import { Printer, PrintOptions } from '../types';
 
+/* eslint-disable @typescript-eslint/require-await */
+
 const debug = makeDebug('utils:printer');
 
 export class LocalPrinter implements Printer {

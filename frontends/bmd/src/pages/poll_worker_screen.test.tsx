@@ -114,12 +114,12 @@ function expectContestResultsInReport(
   }
 }
 
-test('renders PollWorkerScreen', async () => {
+test('renders PollWorkerScreen', () => {
   renderScreen();
   screen.getByText(/Polls are currently open./);
 });
 
-test('switching out of test mode on election day', async () => {
+test('switching out of test mode on election day', () => {
   const electionDefinition = asElectionDefinition({
     ...electionSampleWithSeal,
     date: new Date().toISOString(),
@@ -132,7 +132,7 @@ test('switching out of test mode on election day', async () => {
   expect(enableLiveMode).toHaveBeenCalled();
 });
 
-test('keeping test mode on election day', async () => {
+test('keeping test mode on election day', () => {
   const electionDefinition = asElectionDefinition({
     ...electionSampleWithSeal,
     date: new Date().toISOString(),
@@ -145,7 +145,7 @@ test('keeping test mode on election day', async () => {
   expect(enableLiveMode).not.toHaveBeenCalled();
 });
 
-test('live mode on election day', async () => {
+test('live mode on election day', () => {
   renderScreen({ isLiveMode: true });
   expect(screen.queryByText('Switch to Live Election Mode?')).toBeNull();
 });
@@ -1171,7 +1171,7 @@ test('printing precinct scanner report works as expected with a single precinct 
   );
 });
 
-test('navigates to System Diagnostics screen', async () => {
+test('navigates to System Diagnostics screen', () => {
   const { unmount } = renderScreen();
 
   userEvent.click(screen.getByRole('button', { name: 'System Diagnostics' }));

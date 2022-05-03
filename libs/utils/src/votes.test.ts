@@ -271,7 +271,7 @@ test('tallyVotesByContest filtered by party', () => {
 describe('filterTalliesByParams fallback to empty tally when the proper category is not computed', () => {
   let electionTally: FullElectionTally;
   let election: Election;
-  beforeEach(async () => {
+  beforeEach(() => {
     election =
       electionMultiPartyPrimaryWithDataFiles.electionDefinition.election;
 
@@ -335,7 +335,7 @@ describe('filterTalliesByParams fallback to empty tally when the proper category
 describe('filterTalliesByParams in a typical election', () => {
   let electionTally: FullElectionTally;
   let election: Election;
-  beforeEach(async () => {
+  beforeEach(() => {
     election = electionSample2;
 
     // get the CVRs
@@ -678,7 +678,7 @@ describe('filterTalliesByParams in a primary election', () => {
     },
   ];
 
-  beforeEach(async () => {
+  beforeEach(() => {
     // get the CVRs
     const cvrsFileContents = electionMultiPartyPrimaryWithDataFiles.cvrData;
     const castVoteRecords = parseCvrs(cvrsFileContents);

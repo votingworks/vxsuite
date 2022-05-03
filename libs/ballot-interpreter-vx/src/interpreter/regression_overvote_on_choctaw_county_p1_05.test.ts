@@ -8,7 +8,7 @@ test('regression: overvote on choctaw county p1-05', async () => {
   const { electionDefinition } = fixtures;
   const interpreter = new Interpreter({ electionDefinition, testMode: true });
 
-  await interpreter.addTemplate(
+  interpreter.addTemplate(
     await interpreter.interpretTemplate(
       await fixtures.district5BlankPage1.imageData()
     )

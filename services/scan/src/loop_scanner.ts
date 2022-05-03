@@ -79,6 +79,8 @@ export function parseBatchesFromEnv(env?: string): Batch[] | undefined {
   return parseBatches(env.split(','));
 }
 
+/* eslint-disable @typescript-eslint/require-await */
+
 /**
  * Provides mock scanning services by copying the same set of images over and
  * over again on demand.

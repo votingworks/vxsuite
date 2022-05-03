@@ -14,6 +14,8 @@ import {
   ScanResult,
 } from './scanner';
 
+/* eslint-disable @typescript-eslint/require-await */
+
 const debug = makeDebug('plustek-sdk:mock-client');
 
 /**

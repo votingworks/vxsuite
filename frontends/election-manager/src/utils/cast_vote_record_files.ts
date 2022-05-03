@@ -208,7 +208,7 @@ export class CastVoteRecordFiles {
         } else {
           assert(window.kiosk);
           const fileContent = await window.kiosk.readFile(file.path, 'utf-8');
-          const parsedFile = await this.parseFromFileContent(
+          const parsedFile = this.parseFromFileContent(
             fileContent,
             file.name,
             parsedFileInfo?.timestamp || new Date(file.mtime),
@@ -232,12 +232,12 @@ export class CastVoteRecordFiles {
    *  Builds a new `CastVoteRecordFiles` object by adding the parsed CVRs from
    * `fileData` to those contained by this `CastVoteRecordFiles` instance.
    */
-  async addFromFileData(
+  addFromFileData(
     fileData: CastVoteRecordFilePreprocessedData,
     election: Election
-  ): Promise<CastVoteRecordFiles> {
+  ): CastVoteRecordFiles {
     assert(window.kiosk);
-    return await this.addFromFileContent(
+    return this.addFromFileContent(
       fileData.fileContent,
       fileData.name,
       fileData.exportTimestamp,
@@ -253,7 +253,7 @@ export class CastVoteRecordFiles {
     try {
       const fileContent = await readFileAsync(file);
       const parsedFileInfo = parseCvrFileInfoFromFilename(file.name);
-      const result = await this.addFromFileContent(
+      const result = this.addFromFileContent(
         fileContent,
         file.name,
         parsedFileInfo?.timestamp || new Date(file.lastModified),
@@ -272,14 +272,14 @@ export class CastVoteRecordFiles {
     }
   }
 
-  private async parseFromFileContent(
+  private parseFromFileContent(
     fileContent: string,
     fileName: string,
     exportTimestamp: Date,
     scannerId: string,
     fallbackTestMode: boolean,
     election: Election
-  ): Promise<CastVoteRecordFilePreprocessedData> {
+  ): CastVoteRecordFilePreprocessedData {
     const fileCastVoteRecords: CastVoteRecord[] = [];
     let testBallotSeen = false;
     let liveBallotSeen = false;
@@ -321,12 +321,12 @@ export class CastVoteRecordFiles {
     };
   }
 
-  private async addFromFileContent(
+  private addFromFileContent(
     fileContent: string,
     fileName: string,
     exportTimestamp: Date,
     election: Election
-  ): Promise<CastVoteRecordFiles> {
+  ): CastVoteRecordFiles {
     try {
       const signature = sha256(fileContent);
 

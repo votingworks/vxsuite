@@ -9,7 +9,7 @@ import {
 } from '../data';
 import { StartPage } from './start_page';
 
-it('renders StartPage', async () => {
+it('renders StartPage', () => {
   const electionDefinition = electionPrimarySampleDefinition;
   const { container } = render(<Route path="/" component={StartPage} />, {
     ballotStyleId: '12D',
@@ -24,7 +24,7 @@ it('renders StartPage', async () => {
   expect(container.firstChild).toMatchSnapshot();
 });
 
-it('renders StartPage with inline SVG', async () => {
+it('renders StartPage with inline SVG', () => {
   const electionDefinition = electionSampleWithSealDefinition;
   const { container } = render(<Route path="/" component={StartPage} />, {
     electionDefinition,
@@ -35,7 +35,7 @@ it('renders StartPage with inline SVG', async () => {
   expect(container.firstChild).toMatchSnapshot();
 });
 
-it('renders StartPage with no seal', async () => {
+it('renders StartPage with no seal', () => {
   const electionDefinition = electionSampleNoSealDefinition;
   const { container } = render(<Route path="/" component={StartPage} />, {
     electionDefinition,

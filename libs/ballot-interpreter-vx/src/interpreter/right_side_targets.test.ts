@@ -10,10 +10,10 @@ import {
 test('interprets ballots with right-side ballot target mark position', async () => {
   const interpreter = new Interpreter({ electionDefinition, testMode: true });
 
-  await interpreter.addTemplate(
+  interpreter.addTemplate(
     await interpreter.interpretTemplate(await blankPage1.imageData())
   );
-  await interpreter.addTemplate(
+  interpreter.addTemplate(
     await interpreter.interpretTemplate(await blankPage2.imageData())
   );
 

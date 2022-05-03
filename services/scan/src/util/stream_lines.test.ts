@@ -2,7 +2,7 @@ import EventEmitter from 'events';
 import { Readable } from 'stream';
 import { StreamLines } from './stream_lines';
 
-test('streams lines from an input stream', async () => {
+test('streams lines from an input stream', () => {
   const onLine = jest.fn();
   const read = jest.fn();
   const input = new EventEmitter() as Readable;

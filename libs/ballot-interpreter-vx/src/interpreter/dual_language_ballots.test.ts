@@ -7,7 +7,7 @@ test('dual language ballot', async () => {
   const { electionDefinition } = hamilton;
   const interpreter = new Interpreter({ electionDefinition });
 
-  await interpreter.addTemplate(
+  interpreter.addTemplate(
     await interpreter.interpretTemplate(
       await hamilton.blankPage1.imageData(),
       await hamilton.blankPage1.metadata()

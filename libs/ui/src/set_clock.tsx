@@ -92,7 +92,7 @@ export function PickDateTimeModal({
     },
     [newValue, setNewValue]
   );
-  async function saveDateAndZone() {
+  function saveDateAndZone() {
     onSave(newValue);
   }
 

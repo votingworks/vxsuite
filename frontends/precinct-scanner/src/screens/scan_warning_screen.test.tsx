@@ -7,7 +7,7 @@ import React from 'react';
 import { AppContext } from '../contexts/app_context';
 import { ScanWarningScreen } from './scan_warning_screen';
 
-test('overvote', async () => {
+test('overvote', () => {
   const acceptBallot = jest.fn();
   const contest = electionSampleDefinition.election.contests.find(
     (c): c is CandidateContest => c.type === 'candidate'
@@ -45,7 +45,7 @@ test('overvote', async () => {
   expect(acceptBallot).toHaveBeenCalledTimes(1);
 });
 
-test('blank ballot', async () => {
+test('blank ballot', () => {
   const acceptBallot = jest.fn();
 
   render(
@@ -71,7 +71,7 @@ test('blank ballot', async () => {
   expect(acceptBallot).toHaveBeenCalledTimes(1);
 });
 
-test('undervote no votes', async () => {
+test('undervote no votes', () => {
   const acceptBallot = jest.fn();
   const contest = electionSampleDefinition.election.contests.find(
     (c): c is CandidateContest => c.type === 'candidate'
@@ -110,7 +110,7 @@ test('undervote no votes', async () => {
   expect(acceptBallot).toHaveBeenCalledTimes(1);
 });
 
-test('undervote by 1', async () => {
+test('undervote by 1', () => {
   const acceptBallot = jest.fn();
   const contest = electionSampleDefinition.election.contests.find(
     (c): c is CandidateContest => c.type === 'candidate' && c.seats > 1
@@ -151,7 +151,7 @@ test('undervote by 1', async () => {
   expect(acceptBallot).toHaveBeenCalledTimes(1);
 });
 
-test('undervote by N', async () => {
+test('undervote by N', () => {
   const acceptBallot = jest.fn();
   const contest = electionSampleDefinition.election.contests.find(
     (c): c is CandidateContest => c.type === 'candidate' && c.seats > 1
@@ -193,7 +193,7 @@ test('undervote by N', async () => {
   expect(acceptBallot).toHaveBeenCalledTimes(1);
 });
 
-test('multiple undervotes', async () => {
+test('multiple undervotes', () => {
   const acceptBallot = jest.fn();
   const contests = electionSampleDefinition.election.contests.filter(
     (c): c is CandidateContest => c.type === 'candidate'
@@ -232,7 +232,7 @@ test('multiple undervotes', async () => {
   expect(acceptBallot).toHaveBeenCalledTimes(1);
 });
 
-test('unreadable', async () => {
+test('unreadable', () => {
   const acceptBallot = jest.fn();
 
   render(

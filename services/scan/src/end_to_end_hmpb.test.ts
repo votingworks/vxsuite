@@ -23,6 +23,7 @@ const electionFixturesRoot = join(
 
 jest.mock('./exec', () => ({
   __esModule: true,
+  // eslint-disable-next-line @typescript-eslint/require-await
   default: async (): Promise<{ stdout: string; stderr: string }> => ({
     stdout: '',
     stderr: '',

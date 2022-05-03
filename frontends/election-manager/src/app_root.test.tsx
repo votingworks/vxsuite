@@ -20,6 +20,7 @@ beforeEach(() => {
 });
 
 test('renders without crashing', async () => {
+  // eslint-disable-next-line @typescript-eslint/require-await
   await act(async () => {
     const storage = new MemoryStorage();
     render(

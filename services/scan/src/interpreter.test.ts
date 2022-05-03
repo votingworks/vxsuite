@@ -121,9 +121,7 @@ test('interprets marks on a HMPB', async () => {
     await readFile(stateOfHamiltonFixtures.ballotPdf),
     { scale: 2 }
   )) {
-    await interpreter.addHmpbTemplate(
-      await interpreter.interpretHmpbTemplate(page)
-    );
+    interpreter.addHmpbTemplate(await interpreter.interpretHmpbTemplate(page));
 
     if (pageNumber === 1) {
       break;
@@ -180,9 +178,7 @@ test('interprets marks on an upside-down HMPB', async () => {
     await readFile(stateOfHamiltonFixtures.ballotPdf),
     { scale: 2 }
   )) {
-    await interpreter.addHmpbTemplate(
-      await interpreter.interpretHmpbTemplate(page)
-    );
+    interpreter.addHmpbTemplate(await interpreter.interpretHmpbTemplate(page));
 
     if (pageNumber === 1) {
       break;
@@ -835,9 +831,7 @@ test('interprets marks in ballots', async () => {
     await readFile(choctaw2020Fixtures.ballotPdf),
     { scale: 2 }
   )) {
-    await interpreter.addHmpbTemplate(
-      await interpreter.interpretHmpbTemplate(page)
-    );
+    interpreter.addHmpbTemplate(await interpreter.interpretHmpbTemplate(page));
   }
 
   {
@@ -932,9 +926,7 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
     await readFile(stateOfHamiltonFixtures.ballotPdf),
     { scale: 2 }
   )) {
-    await interpreter.addHmpbTemplate(
-      await interpreter.interpretHmpbTemplate(page)
-    );
+    interpreter.addHmpbTemplate(await interpreter.interpretHmpbTemplate(page));
 
     if (pageNumber === 3) {
       break;
@@ -1053,7 +1045,7 @@ function withPageNumber(
   }
 }
 
-test('sheetRequiresAdjudication triggers if front or back requires adjudication', async () => {
+test('sheetRequiresAdjudication triggers if front or back requires adjudication', () => {
   const sideYes: InterpretedHmpbPage = {
     ...pageInterpretationBoilerplate,
     adjudicationInfo: {
@@ -1106,7 +1098,7 @@ test('sheetRequiresAdjudication triggers if front or back requires adjudication'
   ).toBe(false);
 });
 
-test('sheetRequiresAdjudication triggers for HMPB/blank page', async () => {
+test('sheetRequiresAdjudication triggers for HMPB/blank page', () => {
   const hmpbNoVotes: InterpretedHmpbPage = {
     ...pageInterpretationBoilerplate,
     adjudicationInfo: {
@@ -1157,7 +1149,7 @@ test('sheetRequiresAdjudication triggers for HMPB/blank page', async () => {
   expect(sheetRequiresAdjudication([blank, blank])).toBe(true);
 });
 
-test('sheetRequiresAdjudication is happy with a BMD ballot', async () => {
+test('sheetRequiresAdjudication is happy with a BMD ballot', () => {
   const bmd: InterpretedBmdPage = {
     type: 'InterpretedBmdPage',
     ballotId: unsafeParse(BallotIdSchema, '42'),

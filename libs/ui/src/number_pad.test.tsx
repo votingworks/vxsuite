@@ -85,7 +85,7 @@ function sendKey(key: string): void {
   });
 }
 
-test('keyboard interaction', async () => {
+test('keyboard interaction', () => {
   const onPress = jest.fn();
   const onBackspace = jest.fn();
   const onClear = jest.fn();
@@ -127,7 +127,7 @@ test('keyboard interaction', async () => {
   expect(onPress).toHaveBeenCalledTimes(10);
 });
 
-test('keyboard interaction when onEnter is defined', async () => {
+test('keyboard interaction when onEnter is defined', () => {
   const onPress = jest.fn();
   const onBackspace = jest.fn();
   const onClear = jest.fn();

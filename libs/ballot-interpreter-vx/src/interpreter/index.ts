@@ -117,9 +117,7 @@ export class Interpreter {
    * printed from it. The template is an object describing the layout of the
    * ballot.
    */
-  async addTemplate(
-    template: BallotPageLayoutWithImage
-  ): Promise<BallotPageLayoutWithImage> {
+  addTemplate(template: BallotPageLayoutWithImage): BallotPageLayoutWithImage {
     const effectiveMetadata = template.ballotPageLayout.metadata;
 
     if (effectiveMetadata.isTestMode !== this.testMode) {
@@ -242,18 +240,15 @@ export class Interpreter {
     }
 
     debug('using metadata: %O', normalized.metadata);
-    const marked = await this.findMarks(
-      normalized.imageData,
-      normalized.metadata
-    );
+    const marked = this.findMarks(normalized.imageData, normalized.metadata);
     const ballot = this.interpretMarks(marked, { markScoreVoteThreshold });
     return { ...marked, ballot };
   }
 
-  private async findMarks(
+  private findMarks(
     imageData: ImageData,
     metadata: BallotPageMetadata
-  ): Promise<FindMarksResult> {
+  ): FindMarksResult {
     debug(
       'looking for marks in %d×%d image',
       imageData.width,

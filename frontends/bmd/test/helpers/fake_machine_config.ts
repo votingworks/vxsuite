@@ -14,6 +14,7 @@ export function fakeMachineConfigProvider(
 ): Provider<MachineConfig> {
   const config = fakeMachineConfig(props);
   return {
+    // eslint-disable-next-line @typescript-eslint/require-await
     async get() {
       return config;
     },

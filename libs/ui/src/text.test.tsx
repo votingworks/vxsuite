@@ -5,7 +5,7 @@ import 'jest-styled-components';
 import { Text, TextWithLineBreaks } from './text';
 
 describe('renders Text', () => {
-  test('as paragraph tag', async () => {
+  test('as paragraph tag', () => {
     const text = 'paragraph';
     const { getByText } = render(<Text>{text}</Text>);
     const element = getByText(text);
@@ -13,7 +13,7 @@ describe('renders Text', () => {
     expect(element).toMatchSnapshot();
   });
 
-  test('center muted', async () => {
+  test('center muted', () => {
     const { container } = render(
       <Text center muted>
         center muted?
@@ -22,12 +22,12 @@ describe('renders Text', () => {
     expect(container.firstChild).toMatchSnapshot();
   });
 
-  test('displays error style', async () => {
+  test('displays error style', () => {
     const { container } = render(<Text error>Error Text?</Text>);
     expect(container.firstChild).toMatchSnapshot();
   });
 
-  test('narrow wordBreak warning', async () => {
+  test('narrow wordBreak warning', () => {
     const { container } = render(
       <Text narrow wordBreak warning>
         narrow wordBreak
@@ -36,17 +36,17 @@ describe('renders Text', () => {
     expect(container.firstChild).toMatchSnapshot();
   });
 
-  test('vote icon', async () => {
+  test('vote icon', () => {
     const { container } = render(<Text voteIcon>vote!</Text>);
     expect(container.firstChild).toMatchSnapshot();
   });
 
-  test('warning icon', async () => {
+  test('warning icon', () => {
     const { container } = render(<Text warningIcon>Warning</Text>);
     expect(container.firstChild).toMatchSnapshot();
   });
 
-  test('warning icon/vote icon toggle', async () => {
+  test('warning icon/vote icon toggle', () => {
     const toggle = true;
     let { container } = render(
       <Text warningIcon={toggle} voteIcon={!toggle}>
@@ -76,7 +76,7 @@ describe('renders Text', () => {
     });
   });
 
-  test('align left preLine normal italic', async () => {
+  test('align left preLine normal italic', () => {
     const { container } = render(
       <Text left preLine normal italic>
         align left preLine
@@ -85,7 +85,7 @@ describe('renders Text', () => {
     expect(container.firstChild).toMatchSnapshot();
   });
 
-  test('align right nowrap light', async () => {
+  test('align right nowrap light', () => {
     const { container } = render(
       <Text right noWrap light>
         align right nowrap
@@ -94,7 +94,7 @@ describe('renders Text', () => {
     expect(container.firstChild).toMatchSnapshot();
   });
 
-  test('small white bold', async () => {
+  test('small white bold', () => {
     const { container } = render(
       <Text small white bold>
         small white bold

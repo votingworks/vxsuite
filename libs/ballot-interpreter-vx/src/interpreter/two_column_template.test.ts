@@ -8,7 +8,7 @@ test('interpret two-column template', async () => {
   const interpreter = new Interpreter({ electionDefinition });
 
   {
-    const template = await interpreter.addTemplate(
+    const template = interpreter.addTemplate(
       await interpreter.interpretTemplate(
         await choctawMock2020.blankPage1.imageData(),
         // provide the metadata because the QR code uses raw binary, not base64
@@ -552,7 +552,7 @@ test('interpret two-column template', async () => {
   }
 
   {
-    const template = await interpreter.addTemplate(
+    const template = interpreter.addTemplate(
       await interpreter.interpretTemplate(
         await choctawMock2020.blankPage2.imageData(),
         await choctawMock2020.blankPage2.metadata()

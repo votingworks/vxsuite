@@ -223,11 +223,7 @@ export function BallotEjectScreen({
   }, [reviewInfo, logger, currentUserType]);
 
   const onAdjudicationComplete = useCallback(
-    async (
-      sheetId: string,
-      side: Side,
-      adjudications: MarkAdjudications
-    ): Promise<void> => {
+    (sheetId: string, side: Side, adjudications: MarkAdjudications): void => {
       if (side === 'front') {
         setFrontMarkAdjudications(adjudications);
       } else {

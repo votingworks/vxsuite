@@ -13,10 +13,10 @@ test('interpret empty ballot', async () => {
   ).rejects.toThrow(
     'Cannot scan ballot because not all required templates have been added'
   );
-  const p1 = await interpreter.addTemplate(
+  const p1 = interpreter.addTemplate(
     await interpreter.interpretTemplate(await fixtures.blankPage1.imageData())
   );
-  await interpreter.addTemplate(
+  interpreter.addTemplate(
     await interpreter.interpretTemplate(await fixtures.blankPage2.imageData())
   );
 

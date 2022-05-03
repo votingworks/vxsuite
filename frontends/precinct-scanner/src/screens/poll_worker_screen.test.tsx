@@ -63,6 +63,7 @@ test('shows system authentication code', async () => {
   });
   window.kiosk = mockKiosk;
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   await act(async () => {
     renderScreen({});
     jest.advanceTimersByTime(2000);
@@ -77,6 +78,7 @@ test('shows dashes when no totp', async () => {
   mockOf(mockKiosk.totp.get).mockResolvedValue(undefined);
   window.kiosk = mockKiosk;
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   await act(async () => {
     renderScreen({});
   });
@@ -89,6 +91,7 @@ describe('shows Export Results button only when polls are closed and more than 0
   const exportButtonText = 'Export Results to USB Drive';
 
   test('no ballots and polls closed should not show button', async () => {
+    // eslint-disable-next-line @typescript-eslint/require-await
     await act(async () => {
       renderScreen({
         scannedBallotCount: 0,
@@ -102,6 +105,7 @@ describe('shows Export Results button only when polls are closed and more than 0
   });
 
   test('no ballots and polls open should not show button', async () => {
+    // eslint-disable-next-line @typescript-eslint/require-await
     await act(async () => {
       renderScreen({
         scannedBallotCount: 0,
@@ -113,6 +117,7 @@ describe('shows Export Results button only when polls are closed and more than 0
   });
 
   test('five ballots and polls open should not show button', async () => {
+    // eslint-disable-next-line @typescript-eslint/require-await
     await act(async () => {
       renderScreen({
         scannedBallotCount: 5,
@@ -126,6 +131,7 @@ describe('shows Export Results button only when polls are closed and more than 0
   });
 
   test('five ballots and polls closed should show button', async () => {
+    // eslint-disable-next-line @typescript-eslint/require-await
     await act(async () => {
       renderScreen({
         scannedBallotCount: 5,

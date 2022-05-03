@@ -54,12 +54,12 @@ test('rejects an incorrect-but-plausible contest layout', async () => {
     testMode: true,
   });
 
-  await interpreter.addTemplate(
+  interpreter.addTemplate(
     await interpreter.interpretTemplate(
       await fixtures.district5BlankPage1.imageData()
     )
   );
-  const p2 = await interpreter.addTemplate(
+  const p2 = interpreter.addTemplate(
     await interpreter.interpretTemplate(
       await fixtures.district5BlankPage2.imageData()
     )
