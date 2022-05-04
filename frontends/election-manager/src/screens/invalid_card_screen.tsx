@@ -1,18 +1,18 @@
 import {
   fontSizeTheme,
+  ElectionInfoBar,
   Main,
   MainChild,
   Prose,
-  ElectionInfoBar,
+  Screen,
 } from '@votingworks/ui';
 import React, { useContext } from 'react';
-import { Screen } from '../components/screen';
 import { AppContext } from '../contexts/app_context';
 
 export function InvalidCardScreen(): JSX.Element {
   const { electionDefinition, machineConfig } = useContext(AppContext);
   return (
-    <Screen>
+    <Screen flexDirection="column">
       <Main>
         <MainChild center>
           <Prose textCenter theme={fontSizeTheme.medium} maxWidth={false}>

@@ -2,18 +2,18 @@ import React, { useContext } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 
 import {
-  ElectionInfoBar,
   fontSizeTheme,
+  ElectionInfoBar,
   Main,
   MainChild,
   Prose,
   RebootFromUsbButton,
+  Screen,
   SetupCardReaderPage,
 } from '@votingworks/ui';
 import { AppContext } from '../contexts/app_context';
 
 import { routerPaths } from '../router_paths';
-import { Screen } from './screen';
 import { DefinitionScreen } from '../screens/definition_screen';
 import { BallotListScreen } from '../screens/ballot_list_screen';
 import { BallotScreen } from '../screens/ballot_screen';
@@ -74,7 +74,7 @@ export function ElectionManager(): JSX.Element {
 
   if (currentUserSession.type === 'superadmin') {
     return (
-      <Screen>
+      <Screen flexDirection="column">
         <Main>
           <MainChild center>
             <Prose textCenter maxWidth={false} theme={fontSizeTheme.large}>
