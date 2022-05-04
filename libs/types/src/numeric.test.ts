@@ -74,13 +74,13 @@ test('safeParseInt', () => {
     expect.objectContaining({ code: 'invalid_type' }),
   ]);
 
-  expect(safeParseInt(Infinity).unsafeUnwrapErr().issues).toEqual([
-    expect.objectContaining({ message: 'Expected integer, received float' }),
-  ]);
+  expect(safeParseInt(Infinity).unsafeUnwrapErr().issues).toContainEqual(
+    expect.objectContaining({ message: 'Infinity is not allowed' })
+  );
 
-  expect(safeParseInt(-Infinity).unsafeUnwrapErr().issues).toEqual([
-    expect.objectContaining({ message: 'Expected integer, received float' }),
-  ]);
+  expect(safeParseInt(-Infinity).unsafeUnwrapErr().issues).toContainEqual(
+    expect.objectContaining({ message: 'Infinity is not allowed' })
+  );
 
   fc.assert(
     fc.property(

@@ -89,7 +89,7 @@ importers:
       react-scripts: 4.0.1_typescript@4.6.3
       styled-components: 5.2.1_react-dom@17.0.1+react@17.0.1
       typescript: 4.6.3
-      zod: 3.2.0
+      zod: 3.14.4
     devDependencies:
       '@testing-library/jest-dom': 5.16.4
       '@types/history': 4.7.8
@@ -169,7 +169,7 @@ importers:
       stylelint-config-styled-components: ^0.1.1
       stylelint-processor-styled-components: ^1.10.0
       typescript: 4.6.3
-      zod: 3.2.0
+      zod: 3.14.4
   frontends/bas/prodserver:
     dependencies:
       express: 4.17.1
@@ -218,7 +218,7 @@ importers:
       styled-components: 4.4.1_react-dom@17.0.1+react@17.0.1
       typescript: 4.6.3
       use-interval: 1.3.0_react@17.0.1
-      zod: 3.2.0
+      zod: 3.14.4
     devDependencies:
       '@codemod/parser': 1.1.0
       '@testing-library/cypress': 8.0.2_cypress@9.5.4
@@ -352,7 +352,7 @@ importers:
       stylelint-processor-styled-components: ^1.10.0
       typescript: 4.6.3
       use-interval: ^1.2.1
-      zod: 3.2.0
+      zod: 3.14.4
   frontends/bmd/prodserver:
     dependencies:
       express: 4.17.1
@@ -390,7 +390,7 @@ importers:
       ts-jest: 26.5.5_jest@27.5.1+typescript@4.6.3
       typescript: 4.6.3
       use-interval: 1.3.0_react@17.0.1
-      zod: 3.2.0
+      zod: 3.14.4
     devDependencies:
       '@testing-library/jest-dom': 5.16.4
       '@testing-library/react': 11.2.3_react-dom@17.0.1+react@17.0.1
@@ -511,7 +511,7 @@ importers:
       typescript: 4.6.3
       use-interval: ^1.2.1
       zip-stream: ^3.0.1
-      zod: 3.2.0
+      zod: 3.14.4
   frontends/bsd/prodserver:
     dependencies:
       express: 4.17.1
@@ -574,7 +574,7 @@ importers:
       typescript: 4.6.3
       use-interval: 1.3.0_react@17.0.1
       zip-stream: 3.0.1
-      zod: 3.2.0
+      zod: 3.14.4
     devDependencies:
       '@codemod/parser': 1.1.0
       '@testing-library/jest-dom': 5.16.4
@@ -712,7 +712,7 @@ importers:
       typescript: 4.6.3
       use-interval: ^1.2.1
       zip-stream: ^3.0.1
-      zod: 3.2.0
+      zod: 3.14.4
   frontends/election-manager/prodserver:
     dependencies:
       express: 4.17.1
@@ -763,7 +763,7 @@ importers:
       typescript: 4.6.3
       use-interval: 1.3.0_react@17.0.1
       web-vitals: 1.1.1
-      zod: 3.2.0
+      zod: 3.14.4
     devDependencies:
       '@codemod/parser': 1.1.0
       '@testing-library/react-hooks': 7.0.2_react-dom@17.0.1+react@17.0.1
@@ -879,7 +879,7 @@ importers:
       typescript: 4.6.3
       use-interval: ^1.3.0
       web-vitals: ^1.0.1
-      zod: 3.2.0
+      zod: 3.14.4
   frontends/precinct-scanner/prodserver:
     dependencies:
       express: 4.17.1
@@ -1018,7 +1018,7 @@ importers:
       '@votingworks/types': link:../types
       '@votingworks/utils': link:../utils
       js-sha256: 0.9.0
-      zod: 3.2.0
+      zod: 3.14.4
     devDependencies:
       '@types/jest': 27.0.3
       '@types/node': 16.11.29
@@ -1071,7 +1071,7 @@ importers:
       sort-package-json: ^1.50.0
       ts-jest: ^27.0.7
       typescript: 4.6.3
-      zod: 3.2.0
+      zod: 3.14.4
   libs/ballot-interpreter-nh:
     dependencies:
       '@votingworks/types': link:../types
@@ -1083,7 +1083,7 @@ importers:
       js-sha256: 0.9.0
       luxon: 2.3.1
       tmp: 0.2.1
-      zod: 3.2.0
+      zod: 3.14.4
     devDependencies:
       '@jest/types': 27.5.1
       '@types/debug': 4.1.7
@@ -1143,7 +1143,7 @@ importers:
       tmp: ^0.2.1
       ts-jest: ^27.1.3
       typescript: 4.6.3
-      zod: 3.2.0
+      zod: 3.14.4
   libs/ballot-interpreter-vx:
     dependencies:
       '@votingworks/ballot-encoder': link:../ballot-encoder
@@ -1309,7 +1309,7 @@ importers:
   libs/cdf-types-cast-vote-records:
     dependencies:
       '@votingworks/types': link:../types
-      zod: 3.2.0
+      zod: 3.14.4
     devDependencies:
       '@types/jest': 27.0.3
       '@types/node': 16.11.29
@@ -1361,11 +1361,11 @@ importers:
       sort-package-json: ^1.50.0
       ts-jest: ^27.0.7
       typescript: 4.6.3
-      zod: 3.2.0
+      zod: 3.14.4
   libs/cdf-types-election-event-logging:
     dependencies:
       '@votingworks/types': link:../types
-      zod: 3.2.0
+      zod: 3.14.4
     devDependencies:
       '@types/jest': 27.0.3
       '@types/node': 16.11.29
@@ -1417,7 +1417,7 @@ importers:
       sort-package-json: ^1.50.0
       ts-jest: ^27.0.7
       typescript: 4.6.3
-      zod: 3.2.0
+      zod: 3.14.4
   libs/eslint-plugin-vx:
     dependencies:
       '@types/eslint': 8.4.1
@@ -1549,7 +1549,7 @@ importers:
       '@votingworks/utils': link:../utils
       debug: 4.3.2
       yargs: 16.2.0
-      zod: 3.2.0
+      zod: 3.14.4
     devDependencies:
       '@types/debug': 4.1.7
       '@types/fs-extra': 9.0.13
@@ -1617,7 +1617,7 @@ importers:
       ts-jest: ^27.0.7
       typescript: 4.6.3
       yargs: ^16.2.0
-      zod: 3.2.0
+      zod: 3.14.4
   libs/lsd:
     dependencies:
       bindings: 1.5.0
@@ -1680,7 +1680,7 @@ importers:
       '@votingworks/utils': link:../utils
       debug: 4.3.1
       temp: 0.9.4
-      zod: 3.2.0
+      zod: 3.14.4
     devDependencies:
       '@types/debug': 4.1.5
       '@types/jest': 27.0.3
@@ -1737,7 +1737,7 @@ importers:
       temp: ^0.9.4
       ts-jest: ^27.0.7
       typescript: 4.6.3
-      zod: 3.2.0
+      zod: 3.14.4
   libs/res-to-ts:
     dependencies:
       '@votingworks/types': link:../types
@@ -1866,7 +1866,7 @@ importers:
     dependencies:
       '@antongolub/iso8601': 1.2.1
       js-sha256: 0.9.0
-      zod: 3.2.0
+      zod: 3.14.4
     devDependencies:
       '@types/jest': 27.0.3
       '@types/node': 16.11.29
@@ -1915,7 +1915,7 @@ importers:
       sort-package-json: ^1.50.0
       ts-jest: ^27.0.7
       typescript: 4.6.3
-      zod: 3.2.0
+      zod: 3.14.4
   libs/ui:
     dependencies:
       '@types/react-modal': 3.13.1
@@ -1936,7 +1936,7 @@ importers:
       rxjs: 6.6.6
       styled-components: 5.2.3_react-dom@17.0.1+react@17.0.1
       use-interval: 1.4.0_react@17.0.1
-      zod: 3.2.0
+      zod: 3.14.4
     devDependencies:
       '@codemod/parser': 1.1.0
       '@testing-library/jest-dom': 5.16.4
@@ -2059,7 +2059,7 @@ importers:
       ts-jest: ^27.0.7
       typescript: 4.6.3
       use-interval: ^1.4.0
-      zod: 3.2.0
+      zod: 3.14.4
   libs/utils:
     dependencies:
       '@types/node': 16.11.29
@@ -2074,7 +2074,7 @@ importers:
       moment: 2.29.1
       randombytes: 2.1.0
       rxjs: 6.6.6
-      zod: 3.2.0
+      zod: 3.14.4
     devDependencies:
       '@types/debug': 4.1.7
       '@types/fast-text-encoding': 1.0.1
@@ -2141,7 +2141,7 @@ importers:
       sort-package-json: ^1.50.0
       ts-jest: ^27.0.7
       typescript: 4.6.3
-      zod: 3.2.0
+      zod: 3.14.4
   script:
     dependencies:
       resolve-from: 5.0.0
@@ -2190,7 +2190,7 @@ importers:
       tmp: 0.2.1
       uuid: 8.3.2
       zip-stream: 4.1.0
-      zod: 3.2.0
+      zod: 3.14.4
     devDependencies:
       '@types/base64-js': 1.3.0
       '@types/better-sqlite3': 7.4.3
@@ -2301,7 +2301,7 @@ importers:
       typescript: 4.6.3
       uuid: ^8.3.2
       zip-stream: ^4.1.0
-      zod: ^3.2.0
+      zod: 3.14.4
 lockfileVersion: 5.2
 packages:
   /@ampproject/remapping/2.2.0:
@@ -11966,7 +11966,7 @@ packages:
       integrity: sha512-/lqqLAmuIPi79WYfRpy2i8z+x+vxU3zX2uAm0gs1q52qTuKwolOj1P8XbufpXcsydrpKx2yGn2wzAnxCMV86QA==
   /axios/0.21.1_debug@4.3.1:
     dependencies:
-      follow-redirects: 1.14.1_debug@4.3.1
+      follow-redirects: 1.14.1_debug@4.3.2
     dev: true
     peerDependencies:
       debug: '*'
@@ -17546,7 +17546,7 @@ packages:
       '@typescript-eslint/eslint-plugin': 5.21.0_94a944f85573090af1491a822dcbe40b
       '@typescript-eslint/utils': 5.22.0_eslint@7.19.0+typescript@4.6.3
       eslint: 7.19.0
-      jest: 27.3.1_canvas@2.9.1
+      jest: 27.3.1
     dev: true
     engines:
       node: ^12.22.0 || ^14.17.0 || >=16.0.0
@@ -17775,7 +17775,7 @@ packages:
       '@typescript-eslint/eslint-plugin': 5.21.0_bb9518338a760ece3e1b033a5f6af62e
       '@typescript-eslint/utils': 5.22.0_eslint@7.32.0+typescript@4.6.3
       eslint: 7.32.0
-      jest: 27.5.1
+      jest: 27.5.1_canvas@2.9.1
     dev: true
     engines:
       node: ^12.22.0 || ^14.17.0 || >=16.0.0
@@ -19717,6 +19717,7 @@ packages:
   /follow-redirects/1.14.1_debug@4.3.1:
     dependencies:
       debug: 4.3.1
+    dev: false
     engines:
       node: '>=4.0'
     peerDependencies:
@@ -19728,8 +19729,7 @@ packages:
       integrity: sha512-HWqDgT7ZEkqRzBvc2s64vSZ/hfOceEol3ac/7tKwzuvEyWx3/4UegXh5oBOIotkGsObyk3xznnSRVADBgWSQVg==
   /follow-redirects/1.14.1_debug@4.3.2:
     dependencies:
-      debug: 4.3.2_supports-color@6.1.0
-    dev: false
+      debug: 4.3.2
     engines:
       node: '>=4.0'
     peerDependencies:
@@ -24024,7 +24024,7 @@ packages:
     dependencies:
       ansi-escapes: 4.3.1
       chalk: 4.1.0
-      jest: 26.6.0
+      jest: 26.6.0_canvas@2.9.1
       jest-regex-util: 26.0.0
       jest-watcher: 26.6.2
       slash: 3.0.0
@@ -24126,7 +24126,7 @@ packages:
     dependencies:
       ansi-escapes: 4.3.2
       chalk: 4.1.2
-      jest: 27.5.1
+      jest: 27.5.1_canvas@2.9.1
       jest-regex-util: 27.5.1
       jest-watcher: 27.5.1
       slash: 3.0.0
@@ -32898,10 +32898,10 @@ packages:
       node: '>= 10'
     resolution:
       integrity: sha512-zshzwQW7gG7hjpBlgeQP9RuyPGNxvJdzR8SUM3QhxCnLjWN2E7j3dOvpeDcQoETfHx0urRS7EtmVToql7YpU4A==
-  /zod/3.2.0:
+  /zod/3.14.4:
     dev: false
     resolution:
-      integrity: sha512-yvcO3FZ8URR+LliMGqaW7tlVOOTzmup3vzKEe9Ds7twyJtdhvYa7dIYr0FbD1wVfWC1OuS83vZfHtCKslPuRhA==
+      integrity: sha512-U9BFLb2GO34Sfo9IUYp0w3wJLlmcyGoMd75qU9yf+DrdGA4kEx6e+l9KOkAlyUO0PSQzZCa3TR4qVlcmwqSDuw==
   /zwitch/1.0.5:
     dev: true
     resolution:
