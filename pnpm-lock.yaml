@@ -215,6 +215,7 @@ importers:
       react-router-dom: 5.2.0_react@17.0.1
       react-scripts: 4.0.1_typescript@4.6.3
       rxjs: 6.6.6
+      setimmediate: 1.0.5
       styled-components: 4.4.1_react-dom@17.0.1+react@17.0.1
       typescript: 4.6.3
       use-interval: 1.3.0_react@17.0.1
@@ -230,6 +231,7 @@ importers:
       '@types/kiosk-browser': link:../../libs/@types/kiosk-browser
       '@types/luxon': 1.26.2
       '@types/react-gamepad': 1.0.0
+      '@types/setimmediate': 1.0.2
       '@types/testing-library__jest-dom': 5.14.3
       '@typescript-eslint/eslint-plugin': 5.21.0_4059d5ee7aba256d5e330151ee3418c0
       '@typescript-eslint/parser': 5.21.0_eslint@7.17.0+typescript@4.6.3
@@ -286,6 +288,7 @@ importers:
       '@types/react-dom': ^17.0.0
       '@types/react-gamepad': ^1.0.0
       '@types/react-router-dom': ^5.1.5
+      '@types/setimmediate': ^1.0.2
       '@types/styled-components': ^5.1.7
       '@types/testing-library__jest-dom': ^5.14.3
       '@typescript-eslint/eslint-plugin': ^5.21.0
@@ -342,6 +345,7 @@ importers:
       react-router-dom: ^5.2.0
       react-scripts: 4.0.1
       rxjs: ^6.6.6
+      setimmediate: ^1.0.5
       sort-package-json: ^1.50.0
       start-server-and-test: ^1.11.0
       styled-components: ^4.4.1
@@ -386,6 +390,7 @@ importers:
       react-router-dom: 5.2.0_react@17.0.1
       react-scripts: 4.0.1_7fefadec3d355f5f7830c5850dacc724
       rxjs: 6.6.6
+      setimmediate: 1.0.5
       styled-components: 5.2.1_react-dom@17.0.1+react@17.0.1
       ts-jest: 26.5.5_jest@27.5.1+typescript@4.6.3
       typescript: 4.6.3
@@ -401,6 +406,7 @@ importers:
       '@types/kiosk-browser': link:../../libs/@types/kiosk-browser
       '@types/pify': 3.0.2
       '@types/react-router-dom': 5.1.7
+      '@types/setimmediate': 1.0.2
       '@types/testing-library__jest-dom': 5.14.3
       '@types/zip-stream': link:../../libs/@types/zip-stream
       '@typescript-eslint/eslint-plugin': 5.21.0_4059d5ee7aba256d5e330151ee3418c0
@@ -452,6 +458,7 @@ importers:
       '@types/react': ^17.0.0
       '@types/react-dom': ^17.0.0
       '@types/react-router-dom': ^5.1.5
+      '@types/setimmediate': ^1.0.2
       '@types/styled-components': ^5.1.7
       '@types/testing-library__jest-dom': ^5.14.3
       '@types/zip-stream': workspace:*
@@ -499,6 +506,7 @@ importers:
       react-router-dom: ^5.2.0
       react-scripts: 4.0.1
       rxjs: ^6.6.6
+      setimmediate: ^1.0.5
       sort-package-json: ^1.50.0
       styled-components: ^5.2.1
       stylelint: ^13.4.0
@@ -759,6 +767,7 @@ importers:
       react-router-dom: 5.2.0_react@17.0.1
       react-scripts: 4.0.1_typescript@4.6.3
       rxjs: 6.6.6
+      setimmediate: 1.0.5
       styled-components: 5.2.3_react-dom@17.0.1+react@17.0.1
       typescript: 4.6.3
       use-interval: 1.3.0_react@17.0.1
@@ -771,6 +780,7 @@ importers:
       '@types/debug': 4.1.5
       '@types/kiosk-browser': link:../../libs/@types/kiosk-browser
       '@types/pluralize': 0.0.29
+      '@types/setimmediate': 1.0.2
       '@types/testing-library__jest-dom': 5.14.3
       '@typescript-eslint/eslint-plugin': 5.21.0_862063063b41111bfe9123e9a3f05250
       '@typescript-eslint/parser': 5.21.0_eslint@7.25.0+typescript@4.6.3
@@ -818,6 +828,7 @@ importers:
       '@types/react': ^17.0.0
       '@types/react-dom': ^17.0.0
       '@types/react-router-dom': ^5.1.5
+      '@types/setimmediate': ^1.0.2
       '@types/styled-components': ^5.1.9
       '@types/testing-library__jest-dom': ^5.14.3
       '@typescript-eslint/eslint-plugin': ^5.21.0
@@ -868,6 +879,7 @@ importers:
       react-router-dom: ^5.2.0
       react-scripts: 4.0.1
       rxjs: ^6.6.6
+      setimmediate: ^1.0.5
       sort-package-json: ^1.50.0
       styled-components: ^5.2.3
       stylelint: ^13.1.0
@@ -9193,6 +9205,10 @@ packages:
     dev: true
     resolution:
       integrity: sha512-nCkHGI4w7ZgAdNkrEu0bv+4xNV/XDqW+DydknebMOQwkpDGx8G+HTlj7R7ABI8i8nKxVw0wtKPi1D+lPOkh4YQ==
+  /@types/setimmediate/1.0.2:
+    dev: true
+    resolution:
+      integrity: sha512-JHonWbepiR1pwiYVz2rOK4mWrhlUcrJQaOSaq4VYlfuhLrPlY1EayGjt0tXemCr8eBdVzvLeYejRCb/0Z/XuiQ==
   /@types/sinonjs__fake-timers/8.1.1:
     dev: true
     resolution:
@@ -17692,7 +17708,7 @@ packages:
       '@typescript-eslint/eslint-plugin': 5.21.0_4059d5ee7aba256d5e330151ee3418c0
       '@typescript-eslint/utils': 5.22.0_eslint@7.17.0+typescript@4.6.3
       eslint: 7.17.0
-      jest: 27.5.1_canvas@2.9.1
+      jest: 27.5.1
     dev: true
     engines:
       node: ^12.22.0 || ^14.17.0 || >=16.0.0
@@ -19729,7 +19745,7 @@ packages:
       integrity: sha512-HWqDgT7ZEkqRzBvc2s64vSZ/hfOceEol3ac/7tKwzuvEyWx3/4UegXh5oBOIotkGsObyk3xznnSRVADBgWSQVg==
   /follow-redirects/1.14.1_debug@4.3.2:
     dependencies:
-      debug: 4.3.2
+      debug: 4.3.2_supports-color@6.1.0
     engines:
       node: '>=4.0'
     peerDependencies:
@@ -24024,7 +24040,7 @@ packages:
     dependencies:
       ansi-escapes: 4.3.1
       chalk: 4.1.0
-      jest: 26.6.0_canvas@2.9.1
+      jest: 26.6.0
       jest-regex-util: 26.0.0
       jest-watcher: 26.6.2
       slash: 3.0.0
