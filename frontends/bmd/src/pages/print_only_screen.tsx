@@ -8,10 +8,15 @@ import {
   PrecinctId,
   VotesDict,
 } from '@votingworks/types';
-import { BmdPaperBallot, Loading, Main, MainChild } from '@votingworks/ui';
+import {
+  BmdPaperBallot,
+  Loading,
+  Main,
+  MainChild,
+  Screen,
+} from '@votingworks/ui';
 
 import { Prose } from '../components/prose';
-import { Screen } from '../components/screen';
 import { MarkVoterCardFunction, Printer } from '../config/types';
 
 import { Text } from '../components/text';

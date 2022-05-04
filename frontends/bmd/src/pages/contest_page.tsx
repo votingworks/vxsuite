@@ -2,7 +2,7 @@ import { assert } from '@votingworks/utils';
 import React, { useContext, useEffect, useState } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 import { CandidateVote, OptionalYesNoVote } from '@votingworks/types';
-import { LinkButton } from '@votingworks/ui';
+import { LinkButton, Screen } from '@votingworks/ui';
 
 import { ordinal } from '../utils/ordinal';
 
@@ -11,7 +11,6 @@ import { BallotContext } from '../contexts/ballot_context';
 import { CandidateContest } from '../components/candidate_contest';
 import { ElectionInfo } from '../components/election_info';
 import { Prose } from '../components/prose';
-import { Screen } from '../components/screen';
 import { Sidebar } from '../components/sidebar';
 import { Text } from '../components/text';
 import { YesNoContest } from '../components/yes_no_contest';

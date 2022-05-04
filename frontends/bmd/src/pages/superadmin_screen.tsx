@@ -1,10 +1,9 @@
 import React, { useEffect } from 'react';
 
-import { Main, MainChild, RebootFromUsbButton } from '@votingworks/ui';
+import { Main, MainChild, RebootFromUsbButton, Screen } from '@votingworks/ui';
 
 import { usbstick } from '@votingworks/utils';
 import { Logger } from '@votingworks/logging';
-import { Screen } from '../components/screen';
 
 interface Props {
   usbDriveStatus: usbstick.UsbDriveStatus;

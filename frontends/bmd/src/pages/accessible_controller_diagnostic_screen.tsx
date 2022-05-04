@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Main, MainChild, Prose, Text } from '@votingworks/ui';
+import { Button, Main, MainChild, Prose, Screen, Text } from '@votingworks/ui';
 import { DateTime } from 'luxon';
 import styled from 'styled-components';
-import { Screen } from '../components/screen';
 import { ScreenReader } from '../config/types';
 
 type ButtonName = 'Up' | 'Down' | 'Left' | 'Right' | 'Select';

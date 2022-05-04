@@ -7,10 +7,10 @@ import {
   Main,
   MainChild,
   ProgressEllipsis,
+  Screen,
 } from '@votingworks/ui';
 
 import { Prose } from '../components/prose';
-import { Screen } from '../components/screen';
 import { BALLOT_PRINTING_TIMEOUT_SECONDS } from '../config/globals';
 import { BallotContext } from '../contexts/ballot_context';
 

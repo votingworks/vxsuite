@@ -1,9 +1,8 @@
 import React from 'react';
 
-import { Main, MainChild } from '@votingworks/ui';
+import { Main, MainChild, Screen } from '@votingworks/ui';
 
 import { Prose } from '../components/prose';
-import { Screen } from '../components/screen';
 
 export function UnconfiguredScreen(): JSX.Element {
   return (
