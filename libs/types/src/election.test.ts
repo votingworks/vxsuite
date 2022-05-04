@@ -18,6 +18,7 @@ import {
   getContestsFromIds,
   getEitherNeitherContests,
   getElectionLocales,
+  getPartyAbbrevationByPartyId,
   getPartyFullNameFromBallotStyle,
   getPartyPrimaryAdjectiveFromBallotStyle,
   getPrecinctById,
@@ -150,6 +151,15 @@ test('can get a party primary adjective from ballot style', () => {
       election: primaryElection,
     })
   ).toEqual('Democratic');
+});
+
+test('can get a party abbreviation by party ID', () => {
+  expect(
+    getPartyAbbrevationByPartyId({
+      partyId: primaryElection.parties[0].id,
+      election: primaryElection,
+    })
+  ).toEqual('D');
 });
 
 test('can get a party full name from ballot style', () => {

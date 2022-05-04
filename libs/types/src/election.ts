@@ -1499,6 +1499,21 @@ export function getPartyFullNameFromBallotStyle({
   return party?.fullName ?? '';
 }
 
+/**
+ * Gets the abbreviation of the political party for a primary election,
+ * e.g. "R" or "D".
+ */
+export function getPartyAbbrevationByPartyId({
+  partyId,
+  election,
+}: {
+  partyId: PartyId;
+  election: Election;
+}): string {
+  const party = election?.parties.find((p) => p.id === partyId);
+  return party?.abbrev ?? '';
+}
+
 export function getDistrictIdsForPartyId(
   election: Election,
   partyId: PartyId
