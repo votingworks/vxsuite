@@ -1,6 +1,8 @@
 import {
-  fontSizeTheme,
   ElectionInfoBar,
+  fontSizeTheme,
+  Main,
+  MainChild,
   NumberPad,
   Prose,
   Screen,
@@ -8,7 +10,6 @@ import {
 } from '@votingworks/ui';
 import React, { useState, useEffect, useCallback, useContext } from 'react';
 import styled from 'styled-components';
-import { Main, MainChild } from '../components/main';
 import { AppContext } from '../contexts/app_context';
 import * as GLOBALS from '../config/globals';
 
@@ -74,7 +75,7 @@ export function UnlockMachineScreen({
   }
   return (
     <Screen flexDirection="column">
-      <Main>
+      <Main padded>
         <MainChild center>
           <Prose textCenter theme={fontSizeTheme.medium} maxWidth={false}>
             {primarySentence}

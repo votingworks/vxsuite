@@ -16,7 +16,13 @@ import {
   WriteInMarkAdjudication,
 } from '@votingworks/types';
 import { Side } from '@votingworks/types/api/services/scan';
-import { Text, useAutocomplete, useStoredState, Screen } from '@votingworks/ui';
+import {
+  Main,
+  Screen,
+  Text,
+  useAutocomplete,
+  useStoredState,
+} from '@votingworks/ui';
 import { assert, find } from '@votingworks/utils';
 import React, {
   useCallback,
@@ -31,7 +37,7 @@ import { z } from 'zod';
 import { BallotSheetImage } from '../components/ballot_sheet_image';
 import { Button } from '../components/button';
 import { CroppedImage } from '../components/cropped_image';
-import { Main } from '../components/main';
+
 import { MainNav } from '../components/main_nav';
 import { Prose } from '../components/prose';
 import { AppContext } from '../contexts/app_context';
@@ -563,7 +569,7 @@ export function WriteInAdjudicationScreen({
   return (
     <Screen flexDirection="column">
       <MainNav />
-      <Main>
+      <Main padded>
         <MainChildColumns>
           <Prose maxWidth={false}>
             <Header>Write-In Adjudication</Header>

@@ -6,16 +6,16 @@ exports[`calls out live ballot sheets in test mode 1`] = `
     class="sc-jObXwK cZXyJz"
   >
     <div
-      class="sc-gKsewC eUhhMQ"
+      class="sc-eCssSg gWLryE"
     >
       <div
-        class="sc-iBPRYJ hPAooK"
+        class="sc-jSgupP bEFiIf"
       >
         <div
-          class="sc-fubCfw hAIFcM"
+          class="sc-gKsewC iTtjkB"
         >
           <div
-            class="sc-pFZIQ Korzq"
+            class="sc-iBPRYJ inGyxo"
           >
             Voting
             <span>
@@ -23,13 +23,13 @@ exports[`calls out live ballot sheets in test mode 1`] = `
             </span>
           </div>
           <div
-            class="sc-jrAGrp"
+            class="sc-fubCfw"
           >
             VxCentralScan
           </div>
         </div>
         <div
-          class="sc-kEjbxe eDKgHQ"
+          class="sc-pFZIQ fNwxur"
         >
           <button
             class="sc-gsTCUz bQMNvi"
@@ -41,16 +41,16 @@ exports[`calls out live ballot sheets in test mode 1`] = `
       </div>
     </div>
     <main
-      class="sc-eCssSg ersehD"
+      class="sc-cxpRKc iyrZoO"
     >
       <div
-        class="sc-idOhPF dHjnvD"
+        class="sc-fFubgz fIzzcV"
       >
         <div
-          class="sc-crrsfI dvOODA"
+          class="sc-kEjbxe kKkrsc"
         >
           <div
-            class="sc-bkzZxe eymsMV"
+            class="sc-fodVxV TcooU"
           >
             Live Ballot
           </div>
@@ -66,7 +66,7 @@ exports[`calls out live ballot sheets in test mode 1`] = `
           </p>
         </div>
         <div
-          class="sc-dIUggk dEZjzg"
+          class="sc-bkzZxe gCWRJH"
         >
           <div
             style="position: relative;"
@@ -170,16 +170,16 @@ exports[`calls out test ballot sheets in live mode 1`] = `
     class="sc-jObXwK cZXyJz"
   >
     <div
-      class="sc-gKsewC eUhhMQ"
+      class="sc-eCssSg gWLryE"
     >
       <div
-        class="sc-iBPRYJ hPAooK"
+        class="sc-jSgupP bEFiIf"
       >
         <div
-          class="sc-fubCfw hAIFcM"
+          class="sc-gKsewC iTtjkB"
         >
           <div
-            class="sc-pFZIQ Korzq"
+            class="sc-iBPRYJ inGyxo"
           >
             Voting
             <span>
@@ -187,13 +187,13 @@ exports[`calls out test ballot sheets in live mode 1`] = `
             </span>
           </div>
           <div
-            class="sc-jrAGrp"
+            class="sc-fubCfw"
           >
             VxCentralScan
           </div>
         </div>
         <div
-          class="sc-kEjbxe eDKgHQ"
+          class="sc-pFZIQ fNwxur"
         >
           <button
             class="sc-gsTCUz bQMNvi"
@@ -205,16 +205,16 @@ exports[`calls out test ballot sheets in live mode 1`] = `
       </div>
     </div>
     <main
-      class="sc-eCssSg ersehD"
+      class="sc-cxpRKc iyrZoO"
     >
       <div
-        class="sc-idOhPF dHjnvD"
+        class="sc-fFubgz fIzzcV"
       >
         <div
-          class="sc-crrsfI dvOODA"
+          class="sc-kEjbxe kKkrsc"
         >
           <div
-            class="sc-bkzZxe eymsMV"
+            class="sc-fodVxV TcooU"
           >
             Test Ballot
           </div>
@@ -230,7 +230,7 @@ exports[`calls out test ballot sheets in live mode 1`] = `
           </p>
         </div>
         <div
-          class="sc-dIUggk dEZjzg"
+          class="sc-bkzZxe gCWRJH"
         >
           <div
             style="position: relative;"
@@ -334,16 +334,16 @@ exports[`says the ballot sheet is blank if it is 1`] = `
     class="sc-jObXwK cZXyJz"
   >
     <div
-      class="sc-gKsewC eUhhMQ"
+      class="sc-eCssSg gWLryE"
     >
       <div
-        class="sc-iBPRYJ hPAooK"
+        class="sc-jSgupP bEFiIf"
       >
         <div
-          class="sc-fubCfw hAIFcM"
+          class="sc-gKsewC iTtjkB"
         >
           <div
-            class="sc-pFZIQ Korzq"
+            class="sc-iBPRYJ inGyxo"
           >
             Voting
             <span>
@@ -351,13 +351,13 @@ exports[`says the ballot sheet is blank if it is 1`] = `
             </span>
           </div>
           <div
-            class="sc-jrAGrp"
+            class="sc-fubCfw"
           >
             VxCentralScan
           </div>
         </div>
         <div
-          class="sc-kEjbxe eDKgHQ"
+          class="sc-pFZIQ fNwxur"
         >
           <button
             class="sc-gsTCUz iulVCQ"
@@ -370,16 +370,16 @@ exports[`says the ballot sheet is blank if it is 1`] = `
       </div>
     </div>
     <main
-      class="sc-eCssSg ersehD"
+      class="sc-cxpRKc iyrZoO"
     >
       <div
-        class="sc-idOhPF dHjnvD"
+        class="sc-fFubgz fIzzcV"
       >
         <div
-          class="sc-crrsfI dvOODA"
+          class="sc-kEjbxe kKkrsc"
         >
           <div
-            class="sc-bkzZxe eymsMV"
+            class="sc-fodVxV TcooU"
           >
             Blank Ballot
           </div>
@@ -422,7 +422,7 @@ exports[`says the ballot sheet is blank if it is 1`] = `
           </p>
         </div>
         <div
-          class="sc-dIUggk dEZjzg"
+          class="sc-bkzZxe gCWRJH"
         >
           <div
             style="position: relative;"
@@ -526,16 +526,16 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
     class="sc-jObXwK cZXyJz"
   >
     <div
-      class="sc-gKsewC eUhhMQ"
+      class="sc-eCssSg gWLryE"
     >
       <div
-        class="sc-iBPRYJ hPAooK"
+        class="sc-jSgupP bEFiIf"
       >
         <div
-          class="sc-fubCfw hAIFcM"
+          class="sc-gKsewC iTtjkB"
         >
           <div
-            class="sc-pFZIQ Korzq"
+            class="sc-iBPRYJ inGyxo"
           >
             Voting
             <span>
@@ -543,13 +543,13 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
             </span>
           </div>
           <div
-            class="sc-jrAGrp"
+            class="sc-fubCfw"
           >
             VxCentralScan
           </div>
         </div>
         <div
-          class="sc-kEjbxe eDKgHQ"
+          class="sc-pFZIQ fNwxur"
         >
           <button
             class="sc-gsTCUz iulVCQ"
@@ -562,16 +562,16 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
       </div>
     </div>
     <main
-      class="sc-eCssSg ersehD"
+      class="sc-cxpRKc iyrZoO"
     >
       <div
-        class="sc-idOhPF dHjnvD"
+        class="sc-fFubgz fIzzcV"
       >
         <div
-          class="sc-crrsfI dvOODA"
+          class="sc-kEjbxe kKkrsc"
         >
           <div
-            class="sc-bkzZxe eymsMV"
+            class="sc-fodVxV TcooU"
           >
             Overvote
           </div>
@@ -615,7 +615,7 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
           </p>
         </div>
         <div
-          class="sc-dIUggk dEZjzg"
+          class="sc-bkzZxe gCWRJH"
         >
           <div
             style="position: relative;"
@@ -719,16 +719,16 @@ exports[`says the ballot sheet is undervoted if it is 1`] = `
     class="sc-jObXwK cZXyJz"
   >
     <div
-      class="sc-gKsewC eUhhMQ"
+      class="sc-eCssSg gWLryE"
     >
       <div
-        class="sc-iBPRYJ hPAooK"
+        class="sc-jSgupP bEFiIf"
       >
         <div
-          class="sc-fubCfw hAIFcM"
+          class="sc-gKsewC iTtjkB"
         >
           <div
-            class="sc-pFZIQ Korzq"
+            class="sc-iBPRYJ inGyxo"
           >
             Voting
             <span>
@@ -736,13 +736,13 @@ exports[`says the ballot sheet is undervoted if it is 1`] = `
             </span>
           </div>
           <div
-            class="sc-jrAGrp"
+            class="sc-fubCfw"
           >
             VxCentralScan
           </div>
         </div>
         <div
-          class="sc-kEjbxe eDKgHQ"
+          class="sc-pFZIQ fNwxur"
         >
           <button
             class="sc-gsTCUz iulVCQ"
@@ -755,16 +755,16 @@ exports[`says the ballot sheet is undervoted if it is 1`] = `
       </div>
     </div>
     <main
-      class="sc-eCssSg ersehD"
+      class="sc-cxpRKc iyrZoO"
     >
       <div
-        class="sc-idOhPF dHjnvD"
+        class="sc-fFubgz fIzzcV"
       >
         <div
-          class="sc-crrsfI dvOODA"
+          class="sc-kEjbxe kKkrsc"
         >
           <div
-            class="sc-bkzZxe eymsMV"
+            class="sc-fodVxV TcooU"
           >
             Undervote
           </div>
@@ -803,7 +803,7 @@ exports[`says the ballot sheet is undervoted if it is 1`] = `
           </p>
         </div>
         <div
-          class="sc-dIUggk dEZjzg"
+          class="sc-bkzZxe gCWRJH"
         >
           <div
             style="position: relative;"
@@ -907,16 +907,16 @@ exports[`says the sheet is unreadable if it is 1`] = `
     class="sc-jObXwK cZXyJz"
   >
     <div
-      class="sc-gKsewC eUhhMQ"
+      class="sc-eCssSg gWLryE"
     >
       <div
-        class="sc-iBPRYJ hPAooK"
+        class="sc-jSgupP bEFiIf"
       >
         <div
-          class="sc-fubCfw hAIFcM"
+          class="sc-gKsewC iTtjkB"
         >
           <div
-            class="sc-pFZIQ Korzq"
+            class="sc-iBPRYJ inGyxo"
           >
             Voting
             <span>
@@ -924,13 +924,13 @@ exports[`says the sheet is unreadable if it is 1`] = `
             </span>
           </div>
           <div
-            class="sc-jrAGrp"
+            class="sc-fubCfw"
           >
             VxCentralScan
           </div>
         </div>
         <div
-          class="sc-kEjbxe eDKgHQ"
+          class="sc-pFZIQ fNwxur"
         >
           <button
             class="sc-gsTCUz bQMNvi"
@@ -942,16 +942,16 @@ exports[`says the sheet is unreadable if it is 1`] = `
       </div>
     </div>
     <main
-      class="sc-eCssSg ersehD"
+      class="sc-cxpRKc iyrZoO"
     >
       <div
-        class="sc-idOhPF dHjnvD"
+        class="sc-fFubgz fIzzcV"
       >
         <div
-          class="sc-crrsfI dvOODA"
+          class="sc-kEjbxe kKkrsc"
         >
           <div
-            class="sc-bkzZxe eymsMV"
+            class="sc-fodVxV TcooU"
           >
             Unreadable
           </div>
@@ -970,7 +970,7 @@ exports[`says the sheet is unreadable if it is 1`] = `
           </p>
         </div>
         <div
-          class="sc-dIUggk dEZjzg"
+          class="sc-bkzZxe gCWRJH"
         >
           <div
             style="position: relative;"
