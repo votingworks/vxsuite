@@ -101,6 +101,7 @@
     "@votingworks/ui": "workspace:*",
     "@votingworks/utils": "workspace:*",
     "abortcontroller-polyfill": "^1.4.0",
+    "buffer": "^6.0.3",
     "debug": "^4.3.2",
     "dompurify": "^2.0.17",
     "fetch-mock": "^9.5.0",
