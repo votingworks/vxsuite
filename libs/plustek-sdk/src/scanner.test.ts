@@ -299,7 +299,7 @@ test('getPaperStatus returns error for invalid response', async () => {
   plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n');
 
   expect(((await resultPromise).unsafeUnwrapErr() as Error).message).toContain(
-    'not a real status'
+    'Invalid enum value'
   );
 });
 

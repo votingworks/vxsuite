@@ -42,7 +42,7 @@ test('parsing gives specific errors for nested objects', () => {
       })
       .unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
-    [Error: [
+    [ZodError: [
       {
         "code": "invalid_union",
         "unionErrors": [
@@ -59,7 +59,8 @@ test('parsing gives specific errors for nested objects', () => {
                 ],
                 "message": "Expected string, received number"
               }
-            ]
+            ],
+            "name": "ZodError"
           },
           {
             "issues": [
@@ -75,15 +76,14 @@ test('parsing gives specific errors for nested objects', () => {
                 "message": "Expected string, received number"
               },
               {
-                "code": "invalid_type",
+                "code": "invalid_literal",
                 "expected": "yesno",
-                "received": "candidate",
                 "path": [
                   "contests",
                   1,
                   "type"
                 ],
-                "message": "Expected yesno, received candidate"
+                "message": "Invalid literal value, expected \\"yesno\\""
               },
               {
                 "code": "invalid_type",
@@ -96,7 +96,8 @@ test('parsing gives specific errors for nested objects', () => {
                 ],
                 "message": "Required"
               }
-            ]
+            ],
+            "name": "ZodError"
           },
           {
             "issues": [
@@ -112,15 +113,14 @@ test('parsing gives specific errors for nested objects', () => {
                 "message": "Expected string, received number"
               },
               {
-                "code": "invalid_type",
+                "code": "invalid_literal",
                 "expected": "ms-either-neither",
-                "received": "candidate",
                 "path": [
                   "contests",
                   1,
                   "type"
                 ],
-                "message": "Expected ms-either-neither, received candidate"
+                "message": "Invalid literal value, expected \\"ms-either-neither\\""
               },
               {
                 "code": "invalid_type",
@@ -221,7 +221,8 @@ test('parsing gives specific errors for nested objects', () => {
                 ],
                 "message": "Required"
               }
-            ]
+            ],
+            "name": "ZodError"
           }
         ],
         "path": [
@@ -243,7 +244,7 @@ test('ensures dates are ISO 8601-formatted', () => {
       })
       .unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
-    [Error: [
+    [ZodError: [
       {
         "code": "custom",
         "message": "dates must be in ISO8601 format",
@@ -290,7 +291,7 @@ test('contest IDs cannot start with an underscore', () => {
       id: '_president',
     }).unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
-    [Error: [
+    [ZodError: [
       {
         "code": "custom",
         "message": "IDs may not start with an underscore",
@@ -323,7 +324,7 @@ test('disallows invalid mark thresholds', () => {
       })
       .unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
-    [Error: [
+    [ZodError: [
       {
         "code": "custom",
         "message": "marginal mark threshold must be less than or equal to definite mark threshold",
@@ -342,7 +343,7 @@ test('disallows invalid mark thresholds', () => {
       })
       .unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
-    [Error: [
+    [ZodError: [
       {
         "code": "invalid_type",
         "expected": "number",
@@ -364,13 +365,13 @@ test('disallows invalid mark thresholds', () => {
       })
       .unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
-    [Error: [
+    [ZodError: [
       {
         "code": "too_big",
         "maximum": 1,
         "type": "number",
         "inclusive": true,
-        "message": "Value should be less than or equal to 1",
+        "message": "Number must be less than or equal to 1",
         "path": [
           "markThresholds",
           "definite"
@@ -404,7 +405,7 @@ test('disallows invalid adjudication reasons', () => {
       })
       .unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
-    [Error: [
+    [ZodError: [
       {
         "code": "invalid_enum_value",
         "options": [
@@ -420,7 +421,7 @@ test('disallows invalid adjudication reasons', () => {
           "adjudicationReasons",
           0
         ],
-        "message": "Invalid enum value. Expected 'UninterpretableBallot' | 'MarginalMark' | 'Overvote' | 'Undervote' | 'WriteIn' | 'UnmarkedWriteIn' | 'BlankBallot', received 'abcdefg'"
+        "message": "Invalid enum value. Expected 'UninterpretableBallot' | 'MarginalMark' | 'Overvote' | 'Undervote' | 'WriteIn' | 'UnmarkedWriteIn' | 'BlankBallot'"
       }
     ]]
   `);
@@ -433,7 +434,7 @@ test('disallows invalid adjudication reasons', () => {
       })
       .unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
-    [Error: [
+    [ZodError: [
       {
         "code": "invalid_type",
         "expected": "array",
@@ -458,7 +459,7 @@ test('supports ballot layout paper size', () => {
       })
       .unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
-    [Error: [
+    [ZodError: [
       {
         "code": "invalid_enum_value",
         "options": [
@@ -470,7 +471,7 @@ test('supports ballot layout paper size', () => {
           "ballotLayout",
           "paperSize"
         ],
-        "message": "Invalid enum value. Expected 'letter' | 'legal' | 'custom8.5x17', received 'A4'"
+        "message": "Invalid enum value. Expected 'letter' | 'legal' | 'custom8.5x17'"
       }
     ]]
   `);
@@ -483,7 +484,7 @@ test('supports ballot layout paper size', () => {
       })
       .unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
-    [Error: [
+    [ZodError: [
       {
         "code": "invalid_type",
         "expected": "object",
@@ -506,7 +507,7 @@ test('parsing validates district references', () => {
       })
       .unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
-    [Error: [
+    [ZodError: [
       {
         "code": "custom",
         "path": [
@@ -530,7 +531,7 @@ test('parsing validates precinct references', () => {
       })
       .unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
-    [Error: [
+    [ZodError: [
       {
         "code": "custom",
         "path": [
@@ -562,12 +563,13 @@ test('parsing validates contest party references', () => {
             ...contest,
             partyId: 'not-a-party',
           },
+
           ...remainingContests,
         ],
       })
       .unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
-    [Error: [
+    [ZodError: [
       {
         "code": "custom",
         "path": [
@@ -604,12 +606,13 @@ test('parsing validates candidate party references', () => {
               },
             ],
           },
+
           ...remainingContests,
         ],
       })
       .unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
-    [Error: [
+    [ZodError: [
       {
         "code": "custom",
         "path": [
@@ -634,7 +637,7 @@ test('validates uniqueness of district ids', () => {
       })
       .unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
-    [Error: [
+    [ZodError: [
       {
         "code": "custom",
         "path": [
@@ -655,7 +658,7 @@ test('validates uniqueness of ballot style ids', () => {
       ...electionSample.ballotStyles,
     ]).unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
-    [Error: [
+    [ZodError: [
       {
         "code": "custom",
         "path": [
@@ -677,7 +680,7 @@ test('validates uniqueness of precinct ids', () => {
       })
       .unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
-    [Error: [
+    [ZodError: [
       {
         "code": "custom",
         "path": [
@@ -700,7 +703,7 @@ test('validates uniqueness of contest ids', () => {
       })
       .unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
-    [Error: [
+    [ZodError: [
       {
         "code": "custom",
         "path": [
@@ -732,7 +735,7 @@ test('validates uniqueness of party ids', () => {
       })
       .unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
-    [Error: [
+    [ZodError: [
       {
         "code": "custom",
         "path": [
@@ -755,7 +758,7 @@ test('validates uniqueness of candidate ids within a contest', () => {
       candidates: [...contest.candidates, ...contest.candidates],
     }).unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
-    [Error: [
+    [ZodError: [
       {
         "code": "custom",
         "path": [
@@ -780,7 +783,7 @@ test('validates admin cards have hex-encoded hashes', () => {
       h: 'not hex',
     }).unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
-    [Error: [
+    [ZodError: [
       {
         "code": "custom",
         "message": "Election hashes must be hex strings containing only 0-9 and a-f",

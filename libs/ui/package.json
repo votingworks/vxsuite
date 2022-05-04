@@ -55,7 +55,7 @@
     "rxjs": "6.6.6",
     "styled-components": "^5.2.3",
     "use-interval": "^1.4.0",
-    "zod": "3.2.0"
+    "zod": "3.14.4"
   },
   "devDependencies": {
     "@codemod/parser": "^1.0.6",

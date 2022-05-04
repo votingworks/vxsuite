@@ -37,7 +37,7 @@
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
     "js-sha256": "^0.9.0",
-    "zod": "3.2.0"
+    "zod": "3.14.4"
   },
   "devDependencies": {
     "@types/jest": "^27.0.3",
