@@ -49,7 +49,7 @@ export function ElectionManager(): JSX.Element {
   const election = electionDefinition?.election;
 
   if (!hasCardReaderAttached) {
-    return <SetupCardReaderPage />;
+    return <SetupCardReaderPage usePollWorkerLanguage={false} />;
   }
 
   if (!election || !configuredAt) {
