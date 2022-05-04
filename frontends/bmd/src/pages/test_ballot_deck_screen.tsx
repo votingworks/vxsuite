@@ -16,6 +16,7 @@ import {
   Main,
   MainChild,
   Modal,
+  Screen,
 } from '@votingworks/ui';
 import { find, throwIllegalValue, Printer } from '@votingworks/utils';
 
@@ -28,7 +29,6 @@ import {
 import { ElectionInfo } from '../components/election_info';
 import { Prose } from '../components/prose';
 import { Sidebar } from '../components/sidebar';
-import { Screen } from '../components/screen';
 import { TEST_DECK_PRINTING_TIMEOUT_SECONDS } from '../config/globals';
 
 interface Ballot {

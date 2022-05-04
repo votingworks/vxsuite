@@ -3,7 +3,7 @@ import React, { useContext, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';
 import { getPartyPrimaryAdjectiveFromBallotStyle } from '@votingworks/types';
-import { LinkButton, Main, MainChild } from '@votingworks/ui';
+import { LinkButton, Main, MainChild, Screen } from '@votingworks/ui';
 
 import pluralize from 'pluralize';
 import { BallotContext } from '../contexts/ballot_context';
@@ -12,7 +12,6 @@ import { Wobble } from '../components/animations';
 import { ElectionInfo } from '../components/election_info';
 import { Prose } from '../components/prose';
 import { Sidebar } from '../components/sidebar';
-import { Screen } from '../components/screen';
 import { SettingsTextSize } from '../components/settings_text_size';
 import { PrecinctSelectionKind } from '../config/types';
 

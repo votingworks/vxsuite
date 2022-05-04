@@ -1,12 +1,17 @@
 import { ElectionDefinition, Optional } from '@votingworks/types';
-import { Button, Main, MainChild, useCancelablePromise } from '@votingworks/ui';
+import {
+  Button,
+  Main,
+  MainChild,
+  Screen,
+  useCancelablePromise,
+} from '@votingworks/ui';
 import { formatLongDate } from '@votingworks/utils';
 import { DateTime } from 'luxon';
 import pluralize from 'pluralize';
 import React, { useEffect, useState } from 'react';
 import { ElectionInfo } from '../components/election_info';
 import { Prose } from '../components/prose';
-import { Screen } from '../components/screen';
 import { Sidebar } from '../components/sidebar';
 import { Text } from '../components/text';
 import { VersionsData } from '../components/versions_data';

@@ -1,9 +1,8 @@
 import React, { useEffect } from 'react';
 
-import { Main, MainChild } from '@votingworks/ui';
+import { Main, MainChild, Screen } from '@votingworks/ui';
 
 import { Prose } from '../components/prose';
-import { Screen } from '../components/screen';
 import { triggerAudioFocus } from '../utils/trigger_audio_focus';
 
 interface Props {

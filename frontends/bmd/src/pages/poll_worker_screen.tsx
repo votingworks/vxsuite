@@ -12,17 +12,18 @@ import {
 import {
   Button,
   ButtonList,
+  Devices,
   HorizontalRule,
   Loading,
   Main,
   MainChild,
-  PrecinctScannerTallyReport,
+  Modal,
   PrecinctScannerPollsReport,
   PrecinctScannerTallyQrCode,
+  PrecinctScannerTallyReport,
   PrintableContainer,
+  Screen,
   TallyReport,
-  Modal,
-  Devices,
 } from '@votingworks/ui';
 
 import {
@@ -44,7 +45,6 @@ import {
 } from '../config/types';
 
 import { Prose } from '../components/prose';
-import { Screen } from '../components/screen';
 import { Text } from '../components/text';
 import { Sidebar, SidebarProps } from '../components/sidebar';
 import { ElectionInfo } from '../components/election_info';

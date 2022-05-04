@@ -7,6 +7,7 @@ import {
   Main,
   MainChild,
   Prose,
+  Screen,
   Text,
   useCancelablePromise,
 } from '@votingworks/ui';
@@ -19,7 +20,6 @@ import {
   AccessibleControllerDiagnosticScreen,
   AccessibleControllerDiagnosticResults,
 } from './accessible_controller_diagnostic_screen';
-import { Screen } from '../components/screen';
 import { Sidebar, SidebarProps } from '../components/sidebar';
 import { ScreenReader } from '../config/types';
 

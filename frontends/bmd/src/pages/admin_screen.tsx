@@ -7,6 +7,7 @@ import {
   CurrentDateAndTime,
   Main,
   MainChild,
+  Screen,
   SegmentedButton,
   SetClockButton,
 } from '@votingworks/ui';
@@ -24,7 +25,6 @@ import { Prose } from '../components/prose';
 import { Text } from '../components/text';
 import { Sidebar } from '../components/sidebar';
 import { ElectionInfo } from '../components/election_info';
-import { Screen } from '../components/screen';
 import { Select } from '../components/select';
 import { VersionsData } from '../components/versions_data';
 import { AllPrecinctsDisplayName } from '../utils/precinct_selection';

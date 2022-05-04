@@ -1,10 +1,9 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { ElectionDefinition } from '@votingworks/types';
-import { Main, MainChild } from '@votingworks/ui';
+import { Main, MainChild, Screen } from '@votingworks/ui';
 
 import { Prose } from '../components/prose';
-import { Screen } from '../components/screen';
 import { Sidebar } from '../components/sidebar';
 import { TestMode } from '../components/test_mode';
 import { Text } from '../components/text';
