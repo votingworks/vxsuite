@@ -1,9 +1,10 @@
 import React from 'react';
 
+import { Screen } from '@votingworks/ui';
+
 import { Prose } from '../components/prose';
 import { Main, MainChild } from '../components/main';
 import { MainNav } from '../components/main_nav';
-import { Screen } from '../components/screen';
 import { Button } from '../components/button';
 
 interface Props {
@@ -12,7 +13,7 @@ interface Props {
 
 export function PollWorkerScreen({ lockScreen }: Props): JSX.Element {
   return (
-    <Screen>
+    <Screen flexDirection="column">
       <Main>
         <MainChild center>
           <Prose textCenter>

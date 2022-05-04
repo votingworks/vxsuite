@@ -2,10 +2,11 @@ import React from 'react';
 import styled from 'styled-components';
 import { BallotStyleId } from '@votingworks/types';
 
+import { Screen } from '@votingworks/ui';
+
 import { Prose } from '../components/prose';
 import { Main, MainChild } from '../components/main';
 import { MainNav } from '../components/main_nav';
-import { Screen } from '../components/screen';
 import { Button } from '../components/button';
 
 const RemoveCardImage = styled.img`
@@ -25,7 +26,7 @@ export function RemoveCardScreen({
   precinctName,
 }: Props): JSX.Element {
   return (
-    <Screen>
+    <Screen flexDirection="column">
       <Main>
         <MainChild center>
           <Prose textCenter>

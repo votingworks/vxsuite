@@ -21,7 +21,7 @@ interface Props {
 
 export function MainNav({ children, title }: Props): JSX.Element {
   return (
-    <ButtonBar secondary naturalOrder separatePrimaryButton>
+    <ButtonBar as="div" secondary naturalOrder separatePrimaryButton>
       <Brand>VxEncode{title && <span> / {title}</span>}</Brand>
       {children || <div />}
     </ButtonBar>

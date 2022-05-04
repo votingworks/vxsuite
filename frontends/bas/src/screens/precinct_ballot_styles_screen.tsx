@@ -1,7 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
-import { BallotStyle, PartyId } from '@votingworks/types';
 
+import { Screen } from '@votingworks/ui';
+
+import { BallotStyle, PartyId } from '@votingworks/types';
 import { EventTargetFunction } from '../config/types';
 
 import { Button } from '../components/button';
@@ -10,7 +12,6 @@ import { Heading } from '../components/heading';
 import { Main, MainChild } from '../components/main';
 import { MainNav } from '../components/main_nav';
 import { Prose } from '../components/prose';
-import { Screen } from '../components/screen';
 import { Text } from '../components/text';
 
 const ButtonContainer = styled.div`
@@ -41,7 +42,7 @@ export function PrecinctBallotStylesScreen({
     : precinctBallotStyles;
   const ballotStylesColumns = ballotStyles.length > 4 ? 3 : 2;
   return (
-    <Screen>
+    <Screen flexDirection="column">
       <Main>
         <MainChild maxWidth={false}>
           <Heading>

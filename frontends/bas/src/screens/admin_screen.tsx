@@ -12,12 +12,13 @@ import {
 } from '@votingworks/types';
 import { formatFullDateTimeZone } from '@votingworks/utils';
 
+import { Screen } from '@votingworks/ui';
+
 import { compareName } from '../utils/sort';
 import { Button } from '../components/button';
 import { Prose } from '../components/prose';
 import { Main, MainChild } from '../components/main';
 import { MainNav } from '../components/main_nav';
-import { Screen } from '../components/screen';
 import { Select } from '../components/select';
 import { Text } from '../components/text';
 
@@ -75,7 +76,7 @@ export function AdminScreen({
   const ballotStylesCount = ballotStyles.length;
   const ballotStylesIds = ballotStyles.map((bs) => bs.id).join(', ');
   return (
-    <Screen>
+    <Screen flexDirection="column">
       <Main>
         <MainChild>
           <Prose>
