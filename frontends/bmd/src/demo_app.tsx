@@ -62,6 +62,7 @@ export function getDemoStorage(): Storage {
 
 export function getSampleMachineConfigProvider(): Provider<MachineConfig> {
   return {
+    // eslint-disable-next-line @typescript-eslint/require-await
     async get() {
       return {
         appMode: MarkAndPrint,

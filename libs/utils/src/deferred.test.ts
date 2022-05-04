@@ -142,7 +142,7 @@ test('queues can reject all past gets', async () => {
   ]);
 });
 
-test('queues disallow mutation after resolveAll', async () => {
+test('queues disallow mutation after resolveAll', () => {
   const q = deferredQueue<number>();
 
   q.resolveAll(1);
@@ -161,7 +161,7 @@ test('queues disallow mutation after resolveAll', async () => {
   );
 });
 
-test('queues disallow mutation after rejectAll', async () => {
+test('queues disallow mutation after rejectAll', () => {
   const q = deferredQueue<number>();
 
   q.rejectAll();

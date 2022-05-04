@@ -183,9 +183,9 @@ export class Interpreter {
     this.adjudicationReasons = adjudicationReasons;
   }
 
-  async addHmpbTemplate(
+  addHmpbTemplate(
     layout: BallotPageLayoutWithImage
-  ): Promise<BallotPageLayoutWithImage> {
+  ): BallotPageLayoutWithImage {
     const interpreter = this.getHmpbInterpreter();
     const { metadata } = layout.ballotPageLayout;
 
@@ -203,7 +203,7 @@ export class Interpreter {
         metadata.isTestMode,
         this.testMode
       );
-      await interpreter.addTemplate(layout);
+      interpreter.addTemplate(layout);
     } else {
       debug(
         'template test mode (%s) does not match current test mode (%s), skipping',
@@ -265,7 +265,7 @@ export class Interpreter {
       }
     }
 
-    const bmdResult = await this.interpretBMDFile(ballotImageData);
+    const bmdResult = this.interpretBMDFile(ballotImageData);
 
     if (bmdResult) {
       const bmdMetadata = (bmdResult.interpretation as InterpretedBmdPage)
@@ -340,9 +340,9 @@ export class Interpreter {
     }
   }
 
-  private async interpretBMDFile({
+  private interpretBMDFile({
     qrcode,
-  }: BallotImageData): Promise<InterpretFileResult | undefined> {
+  }: BallotImageData): InterpretFileResult | undefined {
     if (!detect(qrcode.data)) {
       return;
     }

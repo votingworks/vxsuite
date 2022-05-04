@@ -3,7 +3,7 @@ import { render } from '@testing-library/react';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { ElectionInfoBar } from './election_info_bar';
 
-test('Renders nothing when there is no election', async () => {
+test('Renders nothing when there is no election', () => {
   const { container } = render(
     <ElectionInfoBar
       electionDefinition={undefined}
@@ -15,7 +15,7 @@ test('Renders nothing when there is no election', async () => {
   expect(container).toMatchSnapshot();
 });
 
-test('Renders ElectionInfoBar without precinct information by default', async () => {
+test('Renders ElectionInfoBar without precinct information by default', () => {
   const { container } = render(
     <ElectionInfoBar
       electionDefinition={electionSampleDefinition}
@@ -27,7 +27,7 @@ test('Renders ElectionInfoBar without precinct information by default', async ()
   expect(container).toMatchSnapshot();
 });
 
-test('Renders ElectionInfoBar with all precincts wording', async () => {
+test('Renders ElectionInfoBar with all precincts wording', () => {
   const { container } = render(
     <ElectionInfoBar
       electionDefinition={electionSampleDefinition}
@@ -39,7 +39,7 @@ test('Renders ElectionInfoBar with all precincts wording', async () => {
   expect(container).toMatchSnapshot();
 });
 
-test('Renders admin ElectionInfoBar with precinct set', async () => {
+test('Renders admin ElectionInfoBar with precinct set', () => {
   const { container } = render(
     <ElectionInfoBar
       mode="admin"

@@ -16,12 +16,7 @@ import {
   WriteInMarkAdjudication,
 } from '@votingworks/types';
 import { Side } from '@votingworks/types/api/services/scan';
-import {
-  Text,
-  useAutocomplete,
-  useCancelablePromise,
-  useStoredState,
-} from '@votingworks/ui';
+import { Text, useAutocomplete, useStoredState } from '@votingworks/ui';
 import { assert, find } from '@votingworks/utils';
 import React, {
   useCallback,
@@ -441,7 +436,7 @@ export interface Props {
     sheetId: string,
     side: Side,
     adjudications: readonly WriteInMarkAdjudication[]
-  ): Promise<void>;
+  ): void;
 }
 
 export function WriteInAdjudicationScreen({
@@ -461,7 +456,6 @@ export function WriteInAdjudicationScreen({
     [writeIns]
   );
 
-  const makeCancelable = useCancelablePromise();
   const [adjudications, setAdjudications] = useState<
     readonly WriteInMarkAdjudication[]
   >([]);
@@ -503,31 +497,24 @@ export function WriteInAdjudicationScreen({
     {}
   );
 
-  const onAdjudicationCompleteInternal =
-    useCallback(async (): Promise<void> => {
-      setWriteInPresets((prev) =>
-        adjudications.reduce(
-          (newStoredWriteIns, adjudication) =>
-            adjudication.isMarked
-              ? {
-                  ...newStoredWriteIns,
-                  [adjudication.contestId]: uniq([
-                    ...(newStoredWriteIns[adjudication.contestId] ?? []),
-                    adjudication.name,
-                  ]),
-                }
-              : newStoredWriteIns,
-          prev
-        )
-      );
-      await onAdjudicationComplete?.(sheetId, side, adjudications);
-    }, [
-      adjudications,
-      onAdjudicationComplete,
-      setWriteInPresets,
-      sheetId,
-      side,
-    ]);
+  const onAdjudicationCompleteInternal = useCallback((): void => {
+    setWriteInPresets((prev) =>
+      adjudications.reduce(
+        (newStoredWriteIns, adjudication) =>
+          adjudication.isMarked
+            ? {
+                ...newStoredWriteIns,
+                [adjudication.contestId]: uniq([
+                  ...(newStoredWriteIns[adjudication.contestId] ?? []),
+                  adjudication.name,
+                ]),
+              }
+            : newStoredWriteIns,
+        prev
+      )
+    );
+    onAdjudicationComplete?.(sheetId, side, adjudications);
+  }, [adjudications, onAdjudicationComplete, setWriteInPresets, sheetId, side]);
 
   const isFirstContestSelected =
     selectedContestId === contestsWithWriteInsIds[0];
@@ -558,12 +545,12 @@ export function WriteInAdjudicationScreen({
   }, []);
 
   const goNext = useCallback(
-    async (event?: React.FormEvent<EventTarget>): Promise<void> => {
+    (event?: React.FormEvent<EventTarget>): void => {
       event?.preventDefault();
       if (isLastContestSelected) {
         setIsSaving(true);
         try {
-          await makeCancelable(onAdjudicationCompleteInternal());
+          onAdjudicationCompleteInternal();
         } finally {
           setIsSaving(false);
         }
@@ -571,7 +558,7 @@ export function WriteInAdjudicationScreen({
         setSelectedContestIndex((prev) => prev + 1);
       }
     },
-    [isLastContestSelected, makeCancelable, onAdjudicationCompleteInternal]
+    [isLastContestSelected, onAdjudicationCompleteInternal]
   );
 
   return (

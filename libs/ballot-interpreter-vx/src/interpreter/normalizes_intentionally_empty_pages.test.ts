@@ -8,10 +8,10 @@ test('normalizes intentionally-empty pages correctly', async () => {
   const { electionDefinition } = fixtures;
   const interpreter = new Interpreter({ electionDefinition });
 
-  await interpreter.addTemplate(
+  interpreter.addTemplate(
     await interpreter.interpretTemplate(await fixtures.blankPage1.imageData())
   );
-  const page2Template = await interpreter.addTemplate(
+  const page2Template = interpreter.addTemplate(
     await interpreter.interpretTemplate(await fixtures.blankPage2.imageData())
   );
   const { mappedBallot } = await interpreter.interpretBallot(

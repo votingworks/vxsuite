@@ -28,7 +28,7 @@ export function ExportBatchTallyResultsButton(): JSX.Element {
       {isSaveModalOpen && (
         <SaveFileToUsb
           onClose={() => setIsSaveModalOpen(false)}
-          generateFileContent={async () =>
+          generateFileContent={() =>
             generateBatchTallyResultsCsv(fullElectionTally, election)
           }
           defaultFilename={defaultFilename}

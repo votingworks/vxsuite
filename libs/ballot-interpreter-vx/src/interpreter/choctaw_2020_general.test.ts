@@ -7,14 +7,14 @@ test('choctaw 2020 general', async () => {
   const { electionDefinition } = choctaw2020;
   const interpreter = new Interpreter({ electionDefinition });
 
-  await interpreter.addTemplate(
+  interpreter.addTemplate(
     await interpreter.interpretTemplate(
       await choctaw2020.blankPage1.imageData(),
       await choctaw2020.blankPage1.metadata()
     )
   );
 
-  await interpreter.addTemplate(
+  interpreter.addTemplate(
     await interpreter.interpretTemplate(
       await choctaw2020.blankPage2.imageData(),
       await choctaw2020.blankPage2.metadata()

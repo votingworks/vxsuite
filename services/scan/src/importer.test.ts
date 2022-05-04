@@ -243,6 +243,7 @@ test('manually importing files', async () => {
   const frontImagePath = await makeImageFile();
   const backImagePath = await makeImageFile();
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   workerCall.mockImplementation(async (input) => {
     switch (input.action) {
       case 'configure':
@@ -460,6 +461,7 @@ test('importing a sheet normalizes and orders HMPB pages', async () => {
   importer.configure(electionDefinition);
   jest.spyOn(workspace.store, 'addSheet').mockReturnValueOnce('sheet-id');
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   workerCall.mockImplementationOnce(async (input) => {
     expect(input.action).toEqual('configure');
   });
@@ -481,6 +483,7 @@ test('importing a sheet normalizes and orders HMPB pages', async () => {
   const frontImagePath = await makeImageFile();
   const backImagePath = await makeImageFile();
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   workerCall.mockImplementation(async (input) => {
     switch (input.action) {
       case 'configure':
@@ -587,6 +590,7 @@ test('rejects pages that do not match the current precinct', async () => {
   workspace.store.setCurrentPrecinctId(election.precincts[1].id);
   jest.spyOn(workspace.store, 'addSheet').mockReturnValueOnce('sheet-id');
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   workerCall.mockImplementationOnce(async (input) => {
     expect(input.action).toEqual('configure');
   });
@@ -608,6 +612,7 @@ test('rejects pages that do not match the current precinct', async () => {
   const frontImagePath = await makeImageFile();
   const backImagePath = await makeImageFile();
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   workerCall.mockImplementation(async (input) => {
     switch (input.action) {
       case 'configure':
@@ -717,6 +722,7 @@ test('rejects sheets that would not produce a valid CVR', async () => {
   workspace.store.setCurrentPrecinctId(currentPrecinctId);
   jest.spyOn(workspace.store, 'addSheet').mockReturnValueOnce('sheet-id');
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   workerCall.mockImplementationOnce(async (input) => {
     expect(input.action).toEqual('configure');
   });
@@ -739,6 +745,7 @@ test('rejects sheets that would not produce a valid CVR', async () => {
   const frontImagePath = await makeImageFile();
   const backImagePath = await makeImageFile();
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   workerCall.mockImplementation(async (input) => {
     switch (input.action) {
       case 'configure':

@@ -26,6 +26,7 @@ export class AriaScreenReader implements ScreenReader {
   /**
    * Call this when a page load occurs. Resolves when speaking is done.
    */
+  // eslint-disable-next-line @typescript-eslint/require-await
   async onPageLoad(): Promise<void> {
     this.tts.stop();
   }

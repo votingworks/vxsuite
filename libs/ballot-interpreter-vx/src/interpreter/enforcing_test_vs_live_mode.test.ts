@@ -7,25 +7,22 @@ test('enforcing test vs live mode', async () => {
   const fixtures = oaklawn;
   const { electionDefinition } = fixtures;
   const interpreter = new Interpreter({ electionDefinition });
+  const template = await interpreter.interpretTemplate(
+    await fixtures.blankPage1.imageData(),
+    await fixtures.blankPage1.metadata({ isTestMode: true })
+  );
 
-  await expect(
-    interpreter.addTemplate(
-      await interpreter.interpretTemplate(
-        await fixtures.blankPage1.imageData(),
-        await fixtures.blankPage1.metadata({ isTestMode: true })
-      )
-    )
-  ).rejects.toThrowError(
+  expect(() => interpreter.addTemplate(template)).toThrowError(
     'interpreter configured with testMode=false cannot add templates with isTestMode=true'
   );
 
-  await interpreter.addTemplate(
+  interpreter.addTemplate(
     await interpreter.interpretTemplate(
       await fixtures.blankPage1.imageData(),
       await fixtures.blankPage1.metadata()
     )
   );
-  await interpreter.addTemplate(
+  interpreter.addTemplate(
     await interpreter.interpretTemplate(
       await fixtures.blankPage2.imageData(),
       await fixtures.blankPage2.metadata()

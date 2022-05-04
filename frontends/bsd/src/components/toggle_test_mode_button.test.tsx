@@ -2,7 +2,7 @@ import { fireEvent, render } from '@testing-library/react';
 import React from 'react';
 import { ToggleTestModeButton } from './toggle_test_mode_button';
 
-test('shows a button to toggle to live mode when in test mode', async () => {
+test('shows a button to toggle to live mode when in test mode', () => {
   const { getByText } = render(
     <ToggleTestModeButton
       canUnconfigure={false}
@@ -15,7 +15,7 @@ test('shows a button to toggle to live mode when in test mode', async () => {
   getByText('Toggle to Live Mode');
 });
 
-test('shows a button to toggle to test mode when in live mode', async () => {
+test('shows a button to toggle to test mode when in live mode', () => {
   const { getByText } = render(
     <ToggleTestModeButton
       canUnconfigure
@@ -28,7 +28,7 @@ test('shows a button to toggle to test mode when in live mode', async () => {
   getByText('Toggle to Test Mode');
 });
 
-test('shows a disabled button when in live mode but the machine cannot be unconfigured', async () => {
+test('shows a disabled button when in live mode but the machine cannot be unconfigured', () => {
   const { getByText } = render(
     <ToggleTestModeButton
       canUnconfigure={false}
@@ -43,7 +43,7 @@ test('shows a disabled button when in live mode but the machine cannot be unconf
   );
 });
 
-test('shows a disabled button with "Toggling" when toggling', async () => {
+test('shows a disabled button with "Toggling" when toggling', () => {
   const { getByText } = render(
     <ToggleTestModeButton
       canUnconfigure

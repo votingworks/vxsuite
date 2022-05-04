@@ -50,6 +50,7 @@ export class FujitsuScanner implements Scanner {
     this.logger = logger;
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   async getStatus(): Promise<ScannerStatus> {
     return ScannerStatus.Unknown;
   }
@@ -184,14 +185,17 @@ export class FujitsuScanner implements Scanner {
         return results.get();
       },
 
+      // eslint-disable-next-line @typescript-eslint/require-await
       acceptSheet: async (): Promise<boolean> => {
         return true;
       },
 
+      // eslint-disable-next-line @typescript-eslint/require-await
       reviewSheet: async (): Promise<boolean> => {
         return false;
       },
 
+      // eslint-disable-next-line @typescript-eslint/require-await
       rejectSheet: async (): Promise<boolean> => {
         return false;
       },
@@ -218,6 +222,7 @@ export class FujitsuScanner implements Scanner {
     };
   }
 
+  // eslint-disable-next-line @typescript-eslint/require-await
   async calibrate(): Promise<boolean> {
     return false;
   }

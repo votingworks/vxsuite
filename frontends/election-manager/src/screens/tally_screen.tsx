@@ -120,7 +120,7 @@ export function TallyScreen(): JSX.Element {
   const [externalResultsSelectedFile, setExternalResultsSelectedFile] =
     useState<File>();
 
-  const importExternalSemsFile: InputEventFunction = async (event) => {
+  const importExternalSemsFile: InputEventFunction = (event) => {
     const input = event.currentTarget;
     const files = Array.from(input.files || []);
     if (files.length === 1) {

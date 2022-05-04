@@ -132,6 +132,7 @@ export function makeMockScanner(): MockScanner {
         reviewSheet: jest.fn(),
         rejectSheet: jest.fn(),
 
+        // eslint-disable-next-line @typescript-eslint/require-await
         scanSheet: async (): Promise<SheetOf<string>> => {
           const step = session.getStep(stepIndex);
           stepIndex += 1;
@@ -148,12 +149,14 @@ export function makeMockScanner(): MockScanner {
           }
         },
 
+        // eslint-disable-next-line @typescript-eslint/require-await
         endBatch: async (): Promise<void> => {
           stepIndex = Infinity;
         },
       };
     },
 
+    // eslint-disable-next-line @typescript-eslint/require-await
     async calibrate(): Promise<boolean> {
       return true;
     },

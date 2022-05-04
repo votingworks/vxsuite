@@ -1,3 +1,5 @@
+import { PromiseOr } from '@votingworks/types';
+
 export interface Command {
   name: string;
   description: string;
@@ -8,7 +10,7 @@ export interface Command {
     stdin: NodeJS.ReadableStream,
     stdout: NodeJS.WritableStream,
     stderr: NodeJS.WritableStream
-  ): Promise<number>;
+  ): PromiseOr<number>;
 }
 
 export interface GlobalOptions {

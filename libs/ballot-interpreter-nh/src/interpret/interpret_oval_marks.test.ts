@@ -29,14 +29,14 @@ test('interpretOvalMarks unmarked front', async () => {
     HudsonFixtureName,
     'scan-unmarked-back'
   );
-  const frontLayout = await withSvgDebugger(async (debug) => {
+  const frontLayout = withSvgDebugger((debug) => {
     debug.imageData(0, 0, frontImageData);
     return interpretPageLayout(frontImageData, {
       geometry: ScannedBallotCardGeometry8pt5x14,
       debug,
     });
   });
-  const backLayout = await withSvgDebugger(async (debug) => {
+  const backLayout = withSvgDebugger((debug) => {
     debug.imageData(0, 0, backImageData);
     return interpretPageLayout(backImageData, {
       geometry: ScannedBallotCardGeometry8pt5x14,
@@ -142,14 +142,14 @@ test('interpretOvalMarks marked front', async () => {
     HudsonFixtureName,
     'scan-marked-back'
   );
-  const frontLayout = await withSvgDebugger(async (debug) => {
+  const frontLayout = withSvgDebugger((debug) => {
     debug.imageData(0, 0, frontImageData);
     return interpretPageLayout(frontImageData, {
       geometry: ScannedBallotCardGeometry8pt5x14,
       debug,
     });
   });
-  const backLayout = await withSvgDebugger(async (debug) => {
+  const backLayout = withSvgDebugger((debug) => {
     debug.imageData(0, 0, backImageData);
     return interpretPageLayout(backImageData, {
       geometry: ScannedBallotCardGeometry8pt5x14,
@@ -255,14 +255,14 @@ test('interpretOvalMarks marked rotated front', async () => {
     HudsonFixtureName,
     'scan-marked-rotated-back'
   );
-  const frontLayout = await withSvgDebugger(async (debug) => {
+  const frontLayout = withSvgDebugger((debug) => {
     debug.imageData(0, 0, frontImageData);
     return interpretPageLayout(frontImageData, {
       geometry: ScannedBallotCardGeometry8pt5x14,
       debug,
     });
   });
-  const backLayout = await withSvgDebugger(async (debug) => {
+  const backLayout = withSvgDebugger((debug) => {
     debug.imageData(0, 0, backImageData);
     const result = interpretPageLayout(backImageData, {
       geometry: ScannedBallotCardGeometry8pt5x14,

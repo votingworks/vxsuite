@@ -28,6 +28,7 @@ beforeEach(() => {
   window.kiosk = mockKiosk;
 
   mockOf(pdfToImages).mockImplementation(
+    // eslint-disable-next-line @typescript-eslint/require-await
     async function* pdfToImagesMock(): AsyncGenerator<{
       page: ImageData;
       pageNumber: number;
@@ -51,6 +52,7 @@ beforeEach(() => {
       electionDefinition,
       imageData,
       metadata,
+      // eslint-disable-next-line @typescript-eslint/require-await
     }): Promise<BallotPageLayoutWithImage> => ({
       imageData,
       ballotPageLayout: {
@@ -77,7 +79,7 @@ afterEach(() => {
   delete window.kiosk;
 });
 
-test('Button renders properly when not clicked', async () => {
+test('Button renders properly when not clicked', () => {
   const { queryByText, queryByTestId } = renderInAppContext(
     <ExportElectionBallotPackageModalButton />
   );

@@ -262,7 +262,7 @@ describe('getContestTallyForYesNoContest', () => {
 });
 
 describe('convertSemsFileToExternalTally', () => {
-  it('computes tallies properly on either neither general election', async () => {
+  it('computes tallies properly on either neither general election', () => {
     const convertedTally = convertSemsFileToExternalTally(
       eitherNeitherSemsContent,
       electionWithMsEitherNeither,
@@ -370,7 +370,7 @@ describe('convertSemsFileToExternalTally', () => {
     }
   });
 
-  it('converts primary election sems file properly', async () => {
+  it('converts primary election sems file properly', () => {
     const convertedTally = convertSemsFileToExternalTally(
       primarySemsContent,
       multiPartyPrimaryElection,

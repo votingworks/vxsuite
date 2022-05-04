@@ -188,30 +188,30 @@ test('callAll sends a message to all workers, even if they are busy at first', a
   expect(await callAllPromise).toEqual([-99, -98]);
 });
 
-test('releasing a worker before starting is not allowed', async () => {
+test('releasing a worker before starting is not allowed', () => {
   const ops = makeMockWorkerOps() as jest.Mocked<WorkerOps<number>>;
   const worker = new EventEmitter();
   ops.start.mockReturnValueOnce(worker);
 
   const pool = new WorkerPool<number, number>(ops, 1);
-  await expect(pool['releaseWorker'](worker, 'test')).rejects.toThrowError(
+  expect(() => pool['releaseWorker'](worker, 'test')).toThrowError(
     'not yet started'
   );
 });
 
-test('releasing a non-claimed worker is not allowed', async () => {
+test('releasing a non-claimed worker is not allowed', () => {
   const ops = makeMockWorkerOps() as jest.Mocked<WorkerOps<number>>;
   const worker = new EventEmitter();
   ops.start.mockReturnValueOnce(worker);
 
   const pool = new WorkerPool<number, number>(ops, 1);
   pool.start();
-  await expect(pool['releaseWorker'](worker, 'test')).rejects.toThrowError(
+  expect(() => pool['releaseWorker'](worker, 'test')).toThrowError(
     'worker is not currently claimed'
   );
 });
 
-test('releasing a non-owned worker is not allowed', async () => {
+test('releasing a non-owned worker is not allowed', () => {
   const ops = makeMockWorkerOps() as jest.Mocked<WorkerOps<number>>;
   const worker = new EventEmitter();
   const anotherWorker = new EventEmitter();
@@ -219,9 +219,9 @@ test('releasing a non-owned worker is not allowed', async () => {
 
   const pool = new WorkerPool<number, number>(ops, 1);
   pool.start();
-  await expect(
-    pool['releaseWorker'](anotherWorker, 'test')
-  ).rejects.toThrowError('worker is not owned by this instance');
+  expect(() => pool['releaseWorker'](anotherWorker, 'test')).toThrowError(
+    'worker is not owned by this instance'
+  );
 });
 
 test('child process workers work', async () => {

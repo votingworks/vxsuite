@@ -369,6 +369,7 @@ describe('SetClockButton', () => {
     screen.getByText('Wed, Oct 21, 2020, 11:00 AM');
 
     // Save Date and Timezone
+    // eslint-disable-next-line @typescript-eslint/require-await
     await act(async () => {
       fireEvent.click(within(screen.getByTestId('modal')).getByText('Save'));
     });

@@ -66,7 +66,7 @@ test('supports typing in a candidate name', async () => {
       ReturnType<onAdjudicationCompleteType>,
       Parameters<onAdjudicationCompleteType>
     >()
-    .mockResolvedValue();
+    .mockReturnValue();
 
   const writeIns: WriteInAdjudicationReasonInfo[] = [
     {
@@ -155,7 +155,7 @@ test('supports canceling a write-in', async () => {
       ReturnType<onAdjudicationCompleteType>,
       Parameters<onAdjudicationCompleteType>
     >()
-    .mockResolvedValue();
+    .mockReturnValue();
 
   const writeIns: WriteInAdjudicationReasonInfo[] = [
     {
@@ -254,7 +254,7 @@ test('can adjudicate front & back in succession', async () => {
       ReturnType<onAdjudicationCompleteType>,
       Parameters<onAdjudicationCompleteType>
     >()
-    .mockResolvedValue();
+    .mockReturnValue();
 
   const frontWriteIns: WriteInAdjudicationReasonInfo[] = [
     {
@@ -405,7 +405,7 @@ test('can adjudicate front & back in succession', async () => {
   });
 });
 
-test('uses the layout embedded definition to crop the ballot image correctly if available', async () => {
+test('uses the layout embedded definition to crop the ballot image correctly if available', () => {
   const [contest] = contestsWithWriteIns.filter(({ seats }) => seats > 1);
   const options = Array.from(allContestOptions(contest));
   const optionsByIsWriteIn = groupBy(
@@ -438,7 +438,7 @@ test('uses the layout embedded definition to crop the ballot image correctly if 
       ReturnType<onAdjudicationCompleteType>,
       Parameters<onAdjudicationCompleteType>
     >()
-    .mockResolvedValue();
+    .mockReturnValue();
 
   const writeIns: WriteInAdjudicationReasonInfo[] = [
     {

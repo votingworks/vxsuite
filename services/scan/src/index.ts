@@ -33,6 +33,7 @@ async function getScanner(): Promise<Scanner | undefined> {
       plustekMockServer(client).listen(port);
       return new PlustekScanner(
         {
+          // eslint-disable-next-line @typescript-eslint/require-await
           get: async (): Promise<Result<ScannerClient, Error>> => ok(client),
         },
         SCAN_ALWAYS_HOLD_ON_REJECT

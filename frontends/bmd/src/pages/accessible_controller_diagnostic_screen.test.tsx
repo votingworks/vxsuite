@@ -169,7 +169,7 @@ describe('Accessible Controller Diagnostic Screen', () => {
     });
   });
 
-  it('cancels the test when the cancel button is pressed', async () => {
+  it('cancels the test when the cancel button is pressed', () => {
     const onCancel = jest.fn();
     const onComplete = jest.fn();
     renderScreen({ onCancel, onComplete });

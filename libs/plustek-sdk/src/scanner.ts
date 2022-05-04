@@ -7,7 +7,6 @@ import { createInterface } from 'readline';
 import { Config, DEFAULT_CONFIG } from './config';
 import { parseScannerError, ScannerError } from './errors';
 import { PaperStatus, PaperStatusSchema } from './paper_status';
-import { findBinaryPath } from './plustekctl';
 import { dir as createTempDir, file as createTempFile } from './util/temp';
 
 const debug = makeDebug('plustek-sdk:scanner');
@@ -18,11 +17,6 @@ const CLI_DELIMITER = '<<<>>>';
  * Base class for errors returned by {@link ScannerClient}.
  */
 export class ClientError extends Error {}
-
-/**
- * Error returned when the `plustekctl` binary cannot be found.
- */
-export class PlustekctlBinaryMissingError extends ClientError {}
 
 /**
  * Error returned when the connection to `plustekctl` is broken, possibly
@@ -179,14 +173,6 @@ export async function createClient(
     onWaitingForHandshake = noop,
   }: ScannerClientCallbacks = {}
 ): Promise<Result<ScannerClient, Error>> {
-  const plustekctlResult = await findBinaryPath();
-
-  if (plustekctlResult.isErr()) {
-    const error = new PlustekctlBinaryMissingError();
-    onError(error);
-    return err(error);
-  }
-
   const resolvedConfig: Config = {
     ...config,
     savepath: config.savepath ?? (await createTempDir()),
@@ -197,7 +183,7 @@ export async function createClient(
     JSON.stringify(resolvedConfig, undefined, 2)
   );
   const args = ['--config', configFilePath, '--delimiter', CLI_DELIMITER];
-  const plustekctlPath = plustekctlResult.ok();
+  const plustekctlPath = 'plustekctl';
   debug('spawning: %s %o', plustekctlPath, args);
   const plustekctl = spawn(plustekctlPath, args, { stdio: 'pipe' });
   const clientDebug = makeDebug(

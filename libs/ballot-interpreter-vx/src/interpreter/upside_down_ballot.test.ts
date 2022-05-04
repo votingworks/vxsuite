@@ -8,13 +8,13 @@ test('upside-down ballot', async () => {
   const { electionDefinition } = fixtures;
   const interpreter = new Interpreter({ electionDefinition });
 
-  await interpreter.addTemplate(
+  interpreter.addTemplate(
     await interpreter.interpretTemplate(
       await fixtures.blankPage1.imageData(),
       await fixtures.blankPage1.metadata()
     )
   );
-  await interpreter.addTemplate(
+  interpreter.addTemplate(
     await interpreter.interpretTemplate(
       await fixtures.blankPage2.imageData(),
       await fixtures.blankPage2.metadata()

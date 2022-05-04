@@ -42,7 +42,7 @@ function TestDeckBallots({
   const ballots = generateTestDeckBallots({ election, precinctId });
 
   let numRendered = 0;
-  async function onRendered() {
+  function onRendered() {
     numRendered += 1;
     if (numRendered === ballots.length) {
       onAllRendered(ballots.length);

@@ -153,7 +153,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
     });
   }, [logger, currentUserType]);
 
-  async function updateElectionDefinition(e: ElectionDefinition) {
+  function updateElectionDefinition(e: ElectionDefinition) {
     setElectionDefinition(e);
     void logger.log(LogEventId.ElectionConfigured, currentUserType, {
       message: `Machine configured for election with hash: ${e.electionHash}`,

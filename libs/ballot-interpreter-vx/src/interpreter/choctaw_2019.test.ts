@@ -7,13 +7,13 @@ test('choctaw general 2019', async () => {
   const { electionDefinition } = choctaw2019;
   const interpreter = new Interpreter({ electionDefinition });
 
-  await interpreter.addTemplate(
+  interpreter.addTemplate(
     await interpreter.interpretTemplate(
       await choctaw2019.blankPage1.imageData(),
       await choctaw2019.blankPage1.metadata()
     )
   );
-  await interpreter.addTemplate(
+  interpreter.addTemplate(
     await interpreter.interpretTemplate(
       await choctaw2019.blankPage2.imageData(),
       await choctaw2019.blankPage2.metadata()
@@ -126,21 +126,21 @@ test('determining layout of a ballot with borders', async () => {
   const { electionDefinition } = choctaw2019;
   const interpreter = new Interpreter({ electionDefinition });
 
-  await interpreter.addTemplate(
+  interpreter.addTemplate(
     await interpreter.interpretTemplate(
       await choctaw2019.blankPage1.imageData(),
       await choctaw2019.blankPage1.metadata()
     )
   );
 
-  await interpreter.addTemplate(
+  interpreter.addTemplate(
     await interpreter.interpretTemplate(
       await choctaw2019.blankPage2.imageData(),
       await choctaw2019.blankPage2.metadata()
     )
   );
 
-  await interpreter.addTemplate(
+  interpreter.addTemplate(
     await interpreter.interpretTemplate(
       await choctaw2019.blankPage3.imageData(),
       await choctaw2019.blankPage3.metadata()

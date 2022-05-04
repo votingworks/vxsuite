@@ -475,7 +475,7 @@ export class Importer {
         }
         await this.continueImport({ forceAccept: false });
       } else {
-        const castability = await this.getNextAdjudicationCastability();
+        const castability = this.getNextAdjudicationCastability();
         if (castability) {
           if (castability === Castability.Uncastable) {
             await this.sheetGenerator.rejectSheet();
@@ -487,7 +487,7 @@ export class Importer {
     }
   }
 
-  async getNextAdjudicationCastability(): Promise<Castability | undefined> {
+  getNextAdjudicationCastability(): Castability | undefined {
     const sheet = this.workspace.store.getNextAdjudicationSheet();
     if (sheet) {
       return checkSheetCastability([

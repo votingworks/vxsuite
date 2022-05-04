@@ -4,7 +4,7 @@ import { render } from '@testing-library/react';
 import { Screen } from './screen';
 
 describe('renders Screen', () => {
-  test('with defaults', async () => {
+  test('with defaults', () => {
     const { container } = render(
       <Screen>
         <div>Hello</div> <div>World</div>
@@ -13,7 +13,7 @@ describe('renders Screen', () => {
     expect(container.firstChild).toMatchSnapshot();
   });
 
-  test('with with all non-default options', async () => {
+  test('with with all non-default options', () => {
     const { container } = render(
       <Screen white voterMode={false}>
         <div>Hello</div> <div>World</div>

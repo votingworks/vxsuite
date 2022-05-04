@@ -4,7 +4,7 @@ import { render } from '@testing-library/react';
 import { InputGroup } from './input_group';
 import { Select } from './select';
 
-test('renders InputGroup', async () => {
+test('renders InputGroup', () => {
   const { container } = render(
     <InputGroup>
       <Select>

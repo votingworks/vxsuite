@@ -46,7 +46,7 @@ beforeEach(() => {
 });
 
 describe('System Diagnostics screen: Computer section', () => {
-  it('shows the battery level and power cord status', async () => {
+  it('shows the battery level and power cord status', () => {
     const devices = fakeDevices({
       computer: { batteryLevel: 0.05, batteryIsLow: true },
     });
@@ -72,7 +72,7 @@ describe('System Diagnostics screen: Computer section', () => {
     unmount();
   });
 
-  it('shows a warning when the power cord is not connected', async () => {
+  it('shows a warning when the power cord is not connected', () => {
     const devices = fakeDevices({
       computer: { batteryIsCharging: false },
     });
@@ -296,7 +296,7 @@ describe('System Diagnostics screen: Accessible Controller section', () => {
     unmount();
   });
 
-  it('shows when the controller is disconnected', async () => {
+  it('shows when the controller is disconnected', () => {
     const devices = fakeDevices();
     devices.accessibleController = undefined;
     const { unmount } = renderScreen({ devices });

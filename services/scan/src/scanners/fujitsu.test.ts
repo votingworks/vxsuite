@@ -44,7 +44,7 @@ test('fujitsu scanner calls scanimage with fujitsu device type', async () => {
   await expect(sheets.scanSheet()).resolves.toBeUndefined();
 });
 
-test('fujitsu scanner can scan with letter size', async () => {
+test('fujitsu scanner can scan with letter size', () => {
   const scanimage = makeMockChildProcess();
   const scanner = new FujitsuScanner({
     logger: new Logger(LogSource.VxScanService),
@@ -67,7 +67,7 @@ test('fujitsu scanner can scan with letter size', async () => {
   );
 });
 
-test('fujitsu scanner can scan with legal size', async () => {
+test('fujitsu scanner can scan with legal size', () => {
   const scanimage = makeMockChildProcess();
   const scanner = new FujitsuScanner({
     logger: new Logger(LogSource.VxScanService),
@@ -90,7 +90,7 @@ test('fujitsu scanner can scan with legal size', async () => {
   );
 });
 
-test('fujitsu scanner does not specify a mode by default', async () => {
+test('fujitsu scanner does not specify a mode by default', () => {
   const scanimage = makeMockChildProcess();
   const scanner = new FujitsuScanner({
     logger: new Logger(LogSource.VxScanService),
@@ -113,7 +113,7 @@ test('fujitsu scanner does not specify a mode by default', async () => {
   );
 });
 
-test('fujitsu scanner can scan with lineart mode', async () => {
+test('fujitsu scanner can scan with lineart mode', () => {
   const scanimage = makeMockChildProcess();
   const scanner = new FujitsuScanner({
     logger: new Logger(LogSource.VxScanService),
@@ -137,7 +137,7 @@ test('fujitsu scanner can scan with lineart mode', async () => {
   );
 });
 
-test('fujitsu scanner can scan with gray mode', async () => {
+test('fujitsu scanner can scan with gray mode', () => {
   const scanimage = makeMockChildProcess();
   const scanner = new FujitsuScanner({
     logger: new Logger(LogSource.VxScanService),
@@ -161,7 +161,7 @@ test('fujitsu scanner can scan with gray mode', async () => {
   );
 });
 
-test('fujitsu scanner can scan with color mode', async () => {
+test('fujitsu scanner can scan with color mode', () => {
   const scanimage = makeMockChildProcess();
   const scanner = new FujitsuScanner({
     logger: new Logger(LogSource.VxScanService),

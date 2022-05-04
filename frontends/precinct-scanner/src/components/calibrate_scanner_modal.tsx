@@ -33,7 +33,7 @@ export function CalibrateScannerModal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onCalibrate, setIsCalibrating]);
 
-  const resetAndTryAgain = useCallback(async () => {
+  const resetAndTryAgain = useCallback(() => {
     setCalibrationSuccess(undefined);
   }, [setCalibrationSuccess]);
 

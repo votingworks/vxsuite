@@ -8,7 +8,7 @@ test('interpret votes', async () => {
   const { electionDefinition } = fixtures;
   const interpreter = new Interpreter({ electionDefinition });
 
-  await interpreter.addTemplate(
+  interpreter.addTemplate(
     await interpreter.interpretTemplate(await fixtures.blankPage1.imageData())
   );
 

@@ -1,20 +1,16 @@
 import { fakeChildProcess } from '@votingworks/test-utils';
-import { err, ok } from '@votingworks/types';
 import { sleep } from '@votingworks/utils';
 import * as cp from 'child_process';
 import { mocked } from 'ts-jest/utils';
 import { DEFAULT_CONFIG } from './config';
 import { ScannerError } from './errors';
 import { PaperStatus } from './paper_status';
-import * as plustekctlModule from './plustekctl';
 import {
   ClientDisconnectedError,
   createClient,
   InvalidClientResponseError,
-  PlustekctlBinaryMissingError,
 } from './scanner';
 
-const findBinaryPath = mocked(plustekctlModule.findBinaryPath);
 const spawn = mocked(cp.spawn);
 const nextTick = Promise.resolve();
 
@@ -26,23 +22,15 @@ function retryUntil({ times }: { times: number }): () => boolean {
   };
 }
 
-jest.mock('./plustekctl');
 jest.mock('child_process');
 
 beforeEach(() => {
   jest.clearAllMocks();
 });
 
-test('cannot find plustekctl', async () => {
-  findBinaryPath.mockResolvedValueOnce(err(new Error('ENOENT')));
-  const result = await createClient();
-  expect(result.unsafeUnwrapErr()).toEqual(new PlustekctlBinaryMissingError());
-});
-
 test('no savepath given', async () => {
   const plustekctl = fakeChildProcess();
   spawn.mockReturnValueOnce(plustekctl);
-  findBinaryPath.mockResolvedValueOnce(ok('plustekctl'));
   const onConfigResolved = jest.fn();
   void (await createClient(
     { ...DEFAULT_CONFIG, savepath: undefined },
@@ -60,7 +48,6 @@ test('no savepath given', async () => {
 test('savepath given', async () => {
   const plustekctl = fakeChildProcess();
   spawn.mockReturnValueOnce(plustekctl);
-  findBinaryPath.mockResolvedValueOnce(ok('plustekctl'));
   const onConfigResolved = jest.fn();
   void (await createClient(
     { ...DEFAULT_CONFIG, savepath: '/some/path' },
@@ -78,8 +65,7 @@ test('savepath given', async () => {
 test('cannot spawn plustekctl', async () => {
   const plustekctl = fakeChildProcess();
   spawn.mockReturnValueOnce(plustekctl);
-  findBinaryPath.mockResolvedValueOnce(ok('plustekctl'));
-  const result = await createClient(DEFAULT_CONFIG, {
+  const result = await createClient(undefined, {
     onConnecting() {
       // simulate `spawn` failure due to an out-of-memory error
       plustekctl.emit('error', new Error('spawn plustekctl ENOMEM'));
@@ -96,7 +82,6 @@ test('cannot spawn plustekctl', async () => {
 test('plustekctl spawns but immediately exits', async () => {
   const plustekctl = fakeChildProcess();
   spawn.mockReturnValueOnce(plustekctl);
-  findBinaryPath.mockResolvedValueOnce(ok('plustekctl'));
   const result = await createClient(DEFAULT_CONFIG, {
     onConnecting() {
       // simulate a child process immediately exiting
@@ -116,7 +101,6 @@ test('plustekctl spawns but immediately exits', async () => {
 test('plustekctl spawns but fails the handshake', async () => {
   const plustekctl = fakeChildProcess();
   spawn.mockReturnValueOnce(plustekctl);
-  findBinaryPath.mockResolvedValueOnce(ok('plustekctl'));
   const result = await createClient(DEFAULT_CONFIG, {
     async onWaitingForHandshake() {
       // simulate "cannot find scanners" after startup delay
@@ -137,7 +121,6 @@ test('plustekctl spawns but fails the handshake', async () => {
 test('client connects and disconnects successfully', async () => {
   const plustekctl = fakeChildProcess();
   spawn.mockReturnValueOnce(plustekctl);
-  findBinaryPath.mockResolvedValueOnce(ok('test-plustekctl'));
 
   const onConnected = jest.fn();
   const onDisconnected = jest.fn();
@@ -174,7 +157,6 @@ test('client connects and disconnects successfully', async () => {
 test('unsuccessful disconnect returns error', async () => {
   const plustekctl = fakeChildProcess();
   spawn.mockReturnValueOnce(plustekctl);
-  findBinaryPath.mockResolvedValueOnce(ok('test-plustekctl'));
 
   const onDisconnected = jest.fn();
   const client = (
@@ -208,7 +190,6 @@ test('unsuccessful disconnect returns error', async () => {
 test('client cannot send commands after disconnect', async () => {
   const plustekctl = fakeChildProcess();
   spawn.mockReturnValueOnce(plustekctl);
-  findBinaryPath.mockResolvedValueOnce(ok('test-plustekctl'));
 
   const client = (
     await createClient(DEFAULT_CONFIG, {
@@ -243,7 +224,6 @@ test('client cannot send commands after disconnect', async () => {
 test('client responds with wrong IPC command', async () => {
   const plustekctl = fakeChildProcess();
   spawn.mockReturnValueOnce(plustekctl);
-  findBinaryPath.mockResolvedValueOnce(ok('test-plustekctl'));
 
   const client = (
     await createClient(DEFAULT_CONFIG, {
@@ -274,7 +254,6 @@ test('client responds with wrong IPC command', async () => {
 test('getPaperStatus succeeds', async () => {
   const plustekctl = fakeChildProcess();
   spawn.mockReturnValueOnce(plustekctl);
-  findBinaryPath.mockResolvedValueOnce(ok('test-plustekctl'));
 
   const client = (
     await createClient(DEFAULT_CONFIG, {
@@ -301,7 +280,6 @@ test('getPaperStatus succeeds', async () => {
 test('getPaperStatus returns error for invalid response', async () => {
   const plustekctl = fakeChildProcess();
   spawn.mockReturnValueOnce(plustekctl);
-  findBinaryPath.mockResolvedValueOnce(ok('test-plustekctl'));
 
   const client = (
     await createClient(DEFAULT_CONFIG, {
@@ -328,7 +306,6 @@ test('getPaperStatus returns error for invalid response', async () => {
 test('getPaperStatus returns known error', async () => {
   const plustekctl = fakeChildProcess();
   spawn.mockReturnValueOnce(plustekctl);
-  findBinaryPath.mockResolvedValueOnce(ok('test-plustekctl'));
 
   const client = (
     await createClient(DEFAULT_CONFIG, {
@@ -355,7 +332,6 @@ test('getPaperStatus returns known error', async () => {
 test('getPaperStatus returns unknown error', async () => {
   const plustekctl = fakeChildProcess();
   spawn.mockReturnValueOnce(plustekctl);
-  findBinaryPath.mockResolvedValueOnce(ok('test-plustekctl'));
 
   const client = (
     await createClient(DEFAULT_CONFIG, {
@@ -380,7 +356,6 @@ test('getPaperStatus returns unknown error', async () => {
 test('scan succeeds', async () => {
   const plustekctl = fakeChildProcess();
   spawn.mockReturnValueOnce(plustekctl);
-  findBinaryPath.mockResolvedValueOnce(ok('test-plustekctl'));
 
   const client = (
     await createClient(DEFAULT_CONFIG, {
@@ -407,7 +382,6 @@ test('scan succeeds', async () => {
 test('scan responds with error', async () => {
   const plustekctl = fakeChildProcess();
   spawn.mockReturnValueOnce(plustekctl);
-  findBinaryPath.mockResolvedValueOnce(ok('test-plustekctl'));
 
   const client = (
     await createClient(DEFAULT_CONFIG, {
@@ -434,7 +408,6 @@ test('scan responds with error', async () => {
 test('scan returns error for invalid response', async () => {
   const plustekctl = fakeChildProcess();
   spawn.mockReturnValueOnce(plustekctl);
-  findBinaryPath.mockResolvedValueOnce(ok('test-plustekctl'));
 
   const client = (
     await createClient(DEFAULT_CONFIG, {
@@ -459,7 +432,6 @@ test('scan returns error for invalid response', async () => {
 test('scan returns error for unknown data', async () => {
   const plustekctl = fakeChildProcess();
   spawn.mockReturnValueOnce(plustekctl);
-  findBinaryPath.mockResolvedValueOnce(ok('test-plustekctl'));
 
   const client = (
     await createClient(DEFAULT_CONFIG, {
@@ -484,7 +456,6 @@ test('scan returns error for unknown data', async () => {
 test('scan succeeds after retries', async () => {
   const plustekctl = fakeChildProcess();
   spawn.mockReturnValueOnce(plustekctl);
-  findBinaryPath.mockResolvedValueOnce(ok('test-plustekctl'));
 
   const client = (
     await createClient(DEFAULT_CONFIG, {
@@ -518,7 +489,7 @@ test('scan succeeds after retries', async () => {
       }
     },
 
-    onScanAttemptEnd: async (attempt, attemptResult) => {
+    onScanAttemptEnd: (attempt, attemptResult) => {
       if (attempt < retryCount) {
         // assert failed
         attemptResult.unsafeUnwrapErr();
@@ -539,7 +510,6 @@ test('scan succeeds after retries', async () => {
 test('plustekctl exits during scan', async () => {
   const plustekctl = fakeChildProcess();
   spawn.mockReturnValueOnce(plustekctl);
-  findBinaryPath.mockResolvedValueOnce(ok('test-plustekctl'));
 
   const client = (
     await createClient(DEFAULT_CONFIG, {
@@ -563,7 +533,6 @@ test('plustekctl exits during scan', async () => {
 test('calibrate succeeds', async () => {
   const plustekctl = fakeChildProcess();
   spawn.mockReturnValueOnce(plustekctl);
-  findBinaryPath.mockResolvedValueOnce(ok('test-plustekctl'));
 
   const client = (
     await createClient(DEFAULT_CONFIG, {
@@ -585,7 +554,6 @@ test('calibrate succeeds', async () => {
 test('calibrate responds with error', async () => {
   const plustekctl = fakeChildProcess();
   spawn.mockReturnValueOnce(plustekctl);
-  findBinaryPath.mockResolvedValueOnce(ok('test-plustekctl'));
 
   const client = (
     await createClient(DEFAULT_CONFIG, {
@@ -612,7 +580,6 @@ test('calibrate responds with error', async () => {
 test('calibrate returns error for invalid response', async () => {
   const plustekctl = fakeChildProcess();
   spawn.mockReturnValueOnce(plustekctl);
-  findBinaryPath.mockResolvedValueOnce(ok('test-plustekctl'));
 
   const client = (
     await createClient(DEFAULT_CONFIG, {
@@ -637,7 +604,6 @@ test('calibrate returns error for invalid response', async () => {
 test('calibrate returns error for unknown data', async () => {
   const plustekctl = fakeChildProcess();
   spawn.mockReturnValueOnce(plustekctl);
-  findBinaryPath.mockResolvedValueOnce(ok('test-plustekctl'));
 
   const client = (
     await createClient(DEFAULT_CONFIG, {
@@ -662,7 +628,6 @@ test('calibrate returns error for unknown data', async () => {
 test('accept succeeds', async () => {
   const plustekctl = fakeChildProcess();
   spawn.mockReturnValueOnce(plustekctl);
-  findBinaryPath.mockResolvedValueOnce(ok('test-plustekctl'));
 
   const client = (
     await createClient(DEFAULT_CONFIG, {
@@ -684,7 +649,6 @@ test('accept succeeds', async () => {
 test('accept returns known error', async () => {
   const plustekctl = fakeChildProcess();
   spawn.mockReturnValueOnce(plustekctl);
-  findBinaryPath.mockResolvedValueOnce(ok('test-plustekctl'));
 
   const client = (
     await createClient(DEFAULT_CONFIG, {
@@ -711,7 +675,6 @@ test('accept returns known error', async () => {
 test('accept returns error for invalid response', async () => {
   const plustekctl = fakeChildProcess();
   spawn.mockReturnValueOnce(plustekctl);
-  findBinaryPath.mockResolvedValueOnce(ok('test-plustekctl'));
 
   const client = (
     await createClient(DEFAULT_CONFIG, {
@@ -736,7 +699,6 @@ test('accept returns error for invalid response', async () => {
 test('reject succeeds', async () => {
   const plustekctl = fakeChildProcess();
   spawn.mockReturnValueOnce(plustekctl);
-  findBinaryPath.mockResolvedValueOnce(ok('test-plustekctl'));
 
   const client = (
     await createClient(DEFAULT_CONFIG, {
@@ -758,7 +720,6 @@ test('reject succeeds', async () => {
 test('reject returns known error', async () => {
   const plustekctl = fakeChildProcess();
   spawn.mockReturnValueOnce(plustekctl);
-  findBinaryPath.mockResolvedValueOnce(ok('test-plustekctl'));
 
   const client = (
     await createClient(DEFAULT_CONFIG, {
@@ -785,7 +746,6 @@ test('reject returns known error', async () => {
 test('reject returns error for invalid response', async () => {
   const plustekctl = fakeChildProcess();
   spawn.mockReturnValueOnce(plustekctl);
-  findBinaryPath.mockResolvedValueOnce(ok('test-plustekctl'));
 
   const client = (
     await createClient(DEFAULT_CONFIG, {
@@ -810,7 +770,6 @@ test('reject returns error for invalid response', async () => {
 test('reject-hold succeeds', async () => {
   const plustekctl = fakeChildProcess();
   spawn.mockReturnValueOnce(plustekctl);
-  findBinaryPath.mockResolvedValueOnce(ok('test-plustekctl'));
 
   const client = (
     await createClient(DEFAULT_CONFIG, {
@@ -832,7 +791,6 @@ test('reject-hold succeeds', async () => {
 test('scan followed by reject succeeds', async () => {
   const plustekctl = fakeChildProcess();
   spawn.mockReturnValueOnce(plustekctl);
-  findBinaryPath.mockResolvedValueOnce(ok('test-plustekctl'));
 
   const client = (
     await createClient(DEFAULT_CONFIG, {
@@ -866,7 +824,6 @@ test('scan followed by reject succeeds', async () => {
 test('overlapping calls', async () => {
   const plustekctl = fakeChildProcess();
   spawn.mockReturnValueOnce(plustekctl);
-  findBinaryPath.mockResolvedValueOnce(ok('test-plustekctl'));
 
   const client = (
     await createClient(DEFAULT_CONFIG, {
@@ -919,7 +876,6 @@ test('overlapping calls', async () => {
 test('waitForStatus does not have to wait', async () => {
   const plustekctl = fakeChildProcess();
   spawn.mockReturnValueOnce(plustekctl);
-  findBinaryPath.mockResolvedValueOnce(ok('test-plustekctl'));
 
   const client = (
     await createClient(DEFAULT_CONFIG, {
@@ -946,7 +902,6 @@ test('waitForStatus does not have to wait', async () => {
 test('waitForStatus times out', async () => {
   const plustekctl = fakeChildProcess();
   spawn.mockReturnValueOnce(plustekctl);
-  findBinaryPath.mockResolvedValueOnce(ok('test-plustekctl'));
 
   const client = (
     await createClient(DEFAULT_CONFIG, {
@@ -975,7 +930,6 @@ test('waitForStatus times out', async () => {
 test('waitForStatus immediate timeout', async () => {
   const plustekctl = fakeChildProcess();
   spawn.mockReturnValueOnce(plustekctl);
-  findBinaryPath.mockResolvedValueOnce(ok('test-plustekctl'));
 
   const client = (
     await createClient(DEFAULT_CONFIG, {

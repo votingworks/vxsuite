@@ -4,7 +4,7 @@ import { render } from '@testing-library/react';
 import { TestMode } from './test_mode';
 
 describe('renders TestMode', () => {
-  test('as nothing when not in test mode', async () => {
+  test('as nothing when not in test mode', () => {
     const { container } = render(<TestMode isLiveMode />);
     expect(container).toMatchInlineSnapshot(`<div />`);
   });

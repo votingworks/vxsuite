@@ -3,7 +3,7 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import { PlaceholderGraphic } from './graphics';
 
-test('Renders Absolute top right', async () => {
+test('Renders Absolute top right', () => {
   const { container } = render(<PlaceholderGraphic />);
   expect(container).toMatchSnapshot();
 });

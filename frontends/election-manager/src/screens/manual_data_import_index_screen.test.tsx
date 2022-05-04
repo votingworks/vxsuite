@@ -76,7 +76,7 @@ test('can toggle ballot types for data', async () => {
   getByText('Edit Precinct Results for Precinct 5');
 });
 
-test('precinct table renders properly when there is no data', async () => {
+test('precinct table renders properly when there is no data', () => {
   const saveExternalTallies = jest.fn();
   const history = createMemoryHistory();
   const { getByText, getByTestId } = renderInAppContext(

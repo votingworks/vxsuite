@@ -67,7 +67,7 @@ describe('supports single-seat contest', () => {
     });
   });
 
-  it("doesn't allow other candidates to be selected when a candidate is selected", async () => {
+  it("doesn't allow other candidates to be selected when a candidate is selected", () => {
     const updateVote = jest.fn();
     renderWithBallotContext(
       <CandidateContest

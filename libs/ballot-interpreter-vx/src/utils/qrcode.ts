@@ -110,7 +110,7 @@ export async function detect(
   const detectors = [
     {
       name: 'qrdetect',
-      detect: async ({ data, width, height }: ImageData): Promise<Buffer[]> =>
+      detect: ({ data, width, height }: ImageData): Buffer[] =>
         qrdetect(data, width, height).map((symbol) => symbol.data),
     },
     {
@@ -124,7 +124,7 @@ export async function detect(
     },
     {
       name: 'jsQR',
-      detect: async ({ data, width, height }: ImageData): Promise<Buffer[]> => {
+      detect: ({ data, width, height }: ImageData): Buffer[] => {
         const result = jsQr(data, width, height);
         return result ? [Buffer.from(result.binaryData)] : [];
       },

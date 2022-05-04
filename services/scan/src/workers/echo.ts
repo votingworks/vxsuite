@@ -8,6 +8,7 @@ export type Output = unknown;
 /**
  * Simple worker that simply echoes the input as output.
  */
+// eslint-disable-next-line @typescript-eslint/require-await
 export async function call<I extends Input & Output>(input: I): Promise<I> {
   return input;
 }

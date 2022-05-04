@@ -239,9 +239,11 @@ export function DefaultPreview(): JSX.Element {
       <AdminScreen
         calibrate={() => Promise.resolve(true)}
         isTestMode={isTestMode}
+        // eslint-disable-next-line @typescript-eslint/require-await
         toggleLiveMode={async () => setIsTestMode((prev) => !prev)}
         scannedBallotCount={1234}
         unconfigure={() => Promise.resolve()}
+        // eslint-disable-next-line @typescript-eslint/require-await
         updateAppPrecinctId={async (newPrecinctId) =>
           setPrecinctId(newPrecinctId)
         }

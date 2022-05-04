@@ -57,6 +57,7 @@ export interface AppContextInterface {
   logger: Logger;
 }
 
+/* eslint-disable @typescript-eslint/require-await */
 const appContext: AppContextInterface = {
   castVoteRecordFiles: CastVoteRecordFiles.empty,
   electionDefinition: undefined,
@@ -91,5 +92,6 @@ const appContext: AppContextInterface = {
   hasCardReaderAttached: true,
   logger: new Logger(LogSource.VxAdminFrontend),
 };
+/* eslint-enable @typescript-eslint/require-await */
 
 export const AppContext = createContext(appContext);

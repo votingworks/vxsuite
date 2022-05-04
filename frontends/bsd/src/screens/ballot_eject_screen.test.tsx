@@ -864,6 +864,7 @@ test('does NOT say ballot is blank if one side is blank and the other requires w
 
     // doubly nested acts() because there's setIsSaving(true) and then (false).
     await act(async () => {
+      // eslint-disable-next-line @typescript-eslint/require-await
       await act(async () => {
         userEvent.click(screen.getByText('Save & Continue Scanning'));
       });

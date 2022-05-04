@@ -26,7 +26,7 @@ beforeEach(() => {
   jest.useFakeTimers();
 });
 
-test('initial state', async () => {
+test('initial state', () => {
   const { result } = renderHook(() => usePrecinctScanner());
   expect(result.current).toBeUndefined();
 });

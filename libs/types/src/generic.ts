@@ -104,6 +104,11 @@ declare const Unique: unique symbol;
  */
 export type NewType<Base, Tag> = Base & { readonly [Unique]: Tag };
 
+/**
+ * Creates a type that is either `T` or a `Promise` wrapping `T`.
+ */
+export type PromiseOr<T> = T | Promise<T>;
+
 export type Id = string;
 export const IdSchema: z.ZodSchema<Id> = z
   .string()

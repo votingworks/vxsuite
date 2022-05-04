@@ -11,6 +11,7 @@ import { readBlobAsString } from '../blob';
 jest.mock('@votingworks/ballot-interpreter-nh');
 jest.mock('../../utils/pdf_to_images');
 
+/* eslint-disable @typescript-eslint/require-await */
 function makePdfToImagesMockReturnValue({
   pageCount = 2,
 }: { pageCount?: number } = {}): ReturnType<typeof pdfToImages> {
@@ -50,6 +51,7 @@ function makePdfToImagesMockReturnValue({
     },
   };
 }
+/* eslint-enable @typescript-eslint/require-await */
 
 test('display name', () => {
   expect(new NhConverterClient().getDisplayName()).toBe('NH');

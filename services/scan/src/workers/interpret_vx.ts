@@ -71,7 +71,7 @@ export async function configure(store: Store): Promise<void> {
   for (const [pdf, layouts] of templates) {
     for await (const { page, pageNumber } of pdfToImages(pdf, { scale: 2 })) {
       const ballotPageLayout = layouts[pageNumber - 1];
-      await interpreter.addHmpbTemplate({
+      interpreter.addHmpbTemplate({
         ballotPageLayout,
         imageData: page,
       });

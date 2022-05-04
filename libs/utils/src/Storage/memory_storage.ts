@@ -1,5 +1,7 @@
 import { Storage } from '../types';
 
+/* eslint-disable @typescript-eslint/require-await */
+
 /**
  * Implements the storage API for storing objects in memory. Data stored in
  * this object only lasts as long as the program runs.

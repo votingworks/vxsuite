@@ -10,10 +10,10 @@ export interface Options {
   readonly command?: string;
 }
 
-export async function parseOptions({
+export function parseOptions({
   commandArgs,
   executablePath,
-}: GlobalOptions): Promise<Options> {
+}: GlobalOptions): Options {
   const $0 = basename(executablePath);
 
   if (commandArgs.length === 0) {
@@ -85,14 +85,14 @@ export function printHelp(
   out.write(`Print usage information for COMMAND.\n`);
 }
 
-export async function run(
+export function run(
   commands: Command[],
   globalOptions: GlobalOptions,
   _stdin: NodeJS.ReadableStream,
   stdout: NodeJS.WritableStream,
   stderr: NodeJS.WritableStream
-): Promise<number> {
-  const options = await parseOptions(globalOptions);
+): number {
+  const options = parseOptions(globalOptions);
 
   if (options.command) {
     return printCommandHelp(commands, globalOptions, options, stdout, stderr);

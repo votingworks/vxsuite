@@ -40,7 +40,7 @@ export function LoadElectionScreen({
   }>();
   const [isLoadingTemplates, setLoadingTemplates] = useState(false);
 
-  async function handleBallotLoading(pkg: BallotPackage) {
+  function handleBallotLoading(pkg: BallotPackage) {
     addTemplates(pkg, logger, currentUserType)
       .on('configuring', () => {
         setCurrentUploadingBallotIndex(0);
@@ -113,7 +113,7 @@ export function LoadElectionScreen({
             disposition: 'success',
           }
         );
-        await handleBallotLoading(ballotPackage);
+        handleBallotLoading(ballotPackage);
       } catch (error) {
         assert(error instanceof Error);
         await logger.log(
@@ -145,7 +145,7 @@ export function LoadElectionScreen({
           disposition: 'success',
         }
       );
-      await handleBallotLoading(ballotPackage);
+      handleBallotLoading(ballotPackage);
     } catch (error) {
       assert(error instanceof Error);
       await logger.log(

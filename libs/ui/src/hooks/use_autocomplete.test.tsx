@@ -130,7 +130,7 @@ test('basic autocomplete', async () => {
   expect(onSuggest).toHaveBeenCalledTimes(7);
 });
 
-test('can pass a wrapped onInput through', async () => {
+test('can pass a wrapped onInput through', () => {
   const onInput = jest.fn();
 
   function TestComponent(): JSX.Element {
@@ -157,7 +157,7 @@ test('can pass a wrapped onInput through', async () => {
   expect(onInput).toHaveBeenCalledTimes(7);
 });
 
-test('can pass a wrapped onKeyDown through', async () => {
+test('can pass a wrapped onKeyDown through', () => {
   const onKeyDown = jest.fn();
 
   function TestComponent(): JSX.Element {
@@ -184,7 +184,7 @@ test('can pass a wrapped onKeyDown through', async () => {
   expect(onKeyDown).toHaveBeenCalledTimes(8);
 });
 
-test('does not autocomplete unless typing at the end', async () => {
+test('does not autocomplete unless typing at the end', () => {
   const onSuggest = jest.fn<
     ReturnType<onSuggestType<string>>,
     Parameters<onSuggestType<string>>

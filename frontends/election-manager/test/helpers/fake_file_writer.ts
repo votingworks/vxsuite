@@ -9,6 +9,7 @@ export function fakeFileWriter(): jest.Mocked<FakeFileWriter> {
 
   return {
     filename: '/fake/file',
+    // eslint-disable-next-line @typescript-eslint/require-await
     write: jest.fn().mockImplementation(async (chunk) => {
       chunks.push(chunk);
     }),

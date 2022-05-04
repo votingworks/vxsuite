@@ -1,7 +1,7 @@
 import { electionSample } from '@votingworks/fixtures';
 import { generateDefaultReportFilename } from './save_as_pdf';
 
-test('file path name is generated properly', async () => {
+test('file path name is generated properly', () => {
   const testCases = [
     {
       // The file path should always be lowercased
@@ -48,7 +48,7 @@ test('file path name is generated properly', async () => {
   }
 });
 
-test('precinct name fills in all-precincts as default value', async () => {
+test('precinct name fills in all-precincts as default value', () => {
   expect(generateDefaultReportFilename('test', electionSample)).toBe(
     'test-franklin-county-general-election-all-precincts.pdf'
   );

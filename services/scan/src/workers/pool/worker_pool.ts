@@ -108,7 +108,7 @@ export class WorkerPool<I, O, W extends EventEmitter = EventEmitter> {
     return worker;
   }
 
-  private async releaseWorker(worker: W, traceId: string): Promise<void> {
+  private releaseWorker(worker: W, traceId: string): void {
     const { workers, claimedWorkers } = this;
 
     if (!workers || !claimedWorkers) {
@@ -238,7 +238,7 @@ export class WorkerPool<I, O, W extends EventEmitter = EventEmitter> {
     } finally {
       worker.off('message', resolve);
       worker.off('error', reject);
-      await this.releaseWorker(worker, traceId);
+      this.releaseWorker(worker, traceId);
     }
   }
 }

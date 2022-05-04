@@ -59,9 +59,9 @@ export function printHelp(
   out.write(`${$0} layout ballot*.jpg\n`);
 }
 
-export async function parseOptions({
+export function parseOptions({
   commandArgs: args,
-}: GlobalOptions): Promise<Result<Options, Error>> {
+}: GlobalOptions): Result<Options, Error> {
   let help = false;
   let targetMarkPosition: BallotTargetMarkPosition | undefined;
   const ballotImagePaths: string[] = [];
@@ -229,7 +229,7 @@ export async function run(
   stdout: NodeJS.WritableStream,
   stderr: NodeJS.WritableStream
 ): Promise<number> {
-  const optionsResult = await parseOptions(globalOptions);
+  const optionsResult = parseOptions(globalOptions);
 
   if (optionsResult.isErr()) {
     stderr.write(`${optionsResult.err().message}\n`);
