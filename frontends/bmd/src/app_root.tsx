@@ -1208,7 +1208,6 @@ export function AppRoot({
     return (
       <SetupCardReaderPage
         useEffectToggleLargeDisplay={useEffectToggleLargeDisplay}
-        usePollWorkerLanguage={false}
       />
     );
   }
