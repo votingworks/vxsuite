@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 import makeDebug from 'debug';
 import { createReadStream } from 'fs-extra';
 import { WritableStream } from 'memory-streams';

@@ -5,6 +5,7 @@ import {
   BallotType,
   ElectionDefinition,
 } from '@votingworks/types';
+import { Buffer } from 'buffer';
 import { defined } from './utils/defined';
 import { detect as detectQrCode } from './utils/qrcode';
 

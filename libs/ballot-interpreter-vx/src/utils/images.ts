@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 import { createCanvas, createImageData, loadImage } from 'canvas';
 import { createWriteStream } from 'fs';
 

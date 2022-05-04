@@ -1,4 +1,5 @@
 import { assert } from '@votingworks/utils';
+import { Buffer } from 'buffer';
 import makeDebug from 'debug';
 import * as fs from 'fs';
 import { sha256 } from 'js-sha256';

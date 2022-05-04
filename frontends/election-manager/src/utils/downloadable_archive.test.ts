@@ -1,6 +1,7 @@
 import { fakeKiosk } from '@votingworks/test-utils';
-import { DownloadableArchive } from './downloadable_archive';
+import { Buffer } from 'buffer';
 import { fakeFileWriter } from '../../test/helpers/fake_file_writer';
+import { DownloadableArchive } from './downloadable_archive';
 
 // https://en.wikipedia.org/wiki/List_of_file_signatures
 const ZIP_MAGIC_BYTES = Buffer.of(0x50, 0x4b, 0x03, 0x04);

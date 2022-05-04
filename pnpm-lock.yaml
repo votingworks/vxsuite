@@ -379,6 +379,7 @@ importers:
       '@votingworks/types': link:../../libs/types
       '@votingworks/ui': link:../../libs/ui
       '@votingworks/utils': link:../../libs/utils
+      buffer: 6.0.3
       fast-text-encoding: 1.0.3
       http-proxy-middleware: 1.0.6
       js-file-download: 0.4.12
@@ -474,6 +475,7 @@ importers:
       '@votingworks/types': workspace:*
       '@votingworks/ui': workspace:*
       '@votingworks/utils': workspace:*
+      buffer: ^6.0.3
       eslint: ^7.17.0
       eslint-config-airbnb: ^18.2.0
       eslint-config-prettier: ^8.3.0
@@ -555,6 +557,7 @@ importers:
       '@votingworks/utils': link:../../libs/utils
       array-unique: 0.3.2
       base64-js: 1.5.1
+      buffer: 6.0.3
       canvas: 2.9.1
       dashify: 2.0.0
       debug: 4.3.2
@@ -666,6 +669,7 @@ importers:
       '@votingworks/utils': workspace:*
       array-unique: ^0.3.2
       base64-js: ^1.3.1
+      buffer: ^6.0.3
       canvas: 2.9.1
       dashify: ^2.0.0
       debug: ^4.3.2
@@ -752,6 +756,7 @@ importers:
       '@votingworks/ui': link:../../libs/ui
       '@votingworks/utils': link:../../libs/utils
       base64-js: 1.5.1
+      buffer: 6.0.3
       debug: 4.3.1
       fetch-mock: 9.11.0
       http-proxy-middleware: 1.0.6_debug@4.3.1
@@ -844,6 +849,7 @@ importers:
       '@votingworks/ui': workspace:*
       '@votingworks/utils': workspace:*
       base64-js: ^1.3.1
+      buffer: ^6.0.3
       debug: ^4.3.1
       eslint: ^7.17.0
       eslint-config-airbnb: ^17.1.1
@@ -1091,6 +1097,7 @@ importers:
       '@votingworks/types': link:../types
       '@votingworks/utils': link:../utils
       '@xmldom/xmldom': 0.8.1
+      buffer: 6.0.3
       canvas: 2.9.1
       chalk: 4.1.2
       debug: 4.3.3
@@ -1136,6 +1143,7 @@ importers:
       '@votingworks/types': workspace:*
       '@votingworks/utils': workspace:*
       '@xmldom/xmldom': ^0.8.1
+      buffer: ^6.0.3
       canvas: 2.9.1
       chalk: '4'
       debug: ^4.3.3
@@ -1164,6 +1172,7 @@ importers:
       '@votingworks/qrdetect': 1.0.1
       '@votingworks/types': link:../types
       '@votingworks/utils': link:../utils
+      buffer: 6.0.3
       canvas: 2.9.1
       chalk: 4.1.0
       debug: 4.3.1
@@ -1231,6 +1240,7 @@ importers:
       '@votingworks/types': workspace:*
       '@votingworks/utils': workspace:*
       benchmark: ^2.1.4
+      buffer: ^6.0.3
       canvas: 2.9.1
       chalk: ^4.1.0
       debug: ^4.2.0
@@ -1809,6 +1819,7 @@ importers:
       '@testing-library/react': 11.2.6_react-dom@17.0.1+react@17.0.1
       '@types/node': 16.11.29
       '@votingworks/types': link:../types
+      buffer: 6.0.3
       fast-check: 2.18.0
       js-sha256: 0.9.0
       luxon: 1.26.0
@@ -1850,6 +1861,7 @@ importers:
       '@typescript-eslint/eslint-plugin': ^5.21.0
       '@typescript-eslint/parser': ^5.21.0
       '@votingworks/types': workspace:*
+      buffer: ^6.0.3
       eslint: ^7.28.0
       eslint-config-prettier: ^8.3.0
       eslint-import-resolver-node: ^0.3.6
@@ -2073,6 +2085,7 @@ importers:
       '@types/node': 16.11.29
       '@votingworks/types': link:../types
       base64-js: 1.5.1
+      buffer: 6.0.3
       debug: 4.3.2
       fast-text-encoding: 1.0.3
       fetch-mock: 9.11.0
@@ -2124,6 +2137,7 @@ importers:
       '@votingworks/test-utils': workspace:*
       '@votingworks/types': workspace:*
       base64-js: ^1.3.1
+      buffer: ^6.0.3
       debug: ^4.3.2
       eslint: ^7.26.0
       eslint-config-prettier: ^8.3.0
@@ -2179,6 +2193,7 @@ importers:
       '@votingworks/utils': link:../../libs/utils
       base64-js: 1.5.1
       better-sqlite3: 7.5.0
+      buffer: 6.0.3
       busboy: 0.3.1
       canvas: 2.9.1
       chalk: 4.1.0
@@ -2269,6 +2284,7 @@ importers:
       '@votingworks/utils': workspace:*
       base64-js: ^1.5.1
       better-sqlite3: ^7.5.0
+      buffer: ^6.0.3
       busboy: ^0.3.1
       canvas: 2.9.1
       chalk: ^4.1.0
@@ -17732,7 +17748,7 @@ packages:
       '@typescript-eslint/eslint-plugin': 5.21.0_4059d5ee7aba256d5e330151ee3418c0
       '@typescript-eslint/utils': 5.22.0_eslint@7.17.0+typescript@4.6.3
       eslint: 7.17.0
-      jest: 27.3.1
+      jest: 27.3.1_canvas@2.9.1
     dev: true
     engines:
       node: ^12.22.0 || ^14.17.0 || >=16.0.0
@@ -19736,7 +19752,7 @@ packages:
       integrity: sha512-HWqDgT7ZEkqRzBvc2s64vSZ/hfOceEol3ac/7tKwzuvEyWx3/4UegXh5oBOIotkGsObyk3xznnSRVADBgWSQVg==
   /follow-redirects/1.14.1_debug@4.3.2:
     dependencies:
-      debug: 4.3.2
+      debug: 4.3.2_supports-color@6.1.0
     dev: false
     engines:
       node: '>=4.0'
@@ -24134,7 +24150,7 @@ packages:
     dependencies:
       ansi-escapes: 4.3.2
       chalk: 4.1.2
-      jest: 27.5.1
+      jest: 27.5.1_canvas@2.9.1
       jest-regex-util: 27.5.1
       jest-watcher: 27.5.1
       slash: 3.0.0
@@ -31265,7 +31281,7 @@ packages:
       '@types/jest': 27.0.3
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
-      jest: 27.3.1_canvas@2.9.1
+      jest: 27.3.1
       jest-util: 27.3.1
       json5: 2.2.0
       lodash.memoize: 4.1.2

@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 import ZipStream from 'zip-stream';
 
 export async function addFile(

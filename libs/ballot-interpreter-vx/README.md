@@ -55,6 +55,7 @@ codes. If you wish to supply your own decoder, pass `decodeQRCode` to
 
 ```ts
 // Example custom QR code reader using jsQR
+import { Buffer } from 'buffer';
 import jsQR from 'jsqr'
 import { Interpreter } from '@votingworks/ballot-interpreter-vx'
 

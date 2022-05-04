@@ -6,6 +6,7 @@ import {
   CompletedBallot,
   ImageData,
 } from '@votingworks/types';
+import { Buffer } from 'buffer';
 
 export interface GetBallotOptions {
   markScoreVoteThreshold: number;

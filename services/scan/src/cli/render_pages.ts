@@ -1,5 +1,6 @@
 import { BallotType, getPrecinctById } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/utils';
+import { Buffer } from 'buffer';
 import chalk from 'chalk';
 import { promises as fs } from 'fs';
 import { basename, dirname, extname, join } from 'path';

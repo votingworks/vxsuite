@@ -1,4 +1,5 @@
 import { electionSampleDefinition as electionDefinition } from '@votingworks/fixtures';
+import { Buffer } from 'buffer';
 import fetchMock from 'fetch-mock';
 import { addTemplates } from './hmpb';
 import * as config from './config';

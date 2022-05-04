@@ -53,6 +53,7 @@ import {
   ZeroRequest,
   ZeroResponse,
 } from '@votingworks/types/api/services/scan';
+import { Buffer } from 'buffer';
 import express, { Application } from 'express';
 import { readFile } from 'fs-extra';
 import multer from 'multer';

@@ -9,6 +9,7 @@ import {
   safeParseElectionDefinition,
   safeParseJson,
 } from '@votingworks/types';
+import { Buffer } from 'buffer';
 import 'fast-text-encoding';
 import JsZip, { JSZipObject } from 'jszip';
 import { z } from 'zod';

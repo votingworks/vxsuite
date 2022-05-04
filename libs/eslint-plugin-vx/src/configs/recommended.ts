@@ -100,6 +100,7 @@ export = {
     'no-await-in-loop': 'off',
     'no-continue': 'off',
     'no-nested-ternary': 'off',
+    'no-restricted-globals': ['error', 'Buffer'],
     'no-restricted-syntax': 'off',
     'no-return-await': 'off',
     'no-underscore-dangle': [

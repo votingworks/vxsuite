@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import pluralize from 'pluralize';
 import styled from 'styled-components';

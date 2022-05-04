@@ -1,5 +1,6 @@
 import { err, isResult, ok } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/utils';
+import { Buffer } from 'buffer';
 
 /* eslint-disable no-underscore-dangle */
 export type SerializedMessage =

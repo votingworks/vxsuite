@@ -1,6 +1,7 @@
 import { electionSample } from '@votingworks/fixtures';
 import { fakeKiosk, zipFile } from '@votingworks/test-utils';
 import { BallotPageLayout, BallotType } from '@votingworks/types';
+import { Buffer } from 'buffer';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import {

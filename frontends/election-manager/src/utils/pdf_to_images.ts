@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 import { createCanvas } from 'canvas';
 import { getDocument, GlobalWorkerOptions } from 'pdfjs-dist';
 
