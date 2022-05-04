@@ -118,7 +118,7 @@
     "react-gamepad": "^1.0.3",
     "react-idle-timer": "4.2.12",
     "react-router-dom": "^5.2.0",
-    "react-scripts": "4.0.1",
+    "react-scripts": "5.0.1",
     "rxjs": "^6.6.6",
     "setimmediate": "^1.0.5",
     "styled-components": "^4.4.1",

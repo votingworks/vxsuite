@@ -119,5 +119,14 @@ function readPackage(pkg, context) {
     context.log(`${pkg.name}@${pkg.version} may use Object.setPrototypeOf with fs.read, which is undefined in the browser, which crashes`)
   }
 
+  // This may be fixed upstream by https://github.com/facebook/create-react-app/pull/12364.
+  if (pkg.name === 'babel-preset-react-app') {
+    // Cannot find module '@babel/plugin-proposal-private-property-in-object'
+    pkg.dependencies = {
+      ...pkg.dependencies,
+      '@babel/plugin-proposal-private-property-in-object': '*',
+    }
+  }
+
   return pkg
 }
