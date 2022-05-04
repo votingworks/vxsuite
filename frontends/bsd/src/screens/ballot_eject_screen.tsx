@@ -12,7 +12,7 @@ import {
   Side,
 } from '@votingworks/types/api/services/scan';
 import { assert } from '@votingworks/utils';
-import { ElectionInfoBar } from '@votingworks/ui';
+import { ElectionInfoBar, Screen } from '@votingworks/ui';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { fetchNextBallotSheetToReview } from '../api/hmpb';
@@ -21,7 +21,6 @@ import { Button } from '../components/button';
 import { Main } from '../components/main';
 import { MainNav } from '../components/main_nav';
 import { Prose } from '../components/prose';
-import { Screen } from '../components/screen';
 import { Text } from '../components/text';
 import { AppContext } from '../contexts/app_context';
 import { WriteInAdjudicationScreen } from './write_in_adjudication_screen';
@@ -379,7 +378,7 @@ export function BallotEjectScreen({
     isFrontBlank && (isBackBlank || isBackIntentionallyLeftBlank);
 
   return (
-    <Screen>
+    <Screen flexDirection="column">
       <MainNav>
         {!allowBallotDuplication ? (
           <Button

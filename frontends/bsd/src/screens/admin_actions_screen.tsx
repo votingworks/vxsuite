@@ -2,14 +2,13 @@ import { ElectionDefinition, MarkThresholds } from '@votingworks/types';
 import React, { useCallback, useEffect, useState, useContext } from 'react';
 import { LogEventId } from '@votingworks/logging';
 import { assert, LogFileType } from '@votingworks/utils';
-import { Loading, Modal, SetClockButton } from '@votingworks/ui';
+import { Loading, Modal, SetClockButton, Screen } from '@votingworks/ui';
 import { Button } from '../components/button';
 import { LinkButton } from '../components/link_button';
 import { Main, MainChild } from '../components/main';
 import { MainNav } from '../components/main_nav';
 import { Prose } from '../components/prose';
 import { Text } from '../components/text';
-import { Screen } from '../components/screen';
 import { ToggleTestModeButton } from '../components/toggle_test_mode_button';
 import { SetMarkThresholdsModal } from '../components/set_mark_thresholds_modal';
 import { AppContext } from '../contexts/app_context';
@@ -110,7 +109,7 @@ export function AdminActionsScreen({
 
   return (
     <React.Fragment>
-      <Screen>
+      <Screen flexDirection="column">
         <Main>
           <MainChild>
             <Prose>

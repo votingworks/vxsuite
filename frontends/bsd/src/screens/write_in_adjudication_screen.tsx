@@ -16,7 +16,7 @@ import {
   WriteInMarkAdjudication,
 } from '@votingworks/types';
 import { Side } from '@votingworks/types/api/services/scan';
-import { Text, useAutocomplete, useStoredState } from '@votingworks/ui';
+import { Text, useAutocomplete, useStoredState, Screen } from '@votingworks/ui';
 import { assert, find } from '@votingworks/utils';
 import React, {
   useCallback,
@@ -34,7 +34,6 @@ import { CroppedImage } from '../components/cropped_image';
 import { Main } from '../components/main';
 import { MainNav } from '../components/main_nav';
 import { Prose } from '../components/prose';
-import { Screen } from '../components/screen';
 import { AppContext } from '../contexts/app_context';
 
 type CandidateNameList = readonly string[];
@@ -562,7 +561,7 @@ export function WriteInAdjudicationScreen({
   );
 
   return (
-    <Screen>
+    <Screen flexDirection="column">
       <MainNav />
       <Main>
         <MainChildColumns>

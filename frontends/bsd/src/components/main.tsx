@@ -7,7 +7,6 @@ interface Props {
 
 export const Main = styled('main')<Props>`
   display: flex;
-  flex: 1;
   flex-direction: column;
   overflow: ${({ noOverflow = false }) => (noOverflow ? undefined : 'auto')};
   padding: ${({ noPadding = false }) =>
