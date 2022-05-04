@@ -71,7 +71,7 @@ export function UnlockMachineScreen(): JSX.Element {
   return (
     <Screen flexDirection="column">
       <Main>
-        <MainChild center>
+        <MainChild center maxWidth={false}>
           <Prose textCenter theme={fontSizeTheme.medium} maxWidth={false}>
             {primarySentence}
             <EnteredCode>{currentPasscodeDisplayString}</EnteredCode>

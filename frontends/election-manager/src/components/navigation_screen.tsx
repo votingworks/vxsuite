@@ -4,13 +4,14 @@ import { useLocation } from 'react-router-dom';
 import {
   Button,
   ElectionInfoBar,
+  Main,
+  MainChild,
   Screen,
   UsbControllerButton,
 } from '@votingworks/ui';
 import { AppContext } from '../contexts/app_context';
 
 import { routerPaths } from '../router_paths';
-import { Main, MainChild } from './main';
 import { Navigation } from './navigation';
 import { LinkButton } from './link_button';
 
@@ -132,7 +133,11 @@ export function NavigationScreen({
         }
       />
       <Main padded>
-        <MainChild center={mainChildCenter} flexContainer={mainChildFlex}>
+        <MainChild
+          center={mainChildCenter}
+          flexContainer={mainChildFlex}
+          maxWidth={false}
+        >
           {children}
         </MainChild>
       </Main>

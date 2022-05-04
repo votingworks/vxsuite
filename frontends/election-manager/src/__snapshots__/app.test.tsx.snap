@@ -8,13 +8,13 @@ exports[`L&A (logic and accuracy) flow 1`] = `
     class="sc-jObXwK cZXyJz"
   >
     <div
-      class="sc-dlfnbm gLhbBV"
+      class="sc-bdfBwQ gqAMTS"
     >
       <div
-        class="sc-hKgILt OqpUU"
+        class="sc-gsTCUz iTmZjl"
       >
         <div
-          class="sc-eCssSg jkAxij"
+          class="sc-dlfnbm VzbFO"
         >
           Voting
           <span>
@@ -22,58 +22,58 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           </span>
         </div>
         <div
-          class="sc-jSgupP"
+          class="sc-hKgILt"
         >
           VxAdmin
         </div>
       </div>
       <div
-        class="sc-gKsewC jrPsOd"
+        class="sc-eCssSg kiVrGp"
       >
         <button
-          class="sc-pFZIQ dHuRwu"
+          class="sc-iBPRYJ fvkSI"
           role="option"
           type="button"
         >
           Definition
         </button>
         <button
-          class="sc-pFZIQ dHuRwu"
+          class="sc-iBPRYJ fvkSI"
           role="option"
           type="button"
         >
           Cards
         </button>
         <button
-          class="sc-pFZIQ dHuRwu"
+          class="sc-iBPRYJ fvkSI"
           role="option"
           type="button"
         >
           Ballots
         </button>
         <button
-          class="sc-pFZIQ dHuRwu active-section"
+          class="sc-iBPRYJ fvkSI active-section"
           role="option"
           type="button"
         >
           L&A
         </button>
         <button
-          class="sc-pFZIQ eEutdw"
+          class="sc-iBPRYJ bnpNDy"
           role="option"
           type="button"
         >
           Write-Ins
         </button>
         <button
-          class="sc-pFZIQ eEutdw"
+          class="sc-iBPRYJ bnpNDy"
           role="option"
           type="button"
         >
           Tally
         </button>
         <button
-          class="sc-pFZIQ eEutdw"
+          class="sc-iBPRYJ bnpNDy"
           role="option"
           type="button"
         >
@@ -81,7 +81,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
         </button>
       </div>
       <div
-        class="sc-iBPRYJ cMKsID"
+        class="sc-jSgupP eMSuCK"
       >
         <button
           class="sc-ksdxAp ctUtNB"
@@ -98,13 +98,13 @@ exports[`L&A (logic and accuracy) flow 1`] = `
       </div>
     </div>
     <main
-      class="sc-bdfBwQ kBYMVs"
+      class="sc-cxpRKc gcPvlD"
     >
       <div
-        class="sc-gsTCUz bBzEqw"
+        class="sc-llYToB giIfcl"
       >
         <div
-          class="sc-iqHYGH Kxqpa"
+          class="sc-jrAGrp btWnEo"
         >
           <h1>
             Test Decks
@@ -124,7 +124,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           </p>
           <p>
             <button
-              class="sc-pFZIQ PgJnQ"
+              class="sc-iBPRYJ cWqIfm"
               type="button"
             >
               Print Test Deck
@@ -132,7 +132,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           </p>
           <p>
             <button
-              class="sc-pFZIQ eEutdw"
+              class="sc-iBPRYJ bnpNDy"
               role="option"
               type="button"
             >
@@ -269,13 +269,13 @@ exports[`L&A (logic and accuracy) flow 2`] = `
     class="sc-jObXwK cZXyJz"
   >
     <div
-      class="sc-dlfnbm gLhbBV"
+      class="sc-bdfBwQ gqAMTS"
     >
       <div
-        class="sc-hKgILt OqpUU"
+        class="sc-gsTCUz iTmZjl"
       >
         <div
-          class="sc-eCssSg jkAxij"
+          class="sc-dlfnbm VzbFO"
         >
           Voting
           <span>
@@ -283,58 +283,58 @@ exports[`L&A (logic and accuracy) flow 2`] = `
           </span>
         </div>
         <div
-          class="sc-jSgupP"
+          class="sc-hKgILt"
         >
           VxAdmin
         </div>
       </div>
       <div
-        class="sc-gKsewC jrPsOd"
+        class="sc-eCssSg kiVrGp"
       >
         <button
-          class="sc-pFZIQ dHuRwu"
+          class="sc-iBPRYJ fvkSI"
           role="option"
           type="button"
         >
           Definition
         </button>
         <button
-          class="sc-pFZIQ dHuRwu"
+          class="sc-iBPRYJ fvkSI"
           role="option"
           type="button"
         >
           Cards
         </button>
         <button
-          class="sc-pFZIQ dHuRwu"
+          class="sc-iBPRYJ fvkSI"
           role="option"
           type="button"
         >
           Ballots
         </button>
         <button
-          class="sc-pFZIQ dHuRwu active-section"
+          class="sc-iBPRYJ fvkSI active-section"
           role="option"
           type="button"
         >
           L&A
         </button>
         <button
-          class="sc-pFZIQ eEutdw"
+          class="sc-iBPRYJ bnpNDy"
           role="option"
           type="button"
         >
           Write-Ins
         </button>
         <button
-          class="sc-pFZIQ eEutdw"
+          class="sc-iBPRYJ bnpNDy"
           role="option"
           type="button"
         >
           Tally
         </button>
         <button
-          class="sc-pFZIQ eEutdw"
+          class="sc-iBPRYJ bnpNDy"
           role="option"
           type="button"
         >
@@ -342,7 +342,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
         </button>
       </div>
       <div
-        class="sc-iBPRYJ cMKsID"
+        class="sc-jSgupP eMSuCK"
       >
         <button
           class="sc-ksdxAp ctUtNB"
@@ -359,10 +359,10 @@ exports[`L&A (logic and accuracy) flow 2`] = `
       </div>
     </div>
     <main
-      class="sc-bdfBwQ kBYMVs"
+      class="sc-cxpRKc gcPvlD"
     >
       <div
-        class="sc-gsTCUz bBzEqw"
+        class="sc-llYToB giIfcl"
       >
         <div>
           <strong>
@@ -372,7 +372,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
           Mock General Election Choctaw 2020
         </div>
         <div
-          class="sc-iqHYGH Kxqpa"
+          class="sc-jrAGrp btWnEo"
         >
           <h1
             class="sc-ikJzcn hrFjNm"
@@ -401,7 +401,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
           </p>
           <p>
             <button
-              class="sc-pFZIQ PgJnQ"
+              class="sc-iBPRYJ cWqIfm"
               type="button"
             >
               Print Results Report
@@ -409,7 +409,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
           </p>
           <p>
             <button
-              class="sc-pFZIQ dHuRwu"
+              class="sc-iBPRYJ fvkSI"
               type="button"
             >
               Save Results Report as PDF
@@ -417,7 +417,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
           </p>
           <p>
             <button
-              class="sc-pFZIQ eEutdw"
+              class="sc-iBPRYJ bnpNDy"
               role="option"
               type="button"
             >
@@ -518,7 +518,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
          Mock General Election Choctaw 2020
       </div>
       <div
-        class="sc-iqHYGH kdjtXJ"
+        class="sc-jrAGrp fBQAfz"
       >
         <h1
           class="sc-ikJzcn hrFjNm"
@@ -1657,7 +1657,7 @@ exports[`tabulating CVRs 1`] = `
     src="/votingworks-wordmark-black.svg"
   />
   <div
-    class="sc-iqHYGH kdjtXJ"
+    class="sc-jrAGrp fBQAfz"
   >
     <h1>
       Official
@@ -2848,7 +2848,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
     src="/votingworks-wordmark-black.svg"
   />
   <div
-    class="sc-iqHYGH kdjtXJ"
+    class="sc-jrAGrp fBQAfz"
   >
     <h1>
       Unofficial
