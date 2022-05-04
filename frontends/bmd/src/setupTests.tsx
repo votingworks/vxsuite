@@ -3,7 +3,7 @@
 import 'jest-styled-components';
 import '@testing-library/jest-dom/extend-expect';
 import fetchMock from 'fetch-mock';
-import { TextDecoder, TextEncoder } from 'util';
+import { TextDecoder, TextEncoder } from 'node:util';
 
 beforeEach(() => {
   // react-gamepad calls this function which does not exist in JSDOM
