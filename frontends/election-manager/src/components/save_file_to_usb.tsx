@@ -7,6 +7,7 @@ import { assert, usbstick, throwIllegalValue } from '@votingworks/utils';
 import { Modal, UsbControllerButton } from '@votingworks/ui';
 
 import { LogEventId } from '@votingworks/logging';
+import { PromiseOr } from '@votingworks/types';
 import { AppContext } from '../contexts/app_context';
 import { Button } from './button';
 import { Prose } from './prose';
@@ -32,7 +33,7 @@ export enum FileType {
 
 export interface Props {
   onClose: () => void;
-  generateFileContent: () => Uint8Array | string | Promise<Uint8Array | string>;
+  generateFileContent: () => PromiseOr<Uint8Array | string>;
   defaultFilename: string;
   fileType: FileType;
   promptToEjectUsb?: boolean;

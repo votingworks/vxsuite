@@ -1,3 +1,4 @@
+import { PromiseOr } from '@votingworks/types';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -9,7 +10,7 @@ import {
 
 export type InputEventFunction = (
   event: React.FormEvent<HTMLInputElement>
-) => void | Promise<void>;
+) => PromiseOr<void>;
 
 export const HiddenFileInput = styled.input`
   position: relative;

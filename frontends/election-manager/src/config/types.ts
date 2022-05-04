@@ -9,6 +9,7 @@ import {
   Optional,
   Precinct,
   PrecinctId,
+  PromiseOr,
   VotingMethod,
 } from '@votingworks/types';
 import { z } from 'zod';
@@ -17,13 +18,13 @@ import { z } from 'zod';
 export type EventTargetFunction = (event: React.FormEvent<EventTarget>) => void;
 export type InputEventFunction = (
   event: React.FormEvent<HTMLInputElement>
-) => void | Promise<void>;
+) => PromiseOr<void>;
 export type TextareaEventFunction = (
   event: React.FormEvent<HTMLTextAreaElement>
-) => void | Promise<void>;
+) => PromiseOr<void>;
 export type ButtonEventFunction = (
   event: React.MouseEvent<HTMLButtonElement>
-) => void | Promise<void>;
+) => PromiseOr<void>;
 
 // Election
 export type SaveElection = (electionJson?: string) => Promise<void>;
