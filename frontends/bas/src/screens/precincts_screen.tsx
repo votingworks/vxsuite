@@ -1,14 +1,13 @@
 import React from 'react';
 import { Precinct } from '@votingworks/types';
 
-import { Screen } from '@votingworks/ui';
+import { Screen, Main, MainChild } from '@votingworks/ui';
 
 import { EventTargetFunction } from '../config/types';
 
 import { Button } from '../components/button';
 import { ButtonList } from '../components/button_list';
 import { Heading } from '../components/heading';
-import { Main, MainChild } from '../components/main';
 import { MainNav } from '../components/main_nav';
 import { Prose } from '../components/prose';
 import { Text } from '../components/text';

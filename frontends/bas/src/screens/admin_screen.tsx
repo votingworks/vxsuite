@@ -12,12 +12,11 @@ import {
 } from '@votingworks/types';
 import { formatFullDateTimeZone } from '@votingworks/utils';
 
-import { Screen } from '@votingworks/ui';
+import { Main, MainChild, Screen } from '@votingworks/ui';
 
 import { compareName } from '../utils/sort';
 import { Button } from '../components/button';
 import { Prose } from '../components/prose';
-import { Main, MainChild } from '../components/main';
 import { MainNav } from '../components/main_nav';
 import { Select } from '../components/select';
 import { Text } from '../components/text';
