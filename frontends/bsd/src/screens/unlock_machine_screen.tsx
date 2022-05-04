@@ -1,13 +1,13 @@
 import {
   fontSizeTheme,
-  Prose,
-  Text,
-  NumberPad,
   ElectionInfoBar,
+  NumberPad,
+  Prose,
+  Screen,
+  Text,
 } from '@votingworks/ui';
 import React, { useState, useEffect, useCallback, useContext } from 'react';
 import styled from 'styled-components';
-import { Screen } from '../components/screen';
 import { Main, MainChild } from '../components/main';
 import { AppContext } from '../contexts/app_context';
 import * as GLOBALS from '../config/globals';
@@ -73,7 +73,7 @@ export function UnlockMachineScreen({
     primarySentence = <Text warning>Invalid code. Please try again.</Text>;
   }
   return (
-    <Screen>
+    <Screen flexDirection="column">
       <Main>
         <MainChild center>
           <Prose textCenter theme={fontSizeTheme.medium} maxWidth={false}>

@@ -9,13 +9,13 @@ import {
   readBallotPackageFromFile,
   readBallotPackageFromFilePointer,
 } from '@votingworks/utils';
+import { Screen } from '@votingworks/ui';
 import { LogEventId } from '@votingworks/logging';
 import * as config from '../api/config';
 import { addTemplates, doneTemplates } from '../api/hmpb';
 import { ElectionConfiguration } from '../components/election_configuration';
 import { Main, MainChild } from '../components/main';
 import { Prose } from '../components/prose';
-import { Screen } from '../components/screen';
 import { SetElectionDefinition } from '../config/types';
 import { AppContext } from '../contexts/app_context';
 
@@ -165,7 +165,7 @@ export function LoadElectionScreen({
 
   if (isLoadingTemplates) {
     return (
-      <Screen>
+      <Screen flexDirection="column">
         <Main noPadding>
           <MainChild center padded>
             <Prose textCenter>
@@ -179,7 +179,7 @@ export function LoadElectionScreen({
 
   if (totalTemplates > 0 && currentUploadingBallot) {
     return (
-      <Screen>
+      <Screen flexDirection="column">
         <Main noPadding>
           <MainChild center padded>
             <Prose textCenter>

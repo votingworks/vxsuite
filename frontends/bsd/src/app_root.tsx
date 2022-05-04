@@ -37,6 +37,7 @@ import {
   RebootFromUsbButton,
   fontSizeTheme,
   Prose,
+  Screen,
 } from '@votingworks/ui';
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
 import { MachineConfig } from './config/types';
@@ -44,7 +45,6 @@ import { AppContext, AppContextInterface } from './contexts/app_context';
 
 import { Button } from './components/button';
 import { Main, MainChild } from './components/main';
-import { Screen } from './components/screen';
 
 import { Text } from './components/text';
 import { ScanButton } from './components/scan_button';
@@ -533,7 +533,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
   if (currentUserSession.type === 'superadmin') {
     return (
       <AppContext.Provider value={currentContext}>
-        <Screen>
+        <Screen flexDirection="column">
           <Main>
             <MainChild center>
               <Prose theme={fontSizeTheme.large}>
@@ -577,7 +577,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
     if (electionJustLoaded) {
       return (
         <AppContext.Provider value={currentContext}>
-          <Screen>
+          <Screen flexDirection="column">
             <Main>
               <MainChild center padded>
                 <Prose>
@@ -647,7 +647,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
             />
           </Route>
           <Route path="/">
-            <Screen>
+            <Screen flexDirection="column">
               <Main>
                 <MainChild maxWidth={false}>
                   <DashboardScreen
@@ -714,7 +714,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
   }
 
   return (
-    <Screen>
+    <Screen flexDirection="column">
       <Main>
         <MainChild maxWidth={false}>
           <h1>Loading Configuration...</h1>

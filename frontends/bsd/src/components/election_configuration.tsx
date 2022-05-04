@@ -9,12 +9,11 @@ import {
   usbstick,
   ElectionData,
 } from '@votingworks/utils';
-import { UsbControllerButton } from '@votingworks/ui';
+import { UsbControllerButton, Screen } from '@votingworks/ui';
 import { LogEventId } from '@votingworks/logging';
 import { Prose } from './prose';
 import { Main, MainChild } from './main';
 import { MainNav } from './main_nav';
-import { Screen } from './screen';
 import { Text } from './text';
 import { Loading } from './loading';
 import { FileInputButton } from './file_input_button';
@@ -178,7 +177,7 @@ export function ElectionConfiguration({
     loadingFiles
   ) {
     return (
-      <Screen>
+      <Screen flexDirection="column">
         <Main noPadding>
           <MainChild center padded>
             <Loading />
@@ -241,7 +240,7 @@ export function ElectionConfiguration({
     // If there were no valid files found prompt the user to select a file themselves.
     if (fileOptions.length === 0) {
       return (
-        <Screen>
+        <Screen flexDirection="column">
           <Main>
             <MainChild center padded>
               <Prose>
@@ -271,7 +270,7 @@ export function ElectionConfiguration({
     }
 
     return (
-      <Screen>
+      <Screen flexDirection="column">
         <Main>
           <MainChild padded maxWidth={false}>
             <Prose maxWidth={false}>
@@ -328,7 +327,7 @@ export function ElectionConfiguration({
 
   // No USB Drive was found show initial screen.
   return (
-    <Screen>
+    <Screen flexDirection="column">
       <Main>
         <MainChild center padded>
           <Prose maxWidth={false}>
