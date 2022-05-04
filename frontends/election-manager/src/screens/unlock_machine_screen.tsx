@@ -1,15 +1,15 @@
 import {
   fontSizeTheme,
+  ElectionInfoBar,
   Main,
   MainChild,
   NumberPad,
   Prose,
+  Screen,
   Text,
-  ElectionInfoBar,
 } from '@votingworks/ui';
 import React, { useState, useContext, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
-import { Screen } from '../components/screen';
 import { SECURITY_PIN_LENGTH } from '../config/globals';
 import { AppContext } from '../contexts/app_context';
 
@@ -69,7 +69,7 @@ export function UnlockMachineScreen(): JSX.Element {
     primarySentence = <Text warning>Invalid code. Please try again.</Text>;
   }
   return (
-    <Screen>
+    <Screen flexDirection="column">
       <Main>
         <MainChild center>
           <Prose textCenter theme={fontSizeTheme.medium} maxWidth={false}>

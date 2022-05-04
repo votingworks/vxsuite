@@ -1,11 +1,15 @@
 import React, { useContext } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import { Button, UsbControllerButton, ElectionInfoBar } from '@votingworks/ui';
+import {
+  Button,
+  ElectionInfoBar,
+  Screen,
+  UsbControllerButton,
+} from '@votingworks/ui';
 import { AppContext } from '../contexts/app_context';
 
 import { routerPaths } from '../router_paths';
-import { Screen } from './screen';
 import { Main, MainChild } from './main';
 import { Navigation } from './navigation';
 import { LinkButton } from './link_button';
@@ -44,7 +48,7 @@ export function NavigationScreen({
   const currentUser = currentUserSession?.type ?? 'unknown';
 
   return (
-    <Screen>
+    <Screen flexDirection="column">
       <Navigation
         primaryNav={
           election ? (

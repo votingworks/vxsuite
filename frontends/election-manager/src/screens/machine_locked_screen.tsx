@@ -1,13 +1,13 @@
 import {
   fontSizeTheme,
+  ElectionInfoBar,
   Main,
   MainChild,
   Prose,
-  ElectionInfoBar,
+  Screen,
 } from '@votingworks/ui';
 import React, { useContext } from 'react';
 import styled from 'styled-components';
-import { Screen } from '../components/screen';
 import { AppContext } from '../contexts/app_context';
 
 const LockedImage = styled.img`
@@ -20,7 +20,7 @@ const LockedImage = styled.img`
 export function MachineLockedScreen(): JSX.Element {
   const { electionDefinition, machineConfig } = useContext(AppContext);
   return (
-    <Screen>
+    <Screen flexDirection="column">
       <Main>
         <MainChild center>
           <LockedImage src="locked.svg" alt="Locked Icon" />
