@@ -1,7 +1,6 @@
 import React from 'react';
 
-import { Screen } from '@votingworks/ui';
-import { Main, MainChild } from './main';
+import { Main, MainChild, Screen } from '@votingworks/ui';
 
 export function WriteInsTranscriptionScreen(): JSX.Element {
   return (
