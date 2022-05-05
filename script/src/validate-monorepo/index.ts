@@ -34,10 +34,17 @@ export async function main({ stdout, stderr }: IO): Promise<number> {
 
     packageCount += 1;
 
-    const workspaceDependencies = (
-      packageJson.dependencies ? Object.entries(packageJson.dependencies) : []
-    ).flatMap(([name, version]) =>
-      version.startsWith('workspace:') ? [name] : []
+    const workspaceDependencies = [
+      ...(packageJson.dependencies
+        ? Object.entries(packageJson.dependencies)
+        : []),
+      ...(packageJson.devDependencies
+        ? Object.entries(packageJson.devDependencies)
+        : []),
+    ].flatMap(([name, version]) =>
+      name !== packageJson.name && version.startsWith('workspace:')
+        ? [name]
+        : []
     );
 
     const tsconfigPath = join(pkg, 'tsconfig.json');
@@ -56,7 +63,7 @@ export async function main({ stdout, stderr }: IO): Promise<number> {
       errors += 1;
     }
 
-    for (const issue of checkTsconfigMatchesPackageJson(
+    for await (const issue of checkTsconfigMatchesPackageJson(
       tsconfig,
       tsconfigPath,
       workspaceDependencies,
@@ -105,7 +112,7 @@ export async function main({ stdout, stderr }: IO): Promise<number> {
         errors += 1;
       }
 
-      for (const issue of checkTsconfigMatchesPackageJson(
+      for await (const issue of checkTsconfigMatchesPackageJson(
         tsconfigBuild,
         tsconfigBuildPath,
         workspaceDependencies,

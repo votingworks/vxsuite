@@ -147,12 +147,12 @@ export async function readdir(directory: string): Promise<string[]> {
   return (await fs.readdir(directory)).map((entry) => join(directory, entry));
 }
 
-export function* checkTsconfigMatchesPackageJson(
+export async function* checkTsconfigMatchesPackageJson(
   tsconfig: Tsconfig,
   tsconfigPath: string,
   workspaceDependencies: readonly string[],
   packageJsonPath: string
-): Generator<ValidationIssue> {
+): AsyncGenerator<ValidationIssue> {
   const tsconfigReferencesPaths = new Set(
     tsconfig.references?.map(({ path }) => join(tsconfigPath, '..', path)) ?? []
   );
@@ -176,6 +176,7 @@ export function* checkTsconfigMatchesPackageJson(
     );
 
     if (
+      await maybeReadTsconfig(expectedWorkspaceDependencyTsconfigBuildPath) &&
       !tsconfigReferencesPaths.has(expectedWorkspaceDependencyTsconfigBuildPath)
     ) {
       yield {

@@ -387,9 +387,9 @@ jobs:
     steps:
       - checkout-and-install
       - run:
-          name: Build
+          name: Type Check
           command: |
-            pnpm --dir libs/res-to-ts build
+            pnpm --dir libs/res-to-ts type-check
       - run:
           name: Lint
           command: |
