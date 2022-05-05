@@ -63,7 +63,7 @@ export async function main({ stdout, stderr }: IO): Promise<number> {
       errors += 1;
     }
 
-    for (const issue of checkTsconfigMatchesPackageJson(
+    for await (const issue of checkTsconfigMatchesPackageJson(
       tsconfig,
       tsconfigPath,
       workspaceDependencies,
@@ -112,7 +112,7 @@ export async function main({ stdout, stderr }: IO): Promise<number> {
         errors += 1;
       }
 
-      for (const issue of checkTsconfigMatchesPackageJson(
+      for await (const issue of checkTsconfigMatchesPackageJson(
         tsconfigBuild,
         tsconfigBuildPath,
         workspaceDependencies,
