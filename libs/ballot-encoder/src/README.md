@@ -97,7 +97,7 @@ encoded as follows:
   `01010110 01011000 00000002`. This must be at the start of the encoded data,
   or the data does not represent a valid v2-encoded ballot.
   - Size: 24 bits.
-- **Election Hash:** This is a fixed-length hexidecimal string 20 characters
+- **Election Hash:** This is a fixed-length hexadecimal string 20 characters
   long (`ED.electionHash.slice(0, 20)`).
   - Size: `20 * 4` bits.
 - **Ballot Config:** The encoding of a `BallotConfig` derived from `B` and `ED`
