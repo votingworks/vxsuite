@@ -9,10 +9,9 @@ import {
   usbstick,
   ElectionData,
 } from '@votingworks/utils';
-import { UsbControllerButton, Screen } from '@votingworks/ui';
+import { Main, MainChild, Screen, UsbControllerButton } from '@votingworks/ui';
 import { LogEventId } from '@votingworks/logging';
 import { Prose } from './prose';
-import { Main, MainChild } from './main';
 import { MainNav } from './main_nav';
 import { Text } from './text';
 import { Loading } from './loading';
@@ -178,8 +177,8 @@ export function ElectionConfiguration({
   ) {
     return (
       <Screen flexDirection="column">
-        <Main noPadding>
-          <MainChild center padded>
+        <Main>
+          <MainChild center>
             <Loading />
           </MainChild>
         </Main>
@@ -241,8 +240,8 @@ export function ElectionConfiguration({
     if (fileOptions.length === 0) {
       return (
         <Screen flexDirection="column">
-          <Main>
-            <MainChild center padded>
+          <Main padded>
+            <MainChild center>
               <Prose>
                 <h1>No Election Ballot Package Files Found</h1>
                 <Image src="assets/usb-drive.svg" alt="Insert USB Image" />
@@ -271,8 +270,8 @@ export function ElectionConfiguration({
 
     return (
       <Screen flexDirection="column">
-        <Main>
-          <MainChild padded maxWidth={false}>
+        <Main padded>
+          <MainChild maxWidth={false}>
             <Prose maxWidth={false}>
               <h1>Choose Election Configuration</h1>
               <Text>
@@ -328,8 +327,8 @@ export function ElectionConfiguration({
   // No USB Drive was found show initial screen.
   return (
     <Screen flexDirection="column">
-      <Main>
-        <MainChild center padded>
+      <Main padded>
+        <MainChild center>
           <Prose maxWidth={false}>
             <h1>Load Election Configuration</h1>
             <Image src="assets/usb-drive.svg" alt="Insert USB Image" />

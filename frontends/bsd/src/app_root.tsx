@@ -27,25 +27,25 @@ import {
   assert,
 } from '@votingworks/utils';
 import {
-  useUsbDrive,
-  UsbControllerButton,
-  useSmartcard,
-  SetupCardReaderPage,
-  useUserSession,
-  useDevices,
   ElectionInfoBar,
-  RebootFromUsbButton,
   fontSizeTheme,
+  Main,
+  MainChild,
   Prose,
+  RebootFromUsbButton,
   Screen,
+  SetupCardReaderPage,
+  UsbControllerButton,
+  useDevices,
+  useSmartcard,
+  useUsbDrive,
+  useUserSession,
 } from '@votingworks/ui';
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
 import { MachineConfig } from './config/types';
 import { AppContext, AppContextInterface } from './contexts/app_context';
 
 import { Button } from './components/button';
-import { Main, MainChild } from './components/main';
-
 import { Text } from './components/text';
 import { ScanButton } from './components/scan_button';
 import { useInterval } from './hooks/use_interval';
@@ -534,7 +534,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
     return (
       <AppContext.Provider value={currentContext}>
         <Screen flexDirection="column">
-          <Main>
+          <Main padded>
             <MainChild center>
               <Prose theme={fontSizeTheme.large}>
                 <RebootFromUsbButton
@@ -578,8 +578,8 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
       return (
         <AppContext.Provider value={currentContext}>
           <Screen flexDirection="column">
-            <Main>
-              <MainChild center padded>
+            <Main padded>
+              <MainChild center>
                 <Prose>
                   <h1>Successfully Configured</h1>
                   <Text>You may now eject the USB drive.</Text>
@@ -648,7 +648,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
           </Route>
           <Route path="/">
             <Screen flexDirection="column">
-              <Main>
+              <Main padded>
                 <MainChild maxWidth={false}>
                   <DashboardScreen
                     isScanning={isScanning}
@@ -715,8 +715,8 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
 
   return (
     <Screen flexDirection="column">
-      <Main>
-        <MainChild maxWidth={false}>
+      <Main padded>
+        <MainChild>
           <h1>Loading Configuration...</h1>
         </MainChild>
       </Main>
