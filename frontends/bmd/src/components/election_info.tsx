@@ -9,8 +9,8 @@ import {
 } from '@votingworks/types';
 import { formatLongDate } from '@votingworks/utils';
 
+import { Prose } from '@votingworks/ui';
 import { Seal } from './seal';
-import { Prose } from './prose';
 import { Text, NoWrap } from './text';
 import { PrecinctSelection } from '../config/types';
 import { precinctSelectionName } from '../utils/precinct_selection';

@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
+import { Prose } from '@votingworks/ui';
 import { MachineConfig } from '../config/types';
-import { Prose } from './prose';
 import { Text } from './text';
 
 const HorizontalVersions = styled(Prose)`

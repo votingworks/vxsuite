@@ -1,10 +1,8 @@
 import React, { useContext } from 'react';
 import { RouteComponentProps } from 'react-router-dom';
 
-import { Button, Main, MainChild, Screen } from '@votingworks/ui';
+import { Button, Main, MainChild, Screen, Prose } from '@votingworks/ui';
 import { BallotContext } from '../contexts/ballot_context';
-
-import { Prose } from '../components/prose';
 
 export function NotFoundPage({
   location: { pathname },

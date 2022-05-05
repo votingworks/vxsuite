@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Single Seat Contest 1`] = `
-.c8 {
+.c7 {
   position: relative;
   border-radius: 0.125rem;
   box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
@@ -13,7 +13,7 @@ exports[`Single Seat Contest 1`] = `
   transition: background 0.25s,color 0.25s;
 }
 
-.c8::before {
+.c7::before {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -42,174 +42,24 @@ exports[`Single Seat Contest 1`] = `
   content: '';
 }
 
-.c2 {
-  max-width: 66ch;
-  line-height: 1.2;
-}
-
-.c2 h1 {
-  margin: 2rem 0 1rem;
-  line-height: 1.1;
-  font-size: 1.5rem;
-}
-
-.c2 h2 {
-  margin: 1.5rem 0 0.75rem;
-  font-size: 1.25rem;
-}
-
-.c2 h3 {
-  font-size: 1.17rem;
-}
-
-.c2 h4 {
-  font-size: 1rem;
-}
-
-.c2 h5 {
-  font-size: 0.9rem;
-}
-
-.c2 h3,
-.c2 h4,
-.c2 h5,
-.c2 p,
-.c2 ol,
-.c2 ul {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-}
-
-.c2 h1 + h2 {
-  margin-top: -0.75rem;
-}
-
-.c2 h1 + p,
-.c2 h2 + p,
-.c2 h1 + ol,
-.c2 h2 + ol,
-.c2 h1 + ul,
-.c2 h2 + ul {
-  margin-top: -0.75rem;
-}
-
-.c2 h3 + p,
-.c2 h4 + p,
-.c2 h5 + p,
-.c2 h3 + ol,
-.c2 h4 + ol,
-.c2 h5 + ol,
-.c2 h3 + ul,
-.c2 h4 + ul,
-.c2 h5 + ul {
-  margin-top: -1rem;
-}
-
-.c2 > :first-child {
-  margin-top: 0;
-}
-
-.c2 > :last-child {
-  margin-bottom: 0;
-}
-
-.c2 dl {
-  margin: 1rem 0;
-}
-
-.c24 {
-  max-width: 66ch;
-  line-height: 1.2;
-}
-
-.c24 h1 {
-  margin: 2rem 0 1rem;
-  line-height: 1.1;
-  font-size: 1.5rem;
-}
-
-.c24 h2 {
-  margin: 1.5rem 0 0.75rem;
-  font-size: 1.25rem;
-}
-
-.c24 h3 {
-  font-size: 1.17rem;
-}
-
-.c24 h4 {
-  font-size: 1rem;
-}
-
-.c24 h5 {
-  font-size: 0.9rem;
-}
-
-.c24 h3,
-.c24 h4,
-.c24 h5,
-.c24 p,
-.c24 ol,
-.c24 ul {
-  margin-top: 0;
-  margin-bottom: 0;
-}
-
-.c24 h1 + h2 {
-  margin-top: -0.75rem;
-}
-
-.c24 h1 + p,
-.c24 h2 + p,
-.c24 h1 + ol,
-.c24 h2 + ol,
-.c24 h1 + ul,
-.c24 h2 + ul {
-  margin-top: -0.75rem;
-}
-
-.c24 h3 + p,
-.c24 h4 + p,
-.c24 h5 + p,
-.c24 h3 + ol,
-.c24 h4 + ol,
-.c24 h5 + ol,
-.c24 h3 + ul,
-.c24 h4 + ul,
-.c24 h5 + ul {
-  margin-top: 0;
-}
-
-.c24 > :first-child {
-  margin-top: 0;
-}
-
-.c24 > :last-child {
-  margin-bottom: 0;
-}
-
-.c24 dl {
-  margin: 1rem 0;
+.c23 {
+  font-size: 0.8rem;
 }
 
 .c25 {
   font-size: 0.8rem;
-}
-
-.c27 {
-  font-size: 0.8rem;
   font-weight: 300;
 }
 
-.c9 {
+.c8 {
   word-break: break-word;
 }
 
-.c12 {
+.c11 {
   text-align: center;
 }
 
-.c26 {
+.c24 {
   white-space: nowrap;
 }
 
@@ -220,13 +70,13 @@ exports[`Single Seat Contest 1`] = `
   padding-left: 6rem;
 }
 
-.c3 {
+.c2 {
   text-transform: uppercase;
   font-size: 0.85rem;
   font-weight: 600;
 }
 
-.c4 {
+.c3 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -238,8 +88,8 @@ exports[`Single Seat Contest 1`] = `
   overflow: auto;
 }
 
-.c4::before,
-.c4::after {
+.c3::before,
+.c3::after {
   position: absolute;
   z-index: 1;
   width: 100%;
@@ -249,46 +99,46 @@ exports[`Single Seat Contest 1`] = `
   transition: opacity 0.25s ease;
 }
 
-.c4::before {
+.c3::before {
   top: 0;
   opacity: 0;
   background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
 }
 
-.c4::after {
+.c3::after {
   bottom: 0;
   opacity: 0;
   background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
 }
 
-.c5 {
+.c4 {
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
   overflow: auto;
 }
 
-.c6 {
+.c5 {
   margin: 0 auto;
   width: 100%;
   padding: 0.5rem 2rem 2rem;
 }
 
-.c7 {
+.c6 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
   grid-gap: 1rem;
+}
+
+.c21 {
+  max-width: 250px;
 }
 
 .c22 {
   max-width: 250px;
 }
 
-.c23 {
-  max-width: 250px;
-}
-
-.c20 {
+.c19 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -296,7 +146,7 @@ exports[`Single Seat Contest 1`] = `
   margin: 1.5rem 1rem 0;
 }
 
-.c21 {
+.c20 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -311,12 +161,12 @@ exports[`Single Seat Contest 1`] = `
   margin: auto;
 }
 
-.c21 div:first-child {
+.c20 div:first-child {
   margin-right: 1rem;
   min-width: 5rem;
 }
 
-.c10 {
+.c9 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -328,7 +178,7 @@ exports[`Single Seat Contest 1`] = `
   color: #ffffff;
 }
 
-.c11 {
+.c10 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -342,15 +192,15 @@ exports[`Single Seat Contest 1`] = `
   padding: 1rem;
 }
 
-.c11 p > button {
+.c10 p > button {
   width: 100%;
 }
 
-.c15 {
+.c14 {
   margin: 1rem;
 }
 
-.c16 {
+.c15 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -364,7 +214,7 @@ exports[`Single Seat Contest 1`] = `
   padding: 1rem 0;
 }
 
-.c17 {
+.c16 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -375,28 +225,28 @@ exports[`Single Seat Contest 1`] = `
   justify-content: center;
 }
 
-.c19 button {
+.c18 button {
   min-width: 112px;
 }
 
-.c19 button[data-size='0'] {
+.c18 button[data-size='0'] {
   font-size: 22px !important;
 }
 
-.c19 button[data-size='1'] {
+.c18 button[data-size='1'] {
   font-size: 28px !important;
 }
 
-.c19 button[data-size='2'] {
+.c18 button[data-size='2'] {
   font-size: 36px !important;
 }
 
-.c18 {
+.c17 {
   display: block;
   margin-bottom: 0.4rem;
 }
 
-.c13::after {
+.c12::after {
   display: inline-block;
   margin-left: 0.5rem;
   background: url('/images/arrow-right-open-black.svg') no-repeat;
@@ -406,7 +256,7 @@ exports[`Single Seat Contest 1`] = `
   content: '';
 }
 
-.c14::before {
+.c13::before {
   display: inline-block;
   margin-right: 0.5rem;
   background: url('/images/arrow-left-open-black.svg') no-repeat;
@@ -425,20 +275,8 @@ exports[`Single Seat Contest 1`] = `
 }
 
 @media (min-width:480px) {
-  .c8 {
+  .c7 {
     padding: 1rem 1rem 1rem 4rem;
-  }
-}
-
-@media (min-width:480px) {
-  .c2 {
-    line-height: 1.3;
-  }
-}
-
-@media (min-width:480px) {
-  .c24 {
-    line-height: 1.3;
   }
 }
 
@@ -457,14 +295,14 @@ exports[`Single Seat Contest 1`] = `
         id="contest-header"
       >
         <div
-          class="c2"
+          class="sc-jRQAMF boeJiV"
           id="audiofocus"
         >
           <h1
             aria-label="United States President and Vice-President."
           >
             <div
-              class="c3"
+              class="c2"
             >
               United States
             </div>
@@ -488,30 +326,30 @@ exports[`Single Seat Contest 1`] = `
         </div>
       </div>
       <div
-        class="c4"
+        class="c3"
       >
         <div
-          class="c5"
+          class="c4"
         >
           <div
-            class="c6"
+            class="c5"
           >
             <div
-              class="c7"
+              class="c6"
             >
               <button
                 aria-label=" Joseph Barchi and Joseph Hallaren."
-                class="c8"
+                class="c7"
                 data-choice="barchi-hallaren"
                 data-selected="false"
                 role="option"
                 type="button"
               >
                 <div
-                  class="c2"
+                  class="sc-jRQAMF boeJiV"
                 >
                   <p
-                    class="c9"
+                    class="c8"
                   >
                     <strong>
                       Joseph Barchi and Joseph Hallaren
@@ -521,17 +359,17 @@ exports[`Single Seat Contest 1`] = `
               </button>
               <button
                 aria-label=" Adam Cramer and Greg Vuocolo."
-                class="c8"
+                class="c7"
                 data-choice="cramer-vuocolo"
                 data-selected="false"
                 role="option"
                 type="button"
               >
                 <div
-                  class="c2"
+                  class="sc-jRQAMF boeJiV"
                 >
                   <p
-                    class="c9"
+                    class="c8"
                   >
                     <strong>
                       Adam Cramer and Greg Vuocolo
@@ -541,17 +379,17 @@ exports[`Single Seat Contest 1`] = `
               </button>
               <button
                 aria-label=" Daniel Court and Amy Blumhardt."
-                class="c8"
+                class="c7"
                 data-choice="court-blumhardt"
                 data-selected="false"
                 role="option"
                 type="button"
               >
                 <div
-                  class="c2"
+                  class="sc-jRQAMF boeJiV"
                 >
                   <p
-                    class="c9"
+                    class="c8"
                   >
                     <strong>
                       Daniel Court and Amy Blumhardt
@@ -561,17 +399,17 @@ exports[`Single Seat Contest 1`] = `
               </button>
               <button
                 aria-label=" Alvin Boone and James Lian."
-                class="c8"
+                class="c7"
                 data-choice="boone-lian"
                 data-selected="false"
                 role="option"
                 type="button"
               >
                 <div
-                  class="c2"
+                  class="sc-jRQAMF boeJiV"
                 >
                   <p
-                    class="c9"
+                    class="c8"
                   >
                     <strong>
                       Alvin Boone and James Lian
@@ -581,17 +419,17 @@ exports[`Single Seat Contest 1`] = `
               </button>
               <button
                 aria-label=" Ashley Hildebrand-McDougall and James Garritty."
-                class="c8"
+                class="c7"
                 data-choice="hildebrand-garritty"
                 data-selected="false"
                 role="option"
                 type="button"
               >
                 <div
-                  class="c2"
+                  class="sc-jRQAMF boeJiV"
                 >
                   <p
-                    class="c9"
+                    class="c8"
                   >
                     <strong>
                       Ashley Hildebrand-McDougall and James Garritty
@@ -601,17 +439,17 @@ exports[`Single Seat Contest 1`] = `
               </button>
               <button
                 aria-label=" Martin Patterson and Clay Lariviere."
-                class="c8"
+                class="c7"
                 data-choice="patterson-lariviere"
                 data-selected="false"
                 role="option"
                 type="button"
               >
                 <div
-                  class="c2"
+                  class="sc-jRQAMF boeJiV"
                 >
                   <p
-                    class="c9"
+                    class="c8"
                   >
                     <strong>
                       Martin Patterson and Clay Lariviere
@@ -625,16 +463,16 @@ exports[`Single Seat Contest 1`] = `
       </div>
     </main>
     <nav
-      class="c10"
+      class="c9"
     >
       <div
-        class="c11"
+        class="c10"
       >
         <div
-          class="c2"
+          class="sc-jRQAMF boeJiV"
         >
           <p
-            class="c12"
+            class="c11"
           >
             This is the 
             <strong>
@@ -653,7 +491,7 @@ exports[`Single Seat Contest 1`] = `
               type="button"
             >
               <span
-                class="c13"
+                class="c12"
               >
                 Next
               </span>
@@ -667,7 +505,7 @@ exports[`Single Seat Contest 1`] = `
               type="button"
             >
               <span
-                class="c14"
+                class="c13"
               >
                 Back
               </span>
@@ -676,23 +514,23 @@ exports[`Single Seat Contest 1`] = `
         </div>
       </div>
       <div
-        class="c15"
+        class="c14"
       >
         <div
           aria-hidden="true"
-          class="c16"
+          class="c15"
         >
           <div
-            class="c17"
+            class="c16"
           >
             <div>
               <div
-                class="c18"
+                class="c17"
               >
                 Change Text Size
               </div>
               <div
-                class="c19"
+                class="c18"
               >
                 <span
                   class="sc-hBURRC gIPuLO"
@@ -729,24 +567,24 @@ exports[`Single Seat Contest 1`] = `
         </div>
         <div
           aria-hidden="true"
-          class="c20"
+          class="c19"
           data-testid="election-info"
         >
           <div
-            class="c21"
+            class="c20"
           >
             <div
               aria-hidden="true"
-              class="c22"
+              class="c21"
             >
               <img
                 alt="state seal"
-                class="c23"
+                class="c22"
                 src="/seals/Sample-Seal.svg"
               />
             </div>
             <div
-              class="c24"
+              class="sc-jRQAMF crSiLx"
             >
               <h5
                 aria-label=" General Election."
@@ -754,35 +592,35 @@ exports[`Single Seat Contest 1`] = `
                  General Election
               </h5>
               <p
-                class="c25"
+                class="c23"
               >
                 November 3, 2020
                 <br />
                 <span
-                  class="c26"
+                  class="c24"
                 >
                   Franklin County
                   ,
                 </span>
                  
                 <span
-                  class="c26"
+                  class="c24"
                 >
                   State of Hamilton
                 </span>
               </p>
               <p
-                class="c27"
+                class="c25"
               >
                 <span
-                  class="c26"
+                  class="c24"
                 >
                   Center Springfield
                   , 
                 </span>
                  
                 <span
-                  class="c26"
+                  class="c24"
                 >
                   ballot style 
                   12

@@ -1,9 +1,8 @@
 import React from 'react';
 
-import { Main, MainChild, Screen } from '@votingworks/ui';
+import { Main, MainChild, Screen, Prose } from '@votingworks/ui';
 
 import styled from 'styled-components';
-import { Prose } from '../components/prose';
 
 const Graphic = styled.img`
   margin: 0 auto -1rem;

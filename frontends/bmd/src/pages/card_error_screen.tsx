@@ -1,9 +1,7 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
-import { Main, MainChild, Screen } from '@votingworks/ui';
-
-import { Prose } from '../components/prose';
+import { Main, MainChild, Screen, Prose } from '@votingworks/ui';
 import { triggerAudioFocus } from '../utils/trigger_audio_focus';
 
 const RotateCardImage = styled.img`

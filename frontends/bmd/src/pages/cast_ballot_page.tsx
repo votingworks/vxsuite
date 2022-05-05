@@ -1,9 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Button, Main, MainChild, Screen } from '@votingworks/ui';
-
-import { Prose } from '../components/prose';
+import { Button, Main, MainChild, Screen, Prose } from '@votingworks/ui';
 import { PostVotingInstructions } from '../config/types';
 
 const SingleGraphic = styled.img`

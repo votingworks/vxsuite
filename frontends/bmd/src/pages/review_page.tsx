@@ -19,6 +19,7 @@ import {
   DisplayTextForYesOrNo,
   LinkButton,
   Main,
+  Prose,
   Screen,
 } from '@votingworks/ui';
 
@@ -39,7 +40,6 @@ import {
   YesNoContestResultInterface,
 } from '../config/types';
 
-import { Prose } from '../components/prose';
 import { Text, NoWrap } from '../components/text';
 import { FONT_SIZES } from '../config/globals';
 import { BallotContext } from '../contexts/ballot_context';

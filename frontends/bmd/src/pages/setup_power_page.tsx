@@ -1,8 +1,7 @@
 import React, { useEffect } from 'react';
 
-import { Main, MainChild, Screen } from '@votingworks/ui';
+import { Main, MainChild, Screen, Prose } from '@votingworks/ui';
 
-import { Prose } from '../components/prose';
 import { NoWrap } from '../components/text';
 
 interface Props {

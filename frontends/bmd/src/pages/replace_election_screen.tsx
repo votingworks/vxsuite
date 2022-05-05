@@ -3,6 +3,7 @@ import {
   Button,
   Main,
   MainChild,
+  Prose,
   Screen,
   useCancelablePromise,
 } from '@votingworks/ui';
@@ -11,7 +12,6 @@ import { DateTime } from 'luxon';
 import pluralize from 'pluralize';
 import React, { useEffect, useState } from 'react';
 import { ElectionInfo } from '../components/election_info';
-import { Prose } from '../components/prose';
 import { Sidebar } from '../components/sidebar';
 import { Text } from '../components/text';
 import { VersionsData } from '../components/versions_data';

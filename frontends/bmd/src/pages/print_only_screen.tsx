@@ -13,10 +13,10 @@ import {
   Loading,
   Main,
   MainChild,
+  Prose,
   Screen,
 } from '@votingworks/ui';
 
-import { Prose } from '../components/prose';
 import { MarkVoterCardFunction, Printer } from '../config/types';
 
 import { Text } from '../components/text';

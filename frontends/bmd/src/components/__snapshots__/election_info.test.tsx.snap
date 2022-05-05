@@ -6,90 +6,15 @@ exports[`renders horizontal ElectionInfo with hash when specified 1`] = `
 }
 
 .c3 {
-  max-width: 66ch;
-  line-height: 1.2;
-}
-
-.c3 h1 {
-  margin: 2rem 0 1rem;
-  line-height: 1.1;
-  font-size: 1.5rem;
-}
-
-.c3 h2 {
-  margin: 1.5rem 0 0.75rem;
-  font-size: 1.25rem;
-}
-
-.c3 h3 {
-  font-size: 1.17rem;
-}
-
-.c3 h4 {
-  font-size: 1rem;
-}
-
-.c3 h5 {
-  font-size: 0.9rem;
-}
-
-.c3 h3,
-.c3 h4,
-.c3 h5,
-.c3 p,
-.c3 ol,
-.c3 ul {
-  margin-top: 0;
-  margin-bottom: 0;
-}
-
-.c3 h1 + h2 {
-  margin-top: -0.75rem;
-}
-
-.c3 h1 + p,
-.c3 h2 + p,
-.c3 h1 + ol,
-.c3 h2 + ol,
-.c3 h1 + ul,
-.c3 h2 + ul {
-  margin-top: -0.75rem;
-}
-
-.c3 h3 + p,
-.c3 h4 + p,
-.c3 h5 + p,
-.c3 h3 + ol,
-.c3 h4 + ol,
-.c3 h5 + ol,
-.c3 h3 + ul,
-.c3 h4 + ul,
-.c3 h5 + ul {
-  margin-top: 0;
-}
-
-.c3 > :first-child {
-  margin-top: 0;
-}
-
-.c3 > :last-child {
-  margin-bottom: 0;
-}
-
-.c3 dl {
-  margin: 1rem 0;
-}
-
-.c4 {
   font-size: 0.8rem;
 }
 
-.c6 {
+.c5 {
   font-size: 0.8rem;
   font-weight: 300;
 }
 
-.c5 {
+.c4 {
   white-space: nowrap;
 }
 
@@ -119,12 +44,6 @@ exports[`renders horizontal ElectionInfo with hash when specified 1`] = `
 .c1 div:first-child {
   margin-right: 1rem;
   min-width: 5rem;
-}
-
-@media (min-width:480px) {
-  .c3 {
-    line-height: 1.3;
-  }
 }
 
 <div>
@@ -305,7 +224,7 @@ exports[`renders horizontal ElectionInfo with hash when specified 1`] = `
         </svg>
       </div>
       <div
-        class="c3"
+        class="sc-jRQAMF crSiLx"
       >
         <h5
           aria-label=" General Election."
@@ -313,28 +232,28 @@ exports[`renders horizontal ElectionInfo with hash when specified 1`] = `
            General Election
         </h5>
         <p
-          class="c4"
+          class="c3"
         >
           November 3, 2020
           <br />
           <span
-            class="c5"
+            class="c4"
           >
             Franklin County
             ,
           </span>
            
           <span
-            class="c5"
+            class="c4"
           >
             State of Hamilton
           </span>
         </p>
         <p
-          class="c6"
+          class="c5"
         >
           <span
-            class="c5"
+            class="c4"
           >
             Center Springfield
           </span>
@@ -352,90 +271,15 @@ exports[`renders horizontal ElectionInfo without hash by default 1`] = `
 }
 
 .c3 {
-  max-width: 66ch;
-  line-height: 1.2;
-}
-
-.c3 h1 {
-  margin: 2rem 0 1rem;
-  line-height: 1.1;
-  font-size: 1.5rem;
-}
-
-.c3 h2 {
-  margin: 1.5rem 0 0.75rem;
-  font-size: 1.25rem;
-}
-
-.c3 h3 {
-  font-size: 1.17rem;
-}
-
-.c3 h4 {
-  font-size: 1rem;
-}
-
-.c3 h5 {
-  font-size: 0.9rem;
-}
-
-.c3 h3,
-.c3 h4,
-.c3 h5,
-.c3 p,
-.c3 ol,
-.c3 ul {
-  margin-top: 0;
-  margin-bottom: 0;
-}
-
-.c3 h1 + h2 {
-  margin-top: -0.75rem;
-}
-
-.c3 h1 + p,
-.c3 h2 + p,
-.c3 h1 + ol,
-.c3 h2 + ol,
-.c3 h1 + ul,
-.c3 h2 + ul {
-  margin-top: -0.75rem;
-}
-
-.c3 h3 + p,
-.c3 h4 + p,
-.c3 h5 + p,
-.c3 h3 + ol,
-.c3 h4 + ol,
-.c3 h5 + ol,
-.c3 h3 + ul,
-.c3 h4 + ul,
-.c3 h5 + ul {
-  margin-top: 0;
-}
-
-.c3 > :first-child {
-  margin-top: 0;
-}
-
-.c3 > :last-child {
-  margin-bottom: 0;
-}
-
-.c3 dl {
-  margin: 1rem 0;
-}
-
-.c4 {
   font-size: 0.8rem;
 }
 
-.c6 {
+.c5 {
   font-size: 0.8rem;
   font-weight: 300;
 }
 
-.c5 {
+.c4 {
   white-space: nowrap;
 }
 
@@ -465,12 +309,6 @@ exports[`renders horizontal ElectionInfo without hash by default 1`] = `
 .c1 div:first-child {
   margin-right: 1rem;
   min-width: 5rem;
-}
-
-@media (min-width:480px) {
-  .c3 {
-    line-height: 1.3;
-  }
 }
 
 <div>
@@ -651,7 +489,7 @@ exports[`renders horizontal ElectionInfo without hash by default 1`] = `
         </svg>
       </div>
       <div
-        class="c3"
+        class="sc-jRQAMF crSiLx"
       >
         <h5
           aria-label=" General Election."
@@ -659,28 +497,28 @@ exports[`renders horizontal ElectionInfo without hash by default 1`] = `
            General Election
         </h5>
         <p
-          class="c4"
+          class="c3"
         >
           November 3, 2020
           <br />
           <span
-            class="c5"
+            class="c4"
           >
             Franklin County
             ,
           </span>
            
           <span
-            class="c5"
+            class="c4"
           >
             State of Hamilton
           </span>
         </p>
         <p
-          class="c6"
+          class="c5"
         >
           <span
-            class="c5"
+            class="c4"
           >
             Center Springfield
           </span>
@@ -698,83 +536,6 @@ exports[`renders vertical ElectionInfo with hash when specified 1`] = `
 }
 
 .c2 {
-  margin: auto;
-  max-width: 66ch;
-  text-align: center;
-  line-height: 1.2;
-}
-
-.c2 h1 {
-  margin: 2rem 0 1rem;
-  line-height: 1.1;
-  font-size: 1.5rem;
-}
-
-.c2 h2 {
-  margin: 1.5rem 0 0.75rem;
-  font-size: 1.25rem;
-}
-
-.c2 h3 {
-  font-size: 1.17rem;
-}
-
-.c2 h4 {
-  font-size: 1rem;
-}
-
-.c2 h5 {
-  font-size: 0.9rem;
-}
-
-.c2 h3,
-.c2 h4,
-.c2 h5,
-.c2 p,
-.c2 ol,
-.c2 ul {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-}
-
-.c2 h1 + h2 {
-  margin-top: -0.75rem;
-}
-
-.c2 h1 + p,
-.c2 h2 + p,
-.c2 h1 + ol,
-.c2 h2 + ol,
-.c2 h1 + ul,
-.c2 h2 + ul {
-  margin-top: -0.75rem;
-}
-
-.c2 h3 + p,
-.c2 h4 + p,
-.c2 h5 + p,
-.c2 h3 + ol,
-.c2 h4 + ol,
-.c2 h5 + ol,
-.c2 h3 + ul,
-.c2 h4 + ul,
-.c2 h5 + ul {
-  margin-top: -1rem;
-}
-
-.c2 > :first-child {
-  margin-top: 0;
-}
-
-.c2 > :last-child {
-  margin-bottom: 0;
-}
-
-.c2 dl {
-  margin: 1rem 0;
-}
-
-.c3 {
   font-weight: 600;
 }
 
@@ -785,12 +546,6 @@ exports[`renders vertical ElectionInfo with hash when specified 1`] = `
 
 .c0 div:first-child {
   margin: 0 auto 0.5rem;
-}
-
-@media (min-width:480px) {
-  .c2 {
-    line-height: 1.3;
-  }
 }
 
 <div>
@@ -967,7 +722,7 @@ exports[`renders vertical ElectionInfo with hash when specified 1`] = `
       </svg>
     </div>
     <div
-      class="c2"
+      class="sc-jRQAMF huupYJ"
     >
       <h1
         aria-label=" General Election."
@@ -982,7 +737,7 @@ exports[`renders vertical ElectionInfo with hash when specified 1`] = `
         State of Hamilton
       </p>
       <p
-        class="c3"
+        class="c2"
       >
         Center Springfield
       </p>
@@ -997,83 +752,6 @@ exports[`renders vertical ElectionInfo without hash by default 1`] = `
 }
 
 .c2 {
-  margin: auto;
-  max-width: 66ch;
-  text-align: center;
-  line-height: 1.2;
-}
-
-.c2 h1 {
-  margin: 2rem 0 1rem;
-  line-height: 1.1;
-  font-size: 1.5rem;
-}
-
-.c2 h2 {
-  margin: 1.5rem 0 0.75rem;
-  font-size: 1.25rem;
-}
-
-.c2 h3 {
-  font-size: 1.17rem;
-}
-
-.c2 h4 {
-  font-size: 1rem;
-}
-
-.c2 h5 {
-  font-size: 0.9rem;
-}
-
-.c2 h3,
-.c2 h4,
-.c2 h5,
-.c2 p,
-.c2 ol,
-.c2 ul {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-}
-
-.c2 h1 + h2 {
-  margin-top: -0.75rem;
-}
-
-.c2 h1 + p,
-.c2 h2 + p,
-.c2 h1 + ol,
-.c2 h2 + ol,
-.c2 h1 + ul,
-.c2 h2 + ul {
-  margin-top: -0.75rem;
-}
-
-.c2 h3 + p,
-.c2 h4 + p,
-.c2 h5 + p,
-.c2 h3 + ol,
-.c2 h4 + ol,
-.c2 h5 + ol,
-.c2 h3 + ul,
-.c2 h4 + ul,
-.c2 h5 + ul {
-  margin-top: -1rem;
-}
-
-.c2 > :first-child {
-  margin-top: 0;
-}
-
-.c2 > :last-child {
-  margin-bottom: 0;
-}
-
-.c2 dl {
-  margin: 1rem 0;
-}
-
-.c3 {
   font-weight: 600;
 }
 
@@ -1084,12 +762,6 @@ exports[`renders vertical ElectionInfo without hash by default 1`] = `
 
 .c0 div:first-child {
   margin: 0 auto 0.5rem;
-}
-
-@media (min-width:480px) {
-  .c2 {
-    line-height: 1.3;
-  }
 }
 
 <div>
@@ -1266,7 +938,7 @@ exports[`renders vertical ElectionInfo without hash by default 1`] = `
       </svg>
     </div>
     <div
-      class="c2"
+      class="sc-jRQAMF huupYJ"
     >
       <h1
         aria-label=" General Election."
@@ -1281,7 +953,7 @@ exports[`renders vertical ElectionInfo without hash by default 1`] = `
         State of Hamilton
       </p>
       <p
-        class="c3"
+        class="c2"
       >
         Center Springfield
       </p>
