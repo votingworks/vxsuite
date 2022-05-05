@@ -9,6 +9,7 @@ import {
   BallotType,
 } from '@votingworks/types';
 import { assert, sleep } from '@votingworks/utils';
+import { Buffer } from 'buffer';
 import * as fs from 'fs-extra';
 import { join } from 'path';
 import { dirSync } from 'tmp';

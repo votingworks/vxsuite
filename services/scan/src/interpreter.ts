@@ -33,6 +33,7 @@ import {
   assert,
   ballotAdjudicationReasons,
 } from '@votingworks/utils';
+import { Buffer } from 'buffer';
 import makeDebug from 'debug';
 import { BallotPageQrcode, SheetOf } from './types';
 import { loadImageData } from './util/images';

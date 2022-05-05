@@ -3,6 +3,7 @@
 import { safeParseInt } from '@votingworks/types';
 import { assert } from '@votingworks/utils';
 import { DOMParser } from '@xmldom/xmldom';
+import { Buffer } from 'buffer';
 import { Canvas, createCanvas, createImageData } from 'canvas';
 import { writeFileSync } from 'fs';
 

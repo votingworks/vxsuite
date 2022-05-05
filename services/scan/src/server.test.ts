@@ -16,6 +16,7 @@ import {
   ScannerStatus,
 } from '@votingworks/types/api/services/scan';
 import { BallotConfig, typedAs } from '@votingworks/utils';
+import { Buffer } from 'buffer';
 import { Application } from 'express';
 import { createReadStream, promises as fs } from 'fs';
 import { Server } from 'http';

@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 import { ChildProcess } from 'child_process';
 import { EventEmitter } from 'events';
 import { Readable, Writable } from 'stream';

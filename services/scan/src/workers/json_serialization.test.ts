@@ -1,5 +1,6 @@
 import { err, isResult, ok } from '@votingworks/types';
 import { assert } from '@votingworks/utils';
+import { Buffer } from 'buffer';
 import * as fc from 'fast-check';
 import {
   deserialize,

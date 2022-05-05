@@ -9,6 +9,7 @@ import {
   YesNoContest,
 } from '@votingworks/types';
 import { sleep, typedAs } from '@votingworks/utils';
+import { Buffer } from 'buffer';
 import * as streams from 'memory-streams';
 import * as tmp from 'tmp';
 import { v4 as uuid } from 'uuid';

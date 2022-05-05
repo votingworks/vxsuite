@@ -2,6 +2,7 @@ import { electionSampleDefinition as electionDefinition } from '@votingworks/fix
 import fetchMock from 'fetch-mock';
 import { GetNextReviewSheetResponse } from '@votingworks/types/api/services/scan';
 import { Logger, LogSource, LogEventId } from '@votingworks/logging';
+import { Buffer } from 'buffer';
 import { addTemplates, fetchNextBallotSheetToReview } from './hmpb';
 import * as config from './config';
 

@@ -1,4 +1,5 @@
 import { metadataFromBytes } from '@votingworks/ballot-interpreter-vx';
+import { Buffer } from 'buffer';
 import { readFile } from 'fs-extra';
 import { join } from 'path';
 import * as general2020Fixtures from '../../test/fixtures/2020-general';

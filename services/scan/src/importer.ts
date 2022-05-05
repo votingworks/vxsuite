@@ -17,6 +17,7 @@ import {
   ScanStatus,
 } from '@votingworks/types/api/services/scan';
 import { sleep } from '@votingworks/utils';
+import { Buffer } from 'buffer';
 import makeDebug from 'debug';
 import * as fsExtra from 'fs-extra';
 import * as streams from 'memory-streams';

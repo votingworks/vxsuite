@@ -2,6 +2,7 @@ import { asElectionDefinition } from '@votingworks/fixtures';
 import { AdjudicationReason, CastVoteRecord } from '@votingworks/types';
 import { ScanContinueRequest } from '@votingworks/types/api/services/scan';
 import { BallotPackageManifest, typedAs } from '@votingworks/utils';
+import { Buffer } from 'buffer';
 import { EventEmitter } from 'events';
 import { Application } from 'express';
 import * as fs from 'fs-extra';

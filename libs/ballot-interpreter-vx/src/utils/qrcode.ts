@@ -1,5 +1,6 @@
 import { detect as detectMetadata } from '@votingworks/ballot-encoder';
 import { Rect, Size } from '@votingworks/types';
+import { Buffer } from 'buffer';
 import makeDebug from 'debug';
 import jsQr from 'jsqr';
 import { QRCode } from 'node-quirc';

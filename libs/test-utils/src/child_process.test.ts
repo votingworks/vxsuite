@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 import { fakeChildProcess, fakeReadable, fakeWritable } from './child_process';
 
 test('fakeReadable', () => {

@@ -1,6 +1,7 @@
 import { asElectionDefinition } from '@votingworks/fixtures';
 import { BallotIdSchema, BallotType, unsafeParse } from '@votingworks/types';
 import Database from 'better-sqlite3';
+import { Buffer } from 'buffer';
 import { writeFile } from 'fs-extra';
 import JsZip, { JSZipObject } from 'jszip';
 import { WritableStream } from 'memory-streams';

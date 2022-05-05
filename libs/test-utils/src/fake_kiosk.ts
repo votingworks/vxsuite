@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 import { BehaviorSubject } from 'rxjs';
 
 export function fakeDevice(
