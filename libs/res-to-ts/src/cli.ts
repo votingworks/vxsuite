@@ -1,10 +1,9 @@
-import { err, ok, Result } from '@votingworks/types';
-import { assert } from '@votingworks/utils';
 import { promises as fs } from 'fs';
 import globby from 'globby';
 import { basename, isAbsolute, join, relative } from 'path';
 import { convert, Resource } from './convert';
 import { getMimeType } from './mime';
+import { assert } from './utils/assert';
 
 /**
  * Represents IO for a CLI. Facilitates mocking for testing.
@@ -47,6 +46,19 @@ export interface ConvertOptions {
   readonly rootDir?: string;
   readonly outDir?: string;
   readonly resources: readonly Resource[];
+}
+
+/**
+ * Result of parsing command-line arguments.
+ */
+type OptionParseResult = Options | OptionParseError;
+
+/**
+ * Errors returned by {@link parseOptions}.
+ */
+interface OptionParseError {
+  type: 'error';
+  error: Error;
 }
 
 /**
@@ -95,7 +107,7 @@ export function getOutputPath(
  */
 async function parseOptions(
   args: readonly string[]
-): Promise<Result<Options, Error>> {
+): Promise<OptionParseResult> {
   let help = false;
   let check = false;
   let rootDir: string | undefined;
@@ -119,7 +131,10 @@ async function parseOptions(
       case '--outDir': {
         outDir = args[i + 1];
         if (!outDir || outDir.startsWith('-')) {
-          return err(new Error(`missing output directory after '${arg}'`));
+          return {
+            type: 'error',
+            error: new Error(`missing output directory after '${arg}'`),
+          };
         }
         outDir = absolutize(outDir, process.cwd());
         i += 1;
@@ -129,7 +144,10 @@ async function parseOptions(
       case '--rootDir': {
         rootDir = args[i + 1];
         if (!rootDir || rootDir.startsWith('-')) {
-          return err(new Error(`missing root directory after '${arg}'`));
+          return {
+            type: 'error',
+            error: new Error(`missing root directory after '${arg}'`),
+          };
         }
         rootDir = absolutize(rootDir, process.cwd());
         i += 1;
@@ -139,7 +157,10 @@ async function parseOptions(
       default: {
         const glob = arg;
         if (glob.startsWith('-')) {
-          return err(new Error(`unrecognized option: ${glob}`));
+          return {
+            type: 'error',
+            error: new Error(`unrecognized option: ${glob}`),
+          };
         }
         globs.push(glob);
         break;
@@ -148,7 +169,7 @@ async function parseOptions(
   }
 
   if (help) {
-    return ok({ type: 'help', help });
+    return { type: 'help', help };
   }
 
   if (outDir && !rootDir) {
@@ -158,11 +179,12 @@ async function parseOptions(
   for (const glob of globs) {
     for (const path of await globby(glob, { absolute: true })) {
       if (rootDir && !path.startsWith(`${rootDir}/`)) {
-        return err(
-          new Error(
+        return {
+          type: 'error',
+          error: new Error(
             `resource '${path}' is not in the root directory '${rootDir}'`
-          )
-        );
+          ),
+        };
       }
 
       resources.push({
@@ -174,10 +196,10 @@ async function parseOptions(
   }
 
   if (resources.length === 0) {
-    return err(new Error('no resources given'));
+    return { type: 'error', error: new Error('no resources given') };
   }
 
-  return ok({ type: 'convert', help, check, rootDir, outDir, resources });
+  return { type: 'convert', help, check, rootDir, outDir, resources };
 }
 
 /**
@@ -190,13 +212,13 @@ export async function main(
   const programName = basename(args[1] as string);
   const parseOptionsResult = await parseOptions(args);
 
-  if (parseOptionsResult.isErr()) {
-    io.stderr.write(`error: ${parseOptionsResult.err().message}\n`);
+  if (parseOptionsResult.type === 'error') {
+    io.stderr.write(`error: ${parseOptionsResult.error.message}\n`);
     usage(programName, io.stderr);
     return 1;
   }
 
-  const options = parseOptionsResult.ok();
+  const options = parseOptionsResult;
 
   if (options.help) {
     usage(programName, io.stdout);

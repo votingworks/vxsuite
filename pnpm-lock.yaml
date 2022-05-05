@@ -1750,8 +1750,6 @@ importers:
       zod: 3.14.4
   libs/res-to-ts:
     dependencies:
-      '@votingworks/types': link:../types
-      '@votingworks/utils': link:../utils
       globby: 11.0.4
       mime: 3.0.0
       tmp: 0.2.1
@@ -1785,8 +1783,6 @@ importers:
       '@typescript-eslint/eslint-plugin': ^5.21.0
       '@typescript-eslint/parser': ^5.21.0
       '@votingworks/test-utils': workspace:*
-      '@votingworks/types': workspace:*
-      '@votingworks/utils': workspace:*
       esbuild: ^0.14.27
       esbuild-runner: ^2.2.1
       eslint: ^8.11.0
