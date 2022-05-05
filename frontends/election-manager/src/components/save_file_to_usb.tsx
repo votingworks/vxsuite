@@ -13,7 +13,6 @@ import { Button } from './button';
 import { Prose } from './prose';
 import { LinkButton } from './link_button';
 import { Loading } from './loading';
-import { MainChild } from './main';
 
 const { UsbDriveStatus } = usbstick;
 
@@ -259,15 +258,13 @@ export function SaveFileToUsb({
       return (
         <Modal
           content={
-            <MainChild>
-              <Prose>
-                <h1>Save {title}</h1>
-                <p>
-                  Save the {fileName} as <strong>{defaultFilename}</strong>{' '}
-                  directly on the inserted USB drive?
-                </p>
-              </Prose>
-            </MainChild>
+            <Prose>
+              <h1>Save {title}</h1>
+              <p>
+                Save the {fileName} as <strong>{defaultFilename}</strong>{' '}
+                directly on the inserted USB drive?
+              </p>
+            </Prose>
           }
           onOverlayClick={onClose}
           actions={

@@ -22,7 +22,7 @@ export function MachineLockedScreen(): JSX.Element {
   return (
     <Screen flexDirection="column">
       <Main>
-        <MainChild center>
+        <MainChild center maxWidth={false}>
           <LockedImage src="locked.svg" alt="Locked Icon" />
           <Prose textCenter theme={fontSizeTheme.medium} maxWidth={false}>
             <h1>VxAdmin is Locked</h1>

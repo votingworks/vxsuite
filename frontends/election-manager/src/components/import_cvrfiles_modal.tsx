@@ -22,7 +22,6 @@ import {
   InputEventFunction,
 } from '../config/types';
 import { FileInputButton } from './file_input_button';
-import { MainChild } from './main';
 import { TIME_FORMAT } from '../config/globals';
 
 const { UsbDriveStatus } = usbstick;
@@ -453,7 +452,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
       <Modal
         modalWidth={ModalWidth.Wide}
         content={
-          <MainChild>
+          <React.Fragment>
             <Prose maxWidth={false}>
               <h1 data-testid="modal-title">
                 Import {headerModeText} CVR Files{' '}
@@ -475,7 +474,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
                 <tbody>{fileTableRows}</tbody>
               </CvrFileTable>
             )}
-          </MainChild>
+          </React.Fragment>
         }
         onOverlayClick={onClose}
         actions={

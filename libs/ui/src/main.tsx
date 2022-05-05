@@ -8,10 +8,10 @@ interface Props {
 export const Main = styled('main')<Props>`
   display: flex;
   flex-direction: column;
-  overflow: ${({ noOverflow }) => !noOverflow && 'auto'};
-  padding: ${({ padded }) => padded && '1rem 0.5rem 2rem'};
+  overflow: ${({ noOverflow }) => (noOverflow ? undefined : 'auto')};
+  padding: ${({ padded }) => (padded ? '1rem 0.5rem 2rem' : undefined)};
   @media (min-width: 480px) {
-    padding: ${({ padded = false }) => (padded ? '1rem' : undefined)};
+    padding: ${({ padded }) => (padded ? '1rem' : undefined)};
   }
 `;
 
