@@ -1,10 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Screen } from '@votingworks/ui';
+import { Screen, Main, MainChild } from '@votingworks/ui';
 
 import { Prose } from '../components/prose';
-import { Main, MainChild } from '../components/main';
 import { MainNav } from '../components/main_nav';
 import { Button } from '../components/button';
 

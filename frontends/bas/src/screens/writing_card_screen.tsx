@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { BallotStyleId } from '@votingworks/types';
 
-import { Screen } from '@votingworks/ui';
+import { Screen, Main, MainChild } from '@votingworks/ui';
 
 import { Prose } from '../components/prose';
-import { Main, MainChild } from '../components/main';
 import { ProgressBar } from '../components/progress_bar';
 
 interface Props {

@@ -1,9 +1,8 @@
 import React from 'react';
 
-import { Screen } from '@votingworks/ui';
+import { Screen, Main, MainChild } from '@votingworks/ui';
 
 import { Prose } from '../components/prose';
-import { Main, MainChild } from '../components/main';
 import { MainNav } from '../components/main_nav';
 
 export function LoadElectionScreen(): JSX.Element {
