@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { Theme } from './themes';
 
-interface Props {
+export interface ProseProps {
   theme?: Theme;
   compact?: boolean;
   maxWidth?: boolean;
@@ -9,7 +9,7 @@ interface Props {
   textRight?: boolean;
 }
 
-export const Prose = styled('div')<Props>`
+export const Prose = styled('div')<ProseProps>`
   margin: ${({ textCenter }) => (textCenter ? 'auto' : undefined)};
   max-width: ${({ maxWidth = true }) => (maxWidth ? '66ch' : undefined)};
   text-align: ${({ textCenter, textRight }) =>

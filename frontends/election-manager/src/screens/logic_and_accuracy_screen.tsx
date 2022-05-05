@@ -1,8 +1,7 @@
 import React from 'react';
-import { LinkButton } from '@votingworks/ui';
+import { LinkButton, Prose } from '@votingworks/ui';
 
 import { NavigationScreen } from '../components/navigation_screen';
-import { Prose } from '../components/prose';
 import { routerPaths } from '../router_paths';
 import { ZeroReportPrintButton } from '../components/zero_report_print_button';
 

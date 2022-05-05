@@ -5,7 +5,7 @@ import { useParams } from 'react-router-dom';
 import { assert, find } from '@votingworks/utils';
 import { LogEventId } from '@votingworks/logging';
 import { VotingMethod, getLabelForVotingMethod } from '@votingworks/types';
-import { TallyReport, TallyReportMetadata } from '@votingworks/ui';
+import { TallyReport, TallyReportMetadata, Prose } from '@votingworks/ui';
 import {
   generateDefaultReportFilename,
   generateFileContentToSaveAsPdf,
@@ -23,7 +23,6 @@ import { AppContext } from '../contexts/app_context';
 import { PrintButton } from '../components/print_button';
 import { Button } from '../components/button';
 import { NavigationScreen } from '../components/navigation_screen';
-import { Prose } from '../components/prose';
 import { LinkButton } from '../components/link_button';
 
 import { routerPaths } from '../router_paths';

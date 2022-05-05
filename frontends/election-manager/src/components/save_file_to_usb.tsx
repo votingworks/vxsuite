@@ -4,13 +4,12 @@ import path from 'path';
 import fileDownload from 'js-file-download';
 import { assert, usbstick, throwIllegalValue } from '@votingworks/utils';
 
-import { Modal, UsbControllerButton } from '@votingworks/ui';
+import { Modal, UsbControllerButton, Prose } from '@votingworks/ui';
 
 import { LogEventId } from '@votingworks/logging';
 import { PromiseOr } from '@votingworks/types';
 import { AppContext } from '../contexts/app_context';
 import { Button } from './button';
-import { Prose } from './prose';
 import { LinkButton } from './link_button';
 import { Loading } from './loading';
 

@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import pluralize from 'pluralize';
 
 import { assert, format } from '@votingworks/utils';
-import { Table, TD, LogoMark } from '@votingworks/ui';
+import { Table, TD, LogoMark, Prose } from '@votingworks/ui';
 import { ContestTallyMeta } from '@votingworks/types';
 import { NavigationScreen } from '../components/navigation_screen';
 import { PrintButton } from '../components/print_button';
@@ -14,7 +14,6 @@ import {
   getOvervotePairTallies,
   getContestTallyMeta,
 } from '../lib/votecounting';
-import { Prose } from '../components/prose';
 import { Text } from '../components/text';
 import { HorizontalRule } from '../components/horizontal_rule';
 

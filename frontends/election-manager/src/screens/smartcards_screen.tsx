@@ -1,13 +1,12 @@
 import React, { useCallback, useContext, useState } from 'react';
 
-import { NumberPad, useCancelablePromise, Modal } from '@votingworks/ui';
+import { NumberPad, useCancelablePromise, Modal, Prose } from '@votingworks/ui';
 import styled from 'styled-components';
 import { assert, sleep } from '@votingworks/utils';
 import { LogEventId } from '@votingworks/logging';
 import { AppContext } from '../contexts/app_context';
 
 import { NavigationScreen } from '../components/navigation_screen';
-import { Prose } from '../components/prose';
 import { Button } from '../components/button';
 import { Loading } from '../components/loading';
 import { SECURITY_PIN_LENGTH } from '../config/globals';

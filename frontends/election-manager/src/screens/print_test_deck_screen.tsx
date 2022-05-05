@@ -8,14 +8,13 @@ import {
 } from '@votingworks/types';
 import { assert, sleep } from '@votingworks/utils';
 import { LogEventId } from '@votingworks/logging';
-import { useCancelablePromise, Modal } from '@votingworks/ui';
+import { useCancelablePromise, Modal, Prose } from '@votingworks/ui';
 import { routerPaths } from '../router_paths';
 
 import { AppContext } from '../contexts/app_context';
 
 import { Button } from '../components/button';
 import { ButtonList } from '../components/button_list';
-import { Prose } from '../components/prose';
 import { Loading } from '../components/loading';
 
 import { NavigationScreen } from '../components/navigation_screen';

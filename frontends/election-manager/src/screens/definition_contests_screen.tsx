@@ -12,6 +12,7 @@ import {
   ContestId,
 } from '@votingworks/types';
 
+import { Prose } from '@votingworks/ui';
 import { readFileAsync } from '../lib/read_file_async';
 import {
   EventTargetFunction,
@@ -26,7 +27,6 @@ import {
   CandidateContestChoices,
   Contest,
 } from '../components/hand_marked_paper_ballot';
-import { Prose } from '../components/prose';
 import { Text } from '../components/text';
 import { TextInput } from '../components/text_input';
 import { TextareaAutosize } from '../components/textarea';

@@ -9,11 +9,12 @@ import {
 } from '@votingworks/types';
 import {
   ContestTally,
+  LogoMark,
+  Prose,
   ReportSection,
   TallyReportColumns,
-  TallyReportTitle,
   TallyReportMetadata,
-  LogoMark,
+  TallyReportTitle,
 } from '@votingworks/ui';
 import { LogEventId } from '@votingworks/logging';
 import {
@@ -27,7 +28,6 @@ import { AppContext } from '../contexts/app_context';
 
 import { PrintButton } from '../components/print_button';
 import { ButtonList } from '../components/button_list';
-import { Prose } from '../components/prose';
 import { Button } from '../components/button';
 
 import { NavigationScreen } from '../components/navigation_screen';

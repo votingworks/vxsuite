@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import path from 'path';
 import moment from 'moment';
 
-import { Modal, ModalWidth, Table, TD } from '@votingworks/ui';
+import { Modal, ModalWidth, Table, TD, Prose } from '@votingworks/ui';
 import {
   assert,
   generateElectionBasedSubfolderName,
@@ -13,7 +13,6 @@ import {
 import { LogEventId } from '@votingworks/logging';
 
 import { AppContext } from '../contexts/app_context';
-import { Prose } from './prose';
 import { LinkButton } from './link_button';
 import { Loading } from './loading';
 import {

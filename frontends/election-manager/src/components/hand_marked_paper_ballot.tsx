@@ -36,16 +36,16 @@ import {
   BallotId,
   BallotTargetMarkPosition,
 } from '@votingworks/types';
-import { QrCode } from '@votingworks/ui';
+import { QrCode, HandMarkedPaperBallotProse } from '@votingworks/ui';
 
 import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
+
 import { AppContext } from '../contexts/app_context';
 
 import { findPartyById } from '../utils/find_party_by_id';
 
 import { BubbleMark } from './bubble_mark';
 import { WriteInLine } from './write_in_line';
-import { Prose } from './prose';
 import { Text } from './text';
 import { HorizontalRule } from './horizontal_rule';
 import { ABSENTEE_TINT_COLOR } from '../config/globals';
@@ -179,9 +179,9 @@ class PostRenderBallotProcessor extends Handler {
         newLastPageElement.setAttribute('data-id', `page-${pages.length + 1}`);
         ReactDom.render(
           <BlankPageContent>
-            <Prose>
+            <HandMarkedPaperBallotProse>
               <p>This ballot page is intentionally blank.</p>
-            </Prose>
+            </HandMarkedPaperBallotProse>
           </BlankPageContent>,
           newLastPageElement.getElementsByClassName('pagedjs_page_content')[0]
         );
@@ -426,13 +426,13 @@ export function Contest({
 }: ContestProps): JSX.Element {
   return (
     <StyledContest density={density}>
-      <Prose density={density}>
+      <HandMarkedPaperBallotProse density={density}>
         <Text small bold>
           {section}
         </Text>
         <h3>{title}</h3>
         {children}
-      </Prose>
+      </HandMarkedPaperBallotProse>
     </StyledContest>
   );
 }
@@ -667,7 +667,7 @@ export function HandMarkedPaperBallot({
 
   const columnFooter = (
     <StyledColumnFooter>
-      <Prose>
+      <HandMarkedPaperBallotProse>
         <h3>
           {dualLanguageWithBreak('Thank you for voting.', {
             normal: true,
@@ -678,7 +678,7 @@ export function HandMarkedPaperBallot({
             'You have reached the end of the ballot. Please review your ballot selections.'
           )}
         </p>
-      </Prose>
+      </HandMarkedPaperBallotProse>
     </StyledColumnFooter>
   );
 
@@ -833,7 +833,7 @@ export function HandMarkedPaperBallot({
               ) : (
                 <React.Fragment />
               )}
-              <Prose>
+              <HandMarkedPaperBallotProse>
                 <h2>
                   {isSampleBallot
                     ? t('SAMPLE BALLOT', { lng: locales.primary })
@@ -880,10 +880,10 @@ export function HandMarkedPaperBallot({
                     {localeDateLong(date, locales.secondary)}
                   </p>
                 )}
-              </Prose>
+              </HandMarkedPaperBallotProse>
             </BallotHeader>
             <Instructions>
-              <Prose>
+              <HandMarkedPaperBallotProse>
                 <img
                   src="/ballot/instructions-fill-oval.svg"
                   alt=""
@@ -951,7 +951,7 @@ export function HandMarkedPaperBallot({
                     </Text>
                   </React.Fragment>
                 )}
-              </Prose>
+              </HandMarkedPaperBallotProse>
             </Instructions>
           </IntroColumn>
           {candidateContests.map((contest) => (

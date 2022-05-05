@@ -3,7 +3,7 @@ import React, { ReactChild, useContext, useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { Table, TD } from '@votingworks/ui';
+import { Table, TD, Prose } from '@votingworks/ui';
 import {
   ExternalTallySourceType,
   TallyCategory,
@@ -14,9 +14,6 @@ import { ResultsFileType } from '../config/types';
 import { routerPaths } from '../router_paths';
 
 import { AppContext } from '../contexts/app_context';
-
-import { Prose } from '../components/prose';
-
 import { NavigationScreen } from '../components/navigation_screen';
 import { Button, SegmentedButton } from '../components/button';
 import { Text } from '../components/text';

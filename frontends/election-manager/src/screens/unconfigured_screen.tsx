@@ -3,7 +3,7 @@ import { useHistory, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { safeParseElection } from '@votingworks/types';
 
-import { Modal, useCancelablePromise } from '@votingworks/ui';
+import { Modal, useCancelablePromise, Prose } from '@votingworks/ui';
 import { assert } from '@votingworks/utils';
 import {
   ConverterClient,
@@ -22,7 +22,6 @@ import { Button } from '../components/button';
 import { routerPaths } from '../router_paths';
 import { FileInputButton } from '../components/file_input_button';
 import { HorizontalRule } from '../components/horizontal_rule';
-import { Prose } from '../components/prose';
 import { Loading } from '../components/loading';
 import { NavigationScreen } from '../components/navigation_screen';
 

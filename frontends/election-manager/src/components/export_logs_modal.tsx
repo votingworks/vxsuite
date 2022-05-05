@@ -9,10 +9,9 @@ import {
 } from '@votingworks/utils';
 
 import { LogEventId } from '@votingworks/logging';
-import { Modal } from '@votingworks/ui';
+import { Modal, Prose } from '@votingworks/ui';
 import { AppContext } from '../contexts/app_context';
 import { Button } from './button';
-import { Prose } from './prose';
 import { LinkButton } from './link_button';
 import { Loading } from './loading';
 import { UsbImage } from './save_file_to_usb';
