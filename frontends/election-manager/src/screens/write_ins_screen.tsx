@@ -64,8 +64,7 @@ export function WriteInsScreen(): JSX.Element {
                 onPress={() => setIsTranscriptionScreenOpen(true)}
               >
                 Adjudicate {writeInCountsByContest.get(contest.id)} write-ins
-                for &quot;{contest.section} {contest.title}
-                &quot;
+                for “{contest.section} {contest.title}”
                 {election && contest.partyId && (
                   <React.Fragment>
                     {' '}
