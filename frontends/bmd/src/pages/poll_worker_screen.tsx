@@ -22,6 +22,7 @@ import {
   PrecinctScannerTallyQrCode,
   PrecinctScannerTallyReport,
   PrintableContainer,
+  Prose,
   Screen,
   TallyReport,
 } from '@votingworks/ui';
@@ -44,7 +45,6 @@ import {
   ScreenReader,
 } from '../config/types';
 
-import { Prose } from '../components/prose';
 import { Text } from '../components/text';
 import { Sidebar, SidebarProps } from '../components/sidebar';
 import { ElectionInfo } from '../components/election_info';

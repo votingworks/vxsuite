@@ -1,9 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Redirect } from 'react-router-dom';
 
-import { Loading, Main, MainChild, ProgressBar, Screen } from '@votingworks/ui';
-
-import { Prose } from '../components/prose';
+import {
+  Loading,
+  Main,
+  MainChild,
+  ProgressBar,
+  Prose,
+  Screen,
+} from '@votingworks/ui';
 
 export function SaveCardScreen(): JSX.Element {
   const saveDelay = 2500;

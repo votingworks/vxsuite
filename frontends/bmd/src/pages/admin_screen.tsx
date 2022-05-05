@@ -7,6 +7,7 @@ import {
   CurrentDateAndTime,
   Main,
   MainChild,
+  Prose,
   Screen,
   SegmentedButton,
   SetClockButton,
@@ -20,8 +21,6 @@ import {
 } from '../config/types';
 
 import { TestBallotDeckScreen } from './test_ballot_deck_screen';
-
-import { Prose } from '../components/prose';
 import { Text } from '../components/text';
 import { Sidebar } from '../components/sidebar';
 import { ElectionInfo } from '../components/election_info';
