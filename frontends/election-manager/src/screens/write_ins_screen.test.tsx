@@ -7,6 +7,6 @@ test('write-ins screen', () => {
   renderInAppContext(<WriteInsScreen />);
   screen.getByText('Adjudication can begin once CVRs are imported.');
   expect(
-    screen.getByText('Adjudicate write-ins for "United States President"')
+    screen.getByText('Adjudicate write-ins for “United States President”')
   ).toBeDisabled();
 });
