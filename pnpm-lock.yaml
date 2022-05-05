@@ -1449,7 +1449,6 @@ importers:
       '@types/node': 16.11.29
       '@types/react': 17.0.20
       '@typescript-eslint/parser': 5.21.0_eslint@7.32.0+typescript@4.2.3
-      '@votingworks/types': link:../types
       eslint: 7.32.0
       eslint-config-prettier: 8.3.0_eslint@7.32.0
       eslint-plugin-jest: 26.1.5_77d49484f56dcf1ee6c0f54b483358a0
@@ -1470,7 +1469,6 @@ importers:
       '@typescript-eslint/eslint-plugin': ^5.21.0
       '@typescript-eslint/experimental-utils': ^5.21.0
       '@typescript-eslint/parser': ^5.21.0
-      '@votingworks/types': workspace:*
       comment-parser: ^1.2.4
       eslint: ^7.27.0
       eslint-config-airbnb: ^18.2.1
@@ -11982,7 +11980,7 @@ packages:
       integrity: sha512-/lqqLAmuIPi79WYfRpy2i8z+x+vxU3zX2uAm0gs1q52qTuKwolOj1P8XbufpXcsydrpKx2yGn2wzAnxCMV86QA==
   /axios/0.21.1_debug@4.3.1:
     dependencies:
-      follow-redirects: 1.14.1_debug@4.3.2
+      follow-redirects: 1.14.1_debug@4.3.1
     dev: true
     peerDependencies:
       debug: '*'
@@ -17562,7 +17560,7 @@ packages:
       '@typescript-eslint/eslint-plugin': 5.21.0_94a944f85573090af1491a822dcbe40b
       '@typescript-eslint/utils': 5.22.0_eslint@7.19.0+typescript@4.6.3
       eslint: 7.19.0
-      jest: 27.3.1
+      jest: 27.3.1_canvas@2.9.1
     dev: true
     engines:
       node: ^12.22.0 || ^14.17.0 || >=16.0.0
@@ -19719,21 +19717,9 @@ packages:
       node: '>=0.10.0'
     resolution:
       integrity: sha1-UhTXU3pNBqSjAcDMJi/rhBiAAuc=
-  /follow-redirects/1.14.1:
-    dev: false
-    engines:
-      node: '>=4.0'
-    peerDependencies:
-      debug: '*'
-    peerDependenciesMeta:
-      debug:
-        optional: true
-    resolution:
-      integrity: sha512-HWqDgT7ZEkqRzBvc2s64vSZ/hfOceEol3ac/7tKwzuvEyWx3/4UegXh5oBOIotkGsObyk3xznnSRVADBgWSQVg==
   /follow-redirects/1.14.1_debug@4.3.1:
     dependencies:
       debug: 4.3.1
-    dev: false
     engines:
       node: '>=4.0'
     peerDependencies:
@@ -19745,7 +19731,8 @@ packages:
       integrity: sha512-HWqDgT7ZEkqRzBvc2s64vSZ/hfOceEol3ac/7tKwzuvEyWx3/4UegXh5oBOIotkGsObyk3xznnSRVADBgWSQVg==
   /follow-redirects/1.14.1_debug@4.3.2:
     dependencies:
-      debug: 4.3.2_supports-color@6.1.0
+      debug: 4.3.2
+    dev: false
     engines:
       node: '>=4.0'
     peerDependencies:
@@ -20752,7 +20739,7 @@ packages:
   /http-proxy/1.18.1:
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.14.1
+      follow-redirects: 1.14.1_debug@4.3.1
       requires-port: 1.0.0
     dev: false
     engines:
@@ -24142,7 +24129,7 @@ packages:
     dependencies:
       ansi-escapes: 4.3.2
       chalk: 4.1.2
-      jest: 27.5.1_canvas@2.9.1
+      jest: 27.5.1
       jest-regex-util: 27.5.1
       jest-watcher: 27.5.1
       slash: 3.0.0
@@ -31277,7 +31264,7 @@ packages:
       '@types/jest': 27.0.3
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
-      jest: 27.3.1
+      jest: 27.3.1_canvas@2.9.1
       jest-util: 27.3.1
       json5: 2.2.0
       lodash.memoize: 4.1.2
