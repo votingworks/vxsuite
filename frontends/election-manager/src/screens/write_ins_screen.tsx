@@ -3,6 +3,8 @@ import React, { useContext, useState } from 'react';
 import { Button, Modal } from '@votingworks/ui';
 import {
   CandidateContest,
+  ContestId,
+  ContestOptionId,
   getPartyAbbrevationByPartyId,
 } from '@votingworks/types';
 
@@ -23,13 +25,13 @@ export function WriteInsScreen(): JSX.Element {
   );
 
   // Aggregate write-in count by contest
-  const writeInCountsByContest = new Map();
+  const writeInCountsByContest = new Map<ContestId, number>();
   for (const file of castVoteRecordFileList) {
     for (const cvr of file.allCastVoteRecords) {
-      for (const k of Object.keys(cvr)) {
-        if (Array.isArray(cvr[k])) {
-          const contestId = k;
-          const votes = cvr[contestId] as string[];
+      for (const [key, value] of Object.entries(cvr)) {
+        if (Array.isArray(value)) {
+          const contestId = key;
+          const votes = value as ContestOptionId[];
           // TODO: this does not capture all the ways we represente write-ins, must be
           // updated once https://github.com/votingworks/vxsuite/issues/1793 is complete.
           const cvrHasWriteIn = votes.find((m) => m.startsWith('write-in'));
