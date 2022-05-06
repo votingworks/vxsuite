@@ -10,6 +10,7 @@ import {
   getByText as domGetByText,
   getAllByRole as domGetAllByRole,
   act,
+  within,
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import fetchMock from 'fetch-mock';
@@ -455,9 +456,10 @@ test('tabulating CVRs', async () => {
   );
 
   getByText('View Unofficial Full Election Tally Report');
-  fireEvent.click(getByText('Mark Tally Results as Official…'));
-  getByText('Mark Unofficial Tally Results as Official Tally Results?');
   fireEvent.click(getByText('Mark Tally Results as Official'));
+  getByText('Mark Unofficial Tally Results as Official Tally Results?');
+  const modal = await screen.findByRole('alertdialog');
+  fireEvent.click(within(modal).getByText('Mark Tally Results as Official'));
   expect(mockKiosk.log).toHaveBeenCalledWith(
     expect.stringContaining(LogEventId.MarkedTallyResultsOfficial)
   );
@@ -583,7 +585,7 @@ test('tabulating CVRs', async () => {
 
   // Clear results
   fireEvent.click(getByText('Tally'));
-  fireEvent.click(getByText('Clear All Results…'));
+  fireEvent.click(getByText('Clear All Results'));
   fireEvent.click(getByText('Remove All Data'));
   await waitFor(() =>
     expect(getByTestId('total-ballot-count').textContent).toEqual('0')
@@ -697,7 +699,7 @@ test('tabulating CVRs with SEMS file', async () => {
   fireEvent.click(getByText('Close'));
 
   // Test removing the SEMS file
-  fireEvent.click(getByText('Remove External Results File…'));
+  fireEvent.click(getByText('Remove External Results File'));
   fireEvent.click(getByText('Remove External Files'));
 
   await waitFor(() =>
@@ -874,10 +876,11 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
 
   // Remove the manual data
   fireEvent.click(getByText('Back to Tally Index'));
-  fireEvent.click(getByText('Remove Manual Data…'));
+  fireEvent.click(getByText('Remove Manual Data'));
 
   getByText('Do you want to remove the manually entered data?');
-  fireEvent.click(getByText('Remove Manual Data'));
+  const modal = await screen.findByRole('alertdialog');
+  fireEvent.click(within(modal).getByText('Remove Manual Data'));
   await waitFor(() => {
     expect(getByTestId('total-ballot-count').textContent).toEqual('200');
   });
@@ -995,24 +998,25 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
   );
 
   fireEvent.click(getByText('Tally'));
-  fireEvent.click(getByText('Mark Tally Results as Official…'));
   fireEvent.click(getByText('Mark Tally Results as Official'));
+  const modal = await screen.findByRole('alertdialog');
+  fireEvent.click(within(modal).getByText('Mark Tally Results as Official'));
 
   getByText('View Official Full Election Tally Report');
   expect(getByText('Import CVR Files').closest('button')).toBeDisabled();
   expect(getByTestId('import-sems-button')).toBeDisabled();
 
-  fireEvent.click(getByText('Clear All Results…'));
+  fireEvent.click(getByText('Clear All Results'));
   getByText(
     'Do you want to remove the 1 uploaded CVR file, the external results file sems-results.csv, and the manually entered data?'
   );
   fireEvent.click(getByText('Remove All Data'));
 
   await waitFor(() =>
-    expect(getByText('Remove CVR Files…').closest('button')).toBeDisabled()
+    expect(getByText('Remove CVR Files').closest('button')).toBeDisabled()
   );
   expect(
-    getByText('Remove External Results File…').closest('button')
+    getByText('Remove External Results File').closest('button')
   ).toBeDisabled();
 
   expect(getByText('Import CVR Files').closest('button')).toBeEnabled();

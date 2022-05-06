@@ -240,7 +240,7 @@ test('loads prexisting manual data to edit', async () => {
     '7'
   );
 
-  fireEvent.click(getByText('Clear Manual Data…'));
+  fireEvent.click(getByText('Clear Manual Data'));
   fireEvent.click(getByText('Remove Manual Data'));
 
   expect(resetFiles).toHaveBeenCalledWith(ResultsFileType.Manual);

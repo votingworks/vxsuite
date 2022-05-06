@@ -365,7 +365,7 @@ export function TallyScreen(): JSX.Element {
             disabled={!hasCastVoteRecordFiles || isOfficialResults}
             onPress={confirmOfficial}
           >
-            Mark Tally Results as Official…
+            Mark Tally Results as Official
           </Button>
         </p>
         {isOfficialResults ? (
@@ -375,7 +375,7 @@ export function TallyScreen(): JSX.Element {
               disabled={!hasAnyFiles}
               onPress={() => beginConfirmRemoveFiles(ResultsFileType.All)}
             >
-              Clear All Results…
+              Clear All Results
             </Button>
           </p>
         ) : (
@@ -387,7 +387,7 @@ export function TallyScreen(): JSX.Element {
                 beginConfirmRemoveFiles(ResultsFileType.CastVoteRecord)
               }
             >
-              Remove CVR Files…
+              Remove CVR Files
             </Button>{' '}
             {converter === 'ms-sems' && (
               <React.Fragment>
@@ -396,7 +396,7 @@ export function TallyScreen(): JSX.Element {
                   disabled={!hasExternalSemsFile}
                   onPress={() => beginConfirmRemoveFiles(ResultsFileType.SEMS)}
                 >
-                  Remove External Results File…
+                  Remove External Results File
                 </Button>{' '}
               </React.Fragment>
             )}
@@ -405,7 +405,7 @@ export function TallyScreen(): JSX.Element {
               disabled={!hasExternalManualData}
               onPress={() => beginConfirmRemoveFiles(ResultsFileType.Manual)}
             >
-              Remove Manual Data…
+              Remove Manual Data
             </Button>
           </p>
         )}

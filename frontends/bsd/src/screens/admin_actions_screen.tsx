@@ -128,26 +128,26 @@ export function AdminActionsScreen({
                   disabled={hasBatches}
                 >
                   {markThresholds === undefined
-                    ? 'Override Mark Thresholds…'
-                    : 'Reset Mark Thresholds…'}
+                    ? 'Override Mark Thresholds'
+                    : 'Reset Mark Thresholds'}
                 </Button>
               </p>
               {backupError && <p style={{ color: 'red' }}>{backupError}</p>}
               <p>
                 <Button onPress={exportBackup} disabled={isBackingUp}>
-                  {isBackingUp ? 'Exporting…' : 'Export Backup…'}
+                  {isBackingUp ? 'Exporting…' : 'Export Backup'}
                 </Button>
               </p>
               <p>
                 <Button onPress={() => setExportingLogType(LogFileType.Raw)}>
-                  Export Logs…
+                  Export Logs
                 </Button>{' '}
                 <Button onPress={() => setExportingLogType(LogFileType.Cdf)}>
-                  Export Logs as CDF…
+                  Export Logs as CDF
                 </Button>
               </p>
               <p>
-                <SetClockButton>Update Date and Time…</SetClockButton>
+                <SetClockButton>Update Date and Time</SetClockButton>
               </p>
               <p>
                 <Button
@@ -155,7 +155,7 @@ export function AdminActionsScreen({
                   disabled={!hasBatches || (!isTestMode && !canUnconfigure)}
                   onPress={toggleIsConfirmingZero}
                 >
-                  Delete Ballot Data…
+                  Delete Ballot Data
                 </Button>
               </p>
 
@@ -165,7 +165,7 @@ export function AdminActionsScreen({
                   disabled={!canUnconfigure && !isTestMode}
                   onPress={toggleIsConfirmingUnconfigure}
                 >
-                  Delete Election Data from VxCentralScan…
+                  Delete Election Data from VxCentralScan
                 </Button>{' '}
                 {!canUnconfigure && !isTestMode && (
                   <React.Fragment>

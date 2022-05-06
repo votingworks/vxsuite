@@ -207,7 +207,7 @@ export function ManualDataImportIndexScreen(): JSX.Element {
                 disabled={!hasManualData}
                 onPress={() => setIsClearing(true)}
               >
-                Clear Manual Data…
+                Clear Manual Data
               </Button>
             </p>
           </Prose>

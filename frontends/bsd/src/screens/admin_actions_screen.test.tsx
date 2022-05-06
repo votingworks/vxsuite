@@ -15,7 +15,7 @@ import { fakeKiosk } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 import { AdminActionsScreen } from './admin_actions_screen';
 
-test('clicking "Export Backup…" shows progress', async () => {
+test('clicking "Export Backup" shows progress', async () => {
   const backup = jest.fn();
   const component = render(
     <Router history={createMemoryHistory()}>
@@ -44,7 +44,7 @@ test('clicking "Export Backup…" shows progress', async () => {
 
   await act(async () => {
     // Click to backup, verify we got called.
-    const backupButton = component.getByText('Export Backup…');
+    const backupButton = component.getByText('Export Backup');
     expect(backup).not.toHaveBeenCalled();
     backupButton.click();
     expect(backup).toHaveBeenCalledTimes(1);
@@ -54,11 +54,11 @@ test('clicking "Export Backup…" shows progress', async () => {
 
     // Trigger backup finished, verify back to normal.
     resolve();
-    await waitFor(() => component.getByText('Export Backup…'));
+    await waitFor(() => component.getByText('Export Backup'));
   });
 });
 
-test('"Delete Ballot Data…" and Delete Election Data from VxCentralScan…" disabled when canUnconfigure is falsy', () => {
+test('"Delete Ballot Data" and Delete Election Data from VxCentralScan" disabled when canUnconfigure is falsy', () => {
   const unconfigureServer = jest.fn();
   const zeroData = jest.fn();
   const component = render(
@@ -81,20 +81,20 @@ test('"Delete Ballot Data…" and Delete Election Data from VxCentralScan…" di
 
   // Clicking the disabled "Delete Election Data" button should do nothing
   const unconfigureButton = component.getByText(
-    'Delete Election Data from VxCentralScan…'
+    'Delete Election Data from VxCentralScan'
   );
   unconfigureButton.click();
   expect(unconfigureServer).not.toHaveBeenCalled();
   expect(component.queryByText('Delete all election data?')).toBeNull();
 
   // Clicking the disabled "Delete Ballot Data" button should do nothing
-  const deleteBallotsButton = component.getByText('Delete Ballot Data…');
+  const deleteBallotsButton = component.getByText('Delete Ballot Data');
   deleteBallotsButton.click();
   expect(zeroData).not.toHaveBeenCalled();
   expect(component.queryByText('Delete All Scanned Ballot Data?')).toBeNull();
 });
 
-test('"Delete Ballot Data…" and Delete Election Data from VxCentralScan…" enabled in test mode even if data not backed up', () => {
+test('"Delete Ballot Data" and Delete Election Data from VxCentralScan" enabled in test mode even if data not backed up', () => {
   const component = render(
     <Router history={createMemoryHistory()}>
       <AdminActionsScreen
@@ -115,18 +115,18 @@ test('"Delete Ballot Data…" and Delete Election Data from VxCentralScan…" en
 
   // Clicking the disabled "Delete Election Data" button should bring up a confirmation modal
   const unconfigureButton = component.getByText(
-    'Delete Election Data from VxCentralScan…'
+    'Delete Election Data from VxCentralScan'
   );
   unconfigureButton.click();
   component.getByText('Delete all election data?');
 
   // Clicking the disabled "Delete Ballot Data" button should bring up a confirmation modal
-  const deleteBallotsButton = component.getByText('Delete Ballot Data…');
+  const deleteBallotsButton = component.getByText('Delete Ballot Data');
   deleteBallotsButton.click();
   component.getByText('Delete All Scanned Ballot Data?');
 });
 
-test('clicking "Delete Election Data from VxCentralScan…" shows progress', async () => {
+test('clicking "Delete Election Data from VxCentralScan" shows progress', async () => {
   const unconfigureServer = jest.fn();
   const component = render(
     <Router history={createMemoryHistory()}>
@@ -156,7 +156,7 @@ test('clicking "Delete Election Data from VxCentralScan…" shows progress', asy
   // Click to reset.
   expect(unconfigureServer).not.toHaveBeenCalled();
   const resetButton = component.getByText(
-    'Delete Election Data from VxCentralScan…'
+    'Delete Election Data from VxCentralScan'
   );
   resetButton.click();
 
@@ -182,7 +182,7 @@ test('clicking "Delete Election Data from VxCentralScan…" shows progress', asy
   await waitFor(() => !component.getByText('Deleting election data'));
 });
 
-test('clicking "Delete Ballot Data…" shows progress', async () => {
+test('clicking "Delete Ballot Data" shows progress', async () => {
   const zeroData = jest.fn();
   const component = render(
     <Router history={createMemoryHistory()}>
@@ -210,7 +210,7 @@ test('clicking "Delete Ballot Data…" shows progress', async () => {
   );
 
   expect(zeroData).not.toHaveBeenCalled();
-  fireEvent.click(component.getByText('Delete Ballot Data…'));
+  fireEvent.click(component.getByText('Delete Ballot Data'));
 
   expect(zeroData).not.toHaveBeenCalled();
   await screen.findByText('Delete All Scanned Ballot Data?');
@@ -257,7 +257,7 @@ test('backup error shows message', async () => {
 
   await act(async () => {
     // Click to backup, verify we got called.
-    const backupButton = component.getByText('Export Backup…');
+    const backupButton = component.getByText('Export Backup');
     expect(backup).not.toHaveBeenCalled();
     backupButton.click();
     expect(backup).toHaveBeenCalledTimes(1);
@@ -267,7 +267,7 @@ test('backup error shows message', async () => {
 
     // Trigger backup error, verify back to normal with error.
     reject(new Error('two is one and one is none'));
-    await waitFor(() => component.getByText('Export Backup…'));
+    await waitFor(() => component.getByText('Export Backup'));
     await waitFor(() =>
       component.getByText('Error: two is one and one is none')
     );
@@ -281,25 +281,25 @@ test('override mark thresholds button shows when there are no overrides', () => 
     {
       hasBatches: true,
       markThresholds: undefined,
-      expectedText: 'Override Mark Thresholds…',
+      expectedText: 'Override Mark Thresholds',
       expectButtonDisabled: true,
     },
     {
       hasBatches: true,
       markThresholds: { marginal: 0.3, definite: 0.4 },
-      expectedText: 'Reset Mark Thresholds…',
+      expectedText: 'Reset Mark Thresholds',
       expectButtonDisabled: true,
     },
     {
       hasBatches: false,
       markThresholds: undefined,
-      expectedText: 'Override Mark Thresholds…',
+      expectedText: 'Override Mark Thresholds',
       expectButtonDisabled: false,
     },
     {
       hasBatches: false,
       markThresholds: { marginal: 0.3, definite: 0.4 },
-      expectedText: 'Reset Mark Thresholds…',
+      expectedText: 'Reset Mark Thresholds',
       expectButtonDisabled: false,
     },
   ];
@@ -333,7 +333,7 @@ test('override mark thresholds button shows when there are no overrides', () => 
   }
 });
 
-test('clicking "Update Date and Time…" shows modal to set clock', async () => {
+test('clicking "Update Date and Time" shows modal to set clock', async () => {
   MockDate.set('2020-10-31T00:00:00.000Z');
   window.kiosk = fakeKiosk();
 
@@ -359,9 +359,7 @@ test('clicking "Update Date and Time…" shows modal to set clock', async () => 
 
   // We just do a simple happy path test here, since the libs/ui/set_clock unit
   // tests cover full behavior
-  userEvent.click(
-    screen.getByRole('button', { name: 'Update Date and Time…' })
-  );
+  userEvent.click(screen.getByRole('button', { name: 'Update Date and Time' }));
 
   // Open modal
   const modal = screen.getByRole('alertdialog');
