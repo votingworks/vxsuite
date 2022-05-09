@@ -48,7 +48,7 @@ describe('BSD and services/Scan', () => {
      * Potential solutions: upgrade to cypress 6.3.0 or intercept the file download? https://docs.cypress.io/faq/questions/using-cypress-faq#Is-there-a-way-to-test-that-a-file-got-downloaded-I-want-to-test-that-a-button-click-triggers-a-download
      * Intercepting the file download will require additional work to mark on the server that a backup happened.
      */
-    // cy.contains('Export Backup…').click();
+    // cy.contains('Export Backup').click();
     // cy.contains('Delete Ballot Data').click();
     // cy.contains('Yes, Delete Ballot Data').click();
     // cy.contains('No ballots have been scanned', { timeout: 20000 });
@@ -67,8 +67,8 @@ describe('BSD and services/Scan', () => {
     // cy.contains('Confirm Ballot Removed and Continue Scanning').click();
     // cy.contains('Admin').click();
     // cy.contains('Toggle to Live Mode');
-    // cy.contains('Export Backup…').click();
-    // cy.contains('Delete Election Data from VxCentralScan…').click();
+    // cy.contains('Export Backup').click();
+    // cy.contains('Delete Election Data from VxCentralScan').click();
     // cy.contains('Yes, Delete Election Data').click();
     // cy.contains('Are you sure?');
     // cy.contains('I am sure. Delete all election data').click();
