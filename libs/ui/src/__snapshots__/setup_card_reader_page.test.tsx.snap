@@ -8,7 +8,7 @@ exports[`renders SetupCardReaderPage renders SetupCardReaderPage with usePollWor
     class="sc-bdvvaa lyEiN"
   >
     <div
-      class="sc-gsDJrp cHLzQJ"
+      class="sc-gsDJrp cxvyGJ"
     >
       <div
         class="sc-dkPtyc kYJAvL"
@@ -33,7 +33,7 @@ exports[`renders SetupCardReaderPage triggers useEffect property 1`] = `
     class="sc-bdvvaa lyEiN"
   >
     <div
-      class="sc-gsDJrp cHLzQJ"
+      class="sc-gsDJrp cxvyGJ"
     >
       <div
         class="sc-dkPtyc kYJAvL"
@@ -58,7 +58,7 @@ exports[`renders SetupCardReaderPage with no useEffect trigger as expected 1`] =
     class="sc-bdvvaa lyEiN"
   >
     <div
-      class="sc-gsDJrp cHLzQJ"
+      class="sc-gsDJrp cxvyGJ"
     >
       <div
         class="sc-dkPtyc kYJAvL"

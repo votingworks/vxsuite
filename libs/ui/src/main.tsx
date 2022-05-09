@@ -20,6 +20,7 @@ interface ChildProps {
   centerVertical?: boolean;
   centerHorizontal?: boolean;
   flexContainer?: boolean;
+  flexDirection?: string;
   maxWidth?: boolean;
   narrow?: boolean;
 }
@@ -27,7 +28,7 @@ interface ChildProps {
 export const MainChild = styled('div')<ChildProps>`
   display: ${({ flexContainer }) => (flexContainer ? 'flex' : undefined)};
   flex: ${({ flexContainer }) => (flexContainer ? 1 : undefined)};
-  flex-direction: inherit;
+  flex-direction: ${({ flexDirection }) => flexDirection || 'inherit'};
   margin: ${({
     center = false,
     centerVertical = center,
