@@ -36,6 +36,7 @@ import {
   BallotId,
   BallotTargetMarkPosition,
 } from '@votingworks/types';
+import { QrCode } from '@votingworks/ui';
 
 import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
 import { AppContext } from '../contexts/app_context';
@@ -44,7 +45,6 @@ import { findPartyById } from '../utils/find_party_by_id';
 
 import { BubbleMark } from './bubble_mark';
 import { WriteInLine } from './write_in_line';
-import { QrCode } from './qrcode';
 import { Prose } from './prose';
 import { Text } from './text';
 import { HorizontalRule } from './horizontal_rule';

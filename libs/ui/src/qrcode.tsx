@@ -1,4 +1,4 @@
-import QrCodeReact from '@votingworks/qrcode.react';
+import { QRCodeSVG } from 'qrcode.react';
 import React from 'react';
 import styled from 'styled-components';
 
@@ -10,14 +10,15 @@ const ResponsiveSvgWrapper = styled.div`
   }
 `;
 
-interface Props {
-  value: string | Uint8Array;
+export interface QrCodeProps {
+  value: string;
+  level?: 'L' | 'M' | 'Q' | 'H';
 }
 
-export function QrCode({ value }: Props): JSX.Element {
+export function QrCode({ level = 'H', value }: QrCodeProps): JSX.Element {
   return (
     <ResponsiveSvgWrapper>
-      <QrCodeReact renderAs="svg" value={value} level="H" />
+      <QRCodeSVG value={value} level={level} />
     </ResponsiveSvgWrapper>
   );
 }
