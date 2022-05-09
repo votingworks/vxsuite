@@ -5,7 +5,6 @@ import React, {
   useCallback,
   useMemo,
 } from 'react';
-import { RouteComponentProps } from 'react-router-dom';
 import 'normalize.css';
 import { sha256 } from 'js-sha256';
 import {
@@ -75,7 +74,7 @@ export interface AppStorage {
   externalVoteTallies?: string;
 }
 
-export interface Props extends RouteComponentProps {
+export interface Props {
   storage: Storage;
   printer: Printer;
   hardware: Hardware;

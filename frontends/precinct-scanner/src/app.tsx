@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter, Route } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 
 import './App.css';
 
@@ -43,18 +43,12 @@ export function App({
   }
   return (
     <BrowserRouter>
-      <Route
-        path="/"
-        render={(props) => (
-          <AppRoot
-            card={card}
-            hardware={internalHardware}
-            printer={printer}
-            machineConfig={machineConfig}
-            storage={storage}
-            {...props}
-          />
-        )}
+      <AppRoot
+        card={card}
+        hardware={internalHardware}
+        printer={printer}
+        machineConfig={machineConfig}
+        storage={storage}
       />
     </BrowserRouter>
   );

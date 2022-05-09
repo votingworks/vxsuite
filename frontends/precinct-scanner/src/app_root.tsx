@@ -1,6 +1,5 @@
 import { ScannerStatus } from '@votingworks/types/api/services/scan';
 import React, { useCallback, useEffect, useReducer, useMemo } from 'react';
-import { RouteComponentProps } from 'react-router-dom';
 import useInterval from '@rooks/use-interval';
 import 'normalize.css';
 import makeDebug from 'debug';
@@ -78,7 +77,7 @@ export interface AppStorage {
 export const stateStorageKey = 'state';
 const VALID_USERS: readonly UserRole[] = ['admin', 'pollworker', 'superadmin'];
 
-export interface Props extends RouteComponentProps {
+export interface Props {
   hardware: Hardware;
   card: Card;
   storage: Storage;

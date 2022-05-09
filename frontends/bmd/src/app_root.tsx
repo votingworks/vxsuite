@@ -30,7 +30,7 @@ import React, {
   useMemo,
 } from 'react';
 import Gamepad from 'react-gamepad';
-import { RouteComponentProps } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import './App.css';
 import IdleTimer from 'react-idle-timer';
 import useInterval from '@rooks/use-interval';
@@ -152,7 +152,7 @@ export interface AppStorage {
   activation?: SerializableActivationData;
   votes?: VotesDict;
 }
-export interface Props extends RouteComponentProps {
+export interface Props {
   card: Card;
   hardware: Hardware;
   machineConfig: Provider<MachineConfig>;
@@ -480,7 +480,6 @@ function appReducer(state: State, action: AppAction): State {
 export function AppRoot({
   card,
   hardware,
-  history,
   machineConfig: machineConfigProvider,
   printer,
   screenReader,
@@ -521,6 +520,7 @@ export function AppRoot({
     hasCardError,
   } = appState;
 
+  const history = useHistory();
   const { appMode } = machineConfig;
   const logger = useMemo(
     () => new Logger(LogSource.VxBallotMarkingDeviceFrontend, window.kiosk),

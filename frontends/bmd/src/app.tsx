@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { BrowserRouter, Route } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 
 import 'normalize.css';
 import './App.css';
@@ -135,20 +135,14 @@ export function App({
         onClickCapture={onClick}
         onFocusCapture={onFocus}
       >
-        <Route
-          path="/"
-          render={(props) => (
-            <AppRoot
-              card={card}
-              printer={printer}
-              hardware={internalHardware}
-              storage={storage}
-              machineConfig={machineConfig}
-              screenReader={screenReader}
-              reload={reload}
-              {...props}
-            />
-          )}
+        <AppRoot
+          card={card}
+          printer={printer}
+          hardware={internalHardware}
+          storage={storage}
+          machineConfig={machineConfig}
+          screenReader={screenReader}
+          reload={reload}
         />
       </FocusManager>
     </BrowserRouter>
