@@ -39,7 +39,11 @@ function TestDeckBallots({
   precinctId,
   onAllRendered,
 }: TestDeckBallotsParams) {
-  const ballots = generateTestDeckBallots({ election, precinctId });
+  const ballots = generateTestDeckBallots({
+    election,
+    precinctId,
+    numBlanks: 2,
+  });
 
   let numRendered = 0;
   function onRendered() {
