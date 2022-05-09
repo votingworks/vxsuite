@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { WebServiceCard, getHardware } from '@votingworks/utils';
-import { BrowserRouter, Route } from 'react-router-dom';
+import { BrowserRouter } from 'react-router-dom';
 
 import './App.css';
 
@@ -27,11 +27,10 @@ export function App({
   if (!internalHardware) {
     return <React.Fragment />;
   }
+
   return (
     <BrowserRouter>
-      <Route path="/">
-        <AppRoot hardware={internalHardware} card={card} />
-      </Route>
+      <AppRoot hardware={internalHardware} card={card} />
     </BrowserRouter>
   );
 }

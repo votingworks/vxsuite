@@ -10,7 +10,6 @@ import { ReviewPage } from '../pages/review_page';
 import { SaveCardScreen } from '../pages/save_card_screen';
 import { StartPage } from '../pages/start_page';
 import { RemoveCardScreen } from '../pages/remove_card_screen';
-import { CastBallotPage } from '../pages/cast_ballot_page';
 import {
   IDLE_TIMEOUT_SECONDS,
   FONT_SIZES,
@@ -57,14 +56,27 @@ export function Ballot(): JSX.Element {
         <IdlePage />
       ) : (
         <Switch>
-          <Route path="/" exact component={StartPage} />
-          <Route path="/contests/:contestNumber" component={ContestPage} />
-          <Route path="/review" component={ReviewPage} />
-          <Route path="/save" component={SaveCardScreen} />
-          <Route path="/remove" component={RemoveCardScreen} />
-          <Route path="/print" component={PrintPage} />
-          <Route path="/cast" component={CastBallotPage} />
-          <Route path="/:path" component={NotFoundPage} />
+          <Route path="/" exact>
+            <StartPage />
+          </Route>
+          <Route path="/contests/:contestNumber">
+            <ContestPage />
+          </Route>
+          <Route path="/review">
+            <ReviewPage />
+          </Route>
+          <Route path="/save">
+            <SaveCardScreen />
+          </Route>
+          <Route path="/remove">
+            <RemoveCardScreen />
+          </Route>
+          <Route path="/print">
+            <PrintPage />
+          </Route>
+          <Route path="/:path">
+            <NotFoundPage />
+          </Route>
         </Switch>
       )}
     </IdleTimer>

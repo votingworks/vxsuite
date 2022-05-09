@@ -1,6 +1,6 @@
 import { assert } from '@votingworks/utils';
 import React, { useContext, useEffect, useState } from 'react';
-import { RouteComponentProps } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { CandidateVote, OptionalYesNoVote } from '@votingworks/types';
 import { LinkButton, Screen, Prose } from '@votingworks/ui';
 
@@ -22,11 +22,8 @@ interface ContestParams {
   contestNumber: string;
 }
 
-export function ContestPage({
-  match: {
-    params: { contestNumber },
-  },
-}: RouteComponentProps<ContestParams>): JSX.Element {
+export function ContestPage(): JSX.Element {
+  const { contestNumber } = useParams<ContestParams>();
   const isReviewMode = window.location.hash === '#review';
   const {
     ballotStyleId,
