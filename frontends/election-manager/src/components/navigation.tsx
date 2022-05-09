@@ -4,6 +4,7 @@ import styled from 'styled-components';
 interface Props {
   primaryNav?: React.ReactNode;
   secondaryNav?: React.ReactNode;
+  screenTitle?: string;
 }
 
 const NavBar = styled.div`
@@ -70,14 +71,18 @@ const SecondaryNav = styled.div`
   }
 `;
 
-export function Navigation({ primaryNav, secondaryNav }: Props): JSX.Element {
+export function Navigation({
+  primaryNav,
+  secondaryNav,
+  screenTitle,
+}: Props): JSX.Element {
   return (
     <NavBar>
       <Brand>
         <MakeName>
           Voting<span>Works</span>
         </MakeName>
-        <ModelName>VxAdmin</ModelName>
+        <ModelName>VxAdmin{screenTitle && ` ${screenTitle}`}</ModelName>
       </Brand>
       <PrimaryNav>{primaryNav}</PrimaryNav>
       {secondaryNav && <SecondaryNav>{secondaryNav}</SecondaryNav>}
