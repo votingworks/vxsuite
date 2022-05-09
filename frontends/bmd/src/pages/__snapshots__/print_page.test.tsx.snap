@@ -294,10 +294,10 @@ exports[`renders PrintPage without votes 1`] = `
   class="sc-dPiKHq jMASbo"
 >
   <main
-    class="sc-cxpRKc cybXeN"
+    class="sc-llYToB kOvPLn"
   >
     <div
-      class="sc-llYToB hKvQah"
+      class="sc-iJKOzS kalIAL"
     >
       <div
         class="sc-jRQAMF huupYJ"
@@ -314,7 +314,7 @@ exports[`renders PrintPage without votes 1`] = `
         <h1>
           <span
             aria-label="Printing your official ballot."
-            class="sc-fKVsgm gqxVpI"
+            class="sc-bBHwJV ePpeWF"
           >
             Printing Official Ballot
           </span>
