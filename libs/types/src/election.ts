@@ -1503,7 +1503,7 @@ export function getPartyFullNameFromBallotStyle({
  * Gets the abbreviation of the political party for a primary election,
  * e.g. "R" or "D".
  */
-export function getPartyAbbrevationByPartyId({
+export function getPartyAbbreviationByPartyId({
   partyId,
   election,
 }: {

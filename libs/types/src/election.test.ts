@@ -18,7 +18,7 @@ import {
   getContestsFromIds,
   getEitherNeitherContests,
   getElectionLocales,
-  getPartyAbbrevationByPartyId,
+  getPartyAbbreviationByPartyId,
   getPartyFullNameFromBallotStyle,
   getPartyPrimaryAdjectiveFromBallotStyle,
   getPrecinctById,
@@ -155,14 +155,14 @@ test('can get a party primary adjective from ballot style', () => {
 
 test('can get a party abbreviation by party ID', () => {
   expect(
-    getPartyAbbrevationByPartyId({
+    getPartyAbbreviationByPartyId({
       partyId: primaryElection.parties[0].id,
       election: { ...primaryElection },
     })
   ).toEqual('D');
 
   expect(
-    getPartyAbbrevationByPartyId({
+    getPartyAbbreviationByPartyId({
       partyId: primaryElection.parties[0].id,
       election: { ...primaryElection, parties: [] },
     })
