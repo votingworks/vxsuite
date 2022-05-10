@@ -12,7 +12,7 @@ Follow the steps below to configure a Virtual Machine for development at VotingW
 
 4. Name your VM whatever you would like, and check the box to *Customize settings before installation*. Then click *Create*.
 
-![Install Page - Name & Location](setup_screenshots/name_and_location.png?raw=true)
+![Install Page - Name & Location](docs/setup_screenshots/name_and_location.png?raw=true)
 
 5. Customize the settings to your liking. Some suggestions:
 
@@ -40,17 +40,17 @@ Once you boot your new virtual machine in Debian you will be prompted with the i
 
 1. Chose either *Install* or *Graphical Install*, the latter will be used in this guide but it is just a slightly nicer UI, all of the steps and options are the same. 
 
-![Debian Install Screen](setup_screenshots/install_screen.png?raw=true)
+![Debian Install Screen](docs/setup_screenshots/install_screen.png?raw=true)
 
 2. Select your language, location, and keyboard layout on the next few screens. Debian will then begin installing. 
 
 3. *Configure the network* You will be asked for a Hostname. Since we aren't running a network this doesn't really matter, you can leave the default `debian`.
 
-![Debian Install Screen](setup_screenshots/hostname.png?raw=true)
+![Debian Install Screen](docs/setup_screenshots/hostname.png?raw=true)
 
 You will then be asked for a domain name, this can be left blank.
 
-![Debian Install Screen](setup_screenshots/domain_name.png?raw=true)
+![Debian Install Screen](docs/setup_screenshots/domain_name.png?raw=true)
 
 4. *Set up users and passwords* When prompted chose a password for your root user. Debian will create both a `root` user and another user account for you. This security measure is a bit of overkill for us since we are just developing on this VM, so it may simplify things to use the same password for both. 
 
@@ -60,13 +60,13 @@ Chose your timezone and click continue to continue the installation.
 
 6. *Partition Disks* You will be prompted on how to partition the disks. The production machines use LVM but for development it should be fine to just chose *Guided - use entire disk*. 
 
-![Debian Install - Disk Partitioning Screen](setup_screenshots/partitioning.png?raw=true)
+![Debian Install - Disk Partitioning Screen](docs/setup_screenshots/partitioning.png?raw=true)
 
 Click continue on the next screen, confirming all data will be erased. 
 
 When asked for what partitioning scheme to use select *All files in one partition*
 
-![Debian Install - Disk Partitioning Screen](setup_screenshots/partitioning2.png?raw=true)
+![Debian Install - Disk Partitioning Screen](docs/setup_screenshots/partitioning2.png?raw=true)
 
 Select *Finish partitioning and write changes to disk* on the next confirmation screen, and then click 'Yes' when asked if you want to *Write the changes to disk?*
 
@@ -80,7 +80,7 @@ Select *Finish partitioning and write changes to disk* on the next confirmation 
 
 Note: I have not extensively tested other options here, so if you chose a different desktop environment be aware that you may need to install other packages manually. I did briefly test just choosing Debian desktop environment without GNOME and needed to install a lot of other packages, such as `libjpeg`, `libgif` etc., in order to compile `vxsuite`.
 
-![Software Install Screen](setup_screenshots/software.png?raw=true) 
+![Software Install Screen](docs/setup_screenshots/software.png?raw=true) 
 
 11. When installation is complete you will be prompted to reboot your system. 
 
@@ -90,7 +90,7 @@ Before you can continue with the Debian Quickstart in the main README we will wa
 
  Log into your new user account, with the user password you set. Click Actions → Install Parallels Tools, and then click Continue on the pop-up. 
 
-![Install Parallels Tools](setup_screenshots/install_parallels_tools.png?raw=true) 
+![Install Parallels Tools](docs/setup_screenshots/install_parallels_tools.png?raw=true) 
 
  Open a terminal (Activities -> Terminal). And enter the command: 
 
