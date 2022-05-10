@@ -5,7 +5,7 @@ import {
   CandidateContest,
   ContestId,
   ContestOptionId,
-  getPartyAbbrevationByPartyId,
+  getPartyAbbreviationByPartyId,
 } from '@votingworks/types';
 
 import { NavigationScreen } from '../components/navigation_screen';
@@ -71,7 +71,7 @@ export function WriteInsScreen(): JSX.Element {
                   <React.Fragment>
                     {' '}
                     (
-                    {getPartyAbbrevationByPartyId({
+                    {getPartyAbbreviationByPartyId({
                       partyId: contest.partyId,
                       election,
                     })}
