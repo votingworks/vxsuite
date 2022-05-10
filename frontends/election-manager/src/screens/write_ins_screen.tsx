@@ -10,7 +10,7 @@ import {
 
 import { NavigationScreen } from '../components/navigation_screen';
 import { Prose } from '../components/prose';
-import { WriteInsTranscriptionScreen } from '../components/write_ins_transcription_screen';
+import { WriteInsTranscriptionScreen } from './write_ins_transcription_screen';
 import { AppContext } from '../contexts/app_context';
 
 export function WriteInsScreen(): JSX.Element {
@@ -44,8 +44,8 @@ export function WriteInsScreen(): JSX.Element {
     }
   }
 
-  const [isTranscriptionScreenOpen, setIsTranscriptionScreenOpen] =
-    useState(false);
+  const [contestBeingAdjudicated, setContestBeingAdjudicated] =
+    useState<CandidateContest | null>(null);
   return (
     <React.Fragment>
       <NavigationScreen mainChildFlex>
@@ -63,7 +63,7 @@ export function WriteInsScreen(): JSX.Element {
                     writeInCountsByContest.get(contest.id)
                   )
                 }
-                onPress={() => setIsTranscriptionScreenOpen(true)}
+                onPress={() => setContestBeingAdjudicated(contest)}
               >
                 Adjudicate {writeInCountsByContest.get(contest.id)} write-ins
                 for “{contest.section} {contest.title}”
@@ -82,8 +82,17 @@ export function WriteInsScreen(): JSX.Element {
             </p>
           ))}
         </Prose>
-        {isTranscriptionScreenOpen && (
-          <Modal content={<WriteInsTranscriptionScreen />} fullscreen />
+        {contestBeingAdjudicated && election && (
+          <Modal
+            content={
+              <WriteInsTranscriptionScreen
+                election={election}
+                contest={contestBeingAdjudicated}
+                onClose={() => setContestBeingAdjudicated(null)}
+              />
+            }
+            fullscreen
+          />
         )}
       </NavigationScreen>
     </React.Fragment>
