@@ -102,8 +102,6 @@ export function renderInAppContext(
     machineConfig = {
       machineId: '0000',
       codeVersion: '',
-      bypassAuthentication: false,
-      converter: 'ms-sems',
     },
     hasCardReaderAttached = true,
     logger = new Logger(LogSource.VxAdminFrontend),

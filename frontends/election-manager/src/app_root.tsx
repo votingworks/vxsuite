@@ -58,6 +58,7 @@ import {
   ResultsFileType,
   MachineConfig,
   CastVoteRecord,
+  ConverterClientType,
 } from './config/types';
 import { getExportableTallies } from './utils/exportable_tallies';
 import {
@@ -80,6 +81,8 @@ export interface Props {
   hardware: Hardware;
   card: Card;
   machineConfigProvider: Provider<MachineConfig>;
+  bypassAuthentication: boolean;
+  converter?: ConverterClientType;
 }
 
 export const electionDefinitionStorageKey = 'electionDefinition';
@@ -97,6 +100,8 @@ export function AppRoot({
   card,
   hardware,
   machineConfigProvider,
+  bypassAuthentication,
+  converter,
 }: Props): JSX.Element {
   const logger = useMemo(
     () => new Logger(LogSource.VxAdminFrontend, window.kiosk),
@@ -154,7 +159,6 @@ export function AppRoot({
   const [isOfficialResults, setIsOfficialResults] = useState(false);
   const [machineConfig, setMachineConfig] = useState<MachineConfig>({
     machineId: '0000',
-    bypassAuthentication: false,
     codeVersion: '',
   });
 
@@ -172,7 +176,7 @@ export function AppRoot({
     electionDefinition,
     persistAuthentication: true,
     logger,
-    bypassAuthentication: machineConfig.bypassAuthentication,
+    bypassAuthentication,
     validUserTypes: VALID_USERS,
   });
 
@@ -594,6 +598,7 @@ export function AppRoot({
         castVoteRecordFiles,
         electionDefinition,
         configuredAt,
+        converter,
         isOfficialResults,
         printer,
         printBallotRef,

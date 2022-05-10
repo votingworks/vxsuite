@@ -13,6 +13,10 @@ import {
 
 import { AppRoot, Props as AppRootProps } from './app_root';
 import { machineConfigProvider } from './utils/machine_config';
+import {
+  getConverterClientType,
+  isAuthenticationEnabled,
+} from './config/features';
 
 export interface Props {
   storage?: AppRootProps['storage'];
@@ -20,6 +24,8 @@ export interface Props {
   hardware?: AppRootProps['hardware'];
   machineConfig?: AppRootProps['machineConfigProvider'];
   card?: AppRootProps['card'];
+  bypassAuthentication?: AppRootProps['bypassAuthentication'];
+  converter?: AppRootProps['converter'];
 }
 
 const defaultStorage = window.kiosk
@@ -32,6 +38,8 @@ export function App({
   storage = defaultStorage,
   printer = getPrinter(),
   machineConfig = machineConfigProvider,
+  bypassAuthentication = !isAuthenticationEnabled(),
+  converter = getConverterClientType(),
 }: Props): JSX.Element {
   const [internalHardware, setInternalHardware] = useState(hardware);
 
@@ -55,6 +63,8 @@ export function App({
         hardware={internalHardware}
         card={card}
         machineConfigProvider={machineConfig}
+        bypassAuthentication={bypassAuthentication}
+        converter={converter}
       />
     </BrowserRouter>
   );

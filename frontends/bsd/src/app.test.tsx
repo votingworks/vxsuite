@@ -40,7 +40,6 @@ beforeEach(() => {
     typedAs<MachineConfigResponse>({
       machineId: '0001',
       codeVersion: 'TEST',
-      bypassAuthentication: false,
     })
   );
 

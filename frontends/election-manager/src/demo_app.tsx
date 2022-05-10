@@ -26,7 +26,6 @@ export function getSampleMachineConfigProvider(): Provider<MachineConfig> {
       return {
         machineId: '012',
         codeVersion: 'demo',
-        bypassAuthentication: true,
       };
     },
   };
@@ -41,11 +40,8 @@ export function DemoApp({
 }: Props): JSX.Element {
   const [internalHardware, setInternalHardware] = React.useState(hardware);
   React.useEffect(() => {
-    function updateHardware() {
-      setInternalHardware((prev) => prev ?? MemoryHardware.buildDemo());
-    }
-    void updateHardware();
-  });
+    setInternalHardware((prev) => prev ?? MemoryHardware.buildDemo());
+  }, []);
   if (internalHardware === undefined) {
     return <div />;
   }
@@ -55,6 +51,7 @@ export function DemoApp({
       storage={storage}
       machineConfig={machineConfig}
       hardware={internalHardware}
+      bypassAuthentication
       {...rest}
     />
   );

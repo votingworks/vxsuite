@@ -17,7 +17,7 @@ The server will be available at http://localhost:3000/.
 ### Choosing a Converter
 
 If you want to run with a particular converter configuration, start the server
-with `VX_CONVERTER` set to the appropriate value:
+with `REACT_APP_VX_CONVERTER` set to the appropriate value:
 
 - **`ms-sems`** (default): uses `services/converter-ms-sems` to convert
   Mississippi SEMS files to the VotingWorks format. Currently, only BMD and
@@ -25,6 +25,9 @@ with `VX_CONVERTER` set to the appropriate value:
 - **`nh-accuvote`**: uses `ballot-interpreter-nh` to convert New Hampshire
   AccuVote files to the VotingWorks format. Currently, only BMD and AccuVote
   timing-mark ballots are supported with this converter.
+
+You may set this value in `.env.local` to make the value persistent on your
+machine.
 
 ### Optional prerequisites
 

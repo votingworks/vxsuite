@@ -5,24 +5,24 @@ import { BrowserRouter } from 'react-router-dom';
 import './App.css';
 
 import { AppRoot, AppRootProps } from './app_root';
+import { isAuthenticationEnabled } from './config/features';
 
 export interface Props {
   card?: AppRootProps['card'];
   hardware?: AppRootProps['hardware'];
+  bypassAuthentication?: AppRootProps['bypassAuthentication'];
 }
 
 export function App({
   hardware,
   card = new WebServiceCard(),
+  bypassAuthentication = !isAuthenticationEnabled(),
 }: Props): JSX.Element {
   const [internalHardware, setInternalHardware] = useState(hardware);
   useEffect(() => {
-    function updateHardware() {
-      const newInternalHardware = getHardware();
-      setInternalHardware((prev) => prev ?? newInternalHardware);
-    }
-    void updateHardware();
-  });
+    const newInternalHardware = getHardware();
+    setInternalHardware((prev) => prev ?? newInternalHardware);
+  }, []);
 
   if (!internalHardware) {
     return <React.Fragment />;
@@ -30,7 +30,11 @@ export function App({
 
   return (
     <BrowserRouter>
-      <AppRoot hardware={internalHardware} card={card} />
+      <AppRoot
+        hardware={internalHardware}
+        card={card}
+        bypassAuthentication={bypassAuthentication}
+      />
     </BrowserRouter>
   );
 }

@@ -104,8 +104,6 @@ beforeEach(() => {
     typedAs<MachineConfig>({
       machineId: '0000',
       codeVersion: 'TEST',
-      bypassAuthentication: false,
-      converter: 'ms-sems',
     })
   );
 });
@@ -986,7 +984,12 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const { getByText, getByTestId } = render(
-    <App storage={storage} card={card} hardware={hardware} />
+    <App
+      storage={storage}
+      card={card}
+      hardware={hardware}
+      converter="ms-sems"
+    />
   );
   await authenticateWithAdminCard(card);
   await screen.findByText('0 official ballots');

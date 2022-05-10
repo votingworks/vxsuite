@@ -3,6 +3,7 @@ import { electionMultiPartyPrimaryWithDataFiles } from '@votingworks/fixtures';
 describe('Election Manager can create SEMS tallies', () => {
   it('Election Manager can tally results properly', () => {
     cy.visit('/');
+    cy.contains('Convert from SEMS files');
     cy.get('input[type="file"]').attachFile(
       'electionMultiPartyPrimarySample.json'
     );

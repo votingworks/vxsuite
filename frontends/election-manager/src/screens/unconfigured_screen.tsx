@@ -12,7 +12,7 @@ import {
 } from '../lib/converters';
 import { readFileAsync } from '../lib/read_file_async';
 
-import { ConverterClientType, InputEventFunction } from '../config/types';
+import { InputEventFunction } from '../config/types';
 
 import defaultElection from '../data/defaultElection.json';
 
@@ -55,16 +55,12 @@ function someFilesExist(files: VxFile[]) {
 
 const newElection = JSON.stringify(defaultElection);
 
-export function UnconfiguredScreen({
-  converter,
-}: {
-  converter?: ConverterClientType;
-}): JSX.Element {
+export function UnconfiguredScreen(): JSX.Element {
   const history = useHistory();
   const location = useLocation();
   const makeCancelable = useCancelablePromise();
 
-  const { saveElection } = useContext(AppContext);
+  const { converter, saveElection } = useContext(AppContext);
 
   const [isUploading, setIsUploading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);

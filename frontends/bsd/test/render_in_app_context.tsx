@@ -17,7 +17,6 @@ interface RenderInAppContextParams {
   usbDriveEject?: () => void;
   storage?: Storage;
   lockMachine?: () => void;
-  bypassAuthentication?: boolean;
   currentUserSession?: UserSession;
   logger?: Logger;
 }
@@ -27,7 +26,6 @@ export function makeAppContext({
   machineConfig = {
     machineId: '0000',
     codeVersion: 'TEST',
-    bypassAuthentication: true,
   },
   usbDriveStatus = usbstick.UsbDriveStatus.absent,
   usbDriveEject = jest.fn(),
@@ -55,7 +53,6 @@ export function renderInAppContext(
     history = createMemoryHistory({ initialEntries: [route] }),
     electionDefinition,
     machineId = '0000',
-    bypassAuthentication = true,
     usbDriveStatus,
     usbDriveEject,
     storage,
@@ -68,7 +65,7 @@ export function renderInAppContext(
     <AppContext.Provider
       value={makeAppContext({
         electionDefinition,
-        machineConfig: { machineId, codeVersion: 'TEST', bypassAuthentication },
+        machineConfig: { machineId, codeVersion: 'TEST' },
         usbDriveStatus,
         usbDriveEject,
         storage,
