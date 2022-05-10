@@ -41,7 +41,7 @@ describe('Modal', () => {
         tabindex="-1"
       >
         <div
-          class="sc-hKwCoD RDMJL"
+          class="sc-hKwCoD bNJKkA"
         >
           Do you want to do the thing?
         </div>
@@ -73,7 +73,7 @@ describe('Modal', () => {
         tabindex="-1"
       >
         <div
-          class="sc-hKwCoD kFWWdL"
+          class="sc-hKwCoD gghqgk"
         >
           Do you want to do the thing?
         </div>
@@ -95,12 +95,15 @@ describe('Modal', () => {
         tabindex="-1"
       >
         <div
-          class="sc-hKwCoD kFWWdL"
+          class="sc-hKwCoD cZPwiQ"
         >
           Do you want to do the thing?
         </div>
       </div>
     `);
+
+    const content = within(modal).getByText('Do you want to do the thing?');
+    expect(content).not.toHaveStyle({ padding: '2rem' });
   });
 
   it('handles overlay click', () => {
