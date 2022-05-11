@@ -24,7 +24,10 @@ import { PrecinctReportScreenProps } from '../config/types';
 
 import { HandMarkedPaperBallot } from '../components/hand_marked_paper_ballot';
 
-import { generateTestDeckBallots } from '../utils/election';
+import {
+  generateTestDeckBallots,
+  generateBlankBallots,
+} from '../utils/election';
 
 interface TestDeckBallotsParams {
   election: Election;
@@ -40,6 +43,7 @@ function TestDeckBallots({
   onAllRendered,
 }: TestDeckBallotsParams) {
   const ballots = generateTestDeckBallots({ election, precinctId });
+  ballots.push(...generateBlankBallots({ election, precinctId, numBlanks: 2 }));
 
   let numRendered = 0;
   function onRendered() {

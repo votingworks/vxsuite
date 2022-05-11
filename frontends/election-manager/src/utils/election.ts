@@ -236,3 +236,31 @@ export function generateTestDeckBallots({
 
   return ballots;
 }
+
+export function generateBlankBallots({
+  election,
+  precinctId,
+  numBlanks,
+}: {
+  election: Election;
+  precinctId: PrecinctId;
+  numBlanks: number;
+}): Array<Dictionary<string | VotesDict>> {
+  const ballots: Array<Dictionary<string | VotesDict>> = [];
+
+  const blankBallotStyle = election.ballotStyles.find((bs) =>
+    bs.precincts.includes(precinctId)
+  );
+
+  if (blankBallotStyle && numBlanks > 0) {
+    for (let blankNum = 0; blankNum < numBlanks; blankNum += 1) {
+      ballots.push({
+        ballotStyleId: blankBallotStyle.id,
+        precinctId,
+        votes: {},
+      });
+    }
+  }
+
+  return ballots;
+}
