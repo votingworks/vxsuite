@@ -7,6 +7,7 @@ import {
   getPartyAbbrevationByPartyId,
 } from '@votingworks/types';
 import { Button, Main, MainChild, Screen, Text } from '@votingworks/ui';
+import { assert } from '@votingworks/utils';
 import { Navigation } from '../components/navigation';
 import { TextInput } from '../components/text_input';
 
@@ -42,7 +43,11 @@ const TranscriptionPaginationContainer = styled.div`
   padding: 0.5rem 1rem;
 `;
 
-function PreviouslyTranscribedValues() {
+function PreviouslyTranscribedValues({
+  saveTranscribedValue,
+}: {
+  saveTranscribedValue: (transcribedValue: string) => void;
+}) {
   const previouslyTranscribedValues = [
     'Mickey Mouse',
     'Mickey M',
@@ -58,7 +63,7 @@ function PreviouslyTranscribedValues() {
     <PreviouslyTranscriibedValuesContainer>
       {previouslyTranscribedValues.map((transcribedValue) => (
         <PreviouslyTranscribedValueButtonWrapper key={transcribedValue}>
-          <Button small onPress={() => null}>
+          <Button small onPress={() => saveTranscribedValue(transcribedValue)}>
             {transcribedValue}
           </Button>
         </PreviouslyTranscribedValueButtonWrapper>
@@ -70,12 +75,22 @@ function PreviouslyTranscribedValues() {
 export function WriteInsTranscriptionScreen({
   contest,
   election,
+  onClickNext,
+  onClickPrevious,
   onClose,
+  onListAll,
+  saveTranscribedValue,
 }: {
   contest: CandidateContest;
   election: Election;
+  onClickNext: () => void;
+  onClickPrevious: () => void;
   onClose: () => void;
+  onListAll: () => void;
+  saveTranscribedValue: (transcribedValue: string) => void;
 }): JSX.Element {
+  assert(contest);
+  assert(election);
   return (
     <Screen>
       <Main>
@@ -83,7 +98,7 @@ export function WriteInsTranscriptionScreen({
           screenTitle="Write-In Adjudication"
           secondaryNav={
             <React.Fragment>
-              <Button small onPress={() => null}>
+              <Button small onPress={onListAll}>
                 List All
               </Button>
               <Button small onPress={onClose}>
@@ -112,11 +127,13 @@ export function WriteInsTranscriptionScreen({
               <label htmlFor="transcription-value">Transcribed Value</label>
             </Text>
             <TextInput id="transcribed-value" name="transcribed-value" />
-            <PreviouslyTranscribedValues />
+            <PreviouslyTranscribedValues
+              saveTranscribedValue={saveTranscribedValue}
+            />
             <TranscriptionPaginationContainer>
-              <Button onPress={() => null}>Previous</Button>
+              <Button onPress={onClickPrevious}>Previous</Button>
               <Text bold>2 of 242</Text>
-              <Button onPress={() => null}>Next</Button>
+              <Button onPress={onClickNext}>Next</Button>
             </TranscriptionPaginationContainer>
           </Transcription>
         </MainChild>
