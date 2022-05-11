@@ -63,7 +63,7 @@ function PreviouslyTranscribedValues({
     <PreviouslyTranscribedValuesContainer>
       {previouslyTranscribedValues.map((transcribedValue) => (
         <PreviouslyTranscribedValueButtonWrapper key={transcribedValue}>
-          <Button small onPress={() => saveTranscribedValue(transcribedValue)}>
+          <Button onPress={() => saveTranscribedValue(transcribedValue)}>
             {transcribedValue}
           </Button>
         </PreviouslyTranscribedValueButtonWrapper>
