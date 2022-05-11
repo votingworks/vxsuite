@@ -46,6 +46,12 @@ export function WriteInsScreen(): JSX.Element {
 
   const [contestBeingAdjudicated, setContestBeingAdjudicated] =
     useState<CandidateContest | null>(null);
+
+  /* istanbul ignore next */
+  function placeholderFn() {
+    return null;
+  }
+
   return (
     <React.Fragment>
       <NavigationScreen mainChildFlex>
@@ -89,6 +95,10 @@ export function WriteInsScreen(): JSX.Element {
                 election={election}
                 contest={contestBeingAdjudicated}
                 onClose={() => setContestBeingAdjudicated(null)}
+                onListAll={placeholderFn}
+                onClickNext={placeholderFn}
+                onClickPrevious={placeholderFn}
+                saveTranscribedValue={placeholderFn}
               />
             }
             fullscreen
