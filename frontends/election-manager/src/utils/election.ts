@@ -172,13 +172,11 @@ export function getContestsForPrecinct(
 interface GenerateTestDeckParams {
   election: Election;
   precinctId?: PrecinctId;
-  numBlanks?: number;
 }
 
 export function generateTestDeckBallots({
   election,
   precinctId,
-  numBlanks,
 }: GenerateTestDeckParams): Array<Dictionary<string | VotesDict>> {
   const precincts: string[] = precinctId
     ? [precinctId]
@@ -234,18 +232,33 @@ export function generateTestDeckBallots({
         });
       }
     }
+  }
 
-    if (numBlanks && numBlanks > 0) {
-      const blankBallotStyle = precinctBallotStyles[0];
-      if (blankBallotStyle) {
-        for (let blankNum = 0; blankNum < numBlanks; blankNum += 1) {
-          ballots.push({
-            ballotStyleId: blankBallotStyle.id,
-            precinctId: currentPrecinctId,
-            votes: {},
-          });
-        }
-      }
+  return ballots;
+}
+
+export function generateBlankBallots({
+  election,
+  precinctId,
+  numBlanks,
+}: {
+  election: Election;
+  precinctId: PrecinctId;
+  numBlanks: number;
+}): Array<Dictionary<string | VotesDict>> {
+  const ballots: Array<Dictionary<string | VotesDict>> = [];
+
+  const blankBallotStyle = election.ballotStyles.find((bs) =>
+    bs.precincts.includes(precinctId)
+  );
+
+  if (blankBallotStyle && numBlanks > 0) {
+    for (let blankNum = 0; blankNum < numBlanks; blankNum += 1) {
+      ballots.push({
+        ballotStyleId: blankBallotStyle.id,
+        precinctId,
+        votes: {},
+      });
     }
   }
 
