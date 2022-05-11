@@ -23,7 +23,7 @@ const Transcription = styled.div`
   padding: 1rem;
 `;
 
-const PreviouslyTranscriibedValuesContainer = styled.div``;
+const previouslytranscribedValuesContainer = styled.div``;
 
 const PreviouslyTranscribedValueButtonWrapper = styled.div`
   display: inline-block;
@@ -60,7 +60,7 @@ function PreviouslyTranscribedValues({
     'M. Mouse',
   ];
   return (
-    <PreviouslyTranscriibedValuesContainer>
+    <previouslytranscribedValuesContainer>
       {previouslyTranscribedValues.map((transcribedValue) => (
         <PreviouslyTranscribedValueButtonWrapper key={transcribedValue}>
           <Button small onPress={() => saveTranscribedValue(transcribedValue)}>
@@ -68,7 +68,7 @@ function PreviouslyTranscribedValues({
           </Button>
         </PreviouslyTranscribedValueButtonWrapper>
       ))}
-    </PreviouslyTranscriibedValuesContainer>
+    </previouslytranscribedValuesContainer>
   );
 }
 
