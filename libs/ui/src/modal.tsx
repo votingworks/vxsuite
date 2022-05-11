@@ -77,7 +77,7 @@ const ModalContent = styled('div')<ModalContentInterface>`
   justify-content: ${({ centerContent = false }) =>
     centerContent ? 'center' : undefined};
   overflow: auto;
-  padding: ${({ fullscreen = false }) => (!fullscreen ? '2rem' : undefined)};
+  padding: ${({ fullscreen }) => !fullscreen && '2rem'};
 `;
 
 interface Props {
