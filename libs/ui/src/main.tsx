@@ -37,3 +37,8 @@ export const MainChild = styled('div')<ChildProps>`
   max-width: ${({ maxWidth = true, narrow = false }) =>
     narrow ? '50%' : maxWidth ? '35rem' : undefined};
 `;
+
+export const MainChildColumns = styled.div`
+  display: flex;
+  flex: 1;
+`;
