@@ -109,7 +109,7 @@ test('getSingleYesNoVote', () => {
 
 test('normalizeWriteInId', () => {
   expect(normalizeWriteInId('arandomword')).toBe('arandomword');
-  expect(normalizeWriteInId('__writein123456')).toBe(writeInCandidate.id);
+  expect(normalizeWriteInId('write-in123456')).toBe(writeInCandidate.id);
   expect(normalizeWriteInId('write-in123456')).toBe(writeInCandidate.id);
   expect(normalizeWriteInId('writein123456')).toBe(writeInCandidate.id);
   expect(normalizeWriteInId('write-in123456')).toBe(writeInCandidate.id);

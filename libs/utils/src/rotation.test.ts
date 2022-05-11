@@ -82,7 +82,7 @@ test('Get contest vote in rotated order', () => {
       precinctIndex: 0,
       vote: [
         {
-          id: '__writeIn',
+          id: 'write-in',
           name: 'first write-in',
           isWriteIn: true,
         },
@@ -90,7 +90,7 @@ test('Get contest vote in rotated order', () => {
         multiSeatCandidateContest.candidates[2] as Candidate,
         multiSeatCandidateContest.candidates[0] as Candidate,
         {
-          id: '__writeIn',
+          id: 'write-in',
           name: 'last write-in',
           isWriteIn: true,
         },
@@ -111,7 +111,7 @@ test('Get contest vote in rotated order', () => {
       precinctIndex: 1,
       vote: [
         {
-          id: '__writeIn',
+          id: 'write-in',
           name: 'first write-in',
           isWriteIn: true,
         },
@@ -119,7 +119,7 @@ test('Get contest vote in rotated order', () => {
         multiSeatCandidateContest.candidates[2] as Candidate,
         multiSeatCandidateContest.candidates[0] as Candidate,
         {
-          id: '__writeIn',
+          id: 'write-in',
           name: 'last write-in',
           isWriteIn: true,
         },
@@ -144,7 +144,7 @@ test('Get contest vote in rotated order', () => {
       precinctIndex: 1,
       vote: [
         {
-          id: '__writeIn',
+          id: 'write-in',
           name: 'first write-in',
           isWriteIn: true,
         },
@@ -152,7 +152,7 @@ test('Get contest vote in rotated order', () => {
         nonRotatedMultiSeatCandidateContest.candidates[2]!,
         nonRotatedMultiSeatCandidateContest.candidates[0]!,
         {
-          id: '__writeIn',
+          id: 'write-in',
           name: 'last write-in',
           isWriteIn: true,
         },

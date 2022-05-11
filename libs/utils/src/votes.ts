@@ -44,7 +44,7 @@ export function getSingleYesNoVote(vote?: YesNoVote): YesOrNo | undefined {
 
 export function normalizeWriteInId(candidateId: CandidateId): string {
   if (
-    candidateId.startsWith('__writein') ||
+    candidateId.startsWith('write-in') ||
     candidateId.startsWith('write-in') ||
     candidateId.startsWith('writein') ||
     candidateId.startsWith('write-in')
