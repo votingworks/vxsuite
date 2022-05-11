@@ -28,7 +28,7 @@ interface ChildProps {
 export const MainChild = styled('div')<ChildProps>`
   display: ${({ flexContainer }) => (flexContainer ? 'flex' : undefined)};
   flex: ${({ flexContainer }) => (flexContainer ? 1 : undefined)};
-  flex-direction: ${({ flexDirection }) => flexDirection || 'inherit'};
+  flex-direction: ${({ flexDirection = 'inherit' }) => flexDirection};
   margin: ${({
     center = false,
     centerVertical = center,
