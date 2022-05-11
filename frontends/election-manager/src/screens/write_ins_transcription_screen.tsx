@@ -16,10 +16,16 @@ const BallotPreviews = styled.div`
   padding: 1rem;
 `;
 
-const Transcription = styled.div`
+const TranscriptionContainer = styled.div`
+  display: flex;
   flex: 2;
-  position: relative;
+  flex-direction: column;
   border-left: 1px solid #cccccc;
+`;
+
+const TranscriptionMainContentContainer = styled.div`
+  flex: 1;
+  overflow: scroll;
   padding: 1rem;
 `;
 
@@ -34,9 +40,6 @@ const TranscriptionPaginationContainer = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  position: absolute;
-  bottom: 0;
-  left: 0;
   border-top: 1px solid #cccccc;
   background: #ffffff;
   width: 100%;
@@ -92,50 +95,63 @@ export function WriteInsTranscriptionScreen({
   assert(contest);
   assert(election);
   return (
-    <Screen>
+    <Screen flexDirection="column">
+      <Navigation
+        screenTitle="Write-In Adjudication"
+        secondaryNav={
+          <React.Fragment>
+            <Button small onPress={onListAll}>
+              List All
+            </Button>
+            <Button small onPress={onClose}>
+              Exit
+            </Button>
+          </React.Fragment>
+        }
+      />
       <Main>
-        <Navigation
-          screenTitle="Write-In Adjudication"
-          secondaryNav={
-            <React.Fragment>
-              <Button small onPress={onListAll}>
-                List All
-              </Button>
-              <Button small onPress={onClose}>
-                Exit
-              </Button>
-            </React.Fragment>
-          }
-        />
         <MainChild maxWidth={false} flexContainer flexDirection="row">
           <BallotPreviews>BALLOT IMAGES GO HERE</BallotPreviews>
-          <Transcription>
-            {election && contest.partyId && (
-              <React.Fragment>
-                <Text bold>{contest.section}</Text>
-                <h1>
-                  {contest.title} (
-                  {getPartyAbbrevationByPartyId({
-                    partyId: contest.partyId,
-                    election,
-                  })}
-                  )
-                </h1>
-              </React.Fragment>
-            )}
-            <Text>
-              <label htmlFor="transcription-value">Transcribed Value</label>
-            </Text>
-            <TextInput id="transcribed-value" name="transcribed-value" />
-            <PreviouslyTranscribedValues
-              saveTranscribedValue={saveTranscribedValue}
-            />
+          <TranscriptionContainer>
+            <TranscriptionMainContentContainer>
+              {election && contest.partyId && (
+                <React.Fragment>
+                  <Text bold>{contest.section}</Text>
+                  <h1>
+                    {contest.title} (
+                    {getPartyAbbrevationByPartyId({
+                      partyId: contest.partyId,
+                      election,
+                    })}
+                    )
+                  </h1>
+                </React.Fragment>
+              )}
+              <Text>
+                <label htmlFor="transcription-value">Transcribed Value</label>
+              </Text>
+              <TextInput id="transcribed-value" name="transcribed-value" />
+              <PreviouslyTranscribedValues
+                saveTranscribedValue={saveTranscribedValue}
+              />
+              <p>Here</p>
+              <p>are</p>
+              <p>a</p>
+              <p>bunch</p>
+              <p>of</p>
+              <p>paragraphs</p>
+              <p>to</p>
+              <p>make</p>
+              <p>the</p>
+              <p>container</p>
+              <p>overflow.</p>
+            </TranscriptionMainContentContainer>
             <TranscriptionPaginationContainer>
               <Button onPress={onClickPrevious}>Previous</Button>
               <Text bold>2 of 242</Text>
               <Button onPress={onClickNext}>Next</Button>
             </TranscriptionPaginationContainer>
-          </Transcription>
+          </TranscriptionContainer>
         </MainChild>
       </Main>
     </Screen>
