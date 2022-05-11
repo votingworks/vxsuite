@@ -20,7 +20,7 @@ interface ChildProps {
   centerVertical?: boolean;
   centerHorizontal?: boolean;
   flexContainer?: boolean;
-  flexDirection?: string;
+  flexDirection?: React.CSSProperties['flexDirection'];
   maxWidth?: boolean;
   narrow?: boolean;
 }
