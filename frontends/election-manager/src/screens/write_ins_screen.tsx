@@ -44,8 +44,9 @@ export function WriteInsScreen(): JSX.Element {
     }
   }
 
-  const [contestBeingAdjudicated, setContestBeingAdjudicated] =
-    useState<CandidateContest | null>(null);
+  const [contestBeingAdjudicated, setContestBeingAdjudicated] = useState<
+    CandidateContest | undefined
+  >();
 
   /* istanbul ignore next */
   function placeholderFn() {
@@ -94,7 +95,7 @@ export function WriteInsScreen(): JSX.Element {
               <WriteInsTranscriptionScreen
                 election={election}
                 contest={contestBeingAdjudicated}
-                onClose={() => setContestBeingAdjudicated(null)}
+                onClose={() => setContestBeingAdjudicated(undefined)}
                 onListAll={placeholderFn}
                 onClickNext={placeholderFn}
                 onClickPrevious={placeholderFn}
