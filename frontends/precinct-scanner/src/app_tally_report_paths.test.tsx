@@ -224,7 +224,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
         election,
         {
           'best-animal-mammal': ['otter'],
-          'zoo-council-mammal': ['zebra', '__write-in'],
+          'zoo-council-mammal': ['zebra', 'write-in'],
           'new-zoo-either': ['yes'],
           'new-zoo-pick': [],
         },
@@ -320,7 +320,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
     1,
     1,
     0,
-    { zebra: 1, lion: 0, kangaroo: 0, elephant: 0, '__write-in': 1 }
+    { zebra: 1, lion: 0, kangaroo: 0, elephant: 0, 'write-in': 1 }
   );
   expectContestResultsInReport(
     precinct1MammalReports[0],
@@ -368,7 +368,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
       pufferfish: 0,
       triggerfish: 0,
       rockfish: 0,
-      '__write-in': 0,
+      'write-in': 0,
     }
   );
   expectContestResultsInReport(precinct1FishReports[0], 'fishing', 0, 0, 0, {
@@ -400,7 +400,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
     1,
     2,
     0,
-    { zebra: 0, lion: 0, kangaroo: 0, elephant: 1, '__write-in': 0 }
+    { zebra: 0, lion: 0, kangaroo: 0, elephant: 1, 'write-in': 0 }
   );
   expectContestResultsInReport(
     precinct2MammalReports[0],
@@ -448,7 +448,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
       pufferfish: 0,
       triggerfish: 1,
       rockfish: 0,
-      '__write-in': 0,
+      'write-in': 0,
     }
   );
   expectContestResultsInReport(precinct2FishReports[0], 'fishing', 1, 0, 0, {
@@ -606,7 +606,7 @@ test('expected tally reports for a primary election with a single precincts with
         election,
         {
           'best-animal-mammal': ['otter'],
-          'zoo-council-mammal': ['zebra', '__write-in'],
+          'zoo-council-mammal': ['zebra', 'write-in'],
           'new-zoo-either': ['yes'],
           'new-zoo-pick': [],
         },
@@ -702,7 +702,7 @@ test('expected tally reports for a primary election with a single precincts with
     2,
     3,
     0,
-    { zebra: 1, lion: 0, kangaroo: 0, elephant: 1, '__write-in': 1 }
+    { zebra: 1, lion: 0, kangaroo: 0, elephant: 1, 'write-in': 1 }
   );
   expectContestResultsInReport(
     precinct1MammalReports[0],
@@ -750,7 +750,7 @@ test('expected tally reports for a primary election with a single precincts with
       pufferfish: 0,
       triggerfish: 1,
       rockfish: 0,
-      '__write-in': 0,
+      'write-in': 0,
     }
   );
   expectContestResultsInReport(precinct1FishReports[0], 'fishing', 1, 0, 0, {
@@ -968,7 +968,7 @@ test('expected tally reports for a general election with all precincts with CVRs
       'mona-lisa': 0,
       'jackie-chan': 1,
       'tim-allen': 0,
-      '__write-in': 0,
+      'write-in': 0,
     }
   );
   expectContestResultsInReport(centerSpringfieldReports[0], 'prop-1', 1, 0, 0, {
@@ -994,7 +994,7 @@ test('expected tally reports for a general election with all precincts with CVRs
       'mona-lisa': 0,
       'jackie-chan': 0,
       'tim-allen': 0,
-      '__write-in': 0,
+      'write-in': 0,
     }
   );
   expectContestResultsInReport(southSpringfieldReports[0], 'prop-1', 0, 0, 0, {
@@ -1020,7 +1020,7 @@ test('expected tally reports for a general election with all precincts with CVRs
       'mona-lisa': 0,
       'jackie-chan': 0,
       'tim-allen': 0,
-      '__write-in': 0,
+      'write-in': 0,
     }
   );
   expectContestResultsInReport(northSpringfieldReports[0], 'prop-1', 1, 1, 0, {
@@ -1232,7 +1232,7 @@ test('expected tally reports for a general election with a single precincts with
       'mona-lisa': 0,
       'jackie-chan': 1,
       'tim-allen': 0,
-      '__write-in': 0,
+      'write-in': 0,
     }
   );
   expectContestResultsInReport(centerSpringfieldReports[0], 'prop-1', 2, 1, 0, {

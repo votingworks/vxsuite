@@ -226,7 +226,7 @@ describe('getCombinedExportableContestTally', () => {
           )!,
           tally: 10,
         },
-        '__write-in': {
+        'write-in': {
           option: writeInCandidate,
           tally: 10,
         },
@@ -241,7 +241,7 @@ describe('getCombinedExportableContestTally', () => {
         775031988: 20,
         775031989: 20,
         775031987: 10,
-        '__write-in': 10,
+        'write-in': 10,
       },
       metadata: { ballots: 70, undervotes: 10, overvotes: 10 },
     });

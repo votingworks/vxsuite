@@ -637,7 +637,7 @@ test('printing precinct scanner report works as expected with all precinct speci
       undervotes: 1,
       overvotes: 0,
     },
-    { zebra: 1, lion: 0, kangaroo: 0, elephant: 0, '__write-in': 1 }
+    { zebra: 1, lion: 0, kangaroo: 0, elephant: 0, 'write-in': 1 }
   );
   expectContestResultsInReport(
     precinct1MammalReports[0],
@@ -693,7 +693,7 @@ test('printing precinct scanner report works as expected with all precinct speci
       pufferfish: 0,
       rockfish: 0,
       triggerfish: 0,
-      '__write-in': 0,
+      'write-in': 0,
     }
   );
   expectContestResultsInReport(
@@ -731,7 +731,7 @@ test('printing precinct scanner report works as expected with all precinct speci
       undervotes: 2,
       overvotes: 0,
     },
-    { zebra: 0, lion: 0, kangaroo: 0, elephant: 1, '__write-in': 0 }
+    { zebra: 0, lion: 0, kangaroo: 0, elephant: 1, 'write-in': 0 }
   );
   expectContestResultsInReport(
     precinct2MammalReports[0],
@@ -787,7 +787,7 @@ test('printing precinct scanner report works as expected with all precinct speci
       pufferfish: 0,
       rockfish: 0,
       triggerfish: 1,
-      '__write-in': 0,
+      'write-in': 0,
     }
   );
   expectContestResultsInReport(
@@ -914,7 +914,7 @@ test('printing precinct scanner report works as expected with all precinct combi
       undervotes: 3,
       overvotes: 0,
     },
-    { zebra: 1, lion: 0, kangaroo: 0, elephant: 1, '__write-in': 1 }
+    { zebra: 1, lion: 0, kangaroo: 0, elephant: 1, 'write-in': 1 }
   );
   expectContestResultsInReport(
     allPrecinctMammalReports[0],
@@ -970,7 +970,7 @@ test('printing precinct scanner report works as expected with all precinct combi
       pufferfish: 0,
       rockfish: 0,
       triggerfish: 1,
-      '__write-in': 0,
+      'write-in': 0,
     }
   );
   expectContestResultsInReport(
@@ -1100,7 +1100,7 @@ test('printing precinct scanner report works as expected with a single precinct 
       undervotes: 3,
       overvotes: 0,
     },
-    { zebra: 1, lion: 0, kangaroo: 0, elephant: 1, '__write-in': 1 }
+    { zebra: 1, lion: 0, kangaroo: 0, elephant: 1, 'write-in': 1 }
   );
   expectContestResultsInReport(
     allPrecinctMammalReports[0],
@@ -1156,7 +1156,7 @@ test('printing precinct scanner report works as expected with a single precinct 
       pufferfish: 0,
       rockfish: 0,
       triggerfish: 1,
-      '__write-in': 0,
+      'write-in': 0,
     }
   );
   expectContestResultsInReport(

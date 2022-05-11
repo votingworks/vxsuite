@@ -770,7 +770,7 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
   fireEvent.change(getByTestId('775020876-775031989'), {
     target: { value: '10' },
   });
-  fireEvent.change(getByTestId('775020876-__write-in'), {
+  fireEvent.change(getByTestId('775020876-write-in'), {
     target: { value: '10' },
   });
 

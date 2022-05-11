@@ -45,7 +45,7 @@ export function getSingleYesNoVote(vote?: YesNoVote): YesOrNo | undefined {
 export function normalizeWriteInId(candidateId: CandidateId): string {
   if (
     candidateId.startsWith('__writein') ||
-    candidateId.startsWith('__write-in') ||
+    candidateId.startsWith('write-in') ||
     candidateId.startsWith('writein') ||
     candidateId.startsWith('write-in')
   ) {
@@ -116,7 +116,7 @@ export function getContestVoteOptionsForYesNoContest(
 
 /**
  * Gets all the vote options a voter can make for a given contest. If write-ins are allowed a single write-in candidate ID is included.
- * @returns ContestVoteOption[] ex. ['yes', 'no'] or ['aaron', 'bob', '__write-in']
+ * @returns ContestVoteOption[] ex. ['yes', 'no'] or ['aaron', 'bob', 'write-in']
  */
 export function getContestVoteOptionsForCandidateContest(
   contest: CandidateContest

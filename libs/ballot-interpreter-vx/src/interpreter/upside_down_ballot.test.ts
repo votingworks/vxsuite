@@ -42,7 +42,7 @@ test('upside-down ballot', async () => {
       ],
       "texas-house-district-111": Array [
         Object {
-          "id": "__write-in-0",
+          "id": "write-in-0",
           "isWriteIn": true,
           "name": "Write-In",
         },

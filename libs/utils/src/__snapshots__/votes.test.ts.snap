@@ -10,9 +10,9 @@ Array [
       "undervotes": 60,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -44,9 +44,9 @@ Array [
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -78,9 +78,9 @@ Array [
       "undervotes": 0,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -112,9 +112,9 @@ Array [
       "undervotes": 0,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -167,9 +167,9 @@ Array [
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -201,9 +201,9 @@ Array [
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -235,9 +235,9 @@ Array [
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -269,9 +269,9 @@ Array [
       "undervotes": 90,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -324,9 +324,9 @@ Array [
       "undervotes": 180,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -358,9 +358,9 @@ Array [
       "undervotes": 90,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -392,9 +392,9 @@ Array [
       "undervotes": 90,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -426,9 +426,9 @@ Array [
       "undervotes": 90,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -468,9 +468,9 @@ Array [
       "undervotes": 270,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -523,9 +523,9 @@ Array [
       "undervotes": 150,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -557,9 +557,9 @@ Array [
       "undervotes": 150,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -591,9 +591,9 @@ Array [
       "undervotes": 150,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -633,9 +633,9 @@ Array [
       "undervotes": 450,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -688,9 +688,9 @@ Array [
       "undervotes": 90,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -722,9 +722,9 @@ Array [
       "undervotes": 60,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -756,9 +756,9 @@ Array [
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -790,9 +790,9 @@ Array [
       "undervotes": 90,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -845,9 +845,9 @@ Array [
       "undervotes": 60,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -879,9 +879,9 @@ Array [
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -913,9 +913,9 @@ Array [
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -947,9 +947,9 @@ Array [
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -989,9 +989,9 @@ Array [
       "undervotes": 90,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -1070,9 +1070,9 @@ Object {
       "undervotes": 78,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -1135,9 +1135,9 @@ Object {
       "undervotes": 72,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -1203,9 +1203,9 @@ Object {
       "undervotes": 78,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -1263,9 +1263,9 @@ Object {
       "undervotes": 78,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -1323,9 +1323,9 @@ Object {
       "undervotes": 70,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -1383,9 +1383,9 @@ Object {
       "undervotes": 82,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -1443,9 +1443,9 @@ Object {
       "undervotes": 79,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -1503,9 +1503,9 @@ Object {
       "undervotes": 65,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -1563,9 +1563,9 @@ Object {
       "undervotes": 86,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -1623,9 +1623,9 @@ Object {
       "undervotes": 72,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -1683,9 +1683,9 @@ Object {
       "undervotes": 0,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -1743,9 +1743,9 @@ Object {
       "undervotes": 84,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -1813,9 +1813,9 @@ Object {
       "undervotes": 72,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -1889,9 +1889,9 @@ Object {
       "undervotes": 0,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -1949,9 +1949,9 @@ Object {
       "undervotes": 0,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -2009,9 +2009,9 @@ Object {
       "undervotes": 0,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -2069,9 +2069,9 @@ Object {
       "undervotes": 0,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -2129,9 +2129,9 @@ Object {
       "undervotes": 0,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -2194,9 +2194,9 @@ Object {
       "undervotes": 66,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -2277,9 +2277,9 @@ Object {
       "undervotes": 75,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -2440,9 +2440,9 @@ Object {
       "undervotes": 74,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -2513,9 +2513,9 @@ Object {
       "undervotes": 0,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -2586,9 +2586,9 @@ Object {
       "undervotes": 0,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -2654,9 +2654,9 @@ Object {
       "undervotes": 0,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -2719,9 +2719,9 @@ Object {
       "undervotes": 0,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -2792,9 +2792,9 @@ Object {
       "undervotes": 173,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -2857,9 +2857,9 @@ Object {
       "undervotes": 162,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -2925,9 +2925,9 @@ Object {
       "undervotes": 154,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -2985,9 +2985,9 @@ Object {
       "undervotes": 160,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -3045,9 +3045,9 @@ Object {
       "undervotes": 165,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -3105,9 +3105,9 @@ Object {
       "undervotes": 166,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -3165,9 +3165,9 @@ Object {
       "undervotes": 171,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -3225,9 +3225,9 @@ Object {
       "undervotes": 185,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -3285,9 +3285,9 @@ Object {
       "undervotes": 157,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -3345,9 +3345,9 @@ Object {
       "undervotes": 152,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -3405,9 +3405,9 @@ Object {
       "undervotes": 71,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -3465,9 +3465,9 @@ Object {
       "undervotes": 147,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -3535,9 +3535,9 @@ Object {
       "undervotes": 163,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -3611,9 +3611,9 @@ Object {
       "undervotes": 90,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -3671,9 +3671,9 @@ Object {
       "undervotes": 85,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -3731,9 +3731,9 @@ Object {
       "undervotes": 71,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -3791,9 +3791,9 @@ Object {
       "undervotes": 59,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -3851,9 +3851,9 @@ Object {
       "undervotes": 71,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -3916,9 +3916,9 @@ Object {
       "undervotes": 161,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -3999,9 +3999,9 @@ Object {
       "undervotes": 143,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -4162,9 +4162,9 @@ Object {
       "undervotes": 167,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -4235,9 +4235,9 @@ Object {
       "undervotes": 61,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -4308,9 +4308,9 @@ Object {
       "undervotes": 76,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -4376,9 +4376,9 @@ Object {
       "undervotes": 59,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -4441,9 +4441,9 @@ Object {
       "undervotes": 54,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -4514,9 +4514,9 @@ Object {
       "undervotes": 76,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -4579,9 +4579,9 @@ Object {
       "undervotes": 69,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -4647,9 +4647,9 @@ Object {
       "undervotes": 67,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -4707,9 +4707,9 @@ Object {
       "undervotes": 75,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -4767,9 +4767,9 @@ Object {
       "undervotes": 65,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -4827,9 +4827,9 @@ Object {
       "undervotes": 68,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -4887,9 +4887,9 @@ Object {
       "undervotes": 71,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -4947,9 +4947,9 @@ Object {
       "undervotes": 66,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -5007,9 +5007,9 @@ Object {
       "undervotes": 69,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -5067,9 +5067,9 @@ Object {
       "undervotes": 68,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -5127,9 +5127,9 @@ Object {
       "undervotes": 69,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -5187,9 +5187,9 @@ Object {
       "undervotes": 61,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -5257,9 +5257,9 @@ Object {
       "undervotes": 74,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -5333,9 +5333,9 @@ Object {
       "undervotes": 62,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -5393,9 +5393,9 @@ Object {
       "undervotes": 75,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -5453,9 +5453,9 @@ Object {
       "undervotes": 65,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -5513,9 +5513,9 @@ Object {
       "undervotes": 63,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -5573,9 +5573,9 @@ Object {
       "undervotes": 77,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -5638,9 +5638,9 @@ Object {
       "undervotes": 69,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -5721,9 +5721,9 @@ Object {
       "undervotes": 75,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -5884,9 +5884,9 @@ Object {
       "undervotes": 76,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -5957,9 +5957,9 @@ Object {
       "undervotes": 73,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -6030,9 +6030,9 @@ Object {
       "undervotes": 70,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -6098,9 +6098,9 @@ Object {
       "undervotes": 74,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -6163,9 +6163,9 @@ Object {
       "undervotes": 53,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -6236,9 +6236,9 @@ Object {
       "undervotes": 38,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -6301,9 +6301,9 @@ Object {
       "undervotes": 29,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -6369,9 +6369,9 @@ Object {
       "undervotes": 38,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -6429,9 +6429,9 @@ Object {
       "undervotes": 43,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -6489,9 +6489,9 @@ Object {
       "undervotes": 31,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -6549,9 +6549,9 @@ Object {
       "undervotes": 32,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -6609,9 +6609,9 @@ Object {
       "undervotes": 41,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -6669,9 +6669,9 @@ Object {
       "undervotes": 39,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -6729,9 +6729,9 @@ Object {
       "undervotes": 42,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -6789,9 +6789,9 @@ Object {
       "undervotes": 35,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -6849,9 +6849,9 @@ Object {
       "undervotes": 19,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -6909,9 +6909,9 @@ Object {
       "undervotes": 26,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -6979,9 +6979,9 @@ Object {
       "undervotes": 25,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -7055,9 +7055,9 @@ Object {
       "undervotes": 21,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -7115,9 +7115,9 @@ Object {
       "undervotes": 15,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -7175,9 +7175,9 @@ Object {
       "undervotes": 12,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -7235,9 +7235,9 @@ Object {
       "undervotes": 14,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -7295,9 +7295,9 @@ Object {
       "undervotes": 18,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -7360,9 +7360,9 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -7443,9 +7443,9 @@ Object {
       "undervotes": 36,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -7606,9 +7606,9 @@ Object {
       "undervotes": 29,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -7679,9 +7679,9 @@ Object {
       "undervotes": 19,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -7752,9 +7752,9 @@ Object {
       "undervotes": 18,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -7820,9 +7820,9 @@ Object {
       "undervotes": 12,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -7885,9 +7885,9 @@ Object {
       "undervotes": 14,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -7958,9 +7958,9 @@ Object {
       "undervotes": 40,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -8023,9 +8023,9 @@ Object {
       "undervotes": 35,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -8091,9 +8091,9 @@ Object {
       "undervotes": 29,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -8151,9 +8151,9 @@ Object {
       "undervotes": 33,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -8211,9 +8211,9 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -8271,9 +8271,9 @@ Object {
       "undervotes": 36,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -8331,9 +8331,9 @@ Object {
       "undervotes": 33,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -8391,9 +8391,9 @@ Object {
       "undervotes": 28,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -8451,9 +8451,9 @@ Object {
       "undervotes": 28,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -8511,9 +8511,9 @@ Object {
       "undervotes": 33,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -8571,9 +8571,9 @@ Object {
       "undervotes": 19,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -8631,9 +8631,9 @@ Object {
       "undervotes": 25,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -8701,9 +8701,9 @@ Object {
       "undervotes": 32,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -8777,9 +8777,9 @@ Object {
       "undervotes": 17,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -8837,9 +8837,9 @@ Object {
       "undervotes": 20,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -8897,9 +8897,9 @@ Object {
       "undervotes": 19,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -8957,9 +8957,9 @@ Object {
       "undervotes": 11,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -9017,9 +9017,9 @@ Object {
       "undervotes": 12,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -9082,9 +9082,9 @@ Object {
       "undervotes": 32,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -9165,9 +9165,9 @@ Object {
       "undervotes": 33,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -9328,9 +9328,9 @@ Object {
       "undervotes": 28,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -9401,9 +9401,9 @@ Object {
       "undervotes": 19,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -9474,9 +9474,9 @@ Object {
       "undervotes": 17,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -9542,9 +9542,9 @@ Object {
       "undervotes": 12,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -9607,9 +9607,9 @@ Object {
       "undervotes": 7,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -9680,9 +9680,9 @@ Object {
       "undervotes": 36,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -9745,9 +9745,9 @@ Object {
       "undervotes": 36,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -9813,9 +9813,9 @@ Object {
       "undervotes": 42,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -9873,9 +9873,9 @@ Object {
       "undervotes": 40,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -9933,9 +9933,9 @@ Object {
       "undervotes": 36,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -9993,9 +9993,9 @@ Object {
       "undervotes": 36,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -10053,9 +10053,9 @@ Object {
       "undervotes": 38,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -10113,9 +10113,9 @@ Object {
       "undervotes": 37,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -10173,9 +10173,9 @@ Object {
       "undervotes": 33,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -10233,9 +10233,9 @@ Object {
       "undervotes": 38,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -10293,9 +10293,9 @@ Object {
       "undervotes": 16,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -10353,9 +10353,9 @@ Object {
       "undervotes": 37,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -10423,9 +10423,9 @@ Object {
       "undervotes": 38,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -10499,9 +10499,9 @@ Object {
       "undervotes": 19,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -10559,9 +10559,9 @@ Object {
       "undervotes": 22,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -10619,9 +10619,9 @@ Object {
       "undervotes": 9,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -10679,9 +10679,9 @@ Object {
       "undervotes": 13,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -10739,9 +10739,9 @@ Object {
       "undervotes": 12,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -10804,9 +10804,9 @@ Object {
       "undervotes": 40,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -10887,9 +10887,9 @@ Object {
       "undervotes": 27,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -11050,9 +11050,9 @@ Object {
       "undervotes": 31,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -11123,9 +11123,9 @@ Object {
       "undervotes": 15,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -11196,9 +11196,9 @@ Object {
       "undervotes": 16,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -11264,9 +11264,9 @@ Object {
       "undervotes": 15,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -11329,9 +11329,9 @@ Object {
       "undervotes": 11,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -11402,9 +11402,9 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -11467,9 +11467,9 @@ Object {
       "undervotes": 37,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -11535,9 +11535,9 @@ Object {
       "undervotes": 28,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -11595,9 +11595,9 @@ Object {
       "undervotes": 32,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -11655,9 +11655,9 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -11715,9 +11715,9 @@ Object {
       "undervotes": 47,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -11775,9 +11775,9 @@ Object {
       "undervotes": 24,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -11835,9 +11835,9 @@ Object {
       "undervotes": 29,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -11895,9 +11895,9 @@ Object {
       "undervotes": 41,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -11955,9 +11955,9 @@ Object {
       "undervotes": 28,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -12015,9 +12015,9 @@ Object {
       "undervotes": 19,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -12075,9 +12075,9 @@ Object {
       "undervotes": 28,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -12145,9 +12145,9 @@ Object {
       "undervotes": 37,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -12221,9 +12221,9 @@ Object {
       "undervotes": 12,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -12281,9 +12281,9 @@ Object {
       "undervotes": 16,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -12341,9 +12341,9 @@ Object {
       "undervotes": 11,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -12401,9 +12401,9 @@ Object {
       "undervotes": 10,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -12461,9 +12461,9 @@ Object {
       "undervotes": 11,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -12526,9 +12526,9 @@ Object {
       "undervotes": 24,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -12609,9 +12609,9 @@ Object {
       "undervotes": 33,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -12772,9 +12772,9 @@ Object {
       "undervotes": 45,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -12845,9 +12845,9 @@ Object {
       "undervotes": 18,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -12918,9 +12918,9 @@ Object {
       "undervotes": 14,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -12986,9 +12986,9 @@ Object {
       "undervotes": 11,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -13051,9 +13051,9 @@ Object {
       "undervotes": 13,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -13124,9 +13124,9 @@ Object {
       "undervotes": 38,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -13189,9 +13189,9 @@ Object {
       "undervotes": 37,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -13257,9 +13257,9 @@ Object {
       "undervotes": 32,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -13317,9 +13317,9 @@ Object {
       "undervotes": 35,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -13377,9 +13377,9 @@ Object {
       "undervotes": 33,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -13437,9 +13437,9 @@ Object {
       "undervotes": 28,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -13497,9 +13497,9 @@ Object {
       "undervotes": 28,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -13557,9 +13557,9 @@ Object {
       "undervotes": 42,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -13617,9 +13617,9 @@ Object {
       "undervotes": 31,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -13677,9 +13677,9 @@ Object {
       "undervotes": 22,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -13737,9 +13737,9 @@ Object {
       "undervotes": 9,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -13797,9 +13797,9 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -13867,9 +13867,9 @@ Object {
       "undervotes": 36,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -13943,9 +13943,9 @@ Object {
       "undervotes": 16,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -14003,9 +14003,9 @@ Object {
       "undervotes": 17,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -14063,9 +14063,9 @@ Object {
       "undervotes": 17,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -14123,9 +14123,9 @@ Object {
       "undervotes": 13,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -14183,9 +14183,9 @@ Object {
       "undervotes": 21,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -14248,9 +14248,9 @@ Object {
       "undervotes": 37,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -14331,9 +14331,9 @@ Object {
       "undervotes": 31,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -14494,9 +14494,9 @@ Object {
       "undervotes": 33,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -14567,9 +14567,9 @@ Object {
       "undervotes": 7,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -14640,9 +14640,9 @@ Object {
       "undervotes": 15,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -14708,9 +14708,9 @@ Object {
       "undervotes": 17,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -14773,9 +14773,9 @@ Object {
       "undervotes": 9,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -14846,9 +14846,9 @@ Object {
       "undervotes": 31,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -14911,9 +14911,9 @@ Object {
       "undervotes": 35,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -14979,9 +14979,9 @@ Object {
       "undervotes": 28,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -15039,9 +15039,9 @@ Object {
       "undervotes": 22,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -15099,9 +15099,9 @@ Object {
       "undervotes": 32,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -15159,9 +15159,9 @@ Object {
       "undervotes": 26,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -15219,9 +15219,9 @@ Object {
       "undervotes": 39,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -15279,9 +15279,9 @@ Object {
       "undervotes": 34,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -15339,9 +15339,9 @@ Object {
       "undervotes": 28,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -15399,9 +15399,9 @@ Object {
       "undervotes": 31,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -15459,9 +15459,9 @@ Object {
       "undervotes": 14,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -15519,9 +15519,9 @@ Object {
       "undervotes": 35,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -15589,9 +15589,9 @@ Object {
       "undervotes": 32,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -15665,9 +15665,9 @@ Object {
       "undervotes": 13,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -15725,9 +15725,9 @@ Object {
       "undervotes": 20,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -15785,9 +15785,9 @@ Object {
       "undervotes": 14,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -15845,9 +15845,9 @@ Object {
       "undervotes": 8,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -15905,9 +15905,9 @@ Object {
       "undervotes": 15,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -15970,9 +15970,9 @@ Object {
       "undervotes": 29,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -16053,9 +16053,9 @@ Object {
       "undervotes": 28,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -16216,9 +16216,9 @@ Object {
       "undervotes": 34,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -16289,9 +16289,9 @@ Object {
       "undervotes": 12,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -16362,9 +16362,9 @@ Object {
       "undervotes": 11,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -16430,9 +16430,9 @@ Object {
       "undervotes": 13,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -16495,9 +16495,9 @@ Object {
       "undervotes": 13,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -16568,9 +16568,9 @@ Object {
       "undervotes": 34,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -16633,9 +16633,9 @@ Object {
       "undervotes": 20,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -16701,9 +16701,9 @@ Object {
       "undervotes": 23,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -16761,9 +16761,9 @@ Object {
       "undervotes": 29,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -16821,9 +16821,9 @@ Object {
       "undervotes": 19,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -16881,9 +16881,9 @@ Object {
       "undervotes": 27,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -16941,9 +16941,9 @@ Object {
       "undervotes": 28,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -17001,9 +17001,9 @@ Object {
       "undervotes": 28,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -17061,9 +17061,9 @@ Object {
       "undervotes": 35,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -17121,9 +17121,9 @@ Object {
       "undervotes": 27,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -17181,9 +17181,9 @@ Object {
       "undervotes": 11,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -17241,9 +17241,9 @@ Object {
       "undervotes": 23,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -17311,9 +17311,9 @@ Object {
       "undervotes": 25,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -17387,9 +17387,9 @@ Object {
       "undervotes": 16,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -17447,9 +17447,9 @@ Object {
       "undervotes": 14,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -17507,9 +17507,9 @@ Object {
       "undervotes": 15,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -17567,9 +17567,9 @@ Object {
       "undervotes": 17,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -17627,9 +17627,9 @@ Object {
       "undervotes": 14,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -17692,9 +17692,9 @@ Object {
       "undervotes": 20,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -17775,9 +17775,9 @@ Object {
       "undervotes": 29,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -17938,9 +17938,9 @@ Object {
       "undervotes": 22,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -18011,9 +18011,9 @@ Object {
       "undervotes": 10,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -18084,9 +18084,9 @@ Object {
       "undervotes": 13,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -18152,9 +18152,9 @@ Object {
       "undervotes": 13,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -18217,9 +18217,9 @@ Object {
       "undervotes": 7,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -18290,9 +18290,9 @@ Object {
       "undervotes": 26,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -18355,9 +18355,9 @@ Object {
       "undervotes": 29,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -18423,9 +18423,9 @@ Object {
       "undervotes": 28,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -18483,9 +18483,9 @@ Object {
       "undervotes": 26,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -18543,9 +18543,9 @@ Object {
       "undervotes": 33,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -18603,9 +18603,9 @@ Object {
       "undervotes": 25,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -18663,9 +18663,9 @@ Object {
       "undervotes": 32,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -18723,9 +18723,9 @@ Object {
       "undervotes": 29,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -18783,9 +18783,9 @@ Object {
       "undervotes": 28,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -18843,9 +18843,9 @@ Object {
       "undervotes": 27,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -18903,9 +18903,9 @@ Object {
       "undervotes": 10,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -18963,9 +18963,9 @@ Object {
       "undervotes": 27,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -19033,9 +19033,9 @@ Object {
       "undervotes": 27,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -19109,9 +19109,9 @@ Object {
       "undervotes": 16,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -19169,9 +19169,9 @@ Object {
       "undervotes": 18,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -19229,9 +19229,9 @@ Object {
       "undervotes": 17,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -19289,9 +19289,9 @@ Object {
       "undervotes": 12,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -19349,9 +19349,9 @@ Object {
       "undervotes": 14,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -19414,9 +19414,9 @@ Object {
       "undervotes": 26,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -19497,9 +19497,9 @@ Object {
       "undervotes": 17,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -19660,9 +19660,9 @@ Object {
       "undervotes": 24,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -19733,9 +19733,9 @@ Object {
       "undervotes": 10,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -19806,9 +19806,9 @@ Object {
       "undervotes": 22,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -19874,9 +19874,9 @@ Object {
       "undervotes": 13,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -19939,9 +19939,9 @@ Object {
       "undervotes": 17,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -20012,9 +20012,9 @@ Object {
       "undervotes": 27,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -20077,9 +20077,9 @@ Object {
       "undervotes": 21,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -20145,9 +20145,9 @@ Object {
       "undervotes": 22,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -20205,9 +20205,9 @@ Object {
       "undervotes": 24,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -20265,9 +20265,9 @@ Object {
       "undervotes": 29,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -20325,9 +20325,9 @@ Object {
       "undervotes": 25,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -20385,9 +20385,9 @@ Object {
       "undervotes": 29,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -20445,9 +20445,9 @@ Object {
       "undervotes": 20,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -20505,9 +20505,9 @@ Object {
       "undervotes": 22,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -20565,9 +20565,9 @@ Object {
       "undervotes": 21,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -20625,9 +20625,9 @@ Object {
       "undervotes": 8,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -20685,9 +20685,9 @@ Object {
       "undervotes": 27,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -20755,9 +20755,9 @@ Object {
       "undervotes": 28,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -20831,9 +20831,9 @@ Object {
       "undervotes": 8,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -20891,9 +20891,9 @@ Object {
       "undervotes": 7,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -20951,9 +20951,9 @@ Object {
       "undervotes": 8,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -21011,9 +21011,9 @@ Object {
       "undervotes": 11,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -21071,9 +21071,9 @@ Object {
       "undervotes": 16,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -21136,9 +21136,9 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -21219,9 +21219,9 @@ Object {
       "undervotes": 32,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -21382,9 +21382,9 @@ Object {
       "undervotes": 34,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -21455,9 +21455,9 @@ Object {
       "undervotes": 12,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -21528,9 +21528,9 @@ Object {
       "undervotes": 8,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -21596,9 +21596,9 @@ Object {
       "undervotes": 12,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -21661,9 +21661,9 @@ Object {
       "undervotes": 7,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -21734,9 +21734,9 @@ Object {
       "undervotes": 27,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -21799,9 +21799,9 @@ Object {
       "undervotes": 24,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -21867,9 +21867,9 @@ Object {
       "undervotes": 29,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -21927,9 +21927,9 @@ Object {
       "undervotes": 29,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -21987,9 +21987,9 @@ Object {
       "undervotes": 27,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -22047,9 +22047,9 @@ Object {
       "undervotes": 34,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -22107,9 +22107,9 @@ Object {
       "undervotes": 29,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -22167,9 +22167,9 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -22227,9 +22227,9 @@ Object {
       "undervotes": 24,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -22287,9 +22287,9 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -22347,9 +22347,9 @@ Object {
       "undervotes": 15,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -22407,9 +22407,9 @@ Object {
       "undervotes": 34,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -22477,9 +22477,9 @@ Object {
       "undervotes": 29,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -22553,9 +22553,9 @@ Object {
       "undervotes": 14,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -22613,9 +22613,9 @@ Object {
       "undervotes": 11,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -22673,9 +22673,9 @@ Object {
       "undervotes": 14,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -22733,9 +22733,9 @@ Object {
       "undervotes": 13,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -22793,9 +22793,9 @@ Object {
       "undervotes": 15,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -22858,9 +22858,9 @@ Object {
       "undervotes": 28,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -22941,9 +22941,9 @@ Object {
       "undervotes": 27,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -23104,9 +23104,9 @@ Object {
       "undervotes": 37,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -23177,9 +23177,9 @@ Object {
       "undervotes": 12,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -23250,9 +23250,9 @@ Object {
       "undervotes": 12,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -23318,9 +23318,9 @@ Object {
       "undervotes": 15,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -23383,9 +23383,9 @@ Object {
       "undervotes": 9,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -23456,9 +23456,9 @@ Object {
       "undervotes": 9,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -23521,9 +23521,9 @@ Object {
       "undervotes": 9,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -23589,9 +23589,9 @@ Object {
       "undervotes": 9,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -23649,9 +23649,9 @@ Object {
       "undervotes": 11,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -23709,9 +23709,9 @@ Object {
       "undervotes": 7,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -23769,9 +23769,9 @@ Object {
       "undervotes": 4,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -23829,9 +23829,9 @@ Object {
       "undervotes": 4,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -23889,9 +23889,9 @@ Object {
       "undervotes": 10,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -23949,9 +23949,9 @@ Object {
       "undervotes": 5,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -24009,9 +24009,9 @@ Object {
       "undervotes": 4,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -24069,9 +24069,9 @@ Object {
       "undervotes": 3,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -24129,9 +24129,9 @@ Object {
       "undervotes": 5,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -24199,9 +24199,9 @@ Object {
       "undervotes": 9,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -24275,9 +24275,9 @@ Object {
       "undervotes": 7,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -24335,9 +24335,9 @@ Object {
       "undervotes": 7,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -24395,9 +24395,9 @@ Object {
       "undervotes": 10,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -24455,9 +24455,9 @@ Object {
       "undervotes": 6,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -24515,9 +24515,9 @@ Object {
       "undervotes": 10,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -24580,9 +24580,9 @@ Object {
       "undervotes": 9,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -24663,9 +24663,9 @@ Object {
       "undervotes": 11,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -24826,9 +24826,9 @@ Object {
       "undervotes": 12,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -24899,9 +24899,9 @@ Object {
       "undervotes": 4,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -24972,9 +24972,9 @@ Object {
       "undervotes": 7,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -25040,9 +25040,9 @@ Object {
       "undervotes": 11,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -25105,9 +25105,9 @@ Object {
       "undervotes": 6,
     },
     "tallies": Object {
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },

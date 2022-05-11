@@ -216,9 +216,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 58,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -270,9 +270,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 46,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -337,9 +337,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 29,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -404,9 +404,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 28,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -443,9 +443,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 17,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -493,9 +493,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 9,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -532,9 +532,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 22,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -582,9 +582,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 14,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -634,9 +634,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 6,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -673,9 +673,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 19,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -902,9 +902,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 13,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -956,9 +956,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 8,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -1023,9 +1023,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 5,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -1090,9 +1090,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 8,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -1142,9 +1142,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 6,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -1181,9 +1181,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 19,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -1410,9 +1410,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 6,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -1464,9 +1464,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 4,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -1531,9 +1531,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 3,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -1598,9 +1598,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 1,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -1637,9 +1637,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 6,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -1866,9 +1866,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 8,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -1920,9 +1920,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 5,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -1987,9 +1987,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 2,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -2054,9 +2054,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 2,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -2104,9 +2104,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 6,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -2333,9 +2333,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 3,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -2387,9 +2387,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 5,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -2454,9 +2454,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 2,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -2521,9 +2521,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 5,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -2560,9 +2560,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 8,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -2789,9 +2789,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 2,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -2843,9 +2843,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 4,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -2910,9 +2910,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 2,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -2977,9 +2977,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 3,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -3016,9 +3016,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 5,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -3245,9 +3245,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 1,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -3299,9 +3299,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 4,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -3366,9 +3366,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 1,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -3433,9 +3433,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 1,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -3483,9 +3483,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 4,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -3712,9 +3712,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 4,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -3766,9 +3766,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 2,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -3833,9 +3833,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 4,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -3900,9 +3900,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 2,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -3939,9 +3939,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 11,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -4168,9 +4168,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 7,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -4222,9 +4222,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 6,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -4289,9 +4289,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 3,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -4356,9 +4356,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 1,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -4406,9 +4406,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 5,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -4635,9 +4635,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 3,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -4689,9 +4689,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 1,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -4756,9 +4756,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 1,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -4823,9 +4823,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 1,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -4873,9 +4873,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 4,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -5102,9 +5102,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 2,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -5156,9 +5156,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 1,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -5223,9 +5223,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 2,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -5290,9 +5290,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 0,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -5340,9 +5340,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 1,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -5569,9 +5569,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 3,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -5623,9 +5623,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 3,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -5690,9 +5690,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 1,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -5757,9 +5757,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 0,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -5807,9 +5807,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 3,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -6036,9 +6036,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 3,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -6090,9 +6090,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 1,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -6157,9 +6157,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 3,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -6224,9 +6224,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 3,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -6263,9 +6263,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 6,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -6492,9 +6492,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 3,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -6546,9 +6546,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 2,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -6613,9 +6613,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 0,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -6680,9 +6680,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 1,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -6719,9 +6719,9 @@ House Bill 1796 - Flag Referendum",
         },
         "tally": 3,
       },
-      "__write-in": Object {
+      "write-in": Object {
         "option": Object {
-          "id": "__write-in",
+          "id": "write-in",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -6763,14 +6763,6 @@ Object {
       "undervotes": 90,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 90,
-      },
       "jenna-morasca": Object {
         "option": Object {
           "id": "jenna-morasca",
@@ -6784,6 +6776,14 @@ Object {
           "id": "sandra-diaz-twine",
           "name": "Sandra Diaz-Twine",
           "partyId": "0",
+        },
+        "tally": 90,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 90,
       },
@@ -6823,14 +6823,6 @@ Object {
       "undervotes": 150,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 150,
-      },
       "flareon": Object {
         "option": Object {
           "id": "flareon",
@@ -6854,6 +6846,14 @@ Object {
           "partyId": "3",
         },
         "tally": 1200,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 150,
       },
     },
   },
@@ -6886,14 +6886,6 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 30,
-      },
       "eevee": Object {
         "option": Object {
           "id": "eevee",
@@ -6907,6 +6899,14 @@ Object {
           "id": "pikachu",
           "name": "Pikachu",
           "partyId": "4",
+        },
+        "tally": 30,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 30,
       },
@@ -6946,14 +6946,6 @@ Object {
       "undervotes": 90,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 90,
-      },
       "bulbasaur": Object {
         "option": Object {
           "id": "bulbasaur",
@@ -6977,6 +6969,14 @@ Object {
           "partyId": "0",
         },
         "tally": 720,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 90,
       },
     },
   },
@@ -7009,14 +7009,6 @@ Object {
       "undervotes": 150,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 150,
-      },
       "dax-shepherd": Object {
         "option": Object {
           "id": "dax-shepherd",
@@ -7030,6 +7022,14 @@ Object {
           "id": "kristen-bell",
           "name": "Kristen Bell",
           "partyId": "3",
+        },
+        "tally": 150,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 150,
       },
@@ -7064,14 +7064,6 @@ Object {
       "undervotes": 90,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 90,
-      },
       "chidi-anagonye": Object {
         "option": Object {
           "id": "chidi-anagonye",
@@ -7085,6 +7077,14 @@ Object {
           "id": "eleanor-shellstrop",
           "name": "Eleanor Shellstrop",
           "partyId": "4",
+        },
+        "tally": 90,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 90,
       },
@@ -7119,14 +7119,6 @@ Object {
       "undervotes": 180,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 180,
-      },
       "aaron-aligator": Object {
         "option": Object {
           "id": "aaron-aligator",
@@ -7142,6 +7134,14 @@ Object {
           "partyId": "0",
         },
         "tally": 990,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 180,
       },
     },
   },
@@ -7174,14 +7174,6 @@ Object {
       "undervotes": 150,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 150,
-      },
       "ethan-zohn": Object {
         "option": Object {
           "id": "ethan-zohn",
@@ -7195,6 +7187,14 @@ Object {
           "id": "tina-wesson",
           "name": "Tina Wesson",
           "partyId": "3",
+        },
+        "tally": 150,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 150,
       },
@@ -7229,14 +7229,6 @@ Object {
       "undervotes": 60,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 60,
-      },
       "brain-heidik": Object {
         "option": Object {
           "id": "brain-heidik",
@@ -7250,6 +7242,14 @@ Object {
           "id": "vecepia-towery",
           "name": "Vecepia Towery",
           "partyId": "4",
+        },
+        "tally": 60,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 60,
       },
@@ -7284,14 +7284,6 @@ Object {
       "undervotes": 90,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 90,
-      },
       "jason-mendoza": Object {
         "option": Object {
           "id": "jason-mendoza",
@@ -7305,6 +7297,14 @@ Object {
           "id": "tahani-al-jamil",
           "name": "Tahani Al-Jamil",
           "partyId": "0",
+        },
+        "tally": 90,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 90,
       },
@@ -7349,14 +7349,6 @@ Object {
       "undervotes": 450,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 600,
-      },
       "aras-baskauskas": Object {
         "option": Object {
           "id": "aras-baskauskas",
@@ -7378,6 +7370,14 @@ Object {
           "id": "todd-herzog",
           "name": "Todd Herzog",
           "partyId": "3",
+        },
+        "tally": 600,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 600,
       },
@@ -7430,14 +7430,6 @@ Object {
       "undervotes": 90,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 120,
-      },
       "bob-crowley": Object {
         "option": Object {
           "id": "bob-crowley",
@@ -7469,6 +7461,14 @@ Object {
           "partyId": "4",
         },
         "tally": 150,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 120,
       },
     },
   },
@@ -7511,14 +7511,6 @@ Object {
       "undervotes": 270,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 360,
-      },
       "amber-brkich": Object {
         "option": Object {
           "id": "amber-brkich",
@@ -7548,6 +7540,14 @@ Object {
           "id": "tom-westman",
           "name": "Tom Westman",
           "partyId": "0",
+        },
+        "tally": 360,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 360,
       },
@@ -7587,14 +7587,6 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 30,
-      },
       "jenna-morasca": Object {
         "option": Object {
           "id": "jenna-morasca",
@@ -7608,6 +7600,14 @@ Object {
           "id": "sandra-diaz-twine",
           "name": "Sandra Diaz-Twine",
           "partyId": "0",
+        },
+        "tally": 30,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 30,
       },
@@ -7647,14 +7647,6 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 30,
-      },
       "flareon": Object {
         "option": Object {
           "id": "flareon",
@@ -7678,6 +7670,14 @@ Object {
           "partyId": "3",
         },
         "tally": 240,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 30,
       },
     },
   },
@@ -7710,14 +7710,6 @@ Object {
       "undervotes": 0,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 0,
-      },
       "eevee": Object {
         "option": Object {
           "id": "eevee",
@@ -7731,6 +7723,14 @@ Object {
           "id": "pikachu",
           "name": "Pikachu",
           "partyId": "4",
+        },
+        "tally": 0,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 0,
       },
@@ -7770,14 +7770,6 @@ Object {
       "undervotes": 0,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 0,
-      },
       "bulbasaur": Object {
         "option": Object {
           "id": "bulbasaur",
@@ -7799,6 +7791,14 @@ Object {
           "id": "squirtle",
           "name": "Squirtle",
           "partyId": "0",
+        },
+        "tally": 0,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 0,
       },
@@ -7833,14 +7833,6 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 30,
-      },
       "dax-shepherd": Object {
         "option": Object {
           "id": "dax-shepherd",
@@ -7854,6 +7846,14 @@ Object {
           "id": "kristen-bell",
           "name": "Kristen Bell",
           "partyId": "3",
+        },
+        "tally": 30,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 30,
       },
@@ -7888,14 +7888,6 @@ Object {
       "undervotes": 60,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 60,
-      },
       "chidi-anagonye": Object {
         "option": Object {
           "id": "chidi-anagonye",
@@ -7909,6 +7901,14 @@ Object {
           "id": "eleanor-shellstrop",
           "name": "Eleanor Shellstrop",
           "partyId": "4",
+        },
+        "tally": 60,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 60,
       },
@@ -7943,14 +7943,6 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 30,
-      },
       "aaron-aligator": Object {
         "option": Object {
           "id": "aaron-aligator",
@@ -7964,6 +7956,14 @@ Object {
           "id": "peter-pigeon",
           "name": "Peter Pigeon",
           "partyId": "0",
+        },
+        "tally": 30,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 30,
       },
@@ -7998,14 +7998,6 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 30,
-      },
       "ethan-zohn": Object {
         "option": Object {
           "id": "ethan-zohn",
@@ -8019,6 +8011,14 @@ Object {
           "id": "tina-wesson",
           "name": "Tina Wesson",
           "partyId": "3",
+        },
+        "tally": 30,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 30,
       },
@@ -8053,14 +8053,6 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 30,
-      },
       "brain-heidik": Object {
         "option": Object {
           "id": "brain-heidik",
@@ -8074,6 +8066,14 @@ Object {
           "id": "vecepia-towery",
           "name": "Vecepia Towery",
           "partyId": "4",
+        },
+        "tally": 30,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 30,
       },
@@ -8108,14 +8108,6 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 30,
-      },
       "jason-mendoza": Object {
         "option": Object {
           "id": "jason-mendoza",
@@ -8129,6 +8121,14 @@ Object {
           "id": "tahani-al-jamil",
           "name": "Tahani Al-Jamil",
           "partyId": "0",
+        },
+        "tally": 30,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 30,
       },
@@ -8173,14 +8173,6 @@ Object {
       "undervotes": 90,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 120,
-      },
       "aras-baskauskas": Object {
         "option": Object {
           "id": "aras-baskauskas",
@@ -8202,6 +8194,14 @@ Object {
           "id": "todd-herzog",
           "name": "Todd Herzog",
           "partyId": "3",
+        },
+        "tally": 120,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 120,
       },
@@ -8254,14 +8254,6 @@ Object {
       "undervotes": 0,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 0,
-      },
       "bob-crowley": Object {
         "option": Object {
           "id": "bob-crowley",
@@ -8291,6 +8283,14 @@ Object {
           "id": "parvati-shallow",
           "name": "Parvati Shallow",
           "partyId": "4",
+        },
+        "tally": 0,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 0,
       },
@@ -8335,14 +8335,6 @@ Object {
       "undervotes": 0,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 0,
-      },
       "amber-brkich": Object {
         "option": Object {
           "id": "amber-brkich",
@@ -8372,6 +8364,14 @@ Object {
           "id": "tom-westman",
           "name": "Tom Westman",
           "partyId": "0",
+        },
+        "tally": 0,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 0,
       },
@@ -8411,14 +8411,6 @@ Object {
       "undervotes": 0,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 0,
-      },
       "jenna-morasca": Object {
         "option": Object {
           "id": "jenna-morasca",
@@ -8432,6 +8424,14 @@ Object {
           "id": "sandra-diaz-twine",
           "name": "Sandra Diaz-Twine",
           "partyId": "0",
+        },
+        "tally": 0,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 0,
       },
@@ -8471,14 +8471,6 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 30,
-      },
       "flareon": Object {
         "option": Object {
           "id": "flareon",
@@ -8502,6 +8494,14 @@ Object {
           "partyId": "3",
         },
         "tally": 240,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 30,
       },
     },
   },
@@ -8534,14 +8534,6 @@ Object {
       "undervotes": 0,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 0,
-      },
       "eevee": Object {
         "option": Object {
           "id": "eevee",
@@ -8555,6 +8547,14 @@ Object {
           "id": "pikachu",
           "name": "Pikachu",
           "partyId": "4",
+        },
+        "tally": 0,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 0,
       },
@@ -8594,14 +8594,6 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 30,
-      },
       "bulbasaur": Object {
         "option": Object {
           "id": "bulbasaur",
@@ -8625,6 +8617,14 @@ Object {
           "partyId": "0",
         },
         "tally": 240,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 30,
       },
     },
   },
@@ -8657,14 +8657,6 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 30,
-      },
       "dax-shepherd": Object {
         "option": Object {
           "id": "dax-shepherd",
@@ -8678,6 +8670,14 @@ Object {
           "id": "kristen-bell",
           "name": "Kristen Bell",
           "partyId": "3",
+        },
+        "tally": 30,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 30,
       },
@@ -8712,14 +8712,6 @@ Object {
       "undervotes": 0,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 0,
-      },
       "chidi-anagonye": Object {
         "option": Object {
           "id": "chidi-anagonye",
@@ -8733,6 +8725,14 @@ Object {
           "id": "eleanor-shellstrop",
           "name": "Eleanor Shellstrop",
           "partyId": "4",
+        },
+        "tally": 0,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 0,
       },
@@ -8767,14 +8767,6 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 30,
-      },
       "aaron-aligator": Object {
         "option": Object {
           "id": "aaron-aligator",
@@ -8790,6 +8782,14 @@ Object {
           "partyId": "0",
         },
         "tally": 300,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 30,
       },
     },
   },
@@ -8822,14 +8822,6 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 30,
-      },
       "ethan-zohn": Object {
         "option": Object {
           "id": "ethan-zohn",
@@ -8843,6 +8835,14 @@ Object {
           "id": "tina-wesson",
           "name": "Tina Wesson",
           "partyId": "3",
+        },
+        "tally": 30,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 30,
       },
@@ -8877,14 +8877,6 @@ Object {
       "undervotes": 0,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 0,
-      },
       "brain-heidik": Object {
         "option": Object {
           "id": "brain-heidik",
@@ -8898,6 +8890,14 @@ Object {
           "id": "vecepia-towery",
           "name": "Vecepia Towery",
           "partyId": "4",
+        },
+        "tally": 0,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 0,
       },
@@ -8932,14 +8932,6 @@ Object {
       "undervotes": 0,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 0,
-      },
       "jason-mendoza": Object {
         "option": Object {
           "id": "jason-mendoza",
@@ -8953,6 +8945,14 @@ Object {
           "id": "tahani-al-jamil",
           "name": "Tahani Al-Jamil",
           "partyId": "0",
+        },
+        "tally": 0,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 0,
       },
@@ -8997,14 +8997,6 @@ Object {
       "undervotes": 90,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 120,
-      },
       "aras-baskauskas": Object {
         "option": Object {
           "id": "aras-baskauskas",
@@ -9026,6 +9018,14 @@ Object {
           "id": "todd-herzog",
           "name": "Todd Herzog",
           "partyId": "3",
+        },
+        "tally": 120,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 120,
       },
@@ -9078,14 +9078,6 @@ Object {
       "undervotes": 0,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 0,
-      },
       "bob-crowley": Object {
         "option": Object {
           "id": "bob-crowley",
@@ -9115,6 +9107,14 @@ Object {
           "id": "parvati-shallow",
           "name": "Parvati Shallow",
           "partyId": "4",
+        },
+        "tally": 0,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 0,
       },
@@ -9159,14 +9159,6 @@ Object {
       "undervotes": 90,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 120,
-      },
       "amber-brkich": Object {
         "option": Object {
           "id": "amber-brkich",
@@ -9196,6 +9188,14 @@ Object {
           "id": "tom-westman",
           "name": "Tom Westman",
           "partyId": "0",
+        },
+        "tally": 120,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 120,
       },
@@ -9235,14 +9235,6 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 30,
-      },
       "jenna-morasca": Object {
         "option": Object {
           "id": "jenna-morasca",
@@ -9256,6 +9248,14 @@ Object {
           "id": "sandra-diaz-twine",
           "name": "Sandra Diaz-Twine",
           "partyId": "0",
+        },
+        "tally": 30,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 30,
       },
@@ -9295,14 +9295,6 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 30,
-      },
       "flareon": Object {
         "option": Object {
           "id": "flareon",
@@ -9326,6 +9318,14 @@ Object {
           "partyId": "3",
         },
         "tally": 240,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 30,
       },
     },
   },
@@ -9358,14 +9358,6 @@ Object {
       "undervotes": 0,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 0,
-      },
       "eevee": Object {
         "option": Object {
           "id": "eevee",
@@ -9379,6 +9371,14 @@ Object {
           "id": "pikachu",
           "name": "Pikachu",
           "partyId": "4",
+        },
+        "tally": 0,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 0,
       },
@@ -9418,14 +9418,6 @@ Object {
       "undervotes": 0,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 0,
-      },
       "bulbasaur": Object {
         "option": Object {
           "id": "bulbasaur",
@@ -9447,6 +9439,14 @@ Object {
           "id": "squirtle",
           "name": "Squirtle",
           "partyId": "0",
+        },
+        "tally": 0,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 0,
       },
@@ -9481,14 +9481,6 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 30,
-      },
       "dax-shepherd": Object {
         "option": Object {
           "id": "dax-shepherd",
@@ -9502,6 +9494,14 @@ Object {
           "id": "kristen-bell",
           "name": "Kristen Bell",
           "partyId": "3",
+        },
+        "tally": 30,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 30,
       },
@@ -9536,14 +9536,6 @@ Object {
       "undervotes": 0,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 0,
-      },
       "chidi-anagonye": Object {
         "option": Object {
           "id": "chidi-anagonye",
@@ -9557,6 +9549,14 @@ Object {
           "id": "eleanor-shellstrop",
           "name": "Eleanor Shellstrop",
           "partyId": "4",
+        },
+        "tally": 0,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 0,
       },
@@ -9591,14 +9591,6 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 30,
-      },
       "aaron-aligator": Object {
         "option": Object {
           "id": "aaron-aligator",
@@ -9612,6 +9604,14 @@ Object {
           "id": "peter-pigeon",
           "name": "Peter Pigeon",
           "partyId": "0",
+        },
+        "tally": 30,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 30,
       },
@@ -9646,14 +9646,6 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 30,
-      },
       "ethan-zohn": Object {
         "option": Object {
           "id": "ethan-zohn",
@@ -9667,6 +9659,14 @@ Object {
           "id": "tina-wesson",
           "name": "Tina Wesson",
           "partyId": "3",
+        },
+        "tally": 30,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 30,
       },
@@ -9701,14 +9701,6 @@ Object {
       "undervotes": 0,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 0,
-      },
       "brain-heidik": Object {
         "option": Object {
           "id": "brain-heidik",
@@ -9722,6 +9714,14 @@ Object {
           "id": "vecepia-towery",
           "name": "Vecepia Towery",
           "partyId": "4",
+        },
+        "tally": 0,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 0,
       },
@@ -9756,14 +9756,6 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 30,
-      },
       "jason-mendoza": Object {
         "option": Object {
           "id": "jason-mendoza",
@@ -9777,6 +9769,14 @@ Object {
           "id": "tahani-al-jamil",
           "name": "Tahani Al-Jamil",
           "partyId": "0",
+        },
+        "tally": 30,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 30,
       },
@@ -9821,14 +9821,6 @@ Object {
       "undervotes": 90,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 120,
-      },
       "aras-baskauskas": Object {
         "option": Object {
           "id": "aras-baskauskas",
@@ -9850,6 +9842,14 @@ Object {
           "id": "todd-herzog",
           "name": "Todd Herzog",
           "partyId": "3",
+        },
+        "tally": 120,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 120,
       },
@@ -9902,14 +9902,6 @@ Object {
       "undervotes": 0,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 0,
-      },
       "bob-crowley": Object {
         "option": Object {
           "id": "bob-crowley",
@@ -9939,6 +9931,14 @@ Object {
           "id": "parvati-shallow",
           "name": "Parvati Shallow",
           "partyId": "4",
+        },
+        "tally": 0,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 0,
       },
@@ -9983,14 +9983,6 @@ Object {
       "undervotes": 0,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 0,
-      },
       "amber-brkich": Object {
         "option": Object {
           "id": "amber-brkich",
@@ -10020,6 +10012,14 @@ Object {
           "id": "tom-westman",
           "name": "Tom Westman",
           "partyId": "0",
+        },
+        "tally": 0,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 0,
       },
@@ -10059,14 +10059,6 @@ Object {
       "undervotes": 0,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 0,
-      },
       "jenna-morasca": Object {
         "option": Object {
           "id": "jenna-morasca",
@@ -10080,6 +10072,14 @@ Object {
           "id": "sandra-diaz-twine",
           "name": "Sandra Diaz-Twine",
           "partyId": "0",
+        },
+        "tally": 0,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 0,
       },
@@ -10119,14 +10119,6 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 30,
-      },
       "flareon": Object {
         "option": Object {
           "id": "flareon",
@@ -10150,6 +10142,14 @@ Object {
           "partyId": "3",
         },
         "tally": 240,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 30,
       },
     },
   },
@@ -10182,14 +10182,6 @@ Object {
       "undervotes": 0,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 0,
-      },
       "eevee": Object {
         "option": Object {
           "id": "eevee",
@@ -10203,6 +10195,14 @@ Object {
           "id": "pikachu",
           "name": "Pikachu",
           "partyId": "4",
+        },
+        "tally": 0,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 0,
       },
@@ -10242,14 +10242,6 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 30,
-      },
       "bulbasaur": Object {
         "option": Object {
           "id": "bulbasaur",
@@ -10273,6 +10265,14 @@ Object {
           "partyId": "0",
         },
         "tally": 240,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 30,
       },
     },
   },
@@ -10305,14 +10305,6 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 30,
-      },
       "dax-shepherd": Object {
         "option": Object {
           "id": "dax-shepherd",
@@ -10326,6 +10318,14 @@ Object {
           "id": "kristen-bell",
           "name": "Kristen Bell",
           "partyId": "3",
+        },
+        "tally": 30,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 30,
       },
@@ -10360,14 +10360,6 @@ Object {
       "undervotes": 0,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 0,
-      },
       "chidi-anagonye": Object {
         "option": Object {
           "id": "chidi-anagonye",
@@ -10381,6 +10373,14 @@ Object {
           "id": "eleanor-shellstrop",
           "name": "Eleanor Shellstrop",
           "partyId": "4",
+        },
+        "tally": 0,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 0,
       },
@@ -10415,14 +10415,6 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 30,
-      },
       "aaron-aligator": Object {
         "option": Object {
           "id": "aaron-aligator",
@@ -10438,6 +10430,14 @@ Object {
           "partyId": "0",
         },
         "tally": 300,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 30,
       },
     },
   },
@@ -10470,14 +10470,6 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 30,
-      },
       "ethan-zohn": Object {
         "option": Object {
           "id": "ethan-zohn",
@@ -10491,6 +10483,14 @@ Object {
           "id": "tina-wesson",
           "name": "Tina Wesson",
           "partyId": "3",
+        },
+        "tally": 30,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 30,
       },
@@ -10525,14 +10525,6 @@ Object {
       "undervotes": 0,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 0,
-      },
       "brain-heidik": Object {
         "option": Object {
           "id": "brain-heidik",
@@ -10546,6 +10538,14 @@ Object {
           "id": "vecepia-towery",
           "name": "Vecepia Towery",
           "partyId": "4",
+        },
+        "tally": 0,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 0,
       },
@@ -10580,14 +10580,6 @@ Object {
       "undervotes": 0,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 0,
-      },
       "jason-mendoza": Object {
         "option": Object {
           "id": "jason-mendoza",
@@ -10601,6 +10593,14 @@ Object {
           "id": "tahani-al-jamil",
           "name": "Tahani Al-Jamil",
           "partyId": "0",
+        },
+        "tally": 0,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 0,
       },
@@ -10645,14 +10645,6 @@ Object {
       "undervotes": 90,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 120,
-      },
       "aras-baskauskas": Object {
         "option": Object {
           "id": "aras-baskauskas",
@@ -10674,6 +10666,14 @@ Object {
           "id": "todd-herzog",
           "name": "Todd Herzog",
           "partyId": "3",
+        },
+        "tally": 120,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 120,
       },
@@ -10726,14 +10726,6 @@ Object {
       "undervotes": 0,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 0,
-      },
       "bob-crowley": Object {
         "option": Object {
           "id": "bob-crowley",
@@ -10763,6 +10755,14 @@ Object {
           "id": "parvati-shallow",
           "name": "Parvati Shallow",
           "partyId": "4",
+        },
+        "tally": 0,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 0,
       },
@@ -10807,14 +10807,6 @@ Object {
       "undervotes": 90,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 120,
-      },
       "amber-brkich": Object {
         "option": Object {
           "id": "amber-brkich",
@@ -10844,6 +10836,14 @@ Object {
           "id": "tom-westman",
           "name": "Tom Westman",
           "partyId": "0",
+        },
+        "tally": 120,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 120,
       },
@@ -10883,14 +10883,6 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 30,
-      },
       "jenna-morasca": Object {
         "option": Object {
           "id": "jenna-morasca",
@@ -10904,6 +10896,14 @@ Object {
           "id": "sandra-diaz-twine",
           "name": "Sandra Diaz-Twine",
           "partyId": "0",
+        },
+        "tally": 30,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 30,
       },
@@ -10943,14 +10943,6 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 30,
-      },
       "flareon": Object {
         "option": Object {
           "id": "flareon",
@@ -10974,6 +10966,14 @@ Object {
           "partyId": "3",
         },
         "tally": 240,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 30,
       },
     },
   },
@@ -11006,14 +11006,6 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 30,
-      },
       "eevee": Object {
         "option": Object {
           "id": "eevee",
@@ -11027,6 +11019,14 @@ Object {
           "id": "pikachu",
           "name": "Pikachu",
           "partyId": "4",
+        },
+        "tally": 30,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 30,
       },
@@ -11066,14 +11066,6 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 30,
-      },
       "bulbasaur": Object {
         "option": Object {
           "id": "bulbasaur",
@@ -11097,6 +11089,14 @@ Object {
           "partyId": "0",
         },
         "tally": 240,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 30,
       },
     },
   },
@@ -11129,14 +11129,6 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 30,
-      },
       "dax-shepherd": Object {
         "option": Object {
           "id": "dax-shepherd",
@@ -11150,6 +11142,14 @@ Object {
           "id": "kristen-bell",
           "name": "Kristen Bell",
           "partyId": "3",
+        },
+        "tally": 30,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 30,
       },
@@ -11184,14 +11184,6 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 30,
-      },
       "chidi-anagonye": Object {
         "option": Object {
           "id": "chidi-anagonye",
@@ -11205,6 +11197,14 @@ Object {
           "id": "eleanor-shellstrop",
           "name": "Eleanor Shellstrop",
           "partyId": "4",
+        },
+        "tally": 30,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 30,
       },
@@ -11239,14 +11239,6 @@ Object {
       "undervotes": 60,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 60,
-      },
       "aaron-aligator": Object {
         "option": Object {
           "id": "aaron-aligator",
@@ -11262,6 +11254,14 @@ Object {
           "partyId": "0",
         },
         "tally": 330,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 60,
       },
     },
   },
@@ -11294,14 +11294,6 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 30,
-      },
       "ethan-zohn": Object {
         "option": Object {
           "id": "ethan-zohn",
@@ -11315,6 +11307,14 @@ Object {
           "id": "tina-wesson",
           "name": "Tina Wesson",
           "partyId": "3",
+        },
+        "tally": 30,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 30,
       },
@@ -11349,14 +11349,6 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 30,
-      },
       "brain-heidik": Object {
         "option": Object {
           "id": "brain-heidik",
@@ -11370,6 +11362,14 @@ Object {
           "id": "vecepia-towery",
           "name": "Vecepia Towery",
           "partyId": "4",
+        },
+        "tally": 30,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 30,
       },
@@ -11404,14 +11404,6 @@ Object {
       "undervotes": 30,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 30,
-      },
       "jason-mendoza": Object {
         "option": Object {
           "id": "jason-mendoza",
@@ -11425,6 +11417,14 @@ Object {
           "id": "tahani-al-jamil",
           "name": "Tahani Al-Jamil",
           "partyId": "0",
+        },
+        "tally": 30,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 30,
       },
@@ -11469,14 +11469,6 @@ Object {
       "undervotes": 90,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 120,
-      },
       "aras-baskauskas": Object {
         "option": Object {
           "id": "aras-baskauskas",
@@ -11498,6 +11490,14 @@ Object {
           "id": "todd-herzog",
           "name": "Todd Herzog",
           "partyId": "3",
+        },
+        "tally": 120,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 120,
       },
@@ -11550,14 +11550,6 @@ Object {
       "undervotes": 90,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 120,
-      },
       "bob-crowley": Object {
         "option": Object {
           "id": "bob-crowley",
@@ -11589,6 +11581,14 @@ Object {
           "partyId": "4",
         },
         "tally": 150,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 120,
       },
     },
   },
@@ -11631,14 +11631,6 @@ Object {
       "undervotes": 90,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 120,
-      },
       "amber-brkich": Object {
         "option": Object {
           "id": "amber-brkich",
@@ -11668,6 +11660,14 @@ Object {
           "id": "tom-westman",
           "name": "Tom Westman",
           "partyId": "0",
+        },
+        "tally": 120,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
         },
         "tally": 120,
       },

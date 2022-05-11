@@ -176,7 +176,7 @@ test('renders as expected for all precincts in a primary election', () => {
   within(screen.getByTestId('zoo-council-mammal-lion')).getByText('0');
   within(screen.getByTestId('zoo-council-mammal-kangaroo')).getByText('0');
   within(screen.getByTestId('zoo-council-mammal-elephant')).getByText('1');
-  within(screen.getByTestId('zoo-council-mammal-__write-in')).getByText('0');
+  within(screen.getByTestId('zoo-council-mammal-write-in')).getByText('0');
   expect(within(zooCouncil).queryByText('Write-In')).toBeDefined();
 
   const eitherNeiher = screen.getByTestId('results-table-new-zoo-either');
@@ -252,7 +252,7 @@ test('renders as expected for a single precincts in a primary election', () => {
   within(screen.getByTestId('aquarium-council-fish-triggerfish')).getByText(
     '0'
   );
-  within(screen.getByTestId('aquarium-council-fish-__write-in')).getByText('0');
+  within(screen.getByTestId('aquarium-council-fish-write-in')).getByText('0');
   expect(within(zooCouncil).queryByText('Write-In')).toBeDefined();
 
   const yesNo = screen.getByTestId('results-table-fishing');

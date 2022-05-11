@@ -221,7 +221,7 @@ export async function main(
           if (candidate) {
             displayName = candidate.name;
           } else {
-            const match = mark.optionId.match(/^__write-in-(\d+)$/);
+            const match = mark.optionId.match(/^write-in-(\d+)$/);
             if (match) {
               displayName = `Write-In #${
                 safeParseInt(match[1]).unsafeUnwrap() + 1

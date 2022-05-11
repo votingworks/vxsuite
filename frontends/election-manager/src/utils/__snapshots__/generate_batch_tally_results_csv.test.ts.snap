@@ -1606,14 +1606,6 @@ Object {
       "undervotes": 327,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 15,
-      },
       "charles-darwin": Object {
         "option": Object {
           "id": "charles-darwin",
@@ -1629,6 +1621,14 @@ Object {
           "partyId": "1",
         },
         "tally": 3339,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 15,
       },
     },
   },
@@ -1671,14 +1671,6 @@ Object {
       "undervotes": 303,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 15,
-      },
       "bill-gates": Object {
         "option": Object {
           "id": "bill-gates",
@@ -1702,6 +1694,14 @@ Object {
           "partyId": "2",
         },
         "tally": 2244,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 15,
       },
     },
   },
@@ -1739,14 +1739,6 @@ Object {
       "undervotes": 299,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 15,
-      },
       "carrie-fisher": Object {
         "option": Object {
           "id": "carrie-fisher",
@@ -1762,6 +1754,14 @@ Object {
           "partyId": "0",
         },
         "tally": 3336,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 15,
       },
     },
   },
@@ -1799,14 +1799,6 @@ Object {
       "undervotes": 313,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 12,
-      },
       "angelina-jolie": Object {
         "option": Object {
           "id": "angelina-jolie",
@@ -1822,6 +1814,14 @@ Object {
           "partyId": "0",
         },
         "tally": 3321,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 12,
       },
     },
   },
@@ -1859,14 +1859,6 @@ Object {
       "undervotes": 300,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 17,
-      },
       "anne-hathaway": Object {
         "option": Object {
           "id": "anne-hathaway",
@@ -1882,6 +1874,14 @@ Object {
           "partyId": "1",
         },
         "tally": 3352,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 17,
       },
     },
   },
@@ -1919,14 +1919,6 @@ Object {
       "undervotes": 316,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 19,
-      },
       "george-washington": Object {
         "option": Object {
           "id": "george-washington",
@@ -1942,6 +1934,14 @@ Object {
           "partyId": "1",
         },
         "tally": 3387,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 19,
       },
     },
   },
@@ -1979,14 +1979,6 @@ Object {
       "undervotes": 321,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 14,
-      },
       "alexander-graham-bell": Object {
         "option": Object {
           "id": "alexander-graham-bell",
@@ -2002,6 +1994,14 @@ Object {
           "partyId": "0",
         },
         "tally": 3319,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 14,
       },
     },
   },
@@ -2039,14 +2039,6 @@ Object {
       "undervotes": 316,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 10,
-      },
       "harriet-tubman": Object {
         "option": Object {
           "id": "harriet-tubman",
@@ -2062,6 +2054,14 @@ Object {
           "partyId": "0",
         },
         "tally": 3328,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 10,
       },
     },
   },
@@ -2099,14 +2099,6 @@ Object {
       "undervotes": 312,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 13,
-      },
       "marilyn-monroe": Object {
         "option": Object {
           "id": "marilyn-monroe",
@@ -2122,6 +2114,14 @@ Object {
           "partyId": "0",
         },
         "tally": 3325,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 13,
       },
     },
   },
@@ -2159,14 +2159,6 @@ Object {
       "undervotes": 292,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 20,
-      },
       "nikola-tesla": Object {
         "option": Object {
           "id": "nikola-tesla",
@@ -2182,6 +2174,14 @@ Object {
           "partyId": "1",
         },
         "tally": 3382,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 20,
       },
     },
   },
@@ -2219,14 +2219,6 @@ Object {
       "undervotes": 140,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 10,
-      },
       "julia-child": Object {
         "option": Object {
           "id": "julia-child",
@@ -2242,6 +2234,14 @@ Object {
           "partyId": "1",
         },
         "tally": 1544,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 10,
       },
     },
   },
@@ -2279,14 +2279,6 @@ Object {
       "undervotes": 292,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 9,
-      },
       "helen-keller": Object {
         "option": Object {
           "id": "helen-keller",
@@ -2302,6 +2294,14 @@ Object {
           "partyId": "1",
         },
         "tally": 3464,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 9,
       },
     },
   },
@@ -2349,14 +2349,6 @@ Object {
       "undervotes": 309,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 10,
-      },
       "alfred-hitchcock": Object {
         "option": Object {
           "id": "alfred-hitchcock",
@@ -2388,6 +2380,14 @@ Object {
           "partyId": "0",
         },
         "tally": 1667,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 10,
       },
     },
   },
@@ -2425,14 +2425,6 @@ Object {
       "undervotes": 152,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 5,
-      },
       "beethoven": Object {
         "option": Object {
           "id": "beethoven",
@@ -2448,6 +2440,14 @@ Object {
           "partyId": "1",
         },
         "tally": 1566,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 5,
       },
     },
   },
@@ -2485,14 +2485,6 @@ Object {
       "undervotes": 160,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 4,
-      },
       "harry-potter": Object {
         "option": Object {
           "id": "harry-potter",
@@ -2508,6 +2500,14 @@ Object {
           "partyId": "0",
         },
         "tally": 1547,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 4,
       },
     },
   },
@@ -2545,14 +2545,6 @@ Object {
       "undervotes": 136,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 4,
-      },
       "bruce-lee": Object {
         "option": Object {
           "id": "bruce-lee",
@@ -2568,6 +2560,14 @@ Object {
           "partyId": "1",
         },
         "tally": 1528,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 4,
       },
     },
   },
@@ -2605,14 +2605,6 @@ Object {
       "undervotes": 122,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 2,
-      },
       "edgar-allan-poe": Object {
         "option": Object {
           "id": "edgar-allan-poe",
@@ -2628,6 +2620,14 @@ Object {
           "partyId": "0",
         },
         "tally": 1540,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 2,
       },
     },
   },
@@ -2665,14 +2665,6 @@ Object {
       "undervotes": 148,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 6,
-      },
       "sherlock-holmes": Object {
         "option": Object {
           "id": "sherlock-holmes",
@@ -2688,6 +2680,14 @@ Object {
           "partyId": "1",
         },
         "tally": 1565,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 6,
       },
     },
   },
@@ -2730,14 +2730,6 @@ Object {
       "undervotes": 296,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 12,
-      },
       "louis-armstrong": Object {
         "option": Object {
           "id": "louis-armstrong",
@@ -2761,6 +2753,14 @@ Object {
           "partyId": "0",
         },
         "tally": 2237,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 12,
       },
     },
   },
@@ -2813,14 +2813,6 @@ Object {
       "undervotes": 293,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 7,
-      },
       "indiana-jones": Object {
         "option": Object {
           "id": "indiana-jones",
@@ -2860,6 +2852,14 @@ Object {
           "partyId": "2",
         },
         "tally": 1311,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 7,
       },
     },
   },
@@ -2976,14 +2976,6 @@ Object {
       "undervotes": 317,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 15,
-      },
       "albert-einstein": Object {
         "option": Object {
           "id": "albert-einstein",
@@ -3007,6 +2999,14 @@ Object {
           "partyId": "3",
         },
         "tally": 2197,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 15,
       },
     },
   },
@@ -3049,14 +3049,6 @@ Object {
       "undervotes": 134,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 5,
-      },
       "antoinette": Object {
         "option": Object {
           "id": "antoinette",
@@ -3080,6 +3072,14 @@ Object {
           "partyId": "0",
         },
         "tally": 1063,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 5,
       },
     },
   },
@@ -3122,14 +3122,6 @@ Object {
       "undervotes": 146,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 7,
-      },
       "brad-pitt": Object {
         "option": Object {
           "id": "brad-pitt",
@@ -3153,6 +3145,14 @@ Object {
           "partyId": "3",
         },
         "tally": 1058,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 7,
       },
     },
   },
@@ -3190,14 +3190,6 @@ Object {
       "undervotes": 133,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 7,
-      },
       "john-snow": Object {
         "option": Object {
           "id": "john-snow",
@@ -3213,6 +3205,14 @@ Object {
           "partyId": "3",
         },
         "tally": 1507,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 7,
       },
     },
   },
@@ -3255,14 +3255,6 @@ Object {
       "undervotes": 107,
     },
     "tallies": Object {
-      "__write-in": Object {
-        "option": Object {
-          "id": "__write-in",
-          "isWriteIn": true,
-          "name": "Write-In",
-        },
-        "tally": 7,
-      },
       "benjamin-franklin": Object {
         "option": Object {
           "id": "benjamin-franklin",
@@ -3286,6 +3278,14 @@ Object {
           "partyId": "1",
         },
         "tally": 1027,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 7,
       },
     },
   },

@@ -37,7 +37,7 @@ export function* allContestOptions(
         for (let i = 0; i < contest.seats; i += 1) {
           yield {
             type: 'candidate',
-            id: `__write-in-${i}`,
+            id: `write-in-${i}`,
             contestId: contest.id,
             name: 'Write-In',
             isWriteIn: true,

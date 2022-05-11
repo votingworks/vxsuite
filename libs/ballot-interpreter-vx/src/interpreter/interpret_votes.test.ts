@@ -33,7 +33,7 @@ test('interpret votes', async () => {
       ],
       "texas-house-district-111": Array [
         Object {
-          "id": "__write-in-0",
+          "id": "write-in-0",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -126,7 +126,7 @@ test('interpret votes', async () => {
         "type": "candidate",
       },
       Object {
-        "option": "__write-in-0",
+        "option": "write-in-0",
         "score": 0.8029556650246306,
         "type": "candidate",
       },
@@ -136,7 +136,7 @@ test('interpret votes', async () => {
         "type": "candidate",
       },
       Object {
-        "option": "__write-in-0",
+        "option": "write-in-0",
         "score": 0,
         "type": "candidate",
       },
@@ -151,7 +151,7 @@ test('interpret votes', async () => {
         "type": "candidate",
       },
       Object {
-        "option": "__write-in-0",
+        "option": "write-in-0",
         "score": 0,
         "type": "candidate",
       },

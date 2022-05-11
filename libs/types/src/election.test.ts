@@ -400,9 +400,9 @@ test('write-in ID schema', () => {
   safeParse(WriteInIdSchema, 'abc').unsafeUnwrapErr();
 
   // valid IDs
-  safeParse(WriteInIdSchema, '__write-in').unsafeUnwrap();
-  safeParse(WriteInIdSchema, '__write-in-BOB').unsafeUnwrap();
-  safeParse(WriteInIdSchema, '__write-in-1-BOB').unsafeUnwrap();
+  safeParse(WriteInIdSchema, 'write-in').unsafeUnwrap();
+  safeParse(WriteInIdSchema, 'write-in-BOB').unsafeUnwrap();
+  safeParse(WriteInIdSchema, 'write-in-1-BOB').unsafeUnwrap();
 });
 
 test('ballot ID schema', () => {

@@ -632,7 +632,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
                   </td>
                 </tr>
                 <tr
-                  data-testid="775020876-__write-in"
+                  data-testid="775020876-write-in"
                 >
                   <td>
                     Write-In
@@ -726,7 +726,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
                   </td>
                 </tr>
                 <tr
-                  data-testid="775020877-__write-in"
+                  data-testid="775020877-write-in"
                 >
                   <td>
                     Write-In
@@ -808,7 +808,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
                   </td>
                 </tr>
                 <tr
-                  data-testid="775020872-__write-in"
+                  data-testid="775020872-write-in"
                 >
                   <td>
                     Write-In
@@ -890,7 +890,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
                   </td>
                 </tr>
                 <tr
-                  data-testid="775020870-__write-in"
+                  data-testid="775020870-write-in"
                 >
                   <td>
                     Write-In
@@ -960,7 +960,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
                   </td>
                 </tr>
                 <tr
-                  data-testid="775020899-__write-in"
+                  data-testid="775020899-write-in"
                 >
                   <td>
                     Write-In
@@ -1042,7 +1042,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
                   </td>
                 </tr>
                 <tr
-                  data-testid="775020900-__write-in"
+                  data-testid="775020900-write-in"
                 >
                   <td>
                     Write-In
@@ -1112,7 +1112,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
                   </td>
                 </tr>
                 <tr
-                  data-testid="775020901-__write-in"
+                  data-testid="775020901-write-in"
                 >
                   <td>
                     Write-In
@@ -1194,7 +1194,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
                   </td>
                 </tr>
                 <tr
-                  data-testid="775020902-__write-in"
+                  data-testid="775020902-write-in"
                 >
                   <td>
                     Write-In
@@ -1276,7 +1276,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
                   </td>
                 </tr>
                 <tr
-                  data-testid="775020903-__write-in"
+                  data-testid="775020903-write-in"
                 >
                   <td>
                     Write-In
@@ -1346,7 +1346,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
                   </td>
                 </tr>
                 <tr
-                  data-testid="775020904-__write-in"
+                  data-testid="775020904-write-in"
                 >
                   <td>
                     Write-In
@@ -1826,7 +1826,7 @@ exports[`tabulating CVRs 1`] = `
               </td>
             </tr>
             <tr
-              data-testid="775020876-__write-in"
+              data-testid="775020876-write-in"
             >
               <td>
                 Write-In
@@ -1920,7 +1920,7 @@ exports[`tabulating CVRs 1`] = `
               </td>
             </tr>
             <tr
-              data-testid="775020877-__write-in"
+              data-testid="775020877-write-in"
             >
               <td>
                 Write-In
@@ -2002,7 +2002,7 @@ exports[`tabulating CVRs 1`] = `
               </td>
             </tr>
             <tr
-              data-testid="775020872-__write-in"
+              data-testid="775020872-write-in"
             >
               <td>
                 Write-In
@@ -2084,7 +2084,7 @@ exports[`tabulating CVRs 1`] = `
               </td>
             </tr>
             <tr
-              data-testid="775020870-__write-in"
+              data-testid="775020870-write-in"
             >
               <td>
                 Write-In
@@ -2154,7 +2154,7 @@ exports[`tabulating CVRs 1`] = `
               </td>
             </tr>
             <tr
-              data-testid="775020899-__write-in"
+              data-testid="775020899-write-in"
             >
               <td>
                 Write-In
@@ -2236,7 +2236,7 @@ exports[`tabulating CVRs 1`] = `
               </td>
             </tr>
             <tr
-              data-testid="775020900-__write-in"
+              data-testid="775020900-write-in"
             >
               <td>
                 Write-In
@@ -2306,7 +2306,7 @@ exports[`tabulating CVRs 1`] = `
               </td>
             </tr>
             <tr
-              data-testid="775020901-__write-in"
+              data-testid="775020901-write-in"
             >
               <td>
                 Write-In
@@ -2388,7 +2388,7 @@ exports[`tabulating CVRs 1`] = `
               </td>
             </tr>
             <tr
-              data-testid="775020902-__write-in"
+              data-testid="775020902-write-in"
             >
               <td>
                 Write-In
@@ -2470,7 +2470,7 @@ exports[`tabulating CVRs 1`] = `
               </td>
             </tr>
             <tr
-              data-testid="775020903-__write-in"
+              data-testid="775020903-write-in"
             >
               <td>
                 Write-In
@@ -2540,7 +2540,7 @@ exports[`tabulating CVRs 1`] = `
               </td>
             </tr>
             <tr
-              data-testid="775020904-__write-in"
+              data-testid="775020904-write-in"
             >
               <td>
                 Write-In
@@ -3017,7 +3017,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
               </td>
             </tr>
             <tr
-              data-testid="775020876-__write-in"
+              data-testid="775020876-write-in"
             >
               <td>
                 Write-In
@@ -3111,7 +3111,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
               </td>
             </tr>
             <tr
-              data-testid="775020877-__write-in"
+              data-testid="775020877-write-in"
             >
               <td>
                 Write-In
@@ -3193,7 +3193,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
               </td>
             </tr>
             <tr
-              data-testid="775020872-__write-in"
+              data-testid="775020872-write-in"
             >
               <td>
                 Write-In
@@ -3275,7 +3275,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
               </td>
             </tr>
             <tr
-              data-testid="775020870-__write-in"
+              data-testid="775020870-write-in"
             >
               <td>
                 Write-In
@@ -3345,7 +3345,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
               </td>
             </tr>
             <tr
-              data-testid="775020899-__write-in"
+              data-testid="775020899-write-in"
             >
               <td>
                 Write-In
@@ -3427,7 +3427,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
               </td>
             </tr>
             <tr
-              data-testid="775020900-__write-in"
+              data-testid="775020900-write-in"
             >
               <td>
                 Write-In
@@ -3497,7 +3497,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
               </td>
             </tr>
             <tr
-              data-testid="775020901-__write-in"
+              data-testid="775020901-write-in"
             >
               <td>
                 Write-In
@@ -3579,7 +3579,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
               </td>
             </tr>
             <tr
-              data-testid="775020902-__write-in"
+              data-testid="775020902-write-in"
             >
               <td>
                 Write-In
@@ -3661,7 +3661,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
               </td>
             </tr>
             <tr
-              data-testid="775020903-__write-in"
+              data-testid="775020903-write-in"
             >
               <td>
                 Write-In
@@ -3731,7 +3731,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
               </td>
             </tr>
             <tr
-              data-testid="775020904-__write-in"
+              data-testid="775020904-write-in"
             >
               <td>
                 Write-In

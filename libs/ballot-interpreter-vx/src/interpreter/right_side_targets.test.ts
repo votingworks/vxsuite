@@ -41,7 +41,7 @@ test('interprets ballots with right-side ballot target mark position', async () 
           "partyId": "0",
         },
         Object {
-          "id": "__write-in-1",
+          "id": "write-in-1",
           "isWriteIn": true,
           "name": "Write-In",
         },

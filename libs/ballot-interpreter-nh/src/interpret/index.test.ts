@@ -43,7 +43,7 @@ test('interpret marked', async () => {
             },
             Object {
               "contestId": "President-and-Vice-President-of-the-United-States-18d1a55a",
-              "optionId": "__write-in-0",
+              "optionId": "write-in-0",
               "optionIndex": 3,
               "type": "WriteIn",
             },
@@ -53,7 +53,7 @@ test('interpret marked', async () => {
               "optionIds": Array [
                 "Donald-J-Trump-and-Michael-R-Pence-3e3f31a7",
                 "Jo-Jorgensen-and-Jeremy-Cohen-7e981234",
-                "__write-in-0",
+                "write-in-0",
               ],
               "optionIndexes": Array [
                 0,
@@ -70,7 +70,7 @@ test('interpret marked', async () => {
             },
             Object {
               "contestId": "Governor-061a401b",
-              "optionId": "__write-in-0",
+              "optionId": "write-in-0",
               "optionIndex": 3,
               "type": "WriteIn",
             },
@@ -80,7 +80,7 @@ test('interpret marked', async () => {
               "optionIds": Array [
                 "Chris-Sununu-130124f7",
                 "Dan-Feltes-3fadf798",
-                "__write-in-0",
+                "write-in-0",
               ],
               "optionIndexes": Array [
                 0,
@@ -97,7 +97,7 @@ test('interpret marked', async () => {
             },
             Object {
               "contestId": "United-States-Senator-d3f1c75b",
-              "optionId": "__write-in-0",
+              "optionId": "write-in-0",
               "optionIndex": 3,
               "type": "WriteIn",
             },
@@ -106,7 +106,7 @@ test('interpret marked', async () => {
               "expected": 1,
               "optionIds": Array [
                 "Corky-Messner-b6eb216d",
-                "__write-in-0",
+                "write-in-0",
               ],
               "optionIndexes": Array [
                 0,
@@ -116,7 +116,7 @@ test('interpret marked', async () => {
             },
             Object {
               "contestId": "Representative-in-Congress-24683b44",
-              "optionId": "__write-in-0",
+              "optionId": "write-in-0",
               "optionIndex": 3,
               "type": "WriteIn",
             },
@@ -126,7 +126,7 @@ test('interpret marked', async () => {
               "optionIds": Array [
                 "Steven-Negron-5d482d72",
                 "Andrew-Olding-bed33f08",
-                "__write-in-0",
+                "write-in-0",
               ],
               "optionIndexes": Array [
                 0,
@@ -137,79 +137,79 @@ test('interpret marked', async () => {
             },
             Object {
               "contestId": "Executive-Councilor-bb22557f",
-              "optionId": "__write-in-0",
+              "optionId": "write-in-0",
               "optionIndex": 2,
               "type": "MarginalMark",
             },
             Object {
               "contestId": "State-Senator-391381f8",
-              "optionId": "__write-in-0",
+              "optionId": "write-in-0",
               "optionIndex": 2,
               "type": "WriteIn",
             },
             Object {
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "__write-in-0",
+              "optionId": "write-in-0",
               "optionIndex": 22,
               "type": "WriteIn",
             },
             Object {
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "__write-in-1",
+              "optionId": "write-in-1",
               "optionIndex": 23,
               "type": "WriteIn",
             },
             Object {
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "__write-in-2",
+              "optionId": "write-in-2",
               "optionIndex": 24,
               "type": "WriteIn",
             },
             Object {
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "__write-in-3",
+              "optionId": "write-in-3",
               "optionIndex": 25,
               "type": "WriteIn",
             },
             Object {
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "__write-in-4",
+              "optionId": "write-in-4",
               "optionIndex": 26,
               "type": "WriteIn",
             },
             Object {
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "__write-in-5",
+              "optionId": "write-in-5",
               "optionIndex": 27,
               "type": "MarginalMark",
             },
             Object {
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "__write-in-6",
+              "optionId": "write-in-6",
               "optionIndex": 28,
               "type": "WriteIn",
             },
             Object {
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "__write-in-7",
+              "optionId": "write-in-7",
               "optionIndex": 29,
               "type": "WriteIn",
             },
             Object {
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "__write-in-8",
+              "optionId": "write-in-8",
               "optionIndex": 30,
               "type": "WriteIn",
             },
             Object {
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "__write-in-9",
+              "optionId": "write-in-9",
               "optionIndex": 31,
               "type": "WriteIn",
             },
             Object {
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "__write-in-10",
+              "optionId": "write-in-10",
               "optionIndex": 32,
               "type": "WriteIn",
             },
@@ -231,16 +231,16 @@ test('interpret marked', async () => {
                 "Timothy-Wyatt-0105b8de",
                 "Barbara-A-Blue-14608463",
                 "Nancy-S-Brucker-4471faf7",
-                "__write-in-0",
-                "__write-in-1",
-                "__write-in-2",
-                "__write-in-3",
-                "__write-in-4",
-                "__write-in-6",
-                "__write-in-7",
-                "__write-in-8",
-                "__write-in-9",
-                "__write-in-10",
+                "write-in-0",
+                "write-in-1",
+                "write-in-2",
+                "write-in-3",
+                "write-in-4",
+                "write-in-6",
+                "write-in-7",
+                "write-in-8",
+                "write-in-9",
+                "write-in-10",
               ],
               "optionIndexes": Array [
                 3,
@@ -1887,7 +1887,7 @@ test('interpret marked', async () => {
                 "y": 563,
               },
               "contestId": "President-and-Vice-President-of-the-United-States-18d1a55a",
-              "optionId": "__write-in-0",
+              "optionId": "write-in-0",
               "score": 0.7609756097560976,
               "scoredOffset": Object {
                 "x": -3,
@@ -1929,7 +1929,7 @@ test('interpret marked', async () => {
                 "y": 763,
               },
               "contestId": "Governor-061a401b",
-              "optionId": "__write-in-0",
+              "optionId": "write-in-0",
               "score": 0.19268292682926824,
               "scoredOffset": Object {
                 "x": 1,
@@ -1971,7 +1971,7 @@ test('interpret marked', async () => {
                 "y": 910,
               },
               "contestId": "United-States-Senator-d3f1c75b",
-              "optionId": "__write-in-0",
+              "optionId": "write-in-0",
               "score": 0.30243902439024395,
               "scoredOffset": Object {
                 "x": 2,
@@ -2013,7 +2013,7 @@ test('interpret marked', async () => {
                 "y": 1056,
               },
               "contestId": "Representative-in-Congress-24683b44",
-              "optionId": "__write-in-0",
+              "optionId": "write-in-0",
               "score": 0.1658536585365854,
               "scoredOffset": Object {
                 "x": 2,
@@ -2055,7 +2055,7 @@ test('interpret marked', async () => {
                 "y": 1203,
               },
               "contestId": "Executive-Councilor-bb22557f",
-              "optionId": "__write-in-0",
+              "optionId": "write-in-0",
               "score": 0.11707317073170731,
               "scoredOffset": Object {
                 "x": 2,
@@ -2097,7 +2097,7 @@ test('interpret marked', async () => {
                 "y": 1350,
               },
               "contestId": "State-Senator-391381f8",
-              "optionId": "__write-in-0",
+              "optionId": "write-in-0",
               "score": 0.14878048780487807,
               "scoredOffset": Object {
                 "x": 2,
@@ -2139,7 +2139,7 @@ test('interpret marked', async () => {
                 "y": 1495,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "__write-in-10",
+              "optionId": "write-in-10",
               "score": 0.17317073170731712,
               "scoredOffset": Object {
                 "x": 2,
@@ -2181,7 +2181,7 @@ test('interpret marked', async () => {
                 "y": 1594,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "__write-in-9",
+              "optionId": "write-in-9",
               "score": 0.348780487804878,
               "scoredOffset": Object {
                 "x": 2,
@@ -2223,7 +2223,7 @@ test('interpret marked', async () => {
                 "y": 1692,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "__write-in-8",
+              "optionId": "write-in-8",
               "score": 0.35365853658536583,
               "scoredOffset": Object {
                 "x": 3,
@@ -2265,7 +2265,7 @@ test('interpret marked', async () => {
                 "y": 1790,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "__write-in-7",
+              "optionId": "write-in-7",
               "score": 0.23658536585365852,
               "scoredOffset": Object {
                 "x": 2,
@@ -2307,7 +2307,7 @@ test('interpret marked', async () => {
                 "y": 1887,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "__write-in-6",
+              "optionId": "write-in-6",
               "score": 0.3804878048780488,
               "scoredOffset": Object {
                 "x": 2,
@@ -2349,7 +2349,7 @@ test('interpret marked', async () => {
                 "y": 1986,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "__write-in-5",
+              "optionId": "write-in-5",
               "score": 0.1146341463414634,
               "scoredOffset": Object {
                 "x": 2,
@@ -2391,7 +2391,7 @@ test('interpret marked', async () => {
                 "y": 2079,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "__write-in-4",
+              "optionId": "write-in-4",
               "score": 0.3804878048780488,
               "scoredOffset": Object {
                 "x": 3,
@@ -2433,7 +2433,7 @@ test('interpret marked', async () => {
                 "y": 2181,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "__write-in-3",
+              "optionId": "write-in-3",
               "score": 0.3878048780487805,
               "scoredOffset": Object {
                 "x": 1,
@@ -2475,7 +2475,7 @@ test('interpret marked', async () => {
                 "y": 2277,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "__write-in-2",
+              "optionId": "write-in-2",
               "score": 0.30975609756097566,
               "scoredOffset": Object {
                 "x": 1,
@@ -2517,7 +2517,7 @@ test('interpret marked', async () => {
                 "y": 2377,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "__write-in-1",
+              "optionId": "write-in-1",
               "score": 0.35609756097560974,
               "scoredOffset": Object {
                 "x": -3,
@@ -2559,7 +2559,7 @@ test('interpret marked', async () => {
                 "y": 2471,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "__write-in-0",
+              "optionId": "write-in-0",
               "score": 0.37073170731707317,
               "scoredOffset": Object {
                 "x": 2,
@@ -2623,7 +2623,7 @@ test('interpret marked', async () => {
               "partyId": "Democratic-aea20adb",
             },
             Object {
-              "id": "__write-in-0",
+              "id": "write-in-0",
               "isWriteIn": true,
               "name": "Write-In #1",
             },
@@ -2640,7 +2640,7 @@ test('interpret marked', async () => {
               "partyId": "OC-3a386d2b",
             },
             Object {
-              "id": "__write-in-0",
+              "id": "write-in-0",
               "isWriteIn": true,
               "name": "Write-In #1",
             },
@@ -2657,7 +2657,7 @@ test('interpret marked', async () => {
               "partyId": "OC-3a386d2b",
             },
             Object {
-              "id": "__write-in-0",
+              "id": "write-in-0",
               "isWriteIn": true,
               "name": "Write-In #1",
             },
@@ -2734,59 +2734,59 @@ test('interpret marked', async () => {
               "partyId": "Democratic-aea20adb",
             },
             Object {
-              "id": "__write-in-10",
+              "id": "write-in-10",
               "isWriteIn": true,
               "name": "Write-In #11",
             },
             Object {
-              "id": "__write-in-9",
+              "id": "write-in-9",
               "isWriteIn": true,
               "name": "Write-In #10",
             },
             Object {
-              "id": "__write-in-8",
+              "id": "write-in-8",
               "isWriteIn": true,
               "name": "Write-In #9",
             },
             Object {
-              "id": "__write-in-7",
+              "id": "write-in-7",
               "isWriteIn": true,
               "name": "Write-In #8",
             },
             Object {
-              "id": "__write-in-6",
+              "id": "write-in-6",
               "isWriteIn": true,
               "name": "Write-In #7",
             },
             Object {
-              "id": "__write-in-4",
+              "id": "write-in-4",
               "isWriteIn": true,
               "name": "Write-In #5",
             },
             Object {
-              "id": "__write-in-3",
+              "id": "write-in-3",
               "isWriteIn": true,
               "name": "Write-In #4",
             },
             Object {
-              "id": "__write-in-2",
+              "id": "write-in-2",
               "isWriteIn": true,
               "name": "Write-In #3",
             },
             Object {
-              "id": "__write-in-1",
+              "id": "write-in-1",
               "isWriteIn": true,
               "name": "Write-In #2",
             },
             Object {
-              "id": "__write-in-0",
+              "id": "write-in-0",
               "isWriteIn": true,
               "name": "Write-In #1",
             },
           ],
           "State-Senator-391381f8": Array [
             Object {
-              "id": "__write-in-0",
+              "id": "write-in-0",
               "isWriteIn": true,
               "name": "Write-In #1",
             },
@@ -2798,7 +2798,7 @@ test('interpret marked', async () => {
               "partyId": "Republican-f0167ce7",
             },
             Object {
-              "id": "__write-in-0",
+              "id": "write-in-0",
               "isWriteIn": true,
               "name": "Write-In #1",
             },
@@ -2812,7 +2812,7 @@ test('interpret marked', async () => {
           "ignoredReasonInfos": Array [
             Object {
               "contestId": "Sheriff-4243fe0b",
-              "optionId": "__write-in-0",
+              "optionId": "write-in-0",
               "optionIndex": 2,
               "type": "WriteIn",
             },
@@ -2822,7 +2822,7 @@ test('interpret marked', async () => {
               "optionIds": Array [
                 "Christopher-Connelly-970b2364",
                 "Bill-Barry-0e677ca6",
-                "__write-in-0",
+                "write-in-0",
               ],
               "optionIndexes": Array [
                 0,
@@ -2833,7 +2833,7 @@ test('interpret marked', async () => {
             },
             Object {
               "contestId": "County-Attorney-133f910f",
-              "optionId": "__write-in-0",
+              "optionId": "write-in-0",
               "optionIndex": 3,
               "type": "WriteIn",
             },
@@ -2844,7 +2844,7 @@ test('interpret marked', async () => {
                 "John-J-Coughlin-0e7bf93c",
                 "Michael-Conlon-1a61fa16",
                 "Nicholas-Sarwark-c8f115e2",
-                "__write-in-0",
+                "write-in-0",
               ],
               "optionIndexes": Array [
                 0,
@@ -2856,7 +2856,7 @@ test('interpret marked', async () => {
             },
             Object {
               "contestId": "County-Treasurer-87d25a31",
-              "optionId": "__write-in-0",
+              "optionId": "write-in-0",
               "optionIndex": 3,
               "type": "WriteIn",
             },
@@ -2867,7 +2867,7 @@ test('interpret marked', async () => {
                 "David-G-Fredette-687f01ae",
                 "William-Bryk-eaf936ec",
                 "Richard-Manzo-c5fcc876",
-                "__write-in-0",
+                "write-in-0",
               ],
               "optionIndexes": Array [
                 0,
@@ -2879,7 +2879,7 @@ test('interpret marked', async () => {
             },
             Object {
               "contestId": "Register-of-Deeds-a1278df2",
-              "optionId": "__write-in-0",
+              "optionId": "write-in-0",
               "optionIndex": 2,
               "type": "WriteIn",
             },
@@ -2889,7 +2889,7 @@ test('interpret marked', async () => {
               "optionIds": Array [
                 "Jack-Flanagan-78e24cab",
                 "Mary-Ann-Crowell-e1ff59b9",
-                "__write-in-0",
+                "write-in-0",
               ],
               "optionIndexes": Array [
                 0,
@@ -2900,7 +2900,7 @@ test('interpret marked', async () => {
             },
             Object {
               "contestId": "Register-of-Probate-a4117da8",
-              "optionId": "__write-in-0",
+              "optionId": "write-in-0",
               "optionIndex": 2,
               "type": "WriteIn",
             },
@@ -2910,7 +2910,7 @@ test('interpret marked', async () => {
               "optionIds": Array [
                 "Elizabeth-Ann-Moreau-aec07bb4",
                 "Elizabeth-Ropp-4035eed1",
-                "__write-in-0",
+                "write-in-0",
               ],
               "optionIndexes": Array [
                 0,
@@ -2921,7 +2921,7 @@ test('interpret marked', async () => {
             },
             Object {
               "contestId": "County-Commissioner-d6feed25",
-              "optionId": "__write-in-0",
+              "optionId": "write-in-0",
               "optionIndex": 2,
               "type": "WriteIn",
             },
@@ -2931,7 +2931,7 @@ test('interpret marked', async () => {
               "optionIds": Array [
                 "Michael-Soucy-b23f7c2d",
                 "Daniel-C-Hansberry-8c0291ec",
-                "__write-in-0",
+                "write-in-0",
               ],
               "optionIndexes": Array [
                 0,
@@ -3549,7 +3549,7 @@ test('interpret marked', async () => {
                 "y": 318,
               },
               "contestId": "Sheriff-4243fe0b",
-              "optionId": "__write-in-0",
+              "optionId": "write-in-0",
               "score": 0.18048780487804883,
               "scoredOffset": Object {
                 "x": 1,
@@ -3591,7 +3591,7 @@ test('interpret marked', async () => {
                 "y": 460,
               },
               "contestId": "County-Attorney-133f910f",
-              "optionId": "__write-in-0",
+              "optionId": "write-in-0",
               "score": 0.4878048780487805,
               "scoredOffset": Object {
                 "x": 3,
@@ -3633,7 +3633,7 @@ test('interpret marked', async () => {
                 "y": 606,
               },
               "contestId": "County-Treasurer-87d25a31",
-              "optionId": "__write-in-0",
+              "optionId": "write-in-0",
               "score": 0.31707317073170727,
               "scoredOffset": Object {
                 "x": 3,
@@ -3675,7 +3675,7 @@ test('interpret marked', async () => {
                 "y": 752,
               },
               "contestId": "Register-of-Deeds-a1278df2",
-              "optionId": "__write-in-0",
+              "optionId": "write-in-0",
               "score": 0.42195121951219516,
               "scoredOffset": Object {
                 "x": 3,
@@ -3717,7 +3717,7 @@ test('interpret marked', async () => {
                 "y": 896,
               },
               "contestId": "Register-of-Probate-a4117da8",
-              "optionId": "__write-in-0",
+              "optionId": "write-in-0",
               "score": 0.5390243902439025,
               "scoredOffset": Object {
                 "x": -3,
@@ -3759,7 +3759,7 @@ test('interpret marked', async () => {
                 "y": 1046,
               },
               "contestId": "County-Commissioner-d6feed25",
-              "optionId": "__write-in-0",
+              "optionId": "write-in-0",
               "score": 0.5804878048780489,
               "scoredOffset": Object {
                 "x": 0,
@@ -3821,7 +3821,7 @@ test('interpret marked', async () => {
               "partyId": "OC-3a386d2b",
             },
             Object {
-              "id": "__write-in-0",
+              "id": "write-in-0",
               "isWriteIn": true,
               "name": "Write-In #1",
             },
@@ -3838,7 +3838,7 @@ test('interpret marked', async () => {
               "partyId": "Democratic-aea20adb",
             },
             Object {
-              "id": "__write-in-0",
+              "id": "write-in-0",
               "isWriteIn": true,
               "name": "Write-In #1",
             },
@@ -3860,7 +3860,7 @@ test('interpret marked', async () => {
               "partyId": "OC-3a386d2b",
             },
             Object {
-              "id": "__write-in-0",
+              "id": "write-in-0",
               "isWriteIn": true,
               "name": "Write-In #1",
             },
@@ -3877,7 +3877,7 @@ test('interpret marked', async () => {
               "partyId": "Democratic-aea20adb",
             },
             Object {
-              "id": "__write-in-0",
+              "id": "write-in-0",
               "isWriteIn": true,
               "name": "Write-In #1",
             },
@@ -3894,7 +3894,7 @@ test('interpret marked', async () => {
               "partyId": "Democratic-aea20adb",
             },
             Object {
-              "id": "__write-in-0",
+              "id": "write-in-0",
               "isWriteIn": true,
               "name": "Write-In #1",
             },
@@ -3911,7 +3911,7 @@ test('interpret marked', async () => {
               "partyId": "Democratic-aea20adb",
             },
             Object {
-              "id": "__write-in-0",
+              "id": "write-in-0",
               "isWriteIn": true,
               "name": "Write-In #1",
             },
@@ -5616,7 +5616,7 @@ test('interpret unmarked', async () => {
                 "y": 582,
               },
               "contestId": "President-and-Vice-President-of-the-United-States-18d1a55a",
-              "optionId": "__write-in-0",
+              "optionId": "write-in-0",
               "score": 0.004878048780487809,
               "scoredOffset": Object {
                 "x": 1,
@@ -5658,7 +5658,7 @@ test('interpret unmarked', async () => {
                 "y": 777,
               },
               "contestId": "Governor-061a401b",
-              "optionId": "__write-in-0",
+              "optionId": "write-in-0",
               "score": 0.004878048780487809,
               "scoredOffset": Object {
                 "x": 1,
@@ -5700,7 +5700,7 @@ test('interpret unmarked', async () => {
                 "y": 924,
               },
               "contestId": "United-States-Senator-d3f1c75b",
-              "optionId": "__write-in-0",
+              "optionId": "write-in-0",
               "score": 0,
               "scoredOffset": Object {
                 "x": 1,
@@ -5742,7 +5742,7 @@ test('interpret unmarked', async () => {
                 "y": 1070,
               },
               "contestId": "Representative-in-Congress-24683b44",
-              "optionId": "__write-in-0",
+              "optionId": "write-in-0",
               "score": 0,
               "scoredOffset": Object {
                 "x": 1,
@@ -5784,7 +5784,7 @@ test('interpret unmarked', async () => {
                 "y": 1216,
               },
               "contestId": "Executive-Councilor-bb22557f",
-              "optionId": "__write-in-0",
+              "optionId": "write-in-0",
               "score": 0.009756097560975618,
               "scoredOffset": Object {
                 "x": 2,
@@ -5826,7 +5826,7 @@ test('interpret unmarked', async () => {
                 "y": 1364,
               },
               "contestId": "State-Senator-391381f8",
-              "optionId": "__write-in-0",
+              "optionId": "write-in-0",
               "score": 0.004878048780487809,
               "scoredOffset": Object {
                 "x": 2,
@@ -5868,7 +5868,7 @@ test('interpret unmarked', async () => {
                 "y": 1510,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "__write-in-10",
+              "optionId": "write-in-10",
               "score": 0,
               "scoredOffset": Object {
                 "x": 1,
@@ -5910,7 +5910,7 @@ test('interpret unmarked', async () => {
                 "y": 1608,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "__write-in-9",
+              "optionId": "write-in-9",
               "score": 0.0024390243902439046,
               "scoredOffset": Object {
                 "x": 2,
@@ -5952,7 +5952,7 @@ test('interpret unmarked', async () => {
                 "y": 1706,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "__write-in-8",
+              "optionId": "write-in-8",
               "score": 0.009756097560975618,
               "scoredOffset": Object {
                 "x": 1,
@@ -5994,7 +5994,7 @@ test('interpret unmarked', async () => {
                 "y": 1803,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "__write-in-7",
+              "optionId": "write-in-7",
               "score": 0.004878048780487809,
               "scoredOffset": Object {
                 "x": 1,
@@ -6036,7 +6036,7 @@ test('interpret unmarked', async () => {
                 "y": 1901,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "__write-in-6",
+              "optionId": "write-in-6",
               "score": 0.0024390243902439046,
               "scoredOffset": Object {
                 "x": 1,
@@ -6078,7 +6078,7 @@ test('interpret unmarked', async () => {
                 "y": 1999,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "__write-in-5",
+              "optionId": "write-in-5",
               "score": 0,
               "scoredOffset": Object {
                 "x": 1,
@@ -6120,7 +6120,7 @@ test('interpret unmarked', async () => {
                 "y": 2096,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "__write-in-4",
+              "optionId": "write-in-4",
               "score": 0,
               "scoredOffset": Object {
                 "x": 1,
@@ -6162,7 +6162,7 @@ test('interpret unmarked', async () => {
                 "y": 2193,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "__write-in-3",
+              "optionId": "write-in-3",
               "score": 0.004878048780487809,
               "scoredOffset": Object {
                 "x": 1,
@@ -6204,7 +6204,7 @@ test('interpret unmarked', async () => {
                 "y": 2290,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "__write-in-2",
+              "optionId": "write-in-2",
               "score": 0.0024390243902439046,
               "scoredOffset": Object {
                 "x": 0,
@@ -6246,7 +6246,7 @@ test('interpret unmarked', async () => {
                 "y": 2387,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "__write-in-1",
+              "optionId": "write-in-1",
               "score": 0,
               "scoredOffset": Object {
                 "x": 0,
@@ -6288,7 +6288,7 @@ test('interpret unmarked', async () => {
                 "y": 2484,
               },
               "contestId": "State-Representatives-7d3a8821",
-              "optionId": "__write-in-0",
+              "optionId": "write-in-0",
               "score": 0.007317073170731714,
               "scoredOffset": Object {
                 "x": 0,
@@ -6993,7 +6993,7 @@ test('interpret unmarked', async () => {
                 "y": 297,
               },
               "contestId": "Sheriff-4243fe0b",
-              "optionId": "__write-in-0",
+              "optionId": "write-in-0",
               "score": 0,
               "scoredOffset": Object {
                 "x": 1,
@@ -7035,7 +7035,7 @@ test('interpret unmarked', async () => {
                 "y": 444,
               },
               "contestId": "County-Attorney-133f910f",
-              "optionId": "__write-in-0",
+              "optionId": "write-in-0",
               "score": 0.007317073170731714,
               "scoredOffset": Object {
                 "x": 1,
@@ -7077,7 +7077,7 @@ test('interpret unmarked', async () => {
                 "y": 589,
               },
               "contestId": "County-Treasurer-87d25a31",
-              "optionId": "__write-in-0",
+              "optionId": "write-in-0",
               "score": 0.0024390243902439046,
               "scoredOffset": Object {
                 "x": 1,
@@ -7119,7 +7119,7 @@ test('interpret unmarked', async () => {
                 "y": 735,
               },
               "contestId": "Register-of-Deeds-a1278df2",
-              "optionId": "__write-in-0",
+              "optionId": "write-in-0",
               "score": 0,
               "scoredOffset": Object {
                 "x": 1,
@@ -7161,7 +7161,7 @@ test('interpret unmarked', async () => {
                 "y": 881,
               },
               "contestId": "Register-of-Probate-a4117da8",
-              "optionId": "__write-in-0",
+              "optionId": "write-in-0",
               "score": 0,
               "scoredOffset": Object {
                 "x": 1,
@@ -7203,7 +7203,7 @@ test('interpret unmarked', async () => {
                 "y": 1027,
               },
               "contestId": "County-Commissioner-d6feed25",
-              "optionId": "__write-in-0",
+              "optionId": "write-in-0",
               "score": 0.0024390243902439046,
               "scoredOffset": Object {
                 "x": 1,

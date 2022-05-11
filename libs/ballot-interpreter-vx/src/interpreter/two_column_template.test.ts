@@ -850,7 +850,7 @@ test('interpret two-column template', async () => {
       Object {
         "775020870": Array [
           Object {
-            "id": "__write-in-0",
+            "id": "write-in-0",
             "isWriteIn": true,
             "name": "Write-In",
           },

@@ -871,7 +871,7 @@ test('interprets marks in ballots', async () => {
         ],
         "4": Array [
           Object {
-            "id": "__write-in-0",
+            "id": "write-in-0",
             "isWriteIn": true,
             "name": "Write-In",
           },

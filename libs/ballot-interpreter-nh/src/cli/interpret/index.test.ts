@@ -297,7 +297,7 @@ test('interpret', async () => {
               {
                 type: 'candidate',
                 contestId: 'Representative-in-Congress-24683b44',
-                optionId: '__write-in-0',
+                optionId: 'write-in-0',
                 bounds: ignoredRect,
                 scoredOffset: { x: 0, y: 0 },
                 target: {

@@ -39,7 +39,7 @@ test('invalid marks', async () => {
           "partyId": "3",
         },
         Object {
-          "id": "__write-in-1",
+          "id": "write-in-1",
           "isWriteIn": true,
           "name": "Write-In",
         },
@@ -163,7 +163,7 @@ test('invalid marks', async () => {
           "y": 476,
         },
         "contestId": "dallas-county-commissioners-court-pct-3",
-        "optionId": "__write-in-0",
+        "optionId": "write-in-0",
         "score": 0,
         "scoredOffset": Object {
           "x": 0,
@@ -194,7 +194,7 @@ test('invalid marks', async () => {
           "y": 526,
         },
         "contestId": "dallas-county-commissioners-court-pct-3",
-        "optionId": "__write-in-1",
+        "optionId": "write-in-1",
         "score": 0,
         "scoredOffset": Object {
           "x": 0,
@@ -531,7 +531,7 @@ test('invalid marks', async () => {
           "y": 1037,
         },
         "contestId": "dallas-city-council",
-        "optionId": "__write-in-0",
+        "optionId": "write-in-0",
         "score": 0,
         "scoredOffset": Object {
           "x": 0,
@@ -562,7 +562,7 @@ test('invalid marks', async () => {
           "y": 1087,
         },
         "contestId": "dallas-city-council",
-        "optionId": "__write-in-1",
+        "optionId": "write-in-1",
         "score": 0.15403422982885084,
         "scoredOffset": Object {
           "x": 0,
@@ -593,7 +593,7 @@ test('invalid marks', async () => {
           "y": 1137,
         },
         "contestId": "dallas-city-council",
-        "optionId": "__write-in-2",
+        "optionId": "write-in-2",
         "score": 0.007371007371007371,
         "scoredOffset": Object {
           "x": 0,
@@ -686,7 +686,7 @@ test('invalid marks', async () => {
           "y": 333,
         },
         "contestId": "dallas-mayor",
-        "optionId": "__write-in-0",
+        "optionId": "write-in-0",
         "score": 0.0024691358024691358,
         "scoredOffset": Object {
           "x": 0,
