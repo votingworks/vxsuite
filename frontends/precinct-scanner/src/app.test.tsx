@@ -506,7 +506,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
     president: ['cramer-vuocolo'],
     senator: [],
     'secretary-of-state': ['shamsi', 'talarico'],
-    'county-registrar-of-wills': ['writein'],
+    'county-registrar-of-wills': ['write-in'],
     'judicial-robert-demergue': ['yes'],
   });
   const pollWorkerCard = makePollWorkerCard(
@@ -1382,7 +1382,7 @@ test('no printer: open polls, scan ballot, close polls, export results', async (
       president: ['cramer-vuocolo'],
       senator: [],
       'secretary-of-state': ['shamsi', 'talarico'],
-      'county-registrar-of-wills': ['writein'],
+      'county-registrar-of-wills': ['write-in'],
       'judicial-robert-demergue': ['yes'],
     },
     { overwriteRoutes: true }
