@@ -121,13 +121,18 @@ export interface Candidate {
   readonly partyId?: PartyId;
   readonly isWriteIn?: boolean;
 }
-export const CandidateSchema: z.ZodSchema<Candidate> = z.object({
-  _lang: TranslationsSchema.optional(),
-  id: CandidateIdSchema,
-  name: z.string().nonempty(),
-  partyId: PartyIdSchema.optional(),
-  isWriteIn: z.boolean().optional(),
-});
+export const CandidateSchema: z.ZodSchema<Candidate> = z
+  .object({
+    _lang: TranslationsSchema.optional(),
+    id: CandidateIdSchema,
+    name: z.string().nonempty(),
+    partyId: PartyIdSchema.optional(),
+    isWriteIn: z.boolean().optional(),
+  })
+  .refine(
+    ({ id, isWriteIn }) => isWriteIn || !id.startsWith('write-in'),
+    `Non-write-in candidate IDs must not start with 'write-in'`
+  );
 
 export interface WriteInCandidate {
   readonly id: WriteInId;

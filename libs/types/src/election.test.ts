@@ -14,6 +14,7 @@ import {
 } from '../test/election';
 import {
   CandidateContest,
+  CandidateSchema,
   expandEitherNeitherContests,
   getContestsFromIds,
   getEitherNeitherContests,
@@ -392,6 +393,31 @@ test('trying to vote in the top-level ms-either-neither contest fails', () => {
       '750000015-either-neither': ['yes'],
     });
   }).toThrowError();
+});
+
+test('candidate schema', () => {
+  // invalid IDs
+  safeParse(CandidateSchema, { id: '', name: 'Empty' }).unsafeUnwrapErr();
+  safeParse(CandidateSchema, {
+    id: '_abc',
+    name: 'Starts with underscore',
+  }).unsafeUnwrapErr();
+  safeParse(CandidateSchema, {
+    id: 'write-in',
+    name: 'Not a write-in',
+    isWriteIn: false,
+  }).unsafeUnwrapErr();
+
+  // valid IDs
+  safeParse(CandidateSchema, {
+    id: 'bob-loblaw',
+    name: 'Bob Loblaw',
+  }).unsafeUnwrap();
+  safeParse(CandidateSchema, {
+    id: 'write-in',
+    name: 'Write-in',
+    isWriteIn: true,
+  }).unsafeUnwrap();
 });
 
 test('write-in ID schema', () => {
