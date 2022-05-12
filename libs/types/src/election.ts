@@ -102,12 +102,12 @@ export type WriteInId =
   | `write-in-${string}`
   // TODO: Remove this in favor of `write-in-${string}` or some other unified
   // format for BMD and HMPB write-in IDs.
-  | `write-in__${string}`;
+  | `write-in-${string}`;
 export const WriteInIdSchema = z
   .string()
   .nonempty()
   .refine(
-    (id) => /^(write-in(-.+)?|write-in__(.+))$/.test(id),
+    (id) => /^(write-in(-.+)?|write-in-(.+))$/.test(id),
     `Write-In ID does not match expected format.`
   ) as z.ZodSchema<WriteInId>;
 export type CandidateId = Id | WriteInId;

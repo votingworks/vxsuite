@@ -218,7 +218,7 @@ test('generates a CVR from a completed BMD ballot with write in and overvotes', 
             },
             votes: vote(contests, {
               '1': {
-                id: 'write-in__PIKACHU',
+                id: 'write-in-PIKACHU',
                 name: 'Pikachu',
                 isWriteIn: true,
               },
@@ -235,7 +235,7 @@ test('generates a CVR from a completed BMD ballot with write in and overvotes', 
     ).toMatchInlineSnapshot(`
           Object {
             "1": Array [
-              "write-in__PIKACHU",
+              "write-in-PIKACHU",
             ],
             "2": Array [
               "21",

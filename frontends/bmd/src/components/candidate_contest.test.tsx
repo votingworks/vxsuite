@@ -198,7 +198,7 @@ describe('supports write-in candidates', () => {
     expect(screen.queryByText('Write-In Candidate')).toBeFalsy();
 
     expect(updateVote).toHaveBeenCalledWith(candidateContestWithWriteIns.id, [
-      { id: 'write-in__lizardPeople', isWriteIn: true, name: 'LIZARD PEOPLE' },
+      { id: 'write-in-lizardPeople', isWriteIn: true, name: 'LIZARD PEOPLE' },
     ]);
 
     act(() => {
@@ -265,7 +265,7 @@ describe('supports write-in candidates', () => {
 
     expect(updateVote).toHaveBeenCalledWith(candidateContestWithWriteIns.id, [
       {
-        id: 'write-in__jacobJohansonJingleheimmerSchmidttT',
+        id: 'write-in-jacobJohansonJingleheimmerSchmidttT',
         isWriteIn: true,
         name: 'JACOB JOHANSON JINGLEHEIMMER SCHMIDTT, T',
       },

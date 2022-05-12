@@ -127,7 +127,7 @@ test('going through the whole process works', async () => {
       // sample-batch-1-ballot-2.png
       expect.objectContaining({
         president: ['boone-lian'],
-        'county-commissioners': ['argent', 'bainbridge', 'write-in__BOB SMITH'],
+        'county-commissioners': ['argent', 'bainbridge', 'write-in-BOB SMITH'],
       }),
       // sample-batch-1-ballot-3.png
       expect.objectContaining({ president: ['barchi-hallaren'] }),

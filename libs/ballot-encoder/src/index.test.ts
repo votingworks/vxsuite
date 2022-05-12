@@ -749,7 +749,7 @@ it('encodes & decodes write-in votes correctly', () => {
   const contests = getContests({ ballotStyle, election });
   const votes = vote(contests, {
     'county-registrar-of-wills': [
-      { id: 'write-in__MICKEY MOUSE', name: 'MICKEY MOUSE', isWriteIn: true },
+      { id: 'write-in-MICKEY MOUSE', name: 'MICKEY MOUSE', isWriteIn: true },
     ],
   });
   const ballotId = unsafeParse(BallotIdSchema, 'abcde');
