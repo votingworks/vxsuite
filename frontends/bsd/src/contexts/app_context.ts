@@ -22,7 +22,6 @@ const appContext: AppContextInterface = {
   machineConfig: {
     machineId: '0000',
     codeVersion: '',
-    bypassAuthentication: false,
   },
   electionDefinition: undefined,
   electionHash: undefined,

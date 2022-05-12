@@ -79,9 +79,14 @@ const VALID_USERS: readonly UserRole[] = ['admin', 'superadmin'];
 export interface AppRootProps {
   card: Card;
   hardware: Hardware;
+  bypassAuthentication: boolean;
 }
 
-export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
+export function AppRoot({
+  card,
+  hardware,
+  bypassAuthentication,
+}: AppRootProps): JSX.Element {
   const logger = useMemo(
     () => new Logger(LogSource.VxCentralScanFrontend, window.kiosk),
     []
@@ -107,7 +112,6 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
   const [machineConfig, setMachineConfig] = useState<MachineConfig>({
     machineId: '0000',
     codeVersion: '',
-    bypassAuthentication: false,
   });
 
   const usbDrive = useUsbDrive({ logger });
@@ -125,7 +129,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
       smartcard,
       electionDefinition,
       persistAuthentication: true,
-      bypassAuthentication: machineConfig.bypassAuthentication,
+      bypassAuthentication,
       logger,
       validUserTypes: VALID_USERS,
     });

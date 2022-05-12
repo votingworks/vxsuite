@@ -13,6 +13,7 @@ import {
 import { AppRoot, Props as AppRootProps } from './app_root';
 
 import { machineConfigProvider } from './utils/machine_config';
+import { isAuthenticationEnabled } from './config/features';
 
 export interface Props {
   hardware?: AppRootProps['hardware'];
@@ -20,6 +21,7 @@ export interface Props {
   card?: AppRootProps['card'];
   machineConfig?: AppRootProps['machineConfig'];
   storage?: AppRootProps['storage'];
+  bypassAuthentication?: AppRootProps['bypassAuthentication'];
 }
 
 export function App({
@@ -28,15 +30,13 @@ export function App({
   storage = window.kiosk ? new KioskStorage(window.kiosk) : new LocalStorage(),
   printer = getPrinter(),
   machineConfig = machineConfigProvider,
+  bypassAuthentication = !isAuthenticationEnabled(),
 }: Props): JSX.Element {
   const [internalHardware, setInternalHardware] = useState(hardware);
   useEffect(() => {
-    function updateHardware() {
-      const newInternalHardware = getHardware();
-      setInternalHardware((prev) => prev ?? newInternalHardware);
-    }
-    void updateHardware();
-  });
+    const newInternalHardware = getHardware();
+    setInternalHardware((prev) => prev ?? newInternalHardware);
+  }, []);
 
   if (!internalHardware) {
     return <BrowserRouter />;
@@ -48,6 +48,7 @@ export function App({
         hardware={internalHardware}
         printer={printer}
         machineConfig={machineConfig}
+        bypassAuthentication={bypassAuthentication}
         storage={storage}
       />
     </BrowserRouter>

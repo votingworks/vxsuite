@@ -45,6 +45,7 @@ export function TallyScreen(): JSX.Element {
   const {
     castVoteRecordFiles,
     electionDefinition,
+    converter,
     isOfficialResults,
     saveIsOfficialResults,
     isTabulationRunning,
@@ -53,11 +54,9 @@ export function TallyScreen(): JSX.Element {
     resetFiles,
     logger,
     currentUserSession,
-    machineConfig,
   } = useContext(AppContext);
   assert(electionDefinition);
   const { election } = electionDefinition;
-  const { converter } = machineConfig;
   const isTestMode = castVoteRecordFiles?.fileMode === 'test';
   const externalFileInput = useRef<HTMLInputElement>(null);
 

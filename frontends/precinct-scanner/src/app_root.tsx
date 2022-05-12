@@ -83,6 +83,7 @@ export interface Props {
   storage: Storage;
   printer: Printer;
   machineConfig: Provider<MachineConfig>;
+  bypassAuthentication: boolean;
 }
 
 interface HardwareState {
@@ -120,7 +121,6 @@ const initialHardwareState: Readonly<HardwareState> = {
   machineConfig: {
     machineId: '0000',
     codeVersion: 'dev',
-    bypassAuthentication: false,
   },
 };
 
@@ -312,6 +312,7 @@ export function AppRoot({
   printer,
   storage,
   machineConfig: machineConfigProvider,
+  bypassAuthentication,
 }: Props): JSX.Element {
   const [appState, dispatchAppState] = useReducer(appReducer, initialAppState);
   const {
@@ -354,7 +355,7 @@ export function AppRoot({
       smartcard,
       electionDefinition,
       persistAuthentication: false,
-      bypassAuthentication: machineConfig.bypassAuthentication,
+      bypassAuthentication,
       logger,
       validUserTypes: VALID_USERS,
     }

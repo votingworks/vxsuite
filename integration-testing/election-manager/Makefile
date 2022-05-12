@@ -2,7 +2,6 @@ ELECTION_MANAGER := ../../frontends/election-manager
 SMARTCARDS := ../../services/smartcards
 SEMS := ../../services/converter-ms-sems
 export PIPENV_VENV_IN_PROJECT=1
-export BYPASS_AUTHENTICATION=true
 
 clean-downloads:
 	rm cypress/downloads/*

@@ -150,6 +150,7 @@ describe('Election Manager can create SEMS tallies', () => {
       ),
     ]);
     cy.visit('/');
+    cy.contains('Convert from SEMS files');
     cy.get('input[type="file"]').attachFile('electionWithMsEitherNeither.json');
     cy.contains('Election loading');
     cy.contains('abdfbe6a58');

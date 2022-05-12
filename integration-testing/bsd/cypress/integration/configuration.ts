@@ -1,13 +1,44 @@
+import { Buffer } from 'buffer';
+import { sha256 } from 'js-sha256';
+
+const PIN = '000000';
+
+function mockAdminCard() {
+  cy.readFile('cypress/fixtures/election.json', null).then(
+    (electionBytes: Uint8Array) => {
+      const electionData = Buffer.from(electionBytes).toString('utf-8');
+      cy.request('PUT', 'http://localhost:3001/mock', {
+        enabled: true,
+        shortValue: JSON.stringify({
+          t: 'admin',
+          h: sha256(electionBytes),
+          p: PIN,
+        }),
+        longValue: electionData,
+      });
+    }
+  );
+}
+
+function enterPin() {
+  for (const digit of PIN) {
+    cy.get(`button:contains(${digit})`).click();
+  }
+}
+
 describe('BSD and services/Scan', () => {
   beforeEach(() => {
     // Unconfigure services/scan
     cy.request('DELETE', '/config/election');
+    mockAdminCard();
     cy.visit('/');
+    enterPin();
     cy.contains('Load Election Configuration', { timeout: 10000 });
   });
 
   it('BSD can be configured with services/scan with an election JSON file', () => {
     cy.visit('/');
+    enterPin();
     cy.contains('Load Election Configuration');
     cy.get('input[type="file"]').attachFile('election.json');
     cy.contains('Close').click();
@@ -16,6 +47,7 @@ describe('BSD and services/Scan', () => {
 
   it('BSD can be configured with services/scan with a ZIP ballot package and can configure advanced options', () => {
     cy.visit('/');
+    enterPin();
     cy.contains('Load Election Configuration');
     cy.get('input[type="file"]').attachFile({
       filePath: 'ballot-package.zip',

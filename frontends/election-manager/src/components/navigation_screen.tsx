@@ -9,6 +9,10 @@ import {
   Screen,
   UsbControllerButton,
 } from '@votingworks/ui';
+import {
+  isAuthenticationEnabled,
+  isWriteInAdjudicationEnabled,
+} from '../config/features';
 import { AppContext } from '../contexts/app_context';
 
 import { routerPaths } from '../router_paths';
@@ -78,13 +82,15 @@ export function NavigationScreen({
               >
                 L&amp;A
               </LinkButton>
-              <LinkButton
-                small
-                to={routerPaths.writeIns}
-                className={isActiveSection(routerPaths.writeIns)}
-              >
-                Write-Ins
-              </LinkButton>
+              {isWriteInAdjudicationEnabled() && (
+                <LinkButton
+                  small
+                  to={routerPaths.writeIns}
+                  className={isActiveSection(routerPaths.writeIns)}
+                >
+                  Write-Ins
+                </LinkButton>
+              )}
               <LinkButton
                 small
                 to={routerPaths.tally}
@@ -120,7 +126,7 @@ export function NavigationScreen({
         }
         secondaryNav={
           <React.Fragment>
-            {!machineConfig.bypassAuthentication && (
+            {isAuthenticationEnabled() && (
               <Button small onPress={lockMachine}>
                 Lock Machine
               </Button>

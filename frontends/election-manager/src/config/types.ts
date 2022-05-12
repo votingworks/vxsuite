@@ -148,18 +148,17 @@ export type Iso8601Timestamp = string;
 
 export type ConverterClientType = 'ms-sems' | 'nh-accuvote';
 
+export const ConverterClientTypeSchema = z.union([
+  z.literal('ms-sems'),
+  z.literal('nh-accuvote'),
+]);
+
 export interface MachineConfig {
   machineId: string;
   codeVersion: string;
-  bypassAuthentication: boolean;
-  converter?: ConverterClientType;
 }
 
 export const MachineConfigSchema: z.ZodSchema<MachineConfig> = z.object({
   machineId: MachineId,
   codeVersion: z.string().nonempty(),
-  bypassAuthentication: z.boolean(),
-  converter: z
-    .union([z.literal('ms-sems'), z.literal('nh-accuvote')])
-    .optional(),
 });

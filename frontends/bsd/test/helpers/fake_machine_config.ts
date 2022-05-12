@@ -4,9 +4,8 @@ import { MachineConfig } from '../../src/config/types';
 export function fakeMachineConfig({
   machineId = '0000',
   codeVersion = 'TEST',
-  bypassAuthentication = true,
 }: Partial<MachineConfig> = {}): MachineConfig {
-  return { machineId, codeVersion, bypassAuthentication };
+  return { machineId, codeVersion };
 }
 
 export function fakeMachineConfigProvider(

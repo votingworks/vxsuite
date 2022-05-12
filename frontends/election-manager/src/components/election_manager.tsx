@@ -35,6 +35,7 @@ import { UnlockMachineScreen } from '../screens/unlock_machine_screen';
 import { AdvancedScreen } from '../screens/advanced_screen';
 import { WriteInsScreen } from '../screens/write_ins_screen';
 import { LogicAndAccuracyScreen } from '../screens/logic_and_accuracy_screen';
+import { isWriteInAdjudicationEnabled } from '../config/features';
 
 export function ElectionManager(): JSX.Element {
   const {
@@ -56,13 +57,13 @@ export function ElectionManager(): JSX.Element {
     return (
       <Switch>
         <Route exact path={routerPaths.root}>
-          <UnconfiguredScreen converter={machineConfig.converter} />
+          <UnconfiguredScreen />
         </Route>
         <Route exact path={routerPaths.advanced}>
           <AdvancedScreen />
         </Route>
         <Route exact path={routerPaths.electionDefinition}>
-          <UnconfiguredScreen converter={machineConfig.converter} />
+          <UnconfiguredScreen />
         </Route>
       </Switch>
     );
@@ -129,9 +130,11 @@ export function ElectionManager(): JSX.Element {
       <Route exact path={routerPaths.manualDataImport}>
         <ManualDataImportIndexScreen />
       </Route>
-      <Route exact path={routerPaths.writeIns}>
-        <WriteInsScreen />
-      </Route>
+      {isWriteInAdjudicationEnabled() && (
+        <Route exact path={routerPaths.writeIns}>
+          <WriteInsScreen />
+        </Route>
+      )}
       <Route
         path={routerPaths.manualDataImportForPrecinct({
           precinctId: ':precinctId',

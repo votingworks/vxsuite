@@ -19,7 +19,6 @@ const appContext: AppContextInterface = {
   machineConfig: {
     machineId: '0000',
     codeVersion: '',
-    bypassAuthentication: false,
   },
 };
 

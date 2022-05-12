@@ -140,7 +140,6 @@ export function PreviewDashboard({
         machineConfig: {
           codeVersion: 'preview',
           machineId: '000',
-          bypassAuthentication: false,
         },
         electionDefinition,
       }}

@@ -14,6 +14,7 @@ import {
   ExportableTallies,
   ResultsFileType,
   MachineConfig,
+  ConverterClientType,
 } from '../config/types';
 import {
   CastVoteRecordFiles,
@@ -26,6 +27,7 @@ export interface AppContextInterface {
   castVoteRecordFiles: CastVoteRecordFiles;
   electionDefinition?: ElectionDefinition;
   configuredAt?: Iso8601Timestamp;
+  converter?: ConverterClientType;
   isOfficialResults: boolean;
   printer: Printer;
   printBallotRef?: RefObject<HTMLElement>;
@@ -87,7 +89,6 @@ const appContext: AppContextInterface = {
   machineConfig: {
     machineId: '0000',
     codeVersion: '',
-    bypassAuthentication: false,
   },
   hasCardReaderAttached: true,
   logger: new Logger(LogSource.VxAdminFrontend),

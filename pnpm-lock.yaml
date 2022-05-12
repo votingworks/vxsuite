@@ -902,6 +902,9 @@ importers:
       express: ^4.17.1
       http-proxy-middleware: 1.0.6
   integration-testing/bsd:
+    dependencies:
+      buffer: 6.0.3
+      js-sha256: 0.9.0
     devDependencies:
       '@testing-library/cypress': 8.0.2_cypress@9.5.4
       '@typescript-eslint/eslint-plugin': 5.21.0_fbe1c70003501a3a5208745492f4edde
@@ -932,6 +935,7 @@ importers:
       '@typescript-eslint/eslint-plugin': ^5.21.0
       '@typescript-eslint/parser': ^5.21.0
       '@votingworks/fixtures': workspace:*
+      buffer: ^6.0.3
       cypress: ^9.5.4
       cypress-file-upload: ^5.0.7
       eslint: ^7.17.0
@@ -947,6 +951,7 @@ importers:
       eslint-plugin-vx: workspace:*
       is-ci-cli: ^2.1.2
       jest-environment-jsdom-sixteen: ^1.0.3
+      js-sha256: ^0.9.0
       lint-staged: ^10.5.4
       prettier: ^2.6.2
       sort-package-json: ^1.50.0
@@ -11958,7 +11963,7 @@ packages:
       integrity: sha512-/lqqLAmuIPi79WYfRpy2i8z+x+vxU3zX2uAm0gs1q52qTuKwolOj1P8XbufpXcsydrpKx2yGn2wzAnxCMV86QA==
   /axios/0.21.1_debug@4.3.1:
     dependencies:
-      follow-redirects: 1.14.1_debug@4.3.2
+      follow-redirects: 1.14.1_debug@4.3.1
     dev: true
     peerDependencies:
       debug: '*'
@@ -19701,7 +19706,6 @@ packages:
   /follow-redirects/1.14.1_debug@4.3.1:
     dependencies:
       debug: 4.3.1
-    dev: false
     engines:
       node: '>=4.0'
     peerDependencies:
@@ -19714,6 +19718,7 @@ packages:
   /follow-redirects/1.14.1_debug@4.3.2:
     dependencies:
       debug: 4.3.2_supports-color@6.1.0
+    dev: false
     engines:
       node: '>=4.0'
     peerDependencies:
