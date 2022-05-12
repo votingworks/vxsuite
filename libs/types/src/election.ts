@@ -97,17 +97,12 @@ export const DistrictsSchema = z
   });
 
 // Candidates
-export type WriteInId =
-  | `write-in`
-  | `write-in-${string}`
-  // TODO: Remove this in favor of `write-in-${string}` or some other unified
-  // format for BMD and HMPB write-in IDs.
-  | `write-in-${string}`;
+export type WriteInId = `write-in` | `write-in-${string}`;
 export const WriteInIdSchema = z
   .string()
   .nonempty()
   .refine(
-    (id) => /^(write-in(-.+)?|write-in-(.+))$/.test(id),
+    (id) => /^write-in(-.+)?$/.test(id),
     `Write-In ID does not match expected format.`
   ) as z.ZodSchema<WriteInId>;
 export type CandidateId = Id | WriteInId;

@@ -424,6 +424,8 @@ test('write-in ID schema', () => {
   // invalid IDs
   safeParse(WriteInIdSchema, '').unsafeUnwrapErr();
   safeParse(WriteInIdSchema, 'abc').unsafeUnwrapErr();
+  safeParse(WriteInIdSchema, '__write-in').unsafeUnwrapErr();
+  safeParse(WriteInIdSchema, 'writein').unsafeUnwrapErr();
 
   // valid IDs
   safeParse(WriteInIdSchema, 'write-in').unsafeUnwrap();
