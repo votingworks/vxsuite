@@ -282,6 +282,19 @@ exports[`L&A (logic and accuracy) flow 1`] = `
       6522
       .
     </div>
+    <div>
+      <h1>
+        Mocked HMPB
+      </h1>
+      Election: 
+      Mock General Election Choctaw 2020
+      <br />
+      Ballot Style 
+      5
+      , precinct 
+      6522
+      .
+    </div>
   </div>
   <div />
 </div>

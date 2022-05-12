@@ -264,3 +264,45 @@ export function generateBlankBallots({
 
   return ballots;
 }
+
+export function generateOvervoteBallot({
+  election,
+  precinctId,
+}: {
+  election: Election;
+  precinctId: PrecinctId;
+}): Dictionary<string | VotesDict> | undefined {
+  const precinctBallotStyles = election.ballotStyles.filter((bs) =>
+    bs.precincts.includes(precinctId)
+  );
+
+  const ballot: Dictionary<string | VotesDict> = { precinctId };
+  const votes: VotesDict = {};
+
+  for (const ballotStyle of precinctBallotStyles) {
+    const contests = election.contests.filter(
+      (c) =>
+        ballotStyle.districts.includes(c.districtId) &&
+        ballotStyle.partyId === c.partyId
+    );
+
+    for (const contest of contests) {
+      if (contest.type === 'yesno') {
+        votes[contest.id] = ['yes', 'no'];
+      } else if (contest.type === 'ms-either-neither') {
+        votes[contest.eitherNeitherContestId] = ['yes', 'no'];
+      } else if (
+        contest.type === 'candidate' &&
+        contest.candidates.length > contest.seats
+      ) {
+        votes[contest.id] = contest.candidates.slice(0, contest.seats + 1);
+      } else {
+        continue;
+      }
+
+      ballot.ballotStyleId = ballotStyle.id;
+      ballot.votes = votes;
+      return ballot;
+    }
+  }
+}
