@@ -142,7 +142,7 @@ const ContestHeader = styled.div`
   font-weight: 900;
 `;
 
-const MainChildColumns = styled.div`
+const MainChildFlexRow = styled.div`
   flex: 1;
   display: flex;
   margin-bottom: -1rem;
@@ -570,7 +570,7 @@ export function WriteInAdjudicationScreen({
     <Screen flexDirection="column">
       <MainNav />
       <Main padded>
-        <MainChildColumns>
+        <MainChildFlexRow>
           <Prose maxWidth={false}>
             <Header>Write-In Adjudication</Header>
             <form onSubmit={goNext}>
@@ -616,7 +616,7 @@ export function WriteInAdjudicationScreen({
             contestIds={allContestIds}
             styleForContest={styleForContest}
           />
-        </MainChildColumns>
+        </MainChildFlexRow>
       </Main>
     </Screen>
   );

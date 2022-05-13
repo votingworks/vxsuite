@@ -13,7 +13,7 @@ export function RemoveCardScreen(): JSX.Element {
   return (
     <Screen white>
       <Main>
-        <MainChild centerVertical maxWidth={false}>
+        <MainChild center maxWidth={false}>
           <Prose textCenter id="audiofocus">
             <p>Your votes have been saved to the card.</p>
             <p>

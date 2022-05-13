@@ -198,7 +198,7 @@ export function PrintOnlyScreen({
     <React.Fragment>
       <Screen white>
         <Main>
-          <MainChild centerVertical maxWidth={false}>
+          <MainChild center maxWidth={false}>
             <Prose textCenter>{renderContent()}</Prose>
             {!isVoterCardPresent && (
               <React.Fragment>

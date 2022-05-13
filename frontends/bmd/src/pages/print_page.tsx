@@ -86,7 +86,7 @@ export function PrintPage(): JSX.Element {
     <React.Fragment>
       <Screen white>
         <Main>
-          <MainChild centerVertical maxWidth={false}>
+          <MainChild center maxWidth={false}>
             <Prose textCenter id="audiofocus">
               <p>
                 <Graphic

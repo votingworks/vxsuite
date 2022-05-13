@@ -16,7 +16,7 @@ const Instructions = styled.ol`
   text-align: center;
   > li {
     flex: 1;
-    margin-right: 1em;
+    margin-right: 3em;
     &:last-child {
       margin-right: 0;
     }
@@ -44,8 +44,8 @@ export function CastBallotPage({
   return (
     <Screen white>
       <Main>
-        <MainChild centerVertical maxWidth={false}>
-          <Prose textCenter id="audiofocus" style={{ maxWidth: '65%' }}>
+        <MainChild center maxWidth={false}>
+          <Prose textCenter maxWidth={false} id="audiofocus">
             <h1 aria-label="You’re almost done.">You’re Almost Done</h1>
             <p>
               Your official ballot is printing. To finish voting you need to…

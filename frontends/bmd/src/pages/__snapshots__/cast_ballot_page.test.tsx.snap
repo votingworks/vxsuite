@@ -20,7 +20,7 @@ exports[`renders CastBallotPage 1`] = `
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
-  margin-right: 1em;
+  margin-right: 3em;
 }
 
 .c0 > li:last-child {
@@ -38,18 +38,17 @@ exports[`renders CastBallotPage 1`] = `
 }
 
 <div
-  class="sc-jObXwK cRVrKU"
+  class="sc-dPiKHq jMASbo"
 >
   <main
-    class="sc-cxpRKc iyrZoO"
+    class="sc-cxpRKc cybXeN"
   >
     <div
-      class="sc-llYToB beguda"
+      class="sc-llYToB hKvQah"
     >
       <div
-        class="sc-jRQAMF huupYJ"
+        class="sc-jRQAMF emGwAi"
         id="audiofocus"
-        style="max-width: 65%;"
       >
         <h1
           aria-label="You’re almost done."

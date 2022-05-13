@@ -1,46 +1,64 @@
 import React from 'react';
 import { render } from '@testing-library/react';
+import 'jest-styled-components';
 
-import { Main, MainChild } from './main';
+import { Main, MainChild, MainChildFlexRow } from './main';
 
 describe('renders Main', () => {
   test('with defaults', () => {
-    const { container } = render(
+    const { container, getByText } = render(
       <Main>
-        <MainChild>foo</MainChild>
+        <MainChild>MainChild</MainChild>
       </Main>
     );
-    expect(container.firstChild).toMatchSnapshot();
+    const main = container.firstChild;
+    expect(main).toHaveStyleRule('overflow', 'auto');
+    expect(main).not.toHaveStyleRule('padding');
+
+    const child = getByText('MainChild');
+    expect(child).not.toHaveStyleRule('display');
+    expect(child).not.toHaveStyleRule('flex');
+    expect(child).toHaveStyleRule('flex-direction', 'column');
+    expect(child).toHaveStyleRule('max-width', '35rem');
   });
 
   test('with all non-default Main options and common MainChild options', () => {
-    const { container } = render(
+    const { container, getByText } = render(
       <Main noOverflow padded>
         <MainChild center narrow>
-          foo
+          MainChild
         </MainChild>
       </Main>
     );
-    expect(container.firstChild).toMatchSnapshot();
+    const main = container.firstChild;
+    expect(main).not.toHaveStyleRule('overflow');
+    expect(main).toHaveStyleRule('padding', '1rem 0.5rem 2rem');
+
+    const child = getByText('MainChild');
+    expect(child).toHaveStyleRule('margin', 'auto');
+    expect(child).toHaveStyleRule('max-width', '50%');
   });
 
   test('with MainChild with no max width', () => {
-    const { container } = render(
+    const { getByText } = render(
       <Main>
         <MainChild flexContainer maxWidth={false}>
-          foo
+          MainChild
         </MainChild>
       </Main>
     );
-    expect(container.firstChild).toMatchSnapshot();
+    const child = getByText('MainChild');
+    expect(child).toHaveStyleRule('display', 'flex');
+    expect(child).toHaveStyleRule('flex', '1');
+    expect(child).not.toHaveStyleRule('max-width');
   });
 
-  test('with not centered content', () => {
-    const { container } = render(
-      <Main noOverflow>
-        <MainChild centerHorizontal={false}>foo</MainChild>
+  test('with columns in the main child', () => {
+    const { getByText } = render(
+      <Main>
+        <MainChildFlexRow>MainChildFlexRow</MainChildFlexRow>
       </Main>
     );
-    expect(container.firstChild).toMatchSnapshot();
+    expect(getByText('MainChildFlexRow')).not.toHaveStyleRule('flex-direction');
   });
 });
