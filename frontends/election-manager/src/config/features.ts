@@ -25,7 +25,7 @@ export function isAuthenticationEnabled(): boolean {
  *
  * To enable write-in adjudication, add this line to `frontends/election-manager/.env.local`:
  *
- *     REACT_APP_VX_WRITE_IN_ADJUDICATION=true
+ *     REACT_APP_VX_ENABLE_WRITE_IN_ADJUDICATION=true
  *
  * To disable it, remove the line or comment it out. Restarting the server is required.
  *
