@@ -1,6 +1,7 @@
 import {
   ContestTally,
   LogoMark,
+  Prose,
   ReportSection,
   TallyReport,
   TallyReportColumns,
@@ -22,7 +23,6 @@ import { filterTalliesByParams, find } from '@votingworks/utils';
 import React, { forwardRef } from 'react';
 
 import { filterExternalTalliesByParams } from '../utils/external_tallies';
-import { Prose } from './prose';
 
 export interface Props {
   batchId?: string;

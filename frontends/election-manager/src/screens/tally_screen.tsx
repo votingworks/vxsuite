@@ -13,7 +13,7 @@ import {
   format,
   find,
 } from '@votingworks/utils';
-import { Table, TD, Modal, useCancelablePromise } from '@votingworks/ui';
+import { Table, TD, Modal, useCancelablePromise, Prose } from '@votingworks/ui';
 import { TallyCategory, ExternalTallySourceType } from '@votingworks/types';
 import { LogEventId } from '@votingworks/logging';
 import { InputEventFunction, ResultsFileType } from '../config/types';
@@ -28,7 +28,6 @@ import { Loading } from '../components/loading';
 import { NavigationScreen } from '../components/navigation_screen';
 import { routerPaths } from '../router_paths';
 import { LinkButton } from '../components/link_button';
-import { Prose } from '../components/prose';
 import { ImportCvrFilesModal } from '../components/import_cvrfiles_modal';
 import { BallotCountsTable } from '../components/ballot_counts_table';
 import { FileInputButton } from '../components/file_input_button';

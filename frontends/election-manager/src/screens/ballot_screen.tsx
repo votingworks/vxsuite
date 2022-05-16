@@ -18,6 +18,7 @@ import {
 import pluralize from 'pluralize';
 
 import { LogEventId } from '@votingworks/logging';
+import { Prose } from '@votingworks/ui';
 import {
   BallotScreenProps,
   InputEventFunction,
@@ -35,7 +36,6 @@ import { DEFAULT_LOCALE } from '../config/globals';
 import { routerPaths } from '../router_paths';
 import { TextInput } from '../components/text_input';
 import { LinkButton } from '../components/link_button';
-import { Prose } from '../components/prose';
 import { getBallotLayoutPageSize } from '../utils/get_ballot_layout_page_size';
 import { generateFileContentToSaveAsPdf } from '../utils/save_as_pdf';
 import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';

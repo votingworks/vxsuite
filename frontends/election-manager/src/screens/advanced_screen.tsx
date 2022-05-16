@@ -1,9 +1,13 @@
 import React, { useContext, useState } from 'react';
-import { Button, CurrentDateAndTime, SetClockButton } from '@votingworks/ui';
+import {
+  Button,
+  CurrentDateAndTime,
+  SetClockButton,
+  Prose,
+} from '@votingworks/ui';
 import { LogFileType } from '@votingworks/utils';
 
 import { NavigationScreen } from '../components/navigation_screen';
-import { Prose } from '../components/prose';
 import { AppContext } from '../contexts/app_context';
 import { ExportLogsModal } from '../components/export_logs_modal';
 

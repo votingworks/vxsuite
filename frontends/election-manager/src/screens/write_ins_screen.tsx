@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 
-import { Button, Modal } from '@votingworks/ui';
+import { Button, Modal, Prose } from '@votingworks/ui';
 import {
   CandidateContest,
   ContestId,
@@ -9,7 +9,6 @@ import {
 } from '@votingworks/types';
 
 import { NavigationScreen } from '../components/navigation_screen';
-import { Prose } from '../components/prose';
 import { WriteInsTranscriptionScreen } from './write_ins_transcription_screen';
 import { AppContext } from '../contexts/app_context';
 

@@ -5,7 +5,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
   aria-hidden="true"
 >
   <div
-    class="sc-dPiKHq jMNgr"
+    class="sc-bBHHQT kGZyAR"
   >
     <div
       class="sc-bdfBwQ gqAMTS"
@@ -91,13 +91,13 @@ exports[`L&A (logic and accuracy) flow 1`] = `
       </div>
     </div>
     <main
-      class="sc-cxpRKc eTlhkD"
+      class="sc-llYToB bWlGom"
     >
       <div
-        class="sc-llYToB cajSEW"
+        class="sc-iJKOzS gxJGfI"
       >
         <div
-          class="sc-jrAGrp btWnEo"
+          class="sc-jRQAMF boeJiV"
         >
           <h1>
             Test Decks
@@ -285,7 +285,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
   aria-hidden="true"
 >
   <div
-    class="sc-dPiKHq jMNgr"
+    class="sc-bBHHQT kGZyAR"
   >
     <div
       class="sc-bdfBwQ gqAMTS"
@@ -371,10 +371,10 @@ exports[`L&A (logic and accuracy) flow 2`] = `
       </div>
     </div>
     <main
-      class="sc-cxpRKc eTlhkD"
+      class="sc-llYToB bWlGom"
     >
       <div
-        class="sc-llYToB cajSEW"
+        class="sc-iJKOzS gxJGfI"
       >
         <div>
           <strong>
@@ -384,10 +384,10 @@ exports[`L&A (logic and accuracy) flow 2`] = `
           Mock General Election Choctaw 2020
         </div>
         <div
-          class="sc-jrAGrp btWnEo"
+          class="sc-jRQAMF boeJiV"
         >
           <h1
-            class="sc-jJoQpE dXTmzO"
+            class="sc-hiCivh dHgPQk"
             style="margin-bottom: 0.75em; margin-top: 0.25em;"
           >
             
@@ -515,11 +515,11 @@ exports[`L&A (logic and accuracy) flow 2`] = `
     class="print-only"
   >
     <section
-      class="sc-ikJzcn gFcHpk"
+      class="sc-jJoQpE jrcdmY"
     >
       <img
         alt="VotingWorks logo"
-        class="sc-iwjezw cKifuT"
+        class="sc-cxpRKc kqUdsO"
         src="/votingworks-wordmark-black.svg"
       />
       <div>
@@ -530,10 +530,10 @@ exports[`L&A (logic and accuracy) flow 2`] = `
          Mock General Election Choctaw 2020
       </div>
       <div
-        class="sc-jrAGrp fBQAfz"
+        class="sc-jRQAMF foBEwC"
       >
         <h1
-          class="sc-jJoQpE dXTmzO"
+          class="sc-hiCivh dHgPQk"
           style="margin-bottom: 0.75em; margin-top: 0.25em;"
         >
           
@@ -559,7 +559,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
         </p>
       </div>
       <div
-        class="sc-hiCivh hqTCjy"
+        class="sc-gWXaA-D kNngbK"
       >
         <div
           class="sc-hGPAah dymfDz"
@@ -1660,16 +1660,16 @@ House Bill 1796 - Flag Referendum
 
 exports[`tabulating CVRs 1`] = `
 <section
-  class="sc-ikJzcn gFcHpk"
+  class="sc-jJoQpE jrcdmY"
   data-testid="election-full-tally-report"
 >
   <img
     alt="VotingWorks logo"
-    class="sc-iwjezw cKifuT"
+    class="sc-cxpRKc kqUdsO"
     src="/votingworks-wordmark-black.svg"
   />
   <div
-    class="sc-jrAGrp fBQAfz"
+    class="sc-jRQAMF foBEwC"
   >
     <h1>
       Official
@@ -1693,10 +1693,10 @@ exports[`tabulating CVRs 1`] = `
     </p>
   </div>
   <div
-    class="sc-hiCivh hqTCjy"
+    class="sc-gWXaA-D kNngbK"
   >
     <div
-      class="sc-efQUeY fyTYfm"
+      class="sc-cTApHj bQrcJt"
     >
       <h3>
         Ballots by Voting Method
@@ -2851,16 +2851,16 @@ House Bill 1796 - Flag Referendum
 
 exports[`tabulating CVRs with SEMS file 1`] = `
 <section
-  class="sc-ikJzcn gFcHpk"
+  class="sc-jJoQpE jrcdmY"
   data-testid="election-full-tally-report"
 >
   <img
     alt="VotingWorks logo"
-    class="sc-iwjezw cKifuT"
+    class="sc-cxpRKc kqUdsO"
     src="/votingworks-wordmark-black.svg"
   />
   <div
-    class="sc-jrAGrp fBQAfz"
+    class="sc-jRQAMF foBEwC"
   >
     <h1>
       Unofficial
@@ -2884,10 +2884,10 @@ exports[`tabulating CVRs with SEMS file 1`] = `
     </p>
   </div>
   <div
-    class="sc-hiCivh hqTCjy"
+    class="sc-gWXaA-D kNngbK"
   >
     <div
-      class="sc-efQUeY fyTYfm"
+      class="sc-cTApHj bQrcJt"
     >
       <h3>
         Ballots by Voting Method

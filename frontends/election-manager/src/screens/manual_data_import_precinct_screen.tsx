@@ -17,15 +17,13 @@ import {
   ContestId,
 } from '@votingworks/types';
 
-import { Table, TD } from '@votingworks/ui';
+import { Table, TD, Prose } from '@votingworks/ui';
 
 import { LogEventId } from '@votingworks/logging';
 import { ManualDataPrecinctScreenProps } from '../config/types';
 import { routerPaths } from '../router_paths';
 
 import { AppContext } from '../contexts/app_context';
-
-import { Prose } from '../components/prose';
 import { Button } from '../components/button';
 import { LinkButton } from '../components/link_button';
 

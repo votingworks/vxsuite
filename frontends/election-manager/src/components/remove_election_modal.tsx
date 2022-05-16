@@ -1,10 +1,9 @@
 import React, { useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 
-import { Modal } from '@votingworks/ui';
+import { Modal, Prose } from '@votingworks/ui';
 import { AppContext } from '../contexts/app_context';
 import { routerPaths } from '../router_paths';
-import { Prose } from './prose';
 import { Button } from './button';
 
 export interface Props {

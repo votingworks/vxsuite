@@ -6,12 +6,12 @@ import fileDownload from 'js-file-download';
 import dashify from 'dashify';
 
 import { safeParseElection } from '@votingworks/types';
+import { Prose } from '@votingworks/ui';
 import { AppContext } from '../contexts/app_context';
 
 import { Button } from '../components/button';
 import { Textarea } from '../components/textarea';
 import { ButtonBar } from '../components/button_bar';
-import { Prose } from '../components/prose';
 import { NavigationScreen } from '../components/navigation_screen';
 import { TextareaEventFunction } from '../config/types';
 import { RemoveElectionModal } from '../components/remove_election_modal';

@@ -7,6 +7,7 @@ export * from './button_list';
 export * from './contest_tally';
 export * from './election_info_bar';
 export * from './globals';
+export * from './hand_marked_paper_ballot_prose';
 export * from './hooks/use_autocomplete';
 export * from './hooks/use_cancelable_promise';
 export * from './hooks/use_devices';
