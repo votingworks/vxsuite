@@ -79,11 +79,7 @@ describe('generateOvervoteBallot adds an overvote conflict when possible', () =>
     const election = _.cloneDeep(electionSample);
 
     // removes all but the first contest
-    const removeContests = [
-      ...Array.from({ length: election.contests.length }).keys(),
-    ];
-    removeContests.shift();
-    _.pullAt(election.contests, removeContests);
+    _.remove(election.contests, (c) => c.id !== 'president');
 
     // remove all but one candidate from first contest
     const skippedContest = election.contests[0] as CandidateContest;
