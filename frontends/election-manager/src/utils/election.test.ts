@@ -19,7 +19,7 @@ test('getBallotPath allows digits in file names', () => {
   );
 });
 
-describe('generateOvervoteBallot adds an overvote conflict when possible', () => {
+describe('generateOvervoteBallot', () => {
   const precinctId = electionSample.precincts[0].id;
 
   test('minimally overvotes an initial candidate contest', () => {
@@ -30,10 +30,10 @@ describe('generateOvervoteBallot adds an overvote conflict when possible', () =>
     expect(overvoteBallot).toBeDefined();
 
     const votes = overvoteBallot!.votes as VotesDict;
-    const overvoteContestId = electionSample.contests[0].id;
-
-    expect(Object.keys(votes)).toEqual([overvoteContestId]);
-    expect(votes[overvoteContestId]?.length).toEqual(2);
+    const presidential = electionSample.contests[0] as CandidateContest;
+    expect(votes).toEqual({
+      president: [presidential.candidates[0], presidential.candidates[1]],
+    });
   });
 
   test('overvotes an initial yes-no contest', () => {
@@ -49,18 +49,15 @@ describe('generateOvervoteBallot adds an overvote conflict when possible', () =>
     expect(overvoteBallot).toBeDefined();
 
     const votes = overvoteBallot!.votes as VotesDict;
-    const overvoteContestId = election.contests[0].id;
-
-    expect(Object.keys(votes)).toEqual([overvoteContestId]);
-    expect(votes[overvoteContestId]).toEqual(['yes', 'no']);
+    expect(votes).toEqual({ 'judicial-robert-demergue': ['yes', 'no'] });
   });
 
   test('overvotes the second contest if first contest is not overvotable', () => {
     const election = _.cloneDeep(electionSample);
 
     // remove all but one candidate from first contest
-    const skippedContest = election.contests[0] as CandidateContest;
-    _.remove(skippedContest.candidates, (c) => c.partyId !== '0');
+    const presidential = election.contests[0] as CandidateContest;
+    _.remove(presidential.candidates, (c) => c.partyId !== '0');
 
     const overvoteBallot = generateOvervoteBallot({
       election,
@@ -69,10 +66,10 @@ describe('generateOvervoteBallot adds an overvote conflict when possible', () =>
     expect(overvoteBallot).toBeDefined();
 
     const votes = overvoteBallot!.votes as VotesDict;
-    const overvoteContestId = election.contests[1].id;
-
-    expect(Object.keys(votes)).toEqual([overvoteContestId]);
-    expect(votes[overvoteContestId]?.length).toEqual(2);
+    const senatorial = election.contests[1] as CandidateContest;
+    expect(votes).toEqual({
+      senator: [senatorial.candidates[0], senatorial.candidates[1]],
+    });
   });
 
   test('returns undefined if there are no overvotable contests', () => {
