@@ -65,6 +65,7 @@ const ReactModalOverlay = styled('div')<ReactModalOverlayInterface>`
 
 interface ModalContentInterface {
   centerContent?: boolean;
+  fullscreen?: boolean;
 }
 
 const ModalContent = styled('div')<ModalContentInterface>`
@@ -76,7 +77,7 @@ const ModalContent = styled('div')<ModalContentInterface>`
   justify-content: ${({ centerContent = false }) =>
     centerContent ? 'center' : undefined};
   overflow: auto;
-  padding: 2rem;
+  padding: ${({ fullscreen }) => !fullscreen && '2rem'};
 `;
 
 interface Props {
@@ -164,7 +165,9 @@ export function Modal({
       className="_"
       overlayClassName="_"
     >
-      <ModalContent centerContent={centerContent}>{content}</ModalContent>
+      <ModalContent centerContent={centerContent} fullscreen={fullscreen}>
+        {content}
+      </ModalContent>
       {actions && <ButtonBar as="div">{actions}</ButtonBar>}
     </ReactModal>
   );
