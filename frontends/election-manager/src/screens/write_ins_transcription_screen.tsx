@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import {
   CandidateContest,
   Election,
-  getPartyAbbrevationByPartyId,
+  getPartyAbbreviationByPartyId,
 } from '@votingworks/types';
 import { Button, Main, MainChild, Screen, Text } from '@votingworks/ui';
 import { assert } from '@votingworks/utils';
@@ -119,7 +119,7 @@ export function WriteInsTranscriptionScreen({
                   <Text bold>{contest.section}</Text>
                   <h1>
                     {contest.title} (
-                    {getPartyAbbrevationByPartyId({
+                    {getPartyAbbreviationByPartyId({
                       partyId: contest.partyId,
                       election,
                     })}
