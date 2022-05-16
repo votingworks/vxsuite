@@ -6,7 +6,7 @@ import {
   Election,
   getPartyAbbreviationByPartyId,
 } from '@votingworks/types';
-import { Button, Main, MainChild, Screen, Text } from '@votingworks/ui';
+import { Button, Main, MainChildFlexRow, Screen, Text } from '@votingworks/ui';
 import { assert } from '@votingworks/utils';
 import { Navigation } from '../components/navigation';
 import { TextInput } from '../components/text_input';
@@ -110,7 +110,7 @@ export function WriteInsTranscriptionScreen({
         }
       />
       <Main>
-        <MainChild maxWidth={false} flexContainer flexDirection="row">
+        <MainChildFlexRow>
           <BallotPreviews>BALLOT IMAGES GO HERE</BallotPreviews>
           <TranscriptionContainer>
             <TranscriptionMainContentContainer>
@@ -152,7 +152,7 @@ export function WriteInsTranscriptionScreen({
               <Button onPress={onClickNext}>Next</Button>
             </TranscriptionPaginationContainer>
           </TranscriptionContainer>
-        </MainChild>
+        </MainChildFlexRow>
       </Main>
     </Screen>
   );
