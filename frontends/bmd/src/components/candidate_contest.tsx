@@ -15,7 +15,7 @@ import {
   Parties,
   getPrecinctIndexById,
 } from '@votingworks/types';
-import { Button, Main, Modal, Prose } from '@votingworks/ui';
+import { Button, Main, MainChild, Modal, Prose } from '@votingworks/ui';
 import { assert, getContestCandidatesInRotatedOrder } from '@votingworks/utils';
 
 import { findPartyById } from '../utils/find';
@@ -306,152 +306,156 @@ export function CandidateContest({
   return (
     <React.Fragment>
       <Main>
-        <ContentHeader isCandidateStyle id="contest-header">
-          <Prose id="audiofocus">
-            <h1 aria-label={`${contest.section} ${contest.title}.`}>
-              <ContestSection>{contest.section}</ContestSection>
-              {contest.title}
-            </h1>
-            <p>
-              <Text as="span">Vote for {contest.seats}.</Text>{' '}
-              {vote.length === contest.seats && (
-                <Text as="span" bold>
-                  You have selected {contest.seats}.
-                </Text>
-              )}
-              {vote.length < contest.seats && vote.length !== 0 && (
-                <Text as="span" bold>
-                  You may select {contest.seats - vote.length} more.
-                </Text>
-              )}
-              <span className="screen-reader-only">
-                To navigate through the contest choices, use the down button. To
-                move to the next contest, use the right button.
-              </span>
-            </p>
-          </Prose>
-        </ContentHeader>
-        <VariableContentContainer
-          showTopShadow={!isScrollAtTop}
-          showBottomShadow={!isScrollAtBottom}
-        >
-          <ScrollContainer
-            ref={scrollContainer}
-            onScroll={updateContestChoicesScrollStates}
+        <MainChild flexContainer maxWidth={false}>
+          <ContentHeader isCandidateStyle id="contest-header">
+            <Prose id="audiofocus">
+              <h1 aria-label={`${contest.section} ${contest.title}.`}>
+                <ContestSection>{contest.section}</ContestSection>
+                {contest.title}
+              </h1>
+              <p>
+                <Text as="span">Vote for {contest.seats}.</Text>{' '}
+                {vote.length === contest.seats && (
+                  <Text as="span" bold>
+                    You have selected {contest.seats}.
+                  </Text>
+                )}
+                {vote.length < contest.seats && vote.length !== 0 && (
+                  <Text as="span" bold>
+                    You may select {contest.seats - vote.length} more.
+                  </Text>
+                )}
+                <span className="screen-reader-only">
+                  To navigate through the contest choices, use the down button.
+                  To move to the next contest, use the right button.
+                </span>
+              </p>
+            </Prose>
+          </ContentHeader>
+          <VariableContentContainer
+            showTopShadow={!isScrollAtTop}
+            showBottomShadow={!isScrollAtBottom}
           >
-            <ScrollableContentWrapper isScrollable={isScrollable}>
-              <ChoicesGrid>
-                {rotatedCandidates.map((candidate) => {
-                  const isChecked = !!findCandidateById(vote, candidate.id);
-                  const isDisabled = hasReachedMaxSelections && !isChecked;
-                  function handleDisabledClick() {
-                    handleChangeVoteAlert(candidate);
-                  }
-                  const party =
-                    candidate.partyId &&
-                    findPartyById(parties, candidate.partyId);
-                  let prefixAudioText = '';
-                  if (isChecked) {
-                    prefixAudioText = 'Selected,';
-                  } else if (deselectedCandidate === candidate.id) {
-                    prefixAudioText = 'Deselected,';
-                  }
-                  return (
+            <ScrollContainer
+              ref={scrollContainer}
+              onScroll={updateContestChoicesScrollStates}
+            >
+              <ScrollableContentWrapper isScrollable={isScrollable}>
+                <ChoicesGrid>
+                  {rotatedCandidates.map((candidate) => {
+                    const isChecked = !!findCandidateById(vote, candidate.id);
+                    const isDisabled = hasReachedMaxSelections && !isChecked;
+                    function handleDisabledClick() {
+                      handleChangeVoteAlert(candidate);
+                    }
+                    const party =
+                      candidate.partyId &&
+                      findPartyById(parties, candidate.partyId);
+                    let prefixAudioText = '';
+                    if (isChecked) {
+                      prefixAudioText = 'Selected,';
+                    } else if (deselectedCandidate === candidate.id) {
+                      prefixAudioText = 'Deselected,';
+                    }
+                    return (
+                      <ChoiceButton
+                        key={candidate.id}
+                        isSelected={isChecked}
+                        onPress={
+                          isDisabled
+                            ? handleDisabledClick
+                            : handleUpdateSelection
+                        }
+                        choice={candidate.id}
+                        aria-label={`${prefixAudioText} ${stripQuotes(
+                          candidate.name
+                        )}${party ? `, ${party.name}` : ''}.`}
+                      >
+                        <Prose>
+                          <Text wordBreak>
+                            <strong>{candidate.name}</strong>
+                            {party && (
+                              <React.Fragment>
+                                <br />
+                                {party.name}
+                              </React.Fragment>
+                            )}
+                          </Text>
+                        </Prose>
+                      </ChoiceButton>
+                    );
+                  })}
+                  {contest.allowWriteIns &&
+                    vote
+                      .filter((c) => c.isWriteIn)
+                      .map((candidate) => {
+                        return (
+                          <ChoiceButton
+                            key={candidate.id}
+                            isSelected
+                            choice={candidate.id}
+                            onPress={handleUpdateSelection}
+                          >
+                            <Prose>
+                              <p
+                                aria-label={`Selected, write-in: ${candidate.name}.`}
+                              >
+                                <strong>{candidate.name}</strong>
+                              </p>
+                            </Prose>
+                          </ChoiceButton>
+                        );
+                      })}
+                  {contest.allowWriteIns && (
                     <ChoiceButton
-                      key={candidate.id}
-                      isSelected={isChecked}
+                      choice="write-in"
+                      isSelected={false}
                       onPress={
-                        isDisabled ? handleDisabledClick : handleUpdateSelection
+                        hasReachedMaxSelections
+                          ? handleDisabledAddWriteInClick
+                          : initWriteInCandidate
                       }
-                      choice={candidate.id}
-                      aria-label={`${prefixAudioText} ${stripQuotes(
-                        candidate.name
-                      )}${party ? `, ${party.name}` : ''}.`}
                     >
                       <Prose>
-                        <Text wordBreak>
-                          <strong>{candidate.name}</strong>
-                          {party && (
-                            <React.Fragment>
-                              <br />
-                              {party.name}
-                            </React.Fragment>
-                          )}
-                        </Text>
+                        <p aria-label="add write-in candidate.">
+                          <em>add write-in candidate</em>
+                        </p>
                       </Prose>
                     </ChoiceButton>
-                  );
-                })}
-                {contest.allowWriteIns &&
-                  vote
-                    .filter((c) => c.isWriteIn)
-                    .map((candidate) => {
-                      return (
-                        <ChoiceButton
-                          key={candidate.id}
-                          isSelected
-                          choice={candidate.id}
-                          onPress={handleUpdateSelection}
-                        >
-                          <Prose>
-                            <p
-                              aria-label={`Selected, write-in: ${candidate.name}.`}
-                            >
-                              <strong>{candidate.name}</strong>
-                            </p>
-                          </Prose>
-                        </ChoiceButton>
-                      );
-                    })}
-                {contest.allowWriteIns && (
-                  <ChoiceButton
-                    choice="write-in"
-                    isSelected={false}
-                    onPress={
-                      hasReachedMaxSelections
-                        ? handleDisabledAddWriteInClick
-                        : initWriteInCandidate
-                    }
+                  )}
+                </ChoicesGrid>
+              </ScrollableContentWrapper>
+            </ScrollContainer>
+            {
+              /* istanbul ignore next: Tested by Cypress */ isScrollable && (
+                <ScrollControls aria-hidden>
+                  <Button
+                    className="scroll-up"
+                    large
+                    primary
+                    aria-hidden
+                    data-direction="up"
+                    disabled={isScrollAtTop}
+                    onPress={scrollContestChoices}
                   >
-                    <Prose>
-                      <p aria-label="add write-in candidate.">
-                        <em>add write-in candidate</em>
-                      </p>
-                    </Prose>
-                  </ChoiceButton>
-                )}
-              </ChoicesGrid>
-            </ScrollableContentWrapper>
-          </ScrollContainer>
-          {
-            /* istanbul ignore next: Tested by Cypress */ isScrollable && (
-              <ScrollControls aria-hidden>
-                <Button
-                  className="scroll-up"
-                  large
-                  primary
-                  aria-hidden
-                  data-direction="up"
-                  disabled={isScrollAtTop}
-                  onPress={scrollContestChoices}
-                >
-                  <span>See More</span>
-                </Button>
-                <Button
-                  className="scroll-down"
-                  large
-                  primary
-                  aria-hidden
-                  data-direction="down"
-                  disabled={isScrollAtBottom}
-                  onPress={scrollContestChoices}
-                >
-                  <span>See More</span>
-                </Button>
-              </ScrollControls>
-            )
-          }
-        </VariableContentContainer>
+                    <span>See More</span>
+                  </Button>
+                  <Button
+                    className="scroll-down"
+                    large
+                    primary
+                    aria-hidden
+                    data-direction="down"
+                    disabled={isScrollAtBottom}
+                    onPress={scrollContestChoices}
+                  >
+                    <span>See More</span>
+                  </Button>
+                </ScrollControls>
+              )
+            }
+          </VariableContentContainer>
+        </MainChild>
       </Main>
       {attemptedOvervoteCandidate && (
         <Modal

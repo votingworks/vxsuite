@@ -30,7 +30,7 @@ export function SaveCardScreen(): JSX.Element {
   return (
     <Screen white>
       <Main>
-        <MainChild centerVertical maxWidth={false}>
+        <MainChild center maxWidth={false}>
           <Prose textCenter id="audiofocus">
             <ProgressBar progress={progress} duration={saveDelay} />
             <h1>

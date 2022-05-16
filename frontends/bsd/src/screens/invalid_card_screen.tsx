@@ -15,7 +15,7 @@ export function InvalidCardScreen(): JSX.Element {
   return (
     <Screen flexDirection="column">
       <Main padded>
-        <MainChild maxWidth={false} centerHorizontal centerVertical>
+        <MainChild center maxWidth={false}>
           <Prose textCenter theme={fontSizeTheme.medium} maxWidth={false}>
             <h1>Invalid Card</h1>
             <p>

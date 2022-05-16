@@ -17,6 +17,7 @@ import {
   DisplayTextForYesOrNo,
   Main,
   Modal,
+  MainChild,
   Prose,
 } from '@votingworks/ui';
 
@@ -151,106 +152,108 @@ export function YesNoContest({
   return (
     <React.Fragment>
       <Main>
-        <ContentHeader id="contest-header">
-          <Prose id="audiofocus">
-            <h1 aria-label={`${contest.section} ${contest.title}.`}>
-              <ContestSection>{contest.section}</ContestSection>
-              {contest.title}
-            </h1>
-            <p>
-              <strong>Vote Yes or No.</strong>
-              <span className="screen-reader-only">
-                {contest.description}
-                To navigate through the contest choices, use the down button. To
-                move to the next contest, use the right button.
-              </span>
-            </p>
-          </Prose>
-        </ContentHeader>
-        <VariableContentContainer
-          showTopShadow={!isScrollAtTop}
-          showBottomShadow={!isScrollAtBottom}
-        >
-          <ScrollContainer
-            ref={scrollContainer}
-            onScroll={updateContestChoicesScrollStates}
+        <MainChild flexContainer maxWidth={false}>
+          <ContentHeader id="contest-header">
+            <Prose id="audiofocus">
+              <h1 aria-label={`${contest.section} ${contest.title}.`}>
+                <ContestSection>{contest.section}</ContestSection>
+                {contest.title}
+              </h1>
+              <p>
+                <strong>Vote Yes or No.</strong>
+                <span className="screen-reader-only">
+                  {contest.description}
+                  To navigate through the contest choices, use the down button.
+                  To move to the next contest, use the right button.
+                </span>
+              </p>
+            </Prose>
+          </ContentHeader>
+          <VariableContentContainer
+            showTopShadow={!isScrollAtTop}
+            showBottomShadow={!isScrollAtBottom}
           >
-            <ScrollableContentWrapper isScrollable={isScrollable}>
-              <Prose>
-                <TextWithLineBreaks text={contest.description} />
-              </Prose>
-            </ScrollableContentWrapper>
-          </ScrollContainer>
-          {
-            /* istanbul ignore next: Tested by Cypress */ isScrollable && (
-              <ScrollControls aria-hidden>
-                <Button
-                  className="scroll-up"
-                  large
-                  primary
-                  aria-hidden
-                  data-direction="up"
-                  disabled={isScrollAtTop}
-                  onPress={scrollContestChoices}
-                >
-                  <span>See More</span>
-                </Button>
-                <Button
-                  className="scroll-down"
-                  large
-                  primary
-                  aria-hidden
-                  data-direction="down"
-                  disabled={isScrollAtBottom}
-                  onPress={scrollContestChoices}
-                >
-                  <span>See More</span>
-                </Button>
-              </ScrollControls>
-            )
-          }
-        </VariableContentContainer>
-        <ContestFooter>
-          <ChoicesGrid data-testid="contest-choices">
-            {[
-              { label: 'Yes', vote: 'yes' } as const,
-              { label: 'No', vote: 'no' } as const,
-            ].map((answer) => {
-              const isChecked = getSingleYesNoVote(vote) === answer.vote;
-              const isDisabled = !isChecked && !!vote;
-              function handleDisabledClick() {
-                handleChangeVoteAlert(answer.vote);
-              }
-              let prefixAudioText = '';
-              if (isChecked) {
-                prefixAudioText = 'Selected,';
-              } else if (deselectedVote === answer.vote) {
-                prefixAudioText = 'Deselected,';
-              }
-              return (
-                <ChoiceButton
-                  key={answer.vote}
-                  choice={answer.vote}
-                  isSelected={isChecked}
-                  onPress={
-                    isDisabled ? handleDisabledClick : handleUpdateSelection
-                  }
-                >
-                  <Prose>
-                    <Text
-                      aria-label={`${prefixAudioText} ${answer.label} on ${
-                        contest.shortTitle ?? contest.title
-                      }`}
-                      wordBreak
-                    >
-                      {answer.label}
-                    </Text>
-                  </Prose>
-                </ChoiceButton>
-              );
-            })}
-          </ChoicesGrid>
-        </ContestFooter>
+            <ScrollContainer
+              ref={scrollContainer}
+              onScroll={updateContestChoicesScrollStates}
+            >
+              <ScrollableContentWrapper isScrollable={isScrollable}>
+                <Prose>
+                  <TextWithLineBreaks text={contest.description} />
+                </Prose>
+              </ScrollableContentWrapper>
+            </ScrollContainer>
+            {
+              /* istanbul ignore next: Tested by Cypress */ isScrollable && (
+                <ScrollControls aria-hidden>
+                  <Button
+                    className="scroll-up"
+                    large
+                    primary
+                    aria-hidden
+                    data-direction="up"
+                    disabled={isScrollAtTop}
+                    onPress={scrollContestChoices}
+                  >
+                    <span>See More</span>
+                  </Button>
+                  <Button
+                    className="scroll-down"
+                    large
+                    primary
+                    aria-hidden
+                    data-direction="down"
+                    disabled={isScrollAtBottom}
+                    onPress={scrollContestChoices}
+                  >
+                    <span>See More</span>
+                  </Button>
+                </ScrollControls>
+              )
+            }
+          </VariableContentContainer>
+          <ContestFooter>
+            <ChoicesGrid data-testid="contest-choices">
+              {[
+                { label: 'Yes', vote: 'yes' } as const,
+                { label: 'No', vote: 'no' } as const,
+              ].map((answer) => {
+                const isChecked = getSingleYesNoVote(vote) === answer.vote;
+                const isDisabled = !isChecked && !!vote;
+                function handleDisabledClick() {
+                  handleChangeVoteAlert(answer.vote);
+                }
+                let prefixAudioText = '';
+                if (isChecked) {
+                  prefixAudioText = 'Selected,';
+                } else if (deselectedVote === answer.vote) {
+                  prefixAudioText = 'Deselected,';
+                }
+                return (
+                  <ChoiceButton
+                    key={answer.vote}
+                    choice={answer.vote}
+                    isSelected={isChecked}
+                    onPress={
+                      isDisabled ? handleDisabledClick : handleUpdateSelection
+                    }
+                  >
+                    <Prose>
+                      <Text
+                        aria-label={`${prefixAudioText} ${answer.label} on ${
+                          contest.shortTitle ?? contest.title
+                        }`}
+                        wordBreak
+                      >
+                        {answer.label}
+                      </Text>
+                    </Prose>
+                  </ChoiceButton>
+                );
+              })}
+            </ChoicesGrid>
+          </ContestFooter>
+        </MainChild>
       </Main>
       {overvoteSelection && (
         <Modal

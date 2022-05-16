@@ -29,7 +29,7 @@ const EjectReason = styled.div`
   font-weight: 900;
 `;
 
-const MainChildColumns = styled.div`
+const MainChildFlexRow = styled.div`
   flex: 1;
   display: flex;
   margin-bottom: -1rem;
@@ -413,7 +413,7 @@ export function BallotEjectScreen({
         )}
       </MainNav>
       <Main>
-        <MainChildColumns>
+        <MainChildFlexRow>
           <Prose maxWidth={false}>
             <EjectReason>
               {isInvalidTestModeSheet
@@ -532,7 +532,7 @@ export function BallotEjectScreen({
               styleForContest={styleForContest}
             />
           </RectoVerso>
-        </MainChildColumns>
+        </MainChildFlexRow>
       </Main>
       <ElectionInfoBar
         mode="admin"

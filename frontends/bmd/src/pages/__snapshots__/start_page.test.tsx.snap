@@ -140,13 +140,13 @@ exports[`renders StartPage 1`] = `
 }
 
 <div
-  class="sc-jObXwK erQiAb"
+  class="sc-dPiKHq gAmBjb"
 >
   <main
-    class="sc-cxpRKc iyrZoO"
+    class="sc-cxpRKc cybXeN"
   >
     <div
-      class="sc-llYToB kQCcrl"
+      class="sc-llYToB jyeJCB"
     >
       <div
         class="sc-jRQAMF huupYJ"
@@ -461,13 +461,13 @@ exports[`renders StartPage with inline SVG 1`] = `
 }
 
 <div
-  class="sc-jObXwK erQiAb"
+  class="sc-dPiKHq gAmBjb"
 >
   <main
-    class="sc-cxpRKc iyrZoO"
+    class="sc-cxpRKc cybXeN"
   >
     <div
-      class="sc-llYToB kQCcrl"
+      class="sc-llYToB jyeJCB"
     >
       <div
         class="sc-jRQAMF huupYJ"
@@ -940,13 +940,13 @@ exports[`renders StartPage with no seal 1`] = `
 }
 
 <div
-  class="sc-jObXwK erQiAb"
+  class="sc-dPiKHq gAmBjb"
 >
   <main
-    class="sc-cxpRKc iyrZoO"
+    class="sc-cxpRKc cybXeN"
   >
     <div
-      class="sc-llYToB kQCcrl"
+      class="sc-llYToB jyeJCB"
     >
       <div
         class="sc-jRQAMF huupYJ"

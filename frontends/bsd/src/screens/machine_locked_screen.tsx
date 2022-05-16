@@ -23,7 +23,7 @@ export function MachineLockedScreen(): JSX.Element {
   return (
     <Screen flexDirection="column">
       <Main padded>
-        <MainChild maxWidth={false} centerHorizontal centerVertical>
+        <MainChild center maxWidth={false}>
           <LockedImage src="locked.svg" alt="Locked Icon" />
           <Prose textCenter theme={fontSizeTheme.medium} maxWidth={false}>
             <h1>VxCentralScan is Locked</h1>
