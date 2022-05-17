@@ -38,7 +38,8 @@ export function isWriteInAdjudicationEnabled(): boolean {
     // also enable further tree shaking when used in a way that the bundler can
     // understand, e.g. `if (isWriteInAdjudicationEnabled())` or
     // `isWriteInAdjudicationEnabled() && ...`.
-    process.env.NODE_ENV === 'development' &&
+    (process.env.NODE_ENV === 'development' ||
+      asBoolean(process.env.REACT_APP_VX_DEV)) &&
     asBoolean(process.env.REACT_APP_VX_ENABLE_WRITE_IN_ADJUDICATION)
   );
 }
