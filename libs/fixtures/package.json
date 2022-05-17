@@ -6,16 +6,16 @@
   "keywords": [],
   "license": "GPL-3.0",
   "author": "VotingWorks",
-  "main": "build/index.js",
-  "types": "build/index.d.ts",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
   "files": [
     "build"
   ],
   "scripts": {
     "type-check": "tsc --build",
     "type-check:watch": "tsc --build --watch",
-    "build": "tsc --build tsconfig.build.json",
-    "build:watch": "tsc --build --watch tsconfig.build.json",
+    "build": "tsc --build tsconfig.json",
+    "build:watch": "tsc --build --watch tsconfig.json",
     "build:resources": "res-to-ts --rootDir data --outDir src/data 'data/**/*.{csv,jsonl,json,txt}'",
     "clean": "rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "lint": "pnpm type-check && eslint .",

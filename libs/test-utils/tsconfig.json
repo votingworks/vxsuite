@@ -10,8 +10,5 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "references": [
-    { "path": "../../libs/eslint-plugin-vx/tsconfig.build.json" },
-    { "path": "../../libs/types/tsconfig.build.json" }
-  ]
+  "references": [{ "path": "../../libs/eslint-plugin-vx/tsconfig.build.json" }]
 }

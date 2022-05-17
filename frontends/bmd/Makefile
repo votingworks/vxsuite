@@ -9,7 +9,7 @@ build: FORCE
 	pnpm install && pnpm build
 
 run:
-	cd prodserver && node index.js
+	pnpx esr prodserver/index.js
 
 demo:
 	# Preserve BROWSER as DEMO_BROWSER, then tell react-scripts to use our script

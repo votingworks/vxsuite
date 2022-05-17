@@ -19,9 +19,6 @@
   "include": ["src", "src/data/*.json", "test"],
   "exclude": [],
   "references": [
-    { "path": "../cdf-schema-builder/tsconfig.build.json" },
-    { "path": "../eslint-plugin-vx/tsconfig.build.json" },
-    { "path": "../test-utils/tsconfig.build.json" },
-    { "path": "../types/tsconfig.build.json" }
+    { "path": "../eslint-plugin-vx/tsconfig.build.json" }
   ]
 }

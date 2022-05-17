@@ -4,8 +4,8 @@
   "private": true,
   "description": "Line Segment Detector for NodeJS",
   "license": "AGPL-3.0",
-  "main": "build/index.js",
-  "types": "build/index.d.ts",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
   "bin": "bin/lsd.js",
   "files": [
     "addon",
@@ -16,8 +16,8 @@
   "scripts": {
     "type-check": "tsc --build",
     "type-check:watch": "tsc --build --watch",
-    "build": "node-gyp configure build && tsc --build tsconfig.build.json",
-    "build:watch": "node-gyp configure build && tsc --build --watch tsconfig.build.json",
+    "build": "node-gyp configure build && tsc --build tsconfig.json",
+    "build:watch": "node-gyp configure build && tsc --build --watch tsconfig.json",
     "clean": "rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "lint": "pnpm type-check && eslint .",
     "lint:fix": "pnpm type-check && eslint . --fix",

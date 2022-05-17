@@ -5,16 +5,16 @@
   "description": "Utilities and definitions for logging in votingworks components",
   "license": "GPL-3.0",
   "author": "VotingWorks Eng <eng@voting.works>",
-  "main": "build/index.js",
-  "types": "build/index.d.js",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
   "files": [
     "build"
   ],
   "scripts": {
     "type-check": "tsc --build",
     "type-check:watch": "tsc --build --watch",
-    "build": "tsc --build tsconfig.build.json",
-    "build:watch": "tsc --build --watch tsconfig.build.json",
+    "build": "tsc --build tsconfig.json",
+    "build:watch": "tsc --build --watch tsconfig.json",
     "clean": "rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "lint": "pnpm type-check && eslint .",
     "lint:fix": "pnpm type-check && eslint . --fix",

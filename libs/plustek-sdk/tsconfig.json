@@ -12,10 +12,5 @@
   },
   "include": ["src"],
   "exclude": [],
-  "references": [
-    { "path": "../eslint-plugin-vx/tsconfig.build.json" },
-    { "path": "../test-utils/tsconfig.build.json" },
-    { "path": "../types/tsconfig.build.json" },
-    { "path": "../utils/tsconfig.build.json" }
-  ]
+  "references": [{ "path": "../eslint-plugin-vx/tsconfig.build.json" }]
 }

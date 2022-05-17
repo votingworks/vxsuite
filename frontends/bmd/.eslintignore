@@ -7,3 +7,4 @@
 /prodserver/**/*.js
 /src/**/*.js
 /script/**/*.js
+/*.config.js

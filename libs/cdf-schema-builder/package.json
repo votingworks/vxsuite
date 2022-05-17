@@ -1,8 +1,8 @@
 {
   "name": "@votingworks/cdf-schema-builder",
   "version": "1.0.0",
-  "main": "build/index.js",
-  "types": "build/index.d.ts",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
   "bin": {
     "cdf-schema-builder": "bin/cdf-schema-builder"
   },
@@ -11,8 +11,8 @@
     "build"
   ],
   "scripts": {
-    "build": "tsc --build tsconfig.build.json",
-    "build:watch": "tsc --build --watch tsconfig.build.json",
+    "build": "tsc --build tsconfig.json",
+    "build:watch": "tsc --build --watch tsconfig.json",
     "clean": "rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "lint": "pnpm type-check && eslint .",
     "lint:fix": "pnpm type-check && eslint . --fix",

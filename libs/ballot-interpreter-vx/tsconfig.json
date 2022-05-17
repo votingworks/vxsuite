@@ -15,11 +15,5 @@
     "resolveJsonModule": true,
     "forceConsistentCasingInFileNames": true
   },
-  "references": [
-    { "path": "../ballot-encoder/tsconfig.build.json" },
-    { "path": "../eslint-plugin-vx/tsconfig.build.json" },
-    { "path": "../fixtures/tsconfig.build.json" },
-    { "path": "../types/tsconfig.build.json" },
-    { "path": "../utils/tsconfig.build.json" }
-  ]
+  "references": [{ "path": "../eslint-plugin-vx/tsconfig.build.json" }]
 }
