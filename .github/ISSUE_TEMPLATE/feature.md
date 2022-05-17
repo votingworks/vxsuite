@@ -1,8 +1,8 @@
 ---
 name: Feature
-about: for product-level features that are tracked in the product board
+about: for new functionality
 title: ''
-labels: feature
+labels:
 assignees: ''
 
 ---
