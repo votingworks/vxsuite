@@ -168,7 +168,14 @@ export function wrapException<T>(error: unknown): Result<T, Error> {
 // `ok` and `err` constructors instead of the class constructors.
 type OkInterface<T> = Ok<T>;
 type ErrInterface<T> = Err<T>;
-export { OkInterface as Ok, ErrInterface as Err };
+
+// We have to use `export type` here, otherwise we get this type error:
+//
+//   Re-exporting a type when the '--isolatedModules' flag is provided requires
+//   using 'export type'.
+//
+// eslint-disable-next-line vx/gts-no-import-export-type
+export type { OkInterface as Ok, ErrInterface as Err };
 
 /**
  * Represents either success with a value `T` or failure with error `E`.
