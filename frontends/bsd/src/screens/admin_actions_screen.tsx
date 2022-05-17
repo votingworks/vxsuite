@@ -2,14 +2,7 @@ import { ElectionDefinition, MarkThresholds } from '@votingworks/types';
 import React, { useCallback, useEffect, useState, useContext } from 'react';
 import { LogEventId } from '@votingworks/logging';
 import { assert, LogFileType } from '@votingworks/utils';
-import {
-  Loading,
-  Main,
-  MainChild,
-  Modal,
-  Screen,
-  SetClockButton,
-} from '@votingworks/ui';
+import { Loading, Main, Modal, Screen, SetClockButton } from '@votingworks/ui';
 import { Button } from '../components/button';
 import { LinkButton } from '../components/link_button';
 import { MainNav } from '../components/main_nav';
@@ -117,74 +110,72 @@ export function AdminActionsScreen({
     <React.Fragment>
       <Screen flexDirection="column">
         <Main padded>
-          <MainChild>
-            <Prose>
-              <h1>Admin Actions</h1>
-              <p>
-                <ToggleTestModeButton
-                  isTestMode={isTestMode}
-                  isTogglingTestMode={isTogglingTestMode}
-                  toggleTestMode={toggleTestMode}
-                  canUnconfigure={canUnconfigure}
-                />
-              </p>
-              <p>
-                <Button
-                  onPress={() => setIsMarkThresholdModalOpen(true)}
-                  disabled={hasBatches}
-                >
-                  {markThresholds === undefined
-                    ? 'Override Mark Thresholds'
-                    : 'Reset Mark Thresholds'}
-                </Button>
-              </p>
-              {backupError && <p style={{ color: 'red' }}>{backupError}</p>}
-              <p>
-                <Button onPress={exportBackup} disabled={isBackingUp}>
-                  {isBackingUp ? 'Exporting…' : 'Export Backup'}
-                </Button>
-              </p>
-              <p>
-                <Button onPress={() => setExportingLogType(LogFileType.Raw)}>
-                  Export Logs
-                </Button>{' '}
-                <Button onPress={() => setExportingLogType(LogFileType.Cdf)}>
-                  Export Logs as CDF
-                </Button>
-              </p>
-              <p>
-                <SetClockButton>Update Date and Time</SetClockButton>
-              </p>
-              <p>
-                <Button
-                  danger
-                  disabled={!hasBatches || (!isTestMode && !canUnconfigure)}
-                  onPress={toggleIsConfirmingZero}
-                >
-                  Delete Ballot Data
-                </Button>
-              </p>
+          <Prose>
+            <h1>Admin Actions</h1>
+            <p>
+              <ToggleTestModeButton
+                isTestMode={isTestMode}
+                isTogglingTestMode={isTogglingTestMode}
+                toggleTestMode={toggleTestMode}
+                canUnconfigure={canUnconfigure}
+              />
+            </p>
+            <p>
+              <Button
+                onPress={() => setIsMarkThresholdModalOpen(true)}
+                disabled={hasBatches}
+              >
+                {markThresholds === undefined
+                  ? 'Override Mark Thresholds'
+                  : 'Reset Mark Thresholds'}
+              </Button>
+            </p>
+            {backupError && <p style={{ color: 'red' }}>{backupError}</p>}
+            <p>
+              <Button onPress={exportBackup} disabled={isBackingUp}>
+                {isBackingUp ? 'Exporting…' : 'Export Backup'}
+              </Button>
+            </p>
+            <p>
+              <Button onPress={() => setExportingLogType(LogFileType.Raw)}>
+                Export Logs
+              </Button>{' '}
+              <Button onPress={() => setExportingLogType(LogFileType.Cdf)}>
+                Export Logs as CDF
+              </Button>
+            </p>
+            <p>
+              <SetClockButton>Update Date and Time</SetClockButton>
+            </p>
+            <p>
+              <Button
+                danger
+                disabled={!hasBatches || (!isTestMode && !canUnconfigure)}
+                onPress={toggleIsConfirmingZero}
+              >
+                Delete Ballot Data
+              </Button>
+            </p>
 
-              <p>
-                <Button
-                  danger
-                  disabled={!canUnconfigure && !isTestMode}
-                  onPress={toggleIsConfirmingUnconfigure}
-                >
-                  Delete Election Data from VxCentralScan
-                </Button>{' '}
-                {!canUnconfigure && !isTestMode && (
-                  <React.Fragment>
-                    <br />
-                    <Text as="span" warning warningIcon>
-                      You must &quot;Export Backup&quot; before you may delete
-                      election data.
-                    </Text>
-                  </React.Fragment>
-                )}
-              </p>
-            </Prose>
-          </MainChild>
+            <p>
+              <Button
+                danger
+                disabled={!canUnconfigure && !isTestMode}
+                onPress={toggleIsConfirmingUnconfigure}
+              >
+                Delete Election Data from VxCentralScan
+              </Button>{' '}
+              {!canUnconfigure && !isTestMode && (
+                <React.Fragment>
+                  <br />
+                  <Text as="span" warning warningIcon>
+                    You must &quot;Export Backup&quot; before you may delete
+                    election data.
+                  </Text>
+                </React.Fragment>
+              )}
+            </p>
+          </Prose>
         </Main>
         <MainNav isTestMode={isTestMode}>
           <Button small onPress={lockMachine}>

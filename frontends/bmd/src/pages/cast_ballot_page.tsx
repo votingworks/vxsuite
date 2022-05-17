@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Button, Main, MainChild, Screen, Prose } from '@votingworks/ui';
+import { Button, Main, Screen, Prose } from '@votingworks/ui';
 import { PostVotingInstructions } from '../config/types';
 
 const SingleGraphic = styled.img`
@@ -43,51 +43,47 @@ export function CastBallotPage({
 }: Props): JSX.Element {
   return (
     <Screen white>
-      <Main>
-        <MainChild center maxWidth={false}>
-          <Prose textCenter maxWidth={false} id="audiofocus">
-            <h1 aria-label="You’re almost done.">You’re Almost Done</h1>
-            <p>
-              Your official ballot is printing. To finish voting you need to…
-            </p>
-            <Instructions>
+      <Main centerChild>
+        <Prose textCenter maxWidth={false} id="audiofocus">
+          <h1 aria-label="You’re almost done.">You’re Almost Done</h1>
+          <p>Your official ballot is printing. To finish voting you need to…</p>
+          <Instructions>
+            <li>
+              <SingleGraphic
+                aria-hidden
+                alt="Verify Your Printed Ballot"
+                src="/images/instructions-1-verify.svg"
+                style={{ left: '-0.75em' }}
+              />
+              <p>1. Verify your official ballot.</p>
+            </li>
+            <li>
+              <SingleGraphic
+                aria-hidden
+                alt="Scan Your Ballot"
+                src="/images/instructions-2-scan.svg"
+              />
+              <p>2. Scan your official ballot.</p>
+            </li>
+            {showPostVotingInstructions === 'card' && (
               <li>
                 <SingleGraphic
                   aria-hidden
-                  alt="Verify Your Printed Ballot"
-                  src="/images/instructions-1-verify.svg"
-                  style={{ left: '-0.75em' }}
+                  alt="Return Voter Card"
+                  src="/images/instructions-3-return-card.svg"
+                  style={{ left: '0.5em' }}
                 />
-                <p>1. Verify your official ballot.</p>
+                <p>3. Return the card to a poll worker.</p>
               </li>
-              <li>
-                <SingleGraphic
-                  aria-hidden
-                  alt="Scan Your Ballot"
-                  src="/images/instructions-2-scan.svg"
-                />
-                <p>2. Scan your official ballot.</p>
-              </li>
-              {showPostVotingInstructions === 'card' && (
-                <li>
-                  <SingleGraphic
-                    aria-hidden
-                    alt="Return Voter Card"
-                    src="/images/instructions-3-return-card.svg"
-                    style={{ left: '0.5em' }}
-                  />
-                  <p>3. Return the card to a poll worker.</p>
-                </li>
-              )}
-            </Instructions>
-            <h3>
-              <strong>Need help?</strong> Ask a poll worker.
-            </h3>
-          </Prose>
-          <Done>
-            <Button onPress={hidePostVotingInstructions}>Done</Button>
-          </Done>
-        </MainChild>
+            )}
+          </Instructions>
+          <h3>
+            <strong>Need help?</strong> Ask a poll worker.
+          </h3>
+        </Prose>
+        <Done>
+          <Button onPress={hidePostVotingInstructions}>Done</Button>
+        </Done>
       </Main>
     </Screen>
   );

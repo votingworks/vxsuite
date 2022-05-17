@@ -6,7 +6,7 @@ import {
   Election,
   getPartyAbbreviationByPartyId,
 } from '@votingworks/types';
-import { Button, Main, MainChildFlexRow, Screen, Text } from '@votingworks/ui';
+import { Button, Main, Screen, Text } from '@votingworks/ui';
 import { assert } from '@votingworks/utils';
 import { Navigation } from '../components/navigation';
 import { TextInput } from '../components/text_input';
@@ -109,50 +109,52 @@ export function WriteInsTranscriptionScreen({
           </React.Fragment>
         }
       />
-      <Main>
-        <MainChildFlexRow>
-          <BallotPreviews>BALLOT IMAGES GO HERE</BallotPreviews>
-          <TranscriptionContainer>
-            <TranscriptionMainContentContainer>
-              {election && contest.partyId && (
-                <React.Fragment>
-                  <Text bold>{contest.section}</Text>
-                  <h1>
-                    {contest.title} (
-                    {getPartyAbbreviationByPartyId({
-                      partyId: contest.partyId,
-                      election,
-                    })}
-                    )
-                  </h1>
-                </React.Fragment>
-              )}
-              <Text>
-                <label htmlFor="transcription-value">Transcribed Value</label>
-              </Text>
-              <TextInput id="transcribed-value" name="transcribed-value" />
-              <PreviouslyTranscribedValues
-                saveTranscribedValue={saveTranscribedValue}
-              />
-              <p>Here</p>
-              <p>are</p>
-              <p>a</p>
-              <p>bunch</p>
-              <p>of</p>
-              <p>paragraphs</p>
-              <p>to</p>
-              <p>make</p>
-              <p>the</p>
-              <p>container</p>
-              <p>overflow.</p>
-            </TranscriptionMainContentContainer>
-            <TranscriptionPaginationContainer>
-              <Button onPress={onClickPrevious}>Previous</Button>
-              <Text bold>2 of 242</Text>
-              <Button onPress={onClickNext}>Next</Button>
-            </TranscriptionPaginationContainer>
-          </TranscriptionContainer>
-        </MainChildFlexRow>
+      <Main flexRow>
+        <BallotPreviews>BALLOT IMAGES GO HERE</BallotPreviews>
+        <TranscriptionContainer>
+          <TranscriptionMainContentContainer>
+            {election && contest.partyId && (
+              <React.Fragment>
+                <Text bold>{contest.section}</Text>
+                <h1>
+                  {contest.title} (
+                  {getPartyAbbreviationByPartyId({
+                    partyId: contest.partyId,
+                    election,
+                  })}
+                  )
+                </h1>
+              </React.Fragment>
+            )}
+            <Text>
+              <label htmlFor="transcription-value">Transcribed Value</label>
+            </Text>
+            <TextInput id="transcribed-value" name="transcribed-value" />
+            <PreviouslyTranscribedValues
+              saveTranscribedValue={saveTranscribedValue}
+            />
+            <p>Here</p>
+            <p>are</p>
+            <p>a</p>
+            <p>bunch</p>
+            <p>of</p>
+            <p>paragraphs</p>
+            <p>to</p>
+            <p>make</p>
+            <p>the</p>
+            <p>container</p>
+            <p>container</p>
+            <p>container</p>
+            <p>container</p>
+            <p>container</p>
+            <p>overflow.</p>
+          </TranscriptionMainContentContainer>
+          <TranscriptionPaginationContainer>
+            <Button onPress={onClickPrevious}>Previous</Button>
+            <Text bold>2 of 242</Text>
+            <Button onPress={onClickNext}>Next</Button>
+          </TranscriptionPaginationContainer>
+        </TranscriptionContainer>
       </Main>
     </Screen>
   );

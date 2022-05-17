@@ -5,7 +5,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
   aria-hidden="true"
 >
   <div
-    class="sc-bBHHQT kGZyAR"
+    class="sc-jObXwK cZXyJz"
   >
     <div
       class="sc-bdfBwQ gqAMTS"
@@ -91,48 +91,44 @@ exports[`L&A (logic and accuracy) flow 1`] = `
       </div>
     </div>
     <main
-      class="sc-llYToB bWlGom"
+      class="sc-llYToB hjTaaA"
     >
       <div
-        class="sc-iJKOzS gxJGfI"
+        class="sc-jRQAMF boeJiV"
       >
-        <div
-          class="sc-jRQAMF boeJiV"
-        >
-          <h1>
-            Test Decks
-          </h1>
-          <p>
-            <strong>
-              Election:
-            </strong>
-             
-            Mock General Election Choctaw 2020
-            <br />
-            <strong>
-              Precinct:
-            </strong>
-             
-            District 5
-          </p>
-          <p>
-            <button
-              class="sc-iBPRYJ cWqIfm"
-              type="button"
-            >
-              Print Test Deck
-            </button>
-          </p>
-          <p>
-            <button
-              class="sc-iBPRYJ bnpNDy"
-              role="option"
-              type="button"
-            >
-              Back to Test Deck list
-            </button>
-          </p>
-        </div>
+        <h1>
+          Test Decks
+        </h1>
+        <p>
+          <strong>
+            Election:
+          </strong>
+           
+          Mock General Election Choctaw 2020
+          <br />
+          <strong>
+            Precinct:
+          </strong>
+           
+          District 5
+        </p>
+        <p>
+          <button
+            class="sc-iBPRYJ cWqIfm"
+            type="button"
+          >
+            Print Test Deck
+          </button>
+        </p>
+        <p>
+          <button
+            class="sc-iBPRYJ bnpNDy"
+            role="option"
+            type="button"
+          >
+            Back to Test Deck list
+          </button>
+        </p>
       </div>
     </main>
     <div
@@ -285,7 +281,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
   aria-hidden="true"
 >
   <div
-    class="sc-bBHHQT kGZyAR"
+    class="sc-jObXwK cZXyJz"
   >
     <div
       class="sc-bdfBwQ gqAMTS"
@@ -371,72 +367,68 @@ exports[`L&A (logic and accuracy) flow 2`] = `
       </div>
     </div>
     <main
-      class="sc-llYToB bWlGom"
+      class="sc-llYToB hjTaaA"
     >
+      <div>
+        <strong>
+          Test Deck Tally Reports
+        </strong>
+         for 
+        Mock General Election Choctaw 2020
+      </div>
       <div
-        class="sc-iJKOzS gxJGfI"
+        class="sc-jRQAMF boeJiV"
       >
-        <div>
-          <strong>
-            Test Deck Tally Reports
-          </strong>
-           for 
-          Mock General Election Choctaw 2020
-        </div>
-        <div
-          class="sc-jRQAMF boeJiV"
+        <h1
+          class="sc-ikJzcn hrFjNm"
+          style="margin-bottom: 0.75em; margin-top: 0.25em;"
         >
-          <h1
-            class="sc-hiCivh dHgPQk"
-            style="margin-bottom: 0.75em; margin-top: 0.25em;"
+          
+           Tally Report for
+           
+          <strong>
+            All Precincts
+          </strong>
+        </h1>
+        <p>
+          Wednesday, August 26, 2020
+          , 
+          Choctaw County
+          , 
+          State of Mississippi
+          <br />
+          <span
+            class="sc-dkPtyc dVpXhv"
           >
-            
-             Tally Report for
-             
-            <strong>
-              All Precincts
-            </strong>
-          </h1>
-          <p>
-            Wednesday, August 26, 2020
-            , 
-            Choctaw County
-            , 
-            State of Mississippi
-            <br />
-            <span
-              class="sc-dkPtyc dVpXhv"
-            >
-              This report was created on 
-              Tuesday, November 3, 2020, 10:22:00 PM UTC
-            </span>
-          </p>
-          <p>
-            <button
-              class="sc-iBPRYJ cWqIfm"
-              type="button"
-            >
-              Print Results Report
-            </button>
-          </p>
-          <p>
-            <button
-              class="sc-iBPRYJ fvkSI"
-              type="button"
-            >
-              Save Results Report as PDF
-            </button>
-          </p>
-          <p>
-            <button
-              class="sc-iBPRYJ bnpNDy"
-              role="option"
-              type="button"
-            >
-              Back to Test Deck list
-            </button>
-          </p>
-        </div>
+            This report was created on 
+            Tuesday, November 3, 2020, 10:22:00 PM UTC
+          </span>
+        </p>
+        <p>
+          <button
+            class="sc-iBPRYJ cWqIfm"
+            type="button"
+          >
+            Print Results Report
+          </button>
+        </p>
+        <p>
+          <button
+            class="sc-iBPRYJ fvkSI"
+            type="button"
+          >
+            Save Results Report as PDF
+          </button>
+        </p>
+        <p>
+          <button
+            class="sc-iBPRYJ bnpNDy"
+            role="option"
+            type="button"
+          >
+            Back to Test Deck list
+          </button>
+        </p>
       </div>
     </main>
     <div
@@ -515,7 +507,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
     class="print-only"
   >
     <section
-      class="sc-jJoQpE jrcdmY"
+      class="sc-kLwgWK fnXcLU"
     >
       <img
         alt="VotingWorks logo"
@@ -533,7 +525,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
         class="sc-jRQAMF foBEwC"
       >
         <h1
-          class="sc-hiCivh dHgPQk"
+          class="sc-ikJzcn hrFjNm"
           style="margin-bottom: 0.75em; margin-top: 0.25em;"
         >
           
@@ -559,7 +551,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
         </p>
       </div>
       <div
-        class="sc-gWXaA-D kNngbK"
+        class="sc-jJoQpE Icimc"
       >
         <div
           class="sc-hGPAah dymfDz"
@@ -1660,7 +1652,7 @@ House Bill 1796 - Flag Referendum
 
 exports[`tabulating CVRs 1`] = `
 <section
-  class="sc-jJoQpE jrcdmY"
+  class="sc-kLwgWK fnXcLU"
   data-testid="election-full-tally-report"
 >
   <img
@@ -1693,10 +1685,10 @@ exports[`tabulating CVRs 1`] = `
     </p>
   </div>
   <div
-    class="sc-gWXaA-D kNngbK"
+    class="sc-jJoQpE Icimc"
   >
     <div
-      class="sc-cTApHj bQrcJt"
+      class="sc-iAKVOt kfoWZP"
     >
       <h3>
         Ballots by Voting Method
@@ -2851,7 +2843,7 @@ House Bill 1796 - Flag Referendum
 
 exports[`tabulating CVRs with SEMS file 1`] = `
 <section
-  class="sc-jJoQpE jrcdmY"
+  class="sc-kLwgWK fnXcLU"
   data-testid="election-full-tally-report"
 >
   <img
@@ -2884,10 +2876,10 @@ exports[`tabulating CVRs with SEMS file 1`] = `
     </p>
   </div>
   <div
-    class="sc-gWXaA-D kNngbK"
+    class="sc-jJoQpE Icimc"
   >
     <div
-      class="sc-cTApHj bQrcJt"
+      class="sc-iAKVOt kfoWZP"
     >
       <h3>
         Ballots by Voting Method

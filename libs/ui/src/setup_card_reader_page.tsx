@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Main, MainChild } from './main';
+import { Main } from './main';
 import { Prose } from './prose';
 import { Screen } from './screen';
 import { fontSizeTheme } from './themes';
@@ -26,13 +26,11 @@ export function SetupCardReaderPage({
 
   return (
     <Screen white>
-      <Main>
-        <MainChild center maxWidth={false}>
-          <Prose textCenter maxWidth={false} theme={fontSizeTheme.large}>
-            <h1>Card Reader Not Detected</h1>
-            <p>{connectMessage}</p>
-          </Prose>
-        </MainChild>
+      <Main centerChild>
+        <Prose textCenter maxWidth={false} theme={fontSizeTheme.large}>
+          <h1>Card Reader Not Detected</h1>
+          <p>{connectMessage}</p>
+        </Prose>
       </Main>
     </Screen>
   );

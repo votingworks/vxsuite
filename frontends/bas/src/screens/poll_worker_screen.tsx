@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Screen, Main, MainChild } from '@votingworks/ui';
+import { Screen, Main } from '@votingworks/ui';
 
 import { Prose } from '../components/prose';
 import { MainNav } from '../components/main_nav';
@@ -13,13 +13,11 @@ interface Props {
 export function PollWorkerScreen({ lockScreen }: Props): JSX.Element {
   return (
     <Screen flexDirection="column">
-      <Main>
-        <MainChild center>
-          <Prose textCenter>
-            <h1>Screen Unlocked</h1>
-            <p>Remove Poll Worker card to continue.</p>
-          </Prose>
-        </MainChild>
+      <Main centerChild>
+        <Prose textCenter>
+          <h1>Screen Unlocked</h1>
+          <p>Remove Poll Worker card to continue.</p>
+        </Prose>
       </Main>
       <MainNav>
         <Button small onPress={lockScreen}>

@@ -9,7 +9,7 @@ import {
   usbstick,
   ElectionData,
 } from '@votingworks/utils';
-import { Main, MainChild, Screen, UsbControllerButton } from '@votingworks/ui';
+import { Main, Screen, UsbControllerButton } from '@votingworks/ui';
 import { LogEventId } from '@votingworks/logging';
 import { Prose } from './prose';
 import { MainNav } from './main_nav';
@@ -177,10 +177,8 @@ export function ElectionConfiguration({
   ) {
     return (
       <Screen flexDirection="column">
-        <Main>
-          <MainChild center>
-            <Loading />
-          </MainChild>
+        <Main centerChild>
+          <Loading />
         </Main>
         {mainNav}
       </Screen>
@@ -241,27 +239,25 @@ export function ElectionConfiguration({
       return (
         <Screen flexDirection="column">
           <Main padded>
-            <MainChild center>
-              <Prose>
-                <h1>No Election Ballot Package Files Found</h1>
-                <Image src="assets/usb-drive.svg" alt="Insert USB Image" />
-                <Text>
-                  There were no Election Ballot Package files automatically
-                  found on the inserted USB drive. Use VxAdmin to export Ballot
-                  Package files to this USB drive.
-                </Text>
-                <Text>
-                  Optionally, you may manually select a file to configure:
-                </Text>
-                <FileInputButton
-                  accept=".json,.zip"
-                  onChange={handleFileInput}
-                  data-testid="manual-upload-input"
-                >
-                  Select File…
-                </FileInputButton>
-              </Prose>
-            </MainChild>
+            <Prose>
+              <h1>No Election Ballot Package Files Found</h1>
+              <Image src="assets/usb-drive.svg" alt="Insert USB Image" />
+              <Text>
+                There were no Election Ballot Package files automatically found
+                on the inserted USB drive. Use VxAdmin to export Ballot Package
+                files to this USB drive.
+              </Text>
+              <Text>
+                Optionally, you may manually select a file to configure:
+              </Text>
+              <FileInputButton
+                accept=".json,.zip"
+                onChange={handleFileInput}
+                data-testid="manual-upload-input"
+              >
+                Select File…
+              </FileInputButton>
+            </Prose>
           </Main>
           {mainNav}
         </Screen>
@@ -271,53 +267,51 @@ export function ElectionConfiguration({
     return (
       <Screen flexDirection="column">
         <Main padded>
-          <MainChild maxWidth={false}>
-            <Prose maxWidth={false}>
-              <h1>Choose Election Configuration</h1>
-              <Text>
-                Select one of the following configurations which were
-                automatically found on the USB drive. If you don&apos;t see the
-                file you are looking for, you may select a configuration file
-                manually.
+          <Prose maxWidth={false}>
+            <h1>Choose Election Configuration</h1>
+            <Text>
+              Select one of the following configurations which were
+              automatically found on the USB drive. If you don&apos;t see the
+              file you are looking for, you may select a configuration file
+              manually.
+            </Text>
+            {errorMessage !== '' && (
+              <Text error>
+                An error occurred while importing the election configuration:{' '}
+                {errorMessage}. Please check the file you are importing and try
+                again.
               </Text>
-              {errorMessage !== '' && (
-                <Text error>
-                  An error occurred while importing the election configuration:{' '}
-                  {errorMessage}. Please check the file you are importing and
-                  try again.
-                </Text>
-              )}
-              <Table>
-                <thead>
-                  <tr>
-                    <th>Export Date</th>
-                    <th>County</th>
-                    <th>Election Name</th>
-                    <th>ID</th>
-                    <th />
-                  </tr>
-                </thead>
-                <tbody>
-                  {fileOptions}
-                  <tr>
-                    <td />
-                    <td />
-                    <td />
-                    <td />
-                    <TD textAlign="right">
-                      <FileInputButton
-                        accept=".json,.zip"
-                        onChange={handleFileInput}
-                        data-testid="manual-upload-input"
-                      >
-                        Select File…
-                      </FileInputButton>
-                    </TD>
-                  </tr>
-                </tbody>
-              </Table>
-            </Prose>
-          </MainChild>
+            )}
+            <Table>
+              <thead>
+                <tr>
+                  <th>Export Date</th>
+                  <th>County</th>
+                  <th>Election Name</th>
+                  <th>ID</th>
+                  <th />
+                </tr>
+              </thead>
+              <tbody>
+                {fileOptions}
+                <tr>
+                  <td />
+                  <td />
+                  <td />
+                  <td />
+                  <TD textAlign="right">
+                    <FileInputButton
+                      accept=".json,.zip"
+                      onChange={handleFileInput}
+                      data-testid="manual-upload-input"
+                    >
+                      Select File…
+                    </FileInputButton>
+                  </TD>
+                </tr>
+              </tbody>
+            </Table>
+          </Prose>
         </Main>
         {mainNav}
       </Screen>
@@ -327,31 +321,29 @@ export function ElectionConfiguration({
   // No USB Drive was found show initial screen.
   return (
     <Screen flexDirection="column">
-      <Main padded>
-        <MainChild center>
-          <Prose maxWidth={false}>
-            <h1>Load Election Configuration</h1>
-            <Image src="assets/usb-drive.svg" alt="Insert USB Image" />
-            <p>You may load via the following methods:</p>
-            <ul>
-              <ListItem>
-                <strong>Insert a USB drive</strong> with election ballot
-                packages exported from VxAdmin.
-              </ListItem>
-              <ListItem>
-                Manually select a file to configure:{' '}
-                <FileInputButton
-                  accept=".json,.zip"
-                  onChange={handleFileInput}
-                  data-testid="manual-upload-input"
-                  buttonProps={{ small: true }}
-                >
-                  Select File…
-                </FileInputButton>
-              </ListItem>
-            </ul>
-          </Prose>
-        </MainChild>
+      <Main padded centerChild>
+        <Prose maxWidth={false}>
+          <h1>Load Election Configuration</h1>
+          <Image src="assets/usb-drive.svg" alt="Insert USB Image" />
+          <p>You may load via the following methods:</p>
+          <ul>
+            <ListItem>
+              <strong>Insert a USB drive</strong> with election ballot packages
+              exported from VxAdmin.
+            </ListItem>
+            <ListItem>
+              Manually select a file to configure:{' '}
+              <FileInputButton
+                accept=".json,.zip"
+                onChange={handleFileInput}
+                data-testid="manual-upload-input"
+                buttonProps={{ small: true }}
+              >
+                Select File…
+              </FileInputButton>
+            </ListItem>
+          </ul>
+        </Prose>
       </Main>
       {mainNav}
     </Screen>

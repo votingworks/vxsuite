@@ -203,7 +203,7 @@ export function SmartcardsScreen(): JSX.Element {
 
   return (
     <React.Fragment>
-      <NavigationScreen mainChildFlex>
+      <NavigationScreen>
         <Prose maxWidth={false}>
           <h1>Smartcards</h1>
           <p>

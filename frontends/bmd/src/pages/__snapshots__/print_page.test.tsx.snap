@@ -291,35 +291,31 @@ exports[`renders PrintPage without votes 1`] = `
 }
 
 <div
-  class="sc-bBHHQT kkeETe"
+  class="sc-jObXwK cRVrKU"
 >
   <main
-    class="sc-llYToB desMbI"
+    class="sc-llYToB hbpTOJ"
   >
     <div
-      class="sc-iJKOzS hiKwVD"
+      class="sc-jRQAMF huupYJ"
+      id="audiofocus"
     >
-      <div
-        class="sc-jRQAMF huupYJ"
-        id="audiofocus"
-      >
-        <p>
-          <img
-            alt="Printing Ballot"
-            aria-hidden="true"
-            class="c0"
-            src="/images/printing-ballot.svg"
-          />
-        </p>
-        <h1>
-          <span
-            aria-label="Printing your official ballot."
-            class="sc-bBHwJV ePpeWF"
-          >
-            Printing Official Ballot
-          </span>
-        </h1>
-      </div>
+      <p>
+        <img
+          alt="Printing Ballot"
+          aria-hidden="true"
+          class="c0"
+          src="/images/printing-ballot.svg"
+        />
+      </p>
+      <h1>
+        <span
+          aria-label="Printing your official ballot."
+          class="sc-bBHwJV ePpeWF"
+        >
+          Printing Official Ballot
+        </span>
+      </h1>
     </div>
   </main>
 </div>

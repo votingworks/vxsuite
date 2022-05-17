@@ -2,36 +2,32 @@
 
 exports[`renders NotFoundPage 1`] = `
 <div
-  class="sc-bBHHQT ddkoPB"
+  class="sc-jObXwK erQiAb"
 >
   <main
-    class="sc-llYToB desMbI"
+    class="sc-llYToB hbpTOJ"
   >
     <div
-      class="sc-iJKOzS fvNDjX"
+      class="sc-jRQAMF huupYJ"
     >
-      <div
-        class="sc-jRQAMF huupYJ"
-      >
-        <h1>
-          Page Not Found.
-        </h1>
-        <p>
-          No page exists at 
-          <code>
-            /foobar-not-found-path
-          </code>
-          .
-        </p>
-        <p>
-          <button
-            class="sc-ksdxAp gPNRbf"
-            type="button"
-          >
-            Start Over
-          </button>
-        </p>
-      </div>
+      <h1>
+        Page Not Found.
+      </h1>
+      <p>
+        No page exists at 
+        <code>
+          /foobar-not-found-path
+        </code>
+        .
+      </p>
+      <p>
+        <button
+          class="sc-ksdxAp gPNRbf"
+          type="button"
+        >
+          Start Over
+        </button>
+      </p>
     </div>
   </main>
 </div>

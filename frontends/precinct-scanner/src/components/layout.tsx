@@ -2,7 +2,6 @@ import React, { useContext } from 'react';
 import {
   Screen,
   Main,
-  MainChild,
   Prose,
   fontSizeTheme,
   ElectionInfoBar,
@@ -25,10 +24,8 @@ export function CenteredScreen({
     useContext(AppContext);
   return (
     <Screen flexDirection="column">
-      <Main padded>
-        <MainChild center maxWidth={false}>
-          {children}
-        </MainChild>
+      <Main padded centerChild>
+        {children}
       </Main>
       {infoBar && (
         <ElectionInfoBar

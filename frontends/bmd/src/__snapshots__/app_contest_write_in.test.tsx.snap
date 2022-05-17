@@ -285,103 +285,99 @@ exports[`Single Seat Contest with Write In 1`] = `
   tabindex="-1"
 >
   <div
-    class="sc-bBHHQT ddkoPB"
+    class="sc-jObXwK erQiAb"
   >
     <main
-      class="sc-llYToB desMbI"
+      class="sc-llYToB jSBges"
     >
       <div
-        class="sc-iJKOzS hGybVe"
+        class="c1"
+        id="contest-header"
       >
         <div
-          class="c1"
-          id="contest-header"
+          class="sc-jRQAMF boeJiV"
+          id="audiofocus"
         >
-          <div
-            class="sc-jRQAMF boeJiV"
-            id="audiofocus"
-          >
-            <h1
-              aria-label="Franklin County Registrar of Wills."
-            >
-              <div
-                class="c2"
-              >
-                Franklin County
-              </div>
-              Registrar of Wills
-            </h1>
-            <p>
-              <span
-                class=""
-              >
-                Vote for 
-                1
-                .
-              </span>
-               
-              <span
-                class="screen-reader-only"
-              >
-                To navigate through the contest choices, use the down button. To move to the next contest, use the right button.
-              </span>
-            </p>
-          </div>
-        </div>
-        <div
-          class="c3"
-        >
-          <div
-            class="c4"
+          <h1
+            aria-label="Franklin County Registrar of Wills."
           >
             <div
-              class="c5"
+              class="c2"
             >
-              <div
-                class="c6"
+              Franklin County
+            </div>
+            Registrar of Wills
+          </h1>
+          <p>
+            <span
+              class=""
+            >
+              Vote for 
+              1
+              .
+            </span>
+             
+            <span
+              class="screen-reader-only"
+            >
+              To navigate through the contest choices, use the down button. To move to the next contest, use the right button.
+            </span>
+          </p>
+        </div>
+      </div>
+      <div
+        class="c3"
+      >
+        <div
+          class="c4"
+        >
+          <div
+            class="c5"
+          >
+            <div
+              class="c6"
+            >
+              <button
+                aria-label=" Rhadka Ramachandrani, Independent."
+                class="c7"
+                data-choice="ramachandrani"
+                data-selected="false"
+                role="option"
+                type="button"
               >
-                <button
-                  aria-label=" Rhadka Ramachandrani, Independent."
-                  class="c7"
-                  data-choice="ramachandrani"
-                  data-selected="false"
-                  role="option"
-                  type="button"
+                <div
+                  class="sc-jRQAMF boeJiV"
                 >
-                  <div
-                    class="sc-jRQAMF boeJiV"
+                  <p
+                    class="c8"
                   >
-                    <p
-                      class="c8"
-                    >
-                      <strong>
-                        Rhadka Ramachandrani
-                      </strong>
-                      <br />
-                      Independent
-                    </p>
-                  </div>
-                </button>
-                <button
-                  class="c7"
-                  data-choice="write-in"
-                  data-selected="false"
-                  role="option"
-                  type="button"
+                    <strong>
+                      Rhadka Ramachandrani
+                    </strong>
+                    <br />
+                    Independent
+                  </p>
+                </div>
+              </button>
+              <button
+                class="c7"
+                data-choice="write-in"
+                data-selected="false"
+                role="option"
+                type="button"
+              >
+                <div
+                  class="sc-jRQAMF boeJiV"
                 >
-                  <div
-                    class="sc-jRQAMF boeJiV"
+                  <p
+                    aria-label="add write-in candidate."
                   >
-                    <p
-                      aria-label="add write-in candidate."
-                    >
-                      <em>
-                        add write-in candidate
-                      </em>
-                    </p>
-                  </div>
-                </button>
-              </div>
+                    <em>
+                      add write-in candidate
+                    </em>
+                  </p>
+                </div>
+              </button>
             </div>
           </div>
         </div>

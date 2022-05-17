@@ -2,63 +2,55 @@ import React from 'react';
 import { render } from '@testing-library/react';
 import 'jest-styled-components';
 
-import { Main, MainChild, MainChildFlexRow } from './main';
+import { Main } from './main';
 
 describe('renders Main', () => {
   test('with defaults', () => {
-    const { container, getByText } = render(
-      <Main>
-        <MainChild>MainChild</MainChild>
-      </Main>
-    );
+    const { container } = render(<Main>Main</Main>);
     const main = container.firstChild;
-    expect(main).toHaveStyleRule('overflow', 'auto');
+    expect(main).not.toHaveStyleRule('display');
+    expect(main).not.toHaveStyleRule('flex');
+    expect(main).not.toHaveStyleRule('flex-direction');
+    expect(main).not.toHaveStyleRule('justify-content');
+    expect(main).not.toHaveStyleRule('align-items');
     expect(main).not.toHaveStyleRule('padding');
-
-    const child = getByText('MainChild');
-    expect(child).not.toHaveStyleRule('display');
-    expect(child).not.toHaveStyleRule('flex');
-    expect(child).toHaveStyleRule('flex-direction', 'column');
-    expect(child).toHaveStyleRule('max-width', '35rem');
+    expect(main).toHaveStyleRule('overflow', 'auto');
   });
 
-  test('with all non-default Main options and common MainChild options', () => {
-    const { container, getByText } = render(
-      <Main noOverflow padded>
-        <MainChild center narrow>
-          MainChild
-        </MainChild>
+  test('with padding and centered child', () => {
+    const { container } = render(
+      <Main padded centerChild>
+        Main
       </Main>
     );
     const main = container.firstChild;
-    expect(main).not.toHaveStyleRule('overflow');
-    expect(main).toHaveStyleRule('padding', '1rem 0.5rem 2rem');
-
-    const child = getByText('MainChild');
-    expect(child).toHaveStyleRule('margin', 'auto');
-    expect(child).toHaveStyleRule('max-width', '50%');
+    expect(main).toHaveStyleRule('display', 'flex');
+    expect(main).not.toHaveStyleRule('flex');
+    expect(main).toHaveStyleRule('flex-direction', 'column');
+    expect(main).toHaveStyleRule('justify-content', 'center');
+    expect(main).toHaveStyleRule('align-items', 'center');
+    expect(main).toHaveStyleRule('padding', '1rem 1rem 2rem');
   });
 
-  test('with MainChild with no max width', () => {
-    const { getByText } = render(
-      <Main>
-        <MainChild flexContainer maxWidth={false}>
-          MainChild
-        </MainChild>
-      </Main>
-    );
-    const child = getByText('MainChild');
-    expect(child).toHaveStyleRule('display', 'flex');
-    expect(child).toHaveStyleRule('flex', '1');
-    expect(child).not.toHaveStyleRule('max-width');
+  test('as a flexRow', () => {
+    const { container } = render(<Main flexRow>Main</Main>);
+    const main = container.firstChild;
+    expect(main).toHaveStyleRule('display', 'flex');
+    expect(main).toHaveStyleRule('flex', '1');
+    expect(main).not.toHaveStyleRule('flex-direction');
+    expect(main).not.toHaveStyleRule('justify-content');
+    expect(main).not.toHaveStyleRule('align-items');
+    expect(main).not.toHaveStyleRule('padding');
   });
 
-  test('with columns in the main child', () => {
-    const { getByText } = render(
-      <Main>
-        <MainChildFlexRow>MainChildFlexRow</MainChildFlexRow>
-      </Main>
-    );
-    expect(getByText('MainChildFlexRow')).not.toHaveStyleRule('flex-direction');
+  test('as a flexColumn', () => {
+    const { container } = render(<Main flexColumn>Main</Main>);
+    const main = container.firstChild;
+    expect(main).toHaveStyleRule('display', 'flex');
+    expect(main).toHaveStyleRule('flex', '1');
+    expect(main).toHaveStyleRule('flex-direction', 'column');
+    expect(main).not.toHaveStyleRule('justify-content');
+    expect(main).not.toHaveStyleRule('align-items');
+    expect(main).not.toHaveStyleRule('padding');
   });
 });

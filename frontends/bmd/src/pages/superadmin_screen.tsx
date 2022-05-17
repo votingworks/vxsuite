@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-import { Main, MainChild, RebootFromUsbButton, Screen } from '@votingworks/ui';
+import { Main, RebootFromUsbButton, Screen } from '@votingworks/ui';
 
 import { usbstick } from '@votingworks/utils';
 import { Logger } from '@votingworks/logging';
@@ -23,13 +23,8 @@ export function SuperAdminScreen({
   useEffect(useEffectToggleLargeDisplay, []);
   return (
     <Screen white>
-      <Main padded>
-        <MainChild center>
-          <RebootFromUsbButton
-            usbDriveStatus={usbDriveStatus}
-            logger={logger}
-          />
-        </MainChild>
+      <Main padded centerChild>
+        <RebootFromUsbButton usbDriveStatus={usbDriveStatus} logger={logger} />
       </Main>
     </Screen>
   );

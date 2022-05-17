@@ -6,7 +6,6 @@ import {
   Button,
   CurrentDateAndTime,
   Main,
-  MainChild,
   Prose,
   Screen,
   SegmentedButton,
@@ -109,117 +108,113 @@ export function AdminScreen({
   return (
     <Screen flexDirection="row-reverse" voterMode={false}>
       <Main padded>
-        <MainChild maxWidth={false}>
-          <Prose>
-            {election && (
-              <React.Fragment>
-                <h1>
-                  <label htmlFor="selectPrecinct">Precinct</label>
-                </h1>
-                <p>
-                  <Select
-                    id="selectPrecinct"
-                    value={
-                      appPrecinct?.kind === PrecinctSelectionKind.AllPrecincts
-                        ? ALL_PRECINCTS_OPTION_VALUE
-                        : appPrecinct?.precinctId ?? ''
-                    }
-                    onBlur={changeAppPrecinctId}
-                    onChange={changeAppPrecinctId}
-                  >
-                    <option value="" disabled>
-                      Select a precinct for this device…
-                    </option>
-                    <option value={ALL_PRECINCTS_OPTION_VALUE}>
-                      {AllPrecinctsDisplayName}
-                    </option>
-                    {[...election.precincts]
-                      .sort((a, b) =>
-                        a.name.localeCompare(b.name, undefined, {
-                          ignorePunctuation: true,
-                        })
-                      )
-                      .map((precinct) => (
-                        <option key={precinct.id} value={precinct.id}>
-                          {precinct.name}
-                        </option>
-                      ))}
-                  </Select>
-                </p>
-                <h1>Testing Mode</h1>
-                <p>
-                  <SegmentedButton>
-                    <Button
-                      onPress={toggleLiveMode}
-                      primary={!isLiveMode}
-                      disabled={!isLiveMode}
-                    >
-                      Testing Mode
-                    </Button>
-                    <Button
-                      onPress={toggleLiveMode}
-                      primary={isLiveMode}
-                      disabled={isLiveMode}
-                    >
-                      Live Election Mode
-                    </Button>
-                  </SegmentedButton>
-                </p>
-                {machineConfig.appMode.isPrint && (
-                  <React.Fragment>
-                    <p>
-                      <Button
-                        small
-                        disabled={!isTestDecksAvailable}
-                        onPress={showTestDeck}
-                      >
-                        View Test Ballot Decks
-                      </Button>{' '}
-                      {isLiveMode && (
-                        <Text as="small" muted>
-                          (Available in testing mode)
-                        </Text>
-                      )}
-                    </p>
-                    <Text as="h1">Stats</Text>
-                    <Text>
-                      Printed Ballots: <strong>{ballotsPrintedCount}</strong>{' '}
-                    </Text>
-                  </React.Fragment>
-                )}
-              </React.Fragment>
-            )}
-            <h1>Current Date and Time</h1>
-            <p>
-              <CurrentDateAndTime />
-            </p>
-            <p>
-              <SetClockButton>Update Date and Time</SetClockButton>
-            </p>
-            <h1>Configuration</h1>
-            {election ? (
+        <Prose>
+          {election && (
+            <React.Fragment>
+              <h1>
+                <label htmlFor="selectPrecinct">Precinct</label>
+              </h1>
               <p>
-                <Text as="span" voteIcon>
-                  Election definition is loaded.
-                </Text>{' '}
-                <Button danger small onPress={unconfigure}>
-                  Unconfigure Machine
-                </Button>
+                <Select
+                  id="selectPrecinct"
+                  value={
+                    appPrecinct?.kind === PrecinctSelectionKind.AllPrecincts
+                      ? ALL_PRECINCTS_OPTION_VALUE
+                      : appPrecinct?.precinctId ?? ''
+                  }
+                  onBlur={changeAppPrecinctId}
+                  onChange={changeAppPrecinctId}
+                >
+                  <option value="" disabled>
+                    Select a precinct for this device…
+                  </option>
+                  <option value={ALL_PRECINCTS_OPTION_VALUE}>
+                    {AllPrecinctsDisplayName}
+                  </option>
+                  {[...election.precincts]
+                    .sort((a, b) =>
+                      a.name.localeCompare(b.name, undefined, {
+                        ignorePunctuation: true,
+                      })
+                    )
+                    .map((precinct) => (
+                      <option key={precinct.id} value={precinct.id}>
+                        {precinct.name}
+                      </option>
+                    ))}
+                </Select>
               </p>
-            ) : isFetchingElection ? (
-              <p>Loading Election Definition from Admin Card…</p>
-            ) : (
-              <React.Fragment>
-                <Text warningIcon>Election definition is not Loaded.</Text>
-                <p>
-                  <Button onPress={loadElection}>
-                    Load Election Definition
+              <h1>Testing Mode</h1>
+              <p>
+                <SegmentedButton>
+                  <Button
+                    onPress={toggleLiveMode}
+                    primary={!isLiveMode}
+                    disabled={!isLiveMode}
+                  >
+                    Testing Mode
                   </Button>
-                </p>
-              </React.Fragment>
-            )}
-          </Prose>
-        </MainChild>
+                  <Button
+                    onPress={toggleLiveMode}
+                    primary={isLiveMode}
+                    disabled={isLiveMode}
+                  >
+                    Live Election Mode
+                  </Button>
+                </SegmentedButton>
+              </p>
+              {machineConfig.appMode.isPrint && (
+                <React.Fragment>
+                  <p>
+                    <Button
+                      small
+                      disabled={!isTestDecksAvailable}
+                      onPress={showTestDeck}
+                    >
+                      View Test Ballot Decks
+                    </Button>{' '}
+                    {isLiveMode && (
+                      <Text as="small" muted>
+                        (Available in testing mode)
+                      </Text>
+                    )}
+                  </p>
+                  <Text as="h1">Stats</Text>
+                  <Text>
+                    Printed Ballots: <strong>{ballotsPrintedCount}</strong>{' '}
+                  </Text>
+                </React.Fragment>
+              )}
+            </React.Fragment>
+          )}
+          <h1>Current Date and Time</h1>
+          <p>
+            <CurrentDateAndTime />
+          </p>
+          <p>
+            <SetClockButton>Update Date and Time</SetClockButton>
+          </p>
+          <h1>Configuration</h1>
+          {election ? (
+            <p>
+              <Text as="span" voteIcon>
+                Election definition is loaded.
+              </Text>{' '}
+              <Button danger small onPress={unconfigure}>
+                Unconfigure Machine
+              </Button>
+            </p>
+          ) : isFetchingElection ? (
+            <p>Loading Election Definition from Admin Card…</p>
+          ) : (
+            <React.Fragment>
+              <Text warningIcon>Election definition is not Loaded.</Text>
+              <p>
+                <Button onPress={loadElection}>Load Election Definition</Button>
+              </p>
+            </React.Fragment>
+          )}
+        </Prose>
       </Main>
       <Sidebar
         appName={election ? machineConfig.appMode.productName : ''}

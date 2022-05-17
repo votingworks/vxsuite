@@ -140,41 +140,37 @@ exports[`renders StartPage 1`] = `
 }
 
 <div
-  class="sc-bBHHQT ddkoPB"
+  class="sc-jObXwK erQiAb"
 >
   <main
-    class="sc-llYToB desMbI"
+    class="sc-llYToB hbpTOJ"
   >
     <div
-      class="sc-iJKOzS fvNDjX"
+      class="sc-jRQAMF huupYJ"
     >
-      <div
-        class="sc-jRQAMF huupYJ"
+      <h1
+        aria-label="Democratic Primary Election."
       >
-        <h1
-          aria-label="Democratic Primary Election."
-        >
-          Democratic
+        Democratic
+         
+        Primary Election
+      </h1>
+      <hr />
+      <p>
+        <span>
+          Your ballot has
            
-          Primary Election
-        </h1>
-        <hr />
-        <p>
-          <span>
-            Your ballot has
-             
-            <strong>
-              22 contests
-            </strong>
-            .
-          </span>
-          <span
-            class="screen-reader-only"
-          >
-            When voting with the text-to-speech audio, use the accessible controller to navigate your ballot. To navigate through the contests, use the left and right buttons. To navigate through contest choices, use the up and down buttons. To select or unselect a contest choice as your vote, use the select button.
-          </span>
-        </p>
-      </div>
+          <strong>
+            22 contests
+          </strong>
+          .
+        </span>
+        <span
+          class="screen-reader-only"
+        >
+          When voting with the text-to-speech audio, use the accessible controller to navigate your ballot. To navigate through the contests, use the left and right buttons. To navigate through contest choices, use the up and down buttons. To select or unselect a contest choice as your vote, use the select button.
+        </span>
+      </p>
     </div>
   </main>
   <nav
@@ -461,41 +457,37 @@ exports[`renders StartPage with inline SVG 1`] = `
 }
 
 <div
-  class="sc-bBHHQT ddkoPB"
+  class="sc-jObXwK erQiAb"
 >
   <main
-    class="sc-llYToB desMbI"
+    class="sc-llYToB hbpTOJ"
   >
     <div
-      class="sc-iJKOzS fvNDjX"
+      class="sc-jRQAMF huupYJ"
     >
-      <div
-        class="sc-jRQAMF huupYJ"
+      <h1
+        aria-label=" General Election."
       >
-        <h1
-          aria-label=" General Election."
-        >
-          
+        
+         
+        General Election
+      </h1>
+      <hr />
+      <p>
+        <span>
+          Your ballot has
            
-          General Election
-        </h1>
-        <hr />
-        <p>
-          <span>
-            Your ballot has
-             
-            <strong>
-              22 contests
-            </strong>
-            .
-          </span>
-          <span
-            class="screen-reader-only"
-          >
-            When voting with the text-to-speech audio, use the accessible controller to navigate your ballot. To navigate through the contests, use the left and right buttons. To navigate through contest choices, use the up and down buttons. To select or unselect a contest choice as your vote, use the select button.
-          </span>
-        </p>
-      </div>
+          <strong>
+            22 contests
+          </strong>
+          .
+        </span>
+        <span
+          class="screen-reader-only"
+        >
+          When voting with the text-to-speech audio, use the accessible controller to navigate your ballot. To navigate through the contests, use the left and right buttons. To navigate through contest choices, use the up and down buttons. To select or unselect a contest choice as your vote, use the select button.
+        </span>
+      </p>
     </div>
   </main>
   <nav
@@ -940,41 +932,37 @@ exports[`renders StartPage with no seal 1`] = `
 }
 
 <div
-  class="sc-bBHHQT ddkoPB"
+  class="sc-jObXwK erQiAb"
 >
   <main
-    class="sc-llYToB desMbI"
+    class="sc-llYToB hbpTOJ"
   >
     <div
-      class="sc-iJKOzS fvNDjX"
+      class="sc-jRQAMF huupYJ"
     >
-      <div
-        class="sc-jRQAMF huupYJ"
+      <h1
+        aria-label=" General Election."
       >
-        <h1
-          aria-label=" General Election."
-        >
-          
+        
+         
+        General Election
+      </h1>
+      <hr />
+      <p>
+        <span>
+          Your ballot has
            
-          General Election
-        </h1>
-        <hr />
-        <p>
-          <span>
-            Your ballot has
-             
-            <strong>
-              22 contests
-            </strong>
-            .
-          </span>
-          <span
-            class="screen-reader-only"
-          >
-            When voting with the text-to-speech audio, use the accessible controller to navigate your ballot. To navigate through the contests, use the left and right buttons. To navigate through contest choices, use the up and down buttons. To select or unselect a contest choice as your vote, use the select button.
-          </span>
-        </p>
-      </div>
+          <strong>
+            22 contests
+          </strong>
+          .
+        </span>
+        <span
+          class="screen-reader-only"
+        >
+          When voting with the text-to-speech audio, use the accessible controller to navigate your ballot. To navigate through the contests, use the left and right buttons. To navigate through contest choices, use the up and down buttons. To select or unselect a contest choice as your vote, use the select button.
+        </span>
+      </p>
     </div>
   </main>
   <nav

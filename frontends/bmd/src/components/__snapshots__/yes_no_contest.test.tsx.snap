@@ -126,109 +126,105 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
 
 <div>
   <main
-    class="sc-llYToB desMbI"
+    class="sc-llYToB jSBges"
   >
     <div
-      class="sc-iJKOzS hGybVe"
+      class="c0"
+      id="contest-header"
     >
       <div
-        class="c0"
-        id="contest-header"
+        class="sc-jRQAMF boeJiV"
+        id="audiofocus"
       >
-        <div
-          class="sc-jRQAMF boeJiV"
-          id="audiofocus"
-        >
-          <h1
-            aria-label="County Prop 1: Garbage Collection Program."
-          >
-            <div
-              class="c1"
-            >
-              County
-            </div>
-            Prop 1: Garbage Collection Program
-          </h1>
-          <p>
-            <strong>
-              Vote Yes or No.
-            </strong>
-            <span
-              class="screen-reader-only"
-            >
-              Institute a garbage collection program that collects garbage on weekdays across the county.
-              To navigate through the contest choices, use the down button. To move to the next contest, use the right button.
-            </span>
-          </p>
-        </div>
-      </div>
-      <div
-        class="c2"
-      >
-        <div
-          class="c3"
+        <h1
+          aria-label="County Prop 1: Garbage Collection Program."
         >
           <div
-            class="c4"
+            class="c1"
           >
-            <div
-              class="sc-jRQAMF boeJiV"
+            County
+          </div>
+          Prop 1: Garbage Collection Program
+        </h1>
+        <p>
+          <strong>
+            Vote Yes or No.
+          </strong>
+          <span
+            class="screen-reader-only"
+          >
+            Institute a garbage collection program that collects garbage on weekdays across the county.
+            To navigate through the contest choices, use the down button. To move to the next contest, use the right button.
+          </span>
+        </p>
+      </div>
+    </div>
+    <div
+      class="c2"
+    >
+      <div
+        class="c3"
+      >
+        <div
+          class="c4"
+        >
+          <div
+            class="sc-jRQAMF boeJiV"
+          >
+            <p
+              class=""
             >
-              <p
-                class=""
-              >
-                <span>
-                  Institute a garbage collection program that collects garbage on weekdays across the county.
-                </span>
-              </p>
-            </div>
+              <span>
+                Institute a garbage collection program that collects garbage on weekdays across the county.
+              </span>
+            </p>
           </div>
         </div>
       </div>
+    </div>
+    <div
+      class="c5"
+    >
       <div
-        class="c5"
+        class="c6"
+        data-testid="contest-choices"
       >
-        <div
-          class="c6"
-          data-testid="contest-choices"
+        <button
+          class="c7"
+          data-choice="yes"
+          data-selected="false"
+          role="option"
+          type="button"
         >
-          <button
-            class="c7"
-            data-choice="yes"
-            data-selected="false"
-            role="option"
-            type="button"
+          <div
+            class="sc-jRQAMF boeJiV"
           >
-            <div
-              class="sc-jRQAMF boeJiV"
+            <p
+              aria-label=" Yes on Prop 1"
+              class="c8"
             >
-              <p
-                aria-label=" Yes on Prop 1"
-                class="c8"
-              >
-                Yes
-              </p>
-            </div>
-          </button>
-          <button
-            class="c7"
-            data-choice="no"
-            data-selected="false"
-            role="option"
-            type="button"
+              Yes
+            </p>
+          </div>
+        </button>
+        <button
+          class="c7"
+          data-choice="no"
+          data-selected="false"
+          role="option"
+          type="button"
+        >
+          <div
+            class="sc-jRQAMF boeJiV"
           >
-            <div
-              class="sc-jRQAMF boeJiV"
+            <p
+              aria-label=" No on Prop 1"
+              class="c8"
             >
-              <p
-                aria-label=" No on Prop 1"
-                class="c8"
-              >
-                No
-              </p>
-            </div>
-          </button>
-        </div>
+              No
+            </p>
+          </div>
+        </button>
       </div>
     </div>
   </main>
@@ -409,109 +405,105 @@ exports[`supports yes/no contest displays warning when attempting to change vote
 
 <div>
   <main
-    class="sc-llYToB desMbI"
+    class="sc-llYToB jSBges"
   >
     <div
-      class="sc-iJKOzS hGybVe"
+      class="c0"
+      id="contest-header"
     >
       <div
-        class="c0"
-        id="contest-header"
+        class="sc-jRQAMF boeJiV"
+        id="audiofocus"
       >
-        <div
-          class="sc-jRQAMF boeJiV"
-          id="audiofocus"
-        >
-          <h1
-            aria-label="County Prop 1: Garbage Collection Program."
-          >
-            <div
-              class="c1"
-            >
-              County
-            </div>
-            Prop 1: Garbage Collection Program
-          </h1>
-          <p>
-            <strong>
-              Vote Yes or No.
-            </strong>
-            <span
-              class="screen-reader-only"
-            >
-              Institute a garbage collection program that collects garbage on weekdays across the county.
-              To navigate through the contest choices, use the down button. To move to the next contest, use the right button.
-            </span>
-          </p>
-        </div>
-      </div>
-      <div
-        class="c2"
-      >
-        <div
-          class="c3"
+        <h1
+          aria-label="County Prop 1: Garbage Collection Program."
         >
           <div
-            class="c4"
+            class="c1"
           >
-            <div
-              class="sc-jRQAMF boeJiV"
+            County
+          </div>
+          Prop 1: Garbage Collection Program
+        </h1>
+        <p>
+          <strong>
+            Vote Yes or No.
+          </strong>
+          <span
+            class="screen-reader-only"
+          >
+            Institute a garbage collection program that collects garbage on weekdays across the county.
+            To navigate through the contest choices, use the down button. To move to the next contest, use the right button.
+          </span>
+        </p>
+      </div>
+    </div>
+    <div
+      class="c2"
+    >
+      <div
+        class="c3"
+      >
+        <div
+          class="c4"
+        >
+          <div
+            class="sc-jRQAMF boeJiV"
+          >
+            <p
+              class=""
             >
-              <p
-                class=""
-              >
-                <span>
-                  Institute a garbage collection program that collects garbage on weekdays across the county.
-                </span>
-              </p>
-            </div>
+              <span>
+                Institute a garbage collection program that collects garbage on weekdays across the county.
+              </span>
+            </p>
           </div>
         </div>
       </div>
+    </div>
+    <div
+      class="c5"
+    >
       <div
-        class="c5"
+        class="c6"
+        data-testid="contest-choices"
       >
-        <div
-          class="c6"
-          data-testid="contest-choices"
+        <button
+          class="c7"
+          data-choice="yes"
+          data-selected="true"
+          role="option"
+          type="button"
         >
-          <button
-            class="c7"
-            data-choice="yes"
-            data-selected="true"
-            role="option"
-            type="button"
+          <div
+            class="sc-jRQAMF boeJiV"
           >
-            <div
-              class="sc-jRQAMF boeJiV"
+            <p
+              aria-label="Selected, Yes on Prop 1"
+              class="c8"
             >
-              <p
-                aria-label="Selected, Yes on Prop 1"
-                class="c8"
-              >
-                Yes
-              </p>
-            </div>
-          </button>
-          <button
-            class="c9"
-            data-choice="no"
-            data-selected="false"
-            role="option"
-            type="button"
+              Yes
+            </p>
+          </div>
+        </button>
+        <button
+          class="c9"
+          data-choice="no"
+          data-selected="false"
+          role="option"
+          type="button"
+        >
+          <div
+            class="sc-jRQAMF boeJiV"
           >
-            <div
-              class="sc-jRQAMF boeJiV"
+            <p
+              aria-label=" No on Prop 1"
+              class="c8"
             >
-              <p
-                aria-label=" No on Prop 1"
-                class="c8"
-              >
-                No
-              </p>
-            </div>
-          </button>
-        </div>
+              No
+            </p>
+          </div>
+        </button>
       </div>
     </div>
   </main>

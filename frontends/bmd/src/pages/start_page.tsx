@@ -3,7 +3,7 @@ import React, { useContext, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';
 import { getPartyPrimaryAdjectiveFromBallotStyle } from '@votingworks/types';
-import { LinkButton, Main, MainChild, Screen, Prose } from '@votingworks/ui';
+import { LinkButton, Main, Screen, Prose } from '@votingworks/ui';
 
 import pluralize from 'pluralize';
 import { BallotContext } from '../contexts/ballot_context';
@@ -60,28 +60,26 @@ export function StartPage(): JSX.Element {
 
   return (
     <Screen ref={audioFocus}>
-      <Main>
-        <MainChild center>
-          <Prose textCenter>
-            <h1 aria-label={`${partyPrimaryAdjective} ${title}.`}>
-              {partyPrimaryAdjective} {title}
-            </h1>
-            <hr />
-            <p>
-              <span>
-                Your ballot has{' '}
-                <strong>{pluralize('contest', contests.length, true)}</strong>.
-              </span>
-              <span className="screen-reader-only">
-                When voting with the text-to-speech audio, use the accessible
-                controller to navigate your ballot. To navigate through the
-                contests, use the left and right buttons. To navigate through
-                contest choices, use the up and down buttons. To select or
-                unselect a contest choice as your vote, use the select button.
-              </span>
-            </p>
-          </Prose>
-        </MainChild>
+      <Main centerChild>
+        <Prose textCenter>
+          <h1 aria-label={`${partyPrimaryAdjective} ${title}.`}>
+            {partyPrimaryAdjective} {title}
+          </h1>
+          <hr />
+          <p>
+            <span>
+              Your ballot has{' '}
+              <strong>{pluralize('contest', contests.length, true)}</strong>.
+            </span>
+            <span className="screen-reader-only">
+              When voting with the text-to-speech audio, use the accessible
+              controller to navigate your ballot. To navigate through the
+              contests, use the left and right buttons. To navigate through
+              contest choices, use the up and down buttons. To select or
+              unselect a contest choice as your vote, use the select button.
+            </span>
+          </p>
+        </Prose>
       </Main>
       <Sidebar
         footer={

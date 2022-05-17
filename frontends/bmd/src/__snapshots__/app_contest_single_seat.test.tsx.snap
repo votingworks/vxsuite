@@ -337,201 +337,197 @@ exports[`Single Seat Contest 1`] = `
   tabindex="-1"
 >
   <div
-    class="sc-bBHHQT ddkoPB"
+    class="sc-jObXwK erQiAb"
   >
     <main
-      class="sc-llYToB desMbI"
+      class="sc-llYToB jSBges"
     >
       <div
-        class="sc-iJKOzS hGybVe"
+        class="c1"
+        id="contest-header"
       >
         <div
-          class="c1"
-          id="contest-header"
+          class="sc-jRQAMF boeJiV"
+          id="audiofocus"
         >
-          <div
-            class="sc-jRQAMF boeJiV"
-            id="audiofocus"
-          >
-            <h1
-              aria-label="United States President and Vice-President."
-            >
-              <div
-                class="c2"
-              >
-                United States
-              </div>
-              President and Vice-President
-            </h1>
-            <p>
-              <span
-                class=""
-              >
-                Vote for 
-                1
-                .
-              </span>
-               
-              <span
-                class="c3"
-              >
-                You have selected 
-                1
-                .
-              </span>
-              <span
-                class="screen-reader-only"
-              >
-                To navigate through the contest choices, use the down button. To move to the next contest, use the right button.
-              </span>
-            </p>
-          </div>
-        </div>
-        <div
-          class="c4"
-        >
-          <div
-            class="c5"
+          <h1
+            aria-label="United States President and Vice-President."
           >
             <div
-              class="c6"
+              class="c2"
             >
-              <div
-                class="c7"
+              United States
+            </div>
+            President and Vice-President
+          </h1>
+          <p>
+            <span
+              class=""
+            >
+              Vote for 
+              1
+              .
+            </span>
+             
+            <span
+              class="c3"
+            >
+              You have selected 
+              1
+              .
+            </span>
+            <span
+              class="screen-reader-only"
+            >
+              To navigate through the contest choices, use the down button. To move to the next contest, use the right button.
+            </span>
+          </p>
+        </div>
+      </div>
+      <div
+        class="c4"
+      >
+        <div
+          class="c5"
+        >
+          <div
+            class="c6"
+          >
+            <div
+              class="c7"
+            >
+              <button
+                aria-label="Selected, Joseph Barchi and Joseph Hallaren, Federalist."
+                class="c8"
+                data-choice="barchi-hallaren"
+                data-selected="true"
+                role="option"
+                type="button"
               >
-                <button
-                  aria-label="Selected, Joseph Barchi and Joseph Hallaren, Federalist."
-                  class="c8"
-                  data-choice="barchi-hallaren"
-                  data-selected="true"
-                  role="option"
-                  type="button"
+                <div
+                  class="sc-jRQAMF boeJiV"
                 >
-                  <div
-                    class="sc-jRQAMF boeJiV"
+                  <p
+                    class="c9"
                   >
-                    <p
-                      class="c9"
-                    >
-                      <strong>
-                        Joseph Barchi and Joseph Hallaren
-                      </strong>
-                      <br />
-                      Federalist
-                    </p>
-                  </div>
-                </button>
-                <button
-                  aria-label=" Adam Cramer and Greg Vuocolo, People's."
-                  class="c10"
-                  data-choice="cramer-vuocolo"
-                  data-selected="false"
-                  role="option"
-                  type="button"
+                    <strong>
+                      Joseph Barchi and Joseph Hallaren
+                    </strong>
+                    <br />
+                    Federalist
+                  </p>
+                </div>
+              </button>
+              <button
+                aria-label=" Adam Cramer and Greg Vuocolo, People's."
+                class="c10"
+                data-choice="cramer-vuocolo"
+                data-selected="false"
+                role="option"
+                type="button"
+              >
+                <div
+                  class="sc-jRQAMF boeJiV"
                 >
-                  <div
-                    class="sc-jRQAMF boeJiV"
+                  <p
+                    class="c9"
                   >
-                    <p
-                      class="c9"
-                    >
-                      <strong>
-                        Adam Cramer and Greg Vuocolo
-                      </strong>
-                      <br />
-                      People's
-                    </p>
-                  </div>
-                </button>
-                <button
-                  aria-label=" Daniel Court and Amy Blumhardt, Liberty."
-                  class="c10"
-                  data-choice="court-blumhardt"
-                  data-selected="false"
-                  role="option"
-                  type="button"
+                    <strong>
+                      Adam Cramer and Greg Vuocolo
+                    </strong>
+                    <br />
+                    People's
+                  </p>
+                </div>
+              </button>
+              <button
+                aria-label=" Daniel Court and Amy Blumhardt, Liberty."
+                class="c10"
+                data-choice="court-blumhardt"
+                data-selected="false"
+                role="option"
+                type="button"
+              >
+                <div
+                  class="sc-jRQAMF boeJiV"
                 >
-                  <div
-                    class="sc-jRQAMF boeJiV"
+                  <p
+                    class="c9"
                   >
-                    <p
-                      class="c9"
-                    >
-                      <strong>
-                        Daniel Court and Amy Blumhardt
-                      </strong>
-                      <br />
-                      Liberty
-                    </p>
-                  </div>
-                </button>
-                <button
-                  aria-label=" Alvin Boone and James Lian, Constitution."
-                  class="c10"
-                  data-choice="boone-lian"
-                  data-selected="false"
-                  role="option"
-                  type="button"
+                    <strong>
+                      Daniel Court and Amy Blumhardt
+                    </strong>
+                    <br />
+                    Liberty
+                  </p>
+                </div>
+              </button>
+              <button
+                aria-label=" Alvin Boone and James Lian, Constitution."
+                class="c10"
+                data-choice="boone-lian"
+                data-selected="false"
+                role="option"
+                type="button"
+              >
+                <div
+                  class="sc-jRQAMF boeJiV"
                 >
-                  <div
-                    class="sc-jRQAMF boeJiV"
+                  <p
+                    class="c9"
                   >
-                    <p
-                      class="c9"
-                    >
-                      <strong>
-                        Alvin Boone and James Lian
-                      </strong>
-                      <br />
-                      Constitution
-                    </p>
-                  </div>
-                </button>
-                <button
-                  aria-label=" Ashley Hildebrand-McDougall and James Garritty, Whig."
-                  class="c10"
-                  data-choice="hildebrand-garritty"
-                  data-selected="false"
-                  role="option"
-                  type="button"
+                    <strong>
+                      Alvin Boone and James Lian
+                    </strong>
+                    <br />
+                    Constitution
+                  </p>
+                </div>
+              </button>
+              <button
+                aria-label=" Ashley Hildebrand-McDougall and James Garritty, Whig."
+                class="c10"
+                data-choice="hildebrand-garritty"
+                data-selected="false"
+                role="option"
+                type="button"
+              >
+                <div
+                  class="sc-jRQAMF boeJiV"
                 >
-                  <div
-                    class="sc-jRQAMF boeJiV"
+                  <p
+                    class="c9"
                   >
-                    <p
-                      class="c9"
-                    >
-                      <strong>
-                        Ashley Hildebrand-McDougall and James Garritty
-                      </strong>
-                      <br />
-                      Whig
-                    </p>
-                  </div>
-                </button>
-                <button
-                  aria-label=" Martin Patterson and Clay Lariviere, Labor."
-                  class="c10"
-                  data-choice="patterson-lariviere"
-                  data-selected="false"
-                  role="option"
-                  type="button"
+                    <strong>
+                      Ashley Hildebrand-McDougall and James Garritty
+                    </strong>
+                    <br />
+                    Whig
+                  </p>
+                </div>
+              </button>
+              <button
+                aria-label=" Martin Patterson and Clay Lariviere, Labor."
+                class="c10"
+                data-choice="patterson-lariviere"
+                data-selected="false"
+                role="option"
+                type="button"
+              >
+                <div
+                  class="sc-jRQAMF boeJiV"
                 >
-                  <div
-                    class="sc-jRQAMF boeJiV"
+                  <p
+                    class="c9"
                   >
-                    <p
-                      class="c9"
-                    >
-                      <strong>
-                        Martin Patterson and Clay Lariviere
-                      </strong>
-                      <br />
-                      Labor
-                    </p>
-                  </div>
-                </button>
-              </div>
+                    <strong>
+                      Martin Patterson and Clay Lariviere
+                    </strong>
+                    <br />
+                    Labor
+                  </p>
+                </div>
+              </button>
             </div>
           </div>
         </div>

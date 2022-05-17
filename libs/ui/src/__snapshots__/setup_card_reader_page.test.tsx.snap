@@ -2,24 +2,20 @@
 
 exports[`renders SetupCardReaderPage renders SetupCardReaderPage with usePollWorkerLanguage set to false 1`] = `
 <div
-  class="sc-eCImvq jHDjEG"
+  class="sc-dkPtyc gyHLNG"
 >
   <main
-    class="sc-bdvvaa bLPjbS"
+    class="sc-bdvvaa eWAVzr"
   >
     <div
-      class="sc-gsDJrp iAWCZJ"
+      class="sc-gsDJrp immFYi"
     >
-      <div
-        class="sc-hKwCoD kzodhi"
-      >
-        <h1>
-          Card Reader Not Detected
-        </h1>
-        <p>
-          Please connect the card reader to continue.
-        </p>
-      </div>
+      <h1>
+        Card Reader Not Detected
+      </h1>
+      <p>
+        Please connect the card reader to continue.
+      </p>
     </div>
   </main>
 </div>
@@ -27,24 +23,20 @@ exports[`renders SetupCardReaderPage renders SetupCardReaderPage with usePollWor
 
 exports[`renders SetupCardReaderPage triggers useEffect property 1`] = `
 <div
-  class="sc-eCImvq jHDjEG"
+  class="sc-dkPtyc gyHLNG"
 >
   <main
-    class="sc-bdvvaa bLPjbS"
+    class="sc-bdvvaa eWAVzr"
   >
     <div
-      class="sc-gsDJrp iAWCZJ"
+      class="sc-gsDJrp immFYi"
     >
-      <div
-        class="sc-hKwCoD kzodhi"
-      >
-        <h1>
-          Card Reader Not Detected
-        </h1>
-        <p>
-          Please ask a poll worker to connect card reader.
-        </p>
-      </div>
+      <h1>
+        Card Reader Not Detected
+      </h1>
+      <p>
+        Please ask a poll worker to connect card reader.
+      </p>
     </div>
   </main>
 </div>
@@ -52,24 +44,20 @@ exports[`renders SetupCardReaderPage triggers useEffect property 1`] = `
 
 exports[`renders SetupCardReaderPage with no useEffect trigger as expected 1`] = `
 <div
-  class="sc-eCImvq jHDjEG"
+  class="sc-dkPtyc gyHLNG"
 >
   <main
-    class="sc-bdvvaa bLPjbS"
+    class="sc-bdvvaa eWAVzr"
   >
     <div
-      class="sc-gsDJrp iAWCZJ"
+      class="sc-gsDJrp immFYi"
     >
-      <div
-        class="sc-hKwCoD kzodhi"
-      >
-        <h1>
-          Card Reader Not Detected
-        </h1>
-        <p>
-          Please ask a poll worker to connect card reader.
-        </p>
-      </div>
+      <h1>
+        Card Reader Not Detected
+      </h1>
+      <p>
+        Please ask a poll worker to connect card reader.
+      </p>
     </div>
   </main>
 </div>

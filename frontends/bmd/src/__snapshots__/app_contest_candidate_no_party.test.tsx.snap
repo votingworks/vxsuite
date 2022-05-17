@@ -285,182 +285,178 @@ exports[`Single Seat Contest 1`] = `
   tabindex="-1"
 >
   <div
-    class="sc-bBHHQT ddkoPB"
+    class="sc-jObXwK erQiAb"
   >
     <main
-      class="sc-llYToB desMbI"
+      class="sc-llYToB jSBges"
     >
       <div
-        class="sc-iJKOzS hGybVe"
+        class="c1"
+        id="contest-header"
       >
         <div
-          class="c1"
-          id="contest-header"
+          class="sc-jRQAMF boeJiV"
+          id="audiofocus"
         >
-          <div
-            class="sc-jRQAMF boeJiV"
-            id="audiofocus"
-          >
-            <h1
-              aria-label="United States President and Vice-President."
-            >
-              <div
-                class="c2"
-              >
-                United States
-              </div>
-              President and Vice-President
-            </h1>
-            <p>
-              <span
-                class=""
-              >
-                Vote for 
-                1
-                .
-              </span>
-               
-              <span
-                class="screen-reader-only"
-              >
-                To navigate through the contest choices, use the down button. To move to the next contest, use the right button.
-              </span>
-            </p>
-          </div>
-        </div>
-        <div
-          class="c3"
-        >
-          <div
-            class="c4"
+          <h1
+            aria-label="United States President and Vice-President."
           >
             <div
-              class="c5"
+              class="c2"
             >
-              <div
-                class="c6"
+              United States
+            </div>
+            President and Vice-President
+          </h1>
+          <p>
+            <span
+              class=""
+            >
+              Vote for 
+              1
+              .
+            </span>
+             
+            <span
+              class="screen-reader-only"
+            >
+              To navigate through the contest choices, use the down button. To move to the next contest, use the right button.
+            </span>
+          </p>
+        </div>
+      </div>
+      <div
+        class="c3"
+      >
+        <div
+          class="c4"
+        >
+          <div
+            class="c5"
+          >
+            <div
+              class="c6"
+            >
+              <button
+                aria-label=" Joseph Barchi and Joseph Hallaren."
+                class="c7"
+                data-choice="barchi-hallaren"
+                data-selected="false"
+                role="option"
+                type="button"
               >
-                <button
-                  aria-label=" Joseph Barchi and Joseph Hallaren."
-                  class="c7"
-                  data-choice="barchi-hallaren"
-                  data-selected="false"
-                  role="option"
-                  type="button"
+                <div
+                  class="sc-jRQAMF boeJiV"
                 >
-                  <div
-                    class="sc-jRQAMF boeJiV"
+                  <p
+                    class="c8"
                   >
-                    <p
-                      class="c8"
-                    >
-                      <strong>
-                        Joseph Barchi and Joseph Hallaren
-                      </strong>
-                    </p>
-                  </div>
-                </button>
-                <button
-                  aria-label=" Adam Cramer and Greg Vuocolo."
-                  class="c7"
-                  data-choice="cramer-vuocolo"
-                  data-selected="false"
-                  role="option"
-                  type="button"
+                    <strong>
+                      Joseph Barchi and Joseph Hallaren
+                    </strong>
+                  </p>
+                </div>
+              </button>
+              <button
+                aria-label=" Adam Cramer and Greg Vuocolo."
+                class="c7"
+                data-choice="cramer-vuocolo"
+                data-selected="false"
+                role="option"
+                type="button"
+              >
+                <div
+                  class="sc-jRQAMF boeJiV"
                 >
-                  <div
-                    class="sc-jRQAMF boeJiV"
+                  <p
+                    class="c8"
                   >
-                    <p
-                      class="c8"
-                    >
-                      <strong>
-                        Adam Cramer and Greg Vuocolo
-                      </strong>
-                    </p>
-                  </div>
-                </button>
-                <button
-                  aria-label=" Daniel Court and Amy Blumhardt."
-                  class="c7"
-                  data-choice="court-blumhardt"
-                  data-selected="false"
-                  role="option"
-                  type="button"
+                    <strong>
+                      Adam Cramer and Greg Vuocolo
+                    </strong>
+                  </p>
+                </div>
+              </button>
+              <button
+                aria-label=" Daniel Court and Amy Blumhardt."
+                class="c7"
+                data-choice="court-blumhardt"
+                data-selected="false"
+                role="option"
+                type="button"
+              >
+                <div
+                  class="sc-jRQAMF boeJiV"
                 >
-                  <div
-                    class="sc-jRQAMF boeJiV"
+                  <p
+                    class="c8"
                   >
-                    <p
-                      class="c8"
-                    >
-                      <strong>
-                        Daniel Court and Amy Blumhardt
-                      </strong>
-                    </p>
-                  </div>
-                </button>
-                <button
-                  aria-label=" Alvin Boone and James Lian."
-                  class="c7"
-                  data-choice="boone-lian"
-                  data-selected="false"
-                  role="option"
-                  type="button"
+                    <strong>
+                      Daniel Court and Amy Blumhardt
+                    </strong>
+                  </p>
+                </div>
+              </button>
+              <button
+                aria-label=" Alvin Boone and James Lian."
+                class="c7"
+                data-choice="boone-lian"
+                data-selected="false"
+                role="option"
+                type="button"
+              >
+                <div
+                  class="sc-jRQAMF boeJiV"
                 >
-                  <div
-                    class="sc-jRQAMF boeJiV"
+                  <p
+                    class="c8"
                   >
-                    <p
-                      class="c8"
-                    >
-                      <strong>
-                        Alvin Boone and James Lian
-                      </strong>
-                    </p>
-                  </div>
-                </button>
-                <button
-                  aria-label=" Ashley Hildebrand-McDougall and James Garritty."
-                  class="c7"
-                  data-choice="hildebrand-garritty"
-                  data-selected="false"
-                  role="option"
-                  type="button"
+                    <strong>
+                      Alvin Boone and James Lian
+                    </strong>
+                  </p>
+                </div>
+              </button>
+              <button
+                aria-label=" Ashley Hildebrand-McDougall and James Garritty."
+                class="c7"
+                data-choice="hildebrand-garritty"
+                data-selected="false"
+                role="option"
+                type="button"
+              >
+                <div
+                  class="sc-jRQAMF boeJiV"
                 >
-                  <div
-                    class="sc-jRQAMF boeJiV"
+                  <p
+                    class="c8"
                   >
-                    <p
-                      class="c8"
-                    >
-                      <strong>
-                        Ashley Hildebrand-McDougall and James Garritty
-                      </strong>
-                    </p>
-                  </div>
-                </button>
-                <button
-                  aria-label=" Martin Patterson and Clay Lariviere."
-                  class="c7"
-                  data-choice="patterson-lariviere"
-                  data-selected="false"
-                  role="option"
-                  type="button"
+                    <strong>
+                      Ashley Hildebrand-McDougall and James Garritty
+                    </strong>
+                  </p>
+                </div>
+              </button>
+              <button
+                aria-label=" Martin Patterson and Clay Lariviere."
+                class="c7"
+                data-choice="patterson-lariviere"
+                data-selected="false"
+                role="option"
+                type="button"
+              >
+                <div
+                  class="sc-jRQAMF boeJiV"
                 >
-                  <div
-                    class="sc-jRQAMF boeJiV"
+                  <p
+                    class="c8"
                   >
-                    <p
-                      class="c8"
-                    >
-                      <strong>
-                        Martin Patterson and Clay Lariviere
-                      </strong>
-                    </p>
-                  </div>
-                </button>
-              </div>
+                    <strong>
+                      Martin Patterson and Clay Lariviere
+                    </strong>
+                  </p>
+                </div>
+              </button>
             </div>
           </div>
         </div>

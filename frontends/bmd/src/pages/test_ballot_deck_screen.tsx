@@ -14,7 +14,6 @@ import {
   ButtonList,
   Loading,
   Main,
-  MainChild,
   Modal,
   Prose,
   Screen,
@@ -177,59 +176,57 @@ export function TestBallotDeckScreen({
     <React.Fragment>
       <Screen flexDirection="row-reverse" voterMode={false}>
         <Main padded>
-          <MainChild maxWidth={false}>
-            {ballots.length ? (
-              <Prose className="no-print">
+          {ballots.length ? (
+            <Prose className="no-print">
+              <h1>Test Ballot Decks</h1>
+              <p>
+                Deck containing{' '}
+                <strong>{pluralize('ballot', ballots.length, true)}</strong> for{' '}
+                {precinct.name}.
+              </p>
+              <p>
+                <Button large primary onPress={handlePrinting}>
+                  Print {ballots.length} ballots
+                </Button>
+              </p>
+              <p>
+                <Button small onPress={resetDeck}>
+                  Back to Precincts List
+                </Button>
+              </p>
+            </Prose>
+          ) : (
+            <React.Fragment>
+              <Prose id="audiofocus">
                 <h1>Test Ballot Decks</h1>
-                <p>
-                  Deck containing{' '}
-                  <strong>{pluralize('ballot', ballots.length, true)}</strong>{' '}
-                  for {precinct.name}.
-                </p>
-                <p>
-                  <Button large primary onPress={handlePrinting}>
-                    Print {ballots.length} ballots
-                  </Button>
-                </p>
-                <p>
-                  <Button small onPress={resetDeck}>
-                    Back to Precincts List
-                  </Button>
-                </p>
+                <p>Select desired precinct.</p>
               </Prose>
-            ) : (
-              <React.Fragment>
-                <Prose id="audiofocus">
-                  <h1>Test Ballot Decks</h1>
-                  <p>Select desired precinct.</p>
-                </Prose>
-                <p>
+              <p>
+                <Button
+                  data-id=""
+                  data-name="All Precincts"
+                  fullWidth
+                  key="all-precincts"
+                  onPress={selectPrecinct}
+                >
+                  <strong>All Precincts</strong>
+                </Button>
+              </p>
+              <ButtonList data-testid="precincts">
+                {election.precincts.map((p) => (
                   <Button
-                    data-id=""
-                    data-name="All Precincts"
+                    data-id={p.id}
+                    data-name={p.name}
                     fullWidth
-                    key="all-precincts"
+                    key={p.id}
                     onPress={selectPrecinct}
                   >
-                    <strong>All Precincts</strong>
+                    {p.name}
                   </Button>
-                </p>
-                <ButtonList data-testid="precincts">
-                  {election.precincts.map((p) => (
-                    <Button
-                      data-id={p.id}
-                      data-name={p.name}
-                      fullWidth
-                      key={p.id}
-                      onPress={selectPrecinct}
-                    >
-                      {p.name}
-                    </Button>
-                  ))}
-                </ButtonList>
-              </React.Fragment>
-            )}
-          </MainChild>
+                ))}
+              </ButtonList>
+            </React.Fragment>
+          )}
         </Main>
         <Sidebar
           appName={machineConfig.appMode.productName}

@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Screen, Main, MainChild } from '@votingworks/ui';
+import { Screen, Main } from '@votingworks/ui';
 
 import { BallotStyle, PartyId } from '@votingworks/types';
 import { EventTargetFunction } from '../config/types';
@@ -43,37 +43,35 @@ export function PrecinctBallotStylesScreen({
   return (
     <Screen flexDirection="column">
       <Main>
-        <MainChild maxWidth={false}>
-          <Heading>
-            {!isSinglePrecinctMode && (
-              <ButtonContainer>
-                <Button small onPress={showPrecincts}>
-                  All Precincts
-                </Button>
-              </ButtonContainer>
-            )}
-            <Prose>
-              <h1>
-                Ballot Styles{' '}
-                <Text as="span" light>
-                  for {precinctName}
-                </Text>
-              </h1>
-            </Prose>
-          </Heading>
-          <ButtonList columns={ballotStylesColumns}>
-            {ballotStyles.map((ballotStyle) => (
-              <Button
-                fullWidth
-                data-ballot-style-id={ballotStyle.id}
-                key={ballotStyle.id}
-                onPress={programCard}
-              >
-                {ballotStyle.id}
+        <Heading>
+          {!isSinglePrecinctMode && (
+            <ButtonContainer>
+              <Button small onPress={showPrecincts}>
+                All Precincts
               </Button>
-            ))}
-          </ButtonList>
-        </MainChild>
+            </ButtonContainer>
+          )}
+          <Prose>
+            <h1>
+              Ballot Styles{' '}
+              <Text as="span" light>
+                for {precinctName}
+              </Text>
+            </h1>
+          </Prose>
+        </Heading>
+        <ButtonList columns={ballotStylesColumns}>
+          {ballotStyles.map((ballotStyle) => (
+            <Button
+              fullWidth
+              data-ballot-style-id={ballotStyle.id}
+              key={ballotStyle.id}
+              onPress={programCard}
+            >
+              {ballotStyle.id}
+            </Button>
+          ))}
+        </ButtonList>
       </Main>
       <MainNav>
         <Button small onPress={lockScreen}>

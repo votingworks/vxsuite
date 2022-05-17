@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Screen, Main, MainChild } from '@votingworks/ui';
+import { Screen, Main } from '@votingworks/ui';
 
 import { Prose } from '../components/prose';
 import { MainNav } from '../components/main_nav';
@@ -13,12 +13,10 @@ interface Props {
 export function NonWritableCardScreen({ lockScreen }: Props): JSX.Element {
   return (
     <Screen flexDirection="column">
-      <Main>
-        <MainChild center>
-          <Prose textCenter>
-            <h1>Non-Writable Card</h1>
-          </Prose>
-        </MainChild>
+      <Main centerChild>
+        <Prose textCenter>
+          <h1>Non-Writable Card</h1>
+        </Prose>
       </Main>
       <MainNav>
         <Button small onPress={lockScreen}>

@@ -2,14 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import pluralize from 'pluralize';
 import useInterval from 'use-interval';
 
-import {
-  Button,
-  Loading,
-  Main,
-  MainChild,
-  Prose,
-  Screen,
-} from '@votingworks/ui';
+import { Button, Loading, Main, Prose, Screen } from '@votingworks/ui';
 
 import {
   IDLE_RESET_TIMEOUT_SECONDS,
@@ -46,29 +39,27 @@ export function IdlePage(): JSX.Element {
 
   return (
     <Screen>
-      <Main>
-        <MainChild center>
-          {isLoading ? (
-            <Loading>Clearing ballot</Loading>
-          ) : (
-            <Prose textCenter>
-              <h1 aria-label="Are you still voting?">Are you still voting?</h1>
+      <Main centerChild>
+        {isLoading ? (
+          <Loading>Clearing ballot</Loading>
+        ) : (
+          <Prose textCenter>
+            <h1 aria-label="Are you still voting?">Are you still voting?</h1>
+            <p>
+              This voting station has been inactive for more than{' '}
+              {pluralize('minute', IDLE_TIMEOUT_SECONDS / 60, true)}.
+            </p>
+            {countdown <= timeoutSeconds / 2 && (
               <p>
-                This voting station has been inactive for more than{' '}
-                {pluralize('minute', IDLE_TIMEOUT_SECONDS / 60, true)}.
+                To protect your privacy, this ballot will be cleared in{' '}
+                <strong>{pluralize('second', countdown, true)}</strong>.
               </p>
-              {countdown <= timeoutSeconds / 2 && (
-                <p>
-                  To protect your privacy, this ballot will be cleared in{' '}
-                  <strong>{pluralize('second', countdown, true)}</strong>.
-                </p>
-              )}
-              <Button primary onPress={onPress}>
-                Yes, I’m still voting.
-              </Button>
-            </Prose>
-          )}
-        </MainChild>
+            )}
+            <Button primary onPress={onPress}>
+              Yes, I’m still voting.
+            </Button>
+          </Prose>
+        )}
       </Main>
     </Screen>
   );

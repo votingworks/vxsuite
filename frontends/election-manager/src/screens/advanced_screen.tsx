@@ -16,7 +16,7 @@ export function AdvancedScreen(): JSX.Element {
   const [exportingLogType, setExportingLogType] = useState<LogFileType>();
   return (
     <React.Fragment>
-      <NavigationScreen mainChildFlex>
+      <NavigationScreen>
         <Prose maxWidth={false}>
           <h1>Advanced Options</h1>
           <h2>Logs</h2>
