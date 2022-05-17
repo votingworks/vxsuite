@@ -523,17 +523,7 @@ export function PollWorkerScreen({
             }
           />
         )}
-        {isConfirmingPrecinctScannerPrint && !precinctScannerTallyInformation && (
-          <Modal
-            ariaHideApp={false}
-            content={
-              <Prose textCenter id="modalaudiofocus">
-                <Loading />
-              </Prose>
-            }
-          />
-        )}
-        {isConfirmingPrecinctScannerPrint && precinctScannerTallyInformation && (
+        {isConfirmingPrecinctScannerPrint && (
           <Modal
             content={
               <Prose id="modalaudiofocus">
