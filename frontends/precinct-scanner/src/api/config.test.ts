@@ -1,8 +1,5 @@
 import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures';
-import {
-  GetTestModeConfigResponse,
-  PatchElectionConfigResponse,
-} from '@votingworks/types/api/services/scan';
+import { Scan } from '@votingworks/api';
 import fetchMock from 'fetch-mock';
 import * as config from './config';
 
@@ -17,7 +14,7 @@ test('PATCH /config/election', async () => {
 });
 
 test('PATCH /config/election fails', async () => {
-  const body: PatchElectionConfigResponse = {
+  const body: Scan.PatchElectionConfigResponse = {
     status: 'error',
     errors: [{ type: 'invalid-value', message: 'bad election!' }],
   };
@@ -44,11 +41,11 @@ test('DELETE /config/election to delete election with bad API response', async (
 });
 
 test('GET /config/testMode', async () => {
-  const testModeTrueResponse: GetTestModeConfigResponse = {
+  const testModeTrueResponse: Scan.GetTestModeConfigResponse = {
     status: 'ok',
     testMode: true,
   };
-  const testModeFalseResponse: GetTestModeConfigResponse = {
+  const testModeFalseResponse: Scan.GetTestModeConfigResponse = {
     status: 'ok',
     testMode: false,
   };

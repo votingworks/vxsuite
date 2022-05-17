@@ -1,4 +1,4 @@
-import { ScannerStatus } from '@votingworks/types/api/services/scan';
+import { Scan } from '@votingworks/api';
 import React, { useCallback, useEffect, useReducer, useMemo } from 'react';
 import useInterval from '@rooks/use-interval';
 import 'normalize.css';
@@ -510,8 +510,8 @@ export function AppRoot({
 
         // Figure out what ballot state we are in, defaulting to the current state.
         switch (scannerState) {
-          case ScannerStatus.Error:
-          case ScannerStatus.Unknown: {
+          case Scan.ScannerStatus.Error:
+          case Scan.ScannerStatus.Unknown: {
             // The scanner returned an error move to the error screen. Assume there is not currently paper in the scanner.
             // TODO(531) Bugs in services/scan make this happen at confusing moments, ignore for now.
             debug('got a bad scanner status', scannerState);
@@ -521,7 +521,7 @@ export function AppRoot({
           }) */
             return;
           }
-          case ScannerStatus.ReadyToScan:
+          case Scan.ScannerStatus.ReadyToScan:
             if (isCapableOfBeginningNewScan) {
               // If we are going to reset the machine back to the insert ballot screen, cancel that.
               if (timeoutToInsertScreen) {
@@ -534,7 +534,7 @@ export function AppRoot({
               await scanDetectedBallot();
             }
             return;
-          case ScannerStatus.WaitingForPaper:
+          case Scan.ScannerStatus.WaitingForPaper:
             // When we can not begin a new scan we are not expecting to be waiting for paper
             // This will happen if someone is ripping the paper out of the scanner while scanning, or reviewing
             // a ballot.

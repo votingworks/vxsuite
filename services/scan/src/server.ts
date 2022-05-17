@@ -13,46 +13,7 @@ import {
   BallotPageLayoutSchema,
 } from '@votingworks/types';
 import { Logger, LogEventId, LogSource } from '@votingworks/logging';
-import {
-  AddTemplatesRequest,
-  AddTemplatesResponse,
-  CalibrateRequest,
-  CalibrateResponse,
-  DeleteCurrentPrecinctConfigResponse,
-  DeleteElectionConfigResponse,
-  DeleteMarkThresholdOverridesConfigResponse,
-  ExportRequest,
-  ExportResponse,
-  GetCurrentPrecinctConfigResponse,
-  GetElectionConfigResponse,
-  GetMarkThresholdOverridesConfigResponse,
-  GetNextReviewSheetResponse,
-  GetScanStatusResponse,
-  GetTestModeConfigResponse,
-  PatchElectionConfigRequest,
-  PatchElectionConfigResponse,
-  PatchMarkThresholdOverridesConfigRequest,
-  PatchMarkThresholdOverridesConfigRequestSchema,
-  PatchMarkThresholdOverridesConfigResponse,
-  PatchSkipElectionHashCheckConfigRequest,
-  PatchSkipElectionHashCheckConfigRequestSchema,
-  PatchSkipElectionHashCheckConfigResponse,
-  PatchTestModeConfigRequest,
-  PatchTestModeConfigRequestSchema,
-  PatchTestModeConfigResponse,
-  PutConfigPackageRequest,
-  PutConfigPackageResponse,
-  PutCurrentPrecinctConfigRequest,
-  PutCurrentPrecinctConfigRequestSchema,
-  PutCurrentPrecinctConfigResponse,
-  ScanBatchRequest,
-  ScanBatchResponse,
-  ScanContinueRequest,
-  ScanContinueRequestSchema,
-  ScanContinueResponse,
-  ZeroRequest,
-  ZeroResponse,
-} from '@votingworks/types/api/services/scan';
+import { Scan } from '@votingworks/api';
 import { Buffer } from 'buffer';
 import express, { Application } from 'express';
 import { readFile } from 'fs-extra';
@@ -103,7 +64,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
   app.use(express.json({ limit: '5mb', type: 'application/json' }));
   app.use(express.urlencoded({ extended: false }));
 
-  app.get<NoParams, GetElectionConfigResponse>(
+  app.get<NoParams, Scan.GetElectionConfigResponse>(
     '/config/election',
     (request, response) => {
       const electionDefinition = store.getElectionDefinition();
@@ -122,50 +83,51 @@ export function buildApp({ store, importer }: AppOptions): Application {
     }
   );
 
-  app.patch<NoParams, PatchElectionConfigResponse, PatchElectionConfigRequest>(
-    '/config/election',
-    (request, response) => {
-      const { body } = request;
+  app.patch<
+    NoParams,
+    Scan.PatchElectionConfigResponse,
+    Scan.PatchElectionConfigRequest
+  >('/config/election', (request, response) => {
+    const { body } = request;
 
-      if (!Buffer.isBuffer(body)) {
-        response.status(400).json({
-          status: 'error',
-          errors: [
-            {
-              type: 'invalid-value',
-              message: `expected content type to be application/octet-stream, got ${request.header(
-                'content-type'
-              )}`,
-            },
-          ],
-        });
-        return;
-      }
-
-      const bodyParseResult = safeParseElectionDefinition(
-        new TextDecoder('utf-8', { fatal: false }).decode(body)
-      );
-
-      if (bodyParseResult.isErr()) {
-        const error = bodyParseResult.err();
-        response.status(400).json({
-          status: 'error',
-          errors: [
-            {
-              type: error.name,
-              message: error.message,
-            },
-          ],
-        });
-        return;
-      }
-
-      importer.configure(bodyParseResult.ok());
-      response.json({ status: 'ok' });
+    if (!Buffer.isBuffer(body)) {
+      response.status(400).json({
+        status: 'error',
+        errors: [
+          {
+            type: 'invalid-value',
+            message: `expected content type to be application/octet-stream, got ${request.header(
+              'content-type'
+            )}`,
+          },
+        ],
+      });
+      return;
     }
-  );
 
-  app.delete<NoParams, DeleteElectionConfigResponse>(
+    const bodyParseResult = safeParseElectionDefinition(
+      new TextDecoder('utf-8', { fatal: false }).decode(body)
+    );
+
+    if (bodyParseResult.isErr()) {
+      const error = bodyParseResult.err();
+      response.status(400).json({
+        status: 'error',
+        errors: [
+          {
+            type: error.name,
+            message: error.message,
+          },
+        ],
+      });
+      return;
+    }
+
+    importer.configure(bodyParseResult.ok());
+    response.json({ status: 'ok' });
+  });
+
+  app.delete<NoParams, Scan.DeleteElectionConfigResponse>(
     '/config/election',
     async (_request, response) => {
       if (!store.getCanUnconfigure()) {
@@ -190,8 +152,8 @@ export function buildApp({ store, importer }: AppOptions): Application {
   app.put<
     '/config/package',
     NoParams,
-    PutConfigPackageResponse,
-    PutConfigPackageRequest
+    Scan.PutConfigPackageResponse,
+    Scan.PutConfigPackageRequest
   >(
     '/config/package',
     upload.fields([{ name: 'package', maxCount: 1 }]),
@@ -239,7 +201,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
     }
   );
 
-  app.get<NoParams, GetTestModeConfigResponse>(
+  app.get<NoParams, Scan.GetTestModeConfigResponse>(
     '/config/testMode',
     (_request, response) => {
       const testMode = store.getTestMode();
@@ -247,29 +209,30 @@ export function buildApp({ store, importer }: AppOptions): Application {
     }
   );
 
-  app.patch<NoParams, PatchTestModeConfigResponse, PatchTestModeConfigRequest>(
-    '/config/testMode',
-    async (request, response) => {
-      const bodyParseResult = safeParse(
-        PatchTestModeConfigRequestSchema,
-        request.body
-      );
+  app.patch<
+    NoParams,
+    Scan.PatchTestModeConfigResponse,
+    Scan.PatchTestModeConfigRequest
+  >('/config/testMode', async (request, response) => {
+    const bodyParseResult = safeParse(
+      Scan.PatchTestModeConfigRequestSchema,
+      request.body
+    );
 
-      if (bodyParseResult.isErr()) {
-        const error = bodyParseResult.err();
-        response.status(400).json({
-          status: 'error',
-          errors: [{ type: error.name, message: error.message }],
-        });
-        return;
-      }
-
-      await importer.setTestMode(bodyParseResult.ok().testMode);
-      response.json({ status: 'ok' });
+    if (bodyParseResult.isErr()) {
+      const error = bodyParseResult.err();
+      response.status(400).json({
+        status: 'error',
+        errors: [{ type: error.name, message: error.message }],
+      });
+      return;
     }
-  );
 
-  app.get<NoParams, GetCurrentPrecinctConfigResponse>(
+    await importer.setTestMode(bodyParseResult.ok().testMode);
+    response.json({ status: 'ok' });
+  });
+
+  app.get<NoParams, Scan.GetCurrentPrecinctConfigResponse>(
     '/config/precinct',
     (_request, response) => {
       const precinctId = store.getCurrentPrecinctId();
@@ -279,11 +242,11 @@ export function buildApp({ store, importer }: AppOptions): Application {
 
   app.put<
     NoParams,
-    PutCurrentPrecinctConfigResponse,
-    PutCurrentPrecinctConfigRequest
+    Scan.PutCurrentPrecinctConfigResponse,
+    Scan.PutCurrentPrecinctConfigRequest
   >('/config/precinct', (request, response) => {
     const bodyParseResult = safeParse(
-      PutCurrentPrecinctConfigRequestSchema,
+      Scan.PutCurrentPrecinctConfigRequestSchema,
       request.body
     );
 
@@ -300,7 +263,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
     response.json({ status: 'ok' });
   });
 
-  app.delete<NoParams, DeleteCurrentPrecinctConfigResponse>(
+  app.delete<NoParams, Scan.DeleteCurrentPrecinctConfigResponse>(
     '/config/precinct',
     (_request, response) => {
       store.setCurrentPrecinctId(undefined);
@@ -308,7 +271,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
     }
   );
 
-  app.get<NoParams, GetMarkThresholdOverridesConfigResponse>(
+  app.get<NoParams, Scan.GetMarkThresholdOverridesConfigResponse>(
     '/config/markThresholdOverrides',
     (_request, response) => {
       const markThresholdOverrides = store.getMarkThresholdOverrides();
@@ -316,7 +279,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
     }
   );
 
-  app.delete<NoParams, DeleteMarkThresholdOverridesConfigResponse>(
+  app.delete<NoParams, Scan.DeleteMarkThresholdOverridesConfigResponse>(
     '/config/markThresholdOverrides',
     async (_request, response) => {
       await importer.setMarkThresholdOverrides(undefined);
@@ -326,11 +289,11 @@ export function buildApp({ store, importer }: AppOptions): Application {
 
   app.patch<
     NoParams,
-    PatchMarkThresholdOverridesConfigResponse,
-    PatchMarkThresholdOverridesConfigRequest
+    Scan.PatchMarkThresholdOverridesConfigResponse,
+    Scan.PatchMarkThresholdOverridesConfigRequest
   >('/config/markThresholdOverrides', async (request, response) => {
     const bodyParseResult = safeParse(
-      PatchMarkThresholdOverridesConfigRequestSchema,
+      Scan.PatchMarkThresholdOverridesConfigRequestSchema,
       request.body
     );
 
@@ -351,11 +314,11 @@ export function buildApp({ store, importer }: AppOptions): Application {
 
   app.patch<
     NoParams,
-    PatchSkipElectionHashCheckConfigResponse,
-    PatchSkipElectionHashCheckConfigRequest
+    Scan.PatchSkipElectionHashCheckConfigResponse,
+    Scan.PatchSkipElectionHashCheckConfigRequest
   >('/config/skipElectionHashCheck', (request, response) => {
     const bodyParseResult = safeParse(
-      PatchSkipElectionHashCheckConfigRequestSchema,
+      Scan.PatchSkipElectionHashCheckConfigRequestSchema,
       request.body
     );
 
@@ -374,7 +337,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
     response.json({ status: 'ok' });
   });
 
-  app.post<NoParams, ScanBatchResponse, ScanBatchRequest>(
+  app.post<NoParams, Scan.ScanBatchResponse, Scan.ScanBatchRequest>(
     '/scan/scanBatch',
     async (_request, response) => {
       try {
@@ -390,11 +353,11 @@ export function buildApp({ store, importer }: AppOptions): Application {
     }
   );
 
-  app.post<NoParams, ScanContinueResponse, ScanContinueRequest>(
+  app.post<NoParams, Scan.ScanContinueResponse, Scan.ScanContinueRequest>(
     '/scan/scanContinue',
     async (request, response) => {
       const bodyParseResult = safeParse(
-        ScanContinueRequestSchema,
+        Scan.ScanContinueRequestSchema,
         request.body
       );
 
@@ -426,7 +389,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
     }
   );
 
-  app.post<NoParams, AddTemplatesResponse, AddTemplatesRequest>(
+  app.post<NoParams, Scan.AddTemplatesResponse, Scan.AddTemplatesRequest>(
     '/scan/hmpb/addTemplates',
     upload.fields([
       { name: 'ballots' },
@@ -561,7 +524,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
     response.json({ status: 'ok' });
   });
 
-  app.post<NoParams, ExportResponse, ExportRequest>(
+  app.post<NoParams, Scan.ExportResponse, Scan.ExportRequest>(
     '/scan/export',
     (_request, response) => {
       const cvrs = importer.doExport();
@@ -571,7 +534,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
     }
   );
 
-  app.get<NoParams, GetScanStatusResponse>(
+  app.get<NoParams, Scan.GetScanStatusResponse>(
     '/scan/status',
     async (_request, response) => {
       const status = await importer.getStatus();
@@ -579,7 +542,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
     }
   );
 
-  app.post<NoParams, CalibrateResponse, CalibrateRequest>(
+  app.post<NoParams, Scan.CalibrateResponse, Scan.CalibrateRequest>(
     '/scan/calibrate',
     async (_request, response) => {
       const success = await importer.doCalibrate();
@@ -646,7 +609,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
     }
   });
 
-  app.get<NoParams, GetNextReviewSheetResponse>(
+  app.get<NoParams, Scan.GetNextReviewSheetResponse>(
     '/scan/hmpb/review/next-sheet',
     (_request, response) => {
       const sheet = store.getNextAdjudicationSheet();
@@ -655,10 +618,10 @@ export function buildApp({ store, importer }: AppOptions): Application {
         let frontLayout: BallotPageLayout | undefined;
         let backLayout: BallotPageLayout | undefined;
         let frontDefinition:
-          | GetNextReviewSheetResponse['definitions']['front']
+          | Scan.GetNextReviewSheetResponse['definitions']['front']
           | undefined;
         let backDefinition:
-          | GetNextReviewSheetResponse['definitions']['back']
+          | Scan.GetNextReviewSheetResponse['definitions']['back']
           | undefined;
 
         if (sheet.front.interpretation.type === 'InterpretedHmpbPage') {
@@ -698,7 +661,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
     }
   );
 
-  app.post<NoParams, ZeroResponse, ZeroRequest>(
+  app.post<NoParams, Scan.ZeroResponse, Scan.ZeroRequest>(
     '/scan/zero',
     async (_request, response) => {
       if (!store.getCanUnconfigure()) {

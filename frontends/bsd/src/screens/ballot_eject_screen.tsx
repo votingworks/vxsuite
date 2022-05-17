@@ -6,11 +6,7 @@ import {
   PageInterpretation,
   WriteInAdjudicationReasonInfo,
 } from '@votingworks/types';
-import {
-  GetNextReviewSheetResponse,
-  ScanContinueRequest,
-  Side,
-} from '@votingworks/types/api/services/scan';
+import { Scan } from '@votingworks/api';
 import { assert } from '@votingworks/utils';
 import { ElectionInfoBar, Main, Screen } from '@votingworks/ui';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
@@ -63,7 +59,7 @@ const RectoVerso = styled.div`
 const HIGHLIGHTER_COLOR = '#fbff0066';
 
 interface Props {
-  continueScanning: (request: ScanContinueRequest) => Promise<void>;
+  continueScanning: (request: Scan.ScanContinueRequest) => Promise<void>;
   isTestMode: boolean;
 }
 
@@ -88,7 +84,8 @@ export function BallotEjectScreen({
 }: Props): JSX.Element {
   const { currentUserSession, logger, electionDefinition, machineConfig } =
     useContext(AppContext);
-  const [reviewInfo, setReviewInfo] = useState<GetNextReviewSheetResponse>();
+  const [reviewInfo, setReviewInfo] =
+    useState<Scan.GetNextReviewSheetResponse>();
   const [ballotState, setBallotState] = useState<EjectState>();
   assert(currentUserSession);
   const currentUserType = currentUserSession.type;
@@ -221,7 +218,11 @@ export function BallotEjectScreen({
   }, [reviewInfo, logger, currentUserType]);
 
   const onAdjudicationComplete = useCallback(
-    (sheetId: string, side: Side, adjudications: MarkAdjudications): void => {
+    (
+      sheetId: string,
+      side: Scan.Side,
+      adjudications: MarkAdjudications
+    ): void => {
       if (side === 'front') {
         setFrontMarkAdjudications(adjudications);
       } else {
@@ -278,7 +279,7 @@ export function BallotEjectScreen({
 
   for (const reviewPageInfo of [
     {
-      side: 'front' as Side,
+      side: 'front' as Scan.Side,
       imageUrl: reviewInfo.interpreted.front.image.url,
       interpretation: reviewInfo.interpreted.front.interpretation,
       layout: reviewInfo.layouts.front,
@@ -287,7 +288,7 @@ export function BallotEjectScreen({
         reviewInfo.interpreted.front.adjudicationFinishedAt,
     },
     {
-      side: 'back' as Side,
+      side: 'back' as Scan.Side,
       imageUrl: reviewInfo.interpreted.back.image.url,
       interpretation: reviewInfo.interpreted.back.interpretation,
       layout: reviewInfo.layouts.back,

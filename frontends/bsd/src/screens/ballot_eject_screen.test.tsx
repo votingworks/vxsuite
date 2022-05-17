@@ -2,7 +2,7 @@ import { fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
 import { AdjudicationReason, BallotType } from '@votingworks/types';
-import { GetNextReviewSheetResponse } from '@votingworks/types/api/services/scan';
+import { Scan } from '@votingworks/api';
 import { typedAs } from '@votingworks/utils';
 import fetchMock from 'fetch-mock';
 import React from 'react';
@@ -13,7 +13,7 @@ import { BallotEjectScreen } from './ballot_eject_screen';
 test('says the sheet is unreadable if it is', async () => {
   fetchMock.getOnce(
     '/scan/hmpb/review/next-sheet',
-    typedAs<GetNextReviewSheetResponse>({
+    typedAs<Scan.GetNextReviewSheetResponse>({
       interpreted: {
         id: 'mock-sheet-id',
         front: {
@@ -60,7 +60,7 @@ test('says the sheet is unreadable if it is', async () => {
 test('says the ballot sheet is overvoted if it is', async () => {
   fetchMock.getOnce(
     '/scan/hmpb/review/next-sheet',
-    typedAs<GetNextReviewSheetResponse>({
+    typedAs<Scan.GetNextReviewSheetResponse>({
       interpreted: {
         id: 'mock-sheet-id',
         front: {
@@ -171,7 +171,7 @@ test('says the ballot sheet is overvoted if it is', async () => {
 test('says the ballot sheet is undervoted if it is', async () => {
   fetchMock.getOnce(
     '/scan/hmpb/review/next-sheet',
-    typedAs<GetNextReviewSheetResponse>({
+    typedAs<Scan.GetNextReviewSheetResponse>({
       interpreted: {
         id: 'mock-sheet-id',
         front: {
@@ -281,7 +281,7 @@ test('says the ballot sheet is undervoted if it is', async () => {
 test('says the ballot sheet is blank if it is', async () => {
   fetchMock.getOnce(
     '/scan/hmpb/review/next-sheet',
-    typedAs<GetNextReviewSheetResponse>({
+    typedAs<Scan.GetNextReviewSheetResponse>({
       interpreted: {
         id: 'mock-sheet-id',
         front: {
@@ -398,7 +398,7 @@ test('says the ballot sheet is blank if it is', async () => {
 test('calls out live ballot sheets in test mode', async () => {
   fetchMock.getOnce(
     '/scan/hmpb/review/next-sheet',
-    typedAs<GetNextReviewSheetResponse>({
+    typedAs<Scan.GetNextReviewSheetResponse>({
       interpreted: {
         id: 'mock-sheet-id',
         front: {
@@ -467,7 +467,7 @@ test('calls out live ballot sheets in test mode', async () => {
 test('calls out test ballot sheets in live mode', async () => {
   fetchMock.getOnce(
     '/scan/hmpb/review/next-sheet',
-    typedAs<GetNextReviewSheetResponse>({
+    typedAs<Scan.GetNextReviewSheetResponse>({
       interpreted: {
         id: 'mock-sheet-id',
         front: {
@@ -539,7 +539,7 @@ test('calls out test ballot sheets in live mode', async () => {
 test('shows invalid election screen when appropriate', async () => {
   fetchMock.getOnce(
     '/scan/hmpb/review/next-sheet',
-    typedAs<GetNextReviewSheetResponse>({
+    typedAs<Scan.GetNextReviewSheetResponse>({
       interpreted: {
         id: 'mock-sheet-id',
         front: {
@@ -595,7 +595,7 @@ test('shows invalid election screen when appropriate', async () => {
 test('shows invalid precinct screen when appropriate', async () => {
   fetchMock.getOnce(
     '/scan/hmpb/review/next-sheet',
-    typedAs<GetNextReviewSheetResponse>({
+    typedAs<Scan.GetNextReviewSheetResponse>({
       interpreted: {
         id: 'mock-sheet-id',
         front: {
@@ -673,7 +673,7 @@ test('does NOT say ballot is blank if one side is blank and the other requires w
   ] as const) {
     fetchMock.getOnce(
       '/scan/hmpb/review/next-sheet',
-      typedAs<GetNextReviewSheetResponse>({
+      typedAs<Scan.GetNextReviewSheetResponse>({
         interpreted: {
           id: 'mock-sheet-id',
           front: {

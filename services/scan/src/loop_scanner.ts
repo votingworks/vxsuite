@@ -1,4 +1,4 @@
-import { ScannerStatus } from '@votingworks/types/api/services/scan';
+import { Scan } from '@votingworks/api';
 import { readFileSync } from 'fs-extra';
 import { join, resolve } from 'path';
 import { BatchControl, Scanner } from './scanners';
@@ -93,8 +93,8 @@ export class LoopScanner implements Scanner {
    */
   constructor(private readonly batches: readonly Batch[]) {}
 
-  async getStatus(): Promise<ScannerStatus> {
-    return ScannerStatus.Unknown;
+  async getStatus(): Promise<Scan.ScannerStatus> {
+    return Scan.ScannerStatus.Unknown;
   }
 
   /**

@@ -1,6 +1,6 @@
 import { asElectionDefinition } from '@votingworks/fixtures';
 import { AdjudicationReason, CastVoteRecord } from '@votingworks/types';
-import { ScanContinueRequest } from '@votingworks/types/api/services/scan';
+import { Scan } from '@votingworks/api';
 import { BallotPackageManifest, typedAs } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import { EventEmitter } from 'events';
@@ -273,7 +273,7 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
   await request(app)
     .post(`/scan/scanContinue`)
     .send(
-      typedAs<ScanContinueRequest>({
+      typedAs<Scan.ScanContinueRequest>({
         forceAccept: true,
         frontMarkAdjudications: [
           {

@@ -1,4 +1,4 @@
-import { ScannerStatus } from '@votingworks/types/api/services/scan';
+import { Scan } from '@votingworks/api';
 import { Button, Modal, Prose, useCancelablePromise } from '@votingworks/ui';
 import React, { useCallback, useState } from 'react';
 import { usePrecinctScanner } from '../hooks/use_precinct_scanner';
@@ -100,11 +100,11 @@ export function CalibrateScannerModal({
       }
       actions={
         <React.Fragment>
-          {scannerStatus === ScannerStatus.ReadyToScan ? (
+          {scannerStatus === Scan.ScannerStatus.ReadyToScan ? (
             <Button primary onPress={beginCalibration}>
               Calibrate
             </Button>
-          ) : scannerStatus === ScannerStatus.WaitingForPaper ? (
+          ) : scannerStatus === Scan.ScannerStatus.WaitingForPaper ? (
             <Button disabled onPress={noop}>
               Waiting for Paper
             </Button>

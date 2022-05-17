@@ -3,13 +3,7 @@ import {
   safeParseJson,
   unsafeParse,
 } from '@votingworks/types';
-import {
-  CalibrateResponseSchema,
-  GetNextReviewSheetResponseSchema,
-  GetScanStatusResponseSchema,
-  ScanContinueRequest,
-  ScannerStatus,
-} from '@votingworks/types/api/services/scan';
+import { Scan } from '@votingworks/api';
 import { fetchJson } from '@votingworks/utils';
 import makeDebug from 'debug';
 import {
@@ -22,13 +16,13 @@ const debug = makeDebug('precinct-scanner:api:scan');
 
 export interface ScannerStatusDetails {
   ballotNeedsReview: boolean;
-  scannerState: ScannerStatus;
+  scannerState: Scan.ScannerStatus;
   ballotCount: number;
 }
 
 export async function getCurrentStatus(): Promise<ScannerStatusDetails> {
   const { scanner, batches, adjudication } = unsafeParse(
-    GetScanStatusResponseSchema,
+    Scan.GetScanStatusResponseSchema,
     await fetchJson('/scan/status')
   );
   const ballotCount =
@@ -56,7 +50,7 @@ export async function scanDetectedSheet(): Promise<ScanningResult> {
 
   for (;;) {
     const status = unsafeParse(
-      GetScanStatusResponseSchema,
+      Scan.GetScanStatusResponseSchema,
       await fetchJson('/scan/status')
     );
     const batch = status.batches.find(({ id }) => id === batchId);
@@ -79,7 +73,7 @@ export async function scanDetectedSheet(): Promise<ScanningResult> {
     const adjudicationReasons: AdjudicationReasonInfo[] = [];
     if (status.adjudication.remaining > 0) {
       const sheetInfo = unsafeParse(
-        GetNextReviewSheetResponseSchema,
+        Scan.GetNextReviewSheetResponseSchema,
         await fetchJson('/scan/hmpb/review/next-sheet')
       );
 
@@ -130,7 +124,7 @@ export async function scanDetectedSheet(): Promise<ScanningResult> {
 }
 
 export async function acceptBallotAfterReview(): Promise<boolean> {
-  const body: ScanContinueRequest = {
+  const body: Scan.ScanContinueRequest = {
     forceAccept: true,
     frontMarkAdjudications: [],
     backMarkAdjudications: [],
@@ -154,7 +148,7 @@ export async function acceptBallotAfterReview(): Promise<boolean> {
 export async function endBatch(): Promise<boolean> {
   // calling scanContinue will "naturally" end the batch because services/scan
   // will see there's no more paper
-  const body: ScanContinueRequest = {
+  const body: Scan.ScanContinueRequest = {
     forceAccept: false,
   };
   const result = await (
@@ -180,7 +174,7 @@ export async function calibrate(): Promise<boolean> {
   });
 
   return (
-    safeParseJson(await response.text(), CalibrateResponseSchema).ok()
+    safeParseJson(await response.text(), Scan.CalibrateResponseSchema).ok()
       ?.status === 'ok'
   );
 }

@@ -1,10 +1,7 @@
 import fetchMock from 'fetch-mock';
 import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures';
 import { typedAs } from '@votingworks/utils';
-import {
-  DeleteElectionConfigResponse,
-  PatchElectionConfigResponse,
-} from '@votingworks/types/api/services/scan';
+import { Scan } from '@votingworks/api';
 import * as config from './config';
 
 test('GET /config/election', async () => {
@@ -14,7 +11,7 @@ test('GET /config/election', async () => {
 
 test('PATCH /config/election', async () => {
   fetchMock.patchOnce('/config/election', {
-    body: typedAs<PatchElectionConfigResponse>({ status: 'ok' }),
+    body: typedAs<Scan.PatchElectionConfigResponse>({ status: 'ok' }),
   });
   await config.setElection(testElectionDefinition.electionData);
 });
@@ -24,7 +21,7 @@ test('PATCH /config/election fails', async () => {
     '/config/election',
     new Response(
       JSON.stringify(
-        typedAs<PatchElectionConfigResponse>({
+        typedAs<Scan.PatchElectionConfigResponse>({
           status: 'error',
           errors: [{ type: 'invalid-value', message: 'bad election!' }],
         })
@@ -39,7 +36,7 @@ test('PATCH /config/election fails', async () => {
 
 test('DELETE /config/election to delete election', async () => {
   fetchMock.deleteOnce('/config/election', {
-    body: typedAs<DeleteElectionConfigResponse>({ status: 'ok' }),
+    body: typedAs<Scan.DeleteElectionConfigResponse>({ status: 'ok' }),
   });
   await config.setElection(undefined);
 });

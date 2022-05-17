@@ -15,7 +15,7 @@ import {
   WriteInAdjudicationReasonInfo,
   WriteInMarkAdjudication,
 } from '@votingworks/types';
-import { Side } from '@votingworks/types/api/services/scan';
+import { Scan } from '@votingworks/api';
 import {
   Main,
   Screen,
@@ -410,7 +410,7 @@ export interface Props {
   /**
    * Which side of the sheet being adjudicated.
    */
-  side: Side;
+  side: Scan.Side;
 
   /**
    * URL of the image to the whole ballot page being adjudicated.
@@ -439,7 +439,7 @@ export interface Props {
    */
   onAdjudicationComplete?(
     sheetId: string,
-    side: Side,
+    side: Scan.Side,
     adjudications: readonly WriteInMarkAdjudication[]
   ): void;
 }

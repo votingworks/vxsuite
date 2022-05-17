@@ -5,7 +5,7 @@ import {
   FakeWritable,
   fakeWritable,
 } from '@votingworks/test-utils';
-import { ScannerStatus } from '@votingworks/types/api/services/scan';
+import { Scan } from '@votingworks/api';
 import { throwIllegalValue } from '@votingworks/utils';
 import { ChildProcess } from 'child_process';
 import { EventEmitter } from 'events';
@@ -114,7 +114,7 @@ export function makeMockScanner(): MockScanner {
   let nextScannerSession: ScannerSessionPlan | undefined;
 
   return {
-    getStatus: jest.fn().mockResolvedValue(ScannerStatus.Unknown),
+    getStatus: jest.fn().mockResolvedValue(Scan.ScannerStatus.Unknown),
 
     scanSheets(): BatchControl {
       const session = nextScannerSession;

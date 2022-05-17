@@ -1,3 +1,4 @@
+import { Scan } from '@votingworks/api';
 import { Interpreter } from '@votingworks/ballot-interpreter-vx';
 import {
   BallotMetadata,
@@ -12,10 +13,6 @@ import {
   PageInterpretationWithFiles,
   Result,
 } from '@votingworks/types';
-import {
-  ScannerStatus,
-  ScanStatus,
-} from '@votingworks/types/api/services/scan';
 import { sleep } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import makeDebug from 'debug';
@@ -637,7 +634,7 @@ export class Importer {
   /**
    * Get the imported batches and current election info, if any.
    */
-  async getStatus(): Promise<ScanStatus> {
+  async getStatus(): Promise<Scan.ScanStatus> {
     const electionDefinition = this.workspace.store.getElectionDefinition();
     const canUnconfigure = this.workspace.store.getCanUnconfigure();
     const batches = this.workspace.store.batchStatus();
@@ -650,8 +647,8 @@ export class Importer {
       canUnconfigure,
       adjudication,
       scanner:
-        adjudication.remaining > 0 && scanner === ScannerStatus.ReadyToScan
-          ? ScannerStatus.Rejected
+        adjudication.remaining > 0 && scanner === Scan.ScannerStatus.ReadyToScan
+          ? Scan.ScannerStatus.Rejected
           : scanner,
     };
   }

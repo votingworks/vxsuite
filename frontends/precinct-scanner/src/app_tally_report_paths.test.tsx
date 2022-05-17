@@ -14,13 +14,7 @@ import {
   getZeroCompressedTally,
   fakeUsbDrive,
 } from '@votingworks/test-utils';
-import {
-  GetCurrentPrecinctConfigResponse,
-  GetScanStatusResponse,
-  GetTestModeConfigResponse,
-  PatchTestModeConfigResponse,
-  ScannerStatus,
-} from '@votingworks/types/api/services/scan';
+import { Scan } from '@votingworks/api';
 import {
   BallotCountDetails,
   MemoryCard,
@@ -51,30 +45,30 @@ const getMachineConfigBody: MachineConfigResponse = {
   codeVersion: '3.14',
 };
 
-const getTestModeConfigTrueResponseBody: GetTestModeConfigResponse = {
+const getTestModeConfigTrueResponseBody: Scan.GetTestModeConfigResponse = {
   status: 'ok',
   testMode: true,
 };
 
-const getPrecinctConfigNoPrecinctResponseBody: GetCurrentPrecinctConfigResponse =
+const getPrecinctConfigNoPrecinctResponseBody: Scan.GetCurrentPrecinctConfigResponse =
   {
     status: 'ok',
   };
 
-const getPrecinctConfigPrecinct1ResponseBody: GetCurrentPrecinctConfigResponse =
+const getPrecinctConfigPrecinct1ResponseBody: Scan.GetCurrentPrecinctConfigResponse =
   {
     status: 'ok',
     precinctId: 'precinct-1',
   };
 
-const getPrecinctConfigPrecinct23ResponseBody: GetCurrentPrecinctConfigResponse =
+const getPrecinctConfigPrecinct23ResponseBody: Scan.GetCurrentPrecinctConfigResponse =
   {
     status: 'ok',
     precinctId: '23',
   };
 
-const scanStatusWaitingForPaperResponseBody: GetScanStatusResponse = {
-  scanner: ScannerStatus.WaitingForPaper,
+const scanStatusWaitingForPaperResponseBody: Scan.GetScanStatusResponse = {
+  scanner: Scan.ScannerStatus.WaitingForPaper,
   canUnconfigure: false,
   batches: [],
   adjudication: { adjudicated: 0, remaining: 0 },
@@ -133,7 +127,7 @@ test('expected tally reports are printed for a primary election with all precinc
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
     .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody })
     .patchOnce('/config/testMode', {
-      body: typedAs<PatchTestModeConfigResponse>({ status: 'ok' }),
+      body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
       status: 200,
     });
   render(<App card={card} hardware={hardware} storage={storage} />);
@@ -186,8 +180,8 @@ test('expected tally reports for a primary election with all precincts with CVRs
   window.kiosk = kiosk;
   const { election } = electionMinimalExhaustiveSampleDefinition;
 
-  const scanStatus: GetScanStatusResponse = {
-    scanner: ScannerStatus.WaitingForPaper,
+  const scanStatus: Scan.GetScanStatusResponse = {
+    scanner: Scan.ScannerStatus.WaitingForPaper,
     canUnconfigure: false,
     batches: [
       {
@@ -209,7 +203,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
     .get('/scan/status', { body: scanStatus })
     .patchOnce('/config/testMode', {
-      body: typedAs<PatchTestModeConfigResponse>({ status: 'ok' }),
+      body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
       status: 200,
     });
   render(<App card={card} hardware={hardware} storage={storage} />);
@@ -568,8 +562,8 @@ test('expected tally reports for a primary election with a single precincts with
   window.kiosk = kiosk;
   const { election } = electionMinimalExhaustiveSampleDefinition;
 
-  const scanStatus: GetScanStatusResponse = {
-    scanner: ScannerStatus.WaitingForPaper,
+  const scanStatus: Scan.GetScanStatusResponse = {
+    scanner: Scan.ScannerStatus.WaitingForPaper,
     canUnconfigure: false,
     batches: [
       {
@@ -591,7 +585,7 @@ test('expected tally reports for a primary election with a single precincts with
     .get('/config/precinct', { body: getPrecinctConfigPrecinct1ResponseBody })
     .get('/scan/status', { body: scanStatus })
     .patchOnce('/config/testMode', {
-      body: typedAs<PatchTestModeConfigResponse>({ status: 'ok' }),
+      body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
       status: 200,
     });
   render(<App card={card} hardware={hardware} storage={storage} />);
@@ -864,8 +858,8 @@ test('expected tally reports for a general election with all precincts with CVRs
   window.kiosk = kiosk;
   const { election } = electionSample2Definition;
 
-  const scanStatus: GetScanStatusResponse = {
-    scanner: ScannerStatus.WaitingForPaper,
+  const scanStatus: Scan.GetScanStatusResponse = {
+    scanner: Scan.ScannerStatus.WaitingForPaper,
     canUnconfigure: false,
     batches: [
       {
@@ -885,7 +879,7 @@ test('expected tally reports for a general election with all precincts with CVRs
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
     .get('/scan/status', { body: scanStatus })
     .patchOnce('/config/testMode', {
-      body: typedAs<PatchTestModeConfigResponse>({ status: 'ok' }),
+      body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
       status: 200,
     });
   render(<App card={card} hardware={hardware} storage={storage} />);
@@ -1126,8 +1120,8 @@ test('expected tally reports for a general election with a single precincts with
   window.kiosk = kiosk;
   const { election } = electionSample2Definition;
 
-  const scanStatus: GetScanStatusResponse = {
-    scanner: ScannerStatus.WaitingForPaper,
+  const scanStatus: Scan.GetScanStatusResponse = {
+    scanner: Scan.ScannerStatus.WaitingForPaper,
     canUnconfigure: false,
     batches: [
       {
@@ -1147,7 +1141,7 @@ test('expected tally reports for a general election with a single precincts with
     .get('/config/precinct', { body: getPrecinctConfigPrecinct23ResponseBody })
     .get('/scan/status', { body: scanStatus })
     .patchOnce('/config/testMode', {
-      body: typedAs<PatchTestModeConfigResponse>({ status: 'ok' }),
+      body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
       status: 200,
     });
   render(<App card={card} hardware={hardware} storage={storage} />);

@@ -9,12 +9,7 @@ import {
   InterpretedHmpbPage,
   ok,
 } from '@votingworks/types';
-import {
-  GetNextReviewSheetResponse,
-  GetScanStatusResponse,
-  ScanContinueRequest,
-  ScannerStatus,
-} from '@votingworks/types/api/services/scan';
+import { Scan } from '@votingworks/api';
 import { BallotConfig, typedAs } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import { Application } from 'express';
@@ -86,11 +81,11 @@ beforeEach(async () => {
 });
 
 test('GET /scan/status', async () => {
-  const status: GetScanStatusResponse = {
+  const status: Scan.GetScanStatusResponse = {
     canUnconfigure: false,
     batches: [],
     adjudication: { remaining: 0, adjudicated: 0 },
-    scanner: ScannerStatus.Unknown,
+    scanner: Scan.ScannerStatus.Unknown,
   };
   importer.getStatus.mockResolvedValue(status);
   await request(app)
@@ -346,7 +341,7 @@ test('POST /scan/scanContinue', async () => {
   importer.continueImport.mockResolvedValue(undefined);
   await request(app)
     .post('/scan/scanContinue')
-    .send(typedAs<ScanContinueRequest>({ forceAccept: false }))
+    .send(typedAs<Scan.ScanContinueRequest>({ forceAccept: false }))
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' });
   expect(importer.continueImport).toBeCalled();
@@ -680,7 +675,7 @@ test('get next sheet', async () => {
     .get(`/scan/hmpb/review/next-sheet`)
     .expect(
       200,
-      typedAs<GetNextReviewSheetResponse>({
+      typedAs<Scan.GetNextReviewSheetResponse>({
         interpreted: {
           id: 'mock-review-sheet',
           front: {
@@ -767,7 +762,7 @@ test('get next sheet layouts', async () => {
     .get(`/scan/hmpb/review/next-sheet`)
     .expect(
       200,
-      typedAs<GetNextReviewSheetResponse>({
+      typedAs<Scan.GetNextReviewSheetResponse>({
         interpreted: {
           id: 'mock-review-sheet',
           front: {
