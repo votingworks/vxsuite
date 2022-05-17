@@ -12,6 +12,7 @@
   },
   "scripts": {
     "type-check": "tsc --build",
+    "type-check:watch": "tsc --build --watch",
     "clean": "rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "lint": "pnpm type-check && eslint .",
     "lint:fix": "pnpm type-check && eslint . --fix",
