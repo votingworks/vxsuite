@@ -16,6 +16,7 @@ import {
   PollworkerLoggedInAuth,
   SuperadminLoggedInAuth,
   VoterLoggedInAuth,
+  wrapException,
 } from '@votingworks/types';
 import {
   assert,
@@ -159,9 +160,10 @@ function buildCardStorage(
 
     readStoredString: async () => {
       try {
-        return ok((await cardApi.readLongString()) || undefined);
+        const value = await cardApi.readLongString();
+        return ok(value || undefined);
       } catch (error) {
-        return err(error);
+        return wrapException(error);
       }
     },
 
@@ -170,7 +172,7 @@ function buildCardStorage(
         const value = await cardApi.readLongUint8Array();
         return ok(value && value.length > 0 ? value : undefined);
       } catch (error) {
-        return err(error);
+        return wrapException(error);
       }
     },
 
@@ -186,7 +188,7 @@ function buildCardStorage(
         }
         return ok();
       } catch (error) {
-        return err(error);
+        return wrapException(error);
       } finally {
         cardWriteLock.unlock();
       }
@@ -200,7 +202,7 @@ function buildCardStorage(
         await cardApi.writeLongUint8Array(Uint8Array.of());
         return ok();
       } catch (error) {
-        return err(error);
+        return wrapException(error);
       } finally {
         cardWriteLock.unlock();
       }
