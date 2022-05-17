@@ -26,6 +26,7 @@ import { HandMarkedPaperBallot } from '../components/hand_marked_paper_ballot';
 import {
   generateTestDeckBallots,
   generateBlankBallots,
+  generateOvervoteBallot,
 } from '../utils/election';
 
 interface TestDeckBallotsParams {
@@ -43,6 +44,9 @@ function TestDeckBallots({
 }: TestDeckBallotsParams) {
   const ballots = generateTestDeckBallots({ election, precinctId });
   ballots.push(...generateBlankBallots({ election, precinctId, numBlanks: 2 }));
+
+  const overvoteBallot = generateOvervoteBallot({ election, precinctId });
+  if (overvoteBallot) ballots.push(overvoteBallot);
 
   let numRendered = 0;
   function onRendered() {

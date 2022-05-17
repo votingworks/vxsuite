@@ -264,3 +264,58 @@ export function generateBlankBallots({
 
   return ballots;
 }
+
+// Generates a minimally overvoted ballot - a single overvote in the first contest where an
+// overvote is possible. Does not overvote candidate contests where you must select a write-in
+// to overvote. See discussion: https://github.com/votingworks/vxsuite/issues/1711.
+//
+// In cases where it is not possible to overvote a ballot style, returns undefined.
+export function generateOvervoteBallot({
+  election,
+  precinctId,
+}: {
+  election: Election;
+  precinctId: PrecinctId;
+}): Dictionary<string | VotesDict> | undefined {
+  const precinctBallotStyles = election.ballotStyles.filter((bs) =>
+    bs.precincts.includes(precinctId)
+  );
+
+  const ballot: Dictionary<string | VotesDict> = { precinctId };
+  const votes: VotesDict = {};
+
+  for (const ballotStyle of precinctBallotStyles) {
+    ballot.ballotStyleId = ballotStyle.id;
+    const contests = election.contests.filter(
+      (c) =>
+        ballotStyle.districts.includes(c.districtId) &&
+        ballotStyle.partyId === c.partyId
+    );
+
+    const candidateContests = contests.filter(
+      (c) => c.type === 'candidate'
+    ) as CandidateContest[];
+    const otherContests = contests.filter((c) => c.type !== 'candidate');
+
+    for (const candidateContest of candidateContests) {
+      if (candidateContest.candidates.length > candidateContest.seats) {
+        votes[candidateContest.id] = candidateContest.candidates.slice(
+          0,
+          candidateContest.seats + 1
+        );
+        ballot.votes = votes;
+        return ballot;
+      }
+    }
+
+    for (const otherContest of otherContests) {
+      if (otherContest.type === 'yesno') {
+        votes[otherContest.id] = ['yes', 'no'];
+      } else if (otherContest.type === 'ms-either-neither') {
+        votes[otherContest.eitherNeitherContestId] = ['yes', 'no'];
+      }
+      ballot.votes = votes;
+      return ballot;
+    }
+  }
+}
