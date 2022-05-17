@@ -13,7 +13,7 @@ import {
   MsEitherNeitherContest as MsEitherNeitherContestInterface,
   OptionalYesNoVote,
 } from '@votingworks/types';
-import { Button, Main, Prose, MainChild } from '@votingworks/ui';
+import { Button, Main, Prose } from '@votingworks/ui';
 
 import {
   EventTargetFunction,
@@ -202,222 +202,220 @@ export function MsEitherNeitherContest({
 
   return (
     <React.Fragment>
-      <Main>
-        <MainChild flexContainer maxWidth={false}>
-          <ContentHeader>
-            <Prose>
-              <h1 aria-label={`${contest.section} ${contest.title}.`}>
-                <ContestSection>{contest.section}</ContestSection>
-                {contest.title}
-              </h1>
-              <p>
-                {eitherNeitherVote && pickOneVote ? (
-                  <span>
-                    You have selected {eitherLabel} and your preferred measure.
-                  </span>
-                ) : eitherNeitherVote && !pickOneVote ? (
-                  <span>
-                    You have selected {eitherLabel}.{' '}
-                    {eitherNeitherVote === 'yes' ? (
-                      <strong>Now select your preferred measure.</strong>
-                    ) : (
-                      <strong>
-                        You may additionally select your preferred measure.
-                      </strong>
-                    )}
-                  </span>
-                ) : !eitherNeitherVote && pickOneVote ? (
-                  <span>
-                    You have selected your preferred measure.{' '}
-                    <strong>
-                      Now vote {forEither} or {againstBoth}.
-                    </strong>
-                  </span>
-                ) : (
-                  <span>
-                    First vote {forEither} or {againstBoth}. Then select your
-                    preferred measure.
-                  </span>
-                )}
-                <span className="screen-reader-only">
-                  To navigate through the contest choices, use the down button.
-                  To move to the next contest, use the right button.
+      <Main flexColumn>
+        <ContentHeader>
+          <Prose>
+            <h1 aria-label={`${contest.section} ${contest.title}.`}>
+              <ContestSection>{contest.section}</ContestSection>
+              {contest.title}
+            </h1>
+            <p>
+              {eitherNeitherVote && pickOneVote ? (
+                <span>
+                  You have selected {eitherLabel} and your preferred measure.
                 </span>
-              </p>
-            </Prose>
-          </ContentHeader>
-          <VariableContentContainer
-            showTopShadow={showTopShadow}
-            showBottomShadow={showBottomShadow}
+              ) : eitherNeitherVote && !pickOneVote ? (
+                <span>
+                  You have selected {eitherLabel}.{' '}
+                  {eitherNeitherVote === 'yes' ? (
+                    <strong>Now select your preferred measure.</strong>
+                  ) : (
+                    <strong>
+                      You may additionally select your preferred measure.
+                    </strong>
+                  )}
+                </span>
+              ) : !eitherNeitherVote && pickOneVote ? (
+                <span>
+                  You have selected your preferred measure.{' '}
+                  <strong>
+                    Now vote {forEither} or {againstBoth}.
+                  </strong>
+                </span>
+              ) : (
+                <span>
+                  First vote {forEither} or {againstBoth}. Then select your
+                  preferred measure.
+                </span>
+              )}
+              <span className="screen-reader-only">
+                To navigate through the contest choices, use the down button. To
+                move to the next contest, use the right button.
+              </span>
+            </p>
+          </Prose>
+        </ContentHeader>
+        <VariableContentContainer
+          showTopShadow={showTopShadow}
+          showBottomShadow={showBottomShadow}
+        >
+          <ScrollContainer
+            ref={scrollContainer}
+            onScroll={updateContestChoicesScrollStates}
           >
-            <ScrollContainer
-              ref={scrollContainer}
-              onScroll={updateContestChoicesScrollStates}
-            >
-              <ScrollableContentWrapper isScrollable={isScrollable}>
-                <Prose>
-                  <TextWithLineBreaks
-                    style={{
-                      fontSize: '0.95rem',
-                    }}
-                    text={contest.description}
-                  />
-                </Prose>
-              </ScrollableContentWrapper>
-            </ScrollContainer>
-            {isScrollable /* istanbul ignore next: Tested by Cypress */ && (
-              <ScrollControls aria-hidden>
-                <Button
-                  className="scroll-up"
-                  large
-                  primary
-                  aria-hidden
-                  data-direction="up"
-                  disabled={isScrollAtTop}
-                  onPress={scrollContestChoices}
-                >
-                  <span>See More</span>
-                </Button>
-                <Button
-                  className="scroll-down"
-                  large
-                  primary
-                  aria-hidden
-                  data-direction="down"
-                  disabled={isScrollAtBottom}
-                  onPress={scrollContestChoices}
-                >
-                  <span>See More</span>
-                </Button>
-              </ScrollControls>
-            )}
-          </VariableContentContainer>
-          <ChoicesGrid>
-            <GridLabel
-              style={{
-                gridArea: 'either-neither-label',
-              }}
-            >
+            <ScrollableContentWrapper isScrollable={isScrollable}>
               <Prose>
-                <Text
-                  small
-                  bold
+                <TextWithLineBreaks
                   style={{
-                    fontSize: '0.7rem',
+                    fontSize: '0.95rem',
                   }}
-                >
-                  {contest.eitherNeitherLabel}
-                </Text>
+                  text={contest.description}
+                />
               </Prose>
-            </GridLabel>
-            <ChoiceButton
-              choice="yes"
-              isSelected={eitherSelected}
-              onPress={handleUpdateEitherNeither}
-              style={{
-                gridArea: 'either-option',
-              }}
-            >
-              <Prose>
-                <Text
-                  aria-label={`${
-                    eitherSelected
-                      ? 'Selected, '
-                      : deselectedOption === 'either'
-                      ? 'Deselected, '
-                      : ''
-                  }${contest.eitherOption.label}`}
-                >
-                  {contest.eitherOption.label}
-                </Text>
-              </Prose>
-            </ChoiceButton>
-            <ChoiceButton
-              choice="no"
-              isSelected={neitherSelected}
-              onPress={handleUpdateEitherNeither}
-              style={{
-                gridArea: 'neither-option',
-              }}
-            >
-              <Prose>
-                <Text
-                  aria-label={`${
-                    neitherSelected
-                      ? 'Selected, '
-                      : deselectedOption === 'neither'
-                      ? 'Deselected, '
-                      : ''
-                  }${contest.neitherOption.label}`}
-                >
-                  {contest.neitherOption.label}
-                </Text>
-              </Prose>
-            </ChoiceButton>
-            <GridLabel
-              style={{
-                gridArea: 'pick-one-label',
-              }}
-            >
-              <Prose>
-                <Text
-                  small
-                  bold
-                  style={{
-                    fontSize: '0.7rem',
-                  }}
-                >
-                  {contest.pickOneLabel}
-                </Text>
-              </Prose>
-            </GridLabel>
-            <ChoiceButton
-              choice="yes"
-              isSelected={firstSelected}
-              onPress={handleUpdatePickOne}
-              style={{
-                gridArea: 'first-option',
-              }}
-            >
-              <Prose>
-                <Text
-                  aria-label={`${
-                    firstSelected
-                      ? 'Selected, '
-                      : deselectedOption === 'first'
-                      ? 'Deselected, '
-                      : ''
-                  }${contest.firstOption.label}`}
-                >
-                  {contest.firstOption.label}
-                </Text>
-              </Prose>
-            </ChoiceButton>
-            <ChoiceButton
-              choice="no"
-              isSelected={secondSelected}
-              onPress={handleUpdatePickOne}
-              style={{
-                gridArea: 'second-option',
-              }}
-            >
-              <Prose>
-                <Text
-                  aria-label={`${
-                    secondSelected
-                      ? 'Selected, '
-                      : deselectedOption === 'second'
-                      ? 'Deselected, '
-                      : ''
-                  }${contest.secondOption.label}`}
-                >
-                  {contest.secondOption.label}
-                </Text>
-              </Prose>
-            </ChoiceButton>
-            <Divider />
-          </ChoicesGrid>
-        </MainChild>
+            </ScrollableContentWrapper>
+          </ScrollContainer>
+          {isScrollable /* istanbul ignore next: Tested by Cypress */ && (
+            <ScrollControls aria-hidden>
+              <Button
+                className="scroll-up"
+                large
+                primary
+                aria-hidden
+                data-direction="up"
+                disabled={isScrollAtTop}
+                onPress={scrollContestChoices}
+              >
+                <span>See More</span>
+              </Button>
+              <Button
+                className="scroll-down"
+                large
+                primary
+                aria-hidden
+                data-direction="down"
+                disabled={isScrollAtBottom}
+                onPress={scrollContestChoices}
+              >
+                <span>See More</span>
+              </Button>
+            </ScrollControls>
+          )}
+        </VariableContentContainer>
+        <ChoicesGrid>
+          <GridLabel
+            style={{
+              gridArea: 'either-neither-label',
+            }}
+          >
+            <Prose>
+              <Text
+                small
+                bold
+                style={{
+                  fontSize: '0.7rem',
+                }}
+              >
+                {contest.eitherNeitherLabel}
+              </Text>
+            </Prose>
+          </GridLabel>
+          <ChoiceButton
+            choice="yes"
+            isSelected={eitherSelected}
+            onPress={handleUpdateEitherNeither}
+            style={{
+              gridArea: 'either-option',
+            }}
+          >
+            <Prose>
+              <Text
+                aria-label={`${
+                  eitherSelected
+                    ? 'Selected, '
+                    : deselectedOption === 'either'
+                    ? 'Deselected, '
+                    : ''
+                }${contest.eitherOption.label}`}
+              >
+                {contest.eitherOption.label}
+              </Text>
+            </Prose>
+          </ChoiceButton>
+          <ChoiceButton
+            choice="no"
+            isSelected={neitherSelected}
+            onPress={handleUpdateEitherNeither}
+            style={{
+              gridArea: 'neither-option',
+            }}
+          >
+            <Prose>
+              <Text
+                aria-label={`${
+                  neitherSelected
+                    ? 'Selected, '
+                    : deselectedOption === 'neither'
+                    ? 'Deselected, '
+                    : ''
+                }${contest.neitherOption.label}`}
+              >
+                {contest.neitherOption.label}
+              </Text>
+            </Prose>
+          </ChoiceButton>
+          <GridLabel
+            style={{
+              gridArea: 'pick-one-label',
+            }}
+          >
+            <Prose>
+              <Text
+                small
+                bold
+                style={{
+                  fontSize: '0.7rem',
+                }}
+              >
+                {contest.pickOneLabel}
+              </Text>
+            </Prose>
+          </GridLabel>
+          <ChoiceButton
+            choice="yes"
+            isSelected={firstSelected}
+            onPress={handleUpdatePickOne}
+            style={{
+              gridArea: 'first-option',
+            }}
+          >
+            <Prose>
+              <Text
+                aria-label={`${
+                  firstSelected
+                    ? 'Selected, '
+                    : deselectedOption === 'first'
+                    ? 'Deselected, '
+                    : ''
+                }${contest.firstOption.label}`}
+              >
+                {contest.firstOption.label}
+              </Text>
+            </Prose>
+          </ChoiceButton>
+          <ChoiceButton
+            choice="no"
+            isSelected={secondSelected}
+            onPress={handleUpdatePickOne}
+            style={{
+              gridArea: 'second-option',
+            }}
+          >
+            <Prose>
+              <Text
+                aria-label={`${
+                  secondSelected
+                    ? 'Selected, '
+                    : deselectedOption === 'second'
+                    ? 'Deselected, '
+                    : ''
+                }${contest.secondOption.label}`}
+              >
+                {contest.secondOption.label}
+              </Text>
+            </Prose>
+          </ChoiceButton>
+          <Divider />
+        </ChoicesGrid>
       </Main>
     </React.Fragment>
   );

@@ -9,7 +9,7 @@ import {
   readBallotPackageFromFile,
   readBallotPackageFromFilePointer,
 } from '@votingworks/utils';
-import { Screen, Main, MainChild } from '@votingworks/ui';
+import { Screen, Main } from '@votingworks/ui';
 import { LogEventId } from '@votingworks/logging';
 import * as config from '../api/config';
 import { addTemplates, doneTemplates } from '../api/hmpb';
@@ -165,12 +165,10 @@ export function LoadElectionScreen({
   if (isLoadingTemplates) {
     return (
       <Screen flexDirection="column">
-        <Main padded>
-          <MainChild center>
-            <Prose textCenter>
-              <h1>Preparing VxCentralScan…</h1>
-            </Prose>
-          </MainChild>
+        <Main padded centerChild>
+          <Prose textCenter>
+            <h1>Preparing VxCentralScan…</h1>
+          </Prose>
         </Main>
       </Screen>
     );
@@ -179,32 +177,30 @@ export function LoadElectionScreen({
   if (totalTemplates > 0 && currentUploadingBallot) {
     return (
       <Screen flexDirection="column">
-        <Main padded>
-          <MainChild center>
-            <Prose textCenter>
-              <h1>
-                Uploading ballot package {currentUploadingBallotIndex + 1} of{' '}
-                {totalTemplates}
-              </h1>
-              <ul style={{ textAlign: 'left' }}>
-                <li>
-                  <strong>Ballot Style:</strong>{' '}
-                  {currentUploadingBallot.ballotStyle}
-                </li>
-                <li>
-                  <strong>Precinct:</strong> {currentUploadingBallot.precinct}
-                </li>
-                <li>
-                  <strong>Test Ballot:</strong>{' '}
-                  {currentUploadingBallot.isLiveMode ? 'No' : 'Yes'}
-                </li>
-                <li>
-                  <strong>Languages:</strong>{' '}
-                  {currentUploadingBallot.locales ?? <em>(unknown)</em>}
-                </li>
-              </ul>
-            </Prose>
-          </MainChild>
+        <Main padded centerChild>
+          <Prose textCenter>
+            <h1>
+              Uploading ballot package {currentUploadingBallotIndex + 1} of{' '}
+              {totalTemplates}
+            </h1>
+            <ul style={{ textAlign: 'left' }}>
+              <li>
+                <strong>Ballot Style:</strong>{' '}
+                {currentUploadingBallot.ballotStyle}
+              </li>
+              <li>
+                <strong>Precinct:</strong> {currentUploadingBallot.precinct}
+              </li>
+              <li>
+                <strong>Test Ballot:</strong>{' '}
+                {currentUploadingBallot.isLiveMode ? 'No' : 'Yes'}
+              </li>
+              <li>
+                <strong>Languages:</strong>{' '}
+                {currentUploadingBallot.locales ?? <em>(unknown)</em>}
+              </li>
+            </ul>
+          </Prose>
         </Main>
       </Screen>
     );

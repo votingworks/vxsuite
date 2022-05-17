@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
-import { Main, MainChild, Screen, Prose } from '@votingworks/ui';
+import { Main, Screen, Prose } from '@votingworks/ui';
 import { triggerAudioFocus } from '../utils/trigger_audio_focus';
 
 const RotateCardImage = styled.img`
@@ -22,8 +22,8 @@ export function CardErrorScreen({
 
   return (
     <Screen white>
-      <Main>
-        <MainChild center>
+      <Main centerChild>
+        <div>
           <RotateCardImage
             aria-hidden
             src="/images/rotate-card.svg"
@@ -33,7 +33,7 @@ export function CardErrorScreen({
             <h1>Card is Backwards</h1>
             <p>Remove the card, turn it around, and insert it again.</p>
           </Prose>
-        </MainChild>
+        </div>
       </Main>
     </Screen>
   );

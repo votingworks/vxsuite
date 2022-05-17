@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-import { Main, MainChild, Screen, Prose } from '@votingworks/ui';
+import { Main, Screen, Prose } from '@votingworks/ui';
 
 import { triggerAudioFocus } from '../utils/trigger_audio_focus';
 
@@ -19,16 +19,14 @@ export function WrongElectionScreen({
 
   return (
     <Screen white>
-      <Main>
-        <MainChild center>
-          <Prose textCenter id="audiofocus">
-            <h1>Invalid Card Data</h1>
-            <p>Card is not configured for this election.</p>
-            <p>
-              Please ask {isVoterCard ? 'poll worker' : 'admin'} for assistance.
-            </p>
-          </Prose>
-        </MainChild>
+      <Main centerChild>
+        <Prose textCenter id="audiofocus">
+          <h1>Invalid Card Data</h1>
+          <p>Card is not configured for this election.</p>
+          <p>
+            Please ask {isVoterCard ? 'poll worker' : 'admin'} for assistance.
+          </p>
+        </Prose>
       </Main>
     </Screen>
   );

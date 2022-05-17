@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BallotStyleId } from '@votingworks/types';
 
-import { Screen, Main, MainChild } from '@votingworks/ui';
+import { Screen, Main } from '@votingworks/ui';
 
 import { Prose } from '../components/prose';
 import { ProgressBar } from '../components/progress_bar';
@@ -25,18 +25,16 @@ export function WritingCardScreen({
 
   return (
     <Screen flexDirection="column">
-      <Main>
-        <MainChild center>
-          <Prose textCenter>
-            <p>
-              <ProgressBar progress={progress} />
-            </p>
-            <h1>Encoding card…</h1>
-            <p>
-              {precinctName} / {ballotStyleId}
-            </p>
-          </Prose>
-        </MainChild>
+      <Main centerChild>
+        <Prose textCenter>
+          <p>
+            <ProgressBar progress={progress} />
+          </p>
+          <h1>Encoding card…</h1>
+          <p>
+            {precinctName} / {ballotStyleId}
+          </p>
+        </Prose>
       </Main>
     </Screen>
   );

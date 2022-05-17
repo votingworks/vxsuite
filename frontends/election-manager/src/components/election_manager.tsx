@@ -5,7 +5,6 @@ import {
   fontSizeTheme,
   ElectionInfoBar,
   Main,
-  MainChild,
   Prose,
   RebootFromUsbButton,
   Screen,
@@ -76,15 +75,13 @@ export function ElectionManager(): JSX.Element {
   if (currentUserSession.type === 'superadmin') {
     return (
       <Screen flexDirection="column">
-        <Main>
-          <MainChild center>
-            <Prose textCenter maxWidth={false} theme={fontSizeTheme.large}>
-              <RebootFromUsbButton
-                usbDriveStatus={usbDriveStatus}
-                logger={logger}
-              />
-            </Prose>
-          </MainChild>
+        <Main centerChild>
+          <Prose textCenter maxWidth={false} theme={fontSizeTheme.large}>
+            <RebootFromUsbButton
+              usbDriveStatus={usbDriveStatus}
+              logger={logger}
+            />
+          </Prose>
         </Main>
         <ElectionInfoBar
           mode="admin"

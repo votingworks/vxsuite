@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-import { Main, MainChild, Screen, Prose } from '@votingworks/ui';
+import { Main, Screen, Prose } from '@votingworks/ui';
 
 import { triggerAudioFocus } from '../utils/trigger_audio_focus';
 
@@ -17,13 +17,11 @@ export function UsedCardScreen({
 
   return (
     <Screen white>
-      <Main>
-        <MainChild center>
-          <Prose textCenter id="audiofocus">
-            <h1>Used Card</h1>
-            <p>Please return card to a poll worker.</p>
-          </Prose>
-        </MainChild>
+      <Main centerChild>
+        <Prose textCenter id="audiofocus">
+          <h1>Used Card</h1>
+          <p>Please return card to a poll worker.</p>
+        </Prose>
       </Main>
     </Screen>
   );

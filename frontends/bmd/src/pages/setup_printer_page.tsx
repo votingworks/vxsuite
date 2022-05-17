@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-import { Main, MainChild, Screen, Prose } from '@votingworks/ui';
+import { Main, Screen, Prose } from '@votingworks/ui';
 
 interface Props {
   useEffectToggleLargeDisplay: () => void;
@@ -14,13 +14,11 @@ export function SetupPrinterPage({
 
   return (
     <Screen white>
-      <Main padded>
-        <MainChild center>
-          <Prose textCenter>
-            <h1>No Printer Detected</h1>
-            <p>Please ask a poll worker to connect printer.</p>
-          </Prose>
-        </MainChild>
+      <Main padded centerChild>
+        <Prose textCenter>
+          <h1>No Printer Detected</h1>
+          <p>Please ask a poll worker to connect printer.</p>
+        </Prose>
       </Main>
     </Screen>
   );

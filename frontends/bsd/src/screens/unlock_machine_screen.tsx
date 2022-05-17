@@ -2,7 +2,6 @@ import {
   ElectionInfoBar,
   fontSizeTheme,
   Main,
-  MainChild,
   NumberPad,
   Prose,
   Screen,
@@ -75,20 +74,18 @@ export function UnlockMachineScreen({
   }
   return (
     <Screen flexDirection="column">
-      <Main padded>
-        <MainChild center>
-          <Prose textCenter theme={fontSizeTheme.medium} maxWidth={false}>
-            {primarySentence}
-            <EnteredCode>{currentPasscodeDisplayString}</EnteredCode>
-            <NumberPadWrapper>
-              <NumberPad
-                onButtonPress={handleNumberEntry}
-                onBackspace={handleBackspace}
-                onClear={handleClear}
-              />
-            </NumberPadWrapper>
-          </Prose>
-        </MainChild>
+      <Main padded centerChild>
+        <Prose textCenter theme={fontSizeTheme.medium} maxWidth={false}>
+          {primarySentence}
+          <EnteredCode>{currentPasscodeDisplayString}</EnteredCode>
+          <NumberPadWrapper>
+            <NumberPad
+              onButtonPress={handleNumberEntry}
+              onBackspace={handleBackspace}
+              onClear={handleClear}
+            />
+          </NumberPadWrapper>
+        </Prose>
       </Main>
       <ElectionInfoBar
         mode="admin"

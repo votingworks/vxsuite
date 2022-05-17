@@ -54,7 +54,7 @@ export function WriteInsScreen(): JSX.Element {
 
   return (
     <React.Fragment>
-      <NavigationScreen mainChildFlex>
+      <NavigationScreen>
         <Prose maxWidth={false}>
           <h1>Write-Ins</h1>
           {!hasCastVoteRecordFiles && (

@@ -30,7 +30,6 @@ import {
   ElectionInfoBar,
   fontSizeTheme,
   Main,
-  MainChild,
   Prose,
   RebootFromUsbButton,
   Screen,
@@ -538,15 +537,13 @@ export function AppRoot({
     return (
       <AppContext.Provider value={currentContext}>
         <Screen flexDirection="column">
-          <Main padded>
-            <MainChild center>
-              <Prose theme={fontSizeTheme.large}>
-                <RebootFromUsbButton
-                  usbDriveStatus={displayUsbStatus}
-                  logger={logger}
-                />
-              </Prose>
-            </MainChild>
+          <Main padded centerChild>
+            <Prose theme={fontSizeTheme.large}>
+              <RebootFromUsbButton
+                usbDriveStatus={displayUsbStatus}
+                logger={logger}
+              />
+            </Prose>
           </Main>
           <ElectionInfoBar
             mode="admin"
@@ -582,8 +579,8 @@ export function AppRoot({
       return (
         <AppContext.Provider value={currentContext}>
           <Screen flexDirection="column">
-            <Main padded>
-              <MainChild center>
+            <Main padded centerChild>
+              <div>
                 <Prose>
                   <h1>Successfully Configured</h1>
                   <Text>You may now eject the USB drive.</Text>
@@ -601,7 +598,7 @@ export function AppRoot({
                     }
                   />
                 </Buttons>
-              </MainChild>
+              </div>
             </Main>
             <MainNav isTestMode={false}>
               <Button small onPress={lockMachine}>
@@ -653,13 +650,11 @@ export function AppRoot({
           <Route path="/">
             <Screen flexDirection="column">
               <Main padded>
-                <MainChild maxWidth={false}>
-                  <DashboardScreen
-                    isScanning={isScanning}
-                    status={status}
-                    deleteBatch={deleteBatch}
-                  />
-                </MainChild>
+                <DashboardScreen
+                  isScanning={isScanning}
+                  status={status}
+                  deleteBatch={deleteBatch}
+                />
               </Main>
               <MainNav isTestMode={isTestMode}>
                 <UsbControllerButton
@@ -719,10 +714,8 @@ export function AppRoot({
 
   return (
     <Screen flexDirection="column">
-      <Main padded>
-        <MainChild>
-          <h1>Loading Configuration...</h1>
-        </MainChild>
+      <Main padded centerChild>
+        <h1>Loading Configuration...</h1>
       </Main>
     </Screen>
   );

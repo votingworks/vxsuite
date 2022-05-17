@@ -1,7 +1,7 @@
 import React from 'react';
 import { Precinct } from '@votingworks/types';
 
-import { Screen, Main, MainChild } from '@votingworks/ui';
+import { Screen, Main } from '@votingworks/ui';
 
 import { EventTargetFunction } from '../config/types';
 
@@ -28,30 +28,28 @@ export function PrecinctsScreen({
   return (
     <Screen flexDirection="column">
       <Main>
-        <MainChild maxWidth={false}>
-          <Heading>
-            <Prose>
-              <h1>
-                Precincts{' '}
-                <Text as="span" light>
-                  for {countyName}
-                </Text>
-              </h1>
-            </Prose>
-          </Heading>
-          <ButtonList columns={2}>
-            {precincts.map((p) => (
-              <Button
-                data-id={p.id}
-                fullWidth
-                key={p.id}
-                onPress={updatePrecinct}
-              >
-                {p.name}
-              </Button>
-            ))}
-          </ButtonList>
-        </MainChild>
+        <Heading>
+          <Prose>
+            <h1>
+              Precincts{' '}
+              <Text as="span" light>
+                for {countyName}
+              </Text>
+            </h1>
+          </Prose>
+        </Heading>
+        <ButtonList columns={2}>
+          {precincts.map((p) => (
+            <Button
+              data-id={p.id}
+              fullWidth
+              key={p.id}
+              onPress={updatePrecinct}
+            >
+              {p.name}
+            </Button>
+          ))}
+        </ButtonList>
       </Main>
       <MainNav>
         <Button small onPress={lockScreen}>

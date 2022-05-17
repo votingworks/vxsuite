@@ -1,11 +1,4 @@
-import {
-  fontSizeTheme,
-  Prose,
-  Text,
-  NumberPad,
-  Main,
-  MainChild,
-} from '@votingworks/ui';
+import { fontSizeTheme, Prose, Text, NumberPad, Main } from '@votingworks/ui';
 import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { SECURITY_PIN_LENGTH } from '../config/globals';
@@ -73,19 +66,17 @@ export function UnlockAdminScreen({
   return (
     <CenteredScreen>
       <Main>
-        <MainChild center>
-          <Prose textCenter theme={fontSizeTheme.medium} maxWidth={false}>
-            {primarySentence}
-            <EnteredCode>{currentPasscodeDisplayString}</EnteredCode>
-            <NumberPadWrapper>
-              <NumberPad
-                onButtonPress={handleNumberEntry}
-                onBackspace={handleBackspace}
-                onClear={handleClear}
-              />
-            </NumberPadWrapper>
-          </Prose>
-        </MainChild>
+        <Prose textCenter theme={fontSizeTheme.medium} maxWidth={false}>
+          {primarySentence}
+          <EnteredCode>{currentPasscodeDisplayString}</EnteredCode>
+          <NumberPadWrapper>
+            <NumberPad
+              onButtonPress={handleNumberEntry}
+              onBackspace={handleBackspace}
+              onClear={handleClear}
+            />
+          </NumberPadWrapper>
+        </Prose>
       </Main>
     </CenteredScreen>
   );

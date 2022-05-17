@@ -90,7 +90,7 @@ export function DefinitionEditorScreen({
 
   return (
     <React.Fragment>
-      <NavigationScreen mainChildFlex>
+      <NavigationScreen>
         {error && (
           <Header>
             <Prose maxWidth={false}>{error}</Prose>

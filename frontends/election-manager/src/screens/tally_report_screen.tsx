@@ -183,7 +183,7 @@ export function TallyReportScreen(): JSX.Element {
 
   if (isTabulationRunning) {
     return (
-      <NavigationScreen mainChildCenter>
+      <NavigationScreen centerContent>
         <Prose textCenter>
           <h1>Building Tabulation Report...</h1>
           <p>This may take a few seconds.</p>

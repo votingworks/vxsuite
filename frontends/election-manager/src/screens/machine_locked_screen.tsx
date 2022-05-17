@@ -2,7 +2,6 @@ import {
   fontSizeTheme,
   ElectionInfoBar,
   Main,
-  MainChild,
   Prose,
   Screen,
 } from '@votingworks/ui';
@@ -21,14 +20,14 @@ export function MachineLockedScreen(): JSX.Element {
   const { electionDefinition, machineConfig } = useContext(AppContext);
   return (
     <Screen flexDirection="column">
-      <Main>
-        <MainChild center maxWidth={false}>
+      <Main centerChild>
+        <div>
           <LockedImage src="locked.svg" alt="Locked Icon" />
           <Prose textCenter theme={fontSizeTheme.medium} maxWidth={false}>
             <h1>VxAdmin is Locked</h1>
             <p>Insert an admin card to unlock.</p>
           </Prose>
-        </MainChild>
+        </div>
       </Main>
       <ElectionInfoBar
         mode="admin"

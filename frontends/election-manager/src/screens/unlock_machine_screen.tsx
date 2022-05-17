@@ -2,7 +2,6 @@ import {
   fontSizeTheme,
   ElectionInfoBar,
   Main,
-  MainChild,
   NumberPad,
   Prose,
   Screen,
@@ -70,20 +69,18 @@ export function UnlockMachineScreen(): JSX.Element {
   }
   return (
     <Screen flexDirection="column">
-      <Main>
-        <MainChild center maxWidth={false}>
-          <Prose textCenter theme={fontSizeTheme.medium} maxWidth={false}>
-            {primarySentence}
-            <EnteredCode>{currentPasscodeDisplayString}</EnteredCode>
-            <NumberPadWrapper>
-              <NumberPad
-                onButtonPress={handleNumberEntry}
-                onBackspace={handleBackspace}
-                onClear={handleClear}
-              />
-            </NumberPadWrapper>
-          </Prose>
-        </MainChild>
+      <Main centerChild>
+        <Prose textCenter theme={fontSizeTheme.medium} maxWidth={false}>
+          {primarySentence}
+          <EnteredCode>{currentPasscodeDisplayString}</EnteredCode>
+          <NumberPadWrapper>
+            <NumberPad
+              onButtonPress={handleNumberEntry}
+              onBackspace={handleBackspace}
+              onClear={handleClear}
+            />
+          </NumberPadWrapper>
+        </Prose>
       </Main>
       <ElectionInfoBar
         mode="admin"

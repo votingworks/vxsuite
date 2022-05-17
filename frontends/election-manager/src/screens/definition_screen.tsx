@@ -49,7 +49,7 @@ export function DefinitionScreen(): JSX.Element {
 
   return (
     <React.Fragment>
-      <NavigationScreen mainChildFlex>
+      <NavigationScreen>
         <Prose maxWidth={false}>
           <h1>Election Definition</h1>
           <Text small>

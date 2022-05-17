@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-import { Main, MainChild, Screen, Prose } from '@votingworks/ui';
+import { Main, Screen, Prose } from '@votingworks/ui';
 import { triggerAudioFocus } from '../utils/trigger_audio_focus';
 
 interface Props {
@@ -16,14 +16,12 @@ export function WrongPrecinctScreen({
 
   return (
     <Screen white>
-      <Main>
-        <MainChild center>
-          <Prose textCenter id="audiofocus">
-            <h1>Invalid Card Data</h1>
-            <p>Card is not configured for this precinct.</p>
-            <p>Please ask poll worker for assistance.</p>
-          </Prose>
-        </MainChild>
+      <Main centerChild>
+        <Prose textCenter id="audiofocus">
+          <h1>Invalid Card Data</h1>
+          <p>Card is not configured for this precinct.</p>
+          <p>Please ask poll worker for assistance.</p>
+        </Prose>
       </Main>
     </Screen>
   );

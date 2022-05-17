@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button, Main, MainChild, Prose, Screen, Text } from '@votingworks/ui';
+import { Button, Main, Prose, Screen, Text } from '@votingworks/ui';
 import { DateTime } from 'luxon';
 import styled from 'styled-components';
 import { ScreenReader } from '../config/types';
@@ -271,16 +271,14 @@ export function AccessibleControllerDiagnosticScreen({
   return (
     <Screen voterMode={false}>
       <Main style={{ padding: '2em 4em' }}>
-        <MainChild maxWidth={false} flexContainer>
-          <Header>
-            <Text>
-              <strong>Accessible Controller Test</strong> &mdash; Step{' '}
-              {step + 1} of {steps.length}
-            </Text>
-            <Button onPress={onCancel}>Cancel Test</Button>
-          </Header>
-          {steps[step]}
-        </MainChild>
+        <Header>
+          <Text>
+            <strong>Accessible Controller Test</strong> &mdash; Step {step + 1}{' '}
+            of {steps.length}
+          </Text>
+          <Button onPress={onCancel}>Cancel Test</Button>
+        </Header>
+        {steps[step]}
       </Main>
     </Screen>
   );

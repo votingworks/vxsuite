@@ -19,7 +19,6 @@ import {
   DisplayTextForYesOrNo,
   LinkButton,
   Main,
-  MainChild,
   Prose,
   Screen,
 } from '@votingworks/ui';
@@ -406,112 +405,110 @@ export function ReviewPage(): JSX.Element {
 
   return (
     <Screen>
-      <Main>
-        <MainChild flexContainer maxWidth={false}>
-          <ContentHeader>
-            <Prose id="audiofocus">
-              <h1>
-                <span aria-label="Review Your Votes.">Review Your Votes</span>
-                <span className="screen-reader-only">
-                  To review your votes, advance through the ballot contests
-                  using the up and down buttons. To change your vote in any
-                  contest, use the select button to navigate to that contest.
-                  {machineConfig.appMode.isPrint
-                    ? 'When you are finished making your ballot selections and ready to print your ballot, use the right button to print your ballot.'
-                    : 'When you are finished making your ballot selections and ready to print your ballot, use the right button to continue.'}
-                </span>
-              </h1>
-            </Prose>
-          </ContentHeader>
-          <VariableContentContainer
-            showTopShadow={!isScrollAtTop}
-            showBottomShadow={!isScrollAtBottom}
+      <Main flexColumn>
+        <ContentHeader>
+          <Prose id="audiofocus">
+            <h1>
+              <span aria-label="Review Your Votes.">Review Your Votes</span>
+              <span className="screen-reader-only">
+                To review your votes, advance through the ballot contests using
+                the up and down buttons. To change your vote in any contest, use
+                the select button to navigate to that contest.
+                {machineConfig.appMode.isPrint
+                  ? 'When you are finished making your ballot selections and ready to print your ballot, use the right button to print your ballot.'
+                  : 'When you are finished making your ballot selections and ready to print your ballot, use the right button to continue.'}
+              </span>
+            </h1>
+          </Prose>
+        </ContentHeader>
+        <VariableContentContainer
+          showTopShadow={!isScrollAtTop}
+          showBottomShadow={!isScrollAtBottom}
+        >
+          <ScrollContainer
+            ref={scrollContainer}
+            onScroll={updateContestChoicesScrollStates}
           >
-            <ScrollContainer
-              ref={scrollContainer}
-              onScroll={updateContestChoicesScrollStates}
-            >
-              <ScrollableContentWrapper isScrollable={isScrollable}>
-                {contests.map((contest, i) => (
-                  <LinkButton
-                    component={Contest}
-                    id={`contest-${contest.id}`}
-                    key={contest.id}
-                    to={`/contests/${i}#review`}
-                  >
-                    <ContestProse compact>
-                      <h2 aria-label={`${contest.section} ${contest.title},`}>
-                        <ContestSection>{contest.section}</ContestSection>
-                        {contest.title}
-                      </h2>
+            <ScrollableContentWrapper isScrollable={isScrollable}>
+              {contests.map((contest, i) => (
+                <LinkButton
+                  component={Contest}
+                  id={`contest-${contest.id}`}
+                  key={contest.id}
+                  to={`/contests/${i}#review`}
+                >
+                  <ContestProse compact>
+                    <h2 aria-label={`${contest.section} ${contest.title},`}>
+                      <ContestSection>{contest.section}</ContestSection>
+                      {contest.title}
+                    </h2>
 
-                      {contest.type === 'candidate' && (
-                        <CandidateContestResult
-                          contest={contest}
-                          election={election}
-                          precinctId={precinctId}
-                          vote={votes[contest.id] as CandidateVote}
-                        />
-                      )}
-                      {contest.type === 'yesno' && (
-                        <YesNoContestResult
-                          contest={contest}
-                          vote={votes[contest.id] as YesNoVote}
-                        />
-                      )}
-                      {contest.type === 'ms-either-neither' && (
-                        <MsEitherNeitherContestResult
-                          contest={contest}
-                          eitherNeitherContestVote={
-                            votes[
-                              contest.eitherNeitherContestId
-                            ] as OptionalYesNoVote
-                          }
-                          pickOneContestVote={
-                            votes[contest.pickOneContestId] as OptionalYesNoVote
-                          }
-                        />
-                      )}
-                    </ContestProse>
-                    <ContestActions aria-label="Press the select button to change your votes for this contest.">
-                      <DecoyButton primary aria-hidden>
-                        Change
-                      </DecoyButton>
-                    </ContestActions>
-                  </LinkButton>
-                ))}
-              </ScrollableContentWrapper>
-            </ScrollContainer>
-            {
-              /* istanbul ignore next: Tested by Cypress */ isScrollable && (
-                <ScrollControls aria-hidden>
-                  <Button
-                    className="scroll-up"
-                    large
-                    primary
-                    aria-hidden
-                    data-direction="up"
-                    disabled={isScrollAtTop}
-                    onPress={scrollContestChoices}
-                  >
-                    <span>See More</span>
-                  </Button>
-                  <Button
-                    className="scroll-down"
-                    large
-                    primary
-                    aria-hidden
-                    data-direction="down"
-                    disabled={isScrollAtBottom}
-                    onPress={scrollContestChoices}
-                  >
-                    <span>See More</span>
-                  </Button>
-                </ScrollControls>
-              )
-            }
-          </VariableContentContainer>
-        </MainChild>
+                    {contest.type === 'candidate' && (
+                      <CandidateContestResult
+                        contest={contest}
+                        election={election}
+                        precinctId={precinctId}
+                        vote={votes[contest.id] as CandidateVote}
+                      />
+                    )}
+                    {contest.type === 'yesno' && (
+                      <YesNoContestResult
+                        contest={contest}
+                        vote={votes[contest.id] as YesNoVote}
+                      />
+                    )}
+                    {contest.type === 'ms-either-neither' && (
+                      <MsEitherNeitherContestResult
+                        contest={contest}
+                        eitherNeitherContestVote={
+                          votes[
+                            contest.eitherNeitherContestId
+                          ] as OptionalYesNoVote
+                        }
+                        pickOneContestVote={
+                          votes[contest.pickOneContestId] as OptionalYesNoVote
+                        }
+                      />
+                    )}
+                  </ContestProse>
+                  <ContestActions aria-label="Press the select button to change your votes for this contest.">
+                    <DecoyButton primary aria-hidden>
+                      Change
+                    </DecoyButton>
+                  </ContestActions>
+                </LinkButton>
+              ))}
+            </ScrollableContentWrapper>
+          </ScrollContainer>
+          {
+            /* istanbul ignore next: Tested by Cypress */ isScrollable && (
+              <ScrollControls aria-hidden>
+                <Button
+                  className="scroll-up"
+                  large
+                  primary
+                  aria-hidden
+                  data-direction="up"
+                  disabled={isScrollAtTop}
+                  onPress={scrollContestChoices}
+                >
+                  <span>See More</span>
+                </Button>
+                <Button
+                  className="scroll-down"
+                  large
+                  primary
+                  aria-hidden
+                  data-direction="down"
+                  disabled={isScrollAtBottom}
+                  onPress={scrollContestChoices}
+                >
+                  <span>See More</span>
+                </Button>
+              </ScrollControls>
+            )
+          }
+        </VariableContentContainer>
       </Main>
       <Sidebar
         footer={

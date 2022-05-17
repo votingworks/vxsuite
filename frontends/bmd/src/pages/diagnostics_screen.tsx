@@ -5,7 +5,6 @@ import {
   Devices,
   LinkButton,
   Main,
-  MainChild,
   Prose,
   Screen,
   Text,
@@ -282,26 +281,24 @@ export function DiagnosticsScreen({
       <Route path="/" exact>
         <Screen flexDirection="row-reverse" voterMode={false}>
           <Main padded>
-            <MainChild>
-              <Prose compact>
-                <h1>System Diagnostics</h1>
-                <section>
-                  <h2>Computer</h2>
-                  <ComputerStatus computer={devices.computer} />
-                </section>
-                <section>
-                  <h2>Printer</h2>
-                  <PrinterStatus hardware={hardware} />
-                </section>
-                <section>
-                  <h2>Accessible Controller</h2>
-                  <AccessibleControllerStatus
-                    accessibleController={devices.accessibleController}
-                    diagnosticResults={accessibleControllerDiagnosticResults}
-                  />
-                </section>
-              </Prose>
-            </MainChild>
+            <Prose compact>
+              <h1>System Diagnostics</h1>
+              <section>
+                <h2>Computer</h2>
+                <ComputerStatus computer={devices.computer} />
+              </section>
+              <section>
+                <h2>Printer</h2>
+                <PrinterStatus hardware={hardware} />
+              </section>
+              <section>
+                <h2>Accessible Controller</h2>
+                <AccessibleControllerStatus
+                  accessibleController={devices.accessibleController}
+                  diagnosticResults={accessibleControllerDiagnosticResults}
+                />
+              </section>
+            </Prose>
           </Main>
           <Sidebar {...sidebarProps}>
             <Prose>

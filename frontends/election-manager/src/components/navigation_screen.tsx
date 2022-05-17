@@ -5,7 +5,6 @@ import {
   Button,
   ElectionInfoBar,
   Main,
-  MainChild,
   Screen,
   UsbControllerButton,
 } from '@votingworks/ui';
@@ -21,14 +20,12 @@ import { LinkButton } from './link_button';
 
 interface Props {
   children: React.ReactNode;
-  mainChildCenter?: boolean;
-  mainChildFlex?: boolean;
+  centerContent?: boolean;
 }
 
 export function NavigationScreen({
   children,
-  mainChildCenter = false,
-  mainChildFlex = false,
+  centerContent,
 }: Props): JSX.Element {
   const location = useLocation();
 
@@ -138,14 +135,8 @@ export function NavigationScreen({
           </React.Fragment>
         }
       />
-      <Main padded>
-        <MainChild
-          center={mainChildCenter}
-          flexContainer={mainChildFlex}
-          maxWidth={false}
-        >
-          {children}
-        </MainChild>
+      <Main padded centerChild={centerContent}>
+        {children}
       </Main>
       <ElectionInfoBar
         mode="admin"

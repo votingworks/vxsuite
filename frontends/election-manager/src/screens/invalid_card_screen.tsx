@@ -2,7 +2,6 @@ import {
   fontSizeTheme,
   ElectionInfoBar,
   Main,
-  MainChild,
   Prose,
   Screen,
 } from '@votingworks/ui';
@@ -13,16 +12,14 @@ export function InvalidCardScreen(): JSX.Element {
   const { electionDefinition, machineConfig } = useContext(AppContext);
   return (
     <Screen flexDirection="column">
-      <Main>
-        <MainChild center maxWidth={false}>
-          <Prose textCenter theme={fontSizeTheme.medium} maxWidth={false}>
-            <h1>Invalid Card</h1>
-            <p>
-              The inserted card is not valid to unlock this machine. Please
-              insert a valid admin card.
-            </p>
-          </Prose>
-        </MainChild>
+      <Main centerChild>
+        <Prose textCenter theme={fontSizeTheme.medium} maxWidth={false}>
+          <h1>Invalid Card</h1>
+          <p>
+            The inserted card is not valid to unlock this machine. Please insert
+            a valid admin card.
+          </p>
+        </Prose>
       </Main>
       <ElectionInfoBar
         mode="admin"

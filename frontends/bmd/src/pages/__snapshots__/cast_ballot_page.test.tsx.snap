@@ -38,70 +38,66 @@ exports[`renders CastBallotPage 1`] = `
 }
 
 <div
-  class="sc-bBHHQT kkeETe"
+  class="sc-jObXwK cRVrKU"
 >
   <main
-    class="sc-llYToB desMbI"
+    class="sc-llYToB hbpTOJ"
   >
     <div
-      class="sc-iJKOzS hiKwVD"
+      class="sc-jRQAMF emGwAi"
+      id="audiofocus"
     >
-      <div
-        class="sc-jRQAMF emGwAi"
-        id="audiofocus"
+      <h1
+        aria-label="You’re almost done."
       >
-        <h1
-          aria-label="You’re almost done."
-        >
-          You’re Almost Done
-        </h1>
-        <p>
-          Your official ballot is printing. To finish voting you need to…
-        </p>
-        <ol
-          class="c0"
-        >
-          <li>
-            <img
-              alt="Verify Your Printed Ballot"
-              aria-hidden="true"
-              class="c1"
-              src="/images/instructions-1-verify.svg"
-              style="left: -0.75em;"
-            />
-            <p>
-              1. Verify your official ballot.
-            </p>
-          </li>
-          <li>
-            <img
-              alt="Scan Your Ballot"
-              aria-hidden="true"
-              class="c1"
-              src="/images/instructions-2-scan.svg"
-            />
-            <p>
-              2. Scan your official ballot.
-            </p>
-          </li>
-        </ol>
-        <h3>
-          <strong>
-            Need help?
-          </strong>
-           Ask a poll worker.
-        </h3>
-      </div>
-      <div
-        class="c2"
+        You’re Almost Done
+      </h1>
+      <p>
+        Your official ballot is printing. To finish voting you need to…
+      </p>
+      <ol
+        class="c0"
       >
-        <button
-          class="sc-ksdxAp gPNRbf"
-          type="button"
-        >
-          Done
-        </button>
-      </div>
+        <li>
+          <img
+            alt="Verify Your Printed Ballot"
+            aria-hidden="true"
+            class="c1"
+            src="/images/instructions-1-verify.svg"
+            style="left: -0.75em;"
+          />
+          <p>
+            1. Verify your official ballot.
+          </p>
+        </li>
+        <li>
+          <img
+            alt="Scan Your Ballot"
+            aria-hidden="true"
+            class="c1"
+            src="/images/instructions-2-scan.svg"
+          />
+          <p>
+            2. Scan your official ballot.
+          </p>
+        </li>
+      </ol>
+      <h3>
+        <strong>
+          Need help?
+        </strong>
+         Ask a poll worker.
+      </h3>
+    </div>
+    <div
+      class="c2"
+    >
+      <button
+        class="sc-ksdxAp gPNRbf"
+        type="button"
+      >
+        Done
+      </button>
     </div>
   </main>
 </div>

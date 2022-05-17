@@ -8,14 +8,7 @@ import {
   PrecinctId,
   VotesDict,
 } from '@votingworks/types';
-import {
-  BmdPaperBallot,
-  Loading,
-  Main,
-  MainChild,
-  Prose,
-  Screen,
-} from '@votingworks/ui';
+import { BmdPaperBallot, Loading, Main, Prose, Screen } from '@votingworks/ui';
 
 import { MarkVoterCardFunction, Printer } from '../config/types';
 
@@ -197,26 +190,24 @@ export function PrintOnlyScreen({
   return (
     <React.Fragment>
       <Screen white>
-        <Main>
-          <MainChild center maxWidth={false}>
-            <Prose textCenter>{renderContent()}</Prose>
-            {!isVoterCardPresent && (
-              <React.Fragment>
-                {!isLiveMode && (
-                  <TopRightContent>
-                    <Text as="span" warning warningIcon bold>
-                      Testing Mode
-                    </Text>
-                  </TopRightContent>
-                )}
-                <TopLeftContent>
-                  <small>
-                    Ballots Printed: <strong>{ballotsPrintedCount}</strong>
-                  </small>
-                </TopLeftContent>
-              </React.Fragment>
-            )}
-          </MainChild>
+        <Main centerChild>
+          <Prose textCenter>{renderContent()}</Prose>
+          {!isVoterCardPresent && (
+            <React.Fragment>
+              {!isLiveMode && (
+                <TopRightContent>
+                  <Text as="span" warning warningIcon bold>
+                    Testing Mode
+                  </Text>
+                </TopRightContent>
+              )}
+              <TopLeftContent>
+                <small>
+                  Ballots Printed: <strong>{ballotsPrintedCount}</strong>
+                </small>
+              </TopLeftContent>
+            </React.Fragment>
+          )}
         </Main>
       </Screen>
       {isReadyToPrint &&

@@ -16,7 +16,6 @@ import {
   HorizontalRule,
   Loading,
   Main,
-  MainChild,
   Modal,
   PrecinctScannerPollsReport,
   PrecinctScannerTallyQrCode,
@@ -276,24 +275,22 @@ export function PollWorkerScreen({
   if (hasVotes && cardlessVoterSessionBallotStyleId) {
     return (
       <Screen>
-        <Main>
-          <MainChild center narrow>
-            <Prose textCenter>
-              <h1
-                aria-label={`Ballot style ${cardlessVoterSessionBallotStyleId} has been activated.`}
-              >
-                Ballot Contains Votes
-              </h1>
-              <p>
-                Remove card to allow voter to continue voting, or reset ballot.
-              </p>
-              <p>
-                <Button danger onPress={resetCardlessVoterSession}>
-                  Reset Ballot
-                </Button>
-              </p>
-            </Prose>
-          </MainChild>
+        <Main centerChild>
+          <Prose textCenter>
+            <h1
+              aria-label={`Ballot style ${cardlessVoterSessionBallotStyleId} has been activated.`}
+            >
+              Ballot Contains Votes
+            </h1>
+            <p>
+              Remove card to allow voter to continue voting, or reset ballot.
+            </p>
+            <p>
+              <Button danger onPress={resetCardlessVoterSession}>
+                Reset Ballot
+              </Button>
+            </p>
+          </Prose>
         </Main>
       </Screen>
     );
@@ -307,33 +304,31 @@ export function PollWorkerScreen({
 
     return (
       <Screen>
-        <Main>
-          <MainChild center narrow>
-            <Prose id="audiofocus">
-              <h1>
-                {appPrecinct.kind === PrecinctSelectionKind.AllPrecincts
-                  ? `Voter session activated: ${cardlessVoterSessionBallotStyleId} @ ${activationPrecinctName}`
-                  : `Voter session activated: ${cardlessVoterSessionBallotStyleId}`}
-              </h1>
-              <ol>
-                <li>Remove the poll worker card.</li>
-                <li>
-                  Instruct the voter to press the{' '}
-                  <Text as="span" bold noWrap>
-                    Start Voting
-                  </Text>{' '}
-                  button.
-                </li>
-              </ol>
-              <HorizontalRule>or</HorizontalRule>
-              <Text center>Deactivate this voter session to start over.</Text>
-              <Text center>
-                <Button small onPress={resetCardlessVoterSession}>
-                  Deactivate Voter Session
-                </Button>
-              </Text>
-            </Prose>
-          </MainChild>
+        <Main centerChild>
+          <Prose id="audiofocus">
+            <h1>
+              {appPrecinct.kind === PrecinctSelectionKind.AllPrecincts
+                ? `Voter session activated: ${cardlessVoterSessionBallotStyleId} @ ${activationPrecinctName}`
+                : `Voter session activated: ${cardlessVoterSessionBallotStyleId}`}
+            </h1>
+            <ol>
+              <li>Remove the poll worker card.</li>
+              <li>
+                Instruct the voter to press the{' '}
+                <Text as="span" bold noWrap>
+                  Start Voting
+                </Text>{' '}
+                button.
+              </li>
+            </ol>
+            <HorizontalRule>or</HorizontalRule>
+            <Text center>Deactivate this voter session to start over.</Text>
+            <Text center>
+              <Button small onPress={resetCardlessVoterSession}>
+                Deactivate Voter Session
+              </Button>
+            </Text>
+          </Prose>
         </Main>
       </Screen>
     );
@@ -376,91 +371,87 @@ export function PollWorkerScreen({
     <React.Fragment>
       <Screen flexDirection="row-reverse" voterMode={false}>
         <Main padded>
-          <MainChild>
-            {isMarkAndPrintMode && isPollsOpen && (
-              <React.Fragment>
-                <Prose>
-                  <h1>Activate Voter Session</h1>
-                </Prose>
-                {appPrecinct.kind === PrecinctSelectionKind.AllPrecincts && (
-                  <React.Fragment>
-                    <h3>Choose Precinct</h3>
-                    <ButtonList data-testid="precincts">
-                      {election.precincts.map((precinct) => (
-                        <Button
-                          fullWidth
-                          key={precinct.id}
-                          aria-label={`Activate Voter Session for Precinct ${precinct.name}`}
-                          onPress={() =>
-                            activateCardlessVoterSession(precinct.id)
-                          }
-                          primary={
-                            cardlessVoterSessionPrecinctId === precinct.id
-                          }
-                        >
-                          {precinct.name}
-                        </Button>
-                      ))}
-                    </ButtonList>
-                  </React.Fragment>
-                )}
-                {cardlessVoterSessionPrecinctId && (
-                  <React.Fragment>
-                    <h3>Choose Ballot Style</h3>
-                    <ButtonList data-testid="ballot-styles">
-                      {precinctBallotStyles.map((bs) => (
-                        <Button
-                          fullWidth
-                          key={bs.id}
-                          aria-label={`Activate Voter Session for Ballot Style ${bs.id}`}
-                          onPress={() =>
-                            activateCardlessVoterSession(
-                              cardlessVoterSessionPrecinctId,
-                              bs.id
-                            )
-                          }
-                        >
-                          {bs.id}
-                        </Button>
-                      ))}
-                    </ButtonList>
-                  </React.Fragment>
-                )}
-              </React.Fragment>
-            )}
-            <Prose>
-              <h1>Open/Close Polls</h1>
-              <Text warningIcon={!isPollsOpen} voteIcon={isPollsOpen}>
+          {isMarkAndPrintMode && isPollsOpen && (
+            <React.Fragment>
+              <Prose>
+                <h1>Activate Voter Session</h1>
+              </Prose>
+              {appPrecinct.kind === PrecinctSelectionKind.AllPrecincts && (
+                <React.Fragment>
+                  <h3>Choose Precinct</h3>
+                  <ButtonList data-testid="precincts">
+                    {election.precincts.map((precinct) => (
+                      <Button
+                        fullWidth
+                        key={precinct.id}
+                        aria-label={`Activate Voter Session for Precinct ${precinct.name}`}
+                        onPress={() =>
+                          activateCardlessVoterSession(precinct.id)
+                        }
+                        primary={cardlessVoterSessionPrecinctId === precinct.id}
+                      >
+                        {precinct.name}
+                      </Button>
+                    ))}
+                  </ButtonList>
+                </React.Fragment>
+              )}
+              {cardlessVoterSessionPrecinctId && (
+                <React.Fragment>
+                  <h3>Choose Ballot Style</h3>
+                  <ButtonList data-testid="ballot-styles">
+                    {precinctBallotStyles.map((bs) => (
+                      <Button
+                        fullWidth
+                        key={bs.id}
+                        aria-label={`Activate Voter Session for Ballot Style ${bs.id}`}
+                        onPress={() =>
+                          activateCardlessVoterSession(
+                            cardlessVoterSessionPrecinctId,
+                            bs.id
+                          )
+                        }
+                      >
+                        {bs.id}
+                      </Button>
+                    ))}
+                  </ButtonList>
+                </React.Fragment>
+              )}
+            </React.Fragment>
+          )}
+          <Prose>
+            <h1>Open/Close Polls</h1>
+            <Text warningIcon={!isPollsOpen} voteIcon={isPollsOpen}>
+              {isPollsOpen
+                ? 'Polls are currently open.'
+                : 'Polls are currently closed.'}{' '}
+              {isLiveMode ? (
+                <React.Fragment>
+                  Machine is in Live&nbsp;Election&nbsp;Mode.
+                </React.Fragment>
+              ) : (
+                <React.Fragment>
+                  Machine is in Testing&nbsp;Mode.
+                </React.Fragment>
+              )}
+            </Text>
+            <p>
+              <Button primary large onPress={togglePollsOpen}>
                 {isPollsOpen
-                  ? 'Polls are currently open.'
-                  : 'Polls are currently closed.'}{' '}
-                {isLiveMode ? (
-                  <React.Fragment>
-                    Machine is in Live&nbsp;Election&nbsp;Mode.
-                  </React.Fragment>
-                ) : (
-                  <React.Fragment>
-                    Machine is in Testing&nbsp;Mode.
-                  </React.Fragment>
-                )}
-              </Text>
-              <p>
-                <Button primary large onPress={togglePollsOpen}>
-                  {isPollsOpen
-                    ? `Close Polls for ${precinctName}`
-                    : `Open Polls for ${precinctName}`}
-                </Button>
-              </p>
-
-              <h1>Advanced</h1>
-              <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
-                System Diagnostics
+                  ? `Close Polls for ${precinctName}`
+                  : `Open Polls for ${precinctName}`}
               </Button>
-              <p>
-                <Button onPress={reload}>Reset Accessible Controller</Button>
-              </p>
-            </Prose>
-          </MainChild>
+            </p>
+
+            <h1>Advanced</h1>
+            <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
+              System Diagnostics
+            </Button>
+            <p>
+              <Button onPress={reload}>Reset Accessible Controller</Button>
+            </p>
+          </Prose>
         </Main>
         <Sidebar {...sidebarProps}>
           <Prose>

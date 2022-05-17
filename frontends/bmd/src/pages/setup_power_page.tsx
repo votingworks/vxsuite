@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-import { Main, MainChild, Screen, Prose } from '@votingworks/ui';
+import { Main, Screen, Prose } from '@votingworks/ui';
 
 import { NoWrap } from '../components/text';
 
@@ -16,18 +16,15 @@ export function SetupPowerPage({
 
   return (
     <Screen white>
-      <Main padded>
-        <MainChild center>
-          <Prose textCenter>
-            <h1>
-              No Power Detected <NoWrap>and Battery is Low</NoWrap>
-            </h1>
-            <p>
-              Please ask a poll worker to plug-in the power cord for this
-              machine.
-            </p>
-          </Prose>
-        </MainChild>
+      <Main padded centerChild>
+        <Prose textCenter>
+          <h1>
+            No Power Detected <NoWrap>and Battery is Low</NoWrap>
+          </h1>
+          <p>
+            Please ask a poll worker to plug-in the power cord for this machine.
+          </p>
+        </Prose>
       </Main>
     </Screen>
   );

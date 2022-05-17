@@ -2,7 +2,6 @@ import { ElectionDefinition, Optional } from '@votingworks/types';
 import {
   Button,
   Main,
-  MainChild,
   Prose,
   Screen,
   useCancelablePromise,
@@ -86,43 +85,41 @@ export function ReplaceElectionScreen({
   return (
     <Screen flexDirection="row-reverse" voterMode={false}>
       <Main padded>
-        <MainChild maxWidth={false}>
-          <Prose id="audiofocus">
-            <h1>Admin Card is not configured for this election</h1>
-            {!cardElectionDefinition ? (
-              <p>Reading Election Definition from Admin Card…</p>
-            ) : (
-              <React.Fragment>
-                <p>
-                  You may replace the Election Definition on this machine with
-                  the one from the Admin Card. Doing so will replace all data on
-                  this machine.
-                </p>
-                <h3>Current Election Definition:</h3>
-                <BriefElectionDefinitionInfo
-                  electionDefinition={electionDefinition}
-                />
-                <h3> Card Election Definition: </h3>
-                <BriefElectionDefinitionInfo
-                  electionDefinition={cardElectionDefinition}
-                />
-                {ballotsPrintedCount === 0 ? (
-                  <Text>No ballots have been printed yet.</Text>
-                ) : (
-                  <Text>
-                    This machine has already printed{' '}
-                    {pluralize('ballot', ballotsPrintedCount, true)}.
-                  </Text>
-                )}
-                <p>
-                  <Button danger onPress={unconfigure}>
-                    Remove Current Election and All Data
-                  </Button>
-                </p>
-              </React.Fragment>
-            )}
-          </Prose>
-        </MainChild>
+        <Prose id="audiofocus">
+          <h1>Admin Card is not configured for this election</h1>
+          {!cardElectionDefinition ? (
+            <p>Reading Election Definition from Admin Card…</p>
+          ) : (
+            <React.Fragment>
+              <p>
+                You may replace the Election Definition on this machine with the
+                one from the Admin Card. Doing so will replace all data on this
+                machine.
+              </p>
+              <h3>Current Election Definition:</h3>
+              <BriefElectionDefinitionInfo
+                electionDefinition={electionDefinition}
+              />
+              <h3> Card Election Definition: </h3>
+              <BriefElectionDefinitionInfo
+                electionDefinition={cardElectionDefinition}
+              />
+              {ballotsPrintedCount === 0 ? (
+                <Text>No ballots have been printed yet.</Text>
+              ) : (
+                <Text>
+                  This machine has already printed{' '}
+                  {pluralize('ballot', ballotsPrintedCount, true)}.
+                </Text>
+              )}
+              <p>
+                <Button danger onPress={unconfigure}>
+                  Remove Current Election and All Data
+                </Button>
+              </p>
+            </React.Fragment>
+          )}
+        </Prose>
       </Main>
       <Sidebar
         appName={machineConfig.appMode.productName}

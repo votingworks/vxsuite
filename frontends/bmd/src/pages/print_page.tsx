@@ -5,7 +5,6 @@ import styled from 'styled-components';
 import {
   BmdPaperBallot,
   Main,
-  MainChild,
   ProgressEllipsis,
   Prose,
   Screen,
@@ -85,23 +84,21 @@ export function PrintPage(): JSX.Element {
   return (
     <React.Fragment>
       <Screen white>
-        <Main>
-          <MainChild center maxWidth={false}>
-            <Prose textCenter id="audiofocus">
-              <p>
-                <Graphic
-                  src="/images/printing-ballot.svg"
-                  alt="Printing Ballot"
-                  aria-hidden
-                />
-              </p>
-              <h1>
-                <ProgressEllipsis aria-label="Printing your official ballot.">
-                  Printing Official Ballot
-                </ProgressEllipsis>
-              </h1>
-            </Prose>
-          </MainChild>
+        <Main centerChild>
+          <Prose textCenter id="audiofocus">
+            <p>
+              <Graphic
+                src="/images/printing-ballot.svg"
+                alt="Printing Ballot"
+                aria-hidden
+              />
+            </p>
+            <h1>
+              <ProgressEllipsis aria-label="Printing your official ballot.">
+                Printing Official Ballot
+              </ProgressEllipsis>
+            </h1>
+          </Prose>
         </Main>
       </Screen>
       <BmdPaperBallot
