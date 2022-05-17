@@ -407,7 +407,11 @@ test('candidate schema', () => {
     name: 'Not a write-in',
     isWriteIn: false,
   }).unsafeUnwrapErr();
-
+  safeParse(CandidateSchema, {
+    id: 'some-id',
+    name: 'Invalid write-in value',
+    isWriteIn: true,
+  }).unsafeUnwrapErr();
   // valid IDs
   safeParse(CandidateSchema, {
     id: 'bob-loblaw',

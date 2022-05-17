@@ -125,7 +125,7 @@ export const CandidateSchema: z.ZodSchema<Candidate> = z
     isWriteIn: z.boolean().optional(),
   })
   .refine(
-    ({ id, isWriteIn }) => isWriteIn || !id.startsWith('write-in'),
+    ({ id, isWriteIn }) => !!isWriteIn === id.startsWith('write-in'),
     `Non-write-in candidate IDs must not start with 'write-in'`
   );
 
