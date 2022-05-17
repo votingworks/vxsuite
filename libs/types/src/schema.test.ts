@@ -822,7 +822,7 @@ test('specifying write-in candidates', () => {
         name: 'C',
       },
       {
-        id: '__write-in-0',
+        id: 'write-in-0',
         name: 'W',
         isWriteIn: true,
       },
@@ -847,7 +847,7 @@ test('specifying all write-in candidates is required if any are specified', () =
         name: 'C',
       },
       {
-        id: '__write-in-0',
+        id: 'write-in-0',
         name: 'W',
         isWriteIn: true,
       },
@@ -877,7 +877,7 @@ test('no write-in candidates may be specified if write-ins are not allowed', () 
         name: 'C',
       },
       {
-        id: '__write-in-0',
+        id: 'write-in-0',
         name: 'W',
         isWriteIn: true,
       },

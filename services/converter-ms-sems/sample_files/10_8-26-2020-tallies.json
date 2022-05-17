@@ -18,11 +18,11 @@
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 18 }
       },
       "775020870": {
-        "tallies": { "775031976": 7, "775031993": 11, "__write-in": 0 },
+        "tallies": { "775031976": 7, "775031993": 11, "write-in": 0 },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 18 }
       },
       "775020872": {
-        "tallies": { "775031978": 8, "775031979": 10, "__write-in": 0 },
+        "tallies": { "775031978": 8, "775031979": 10, "write-in": 0 },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 18 }
       },
       "775020876": {
@@ -30,7 +30,7 @@
           "775031987": 9,
           "775031988": 3,
           "775031989": 6,
-          "__write-in": 0
+          "write-in": 0
         },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 18 }
       },
@@ -39,16 +39,16 @@
           "775031985": 2,
           "775031986": 8,
           "775031990": 8,
-          "__write-in": 0
+          "write-in": 0
         },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 18 }
       },
       "775020903": {
-        "tallies": { "775032021": 8, "775032022": 10, "__write-in": 0 },
+        "tallies": { "775032021": 8, "775032022": 10, "write-in": 0 },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 18 }
       },
       "775020904": {
-        "tallies": { "775032023": 18, "__write-in": 0 },
+        "tallies": { "775032023": 18, "write-in": 0 },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 18 }
       }
     },
@@ -70,11 +70,11 @@
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 9 }
       },
       "775020870": {
-        "tallies": { "775031976": 5, "775031993": 4, "__write-in": 0 },
+        "tallies": { "775031976": 5, "775031993": 4, "write-in": 0 },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 9 }
       },
       "775020872": {
-        "tallies": { "775031978": 5, "775031979": 4, "__write-in": 0 },
+        "tallies": { "775031978": 5, "775031979": 4, "write-in": 0 },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 9 }
       },
       "775020876": {
@@ -82,7 +82,7 @@
           "775031987": 3,
           "775031988": 1,
           "775031989": 5,
-          "__write-in": 0
+          "write-in": 0
         },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 9 }
       },
@@ -91,12 +91,12 @@
           "775031985": 4,
           "775031986": 2,
           "775031990": 3,
-          "__write-in": 0
+          "write-in": 0
         },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 9 }
       },
       "775020899": {
-        "tallies": { "775032015": 9, "__write-in": 0 },
+        "tallies": { "775032015": 9, "write-in": 0 },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 9 }
       }
     },
@@ -118,11 +118,11 @@
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 7 }
       },
       "775020870": {
-        "tallies": { "775031976": 2, "775031993": 5, "__write-in": 0 },
+        "tallies": { "775031976": 2, "775031993": 5, "write-in": 0 },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 7 }
       },
       "775020872": {
-        "tallies": { "775031978": 2, "775031979": 5, "__write-in": 0 },
+        "tallies": { "775031978": 2, "775031979": 5, "write-in": 0 },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 7 }
       },
       "775020876": {
@@ -130,7 +130,7 @@
           "775031987": 2,
           "775031988": 2,
           "775031989": 2,
-          "__write-in": 0
+          "write-in": 0
         },
         "metadata": { "overvotes": 0, "undervotes": 1, "ballots": 7 }
       },
@@ -139,12 +139,12 @@
           "775031985": 0,
           "775031986": 4,
           "775031990": 3,
-          "__write-in": 0
+          "write-in": 0
         },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 7 }
       },
       "775020902": {
-        "tallies": { "775032019": 1, "775032020": 6, "__write-in": 0 },
+        "tallies": { "775032019": 1, "775032020": 6, "write-in": 0 },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 7 }
       }
     },
@@ -166,11 +166,11 @@
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 6 }
       },
       "775020870": {
-        "tallies": { "775031976": 2, "775031993": 3, "__write-in": 0 },
+        "tallies": { "775031976": 2, "775031993": 3, "write-in": 0 },
         "metadata": { "overvotes": 0, "undervotes": 1, "ballots": 6 }
       },
       "775020872": {
-        "tallies": { "775031978": 0, "775031979": 5, "__write-in": 0 },
+        "tallies": { "775031978": 0, "775031979": 5, "write-in": 0 },
         "metadata": { "overvotes": 0, "undervotes": 1, "ballots": 6 }
       },
       "775020876": {
@@ -178,7 +178,7 @@
           "775031987": 1,
           "775031988": 3,
           "775031989": 2,
-          "__write-in": 0
+          "write-in": 0
         },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 6 }
       },
@@ -187,12 +187,12 @@
           "775031985": 2,
           "775031986": 2,
           "775031990": 2,
-          "__write-in": 0
+          "write-in": 0
         },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 6 }
       },
       "775020901": {
-        "tallies": { "775032018": 6, "__write-in": 0 },
+        "tallies": { "775032018": 6, "write-in": 0 },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 6 }
       }
     },
@@ -214,11 +214,11 @@
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 12 }
       },
       "775020870": {
-        "tallies": { "775031976": 4, "775031993": 8, "__write-in": 0 },
+        "tallies": { "775031976": 4, "775031993": 8, "write-in": 0 },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 12 }
       },
       "775020872": {
-        "tallies": { "775031978": 8, "775031979": 4, "__write-in": 0 },
+        "tallies": { "775031978": 8, "775031979": 4, "write-in": 0 },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 12 }
       },
       "775020876": {
@@ -226,7 +226,7 @@
           "775031987": 5,
           "775031988": 5,
           "775031989": 2,
-          "__write-in": 0
+          "write-in": 0
         },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 12 }
       },
@@ -235,12 +235,12 @@
           "775031985": 5,
           "775031986": 5,
           "775031990": 2,
-          "__write-in": 0
+          "write-in": 0
         },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 12 }
       },
       "775020899": {
-        "tallies": { "775032015": 12, "__write-in": 0 },
+        "tallies": { "775032015": 12, "write-in": 0 },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 12 }
       }
     },
@@ -262,11 +262,11 @@
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 4 }
       },
       "775020870": {
-        "tallies": { "775031976": 2, "775031993": 2, "__write-in": 0 },
+        "tallies": { "775031976": 2, "775031993": 2, "write-in": 0 },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 4 }
       },
       "775020872": {
-        "tallies": { "775031978": 1, "775031979": 3, "__write-in": 0 },
+        "tallies": { "775031978": 1, "775031979": 3, "write-in": 0 },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 4 }
       },
       "775020876": {
@@ -274,7 +274,7 @@
           "775031987": 2,
           "775031988": 1,
           "775031989": 1,
-          "__write-in": 0
+          "write-in": 0
         },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 4 }
       },
@@ -283,12 +283,12 @@
           "775031985": 0,
           "775031986": 2,
           "775031990": 2,
-          "__write-in": 0
+          "write-in": 0
         },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 4 }
       },
       "775020900": {
-        "tallies": { "775032016": 4, "775032017": 0, "__write-in": 0 },
+        "tallies": { "775032016": 4, "775032017": 0, "write-in": 0 },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 4 }
       }
     },
@@ -310,11 +310,11 @@
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 8 }
       },
       "775020870": {
-        "tallies": { "775031976": 5, "775031993": 3, "__write-in": 0 },
+        "tallies": { "775031976": 5, "775031993": 3, "write-in": 0 },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 8 }
       },
       "775020872": {
-        "tallies": { "775031978": 2, "775031979": 6, "__write-in": 0 },
+        "tallies": { "775031978": 2, "775031979": 6, "write-in": 0 },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 8 }
       },
       "775020876": {
@@ -322,7 +322,7 @@
           "775031987": 2,
           "775031988": 2,
           "775031989": 4,
-          "__write-in": 0
+          "write-in": 0
         },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 8 }
       },
@@ -331,12 +331,12 @@
           "775031985": 1,
           "775031986": 2,
           "775031990": 5,
-          "__write-in": 0
+          "write-in": 0
         },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 8 }
       },
       "775020901": {
-        "tallies": { "775032018": 8, "__write-in": 0 },
+        "tallies": { "775032018": 8, "write-in": 0 },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 8 }
       }
     },
@@ -358,11 +358,11 @@
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 5 }
       },
       "775020870": {
-        "tallies": { "775031976": 2, "775031993": 3, "__write-in": 0 },
+        "tallies": { "775031976": 2, "775031993": 3, "write-in": 0 },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 5 }
       },
       "775020872": {
-        "tallies": { "775031978": 4, "775031979": 1, "__write-in": 0 },
+        "tallies": { "775031978": 4, "775031979": 1, "write-in": 0 },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 5 }
       },
       "775020876": {
@@ -370,7 +370,7 @@
           "775031987": 2,
           "775031988": 1,
           "775031989": 2,
-          "__write-in": 0
+          "write-in": 0
         },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 5 }
       },
@@ -379,12 +379,12 @@
           "775031985": 1,
           "775031986": 3,
           "775031990": 1,
-          "__write-in": 0
+          "write-in": 0
         },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 5 }
       },
       "775020902": {
-        "tallies": { "775032019": 3, "775032020": 2, "__write-in": 0 },
+        "tallies": { "775032019": 3, "775032020": 2, "write-in": 0 },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 5 }
       }
     },
@@ -406,11 +406,11 @@
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 6 }
       },
       "775020870": {
-        "tallies": { "775031976": 3, "775031993": 3, "__write-in": 0 },
+        "tallies": { "775031976": 3, "775031993": 3, "write-in": 0 },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 6 }
       },
       "775020872": {
-        "tallies": { "775031978": 5, "775031979": 1, "__write-in": 0 },
+        "tallies": { "775031978": 5, "775031979": 1, "write-in": 0 },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 6 }
       },
       "775020876": {
@@ -418,7 +418,7 @@
           "775031987": 3,
           "775031988": 3,
           "775031989": 0,
-          "__write-in": 0
+          "write-in": 0
         },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 6 }
       },
@@ -427,12 +427,12 @@
           "775031985": 3,
           "775031986": 2,
           "775031990": 1,
-          "__write-in": 0
+          "write-in": 0
         },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 6 }
       },
       "775020900": {
-        "tallies": { "775032016": 2, "775032017": 4, "__write-in": 0 },
+        "tallies": { "775032016": 2, "775032017": 4, "write-in": 0 },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 6 }
       }
     },
@@ -454,11 +454,11 @@
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 6 }
       },
       "775020870": {
-        "tallies": { "775031976": 4, "775031993": 2, "__write-in": 0 },
+        "tallies": { "775031976": 4, "775031993": 2, "write-in": 0 },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 6 }
       },
       "775020872": {
-        "tallies": { "775031978": 3, "775031979": 3, "__write-in": 0 },
+        "tallies": { "775031978": 3, "775031979": 3, "write-in": 0 },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 6 }
       },
       "775020876": {
@@ -466,7 +466,7 @@
           "775031987": 1,
           "775031988": 2,
           "775031989": 3,
-          "__write-in": 0
+          "write-in": 0
         },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 6 }
       },
@@ -475,12 +475,12 @@
           "775031985": 1,
           "775031986": 4,
           "775031990": 1,
-          "__write-in": 0
+          "write-in": 0
         },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 6 }
       },
       "775020900": {
-        "tallies": { "775032016": 5, "775032017": 1, "__write-in": 0 },
+        "tallies": { "775032016": 5, "775032017": 1, "write-in": 0 },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 6 }
       }
     },
@@ -502,11 +502,11 @@
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 7 }
       },
       "775020870": {
-        "tallies": { "775031976": 2, "775031993": 5, "__write-in": 0 },
+        "tallies": { "775031976": 2, "775031993": 5, "write-in": 0 },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 7 }
       },
       "775020872": {
-        "tallies": { "775031978": 3, "775031979": 4, "__write-in": 0 },
+        "tallies": { "775031978": 3, "775031979": 4, "write-in": 0 },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 7 }
       },
       "775020876": {
@@ -514,7 +514,7 @@
           "775031987": 3,
           "775031988": 2,
           "775031989": 2,
-          "__write-in": 0
+          "write-in": 0
         },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 7 }
       },
@@ -523,12 +523,12 @@
           "775031985": 1,
           "775031986": 2,
           "775031990": 4,
-          "__write-in": 0
+          "write-in": 0
         },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 7 }
       },
       "775020902": {
-        "tallies": { "775032019": 3, "775032020": 4, "__write-in": 0 },
+        "tallies": { "775032019": 3, "775032020": 4, "write-in": 0 },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 7 }
       }
     },
@@ -550,11 +550,11 @@
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 2 }
       },
       "775020870": {
-        "tallies": { "775031976": 1, "775031993": 1, "__write-in": 0 },
+        "tallies": { "775031976": 1, "775031993": 1, "write-in": 0 },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 2 }
       },
       "775020872": {
-        "tallies": { "775031978": 1, "775031979": 1, "__write-in": 0 },
+        "tallies": { "775031978": 1, "775031979": 1, "write-in": 0 },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 2 }
       },
       "775020876": {
@@ -562,7 +562,7 @@
           "775031987": 0,
           "775031988": 1,
           "775031989": 1,
-          "__write-in": 0
+          "write-in": 0
         },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 2 }
       },
@@ -571,12 +571,12 @@
           "775031985": 0,
           "775031986": 0,
           "775031990": 2,
-          "__write-in": 0
+          "write-in": 0
         },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 2 }
       },
       "775020899": {
-        "tallies": { "775032015": 2, "__write-in": 0 },
+        "tallies": { "775032015": 2, "write-in": 0 },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 2 }
       }
     },
@@ -598,11 +598,11 @@
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 10 }
       },
       "775020870": {
-        "tallies": { "775031976": 5, "775031993": 5, "__write-in": 0 },
+        "tallies": { "775031976": 5, "775031993": 5, "write-in": 0 },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 10 }
       },
       "775020872": {
-        "tallies": { "775031978": 2, "775031979": 8, "__write-in": 0 },
+        "tallies": { "775031978": 2, "775031979": 8, "write-in": 0 },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 10 }
       },
       "775020876": {
@@ -610,7 +610,7 @@
           "775031987": 3,
           "775031988": 3,
           "775031989": 4,
-          "__write-in": 0
+          "write-in": 0
         },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 10 }
       },
@@ -619,12 +619,12 @@
           "775031985": 2,
           "775031986": 3,
           "775031990": 5,
-          "__write-in": 0
+          "write-in": 0
         },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 10 }
       },
       "775020901": {
-        "tallies": { "775032018": 10, "__write-in": 0 },
+        "tallies": { "775032018": 10, "write-in": 0 },
         "metadata": { "overvotes": 0, "undervotes": 0, "ballots": 10 }
       }
     }

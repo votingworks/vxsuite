@@ -97,17 +97,12 @@ export const DistrictsSchema = z
   });
 
 // Candidates
-export type WriteInId =
-  | `__write-in`
-  | `__write-in-${string}`
-  // TODO: Remove this in favor of `__write-in-${string}` or some other unified
-  // format for BMD and HMPB write-in IDs.
-  | `write-in__${string}`;
+export type WriteInId = `write-in` | `write-in-${string}`;
 export const WriteInIdSchema = z
   .string()
   .nonempty()
   .refine(
-    (id) => /^(__write-in(-.+)?|write-in__(.+))$/.test(id),
+    (id) => /^write-in(-.+)?$/.test(id),
     `Write-In ID does not match expected format.`
   ) as z.ZodSchema<WriteInId>;
 export type CandidateId = Id | WriteInId;
@@ -121,13 +116,18 @@ export interface Candidate {
   readonly partyId?: PartyId;
   readonly isWriteIn?: boolean;
 }
-export const CandidateSchema: z.ZodSchema<Candidate> = z.object({
-  _lang: TranslationsSchema.optional(),
-  id: CandidateIdSchema,
-  name: z.string().nonempty(),
-  partyId: PartyIdSchema.optional(),
-  isWriteIn: z.boolean().optional(),
-});
+export const CandidateSchema: z.ZodSchema<Candidate> = z
+  .object({
+    _lang: TranslationsSchema.optional(),
+    id: CandidateIdSchema,
+    name: z.string().nonempty(),
+    partyId: PartyIdSchema.optional(),
+    isWriteIn: z.boolean().optional(),
+  })
+  .refine(
+    ({ id, isWriteIn }) => !!isWriteIn === id.startsWith('write-in'),
+    `Non-write-in candidate IDs must not start with 'write-in'`
+  );
 
 export interface WriteInCandidate {
   readonly id: WriteInId;
@@ -144,7 +144,7 @@ export const WriteInCandidateSchema: z.ZodSchema<WriteInCandidate> = z.object({
 });
 
 export const writeInCandidate: Candidate = {
-  id: '__write-in',
+  id: 'write-in',
   name: 'Write-In',
   isWriteIn: true,
 };

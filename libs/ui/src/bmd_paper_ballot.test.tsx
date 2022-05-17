@@ -177,7 +177,7 @@ test('BmdPaperBallot renders votes for write-in candidates', () => {
     precinctId: '6525',
     votes: {
       '775020876': {
-        id: '__write-in-0',
+        id: 'write-in-0',
         isWriteIn: true,
         name: 'HOT DOG',
       },

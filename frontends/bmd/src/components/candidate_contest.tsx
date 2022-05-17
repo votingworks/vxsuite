@@ -229,7 +229,7 @@ export function CandidateContest({
     updateVote(contest.id, [
       ...vote,
       {
-        id: `write-in__${camelCase(normalizedCandidateName)}`,
+        id: `write-in-${camelCase(normalizedCandidateName)}`,
         isWriteIn: true,
         name: normalizedCandidateName,
       },

@@ -33,7 +33,7 @@ export function convertMarksToVotes(
       gridPosition.type === 'option'
         ? find(contest.candidates, (c) => c.id === gridPosition.optionId)
         : {
-            id: `__write-in-${gridPosition.writeInIndex}`,
+            id: `write-in-${gridPosition.writeInIndex}`,
             name: `Write-In #${gridPosition.writeInIndex + 1}`,
             isWriteIn: true,
           };

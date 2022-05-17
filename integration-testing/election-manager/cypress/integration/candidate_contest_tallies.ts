@@ -124,7 +124,7 @@ describe('Election Manager can create SEMS tallies', () => {
         votesByOptionId: {
           'aaron-aligator': 2,
           'peter-pigeon': 1,
-          '__write-in': 0,
+          'write-in': 0,
         },
       },
       {
@@ -135,7 +135,7 @@ describe('Election Manager can create SEMS tallies', () => {
           'chris-daugherty': 1,
           'tom-westman': 0,
           'danni-boatwright': 0,
-          '__write-in': 0,
+          'write-in': 0,
         },
       },
     ];
@@ -147,7 +147,7 @@ describe('Election Manager can create SEMS tallies', () => {
         votesByOptionId: {
           'aaron-aligator': 0,
           'peter-pigeon': 0,
-          '__write-in': 0,
+          'write-in': 0,
         },
       },
       {
@@ -158,7 +158,7 @@ describe('Election Manager can create SEMS tallies', () => {
           'chris-daugherty': 0,
           'tom-westman': 0,
           'danni-boatwright': 0,
-          '__write-in': 0,
+          'write-in': 0,
         },
       },
     ];

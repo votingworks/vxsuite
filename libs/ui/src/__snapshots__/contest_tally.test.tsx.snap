@@ -105,7 +105,7 @@ exports[`Renders 1`] = `
             </td>
           </tr>
           <tr
-            data-testid="president-__write-in"
+            data-testid="president-write-in"
           >
             <td>
               Write-In
@@ -199,7 +199,7 @@ exports[`Renders 1`] = `
             </td>
           </tr>
           <tr
-            data-testid="senator-__write-in"
+            data-testid="senator-write-in"
           >
             <td>
               Write-In
@@ -293,7 +293,7 @@ exports[`Renders 1`] = `
             </td>
           </tr>
           <tr
-            data-testid="representative-district-18-__write-in"
+            data-testid="representative-district-18-write-in"
           >
             <td>
               Write-In
@@ -375,7 +375,7 @@ exports[`Renders 1`] = `
             </td>
           </tr>
           <tr
-            data-testid="governor-__write-in"
+            data-testid="governor-write-in"
           >
             <td>
               Write-In
@@ -469,7 +469,7 @@ exports[`Renders 1`] = `
             </td>
           </tr>
           <tr
-            data-testid="lieutenant-governor-__write-in"
+            data-testid="lieutenant-governor-write-in"
           >
             <td>
               Write-In
@@ -551,7 +551,7 @@ exports[`Renders 1`] = `
             </td>
           </tr>
           <tr
-            data-testid="ss-justic-3-__write-in"
+            data-testid="ss-justic-3-write-in"
           >
             <td>
               Write-In
@@ -645,7 +645,7 @@ exports[`Renders 1`] = `
             </td>
           </tr>
           <tr
-            data-testid="ss-justic-5-__write-in"
+            data-testid="ss-justic-5-write-in"
           >
             <td>
               Write-In
@@ -751,7 +751,7 @@ exports[`Renders 1`] = `
             </td>
           </tr>
           <tr
-            data-testid="comptroller-__write-in"
+            data-testid="comptroller-write-in"
           >
             <td>
               Write-In
@@ -833,7 +833,7 @@ exports[`Renders 1`] = `
             </td>
           </tr>
           <tr
-            data-testid="comm-ag-__write-in"
+            data-testid="comm-ag-write-in"
           >
             <td>
               Write-In
@@ -915,7 +915,7 @@ exports[`Renders 1`] = `
             </td>
           </tr>
           <tr
-            data-testid="Chief-Justice-1-__write-in"
+            data-testid="Chief-Justice-1-write-in"
           >
             <td>
               Write-In
@@ -997,7 +997,7 @@ exports[`Renders 1`] = `
             </td>
           </tr>
           <tr
-            data-testid="Justice-1-4-__write-in"
+            data-testid="Justice-1-4-write-in"
           >
             <td>
               Write-In
@@ -1079,7 +1079,7 @@ exports[`Renders 1`] = `
             </td>
           </tr>
           <tr
-            data-testid="Justice-14-2-__write-in"
+            data-testid="Justice-14-2-write-in"
           >
             <td>
               Write-In
@@ -1161,7 +1161,7 @@ exports[`Renders 1`] = `
             </td>
           </tr>
           <tr
-            data-testid="Justice-14-9-__write-in"
+            data-testid="Justice-14-9-write-in"
           >
             <td>
               Write-In
@@ -1255,7 +1255,7 @@ exports[`Renders 1`] = `
             </td>
           </tr>
           <tr
-            data-testid="District-judge-11-__write-in"
+            data-testid="District-judge-11-write-in"
           >
             <td>
               Write-In
@@ -1337,7 +1337,7 @@ exports[`Renders 1`] = `
             </td>
           </tr>
           <tr
-            data-testid="District-judge-61-__write-in"
+            data-testid="District-judge-61-write-in"
           >
             <td>
               Write-In
@@ -1419,7 +1419,7 @@ exports[`Renders 1`] = `
             </td>
           </tr>
           <tr
-            data-testid="District-judge-80-__write-in"
+            data-testid="District-judge-80-write-in"
           >
             <td>
               Write-In
@@ -1501,7 +1501,7 @@ exports[`Renders 1`] = `
             </td>
           </tr>
           <tr
-            data-testid="District-judge-125-__write-in"
+            data-testid="District-judge-125-write-in"
           >
             <td>
               Write-In
@@ -1583,7 +1583,7 @@ exports[`Renders 1`] = `
             </td>
           </tr>
           <tr
-            data-testid="District-judge-127-__write-in"
+            data-testid="District-judge-127-write-in"
           >
             <td>
               Write-In
@@ -1665,7 +1665,7 @@ exports[`Renders 1`] = `
             </td>
           </tr>
           <tr
-            data-testid="District-judge-129-__write-in"
+            data-testid="District-judge-129-write-in"
           >
             <td>
               Write-In
@@ -1747,7 +1747,7 @@ exports[`Renders 1`] = `
             </td>
           </tr>
           <tr
-            data-testid="district-attorney-__write-in"
+            data-testid="district-attorney-write-in"
           >
             <td>
               Write-In
@@ -1829,7 +1829,7 @@ exports[`Renders 1`] = `
             </td>
           </tr>
           <tr
-            data-testid="county-attorney-__write-in"
+            data-testid="county-attorney-write-in"
           >
             <td>
               Write-In
@@ -1923,7 +1923,7 @@ exports[`Renders 1`] = `
             </td>
           </tr>
           <tr
-            data-testid="sheriff-__write-in"
+            data-testid="sheriff-write-in"
           >
             <td>
               Write-In
@@ -2005,7 +2005,7 @@ exports[`Renders 1`] = `
             </td>
           </tr>
           <tr
-            data-testid="county-tax-assessor-__write-in"
+            data-testid="county-tax-assessor-write-in"
           >
             <td>
               Write-In
@@ -2087,7 +2087,7 @@ exports[`Renders 1`] = `
             </td>
           </tr>
           <tr
-            data-testid="Justice-peace-1-1-__write-in"
+            data-testid="Justice-peace-1-1-write-in"
           >
             <td>
               Write-In
@@ -2169,7 +2169,7 @@ exports[`Renders 1`] = `
             </td>
           </tr>
           <tr
-            data-testid="constable-1-__write-in"
+            data-testid="constable-1-write-in"
           >
             <td>
               Write-In
@@ -2396,7 +2396,7 @@ exports[`When an election has a contest with multiple seats Renders 1`] = `
             </td>
           </tr>
           <tr
-            data-testid="governor-contest-liberty-__write-in"
+            data-testid="governor-contest-liberty-write-in"
           >
             <td>
               Write-In
@@ -2478,7 +2478,7 @@ exports[`When an election has a contest with multiple seats Renders 1`] = `
             </td>
           </tr>
           <tr
-            data-testid="governor-contest-constitution-__write-in"
+            data-testid="governor-contest-constitution-write-in"
           >
             <td>
               Write-In
@@ -2560,7 +2560,7 @@ exports[`When an election has a contest with multiple seats Renders 1`] = `
             </td>
           </tr>
           <tr
-            data-testid="governor-contest-federalist-__write-in"
+            data-testid="governor-contest-federalist-write-in"
           >
             <td>
               Write-In
@@ -2642,7 +2642,7 @@ exports[`When an election has a contest with multiple seats Renders 1`] = `
             </td>
           </tr>
           <tr
-            data-testid="mayor-contest-liberty-__write-in"
+            data-testid="mayor-contest-liberty-write-in"
           >
             <td>
               Write-In
@@ -2724,7 +2724,7 @@ exports[`When an election has a contest with multiple seats Renders 1`] = `
             </td>
           </tr>
           <tr
-            data-testid="mayor-contest-constitution-__write-in"
+            data-testid="mayor-contest-constitution-write-in"
           >
             <td>
               Write-In
@@ -2806,7 +2806,7 @@ exports[`When an election has a contest with multiple seats Renders 1`] = `
             </td>
           </tr>
           <tr
-            data-testid="mayor-contest-federalist-__write-in"
+            data-testid="mayor-contest-federalist-write-in"
           >
             <td>
               Write-In
@@ -2888,7 +2888,7 @@ exports[`When an election has a contest with multiple seats Renders 1`] = `
             </td>
           </tr>
           <tr
-            data-testid="assistant-mayor-contest-liberty-__write-in"
+            data-testid="assistant-mayor-contest-liberty-write-in"
           >
             <td>
               Write-In
@@ -2982,7 +2982,7 @@ exports[`When an election has a contest with multiple seats Renders 1`] = `
             </td>
           </tr>
           <tr
-            data-testid="chief-pokemon-liberty-__write-in"
+            data-testid="chief-pokemon-liberty-write-in"
           >
             <td>
               Write-In
@@ -3076,7 +3076,7 @@ exports[`When an election has a contest with multiple seats Renders 1`] = `
             </td>
           </tr>
           <tr
-            data-testid="chief-pokemon-constitution-__write-in"
+            data-testid="chief-pokemon-constitution-write-in"
           >
             <td>
               Write-In
@@ -3158,7 +3158,7 @@ exports[`When an election has a contest with multiple seats Renders 1`] = `
             </td>
           </tr>
           <tr
-            data-testid="chief-pokemon-federalist-__write-in"
+            data-testid="chief-pokemon-federalist-write-in"
           >
             <td>
               Write-In
@@ -3272,7 +3272,7 @@ exports[`When an election has a contest with multiple seats Renders 1`] = `
             </td>
           </tr>
           <tr
-            data-testid="schoolboard-liberty-__write-in"
+            data-testid="schoolboard-liberty-write-in"
           >
             <td>
               Write-In
@@ -3386,7 +3386,7 @@ exports[`When an election has a contest with multiple seats Renders 1`] = `
             </td>
           </tr>
           <tr
-            data-testid="schoolboard-constitution-__write-in"
+            data-testid="schoolboard-constitution-write-in"
           >
             <td>
               Write-In
@@ -3500,7 +3500,7 @@ exports[`When an election has a contest with multiple seats Renders 1`] = `
             </td>
           </tr>
           <tr
-            data-testid="schoolboard-federalist-__write-in"
+            data-testid="schoolboard-federalist-write-in"
           >
             <td>
               Write-In

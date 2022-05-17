@@ -78,7 +78,7 @@ test('tabulating a set of CVRs gives expected output', () => {
 
   const numWriteIns = candidateTallies.reduce(
     (overallSum, contestTally) =>
-      overallSum + contestTally!.tallies['__write-in']!.tally,
+      overallSum + contestTally!.tallies['write-in']!.tally,
     0
   );
 

@@ -17,7 +17,7 @@ export function convertMarksToMarkInfo(
         optionId:
           mark.gridPosition.type === 'option'
             ? mark.gridPosition.optionId
-            : `__write-in-${mark.gridPosition.writeInIndex}`,
+            : `write-in-${mark.gridPosition.writeInIndex}`,
         score: mark.score,
         bounds: mark.bounds,
         scoredOffset: mark.scoredOffset,

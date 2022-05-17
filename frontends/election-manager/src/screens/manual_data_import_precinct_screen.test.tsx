@@ -157,7 +157,7 @@ test('can enter data for candidate contests as expected', async () => {
   });
 
   // A contest that does not allow write ins has no write in row.
-  expect(queryAllByTestId('president-__write-in').length).toBe(0);
+  expect(queryAllByTestId('president-write-in').length).toBe(0);
   fireEvent.click(getByText('Save Precinct Results for Center Springfield'));
   await waitFor(() =>
     expect(logSpy).toHaveBeenCalledWith(
@@ -208,9 +208,9 @@ test('can enter data for candidate contest with a write in row as expected', asy
   getByText('Center Springfield');
 
   // A contest that allows write ins has a write in row.
-  getByTestId('county-commissioners-__write-in');
+  getByTestId('county-commissioners-write-in');
   fireEvent.change(
-    getByTestId('county-commissioners-__write-in').closest('input')!,
+    getByTestId('county-commissioners-write-in').closest('input')!,
     {
       target: { value: '10' },
     }
@@ -238,7 +238,7 @@ test('can enter data for candidate contest with a write in row as expected', asy
           'county-commissioners': expect.objectContaining({
             metadata: { ballots: 10, undervotes: 30, overvotes: 0 },
             tallies: expect.objectContaining({
-              '__write-in': expect.objectContaining({ tally: 10 }),
+              'write-in': expect.objectContaining({ tally: 10 }),
             }),
           }),
         }),
@@ -310,7 +310,7 @@ test('can enter data for yes no contests as expected', async () => {
   );
 
   // A yes no contest does not allow write ins has no write in row.
-  expect(queryAllByTestId('president-__write-in').length).toBe(0);
+  expect(queryAllByTestId('president-write-in').length).toBe(0);
   fireEvent.click(getByText('Save Precinct Results for Center Springfield'));
   await waitFor(() =>
     expect(logSpy).toHaveBeenCalledWith(
@@ -351,7 +351,7 @@ test('loads prexisting manual data to edit', () => {
           {}),
         tallies: {
           argent: { tally: 80 } as unknown as ContestOptionTally,
-          '__write-in': { tally: 60 } as unknown as ContestOptionTally,
+          'write-in': { tally: 60 } as unknown as ContestOptionTally,
           witherspoonsmithson: { tally: 40 } as unknown as ContestOptionTally,
         },
         metadata: { undervotes: 220, overvotes: 0, ballots: 100 },
@@ -456,7 +456,7 @@ test('loads prexisting manual data to edit', () => {
   ).toBe('0');
   expect(
     centerSpringfield
-      .getByTestId('county-commissioners-__write-in')
+      .getByTestId('county-commissioners-write-in')
       .closest('input')!.value
   ).toBe('60');
 

@@ -96,7 +96,7 @@ test('a candidate write-in mark', () => {
   const contest = election.contests.find(
     (c) => c.type === 'candidate' && c.allowWriteIns
   ) as CandidateContest;
-  const optionId = '__write-in-0';
+  const optionId = 'write-in-0';
   const result = optionMarkStatus({
     contests: election.contests,
     markThresholds,

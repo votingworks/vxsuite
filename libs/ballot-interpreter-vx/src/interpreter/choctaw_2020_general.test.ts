@@ -45,7 +45,7 @@ test('choctaw 2020 general', async () => {
       },
       Object {
         "contest": "1",
-        "option": "__write-in-0",
+        "option": "write-in-0",
         "score": 0,
       },
       Object {
@@ -65,7 +65,7 @@ test('choctaw 2020 general', async () => {
       },
       Object {
         "contest": "2",
-        "option": "__write-in-0",
+        "option": "write-in-0",
         "score": 0.016304347826086956,
       },
       Object {
@@ -80,7 +80,7 @@ test('choctaw 2020 general', async () => {
       },
       Object {
         "contest": "3",
-        "option": "__write-in-0",
+        "option": "write-in-0",
         "score": 0,
       },
       Object {
@@ -95,7 +95,7 @@ test('choctaw 2020 general', async () => {
       },
       Object {
         "contest": "4",
-        "option": "__write-in-0",
+        "option": "write-in-0",
         "score": 0.7445652173913043,
       },
       Object {

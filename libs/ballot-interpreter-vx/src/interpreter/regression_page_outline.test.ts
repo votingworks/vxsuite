@@ -38,7 +38,7 @@ test('regression: page outline', async () => {
           "partyId": "3",
         },
         Object {
-          "id": "__write-in-1",
+          "id": "write-in-1",
           "isWriteIn": true,
           "name": "Write-In",
         },

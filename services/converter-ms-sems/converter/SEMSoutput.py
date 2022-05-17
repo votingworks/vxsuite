@@ -54,7 +54,7 @@ YESNO_CANDIDATES = [
     ## TODO
 ]
 
-INTERNAL_WRITE_IN_ID = '__write-in'
+INTERNAL_WRITE_IN_ID = 'write-in'
 
 CVR_FIELDS = ["county_id", "precinct_id", "contest_id", "candidate_id"]
 CANDIDATE_FIELDS = ["county_id", "contest_id", "candidate_id"]

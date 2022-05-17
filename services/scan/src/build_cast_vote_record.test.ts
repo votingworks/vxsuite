@@ -55,11 +55,11 @@ test('getWriteInOptionIdsForContestVote', () => {
       },
       {
         [candidateContest.id]: [
-          { id: '__write-in-0', name: 'BOB', isWriteIn: true },
+          { id: 'write-in-0', name: 'BOB', isWriteIn: true },
         ],
       }
     )
-  ).toEqual(['__write-in-0']);
+  ).toEqual(['write-in-0']);
   expect(getWriteInOptionIdsForContestVote(yesnoContest, {})).toEqual([]);
   expect(getWriteInOptionIdsForContestVote(msEitherNeitherContest, {})).toEqual(
     []
@@ -218,7 +218,7 @@ test('generates a CVR from a completed BMD ballot with write in and overvotes', 
             },
             votes: vote(contests, {
               '1': {
-                id: 'write-in__PIKACHU',
+                id: 'write-in-PIKACHU',
                 name: 'Pikachu',
                 isWriteIn: true,
               },
@@ -235,7 +235,7 @@ test('generates a CVR from a completed BMD ballot with write in and overvotes', 
     ).toMatchInlineSnapshot(`
           Object {
             "1": Array [
-              "write-in__PIKACHU",
+              "write-in-PIKACHU",
             ],
             "2": Array [
               "21",
@@ -393,7 +393,7 @@ test('generates a CVR from a completed HMPB page with write in votes and overvot
             ignoredReasonInfos: [],
           },
           votes: vote(contests, {
-            '1': { id: '__write-in-0', name: 'Pikachu', isWriteIn: true },
+            '1': { id: 'write-in-0', name: 'Pikachu', isWriteIn: true },
             '2': ['21', '22'],
           }),
         },
@@ -429,7 +429,7 @@ test('generates a CVR from a completed HMPB page with write in votes and overvot
   ).toMatchInlineSnapshot(`
     Object {
       "1": Array [
-        "__write-in-0",
+        "write-in-0",
       ],
       "2": Array [
         "21",
@@ -1010,7 +1010,7 @@ test('generates a CVR from an adjudicated write-in', () => {
               {
                 type: AdjudicationReason.MarkedWriteIn,
                 contestId: '2',
-                optionId: '__write-in-0',
+                optionId: 'write-in-0',
                 optionIndex: 3,
               },
             ],
@@ -1022,7 +1022,7 @@ test('generates a CVR from an adjudicated write-in', () => {
           },
           votes: vote(election.contests, {
             '2': {
-              id: '__write-in-0',
+              id: 'write-in-0',
               isWriteIn: true,
               name: '',
             },
@@ -1033,7 +1033,7 @@ test('generates a CVR from an adjudicated write-in', () => {
           {
             type: AdjudicationReason.MarkedWriteIn,
             contestId: '2',
-            optionId: '__write-in-0',
+            optionId: 'write-in-0',
             isMarked: true,
             name: 'Pikachu',
           },
@@ -1070,7 +1070,7 @@ test('generates a CVR from an adjudicated write-in', () => {
     Object {
       "1": Array [],
       "2": Array [
-        "__write-in-0-Pikachu",
+        "write-in-0-Pikachu",
       ],
       "_ballotId": "abcdefg",
       "_ballotStyleId": "1",
@@ -1120,7 +1120,7 @@ test('generates a CVR from an adjudicated unmarked write-in', () => {
               {
                 type: AdjudicationReason.UnmarkedWriteIn,
                 contestId: '2',
-                optionId: '__write-in-0',
+                optionId: 'write-in-0',
                 optionIndex: 3,
               },
             ],
@@ -1137,7 +1137,7 @@ test('generates a CVR from an adjudicated unmarked write-in', () => {
           {
             type: AdjudicationReason.UnmarkedWriteIn,
             contestId: '2',
-            optionId: '__write-in-0',
+            optionId: 'write-in-0',
             isMarked: true,
             name: 'Pikachu',
           },
@@ -1174,7 +1174,7 @@ test('generates a CVR from an adjudicated unmarked write-in', () => {
     Object {
       "1": Array [],
       "2": Array [
-        "__write-in-0-Pikachu",
+        "write-in-0-Pikachu",
       ],
       "_ballotId": "abcdefg",
       "_ballotStyleId": "1",

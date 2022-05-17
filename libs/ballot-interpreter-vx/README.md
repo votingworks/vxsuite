@@ -147,7 +147,7 @@ $ ballot-interpreter-vx interpret -e election.json -f json \
         ],
         "texas-house-district-111": [
           {
-            "id": "__write-in-0",
+            "id": "write-in-0",
             "name": "Write-In",
             "isWriteIn": true
           }
@@ -249,7 +249,7 @@ $ ballot-interpreter-vx interpret -e election.json -f json \
         {
           "type": "candidate",
           "contest": "texas-house-district-111",
-          "option": "__write-in-0",
+          "option": "write-in-0",
           "score": 0.66,
           "bounds": {
             "x": 872,
@@ -485,7 +485,7 @@ $ ballot-interpreter-vx interpret -e election.json -f json \
         {
           "type": "candidate",
           "contest": "dallas-city-council",
-          "option": "__write-in-1",
+          "option": "write-in-1",
           "score": 0.09090909090909091,
           "bounds": {
             "x": 470,

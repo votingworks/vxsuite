@@ -757,7 +757,7 @@ test('does NOT say ballot is blank if one side is blank and the other requires w
                     type: writeInReason,
                     contestId: 'county-commissioners',
                     optionIndex: 0,
-                    optionId: '__write-in-0',
+                    optionId: 'write-in-0',
                   },
                 ],
                 ignoredReasonInfos: [],
@@ -858,7 +858,7 @@ test('does NOT say ballot is blank if one side is blank and the other requires w
     screen.getByText('Write-In');
 
     userEvent.type(
-      screen.getByTestId(`write-in-input-__write-in-0`),
+      screen.getByTestId(`write-in-input-write-in-0`),
       'Lizard People'
     );
 
@@ -878,7 +878,7 @@ test('does NOT say ballot is blank if one side is blank and the other requires w
           contestId: 'county-commissioners',
           isMarked: true,
           name: 'Lizard People',
-          optionId: '__write-in-0',
+          optionId: 'write-in-0',
           type: writeInReason,
         },
       ],

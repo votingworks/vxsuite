@@ -84,7 +84,7 @@ export const sampleVotes2: Readonly<VotesDict> = vote(
     'state-assembly-district-54': 'keller',
     'county-commissioners': ['witherspoonsmithson'],
     'county-registrar-of-wills': [
-      { id: 'write-in__HOT DOG', name: 'HOT DOG', isWriteIn: true },
+      { id: 'write-in-HOT DOG', name: 'HOT DOG', isWriteIn: true },
     ],
     'city-mayor': 'seldon',
     'city-council': ['rupp'],
@@ -115,7 +115,7 @@ export const sampleVotes3: Readonly<VotesDict> = vote(
     'state-assembly-district-54': 'rangel',
     'county-commissioners': ['bainbridge'],
     'county-registrar-of-wills': [
-      { id: 'write-in__HOT DOG', name: 'HOT DOG', isWriteIn: true },
+      { id: 'write-in-HOT DOG', name: 'HOT DOG', isWriteIn: true },
     ],
     'city-mayor': 'white',
     'city-council': ['shry'],

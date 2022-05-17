@@ -558,7 +558,7 @@ function decodeBallotVotes(contests: Contests, bits: BitReader): VotesDict {
             });
 
             contestVote.push({
-              id: `write-in__${name}`,
+              id: `write-in-${name}`,
               name,
               isWriteIn: true,
             });

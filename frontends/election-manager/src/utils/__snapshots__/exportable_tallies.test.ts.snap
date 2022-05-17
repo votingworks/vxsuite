@@ -57,7 +57,7 @@ Object {
         "tallies": Object {
           "775031976": 5,
           "775031993": 13,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020872": Object {
@@ -69,7 +69,7 @@ Object {
         "tallies": Object {
           "775031978": 8,
           "775031979": 8,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020876": Object {
@@ -82,7 +82,7 @@ Object {
           "775031987": 9,
           "775031988": 4,
           "775031989": 5,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020877": Object {
@@ -95,7 +95,7 @@ Object {
           "775031985": 8,
           "775031986": 2,
           "775031990": 8,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020903": Object {
@@ -107,7 +107,7 @@ Object {
         "tallies": Object {
           "775032021": 9,
           "775032022": 6,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020904": Object {
@@ -118,7 +118,7 @@ Object {
         },
         "tallies": Object {
           "775032023": 19,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
     },
@@ -176,7 +176,7 @@ Object {
         "tallies": Object {
           "775031976": 1,
           "775031993": 6,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020872": Object {
@@ -188,7 +188,7 @@ Object {
         "tallies": Object {
           "775031978": 3,
           "775031979": 4,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020876": Object {
@@ -201,7 +201,7 @@ Object {
           "775031987": 2,
           "775031988": 2,
           "775031989": 3,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020877": Object {
@@ -214,7 +214,7 @@ Object {
           "775031985": 2,
           "775031986": 3,
           "775031990": 1,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020899": Object {
@@ -225,7 +225,7 @@ Object {
         },
         "tallies": Object {
           "775032015": 6,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
     },
@@ -283,7 +283,7 @@ Object {
         "tallies": Object {
           "775031976": 2,
           "775031993": 8,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020872": Object {
@@ -295,7 +295,7 @@ Object {
         "tallies": Object {
           "775031978": 6,
           "775031979": 5,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020876": Object {
@@ -308,7 +308,7 @@ Object {
           "775031987": 4,
           "775031988": 4,
           "775031989": 2,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020877": Object {
@@ -321,7 +321,7 @@ Object {
           "775031985": 3,
           "775031986": 6,
           "775031990": 2,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020902": Object {
@@ -333,7 +333,7 @@ Object {
         "tallies": Object {
           "775032019": 5,
           "775032020": 6,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
     },
@@ -391,7 +391,7 @@ Object {
         "tallies": Object {
           "775031976": 5,
           "775031993": 3,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020872": Object {
@@ -403,7 +403,7 @@ Object {
         "tallies": Object {
           "775031978": 3,
           "775031979": 5,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020876": Object {
@@ -416,7 +416,7 @@ Object {
           "775031987": 1,
           "775031988": 4,
           "775031989": 2,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020877": Object {
@@ -429,7 +429,7 @@ Object {
           "775031985": 1,
           "775031986": 1,
           "775031990": 5,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020901": Object {
@@ -440,7 +440,7 @@ Object {
         },
         "tallies": Object {
           "775032018": 8,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
     },
@@ -498,7 +498,7 @@ Object {
         "tallies": Object {
           "775031976": 2,
           "775031993": 2,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020872": Object {
@@ -510,7 +510,7 @@ Object {
         "tallies": Object {
           "775031978": 1,
           "775031979": 4,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020876": Object {
@@ -523,7 +523,7 @@ Object {
           "775031987": 2,
           "775031988": 0,
           "775031989": 2,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020877": Object {
@@ -536,7 +536,7 @@ Object {
           "775031985": 1,
           "775031986": 0,
           "775031990": 3,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020899": Object {
@@ -547,7 +547,7 @@ Object {
         },
         "tallies": Object {
           "775032015": 5,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
     },
@@ -605,7 +605,7 @@ Object {
         "tallies": Object {
           "775031976": 6,
           "775031993": 1,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020872": Object {
@@ -617,7 +617,7 @@ Object {
         "tallies": Object {
           "775031978": 1,
           "775031979": 4,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020876": Object {
@@ -630,7 +630,7 @@ Object {
           "775031987": 3,
           "775031988": 2,
           "775031989": 1,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020877": Object {
@@ -643,7 +643,7 @@ Object {
           "775031985": 2,
           "775031986": 3,
           "775031990": 1,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020900": Object {
@@ -655,7 +655,7 @@ Object {
         "tallies": Object {
           "775032016": 3,
           "775032017": 4,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
     },
@@ -713,7 +713,7 @@ Object {
         "tallies": Object {
           "775031976": 8,
           "775031993": 4,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020872": Object {
@@ -725,7 +725,7 @@ Object {
         "tallies": Object {
           "775031978": 10,
           "775031979": 2,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020876": Object {
@@ -738,7 +738,7 @@ Object {
           "775031987": 5,
           "775031988": 3,
           "775031989": 4,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020877": Object {
@@ -751,7 +751,7 @@ Object {
           "775031985": 3,
           "775031986": 7,
           "775031990": 2,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020901": Object {
@@ -762,7 +762,7 @@ Object {
         },
         "tallies": Object {
           "775032018": 11,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
     },
@@ -820,7 +820,7 @@ Object {
         "tallies": Object {
           "775031976": 1,
           "775031993": 7,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020872": Object {
@@ -832,7 +832,7 @@ Object {
         "tallies": Object {
           "775031978": 3,
           "775031979": 6,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020876": Object {
@@ -845,7 +845,7 @@ Object {
           "775031987": 3,
           "775031988": 3,
           "775031989": 3,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020877": Object {
@@ -858,7 +858,7 @@ Object {
           "775031985": 4,
           "775031986": 3,
           "775031990": 1,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020902": Object {
@@ -870,7 +870,7 @@ Object {
         "tallies": Object {
           "775032019": 3,
           "775032020": 5,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
     },
@@ -928,7 +928,7 @@ Object {
         "tallies": Object {
           "775031976": 2,
           "775031993": 3,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020872": Object {
@@ -940,7 +940,7 @@ Object {
         "tallies": Object {
           "775031978": 3,
           "775031979": 1,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020876": Object {
@@ -953,7 +953,7 @@ Object {
           "775031987": 3,
           "775031988": 1,
           "775031989": 1,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020877": Object {
@@ -966,7 +966,7 @@ Object {
           "775031985": 1,
           "775031986": 3,
           "775031990": 1,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020900": Object {
@@ -978,7 +978,7 @@ Object {
         "tallies": Object {
           "775032016": 1,
           "775032017": 4,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
     },
@@ -1036,7 +1036,7 @@ Object {
         "tallies": Object {
           "775031976": 1,
           "775031993": 2,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020872": Object {
@@ -1048,7 +1048,7 @@ Object {
         "tallies": Object {
           "775031978": 2,
           "775031979": 1,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020876": Object {
@@ -1061,7 +1061,7 @@ Object {
           "775031987": 0,
           "775031988": 1,
           "775031989": 2,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020877": Object {
@@ -1074,7 +1074,7 @@ Object {
           "775031985": 0,
           "775031986": 2,
           "775031990": 0,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020900": Object {
@@ -1086,7 +1086,7 @@ Object {
         "tallies": Object {
           "775032016": 1,
           "775032017": 1,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
     },
@@ -1144,7 +1144,7 @@ Object {
         "tallies": Object {
           "775031976": 2,
           "775031993": 3,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020872": Object {
@@ -1156,7 +1156,7 @@ Object {
         "tallies": Object {
           "775031978": 1,
           "775031979": 3,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020876": Object {
@@ -1169,7 +1169,7 @@ Object {
           "775031987": 2,
           "775031988": 0,
           "775031989": 1,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020877": Object {
@@ -1182,7 +1182,7 @@ Object {
           "775031985": 2,
           "775031986": 2,
           "775031990": 0,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020902": Object {
@@ -1194,7 +1194,7 @@ Object {
         "tallies": Object {
           "775032019": 2,
           "775032020": 3,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
     },
@@ -1252,7 +1252,7 @@ Object {
         "tallies": Object {
           "775031976": 2,
           "775031993": 3,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020872": Object {
@@ -1264,7 +1264,7 @@ Object {
         "tallies": Object {
           "775031978": 5,
           "775031979": 1,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020876": Object {
@@ -1277,7 +1277,7 @@ Object {
           "775031987": 2,
           "775031988": 1,
           "775031989": 3,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020877": Object {
@@ -1290,7 +1290,7 @@ Object {
           "775031985": 1,
           "775031986": 2,
           "775031990": 3,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020899": Object {
@@ -1301,7 +1301,7 @@ Object {
         },
         "tallies": Object {
           "775032015": 6,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
     },
@@ -1359,7 +1359,7 @@ Object {
         "tallies": Object {
           "775031976": 0,
           "775031993": 3,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020872": Object {
@@ -1371,7 +1371,7 @@ Object {
         "tallies": Object {
           "775031978": 0,
           "775031979": 2,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020876": Object {
@@ -1384,7 +1384,7 @@ Object {
           "775031987": 0,
           "775031988": 2,
           "775031989": 0,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020877": Object {
@@ -1397,7 +1397,7 @@ Object {
           "775031985": 1,
           "775031986": 1,
           "775031990": 1,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
       "775020901": Object {
@@ -1408,7 +1408,7 @@ Object {
         },
         "tallies": Object {
           "775032018": 3,
-          "__write-in": 0,
+          "write-in": 0,
         },
       },
     },
@@ -1427,9 +1427,9 @@ Object {
           "undervotes": 30,
         },
         "tallies": Object {
-          "__write-in": 30,
           "jenna-morasca": 30,
           "sandra-diaz-twine": 30,
+          "write-in": 30,
         },
       },
       "chief-pokemon-constitution": Object {
@@ -1439,10 +1439,10 @@ Object {
           "undervotes": 30,
         },
         "tallies": Object {
-          "__write-in": 30,
           "flareon": 30,
           "umbreon": 30,
           "vaporeon": 240,
+          "write-in": 30,
         },
       },
       "governor-contest-constitution": Object {
@@ -1452,9 +1452,9 @@ Object {
           "undervotes": 30,
         },
         "tallies": Object {
-          "__write-in": 30,
           "dax-shepherd": 300,
           "kristen-bell": 30,
+          "write-in": 30,
         },
       },
       "governor-contest-federalist": Object {
@@ -1464,9 +1464,9 @@ Object {
           "undervotes": 60,
         },
         "tallies": Object {
-          "__write-in": 60,
           "chidi-anagonye": 60,
           "eleanor-shellstrop": 60,
+          "write-in": 60,
         },
       },
       "governor-contest-liberty": Object {
@@ -1476,9 +1476,9 @@ Object {
           "undervotes": 30,
         },
         "tallies": Object {
-          "__write-in": 30,
           "aaron-aligator": 30,
           "peter-pigeon": 30,
+          "write-in": 30,
         },
       },
       "mayor-contest-constitution": Object {
@@ -1488,9 +1488,9 @@ Object {
           "undervotes": 30,
         },
         "tallies": Object {
-          "__write-in": 30,
           "ethan-zohn": 300,
           "tina-wesson": 30,
+          "write-in": 30,
         },
       },
       "mayor-contest-federalist": Object {
@@ -1500,9 +1500,9 @@ Object {
           "undervotes": 30,
         },
         "tallies": Object {
-          "__write-in": 30,
           "brain-heidik": 30,
           "vecepia-towery": 30,
+          "write-in": 30,
         },
       },
       "mayor-contest-liberty": Object {
@@ -1512,9 +1512,9 @@ Object {
           "undervotes": 30,
         },
         "tallies": Object {
-          "__write-in": 30,
           "jason-mendoza": 30,
           "tahani-al-jamil": 30,
+          "write-in": 30,
         },
       },
       "schoolboard-constitution": Object {
@@ -1524,10 +1524,10 @@ Object {
           "undervotes": 90,
         },
         "tallies": Object {
-          "__write-in": 120,
           "aras-baskauskas": 150,
           "earl-cole": 120,
           "todd-herzog": 120,
+          "write-in": 120,
           "yul-kwon": 120,
         },
       },
@@ -1540,10 +1540,10 @@ Object {
           "undervotes": 30,
         },
         "tallies": Object {
-          "__write-in": 30,
           "flareon": 30,
           "umbreon": 30,
           "vaporeon": 240,
+          "write-in": 30,
         },
       },
       "chief-pokemon-liberty": Object {
@@ -1553,10 +1553,10 @@ Object {
           "undervotes": 30,
         },
         "tallies": Object {
-          "__write-in": 30,
           "bulbasaur": 30,
           "charmander": 30,
           "squirtle": 240,
+          "write-in": 30,
         },
       },
       "governor-contest-constitution": Object {
@@ -1566,9 +1566,9 @@ Object {
           "undervotes": 30,
         },
         "tallies": Object {
-          "__write-in": 30,
           "dax-shepherd": 300,
           "kristen-bell": 30,
+          "write-in": 30,
         },
       },
       "governor-contest-liberty": Object {
@@ -1578,9 +1578,9 @@ Object {
           "undervotes": 30,
         },
         "tallies": Object {
-          "__write-in": 30,
           "aaron-aligator": 30,
           "peter-pigeon": 300,
+          "write-in": 30,
         },
       },
       "mayor-contest-constitution": Object {
@@ -1590,9 +1590,9 @@ Object {
           "undervotes": 30,
         },
         "tallies": Object {
-          "__write-in": 30,
           "ethan-zohn": 300,
           "tina-wesson": 30,
+          "write-in": 30,
         },
       },
       "schoolboard-constitution": Object {
@@ -1602,10 +1602,10 @@ Object {
           "undervotes": 90,
         },
         "tallies": Object {
-          "__write-in": 120,
           "aras-baskauskas": 150,
           "earl-cole": 120,
           "todd-herzog": 120,
+          "write-in": 120,
           "yul-kwon": 120,
         },
       },
@@ -1616,11 +1616,11 @@ Object {
           "undervotes": 90,
         },
         "tallies": Object {
-          "__write-in": 120,
           "amber-brkich": 150,
           "chris-daugherty": 120,
           "danni-boatwright": 120,
           "tom-westman": 120,
+          "write-in": 120,
         },
       },
     },
@@ -1632,9 +1632,9 @@ Object {
           "undervotes": 30,
         },
         "tallies": Object {
-          "__write-in": 30,
           "jenna-morasca": 30,
           "sandra-diaz-twine": 30,
+          "write-in": 30,
         },
       },
       "chief-pokemon-constitution": Object {
@@ -1644,10 +1644,10 @@ Object {
           "undervotes": 30,
         },
         "tallies": Object {
-          "__write-in": 30,
           "flareon": 30,
           "umbreon": 30,
           "vaporeon": 240,
+          "write-in": 30,
         },
       },
       "governor-contest-constitution": Object {
@@ -1657,9 +1657,9 @@ Object {
           "undervotes": 30,
         },
         "tallies": Object {
-          "__write-in": 30,
           "dax-shepherd": 300,
           "kristen-bell": 30,
+          "write-in": 30,
         },
       },
       "governor-contest-liberty": Object {
@@ -1669,9 +1669,9 @@ Object {
           "undervotes": 30,
         },
         "tallies": Object {
-          "__write-in": 30,
           "aaron-aligator": 30,
           "peter-pigeon": 30,
+          "write-in": 30,
         },
       },
       "mayor-contest-constitution": Object {
@@ -1681,9 +1681,9 @@ Object {
           "undervotes": 30,
         },
         "tallies": Object {
-          "__write-in": 30,
           "ethan-zohn": 300,
           "tina-wesson": 30,
+          "write-in": 30,
         },
       },
       "mayor-contest-liberty": Object {
@@ -1693,9 +1693,9 @@ Object {
           "undervotes": 30,
         },
         "tallies": Object {
-          "__write-in": 30,
           "jason-mendoza": 30,
           "tahani-al-jamil": 30,
+          "write-in": 30,
         },
       },
       "schoolboard-constitution": Object {
@@ -1705,10 +1705,10 @@ Object {
           "undervotes": 90,
         },
         "tallies": Object {
-          "__write-in": 120,
           "aras-baskauskas": 150,
           "earl-cole": 120,
           "todd-herzog": 120,
+          "write-in": 120,
           "yul-kwon": 120,
         },
       },
@@ -1721,10 +1721,10 @@ Object {
           "undervotes": 30,
         },
         "tallies": Object {
-          "__write-in": 30,
           "flareon": 30,
           "umbreon": 30,
           "vaporeon": 240,
+          "write-in": 30,
         },
       },
       "chief-pokemon-liberty": Object {
@@ -1734,10 +1734,10 @@ Object {
           "undervotes": 30,
         },
         "tallies": Object {
-          "__write-in": 30,
           "bulbasaur": 30,
           "charmander": 30,
           "squirtle": 240,
+          "write-in": 30,
         },
       },
       "governor-contest-constitution": Object {
@@ -1747,9 +1747,9 @@ Object {
           "undervotes": 30,
         },
         "tallies": Object {
-          "__write-in": 30,
           "dax-shepherd": 300,
           "kristen-bell": 30,
+          "write-in": 30,
         },
       },
       "governor-contest-liberty": Object {
@@ -1759,9 +1759,9 @@ Object {
           "undervotes": 30,
         },
         "tallies": Object {
-          "__write-in": 30,
           "aaron-aligator": 30,
           "peter-pigeon": 300,
+          "write-in": 30,
         },
       },
       "mayor-contest-constitution": Object {
@@ -1771,9 +1771,9 @@ Object {
           "undervotes": 30,
         },
         "tallies": Object {
-          "__write-in": 30,
           "ethan-zohn": 300,
           "tina-wesson": 30,
+          "write-in": 30,
         },
       },
       "schoolboard-constitution": Object {
@@ -1783,10 +1783,10 @@ Object {
           "undervotes": 90,
         },
         "tallies": Object {
-          "__write-in": 120,
           "aras-baskauskas": 150,
           "earl-cole": 120,
           "todd-herzog": 120,
+          "write-in": 120,
           "yul-kwon": 120,
         },
       },
@@ -1797,11 +1797,11 @@ Object {
           "undervotes": 90,
         },
         "tallies": Object {
-          "__write-in": 120,
           "amber-brkich": 150,
           "chris-daugherty": 120,
           "danni-boatwright": 120,
           "tom-westman": 120,
+          "write-in": 120,
         },
       },
     },
@@ -1813,9 +1813,9 @@ Object {
           "undervotes": 30,
         },
         "tallies": Object {
-          "__write-in": 30,
           "jenna-morasca": 30,
           "sandra-diaz-twine": 30,
+          "write-in": 30,
         },
       },
       "chief-pokemon-constitution": Object {
@@ -1825,10 +1825,10 @@ Object {
           "undervotes": 30,
         },
         "tallies": Object {
-          "__write-in": 30,
           "flareon": 30,
           "umbreon": 30,
           "vaporeon": 240,
+          "write-in": 30,
         },
       },
       "chief-pokemon-federalist": Object {
@@ -1838,9 +1838,9 @@ Object {
           "undervotes": 30,
         },
         "tallies": Object {
-          "__write-in": 30,
           "eevee": 300,
           "pikachu": 30,
+          "write-in": 30,
         },
       },
       "chief-pokemon-liberty": Object {
@@ -1850,10 +1850,10 @@ Object {
           "undervotes": 30,
         },
         "tallies": Object {
-          "__write-in": 30,
           "bulbasaur": 30,
           "charmander": 30,
           "squirtle": 240,
+          "write-in": 30,
         },
       },
       "governor-contest-constitution": Object {
@@ -1863,9 +1863,9 @@ Object {
           "undervotes": 30,
         },
         "tallies": Object {
-          "__write-in": 30,
           "dax-shepherd": 300,
           "kristen-bell": 30,
+          "write-in": 30,
         },
       },
       "governor-contest-federalist": Object {
@@ -1875,9 +1875,9 @@ Object {
           "undervotes": 30,
         },
         "tallies": Object {
-          "__write-in": 30,
           "chidi-anagonye": 300,
           "eleanor-shellstrop": 30,
+          "write-in": 30,
         },
       },
       "governor-contest-liberty": Object {
@@ -1887,9 +1887,9 @@ Object {
           "undervotes": 60,
         },
         "tallies": Object {
-          "__write-in": 60,
           "aaron-aligator": 60,
           "peter-pigeon": 330,
+          "write-in": 60,
         },
       },
       "mayor-contest-constitution": Object {
@@ -1899,9 +1899,9 @@ Object {
           "undervotes": 30,
         },
         "tallies": Object {
-          "__write-in": 30,
           "ethan-zohn": 300,
           "tina-wesson": 30,
+          "write-in": 30,
         },
       },
       "mayor-contest-federalist": Object {
@@ -1911,9 +1911,9 @@ Object {
           "undervotes": 30,
         },
         "tallies": Object {
-          "__write-in": 30,
           "brain-heidik": 300,
           "vecepia-towery": 30,
+          "write-in": 30,
         },
       },
       "mayor-contest-liberty": Object {
@@ -1923,9 +1923,9 @@ Object {
           "undervotes": 30,
         },
         "tallies": Object {
-          "__write-in": 30,
           "jason-mendoza": 30,
           "tahani-al-jamil": 30,
+          "write-in": 30,
         },
       },
       "schoolboard-constitution": Object {
@@ -1935,10 +1935,10 @@ Object {
           "undervotes": 90,
         },
         "tallies": Object {
-          "__write-in": 120,
           "aras-baskauskas": 150,
           "earl-cole": 120,
           "todd-herzog": 120,
+          "write-in": 120,
           "yul-kwon": 120,
         },
       },
@@ -1949,11 +1949,11 @@ Object {
           "undervotes": 90,
         },
         "tallies": Object {
-          "__write-in": 120,
           "bob-crowley": 120,
           "jt-thomas": 120,
           "natalie-white": 120,
           "parvati-shallow": 150,
+          "write-in": 120,
         },
       },
       "schoolboard-liberty": Object {
@@ -1963,11 +1963,11 @@ Object {
           "undervotes": 90,
         },
         "tallies": Object {
-          "__write-in": 120,
           "amber-brkich": 150,
           "chris-daugherty": 120,
           "danni-boatwright": 120,
           "tom-westman": 120,
+          "write-in": 120,
         },
       },
     },

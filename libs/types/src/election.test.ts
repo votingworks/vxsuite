@@ -14,6 +14,7 @@ import {
 } from '../test/election';
 import {
   CandidateContest,
+  CandidateSchema,
   expandEitherNeitherContests,
   getContestsFromIds,
   getEitherNeitherContests,
@@ -394,15 +395,46 @@ test('trying to vote in the top-level ms-either-neither contest fails', () => {
   }).toThrowError();
 });
 
+test('candidate schema', () => {
+  // invalid IDs
+  safeParse(CandidateSchema, { id: '', name: 'Empty' }).unsafeUnwrapErr();
+  safeParse(CandidateSchema, {
+    id: '_abc',
+    name: 'Starts with underscore',
+  }).unsafeUnwrapErr();
+  safeParse(CandidateSchema, {
+    id: 'write-in',
+    name: 'Not a write-in',
+    isWriteIn: false,
+  }).unsafeUnwrapErr();
+  safeParse(CandidateSchema, {
+    id: 'some-id',
+    name: 'Invalid write-in value',
+    isWriteIn: true,
+  }).unsafeUnwrapErr();
+  // valid IDs
+  safeParse(CandidateSchema, {
+    id: 'bob-loblaw',
+    name: 'Bob Loblaw',
+  }).unsafeUnwrap();
+  safeParse(CandidateSchema, {
+    id: 'write-in',
+    name: 'Write-in',
+    isWriteIn: true,
+  }).unsafeUnwrap();
+});
+
 test('write-in ID schema', () => {
   // invalid IDs
   safeParse(WriteInIdSchema, '').unsafeUnwrapErr();
   safeParse(WriteInIdSchema, 'abc').unsafeUnwrapErr();
+  safeParse(WriteInIdSchema, '__write-in').unsafeUnwrapErr();
+  safeParse(WriteInIdSchema, 'writein').unsafeUnwrapErr();
 
   // valid IDs
-  safeParse(WriteInIdSchema, '__write-in').unsafeUnwrap();
-  safeParse(WriteInIdSchema, '__write-in-BOB').unsafeUnwrap();
-  safeParse(WriteInIdSchema, '__write-in-1-BOB').unsafeUnwrap();
+  safeParse(WriteInIdSchema, 'write-in').unsafeUnwrap();
+  safeParse(WriteInIdSchema, 'write-in-BOB').unsafeUnwrap();
+  safeParse(WriteInIdSchema, 'write-in-1-BOB').unsafeUnwrap();
 });
 
 test('ballot ID schema', () => {

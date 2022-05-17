@@ -41,7 +41,7 @@ test('candidate contest with write-ins', () => {
           assert(option.type === 'candidate');
           expect(option.id).toBe(
             contest.candidates[i]?.id ??
-              `__write-in-${i - contest.candidates.length}`
+              `write-in-${i - contest.candidates.length}`
           );
           expect(option.contestId).toBe(contest.id);
           expect(option.name).toBe(contest.candidates[i]?.name ?? 'Write-In');

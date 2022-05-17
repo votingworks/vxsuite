@@ -527,7 +527,7 @@ export class Interpreter {
 
           for (const [index, layout] of writeInOptions.entries()) {
             addCandidateMark(contest, layout, {
-              id: `__write-in-${index}`,
+              id: `write-in-${index}`,
               name: 'Write-In',
               isWriteIn: true,
             });

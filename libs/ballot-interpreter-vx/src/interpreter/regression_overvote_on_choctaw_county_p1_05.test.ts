@@ -58,7 +58,7 @@ test('regression: overvote on choctaw county p1-05', async () => {
       ],
       Array [
         0,
-        "__write-in-0",
+        "write-in-0",
       ],
       Array [
         0.005319148936170213,
@@ -74,7 +74,7 @@ test('regression: overvote on choctaw county p1-05', async () => {
       ],
       Array [
         0.0026666666666666666,
-        "__write-in-0",
+        "write-in-0",
       ],
       Array [
         0.002631578947368421,
@@ -86,7 +86,7 @@ test('regression: overvote on choctaw county p1-05', async () => {
       ],
       Array [
         0,
-        "__write-in-0",
+        "write-in-0",
       ],
       Array [
         0.016216216216216217,
@@ -98,7 +98,7 @@ test('regression: overvote on choctaw county p1-05', async () => {
       ],
       Array [
         0,
-        "__write-in-0",
+        "write-in-0",
       ],
       Array [
         0.7681940700808625,
@@ -106,7 +106,7 @@ test('regression: overvote on choctaw county p1-05', async () => {
       ],
       Array [
         0,
-        "__write-in-0",
+        "write-in-0",
       ],
       Array [
         0.774798927613941,
@@ -114,7 +114,7 @@ test('regression: overvote on choctaw county p1-05', async () => {
       ],
       Array [
         0.002680965147453083,
-        "__write-in-0",
+        "write-in-0",
       ],
     ]
   `);

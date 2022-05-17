@@ -134,7 +134,7 @@ test('loads prexisting manual data to edit', async () => {
           {}),
         tallies: {
           argent: { tally: 80 } as unknown as ContestOptionTally,
-          '__write-in': { tally: 60 } as unknown as ContestOptionTally,
+          'write-in': { tally: 60 } as unknown as ContestOptionTally,
           witherspoonsmithson: { tally: 40 } as unknown as ContestOptionTally,
         },
         metadata: { undervotes: 220, overvotes: 0, ballots: 100 },

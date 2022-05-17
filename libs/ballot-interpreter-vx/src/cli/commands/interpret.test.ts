@@ -483,7 +483,7 @@ test('run interpret with JSON output', async () => {
             ],
             \\"texas-house-district-111\\": [
               {
-                \\"id\\": \\"__write-in-0\\",
+                \\"id\\": \\"write-in-0\\",
                 \\"name\\": \\"Write-In\\",
                 \\"isWriteIn\\": true
               }
@@ -689,7 +689,7 @@ test('run interpret with JSON output', async () => {
             {
               \\"type\\": \\"candidate\\",
               \\"contest\\": \\"texas-house-district-111\\",
-              \\"option\\": \\"__write-in-0\\",
+              \\"option\\": \\"write-in-0\\",
               \\"score\\": 0.8029556650246306,
               \\"bounds\\": {
                 \\"x\\": 872,

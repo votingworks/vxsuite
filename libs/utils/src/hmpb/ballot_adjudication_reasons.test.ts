@@ -235,19 +235,19 @@ test('multiple contests with issues', () => {
       {
         type: AdjudicationReason.MarkedWriteIn,
         contestId: zooCouncilMammal.id,
-        optionId: '__write-in-0',
+        optionId: 'write-in-0',
         optionIndex: 4,
       },
       {
         type: AdjudicationReason.MarkedWriteIn,
         contestId: zooCouncilMammal.id,
-        optionId: '__write-in-1',
+        optionId: 'write-in-1',
         optionIndex: 5,
       },
       {
         type: AdjudicationReason.MarkedWriteIn,
         contestId: zooCouncilMammal.id,
-        optionId: '__write-in-2',
+        optionId: 'write-in-2',
         optionIndex: 6,
       },
       {
@@ -258,9 +258,9 @@ test('multiple contests with issues', () => {
           zooCouncilMammalCandidate2.id,
           zooCouncilMammalCandidate3.id,
           zooCouncilMammalCandidate4.id,
-          '__write-in-0',
-          '__write-in-1',
-          '__write-in-2',
+          'write-in-0',
+          'write-in-1',
+          'write-in-2',
         ],
         optionIndexes: [0, 1, 2, 3, 4, 5, 6],
         expected: 3,
@@ -275,7 +275,7 @@ test('multiple contests with issues', () => {
       "Contest 'zoo-council-mammal' has a write-in.",
       "Contest 'zoo-council-mammal' has a write-in.",
       "Contest 'zoo-council-mammal' has a write-in.",
-      "Contest 'zoo-council-mammal' is overvoted, expected 3 but got 7: 'zebra', 'lion', 'kangaroo', 'elephant', '__write-in-0', '__write-in-1', '__write-in-2'.",
+      "Contest 'zoo-council-mammal' is overvoted, expected 3 but got 7: 'zebra', 'lion', 'kangaroo', 'elephant', 'write-in-0', 'write-in-1', 'write-in-2'.",
     ]
   `);
 });
@@ -310,7 +310,7 @@ test('a ballot with just a write-in', () => {
   const reasons = [
     ...ballotAdjudicationReasons([zooCouncilMammal], {
       optionMarkStatus: (option) =>
-        option.contestId === zooCouncilMammal.id && option.id === '__write-in-0'
+        option.contestId === zooCouncilMammal.id && option.id === 'write-in-0'
           ? MarkStatus.Marked
           : MarkStatus.Unmarked,
     }),
@@ -320,7 +320,7 @@ test('a ballot with just a write-in', () => {
     typedAs<WriteInAdjudicationReasonInfo>({
       type: AdjudicationReason.MarkedWriteIn,
       contestId: zooCouncilMammal.id,
-      optionId: '__write-in-0',
+      optionId: 'write-in-0',
       optionIndex: 4,
     })
   );
@@ -330,7 +330,7 @@ test('a ballot with just an unmarked write-in', () => {
   const reasons = [
     ...ballotAdjudicationReasons([zooCouncilMammal], {
       optionMarkStatus: (option) =>
-        option.contestId === zooCouncilMammal.id && option.id === '__write-in-0'
+        option.contestId === zooCouncilMammal.id && option.id === 'write-in-0'
           ? MarkStatus.UnmarkedWriteIn
           : MarkStatus.Unmarked,
     }),
@@ -339,7 +339,7 @@ test('a ballot with just an unmarked write-in', () => {
   const expectedReason: UnmarkedWriteInAdjudicationReasonInfo = {
     type: AdjudicationReason.UnmarkedWriteIn,
     contestId: zooCouncilMammal.id,
-    optionId: '__write-in-0',
+    optionId: 'write-in-0',
     optionIndex: 4,
   };
 
