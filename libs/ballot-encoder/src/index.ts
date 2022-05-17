@@ -717,6 +717,8 @@ export function decodeElectionHashFromReader(
       length: ELECTION_HASH_LENGTH,
     });
   }
+
+  return undefined;
 }
 
 /**

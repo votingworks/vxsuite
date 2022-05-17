@@ -11,6 +11,7 @@
     "noUncheckedIndexedAccess": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    "noImplicitReturns": true,
     "resolveJsonModule": true,
     "composite": true,
     "noEmit": true
