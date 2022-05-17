@@ -1,3 +1,6 @@
+// Ensure anything importing `test-utils` can see the `kiosk-browser` types.
+/// <reference types="kiosk-browser" />
+
 import { Buffer } from 'buffer';
 import { BehaviorSubject } from './observable';
 

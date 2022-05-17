@@ -1,3 +1,5 @@
+/// <reference types="kiosk-browser" />
+
 import {
   BallotLocales,
   BallotPageLayout,
