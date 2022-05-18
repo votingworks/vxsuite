@@ -3,23 +3,17 @@ import { render } from '@testing-library/react';
 
 import { TestMode } from './test_mode';
 
-describe('renders TestMode', () => {
-  test('as nothing when not in test mode', () => {
-    const { container } = render(<TestMode isLiveMode />);
-    expect(container).toMatchInlineSnapshot(`<div />`);
-  });
-
-  test('with testing banner in test mode', () => {
-    const { getByText, container } = render(<TestMode isLiveMode={false} />);
-    getByText('Testing Mode');
-    expect(container).toMatchInlineSnapshot(`
-      <div>
-        <p
-          class="sc-bdvvaa sc-hKwCoD hqNiYo dRhqIc"
-        >
-          Testing Mode
-        </p>
+test('renders TestMode', () => {
+  const { container } = render(<TestMode />);
+  expect(container).toMatchInlineSnapshot(`
+    <div>
+      <div
+        class="sc-bdvvaa hoKchV"
+      >
+        <div>
+          Machine is in Testing Mode
+        </div>
       </div>
-    `);
-  });
+    </div>
+  `);
 });

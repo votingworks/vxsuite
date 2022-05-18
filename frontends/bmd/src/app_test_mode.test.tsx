@@ -38,5 +38,5 @@ it('Displays testing message if not live mode', async () => {
   // Let the initial hardware detection run.
   await advanceTimersAndPromises();
 
-  screen.getByText('Testing Mode');
+  screen.getByText('Machine is in Testing Mode');
 });
