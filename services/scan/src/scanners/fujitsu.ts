@@ -1,4 +1,4 @@
-import { ScannerStatus } from '@votingworks/types/api/services/scan';
+import { Scan } from '@votingworks/api';
 import { assert, deferredQueue, throwIllegalValue } from '@votingworks/utils';
 import makeDebug from 'debug';
 import { join } from 'path';
@@ -51,8 +51,8 @@ export class FujitsuScanner implements Scanner {
   }
 
   // eslint-disable-next-line @typescript-eslint/require-await
-  async getStatus(): Promise<ScannerStatus> {
-    return ScannerStatus.Unknown;
+  async getStatus(): Promise<Scan.ScannerStatus> {
+    return Scan.ScannerStatus.Unknown;
   }
 
   scanSheets({

@@ -1,7 +1,7 @@
 import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { mocked } from 'ts-jest/utils';
-import { ScannerStatus } from '@votingworks/types/api/services/scan';
+import { Scan } from '@votingworks/api';
 import { deferred } from '@votingworks/utils';
 import { CalibrateScannerModal } from './calibrate_scanner_modal';
 import { usePrecinctScanner } from '../hooks/use_precinct_scanner';
@@ -25,7 +25,7 @@ test('waiting for paper', async () => {
     status: {
       ballotCount: 0,
       ballotNeedsReview: false,
-      scannerState: ScannerStatus.WaitingForPaper,
+      scannerState: Scan.ScannerStatus.WaitingForPaper,
     },
   });
 
@@ -49,7 +49,7 @@ test('scanner not available', async () => {
     status: {
       ballotCount: 0,
       ballotNeedsReview: false,
-      scannerState: ScannerStatus.Error,
+      scannerState: Scan.ScannerStatus.Error,
     },
   });
 
@@ -74,7 +74,7 @@ test('calibrate success', async () => {
     status: {
       ballotCount: 0,
       ballotNeedsReview: false,
-      scannerState: ScannerStatus.ReadyToScan,
+      scannerState: Scan.ScannerStatus.ReadyToScan,
     },
   });
 
@@ -102,7 +102,7 @@ test('calibrate error', async () => {
     status: {
       ballotCount: 0,
       ballotNeedsReview: false,
-      scannerState: ScannerStatus.ReadyToScan,
+      scannerState: Scan.ScannerStatus.ReadyToScan,
     },
   });
 
@@ -131,7 +131,7 @@ test('calibrate error & try again', async () => {
     status: {
       ballotCount: 0,
       ballotNeedsReview: false,
-      scannerState: ScannerStatus.ReadyToScan,
+      scannerState: Scan.ScannerStatus.ReadyToScan,
     },
   });
 

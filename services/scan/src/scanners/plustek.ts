@@ -7,7 +7,7 @@ import {
   ScanRetryPredicate,
 } from '@votingworks/plustek-sdk';
 import { ok, Provider, Result, safeParse } from '@votingworks/types';
-import { ScannerStatus } from '@votingworks/types/api/services/scan';
+import { Scan } from '@votingworks/api';
 import makeDebug from 'debug';
 import express, { Application } from 'express';
 import * as z from 'zod';
@@ -34,14 +34,14 @@ function retryFor({ seconds }: { seconds: number }): ScanRetryPredicate {
 }
 
 export class PlustekScanner implements Scanner {
-  private statusOverride?: ScannerStatus;
+  private statusOverride?: Scan.ScannerStatus;
 
   constructor(
     private readonly clientProvider: ScannerClientProvider,
     private readonly alwaysHoldOnReject = false
   ) {}
 
-  private async getHardwareStatus(): Promise<ScannerStatus> {
+  private async getHardwareStatus(): Promise<Scan.ScannerStatus> {
     const clientResult = await this.clientProvider.get();
 
     if (clientResult.isErr()) {
@@ -49,7 +49,7 @@ export class PlustekScanner implements Scanner {
         'PlustekScanner#getHardwareStatus: failed to get client: %s',
         clientResult.err()
       );
-      return ScannerStatus.Error;
+      return Scan.ScannerStatus.Error;
     }
 
     const client = clientResult.ok();
@@ -60,7 +60,7 @@ export class PlustekScanner implements Scanner {
         'PlustekScanner#getHardwareStatus: failed to get status: %s',
         getPaperStatusResult.err()
       );
-      return ScannerStatus.Error;
+      return Scan.ScannerStatus.Error;
     }
 
     const paperStatus = getPaperStatusResult.ok();
@@ -70,15 +70,15 @@ export class PlustekScanner implements Scanner {
     );
     return paperStatus === PaperStatus.VtmDevReadyNoPaper ||
       paperStatus === PaperStatus.NoPaper
-      ? ScannerStatus.WaitingForPaper
+      ? Scan.ScannerStatus.WaitingForPaper
       : paperStatus === PaperStatus.VtmReadyToScan
-      ? ScannerStatus.ReadyToScan
+      ? Scan.ScannerStatus.ReadyToScan
       : paperStatus === PaperStatus.VtmReadyToEject
-      ? ScannerStatus.ReadyToAccept
-      : ScannerStatus.Error;
+      ? Scan.ScannerStatus.ReadyToAccept
+      : Scan.ScannerStatus.Error;
   }
 
-  async getStatus(): Promise<ScannerStatus> {
+  async getStatus(): Promise<Scan.ScannerStatus> {
     if (this.statusOverride) {
       debug(
         'PlustekScanner#getStatus: using override status: %s',
@@ -124,8 +124,8 @@ export class PlustekScanner implements Scanner {
         }
 
         const status = await this.getStatus();
-        if (status === ScannerStatus.ReadyToScan) {
-          this.statusOverride = ScannerStatus.Scanning;
+        if (status === Scan.ScannerStatus.ReadyToScan) {
+          this.statusOverride = Scan.ScannerStatus.Scanning;
           const client = clientResult.ok();
           const scanResult = await client.scan({
             shouldRetry: retryFor({
@@ -165,7 +165,7 @@ export class PlustekScanner implements Scanner {
 
       try {
         const client = clientResult.ok();
-        this.statusOverride = ScannerStatus.Accepting;
+        this.statusOverride = Scan.ScannerStatus.Accepting;
         const acceptResult = await client.accept();
 
         if (acceptResult.isErr()) {
@@ -196,7 +196,7 @@ export class PlustekScanner implements Scanner {
 
       try {
         const client = clientResult.ok();
-        this.statusOverride = ScannerStatus.Rejecting;
+        this.statusOverride = Scan.ScannerStatus.Rejecting;
         const rejectResult = await client.reject({ hold: true });
 
         if (rejectResult.isErr()) {
@@ -227,7 +227,7 @@ export class PlustekScanner implements Scanner {
 
       try {
         const client = clientResult.ok();
-        this.statusOverride = ScannerStatus.Rejecting;
+        this.statusOverride = Scan.ScannerStatus.Rejecting;
         const rejectResult = await client.reject({
           hold: this.alwaysHoldOnReject,
         });
@@ -263,7 +263,7 @@ export class PlustekScanner implements Scanner {
         return;
       }
 
-      if ((await this.getStatus()) !== ScannerStatus.WaitingForPaper) {
+      if ((await this.getStatus()) !== Scan.ScannerStatus.WaitingForPaper) {
         const client = clientResult.ok();
         const rejectResult = await client.reject({
           hold: this.alwaysHoldOnReject,
@@ -301,7 +301,7 @@ export class PlustekScanner implements Scanner {
 
     try {
       const client = clientResult.ok();
-      this.statusOverride = ScannerStatus.Calibrating;
+      this.statusOverride = Scan.ScannerStatus.Calibrating;
       const calibrateResult = await client.calibrate();
 
       if (calibrateResult.isErr()) {

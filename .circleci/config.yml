@@ -201,6 +201,24 @@ jobs:
       - store_artifacts:
           path: integration-testing/election-manager/cypress/videos
 
+  test-libs-api:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/api build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/api lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/api test
+
   test-libs-ballot-encoder:
     executor: nodejs
     resource_class: xlarge

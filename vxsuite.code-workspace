@@ -33,6 +33,10 @@
       "path": "services/converter-ms-sems"
     },
     {
+      "name": "libs/api",
+      "path": "libs/api"
+    },
+    {
       "name": "libs/ballot-encoder",
       "path": "libs/ballot-encoder"
     },

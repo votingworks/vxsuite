@@ -1,16 +1,7 @@
 import React from 'react';
 import fetchMock from 'fetch-mock';
 import { promises as fs } from 'fs';
-import {
-  ScannerStatus,
-  GetScanStatusResponse,
-  GetTestModeConfigResponse,
-  GetCurrentPrecinctConfigResponse,
-  PatchTestModeConfigResponse,
-  PatchElectionConfigResponse,
-  BatchInfo,
-  GetNextReviewSheetResponse,
-} from '@votingworks/types/api/services/scan';
+import { Scan } from '@votingworks/api';
 import {
   TallySourceMachineType,
   MemoryCard,
@@ -76,26 +67,26 @@ const getMachineConfigBody: MachineConfigResponse = {
   codeVersion: '3.14',
 };
 
-const getTestModeConfigTrueResponseBody: GetTestModeConfigResponse = {
+const getTestModeConfigTrueResponseBody: Scan.GetTestModeConfigResponse = {
   status: 'ok',
   testMode: true,
 };
 
-const scanStatusWaitingForPaperResponseBody: GetScanStatusResponse = {
-  scanner: ScannerStatus.WaitingForPaper,
+const scanStatusWaitingForPaperResponseBody: Scan.GetScanStatusResponse = {
+  scanner: Scan.ScannerStatus.WaitingForPaper,
   canUnconfigure: false,
   batches: [],
   adjudication: { adjudicated: 0, remaining: 0 },
 };
 
-const scanStatusReadyToScanResponseBody: GetScanStatusResponse = {
-  scanner: ScannerStatus.ReadyToScan,
+const scanStatusReadyToScanResponseBody: Scan.GetScanStatusResponse = {
+  scanner: Scan.ScannerStatus.ReadyToScan,
   canUnconfigure: false,
   batches: [],
   adjudication: { adjudicated: 0, remaining: 0 },
 };
 
-const getPrecinctConfigNoPrecinctResponseBody: GetCurrentPrecinctConfigResponse =
+const getPrecinctConfigNoPrecinctResponseBody: Scan.GetCurrentPrecinctConfigResponse =
   {
     status: 'ok',
   };
@@ -205,11 +196,11 @@ test('app can load and configure from a usb stick', async () => {
 
   fetchMock
     .patchOnce('/config/testMode', {
-      body: typedAs<PatchTestModeConfigResponse>({ status: 'ok' }),
+      body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
       status: 200,
     })
     .patchOnce('/config/election', {
-      body: typedAs<PatchElectionConfigResponse>({ status: 'ok' }),
+      body: typedAs<Scan.PatchElectionConfigResponse>({ status: 'ok' }),
       status: 200,
     })
     .post('/scan/hmpb/addTemplates', {
@@ -261,7 +252,7 @@ test('admin and pollworker configuration', async () => {
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
     .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody })
     .patchOnce('/config/testMode', {
-      body: typedAs<PatchTestModeConfigResponse>({ status: 'ok' }),
+      body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
       status: 200,
     });
   render(<App card={card} hardware={hardware} storage={storage} />);
@@ -466,8 +457,8 @@ test('voter can cast a ballot that scans successfully ', async () => {
     // update status on scan
     fetchMock.get(
       '/scan/status',
-      typedAs<GetScanStatusResponse>({
-        scanner: ScannerStatus.WaitingForPaper,
+      typedAs<Scan.GetScanStatusResponse>({
+        scanner: Scan.ScannerStatus.WaitingForPaper,
         canUnconfigure: false,
         batches: [
           {
@@ -627,8 +618,8 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
 
   fetchMock.getOnce(
     '/scan/status',
-    typedAs<GetScanStatusResponse>({
-      scanner: ScannerStatus.ReadyToScan,
+    typedAs<Scan.GetScanStatusResponse>({
+      scanner: Scan.ScannerStatus.ReadyToScan,
       canUnconfigure: false,
       batches: [],
       adjudication: { adjudicated: 0, remaining: 0 },
@@ -640,8 +631,8 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   });
   fetchMock.getOnce(
     '/scan/status',
-    typedAs<GetScanStatusResponse>({
-      scanner: ScannerStatus.WaitingForPaper,
+    typedAs<Scan.GetScanStatusResponse>({
+      scanner: Scan.ScannerStatus.WaitingForPaper,
       canUnconfigure: false,
       batches: [
         {
@@ -658,8 +649,8 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   );
   fetchMock.get(
     '/scan/status',
-    typedAs<GetScanStatusResponse>({
-      scanner: ScannerStatus.ReadyToScan,
+    typedAs<Scan.GetScanStatusResponse>({
+      scanner: Scan.ScannerStatus.ReadyToScan,
       canUnconfigure: false,
       batches: [
         {
@@ -676,7 +667,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   );
   fetchMock.get(
     '/scan/hmpb/review/next-sheet',
-    typedAs<GetNextReviewSheetResponse>({
+    typedAs<Scan.GetNextReviewSheetResponse>({
       interpreted: {
         id: 'test-sheet',
         front: {
@@ -712,8 +703,8 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   fireEvent.click(await screen.findByText('Yes, count ballot with errors'));
   fetchMock.get(
     '/scan/status',
-    typedAs<GetScanStatusResponse>({
-      scanner: ScannerStatus.WaitingForPaper,
+    typedAs<Scan.GetScanStatusResponse>({
+      scanner: Scan.ScannerStatus.WaitingForPaper,
       canUnconfigure: false,
       batches: [
         {
@@ -737,8 +728,8 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   // Simulate another ballot
   fetchMock.getOnce(
     '/scan/status',
-    typedAs<GetScanStatusResponse>({
-      scanner: ScannerStatus.ReadyToScan,
+    typedAs<Scan.GetScanStatusResponse>({
+      scanner: Scan.ScannerStatus.ReadyToScan,
       canUnconfigure: false,
       batches: [
         {
@@ -762,8 +753,8 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   );
   fetchMock.getOnce(
     '/scan/status',
-    typedAs<GetScanStatusResponse>({
-      scanner: ScannerStatus.WaitingForPaper,
+    typedAs<Scan.GetScanStatusResponse>({
+      scanner: Scan.ScannerStatus.WaitingForPaper,
       canUnconfigure: false,
       batches: [
         {
@@ -787,8 +778,8 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   );
   fetchMock.get(
     '/scan/status',
-    typedAs<GetScanStatusResponse>({
-      scanner: ScannerStatus.ReadyToScan,
+    typedAs<Scan.GetScanStatusResponse>({
+      scanner: Scan.ScannerStatus.ReadyToScan,
       canUnconfigure: false,
       batches: [
         {
@@ -817,8 +808,8 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   // Simulate voter pulling out the ballot
   fetchMock.get(
     '/scan/status',
-    typedAs<GetScanStatusResponse>({
-      scanner: ScannerStatus.WaitingForPaper,
+    typedAs<Scan.GetScanStatusResponse>({
+      scanner: Scan.ScannerStatus.WaitingForPaper,
       canUnconfigure: false,
       batches: [
         {
@@ -874,8 +865,8 @@ test('voter can cast a rejected ballot', async () => {
   });
   fetchMock.getOnce(
     '/scan/status',
-    typedAs<GetScanStatusResponse>({
-      scanner: ScannerStatus.ReadyToScan,
+    typedAs<Scan.GetScanStatusResponse>({
+      scanner: Scan.ScannerStatus.ReadyToScan,
       canUnconfigure: false,
       batches: [],
       adjudication: { adjudicated: 0, remaining: 0 },
@@ -884,8 +875,8 @@ test('voter can cast a rejected ballot', async () => {
   );
   fetchMock.getOnce(
     '/scan/status',
-    typedAs<GetScanStatusResponse>({
-      scanner: ScannerStatus.WaitingForPaper,
+    typedAs<Scan.GetScanStatusResponse>({
+      scanner: Scan.ScannerStatus.WaitingForPaper,
       canUnconfigure: false,
       batches: [
         {
@@ -902,8 +893,8 @@ test('voter can cast a rejected ballot', async () => {
   );
   fetchMock.get(
     '/scan/status',
-    typedAs<GetScanStatusResponse>({
-      scanner: ScannerStatus.ReadyToScan,
+    typedAs<Scan.GetScanStatusResponse>({
+      scanner: Scan.ScannerStatus.ReadyToScan,
       canUnconfigure: false,
       batches: [
         {
@@ -919,7 +910,7 @@ test('voter can cast a rejected ballot', async () => {
   );
   fetchMock.getOnce(
     '/scan/hmpb/review/next-sheet',
-    typedAs<GetNextReviewSheetResponse>({
+    typedAs<Scan.GetNextReviewSheetResponse>({
       interpreted: {
         id: 'test-sheet',
         front: {
@@ -955,8 +946,8 @@ test('voter can cast a rejected ballot', async () => {
   // When the voter removes the ballot return to the insert ballot screen
   fetchMock.get(
     '/scan/status',
-    typedAs<GetScanStatusResponse>({
-      scanner: ScannerStatus.WaitingForPaper,
+    typedAs<Scan.GetScanStatusResponse>({
+      scanner: Scan.ScannerStatus.WaitingForPaper,
       canUnconfigure: false,
       batches: [
         {
@@ -1003,7 +994,7 @@ test('voter can cast another ballot while the success screen is showing', async 
   fetchMock.get('/scan/status', scanStatusReadyToScanResponseBody, {
     overwriteRoutes: true,
   });
-  const batch1: BatchInfo = {
+  const batch1: Scan.BatchInfo = {
     id: 'test-batch',
     label: 'Batch 1',
     count: 1,
@@ -1014,8 +1005,8 @@ test('voter can cast another ballot while the success screen is showing', async 
     // update status on scan
     fetchMock.get(
       '/scan/status',
-      typedAs<GetScanStatusResponse>({
-        scanner: ScannerStatus.WaitingForPaper,
+      typedAs<Scan.GetScanStatusResponse>({
+        scanner: Scan.ScannerStatus.WaitingForPaper,
         canUnconfigure: false,
         batches: [batch1],
         adjudication: { adjudicated: 0, remaining: 0 },
@@ -1035,7 +1026,7 @@ test('voter can cast another ballot while the success screen is showing', async 
   );
   expect((await screen.findByTestId('ballot-count')).textContent).toBe('1');
   await screen.findByText('Your ballot was counted!'); // Still on the success screen
-  const batch2: BatchInfo = {
+  const batch2: Scan.BatchInfo = {
     id: 'test-batch2',
     label: 'Batch 2',
     count: 1,
@@ -1043,8 +1034,8 @@ test('voter can cast another ballot while the success screen is showing', async 
   };
   fetchMock.get(
     '/scan/status',
-    typedAs<GetScanStatusResponse>({
-      scanner: ScannerStatus.ReadyToScan,
+    typedAs<Scan.GetScanStatusResponse>({
+      scanner: Scan.ScannerStatus.ReadyToScan,
       canUnconfigure: false,
       batches: [batch1],
       adjudication: { adjudicated: 0, remaining: 0 },
@@ -1057,8 +1048,8 @@ test('voter can cast another ballot while the success screen is showing', async 
       // update to include both batches on next scan
       fetchMock.get(
         '/scan/status',
-        typedAs<GetScanStatusResponse>({
-          scanner: ScannerStatus.WaitingForPaper,
+        typedAs<Scan.GetScanStatusResponse>({
+          scanner: Scan.ScannerStatus.WaitingForPaper,
           canUnconfigure: false,
           batches: [batch1, batch2],
           adjudication: { adjudicated: 0, remaining: 1 },
@@ -1067,7 +1058,7 @@ test('voter can cast another ballot while the success screen is showing', async 
       );
       fetchMock.getOnce(
         '/scan/hmpb/review/next-sheet',
-        typedAs<GetNextReviewSheetResponse>({
+        typedAs<Scan.GetNextReviewSheetResponse>({
           interpreted: {
             id: 'test-sheet',
             front: {
@@ -1108,8 +1099,8 @@ test('voter can cast another ballot while the success screen is showing', async 
   // Insert more paper
   fetchMock.get(
     '/scan/status',
-    typedAs<GetScanStatusResponse>({
-      scanner: ScannerStatus.ReadyToScan,
+    typedAs<Scan.GetScanStatusResponse>({
+      scanner: Scan.ScannerStatus.ReadyToScan,
       canUnconfigure: false,
       batches: [batch1, batch2],
       adjudication: { adjudicated: 0, remaining: 1 },
@@ -1149,8 +1140,8 @@ test('scanning is not triggered when polls closed or cards present', async () =>
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
     .get(
       '/scan/status',
-      typedAs<GetScanStatusResponse>({
-        scanner: ScannerStatus.WaitingForPaper,
+      typedAs<Scan.GetScanStatusResponse>({
+        scanner: Scan.ScannerStatus.WaitingForPaper,
         canUnconfigure: false,
         batches: [
           {
@@ -1214,7 +1205,7 @@ test('no printer: poll worker can open and close polls without scanning any ball
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
     .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody })
     .patchOnce('/config/testMode', {
-      body: typedAs<PatchTestModeConfigResponse>({ status: 'ok' }),
+      body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
       status: 200,
     });
   render(<App card={card} hardware={hardware} storage={storage} />);
@@ -1264,7 +1255,7 @@ test('with printer: poll worker can open and close polls without scanning any ba
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
     .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody })
     .patchOnce('/config/testMode', {
-      body: typedAs<PatchTestModeConfigResponse>({ status: 'ok' }),
+      body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
       status: 200,
     });
   render(<App card={card} hardware={hardware} storage={storage} />);
@@ -1314,7 +1305,7 @@ test('no printer: open polls, scan ballot, close polls, export results', async (
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
     .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody })
     .patchOnce('/config/testMode', {
-      body: typedAs<PatchTestModeConfigResponse>({ status: 'ok' }),
+      body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
       status: 200,
     });
   render(<App card={card} hardware={hardware} storage={storage} />);
@@ -1344,8 +1335,8 @@ test('no printer: open polls, scan ballot, close polls, export results', async (
   fetchMock.postOnce('/scan/scanBatch', () => {
     fetchMock.get(
       '/scan/status',
-      typedAs<GetScanStatusResponse>({
-        scanner: ScannerStatus.WaitingForPaper,
+      typedAs<Scan.GetScanStatusResponse>({
+        scanner: Scan.ScannerStatus.WaitingForPaper,
         canUnconfigure: false,
         batches: [
           {

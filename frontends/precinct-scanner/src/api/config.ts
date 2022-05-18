@@ -4,15 +4,7 @@ import {
   Precinct,
   safeParseJson,
 } from '@votingworks/types';
-import { ErrorsResponse, OkResponse } from '@votingworks/types/api';
-import {
-  GetCurrentPrecinctResponseSchema,
-  GetElectionConfigResponse,
-  GetElectionConfigResponseSchema,
-  GetTestModeConfigResponseSchema,
-  PatchTestModeConfigRequest,
-  PutCurrentPrecinctConfigRequest,
-} from '@votingworks/types/api/services/scan';
+import { ErrorsResponse, OkResponse, Scan } from '@votingworks/api';
 
 async function patch<Body extends string | ArrayBuffer | unknown>(
   url: string,
@@ -84,8 +76,9 @@ export async function getElectionDefinition(): Promise<
           headers: { Accept: 'application/json' },
         })
       ).text(),
-      GetElectionConfigResponseSchema
-    ).unsafeUnwrap() as Exclude<GetElectionConfigResponse, string>) ?? undefined
+      Scan.GetElectionConfigResponseSchema
+    ).unsafeUnwrap() as Exclude<Scan.GetElectionConfigResponse, string>) ??
+    undefined
   );
 }
 
@@ -101,12 +94,12 @@ export async function setElection(electionData?: string): Promise<void> {
 export async function getTestMode(): Promise<boolean> {
   return safeParseJson(
     await (await fetch('/config/testMode')).text(),
-    GetTestModeConfigResponseSchema
+    Scan.GetTestModeConfigResponseSchema
   ).unsafeUnwrap().testMode;
 }
 
 export async function setTestMode(testMode: boolean): Promise<void> {
-  await patch<PatchTestModeConfigRequest>('/config/testMode', {
+  await patch<Scan.PatchTestModeConfigRequest>('/config/testMode', {
     testMode,
   });
 }
@@ -120,7 +113,7 @@ export async function getCurrentPrecinctId(): Promise<
         headers: { Accept: 'application/json' },
       })
     ).text(),
-    GetCurrentPrecinctResponseSchema
+    Scan.GetCurrentPrecinctResponseSchema
   ).unsafeUnwrap().precinctId;
 }
 
@@ -130,7 +123,7 @@ export async function setCurrentPrecinctId(
   if (!precinctId) {
     await del('/config/precinct');
   } else {
-    await put<PutCurrentPrecinctConfigRequest>('/config/precinct', {
+    await put<Scan.PutCurrentPrecinctConfigRequest>('/config/precinct', {
       precinctId,
     });
   }

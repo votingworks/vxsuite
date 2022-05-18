@@ -28,11 +28,7 @@ import {
   safeParseJson,
   unsafeParse,
 } from '@votingworks/types';
-import {
-  AdjudicationStatus,
-  BatchInfo,
-  Side,
-} from '@votingworks/types/api/services/scan';
+import { Scan } from '@votingworks/api';
 import { Iso8601Timestamp } from '@votingworks/types/src/api';
 import { assert } from '@votingworks/utils';
 import { Buffer } from 'buffer';
@@ -563,7 +559,7 @@ export class Store {
 
   getBallotFilenames(
     sheetId: string,
-    side: Side
+    side: Scan.Side
   ): { original: string; normalized: string } | undefined {
     const row = this.client.one<[string]>(
       `
@@ -687,7 +683,7 @@ export class Store {
 
   adjudicateSheet(
     sheetId: string,
-    side: Side,
+    side: Scan.Side,
     adjudications: readonly MarkAdjudication[]
   ): boolean {
     debug(
@@ -741,7 +737,7 @@ export class Store {
   /**
    * Gets all batches, including their sheet count.
    */
-  batchStatus(): BatchInfo[] {
+  batchStatus(): Scan.BatchInfo[] {
     interface SqliteBatchInfo {
       id: string;
       label: string;
@@ -791,7 +787,7 @@ export class Store {
   /**
    * Gets adjudication status.
    */
-  adjudicationStatus(): AdjudicationStatus {
+  adjudicationStatus(): Scan.AdjudicationStatus {
     const { remaining } = this.client.one(`
         select count(*) as remaining
         from sheets

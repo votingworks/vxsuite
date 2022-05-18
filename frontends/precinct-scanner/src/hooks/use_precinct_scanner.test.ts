@@ -1,25 +1,22 @@
 import { renderHook } from '@testing-library/react-hooks';
-import {
-  GetScanStatusResponse,
-  ScannerStatus,
-} from '@votingworks/types/api/services/scan';
+import { Scan } from '@votingworks/api';
 import { sleep } from '@votingworks/utils';
 import fetchMock, { MockResponseFunction } from 'fetch-mock';
 import { advanceTimersAndPromises } from '@votingworks/test-utils';
 import { usePrecinctScanner } from './use_precinct_scanner';
 
-const scanStatusWaitingForPaperResponse: GetScanStatusResponse = {
+const scanStatusWaitingForPaperResponse: Scan.GetScanStatusResponse = {
   adjudication: { adjudicated: 0, remaining: 0 },
   canUnconfigure: false,
   batches: [],
-  scanner: ScannerStatus.WaitingForPaper,
+  scanner: Scan.ScannerStatus.WaitingForPaper,
 };
 
-const scanStatusReadyToScanResponse: GetScanStatusResponse = {
+const scanStatusReadyToScanResponse: Scan.GetScanStatusResponse = {
   adjudication: { adjudicated: 0, remaining: 0 },
   canUnconfigure: false,
   batches: [],
-  scanner: ScannerStatus.ReadyToScan,
+  scanner: Scan.ScannerStatus.ReadyToScan,
 };
 
 beforeEach(() => {
@@ -40,7 +37,7 @@ test('updates from /scan/status', async () => {
   });
   await advanceTimersAndPromises(1);
   expect(result.current?.status.scannerState).toBe(
-    ScannerStatus.WaitingForPaper
+    Scan.ScannerStatus.WaitingForPaper
   );
 
   // second update
@@ -50,7 +47,9 @@ test('updates from /scan/status', async () => {
     { overwriteRoutes: false }
   );
   await advanceTimersAndPromises(1);
-  expect(result.current?.status.scannerState).toBe(ScannerStatus.ReadyToScan);
+  expect(result.current?.status.scannerState).toBe(
+    Scan.ScannerStatus.ReadyToScan
+  );
 });
 
 test('disabling', async () => {
@@ -83,7 +82,7 @@ test('issues one status check at a time', async () => {
   await advanceTimersAndPromises(6);
   expect(result.current).toEqual({
     status: expect.objectContaining({
-      scannerState: ScannerStatus.WaitingForPaper,
+      scannerState: Scan.ScannerStatus.WaitingForPaper,
     }),
   });
 

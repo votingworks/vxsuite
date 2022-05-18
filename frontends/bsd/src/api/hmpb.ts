@@ -1,9 +1,6 @@
 import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
 import { ElectionDefinition, unsafeParse } from '@votingworks/types';
-import {
-  GetNextReviewSheetResponse,
-  GetNextReviewSheetResponseSchema,
-} from '@votingworks/types/api/services/scan';
+import { Scan } from '@votingworks/api';
 import { assert, BallotPackage, BallotPackageEntry } from '@votingworks/utils';
 import { EventEmitter } from 'events';
 import { setElection } from './config';
@@ -150,7 +147,7 @@ export async function doneTemplates(): Promise<void> {
 }
 
 export async function fetchNextBallotSheetToReview(): Promise<
-  GetNextReviewSheetResponse | undefined
+  Scan.GetNextReviewSheetResponse | undefined
 > {
   const response = await fetch('/scan/hmpb/review/next-sheet');
 
@@ -162,5 +159,8 @@ export async function fetchNextBallotSheetToReview(): Promise<
     throw new Error('fetch response is not ok');
   }
 
-  return unsafeParse(GetNextReviewSheetResponseSchema, await response.json());
+  return unsafeParse(
+    Scan.GetNextReviewSheetResponseSchema,
+    await response.json()
+  );
 }

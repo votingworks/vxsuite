@@ -9,14 +9,7 @@ import {
 import fileDownload from 'js-file-download';
 import { fakeKiosk } from '@votingworks/test-utils';
 import { MemoryCard, MemoryHardware, sleep, typedAs } from '@votingworks/utils';
-import {
-  GetElectionConfigResponse,
-  GetMarkThresholdOverridesConfigResponse,
-  GetScanStatusResponse,
-  GetTestModeConfigResponse,
-  ScanBatchResponse,
-  ScannerStatus,
-} from '@votingworks/types/api/services/scan';
+import { Scan } from '@votingworks/api';
 import { AdminCardData, PollworkerCardData } from '@votingworks/types';
 import { App } from './app';
 import { hasTextAcrossElements } from '../test/util/has_text_across_elements';
@@ -28,11 +21,11 @@ beforeEach(() => {
   fetchMock.config.fallbackToNetwork = true;
   fetchMock.get(
     '/scan/status',
-    typedAs<GetScanStatusResponse>({
+    typedAs<Scan.GetScanStatusResponse>({
       canUnconfigure: false,
       batches: [],
       adjudication: { adjudicated: 0, remaining: 0 },
-      scanner: ScannerStatus.Unknown,
+      scanner: Scan.ScannerStatus.Unknown,
     })
   );
   fetchMock.get(
@@ -78,13 +71,13 @@ async function authenticateWithAdminCard(card: MemoryCard) {
 }
 
 test('renders without crashing', async () => {
-  const getElectionResponseBody: GetElectionConfigResponse =
+  const getElectionResponseBody: Scan.GetElectionConfigResponse =
     electionSampleDefinition;
-  const getTestModeResponseBody: GetTestModeConfigResponse = {
+  const getTestModeResponseBody: Scan.GetTestModeConfigResponse = {
     status: 'ok',
     testMode: true,
   };
-  const getMarkThresholdOverridesResponseBody: GetMarkThresholdOverridesConfigResponse =
+  const getMarkThresholdOverridesResponseBody: Scan.GetMarkThresholdOverridesConfigResponse =
     {
       status: 'ok',
     };
@@ -102,13 +95,13 @@ test('renders without crashing', async () => {
 });
 
 test('shows a "Test mode" button if the app is in Live Mode', async () => {
-  const getElectionResponseBody: GetElectionConfigResponse =
+  const getElectionResponseBody: Scan.GetElectionConfigResponse =
     electionSampleDefinition;
-  const getTestModeResponseBody: GetTestModeConfigResponse = {
+  const getTestModeResponseBody: Scan.GetTestModeConfigResponse = {
     status: 'ok',
     testMode: false,
   };
-  const getMarkThresholdOverridesResponseBody: GetMarkThresholdOverridesConfigResponse =
+  const getMarkThresholdOverridesResponseBody: Scan.GetMarkThresholdOverridesConfigResponse =
     {
       status: 'ok',
     };
@@ -130,13 +123,13 @@ test('shows a "Test mode" button if the app is in Live Mode', async () => {
 });
 
 test('shows a "Live mode" button if the app is in Test Mode', async () => {
-  const getElectionResponseBody: GetElectionConfigResponse =
+  const getElectionResponseBody: Scan.GetElectionConfigResponse =
     electionSampleDefinition;
-  const getTestModeResponseBody: GetTestModeConfigResponse = {
+  const getTestModeResponseBody: Scan.GetTestModeConfigResponse = {
     status: 'ok',
     testMode: true,
   };
-  const getMarkThresholdOverridesResponseBody: GetMarkThresholdOverridesConfigResponse =
+  const getMarkThresholdOverridesResponseBody: Scan.GetMarkThresholdOverridesConfigResponse =
     {
       status: 'ok',
     };
@@ -159,17 +152,17 @@ test('shows a "Live mode" button if the app is in Test Mode', async () => {
 });
 
 test('clicking Scan Batch will scan a batch', async () => {
-  const getElectionResponseBody: GetElectionConfigResponse =
+  const getElectionResponseBody: Scan.GetElectionConfigResponse =
     electionSampleDefinition;
-  const getTestModeResponseBody: GetTestModeConfigResponse = {
+  const getTestModeResponseBody: Scan.GetTestModeConfigResponse = {
     status: 'ok',
     testMode: true,
   };
-  const getMarkThresholdOverridesResponseBody: GetMarkThresholdOverridesConfigResponse =
+  const getMarkThresholdOverridesResponseBody: Scan.GetMarkThresholdOverridesConfigResponse =
     {
       status: 'ok',
     };
-  const scanBatchResponseBody: ScanBatchResponse = {
+  const scanBatchResponseBody: Scan.ScanBatchResponse = {
     status: 'error',
     errors: [{ type: 'scan-error', message: 'interpreter not ready' }],
   };
@@ -205,17 +198,17 @@ test('clicking Scan Batch will scan a batch', async () => {
 });
 
 test('clicking export shows modal and makes a request to export', async () => {
-  const getElectionResponseBody: GetElectionConfigResponse =
+  const getElectionResponseBody: Scan.GetElectionConfigResponse =
     electionSampleDefinition;
-  const getTestModeResponseBody: GetTestModeConfigResponse = {
+  const getTestModeResponseBody: Scan.GetTestModeConfigResponse = {
     status: 'ok',
     testMode: true,
   };
-  const getMarkThresholdOverridesResponseBody: GetMarkThresholdOverridesConfigResponse =
+  const getMarkThresholdOverridesResponseBody: Scan.GetMarkThresholdOverridesConfigResponse =
     {
       status: 'ok',
     };
-  const scanStatusResponseBody: GetScanStatusResponse = {
+  const scanStatusResponseBody: Scan.GetScanStatusResponse = {
     canUnconfigure: false,
     batches: [
       {
@@ -226,7 +219,7 @@ test('clicking export shows modal and makes a request to export', async () => {
       },
     ],
     adjudication: { adjudicated: 0, remaining: 0 },
-    scanner: ScannerStatus.Unknown,
+    scanner: Scan.ScannerStatus.Unknown,
   };
   fetchMock
     .get('/config/election', { body: getElectionResponseBody })
@@ -269,11 +262,11 @@ test('clicking export shows modal and makes a request to export', async () => {
 });
 
 test('configuring election from usb ballot package works end to end', async () => {
-  const getTestModeConfigResponse: GetTestModeConfigResponse = {
+  const getTestModeConfigResponse: Scan.GetTestModeConfigResponse = {
     status: 'ok',
     testMode: true,
   };
-  const getMarkThresholdOverridesResponse: GetMarkThresholdOverridesConfigResponse =
+  const getMarkThresholdOverridesResponse: Scan.GetMarkThresholdOverridesConfigResponse =
     {
       status: 'ok',
     };
@@ -363,13 +356,13 @@ test('authentication works', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   hardware.setBatchScannerConnected(false);
-  const getElectionResponseBody: GetElectionConfigResponse =
+  const getElectionResponseBody: Scan.GetElectionConfigResponse =
     electionSampleDefinition;
-  const getTestModeResponseBody: GetTestModeConfigResponse = {
+  const getTestModeResponseBody: Scan.GetTestModeConfigResponse = {
     status: 'ok',
     testMode: true,
   };
-  const getMarkThresholdOverridesResponseBody: GetMarkThresholdOverridesConfigResponse =
+  const getMarkThresholdOverridesResponseBody: Scan.GetMarkThresholdOverridesConfigResponse =
     {
       status: 'ok',
     };

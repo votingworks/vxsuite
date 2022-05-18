@@ -1,27 +1,23 @@
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import {
-  ScannerStatus,
-  GetScanStatusResponse,
-  AdjudicationStatus,
-} from '@votingworks/types/api/services/scan';
+import { Scan } from '@votingworks/api';
 import { createMemoryHistory } from 'history';
 import React from 'react';
 import { Router } from 'react-router-dom';
 import { DashboardScreen } from './dashboard_screen';
 
-const noneLeftAdjudicationStatus: AdjudicationStatus = {
+const noneLeftAdjudicationStatus: Scan.AdjudicationStatus = {
   adjudicated: 0,
   remaining: 0,
 };
 
 test('null state', () => {
   const deleteBatch = jest.fn();
-  const status: GetScanStatusResponse = {
+  const status: Scan.GetScanStatusResponse = {
     canUnconfigure: false,
     batches: [],
     adjudication: noneLeftAdjudicationStatus,
-    scanner: ScannerStatus.Unknown,
+    scanner: Scan.ScannerStatus.Unknown,
   };
   const component = render(
     <Router history={createMemoryHistory()}>
@@ -40,7 +36,7 @@ test('null state', () => {
 
 test('shows scanned ballot count', () => {
   const deleteBatch = jest.fn();
-  const status: GetScanStatusResponse = {
+  const status: Scan.GetScanStatusResponse = {
     canUnconfigure: false,
     batches: [
       {
@@ -59,7 +55,7 @@ test('shows scanned ballot count', () => {
       },
     ],
     adjudication: noneLeftAdjudicationStatus,
-    scanner: ScannerStatus.Unknown,
+    scanner: Scan.ScannerStatus.Unknown,
   };
   const component = render(
     <Router history={createMemoryHistory()}>
@@ -78,7 +74,7 @@ test('shows scanned ballot count', () => {
 
 test('shows whether a batch is scanning', () => {
   const deleteBatch = jest.fn();
-  const status: GetScanStatusResponse = {
+  const status: Scan.GetScanStatusResponse = {
     canUnconfigure: false,
     batches: [
       {
@@ -89,7 +85,7 @@ test('shows whether a batch is scanning', () => {
       },
     ],
     adjudication: noneLeftAdjudicationStatus,
-    scanner: ScannerStatus.Unknown,
+    scanner: Scan.ScannerStatus.Unknown,
   };
   const component = render(
     <Router history={createMemoryHistory()}>
@@ -102,7 +98,7 @@ test('shows whether a batch is scanning', () => {
 
 test('allows deleting a batch', async () => {
   const deleteBatch = jest.fn();
-  const status: GetScanStatusResponse = {
+  const status: Scan.GetScanStatusResponse = {
     canUnconfigure: false,
     batches: [
       {
@@ -121,7 +117,7 @@ test('allows deleting a batch', async () => {
       },
     ],
     adjudication: noneLeftAdjudicationStatus,
-    scanner: ScannerStatus.Unknown,
+    scanner: Scan.ScannerStatus.Unknown,
   };
   render(
     <Router history={createMemoryHistory()}>

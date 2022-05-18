@@ -18,6 +18,7 @@
     "skipLibCheck": true
   },
   "references": [
+    { "path": "../../libs/api/tsconfig.build.json" },
     { "path": "../../libs/ballot-encoder/tsconfig.build.json" },
     { "path": "../../libs/ballot-interpreter-nh/tsconfig.build.json" },
     { "path": "../../libs/ballot-interpreter-vx/tsconfig.build.json" },

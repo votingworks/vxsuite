@@ -2,10 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import pluralize from 'pluralize';
 
-import {
-  BatchInfo,
-  GetScanStatusResponse,
-} from '@votingworks/types/api/services/scan';
+import { Scan } from '@votingworks/api';
 
 import { Modal } from '@votingworks/ui';
 import { assert } from '@votingworks/utils';
@@ -34,7 +31,7 @@ function shortDateTime(iso8601Timestamp: string) {
 
 interface Props {
   isScanning: boolean;
-  status: GetScanStatusResponse;
+  status: Scan.GetScanStatusResponse;
   deleteBatch(batchId: string): Promise<void>;
 }
 
@@ -47,7 +44,8 @@ export function DashboardScreen({
   const batchCount = batches.length;
   const ballotCount = batches.reduce((result, b) => result + b.count, 0);
 
-  const [pendingDeleteBatch, setPendingDeleteBatchId] = useState<BatchInfo>();
+  const [pendingDeleteBatch, setPendingDeleteBatchId] =
+    useState<Scan.BatchInfo>();
   const [isDeletingBatch, setIsDeletingBatch] = useState(false);
   const [deleteBatchError, setDeleteBatchError] = useState<string>();
 

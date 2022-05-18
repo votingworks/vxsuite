@@ -9,15 +9,7 @@ import {
 } from '@votingworks/types';
 import styled from 'styled-components';
 
-import {
-  ScannerStatus,
-  GetScanStatusResponse,
-  GetScanStatusResponseSchema,
-  ScanBatchResponseSchema,
-  ScanContinueRequest,
-  ScanContinueResponseSchema,
-  ZeroResponseSchema,
-} from '@votingworks/types/api/services/scan';
+import { Scan } from '@votingworks/api';
 import {
   usbstick,
   KioskStorage,
@@ -97,11 +89,11 @@ export function AppRoot({
   const [electionJustLoaded, setElectionJustLoaded] = useState(false);
   const [isTestMode, setTestMode] = useState(false);
   const [isTogglingTestMode, setTogglingTestMode] = useState(false);
-  const [status, setStatus] = useState<GetScanStatusResponse>({
+  const [status, setStatus] = useState<Scan.GetScanStatusResponse>({
     canUnconfigure: true,
     batches: [],
     adjudication: { remaining: 0, adjudicated: 0 },
-    scanner: ScannerStatus.Unknown,
+    scanner: Scan.ScannerStatus.Unknown,
   });
   const currentNumberOfBallots = status.batches.reduce(
     (prev, next) => prev + next.count,
@@ -251,7 +243,7 @@ export function AppRoot({
       const body = await (await fetch('/scan/status')).text();
       const newStatus = safeParseJson(
         body,
-        GetScanStatusResponseSchema
+        Scan.GetScanStatusResponseSchema
       ).unsafeUnwrap();
       setStatus((prevStatus) => {
         if (JSON.stringify(prevStatus) === JSON.stringify(newStatus)) {
@@ -301,7 +293,7 @@ export function AppRoot({
             method: 'post',
           })
         ).text(),
-        ScanBatchResponseSchema
+        Scan.ScanBatchResponseSchema
       ).unsafeUnwrap();
       if (result.status !== 'ok') {
         // eslint-disable-next-line no-alert
@@ -334,7 +326,7 @@ export function AppRoot({
   }, [logger, currentUserType]);
 
   const continueScanning = useCallback(
-    async (request: ScanContinueRequest) => {
+    async (request: Scan.ScanContinueRequest) => {
       setIsScanning(true);
       try {
         const result = safeParseJson(
@@ -347,7 +339,7 @@ export function AppRoot({
               },
             })
           ).text(),
-          ScanContinueResponseSchema
+          Scan.ScanContinueResponseSchema
         ).unsafeUnwrap();
         if (result.status === 'ok') {
           await logger.log(LogEventId.ScanBatchContinue, currentUserType, {
@@ -391,7 +383,7 @@ export function AppRoot({
             method: 'post',
           })
         ).text(),
-        ZeroResponseSchema
+        Scan.ZeroResponseSchema
       ).unsafeUnwrap();
       await refreshConfig();
       await logger.log(LogEventId.ClearedBallotData, currentUserType, {

@@ -1,6 +1,6 @@
 import { electionSampleDefinition as electionDefinition } from '@votingworks/fixtures';
 import fetchMock from 'fetch-mock';
-import { GetNextReviewSheetResponse } from '@votingworks/types/api/services/scan';
+import { Scan } from '@votingworks/api';
 import { Logger, LogSource, LogEventId } from '@votingworks/logging';
 import { Buffer } from 'buffer';
 import { addTemplates, fetchNextBallotSheetToReview } from './hmpb';
@@ -135,7 +135,7 @@ test('emits error on API failure', async () => {
 });
 
 test('can fetch the next ballot sheet needing review', async () => {
-  const response: GetNextReviewSheetResponse = {
+  const response: Scan.GetNextReviewSheetResponse = {
     interpreted: {
       id: 'test-sheet',
       front: {

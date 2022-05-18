@@ -6,17 +6,7 @@ import {
   safeParseJson,
   unsafeParse,
 } from '@votingworks/types';
-import {
-  GetCurrentPrecinctResponseSchema,
-  GetElectionConfigResponse,
-  GetElectionConfigResponseSchema,
-  GetMarkThresholdOverridesConfigResponseSchema,
-  GetTestModeConfigResponseSchema,
-  PatchElectionConfigRequest,
-  PatchMarkThresholdOverridesConfigRequest,
-  PatchTestModeConfigRequest,
-  PutCurrentPrecinctConfigRequest,
-} from '@votingworks/types/api/services/scan';
+import { Scan } from '@votingworks/api';
 import { ErrorsResponse, OkResponse } from '@votingworks/types/src/api';
 import { fetchJson } from '@votingworks/utils';
 
@@ -96,8 +86,9 @@ export async function getElectionDefinition(): Promise<
           headers: { Accept: 'application/json' },
         })
       ).text(),
-      GetElectionConfigResponseSchema
-    ).unsafeUnwrap() as Exclude<GetElectionConfigResponse, string>) ?? undefined
+      Scan.GetElectionConfigResponseSchema
+    ).unsafeUnwrap() as Exclude<Scan.GetElectionConfigResponse, string>) ??
+    undefined
   );
 }
 
@@ -105,7 +96,7 @@ export async function setElection(electionData?: string): Promise<void> {
   if (typeof electionData === 'undefined') {
     await del('/config/election');
   } else {
-    await patch<PatchElectionConfigRequest>(
+    await patch<Scan.PatchElectionConfigRequest>(
       '/config/election',
       new TextEncoder().encode(electionData)
     );
@@ -115,12 +106,12 @@ export async function setElection(electionData?: string): Promise<void> {
 export async function getTestMode(): Promise<boolean> {
   return safeParseJson(
     await (await fetch('/config/testMode')).text(),
-    GetTestModeConfigResponseSchema
+    Scan.GetTestModeConfigResponseSchema
   ).unsafeUnwrap().testMode;
 }
 
 export async function setTestMode(testMode: boolean): Promise<void> {
-  await patch<PatchTestModeConfigRequest>('/config/testMode', {
+  await patch<Scan.PatchTestModeConfigRequest>('/config/testMode', {
     testMode,
   });
   const newTestMode = await getTestMode();
@@ -133,7 +124,7 @@ export async function getMarkThresholdOverrides(): Promise<
   MarkThresholds | undefined
 > {
   const { markThresholdOverrides } = unsafeParse(
-    GetMarkThresholdOverridesConfigResponseSchema,
+    Scan.GetMarkThresholdOverridesConfigResponseSchema,
     await fetchJson('/config/markThresholdOverrides')
   );
   return markThresholdOverrides;
@@ -145,7 +136,7 @@ export async function setMarkThresholdOverrides(
   if (typeof markThresholdOverrides === 'undefined') {
     await del('/config/markThresholdOverrides');
   } else {
-    await patch<PatchMarkThresholdOverridesConfigRequest>(
+    await patch<Scan.PatchMarkThresholdOverridesConfigRequest>(
       '/config/markThresholdOverrides',
       { markThresholdOverrides }
     );
@@ -161,14 +152,14 @@ export async function getCurrentPrecinctId(): Promise<
         headers: { Accept: 'application/json' },
       })
     ).text(),
-    GetCurrentPrecinctResponseSchema
+    Scan.GetCurrentPrecinctResponseSchema
   ).unsafeUnwrap().precinctId;
 }
 
 export async function setCurrentPrecinctId(
   precinctId: Precinct['id']
 ): Promise<void> {
-  await put<PutCurrentPrecinctConfigRequest>('/config/precinct', {
+  await put<Scan.PutCurrentPrecinctConfigRequest>('/config/precinct', {
     precinctId,
   });
 }

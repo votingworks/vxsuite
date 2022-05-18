@@ -7,11 +7,7 @@ import {
   BallotType,
   CastVoteRecord,
 } from '@votingworks/types';
-import {
-  GetNextReviewSheetResponse,
-  GetScanStatusResponse,
-  ScannerStatus,
-} from '@votingworks/types/api/services/scan';
+import { Scan } from '@votingworks/api';
 import { typedAs } from '@votingworks/utils';
 import fetchMock from 'fetch-mock';
 import { DateTime } from 'luxon';
@@ -24,8 +20,8 @@ import {
 } from '../config/types';
 import * as scan from './scan';
 
-const scanStatusReadyToScanResponseBody: GetScanStatusResponse = {
-  scanner: ScannerStatus.ReadyToScan,
+const scanStatusReadyToScanResponseBody: Scan.GetScanStatusResponse = {
+  scanner: Scan.ScannerStatus.ReadyToScan,
   canUnconfigure: false,
   batches: [],
   adjudication: { adjudicated: 0, remaining: 0 },
@@ -55,8 +51,8 @@ test('scanDetectedSheet returns rejected ballot if batch has a 0 count', async (
   });
   fetchMock.get(
     '/scan/status',
-    typedAs<GetScanStatusResponse>({
-      scanner: ScannerStatus.ReadyToScan,
+    typedAs<Scan.GetScanStatusResponse>({
+      scanner: Scan.ScannerStatus.ReadyToScan,
       canUnconfigure: false,
       batches: [
         {
@@ -83,8 +79,8 @@ test('scanDetectedSheet returns accepted ballot when successful', async () => {
   });
   fetchMock.get(
     '/scan/status',
-    typedAs<GetScanStatusResponse>({
-      scanner: ScannerStatus.ReadyToScan,
+    typedAs<Scan.GetScanStatusResponse>({
+      scanner: Scan.ScannerStatus.ReadyToScan,
       canUnconfigure: false,
       batches: [
         {
@@ -108,8 +104,8 @@ test('scanDetectedSheet returns rejected ballot on invalid test mode', async () 
   });
   fetchMock.get(
     '/scan/status',
-    typedAs<GetScanStatusResponse>({
-      scanner: ScannerStatus.ReadyToScan,
+    typedAs<Scan.GetScanStatusResponse>({
+      scanner: Scan.ScannerStatus.ReadyToScan,
       canUnconfigure: false,
       batches: [
         {
@@ -124,7 +120,7 @@ test('scanDetectedSheet returns rejected ballot on invalid test mode', async () 
   );
   fetchMock.getOnce(
     '/scan/hmpb/review/next-sheet',
-    typedAs<GetNextReviewSheetResponse>({
+    typedAs<Scan.GetNextReviewSheetResponse>({
       interpreted: {
         id: 'test-sheet',
         front: {
@@ -167,8 +163,8 @@ test('scanDetectedSheet returns rejected ballot on invalid precinct', async () =
   });
   fetchMock.get(
     '/scan/status',
-    typedAs<GetScanStatusResponse>({
-      scanner: ScannerStatus.ReadyToScan,
+    typedAs<Scan.GetScanStatusResponse>({
+      scanner: Scan.ScannerStatus.ReadyToScan,
       canUnconfigure: false,
       batches: [
         {
@@ -183,7 +179,7 @@ test('scanDetectedSheet returns rejected ballot on invalid precinct', async () =
   );
   fetchMock.getOnce(
     '/scan/hmpb/review/next-sheet',
-    typedAs<GetNextReviewSheetResponse>({
+    typedAs<Scan.GetNextReviewSheetResponse>({
       interpreted: {
         id: 'test-sheet',
         front: {
@@ -226,8 +222,8 @@ test('scanDetectedSheet returns rejected ballot on invalid election hash', async
   });
   fetchMock.get(
     '/scan/status',
-    typedAs<GetScanStatusResponse>({
-      scanner: ScannerStatus.ReadyToScan,
+    typedAs<Scan.GetScanStatusResponse>({
+      scanner: Scan.ScannerStatus.ReadyToScan,
       canUnconfigure: false,
       batches: [
         {
@@ -242,7 +238,7 @@ test('scanDetectedSheet returns rejected ballot on invalid election hash', async
   );
   fetchMock.getOnce(
     '/scan/hmpb/review/next-sheet',
-    typedAs<GetNextReviewSheetResponse>({
+    typedAs<Scan.GetNextReviewSheetResponse>({
       interpreted: {
         id: 'test-sheet',
         front: {
@@ -278,8 +274,8 @@ test('scanDetectedSheet returns rejected ballot on unreadable', async () => {
   });
   fetchMock.get(
     '/scan/status',
-    typedAs<GetScanStatusResponse>({
-      scanner: ScannerStatus.ReadyToScan,
+    typedAs<Scan.GetScanStatusResponse>({
+      scanner: Scan.ScannerStatus.ReadyToScan,
       canUnconfigure: false,
       batches: [
         {
@@ -294,7 +290,7 @@ test('scanDetectedSheet returns rejected ballot on unreadable', async () => {
   );
   fetchMock.getOnce(
     '/scan/hmpb/review/next-sheet',
-    typedAs<GetNextReviewSheetResponse>({
+    typedAs<Scan.GetNextReviewSheetResponse>({
       interpreted: {
         id: 'test-sheet',
         front: {
@@ -328,8 +324,8 @@ test('scanDetectedSheet returns ballot needs review on adjudication', async () =
   });
   fetchMock.get(
     '/scan/status',
-    typedAs<GetScanStatusResponse>({
-      scanner: ScannerStatus.ReadyToScan,
+    typedAs<Scan.GetScanStatusResponse>({
+      scanner: Scan.ScannerStatus.ReadyToScan,
       canUnconfigure: false,
       batches: [
         {
@@ -344,7 +340,7 @@ test('scanDetectedSheet returns ballot needs review on adjudication', async () =
   );
   fetchMock.getOnce(
     '/scan/hmpb/review/next-sheet',
-    typedAs<GetNextReviewSheetResponse>({
+    typedAs<Scan.GetNextReviewSheetResponse>({
       interpreted: {
         id: 'test-sheet',
         front: {
