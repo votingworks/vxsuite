@@ -6080,10 +6080,7 @@ packages:
     dependencies:
       core-js: 2.6.12
       regenerator-runtime: 0.13.7
-    deprecated:
-      🚨 This package has been deprecated in favor of separate inclusion of a
-      polyfill and regenerator-runtime (when needed). See the @babel/polyfill
-      docs (https://babeljs.io/docs/en/babel-polyfill) for more information.
+    deprecated: 🚨 This package has been deprecated in favor of separate inclusion of a polyfill and regenerator-runtime (when needed). See the @babel/polyfill docs (https://babeljs.io/docs/en/babel-polyfill) for more information.
     dev: false
     resolution:
       integrity: sha512-X0pi0V6gxLi6lFZpGmeNa4zxtwEmCs42isWLNjZZDE0Y8yVfgu0T2OAHlzBbdYlqbW/YXVvoBHpATEM+goCj8g==
@@ -7013,14 +7010,12 @@ packages:
     resolution:
       integrity: sha512-QD1PhQk+s31P1ixsX0H0Suoupp3VMXzIVMSwobR3F3MSUO2YCV0B7xqLcUw/Bh8yuvd3LhpyqLQWTNcRmp6IdQ==
   /@hapi/bourne/1.3.2:
-    deprecated:
-      This version has been deprecated and is no longer supported or maintained
+    deprecated: This version has been deprecated and is no longer supported or maintained
     dev: false
     resolution:
       integrity: sha512-1dVNHT76Uu5N3eJNTYcvxee+jzX4Z9lfciqRRHCU27ihbUcYi+iSc2iml5Ke1LXe1SyJCLA0+14Jh4tXJgOppA==
   /@hapi/hoek/8.5.1:
-    deprecated:
-      This version has been deprecated and is no longer supported or maintained
+    deprecated: This version has been deprecated and is no longer supported or maintained
     dev: false
     resolution:
       integrity: sha512-yN7kbciD87WzLGc5539Tn0sApjyiGHAJgKvG9W8C7O+6c7qmoQMfVs0W4bX17eqz6C78QJqqFrtgdK5EWf6Qow==
@@ -7041,8 +7036,7 @@ packages:
   /@hapi/topo/3.1.6:
     dependencies:
       '@hapi/hoek': 8.5.1
-    deprecated:
-      This version has been deprecated and is no longer supported or maintained
+    deprecated: This version has been deprecated and is no longer supported or maintained
     dev: false
     resolution:
       integrity: sha512-tAag0jEcjwH+P2quUfipd7liWCNX2F8NvYjQp2wtInsZxnMlypdw0FtAOLxtvvkO+GSRRbmNi8m/5y42PQJYCQ==
@@ -8466,9 +8460,7 @@ packages:
       node: '>=12'
       npm: '>=6'
     peerDependencies:
-      cypress:
-        ^2.1.0 || ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0 ||
-        ^9.0.0
+      cypress: ^2.1.0 || ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0 || ^9.0.0
     resolution:
       integrity: sha512-KVdm7n37sg/A4e3wKMD4zUl0NpzzVhx06V9Tf0hZHZ7nrZ4yFva6Zwg2EFF1VzHkEfN/ahUzRtT1qiW+vuWnJw==
   /@testing-library/dom/7.30.4:
@@ -8944,9 +8936,7 @@ packages:
   /@types/jest-diff/24.3.0:
     dependencies:
       jest-diff: 27.0.2
-    deprecated:
-      This is a stub types definition. jest-diff provides its own type
-      definitions, so you do not need this installed.
+    deprecated: This is a stub types definition. jest-diff provides its own type definitions, so you do not need this installed.
     dev: false
     resolution:
       integrity: sha512-vx1CRDeDUwQ0Pc7v+hS61O1ETA81kD04IMEC0hS1kPyVtHDdZrokAvpF7MT9VI/fVSzicelUZNCepDvhRV1PeA==
@@ -12112,9 +12102,7 @@ packages:
       eslint: 7.29.0
       eslint-visitor-keys: 1.3.0
       resolve: 1.20.0
-    deprecated:
-      babel-eslint is now @babel/eslint-parser. This package will no longer
-      receive updates.
+    deprecated: babel-eslint is now @babel/eslint-parser. This package will no longer receive updates.
     dev: false
     engines:
       node: '>=6'
@@ -13304,9 +13292,7 @@ packages:
       path-is-absolute: 1.0.1
       readdirp: 2.2.1
       upath: 1.2.0
-    deprecated:
-      Chokidar 2 will break on node v14+. Upgrade to chokidar 3 with 15x less
-      dependencies.
+    deprecated: Chokidar 2 will break on node v14+. Upgrade to chokidar 3 with 15x less dependencies.
     dev: false
     optionalDependencies:
       fsevents: 1.2.13
@@ -13839,12 +13825,7 @@ packages:
     resolution:
       integrity: sha512-6In+2RwN0FT5yK0ZnhDP5rco/NnuuFZhHauQizZiHo5lDnqAvq8Phxcpy3f+prJOqtKodt/cftBl/GTOW0kiqQ==
   /core-js/2.6.12:
-    deprecated:
-      core-js@<3.3 is no longer maintained and not recommended for usage due to
-      the number of issues. Because of the V8 engine whims, feature detection in
-      old core-js versions could cause a slowdown up to 100x even if nothing is
-      polyfilled. Please, upgrade your dependencies to the actual version of
-      core-js.
+    deprecated: core-js@<3.3 is no longer maintained and not recommended for usage due to the number of issues. Because of the V8 engine whims, feature detection in old core-js versions could cause a slowdown up to 100x even if nothing is polyfilled. Please, upgrade your dependencies to the actual version of core-js.
     dev: false
     requiresBuild: true
     resolution:
@@ -19875,8 +19856,7 @@ packages:
     resolution:
       integrity: sha512-8/sOawo8tJ4QOBX8YlQBMxL8+RLZfxMQOif9o0KUKTNTjMYElWPE0r/m5VNFxTRd0NSw8qSy8dajrwX4RYI1Hw==
   /flatten/1.0.3:
-    deprecated:
-      flatten is deprecated in favor of utility frameworks such as lodash.
+    deprecated: flatten is deprecated in favor of utility frameworks such as lodash.
     dev: false
     resolution:
       integrity: sha512-dVsPA/UwQ8+2uoFe5GHtiBMu48dWLTdsuEd7CKGlZlD78r1TTWBvDuFaFGKCo/ZfEr95Uk56vZoX86OsHkUeIg==
@@ -20099,9 +20079,7 @@ packages:
     dependencies:
       bindings: 1.5.0
       nan: 2.14.2
-    deprecated:
-      fsevents 1 will break on node v14+ and could be using insecure binaries.
-      Upgrade to fsevents 2.
+    deprecated: fsevents 1 will break on node v14+ and could be using insecure binaries. Upgrade to fsevents 2.
     dev: false
     engines:
       node: '>= 4.0'
@@ -29045,9 +29023,7 @@ packages:
       '@babel/helper-module-imports': 7.15.4
       rollup: 1.32.1
       rollup-pluginutils: 2.8.2
-    deprecated:
-      This package has been deprecated and is no longer maintained. Please use
-      @rollup/plugin-babel.
+    deprecated: This package has been deprecated and is no longer maintained. Please use @rollup/plugin-babel.
     dev: false
     peerDependencies:
       '@babel/core': 7 || ^7.0.0-rc.2
@@ -29159,9 +29135,7 @@ packages:
       micromatch: 3.1.10
       minimist: 1.2.5
       walker: 1.0.8
-    deprecated:
-      some dependency vulnerabilities fixed, support for node < 10 dropped, and
-      newer ECMAScript syntax/features added
+    deprecated: some dependency vulnerabilities fixed, support for node < 10 dropped, and newer ECMAScript syntax/features added
     engines:
       node: 6.* || 8.* || >= 10.*
     hasBin: true
@@ -31441,9 +31415,7 @@ packages:
     engines:
       node: '>= 6'
     peerDependencies:
-      typescript:
-        '>=2.8.0 || >= 3.2.0-dev || >= 3.3.0-dev || >= 3.4.0-dev || >= 3.5.0-dev
-        || >= 3.6.0-dev || >= 3.6.0-beta || >= 3.7.0-dev || >= 3.7.0-beta'
+      typescript: '>=2.8.0 || >= 3.2.0-dev || >= 3.3.0-dev || >= 3.4.0-dev || >= 3.5.0-dev || >= 3.6.0-dev || >= 3.6.0-beta || >= 3.7.0-dev || >= 3.7.0-beta'
     resolution:
       integrity: sha512-GEdoBf5XI324lu7ycad7s6laADfnAqCw6wLGI+knxvw9vsIYBaJfYdmeCEG3FMMUiSm3OGgNb+m6utsWf5h9Vw==
   /tsutils/3.21.0_typescript@4.2.3:
@@ -31453,9 +31425,7 @@ packages:
     engines:
       node: '>= 6'
     peerDependencies:
-      typescript:
-        '>=2.8.0 || >= 3.2.0-dev || >= 3.3.0-dev || >= 3.4.0-dev || >= 3.5.0-dev
-        || >= 3.6.0-dev || >= 3.6.0-beta || >= 3.7.0-dev || >= 3.7.0-beta'
+      typescript: '>=2.8.0 || >= 3.2.0-dev || >= 3.3.0-dev || >= 3.4.0-dev || >= 3.5.0-dev || >= 3.6.0-dev || >= 3.6.0-beta || >= 3.7.0-dev || >= 3.7.0-beta'
     resolution:
       integrity: sha512-mHKK3iUXL+3UF6xL5k0PEhKRUBKPBCv/+RkEOpjRWxxx27KKRBmmA60A9pgOUvMi8GKhRMPEmjBRPzs2W7O1OA==
   /tsutils/3.21.0_typescript@4.3.5:
@@ -31466,9 +31436,7 @@ packages:
     engines:
       node: '>= 6'
     peerDependencies:
-      typescript:
-        '>=2.8.0 || >= 3.2.0-dev || >= 3.3.0-dev || >= 3.4.0-dev || >= 3.5.0-dev
-        || >= 3.6.0-dev || >= 3.6.0-beta || >= 3.7.0-dev || >= 3.7.0-beta'
+      typescript: '>=2.8.0 || >= 3.2.0-dev || >= 3.3.0-dev || >= 3.4.0-dev || >= 3.5.0-dev || >= 3.6.0-dev || >= 3.6.0-beta || >= 3.7.0-dev || >= 3.7.0-beta'
     resolution:
       integrity: sha512-mHKK3iUXL+3UF6xL5k0PEhKRUBKPBCv/+RkEOpjRWxxx27KKRBmmA60A9pgOUvMi8GKhRMPEmjBRPzs2W7O1OA==
   /tsutils/3.21.0_typescript@4.6.3:
@@ -31478,9 +31446,7 @@ packages:
     engines:
       node: '>= 6'
     peerDependencies:
-      typescript:
-        '>=2.8.0 || >= 3.2.0-dev || >= 3.3.0-dev || >= 3.4.0-dev || >= 3.5.0-dev
-        || >= 3.6.0-dev || >= 3.6.0-beta || >= 3.7.0-dev || >= 3.7.0-beta'
+      typescript: '>=2.8.0 || >= 3.2.0-dev || >= 3.3.0-dev || >= 3.4.0-dev || >= 3.5.0-dev || >= 3.6.0-dev || >= 3.6.0-beta || >= 3.7.0-dev || >= 3.7.0-beta'
     resolution:
       integrity: sha512-mHKK3iUXL+3UF6xL5k0PEhKRUBKPBCv/+RkEOpjRWxxx27KKRBmmA60A9pgOUvMi8GKhRMPEmjBRPzs2W7O1OA==
   /tty-browserify/0.0.0:
@@ -31941,10 +31907,7 @@ packages:
     resolution:
       integrity: sha1-n5VxD1CiZ5R7LMwSR0HBAoQn5xM=
   /uuid/3.4.0:
-    deprecated:
-      Please upgrade  to version 7 or higher.  Older versions may use
-      Math.random() in certain circumstances, which is known to be
-      problematic.  See https://v8.dev/blog/math-random for details.
+    deprecated: Please upgrade  to version 7 or higher.  Older versions may use Math.random() in certain circumstances, which is known to be problematic.  See https://v8.dev/blog/math-random for details.
     dev: false
     hasBin: true
     resolution:
