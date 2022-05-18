@@ -65,7 +65,7 @@ import { SetupPowerPage } from './screens/setup_power_page';
 import { UnlockAdminScreen } from './screens/unlock_admin_screen';
 import { CardErrorScreen } from './screens/card_error_screen';
 import { SetupScannerScreen } from './screens/setup_scanner_screen';
-import { CenteredScreen, CenteredLargeProse } from './components/layout';
+import { ScreenMainCenterChild, CenteredLargeProse } from './components/layout';
 import { InsertUsbScreen } from './screens/insert_usb_screen';
 
 const debug = makeDebug('precinct-scanner:app-root');
@@ -719,14 +719,14 @@ export function AppRoot({
 
   if (currentUserSession?.type === 'superadmin') {
     return (
-      <CenteredScreen infoBar>
+      <ScreenMainCenterChild infoBar>
         <CenteredLargeProse>
           <RebootFromUsbButton
             usbDriveStatus={usbDriveDisplayStatus}
             logger={logger}
           />
         </CenteredLargeProse>
-      </CenteredScreen>
+      </ScreenMainCenterChild>
     );
   }
 

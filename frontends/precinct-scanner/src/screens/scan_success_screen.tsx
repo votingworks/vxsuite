@@ -4,7 +4,10 @@ import { format } from '@votingworks/utils';
 import { Absolute } from '../components/absolute';
 import { CircleCheck } from '../components/graphics';
 
-import { CenteredLargeProse, CenteredScreen } from '../components/layout';
+import {
+  CenteredLargeProse,
+  ScreenMainCenterChild,
+} from '../components/layout';
 
 interface Props {
   scannedBallotCount: number;
@@ -12,7 +15,7 @@ interface Props {
 
 export function ScanSuccessScreen({ scannedBallotCount }: Props): JSX.Element {
   return (
-    <CenteredScreen>
+    <ScreenMainCenterChild>
       <CircleCheck />
       <CenteredLargeProse>
         <h1>Your ballot was counted!</h1>
@@ -30,7 +33,7 @@ export function ScanSuccessScreen({ scannedBallotCount }: Props): JSX.Element {
           </Prose>
         </Bar>
       </Absolute>
-    </CenteredScreen>
+    </ScreenMainCenterChild>
   );
 }
 

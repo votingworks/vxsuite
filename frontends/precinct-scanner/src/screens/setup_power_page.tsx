@@ -2,11 +2,11 @@ import React from 'react';
 
 import { Main, Prose, NoWrap } from '@votingworks/ui';
 
-import { CenteredScreen } from '../components/layout';
+import { ScreenMainCenterChild } from '../components/layout';
 
 export function SetupPowerPage(): JSX.Element {
   return (
-    <CenteredScreen>
+    <ScreenMainCenterChild>
       <Main padded centerChild>
         <Prose textCenter>
           <h1>
@@ -17,7 +17,7 @@ export function SetupPowerPage(): JSX.Element {
           </p>
         </Prose>
       </Main>
-    </CenteredScreen>
+    </ScreenMainCenterChild>
   );
 }
 

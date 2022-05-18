@@ -21,7 +21,7 @@ import { Absolute } from '../components/absolute';
 import { CalibrateScannerModal } from '../components/calibrate_scanner_modal';
 import { ExportBackupModal } from '../components/export_backup_modal';
 import { ExportResultsModal } from '../components/export_results_modal';
-import { CenteredScreen } from '../components/layout';
+import { ScreenMainCenterChild } from '../components/layout';
 import { AppContext } from '../contexts/app_context';
 
 interface Props {
@@ -92,7 +92,7 @@ export function AdminScreen({
   }
 
   return (
-    <CenteredScreen infoBarMode="admin">
+    <ScreenMainCenterChild infoBarMode="admin">
       <Prose textCenter>
         <h1>Administrator Settings</h1>
         <p>
@@ -219,7 +219,7 @@ export function AdminScreen({
           usbDrive={usbDrive}
         />
       )}
-    </CenteredScreen>
+    </ScreenMainCenterChild>
   );
 }
 

@@ -11,7 +11,10 @@ import {
 } from '@votingworks/utils';
 import { addTemplates, doneTemplates } from '../api/hmpb';
 import { PRECINCT_SCANNER_FOLDER } from '../config/globals';
-import { CenteredLargeProse, CenteredScreen } from '../components/layout';
+import {
+  CenteredLargeProse,
+  ScreenMainCenterChild,
+} from '../components/layout';
 import {
   QuestionCircle,
   IndeterminateProgressBar,
@@ -194,7 +197,9 @@ export function UnconfiguredElectionScreen({
     );
   }
 
-  return <CenteredScreen infoBar={false}>{content}</CenteredScreen>;
+  return (
+    <ScreenMainCenterChild infoBar={false}>{content}</ScreenMainCenterChild>
+  );
 }
 
 /* istanbul ignore next */

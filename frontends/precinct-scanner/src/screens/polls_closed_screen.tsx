@@ -1,7 +1,10 @@
 import React from 'react';
 import { TestMode, Text } from '@votingworks/ui';
 import { DoNotEnter } from '../components/graphics';
-import { CenteredLargeProse, CenteredScreen } from '../components/layout';
+import {
+  CenteredLargeProse,
+  ScreenMainCenterChild,
+} from '../components/layout';
 
 interface Props {
   isLiveMode: boolean;
@@ -13,7 +16,7 @@ export function PollsClosedScreen({
   showNoChargerWarning,
 }: Props): JSX.Element {
   return (
-    <CenteredScreen>
+    <ScreenMainCenterChild>
       <TestMode isLiveMode={isLiveMode} />
       {showNoChargerWarning && (
         <Text warning small center>
@@ -26,7 +29,7 @@ export function PollsClosedScreen({
         <h1>Polls Closed</h1>
         <p>Insert a poll worker card to open polls.</p>
       </CenteredLargeProse>
-    </CenteredScreen>
+    </ScreenMainCenterChild>
   );
 }
 

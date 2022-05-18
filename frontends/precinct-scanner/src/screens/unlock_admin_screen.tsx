@@ -1,8 +1,8 @@
-import { fontSizeTheme, Prose, Text, NumberPad, Main } from '@votingworks/ui';
+import { fontSizeTheme, Prose, Text, NumberPad } from '@votingworks/ui';
 import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { SECURITY_PIN_LENGTH } from '../config/globals';
-import { CenteredScreen } from '../components/layout';
+import { ScreenMainCenterChild } from '../components/layout';
 
 const NumberPadWrapper = styled.div`
   display: flex;
@@ -64,21 +64,19 @@ export function UnlockAdminScreen({
     primarySentence = <Text warning>Invalid code. Please try again.</Text>;
   }
   return (
-    <CenteredScreen>
-      <Main>
-        <Prose textCenter theme={fontSizeTheme.medium} maxWidth={false}>
-          {primarySentence}
-          <EnteredCode>{currentPasscodeDisplayString}</EnteredCode>
-          <NumberPadWrapper>
-            <NumberPad
-              onButtonPress={handleNumberEntry}
-              onBackspace={handleBackspace}
-              onClear={handleClear}
-            />
-          </NumberPadWrapper>
-        </Prose>
-      </Main>
-    </CenteredScreen>
+    <ScreenMainCenterChild>
+      <Prose textCenter theme={fontSizeTheme.medium} maxWidth={false}>
+        {primarySentence}
+        <EnteredCode>{currentPasscodeDisplayString}</EnteredCode>
+        <NumberPadWrapper>
+          <NumberPad
+            onButtonPress={handleNumberEntry}
+            onBackspace={handleBackspace}
+            onClear={handleClear}
+          />
+        </NumberPadWrapper>
+      </Prose>
+    </ScreenMainCenterChild>
   );
 }
 
