@@ -123,7 +123,7 @@ test('PrintOnly flow', async () => {
   // ---------------
 
   // Test for Testing Mode
-  screen.getByText('Testing Mode');
+  screen.getByText('Machine is in Testing Mode');
 
   // ---------------
 

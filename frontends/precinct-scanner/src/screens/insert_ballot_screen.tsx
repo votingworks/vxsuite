@@ -1,6 +1,6 @@
 import React from 'react';
 import { format } from '@votingworks/utils';
-import { TestMode, Text, Bar } from '@votingworks/ui';
+import { Text, Bar } from '@votingworks/ui';
 import { Absolute } from '../components/absolute';
 import { InsertBallot } from '../components/graphics';
 import {
@@ -20,8 +20,7 @@ export function InsertBallotScreen({
   showNoChargerWarning,
 }: Props): JSX.Element {
   return (
-    <ScreenMainCenterChild>
-      <TestMode isLiveMode={isLiveMode} />
+    <ScreenMainCenterChild isLiveMode={isLiveMode}>
       {showNoChargerWarning && (
         <Text warning small center>
           <strong>No Power Detected.</strong> Please ask a poll worker to plug

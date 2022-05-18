@@ -1,5 +1,5 @@
 import React from 'react';
-import { TestMode, Text } from '@votingworks/ui';
+import { Text } from '@votingworks/ui';
 import { DoNotEnter } from '../components/graphics';
 import {
   CenteredLargeProse,
@@ -16,8 +16,7 @@ export function PollsClosedScreen({
   showNoChargerWarning,
 }: Props): JSX.Element {
   return (
-    <ScreenMainCenterChild>
-      <TestMode isLiveMode={isLiveMode} />
+    <ScreenMainCenterChild isLiveMode={isLiveMode}>
       {showNoChargerWarning && (
         <Text warning small center>
           <strong>No Power Detected.</strong> Please ask a poll worker to plug
@@ -28,6 +27,12 @@ export function PollsClosedScreen({
       <CenteredLargeProse>
         <h1>Polls Closed</h1>
         <p>Insert a poll worker card to open polls.</p>
+        {showNoChargerWarning && (
+          <Text warning small center>
+            <strong>No Power Detected.</strong> Please ask a poll worker to plug
+            in the power cord for this machine.
+          </Text>
+        )}
       </CenteredLargeProse>
     </ScreenMainCenterChild>
   );
