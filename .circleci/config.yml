@@ -573,6 +573,7 @@ workflows:
       - test-integration-testing-bmd
       - test-integration-testing-bsd
       - test-integration-testing-election-manager
+      - test-libs-api
       - test-libs-ballot-encoder
       - test-libs-ballot-interpreter-nh
       - test-libs-ballot-interpreter-vx
