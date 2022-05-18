@@ -15,7 +15,7 @@ interface CenteredScreenProps {
   infoBarMode?: InfoBarMode;
 }
 
-export function CenteredScreen({
+export function ScreenMainCenterChild({
   children,
   infoBar = true,
   infoBarMode,

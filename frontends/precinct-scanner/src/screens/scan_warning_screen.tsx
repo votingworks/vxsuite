@@ -13,7 +13,10 @@ import React, { useCallback, useContext, useState } from 'react';
 import { Absolute } from '../components/absolute';
 
 import { ExclamationTriangle } from '../components/graphics';
-import { CenteredLargeProse, CenteredScreen } from '../components/layout';
+import {
+  CenteredLargeProse,
+  ScreenMainCenterChild,
+} from '../components/layout';
 
 import { AppContext } from '../contexts/app_context';
 import { toSentence } from '../utils/to_sentence';
@@ -57,7 +60,7 @@ function OvervoteWarningScreen({
   );
 
   return (
-    <CenteredScreen infoBar={false}>
+    <ScreenMainCenterChild infoBar={false}>
       <ExclamationTriangle />
       <CenteredLargeProse>
         <h1>Ballot Requires Review</h1>
@@ -99,7 +102,7 @@ function OvervoteWarningScreen({
           onOverlayClick={closeConfirmTabulateModal}
         />
       )}
-    </CenteredScreen>
+    </ScreenMainCenterChild>
   );
 }
 
@@ -146,7 +149,7 @@ function UndervoteWarningScreen({
     : 0;
 
   return (
-    <CenteredScreen infoBar={false}>
+    <ScreenMainCenterChild infoBar={false}>
       <ExclamationTriangle />
       <CenteredLargeProse>
         <h1>Ballot Requires Review</h1>
@@ -196,7 +199,7 @@ function UndervoteWarningScreen({
           onOverlayClick={closeConfirmTabulateModal}
         />
       )}
-    </CenteredScreen>
+    </ScreenMainCenterChild>
   );
 }
 
@@ -223,7 +226,7 @@ function BlankBallotWarningScreen({
   }, [acceptBallot, closeConfirmTabulateModal]);
 
   return (
-    <CenteredScreen infoBar={false}>
+    <ScreenMainCenterChild infoBar={false}>
       <ExclamationTriangle />
       <CenteredLargeProse>
         <h1>Blank Ballot</h1>
@@ -259,7 +262,7 @@ function BlankBallotWarningScreen({
           onOverlayClick={closeConfirmTabulateModal}
         />
       )}
-    </CenteredScreen>
+    </ScreenMainCenterChild>
   );
 }
 
@@ -286,7 +289,7 @@ function OtherReasonWarningScreen({
   }, [acceptBallot, closeConfirmTabulateModal]);
 
   return (
-    <CenteredScreen infoBar={false}>
+    <ScreenMainCenterChild infoBar={false}>
       <ExclamationTriangle />
       <CenteredLargeProse>
         <h1>Ballot Requires Review</h1>
@@ -322,7 +325,7 @@ function OtherReasonWarningScreen({
           onOverlayClick={closeConfirmTabulateModal}
         />
       )}
-    </CenteredScreen>
+    </ScreenMainCenterChild>
   );
 }
 

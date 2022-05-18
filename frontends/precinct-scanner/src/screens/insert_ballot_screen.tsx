@@ -3,7 +3,10 @@ import { format } from '@votingworks/utils';
 import { TestMode, Text, Bar } from '@votingworks/ui';
 import { Absolute } from '../components/absolute';
 import { InsertBallot } from '../components/graphics';
-import { CenteredLargeProse, CenteredScreen } from '../components/layout';
+import {
+  CenteredLargeProse,
+  ScreenMainCenterChild,
+} from '../components/layout';
 
 interface Props {
   isLiveMode: boolean;
@@ -17,7 +20,7 @@ export function InsertBallotScreen({
   showNoChargerWarning,
 }: Props): JSX.Element {
   return (
-    <CenteredScreen>
+    <ScreenMainCenterChild>
       <TestMode isLiveMode={isLiveMode} />
       {showNoChargerWarning && (
         <Text warning small center>
@@ -40,7 +43,7 @@ export function InsertBallotScreen({
           </div>
         </Bar>
       </Absolute>
-    </CenteredScreen>
+    </ScreenMainCenterChild>
   );
 }
 

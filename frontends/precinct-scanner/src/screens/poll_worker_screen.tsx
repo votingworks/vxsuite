@@ -39,7 +39,10 @@ import {
   getPartyIdsInBallotStyles,
 } from '@votingworks/types';
 import { POLLING_INTERVAL_FOR_TOTP } from '../config/globals';
-import { CenteredLargeProse, CenteredScreen } from '../components/layout';
+import {
+  CenteredLargeProse,
+  ScreenMainCenterChild,
+} from '../components/layout';
 import { Absolute } from '../components/absolute';
 
 import { ExportResultsModal } from '../components/export_results_modal';
@@ -325,11 +328,11 @@ export function PollWorkerScreen({
 
   if (!currentTally) {
     return (
-      <CenteredScreen infoBarMode="pollworker">
+      <ScreenMainCenterChild infoBarMode="pollworker">
         <CenteredLargeProse>
           <Loading />
         </CenteredLargeProse>
-      </CenteredScreen>
+      </ScreenMainCenterChild>
     );
   }
 
@@ -395,7 +398,7 @@ export function PollWorkerScreen({
   if (pollWorkerFlowState === PollWorkerFlowState.OPEN_POLLS_FLOW__CONFIRM) {
     return (
       <React.Fragment>
-        <CenteredScreen infoBarMode="pollworker">
+        <ScreenMainCenterChild infoBarMode="pollworker">
           <CenteredLargeProse>
             <p>Do you want to open the polls?</p>
             <p>
@@ -405,7 +408,7 @@ export function PollWorkerScreen({
               <Button onPress={showAllPollWorkerActions}>No</Button>
             </p>
           </CenteredLargeProse>
-        </CenteredScreen>
+        </ScreenMainCenterChild>
         {printableReport}
       </React.Fragment>
     );
@@ -414,12 +417,12 @@ export function PollWorkerScreen({
   if (pollWorkerFlowState === PollWorkerFlowState.OPEN_POLLS_FLOW__PROCESSING) {
     return (
       <React.Fragment>
-        <CenteredScreen infoBarMode="pollworker">
+        <ScreenMainCenterChild infoBarMode="pollworker">
           <IndeterminateProgressBar />
           <CenteredLargeProse>
             <h1>Opening Polls…</h1>
           </CenteredLargeProse>
-        </CenteredScreen>
+        </ScreenMainCenterChild>
         {printableReport}
       </React.Fragment>
     );
@@ -427,7 +430,7 @@ export function PollWorkerScreen({
 
   if (pollWorkerFlowState === PollWorkerFlowState.OPEN_POLLS_FLOW__COMPLETE) {
     return (
-      <CenteredScreen infoBarMode="pollworker">
+      <ScreenMainCenterChild infoBarMode="pollworker">
         <CenteredLargeProse>
           <h1>Polls are open.</h1>
           {hasPrinterAttached ? (
@@ -436,14 +439,14 @@ export function PollWorkerScreen({
             <p>Insert poll worker card into VxMark to print the report.</p>
           )}
         </CenteredLargeProse>
-      </CenteredScreen>
+      </ScreenMainCenterChild>
     );
   }
 
   if (pollWorkerFlowState === PollWorkerFlowState.CLOSE_POLLS_FLOW__CONFIRM) {
     return (
       <React.Fragment>
-        <CenteredScreen infoBarMode="pollworker">
+        <ScreenMainCenterChild infoBarMode="pollworker">
           <CenteredLargeProse>
             <p>Do you want to close the polls?</p>
             <p>
@@ -453,7 +456,7 @@ export function PollWorkerScreen({
               <Button onPress={showAllPollWorkerActions}>No</Button>
             </p>
           </CenteredLargeProse>
-        </CenteredScreen>
+        </ScreenMainCenterChild>
         {printableReport}
       </React.Fragment>
     );
@@ -464,12 +467,12 @@ export function PollWorkerScreen({
   ) {
     return (
       <React.Fragment>
-        <CenteredScreen infoBarMode="pollworker">
+        <ScreenMainCenterChild infoBarMode="pollworker">
           <IndeterminateProgressBar />
           <CenteredLargeProse>
             <h1>Closing Polls…</h1>
           </CenteredLargeProse>
-        </CenteredScreen>
+        </ScreenMainCenterChild>
         {printableReport}
       </React.Fragment>
     );
@@ -477,7 +480,7 @@ export function PollWorkerScreen({
 
   if (pollWorkerFlowState === PollWorkerFlowState.CLOSE_POLLS_FLOW__COMPLETE) {
     return (
-      <CenteredScreen infoBarMode="pollworker">
+      <ScreenMainCenterChild infoBarMode="pollworker">
         <CenteredLargeProse>
           <h1>Polls are closed.</h1>
           {hasPrinterAttached ? (
@@ -486,12 +489,12 @@ export function PollWorkerScreen({
             <p>Insert poll worker card into VxMark to print the report.</p>
           )}
         </CenteredLargeProse>
-      </CenteredScreen>
+      </ScreenMainCenterChild>
     );
   }
   return (
     <React.Fragment>
-      <CenteredScreen infoBarMode="pollworker">
+      <ScreenMainCenterChild infoBarMode="pollworker">
         <Prose textCenter>
           <h1>Poll Worker Actions</h1>
           <p>
@@ -532,7 +535,7 @@ export function PollWorkerScreen({
             scannedBallotCount={scannedBallotCount}
           />
         )}
-      </CenteredScreen>
+      </ScreenMainCenterChild>
       {printableReport}
     </React.Fragment>
   );

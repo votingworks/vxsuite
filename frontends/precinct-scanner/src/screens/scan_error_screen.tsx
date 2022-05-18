@@ -3,7 +3,10 @@ import { Button, Text } from '@votingworks/ui';
 import { throwIllegalValue } from '@votingworks/utils';
 import { Absolute } from '../components/absolute';
 import { TimesCircle } from '../components/graphics';
-import { CenteredLargeProse, CenteredScreen } from '../components/layout';
+import {
+  CenteredLargeProse,
+  ScreenMainCenterChild,
+} from '../components/layout';
 import { RejectedScanningReason } from '../config/types';
 
 interface Props {
@@ -46,7 +49,7 @@ export function ScanErrorScreen({
     }
   }
   return (
-    <CenteredScreen infoBar={false}>
+    <ScreenMainCenterChild infoBar={false}>
       <TimesCircle />
       <CenteredLargeProse>
         <h1>Scanning Error</h1>
@@ -58,7 +61,7 @@ export function ScanErrorScreen({
           <Button onPress={dismissError}>Dismiss Error</Button>
         </Absolute>
       )}
-    </CenteredScreen>
+    </ScreenMainCenterChild>
   );
 }
 
