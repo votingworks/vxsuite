@@ -100,35 +100,104 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           Test Decks
         </h1>
         <p>
+          Select desired precinct for 
           <strong>
-            Election:
+            Mock General Election Choctaw 2020
           </strong>
-           
-          Mock General Election Choctaw 2020
-          <br />
+          .
+        </p>
+      </div>
+      <p>
+        <button
+          class="sc-iBPRYJ gUjZCM"
+          type="button"
+        >
           <strong>
-            Precinct:
+            All Precincts
           </strong>
-           
+        </button>
+      </p>
+      <div
+        class="sc-dIUggk diaJDk"
+      >
+        <button
+          class="sc-iBPRYJ gUjZCM"
+          type="button"
+        >
+          Bywy
+        </button>
+        <button
+          class="sc-iBPRYJ gUjZCM"
+          type="button"
+        >
+          Chester
+        </button>
+        <button
+          class="sc-iBPRYJ gUjZCM"
+          type="button"
+        >
           District 5
-        </p>
-        <p>
-          <button
-            class="sc-iBPRYJ cWqIfm"
-            type="button"
-          >
-            Print Test Deck
-          </button>
-        </p>
-        <p>
-          <button
-            class="sc-iBPRYJ bnpNDy"
-            role="option"
-            type="button"
-          >
-            Back to Test Deck list
-          </button>
-        </p>
+        </button>
+        <button
+          class="sc-iBPRYJ gUjZCM"
+          type="button"
+        >
+          East Weir
+        </button>
+        <button
+          class="sc-iBPRYJ gUjZCM"
+          type="button"
+        >
+          Fentress
+        </button>
+        <button
+          class="sc-iBPRYJ gUjZCM"
+          type="button"
+        >
+          French Camp
+        </button>
+        <button
+          class="sc-iBPRYJ gUjZCM"
+          type="button"
+        >
+          Hebron
+        </button>
+        <button
+          class="sc-iBPRYJ gUjZCM"
+          type="button"
+        >
+          Kenego
+        </button>
+        <button
+          class="sc-iBPRYJ gUjZCM"
+          type="button"
+        >
+          Panhandle
+        </button>
+        <button
+          class="sc-iBPRYJ gUjZCM"
+          type="button"
+        >
+          Reform
+        </button>
+        <button
+          class="sc-iBPRYJ gUjZCM"
+          type="button"
+        >
+          Sherwood
+        </button>
+        <button
+          class="sc-iBPRYJ gUjZCM"
+          type="button"
+        >
+          Southwest Ackerman
+        </button>
+        <button
+          class="sc-iBPRYJ gUjZCM"
+          type="button"
+        >
+          West Weir
+        </button>
       </div>
     </main>
     <div

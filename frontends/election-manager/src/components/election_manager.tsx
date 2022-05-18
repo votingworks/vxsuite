@@ -205,12 +205,7 @@ export function ElectionManager(): JSX.Element {
       <Route exact path={routerPaths.logicAndAccuracy}>
         <LogicAndAccuracyScreen />
       </Route>
-      <Route
-        path={[
-          routerPaths.testDeck({ precinctId: ':precinctId' }),
-          routerPaths.testDecks,
-        ]}
-      >
+      <Route path={[routerPaths.testDecks]}>
         <PrintTestDeckScreen />
       </Route>
       <Route

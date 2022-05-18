@@ -1,7 +1,6 @@
 import React from 'react';
 import { fireEvent, waitFor } from '@testing-library/react';
 import { fakeKiosk, fakePrinterInfo } from '@votingworks/test-utils';
-import { Route } from 'react-router-dom';
 
 import { PrintTestDeckScreen } from './print_test_deck_screen';
 import { renderInAppContext } from '../../test/render_in_app_context';
@@ -24,15 +23,10 @@ test('Printing the full test deck sorts precincts', async () => {
   ]);
 
   const { getByText, getByLabelText } = renderInAppContext(
-    <Route path="/tally/print-test-deck/:precinctId">
-      <PrintTestDeckScreen />
-    </Route>,
-    {
-      route: '/tally/print-test-deck/all',
-    }
+    <PrintTestDeckScreen />
   );
 
-  fireEvent.click(getByText('Print Test Deck'));
+  fireEvent.click(getByText('All Precincts'));
 
   // Check that the printing modals appear in alphabetical order
   await waitFor(() => getByLabelText('Printing Test Deck, (1 of 13),: ,Bywy.'));
