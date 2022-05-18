@@ -722,7 +722,7 @@ exports[`renders vertical ElectionInfo with hash when specified 1`] = `
       </svg>
     </div>
     <div
-      class="sc-jRQAMF huupYJ"
+      class="sc-jRQAMF fJXuaR"
     >
       <h1
         aria-label=" General Election."
@@ -938,7 +938,7 @@ exports[`renders vertical ElectionInfo without hash by default 1`] = `
       </svg>
     </div>
     <div
-      class="sc-jRQAMF huupYJ"
+      class="sc-jRQAMF fJXuaR"
     >
       <h1
         aria-label=" General Election."
