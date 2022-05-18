@@ -74,7 +74,7 @@
   "dependencies": {
     "@rooks/use-interval": "^4.11.2",
     "@testing-library/jest-dom": "^5.11.4",
-    "@testing-library/react": "^11.1.0",
+    "@testing-library/react": "^12.1.5",
     "@types/jest": "^24.0.0",
     "@types/luxon": "^1.26.5",
     "@types/node": "16.11.29",

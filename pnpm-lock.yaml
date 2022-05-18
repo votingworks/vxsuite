@@ -226,7 +226,7 @@ importers:
       '@codemod/parser': 1.1.0
       '@testing-library/cypress': 8.0.2_cypress@9.5.4
       '@testing-library/jest-dom': 5.16.4
-      '@testing-library/react': 11.2.3_react-dom@17.0.1+react@17.0.1
+      '@testing-library/react': 12.1.5_react-dom@17.0.1+react@17.0.1
       '@testing-library/user-event': 13.5.0
       '@types/debug': 4.1.6
       '@types/history': 4.7.8
@@ -275,7 +275,7 @@ importers:
       '@rooks/use-interval': ^4.5.0
       '@testing-library/cypress': ^8.0.2
       '@testing-library/jest-dom': ^5.16.4
-      '@testing-library/react': ^11.2.3
+      '@testing-library/react': ^12.1.5
       '@testing-library/user-event': ^13.5.0
       '@types/debug': ^4.1.6
       '@types/dompurify': ^2.0.4
@@ -402,7 +402,7 @@ importers:
       zod: 3.14.4
     devDependencies:
       '@testing-library/jest-dom': 5.16.4
-      '@testing-library/react': 11.2.3_react-dom@17.0.1+react@17.0.1
+      '@testing-library/react': 12.1.5_react-dom@17.0.1+react@17.0.1
       '@testing-library/user-event': 13.2.1
       '@types/fast-text-encoding': 1.0.1
       '@types/fetch-mock': 7.3.3
@@ -449,7 +449,7 @@ importers:
       zip-stream: 3.0.1
     specifiers:
       '@testing-library/jest-dom': ^5.16.4
-      '@testing-library/react': ^11.2.3
+      '@testing-library/react': ^12.1.5
       '@testing-library/user-event': ^13.2.1
       '@types/fast-text-encoding': ^1.0.1
       '@types/fetch-mock': ^7.3.2
@@ -535,7 +535,7 @@ importers:
       http-proxy-middleware: 1.0.6
   frontends/election-manager:
     dependencies:
-      '@testing-library/react': 11.2.3_react-dom@17.0.1+react@17.0.1
+      '@testing-library/react': 12.1.5_react-dom@17.0.1+react@17.0.1
       '@testing-library/user-event': 12.6.0
       '@types/array-unique': 0.3.0
       '@types/dashify': 1.0.0
@@ -634,7 +634,7 @@ importers:
     specifiers:
       '@codemod/parser': ^1.0.6
       '@testing-library/jest-dom': ^5.16.4
-      '@testing-library/react': ^11.2.3
+      '@testing-library/react': ^12.1.5
       '@testing-library/user-event': ^12.6.0
       '@types/array-unique': ^0.3.0
       '@types/base64-js': ^1.3.0
@@ -740,7 +740,7 @@ importers:
     dependencies:
       '@rooks/use-interval': 4.11.2_react@17.0.1
       '@testing-library/jest-dom': 5.12.0
-      '@testing-library/react': 11.2.3_react-dom@17.0.1+react@17.0.1
+      '@testing-library/react': 12.1.5_react-dom@17.0.1+react@17.0.1
       '@types/jest': 24.9.1
       '@types/luxon': 1.26.5
       '@types/node': 16.11.29
@@ -823,7 +823,7 @@ importers:
       '@codemod/parser': ^1.0.6
       '@rooks/use-interval': ^4.11.2
       '@testing-library/jest-dom': ^5.11.4
-      '@testing-library/react': ^11.1.0
+      '@testing-library/react': ^12.1.5
       '@testing-library/react-hooks': ^7.0.2
       '@testing-library/user-event': ^12.8.3
       '@types/debug': ^4.1.5
@@ -1865,7 +1865,7 @@ importers:
       typescript: 4.6.3
   libs/test-utils:
     dependencies:
-      '@testing-library/react': 11.2.6_react-dom@17.0.1+react@17.0.1
+      '@testing-library/react': 12.1.5_react-dom@17.0.1+react@17.0.1
       '@types/node': 16.11.29
       '@votingworks/types': link:../types
       buffer: 6.0.3
@@ -1900,7 +1900,7 @@ importers:
       ts-jest: 27.0.7_1dcf3a5c8307703c73427a631f3faf30
       typescript: 4.6.3
     specifiers:
-      '@testing-library/react': ^11.2.6
+      '@testing-library/react': ^12.1.5
       '@types/jest': ^27.0.3
       '@types/kiosk-browser': workspace:*
       '@types/luxon': ^1.26.5
@@ -2011,7 +2011,7 @@ importers:
     devDependencies:
       '@codemod/parser': 1.1.0
       '@testing-library/jest-dom': 5.16.4
-      '@testing-library/react': 11.2.6_react-dom@17.0.1+react@17.0.1
+      '@testing-library/react': 12.1.5_react-dom@17.0.1+react@17.0.1
       '@testing-library/react-hooks': 8.0.0-alpha.1_react-dom@17.0.1+react@17.0.1
       '@testing-library/user-event': 13.2.1
       '@types/base64-js': 1.3.0
@@ -2063,7 +2063,7 @@ importers:
     specifiers:
       '@codemod/parser': ^1.0.6
       '@testing-library/jest-dom': ^5.16.4
-      '@testing-library/react': ^11.2.6
+      '@testing-library/react': ^12.1.5
       '@testing-library/react-hooks': ^8.0.0-alpha.1
       '@testing-library/user-event': ^13.2.1
       '@types/base64-js': ^1.3.0
@@ -6425,11 +6425,6 @@ packages:
       regenerator-runtime: 0.13.7
     resolution:
       integrity: sha512-plcc+hbExy3McchJCEQG3knOsuh3HH+Prx1P6cLIkET/0dLuQDEnrT+s27Axgc9bqfsmNUNHfscgMUdBpC9xfg==
-  /@babel/runtime/7.14.0:
-    dependencies:
-      regenerator-runtime: 0.13.7
-    resolution:
-      integrity: sha512-JELkvo/DlpNdJ7dlyw/eY7E0suy5i5GQH+Vlxaq1nsNJ+H7f4Vtv3jMeCEgRhZZQFXTjldYfQgv2qmM6M1v5wA==
   /@babel/runtime/7.14.5:
     dependencies:
       regenerator-runtime: 0.13.7
@@ -6477,7 +6472,6 @@ packages:
   /@babel/runtime/7.17.8:
     dependencies:
       regenerator-runtime: 0.13.9
-    dev: true
     engines:
       node: '>=6.9.0'
     resolution:
@@ -6485,7 +6479,6 @@ packages:
   /@babel/runtime/7.17.9:
     dependencies:
       regenerator-runtime: 0.13.9
-    dev: true
     engines:
       node: '>=6.9.0'
     resolution:
@@ -8519,20 +8512,6 @@ packages:
       cypress: ^2.1.0 || ^3.0.0 || ^4.0.0 || ^5.0.0 || ^6.0.0 || ^7.0.0 || ^8.0.0 || ^9.0.0
     resolution:
       integrity: sha512-KVdm7n37sg/A4e3wKMD4zUl0NpzzVhx06V9Tf0hZHZ7nrZ4yFva6Zwg2EFF1VzHkEfN/ahUzRtT1qiW+vuWnJw==
-  /@testing-library/dom/7.29.4:
-    dependencies:
-      '@babel/code-frame': 7.12.11
-      '@babel/runtime': 7.12.5
-      '@types/aria-query': 4.2.1
-      aria-query: 4.2.2
-      chalk: 4.1.0
-      dom-accessibility-api: 0.5.4
-      lz-string: 1.4.4
-      pretty-format: 26.6.2
-    engines:
-      node: '>=10'
-    resolution:
-      integrity: sha512-CtrJRiSYEfbtNGtEsd78mk1n1v2TUbeABlNIcOCJdDfkN5/JTOwQEbbQpoSRxGqzcWPgStMvJ4mNolSuBRv1NA==
   /@testing-library/dom/7.30.4:
     dependencies:
       '@babel/code-frame': 7.14.5
@@ -8557,7 +8536,6 @@ packages:
       dom-accessibility-api: 0.5.13
       lz-string: 1.4.4
       pretty-format: 27.5.1
-    dev: true
     engines:
       node: '>=12'
     resolution:
@@ -8658,32 +8636,20 @@ packages:
         optional: true
     resolution:
       integrity: sha512-YrIrBXQLKcucFuEiSkHEycR7Yk5lOHH8tTxB+km+XdQiN1af0YlblWt+n9Zx6OX1crIN3JNy8hJ7VvdYivriCg==
-  /@testing-library/react/11.2.3_react-dom@17.0.1+react@17.0.1:
+  /@testing-library/react/12.1.5_react-dom@17.0.1+react@17.0.1:
     dependencies:
-      '@babel/runtime': 7.12.5
-      '@testing-library/dom': 7.29.4
+      '@babel/runtime': 7.17.9
+      '@testing-library/dom': 8.11.3
+      '@types/react-dom': 17.0.13
       react: 17.0.1
       react-dom: 17.0.1_react@17.0.1
     engines:
-      node: '>=10'
+      node: '>=12'
     peerDependencies:
-      react: '*'
-      react-dom: '*'
+      react: <18.0.0
+      react-dom: <18.0.0
     resolution:
-      integrity: sha512-BirBUGPkTW28ULuCwIbYo0y2+0aavHczBT6N9r3LrsswEW3pg25l1wgoE7I8QBIy1upXWkwKpYdWY7NYYP0Bxw==
-  /@testing-library/react/11.2.6_react-dom@17.0.1+react@17.0.1:
-    dependencies:
-      '@babel/runtime': 7.14.0
-      '@testing-library/dom': 7.30.4
-      react: 17.0.1
-      react-dom: 17.0.1_react@17.0.1
-    engines:
-      node: '>=10'
-    peerDependencies:
-      react: '*'
-      react-dom: '*'
-    resolution:
-      integrity: sha512-TXMCg0jT8xmuU8BkKMtp8l7Z50Ykew5WNX8UoIKTaLFwKkP2+1YDhOLA2Ga3wY4x29jyntk7EWfum0kjlYiSjQ==
+      integrity: sha512-OfTXCJUFgjd/digLUuPxa0+/3ZxsQmE7ub9kcbW/wi96Bh3o/p5vrETcBGfP17NWPGqeYYl5LTRpwyGoMC4ysg==
   /@testing-library/user-event/12.6.0:
     dependencies:
       '@babel/runtime': 7.12.5
@@ -8752,7 +8718,6 @@ packages:
     resolution:
       integrity: sha512-S6oPal772qJZHoRZLFc/XoZW2gFvwXusYUmXPXkgxJLuEk2vOt7jc4Yo6z/vtI0EBkbPBVrJJ0B+prLIKiWqHg==
   /@types/aria-query/4.2.2:
-    dev: true
     resolution:
       integrity: sha512-HnYpAE1Y6kRyKM/XkEuiRQhTHvkzMBurTHnpFLYLBGPIylZNPs9jJcuOOYWxPLJCSEtmZT0Y8rHDokKN7rRTig==
   /@types/array-unique/0.3.0:
@@ -9290,7 +9255,6 @@ packages:
   /@types/react-dom/17.0.13:
     dependencies:
       '@types/react': 17.0.40
-    dev: true
     resolution:
       integrity: sha512-wEP+B8hzvy6ORDv1QBhcQia4j6ea4SFIBttHYpXKPFZRviBvknq0FRh3VrIxeXUmsPkwuXVZrVGG7KUVONmXCQ==
   /@types/react-dom/17.0.9:
@@ -9378,7 +9342,6 @@ packages:
       '@types/prop-types': 15.7.4
       '@types/scheduler': 0.16.2
       csstype: 3.0.11
-    dev: true
     resolution:
       integrity: sha512-UrXhD/JyLH+W70nNSufXqMZNuUD2cXHu6UjCllC6pmOQgBX4SGXOH8fjRka0O0Ee0HrFxapDD8Bwn81Kmiz6jQ==
   /@types/readable-stream/2.3.9:
@@ -11914,7 +11877,6 @@ packages:
     resolution:
       integrity: sha512-o/HelwhuKpTj/frsOsbNLNgnNGVIFsVP/SW2BSF14gVl7kAfMOJ6/8wUAUvG1R1NHKrfG+2sHZTu0yauT1qBrA==
   /aria-query/5.0.0:
-    dev: true
     engines:
       node: '>=6.0'
     resolution:
@@ -14346,7 +14308,6 @@ packages:
     resolution:
       integrity: sha512-2u44ZG2OcNUO9HDp/Jl8C07x6pU/eTR3ncV91SiK3dhG9TWvRVsCoJw14Ckx5DgWkzGA3waZWO3d7pgqpUI/XA==
   /csstype/3.0.11:
-    dev: true
     resolution:
       integrity: sha512-sa6P2wJ+CAbgyy4KFssIb/JNMLxFvKF1pCYCSXS8ZMuqZnMsrxqI2E5sPyoTpxoPU/gVZMzr2zjOfg8GIZOMsw==
   /csstype/3.0.6:
@@ -14936,7 +14897,6 @@ packages:
     resolution:
       integrity: sha512-yS+Q5i3hBf7GBkd4KG8a7eBNNWNGLTaEwwYWUijIYM7zrlYDM0BFXHjjPWlWZ1Rg7UaddZeIDmi9jF3HmqiQ2w==
   /dom-accessibility-api/0.5.13:
-    dev: true
     resolution:
       integrity: sha512-R305kwb5CcMDIpSHUnLyIAp7SrSPBx6F0VfQFB3M75xVMHhXJJIdePYgbPPh1o57vCHNu5QztokWUPsLjWzFqw==
   /dom-accessibility-api/0.5.14:
@@ -28182,7 +28142,6 @@ packages:
       ansi-regex: 5.0.1
       ansi-styles: 5.2.0
       react-is: 17.0.2
-    dev: true
     engines:
       node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0
     resolution:

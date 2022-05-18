@@ -34,7 +34,7 @@
     ]
   },
   "dependencies": {
-    "@testing-library/react": "^11.2.6",
+    "@testing-library/react": "^12.1.5",
     "@types/node": "16.11.29",
     "@votingworks/types": "workspace:*",
     "buffer": "^6.0.3",

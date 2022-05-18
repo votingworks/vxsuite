@@ -1,7 +1,7 @@
-import { Matcher, Nullish } from '@testing-library/react';
+import { Matcher } from '@testing-library/react';
 
 export function hasTextAcrossElements(text: string): Matcher {
-  return (content: string, node: Nullish<Element>) => {
+  return (content: string, node: Element | null) => {
     function hasText(n: Element) {
       return n.textContent === text;
     }
