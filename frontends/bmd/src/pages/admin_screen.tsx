@@ -106,7 +106,7 @@ export function AdminScreen({
 
   const isTestDecksAvailable = !isLiveMode && machineConfig.appMode.isPrint;
   return (
-    <Screen flexDirection="row-reverse" voterMode={false}>
+    <Screen navLeft>
       <Main padded>
         <Prose>
           {election && (

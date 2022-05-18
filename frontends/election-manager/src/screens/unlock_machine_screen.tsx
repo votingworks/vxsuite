@@ -68,7 +68,7 @@ export function UnlockMachineScreen(): JSX.Element {
     primarySentence = <Text warning>Invalid code. Please try again.</Text>;
   }
   return (
-    <Screen flexDirection="column">
+    <Screen>
       <Main centerChild>
         <Prose textCenter theme={fontSizeTheme.medium} maxWidth={false}>
           {primarySentence}

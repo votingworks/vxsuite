@@ -12,7 +12,7 @@ interface Props {
 
 export function PollWorkerScreen({ lockScreen }: Props): JSX.Element {
   return (
-    <Screen flexDirection="column">
+    <Screen>
       <Main centerChild>
         <Prose textCenter>
           <h1>Screen Unlocked</h1>

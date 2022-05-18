@@ -59,7 +59,7 @@ export function StartPage(): JSX.Element {
   }, []);
 
   return (
-    <Screen ref={audioFocus}>
+    <Screen navRight ref={audioFocus}>
       <Main centerChild>
         <Prose textCenter>
           <h1 aria-label={`${partyPrimaryAdjective} ${title}.`}>

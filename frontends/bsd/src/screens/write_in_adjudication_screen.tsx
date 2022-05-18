@@ -567,7 +567,7 @@ export function WriteInAdjudicationScreen({
   );
 
   return (
-    <Screen flexDirection="column">
+    <Screen>
       <MainNav />
       <Main padded>
         <MainChildFlexRow>

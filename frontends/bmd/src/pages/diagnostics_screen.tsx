@@ -279,7 +279,7 @@ export function DiagnosticsScreen({
   return (
     <Switch>
       <Route path="/" exact>
-        <Screen flexDirection="row-reverse" voterMode={false}>
+        <Screen navLeft>
           <Main padded>
             <Prose compact>
               <h1>System Diagnostics</h1>

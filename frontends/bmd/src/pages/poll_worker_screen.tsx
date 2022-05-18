@@ -369,7 +369,7 @@ export function PollWorkerScreen({
 
   return (
     <React.Fragment>
-      <Screen flexDirection="row-reverse" voterMode={false}>
+      <Screen navLeft>
         <Main padded>
           {isMarkAndPrintMode && isPollsOpen && (
             <React.Fragment>

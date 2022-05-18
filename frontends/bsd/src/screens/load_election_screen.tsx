@@ -164,7 +164,7 @@ export function LoadElectionScreen({
 
   if (isLoadingTemplates) {
     return (
-      <Screen flexDirection="column">
+      <Screen>
         <Main padded centerChild>
           <Prose textCenter>
             <h1>Preparing VxCentralScan…</h1>
@@ -176,7 +176,7 @@ export function LoadElectionScreen({
 
   if (totalTemplates > 0 && currentUploadingBallot) {
     return (
-      <Screen flexDirection="column">
+      <Screen>
         <Main padded centerChild>
           <Prose textCenter>
             <h1>

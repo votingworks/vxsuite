@@ -5,9 +5,9 @@ exports[`L&A (logic and accuracy) flow 1`] = `
   aria-hidden="true"
 >
   <div
-    class="sc-jObXwK cZXyJz"
+    class="sc-jObXwK fRoQGi"
   >
-    <div
+    <nav
       class="sc-bdfBwQ gqAMTS"
     >
       <div
@@ -89,9 +89,9 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           Eject USB
         </button>
       </div>
-    </div>
+    </nav>
     <main
-      class="sc-llYToB hjTaaA"
+      class="sc-llYToB cOKKyR"
     >
       <div
         class="sc-jRQAMF boeJiV"
@@ -281,9 +281,9 @@ exports[`L&A (logic and accuracy) flow 2`] = `
   aria-hidden="true"
 >
   <div
-    class="sc-jObXwK cZXyJz"
+    class="sc-jObXwK fRoQGi"
   >
-    <div
+    <nav
       class="sc-bdfBwQ gqAMTS"
     >
       <div
@@ -365,9 +365,9 @@ exports[`L&A (logic and accuracy) flow 2`] = `
           Eject USB
         </button>
       </div>
-    </div>
+    </nav>
     <main
-      class="sc-llYToB hjTaaA"
+      class="sc-llYToB cOKKyR"
     >
       <div>
         <strong>

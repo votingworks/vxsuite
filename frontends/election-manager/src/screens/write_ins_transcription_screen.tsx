@@ -95,7 +95,7 @@ export function WriteInsTranscriptionScreen({
   assert(contest);
   assert(election);
   return (
-    <Screen flexDirection="column">
+    <Screen>
       <Navigation
         screenTitle="Write-In Adjudication"
         secondaryNav={

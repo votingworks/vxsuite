@@ -377,7 +377,7 @@ export function BallotEjectScreen({
     isFrontBlank && (isBackBlank || isBackIntentionallyLeftBlank);
 
   return (
-    <Screen flexDirection="column">
+    <Screen>
       <MainNav>
         {!allowBallotDuplication ? (
           <Button

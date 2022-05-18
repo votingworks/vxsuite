@@ -176,7 +176,7 @@ export function ElectionConfiguration({
     loadingFiles
   ) {
     return (
-      <Screen flexDirection="column">
+      <Screen>
         <Main centerChild>
           <Loading />
         </Main>
@@ -237,7 +237,7 @@ export function ElectionConfiguration({
     // If there were no valid files found prompt the user to select a file themselves.
     if (fileOptions.length === 0) {
       return (
-        <Screen flexDirection="column">
+        <Screen>
           <Main padded>
             <Prose>
               <h1>No Election Ballot Package Files Found</h1>
@@ -265,7 +265,7 @@ export function ElectionConfiguration({
     }
 
     return (
-      <Screen flexDirection="column">
+      <Screen>
         <Main padded>
           <Prose maxWidth={false}>
             <h1>Choose Election Configuration</h1>
@@ -320,7 +320,7 @@ export function ElectionConfiguration({
 
   // No USB Drive was found show initial screen.
   return (
-    <Screen flexDirection="column">
+    <Screen>
       <Main padded centerChild>
         <Prose maxWidth={false}>
           <h1>Load Election Configuration</h1>

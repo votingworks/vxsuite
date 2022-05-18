@@ -23,7 +23,7 @@ export function CenteredScreen({
   const { electionDefinition, currentPrecinctId, machineConfig } =
     useContext(AppContext);
   return (
-    <Screen flexDirection="column">
+    <Screen>
       <Main padded centerChild>
         {children}
       </Main>

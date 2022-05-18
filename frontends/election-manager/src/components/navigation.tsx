@@ -7,7 +7,7 @@ interface Props {
   screenTitle?: string;
 }
 
-const NavBar = styled.div`
+const Nav = styled.nav`
   display: flex;
   align-items: flex-end;
   background: #455a64;
@@ -77,7 +77,7 @@ export function Navigation({
   screenTitle,
 }: Props): JSX.Element {
   return (
-    <NavBar>
+    <Nav>
       <Brand>
         <MakeName>
           Voting<span>Works</span>
@@ -86,6 +86,6 @@ export function Navigation({
       </Brand>
       <PrimaryNav>{primaryNav}</PrimaryNav>
       {secondaryNav && <SecondaryNav>{secondaryNav}</SecondaryNav>}
-    </NavBar>
+    </Nav>
   );
 }

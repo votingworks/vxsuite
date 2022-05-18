@@ -26,7 +26,7 @@ export function PrecinctsScreen({
   updatePrecinct,
 }: Props): JSX.Element {
   return (
-    <Screen flexDirection="column">
+    <Screen>
       <Main>
         <Heading>
           <Prose>

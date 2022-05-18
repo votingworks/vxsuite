@@ -12,7 +12,7 @@ import { AppContext } from '../contexts/app_context';
 export function InvalidCardScreen(): JSX.Element {
   const { electionDefinition, machineConfig } = useContext(AppContext);
   return (
-    <Screen flexDirection="column">
+    <Screen>
       <Main padded centerChild>
         <Prose textCenter theme={fontSizeTheme.medium} maxWidth={false}>
           <h1>Invalid Card</h1>

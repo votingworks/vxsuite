@@ -244,7 +244,7 @@ export function UnconfiguredScreen(): JSX.Element {
 
   if (isUsingConverter && inputConversionFiles.length > 0) {
     return (
-      <NavigationScreen centerContent>
+      <NavigationScreen centerChild>
         <Prose textCenter>
           <h1>Convert from {client?.getDisplayName()} files</h1>
           <p> Select the following files from a USB drive, etc.</p>
@@ -290,7 +290,7 @@ export function UnconfiguredScreen(): JSX.Element {
   }
 
   return (
-    <NavigationScreen centerContent>
+    <NavigationScreen centerChild>
       <Prose textCenter>
         <h1>Configure VxAdmin</h1>
         <p>How would you like to start?</p>

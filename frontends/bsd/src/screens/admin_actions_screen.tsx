@@ -108,7 +108,7 @@ export function AdminActionsScreen({
 
   return (
     <React.Fragment>
-      <Screen flexDirection="column">
+      <Screen>
         <Main padded>
           <Prose>
             <h1>Admin Actions</h1>

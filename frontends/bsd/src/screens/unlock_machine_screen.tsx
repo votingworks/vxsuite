@@ -73,7 +73,7 @@ export function UnlockMachineScreen({
     primarySentence = <Text warning>Invalid code. Please try again.</Text>;
   }
   return (
-    <Screen flexDirection="column">
+    <Screen>
       <Main padded centerChild>
         <Prose textCenter theme={fontSizeTheme.medium} maxWidth={false}>
           {primarySentence}

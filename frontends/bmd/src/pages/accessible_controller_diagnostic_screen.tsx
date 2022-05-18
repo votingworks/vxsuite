@@ -269,7 +269,7 @@ export function AccessibleControllerDiagnosticScreen({
   ];
 
   return (
-    <Screen voterMode={false}>
+    <Screen>
       <Main style={{ padding: '2em 4em' }}>
         <Header>
           <Text>
