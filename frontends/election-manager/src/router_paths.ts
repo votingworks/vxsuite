@@ -49,8 +49,6 @@ export const routerPaths = {
   overvoteCombinationReport: '/tally/pairs',
   logicAndAccuracy: '/logic-and-accuracy',
   testDecks: '/logic-and-accuracy/test-decks',
-  testDeck: ({ precinctId }: PrecinctReportScreenProps): string =>
-    `/logic-and-accuracy/test-decks/${precinctId}`,
   testDeckTallyReports: '/logic-and-accuracy/test-deck-tally-reports',
   testDeckTallyReport: ({ precinctId }: PrecinctReportScreenProps): string =>
     `/logic-and-accuracy/test-deck-tally-reports/${precinctId}`,

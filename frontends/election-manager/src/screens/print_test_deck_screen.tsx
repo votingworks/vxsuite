@@ -1,5 +1,4 @@
-import React, { useState, useContext, useCallback, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState, useContext, useCallback } from 'react';
 import {
   Election,
   getPrecinctById,
@@ -8,8 +7,8 @@ import {
 } from '@votingworks/types';
 import { assert, sleep } from '@votingworks/utils';
 import { LogEventId } from '@votingworks/logging';
+
 import { useCancelablePromise, Modal, Prose } from '@votingworks/ui';
-import { routerPaths } from '../router_paths';
 
 import { AppContext } from '../contexts/app_context';
 
@@ -18,8 +17,6 @@ import { ButtonList } from '../components/button_list';
 import { Loading } from '../components/loading';
 
 import { NavigationScreen } from '../components/navigation_screen';
-import { LinkButton } from '../components/link_button';
-import { PrecinctReportScreenProps } from '../config/types';
 
 import { HandMarkedPaperBallot } from '../components/hand_marked_paper_ballot';
 
@@ -100,36 +97,26 @@ export function PrintTestDeckScreen(): JSX.Element {
   const [precinctIds, setPrecinctIds] = useState<string[]>([]);
   const [precinctIndex, setPrecinctIndex] = useState<number>();
 
-  const { precinctId: precinctIdFromParams = '' } =
-    useParams<PrecinctReportScreenProps>();
-  const precinctId = precinctIdFromParams.trim();
-
   const pageTitle = 'Test Decks';
-  const precinctName =
-    precinctId === 'all'
-      ? 'All Precincts'
-      : getPrecinctById({ election, precinctId })?.name;
 
-  useEffect(() => {
-    if (precinctId) {
+  function generatePrecinctIds(precinctId: string): string[] {
+    if (precinctId === 'all') {
       const sortedPrecincts = [...election.precincts].sort((a, b) =>
         a.name.localeCompare(b.name, undefined, {
           ignorePunctuation: true,
         })
       );
-      const newPrecinctIds =
-        precinctId === 'all' ? sortedPrecincts.map((p) => p.id) : [precinctId];
-      setPrecinctIds(newPrecinctIds);
-    } else {
-      setPrecinctIds([]);
-      setPrecinctIndex(undefined);
+      return sortedPrecincts.map((p) => p.id);
     }
-  }, [precinctId, election.precincts]);
 
-  async function startPrint() {
+    return [precinctId];
+  }
+
+  async function startPrint(precinctId: string) {
     if (window.kiosk) {
       const printers = await window.kiosk.getPrinterInfo();
       if (printers.some((p) => p.connected)) {
+        setPrecinctIds(generatePrecinctIds(precinctId));
         setPrecinctIndex(0);
       } else {
         // eslint-disable-next-line no-alert
@@ -142,6 +129,7 @@ export function PrintTestDeckScreen(): JSX.Element {
         });
       }
     } else {
+      setPrecinctIds(generatePrecinctIds(precinctId));
       setPrecinctIndex(0);
     }
   }
@@ -167,6 +155,7 @@ export function PrintTestDeckScreen(): JSX.Element {
       } else {
         await makeCancelable(sleep(3000));
         setPrecinctIndex(undefined);
+        setPrecinctIds([]);
       }
     },
     [
@@ -184,85 +173,56 @@ export function PrintTestDeckScreen(): JSX.Element {
       ? undefined
       : getPrecinctById({ election, precinctId: precinctIds[precinctIndex] });
 
-  if (precinctIds.length > 0) {
-    return (
-      <React.Fragment>
-        {precinctIndex !== undefined && currentPrecinct && (
-          <Modal
-            centerContent
-            content={
-              <Loading as="p">
-                Printing Test Deck
-                {precinctIds.length > 1
-                  ? ` (${precinctIndex + 1} of ${precinctIds.length})`
-                  : ''}
-                : {currentPrecinct.name}
-              </Loading>
-            }
-          />
-        )}
-        <NavigationScreen>
-          <Prose>
-            <h1>{pageTitle}</h1>
-            <p>
-              <strong>Election:</strong> {election.title}
-              <br />
-              <strong>Precinct:</strong> {precinctName}
-            </p>
-            <p>
-              <Button onPress={startPrint} primary>
-                Print Test Deck
-              </Button>
-            </p>
-            <p>
-              <LinkButton small to={routerPaths.testDecks}>
-                Back to Test Deck list
-              </LinkButton>
-            </p>
-          </Prose>
-        </NavigationScreen>
-        {precinctIndex !== undefined && (
-          <TestDeckBallotsMemoized
-            election={election}
-            electionHash={electionHash}
-            precinctId={precinctIds[precinctIndex]}
-            onAllRendered={onAllRendered}
-          />
-        )}
-      </React.Fragment>
-    );
-  }
-
   return (
-    <NavigationScreen>
-      <Prose>
-        <h1>{pageTitle}</h1>
+    <React.Fragment>
+      {precinctIndex !== undefined && currentPrecinct && (
+        <Modal
+          centerContent
+          content={
+            <Loading as="p">
+              Printing Test Deck
+              {precinctIds.length > 1
+                ? ` (${precinctIndex + 1} of ${precinctIds.length})`
+                : ''}
+              : {currentPrecinct.name}
+            </Loading>
+          }
+        />
+      )}
+      <NavigationScreen>
+        <Prose>
+          <h1>{pageTitle}</h1>
+          <p>
+            Select desired precinct for <strong>{election.title}</strong>.
+          </p>
+        </Prose>
         <p>
-          Select desired precinct for <strong>{election.title}</strong>.
+          <Button onPress={() => startPrint('all')} fullWidth>
+            <strong>All Precincts</strong>
+          </Button>
         </p>
-      </Prose>
-      <p>
-        <LinkButton to={routerPaths.testDeck({ precinctId: 'all' })} fullWidth>
-          <strong>All Precincts</strong>
-        </LinkButton>
-      </p>
-      <ButtonList>
-        {[...election.precincts]
-          .sort((a, b) =>
-            a.name.localeCompare(b.name, undefined, {
-              ignorePunctuation: true,
-            })
-          )
-          .map((p) => (
-            <LinkButton
-              key={p.id}
-              to={routerPaths.testDeck({ precinctId: p.id })}
-              fullWidth
-            >
-              {p.name}
-            </LinkButton>
-          ))}
-      </ButtonList>
-    </NavigationScreen>
+        <ButtonList>
+          {[...election.precincts]
+            .sort((a, b) =>
+              a.name.localeCompare(b.name, undefined, {
+                ignorePunctuation: true,
+              })
+            )
+            .map((p) => (
+              <Button key={p.id} onPress={() => startPrint(p.id)} fullWidth>
+                {p.name}
+              </Button>
+            ))}
+        </ButtonList>
+      </NavigationScreen>
+      {precinctIndex !== undefined && (
+        <TestDeckBallotsMemoized
+          election={election}
+          electionHash={electionHash}
+          precinctId={precinctIds[precinctIndex]}
+          onAllRendered={onAllRendered}
+        />
+      )}
+    </React.Fragment>
   );
 }

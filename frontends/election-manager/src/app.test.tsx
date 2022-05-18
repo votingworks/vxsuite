@@ -335,7 +335,6 @@ test('L&A (logic and accuracy) flow', async () => {
   userEvent.click(screen.getByText('L&A'));
   userEvent.click(screen.getByText('Print Test Decks'));
   userEvent.click(screen.getByText('District 5'));
-  userEvent.click(screen.getByText('Print Test Deck'));
   await screen.findByText('Printing Test Deck: District 5', {
     exact: false,
   });
