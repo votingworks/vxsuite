@@ -2235,7 +2235,7 @@ importers:
       resolve-from: ^5.0.0
       typescript: ^4.3.4
       yaml: ^2.1.0
-  services/adjudication:
+  services/admin:
     dependencies:
       '@votingworks/fixtures': link:../../libs/fixtures
       '@votingworks/logging': link:../../libs/logging

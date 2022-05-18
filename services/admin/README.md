@@ -1,4 +1,4 @@
-# Adjudication Module
+# Admin Module
 
 ## Setup
 
@@ -6,7 +6,7 @@ Follow the instructions in the [VxSuite README](../../README.md) to get set up,
 then run the service like so:
 
 ```sh
-# in services/adjudication
+# in services/admin
 pnpm dev
 ```
 
