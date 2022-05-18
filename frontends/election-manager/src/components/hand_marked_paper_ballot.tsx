@@ -36,7 +36,7 @@ import {
   BallotId,
   BallotTargetMarkPosition,
 } from '@votingworks/types';
-import { QrCode, HandMarkedPaperBallotProse } from '@votingworks/ui';
+import { QrCode, HandMarkedPaperBallotProse, Text } from '@votingworks/ui';
 
 import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
 
@@ -46,7 +46,6 @@ import { findPartyById } from '../utils/find_party_by_id';
 
 import { BubbleMark } from './bubble_mark';
 import { WriteInLine } from './write_in_line';
-import { Text } from './text';
 import { HorizontalRule } from './horizontal_rule';
 import { ABSENTEE_TINT_COLOR } from '../config/globals';
 import { getBallotLayoutPageSize } from '../utils/get_ballot_layout_page_size';

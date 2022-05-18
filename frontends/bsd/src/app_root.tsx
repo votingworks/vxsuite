@@ -26,6 +26,7 @@ import {
   RebootFromUsbButton,
   Screen,
   SetupCardReaderPage,
+  Text,
   UsbControllerButton,
   useDevices,
   useSmartcard,
@@ -37,7 +38,6 @@ import { MachineConfig } from './config/types';
 import { AppContext, AppContextInterface } from './contexts/app_context';
 
 import { Button } from './components/button';
-import { Text } from './components/text';
 import { ScanButton } from './components/scan_button';
 import { useInterval } from './hooks/use_interval';
 

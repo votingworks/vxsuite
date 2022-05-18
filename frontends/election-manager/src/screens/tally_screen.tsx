@@ -13,7 +13,14 @@ import {
   format,
   find,
 } from '@votingworks/utils';
-import { Table, TD, Modal, useCancelablePromise, Prose } from '@votingworks/ui';
+import {
+  Modal,
+  Prose,
+  Table,
+  TD,
+  Text,
+  useCancelablePromise,
+} from '@votingworks/ui';
 import { TallyCategory, ExternalTallySourceType } from '@votingworks/types';
 import { LogEventId } from '@votingworks/logging';
 import { InputEventFunction, ResultsFileType } from '../config/types';
@@ -23,7 +30,6 @@ import { MsSemsConverterClient } from '../lib/converters/ms_sems_converter_clien
 import { getPrecinctIdsInExternalTally } from '../utils/external_tallies';
 
 import { Button } from '../components/button';
-import { Text } from '../components/text';
 import { Loading } from '../components/loading';
 import { NavigationScreen } from '../components/navigation_screen';
 import { routerPaths } from '../router_paths';

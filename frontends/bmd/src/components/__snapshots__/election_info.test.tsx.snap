@@ -5,19 +5,6 @@ exports[`renders horizontal ElectionInfo with hash when specified 1`] = `
   max-width: 250px;
 }
 
-.c3 {
-  font-size: 0.8rem;
-}
-
-.c5 {
-  font-size: 0.8rem;
-  font-weight: 300;
-}
-
-.c4 {
-  white-space: nowrap;
-}
-
 .c0 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -232,28 +219,28 @@ exports[`renders horizontal ElectionInfo with hash when specified 1`] = `
            General Election
         </h5>
         <p
-          class="c3"
+          class="sc-dkPtyc dVpXhv"
         >
           November 3, 2020
           <br />
           <span
-            class="c4"
+            class="sc-hKwCoD kKHUyA"
           >
             Franklin County
             ,
           </span>
            
           <span
-            class="c4"
+            class="sc-hKwCoD kKHUyA"
           >
             State of Hamilton
           </span>
         </p>
         <p
-          class="c5"
+          class="sc-dkPtyc eoUyDE"
         >
           <span
-            class="c4"
+            class="sc-hKwCoD kKHUyA"
           >
             Center Springfield
           </span>
@@ -270,19 +257,6 @@ exports[`renders horizontal ElectionInfo without hash by default 1`] = `
   max-width: 250px;
 }
 
-.c3 {
-  font-size: 0.8rem;
-}
-
-.c5 {
-  font-size: 0.8rem;
-  font-weight: 300;
-}
-
-.c4 {
-  white-space: nowrap;
-}
-
 .c0 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -497,28 +471,28 @@ exports[`renders horizontal ElectionInfo without hash by default 1`] = `
            General Election
         </h5>
         <p
-          class="c3"
+          class="sc-dkPtyc dVpXhv"
         >
           November 3, 2020
           <br />
           <span
-            class="c4"
+            class="sc-hKwCoD kKHUyA"
           >
             Franklin County
             ,
           </span>
            
           <span
-            class="c4"
+            class="sc-hKwCoD kKHUyA"
           >
             State of Hamilton
           </span>
         </p>
         <p
-          class="c5"
+          class="sc-dkPtyc eoUyDE"
         >
           <span
-            class="c4"
+            class="sc-hKwCoD kKHUyA"
           >
             Center Springfield
           </span>
@@ -535,10 +509,6 @@ exports[`renders vertical ElectionInfo with hash when specified 1`] = `
   max-width: 250px;
 }
 
-.c2 {
-  font-weight: 600;
-}
-
 .c0 {
   display: block;
   margin: auto;
@@ -737,7 +707,7 @@ exports[`renders vertical ElectionInfo with hash when specified 1`] = `
         State of Hamilton
       </p>
       <p
-        class="c2"
+        class="sc-dkPtyc dwpylT"
       >
         Center Springfield
       </p>
@@ -751,10 +721,6 @@ exports[`renders vertical ElectionInfo without hash by default 1`] = `
   max-width: 250px;
 }
 
-.c2 {
-  font-weight: 600;
-}
-
 .c0 {
   display: block;
   margin: auto;
@@ -953,7 +919,7 @@ exports[`renders vertical ElectionInfo without hash by default 1`] = `
         State of Hamilton
       </p>
       <p
-        class="c2"
+        class="sc-dkPtyc dwpylT"
       >
         Center Springfield
       </p>

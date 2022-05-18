@@ -86,6 +86,24 @@ exports[`renders Text displays error style 1`] = `
 </p>
 `;
 
+exports[`renders Text displays success style 1`] = `
+.c0 {
+  color: rgb(0,128,0);
+}
+
+@media print {
+  .c0 {
+    color: black;
+  }
+}
+
+<p
+  class="c0"
+>
+  Error Text?
+</p>
+`;
+
 exports[`renders Text narrow wordBreak warning 1`] = `
 .c0 {
   margin-right: auto;

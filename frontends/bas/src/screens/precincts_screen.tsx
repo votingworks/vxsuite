@@ -1,7 +1,7 @@
 import React from 'react';
 import { Precinct } from '@votingworks/types';
 
-import { Screen, Main } from '@votingworks/ui';
+import { Screen, Main, Text } from '@votingworks/ui';
 
 import { EventTargetFunction } from '../config/types';
 
@@ -10,7 +10,6 @@ import { ButtonList } from '../components/button_list';
 import { Heading } from '../components/heading';
 import { MainNav } from '../components/main_nav';
 import { Prose } from '../components/prose';
-import { Text } from '../components/text';
 
 interface Props {
   countyName: string;

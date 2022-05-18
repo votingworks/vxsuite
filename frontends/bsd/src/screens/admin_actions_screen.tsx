@@ -2,12 +2,18 @@ import { ElectionDefinition, MarkThresholds } from '@votingworks/types';
 import React, { useCallback, useEffect, useState, useContext } from 'react';
 import { LogEventId } from '@votingworks/logging';
 import { assert, LogFileType } from '@votingworks/utils';
-import { Loading, Main, Modal, Screen, SetClockButton } from '@votingworks/ui';
+import {
+  Loading,
+  Main,
+  Modal,
+  Screen,
+  SetClockButton,
+  Text,
+} from '@votingworks/ui';
 import { Button } from '../components/button';
 import { LinkButton } from '../components/link_button';
 import { MainNav } from '../components/main_nav';
 import { Prose } from '../components/prose';
-import { Text } from '../components/text';
 import { ToggleTestModeButton } from '../components/toggle_test_mode_button';
 import { SetMarkThresholdsModal } from '../components/set_mark_thresholds_modal';
 import { AppContext } from '../contexts/app_context';

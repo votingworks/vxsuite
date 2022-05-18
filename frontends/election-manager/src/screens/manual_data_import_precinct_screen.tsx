@@ -17,7 +17,7 @@ import {
   ContestId,
 } from '@votingworks/types';
 
-import { Table, TD, Prose } from '@votingworks/ui';
+import { Prose, Table, TD, Text } from '@votingworks/ui';
 
 import { LogEventId } from '@votingworks/logging';
 import { ManualDataPrecinctScreenProps } from '../config/types';
@@ -33,7 +33,6 @@ import {
   getAllPossibleCandidatesForCandidateContest,
 } from '../utils/election';
 import { TextInput } from '../components/text_input';
-import { Text } from '../components/text';
 import {
   convertTalliesByPrecinctToFullExternalTally,
   getEmptyExternalTalliesByPrecinct,

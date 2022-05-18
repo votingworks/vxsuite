@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Single Seat Contest 1`] = `
-.c10 {
+.c8 {
   position: relative;
   border-radius: 0.125rem;
   box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
@@ -13,7 +13,7 @@ exports[`Single Seat Contest 1`] = `
   transition: background 0.25s,color 0.25s;
 }
 
-.c10::before {
+.c8::before {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -42,7 +42,7 @@ exports[`Single Seat Contest 1`] = `
   content: '';
 }
 
-.c8 {
+.c7 {
   position: relative;
   border-radius: 0.125rem;
   box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
@@ -55,7 +55,7 @@ exports[`Single Seat Contest 1`] = `
   transition: background 0.25s,color 0.25s;
 }
 
-.c8::before {
+.c7::before {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -84,31 +84,6 @@ exports[`Single Seat Contest 1`] = `
   content: '✓';
 }
 
-.c3 {
-  font-weight: 600;
-}
-
-.c25 {
-  font-size: 0.8rem;
-}
-
-.c27 {
-  font-size: 0.8rem;
-  font-weight: 300;
-}
-
-.c9 {
-  word-break: break-word;
-}
-
-.c13 {
-  text-align: center;
-}
-
-.c26 {
-  white-space: nowrap;
-}
-
 .c1 {
   margin: 0 auto;
   width: 100%;
@@ -122,7 +97,7 @@ exports[`Single Seat Contest 1`] = `
   font-weight: 600;
 }
 
-.c4 {
+.c3 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -134,8 +109,8 @@ exports[`Single Seat Contest 1`] = `
   overflow: auto;
 }
 
-.c4::before,
-.c4::after {
+.c3::before,
+.c3::after {
   position: absolute;
   z-index: 1;
   width: 100%;
@@ -145,46 +120,46 @@ exports[`Single Seat Contest 1`] = `
   transition: opacity 0.25s ease;
 }
 
-.c4::before {
+.c3::before {
   top: 0;
   opacity: 0;
   background: linear-gradient( to bottom, rgb(177,186,190) 0%, transparent 100% );
 }
 
-.c4::after {
+.c3::after {
   bottom: 0;
   opacity: 0;
   background: linear-gradient( to bottom, transparent 0%, rgb(177,186,190) 100% );
 }
 
-.c5 {
+.c4 {
   -webkit-flex: 1;
   -ms-flex: 1;
   flex: 1;
   overflow: auto;
 }
 
-.c6 {
+.c5 {
   margin: 0 auto;
   width: 100%;
   padding: 0.5rem 2rem 2rem;
 }
 
-.c7 {
+.c6 {
   display: grid;
   grid-auto-rows: minmax(auto,1fr);
   grid-gap: 1rem;
 }
 
-.c23 {
-  max-width: 250px;
-}
-
-.c24 {
+.c20 {
   max-width: 250px;
 }
 
 .c21 {
+  max-width: 250px;
+}
+
+.c18 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -192,7 +167,7 @@ exports[`Single Seat Contest 1`] = `
   margin: 1.5rem 1rem 0;
 }
 
-.c22 {
+.c19 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -207,12 +182,12 @@ exports[`Single Seat Contest 1`] = `
   margin: auto;
 }
 
-.c22 div:first-child {
+.c19 div:first-child {
   margin-right: 1rem;
   min-width: 5rem;
 }
 
-.c11 {
+.c9 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -224,7 +199,7 @@ exports[`Single Seat Contest 1`] = `
   color: #ffffff;
 }
 
-.c12 {
+.c10 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -238,15 +213,15 @@ exports[`Single Seat Contest 1`] = `
   padding: 1rem;
 }
 
-.c12 p > button {
+.c10 p > button {
   width: 100%;
 }
 
-.c16 {
+.c13 {
   margin: 1rem;
 }
 
-.c17 {
+.c14 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -260,7 +235,7 @@ exports[`Single Seat Contest 1`] = `
   padding: 1rem 0;
 }
 
-.c18 {
+.c15 {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -271,28 +246,28 @@ exports[`Single Seat Contest 1`] = `
   justify-content: center;
 }
 
-.c20 button {
+.c17 button {
   min-width: 112px;
 }
 
-.c20 button[data-size='0'] {
+.c17 button[data-size='0'] {
   font-size: 22px !important;
 }
 
-.c20 button[data-size='1'] {
+.c17 button[data-size='1'] {
   font-size: 28px !important;
 }
 
-.c20 button[data-size='2'] {
+.c17 button[data-size='2'] {
   font-size: 36px !important;
 }
 
-.c19 {
+.c16 {
   display: block;
   margin-bottom: 0.4rem;
 }
 
-.c15::before {
+.c12::before {
   display: inline-block;
   margin-right: 0.5rem;
   background: url('/images/arrow-left-open-black.svg') no-repeat;
@@ -302,7 +277,7 @@ exports[`Single Seat Contest 1`] = `
   content: '';
 }
 
-.c14::after {
+.c11::after {
   display: inline-block;
   margin-left: 0.5rem;
   background: url('/images/arrow-right-open-white.svg') no-repeat;
@@ -321,13 +296,13 @@ exports[`Single Seat Contest 1`] = `
 }
 
 @media (min-width:480px) {
-  .c10 {
+  .c8 {
     padding: 1rem 1rem 1rem 4rem;
   }
 }
 
 @media (min-width:480px) {
-  .c8 {
+  .c7 {
     padding: 1rem 1rem 1rem 4rem;
   }
 }
@@ -362,7 +337,7 @@ exports[`Single Seat Contest 1`] = `
           </h1>
           <p>
             <span
-              class=""
+              class="sc-dkPtyc dknpMx"
             >
               Vote for 
               1
@@ -370,7 +345,7 @@ exports[`Single Seat Contest 1`] = `
             </span>
              
             <span
-              class="c3"
+              class="sc-dkPtyc dwpylT"
             >
               You have selected 
               1
@@ -385,20 +360,20 @@ exports[`Single Seat Contest 1`] = `
         </div>
       </div>
       <div
-        class="c4"
+        class="c3"
       >
         <div
-          class="c5"
+          class="c4"
         >
           <div
-            class="c6"
+            class="c5"
           >
             <div
-              class="c7"
+              class="c6"
             >
               <button
                 aria-label="Selected, Joseph Barchi and Joseph Hallaren, Federalist."
-                class="c8"
+                class="c7"
                 data-choice="barchi-hallaren"
                 data-selected="true"
                 role="option"
@@ -408,7 +383,7 @@ exports[`Single Seat Contest 1`] = `
                   class="sc-jRQAMF boeJiV"
                 >
                   <p
-                    class="c9"
+                    class="sc-dkPtyc iuZdud"
                   >
                     <strong>
                       Joseph Barchi and Joseph Hallaren
@@ -420,7 +395,7 @@ exports[`Single Seat Contest 1`] = `
               </button>
               <button
                 aria-label=" Adam Cramer and Greg Vuocolo, People's."
-                class="c10"
+                class="c8"
                 data-choice="cramer-vuocolo"
                 data-selected="false"
                 role="option"
@@ -430,7 +405,7 @@ exports[`Single Seat Contest 1`] = `
                   class="sc-jRQAMF boeJiV"
                 >
                   <p
-                    class="c9"
+                    class="sc-dkPtyc iuZdud"
                   >
                     <strong>
                       Adam Cramer and Greg Vuocolo
@@ -442,7 +417,7 @@ exports[`Single Seat Contest 1`] = `
               </button>
               <button
                 aria-label=" Daniel Court and Amy Blumhardt, Liberty."
-                class="c10"
+                class="c8"
                 data-choice="court-blumhardt"
                 data-selected="false"
                 role="option"
@@ -452,7 +427,7 @@ exports[`Single Seat Contest 1`] = `
                   class="sc-jRQAMF boeJiV"
                 >
                   <p
-                    class="c9"
+                    class="sc-dkPtyc iuZdud"
                   >
                     <strong>
                       Daniel Court and Amy Blumhardt
@@ -464,7 +439,7 @@ exports[`Single Seat Contest 1`] = `
               </button>
               <button
                 aria-label=" Alvin Boone and James Lian, Constitution."
-                class="c10"
+                class="c8"
                 data-choice="boone-lian"
                 data-selected="false"
                 role="option"
@@ -474,7 +449,7 @@ exports[`Single Seat Contest 1`] = `
                   class="sc-jRQAMF boeJiV"
                 >
                   <p
-                    class="c9"
+                    class="sc-dkPtyc iuZdud"
                   >
                     <strong>
                       Alvin Boone and James Lian
@@ -486,7 +461,7 @@ exports[`Single Seat Contest 1`] = `
               </button>
               <button
                 aria-label=" Ashley Hildebrand-McDougall and James Garritty, Whig."
-                class="c10"
+                class="c8"
                 data-choice="hildebrand-garritty"
                 data-selected="false"
                 role="option"
@@ -496,7 +471,7 @@ exports[`Single Seat Contest 1`] = `
                   class="sc-jRQAMF boeJiV"
                 >
                   <p
-                    class="c9"
+                    class="sc-dkPtyc iuZdud"
                   >
                     <strong>
                       Ashley Hildebrand-McDougall and James Garritty
@@ -508,7 +483,7 @@ exports[`Single Seat Contest 1`] = `
               </button>
               <button
                 aria-label=" Martin Patterson and Clay Lariviere, Labor."
-                class="c10"
+                class="c8"
                 data-choice="patterson-lariviere"
                 data-selected="false"
                 role="option"
@@ -518,7 +493,7 @@ exports[`Single Seat Contest 1`] = `
                   class="sc-jRQAMF boeJiV"
                 >
                   <p
-                    class="c9"
+                    class="sc-dkPtyc iuZdud"
                   >
                     <strong>
                       Martin Patterson and Clay Lariviere
@@ -534,16 +509,16 @@ exports[`Single Seat Contest 1`] = `
       </div>
     </main>
     <nav
-      class="c11"
+      class="c9"
     >
       <div
-        class="c12"
+        class="c10"
       >
         <div
           class="sc-jRQAMF boeJiV"
         >
           <p
-            class="c13"
+            class="sc-dkPtyc cTHmKe"
           >
             This is the 
             <strong>
@@ -562,7 +537,7 @@ exports[`Single Seat Contest 1`] = `
               type="button"
             >
               <span
-                class="c14"
+                class="c11"
               >
                 Next
               </span>
@@ -576,7 +551,7 @@ exports[`Single Seat Contest 1`] = `
               type="button"
             >
               <span
-                class="c15"
+                class="c12"
               >
                 Back
               </span>
@@ -585,23 +560,23 @@ exports[`Single Seat Contest 1`] = `
         </div>
       </div>
       <div
-        class="c16"
+        class="c13"
       >
         <div
           aria-hidden="true"
-          class="c17"
+          class="c14"
         >
           <div
-            class="c18"
+            class="c15"
           >
             <div>
               <div
-                class="c19"
+                class="c16"
               >
                 Change Text Size
               </div>
               <div
-                class="c20"
+                class="c17"
               >
                 <span
                   class="sc-hBURRC gIPuLO"
@@ -638,19 +613,19 @@ exports[`Single Seat Contest 1`] = `
         </div>
         <div
           aria-hidden="true"
-          class="c21"
+          class="c18"
           data-testid="election-info"
         >
           <div
-            class="c22"
+            class="c19"
           >
             <div
               aria-hidden="true"
-              class="c23"
+              class="c20"
             >
               <img
                 alt="state seal"
-                class="c24"
+                class="c21"
                 src="/seals/Sample-Seal.svg"
               />
             </div>
@@ -663,35 +638,35 @@ exports[`Single Seat Contest 1`] = `
                  General Election
               </h5>
               <p
-                class="c25"
+                class="sc-dkPtyc dVpXhv"
               >
                 November 3, 2020
                 <br />
                 <span
-                  class="c26"
+                  class="sc-hKwCoD kKHUyA"
                 >
                   Franklin County
                   ,
                 </span>
                  
                 <span
-                  class="c26"
+                  class="sc-hKwCoD kKHUyA"
                 >
                   State of Hamilton
                 </span>
               </p>
               <p
-                class="c27"
+                class="sc-dkPtyc eoUyDE"
               >
                 <span
-                  class="c26"
+                  class="sc-hKwCoD kKHUyA"
                 >
                   Center Springfield
                   , 
                 </span>
                  
                 <span
-                  class="c26"
+                  class="sc-hKwCoD kKHUyA"
                 >
                   ballot style 
                   12

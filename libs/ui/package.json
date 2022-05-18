@@ -37,6 +37,7 @@
     ]
   },
   "dependencies": {
+    "@types/dompurify": "^2.0.3",
     "@types/react-modal": "^3.13.1",
     "@types/react-router-dom": "^5.1.7",
     "@votingworks/ballot-encoder": "workspace:*",
@@ -46,6 +47,7 @@
     "base64-js": "^1.5.1",
     "debug": "^4.3.2",
     "deep-eql": "^4.0.0",
+    "dompurify": "^2.0.12",
     "luxon": "1.26.0",
     "pluralize": "^8.0.0",
     "qrcode.react": "^3.0.1",

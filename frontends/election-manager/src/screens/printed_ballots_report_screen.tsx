@@ -4,7 +4,7 @@ import _ from 'lodash';
 
 import { Dictionary } from '@votingworks/types';
 import { assert, format, find } from '@votingworks/utils';
-import { Table, TD, LogoMark, Prose } from '@votingworks/ui';
+import { LogoMark, Prose, Table, TD, Text } from '@votingworks/ui';
 import { LogEventId } from '@votingworks/logging';
 import { PrintableBallotType } from '../config/types';
 import { routerPaths } from '../router_paths';
@@ -12,7 +12,6 @@ import { routerPaths } from '../router_paths';
 import { AppContext } from '../contexts/app_context';
 
 import { PrintButton } from '../components/print_button';
-import { Text } from '../components/text';
 
 import { NavigationScreen } from '../components/navigation_screen';
 

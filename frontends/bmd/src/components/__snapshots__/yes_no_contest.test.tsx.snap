@@ -42,10 +42,6 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
   content: '';
 }
 
-.c8 {
-  word-break: break-word;
-}
-
 .c0 {
   margin: 0 auto;
   width: 100%;
@@ -172,7 +168,7 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
             class="sc-jRQAMF boeJiV"
           >
             <p
-              class=""
+              class="sc-dkPtyc dknpMx"
             >
               <span>
                 Institute a garbage collection program that collects garbage on weekdays across the county.
@@ -201,7 +197,7 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
           >
             <p
               aria-label=" Yes on Prop 1"
-              class="c8"
+              class="sc-dkPtyc iuZdud"
             >
               Yes
             </p>
@@ -219,7 +215,7 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
           >
             <p
               aria-label=" No on Prop 1"
-              class="c8"
+              class="sc-dkPtyc iuZdud"
             >
               No
             </p>
@@ -232,7 +228,7 @@ exports[`supports yes/no contest allows voting for both yes and no 1`] = `
 `;
 
 exports[`supports yes/no contest displays warning when attempting to change vote 1`] = `
-.c9 {
+.c8 {
   position: relative;
   border-radius: 0.125rem;
   box-shadow: 0 0.125rem 0.125rem 0 rgba(0,0,0,0.14), 0 0.1875rem 0.0625rem -0.125rem rgba(0,0,0,0.12), 0 0.0625rem 0.3125rem 0 rgba(0,0,0,0.2);
@@ -244,7 +240,7 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   transition: background 0.25s,color 0.25s;
 }
 
-.c9::before {
+.c8::before {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -315,10 +311,6 @@ exports[`supports yes/no contest displays warning when attempting to change vote
   content: '✓';
 }
 
-.c8 {
-  word-break: break-word;
-}
-
 .c0 {
   margin: 0 auto;
   width: 100%;
@@ -392,7 +384,7 @@ exports[`supports yes/no contest displays warning when attempting to change vote
 }
 
 @media (min-width:480px) {
-  .c9 {
+  .c8 {
     padding: 1rem 1rem 1rem 4rem;
   }
 }
@@ -451,7 +443,7 @@ exports[`supports yes/no contest displays warning when attempting to change vote
             class="sc-jRQAMF boeJiV"
           >
             <p
-              class=""
+              class="sc-dkPtyc dknpMx"
             >
               <span>
                 Institute a garbage collection program that collects garbage on weekdays across the county.
@@ -480,14 +472,14 @@ exports[`supports yes/no contest displays warning when attempting to change vote
           >
             <p
               aria-label="Selected, Yes on Prop 1"
-              class="c8"
+              class="sc-dkPtyc iuZdud"
             >
               Yes
             </p>
           </div>
         </button>
         <button
-          class="c9"
+          class="c8"
           data-choice="no"
           data-selected="false"
           role="option"
@@ -498,7 +490,7 @@ exports[`supports yes/no contest displays warning when attempting to change vote
           >
             <p
               aria-label=" No on Prop 1"
-              class="c8"
+              class="sc-dkPtyc iuZdud"
             >
               No
             </p>

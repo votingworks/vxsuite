@@ -18,7 +18,7 @@ import {
 import pluralize from 'pluralize';
 
 import { LogEventId } from '@votingworks/logging';
-import { Prose } from '@votingworks/ui';
+import { Monospace, Prose } from '@votingworks/ui';
 import {
   BallotScreenProps,
   InputEventFunction,
@@ -29,7 +29,6 @@ import { AppContext } from '../contexts/app_context';
 import { Button, SegmentedButton } from '../components/button';
 import { PrintButton } from '../components/print_button';
 import { HandMarkedPaperBallot } from '../components/hand_marked_paper_ballot';
-import { Monospace } from '../components/text';
 import { getBallotPath, getHumanBallotLanguageFormat } from '../utils/election';
 import { NavigationScreen } from '../components/navigation_screen';
 import { DEFAULT_LOCALE } from '../config/globals';

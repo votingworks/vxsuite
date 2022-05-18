@@ -15,7 +15,7 @@ import {
   Parties,
   getPrecinctIndexById,
 } from '@votingworks/types';
-import { Button, Main, Modal, Prose } from '@votingworks/ui';
+import { Button, Main, Modal, Prose, Text } from '@votingworks/ui';
 import { assert, getContestCandidatesInRotatedOrder } from '@votingworks/utils';
 
 import { findPartyById } from '../utils/find';
@@ -32,7 +32,6 @@ import { BallotContext } from '../contexts/ballot_context';
 import { Blink } from './animations';
 import { FONT_SIZES, WRITE_IN_CANDIDATE_MAX_LENGTH } from '../config/globals';
 import { ChoiceButton } from './choice_button';
-import { Text } from './text';
 import { VirtualKeyboard } from './virtual_keyboard';
 import {
   ContentHeader,

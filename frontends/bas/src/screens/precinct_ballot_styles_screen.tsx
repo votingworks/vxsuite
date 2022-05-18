@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Screen, Main } from '@votingworks/ui';
+import { Screen, Main, Text } from '@votingworks/ui';
 
 import { BallotStyle, PartyId } from '@votingworks/types';
 import { EventTargetFunction } from '../config/types';
@@ -11,7 +11,6 @@ import { ButtonList } from '../components/button_list';
 import { Heading } from '../components/heading';
 import { MainNav } from '../components/main_nav';
 import { Prose } from '../components/prose';
-import { Text } from '../components/text';
 
 const ButtonContainer = styled.div`
   float: right;

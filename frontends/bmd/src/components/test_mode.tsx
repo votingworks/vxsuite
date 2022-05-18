@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Text } from './text';
+import { Text } from '@votingworks/ui';
 
 const TestingModeContainer = styled(Text)`
   border: 0.5rem solid;

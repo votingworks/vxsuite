@@ -8,7 +8,7 @@ import {
 } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
 import { assert } from '@votingworks/utils';
-import { ElectionInfoBar, Main, Screen } from '@votingworks/ui';
+import { ElectionInfoBar, Main, Screen, Text } from '@votingworks/ui';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { fetchNextBallotSheetToReview } from '../api/hmpb';
@@ -16,7 +16,6 @@ import { BallotSheetImage } from '../components/ballot_sheet_image';
 import { Button } from '../components/button';
 import { MainNav } from '../components/main_nav';
 import { Prose } from '../components/prose';
-import { Text } from '../components/text';
 import { AppContext } from '../contexts/app_context';
 import { WriteInAdjudicationScreen } from './write_in_adjudication_screen';
 
