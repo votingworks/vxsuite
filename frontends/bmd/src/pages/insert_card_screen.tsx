@@ -37,17 +37,7 @@ export function InsertCardScreen({
 }: Props): JSX.Element {
   useEffect(triggerAudioFocus, []);
   return (
-    <Screen flexDirection="row-reverse" white>
-      <Sidebar>
-        <ElectionInfo
-          electionDefinition={electionDefinition}
-          precinctSelection={appPrecinct}
-        />
-        <VersionsData
-          machineConfig={machineConfig}
-          electionHash={electionDefinition.electionHash}
-        />
-      </Sidebar>
+    <Screen navRight white>
       <Main centerChild>
         <Prose textCenter id="audiofocus">
           <TestMode isLiveMode={isLiveMode} />
@@ -82,6 +72,16 @@ export function InsertCardScreen({
           )}
         </Prose>
       </Main>
+      <Sidebar>
+        <ElectionInfo
+          electionDefinition={electionDefinition}
+          precinctSelection={appPrecinct}
+        />
+        <VersionsData
+          machineConfig={machineConfig}
+          electionHash={electionDefinition.electionHash}
+        />
+      </Sidebar>
     </Screen>
   );
 }

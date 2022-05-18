@@ -25,7 +25,7 @@ export function RemoveCardScreen({
   precinctName,
 }: Props): JSX.Element {
   return (
-    <Screen flexDirection="column">
+    <Screen>
       <Main centerChild>
         <Prose textCenter>
           <RemoveCardImage

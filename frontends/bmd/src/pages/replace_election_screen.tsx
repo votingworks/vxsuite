@@ -83,7 +83,7 @@ export function ReplaceElectionScreen({
   }, [screenReader]);
 
   return (
-    <Screen flexDirection="row-reverse" voterMode={false}>
+    <Screen navLeft>
       <Main padded>
         <Prose id="audiofocus">
           <h1>Admin Card is not configured for this election</h1>

@@ -38,7 +38,7 @@ export function IdlePage(): JSX.Element {
   }, 1000);
 
   return (
-    <Screen>
+    <Screen navRight>
       <Main centerChild>
         {isLoading ? (
           <Loading>Clearing ballot</Loading>

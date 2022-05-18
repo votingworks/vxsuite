@@ -20,12 +20,14 @@ import { LinkButton } from './link_button';
 
 interface Props {
   children: React.ReactNode;
-  centerContent?: boolean;
+  centerChild?: boolean;
+  flexColumn?: boolean;
 }
 
 export function NavigationScreen({
   children,
-  centerContent,
+  centerChild,
+  flexColumn,
 }: Props): JSX.Element {
   const location = useLocation();
 
@@ -50,7 +52,7 @@ export function NavigationScreen({
   const currentUser = currentUserSession?.type ?? 'unknown';
 
   return (
-    <Screen flexDirection="column">
+    <Screen>
       <Navigation
         primaryNav={
           election ? (
@@ -135,7 +137,7 @@ export function NavigationScreen({
           </React.Fragment>
         }
       />
-      <Main padded centerChild={centerContent}>
+      <Main padded centerChild={centerChild} flexColumn={flexColumn}>
         {children}
       </Main>
       <ElectionInfoBar

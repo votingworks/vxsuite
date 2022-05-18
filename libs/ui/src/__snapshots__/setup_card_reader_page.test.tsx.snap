@@ -2,10 +2,10 @@
 
 exports[`renders SetupCardReaderPage renders SetupCardReaderPage with usePollWorkerLanguage set to false 1`] = `
 <div
-  class="sc-dkPtyc gyHLNG"
+  class="sc-dkPtyc ftEvXz"
 >
   <main
-    class="sc-bdvvaa eWAVzr"
+    class="sc-bdvvaa jnfvZB"
   >
     <div
       class="sc-gsDJrp immFYi"
@@ -23,10 +23,10 @@ exports[`renders SetupCardReaderPage renders SetupCardReaderPage with usePollWor
 
 exports[`renders SetupCardReaderPage triggers useEffect property 1`] = `
 <div
-  class="sc-dkPtyc gyHLNG"
+  class="sc-dkPtyc ftEvXz"
 >
   <main
-    class="sc-bdvvaa eWAVzr"
+    class="sc-bdvvaa jnfvZB"
   >
     <div
       class="sc-gsDJrp immFYi"
@@ -44,10 +44,10 @@ exports[`renders SetupCardReaderPage triggers useEffect property 1`] = `
 
 exports[`renders SetupCardReaderPage with no useEffect trigger as expected 1`] = `
 <div
-  class="sc-dkPtyc gyHLNG"
+  class="sc-dkPtyc ftEvXz"
 >
   <main
-    class="sc-bdvvaa eWAVzr"
+    class="sc-bdvvaa jnfvZB"
   >
     <div
       class="sc-gsDJrp immFYi"

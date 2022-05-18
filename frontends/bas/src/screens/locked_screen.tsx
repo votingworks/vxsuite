@@ -7,7 +7,7 @@ import { MainNav } from '../components/main_nav';
 
 export function LockedScreen(): JSX.Element {
   return (
-    <Screen flexDirection="column">
+    <Screen>
       <Main centerChild>
         <Prose textCenter>
           <h1>Screen Locked</h1>

@@ -404,7 +404,7 @@ export function ReviewPage(): JSX.Element {
   const { election } = electionDefinition;
 
   return (
-    <Screen>
+    <Screen navRight>
       <Main flexColumn>
         <ContentHeader>
           <Prose id="audiofocus">

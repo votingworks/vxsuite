@@ -75,7 +75,7 @@ export function AdminScreen({
   const ballotStylesCount = ballotStyles.length;
   const ballotStylesIds = ballotStyles.map((bs) => bs.id).join(', ');
   return (
-    <Screen flexDirection="column">
+    <Screen>
       <Main>
         <Prose>
           <p>Remove card when finished making changes.</p>

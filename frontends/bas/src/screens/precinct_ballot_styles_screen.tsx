@@ -41,7 +41,7 @@ export function PrecinctBallotStylesScreen({
     : precinctBallotStyles;
   const ballotStylesColumns = ballotStyles.length > 4 ? 3 : 2;
   return (
-    <Screen flexDirection="column">
+    <Screen>
       <Main>
         <Heading>
           {!isSinglePrecinctMode && (

@@ -20,7 +20,7 @@ const LockedImage = styled.img`
 export function MachineLockedScreen(): JSX.Element {
   const { electionDefinition, machineConfig } = useContext(AppContext);
   return (
-    <Screen flexDirection="column">
+    <Screen>
       <Main padded centerChild>
         <div>
           <LockedImage src="locked.svg" alt="Locked Icon" />

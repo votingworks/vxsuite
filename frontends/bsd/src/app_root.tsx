@@ -528,7 +528,7 @@ export function AppRoot({
   if (currentUserSession.type === 'superadmin') {
     return (
       <AppContext.Provider value={currentContext}>
-        <Screen flexDirection="column">
+        <Screen>
           <Main padded centerChild>
             <Prose theme={fontSizeTheme.large}>
               <RebootFromUsbButton
@@ -570,7 +570,7 @@ export function AppRoot({
     if (electionJustLoaded) {
       return (
         <AppContext.Provider value={currentContext}>
-          <Screen flexDirection="column">
+          <Screen>
             <Main padded centerChild>
               <div>
                 <Prose>
@@ -640,7 +640,7 @@ export function AppRoot({
             />
           </Route>
           <Route path="/">
-            <Screen flexDirection="column">
+            <Screen>
               <Main padded>
                 <DashboardScreen
                   isScanning={isScanning}
@@ -705,7 +705,7 @@ export function AppRoot({
   }
 
   return (
-    <Screen flexDirection="column">
+    <Screen>
       <Main padded centerChild>
         <h1>Loading Configuration...</h1>
       </Main>

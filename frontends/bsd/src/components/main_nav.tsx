@@ -1,16 +1,13 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const Nav = styled.div`
-  background: #455a64;
-  order: -1;
-`;
-
-const StyledNav = styled.div`
+const Nav = styled.nav`
   display: flex;
   flex-wrap: nowrap;
   justify-content: space-between;
   align-items: center;
+  background: #455a64;
+  order: -1;
 `;
 
 const Brand = styled.div`
@@ -48,18 +45,16 @@ interface Props {
 export function MainNav({ children, isTestMode = false }: Props): JSX.Element {
   return (
     <Nav>
-      <StyledNav>
-        <Brand>
-          <MakeName>
-            Voting<span>Works</span>
-          </MakeName>
-          <ModelName>
-            VxCentralScan
-            {isTestMode && <TestMode>&nbsp;TEST&nbsp;MODE</TestMode>}
-          </ModelName>
-        </Brand>
-        <NavButtons>{children}</NavButtons>
-      </StyledNav>
+      <Brand>
+        <MakeName>
+          Voting<span>Works</span>
+        </MakeName>
+        <ModelName>
+          VxCentralScan
+          {isTestMode && <TestMode>&nbsp;TEST&nbsp;MODE</TestMode>}
+        </ModelName>
+      </Brand>
+      <NavButtons>{children}</NavButtons>
     </Nav>
   );
 }

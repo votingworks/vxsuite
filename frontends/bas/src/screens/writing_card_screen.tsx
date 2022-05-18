@@ -24,7 +24,7 @@ export function WritingCardScreen({
   }, []);
 
   return (
-    <Screen flexDirection="column">
+    <Screen>
       <Main centerChild>
         <Prose textCenter>
           <p>

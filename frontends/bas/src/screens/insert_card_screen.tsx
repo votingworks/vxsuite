@@ -18,7 +18,7 @@ interface Props {
 
 export function InsertCardScreen({ lockScreen }: Props): JSX.Element {
   return (
-    <Screen flexDirection="column">
+    <Screen>
       <Main centerChild>
         <Prose textCenter>
           <InsertCardImage

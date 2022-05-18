@@ -174,7 +174,7 @@ export function TestBallotDeckScreen({
 
   return (
     <React.Fragment>
-      <Screen flexDirection="row-reverse" voterMode={false}>
+      <Screen navLeft>
         <Main padded>
           {ballots.length ? (
             <Prose className="no-print">

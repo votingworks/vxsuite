@@ -74,7 +74,7 @@ export function ElectionManager(): JSX.Element {
 
   if (currentUserSession.type === 'superadmin') {
     return (
-      <Screen flexDirection="column">
+      <Screen>
         <Main centerChild>
           <Prose textCenter maxWidth={false} theme={fontSizeTheme.large}>
             <RebootFromUsbButton

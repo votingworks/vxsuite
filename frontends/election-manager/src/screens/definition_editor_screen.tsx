@@ -17,7 +17,7 @@ import { TextareaEventFunction } from '../config/types';
 import { RemoveElectionModal } from '../components/remove_election_modal';
 
 const Header = styled.div`
-  margin-bottom: 1rem;
+  margin: 1rem;
 `;
 
 const FlexTextareaWrapper = styled.div`
@@ -90,7 +90,7 @@ export function DefinitionEditorScreen({
 
   return (
     <React.Fragment>
-      <NavigationScreen>
+      <NavigationScreen flexColumn>
         {error && (
           <Header>
             <Prose maxWidth={false}>{error}</Prose>

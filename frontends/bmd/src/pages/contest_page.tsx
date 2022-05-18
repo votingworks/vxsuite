@@ -80,7 +80,7 @@ export function ContestPage(): JSX.Element {
   }, [contest, vote, votes]);
 
   return (
-    <Screen>
+    <Screen navRight>
       {contest.type === 'candidate' && (
         <CandidateContest
           aria-live="assertive"
