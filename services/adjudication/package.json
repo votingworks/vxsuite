@@ -1,5 +1,5 @@
 {
-  "name": "@votingworks/write-ins",
+  "name": "@votingworks/adjudication",
   "version": "0.1.0",
   "private": true,
   "files": [

@@ -41,7 +41,7 @@ export async function start({
 
   resolvedApp.listen(port, async () => {
     await logger.log(LogEventId.ApplicationStartup, 'system', {
-      message: `Write-Ins Service running at http://localhost:${port}/`,
+      message: `Adjudication Service running at http://localhost:${port}/`,
       disposition: 'success',
     });
   });
