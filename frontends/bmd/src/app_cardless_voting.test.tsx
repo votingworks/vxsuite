@@ -76,15 +76,16 @@ test('Cardless Voting Flow', async () => {
   // Select precinct
   screen.getByText('State of Hamilton');
   const precinctSelect = screen.getByLabelText('Precinct');
-  const precinctId = (
-    within(precinctSelect).getByText('Center Springfield') as HTMLOptionElement
-  ).value;
+  const precinctId =
+    within(precinctSelect).getByText<HTMLOptionElement>(
+      'Center Springfield'
+    ).value;
   fireEvent.change(precinctSelect, { target: { value: precinctId } });
   within(screen.getByTestId('election-info')).getByText('Center Springfield');
 
   fireEvent.click(screen.getByText('Live Election Mode'));
   expect(
-    (screen.getByText('Live Election Mode') as HTMLButtonElement).disabled
+    screen.getByText<HTMLButtonElement>('Live Election Mode').disabled
   ).toBeTruthy();
 
   // Remove card
@@ -328,15 +329,14 @@ test('poll worker must select a precinct first', async () => {
   // Select precinct
   screen.getByText('State of Hamilton');
   const precinctSelect = screen.getByLabelText('Precinct');
-  const precinctId = (
-    within(precinctSelect).getByText('All Precincts') as HTMLOptionElement
-  ).value;
+  const precinctId =
+    within(precinctSelect).getByText<HTMLOptionElement>('All Precincts').value;
   fireEvent.change(precinctSelect, { target: { value: precinctId } });
   within(screen.getByTestId('election-info')).getByText('All Precincts');
 
   fireEvent.click(screen.getByText('Live Election Mode'));
   expect(
-    (screen.getByText('Live Election Mode') as HTMLButtonElement).disabled
+    screen.getByText<HTMLButtonElement>('Live Election Mode').disabled
   ).toBeTruthy();
 
   // Remove card

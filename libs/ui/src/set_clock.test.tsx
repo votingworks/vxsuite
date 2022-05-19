@@ -20,7 +20,7 @@ import {
 } from './set_clock';
 
 function getSelect(testId: string): HTMLSelectElement {
-  return screen.getByTestId(testId) as HTMLSelectElement;
+  return screen.getByTestId(testId);
 }
 
 const aDate = DateTime.fromObject({
@@ -252,16 +252,14 @@ describe('SetClockButton', () => {
       'Sat, Oct 31, 2020, 12:00 AM'
     );
 
-    const selectYear = screen.getByTestId('selectYear');
-    const optionYear = (
-      within(selectYear).getByText('2025') as HTMLOptionElement
-    ).value;
+    const selectYear = screen.getByTestId<HTMLSelectElement>('selectYear');
+    const optionYear =
+      within(selectYear).getByText<HTMLOptionElement>('2025').value;
     fireEvent.change(selectYear, { target: { value: optionYear } });
 
     const selectMonth = screen.getByTestId('selectMonth');
-    const optionMonth = (
-      within(selectMonth).getByText('Feb') as HTMLOptionElement
-    ).value;
+    const optionMonth =
+      within(selectMonth).getByText<HTMLOptionElement>('Feb').value;
     fireEvent.change(selectMonth, { target: { value: optionMonth } });
 
     // Expect day to change because Feb doesn't have 31 days.
@@ -270,36 +268,32 @@ describe('SetClockButton', () => {
     );
 
     const selectDay = screen.getByTestId('selectDay');
-    const optionDay = (within(selectDay).getByText('3') as HTMLOptionElement)
-      .value;
+    const optionDay = within(selectDay).getByText<HTMLOptionElement>('3').value;
     fireEvent.change(selectDay, { target: { value: optionDay } });
 
     const selectHour = screen.getByTestId('selectHour');
-    const optionHour = (within(selectHour).getByText('11') as HTMLOptionElement)
-      .value;
+    const optionHour =
+      within(selectHour).getByText<HTMLOptionElement>('11').value;
     fireEvent.change(selectHour, { target: { value: optionHour } });
 
     const selectMinute = screen.getByTestId('selectMinute');
-    const optionMinute = (
-      within(selectMinute).getByText('21') as HTMLOptionElement
-    ).value;
+    const optionMinute =
+      within(selectMinute).getByText<HTMLOptionElement>('21').value;
     fireEvent.change(selectMinute, { target: { value: optionMinute } });
 
     const selectMeridian = screen.getByTestId('selectMeridian');
-    const optionMeridian = (
-      within(selectMeridian).getByText('PM') as HTMLOptionElement
-    ).value;
+    const optionMeridian =
+      within(selectMeridian).getByText<HTMLOptionElement>('PM').value;
     fireEvent.change(selectMeridian, { target: { value: optionMeridian } });
 
     // Expect day, hour, minute, and meridian to update
     within(screen.getByTestId('modal')).getByText('Mon, Feb 3, 2025, 11:21 PM');
 
-    const selectTimezone = screen.getByTestId(
-      'selectTimezone'
-    ) as HTMLSelectElement;
-    const optionTimezone = within(selectTimezone).getByText(
+    const selectTimezone =
+      screen.getByTestId<HTMLSelectElement>('selectTimezone');
+    const optionTimezone = within(selectTimezone).getByText<HTMLOptionElement>(
       'Central Standard Time (Chicago)'
-    ) as HTMLOptionElement;
+    );
     expect(optionTimezone.selected).toBeFalsy();
     fireEvent.change(selectTimezone, {
       target: { value: optionTimezone.value },
@@ -307,10 +301,8 @@ describe('SetClockButton', () => {
 
     expect(selectTimezone.value).toBe('America/Chicago');
     expect(
-      (
-        within(selectTimezone).getByText(
-          'Central Standard Time (Chicago)'
-        ) as HTMLOptionElement
+      within(selectTimezone).getByText<HTMLOptionElement>(
+        'Central Standard Time (Chicago)'
       ).selected
     ).toBeTruthy();
 
@@ -325,21 +317,19 @@ describe('SetClockButton', () => {
     fireEvent.click(screen.getByText('Update Date and Time'));
 
     const selectDay2 = screen.getByTestId('selectDay');
-    const optionDay2 = (within(selectDay2).getByText('21') as HTMLOptionElement)
-      .value;
+    const optionDay2 =
+      within(selectDay2).getByText<HTMLOptionElement>('21').value;
     fireEvent.change(selectDay2, { target: { value: optionDay2 } });
 
     // Choose PM, then change hours
     const selectMeridian2 = screen.getByTestId('selectMeridian');
-    const optionMeridian2 = (
-      within(selectMeridian2).getByText('PM') as HTMLOptionElement
-    ).value;
+    const optionMeridian2 =
+      within(selectMeridian2).getByText<HTMLOptionElement>('PM').value;
     fireEvent.change(selectMeridian2, { target: { value: optionMeridian2 } });
 
     const selectHour2 = screen.getByTestId('selectHour');
-    const optionHour2 = (
-      within(selectHour2).getByText('11') as HTMLOptionElement
-    ).value;
+    const optionHour2 =
+      within(selectHour2).getByText<HTMLOptionElement>('11').value;
     fireEvent.change(selectHour2, { target: { value: optionHour2 } });
 
     // Expect time to be in PM
@@ -347,20 +337,18 @@ describe('SetClockButton', () => {
 
     // Choose AM, then change hours
     const selectMeridian3 = screen.getByTestId('selectMeridian');
-    const optionMeridian3 = (
-      within(selectMeridian3).getByText('AM') as HTMLOptionElement
-    ).value;
+    const optionMeridian3 =
+      within(selectMeridian3).getByText<HTMLOptionElement>('AM').value;
     fireEvent.change(selectMeridian3, { target: { value: optionMeridian3 } });
 
     // Expect time to be in AM
     screen.getByText('Wed, Oct 21, 2020, 11:00 AM');
 
-    const selectTimezone2 = screen.getByTestId(
-      'selectTimezone'
-    ) as HTMLSelectElement;
-    const optionTimezone2 = within(selectTimezone2).getByText(
-      'Pacific Daylight Time (Los Angeles)'
-    ) as HTMLOptionElement;
+    const selectTimezone2 =
+      screen.getByTestId<HTMLSelectElement>('selectTimezone');
+    const optionTimezone2 = within(
+      selectTimezone2
+    ).getByText<HTMLOptionElement>('Pacific Daylight Time (Los Angeles)');
     expect(optionTimezone2.selected).toBeFalsy();
     fireEvent.change(selectTimezone2, {
       target: { value: optionTimezone2.value },

@@ -112,8 +112,8 @@ test('renders date and time settings modal', async () => {
   within(screen.getByTestId('modal')).getByText('Sat, Oct 31, 2020, 12:00 AM');
 
   const selectYear = screen.getByTestId('selectYear');
-  const optionYear = (within(selectYear).getByText('2025') as HTMLOptionElement)
-    .value;
+  const optionYear =
+    within(selectYear).getByText<HTMLOptionElement>('2025').value;
   fireEvent.change(selectYear, { target: { value: optionYear } });
 
   // Save Date and Timezone
@@ -149,9 +149,8 @@ test('select All Precincts', () => {
   );
 
   const precinctSelect = screen.getByLabelText('Precinct');
-  const allPrecinctsOption = within(precinctSelect).getByText(
-    'All Precincts'
-  ) as HTMLOptionElement;
+  const allPrecinctsOption =
+    within(precinctSelect).getByText<HTMLOptionElement>('All Precincts');
   fireEvent.change(precinctSelect, {
     target: { value: allPrecinctsOption.value },
   });
@@ -200,7 +199,7 @@ test('render All Precincts', () => {
     />
   );
 
-  const precinctSelect = screen.getByLabelText('Precinct') as HTMLSelectElement;
+  const precinctSelect = screen.getByLabelText<HTMLSelectElement>('Precinct');
   expect(precinctSelect.selectedOptions[0].textContent).toEqual(
     'All Precincts'
   );

@@ -209,9 +209,9 @@ test('supports canceling a write-in', async () => {
   screen.getByText('Write-In Adjudication');
   screen.getByText(contest.title);
 
-  const isNotWriteInCheckbox = screen.getByTestId(
+  const isNotWriteInCheckbox = screen.getByTestId<HTMLInputElement>(
     `write-in-checkbox-${optionId}`
-  ) as HTMLInputElement;
+  );
   expect(isNotWriteInCheckbox.checked).toBe(false);
   userEvent.click(isNotWriteInCheckbox);
 
@@ -347,9 +347,9 @@ test('can adjudicate front & back in succession', async () => {
   screen.getByText(frontContest1.title);
 
   {
-    const isNotWriteInCheckbox = screen.getByTestId(
+    const isNotWriteInCheckbox = screen.getByTestId<HTMLInputElement>(
       `write-in-checkbox-${frontContest1WriteInId}`
-    ) as HTMLInputElement;
+    );
     expect(isNotWriteInCheckbox.checked).toBe(false);
     userEvent.click(isNotWriteInCheckbox);
   }
@@ -358,9 +358,9 @@ test('can adjudicate front & back in succession', async () => {
   screen.getByText(frontContest2.title);
 
   {
-    const isNotWriteInCheckbox = screen.getByTestId(
+    const isNotWriteInCheckbox = screen.getByTestId<HTMLInputElement>(
       `write-in-checkbox-${frontContest1WriteInId}`
-    ) as HTMLInputElement;
+    );
     expect(isNotWriteInCheckbox.checked).toBe(false);
     userEvent.click(isNotWriteInCheckbox);
   }
@@ -391,9 +391,9 @@ test('can adjudicate front & back in succession', async () => {
   });
 
   {
-    const isNotWriteInCheckbox = screen.getByTestId(
+    const isNotWriteInCheckbox = screen.getByTestId<HTMLInputElement>(
       `write-in-checkbox-${backContestWriteInId}`
-    ) as HTMLInputElement;
+    );
     expect(isNotWriteInCheckbox.checked).toBe(false);
     userEvent.click(isNotWriteInCheckbox);
   }

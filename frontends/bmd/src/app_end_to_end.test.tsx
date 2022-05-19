@@ -109,15 +109,16 @@ it('MarkAndPrint end-to-end flow', async () => {
   // Select precinct
   screen.getByText('State of Hamilton');
   const precinctSelect = screen.getByLabelText('Precinct');
-  const precinctId = (
-    within(precinctSelect).getByText('Center Springfield') as HTMLOptionElement
-  ).value;
+  const precinctId =
+    within(precinctSelect).getByText<HTMLOptionElement>(
+      'Center Springfield'
+    ).value;
   fireEvent.change(precinctSelect, { target: { value: precinctId } });
   within(screen.getByTestId('election-info')).getByText('Center Springfield');
 
   fireEvent.click(screen.getByText('Live Election Mode'));
   expect(
-    (screen.getByText('Live Election Mode') as HTMLButtonElement).disabled
+    screen.getByText<HTMLButtonElement>('Live Election Mode').disabled
   ).toBeTruthy();
 
   // Remove card
