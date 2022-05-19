@@ -507,6 +507,24 @@ jobs:
           command: |
             pnpm --dir libs/utils test
 
+  test-services-admin:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir services/admin build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir services/admin lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir services/admin test
+
   test-services-converter-ms-sems:
     docker:
       - image: circleci/python:3.9.2
@@ -608,6 +626,7 @@ workflows:
       - test-libs-types
       - test-libs-ui
       - test-libs-utils
+      - test-services-admin
       - test-services-converter-ms-sems
       - test-services-scan
       - test-services-smartcards
