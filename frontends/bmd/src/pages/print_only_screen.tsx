@@ -14,6 +14,7 @@ import {
   Main,
   Prose,
   Screen,
+  TestMode,
   Text,
 } from '@votingworks/ui';
 
@@ -28,12 +29,6 @@ const TopLeftContent = styled.div`
   position: absolute;
   top: 0;
   left: 0;
-  margin: 0.5rem 0.75rem;
-`;
-const TopRightContent = styled.div`
-  position: absolute;
-  top: 0;
-  right: 0;
   margin: 0.5rem 0.75rem;
 `;
 
@@ -126,68 +121,64 @@ export function PrintOnlyScreen({
   function renderContent() {
     if (isVoterCardPresent && isCardVotesEmpty) {
       return (
-        <React.Fragment>
+        <Prose textCenter>
           <h1>Empty Card</h1>
           <p>This card does not contain any votes.</p>
-        </React.Fragment>
+        </Prose>
       );
     }
     if (isPrinted) {
       return (
         <React.Fragment>
-          <p>
-            <Graphic
-              src="/images/verify-and-scan.svg"
-              alt="Verify and Scan Your Official Ballot"
-              aria-hidden
-            />
-          </p>
-          <h1>Verify and Scan Your Official Ballot</h1>
-          <p>
-            Verify the votes on your official ballot are correct. <br />
-            Insert your ballot into the ballot scanner.
-          </p>
+          <Graphic
+            src="/images/verify-and-scan.svg"
+            alt="Verify and Scan Your Official Ballot"
+            aria-hidden
+          />
+          <Prose textCenter>
+            <h1>Verify and Scan Your Official Ballot</h1>
+            <p>
+              Verify the votes on your official ballot are correct. <br />
+              Insert your ballot into the ballot scanner.
+            </p>
+          </Prose>
         </React.Fragment>
       );
     }
     if (isReadyToPrint) {
       return (
         <React.Fragment>
-          <p>
-            <Graphic
-              src="/images/printing-ballot.svg"
-              alt="Printing Ballot"
-              aria-hidden
-            />
-          </p>
-          <h1>
-            <Loading>Printing your official ballot</Loading>
-          </h1>
+          <Graphic
+            src="/images/printing-ballot.svg"
+            alt="Printing Ballot"
+            aria-hidden
+          />
+          <Prose textCenter>
+            <h1>
+              <Loading>Printing your official ballot</Loading>
+            </h1>
+          </Prose>
         </React.Fragment>
       );
     }
     return (
       <React.Fragment>
-        <p>
-          <Graphic
-            src="/images/insert-card.svg"
-            alt="Insert Card"
-            aria-hidden
-          />
-        </p>
-        <h1>Insert Card</h1>
-        <p>
-          Insert Card to print your official ballot.
-          {showNoChargerAttachedWarning && (
-            <React.Fragment>
-              <br />
-              <Text as="span" warning small>
-                <strong>No Power Detected.</strong> Please ask a poll worker to
-                plug in the power cord for this machine.
-              </Text>
-            </React.Fragment>
-          )}
-        </p>
+        <Graphic src="/images/insert-card.svg" alt="Insert Card" aria-hidden />
+        <Prose textCenter>
+          <h1>Insert Card</h1>
+          <p>
+            Insert Card to print your official ballot.
+            {showNoChargerAttachedWarning && (
+              <React.Fragment>
+                <br />
+                <Text as="span" warning small>
+                  <strong>No Power Detected.</strong> Please ask a poll worker
+                  to plug in the power cord for this machine.
+                </Text>
+              </React.Fragment>
+            )}
+          </p>
+        </Prose>
       </React.Fragment>
     );
   }
@@ -195,23 +186,15 @@ export function PrintOnlyScreen({
   return (
     <React.Fragment>
       <Screen white>
-        <Main centerChild>
-          <Prose textCenter>{renderContent()}</Prose>
+        {!isVoterCardPresent && !isLiveMode && <TestMode />}
+        <Main centerChild style={{ position: 'relative' }}>
+          {renderContent()}
           {!isVoterCardPresent && (
-            <React.Fragment>
-              {!isLiveMode && (
-                <TopRightContent>
-                  <Text as="span" warning warningIcon bold>
-                    Testing Mode
-                  </Text>
-                </TopRightContent>
-              )}
-              <TopLeftContent>
-                <small>
-                  Ballots Printed: <strong>{ballotsPrintedCount}</strong>
-                </small>
-              </TopLeftContent>
-            </React.Fragment>
+            <TopLeftContent>
+              <small>
+                Ballots Printed: <strong>{ballotsPrintedCount}</strong>
+              </small>
+            </TopLeftContent>
           )}
         </Main>
       </Screen>

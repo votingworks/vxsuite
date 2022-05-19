@@ -1,13 +1,28 @@
 import React from 'react';
 import styled from 'styled-components';
 
-const Nav = styled.nav`
+interface NavProps {
+  isTestMode?: boolean;
+}
+
+const NavWrapper = styled('div')<NavProps>`
+  padding: ${({ isTestMode }) => isTestMode && '1rem 0'};
+
+  /* https://stripesgenerator.com/stripe/5302 */
+  background-image: ${({ isTestMode }) =>
+    isTestMode &&
+    'linear-gradient( 135deg, #ff8c00 21.43%, #333333 21.43%, #333333 50%, #ff8c00 50%, #ff8c00 71.43%, #333333 71.43%, #333333 100% ) '};
+  background-size: ${({ isTestMode }) => isTestMode && '98.99px 98.99px'};
+  background-color: ${({ isTestMode }) => !isTestMode && '#455a64'};
+  order: -1;
+`;
+
+const Nav = styled('nav')<NavProps>`
   display: flex;
   flex-wrap: nowrap;
   justify-content: space-between;
   align-items: center;
-  background: #455a64;
-  order: -1;
+  background-color: ${({ isTestMode }) => isTestMode && '#ff8c00'};
 `;
 
 const Brand = styled.div`
@@ -34,27 +49,31 @@ const NavButtons = styled.div`
   }
 `;
 const TestMode = styled.span`
-  color: #ff8c00;
+  flex: 1;
+  background: #ff8c00;
+  color: #333333;
+  font-size: 2rem;
+  font-weight: 900;
+  text-align: center;
 `;
 
-interface Props {
+interface Props extends NavProps {
   children?: React.ReactNode;
-  isTestMode?: boolean;
 }
 
 export function MainNav({ children, isTestMode = false }: Props): JSX.Element {
   return (
-    <Nav>
-      <Brand>
-        <MakeName>
-          Voting<span>Works</span>
-        </MakeName>
-        <ModelName>
-          VxCentralScan
-          {isTestMode && <TestMode>&nbsp;TEST&nbsp;MODE</TestMode>}
-        </ModelName>
-      </Brand>
-      <NavButtons>{children}</NavButtons>
-    </Nav>
+    <NavWrapper isTestMode={isTestMode}>
+      <Nav isTestMode={isTestMode}>
+        <Brand>
+          <MakeName>
+            Voting<span>Works</span>
+          </MakeName>
+          <ModelName>VxCentralScan</ModelName>
+        </Brand>
+        {isTestMode && <TestMode>Machine is in Testing Mode</TestMode>}
+        <NavButtons>{children}</NavButtons>
+      </Nav>
+    </NavWrapper>
   );
 }

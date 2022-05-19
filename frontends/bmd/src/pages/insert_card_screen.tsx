@@ -1,10 +1,9 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
 import { ElectionDefinition } from '@votingworks/types';
-import { Main, Screen, Prose, Text } from '@votingworks/ui';
+import { Main, Screen, Prose, TestMode, Text } from '@votingworks/ui';
 
 import { Sidebar } from '../components/sidebar';
-import { TestMode } from '../components/test_mode';
 import { ElectionInfo } from '../components/election_info';
 import { MachineConfig, PrecinctSelection } from '../config/types';
 import { VersionsData } from '../components/versions_data';
@@ -38,8 +37,8 @@ export function InsertCardScreen({
   return (
     <Screen navRight white>
       <Main centerChild>
+        {!isLiveMode && <TestMode />}
         <Prose textCenter id="audiofocus">
-          <TestMode isLiveMode={isLiveMode} />
           {showNoChargerAttachedWarning && (
             <Text warning small>
               <strong>No Power Detected.</strong> Please ask a poll worker to
