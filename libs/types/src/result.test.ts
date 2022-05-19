@@ -1,5 +1,5 @@
 import { inspect } from 'util';
-import { err, isResult, ok } from './result';
+import { err, isResult, ok, wrapException } from './result';
 
 test('ok is Ok', () => {
   expect(ok(0).isOk()).toBe(true);
@@ -92,4 +92,9 @@ test('err inspect', () => {
     )
   ).toBe('err({ a: { nested: [Object] } })');
   expect(inspect(err(0), undefined, -1)).toBe('err(…)');
+});
+
+test('wrapException', () => {
+  expect(wrapException(new Error('err')).err()).toEqual(new Error('err'));
+  expect(wrapException(0).err()).toEqual(new Error('0'));
 });

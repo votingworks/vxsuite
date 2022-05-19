@@ -373,6 +373,8 @@ test('PrintOnly flow', async () => {
   await advanceTimersAndPromises();
 
   // Default Unconfigured
+  card.removeCard();
+  await advanceTimersAndPromises();
   screen.getByText('Device Not Configured');
 });
 
@@ -446,11 +448,9 @@ test('PrintOnly retains app mode when unconfigured', async () => {
     await advanceTimersAndPromises();
 
     // Default Unconfigured
-    screen.getByText('Device Not Configured');
-
-    // Remove card
     card.removeCard();
     await advanceTimersAndPromises();
+    screen.getByText('Device Not Configured');
   }
 
   // ---------------

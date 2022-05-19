@@ -10,7 +10,10 @@ import {
   CompressedTally,
   ContestId,
   Dictionary,
+  ElectionDefinition,
   MsEitherNeitherContestCompressedTally,
+  ok,
+  PollworkerLoggedInAuth,
   YesNoContestCompressedTally,
 } from '@votingworks/types';
 
@@ -21,7 +24,12 @@ import {
   typedAs,
   MemoryHardware,
 } from '@votingworks/utils';
-import { getZeroCompressedTally } from '@votingworks/test-utils';
+import {
+  getZeroCompressedTally,
+  fakePollworkerAuth as fakePollworkerAuthUtil,
+  fakePollworkerUser,
+  fakeCardStorage,
+} from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 
 import { PrecinctSelectionKind, MarkOnly, PrintOnly } from '../config/types';
@@ -44,9 +52,28 @@ beforeEach(() => {
   jest.useFakeTimers();
 });
 
-function renderScreen(props: Partial<PollworkerScreenProps> = {}) {
+function fakePollworkerAuth(
+  electionDefinition: ElectionDefinition,
+  tally?: PrecinctScannerCardTally
+): PollworkerLoggedInAuth {
+  return fakePollworkerAuthUtil(
+    fakePollworkerUser({ electionHash: electionDefinition.electionHash }),
+    fakeCardStorage({
+      hasStoredData: tally !== undefined,
+      readStoredObject: jest.fn().mockResolvedValue(ok(tally)),
+    })
+  );
+}
+
+function renderScreen(
+  props: Partial<PollworkerScreenProps> = {},
+  pollworkerAuth: PollworkerLoggedInAuth = fakePollworkerAuth(
+    electionSampleWithSealDefinition
+  )
+) {
   return render(
     <PollWorkerScreen
+      pollworkerAuth={pollworkerAuth}
       activateCardlessVoterSession={jest.fn()}
       resetCardlessVoterSession={jest.fn()}
       appPrecinct={{
@@ -64,8 +91,6 @@ function renderScreen(props: Partial<PollworkerScreenProps> = {}) {
       screenReader={new AriaScreenReader(fakeTts())}
       printer={fakePrinter()}
       togglePollsOpen={jest.fn()}
-      tallyOnCard={undefined}
-      clearTalliesOnCard={jest.fn()}
       reload={jest.fn()}
       {...props}
     />
@@ -151,7 +176,6 @@ test('live mode on election day', () => {
 });
 
 test('printing precinct scanner report works as expected with all precinct data for general election', async () => {
-  const clearTallies = jest.fn();
   const printFn = jest.fn();
 
   const existingTally = getZeroCompressedTally(electionSampleWithSeal);
@@ -173,8 +197,13 @@ test('printing precinct scanner report works as expected with all precinct data 
     isPollsOpen: false,
     ballotCounts: { 'undefined,__ALL_PRECINCTS': [20, 5] },
   };
+  const pollworkerAuth = fakePollworkerAuth(
+    electionSampleWithSealDefinition,
+    tallyOnCard
+  );
 
   renderScreen({
+    pollworkerAuth,
     isLiveMode: true,
     isPollsOpen: false,
     machineConfig: fakeMachineConfig({
@@ -182,15 +211,13 @@ test('printing precinct scanner report works as expected with all precinct data 
       machineId: '314',
     }),
     printer: { ...fakePrinter(), print: printFn },
-    tallyOnCard,
-    clearTalliesOnCard: clearTallies,
   });
 
-  screen.getByText('Tally Report on Card');
+  await screen.findByText('Tally Report on Card');
   fireEvent.click(screen.getByText('Print Tally Report'));
 
   await waitFor(() => {
-    expect(clearTallies).toHaveBeenCalledTimes(1);
+    expect(pollworkerAuth.card.clearStoredData).toHaveBeenCalledTimes(1);
     expect(printFn).toHaveBeenCalledTimes(1);
   });
   const allPrecinctsReports = screen.getAllByTestId(
@@ -220,7 +247,6 @@ test('printing precinct scanner report works as expected with all precinct data 
 
 test('printing precinct scanner report works as expected with single precinct data for general election', async () => {
   const election = electionSampleWithSeal;
-  const clearTallies = jest.fn();
   const printFn = jest.fn();
 
   const existingTally = getZeroCompressedTally(election);
@@ -249,8 +275,13 @@ test('printing precinct scanner report works as expected with single precinct da
       'undefined,23': [20, 5],
     },
   };
+  const pollworkerAuth = fakePollworkerAuth(
+    electionSampleWithSealDefinition,
+    tallyOnCard
+  );
 
   renderScreen({
+    pollworkerAuth,
     isLiveMode: true,
     isPollsOpen: false,
     machineConfig: fakeMachineConfig({
@@ -258,15 +289,13 @@ test('printing precinct scanner report works as expected with single precinct da
       machineId: '314',
     }),
     printer: { ...fakePrinter(), print: printFn },
-    tallyOnCard,
-    clearTalliesOnCard: clearTallies,
   });
 
-  screen.getByText('Tally Report on Card');
+  await screen.findByText('Tally Report on Card');
   fireEvent.click(screen.getByText('Print Tally Report'));
 
   await waitFor(() => {
-    expect(clearTallies).toHaveBeenCalledTimes(1);
+    expect(pollworkerAuth.card.clearStoredData).toHaveBeenCalledTimes(1);
     expect(printFn).toHaveBeenCalledTimes(1);
   });
   const centerSpringfieldReports = screen.getAllByTestId(
@@ -300,7 +329,6 @@ test('printing precinct scanner report works as expected with single precinct da
 
 test('printing precinct scanner report works as expected with all precinct specific data for general election', async () => {
   const election = electionSampleWithSeal;
-  const clearTallies = jest.fn();
   const printFn = jest.fn();
 
   const centerSpringfield = getZeroCompressedTally(election);
@@ -354,8 +382,13 @@ test('printing precinct scanner report works as expected with all precinct speci
       'undefined,20': [0, 0],
     },
   };
+  const pollworkerAuth = fakePollworkerAuth(
+    electionSampleWithSealDefinition,
+    tallyOnCard
+  );
 
   renderScreen({
+    pollworkerAuth,
     isLiveMode: true,
     isPollsOpen: false,
     machineConfig: fakeMachineConfig({
@@ -363,15 +396,13 @@ test('printing precinct scanner report works as expected with all precinct speci
       machineId: '314',
     }),
     printer: { ...fakePrinter(), print: printFn },
-    tallyOnCard,
-    clearTalliesOnCard: clearTallies,
   });
 
-  screen.getByText('Tally Report on Card');
+  await screen.findByText('Tally Report on Card');
   fireEvent.click(screen.getByText('Print Tally Report'));
 
   await waitFor(() => {
-    expect(clearTallies).toHaveBeenCalledTimes(1);
+    expect(pollworkerAuth.card.clearStoredData).toHaveBeenCalledTimes(1);
     expect(printFn).toHaveBeenCalledTimes(1);
   });
   const centerSpringfieldReports = screen.getAllByTestId(
@@ -445,7 +476,7 @@ test('printing precinct scanner report works as expected with all precinct speci
 });
 
 test('printing precinct scanner report works as expected with all precinct specific data for primary election', async () => {
-  const clearTallies = jest.fn();
+  const electionDefinition = electionMinimalExhaustiveSampleDefinition;
   const printFn = jest.fn();
 
   const combinedTally: CompressedTally = [
@@ -582,9 +613,11 @@ test('printing precinct scanner report works as expected with all precinct speci
       '1,precinct-2': [1, 0],
     },
   };
+  const pollworkerAuth = fakePollworkerAuth(electionDefinition, tallyOnCard);
 
   renderScreen({
-    electionDefinition: electionMinimalExhaustiveSampleDefinition,
+    pollworkerAuth,
+    electionDefinition,
     appPrecinct: {
       kind: PrecinctSelectionKind.SinglePrecinct,
       precinctId: 'precinct-1',
@@ -596,15 +629,13 @@ test('printing precinct scanner report works as expected with all precinct speci
       machineId: '314',
     }),
     printer: { ...fakePrinter(), print: printFn },
-    tallyOnCard,
-    clearTalliesOnCard: clearTallies,
   });
 
-  screen.getByText('Tally Report on Card');
+  await screen.findByText('Tally Report on Card');
   fireEvent.click(screen.getByText('Print Tally Report'));
 
   await waitFor(() => {
-    expect(clearTallies).toHaveBeenCalledTimes(1);
+    expect(pollworkerAuth.card.clearStoredData).toHaveBeenCalledTimes(1);
     expect(printFn).toHaveBeenCalledTimes(1);
   });
 
@@ -799,7 +830,7 @@ test('printing precinct scanner report works as expected with all precinct speci
 });
 
 test('printing precinct scanner report works as expected with all precinct combined data for primary election', async () => {
-  const clearTallies = jest.fn();
+  const electionDefinition = electionMinimalExhaustiveSampleDefinition;
   const printFn = jest.fn();
 
   const combinedTally: CompressedTally = [
@@ -859,9 +890,11 @@ test('printing precinct scanner report works as expected with all precinct combi
       '1,precinct-2': [1, 0],
     },
   };
+  const pollworkerAuth = fakePollworkerAuth(electionDefinition, tallyOnCard);
 
   renderScreen({
-    electionDefinition: electionMinimalExhaustiveSampleDefinition,
+    pollworkerAuth,
+    electionDefinition,
     appPrecinct: {
       kind: PrecinctSelectionKind.SinglePrecinct,
       precinctId: 'precinct-1',
@@ -873,15 +906,13 @@ test('printing precinct scanner report works as expected with all precinct combi
       machineId: '314',
     }),
     printer: { ...fakePrinter(), print: printFn },
-    tallyOnCard,
-    clearTalliesOnCard: clearTallies,
   });
 
-  screen.getByText('Tally Report on Card');
+  await screen.findByText('Tally Report on Card');
   fireEvent.click(screen.getByText('Print Tally Report'));
 
   await waitFor(() => {
-    expect(clearTallies).toHaveBeenCalledTimes(1);
+    expect(pollworkerAuth.card.clearStoredData).toHaveBeenCalledTimes(1);
     expect(printFn).toHaveBeenCalledTimes(1);
   });
 
@@ -986,7 +1017,7 @@ test('printing precinct scanner report works as expected with all precinct combi
 });
 
 test('printing precinct scanner report works as expected with a single precinct for primary election', async () => {
-  const clearTallies = jest.fn();
+  const electionDefinition = electionMinimalExhaustiveSampleDefinition;
   const printFn = jest.fn();
 
   const combinedTally: CompressedTally = [
@@ -1045,9 +1076,11 @@ test('printing precinct scanner report works as expected with a single precinct 
       '1,precinct-1': [1, 0],
     },
   };
+  const pollworkerAuth = fakePollworkerAuth(electionDefinition, tallyOnCard);
 
   renderScreen({
-    electionDefinition: electionMinimalExhaustiveSampleDefinition,
+    pollworkerAuth,
+    electionDefinition,
     appPrecinct: {
       kind: PrecinctSelectionKind.SinglePrecinct,
       precinctId: 'precinct-1',
@@ -1059,15 +1092,13 @@ test('printing precinct scanner report works as expected with a single precinct 
       machineId: '314',
     }),
     printer: { ...fakePrinter(), print: printFn },
-    tallyOnCard,
-    clearTalliesOnCard: clearTallies,
   });
 
-  screen.getByText('Tally Report on Card');
+  await screen.findByText('Tally Report on Card');
   fireEvent.click(screen.getByText('Print Tally Report'));
 
   await waitFor(() => {
-    expect(clearTallies).toHaveBeenCalledTimes(1);
+    expect(pollworkerAuth.card.clearStoredData).toHaveBeenCalledTimes(1);
     expect(printFn).toHaveBeenCalledTimes(1);
   });
 

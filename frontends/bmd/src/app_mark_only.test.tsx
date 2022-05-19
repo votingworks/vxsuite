@@ -212,5 +212,7 @@ it('MarkOnly flow', async () => {
   await advanceTimersAndPromises();
 
   // Default Unconfigured
+  card.removeCard();
+  await advanceTimersAndPromises();
   screen.getByText('Device Not Configured');
 });

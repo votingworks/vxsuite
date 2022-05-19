@@ -2,6 +2,7 @@ import {
   AdminCardData,
   Election,
   PollworkerCardData,
+  SuperadminCardData,
   VoterCardData,
 } from '@votingworks/types';
 
@@ -21,6 +22,10 @@ function assert(condition: unknown, message?: string): asserts condition {
   if (!condition) {
     throw new Error(message);
   }
+}
+
+export function makeSuperadminCard(): SuperadminCardData {
+  return { t: 'superadmin' };
 }
 
 export function makeAdminCard(

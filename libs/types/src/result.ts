@@ -156,6 +156,13 @@ export function ok<T, E>(value: T = undefined as unknown as T): Result<T, E> {
 export function err<T, E>(error: E): Result<T, E> {
   return new Err(error);
 }
+/**
+ * Wraps a caught exception, which is required by TS to have type unknown, as an Error.
+ */
+// eslint-disable-next-line vx/gts-no-return-type-only-generics
+export function wrapException<T>(error: unknown): Result<T, Error> {
+  return err(error instanceof Error ? error : new Error(String(error)));
+}
 
 // Export just the interfaces, not the classes. This encourages the use of
 // `ok` and `err` constructors instead of the class constructors.

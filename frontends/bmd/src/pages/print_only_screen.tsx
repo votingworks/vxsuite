@@ -77,9 +77,8 @@ export function PrintOnlyScreen({
     !isCardVotesEmpty &&
     !isPrinted;
 
-  // Handle Font Size when voter card is present.
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(useEffectToggleLargeDisplay, [isVoterCardPresent]);
+  useEffect(useEffectToggleLargeDisplay, []);
 
   const printBallot = useCallback(async () => {
     const isUsed = await markVoterCardPrinted();

@@ -5,5 +5,6 @@ export * from './child_process';
 export * from './compressed_tallies';
 export * from './fake_kiosk';
 export * from './smartcards';
+export * from './smartcard_auth';
 export * from './zip';
 export * from './mock_of';
