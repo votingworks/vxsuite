@@ -2241,12 +2241,19 @@ importers:
       '@votingworks/logging': link:../../libs/logging
       '@votingworks/types': link:../../libs/types
       '@votingworks/utils': link:../../libs/utils
+      better-sqlite3: 7.5.3
+      debug: 4.3.4
       express: 4.18.0
+      js-sha256: 0.9.0
     devDependencies:
+      '@types/better-sqlite3': 7.5.0
+      '@types/debug': 4.1.7
       '@types/express': 4.17.13
+      '@types/fs-extra': 9.0.13
       '@types/jest': 26.0.23
       '@types/node': 16.11.29
       '@types/supertest': 2.0.10
+      '@types/tmp': 0.2.3
       '@typescript-eslint/eslint-plugin': 5.21.0_bb9518338a760ece3e1b033a5f6af62e
       '@typescript-eslint/parser': 5.21.0_eslint@7.32.0+typescript@4.6.3
       esbuild: 0.14.30
@@ -2260,6 +2267,7 @@ importers:
       eslint-plugin-prettier: 3.4.1_2544802fe0b6e1e28814bd742f96f471
       eslint-plugin-vx: link:../../libs/eslint-plugin-vx
       fast-check: 2.23.2
+      fs-extra: 10.1.0
       is-ci-cli: 2.2.0
       jest: 26.6.3
       jest-watch-typeahead: 0.6.5_jest@26.6.3
@@ -2267,19 +2275,26 @@ importers:
       prettier: 2.6.2
       sort-package-json: 1.53.1
       supertest: 6.1.1
+      tmp: 0.2.1
       ts-jest: 26.5.6_jest@26.6.3+typescript@4.6.3
       typescript: 4.6.3
     specifiers:
+      '@types/better-sqlite3': ^7.5.0
+      '@types/debug': ^4.1.7
       '@types/express': ^4.17.13
+      '@types/fs-extra': ^9.0.13
       '@types/jest': ^26.0.6
       '@types/node': 16.11.29
       '@types/supertest': ^2.0.10
+      '@types/tmp': ^0.2.3
       '@typescript-eslint/eslint-plugin': ^5.21.0
       '@typescript-eslint/parser': ^5.21.0
       '@votingworks/fixtures': workspace:*
       '@votingworks/logging': workspace:*
       '@votingworks/types': workspace:*
       '@votingworks/utils': workspace:*
+      better-sqlite3: ^7.5.3
+      debug: ^4.3.4
       esbuild: ^0.14.29
       esbuild-runner: ^2.2.1
       eslint: ^7.17.0
@@ -2292,13 +2307,16 @@ importers:
       eslint-plugin-vx: workspace:*
       express: ^4.18.0
       fast-check: ^2.23.2
+      fs-extra: ^10.1.0
       is-ci-cli: ^2.1.2
       jest: ^26.6.3
       jest-watch-typeahead: ^0.6.4
+      js-sha256: ^0.9.0
       lint-staged: ^10.5.3
       prettier: ^2.6.2
       sort-package-json: ^1.50.0
       supertest: ^6.0.1
+      tmp: ^0.2.1
       ts-jest: ^26.4.4
       typescript: 4.6.3
   services/scan:
@@ -8746,6 +8764,12 @@ packages:
     dev: true
     resolution:
       integrity: sha512-4Xse4Dck45PbQSwBZIVIsEztq5iPLo5mfxtHSRw4Df0QHlz99BttZPo39Rd7e2RDxgiUftAwX8AQIYFjubcxMw==
+  /@types/better-sqlite3/7.5.0:
+    dependencies:
+      '@types/node': 17.0.23
+    dev: true
+    resolution:
+      integrity: sha512-G9ZbMjydW2yj1AgiPlUtdgF3a1qNpLJLudc9ynJCeJByS3XFWpmT9LT+VSHrKHFbxb31CvtYwetLTOvG9zdxdg==
   /@types/bindings/1.5.0:
     dependencies:
       '@types/node': 14.14.21
@@ -8860,7 +8884,7 @@ packages:
       integrity: sha512-NLMbBVQh3yx6dMd5CnVxp9ZBhQYuFzWIlRk0kQbgBfyL75u3wtZyUTuFsK9Wb9G3eIw77yja858j1fQAWqM9Og==
   /@types/fs-extra/9.0.13:
     dependencies:
-      '@types/node': 12.20.37
+      '@types/node': 17.0.23
     dev: true
     resolution:
       integrity: sha512-nEnwB++1u5lVDM2UI4c1+5R+FYaKfaAzS4OococimjVm3nQw3TuzH5UNsocrcTBbhnerblyHj4A49qXbIiZdpA==
@@ -9091,10 +9115,6 @@ packages:
     dev: true
     resolution:
       integrity: sha512-/SNsDidUFCvqqcWDwxv2feww/yqhNeTRL5CVoL3jU4Goc4kKEL10T7Eye65ZqPNi4HRx8sAEX59pV1aEH7drNA==
-  /@types/node/12.20.37:
-    dev: true
-    resolution:
-      integrity: sha512-i1KGxqcvJaLQali+WuypQnXwcplhtNtjs66eNsZpp2P2FL/trJJxx/VWsM0YCL2iMoIJrbXje48lvIQAQ4p2ZA==
   /@types/node/14.14.20:
     dev: true
     resolution:
@@ -11687,7 +11707,7 @@ packages:
     engines:
       node: '>=0.10.0'
     resolution:
-      integrity: sha1-w7M6te42DYbg5ijwRorn7yfWVN8=
+      integrity: sha512-TIGnTpdo+E3+pCyAluZvtED5p5wCqLdezCyhPZzKPcxvFplEt4i+W7OONCKgeZFT3+y5NZZfOOS/Bdcanm1MYA==
   /ansi-regex/3.0.0:
     dev: true
     engines:
@@ -12602,6 +12622,14 @@ packages:
     requiresBuild: true
     resolution:
       integrity: sha512-6FdG9DoytYGDhLW7VWW1vxjEz7xHkqK6LnaUQYA8d6GHNgZhu9PFX2xwKEEnSBRoT1J4PjTUPeg217ShxNmuPg==
+  /better-sqlite3/7.5.3:
+    dependencies:
+      bindings: 1.5.0
+      prebuild-install: 7.1.0
+    dev: false
+    requiresBuild: true
+    resolution:
+      integrity: sha512-tNIrDsThpWT8j1mg+svI1pqCYROqNOWMbB2qXVg+TJqH9UR5XnbAHyRsLZoJagldGTTqJPj/sUPVOkW0GRpYqw==
   /bfj/7.0.2:
     dependencies:
       bluebird: 3.7.2
@@ -20014,6 +20042,16 @@ packages:
       node: '>=12'
     resolution:
       integrity: sha512-C5owb14u9eJwizKGdchcDUQeFtlSHHthBk8pbX9Vc1PFZrLombudjDnNns88aYslCyF6IY5SUw3Roz6xShcEIQ==
+  /fs-extra/10.1.0:
+    dependencies:
+      graceful-fs: 4.2.10
+      jsonfile: 6.1.0
+      universalify: 2.0.0
+    dev: true
+    engines:
+      node: '>=12'
+    resolution:
+      integrity: sha512-oRXApq54ETRj4eMiFzGnHWGy+zo5raudjuxN0b8H7s/RU2oW0Wvsx9O0ACRN/kRq9E8Vu/ReskGB5o3ji+FzHQ==
   /fs-extra/7.0.1:
     dependencies:
       graceful-fs: 4.2.10
@@ -20281,6 +20319,16 @@ packages:
       path-is-absolute: 1.0.1
     resolution:
       integrity: sha512-lmLf6gtyrPq8tTjSmrO94wBeQbFR3HbLHbuyD69wuyQkImp2hWqMGB47OX65FBkPffO641IP9jWa1z4ivqG26Q==
+  /glob/7.2.3:
+    dependencies:
+      fs.realpath: 1.0.0
+      inflight: 1.0.6
+      inherits: 2.0.4
+      minimatch: 3.1.2
+      once: 1.4.0
+      path-is-absolute: 1.0.1
+    resolution:
+      integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==
   /global-dirs/3.0.0:
     dependencies:
       ini: 2.0.0
@@ -25521,7 +25569,6 @@ packages:
     resolution:
       integrity: sha512-FM9nNUYrRBAELZQT3xeZQ7fmMOBg6nWNmJKTcgsJeaLstP/UODVpGsr5OhXhhXg6f+qtJ8uiZ+PUxkDWcgIXLw==
   /minimist/1.2.6:
-    dev: true
     resolution:
       integrity: sha512-Jsjnk4bw3YJqYzbdyBiNsPWHPfO++UGG749Cxs6peCu5Xg4nrena6OVxOYxrQTqww0Jmwt+Ref8rggumkTLz9Q==
   /minipass-collect/1.0.2:
@@ -25771,6 +25818,14 @@ packages:
       node: '>= 10.13'
     resolution:
       integrity: sha512-3N3DUY8XYrxxzWazQ+nSBpiaJ3q6gcpNh4gXovC/QBxrsvNp4tq+wsLHF6mJ3nrn3lPLn7KCJqKxy/9aD+0fdw==
+  /node-abi/3.15.0:
+    dependencies:
+      semver: 7.3.7
+    dev: false
+    engines:
+      node: '>=10'
+    resolution:
+      integrity: sha512-Ic6z/j6I9RLm4ov7npo1I48UQr2BEyFCqh6p7S1dhEx9jPO0GPGq/e2Rb7x7DroQrmiVMz/Bw1vJm9sPAl2nxA==
   /node-abi/3.8.0:
     dependencies:
       semver: 7.3.5
@@ -27620,6 +27675,27 @@ packages:
     hasBin: true
     resolution:
       integrity: sha512-QBSab31WqkyxpnMWQxubYAHR5S9B2+r81ucocew34Fkl98FhvKIF50jIJnNOBmAZfyNV7vE5T6gd3hTVWgY6tg==
+  /prebuild-install/7.1.0:
+    dependencies:
+      detect-libc: 2.0.1
+      expand-template: 2.0.3
+      github-from-package: 0.0.0
+      minimist: 1.2.6
+      mkdirp-classic: 0.5.3
+      napi-build-utils: 1.0.2
+      node-abi: 3.15.0
+      npmlog: 4.1.2
+      pump: 3.0.0
+      rc: 1.2.8
+      simple-get: 4.0.1
+      tar-fs: 2.1.1
+      tunnel-agent: 0.6.0
+    dev: false
+    engines:
+      node: '>=10'
+    hasBin: true
+    resolution:
+      integrity: sha512-CNcMgI1xBypOyGqjp3wOc8AAo1nMhZS3Cwd3iHIxOdAUbb+YxdNuM4Z5iIrZ8RLvOsf3F3bl7b7xGq6DjQoNYA==
   /prelude-ls/1.1.2:
     engines:
       node: '>= 0.8.0'
@@ -28083,7 +28159,7 @@ packages:
     dependencies:
       deep-extend: 0.6.0
       ini: 1.3.8
-      minimist: 1.2.5
+      minimist: 1.2.6
       strip-json-comments: 2.0.1
     dev: false
     hasBin: true
@@ -29006,7 +29082,7 @@ packages:
       integrity: sha512-uWjbaKIK3T1OSVptzX7Nl6PvQ3qAGtKEtVRjRuazjfL3Bx5eI409VZSqgND+4UNnmzLVdPj9FqFJNPqBZFve4w==
   /rimraf/3.0.2:
     dependencies:
-      glob: 7.2.0
+      glob: 7.2.3
     hasBin: true
     resolution:
       integrity: sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==
@@ -32365,7 +32441,7 @@ packages:
       integrity: sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA==
   /wide-align/1.1.5:
     dependencies:
-      string-width: 4.2.3
+      string-width: 1.0.2
     dev: false
     resolution:
       integrity: sha512-eDMORYaPNZ4sQIuuYPDHdQvf4gyCF9rEEV/yPxGfwPkRodwEgiMUUXTx/dex+Me0wxx53S+NgUHaP7y3MGlDmg==
