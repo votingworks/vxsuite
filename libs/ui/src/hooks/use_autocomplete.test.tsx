@@ -44,7 +44,7 @@ test('basic autocomplete', async () => {
 
   render(<TestComponent />);
 
-  const input = screen.getByTestId('autocomplete') as HTMLInputElement;
+  const input = screen.getByTestId<HTMLInputElement>('autocomplete');
 
   // start typing something that will match
   userEvent.type(input, 'o');

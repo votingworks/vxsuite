@@ -39,6 +39,7 @@ import {
   Hardware,
   PrecinctScannerCardTallySchema,
   PrecinctScannerCardTally,
+  sleep,
 } from '@votingworks/utils';
 
 import {
@@ -271,10 +272,9 @@ export function PollWorkerScreen({
     async function printReport() {
       if (isPrintingPrecinctScannerReport && printLock.lock()) {
         await printer.print({ sides: 'one-sided' });
-        window.setTimeout(async () => {
-          await resetCardTallyData();
-          printLock.unlock();
-        }, REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
+        await sleep(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
+        await resetCardTallyData();
+        printLock.unlock();
       }
     }
     void printReport();

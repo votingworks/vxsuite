@@ -56,8 +56,8 @@ test('renders date and time settings modal', async () => {
   within(screen.getByTestId('modal')).getByText('Sat, Oct 31, 2020, 12:00 AM');
 
   const selectYear = screen.getByTestId('selectYear');
-  const optionYear = (within(selectYear).getByText('2025') as HTMLOptionElement)
-    .value;
+  const optionYear =
+    within(selectYear).getByText<HTMLOptionElement>('2025').value;
   fireEvent.change(selectYear, { target: { value: optionYear } });
 
   // Save Date and Timezone

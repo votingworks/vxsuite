@@ -23,7 +23,12 @@ export function Loading({
 }: Props): JSX.Element {
   const content = (
     <Prose>
-      <ProgressEllipsis as={as} aria-label={`${children}.`}>
+      <ProgressEllipsis
+        as={as}
+        aria-label={`${
+          Array.isArray(children) ? children.join('') : children
+        }.`}
+      >
         {children}
       </ProgressEllipsis>
     </Prose>

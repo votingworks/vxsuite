@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 import path from 'path';
 import fileDownload from 'js-file-download';
-import { assert, usbstick, throwIllegalValue } from '@votingworks/utils';
+import { assert, usbstick, throwIllegalValue, sleep } from '@votingworks/utils';
 
 import { Modal, UsbControllerButton, Prose } from '@votingworks/ui';
 
@@ -125,7 +125,7 @@ export function SaveFileToUsb({
       }
 
       setSavedFilename(filenameLocation);
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await sleep(2000);
       await logger.log(LogEventId.FileSaved, currentUserSession.type, {
         disposition: 'success',
         message: `Successfully saved ${fileName} to ${filenameLocation} on the usb drive.`,

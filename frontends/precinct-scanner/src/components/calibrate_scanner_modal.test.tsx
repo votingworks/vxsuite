@@ -36,8 +36,7 @@ test('waiting for paper', async () => {
   );
 
   expect(
-    ((await screen.findByText('Waiting for Paper')) as HTMLButtonElement)
-      .disabled
+    (await screen.findByText<HTMLButtonElement>('Waiting for Paper')).disabled
   ).toBe(true);
 
   fireEvent.click(await screen.findByText('Cancel'));
@@ -60,8 +59,7 @@ test('scanner not available', async () => {
   );
 
   expect(
-    ((await screen.findByText('Cannot Calibrate')) as HTMLButtonElement)
-      .disabled
+    (await screen.findByText<HTMLButtonElement>('Cannot Calibrate')).disabled
   ).toBe(true);
 
   fireEvent.click(await screen.findByText('Cancel'));

@@ -39,7 +39,7 @@ export async function getCurrentStatus(): Promise<ScannerStatusDetails> {
 
 export async function scanDetectedSheet(): Promise<ScanningResult> {
   const result = await (
-    await fetch('scan/scanBatch', { method: 'post' })
+    await fetch('/scan/scanBatch', { method: 'post' })
   ).json();
 
   if (result.status === 'error') {

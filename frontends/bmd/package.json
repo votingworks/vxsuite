@@ -129,7 +129,7 @@
     "@codemod/parser": "^1.0.7",
     "@testing-library/cypress": "^8.0.2",
     "@testing-library/jest-dom": "^5.16.4",
-    "@testing-library/react": "^11.2.3",
+    "@testing-library/react": "^12.1.5",
     "@testing-library/user-event": "^13.5.0",
     "@types/debug": "^4.1.6",
     "@types/history": "^4.7.8",

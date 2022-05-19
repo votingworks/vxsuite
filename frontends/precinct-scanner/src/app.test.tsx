@@ -593,6 +593,8 @@ test('voter can cast a ballot that scans successfully ', async () => {
 });
 
 test('voter can cast a ballot that needs review and adjudicate as desired', async () => {
+  const card = new MemoryCard();
+  const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   await storage.set(stateStorageKey, { isPollsOpen: true });
   const kiosk = fakeKiosk();
@@ -604,8 +606,6 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
     .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody });
-  const card = new MemoryCard();
-  const hardware = MemoryHardware.buildStandard();
   render(<App storage={storage} card={card} hardware={hardware} />);
   advanceTimers(1);
   await screen.findByText('Insert Your Ballot Below');
@@ -616,83 +616,63 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   await screen.findByText('Election ID');
   await screen.findByText('b52e9f4728');
 
-  fetchMock.getOnce(
-    '/scan/status',
-    typedAs<Scan.GetScanStatusResponse>({
-      scanner: Scan.ScannerStatus.ReadyToScan,
-      canUnconfigure: false,
-      batches: [],
-      adjudication: { adjudicated: 0, remaining: 0 },
-    }),
-    { overwriteRoutes: true, repeat: 6 }
-  );
-  fetchMock.post('/scan/scanBatch', {
-    body: { status: 'ok', batchId: 'test-batch' },
+  fetchMock.get('/scan/status', scanStatusReadyToScanResponseBody, {
+    overwriteRoutes: true,
   });
-  fetchMock.getOnce(
-    '/scan/status',
-    typedAs<Scan.GetScanStatusResponse>({
-      scanner: Scan.ScannerStatus.WaitingForPaper,
-      canUnconfigure: false,
-      batches: [
-        {
-          id: 'test-batch',
-          label: 'Batch 1',
-          count: 1,
-          startedAt: DateTime.now().toISO(),
-          endedAt: DateTime.now().toISO(),
+  fetchMock.post('/scan/scanBatch', () => {
+    // update status on scan
+    fetchMock.get(
+      '/scan/status',
+      typedAs<Scan.GetScanStatusResponse>({
+        scanner: Scan.ScannerStatus.ReadyToScan,
+        canUnconfigure: false,
+        batches: [
+          {
+            id: 'test-batch',
+            label: 'Batch 1',
+            count: 1,
+            startedAt: DateTime.now().toISO(),
+          },
+        ],
+        adjudication: { adjudicated: 0, remaining: 1 },
+      }),
+      { overwriteRoutes: true }
+    );
+    fetchMock.get(
+      '/scan/hmpb/review/next-sheet',
+      typedAs<Scan.GetNextReviewSheetResponse>({
+        interpreted: {
+          id: 'test-sheet',
+          front: {
+            interpretation: interpretedHmpb({
+              electionDefinition: electionSampleDefinition,
+              pageNumber: 1,
+              adjudicationReason: AdjudicationReason.Overvote,
+            }),
+            image: { url: '/not/real.jpg' },
+          },
+          back: {
+            interpretation: interpretedHmpb({
+              electionDefinition: electionSampleDefinition,
+              pageNumber: 2,
+            }),
+            image: { url: '/not/real.jpg' },
+          },
         },
-      ],
-      adjudication: { adjudicated: 0, remaining: 1 },
-    }),
-    { overwriteRoutes: false, repeat: 4 }
-  );
-  fetchMock.get(
-    '/scan/status',
-    typedAs<Scan.GetScanStatusResponse>({
-      scanner: Scan.ScannerStatus.ReadyToScan,
-      canUnconfigure: false,
-      batches: [
-        {
-          id: 'test-batch',
-          label: 'Batch 1',
-          count: 1,
-          startedAt: DateTime.now().toISO(),
-          endedAt: DateTime.now().toISO(),
-        },
-      ],
-      adjudication: { adjudicated: 0, remaining: 1 },
-    }),
-    { overwriteRoutes: false }
-  );
-  fetchMock.get(
-    '/scan/hmpb/review/next-sheet',
-    typedAs<Scan.GetNextReviewSheetResponse>({
-      interpreted: {
-        id: 'test-sheet',
-        front: {
-          interpretation: interpretedHmpb({
-            electionDefinition: electionSampleDefinition,
-            pageNumber: 1,
-            adjudicationReason: AdjudicationReason.Overvote,
-          }),
-          image: { url: '/not/real.jpg' },
-        },
-        back: {
-          interpretation: interpretedHmpb({
-            electionDefinition: electionSampleDefinition,
-            pageNumber: 2,
-          }),
-          image: { url: '/not/real.jpg' },
-        },
-      },
-      layouts: {},
-      definitions: {},
-    })
-  );
-  await advanceTimersAndPromises(1);
+        layouts: {},
+        definitions: {},
+      })
+    );
+
+    return {
+      body: { status: 'ok', batchId: 'test-batch' },
+    };
+  });
+
+  // trigger scan
+  await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS / 1000);
+  expect(fetchMock.calls('/scan/scanBatch')).toHaveLength(1);
   await screen.findByText('Ballot Requires Review');
-  expect(fetchMock.calls('scan/scanBatch')).toHaveLength(1);
 
   fetchMock.post('/scan/scanContinue', {
     body: { status: 'ok' },
@@ -726,7 +706,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   expect((await screen.findByTestId('ballot-count')).textContent).toBe('1');
 
   // Simulate another ballot
-  fetchMock.getOnce(
+  fetchMock.get(
     '/scan/status',
     typedAs<Scan.GetScanStatusResponse>({
       scanner: Scan.ScannerStatus.ReadyToScan,
@@ -742,68 +722,45 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
       ],
       adjudication: { adjudicated: 0, remaining: 0 },
     }),
-    { overwriteRoutes: true, repeat: 3 }
+    { overwriteRoutes: true }
   );
   fetchMock.post(
     '/scan/scanBatch',
-    {
-      body: { status: 'ok', batchId: 'test-batch2' },
+    () => {
+      fetchMock.get(
+        '/scan/status',
+        typedAs<Scan.GetScanStatusResponse>({
+          scanner: Scan.ScannerStatus.ReadyToScan,
+          canUnconfigure: false,
+          batches: [
+            {
+              id: 'test-batch',
+              label: 'Batch 1',
+              count: 1,
+              startedAt: DateTime.now().toISO(),
+              endedAt: DateTime.now().toISO(),
+            },
+            {
+              id: 'test-batch2',
+              label: 'Batch 2',
+              count: 1,
+              startedAt: DateTime.now().toISO(),
+              endedAt: DateTime.now().toISO(),
+            },
+          ],
+          adjudication: { adjudicated: 0, remaining: 1 },
+        }),
+        { overwriteRoutes: true }
+      );
+      return {
+        body: { status: 'ok', batchId: 'test-batch2' },
+      };
     },
     { overwriteRoutes: true }
   );
-  fetchMock.getOnce(
-    '/scan/status',
-    typedAs<Scan.GetScanStatusResponse>({
-      scanner: Scan.ScannerStatus.WaitingForPaper,
-      canUnconfigure: false,
-      batches: [
-        {
-          id: 'test-batch',
-          label: 'Batch 1',
-          count: 1,
-          startedAt: DateTime.now().toISO(),
-          endedAt: DateTime.now().toISO(),
-        },
-        {
-          id: 'test-batch2',
-          label: 'Batch 1',
-          count: 1,
-          startedAt: DateTime.now().toISO(),
-          endedAt: DateTime.now().toISO(),
-        },
-      ],
-      adjudication: { adjudicated: 0, remaining: 1 },
-    }),
-    { overwriteRoutes: false, repeat: 1 }
-  );
-  fetchMock.get(
-    '/scan/status',
-    typedAs<Scan.GetScanStatusResponse>({
-      scanner: Scan.ScannerStatus.ReadyToScan,
-      canUnconfigure: false,
-      batches: [
-        {
-          id: 'test-batch',
-          label: 'Batch 1',
-          count: 1,
-          startedAt: DateTime.now().toISO(),
-          endedAt: DateTime.now().toISO(),
-        },
-        {
-          id: 'test-batch2',
-          label: 'Batch 2',
-          count: 1,
-          startedAt: DateTime.now().toISO(),
-          endedAt: DateTime.now().toISO(),
-        },
-      ],
-      adjudication: { adjudicated: 0, remaining: 1 },
-    }),
-    { overwriteRoutes: false }
-  );
   await advanceTimersAndPromises(1);
   await screen.findByText('Ballot Requires Review');
-  expect(fetchMock.calls('scan/scanBatch')).toHaveLength(2);
+  expect(fetchMock.calls('/scan/scanBatch')).toHaveLength(2);
 
   // Simulate voter pulling out the ballot
   fetchMock.get(
@@ -833,7 +790,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   );
   await advanceTimersAndPromises(1);
   await screen.findByText('Insert Your Ballot Below');
-  expect(fetchMock.calls('scan/scanContinue')).toHaveLength(2);
+  expect(fetchMock.calls('/scan/scanContinue')).toHaveLength(2);
 });
 
 test('voter can cast a rejected ballot', async () => {
