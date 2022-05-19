@@ -359,7 +359,7 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
         },
         "centralScanAdjudicationReasons": ["UninterpretableBallot", "Overvote", "BlankBallot"],
         "precinctScanAdjudicationReasons": ["UninterpretableBallot", "Overvote", "BlankBallot"],
-        "markThresholds": { "definite": 0.17, "marginal": 0.17 }        
+        "markThresholds": { "definite": 0.12, "marginal": 0.12 }        
     }
 
     return(vx_election)
