@@ -95,6 +95,7 @@ test('renders save screen when usb is mounted with ballot filetype', async () =>
   getByText('this-is-a-file-name.pdf');
 
   fireEvent.click(getByText('Save'));
+  await waitFor(() => getByText(/Saving Ballot/));
   expect(fileContentFn).toHaveBeenCalled();
   jest.advanceTimersByTime(2001);
   await waitFor(() => getByText(/Ballot Saved/));
@@ -154,6 +155,7 @@ test('renders save screen when usb is mounted with results filetype and prompts 
   getByText('this-is-a-file-name.pdf');
 
   fireEvent.click(getByText('Save'));
+  await waitFor(() => getByText(/Saving Results/));
   expect(fileContentFn).toHaveBeenCalled();
   jest.advanceTimersByTime(2001);
   await waitFor(() => getByText(/Results Saved/));
@@ -208,6 +210,7 @@ test('render export modal with errors when appropriate', async () => {
   getByText('Save Unofficial Tally Report');
 
   fireEvent.click(getByText('Save'));
+  await waitFor(() => getByText(/Saving Unofficial Tally Report/));
   await waitFor(() => getByText(/Failed to Save Unofficial Tally Report/));
   getByText(/Failed to save tally report./);
   getByText(/this-is-an-error/);

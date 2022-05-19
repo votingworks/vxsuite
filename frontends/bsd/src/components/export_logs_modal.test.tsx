@@ -137,6 +137,7 @@ test('renders save modal when usb is mounted and saves log file on machine', asy
   );
 
   fireEvent.click(getByText('Save'));
+  await waitFor(() => getByText(/Saving Logs/));
   expect(mockKiosk.readFile).toHaveBeenCalled();
   jest.advanceTimersByTime(2001);
   await waitFor(() => getByText(/Logs Saved/));
@@ -195,6 +196,7 @@ test('renders save modal when usb is mounted and saves cdf log file on machine',
   );
 
   fireEvent.click(getByText('Save'));
+  await waitFor(() => getByText(/Saving Logs/));
   expect(mockKiosk.readFile).toHaveBeenCalled();
   jest.advanceTimersByTime(2001);
   await waitFor(() => getByText(/Logs Saved/));
@@ -246,6 +248,7 @@ test('render export modal with errors when appropriate', async () => {
   getByText('Save Logs');
 
   fireEvent.click(getByText('Save'));
+  await waitFor(() => getByText(/Saving Logs/));
   await waitFor(() => getByText(/Failed to Save Logs/));
   getByText(/Failed to save log file./);
   getByText(/this-is-an-error/);

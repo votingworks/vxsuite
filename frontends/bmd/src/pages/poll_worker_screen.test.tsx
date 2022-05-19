@@ -45,6 +45,7 @@ import { fakeDevices } from '../../test/helpers/fake_devices';
 import { AriaScreenReader } from '../utils/ScreenReader';
 import { fakeTts } from '../../test/helpers/fake_tts';
 import { electionSampleWithSealDefinition } from '../data';
+import { REPORT_PRINTING_TIMEOUT_SECONDS } from '../config/globals';
 
 const electionSampleWithSeal = electionSampleWithSealDefinition.election;
 
@@ -216,10 +217,19 @@ test('printing precinct scanner report works as expected with all precinct data 
   await screen.findByText('Tally Report on Card');
   fireEvent.click(screen.getByText('Print Tally Report'));
 
+  // check that the print started
   await waitFor(() => {
-    expect(pollworkerAuth.card.clearStoredData).toHaveBeenCalledTimes(1);
     expect(printFn).toHaveBeenCalledTimes(1);
   });
+
+  // wait for the print to finish
+  jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
+
+  // check that the tallies are cleared
+  await waitFor(() => {
+    expect(pollworkerAuth.card.clearStoredData).toHaveBeenCalledTimes(1);
+  });
+
   const allPrecinctsReports = screen.getAllByTestId(
     'tally-report-undefined-undefined'
   );
@@ -294,10 +304,19 @@ test('printing precinct scanner report works as expected with single precinct da
   await screen.findByText('Tally Report on Card');
   fireEvent.click(screen.getByText('Print Tally Report'));
 
+  // check that the print started
   await waitFor(() => {
-    expect(pollworkerAuth.card.clearStoredData).toHaveBeenCalledTimes(1);
     expect(printFn).toHaveBeenCalledTimes(1);
   });
+
+  // wait for the print to finish
+  jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
+
+  // check that the tallies are cleared
+  await waitFor(() => {
+    expect(pollworkerAuth.card.clearStoredData).toHaveBeenCalledTimes(1);
+  });
+
   const centerSpringfieldReports = screen.getAllByTestId(
     'tally-report-undefined-23'
   );
@@ -401,10 +420,19 @@ test('printing precinct scanner report works as expected with all precinct speci
   await screen.findByText('Tally Report on Card');
   fireEvent.click(screen.getByText('Print Tally Report'));
 
+  // check that the print started
   await waitFor(() => {
-    expect(pollworkerAuth.card.clearStoredData).toHaveBeenCalledTimes(1);
     expect(printFn).toHaveBeenCalledTimes(1);
   });
+
+  // wait for the print to finish
+  jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
+
+  // check that the tallies are cleared
+  await waitFor(() => {
+    expect(pollworkerAuth.card.clearStoredData).toHaveBeenCalledTimes(1);
+  });
+
   const centerSpringfieldReports = screen.getAllByTestId(
     'tally-report-undefined-23'
   );
@@ -634,9 +662,17 @@ test('printing precinct scanner report works as expected with all precinct speci
   await screen.findByText('Tally Report on Card');
   fireEvent.click(screen.getByText('Print Tally Report'));
 
+  // check that the print started
+  await waitFor(() => {
+    expect(printFn).toHaveBeenCalledTimes(1);
+  });
+
+  // wait for the print to finish
+  jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
+
+  // check that the tallies are cleared
   await waitFor(() => {
     expect(pollworkerAuth.card.clearStoredData).toHaveBeenCalledTimes(1);
-    expect(printFn).toHaveBeenCalledTimes(1);
   });
 
   // Check that the expected results are on the tally report for Precinct 1 Mammal Party
@@ -911,9 +947,17 @@ test('printing precinct scanner report works as expected with all precinct combi
   await screen.findByText('Tally Report on Card');
   fireEvent.click(screen.getByText('Print Tally Report'));
 
+  // check that the print started
+  await waitFor(() => {
+    expect(printFn).toHaveBeenCalledTimes(1);
+  });
+
+  // wait for the print to finish
+  jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
+
+  // check that the tallies are cleared
   await waitFor(() => {
     expect(pollworkerAuth.card.clearStoredData).toHaveBeenCalledTimes(1);
-    expect(printFn).toHaveBeenCalledTimes(1);
   });
 
   // Check that the expected results are on the tally report for Precinct 1 Mammal Party
@@ -1097,9 +1141,17 @@ test('printing precinct scanner report works as expected with a single precinct 
   await screen.findByText('Tally Report on Card');
   fireEvent.click(screen.getByText('Print Tally Report'));
 
+  // check that the print started
+  await waitFor(() => {
+    expect(printFn).toHaveBeenCalledTimes(1);
+  });
+
+  // wait for the print to finish
+  jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
+
+  // check that the tallies are cleared
   await waitFor(() => {
     expect(pollworkerAuth.card.clearStoredData).toHaveBeenCalledTimes(1);
-    expect(printFn).toHaveBeenCalledTimes(1);
   });
 
   // Check that the expected results are on the tally report for Precinct 1 Mammal Party
