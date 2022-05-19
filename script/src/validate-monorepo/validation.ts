@@ -176,7 +176,7 @@ export async function* checkTsconfigMatchesPackageJson(
     );
 
     if (
-      await maybeReadTsconfig(expectedWorkspaceDependencyTsconfigBuildPath) &&
+      (await maybeReadTsconfig(expectedWorkspaceDependencyTsconfigBuildPath)) &&
       !tsconfigReferencesPaths.has(expectedWorkspaceDependencyTsconfigBuildPath)
     ) {
       yield {

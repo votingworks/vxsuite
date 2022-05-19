@@ -291,6 +291,24 @@ jobs:
           command: |
             pnpm --dir libs/cdf-schema-builder test
 
+  test-libs-cdf-types-cast-vote-records:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/cdf-types-cast-vote-records build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/cdf-types-cast-vote-records lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/cdf-types-cast-vote-records test
+
   test-libs-cdf-types-election-event-logging:
     executor: nodejs
     resource_class: xlarge
@@ -573,10 +591,12 @@ workflows:
       - test-integration-testing-bmd
       - test-integration-testing-bsd
       - test-integration-testing-election-manager
+      - test-libs-api
       - test-libs-ballot-encoder
       - test-libs-ballot-interpreter-nh
       - test-libs-ballot-interpreter-vx
       - test-libs-cdf-schema-builder
+      - test-libs-cdf-types-cast-vote-records
       - test-libs-cdf-types-election-event-logging
       - test-libs-eslint-plugin-vx
       - test-libs-fixtures

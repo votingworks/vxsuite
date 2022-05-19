@@ -2220,6 +2220,7 @@ importers:
   script:
     dependencies:
       resolve-from: 5.0.0
+      yaml: 2.1.0
     devDependencies:
       '@types/node': 16.11.29
       esbuild: 0.13.14
@@ -2233,6 +2234,7 @@ importers:
       prettier: ^2.3.1
       resolve-from: ^5.0.0
       typescript: ^4.3.4
+      yaml: ^2.1.0
   services/scan:
     dependencies:
       '@votingworks/api': link:../../libs/api
@@ -32807,6 +32809,12 @@ packages:
       node: '>= 6'
     resolution:
       integrity: sha512-r3vXyErRCYJ7wg28yvBY5VSoAF8ZvlcW9/BwUzEtUsjvX/DKs24dIkuwjtuprwJJHsbyUbLApepYTR1BN4uHrg==
+  /yaml/2.1.0:
+    dev: false
+    engines:
+      node: '>= 14'
+    resolution:
+      integrity: sha512-OuAINfTsoJrY5H7CBWnKZhX6nZciXBydrMtTHr1dC4nP40X5jyTIVlogZHxSlVZM8zSgXRfgZGsaHF4+pV+JRw==
   /yargs-parser/13.1.2:
     dependencies:
       camelcase: 5.3.1

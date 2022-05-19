@@ -1,5 +1,7 @@
 import { join, relative } from 'path';
 import { IO } from '../types';
+import * as circleci from './circleci';
+import { getWorkspacePackagePaths } from './pnpm';
 import {
   checkTsconfig,
   checkTsconfigMatchesPackageJson,
@@ -20,9 +22,10 @@ export async function main({ stdout, stderr }: IO): Promise<number> {
   let tsconfigCount = 0;
   let tsconfigBuildCount = 0;
   let errors = 0;
-  const services = await readdir(join(__dirname, '../../../services'));
-  const frontends = await readdir(join(__dirname, '../../../frontends'));
-  const libs = await readdir(join(__dirname, '../../../libs'));
+  const root = join(__dirname, '../../..');
+  const services = await readdir(join(root, 'services'));
+  const frontends = await readdir(join(root, 'frontends'));
+  const libs = await readdir(join(root, 'libs'));
 
   for (const pkg of [...services, ...frontends, ...libs]) {
     const packageJsonPath = join(pkg, 'package.json');
@@ -130,6 +133,40 @@ export async function main({ stdout, stderr }: IO): Promise<number> {
         reportValidationIssue(issue);
       }
     }
+  }
+
+  function reportCircleCiValidationIssue(issue: circleci.ValidationIssue) {
+    switch (issue.kind) {
+      case circleci.ValidationIssueKind.UnusedJobIssue:
+        stderr.write(
+          `${relative(cwd, issue.configPath)}: unused job "${issue.jobName}"\n`
+        );
+        break;
+
+      case circleci.ValidationIssueKind.UntestedPackageIssue:
+        stderr.write(
+          `${relative(cwd, issue.configPath)}: untested package "${
+            issue.packagePath
+          }", job "${issue.expectedJobName}" was not found\n`
+        );
+        break;
+
+      default:
+        throw new Error(`unexpected issue: ${JSON.stringify(issue)}`);
+    }
+
+    errors += 1;
+  }
+
+  const circleCiConfigPath = join(__dirname, '../../../.circleci/config.yml');
+  const circleCiConfig = await circleci.loadConfig(circleCiConfigPath);
+
+  for (const issue of circleci.checkConfig(
+    circleCiConfig,
+    circleCiConfigPath,
+    await getWorkspacePackagePaths(root)
+  )) {
+    reportCircleCiValidationIssue(issue);
   }
 
   stdout.write(
