@@ -1,0 +1,28 @@
+{
+  "extends": "../../tsconfig.shared.json",
+  "include": ["src", "test"],
+  "exclude": [],
+  "compilerOptions": {
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": false,
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "noEmit": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "resolveJsonModule": true,
+    "skipLibCheck": true
+  },
+  "references": [
+    { "path": "../../libs/eslint-plugin-vx/tsconfig.build.json" },
+    { "path": "../../libs/fixtures/tsconfig.build.json" },
+    { "path": "../../libs/logging/tsconfig.build.json" },
+    { "path": "../../libs/test-utils/tsconfig.build.json" },
+    { "path": "../../libs/types/tsconfig.build.json" },
+    { "path": "../../libs/utils/tsconfig.build.json" }
+  ]
+}
