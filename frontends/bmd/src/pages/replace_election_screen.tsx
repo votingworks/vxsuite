@@ -4,6 +4,7 @@ import {
   Main,
   Prose,
   Screen,
+  Text,
   useCancelablePromise,
 } from '@votingworks/ui';
 import { formatLongDate } from '@votingworks/utils';
@@ -12,7 +13,6 @@ import pluralize from 'pluralize';
 import React, { useEffect, useState } from 'react';
 import { ElectionInfo } from '../components/election_info';
 import { Sidebar } from '../components/sidebar';
-import { Text } from '../components/text';
 import { VersionsData } from '../components/versions_data';
 import {
   MachineConfig,

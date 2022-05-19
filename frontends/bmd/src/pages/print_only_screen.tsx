@@ -8,11 +8,16 @@ import {
   PrecinctId,
   VotesDict,
 } from '@votingworks/types';
-import { BmdPaperBallot, Loading, Main, Prose, Screen } from '@votingworks/ui';
+import {
+  BmdPaperBallot,
+  Loading,
+  Main,
+  Prose,
+  Screen,
+  Text,
+} from '@votingworks/ui';
 
 import { MarkVoterCardFunction, Printer } from '../config/types';
-
-import { Text } from '../components/text';
 
 const Graphic = styled.img`
   margin: 0 auto -1rem;

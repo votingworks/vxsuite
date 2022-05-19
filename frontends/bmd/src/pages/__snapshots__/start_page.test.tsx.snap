@@ -14,19 +14,6 @@ exports[`renders StartPage 1`] = `
   max-width: 250px;
 }
 
-.c13 {
-  font-size: 0.8rem;
-}
-
-.c15 {
-  font-size: 0.8rem;
-  font-weight: 300;
-}
-
-.c14 {
-  white-space: nowrap;
-}
-
 .c9 {
   display: -webkit-box;
   display: -webkit-flex;
@@ -279,35 +266,35 @@ exports[`renders StartPage 1`] = `
               Democratic Primary Election
             </h5>
             <p
-              class="c13"
+              class="sc-dkPtyc dVpXhv"
             >
               November 3, 2020
               <br />
               <span
-                class="c14"
+                class="sc-hKwCoD kKHUyA"
               >
                 Franklin County
                 ,
               </span>
                
               <span
-                class="c14"
+                class="sc-hKwCoD kKHUyA"
               >
                 State of Hamilton
               </span>
             </p>
             <p
-              class="c15"
+              class="sc-dkPtyc eoUyDE"
             >
               <span
-                class="c14"
+                class="sc-hKwCoD kKHUyA"
               >
                 Center Springfield
                 , 
               </span>
                
               <span
-                class="c14"
+                class="sc-hKwCoD kKHUyA"
               >
                 ballot style 
                 12D
@@ -329,19 +316,6 @@ exports[`renders StartPage with inline SVG 1`] = `
 
 .c11 {
   max-width: 250px;
-}
-
-.c12 {
-  font-size: 0.8rem;
-}
-
-.c14 {
-  font-size: 0.8rem;
-  font-weight: 300;
-}
-
-.c13 {
-  white-space: nowrap;
 }
 
 .c9 {
@@ -754,35 +728,35 @@ exports[`renders StartPage with inline SVG 1`] = `
                General Election
             </h5>
             <p
-              class="c12"
+              class="sc-dkPtyc dVpXhv"
             >
               November 3, 2020
               <br />
               <span
-                class="c13"
+                class="sc-hKwCoD kKHUyA"
               >
                 Franklin County
                 ,
               </span>
                
               <span
-                class="c13"
+                class="sc-hKwCoD kKHUyA"
               >
                 State of Hamilton
               </span>
             </p>
             <p
-              class="c14"
+              class="sc-dkPtyc eoUyDE"
             >
               <span
-                class="c13"
+                class="sc-hKwCoD kKHUyA"
               >
                 Center Springfield
                 , 
               </span>
                
               <span
-                class="c13"
+                class="sc-hKwCoD kKHUyA"
               >
                 ballot style 
                 12
@@ -804,19 +778,6 @@ exports[`renders StartPage with no seal 1`] = `
 
 .c11 {
   max-width: 250px;
-}
-
-.c12 {
-  font-size: 0.8rem;
-}
-
-.c14 {
-  font-size: 0.8rem;
-  font-weight: 300;
-}
-
-.c13 {
-  white-space: nowrap;
 }
 
 .c9 {
@@ -1065,35 +1026,35 @@ exports[`renders StartPage with no seal 1`] = `
                General Election
             </h5>
             <p
-              class="c12"
+              class="sc-dkPtyc dVpXhv"
             >
               November 3, 2020
               <br />
               <span
-                class="c13"
+                class="sc-hKwCoD kKHUyA"
               >
                 Franklin County
                 ,
               </span>
                
               <span
-                class="c13"
+                class="sc-hKwCoD kKHUyA"
               >
                 State of Hamilton
               </span>
             </p>
             <p
-              class="c14"
+              class="sc-dkPtyc eoUyDE"
             >
               <span
-                class="c13"
+                class="sc-hKwCoD kKHUyA"
               >
                 Center Springfield
                 , 
               </span>
                
               <span
-                class="c13"
+                class="sc-hKwCoD kKHUyA"
               >
                 ballot style 
                 12

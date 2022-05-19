@@ -27,6 +27,11 @@ describe('renders Text', () => {
     expect(container.firstChild).toMatchSnapshot();
   });
 
+  test('displays success style', () => {
+    const { container } = render(<Text success>Error Text?</Text>);
+    expect(container.firstChild).toMatchSnapshot();
+  });
+
   test('narrow wordBreak warning', () => {
     const { container } = render(
       <Text narrow wordBreak warning>
@@ -103,21 +108,35 @@ describe('renders Text', () => {
     expect(container.firstChild).toMatchSnapshot();
   });
 
-  test('converts line-breaks into <p> and <br/> tags', () => {
+  it('converts line-breaks into <p> and <br/> tags', () => {
     const { container } = render(
       <TextWithLineBreaks
         text={'I’m a paragraph.\n\nAnd I’m a paragraph with a\nline break.'}
       />
     );
     expect(container).toMatchInlineSnapshot(`
+      @media print {
+
+      }
+
       <div>
-        <p>
-          I’m a paragraph.
+        <p
+          class=""
+        >
+          <span>
+            I’m a paragraph.
+          </span>
         </p>
-        <p>
-          And I’m a paragraph with a
+        <p
+          class=""
+        >
+          <span>
+            And I’m a paragraph with a
+          </span>
           <br />
-          line break.
+          <span>
+            line break.
+          </span>
         </p>
       </div>
     `);

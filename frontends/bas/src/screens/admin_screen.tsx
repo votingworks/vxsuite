@@ -12,14 +12,13 @@ import {
 } from '@votingworks/types';
 import { formatFullDateTimeZone } from '@votingworks/utils';
 
-import { Main, Screen } from '@votingworks/ui';
+import { Main, Screen, Text } from '@votingworks/ui';
 
 import { compareName } from '../utils/sort';
 import { Button } from '../components/button';
 import { Prose } from '../components/prose';
 import { MainNav } from '../components/main_nav';
 import { Select } from '../components/select';
-import { Text } from '../components/text';
 
 interface Props {
   election: OptionalElection;

@@ -19,7 +19,7 @@ import {
   usbstick,
   throwIllegalValue,
 } from '@votingworks/utils';
-import { UsbControllerButton, Modal, Prose } from '@votingworks/ui';
+import { Monospace, Modal, Prose, UsbControllerButton } from '@votingworks/ui';
 import { LogEventId } from '@votingworks/logging';
 import { DEFAULT_LOCALE } from '../config/globals';
 import { getHumanBallotLanguageFormat } from '../utils/election';
@@ -30,7 +30,6 @@ import { HandMarkedPaperBallot } from './hand_marked_paper_ballot';
 import { Button } from './button';
 import { LinkButton } from './link_button';
 import { Loading } from './loading';
-import { Monospace } from './text';
 
 import * as workflow from '../workflows/export_election_ballot_package_workflow';
 

@@ -1,8 +1,6 @@
 import React, { useEffect } from 'react';
 
-import { Main, Screen, Prose } from '@votingworks/ui';
-
-import { NoWrap } from '../components/text';
+import { Main, NoWrap, Screen, Prose } from '@votingworks/ui';
 
 interface Props {
   useEffectToggleLargeDisplay: () => void;

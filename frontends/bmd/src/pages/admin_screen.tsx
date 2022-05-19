@@ -10,6 +10,7 @@ import {
   Screen,
   SegmentedButton,
   SetClockButton,
+  Text,
 } from '@votingworks/ui';
 import {
   MachineConfig,
@@ -20,7 +21,6 @@ import {
 } from '../config/types';
 
 import { TestBallotDeckScreen } from './test_ballot_deck_screen';
-import { Text } from '../components/text';
 import { Sidebar } from '../components/sidebar';
 import { ElectionInfo } from '../components/election_info';
 import { Select } from '../components/select';

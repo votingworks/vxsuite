@@ -18,6 +18,8 @@ import {
   Main,
   Modal,
   Prose,
+  Text,
+  TextWithLineBreaks,
 } from '@votingworks/ui';
 
 import { assert, getSingleYesNoVote } from '@votingworks/utils';
@@ -32,7 +34,6 @@ import { BallotContext } from '../contexts/ballot_context';
 import { FONT_SIZES } from '../config/globals';
 import { ChoiceButton } from './choice_button';
 
-import { Text, TextWithLineBreaks } from './text';
 import {
   ContentHeader,
   ContestFooter,

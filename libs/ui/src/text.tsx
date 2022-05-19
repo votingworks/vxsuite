@@ -1,5 +1,6 @@
 import React from 'react';
 import styled, { css } from 'styled-components';
+import DomPurify from 'dompurify';
 
 import * as GLOBALS from './globals';
 
@@ -8,6 +9,7 @@ interface Props {
   light?: boolean;
   center?: boolean;
   error?: boolean;
+  success?: boolean;
   italic?: boolean;
   left?: boolean;
   muted?: boolean;
@@ -56,16 +58,18 @@ export const Text = styled('p')<Props>`
     undefined};
   white-space: ${({ noWrap, preLine }) =>
     noWrap ? 'nowrap' : preLine ? 'pre-line' : undefined};
-  color: ${({ error, muted, warning, white }) =>
+  color: ${({ error, muted, success, warning, white }) =>
     (error && 'red') ??
     (warning && 'darkorange') ??
+    (success && 'rgb(0, 128, 0)') ??
     (muted && 'gray') ??
     (white && '#FFFFFF') ??
     undefined};
   @media print {
-    color: ${({ error, muted, warning, white }) =>
+    color: ${({ error, muted, success, warning, white }) =>
       (error && 'black') ??
       (warning && 'black') ??
+      (success && 'black') ??
       (muted && 'black') ??
       (white && '#FFFFFF') ??
       undefined};
@@ -79,18 +83,31 @@ export const Text = styled('p')<Props>`
   ${({ warningIcon, voteIcon }) => (warningIcon || voteIcon) && iconStyles}
 `;
 
-export function TextWithLineBreaks({ text }: { text: string }): JSX.Element {
+interface TextWithLineBreaksProps extends Props {
+  text: string;
+  style?: React.CSSProperties;
+}
+
+export function TextWithLineBreaks({
+  text,
+  ...rest
+}: TextWithLineBreaksProps): JSX.Element {
   return (
     <React.Fragment>
       {text.split(/[\n\r]{2}/g).map((x) => (
-        <p key={x}>
+        <Text {...rest} key={x}>
           {x.split(/[\n\r]/g).map((y, i, arr) => (
             <React.Fragment key={y}>
-              {y}
+              <span
+                // eslint-disable-next-line react/no-danger
+                dangerouslySetInnerHTML={{
+                  __html: DomPurify.sanitize(y),
+                }}
+              />
               {i !== arr.length - 1 && <br />}
             </React.Fragment>
           ))}
-        </p>
+        </Text>
       ))}
     </React.Fragment>
   );

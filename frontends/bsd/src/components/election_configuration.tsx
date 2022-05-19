@@ -9,11 +9,10 @@ import {
   usbstick,
   ElectionData,
 } from '@votingworks/utils';
-import { Main, Screen, UsbControllerButton } from '@votingworks/ui';
+import { Main, Screen, Text, UsbControllerButton } from '@votingworks/ui';
 import { LogEventId } from '@votingworks/logging';
 import { Prose } from './prose';
 import { MainNav } from './main_nav';
-import { Text } from './text';
 import { Loading } from './loading';
 import { FileInputButton } from './file_input_button';
 import { AppContext } from '../contexts/app_context';

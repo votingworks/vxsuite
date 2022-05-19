@@ -24,6 +24,7 @@ import {
   Prose,
   Screen,
   TallyReport,
+  Text,
 } from '@votingworks/ui';
 
 import {
@@ -44,7 +45,6 @@ import {
   ScreenReader,
 } from '../config/types';
 
-import { Text } from '../components/text';
 import { Sidebar, SidebarProps } from '../components/sidebar';
 import { ElectionInfo } from '../components/election_info';
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from '../config/globals';

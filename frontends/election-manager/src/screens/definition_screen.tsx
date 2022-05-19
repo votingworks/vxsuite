@@ -4,14 +4,13 @@ import styled from 'styled-components';
 
 import { assert, format } from '@votingworks/utils';
 
-import { Prose } from '@votingworks/ui';
+import { Prose, Text } from '@votingworks/ui';
 import { AppContext } from '../contexts/app_context';
 
 import { routerPaths } from '../router_paths';
 
 import { NavigationScreen } from '../components/navigation_screen';
 import { LinkButton } from '../components/link_button';
-import { Text } from '../components/text';
 import { RemoveElectionModal } from '../components/remove_election_modal';
 
 const ButtonListItem = styled.span`

@@ -1,7 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Prose } from '@votingworks/ui';
-import { Text } from './text';
+import { Prose, Text } from '@votingworks/ui';
 
 export interface SidebarProps {
   appName?: string;

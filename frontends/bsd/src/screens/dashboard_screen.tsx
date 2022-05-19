@@ -4,12 +4,11 @@ import pluralize from 'pluralize';
 
 import { Scan } from '@votingworks/api';
 
-import { Modal } from '@votingworks/ui';
+import { Modal, Text } from '@votingworks/ui';
 import { assert } from '@votingworks/utils';
 import { Prose } from '../components/prose';
 import { Table, TD } from '../components/table';
 import { Button } from '../components/button';
-import { Text } from '../components/text';
 
 pluralize.addIrregularRule('requires', 'require');
 pluralize.addIrregularRule('has', 'have');

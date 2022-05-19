@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import styled from 'styled-components';
 
 import { MarkThresholds } from '@votingworks/types';
-import { Modal } from '@votingworks/ui';
+import { Modal, Text } from '@votingworks/ui';
 
 import { assert, throwIllegalValue } from '@votingworks/utils';
 import { Button } from './button';
@@ -10,7 +10,6 @@ import { Prose } from './prose';
 import { LinkButton } from './link_button';
 import { Loading } from './loading';
 import { TextInput } from './text_input';
-import { Text } from './text';
 
 export interface Props {
   onClose: () => void;

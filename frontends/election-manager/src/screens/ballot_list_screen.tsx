@@ -4,13 +4,12 @@ import pluralize from 'pluralize';
 import moment from 'moment';
 
 import { assert, find } from '@votingworks/utils';
-import { Table, TD, Prose } from '@votingworks/ui';
+import { NoWrap, Prose, Table, TD } from '@votingworks/ui';
 import { AppContext } from '../contexts/app_context';
 
 import { routerPaths } from '../router_paths';
 import { Button, SegmentedButton } from '../components/button';
 import { LinkButton } from '../components/link_button';
-import { NoWrap } from '../components/text';
 import {
   getBallotStylesData,
   sortBallotStyleDataByPrecinct,

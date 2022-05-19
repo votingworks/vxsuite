@@ -1987,6 +1987,7 @@ importers:
       zod: 3.14.4
   libs/ui:
     dependencies:
+      '@types/dompurify': 2.3.3
       '@types/react-modal': 3.13.1
       '@types/react-router-dom': 5.1.7
       '@votingworks/ballot-encoder': link:../ballot-encoder
@@ -1996,6 +1997,7 @@ importers:
       base64-js: 1.5.1
       debug: 4.3.2
       deep-eql: 4.0.0
+      dompurify: 2.3.8
       luxon: 1.26.0
       pluralize: 8.0.0
       qrcode.react: 3.0.1_react@17.0.1
@@ -2067,6 +2069,7 @@ importers:
       '@types/base64-js': ^1.3.0
       '@types/debug': ^4.1.7
       '@types/deep-eql': workspace:*
+      '@types/dompurify': ^2.0.3
       '@types/jest': ^27.0.3
       '@types/kiosk-browser': workspace:*
       '@types/luxon': ^1.26.5
@@ -2088,6 +2091,7 @@ importers:
       base64-js: ^1.5.1
       debug: ^4.3.2
       deep-eql: ^4.0.0
+      dompurify: ^2.0.12
       eslint: ^7.17.0
       eslint-config-airbnb: ^17.1.1
       eslint-config-prettier: ^8.3.0
@@ -8822,6 +8826,12 @@ packages:
     dev: false
     resolution:
       integrity: sha512-3JwbEeRVQ3n6+JgBW/hCdkydRk9/vWT+UEglcXEJqLJEcUganDH37zlfLznxPKTZZfDqA9K229l1qN458ubcOQ==
+  /@types/dompurify/2.3.3:
+    dependencies:
+      '@types/trusted-types': 2.0.2
+    dev: false
+    resolution:
+      integrity: sha512-nnVQSgRVuZ/843oAfhA25eRSNzUFcBPk/LOiw5gm8mD9/X7CNcbRkQu/OsjCewO8+VIYfPxUnXvPEVGenw14+w==
   /@types/eslint/7.2.6:
     dependencies:
       '@types/estree': 0.0.46
@@ -9439,6 +9449,10 @@ packages:
     dev: false
     resolution:
       integrity: sha512-I8MnZqNXsOLHsU111oHbn3khtvKMi5Bn4qVFsIWSJcCP1KKDiXX5AEw8UPk0nSopeC+Hvxt6yAy1/a5PailFqg==
+  /@types/trusted-types/2.0.2:
+    dev: false
+    resolution:
+      integrity: sha512-F5DIZ36YVLE+PN+Zwws4kJogq47hNgX3Nx6WyDJ3kcplxyke3XIzB8uK5n/Lpm1HBsbGzd6nmGehL8cPekP+Tg==
   /@types/uglify-js/3.11.1:
     dependencies:
       source-map: 0.6.1
@@ -14922,6 +14936,10 @@ packages:
     dev: false
     resolution:
       integrity: sha512-7b7ZArhhH0SP6W2R9cqK6RjaU82FZ2UPM7RO8qN1b1wyvC/NY1FNWcX1Pu00fFOAnzEORtwXe4bPaClg6pUybQ==
+  /dompurify/2.3.8:
+    dev: false
+    resolution:
+      integrity: sha512-eVhaWoVibIzqdGYjwsBWodIQIaXFSB+cKDf4cfxLMsK0xiud6SE+/WCVx/Xw/UwQsa4cS3T2eITcdtmTg2UKcw==
   /domutils/1.7.0:
     dependencies:
       dom-serializer: 0.2.2
@@ -31235,7 +31253,7 @@ packages:
       '@types/jest': 27.0.3
       bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
-      jest: 27.3.1_canvas@2.9.1
+      jest: 27.3.1
       jest-util: 27.3.1
       json5: 2.2.0
       lodash.memoize: 4.1.2
