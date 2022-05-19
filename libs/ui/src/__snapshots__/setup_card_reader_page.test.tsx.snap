@@ -8,7 +8,7 @@ exports[`renders SetupCardReaderPage renders SetupCardReaderPage with usePollWor
     class="sc-bdvvaa jnfvZB"
   >
     <div
-      class="sc-gsDJrp immFYi"
+      class="sc-gsDJrp fCJDVu"
     >
       <h1>
         Card Reader Not Detected
@@ -29,7 +29,7 @@ exports[`renders SetupCardReaderPage triggers useEffect property 1`] = `
     class="sc-bdvvaa jnfvZB"
   >
     <div
-      class="sc-gsDJrp immFYi"
+      class="sc-gsDJrp fCJDVu"
     >
       <h1>
         Card Reader Not Detected
@@ -50,7 +50,7 @@ exports[`renders SetupCardReaderPage with no useEffect trigger as expected 1`] =
     class="sc-bdvvaa jnfvZB"
   >
     <div
-      class="sc-gsDJrp immFYi"
+      class="sc-gsDJrp fCJDVu"
     >
       <h1>
         Card Reader Not Detected

@@ -10,7 +10,7 @@ export interface ProseProps {
 }
 
 export const Prose = styled('div')<ProseProps>`
-  margin: ${({ textCenter }) => (textCenter ? 'auto' : undefined)};
+  margin: ${({ textCenter }) => (textCenter ? '0 auto' : undefined)};
   max-width: ${({ maxWidth = true }) => (maxWidth ? '66ch' : undefined)};
   text-align: ${({ textCenter, textRight }) =>
     (textCenter && 'center') || (textRight && 'right')};

@@ -113,7 +113,7 @@ exports[`renders Prose with theme 1`] = `
 
 exports[`renders Prose with with non-default options 1`] = `
 <div
-  class="sc-bdvvaa bAMuWr"
+  class="sc-bdvvaa eVGEzn"
 >
   <h1>
     Heading 1
