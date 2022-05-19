@@ -21,6 +21,9 @@ export function buildApp(): Application {
   return app;
 }
 
+/**
+ * Options for starting the admin service.
+ */
 export interface StartOptions {
   app: Application;
   logger: Logger;

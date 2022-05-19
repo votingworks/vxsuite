@@ -1,8 +1,5 @@
 {
   "extends": ["plugin:vx/recommended"],
-  "rules": {
-    "vx/gts-jsdoc": "off"
-  },
   "overrides": [
     // This file causes this rule to crash on private constructors.
     // Started happening after TypeScript upgrade to v4.6. I was not able to

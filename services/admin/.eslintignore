@@ -1,5 +1,3 @@
 build
 jest.config.js
 coverage
-
-public/vendor
