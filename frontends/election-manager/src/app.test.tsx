@@ -331,28 +331,33 @@ test('L&A (logic and accuracy) flow', async () => {
   );
   expect(screen.getAllByText('0').length).toBe(40);
 
-  // Test printing test deck
+  // Test printing L&A Package
   userEvent.click(screen.getByText('L&A'));
-  userEvent.click(screen.getByText('Print Test Decks'));
+  userEvent.click(screen.getByText('Print L&A Packages'));
   userEvent.click(screen.getByText('District 5'));
-  await screen.findByText('Printing Test Deck: District 5', {
+
+  // L&A Package: Tally Report
+  await screen.findByText('Printing L&A Package: District 5', {
     exact: false,
   });
   expect(printer.print).toHaveBeenCalledTimes(2);
-  expect(mockKiosk.log).toHaveBeenCalledWith(
-    expect.stringContaining(LogEventId.TestDeckPrinted)
+  await waitFor(() =>
+    expect(mockKiosk.log).toHaveBeenCalledWith(
+      expect.stringContaining(LogEventId.TestDeckTallyReportPrinted)
+    )
   );
   expect(container).toMatchSnapshot();
+  jest.advanceTimersByTime(3000);
 
-  // Test printing test deck tally report
-  userEvent.click(screen.getByText('L&A'));
-  userEvent.click(screen.getByText('Print Test Deck Tally Reports'));
-  userEvent.click(screen.getByText('All Precincts'));
-  userEvent.click(screen.getByText('Print Results Report'));
-  await screen.findByText('Printing');
+  // L&A Package: HMBP Test Deck
+  await screen.findByText('Printing L&A Package: District 5', {
+    exact: false,
+  });
   expect(printer.print).toHaveBeenCalledTimes(3);
-  expect(mockKiosk.log).toHaveBeenCalledWith(
-    expect.stringContaining(LogEventId.TestDeckTallyReportPrinted)
+  await waitFor(() =>
+    expect(mockKiosk.log).toHaveBeenCalledWith(
+      expect.stringContaining(LogEventId.TestDeckPrinted)
+    )
   );
   expect(container).toMatchSnapshot();
 });
