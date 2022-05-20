@@ -12,11 +12,8 @@ export function LogicAndAccuracyScreen(): JSX.Element {
         <h1>L&amp;A Materials</h1>
         <ZeroReportPrintButton />
         <p>
-          <LinkButton to={routerPaths.testDecks}>Print Test Decks</LinkButton>
-        </p>
-        <p>
-          <LinkButton to={routerPaths.testDeckTallyReports}>
-            Print Test Deck Tally Reports
+          <LinkButton to={routerPaths.testDecks}>
+            Print L&amp;A Packages
           </LinkButton>
         </p>
       </Prose>
