@@ -1,5 +1,5 @@
 import { electionSample } from '@votingworks/fixtures';
-import { CandidateContest, VotesDict } from '@votingworks/types';
+import { CandidateContest } from '@votingworks/types';
 import _ from 'lodash';
 import { getBallotPath, generateOvervoteBallot } from './election';
 
@@ -29,7 +29,7 @@ describe('generateOvervoteBallot', () => {
     });
     expect(overvoteBallot).toBeDefined();
 
-    const votes = overvoteBallot!.votes as VotesDict;
+    const { votes } = overvoteBallot!;
     const presidential = electionSample.contests[0] as CandidateContest;
     expect(votes).toEqual({
       president: [presidential.candidates[0], presidential.candidates[1]],
@@ -48,7 +48,7 @@ describe('generateOvervoteBallot', () => {
     });
     expect(overvoteBallot).toBeDefined();
 
-    const votes = overvoteBallot!.votes as VotesDict;
+    const { votes } = overvoteBallot!;
     expect(votes).toEqual({ 'judicial-robert-demergue': ['yes', 'no'] });
   });
 
@@ -65,14 +65,14 @@ describe('generateOvervoteBallot', () => {
     });
     expect(overvoteBallot).toBeDefined();
 
-    const votes = overvoteBallot!.votes as VotesDict;
+    const { votes } = overvoteBallot!;
     const senatorial = election.contests[1] as CandidateContest;
     expect(votes).toEqual({
       senator: [senatorial.candidates[0], senatorial.candidates[1]],
     });
   });
 
-  test('returns undefined if there are no overvotable contests', () => {
+  test('returns null if there are no overvotable contests', () => {
     const election = _.cloneDeep(electionSample);
 
     // removes all but the first contest
@@ -86,6 +86,6 @@ describe('generateOvervoteBallot', () => {
       election,
       precinctId,
     });
-    expect(overvoteBallot).toBeUndefined();
+    expect(overvoteBallot).toBeNull();
   });
 });
