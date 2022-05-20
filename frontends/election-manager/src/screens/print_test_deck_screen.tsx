@@ -1,11 +1,13 @@
-import React, { useState, useContext, useCallback } from 'react';
+import React, { useState, useContext, useCallback, useEffect } from 'react';
 import {
   Election,
   getPrecinctById,
   PrecinctId,
   VotesDict,
+  Tally,
+  VotingMethod,
 } from '@votingworks/types';
-import { assert, sleep } from '@votingworks/utils';
+import { assert, sleep, tallyVotesByContest } from '@votingworks/utils';
 import { LogEventId } from '@votingworks/logging';
 
 import { useCancelablePromise, Modal, Prose } from '@votingworks/ui';
@@ -19,6 +21,7 @@ import { Loading } from '../components/loading';
 import { NavigationScreen } from '../components/navigation_screen';
 
 import { HandMarkedPaperBallot } from '../components/hand_marked_paper_ballot';
+import { TestDeckTallyReport } from '../components/test_deck_tally_report';
 
 import {
   generateTestDeckBallots,
@@ -26,19 +29,57 @@ import {
   generateOvervoteBallot,
 } from '../utils/election';
 
-interface TestDeckBallotsParams {
+interface PrecinctTallyReportParams {
+  election: Election;
+  precinctId: PrecinctId;
+  onRendered: (numPages: number) => void;
+}
+
+function PrecinctTallyReport({
+  election,
+  precinctId,
+  onRendered,
+}: PrecinctTallyReportParams) {
+  const ballots = generateTestDeckBallots({ election, precinctId });
+
+  const votes: VotesDict[] = ballots.map((b) => b.votes as VotesDict);
+  const testDeckTally: Tally = {
+    numberOfBallotsCounted: ballots.length,
+    castVoteRecords: new Set(),
+    contestTallies: tallyVotesByContest({
+      election,
+      votes,
+    }),
+    ballotCountsByVotingMethod: { [VotingMethod.Unknown]: ballots.length },
+  };
+
+  useEffect(() => {
+    const parties = new Set(election.ballotStyles.map((bs) => bs.partyId));
+    onRendered(Math.max(parties.size, 1));
+  }, [election, precinctId, onRendered]);
+
+  return (
+    <TestDeckTallyReport
+      election={election}
+      electionTally={testDeckTally}
+      precinctId={precinctId}
+    />
+  );
+}
+
+interface HandMarkedPaperBallotsParams {
   election: Election;
   electionHash: string;
   precinctId: PrecinctId;
   onAllRendered: (numBallots: number) => void;
 }
 
-function TestDeckBallots({
+function HandMarkedPaperBallots({
   election,
   electionHash,
   precinctId,
   onAllRendered,
-}: TestDeckBallotsParams) {
+}: HandMarkedPaperBallotsParams) {
   const ballots = generateTestDeckBallots({ election, precinctId });
   ballots.push(...generateBlankBallots({ election, precinctId, numBlanks: 2 }));
 
@@ -84,7 +125,12 @@ function TestDeckBallots({
 // don't expect, not by preventing them but by being resilient to them.
 //
 // https://github.com/votingworks/vxsuite/issues/1531
-const TestDeckBallotsMemoized = React.memo(TestDeckBallots);
+const HandMarkedPaperBallotsMemoized = React.memo(HandMarkedPaperBallots);
+
+interface PrintIndex {
+  precinctIndex: number;
+  component: string;
+}
 
 export function PrintTestDeckScreen(): JSX.Element {
   const makeCancelable = useCancelablePromise();
@@ -95,9 +141,9 @@ export function PrintTestDeckScreen(): JSX.Element {
   const currentUserType = currentUserSession.type;
   const { election, electionHash } = electionDefinition;
   const [precinctIds, setPrecinctIds] = useState<string[]>([]);
-  const [precinctIndex, setPrecinctIndex] = useState<number>();
+  const [printIndex, setPrintIndex] = useState<PrintIndex | undefined>();
 
-  const pageTitle = 'Test Decks';
+  const pageTitle = 'L&A Packages';
 
   function generatePrecinctIds(precinctId: string): string[] {
     if (precinctId === 'all') {
@@ -117,72 +163,97 @@ export function PrintTestDeckScreen(): JSX.Element {
       const printers = await window.kiosk.getPrinterInfo();
       if (printers.some((p) => p.connected)) {
         setPrecinctIds(generatePrecinctIds(precinctId));
-        setPrecinctIndex(0);
+        setPrintIndex({ precinctIndex: 0, component: 'tally' });
       } else {
         // eslint-disable-next-line no-alert
         window.alert('please connect the printer.');
         await logger.log(LogEventId.TestDeckPrinted, currentUserType, {
           disposition: 'failure',
-          message: `Failed to print test deck: no printer connected.`,
+          message: `Failed to print L&A Package: no printer connected.`,
           result: 'User shown error message, asked to try again.',
           error: 'No printer connected.',
         });
       }
     } else {
       setPrecinctIds(generatePrecinctIds(precinctId));
-      setPrecinctIndex(0);
+      setPrintIndex({ precinctIndex: 0, component: 'tally' });
     }
   }
 
-  const onAllRendered = useCallback(
+  const onPrecinctTallyReportRendered = useCallback(
+    async (numPages) => {
+      if (!printIndex) {
+        return;
+      }
+
+      await printer.print({ sides: 'one-sided' });
+      await logger.log(LogEventId.TestDeckTallyReportPrinted, currentUserType, {
+        disposition: 'success',
+        message: `Test deck tally report printed as part of L&A package for precinct id: ${
+          precinctIds[printIndex.precinctIndex]
+        }`,
+        precinctId: precinctIds[printIndex.precinctIndex],
+      });
+
+      await makeCancelable(sleep(numPages * 3000));
+      setPrintIndex({
+        precinctIndex: printIndex.precinctIndex,
+        component: 'hmpb',
+      });
+    },
+    [printIndex, printer, logger, currentUserType, precinctIds, makeCancelable]
+  );
+
+  const onAllHandMarkedPaperBallotsRendered = useCallback(
     async (numBallots) => {
-      if (typeof precinctIndex !== 'number') {
+      if (!printIndex) {
         return;
       }
 
       await printer.print({ sides: 'two-sided-long-edge' });
       await logger.log(LogEventId.TestDeckPrinted, currentUserType, {
         disposition: 'success',
-        message: `Test Deck printed for precinct id: ${precinctIds[precinctIndex]}`,
-        precinctId: precinctIds[precinctIndex],
+        message: `Hand-marked paper ballot test deck printed as part of L&A package for precinct id: ${
+          precinctIds[printIndex.precinctIndex]
+        }`,
+        precinctId: precinctIds[printIndex.precinctIndex],
       });
 
-      if (precinctIndex < precinctIds.length - 1) {
+      if (printIndex.precinctIndex < precinctIds.length - 1) {
         // wait 5s per ballot printed
         // that's how long printing takes in duplex, no reason to get ahead of it.
         await makeCancelable(sleep(numBallots * 5000));
-        setPrecinctIndex(precinctIndex + 1);
+        setPrintIndex({
+          precinctIndex: printIndex.precinctIndex + 1,
+          component: 'tally',
+        });
       } else {
         await makeCancelable(sleep(3000));
-        setPrecinctIndex(undefined);
+        setPrintIndex(undefined);
         setPrecinctIds([]);
       }
     },
-    [
-      precinctIndex,
-      printer,
-      logger,
-      currentUserType,
-      precinctIds,
-      makeCancelable,
-    ]
+    [printIndex, printer, logger, currentUserType, precinctIds, makeCancelable]
   );
 
   const currentPrecinct =
-    precinctIndex === undefined
+    printIndex === undefined
       ? undefined
-      : getPrecinctById({ election, precinctId: precinctIds[precinctIndex] });
+      : getPrecinctById({
+          election,
+          precinctId: precinctIds[printIndex.precinctIndex],
+        });
 
   return (
     <React.Fragment>
-      {precinctIndex !== undefined && currentPrecinct && (
+      {printIndex !== undefined && currentPrecinct && (
         <Modal
           centerContent
           content={
             <Loading as="p">
-              Printing Test Deck
+              Printing L&amp;A Package
               {precinctIds.length > 1
-                ? ` (${precinctIndex + 1} of ${precinctIds.length})`
+                ? ` (${printIndex.precinctIndex + 1} of ${precinctIds.length})`
                 : ''}
               : {currentPrecinct.name}
             </Loading>
@@ -215,14 +286,21 @@ export function PrintTestDeckScreen(): JSX.Element {
             ))}
         </ButtonList>
       </NavigationScreen>
-      {precinctIndex !== undefined && (
-        <TestDeckBallotsMemoized
-          election={election}
-          electionHash={electionHash}
-          precinctId={precinctIds[precinctIndex]}
-          onAllRendered={onAllRendered}
-        />
-      )}
+      {printIndex !== undefined &&
+        (printIndex.component === 'tally' ? (
+          <PrecinctTallyReport
+            election={election}
+            precinctId={precinctIds[printIndex.precinctIndex]}
+            onRendered={onPrecinctTallyReportRendered}
+          />
+        ) : (
+          <HandMarkedPaperBallotsMemoized
+            election={election}
+            electionHash={electionHash}
+            precinctId={precinctIds[printIndex.precinctIndex]}
+            onAllRendered={onAllHandMarkedPaperBallotsRendered}
+          />
+        ))}
     </React.Fragment>
   );
 }
