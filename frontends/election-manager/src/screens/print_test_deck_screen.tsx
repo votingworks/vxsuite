@@ -32,6 +32,7 @@ import {
 
 const ONE_SIDED_PAGE_PRINT_TIME_MS = 3000;
 const TWO_SIDED_PAGE_PRINT_TIME_MS = 5000;
+const LAST_PRINT_JOB_SLEEP_MS = 5000;
 
 interface PrecinctTallyReportProps {
   election: Election;
@@ -292,7 +293,9 @@ export function PrintTestDeckScreen(): JSX.Element {
           component: 'TallyReport',
         });
       } else {
-        await makeCancelable(sleep(numBallots * TWO_SIDED_PAGE_PRINT_TIME_MS));
+        // For the last print job, rather than waiting for all pages to finish printing, free up
+        // the UI from the print modal earlier
+        await makeCancelable(sleep(LAST_PRINT_JOB_SLEEP_MS));
         setPrintIndex(undefined);
         setPrecinctIds([]);
       }
