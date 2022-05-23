@@ -77,7 +77,7 @@
     "@types/dashify": "^1.0.0",
     "@types/dompurify": "^2.0.3",
     "@types/fetch-mock": "^7.3.2",
-    "@types/jest": "^24.0.0",
+    "@types/jest": "^27.5.1",
     "@types/node": "16.11.29",
     "@types/pluralize": "^0.0.29",
     "@types/react": "17.0.39",

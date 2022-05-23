@@ -79,7 +79,7 @@
     "@types/deep-eql": "workspace:*",
     "@types/express": "^4.17.13",
     "@types/fs-extra": "^9.0.6",
-    "@types/jest": "^26.0.6",
+    "@types/jest": "^27.5.1",
     "@types/luxon": "^1.26.5",
     "@types/multer": "^1.4.7",
     "@types/node": "16.11.29",

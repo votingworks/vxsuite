@@ -26,7 +26,7 @@
     "pretest:e2e:ci": "pnpm build",
     "test:e2e:ci": "start-server-and-test start http://localhost:3000 cypress:run",
     "test:e2e:watch": "start-server-and-test start http://localhost:3000 cypress:open",
-    "test:watch": "TZ=UTC jest --env=jest-environment-jsdom-sixteen",
+    "test:watch": "TZ=UTC jest --watch --env=jest-environment-jsdom-sixteen",
     "pre-commit": "lint-staged"
   },
   "lint-staged": {
@@ -44,29 +44,11 @@
       "sort-package-json"
     ]
   },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
-  "resolutions": {
-    "**/@babel/parser": "7.8.4"
-  },
   "dependencies": {
     "@rooks/use-interval": "^4.5.0",
     "@types/dompurify": "^2.0.4",
     "@types/fetch-mock": "^7.3.2",
-    "@types/jest": "25.2.2",
+    "@types/jest": "^27.5.1",
     "@types/lodash.camelcase": "^4.3.6",
     "@types/pluralize": "^0.0.29",
     "@types/react": "17.0.39",

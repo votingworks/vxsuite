@@ -44,7 +44,7 @@
     "zip-stream": "^4.1.0"
   },
   "devDependencies": {
-    "@types/jest": "^27.0.3",
+    "@types/jest": "^27.5.1",
     "@types/kiosk-browser": "workspace:*",
     "@types/luxon": "^1.26.5",
     "@types/react": "17.0.39",

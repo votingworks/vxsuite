@@ -79,13 +79,14 @@ export async function getElection(): Promise<string | undefined> {
 export async function getElectionDefinition(): Promise<
   ElectionDefinition | undefined
 > {
+  const response = await (
+    await fetch('/config/election', {
+      headers: { Accept: 'application/json' },
+    })
+  ).text();
   return (
     (safeParseJson(
-      await (
-        await fetch('/config/election', {
-          headers: { Accept: 'application/json' },
-        })
-      ).text(),
+      response,
       Scan.GetElectionConfigResponseSchema
     ).unsafeUnwrap() as Exclude<Scan.GetElectionConfigResponse, string>) ??
     undefined

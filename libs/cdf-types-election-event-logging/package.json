@@ -39,7 +39,7 @@
     "zod": "3.14.4"
   },
   "devDependencies": {
-    "@types/jest": "^27.0.3",
+    "@types/jest": "^27.5.1",
     "@types/node": "16.11.29",
     "@types/text-encoding": "^0.0.35",
     "@typescript-eslint/eslint-plugin": "^5.21.0",

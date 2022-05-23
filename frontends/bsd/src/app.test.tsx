@@ -18,7 +18,7 @@ import { MachineConfigResponse } from './config/types';
 jest.mock('js-file-download');
 
 beforeEach(() => {
-  fetchMock.config.fallbackToNetwork = true;
+  // fetchMock.config.fallbackToNetwork = true;
   fetchMock.get(
     '/scan/status',
     typedAs<Scan.GetScanStatusResponse>({
@@ -49,6 +49,7 @@ beforeEach(() => {
 afterEach(() => {
   expect(fetchMock.done()).toBe(true);
   expect(fetchMock.calls('unmatched')).toEqual([]);
+  fetchMock.reset();
 });
 
 async function authenticateWithAdminCard(card: MemoryCard) {
@@ -295,9 +296,7 @@ test('configuring election from usb ballot package works end to end', async () =
   const mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
 
-  await act(async () => {
-    // wait for the config to load
-    await sleep(500);
+  await waitFor(() => {
     getByText('Load Election Configuration');
   });
 
@@ -317,8 +316,7 @@ test('configuring election from usb ballot package works end to end', async () =
     },
   });
 
-  await act(async () => {
-    await sleep(500);
+  await waitFor(() => {
     getByText('Successfully Configured');
   });
 
@@ -331,7 +329,7 @@ test('configuring election from usb ballot package works end to end', async () =
 
   // Unconfigure Machine
   fetchMock
-    .getOnce('/config/election', new Response('null'), {
+    .getOnce('/config/election', 'null', {
       overwriteRoutes: true,
     })
     .deleteOnce('/config/election', {
@@ -346,8 +344,7 @@ test('configuring election from usb ballot package works end to end', async () =
   getByText('Are you sure?');
   fireEvent.click(getByText('I am sure. Delete all election data.'));
   getByText('Deleting election data');
-  await act(async () => {
-    await sleep(2000);
+  await waitFor(() => {
     getByText('Load Election Configuration');
   });
 });
