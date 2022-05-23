@@ -72,7 +72,7 @@ describe('generateOvervoteBallot', () => {
     });
   });
 
-  test('returns null if there are no overvotable contests', () => {
+  test('returns undefined if there are no overvotable contests', () => {
     const election = _.cloneDeep(electionSample);
 
     // removes all but the first contest
@@ -86,6 +86,6 @@ describe('generateOvervoteBallot', () => {
       election,
       precinctId,
     });
-    expect(overvoteBallot).toBeNull();
+    expect(overvoteBallot).toBeUndefined();
   });
 });

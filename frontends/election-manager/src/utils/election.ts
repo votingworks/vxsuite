@@ -274,14 +274,14 @@ export function generateBlankBallots({
 // overvote is possible. Does not overvote candidate contests where you must select a write-in
 // to overvote. See discussion: https://github.com/votingworks/vxsuite/issues/1711.
 //
-// In cases where it is not possible to overvote a ballot style, returns null.
+// In cases where it is not possible to overvote a ballot style, returns undefined.
 export function generateOvervoteBallot({
   election,
   precinctId,
 }: {
   election: Election;
   precinctId: PrecinctId;
-}): Ballot | null {
+}): Ballot | undefined {
   const precinctBallotStyles = election.ballotStyles.filter((bs) =>
     bs.precincts.includes(precinctId)
   );
@@ -326,5 +326,5 @@ export function generateOvervoteBallot({
       };
     }
   }
-  return null;
+  return undefined;
 }

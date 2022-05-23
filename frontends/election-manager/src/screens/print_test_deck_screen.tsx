@@ -186,7 +186,7 @@ export function PrintTestDeckScreen(): JSX.Element {
   const currentUserType = currentUserSession.type;
   const { election, electionHash } = electionDefinition;
   const [precinctIds, setPrecinctIds] = useState<string[]>([]);
-  const [printIndex, setPrintIndex] = useState<PrintIndex | null>();
+  const [printIndex, setPrintIndex] = useState<PrintIndex>();
 
   const pageTitle = 'L&A Packages';
 
@@ -293,7 +293,7 @@ export function PrintTestDeckScreen(): JSX.Element {
         });
       } else {
         await makeCancelable(sleep(numBallots * TWO_SIDED_PAGE_PRINT_TIME_MS));
-        setPrintIndex(null);
+        setPrintIndex(undefined);
         setPrecinctIds([]);
       }
     },
@@ -303,13 +303,12 @@ export function PrintTestDeckScreen(): JSX.Element {
   const currentPrecinctId = printIndex
     ? precinctIds[printIndex.precinctIndex]
     : '';
-  const currentPrecinct: Precinct | null =
-    (printIndex &&
-      getPrecinctById({
+  const currentPrecinct: Precinct | undefined = printIndex
+    ? getPrecinctById({
         election,
         precinctId: currentPrecinctId,
-      })) ||
-    null;
+      })
+    : undefined;
 
   return (
     <React.Fragment>
