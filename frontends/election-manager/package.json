@@ -9,18 +9,16 @@
   ],
   "scripts": {
     "type-check": "tsc --build",
-    "build": "tsc --build && react-scripts build",
-    "build:watch": "tsc --build --watch",
-    "eject": "react-scripts eject",
+    "build": "vite build",
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
     "lint": "pnpm type-check && eslint . && pnpm stylelint:run",
     "lint:fix": "pnpm type-check && eslint . --fix && pnpm stylelint:run:fix",
-    "start": "react-scripts start",
+    "start": "vite",
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}' && stylelint 'src/**/*.css' --config .stylelintrc-css.js",
     "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix && stylelint 'src/**/*.css' --config .stylelintrc-css.js --fix",
     "test": "is-ci test:coverage test:watch",
-    "test:watch": "TZ=UTC react-scripts test --env=jest-environment-jsdom-sixteen",
-    "test:coverage": "TZ=UTC react-scripts test --coverage --watchAll=false",
+    "test:watch": "TZ=UTC jest --watch --env=jest-environment-jsdom-sixteen",
+    "test:coverage": "TZ=UTC jest --coverage --watchAll=false",
     "pre-commit": "lint-staged"
   },
   "lint-staged": {
@@ -37,38 +35,6 @@
     "package.json": [
       "sort-package-json"
     ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
-  },
-  "eslintConfig": {
-    "extends": "react-app"
-  },
-  "jest": {
-    "collectCoverageFrom": [
-      "src/**/*.{js,jsx,ts,tsx}",
-      "!src/config/*",
-      "!src/**/*.d.ts",
-      "!src/index.tsx",
-      "!src/demo_app.tsx"
-    ],
-    "coverageThreshold": {
-      "global": {
-        "statements": 77,
-        "branches": 64,
-        "functions": 74,
-        "lines": 77
-      }
-    }
   },
   "dependencies": {
     "@testing-library/react": "^12.1.5",
@@ -94,6 +60,7 @@
     "@votingworks/utils": "workspace:*",
     "array-unique": "^0.3.2",
     "base64-js": "^1.3.1",
+    "browserify-zlib": "^0.2.0",
     "buffer": "^6.0.3",
     "canvas": "2.9.1",
     "dashify": "^2.0.0",
@@ -110,22 +77,26 @@
     "moment": "^2.26.0",
     "node-fetch": "^2.6.0",
     "normalize.css": "^8.0.1",
-    "pagedjs": "^0.1.40",
+    "pagedjs": "^0.3.1",
+    "path": "^0.12.7",
     "pdfjs-dist": "2.4.456",
     "pluralize": "^8.0.0",
+    "process": "^0.11.10",
     "react": "^17.0.1",
     "react-dom": "^17.0.1",
     "react-i18next": "^11.7.3",
     "react-router-dom": "^5.2.0",
-    "react-scripts": "4.0.1",
     "react-textarea-autosize": "^8.2.0",
     "styled-components": "^5.2.1",
     "typescript": "4.6.3",
     "use-interval": "^1.2.1",
+    "util": "^0.12.4",
     "zip-stream": "^3.0.1",
     "zod": "3.14.4"
   },
   "devDependencies": {
+    "@babel/core": "^7.17.12",
+    "@babel/plugin-proposal-private-property-in-object": "^7.17.12",
     "@codemod/parser": "^1.0.6",
     "@testing-library/jest-dom": "^5.16.4",
     "@types/base64-js": "^1.3.0",
@@ -140,6 +111,10 @@
     "@typescript-eslint/eslint-plugin": "^5.21.0",
     "@typescript-eslint/parser": "^5.21.0",
     "@votingworks/test-utils": "workspace:*",
+    "babel-jest": "26.6.0",
+    "babel-preset-react-app": "^10.0.1",
+    "esbuild": "^0.14.39",
+    "esbuild-runner": "^2.2.1",
     "eslint": "^7.17.0",
     "eslint-config-airbnb": "^17.1.1",
     "eslint-config-prettier": "^8.3.0",
@@ -155,8 +130,10 @@
     "eslint-plugin-react-hooks": "^4.2.0",
     "eslint-plugin-vx": "workspace:*",
     "is-ci-cli": "^2.1.2",
-    "jest": "^27.3.1",
+    "jest": "26.6.0",
     "jest-environment-jsdom-sixteen": "^1.0.3",
+    "jest-fetch-mock": "^3.0.3",
+    "jest-watch-typeahead": "0.6.4",
     "lint-staged": "^10.0.7",
     "prettier": "^2.6.2",
     "react-refresh": "^0.9.0",
@@ -166,7 +143,8 @@
     "stylelint-config-palantir": "^4.0.1",
     "stylelint-config-prettier": "^8.0.1",
     "stylelint-config-styled-components": "^0.1.1",
-    "stylelint-processor-styled-components": "^1.10.0"
+    "stylelint-processor-styled-components": "^1.10.0",
+    "vite": "^2.9.9"
   },
   "vx": {
     "isBundled": true,
