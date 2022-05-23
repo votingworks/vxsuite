@@ -1,6 +1,7 @@
 import React, { useState, useContext, useCallback, useEffect } from 'react';
 import {
   Election,
+  ElectionDefinition,
   getPrecinctById,
   Precinct,
   PrecinctId,
@@ -9,7 +10,12 @@ import {
 } from '@votingworks/types';
 import { assert, sleep, tallyVotesByContest } from '@votingworks/utils';
 import { LogEventId } from '@votingworks/logging';
-import { useCancelablePromise, Modal, Prose } from '@votingworks/ui';
+import {
+  BmdPaperBallot,
+  useCancelablePromise,
+  Modal,
+  Prose,
+} from '@votingworks/ui';
 
 import { AppContext } from '../contexts/app_context';
 import { Button } from '../components/button';
@@ -38,7 +44,11 @@ function PrecinctTallyReport({
   precinctId,
   onRendered,
 }: PrecinctTallyReportProps): JSX.Element {
-  const ballots = generateTestDeckBallots({ election, precinctId });
+  const ballots = [
+    // Account for both the BMD and HMPB test decks
+    ...generateTestDeckBallots({ election, precinctId }),
+    ...generateTestDeckBallots({ election, precinctId }),
+  ];
 
   const testDeckTally: Tally = {
     numberOfBallotsCounted: ballots.length,
@@ -61,6 +71,40 @@ function PrecinctTallyReport({
       electionTally={testDeckTally}
       precinctId={precinctId}
     />
+  );
+}
+
+interface BmdPaperBallotsProps {
+  electionDefinition: ElectionDefinition;
+  onAllRendered: (numBallots: number) => void;
+  precinctId: string;
+}
+
+function BmdPaperBallots({
+  electionDefinition,
+  onAllRendered,
+  precinctId,
+}: BmdPaperBallotsProps): JSX.Element {
+  const { election } = electionDefinition;
+  const ballots = generateTestDeckBallots({ election, precinctId });
+
+  useEffect(() => {
+    onAllRendered(ballots.length);
+  }, [ballots, onAllRendered]);
+
+  return (
+    <div className="print-only">
+      {ballots.map((ballot, i) => (
+        <BmdPaperBallot
+          ballotStyleId={ballot.ballotStyleId}
+          electionDefinition={electionDefinition}
+          isLiveMode={false}
+          key={`ballot-${i}`} // eslint-disable-line react/no-array-index-key
+          precinctId={ballot.precinctId}
+          votes={ballot.votes}
+        />
+      ))}
+    </div>
   );
 }
 
@@ -125,11 +169,12 @@ function HandMarkedPaperBallots({
 // don't expect, not by preventing them but by being resilient to them.
 //
 // https://github.com/votingworks/vxsuite/issues/1531
+const BmdPaperBallotsMemoized = React.memo(BmdPaperBallots);
 const HandMarkedPaperBallotsMemoized = React.memo(HandMarkedPaperBallots);
 
 interface PrintIndex {
   precinctIndex: number;
-  component: 'TallyReport' | 'HandMarkedPaperBallots';
+  component: 'TallyReport' | 'BmdPaperBallots' | 'HandMarkedPaperBallots';
 }
 
 export function PrintTestDeckScreen(): JSX.Element {
@@ -197,10 +242,33 @@ export function PrintTestDeckScreen(): JSX.Element {
       await makeCancelable(sleep(numPages * ONE_SIDED_PAGE_PRINT_TIME_MS));
       setPrintIndex({
         precinctIndex: printIndex.precinctIndex,
-        component: 'HandMarkedPaperBallots',
+        component: 'BmdPaperBallots',
       });
     },
     [printIndex, printer, logger, currentUserType, precinctIds, makeCancelable]
+  );
+
+  const onAllBmdPaperBallotsRendered = useCallback(
+    async (numBallots) => {
+      if (!printIndex) {
+        return;
+      }
+
+      const precinctId = precinctIds[printIndex.precinctIndex];
+      await printer.print({ sides: 'one-sided' });
+      await logger.log(LogEventId.TestDeckPrinted, currentUserType, {
+        disposition: 'success',
+        message: `BMD paper ballot test deck printed as part of L&A package for precinct ID: ${precinctId}`,
+        precinctId,
+      });
+
+      await makeCancelable(sleep(numBallots * ONE_SIDED_PAGE_PRINT_TIME_MS));
+      setPrintIndex({
+        precinctIndex: printIndex.precinctIndex,
+        component: 'HandMarkedPaperBallots',
+      });
+    },
+    [currentUserType, logger, makeCancelable, precinctIds, printer, printIndex]
   );
 
   const onAllHandMarkedPaperBallotsRendered = useCallback(
@@ -290,6 +358,13 @@ export function PrintTestDeckScreen(): JSX.Element {
           election={election}
           precinctId={currentPrecinctId}
           onRendered={onPrecinctTallyReportRendered}
+        />
+      )}
+      {printIndex?.component === 'BmdPaperBallots' && (
+        <BmdPaperBallotsMemoized
+          electionDefinition={electionDefinition}
+          onAllRendered={onAllBmdPaperBallotsRendered}
+          precinctId={precinctIds[printIndex.precinctIndex]}
         />
       )}
       {printIndex?.component === 'HandMarkedPaperBallots' && (
