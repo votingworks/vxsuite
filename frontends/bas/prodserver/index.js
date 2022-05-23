@@ -5,35 +5,35 @@
 /* eslint-disable */
 /* istanbul ignore file */
 
-const express = require('express')
-const path = require('path')
-const { Logger, LogSource, LogEventId } = require('@votingworks/logging')
+const express = require('express');
+const path = require('path');
+const { Logger, LogSource, LogEventId } = require('@votingworks/logging');
 
-const proxy = require('./setupProxy')
-const app = express()
-const port = 3000
-const logger = new Logger(LogSource.VxBallotActivationService)
+const { setupServer } = require('./server');
+const { BUILD_DIR } = require('./constants');
+const app = express();
+const port = 3000;
+const logger = new Logger(LogSource.VxBallotActivationService);
 
 app.use((req, res, next) => {
-  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private')
-  next()
-})
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  next();
+});
+setupServer(app);
 
-proxy(app)
-
-app.use('/', express.static('../build'))
+app.use('/', express.static(BUILD_DIR));
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../build/index.html'))
-})
+  res.sendFile(path.join(BUILD_DIR, 'index.html'))
+});
 
 app.listen(port, () => {
   logger.log(LogEventId.ApplicationStartup, 'system', {
     message: `VxEncode running at http://localhost:${port}/`,
     disposition: 'success',
-  })
+  });
 }).on('error', error => {
   logger.log(LogEventId.ApplicationStartup, 'system', {
     message: `Error in starting VxEncode: ${error.message}`,
     disposition: 'failure',
-  })
-})
+  });
+});
