@@ -43,8 +43,7 @@ test('Printing all L&A packages sorts precincts', async () => {
     'Southwest Ackerman',
     'West Weir',
   ];
-  for (let i = 0; i < precinctsInAlphabeticalOrder.length; i += 1) {
-    const precinct = precinctsInAlphabeticalOrder[i];
+  for (const [i, precinct] of precinctsInAlphabeticalOrder.entries()) {
     const printText = `Printing L&A Package (${i + 1} of 13): ${precinct}.`;
     await screen.findByLabelText(printText);
     jest.advanceTimersByTime(5000);
