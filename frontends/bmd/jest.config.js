@@ -30,6 +30,6 @@ module.exports = {
   },
   moduleNameMapper: {
     '@votingworks/(.*)': '<rootDir>/../../libs/$1/src/index.ts',
-    '^.+\\.css$': join(__dirname, 'test/mocks/css.js'),
+    '^.+\\.css$': join(__dirname, 'test/stubs/css.js'),
   },
 };
