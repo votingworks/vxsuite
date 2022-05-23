@@ -1049,6 +1049,7 @@ importers:
       zod: 3.14.4
     devDependencies:
       '@types/jest': 27.4.1
+      '@types/node': 16.11.29
       '@typescript-eslint/eslint-plugin': 5.21.0_bb9518338a760ece3e1b033a5f6af62e
       '@typescript-eslint/parser': 5.21.0_eslint@7.32.0+typescript@4.6.3
       eslint: 7.32.0
@@ -1068,6 +1069,7 @@ importers:
       typescript: 4.6.3
     specifiers:
       '@types/jest': ^27.0.3
+      '@types/node': 16.11.29
       '@typescript-eslint/eslint-plugin': ^5.21.0
       '@typescript-eslint/parser': ^5.21.0
       '@votingworks/types': workspace:*
