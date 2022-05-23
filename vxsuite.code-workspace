@@ -21,6 +21,10 @@
       "path": "frontends/precinct-scanner"
     },
     {
+      "name": "services/admin",
+      "path": "services/admin"
+    },
+    {
       "name": "services/scan",
       "path": "services/scan"
     },
