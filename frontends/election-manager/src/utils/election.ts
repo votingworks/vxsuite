@@ -20,8 +20,8 @@ import { LANGUAGES } from '../config/globals';
 import { sortBy } from './sort_by';
 
 export interface Ballot {
-  ballotStyleId: string;
-  precinctId: string;
+  ballotStyleId: BallotStyleId;
+  precinctId: PrecinctId;
   votes: VotesDict;
 }
 
