@@ -19,7 +19,8 @@
     "lint": "pnpm type-check && eslint . && pnpm stylelint:run",
     "lint:fix": "pnpm type-check && eslint . --fix",
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}'",
-    "test": "is-ci test:coverage test:watch",
+    "test": "is-ci test:ci test:watch",
+    "test:ci": "TZ=UTC jest --runInBand --coverage",
     "test:coverage": "TZ=UTC jest --coverage",
     "test:watch": "TZ=UTC jest --watch",
     "pre-commit": "lint-staged"
