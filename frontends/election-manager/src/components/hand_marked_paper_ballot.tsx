@@ -48,7 +48,7 @@ import { BubbleMark } from './bubble_mark';
 import { WriteInLine } from './write_in_line';
 import { HorizontalRule } from './horizontal_rule';
 import { ABSENTEE_TINT_COLOR } from '../config/globals';
-import { getBallotLayoutPageSize } from '../utils/get_ballot_layout_page_size';
+import { getBallotLayoutPageSizeStr } from '../utils/get_ballot_layout_page_size';
 import { getBallotLayoutDensity } from '../utils/get_ballot_layout_density';
 
 function hasVote(
@@ -620,7 +620,7 @@ export function HandMarkedPaperBallot({
     }
 
     const ballotStylesheets = [
-      `/ballot/ballot-layout-paper-size-${getBallotLayoutPageSize(
+      `/ballot/ballot-layout-paper-size-${getBallotLayoutPageSizeStr(
         election
       )}.css`,
       '/ballot/ballot.css',

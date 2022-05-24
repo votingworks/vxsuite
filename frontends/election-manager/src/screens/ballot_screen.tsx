@@ -35,7 +35,7 @@ import { DEFAULT_LOCALE } from '../config/globals';
 import { routerPaths } from '../router_paths';
 import { TextInput } from '../components/text_input';
 import { LinkButton } from '../components/link_button';
-import { getBallotLayoutPageSize } from '../utils/get_ballot_layout_page_size';
+import { getBallotLayoutPageSizeStr } from '../utils/get_ballot_layout_page_size';
 import { generateFileContentToSaveAsPdf } from '../utils/save_as_pdf';
 import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';
 
@@ -327,7 +327,8 @@ export function BallotScreen(): JSX.Element {
               This ballot is <strong>{ballotPages} pages</strong> (printed front
               and back) on{' '}
               <strong>{pluralize('sheets', ballotPages / 2, true)}</strong> of{' '}
-              <strong>{getBallotLayoutPageSize(election)}-size</strong> paper.
+              <strong>{getBallotLayoutPageSizeStr(election)}-size</strong>{' '}
+              paper.
             </p>
           )}
         </Prose>
