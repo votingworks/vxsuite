@@ -48,7 +48,7 @@
     "@types/jest": "^27.0.3",
     "@types/kiosk-browser": "workspace:*",
     "@types/luxon": "^1.26.5",
-    "@types/react": "^17.0.4",
+    "@types/react": "17.0.39",
     "@types/zip-stream": "workspace:*",
     "@typescript-eslint/eslint-plugin": "^5.21.0",
     "@typescript-eslint/parser": "^5.21.0",
