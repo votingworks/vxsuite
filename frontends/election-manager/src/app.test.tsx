@@ -68,6 +68,16 @@ const EITHER_NEITHER_SEMS_DATA =
 
 jest.mock('./components/hand_marked_paper_ballot');
 jest.mock('./utils/pdf_to_images');
+jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
+  const original: typeof import('@votingworks/utils') =
+    jest.requireActual('@votingworks/utils');
+  // Mock random string generation so that snapshots match, while leaving the rest of the module
+  // intact
+  return {
+    ...original,
+    randomBallotId: () => 'Asdf1234Asdf12',
+  };
+});
 
 let mockKiosk!: jest.Mocked<KioskBrowser.Kiosk>;
 
@@ -331,12 +341,12 @@ test('L&A (logic and accuracy) flow', async () => {
   );
   expect(screen.getAllByText('0').length).toBe(40);
 
-  // Test printing L&A Package
+  // Test printing L&A package
   userEvent.click(screen.getByText('L&A'));
   userEvent.click(screen.getByText('Print L&A Packages'));
   userEvent.click(screen.getByText('District 5'));
 
-  // L&A Package: Tally Report
+  // L&A package: Tally report
   await screen.findByText('Printing L&A Package: District 5', {
     exact: false,
   });
@@ -347,9 +357,9 @@ test('L&A (logic and accuracy) flow', async () => {
     )
   );
   expect(container).toMatchSnapshot();
-  jest.advanceTimersByTime(3000);
+  jest.advanceTimersByTime(5000);
 
-  // L&A Package: HMBP Test Deck
+  // L&A package: BMD test deck
   await screen.findByText('Printing L&A Package: District 5', {
     exact: false,
   });
@@ -358,6 +368,25 @@ test('L&A (logic and accuracy) flow', async () => {
     expect(mockKiosk.log).toHaveBeenCalledWith(
       expect.stringContaining(LogEventId.TestDeckPrinted)
     )
+  );
+  expect(mockKiosk.log).toHaveBeenCalledWith(
+    expect.stringContaining('BMD paper ballot test deck')
+  );
+  expect(container).toMatchSnapshot();
+  jest.advanceTimersByTime(30000);
+
+  // L&A package: HMPB test deck
+  await screen.findByText('Printing L&A Package: District 5', {
+    exact: false,
+  });
+  expect(printer.print).toHaveBeenCalledTimes(4);
+  await waitFor(() =>
+    expect(mockKiosk.log).toHaveBeenCalledWith(
+      expect.stringContaining(LogEventId.TestDeckPrinted)
+    )
+  );
+  expect(mockKiosk.log).toHaveBeenCalledWith(
+    expect.stringContaining('Hand-marked paper ballot test deck')
   );
   expect(container).toMatchSnapshot();
 });

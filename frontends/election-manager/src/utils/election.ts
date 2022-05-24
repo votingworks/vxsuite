@@ -3,7 +3,6 @@ import {
   BallotLocale,
   Candidate,
   CandidateContest,
-  Dictionary,
   Election,
   getContests,
   getPrecinctById,
@@ -19,6 +18,12 @@ import dashify from 'dashify';
 import { LANGUAGES } from '../config/globals';
 
 import { sortBy } from './sort_by';
+
+export interface Ballot {
+  ballotStyleId: BallotStyleId;
+  precinctId: PrecinctId;
+  votes: VotesDict;
+}
 
 export function getDistrictIdsForPartyId(
   election: Election,
@@ -177,12 +182,12 @@ interface GenerateTestDeckParams {
 export function generateTestDeckBallots({
   election,
   precinctId,
-}: GenerateTestDeckParams): Array<Dictionary<string | VotesDict>> {
+}: GenerateTestDeckParams): Ballot[] {
   const precincts: string[] = precinctId
     ? [precinctId]
     : election.precincts.map((p) => p.id);
 
-  const ballots: Array<Dictionary<string | VotesDict>> = [];
+  const ballots: Ballot[] = [];
 
   for (const currentPrecinctId of precincts) {
     const precinct = find(
@@ -245,8 +250,8 @@ export function generateBlankBallots({
   election: Election;
   precinctId: PrecinctId;
   numBlanks: number;
-}): Array<Dictionary<string | VotesDict>> {
-  const ballots: Array<Dictionary<string | VotesDict>> = [];
+}): Ballot[] {
+  const ballots: Ballot[] = [];
 
   const blankBallotStyle = election.ballotStyles.find((bs) =>
     bs.precincts.includes(precinctId)
@@ -276,16 +281,13 @@ export function generateOvervoteBallot({
 }: {
   election: Election;
   precinctId: PrecinctId;
-}): Dictionary<string | VotesDict> | undefined {
+}): Ballot | undefined {
   const precinctBallotStyles = election.ballotStyles.filter((bs) =>
     bs.precincts.includes(precinctId)
   );
 
-  const ballot: Dictionary<string | VotesDict> = { precinctId };
   const votes: VotesDict = {};
-
   for (const ballotStyle of precinctBallotStyles) {
-    ballot.ballotStyleId = ballotStyle.id;
     const contests = election.contests.filter(
       (c) =>
         ballotStyle.districts.includes(c.districtId) &&
@@ -303,8 +305,11 @@ export function generateOvervoteBallot({
           0,
           candidateContest.seats + 1
         );
-        ballot.votes = votes;
-        return ballot;
+        return {
+          ballotStyleId: ballotStyle.id,
+          precinctId,
+          votes,
+        };
       }
     }
 
@@ -314,8 +319,12 @@ export function generateOvervoteBallot({
       } else if (otherContest.type === 'ms-either-neither') {
         votes[otherContest.eitherNeitherContestId] = ['yes', 'no'];
       }
-      ballot.votes = votes;
-      return ballot;
+      return {
+        ballotStyleId: ballotStyle.id,
+        precinctId,
+        votes,
+      };
     }
   }
+  return undefined;
 }
