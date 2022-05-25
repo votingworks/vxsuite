@@ -7,11 +7,11 @@ import Database = require('better-sqlite3');
 
 type Database = Database.Database;
 
-const debug = makeDebug('scan:db-client');
+const debug = makeDebug('admin:db-client');
 
 const MEMORY_DB_PATH = ':memory:';
 
-export type Bindable = string | number | bigint | Buffer | null;
+type Bindable = string | number | bigint | Buffer | null;
 
 /**
  * Manages a connection for a SQLite database.
@@ -94,17 +94,20 @@ export class DbClient {
           .replace(/[^\d]+/g, '-')
           .replace(/-+$/, '')}`;
         fs.renameSync(dbPath, backupPath);
+        /* istanbul ignore next */
         debug('backed up database to be reset to %s', backupPath);
       } catch {
         // ignore for now
       }
     }
 
+    /* istanbul ignore next */
     if (shouldResetDatabase) {
       debug('resetting database to updated schema');
       client.reset();
       fs.writeFileSync(schemaDigestPath, newSchemaDigest, 'utf-8');
     } else {
+      /* istanbul ignore next */
       debug('database schema appears to be up to date');
     }
 
@@ -213,8 +216,11 @@ export class DbClient {
       debug('deleting the database file at %s', dbPath);
       fs.unlinkSync(dbPath);
     } catch (error) {
+      /* istanbul ignore next */
       assert(error instanceof Error);
+      /* istanbul ignore next */
       debug('failed to delete database file %s: %s', dbPath, error.message);
+      /* istanbul ignore next */
       throw error;
     }
   }

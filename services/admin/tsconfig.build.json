@@ -9,6 +9,7 @@
     "declaration": true
   },
   "references": [
+    { "path": "../../libs/api/tsconfig.build.json" },
     { "path": "../../libs/eslint-plugin-vx/tsconfig.build.json" },
     { "path": "../../libs/fixtures/tsconfig.build.json" },
     { "path": "../../libs/logging/tsconfig.build.json" },

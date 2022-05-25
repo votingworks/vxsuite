@@ -1,13 +1,18 @@
 import { Logger, LogSource } from '@votingworks/logging';
+import { assert } from '@votingworks/utils';
 import { Application } from 'express';
 import request from 'supertest';
+import { dirSync } from 'tmp';
 import { Server } from 'http';
 import { buildApp, start } from './server';
+import { createWorkspace, Workspace } from './util/workspace';
 
 let app: Application;
+let workspace: Workspace;
 
 beforeEach(() => {
-  app = buildApp();
+  workspace = createWorkspace(dirSync().name);
+  app = buildApp({ store: workspace.store });
 });
 
 test('starts with default logger and port', async () => {
@@ -18,7 +23,7 @@ test('starts with default logger and port', async () => {
   });
 
   // start up the server
-  await start({ app });
+  await start({ app, workspace });
 
   expect(app.listen).toHaveBeenCalled();
 });
@@ -37,9 +42,24 @@ test('start with config options', async () => {
   jest.spyOn(fakeLogger, 'log').mockResolvedValue();
 
   // start up the server
-  await start({ app, logger: fakeLogger });
+  await start({ app, logger: fakeLogger, workspace });
 
   expect(fakeLogger.log).toHaveBeenCalled();
+});
+
+test('errors on start with no workspace', async () => {
+  // start up the server
+  try {
+    await start({
+      app,
+      workspace: undefined,
+    });
+  } catch (err: any) {
+    assert(err instanceof Error);
+    expect(err.message).toMatch(
+      'workspace path could not be determined; pass a workspace or run with ADMIN_WORKSPACE'
+    );
+  }
 });
 
 test('GET /', async () => {
