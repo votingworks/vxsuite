@@ -532,6 +532,7 @@ export interface HandMarkedPaperBallotProps {
   ballotId?: BallotId;
   votes?: VotesDict;
   onRendered?(props: Omit<HandMarkedPaperBallotProps, 'onRendered'>): void;
+  targetElementId?: string;
 }
 
 export function HandMarkedPaperBallot({
@@ -546,6 +547,7 @@ export function HandMarkedPaperBallot({
   ballotId,
   votes,
   onRendered,
+  targetElementId,
 }: HandMarkedPaperBallotProps): JSX.Element {
   const layoutDensity = getBallotLayoutDensity(election);
   assert(
@@ -607,7 +609,13 @@ export function HandMarkedPaperBallot({
   const ballotRef = useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
-    if (!printBallotRef?.current) {
+    // Render the Paged.js-processed ballot to either the specified target element or to the
+    // element referenced by printBallotRef (default)
+    const targetElement = targetElementId
+      ? document.getElementById(targetElementId)
+      : printBallotRef?.current;
+
+    if (!targetElement) {
       return;
     }
 
@@ -623,7 +631,7 @@ export function HandMarkedPaperBallot({
       await new Previewer().preview(
         ballotRef.current.innerHTML,
         ballotStylesheets,
-        printBallotRef?.current
+        targetElement
       );
       onRendered?.({
         ballotStyleId,
@@ -639,9 +647,8 @@ export function HandMarkedPaperBallot({
     })();
 
     return () => {
-      if (printBallotRef.current) {
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        printBallotRef.current.innerHTML = '';
+      if (targetElement) {
+        targetElement.innerHTML = '';
       }
       document.head
         .querySelectorAll('[data-pagedjs-inserted-styles]')
@@ -659,6 +666,7 @@ export function HandMarkedPaperBallot({
     printBallotRef,
     locales,
     votes,
+    targetElementId,
   ]);
 
   const dualLanguageWithSlash = dualLanguageComposer(t, locales);

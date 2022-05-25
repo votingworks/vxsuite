@@ -2931,7 +2931,26 @@ exports[`L&A (logic and accuracy) flow 3`] = `
       .
     </div>
   </div>
-  <div />
+  <div>
+    <div
+      id="ballot-0"
+    />
+    <div
+      id="ballot-1"
+    />
+    <div
+      id="ballot-2"
+    />
+    <div
+      id="ballot-3"
+    />
+    <div
+      id="ballot-4"
+    />
+    <div
+      id="ballot-5"
+    />
+  </div>
 </div>
 `;
 

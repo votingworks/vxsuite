@@ -23,7 +23,11 @@ test('Printing all L&A packages sorts precincts', async () => {
     fakePrinterInfo({ name: 'VxPrinter', connected: true }),
   ]);
 
-  renderInAppContext(<PrintTestDeckScreen />);
+  renderInAppContext(<PrintTestDeckScreen />, {
+    printBallotRef: {
+      current: document.createElement('div'),
+    },
+  });
 
   userEvent.click(screen.getByText('All Precincts'));
 
