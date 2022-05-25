@@ -24,6 +24,7 @@ import { asText as electionSample2AsText } from './data/electionSample2/election
 import { asText as electionSampleLongContentAsText } from './data/electionSampleLongContent.json';
 import { asText as electionSampleRotationAsText } from './data/electionSampleRotation.json';
 import { msEitherNeitherElectionCvrData } from './data/electionWithMsEitherNeither/cvrFiles/standard.jsonl';
+import { msEitherNeitherElectionCvrTestData } from './data/electionWithMsEitherNeither/cvrFiles/test.jsonl';
 import { asText as electionWithMsEitherNeitherAsText } from './data/electionWithMsEitherNeither/electionWithMsEitherNeither.json';
 import { msEitherNeitherElectionSemsData } from './data/electionWithMsEitherNeither/semsFiles/standard.csv';
 import { asText as electionMinimalExhaustiveSampleAsText } from './data/electionMinimalExhaustiveSample/electionMinimalExhaustiveSample.json';
@@ -119,6 +120,7 @@ export const electionWithMsEitherNeitherWithDataFiles = {
   electionDefinition: electionWithMsEitherNeitherDefinition,
   semsData: msEitherNeitherElectionSemsData,
   cvrData: msEitherNeitherElectionCvrData,
+  cvrTestData: msEitherNeitherElectionCvrTestData,
 } as const;
 
 export const electionMinimalExhaustiveSampleWithDataFiles = {
