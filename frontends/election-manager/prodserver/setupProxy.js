@@ -14,6 +14,7 @@ const { dirname, join } = require('path');
 module.exports = function (app) {
   app.use(proxy('/card', { target: 'http://localhost:3001/' }));
   app.use(proxy('/convert', { target: 'http://localhost:3003/' }));
+  app.use(proxy('/admin', { target: 'http://localhost:3004/' }));
 
   app.get('/machine-config', (req, res) => {
     res.json({

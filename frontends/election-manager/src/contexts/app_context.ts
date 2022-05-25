@@ -1,5 +1,7 @@
 import { createContext, RefObject } from 'react';
 import {
+  BallotId,
+  ContestId,
   ElectionDefinition,
   FullElectionTally,
   FullElectionExternalTally,
@@ -49,6 +51,11 @@ export interface AppContextInterface {
   saveExternalTallies: (
     externalTallies: FullElectionExternalTally[]
   ) => Promise<void>;
+  saveTranscribedValue: (
+    ballotId: BallotId,
+    contestId: ContestId,
+    transcribedValue: string
+  ) => Promise<void>;
   setIsTabulationRunning: React.Dispatch<React.SetStateAction<boolean>>;
   generateExportableTallies: () => ExportableTallies;
   currentUserSession?: UserSession;
@@ -80,6 +87,7 @@ const appContext: AppContextInterface = {
   fullElectionExternalTallies: [],
   setFullElectionTally: () => undefined,
   saveExternalTallies: async () => undefined,
+  saveTranscribedValue: async () => undefined,
   isTabulationRunning: false,
   setIsTabulationRunning: () => undefined,
   generateExportableTallies: getEmptyExportableTallies,

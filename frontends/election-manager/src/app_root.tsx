@@ -14,6 +14,8 @@ import {
   LogDispositionStandardTypes,
 } from '@votingworks/logging';
 import {
+  BallotId,
+  ContestId,
   ElectionDefinition,
   safeParseElection,
   FullElectionExternalTally,
@@ -290,6 +292,28 @@ export function AppRoot({
     await savePrintedBallots(ballots);
     setPrintedBallots(ballots);
   }
+
+  const saveTranscribedValue = useCallback(
+    async (
+      ballotId: BallotId,
+      contestId: ContestId,
+      transcribedValue: string
+    ) => {
+      try {
+        await fetch(`/admin/write-ins/transcribe`, {
+          method: 'POST',
+          body: JSON.stringify({ ballotId, contestId, transcribedValue }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+      } catch (error) {
+        assert(error instanceof Error);
+        throw error;
+      }
+    },
+    []
+  );
 
   useEffect(() => {
     void (async () => {
@@ -615,6 +639,7 @@ export function AppRoot({
         setFullElectionTally,
         fullElectionExternalTallies,
         saveExternalTallies,
+        saveTranscribedValue,
         isTabulationRunning,
         setIsTabulationRunning,
         generateExportableTallies,

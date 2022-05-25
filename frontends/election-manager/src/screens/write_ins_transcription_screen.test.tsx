@@ -1,7 +1,7 @@
 import { screen } from '@testing-library/react';
 import React from 'react';
 import { electionMinimalExhaustiveSampleDefinition as electionDefinition } from '@votingworks/fixtures';
-import { CandidateContest } from '@votingworks/types';
+import { CandidateContest, CastVoteRecord } from '@votingworks/types';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { WriteInsTranscriptionScreen } from './write_ins_transcription_screen';
 
@@ -13,12 +13,43 @@ test('write-ins screen', () => {
   const onListAll = jest.fn();
   const saveTranscribedValue = jest.fn();
 
+  const ballotsBeingAdjudicated = [
+    {
+      _ballotId: 'id-174',
+      _ballotType: 'absentee',
+      _precinctId: 'precinct-1',
+      _ballotStyleId: '3C',
+      _testBallot: true,
+      _scannerId: 'scanner-1',
+      _batchId: '1234-1',
+      _batchLabel: 'Batch 1',
+      'governor-contest-constitution': ['write-in-0'],
+      'mayor-contest-constitution': ['write-in-0'],
+      'chief-pokemon-constitution': ['flareon', 'umbreon', 'vaporeon'],
+      'schoolboard-constitution': ['aras-baskauskas', 'yul-kwon', 'earl-cole'],
+    },
+    {
+      _ballotId: 'id-188',
+      _ballotType: 'absentee',
+      _precinctId: 'precinct-1',
+      _ballotStyleId: '3C',
+      _testBallot: true,
+      _scannerId: 'scanner-2',
+      _batchId: '1234-3',
+      _batchLabel: 'Batch 1',
+      'governor-contest-constitution': ['write-in-0'],
+      'mayor-contest-constitution': ['write-in-0'],
+      'chief-pokemon-constitution': ['flareon', 'umbreon', 'vaporeon'],
+      'schoolboard-constitution': ['aras-baskauskas', 'yul-kwon', 'earl-cole'],
+    },
+  ] as unknown as CastVoteRecord[];
+
   renderInAppContext(
     <WriteInsTranscriptionScreen
       election={electionDefinition.election}
       contest={contest}
       ballotIdxBeingAdjudicated={0}
-      ballotsBeingAdjudicated={[]}
+      ballotsBeingAdjudicated={ballotsBeingAdjudicated}
       onClickNext={onClickNext}
       onClickPrevious={onClickPrevious}
       onClose={onClose}
@@ -29,8 +60,13 @@ test('write-ins screen', () => {
   );
   screen.getByText('BALLOT IMAGES GO HERE');
 
+  // Click a previously-saved transcription
   screen.getByText('Mickey Mouse').click();
-  expect(saveTranscribedValue).toHaveBeenCalledWith('Mickey Mouse');
+  expect(saveTranscribedValue).toHaveBeenCalledWith(
+    'id-174',
+    'best-animal-mammal',
+    'Mickey Mouse'
+  );
 
   screen.getByText('List All').click();
   expect(onListAll).toHaveBeenCalledTimes(1);

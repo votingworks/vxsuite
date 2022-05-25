@@ -2,6 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 
 import {
+  BallotId,
+  ContestId,
   CandidateContest,
   CastVoteRecord,
   Election,
@@ -47,35 +49,6 @@ const TranscriptionPaginationContainer = styled.div`
   padding: 0.5rem 1rem;
 `;
 
-function PreviouslyTranscribedValues({
-  saveTranscribedValue,
-}: {
-  saveTranscribedValue: (transcribedValue: string) => void;
-}) {
-  const previouslyTranscribedValues = [
-    'Mickey Mouse',
-    'Mickey M',
-    'Micky',
-    'Donald',
-    'Donald Duck',
-    'Roger Rabbit',
-    'RR',
-    'DD',
-    'M. Mouse',
-  ];
-  return (
-    <PreviouslyTranscribedValuesContainer>
-      {previouslyTranscribedValues.map((transcribedValue) => (
-        <PreviouslyTranscribedValueButtonWrapper key={transcribedValue}>
-          <Button onPress={() => saveTranscribedValue(transcribedValue)}>
-            {transcribedValue}
-          </Button>
-        </PreviouslyTranscribedValueButtonWrapper>
-      ))}
-    </PreviouslyTranscribedValuesContainer>
-  );
-}
-
 /* isntabul ignore next */
 function noop() {
   // nothing to do
@@ -100,10 +73,28 @@ export function WriteInsTranscriptionScreen({
   onClickPrevious?: () => void;
   onClose: () => void;
   onListAll: () => void;
-  saveTranscribedValue: (transcribedValue: string) => void;
+  saveTranscribedValue: (
+    ballotId: BallotId,
+    contestId: ContestId,
+    transcribedValue: string
+  ) => void;
 }): JSX.Element {
+  const previouslyTranscribedValues = [
+    'Mickey Mouse',
+    'Mickey M',
+    'Micky',
+    'Donald',
+    'Donald Duck',
+    'Roger Rabbit',
+    'RR',
+    'DD',
+    'M. Mouse',
+  ];
+
   assert(contest);
   assert(election);
+  const currentBallot = ballotsBeingAdjudicated[ballotIdxBeingAdjudicated];
+  const ballotId = currentBallot._ballotId as BallotId;
   return (
     <Screen>
       <Navigation
@@ -140,24 +131,23 @@ export function WriteInsTranscriptionScreen({
               <label htmlFor="transcription-value">Transcribed Value</label>
             </Text>
             <TextInput id="transcribed-value" name="transcribed-value" />
-            <PreviouslyTranscribedValues
-              saveTranscribedValue={saveTranscribedValue}
-            />
-            <p>Here</p>
-            <p>are</p>
-            <p>a</p>
-            <p>bunch</p>
-            <p>of</p>
-            <p>paragraphs</p>
-            <p>to</p>
-            <p>make</p>
-            <p>the</p>
-            <p>container</p>
-            <p>container</p>
-            <p>container</p>
-            <p>container</p>
-            <p>container</p>
-            <p>overflow.</p>
+            <PreviouslyTranscribedValuesContainer>
+              {previouslyTranscribedValues.map((transcribedValue) => (
+                <PreviouslyTranscribedValueButtonWrapper key={transcribedValue}>
+                  <Button
+                    onPress={() =>
+                      saveTranscribedValue(
+                        ballotId,
+                        contest.id,
+                        transcribedValue
+                      )
+                    }
+                  >
+                    {transcribedValue}
+                  </Button>
+                </PreviouslyTranscribedValueButtonWrapper>
+              ))}
+            </PreviouslyTranscribedValuesContainer>
           </TranscriptionMainContentContainer>
           <TranscriptionPaginationContainer>
             <Button

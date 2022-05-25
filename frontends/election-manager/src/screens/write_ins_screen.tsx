@@ -14,7 +14,8 @@ import { WriteInsTranscriptionScreen } from './write_ins_transcription_screen';
 import { AppContext } from '../contexts/app_context';
 
 export function WriteInsScreen(): JSX.Element {
-  const { castVoteRecordFiles, electionDefinition } = useContext(AppContext);
+  const { castVoteRecordFiles, electionDefinition, saveTranscribedValue } =
+    useContext(AppContext);
   const election = electionDefinition?.election;
   const castVoteRecordFileList = castVoteRecordFiles.fileList;
   const hasCastVoteRecordFiles =
@@ -130,7 +131,7 @@ export function WriteInsScreen(): JSX.Element {
                         )
                     : undefined
                 }
-                saveTranscribedValue={placeholderFn}
+                saveTranscribedValue={saveTranscribedValue}
               />
             }
             fullscreen
