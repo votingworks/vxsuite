@@ -180,6 +180,10 @@ function HandMarkedPaperBallots({
  * target element. useCreateHmpbTargetElements creates a set of target elements, one for every
  * hand-marked paper ballot. In the past, we rendered all test deck hand-marked paper ballots to
  * the same target element, but this occasionally resulted in a misordered test deck.
+ *
+ * We render the target elements separate from HandMarkedPaperBallot and in this unconventional way
+ * because we need each target element to 1) exist before the corresponding HandMarkedPaperBallot
+ * is rendered and 2) be unaffected by HandMarkedPaperBallot's React lifecycle.
  */
 function useCreateHmpbTargetElements({
   containerRef,
