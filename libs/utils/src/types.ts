@@ -8,7 +8,6 @@ import {
   PrecinctSelectionSchema,
   Result,
 } from '@votingworks/types';
-import { Observable } from 'rxjs';
 import { z } from 'zod';
 
 // Currently we only support precinct scanner tallies but this enum exists for future ability to specify different types
@@ -183,12 +182,14 @@ export interface Hardware {
   /**
    * Subscribe to USB device updates.
    */
-  readonly devices: Observable<Iterable<KioskBrowser.Device>>;
+  readonly devices: KioskBrowser.Observable<Iterable<KioskBrowser.Device>>;
 
   /**
    * Subscribe to USB device updates.
    */
-  readonly printers: Observable<Iterable<KioskBrowser.PrinterInfo>>;
+  readonly printers: KioskBrowser.Observable<
+    Iterable<KioskBrowser.PrinterInfo>
+  >;
 }
 
 export interface PrintOptions extends KioskBrowser.PrintOptions {

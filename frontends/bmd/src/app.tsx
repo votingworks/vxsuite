@@ -64,12 +64,12 @@ export function App({
   /* istanbul ignore next - need to figure out how to test this */
   useEffect(() => {
     if (internalHardware !== undefined) {
-      const subscription = internalHardware.devices.subscribe((devices) =>
+      const unsubscribe = internalHardware.devices.subscribe((devices) =>
         screenReader.toggleMuted(
           !Array.from(devices).some(isAccessibleController)
         )
       );
-      return () => subscription.unsubscribe();
+      return unsubscribe;
     }
   }, [internalHardware, screenReader]);
 

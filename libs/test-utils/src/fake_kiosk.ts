@@ -1,5 +1,5 @@
 import { Buffer } from 'buffer';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject } from './observable';
 
 export function fakeDevice(
   props: Partial<KioskBrowser.Device> = {}
