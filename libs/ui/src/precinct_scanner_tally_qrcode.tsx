@@ -2,7 +2,6 @@ import { CompressedTally, ElectionDefinition } from '@votingworks/types';
 import { format, formatFullDateTimeZone } from '@votingworks/utils';
 import { DateTime } from 'luxon';
 import React, { useEffect, useState } from 'react';
-import { useCancelablePromise } from './hooks/use_cancelable_promise';
 import { LogoMark } from './logo_mark';
 import { Prose } from './prose';
 import { ReportSection } from './tally_report';
@@ -31,11 +30,11 @@ export function PrecinctScannerTallyQrCode({
   const { election, electionHash } = electionDefinition;
   const [resultsReportingUrl, setResultsReportingUrl] = useState('');
   const pollsAction = isPollsOpen ? 'Opened' : 'Closed';
-  const makeCancelable = useCancelablePromise();
-
   const electionDate = format.localeWeekdayAndDate(new Date(election.date));
 
   useEffect(() => {
+    let isCurrentRender = true;
+
     void (async () => {
       if (!isPollsOpen) {
         const secondsSince1970 = Math.round(new Date().getTime() / 1000);
@@ -44,12 +43,14 @@ export function PrecinctScannerTallyQrCode({
         }.${secondsSince1970}.${window.btoa(JSON.stringify(compressedTally))}`;
         const signature =
           window.kiosk &&
-          (await makeCancelable(
-            window.kiosk.sign({
-              signatureType: 'vx-results-reporting',
-              payload: stringToSign,
-            })
-          ));
+          (await window.kiosk.sign({
+            signatureType: 'vx-results-reporting',
+            payload: stringToSign,
+          }));
+
+        if (!isCurrentRender) {
+          return;
+        }
 
         setResultsReportingUrl(
           `https://results.voting.works/?p=${encodeURIComponent(
@@ -58,6 +59,10 @@ export function PrecinctScannerTallyQrCode({
         );
       }
     })();
+
+    return () => {
+      isCurrentRender = false;
+    };
   }, [
     setResultsReportingUrl,
     election,
@@ -66,7 +71,6 @@ export function PrecinctScannerTallyQrCode({
     compressedTally,
     isPollsOpen,
     isLiveMode,
-    makeCancelable,
   ]);
 
   return resultsReportingUrl ? (
@@ -89,7 +93,9 @@ export function PrecinctScannerTallyQrCode({
           This QR code contains the tally, authenticated with a digital
           signature. Scan the QR code and follow the URL for details.
         </p>
-        <QrCode value={resultsReportingUrl} />
+        <div data-testid="qrcode" data-value={resultsReportingUrl}>
+          <QrCode value={resultsReportingUrl} />
+        </div>
       </Prose>
     </ReportSection>
   ) : (
