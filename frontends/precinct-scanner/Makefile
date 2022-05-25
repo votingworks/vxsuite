@@ -9,4 +9,4 @@ build: FORCE
 	pnpm install && pnpm build
 
 run:
-	cd prodserver && node index.js
+	pnpx esr prodserver/index.js

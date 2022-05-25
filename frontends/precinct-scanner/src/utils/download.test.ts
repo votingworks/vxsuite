@@ -44,7 +44,9 @@ test('download with kiosk-browser and status!=200', async () => {
   const result = await download('/file.txt');
   expect(result.err()).toEqual({
     kind: DownloadErrorKind.FetchFailed,
-    response: expect.any(Response),
+    response: expect.objectContaining({
+      status: 404,
+    }),
   });
 });
 
@@ -57,7 +59,9 @@ test('download with kiosk-browser and no content-disposition', async () => {
   const result = await download('/file.txt');
   expect(result.err()).toEqual({
     kind: DownloadErrorKind.FileMissing,
-    response: expect.any(Response),
+    response: expect.objectContaining({
+      status: 200,
+    }),
   });
 });
 
@@ -74,7 +78,9 @@ test('download with kiosk-browser and no body', async () => {
   const result = await download('/file.txt');
   expect(result.err()).toEqual({
     kind: DownloadErrorKind.FileMissing,
-    response: expect.any(Response),
+    response: expect.objectContaining({
+      status: 200,
+    }),
   });
 });
 
@@ -91,7 +97,9 @@ test('download with kiosk-browser and no content-disposition filename', async ()
   const result = await download('/file.txt');
   expect(result.err()).toEqual({
     kind: DownloadErrorKind.FileMissing,
-    response: expect.any(Response),
+    response: expect.objectContaining({
+      status: 200,
+    }),
   });
 });
 

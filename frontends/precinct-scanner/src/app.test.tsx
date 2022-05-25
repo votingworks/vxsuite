@@ -51,8 +51,8 @@ const readBallotPackageFromFilePointerMock = mocked(
 );
 const { readBallotPackageFromFile } = jest.requireActual('@votingworks/utils');
 
-jest.mock('@votingworks/utils/build/ballot_package', () => ({
-  ...jest.requireActual('@votingworks/utils/build/ballot_package'),
+jest.mock('@votingworks/utils/src/ballot_package', () => ({
+  ...jest.requireActual('@votingworks/utils/src/ballot_package'),
   readBallotPackageFromFilePointer: jest.fn(),
 }));
 // End mocking `readBallotPackageFromFilePointer`.
