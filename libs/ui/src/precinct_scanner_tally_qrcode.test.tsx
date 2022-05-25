@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import {
   electionSample,
   electionSampleDefinition,
@@ -12,6 +12,7 @@ import {
 import {
   calculateTallyForCastVoteRecords,
   compressTally,
+  deferred,
 } from '@votingworks/utils';
 import { fakeKiosk, mockOf } from '@votingworks/test-utils';
 
@@ -168,4 +169,81 @@ test('renders with unsigned results reporting when there is no kiosk', async () 
       screen.queryByText('Automatic Election Results Reporting')
     ).toBeInTheDocument()
   );
+});
+
+test('renders the correct signature on re-renders', async () => {
+  jest.useFakeTimers().setSystemTime(time);
+
+  const mockKiosk = fakeKiosk();
+  const firstSignDeferred = deferred<string>();
+  const secondSignDeferred = deferred<string>();
+
+  mockOf(mockKiosk.sign)
+    .mockReturnValueOnce(firstSignDeferred.promise)
+    .mockReturnValueOnce(secondSignDeferred.promise);
+  window.kiosk = mockKiosk;
+
+  const tally = calculateTallyForCastVoteRecords(
+    electionSample,
+    new Set([cvr])
+  );
+  const compressedTally = compressTally(electionSample, tally);
+
+  const { rerender } = render(
+    <PrecinctScannerTallyQrCode
+      reportSavedTime={time}
+      electionDefinition={electionSampleDefinition}
+      reportPurpose="Testing"
+      isPollsOpen={false}
+      isLiveMode
+      compressedTally={compressedTally}
+      signingMachineId="DEMO-0000"
+    />
+  );
+
+  // trigger a re-render with a new signature
+  rerender(
+    <PrecinctScannerTallyQrCode
+      reportSavedTime={time}
+      electionDefinition={electionSampleDefinition}
+      reportPurpose="Testing"
+      isPollsOpen={false}
+      isLiveMode={false} // change from live to test
+      compressedTally={compressedTally}
+      signingMachineId="DEMO-0000"
+    />
+  );
+
+  // ensure we've got both `sign` calls
+  expect(mockKiosk.sign).toHaveBeenCalledTimes(2);
+
+  expect(mockKiosk.sign).toHaveBeenNthCalledWith(
+    1,
+    expect.objectContaining({
+      payload: expect.stringContaining(`DEMO-0000.1`),
+    })
+  );
+  expect(mockKiosk.sign).toHaveBeenNthCalledWith(
+    2,
+    expect.objectContaining({
+      payload: expect.stringContaining(`DEMO-0000.0`),
+    })
+  );
+
+  // resolve the calls out of order
+  act(() => {
+    secondSignDeferred.resolve('SECONDFAKESIGNATURE');
+    firstSignDeferred.resolve('FIRSTFAKESIGNATURE');
+  });
+
+  await waitFor(() => {
+    expect(
+      screen.queryByText('Automatic Election Results Reporting')
+    ).toBeInTheDocument();
+  });
+
+  // ensure the we're correctly using the second signature and not the first,
+  // despite the fact that the first one was resolved later
+  const { value } = screen.getByTestId('qrcode').dataset;
+  expect(value).toContain('SECONDFAKESIGNATURE');
 });
