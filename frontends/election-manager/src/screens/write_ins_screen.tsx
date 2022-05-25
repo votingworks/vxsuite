@@ -1,8 +1,9 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 
 import { Button, Modal, Prose } from '@votingworks/ui';
 import {
   CandidateContest,
+  CastVoteRecord,
   ContestId,
   ContestOptionId,
   getPartyAbbreviationByPartyId,
@@ -23,29 +24,44 @@ export function WriteInsScreen(): JSX.Element {
       contest.type === 'candidate' && contest.allowWriteIns
   );
 
-  // Aggregate write-in count by contest
-  const writeInCountsByContest = new Map<ContestId, number>();
-  for (const file of castVoteRecordFileList) {
-    for (const cvr of file.allCastVoteRecords) {
-      for (const [key, value] of Object.entries(cvr)) {
-        if (Array.isArray(value)) {
-          const contestId = key;
-          const votes = value as ContestOptionId[];
-          // TODO: this does not capture all the ways we represente write-ins, must be
-          // updated once https://github.com/votingworks/vxsuite/issues/1793 is complete.
-          const cvrHasWriteIn = votes.find((m) => m.startsWith('write-in'));
-          if (cvrHasWriteIn) {
-            const currCount = writeInCountsByContest.get(contestId) || 0;
-            writeInCountsByContest.set(contestId, currCount + 1);
+  // Aggregate write-ins by contest
+  const writeInsByContest = useMemo(() => {
+    const map = new Map<ContestId, CastVoteRecord[]>();
+    for (const file of castVoteRecordFileList) {
+      for (const cvr of file.allCastVoteRecords) {
+        for (const [key, value] of Object.entries(cvr)) {
+          if (Array.isArray(value)) {
+            const contestId = key;
+            const votes = value as ContestOptionId[];
+            const cvrHasWriteIn = votes.find((m) => m.startsWith('write-in'));
+            if (cvrHasWriteIn) {
+              const currCvrs = map.get(contestId) || [];
+              map.set(contestId, [...currCvrs, cvr]);
+            }
           }
         }
       }
     }
-  }
+    return map;
+  }, [castVoteRecordFileList]);
 
   const [contestBeingAdjudicated, setContestBeingAdjudicated] = useState<
     CandidateContest | undefined
   >();
+
+  const [ballotIdxBeingAdjudicated, setBallotIdxBeingAdjudicated] =
+    useState<number>(0);
+
+  // When we start adjudicating a new contest, reset ballot pagination index
+  useEffect(() => {
+    if (contestBeingAdjudicated) {
+      setBallotIdxBeingAdjudicated(0);
+    }
+  }, [contestBeingAdjudicated]);
+
+  const ballotsBeingAdjudicated: CastVoteRecord[] = contestBeingAdjudicated
+    ? writeInsByContest.get(contestBeingAdjudicated.id) || []
+    : [];
 
   /* istanbul ignore next */
   function placeholderFn() {
@@ -66,12 +82,12 @@ export function WriteInsScreen(): JSX.Element {
                 disabled={
                   !(
                     hasCastVoteRecordFiles &&
-                    writeInCountsByContest.get(contest.id)
+                    writeInsByContest.get(contest.id)?.length
                   )
                 }
                 onPress={() => setContestBeingAdjudicated(contest)}
               >
-                Adjudicate {writeInCountsByContest.get(contest.id)} write-ins
+                Adjudicate {writeInsByContest.get(contest.id)?.length} write-ins
                 for “{contest.section} {contest.title}”
                 {election && contest.partyId && (
                   <React.Fragment>
@@ -94,10 +110,26 @@ export function WriteInsScreen(): JSX.Element {
               <WriteInsTranscriptionScreen
                 election={election}
                 contest={contestBeingAdjudicated}
+                ballotIdxBeingAdjudicated={ballotIdxBeingAdjudicated}
+                ballotsBeingAdjudicated={ballotsBeingAdjudicated}
                 onClose={() => setContestBeingAdjudicated(undefined)}
                 onListAll={placeholderFn}
-                onClickNext={placeholderFn}
-                onClickPrevious={placeholderFn}
+                onClickNext={
+                  ballotIdxBeingAdjudicated < ballotsBeingAdjudicated.length - 1
+                    ? () =>
+                        setBallotIdxBeingAdjudicated(
+                          ballotIdxBeingAdjudicated + 1
+                        )
+                    : undefined
+                }
+                onClickPrevious={
+                  ballotIdxBeingAdjudicated
+                    ? () =>
+                        setBallotIdxBeingAdjudicated(
+                          ballotIdxBeingAdjudicated - 1
+                        )
+                    : undefined
+                }
                 saveTranscribedValue={placeholderFn}
               />
             }

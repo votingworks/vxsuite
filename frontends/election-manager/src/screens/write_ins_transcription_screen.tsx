@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import {
   CandidateContest,
+  CastVoteRecord,
   Election,
   getPartyAbbreviationByPartyId,
 } from '@votingworks/types';
@@ -78,6 +79,8 @@ function PreviouslyTranscribedValues({
 export function WriteInsTranscriptionScreen({
   contest,
   election,
+  ballotIdxBeingAdjudicated,
+  ballotsBeingAdjudicated,
   onClickNext,
   onClickPrevious,
   onClose,
@@ -86,8 +89,10 @@ export function WriteInsTranscriptionScreen({
 }: {
   contest: CandidateContest;
   election: Election;
-  onClickNext: () => void;
-  onClickPrevious: () => void;
+  ballotIdxBeingAdjudicated: number;
+  ballotsBeingAdjudicated: CastVoteRecord[];
+  onClickNext?: () => void;
+  onClickPrevious?: () => void;
   onClose: () => void;
   onListAll: () => void;
   saveTranscribedValue: (transcribedValue: string) => void;
@@ -150,9 +155,22 @@ export function WriteInsTranscriptionScreen({
             <p>overflow.</p>
           </TranscriptionMainContentContainer>
           <TranscriptionPaginationContainer>
-            <Button onPress={onClickPrevious}>Previous</Button>
-            <Text bold>2 of 242</Text>
-            <Button onPress={onClickNext}>Next</Button>
+            <Button
+              disabled={!onClickPrevious}
+              onPress={onClickPrevious || (() => null)}
+            >
+              Previous
+            </Button>
+            <Text bold>
+              {ballotIdxBeingAdjudicated + 1} of{' '}
+              {ballotsBeingAdjudicated.length}
+            </Text>
+            <Button
+              disabled={!onClickNext}
+              onPress={onClickNext || (() => null)}
+            >
+              Next
+            </Button>
           </TranscriptionPaginationContainer>
         </TranscriptionContainer>
       </Main>
