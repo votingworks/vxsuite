@@ -294,6 +294,10 @@ IDs are logged with each log to identify the log being written.
 **Type:** [application-status](#application-status)  
 **Description:** Message from the scanning service about how it is configured while starting up.  
 **Machines:** vx-central-scan-frontend, vx-precinct-scan-frontend
+### admin-service-config
+**Type:** [application-status](#application-status)  
+**Description:** Message from the admin service about how it is configured while starting up.  
+**Machines:** vx-admin-frontend
 ### fujitsu-scan-init
 **Type:** [application-action](#application-action)  
 **Description:** Application is initiating a new scanning batch on the fujitsu scanner.  
