@@ -90,6 +90,7 @@ export enum LogEventId {
   ScannerConfigReloaded = 'scanner-config-reloaded',
   ExportLogFileFound = 'export-log-file-found',
   ScanServiceConfigurationMessage = 'scan-service-config',
+  AdminServiceConfigurationMessage = 'admin-service-config',
   FujitsuScanInit = 'fujitsu-scan-init',
   FujitsuScanImageScanned = 'fujitsu-scan-sheet-scanned',
   FujitsuScanBatchComplete = 'fujitsu-scan-batch-complete',
@@ -671,6 +672,14 @@ const ScanServiceConfigurationMessage: LogDetails = {
   ],
 };
 
+const AdminServiceConfigurationMessage: LogDetails = {
+  eventId: LogEventId.AdminServiceConfigurationMessage,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage:
+    'Message from the admin service about how it is configured while starting up.',
+  restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
+};
+
 const FujitsuScanInit: LogDetails = {
   eventId: LogEventId.FujitsuScanInit,
   eventType: LogEventType.ApplicationAction,
@@ -860,6 +869,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ExportLogFileFound;
     case LogEventId.ScanServiceConfigurationMessage:
       return ScanServiceConfigurationMessage;
+    case LogEventId.AdminServiceConfigurationMessage:
+      return AdminServiceConfigurationMessage;
     case LogEventId.FujitsuScanInit:
       return FujitsuScanInit;
     case LogEventId.FujitsuScanMessage:
