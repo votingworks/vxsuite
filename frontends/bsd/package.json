@@ -90,7 +90,6 @@
     "react-dropzone": "^11.2.1",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.1",
-    "rxjs": "^6.6.6",
     "setimmediate": "^1.0.5",
     "styled-components": "^5.2.1",
     "ts-jest": "^26.1.3",

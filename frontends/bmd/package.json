@@ -118,7 +118,6 @@
     "react-idle-timer": "4.2.12",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.1",
-    "rxjs": "^6.6.6",
     "setimmediate": "^1.0.5",
     "styled-components": "^4.4.1",
     "typescript": "4.6.3",

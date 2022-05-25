@@ -134,7 +134,8 @@ it('allows unsubscribing from a device subscription', () => {
   const callback = jest.fn();
   const device = fakeDevice();
 
-  hardware.devices.subscribe(callback).unsubscribe();
+  const unsubscribe = hardware.devices.subscribe(callback);
+  unsubscribe();
   callback.mockClear();
 
   hardware.addDevice(device);

@@ -1,4 +1,4 @@
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable } from '../observable';
 import { Hardware } from '../types';
 import {
   AccessibleControllerProductId,

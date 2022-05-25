@@ -7,7 +7,6 @@ import {
   isPrecinctScanner,
 } from '@votingworks/utils';
 import { useEffect, useState } from 'react';
-import { map } from 'rxjs/operators';
 import useInterval from 'use-interval';
 import { useCancelablePromise } from './use_cancelable_promise';
 import { usePrevious } from './use_previous';
@@ -64,17 +63,17 @@ export function useDevices({ hardware, logger }: Props): Devices {
   const previousPrinters = usePrevious(allPrinters);
 
   useEffect(() => {
-    const hardwareStatusSubscription = hardware.devices
-      .pipe(map((devices) => Array.from(devices)))
-      .subscribe(setAllDevices);
+    const unsubscribeDevices = hardware.devices.subscribe((devices) => {
+      setAllDevices(Array.from(devices));
+    });
 
-    const printerStatusSubscription = hardware.printers
-      .pipe(map((printers) => Array.from(printers)))
-      .subscribe(setAllPrinters);
+    const unsubscribePrinters = hardware.printers.subscribe((devices) => {
+      setAllPrinters(Array.from(devices));
+    });
 
     return () => {
-      hardwareStatusSubscription.unsubscribe();
-      printerStatusSubscription.unsubscribe();
+      unsubscribeDevices();
+      unsubscribePrinters();
     };
   }, [hardware]);
 

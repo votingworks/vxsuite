@@ -54,7 +54,6 @@
     "react-dom": "^17.0.1",
     "react-modal": "^3.14.4",
     "react-router-dom": "^5.2.0",
-    "rxjs": "6.6.6",
     "styled-components": "^5.2.3",
     "use-interval": "^1.4.0",
     "zod": "3.14.4"
