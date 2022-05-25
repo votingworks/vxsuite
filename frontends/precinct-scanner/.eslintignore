@@ -6,4 +6,3 @@
 /prodserver
 /src/**/*.js
 *.d.ts
-/src/serviceWorker.ts
