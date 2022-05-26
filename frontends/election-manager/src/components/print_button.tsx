@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect, useCallback } from 'react';
 
 import {
   Modal,
@@ -10,6 +10,7 @@ import { Button, StyledButtonProps } from './button';
 import { Loading } from './loading';
 import { PrintOptions } from '../config/types';
 import { AppContext } from '../contexts/app_context';
+import { PrintableArea } from './printable_area';
 
 interface ConfirmModal {
   content: React.ReactNode;
@@ -23,6 +24,8 @@ interface PrintButtonProps extends StyledButtonProps {
   copies?: number;
   sides: PrintOptions['sides'];
   confirmModal?: ConfirmModal;
+  printTarget?: JSX.Element;
+  printTargetTestId?: string;
 }
 
 export function PrintButton({
@@ -33,6 +36,8 @@ export function PrintButton({
   copies,
   sides,
   confirmModal,
+  printTarget,
+  printTargetTestId,
   ...rest
 }: React.PropsWithChildren<PrintButtonProps>): JSX.Element {
   const isMounted = useMountedState();
@@ -41,8 +46,9 @@ export function PrintButton({
   const [isConfirming, setIsConfirming] = useState(false);
   const [isPrinting, setIsPrinting] = useState(false);
   const [showPrintingError, setShowPrintingError] = useState(false);
+  const [shouldRenderPrintTarget, setShouldRenderPrintTarget] = useState(false);
 
-  async function print() {
+  const print = useCallback(async () => {
     if (window.kiosk) {
       const printers = await makeCancelable(window.kiosk.getPrinterInfo());
       if (!printers.some((p) => p.connected)) {
@@ -66,8 +72,32 @@ export function PrintButton({
       document.title = documentTitle;
     }
 
+    setShouldRenderPrintTarget(false);
     afterPrint?.();
-  }
+  }, [
+    afterPrint,
+    afterPrintError,
+    copies,
+    isMounted,
+    makeCancelable,
+    printer,
+    sides,
+    title,
+  ]);
+
+  useEffect(() => {
+    if (shouldRenderPrintTarget) {
+      void print();
+    }
+  }, [shouldRenderPrintTarget, print]);
+
+  const startPrint = useCallback(async () => {
+    if (printTarget) {
+      setShouldRenderPrintTarget(true);
+    } else {
+      await print();
+    }
+  }, [print, printTarget]);
 
   function donePrintingError() {
     setShowPrintingError(false);
@@ -88,7 +118,7 @@ export function PrintButton({
 
   return (
     <React.Fragment>
-      <Button onPress={confirmModal ? initConfirmModal : print} {...rest}>
+      <Button onPress={confirmModal ? initConfirmModal : startPrint} {...rest}>
         {children}
       </Button>
       {isPrinting && (
@@ -118,6 +148,11 @@ export function PrintButton({
           }
           actions={<Button onPress={donePrintingError}>Okay</Button>}
         />
+      )}
+      {printTarget && shouldRenderPrintTarget && (
+        <PrintableArea data-testid={printTargetTestId}>
+          {printTarget}
+        </PrintableArea>
       )}
     </React.Fragment>
   );

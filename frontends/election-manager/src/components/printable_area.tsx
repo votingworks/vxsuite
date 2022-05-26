@@ -3,6 +3,7 @@ import ReactDom from 'react-dom';
 
 interface Props {
   children?: React.ReactNode;
+  'data-testid'?: string;
 }
 
 /**
@@ -10,10 +11,16 @@ interface Props {
  * name (standalone meaning via a React portal to ensure that a parent's CSS styles don't prevent
  * printability)
  */
-export function PrintableArea({ children }: Props): JSX.Element {
+export function PrintableArea({
+  'data-testid': dataTestId,
+  children,
+}: Props): JSX.Element {
   const printableContainerRef = useRef(document.createElement('div'));
   const printableContainer = printableContainerRef.current;
   printableContainer.classList.add('print-only');
+  if (dataTestId) {
+    printableContainer.dataset.testid = dataTestId;
+  }
 
   useEffect(() => {
     document.body.appendChild(printableContainer);

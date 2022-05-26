@@ -1,6 +1,13 @@
 import React from 'react';
-import { act, fireEvent, waitFor } from '@testing-library/react';
+import {
+  act,
+  fireEvent,
+  waitFor,
+  getByText as domGetByText,
+  waitForElementToBeRemoved,
+} from '@testing-library/react';
 import { fakeKiosk, fakePrinterInfo } from '@votingworks/test-utils';
+import { deferred } from '@votingworks/utils';
 
 import { PrintButton } from './print_button';
 import { fakePrinter } from '../../test/helpers/fake_printer';
@@ -70,4 +77,49 @@ test('if connected printers, show printing modal', async () => {
 
   expect(printer.print).toBeCalled();
   expect(afterPrint).toBeCalled();
+});
+
+test('if passed a printTarget, render for printing', async () => {
+  const mockKiosk = window.kiosk! as jest.Mocked<KioskBrowser.Kiosk>;
+  mockKiosk.getPrinterInfo.mockResolvedValue([
+    fakePrinterInfo({ connected: false }),
+    fakePrinterInfo({ name: 'VxPrinter', connected: true }),
+  ]);
+
+  const printer = fakePrinter();
+  const printTarget = <p>Print Target</p>;
+  const printTargetTestId = 'print-target';
+  const { getByTestId, getByText, queryByText } = renderInAppContext(
+    <PrintButton
+      sides="two-sided-long-edge"
+      printTarget={printTarget}
+      printTargetTestId={printTargetTestId}
+    >
+      Print Now
+    </PrintButton>,
+    { printer }
+  );
+
+  const printDeferred = deferred<void>();
+  printer.print.mockReturnValueOnce(printDeferred.promise);
+  fireEvent.click(getByText('Print Now'));
+
+  // Check that printTarget is rendered before printing
+  await waitFor(() => {
+    const renderedPrintTarget = getByTestId('print-target');
+    domGetByText(renderedPrintTarget, 'Print Target');
+    expect(printer.print).not.toBeCalled();
+  });
+
+  // Check that printTarget is still rendered after printing
+  await waitFor(() => {
+    expect(printer.print).toBeCalled();
+    getByText('Print Target');
+  });
+
+  // Allow `printer.print` to resolve
+  printDeferred.resolve();
+
+  // Check that printTarget is removed after printing
+  await waitForElementToBeRemoved(() => queryByText('Print Target'));
 });
