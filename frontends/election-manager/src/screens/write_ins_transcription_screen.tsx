@@ -95,7 +95,7 @@ export function WriteInsTranscriptionScreen({
   contest: CandidateContest;
   election: Election;
   ballotIdxBeingAdjudicated: number;
-  ballotsBeingAdjudicated: CastVoteRecord[];
+  ballotsBeingAdjudicated: readonly CastVoteRecord[];
   onClickNext?: () => void;
   onClickPrevious?: () => void;
   onClose: () => void;
