@@ -7,7 +7,6 @@ import { Text } from '@votingworks/ui';
 import { AppContext } from '../contexts/app_context';
 import { computeFullElectionTally } from '../lib/votecounting';
 import { ElectionManagerTallyReport } from './election_manager_tally_report';
-import { PrintableArea } from './printable_area';
 import { PrintButton } from './print_button';
 
 const ButtonAnnotation = styled(Text)`
@@ -54,12 +53,23 @@ export function ZeroReportPrintButton(): JSX.Element {
     });
   }
 
+  const zeroReport = (
+    <ElectionManagerTallyReport
+      election={election}
+      fullElectionExternalTallies={[]}
+      fullElectionTally={emptyFullElectionTally}
+      isOfficialResults={false}
+    />
+  );
+
   return (
     <React.Fragment>
       <PrintButton
         afterPrint={logZeroReportPrintSuccess}
         afterPrintError={logZeroReportPrintError}
         sides="one-sided"
+        printTarget={zeroReport}
+        printTargetTestId="zero-report"
       >
         {/* Intentionally diverging from our typical title case button text to sentence case for clarity */}
         Print the pre-election Unofficial Full Election Tally Report
@@ -67,14 +77,6 @@ export function ZeroReportPrintButton(): JSX.Element {
       <ButtonAnnotation small>
         This report is referred to as the “Zero Report”.
       </ButtonAnnotation>
-      <PrintableArea>
-        <ElectionManagerTallyReport
-          election={election}
-          fullElectionExternalTallies={[]}
-          fullElectionTally={emptyFullElectionTally}
-          isOfficialResults={false}
-        />
-      </PrintableArea>
     </React.Fragment>
   );
 }
