@@ -48,12 +48,15 @@ export interface Options {
  * Imports ballot images from a `Scanner` and stores them in a `Store`.
  */
 export class Importer {
-  private workspace: Workspace;
-  private scanner: Scanner;
+  private readonly workspace: Workspace;
+  private readonly scanner: Scanner;
   private sheetGenerator?: BatchControl;
   private batchId?: string;
   private workerPool?: WorkerPool<workers.Input, workers.Output>;
-  private workerPoolProvider: () => WorkerPool<workers.Input, workers.Output>;
+  private readonly workerPoolProvider: () => WorkerPool<
+    workers.Input,
+    workers.Output
+  >;
   private interpreterReady = true;
 
   constructor({

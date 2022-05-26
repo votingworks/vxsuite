@@ -54,8 +54,8 @@ export class MockScannerClient implements ScannerClient {
   private crashed = false;
   private frontSheet?: readonly string[];
   private backSheet?: readonly string[];
-  private toggleHoldDuration: number;
-  private passthroughDuration: number;
+  private readonly toggleHoldDuration: number;
+  private readonly passthroughDuration: number;
 
   constructor({
     toggleHoldDuration = 100,

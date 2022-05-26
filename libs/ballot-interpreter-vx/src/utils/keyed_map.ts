@@ -1,5 +1,5 @@
 export class KeyedMap<Key, Value, ResolvedKey = string> {
-  private map = new Map<ResolvedKey, Value>();
+  private readonly map = new Map<ResolvedKey, Value>();
 
   constructor(private readonly resolveKey: (key: Key) => ResolvedKey) {}
 
