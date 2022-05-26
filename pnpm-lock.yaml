@@ -1181,18 +1181,18 @@ importers:
       eslint-config-prettier: 8.3.0_eslint@7.17.0
       eslint-import-resolver-node: 0.3.4
       eslint-plugin-import: 2.22.1_eslint@7.17.0+typescript@4.6.3
-      eslint-plugin-jest: 26.1.5_aa68b0b62b88f1f7a7c1b8ee45c891a9
+      eslint-plugin-jest: 26.1.5_3255f9d8dbfe96169daa9c81f06aeee3
       eslint-plugin-no-null: 1.0.2_eslint@7.17.0
       eslint-plugin-prettier: 3.3.1_27f5052e0a4861fbeeb471e524d43d6f
       eslint-plugin-vx: link:../eslint-plugin-vx
       fast-check: 2.18.0
       is-ci-cli: 2.2.0
-      jest: 27.3.1
-      jest-watch-typeahead: 0.6.1_jest@27.3.1
+      jest: 28.1.0_@types+node@16.11.29
+      jest-watch-typeahead: 0.6.1_jest@28.1.0
       lint-staged: 10.5.3
       prettier: 2.6.2
       sort-package-json: 1.50.0
-      ts-jest: 27.0.7_14544adbac4e79c4003dd384cdc11e2c
+      ts-jest: 28.0.3_5ff2fae1b0b8923e54e1171a350a92cb
       typescript: 4.6.3
     specifiers:
       '@antongolub/iso8601': ^1.2.1
@@ -1214,13 +1214,13 @@ importers:
       eslint-plugin-vx: workspace:*
       fast-check: ^2.18.0
       is-ci-cli: ^2.2.0
-      jest: ^27.3.1
+      jest: ^28.1.0
       jest-watch-typeahead: ^0.6.1
       js-sha256: ^0.9.0
       lint-staged: ^10.5.1
       prettier: ^2.6.2
       sort-package-json: ^1.50.0
-      ts-jest: ^27.0.7
+      ts-jest: ^28.0.3
       typescript: 4.6.3
       zod: 3.14.4
   libs/ballot-interpreter-nh:
@@ -12319,7 +12319,7 @@ packages:
       integrity: sha512-RRECPsj7iu/xb5oKYcsFHSppFNnsj/52OVTRKb4zP5onXwVF3zVmmToNcOfGC+CRDpfK/U584fMg38ZHCaElKQ==
   /color-name/1.1.3:
     resolution:
-      integrity: sha1-p9BVi9icQveV3UIyj3QIMcpTvCU=
+      integrity: sha512-72fSenhMw2HZMTVHeCA9KCmpEIbzWiQsjN+BHcBbS9vr1mtt+vJjPdksIBNUmKAW8TFUDPJK5SUU3QhE9NEXDw==
   /color-name/1.1.4:
     resolution:
       integrity: sha512-dOy+3AuW3a2wNbZHIuMZpTcgjGuLU/uBL/ubcZF9OXbDo8ff4O8yVp5Bf0efS8uEoYo5q4Fx7dY9OgQGXgAsQA==
@@ -16212,6 +16212,27 @@ packages:
       '@typescript-eslint/eslint-plugin': 5.21.0_86175fb923509b0f0715caec00e8a7aa
       '@typescript-eslint/utils': 5.22.0_typescript@4.3.5
       jest: 27.3.1
+    dev: true
+    engines:
+      node: ^12.22.0 || ^14.17.0 || >=16.0.0
+    peerDependencies:
+      '@typescript-eslint/eslint-plugin': ^5.0.0
+      eslint: ^6.0.0 || ^7.0.0 || ^8.0.0
+      jest: '*'
+      typescript: '*'
+    peerDependenciesMeta:
+      '@typescript-eslint/eslint-plugin':
+        optional: true
+      jest:
+        optional: true
+    resolution:
+      integrity: sha512-su89aDuljL9bTjEufTXmKUMSFe2kZUL9bi7+woq+C2ukHZordhtfPm4Vg+tdioHBaKf8v3/FXW9uV0ksqhYGFw==
+  /eslint-plugin-jest/26.1.5_3255f9d8dbfe96169daa9c81f06aeee3:
+    dependencies:
+      '@typescript-eslint/eslint-plugin': 5.21.0_4059d5ee7aba256d5e330151ee3418c0
+      '@typescript-eslint/utils': 5.22.0_eslint@7.17.0+typescript@4.6.3
+      eslint: 7.17.0
+      jest: 28.1.0_@types+node@16.11.29
     dev: true
     engines:
       node: ^12.22.0 || ^14.17.0 || >=16.0.0
@@ -22354,11 +22375,11 @@ packages:
       node: ^12.13.0 || ^14.15.0 || ^16.10.0 || >=17.0.0
     resolution:
       integrity: sha512-Lly7CJYih3vQBfjLeANGgBSBJ7pEa18cxpQfQEq2go2xyEzehnHfQTjoUia8xUv4x4J80XKFIDwJJThXtRFQXQ==
-  /jest-watch-typeahead/0.6.1_jest@27.3.1:
+  /jest-watch-typeahead/0.6.1_jest@28.1.0:
     dependencies:
       ansi-escapes: 4.3.1
       chalk: 4.1.0
-      jest: 27.3.1
+      jest: 28.1.0_@types+node@16.11.29
       jest-regex-util: 26.0.0
       jest-watcher: 26.6.2
       slash: 3.0.0
