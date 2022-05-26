@@ -198,8 +198,10 @@ function useCreateHmpbTargetElements({
   precinctId: PrecinctId;
   printingHandMarkedPaperBallots: boolean;
 }) {
-  const [hmpbTargetElementsCreated, setHmpbTargetElementsCreated] =
-    useState(false);
+  const [
+    hmpbTargetElementsCreatedForPrecinctId,
+    setHmpbTargetElementsCreatedForPrecinctId,
+  ] = useState<string>();
 
   useEffect(() => {
     const container = containerRef?.current;
@@ -214,19 +216,19 @@ function useCreateHmpbTargetElements({
         hmpbTargetElement.id = generateHmpbTargetElementId(i);
         container.appendChild(hmpbTargetElement);
       }
-      setHmpbTargetElementsCreated(true);
+      setHmpbTargetElementsCreatedForPrecinctId(precinctId);
     }
 
     // Cleanup action: Clear the created elements
     return () => {
       if (container) {
         container.innerHTML = '';
-        setHmpbTargetElementsCreated(false);
+        setHmpbTargetElementsCreatedForPrecinctId(undefined);
       }
     };
   }, [containerRef, election, precinctId, printingHandMarkedPaperBallots]);
 
-  return { hmpbTargetElementsCreated };
+  return { hmpbTargetElementsCreatedForPrecinctId };
 }
 
 // FIXME: We're using `React.memo` to prevent re-rendering `TestDeckBallots`,
@@ -520,13 +522,14 @@ export function PrintTestDeckScreen(): JSX.Element {
       })
     : undefined;
 
-  const { hmpbTargetElementsCreated } = useCreateHmpbTargetElements({
-    containerRef: printBallotRef,
-    election,
-    precinctId: currentPrecinctId,
-    printingHandMarkedPaperBallots:
-      printIndex?.component === 'HandMarkedPaperBallots',
-  });
+  const { hmpbTargetElementsCreatedForPrecinctId } =
+    useCreateHmpbTargetElements({
+      containerRef: printBallotRef,
+      election,
+      precinctId: currentPrecinctId,
+      printingHandMarkedPaperBallots:
+        printIndex?.component === 'HandMarkedPaperBallots',
+    });
 
   return (
     <React.Fragment>
@@ -579,7 +582,7 @@ export function PrintTestDeckScreen(): JSX.Element {
         />
       )}
       {printIndex?.component === 'HandMarkedPaperBallots' &&
-        hmpbTargetElementsCreated && (
+        hmpbTargetElementsCreatedForPrecinctId === currentPrecinctId && (
           <HandMarkedPaperBallotsMemoized
             election={election}
             electionHash={electionHash}
