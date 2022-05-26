@@ -5,6 +5,8 @@ import { render as testRender, RenderResult } from '@testing-library/react';
 
 import { electionWithMsEitherNeitherDefinition } from '@votingworks/fixtures';
 import {
+  BallotId,
+  ContestId,
   ElectionDefinition,
   FullElectionTally,
   FullElectionExternalTally,
@@ -41,6 +43,11 @@ interface RenderInAppContextParams {
   printBallotRef?: RefObject<HTMLElement>;
   saveCastVoteRecordFiles?: SaveCastVoteRecordFiles;
   saveElection?: SaveElection;
+  saveTranscribedValue?: (
+    ballotId: BallotId,
+    contestId: ContestId,
+    transcribedValue: string
+  ) => Promise<void>;
   setCastVoteRecordFiles?: React.Dispatch<
     React.SetStateAction<CastVoteRecordFiles>
   >;
@@ -95,6 +102,7 @@ export function renderInAppContext(
     setIsTabulationRunning = jest.fn(),
     saveExternalTallies = jest.fn(),
     fullElectionExternalTallies = [],
+    saveTranscribedValue = jest.fn(),
     generateExportableTallies = jest.fn(),
     currentUserSession = { type: 'admin', authenticated: true },
     attemptToAuthenticateAdminUser = jest.fn(),
@@ -132,6 +140,7 @@ export function renderInAppContext(
         saveExternalTallies,
         fullElectionExternalTallies,
         generateExportableTallies,
+        saveTranscribedValue,
         currentUserSession,
         attemptToAuthenticateAdminUser,
         lockMachine,
