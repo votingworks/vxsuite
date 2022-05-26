@@ -73,7 +73,7 @@ const EITHER_NEITHER_CVR_TEST_FILE = new File(
 const EITHER_NEITHER_SEMS_DATA =
   electionWithMsEitherNeitherWithDataFiles.semsData;
 
-const zeroReportTitle =
+const ZERO_REPORT_BUTTON_TEXT =
   'Print the pre-election Unofficial Full Election Tally Report';
 
 jest.mock('./components/hand_marked_paper_ballot');
@@ -135,16 +135,16 @@ afterEach(() => {
 
 async function createMemoryStorageWith({
   electionDefinition,
-  CVR_FILE,
+  crvFile,
 }: {
   electionDefinition: ElectionDefinition;
-  CVR_FILE?: File;
+  crvFile?: File;
 }) {
   const storage = new MemoryStorage();
   await storage.set(electionDefinitionStorageKey, electionDefinition);
-  if (CVR_FILE) {
+  if (crvFile) {
     const castVoteRecordFiles = await CastVoteRecordFiles.empty.add(
-      CVR_FILE,
+      crvFile,
       electionDefinition.election
     );
     await storage.set(cvrsStorageKey, castVoteRecordFiles.export());
@@ -348,7 +348,7 @@ test('L&A (logic and accuracy) flow', async () => {
 
   // Test printing zero report
   userEvent.click(screen.getByText('L&A'));
-  userEvent.click(screen.getByText(zeroReportTitle));
+  userEvent.click(screen.getByText(ZERO_REPORT_BUTTON_TEXT));
   await screen.findByText('Printing');
   expect(printer.print).toHaveBeenCalledTimes(1);
   expect(mockKiosk.log).toHaveBeenCalledWith(
@@ -412,7 +412,7 @@ test('L&A features are available after test results are loaded', async () => {
   const hardware = MemoryHardware.buildStandard();
   const storage = await createMemoryStorageWith({
     electionDefinition: eitherNeitherElectionDefinition,
-    CVR_FILE: EITHER_NEITHER_CVR_TEST_FILE,
+    crvFile: EITHER_NEITHER_CVR_TEST_FILE,
   });
   render(<App card={card} hardware={hardware} storage={storage} />);
 
@@ -427,7 +427,7 @@ test('L&A features are available after test results are loaded', async () => {
 
   // Confirm that zero report button is visible
   userEvent.click(screen.getByText('L&A'));
-  screen.getByText(zeroReportTitle);
+  screen.getByText(ZERO_REPORT_BUTTON_TEXT);
 });
 
 test('printing ballots and printed ballots report', async () => {
@@ -500,7 +500,7 @@ test('tabulating CVRs', async () => {
   jest.useFakeTimers();
   const storage = await createMemoryStorageWith({
     electionDefinition: eitherNeitherElectionDefinition,
-    CVR_FILE: EITHER_NEITHER_CVR_FILE,
+    crvFile: EITHER_NEITHER_CVR_FILE,
   });
 
   const card = new MemoryCard();
@@ -638,7 +638,8 @@ test('tabulating CVRs', async () => {
 
   // Check L&A Materials are unavailable after live CVRs have been loaded
   fireEvent.click(getByText('L&A'));
-  expect(queryByText(zeroReportTitle)).toBeNull();
+  getByText('L&A materials are not available', { exact: false });
+  expect(queryByText(ZERO_REPORT_BUTTON_TEXT)).toBeNull();
 
   // Clear results
   fireEvent.click(getByText('Tally'));
@@ -661,7 +662,7 @@ test('tabulating CVRs with SEMS file', async () => {
   jest.useFakeTimers();
   const storage = await createMemoryStorageWith({
     electionDefinition: eitherNeitherElectionDefinition,
-    CVR_FILE: EITHER_NEITHER_CVR_FILE,
+    crvFile: EITHER_NEITHER_CVR_FILE,
   });
 
   const semsFileStorageString = convertSemsFileToExternalTally(
@@ -765,7 +766,7 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
   jest.useFakeTimers();
   const storage = await createMemoryStorageWith({
     electionDefinition: eitherNeitherElectionDefinition,
-    CVR_FILE: EITHER_NEITHER_CVR_FILE,
+    crvFile: EITHER_NEITHER_CVR_FILE,
   });
 
   const semsFileStorageString = convertSemsFileToExternalTally(
@@ -940,7 +941,7 @@ test('changing election resets sems, cvr, and manual data files', async () => {
   jest.useFakeTimers();
   const storage = await createMemoryStorageWith({
     electionDefinition: eitherNeitherElectionDefinition,
-    CVR_FILE: EITHER_NEITHER_CVR_FILE,
+    crvFile: EITHER_NEITHER_CVR_FILE,
   });
 
   const semsFileTally = convertSemsFileToExternalTally(
@@ -997,7 +998,7 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
   jest.useFakeTimers();
   const storage = await createMemoryStorageWith({
     electionDefinition: eitherNeitherElectionDefinition,
-    CVR_FILE: EITHER_NEITHER_CVR_FILE,
+    crvFile: EITHER_NEITHER_CVR_FILE,
   });
 
   const semsFileTally = convertSemsFileToExternalTally(
