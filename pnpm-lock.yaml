@@ -1130,16 +1130,16 @@ importers:
       eslint-config-prettier: 8.5.0_eslint@7.32.0
       eslint-import-resolver-node: 0.3.6
       eslint-plugin-import: 2.25.4_eslint@7.32.0+typescript@4.6.3
-      eslint-plugin-jest: 26.1.5_ced94bd3986600456475a04278b6144f
+      eslint-plugin-jest: 26.1.5_94f4b6b07d800d9e0eaa978796d927e0
       eslint-plugin-prettier: 3.4.1_2544802fe0b6e1e28814bd742f96f471
       eslint-plugin-vx: link:../eslint-plugin-vx
       is-ci-cli: 2.2.0
-      jest: 27.5.1
-      jest-watch-typeahead: 0.6.5_jest@27.5.1
+      jest: 28.1.0_@types+node@16.11.29
+      jest-watch-typeahead: 0.6.5_jest@28.1.0
       lint-staged: 11.0.0
       prettier: 2.6.2
       sort-package-json: 1.53.1
-      ts-jest: 27.1.3_0b3130a482fc4634133afbb37abdf4eb
+      ts-jest: 28.0.3_5ff2fae1b0b8923e54e1171a350a92cb
       typescript: 4.6.3
     specifiers:
       '@types/jest': ^27.5.1
@@ -1155,12 +1155,12 @@ importers:
       eslint-plugin-prettier: ^3.3.1
       eslint-plugin-vx: workspace:*
       is-ci-cli: ^2.2.0
-      jest: ^27.3.1
+      jest: ^28.1.0
       jest-watch-typeahead: ^0.6.4
       lint-staged: ^11.0.0
       prettier: ^2.6.2
       sort-package-json: ^1.50.0
-      ts-jest: ^27.0.7
+      ts-jest: ^28.0.3
       typescript: 4.6.3
       zod: 3.14.4
   libs/ballot-encoder:
@@ -16353,6 +16353,27 @@ packages:
         optional: true
     resolution:
       integrity: sha512-su89aDuljL9bTjEufTXmKUMSFe2kZUL9bi7+woq+C2ukHZordhtfPm4Vg+tdioHBaKf8v3/FXW9uV0ksqhYGFw==
+  /eslint-plugin-jest/26.1.5_94f4b6b07d800d9e0eaa978796d927e0:
+    dependencies:
+      '@typescript-eslint/eslint-plugin': 5.21.0_bb9518338a760ece3e1b033a5f6af62e
+      '@typescript-eslint/utils': 5.22.0_eslint@7.32.0+typescript@4.6.3
+      eslint: 7.32.0
+      jest: 28.1.0_@types+node@16.11.29
+    dev: true
+    engines:
+      node: ^12.22.0 || ^14.17.0 || >=16.0.0
+    peerDependencies:
+      '@typescript-eslint/eslint-plugin': ^5.0.0
+      eslint: ^6.0.0 || ^7.0.0 || ^8.0.0
+      jest: '*'
+      typescript: '*'
+    peerDependenciesMeta:
+      '@typescript-eslint/eslint-plugin':
+        optional: true
+      jest:
+        optional: true
+    resolution:
+      integrity: sha512-su89aDuljL9bTjEufTXmKUMSFe2kZUL9bi7+woq+C2ukHZordhtfPm4Vg+tdioHBaKf8v3/FXW9uV0ksqhYGFw==
   /eslint-plugin-jest/26.1.5_a65e2dca22d95bba64227ec53a975be7:
     dependencies:
       '@typescript-eslint/eslint-plugin': 5.21.0_862063063b41111bfe9123e9a3f05250
@@ -22486,6 +22507,23 @@ packages:
       jest: ^26.0.0 || ^27.0.0
     resolution:
       integrity: sha512-GIbV6h37/isatMDtqZlA8Q5vC6T3w+5qdvtF+3LIkPc58zEWzbKmTHvlUIp3wvBm400RzrQWcVPcsAJqKWu7XQ==
+  /jest-watch-typeahead/0.6.5_jest@28.1.0:
+    dependencies:
+      ansi-escapes: 4.3.2
+      chalk: 4.1.2
+      jest: 28.1.0_@types+node@16.11.29
+      jest-regex-util: 27.5.1
+      jest-watcher: 27.5.1
+      slash: 3.0.0
+      string-length: 4.0.2
+      strip-ansi: 6.0.1
+    dev: true
+    engines:
+      node: '>=10'
+    peerDependencies:
+      jest: ^26.0.0 || ^27.0.0
+    resolution:
+      integrity: sha512-GIbV6h37/isatMDtqZlA8Q5vC6T3w+5qdvtF+3LIkPc58zEWzbKmTHvlUIp3wvBm400RzrQWcVPcsAJqKWu7XQ==
   /jest-watcher/26.6.2:
     dependencies:
       '@jest/test-result': 26.6.2
@@ -27900,41 +27938,6 @@ packages:
         optional: true
     resolution:
       integrity: sha512-Ds0VkB+cB+8g2JUmP/GKWndeZcCKrbe6jzolGrVWdqVUFByY/2KDHqxJ7yBSon7hDB1TA4PXxjfZ+JjzJisvgA==
-  /ts-jest/27.1.3_0b3130a482fc4634133afbb37abdf4eb:
-    dependencies:
-      '@types/jest': 27.5.1
-      bs-logger: 0.2.6
-      fast-json-stable-stringify: 2.1.0
-      jest: 27.5.1
-      jest-util: 27.5.1
-      json5: 2.2.1
-      lodash.memoize: 4.1.2
-      make-error: 1.3.6
-      semver: 7.3.7
-      typescript: 4.6.3
-      yargs-parser: 20.2.9
-    dev: true
-    engines:
-      node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0
-    hasBin: true
-    peerDependencies:
-      '@babel/core': '>=7.0.0-beta.0 <8'
-      '@types/jest': ^27.0.0
-      babel-jest: '>=27.0.0 <28'
-      esbuild: ~0.14.0
-      jest: ^27.0.0
-      typescript: '>=3.8 <5.0'
-    peerDependenciesMeta:
-      '@babel/core':
-        optional: true
-      '@types/jest':
-        optional: true
-      babel-jest:
-        optional: true
-      esbuild:
-        optional: true
-    resolution:
-      integrity: sha512-6Nlura7s6uM9BVUAoqLH7JHyMXjz8gluryjpPXxr3IxZdAXnU6FhjvVLHFtfd1vsE1p8zD1OJfskkc0jhTSnkA==
   /ts-jest/27.1.3_183109973818883ee51d6c8a9a5ac66e:
     dependencies:
       '@types/jest': 27.5.1
