@@ -38,4 +38,38 @@ describe('Write-in Adjudication screen', () => {
     adjudicateButton.click();
     screen.getByText('BALLOT IMAGES GO HERE');
   });
+
+  test('ballot pagination', async () => {
+    const mockFiles = CastVoteRecordFiles.empty;
+    const added = await mockFiles.addAll(
+      [new File([cvrData], TEST_FILE1)],
+      electionDefinition.election
+    );
+
+    renderInAppContext(<WriteInsScreen />, {
+      castVoteRecordFiles: added,
+      electionDefinition,
+    });
+
+    screen.getByText(/Adjudicate 649 write-ins for “City Zoo Council”/).click();
+
+    const previousButton = screen.getByText('Previous');
+    const nextButton = screen.getByText('Next');
+
+    screen.getByText(/1 of 649/);
+    expect(previousButton).toBeDisabled();
+    expect(nextButton).not.toBeDisabled();
+
+    while (nextButton) {
+      try {
+        expect(nextButton).not.toBeDisabled();
+        nextButton.click();
+      } catch {
+        screen.getByText(/649 of 649/);
+        expect(previousButton).not.toBeDisabled();
+        expect(nextButton).toBeDisabled();
+        break;
+      }
+    }
+  });
 });

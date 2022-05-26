@@ -17,6 +17,8 @@ test('write-ins screen', () => {
     <WriteInsTranscriptionScreen
       election={electionDefinition.election}
       contest={contest}
+      ballotIdxBeingAdjudicated={0}
+      ballotsBeingAdjudicated={[]}
       onClickNext={onClickNext}
       onClickPrevious={onClickPrevious}
       onClose={onClose}
