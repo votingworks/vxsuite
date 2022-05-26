@@ -1,5 +1,6 @@
 import React, { useState, useContext, useCallback, useEffect } from 'react';
 import {
+  BallotPaperSize,
   Election,
   ElectionDefinition,
   getPrecinctById,
@@ -29,10 +30,11 @@ import {
   generateBlankBallots,
   generateOvervoteBallot,
 } from '../utils/election';
+import { getBallotLayoutPageSize } from '../utils/get_ballot_layout_page_size';
 
-const ONE_SIDED_PAGE_PRINT_TIME_MS = 3000;
-const TWO_SIDED_PAGE_PRINT_TIME_MS = 5000;
-const LAST_PRINT_JOB_SLEEP_MS = 5000;
+export const ONE_SIDED_PAGE_PRINT_TIME_MS = 3000;
+export const TWO_SIDED_PAGE_PRINT_TIME_MS = 5000;
+export const LAST_PRINT_JOB_SLEEP_MS = 5000;
 
 interface PrecinctTallyReportProps {
   election: Election;
@@ -241,9 +243,61 @@ function useCreateHmpbTargetElements({
 const BmdPaperBallotsMemoized = React.memo(BmdPaperBallots);
 const HandMarkedPaperBallotsMemoized = React.memo(HandMarkedPaperBallots);
 
+interface PrintingModalProps {
+  advancePrinting: () => void;
+  currentPrecinct: Precinct;
+  precinctIds: string[];
+  printIndex: PrintIndex;
+}
+
+function PrintingModal({
+  advancePrinting,
+  currentPrecinct,
+  precinctIds,
+  printIndex,
+}: PrintingModalProps): JSX.Element {
+  if (printIndex.component === 'PaperChangeModal') {
+    return (
+      <Modal
+        centerContent
+        content={
+          <Prose textCenter>
+            <p>
+              Load printer with <b>legal-size paper</b>.
+            </p>
+          </Prose>
+        }
+        actions={
+          <Button onPress={advancePrinting}>
+            Legal Paper Loaded. Continue Printing
+          </Button>
+        }
+      />
+    );
+  }
+  return (
+    <Modal
+      centerContent
+      content={
+        <Loading as="p">
+          Printing L&amp;A Package
+          {precinctIds.length > 1
+            ? ` (${printIndex.precinctIndex + 1} of ${precinctIds.length})`
+            : ''}
+          : {currentPrecinct.name}
+        </Loading>
+      }
+    />
+  );
+}
+
 interface PrintIndex {
   precinctIndex: number;
-  component: 'TallyReport' | 'BmdPaperBallots' | 'HandMarkedPaperBallots';
+  component:
+    | 'TallyReport'
+    | 'BmdPaperBallots'
+    | 'PaperChangeModal'
+    | 'HandMarkedPaperBallots';
 }
 
 export function PrintTestDeckScreen(): JSX.Element {
@@ -277,6 +331,73 @@ export function PrintTestDeckScreen(): JSX.Element {
     return [precinctId];
   }
 
+  const advancePrinting = useCallback(() => {
+    if (!printIndex) {
+      return;
+    }
+    const { component, precinctIndex } = printIndex;
+
+    const areHandMarkedPaperBallotsLetterSize =
+      getBallotLayoutPageSize(election) === BallotPaperSize.Letter;
+    const isLastPrecinct = precinctIndex === precinctIds.length - 1;
+
+    let nextPrecinctIndex = precinctIndex;
+    let nextComponent = component;
+    let endPrinting = false;
+
+    // Full collation: If all content is letter-size, print tally reports, BMD paper ballots, and
+    // hand-marked paper ballots grouped by precinct
+    if (areHandMarkedPaperBallotsLetterSize) {
+      if (component === 'TallyReport') {
+        nextComponent = 'BmdPaperBallots';
+      } else if (component === 'BmdPaperBallots') {
+        nextComponent = 'HandMarkedPaperBallots';
+      } else if (component === 'HandMarkedPaperBallots') {
+        if (!isLastPrecinct) {
+          nextPrecinctIndex = precinctIndex + 1;
+          nextComponent = 'TallyReport';
+        } else {
+          endPrinting = true;
+        }
+      }
+    }
+
+    // Best-effort collation: If hand-marked paper ballots are not letter-size, print tally reports
+    // and BMD paper ballots grouped by precinct. Then prompt the election official to change paper,
+    // and print hand-marked paper ballots grouped by precinct
+    if (!areHandMarkedPaperBallotsLetterSize) {
+      if (component === 'TallyReport') {
+        nextComponent = 'BmdPaperBallots';
+      } else if (component === 'BmdPaperBallots') {
+        if (!isLastPrecinct) {
+          nextPrecinctIndex = precinctIndex + 1;
+          nextComponent = 'TallyReport';
+        } else {
+          nextComponent = 'PaperChangeModal';
+        }
+      } else if (component === 'PaperChangeModal') {
+        nextPrecinctIndex = 0;
+        nextComponent = 'HandMarkedPaperBallots';
+      } else if (component === 'HandMarkedPaperBallots') {
+        if (!isLastPrecinct) {
+          nextPrecinctIndex = precinctIndex + 1;
+        } else {
+          endPrinting = true;
+        }
+      }
+    }
+
+    if (endPrinting) {
+      setPrintIndex(undefined);
+      setPrecinctIds([]);
+    } else {
+      setPrintIndex({
+        precinctIndex: nextPrecinctIndex,
+        component: nextComponent,
+      });
+    }
+  }, [election, precinctIds.length, printIndex]);
+
   async function startPrint(precinctId: string) {
     if (window.kiosk) {
       const printers = await window.kiosk.getPrinterInfo();
@@ -285,7 +406,7 @@ export function PrintTestDeckScreen(): JSX.Element {
         setPrintIndex({ precinctIndex: 0, component: 'TallyReport' });
       } else {
         // eslint-disable-next-line no-alert
-        window.alert('please connect the printer.');
+        window.alert('Please connect the printer.');
         await logger.log(LogEventId.TestDeckPrinted, currentUserType, {
           disposition: 'failure',
           message: `Failed to print L&A Package: no printer connected.`,
@@ -314,12 +435,17 @@ export function PrintTestDeckScreen(): JSX.Element {
       });
 
       await makeCancelable(sleep(numPages * ONE_SIDED_PAGE_PRINT_TIME_MS));
-      setPrintIndex({
-        precinctIndex: printIndex.precinctIndex,
-        component: 'BmdPaperBallots',
-      });
+      advancePrinting();
     },
-    [printIndex, printer, logger, currentUserType, precinctIds, makeCancelable]
+    [
+      advancePrinting,
+      printIndex,
+      printer,
+      logger,
+      currentUserType,
+      precinctIds,
+      makeCancelable,
+    ]
   );
 
   const onAllBmdPaperBallotsRendered = useCallback(
@@ -337,12 +463,17 @@ export function PrintTestDeckScreen(): JSX.Element {
       });
 
       await makeCancelable(sleep(numBallots * ONE_SIDED_PAGE_PRINT_TIME_MS));
-      setPrintIndex({
-        precinctIndex: printIndex.precinctIndex,
-        component: 'HandMarkedPaperBallots',
-      });
+      advancePrinting();
     },
-    [currentUserType, logger, makeCancelable, precinctIds, printer, printIndex]
+    [
+      advancePrinting,
+      currentUserType,
+      logger,
+      makeCancelable,
+      precinctIds,
+      printer,
+      printIndex,
+    ]
   );
 
   const onAllHandMarkedPaperBallotsRendered = useCallback(
@@ -361,19 +492,22 @@ export function PrintTestDeckScreen(): JSX.Element {
 
       if (printIndex.precinctIndex < precinctIds.length - 1) {
         await makeCancelable(sleep(numBallots * TWO_SIDED_PAGE_PRINT_TIME_MS));
-        setPrintIndex({
-          precinctIndex: printIndex.precinctIndex + 1,
-          component: 'TallyReport',
-        });
       } else {
         // For the last print job, rather than waiting for all pages to finish printing, free up
         // the UI from the print modal earlier
         await makeCancelable(sleep(LAST_PRINT_JOB_SLEEP_MS));
-        setPrintIndex(undefined);
-        setPrecinctIds([]);
       }
+      advancePrinting();
     },
-    [printIndex, printer, logger, currentUserType, precinctIds, makeCancelable]
+    [
+      advancePrinting,
+      printIndex,
+      printer,
+      logger,
+      currentUserType,
+      precinctIds,
+      makeCancelable,
+    ]
   );
 
   const currentPrecinctId = printIndex
@@ -397,17 +531,11 @@ export function PrintTestDeckScreen(): JSX.Element {
   return (
     <React.Fragment>
       {printIndex && currentPrecinct && (
-        <Modal
-          centerContent
-          content={
-            <Loading as="p">
-              Printing L&amp;A Package
-              {precinctIds.length > 1
-                ? ` (${printIndex.precinctIndex + 1} of ${precinctIds.length})`
-                : ''}
-              : {currentPrecinct.name}
-            </Loading>
-          }
+        <PrintingModal
+          advancePrinting={advancePrinting}
+          currentPrecinct={currentPrecinct}
+          precinctIds={precinctIds}
+          printIndex={printIndex}
         />
       )}
       <NavigationScreen>
