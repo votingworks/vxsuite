@@ -1424,18 +1424,18 @@ importers:
       eslint-config-prettier: 8.3.0_eslint@7.32.0
       eslint-import-resolver-node: 0.3.6
       eslint-plugin-import: 2.25.3_eslint@7.32.0+typescript@4.6.3
-      eslint-plugin-jest: 26.1.5_33175a72ab72c91e4b29425b572c2695
+      eslint-plugin-jest: 26.1.5_94f4b6b07d800d9e0eaa978796d927e0
       eslint-plugin-no-null: 1.0.2_eslint@7.32.0
       eslint-plugin-prettier: 3.4.1_625706418ef443f92ded258e2cca0de0
       eslint-plugin-vx: link:../eslint-plugin-vx
       is-ci-cli: 2.2.0
-      jest: 27.4.5
-      jest-watch-typeahead: 0.6.5_jest@27.4.5
+      jest: 28.1.0_@types+node@16.11.29
+      jest-watch-typeahead: 0.6.5_jest@28.1.0
       lint-staged: 10.5.4
       prettier: 2.6.2
       sort-package-json: 1.53.1
       tmp: 0.2.1
-      ts-jest: 27.1.1_0040ccf18ab599f603caf9142de6ff8e
+      ts-jest: 28.0.3_c8b3b29309af3cedc18dc2d366c66617
       typescript: 4.6.3
     specifiers:
       '@types/jest': ^27.5.1
@@ -1459,7 +1459,7 @@ importers:
       eslint-plugin-prettier: ^3.1.4
       eslint-plugin-vx: workspace:*
       is-ci-cli: ^2.2.0
-      jest: ^27.3.1
+      jest: ^28.1.0
       jest-watch-typeahead: ^0.6.1
       jsdom: ^19.0.0
       json-schema: ^0.4.0
@@ -1467,7 +1467,7 @@ importers:
       prettier: ^2.6.2
       sort-package-json: ^1.50.0
       tmp: ^0.2.1
-      ts-jest: ^27.0.7
+      ts-jest: ^28.0.3
       typescript: 4.6.3
   libs/cdf-types-cast-vote-records:
     dependencies:
@@ -16338,7 +16338,7 @@ packages:
       '@typescript-eslint/eslint-plugin': 5.21.0_bb9518338a760ece3e1b033a5f6af62e
       '@typescript-eslint/utils': 5.22.0_eslint@7.32.0+typescript@4.6.3
       eslint: 7.32.0
-      jest: 28.1.0
+      jest: 28.1.0_@types+node@16.11.29
     dev: true
     engines:
       node: ^12.22.0 || ^14.17.0 || >=16.0.0
@@ -22432,7 +22432,7 @@ packages:
     dependencies:
       ansi-escapes: 4.3.2
       chalk: 4.1.2
-      jest: 28.1.0
+      jest: 28.1.0_@types+node@16.11.29
       jest-regex-util: 27.5.1
       jest-watcher: 27.5.1
       slash: 3.0.0
@@ -27787,42 +27787,6 @@ packages:
         optional: true
     resolution:
       integrity: sha512-O41shibMqzdafpuP+CkrOL7ykbmLh+FqQrXEmV9CydQ5JBk0Sj0uAEF5TNNe94fZWKm3yYvWa/IbyV4Yg1zK2Q==
-  /ts-jest/27.1.1_0040ccf18ab599f603caf9142de6ff8e:
-    dependencies:
-      '@types/jest': 27.5.1
-      bs-logger: 0.2.6
-      esbuild: 0.14.39
-      fast-json-stable-stringify: 2.1.0
-      jest: 27.4.5
-      jest-util: 27.4.2
-      json5: 2.2.0
-      lodash.memoize: 4.1.2
-      make-error: 1.3.6
-      semver: 7.3.5
-      typescript: 4.6.3
-      yargs-parser: 20.2.9
-    dev: true
-    engines:
-      node: ^10.13.0 || ^12.13.0 || ^14.15.0 || >=15.0.0
-    hasBin: true
-    peerDependencies:
-      '@babel/core': '>=7.0.0-beta.0 <8'
-      '@types/jest': ^27.0.0
-      babel-jest: '>=27.0.0 <28'
-      esbuild: ~0.14.0
-      jest: ^27.0.0
-      typescript: '>=3.8 <5.0'
-    peerDependenciesMeta:
-      '@babel/core':
-        optional: true
-      '@types/jest':
-        optional: true
-      babel-jest:
-        optional: true
-      esbuild:
-        optional: true
-    resolution:
-      integrity: sha512-Ds0VkB+cB+8g2JUmP/GKWndeZcCKrbe6jzolGrVWdqVUFByY/2KDHqxJ7yBSon7hDB1TA4PXxjfZ+JjzJisvgA==
   /ts-jest/27.1.1_7b23d3382ee63801f251c35a983489bc:
     dependencies:
       '@types/jest': 27.5.1
@@ -27898,6 +27862,42 @@ packages:
     dependencies:
       '@types/jest': 27.5.1
       bs-logger: 0.2.6
+      fast-json-stable-stringify: 2.1.0
+      jest: 28.1.0_@types+node@16.11.29
+      jest-util: 28.1.0
+      json5: 2.2.1
+      lodash.memoize: 4.1.2
+      make-error: 1.3.6
+      semver: 7.3.7
+      typescript: 4.6.3
+      yargs-parser: 20.2.9
+    dev: true
+    engines:
+      node: ^12.13.0 || ^14.15.0 || ^16.10.0 || >=17.0.0
+    hasBin: true
+    peerDependencies:
+      '@babel/core': '>=7.0.0-beta.0 <8'
+      '@types/jest': ^27.0.0
+      babel-jest: ^28.0.0
+      esbuild: '*'
+      jest: ^28.0.0
+      typescript: '>=4.3'
+    peerDependenciesMeta:
+      '@babel/core':
+        optional: true
+      '@types/jest':
+        optional: true
+      babel-jest:
+        optional: true
+      esbuild:
+        optional: true
+    resolution:
+      integrity: sha512-HzgbEDQ2KgVtDmpXToqAcKTyGHdHsG23i/iUjfxji92G5eT09S1m9UHZd7csF0Bfgh9txM4JzwHnv7r1waFPlw==
+  /ts-jest/28.0.3_c8b3b29309af3cedc18dc2d366c66617:
+    dependencies:
+      '@types/jest': 27.5.1
+      bs-logger: 0.2.6
+      esbuild: 0.14.39
       fast-json-stable-stringify: 2.1.0
       jest: 28.1.0_@types+node@16.11.29
       jest-util: 28.1.0
