@@ -76,6 +76,11 @@ function PreviouslyTranscribedValues({
   );
 }
 
+/* isntabul ignore next */
+function noop() {
+  // nothing to do
+}
+
 export function WriteInsTranscriptionScreen({
   contest,
   election,
@@ -157,7 +162,7 @@ export function WriteInsTranscriptionScreen({
           <TranscriptionPaginationContainer>
             <Button
               disabled={!onClickPrevious}
-              onPress={onClickPrevious || (() => null)}
+              onPress={onClickPrevious || noop}
             >
               Previous
             </Button>
@@ -165,10 +170,7 @@ export function WriteInsTranscriptionScreen({
               {ballotIdxBeingAdjudicated + 1} of{' '}
               {ballotsBeingAdjudicated.length}
             </Text>
-            <Button
-              disabled={!onClickNext}
-              onPress={onClickNext || (() => null)}
-            >
+            <Button disabled={!onClickNext} onPress={onClickNext || noop}>
               Next
             </Button>
           </TranscriptionPaginationContainer>
