@@ -27,6 +27,9 @@ ruleTester.run('gts-spread-like-types', rule, {
 
     // calls
     `a(...[])`,
+
+    // `any`
+    `declare const a: any; [...a]`,
   ],
   invalid: [
     // arrays
@@ -51,7 +54,7 @@ ruleTester.run('gts-spread-like-types', rule, {
       errors: [{ messageId: 'requireIterablesInArraySpread', line: 1 }],
     },
     {
-      code: `[...(a ? [a] : a)]`,
+      code: `declare const a: unknown; [...(a ? [a] : a)]`,
       errors: [{ messageId: 'requireIterablesInArraySpread', line: 1 }],
     },
 

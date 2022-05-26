@@ -33,7 +33,7 @@ const rule: TSESLint.RuleModule<'noDefaultExports' | 'noDefaultImports'> =
 
       function getNamedExportCandidate(
         name: string
-      ): TSESTree.Statement | undefined {
+      ): TSESTree.ExportDeclaration | undefined {
         const defs = context.getScope().set.get(name)?.defs;
 
         if (!defs || defs.length !== 1) {
