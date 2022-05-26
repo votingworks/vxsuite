@@ -4,6 +4,7 @@ import { LinkButton, Prose } from '@votingworks/ui';
 import { NavigationScreen } from '../components/navigation_screen';
 import { routerPaths } from '../router_paths';
 import { ZeroReportPrintButton } from '../components/zero_report_print_button';
+import { FullTestDeckTallyReportButton } from '../components/full_test_deck_tally_report_button';
 import { AppContext } from '../contexts/app_context';
 
 export function LogicAndAccuracyScreen(): JSX.Element {
@@ -27,6 +28,7 @@ export function LogicAndAccuracyScreen(): JSX.Element {
                 Print L&amp;A Packages
               </LinkButton>
             </p>
+            <FullTestDeckTallyReportButton />
           </React.Fragment>
         )}
       </Prose>

@@ -9,6 +9,7 @@ import {
   getByTestId as domGetByTestId,
   getByText as domGetByText,
   getAllByRole as domGetAllByRole,
+  getAllByText as domGetAllByText,
   act,
   within,
 } from '@testing-library/react';
@@ -340,7 +341,7 @@ test('L&A (logic and accuracy) flow', async () => {
   const storage = await createMemoryStorageWith({
     electionDefinition: eitherNeitherElectionDefinition,
   });
-  const { container } = render(
+  const { container, getByTestId } = render(
     <App card={card} hardware={hardware} printer={printer} storage={storage} />
   );
   jest.advanceTimersByTime(2001); // Cause the usb drive to be detected
@@ -349,12 +350,15 @@ test('L&A (logic and accuracy) flow', async () => {
   // Test printing zero report
   userEvent.click(screen.getByText('L&A'));
   userEvent.click(screen.getByText(ZERO_REPORT_BUTTON_TEXT));
+  await waitFor(() => {
+    const zeroReport = getByTestId('zero-report');
+    expect(domGetAllByText(zeroReport, '0').length).toBe(40);
+  });
   await screen.findByText('Printing');
   expect(printer.print).toHaveBeenCalledTimes(1);
   expect(mockKiosk.log).toHaveBeenCalledWith(
     expect.stringContaining(LogEventId.TallyReportPrinted)
   );
-  expect(screen.getAllByText('0').length).toBe(40);
 
   // Test printing L&A package
   userEvent.click(screen.getByText('L&A'));
@@ -404,6 +408,34 @@ test('L&A (logic and accuracy) flow', async () => {
     expect.stringContaining('Hand-marked paper ballot test deck')
   );
   expect(container).toMatchSnapshot();
+
+  // Test printing full test deck tally
+  const expectedTallies: { [tally: string]: number } = {
+    '104': 6,
+    '52': 12,
+    '36': 2,
+    '24': 2,
+    '12': 3,
+    '8': 1,
+    '4': 1,
+    '0': 10,
+  };
+
+  userEvent.click(screen.getByText('L&A'));
+  userEvent.click(screen.getByText('Print Full Test Deck Tally Report'));
+  await waitFor(() => {
+    const fullTestDeckTallyReport = getByTestId('full-test-deck-tally-report');
+    for (const [tally, times] of Object.entries(expectedTallies)) {
+      expect(domGetAllByText(fullTestDeckTallyReport, tally).length).toEqual(
+        times
+      );
+    }
+  });
+  await screen.findByText('Printing');
+  expect(printer.print).toHaveBeenCalledTimes(5);
+  expect(mockKiosk.log).toHaveBeenCalledWith(
+    expect.stringContaining(LogEventId.TestDeckTallyReportPrinted)
+  );
 });
 
 test('L&A features are available after test results are loaded', async () => {
