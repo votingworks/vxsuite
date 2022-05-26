@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 
 import {
   Modal,
@@ -42,7 +42,7 @@ export function PrintButton({
   const [isPrinting, setIsPrinting] = useState(false);
   const [showPrintingError, setShowPrintingError] = useState(false);
 
-  async function print() {
+  const print = useCallback(async () => {
     if (window.kiosk) {
       const printers = await makeCancelable(window.kiosk.getPrinterInfo());
       if (!printers.some((p) => p.connected)) {
@@ -67,24 +67,33 @@ export function PrintButton({
     }
 
     afterPrint?.();
-  }
+  }, [
+    afterPrint,
+    afterPrintError,
+    copies,
+    isMounted,
+    makeCancelable,
+    printer,
+    sides,
+    title,
+  ]);
 
-  function donePrintingError() {
+  const donePrintingError = useCallback(() => {
     setShowPrintingError(false);
-  }
+  }, []);
 
-  function initConfirmModal() {
+  const initConfirmModal = useCallback(() => {
     setIsConfirming(true);
-  }
+  }, []);
 
-  function cancelPrint() {
+  const cancelPrint = useCallback(() => {
     setIsConfirming(false);
-  }
+  }, []);
 
-  async function confirmPrint() {
+  const confirmPrint = useCallback(async () => {
     setIsConfirming(false);
     await print();
-  }
+  }, [print]);
 
   return (
     <React.Fragment>

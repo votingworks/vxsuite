@@ -4,7 +4,7 @@ import * as json from '../json_serialization';
 import { WorkerOps } from './types';
 
 export class InlineWorkerOps<I, O> implements WorkerOps<I, EventEmitter> {
-  private workerInstance = new EventEmitter();
+  private readonly workerInstance = new EventEmitter();
 
   constructor(private readonly call: (input: I) => Promise<O>) {}
 

@@ -11,18 +11,18 @@
     "build"
   ],
   "scripts": {
-    "type-check": "tsc --build",
-    "type-check:watch": "tsc --build --watch",
     "build": "tsc --build tsconfig.json",
     "build:watch": "tsc --build --watch tsconfig.json",
     "clean": "rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "lint": "pnpm type-check && eslint .",
     "lint:fix": "pnpm type-check && eslint . --fix",
+    "pre-commit": "lint-staged",
     "test": "is-ci test:ci test:watch",
-    "test:watch": "TZ=UTC jest --watch",
-    "test:coverage": "TZ=UTC jest --coverage",
     "test:ci": "TZ=UTC pnpm build && pnpm test:coverage",
-    "pre-commit": "lint-staged"
+    "test:coverage": "TZ=UTC jest --coverage",
+    "test:watch": "TZ=UTC jest --watch",
+    "type-check": "tsc --build",
+    "type-check:watch": "tsc --build --watch"
   },
   "lint-staged": {
     "*.+(css|graphql|json|less|mdx|sass|scss|yaml|yml)": [
@@ -63,7 +63,7 @@
     "eslint-plugin-jest": "^26.1.5",
     "eslint-plugin-prettier": "^3.4.0",
     "eslint-plugin-vx": "workspace:*",
-    "fast-check": "^2.18.0",
+    "fast-check": "^2.23.2",
     "fetch-mock": "^9.9.0",
     "fs-extra": "^10.0.0",
     "is-ci-cli": "^2.2.0",

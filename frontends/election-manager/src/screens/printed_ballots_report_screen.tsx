@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useCallback, useContext } from 'react';
 import pluralize from 'pluralize';
 import _ from 'lodash';
 
@@ -100,7 +100,7 @@ export function PrintedBallotsReportScreen(): JSX.Element {
   const electionDate = format.localeWeekdayAndDate(new Date(election.date));
   const generatedAt = format.localeLongDateAndTime(new Date());
 
-  function logAfterPrint() {
+  const logAfterPrint = useCallback(() => {
     assert(currentUserSession); // TODO auth check permissions for printing printed ballot report
     void logger.log(
       LogEventId.PrintedBallotReportPrinted,
@@ -110,21 +110,24 @@ export function PrintedBallotsReportScreen(): JSX.Element {
         disposition: 'success',
       }
     );
-  }
+  }, [currentUserSession, logger]);
 
-  function logAfterPrintError(errorMessage: string) {
-    assert(currentUserSession); // TODO auth check permissions for printing printed ballot report
-    void logger.log(
-      LogEventId.PrintedBallotReportPrinted,
-      currentUserSession.type,
-      {
-        message: `Error printing Printed ballot Report: ${errorMessage}`,
-        disposition: 'failure',
-        result:
-          'Printed Ballot Report not printed, error message shown to user.',
-      }
-    );
-  }
+  const logAfterPrintError = useCallback(
+    (errorMessage: string) => {
+      assert(currentUserSession); // TODO auth check permissions for printing printed ballot report
+      void logger.log(
+        LogEventId.PrintedBallotReportPrinted,
+        currentUserSession.type,
+        {
+          message: `Error printing Printed ballot Report: ${errorMessage}`,
+          disposition: 'failure',
+          result:
+            'Printed Ballot Report not printed, error message shown to user.',
+        }
+      );
+    },
+    [currentUserSession, logger]
+  );
 
   const reportContent = (
     <Prose maxWidth={false}>

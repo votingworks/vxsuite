@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import styled, { css, StyledComponent } from 'styled-components';
 import { EventTargetFunction } from '../config/types';
 
@@ -77,22 +77,25 @@ export const Button = React.forwardRef<HTMLButtonElement, Props>(
   ({ component: Component = StyledButton, onPress, ...rest }, ref) => {
     const [startCoordinates, setStartCoordinates] = useState([0, 0]);
 
-    function onTouchStart(event: React.TouchEvent) {
+    const onTouchStart = useCallback((event: React.TouchEvent) => {
       const { clientX, clientY } = event.touches[0];
       setStartCoordinates([clientX, clientY]);
-    }
+    }, []);
 
-    function onTouchEnd(event: React.TouchEvent) {
-      const maxMove = 30;
-      const { clientX, clientY } = event.changedTouches[0];
-      if (
-        Math.abs(startCoordinates[0] - clientX) < maxMove &&
-        Math.abs(startCoordinates[1] - clientY) < maxMove
-      ) {
-        onPress(event);
-        event.preventDefault();
-      }
-    }
+    const onTouchEnd = useCallback(
+      (event: React.TouchEvent) => {
+        const maxMove = 30;
+        const { clientX, clientY } = event.changedTouches[0];
+        if (
+          Math.abs(startCoordinates[0] - clientX) < maxMove &&
+          Math.abs(startCoordinates[1] - clientY) < maxMove
+        ) {
+          onPress(event);
+          event.preventDefault();
+        }
+      },
+      [onPress, startCoordinates]
+    );
 
     return (
       <Component

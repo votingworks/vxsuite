@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import styled from 'styled-components';
 import pluralize from 'pluralize';
 import moment from 'moment';
@@ -37,12 +37,12 @@ export function BallotListScreen(): JSX.Element {
     sortBallotStyleDataByPrecinct(election, allBallotStyles),
   ];
   const [ballotView, setBallotView] = useState(1);
-  function sortByStyle() {
+  const sortByStyle = useCallback(() => {
     return setBallotView(0);
-  }
-  function sortByPrecinct() {
+  }, []);
+  const sortByPrecinct = useCallback(() => {
     return setBallotView(1);
-  }
+  }, []);
 
   const ballots = ballotLists[ballotView];
 

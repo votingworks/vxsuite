@@ -7,7 +7,7 @@ import { Storage } from '../types';
  * this object only lasts as long as the program runs.
  */
 export class MemoryStorage implements Storage {
-  private data = new Map<string, string>();
+  private readonly data = new Map<string, string>();
 
   /**
    * @param initial data to load into storage

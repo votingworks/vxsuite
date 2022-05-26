@@ -73,15 +73,18 @@ export function ElectionConfiguration({
     }
   }
 
-  async function acceptManuallyChosenFile(file: File) {
-    try {
-      await acceptManuallyChosenFileFromProps(file);
-    } catch (error) {
-      if (error instanceof Error) {
-        setErrorMessage(error.message);
+  const acceptManuallyChosenFile = useCallback(
+    async (file: File) => {
+      try {
+        await acceptManuallyChosenFileFromProps(file);
+      } catch (error) {
+        if (error instanceof Error) {
+          setErrorMessage(error.message);
+        }
       }
-    }
-  }
+    },
+    [acceptManuallyChosenFileFromProps]
+  );
 
   const fetchFilenames = useCallback(async () => {
     setLoadingFiles(true);
@@ -149,13 +152,16 @@ export function ElectionConfiguration({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [usbDriveStatus]);
 
-  async function handleFileInput(event: React.FormEvent<HTMLInputElement>) {
-    const input = event.currentTarget;
-    const file = input.files && input.files[0];
-    if (file) {
-      await acceptManuallyChosenFile(file);
-    }
-  }
+  const handleFileInput = useCallback(
+    async (event: React.FormEvent<HTMLInputElement>) => {
+      const input = event.currentTarget;
+      const file = input.files && input.files[0];
+      if (file) {
+        await acceptManuallyChosenFile(file);
+      }
+    },
+    [acceptManuallyChosenFile]
+  );
 
   const mainNav = (
     <MainNav isTestMode={false}>

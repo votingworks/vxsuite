@@ -148,15 +148,18 @@ export function AppRoot({
     });
   }, [logger, currentUserType]);
 
-  function updateElectionDefinition(e: ElectionDefinition) {
-    setElectionDefinition(e);
-    void logger.log(LogEventId.ElectionConfigured, currentUserType, {
-      message: `Machine configured for election with hash: ${e.electionHash}`,
-      disposition: 'success',
-      electionHash: e.electionHash,
-    });
-    setElectionJustLoaded(true);
-  }
+  const updateElectionDefinition = useCallback(
+    (e: ElectionDefinition) => {
+      setElectionDefinition(e);
+      void logger.log(LogEventId.ElectionConfigured, currentUserType, {
+        message: `Machine configured for election with hash: ${e.electionHash}`,
+        disposition: 'success',
+        electionHash: e.electionHash,
+      });
+      setElectionJustLoaded(true);
+    },
+    [logger, currentUserType]
+  );
 
   useEffect(() => {
     async function initialize() {

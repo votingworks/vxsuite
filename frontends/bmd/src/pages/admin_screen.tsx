@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import { ElectionDefinition } from '@votingworks/types';
 import { Printer } from '@votingworks/utils';
@@ -71,18 +71,14 @@ export function AdminScreen({
   };
 
   const [isFetchingElection, setIsFetchingElection] = useState(false);
-  function loadElection() {
+  const loadElection = useCallback(() => {
     setIsFetchingElection(true);
     fetchElection();
-  }
+  }, [fetchElection]);
 
   const [isTestDeck, setIsTestDeck] = useState(false);
-  function showTestDeck() {
-    return setIsTestDeck(true);
-  }
-  function hideTestDeck() {
-    return setIsTestDeck(false);
-  }
+  const showTestDeck = useCallback(() => setIsTestDeck(true), []);
+  const hideTestDeck = useCallback(() => setIsTestDeck(false), []);
 
   // Disable the audiotrack when in admin mode
   useEffect(() => {

@@ -1,4 +1,11 @@
-import React, { useContext, useEffect, useRef, useState, useMemo } from 'react';
+import React, {
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  useMemo,
+  useCallback,
+} from 'react';
 import styled from 'styled-components';
 
 import { useParams } from 'react-router-dom';
@@ -162,23 +169,30 @@ export function TallyReportScreen(): JSX.Element {
     }
   }, [showPreview, logger, reportDisplayTitle, currentUserType]);
 
-  function afterPrint() {
+  const afterPrint = useCallback(() => {
     void logger.log(LogEventId.TallyReportPrinted, currentUserType, {
       message: `User printed ${reportDisplayTitle}`,
       disposition: 'success',
       tallyReportTitle: reportDisplayTitle,
     });
-  }
+  }, [currentUserType, logger, reportDisplayTitle]);
 
-  function afterPrintError(errorMessage: string) {
-    void logger.log(LogEventId.TallyReportPrinted, currentUserType, {
-      message: `Error in attempting to print ${reportDisplayTitle}: ${errorMessage}`,
-      disposition: 'failure',
-      tallyReportTitle: reportDisplayTitle,
-      errorMessage,
-      result: 'User shown error.',
-    });
-  }
+  const afterPrintError = useCallback(
+    (errorMessage: string) => {
+      void logger.log(LogEventId.TallyReportPrinted, currentUserType, {
+        message: `Error in attempting to print ${reportDisplayTitle}: ${errorMessage}`,
+        disposition: 'failure',
+        tallyReportTitle: reportDisplayTitle,
+        errorMessage,
+        result: 'User shown error.',
+      });
+    },
+    [currentUserType, logger, reportDisplayTitle]
+  );
+
+  const toggleReportPreview = useCallback(() => {
+    setShowPreview((s) => !s);
+  }, []);
 
   if (isTabulationRunning) {
     return (
@@ -196,10 +210,6 @@ export function TallyReportScreen(): JSX.Element {
     election,
     fileSuffix
   );
-
-  function toggleReportPreview() {
-    setShowPreview((s) => !s);
-  }
 
   const generatedAtTime = new Date();
 

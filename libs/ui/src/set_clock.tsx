@@ -90,9 +90,9 @@ export function PickDateTimeModal({
     },
     [newValue, setNewValue]
   );
-  function saveDateAndZone() {
+  const saveDateAndZone = useCallback(() => {
     onSave(newValue);
-  }
+  }, [newValue, onSave]);
 
   return (
     <Modal
@@ -278,7 +278,7 @@ export function SetClockButton(props: SetClockButtonProps): JSX.Element {
   const [isSettingClock, setIsSettingClock] = useState(false);
   const systemDate = useNow();
 
-  async function setClock(date: DateTime) {
+  const setClock = useCallback(async (date: DateTime) => {
     setIsSettingClock(true);
     try {
       if (window.kiosk) {
@@ -293,7 +293,7 @@ export function SetClockButton(props: SetClockButtonProps): JSX.Element {
     } finally {
       setIsSettingClock(false);
     }
-  }
+  }, []);
 
   return (
     <React.Fragment>

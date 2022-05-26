@@ -44,9 +44,9 @@ const DEFAULT_PRINTER_IPP_ATTRIBUTES: KioskBrowser.PrinterIppAttributes = {
 export class MemoryHardware implements Hardware {
   private batteryStatus? = DEFAULT_BATTERY_STATUS;
 
-  private connectedDevices = new Set<KioskBrowser.Device>();
+  private readonly connectedDevices = new Set<KioskBrowser.Device>();
 
-  private accessibleController: Readonly<KioskBrowser.Device> = {
+  private readonly accessibleController: Readonly<KioskBrowser.Device> = {
     deviceAddress: 0,
     deviceName: 'USB Advanced Audio Device',
     locationId: 0,
@@ -56,7 +56,7 @@ export class MemoryHardware implements Hardware {
     serialNumber: '',
   };
 
-  private printer: Readonly<KioskBrowser.Device> = {
+  private readonly printer: Readonly<KioskBrowser.Device> = {
     deviceAddress: 0,
     deviceName: 'HL-L5100DN_series',
     locationId: 0,
@@ -68,7 +68,7 @@ export class MemoryHardware implements Hardware {
 
   private printerIppAttributes = DEFAULT_PRINTER_IPP_ATTRIBUTES;
 
-  private cardReader: Readonly<KioskBrowser.Device> = {
+  private readonly cardReader: Readonly<KioskBrowser.Device> = {
     deviceAddress: 0,
     deviceName: OmniKeyCardReaderDeviceName,
     locationId: 0,
@@ -78,7 +78,7 @@ export class MemoryHardware implements Hardware {
     serialNumber: '',
   };
 
-  private batchScanner: Readonly<KioskBrowser.Device> = {
+  private readonly batchScanner: Readonly<KioskBrowser.Device> = {
     deviceAddress: 0,
     deviceName: 'Scanner',
     locationId: 0,
@@ -88,7 +88,7 @@ export class MemoryHardware implements Hardware {
     serialNumber: '',
   };
 
-  private precinctScanner: Readonly<KioskBrowser.Device> = {
+  private readonly precinctScanner: Readonly<KioskBrowser.Device> = {
     deviceAddress: 0,
     deviceName: 'Sheetfed Scanner',
     locationId: 0,
@@ -253,7 +253,7 @@ export class MemoryHardware implements Hardware {
     this.printersSubject.next([]);
   }
 
-  private devicesSubject = new BehaviorSubject(this.connectedDevices);
+  private readonly devicesSubject = new BehaviorSubject(this.connectedDevices);
 
   /**
    * Subscribe to USB device updates.
@@ -262,7 +262,7 @@ export class MemoryHardware implements Hardware {
   readonly devices: Observable<Iterable<KioskBrowser.Device>> =
     this.devicesSubject;
 
-  private printersSubject = new BehaviorSubject<
+  private readonly printersSubject = new BehaviorSubject<
     Iterable<KioskBrowser.PrinterInfo>
   >([]);
 

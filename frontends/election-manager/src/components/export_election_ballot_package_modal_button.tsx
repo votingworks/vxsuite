@@ -143,10 +143,10 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
     setState(workflow.next);
   }, [electionDefinition, state]);
 
-  function closeModal() {
+  const closeModal = useCallback(() => {
     setIsModalOpen(false);
     setState(workflow.init(election, electionHash, electionLocaleCodes));
-  }
+  }, [election, electionHash, electionLocaleCodes]);
 
   const now = new Date();
   const defaultFileName = generateFilenameForBallotExportPackage(

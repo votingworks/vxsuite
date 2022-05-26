@@ -21,11 +21,11 @@ const VxElectionDefinitionFile: VxFile = {
 
 /* eslint-disable @typescript-eslint/require-await */
 export class NhConverterClient implements ConverterClient {
-  private inputFiles: Map<VxFile, File | undefined> = new Map([
+  private readonly inputFiles: Map<VxFile, File | undefined> = new Map([
     [NhCardDefinitionFile, undefined],
     [NhCardBallotFile, undefined],
   ]);
-  private outputFiles: Map<VxFile, Blob | undefined> = new Map([
+  private readonly outputFiles: Map<VxFile, Blob | undefined> = new Map([
     [VxElectionDefinitionFile, undefined],
   ]);
 

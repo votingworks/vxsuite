@@ -145,9 +145,10 @@ export function YesNoContest({
     sc.scrollTo({ behavior: 'smooth', left: 0, top });
   };
 
-  function closeOvervoteAlert() {
-    setOvervoteSelection(undefined);
-  }
+  const closeOvervoteAlert = useCallback(
+    () => setOvervoteSelection(undefined),
+    []
+  );
 
   return (
     <React.Fragment>

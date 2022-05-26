@@ -42,11 +42,11 @@ export function SmartcardsScreen(): JSX.Element {
   const [currentPasscode, setCurrentPasscode] = useState('');
 
   const [isShowingError, setIsShowingError] = useState(false);
-  function closeErrorDialog() {
+  const closeErrorDialog = useCallback(() => {
     return setIsShowingError(false);
-  }
+  }, []);
 
-  async function overrideWriteProtection() {
+  const overrideWriteProtection = useCallback(async () => {
     assert(currentUserSession); // TODO(auth) check permissions for writing smartcards
     await logger.log(LogEventId.SmartcardProgramInit, currentUserSession.type, {
       message: 'Overriding write protection on the current smartcard...',
@@ -79,9 +79,9 @@ export function SmartcardsScreen(): JSX.Element {
     }
     await makeCancelable(sleep(1000));
     setIsProgrammingCard(false);
-  }
+  }, [currentUserSession, logger, makeCancelable]);
 
-  async function programPollWorkerCard() {
+  const programPollWorkerCard = useCallback(async () => {
     assert(currentUserSession); // TODO(auth) check permissions for writing smartcards
     await logger.log(LogEventId.SmartcardProgramInit, currentUserSession.type, {
       message: 'Programming a pollworker card...',
@@ -122,62 +122,75 @@ export function SmartcardsScreen(): JSX.Element {
       );
     }
     setIsProgrammingCard(false);
-  }
-  async function programAdminCard(passcode: string) {
-    // automatically override write protection when writing a new admin card
-    await overrideWriteProtection();
+  }, [currentUserSession, electionHash, logger]);
+  const programAdminCard = useCallback(
+    async (passcode: string) => {
+      // automatically override write protection when writing a new admin card
+      await overrideWriteProtection();
 
-    assert(currentUserSession); // TODO(auth) check permissions for writing smartcards
-    await logger.log(LogEventId.SmartcardProgramInit, currentUserSession.type, {
-      message: 'Programming an admin card...',
-      programmedUserType: 'admin',
-    });
-    const formData = new FormData();
-    setIsProgrammingCard(true);
-    setIsPromptingForAdminPasscode(false);
-    const shortValue = JSON.stringify({
-      t: 'admin',
-      h: electionHash,
-      p: passcode,
-    });
-    formData.append('short_value', shortValue);
-    formData.append('long_value', electionData);
-    const response = await fetch('/card/write_short_and_long', {
-      method: 'post',
-      body: formData,
-    });
-    const body = await response.json();
-    if (!body.success) {
-      setIsShowingError(true);
+      assert(currentUserSession); // TODO(auth) check permissions for writing smartcards
       await logger.log(
-        LogEventId.SmartcardProgrammed,
+        LogEventId.SmartcardProgramInit,
         currentUserSession.type,
         {
-          message: 'Error in programming admin card',
+          message: 'Programming an admin card...',
           programmedUserType: 'admin',
-          disposition: 'failure',
-          result: 'Card not updated, error message shown to user.',
         }
       );
-    } else {
-      await logger.log(
-        LogEventId.SmartcardProgrammed,
-        currentUserSession.type,
-        {
-          message: 'Successfully finished programming an admin card.',
-          programmedUserType: 'admin',
-          disposition: 'success',
-        }
-      );
-    }
+      const formData = new FormData();
+      setIsProgrammingCard(true);
+      setIsPromptingForAdminPasscode(false);
+      const shortValue = JSON.stringify({
+        t: 'admin',
+        h: electionHash,
+        p: passcode,
+      });
+      formData.append('short_value', shortValue);
+      formData.append('long_value', electionData);
+      const response = await fetch('/card/write_short_and_long', {
+        method: 'post',
+        body: formData,
+      });
+      const body = await response.json();
+      if (!body.success) {
+        setIsShowingError(true);
+        await logger.log(
+          LogEventId.SmartcardProgrammed,
+          currentUserSession.type,
+          {
+            message: 'Error in programming admin card',
+            programmedUserType: 'admin',
+            disposition: 'failure',
+            result: 'Card not updated, error message shown to user.',
+          }
+        );
+      } else {
+        await logger.log(
+          LogEventId.SmartcardProgrammed,
+          currentUserSession.type,
+          {
+            message: 'Successfully finished programming an admin card.',
+            programmedUserType: 'admin',
+            disposition: 'success',
+          }
+        );
+      }
 
-    setIsProgrammingCard(false);
-  }
+      setIsProgrammingCard(false);
+    },
+    [
+      currentUserSession,
+      electionData,
+      electionHash,
+      logger,
+      overrideWriteProtection,
+    ]
+  );
 
-  function initiateAdminCardProgramming() {
+  const initiateAdminCardProgramming = useCallback(() => {
     setCurrentPasscode('');
     setIsPromptingForAdminPasscode(true);
-  }
+  }, []);
 
   const addNumberToPin = useCallback((digit: number) => {
     setCurrentPasscode((prev) =>

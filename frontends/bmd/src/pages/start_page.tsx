@@ -1,5 +1,5 @@
 import { assert } from '@votingworks/utils';
-import React, { useContext, useEffect, useRef } from 'react';
+import React, { useCallback, useContext, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';
 import { getPartyPrimaryAdjectiveFromBallotStyle } from '@votingworks/types';
@@ -49,10 +49,10 @@ export function StartPage(): JSX.Element {
     ballotStyleId,
   });
 
-  function onStart() {
+  const onStart = useCallback(() => {
     forceSaveVote();
     history.push('/contests/0');
-  }
+  }, [forceSaveVote, history]);
 
   useEffect(() => {
     audioFocus.current?.click();

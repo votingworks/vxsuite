@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import pluralize from 'pluralize';
 
 import {
@@ -150,12 +150,12 @@ export function TestBallotDeckScreen({
     setBallots(selectedBallots);
   };
 
-  function resetDeck() {
+  const resetDeck = useCallback(() => {
     setBallots([]);
     setPrecinct(initialPrecinct);
-  }
+  }, []);
 
-  async function handlePrinting() {
+  const handlePrinting = useCallback(async () => {
     if (window.kiosk) {
       const printers = await window.kiosk.getPrinterInfo();
       if (!printers.some((p) => p.connected)) {
@@ -170,7 +170,7 @@ export function TestBallotDeckScreen({
     }, (ballots.length + TEST_DECK_PRINTING_TIMEOUT_SECONDS) * 1000);
 
     await printer.print({ sides: 'one-sided' });
-  }
+  }, [ballots.length, printer]);
 
   return (
     <React.Fragment>

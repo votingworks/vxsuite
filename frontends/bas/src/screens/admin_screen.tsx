@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import pluralize from 'pluralize';
 import { DateTime } from 'luxon';
 
@@ -55,19 +55,25 @@ export function AdminScreen({
 }: Props): JSX.Element {
   const precincts = election ? [...election.precincts].sort(compareName) : [];
   const parties = election ? [...election.parties].sort(compareName) : [];
-  function onChangeParty(event: React.FormEvent<HTMLSelectElement>) {
-    setParty(unsafeParse(PartyIdSchema, event.currentTarget.value));
-  }
-  function onChangePrecinct(event: React.FormEvent<HTMLSelectElement>) {
-    const { value } = event.currentTarget;
-    setPrecinct(value);
-    setIsSinglePrecinctMode(!!value);
-  }
-  function reset() {
+  const onChangeParty = useCallback(
+    (event: React.FormEvent<HTMLSelectElement>) => {
+      setParty(unsafeParse(PartyIdSchema, event.currentTarget.value));
+    },
+    [setParty]
+  );
+  const onChangePrecinct = useCallback(
+    (event: React.FormEvent<HTMLSelectElement>) => {
+      const { value } = event.currentTarget;
+      setPrecinct(value);
+      setIsSinglePrecinctMode(!!value);
+    },
+    [setIsSinglePrecinctMode, setPrecinct]
+  );
+  const reset = useCallback(() => {
     setPrecinct('');
     setParty(undefined);
     setIsSinglePrecinctMode(false);
-  }
+  }, [setIsSinglePrecinctMode, setParty, setPrecinct]);
   const ballotStyles = partyId
     ? precinctBallotStyles.filter((bs) => bs.partyId === partyId)
     : precinctBallotStyles;

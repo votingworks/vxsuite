@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Route, Switch } from 'react-router-dom';
 import IdleTimer from 'react-idle-timer';
 
@@ -33,16 +33,16 @@ export function Ballot(): JSX.Element {
     };
   }, [textSize]);
 
-  function onActive() {
+  const onActive = useCallback(() => {
     // Delay to avoid passing tap to next screen
     window.setTimeout(() => {
       setIsIdle(false);
     }, 200);
-  }
+  }, []);
 
-  function onIdle() {
+  const onIdle = useCallback(() => {
     setIsIdle(true);
-  }
+  }, []);
 
   return (
     <IdleTimer

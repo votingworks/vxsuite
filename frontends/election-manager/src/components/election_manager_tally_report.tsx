@@ -258,3 +258,4 @@ export const ElectionManagerTallyReport = forwardRef<HTMLDivElement, Props>(
     );
   }
 );
+ElectionManagerTallyReport.displayName = 'ElectionsManagerTallyReport';

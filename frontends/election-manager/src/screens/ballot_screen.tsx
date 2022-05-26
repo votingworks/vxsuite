@@ -114,9 +114,9 @@ export function BallotScreen(): JSX.Element {
     setIsSampleBallot(false);
   }
   const [isAbsentee, setIsAbsentee] = useState(true);
-  function toggleIsAbsentee() {
+  const toggleIsAbsentee = useCallback(() => {
     return setIsAbsentee((m) => !m);
-  }
+  }, []);
   const [ballotCopies, setBallotCopies] = useState(1);
   const updateBallotCopies: InputEventFunction = (event) => {
     const { value } = event.currentTarget;
@@ -175,13 +175,16 @@ export function BallotScreen(): JSX.Element {
     });
   }
 
-  function afterPrintError(errorMessage: string) {
-    assert(currentUserSession); // TODO(auth) check permissions for viewing ballots
-    void logger.log(LogEventId.BallotPrinted, currentUserSession.type, {
-      message: `Error attempting to print ballot: ${errorMessage}`,
-      disposition: 'failure',
-    });
-  }
+  const afterPrintError = useCallback(
+    (errorMessage: string) => {
+      assert(currentUserSession); // TODO(auth) check permissions for viewing ballots
+      void logger.log(LogEventId.BallotPrinted, currentUserSession.type, {
+        message: `Error attempting to print ballot: ${errorMessage}`,
+        disposition: 'failure',
+      });
+    },
+    [currentUserSession, logger]
+  );
 
   const onRendered = useCallback(() => {
     if (ballotPreviewRef?.current && printBallotRef?.current) {

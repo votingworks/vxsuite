@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useCallback, useContext } from 'react';
 import { useLocation } from 'react-router-dom';
 
 import { Button, Main, Screen, Prose } from '@votingworks/ui';
@@ -7,9 +7,9 @@ import { BallotContext } from '../contexts/ballot_context';
 export function NotFoundPage(): JSX.Element {
   const { pathname } = useLocation();
   const { resetBallot } = useContext(BallotContext);
-  function requestResetBallot() {
+  const requestResetBallot = useCallback(() => {
     resetBallot();
-  }
+  }, [resetBallot]);
   return (
     <Screen>
       <Main centerChild>

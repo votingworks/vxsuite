@@ -55,19 +55,19 @@ export function AdminActionsScreen({
   const [isDeletingBallotData, setIsDeletingBallotData] = useState(false);
   const [isBackingUp, setIsBackingUp] = useState(false);
   const [backupError, setBackupError] = useState('');
-  function toggleIsConfirmingUnconfigure() {
+  const toggleIsConfirmingUnconfigure = useCallback(() => {
     setIsConfirmingUnconfigure((s) => !s);
-  }
-  function toggleIsDoubleConfirmingUnconfigure() {
+  }, []);
+  const toggleIsDoubleConfirmingUnconfigure = useCallback(() => {
     setIsDoubleConfirmingUnconfigure((s) => !s);
-  }
+  }, []);
   const [isConfirmingZero, setIsConfirmingZero] = useState(false);
   const [exportingLogType, setExportingLogType] = useState<LogFileType>();
   const [isSetMarkThresholdModalOpen, setIsMarkThresholdModalOpen] =
     useState(false);
-  function toggleIsConfirmingZero() {
+  const toggleIsConfirmingZero = useCallback(() => {
     return setIsConfirmingZero((s) => !s);
-  }
+  }, []);
   const exportBackup = useCallback(async () => {
     try {
       setBackupError('');
@@ -95,7 +95,7 @@ export function AdminActionsScreen({
     setIsDeletingBallotData(true);
     await zeroData();
     setIsDeletingBallotData(false);
-  }, [zeroData]);
+  }, [toggleIsConfirmingZero, zeroData]);
 
   useEffect(() => {
     if (isFactoryResetting) {

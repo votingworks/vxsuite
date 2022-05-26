@@ -187,9 +187,10 @@ export function PollWorkerScreen({
   const [isConfirmingEnableLiveMode, setIsConfirmingEnableLiveMode] = useState(
     !isLiveMode && isElectionDay
   );
-  function cancelEnableLiveMode() {
-    return setIsConfirmingEnableLiveMode(false);
-  }
+  const cancelEnableLiveMode = useCallback(
+    () => setIsConfirmingEnableLiveMode(false),
+    []
+  );
 
   const [
     isConfirmingPrecinctScannerPrint,
@@ -252,20 +253,20 @@ export function PollWorkerScreen({
   const isMarkAndPrintMode =
     machineConfig.appMode.isPrint && machineConfig.appMode.isMark;
 
-  function requestPrintPrecinctScannerReport() {
+  const requestPrintPrecinctScannerReport = useCallback(() => {
     setIsPrintingPrecinctScannerReport(true);
     setIsConfirmingPrecinctScannerPrint(false);
-  }
+  }, []);
 
   const resetCardTallyData = useCallback(async () => {
     await pollworkerAuth.card.clearStoredData();
     setIsPrintingPrecinctScannerReport(false);
   }, [pollworkerAuth]);
 
-  function confirmEnableLiveMode() {
+  const confirmEnableLiveMode = useCallback(() => {
     enableLiveMode();
     setIsConfirmingEnableLiveMode(false);
-  }
+  }, [enableLiveMode]);
 
   const printLock = useLock();
   useEffect(() => {

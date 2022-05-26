@@ -1,5 +1,11 @@
 import { assert } from '@votingworks/utils';
-import React, { ReactChild, useContext, useEffect, useState } from 'react';
+import React, {
+  ReactChild,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 
@@ -73,36 +79,49 @@ export function ManualDataImportIndexScreen(): JSX.Element {
   const hasManualData =
     !!existingManualData?.overallTally.numberOfBallotsCounted;
 
-  async function confirmClearManualData(fileType: ResultsFileType) {
-    setIsClearing(false);
-    await resetFiles(fileType);
-  }
+  const confirmClearManualData = useCallback(
+    async (fileType: ResultsFileType) => {
+      setIsClearing(false);
+      await resetFiles(fileType);
+    },
+    [resetFiles]
+  );
 
-  async function handleSettingBallotType(newBallotType: VotingMethod) {
-    setBallotType(newBallotType);
+  const handleSettingBallotType = useCallback(
+    async (newBallotType: VotingMethod) => {
+      setBallotType(newBallotType);
 
-    // Note this WILL save an empty external tally if ballot type is toggled but there is not an external tally yet.
-    const externalTally = convertTalliesByPrecinctToFullExternalTally(
-      talliesByPrecinct,
+      // Note this WILL save an empty external tally if ballot type is toggled but there is not an external tally yet.
+      const externalTally = convertTalliesByPrecinctToFullExternalTally(
+        talliesByPrecinct,
+        election,
+        newBallotType,
+        ExternalTallySourceType.Manual,
+        MANUAL_DATA_NAME,
+        new Date()
+      );
+      await logger.log(LogEventId.ManualTallyDataEdited, currentUserType, {
+        disposition: 'success',
+        newBallotType,
+        message: `Ballot type for manually entered tally data changed to ${newBallotType}`,
+      });
+      // Don't modify any external tallies for non-manual data
+      const newTallies = fullElectionExternalTallies.filter(
+        (t) => t.source !== ExternalTallySourceType.Manual
+      );
+      // Add the new tally
+      newTallies.push(externalTally);
+      await saveExternalTallies(newTallies);
+    },
+    [
+      currentUserType,
       election,
-      newBallotType,
-      ExternalTallySourceType.Manual,
-      MANUAL_DATA_NAME,
-      new Date()
-    );
-    await logger.log(LogEventId.ManualTallyDataEdited, currentUserType, {
-      disposition: 'success',
-      newBallotType,
-      message: `Ballot type for manually entered tally data changed to ${newBallotType}`,
-    });
-    // Don't modify any external tallies for non-manual data
-    const newTallies = fullElectionExternalTallies.filter(
-      (t) => t.source !== ExternalTallySourceType.Manual
-    );
-    // Add the new tally
-    newTallies.push(externalTally);
-    await saveExternalTallies(newTallies);
-  }
+      fullElectionExternalTallies,
+      logger,
+      saveExternalTallies,
+      talliesByPrecinct,
+    ]
+  );
 
   useEffect(() => {
     // If the data gets cleared, reset voting method.

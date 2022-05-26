@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Button, Main, Prose, Screen, Text } from '@votingworks/ui';
 import { DateTime } from 'luxon';
 import styled from 'styled-components';
@@ -232,16 +232,19 @@ export function AccessibleControllerDiagnosticScreen({
 }: AccessibleControllerDiagnosticProps): JSX.Element {
   const [step, setStep] = useState(0);
 
-  function passTest() {
+  const passTest = useCallback(() => {
     onComplete({ passed: true, completedAt: DateTime.now() });
-  }
-  function failTest(message: string) {
-    onComplete({ passed: false, completedAt: DateTime.now(), message });
-  }
+  }, [onComplete]);
+  const failTest = useCallback(
+    (message: string) => {
+      onComplete({ passed: false, completedAt: DateTime.now(), message });
+    },
+    [onComplete]
+  );
 
-  function nextStep() {
+  const nextStep = useCallback(() => {
     setStep((previousStep) => previousStep + 1);
-  }
+  }, []);
 
   const buttons: Array<[ButtonName, string]> = [
     ['Up', 'ArrowUp'],

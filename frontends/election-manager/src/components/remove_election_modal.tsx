@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useCallback, useContext } from 'react';
 import { useHistory } from 'react-router-dom';
 
 import { Modal, Prose } from '@votingworks/ui';
@@ -14,10 +14,10 @@ export function RemoveElectionModal({ onClose }: Props): JSX.Element {
   const history = useHistory();
   const { saveElection } = useContext(AppContext);
 
-  async function unconfigureElection() {
+  const unconfigureElection = useCallback(async () => {
     await saveElection(undefined);
     history.push(routerPaths.root);
-  }
+  }, [history, saveElection]);
 
   return (
     <Modal

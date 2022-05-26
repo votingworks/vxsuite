@@ -1,5 +1,5 @@
 import { assert } from '@votingworks/utils';
-import React, { useContext, useState } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import styled from 'styled-components';
 import {
@@ -153,14 +153,6 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
   const currentPrecinct = election.precincts.find(
     (p) => p.id === currentPrecinctId
   );
-  if (currentPrecinct === undefined) {
-    return (
-      <Prose>
-        Error: Could not find precinct {currentPrecinctId}.{' '}
-        <LinkButton to={routerPaths.manualDataImport}>Back to Index</LinkButton>
-      </Prose>
-    );
-  }
   const existingManualDataTallies = fullElectionExternalTallies.filter(
     (t) => t.source === ExternalTallySourceType.Manual
   );
@@ -177,7 +169,6 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
   const initialPrecinctTally =
     talliesByPrecinct[currentPrecinctId] ?? getEmptyExternalTally();
   const [currentPrecinctTally, setCurrentPrecinctTally] =
-    // eslint-disable-next-line react-hooks/rules-of-hooks
     useState(initialPrecinctTally);
 
   const ballotType = existingManualData?.votingMethod || VotingMethod.Precinct;
@@ -222,7 +213,7 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
     return convertedContestTallies;
   }
 
-  async function handleImportingData() {
+  const handleImportingData = useCallback(async () => {
     // Turn the precinct tallies into a CSV SEMS file
     // Save that file as the external results file with a name implied manual data entry happened
 
@@ -263,7 +254,18 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
     newTallies.push(externalTally);
     await saveExternalTallies(newTallies);
     history.push(routerPaths.manualDataImport);
-  }
+  }, [
+    ballotType,
+    currentPrecinctId,
+    currentPrecinctTally,
+    currentUserType,
+    election,
+    fullElectionExternalTallies,
+    history,
+    logger,
+    saveExternalTallies,
+    talliesByPrecinct,
+  ]);
 
   function getValueForInput(
     contestId: ContestId,
@@ -365,6 +367,15 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
 
   const votingMethodName =
     ballotType === VotingMethod.Absentee ? 'Absentee' : 'Precinct';
+
+  if (currentPrecinct === undefined) {
+    return (
+      <Prose>
+        Error: Could not find precinct {currentPrecinctId}.{' '}
+        <LinkButton to={routerPaths.manualDataImport}>Back to Index</LinkButton>
+      </Prose>
+    );
+  }
 
   return (
     <React.Fragment>

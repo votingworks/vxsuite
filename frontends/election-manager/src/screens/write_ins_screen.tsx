@@ -13,6 +13,11 @@ import { NavigationScreen } from '../components/navigation_screen';
 import { WriteInsTranscriptionScreen } from './write_ins_transcription_screen';
 import { AppContext } from '../contexts/app_context';
 
+/* istanbul ignore next */
+function placeholderFn() {
+  return null;
+}
+
 export function WriteInsScreen(): JSX.Element {
   const { castVoteRecordFiles, electionDefinition, saveTranscribedValue } =
     useContext(AppContext);
@@ -63,11 +68,6 @@ export function WriteInsScreen(): JSX.Element {
   const ballotsBeingAdjudicated: CastVoteRecord[] = contestBeingAdjudicated
     ? writeInsByContest.get(contestBeingAdjudicated.id) || []
     : [];
-
-  /* istanbul ignore next */
-  function placeholderFn() {
-    return null;
-  }
 
   return (
     <React.Fragment>

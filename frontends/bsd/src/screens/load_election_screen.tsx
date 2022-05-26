@@ -2,7 +2,7 @@ import {
   getPrecinctById,
   safeParseElectionDefinition,
 } from '@votingworks/types';
-import React, { useContext, useState } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import {
   assert,
   BallotPackage,
@@ -39,70 +39,109 @@ export function LoadElectionScreen({
   }>();
   const [isLoadingTemplates, setLoadingTemplates] = useState(false);
 
-  function handleBallotLoading(pkg: BallotPackage) {
-    addTemplates(pkg, logger, currentUserType)
-      .on('configuring', () => {
-        setCurrentUploadingBallotIndex(0);
-        setTotalTemplates(pkg.ballots.length);
-      })
-      .on('uploading', (_pkg, ballot) => {
-        const { locales } = ballot.ballotConfig;
-        setCurrentUploadingBallot({
-          ballotStyle: ballot.ballotConfig.ballotStyleId,
-          precinct:
-            getPrecinctById({
-              election: pkg.electionDefinition.election,
-              precinctId: ballot.ballotConfig.precinctId,
-            })?.name ?? ballot.ballotConfig.precinctId,
-          isLiveMode: ballot.ballotConfig.isLiveMode,
-          locales: locales?.secondary
-            ? `${locales.primary} / ${locales.secondary}`
-            : locales?.primary,
+  const handleBallotLoading = useCallback(
+    (pkg: BallotPackage) => {
+      addTemplates(pkg, logger, currentUserType)
+        .on('configuring', () => {
+          setCurrentUploadingBallotIndex(0);
+          setTotalTemplates(pkg.ballots.length);
+        })
+        .on('uploading', (_pkg, ballot) => {
+          const { locales } = ballot.ballotConfig;
+          setCurrentUploadingBallot({
+            ballotStyle: ballot.ballotConfig.ballotStyleId,
+            precinct:
+              getPrecinctById({
+                election: pkg.electionDefinition.election,
+                precinctId: ballot.ballotConfig.precinctId,
+              })?.name ?? ballot.ballotConfig.precinctId,
+            isLiveMode: ballot.ballotConfig.isLiveMode,
+            locales: locales?.secondary
+              ? `${locales.primary} / ${locales.secondary}`
+              : locales?.primary,
+          });
+          setCurrentUploadingBallotIndex(pkg.ballots.indexOf(ballot));
+        })
+        .on('completed', async () => {
+          setLoadingTemplates(true);
+          await doneTemplates();
+          await logger.log(LogEventId.ScannerConfigured, currentUserType, {
+            message: 'Scanner successfully configured for ballot package.',
+            disposition: 'success',
+          });
+          setLoadingTemplates(false);
+          setElectionDefinition(pkg.electionDefinition);
         });
-        setCurrentUploadingBallotIndex(pkg.ballots.indexOf(ballot));
-      })
-      .on('completed', async () => {
-        setLoadingTemplates(true);
-        await doneTemplates();
-        await logger.log(LogEventId.ScannerConfigured, currentUserType, {
-          message: 'Scanner successfully configured for ballot package.',
-          disposition: 'success',
+    },
+    [currentUserType, logger, setElectionDefinition]
+  );
+
+  const onManualFileImport = useCallback(
+    async (file: File) => {
+      const isElectionJson = file.name.endsWith('.json');
+      const reader = new FileReader();
+
+      if (isElectionJson) {
+        await new Promise<void>((resolve, reject) => {
+          reader.onload = async () => {
+            const electionData = reader.result as string;
+            const result = safeParseElectionDefinition(electionData);
+
+            if (result.isErr()) {
+              await logger.log(LogEventId.ElectionConfigured, currentUserType, {
+                message: 'Election definition failed to be read from usb.',
+                disposition: 'failure',
+                error: result.err().message,
+                result: 'User shown error, no election configured.',
+              });
+              reject(result.err());
+            } else {
+              await config.setElection(electionData);
+              setElectionDefinition(result.ok());
+              resolve();
+            }
+          };
+
+          reader.readAsText(file);
         });
-        setLoadingTemplates(false);
-        setElectionDefinition(pkg.electionDefinition);
-      });
-  }
-
-  async function onManualFileImport(file: File) {
-    const isElectionJson = file.name.endsWith('.json');
-    const reader = new FileReader();
-
-    if (isElectionJson) {
-      await new Promise<void>((resolve, reject) => {
-        reader.onload = async () => {
-          const electionData = reader.result as string;
-          const result = safeParseElectionDefinition(electionData);
-
-          if (result.isErr()) {
-            await logger.log(LogEventId.ElectionConfigured, currentUserType, {
-              message: 'Election definition failed to be read from usb.',
+      } else {
+        try {
+          const ballotPackage = await readBallotPackageFromFile(file);
+          await logger.log(
+            LogEventId.BallotPackagedLoadedFromUsb,
+            currentUserType,
+            {
+              message:
+                'Ballot package successfully loaded from Usb, now configuring machine for ballot package...',
+              disposition: 'success',
+            }
+          );
+          handleBallotLoading(ballotPackage);
+        } catch (error) {
+          assert(error instanceof Error);
+          await logger.log(
+            LogEventId.BallotPackagedLoadedFromUsb,
+            currentUserType,
+            {
+              message: 'Error reading ballot package from USB.',
+              error: error.message,
+              result:
+                'User shown error, machine not configured for ballot package.',
               disposition: 'failure',
-              error: result.err().message,
-              result: 'User shown error, no election configured.',
-            });
-            reject(result.err());
-          } else {
-            await config.setElection(electionData);
-            setElectionDefinition(result.ok());
-            resolve();
-          }
-        };
+            }
+          );
+          throw error;
+        }
+      }
+    },
+    [currentUserType, handleBallotLoading, logger, setElectionDefinition]
+  );
 
-        reader.readAsText(file);
-      });
-    } else {
+  const onAutomaticFileImport = useCallback(
+    async (file: KioskBrowser.FileSystemEntry) => {
+      // All automatic file imports will be on zip packages
       try {
-        const ballotPackage = await readBallotPackageFromFile(file);
+        const ballotPackage = await readBallotPackageFromFilePointer(file);
         await logger.log(
           LogEventId.BallotPackagedLoadedFromUsb,
           currentUserType,
@@ -128,39 +167,9 @@ export function LoadElectionScreen({
         );
         throw error;
       }
-    }
-  }
-
-  async function onAutomaticFileImport(file: KioskBrowser.FileSystemEntry) {
-    // All automatic file imports will be on zip packages
-    try {
-      const ballotPackage = await readBallotPackageFromFilePointer(file);
-      await logger.log(
-        LogEventId.BallotPackagedLoadedFromUsb,
-        currentUserType,
-        {
-          message:
-            'Ballot package successfully loaded from Usb, now configuring machine for ballot package...',
-          disposition: 'success',
-        }
-      );
-      handleBallotLoading(ballotPackage);
-    } catch (error) {
-      assert(error instanceof Error);
-      await logger.log(
-        LogEventId.BallotPackagedLoadedFromUsb,
-        currentUserType,
-        {
-          message: 'Error reading ballot package from USB.',
-          error: error.message,
-          result:
-            'User shown error, machine not configured for ballot package.',
-          disposition: 'failure',
-        }
-      );
-      throw error;
-    }
-  }
+    },
+    [currentUserType, handleBallotLoading, logger]
+  );
 
   if (isLoadingTemplates) {
     return (

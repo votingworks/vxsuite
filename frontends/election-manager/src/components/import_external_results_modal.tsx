@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 
 import { Modal, Prose } from '@votingworks/ui';
 import { assert, format } from '@votingworks/utils';
@@ -102,7 +102,7 @@ export function ImportExternalResultsModal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedFile]);
 
-  async function saveImportedFile() {
+  const saveImportedFile = useCallback(async () => {
     if (selectedFile !== undefined) {
       setIsTabulationRunning(true);
       const fileContent = await readFileAsync(selectedFile);
@@ -123,7 +123,17 @@ export function ImportExternalResultsModal({
       setIsTabulationRunning(false);
       onClose();
     }
-  }
+  }, [
+    ballotType,
+    currentUserType,
+    election,
+    fullElectionExternalTallies,
+    logger,
+    onClose,
+    saveExternalTallies,
+    selectedFile,
+    setIsTabulationRunning,
+  ]);
 
   if (isImportingFile) {
     return (

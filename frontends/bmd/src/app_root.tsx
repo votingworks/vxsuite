@@ -548,10 +548,10 @@ export function AppRoot({
     [storage, history]
   );
 
-  function hidePostVotingInstructions() {
+  const hidePostVotingInstructions = useCallback(() => {
     clearTimeout(PostVotingInstructionsTimeout.current);
     dispatchAppState({ type: 'resetBallot' });
-  }
+  }, []);
 
   // Hide Verify and Scan Instructions
   useEffect(() => {
@@ -564,7 +564,7 @@ export function AppRoot({
     return () => {
       clearTimeout(PostVotingInstructionsTimeout.current);
     };
-  }, [showPostVotingInstructions]);
+  }, [hidePostVotingInstructions, showPostVotingInstructions]);
 
   const unconfigure = useCallback(async () => {
     await storage.clear();
@@ -590,7 +590,7 @@ export function AppRoot({
     []
   );
 
-  function useEffectToggleLargeDisplay() {
+  const useEffectToggleLargeDisplay = useCallback(() => {
     document.documentElement.style.fontSize = `${
       GLOBALS.FONT_SIZES[GLOBALS.LARGE_DISPLAY_FONT_SIZE]
     }px`;
@@ -599,7 +599,7 @@ export function AppRoot({
         GLOBALS.FONT_SIZES[GLOBALS.DEFAULT_FONT_SIZE]
       }px`;
     };
-  }
+  }, []);
 
   const updateAppPrecinct = useCallback((newAppPrecinct: PrecinctSelection) => {
     dispatchAppState({

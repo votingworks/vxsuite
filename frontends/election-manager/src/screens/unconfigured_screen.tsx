@@ -76,10 +76,10 @@ export function UnconfiguredScreen(): JSX.Element {
     setClient(getElectionDefinitionConverterClient(converter));
   }, [converter]);
 
-  async function createNewElection() {
+  const createNewElection = useCallback(async () => {
     await saveElection(newElection);
     history.push(routerPaths.electionDefinition);
-  }
+  }, [history, saveElection]);
 
   const saveElectionAndShowSuccess = useCallback(
     (electionJson: string) => {
@@ -178,15 +178,18 @@ export function UnconfiguredScreen(): JSX.Element {
     }
   }, [client, getOutputFile, makeCancelable, processInputFiles]);
 
-  async function submitFile({ file, name }: InputFile) {
-    try {
-      assert(client);
-      await client.setInputFile(name, file);
-      await updateStatus();
-    } catch (error) {
-      console.log('failed handleFileInput()', error); // eslint-disable-line no-console
-    }
-  }
+  const submitFile = useCallback(
+    async ({ file, name }: InputFile) => {
+      try {
+        assert(client);
+        await client.setInputFile(name, file);
+        await updateStatus();
+      } catch (error) {
+        console.log('failed handleFileInput()', error); // eslint-disable-line no-console
+      }
+    },
+    [client, updateStatus]
+  );
 
   const handleFileInput: InputEventFunction = async (event) => {
     const input = event.currentTarget;
@@ -197,17 +200,17 @@ export function UnconfiguredScreen(): JSX.Element {
     }
   };
 
-  async function resetUploadFiles() {
+  const resetUploadFiles = useCallback(async () => {
     setInputConversionFiles([]);
     setVxElectionFileIsInvalid(false);
     await resetServerFiles();
     await updateStatus();
-  }
+  }, [resetServerFiles, updateStatus]);
 
-  async function resetUploadFilesAndGoBack() {
+  const resetUploadFilesAndGoBack = useCallback(async () => {
     await resetUploadFiles();
     setIsUsingConverter(false);
-  }
+  }, [resetUploadFiles]);
 
   useEffect(() => {
     void updateStatus();

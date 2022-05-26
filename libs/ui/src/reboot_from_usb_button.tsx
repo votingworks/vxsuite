@@ -73,14 +73,14 @@ export function RebootFromUsbButton({
       });
     }
   }, [usbDriveStatus, logger]);
-  async function reboot() {
+  const reboot = useCallback(async () => {
     assert(window.kiosk);
     await logger.log(LogEventId.RebootMachine, 'superadmin', {
       message: 'User trigged a reboot of the machine…',
     });
     setCurrentState(State.REBOOTING);
     await window.kiosk.reboot();
-  }
+  }, [logger]);
   useEffect(() => {
     if (
       usbDriveStatus === usbstick.UsbDriveStatus.mounted &&

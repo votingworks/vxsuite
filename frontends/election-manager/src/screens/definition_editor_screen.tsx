@@ -43,13 +43,13 @@ export function DefinitionEditorScreen({
   const [dirty, setDirty] = useState(false);
   const [error, setError] = useState('');
 
-  const [isConfimingUnconfig, setIsConfimingUnconfig] = useState(false);
-  function cancelConfirmingUnconfig() {
-    setIsConfimingUnconfig(false);
-  }
-  function initConfirmingUnconfig() {
-    setIsConfimingUnconfig(true);
-  }
+  const [isConfirmingUnconfigure, setIsConfirmingUnconfigure] = useState(false);
+  const cancelConfirmingUnconfigure = useCallback(() => {
+    setIsConfirmingUnconfigure(false);
+  }, []);
+  const initConfirmingUnconfigure = useCallback(() => {
+    setIsConfirmingUnconfigure(true);
+  }, []);
 
   const validateElectionDefinition = useCallback(() => {
     const result = safeParseElection(electionString);
@@ -60,21 +60,21 @@ export function DefinitionEditorScreen({
     setDirty(true);
     setElectionString(event.currentTarget.value);
   };
-  async function handleSaveElection() {
+  const handleSaveElection = useCallback(async () => {
     const valid = validateElectionDefinition();
     if (valid) {
       await saveElection(electionString);
       setDirty(false);
       setError('');
     }
-  }
-  function resetElectionConfig() {
+  }, [electionString, saveElection, validateElectionDefinition]);
+  const resetElectionConfig = useCallback(() => {
     setElectionString(stringifiedElection);
     setDirty(false);
     setError('');
-  }
+  }, [stringifiedElection]);
 
-  function downloadElectionDefinition() {
+  const downloadElectionDefinition = useCallback(() => {
     fileDownload(
       electionData,
       `${dashify(election.date)}-${dashify(election.county.name)}-${dashify(
@@ -82,7 +82,7 @@ export function DefinitionEditorScreen({
       )}-vx-election-definition.json`,
       'application/json'
     );
-  }
+  }, [election.county.name, election.date, election.title, electionData]);
 
   useEffect(() => {
     validateElectionDefinition();
@@ -122,7 +122,7 @@ export function DefinitionEditorScreen({
             small
             danger={!dirty}
             disabled={dirty}
-            onPress={initConfirmingUnconfig}
+            onPress={initConfirmingUnconfigure}
           >
             Remove
           </Button>
@@ -136,8 +136,8 @@ export function DefinitionEditorScreen({
           />
         </FlexTextareaWrapper>
       </NavigationScreen>
-      {isConfimingUnconfig && (
-        <RemoveElectionModal onClose={cancelConfirmingUnconfig} />
+      {isConfirmingUnconfigure && (
+        <RemoveElectionModal onClose={cancelConfirmingUnconfigure} />
       )}
     </React.Fragment>
   );

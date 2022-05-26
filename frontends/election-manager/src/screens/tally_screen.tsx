@@ -76,35 +76,41 @@ export function TallyScreen(): JSX.Element {
     setIsShowingBatchResults(!isShowingBatchResults);
   }, [isShowingBatchResults, setIsShowingBatchResults]);
 
-  function beginConfirmRemoveFiles(fileType: ResultsFileType) {
+  const beginConfirmRemoveFiles = useCallback((fileType: ResultsFileType) => {
     setConfirmingRemoveFileType(fileType);
-  }
-  function cancelConfirmingRemoveFiles() {
+  }, []);
+  const cancelConfirmingRemoveFiles = useCallback(() => {
     setConfirmingRemoveFileType(undefined);
-  }
-  async function confirmRemoveFiles(fileType: ResultsFileType) {
-    setConfirmingRemoveFileType(undefined);
-    await resetFiles(fileType);
-  }
+  }, []);
+  const confirmRemoveFiles = useCallback(
+    async (fileType: ResultsFileType) => {
+      setConfirmingRemoveFileType(undefined);
+      await resetFiles(fileType);
+    },
+    [resetFiles]
+  );
 
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial';
   const [isConfirmingOfficial, setIsConfirmingOfficial] = useState(false);
-  function cancelConfirmingOfficial() {
+  const cancelConfirmingOfficial = useCallback(() => {
     setIsConfirmingOfficial(false);
-  }
-  function confirmOfficial() {
+  }, []);
+  const confirmOfficial = useCallback(() => {
     setIsConfirmingOfficial(true);
-  }
-  async function setOfficial() {
+  }, []);
+  const setOfficial = useCallback(async () => {
     setIsConfirmingOfficial(false);
     await saveIsOfficialResults();
-  }
+  }, [saveIsOfficialResults]);
 
-  function getPrecinctNames(precinctIds: readonly string[]) {
-    return precinctIds
-      .map((id) => find(election.precincts, (p) => p.id === id).name)
-      .join(', ');
-  }
+  const getPrecinctNames = useCallback(
+    (precinctIds: readonly string[]) => {
+      return precinctIds
+        .map((id) => find(election.precincts, (p) => p.id === id).name)
+        .join(', ');
+    },
+    [election.precincts]
+  );
   const partiesForPrimaries = getPartiesWithPrimaryElections(election);
 
   const castVoteRecordFileList = castVoteRecordFiles.fileList;
@@ -133,13 +139,13 @@ export function TallyScreen(): JSX.Element {
     }
   };
 
-  function closeExternalFileImport() {
+  const closeExternalFileImport = useCallback(() => {
     setIsImportExternalModalOpen(false);
     setExternalResultsSelectedFile(undefined);
     if (externalFileInput?.current) {
       externalFileInput.current.value = '';
     }
-  }
+  }, []);
 
   const [hasConverter, setHasConverter] = useState(false);
   useEffect(() => {

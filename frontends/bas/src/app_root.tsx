@@ -128,12 +128,15 @@ export function AppRoot({ card, hardware, storage }: Props): JSX.Element {
     return precinct?.name ?? '';
   }
 
-  function getBallotStylesByPrecinctId(id?: string): BallotStyle[] {
-    return (
-      election?.ballotStyles.filter((b) => !id || b.precincts.includes(id)) ??
-      []
-    );
-  }
+  const getBallotStylesByPrecinctId = useCallback(
+    (id?: string): BallotStyle[] => {
+      return (
+        election?.ballotStyles.filter((b) => !id || b.precincts.includes(id)) ??
+        []
+      );
+    },
+    [election?.ballotStyles]
+  );
 
   const makeCancelable = useCancelablePromise();
   const smartcard = useSmartcard({

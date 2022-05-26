@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import styled from 'styled-components';
 
 import { MarkThresholds } from '@votingworks/types';
@@ -92,7 +92,7 @@ export function SetMarkThresholdsModal({
     }
   }
 
-  async function resetThresholds() {
+  const resetThresholds = useCallback(async () => {
     setCurrentState(ModalState.SAVING);
     try {
       await setMarkThresholdOverrides(undefined);
@@ -102,7 +102,7 @@ export function SetMarkThresholdsModal({
       setCurrentState(ModalState.ERROR);
       setErrorMessage(`Error setting thresholds: ${error.message}`);
     }
-  }
+  }, [onClose, setMarkThresholdOverrides]);
 
   switch (currentState) {
     case ModalState.SAVING:

@@ -165,64 +165,77 @@ export function CandidateContest({
     }
   }, [deselectedCandidate]);
 
-  function addCandidateToVote(id: string) {
-    const { candidates } = contest;
-    const candidate = findCandidateById(candidates, id);
-    assert(candidate);
-    updateVote(contest.id, [...vote, candidate]);
-  }
+  const addCandidateToVote = useCallback(
+    (id: string) => {
+      const { candidates } = contest;
+      const candidate = findCandidateById(candidates, id);
+      assert(candidate);
+      updateVote(contest.id, [...vote, candidate]);
+    },
+    [contest, updateVote, vote]
+  );
 
-  function removeCandidateFromVote(id: string) {
-    const newVote = vote.filter((c) => c.id !== id);
-    updateVote(contest.id, newVote);
-    setDeselectedCandidate(id);
-  }
+  const removeCandidateFromVote = useCallback(
+    (id: string) => {
+      const newVote = vote.filter((c) => c.id !== id);
+      updateVote(contest.id, newVote);
+      setDeselectedCandidate(id);
+    },
+    [contest.id, updateVote, vote]
+  );
 
-  const handleUpdateSelection: EventTargetFunction = (event) => {
-    const candidateId = (event.currentTarget as HTMLInputElement).dataset
-      .choice;
-    /* istanbul ignore else */
-    if (candidateId) {
-      const candidate = findCandidateById(vote, candidateId);
-      if (candidate) {
-        if (candidate.isWriteIn) {
-          setCandidatePendingRemoval(candidate);
+  const handleUpdateSelection: EventTargetFunction = useCallback(
+    (event) => {
+      const candidateId = (event.currentTarget as HTMLInputElement).dataset
+        .choice;
+      /* istanbul ignore else */
+      if (candidateId) {
+        const candidate = findCandidateById(vote, candidateId);
+        if (candidate) {
+          if (candidate.isWriteIn) {
+            setCandidatePendingRemoval(candidate);
+          } else {
+            removeCandidateFromVote(candidateId);
+          }
         } else {
-          removeCandidateFromVote(candidateId);
+          addCandidateToVote(candidateId);
         }
-      } else {
-        addCandidateToVote(candidateId);
       }
-    }
-  };
+    },
+    [addCandidateToVote, removeCandidateFromVote, vote]
+  );
 
-  function handleChangeVoteAlert(candidate?: Candidate) {
+  const handleChangeVoteAlert = useCallback((candidate?: Candidate) => {
     setAttemptedOvervoteCandidate(candidate);
-  }
+  }, []);
 
-  function closeAttemptedVoteAlert() {
+  const closeAttemptedVoteAlert = useCallback(() => {
     setAttemptedOvervoteCandidate(undefined);
-  }
+  }, []);
 
-  function clearCandidateIdPendingRemoval() {
+  const clearCandidateIdPendingRemoval = useCallback(() => {
     setCandidatePendingRemoval(undefined);
-  }
+  }, []);
 
-  function confirmRemovePendingWriteInCandidate() {
+  const confirmRemovePendingWriteInCandidate = useCallback(() => {
     assert(candidatePendingRemoval);
     removeCandidateFromVote(candidatePendingRemoval.id);
     clearCandidateIdPendingRemoval();
-  }
+  }, [
+    candidatePendingRemoval,
+    clearCandidateIdPendingRemoval,
+    removeCandidateFromVote,
+  ]);
 
-  function toggleWriteInCandidateModal(newValue: boolean) {
+  const toggleWriteInCandidateModal = useCallback((newValue: boolean) => {
     setWriteInCandidateModalIsOpen(newValue);
-  }
+  }, []);
 
-  function initWriteInCandidate() {
+  const initWriteInCandidate = useCallback(() => {
     toggleWriteInCandidateModal(true);
-  }
+  }, [toggleWriteInCandidateModal]);
 
-  function addWriteInCandidate() {
+  const addWriteInCandidate = useCallback(() => {
     const normalizedCandidateName =
       normalizeCandidateName(writeInCandidateName);
     updateVote(contest.id, [
@@ -235,12 +248,18 @@ export function CandidateContest({
     ]);
     setWriteInCandidateName('');
     toggleWriteInCandidateModal(false);
-  }
+  }, [
+    contest.id,
+    toggleWriteInCandidateModal,
+    updateVote,
+    vote,
+    writeInCandidateName,
+  ]);
 
-  function cancelWriteInCandidateModal() {
+  const cancelWriteInCandidateModal = useCallback(() => {
     setWriteInCandidateName('');
     toggleWriteInCandidateModal(false);
-  }
+  }, [toggleWriteInCandidateModal]);
 
   const onKeyboardInput: EventTargetFunction = (event) => {
     const { key } = (event.target as HTMLElement).dataset;
@@ -257,12 +276,15 @@ export function CandidateContest({
     });
   };
 
-  function keyDisabled(key: string) {
-    return (
-      writeInCandidateName.length >= WRITE_IN_CANDIDATE_MAX_LENGTH &&
-      key !== '⌫ delete'
-    );
-  }
+  const keyDisabled = useCallback(
+    (key: string) => {
+      return (
+        writeInCandidateName.length >= WRITE_IN_CANDIDATE_MAX_LENGTH &&
+        key !== '⌫ delete'
+      );
+    },
+    [writeInCandidateName.length]
+  );
 
   /* istanbul ignore next: Tested by Cypress */
   const scrollContestChoices: EventTargetFunction = (event) => {

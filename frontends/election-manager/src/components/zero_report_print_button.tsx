@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+import React, { useCallback, useContext, useMemo } from 'react';
 import styled from 'styled-components';
 import { assert } from '@votingworks/utils';
 import { LogEventId } from '@votingworks/logging';
@@ -36,23 +36,26 @@ export function ZeroReportPrintButton(): JSX.Element {
   const zeroReportTitle =
     'Pre-Election Unofficial Full Election Tally Report (Zero Report)';
 
-  function logZeroReportPrintSuccess() {
+  const logZeroReportPrintSuccess = useCallback(() => {
     void logger.log(LogEventId.TallyReportPrinted, currentUserType, {
       disposition: 'success',
       message: `User printed ${zeroReportTitle}`,
       tallyReportTitle: zeroReportTitle,
     });
-  }
+  }, [currentUserType, logger]);
 
-  function logZeroReportPrintError(errorMessage: string) {
-    void logger.log(LogEventId.TallyReportPrinted, currentUserType, {
-      disposition: 'failure',
-      errorMessage,
-      message: `Error printing ${zeroReportTitle}: ${errorMessage}`,
-      result: 'User shown error.',
-      tallyReportTitle: zeroReportTitle,
-    });
-  }
+  const logZeroReportPrintError = useCallback(
+    (errorMessage: string) => {
+      void logger.log(LogEventId.TallyReportPrinted, currentUserType, {
+        disposition: 'failure',
+        errorMessage,
+        message: `Error printing ${zeroReportTitle}: ${errorMessage}`,
+        result: 'User shown error.',
+        tallyReportTitle: zeroReportTitle,
+      });
+    },
+    [currentUserType, logger]
+  );
 
   return (
     <React.Fragment>
