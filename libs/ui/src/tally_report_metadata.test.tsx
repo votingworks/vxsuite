@@ -1,17 +1,12 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import MockDate from 'mockdate';
 
 import { electionWithMsEitherNeither } from '@votingworks/fixtures';
 
 import { TallyReportMetadata } from './tally_report_metadata';
 
 beforeEach(() => {
-  MockDate.set(new Date('2020-11-03T22:22:00'));
-});
-
-afterEach(() => {
-  MockDate.reset();
+  jest.useFakeTimers().setSystemTime(new Date('2020-11-03T22:22:00'));
 });
 
 test('Renders report metadata', () => {

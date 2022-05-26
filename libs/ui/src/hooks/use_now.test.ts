@@ -1,10 +1,8 @@
-import MockDate from 'mockdate';
 import { act, renderHook } from '@testing-library/react-hooks';
 import { useNow } from './use_now';
 
 beforeEach(() => {
-  MockDate.set('2021-03-31T00:00:00Z');
-  jest.useFakeTimers('legacy');
+  jest.useFakeTimers().setSystemTime(new Date('2021-03-31T00:00:00Z'));
 });
 
 test('returns the current date', () => {
@@ -18,7 +16,6 @@ test('keeps returning the right date as time moves forward', () => {
 
   expect(result.current.toISO()).toEqual('2021-03-31T00:00:00.000+00:00');
 
-  MockDate.set('2021-03-31T00:00:01Z');
   act(() => {
     jest.advanceTimersByTime(1000);
   });

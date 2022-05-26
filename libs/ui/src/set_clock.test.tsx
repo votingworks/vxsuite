@@ -6,7 +6,6 @@ import {
   within,
 } from '@testing-library/react';
 import { DateTime } from 'luxon';
-import MockDate from 'mockdate';
 import React from 'react';
 import fc from 'fast-check';
 import { arbitraryDateTime, fakeKiosk } from '@votingworks/test-utils';
@@ -233,8 +232,7 @@ describe('PickDateTimeModal', () => {
 
 describe('SetClockButton', () => {
   beforeAll(() => {
-    jest.useFakeTimers();
-    MockDate.set('2020-10-31T00:00:00.000Z');
+    jest.useFakeTimers().setSystemTime(new Date('2020-10-31T00:00:00.000Z'));
     window.kiosk = fakeKiosk();
   });
 
@@ -372,16 +370,14 @@ describe('SetClockButton', () => {
 
 describe('CurrentDateAndTime', () => {
   beforeAll(() => {
-    jest.useFakeTimers();
-    MockDate.set('2020-10-31T00:00:00.000Z');
+    jest.useFakeTimers().setSystemTime(new Date('2020-10-31T00:00:00.000Z'));
   });
 
   test('renders current date and time', () => {
     render(<CurrentDateAndTime />);
     screen.getByText('Sat, Oct 31, 2020, 12:00 AM UTC');
-    MockDate.set('2020-10-31T00:01:00.000Z');
     act(() => {
-      jest.advanceTimersByTime(1000);
+      jest.advanceTimersByTime(60_000);
     });
     screen.getByText('Sat, Oct 31, 2020, 12:01 AM UTC');
   });
