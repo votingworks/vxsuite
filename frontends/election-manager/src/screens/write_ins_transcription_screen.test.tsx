@@ -13,9 +13,9 @@ test('write-ins screen', () => {
   const onListAll = jest.fn();
   const saveTranscribedValue = jest.fn();
 
-  const ballotsBeingAdjudicated = [
+  const ballotsBeingAdjudicated: CastVoteRecord[] = [
     {
-      _ballotId: 'id-174',
+      _ballotId: unsafeParse(BallotIdSchema, 'id-174'),
       _ballotType: 'absentee',
       _precinctId: 'precinct-1',
       _ballotStyleId: '3C',
@@ -29,7 +29,7 @@ test('write-ins screen', () => {
       'schoolboard-constitution': ['aras-baskauskas', 'yul-kwon', 'earl-cole'],
     },
     {
-      _ballotId: 'id-188',
+      _ballotId: unsafeParse(BallotIdSchema, 'id-188'),
       _ballotType: 'absentee',
       _precinctId: 'precinct-1',
       _ballotStyleId: '3C',
@@ -42,7 +42,7 @@ test('write-ins screen', () => {
       'chief-pokemon-constitution': ['flareon', 'umbreon', 'vaporeon'],
       'schoolboard-constitution': ['aras-baskauskas', 'yul-kwon', 'earl-cole'],
     },
-  ] as unknown as CastVoteRecord[];
+  ];
 
   renderInAppContext(
     <WriteInsTranscriptionScreen
