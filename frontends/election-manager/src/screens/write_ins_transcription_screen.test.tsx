@@ -1,7 +1,12 @@
 import { screen } from '@testing-library/react';
 import React from 'react';
 import { electionMinimalExhaustiveSampleDefinition as electionDefinition } from '@votingworks/fixtures';
-import { CandidateContest, CastVoteRecord } from '@votingworks/types';
+import {
+  BallotIdSchema,
+  CandidateContest,
+  CastVoteRecord,
+  unsafeParse,
+} from '@votingworks/types';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { WriteInsTranscriptionScreen } from './write_ins_transcription_screen';
 
