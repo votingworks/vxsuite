@@ -1,8 +1,8 @@
 {
   "name": "@votingworks/codemods",
   "private": true,
-  "author": "VotingWorks Eng <eng@voting.works>",
   "license": "GPL-3.0",
+  "author": "VotingWorks Eng <eng@voting.works>",
   "scripts": {
     "build": "tsc --build tsconfig.build.json",
     "build:watch": "tsc --build --watch tsconfig.build.json",
