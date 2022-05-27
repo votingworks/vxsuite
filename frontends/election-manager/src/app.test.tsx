@@ -324,7 +324,7 @@ test('L&A (logic and accuracy) flow', async () => {
   const { container } = render(
     <App card={card} hardware={hardware} printer={printer} storage={storage} />
   );
-  jest.advanceTimersByTime(2001); // Cause the usb drive to be detected
+  jest.advanceTimersByTime(2000); // Cause the usb drive to be detected
   await authenticateWithAdminCard(card);
 
   // Test printing zero report
@@ -403,7 +403,7 @@ test('printing ballots and printed ballots report', async () => {
   const { getByText, getAllByText, queryAllByText, getAllByTestId } = render(
     <App storage={storage} printer={printer} card={card} hardware={hardware} />
   );
-  jest.advanceTimersByTime(2001); // Cause the usb drive to be detected
+  jest.advanceTimersByTime(2000); // Cause the usb drive to be detected
   await authenticateWithAdminCard(card);
 
   await screen.findByText('0 official ballots');
@@ -475,7 +475,7 @@ test('tabulating CVRs', async () => {
   const { getByText, getAllByText, getByTestId, findByText } = render(
     <App storage={storage} card={card} hardware={hardware} printer={printer} />
   );
-  jest.advanceTimersByTime(2001); // Cause the usb drive to be detected
+  jest.advanceTimersByTime(2000); // Cause the usb drive to be detected
   await authenticateWithAdminCard(card);
 
   await screen.findByText('0 official ballots');
@@ -513,7 +513,7 @@ test('tabulating CVRs', async () => {
   fireEvent.click(getByText('Show Results by Batch and Scanner'));
   getByText('Batch Name');
   fireEvent.click(getByText('Export Batch Results as CSV'));
-  jest.advanceTimersByTime(2001);
+  jest.advanceTimersByTime(2000);
   getByText('Save Batch Results');
   getByText(/Save the election batch results as /);
   getByText(
@@ -522,7 +522,7 @@ test('tabulating CVRs', async () => {
 
   fireEvent.click(getByText('Save'));
   await waitFor(() => getByText(/Saving/));
-  jest.advanceTimersByTime(2001);
+  jest.advanceTimersByTime(2000);
   await waitFor(() => getByText(/Batch Results Saved/));
   await waitFor(() => {
     expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
@@ -572,7 +572,7 @@ test('tabulating CVRs', async () => {
   fireEvent.click(getByText('Tally'));
   await waitFor(() => getByText('Save Results File'));
   fireEvent.click(getByText('Save Results File'));
-  jest.advanceTimersByTime(2001);
+  jest.advanceTimersByTime(2000);
   getByText('Save Results');
   getByText(/Save the election results as /);
   getByText(
@@ -581,7 +581,7 @@ test('tabulating CVRs', async () => {
 
   fireEvent.click(getByText('Save'));
   await waitFor(() => getByText(/Saving/));
-  jest.advanceTimersByTime(2001);
+  jest.advanceTimersByTime(2000);
   await waitFor(() => getByText(/Results Saved/));
   await waitFor(() => {
     expect(mockKiosk.writeFile).toHaveBeenCalledTimes(2);
@@ -660,7 +660,7 @@ test('tabulating CVRs with SEMS file', async () => {
   const { getByText, getByTestId, getAllByTestId, getAllByText } = render(
     <App storage={storage} card={card} hardware={hardware} />
   );
-  jest.advanceTimersByTime(2001);
+  jest.advanceTimersByTime(2000);
   await authenticateWithAdminCard(card);
 
   await screen.findByText('0 official ballots');
@@ -702,7 +702,7 @@ test('tabulating CVRs with SEMS file', async () => {
   fetchMock.post('/convert/reset', { body: { status: 'ok' } });
   await waitFor(() => getByText('Save Results File'));
   fireEvent.click(getByText('Save Results File'));
-  jest.advanceTimersByTime(2001);
+  jest.advanceTimersByTime(2000);
   getByText('Save Results');
   getByText(/Save the election results as /);
   getByText(
@@ -711,7 +711,7 @@ test('tabulating CVRs with SEMS file', async () => {
 
   fireEvent.click(getByText('Save'));
   await waitFor(() => getByText(/Saving/));
-  jest.advanceTimersByTime(2001);
+  jest.advanceTimersByTime(2000);
   await waitFor(() => getByText(/Results Saved/));
   await waitFor(() => {
     expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);

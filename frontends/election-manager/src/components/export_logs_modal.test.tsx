@@ -139,7 +139,7 @@ test('renders save modal when usb is mounted and saves log file on machine', asy
   fireEvent.click(getByText('Save'));
   await waitFor(() => getByText(/Saving Logs/));
   expect(mockKiosk.readFile).toHaveBeenCalled();
-  jest.advanceTimersByTime(2001);
+  jest.advanceTimersByTime(2000);
   await waitFor(() => getByText(/Logs Saved/));
   await waitFor(() => {
     expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
@@ -198,7 +198,7 @@ test('renders save modal when usb is mounted and saves cdf log file on machine',
   fireEvent.click(getByText('Save'));
   await waitFor(() => getByText(/Saving Logs/));
   expect(mockKiosk.readFile).toHaveBeenCalled();
-  jest.advanceTimersByTime(2001);
+  jest.advanceTimersByTime(2000);
   await waitFor(() => getByText(/Logs Saved/));
   await waitFor(() => {
     expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);

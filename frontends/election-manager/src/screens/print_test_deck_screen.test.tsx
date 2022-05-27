@@ -62,7 +62,7 @@ test('Printing L&A package for one precinct', async () => {
       expect.stringContaining(LogEventId.TestDeckTallyReportPrinted)
     )
   );
-  jest.advanceTimersByTime(ONE_SIDED_PAGE_PRINT_TIME_MS + 1);
+  jest.advanceTimersByTime(ONE_SIDED_PAGE_PRINT_TIME_MS);
 
   await screen.findByText(printText);
   await waitFor(() => expect(mockPrinter.print).toHaveBeenCalledTimes(2));
@@ -75,7 +75,7 @@ test('Printing L&A package for one precinct', async () => {
   expect(mockKiosk.log).toHaveBeenLastCalledWith(
     expect.stringContaining('BMD paper ballot test deck printed')
   );
-  jest.advanceTimersByTime(3 * ONE_SIDED_PAGE_PRINT_TIME_MS + 1);
+  jest.advanceTimersByTime(3 * ONE_SIDED_PAGE_PRINT_TIME_MS);
 
   await screen.findByText(printText);
   await waitFor(() => expect(mockPrinter.print).toHaveBeenCalledTimes(3));
@@ -90,7 +90,7 @@ test('Printing L&A package for one precinct', async () => {
   expect(mockKiosk.log).toHaveBeenLastCalledWith(
     expect.stringContaining('Hand-marked paper ballot test deck printed')
   );
-  jest.advanceTimersByTime(LAST_PRINT_JOB_SLEEP_MS + 1);
+  jest.advanceTimersByTime(LAST_PRINT_JOB_SLEEP_MS);
 
   await screen.findByText('District 5');
   expect(screen.queryByText('Printing')).not.toBeInTheDocument();
@@ -134,7 +134,7 @@ test('Printing L&A packages for all precincts', async () => {
         expect.stringContaining(LogEventId.TestDeckTallyReportPrinted)
       )
     );
-    jest.advanceTimersByTime(ONE_SIDED_PAGE_PRINT_TIME_MS + 1);
+    jest.advanceTimersByTime(ONE_SIDED_PAGE_PRINT_TIME_MS);
 
     await screen.findByText(printText);
     await waitFor(() =>
@@ -149,7 +149,7 @@ test('Printing L&A packages for all precincts', async () => {
     expect(mockKiosk.log).toHaveBeenLastCalledWith(
       expect.stringContaining('BMD paper ballot test deck printed')
     );
-    jest.advanceTimersByTime(3 * ONE_SIDED_PAGE_PRINT_TIME_MS + 1);
+    jest.advanceTimersByTime(3 * ONE_SIDED_PAGE_PRINT_TIME_MS);
 
     await screen.findByText(printText);
     await waitFor(() =>
@@ -167,9 +167,9 @@ test('Printing L&A packages for all precincts', async () => {
       expect.stringContaining('Hand-marked paper ballot test deck printed')
     );
     if (i < precinctsInAlphabeticalOrder.length - 1) {
-      jest.advanceTimersByTime(6 * TWO_SIDED_PAGE_PRINT_TIME_MS + 1);
+      jest.advanceTimersByTime(6 * TWO_SIDED_PAGE_PRINT_TIME_MS);
     } else {
-      jest.advanceTimersByTime(LAST_PRINT_JOB_SLEEP_MS + 1);
+      jest.advanceTimersByTime(LAST_PRINT_JOB_SLEEP_MS);
     }
   }
 
@@ -203,7 +203,7 @@ test('Printing L&A package for one precinct, when HMPBs are not letter-size', as
       expect.stringContaining(LogEventId.TestDeckTallyReportPrinted)
     )
   );
-  jest.advanceTimersByTime(ONE_SIDED_PAGE_PRINT_TIME_MS + 1);
+  jest.advanceTimersByTime(ONE_SIDED_PAGE_PRINT_TIME_MS);
 
   await screen.findByText(printText);
   await waitFor(() => expect(mockPrinter.print).toHaveBeenCalledTimes(2));
@@ -216,7 +216,7 @@ test('Printing L&A package for one precinct, when HMPBs are not letter-size', as
   expect(mockKiosk.log).toHaveBeenLastCalledWith(
     expect.stringContaining('BMD paper ballot test deck printed')
   );
-  jest.advanceTimersByTime(3 * ONE_SIDED_PAGE_PRINT_TIME_MS + 1);
+  jest.advanceTimersByTime(3 * ONE_SIDED_PAGE_PRINT_TIME_MS);
 
   userEvent.click(
     await screen.findByText('Legal Paper Loaded, Continue Printing')
@@ -235,7 +235,7 @@ test('Printing L&A package for one precinct, when HMPBs are not letter-size', as
   expect(mockKiosk.log).toHaveBeenLastCalledWith(
     expect.stringContaining('Hand-marked paper ballot test deck printed')
   );
-  jest.advanceTimersByTime(LAST_PRINT_JOB_SLEEP_MS + 1);
+  jest.advanceTimersByTime(LAST_PRINT_JOB_SLEEP_MS);
 
   await screen.findByText('District 5');
   expect(screen.queryByText('Printing')).not.toBeInTheDocument();
@@ -287,7 +287,7 @@ test('Printing L&A packages for all precincts, when HMPBs are not letter-size', 
         expect.stringContaining(LogEventId.TestDeckTallyReportPrinted)
       )
     );
-    jest.advanceTimersByTime(ONE_SIDED_PAGE_PRINT_TIME_MS + 1);
+    jest.advanceTimersByTime(ONE_SIDED_PAGE_PRINT_TIME_MS);
 
     await screen.findByText(printText);
     await waitFor(() =>
@@ -302,7 +302,7 @@ test('Printing L&A packages for all precincts, when HMPBs are not letter-size', 
     expect(mockKiosk.log).toHaveBeenLastCalledWith(
       expect.stringContaining('BMD paper ballot test deck printed')
     );
-    jest.advanceTimersByTime(3 * ONE_SIDED_PAGE_PRINT_TIME_MS + 1);
+    jest.advanceTimersByTime(3 * ONE_SIDED_PAGE_PRINT_TIME_MS);
   }
 
   userEvent.click(
@@ -329,9 +329,9 @@ test('Printing L&A packages for all precincts, when HMPBs are not letter-size', 
       expect.stringContaining('Hand-marked paper ballot test deck printed')
     );
     if (i < precinctsInAlphabeticalOrder.length - 1) {
-      jest.advanceTimersByTime(6 * TWO_SIDED_PAGE_PRINT_TIME_MS + 1);
+      jest.advanceTimersByTime(6 * TWO_SIDED_PAGE_PRINT_TIME_MS);
     } else {
-      jest.advanceTimersByTime(LAST_PRINT_JOB_SLEEP_MS + 1);
+      jest.advanceTimersByTime(LAST_PRINT_JOB_SLEEP_MS);
     }
   }
 
