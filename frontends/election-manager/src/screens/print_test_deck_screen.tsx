@@ -30,7 +30,10 @@ import {
   generateBlankBallots,
   generateOvervoteBallot,
 } from '../utils/election';
-import { getBallotLayoutPageSize } from '../utils/get_ballot_layout_page_size';
+import {
+  getBallotLayoutPageSize,
+  getBallotLayoutPageSizeReadableString,
+} from '../utils/get_ballot_layout_page_size';
 
 export const ONE_SIDED_PAGE_PRINT_TIME_MS = 3000;
 export const TWO_SIDED_PAGE_PRINT_TIME_MS = 5000;
@@ -248,6 +251,7 @@ const HandMarkedPaperBallotsMemoized = React.memo(HandMarkedPaperBallots);
 interface PrintingModalProps {
   advancePrinting: () => void;
   currentPrecinct: Precinct;
+  election: Election;
   precinctIds: string[];
   printIndex: PrintIndex;
 }
@@ -255,6 +259,7 @@ interface PrintingModalProps {
 function PrintingModal({
   advancePrinting,
   currentPrecinct,
+  election,
   precinctIds,
   printIndex,
 }: PrintingModalProps): JSX.Element {
@@ -266,13 +271,20 @@ function PrintingModal({
           <Prose textCenter>
             <h1>Change Paper</h1>
             <p>
-              Load printer with <strong>legal-size paper</strong>.
+              Load printer with{' '}
+              <strong>
+                {getBallotLayoutPageSizeReadableString(election)}-size paper
+              </strong>
+              .
             </p>
           </Prose>
         }
         actions={
           <Button onPress={advancePrinting} primary>
-            Legal Paper Loaded, Continue Printing
+            {getBallotLayoutPageSizeReadableString(election, {
+              capitalize: true,
+            })}{' '}
+            Paper Loaded, Continue Printing
           </Button>
         }
       />
@@ -282,13 +294,28 @@ function PrintingModal({
     <Modal
       centerContent
       content={
-        <Loading as="p">
-          Printing L&amp;A Package
-          {precinctIds.length > 1
-            ? ` (${printIndex.precinctIndex + 1} of ${precinctIds.length})`
-            : ''}
-          : {currentPrecinct.name}
-        </Loading>
+        <Prose textCenter>
+          <p>
+            <Loading as="strong" wrapInProse={false}>
+              {`Printing L&A Package for ${currentPrecinct.name}`}
+            </Loading>
+          </p>
+          {precinctIds.length > 1 && (
+            <p>
+              This is package {printIndex.precinctIndex + 1} of{' '}
+              {precinctIds.length}.
+            </p>
+          )}
+          {getBallotLayoutPageSize(election) !== BallotPaperSize.Letter && (
+            <p>
+              Currently printing{' '}
+              {printIndex.component === 'HandMarkedPaperBallots'
+                ? getBallotLayoutPageSizeReadableString(election)
+                : 'letter'}
+              -size pages
+            </p>
+          )}
+        </Prose>
       }
     />
   );
@@ -538,6 +565,7 @@ export function PrintTestDeckScreen(): JSX.Element {
         <PrintingModal
           advancePrinting={advancePrinting}
           currentPrecinct={currentPrecinct}
+          election={election}
           precinctIds={precinctIds}
           printIndex={printIndex}
         />
