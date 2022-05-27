@@ -3,7 +3,6 @@ import { LinkButton, Prose } from '@votingworks/ui';
 
 import { NavigationScreen } from '../components/navigation_screen';
 import { routerPaths } from '../router_paths';
-import { ZeroReportPrintButton } from '../components/zero_report_print_button';
 import { FullTestDeckTallyReportButton } from '../components/full_test_deck_tally_report_button';
 import { AppContext } from '../contexts/app_context';
 
@@ -22,7 +21,12 @@ export function LogicAndAccuracyScreen(): JSX.Element {
           </p>
         ) : (
           <React.Fragment>
-            <ZeroReportPrintButton />
+            <p>
+              Go to the “Tally” tab and print the “Unofficial Full Election
+              Tally Report”. This report is referred to as the “Zero Report”
+              because, before CVRs have been imported, all tallies should be
+              zero.
+            </p>
             <p>
               <LinkButton to={routerPaths.testDecks}>
                 Print L&amp;A Packages
