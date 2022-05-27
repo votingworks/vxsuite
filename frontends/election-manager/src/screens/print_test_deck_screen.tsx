@@ -264,14 +264,15 @@ function PrintingModal({
         centerContent
         content={
           <Prose textCenter>
+            <h1>Change Paper</h1>
             <p>
-              Load printer with <b>legal-size paper</b>.
+              Load printer with <strong>legal-size paper</strong>.
             </p>
           </Prose>
         }
         actions={
-          <Button onPress={advancePrinting}>
-            Legal Paper Loaded. Continue Printing
+          <Button onPress={advancePrinting} primary>
+            Legal Paper Loaded, Continue Printing
           </Button>
         }
       />

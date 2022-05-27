@@ -216,7 +216,7 @@ test('Printing L&A package for one precinct, when HMPBs are not letter-size', as
   jest.advanceTimersByTime(3 * ONE_SIDED_PAGE_PRINT_TIME_MS + 1);
 
   userEvent.click(
-    await screen.findByText('Legal Paper Loaded. Continue Printing')
+    await screen.findByText('Legal Paper Loaded, Continue Printing')
   );
 
   await screen.findByText(printText);
@@ -302,7 +302,7 @@ test('Printing L&A packages for all precincts, when HMPBs are not letter-size', 
   }
 
   userEvent.click(
-    await screen.findByText('Legal Paper Loaded. Continue Printing')
+    await screen.findByText('Legal Paper Loaded, Continue Printing')
   );
 
   for (const [i, precinct] of precinctsInAlphabeticalOrder.entries()) {
