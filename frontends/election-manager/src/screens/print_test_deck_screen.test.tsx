@@ -1,8 +1,10 @@
 import React, { RefObject } from 'react';
 import userEvent from '@testing-library/user-event';
-import _ from 'lodash';
 import { BallotPaperSize } from '@votingworks/types';
-import { electionWithMsEitherNeitherDefinition } from '@votingworks/fixtures';
+import {
+  asElectionDefinition,
+  electionWithMsEitherNeitherDefinition,
+} from '@votingworks/fixtures';
 import { fakeKiosk, fakePrinterInfo } from '@votingworks/test-utils';
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
 import { Printer } from '@votingworks/utils';
@@ -176,11 +178,12 @@ test('Printing L&A packages for all precincts', async () => {
 });
 
 test('Printing L&A package for one precinct, when HMPBs are not letter-size', async () => {
-  const electionWithLegalSizeHmpbsDefinition = _.cloneDeep(
-    electionWithMsEitherNeitherDefinition
-  );
-  electionWithLegalSizeHmpbsDefinition.election.ballotLayout!.paperSize =
-    BallotPaperSize.Legal;
+  const electionWithLegalSizeHmpbsDefinition = asElectionDefinition({
+    ...electionWithMsEitherNeitherDefinition.election,
+    ballotLayout: {
+      paperSize: BallotPaperSize.Legal,
+    },
+  });
 
   renderInAppContext(<PrintTestDeckScreen />, {
     electionDefinition: electionWithLegalSizeHmpbsDefinition,
@@ -239,11 +242,12 @@ test('Printing L&A package for one precinct, when HMPBs are not letter-size', as
 });
 
 test('Printing L&A packages for all precincts, when HMPBs are not letter-size', async () => {
-  const electionWithLegalSizeHmpbsDefinition = _.cloneDeep(
-    electionWithMsEitherNeitherDefinition
-  );
-  electionWithLegalSizeHmpbsDefinition.election.ballotLayout!.paperSize =
-    BallotPaperSize.Legal;
+  const electionWithLegalSizeHmpbsDefinition = asElectionDefinition({
+    ...electionWithMsEitherNeitherDefinition.election,
+    ballotLayout: {
+      paperSize: BallotPaperSize.Legal,
+    },
+  });
 
   renderInAppContext(<PrintTestDeckScreen />, {
     electionDefinition: electionWithLegalSizeHmpbsDefinition,
