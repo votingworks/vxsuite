@@ -53,8 +53,7 @@ test('Printing L&A package for one precinct', async () => {
 
   userEvent.click(screen.getByText('District 5'));
 
-  const printText = 'Printing L&A Package: District 5';
-  await screen.findByText(printText);
+  await screen.findByText('Printing L&A Package for District 5');
   await waitFor(() => expect(mockPrinter.print).toHaveBeenCalledTimes(1));
   expect(mockPrinter.print).toHaveBeenLastCalledWith({ sides: 'one-sided' });
   await waitFor(() =>
@@ -64,7 +63,7 @@ test('Printing L&A package for one precinct', async () => {
   );
   jest.advanceTimersByTime(ONE_SIDED_PAGE_PRINT_TIME_MS);
 
-  await screen.findByText(printText);
+  await screen.findByText('Printing L&A Package for District 5');
   await waitFor(() => expect(mockPrinter.print).toHaveBeenCalledTimes(2));
   expect(mockPrinter.print).toHaveBeenLastCalledWith({ sides: 'one-sided' });
   await waitFor(() =>
@@ -77,7 +76,7 @@ test('Printing L&A package for one precinct', async () => {
   );
   jest.advanceTimersByTime(3 * ONE_SIDED_PAGE_PRINT_TIME_MS);
 
-  await screen.findByText(printText);
+  await screen.findByText('Printing L&A Package for District 5');
   await waitFor(() => expect(mockPrinter.print).toHaveBeenCalledTimes(3));
   expect(mockPrinter.print).toHaveBeenLastCalledWith({
     sides: 'two-sided-long-edge',
@@ -123,8 +122,8 @@ test('Printing L&A packages for all precincts', async () => {
   ];
 
   for (const [i, precinct] of precinctsInAlphabeticalOrder.entries()) {
-    const printText = `Printing L&A Package (${i + 1} of 13): ${precinct}`;
-    await screen.findByText(printText);
+    await screen.findByText(`Printing L&A Package for ${precinct}`);
+    await screen.findByText(`This is package ${i + 1} of 13.`);
     await waitFor(() =>
       expect(mockPrinter.print).toHaveBeenCalledTimes(3 * i + 1)
     );
@@ -136,7 +135,8 @@ test('Printing L&A packages for all precincts', async () => {
     );
     jest.advanceTimersByTime(ONE_SIDED_PAGE_PRINT_TIME_MS);
 
-    await screen.findByText(printText);
+    await screen.findByText(`Printing L&A Package for ${precinct}`);
+    await screen.findByText(`This is package ${i + 1} of 13.`);
     await waitFor(() =>
       expect(mockPrinter.print).toHaveBeenCalledTimes(3 * i + 2)
     );
@@ -151,7 +151,8 @@ test('Printing L&A packages for all precincts', async () => {
     );
     jest.advanceTimersByTime(3 * ONE_SIDED_PAGE_PRINT_TIME_MS);
 
-    await screen.findByText(printText);
+    await screen.findByText(`Printing L&A Package for ${precinct}`);
+    await screen.findByText(`This is package ${i + 1} of 13.`);
     await waitFor(() =>
       expect(mockPrinter.print).toHaveBeenCalledTimes(3 * i + 3)
     );
@@ -194,8 +195,8 @@ test('Printing L&A package for one precinct, when HMPBs are not letter-size', as
 
   userEvent.click(screen.getByText('District 5'));
 
-  const printText = 'Printing L&A Package: District 5';
-  await screen.findByText(printText);
+  await screen.findByText('Printing L&A Package for District 5');
+  await screen.findByText('Currently printing letter-size pages');
   await waitFor(() => expect(mockPrinter.print).toHaveBeenCalledTimes(1));
   expect(mockPrinter.print).toHaveBeenLastCalledWith({ sides: 'one-sided' });
   await waitFor(() =>
@@ -205,7 +206,8 @@ test('Printing L&A package for one precinct, when HMPBs are not letter-size', as
   );
   jest.advanceTimersByTime(ONE_SIDED_PAGE_PRINT_TIME_MS);
 
-  await screen.findByText(printText);
+  await screen.findByText('Printing L&A Package for District 5');
+  await screen.findByText('Currently printing letter-size pages');
   await waitFor(() => expect(mockPrinter.print).toHaveBeenCalledTimes(2));
   expect(mockPrinter.print).toHaveBeenLastCalledWith({ sides: 'one-sided' });
   await waitFor(() =>
@@ -222,7 +224,8 @@ test('Printing L&A package for one precinct, when HMPBs are not letter-size', as
     await screen.findByText('Legal Paper Loaded, Continue Printing')
   );
 
-  await screen.findByText(printText);
+  await screen.findByText('Printing L&A Package for District 5');
+  await screen.findByText('Currently printing legal-size pages');
   await waitFor(() => expect(mockPrinter.print).toHaveBeenCalledTimes(3));
   expect(mockPrinter.print).toHaveBeenLastCalledWith({
     sides: 'two-sided-long-edge',
@@ -276,8 +279,9 @@ test('Printing L&A packages for all precincts, when HMPBs are not letter-size', 
   ];
 
   for (const [i, precinct] of precinctsInAlphabeticalOrder.entries()) {
-    const printText = `Printing L&A Package (${i + 1} of 13): ${precinct}`;
-    await screen.findByText(printText);
+    await screen.findByText(`Printing L&A Package for ${precinct}`);
+    await screen.findByText(`This is package ${i + 1} of 13.`);
+    await screen.findByText('Currently printing letter-size pages');
     await waitFor(() =>
       expect(mockPrinter.print).toHaveBeenCalledTimes(2 * i + 1)
     );
@@ -289,7 +293,9 @@ test('Printing L&A packages for all precincts, when HMPBs are not letter-size', 
     );
     jest.advanceTimersByTime(ONE_SIDED_PAGE_PRINT_TIME_MS);
 
-    await screen.findByText(printText);
+    await screen.findByText(`Printing L&A Package for ${precinct}`);
+    await screen.findByText(`This is package ${i + 1} of 13.`);
+    await screen.findByText('Currently printing letter-size pages');
     await waitFor(() =>
       expect(mockPrinter.print).toHaveBeenCalledTimes(2 * i + 2)
     );
@@ -310,8 +316,9 @@ test('Printing L&A packages for all precincts, when HMPBs are not letter-size', 
   );
 
   for (const [i, precinct] of precinctsInAlphabeticalOrder.entries()) {
-    const printText = `Printing L&A Package (${i + 1} of 13): ${precinct}`;
-    await screen.findByText(printText);
+    await screen.findByText(`Printing L&A Package for ${precinct}`);
+    await screen.findByText(`This is package ${i + 1} of 13.`);
+    await screen.findByText('Currently printing legal-size pages');
     await waitFor(() =>
       expect(mockPrinter.print).toHaveBeenCalledTimes(
         2 * precinctsInAlphabeticalOrder.length + i + 1

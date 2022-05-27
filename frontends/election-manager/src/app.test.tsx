@@ -347,7 +347,7 @@ test('L&A (logic and accuracy) flow', async () => {
   userEvent.click(screen.getByText('District 5'));
 
   // L&A package: Tally report
-  await screen.findByText('Printing L&A Package: District 5', {
+  await screen.findByText('Printing L&A Package for District 5', {
     exact: false,
   });
   expect(printer.print).toHaveBeenCalledTimes(2);
@@ -360,7 +360,7 @@ test('L&A (logic and accuracy) flow', async () => {
   jest.advanceTimersByTime(5000);
 
   // L&A package: BMD test deck
-  await screen.findByText('Printing L&A Package: District 5', {
+  await screen.findByText('Printing L&A Package for District 5', {
     exact: false,
   });
   expect(printer.print).toHaveBeenCalledTimes(3);
@@ -376,7 +376,7 @@ test('L&A (logic and accuracy) flow', async () => {
   jest.advanceTimersByTime(30000);
 
   // L&A package: HMPB test deck
-  await screen.findByText('Printing L&A Package: District 5', {
+  await screen.findByText('Printing L&A Package for District 5', {
     exact: false,
   });
   expect(printer.print).toHaveBeenCalledTimes(4);
