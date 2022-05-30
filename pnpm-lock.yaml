@@ -279,6 +279,7 @@ importers:
       workbox-webpack-plugin: 5.1.4_webpack@4.44.2
       zod: 3.14.4
     devDependencies:
+      '@babel/runtime': 7.18.3
       '@codemod/parser': 1.1.0
       '@testing-library/cypress': 8.0.2_cypress@9.5.4
       '@testing-library/jest-dom': 5.16.4
@@ -317,6 +318,7 @@ importers:
       stylelint-processor-styled-components: 1.10.0
     specifiers:
       '@babel/core': 7.12.3
+      '@babel/runtime': ^7.18.3
       '@codemod/parser': ^1.0.7
       '@pmmmwh/react-refresh-webpack-plugin': 0.4.2
       '@rooks/use-interval': ^4.5.0
@@ -6694,6 +6696,14 @@ packages:
       node: '>=6.9.0'
     resolution:
       integrity: sha512-lSiBBvodq29uShpWGNbgFdKYNiFDo5/HIYsaCEY9ff4sb10x9jizo2+pRrSyF4jKZCXqgzuqBOQKbUm90gQwJg==
+  /@babel/runtime/7.18.3:
+    dependencies:
+      regenerator-runtime: 0.13.9
+    dev: true
+    engines:
+      node: '>=6.9.0'
+    resolution:
+      integrity: sha512-38Y8f7YUhce/K7RMwTp7m0uCumpv9hZkitCbBClqQIow1qSbCvGkcegKOXpEWCQLfWmevgRiWokZ1GkpfhbZug==
   /@babel/template/7.12.13:
     dependencies:
       '@babel/code-frame': 7.12.13
