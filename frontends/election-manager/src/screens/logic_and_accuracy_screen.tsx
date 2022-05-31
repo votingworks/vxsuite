@@ -24,7 +24,7 @@ export function LogicAndAccuracyScreen(): JSX.Element {
             <p>
               Go to the “Tally” tab and print the “Unofficial Full Election
               Tally Report”. This report is referred to as the “Zero Report”
-              because, before CVRs have been imported, all tallies should be
+              because — before CVRs have been imported — all tallies should be
               zero.
             </p>
             <p>
