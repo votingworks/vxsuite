@@ -55,9 +55,7 @@ export function SettingsTextSize({
 }: Props): JSX.Element {
   const adjustFontSize: EventTargetFunction = (event) => {
     const target = event.currentTarget as HTMLButtonElement;
-    // This overly-aggressive directive is because BMD's react-scripts can't load
-    // our custom ESLint config properly. We need to update to react-scripts@4.
-    // eslint-disable-next-line
+    // eslint-disable-next-line vx/gts-safe-number-parse
     const textSize = +target.value as TextSizeSetting;
     setUserSettings({ textSize });
   };
