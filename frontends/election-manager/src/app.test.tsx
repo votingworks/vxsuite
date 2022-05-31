@@ -74,9 +74,6 @@ const EITHER_NEITHER_CVR_TEST_FILE = new File(
 const EITHER_NEITHER_SEMS_DATA =
   electionWithMsEitherNeitherWithDataFiles.semsData;
 
-const ZERO_REPORT_BUTTON_TEXT =
-  'Print the pre-election Unofficial Full Election Tally Report';
-
 jest.mock('./components/hand_marked_paper_ballot');
 jest.mock('./utils/pdf_to_images');
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
@@ -347,21 +344,9 @@ test('L&A (logic and accuracy) flow', async () => {
   jest.advanceTimersByTime(2000); // Cause the usb drive to be detected
   await authenticateWithAdminCard(card);
 
-  // Test printing zero report
   userEvent.click(screen.getByText('L&A'));
-  userEvent.click(screen.getByText(ZERO_REPORT_BUTTON_TEXT));
-  await waitFor(() => {
-    const zeroReport = getByTestId('zero-report');
-    expect(domGetAllByText(zeroReport, '0').length).toBe(40);
-  });
-  await screen.findByText('Printing');
-  expect(printer.print).toHaveBeenCalledTimes(1);
-  expect(mockKiosk.log).toHaveBeenCalledWith(
-    expect.stringContaining(LogEventId.TallyReportPrinted)
-  );
 
   // Test printing L&A package
-  userEvent.click(screen.getByText('L&A'));
   userEvent.click(screen.getByText('Print L&A Packages'));
   userEvent.click(screen.getByText('District 5'));
 
@@ -369,7 +354,7 @@ test('L&A (logic and accuracy) flow', async () => {
   await screen.findByText('Printing L&A Package for District 5', {
     exact: false,
   });
-  expect(printer.print).toHaveBeenCalledTimes(2);
+  expect(printer.print).toHaveBeenCalledTimes(1);
   await waitFor(() =>
     expect(mockKiosk.log).toHaveBeenCalledWith(
       expect.stringContaining(LogEventId.TestDeckTallyReportPrinted)
@@ -382,7 +367,7 @@ test('L&A (logic and accuracy) flow', async () => {
   await screen.findByText('Printing L&A Package for District 5', {
     exact: false,
   });
-  expect(printer.print).toHaveBeenCalledTimes(3);
+  expect(printer.print).toHaveBeenCalledTimes(2);
   await waitFor(() =>
     expect(mockKiosk.log).toHaveBeenCalledWith(
       expect.stringContaining(LogEventId.TestDeckPrinted)
@@ -398,7 +383,7 @@ test('L&A (logic and accuracy) flow', async () => {
   await screen.findByText('Printing L&A Package for District 5', {
     exact: false,
   });
-  expect(printer.print).toHaveBeenCalledTimes(4);
+  expect(printer.print).toHaveBeenCalledTimes(3);
   await waitFor(() =>
     expect(mockKiosk.log).toHaveBeenCalledWith(
       expect.stringContaining(LogEventId.TestDeckPrinted)
@@ -420,7 +405,6 @@ test('L&A (logic and accuracy) flow', async () => {
     '4': 1,
     '0': 10,
   };
-
   userEvent.click(screen.getByText('L&A'));
   userEvent.click(screen.getByText('Print Full Test Deck Tally Report'));
   await waitFor(() => {
@@ -432,7 +416,7 @@ test('L&A (logic and accuracy) flow', async () => {
     }
   });
   await screen.findByText('Printing');
-  expect(printer.print).toHaveBeenCalledTimes(5);
+  expect(printer.print).toHaveBeenCalledTimes(4);
   expect(mockKiosk.log).toHaveBeenCalledWith(
     expect.stringContaining(LogEventId.TestDeckTallyReportPrinted)
   );
@@ -451,15 +435,16 @@ test('L&A features are available after test results are loaded', async () => {
   await authenticateWithAdminCard(card);
 
   // Confirm that test results are loaded
-  fireEvent.click(screen.getByText('Tally'));
+  userEvent.click(screen.getByText('Tally'));
   await waitFor(() =>
     expect(screen.getByTestId('total-ballot-count').textContent).toEqual('100')
   );
   screen.getByText('Currently tallying test ballots.', { exact: false });
 
-  // Confirm that zero report button is visible
+  // Confirm that L&A materials are available
   userEvent.click(screen.getByText('L&A'));
-  screen.getByText(ZERO_REPORT_BUTTON_TEXT);
+  screen.getByText('Print L&A Packages');
+  screen.getByText('Print Full Test Deck Tally Report');
 });
 
 test('printing ballots and printed ballots report', async () => {
@@ -668,10 +653,13 @@ test('tabulating CVRs', async () => {
 
   fireEvent.click(getByText('Close'));
 
-  // Check L&A Materials are unavailable after live CVRs have been loaded
+  // Confirm that L&A Materials are unavailable after live CVRs have been loaded
   fireEvent.click(getByText('L&A'));
   getByText('L&A materials are not available', { exact: false });
-  expect(queryByText(ZERO_REPORT_BUTTON_TEXT)).toBeNull();
+  expect(queryByText('Print L&A Packages')).not.toBeInTheDocument();
+  expect(
+    queryByText('Print Full Test Deck Tally Report')
+  ).not.toBeInTheDocument();
 
   // Clear results
   fireEvent.click(getByText('Tally'));
