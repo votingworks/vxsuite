@@ -13,14 +13,14 @@
     "test:coverage": "jest --coverage"
   },
   "dependencies": {
-    "@babel/core": "^7.17.12",
-    "@babel/types": "^7.17.12",
+    "@babel/core": "^7.18.2",
+    "@babel/types": "^7.18.2",
     "sucrase": "^3.21.0",
     "ts-morph": "^12.2.0"
   },
   "devDependencies": {
-    "@babel/generator": "^7.17.12",
-    "@babel/traverse": "^7.17.12",
+    "@babel/generator": "^7.18.2",
+    "@babel/traverse": "^7.18.2",
     "@types/babel__core": "^7.1.19",
     "@types/babel__generator": "^7.6.4",
     "@types/babel__traverse": "^7.17.1",
