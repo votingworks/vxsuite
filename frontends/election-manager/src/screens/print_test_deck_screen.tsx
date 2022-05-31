@@ -308,11 +308,11 @@ function PrintingModal({
           )}
           {getBallotLayoutPageSize(election) !== BallotPaperSize.Letter && (
             <p>
-              Currently printing{' '}
               {printIndex.component === 'HandMarkedPaperBallots'
-                ? getBallotLayoutPageSizeReadableString(election)
-                : 'letter'}
-              -size pages
+                ? `Currently printing ${getBallotLayoutPageSizeReadableString(
+                    election
+                  )}-size pages.`
+                : 'Currently printing letter-size pages.'}
             </p>
           )}
         </Prose>
