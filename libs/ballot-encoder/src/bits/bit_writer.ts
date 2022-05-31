@@ -9,7 +9,7 @@ import { inGroupsOf, makeMasks, sizeof, toUint8 } from './utils';
  */
 export class BitWriter {
   private data = new Uint8Array();
-  private cursor = new BitCursor();
+  private readonly cursor = new BitCursor();
   private nextByte: Uint8 = 0b00000000;
 
   /**

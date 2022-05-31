@@ -4,8 +4,8 @@ import { assert } from '@votingworks/utils';
  * Maps composite keys to multiple values.
  */
 export class MultiMap<K extends string[] = string[], V = unknown> {
-  private valueMap = new Map<string, Set<V>>();
-  private keyMap = new Map<string, K>();
+  private readonly valueMap = new Map<string, Set<V>>();
+  private readonly keyMap = new Map<string, K>();
 
   /**
    * Determine the internal key from the composite `key`.

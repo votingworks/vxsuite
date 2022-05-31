@@ -9,7 +9,7 @@ export type Observable<T> = KioskBrowser.Observable<T>;
  */
 export class BehaviorSubject<T> implements Observable<T> {
   private currentValue: T;
-  private subscriptions = new Set<(value: T) => void>();
+  private readonly subscriptions = new Set<(value: T) => void>();
 
   constructor(initialValue: T) {
     this.currentValue = initialValue;

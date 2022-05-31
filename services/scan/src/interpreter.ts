@@ -156,11 +156,11 @@ export interface InterpreterOptions {
 
 export class Interpreter {
   private hmpbInterpreter?: HmpbInterpreter;
-  private electionDefinition: ElectionDefinition;
-  private testMode: boolean;
-  private markThresholds: MarkThresholds;
-  private skipElectionHashCheck?: boolean;
-  private adjudicationReasons: readonly AdjudicationReason[];
+  private readonly electionDefinition: ElectionDefinition;
+  private readonly testMode: boolean;
+  private readonly markThresholds: MarkThresholds;
+  private readonly skipElectionHashCheck?: boolean;
+  private readonly adjudicationReasons: readonly AdjudicationReason[];
 
   constructor({
     electionDefinition,

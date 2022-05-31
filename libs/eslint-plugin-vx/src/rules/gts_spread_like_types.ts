@@ -10,7 +10,17 @@ import * as ts from 'typescript';
 import { createRule, getCollectionType } from '../util';
 
 function isIterableType(type: ts.Type): boolean {
-  return type.getProperties().some((p) => p.getName() === '__@iterator');
+  return (
+    type
+      .getProperties()
+      // TypeScript 4.2.x has a property with name '__@iterator', but in
+      // TypeScript 4.6.x it's '__@iterator@10' and possibly others.
+      .some((p) => p.getName().startsWith('__@iterator'))
+  );
+}
+
+function isAnyType(type: ts.Type): boolean {
+  return (type.getFlags() & ts.TypeFlags.Any) === ts.TypeFlags.Any;
 }
 
 function isObjectType(type: ts.Type): boolean {
@@ -68,6 +78,10 @@ const rule: TSESLint.RuleModule<
         );
         const spreadArgumentType =
           checker.getTypeAtLocation(spreadArgumentNode);
+
+        if (isAnyType(spreadArgumentType)) {
+          return;
+        }
 
         switch (node.parent.type) {
           case AST_NODE_TYPES.CallExpression:

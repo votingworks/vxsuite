@@ -82,7 +82,7 @@ type TemplateKey = Pick<
  * ```
  */
 export class Interpreter {
-  private templates = new KeyedMap<
+  private readonly templates = new KeyedMap<
     [
       BallotLocales | undefined,
       BallotPageMetadata['ballotStyleId'],

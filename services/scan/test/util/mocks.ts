@@ -48,7 +48,7 @@ type ScanSessionStep =
  * Represents a scanner session, but doesn't actually run anything.
  */
 class ScannerSessionPlan {
-  private steps: ScanSessionStep[] = [];
+  private readonly steps: ScanSessionStep[] = [];
   private ended = false;
 
   getStep(index: number): ScanSessionStep {

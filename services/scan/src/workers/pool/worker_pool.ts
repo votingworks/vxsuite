@@ -11,8 +11,11 @@ const debug = makeDebug('scan:pool');
 export class WorkerPool<I, O, W extends EventEmitter = EventEmitter> {
   private workers?: Set<W>;
   private claimedWorkers?: Set<W>;
-  private outstandingClaims: Array<Deferred<W>> = [];
-  private outstandingPerWorkerClaims = new Map<W, Array<Deferred<W>>>();
+  private readonly outstandingClaims: Array<Deferred<W>> = [];
+  private readonly outstandingPerWorkerClaims = new Map<
+    W,
+    Array<Deferred<W>>
+  >();
 
   constructor(
     private readonly workerOps: WorkerOps<I, W>,
