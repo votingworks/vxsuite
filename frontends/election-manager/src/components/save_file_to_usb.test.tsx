@@ -97,7 +97,7 @@ test('renders save screen when usb is mounted with ballot filetype', async () =>
   fireEvent.click(getByText('Save'));
   await waitFor(() => getByText(/Saving Ballot/));
   expect(fileContentFn).toHaveBeenCalled();
-  jest.advanceTimersByTime(2001);
+  jest.advanceTimersByTime(2000);
   await waitFor(() => getByText(/Ballot Saved/));
   await waitFor(() => {
     expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
@@ -157,7 +157,7 @@ test('renders save screen when usb is mounted with results filetype and prompts 
   fireEvent.click(getByText('Save'));
   await waitFor(() => getByText(/Saving Results/));
   expect(fileContentFn).toHaveBeenCalled();
-  jest.advanceTimersByTime(2001);
+  jest.advanceTimersByTime(2000);
   await waitFor(() => getByText(/Results Saved/));
   getByText(/Election results successfully saved/);
   await waitFor(() => {

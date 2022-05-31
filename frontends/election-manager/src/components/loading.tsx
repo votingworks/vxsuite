@@ -14,27 +14,28 @@ interface Props {
   children?: string | string[];
   isFullscreen?: boolean;
   as?: keyof JSX.IntrinsicElements;
+  wrapInProse?: boolean;
 }
 
 export function Loading({
   as = 'h1',
   children = 'Loading',
   isFullscreen = false,
+  wrapInProse = true,
 }: Props): JSX.Element {
-  const content = (
-    <Prose>
-      <ProgressEllipsis
-        as={as}
-        aria-label={`${
-          Array.isArray(children) ? children.join('') : children
-        }.`}
-      >
-        {children}
-      </ProgressEllipsis>
-    </Prose>
+  let content = (
+    <ProgressEllipsis
+      as={as}
+      aria-label={`${Array.isArray(children) ? children.join('') : children}.`}
+    >
+      {children}
+    </ProgressEllipsis>
   );
+  if (wrapInProse) {
+    content = <Prose>{content}</Prose>;
+  }
   if (isFullscreen) {
-    return <Fullscreen>{content}</Fullscreen>;
+    content = <Fullscreen>{content}</Fullscreen>;
   }
   return content;
 }

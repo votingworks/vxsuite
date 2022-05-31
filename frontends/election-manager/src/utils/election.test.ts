@@ -1,6 +1,5 @@
 import { electionSample } from '@votingworks/fixtures';
-import { CandidateContest } from '@votingworks/types';
-import _ from 'lodash';
+import { CandidateContest, Election } from '@votingworks/types';
 import { getBallotPath, generateOvervoteBallot } from './election';
 
 test('getBallotPath allows digits in file names', () => {
@@ -37,10 +36,11 @@ describe('generateOvervoteBallot', () => {
   });
 
   test('overvotes an initial yes-no contest', () => {
-    const election = _.cloneDeep(electionSample);
-
-    // remove all but the yes-no contests
-    _.remove(election.contests, (c) => c.type !== 'yesno');
+    // Remove all but the yes-no contests
+    const election: Election = {
+      ...electionSample,
+      contests: electionSample.contests.filter((c) => c.type === 'yesno'),
+    };
 
     const overvoteBallot = generateOvervoteBallot({
       election,
@@ -53,11 +53,19 @@ describe('generateOvervoteBallot', () => {
   });
 
   test('overvotes the second contest if first contest is not overvotable', () => {
-    const election = _.cloneDeep(electionSample);
-
-    // remove all but one candidate from first contest
-    const presidential = election.contests[0] as CandidateContest;
-    _.remove(presidential.candidates, (c) => c.partyId !== '0');
+    // Remove all but one candidate from the first contest
+    const candidateContest = electionSample.contests[0] as CandidateContest;
+    const candidateContestWithOneCandidate: CandidateContest = {
+      ...candidateContest,
+      candidates: [candidateContest.candidates[0]],
+    };
+    const election: Election = {
+      ...electionSample,
+      contests: [
+        candidateContestWithOneCandidate,
+        ...electionSample.contests.slice(1),
+      ],
+    };
 
     const overvoteBallot = generateOvervoteBallot({
       election,
@@ -66,21 +74,26 @@ describe('generateOvervoteBallot', () => {
     expect(overvoteBallot).toBeDefined();
 
     const { votes } = overvoteBallot!;
-    const senatorial = election.contests[1] as CandidateContest;
+    const senatorialContest = election.contests[1] as CandidateContest;
     expect(votes).toEqual({
-      senator: [senatorial.candidates[0], senatorial.candidates[1]],
+      senator: [
+        senatorialContest.candidates[0],
+        senatorialContest.candidates[1],
+      ],
     });
   });
 
   test('returns undefined if there are no overvotable contests', () => {
-    const election = _.cloneDeep(electionSample);
-
-    // removes all but the first contest
-    _.remove(election.contests, (c) => c.id !== 'president');
-
-    // remove all but one candidate from first contest
-    const skippedContest = election.contests[0] as CandidateContest;
-    _.remove(skippedContest.candidates, (c) => c.partyId !== '0');
+    // Remove all but the first contest and all but one candidate from that contest
+    const candidateContest = electionSample.contests[0] as CandidateContest;
+    const candidateContestWithOneCandidate: CandidateContest = {
+      ...candidateContest,
+      candidates: [candidateContest.candidates[0]],
+    };
+    const election: Election = {
+      ...electionSample,
+      contests: [candidateContestWithOneCandidate],
+    };
 
     const overvoteBallot = generateOvervoteBallot({
       election,
