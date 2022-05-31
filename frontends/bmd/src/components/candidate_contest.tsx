@@ -461,8 +461,8 @@ export function CandidateContest({
               <Text id="modalaudiofocus">
                 You may only select {contest.seats}{' '}
                 {contest.seats === 1 ? 'candidate' : 'candidates'} in this
-                contest. To vote for {attemptedOvervoteCandidate?.name}, you
-                must first unselect the selected{' '}
+                contest. To vote for {attemptedOvervoteCandidate.name}, you must
+                first unselect the selected{' '}
                 {contest.seats === 1 ? 'candidate' : 'candidates'}.
                 <span aria-label="Use the select button to continue." />
               </Text>
@@ -487,7 +487,7 @@ export function CandidateContest({
             <Prose>
               <Text id="modalaudiofocus">
                 Do you want to unselect and remove{' '}
-                {candidatePendingRemoval?.name}?
+                {candidatePendingRemoval.name}?
               </Text>
             </Prose>
           }

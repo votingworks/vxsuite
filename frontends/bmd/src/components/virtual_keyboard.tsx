@@ -48,7 +48,7 @@ const Keyboard = styled.div`
 
 interface Props {
   onKeyPress: EventTargetFunction;
-  keyDisabled?(key: string): boolean;
+  keyDisabled(key: string): boolean;
   keyMap?: KeyMap;
 }
 
@@ -120,7 +120,7 @@ export function VirtualKeyboard({
                 data-key={label}
                 aria-label={ariaLabel ?? label.toLowerCase()}
                 onPress={onKeyPress}
-                disabled={keyDisabled?.(label)}
+                disabled={keyDisabled(label)}
               >
                 {label}
               </Button>

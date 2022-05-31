@@ -1317,7 +1317,7 @@ export function AppRoot({
 
     return (
       <IdleTimer
-        onIdle={() => window.kiosk?.quit()}
+        onIdle={() => /* istanbul ignore next */ window.kiosk?.quit()}
         timeout={GLOBALS.QUIT_KIOSK_IDLE_SECONDS * 1000}
       >
         <InsertCardScreen
