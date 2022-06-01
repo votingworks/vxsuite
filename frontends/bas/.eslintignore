@@ -2,3 +2,6 @@
 /coverage
 /prodserver
 /src/setupProxy.js
+/config
+/scripts
+/*.config.js
