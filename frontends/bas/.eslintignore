@@ -5,3 +5,4 @@
 /config
 /scripts
 /*.config.js
+/*.config.ts
