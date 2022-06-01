@@ -700,9 +700,7 @@ export function AppRoot({
         case 'voter': {
           assert(optionalElectionDefinition);
           const cardIsVoterCardVoided = Boolean(cardData.uz);
-          // This overly-aggressive directive is because BMD's react-scripts can't load
-          // our custom ESLint config properly. We need to update to react-scripts@4.
-          // eslint-disable-next-line
+          // eslint-disable-next-line vx/gts-safe-number-parse
           const cardBallotPrintedTime = cardData.bp ? Number(cardData.bp) : 0;
           const cardIsVoterCardPrinted = Boolean(cardBallotPrintedTime);
           const cardBallotStyle = getBallotStyle({
@@ -1317,7 +1315,7 @@ export function AppRoot({
 
     return (
       <IdleTimer
-        onIdle={() => window.kiosk?.quit()}
+        onIdle={() => /* istanbul ignore next */ window.kiosk?.quit()}
         timeout={GLOBALS.QUIT_KIOSK_IDLE_SECONDS * 1000}
       >
         <InsertCardScreen

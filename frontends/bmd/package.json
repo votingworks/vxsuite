@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "type-check": "tsc --build",
-    "build": "tsc --build && react-scripts build",
+    "build": "tsc --build && node scripts/build.js",
     "build:watch": "tsc --build --watch",
     "build:resources": "res-to-ts --rootDir data --outDir src/data 'data/**/*.json'",
     "cypress:open": "cypress open",
@@ -17,18 +17,17 @@
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
     "lint": "pnpm type-check && eslint . && pnpm stylelint:run",
     "lint:fix": "pnpm type-check && eslint . --fix && pnpm stylelint:run -- --fix",
-    "start": "react-scripts start",
+    "start": "node scripts/start.js",
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}' && stylelint 'src/**/*.css' --config .stylelintrc-css.js",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "TZ=UTC CI=true react-scripts test --maxWorkers 2 --env=jest-environment-jsdom-sixteen --coverage && pnpm build:resources -- --check",
-    "test:coverage": "TZ=UTC react-scripts test --coverage --watchAll=false --env=jest-environment-jsdom-sixteen",
-    "test:debug": "react-scripts --inspect-brk test --runInBand --no-cache --env=jest-environment-jsdom-sixteen",
+    "test:ci": "TZ=UTC CI=true node scripts/test.js --maxWorkers 2 --env=jest-environment-jsdom-sixteen --coverage && pnpm build:resources -- --check",
+    "test:coverage": "TZ=UTC node scripts/test.js --coverage --watchAll=false --env=jest-environment-jsdom-sixteen",
     "test:e2e": "is-ci \"test:e2e:ci\" \"test:e2e:watch\"",
     "pretest:e2e:ci": "pnpm build",
     "test:e2e:ci": "start-server-and-test start http://localhost:3000 cypress:run",
     "test:e2e:watch": "start-server-and-test start http://localhost:3000 cypress:open",
-    "test:update": "TZ=UTC react-scripts test -u  --watchAll=false --env=jest-environment-jsdom-sixteen",
-    "test:watch": "TZ=UTC react-scripts test --env=jest-environment-jsdom-sixteen",
+    "test:update": "TZ=UTC node scripts/test.js -u  --watchAll=false --env=jest-environment-jsdom-sixteen",
+    "test:watch": "TZ=UTC node scripts/test.js --env=jest-environment-jsdom-sixteen",
     "pre-commit": "lint-staged"
   },
   "lint-staged": {
@@ -46,6 +45,11 @@
       "sort-package-json"
     ]
   },
+  "babel": {
+    "presets": [
+      "react-app"
+    ]
+  },
   "browserslist": {
     "production": [
       ">0.2%",
@@ -61,28 +65,14 @@
   "eslintConfig": {
     "extends": "react-app"
   },
-  "jest": {
-    "collectCoverageFrom": [
-      "src/**/*.{js,jsx,ts,tsx}",
-      "!src/config/*",
-      "!src/**/*.d.ts",
-      "!src/index.tsx",
-      "!src/contexts/ballot_context.ts"
-    ],
-    "coverageThreshold": {
-      "global": {
-        "statements": 100,
-        "branches": 100,
-        "lines": 100,
-        "functions": 100
-      }
-    }
-  },
   "resolutions": {
     "**/@babel/parser": "7.8.4"
   },
   "dependencies": {
+    "@babel/core": "7.12.3",
+    "@pmmmwh/react-refresh-webpack-plugin": "0.4.2",
     "@rooks/use-interval": "^4.5.0",
+    "@svgr/webpack": "5.4.0",
     "@types/dompurify": "^2.0.4",
     "@types/fetch-mock": "^7.3.2",
     "@types/jest": "25.2.2",
@@ -99,31 +89,65 @@
     "@votingworks/ui": "workspace:*",
     "@votingworks/utils": "workspace:*",
     "abortcontroller-polyfill": "^1.4.0",
+    "babel-eslint": "^10.1.0",
+    "babel-loader": "8.1.0",
+    "babel-plugin-named-asset-import": "^0.3.7",
+    "babel-preset-react-app": "^10.0.0",
+    "bfj": "^7.0.2",
     "buffer": "^6.0.3",
+    "case-sensitive-paths-webpack-plugin": "2.3.0",
+    "css-loader": "4.3.0",
     "debug": "^4.3.2",
     "dompurify": "^2.0.17",
+    "dotenv": "8.2.0",
+    "dotenv-expand": "5.1.0",
     "fetch-mock": "^9.5.0",
+    "file-loader": "6.1.1",
+    "fs-extra": "^9.0.1",
     "history": "^4.10.1",
+    "html-webpack-plugin": "4.5.0",
     "http-proxy-middleware": "1.0.6",
+    "identity-obj-proxy": "3.0.0",
     "lodash.camelcase": "^4.3.0",
     "luxon": "^1.26.0",
+    "mini-css-extract-plugin": "0.11.3",
     "mockdate": "^3.0.2",
-    "moment": "^2.29.0",
     "normalize.css": "^8.0.1",
+    "optimize-css-assets-webpack-plugin": "5.0.4",
     "pluralize": "^8.0.0",
+    "pnp-webpack-plugin": "1.6.4",
+    "postcss-flexbugs-fixes": "4.2.1",
+    "postcss-loader": "3.0.0",
+    "postcss-normalize": "8.0.1",
+    "postcss-preset-env": "6.7.0",
+    "postcss-safe-parser": "5.0.2",
+    "prompts": "2.4.0",
     "react": "^17.0.1",
+    "react-app-polyfill": "^2.0.0",
+    "react-dev-utils": "^11.0.1",
     "react-dom": "^17.0.1",
     "react-gamepad": "^1.0.3",
     "react-idle-timer": "4.2.12",
+    "react-refresh": "^0.8.3",
     "react-router-dom": "^5.2.0",
-    "react-scripts": "4.0.1",
+    "resolve": "1.18.1",
+    "resolve-url-loader": "^3.1.2",
+    "sass-loader": "8.0.2",
+    "semver": "7.3.2",
     "setimmediate": "^1.0.5",
+    "style-loader": "1.3.0",
     "styled-components": "^4.4.1",
+    "terser-webpack-plugin": "4.2.3",
+    "ts-pnp": "1.2.0",
     "typescript": "4.6.3",
+    "url-loader": "4.1.1",
     "use-interval": "^1.2.1",
+    "webpack": "4.44.2",
+    "webpack-dev-server": "3.11.0",
     "zod": "3.14.4"
   },
   "devDependencies": {
+    "@babel/runtime": "^7.18.3",
     "@codemod/parser": "^1.0.7",
     "@testing-library/cypress": "^8.0.2",
     "@testing-library/jest-dom": "^5.16.4",
@@ -145,21 +169,27 @@
     "eslint": "^7.17.0",
     "eslint-config-airbnb": "^18.2.1",
     "eslint-config-prettier": "^8.3.0",
+    "eslint-config-react-app": "^6.0.0",
     "eslint-import-resolver-node": "^0.3.4",
     "eslint-plugin-cypress": "^2.11.2",
+    "eslint-plugin-flowtype": "^5.2.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-jest": "^26.1.5",
     "eslint-plugin-jsx-a11y": "^6.4.1",
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-react": "^7.22.0",
     "eslint-plugin-react-hooks": "^4.2.0",
+    "eslint-plugin-testing-library": "^3.9.2",
     "eslint-plugin-vx": "workspace:*",
     "is-ci-cli": "^2.0.0",
-    "jest": "^27.3.1",
+    "jest": "26.6.0",
+    "jest-circus": "26.6.0",
     "jest-date-mock": "^1.0.8",
     "jest-environment-jsdom-sixteen": "^1.0.3",
     "jest-fetch-mock": "^3.0.3",
+    "jest-resolve": "26.6.0",
     "jest-styled-components": "^6.3.4",
+    "jest-watch-typeahead": "0.6.1",
     "lint-staged": "^10.2.4",
     "prettier": "^2.6.2",
     "react-dev-utils": "^11.0.3",
@@ -170,7 +200,8 @@
     "stylelint-config-palantir": "^4.0.1",
     "stylelint-config-prettier": "^8.0.1",
     "stylelint-config-styled-components": "^0.1.1",
-    "stylelint-processor-styled-components": "^1.10.0"
+    "stylelint-processor-styled-components": "^1.10.0",
+    "ts-jest": "26"
   },
   "engines": {
     "node": ">= 12"

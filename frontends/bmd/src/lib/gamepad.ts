@@ -86,9 +86,8 @@ export function handleGamepadButtonDown(buttonName: Button): void {
 
 // Add Cypress tests if this solution will become permanent
 // https://docs.cypress.io/api/commands/type.html
-export /* istanbul ignore next - triggering keystrokes issue - https://github.com/votingworks/bmd/issues/62 */ function handleGamepadKeyboardEvent(
-  event: KeyboardEvent
-): void {
+/* istanbul ignore next - triggering keystrokes issue - https://github.com/votingworks/bmd/issues/62 */
+export function handleGamepadKeyboardEvent(event: KeyboardEvent): void {
   switch (event.key) {
     case 'ArrowUp':
       handleArrowUp();

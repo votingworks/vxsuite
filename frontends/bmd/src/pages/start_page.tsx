@@ -55,6 +55,7 @@ export function StartPage(): JSX.Element {
   }
 
   useEffect(() => {
+    /* istanbul ignore next */
     audioFocus.current?.click();
   }, []);
 
