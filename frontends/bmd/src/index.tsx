@@ -1,5 +1,4 @@
-import 'setimmediate';
-import 'abortcontroller-polyfill/dist/polyfill-patch-fetch';
+import './polyfills';
 import React from 'react';
 import ReactDom from 'react-dom';
 import { App } from './app';

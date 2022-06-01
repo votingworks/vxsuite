@@ -10,6 +10,7 @@
   "scripts": {
     "type-check": "tsc --build",
     "build": "tsc --build && node scripts/build.js",
+    "build:vite": "vite build",
     "build:watch": "tsc --build --watch",
     "build:resources": "res-to-ts --rootDir data --outDir src/data 'data/**/*.json'",
     "cypress:open": "cypress open",
@@ -18,6 +19,7 @@
     "lint": "pnpm type-check && eslint . && pnpm stylelint:run",
     "lint:fix": "pnpm type-check && eslint . --fix && pnpm stylelint:run -- --fix",
     "start": "node scripts/start.js",
+    "start:vite": "vite",
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}' && stylelint 'src/**/*.css' --config .stylelintrc-css.js",
     "test": "is-ci test:ci test:watch",
     "test:ci": "TZ=UTC CI=true node scripts/test.js --maxWorkers 2 --env=jest-environment-jsdom-sixteen --coverage && pnpm build:resources -- --check",
@@ -153,6 +155,7 @@
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^12.1.5",
     "@testing-library/user-event": "^13.5.0",
+    "@types/connect": "^3.4.35",
     "@types/debug": "^4.1.6",
     "@types/history": "^4.7.8",
     "@types/kiosk-browser": "workspace:*",
@@ -201,7 +204,8 @@
     "stylelint-config-prettier": "^8.0.1",
     "stylelint-config-styled-components": "^0.1.1",
     "stylelint-processor-styled-components": "^1.10.0",
-    "ts-jest": "26"
+    "ts-jest": "26",
+    "vite": "^2.9.9"
   },
   "engines": {
     "node": ">= 12"

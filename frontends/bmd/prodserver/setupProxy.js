@@ -6,16 +6,26 @@
 /* eslint-disable */
 /* istanbul ignore file */
 
-const { createProxyMiddleware: proxy } = require('http-proxy-middleware')
+const { createProxyMiddleware: proxy } = require('http-proxy-middleware');
 
+/**
+ * @param {import('connect').Server} app
+ */
 module.exports = function (app) {
-  app.use(proxy('/card', { target: 'http://localhost:3001/' }))
+  app.use(proxy('/card', { target: 'http://localhost:3001/' }));
 
-  app.get('/machine-config', (req, res) => {
-    res.json({
-      appModeKey: process.env.VX_APP_MODE || 'MarkAndPrint',
-      machineId: process.env.VX_MACHINE_ID || '000',
-      codeVersion: process.env.VX_CODE_VERSION || 'dev',
-    })
-  })
-}
+  app.use('/machine-config', (req, res, next) => {
+    if (req.method === 'GET') {
+      res.setHeader('Content-Type', 'application/json');
+      res.end(
+        JSON.stringify({
+          appModeKey: process.env.VX_APP_MODE || 'MarkAndPrint',
+          machineId: process.env.VX_MACHINE_ID || '000',
+          codeVersion: process.env.VX_CODE_VERSION || 'dev',
+        })
+      );
+    } else {
+      next();
+    }
+  });
+};
