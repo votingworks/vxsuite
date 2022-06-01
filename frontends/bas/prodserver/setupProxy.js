@@ -6,15 +6,25 @@
 /* eslint-disable */
 /* istanbul ignore file */
 
-const { createProxyMiddleware: proxy } = require('http-proxy-middleware')
+const { createProxyMiddleware: proxy } = require('http-proxy-middleware');
 
-module.exports = function(app) {
-  app.use(proxy('/card', { target: 'http://localhost:3001/' }))
+/**
+ * @param {import('connect').Server} app
+ */
+module.exports = function (app) {
+  app.use(proxy('/card', { target: 'http://localhost:3001/' }));
 
-  app.get('/machine-config', (req, res) => {
-    res.json({
-      machineId: process.env.VX_MACHINE_ID || '0000',
-      codeVersion: process.env.VX_CODE_VERSION || 'dev',
-    })
-  })
-}
+  app.use('/machine-config', (req, res, next) => {
+    if (req.method === 'GET') {
+      res.setHeader('Content-Type', 'application/json');
+      res.end(
+        JSON.stringify({
+          machineId: process.env.VX_MACHINE_ID || '0000',
+          codeVersion: process.env.VX_CODE_VERSION || 'dev',
+        })
+      );
+    } else {
+      next();
+    }
+  });
+};
