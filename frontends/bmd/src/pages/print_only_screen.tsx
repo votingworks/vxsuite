@@ -1,4 +1,3 @@
-import { assert } from '@votingworks/utils';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
@@ -197,22 +196,15 @@ export function PrintOnlyScreen({
           )}
         </Main>
       </Screen>
-      {isReadyToPrint &&
-        // TODO: remove `assert` here once we upgrade to TS 4.4 (https://devblogs.microsoft.com/typescript/announcing-typescript-4-4-beta/#cfa-aliased-conditions)
-        (assert(
-          typeof ballotStyleId !== 'undefined' &&
-            typeof precinctId !== 'undefined' &&
-            typeof votes !== 'undefined'
-        ),
-        (
-          <BmdPaperBallot
-            ballotStyleId={ballotStyleId}
-            electionDefinition={electionDefinition}
-            isLiveMode={isLiveMode}
-            precinctId={precinctId}
-            votes={votes}
-          />
-        ))}
+      {isReadyToPrint && (
+        <BmdPaperBallot
+          ballotStyleId={ballotStyleId}
+          electionDefinition={electionDefinition}
+          isLiveMode={isLiveMode}
+          precinctId={precinctId}
+          votes={votes}
+        />
+      )}
     </React.Fragment>
   );
 }
