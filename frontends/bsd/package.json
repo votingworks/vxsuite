@@ -10,12 +10,14 @@
   "scripts": {
     "type-check": "tsc --build",
     "build": "tsc --build && react-scripts build",
+    "build:vite": "vite build",
     "build:watch": "tsc --build --watch",
     "eject": "react-scripts eject",
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
     "lint": "pnpm type-check && eslint . && pnpm stylelint:run",
     "lint:fix": "pnpm type-check && eslint . --fix && pnpm stylelint:run:fix",
     "start": "react-scripts start",
+    "start:vite": "vite",
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}' && stylelint 'src/**/*.css' --config .stylelintrc-css.js",
     "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix && stylelint 'src/**/*.css' --config .stylelintrc-css.js --fix",
     "test": "is-ci test:coverage test:watch",
@@ -78,6 +80,7 @@
     "@votingworks/ui": "workspace:*",
     "@votingworks/utils": "workspace:*",
     "buffer": "^6.0.3",
+    "events": "^3.3.0",
     "fast-text-encoding": "^1.0.2",
     "http-proxy-middleware": "1.0.6",
     "js-file-download": "^0.4.6",
@@ -101,6 +104,7 @@
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^12.1.5",
     "@testing-library/user-event": "^13.2.1",
+    "@types/connect": "^3.4.35",
     "@types/fast-text-encoding": "^1.0.1",
     "@types/fetch-mock": "^7.3.2",
     "@types/history": "^4.7.8",
@@ -143,6 +147,7 @@
     "stylelint-config-styled-components": "^0.1.1",
     "stylelint-processor-styled-components": "^1.10.0",
     "type-fest": "^0.18.0",
+    "vite": "^2.9.9",
     "zip-stream": "^3.0.1"
   },
   "vx": {
