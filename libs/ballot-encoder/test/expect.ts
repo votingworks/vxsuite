@@ -1,7 +1,12 @@
-// eslint-disable-next-line @typescript-eslint/no-namespace
-declare namespace jest {
-  interface Matchers<R> {
-    toEqualBits(buffer: Uint8Array): R;
+/// <reference types="jest" />
+
+declare global {
+  // eslint-disable-next-line
+  namespace jest {
+    // eslint-disable-next-line
+    interface Matchers<R = void, T = {}> {
+      toEqualBits(buffer: Uint8Array): R;
+    }
   }
 }
 
@@ -28,10 +33,7 @@ function asBinaryString(buffer: Uint8Array): string {
 }
 
 expect.extend({
-  toEqualBits(
-    received: Uint8Array,
-    expected: Uint8Array
-  ): jest.CustomMatcherResult {
+  toEqualBits(received: Uint8Array, expected: Uint8Array) {
     return {
       pass: this.equals(received, expected),
       message: (): string =>
@@ -40,3 +42,5 @@ expect.extend({
     };
   },
 });
+
+export {};

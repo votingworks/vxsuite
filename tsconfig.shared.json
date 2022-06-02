@@ -5,6 +5,9 @@
     "target": "ES2019",
 
     // Enable all strict mode checks
-    "strict": true
+    "strict": true,
+
+    // Compile modules independently for non-`tsc` tooling
+    "isolatedModules": true,
   }
 }
