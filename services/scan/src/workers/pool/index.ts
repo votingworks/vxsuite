@@ -6,7 +6,7 @@ import { InlineWorkerOps } from './inline_worker_ops';
 import { WorkerOps } from './types';
 import { WorkerPool } from './worker_pool';
 
-export { WorkerOps, WorkerPool };
+export { type WorkerOps, WorkerPool };
 
 // eslint-disable-next-line vx/gts-no-return-type-only-generics
 function create<I, O, W extends EventEmitter = EventEmitter>(
