@@ -9,5 +9,8 @@
 
     // Compile modules independently for non-`tsc` tooling
     "isolatedModules": true,
+
+    // Don't allow both e.g. "foo.ts" and "Foo.ts" for the same file.
+    "forceConsistentCasingInFileNames": true,
   }
 }
