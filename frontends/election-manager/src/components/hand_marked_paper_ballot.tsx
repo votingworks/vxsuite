@@ -203,7 +203,7 @@ class PostRenderBallotProcessor extends Handler {
       )[0];
       if (qrCodeTarget && qrCodeTarget instanceof HTMLElement) {
         const election = safeParseElection(
-          qrCodeTarget.dataset.election ?? ''
+          qrCodeTarget.dataset['election'] ?? ''
         ).unsafeUnwrap();
         const {
           electionHash,
@@ -215,7 +215,7 @@ class PostRenderBallotProcessor extends Handler {
           ballotType,
           ballotId,
         }: HmpbBallotMetadataRender = JSON.parse(
-          qrCodeTarget.dataset.metadata ?? ''
+          qrCodeTarget.dataset['metadata'] ?? ''
         );
 
         const encoded = encodeHmpbBallotPageMetadata(election, {

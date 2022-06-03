@@ -19,7 +19,7 @@ export function PrintableArea({
   const printableContainer = printableContainerRef.current;
   printableContainer.classList.add('print-only');
   if (dataTestId) {
-    printableContainer.dataset.testid = dataTestId;
+    printableContainer.dataset['testid'] = dataTestId;
   }
 
   useEffect(() => {

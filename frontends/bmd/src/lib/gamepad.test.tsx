@@ -61,37 +61,37 @@ it('gamepad controls work', async () => {
 
   // Test navigation by gamepad
   handleGamepadButtonDown('DPadDown');
-  expect(getActiveElement().dataset.choice).toEqual(contest0candidate0.id);
+  expect(getActiveElement().dataset['choice']).toEqual(contest0candidate0.id);
   handleGamepadButtonDown('DPadDown');
-  expect(getActiveElement().dataset.choice).toEqual(contest0candidate1.id);
+  expect(getActiveElement().dataset['choice']).toEqual(contest0candidate1.id);
   handleGamepadButtonDown('DPadUp');
-  expect(getActiveElement().dataset.choice).toEqual(contest0candidate0.id);
+  expect(getActiveElement().dataset['choice']).toEqual(contest0candidate0.id);
 
   // test the edge case of rolling over
   handleGamepadButtonDown('DPadUp');
   expect(document.activeElement!.textContent).toEqual('Back');
   handleGamepadButtonDown('DPadDown');
-  expect(getActiveElement().dataset.choice).toEqual(contest0candidate0.id);
+  expect(getActiveElement().dataset['choice']).toEqual(contest0candidate0.id);
 
   handleGamepadButtonDown('DPadRight');
   await advanceTimersAndPromises();
   // go up first without focus, then down once, should be same as down once.
   handleGamepadButtonDown('DPadUp');
   handleGamepadButtonDown('DPadDown');
-  expect(getActiveElement().dataset.choice).toEqual(contest1candidate0.id);
+  expect(getActiveElement().dataset['choice']).toEqual(contest1candidate0.id);
   handleGamepadButtonDown('DPadLeft');
   await advanceTimersAndPromises();
   // B is same as down
   handleGamepadButtonDown('B');
-  expect(getActiveElement().dataset.choice).toEqual(contest0candidate0.id);
+  expect(getActiveElement().dataset['choice']).toEqual(contest0candidate0.id);
 
   // select and unselect
   handleGamepadButtonDown('A');
   await advanceTimersAndPromises();
-  expect(getActiveElement().dataset.selected).toBe('true');
+  expect(getActiveElement().dataset['selected']).toBe('true');
   handleGamepadButtonDown('A');
   await advanceTimersAndPromises();
-  expect(getActiveElement().dataset.selected).toBe('false');
+  expect(getActiveElement().dataset['selected']).toBe('false');
 
   // Confirm 'Okay' is only active element on page. Modal is "true" modal.
   fireEvent.click(screen.getByText(contest0candidate0.name));

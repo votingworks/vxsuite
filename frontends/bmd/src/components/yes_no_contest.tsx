@@ -107,8 +107,9 @@ export function YesNoContest({
   }, [voteLength, updateContestChoicesScrollStates]);
 
   const handleUpdateSelection: EventTargetFunction = (event) => {
-    const newVote = (event.currentTarget as HTMLInputElement).dataset
-      .choice as YesOrNo;
+    const newVote = (event.currentTarget as HTMLInputElement).dataset[
+      'choice'
+    ] as YesOrNo;
     if ((vote as string[] | undefined)?.includes(newVote)) {
       updateVote(contest.id, undefined);
       setDeselectedVote(newVote);
@@ -123,8 +124,9 @@ export function YesNoContest({
 
   /* istanbul ignore next: Tested by Cypress */
   const scrollContestChoices: EventTargetFunction = (event) => {
-    const direction = (event.target as HTMLElement).dataset
-      .direction as ScrollDirections;
+    const direction = (event.target as HTMLElement).dataset[
+      'direction'
+    ] as ScrollDirections;
     const sc = scrollContainer.current;
     assert(sc);
     const currentScrollTop = sc.scrollTop;

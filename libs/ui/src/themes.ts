@@ -1,6 +1,5 @@
 /* istanbul ignore file */
 
-import { Dictionary } from '@votingworks/types';
 import {
   DEFAULT_FONT_SIZE,
   FONT_SIZES,
@@ -18,7 +17,7 @@ export interface ColorTheme {
 
 export interface Theme extends FontSizeTheme, ColorTheme {}
 
-export const fontSizeTheme: Dictionary<FontSizeTheme> = {
+export const fontSizeTheme = {
   normal: {
     fontSize: `${FONT_SIZES[DEFAULT_FONT_SIZE]}px`,
   },
@@ -28,9 +27,9 @@ export const fontSizeTheme: Dictionary<FontSizeTheme> = {
   large: {
     fontSize: `${FONT_SIZES[LARGE_DISPLAY_FONT_SIZE]}px`,
   },
-};
+} as const;
 
-export const contrastTheme: Dictionary<ColorTheme> = {
+export const contrastTheme = {
   default: {
     color: '#263238',
     background: '#edeff0',
@@ -39,4 +38,4 @@ export const contrastTheme: Dictionary<ColorTheme> = {
     color: '#ffffff',
     background: '#455a64',
   },
-};
+} as const;

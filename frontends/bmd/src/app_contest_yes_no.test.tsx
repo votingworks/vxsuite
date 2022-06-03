@@ -64,13 +64,13 @@ it('Single Seat Contest', async () => {
 
   // Select Yes
   fireEvent.click(screen.getByText('Yes'));
-  expect(screen.getByText('Yes').closest('button')!.dataset.selected).toBe(
+  expect(screen.getByText('Yes').closest('button')!.dataset['selected']).toBe(
     'true'
   );
 
   // Unselect Yes
   fireEvent.click(screen.getByText('Yes'));
-  expect(screen.getByText('Yes').closest('button')!.dataset.selected).toBe(
+  expect(screen.getByText('Yes').closest('button')!.dataset['selected']).toBe(
     'false'
   );
 
@@ -90,7 +90,7 @@ it('Single Seat Contest', async () => {
 
   // Select Yes
   fireEvent.click(screen.getByText('Yes'));
-  expect(screen.getByText('Yes').closest('button')!.dataset.selected).toBe(
+  expect(screen.getByText('Yes').closest('button')!.dataset['selected']).toBe(
     'true'
   );
 
@@ -99,7 +99,7 @@ it('Single Seat Contest', async () => {
   expect(
     within(screen.getByTestId('contest-choices'))
       .getByText('No')
-      .closest('button')!.dataset.selected
+      .closest('button')!.dataset['selected']
   ).toBe('false');
 
   // Overvote modal is displayed

@@ -84,7 +84,7 @@ describe('supports single-seat contest', () => {
 
     expect(
       screen.getByText(candidateContest.candidates[0].name).closest('button')!
-        .dataset.selected
+        .dataset['selected']
     ).toBe('true');
 
     fireEvent.click(
@@ -127,17 +127,17 @@ describe('supports multi-seat contests', () => {
     expect(
       screen
         .getByText(candidateContestWithMultipleSeats.candidates[0].name)
-        .closest('button')!.dataset.selected
+        .closest('button')!.dataset['selected']
     ).toBe('true');
     expect(
       screen
         .getByText(candidateContestWithMultipleSeats.candidates[1].name)
-        .closest('button')!.dataset.selected
+        .closest('button')!.dataset['selected']
     ).toBe('false');
     expect(
       screen
         .getByText(candidateContestWithMultipleSeats.candidates[2].name)
-        .closest('button')!.dataset.selected
+        .closest('button')!.dataset['selected']
     ).toBe('false');
 
     fireEvent.click(

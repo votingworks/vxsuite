@@ -1636,7 +1636,7 @@ function copyWithLocale<T>(
 
   if (typeof value === 'object') {
     const record = value as Record<string, unknown>;
-    const lang = '_lang' in record && (record._lang as Translations);
+    const lang = '_lang' in record && (record['_lang'] as Translations);
 
     if (!lang) {
       return value;

@@ -78,6 +78,7 @@ export = {
     '@typescript-eslint/require-await': 'error',
     'class-methods-use-this': 'off',
     'consistent-return': 'off',
+    'dot-notation': 'off',
     // be stricter than eslint-config-airbnb which allows `== null`
     eqeqeq: ['error', 'always'],
     'import/extensions': 'off',

@@ -148,10 +148,7 @@ export function ExportResultsModal({
               <h1>No USB Drive Detected</h1>
               <p>
                 Please insert a USB drive in order to export results.
-                <UsbImage
-                  src={`${process.env.PUBLIC_URL}/assets/usb-drive.svg`}
-                  alt="Insert USB Image"
-                />
+                <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
               </p>
             </Prose>
           }
@@ -190,10 +187,7 @@ export function ExportResultsModal({
           content={
             <Prose>
               <h1>Export Results</h1>
-              <UsbImage
-                src={`${process.env.PUBLIC_URL}/assets/usb-drive.svg`}
-                alt="Insert USB Image"
-              />
+              <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
               <p>
                 A CVR file will automatically be saved to the default location
                 on the mounted USB drive. Optionally, you may pick a custom

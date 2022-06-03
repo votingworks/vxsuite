@@ -497,7 +497,7 @@ test('uses the layout embedded definition to crop the ballot image correctly if 
   screen.getByText(contest.title);
 
   const writeInImage = screen.getByAltText('write-in area');
-  expect(writeInImage.dataset.crop).toMatchInlineSnapshot(
+  expect(writeInImage.dataset['crop']).toMatchInlineSnapshot(
     `"x=0, y=185, width=100, height=80"`
   );
 });

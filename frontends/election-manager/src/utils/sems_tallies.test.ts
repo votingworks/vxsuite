@@ -323,8 +323,8 @@ describe('convertSemsFileToExternalTally', () => {
       overvotes: 3,
       ballots: 98,
     });
-    expect(eitherNeitherTally.tallies.yes?.tally).toBe(39);
-    expect(eitherNeitherTally.tallies.no?.tally).toBe(53);
+    expect(eitherNeitherTally.tallies['yes']?.tally).toBe(39);
+    expect(eitherNeitherTally.tallies['no']?.tally).toBe(53);
 
     const pickOneTally =
       convertedTally.overallTally.contestTallies['750000016']!;
@@ -333,8 +333,8 @@ describe('convertSemsFileToExternalTally', () => {
       overvotes: 4,
       ballots: 98,
     });
-    expect(pickOneTally.tallies.yes?.tally).toBe(40);
-    expect(pickOneTally.tallies.no?.tally).toBe(49);
+    expect(pickOneTally.tallies['yes']?.tally).toBe(40);
+    expect(pickOneTally.tallies['no']?.tally).toBe(49);
 
     // Check some specific tallies on a precinct tally, Fentress
     const fentressTally = convertedTally.resultsByCategory.get(
@@ -357,8 +357,8 @@ describe('convertSemsFileToExternalTally', () => {
       overvotes: 0,
       ballots: 5,
     });
-    expect(ballotmeasure2.tallies.yes?.tally).toBe(2);
-    expect(ballotmeasure2.tallies.no?.tally).toBe(3);
+    expect(ballotmeasure2.tallies['yes']?.tally).toBe(2);
+    expect(ballotmeasure2.tallies['no']?.tally).toBe(3);
 
     // Check snapshots
     expect(convertedTally.overallTally.contestTallies).toMatchSnapshot();
@@ -425,8 +425,8 @@ describe('convertSemsFileToExternalTally', () => {
       overvotes: 30,
       ballots: 420,
     });
-    expect(pokemonFederalist?.tallies.pikachu?.tally).toBe(30);
-    expect(pokemonFederalist?.tallies.eevee?.tally).toBe(300);
+    expect(pokemonFederalist?.tallies['pikachu']?.tally).toBe(30);
+    expect(pokemonFederalist?.tallies['eevee']?.tally).toBe(300);
     expect(pokemonFederalist?.tallies['write-in']?.tally).toBe(30);
 
     const schoolboardConstitution =

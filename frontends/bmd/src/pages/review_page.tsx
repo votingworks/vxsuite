@@ -372,8 +372,9 @@ export function ReviewPage(): JSX.Element {
 
   /* istanbul ignore next: Tested by Cypress */
   const scrollContestChoices: EventTargetFunction = (event) => {
-    const direction = (event.target as HTMLElement).dataset
-      .direction as ScrollDirections;
+    const direction = (event.target as HTMLElement).dataset[
+      'direction'
+    ] as ScrollDirections;
     const sc = scrollContainer.current;
     assert(sc);
     const currentScrollTop = sc.scrollTop;
