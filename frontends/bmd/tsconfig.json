@@ -13,7 +13,8 @@
     "noEmit": true,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": false
   },
   "references": [
     { "path": "../../libs/ballot-encoder/tsconfig.build.json" },

@@ -136,7 +136,7 @@ async function main(): Promise<number> {
           continue;
         }
 
-        const arg = args[0].asKind(ts.SyntaxKind.StringLiteral);
+        const arg = args[0]?.asKind(ts.SyntaxKind.StringLiteral);
         if (!arg) {
           continue;
         }

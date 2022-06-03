@@ -9,6 +9,7 @@
     "noEmit": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
+    "noUncheckedIndexedAccess": false,
   },
   "references": [{ "path": "../eslint-plugin-vx/tsconfig.build.json" }]
 }

@@ -303,7 +303,7 @@ describe('readCompressTally', () => {
     );
     expect(tally.numberOfBallotsCounted).toBe(20);
     expect(tally.ballotCountsByVotingMethod).toStrictEqual(votingMethodData);
-    const presidentTally = tally.contestTallies.president;
+    const presidentTally = tally.contestTallies['president'];
     assert(presidentTally);
     expect(presidentTally.contest).toBe(presidentContest);
     expect(presidentTally.metadata).toStrictEqual({

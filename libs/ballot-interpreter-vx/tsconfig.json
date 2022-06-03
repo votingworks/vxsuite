@@ -12,7 +12,8 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "esModuleInterop": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "noUncheckedIndexedAccess": false
   },
   "references": [
     { "path": "../ballot-encoder/tsconfig.build.json" },

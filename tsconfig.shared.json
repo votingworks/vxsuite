@@ -15,5 +15,8 @@
 
     // Require `[…]` and not dots for accessing index properties.
     "noPropertyAccessFromIndexSignature": true,
+
+    // Treat `[…]` property accesses as potentially undefined.
+    "noUncheckedIndexedAccess": true,
   }
 }
