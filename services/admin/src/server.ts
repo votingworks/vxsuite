@@ -1,4 +1,6 @@
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
+import { safeParse } from '@votingworks/types';
+import { Admin } from '@votingworks/api';
 import express, { Application } from 'express';
 import { Store } from './store';
 import { createWorkspace, Workspace } from './util/workspace';
@@ -18,8 +20,51 @@ export function buildApp({ store }: { store: Store }): Application {
   app.use(express.json({ limit: '5mb', type: 'application/json' }));
   app.use(express.urlencoded({ extended: false }));
 
-  app.get<NoParams>('/', (_, response) => {
-    response.send('Hello world');
+  app.post<
+    NoParams,
+    Admin.PostAdjudicationResponse,
+    Admin.PostAdjudicationRequest
+  >('/admin/write-ins/adjudication', (request, response) => {
+    const bodyParseResult = safeParse(
+      Admin.PostAdjudicationRequestSchema,
+      request.body
+    );
+
+    if (bodyParseResult.isErr()) {
+      const error = bodyParseResult.err();
+      response.status(400).json({
+        status: 'error',
+        errors: [{ type: error.name, message: error.message }],
+      });
+      return;
+    }
+
+    const id = store.addAdjudication(bodyParseResult.ok().contestId);
+    response.json({ id, status: 'ok' });
+  });
+
+  app.patch<
+    NoParams,
+    Admin.PatchAdjudicationTranscribedValueResponse,
+    Admin.PatchAdjudicationTranscribedValueRequest
+  >('/admin/write-ins/adjudication/transcribe', (request, response) => {
+    const bodyParseResult = safeParse(
+      Admin.PatchAdjudicationTranscribedValueRequestSchema,
+      request.body
+    );
+
+    if (bodyParseResult.isErr()) {
+      const error = bodyParseResult.err();
+      response.status(400).json({
+        status: 'error',
+        errors: [{ type: error.name, message: error.message }],
+      });
+      return;
+    }
+
+    const { adjudicationId, transcribedValue } = bodyParseResult.ok();
+    store.updateAdjudicationTranscribedValue(adjudicationId, transcribedValue);
+    response.json({ status: 'ok' });
   });
 
   return app;

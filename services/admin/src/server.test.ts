@@ -11,6 +11,7 @@ let app: Application;
 let workspace: Workspace;
 
 beforeEach(() => {
+  jest.spyOn(console, 'log').mockImplementation();
   workspace = createWorkspace(dirSync().name);
   app = buildApp({ store: workspace.store });
 });
@@ -39,7 +40,7 @@ test('start with config options', async () => {
     return undefined as unknown as Server;
   });
   const fakeLogger = new Logger(LogSource.VxScanService);
-  jest.spyOn(fakeLogger, 'log').mockResolvedValue();
+  jest.spyOn(fakeLogger, 'log');
 
   // start up the server
   await start({ app, logger: fakeLogger, workspace });
@@ -62,6 +63,47 @@ test('errors on start with no workspace', async () => {
   }
 });
 
-test('GET /', async () => {
-  await request(app).get('/').expect(200);
+test('POST /admin/write-ins/adjudication', async () => {
+  workspace.store.addAdjudication = jest.fn().mockImplementationOnce(() => '1');
+
+  // Invalid request
+  await request(app)
+    .post('/admin/write-ins/adjudication')
+    .set('Accept', 'application/json')
+    .expect(400);
+  expect(workspace.store.addAdjudication).not.toHaveBeenCalled();
+
+  // Valid request
+  await request(app)
+    .post('/admin/write-ins/adjudication')
+    .set('Accept', 'application/json')
+    .send({ contestId: 'mayor' })
+    .expect(200, { id: '1', status: 'ok' });
+  expect(workspace.store.addAdjudication).toHaveBeenCalledWith('mayor');
+});
+
+test('PATCH /admin/write-ins/adjudication/transcribe', async () => {
+  workspace.store.updateAdjudicationTranscribedValue = jest.fn();
+
+  // Invalid request
+  await request(app)
+    .patch('/admin/write-ins/adjudication/transcribe')
+    .set('Accept', 'application/json')
+    .expect(400);
+  expect(
+    workspace.store.updateAdjudicationTranscribedValue
+  ).not.toHaveBeenCalled();
+
+  const adjudicationId = workspace.store.addAdjudication('mayor');
+  const transcribedValue = 'Mickey Mouse';
+
+  // Valid request
+  await request(app)
+    .patch('/admin/write-ins/adjudication/transcribe')
+    .set('Accept', 'application/json')
+    .send({ adjudicationId, transcribedValue })
+    .expect(200);
+  expect(
+    workspace.store.updateAdjudicationTranscribedValue
+  ).toHaveBeenCalledWith(adjudicationId, transcribedValue);
 });

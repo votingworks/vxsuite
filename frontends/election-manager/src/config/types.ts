@@ -1,4 +1,5 @@
 import {
+  Adjudication,
   BallotId,
   BallotLocale,
   BallotStyle,
@@ -103,7 +104,13 @@ export type OptionalFile = Optional<File>;
 // Cast Vote Records
 export interface CastVoteRecord
   extends Dictionary<
-    string | string[] | boolean | number | number[] | BallotLocale
+    | string
+    | string[]
+    | boolean
+    | number
+    | number[]
+    | BallotLocale
+    | Adjudication[]
   > {
   readonly _precinctId: PrecinctId;
   readonly _ballotId: BallotId;
@@ -116,6 +123,7 @@ export interface CastVoteRecord
   readonly _pageNumber?: number;
   readonly _pageNumbers?: number[];
   readonly _locales?: BallotLocale;
+  adjudications?: Adjudication[];
 }
 
 export type CastVoteRecordFileMode = 'test' | 'live';

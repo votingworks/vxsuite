@@ -2,7 +2,6 @@ import React from 'react';
 import styled from 'styled-components';
 
 import {
-  BallotId,
   ContestId,
   CandidateContest,
   CastVoteRecord,
@@ -74,7 +73,7 @@ export function WriteInsTranscriptionScreen({
   onClose: () => void;
   onListAll: () => void;
   saveTranscribedValue: (
-    ballotId: BallotId,
+    adjudicationId: string,
     contestId: ContestId,
     transcribedValue: string
   ) => void;

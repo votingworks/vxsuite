@@ -85,7 +85,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
     fileData: CastVoteRecordFilePreprocessedData
   ) {
     setCurrentState(ModalState.LOADING);
-    const newCastVoteRecordFiles = castVoteRecordFiles.addFromFileData(
+    const newCastVoteRecordFiles = await castVoteRecordFiles.addFromFileData(
       fileData,
       election
     );

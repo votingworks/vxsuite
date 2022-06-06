@@ -1,6 +1,6 @@
 import arrayUnique from 'array-unique';
 import { sha256 } from 'js-sha256';
-import { Election } from '@votingworks/types';
+import { ContestOptionId, Election } from '@votingworks/types';
 import { assert, parseCvrFileInfoFromFilename } from '@votingworks/utils';
 import {
   CastVoteRecord,
@@ -232,12 +232,12 @@ export class CastVoteRecordFiles {
    *  Builds a new `CastVoteRecordFiles` object by adding the parsed CVRs from
    * `fileData` to those contained by this `CastVoteRecordFiles` instance.
    */
-  addFromFileData(
+  async addFromFileData(
     fileData: CastVoteRecordFilePreprocessedData,
     election: Election
-  ): CastVoteRecordFiles {
+  ): Promise<CastVoteRecordFiles> {
     assert(window.kiosk);
-    return this.addFromFileContent(
+    return await this.addFromFileContent(
       fileData.fileContent,
       fileData.name,
       fileData.exportTimestamp,
@@ -253,7 +253,7 @@ export class CastVoteRecordFiles {
     try {
       const fileContent = await readFileAsync(file);
       const parsedFileInfo = parseCvrFileInfoFromFilename(file.name);
-      const result = this.addFromFileContent(
+      const result = await this.addFromFileContent(
         fileContent,
         file.name,
         parsedFileInfo?.timestamp || new Date(file.lastModified),
@@ -321,12 +321,12 @@ export class CastVoteRecordFiles {
     };
   }
 
-  private addFromFileContent(
+  private async addFromFileContent(
     fileContent: string,
     fileName: string,
     exportTimestamp: Date,
     election: Election
-  ): CastVoteRecordFiles {
+  ): Promise<CastVoteRecordFiles> {
     try {
       const signature = sha256(fileContent);
 
@@ -348,6 +348,33 @@ export class CastVoteRecordFiles {
       )) {
         if (errors.length) {
           throw new Error(`Line ${lineNumber}: ${errors.join('\n')}`);
+        }
+
+        for (const [key, value] of Object.entries(cvr)) {
+          if (Array.isArray(value)) {
+            const votes = value as ContestOptionId[];
+            for (const vote of votes) {
+              if (vote.startsWith('write-in')) {
+                const res = await fetch('/admin/write-ins/adjudication', {
+                  method: 'POST',
+                  body: JSON.stringify({
+                    contestId: key,
+                    transcribedValue: '',
+                  }),
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                });
+                const { id } = await res.json();
+                const adjudications = cvr.adjudications || [];
+                adjudications.push({
+                  id,
+                  contestId: key,
+                });
+                cvr.adjudications = adjudications;
+              }
+            }
+          }
         }
 
         fileCastVoteRecords.push(cvr);

@@ -1,6 +1,5 @@
 import { createContext, RefObject } from 'react';
 import {
-  BallotId,
   ContestId,
   ElectionDefinition,
   FullElectionTally,
@@ -52,7 +51,7 @@ export interface AppContextInterface {
     externalTallies: FullElectionExternalTally[]
   ) => Promise<void>;
   saveTranscribedValue: (
-    ballotId: BallotId,
+    adjudicationId: string,
     contestId: ContestId,
     transcribedValue: string
   ) => Promise<void>;

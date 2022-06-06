@@ -14,8 +14,6 @@ import {
   LogDispositionStandardTypes,
 } from '@votingworks/logging';
 import {
-  BallotId,
-  ContestId,
   ElectionDefinition,
   safeParseElection,
   FullElectionExternalTally,
@@ -294,15 +292,11 @@ export function AppRoot({
   }
 
   const saveTranscribedValue = useCallback(
-    async (
-      ballotId: BallotId,
-      contestId: ContestId,
-      transcribedValue: string
-    ) => {
+    async (adjudicationId: string, transcribedValue: string) => {
       try {
-        await fetch(`/admin/write-ins/transcribe`, {
-          method: 'POST',
-          body: JSON.stringify({ ballotId, contestId, transcribedValue }),
+        await fetch('/admin/write-ins/adjudication/transcribe', {
+          method: 'PATCH',
+          body: JSON.stringify({ adjudicationId, transcribedValue }),
           headers: {
             'Content-Type': 'application/json',
           },

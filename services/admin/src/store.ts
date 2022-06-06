@@ -36,7 +36,7 @@ export class Store {
   /**
    * Adds an adjudication and returns its id.
    */
-  addAdjudication(contestId: string, transcribedValue: string): string {
+  addAdjudication(contestId: string, transcribedValue = ''): string {
     const id = uuid();
     this.client.run(
       'insert into adjudications (id, contest_id, transcribed_value) values (?, ?, ?)',
@@ -70,7 +70,7 @@ export class Store {
       }
     | undefined {
     const row = this.client.one(
-      'select id, contestId, transcribedValue from adjudications where id = ?',
+      'select id, contest_id as contestId, transcribed_value as transcribedValue from adjudications where id = ?',
       id
     ) as
       | { id: string; contestId: string; transcribedValue: string }

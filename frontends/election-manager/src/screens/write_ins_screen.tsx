@@ -5,7 +5,6 @@ import {
   CandidateContest,
   CastVoteRecord,
   ContestId,
-  ContestOptionId,
   getPartyAbbreviationByPartyId,
 } from '@votingworks/types';
 
@@ -30,15 +29,10 @@ export function WriteInsScreen(): JSX.Element {
     const map = new Map<ContestId, CastVoteRecord[]>();
     for (const file of castVoteRecordFileList) {
       for (const cvr of file.allCastVoteRecords) {
-        for (const [key, value] of Object.entries(cvr)) {
-          if (Array.isArray(value)) {
-            const contestId = key;
-            const votes = value as ContestOptionId[];
-            const cvrHasWriteIn = votes.find((m) => m.startsWith('write-in'));
-            if (cvrHasWriteIn) {
-              const currCvrs = map.get(contestId) || [];
-              map.set(contestId, [...currCvrs, cvr]);
-            }
+        if (cvr.adjudications) {
+          for (const adjudication of cvr.adjudications) {
+            const currCvrs = map.get(adjudication.contestId) || [];
+            map.set(adjudication.contestId, [...currCvrs, cvr]);
           }
         }
       }
