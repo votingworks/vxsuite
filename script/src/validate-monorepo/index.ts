@@ -51,7 +51,7 @@ export async function main({ stdout, stderr }: IO): Promise<number> {
     );
 
     const tsconfigPath = join(pkg, 'tsconfig.json');
-    const tsconfig = await maybeReadTsconfig(tsconfigPath);
+    const tsconfig = maybeReadTsconfig(tsconfigPath);
 
     if (!tsconfig) {
       stderr.write(`${tsconfigPath}: missing TypeScript configuration\n`);
@@ -76,7 +76,7 @@ export async function main({ stdout, stderr }: IO): Promise<number> {
     }
 
     const tsconfigBuildPath = join(pkg, 'tsconfig.build.json');
-    const tsconfigBuild = await maybeReadTsconfig(tsconfigBuildPath);
+    const tsconfigBuild = maybeReadTsconfig(tsconfigBuildPath);
 
     function reportValidationIssue(issue: ValidationIssue) {
       switch (issue.kind) {
