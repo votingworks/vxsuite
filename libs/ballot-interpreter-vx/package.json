@@ -53,6 +53,7 @@
     "node-quirc": "^2.2.1",
     "randombytes": "^2.1.0",
     "table": "^6.0.3",
+    "util": "^0.12.4",
     "uuid": "^8.3.1"
   },
   "devDependencies": {

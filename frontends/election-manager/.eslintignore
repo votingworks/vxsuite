@@ -6,3 +6,5 @@
 /prodserver
 /src/**/*.js
 *.d.ts
+*.config.js
+*.config.ts

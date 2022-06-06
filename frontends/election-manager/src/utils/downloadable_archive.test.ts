@@ -1,11 +1,10 @@
 import { fakeKiosk } from '@votingworks/test-utils';
-import { Buffer } from 'buffer';
 import { fakeFileWriter } from '../../test/helpers/fake_file_writer';
 import { DownloadableArchive } from './downloadable_archive';
 
 // https://en.wikipedia.org/wiki/List_of_file_signatures
-const ZIP_MAGIC_BYTES = Buffer.of(0x50, 0x4b, 0x03, 0x04);
-const EMPTY_ZIP_MAGIC_BYTES = Buffer.of(0x50, 0x4b, 0x05, 0x06);
+const ZIP_MAGIC_BYTES = [0x50, 0x4b, 0x03, 0x04];
+const EMPTY_ZIP_MAGIC_BYTES = [0x50, 0x4b, 0x05, 0x06];
 
 test('file prompt fails', async () => {
   const kiosk = fakeKiosk();
@@ -39,9 +38,8 @@ test('empty zip file when user is prompted for file location', async () => {
   await archive.end();
   expect(fileWriter.chunks).not.toHaveLength(0);
 
-  const firstChunk = fileWriter.chunks[0] as Buffer;
-  expect(firstChunk).toBeInstanceOf(Buffer);
-  expect(firstChunk.slice(0, EMPTY_ZIP_MAGIC_BYTES.length)).toEqual(
+  const firstChunk = fileWriter.chunks[0] as Uint8Array;
+  expect(Array.from(firstChunk.slice(0, EMPTY_ZIP_MAGIC_BYTES.length))).toEqual(
     EMPTY_ZIP_MAGIC_BYTES
   );
 });
@@ -63,9 +61,8 @@ test('empty zip file when file is saved directly and passes path to kiosk proper
   });
   expect(kiosk.writeFile).toHaveBeenCalledWith('/path/to/folder/file.zip');
 
-  const firstChunk = fileWriter.chunks[0] as Buffer;
-  expect(firstChunk).toBeInstanceOf(Buffer);
-  expect(firstChunk.slice(0, EMPTY_ZIP_MAGIC_BYTES.length)).toEqual(
+  const firstChunk = fileWriter.chunks[0] as Uint8Array;
+  expect(Array.from(firstChunk.slice(0, EMPTY_ZIP_MAGIC_BYTES.length))).toEqual(
     EMPTY_ZIP_MAGIC_BYTES
   );
 });
@@ -83,9 +80,10 @@ test('zip file containing a file', async () => {
   await archive.end();
   expect(fileWriter.chunks).not.toHaveLength(0);
 
-  const firstChunk = fileWriter.chunks[0] as Buffer;
-  expect(firstChunk).toBeInstanceOf(Buffer);
-  expect(firstChunk.slice(0, ZIP_MAGIC_BYTES.length)).toEqual(ZIP_MAGIC_BYTES);
+  const firstChunk = fileWriter.chunks[0] as Uint8Array;
+  expect(Array.from(firstChunk.slice(0, ZIP_MAGIC_BYTES.length))).toEqual(
+    ZIP_MAGIC_BYTES
+  );
 });
 
 test('passes options to kiosk.saveAs', async () => {

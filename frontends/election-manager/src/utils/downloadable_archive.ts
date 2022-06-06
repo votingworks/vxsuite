@@ -1,6 +1,35 @@
-import { assert, deferred } from '@votingworks/utils';
-import ZipStream from 'zip-stream';
+/* eslint-disable max-classes-per-file */
+import { assert } from '@votingworks/utils';
+import { Buffer } from 'buffer';
 import path from 'path';
+import { configure, Uint8ArrayReader, ZipWriter, Writer } from '@zip.js/zip.js';
+
+configure({ useWebWorkers: false });
+
+/**
+ * Forwards data from a `ZipWriter` to a kiosk-browser file writer.
+ */
+class KioskBrowserZipFileWriter extends Writer {
+  constructor(private readonly fileWriter: KioskBrowser.FileWriter) {
+    super();
+  }
+
+  /**
+   * Called whenever there is new data to write to the zip file.
+   */
+  async writeUint8Array(array: Uint8Array): Promise<void> {
+    await super.writeUint8Array(array);
+    await this.fileWriter.write(array);
+  }
+
+  /**
+   * This function is required by the ZipWriter interface, but we ignore its
+   * return value. It is called when closing the zip file.
+   */
+  async getData(): Promise<Uint8Array> {
+    return Promise.resolve(Uint8Array.of());
+  }
+}
 
 /**
  * Provides support for downloading a Zip archive of files. Requires
@@ -8,8 +37,7 @@ import path from 'path';
  * that the executing host is allowed to use the `saveAs` API.
  */
 export class DownloadableArchive {
-  private zip?: ZipStream;
-  private endPromise?: Promise<void>;
+  private writer?: ZipWriter;
 
   constructor(private readonly kiosk = window.kiosk) {}
 
@@ -30,13 +58,7 @@ export class DownloadableArchive {
       throw new Error('could not begin download; no file was chosen');
     }
 
-    let endResolve: () => void;
-    this.endPromise = new Promise((resolve) => {
-      endResolve = resolve;
-    });
-    this.zip = new ZipStream()
-      .on('data', (chunk) => fileWriter.write(chunk))
-      .on('end', () => fileWriter.end().then(endResolve));
+    this.prepareZip(fileWriter);
   }
 
   /**
@@ -57,42 +79,38 @@ export class DownloadableArchive {
       throw new Error('could not begin download; an error occurred');
     }
 
-    const { promise: endPromise, resolve: endResolve } = deferred<void>();
-    this.endPromise = endPromise;
-    this.zip = new ZipStream()
-      .on('data', (chunk) => fileWriter.write(chunk))
-      .on('end', () => fileWriter.end().then(endResolve));
+    this.prepareZip(fileWriter);
+  }
+
+  /**
+   * Prepares the zip archive for writing to the given file writer.
+   */
+  private prepareZip(fileWriter: KioskBrowser.FileWriter): void {
+    this.writer = new ZipWriter(new KioskBrowserZipFileWriter(fileWriter));
   }
 
   /**
    * Writes a file to the archive, resolves when complete.
    */
-  async file(
-    name: string,
-    data: Parameters<ZipStream['entry']>[0]
-  ): Promise<void> {
-    const { zip } = this;
+  async file(name: string, data: string | Buffer): Promise<void> {
+    const { writer } = this;
 
-    if (!zip) {
+    if (!writer) {
       throw new Error('cannot call file() before begin()');
     }
 
-    return new Promise((resolve, reject) => {
-      zip.entry(data, { name }, (err) => (err ? reject(err) : resolve()));
-    });
+    await writer.add(name, new Uint8ArrayReader(Buffer.from(data)));
   }
 
   /**
    * Finishes the zip archive and ends the download.
    */
   async end(): Promise<void> {
-    if (!this.zip) {
+    if (!this.writer) {
       throw new Error('cannot call end() before begin()');
     }
 
-    this.zip.finalize();
-    await this.endPromise;
-    this.zip = undefined;
-    this.endPromise = undefined;
+    await this.writer.close();
+    this.writer = undefined;
   }
 }
