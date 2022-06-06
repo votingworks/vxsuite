@@ -19,3 +19,12 @@ test('create a memory store', () => {
   expect(store).toBeInstanceOf(Store);
   expect(store.getDbPath()).toBe(':memory:');
 });
+
+test('add/get adjudications', () => {
+  const store = Store.memoryStore();
+  const id = store.addAdjudication('mayor', 'Mickey Mouse');
+  const added = store.getAdjudicationById(id);
+  expect(added?.id).toEqual(id);
+  expect(added?.contestId).toEqual('mayor');
+  expect(added?.transcribedValue).toEqual('Mickey Mouse');
+});
