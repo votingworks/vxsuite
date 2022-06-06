@@ -132,7 +132,6 @@ export function SmartcardsScreen(): JSX.Element {
       message: 'Programming an admin card...',
       programmedUserType: 'admin',
     });
-    const formData = new FormData();
     setIsProgrammingCard(true);
     setIsPromptingForAdminPasscode(false);
     const shortValue = JSON.stringify({
@@ -140,12 +139,23 @@ export function SmartcardsScreen(): JSX.Element {
       h: electionHash,
       p: passcode,
     });
-    formData.append('short_value', shortValue);
-    formData.append('long_value', electionData);
+    const longValue = electionData;
+
+    // We submit a form with x-www-form-urlencoded encoding, because multipart encoding can change LF into CRLF,
+    // which screws up the hash of the election data, which is bad news.
+    //
+    // It would be nice if FormData had a way of specifying x-www-form-urlencoded encoding, but it does not.
+    // So we put together this request with a little bit of manual duct tape.
     const response = await fetch('/card/write_short_and_long', {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+      },
       method: 'post',
-      body: formData,
+      body: `short_value=${encodeURIComponent(
+        shortValue
+      )}&long_value=${encodeURIComponent(longValue)}`,
     });
+
     const body = await response.json();
     if (!body.success) {
       setIsShowingError(true);
