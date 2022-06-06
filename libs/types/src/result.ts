@@ -53,7 +53,7 @@ class Ok<T> {
    * Provides a custom inspect function for `Ok` values so that `console.log`
    * and the node REPL will pretty-print the wrapper and value.
    */
-  private [inspect.custom](depth: number, options: InspectOptions) {
+  [inspect.custom](depth: number, options: InspectOptions) {
     if (depth < 0) {
       return 'ok(…)';
     }
@@ -119,7 +119,7 @@ class Err<E> {
    * Provides a custom inspect function for `Err` values so that `console.log`
    * and the node REPL will pretty-print the wrapper and value.
    */
-  private [inspect.custom](depth: number, options: InspectOptions) {
+  [inspect.custom](depth: number, options: InspectOptions) {
     if (depth < 0) {
       return 'err(…)';
     }
