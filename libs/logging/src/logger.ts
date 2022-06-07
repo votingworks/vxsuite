@@ -127,7 +127,7 @@ export class Logger {
         continue;
       }
       const decodedLog = decodedLogResult.ok();
-      assert(typeof decodedLog.timeLogWritten === 'string'); // While this is not enforced in the LogLine type the zod schema will enforce it is always present so we know this to be true.
+      assert(typeof decodedLog['timeLogWritten'] === 'string'); // While this is not enforced in the LogLine type the zod schema will enforce it is always present so we know this to be true.
 
       const rawDecodedObject = JSON.parse(log);
       const customInformation = extractAdditionalKeysFromObj(
@@ -151,7 +151,7 @@ export class Logger {
         OtherDisposition:
           disposition === 'other' ? decodedLog.disposition : undefined,
         Sequence: idx.toString(),
-        TimeStamp: decodedLog.timeLogWritten,
+        TimeStamp: decodedLog['timeLogWritten'],
         Type: decodedLog.eventType,
         Description: decodedLog.message,
         Details: JSON.stringify({

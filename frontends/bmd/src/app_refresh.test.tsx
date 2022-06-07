@@ -63,7 +63,7 @@ it('Refresh window and expect to be on same contest', async () => {
   // Select first candidate
   fireEvent.click(getByText(candidate0));
   advanceTimers();
-  expect(getByText(candidate0).closest('button')!.dataset.selected).toBe(
+  expect(getByText(candidate0).closest('button')!.dataset['selected']).toBe(
     'true'
   );
 
@@ -92,7 +92,7 @@ it('Refresh window and expect to be on same contest', async () => {
   await waitFor(() => getByText(presidentContest.title));
 
   // First candidate selected
-  expect(getByText(candidate0).closest('button')!.dataset.selected).toBe(
+  expect(getByText(candidate0).closest('button')!.dataset['selected']).toBe(
     'true'
   );
 });

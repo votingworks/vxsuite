@@ -9,5 +9,14 @@
 
     // Compile modules independently for non-`tsc` tooling
     "isolatedModules": true,
+
+    // Don't allow both e.g. "foo.ts" and "Foo.ts" for the same file.
+    "forceConsistentCasingInFileNames": true,
+
+    // Require `[…]` and not dots for accessing index properties.
+    "noPropertyAccessFromIndexSignature": true,
+
+    // Treat `[…]` property accesses as potentially undefined.
+    "noUncheckedIndexedAccess": true,
   }
 }

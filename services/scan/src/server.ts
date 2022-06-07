@@ -159,7 +159,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
     upload.fields([{ name: 'package', maxCount: 1 }]),
     async (request, response) => {
       const file = !Array.isArray(request.files)
-        ? request.files?.package?.[0]
+        ? request.files?.['package']?.[0]
         : undefined;
 
       if (!file) {

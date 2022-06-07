@@ -116,7 +116,7 @@ it('Single Seat Contest with Write In', async () => {
   fireEvent.click(getWithinKeyboard('A').closest('button')!);
   fireEvent.click(getWithinKeyboard('L').closest('button')!);
   fireEvent.click(screen.getByText('Accept'));
-  expect(screen.getByText('SAL').closest('button')!.dataset.selected).toBe(
+  expect(screen.getByText('SAL').closest('button')!.dataset['selected']).toBe(
     'true'
   );
 

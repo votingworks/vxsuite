@@ -87,7 +87,7 @@ export function MsEitherNeitherContest({
 
   const handleUpdateEitherNeither: EventTargetFunction = (event) => {
     const currentVote = eitherNeitherContestVote?.[0];
-    const targetVote = (event.currentTarget as HTMLElement).dataset.choice;
+    const targetVote = (event.currentTarget as HTMLElement).dataset['choice'];
     const newVote =
       currentVote === targetVote ? ([] as YesNoVote) : [targetVote];
     setDeselectedOption(
@@ -101,7 +101,7 @@ export function MsEitherNeitherContest({
   };
   const handleUpdatePickOne: EventTargetFunction = (event) => {
     const currentVote = pickOneContestVote?.[0];
-    const targetVote = (event.currentTarget as HTMLElement).dataset.choice;
+    const targetVote = (event.currentTarget as HTMLElement).dataset['choice'];
     const newVote =
       currentVote === targetVote ? ([] as YesNoVote) : [targetVote];
     setDeselectedOption(
@@ -140,8 +140,9 @@ export function MsEitherNeitherContest({
 
   const scrollContestChoices: EventTargetFunction =
     /* istanbul ignore next: Tested by Cypress */ (event) => {
-      const direction = (event.target as HTMLElement).dataset
-        .direction as ScrollDirections;
+      const direction = (event.target as HTMLElement).dataset[
+        'direction'
+      ] as ScrollDirections;
       const sc = scrollContainer.current;
       assert(sc);
       const currentScrollTop = sc.scrollTop;

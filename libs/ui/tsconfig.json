@@ -8,7 +8,7 @@
     "noEmit": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true
+    "noUncheckedIndexedAccess": false
   },
   "include": ["src"],
   "exclude": [],

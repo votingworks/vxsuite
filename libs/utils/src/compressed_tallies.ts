@@ -49,8 +49,8 @@ export function compressTally(
           contestTally?.metadata.undervotes ?? 0, // undervotes
           contestTally?.metadata.overvotes ?? 0, // overvotes
           contestTally?.metadata.ballots ?? 0, // ballots cast
-          contestTally?.tallies.yes?.tally ?? 0, // yes
-          contestTally?.tallies.no?.tally ?? 0, // no
+          contestTally?.tallies['yes']?.tally ?? 0, // yes
+          contestTally?.tallies['no']?.tally ?? 0, // no
         ]);
       }
 
@@ -60,12 +60,12 @@ export function compressTally(
         const pickOneContestTally =
           tally.contestTallies[contest.pickOneContestId];
         return typedAs<MsEitherNeitherContestCompressedTally>([
-          eitherNeitherContestTally?.tallies.yes?.tally ?? 0, // eitherOption
-          eitherNeitherContestTally?.tallies.no?.tally ?? 0, // neitherOption
+          eitherNeitherContestTally?.tallies['yes']?.tally ?? 0, // eitherOption
+          eitherNeitherContestTally?.tallies['no']?.tally ?? 0, // neitherOption
           eitherNeitherContestTally?.metadata.undervotes ?? 0, // eitherNeitherUndervotes
           eitherNeitherContestTally?.metadata.overvotes ?? 0, // eitherNeitherOvervotes
-          pickOneContestTally?.tallies.yes?.tally ?? 0, // firstOption
-          pickOneContestTally?.tallies.no?.tally ?? 0, // secondOption
+          pickOneContestTally?.tallies['yes']?.tally ?? 0, // firstOption
+          pickOneContestTally?.tallies['no']?.tally ?? 0, // secondOption
           pickOneContestTally?.metadata.undervotes ?? 0, // pickOneUndervotes
           pickOneContestTally?.metadata.overvotes ?? 0, // pickOneOvervotes
           pickOneContestTally?.metadata.ballots ?? 0, // ballotsCast

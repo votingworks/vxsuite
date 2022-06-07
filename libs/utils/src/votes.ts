@@ -156,8 +156,8 @@ export function tallyVotesByContest({
     ) {
       const tallies: Dictionary<ContestOptionTally> = {};
       if (contest.type === 'yesno') {
-        tallies.yes = { option: ['yes'], tally: 0 };
-        tallies.no = { option: ['no'], tally: 0 };
+        tallies['yes'] = { option: ['yes'], tally: 0 };
+        tallies['no'] = { option: ['no'], tally: 0 };
       }
 
       if (contest.type === 'candidate') {

@@ -47,10 +47,10 @@ export function* generateRowsForBatchTallyResultsCsv(
         }
       } else if (contest.type === 'yesno') {
         contestVoteTotals.push(
-          contestTally?.tallies.yes?.tally.toString() ?? '0'
+          contestTally?.tallies['yes']?.tally.toString() ?? '0'
         );
         contestVoteTotals.push(
-          contestTally?.tallies.no?.tally.toString() ?? '0'
+          contestTally?.tallies['no']?.tally.toString() ?? '0'
         );
       }
     }

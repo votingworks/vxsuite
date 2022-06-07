@@ -289,11 +289,11 @@ export function getEmptyContestTallies(
         break;
       }
       case 'yesno': {
-        optionTallies.yes = {
+        optionTallies['yes'] = {
           option: ['yes'],
           tally: 0,
         };
-        optionTallies.no = {
+        optionTallies['no'] = {
           option: ['no'],
           tally: 0,
         };

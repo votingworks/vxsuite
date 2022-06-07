@@ -1,5 +1,6 @@
 import { NodePath } from '@babel/core';
 import * as t from '@babel/types';
+import { strict as assert } from 'assert';
 
 /**
  * Adds a named import to an existing import declaration.
@@ -43,9 +44,13 @@ export function addSpecifierToImport(
     }
 
     if (insertionIndex === 0) {
-      specifiers[0].insertBefore(newSpecifier);
+      const specifier = specifiers[0];
+      assert(specifier);
+      specifier.insertBefore(newSpecifier);
     } else {
-      specifiers[insertionIndex - 1].insertAfter(newSpecifier);
+      const specifier = specifiers[insertionIndex - 1];
+      assert(specifier);
+      specifier.insertAfter(newSpecifier);
     }
   }
 }

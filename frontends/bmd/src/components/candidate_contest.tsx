@@ -179,8 +179,9 @@ export function CandidateContest({
   }
 
   const handleUpdateSelection: EventTargetFunction = (event) => {
-    const candidateId = (event.currentTarget as HTMLInputElement).dataset
-      .choice;
+    const candidateId = (event.currentTarget as HTMLInputElement).dataset[
+      'choice'
+    ];
     /* istanbul ignore else */
     if (candidateId) {
       const candidate = findCandidateById(vote, candidateId);
@@ -266,8 +267,9 @@ export function CandidateContest({
 
   /* istanbul ignore next: Tested by Cypress */
   const scrollContestChoices: EventTargetFunction = (event) => {
-    const direction = (event.target as HTMLElement).dataset
-      .direction as ScrollDirections;
+    const direction = (event.target as HTMLElement).dataset[
+      'direction'
+    ] as ScrollDirections;
     const sc = scrollContainer.current;
     assert(sc);
     const currentScrollTop = sc.scrollTop;

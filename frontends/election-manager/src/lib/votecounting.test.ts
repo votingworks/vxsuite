@@ -60,7 +60,7 @@ test('tabulating a set of CVRs gives expected output', () => {
   // some specific tallies checked by hand
 
   // - Jackie Chan, 1380 bubbles, of which 8 are overvotes --> 1372
-  const presidentTallies = fullTally.overallTally.contestTallies.president!;
+  const presidentTallies = fullTally.overallTally.contestTallies['president']!;
   const jackieChanTally = presidentTallies.tallies['jackie-chan']!;
   expect(jackieChanTally.tally).toBe(1372);
 

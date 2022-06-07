@@ -46,6 +46,7 @@
 
 import { PluginItem, NodePath } from '@babel/core';
 import * as t from '@babel/types';
+import { strict as assert } from 'assert';
 
 function rewriteFunction(id: t.Identifier, fn: t.Function): boolean {
   if (!/^[A-Z]/.test(id.name)) {
@@ -74,10 +75,10 @@ function rewriteFunction(id: t.Identifier, fn: t.Function): boolean {
         !param.typeAnnotation &&
         componentTypeAnnotation.typeParameters?.params.length === 1
       ) {
+        const typeParameter = componentTypeAnnotation.typeParameters.params[0];
+        assert(typeParameter);
         // copy `Props` from `React.FC<Props>` to `({ … }: Props) =>`
-        param.typeAnnotation = t.tsTypeAnnotation(
-          componentTypeAnnotation.typeParameters.params[0]
-        );
+        param.typeAnnotation = t.tsTypeAnnotation(typeParameter);
       }
 
       // delete `React.FC`
@@ -114,6 +115,7 @@ function rewrite(path: NodePath): boolean {
     }
 
     const [declaration] = declarations;
+    assert(declaration);
 
     if (
       !t.isIdentifier(declaration.id) ||

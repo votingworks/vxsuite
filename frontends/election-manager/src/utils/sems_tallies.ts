@@ -132,16 +132,16 @@ export function getContestTallyForYesNoContest(
       numVotes += row.numberOfVotes;
     } else if (contest.yesOption && row.candidateId === contest.yesOption.id) {
       const previousVoteCounts =
-        'yes' in tallies ? (tallies.yes as ContestOptionTally).tally : 0;
-      tallies.yes = {
+        'yes' in tallies ? (tallies['yes'] as ContestOptionTally).tally : 0;
+      tallies['yes'] = {
         option: ['yes'] as YesNoVoteOption,
         tally: row.numberOfVotes + previousVoteCounts,
       };
       numVotes += row.numberOfVotes;
     } else if (contest.noOption && row.candidateId === contest.noOption.id) {
       const previousVoteCounts =
-        'no' in tallies ? (tallies.no as ContestOptionTally).tally : 0;
-      tallies.no = {
+        'no' in tallies ? (tallies['no'] as ContestOptionTally).tally : 0;
+      tallies['no'] = {
         option: ['no'] as YesNoVoteOption,
         tally: row.numberOfVotes + previousVoteCounts,
       };

@@ -40,10 +40,9 @@ export type ValidationIssue =
   | TsconfigInvalidPropertyValueIssue
   | TsconfigMissingReferenceIssue;
 
-export async function maybeReadTsconfig(
-  filepath: string
-): Promise<Tsconfig | undefined> {
-  return await maybeReadJson(filepath);
+export function maybeReadTsconfig(filepath: string): Tsconfig | undefined {
+  const { config, error } = ts.readConfigFile(filepath, ts.sys.readFile);
+  return error ? undefined : config;
 }
 
 export async function maybeReadPackageJson(
@@ -176,7 +175,7 @@ export async function* checkTsconfigMatchesPackageJson(
     );
 
     if (
-      (await maybeReadTsconfig(expectedWorkspaceDependencyTsconfigBuildPath)) &&
+      maybeReadTsconfig(expectedWorkspaceDependencyTsconfigBuildPath) &&
       !tsconfigReferencesPaths.has(expectedWorkspaceDependencyTsconfigBuildPath)
     ) {
       yield {

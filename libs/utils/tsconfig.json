@@ -7,14 +7,11 @@
     "lib": ["dom", "dom.iterable", "esnext"],
     "composite": true,
     "noEmit": true,
-    "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "noUncheckedIndexedAccess": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true
   },
   "references": [
