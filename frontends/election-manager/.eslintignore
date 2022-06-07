@@ -1,8 +1,12 @@
 /build
+/config
 /coverage
 /cypress/plugins
 /cypress/integration/examples
 /cypress/support
 /prodserver
 /src/**/*.js
+/scripts/**/*.js
 *.d.ts
+*.config.js
+*.config.ts

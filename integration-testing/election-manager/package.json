@@ -5,8 +5,8 @@
   "scripts": {
     "build": "pnpm install && make build",
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
+    "lint": "(cd ../../frontends/election-manager && pnpx tsc --build) && eslint .",
+    "lint:fix": "pnpm lint -- --fix",
     "start": "make run",
     "test": "is-ci test:ci test:watch",
     "test:ci": "start-server-and-test start http://localhost:3000 cypress:run",

@@ -11,16 +11,22 @@ const express = require('express');
 const { createProxyMiddleware: proxy } = require('http-proxy-middleware');
 const { dirname, join } = require('path');
 
+/**
+ * @param {import('connect').Server} app
+ */
 module.exports = function (app) {
   app.use(proxy('/card', { target: 'http://localhost:3001/' }));
   app.use(proxy('/convert', { target: 'http://localhost:3003/' }));
   app.use(proxy('/admin', { target: 'http://localhost:3004/' }));
 
-  app.get('/machine-config', (req, res) => {
-    res.json({
-      machineId: process.env.VX_MACHINE_ID || '0000',
-      codeVersion: process.env.VX_CODE_VERSION || 'dev',
-    });
+  app.use('/machine-config', (req, res) => {
+    res.setHeader('Content-Type', 'application/json');
+    res.end(
+      JSON.stringify({
+        machineId: process.env.VX_MACHINE_ID || '0000',
+        codeVersion: process.env.VX_CODE_VERSION || 'dev',
+      })
+    );
   });
 
   const pdfjsDistBuildPath = dirname(
