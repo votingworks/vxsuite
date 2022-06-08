@@ -126,6 +126,6 @@ export class Store {
       'select distinct transcribed_value as transcribedValue from adjudications'
     ) as Array<{ transcribedValue: string }>;
 
-    return rows.map((r) => r.transcribedValue);
+    return rows.map((r) => r.transcribedValue).filter(Boolean);
   }
 }
