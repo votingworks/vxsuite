@@ -104,7 +104,7 @@ export function WriteInsTranscriptionScreen({
 
   function onPressSetTranscribedValue(val: string): void {
     setCurrentTranscribedValue(val);
-    saveTranscribedValue(adjudicationId || '', val);
+    saveTranscribedValue(adjudicationId, val);
   }
 
   useEffect(() => {
