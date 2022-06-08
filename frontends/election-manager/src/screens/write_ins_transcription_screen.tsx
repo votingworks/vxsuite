@@ -80,19 +80,8 @@ export function WriteInsTranscriptionScreen({
   const [currentTranscribedValue, setCurrentTranscribedValue] = useState('');
   const [isTranscribedValueInputVisible, setIsTranscribedValueInputVisible] =
     useState(false);
-  // TODO: initialize these with values from the DB
   const [previouslyTranscribedValues, setPreviouslyTranscribedValues] =
-    useState([
-      'Mickey Mouse',
-      'Mickey M',
-      'Micky',
-      'Donald',
-      'Donald Duck',
-      'Roger Rabbit',
-      'RR',
-      'DD',
-      'M. Mouse',
-    ]);
+    useState<string[]>([]);
 
   const transcribedValueInput = useRef<HTMLInputElement>(null);
 
@@ -119,6 +108,14 @@ export function WriteInsTranscriptionScreen({
     }
     void getTranscribedValue(adjudicationId || '');
   }, [adjudicationId]);
+
+  useEffect(() => {
+    async function getPreviouslyTranscribedValues(): Promise<void> {
+      const res = await fetch('/admin/write-ins/transcribed-values');
+      setPreviouslyTranscribedValues(await res.json());
+    }
+    void getPreviouslyTranscribedValues();
+  }, []);
 
   return (
     <Screen>
