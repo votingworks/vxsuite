@@ -122,6 +122,11 @@ export function buildApp({ store }: { store: Store }): Application {
     response.json(store.getAdjudicationsByContestId(contestId));
   });
 
+  app.get<NoParams>('/admin/write-ins/transcribed-values', (_, response) => {
+    const transcribedValues = store.getAllTranscribedValues();
+    response.json(transcribedValues);
+  });
+
   return app;
 }
 
