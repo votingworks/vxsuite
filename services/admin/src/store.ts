@@ -123,7 +123,7 @@ export class Store {
    */
   getAllTranscribedValues(): string[] {
     const rows = this.client.all(
-      'select distinct transcribed_value as transcribedValue from adjudications'
+      'select distinct transcribed_value as transcribedValue from adjudications order by transcribedValue asc'
     ) as Array<{ transcribedValue: string }>;
 
     return rows.map((r) => r.transcribedValue).filter(Boolean);

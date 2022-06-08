@@ -97,10 +97,10 @@ test('getAllTranscribedValues', () => {
   store.addAdjudication('assistant-mayor', 'Mickey Mouse');
   store.addAdjudication('county-commissioner', 'Daffy');
 
-  // Does not include duplicates
-  expect(store.getAllTranscribedValues()).toEqual(['Mickey Mouse', 'Daffy']);
+  // Does not include duplicates and is in alphabetical order
+  expect(store.getAllTranscribedValues()).toEqual(['Daffy', 'Mickey Mouse']);
 
   // Does not include empty strings
   store.addAdjudication('chief-of-staff', '');
-  expect(store.getAllTranscribedValues()).toEqual(['Mickey Mouse', 'Daffy']);
+  expect(store.getAllTranscribedValues()).toEqual(['Daffy', 'Mickey Mouse']);
 });
