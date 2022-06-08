@@ -1,6 +1,67 @@
+import { assert } from '@votingworks/utils';
 import { Buffer } from 'buffer';
-import { createCanvas } from 'canvas';
-import { getDocument } from 'pdfjs-dist';
+import { Canvas, createCanvas } from 'canvas';
+import { getDocument, CanvasFactory } from 'pdfjs-dist';
+
+// Extend `pdfjs-dist`'s `render` function to include `canvasFactory`.
+declare module 'pdfjs-dist' {
+  interface CanvasAndContext {
+    canvas?: Canvas;
+    context?: CanvasRenderingContext2D;
+  }
+
+  interface CanvasFactory {
+    create(width: number, height: number): CanvasAndContext;
+    reset(
+      canvasAndContext: CanvasAndContext,
+      width: number,
+      height: number
+    ): void;
+    destroy(canvasAndContext: CanvasAndContext): void;
+  }
+
+  // eslint-disable-next-line vx/gts-identifiers
+  interface PDFRenderParams {
+    canvasFactory?: CanvasFactory;
+  }
+}
+
+/* eslint-disable no-param-reassign */
+/**
+ * @see https://github.com/mozilla/pdf.js/issues/9667#issuecomment-471159204
+ */
+function buildNodeCanvasFactory(): CanvasFactory {
+  return {
+    create: (width, height) => {
+      assert(width > 0 && height > 0, 'Invalid canvas size');
+      const canvas = createCanvas(width, height);
+      const context = canvas.getContext('2d');
+      return {
+        canvas,
+        context,
+      };
+    },
+
+    reset: (canvasAndContext, width, height) => {
+      assert(canvasAndContext.canvas, 'Canvas is not specified');
+      assert(width > 0 && height > 0, 'Invalid canvas size');
+      canvasAndContext.canvas.width = width;
+      canvasAndContext.canvas.height = height;
+    },
+
+    destroy: (canvasAndContext) => {
+      assert(canvasAndContext.canvas, 'Canvas is not specified');
+
+      // Zeroing the width and height cause Firefox to release graphics
+      // resources immediately, which can greatly reduce memory consumption.
+      canvasAndContext.canvas.width = 0;
+      canvasAndContext.canvas.height = 0;
+      canvasAndContext.canvas = undefined;
+      canvasAndContext.context = undefined;
+    },
+  };
+}
+/* eslint-enable no-param-reassign */
 
 /**
  * Renders PDF pages as images.
@@ -22,7 +83,11 @@ export async function* pdfToImages(
     canvas.width = viewport.width;
     canvas.height = viewport.height;
 
-    await page.render({ canvasContext: context, viewport }).promise;
+    await page.render({
+      canvasContext: context,
+      viewport,
+      canvasFactory: buildNodeCanvasFactory(),
+    }).promise;
 
     yield {
       pageCount: pdf.numPages,
