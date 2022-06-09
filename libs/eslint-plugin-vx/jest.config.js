@@ -1,5 +1,8 @@
-const shared = require('../../jest.config.shared')
+const shared = require('../../jest.config.shared');
 
+/**
+ * @type {import('@jest/types').Config.InitialOptions}
+ */
 module.exports = {
   ...shared,
   testMatch: ['<rootDir>/tests/**/*.test.ts'],
@@ -7,4 +10,4 @@ module.exports = {
     '<rootDir>/src/rules/*.ts',
     '!<rootDir>/src/rules/index.ts',
   ],
-}
+};

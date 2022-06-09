@@ -1,5 +1,8 @@
 const shared = require('../../jest.config.shared')
 
+/**
+ * @type {import('@jest/types').Config.InitialOptions}
+ */
 module.exports = {
   ...shared,
   testEnvironment: 'jsdom',
@@ -9,4 +12,4 @@ module.exports = {
     '!src/precinct_scanner_polls_report.tsx',
   ],
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
-}
+};
