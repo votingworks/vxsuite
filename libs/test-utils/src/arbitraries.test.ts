@@ -16,6 +16,7 @@ import {
   arbitraryId,
   arbitraryYesNoOption,
 } from './arbitraries';
+import { assert } from './assert';
 
 test('arbitraryId', () => {
   fc.assert(
@@ -76,6 +77,7 @@ test('arbitraryCastVoteRecord(s) makes valid CVRs', () => {
   fc.assert(
     fc.property(arbitraryCastVoteRecord(), (cvr) => {
       const [frontPage, backPage] = cvr._pageNumbers!;
+      assert(typeof frontPage === 'number' && typeof backPage === 'number');
       expect(backPage - frontPage).toEqual(1);
     })
   );
@@ -91,8 +93,8 @@ test('arbitraryCastVoteRecord(s) makes valid CVRs', () => {
   );
 
   // specify the election
-  const election = fc.sample(arbitraryElection(), 1)[0];
-  const testBallot = fc.sample(fc.boolean())[0];
+  const election = fc.sample(arbitraryElection(), 1)[0]!;
+  const testBallot = fc.sample(fc.boolean())[0]!;
   fc.assert(
     fc.property(arbitraryCastVoteRecords({ election, testBallot }), (cvrs) => {
       for (const cvr of cvrs) {
