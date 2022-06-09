@@ -46,7 +46,6 @@ export async function readGrayscaleImage(path: string): Promise<ImageData> {
   const canvas = createCanvas(image.width, image.height);
   const context = canvas.getContext('2d');
   context.drawImage(image, 0, 0, image.width, image.height);
-  context.drawImage(image, 0, 0, image.width, image.height);
   const imageData = context.getImageData(0, 0, image.width, image.height);
   return convertToGrayscale(imageData);
 }
