@@ -9,6 +9,7 @@ import {
   getContests,
   PrecinctId,
 } from '@votingworks/types';
+import { assert } from './assert';
 
 export interface CastVoteRecordOptions {
   readonly precinctId?: PrecinctId;
@@ -27,8 +28,8 @@ export function generateCvr(
   options: CastVoteRecordOptions
 ): CastVoteRecord {
   // If precinctId or ballotStyleId are not provided default to the first in the election
-  const precinctId = options.precinctId ?? election.precincts[0].id;
-  const ballotStyleId = options.ballotStyleId ?? election.ballotStyles[0].id;
+  const precinctId = options.precinctId ?? election.precincts[0]?.id;
+  const ballotStyleId = options.ballotStyleId ?? election.ballotStyles[0]?.id;
   const { ballotId } = options;
   const ballotType = options.ballotType ?? 'standard';
   const testBallot = !!options.testBallot; // default to false
@@ -36,12 +37,16 @@ export function generateCvr(
   const batchId = options.batchId ?? 'batch-1';
   const batchLabel = options.batchLabel ?? 'Batch 1';
 
+  assert(typeof precinctId === 'string');
+  assert(typeof ballotStyleId === 'string');
+
   // Add in blank votes for any contest in the ballot style not specified.
   const ballotStyle =
     getBallotStyle({
       ballotStyleId,
       election,
-    }) || election.ballotStyles[0];
+    }) ?? election.ballotStyles[0];
+  assert(ballotStyle);
   const contestsInBallot = expandEitherNeitherContests(
     getContests({ ballotStyle, election })
   );
