@@ -297,6 +297,11 @@ export const Hudson03Nov2020BackPageBottomTimingMarkBits: ThirtyTwoBits = [
 export const HudsonFixtureName = 'hudson-2020-11-03';
 
 /**
+ * The filename prefix for the Amherst fixture files.
+ */
+export const AmherstFixtureName = 'amherst-2022-07-12';
+
+/**
  * Gets the path of a fixture file.
  */
 export function getFixturePath(
