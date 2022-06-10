@@ -20,9 +20,10 @@ import {
   unsafeParse,
   YesNoContest,
 } from '@votingworks/types';
-import { assert, groupBy, zip } from '@votingworks/utils';
+import { assert, groupBy, throwIllegalValue, zip } from '@votingworks/utils';
 import { sha256 } from 'js-sha256';
 import { DateTime } from 'luxon';
+import { ZodError } from 'zod';
 import {
   decodeBackTimingMarkBits,
   decodeFrontTimingMarkBits,
@@ -38,7 +39,13 @@ import {
   decodeBottomRowTimingMarks,
   interpolateMissingTimingMarks,
 } from './timing_marks';
-import { BackMarksMetadataSchema, FrontMarksMetadataSchema } from './types';
+import {
+  BackMarksMetadataSchema,
+  Bit,
+  FrontMarksMetadataSchema,
+  PartialTimingMarks,
+  Size,
+} from './types';
 
 export { interpret } from './interpret';
 
@@ -87,6 +94,30 @@ function compareGridEntry(a: GridEntry, b: GridEntry): number {
 }
 
 /**
+ * The kinds of errors that can occur during `pairColumnEntries`.
+ */
+export enum PairColumnEntriesErrorKind {
+  ColumnCountMismatch = 'ColumnCountMismatch',
+  ColumnEntryCountMismatch = 'ColumnEntryCountMismatch',
+}
+
+/**
+ * Errors that can occur during `pairColumnEntries`.
+ */
+export type PairColumnEntriesError =
+  | {
+      kind: PairColumnEntriesErrorKind.ColumnCountMismatch;
+      message: string;
+      columnCounts: [number, number];
+    }
+  | {
+      kind: PairColumnEntriesErrorKind.ColumnEntryCountMismatch;
+      message: string;
+      columnIndex: number;
+      columnEntryCounts: [number, number];
+    };
+
+/**
  * Pairs entries by column and row, ignoring the absolute values of the columns
  * and rows. There must be the same number of columns in both, and for each
  * column pair there must be the same number of rows in both.
@@ -94,7 +125,7 @@ function compareGridEntry(a: GridEntry, b: GridEntry): number {
 export function pairColumnEntries<T extends GridEntry, U extends GridEntry>(
   grid1: readonly T[],
   grid2: readonly U[]
-): Array<[T, U]> {
+): Result<Array<[T, U]>, PairColumnEntriesError> {
   const grid1ByColumn = groupBy(grid1, (e) => e.column);
   const grid2ByColumn = groupBy(grid2, (e) => e.column);
   const grid1Columns = Array.from(grid1ByColumn.entries())
@@ -109,13 +140,31 @@ export function pairColumnEntries<T extends GridEntry, U extends GridEntry>(
     .map(([, entries]) => Array.from(entries).sort(compareGridEntry));
   const pairs: Array<[T, U]> = [];
 
+  if (grid1Columns.length !== grid2Columns.length) {
+    return err({
+      kind: PairColumnEntriesErrorKind.ColumnCountMismatch,
+      message: `Grids have different number of columns: ${grid1Columns.length} vs ${grid2Columns.length}`,
+      columnCounts: [grid1Columns.length, grid2Columns.length],
+    });
+  }
+
+  let columnIndex = 0;
   for (const [column1, column2] of zip(grid1Columns, grid2Columns)) {
+    if (column1.length !== column2.length) {
+      return err({
+        kind: PairColumnEntriesErrorKind.ColumnEntryCountMismatch,
+        message: `Columns at index ${columnIndex} disagree on entry count: grid #1 has ${column1.length} entries, but grid #2 has ${column2.length} entries`,
+        columnIndex,
+        columnEntryCounts: [column1.length, column2.length],
+      });
+    }
     for (const [entry1, entry2] of zip(column1, column2)) {
       pairs.push([entry1, entry2]);
     }
+    columnIndex += 1;
   }
 
-  return pairs;
+  return ok(pairs);
 }
 
 /**
@@ -169,42 +218,141 @@ export function readGridFromElectionDefinition(
 }
 
 /**
+ * Kinds of errors that can occur when converting a ballot card definition.
+ */
+export enum ConvertErrorKind {
+  ElectionValidationFailed = 'ElectionValidationFailed',
+  InvalidBallotSize = 'InvalidBallotSize',
+  InvalidDistrictId = 'InvalidDistrictId',
+  InvalidElectionDate = 'InvalidElectionDate',
+  InvalidTimingMarkMetadata = 'InvalidTimingMarkMetadata',
+  MismatchedBallotImageSize = 'MismatchedBallotImageSize',
+  MismatchedOvalGrids = 'MismatchedOvalGrids',
+  MissingDefinitionProperty = 'MissingDefinitionProperty',
+  MissingTimingMarkMetadata = 'MissingTimingMarkMetadata',
+  TimingMarkDetectionFailed = 'TimingMarkDetectionFailed',
+}
+
+/**
+ * Errors that can occur when converting a ballot card definition.
+ */
+export type ConvertError =
+  | {
+      kind: ConvertErrorKind.ElectionValidationFailed;
+      message: string;
+      validationError: ZodError;
+    }
+  | {
+      kind: ConvertErrorKind.InvalidBallotSize;
+      message: string;
+      invalidBallotSize: string;
+    }
+  | {
+      kind: ConvertErrorKind.InvalidDistrictId;
+      message: string;
+      invalidDistrictId: string;
+    }
+  | {
+      kind: ConvertErrorKind.InvalidElectionDate;
+      message: string;
+      invalidDate: string;
+      invalidReason: string;
+    }
+  | {
+      kind: ConvertErrorKind.InvalidTimingMarkMetadata;
+      message: string;
+      side: 'front' | 'back';
+      timingMarks: PartialTimingMarks;
+      timingMarkBits: readonly Bit[];
+      validationError: ZodError;
+    }
+  | {
+      kind: ConvertErrorKind.MismatchedBallotImageSize;
+      message: string;
+      side: 'front' | 'back';
+      ballotPaperSize: BallotPaperSize;
+      expectedImageSize: Size;
+      actualImageSize: Size;
+    }
+  | {
+      kind: ConvertErrorKind.MismatchedOvalGrids;
+      message: string;
+      pairColumnEntriesError: PairColumnEntriesError;
+    }
+  | {
+      kind: ConvertErrorKind.MissingDefinitionProperty;
+      message: string;
+      property: string;
+    }
+  | {
+      kind: ConvertErrorKind.MissingTimingMarkMetadata;
+      message: string;
+      side: 'front' | 'back';
+      timingMarks: PartialTimingMarks;
+    }
+  | {
+      kind: ConvertErrorKind.TimingMarkDetectionFailed;
+      message: string;
+      side: 'front' | 'back';
+    };
+
+/**
  * Creates an election definition only from the ballot metadata, ignoring the
  * ballot images.
  */
 export function convertElectionDefinitionHeader(
   definition: NewHampshireBallotCardDefinition['definition']
-): Result<Election, Error> {
+): Result<Election, ConvertError> {
   const root = definition;
   const accuvoteHeaderInfo = root.getElementsByTagName('AccuvoteHeaderInfo')[0];
   const electionId =
     accuvoteHeaderInfo?.getElementsByTagName('ElectionID')[0]?.textContent;
   if (typeof electionId !== 'string') {
-    return err(new Error('ElectionID is required'));
+    return err({
+      kind: ConvertErrorKind.MissingDefinitionProperty,
+      message: 'ElectionID is missing',
+      property: 'AVSInterface > AccuvoteHeaderInfo > ElectionID',
+    });
   }
 
   const title =
     accuvoteHeaderInfo?.getElementsByTagName('ElectionName')[0]?.textContent;
   if (typeof title !== 'string') {
-    return err(new Error('ElectionName is required'));
+    return err({
+      kind: ConvertErrorKind.MissingDefinitionProperty,
+      message: 'ElectionName is missing',
+      property: 'AVSInterface > AccuvoteHeaderInfo > ElectionName',
+    });
   }
 
   const townName =
     accuvoteHeaderInfo?.getElementsByTagName('TownName')[0]?.textContent;
   if (typeof townName !== 'string') {
-    return err(new Error('TownName is required'));
+    return err({
+      kind: ConvertErrorKind.MissingDefinitionProperty,
+      message: 'TownName is missing',
+      property: 'AVSInterface > AccuvoteHeaderInfo > TownName',
+    });
   }
 
   const townId =
     accuvoteHeaderInfo?.getElementsByTagName('TownID')[0]?.textContent;
   if (typeof townId !== 'string') {
-    return err(new Error('TownID is required'));
+    return err({
+      kind: ConvertErrorKind.MissingDefinitionProperty,
+      message: 'TownID is missing',
+      property: 'AVSInterface > AccuvoteHeaderInfo > TownID',
+    });
   }
 
   const rawDate =
     accuvoteHeaderInfo?.getElementsByTagName('ElectionDate')[0]?.textContent;
   if (typeof rawDate !== 'string') {
-    return err(new Error('ElectionDate is required'));
+    return err({
+      kind: ConvertErrorKind.MissingDefinitionProperty,
+      message: 'ElectionDate is missing',
+      property: 'AVSInterface > AccuvoteHeaderInfo > ElectionDate',
+    });
   }
 
   const parsedDate = DateTime.fromFormat(rawDate.trim(), 'M/d/yyyy HH:mm:ss', {
@@ -212,28 +360,45 @@ export function convertElectionDefinitionHeader(
     zone: 'America/New_York',
   });
   if (parsedDate.invalidReason) {
-    return err(new Error(`invalid date: ${parsedDate.invalidReason}`));
+    return err({
+      kind: ConvertErrorKind.InvalidElectionDate,
+      message: `invalid date: ${parsedDate.invalidReason}`,
+      invalidDate: rawDate,
+      invalidReason: parsedDate.invalidReason,
+    });
   }
 
   const rawPrecinctId = root.getElementsByTagName('PrecinctID')[0]?.textContent;
   if (typeof rawPrecinctId !== 'string') {
-    return err(new Error('PrecinctID is required'));
+    return err({
+      kind: ConvertErrorKind.MissingDefinitionProperty,
+      message: 'PrecinctID is missing',
+      property: 'AVSInterface > AccuvoteHeaderInfo > PrecinctID',
+    });
   }
   const cleanedPrecinctId = rawPrecinctId.replace(/[^-_\w]/g, '');
   const precinctId = `town-id-${townId}-precinct-id-${cleanedPrecinctId}`;
 
-  const districtIdResult = safeParse(
-    DistrictIdSchema,
-    `town-id-${townId}-precinct-id-${cleanedPrecinctId}`
-  );
+  const rawDistrictId = `town-id-${townId}-precinct-id-${cleanedPrecinctId}`;
+  const districtIdResult = safeParse(DistrictIdSchema, rawDistrictId);
   if (districtIdResult.isErr()) {
-    return districtIdResult;
+    return err({
+      kind: ConvertErrorKind.InvalidDistrictId,
+      message: `Invalid district ID "${rawDistrictId}": ${
+        districtIdResult.err().message
+      }`,
+      invalidDistrictId: rawDistrictId,
+    });
   }
   const districtId = districtIdResult.ok();
 
   const ballotSize = root.getElementsByTagName('BallotSize')[0]?.textContent;
   if (typeof ballotSize !== 'string') {
-    return err(new Error('BallotSize is required'));
+    return err({
+      kind: ConvertErrorKind.MissingDefinitionProperty,
+      message: 'BallotSize is missing',
+      property: 'AVSInterface > AccuvoteHeaderInfo > BallotSize',
+    });
   }
   let paperSize: BallotPaperSize;
   switch (ballotSize) {
@@ -246,7 +411,11 @@ export function convertElectionDefinitionHeader(
       break;
 
     default:
-      return err(new Error(`invalid ballot size: ${ballotSize}`));
+      return err({
+        kind: ConvertErrorKind.InvalidBallotSize,
+        message: `invalid ballot size: ${ballotSize}`,
+        invalidBallotSize: ballotSize,
+      });
   }
   const geometry = getTemplateBallotCardGeometry(paperSize);
 
@@ -266,7 +435,11 @@ export function convertElectionDefinitionHeader(
     const officeName =
       officeNameElement?.getElementsByTagName('Name')[0]?.textContent;
     if (typeof officeName !== 'string') {
-      return err(new Error('OfficeName is required'));
+      return err({
+        kind: ConvertErrorKind.MissingDefinitionProperty,
+        message: 'OfficeName is missing',
+        property: 'AVSInterface > Candidates > OfficeName > Name',
+      });
     }
     const contestId = makeId(officeName);
 
@@ -285,9 +458,11 @@ export function convertElectionDefinitionHeader(
       const candidateName =
         candidateElement.getElementsByTagName('Name')[0]?.textContent;
       if (typeof candidateName !== 'string') {
-        return err(
-          new Error(`Name is missing in candidate ${i + 1} of ${officeName}`)
-        );
+        return err({
+          kind: ConvertErrorKind.MissingDefinitionProperty,
+          message: `Name is missing in candidate ${i + 1} of ${officeName}`,
+          property: 'AVSInterface > Candidates > CandidateName > Name',
+        });
       }
 
       let party: Party | undefined;
@@ -427,7 +602,17 @@ export function convertElectionDefinitionHeader(
     sealURL: '/seals/Seal_of_New_Hampshire.svg',
   };
 
-  return safeParseElection(election);
+  const parseElectionResult = safeParseElection(election);
+
+  if (parseElectionResult.isErr()) {
+    return err({
+      kind: ConvertErrorKind.ElectionValidationFailed,
+      message: parseElectionResult.err().message,
+      validationError: parseElectionResult.err(),
+    });
+  }
+
+  return parseElectionResult;
 }
 
 /**
@@ -436,7 +621,7 @@ export function convertElectionDefinitionHeader(
 export function convertElectionDefinition(
   cardDefinition: NewHampshireBallotCardDefinition,
   { ovalTemplate, debug }: { ovalTemplate: ImageData; debug?: Debugger }
-): Result<Election, Error> {
+): Result<Election, ConvertError> {
   const convertHeaderResult = convertElectionDefinitionHeader(
     cardDefinition.definition
   );
@@ -446,12 +631,32 @@ export function convertElectionDefinition(
   }
 
   const paperSize = convertHeaderResult.ok().ballotLayout?.paperSize;
-
-  if (!paperSize) {
-    return err(new Error('paper size is missing'));
-  }
+  assert(
+    paperSize,
+    'paperSize should always be set in convertElectionDefinitionHeader'
+  );
 
   const expectedCardGeometry = getTemplateBallotCardGeometry(paperSize);
+
+  for (const [side, imageData] of [
+    ['front', cardDefinition.front],
+    ['back', cardDefinition.back],
+  ] as const) {
+    if (
+      imageData.width !== expectedCardGeometry.canvasSize.width ||
+      imageData.height !== expectedCardGeometry.canvasSize.height
+    ) {
+      return err({
+        kind: ConvertErrorKind.MismatchedBallotImageSize,
+        message: `Ballot image size mismatch: XML definition is ${paperSize}-size, or ${expectedCardGeometry.canvasSize.width}x${expectedCardGeometry.canvasSize.height}, but ${side} image is ${imageData.width}x${imageData.height}`,
+        side,
+        ballotPaperSize: paperSize,
+        expectedImageSize: expectedCardGeometry.canvasSize,
+        actualImageSize: { width: imageData.width, height: imageData.height },
+      });
+    }
+  }
+
   debug?.layer('front page');
   const cardDefinitionFront = convertToGrayscale(cardDefinition.front);
   const frontTimingMarks = findBallotTimingMarks(cardDefinitionFront, {
@@ -461,7 +666,11 @@ export function convertElectionDefinition(
   debug?.layerEnd('front page');
 
   if (!frontTimingMarks) {
-    return err(new Error('no timing marks found on front'));
+    return err({
+      kind: ConvertErrorKind.TimingMarkDetectionFailed,
+      message: 'no timing marks found on front',
+      side: 'front',
+    });
   }
 
   debug?.layer('back page');
@@ -473,21 +682,33 @@ export function convertElectionDefinition(
   debug?.layerEnd('back page');
 
   if (!backTimingMarks) {
-    return err(new Error('no timing marks found on back'));
+    return err({
+      kind: ConvertErrorKind.TimingMarkDetectionFailed,
+      message: 'no timing marks found on back',
+      side: 'back',
+    });
   }
 
   const frontBits = decodeBottomRowTimingMarks(frontTimingMarks)?.reverse();
 
   if (!frontBits) {
-    return err(
-      new Error('could not read bottom timing marks on front as bits')
-    );
+    return err({
+      kind: ConvertErrorKind.MissingTimingMarkMetadata,
+      message: 'could not read bottom timing marks on front as bits',
+      side: 'front',
+      timingMarks: frontTimingMarks,
+    });
   }
 
   const backBits = decodeBottomRowTimingMarks(backTimingMarks)?.reverse();
 
   if (!backBits) {
-    return err(new Error('could not read bottom timing marks on back as bits'));
+    return err({
+      kind: ConvertErrorKind.MissingTimingMarkMetadata,
+      message: 'could not read bottom timing marks on back as bits',
+      side: 'back',
+      timingMarks: backTimingMarks,
+    });
   }
 
   const frontMetadataResult = safeParse(
@@ -496,7 +717,16 @@ export function convertElectionDefinition(
   );
 
   if (frontMetadataResult.isErr()) {
-    return frontMetadataResult;
+    return err({
+      kind: ConvertErrorKind.InvalidTimingMarkMetadata,
+      message: `could not parse front timing mark metadata: ${
+        frontMetadataResult.err().message
+      }`,
+      side: 'front',
+      timingMarks: frontTimingMarks,
+      timingMarkBits: frontBits,
+      validationError: frontMetadataResult.err(),
+    });
   }
 
   const frontMetadata = frontMetadataResult.ok();
@@ -507,7 +737,16 @@ export function convertElectionDefinition(
   );
 
   if (backMetadataResult.isErr()) {
-    return backMetadataResult;
+    return err({
+      kind: ConvertErrorKind.InvalidTimingMarkMetadata,
+      message: `could not parse back timing mark metadata: ${
+        backMetadataResult.err().message
+      }`,
+      side: 'back',
+      timingMarks: backTimingMarks,
+      timingMarkBits: backBits,
+      validationError: backMetadataResult.err(),
+    });
   }
 
   const ballotStyleId = `card-number-${frontMetadata.cardNumber}`;
@@ -549,15 +788,37 @@ export function convertElectionDefinition(
     })),
   ];
 
-  const mergedGrids = pairColumnEntries(
-    gridLayout.gridPositions.map<GridPosition>((gridPosition) => {
-      return {
-        ...gridPosition,
-      };
-    }),
+  const pairColumnEntriesResult = pairColumnEntries(
+    gridLayout.gridPositions.map<GridPosition>((gridPosition) => ({
+      ...gridPosition,
+    })),
     ovalGrid
   );
 
+  if (pairColumnEntriesResult.isErr()) {
+    const pairColumnEntriesError = pairColumnEntriesResult.err();
+
+    switch (pairColumnEntriesError.kind) {
+      case PairColumnEntriesErrorKind.ColumnCountMismatch:
+        return err({
+          kind: ConvertErrorKind.MismatchedOvalGrids,
+          message: `XML definition and ballot images have different number of columns containing ovals: ${pairColumnEntriesError.columnCounts[0]} vs ${pairColumnEntriesError.columnCounts[1]}`,
+          pairColumnEntriesError,
+        });
+
+      case PairColumnEntriesErrorKind.ColumnEntryCountMismatch:
+        return err({
+          kind: ConvertErrorKind.MismatchedOvalGrids,
+          message: `XML definition and ballot images have different number of entries in column ${pairColumnEntriesError.columnIndex}: ${pairColumnEntriesError.columnEntryCounts[0]} vs ${pairColumnEntriesError.columnEntryCounts[1]}`,
+          pairColumnEntriesError,
+        });
+
+      default:
+        throwIllegalValue(pairColumnEntriesError, 'kind');
+    }
+  }
+
+  const mergedGrids = pairColumnEntriesResult.ok();
   const result: Election = {
     ...election,
     ballotStyles: [

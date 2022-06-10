@@ -1,6 +1,9 @@
 import { typedAs } from '@votingworks/utils';
 import { mockOf } from '@votingworks/test-utils';
-import { convertElectionDefinition } from '@votingworks/ballot-interpreter-nh';
+import {
+  convertElectionDefinition,
+  ConvertErrorKind,
+} from '@votingworks/ballot-interpreter-nh';
 import { err, ok, safeParseElection } from '@votingworks/types';
 import { electionMinimalExhaustiveSample } from '@votingworks/fixtures';
 import { NhConverterClient } from './nh_converter_client';
@@ -36,6 +39,7 @@ function makePdfToImagesMockReturnValue({
             data: Uint8ClampedArray.of(0, 0, 0, 0),
             width: 1,
             height: 1,
+            colorSpace: 'srgb',
           },
         },
         done: false,
@@ -152,7 +156,11 @@ test('conversion fails', async () => {
   const client = new NhConverterClient();
 
   mockOf(convertElectionDefinition).mockReturnValue(
-    err(new Error('ElectionID is required'))
+    err({
+      kind: ConvertErrorKind.MissingDefinitionProperty,
+      message: 'ElectionID is missing',
+      property: 'AVSInterface > AccuvoteHeaderInfo > ElectionID',
+    })
   );
   mockOf(pdfToImages).mockReturnValue(makePdfToImagesMockReturnValue());
 
@@ -165,7 +173,10 @@ test('conversion fails', async () => {
     new File(['%PDF'], 'ballot.pdf')
   );
 
-  await expect(client.process()).rejects.toThrow('ElectionID is required');
+  await expect(client.process()).rejects.toMatchObject({
+    kind: ConvertErrorKind.MissingDefinitionProperty,
+    property: 'AVSInterface > AccuvoteHeaderInfo > ElectionID',
+  });
 });
 
 test('too many PDF pages', async () => {

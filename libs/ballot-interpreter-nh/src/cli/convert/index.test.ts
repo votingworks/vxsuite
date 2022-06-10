@@ -9,7 +9,7 @@ import {
   HudsonFixtureName,
   readFixtureJson,
 } from '../../../test/fixtures';
-import { convertElectionDefinition } from '../../convert';
+import { convertElectionDefinition, ConvertErrorKind } from '../../convert';
 
 jest.mock('../../convert');
 jest.mock('../../images');
@@ -256,7 +256,13 @@ test('convert fails', async () => {
     stderr: fakeWritable(),
   };
 
-  mockOf(convertElectionDefinition).mockReturnValue(err(new Error('nope')));
+  mockOf(convertElectionDefinition).mockReturnValue(
+    err({
+      kind: ConvertErrorKind.MissingDefinitionProperty,
+      message: 'ElectionID is missing',
+      property: 'AVSInterface > AccuvoteHeaderInfo > ElectionID',
+    })
+  );
 
   const exitCode = await main(
     [
@@ -276,6 +282,6 @@ test('convert fails', async () => {
   }).toEqual({
     exitCode: 1,
     stdout: '',
-    stderr: 'error: nope\n',
+    stderr: 'error: ElectionID is missing\n',
   });
 });
