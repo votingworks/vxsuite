@@ -1,9 +1,4 @@
-import {
-  AdjudicationId,
-  AdjudicationIdSchema,
-  ContestId,
-  ContestIdSchema,
-} from '@votingworks/types';
+import { ContestId, ContestIdSchema } from '@votingworks/types';
 import * as z from 'zod';
 import { ErrorsResponse, ErrorsResponseSchema, OkResponse } from '../../base';
 
@@ -46,26 +41,24 @@ export const PostAdjudicationResponseSchema: z.ZodSchema<PostAdjudicationRespons
   ]);
 
 /**
- * @url /admin/write-ins/adjudication/transcribe
+ * @url /admin/write-ins/adjudications/:adjudicationId/transcription
  * @method PATCH
  */
 export interface PatchAdjudicationTranscribedValueRequest {
-  adjudicationId: AdjudicationId;
   transcribedValue: string;
 }
 
 /**
- * @url /admin/write-ins/adjudication/transcribe
+ * @url /admin/write-ins/adjudications/:adjudicationId/transcription
  * @method PATCH
  */
 export const PatchAdjudicationTranscribedValueRequestSchema: z.ZodSchema<PatchAdjudicationTranscribedValueRequest> =
   z.object({
-    adjudicationId: AdjudicationIdSchema,
     transcribedValue: z.string(),
   });
 
 /**
- * @url /admin/write-ins/adjudication/transcribe
+ * @url /admin/write-ins/adjudications/:adjudicationId/transcription
  * @method PATCH
  */
 export type PatchAdjudicationTranscribedValueResponse =
@@ -73,7 +66,7 @@ export type PatchAdjudicationTranscribedValueResponse =
   | ErrorsResponse;
 
 /**
- * @url /admin/write-ins/adjudication/transcribe
+ * @url /admin/write-ins/adjudications/:adjudicationId/transcription
  * @method PATCH
  */
 export const PatchAdjudicationTranscribedValueResponseSchema: z.ZodSchema<PatchAdjudicationTranscribedValueResponse> =

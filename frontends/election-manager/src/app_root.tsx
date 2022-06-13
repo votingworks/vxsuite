@@ -294,13 +294,16 @@ export function AppRoot({
   const saveTranscribedValue = useCallback(
     async (adjudicationId: string, transcribedValue: string) => {
       try {
-        await fetch('/admin/write-ins/adjudication/transcribe', {
-          method: 'PATCH',
-          body: JSON.stringify({ adjudicationId, transcribedValue }),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+        await fetch(
+          `/admin/write-ins/adjudications/${adjudicationId}/transcription`,
+          {
+            method: 'PATCH',
+            body: JSON.stringify({ transcribedValue }),
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        );
       } catch (error) {
         assert(error instanceof Error);
         throw error;

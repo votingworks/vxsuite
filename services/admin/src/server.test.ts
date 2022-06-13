@@ -82,12 +82,12 @@ test('POST /admin/write-ins/adjudication', async () => {
   expect(workspace.store.addAdjudication).toHaveBeenCalledWith('mayor');
 });
 
-test('PATCH /admin/write-ins/adjudication/transcribe', async () => {
+test('PATCH /admin/write-ins/adjudications/:adjudicationId/transcription', async () => {
   workspace.store.updateAdjudicationTranscribedValue = jest.fn();
 
   // Invalid request
   await request(app)
-    .patch('/admin/write-ins/adjudication/transcribe')
+    .patch('/admin/write-ins/adjudications/1/transcription')
     .set('Accept', 'application/json')
     .expect(400);
   expect(
@@ -99,9 +99,9 @@ test('PATCH /admin/write-ins/adjudication/transcribe', async () => {
 
   // Valid request
   await request(app)
-    .patch('/admin/write-ins/adjudication/transcribe')
+    .patch(`/admin/write-ins/adjudications/${adjudicationId}/transcription`)
     .set('Accept', 'application/json')
-    .send({ adjudicationId, transcribedValue })
+    .send({ transcribedValue })
     .expect(200);
   expect(
     workspace.store.updateAdjudicationTranscribedValue

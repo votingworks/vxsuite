@@ -47,25 +47,38 @@ export function buildApp({ store }: { store: Store }): Application {
     NoParams,
     Admin.PatchAdjudicationTranscribedValueResponse,
     Admin.PatchAdjudicationTranscribedValueRequest
-  >('/admin/write-ins/adjudication/transcribe', (request, response) => {
-    const bodyParseResult = safeParse(
-      Admin.PatchAdjudicationTranscribedValueRequestSchema,
-      request.body
-    );
+  >(
+    '/admin/write-ins/adjudications/:adjudicationId/transcription',
+    (request, response) => {
+      const { adjudicationId } = request.params;
 
-    if (bodyParseResult.isErr()) {
-      const error = bodyParseResult.err();
-      response.status(400).json({
-        status: 'error',
-        errors: [{ type: error.name, message: error.message }],
-      });
-      return;
+      if (typeof adjudicationId !== 'string') {
+        response.status(404);
+        return;
+      }
+
+      const bodyParseResult = safeParse(
+        Admin.PatchAdjudicationTranscribedValueRequestSchema,
+        request.body
+      );
+
+      if (bodyParseResult.isErr()) {
+        const error = bodyParseResult.err();
+        response.status(400).json({
+          status: 'error',
+          errors: [{ type: error.name, message: error.message }],
+        });
+        return;
+      }
+
+      const { transcribedValue } = bodyParseResult.ok();
+      store.updateAdjudicationTranscribedValue(
+        adjudicationId,
+        transcribedValue
+      );
+      response.json({ status: 'ok' });
     }
-
-    const { adjudicationId, transcribedValue } = bodyParseResult.ok();
-    store.updateAdjudicationTranscribedValue(adjudicationId, transcribedValue);
-    response.json({ status: 'ok' });
-  });
+  );
 
   return app;
 }
