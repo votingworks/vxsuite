@@ -26,6 +26,13 @@ function enterPin() {
   }
 }
 
+function removeCard() {
+  cy.request('PUT', 'http://localhost:3001/mock', {
+    enabled: true,
+    hasCard: false,
+  });
+}
+
 describe('BSD and services/Scan', () => {
   beforeEach(() => {
     // Unconfigure services/scan
@@ -33,12 +40,11 @@ describe('BSD and services/Scan', () => {
     mockAdminCard();
     cy.visit('/');
     enterPin();
+    removeCard();
     cy.contains('Load Election Configuration', { timeout: 10000 });
   });
 
   it('BSD can be configured with services/scan with an election JSON file', () => {
-    cy.visit('/');
-    enterPin();
     cy.contains('Load Election Configuration');
     cy.get('input[type="file"]').attachFile('election.json');
     cy.contains('Close').click();
@@ -46,8 +52,6 @@ describe('BSD and services/Scan', () => {
   });
 
   it('BSD can be configured with services/scan with a ZIP ballot package and can configure advanced options', () => {
-    cy.visit('/');
-    enterPin();
     cy.contains('Load Election Configuration');
     cy.get('input[type="file"]').attachFile({
       filePath: 'ballot-package.zip',

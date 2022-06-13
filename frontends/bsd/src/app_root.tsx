@@ -24,6 +24,7 @@ import {
   Main,
   Prose,
   RebootFromUsbButton,
+  RemoveCardPage,
   Screen,
   SetupCardReaderPage,
   Text,
@@ -89,6 +90,7 @@ export function AppRoot({
   const [electionJustLoaded, setElectionJustLoaded] = useState(false);
   const [isTestMode, setTestMode] = useState(false);
   const [isTogglingTestMode, setTogglingTestMode] = useState(false);
+  const [removeCardScreenShown, setRemoveCardScreenShown] = useState(false);
   const [status, setStatus] = useState<Scan.GetScanStatusResponse>({
     canUnconfigure: true,
     batches: [],
@@ -237,6 +239,14 @@ export function AppRoot({
     currentUserType,
     lastScannedSheetIdx,
   ]);
+
+  useEffect(() => {
+    if (currentUserSession?.authenticated && smartcard.status === 'no_card') {
+      setRemoveCardScreenShown(true);
+    } else if (!currentUserSession) {
+      setRemoveCardScreenShown(false);
+    }
+  }, [currentUserSession, smartcard.status]);
 
   const updateStatus = useCallback(async () => {
     try {
@@ -563,6 +573,20 @@ export function AppRoot({
           attemptToAuthenticateAdminUser={attemptToAuthenticateAdminUser}
         />
       </AppContext.Provider>
+    );
+  }
+
+  if (smartcard.status !== 'no_card' && !removeCardScreenShown) {
+    return (
+      <Screen>
+        <RemoveCardPage />
+        <ElectionInfoBar
+          mode="admin"
+          electionDefinition={electionDefinition}
+          codeVersion={machineConfig.codeVersion}
+          machineId={machineConfig.machineId}
+        />
+      </Screen>
     );
   }
 

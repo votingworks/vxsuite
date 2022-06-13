@@ -48,3 +48,4 @@ export * from './test_mode';
 export * from './text';
 export * from './themes';
 export * from './usbcontroller_button';
+export * from './remove_card_page';

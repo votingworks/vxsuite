@@ -177,6 +177,8 @@ async function authenticateWithAdminCard(card: MemoryCard) {
   fireEvent.click(screen.getByText('4'));
   fireEvent.click(screen.getByText('5'));
   fireEvent.click(screen.getByText('6'));
+  card.removeCard();
+  await advanceTimersAndPromises(1);
 }
 
 // TODO: Update this function to check super admin PIN entry once super admin PINs have been
@@ -319,8 +321,8 @@ test('authentication works', async () => {
   fireEvent.click(screen.getByText('5'));
   fireEvent.click(screen.getByText('6'));
 
-  // Machine should be unlocked
-  await screen.findByText('Definition');
+  // 'Remove Card' screen is shown after successful authentication.
+  await screen.findByText('Remove Card.');
   expect(mockKiosk.log).toHaveBeenCalledWith(
     expect.stringMatching(/"admin-authentication-2fac".*disposition":"success"/)
   );
@@ -330,7 +332,7 @@ test('authentication works', async () => {
     )
   );
 
-  // The card can be removed and the screen will stay unlocked
+  // Machine is unlocked when card removed
   card.removeCard();
   await advanceTimersAndPromises(1);
   await screen.findByText('Definition');

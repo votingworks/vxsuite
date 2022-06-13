@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders RemoveCardPage 1`] = `
+<main
+  class="sc-bdvvaa kPCkke"
+>
+  <img
+    alt="Remove Card Icon"
+    class="sc-dkPtyc fPpiEj"
+    src="remove-card.svg"
+  />
+  <div
+    class="sc-gsDJrp gbuPkE"
+  >
+    <h1>
+      Successfully Authenticated.
+    </h1>
+    <p>
+      Remove Card.
+    </p>
+  </div>
+</main>
+`;
