@@ -242,6 +242,7 @@ export const AdjudicationIdSchema: z.ZodSchema<AdjudicationId> = IdSchema;
 export interface Adjudication {
   readonly id: AdjudicationId;
   readonly contestId: ContestId;
+  readonly transcribedValue: string;
 }
 
 export type YesNoOptionId = Id;
