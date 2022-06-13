@@ -14,6 +14,8 @@ import { asciiOvalGrid } from '../test/utils';
 import {
   convertElectionDefinition,
   convertElectionDefinitionHeader,
+  ConvertError,
+  ConvertErrorKind,
   readGridFromElectionDefinition,
 } from './convert';
 import * as templates from './data/templates';
@@ -58,6 +60,32 @@ test('letter-size card definition', async () => {
   );
 });
 
+test('mismatched ballot image size', async () => {
+  const hudsonBallotCardDefinition = await readFixtureBallotCardDefinition(
+    HudsonFixtureName
+  );
+
+  hudsonBallotCardDefinition.definition.getElementsByTagName(
+    'BallotSize'
+  )[0]!.textContent = '8.5X11';
+
+  expect(
+    convertElectionDefinition(hudsonBallotCardDefinition, {
+      ovalTemplate: await templates.getOvalTemplate(),
+    }).unsafeUnwrapErr()
+  ).toEqual(
+    typedAs<ConvertError>({
+      kind: ConvertErrorKind.MismatchedBallotImageSize,
+      message:
+        'Ballot image size mismatch: XML definition is letter-size, or 684x864, but front image is 684x1080',
+      side: 'front',
+      ballotPaperSize: BallotPaperSize.Letter,
+      expectedImageSize: { width: 684, height: 864 },
+      actualImageSize: { width: 684, height: 1080 },
+    })
+  );
+});
+
 test('missing ElectionID', async () => {
   const hudsonBallotCardDefinition = await readFixtureDefinition(
     HudsonFixtureName
@@ -67,9 +95,17 @@ test('missing ElectionID', async () => {
     hudsonBallotCardDefinition.getElementsByTagName('ElectionID')[0]!;
   electionIdElement.parentNode?.removeChild(electionIdElement);
 
-  expect(() =>
-    convertElectionDefinitionHeader(hudsonBallotCardDefinition).unsafeUnwrap()
-  ).toThrowErrorMatchingInlineSnapshot('"ElectionID is required"');
+  expect(
+    convertElectionDefinitionHeader(
+      hudsonBallotCardDefinition
+    ).unsafeUnwrapErr()
+  ).toEqual(
+    typedAs<ConvertError>({
+      kind: ConvertErrorKind.MissingDefinitionProperty,
+      message: 'ElectionID is missing',
+      property: 'AVSInterface > AccuvoteHeaderInfo > ElectionID',
+    })
+  );
 });
 
 test('missing ElectionName', async () => {
@@ -81,9 +117,17 @@ test('missing ElectionName', async () => {
     hudsonBallotCardDefinition.getElementsByTagName('ElectionName')[0]!;
   electionNameElement.parentNode?.removeChild(electionNameElement);
 
-  expect(() =>
-    convertElectionDefinitionHeader(hudsonBallotCardDefinition).unsafeUnwrap()
-  ).toThrowErrorMatchingInlineSnapshot('"ElectionName is required"');
+  expect(
+    convertElectionDefinitionHeader(
+      hudsonBallotCardDefinition
+    ).unsafeUnwrapErr()
+  ).toEqual(
+    typedAs<ConvertError>({
+      kind: ConvertErrorKind.MissingDefinitionProperty,
+      message: 'ElectionName is missing',
+      property: 'AVSInterface > AccuvoteHeaderInfo > ElectionName',
+    })
+  );
 });
 
 test('missing TownName', async () => {
@@ -95,9 +139,17 @@ test('missing TownName', async () => {
     hudsonBallotCardDefinition.getElementsByTagName('TownName')[0]!;
   townNameElement.parentNode?.removeChild(townNameElement);
 
-  expect(() =>
-    convertElectionDefinitionHeader(hudsonBallotCardDefinition).unsafeUnwrap()
-  ).toThrowErrorMatchingInlineSnapshot('"TownName is required"');
+  expect(
+    convertElectionDefinitionHeader(
+      hudsonBallotCardDefinition
+    ).unsafeUnwrapErr()
+  ).toEqual(
+    typedAs<ConvertError>({
+      kind: ConvertErrorKind.MissingDefinitionProperty,
+      message: 'TownName is missing',
+      property: 'AVSInterface > AccuvoteHeaderInfo > TownName',
+    })
+  );
 });
 
 test('missing TownID', async () => {
@@ -109,9 +161,17 @@ test('missing TownID', async () => {
     hudsonBallotCardDefinition.getElementsByTagName('TownID')[0]!;
   townIdElement.parentNode?.removeChild(townIdElement);
 
-  expect(() =>
-    convertElectionDefinitionHeader(hudsonBallotCardDefinition).unsafeUnwrap()
-  ).toThrowErrorMatchingInlineSnapshot('"TownID is required"');
+  expect(
+    convertElectionDefinitionHeader(
+      hudsonBallotCardDefinition
+    ).unsafeUnwrapErr()
+  ).toEqual(
+    typedAs<ConvertError>({
+      kind: ConvertErrorKind.MissingDefinitionProperty,
+      message: 'TownID is missing',
+      property: 'AVSInterface > AccuvoteHeaderInfo > TownID',
+    })
+  );
 });
 
 test('missing ElectionDate', async () => {
@@ -123,9 +183,17 @@ test('missing ElectionDate', async () => {
     hudsonBallotCardDefinition.getElementsByTagName('ElectionDate')[0]!;
   electionDateElement.parentNode?.removeChild(electionDateElement);
 
-  expect(() =>
-    convertElectionDefinitionHeader(hudsonBallotCardDefinition).unsafeUnwrap()
-  ).toThrowErrorMatchingInlineSnapshot('"ElectionDate is required"');
+  expect(
+    convertElectionDefinitionHeader(
+      hudsonBallotCardDefinition
+    ).unsafeUnwrapErr()
+  ).toEqual(
+    typedAs<ConvertError>({
+      kind: ConvertErrorKind.MissingDefinitionProperty,
+      message: 'ElectionDate is missing',
+      property: 'AVSInterface > AccuvoteHeaderInfo > ElectionDate',
+    })
+  );
 });
 
 test('missing PrecinctID', async () => {
@@ -137,9 +205,17 @@ test('missing PrecinctID', async () => {
     hudsonBallotCardDefinition.getElementsByTagName('PrecinctID')[0]!;
   precinctIdElement.parentNode?.removeChild(precinctIdElement);
 
-  expect(() =>
-    convertElectionDefinitionHeader(hudsonBallotCardDefinition).unsafeUnwrap()
-  ).toThrowErrorMatchingInlineSnapshot('"PrecinctID is required"');
+  expect(
+    convertElectionDefinitionHeader(
+      hudsonBallotCardDefinition
+    ).unsafeUnwrapErr()
+  ).toEqual(
+    typedAs<ConvertError>({
+      kind: ConvertErrorKind.MissingDefinitionProperty,
+      message: 'PrecinctID is missing',
+      property: 'AVSInterface > AccuvoteHeaderInfo > PrecinctID',
+    })
+  );
 });
 
 test('readGridFromElectionDefinition', async () => {

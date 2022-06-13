@@ -207,7 +207,7 @@ test('hudson template', async () => {
         side: 'back' as const,
       })),
     ]
-  );
+  ).unsafeUnwrap();
   expect(paired).toHaveLength(
     frontTemplateOvals.length + backTemplateOvals.length
   );
