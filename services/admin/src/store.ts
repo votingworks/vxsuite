@@ -2,7 +2,7 @@
 // The durable datastore for election data, CVRs, and adjudication info.
 //
 
-import { Adjudication } from '@votingworks/types';
+import { Adjudication, AdjudicationId, ContestId } from '@votingworks/types';
 import { join } from 'path';
 import { v4 as uuid } from 'uuid';
 import { DbClient } from './db_client';
@@ -69,5 +69,31 @@ export class Store {
       id
     ) as Adjudication | undefined;
     return row;
+  }
+
+  /**
+   * Get all adjudicationIds for a given contestId.
+   */
+  getAdjudicationIdsByContestId(contestId: ContestId): AdjudicationId[] {
+    const rows = this.client.all(
+      'select id from adjudications where contest_id = ?',
+      contestId
+    ) as Array<{ id: AdjudicationId }>;
+
+    return rows.map((r) => r.id);
+  }
+
+  /**
+   * Get all adjudicationIds grouped by contestId.
+   */
+  getAdjudicationCountsGroupedByContestId(): Array<{
+    contestId: ContestId;
+    adjudicationCount: number;
+  }> {
+    const rows = this.client.all(
+      'select contest_id as contestId, count(id) as adjudicationCount from adjudications group by contest_id'
+    ) as Array<{ contestId: ContestId; adjudicationCount: number }>;
+
+    return rows;
   }
 }

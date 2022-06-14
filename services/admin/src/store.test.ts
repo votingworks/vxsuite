@@ -28,3 +28,32 @@ test('add/get adjudications', () => {
   expect(added?.contestId).toEqual('mayor');
   expect(added?.transcribedValue).toEqual('Mickey Mouse');
 });
+
+test('getAdjudicationsByContestId', () => {
+  const store = Store.memoryStore();
+  const id1 = store.addAdjudication('mayor', 'Minnie Mouse');
+  const id2 = store.addAdjudication('mayor', 'Goofy');
+  store.addAdjudication('assistant-mayor', 'Mickey Mouse');
+
+  // Does not include duplicates and is in alphabetical order
+  expect(store.getAdjudicationIdsByContestId('mayor')).toEqual([id1, id2]);
+});
+
+test('getAllAdjudicationsGroupedByContestId', () => {
+  const store = Store.memoryStore();
+  store.addAdjudication('mayor', 'Minnie Mouse');
+  store.addAdjudication('mayor', 'Goofy');
+  store.addAdjudication('assistant-mayor', 'Mickey Mouse');
+
+  // Does not include duplicates and is in alphabetical order
+  expect(store.getAdjudicationCountsGroupedByContestId()).toEqual([
+    {
+      contestId: 'assistant-mayor',
+      adjudicationCount: 1,
+    },
+    {
+      contestId: 'mayor',
+      adjudicationCount: 2,
+    },
+  ]);
+});

@@ -80,6 +80,26 @@ export function buildApp({ store }: { store: Store }): Application {
     }
   );
 
+  app.get<NoParams>(
+    '/admin/write-ins/adjudications/:contestId/id',
+    (request, response) => {
+      const { contestId } = request.params;
+
+      if (typeof contestId !== 'string') {
+        response.status(404);
+        return;
+      }
+      response.json(store.getAdjudicationIdsByContestId(contestId));
+    }
+  );
+
+  app.get<NoParams>(
+    '/admin/write-ins/adjudications/contestId/count',
+    (_, response) => {
+      response.json(store.getAdjudicationCountsGroupedByContestId());
+    }
+  );
+
   return app;
 }
 

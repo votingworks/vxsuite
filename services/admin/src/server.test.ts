@@ -107,3 +107,32 @@ test('PATCH /admin/write-ins/adjudications/:adjudicationId/transcription', async
     workspace.store.updateAdjudicationTranscribedValue
   ).toHaveBeenCalledWith(adjudicationId, transcribedValue);
 });
+
+test('GET /admin/write-ins/adjudications/:contestId/id', async () => {
+  await request(app)
+    .get('/admin/write-ins/adjudications/mayor/id')
+    .expect(200, []);
+
+  const id1 = workspace.store.addAdjudication('mayor', 'Minnie Mouse');
+  const id2 = workspace.store.addAdjudication('mayor', 'Goofy');
+  workspace.store.addAdjudication('county-commissioner', 'Daffy');
+  await request(app)
+    .get('/admin/write-ins/adjudications/mayor/id')
+    .expect(200, [id1, id2]);
+});
+
+test('GET /admin/write-ins/adjudications/contestId/count', async () => {
+  await request(app)
+    .get('/admin/write-ins/adjudications/contestId/count')
+    .expect(200, []);
+
+  workspace.store.addAdjudication('mayor', 'Minnie Mouse');
+  workspace.store.addAdjudication('mayor', 'Goofy');
+  workspace.store.addAdjudication('county-commissioner', 'Daffy');
+  await request(app)
+    .get('/admin/write-ins/adjudications/contestId/count')
+    .expect(200, [
+      { contestId: 'county-commissioner', adjudicationCount: 1 },
+      { contestId: 'mayor', adjudicationCount: 2 },
+    ]);
+});
