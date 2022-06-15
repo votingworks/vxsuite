@@ -7,7 +7,7 @@ import {
   NewHampshireBallotCardDefinition,
 } from '../../convert';
 import * as templates from '../../data/templates';
-import { readGrayscaleImage } from '../../images';
+import * as images from '../../images';
 
 interface ConvertOptions {
   readonly type: 'convert';
@@ -132,8 +132,10 @@ export async function main(
     options;
 
   const definitionContent = await fs.readFile(definitionPath, 'utf8');
-  const frontBallotImage = await readGrayscaleImage(frontBallotPath);
-  const backBallotImage = await readGrayscaleImage(backBallotPath);
+  const frontBallotImage = images.toImageData(
+    await images.load(frontBallotPath)
+  );
+  const backBallotImage = images.toImageData(await images.load(backBallotPath));
 
   const cardDefinition: NewHampshireBallotCardDefinition = {
     definition: parseXml(definitionContent),

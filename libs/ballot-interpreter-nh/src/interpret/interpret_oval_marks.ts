@@ -1,18 +1,19 @@
 import { GridLayout } from '@votingworks/types';
 import { assert } from '@votingworks/utils';
 import {
-  BallotCardGeometry,
-  InterpretedOvalMark,
-  ScannedBallotBackPageLayout,
-  ScannedBallotFrontPageLayout,
-} from '../types';
-import {
   binarize,
+  getChannels,
   matchTemplateImage,
   scoreTemplateMatch,
   simpleRemoveNoise,
 } from '../images';
 import { computeTimingMarkGrid } from '../timing_marks';
+import {
+  BallotCardGeometry,
+  InterpretedOvalMark,
+  ScannedBallotBackPageLayout,
+  ScannedBallotFrontPageLayout,
+} from '../types';
 import { loc, makeRect, vec } from '../utils';
 
 /**
@@ -35,6 +36,13 @@ export function interpretOvalMarks({
   backLayout: ScannedBallotBackPageLayout;
   gridLayout: GridLayout;
 }): InterpretedOvalMark[] {
+  const frontImageChannels = getChannels(frontImageData);
+  const backImageChannels = getChannels(backImageData);
+  assert(
+    frontImageChannels === backImageChannels,
+    `frontImageChannels ${frontImageChannels} !== backImageChannels ${backImageChannels}`
+  );
+
   const ovalMask = binarize(ovalTemplate);
   const frontGrid = computeTimingMarkGrid(frontLayout.completeMarks);
   const backGrid = computeTimingMarkGrid(backLayout.completeMarks);
@@ -73,17 +81,26 @@ export function interpretOvalMarks({
       for (let yOffset = -3; yOffset <= 3; yOffset += 1) {
         const x = ovalTopLeftPoint.x + xOffset;
         const y = ovalTopLeftPoint.y + yOffset;
+
+        if (
+          x < 0 ||
+          y < 0 ||
+          x >= geometry.canvasSize.width ||
+          y >= geometry.canvasSize.height
+        ) {
+          continue;
+        }
+
         const ovalRect = makeRect({
           minX: x,
           minY: y,
           maxX: x + geometry.ovalSize.width - 1,
           maxY: y + geometry.ovalSize.height - 1,
         });
-        const ovalMatch = simpleRemoveNoise(
-          binarize(matchTemplateImage(imageData, ovalTemplate, loc(x, y))),
-          255,
-          2
+        const matched = binarize(
+          matchTemplateImage(imageData, ovalTemplate, loc(x, y))
         );
+        const ovalMatch = simpleRemoveNoise(matched, 255, 2);
         const score = scoreTemplateMatch(ovalMatch, ovalMask);
         if (score < minimumScore) {
           minimumScore = score;
