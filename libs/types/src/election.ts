@@ -514,8 +514,6 @@ export const GridLayoutSchema: z.ZodSchema<GridLayout> = z.object({
 
 export interface Election {
   readonly _lang?: Translations;
-  /** @deprecated Use `precinctScanAdjudicationReasons` or `centralScanAdjudicationReasons` */
-  readonly adjudicationReasons?: readonly AdjudicationReason[];
   readonly ballotLayout?: BallotLayout;
   readonly ballotStrings?: BallotStrings;
   readonly ballotStyles: readonly BallotStyle[];
@@ -530,19 +528,13 @@ export interface Election {
   readonly precinctScanAdjudicationReasons?: readonly AdjudicationReason[];
   readonly precincts: readonly Precinct[];
   readonly seal?: string;
-  // TODO: Rename to `sealUrl` per GTS naming standard.
-  // For backward-compatibility, we're keeping this invalid name for now.
-  // eslint-disable-next-line vx/gts-identifiers
-  readonly sealURL?: string;
+  readonly sealUrl?: string;
   readonly state: string;
   readonly title: string;
 }
 export const ElectionSchema: z.ZodSchema<Election> = z
   .object({
     _lang: TranslationsSchema.optional(),
-    adjudicationReasons: z
-      .array(z.lazy(() => AdjudicationReasonSchema))
-      .optional(),
     ballotLayout: BallotLayoutSchema.optional(),
     ballotStrings: z
       .record(z.union([z.string(), TranslationsSchema]))
@@ -563,32 +555,11 @@ export const ElectionSchema: z.ZodSchema<Election> = z
       .optional(),
     precincts: PrecinctsSchema,
     seal: z.string().nonempty().optional(),
-    // TODO: Rename to `sealUrl` per GTS naming standard.
-    // For backward-compatibility, we're keeping this invalid name for now.
-    // eslint-disable-next-line vx/gts-identifiers
-    sealURL: z.string().nonempty().optional(),
+    sealUrl: z.string().nonempty().optional(),
     state: z.string().nonempty(),
     title: z.string().nonempty(),
   })
   .superRefine((election, ctx) => {
-    if (election.adjudicationReasons) {
-      if (election.centralScanAdjudicationReasons) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['adjudicationReasons'],
-          message: `Deprecated 'adjudicationReasons' provided while also providing 'centralScanAdjudicationReasons'.`,
-        });
-      }
-
-      if (election.precinctScanAdjudicationReasons) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['adjudicationReasons'],
-          message: `Deprecated 'adjudicationReasons' provided while also providing 'precinctScanAdjudicationReasons'.`,
-        });
-      }
-    }
-
     for (const [
       ballotStyleIndex,
       { id, districts, precincts },
@@ -674,27 +645,6 @@ export const ElectionSchema: z.ZodSchema<Election> = z
         }
       }
     }
-  })
-  /**
-   * Support loading election definitions that don't specify central/precinct
-   * for adjudication by assuming it's the same for both.
-   */
-  .transform((election) => {
-    if (
-      election.adjudicationReasons &&
-      !election.centralScanAdjudicationReasons &&
-      !election.precinctScanAdjudicationReasons
-    ) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { adjudicationReasons: _adjudicationReasons, ...rest } = election;
-      return {
-        ...rest,
-        centralScanAdjudicationReasons: election.adjudicationReasons,
-        precinctScanAdjudicationReasons: election.adjudicationReasons,
-      };
-    }
-
-    return election;
   });
 export type OptionalElection = Optional<Election>;
 export const OptionalElectionSchema: z.ZodSchema<OptionalElection> =
@@ -1679,6 +1629,54 @@ export function withLocale(election: Election, locale: string): Election {
 }
 
 /**
+ * Pre-process an election definition to make it easier to work with.
+ */
+function preprocessElection(value: unknown): unknown {
+  if (!value || typeof value !== 'object') {
+    return value;
+  }
+
+  // We're casting it here to make it easier to use, but in this function you
+  // must assume the type is unknown.
+  let election = value as Election;
+
+  // Replace the deprecated `adjudicationReasons` property. Just use the value
+  // for both precinct and central versions. If either of them is set already,
+  // don't do anything and just let validation fail.
+  if (
+    'adjudicationReasons' in election &&
+    !('precinctScanAdjudicationReasons' in election) &&
+    !('centralScanAdjudicationReasons' in election)
+  ) {
+    interface ElectionWithAdjudicationReasons extends Election {
+      readonly adjudicationReasons: AdjudicationReason[];
+    }
+
+    const { adjudicationReasons, ...rest } =
+      election as ElectionWithAdjudicationReasons;
+    election = {
+      ...rest,
+      precinctScanAdjudicationReasons: adjudicationReasons,
+      centralScanAdjudicationReasons: adjudicationReasons,
+    };
+  }
+
+  // Handle the renamed `sealURL` property.
+  /* eslint-disable vx/gts-identifiers */
+  if ('sealURL' in value) {
+    interface ElectionWithSealURL extends Election {
+      readonly sealURL: string;
+    }
+
+    const { sealURL, ...rest } = election as ElectionWithSealURL;
+    election = { ...rest, sealUrl: sealURL };
+  }
+  /* eslint-enable vx/gts-identifiers */
+
+  return election;
+}
+
+/**
  * Parses `value` as an `Election` encoded as a JSON string. Equivalent to
  * `safeParseJson(Election, value)`.
  */
@@ -1694,9 +1692,13 @@ export function safeParseElection(
   value: unknown
 ): Result<Election, z.ZodError | SyntaxError> {
   if (typeof value === 'string') {
-    return safeParseJson(value, ElectionSchema);
+    const parsed = safeParseJson(value);
+    if (parsed.isErr()) {
+      return parsed;
+    }
+    return safeParseElection(parsed.ok());
   }
-  return safeParse(ElectionSchema, value);
+  return safeParse(ElectionSchema, preprocessElection(value));
 }
 
 /**

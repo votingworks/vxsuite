@@ -52,7 +52,7 @@ describe('old-style URL-based metadata', () => {
       isTestMode: true,
       pageNumber: 2,
       electionHash:
-        '51c1e18baa5050683a4e0e647c3835c5f6ba550fed8bac779029902bd5bad7a4',
+        '845b9260b4aca656759b0f90a6b5f13e477fba279c5c717c07910cc661459453',
       ballotType: BallotType.Standard,
     });
   });
@@ -76,7 +76,7 @@ describe('old-style URL-based metadata', () => {
       isTestMode: true,
       pageNumber: 2,
       electionHash:
-        '51c1e18baa5050683a4e0e647c3835c5f6ba550fed8bac779029902bd5bad7a4',
+        '845b9260b4aca656759b0f90a6b5f13e477fba279c5c717c07910cc661459453',
       ballotType: BallotType.Standard,
     });
   });

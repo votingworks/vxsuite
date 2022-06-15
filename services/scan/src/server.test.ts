@@ -19,7 +19,7 @@ import request from 'supertest';
 import { dirSync } from 'tmp';
 import { mocked } from 'ts-jest/dist/utils/testing';
 import { v4 as uuid } from 'uuid';
-import * as hamiltonSealFixtures from '../test/fixtures/hamilton-seal-049e9e66cd';
+import * as hamiltonSealFixtures from '../test/fixtures/hamilton-seal-befef88b3a';
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { makeMock } from '../test/util/mocks';
 import { Importer } from './importer';

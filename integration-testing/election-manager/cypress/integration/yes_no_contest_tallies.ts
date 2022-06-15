@@ -153,7 +153,7 @@ describe('Election Manager can create SEMS tallies', () => {
     cy.contains('Convert from SEMS files');
     cy.get('input[type="file"]').attachFile('electionWithMsEitherNeither.json');
     cy.contains('Election loading');
-    cy.contains('abdfbe6a58');
+    cy.contains('57ee83f61b');
     cy.contains('Tally').click();
     cy.contains('Import CVR Files').click();
     cy.get('input[data-testid="manual-input"]').attachFile({

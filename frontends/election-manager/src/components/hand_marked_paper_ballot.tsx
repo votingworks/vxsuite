@@ -557,15 +557,7 @@ export function HandMarkedPaperBallot({
 
   const { t, i18n } = useTranslation();
   const { printBallotRef } = useContext(AppContext);
-  const {
-    county,
-    date,
-    seal,
-    sealURL: sealUrl,
-    state,
-    parties,
-    title,
-  } = election;
+  const { county, date, seal, sealUrl, state, parties, title } = election;
   const localeElection: OptionalElection = locales.secondary
     ? withLocale(election, locales.secondary)
     : undefined;

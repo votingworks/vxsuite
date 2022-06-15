@@ -14,7 +14,7 @@ test('interpret three-column template with instructions', async () => {
     Object {
       "ballotStyleId": "77",
       "ballotType": 0,
-      "electionHash": "e012488b8fd567899e4d1b931343ac74e9a8803e33adf8657ab27bbb4408a492",
+      "electionHash": "81dd1469d19d1be870c459760a3a9f2e51c1871280d3de44be1aaff354b2e82c",
       "isTestMode": false,
       "locales": Object {
         "primary": "en-US",

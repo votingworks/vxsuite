@@ -401,7 +401,7 @@ test('disallows invalid adjudication reasons', () => {
     t
       .safeParseElection({
         ...electionSample,
-        adjudicationReasons: ['abcdefg'],
+        precinctScanAdjudicationReasons: ['abcdefg'],
       })
       .unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
@@ -418,7 +418,7 @@ test('disallows invalid adjudication reasons', () => {
           "BlankBallot"
         ],
         "path": [
-          "adjudicationReasons",
+          "precinctScanAdjudicationReasons",
           0
         ],
         "message": "Invalid enum value. Expected 'UninterpretableBallot' | 'MarginalMark' | 'Overvote' | 'Undervote' | 'WriteIn' | 'UnmarkedWriteIn' | 'BlankBallot'"
@@ -430,7 +430,7 @@ test('disallows invalid adjudication reasons', () => {
     t
       .safeParseElection({
         ...electionSample,
-        adjudicationReasons: 'foooo',
+        centralScanAdjudicationReasons: 'foooo',
       })
       .unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
@@ -440,7 +440,7 @@ test('disallows invalid adjudication reasons', () => {
         "expected": "array",
         "received": "string",
         "path": [
-          "adjudicationReasons"
+          "centralScanAdjudicationReasons"
         ],
         "message": "Expected array, received string"
       }

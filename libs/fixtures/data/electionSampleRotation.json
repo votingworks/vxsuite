@@ -169,5 +169,5 @@
       "districts": ["district-1"]
     }
   ],
-  "sealURL": "/seals/Sample-Seal.svg"
+  "sealUrl": "/seals/Sample-Seal.svg"
 }

@@ -304,7 +304,7 @@
       "districts": ["100000275", "100000285"]
     }
   ],
-  "sealURL": "/seals/Seal_of_Mississippi_BW.svg",
+  "sealUrl": "/seals/Seal_of_Mississippi_BW.svg",
   "ballotStrings": {
     "Official Ballot": "Official Ballot",
     "TEST BALLOT": "TEST BALLOT",
