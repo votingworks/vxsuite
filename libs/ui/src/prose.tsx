@@ -1,6 +1,22 @@
 import styled from 'styled-components';
 import { Theme } from './themes';
 
+// Prose!
+// Readable text content with typographic hierarchy using simple semantic html.
+//
+// - Use basic text block html tags inside the <Prose> block. (see basic tags
+//   below) Use the <Text> components for adding additional styles to html.
+// - This is not a layout component; include it within a layout component to
+//   define the space around the Prose component.
+// - First and last child HTML tags of Prose have no margins so that a parent
+//   layout component may define the layout. The HTML class "ignore-prose" HTML
+//   class is applied to tag.
+// - Width is constrained to 1.5 alphabets (66ch) to imporove readability.
+// - Spacing between elements is defined such that headings are closer to the
+//   text that follows them.
+//
+// For example useage, search codebase for "<Prose" (without closing bracket)
+
 export interface ProseProps {
   theme?: Theme;
   compact?: boolean;
