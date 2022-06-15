@@ -32,7 +32,6 @@ import {
   TemplateOval,
 } from './accuvote';
 import { Debugger } from './debug';
-import { convertToGrayscale } from './images';
 import { DefaultMarkThresholds } from './interpret';
 import { findBallotTimingMarks } from './interpret/find_ballot_timing_marks';
 import {
@@ -658,8 +657,7 @@ export function convertElectionDefinition(
   }
 
   debug?.layer('front page');
-  const cardDefinitionFront = convertToGrayscale(cardDefinition.front);
-  const frontTimingMarks = findBallotTimingMarks(cardDefinitionFront, {
+  const frontTimingMarks = findBallotTimingMarks(cardDefinition.front, {
     geometry: expectedCardGeometry,
     debug,
   });
@@ -674,8 +672,7 @@ export function convertElectionDefinition(
   }
 
   debug?.layer('back page');
-  const cardDefinitionBack = convertToGrayscale(cardDefinition.back);
-  const backTimingMarks = findBallotTimingMarks(cardDefinitionBack, {
+  const backTimingMarks = findBallotTimingMarks(cardDefinition.back, {
     geometry: expectedCardGeometry,
     debug,
   });
@@ -757,13 +754,13 @@ export function convertElectionDefinition(
     interpolateMissingTimingMarks(backTimingMarks);
 
   const frontTemplateOvals = findTemplateOvals(
-    cardDefinitionFront,
+    cardDefinition.front,
     ovalTemplate,
     frontCompleteTimingMarks,
     { usableArea: expectedCardGeometry.frontUsableArea, debug }
   );
   const backTemplateOvals = findTemplateOvals(
-    cardDefinitionBack,
+    cardDefinition.back,
     ovalTemplate,
     backCompleteTimingMarks,
     { usableArea: expectedCardGeometry.backUsableArea, debug }

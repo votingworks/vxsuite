@@ -5,7 +5,7 @@ import { promises as fs } from 'fs';
 import { join } from 'path';
 import { BallotCardTemplateMargins } from '../../src/accuvote';
 import { NewHampshireBallotCardDefinition } from '../../src/convert';
-import { readGrayscaleImage } from '../../src/images';
+import * as images from '../../src/images';
 import {
   BallotCardGeometry,
   CompleteTimingMarks,
@@ -334,7 +334,9 @@ export async function readFixtureImage(
   name: string,
   ext = '.jpeg'
 ): Promise<ImageData> {
-  return readGrayscaleImage(getFixturePath(fixture, name, ext));
+  return images.toImageData(
+    await images.load(getFixturePath(fixture, name, ext))
+  );
 }
 
 /**

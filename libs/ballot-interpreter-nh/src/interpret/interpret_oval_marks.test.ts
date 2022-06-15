@@ -102,25 +102,25 @@ test('interpretOvalMarks unmarked front', async () => {
     Object {
       "bounds": Object {
         "height": 25,
-        "maxX": 641,
-        "maxY": 1755,
-        "minX": 604,
-        "minY": 1731,
+        "maxX": 629,
+        "maxY": 2241,
+        "minX": 592,
+        "minY": 2217,
         "width": 38,
-        "x": 604,
-        "y": 1731,
+        "x": 592,
+        "y": 2217,
       },
       "gridPosition": Object {
         "column": 12,
         "contestId": "State-Representatives-7d3a8821",
-        "optionId": "Lynne-Ober-f704df17",
-        "row": 33,
+        "optionId": "Denise-Smith-0a6359c3",
+        "row": 43,
         "side": "front",
         "type": "option",
       },
-      "score": 0.009756097560975618,
+      "score": 0.023602484472049712,
       "scoredOffset": Object {
-        "x": 2,
+        "x": 1,
         "y": 1,
       },
     }
@@ -187,12 +187,12 @@ test('interpretOvalMarks marked front', async () => {
       "bounds": Object {
         "height": 25,
         "maxX": 658,
-        "maxY": 2249,
+        "maxY": 2250,
         "minX": 621,
-        "minY": 2225,
+        "minY": 2226,
         "width": 38,
         "x": 621,
-        "y": 2225,
+        "y": 2226,
       },
       "gridPosition": Object {
         "column": 12,
@@ -202,10 +202,10 @@ test('interpretOvalMarks marked front', async () => {
         "side": "front",
         "type": "option",
       },
-      "score": 0.04634146341463419,
+      "score": 0.05093167701863355,
       "scoredOffset": Object {
         "x": 3,
-        "y": 1,
+        "y": 2,
       },
     }
   `);
@@ -231,7 +231,7 @@ test('interpretOvalMarks marked front', async () => {
         "type": "write-in",
         "writeInIndex": 0,
       },
-      "score": 0.7609756097560976,
+      "score": 0.7726708074534161,
       "scoredOffset": Object {
         "x": -3,
         "y": -3,
@@ -313,13 +313,13 @@ test('interpretOvalMarks marked rotated front', async () => {
     Object {
       "bounds": Object {
         "height": 25,
-        "maxX": 1093,
-        "maxY": 2246,
-        "minX": 1056,
-        "minY": 2222,
+        "maxX": 1088,
+        "maxY": 2243,
+        "minX": 1051,
+        "minY": 2219,
         "width": 38,
-        "x": 1056,
-        "y": 2222,
+        "x": 1051,
+        "y": 2219,
       },
       "gridPosition": Object {
         "column": 12,
@@ -329,10 +329,10 @@ test('interpretOvalMarks marked rotated front', async () => {
         "side": "front",
         "type": "option",
       },
-      "score": 0.41951219512195126,
+      "score": 0.4496894409937888,
       "scoredOffset": Object {
-        "x": 2,
-        "y": 0,
+        "x": -3,
+        "y": -3,
       },
     }
   `);

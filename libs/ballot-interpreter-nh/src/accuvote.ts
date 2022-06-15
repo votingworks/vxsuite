@@ -1,6 +1,6 @@
 import { BallotPaperSize } from '@votingworks/types';
 import { Debugger } from './debug';
-import { matchTemplate } from './images';
+import { getChannels, matchTemplate } from './images';
 import { otsu } from './otsu';
 import { computeTimingMarkGrid, findBorder } from './timing_marks';
 import {
@@ -254,7 +254,7 @@ export function scanForTimingMarksByScoringBlocks(
   imageData: ImageData,
   { debug, minimumScore }: ScanForTimingMarksByScoringBlocksOptions
 ): Set<Rect> {
-  const channels = imageData.data.length / (imageData.width * imageData.height);
+  const channels = getChannels(imageData);
   const inset = getSearchInset(imageData);
 
   /* istanbul ignore next */
@@ -277,7 +277,7 @@ export function scanForTimingMarksByScoringBlocks(
       .layerEnd('inset search area');
   }
 
-  const threshold = otsu(imageData.data);
+  const threshold = otsu(imageData.data, channels);
   const { width, height } = imageData;
   const timingMarkSize = expectedTimingMarkSize(width);
   const timingMarkGapSize = expectedTimingMarkGapSize(width);
@@ -411,7 +411,9 @@ export function scanForTimingMarksByScoringBlocks(
       correctedMinX >= expectedTimingMarkRect.minX;
       correctedMinX -= 1
     ) {
-      const lum = imageData.data[correctedMinX - 1 + midY * width] as number;
+      const lum = imageData.data[
+        (correctedMinX - 1 + midY * width) * channels
+      ] as number;
       const isDark = lum < threshold;
       if (!isDark) {
         break;
@@ -423,7 +425,9 @@ export function scanForTimingMarksByScoringBlocks(
       correctedMaxX <= expectedTimingMarkRect.maxX;
       correctedMaxX += 1
     ) {
-      const lum = imageData.data[correctedMaxX + 1 + midY * width] as number;
+      const lum = imageData.data[
+        (correctedMaxX + 1 + midY * width) * channels
+      ] as number;
       const isDark = lum < threshold;
       if (!isDark) {
         break;
@@ -435,7 +439,9 @@ export function scanForTimingMarksByScoringBlocks(
       correctedMinY >= expectedTimingMarkRect.minY;
       correctedMinY -= 1
     ) {
-      const lum = imageData.data[midX + (correctedMinY - 1) * width] as number;
+      const lum = imageData.data[
+        (midX + (correctedMinY - 1) * width) * channels
+      ] as number;
       const isDark = lum < threshold;
       if (!isDark) {
         break;
@@ -447,7 +453,9 @@ export function scanForTimingMarksByScoringBlocks(
       correctedMaxY <= expectedTimingMarkRect.maxY;
       correctedMaxY += 1
     ) {
-      const lum = imageData.data[midX + (correctedMaxY + 1) * width] as number;
+      const lum = imageData.data[
+        (midX + (correctedMaxY + 1) * width) * channels
+      ] as number;
       const isDark = lum < threshold;
       if (!isDark) {
         break;
