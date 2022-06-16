@@ -83,7 +83,7 @@ export function UnconfiguredScreen(): JSX.Element {
 
   const saveElectionAndShowSuccess = useCallback(
     (electionJson: string) => {
-      safeParseElection(JSON.parse(electionJson)).unsafeUnwrap();
+      safeParseElection(electionJson).unsafeUnwrap();
       setShowSuccess(true);
       setTimeout(async () => {
         setShowSuccess(false);
