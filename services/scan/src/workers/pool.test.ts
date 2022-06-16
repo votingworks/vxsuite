@@ -1,4 +1,3 @@
-/* eslint-disable dot-notation */
 import { Buffer } from 'buffer';
 import { EventEmitter } from 'events';
 import { makeMockWorkerOps } from '../../test/util/mocks';

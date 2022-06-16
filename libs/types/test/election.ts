@@ -369,7 +369,7 @@ const electionMinimalExhaustiveData = `
       "partyId": "1"
     }
   ],
-  "sealURL": "/seals/Sample-Seal.svg",
+  "sealUrl": "/seals/Sample-Seal.svg",
   "centralScanAdjudicationReasons": ["BlankBallot"],
   "precinctScanAdjudicationReasons": ["BlankBallot"]
 }`;

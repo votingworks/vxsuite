@@ -20,7 +20,7 @@ export const { election } = electionDefinition;
  */
 export const ballotPackage = join(
   __dirname,
-  'franklin-county_lincoln-municipal-general-election_049e9e66cd__2022-03-16_15-12-13.zip'
+  'franklin-county_lincoln-municipal-general-election_befef88b3a__2022-06-15_16-37-51.zip'
 );
 
 /**

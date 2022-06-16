@@ -205,10 +205,11 @@ export function deserialize(
 
         default:
           throwIllegalValue(data, '__dataType__');
+          break;
       }
+      break;
     }
 
-    // eslint-disable-next-line no-fallthrough
     default:
       throw new Error(
         `cannot deserialize ${typeof data} in message at key path '${keypath.join(

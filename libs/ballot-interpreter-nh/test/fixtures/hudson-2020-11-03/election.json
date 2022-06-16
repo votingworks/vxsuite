@@ -6,12 +6,8 @@
   "ballotStyles": [
     {
       "id": "card-number-54",
-      "precincts": [
-        "town-id-12101-precinct-id-"
-      ],
-      "districts": [
-        "town-id-12101-precinct-id-"
-      ]
+      "precincts": ["town-id-12101-precinct-id-"],
+      "districts": ["town-id-12101-precinct-id-"]
     }
   ],
   "centralScanAdjudicationReasons": [
@@ -1081,7 +1077,7 @@
       "name": "Hudson"
     }
   ],
-  "sealURL": "/seals/Seal_of_New_Hampshire.svg",
+  "sealUrl": "/seals/Seal_of_New_Hampshire.svg",
   "state": "NH",
   "title": "General Election"
 }

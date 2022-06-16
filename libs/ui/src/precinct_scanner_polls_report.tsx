@@ -91,15 +91,7 @@ export function PrecinctScannerPollsReport({
   precinctSelection,
   reportPurpose,
 }: Props): JSX.Element {
-  const {
-    title,
-    date,
-    county,
-    precincts,
-    state,
-    seal,
-    sealURL: sealUrl,
-  } = election;
+  const { title, date, county, precincts, state, seal, sealUrl } = election;
   const precinctName =
     precinctSelection.kind === PrecinctSelectionKind.AllPrecincts
       ? 'All Precincts'

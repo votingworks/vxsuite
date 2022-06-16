@@ -52,7 +52,7 @@ export function ElectionInfo({
   horizontal = false,
 }: Props): JSX.Element {
   const { election } = electionDefinition;
-  const { title: t, state, county, date, seal, sealURL: sealUrl } = election;
+  const { title: t, state, county, date, seal, sealUrl } = election;
   const precinctName =
     precinctSelection &&
     precinctSelectionName(election.precincts, precinctSelection);

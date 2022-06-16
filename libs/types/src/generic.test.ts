@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { MachineId, safeParse } from '.';
-import { maybeParse, unsafeParse } from './generic';
+import { maybeParse, safeParseJson, unsafeParse } from './generic';
 
 test('unsafeParse', () => {
   expect(unsafeParse(z.string(), 'hello world!')).toEqual('hello world!');
@@ -21,4 +21,13 @@ test('machine ID schema', () => {
   // valid IDs
   safeParse(MachineId, 'A-B-0').unsafeUnwrap();
   safeParse(MachineId, '999').unsafeUnwrap();
+});
+
+test('safeParseJson', () => {
+  expect(safeParseJson('{"a":1}').unsafeUnwrap()).toEqual({ a: 1 });
+  expect(
+    safeParseJson('{"a":1}', z.object({ a: z.number() })).unsafeUnwrap()
+  ).toEqual({ a: 1 });
+  expect(safeParseJson('{"a":1}', z.string()).err()).toBeInstanceOf(z.ZodError);
+  expect(safeParseJson('{a:1}').err()).toBeInstanceOf(SyntaxError);
 });

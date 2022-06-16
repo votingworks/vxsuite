@@ -260,7 +260,7 @@ export function BmdPaperBallot({
   const ballotId = randomBallotId();
   const {
     election,
-    election: { county, date, seal, sealURL: sealUrl, state, title },
+    election: { county, date, seal, sealUrl, state, title },
     electionHash,
   } = electionDefinition;
   const partyPrimaryAdjective = getPartyPrimaryAdjectiveFromBallotStyle({

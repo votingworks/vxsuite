@@ -67,7 +67,7 @@ export function DefinitionScreen(): JSX.Element {
             <br />
             state: <strong>{election.state}</strong>
             <br />
-            seal: <strong>{election.sealURL || election.seal}</strong>
+            seal: <strong>{election.sealUrl || election.seal}</strong>
             <br />
           </p>
           <h2>Contests</h2>

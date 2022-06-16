@@ -449,7 +449,7 @@ test('run interpret with JSON output', async () => {
         \\"input\\": \\"test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library/filled-in-p1.jpg\\",
         \\"interpreted\\": {
           \\"metadata\\": {
-            \\"electionHash\\": \\"e012488b8fd567899e4d1b931343ac74e9a8803e33adf8657ab27bbb4408a492\\",
+            \\"electionHash\\": \\"81dd1469d19d1be870c459760a3a9f2e51c1871280d3de44be1aaff354b2e82c\\",
             \\"ballotType\\": 0,
             \\"locales\\": {
               \\"primary\\": \\"en-US\\"

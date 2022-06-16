@@ -363,7 +363,7 @@
       "districts": ["1", "100000047", "100000174", "100000275", "575000502"]
     }
   ],
-  "sealURL": "/seals/Seal_of_Mississippi_BW.svg",
+  "sealUrl": "/seals/Seal_of_Mississippi_BW.svg",
   "ballotStrings": { "officialInitials": "Initialing Manager" },
   "adjudicationReasons": ["UninterpretableBallot", "Overvote", "BlankBallot"],
   "ballotLayout": {

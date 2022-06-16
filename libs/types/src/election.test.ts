@@ -1,3 +1,4 @@
+import * as fc from 'fast-check';
 import {
   BallotIdSchema,
   getDistrictIdsForPartyId,
@@ -450,10 +451,22 @@ test('ballot ID schema', () => {
 test('election schema', () => {
   safeParseElection(electionMinimalExhaustive).unsafeUnwrap();
 
+  fc.assert(
+    fc.property(fc.anything(), (value) => {
+      safeParseElection(value).unsafeUnwrapErr();
+    })
+  );
+});
+
+test('loading an election with the old sealURL field', () => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { sealUrl, ...rest } = election;
+
   expect(
     safeParseElection({
-      ...electionMinimalExhaustive,
-      adjudicationReasons: [],
-    }).err()?.message
-  ).toContain('adjudicationReasons');
+      ...rest,
+      // eslint-disable-next-line vx/gts-identifiers
+      sealURL: 'https://example.com/seal.png',
+    }).unsafeUnwrap().sealUrl
+  ).toEqual('https://example.com/seal.png');
 });
