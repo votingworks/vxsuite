@@ -1,15 +1,15 @@
-import { typedAs } from '@votingworks/utils';
-import { mockOf } from '@votingworks/test-utils';
 import {
   convertElectionDefinition,
-  ConvertErrorKind,
+  ConvertIssueKind,
 } from '@votingworks/ballot-interpreter-nh';
-import { err, ok, safeParseElection } from '@votingworks/types';
 import { electionMinimalExhaustiveSample } from '@votingworks/fixtures';
-import { NhConverterClient } from './nh_converter_client';
-import { VxFiles } from './types';
+import { mockOf } from '@votingworks/test-utils';
+import { safeParseElection } from '@votingworks/types';
+import { typedAs } from '@votingworks/utils';
 import { pdfToImages } from '../../utils/pdf_to_images';
 import { readBlobAsString } from '../blob';
+import { NhConverterClient } from './nh_converter_client';
+import { VxFiles } from './types';
 
 jest.mock('@votingworks/ballot-interpreter-nh');
 jest.mock('../../utils/pdf_to_images');
@@ -155,13 +155,16 @@ test('process without card ballot', async () => {
 test('conversion fails', async () => {
   const client = new NhConverterClient();
 
-  mockOf(convertElectionDefinition).mockReturnValue(
-    err({
-      kind: ConvertErrorKind.MissingDefinitionProperty,
-      message: 'ElectionID is missing',
-      property: 'AVSInterface > AccuvoteHeaderInfo > ElectionID',
-    })
-  );
+  mockOf(convertElectionDefinition).mockReturnValue({
+    success: false,
+    issues: [
+      {
+        kind: ConvertIssueKind.MissingDefinitionProperty,
+        message: 'ElectionID is missing',
+        property: 'AVSInterface > AccuvoteHeaderInfo > ElectionID',
+      },
+    ],
+  });
   mockOf(pdfToImages).mockReturnValue(makePdfToImagesMockReturnValue());
 
   await client.setInputFile(
@@ -174,8 +177,13 @@ test('conversion fails', async () => {
   );
 
   await expect(client.process()).rejects.toMatchObject({
-    kind: ConvertErrorKind.MissingDefinitionProperty,
-    property: 'AVSInterface > AccuvoteHeaderInfo > ElectionID',
+    success: false,
+    issues: [
+      {
+        kind: ConvertIssueKind.MissingDefinitionProperty,
+        property: 'AVSInterface > AccuvoteHeaderInfo > ElectionID',
+      },
+    ],
   });
 });
 
@@ -200,9 +208,11 @@ test('too many PDF pages', async () => {
 test('process success', async () => {
   const client = new NhConverterClient();
 
-  mockOf(convertElectionDefinition).mockReturnValue(
-    ok(electionMinimalExhaustiveSample)
-  );
+  mockOf(convertElectionDefinition).mockReturnValue({
+    success: true,
+    election: electionMinimalExhaustiveSample,
+    issues: [],
+  });
   mockOf(pdfToImages).mockReturnValue(makePdfToImagesMockReturnValue());
 
   await client.setInputFile(

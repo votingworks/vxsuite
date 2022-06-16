@@ -1,5 +1,5 @@
 import { fakeReadable, fakeWritable, mockOf } from '@votingworks/test-utils';
-import { err, ok, safeParseElection } from '@votingworks/types';
+import { safeParseElection } from '@votingworks/types';
 import { readFileSync } from 'fs';
 import { fileSync } from 'tmp';
 import { main } from '.';
@@ -9,7 +9,7 @@ import {
   HudsonFixtureName,
   readFixtureJson,
 } from '../../../test/fixtures';
-import { convertElectionDefinition, ConvertErrorKind } from '../../convert';
+import { convertElectionDefinition, ConvertIssueKind } from '../../convert';
 
 jest.mock('../../convert');
 jest.mock('../../images');
@@ -24,7 +24,7 @@ test('--help', async () => {
   expect(await main(['--help'], io)).toBe(0);
 
   expect(io.stdout.toString()).toMatchInlineSnapshot(`
-    "usage: convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg> -o <output.json>
+    "usage: convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg> [-o <output.json>]
     "
   `);
 });
@@ -39,32 +39,9 @@ test('-h', async () => {
   expect(await main(['-h'], io)).toBe(0);
 
   expect(io.stdout.toString()).toMatchInlineSnapshot(`
-    "usage: convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg> -o <output.json>
+    "usage: convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg> [-o <output.json>]
     "
   `);
-});
-
-test('missing output', async () => {
-  const io: Stdio = {
-    stdin: fakeReadable(),
-    stdout: fakeWritable(),
-    stderr: fakeWritable(),
-  };
-
-  const exitCode = await main(
-    [
-      getFixturePath(HudsonFixtureName, 'definition', '.xml'),
-      'front.jpeg',
-      'back.jpeg',
-    ],
-    io
-  );
-
-  expect(io.stderr.toString()).toMatchInlineSnapshot(`
-    "error: missing output path
-    "
-  `);
-  expect(exitCode).toBe(1);
 });
 
 test('missing output after --output', async () => {
@@ -185,7 +162,11 @@ test('convert to stdout', async () => {
     await readFixtureJson(HudsonFixtureName, 'election')
   ).unsafeUnwrap();
 
-  mockOf(convertElectionDefinition).mockReturnValue(ok(election));
+  mockOf(convertElectionDefinition).mockReturnValue({
+    success: true,
+    election,
+    issues: [],
+  });
 
   const exitCode = await main(
     [
@@ -220,7 +201,11 @@ test('convert to file', async () => {
     await readFixtureJson(HudsonFixtureName, 'election')
   ).unsafeUnwrap();
 
-  mockOf(convertElectionDefinition).mockReturnValue(ok(election));
+  mockOf(convertElectionDefinition).mockReturnValue({
+    success: true,
+    election,
+    issues: [],
+  });
 
   const outputFile = fileSync();
   const exitCode = await main(
@@ -256,13 +241,16 @@ test('convert fails', async () => {
     stderr: fakeWritable(),
   };
 
-  mockOf(convertElectionDefinition).mockReturnValue(
-    err({
-      kind: ConvertErrorKind.MissingDefinitionProperty,
-      message: 'ElectionID is missing',
-      property: 'AVSInterface > AccuvoteHeaderInfo > ElectionID',
-    })
-  );
+  mockOf(convertElectionDefinition).mockReturnValue({
+    success: false,
+    issues: [
+      {
+        kind: ConvertIssueKind.MissingDefinitionProperty,
+        message: 'ElectionID is missing',
+        property: 'AVSInterface > AccuvoteHeaderInfo > ElectionID',
+      },
+    ],
+  });
 
   const exitCode = await main(
     [
@@ -282,6 +270,7 @@ test('convert fails', async () => {
   }).toEqual({
     exitCode: 1,
     stdout: '',
-    stderr: 'error: ElectionID is missing\n',
+    stderr:
+      'error: conversion completed with issues:\n- ElectionID is missing\n',
   });
 });

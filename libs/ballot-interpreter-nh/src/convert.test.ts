@@ -18,8 +18,8 @@ import { asciiOvalGrid } from '../test/utils';
 import {
   convertElectionDefinition,
   convertElectionDefinitionHeader,
-  ConvertError,
-  ConvertErrorKind,
+  ConvertIssue,
+  ConvertIssueKind,
   readGridFromElectionDefinition,
 } from './convert';
 import * as templates from './data/templates';
@@ -33,12 +33,12 @@ test('converting the Hudson ballot', async () => {
   const hudsonBallotCardDefinition = await readFixtureBallotCardDefinition(
     HudsonFixtureName
   );
-  const electionDefinition = await withSvgDebugger(async (debug) => {
+  const convertResult = await withSvgDebugger(async (debug) => {
     debug.imageData(0, 0, hudsonBallotCardDefinition.front);
     return convertElectionDefinition(hudsonBallotCardDefinition, {
       ovalTemplate: await templates.getOvalTemplate(),
       debug,
-    }).unsafeUnwrap();
+    });
   });
 
   // uncomment this to update the fixture
@@ -55,7 +55,11 @@ test('converting the Hudson ballot', async () => {
   const election = safeParseElection(
     await readFixtureJson(HudsonFixtureName, 'election')
   ).unsafeUnwrap();
-  expect(electionDefinition).toEqual(election);
+  expect(convertResult).toEqual({
+    success: true,
+    election,
+    issues: [],
+  });
 });
 
 test('letter-size card definition', async () => {
@@ -67,11 +71,11 @@ test('letter-size card definition', async () => {
     'BallotSize'
   )[0]!.textContent = '8.5X11';
 
-  const electionDefinition = convertElectionDefinitionHeader(
+  const convertHeaderResult = convertElectionDefinitionHeader(
     hudsonBallotCardDefinition
-  ).unsafeUnwrap();
+  );
 
-  expect(electionDefinition.ballotLayout?.paperSize).toEqual(
+  expect(convertHeaderResult.election?.ballotLayout?.paperSize).toEqual(
     BallotPaperSize.Letter
   );
 });
@@ -88,17 +92,19 @@ test('mismatched ballot image size', async () => {
   expect(
     convertElectionDefinition(hudsonBallotCardDefinition, {
       ovalTemplate: await templates.getOvalTemplate(),
-    }).unsafeUnwrapErr()
+    }).issues
   ).toEqual(
-    typedAs<ConvertError>({
-      kind: ConvertErrorKind.MismatchedBallotImageSize,
-      message:
-        'Ballot image size mismatch: XML definition is letter-size, or 684x864, but front image is 684x1080',
-      side: 'front',
-      ballotPaperSize: BallotPaperSize.Letter,
-      expectedImageSize: { width: 684, height: 864 },
-      actualImageSize: { width: 684, height: 1080 },
-    })
+    expect.arrayContaining([
+      typedAs<ConvertIssue>({
+        kind: ConvertIssueKind.MismatchedBallotImageSize,
+        message:
+          'Ballot image size mismatch: XML definition is letter-size, or 684x864, but front image is 684x1080',
+        side: 'front',
+        ballotPaperSize: BallotPaperSize.Letter,
+        expectedImageSize: { width: 684, height: 864 },
+        actualImageSize: { width: 684, height: 1080 },
+      }),
+    ])
   );
 });
 
@@ -112,16 +118,14 @@ test('missing ElectionID', async () => {
   electionIdElement.parentNode?.removeChild(electionIdElement);
 
   expect(
-    convertElectionDefinitionHeader(
-      hudsonBallotCardDefinition
-    ).unsafeUnwrapErr()
-  ).toEqual(
-    typedAs<ConvertError>({
-      kind: ConvertErrorKind.MissingDefinitionProperty,
+    convertElectionDefinitionHeader(hudsonBallotCardDefinition).issues
+  ).toEqual([
+    typedAs<ConvertIssue>({
+      kind: ConvertIssueKind.MissingDefinitionProperty,
       message: 'ElectionID is missing',
       property: 'AVSInterface > AccuvoteHeaderInfo > ElectionID',
-    })
-  );
+    }),
+  ]);
 });
 
 test('missing ElectionName', async () => {
@@ -134,16 +138,14 @@ test('missing ElectionName', async () => {
   electionNameElement.parentNode?.removeChild(electionNameElement);
 
   expect(
-    convertElectionDefinitionHeader(
-      hudsonBallotCardDefinition
-    ).unsafeUnwrapErr()
-  ).toEqual(
-    typedAs<ConvertError>({
-      kind: ConvertErrorKind.MissingDefinitionProperty,
+    convertElectionDefinitionHeader(hudsonBallotCardDefinition).issues
+  ).toEqual([
+    typedAs<ConvertIssue>({
+      kind: ConvertIssueKind.MissingDefinitionProperty,
       message: 'ElectionName is missing',
       property: 'AVSInterface > AccuvoteHeaderInfo > ElectionName',
-    })
-  );
+    }),
+  ]);
 });
 
 test('missing TownName', async () => {
@@ -156,16 +158,14 @@ test('missing TownName', async () => {
   townNameElement.parentNode?.removeChild(townNameElement);
 
   expect(
-    convertElectionDefinitionHeader(
-      hudsonBallotCardDefinition
-    ).unsafeUnwrapErr()
-  ).toEqual(
-    typedAs<ConvertError>({
-      kind: ConvertErrorKind.MissingDefinitionProperty,
+    convertElectionDefinitionHeader(hudsonBallotCardDefinition).issues
+  ).toEqual([
+    typedAs<ConvertIssue>({
+      kind: ConvertIssueKind.MissingDefinitionProperty,
       message: 'TownName is missing',
       property: 'AVSInterface > AccuvoteHeaderInfo > TownName',
-    })
-  );
+    }),
+  ]);
 });
 
 test('missing TownID', async () => {
@@ -178,16 +178,14 @@ test('missing TownID', async () => {
   townIdElement.parentNode?.removeChild(townIdElement);
 
   expect(
-    convertElectionDefinitionHeader(
-      hudsonBallotCardDefinition
-    ).unsafeUnwrapErr()
-  ).toEqual(
-    typedAs<ConvertError>({
-      kind: ConvertErrorKind.MissingDefinitionProperty,
+    convertElectionDefinitionHeader(hudsonBallotCardDefinition).issues
+  ).toEqual([
+    typedAs<ConvertIssue>({
+      kind: ConvertIssueKind.MissingDefinitionProperty,
       message: 'TownID is missing',
       property: 'AVSInterface > AccuvoteHeaderInfo > TownID',
-    })
-  );
+    }),
+  ]);
 });
 
 test('missing ElectionDate', async () => {
@@ -200,16 +198,14 @@ test('missing ElectionDate', async () => {
   electionDateElement.parentNode?.removeChild(electionDateElement);
 
   expect(
-    convertElectionDefinitionHeader(
-      hudsonBallotCardDefinition
-    ).unsafeUnwrapErr()
-  ).toEqual(
-    typedAs<ConvertError>({
-      kind: ConvertErrorKind.MissingDefinitionProperty,
+    convertElectionDefinitionHeader(hudsonBallotCardDefinition).issues
+  ).toEqual([
+    typedAs<ConvertIssue>({
+      kind: ConvertIssueKind.MissingDefinitionProperty,
       message: 'ElectionDate is missing',
       property: 'AVSInterface > AccuvoteHeaderInfo > ElectionDate',
-    })
-  );
+    }),
+  ]);
 });
 
 test('missing PrecinctID', async () => {
@@ -222,16 +218,14 @@ test('missing PrecinctID', async () => {
   precinctIdElement.parentNode?.removeChild(precinctIdElement);
 
   expect(
-    convertElectionDefinitionHeader(
-      hudsonBallotCardDefinition
-    ).unsafeUnwrapErr()
-  ).toEqual(
-    typedAs<ConvertError>({
-      kind: ConvertErrorKind.MissingDefinitionProperty,
+    convertElectionDefinitionHeader(hudsonBallotCardDefinition).issues
+  ).toEqual([
+    typedAs<ConvertIssue>({
+      kind: ConvertIssueKind.MissingDefinitionProperty,
       message: 'PrecinctID is missing',
       property: 'AVSInterface > AccuvoteHeaderInfo > PrecinctID',
-    })
-  );
+    }),
+  ]);
 });
 
 test('multi-party endorsement', async () => {
@@ -240,8 +234,8 @@ test('multi-party endorsement', async () => {
   );
 
   expect(
-    convertElectionDefinitionHeader(amherstBallotCardDefinition).unsafeUnwrap()
-      .contests
+    convertElectionDefinitionHeader(amherstBallotCardDefinition).election
+      ?.contests
   ).toEqual(
     expect.arrayContaining([
       expect.objectContaining(
@@ -289,17 +283,15 @@ test('missing Party on multi-party endorsement', async () => {
   );
 
   expect(
-    convertElectionDefinitionHeader(
-      amherstBallotCardDefinition
-    ).unsafeUnwrapErr()
-  ).toEqual(
-    typedAs<ConvertError>({
-      kind: ConvertErrorKind.MissingDefinitionProperty,
+    convertElectionDefinitionHeader(amherstBallotCardDefinition).issues
+  ).toEqual([
+    typedAs<ConvertIssue>({
+      kind: ConvertIssueKind.MissingDefinitionProperty,
       message:
         'Party is missing in candidate "Edward Randolph" of office "Sheriff", required for multi-party endorsement',
       property: 'AVSInterface > Candidates > CandidateName > Party',
-    })
-  );
+    }),
+  ]);
 });
 
 test('readGridFromElectionDefinition', async () => {
@@ -399,14 +391,14 @@ test('default adjudication reasons', async () => {
   const hudsonBallotCardDefinition = await readFixtureBallotCardDefinition(
     HudsonFixtureName
   );
-  const electionDefinition = await withSvgDebugger(async (debug) => {
+  const convertResult = await withSvgDebugger(async (debug) => {
     debug.imageData(0, 0, hudsonBallotCardDefinition.front);
     return convertElectionDefinition(hudsonBallotCardDefinition, {
       ovalTemplate: await templates.getOvalTemplate(),
       debug,
-    }).unsafeUnwrap();
+    });
   });
-  expect(electionDefinition.centralScanAdjudicationReasons).toEqual(
+  expect(convertResult.election?.centralScanAdjudicationReasons).toEqual(
     typedAs<AdjudicationReason[]>([
       AdjudicationReason.UninterpretableBallot,
       AdjudicationReason.Overvote,
@@ -414,7 +406,7 @@ test('default adjudication reasons', async () => {
       AdjudicationReason.BlankBallot,
     ])
   );
-  expect(electionDefinition.precinctScanAdjudicationReasons).toEqual(
+  expect(convertResult.election?.precinctScanAdjudicationReasons).toEqual(
     typedAs<AdjudicationReason[]>([
       AdjudicationReason.UninterpretableBallot,
       AdjudicationReason.Overvote,

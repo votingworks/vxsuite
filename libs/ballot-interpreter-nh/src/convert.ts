@@ -6,21 +6,18 @@ import {
   CandidateContest,
   DistrictIdSchema,
   Election,
-  err,
   GridPosition,
   GridPositionOption,
   GridPositionWriteIn,
-  ok,
   Party,
   PartyIdSchema,
-  Result,
   safeParse,
   safeParseElection,
   safeParseNumber,
   unsafeParse,
   YesNoContest,
 } from '@votingworks/types';
-import { assert, groupBy, throwIllegalValue, zip } from '@votingworks/utils';
+import { assert, groupBy, throwIllegalValue, zipMin } from '@votingworks/utils';
 import { sha256 } from 'js-sha256';
 import { DateTime } from 'luxon';
 import { ZodError } from 'zod';
@@ -39,8 +36,10 @@ import {
   interpolateMissingTimingMarks,
 } from './timing_marks';
 import {
+  BackMarksMetadata,
   BackMarksMetadataSchema,
   Bit,
+  FrontMarksMetadata,
   FrontMarksMetadataSchema,
   PartialTimingMarks,
   Size,
@@ -95,7 +94,7 @@ function compareGridEntry(a: GridEntry, b: GridEntry): number {
 /**
  * The kinds of errors that can occur during `pairColumnEntries`.
  */
-export enum PairColumnEntriesErrorKind {
+export enum PairColumnEntriesIssueKind {
   ColumnCountMismatch = 'ColumnCountMismatch',
   ColumnEntryCountMismatch = 'ColumnEntryCountMismatch',
 }
@@ -103,17 +102,33 @@ export enum PairColumnEntriesErrorKind {
 /**
  * Errors that can occur during `pairColumnEntries`.
  */
-export type PairColumnEntriesError =
+export type PairColumnEntriesIssue =
   | {
-      kind: PairColumnEntriesErrorKind.ColumnCountMismatch;
+      kind: PairColumnEntriesIssueKind.ColumnCountMismatch;
       message: string;
       columnCounts: [number, number];
     }
   | {
-      kind: PairColumnEntriesErrorKind.ColumnEntryCountMismatch;
+      kind: PairColumnEntriesIssueKind.ColumnEntryCountMismatch;
       message: string;
       columnIndex: number;
       columnEntryCounts: [number, number];
+    };
+
+/**
+ * Result of {@link pairColumnEntries}. The `issues` property is an array of
+ * issues that occurred during the pairing process. If success is `false`,
+ * then `entries` will only be partially populated.
+ */
+export type PairColumnEntriesResult<T extends GridEntry, U extends GridEntry> =
+  | {
+      readonly success: true;
+      readonly pairs: ReadonlyArray<[T, U]>;
+    }
+  | {
+      readonly success: false;
+      readonly pairs: ReadonlyArray<[T, U]>;
+      readonly issues: readonly PairColumnEntriesIssue[];
     };
 
 /**
@@ -124,7 +139,7 @@ export type PairColumnEntriesError =
 export function pairColumnEntries<T extends GridEntry, U extends GridEntry>(
   grid1: readonly T[],
   grid2: readonly U[]
-): Result<Array<[T, U]>, PairColumnEntriesError> {
+): PairColumnEntriesResult<T, U> {
   const grid1ByColumn = groupBy(grid1, (e) => e.column);
   const grid2ByColumn = groupBy(grid2, (e) => e.column);
   const grid1Columns = Array.from(grid1ByColumn.entries())
@@ -138,32 +153,35 @@ export function pairColumnEntries<T extends GridEntry, U extends GridEntry>(
     // sort by side, row
     .map(([, entries]) => Array.from(entries).sort(compareGridEntry));
   const pairs: Array<[T, U]> = [];
+  const issues: PairColumnEntriesIssue[] = [];
 
   if (grid1Columns.length !== grid2Columns.length) {
-    return err({
-      kind: PairColumnEntriesErrorKind.ColumnCountMismatch,
+    issues.push({
+      kind: PairColumnEntriesIssueKind.ColumnCountMismatch,
       message: `Grids have different number of columns: ${grid1Columns.length} vs ${grid2Columns.length}`,
       columnCounts: [grid1Columns.length, grid2Columns.length],
     });
   }
 
   let columnIndex = 0;
-  for (const [column1, column2] of zip(grid1Columns, grid2Columns)) {
+  for (const [column1, column2] of zipMin(grid1Columns, grid2Columns)) {
     if (column1.length !== column2.length) {
-      return err({
-        kind: PairColumnEntriesErrorKind.ColumnEntryCountMismatch,
+      issues.push({
+        kind: PairColumnEntriesIssueKind.ColumnEntryCountMismatch,
         message: `Columns at index ${columnIndex} disagree on entry count: grid #1 has ${column1.length} entries, but grid #2 has ${column2.length} entries`,
         columnIndex,
         columnEntryCounts: [column1.length, column2.length],
       });
     }
-    for (const [entry1, entry2] of zip(column1, column2)) {
+    for (const [entry1, entry2] of zipMin(column1, column2)) {
       pairs.push([entry1, entry2]);
     }
     columnIndex += 1;
   }
 
-  return ok(pairs);
+  return issues.length
+    ? { success: false, pairs, issues }
+    : { success: true, pairs };
 }
 
 /**
@@ -219,7 +237,7 @@ export function readGridFromElectionDefinition(
 /**
  * Kinds of errors that can occur when converting a ballot card definition.
  */
-export enum ConvertErrorKind {
+export enum ConvertIssueKind {
   ElectionValidationFailed = 'ElectionValidationFailed',
   InvalidBallotSize = 'InvalidBallotSize',
   InvalidDistrictId = 'InvalidDistrictId',
@@ -233,32 +251,32 @@ export enum ConvertErrorKind {
 }
 
 /**
- * Errors that can occur when converting a ballot card definition.
+ * Issues that can occur when converting a ballot card definition.
  */
-export type ConvertError =
+export type ConvertIssue =
   | {
-      kind: ConvertErrorKind.ElectionValidationFailed;
+      kind: ConvertIssueKind.ElectionValidationFailed;
       message: string;
       validationError: ZodError;
     }
   | {
-      kind: ConvertErrorKind.InvalidBallotSize;
+      kind: ConvertIssueKind.InvalidBallotSize;
       message: string;
       invalidBallotSize: string;
     }
   | {
-      kind: ConvertErrorKind.InvalidDistrictId;
+      kind: ConvertIssueKind.InvalidDistrictId;
       message: string;
       invalidDistrictId: string;
     }
   | {
-      kind: ConvertErrorKind.InvalidElectionDate;
+      kind: ConvertIssueKind.InvalidElectionDate;
       message: string;
       invalidDate: string;
       invalidReason: string;
     }
   | {
-      kind: ConvertErrorKind.InvalidTimingMarkMetadata;
+      kind: ConvertIssueKind.InvalidTimingMarkMetadata;
       message: string;
       side: 'front' | 'back';
       timingMarks: PartialTimingMarks;
@@ -266,7 +284,7 @@ export type ConvertError =
       validationError: ZodError;
     }
   | {
-      kind: ConvertErrorKind.MismatchedBallotImageSize;
+      kind: ConvertIssueKind.MismatchedBallotImageSize;
       message: string;
       side: 'front' | 'back';
       ballotPaperSize: BallotPaperSize;
@@ -274,25 +292,40 @@ export type ConvertError =
       actualImageSize: Size;
     }
   | {
-      kind: ConvertErrorKind.MismatchedOvalGrids;
+      kind: ConvertIssueKind.MismatchedOvalGrids;
       message: string;
-      pairColumnEntriesError: PairColumnEntriesError;
+      pairColumnEntriesIssue: PairColumnEntriesIssue;
     }
   | {
-      kind: ConvertErrorKind.MissingDefinitionProperty;
+      kind: ConvertIssueKind.MissingDefinitionProperty;
       message: string;
       property: string;
     }
   | {
-      kind: ConvertErrorKind.MissingTimingMarkMetadata;
+      kind: ConvertIssueKind.MissingTimingMarkMetadata;
       message: string;
       side: 'front' | 'back';
       timingMarks: PartialTimingMarks;
     }
   | {
-      kind: ConvertErrorKind.TimingMarkDetectionFailed;
+      kind: ConvertIssueKind.TimingMarkDetectionFailed;
       message: string;
       side: 'front' | 'back';
+    };
+
+/**
+ * Contains the result of converting a ballot card definition.
+ */
+export type ConvertResult =
+  | {
+      readonly success: true;
+      readonly election: Election;
+      readonly issues: readonly ConvertIssue[];
+    }
+  | {
+      readonly success: false;
+      readonly election?: Election;
+      readonly issues: readonly ConvertIssue[];
     };
 
 /**
@@ -301,57 +334,82 @@ export type ConvertError =
  */
 export function convertElectionDefinitionHeader(
   definition: NewHampshireBallotCardDefinition['definition']
-): Result<Election, ConvertError> {
+): ConvertResult {
   const root = definition;
   const accuvoteHeaderInfo = root.getElementsByTagName('AccuvoteHeaderInfo')[0];
   const electionId =
     accuvoteHeaderInfo?.getElementsByTagName('ElectionID')[0]?.textContent;
   if (typeof electionId !== 'string') {
-    return err({
-      kind: ConvertErrorKind.MissingDefinitionProperty,
-      message: 'ElectionID is missing',
-      property: 'AVSInterface > AccuvoteHeaderInfo > ElectionID',
-    });
+    return {
+      success: false,
+      issues: [
+        {
+          kind: ConvertIssueKind.MissingDefinitionProperty,
+          message: 'ElectionID is missing',
+          property: 'AVSInterface > AccuvoteHeaderInfo > ElectionID',
+        },
+      ],
+    };
   }
 
   const title =
     accuvoteHeaderInfo?.getElementsByTagName('ElectionName')[0]?.textContent;
   if (typeof title !== 'string') {
-    return err({
-      kind: ConvertErrorKind.MissingDefinitionProperty,
-      message: 'ElectionName is missing',
-      property: 'AVSInterface > AccuvoteHeaderInfo > ElectionName',
-    });
+    return {
+      success: false,
+      issues: [
+        {
+          kind: ConvertIssueKind.MissingDefinitionProperty,
+          message: 'ElectionName is missing',
+          property: 'AVSInterface > AccuvoteHeaderInfo > ElectionName',
+        },
+      ],
+    };
   }
 
   const townName =
     accuvoteHeaderInfo?.getElementsByTagName('TownName')[0]?.textContent;
   if (typeof townName !== 'string') {
-    return err({
-      kind: ConvertErrorKind.MissingDefinitionProperty,
-      message: 'TownName is missing',
-      property: 'AVSInterface > AccuvoteHeaderInfo > TownName',
-    });
+    return {
+      success: false,
+      issues: [
+        {
+          kind: ConvertIssueKind.MissingDefinitionProperty,
+          message: 'TownName is missing',
+          property: 'AVSInterface > AccuvoteHeaderInfo > TownName',
+        },
+      ],
+    };
   }
 
   const townId =
     accuvoteHeaderInfo?.getElementsByTagName('TownID')[0]?.textContent;
   if (typeof townId !== 'string') {
-    return err({
-      kind: ConvertErrorKind.MissingDefinitionProperty,
-      message: 'TownID is missing',
-      property: 'AVSInterface > AccuvoteHeaderInfo > TownID',
-    });
+    return {
+      success: false,
+      issues: [
+        {
+          kind: ConvertIssueKind.MissingDefinitionProperty,
+          message: 'TownID is missing',
+          property: 'AVSInterface > AccuvoteHeaderInfo > TownID',
+        },
+      ],
+    };
   }
 
   const rawDate =
     accuvoteHeaderInfo?.getElementsByTagName('ElectionDate')[0]?.textContent;
   if (typeof rawDate !== 'string') {
-    return err({
-      kind: ConvertErrorKind.MissingDefinitionProperty,
-      message: 'ElectionDate is missing',
-      property: 'AVSInterface > AccuvoteHeaderInfo > ElectionDate',
-    });
+    return {
+      success: false,
+      issues: [
+        {
+          kind: ConvertIssueKind.MissingDefinitionProperty,
+          message: 'ElectionDate is missing',
+          property: 'AVSInterface > AccuvoteHeaderInfo > ElectionDate',
+        },
+      ],
+    };
   }
 
   const parsedDate = DateTime.fromFormat(rawDate.trim(), 'M/d/yyyy HH:mm:ss', {
@@ -359,21 +417,31 @@ export function convertElectionDefinitionHeader(
     zone: 'America/New_York',
   });
   if (parsedDate.invalidReason) {
-    return err({
-      kind: ConvertErrorKind.InvalidElectionDate,
-      message: `invalid date: ${parsedDate.invalidReason}`,
-      invalidDate: rawDate,
-      invalidReason: parsedDate.invalidReason,
-    });
+    return {
+      success: false,
+      issues: [
+        {
+          kind: ConvertIssueKind.InvalidElectionDate,
+          message: `invalid date: ${parsedDate.invalidReason}`,
+          invalidDate: rawDate,
+          invalidReason: parsedDate.invalidReason,
+        },
+      ],
+    };
   }
 
   const rawPrecinctId = root.getElementsByTagName('PrecinctID')[0]?.textContent;
   if (typeof rawPrecinctId !== 'string') {
-    return err({
-      kind: ConvertErrorKind.MissingDefinitionProperty,
-      message: 'PrecinctID is missing',
-      property: 'AVSInterface > AccuvoteHeaderInfo > PrecinctID',
-    });
+    return {
+      success: false,
+      issues: [
+        {
+          kind: ConvertIssueKind.MissingDefinitionProperty,
+          message: 'PrecinctID is missing',
+          property: 'AVSInterface > AccuvoteHeaderInfo > PrecinctID',
+        },
+      ],
+    };
   }
   const cleanedPrecinctId = rawPrecinctId.replace(/[^-_\w]/g, '');
   const precinctId = `town-id-${townId}-precinct-id-${cleanedPrecinctId}`;
@@ -381,23 +449,33 @@ export function convertElectionDefinitionHeader(
   const rawDistrictId = `town-id-${townId}-precinct-id-${cleanedPrecinctId}`;
   const districtIdResult = safeParse(DistrictIdSchema, rawDistrictId);
   if (districtIdResult.isErr()) {
-    return err({
-      kind: ConvertErrorKind.InvalidDistrictId,
-      message: `Invalid district ID "${rawDistrictId}": ${
-        districtIdResult.err().message
-      }`,
-      invalidDistrictId: rawDistrictId,
-    });
+    return {
+      success: false,
+      issues: [
+        {
+          kind: ConvertIssueKind.InvalidDistrictId,
+          message: `Invalid district ID "${rawDistrictId}": ${
+            districtIdResult.err().message
+          }`,
+          invalidDistrictId: rawDistrictId,
+        },
+      ],
+    };
   }
   const districtId = districtIdResult.ok();
 
   const ballotSize = root.getElementsByTagName('BallotSize')[0]?.textContent;
   if (typeof ballotSize !== 'string') {
-    return err({
-      kind: ConvertErrorKind.MissingDefinitionProperty,
-      message: 'BallotSize is missing',
-      property: 'AVSInterface > AccuvoteHeaderInfo > BallotSize',
-    });
+    return {
+      success: false,
+      issues: [
+        {
+          kind: ConvertIssueKind.MissingDefinitionProperty,
+          message: 'BallotSize is missing',
+          property: 'AVSInterface > AccuvoteHeaderInfo > BallotSize',
+        },
+      ],
+    };
   }
   let paperSize: BallotPaperSize;
   switch (ballotSize) {
@@ -410,11 +488,16 @@ export function convertElectionDefinitionHeader(
       break;
 
     default:
-      return err({
-        kind: ConvertErrorKind.InvalidBallotSize,
-        message: `invalid ballot size: ${ballotSize}`,
-        invalidBallotSize: ballotSize,
-      });
+      return {
+        success: false,
+        issues: [
+          {
+            kind: ConvertIssueKind.InvalidBallotSize,
+            message: `invalid ballot size: ${ballotSize}`,
+            invalidBallotSize: ballotSize,
+          },
+        ],
+      };
   }
   const geometry = getTemplateBallotCardGeometry(paperSize);
 
@@ -434,11 +517,16 @@ export function convertElectionDefinitionHeader(
     const officeName =
       officeNameElement?.getElementsByTagName('Name')[0]?.textContent;
     if (typeof officeName !== 'string') {
-      return err({
-        kind: ConvertErrorKind.MissingDefinitionProperty,
-        message: 'OfficeName is missing',
-        property: 'AVSInterface > Candidates > OfficeName > Name',
-      });
+      return {
+        success: false,
+        issues: [
+          {
+            kind: ConvertIssueKind.MissingDefinitionProperty,
+            message: 'OfficeName is missing',
+            property: 'AVSInterface > Candidates > OfficeName > Name',
+          },
+        ],
+      };
     }
     const contestId = makeId(officeName);
 
@@ -457,11 +545,16 @@ export function convertElectionDefinitionHeader(
       const candidateName =
         candidateElement.getElementsByTagName('Name')[0]?.textContent;
       if (typeof candidateName !== 'string') {
-        return err({
-          kind: ConvertErrorKind.MissingDefinitionProperty,
-          message: `Name is missing in candidate ${i + 1} of ${officeName}`,
-          property: 'AVSInterface > Candidates > CandidateName > Name',
-        });
+        return {
+          success: false,
+          issues: [
+            {
+              kind: ConvertIssueKind.MissingDefinitionProperty,
+              message: `Name is missing in candidate ${i + 1} of ${officeName}`,
+              property: 'AVSInterface > Candidates > CandidateName > Name',
+            },
+          ],
+        };
       }
 
       let party: Party | undefined;
@@ -494,11 +587,16 @@ export function convertElectionDefinitionHeader(
         if (existingCandidateIndex >= 0) {
           const existingPartyIds = candidates[existingCandidateIndex]?.partyIds;
           if (!party || !existingPartyIds) {
-            return err({
-              kind: ConvertErrorKind.MissingDefinitionProperty,
-              message: `Party is missing in candidate "${candidateName}" of office "${officeName}", required for multi-party endorsement`,
-              property: 'AVSInterface > Candidates > CandidateName > Party',
-            });
+            return {
+              success: false,
+              issues: [
+                {
+                  kind: ConvertIssueKind.MissingDefinitionProperty,
+                  message: `Party is missing in candidate "${candidateName}" of office "${officeName}", required for multi-party endorsement`,
+                  property: 'AVSInterface > Candidates > CandidateName > Party',
+                },
+              ],
+            };
           }
 
           candidates[existingCandidateIndex] = {
@@ -625,14 +723,23 @@ export function convertElectionDefinitionHeader(
   const parseElectionResult = safeParseElection(election);
 
   if (parseElectionResult.isErr()) {
-    return err({
-      kind: ConvertErrorKind.ElectionValidationFailed,
-      message: parseElectionResult.err().message,
-      validationError: parseElectionResult.err(),
-    });
+    return {
+      success: false,
+      issues: [
+        {
+          kind: ConvertIssueKind.ElectionValidationFailed,
+          message: parseElectionResult.err().message,
+          validationError: parseElectionResult.err(),
+        },
+      ],
+    };
   }
 
-  return parseElectionResult;
+  return {
+    success: true,
+    election: parseElectionResult.ok(),
+    issues: [],
+  };
 }
 
 /**
@@ -641,16 +748,20 @@ export function convertElectionDefinitionHeader(
 export function convertElectionDefinition(
   cardDefinition: NewHampshireBallotCardDefinition,
   { ovalTemplate, debug }: { ovalTemplate: ImageData; debug?: Debugger }
-): Result<Election, ConvertError> {
+): ConvertResult {
   const convertHeaderResult = convertElectionDefinitionHeader(
     cardDefinition.definition
   );
 
-  if (convertHeaderResult.isErr()) {
+  if (!convertHeaderResult.success) {
     return convertHeaderResult;
   }
 
-  const paperSize = convertHeaderResult.ok().ballotLayout?.paperSize;
+  const { election, issues: headerIssues } = convertHeaderResult;
+  let success = true;
+  const issues = [...headerIssues];
+
+  const paperSize = election.ballotLayout?.paperSize;
   assert(
     paperSize,
     'paperSize should always be set in convertElectionDefinitionHeader'
@@ -666,8 +777,8 @@ export function convertElectionDefinition(
       imageData.width !== expectedCardGeometry.canvasSize.width ||
       imageData.height !== expectedCardGeometry.canvasSize.height
     ) {
-      return err({
-        kind: ConvertErrorKind.MismatchedBallotImageSize,
+      issues.push({
+        kind: ConvertIssueKind.MismatchedBallotImageSize,
         message: `Ballot image size mismatch: XML definition is ${paperSize}-size, or ${expectedCardGeometry.canvasSize.width}x${expectedCardGeometry.canvasSize.height}, but ${side} image is ${imageData.width}x${imageData.height}`,
         side,
         ballotPaperSize: paperSize,
@@ -685,8 +796,9 @@ export function convertElectionDefinition(
   debug?.layerEnd('front page');
 
   if (!frontTimingMarks) {
-    return err({
-      kind: ConvertErrorKind.TimingMarkDetectionFailed,
+    success = false;
+    issues.push({
+      kind: ConvertIssueKind.TimingMarkDetectionFailed,
       message: 'no timing marks found on front',
       side: 'front',
     });
@@ -700,71 +812,103 @@ export function convertElectionDefinition(
   debug?.layerEnd('back page');
 
   if (!backTimingMarks) {
-    return err({
-      kind: ConvertErrorKind.TimingMarkDetectionFailed,
+    success = false;
+    issues.push({
+      kind: ConvertIssueKind.TimingMarkDetectionFailed,
       message: 'no timing marks found on back',
       side: 'back',
     });
   }
 
-  const frontBits = decodeBottomRowTimingMarks(frontTimingMarks)?.reverse();
+  let frontBits: Bit[] | undefined;
+  if (frontTimingMarks) {
+    frontBits = decodeBottomRowTimingMarks(frontTimingMarks)?.reverse();
 
-  if (!frontBits) {
-    return err({
-      kind: ConvertErrorKind.MissingTimingMarkMetadata,
-      message: 'could not read bottom timing marks on front as bits',
-      side: 'front',
-      timingMarks: frontTimingMarks,
-    });
+    if (!frontBits) {
+      success = false;
+      issues.push({
+        kind: ConvertIssueKind.MissingTimingMarkMetadata,
+        message: 'could not read bottom timing marks on front as bits',
+        side: 'front',
+        timingMarks: frontTimingMarks,
+      });
+    }
   }
 
-  const backBits = decodeBottomRowTimingMarks(backTimingMarks)?.reverse();
+  let backBits: Bit[] | undefined;
+  if (backTimingMarks) {
+    backBits = decodeBottomRowTimingMarks(backTimingMarks)?.reverse();
 
-  if (!backBits) {
-    return err({
-      kind: ConvertErrorKind.MissingTimingMarkMetadata,
-      message: 'could not read bottom timing marks on back as bits',
-      side: 'back',
-      timingMarks: backTimingMarks,
-    });
+    if (!backBits) {
+      success = false;
+      issues.push({
+        kind: ConvertIssueKind.MissingTimingMarkMetadata,
+        message: 'could not read bottom timing marks on back as bits',
+        side: 'back',
+        timingMarks: backTimingMarks,
+      });
+    }
   }
 
-  const frontMetadataResult = safeParse(
-    FrontMarksMetadataSchema,
-    decodeFrontTimingMarkBits(frontBits)
-  );
+  let frontMetadata: FrontMarksMetadata | undefined;
+  if (frontTimingMarks && frontBits) {
+    const frontMetadataResult = safeParse(
+      FrontMarksMetadataSchema,
+      decodeFrontTimingMarkBits(frontBits)
+    );
 
-  if (frontMetadataResult.isErr()) {
-    return err({
-      kind: ConvertErrorKind.InvalidTimingMarkMetadata,
-      message: `could not parse front timing mark metadata: ${
-        frontMetadataResult.err().message
-      }`,
-      side: 'front',
-      timingMarks: frontTimingMarks,
-      timingMarkBits: frontBits,
-      validationError: frontMetadataResult.err(),
-    });
+    if (frontMetadataResult.isErr()) {
+      success = false;
+      issues.push({
+        kind: ConvertIssueKind.InvalidTimingMarkMetadata,
+        message: `could not parse front timing mark metadata: ${
+          frontMetadataResult.err().message
+        }`,
+        side: 'front',
+        timingMarks: frontTimingMarks,
+        timingMarkBits: frontBits,
+        validationError: frontMetadataResult.err(),
+      });
+    } else {
+      frontMetadata = frontMetadataResult.ok();
+    }
   }
 
-  const frontMetadata = frontMetadataResult.ok();
+  let backMetadata: BackMarksMetadata | undefined;
+  if (backTimingMarks && backBits) {
+    const backMetadataResult = safeParse(
+      BackMarksMetadataSchema,
+      decodeBackTimingMarkBits(backBits)
+    );
 
-  const backMetadataResult = safeParse(
-    BackMarksMetadataSchema,
-    decodeBackTimingMarkBits(backBits)
-  );
+    if (backMetadataResult.isErr()) {
+      success = false;
+      issues.push({
+        kind: ConvertIssueKind.InvalidTimingMarkMetadata,
+        message: `could not parse back timing mark metadata: ${
+          backMetadataResult.err().message
+        }`,
+        side: 'back',
+        timingMarks: backTimingMarks,
+        timingMarkBits: backBits,
+        validationError: backMetadataResult.err(),
+      });
+    } else {
+      backMetadata = backMetadataResult.ok();
+    }
+  }
 
-  if (backMetadataResult.isErr()) {
-    return err({
-      kind: ConvertErrorKind.InvalidTimingMarkMetadata,
-      message: `could not parse back timing mark metadata: ${
-        backMetadataResult.err().message
-      }`,
-      side: 'back',
-      timingMarks: backTimingMarks,
-      timingMarkBits: backBits,
-      validationError: backMetadataResult.err(),
-    });
+  if (
+    !frontMetadata ||
+    !backMetadata ||
+    !frontTimingMarks ||
+    !backTimingMarks
+  ) {
+    return {
+      success,
+      issues,
+      election,
+    };
   }
 
   const ballotStyleId = `card-number-${frontMetadata.cardNumber}`;
@@ -787,7 +931,6 @@ export function convertElectionDefinition(
     { usableArea: expectedCardGeometry.backUsableArea, debug }
   );
 
-  const election = convertHeaderResult.ok();
   const gridLayout = election.gridLayouts?.[0];
   assert(gridLayout, 'grid layout missing');
 
@@ -813,30 +956,34 @@ export function convertElectionDefinition(
     ovalGrid
   );
 
-  if (pairColumnEntriesResult.isErr()) {
-    const pairColumnEntriesError = pairColumnEntriesResult.err();
+  if (!pairColumnEntriesResult.success) {
+    success = false;
 
-    switch (pairColumnEntriesError.kind) {
-      case PairColumnEntriesErrorKind.ColumnCountMismatch:
-        return err({
-          kind: ConvertErrorKind.MismatchedOvalGrids,
-          message: `XML definition and ballot images have different number of columns containing ovals: ${pairColumnEntriesError.columnCounts[0]} vs ${pairColumnEntriesError.columnCounts[1]}`,
-          pairColumnEntriesError,
-        });
+    for (const issue of pairColumnEntriesResult.issues) {
+      switch (issue.kind) {
+        case PairColumnEntriesIssueKind.ColumnCountMismatch:
+          issues.push({
+            kind: ConvertIssueKind.MismatchedOvalGrids,
+            message: `XML definition and ballot images have different number of columns containing ovals: ${issue.columnCounts[0]} vs ${issue.columnCounts[1]}`,
+            pairColumnEntriesIssue: issue,
+          });
+          break;
 
-      case PairColumnEntriesErrorKind.ColumnEntryCountMismatch:
-        return err({
-          kind: ConvertErrorKind.MismatchedOvalGrids,
-          message: `XML definition and ballot images have different number of entries in column ${pairColumnEntriesError.columnIndex}: ${pairColumnEntriesError.columnEntryCounts[0]} vs ${pairColumnEntriesError.columnEntryCounts[1]}`,
-          pairColumnEntriesError,
-        });
+        case PairColumnEntriesIssueKind.ColumnEntryCountMismatch:
+          issues.push({
+            kind: ConvertIssueKind.MismatchedOvalGrids,
+            message: `XML definition and ballot images have different number of entries in column ${issue.columnIndex}: ${issue.columnEntryCounts[0]} vs ${issue.columnEntryCounts[1]}`,
+            pairColumnEntriesIssue: issue,
+          });
+          break;
 
-      default:
-        throwIllegalValue(pairColumnEntriesError, 'kind');
+        default:
+          throwIllegalValue(issue, 'kind');
+      }
     }
   }
 
-  const mergedGrids = pairColumnEntriesResult.ok();
+  const mergedGrids = pairColumnEntriesResult.pairs;
   const result: Election = {
     ...election,
     ballotStyles: [
@@ -859,5 +1006,5 @@ export function convertElectionDefinition(
     ],
   };
 
-  return ok(result);
+  return { success, issues, election: result };
 }

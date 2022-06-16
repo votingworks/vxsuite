@@ -14,7 +14,7 @@ interface ConvertOptions {
   readonly definitionPath: string;
   readonly frontBallotPath: string;
   readonly backBallotPath: string;
-  readonly outputPath: string;
+  readonly outputPath?: string;
 }
 
 interface HelpOptions {
@@ -47,7 +47,10 @@ function parseOptions(args: readonly string[]): Result<Options, Error> {
         if (nextArg === undefined) {
           return err(new Error(`missing output path after ${arg}`));
         }
-        outputPath = nextArg;
+        // '-' is a special case for stdout, which is the default
+        if (nextArg !== '-') {
+          outputPath = nextArg;
+        }
         i += 1;
         break;
       }
@@ -88,10 +91,6 @@ function parseOptions(args: readonly string[]): Result<Options, Error> {
     return err(new Error('missing back ballot path'));
   }
 
-  if (!outputPath) {
-    return err(new Error('missing output path'));
-  }
-
   return ok({
     type: 'convert',
     definitionPath,
@@ -103,7 +102,7 @@ function parseOptions(args: readonly string[]): Result<Options, Error> {
 
 function usage(out: NodeJS.WritableStream): void {
   out.write(
-    `usage: convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg> -o <output.json>\n`
+    `usage: convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg> [-o <output.json>]\n`
   );
 }
 
@@ -147,17 +146,22 @@ export async function main(
     ovalTemplate: await templates.getOvalTemplate(),
   });
 
-  if (convertResult.isErr()) {
-    io.stderr.write(`error: ${convertResult.err().message}\n`);
-    return 1;
+  if (convertResult.issues.length > 0) {
+    io.stderr.write(convertResult.success ? 'warning: ' : 'error: ');
+    io.stderr.write(`conversion completed with issues:\n`);
+    for (const issue of convertResult.issues) {
+      io.stderr.write(`- ${issue.message}\n`);
+    }
   }
 
-  const output = JSON.stringify(convertResult.ok(), null, 2);
-  if (outputPath === '-') {
-    io.stdout.write(output);
-  } else {
-    await fs.writeFile(outputPath, output);
+  if (convertResult.election) {
+    const output = JSON.stringify(convertResult.election, null, 2);
+    if (!outputPath) {
+      io.stdout.write(output);
+    } else {
+      await fs.writeFile(outputPath, output);
+    }
   }
 
-  return 0;
+  return convertResult.success ? 0 : 1;
 }

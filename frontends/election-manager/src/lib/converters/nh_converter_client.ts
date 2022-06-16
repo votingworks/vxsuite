@@ -88,11 +88,11 @@ export class NhConverterClient implements ConverterClient {
       { ovalTemplate: await templates.getOvalTemplate() }
     );
 
-    if (convertResult.isErr()) {
-      throw convertResult.err();
+    if (!convertResult.success) {
+      throw convertResult;
     }
 
-    const election = convertResult.ok();
+    const { election } = convertResult;
 
     this.outputFiles.set(
       VxElectionDefinitionFile,
