@@ -59,6 +59,7 @@ import {
 } from './utils/external_tallies';
 import { MachineConfig } from './config/types';
 import { VxFiles } from './lib/converters';
+import { areVvsg2AuthFlowsEnabled } from './config/features';
 
 const EITHER_NEITHER_CVR_DATA =
   electionWithMsEitherNeitherWithDataFiles.cvrData;
@@ -84,6 +85,14 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   return {
     ...original,
     randomBallotId: () => 'Asdf1234Asdf12',
+  };
+});
+jest.mock('./config/features', (): typeof import('./config/features') => {
+  const original: typeof import('./config/features') =
+    jest.requireActual('./config/features');
+  return {
+    ...original,
+    areVvsg2AuthFlowsEnabled: jest.fn(),
   };
 });
 
@@ -124,6 +133,7 @@ beforeEach(() => {
       codeVersion: 'TEST',
     })
   );
+  (areVvsg2AuthFlowsEnabled as jest.Mock).mockImplementation(() => false);
 });
 
 afterEach(() => {
@@ -168,6 +178,18 @@ async function authenticateWithAdminCard(card: MemoryCard) {
   fireEvent.click(screen.getByText('5'));
   fireEvent.click(screen.getByText('6'));
 }
+
+// TODO: Update this function to check super admin PIN entry once super admin PINs have been
+// implemented
+async function authenticateWithSuperAdminCard(card: MemoryCard) {
+  await screen.findByText('VxAdmin is Locked');
+  card.insertCard({
+    t: 'superadmin',
+    h: eitherNeitherElectionDefinition.electionHash,
+  });
+  await advanceTimersAndPromises(1);
+}
+
 test('create election works', async () => {
   jest.useFakeTimers();
   const card = new MemoryCard();
@@ -341,7 +363,6 @@ test('L&A (logic and accuracy) flow', async () => {
   const { container, getByTestId } = render(
     <App card={card} hardware={hardware} printer={printer} storage={storage} />
   );
-  jest.advanceTimersByTime(2000); // Cause the usb drive to be detected
   await authenticateWithAdminCard(card);
 
   userEvent.click(screen.getByText('L&A'));
@@ -1089,4 +1110,47 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
     expect(getByTestId('total-ballot-count').textContent).toEqual('0')
   );
   getByText('No CVR files loaded.');
+});
+
+test('admin UI has expected tabs when VVSG2 auth flows are enabled', async () => {
+  jest.useFakeTimers();
+  (areVvsg2AuthFlowsEnabled as jest.Mock).mockImplementation(() => true);
+
+  const card = new MemoryCard();
+  const hardware = MemoryHardware.buildStandard();
+  const storage = await createMemoryStorageWith({
+    electionDefinition: eitherNeitherElectionDefinition,
+  });
+  render(<App card={card} hardware={hardware} storage={storage} />);
+  await authenticateWithAdminCard(card);
+
+  screen.getByText('Ballots');
+  screen.getByText('L&A');
+  screen.getByText('Tally');
+  screen.getByRole('button', { name: 'Lock Machine' });
+
+  expect(screen.queryByText('Definition')).not.toBeInTheDocument();
+  expect(screen.queryByText('Smartcards')).not.toBeInTheDocument();
+  expect(screen.queryByText('Advanced')).not.toBeInTheDocument();
+});
+
+test('super admin UI has expected tabs when VVSG2 auth flows are enabled', async () => {
+  jest.useFakeTimers();
+  (areVvsg2AuthFlowsEnabled as jest.Mock).mockImplementation(() => true);
+
+  const card = new MemoryCard();
+  const hardware = MemoryHardware.buildStandard();
+  const storage = await createMemoryStorageWith({
+    electionDefinition: eitherNeitherElectionDefinition,
+  });
+  render(<App card={card} hardware={hardware} storage={storage} />);
+  await authenticateWithSuperAdminCard(card);
+
+  screen.getByText('Definition');
+  screen.getByText('Draft Ballots');
+  screen.getByText('Smartcards');
+  screen.getByText('Backups');
+  screen.getByRole('button', { name: 'Settings' });
+  screen.getByRole('button', { name: 'Logs' });
+  screen.getByRole('button', { name: 'Lock Machine' });
 });
