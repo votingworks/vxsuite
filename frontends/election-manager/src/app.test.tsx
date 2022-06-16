@@ -181,8 +181,13 @@ async function authenticateWithAdminCard(card: MemoryCard) {
 
 // TODO: Update this function to check super admin PIN entry once super admin PINs have been
 // implemented
-async function authenticateWithSuperAdminCard(card: MemoryCard) {
-  await screen.findByText('VxAdmin is Locked');
+async function authenticateWithSuperAdminCard(
+  card: MemoryCard,
+  expectLockScreenToStart = true
+) {
+  if (expectLockScreenToStart) {
+    await screen.findByText('VxAdmin is Locked');
+  }
   card.insertCard({
     t: 'superadmin',
     h: eitherNeitherElectionDefinition.electionHash,
@@ -1112,7 +1117,7 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
   getByText('No CVR files loaded.');
 });
 
-test('admin UI has expected tabs when VVSG2 auth flows are enabled', async () => {
+test('admin UI has expected nav when VVSG2 auth flows are enabled', async () => {
   jest.useFakeTimers();
   (areVvsg2AuthFlowsEnabled as jest.Mock).mockImplementation(() => true);
 
@@ -1134,7 +1139,7 @@ test('admin UI has expected tabs when VVSG2 auth flows are enabled', async () =>
   expect(screen.queryByText('Advanced')).not.toBeInTheDocument();
 });
 
-test('super admin UI has expected tabs when VVSG2 auth flows are enabled', async () => {
+test('super admin UI has expected nav when VVSG2 auth flows are enabled', async () => {
   jest.useFakeTimers();
   (areVvsg2AuthFlowsEnabled as jest.Mock).mockImplementation(() => true);
 
@@ -1153,4 +1158,23 @@ test('super admin UI has expected tabs when VVSG2 auth flows are enabled', async
   screen.getByRole('button', { name: 'Settings' });
   screen.getByRole('button', { name: 'Logs' });
   screen.getByRole('button', { name: 'Lock Machine' });
+});
+
+test('super admin UI has expected nav when no election and VVSG2 auth flows are enabled', async () => {
+  jest.useFakeTimers();
+  (areVvsg2AuthFlowsEnabled as jest.Mock).mockImplementation(() => true);
+
+  const card = new MemoryCard();
+  const hardware = MemoryHardware.buildStandard();
+  render(<App card={card} hardware={hardware} />);
+  await authenticateWithSuperAdminCard(card, false);
+
+  screen.getByText('Definition');
+  screen.getByRole('button', { name: 'Settings' });
+  screen.getByRole('button', { name: 'Logs' });
+  screen.getByRole('button', { name: 'Lock Machine' });
+
+  expect(screen.queryByText('Draft Ballots')).not.toBeInTheDocument();
+  expect(screen.queryByText('Smartcards')).not.toBeInTheDocument();
+  expect(screen.queryByText('Backups')).not.toBeInTheDocument();
 });
