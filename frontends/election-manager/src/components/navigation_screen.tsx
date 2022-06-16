@@ -1,6 +1,5 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-
 import {
   Button,
   ElectionInfoBar,
@@ -8,15 +7,23 @@ import {
   Screen,
   UsbControllerButton,
 } from '@votingworks/ui';
+
 import {
+  areVvsg2AuthFlowsEnabled,
   isAuthenticationEnabled,
   isWriteInAdjudicationEnabled,
 } from '../config/features';
 import { AppContext } from '../contexts/app_context';
-
 import { routerPaths } from '../router_paths';
 import { Navigation } from './navigation';
 import { LinkButton } from './link_button';
+import { LogsModal } from './logs_modal';
+import { SettingsModal } from './settings_modal';
+
+interface NavItem {
+  label: string;
+  routerPath: string;
+}
 
 interface Props {
   children: React.ReactNode;
@@ -49,89 +56,102 @@ export function NavigationScreen({
     currentUserSession,
   } = useContext(AppContext);
   const election = electionDefinition?.election;
-  const currentUser = currentUserSession?.type ?? 'unknown';
+  const currentUserType = currentUserSession?.type ?? 'unknown';
+
+  const [showSettingsModal, setShowSettingsModal] = useState(false);
+  const [showLogsModal, setShowLogsModal] = useState(false);
+
+  let primaryNavItems: NavItem[] = [];
+  if (currentUserType === 'superadmin') {
+    primaryNavItems = election
+      ? [
+          { label: 'Definition', routerPath: routerPaths.electionDefinition },
+          { label: 'Draft Ballots', routerPath: routerPaths.ballotsList },
+          { label: 'Smartcards', routerPath: routerPaths.smartcards },
+          { label: 'Backups', routerPath: routerPaths.backups },
+        ]
+      : [{ label: 'Definition', routerPath: routerPaths.electionDefinition }];
+  } else if (currentUserType === 'admin') {
+    let primaryNavItemsUnfiltered: Array<NavItem | false> = [];
+    if (areVvsg2AuthFlowsEnabled()) {
+      primaryNavItemsUnfiltered = election
+        ? [
+            { label: 'Ballots', routerPath: routerPaths.ballotsList },
+            { label: 'L&A', routerPath: routerPaths.logicAndAccuracy },
+            isWriteInAdjudicationEnabled() && {
+              label: 'Write-Ins',
+              routerPath: routerPaths.writeIns,
+            },
+            { label: 'Tally', routerPath: routerPaths.tally },
+          ]
+        : [];
+    } else {
+      primaryNavItemsUnfiltered = election
+        ? [
+            { label: 'Definition', routerPath: routerPaths.electionDefinition },
+            { label: 'Smartcards', routerPath: routerPaths.smartcards },
+            { label: 'Ballots', routerPath: routerPaths.ballotsList },
+            { label: 'L&A', routerPath: routerPaths.logicAndAccuracy },
+            isWriteInAdjudicationEnabled() && {
+              label: 'Write-Ins',
+              routerPath: routerPaths.writeIns,
+            },
+            { label: 'Tally', routerPath: routerPaths.tally },
+            { label: 'Advanced', routerPath: routerPaths.advanced },
+          ]
+        : [
+            { label: 'Configure', routerPath: routerPaths.root },
+            { label: 'Advanced', routerPath: routerPaths.advanced },
+          ];
+    }
+    primaryNavItems = primaryNavItemsUnfiltered.filter<NavItem>(
+      (entry): entry is NavItem => Boolean(entry)
+    );
+  }
 
   return (
     <Screen>
       <Navigation
         primaryNav={
-          election ? (
-            <React.Fragment>
+          <React.Fragment>
+            {primaryNavItems.map(({ label, routerPath }) => (
               <LinkButton
-                to={routerPaths.electionDefinition}
-                className={isActiveSection(routerPaths.electionDefinition)}
+                className={isActiveSection(routerPath)}
+                to={routerPath}
+                key={label}
               >
-                Definition
+                {label}
               </LinkButton>
-              <LinkButton
-                to={routerPaths.smartcards}
-                className={isActiveSection(routerPaths.smartcards)}
-              >
-                Cards
-              </LinkButton>
-              <LinkButton
-                to={routerPaths.ballotsList}
-                className={isActiveSection(routerPaths.ballotsList)}
-              >
-                Ballots
-              </LinkButton>
-              <LinkButton
-                to={routerPaths.logicAndAccuracy}
-                className={isActiveSection(routerPaths.logicAndAccuracy)}
-              >
-                L&amp;A
-              </LinkButton>
-              {isWriteInAdjudicationEnabled() && (
-                <LinkButton
-                  small
-                  to={routerPaths.writeIns}
-                  className={isActiveSection(routerPaths.writeIns)}
-                >
-                  Write-Ins
-                </LinkButton>
-              )}
-              <LinkButton
-                small
-                to={routerPaths.tally}
-                className={isActiveSection(routerPaths.tally)}
-              >
-                Tally
-              </LinkButton>
-              <LinkButton
-                small
-                to={routerPaths.advanced}
-                className={isActiveSection(routerPaths.advanced)}
-              >
-                Advanced
-              </LinkButton>
-            </React.Fragment>
-          ) : (
-            <React.Fragment>
-              <LinkButton
-                to={routerPaths.root}
-                className={isActiveSection(routerPaths.root)}
-              >
-                Configure
-              </LinkButton>
-              <LinkButton
-                small
-                to={routerPaths.advanced}
-                className={isActiveSection(routerPaths.advanced)}
-              >
-                Advanced
-              </LinkButton>
-            </React.Fragment>
-          )
+            ))}
+          </React.Fragment>
         }
         secondaryNav={
           <React.Fragment>
+            {currentUserType === 'superadmin' && (
+              <React.Fragment>
+                <Button onPress={() => setShowSettingsModal(true)} small>
+                  Settings
+                </Button>
+                <Button onPress={() => setShowLogsModal(true)} small>
+                  Logs
+                </Button>
+                {showSettingsModal && (
+                  <SettingsModal
+                    closeModal={() => setShowSettingsModal(false)}
+                  />
+                )}
+                {showLogsModal && (
+                  <LogsModal closeModal={() => setShowLogsModal(false)} />
+                )}
+              </React.Fragment>
+            )}
             {isAuthenticationEnabled() && (
-              <Button small onPress={lockMachine}>
+              <Button onPress={lockMachine} small>
                 Lock Machine
               </Button>
             )}
             <UsbControllerButton
-              usbDriveEject={() => usbDriveEject(currentUser)}
+              usbDriveEject={() => usbDriveEject(currentUserType)}
               usbDriveStatus={usbDriveStatus}
             />
           </React.Fragment>
