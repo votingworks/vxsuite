@@ -50,4 +50,5 @@ export const routerPaths = {
   logicAndAccuracy: '/logic-and-accuracy',
   testDecks: '/logic-and-accuracy/test-decks',
   writeIns: '/write-ins',
+  backups: '/backups',
 } as const;
