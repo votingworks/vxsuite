@@ -1,8 +1,9 @@
-import { assert } from '@votingworks/utils';
-import React, { useContext, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
 import { CandidateVote, OptionalYesNoVote } from '@votingworks/types';
 import { LinkButton, Screen, Prose, Text } from '@votingworks/ui';
+import { assert } from '@votingworks/utils';
+import pluralize from 'pluralize';
+import React, { useContext, useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 
 import { ordinal } from '../utils/ordinal';
 
@@ -131,7 +132,7 @@ export function ContestPage(): JSX.Element {
         <Prose>
           <Text center>
             This is the <strong>{ordinal(currentContestIndex + 1)}</strong> of{' '}
-            {contests.length} contests.
+            {pluralize('contest', contests.length, true)}.
           </Text>
           {isReviewMode ? (
             <React.Fragment>
