@@ -456,8 +456,8 @@ exports[`Renders ContestPage 1`] = `
             </strong>
              of
              
-            22
-             contests.
+            22 contests
+            .
           </p>
           <p>
             <button
