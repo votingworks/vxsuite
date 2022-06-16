@@ -1,5 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 import { sha256 } from 'js-sha256';
+import { DateTime } from 'luxon';
 import * as z from 'zod';
 import { Iso8601Timestamp, Iso8601TimestampSchema } from './api';
 import {
@@ -1672,6 +1673,53 @@ function preprocessElection(value: unknown): unknown {
     election = { ...rest, sealUrl: sealURL };
   }
   /* eslint-enable vx/gts-identifiers */
+
+  // Convert specific known date formats to ISO 8601.
+  if (
+    typeof election.date === 'string' &&
+    !DateTime.fromISO(election.date).isValid
+  ) {
+    // e.g. 2/18/2020
+    const parsedMonthDayYearDate = DateTime.fromFormat(
+      election.date,
+      'M/d/yyyy'
+    );
+
+    if (parsedMonthDayYearDate.isValid) {
+      election = { ...election, date: parsedMonthDayYearDate.toISO() };
+    }
+
+    // e.g. February 18th, 2020
+    const parsedMonthNameDayYearDate = DateTime.fromFormat(
+      election.date.replace(/(\d+)(st|nd|rd|th)/, '$1'),
+      'MMMM d, yyyy'
+    );
+
+    if (parsedMonthNameDayYearDate.isValid) {
+      election = { ...election, date: parsedMonthNameDayYearDate.toISO() };
+    }
+  }
+
+  // Fill in `Party#fullName` from `Party#name` if it's missing.
+  const isMissingPartyFullName = election.parties?.some(
+    /* istanbul ignore next */
+    (party) => !party?.fullName
+  );
+
+  /* istanbul ignore next */
+  if (isMissingPartyFullName) {
+    election = {
+      ...election,
+      parties: election.parties?.map((party) =>
+        !party
+          ? party
+          : {
+              ...party,
+              fullName: party.fullName ?? party.name,
+            }
+      ),
+    };
+  }
 
   return election;
 }
