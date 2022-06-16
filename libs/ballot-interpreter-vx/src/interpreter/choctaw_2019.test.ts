@@ -33,49 +33,63 @@ test('choctaw general 2019', async () => {
         Object {
           "id": "575031910",
           "name": "Andy Gipson",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "575020972": Array [
         Object {
           "id": "575031914",
           "name": "Delbert Hosemann",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "575020973": Array [
         Object {
           "id": "575031916",
           "name": "Johnny DuPree",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
       ],
       "575020974": Array [
         Object {
           "id": "575031918",
           "name": "Shad White",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "575020975": Array [
         Object {
           "id": "575031919",
           "name": "Addie Lee Green",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
       ],
       "575021151": Array [
         Object {
           "id": "575032127",
           "name": "Lynn Fitch",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "575021152": Array [
         Object {
           "id": "575030384",
           "name": "Bob Hickingbottom",
-          "partyId": "8",
+          "partyIds": Array [
+            "8",
+          ],
         },
       ],
     }
@@ -94,28 +108,36 @@ test('choctaw general 2019', async () => {
         Object {
           "id": "575031912",
           "name": "Mike Chaney",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "575021144": Array [
         Object {
           "id": "575032121",
           "name": "Brandon Presley",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
       ],
       "575021153": Array [
         Object {
           "id": "575032131",
           "name": "John Caldwell",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "575021524": Array [
         Object {
           "id": "575032576",
           "name": "Steve Montgomery",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
       ],
     }

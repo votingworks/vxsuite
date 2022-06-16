@@ -211,15 +211,15 @@ export function arbitraryYesNoContest({
  */
 export function arbitraryCandidate({
   id = arbitraryCandidateId(),
-  partyId = fc.constant(undefined),
+  partyIds = fc.constant(undefined),
 }: {
   id?: fc.Arbitrary<Candidate['id']>;
-  partyId?: fc.Arbitrary<Party['id'] | undefined>;
+  partyIds?: fc.Arbitrary<Array<Party['id']> | undefined>;
 } = {}): fc.Arbitrary<Candidate> {
   return fc.record({
     id,
     name: fc.string({ minLength: 1 }),
-    partyId,
+    partyIds,
   });
 }
 
@@ -249,11 +249,9 @@ export function arbitraryCandidateContest({
       .array(
         partyIds
           .chain((ids) =>
-            ids.length ? fc.constantFrom(...ids) : fc.constant(undefined)
+            ids.length ? fc.subarray(ids) : fc.constant(undefined)
           )
-          .chain((partyId) =>
-            arbitraryCandidate({ partyId: fc.constant(partyId) })
-          )
+          .chain((ids) => arbitraryCandidate({ partyIds: fc.constant(ids) }))
       )
       .filter(hasUniqueIds),
   });

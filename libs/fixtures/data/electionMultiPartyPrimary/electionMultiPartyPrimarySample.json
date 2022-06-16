@@ -144,12 +144,12 @@
         {
           "id": "aaron-aligator",
           "name": "Aaron Aligator",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "peter-pigeon",
           "name": "Peter Pigeon",
-          "partyId": "0"
+          "partyIds": ["0"]
         }
       ],
       "allowWriteIns": true
@@ -166,12 +166,12 @@
         {
           "id": "kristen-bell",
           "name": "Kristen Bell",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
         {
           "id": "dax-shepherd",
           "name": "Dax Shepherd",
-          "partyId": "3"
+          "partyIds": ["3"]
         }
       ],
       "allowWriteIns": true
@@ -188,12 +188,12 @@
         {
           "id": "eleanor-shellstrop",
           "name": "Eleanor Shellstrop",
-          "partyId": "4"
+          "partyIds": ["4"]
         },
         {
           "id": "chidi-anagonye",
           "name": "Chidi Anagonye",
-          "partyId": "4"
+          "partyIds": ["4"]
         }
       ],
       "allowWriteIns": true
@@ -210,12 +210,12 @@
         {
           "id": "tahani-al-jamil",
           "name": "Tahani Al-Jamil",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "jason-mendoza",
           "name": "Jason Mendoza",
-          "partyId": "0"
+          "partyIds": ["0"]
         }
       ],
       "allowWriteIns": true
@@ -232,12 +232,12 @@
         {
           "id": "tina-wesson",
           "name": "Tina Wesson",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
         {
           "id": "ethan-zohn",
           "name": "Ethan Zohn",
-          "partyId": "3"
+          "partyIds": ["3"]
         }
       ],
       "allowWriteIns": true
@@ -254,12 +254,12 @@
         {
           "id": "vecepia-towery",
           "name": "Vecepia Towery",
-          "partyId": "4"
+          "partyIds": ["4"]
         },
         {
           "id": "brain-heidik",
           "name": "Brain Heidik",
-          "partyId": "4"
+          "partyIds": ["4"]
         }
       ],
       "allowWriteIns": true
@@ -276,12 +276,12 @@
         {
           "id": "jenna-morasca",
           "name": "Jenna Morasca",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "sandra-diaz-twine",
           "name": "Sandra Diaz-Twine",
-          "partyId": "0"
+          "partyIds": ["0"]
         }
       ],
       "allowWriteIns": true
@@ -298,17 +298,17 @@
         {
           "id": "bulbasaur",
           "name": "Bulbasaur",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "charmander",
           "name": "Charmander",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "squirtle",
           "name": "Squirtle",
-          "partyId": "0"
+          "partyIds": ["0"]
         }
       ],
       "allowWriteIns": true
@@ -325,17 +325,17 @@
         {
           "id": "flareon",
           "name": "Flareon",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
         {
           "id": "umbreon",
           "name": "Umbreon",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
         {
           "id": "vaporeon",
           "name": "Vaporeon",
-          "partyId": "3"
+          "partyIds": ["3"]
         }
       ],
       "allowWriteIns": true
@@ -352,12 +352,12 @@
         {
           "id": "pikachu",
           "name": "Pikachu",
-          "partyId": "4"
+          "partyIds": ["4"]
         },
         {
           "id": "eevee",
           "name": "Eevee",
-          "partyId": "4"
+          "partyIds": ["4"]
         }
       ],
       "allowWriteIns": true
@@ -374,22 +374,22 @@
         {
           "id": "amber-brkich",
           "name": "Amber Brkich",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "chris-daugherty",
           "name": "Chris Daugherty",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "tom-westman",
           "name": "Tom Westman",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "danni-boatwright",
           "name": "Dann Boatwright",
-          "partyId": "0"
+          "partyIds": ["0"]
         }
       ],
       "allowWriteIns": true
@@ -406,22 +406,22 @@
         {
           "id": "aras-baskauskas",
           "name": "Aras Baskauskas",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
         {
           "id": "yul-kwon",
           "name": "Yul Kwon",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
         {
           "id": "earl-cole",
           "name": "Earl Cole",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
         {
           "id": "todd-herzog",
           "name": "Todd Herzog",
-          "partyId": "3"
+          "partyIds": ["3"]
         }
       ],
       "allowWriteIns": true
@@ -438,22 +438,22 @@
         {
           "id": "parvati-shallow",
           "name": "Parvati Shallow",
-          "partyId": "4"
+          "partyIds": ["4"]
         },
         {
           "id": "bob-crowley",
           "name": "Bob Crowley",
-          "partyId": "4"
+          "partyIds": ["4"]
         },
         {
           "id": "jt-thomas",
           "name": "JT Thomas",
-          "partyId": "4"
+          "partyIds": ["4"]
         },
         {
           "id": "natalie-white",
           "name": "Natalie White",
-          "partyId": "4"
+          "partyIds": ["4"]
         }
       ],
       "allowWriteIns": true

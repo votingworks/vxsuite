@@ -12,6 +12,7 @@ import {
   YesNoVote,
   OptionalYesNoVote,
   getPrecinctIndexById,
+  getCandidatePartiesDescription,
 } from '@votingworks/types';
 import {
   Button,
@@ -30,7 +31,6 @@ import {
   getSingleYesNoVote,
   getContestVoteInRotatedOrder,
 } from '@votingworks/utils';
-import { findPartyById } from '../utils/find';
 import {
   CandidateContestResultInterface,
   EventTargetFunction,
@@ -235,19 +235,23 @@ function CandidateContestResult({
   ) : (
     <React.Fragment>
       {sortedVotes.map((candidate, index, array) => {
-        const party =
-          candidate.partyId &&
-          findPartyById(election.parties, candidate.partyId);
+        const partiesDescription = getCandidatePartiesDescription(
+          election,
+          candidate
+        );
         return (
           <Text
             key={candidate.id}
-            aria-label={`${candidate.name}${party ? `, ${party.name}` : ''}${
-              candidate.isWriteIn ? ', write-in' : ''
-            }${array.length - 1 === index ? '.' : ','}`}
+            aria-label={`${candidate.name}${
+              partiesDescription ? `, ${partiesDescription}` : ''
+            }${candidate.isWriteIn ? ', write-in' : ''}${
+              array.length - 1 === index ? '.' : ','
+            }`}
             wordBreak
             voteIcon
           >
-            <strong>{candidate.name}</strong> {party && `/ ${party.name}`}
+            <strong>{candidate.name}</strong>{' '}
+            {partiesDescription && `/ ${partiesDescription}`}
             {candidate.isWriteIn && '(write-in)'}
           </Text>
         );

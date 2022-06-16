@@ -114,7 +114,7 @@ export const CandidateIdSchema: z.ZodSchema<CandidateId> = z.union([
 export interface Candidate {
   readonly id: CandidateId;
   readonly name: string;
-  readonly partyId?: PartyId;
+  readonly partyIds?: readonly PartyId[];
   readonly isWriteIn?: boolean;
 }
 export const CandidateSchema: z.ZodSchema<Candidate> = z
@@ -122,7 +122,7 @@ export const CandidateSchema: z.ZodSchema<Candidate> = z
     _lang: TranslationsSchema.optional(),
     id: CandidateIdSchema,
     name: z.string().nonempty(),
-    partyId: PartyIdSchema.optional(),
+    partyIds: z.array(PartyIdSchema).optional(),
     isWriteIn: z.boolean().optional(),
   })
   .refine(
@@ -135,13 +135,14 @@ export interface WriteInCandidate {
   readonly name: string;
   readonly isWriteIn: true;
   readonly partyId?: PartyId;
+  readonly partyIds?: readonly PartyId[];
 }
 export const WriteInCandidateSchema: z.ZodSchema<WriteInCandidate> = z.object({
   _lang: TranslationsSchema.optional(),
   id: WriteInIdSchema,
   name: z.string().nonempty(),
   isWriteIn: z.literal(true),
-  partyId: PartyIdSchema.optional(),
+  partyIds: z.array(PartyIdSchema).optional(),
 });
 
 export const writeInCandidate: Candidate = {
@@ -621,27 +622,25 @@ export const ElectionSchema: z.ZodSchema<Election> = z
           candidateIndex,
           candidate,
         ] of contest.candidates.entries()) {
-          if (
-            candidate.partyId &&
-            !election.parties.some(({ id }) => id === candidate.partyId)
-          ) {
-            ctx.addIssue({
-              code: z.ZodIssueCode.custom,
-              path: [
-                'contests',
-                contestIndex,
-                'candidates',
-                candidateIndex,
-                'partyId',
-              ],
-              message: `Candidate '${candidate.id}' in contest '${
-                contest.id
-              }' has party '${
-                candidate.partyId
-              }', but no such party is defined. Parties defined: [${election.parties
-                .map(({ id }) => id)
-                .join(', ')}].`,
-            });
+          for (const [i, partyId] of (candidate.partyIds ?? []).entries()) {
+            if (!election.parties.some((p) => p.id === partyId)) {
+              ctx.addIssue({
+                code: z.ZodIssueCode.custom,
+                path: [
+                  'contests',
+                  contestIndex,
+                  'candidates',
+                  candidateIndex,
+                  'partyIds',
+                  i,
+                ],
+                message: `Candidate '${candidate.id}' in contest '${
+                  contest.id
+                }' has party '${partyId}', but no such party is defined. Parties defined: [${election.parties
+                  .map(({ id }) => id)
+                  .join(', ')}].`,
+              });
+            }
           }
         }
       }
@@ -1385,6 +1384,39 @@ export function getContestsFromIds(
 }
 
 /**
+ * Gets all parties for a given candidate.
+ */
+export function getCandidateParties(
+  parties: Parties,
+  candidate: Candidate
+): Parties {
+  if (!candidate.partyIds) {
+    return [];
+  }
+
+  return candidate.partyIds.map((id) => {
+    const party = parties.find((p) => p.id === id);
+    if (!party) {
+      throw new Error(`Party ${id} not found`);
+    }
+    return party;
+  });
+}
+
+/**
+ * Gets a description of all the parties for a given candidate. If in the future
+ * the order of the parties changes according to the election, this function
+ * will need to be updated.
+ */
+export function getCandidatePartiesDescription(
+  election: Election,
+  candidate: Candidate
+): string {
+  const parties = getCandidateParties(election.parties, candidate);
+  return parties.map((p) => p.name).join(', ');
+}
+
+/**
  * Validates the votes for a given ballot style in a given election.
  *
  * @throws When an inconsistency is found.
@@ -1719,6 +1751,51 @@ function preprocessElection(value: unknown): unknown {
             }
       ),
     };
+  }
+
+  // Handle single `partyId` on candidates.
+  if (election.contests) {
+    interface CandidateWithPartyId extends Candidate {
+      readonly partyId?: PartyId;
+    }
+
+    const hasPartyId = election.contests.some(
+      (contest) =>
+        /* istanbul ignore next */
+        contest?.type === 'candidate' &&
+        contest.candidates.some(
+          (candidate: CandidateWithPartyId) => candidate?.partyId
+        )
+    );
+
+    if (hasPartyId) {
+      election = {
+        ...election,
+        contests: election.contests.map((contest) => {
+          /* istanbul ignore next */
+          if (contest?.type !== 'candidate' || !contest.candidates) {
+            return contest;
+          }
+
+          return {
+            ...contest,
+            candidates: contest.candidates.map(
+              (candidate: CandidateWithPartyId) => {
+                /* istanbul ignore next */
+                if (!candidate?.partyId) {
+                  return candidate;
+                }
+
+                return {
+                  ...candidate,
+                  partyIds: [candidate.partyId],
+                };
+              }
+            ),
+          };
+        }),
+      };
+    }
   }
 
   return election;

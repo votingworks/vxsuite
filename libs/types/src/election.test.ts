@@ -9,14 +9,16 @@ import {
 } from '.';
 import {
   election,
+  electionMinimalExhaustive,
   electionWithMsEitherNeither,
   primaryElection,
-  electionMinimalExhaustive,
 } from '../test/election';
 import {
   CandidateContest,
   CandidateSchema,
   expandEitherNeitherContests,
+  getCandidateParties,
+  getCandidatePartiesDescription,
   getContestsFromIds,
   getEitherNeitherContests,
   getElectionLocales,
@@ -26,6 +28,7 @@ import {
   getPrecinctById,
   getPrecinctIndexById,
   isVotePresent,
+  PartyIdSchema,
   PartySchema,
   validateVotes,
   vote,
@@ -456,6 +459,45 @@ test('election schema', () => {
       safeParseElection(value).unsafeUnwrapErr();
     })
   );
+
+  const candidateContest = election.contests.find(
+    (c): c is CandidateContest => c.type === 'candidate'
+  )!;
+  const yesnoContest = election.contests.find(
+    (c): c is YesNoContest => c.type === 'yesno'
+  )!;
+  const parsedElection = safeParseElection({
+    ...election,
+    contests: [
+      {
+        ...candidateContest,
+        candidates: [
+          ...candidateContest.candidates.map((c) => ({
+            ...c,
+            partyId: election.parties[0].id,
+          })),
+          ...candidateContest.candidates.map((c) => ({
+            ...c,
+            id: `${c.id}-noparty`,
+            partyId: undefined,
+          })),
+        ],
+      },
+      yesnoContest,
+    ],
+  }).unsafeUnwrap();
+
+  for (const contest of parsedElection.contests) {
+    if (contest.type === 'candidate') {
+      for (const candidate of contest.candidates) {
+        expect(candidate.partyIds).toEqual(
+          candidate.id.endsWith('-noparty')
+            ? undefined
+            : [election.parties[0].id]
+        );
+      }
+    }
+  }
 });
 
 test('loading an election with the old sealURL field', () => {
@@ -469,4 +511,54 @@ test('loading an election with the old sealURL field', () => {
       sealURL: 'https://example.com/seal.png',
     }).unsafeUnwrap().sealUrl
   ).toEqual('https://example.com/seal.png');
+});
+
+test('getCandidateParties', () => {
+  expect(
+    getCandidateParties(election.parties, {
+      id: 'bob-loblaw',
+      name: 'Bob Loblaw',
+    })
+  ).toEqual([]);
+
+  expect(
+    getCandidateParties(election.parties, {
+      id: 'bob-loblaw',
+      name: 'Bob Loblaw',
+      partyIds: election.parties.map(({ id }) => id),
+    })
+  ).toEqual(election.parties);
+
+  expect(() =>
+    getCandidateParties(election.parties, {
+      id: 'bob-loblaw',
+      name: 'Bob Loblaw',
+      partyIds: [unsafeParse(PartyIdSchema, 'not-a-listed-party')],
+    })
+  ).toThrowError(/not-a-listed-party/);
+});
+
+test('getCandidatePartiesDescription', () => {
+  expect(
+    getCandidatePartiesDescription(election, {
+      id: 'bob-loblaw',
+      name: 'Bob Loblaw',
+    })
+  ).toEqual('');
+
+  expect(
+    getCandidatePartiesDescription(election, {
+      id: 'bob-loblaw',
+      name: 'Bob Loblaw',
+      partyIds: election.parties.map(({ id }) => id),
+    })
+  ).toEqual(election.parties.map(({ name }) => name).join(', '));
+
+  expect(() =>
+    getCandidatePartiesDescription(election, {
+      id: 'bob-loblaw',
+      name: 'Bob Loblaw',
+      partyIds: [unsafeParse(PartyIdSchema, 'not-a-listed-party')],
+    })
+  ).toThrowError(/not-a-listed-party/);
 });

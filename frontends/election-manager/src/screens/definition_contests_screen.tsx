@@ -10,6 +10,8 @@ import {
   AnyContest,
   MsEitherNeitherContest,
   ContestId,
+  PartyIdSchema,
+  unsafeParse,
 } from '@votingworks/types';
 
 import { Prose, Text } from '@votingworks/ui';
@@ -237,26 +239,46 @@ export function DefinitionContestsScreen({
   };
 
   const saveCandidateTextField: InputEventFunction = async (event) => {
-    const { name, value: targetValue, type } = event.currentTarget;
-    let value: string | number = targetValue;
-    if (type === 'number') {
-      // eslint-disable-next-line vx/gts-safe-number-parse
-      value = parseInt(value, 10);
-    }
+    const { name, value: targetValue } = event.currentTarget;
     const nameParts = name.split('.');
     // eslint-disable-next-line vx/gts-safe-number-parse
     const candidateIndex = parseInt(nameParts[0], 10);
     const candidateKey = nameParts[1];
     const candidateContest = contest as CandidateContest;
     const { candidates } = candidateContest;
-    const newCandidtes = [...candidates];
-    newCandidtes[candidateIndex] = {
-      ...candidates[candidateIndex],
-      [candidateKey]: value,
-    };
+    const newCandidates = [...candidates];
+
+    switch (candidateKey) {
+      case 'id':
+        newCandidates[candidateIndex] = {
+          ...candidates[candidateIndex],
+          id: targetValue,
+        };
+        break;
+
+      case 'name':
+        newCandidates[candidateIndex] = {
+          ...candidates[candidateIndex],
+          name: targetValue,
+        };
+        break;
+
+      case 'partyIds':
+        newCandidates[candidateIndex] = {
+          ...candidates[candidateIndex],
+          partyIds: targetValue
+            .split(',')
+            .map((id) => unsafeParse(PartyIdSchema, id.trim())),
+        };
+        break;
+
+      default:
+        throw new Error(`Unknown candidate key: ${candidateKey}`);
+    }
+
     await saveContest({
       ...candidateContest,
-      candidates: newCandidtes,
+      candidates: newCandidates,
     });
   };
 
@@ -327,8 +349,8 @@ ${fileContent}`;
                         : `Vote for not more than ${contest.seats}`}
                     </p>
                     <CandidateContestChoices
+                      election={election}
                       contest={contest}
-                      parties={election.parties}
                       vote={[]}
                       locales={{ primary: 'en-US' }}
                     />
@@ -501,9 +523,9 @@ ${fileContent}`;
                         disabled
                       />
                       <TextField
-                        name={`${index}.partyId`}
-                        label="Party ID"
-                        value={candidate.partyId || ''}
+                        name={`${index}.partyIds`}
+                        label="Party IDs"
+                        value={candidate.partyIds?.join(', ') ?? ''}
                         optional
                         onChange={saveCandidateTextField}
                         disabled

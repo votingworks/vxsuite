@@ -106,52 +106,72 @@
         {
           "id": "775031649",
           "name": "Joseph R. Biden",
-          "partyId": "2"
+          "partyIds": [
+            "2"
+          ]
         },
         {
           "id": "775031654",
           "name": "Michael R. Bloomberg",
-          "partyId": "2"
+          "partyIds": [
+            "2"
+          ]
         },
         {
           "id": "775031651",
           "name": "Pete Buttigieg",
-          "partyId": "2"
+          "partyIds": [
+            "2"
+          ]
         },
         {
           "id": "775031652",
           "name": "Tulsi Gabbard",
-          "partyId": "2"
+          "partyIds": [
+            "2"
+          ]
         },
         {
           "id": "775031646",
           "name": "Amy Klobuchar",
-          "partyId": "2"
+          "partyIds": [
+            "2"
+          ]
         },
         {
           "id": "775031653",
           "name": "Deval Patrick",
-          "partyId": "2"
+          "partyIds": [
+            "2"
+          ]
         },
         {
           "id": "775031650",
           "name": "Bernie Sanders",
-          "partyId": "2"
+          "partyIds": [
+            "2"
+          ]
         },
         {
           "id": "775031647",
           "name": "Tom Steyer",
-          "partyId": "2"
+          "partyIds": [
+            "2"
+          ]
         },
         {
           "id": "775031648",
           "name": "Elizabeth Warren",
-          "partyId": "2"
+          "partyIds": [
+            "2"
+          ]
         },
         {
           "id": "775031655",
           "name": "Andrew Yang",
-          "partyId": "2"
+          "partyIds": [
+            "2"
+          ]
         }
       ]
     },
@@ -168,17 +188,23 @@
         {
           "id": "775031631",
           "name": "Tobey Bernard Bartee",
-          "partyId": "2"
+          "partyIds": [
+            "2"
+          ]
         },
         {
           "id": "775031632",
           "name": "Jensen Bohren",
-          "partyId": "2"
+          "partyIds": [
+            "2"
+          ]
         },
         {
           "id": "775031633",
           "name": "Mike Espy",
-          "partyId": "2"
+          "partyIds": [
+            "2"
+          ]
         }
       ]
     },
@@ -195,7 +221,9 @@
         {
           "id": "775031635",
           "name": "Antonia Eliason",
-          "partyId": "2"
+          "partyIds": [
+            "2"
+          ]
         }
       ]
     },
@@ -212,17 +240,23 @@
         {
           "id": "775031657",
           "name": "Roque 'Rocky' De La Fuente",
-          "partyId": "3"
+          "partyIds": [
+            "3"
+          ]
         },
         {
           "id": "775031656",
           "name": "Donald J. Trump",
-          "partyId": "3"
+          "partyIds": [
+            "3"
+          ]
         },
         {
           "id": "775031658",
           "name": "Bill Weld",
-          "partyId": "3"
+          "partyIds": [
+            "3"
+          ]
         }
       ]
     },
@@ -239,7 +273,9 @@
         {
           "id": "775031639",
           "name": "Cindy Hyde-Smith",
-          "partyId": "3"
+          "partyIds": [
+            "3"
+          ]
         }
       ]
     },
@@ -256,7 +292,9 @@
         {
           "id": "775031626",
           "name": "Trent Kelly",
-          "partyId": "3"
+          "partyIds": [
+            "3"
+          ]
         }
       ]
     }

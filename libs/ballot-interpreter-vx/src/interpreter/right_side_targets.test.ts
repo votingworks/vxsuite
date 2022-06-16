@@ -26,19 +26,25 @@ test('interprets ballots with right-side ballot target mark position', async () 
         Object {
           "id": "otter",
           "name": "Otter",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
       ],
       "zoo-council-mammal": Array [
         Object {
           "id": "zebra",
           "name": "Zebra",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "kangaroo",
           "name": "Kangaroo",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "write-in-1",

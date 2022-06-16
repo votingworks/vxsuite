@@ -128,21 +128,21 @@ $ ballot-interpreter-vx interpret -e election.json -f json \
           {
             "id": "tim-smith",
             "name": "Tim Smith",
-            "partyId": "6"
+            "partyIds": ["6"]
           }
         ],
         "us-house-district-30": [
           {
             "id": "eddie-bernice-johnson",
             "name": "Eddie Bernice Johnson",
-            "partyId": "2"
+            "partyIds": ["2"]
           }
         ],
         "texas-sc-judge-place-6": [
           {
             "id": "jane-bland",
             "name": "Jane Bland",
-            "partyId": "3"
+            "partyIds": ["3"]
           }
         ],
         "texas-house-district-111": [
@@ -156,14 +156,14 @@ $ ballot-interpreter-vx interpret -e election.json -f json \
           {
             "id": "john-ames",
             "name": "John Ames",
-            "partyId": "2"
+            "partyIds": ["2"]
           }
         ],
         "dallas-county-sheriff": [
           {
             "id": "chad-prda",
             "name": "Chad Prda",
-            "partyId": "3"
+            "partyIds": ["3"]
           }
         ]
       },
@@ -344,7 +344,7 @@ $ ballot-interpreter-vx interpret -e election.json -f json \
           {
             "id": "andrew-jewell",
             "name": "Andrew Jewell",
-            "partyId": "7"
+            "partyIds": ["7"]
           }
         ],
         "dallas-county-proposition-r": [

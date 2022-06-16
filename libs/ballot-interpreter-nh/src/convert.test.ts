@@ -1,10 +1,14 @@
 import {
   AdjudicationReason,
   BallotPaperSize,
+  CandidateContest,
+  PartyIdSchema,
   safeParseElection,
+  unsafeParse,
 } from '@votingworks/types';
 import { typedAs } from '@votingworks/utils';
 import {
+  AmherstFixtureName,
   HudsonFixtureName,
   readFixtureBallotCardDefinition,
   readFixtureDefinition,
@@ -25,7 +29,7 @@ if (process.env.CI) {
   jest.setTimeout(10_000);
 }
 
-test('converting a single ballot card definition', async () => {
+test('converting the Hudson ballot', async () => {
   const hudsonBallotCardDefinition = await readFixtureBallotCardDefinition(
     HudsonFixtureName
   );
@@ -36,6 +40,18 @@ test('converting a single ballot card definition', async () => {
       debug,
     }).unsafeUnwrap();
   });
+
+  // uncomment this to update the fixture
+  // await (
+  //   await import('fs/promises')
+  // ).writeFile(
+  //   (
+  //     await import('../test/fixtures')
+  //   ).getFixturePath(HudsonFixtureName, 'election.json'),
+  //   JSON.stringify(electionDefinition, null, 2),
+  //   'utf8'
+  // );
+
   const election = safeParseElection(
     await readFixtureJson(HudsonFixtureName, 'election')
   ).unsafeUnwrap();
@@ -214,6 +230,74 @@ test('missing PrecinctID', async () => {
       kind: ConvertErrorKind.MissingDefinitionProperty,
       message: 'PrecinctID is missing',
       property: 'AVSInterface > AccuvoteHeaderInfo > PrecinctID',
+    })
+  );
+});
+
+test('multi-party endorsement', async () => {
+  const amherstBallotCardDefinition = await readFixtureDefinition(
+    AmherstFixtureName
+  );
+
+  expect(
+    convertElectionDefinitionHeader(amherstBallotCardDefinition).unsafeUnwrap()
+      .contests
+  ).toEqual(
+    expect.arrayContaining([
+      expect.objectContaining(
+        typedAs<Partial<CandidateContest>>({
+          id: 'Sheriff-4243fe0b',
+          title: 'Sheriff',
+          candidates: [
+            {
+              id: 'Edward-Randolph-bf4c848a',
+              name: 'Edward Randolph',
+              partyIds: [
+                unsafeParse(PartyIdSchema, 'Democratic-aea20adb'),
+                unsafeParse(PartyIdSchema, 'Republican-f0167ce7'),
+              ],
+            },
+          ],
+        })
+      ),
+    ])
+  );
+});
+
+test('missing Party on multi-party endorsement', async () => {
+  const amherstBallotCardDefinition = await readFixtureDefinition(
+    AmherstFixtureName
+  );
+
+  const sheriffElement = Array.from(
+    amherstBallotCardDefinition.getElementsByTagName('Candidates')
+  ).find((candidates) => {
+    const officeName = candidates
+      .getElementsByTagName('OfficeName')[0]!
+      .getElementsByTagName('Name')[0]!.textContent;
+    return officeName === 'Sheriff';
+  })!;
+  const sheriffCandidateElements =
+    sheriffElement.getElementsByTagName('CandidateName');
+  // const sheriffCandidateFirstElement = sheriffCandidateElements[0]!;
+  const sheriffCandidateSecondElement = sheriffCandidateElements[1]!;
+
+  const sheriffCandidateSecondPartyElement =
+    sheriffCandidateSecondElement.getElementsByTagName('Party')[0]!;
+  sheriffCandidateSecondPartyElement.parentNode!.removeChild(
+    sheriffCandidateSecondPartyElement
+  );
+
+  expect(
+    convertElectionDefinitionHeader(
+      amherstBallotCardDefinition
+    ).unsafeUnwrapErr()
+  ).toEqual(
+    typedAs<ConvertError>({
+      kind: ConvertErrorKind.MissingDefinitionProperty,
+      message:
+        'Party is missing in candidate "Edward Randolph" of office "Sheriff", required for multi-party endorsement',
+      property: 'AVSInterface > Candidates > CandidateName > Party',
     })
   );
 });

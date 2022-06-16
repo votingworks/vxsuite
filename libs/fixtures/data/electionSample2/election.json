@@ -97,27 +97,27 @@
         {
           "id": "marie-curie",
           "name": "Marie Curie",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "indiana-jones",
           "name": "Indiana Jones",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "mona-lisa",
           "name": "Mona Lisa",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
         {
           "id": "jackie-chan",
           "name": "Jackie Chan",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
         {
           "id": "tim-allen",
           "name": "Tim Allen",
-          "partyId": "2"
+          "partyIds": ["2"]
         }
       ],
       "allowWriteIns": true,
@@ -139,17 +139,17 @@
         {
           "id": "earhart",
           "name": "Amelia Earhart",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "bond",
           "name": "James Bond",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "antoinette",
           "name": "Marie Antoinette",
-          "partyId": "3"
+          "partyIds": ["3"]
         }
       ],
       "allowWriteIns": true,
@@ -171,17 +171,17 @@
         {
           "id": "michael-jordan",
           "name": "Michael Jordan",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "albert-einstein",
           "name": "Albert Einstein",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "neil-armstrong",
           "name": "Neil Armstrong",
-          "partyId": "3"
+          "partyIds": ["3"]
         }
       ],
       "allowWriteIns": true,
@@ -203,12 +203,12 @@
         {
           "id": "sherlock-holmes",
           "name": "Sherlock Holmes",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "thomas-edison",
           "name": "Thomas Edison",
-          "partyId": "1"
+          "partyIds": ["1"]
         }
       ],
       "allowWriteIns": true,
@@ -230,17 +230,17 @@
         {
           "id": "winston-churchill",
           "name": "Winston Churchill",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "oprah-winfrey",
           "name": "Oprah Winfrey",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "louis-armstrong",
           "name": "Louis Armstrong",
-          "partyId": "3"
+          "partyIds": ["3"]
         }
       ],
       "allowWriteIns": true,
@@ -262,12 +262,12 @@
         {
           "id": "john-snow",
           "name": "John Snow",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "mark-twain",
           "name": "Mark Twain",
-          "partyId": "3"
+          "partyIds": ["3"]
         }
       ],
       "allowWriteIns": true,
@@ -289,17 +289,17 @@
         {
           "id": "benjamin-franklin",
           "name": "Benjamin Franklin",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "robert-downey-jr",
           "name": "Robert Downey Jr.",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "bill-nye",
           "name": "Bill Nye",
-          "partyId": "3"
+          "partyIds": ["3"]
         }
       ],
       "allowWriteIns": true,
@@ -321,22 +321,22 @@
         {
           "id": "natalie-portman",
           "name": "Natalie Portman",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "frank-sinatra",
           "name": "Frank Sinatra",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "andy-warhol",
           "name": "Andy Warhol",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
         {
           "id": "alfred-hitchcock",
           "name": "Alfred Hitchcock",
-          "partyId": "3"
+          "partyIds": ["3"]
         }
       ],
       "allowWriteIns": true,
@@ -358,12 +358,12 @@
         {
           "id": "helen-keller",
           "name": "Helen Keller",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "steve-jobs",
           "name": "Steve Jobs",
-          "partyId": "1"
+          "partyIds": ["1"]
         }
       ],
       "allowWriteIns": true,
@@ -385,12 +385,12 @@
         {
           "id": "charles-darwin",
           "name": "Charles Darwin",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "stephen-hawking",
           "name": "Stephen Hawking",
-          "partyId": "1"
+          "partyIds": ["1"]
         }
       ],
       "allowWriteIns": true,
@@ -412,12 +412,12 @@
         {
           "id": "mark-antony",
           "name": "Mark Antony",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "harriet-tubman",
           "name": "Harriet Tubman",
-          "partyId": "1"
+          "partyIds": ["1"]
         }
       ],
       "allowWriteIns": true,
@@ -439,12 +439,12 @@
         {
           "id": "martin-luther-king",
           "name": "Dr. Martin Luther King Jr.",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "marilyn-monroe",
           "name": "Marilyn Monroe",
-          "partyId": "1"
+          "partyIds": ["1"]
         }
       ],
       "allowWriteIns": true,
@@ -466,12 +466,12 @@
         {
           "id": "nikola-tesla",
           "name": "Nikola Tesla",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "vincent-van-gogh",
           "name": "Vincent Van Gogh",
-          "partyId": "1"
+          "partyIds": ["1"]
         }
       ],
       "allowWriteIns": true,
@@ -493,17 +493,17 @@
         {
           "id": "bill-gates",
           "name": "Bill Gates",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "pablo-picasso",
           "name": "Pablo Picasso",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "wolfgang-amadeus-mozart",
           "name": "Wolfgang Amadeus Mozart",
-          "partyId": "2"
+          "partyIds": ["2"]
         }
       ],
       "allowWriteIns": true,
@@ -525,12 +525,12 @@
         {
           "id": "george-washington",
           "name": "George Washington",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "steven-spielberg",
           "name": "Steven Spielberg",
-          "partyId": "1"
+          "partyIds": ["1"]
         }
       ],
       "allowWriteIns": true,
@@ -552,12 +552,12 @@
         {
           "id": "johan-sebastian-bach",
           "name": "Johann Sebastian Bach",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "alexander-graham-bell",
           "name": "Alexander Graham Bell",
-          "partyId": "1"
+          "partyIds": ["1"]
         }
       ],
       "allowWriteIns": true,
@@ -579,12 +579,12 @@
         {
           "id": "jane-austen",
           "name": "Jane Austen",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "carrie-fisher",
           "name": "Carrie Fisher",
-          "partyId": "1"
+          "partyIds": ["1"]
         }
       ],
       "allowWriteIns": true,
@@ -606,12 +606,12 @@
         {
           "id": "bob-barker",
           "name": "Bob Barker",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "angelina-jolie",
           "name": "Angelina Jolie",
-          "partyId": "3"
+          "partyIds": ["3"]
         }
       ],
       "allowWriteIns": true,
@@ -633,12 +633,12 @@
         {
           "id": "salvador-dali",
           "name": "Salvador Dali",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "anne-hathaway",
           "name": "Anne Hathaway",
-          "partyId": "3"
+          "partyIds": ["3"]
         }
       ],
       "allowWriteIns": true,
@@ -660,12 +660,12 @@
         {
           "id": "theodore-roosevelt",
           "name": "Theodore Roosevelt",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "edgar-allan-poe",
           "name": "Edgar Allan Poe",
-          "partyId": "1"
+          "partyIds": ["1"]
         }
       ],
       "allowWriteIns": true,
@@ -687,12 +687,12 @@
         {
           "id": "isaac-newton",
           "name": "Isaac Newton",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "harry-potter",
           "name": "Harry Potter",
-          "partyId": "1"
+          "partyIds": ["1"]
         }
       ],
       "allowWriteIns": true,
@@ -714,17 +714,17 @@
         {
           "id": "robin-williams",
           "name": "Robin Williams",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "brad-pitt",
           "name": "Brad Pitt",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "william-shakespeare",
           "name": "William Shakespeare",
-          "partyId": "3"
+          "partyIds": ["3"]
         }
       ],
       "allowWriteIns": true,
@@ -746,12 +746,12 @@
         {
           "id": "bruce-lee",
           "name": "Bruce Lee",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "christopher-columbus",
           "name": "Christopher Columbus",
-          "partyId": "1"
+          "partyIds": ["1"]
         }
       ],
       "allowWriteIns": true,
@@ -773,12 +773,12 @@
         {
           "id": "julia-child",
           "name": "Julia Child",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "paul-mccartney",
           "name": "Paul McCartney",
-          "partyId": "1"
+          "partyIds": ["1"]
         }
       ],
       "allowWriteIns": true,
@@ -800,12 +800,12 @@
         {
           "id": "beethoven",
           "name": "Ludwig Van Beethoven",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "walt-disney",
           "name": "Walt Disney",
-          "partyId": "1"
+          "partyIds": ["1"]
         }
       ],
       "allowWriteIns": true,

@@ -30,12 +30,16 @@ test('regression: page outline', async () => {
         Object {
           "id": "randall-rupp",
           "name": "Randall Rupp",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "donald-davis",
           "name": "Donald Davis",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "write-in-1",
@@ -47,7 +51,9 @@ test('regression: page outline', async () => {
         Object {
           "id": "andrew-jewell",
           "name": "Andrew Jewell",
-          "partyId": "7",
+          "partyIds": Array [
+            "7",
+          ],
         },
       ],
       "dallas-county-proposition-r": Array [

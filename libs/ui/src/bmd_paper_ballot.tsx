@@ -12,6 +12,7 @@ import {
   Election,
   ElectionDefinition,
   getBallotStyle,
+  getCandidatePartiesDescription,
   getContests,
   getPartyPrimaryAdjectiveFromBallotStyle,
   getPrecinctById,
@@ -25,7 +26,6 @@ import {
 } from '@votingworks/types';
 import {
   assert,
-  find,
   formatLongDate,
   getSingleYesNoVote,
   getContestVoteInRotatedOrder,
@@ -161,10 +161,9 @@ function CandidateContestResult({
           <Text bold as="span">
             {candidate.name}
           </Text>{' '}
-          {candidate.partyId &&
-            `/ ${
-              find(election.parties, (p) => p.id === candidate.partyId).name
-            }`}
+          {candidate.partyIds &&
+            candidate.partyIds.length > 0 &&
+            `/ ${getCandidatePartiesDescription(election, candidate)}`}
           {candidate.isWriteIn && '(write-in)'}
         </Text>
       ))}

@@ -104,7 +104,7 @@ describe('Election Manager can create SEMS tallies', () => {
       'electionMultiPartyPrimarySample.json'
     );
     cy.contains('Election loading');
-    cy.contains('96133df45d');
+    cy.contains('0e16618fc9');
     cy.contains('Tally').click();
     cy.contains('Import CVR Files').click();
     cy.get('input[data-testid="manual-input"]').attachFile({

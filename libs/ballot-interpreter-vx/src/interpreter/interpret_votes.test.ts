@@ -21,14 +21,18 @@ test('interpret votes', async () => {
         Object {
           "id": "chad-prda",
           "name": "Chad Prda",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "dallas-county-tax-assessor": Array [
         Object {
           "id": "john-ames",
           "name": "John Ames",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
       ],
       "texas-house-district-111": Array [
@@ -42,21 +46,27 @@ test('interpret votes', async () => {
         Object {
           "id": "jane-bland",
           "name": "Jane Bland",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "us-house-district-30": Array [
         Object {
           "id": "eddie-bernice-johnson",
           "name": "Eddie Bernice Johnson",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
       ],
       "us-senate": Array [
         Object {
           "id": "tim-smith",
           "name": "Tim Smith",
-          "partyId": "6",
+          "partyIds": Array [
+            "6",
+          ],
         },
       ],
     }

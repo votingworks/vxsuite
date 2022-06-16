@@ -23,21 +23,27 @@ test('dual language ballot', async () => {
         Object {
           "id": "barchi-hallaren",
           "name": "Joseph Barchi and Joseph Hallaren",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
       ],
       "representative-district-6": Array [
         Object {
           "id": "schott",
           "name": "Brad Schott",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
       ],
       "senator": Array [
         Object {
           "id": "brown",
           "name": "David Brown",
-          "partyId": "6",
+          "partyIds": Array [
+            "6",
+          ],
         },
       ],
     }

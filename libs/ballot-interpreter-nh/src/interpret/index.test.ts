@@ -2617,7 +2617,7 @@ test('interpret marked', async () => {
         "metadata": Object {
           "ballotStyleId": "card-number-54",
           "ballotType": 0,
-          "electionHash": "65d2a62463534d21a7df2661d9c13b165b2893520947a2a259892b9307db6e19",
+          "electionHash": "82d31f927e67ecdbbfd5ae1d6ba489d4f0cc8618f7d297c7004e185d301064ea",
           "isTestMode": false,
           "locales": Object {
             "primary": "unknown",
@@ -2631,7 +2631,9 @@ test('interpret marked', async () => {
             Object {
               "id": "Dave-Wheeler-de2242ee",
               "name": "Dave Wheeler",
-              "partyId": "Republican-f0167ce7",
+              "partyIds": Array [
+                "Republican-f0167ce7",
+              ],
             },
             Object {
               "id": "write-in-0",
@@ -2643,12 +2645,16 @@ test('interpret marked', async () => {
             Object {
               "id": "Chris-Sununu-130124f7",
               "name": "Chris Sununu",
-              "partyId": "Republican-f0167ce7",
+              "partyIds": Array [
+                "Republican-f0167ce7",
+              ],
             },
             Object {
               "id": "Dan-Feltes-3fadf798",
               "name": "Dan Feltes",
-              "partyId": "Democratic-aea20adb",
+              "partyIds": Array [
+                "Democratic-aea20adb",
+              ],
             },
             Object {
               "id": "write-in-0",
@@ -2660,12 +2666,16 @@ test('interpret marked', async () => {
             Object {
               "id": "Donald-J-Trump-and-Michael-R-Pence-3e3f31a7",
               "name": "Donald J. Trump  and Michael R. Pence",
-              "partyId": "Republican-f0167ce7",
+              "partyIds": Array [
+                "Republican-f0167ce7",
+              ],
             },
             Object {
               "id": "Jo-Jorgensen-and-Jeremy-Cohen-7e981234",
               "name": "Jo Jorgensen  and Jeremy Cohen",
-              "partyId": "OC-3a386d2b",
+              "partyIds": Array [
+                "OC-3a386d2b",
+              ],
             },
             Object {
               "id": "write-in-0",
@@ -2677,12 +2687,16 @@ test('interpret marked', async () => {
             Object {
               "id": "Steven-Negron-5d482d72",
               "name": "Steven Negron",
-              "partyId": "Republican-f0167ce7",
+              "partyIds": Array [
+                "Republican-f0167ce7",
+              ],
             },
             Object {
               "id": "Andrew-Olding-bed33f08",
               "name": "Andrew Olding",
-              "partyId": "OC-3a386d2b",
+              "partyIds": Array [
+                "OC-3a386d2b",
+              ],
             },
             Object {
               "id": "write-in-0",
@@ -2694,72 +2708,100 @@ test('interpret marked', async () => {
             Object {
               "id": "Russell-Ober-e433afea",
               "name": "Russell Ober",
-              "partyId": "Republican-f0167ce7",
+              "partyIds": Array [
+                "Republican-f0167ce7",
+              ],
             },
             Object {
               "id": "Andrew-Prout-1cd243e0",
               "name": "Andrew Prout",
-              "partyId": "Republican-f0167ce7",
+              "partyIds": Array [
+                "Republican-f0167ce7",
+              ],
             },
             Object {
               "id": "Andrew-Renzullo-b0428370",
               "name": "Andrew Renzullo",
-              "partyId": "Republican-f0167ce7",
+              "partyIds": Array [
+                "Republican-f0167ce7",
+              ],
             },
             Object {
               "id": "Jordan-Ulery-28553627",
               "name": "Jordan Ulery",
-              "partyId": "Republican-f0167ce7",
+              "partyIds": Array [
+                "Republican-f0167ce7",
+              ],
             },
             Object {
               "id": "Alicia-Lekas-271048d8",
               "name": "Alicia Lekas",
-              "partyId": "Republican-f0167ce7",
+              "partyIds": Array [
+                "Republican-f0167ce7",
+              ],
             },
             Object {
               "id": "Beatriz-Jauregui-11b83653",
               "name": "Beatriz Jauregui",
-              "partyId": "Democratic-aea20adb",
+              "partyIds": Array [
+                "Democratic-aea20adb",
+              ],
             },
             Object {
               "id": "Steven-Katsos-077584b8",
               "name": "Steven Katsos",
-              "partyId": "Democratic-aea20adb",
+              "partyIds": Array [
+                "Democratic-aea20adb",
+              ],
             },
             Object {
               "id": "Harold-Lynde-a54df7d7",
               "name": "Harold Lynde",
-              "partyId": "Democratic-aea20adb",
+              "partyIds": Array [
+                "Democratic-aea20adb",
+              ],
             },
             Object {
               "id": "Lana-Paliy-595b276a",
               "name": "Lana Paliy",
-              "partyId": "Democratic-aea20adb",
+              "partyIds": Array [
+                "Democratic-aea20adb",
+              ],
             },
             Object {
               "id": "Robert-S-Sherman-f10f4a3f",
               "name": "Robert S. Sherman",
-              "partyId": "Democratic-aea20adb",
+              "partyIds": Array [
+                "Democratic-aea20adb",
+              ],
             },
             Object {
               "id": "Alejandro-Urrutia-1b574b86",
               "name": "Alejandro Urrutia",
-              "partyId": "Democratic-aea20adb",
+              "partyIds": Array [
+                "Democratic-aea20adb",
+              ],
             },
             Object {
               "id": "Timothy-Wyatt-0105b8de",
               "name": "Timothy Wyatt",
-              "partyId": "Democratic-aea20adb",
+              "partyIds": Array [
+                "Democratic-aea20adb",
+              ],
             },
             Object {
               "id": "Barbara-A-Blue-14608463",
               "name": "Barbara A. Blue",
-              "partyId": "Democratic-aea20adb",
+              "partyIds": Array [
+                "Democratic-aea20adb",
+              ],
             },
             Object {
               "id": "Nancy-S-Brucker-4471faf7",
               "name": "Nancy S. Brucker",
-              "partyId": "Democratic-aea20adb",
+              "partyIds": Array [
+                "Democratic-aea20adb",
+              ],
             },
             Object {
               "id": "write-in-10",
@@ -2828,12 +2870,16 @@ test('interpret marked', async () => {
             Object {
               "id": "Corky-Messner-b6eb216d",
               "name": "Corky Messner",
-              "partyId": "Republican-f0167ce7",
+              "partyIds": Array [
+                "Republican-f0167ce7",
+              ],
             },
             Object {
               "id": "Jeanne-Shaheen-6e19622d",
               "name": "Jeanne Shaheen",
-              "partyId": "Democratic-aea20adb",
+              "partyIds": Array [
+                "Democratic-aea20adb",
+              ],
             },
             Object {
               "id": "write-in-0",
@@ -3832,7 +3878,7 @@ test('interpret marked', async () => {
         "metadata": Object {
           "ballotStyleId": "card-number-54",
           "ballotType": 0,
-          "electionHash": "65d2a62463534d21a7df2661d9c13b165b2893520947a2a259892b9307db6e19",
+          "electionHash": "82d31f927e67ecdbbfd5ae1d6ba489d4f0cc8618f7d297c7004e185d301064ea",
           "isTestMode": false,
           "locales": Object {
             "primary": "unknown",
@@ -3846,17 +3892,23 @@ test('interpret marked', async () => {
             Object {
               "id": "John-J-Coughlin-0e7bf93c",
               "name": "John J. Coughlin",
-              "partyId": "Republican-f0167ce7",
+              "partyIds": Array [
+                "Republican-f0167ce7",
+              ],
             },
             Object {
               "id": "Michael-Conlon-1a61fa16",
               "name": "Michael Conlon",
-              "partyId": "Democratic-aea20adb",
+              "partyIds": Array [
+                "Democratic-aea20adb",
+              ],
             },
             Object {
               "id": "Nicholas-Sarwark-c8f115e2",
               "name": "Nicholas Sarwark",
-              "partyId": "OC-3a386d2b",
+              "partyIds": Array [
+                "OC-3a386d2b",
+              ],
             },
             Object {
               "id": "write-in-0",
@@ -3868,12 +3920,16 @@ test('interpret marked', async () => {
             Object {
               "id": "Michael-Soucy-b23f7c2d",
               "name": "Michael Soucy",
-              "partyId": "Republican-f0167ce7",
+              "partyIds": Array [
+                "Republican-f0167ce7",
+              ],
             },
             Object {
               "id": "Daniel-C-Hansberry-8c0291ec",
               "name": "Daniel C. Hansberry",
-              "partyId": "Democratic-aea20adb",
+              "partyIds": Array [
+                "Democratic-aea20adb",
+              ],
             },
             Object {
               "id": "write-in-0",
@@ -3885,17 +3941,23 @@ test('interpret marked', async () => {
             Object {
               "id": "David-G-Fredette-687f01ae",
               "name": "David G. Fredette",
-              "partyId": "Republican-f0167ce7",
+              "partyIds": Array [
+                "Republican-f0167ce7",
+              ],
             },
             Object {
               "id": "William-Bryk-eaf936ec",
               "name": "William Bryk",
-              "partyId": "Democratic-aea20adb",
+              "partyIds": Array [
+                "Democratic-aea20adb",
+              ],
             },
             Object {
               "id": "Richard-Manzo-c5fcc876",
               "name": "Richard Manzo",
-              "partyId": "OC-3a386d2b",
+              "partyIds": Array [
+                "OC-3a386d2b",
+              ],
             },
             Object {
               "id": "write-in-0",
@@ -3907,12 +3969,16 @@ test('interpret marked', async () => {
             Object {
               "id": "Jack-Flanagan-78e24cab",
               "name": "Jack Flanagan",
-              "partyId": "Republican-f0167ce7",
+              "partyIds": Array [
+                "Republican-f0167ce7",
+              ],
             },
             Object {
               "id": "Mary-Ann-Crowell-e1ff59b9",
               "name": "Mary Ann Crowell",
-              "partyId": "Democratic-aea20adb",
+              "partyIds": Array [
+                "Democratic-aea20adb",
+              ],
             },
             Object {
               "id": "write-in-0",
@@ -3924,12 +3990,16 @@ test('interpret marked', async () => {
             Object {
               "id": "Elizabeth-Ann-Moreau-aec07bb4",
               "name": "Elizabeth Ann Moreau",
-              "partyId": "Republican-f0167ce7",
+              "partyIds": Array [
+                "Republican-f0167ce7",
+              ],
             },
             Object {
               "id": "Elizabeth-Ropp-4035eed1",
               "name": "Elizabeth Ropp",
-              "partyId": "Democratic-aea20adb",
+              "partyIds": Array [
+                "Democratic-aea20adb",
+              ],
             },
             Object {
               "id": "write-in-0",
@@ -3941,12 +4011,16 @@ test('interpret marked', async () => {
             Object {
               "id": "Christopher-Connelly-970b2364",
               "name": "Christopher Connelly",
-              "partyId": "Republican-f0167ce7",
+              "partyIds": Array [
+                "Republican-f0167ce7",
+              ],
             },
             Object {
               "id": "Bill-Barry-0e677ca6",
               "name": "Bill Barry",
-              "partyId": "Democratic-aea20adb",
+              "partyIds": Array [
+                "Democratic-aea20adb",
+              ],
             },
             Object {
               "id": "write-in-0",
@@ -6361,7 +6435,7 @@ test('interpret unmarked', async () => {
         "metadata": Object {
           "ballotStyleId": "card-number-54",
           "ballotType": 0,
-          "electionHash": "65d2a62463534d21a7df2661d9c13b165b2893520947a2a259892b9307db6e19",
+          "electionHash": "82d31f927e67ecdbbfd5ae1d6ba489d4f0cc8618f7d297c7004e185d301064ea",
           "isTestMode": false,
           "locales": Object {
             "primary": "unknown",
@@ -7276,7 +7350,7 @@ test('interpret unmarked', async () => {
         "metadata": Object {
           "ballotStyleId": "card-number-54",
           "ballotType": 0,
-          "electionHash": "65d2a62463534d21a7df2661d9c13b165b2893520947a2a259892b9307db6e19",
+          "electionHash": "82d31f927e67ecdbbfd5ae1d6ba489d4f0cc8618f7d297c7004e185d301064ea",
           "isTestMode": false,
           "locales": Object {
             "primary": "unknown",
@@ -7318,99 +7392,133 @@ test('interpret unmarked 300dpi', async () => {
         Object {
           "id": "Debora-B-Pignatelli-8c4cc1d3",
           "name": "Debora B. Pignatelli",
-          "partyId": "Democratic-aea20adb",
+          "partyIds": Array [
+            "Democratic-aea20adb",
+          ],
         },
       ],
       "Governor-061a401b": Array [
         Object {
           "id": "Dan-Feltes-3fadf798",
           "name": "Dan Feltes",
-          "partyId": "Democratic-aea20adb",
+          "partyIds": Array [
+            "Democratic-aea20adb",
+          ],
         },
       ],
       "President-and-Vice-President-of-the-United-States-18d1a55a": Array [
         Object {
           "id": "Joseph-R-Biden-and-Kamala-D-Harris-346756c0",
           "name": "Joseph R. Biden  and Kamala D. Harris",
-          "partyId": "Democratic-aea20adb",
+          "partyIds": Array [
+            "Democratic-aea20adb",
+          ],
         },
       ],
       "Representative-in-Congress-24683b44": Array [
         Object {
           "id": "Ann-McLane-Kuster-67fdf060",
           "name": "Ann McLane Kuster",
-          "partyId": "Democratic-aea20adb",
+          "partyIds": Array [
+            "Democratic-aea20adb",
+          ],
         },
       ],
       "State-Representatives-7d3a8821": Array [
         Object {
           "id": "Brett-Gagnon-7a8c9838",
           "name": "Brett Gagnon",
-          "partyId": "Democratic-aea20adb",
+          "partyIds": Array [
+            "Democratic-aea20adb",
+          ],
         },
         Object {
           "id": "David-Hennessey-f1343f4f",
           "name": "David Hennessey",
-          "partyId": "Democratic-aea20adb",
+          "partyIds": Array [
+            "Democratic-aea20adb",
+          ],
         },
         Object {
           "id": "Beatriz-Jauregui-11b83653",
           "name": "Beatriz Jauregui",
-          "partyId": "Democratic-aea20adb",
+          "partyIds": Array [
+            "Democratic-aea20adb",
+          ],
         },
         Object {
           "id": "Steven-Katsos-077584b8",
           "name": "Steven Katsos",
-          "partyId": "Democratic-aea20adb",
+          "partyIds": Array [
+            "Democratic-aea20adb",
+          ],
         },
         Object {
           "id": "Harold-Lynde-a54df7d7",
           "name": "Harold Lynde",
-          "partyId": "Democratic-aea20adb",
+          "partyIds": Array [
+            "Democratic-aea20adb",
+          ],
         },
         Object {
           "id": "Lana-Paliy-595b276a",
           "name": "Lana Paliy",
-          "partyId": "Democratic-aea20adb",
+          "partyIds": Array [
+            "Democratic-aea20adb",
+          ],
         },
         Object {
           "id": "Robert-S-Sherman-f10f4a3f",
           "name": "Robert S. Sherman",
-          "partyId": "Democratic-aea20adb",
+          "partyIds": Array [
+            "Democratic-aea20adb",
+          ],
         },
         Object {
           "id": "Alejandro-Urrutia-1b574b86",
           "name": "Alejandro Urrutia",
-          "partyId": "Democratic-aea20adb",
+          "partyIds": Array [
+            "Democratic-aea20adb",
+          ],
         },
         Object {
           "id": "Timothy-Wyatt-0105b8de",
           "name": "Timothy Wyatt",
-          "partyId": "Democratic-aea20adb",
+          "partyIds": Array [
+            "Democratic-aea20adb",
+          ],
         },
         Object {
           "id": "Barbara-A-Blue-14608463",
           "name": "Barbara A. Blue",
-          "partyId": "Democratic-aea20adb",
+          "partyIds": Array [
+            "Democratic-aea20adb",
+          ],
         },
         Object {
           "id": "Nancy-S-Brucker-4471faf7",
           "name": "Nancy S. Brucker",
-          "partyId": "Democratic-aea20adb",
+          "partyIds": Array [
+            "Democratic-aea20adb",
+          ],
         },
       ],
       "State-Senator-391381f8": Array [
         Object {
           "id": "Nancy-Hendricks-d330559d",
           "name": "Nancy Hendricks",
-          "partyId": "Democratic-aea20adb",
+          "partyIds": Array [
+            "Democratic-aea20adb",
+          ],
         },
       ],
       "United-States-Senator-d3f1c75b": Array [
         Object {
           "id": "Jeanne-Shaheen-6e19622d",
           "name": "Jeanne Shaheen",
-          "partyId": "Democratic-aea20adb",
+          "partyIds": Array [
+            "Democratic-aea20adb",
+          ],
         },
       ],
     }

@@ -487,12 +487,34 @@ export function convertElectionDefinitionHeader(
 
       if (!isWriteIn) {
         const candidateId = makeId(candidateName);
-        const candidate: Candidate = {
-          id: candidateId,
-          name: candidateName,
-          partyId: party?.id,
-        };
-        candidates.push(candidate);
+        const existingCandidateIndex = candidates.findIndex(
+          (candidate) => candidate.id === candidateId
+        );
+
+        if (existingCandidateIndex >= 0) {
+          const existingPartyIds = candidates[existingCandidateIndex]?.partyIds;
+          if (!party || !existingPartyIds) {
+            return err({
+              kind: ConvertErrorKind.MissingDefinitionProperty,
+              message: `Party is missing in candidate "${candidateName}" of office "${officeName}", required for multi-party endorsement`,
+              property: 'AVSInterface > Candidates > CandidateName > Party',
+            });
+          }
+
+          candidates[existingCandidateIndex] = {
+            id: candidateId,
+            name: candidateName,
+            partyIds: [...existingPartyIds, party.id],
+          };
+        } else {
+          const candidate: Candidate = {
+            id: candidateId,
+            name: candidateName,
+            ...(party ? { partyIds: [party.id] } : {}),
+          };
+          candidates.push(candidate);
+        }
+
         optionMetadataByCandidateElement.set(candidateElement, {
           type: 'option',
           contestId,

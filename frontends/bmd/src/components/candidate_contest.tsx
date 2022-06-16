@@ -12,13 +12,12 @@ import {
   Candidate,
   CandidateVote,
   CandidateContest as CandidateContestInterface,
-  Parties,
   getPrecinctIndexById,
+  getCandidatePartiesDescription,
 } from '@votingworks/types';
 import { Button, Main, Modal, Prose, Text } from '@votingworks/ui';
 import { assert, getContestCandidatesInRotatedOrder } from '@votingworks/utils';
 
-import { findPartyById } from '../utils/find';
 import { stripQuotes } from '../utils/strip_quotes';
 
 import {
@@ -79,7 +78,6 @@ const WriteInCandidateCursor = styled(Blink)`
 
 interface Props {
   contest: CandidateContestInterface;
-  parties: Parties;
   vote: CandidateVote;
   updateVote: UpdateVoteFunction;
 }
@@ -94,7 +92,6 @@ function normalizeCandidateName(name: string) {
 
 export function CandidateContest({
   contest,
-  parties,
   vote,
   updateVote,
 }: Props): JSX.Element {
@@ -348,9 +345,10 @@ export function CandidateContest({
                   function handleDisabledClick() {
                     handleChangeVoteAlert(candidate);
                   }
-                  const party =
-                    candidate.partyId &&
-                    findPartyById(parties, candidate.partyId);
+                  const partiesDescription = getCandidatePartiesDescription(
+                    election,
+                    candidate
+                  );
                   let prefixAudioText = '';
                   if (isChecked) {
                     prefixAudioText = 'Selected,';
@@ -367,15 +365,17 @@ export function CandidateContest({
                       choice={candidate.id}
                       aria-label={`${prefixAudioText} ${stripQuotes(
                         candidate.name
-                      )}${party ? `, ${party.name}` : ''}.`}
+                      )}${
+                        partiesDescription ? `, ${partiesDescription}` : ''
+                      }.`}
                     >
                       <Prose>
                         <Text wordBreak>
                           <strong>{candidate.name}</strong>
-                          {party && (
+                          {partiesDescription && (
                             <React.Fragment>
                               <br />
-                              {party.name}
+                              {partiesDescription}
                             </React.Fragment>
                           )}
                         </Text>

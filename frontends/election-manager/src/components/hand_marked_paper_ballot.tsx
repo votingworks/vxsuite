@@ -20,7 +20,6 @@ import {
   Election,
   HmpbBallotPageMetadata,
   OptionalElection,
-  Parties,
   Vote,
   VotesDict,
   YesNoContest,
@@ -35,14 +34,13 @@ import {
   PrecinctId,
   BallotId,
   BallotTargetMarkPosition,
+  getCandidatePartiesDescription,
 } from '@votingworks/types';
 import { QrCode, HandMarkedPaperBallotProse, Text } from '@votingworks/ui';
 
 import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
 
 import { AppContext } from '../contexts/app_context';
-
-import { findPartyById } from '../utils/find_party_by_id';
 
 import { BubbleMark } from './bubble_mark';
 import { WriteInLine } from './write_in_line';
@@ -451,19 +449,19 @@ const CandidateDescription = styled.span<{ isSmall?: boolean }>`
 `;
 
 export interface CandidateContestChoicesProps {
+  election: Election;
   contest: CandidateContest;
   locales: BallotLocale;
-  parties: Parties;
   vote?: CandidateVote;
   density?: number;
   targetMarkPosition?: BallotTargetMarkPosition;
 }
 
 export function CandidateContestChoices({
+  election,
   contest,
   density,
   locales,
-  parties,
   vote,
   targetMarkPosition,
 }: CandidateContestChoicesProps): JSX.Element {
@@ -483,11 +481,11 @@ export function CandidateContestChoices({
               <strong data-candidate-name={candidate.name}>
                 {candidate.name}
               </strong>
-              {candidate.partyId && (
+              {candidate.partyIds && candidate.partyIds.length > 0 && (
                 <React.Fragment>
                   {density !== 2 ? <br /> : ' '}
                   <Text as="span" small={density !== 0}>
-                    {findPartyById(parties, candidate.partyId)?.name}
+                    {getCandidatePartiesDescription(election, candidate)}
                   </Text>
                 </React.Fragment>
               )}
@@ -557,7 +555,7 @@ export function HandMarkedPaperBallot({
 
   const { t, i18n } = useTranslation();
   const { printBallotRef } = useContext(AppContext);
-  const { county, date, seal, sealUrl, state, parties, title } = election;
+  const { county, date, seal, sealUrl, state, title } = election;
   const localeElection: OptionalElection = locales.secondary
     ? withLocale(election, locales.secondary)
     : undefined;
@@ -981,8 +979,8 @@ export function HandMarkedPaperBallot({
                         )}
                   </Text>
                   <CandidateContestChoices
+                    election={election}
                     contest={contest}
-                    parties={parties}
                     vote={votes?.[contest.id] as CandidateVote | undefined}
                     locales={locales}
                     density={layoutDensity}

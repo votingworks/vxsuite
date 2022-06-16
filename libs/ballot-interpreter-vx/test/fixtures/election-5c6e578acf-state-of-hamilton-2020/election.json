@@ -166,32 +166,32 @@
         {
           "id": "barchi-hallaren",
           "name": "Joseph Barchi and Joseph Hallaren",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "cramer-vuocolo",
           "name": "Adam Cramer and Greg Vuocolo",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "court-blumhardt",
           "name": "Daniel Court and Amy Blumhardt",
-          "partyId": "2"
+          "partyIds": ["2"]
         },
         {
           "id": "boone-lian",
           "name": "Alvin Boone and James Lian",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
         {
           "id": "hildebrand-garritty",
           "name": "Ashley Hildebrand-McDougall and James Garritty",
-          "partyId": "4"
+          "partyIds": ["4"]
         },
         {
           "id": "patterson-lariviere",
           "name": "Martin Patterson and Clay Lariviere",
-          "partyId": "5"
+          "partyIds": ["5"]
         }
       ],
       "allowWriteIns": false,
@@ -213,37 +213,37 @@
         {
           "id": "weiford",
           "name": "Dennis Weiford",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "garriss",
           "name": "Lloyd Garriss",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "wentworthfarthington",
           "name": "Sylvia Wentworth-Farthington",
-          "partyId": "2"
+          "partyIds": ["2"]
         },
         {
           "id": "hewetson",
           "name": "Heather Hewetson",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
         {
           "id": "martinez",
           "name": "Victor Martinez",
-          "partyId": "4"
+          "partyIds": ["4"]
         },
         {
           "id": "brown",
           "name": "David Brown",
-          "partyId": "6"
+          "partyIds": ["6"]
         },
         {
           "id": "pound",
           "name": "David Pound",
-          "partyId": "6"
+          "partyIds": ["6"]
         }
       ],
       "allowWriteIns": false,
@@ -265,27 +265,27 @@
         {
           "id": "plunkard",
           "name": "Brad Plunkard",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "reeder",
           "name": "Bruce Reeder",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "schott",
           "name": "Brad Schott",
-          "partyId": "2"
+          "partyIds": ["2"]
         },
         {
           "id": "tawney",
           "name": "Glen Tawney",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
         {
           "id": "forrest",
           "name": "Carroll Forrest",
-          "partyId": "4"
+          "partyIds": ["4"]
         }
       ],
       "allowWriteIns": false,
@@ -307,82 +307,82 @@
         {
           "id": "franz",
           "name": "Charlene Franz",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "harris",
           "name": "Gerald Harris",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "bargmann",
           "name": "Linda Bargmann",
-          "partyId": "2"
+          "partyIds": ["2"]
         },
         {
           "id": "abcock",
           "name": "Barbara Adcock",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
         {
           "id": "steelloy",
           "name": "Carrie Steel-Loy",
-          "partyId": "4"
+          "partyIds": ["4"]
         },
         {
           "id": "sharp",
           "name": "Frederick Sharp",
-          "partyId": "5"
+          "partyIds": ["5"]
         },
         {
           "id": "wallace",
           "name": "Alex Wallace",
-          "partyId": "6"
+          "partyIds": ["6"]
         },
         {
           "id": "williams",
           "name": "Barbara Williams",
-          "partyId": "6"
+          "partyIds": ["6"]
         },
         {
           "id": "sharp-althea",
           "name": "Althea Sharp",
-          "partyId": "6"
+          "partyIds": ["6"]
         },
         {
           "id": "alpern",
           "name": "Douglas Alpern",
-          "partyId": "6"
+          "partyIds": ["6"]
         },
         {
           "id": "windbeck",
           "name": "Ann Windbeck",
-          "partyId": "6"
+          "partyIds": ["6"]
         },
         {
           "id": "greher",
           "name": "Mike Greher",
-          "partyId": "6"
+          "partyIds": ["6"]
         },
         {
           "id": "alexander",
           "name": "Patricia Alexander",
-          "partyId": "6"
+          "partyIds": ["6"]
         },
         {
           "id": "mitchell",
           "name": "Kenneth Mitchell",
-          "partyId": "6"
+          "partyIds": ["6"]
         },
         {
           "id": "lee",
           "name": "Stan Lee",
-          "partyId": "6"
+          "partyIds": ["6"]
         },
         {
           "id": "ash",
           "name": "Henry Ash",
-          "partyId": "6"
+          "partyIds": ["6"]
         }
       ],
       "allowWriteIns": false,
@@ -404,47 +404,47 @@
         {
           "id": "norberg",
           "name": "Chris Norberg",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "parks",
           "name": "Anthony Parks",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "garcia",
           "name": "Luis Jorges Garcia",
-          "partyId": "2"
+          "partyIds": ["2"]
         },
         {
           "id": "qualey",
           "name": "Charles Qualey",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
         {
           "id": "hovis",
           "name": "George Hovis",
-          "partyId": "4"
+          "partyIds": ["4"]
         },
         {
           "id": "zirkle",
           "name": "Burt Zirkle",
-          "partyId": "5"
+          "partyIds": ["5"]
         },
         {
           "id": "davis",
           "name": "Brenda Davis",
-          "partyId": "6"
+          "partyIds": ["6"]
         },
         {
           "id": "freeman",
           "name": "Edward Freeman",
-          "partyId": "6"
+          "partyIds": ["6"]
         },
         {
           "id": "swan",
           "name": "Paul Swan",
-          "partyId": "6"
+          "partyIds": ["6"]
         }
       ],
       "allowWriteIns": false,
@@ -466,12 +466,12 @@
         {
           "id": "shamsi",
           "name": "Laila Shamsi",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "talarico",
           "name": "Marty Talarico",
-          "partyId": "1"
+          "partyIds": ["1"]
         }
       ],
       "allowWriteIns": false,
@@ -493,7 +493,7 @@
         {
           "id": "shiplett",
           "name": "Edward Shiplett",
-          "partyId": "3"
+          "partyIds": ["3"]
         }
       ],
       "allowWriteIns": false,
@@ -515,17 +515,17 @@
         {
           "id": "solis",
           "name": "Andrea Solis",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "keller",
           "name": "Amos Keller",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "rangel",
           "name": "Davitra Rangel",
-          "partyId": "2"
+          "partyIds": ["2"]
         }
       ],
       "allowWriteIns": false,
@@ -547,57 +547,57 @@
         {
           "id": "argent",
           "name": "Camille Argent",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "witherspoonsmithson",
           "name": "Chloe Witherspoon-Smithson",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "bainbridge",
           "name": "Clayton Bainbridge",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "hennessey",
           "name": "Charlene Hennessey",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "savoy",
           "name": "Eric Savoy",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "tawa",
           "name": "Susan Tawa",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "tawa-mary",
           "name": "Mary Tawa",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "rangel",
           "name": "Damian Rangel",
-          "partyId": "2"
+          "partyIds": ["2"]
         },
         {
           "id": "altman",
           "name": "Valarie Altman",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
         {
           "id": "moore",
           "name": "Helen Moore",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
         {
           "id": "schreiner",
           "name": "Martin Schreiner",
-          "partyId": "6"
+          "partyIds": ["6"]
         }
       ],
       "allowWriteIns": true,
@@ -619,7 +619,7 @@
         {
           "id": "ramachandrani",
           "name": "Rhadka Ramachandrani",
-          "partyId": "6"
+          "partyIds": ["6"]
         }
       ],
       "allowWriteIns": true,
@@ -643,7 +643,7 @@
         {
           "id": "alice",
           "name": "Alice Jones",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
         {
           "id": "bob",
@@ -668,12 +668,12 @@
         {
           "id": "white",
           "name": "Orville White",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "seldon",
           "name": "Gregory Seldon",
-          "partyId": "2"
+          "partyIds": ["2"]
         }
       ],
       "allowWriteIns": true,
@@ -695,32 +695,32 @@
         {
           "id": "eagle",
           "name": "Harvey Eagle",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "rupp",
           "name": "Randall Rupp",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "shry",
           "name": "Carroll Shry",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "barker",
           "name": "Beverly Barker",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "davis",
           "name": "Donald Davis",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "smith",
           "name": "Hugo Smith",
-          "partyId": "1"
+          "partyIds": ["1"]
         }
       ],
       "allowWriteIns": true,

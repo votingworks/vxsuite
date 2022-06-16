@@ -179,12 +179,16 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031976",
           "name": "Josiah Dennis Coleman",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         Object {
           "id": "775031993",
           "name": "Percy L. Lynchard",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
       ],
       "districtId": "100000174",
@@ -204,7 +208,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031976",
           "name": "Josiah Dennis Coleman",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         "tally": 37,
       },
@@ -212,7 +218,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031993",
           "name": "Percy L. Lynchard",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         "tally": 58,
       },
@@ -233,12 +241,16 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031978",
           "name": "Antonia Eliason",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031979",
           "name": "Trent Kelly",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "100000047",
@@ -258,7 +270,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031978",
           "name": "Antonia Eliason",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 46,
       },
@@ -266,7 +280,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031979",
           "name": "Trent Kelly",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 46,
       },
@@ -287,17 +303,23 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031988",
           "name": "Presidential Electors for Joe Biden for President and Kamala Harris for Vice President",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031987",
           "name": "Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "775031989",
           "name": "Presidential Electors for Phil Collins for President and Bill Parker for Vice President",
-          "partyId": "11",
+          "partyIds": Array [
+            "11",
+          ],
         },
       ],
       "districtId": "1",
@@ -317,7 +339,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031987",
           "name": "Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 36,
       },
@@ -325,7 +349,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031988",
           "name": "Presidential Electors for Joe Biden for President and Kamala Harris for Vice President",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 27,
       },
@@ -333,7 +359,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031989",
           "name": "Presidential Electors for Phil Collins for President and Bill Parker for Vice President",
-          "partyId": "11",
+          "partyIds": Array [
+            "11",
+          ],
         },
         "tally": 29,
       },
@@ -354,17 +382,23 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031985",
           "name": "Mike Espy",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031986",
           "name": "Cindy Hyde-Smith",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "775031990",
           "name": "Jimmy Edwards",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
       ],
       "districtId": "1",
@@ -384,7 +418,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031985",
           "name": "Mike Espy",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 29,
       },
@@ -392,7 +428,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031986",
           "name": "Cindy Hyde-Smith",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 35,
       },
@@ -400,7 +438,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031990",
           "name": "Jimmy Edwards",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 28,
       },
@@ -599,7 +639,9 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775032021",
           "name": "Ouida A Loper",
-          "partyId": "11",
+          "partyIds": Array [
+            "11",
+          ],
         },
         Object {
           "id": "775032022",
@@ -623,7 +665,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775032021",
           "name": "Ouida A Loper",
-          "partyId": "11",
+          "partyIds": Array [
+            "11",
+          ],
         },
         "tally": 9,
       },
@@ -865,12 +909,16 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031976",
           "name": "Josiah Dennis Coleman",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         Object {
           "id": "775031993",
           "name": "Percy L. Lynchard",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
       ],
       "districtId": "100000174",
@@ -890,7 +938,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031976",
           "name": "Josiah Dennis Coleman",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         "tally": 5,
       },
@@ -898,7 +948,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031993",
           "name": "Percy L. Lynchard",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         "tally": 13,
       },
@@ -919,12 +971,16 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031978",
           "name": "Antonia Eliason",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031979",
           "name": "Trent Kelly",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "100000047",
@@ -944,7 +1000,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031978",
           "name": "Antonia Eliason",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 8,
       },
@@ -952,7 +1010,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031979",
           "name": "Trent Kelly",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 8,
       },
@@ -973,17 +1033,23 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031988",
           "name": "Presidential Electors for Joe Biden for President and Kamala Harris for Vice President",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031987",
           "name": "Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "775031989",
           "name": "Presidential Electors for Phil Collins for President and Bill Parker for Vice President",
-          "partyId": "11",
+          "partyIds": Array [
+            "11",
+          ],
         },
       ],
       "districtId": "1",
@@ -1003,7 +1069,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031987",
           "name": "Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 9,
       },
@@ -1011,7 +1079,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031988",
           "name": "Presidential Electors for Joe Biden for President and Kamala Harris for Vice President",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 4,
       },
@@ -1019,7 +1089,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031989",
           "name": "Presidential Electors for Phil Collins for President and Bill Parker for Vice President",
-          "partyId": "11",
+          "partyIds": Array [
+            "11",
+          ],
         },
         "tally": 5,
       },
@@ -1040,17 +1112,23 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031985",
           "name": "Mike Espy",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031986",
           "name": "Cindy Hyde-Smith",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "775031990",
           "name": "Jimmy Edwards",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
       ],
       "districtId": "1",
@@ -1070,7 +1148,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031985",
           "name": "Mike Espy",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 8,
       },
@@ -1078,7 +1158,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031986",
           "name": "Cindy Hyde-Smith",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 2,
       },
@@ -1086,7 +1168,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031990",
           "name": "Jimmy Edwards",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 8,
       },
@@ -1107,7 +1191,9 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775032021",
           "name": "Ouida A Loper",
-          "partyId": "11",
+          "partyIds": Array [
+            "11",
+          ],
         },
         Object {
           "id": "775032022",
@@ -1131,7 +1217,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775032021",
           "name": "Ouida A Loper",
-          "partyId": "11",
+          "partyIds": Array [
+            "11",
+          ],
         },
         "tally": 9,
       },
@@ -1373,12 +1461,16 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031976",
           "name": "Josiah Dennis Coleman",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         Object {
           "id": "775031993",
           "name": "Percy L. Lynchard",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
       ],
       "districtId": "100000174",
@@ -1398,7 +1490,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031976",
           "name": "Josiah Dennis Coleman",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         "tally": 1,
       },
@@ -1406,7 +1500,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031993",
           "name": "Percy L. Lynchard",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         "tally": 6,
       },
@@ -1427,12 +1523,16 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031978",
           "name": "Antonia Eliason",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031979",
           "name": "Trent Kelly",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "100000047",
@@ -1452,7 +1552,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031978",
           "name": "Antonia Eliason",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 3,
       },
@@ -1460,7 +1562,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031979",
           "name": "Trent Kelly",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 4,
       },
@@ -1481,17 +1585,23 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031988",
           "name": "Presidential Electors for Joe Biden for President and Kamala Harris for Vice President",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031987",
           "name": "Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "775031989",
           "name": "Presidential Electors for Phil Collins for President and Bill Parker for Vice President",
-          "partyId": "11",
+          "partyIds": Array [
+            "11",
+          ],
         },
       ],
       "districtId": "1",
@@ -1511,7 +1621,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031987",
           "name": "Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 2,
       },
@@ -1519,7 +1631,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031988",
           "name": "Presidential Electors for Joe Biden for President and Kamala Harris for Vice President",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 2,
       },
@@ -1527,7 +1641,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031989",
           "name": "Presidential Electors for Phil Collins for President and Bill Parker for Vice President",
-          "partyId": "11",
+          "partyIds": Array [
+            "11",
+          ],
         },
         "tally": 3,
       },
@@ -1548,17 +1664,23 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031985",
           "name": "Mike Espy",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031986",
           "name": "Cindy Hyde-Smith",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "775031990",
           "name": "Jimmy Edwards",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
       ],
       "districtId": "1",
@@ -1578,7 +1700,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031985",
           "name": "Mike Espy",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 2,
       },
@@ -1586,7 +1710,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031986",
           "name": "Cindy Hyde-Smith",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 3,
       },
@@ -1594,7 +1720,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031990",
           "name": "Jimmy Edwards",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 1,
       },
@@ -1829,12 +1957,16 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031976",
           "name": "Josiah Dennis Coleman",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         Object {
           "id": "775031993",
           "name": "Percy L. Lynchard",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
       ],
       "districtId": "100000174",
@@ -1854,7 +1986,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031976",
           "name": "Josiah Dennis Coleman",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         "tally": 2,
       },
@@ -1862,7 +1996,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031993",
           "name": "Percy L. Lynchard",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         "tally": 8,
       },
@@ -1883,12 +2019,16 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031978",
           "name": "Antonia Eliason",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031979",
           "name": "Trent Kelly",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "100000047",
@@ -1908,7 +2048,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031978",
           "name": "Antonia Eliason",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 6,
       },
@@ -1916,7 +2058,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031979",
           "name": "Trent Kelly",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 5,
       },
@@ -1937,17 +2081,23 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031988",
           "name": "Presidential Electors for Joe Biden for President and Kamala Harris for Vice President",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031987",
           "name": "Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "775031989",
           "name": "Presidential Electors for Phil Collins for President and Bill Parker for Vice President",
-          "partyId": "11",
+          "partyIds": Array [
+            "11",
+          ],
         },
       ],
       "districtId": "1",
@@ -1967,7 +2117,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031987",
           "name": "Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 4,
       },
@@ -1975,7 +2127,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031988",
           "name": "Presidential Electors for Joe Biden for President and Kamala Harris for Vice President",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 4,
       },
@@ -1983,7 +2137,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031989",
           "name": "Presidential Electors for Phil Collins for President and Bill Parker for Vice President",
-          "partyId": "11",
+          "partyIds": Array [
+            "11",
+          ],
         },
         "tally": 2,
       },
@@ -2004,17 +2160,23 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031985",
           "name": "Mike Espy",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031986",
           "name": "Cindy Hyde-Smith",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "775031990",
           "name": "Jimmy Edwards",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
       ],
       "districtId": "1",
@@ -2034,7 +2196,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031985",
           "name": "Mike Espy",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 3,
       },
@@ -2042,7 +2206,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031986",
           "name": "Cindy Hyde-Smith",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 6,
       },
@@ -2050,7 +2216,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031990",
           "name": "Jimmy Edwards",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 2,
       },
@@ -2296,12 +2464,16 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031976",
           "name": "Josiah Dennis Coleman",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         Object {
           "id": "775031993",
           "name": "Percy L. Lynchard",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
       ],
       "districtId": "100000174",
@@ -2321,7 +2493,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031976",
           "name": "Josiah Dennis Coleman",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         "tally": 5,
       },
@@ -2329,7 +2503,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031993",
           "name": "Percy L. Lynchard",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         "tally": 3,
       },
@@ -2350,12 +2526,16 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031978",
           "name": "Antonia Eliason",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031979",
           "name": "Trent Kelly",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "100000047",
@@ -2375,7 +2555,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031978",
           "name": "Antonia Eliason",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 3,
       },
@@ -2383,7 +2565,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031979",
           "name": "Trent Kelly",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 5,
       },
@@ -2404,17 +2588,23 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031988",
           "name": "Presidential Electors for Joe Biden for President and Kamala Harris for Vice President",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031987",
           "name": "Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "775031989",
           "name": "Presidential Electors for Phil Collins for President and Bill Parker for Vice President",
-          "partyId": "11",
+          "partyIds": Array [
+            "11",
+          ],
         },
       ],
       "districtId": "1",
@@ -2434,7 +2624,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031987",
           "name": "Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 1,
       },
@@ -2442,7 +2634,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031988",
           "name": "Presidential Electors for Joe Biden for President and Kamala Harris for Vice President",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 4,
       },
@@ -2450,7 +2644,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031989",
           "name": "Presidential Electors for Phil Collins for President and Bill Parker for Vice President",
-          "partyId": "11",
+          "partyIds": Array [
+            "11",
+          ],
         },
         "tally": 2,
       },
@@ -2471,17 +2667,23 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031985",
           "name": "Mike Espy",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031986",
           "name": "Cindy Hyde-Smith",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "775031990",
           "name": "Jimmy Edwards",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
       ],
       "districtId": "1",
@@ -2501,7 +2703,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031985",
           "name": "Mike Espy",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 1,
       },
@@ -2509,7 +2713,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031986",
           "name": "Cindy Hyde-Smith",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 1,
       },
@@ -2517,7 +2723,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031990",
           "name": "Jimmy Edwards",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 5,
       },
@@ -2752,12 +2960,16 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031976",
           "name": "Josiah Dennis Coleman",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         Object {
           "id": "775031993",
           "name": "Percy L. Lynchard",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
       ],
       "districtId": "100000174",
@@ -2777,7 +2989,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031976",
           "name": "Josiah Dennis Coleman",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         "tally": 2,
       },
@@ -2785,7 +2999,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031993",
           "name": "Percy L. Lynchard",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         "tally": 2,
       },
@@ -2806,12 +3022,16 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031978",
           "name": "Antonia Eliason",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031979",
           "name": "Trent Kelly",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "100000047",
@@ -2831,7 +3051,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031978",
           "name": "Antonia Eliason",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 1,
       },
@@ -2839,7 +3061,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031979",
           "name": "Trent Kelly",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 4,
       },
@@ -2860,17 +3084,23 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031988",
           "name": "Presidential Electors for Joe Biden for President and Kamala Harris for Vice President",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031987",
           "name": "Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "775031989",
           "name": "Presidential Electors for Phil Collins for President and Bill Parker for Vice President",
-          "partyId": "11",
+          "partyIds": Array [
+            "11",
+          ],
         },
       ],
       "districtId": "1",
@@ -2890,7 +3120,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031987",
           "name": "Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 2,
       },
@@ -2898,7 +3130,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031988",
           "name": "Presidential Electors for Joe Biden for President and Kamala Harris for Vice President",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 0,
       },
@@ -2906,7 +3140,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031989",
           "name": "Presidential Electors for Phil Collins for President and Bill Parker for Vice President",
-          "partyId": "11",
+          "partyIds": Array [
+            "11",
+          ],
         },
         "tally": 2,
       },
@@ -2927,17 +3163,23 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031985",
           "name": "Mike Espy",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031986",
           "name": "Cindy Hyde-Smith",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "775031990",
           "name": "Jimmy Edwards",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
       ],
       "districtId": "1",
@@ -2957,7 +3199,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031985",
           "name": "Mike Espy",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 1,
       },
@@ -2965,7 +3209,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031986",
           "name": "Cindy Hyde-Smith",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 0,
       },
@@ -2973,7 +3219,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031990",
           "name": "Jimmy Edwards",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 3,
       },
@@ -3208,12 +3456,16 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031976",
           "name": "Josiah Dennis Coleman",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         Object {
           "id": "775031993",
           "name": "Percy L. Lynchard",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
       ],
       "districtId": "100000174",
@@ -3233,7 +3485,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031976",
           "name": "Josiah Dennis Coleman",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         "tally": 6,
       },
@@ -3241,7 +3495,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031993",
           "name": "Percy L. Lynchard",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         "tally": 1,
       },
@@ -3262,12 +3518,16 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031978",
           "name": "Antonia Eliason",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031979",
           "name": "Trent Kelly",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "100000047",
@@ -3287,7 +3547,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031978",
           "name": "Antonia Eliason",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 1,
       },
@@ -3295,7 +3557,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031979",
           "name": "Trent Kelly",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 4,
       },
@@ -3316,17 +3580,23 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031988",
           "name": "Presidential Electors for Joe Biden for President and Kamala Harris for Vice President",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031987",
           "name": "Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "775031989",
           "name": "Presidential Electors for Phil Collins for President and Bill Parker for Vice President",
-          "partyId": "11",
+          "partyIds": Array [
+            "11",
+          ],
         },
       ],
       "districtId": "1",
@@ -3346,7 +3616,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031987",
           "name": "Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 3,
       },
@@ -3354,7 +3626,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031988",
           "name": "Presidential Electors for Joe Biden for President and Kamala Harris for Vice President",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 2,
       },
@@ -3362,7 +3636,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031989",
           "name": "Presidential Electors for Phil Collins for President and Bill Parker for Vice President",
-          "partyId": "11",
+          "partyIds": Array [
+            "11",
+          ],
         },
         "tally": 1,
       },
@@ -3383,17 +3659,23 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031985",
           "name": "Mike Espy",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031986",
           "name": "Cindy Hyde-Smith",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "775031990",
           "name": "Jimmy Edwards",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
       ],
       "districtId": "1",
@@ -3413,7 +3695,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031985",
           "name": "Mike Espy",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 2,
       },
@@ -3421,7 +3705,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031986",
           "name": "Cindy Hyde-Smith",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 3,
       },
@@ -3429,7 +3715,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031990",
           "name": "Jimmy Edwards",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 1,
       },
@@ -3675,12 +3963,16 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031976",
           "name": "Josiah Dennis Coleman",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         Object {
           "id": "775031993",
           "name": "Percy L. Lynchard",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
       ],
       "districtId": "100000174",
@@ -3700,7 +3992,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031976",
           "name": "Josiah Dennis Coleman",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         "tally": 8,
       },
@@ -3708,7 +4002,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031993",
           "name": "Percy L. Lynchard",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         "tally": 4,
       },
@@ -3729,12 +4025,16 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031978",
           "name": "Antonia Eliason",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031979",
           "name": "Trent Kelly",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "100000047",
@@ -3754,7 +4054,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031978",
           "name": "Antonia Eliason",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 10,
       },
@@ -3762,7 +4064,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031979",
           "name": "Trent Kelly",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 2,
       },
@@ -3783,17 +4087,23 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031988",
           "name": "Presidential Electors for Joe Biden for President and Kamala Harris for Vice President",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031987",
           "name": "Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "775031989",
           "name": "Presidential Electors for Phil Collins for President and Bill Parker for Vice President",
-          "partyId": "11",
+          "partyIds": Array [
+            "11",
+          ],
         },
       ],
       "districtId": "1",
@@ -3813,7 +4123,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031987",
           "name": "Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 5,
       },
@@ -3821,7 +4133,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031988",
           "name": "Presidential Electors for Joe Biden for President and Kamala Harris for Vice President",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 3,
       },
@@ -3829,7 +4143,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031989",
           "name": "Presidential Electors for Phil Collins for President and Bill Parker for Vice President",
-          "partyId": "11",
+          "partyIds": Array [
+            "11",
+          ],
         },
         "tally": 4,
       },
@@ -3850,17 +4166,23 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031985",
           "name": "Mike Espy",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031986",
           "name": "Cindy Hyde-Smith",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "775031990",
           "name": "Jimmy Edwards",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
       ],
       "districtId": "1",
@@ -3880,7 +4202,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031985",
           "name": "Mike Espy",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 3,
       },
@@ -3888,7 +4212,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031986",
           "name": "Cindy Hyde-Smith",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 7,
       },
@@ -3896,7 +4222,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031990",
           "name": "Jimmy Edwards",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 2,
       },
@@ -4131,12 +4459,16 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031976",
           "name": "Josiah Dennis Coleman",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         Object {
           "id": "775031993",
           "name": "Percy L. Lynchard",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
       ],
       "districtId": "100000174",
@@ -4156,7 +4488,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031976",
           "name": "Josiah Dennis Coleman",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         "tally": 1,
       },
@@ -4164,7 +4498,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031993",
           "name": "Percy L. Lynchard",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         "tally": 7,
       },
@@ -4185,12 +4521,16 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031978",
           "name": "Antonia Eliason",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031979",
           "name": "Trent Kelly",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "100000047",
@@ -4210,7 +4550,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031978",
           "name": "Antonia Eliason",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 3,
       },
@@ -4218,7 +4560,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031979",
           "name": "Trent Kelly",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 6,
       },
@@ -4239,17 +4583,23 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031988",
           "name": "Presidential Electors for Joe Biden for President and Kamala Harris for Vice President",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031987",
           "name": "Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "775031989",
           "name": "Presidential Electors for Phil Collins for President and Bill Parker for Vice President",
-          "partyId": "11",
+          "partyIds": Array [
+            "11",
+          ],
         },
       ],
       "districtId": "1",
@@ -4269,7 +4619,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031987",
           "name": "Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 3,
       },
@@ -4277,7 +4629,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031988",
           "name": "Presidential Electors for Joe Biden for President and Kamala Harris for Vice President",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 3,
       },
@@ -4285,7 +4639,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031989",
           "name": "Presidential Electors for Phil Collins for President and Bill Parker for Vice President",
-          "partyId": "11",
+          "partyIds": Array [
+            "11",
+          ],
         },
         "tally": 3,
       },
@@ -4306,17 +4662,23 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031985",
           "name": "Mike Espy",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031986",
           "name": "Cindy Hyde-Smith",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "775031990",
           "name": "Jimmy Edwards",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
       ],
       "districtId": "1",
@@ -4336,7 +4698,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031985",
           "name": "Mike Espy",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 4,
       },
@@ -4344,7 +4708,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031986",
           "name": "Cindy Hyde-Smith",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 3,
       },
@@ -4352,7 +4718,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031990",
           "name": "Jimmy Edwards",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 1,
       },
@@ -4598,12 +4966,16 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031976",
           "name": "Josiah Dennis Coleman",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         Object {
           "id": "775031993",
           "name": "Percy L. Lynchard",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
       ],
       "districtId": "100000174",
@@ -4623,7 +4995,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031976",
           "name": "Josiah Dennis Coleman",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         "tally": 2,
       },
@@ -4631,7 +5005,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031993",
           "name": "Percy L. Lynchard",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         "tally": 3,
       },
@@ -4652,12 +5028,16 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031978",
           "name": "Antonia Eliason",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031979",
           "name": "Trent Kelly",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "100000047",
@@ -4677,7 +5057,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031978",
           "name": "Antonia Eliason",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 3,
       },
@@ -4685,7 +5067,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031979",
           "name": "Trent Kelly",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 1,
       },
@@ -4706,17 +5090,23 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031988",
           "name": "Presidential Electors for Joe Biden for President and Kamala Harris for Vice President",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031987",
           "name": "Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "775031989",
           "name": "Presidential Electors for Phil Collins for President and Bill Parker for Vice President",
-          "partyId": "11",
+          "partyIds": Array [
+            "11",
+          ],
         },
       ],
       "districtId": "1",
@@ -4736,7 +5126,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031987",
           "name": "Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 3,
       },
@@ -4744,7 +5136,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031988",
           "name": "Presidential Electors for Joe Biden for President and Kamala Harris for Vice President",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 1,
       },
@@ -4752,7 +5146,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031989",
           "name": "Presidential Electors for Phil Collins for President and Bill Parker for Vice President",
-          "partyId": "11",
+          "partyIds": Array [
+            "11",
+          ],
         },
         "tally": 1,
       },
@@ -4773,17 +5169,23 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031985",
           "name": "Mike Espy",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031986",
           "name": "Cindy Hyde-Smith",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "775031990",
           "name": "Jimmy Edwards",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
       ],
       "districtId": "1",
@@ -4803,7 +5205,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031985",
           "name": "Mike Espy",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 1,
       },
@@ -4811,7 +5215,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031986",
           "name": "Cindy Hyde-Smith",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 3,
       },
@@ -4819,7 +5225,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031990",
           "name": "Jimmy Edwards",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 1,
       },
@@ -5065,12 +5473,16 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031976",
           "name": "Josiah Dennis Coleman",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         Object {
           "id": "775031993",
           "name": "Percy L. Lynchard",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
       ],
       "districtId": "100000174",
@@ -5090,7 +5502,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031976",
           "name": "Josiah Dennis Coleman",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         "tally": 1,
       },
@@ -5098,7 +5512,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031993",
           "name": "Percy L. Lynchard",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         "tally": 2,
       },
@@ -5119,12 +5535,16 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031978",
           "name": "Antonia Eliason",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031979",
           "name": "Trent Kelly",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "100000047",
@@ -5144,7 +5564,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031978",
           "name": "Antonia Eliason",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 2,
       },
@@ -5152,7 +5574,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031979",
           "name": "Trent Kelly",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 1,
       },
@@ -5173,17 +5597,23 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031988",
           "name": "Presidential Electors for Joe Biden for President and Kamala Harris for Vice President",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031987",
           "name": "Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "775031989",
           "name": "Presidential Electors for Phil Collins for President and Bill Parker for Vice President",
-          "partyId": "11",
+          "partyIds": Array [
+            "11",
+          ],
         },
       ],
       "districtId": "1",
@@ -5203,7 +5633,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031987",
           "name": "Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 0,
       },
@@ -5211,7 +5643,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031988",
           "name": "Presidential Electors for Joe Biden for President and Kamala Harris for Vice President",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 1,
       },
@@ -5219,7 +5653,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031989",
           "name": "Presidential Electors for Phil Collins for President and Bill Parker for Vice President",
-          "partyId": "11",
+          "partyIds": Array [
+            "11",
+          ],
         },
         "tally": 2,
       },
@@ -5240,17 +5676,23 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031985",
           "name": "Mike Espy",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031986",
           "name": "Cindy Hyde-Smith",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "775031990",
           "name": "Jimmy Edwards",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
       ],
       "districtId": "1",
@@ -5270,7 +5712,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031985",
           "name": "Mike Espy",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 0,
       },
@@ -5278,7 +5722,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031986",
           "name": "Cindy Hyde-Smith",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 2,
       },
@@ -5286,7 +5732,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031990",
           "name": "Jimmy Edwards",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 0,
       },
@@ -5532,12 +5980,16 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031976",
           "name": "Josiah Dennis Coleman",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         Object {
           "id": "775031993",
           "name": "Percy L. Lynchard",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
       ],
       "districtId": "100000174",
@@ -5557,7 +6009,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031976",
           "name": "Josiah Dennis Coleman",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         "tally": 2,
       },
@@ -5565,7 +6019,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031993",
           "name": "Percy L. Lynchard",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         "tally": 3,
       },
@@ -5586,12 +6042,16 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031978",
           "name": "Antonia Eliason",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031979",
           "name": "Trent Kelly",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "100000047",
@@ -5611,7 +6071,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031978",
           "name": "Antonia Eliason",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 1,
       },
@@ -5619,7 +6081,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031979",
           "name": "Trent Kelly",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 3,
       },
@@ -5640,17 +6104,23 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031988",
           "name": "Presidential Electors for Joe Biden for President and Kamala Harris for Vice President",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031987",
           "name": "Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "775031989",
           "name": "Presidential Electors for Phil Collins for President and Bill Parker for Vice President",
-          "partyId": "11",
+          "partyIds": Array [
+            "11",
+          ],
         },
       ],
       "districtId": "1",
@@ -5670,7 +6140,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031987",
           "name": "Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 2,
       },
@@ -5678,7 +6150,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031988",
           "name": "Presidential Electors for Joe Biden for President and Kamala Harris for Vice President",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 0,
       },
@@ -5686,7 +6160,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031989",
           "name": "Presidential Electors for Phil Collins for President and Bill Parker for Vice President",
-          "partyId": "11",
+          "partyIds": Array [
+            "11",
+          ],
         },
         "tally": 1,
       },
@@ -5707,17 +6183,23 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031985",
           "name": "Mike Espy",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031986",
           "name": "Cindy Hyde-Smith",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "775031990",
           "name": "Jimmy Edwards",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
       ],
       "districtId": "1",
@@ -5737,7 +6219,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031985",
           "name": "Mike Espy",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 2,
       },
@@ -5745,7 +6229,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031986",
           "name": "Cindy Hyde-Smith",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 2,
       },
@@ -5753,7 +6239,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031990",
           "name": "Jimmy Edwards",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 0,
       },
@@ -5999,12 +6487,16 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031976",
           "name": "Josiah Dennis Coleman",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         Object {
           "id": "775031993",
           "name": "Percy L. Lynchard",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
       ],
       "districtId": "100000174",
@@ -6024,7 +6516,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031976",
           "name": "Josiah Dennis Coleman",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         "tally": 2,
       },
@@ -6032,7 +6526,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031993",
           "name": "Percy L. Lynchard",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         "tally": 3,
       },
@@ -6053,12 +6549,16 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031978",
           "name": "Antonia Eliason",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031979",
           "name": "Trent Kelly",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "100000047",
@@ -6078,7 +6578,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031978",
           "name": "Antonia Eliason",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 5,
       },
@@ -6086,7 +6588,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031979",
           "name": "Trent Kelly",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 1,
       },
@@ -6107,17 +6611,23 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031988",
           "name": "Presidential Electors for Joe Biden for President and Kamala Harris for Vice President",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031987",
           "name": "Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "775031989",
           "name": "Presidential Electors for Phil Collins for President and Bill Parker for Vice President",
-          "partyId": "11",
+          "partyIds": Array [
+            "11",
+          ],
         },
       ],
       "districtId": "1",
@@ -6137,7 +6647,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031987",
           "name": "Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 2,
       },
@@ -6145,7 +6657,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031988",
           "name": "Presidential Electors for Joe Biden for President and Kamala Harris for Vice President",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 1,
       },
@@ -6153,7 +6667,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031989",
           "name": "Presidential Electors for Phil Collins for President and Bill Parker for Vice President",
-          "partyId": "11",
+          "partyIds": Array [
+            "11",
+          ],
         },
         "tally": 3,
       },
@@ -6174,17 +6690,23 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031985",
           "name": "Mike Espy",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031986",
           "name": "Cindy Hyde-Smith",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "775031990",
           "name": "Jimmy Edwards",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
       ],
       "districtId": "1",
@@ -6204,7 +6726,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031985",
           "name": "Mike Espy",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 1,
       },
@@ -6212,7 +6736,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031986",
           "name": "Cindy Hyde-Smith",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 2,
       },
@@ -6220,7 +6746,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031990",
           "name": "Jimmy Edwards",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 3,
       },
@@ -6455,12 +6983,16 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031976",
           "name": "Josiah Dennis Coleman",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         Object {
           "id": "775031993",
           "name": "Percy L. Lynchard",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
       ],
       "districtId": "100000174",
@@ -6480,7 +7012,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031976",
           "name": "Josiah Dennis Coleman",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         "tally": 0,
       },
@@ -6488,7 +7022,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031993",
           "name": "Percy L. Lynchard",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
         "tally": 3,
       },
@@ -6509,12 +7045,16 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031978",
           "name": "Antonia Eliason",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031979",
           "name": "Trent Kelly",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "100000047",
@@ -6534,7 +7074,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031978",
           "name": "Antonia Eliason",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 0,
       },
@@ -6542,7 +7084,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031979",
           "name": "Trent Kelly",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 2,
       },
@@ -6563,17 +7107,23 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031988",
           "name": "Presidential Electors for Joe Biden for President and Kamala Harris for Vice President",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031987",
           "name": "Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "775031989",
           "name": "Presidential Electors for Phil Collins for President and Bill Parker for Vice President",
-          "partyId": "11",
+          "partyIds": Array [
+            "11",
+          ],
         },
       ],
       "districtId": "1",
@@ -6593,7 +7143,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031987",
           "name": "Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 0,
       },
@@ -6601,7 +7153,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031988",
           "name": "Presidential Electors for Joe Biden for President and Kamala Harris for Vice President",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 2,
       },
@@ -6609,7 +7163,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031989",
           "name": "Presidential Electors for Phil Collins for President and Bill Parker for Vice President",
-          "partyId": "11",
+          "partyIds": Array [
+            "11",
+          ],
         },
         "tally": 0,
       },
@@ -6630,17 +7186,23 @@ House Bill 1796 - Flag Referendum",
         Object {
           "id": "775031985",
           "name": "Mike Espy",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         Object {
           "id": "775031986",
           "name": "Cindy Hyde-Smith",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "775031990",
           "name": "Jimmy Edwards",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
       ],
       "districtId": "1",
@@ -6660,7 +7222,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031985",
           "name": "Mike Espy",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 1,
       },
@@ -6668,7 +7232,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031986",
           "name": "Cindy Hyde-Smith",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 1,
       },
@@ -6676,7 +7242,9 @@ House Bill 1796 - Flag Referendum",
         "option": Object {
           "id": "775031990",
           "name": "Jimmy Edwards",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 1,
       },
@@ -6741,12 +7309,16 @@ Object {
         Object {
           "id": "jenna-morasca",
           "name": "Jenna Morasca",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "sandra-diaz-twine",
           "name": "Sandra Diaz-Twine",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -6767,7 +7339,9 @@ Object {
         "option": Object {
           "id": "jenna-morasca",
           "name": "Jenna Morasca",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 90,
       },
@@ -6775,7 +7349,9 @@ Object {
         "option": Object {
           "id": "sandra-diaz-twine",
           "name": "Sandra Diaz-Twine",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 90,
       },
@@ -6796,17 +7372,23 @@ Object {
         Object {
           "id": "flareon",
           "name": "Flareon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "umbreon",
           "name": "Umbreon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "vaporeon",
           "name": "Vaporeon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-3",
@@ -6827,7 +7409,9 @@ Object {
         "option": Object {
           "id": "flareon",
           "name": "Flareon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 150,
       },
@@ -6835,7 +7419,9 @@ Object {
         "option": Object {
           "id": "umbreon",
           "name": "Umbreon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 150,
       },
@@ -6843,7 +7429,9 @@ Object {
         "option": Object {
           "id": "vaporeon",
           "name": "Vaporeon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 1200,
       },
@@ -6864,12 +7452,16 @@ Object {
         Object {
           "id": "pikachu",
           "name": "Pikachu",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         Object {
           "id": "eevee",
           "name": "Eevee",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
       ],
       "districtId": "district-3",
@@ -6890,7 +7482,9 @@ Object {
         "option": Object {
           "id": "eevee",
           "name": "Eevee",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 300,
       },
@@ -6898,7 +7492,9 @@ Object {
         "option": Object {
           "id": "pikachu",
           "name": "Pikachu",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 30,
       },
@@ -6919,17 +7515,23 @@ Object {
         Object {
           "id": "bulbasaur",
           "name": "Bulbasaur",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "charmander",
           "name": "Charmander",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "squirtle",
           "name": "Squirtle",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
       ],
       "districtId": "district-3",
@@ -6950,7 +7552,9 @@ Object {
         "option": Object {
           "id": "bulbasaur",
           "name": "Bulbasaur",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 90,
       },
@@ -6958,7 +7562,9 @@ Object {
         "option": Object {
           "id": "charmander",
           "name": "Charmander",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 90,
       },
@@ -6966,7 +7572,9 @@ Object {
         "option": Object {
           "id": "squirtle",
           "name": "Squirtle",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 720,
       },
@@ -6987,12 +7595,16 @@ Object {
         Object {
           "id": "kristen-bell",
           "name": "Kristen Bell",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "dax-shepherd",
           "name": "Dax Shepherd",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -7013,7 +7625,9 @@ Object {
         "option": Object {
           "id": "dax-shepherd",
           "name": "Dax Shepherd",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 1500,
       },
@@ -7021,7 +7635,9 @@ Object {
         "option": Object {
           "id": "kristen-bell",
           "name": "Kristen Bell",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 150,
       },
@@ -7042,12 +7658,16 @@ Object {
         Object {
           "id": "eleanor-shellstrop",
           "name": "Eleanor Shellstrop",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         Object {
           "id": "chidi-anagonye",
           "name": "Chidi Anagonye",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -7068,7 +7688,9 @@ Object {
         "option": Object {
           "id": "chidi-anagonye",
           "name": "Chidi Anagonye",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 360,
       },
@@ -7076,7 +7698,9 @@ Object {
         "option": Object {
           "id": "eleanor-shellstrop",
           "name": "Eleanor Shellstrop",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 90,
       },
@@ -7097,12 +7721,16 @@ Object {
         Object {
           "id": "aaron-aligator",
           "name": "Aaron Aligator",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "peter-pigeon",
           "name": "Peter Pigeon",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -7123,7 +7751,9 @@ Object {
         "option": Object {
           "id": "aaron-aligator",
           "name": "Aaron Aligator",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 180,
       },
@@ -7131,7 +7761,9 @@ Object {
         "option": Object {
           "id": "peter-pigeon",
           "name": "Peter Pigeon",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 990,
       },
@@ -7152,12 +7784,16 @@ Object {
         Object {
           "id": "tina-wesson",
           "name": "Tina Wesson",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "ethan-zohn",
           "name": "Ethan Zohn",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -7178,7 +7814,9 @@ Object {
         "option": Object {
           "id": "ethan-zohn",
           "name": "Ethan Zohn",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 1500,
       },
@@ -7186,7 +7824,9 @@ Object {
         "option": Object {
           "id": "tina-wesson",
           "name": "Tina Wesson",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 150,
       },
@@ -7207,12 +7847,16 @@ Object {
         Object {
           "id": "vecepia-towery",
           "name": "Vecepia Towery",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         Object {
           "id": "brain-heidik",
           "name": "Brain Heidik",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -7233,7 +7877,9 @@ Object {
         "option": Object {
           "id": "brain-heidik",
           "name": "Brain Heidik",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 330,
       },
@@ -7241,7 +7887,9 @@ Object {
         "option": Object {
           "id": "vecepia-towery",
           "name": "Vecepia Towery",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 60,
       },
@@ -7262,12 +7910,16 @@ Object {
         Object {
           "id": "tahani-al-jamil",
           "name": "Tahani Al-Jamil",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "jason-mendoza",
           "name": "Jason Mendoza",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -7288,7 +7940,9 @@ Object {
         "option": Object {
           "id": "jason-mendoza",
           "name": "Jason Mendoza",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 90,
       },
@@ -7296,7 +7950,9 @@ Object {
         "option": Object {
           "id": "tahani-al-jamil",
           "name": "Tahani Al-Jamil",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 90,
       },
@@ -7317,22 +7973,30 @@ Object {
         Object {
           "id": "aras-baskauskas",
           "name": "Aras Baskauskas",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "yul-kwon",
           "name": "Yul Kwon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "earl-cole",
           "name": "Earl Cole",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "todd-herzog",
           "name": "Todd Herzog",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-4",
@@ -7353,7 +8017,9 @@ Object {
         "option": Object {
           "id": "aras-baskauskas",
           "name": "Aras Baskauskas",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 750,
       },
@@ -7361,7 +8027,9 @@ Object {
         "option": Object {
           "id": "earl-cole",
           "name": "Earl Cole",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 600,
       },
@@ -7369,7 +8037,9 @@ Object {
         "option": Object {
           "id": "todd-herzog",
           "name": "Todd Herzog",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 600,
       },
@@ -7385,7 +8055,9 @@ Object {
         "option": Object {
           "id": "yul-kwon",
           "name": "Yul Kwon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 600,
       },
@@ -7398,22 +8070,30 @@ Object {
         Object {
           "id": "parvati-shallow",
           "name": "Parvati Shallow",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         Object {
           "id": "bob-crowley",
           "name": "Bob Crowley",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         Object {
           "id": "jt-thomas",
           "name": "JT Thomas",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         Object {
           "id": "natalie-white",
           "name": "Natalie White",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
       ],
       "districtId": "district-4",
@@ -7434,7 +8114,9 @@ Object {
         "option": Object {
           "id": "bob-crowley",
           "name": "Bob Crowley",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 120,
       },
@@ -7442,7 +8124,9 @@ Object {
         "option": Object {
           "id": "jt-thomas",
           "name": "JT Thomas",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 120,
       },
@@ -7450,7 +8134,9 @@ Object {
         "option": Object {
           "id": "natalie-white",
           "name": "Natalie White",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 120,
       },
@@ -7458,7 +8144,9 @@ Object {
         "option": Object {
           "id": "parvati-shallow",
           "name": "Parvati Shallow",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 150,
       },
@@ -7479,22 +8167,30 @@ Object {
         Object {
           "id": "amber-brkich",
           "name": "Amber Brkich",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "chris-daugherty",
           "name": "Chris Daugherty",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "tom-westman",
           "name": "Tom Westman",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "danni-boatwright",
           "name": "Dann Boatwright",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
       ],
       "districtId": "district-4",
@@ -7515,7 +8211,9 @@ Object {
         "option": Object {
           "id": "amber-brkich",
           "name": "Amber Brkich",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 450,
       },
@@ -7523,7 +8221,9 @@ Object {
         "option": Object {
           "id": "chris-daugherty",
           "name": "Chris Daugherty",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 360,
       },
@@ -7531,7 +8231,9 @@ Object {
         "option": Object {
           "id": "danni-boatwright",
           "name": "Dann Boatwright",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 360,
       },
@@ -7539,7 +8241,9 @@ Object {
         "option": Object {
           "id": "tom-westman",
           "name": "Tom Westman",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 360,
       },
@@ -7565,12 +8269,16 @@ Object {
         Object {
           "id": "jenna-morasca",
           "name": "Jenna Morasca",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "sandra-diaz-twine",
           "name": "Sandra Diaz-Twine",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -7591,7 +8299,9 @@ Object {
         "option": Object {
           "id": "jenna-morasca",
           "name": "Jenna Morasca",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 30,
       },
@@ -7599,7 +8309,9 @@ Object {
         "option": Object {
           "id": "sandra-diaz-twine",
           "name": "Sandra Diaz-Twine",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 30,
       },
@@ -7620,17 +8332,23 @@ Object {
         Object {
           "id": "flareon",
           "name": "Flareon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "umbreon",
           "name": "Umbreon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "vaporeon",
           "name": "Vaporeon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-3",
@@ -7651,7 +8369,9 @@ Object {
         "option": Object {
           "id": "flareon",
           "name": "Flareon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 30,
       },
@@ -7659,7 +8379,9 @@ Object {
         "option": Object {
           "id": "umbreon",
           "name": "Umbreon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 30,
       },
@@ -7667,7 +8389,9 @@ Object {
         "option": Object {
           "id": "vaporeon",
           "name": "Vaporeon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 240,
       },
@@ -7688,12 +8412,16 @@ Object {
         Object {
           "id": "pikachu",
           "name": "Pikachu",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         Object {
           "id": "eevee",
           "name": "Eevee",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
       ],
       "districtId": "district-3",
@@ -7714,7 +8442,9 @@ Object {
         "option": Object {
           "id": "eevee",
           "name": "Eevee",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 0,
       },
@@ -7722,7 +8452,9 @@ Object {
         "option": Object {
           "id": "pikachu",
           "name": "Pikachu",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 0,
       },
@@ -7743,17 +8475,23 @@ Object {
         Object {
           "id": "bulbasaur",
           "name": "Bulbasaur",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "charmander",
           "name": "Charmander",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "squirtle",
           "name": "Squirtle",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
       ],
       "districtId": "district-3",
@@ -7774,7 +8512,9 @@ Object {
         "option": Object {
           "id": "bulbasaur",
           "name": "Bulbasaur",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 0,
       },
@@ -7782,7 +8522,9 @@ Object {
         "option": Object {
           "id": "charmander",
           "name": "Charmander",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 0,
       },
@@ -7790,7 +8532,9 @@ Object {
         "option": Object {
           "id": "squirtle",
           "name": "Squirtle",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 0,
       },
@@ -7811,12 +8555,16 @@ Object {
         Object {
           "id": "kristen-bell",
           "name": "Kristen Bell",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "dax-shepherd",
           "name": "Dax Shepherd",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -7837,7 +8585,9 @@ Object {
         "option": Object {
           "id": "dax-shepherd",
           "name": "Dax Shepherd",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 300,
       },
@@ -7845,7 +8595,9 @@ Object {
         "option": Object {
           "id": "kristen-bell",
           "name": "Kristen Bell",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 30,
       },
@@ -7866,12 +8618,16 @@ Object {
         Object {
           "id": "eleanor-shellstrop",
           "name": "Eleanor Shellstrop",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         Object {
           "id": "chidi-anagonye",
           "name": "Chidi Anagonye",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -7892,7 +8648,9 @@ Object {
         "option": Object {
           "id": "chidi-anagonye",
           "name": "Chidi Anagonye",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 60,
       },
@@ -7900,7 +8658,9 @@ Object {
         "option": Object {
           "id": "eleanor-shellstrop",
           "name": "Eleanor Shellstrop",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 60,
       },
@@ -7921,12 +8681,16 @@ Object {
         Object {
           "id": "aaron-aligator",
           "name": "Aaron Aligator",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "peter-pigeon",
           "name": "Peter Pigeon",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -7947,7 +8711,9 @@ Object {
         "option": Object {
           "id": "aaron-aligator",
           "name": "Aaron Aligator",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 30,
       },
@@ -7955,7 +8721,9 @@ Object {
         "option": Object {
           "id": "peter-pigeon",
           "name": "Peter Pigeon",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 30,
       },
@@ -7976,12 +8744,16 @@ Object {
         Object {
           "id": "tina-wesson",
           "name": "Tina Wesson",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "ethan-zohn",
           "name": "Ethan Zohn",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -8002,7 +8774,9 @@ Object {
         "option": Object {
           "id": "ethan-zohn",
           "name": "Ethan Zohn",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 300,
       },
@@ -8010,7 +8784,9 @@ Object {
         "option": Object {
           "id": "tina-wesson",
           "name": "Tina Wesson",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 30,
       },
@@ -8031,12 +8807,16 @@ Object {
         Object {
           "id": "vecepia-towery",
           "name": "Vecepia Towery",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         Object {
           "id": "brain-heidik",
           "name": "Brain Heidik",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -8057,7 +8837,9 @@ Object {
         "option": Object {
           "id": "brain-heidik",
           "name": "Brain Heidik",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 30,
       },
@@ -8065,7 +8847,9 @@ Object {
         "option": Object {
           "id": "vecepia-towery",
           "name": "Vecepia Towery",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 30,
       },
@@ -8086,12 +8870,16 @@ Object {
         Object {
           "id": "tahani-al-jamil",
           "name": "Tahani Al-Jamil",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "jason-mendoza",
           "name": "Jason Mendoza",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -8112,7 +8900,9 @@ Object {
         "option": Object {
           "id": "jason-mendoza",
           "name": "Jason Mendoza",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 30,
       },
@@ -8120,7 +8910,9 @@ Object {
         "option": Object {
           "id": "tahani-al-jamil",
           "name": "Tahani Al-Jamil",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 30,
       },
@@ -8141,22 +8933,30 @@ Object {
         Object {
           "id": "aras-baskauskas",
           "name": "Aras Baskauskas",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "yul-kwon",
           "name": "Yul Kwon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "earl-cole",
           "name": "Earl Cole",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "todd-herzog",
           "name": "Todd Herzog",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-4",
@@ -8177,7 +8977,9 @@ Object {
         "option": Object {
           "id": "aras-baskauskas",
           "name": "Aras Baskauskas",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 150,
       },
@@ -8185,7 +8987,9 @@ Object {
         "option": Object {
           "id": "earl-cole",
           "name": "Earl Cole",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 120,
       },
@@ -8193,7 +8997,9 @@ Object {
         "option": Object {
           "id": "todd-herzog",
           "name": "Todd Herzog",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 120,
       },
@@ -8209,7 +9015,9 @@ Object {
         "option": Object {
           "id": "yul-kwon",
           "name": "Yul Kwon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 120,
       },
@@ -8222,22 +9030,30 @@ Object {
         Object {
           "id": "parvati-shallow",
           "name": "Parvati Shallow",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         Object {
           "id": "bob-crowley",
           "name": "Bob Crowley",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         Object {
           "id": "jt-thomas",
           "name": "JT Thomas",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         Object {
           "id": "natalie-white",
           "name": "Natalie White",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
       ],
       "districtId": "district-4",
@@ -8258,7 +9074,9 @@ Object {
         "option": Object {
           "id": "bob-crowley",
           "name": "Bob Crowley",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 0,
       },
@@ -8266,7 +9084,9 @@ Object {
         "option": Object {
           "id": "jt-thomas",
           "name": "JT Thomas",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 0,
       },
@@ -8274,7 +9094,9 @@ Object {
         "option": Object {
           "id": "natalie-white",
           "name": "Natalie White",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 0,
       },
@@ -8282,7 +9104,9 @@ Object {
         "option": Object {
           "id": "parvati-shallow",
           "name": "Parvati Shallow",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 0,
       },
@@ -8303,22 +9127,30 @@ Object {
         Object {
           "id": "amber-brkich",
           "name": "Amber Brkich",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "chris-daugherty",
           "name": "Chris Daugherty",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "tom-westman",
           "name": "Tom Westman",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "danni-boatwright",
           "name": "Dann Boatwright",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
       ],
       "districtId": "district-4",
@@ -8339,7 +9171,9 @@ Object {
         "option": Object {
           "id": "amber-brkich",
           "name": "Amber Brkich",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 0,
       },
@@ -8347,7 +9181,9 @@ Object {
         "option": Object {
           "id": "chris-daugherty",
           "name": "Chris Daugherty",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 0,
       },
@@ -8355,7 +9191,9 @@ Object {
         "option": Object {
           "id": "danni-boatwright",
           "name": "Dann Boatwright",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 0,
       },
@@ -8363,7 +9201,9 @@ Object {
         "option": Object {
           "id": "tom-westman",
           "name": "Tom Westman",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 0,
       },
@@ -8389,12 +9229,16 @@ Object {
         Object {
           "id": "jenna-morasca",
           "name": "Jenna Morasca",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "sandra-diaz-twine",
           "name": "Sandra Diaz-Twine",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -8415,7 +9259,9 @@ Object {
         "option": Object {
           "id": "jenna-morasca",
           "name": "Jenna Morasca",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 0,
       },
@@ -8423,7 +9269,9 @@ Object {
         "option": Object {
           "id": "sandra-diaz-twine",
           "name": "Sandra Diaz-Twine",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 0,
       },
@@ -8444,17 +9292,23 @@ Object {
         Object {
           "id": "flareon",
           "name": "Flareon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "umbreon",
           "name": "Umbreon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "vaporeon",
           "name": "Vaporeon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-3",
@@ -8475,7 +9329,9 @@ Object {
         "option": Object {
           "id": "flareon",
           "name": "Flareon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 30,
       },
@@ -8483,7 +9339,9 @@ Object {
         "option": Object {
           "id": "umbreon",
           "name": "Umbreon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 30,
       },
@@ -8491,7 +9349,9 @@ Object {
         "option": Object {
           "id": "vaporeon",
           "name": "Vaporeon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 240,
       },
@@ -8512,12 +9372,16 @@ Object {
         Object {
           "id": "pikachu",
           "name": "Pikachu",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         Object {
           "id": "eevee",
           "name": "Eevee",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
       ],
       "districtId": "district-3",
@@ -8538,7 +9402,9 @@ Object {
         "option": Object {
           "id": "eevee",
           "name": "Eevee",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 0,
       },
@@ -8546,7 +9412,9 @@ Object {
         "option": Object {
           "id": "pikachu",
           "name": "Pikachu",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 0,
       },
@@ -8567,17 +9435,23 @@ Object {
         Object {
           "id": "bulbasaur",
           "name": "Bulbasaur",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "charmander",
           "name": "Charmander",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "squirtle",
           "name": "Squirtle",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
       ],
       "districtId": "district-3",
@@ -8598,7 +9472,9 @@ Object {
         "option": Object {
           "id": "bulbasaur",
           "name": "Bulbasaur",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 30,
       },
@@ -8606,7 +9482,9 @@ Object {
         "option": Object {
           "id": "charmander",
           "name": "Charmander",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 30,
       },
@@ -8614,7 +9492,9 @@ Object {
         "option": Object {
           "id": "squirtle",
           "name": "Squirtle",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 240,
       },
@@ -8635,12 +9515,16 @@ Object {
         Object {
           "id": "kristen-bell",
           "name": "Kristen Bell",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "dax-shepherd",
           "name": "Dax Shepherd",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -8661,7 +9545,9 @@ Object {
         "option": Object {
           "id": "dax-shepherd",
           "name": "Dax Shepherd",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 300,
       },
@@ -8669,7 +9555,9 @@ Object {
         "option": Object {
           "id": "kristen-bell",
           "name": "Kristen Bell",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 30,
       },
@@ -8690,12 +9578,16 @@ Object {
         Object {
           "id": "eleanor-shellstrop",
           "name": "Eleanor Shellstrop",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         Object {
           "id": "chidi-anagonye",
           "name": "Chidi Anagonye",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -8716,7 +9608,9 @@ Object {
         "option": Object {
           "id": "chidi-anagonye",
           "name": "Chidi Anagonye",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 0,
       },
@@ -8724,7 +9618,9 @@ Object {
         "option": Object {
           "id": "eleanor-shellstrop",
           "name": "Eleanor Shellstrop",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 0,
       },
@@ -8745,12 +9641,16 @@ Object {
         Object {
           "id": "aaron-aligator",
           "name": "Aaron Aligator",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "peter-pigeon",
           "name": "Peter Pigeon",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -8771,7 +9671,9 @@ Object {
         "option": Object {
           "id": "aaron-aligator",
           "name": "Aaron Aligator",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 30,
       },
@@ -8779,7 +9681,9 @@ Object {
         "option": Object {
           "id": "peter-pigeon",
           "name": "Peter Pigeon",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 300,
       },
@@ -8800,12 +9704,16 @@ Object {
         Object {
           "id": "tina-wesson",
           "name": "Tina Wesson",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "ethan-zohn",
           "name": "Ethan Zohn",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -8826,7 +9734,9 @@ Object {
         "option": Object {
           "id": "ethan-zohn",
           "name": "Ethan Zohn",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 300,
       },
@@ -8834,7 +9744,9 @@ Object {
         "option": Object {
           "id": "tina-wesson",
           "name": "Tina Wesson",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 30,
       },
@@ -8855,12 +9767,16 @@ Object {
         Object {
           "id": "vecepia-towery",
           "name": "Vecepia Towery",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         Object {
           "id": "brain-heidik",
           "name": "Brain Heidik",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -8881,7 +9797,9 @@ Object {
         "option": Object {
           "id": "brain-heidik",
           "name": "Brain Heidik",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 0,
       },
@@ -8889,7 +9807,9 @@ Object {
         "option": Object {
           "id": "vecepia-towery",
           "name": "Vecepia Towery",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 0,
       },
@@ -8910,12 +9830,16 @@ Object {
         Object {
           "id": "tahani-al-jamil",
           "name": "Tahani Al-Jamil",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "jason-mendoza",
           "name": "Jason Mendoza",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -8936,7 +9860,9 @@ Object {
         "option": Object {
           "id": "jason-mendoza",
           "name": "Jason Mendoza",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 0,
       },
@@ -8944,7 +9870,9 @@ Object {
         "option": Object {
           "id": "tahani-al-jamil",
           "name": "Tahani Al-Jamil",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 0,
       },
@@ -8965,22 +9893,30 @@ Object {
         Object {
           "id": "aras-baskauskas",
           "name": "Aras Baskauskas",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "yul-kwon",
           "name": "Yul Kwon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "earl-cole",
           "name": "Earl Cole",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "todd-herzog",
           "name": "Todd Herzog",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-4",
@@ -9001,7 +9937,9 @@ Object {
         "option": Object {
           "id": "aras-baskauskas",
           "name": "Aras Baskauskas",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 150,
       },
@@ -9009,7 +9947,9 @@ Object {
         "option": Object {
           "id": "earl-cole",
           "name": "Earl Cole",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 120,
       },
@@ -9017,7 +9957,9 @@ Object {
         "option": Object {
           "id": "todd-herzog",
           "name": "Todd Herzog",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 120,
       },
@@ -9033,7 +9975,9 @@ Object {
         "option": Object {
           "id": "yul-kwon",
           "name": "Yul Kwon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 120,
       },
@@ -9046,22 +9990,30 @@ Object {
         Object {
           "id": "parvati-shallow",
           "name": "Parvati Shallow",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         Object {
           "id": "bob-crowley",
           "name": "Bob Crowley",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         Object {
           "id": "jt-thomas",
           "name": "JT Thomas",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         Object {
           "id": "natalie-white",
           "name": "Natalie White",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
       ],
       "districtId": "district-4",
@@ -9082,7 +10034,9 @@ Object {
         "option": Object {
           "id": "bob-crowley",
           "name": "Bob Crowley",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 0,
       },
@@ -9090,7 +10044,9 @@ Object {
         "option": Object {
           "id": "jt-thomas",
           "name": "JT Thomas",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 0,
       },
@@ -9098,7 +10054,9 @@ Object {
         "option": Object {
           "id": "natalie-white",
           "name": "Natalie White",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 0,
       },
@@ -9106,7 +10064,9 @@ Object {
         "option": Object {
           "id": "parvati-shallow",
           "name": "Parvati Shallow",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 0,
       },
@@ -9127,22 +10087,30 @@ Object {
         Object {
           "id": "amber-brkich",
           "name": "Amber Brkich",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "chris-daugherty",
           "name": "Chris Daugherty",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "tom-westman",
           "name": "Tom Westman",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "danni-boatwright",
           "name": "Dann Boatwright",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
       ],
       "districtId": "district-4",
@@ -9163,7 +10131,9 @@ Object {
         "option": Object {
           "id": "amber-brkich",
           "name": "Amber Brkich",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 150,
       },
@@ -9171,7 +10141,9 @@ Object {
         "option": Object {
           "id": "chris-daugherty",
           "name": "Chris Daugherty",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 120,
       },
@@ -9179,7 +10151,9 @@ Object {
         "option": Object {
           "id": "danni-boatwright",
           "name": "Dann Boatwright",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 120,
       },
@@ -9187,7 +10161,9 @@ Object {
         "option": Object {
           "id": "tom-westman",
           "name": "Tom Westman",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 120,
       },
@@ -9213,12 +10189,16 @@ Object {
         Object {
           "id": "jenna-morasca",
           "name": "Jenna Morasca",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "sandra-diaz-twine",
           "name": "Sandra Diaz-Twine",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -9239,7 +10219,9 @@ Object {
         "option": Object {
           "id": "jenna-morasca",
           "name": "Jenna Morasca",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 30,
       },
@@ -9247,7 +10229,9 @@ Object {
         "option": Object {
           "id": "sandra-diaz-twine",
           "name": "Sandra Diaz-Twine",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 30,
       },
@@ -9268,17 +10252,23 @@ Object {
         Object {
           "id": "flareon",
           "name": "Flareon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "umbreon",
           "name": "Umbreon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "vaporeon",
           "name": "Vaporeon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-3",
@@ -9299,7 +10289,9 @@ Object {
         "option": Object {
           "id": "flareon",
           "name": "Flareon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 30,
       },
@@ -9307,7 +10299,9 @@ Object {
         "option": Object {
           "id": "umbreon",
           "name": "Umbreon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 30,
       },
@@ -9315,7 +10309,9 @@ Object {
         "option": Object {
           "id": "vaporeon",
           "name": "Vaporeon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 240,
       },
@@ -9336,12 +10332,16 @@ Object {
         Object {
           "id": "pikachu",
           "name": "Pikachu",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         Object {
           "id": "eevee",
           "name": "Eevee",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
       ],
       "districtId": "district-3",
@@ -9362,7 +10362,9 @@ Object {
         "option": Object {
           "id": "eevee",
           "name": "Eevee",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 0,
       },
@@ -9370,7 +10372,9 @@ Object {
         "option": Object {
           "id": "pikachu",
           "name": "Pikachu",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 0,
       },
@@ -9391,17 +10395,23 @@ Object {
         Object {
           "id": "bulbasaur",
           "name": "Bulbasaur",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "charmander",
           "name": "Charmander",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "squirtle",
           "name": "Squirtle",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
       ],
       "districtId": "district-3",
@@ -9422,7 +10432,9 @@ Object {
         "option": Object {
           "id": "bulbasaur",
           "name": "Bulbasaur",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 0,
       },
@@ -9430,7 +10442,9 @@ Object {
         "option": Object {
           "id": "charmander",
           "name": "Charmander",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 0,
       },
@@ -9438,7 +10452,9 @@ Object {
         "option": Object {
           "id": "squirtle",
           "name": "Squirtle",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 0,
       },
@@ -9459,12 +10475,16 @@ Object {
         Object {
           "id": "kristen-bell",
           "name": "Kristen Bell",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "dax-shepherd",
           "name": "Dax Shepherd",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -9485,7 +10505,9 @@ Object {
         "option": Object {
           "id": "dax-shepherd",
           "name": "Dax Shepherd",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 300,
       },
@@ -9493,7 +10515,9 @@ Object {
         "option": Object {
           "id": "kristen-bell",
           "name": "Kristen Bell",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 30,
       },
@@ -9514,12 +10538,16 @@ Object {
         Object {
           "id": "eleanor-shellstrop",
           "name": "Eleanor Shellstrop",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         Object {
           "id": "chidi-anagonye",
           "name": "Chidi Anagonye",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -9540,7 +10568,9 @@ Object {
         "option": Object {
           "id": "chidi-anagonye",
           "name": "Chidi Anagonye",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 0,
       },
@@ -9548,7 +10578,9 @@ Object {
         "option": Object {
           "id": "eleanor-shellstrop",
           "name": "Eleanor Shellstrop",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 0,
       },
@@ -9569,12 +10601,16 @@ Object {
         Object {
           "id": "aaron-aligator",
           "name": "Aaron Aligator",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "peter-pigeon",
           "name": "Peter Pigeon",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -9595,7 +10631,9 @@ Object {
         "option": Object {
           "id": "aaron-aligator",
           "name": "Aaron Aligator",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 30,
       },
@@ -9603,7 +10641,9 @@ Object {
         "option": Object {
           "id": "peter-pigeon",
           "name": "Peter Pigeon",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 30,
       },
@@ -9624,12 +10664,16 @@ Object {
         Object {
           "id": "tina-wesson",
           "name": "Tina Wesson",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "ethan-zohn",
           "name": "Ethan Zohn",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -9650,7 +10694,9 @@ Object {
         "option": Object {
           "id": "ethan-zohn",
           "name": "Ethan Zohn",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 300,
       },
@@ -9658,7 +10704,9 @@ Object {
         "option": Object {
           "id": "tina-wesson",
           "name": "Tina Wesson",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 30,
       },
@@ -9679,12 +10727,16 @@ Object {
         Object {
           "id": "vecepia-towery",
           "name": "Vecepia Towery",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         Object {
           "id": "brain-heidik",
           "name": "Brain Heidik",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -9705,7 +10757,9 @@ Object {
         "option": Object {
           "id": "brain-heidik",
           "name": "Brain Heidik",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 0,
       },
@@ -9713,7 +10767,9 @@ Object {
         "option": Object {
           "id": "vecepia-towery",
           "name": "Vecepia Towery",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 0,
       },
@@ -9734,12 +10790,16 @@ Object {
         Object {
           "id": "tahani-al-jamil",
           "name": "Tahani Al-Jamil",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "jason-mendoza",
           "name": "Jason Mendoza",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -9760,7 +10820,9 @@ Object {
         "option": Object {
           "id": "jason-mendoza",
           "name": "Jason Mendoza",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 30,
       },
@@ -9768,7 +10830,9 @@ Object {
         "option": Object {
           "id": "tahani-al-jamil",
           "name": "Tahani Al-Jamil",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 30,
       },
@@ -9789,22 +10853,30 @@ Object {
         Object {
           "id": "aras-baskauskas",
           "name": "Aras Baskauskas",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "yul-kwon",
           "name": "Yul Kwon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "earl-cole",
           "name": "Earl Cole",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "todd-herzog",
           "name": "Todd Herzog",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-4",
@@ -9825,7 +10897,9 @@ Object {
         "option": Object {
           "id": "aras-baskauskas",
           "name": "Aras Baskauskas",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 150,
       },
@@ -9833,7 +10907,9 @@ Object {
         "option": Object {
           "id": "earl-cole",
           "name": "Earl Cole",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 120,
       },
@@ -9841,7 +10917,9 @@ Object {
         "option": Object {
           "id": "todd-herzog",
           "name": "Todd Herzog",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 120,
       },
@@ -9857,7 +10935,9 @@ Object {
         "option": Object {
           "id": "yul-kwon",
           "name": "Yul Kwon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 120,
       },
@@ -9870,22 +10950,30 @@ Object {
         Object {
           "id": "parvati-shallow",
           "name": "Parvati Shallow",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         Object {
           "id": "bob-crowley",
           "name": "Bob Crowley",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         Object {
           "id": "jt-thomas",
           "name": "JT Thomas",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         Object {
           "id": "natalie-white",
           "name": "Natalie White",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
       ],
       "districtId": "district-4",
@@ -9906,7 +10994,9 @@ Object {
         "option": Object {
           "id": "bob-crowley",
           "name": "Bob Crowley",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 0,
       },
@@ -9914,7 +11004,9 @@ Object {
         "option": Object {
           "id": "jt-thomas",
           "name": "JT Thomas",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 0,
       },
@@ -9922,7 +11014,9 @@ Object {
         "option": Object {
           "id": "natalie-white",
           "name": "Natalie White",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 0,
       },
@@ -9930,7 +11024,9 @@ Object {
         "option": Object {
           "id": "parvati-shallow",
           "name": "Parvati Shallow",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 0,
       },
@@ -9951,22 +11047,30 @@ Object {
         Object {
           "id": "amber-brkich",
           "name": "Amber Brkich",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "chris-daugherty",
           "name": "Chris Daugherty",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "tom-westman",
           "name": "Tom Westman",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "danni-boatwright",
           "name": "Dann Boatwright",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
       ],
       "districtId": "district-4",
@@ -9987,7 +11091,9 @@ Object {
         "option": Object {
           "id": "amber-brkich",
           "name": "Amber Brkich",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 0,
       },
@@ -9995,7 +11101,9 @@ Object {
         "option": Object {
           "id": "chris-daugherty",
           "name": "Chris Daugherty",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 0,
       },
@@ -10003,7 +11111,9 @@ Object {
         "option": Object {
           "id": "danni-boatwright",
           "name": "Dann Boatwright",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 0,
       },
@@ -10011,7 +11121,9 @@ Object {
         "option": Object {
           "id": "tom-westman",
           "name": "Tom Westman",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 0,
       },
@@ -10037,12 +11149,16 @@ Object {
         Object {
           "id": "jenna-morasca",
           "name": "Jenna Morasca",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "sandra-diaz-twine",
           "name": "Sandra Diaz-Twine",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -10063,7 +11179,9 @@ Object {
         "option": Object {
           "id": "jenna-morasca",
           "name": "Jenna Morasca",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 0,
       },
@@ -10071,7 +11189,9 @@ Object {
         "option": Object {
           "id": "sandra-diaz-twine",
           "name": "Sandra Diaz-Twine",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 0,
       },
@@ -10092,17 +11212,23 @@ Object {
         Object {
           "id": "flareon",
           "name": "Flareon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "umbreon",
           "name": "Umbreon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "vaporeon",
           "name": "Vaporeon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-3",
@@ -10123,7 +11249,9 @@ Object {
         "option": Object {
           "id": "flareon",
           "name": "Flareon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 30,
       },
@@ -10131,7 +11259,9 @@ Object {
         "option": Object {
           "id": "umbreon",
           "name": "Umbreon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 30,
       },
@@ -10139,7 +11269,9 @@ Object {
         "option": Object {
           "id": "vaporeon",
           "name": "Vaporeon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 240,
       },
@@ -10160,12 +11292,16 @@ Object {
         Object {
           "id": "pikachu",
           "name": "Pikachu",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         Object {
           "id": "eevee",
           "name": "Eevee",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
       ],
       "districtId": "district-3",
@@ -10186,7 +11322,9 @@ Object {
         "option": Object {
           "id": "eevee",
           "name": "Eevee",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 0,
       },
@@ -10194,7 +11332,9 @@ Object {
         "option": Object {
           "id": "pikachu",
           "name": "Pikachu",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 0,
       },
@@ -10215,17 +11355,23 @@ Object {
         Object {
           "id": "bulbasaur",
           "name": "Bulbasaur",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "charmander",
           "name": "Charmander",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "squirtle",
           "name": "Squirtle",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
       ],
       "districtId": "district-3",
@@ -10246,7 +11392,9 @@ Object {
         "option": Object {
           "id": "bulbasaur",
           "name": "Bulbasaur",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 30,
       },
@@ -10254,7 +11402,9 @@ Object {
         "option": Object {
           "id": "charmander",
           "name": "Charmander",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 30,
       },
@@ -10262,7 +11412,9 @@ Object {
         "option": Object {
           "id": "squirtle",
           "name": "Squirtle",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 240,
       },
@@ -10283,12 +11435,16 @@ Object {
         Object {
           "id": "kristen-bell",
           "name": "Kristen Bell",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "dax-shepherd",
           "name": "Dax Shepherd",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -10309,7 +11465,9 @@ Object {
         "option": Object {
           "id": "dax-shepherd",
           "name": "Dax Shepherd",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 300,
       },
@@ -10317,7 +11475,9 @@ Object {
         "option": Object {
           "id": "kristen-bell",
           "name": "Kristen Bell",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 30,
       },
@@ -10338,12 +11498,16 @@ Object {
         Object {
           "id": "eleanor-shellstrop",
           "name": "Eleanor Shellstrop",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         Object {
           "id": "chidi-anagonye",
           "name": "Chidi Anagonye",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -10364,7 +11528,9 @@ Object {
         "option": Object {
           "id": "chidi-anagonye",
           "name": "Chidi Anagonye",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 0,
       },
@@ -10372,7 +11538,9 @@ Object {
         "option": Object {
           "id": "eleanor-shellstrop",
           "name": "Eleanor Shellstrop",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 0,
       },
@@ -10393,12 +11561,16 @@ Object {
         Object {
           "id": "aaron-aligator",
           "name": "Aaron Aligator",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "peter-pigeon",
           "name": "Peter Pigeon",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -10419,7 +11591,9 @@ Object {
         "option": Object {
           "id": "aaron-aligator",
           "name": "Aaron Aligator",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 30,
       },
@@ -10427,7 +11601,9 @@ Object {
         "option": Object {
           "id": "peter-pigeon",
           "name": "Peter Pigeon",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 300,
       },
@@ -10448,12 +11624,16 @@ Object {
         Object {
           "id": "tina-wesson",
           "name": "Tina Wesson",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "ethan-zohn",
           "name": "Ethan Zohn",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -10474,7 +11654,9 @@ Object {
         "option": Object {
           "id": "ethan-zohn",
           "name": "Ethan Zohn",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 300,
       },
@@ -10482,7 +11664,9 @@ Object {
         "option": Object {
           "id": "tina-wesson",
           "name": "Tina Wesson",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 30,
       },
@@ -10503,12 +11687,16 @@ Object {
         Object {
           "id": "vecepia-towery",
           "name": "Vecepia Towery",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         Object {
           "id": "brain-heidik",
           "name": "Brain Heidik",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -10529,7 +11717,9 @@ Object {
         "option": Object {
           "id": "brain-heidik",
           "name": "Brain Heidik",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 0,
       },
@@ -10537,7 +11727,9 @@ Object {
         "option": Object {
           "id": "vecepia-towery",
           "name": "Vecepia Towery",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 0,
       },
@@ -10558,12 +11750,16 @@ Object {
         Object {
           "id": "tahani-al-jamil",
           "name": "Tahani Al-Jamil",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "jason-mendoza",
           "name": "Jason Mendoza",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -10584,7 +11780,9 @@ Object {
         "option": Object {
           "id": "jason-mendoza",
           "name": "Jason Mendoza",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 0,
       },
@@ -10592,7 +11790,9 @@ Object {
         "option": Object {
           "id": "tahani-al-jamil",
           "name": "Tahani Al-Jamil",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 0,
       },
@@ -10613,22 +11813,30 @@ Object {
         Object {
           "id": "aras-baskauskas",
           "name": "Aras Baskauskas",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "yul-kwon",
           "name": "Yul Kwon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "earl-cole",
           "name": "Earl Cole",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "todd-herzog",
           "name": "Todd Herzog",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-4",
@@ -10649,7 +11857,9 @@ Object {
         "option": Object {
           "id": "aras-baskauskas",
           "name": "Aras Baskauskas",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 150,
       },
@@ -10657,7 +11867,9 @@ Object {
         "option": Object {
           "id": "earl-cole",
           "name": "Earl Cole",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 120,
       },
@@ -10665,7 +11877,9 @@ Object {
         "option": Object {
           "id": "todd-herzog",
           "name": "Todd Herzog",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 120,
       },
@@ -10681,7 +11895,9 @@ Object {
         "option": Object {
           "id": "yul-kwon",
           "name": "Yul Kwon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 120,
       },
@@ -10694,22 +11910,30 @@ Object {
         Object {
           "id": "parvati-shallow",
           "name": "Parvati Shallow",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         Object {
           "id": "bob-crowley",
           "name": "Bob Crowley",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         Object {
           "id": "jt-thomas",
           "name": "JT Thomas",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         Object {
           "id": "natalie-white",
           "name": "Natalie White",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
       ],
       "districtId": "district-4",
@@ -10730,7 +11954,9 @@ Object {
         "option": Object {
           "id": "bob-crowley",
           "name": "Bob Crowley",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 0,
       },
@@ -10738,7 +11964,9 @@ Object {
         "option": Object {
           "id": "jt-thomas",
           "name": "JT Thomas",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 0,
       },
@@ -10746,7 +11974,9 @@ Object {
         "option": Object {
           "id": "natalie-white",
           "name": "Natalie White",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 0,
       },
@@ -10754,7 +11984,9 @@ Object {
         "option": Object {
           "id": "parvati-shallow",
           "name": "Parvati Shallow",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 0,
       },
@@ -10775,22 +12007,30 @@ Object {
         Object {
           "id": "amber-brkich",
           "name": "Amber Brkich",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "chris-daugherty",
           "name": "Chris Daugherty",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "tom-westman",
           "name": "Tom Westman",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "danni-boatwright",
           "name": "Dann Boatwright",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
       ],
       "districtId": "district-4",
@@ -10811,7 +12051,9 @@ Object {
         "option": Object {
           "id": "amber-brkich",
           "name": "Amber Brkich",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 150,
       },
@@ -10819,7 +12061,9 @@ Object {
         "option": Object {
           "id": "chris-daugherty",
           "name": "Chris Daugherty",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 120,
       },
@@ -10827,7 +12071,9 @@ Object {
         "option": Object {
           "id": "danni-boatwright",
           "name": "Dann Boatwright",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 120,
       },
@@ -10835,7 +12081,9 @@ Object {
         "option": Object {
           "id": "tom-westman",
           "name": "Tom Westman",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 120,
       },
@@ -10861,12 +12109,16 @@ Object {
         Object {
           "id": "jenna-morasca",
           "name": "Jenna Morasca",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "sandra-diaz-twine",
           "name": "Sandra Diaz-Twine",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -10887,7 +12139,9 @@ Object {
         "option": Object {
           "id": "jenna-morasca",
           "name": "Jenna Morasca",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 30,
       },
@@ -10895,7 +12149,9 @@ Object {
         "option": Object {
           "id": "sandra-diaz-twine",
           "name": "Sandra Diaz-Twine",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 30,
       },
@@ -10916,17 +12172,23 @@ Object {
         Object {
           "id": "flareon",
           "name": "Flareon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "umbreon",
           "name": "Umbreon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "vaporeon",
           "name": "Vaporeon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-3",
@@ -10947,7 +12209,9 @@ Object {
         "option": Object {
           "id": "flareon",
           "name": "Flareon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 30,
       },
@@ -10955,7 +12219,9 @@ Object {
         "option": Object {
           "id": "umbreon",
           "name": "Umbreon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 30,
       },
@@ -10963,7 +12229,9 @@ Object {
         "option": Object {
           "id": "vaporeon",
           "name": "Vaporeon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 240,
       },
@@ -10984,12 +12252,16 @@ Object {
         Object {
           "id": "pikachu",
           "name": "Pikachu",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         Object {
           "id": "eevee",
           "name": "Eevee",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
       ],
       "districtId": "district-3",
@@ -11010,7 +12282,9 @@ Object {
         "option": Object {
           "id": "eevee",
           "name": "Eevee",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 300,
       },
@@ -11018,7 +12292,9 @@ Object {
         "option": Object {
           "id": "pikachu",
           "name": "Pikachu",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 30,
       },
@@ -11039,17 +12315,23 @@ Object {
         Object {
           "id": "bulbasaur",
           "name": "Bulbasaur",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "charmander",
           "name": "Charmander",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "squirtle",
           "name": "Squirtle",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
       ],
       "districtId": "district-3",
@@ -11070,7 +12352,9 @@ Object {
         "option": Object {
           "id": "bulbasaur",
           "name": "Bulbasaur",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 30,
       },
@@ -11078,7 +12362,9 @@ Object {
         "option": Object {
           "id": "charmander",
           "name": "Charmander",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 30,
       },
@@ -11086,7 +12372,9 @@ Object {
         "option": Object {
           "id": "squirtle",
           "name": "Squirtle",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 240,
       },
@@ -11107,12 +12395,16 @@ Object {
         Object {
           "id": "kristen-bell",
           "name": "Kristen Bell",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "dax-shepherd",
           "name": "Dax Shepherd",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -11133,7 +12425,9 @@ Object {
         "option": Object {
           "id": "dax-shepherd",
           "name": "Dax Shepherd",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 300,
       },
@@ -11141,7 +12435,9 @@ Object {
         "option": Object {
           "id": "kristen-bell",
           "name": "Kristen Bell",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 30,
       },
@@ -11162,12 +12458,16 @@ Object {
         Object {
           "id": "eleanor-shellstrop",
           "name": "Eleanor Shellstrop",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         Object {
           "id": "chidi-anagonye",
           "name": "Chidi Anagonye",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -11188,7 +12488,9 @@ Object {
         "option": Object {
           "id": "chidi-anagonye",
           "name": "Chidi Anagonye",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 300,
       },
@@ -11196,7 +12498,9 @@ Object {
         "option": Object {
           "id": "eleanor-shellstrop",
           "name": "Eleanor Shellstrop",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 30,
       },
@@ -11217,12 +12521,16 @@ Object {
         Object {
           "id": "aaron-aligator",
           "name": "Aaron Aligator",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "peter-pigeon",
           "name": "Peter Pigeon",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -11243,7 +12551,9 @@ Object {
         "option": Object {
           "id": "aaron-aligator",
           "name": "Aaron Aligator",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 60,
       },
@@ -11251,7 +12561,9 @@ Object {
         "option": Object {
           "id": "peter-pigeon",
           "name": "Peter Pigeon",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 330,
       },
@@ -11272,12 +12584,16 @@ Object {
         Object {
           "id": "tina-wesson",
           "name": "Tina Wesson",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "ethan-zohn",
           "name": "Ethan Zohn",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -11298,7 +12614,9 @@ Object {
         "option": Object {
           "id": "ethan-zohn",
           "name": "Ethan Zohn",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 300,
       },
@@ -11306,7 +12624,9 @@ Object {
         "option": Object {
           "id": "tina-wesson",
           "name": "Tina Wesson",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 30,
       },
@@ -11327,12 +12647,16 @@ Object {
         Object {
           "id": "vecepia-towery",
           "name": "Vecepia Towery",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         Object {
           "id": "brain-heidik",
           "name": "Brain Heidik",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -11353,7 +12677,9 @@ Object {
         "option": Object {
           "id": "brain-heidik",
           "name": "Brain Heidik",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 300,
       },
@@ -11361,7 +12687,9 @@ Object {
         "option": Object {
           "id": "vecepia-towery",
           "name": "Vecepia Towery",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 30,
       },
@@ -11382,12 +12710,16 @@ Object {
         Object {
           "id": "tahani-al-jamil",
           "name": "Tahani Al-Jamil",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "jason-mendoza",
           "name": "Jason Mendoza",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -11408,7 +12740,9 @@ Object {
         "option": Object {
           "id": "jason-mendoza",
           "name": "Jason Mendoza",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 30,
       },
@@ -11416,7 +12750,9 @@ Object {
         "option": Object {
           "id": "tahani-al-jamil",
           "name": "Tahani Al-Jamil",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 30,
       },
@@ -11437,22 +12773,30 @@ Object {
         Object {
           "id": "aras-baskauskas",
           "name": "Aras Baskauskas",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "yul-kwon",
           "name": "Yul Kwon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "earl-cole",
           "name": "Earl Cole",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "todd-herzog",
           "name": "Todd Herzog",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-4",
@@ -11473,7 +12817,9 @@ Object {
         "option": Object {
           "id": "aras-baskauskas",
           "name": "Aras Baskauskas",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 150,
       },
@@ -11481,7 +12827,9 @@ Object {
         "option": Object {
           "id": "earl-cole",
           "name": "Earl Cole",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 120,
       },
@@ -11489,7 +12837,9 @@ Object {
         "option": Object {
           "id": "todd-herzog",
           "name": "Todd Herzog",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 120,
       },
@@ -11505,7 +12855,9 @@ Object {
         "option": Object {
           "id": "yul-kwon",
           "name": "Yul Kwon",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 120,
       },
@@ -11518,22 +12870,30 @@ Object {
         Object {
           "id": "parvati-shallow",
           "name": "Parvati Shallow",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         Object {
           "id": "bob-crowley",
           "name": "Bob Crowley",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         Object {
           "id": "jt-thomas",
           "name": "JT Thomas",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         Object {
           "id": "natalie-white",
           "name": "Natalie White",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
       ],
       "districtId": "district-4",
@@ -11554,7 +12914,9 @@ Object {
         "option": Object {
           "id": "bob-crowley",
           "name": "Bob Crowley",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 120,
       },
@@ -11562,7 +12924,9 @@ Object {
         "option": Object {
           "id": "jt-thomas",
           "name": "JT Thomas",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 120,
       },
@@ -11570,7 +12934,9 @@ Object {
         "option": Object {
           "id": "natalie-white",
           "name": "Natalie White",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 120,
       },
@@ -11578,7 +12944,9 @@ Object {
         "option": Object {
           "id": "parvati-shallow",
           "name": "Parvati Shallow",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
         "tally": 150,
       },
@@ -11599,22 +12967,30 @@ Object {
         Object {
           "id": "amber-brkich",
           "name": "Amber Brkich",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "chris-daugherty",
           "name": "Chris Daugherty",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "tom-westman",
           "name": "Tom Westman",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "danni-boatwright",
           "name": "Dann Boatwright",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
       ],
       "districtId": "district-4",
@@ -11635,7 +13011,9 @@ Object {
         "option": Object {
           "id": "amber-brkich",
           "name": "Amber Brkich",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 150,
       },
@@ -11643,7 +13021,9 @@ Object {
         "option": Object {
           "id": "chris-daugherty",
           "name": "Chris Daugherty",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 120,
       },
@@ -11651,7 +13031,9 @@ Object {
         "option": Object {
           "id": "danni-boatwright",
           "name": "Dann Boatwright",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 120,
       },
@@ -11659,7 +13041,9 @@ Object {
         "option": Object {
           "id": "tom-westman",
           "name": "Tom Westman",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 120,
       },

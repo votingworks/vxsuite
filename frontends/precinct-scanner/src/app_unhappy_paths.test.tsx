@@ -239,7 +239,7 @@ test('error from services/scan in accepting a reviewable ballot', async () => {
   await screen.findByText(/Franklin County/);
   await screen.findByText(/State of Hamilton/);
   await screen.findByText('Election ID');
-  await screen.findByText('b52e9f4728');
+  await screen.findByText('748dc61ad3');
 
   fetchMock.get(
     '/scan/status',
@@ -341,7 +341,7 @@ test('error from services/scan in ejecting a reviewable ballot', async () => {
   await screen.findByText(/Franklin County/);
   await screen.findByText(/State of Hamilton/);
   await screen.findByText('Election ID');
-  await screen.findByText('b52e9f4728');
+  await screen.findByText('748dc61ad3');
 
   fetchMock.get('/scan/status', scanStatusReadyToScanResponseBody, {
     overwriteRoutes: true,

@@ -39,7 +39,6 @@ def get_sample_file(filename):
 
 def test_general_results_from_tallies():
     for test in TESTS:
-        print("testing", test)
         result = process_tallies_file(
             get_sample_file(test['election']),
             get_sample_file(test['tallies']))

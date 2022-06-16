@@ -70,7 +70,9 @@ test('extracts votes encoded in a QR code', async () => {
           Object {
             "id": "cramer-vuocolo",
             "name": "Adam Cramer and Greg Vuocolo",
-            "partyId": "1",
+            "partyIds": Array [
+              "1",
+            ],
           },
         ],
       },
@@ -143,21 +145,27 @@ test('interprets marks on a HMPB', async () => {
         Object {
           "id": "barchi-hallaren",
           "name": "Joseph Barchi and Joseph Hallaren",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
       ],
       "representative-district-6": Array [
         Object {
           "id": "schott",
           "name": "Brad Schott",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
       ],
       "senator": Array [
         Object {
           "id": "brown",
           "name": "David Brown",
-          "partyId": "6",
+          "partyIds": Array [
+            "6",
+          ],
         },
       ],
     }
@@ -786,21 +794,27 @@ test('interprets marks on an upside-down HMPB', async () => {
           Object {
             "id": "barchi-hallaren",
             "name": "Joseph Barchi and Joseph Hallaren",
-            "partyId": "0",
+            "partyIds": Array [
+              "0",
+            ],
           },
         ],
         "representative-district-6": Array [
           Object {
             "id": "schott",
             "name": "Brad Schott",
-            "partyId": "2",
+            "partyIds": Array [
+              "2",
+            ],
           },
         ],
         "senator": Array [
           Object {
             "id": "brown",
             "name": "David Brown",
-            "partyId": "6",
+            "partyIds": Array [
+              "6",
+            ],
           },
         ],
       },
@@ -852,21 +866,27 @@ test('interprets marks in ballots', async () => {
           Object {
             "id": "1",
             "name": "Joe Biden",
-            "partyId": "2",
+            "partyIds": Array [
+              "2",
+            ],
           },
         ],
         "2": Array [
           Object {
             "id": "23",
             "name": "Jimmy Edwards",
-            "partyId": "4",
+            "partyIds": Array [
+              "4",
+            ],
           },
         ],
         "3": Array [
           Object {
             "id": "32",
             "name": "Trent Kelly",
-            "partyId": "3",
+            "partyIds": Array [
+              "3",
+            ],
           },
         ],
         "4": Array [

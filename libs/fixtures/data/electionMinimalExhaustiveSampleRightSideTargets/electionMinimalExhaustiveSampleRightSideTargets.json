@@ -43,17 +43,17 @@
         {
           "id": "horse",
           "name": "Horse",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "otter",
           "name": "Otter",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "fox",
           "name": "Fox",
-          "partyId": "0"
+          "partyIds": ["0"]
         }
       ],
       "allowWriteIns": false
@@ -70,12 +70,12 @@
         {
           "id": "seahorse",
           "name": "Seahorse",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "salmon",
           "name": "Salmon",
-          "partyId": "1"
+          "partyIds": ["1"]
         }
       ],
       "allowWriteIns": false
@@ -92,22 +92,22 @@
         {
           "id": "zebra",
           "name": "Zebra",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "lion",
           "name": "Lion",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "kangaroo",
           "name": "Kangaroo",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "elephant",
           "name": "Elephant",
-          "partyId": "0"
+          "partyIds": ["0"]
         }
       ],
       "allowWriteIns": true
@@ -124,22 +124,22 @@
         {
           "id": "manta-ray",
           "name": "Manta Ray",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "pufferfish",
           "name": "Pufferfish",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "rockfish",
           "name": "Rockfish",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "triggerfish",
           "name": "Triggerfish",
-          "partyId": "1"
+          "partyIds": ["1"]
         }
       ],
       "allowWriteIns": true

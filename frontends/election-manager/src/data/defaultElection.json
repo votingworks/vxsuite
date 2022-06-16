@@ -136,12 +136,12 @@
         {
           "id": "aaron-aligator",
           "name": "Aaron Aligator",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "peter-pigeon",
           "name": "Peter Pigeon",
-          "partyId": "1"
+          "partyIds": ["1"]
         }
       ],
       "allowWriteIns": false,
