@@ -602,7 +602,7 @@ test('parsing validates candidate party references', () => {
               ...contest.candidates.slice(1),
               {
                 ...contest.candidates[0],
-                partyId: 'not-a-party',
+                partyIds: ['not-a-party'],
               },
             ],
           },
@@ -620,7 +620,8 @@ test('parsing validates candidate party references', () => {
           0,
           "candidates",
           0,
-          "partyId"
+          "partyIds",
+          0
         ],
         "message": "Candidate 'C' in contest 'CC' has party 'not-a-party', but no such party is defined. Parties defined: [PARTY]."
       }

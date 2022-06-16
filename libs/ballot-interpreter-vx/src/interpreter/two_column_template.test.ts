@@ -859,21 +859,27 @@ test('interpret two-column template', async () => {
           Object {
             "id": "775031979",
             "name": "Trent Kelly",
-            "partyId": "3",
+            "partyIds": Array [
+              "3",
+            ],
           },
         ],
         "775020876": Array [
           Object {
             "id": "775031989",
             "name": "Presidential Electors for Phil Collins for President and Bill Parker for Vice President",
-            "partyId": "11",
+            "partyIds": Array [
+              "11",
+            ],
           },
         ],
         "775020877": Array [
           Object {
             "id": "775031985",
             "name": "Mike Espy",
-            "partyId": "2",
+            "partyIds": Array [
+              "2",
+            ],
           },
         ],
         "775020902": Array [

@@ -301,7 +301,7 @@ test('admin and pollworker configuration', async () => {
   await screen.findByText(/Franklin County/);
   await screen.findByText(/State of Hamilton/);
   await screen.findByText('Election ID');
-  await screen.findByText('b52e9f4728');
+  await screen.findByText('748dc61ad3');
 
   // Admin card with no PIN does NOT require authentication screen.
   const noPinAdminCard = makeAdminCard(electionSampleDefinition.electionHash);
@@ -447,7 +447,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
   await screen.findByText(/Franklin County/);
   await screen.findByText(/State of Hamilton/);
   await screen.findByText('Election ID');
-  await screen.findByText('b52e9f4728');
+  await screen.findByText('748dc61ad3');
 
   fetchMock.get('/scan/status', scanStatusReadyToScanResponseBody, {
     overwriteRoutes: true,
@@ -614,7 +614,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   await screen.findByText(/Franklin County/);
   await screen.findByText(/State of Hamilton/);
   await screen.findByText('Election ID');
-  await screen.findByText('b52e9f4728');
+  await screen.findByText('748dc61ad3');
 
   fetchMock.get('/scan/status', scanStatusReadyToScanResponseBody, {
     overwriteRoutes: true,
@@ -815,7 +815,7 @@ test('voter can cast a rejected ballot', async () => {
   await screen.findByText(/Franklin County/);
   await screen.findByText(/State of Hamilton/);
   await screen.findByText('Election ID');
-  await screen.findByText('b52e9f4728');
+  await screen.findByText('748dc61ad3');
 
   fetchMock.post('/scan/scanBatch', {
     body: { status: 'ok', batchId: 'test-batch' },
@@ -946,7 +946,7 @@ test('voter can cast another ballot while the success screen is showing', async 
   await screen.findByText(/Franklin County/);
   await screen.findByText(/State of Hamilton/);
   await screen.findByText('Election ID');
-  await screen.findByText('b52e9f4728');
+  await screen.findByText('748dc61ad3');
 
   fetchMock.get('/scan/status', scanStatusReadyToScanResponseBody, {
     overwriteRoutes: true,

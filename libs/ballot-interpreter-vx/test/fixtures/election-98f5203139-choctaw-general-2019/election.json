@@ -105,22 +105,22 @@
         {
           "id": "575032130",
           "name": "Jim Hood",
-          "partyId": "2"
+          "partyIds": ["2"]
         },
         {
           "id": "575032129",
           "name": "Tate Reeves",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
         {
           "id": "575030384",
           "name": "Bob Hickingbottom",
-          "partyId": "8"
+          "partyIds": ["8"]
         },
         {
           "id": "575030430",
           "name": "David R. Singletary",
-          "partyId": "11"
+          "partyIds": ["11"]
         }
       ]
     },
@@ -136,12 +136,12 @@
         {
           "id": "575031914",
           "name": "Delbert Hosemann",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
         {
           "id": "575031915",
           "name": "Jay Hughes",
-          "partyId": "2"
+          "partyIds": ["2"]
         }
       ]
     },
@@ -157,12 +157,12 @@
         {
           "id": "575031916",
           "name": "Johnny DuPree",
-          "partyId": "2"
+          "partyIds": ["2"]
         },
         {
           "id": "575031917",
           "name": "Michael Watson",
-          "partyId": "3"
+          "partyIds": ["3"]
         }
       ]
     },
@@ -178,12 +178,12 @@
         {
           "id": "575032128",
           "name": "Jennifer Riley Collins",
-          "partyId": "2"
+          "partyIds": ["2"]
         },
         {
           "id": "575032127",
           "name": "Lynn Fitch",
-          "partyId": "3"
+          "partyIds": ["3"]
         }
       ]
     },
@@ -199,7 +199,7 @@
         {
           "id": "575031918",
           "name": "Shad White",
-          "partyId": "3"
+          "partyIds": ["3"]
         }
       ]
     },
@@ -215,12 +215,12 @@
         {
           "id": "575031919",
           "name": "Addie Lee Green",
-          "partyId": "2"
+          "partyIds": ["2"]
         },
         {
           "id": "575031920",
           "name": "David McRae",
-          "partyId": "3"
+          "partyIds": ["3"]
         }
       ]
     },
@@ -236,12 +236,12 @@
         {
           "id": "575031911",
           "name": "Rickey L. Cole",
-          "partyId": "2"
+          "partyIds": ["2"]
         },
         {
           "id": "575031910",
           "name": "Andy Gipson",
-          "partyId": "3"
+          "partyIds": ["3"]
         }
       ]
     },
@@ -257,12 +257,12 @@
         {
           "id": "575031913",
           "name": "Robert E. Amos",
-          "partyId": "2"
+          "partyIds": ["2"]
         },
         {
           "id": "575031912",
           "name": "Mike Chaney",
-          "partyId": "3"
+          "partyIds": ["3"]
         }
       ]
     },
@@ -278,7 +278,7 @@
         {
           "id": "575032121",
           "name": "Brandon Presley",
-          "partyId": "2"
+          "partyIds": ["2"]
         }
       ]
     },
@@ -294,12 +294,12 @@
         {
           "id": "575032131",
           "name": "John Caldwell",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
         {
           "id": "575032132",
           "name": "Joe T. 'Joey' Grist",
-          "partyId": "2"
+          "partyIds": ["2"]
         }
       ]
     },
@@ -315,7 +315,7 @@
         {
           "id": "575031925",
           "name": "Doug Evans",
-          "partyId": "2"
+          "partyIds": ["2"]
         }
       ]
     },
@@ -331,7 +331,7 @@
         {
           "id": "575031962",
           "name": "Gary Jackson",
-          "partyId": "3"
+          "partyIds": ["3"]
         }
       ]
     },
@@ -347,7 +347,7 @@
         {
           "id": "575032061",
           "name": "Joey Hood",
-          "partyId": "3"
+          "partyIds": ["3"]
         }
       ]
     },
@@ -363,12 +363,12 @@
         {
           "id": "575032577",
           "name": "Kenny King",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
         {
           "id": "575032576",
           "name": "Steve Montgomery",
-          "partyId": "2"
+          "partyIds": ["2"]
         }
       ]
     },
@@ -384,7 +384,7 @@
         {
           "id": "575032578",
           "name": "Amy Burdine",
-          "partyId": "3"
+          "partyIds": ["3"]
         }
       ]
     },
@@ -400,7 +400,7 @@
         {
           "id": "575032579",
           "name": "Keith Coleman",
-          "partyId": "2"
+          "partyIds": ["2"]
         }
       ]
     },
@@ -416,12 +416,12 @@
         {
           "id": "575032580",
           "name": "Brandon Busby",
-          "partyId": "2"
+          "partyIds": ["2"]
         },
         {
           "id": "575032581",
           "name": "Kevin Connell",
-          "partyId": "3"
+          "partyIds": ["3"]
         }
       ]
     },
@@ -437,7 +437,7 @@
         {
           "id": "575032582",
           "name": "Lori Power Kerr",
-          "partyId": "2"
+          "partyIds": ["2"]
         }
       ]
     },
@@ -453,12 +453,12 @@
         {
           "id": "575032588",
           "name": "Warren Miles",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
         {
           "id": "575032589",
           "name": "Joey Stephenson",
-          "partyId": "2"
+          "partyIds": ["2"]
         }
       ]
     },
@@ -474,12 +474,12 @@
         {
           "id": "575032591",
           "name": "Henry L. Brown",
-          "partyId": "2"
+          "partyIds": ["2"]
         },
         {
           "id": "575032590",
           "name": "Greg Fondren",
-          "partyId": "3"
+          "partyIds": ["3"]
         }
       ]
     },
@@ -495,12 +495,12 @@
         {
           "id": "575032593",
           "name": "Chris McIntire",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
         {
           "id": "575032592",
           "name": "Mitch Weeks",
-          "partyId": "2"
+          "partyIds": ["2"]
         }
       ]
     },
@@ -516,12 +516,12 @@
         {
           "id": "575032595",
           "name": "Bobby Burton",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
         {
           "id": "575032594",
           "name": "John Avery Shumaker",
-          "partyId": "2"
+          "partyIds": ["2"]
         }
       ]
     },
@@ -537,12 +537,12 @@
         {
           "id": "575032597",
           "name": "Mark Bruce",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
         {
           "id": "575032596",
           "name": "William D. 'Bill' Peden",
-          "partyId": "2"
+          "partyIds": ["2"]
         }
       ]
     },
@@ -558,12 +558,12 @@
         {
           "id": "575032585",
           "name": "Phillip Smith",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
         {
           "id": "575032586",
           "name": "William A. 'Andy' Stephenson",
-          "partyId": "2"
+          "partyIds": ["2"]
         }
       ]
     },
@@ -579,7 +579,7 @@
         {
           "id": "575032587",
           "name": "Teresa Weeks",
-          "partyId": "2"
+          "partyIds": ["2"]
         }
       ]
     },
@@ -595,7 +595,7 @@
         {
           "id": "575032583",
           "name": "Thomas Harold Raybourn",
-          "partyId": "3"
+          "partyIds": ["3"]
         }
       ]
     },
@@ -611,7 +611,7 @@
         {
           "id": "575032584",
           "name": "Roy Dun Carter",
-          "partyId": "2"
+          "partyIds": ["2"]
         }
       ]
     }

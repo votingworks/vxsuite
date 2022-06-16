@@ -124,28 +124,36 @@ test('regression: overvote on choctaw county p1-05', async () => {
         Object {
           "id": "775032110",
           "name": "Percy L. Lynchard",
-          "partyId": "12",
+          "partyIds": Array [
+            "12",
+          ],
         },
       ],
       "775020892": Array [
         Object {
           "id": "775032085",
           "name": "Trent Kelly",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "775020896": Array [
         Object {
           "id": "775032099",
           "name": "Presidential Electors for Howie Hawkins for President and Angela Nicole Walker for Vice President",
-          "partyId": "9",
+          "partyIds": Array [
+            "9",
+          ],
         },
       ],
       "775020897": Array [
         Object {
           "id": "775032105",
           "name": "Jimmy L. Edwards",
-          "partyId": "4",
+          "partyIds": Array [
+            "4",
+          ],
         },
       ],
       "775021420": Array [

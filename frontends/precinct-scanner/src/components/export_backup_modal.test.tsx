@@ -155,7 +155,7 @@ test('render export modal when a USB drive is mounted as expected and allows aut
   fireEvent.click(screen.getByText('Export'));
   await screen.findByText(/Download Complete/);
   expect(download).toHaveBeenCalledWith('/scan/backup', {
-    into: 'fake mount point/scanner-backups/franklin-county_general-election_b52e9f4728',
+    into: 'fake mount point/scanner-backups/franklin-county_general-election_748dc61ad3',
   });
 
   fireEvent.click(screen.getByText('Eject USB'));

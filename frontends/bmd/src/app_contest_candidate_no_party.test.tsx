@@ -23,7 +23,7 @@ const electionWithNoPartyCandidateContests: Election = {
         ...contest,
         candidates: contest.candidates.map((candidate) => ({
           ...candidate,
-          partyId: undefined,
+          partyIds: undefined,
         })),
       };
       return noPartyCandidateContest;

@@ -109,47 +109,47 @@
         {
           "id": "775032091",
           "name": "Presidential Electors for Joseph R. Biden Jr. for President and Kamala D. Harris for Vice President",
-          "partyId": "2"
+          "partyIds": ["2"]
         },
         {
           "id": "775032092",
           "name": "Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
         {
           "id": "775032126",
           "name": "Presidential Electors for Don Blankenship for President and William Mohr for Vice President",
-          "partyId": "775000002"
+          "partyIds": ["775000002"]
         },
         {
           "id": "775032100",
           "name": "Presidential Electors for Brian Carroll for President and Amar Patel for Vice President",
-          "partyId": "775000001"
+          "partyIds": ["775000001"]
         },
         {
           "id": "775032096",
           "name": "Presidential Electors for Phil Collins for President and Bill Parker for Vice President",
-          "partyId": "11"
+          "partyIds": ["11"]
         },
         {
           "id": "775032099",
           "name": "Presidential Electors for Howie Hawkins for President and Angela Nicole Walker for Vice President",
-          "partyId": "9"
+          "partyIds": ["9"]
         },
         {
           "id": "775032102",
           "name": "Presidential Electors for Jo Jorgensen for President and Jeremy 'Spike' Cohen for Vice President",
-          "partyId": "4"
+          "partyIds": ["4"]
         },
         {
           "id": "775032117",
           "name": "Presidential Electors for Brock Pierce for President and Karla Ballard for Vice President",
-          "partyId": "11"
+          "partyIds": ["11"]
         },
         {
           "id": "775032098",
           "name": "Presidential Electors for Kanye West for President and Michelle Tidball for Vice President",
-          "partyId": "11"
+          "partyIds": ["11"]
         }
       ]
     },
@@ -162,9 +162,9 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "775032093", "name": "Mike Espy", "partyId": "2" },
-        { "id": "775032094", "name": "Cindy Hyde-Smith", "partyId": "3" },
-        { "id": "775032105", "name": "Jimmy L. Edwards", "partyId": "4" }
+        { "id": "775032093", "name": "Mike Espy", "partyIds": ["2"] },
+        { "id": "775032094", "name": "Cindy Hyde-Smith", "partyIds": ["3"] },
+        { "id": "775032105", "name": "Jimmy L. Edwards", "partyIds": ["4"] }
       ]
     },
     {
@@ -176,8 +176,8 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "775032084", "name": "Antonia Eliason", "partyId": "2" },
-        { "id": "775032085", "name": "Trent Kelly", "partyId": "3" }
+        { "id": "775032084", "name": "Antonia Eliason", "partyIds": ["2"] },
+        { "id": "775032085", "name": "Trent Kelly", "partyIds": ["3"] }
       ]
     },
     {
@@ -189,8 +189,12 @@
       "seats": 1,
       "allowWriteIns": true,
       "candidates": [
-        { "id": "775032082", "name": "Josiah Dennis Coleman", "partyId": "12" },
-        { "id": "775032110", "name": "Percy L. Lynchard", "partyId": "12" }
+        {
+          "id": "775032082",
+          "name": "Josiah Dennis Coleman",
+          "partyIds": ["12"]
+        },
+        { "id": "775032110", "name": "Percy L. Lynchard", "partyIds": ["12"] }
       ]
     },
     {

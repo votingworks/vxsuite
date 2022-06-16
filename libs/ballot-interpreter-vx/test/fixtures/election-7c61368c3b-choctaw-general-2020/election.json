@@ -105,12 +105,12 @@
         {
           "id": "1",
           "name": "Joe Biden",
-          "partyId": "2"
+          "partyIds": ["2"]
         },
         {
           "id": "2",
           "name": "Donald Trump",
-          "partyId": "3"
+          "partyIds": ["3"]
         }
       ]
     },
@@ -126,17 +126,17 @@
         {
           "id": "21",
           "name": "Mike Espy",
-          "partyId": "2"
+          "partyIds": ["2"]
         },
         {
           "id": "22",
           "name": "Cindy Hyde-Smith",
-          "partyId": "3"
+          "partyIds": ["3"]
         },
         {
           "id": "23",
           "name": "Jimmy Edwards",
-          "partyId": "4"
+          "partyIds": ["4"]
         }
       ]
     },
@@ -152,12 +152,12 @@
         {
           "id": "31",
           "name": "Antonia Eliason",
-          "partyId": "2"
+          "partyIds": ["2"]
         },
         {
           "id": "32",
           "name": "Trent Kelly",
-          "partyId": "3"
+          "partyIds": ["3"]
         }
       ]
     },
@@ -173,12 +173,12 @@
         {
           "id": "41",
           "name": "Josiah Coleman",
-          "partyId": "12"
+          "partyIds": ["12"]
         },
         {
           "id": "42",
           "name": "Percy L. Lynchard Jr.",
-          "partyId": "12"
+          "partyIds": ["12"]
         }
       ]
     },

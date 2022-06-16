@@ -922,7 +922,7 @@ test('generates a CVR from an adjudicated uninterpreted HMPB page', () => {
               {
                 id: '23',
                 name: 'Jimmy Edwards',
-                partyId: unsafeParse(PartyIdSchema, '4'),
+                partyIds: [unsafeParse(PartyIdSchema, '4')],
               },
             ],
           },

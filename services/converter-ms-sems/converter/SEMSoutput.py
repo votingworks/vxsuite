@@ -161,7 +161,11 @@ def process_tallies_file(election_file_path, vx_results_file_path):
                     else:
                         count = option_tallies[option["id"]] if option["id"] in option_tallies else 0
 
-                    option_party_id = option["partyId"] if "partyId" in option else None
+                    # for now, assume there is only one party per candidate
+                    # if we later decide to support multiple parties per candidate, we'll need to change this
+                    option_party_ids = option["partyIds"] if "partyIds" in option else []
+                    assert len(option_party_ids) <= 1
+                    option_party_id = option_party_ids[0] if len(option_party_ids) > 0 else None
                     option_party = [p for p in parties if p["id"] == option_party_id][0] if option_party_id is not None else None
                     candidate_row = base_row_data.copy()
                     candidate_row.extend([

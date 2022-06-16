@@ -2,10 +2,7 @@ import React from 'react';
 import { fireEvent, screen } from '@testing-library/react';
 
 import { CandidateContest as CandidateContestInterface } from '@votingworks/types';
-import {
-  electionSample,
-  electionSampleDefinition,
-} from '@votingworks/fixtures';
+import { electionSampleDefinition } from '@votingworks/fixtures';
 
 import { act } from 'react-dom/test-utils';
 import { render as renderWithBallotContext } from '../../test/test_utils';
@@ -37,7 +34,6 @@ describe('supports single-seat contest', () => {
     renderWithBallotContext(
       <CandidateContest
         contest={candidateContest}
-        parties={electionSample.parties}
         vote={[]}
         updateVote={updateVote}
       />,
@@ -72,7 +68,6 @@ describe('supports single-seat contest', () => {
     renderWithBallotContext(
       <CandidateContest
         contest={candidateContest}
-        parties={electionSample.parties}
         vote={[candidateContest.candidates[0]]}
         updateVote={updateVote}
       />,
@@ -114,7 +109,6 @@ describe('supports multi-seat contests', () => {
     renderWithBallotContext(
       <CandidateContest
         contest={candidateContestWithMultipleSeats}
-        parties={electionSample.parties}
         vote={[candidateContestWithMultipleSeats.candidates[0]]}
         updateVote={updateVote}
       />,
@@ -180,7 +174,6 @@ describe('supports write-in candidates', () => {
     renderWithBallotContext(
       <CandidateContest
         contest={candidateContestWithWriteIns}
-        parties={electionSample.parties}
         vote={[]}
         updateVote={updateVote}
       />,
@@ -211,7 +204,6 @@ describe('supports write-in candidates', () => {
     renderWithBallotContext(
       <CandidateContest
         contest={candidateContestWithWriteIns}
-        parties={electionSample.parties}
         vote={[]}
         updateVote={updateVote}
       />,
@@ -239,7 +231,6 @@ describe('supports write-in candidates', () => {
     renderWithBallotContext(
       <CandidateContest
         contest={candidateContestWithWriteIns}
-        parties={electionSample.parties}
         vote={[]}
         updateVote={updateVote}
       />,

@@ -83,22 +83,22 @@
         {
           "id": "white",
           "name": "Orville White 1",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "seldon",
           "name": "Gregory Seldon 2",
-          "partyId": "2"
+          "partyIds": ["2"]
         },
         {
           "id": "marracini",
           "name": "Amanda Marracini 3",
-          "partyId": "5"
+          "partyIds": ["5"]
         },
         {
           "id": "schreiner",
           "name": "Martin Schreiner 4",
-          "partyId": "6"
+          "partyIds": ["6"]
         }
       ],
       "allowWriteIns": false
@@ -117,32 +117,32 @@
         {
           "id": "argent",
           "name": "Camille Argent 1",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "witherspoonsmithson",
           "name": "Chloe Witherspoon-Smithson 2",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "bainbridge",
           "name": "Clayton Bainbridge 3",
-          "partyId": "0"
+          "partyIds": ["0"]
         },
         {
           "id": "hennessey",
           "name": "Charlene Hennessey 4",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "savoy",
           "name": "Eric Savoy 5",
-          "partyId": "1"
+          "partyIds": ["1"]
         },
         {
           "id": "tawa",
           "name": "Susan Tawa 6",
-          "partyId": "1"
+          "partyIds": ["1"]
         }
       ],
       "allowWriteIns": true

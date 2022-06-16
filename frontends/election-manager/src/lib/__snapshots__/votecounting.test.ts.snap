@@ -15,12 +15,16 @@ Object {
         Object {
           "id": "charles-darwin",
           "name": "Charles Darwin",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "stephen-hawking",
           "name": "Stephen Hawking",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -36,12 +40,16 @@ Object {
           "first": Object {
             "id": "charles-darwin",
             "name": "Charles Darwin",
-            "partyId": "0",
+            "partyIds": Array [
+              "0",
+            ],
           },
           "second": Object {
             "id": "stephen-hawking",
             "name": "Stephen Hawking",
-            "partyId": "1",
+            "partyIds": Array [
+              "1",
+            ],
           },
         },
         "tally": 9,
@@ -61,17 +69,23 @@ Object {
         Object {
           "id": "bill-gates",
           "name": "Bill Gates",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "pablo-picasso",
           "name": "Pablo Picasso",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         Object {
           "id": "wolfgang-amadeus-mozart",
           "name": "Wolfgang Amadeus Mozart",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -87,12 +101,16 @@ Object {
           "first": Object {
             "id": "bill-gates",
             "name": "Bill Gates",
-            "partyId": "0",
+            "partyIds": Array [
+              "0",
+            ],
           },
           "second": Object {
             "id": "pablo-picasso",
             "name": "Pablo Picasso",
-            "partyId": "1",
+            "partyIds": Array [
+              "1",
+            ],
           },
         },
         "tally": 11,
@@ -102,12 +120,16 @@ Object {
           "first": Object {
             "id": "bill-gates",
             "name": "Bill Gates",
-            "partyId": "0",
+            "partyIds": Array [
+              "0",
+            ],
           },
           "second": Object {
             "id": "wolfgang-amadeus-mozart",
             "name": "Wolfgang Amadeus Mozart",
-            "partyId": "2",
+            "partyIds": Array [
+              "2",
+            ],
           },
         },
         "tally": 11,
@@ -117,12 +139,16 @@ Object {
           "first": Object {
             "id": "pablo-picasso",
             "name": "Pablo Picasso",
-            "partyId": "1",
+            "partyIds": Array [
+              "1",
+            ],
           },
           "second": Object {
             "id": "wolfgang-amadeus-mozart",
             "name": "Wolfgang Amadeus Mozart",
-            "partyId": "2",
+            "partyIds": Array [
+              "2",
+            ],
           },
         },
         "tally": 10,
@@ -142,12 +168,16 @@ Object {
         Object {
           "id": "jane-austen",
           "name": "Jane Austen",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "carrie-fisher",
           "name": "Carrie Fisher",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -163,12 +193,16 @@ Object {
           "first": Object {
             "id": "jane-austen",
             "name": "Jane Austen",
-            "partyId": "0",
+            "partyIds": Array [
+              "0",
+            ],
           },
           "second": Object {
             "id": "carrie-fisher",
             "name": "Carrie Fisher",
-            "partyId": "1",
+            "partyIds": Array [
+              "1",
+            ],
           },
         },
         "tally": 9,
@@ -188,12 +222,16 @@ Object {
         Object {
           "id": "bob-barker",
           "name": "Bob Barker",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "angelina-jolie",
           "name": "Angelina Jolie",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -209,12 +247,16 @@ Object {
           "first": Object {
             "id": "bob-barker",
             "name": "Bob Barker",
-            "partyId": "0",
+            "partyIds": Array [
+              "0",
+            ],
           },
           "second": Object {
             "id": "angelina-jolie",
             "name": "Angelina Jolie",
-            "partyId": "3",
+            "partyIds": Array [
+              "3",
+            ],
           },
         },
         "tally": 11,
@@ -234,12 +276,16 @@ Object {
         Object {
           "id": "salvador-dali",
           "name": "Salvador Dali",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         Object {
           "id": "anne-hathaway",
           "name": "Anne Hathaway",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -255,12 +301,16 @@ Object {
           "first": Object {
             "id": "salvador-dali",
             "name": "Salvador Dali",
-            "partyId": "1",
+            "partyIds": Array [
+              "1",
+            ],
           },
           "second": Object {
             "id": "anne-hathaway",
             "name": "Anne Hathaway",
-            "partyId": "3",
+            "partyIds": Array [
+              "3",
+            ],
           },
         },
         "tally": 10,
@@ -280,12 +330,16 @@ Object {
         Object {
           "id": "george-washington",
           "name": "George Washington",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "steven-spielberg",
           "name": "Steven Spielberg",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -301,12 +355,16 @@ Object {
           "first": Object {
             "id": "george-washington",
             "name": "George Washington",
-            "partyId": "0",
+            "partyIds": Array [
+              "0",
+            ],
           },
           "second": Object {
             "id": "steven-spielberg",
             "name": "Steven Spielberg",
-            "partyId": "1",
+            "partyIds": Array [
+              "1",
+            ],
           },
         },
         "tally": 8,
@@ -326,12 +384,16 @@ Object {
         Object {
           "id": "johan-sebastian-bach",
           "name": "Johann Sebastian Bach",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "alexander-graham-bell",
           "name": "Alexander Graham Bell",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -347,12 +409,16 @@ Object {
           "first": Object {
             "id": "johan-sebastian-bach",
             "name": "Johann Sebastian Bach",
-            "partyId": "0",
+            "partyIds": Array [
+              "0",
+            ],
           },
           "second": Object {
             "id": "alexander-graham-bell",
             "name": "Alexander Graham Bell",
-            "partyId": "1",
+            "partyIds": Array [
+              "1",
+            ],
           },
         },
         "tally": 16,
@@ -372,12 +438,16 @@ Object {
         Object {
           "id": "mark-antony",
           "name": "Mark Antony",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "harriet-tubman",
           "name": "Harriet Tubman",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -393,12 +463,16 @@ Object {
           "first": Object {
             "id": "mark-antony",
             "name": "Mark Antony",
-            "partyId": "0",
+            "partyIds": Array [
+              "0",
+            ],
           },
           "second": Object {
             "id": "harriet-tubman",
             "name": "Harriet Tubman",
-            "partyId": "1",
+            "partyIds": Array [
+              "1",
+            ],
           },
         },
         "tally": 11,
@@ -418,12 +492,16 @@ Object {
         Object {
           "id": "martin-luther-king",
           "name": "Dr. Martin Luther King Jr.",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "marilyn-monroe",
           "name": "Marilyn Monroe",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -439,12 +517,16 @@ Object {
           "first": Object {
             "id": "martin-luther-king",
             "name": "Dr. Martin Luther King Jr.",
-            "partyId": "0",
+            "partyIds": Array [
+              "0",
+            ],
           },
           "second": Object {
             "id": "marilyn-monroe",
             "name": "Marilyn Monroe",
-            "partyId": "1",
+            "partyIds": Array [
+              "1",
+            ],
           },
         },
         "tally": 12,
@@ -464,12 +546,16 @@ Object {
         Object {
           "id": "nikola-tesla",
           "name": "Nikola Tesla",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "vincent-van-gogh",
           "name": "Vincent Van Gogh",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -485,12 +571,16 @@ Object {
           "first": Object {
             "id": "nikola-tesla",
             "name": "Nikola Tesla",
-            "partyId": "0",
+            "partyIds": Array [
+              "0",
+            ],
           },
           "second": Object {
             "id": "vincent-van-gogh",
             "name": "Vincent Van Gogh",
-            "partyId": "1",
+            "partyIds": Array [
+              "1",
+            ],
           },
         },
         "tally": 16,
@@ -510,12 +600,16 @@ Object {
         Object {
           "id": "julia-child",
           "name": "Julia Child",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "paul-mccartney",
           "name": "Paul McCartney",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -531,12 +625,16 @@ Object {
           "first": Object {
             "id": "julia-child",
             "name": "Julia Child",
-            "partyId": "0",
+            "partyIds": Array [
+              "0",
+            ],
           },
           "second": Object {
             "id": "paul-mccartney",
             "name": "Paul McCartney",
-            "partyId": "1",
+            "partyIds": Array [
+              "1",
+            ],
           },
         },
         "tally": 9,
@@ -556,12 +654,16 @@ Object {
         Object {
           "id": "helen-keller",
           "name": "Helen Keller",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "steve-jobs",
           "name": "Steve Jobs",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -577,12 +679,16 @@ Object {
           "first": Object {
             "id": "helen-keller",
             "name": "Helen Keller",
-            "partyId": "0",
+            "partyIds": Array [
+              "0",
+            ],
           },
           "second": Object {
             "id": "steve-jobs",
             "name": "Steve Jobs",
-            "partyId": "1",
+            "partyIds": Array [
+              "1",
+            ],
           },
         },
         "tally": 17,
@@ -602,22 +708,30 @@ Object {
         Object {
           "id": "natalie-portman",
           "name": "Natalie Portman",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "frank-sinatra",
           "name": "Frank Sinatra",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         Object {
           "id": "andy-warhol",
           "name": "Andy Warhol",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "alfred-hitchcock",
           "name": "Alfred Hitchcock",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -633,12 +747,16 @@ Object {
           "first": Object {
             "id": "natalie-portman",
             "name": "Natalie Portman",
-            "partyId": "0",
+            "partyIds": Array [
+              "0",
+            ],
           },
           "second": Object {
             "id": "andy-warhol",
             "name": "Andy Warhol",
-            "partyId": "3",
+            "partyIds": Array [
+              "3",
+            ],
           },
         },
         "tally": 5,
@@ -648,12 +766,16 @@ Object {
           "first": Object {
             "id": "natalie-portman",
             "name": "Natalie Portman",
-            "partyId": "0",
+            "partyIds": Array [
+              "0",
+            ],
           },
           "second": Object {
             "id": "alfred-hitchcock",
             "name": "Alfred Hitchcock",
-            "partyId": "3",
+            "partyIds": Array [
+              "3",
+            ],
           },
         },
         "tally": 8,
@@ -663,12 +785,16 @@ Object {
           "first": Object {
             "id": "andy-warhol",
             "name": "Andy Warhol",
-            "partyId": "3",
+            "partyIds": Array [
+              "3",
+            ],
           },
           "second": Object {
             "id": "alfred-hitchcock",
             "name": "Alfred Hitchcock",
-            "partyId": "3",
+            "partyIds": Array [
+              "3",
+            ],
           },
         },
         "tally": 4,
@@ -678,12 +804,16 @@ Object {
           "first": Object {
             "id": "natalie-portman",
             "name": "Natalie Portman",
-            "partyId": "0",
+            "partyIds": Array [
+              "0",
+            ],
           },
           "second": Object {
             "id": "frank-sinatra",
             "name": "Frank Sinatra",
-            "partyId": "1",
+            "partyIds": Array [
+              "1",
+            ],
           },
         },
         "tally": 5,
@@ -693,12 +823,16 @@ Object {
           "first": Object {
             "id": "frank-sinatra",
             "name": "Frank Sinatra",
-            "partyId": "1",
+            "partyIds": Array [
+              "1",
+            ],
           },
           "second": Object {
             "id": "alfred-hitchcock",
             "name": "Alfred Hitchcock",
-            "partyId": "3",
+            "partyIds": Array [
+              "3",
+            ],
           },
         },
         "tally": 4,
@@ -708,12 +842,16 @@ Object {
           "first": Object {
             "id": "frank-sinatra",
             "name": "Frank Sinatra",
-            "partyId": "1",
+            "partyIds": Array [
+              "1",
+            ],
           },
           "second": Object {
             "id": "andy-warhol",
             "name": "Andy Warhol",
-            "partyId": "3",
+            "partyIds": Array [
+              "3",
+            ],
           },
         },
         "tally": 2,
@@ -733,12 +871,16 @@ Object {
         Object {
           "id": "beethoven",
           "name": "Ludwig Van Beethoven",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "walt-disney",
           "name": "Walt Disney",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -754,12 +896,16 @@ Object {
           "first": Object {
             "id": "beethoven",
             "name": "Ludwig Van Beethoven",
-            "partyId": "0",
+            "partyIds": Array [
+              "0",
+            ],
           },
           "second": Object {
             "id": "walt-disney",
             "name": "Walt Disney",
-            "partyId": "1",
+            "partyIds": Array [
+              "1",
+            ],
           },
         },
         "tally": 4,
@@ -779,12 +925,16 @@ Object {
         Object {
           "id": "isaac-newton",
           "name": "Isaac Newton",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "harry-potter",
           "name": "Harry Potter",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -800,12 +950,16 @@ Object {
           "first": Object {
             "id": "isaac-newton",
             "name": "Isaac Newton",
-            "partyId": "0",
+            "partyIds": Array [
+              "0",
+            ],
           },
           "second": Object {
             "id": "harry-potter",
             "name": "Harry Potter",
-            "partyId": "1",
+            "partyIds": Array [
+              "1",
+            ],
           },
         },
         "tally": 5,
@@ -825,12 +979,16 @@ Object {
         Object {
           "id": "bruce-lee",
           "name": "Bruce Lee",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "christopher-columbus",
           "name": "Christopher Columbus",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -846,12 +1004,16 @@ Object {
           "first": Object {
             "id": "bruce-lee",
             "name": "Bruce Lee",
-            "partyId": "0",
+            "partyIds": Array [
+              "0",
+            ],
           },
           "second": Object {
             "id": "christopher-columbus",
             "name": "Christopher Columbus",
-            "partyId": "1",
+            "partyIds": Array [
+              "1",
+            ],
           },
         },
         "tally": 5,
@@ -871,12 +1033,16 @@ Object {
         Object {
           "id": "theodore-roosevelt",
           "name": "Theodore Roosevelt",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "edgar-allan-poe",
           "name": "Edgar Allan Poe",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -892,12 +1058,16 @@ Object {
           "first": Object {
             "id": "theodore-roosevelt",
             "name": "Theodore Roosevelt",
-            "partyId": "0",
+            "partyIds": Array [
+              "0",
+            ],
           },
           "second": Object {
             "id": "edgar-allan-poe",
             "name": "Edgar Allan Poe",
-            "partyId": "1",
+            "partyIds": Array [
+              "1",
+            ],
           },
         },
         "tally": 2,
@@ -917,12 +1087,16 @@ Object {
         Object {
           "id": "sherlock-holmes",
           "name": "Sherlock Holmes",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "thomas-edison",
           "name": "Thomas Edison",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -938,12 +1112,16 @@ Object {
           "first": Object {
             "id": "sherlock-holmes",
             "name": "Sherlock Holmes",
-            "partyId": "0",
+            "partyIds": Array [
+              "0",
+            ],
           },
           "second": Object {
             "id": "thomas-edison",
             "name": "Thomas Edison",
-            "partyId": "1",
+            "partyIds": Array [
+              "1",
+            ],
           },
         },
         "tally": 5,
@@ -963,17 +1141,23 @@ Object {
         Object {
           "id": "winston-churchill",
           "name": "Winston Churchill",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "oprah-winfrey",
           "name": "Oprah Winfrey",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         Object {
           "id": "louis-armstrong",
           "name": "Louis Armstrong",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -989,12 +1173,16 @@ Object {
           "first": Object {
             "id": "oprah-winfrey",
             "name": "Oprah Winfrey",
-            "partyId": "1",
+            "partyIds": Array [
+              "1",
+            ],
           },
           "second": Object {
             "id": "louis-armstrong",
             "name": "Louis Armstrong",
-            "partyId": "3",
+            "partyIds": Array [
+              "3",
+            ],
           },
         },
         "tally": 15,
@@ -1004,12 +1192,16 @@ Object {
           "first": Object {
             "id": "winston-churchill",
             "name": "Winston Churchill",
-            "partyId": "0",
+            "partyIds": Array [
+              "0",
+            ],
           },
           "second": Object {
             "id": "oprah-winfrey",
             "name": "Oprah Winfrey",
-            "partyId": "1",
+            "partyIds": Array [
+              "1",
+            ],
           },
         },
         "tally": 15,
@@ -1019,12 +1211,16 @@ Object {
           "first": Object {
             "id": "winston-churchill",
             "name": "Winston Churchill",
-            "partyId": "0",
+            "partyIds": Array [
+              "0",
+            ],
           },
           "second": Object {
             "id": "louis-armstrong",
             "name": "Louis Armstrong",
-            "partyId": "3",
+            "partyIds": Array [
+              "3",
+            ],
           },
         },
         "tally": 13,
@@ -1044,27 +1240,37 @@ Object {
         Object {
           "id": "marie-curie",
           "name": "Marie Curie",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "indiana-jones",
           "name": "Indiana Jones",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         Object {
           "id": "mona-lisa",
           "name": "Mona Lisa",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "jackie-chan",
           "name": "Jackie Chan",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "tim-allen",
           "name": "Tim Allen",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -1080,12 +1286,16 @@ Object {
           "first": Object {
             "id": "mona-lisa",
             "name": "Mona Lisa",
-            "partyId": "3",
+            "partyIds": Array [
+              "3",
+            ],
           },
           "second": Object {
             "id": "jackie-chan",
             "name": "Jackie Chan",
-            "partyId": "3",
+            "partyIds": Array [
+              "3",
+            ],
           },
         },
         "tally": 3,
@@ -1095,12 +1305,16 @@ Object {
           "first": Object {
             "id": "marie-curie",
             "name": "Marie Curie",
-            "partyId": "0",
+            "partyIds": Array [
+              "0",
+            ],
           },
           "second": Object {
             "id": "indiana-jones",
             "name": "Indiana Jones",
-            "partyId": "1",
+            "partyIds": Array [
+              "1",
+            ],
           },
         },
         "tally": 6,
@@ -1110,12 +1324,16 @@ Object {
           "first": Object {
             "id": "marie-curie",
             "name": "Marie Curie",
-            "partyId": "0",
+            "partyIds": Array [
+              "0",
+            ],
           },
           "second": Object {
             "id": "jackie-chan",
             "name": "Jackie Chan",
-            "partyId": "3",
+            "partyIds": Array [
+              "3",
+            ],
           },
         },
         "tally": 5,
@@ -1125,12 +1343,16 @@ Object {
           "first": Object {
             "id": "indiana-jones",
             "name": "Indiana Jones",
-            "partyId": "1",
+            "partyIds": Array [
+              "1",
+            ],
           },
           "second": Object {
             "id": "jackie-chan",
             "name": "Jackie Chan",
-            "partyId": "3",
+            "partyIds": Array [
+              "3",
+            ],
           },
         },
         "tally": 3,
@@ -1140,12 +1362,16 @@ Object {
           "first": Object {
             "id": "marie-curie",
             "name": "Marie Curie",
-            "partyId": "0",
+            "partyIds": Array [
+              "0",
+            ],
           },
           "second": Object {
             "id": "tim-allen",
             "name": "Tim Allen",
-            "partyId": "2",
+            "partyIds": Array [
+              "2",
+            ],
           },
         },
         "tally": 3,
@@ -1155,12 +1381,16 @@ Object {
           "first": Object {
             "id": "indiana-jones",
             "name": "Indiana Jones",
-            "partyId": "1",
+            "partyIds": Array [
+              "1",
+            ],
           },
           "second": Object {
             "id": "tim-allen",
             "name": "Tim Allen",
-            "partyId": "2",
+            "partyIds": Array [
+              "2",
+            ],
           },
         },
         "tally": 6,
@@ -1170,12 +1400,16 @@ Object {
           "first": Object {
             "id": "indiana-jones",
             "name": "Indiana Jones",
-            "partyId": "1",
+            "partyIds": Array [
+              "1",
+            ],
           },
           "second": Object {
             "id": "mona-lisa",
             "name": "Mona Lisa",
-            "partyId": "3",
+            "partyIds": Array [
+              "3",
+            ],
           },
         },
         "tally": 4,
@@ -1185,12 +1419,16 @@ Object {
           "first": Object {
             "id": "mona-lisa",
             "name": "Mona Lisa",
-            "partyId": "3",
+            "partyIds": Array [
+              "3",
+            ],
           },
           "second": Object {
             "id": "tim-allen",
             "name": "Tim Allen",
-            "partyId": "2",
+            "partyIds": Array [
+              "2",
+            ],
           },
         },
         "tally": 5,
@@ -1200,12 +1438,16 @@ Object {
           "first": Object {
             "id": "jackie-chan",
             "name": "Jackie Chan",
-            "partyId": "3",
+            "partyIds": Array [
+              "3",
+            ],
           },
           "second": Object {
             "id": "tim-allen",
             "name": "Tim Allen",
-            "partyId": "2",
+            "partyIds": Array [
+              "2",
+            ],
           },
         },
         "tally": 3,
@@ -1215,12 +1457,16 @@ Object {
           "first": Object {
             "id": "marie-curie",
             "name": "Marie Curie",
-            "partyId": "0",
+            "partyIds": Array [
+              "0",
+            ],
           },
           "second": Object {
             "id": "mona-lisa",
             "name": "Mona Lisa",
-            "partyId": "3",
+            "partyIds": Array [
+              "3",
+            ],
           },
         },
         "tally": 2,
@@ -1240,17 +1486,23 @@ Object {
         Object {
           "id": "michael-jordan",
           "name": "Michael Jordan",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "albert-einstein",
           "name": "Albert Einstein",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         Object {
           "id": "neil-armstrong",
           "name": "Neil Armstrong",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -1266,12 +1518,16 @@ Object {
           "first": Object {
             "id": "michael-jordan",
             "name": "Michael Jordan",
-            "partyId": "0",
+            "partyIds": Array [
+              "0",
+            ],
           },
           "second": Object {
             "id": "neil-armstrong",
             "name": "Neil Armstrong",
-            "partyId": "3",
+            "partyIds": Array [
+              "3",
+            ],
           },
         },
         "tally": 6,
@@ -1281,12 +1537,16 @@ Object {
           "first": Object {
             "id": "michael-jordan",
             "name": "Michael Jordan",
-            "partyId": "0",
+            "partyIds": Array [
+              "0",
+            ],
           },
           "second": Object {
             "id": "albert-einstein",
             "name": "Albert Einstein",
-            "partyId": "1",
+            "partyIds": Array [
+              "1",
+            ],
           },
         },
         "tally": 8,
@@ -1296,12 +1556,16 @@ Object {
           "first": Object {
             "id": "albert-einstein",
             "name": "Albert Einstein",
-            "partyId": "1",
+            "partyIds": Array [
+              "1",
+            ],
           },
           "second": Object {
             "id": "neil-armstrong",
             "name": "Neil Armstrong",
-            "partyId": "3",
+            "partyIds": Array [
+              "3",
+            ],
           },
         },
         "tally": 8,
@@ -1321,17 +1585,23 @@ Object {
         Object {
           "id": "earhart",
           "name": "Amelia Earhart",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "bond",
           "name": "James Bond",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         Object {
           "id": "antoinette",
           "name": "Marie Antoinette",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -1347,12 +1617,16 @@ Object {
           "first": Object {
             "id": "earhart",
             "name": "Amelia Earhart",
-            "partyId": "0",
+            "partyIds": Array [
+              "0",
+            ],
           },
           "second": Object {
             "id": "antoinette",
             "name": "Marie Antoinette",
-            "partyId": "3",
+            "partyIds": Array [
+              "3",
+            ],
           },
         },
         "tally": 4,
@@ -1362,12 +1636,16 @@ Object {
           "first": Object {
             "id": "earhart",
             "name": "Amelia Earhart",
-            "partyId": "0",
+            "partyIds": Array [
+              "0",
+            ],
           },
           "second": Object {
             "id": "bond",
             "name": "James Bond",
-            "partyId": "1",
+            "partyIds": Array [
+              "1",
+            ],
           },
         },
         "tally": 1,
@@ -1377,12 +1655,16 @@ Object {
           "first": Object {
             "id": "bond",
             "name": "James Bond",
-            "partyId": "1",
+            "partyIds": Array [
+              "1",
+            ],
           },
           "second": Object {
             "id": "antoinette",
             "name": "Marie Antoinette",
-            "partyId": "3",
+            "partyIds": Array [
+              "3",
+            ],
           },
         },
         "tally": 1,
@@ -1402,17 +1684,23 @@ Object {
         Object {
           "id": "robin-williams",
           "name": "Robin Williams",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "brad-pitt",
           "name": "Brad Pitt",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         Object {
           "id": "william-shakespeare",
           "name": "William Shakespeare",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -1428,12 +1716,16 @@ Object {
           "first": Object {
             "id": "robin-williams",
             "name": "Robin Williams",
-            "partyId": "0",
+            "partyIds": Array [
+              "0",
+            ],
           },
           "second": Object {
             "id": "brad-pitt",
             "name": "Brad Pitt",
-            "partyId": "1",
+            "partyIds": Array [
+              "1",
+            ],
           },
         },
         "tally": 3,
@@ -1443,12 +1735,16 @@ Object {
           "first": Object {
             "id": "robin-williams",
             "name": "Robin Williams",
-            "partyId": "0",
+            "partyIds": Array [
+              "0",
+            ],
           },
           "second": Object {
             "id": "william-shakespeare",
             "name": "William Shakespeare",
-            "partyId": "3",
+            "partyIds": Array [
+              "3",
+            ],
           },
         },
         "tally": 3,
@@ -1458,12 +1754,16 @@ Object {
           "first": Object {
             "id": "brad-pitt",
             "name": "Brad Pitt",
-            "partyId": "1",
+            "partyIds": Array [
+              "1",
+            ],
           },
           "second": Object {
             "id": "william-shakespeare",
             "name": "William Shakespeare",
-            "partyId": "3",
+            "partyIds": Array [
+              "3",
+            ],
           },
         },
         "tally": 5,
@@ -1483,12 +1783,16 @@ Object {
         Object {
           "id": "john-snow",
           "name": "John Snow",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         Object {
           "id": "mark-twain",
           "name": "Mark Twain",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -1504,12 +1808,16 @@ Object {
           "first": Object {
             "id": "john-snow",
             "name": "John Snow",
-            "partyId": "1",
+            "partyIds": Array [
+              "1",
+            ],
           },
           "second": Object {
             "id": "mark-twain",
             "name": "Mark Twain",
-            "partyId": "3",
+            "partyIds": Array [
+              "3",
+            ],
           },
         },
         "tally": 3,
@@ -1529,17 +1837,23 @@ Object {
         Object {
           "id": "benjamin-franklin",
           "name": "Benjamin Franklin",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "robert-downey-jr",
           "name": "Robert Downey Jr.",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         Object {
           "id": "bill-nye",
           "name": "Bill Nye",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -1555,12 +1869,16 @@ Object {
           "first": Object {
             "id": "benjamin-franklin",
             "name": "Benjamin Franklin",
-            "partyId": "0",
+            "partyIds": Array [
+              "0",
+            ],
           },
           "second": Object {
             "id": "bill-nye",
             "name": "Bill Nye",
-            "partyId": "3",
+            "partyIds": Array [
+              "3",
+            ],
           },
         },
         "tally": 1,
@@ -1585,12 +1903,16 @@ Object {
         Object {
           "id": "charles-darwin",
           "name": "Charles Darwin",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "stephen-hawking",
           "name": "Stephen Hawking",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -1610,7 +1932,9 @@ Object {
         "option": Object {
           "id": "charles-darwin",
           "name": "Charles Darwin",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 3342,
       },
@@ -1618,7 +1942,9 @@ Object {
         "option": Object {
           "id": "stephen-hawking",
           "name": "Stephen Hawking",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         "tally": 3339,
       },
@@ -1645,17 +1971,23 @@ Object {
         Object {
           "id": "bill-gates",
           "name": "Bill Gates",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "pablo-picasso",
           "name": "Pablo Picasso",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         Object {
           "id": "wolfgang-amadeus-mozart",
           "name": "Wolfgang Amadeus Mozart",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -1675,7 +2007,9 @@ Object {
         "option": Object {
           "id": "bill-gates",
           "name": "Bill Gates",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 2210,
       },
@@ -1683,7 +2017,9 @@ Object {
         "option": Object {
           "id": "pablo-picasso",
           "name": "Pablo Picasso",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         "tally": 2229,
       },
@@ -1691,7 +2027,9 @@ Object {
         "option": Object {
           "id": "wolfgang-amadeus-mozart",
           "name": "Wolfgang Amadeus Mozart",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 2244,
       },
@@ -1718,12 +2056,16 @@ Object {
         Object {
           "id": "jane-austen",
           "name": "Jane Austen",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "carrie-fisher",
           "name": "Carrie Fisher",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -1743,7 +2085,9 @@ Object {
         "option": Object {
           "id": "carrie-fisher",
           "name": "Carrie Fisher",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         "tally": 3360,
       },
@@ -1751,7 +2095,9 @@ Object {
         "option": Object {
           "id": "jane-austen",
           "name": "Jane Austen",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 3336,
       },
@@ -1778,12 +2124,16 @@ Object {
         Object {
           "id": "bob-barker",
           "name": "Bob Barker",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "angelina-jolie",
           "name": "Angelina Jolie",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -1803,7 +2153,9 @@ Object {
         "option": Object {
           "id": "angelina-jolie",
           "name": "Angelina Jolie",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 3362,
       },
@@ -1811,7 +2163,9 @@ Object {
         "option": Object {
           "id": "bob-barker",
           "name": "Bob Barker",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 3321,
       },
@@ -1838,12 +2192,16 @@ Object {
         Object {
           "id": "salvador-dali",
           "name": "Salvador Dali",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         Object {
           "id": "anne-hathaway",
           "name": "Anne Hathaway",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -1863,7 +2221,9 @@ Object {
         "option": Object {
           "id": "anne-hathaway",
           "name": "Anne Hathaway",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 3340,
       },
@@ -1871,7 +2231,9 @@ Object {
         "option": Object {
           "id": "salvador-dali",
           "name": "Salvador Dali",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         "tally": 3352,
       },
@@ -1898,12 +2260,16 @@ Object {
         Object {
           "id": "george-washington",
           "name": "George Washington",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "steven-spielberg",
           "name": "Steven Spielberg",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -1923,7 +2289,9 @@ Object {
         "option": Object {
           "id": "george-washington",
           "name": "George Washington",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 3289,
       },
@@ -1931,7 +2299,9 @@ Object {
         "option": Object {
           "id": "steven-spielberg",
           "name": "Steven Spielberg",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         "tally": 3387,
       },
@@ -1958,12 +2328,16 @@ Object {
         Object {
           "id": "johan-sebastian-bach",
           "name": "Johann Sebastian Bach",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "alexander-graham-bell",
           "name": "Alexander Graham Bell",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -1983,7 +2357,9 @@ Object {
         "option": Object {
           "id": "alexander-graham-bell",
           "name": "Alexander Graham Bell",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         "tally": 3349,
       },
@@ -1991,7 +2367,9 @@ Object {
         "option": Object {
           "id": "johan-sebastian-bach",
           "name": "Johann Sebastian Bach",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 3319,
       },
@@ -2018,12 +2396,16 @@ Object {
         Object {
           "id": "mark-antony",
           "name": "Mark Antony",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "harriet-tubman",
           "name": "Harriet Tubman",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -2043,7 +2425,9 @@ Object {
         "option": Object {
           "id": "harriet-tubman",
           "name": "Harriet Tubman",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         "tally": 3352,
       },
@@ -2051,7 +2435,9 @@ Object {
         "option": Object {
           "id": "mark-antony",
           "name": "Mark Antony",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 3328,
       },
@@ -2078,12 +2464,16 @@ Object {
         Object {
           "id": "martin-luther-king",
           "name": "Dr. Martin Luther King Jr.",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "marilyn-monroe",
           "name": "Marilyn Monroe",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -2103,7 +2493,9 @@ Object {
         "option": Object {
           "id": "marilyn-monroe",
           "name": "Marilyn Monroe",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         "tally": 3355,
       },
@@ -2111,7 +2503,9 @@ Object {
         "option": Object {
           "id": "martin-luther-king",
           "name": "Dr. Martin Luther King Jr.",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 3325,
       },
@@ -2138,12 +2532,16 @@ Object {
         Object {
           "id": "nikola-tesla",
           "name": "Nikola Tesla",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "vincent-van-gogh",
           "name": "Vincent Van Gogh",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -2163,7 +2561,9 @@ Object {
         "option": Object {
           "id": "nikola-tesla",
           "name": "Nikola Tesla",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 3306,
       },
@@ -2171,7 +2571,9 @@ Object {
         "option": Object {
           "id": "vincent-van-gogh",
           "name": "Vincent Van Gogh",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         "tally": 3382,
       },
@@ -2198,12 +2600,16 @@ Object {
         Object {
           "id": "julia-child",
           "name": "Julia Child",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "paul-mccartney",
           "name": "Paul McCartney",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -2223,7 +2629,9 @@ Object {
         "option": Object {
           "id": "julia-child",
           "name": "Julia Child",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 1540,
       },
@@ -2231,7 +2639,9 @@ Object {
         "option": Object {
           "id": "paul-mccartney",
           "name": "Paul McCartney",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         "tally": 1544,
       },
@@ -2258,12 +2668,16 @@ Object {
         Object {
           "id": "helen-keller",
           "name": "Helen Keller",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "steve-jobs",
           "name": "Steve Jobs",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -2283,7 +2697,9 @@ Object {
         "option": Object {
           "id": "helen-keller",
           "name": "Helen Keller",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 3251,
       },
@@ -2291,7 +2707,9 @@ Object {
         "option": Object {
           "id": "steve-jobs",
           "name": "Steve Jobs",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         "tally": 3464,
       },
@@ -2318,22 +2736,30 @@ Object {
         Object {
           "id": "natalie-portman",
           "name": "Natalie Portman",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "frank-sinatra",
           "name": "Frank Sinatra",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         Object {
           "id": "andy-warhol",
           "name": "Andy Warhol",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "alfred-hitchcock",
           "name": "Alfred Hitchcock",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -2353,7 +2779,9 @@ Object {
         "option": Object {
           "id": "alfred-hitchcock",
           "name": "Alfred Hitchcock",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 1636,
       },
@@ -2361,7 +2789,9 @@ Object {
         "option": Object {
           "id": "andy-warhol",
           "name": "Andy Warhol",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 1646,
       },
@@ -2369,7 +2799,9 @@ Object {
         "option": Object {
           "id": "frank-sinatra",
           "name": "Frank Sinatra",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         "tally": 1749,
       },
@@ -2377,7 +2809,9 @@ Object {
         "option": Object {
           "id": "natalie-portman",
           "name": "Natalie Portman",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 1667,
       },
@@ -2404,12 +2838,16 @@ Object {
         Object {
           "id": "beethoven",
           "name": "Ludwig Van Beethoven",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "walt-disney",
           "name": "Walt Disney",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -2429,7 +2867,9 @@ Object {
         "option": Object {
           "id": "beethoven",
           "name": "Ludwig Van Beethoven",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 1516,
       },
@@ -2437,7 +2877,9 @@ Object {
         "option": Object {
           "id": "walt-disney",
           "name": "Walt Disney",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         "tally": 1566,
       },
@@ -2464,12 +2906,16 @@ Object {
         Object {
           "id": "isaac-newton",
           "name": "Isaac Newton",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "harry-potter",
           "name": "Harry Potter",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -2489,7 +2935,9 @@ Object {
         "option": Object {
           "id": "harry-potter",
           "name": "Harry Potter",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         "tally": 1527,
       },
@@ -2497,7 +2945,9 @@ Object {
         "option": Object {
           "id": "isaac-newton",
           "name": "Isaac Newton",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 1547,
       },
@@ -2524,12 +2974,16 @@ Object {
         Object {
           "id": "bruce-lee",
           "name": "Bruce Lee",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "christopher-columbus",
           "name": "Christopher Columbus",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -2549,7 +3003,9 @@ Object {
         "option": Object {
           "id": "bruce-lee",
           "name": "Bruce Lee",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 1570,
       },
@@ -2557,7 +3013,9 @@ Object {
         "option": Object {
           "id": "christopher-columbus",
           "name": "Christopher Columbus",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         "tally": 1528,
       },
@@ -2584,12 +3042,16 @@ Object {
         Object {
           "id": "theodore-roosevelt",
           "name": "Theodore Roosevelt",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "edgar-allan-poe",
           "name": "Edgar Allan Poe",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -2609,7 +3071,9 @@ Object {
         "option": Object {
           "id": "edgar-allan-poe",
           "name": "Edgar Allan Poe",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         "tally": 1519,
       },
@@ -2617,7 +3081,9 @@ Object {
         "option": Object {
           "id": "theodore-roosevelt",
           "name": "Theodore Roosevelt",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 1540,
       },
@@ -2644,12 +3110,16 @@ Object {
         Object {
           "id": "sherlock-holmes",
           "name": "Sherlock Holmes",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "thomas-edison",
           "name": "Thomas Edison",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -2669,7 +3139,9 @@ Object {
         "option": Object {
           "id": "sherlock-holmes",
           "name": "Sherlock Holmes",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 1477,
       },
@@ -2677,7 +3149,9 @@ Object {
         "option": Object {
           "id": "thomas-edison",
           "name": "Thomas Edison",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         "tally": 1565,
       },
@@ -2704,17 +3178,23 @@ Object {
         Object {
           "id": "winston-churchill",
           "name": "Winston Churchill",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "oprah-winfrey",
           "name": "Oprah Winfrey",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         Object {
           "id": "louis-armstrong",
           "name": "Louis Armstrong",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -2734,7 +3214,9 @@ Object {
         "option": Object {
           "id": "louis-armstrong",
           "name": "Louis Armstrong",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 2232,
       },
@@ -2742,7 +3224,9 @@ Object {
         "option": Object {
           "id": "oprah-winfrey",
           "name": "Oprah Winfrey",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         "tally": 2237,
       },
@@ -2750,7 +3234,9 @@ Object {
         "option": Object {
           "id": "winston-churchill",
           "name": "Winston Churchill",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 2237,
       },
@@ -2777,27 +3263,37 @@ Object {
         Object {
           "id": "marie-curie",
           "name": "Marie Curie",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "indiana-jones",
           "name": "Indiana Jones",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         Object {
           "id": "mona-lisa",
           "name": "Mona Lisa",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "jackie-chan",
           "name": "Jackie Chan",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         Object {
           "id": "tim-allen",
           "name": "Tim Allen",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -2817,7 +3313,9 @@ Object {
         "option": Object {
           "id": "indiana-jones",
           "name": "Indiana Jones",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         "tally": 1314,
       },
@@ -2825,7 +3323,9 @@ Object {
         "option": Object {
           "id": "jackie-chan",
           "name": "Jackie Chan",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 1372,
       },
@@ -2833,7 +3333,9 @@ Object {
         "option": Object {
           "id": "marie-curie",
           "name": "Marie Curie",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 1351,
       },
@@ -2841,7 +3343,9 @@ Object {
         "option": Object {
           "id": "mona-lisa",
           "name": "Mona Lisa",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 1367,
       },
@@ -2849,7 +3353,9 @@ Object {
         "option": Object {
           "id": "tim-allen",
           "name": "Tim Allen",
-          "partyId": "2",
+          "partyIds": Array [
+            "2",
+          ],
         },
         "tally": 1311,
       },
@@ -2950,17 +3456,23 @@ Object {
         Object {
           "id": "michael-jordan",
           "name": "Michael Jordan",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "albert-einstein",
           "name": "Albert Einstein",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         Object {
           "id": "neil-armstrong",
           "name": "Neil Armstrong",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-1",
@@ -2980,7 +3492,9 @@ Object {
         "option": Object {
           "id": "albert-einstein",
           "name": "Albert Einstein",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         "tally": 2253,
       },
@@ -2988,7 +3502,9 @@ Object {
         "option": Object {
           "id": "michael-jordan",
           "name": "Michael Jordan",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 2237,
       },
@@ -2996,7 +3512,9 @@ Object {
         "option": Object {
           "id": "neil-armstrong",
           "name": "Neil Armstrong",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 2197,
       },
@@ -3023,17 +3541,23 @@ Object {
         Object {
           "id": "earhart",
           "name": "Amelia Earhart",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "bond",
           "name": "James Bond",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         Object {
           "id": "antoinette",
           "name": "Marie Antoinette",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -3053,7 +3577,9 @@ Object {
         "option": Object {
           "id": "antoinette",
           "name": "Marie Antoinette",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 1003,
       },
@@ -3061,7 +3587,9 @@ Object {
         "option": Object {
           "id": "bond",
           "name": "James Bond",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         "tally": 992,
       },
@@ -3069,7 +3597,9 @@ Object {
         "option": Object {
           "id": "earhart",
           "name": "Amelia Earhart",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 1063,
       },
@@ -3096,17 +3626,23 @@ Object {
         Object {
           "id": "robin-williams",
           "name": "Robin Williams",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "brad-pitt",
           "name": "Brad Pitt",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         Object {
           "id": "william-shakespeare",
           "name": "William Shakespeare",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -3126,7 +3662,9 @@ Object {
         "option": Object {
           "id": "brad-pitt",
           "name": "Brad Pitt",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         "tally": 1012,
       },
@@ -3134,7 +3672,9 @@ Object {
         "option": Object {
           "id": "robin-williams",
           "name": "Robin Williams",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 1015,
       },
@@ -3142,7 +3682,9 @@ Object {
         "option": Object {
           "id": "william-shakespeare",
           "name": "William Shakespeare",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 1058,
       },
@@ -3169,12 +3711,16 @@ Object {
         Object {
           "id": "john-snow",
           "name": "John Snow",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         Object {
           "id": "mark-twain",
           "name": "Mark Twain",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -3194,7 +3740,9 @@ Object {
         "option": Object {
           "id": "john-snow",
           "name": "John Snow",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         "tally": 1551,
       },
@@ -3202,7 +3750,9 @@ Object {
         "option": Object {
           "id": "mark-twain",
           "name": "Mark Twain",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 1507,
       },
@@ -3229,17 +3779,23 @@ Object {
         Object {
           "id": "benjamin-franklin",
           "name": "Benjamin Franklin",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         Object {
           "id": "robert-downey-jr",
           "name": "Robert Downey Jr.",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         Object {
           "id": "bill-nye",
           "name": "Bill Nye",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
       ],
       "districtId": "district-2",
@@ -3259,7 +3815,9 @@ Object {
         "option": Object {
           "id": "benjamin-franklin",
           "name": "Benjamin Franklin",
-          "partyId": "0",
+          "partyIds": Array [
+            "0",
+          ],
         },
         "tally": 1056,
       },
@@ -3267,7 +3825,9 @@ Object {
         "option": Object {
           "id": "bill-nye",
           "name": "Bill Nye",
-          "partyId": "3",
+          "partyIds": Array [
+            "3",
+          ],
         },
         "tally": 1003,
       },
@@ -3275,7 +3835,9 @@ Object {
         "option": Object {
           "id": "robert-downey-jr",
           "name": "Robert Downey Jr.",
-          "partyId": "1",
+          "partyIds": Array [
+            "1",
+          ],
         },
         "tally": 1027,
       },

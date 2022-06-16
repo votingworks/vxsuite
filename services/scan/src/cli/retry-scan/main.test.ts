@@ -139,7 +139,7 @@ test('successful rescan with one non-type change', async () => {
         \\"metadata\\": Object {
           \\"ballotStyleId\\": \\"1\\",
           \\"ballotType\\": 0,
-          \\"electionHash\\": \\"b52e9f4728bb34e7ff483ee769439d61def51a0abdcd82c9328f10bf138896f8\\",
+          \\"electionHash\\": \\"748dc61ad3a23ce79420fad13afbd6eb2c0b1a39e2a2cf43a0a8492d5a7e37e8\\",
           \\"isTestMode\\": false,
           \\"locales\\": Object {
             \\"primary\\": \\"en-US\\",

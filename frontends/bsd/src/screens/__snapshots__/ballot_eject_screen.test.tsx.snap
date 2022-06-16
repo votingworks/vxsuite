@@ -156,7 +156,7 @@ exports[`calls out live ballot sheets in test mode 1`] = `
           Election ID
         </div>
         <strong>
-          b52e9f4728
+          748dc61ad3
         </strong>
       </div>
     </div>
@@ -320,7 +320,7 @@ exports[`calls out test ballot sheets in live mode 1`] = `
           Election ID
         </div>
         <strong>
-          b52e9f4728
+          748dc61ad3
         </strong>
       </div>
     </div>
@@ -512,7 +512,7 @@ exports[`says the ballot sheet is blank if it is 1`] = `
           Election ID
         </div>
         <strong>
-          b52e9f4728
+          748dc61ad3
         </strong>
       </div>
     </div>
@@ -705,7 +705,7 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
           Election ID
         </div>
         <strong>
-          b52e9f4728
+          748dc61ad3
         </strong>
       </div>
     </div>
@@ -893,7 +893,7 @@ exports[`says the ballot sheet is undervoted if it is 1`] = `
           Election ID
         </div>
         <strong>
-          b52e9f4728
+          748dc61ad3
         </strong>
       </div>
     </div>
@@ -1060,7 +1060,7 @@ exports[`says the sheet is unreadable if it is 1`] = `
           Election ID
         </div>
         <strong>
-          b52e9f4728
+          748dc61ad3
         </strong>
       </div>
     </div>

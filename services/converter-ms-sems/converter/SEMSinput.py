@@ -255,7 +255,7 @@ def process_election_files(election_details_file_path, candidate_map_file_path):
                     "name": cand['label_on_ballot']
                 }
                 if cand['party_id']:
-                    candidate["partyId"] = cand['party_id']
+                    candidate["partyIds"] = [cand['party_id']]
                     
                 contest["candidates"].append(candidate)
                 

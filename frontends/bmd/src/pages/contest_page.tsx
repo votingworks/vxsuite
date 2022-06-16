@@ -43,7 +43,6 @@ export function ContestPage(): JSX.Element {
     typeof precinctId === 'string',
     'precinctId is required to render ContestPage'
   );
-  const { election } = electionDefinition;
   // eslint-disable-next-line vx/gts-safe-number-parse
   const currentContestIndex = parseInt(contestNumber, 10);
   const contest = contests[currentContestIndex];
@@ -84,7 +83,6 @@ export function ContestPage(): JSX.Element {
           aria-live="assertive"
           key={contest.id}
           contest={contest}
-          parties={election.parties}
           vote={(vote ?? []) as CandidateVote}
           updateVote={updateVote}
         />
