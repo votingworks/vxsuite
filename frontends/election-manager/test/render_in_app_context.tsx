@@ -36,7 +36,7 @@ interface RenderInAppContextParams {
   route?: string;
   history?: MemoryHistory;
   castVoteRecordFiles?: CastVoteRecordFiles;
-  electionDefinition?: ElectionDefinition;
+  electionDefinition?: ElectionDefinition | 'NONE';
   configuredAt?: Iso8601Timestamp;
   isOfficialResults?: boolean;
   printer?: Printer;
@@ -119,7 +119,8 @@ export function renderInAppContext(
     <AppContext.Provider
       value={{
         castVoteRecordFiles,
-        electionDefinition,
+        electionDefinition:
+          electionDefinition === 'NONE' ? undefined : electionDefinition,
         configuredAt,
         isOfficialResults,
         printer,
