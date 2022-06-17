@@ -2,8 +2,8 @@
 
 export {
   convertElectionDefinition,
-  ConvertErrorKind,
-  type ConvertError,
+  ConvertIssueKind,
+  type ConvertIssue,
 } from './convert';
 export * as templates from './data/templates';
 export { interpret } from './interpret';
