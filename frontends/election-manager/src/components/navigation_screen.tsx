@@ -68,7 +68,6 @@ export function NavigationScreen({
           { label: 'Definition', routerPath: routerPaths.electionDefinition },
           { label: 'Draft Ballots', routerPath: routerPaths.ballotsList },
           { label: 'Smartcards', routerPath: routerPaths.smartcards },
-          { label: 'Backups', routerPath: routerPaths.backups },
         ]
       : [{ label: 'Definition', routerPath: routerPaths.electionDefinition }];
   } else if (currentUserType === 'admin') {

@@ -33,7 +33,6 @@ import { UnlockMachineScreen } from '../screens/unlock_machine_screen';
 import { AdvancedScreen } from '../screens/advanced_screen';
 import { WriteInsScreen } from '../screens/write_ins_screen';
 import { LogicAndAccuracyScreen } from '../screens/logic_and_accuracy_screen';
-import { BackupsScreen } from '../screens/backups_screen';
 import {
   areVvsg2AuthFlowsEnabled,
   isWriteInAdjudicationEnabled,
@@ -146,9 +145,6 @@ export function ElectionManager(): JSX.Element {
         </Route>
         <Route exact path={routerPaths.smartcards}>
           <SmartcardsScreen />
-        </Route>
-        <Route exact path={routerPaths.backups}>
-          <BackupsScreen />
         </Route>
         <Redirect to={routerPaths.electionDefinition} />
       </Switch>

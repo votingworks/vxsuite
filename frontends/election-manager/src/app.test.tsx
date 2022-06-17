@@ -1154,7 +1154,6 @@ test('super admin UI has expected nav when VVSG2 auth flows are enabled', async 
   screen.getByText('Definition');
   screen.getByText('Draft Ballots');
   screen.getByText('Smartcards');
-  screen.getByText('Backups');
   screen.getByRole('button', { name: 'Settings' });
   screen.getByRole('button', { name: 'Logs' });
   screen.getByRole('button', { name: 'Lock Machine' });
@@ -1176,5 +1175,4 @@ test('super admin UI has expected nav when no election and VVSG2 auth flows are 
 
   expect(screen.queryByText('Draft Ballots')).not.toBeInTheDocument();
   expect(screen.queryByText('Smartcards')).not.toBeInTheDocument();
-  expect(screen.queryByText('Backups')).not.toBeInTheDocument();
 });
