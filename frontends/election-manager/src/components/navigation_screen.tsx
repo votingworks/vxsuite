@@ -70,7 +70,10 @@ export function NavigationScreen({
           { label: 'Smartcards', routerPath: routerPaths.smartcards },
           { label: 'Backups', routerPath: routerPaths.backups },
         ]
-      : [{ label: 'Definition', routerPath: routerPaths.electionDefinition }];
+      : [
+          { label: 'Definition', routerPath: routerPaths.electionDefinition },
+          { label: 'Backups', routerPath: routerPaths.backups },
+        ];
   } else if (currentUserType === 'admin') {
     let primaryNavItemsUnfiltered: Array<NavItem | false> = [];
     if (areVvsg2AuthFlowsEnabled()) {
