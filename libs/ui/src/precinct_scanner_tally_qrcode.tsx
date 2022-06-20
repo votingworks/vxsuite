@@ -2,11 +2,16 @@ import { CompressedTally, ElectionDefinition } from '@votingworks/types';
 import { format, formatFullDateTimeZone } from '@votingworks/utils';
 import { DateTime } from 'luxon';
 import React, { useEffect, useState } from 'react';
+import styled from 'styled-components';
 import { LogoMark } from './logo_mark';
 import { Prose } from './prose';
 import { ReportSection } from './tally_report';
 import { Text } from './text';
 import { QrCode } from './qrcode';
+
+const QrCodeWrapper = styled.div`
+  width: 25%;
+`;
 
 interface Props {
   reportSavedTime: number;
@@ -93,9 +98,9 @@ export function PrecinctScannerTallyQrCode({
           This QR code contains the tally, authenticated with a digital
           signature. Scan the QR code and follow the URL for details.
         </p>
-        <div data-testid="qrcode" data-value={resultsReportingUrl}>
+        <QrCodeWrapper data-testid="qrcode" data-value={resultsReportingUrl}>
           <QrCode value={resultsReportingUrl} />
-        </div>
+        </QrCodeWrapper>
       </Prose>
     </ReportSection>
   ) : (
