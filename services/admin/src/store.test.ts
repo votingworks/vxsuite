@@ -22,30 +22,47 @@ test('create a memory store', () => {
 
 test('add/get adjudications', () => {
   const store = Store.memoryStore();
-  const id = store.addAdjudication('mayor', 'Mickey Mouse');
-  const added = store.getAdjudicationById(id);
+  const cvrId = store.addCvr('test');
+  const id = store.addAdjudication('mayor', cvrId, 'Mickey Mouse');
+  let added = store.getAdjudicationById(id);
+
   expect(added?.id).toEqual(id);
   expect(added?.contestId).toEqual('mayor');
   expect(added?.transcribedValue).toEqual('Mickey Mouse');
+  store.updateAdjudicationTranscribedValue(id, 'Mickey');
+  added = store.getAdjudicationById(id);
+  expect(added?.transcribedValue).toEqual('Mickey');
 });
 
 test('getAdjudicationsByContestId', () => {
   const store = Store.memoryStore();
-  const id1 = store.addAdjudication('mayor', 'Minnie Mouse');
-  const id2 = store.addAdjudication('mayor', 'Goofy');
-  store.addAdjudication('assistant-mayor', 'Mickey Mouse');
+  const cvrId = store.addCvr('test');
+  store.addAdjudication('mayor', cvrId, 'Minnie Mouse');
+  store.addAdjudication('mayor', cvrId, 'Goofy');
+  store.addAdjudication('assistant-mayor', cvrId, 'Mickey Mouse');
 
   // Does not include duplicates and is in alphabetical order
-  expect(store.getAdjudicationIdsByContestId('mayor')).toEqual([id1, id2]);
+  expect(store.getAdjudicationsByContestId('mayor')).toEqual([
+    {
+      contestId: 'mayor',
+      cvrId,
+      transcribedValue: 'Minnie Mouse',
+    },
+    {
+      contestId: 'mayor',
+      cvrId,
+      transcribedValue: 'Goofy',
+    },
+  ]);
 });
 
-test('getAllAdjudicationsGroupedByContestId', () => {
+test('getAdjudicationCountsGroupedByContestId', () => {
   const store = Store.memoryStore();
-  store.addAdjudication('mayor', 'Minnie Mouse');
-  store.addAdjudication('mayor', 'Goofy');
-  store.addAdjudication('assistant-mayor', 'Mickey Mouse');
+  const cvrId = store.addCvr('test');
+  store.addAdjudication('mayor', cvrId, 'Minnie Mouse');
+  store.addAdjudication('mayor', cvrId, 'Goofy');
+  store.addAdjudication('assistant-mayor', cvrId, 'Mickey Mouse');
 
-  // Does not include duplicates and is in alphabetical order
   expect(store.getAdjudicationCountsGroupedByContestId()).toEqual([
     {
       contestId: 'assistant-mayor',
@@ -56,4 +73,16 @@ test('getAllAdjudicationsGroupedByContestId', () => {
       adjudicationCount: 2,
     },
   ]);
+});
+
+test('deleteCvrs', () => {
+  const store = Store.memoryStore();
+  const cvrId = store.addCvr('test');
+  store.addAdjudication('mayor', cvrId, 'Minnie Mouse');
+
+  expect(store.getAdjudicationsByContestId('mayor')).toHaveLength(1);
+
+  // Deleting CVRs also deletes the associated adjudications
+  store.deleteCvrs();
+  expect(store.getAdjudicationsByContestId('mayor')).toHaveLength(0);
 });

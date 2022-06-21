@@ -2,7 +2,7 @@
 // The durable datastore for election data, CVRs, and adjudication info.
 //
 
-import { Adjudication, AdjudicationId, ContestId } from '@votingworks/types';
+import { Adjudication, ContestId } from '@votingworks/types';
 import { join } from 'path';
 import { v4 as uuid } from 'uuid';
 import { DbClient } from './db_client';
@@ -35,14 +35,35 @@ export class Store {
   }
 
   /**
+   * Adds a CVR and returns its id.
+   */
+  addCvr(data: string): string {
+    const id = uuid();
+    this.client.run('insert into cvrs (id, data) values (?, ?)', id, data);
+    return id;
+  }
+
+  /**
+   * Delete all CVRs
+   */
+  deleteCvrs(): void {
+    this.client.run('delete from cvrs');
+  }
+
+  /**
    * Adds an adjudication and returns its id.
    */
-  addAdjudication(contestId: string, transcribedValue = ''): string {
+  addAdjudication(
+    contestId: string,
+    cvrId: string,
+    transcribedValue = ''
+  ): string {
     const id = uuid();
     this.client.run(
-      'insert into adjudications (id, contest_id, transcribed_value) values (?, ?, ?)',
+      'insert into adjudications (id, contest_id, cvr_id, transcribed_value) values (?, ?, ?, ?)',
       id,
       contestId,
+      cvrId,
       transcribedValue
     );
     return id;
@@ -72,19 +93,7 @@ export class Store {
   }
 
   /**
-   * Get all adjudicationIds for a given contestId.
-   */
-  getAdjudicationIdsByContestId(contestId: ContestId): AdjudicationId[] {
-    const rows = this.client.all(
-      'select id from adjudications where contest_id = ?',
-      contestId
-    ) as Array<{ id: AdjudicationId }>;
-
-    return rows.map((r) => r.id);
-  }
-
-  /**
-   * Get all adjudicationIds grouped by contestId.
+   * Get adjudication counts grouped by contestId.
    */
   getAdjudicationCountsGroupedByContestId(): Array<{
     contestId: ContestId;
@@ -93,6 +102,18 @@ export class Store {
     const rows = this.client.all(
       'select contest_id as contestId, count(id) as adjudicationCount from adjudications group by contest_id'
     ) as Array<{ contestId: ContestId; adjudicationCount: number }>;
+
+    return rows;
+  }
+
+  /**
+   * Get adjudications for a given contestId.
+   */
+  getAdjudicationsByContestId(contestId: ContestId): Adjudication[] {
+    const rows = this.client.all(
+      'select contest_id as contestId, cvr_id as cvrId, transcribed_value as transcribedValue from adjudications where contest_id = ?',
+      contestId
+    ) as Adjudication[];
 
     return rows;
   }

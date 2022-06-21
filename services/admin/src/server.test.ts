@@ -63,27 +63,9 @@ test('errors on start with no workspace', async () => {
   }
 });
 
-test('POST /admin/write-ins/adjudication', async () => {
-  workspace.store.addAdjudication = jest.fn().mockImplementationOnce(() => '1');
-
-  // Invalid request
-  await request(app)
-    .post('/admin/write-ins/adjudication')
-    .set('Accept', 'application/json')
-    .expect(400);
-  expect(workspace.store.addAdjudication).not.toHaveBeenCalled();
-
-  // Valid request
-  await request(app)
-    .post('/admin/write-ins/adjudication')
-    .set('Accept', 'application/json')
-    .send({ contestId: 'mayor' })
-    .expect(200, { id: '1', status: 'ok' });
-  expect(workspace.store.addAdjudication).toHaveBeenCalledWith('mayor');
-});
-
 test('PATCH /admin/write-ins/adjudications/:adjudicationId/transcription', async () => {
   workspace.store.updateAdjudicationTranscribedValue = jest.fn();
+  const cvrId = workspace.store.addCvr('test data');
 
   // Invalid request
   await request(app)
@@ -94,7 +76,7 @@ test('PATCH /admin/write-ins/adjudications/:adjudicationId/transcription', async
     workspace.store.updateAdjudicationTranscribedValue
   ).not.toHaveBeenCalled();
 
-  const adjudicationId = workspace.store.addAdjudication('mayor');
+  const adjudicationId = workspace.store.addAdjudication('mayor', cvrId);
   const transcribedValue = 'Mickey Mouse';
 
   // Valid request
@@ -108,17 +90,36 @@ test('PATCH /admin/write-ins/adjudications/:adjudicationId/transcription', async
   ).toHaveBeenCalledWith(adjudicationId, transcribedValue);
 });
 
-test('GET /admin/write-ins/adjudications/:contestId/id', async () => {
+test('GET /admin/write-ins/adjudications/:contestId/', async () => {
   await request(app)
-    .get('/admin/write-ins/adjudications/mayor/id')
+    .get('/admin/write-ins/adjudications/mayor/')
     .expect(200, []);
 
-  const id1 = workspace.store.addAdjudication('mayor', 'Minnie Mouse');
-  const id2 = workspace.store.addAdjudication('mayor', 'Goofy');
-  workspace.store.addAdjudication('county-commissioner', 'Daffy');
+  const cvrId = workspace.store.addCvr('test');
+  workspace.store.addAdjudication('mayor', cvrId, 'Minnie Mouse');
+  workspace.store.addAdjudication('mayor', cvrId, 'Goofy');
+  workspace.store.addAdjudication('county-commissioner', cvrId, 'Daffy');
+
+  // contestId that does not exist
   await request(app)
-    .get('/admin/write-ins/adjudications/mayor/id')
-    .expect(200, [id1, id2]);
+    .get('/admin/write-ins/adjudications/president/')
+    .expect(200, []);
+
+  // contestId that exists
+  await request(app)
+    .get('/admin/write-ins/adjudications/mayor/')
+    .expect(200, [
+      {
+        contestId: 'mayor',
+        cvrId,
+        transcribedValue: 'Minnie Mouse',
+      },
+      {
+        contestId: 'mayor',
+        cvrId,
+        transcribedValue: 'Goofy',
+      },
+    ]);
 });
 
 test('GET /admin/write-ins/adjudications/contestId/count', async () => {
@@ -126,13 +127,83 @@ test('GET /admin/write-ins/adjudications/contestId/count', async () => {
     .get('/admin/write-ins/adjudications/contestId/count')
     .expect(200, []);
 
-  workspace.store.addAdjudication('mayor', 'Minnie Mouse');
-  workspace.store.addAdjudication('mayor', 'Goofy');
-  workspace.store.addAdjudication('county-commissioner', 'Daffy');
+  const cvrId = workspace.store.addCvr('test');
+  workspace.store.addAdjudication('mayor', cvrId, 'Minnie Mouse');
+  workspace.store.addAdjudication('mayor', cvrId, 'Goofy');
+  workspace.store.addAdjudication('county-commissioner', cvrId, 'Daffy');
   await request(app)
     .get('/admin/write-ins/adjudications/contestId/count')
     .expect(200, [
       { contestId: 'county-commissioner', adjudicationCount: 1 },
       { contestId: 'mayor', adjudicationCount: 2 },
     ]);
+});
+
+test('GET /admin/write-ins/reset', async () => {
+  workspace.store.deleteCvrs = jest.fn();
+
+  await request(app).get('/admin/write-ins/cvrs/reset').expect(200);
+  expect(workspace.store.deleteCvrs).toHaveBeenCalled();
+});
+
+test('POST /admin/write-ins/cvrs', async () => {
+  workspace.store.addCvr = jest.fn().mockImplementationOnce(() => '1');
+  workspace.store.addAdjudication = jest.fn();
+
+  const cvrs = [
+    {
+      _ballotId: 'id-29',
+      _ballotType: 'absentee',
+      _precinctId: 'precinct-3',
+      _ballotStyleId: '1L',
+      _testBallot: true,
+      _scannerId: 'scanner-3',
+      _batchId: '1234-4',
+      _batchLabel: 'Batch 1',
+      'governor-contest-liberty': ['aaron-aligator'],
+      'mayor-contest-liberty': ['tahani-al-jamil'],
+      'assistant-mayor-contest-liberty': ['jenna-morasca'],
+    },
+    {
+      _ballotId: 'id-30',
+      _ballotType: 'absentee',
+      _precinctId: 'precinct-3',
+      _ballotStyleId: '1L',
+      _testBallot: true,
+      _scannerId: 'scanner-3',
+      _batchId: '1234-4',
+      _batchLabel: 'Batch 1',
+      'governor-contest-liberty': ['peter-pigeon'],
+      'mayor-contest-liberty': ['write-in-jason-mendoza'],
+      'assistant-mayor-contest-liberty': ['sandra-diaz-twine'],
+    },
+  ];
+
+  // TODO: re-enable this, see note in server.ts
+  // Invalid request
+  // await request(app)
+  //   .post('/admin/write-ins/cvrs')
+  //   .set('Accept', 'application/json')
+  //   .expect(400);
+  // expect(workspace.store.addCvr).not.toHaveBeenCalled();
+
+  // Valid request with no CVRs
+  await request(app)
+    .post('/admin/write-ins/cvrs')
+    .set('Accept', 'application/json')
+    .send({ files: [] })
+    .expect(200, { status: 'ok' });
+  expect(workspace.store.addCvr).not.toBeCalled();
+
+  // Valid request with CVRs
+  await request(app)
+    .post('/admin/write-ins/cvrs')
+    .set('Accept', 'application/json')
+    .send({ files: [{ allCastVoteRecords: cvrs }] })
+    .expect(200, { status: 'ok' });
+  expect(workspace.store.addCvr).toBeCalledTimes(2);
+  expect(workspace.store.addAdjudication).toBeCalledTimes(1);
+  expect(workspace.store.addCvr).toHaveBeenLastCalledWith(
+    JSON.stringify(cvrs[1])
+  );
 });
