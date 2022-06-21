@@ -1,6 +1,5 @@
 import React, { useContext, useEffect, useState, useMemo } from 'react';
 import makeDebug from 'debug';
-import useInterval from '@rooks/use-interval';
 
 import {
   Button,
@@ -38,7 +37,7 @@ import {
   CompressedTally,
   getPartyIdsInBallotStyles,
 } from '@votingworks/types';
-import { POLLING_INTERVAL_FOR_TOTP } from '../config/globals';
+import { isLiveCheckEnabled } from '../config/features';
 import {
   CenteredLargeProse,
   ScreenMainCenterChild,
@@ -46,6 +45,7 @@ import {
 import { Absolute } from '../components/absolute';
 
 import { ExportResultsModal } from '../components/export_results_modal';
+import { LiveCheckModal } from '../components/live_check_modal';
 
 import { AppContext } from '../contexts/app_context';
 import { IndeterminateProgressBar } from '../components/graphics';
@@ -97,9 +97,8 @@ export function PollWorkerScreen({
   const [currentSubTallies, setCurrentSubTallies] = useState<
     ReadonlyMap<string, Tally>
   >(new Map());
-  const [systemAuthenticationCode, setSystemAuthenticationCode] =
-    useState('---·---');
   const [isExportingResults, setIsExportingResults] = useState(false);
+  const [isShowingLiveCheck, setIsShowingLiveCheck] = useState(false);
   const hasPrinterAttached = printerFromProps || !window.kiosk;
   const { election } = electionDefinition;
 
@@ -179,18 +178,6 @@ export function PollWorkerScreen({
     parties,
     precinctList,
   ]);
-
-  useInterval(
-    async () => {
-      const totpResult = await window.kiosk?.totp?.get();
-      if (totpResult) {
-        const codeChunks = totpResult.code.match(/.{1,3}/g);
-        if (codeChunks) setSystemAuthenticationCode(codeChunks.join('·'));
-      }
-    },
-    POLLING_INTERVAL_FOR_TOTP,
-    true
-  );
 
   async function saveTally() {
     assert(currentTally);
@@ -515,7 +502,13 @@ export function PollWorkerScreen({
               </Button>
             </p>
           )}
-          <p>System Authentication Code: {systemAuthenticationCode}</p>
+          {isLiveCheckEnabled() && (
+            <p>
+              <Button onPress={() => setIsShowingLiveCheck(true)}>
+                Live Check
+              </Button>
+            </p>
+          )}
         </Prose>
         <Absolute top left>
           <Bar>
@@ -534,6 +527,9 @@ export function PollWorkerScreen({
             isTestMode={!isLiveMode}
             scannedBallotCount={scannedBallotCount}
           />
+        )}
+        {isShowingLiveCheck && (
+          <LiveCheckModal onClose={() => setIsShowingLiveCheck(false)} />
         )}
       </ScreenMainCenterChild>
       {printableReport}
