@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { useLocation } from 'react-router-dom';
 import {
   Button,
@@ -17,8 +17,6 @@ import { AppContext } from '../contexts/app_context';
 import { routerPaths } from '../router_paths';
 import { Navigation } from './navigation';
 import { LinkButton } from './link_button';
-import { LogsModal } from './logs_modal';
-import { SettingsModal } from './settings_modal';
 
 interface NavItem {
   label: string;
@@ -57,9 +55,6 @@ export function NavigationScreen({
   } = useContext(AppContext);
   const election = electionDefinition?.election;
   const currentUserType = currentUserSession?.type ?? 'unknown';
-
-  const [showSettingsModal, setShowSettingsModal] = useState(false);
-  const [showLogsModal, setShowLogsModal] = useState(false);
 
   let primaryNavItems: NavItem[] = [];
   if (currentUserType === 'superadmin') {
@@ -128,20 +123,12 @@ export function NavigationScreen({
           <React.Fragment>
             {currentUserType === 'superadmin' && (
               <React.Fragment>
-                <Button onPress={() => setShowSettingsModal(true)} small>
+                <LinkButton small to={routerPaths.settings}>
                   Settings
-                </Button>
-                <Button onPress={() => setShowLogsModal(true)} small>
+                </LinkButton>
+                <LinkButton small to={routerPaths.logs}>
                   Logs
-                </Button>
-                {showSettingsModal && (
-                  <SettingsModal
-                    closeModal={() => setShowSettingsModal(false)}
-                  />
-                )}
-                {showLogsModal && (
-                  <LogsModal closeModal={() => setShowLogsModal(false)} />
-                )}
+                </LinkButton>
               </React.Fragment>
             )}
             {isAuthenticationEnabled() && (
