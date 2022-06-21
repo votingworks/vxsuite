@@ -10,7 +10,12 @@ import {
   makeVoterCard,
   makePollWorkerCard,
 } from '@votingworks/test-utils';
-import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
+import {
+  MemoryStorage,
+  MemoryCard,
+  MemoryHardware,
+  utcTimestamp,
+} from '@votingworks/utils';
 
 import { App } from './app';
 
@@ -25,7 +30,6 @@ import {
   setElectionInStorage,
   setStateInStorage,
 } from '../test/helpers/election';
-import { utcTimestamp } from './utils/utc_timestamp';
 import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
 import { PrintOnly } from './config/types';
 

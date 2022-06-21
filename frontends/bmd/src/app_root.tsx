@@ -88,7 +88,6 @@ import { UnconfiguredScreen } from './pages/unconfigured_screen';
 import { UsedCardScreen } from './pages/used_card_screen';
 import { WrongElectionScreen } from './pages/wrong_election_screen';
 import { WrongPrecinctScreen } from './pages/wrong_precinct_screen';
-import { utcTimestamp } from './utils/utc_timestamp';
 import { ScreenReader } from './utils/ScreenReader';
 import { ReplaceElectionScreen } from './pages/replace_election_screen';
 import { CardErrorScreen } from './pages/card_error_screen';

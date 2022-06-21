@@ -15,8 +15,8 @@ import {
   VotesDict,
   VoterCardData,
 } from '@votingworks/types';
+import { utcTimestamp } from '@votingworks/utils';
 import * as GLOBALS from '../../src/config/globals';
-import { utcTimestamp } from '../../src/utils/utc_timestamp';
 
 const contest0 = election.contests[0] as CandidateContest;
 const contest1 = election.contests[1] as CandidateContest;

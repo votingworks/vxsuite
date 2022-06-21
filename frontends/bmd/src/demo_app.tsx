@@ -8,9 +8,9 @@ import {
   Storage,
   MemoryStorage,
   MemoryHardware,
+  utcTimestamp,
 } from '@votingworks/utils';
 import { App, Props } from './app';
-import { utcTimestamp } from './utils/utc_timestamp';
 import {
   MachineConfig,
   PrecinctSelectionKind,
