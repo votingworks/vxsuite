@@ -85,8 +85,6 @@ it('Refresh window and expect to be on same contest', async () => {
   ));
 
   await advanceTimersAndPromises();
-  await advanceTimersAndPromises(1);
-  advanceTimers();
 
   // App is on first contest
   await waitFor(() => getByText(presidentContest.title));

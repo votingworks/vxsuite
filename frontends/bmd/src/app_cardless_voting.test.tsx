@@ -280,6 +280,7 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
 
   // Click "Done" to get back to Insert Card screen
   fireEvent.click(screen.getByText('Done'));
+  await advanceTimersAndPromises();
   screen.getByText('Insert voter card to load ballot.');
 });
 

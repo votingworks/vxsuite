@@ -76,10 +76,14 @@ export function PrintPage(): JSX.Element {
         void printBallot();
       });
     }
+  }, [printBallot, votes]);
+
+  // Make sure we clean up any pending timeout on unmount
+  useEffect(() => {
     return () => {
       clearTimeout(printerTimer.current);
     };
-  }, [printBallot, votes]);
+  }, []);
 
   return (
     <React.Fragment>

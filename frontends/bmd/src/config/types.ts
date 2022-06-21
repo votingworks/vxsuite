@@ -1,5 +1,4 @@
 import {
-  BallotStyle,
   BallotStyleId,
   CandidateContest,
   CandidateVote,
@@ -88,17 +87,6 @@ export type SelectChangeEventFunction =
   React.ChangeEventHandler<HTMLSelectElement>;
 
 // Election
-export interface ActivationData {
-  ballotStyle: BallotStyle;
-  precinct: Precinct;
-}
-
-export interface SerializableActivationData {
-  ballotStyleId: BallotStyleId;
-  isCardlessVoter: boolean;
-  precinctId: PrecinctId;
-}
-
 export enum PrecinctSelectionKind {
   SinglePrecinct = 'SinglePrecinct',
   AllPrecincts = 'AllPrecincts',

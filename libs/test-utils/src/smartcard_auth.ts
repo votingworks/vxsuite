@@ -9,6 +9,8 @@ import {
   PollworkerLoggedInAuth,
   VoterLoggedInAuth,
   LoggedOutAuth,
+  CardlessVoterUser,
+  CardlessVoterLoggedInAuth,
 } from '@votingworks/types';
 
 export function fakeCardStorage(props: Partial<CardStorage> = {}): CardStorage {
@@ -57,6 +59,17 @@ export function fakeVoterUser(props: Partial<VoterUser> = {}): VoterUser {
   };
 }
 
+export function fakeCardlessVoterUser(
+  props: Partial<CardlessVoterUser> = {}
+): CardlessVoterUser {
+  return {
+    role: 'cardless_voter',
+    ballotStyleId: 'fake-ballot-style-id',
+    precinctId: 'fake-precinct-id',
+    ...props,
+  };
+}
+
 export function fakeSuperadminAuth(
   card: Partial<CardStorage> = {}
 ): SuperadminLoggedInAuth {
@@ -86,6 +99,8 @@ export function fakePollworkerAuth(
     status: 'logged_in',
     user: fakePollworkerUser(user),
     card: fakeCardStorage(card),
+    activateCardlessVoter: jest.fn(),
+    deactivateCardlessVoter: jest.fn(),
   };
 }
 
@@ -97,6 +112,18 @@ export function fakeVoterAuth(
     status: 'logged_in',
     user: fakeVoterUser(user),
     card: fakeCardStorage(card),
+    markCardVoided: jest.fn(),
+    markCardPrinted: jest.fn(),
+  };
+}
+
+export function fakeCardlessVoterAuth(
+  user: Partial<CardlessVoterUser> = {}
+): CardlessVoterLoggedInAuth {
+  return {
+    status: 'logged_in',
+    user: fakeCardlessVoterUser(user),
+    logOut: jest.fn(),
   };
 }
 
