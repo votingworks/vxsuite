@@ -792,3 +792,26 @@ export function getTemplateBallotCardGeometry(
       throw new Error(`unexpected ballot size: ${paperSize}`);
   }
 }
+
+/**
+ * Determine the ballot paper size from the template canvas size.
+ */
+export function getTemplateBallotPaperSize(
+  canvasSize: Size
+): BallotPaperSize | undefined {
+  if (
+    canvasSize.width === TemplateBallotCardGeometry8pt5x11.canvasSize.width &&
+    canvasSize.height === TemplateBallotCardGeometry8pt5x11.canvasSize.height
+  ) {
+    return BallotPaperSize.Letter;
+  }
+
+  if (
+    canvasSize.width === TemplateBallotCardGeometry8pt5x14.canvasSize.width &&
+    canvasSize.height === TemplateBallotCardGeometry8pt5x14.canvasSize.height
+  ) {
+    return BallotPaperSize.Legal;
+  }
+
+  return undefined;
+}

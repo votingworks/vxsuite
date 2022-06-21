@@ -96,13 +96,11 @@ test('mismatched ballot image size', async () => {
   ).toEqual(
     expect.arrayContaining([
       typedAs<ConvertIssue>({
-        kind: ConvertIssueKind.MismatchedBallotImageSize,
-        message:
-          'Ballot image size mismatch: XML definition is letter-size, or 684x864, but front image is 684x1080',
-        side: 'front',
-        ballotPaperSize: BallotPaperSize.Letter,
-        expectedImageSize: { width: 684, height: 864 },
-        actualImageSize: { width: 684, height: 1080 },
+        kind: ConvertIssueKind.InvalidTemplateSize,
+        message: 'Template images do not match expected sizes.',
+        paperSize: BallotPaperSize.Letter,
+        frontTemplateSize: { width: 684, height: 1080 },
+        backTemplateSize: { width: 684, height: 1080 },
       }),
     ])
   );
