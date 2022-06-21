@@ -42,7 +42,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           role="option"
           type="button"
         >
-          Cards
+          Smartcards
         </button>
         <button
           class="sc-iBPRYJ fvkSI"
@@ -59,14 +59,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           L&A
         </button>
         <button
-          class="sc-iBPRYJ bnpNDy"
+          class="sc-iBPRYJ fvkSI"
           role="option"
           type="button"
         >
           Tally
         </button>
         <button
-          class="sc-iBPRYJ bnpNDy"
+          class="sc-iBPRYJ fvkSI"
           role="option"
           type="button"
         >
@@ -1461,7 +1461,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
           role="option"
           type="button"
         >
-          Cards
+          Smartcards
         </button>
         <button
           class="sc-iBPRYJ fvkSI"
@@ -1478,14 +1478,14 @@ exports[`L&A (logic and accuracy) flow 2`] = `
           L&A
         </button>
         <button
-          class="sc-iBPRYJ bnpNDy"
+          class="sc-iBPRYJ fvkSI"
           role="option"
           type="button"
         >
           Tally
         </button>
         <button
-          class="sc-iBPRYJ bnpNDy"
+          class="sc-iBPRYJ fvkSI"
           role="option"
           type="button"
         >
@@ -2619,7 +2619,7 @@ exports[`L&A (logic and accuracy) flow 3`] = `
           role="option"
           type="button"
         >
-          Cards
+          Smartcards
         </button>
         <button
           class="sc-iBPRYJ fvkSI"
@@ -2636,14 +2636,14 @@ exports[`L&A (logic and accuracy) flow 3`] = `
           L&A
         </button>
         <button
-          class="sc-iBPRYJ bnpNDy"
+          class="sc-iBPRYJ fvkSI"
           role="option"
           type="button"
         >
           Tally
         </button>
         <button
-          class="sc-iBPRYJ bnpNDy"
+          class="sc-iBPRYJ fvkSI"
           role="option"
           type="button"
         >

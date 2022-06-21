@@ -33,7 +33,12 @@ import { UnlockMachineScreen } from '../screens/unlock_machine_screen';
 import { AdvancedScreen } from '../screens/advanced_screen';
 import { WriteInsScreen } from '../screens/write_ins_screen';
 import { LogicAndAccuracyScreen } from '../screens/logic_and_accuracy_screen';
-import { isWriteInAdjudicationEnabled } from '../config/features';
+import { SettingsScreen } from '../screens/settings_screen';
+import { LogsScreen } from '../screens/logs_screen';
+import {
+  areVvsg2AuthFlowsEnabled,
+  isWriteInAdjudicationEnabled,
+} from '../config/features';
 
 export function ElectionManager(): JSX.Element {
   const {
@@ -71,28 +76,10 @@ export function ElectionManager(): JSX.Element {
     return <MachineLockedScreen />;
   }
 
-  if (currentUserSession.type === 'superadmin') {
-    return (
-      <Screen>
-        <Main centerChild>
-          <Prose textCenter maxWidth={false} theme={fontSizeTheme.large}>
-            <RebootFromUsbButton
-              usbDriveStatus={usbDriveStatus}
-              logger={logger}
-            />
-          </Prose>
-        </Main>
-        <ElectionInfoBar
-          mode="admin"
-          electionDefinition={electionDefinition}
-          codeVersion={machineConfig.codeVersion}
-          machineId={machineConfig.machineId}
-        />
-      </Screen>
-    );
-  }
-
-  if (currentUserSession.type !== 'admin') {
+  if (
+    currentUserSession.type !== 'superadmin' &&
+    currentUserSession.type !== 'admin'
+  ) {
     return <InvalidCardScreen />;
   }
 
@@ -100,23 +87,108 @@ export function ElectionManager(): JSX.Element {
     return <UnlockMachineScreen />;
   }
 
+  if (currentUserSession.type === 'superadmin') {
+    if (!areVvsg2AuthFlowsEnabled()) {
+      return (
+        <Screen>
+          <Main centerChild>
+            <Prose textCenter maxWidth={false} theme={fontSizeTheme.large}>
+              <RebootFromUsbButton
+                usbDriveStatus={usbDriveStatus}
+                logger={logger}
+              />
+            </Prose>
+          </Main>
+          <ElectionInfoBar
+            mode="admin"
+            electionDefinition={electionDefinition}
+            codeVersion={machineConfig.codeVersion}
+            machineId={machineConfig.machineId}
+          />
+        </Screen>
+      );
+    }
+
+    return (
+      <Switch>
+        <Route exact path={routerPaths.electionDefinition}>
+          <DefinitionScreen />
+        </Route>
+        <Route exact path={routerPaths.definitionEditor}>
+          <DefinitionEditorScreen allowEditing={false} />
+        </Route>
+        <Route
+          exact
+          path={routerPaths.definitionContest({ contestId: ':contestId' })}
+        >
+          <DefinitionContestsScreen allowEditing={false} />
+        </Route>
+        <Route exact path={routerPaths.ballotsList}>
+          <BallotListScreen />
+        </Route>
+        <Route exact path={routerPaths.printedBallotsReport}>
+          <PrintedBallotsReportScreen />
+        </Route>
+        <Route
+          exact
+          path={[
+            routerPaths.ballotsViewLanguage({
+              ballotStyleId: ':ballotStyleId',
+              precinctId: ':precinctId',
+              localeCode: ':localeCode',
+            }),
+            routerPaths.ballotsView({
+              ballotStyleId: ':ballotStyleId',
+              precinctId: ':precinctId',
+            }),
+          ]}
+        >
+          <BallotScreen />
+        </Route>
+        <Route exact path={routerPaths.smartcards}>
+          <SmartcardsScreen />
+        </Route>
+        <Route exact path={routerPaths.settings}>
+          <SettingsScreen />
+        </Route>
+        <Route exact path={routerPaths.logs}>
+          <LogsScreen />
+        </Route>
+        <Redirect to={routerPaths.electionDefinition} />
+      </Switch>
+    );
+  }
+
   return (
     <Switch>
-      <Route exact path={routerPaths.advanced}>
-        <AdvancedScreen />
-      </Route>
-      <Route exact path={routerPaths.electionDefinition}>
-        <DefinitionScreen />
-      </Route>
-      <Route path={routerPaths.definitionEditor}>
-        <DefinitionEditorScreen allowEditing={false} />
-      </Route>
-      <Route path={routerPaths.definitionContest({ contestId: ':contestId' })}>
-        <DefinitionContestsScreen allowEditing={false} />
-      </Route>
-      <Route path={routerPaths.smartcards}>
-        <SmartcardsScreen />
-      </Route>
+      {!areVvsg2AuthFlowsEnabled() && (
+        <Route exact path={routerPaths.advanced}>
+          <AdvancedScreen />
+        </Route>
+      )}
+      {!areVvsg2AuthFlowsEnabled() && (
+        <Route exact path={routerPaths.electionDefinition}>
+          <DefinitionScreen />
+        </Route>
+      )}
+      {!areVvsg2AuthFlowsEnabled() && (
+        <Route exact path={routerPaths.definitionEditor}>
+          <DefinitionEditorScreen allowEditing={false} />
+        </Route>
+      )}
+      {!areVvsg2AuthFlowsEnabled() && (
+        <Route
+          exact
+          path={routerPaths.definitionContest({ contestId: ':contestId' })}
+        >
+          <DefinitionContestsScreen allowEditing={false} />
+        </Route>
+      )}
+      {!areVvsg2AuthFlowsEnabled() && (
+        <Route exact path={routerPaths.smartcards}>
+          <SmartcardsScreen />
+        </Route>
+      )}
       <Route exact path={routerPaths.ballotsList}>
         <BallotListScreen />
       </Route>
@@ -132,6 +204,7 @@ export function ElectionManager(): JSX.Element {
         </Route>
       )}
       <Route
+        exact
         path={routerPaths.manualDataImportForPrecinct({
           precinctId: ':precinctId',
         })}
@@ -139,6 +212,7 @@ export function ElectionManager(): JSX.Element {
         <ManualDataImportPrecinctScreen />
       </Route>
       <Route
+        exact
         path={[
           routerPaths.ballotsViewLanguage({
             ballotStyleId: ':ballotStyleId',
@@ -157,6 +231,7 @@ export function ElectionManager(): JSX.Element {
         <TallyScreen />
       </Route>
       <Route
+        exact
         path={[
           routerPaths.tallyPrecinctReport({ precinctId: ':precinctId' }),
           routerPaths.tallyFullReport,
@@ -165,6 +240,7 @@ export function ElectionManager(): JSX.Element {
         <TallyReportScreen />
       </Route>
       <Route
+        exact
         path={[
           routerPaths.tallyScannerReport({ scannerId: ':scannerId' }),
           routerPaths.tallyFullReport,
@@ -173,6 +249,7 @@ export function ElectionManager(): JSX.Element {
         <TallyReportScreen />
       </Route>
       <Route
+        exact
         path={[
           routerPaths.tallyPartyReport({ partyId: ':partyId' }),
           routerPaths.tallyFullReport,
@@ -181,6 +258,7 @@ export function ElectionManager(): JSX.Element {
         <TallyReportScreen />
       </Route>
       <Route
+        exact
         path={[
           routerPaths.tallyBatchReport({ batchId: ':batchId' }),
           routerPaths.tallyFullReport,
@@ -189,6 +267,7 @@ export function ElectionManager(): JSX.Element {
         <TallyReportScreen />
       </Route>
       <Route
+        exact
         path={[
           routerPaths.tallyVotingMethodReport({
             votingMethod: ':votingMethod',
@@ -198,13 +277,13 @@ export function ElectionManager(): JSX.Element {
       >
         <TallyReportScreen />
       </Route>
-      <Route path={routerPaths.overvoteCombinationReport}>
+      <Route exact path={routerPaths.overvoteCombinationReport}>
         <OvervoteCombinationReportScreen />
       </Route>
       <Route exact path={routerPaths.logicAndAccuracy}>
         <LogicAndAccuracyScreen />
       </Route>
-      <Route path={[routerPaths.testDecks]}>
+      <Route exact path={[routerPaths.testDecks]}>
         <PrintTestDeckScreen />
       </Route>
       <Redirect to={routerPaths.ballotsList} />
