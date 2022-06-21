@@ -15,6 +15,7 @@ import {
   VotesDict,
   VoterCardData,
 } from '@votingworks/types';
+import { VOTER_CARD_EXPIRATION_SECONDS } from '@votingworks/ui';
 import { utcTimestamp } from '@votingworks/utils';
 import * as GLOBALS from '../../src/config/globals';
 
@@ -144,7 +145,7 @@ export function makeOtherElectionVoterCard(
 
 export function makeExpiredVoterCard(e = election): VoterCardData {
   return makeVoterCard(e, {
-    c: utcTimestamp() - GLOBALS.CARD_EXPIRATION_SECONDS,
+    c: utcTimestamp() - VOTER_CARD_EXPIRATION_SECONDS,
   });
 }
 

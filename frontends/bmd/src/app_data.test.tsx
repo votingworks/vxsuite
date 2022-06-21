@@ -4,7 +4,7 @@ import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
 
 import { App } from './app';
 import { DemoApp, getDemoStorage } from './demo_app';
-import { activationStorageKey, electionStorageKey } from './app_root';
+import { electionStorageKey } from './app_root';
 
 import {
   election,
@@ -73,6 +73,5 @@ describe('loads election', () => {
     screen.getByText(/Center Springfield/);
     screen.getByText(/ballot style 12/);
     expect(storage.get(electionStorageKey)).toBeTruthy();
-    expect(storage.get(activationStorageKey)).toBeTruthy();
   });
 });

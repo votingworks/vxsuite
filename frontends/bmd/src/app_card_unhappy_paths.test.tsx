@@ -17,9 +17,9 @@ import {
   utcTimestamp,
 } from '@votingworks/utils';
 
+import { VOTER_CARD_EXPIRATION_SECONDS } from '@votingworks/ui';
 import { App } from './app';
 
-import { CARD_EXPIRATION_SECONDS } from './config/globals';
 import {
   advanceTimersAndPromises,
   makeExpiredVoterCard,
@@ -102,7 +102,7 @@ test('Display App Card Unhappy Paths', async () => {
 
   // Voter Card which eventually expires
   const expiringCard = makeVoterCard(electionSample, {
-    c: utcTimestamp() - CARD_EXPIRATION_SECONDS + 5 * 60, // 5 minutes until expiration
+    c: utcTimestamp() - VOTER_CARD_EXPIRATION_SECONDS + 5 * 60, // 5 minutes until expiration
   });
 
   // First Insert is Good
