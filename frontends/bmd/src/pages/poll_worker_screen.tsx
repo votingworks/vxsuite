@@ -61,12 +61,10 @@ export interface PollworkerScreenProps {
   pollworkerAuth: PollworkerLoggedInAuth;
   activateCardlessVoterSession: (
     precinctId: PrecinctId,
-    ballotStyleId?: BallotStyleId
+    ballotStyleId: BallotStyleId
   ) => void;
   resetCardlessVoterSession: () => void;
   appPrecinct: PrecinctSelection;
-  cardlessVoterSessionPrecinctId?: PrecinctId;
-  cardlessVoterSessionBallotStyleId?: BallotStyleId;
   electionDefinition: ElectionDefinition;
   enableLiveMode: () => void;
   hasVotes: boolean;
@@ -145,13 +143,6 @@ export function PollWorkerScreen({
   activateCardlessVoterSession,
   resetCardlessVoterSession,
   appPrecinct,
-
-  cardlessVoterSessionPrecinctId = appPrecinct.kind ===
-  PrecinctSelectionKind.SinglePrecinct
-    ? appPrecinct.precinctId
-    : undefined,
-
-  cardlessVoterSessionBallotStyleId,
   electionDefinition,
   enableLiveMode,
   isLiveMode,
@@ -173,9 +164,15 @@ export function PollWorkerScreen({
       ? 'All Precincts'
       : find(election.precincts, (p) => p.id === appPrecinct.precinctId).name;
 
-  const precinctBallotStyles = cardlessVoterSessionPrecinctId
+  const [selectedCardlessVoterPrecinctId, setSelectedCardlessVoterPrecinctId] =
+    useState<PrecinctId | undefined>(
+      appPrecinct.kind === PrecinctSelectionKind.SinglePrecinct
+        ? appPrecinct.precinctId
+        : undefined
+    );
+  const precinctBallotStyles = selectedCardlessVoterPrecinctId
     ? election.ballotStyles.filter((bs) =>
-        bs.precincts.includes(cardlessVoterSessionPrecinctId)
+        bs.precincts.includes(selectedCardlessVoterPrecinctId)
       )
     : [];
   /*
@@ -242,7 +239,6 @@ export function PollWorkerScreen({
       triggerAudioFocus();
     }
   }, [
-    cardlessVoterSessionBallotStyleId,
     isConfirmingPrecinctScannerPrint,
     isPrintingPrecinctScannerReport,
     isConfirmingEnableLiveMode,
@@ -289,13 +285,13 @@ export function PollWorkerScreen({
   const currentTime = Date.now();
   const reportPurposes = ['Publicly Posted', 'Officially Filed'];
 
-  if (hasVotes && cardlessVoterSessionBallotStyleId) {
+  if (hasVotes && pollworkerAuth.activatedCardlessVoter) {
     return (
       <Screen>
         <Main centerChild>
           <Prose textCenter>
             <h1
-              aria-label={`Ballot style ${cardlessVoterSessionBallotStyleId} has been activated.`}
+              aria-label={`Ballot style ${pollworkerAuth.activatedCardlessVoter.ballotStyleId} has been activated.`}
             >
               Ballot Contains Votes
             </h1>
@@ -313,11 +309,9 @@ export function PollWorkerScreen({
     );
   }
 
-  if (cardlessVoterSessionPrecinctId && cardlessVoterSessionBallotStyleId) {
-    const activationPrecinctName = find(
-      election.precincts,
-      (p) => p.id === cardlessVoterSessionPrecinctId
-    ).name;
+  if (pollworkerAuth.activatedCardlessVoter) {
+    const { precinctId, ballotStyleId } = pollworkerAuth.activatedCardlessVoter;
+    const precinct = find(election.precincts, (p) => p.id === precinctId);
 
     return (
       <Screen>
@@ -325,8 +319,8 @@ export function PollWorkerScreen({
           <Prose id="audiofocus">
             <h1>
               {appPrecinct.kind === PrecinctSelectionKind.AllPrecincts
-                ? `Voter session activated: ${cardlessVoterSessionBallotStyleId} @ ${activationPrecinctName}`
-                : `Voter session activated: ${cardlessVoterSessionBallotStyleId}`}
+                ? `Voter session activated: ${ballotStyleId} @ ${precinct.name}`
+                : `Voter session activated: ${ballotStyleId}`}
             </h1>
             <ol>
               <li>Remove the poll worker card.</li>
@@ -403,9 +397,11 @@ export function PollWorkerScreen({
                         key={precinct.id}
                         aria-label={`Activate Voter Session for Precinct ${precinct.name}`}
                         onPress={() =>
-                          activateCardlessVoterSession(precinct.id)
+                          setSelectedCardlessVoterPrecinctId(precinct.id)
                         }
-                        primary={cardlessVoterSessionPrecinctId === precinct.id}
+                        primary={
+                          selectedCardlessVoterPrecinctId === precinct.id
+                        }
                       >
                         {precinct.name}
                       </Button>
@@ -413,23 +409,23 @@ export function PollWorkerScreen({
                   </ButtonList>
                 </React.Fragment>
               )}
-              {cardlessVoterSessionPrecinctId && (
+              {selectedCardlessVoterPrecinctId && (
                 <React.Fragment>
                   <h3>Choose Ballot Style</h3>
                   <ButtonList data-testid="ballot-styles">
-                    {precinctBallotStyles.map((bs) => (
+                    {precinctBallotStyles.map((ballotStyle) => (
                       <Button
                         fullWidth
-                        key={bs.id}
-                        aria-label={`Activate Voter Session for Ballot Style ${bs.id}`}
+                        key={ballotStyle.id}
+                        aria-label={`Activate Voter Session for Ballot Style ${ballotStyle.id}`}
                         onPress={() =>
                           activateCardlessVoterSession(
-                            cardlessVoterSessionPrecinctId,
-                            bs.id
+                            selectedCardlessVoterPrecinctId,
+                            ballotStyle.id
                           )
                         }
                       >
-                        {bs.id}
+                        {ballotStyle.id}
                       </Button>
                     ))}
                   </ButtonList>
