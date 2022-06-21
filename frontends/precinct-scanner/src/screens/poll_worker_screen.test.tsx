@@ -1,15 +1,17 @@
 import { act, screen, render, fireEvent } from '@testing-library/react';
 import { electionSampleDefinition } from '@votingworks/fixtures';
-import {
-  advanceTimersAndPromises,
-  fakeKiosk,
-  mockOf,
-} from '@votingworks/test-utils';
+import { advanceTimersAndPromises } from '@votingworks/test-utils';
 import { NullPrinter, usbstick } from '@votingworks/utils';
 import MockDate from 'mockdate';
 import React from 'react';
+import { UserSession } from '@votingworks/types';
+import { mocked } from 'ts-jest/utils';
 import { AppContext } from '../contexts/app_context';
 import { PollWorkerScreen } from './poll_worker_screen';
+
+import { isLiveCheckEnabled } from '../config/features';
+
+jest.mock('../config/features');
 
 MockDate.set('2020-10-31T00:00:00.000Z');
 
@@ -23,18 +25,27 @@ afterEach(() => {
   jest.useRealTimers();
 });
 
+const pollworkerSession: UserSession = {
+  type: 'pollworker',
+  authenticated: true,
+  isElectionHashValid: true,
+};
+
 function renderScreen({
   scannedBallotCount = 0,
   isPollsOpen = false,
+  currentUserSession,
 }: {
   scannedBallotCount?: number;
   isPollsOpen?: boolean;
+  currentUserSession?: UserSession;
 }): void {
   render(
     <AppContext.Provider
       value={{
         electionDefinition: electionSampleDefinition,
         machineConfig: { machineId: '0000', codeVersion: 'TEST' },
+        currentUserSession,
       }}
     >
       <PollWorkerScreen
@@ -54,38 +65,6 @@ function renderScreen({
     </AppContext.Provider>
   );
 }
-
-test('shows system authentication code', async () => {
-  const mockKiosk = fakeKiosk();
-  mockOf(mockKiosk.totp.get).mockResolvedValue({
-    isoDatetime: '2020-10-31T01:01:01.001Z',
-    code: '123456',
-  });
-  window.kiosk = mockKiosk;
-
-  // eslint-disable-next-line @typescript-eslint/require-await
-  await act(async () => {
-    renderScreen({});
-    jest.advanceTimersByTime(2000);
-  });
-  fireEvent.click(screen.getAllByText('No')[0]);
-
-  screen.getByText('System Authentication Code: 123·456');
-});
-
-test('shows dashes when no totp', async () => {
-  const mockKiosk = fakeKiosk();
-  mockOf(mockKiosk.totp.get).mockResolvedValue(undefined);
-  window.kiosk = mockKiosk;
-
-  // eslint-disable-next-line @typescript-eslint/require-await
-  await act(async () => {
-    renderScreen({});
-  });
-  fireEvent.click(screen.getAllByText('No')[0]);
-
-  screen.getByText('System Authentication Code: ---·---');
-});
 
 describe('shows Export Results button only when polls are closed and more than 0 ballots have been cast', () => {
   const exportButtonText = 'Export Results to USB Drive';
@@ -145,5 +124,47 @@ describe('shows Export Results button only when polls are closed and more than 0
     await screen.findByText('Export Results to USB Drive');
 
     expect(screen.queryByText(exportButtonText)).toBeTruthy();
+  });
+});
+
+describe('shows Livecheck button only when enabled', () => {
+  test('enable livecheck', async () => {
+    mocked(isLiveCheckEnabled).mockReturnValue(true);
+
+    // eslint-disable-next-line @typescript-eslint/require-await
+    await act(async () => {
+      renderScreen({
+        scannedBallotCount: 5,
+        isPollsOpen: true,
+        currentUserSession: pollworkerSession,
+      });
+      jest.advanceTimersByTime(2000);
+    });
+
+    fireEvent.click(screen.queryAllByText('No')[0]);
+    expect(screen.queryByText('Live Check')).toBeTruthy();
+
+    // eslint-disable-next-line @typescript-eslint/require-await
+    await act(async () => {
+      fireEvent.click(screen.getByText('Live Check'));
+    });
+    screen.getByText('Done');
+  });
+
+  test('disable livecheck', async () => {
+    mocked(isLiveCheckEnabled).mockReturnValue(false);
+
+    // eslint-disable-next-line @typescript-eslint/require-await
+    await act(async () => {
+      renderScreen({
+        scannedBallotCount: 5,
+        isPollsOpen: true,
+        currentUserSession: pollworkerSession,
+      });
+      jest.advanceTimersByTime(2000);
+    });
+
+    fireEvent.click(screen.queryAllByText('No')[0]);
+    expect(screen.queryByText('Live Check')).toBeFalsy();
   });
 });
