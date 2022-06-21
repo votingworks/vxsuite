@@ -402,6 +402,14 @@
         }
       ],
       "allowWriteIns": true
+    },
+    {
+      "id": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc",
+      "districtId": "town-id-00701-precinct-id-",
+      "section": "Constitutional Amendment Question",
+      "title": "Constitutional Amendment Question",
+      "type": "yesno",
+      "description": "Shall there be a convention to amend or revise the constitution?"
     }
   ],
   "gridLayouts": [
@@ -810,6 +818,22 @@
           "row": 19,
           "contestId": "County-Commissioner-d6feed25",
           "writeInIndex": 0
+        },
+        {
+          "type": "option",
+          "contestId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc",
+          "optionId": "yes",
+          "side": "back",
+          "column": 26,
+          "row": 24
+        },
+        {
+          "type": "option",
+          "contestId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc",
+          "optionId": "no",
+          "side": "back",
+          "column": 32,
+          "row": 24
         }
       ]
     }

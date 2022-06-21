@@ -2,9 +2,12 @@ import {
   AdjudicationReason,
   BallotPaperSize,
   CandidateContest,
+  DistrictIdSchema,
+  GridPosition,
   PartyIdSchema,
   safeParseElection,
   unsafeParse,
+  YesNoContest,
 } from '@votingworks/types';
 import { typedAs } from '@votingworks/utils';
 import {
@@ -20,6 +23,7 @@ import {
   convertElectionDefinitionHeader,
   ConvertIssue,
   ConvertIssueKind,
+  ConvertResult,
   readGridFromElectionDefinition,
 } from './convert';
 import * as templates from './data/templates';
@@ -413,4 +417,93 @@ test('default adjudication reasons', async () => {
       AdjudicationReason.BlankBallot,
     ])
   );
+});
+
+test('constitutional questions become yesno contests', async () => {
+  const amherstBallotCardDefinition = await readFixtureBallotCardDefinition(
+    AmherstFixtureName
+  );
+  const convertResult = convertElectionDefinitionHeader(
+    amherstBallotCardDefinition.definition
+  );
+
+  expect(
+    convertResult.election?.contests.filter((c) => c.type === 'yesno')
+  ).toEqual(
+    typedAs<YesNoContest[]>([
+      {
+        type: 'yesno',
+        id: 'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc',
+        section: 'Constitutional Amendment Question',
+        title: 'Constitutional Amendment Question',
+        description:
+          'Shall there be a convention to amend or revise the constitution?',
+        districtId: unsafeParse(DistrictIdSchema, 'town-id-00701-precinct-id-'),
+      },
+    ])
+  );
+});
+
+test('constitutional question ovals get placed on the grid correctly', async () => {
+  const amherstBallotCardDefinition = await readFixtureBallotCardDefinition(
+    AmherstFixtureName
+  );
+  const convertResult = convertElectionDefinition(amherstBallotCardDefinition, {
+    ovalTemplate: await templates.getOvalTemplate(),
+  });
+
+  expect(convertResult).toEqual(
+    typedAs<ConvertResult>({
+      success: true,
+      issues: expect.any(Array),
+      election: expect.objectContaining({
+        contests: expect.arrayContaining([
+          {
+            type: 'yesno',
+            id: 'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc',
+            section: 'Constitutional Amendment Question',
+            title: 'Constitutional Amendment Question',
+            description:
+              'Shall there be a convention to amend or revise the constitution?',
+            districtId: unsafeParse(
+              DistrictIdSchema,
+              'town-id-00701-precinct-id-'
+            ),
+          },
+        ]),
+        gridLayouts: [
+          expect.objectContaining({
+            gridPositions: expect.arrayContaining(
+              typedAs<GridPosition[]>([
+                {
+                  type: 'option',
+                  contestId:
+                    'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc',
+                  optionId: 'yes',
+                  side: 'back',
+                  column: 26,
+                  row: 24,
+                },
+                {
+                  type: 'option',
+                  contestId:
+                    'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc',
+                  optionId: 'no',
+                  side: 'back',
+                  column: 32,
+                  row: 24,
+                },
+              ])
+            ),
+          }),
+        ],
+      }),
+    })
+  );
+
+  for (const issue of convertResult.issues) {
+    expect(issue).not.toMatchObject({
+      kind: ConvertIssueKind.MismatchedOvalGrids,
+    });
+  }
 });
