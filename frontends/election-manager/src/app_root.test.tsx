@@ -34,7 +34,6 @@ test('renders without crashing', async () => {
               hardware={new MemoryHardware()}
               card={new MemoryCard()}
               machineConfigProvider={fakeMachineConfigProvider()}
-              bypassAuthentication
               {...props}
             />
           )}

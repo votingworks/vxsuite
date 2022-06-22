@@ -70,14 +70,9 @@ const VALID_USERS: readonly UserRole[] = ['admin', 'superadmin'];
 export interface AppRootProps {
   card: Card;
   hardware: Hardware;
-  bypassAuthentication: boolean;
 }
 
-export function AppRoot({
-  card,
-  hardware,
-  bypassAuthentication,
-}: AppRootProps): JSX.Element {
+export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
   const logger = useMemo(
     () => new Logger(LogSource.VxCentralScanFrontend, window.kiosk),
     []
@@ -120,7 +115,6 @@ export function AppRoot({
       smartcard,
       electionDefinition,
       persistAuthentication: true,
-      bypassAuthentication,
       logger,
       validUserTypes: VALID_USERS,
     });
