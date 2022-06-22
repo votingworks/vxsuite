@@ -74,12 +74,24 @@ export function ElectionManager(): JSX.Element {
         <Route exact path={routerPaths.root}>
           <UnconfiguredScreen />
         </Route>
-        <Route exact path={routerPaths.advanced}>
-          <AdvancedScreen />
-        </Route>
         <Route exact path={routerPaths.electionDefinition}>
           <UnconfiguredScreen />
         </Route>
+        {!areVvsg2AuthFlowsEnabled() && (
+          <Route exact path={routerPaths.advanced}>
+            <AdvancedScreen />
+          </Route>
+        )}
+        {areVvsg2AuthFlowsEnabled() && (
+          <Route exact path={routerPaths.settings}>
+            <SettingsScreen />
+          </Route>
+        )}
+        {areVvsg2AuthFlowsEnabled() && (
+          <Route exact path={routerPaths.logs}>
+            <LogsScreen />
+          </Route>
+        )}
       </Switch>
     );
   }
