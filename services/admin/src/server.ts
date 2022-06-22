@@ -28,11 +28,6 @@ export function buildApp({ store }: { store: Store }): Application {
   app.get('/admin/write-ins/adjudication/:id', (request, response) => {
     const { id } = request.params;
 
-    if (typeof id !== 'string') {
-      response.status(404);
-      return;
-    }
-
     const adjudication = store.getAdjudicationById(id);
     if (adjudication) {
       response.json(adjudication);
