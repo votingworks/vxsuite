@@ -68,6 +68,8 @@ async function authenticateWithAdminCard(card: MemoryCard) {
   fireEvent.click(screen.getByText('5'));
   fireEvent.click(screen.getByText('6'));
   await act(async () => await sleep(100));
+  card.removeCard();
+  await act(async () => await sleep(100));
 }
 
 test('renders without crashing', async () => {
@@ -440,10 +442,10 @@ test('authentication works', async () => {
   fireEvent.click(screen.getByText('5'));
   fireEvent.click(screen.getByText('6'));
 
-  // Machine should be unlocked
-  await screen.findByText('No Scanner');
+  // 'Remove Card' screen is shown after successful authentication.
+  await screen.findByText('Remove card.');
 
-  // The card can be removed and the screen will stay unlocked
+  // Machine is unlocked when card removed
   card.removeCard();
   await act(async () => {
     await sleep(100);

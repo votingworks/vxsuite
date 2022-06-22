@@ -648,6 +648,7 @@ export function AppRoot({
         lockMachine,
         machineConfig,
         hasCardReaderAttached: !!cardReader,
+        smartcard,
         logger,
       }}
     >

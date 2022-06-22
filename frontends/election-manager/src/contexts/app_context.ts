@@ -9,6 +9,7 @@ import {
 } from '@votingworks/types';
 import { usbstick, NullPrinter, Printer } from '@votingworks/utils';
 import { Logger, LogSource, LoggingUserRole } from '@votingworks/logging';
+import { Smartcard } from '@votingworks/ui';
 import {
   SaveElection,
   PrintedBallot,
@@ -63,6 +64,7 @@ export interface AppContextInterface {
   lockMachine: () => void;
   machineConfig: MachineConfig;
   hasCardReaderAttached: boolean;
+  smartcard: Smartcard;
   logger: Logger;
 }
 
@@ -99,6 +101,7 @@ const appContext: AppContextInterface = {
     codeVersion: '',
   },
   hasCardReaderAttached: true,
+  smartcard: { status: 'no_card' },
   logger: new Logger(LogSource.VxAdminFrontend),
 };
 /* eslint-enable @typescript-eslint/require-await */

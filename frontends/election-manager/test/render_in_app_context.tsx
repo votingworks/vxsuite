@@ -15,6 +15,7 @@ import {
 import { usbstick, NullPrinter, Printer } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
 
+import { Smartcard } from '@votingworks/ui';
 import { AppContext } from '../src/contexts/app_context';
 import {
   SaveElection,
@@ -73,6 +74,7 @@ interface RenderInAppContextParams {
   lockMachine?: () => undefined;
   machineConfig?: MachineConfig;
   hasCardReaderAttached?: boolean;
+  smartcard?: Smartcard;
   logger?: Logger;
 }
 
@@ -112,6 +114,7 @@ export function renderInAppContext(
       codeVersion: '',
     },
     hasCardReaderAttached = true,
+    smartcard = { status: 'no_card' },
     logger = new Logger(LogSource.VxAdminFrontend),
   }: RenderInAppContextParams = {}
 ): RenderResult {
@@ -146,6 +149,7 @@ export function renderInAppContext(
         lockMachine,
         machineConfig,
         hasCardReaderAttached,
+        smartcard,
         logger,
       }}
     >
