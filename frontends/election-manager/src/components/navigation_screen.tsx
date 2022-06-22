@@ -10,7 +10,6 @@ import {
 
 import {
   areVvsg2AuthFlowsEnabled,
-  isAuthenticationEnabled,
   isWriteInAdjudicationEnabled,
 } from '../config/features';
 import { AppContext } from '../contexts/app_context';
@@ -131,11 +130,9 @@ export function NavigationScreen({
                 </LinkButton>
               </React.Fragment>
             )}
-            {isAuthenticationEnabled() && (
-              <Button onPress={lockMachine} small>
-                Lock Machine
-              </Button>
-            )}
+            <Button onPress={lockMachine} small>
+              Lock Machine
+            </Button>
             <UsbControllerButton
               usbDriveEject={() => usbDriveEject(currentUserType)}
               usbDriveStatus={usbDriveStatus}

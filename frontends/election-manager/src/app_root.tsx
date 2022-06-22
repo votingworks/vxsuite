@@ -83,7 +83,6 @@ export interface Props {
   hardware: Hardware;
   card: Card;
   machineConfigProvider: Provider<MachineConfig>;
-  bypassAuthentication: boolean;
   converter?: ConverterClientType;
 }
 
@@ -102,7 +101,6 @@ export function AppRoot({
   card,
   hardware,
   machineConfigProvider,
-  bypassAuthentication,
   converter,
 }: Props): JSX.Element {
   const logger = useMemo(
@@ -178,7 +176,6 @@ export function AppRoot({
     electionDefinition,
     persistAuthentication: true,
     logger,
-    bypassAuthentication,
     validUserTypes: VALID_USERS,
   });
 

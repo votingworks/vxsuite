@@ -51,7 +51,6 @@ export function DemoApp({
       storage={storage}
       machineConfig={machineConfig}
       hardware={internalHardware}
-      bypassAuthentication
       {...rest}
     />
   );
