@@ -26,6 +26,7 @@ import {
   decodeFrontTimingMarkBits,
   findTemplateOvals,
   getTemplateBallotCardGeometry,
+  getTemplateBallotPaperSize,
   TemplateOval,
 } from './accuvote';
 import { Debugger } from './debug';
@@ -242,6 +243,7 @@ export enum ConvertIssueKind {
   InvalidBallotSize = 'InvalidBallotSize',
   InvalidDistrictId = 'InvalidDistrictId',
   InvalidElectionDate = 'InvalidElectionDate',
+  InvalidTemplateSize = 'InvalidTemplateSize',
   InvalidTimingMarkMetadata = 'InvalidTimingMarkMetadata',
   MismatchedBallotImageSize = 'MismatchedBallotImageSize',
   MismatchedOvalGrids = 'MismatchedOvalGrids',
@@ -265,6 +267,13 @@ export type ConvertIssue =
       invalidBallotSize: string;
     }
   | {
+      kind: ConvertIssueKind.InvalidTemplateSize;
+      message: string;
+      paperSize?: BallotPaperSize;
+      frontTemplateSize: Size;
+      backTemplateSize: Size;
+    }
+  | {
       kind: ConvertIssueKind.InvalidDistrictId;
       message: string;
       invalidDistrictId: string;
@@ -282,14 +291,6 @@ export type ConvertIssue =
       timingMarks: PartialTimingMarks;
       timingMarkBits: readonly Bit[];
       validationError: ZodError;
-    }
-  | {
-      kind: ConvertIssueKind.MismatchedBallotImageSize;
-      message: string;
-      side: 'front' | 'back';
-      ballotPaperSize: BallotPaperSize;
-      expectedImageSize: Size;
-      actualImageSize: Size;
     }
   | {
       kind: ConvertIssueKind.MismatchedOvalGrids;
@@ -761,32 +762,42 @@ export function convertElectionDefinition(
   let success = true;
   const issues = [...headerIssues];
 
-  const paperSize = election.ballotLayout?.paperSize;
-  assert(
-    paperSize,
-    'paperSize should always be set in convertElectionDefinitionHeader'
-  );
+  let paperSize = election.ballotLayout?.paperSize;
 
-  const expectedCardGeometry = getTemplateBallotCardGeometry(paperSize);
+  const frontExpectedPaperSize = getTemplateBallotPaperSize({
+    width: cardDefinition.front.width,
+    height: cardDefinition.front.height,
+  });
+  const backExpectedPaperSize = getTemplateBallotPaperSize({
+    width: cardDefinition.back.width,
+    height: cardDefinition.back.height,
+  });
 
-  for (const [side, imageData] of [
-    ['front', cardDefinition.front],
-    ['back', cardDefinition.back],
-  ] as const) {
-    if (
-      imageData.width !== expectedCardGeometry.canvasSize.width ||
-      imageData.height !== expectedCardGeometry.canvasSize.height
-    ) {
-      issues.push({
-        kind: ConvertIssueKind.MismatchedBallotImageSize,
-        message: `Ballot image size mismatch: XML definition is ${paperSize}-size, or ${expectedCardGeometry.canvasSize.width}x${expectedCardGeometry.canvasSize.height}, but ${side} image is ${imageData.width}x${imageData.height}`,
-        side,
-        ballotPaperSize: paperSize,
-        expectedImageSize: expectedCardGeometry.canvasSize,
-        actualImageSize: { width: imageData.width, height: imageData.height },
-      });
-    }
+  if (
+    !frontExpectedPaperSize ||
+    !backExpectedPaperSize ||
+    frontExpectedPaperSize !== backExpectedPaperSize ||
+    frontExpectedPaperSize !== paperSize
+  ) {
+    success = frontExpectedPaperSize === backExpectedPaperSize;
+    issues.push({
+      kind: ConvertIssueKind.InvalidTemplateSize,
+      message: `Template images do not match expected sizes.`,
+      paperSize,
+      frontTemplateSize: {
+        width: cardDefinition.front.width,
+        height: cardDefinition.front.height,
+      },
+      backTemplateSize: {
+        width: cardDefinition.back.width,
+        height: cardDefinition.back.height,
+      },
+    });
+    paperSize = frontExpectedPaperSize;
   }
+
+  assert(paperSize, 'paperSize should always be set');
+  const expectedCardGeometry = getTemplateBallotCardGeometry(paperSize);
 
   debug?.layer('front page');
   const frontTimingMarks = findBallotTimingMarks(cardDefinition.front, {
@@ -986,6 +997,10 @@ export function convertElectionDefinition(
   const mergedGrids = pairColumnEntriesResult.pairs;
   const result: Election = {
     ...election,
+    ballotLayout: {
+      ...(election.ballotLayout ?? {}),
+      paperSize,
+    },
     ballotStyles: [
       {
         ...ballotStyle,
