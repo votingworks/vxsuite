@@ -1,10 +1,12 @@
 import { DateTime } from 'luxon';
+import MockDate from 'mockdate';
 import {
   formatFullDateTimeZone,
   formatLongDate,
   formatTime,
   formatTimeZoneName,
   getDaysInMonth,
+  utcTimestamp,
 } from './date';
 
 test('formatTimeZoneName', () => {
@@ -88,4 +90,12 @@ test('getDaysInMonth', () => {
   const februaryDays = getDaysInMonth(2021, 2);
   expect(februaryDays).toHaveLength(28);
   expect(februaryDays[0]).toEqual(DateTime.fromISO('2021-02-01'));
+});
+
+test('utcTimestamp', () => {
+  const now = DateTime.fromISO('2022-03-23T11:23:00.000Z');
+  MockDate.set(now.toISO());
+  expect(utcTimestamp()).toEqual(Math.round(DateTime.utc().toSeconds()));
+  expect(utcTimestamp()).toMatchInlineSnapshot(`1648034580`);
+  MockDate.reset();
 });

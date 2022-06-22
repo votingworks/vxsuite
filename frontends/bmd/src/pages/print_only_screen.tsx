@@ -110,6 +110,7 @@ export function PrintOnlyScreen({
     }
   }, [isVoterCardPresent, okToPrint, setOkToPrint]);
 
+  // Make sure we clean up any pending timeout on unmount
   useEffect(() => {
     return () => {
       clearTimeout(printerTimer.current);

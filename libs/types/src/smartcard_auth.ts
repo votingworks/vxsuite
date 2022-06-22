@@ -1,4 +1,5 @@
 import * as z from 'zod';
+import { BallotStyleId, PrecinctId } from './election';
 import { ElectionHash, IdSchema, Optional } from './generic';
 import { Result } from './result';
 
@@ -25,7 +26,17 @@ export interface VoterUser {
   readonly updatedAt?: number;
   readonly markMachineId?: string;
 }
-export type User = SuperadminUser | AdminUser | PollworkerUser | VoterUser;
+export interface CardlessVoterUser {
+  readonly role: 'cardless_voter';
+  readonly ballotStyleId: BallotStyleId;
+  readonly precinctId: PrecinctId;
+}
+export type User =
+  | SuperadminUser
+  | AdminUser
+  | PollworkerUser
+  | VoterUser
+  | CardlessVoterUser;
 
 export type UserRole = User['role'];
 export const UserRoleSchema: z.ZodSchema<UserRole> = z.union([
@@ -146,7 +157,12 @@ export interface LoggedOutAuth {
     | 'invalid_user_on_card'
     | 'user_role_not_allowed'
     | 'machine_not_configured'
-    | 'pollworker_election_hash_mismatch';
+    | 'pollworker_wrong_election'
+    | 'voter_wrong_election'
+    | 'voter_wrong_precinct'
+    | 'voter_card_expired'
+    | 'voter_card_voided'
+    | 'voter_card_printed';
 }
 
 export interface SuperadminLoggedInAuth {
@@ -165,18 +181,37 @@ export interface PollworkerLoggedInAuth {
   readonly status: 'logged_in';
   readonly user: PollworkerUser;
   readonly card: CardStorage;
+  // A pollworker can "activate" a cardless voter session by selecting a
+  // precinct and ballot style. The activated cardless voter session begins when
+  // the pollworker removes their card, at which point the auth switches to
+  // CardlessVoterLoggedInAuth.
+  readonly activateCardlessVoter: (
+    precinctId: PrecinctId,
+    ballotStyleId: BallotStyleId
+  ) => void;
+  readonly deactivateCardlessVoter: () => void;
+  readonly activatedCardlessVoter?: CardlessVoterUser;
 }
 
 export interface VoterLoggedInAuth {
   readonly status: 'logged_in';
   readonly user: VoterUser;
   readonly card: CardStorage;
+  readonly markCardVoided: () => Promise<Result<void, Error>>;
+  readonly markCardPrinted: () => Promise<Result<void, Error>>;
+}
+
+export interface CardlessVoterLoggedInAuth {
+  readonly status: 'logged_in';
+  readonly user: CardlessVoterUser;
+  readonly logOut: () => void;
 }
 
 export type LoggedInAuth =
   | SuperadminLoggedInAuth
   | AdminLoggedInAuth
   | PollworkerLoggedInAuth
-  | VoterLoggedInAuth;
+  | VoterLoggedInAuth
+  | CardlessVoterLoggedInAuth;
 
 export type SmartcardAuth = LoggedOutAuth | LoggedInAuth;
