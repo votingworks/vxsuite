@@ -54,13 +54,13 @@ export function ElectionManager(): JSX.Element {
   } = useContext(AppContext);
   const election = electionDefinition?.election;
 
-  const [removeCardScreenShown, setRemoveCardScreenShown] = useState(false);
+  const [cardRemovedAfterAuth, setCardRemovedAfterAuth] = useState(false);
 
   useEffect(() => {
     if (currentUserSession?.authenticated && smartcard.status === 'no_card') {
-      setRemoveCardScreenShown(true);
+      setCardRemovedAfterAuth(true);
     } else if (!currentUserSession) {
-      setRemoveCardScreenShown(false);
+      setCardRemovedAfterAuth(false);
     }
   }, [currentUserSession, smartcard.status]);
 
@@ -99,7 +99,7 @@ export function ElectionManager(): JSX.Element {
     return <UnlockMachineScreen />;
   }
 
-  if (smartcard.status !== 'no_card' && !removeCardScreenShown) {
+  if (smartcard.status !== 'no_card' && !cardRemovedAfterAuth) {
     return (
       <Screen>
         <RemoveCardPage />

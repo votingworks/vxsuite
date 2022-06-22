@@ -90,7 +90,7 @@ export function AppRoot({
   const [electionJustLoaded, setElectionJustLoaded] = useState(false);
   const [isTestMode, setTestMode] = useState(false);
   const [isTogglingTestMode, setTogglingTestMode] = useState(false);
-  const [removeCardScreenShown, setRemoveCardScreenShown] = useState(false);
+  const [cardRemovedAfterAuth, setCardRemovedAfterAuth] = useState(false);
   const [status, setStatus] = useState<Scan.GetScanStatusResponse>({
     canUnconfigure: true,
     batches: [],
@@ -242,9 +242,9 @@ export function AppRoot({
 
   useEffect(() => {
     if (currentUserSession?.authenticated && smartcard.status === 'no_card') {
-      setRemoveCardScreenShown(true);
+      setCardRemovedAfterAuth(true);
     } else if (!currentUserSession) {
-      setRemoveCardScreenShown(false);
+      setCardRemovedAfterAuth(false);
     }
   }, [currentUserSession, smartcard.status]);
 
@@ -576,7 +576,7 @@ export function AppRoot({
     );
   }
 
-  if (smartcard.status !== 'no_card' && !removeCardScreenShown) {
+  if (smartcard.status !== 'no_card' && !cardRemovedAfterAuth) {
     return (
       <Screen>
         <RemoveCardPage />
