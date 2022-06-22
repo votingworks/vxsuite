@@ -99,7 +99,12 @@ export function ElectionManager(): JSX.Element {
     return <UnlockMachineScreen />;
   }
 
-  if (smartcard.status !== 'no_card' && !cardRemovedAfterAuth) {
+  // TODO: Remove 'admin' condition once PIN authentication implemented for super admins
+  if (
+    smartcard.status !== 'no_card' &&
+    !cardRemovedAfterAuth &&
+    currentUserSession.type === 'admin'
+  ) {
     return (
       <Screen>
         <RemoveCardPage />

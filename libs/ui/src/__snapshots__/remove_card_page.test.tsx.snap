@@ -6,17 +6,17 @@ exports[`renders RemoveCardPage 1`] = `
 >
   <img
     alt="Remove Card Icon"
-    class="sc-dkPtyc fPpiEj"
-    src="remove-card.svg"
+    class="sc-dkPtyc edmGaq"
+    src="assets/remove-card.svg"
   />
   <div
     class="sc-gsDJrp gbuPkE"
   >
     <h1>
-      Successfully Authenticated.
+      Successfully Authenticated
     </h1>
     <p>
-      Remove Card.
+      Remove card.
     </p>
   </div>
 </main>

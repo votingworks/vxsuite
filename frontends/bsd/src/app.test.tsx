@@ -443,7 +443,7 @@ test('authentication works', async () => {
   fireEvent.click(screen.getByText('6'));
 
   // 'Remove Card' screen is shown after successful authentication.
-  await screen.findByText('Remove Card.');
+  await screen.findByText('Remove card.');
 
   // Machine is unlocked when card removed
   card.removeCard();

@@ -322,7 +322,7 @@ test('authentication works', async () => {
   fireEvent.click(screen.getByText('6'));
 
   // 'Remove Card' screen is shown after successful authentication.
-  await screen.findByText('Remove Card.');
+  await screen.findByText('Remove card.');
   expect(mockKiosk.log).toHaveBeenCalledWith(
     expect.stringMatching(/"admin-authentication-2fac".*disposition":"success"/)
   );
