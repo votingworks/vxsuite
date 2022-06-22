@@ -54,7 +54,7 @@ export class Store {
    * Adds an adjudication and returns its id.
    */
   addAdjudication(
-    contestId: string,
+    contestId: ContestId,
     cvrId: string,
     transcribedValue = ''
   ): string {

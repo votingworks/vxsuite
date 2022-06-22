@@ -5,7 +5,6 @@ import { render as testRender, RenderResult } from '@testing-library/react';
 
 import { electionWithMsEitherNeitherDefinition } from '@votingworks/fixtures';
 import {
-  ContestId,
   ElectionDefinition,
   FullElectionTally,
   FullElectionExternalTally,
@@ -45,7 +44,6 @@ interface RenderInAppContextParams {
   saveElection?: SaveElection;
   saveTranscribedValue?: (
     adjudicationId: AdjudicationId,
-    contestId: ContestId,
     transcribedValue: string
   ) => Promise<void>;
   setCastVoteRecordFiles?: React.Dispatch<

@@ -2,9 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 
 import {
-  ContestId,
+  Adjudication,
   CandidateContest,
-  CastVoteRecord,
   Election,
   getPartyAbbreviationByPartyId,
 } from '@votingworks/types';
@@ -48,7 +47,7 @@ const TranscriptionPaginationContainer = styled.div`
   padding: 0.5rem 1rem;
 `;
 
-/* isntabul ignore next */
+/* istanbul ignore next */
 function noop() {
   // nothing to do
 }
@@ -56,8 +55,8 @@ function noop() {
 export function WriteInsTranscriptionScreen({
   contest,
   election,
-  ballotIdxBeingAdjudicated,
-  ballotsBeingAdjudicated,
+  adjudications,
+  paginationIdx,
   onClickNext,
   onClickPrevious,
   onClose,
@@ -66,15 +65,14 @@ export function WriteInsTranscriptionScreen({
 }: {
   contest: CandidateContest;
   election: Election;
-  ballotIdxBeingAdjudicated: number;
-  ballotsBeingAdjudicated: readonly CastVoteRecord[];
+  adjudications: readonly Adjudication[];
+  paginationIdx: number;
   onClickNext?: () => void;
   onClickPrevious?: () => void;
   onClose: () => void;
   onListAll: () => void;
   saveTranscribedValue: (
     adjudicationId: string,
-    contestId: ContestId,
     transcribedValue: string
   ) => void;
 }): JSX.Element {
@@ -92,8 +90,9 @@ export function WriteInsTranscriptionScreen({
 
   assert(contest);
   assert(election);
-  const currentBallot = ballotsBeingAdjudicated[ballotIdxBeingAdjudicated];
-  const ballotId = currentBallot._ballotId as BallotId;
+
+  const currentAdjudication = adjudications[paginationIdx];
+
   return (
     <Screen>
       <Navigation
@@ -136,8 +135,7 @@ export function WriteInsTranscriptionScreen({
                   <Button
                     onPress={() =>
                       saveTranscribedValue(
-                        ballotId,
-                        contest.id,
+                        currentAdjudication.id,
                         transcribedValue
                       )
                     }
@@ -156,8 +154,7 @@ export function WriteInsTranscriptionScreen({
               Previous
             </Button>
             <Text bold>
-              {ballotIdxBeingAdjudicated + 1} of{' '}
-              {ballotsBeingAdjudicated.length}
+              {paginationIdx + 1} of {adjudications.length}
             </Text>
             <Button disabled={!onClickNext} onPress={onClickNext || noop}>
               Next

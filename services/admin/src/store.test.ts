@@ -26,9 +26,11 @@ test('add/get adjudications', () => {
   const id = store.addAdjudication('mayor', cvrId, 'Mickey Mouse');
   let added = store.getAdjudicationById(id);
 
-  expect(added?.id).toEqual(id);
-  expect(added?.contestId).toEqual('mayor');
-  expect(added?.transcribedValue).toEqual('Mickey Mouse');
+  expect(added).toEqual({
+    id,
+    contestId: 'mayor',
+    transcribedValue: 'Mickey Mouse',
+  });
   store.updateAdjudicationTranscribedValue(id, 'Mickey');
   added = store.getAdjudicationById(id);
   expect(added?.transcribedValue).toEqual('Mickey');

@@ -1,6 +1,5 @@
 import { createContext, RefObject } from 'react';
 import {
-  ContestId,
   ElectionDefinition,
   FullElectionTally,
   FullElectionExternalTally,
@@ -52,7 +51,6 @@ export interface AppContextInterface {
   ) => Promise<void>;
   saveTranscribedValue: (
     adjudicationId: string,
-    contestId: ContestId,
     transcribedValue: string
   ) => Promise<void>;
   setIsTabulationRunning: React.Dispatch<React.SetStateAction<boolean>>;

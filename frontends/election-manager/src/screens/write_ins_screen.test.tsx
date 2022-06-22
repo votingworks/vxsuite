@@ -1,5 +1,6 @@
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import React from 'react';
+import fetchMock from 'fetch-mock';
 import { electionMinimalExhaustiveSampleWithDataFiles } from '@votingworks/fixtures';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { CastVoteRecordFiles } from '../utils/cast_vote_record_files';
@@ -8,12 +9,30 @@ import { WriteInsScreen } from './write_ins_screen';
 const TEST_FILE1 = 'cvrs.jsonl';
 
 describe('Write-in Adjudication screen', () => {
+  beforeEach(() => {
+    fetchMock.mock();
+    fetchMock.get('/admin/write-ins/adjudications/contestId/count', [
+      { contestId: 'zoo-council-mammal', adjudicationCount: 3 },
+    ]);
+    fetchMock.get('/admin/write-ins/adjudications/zoo-council-mammal/', [
+      { id: '123', contestId: 'zoo-council-mammal' },
+      { id: 'abc', contestId: 'zoo-council-mammal' },
+      { id: '456', contestId: 'zoo-council-mammal' },
+    ]);
+  });
+
+  afterEach(() => {
+    fetchMock.restore();
+  });
+
   const { electionDefinition, cvrData } =
     electionMinimalExhaustiveSampleWithDataFiles;
 
-  test('No CVRs imported', () => {
+  test('No CVRs imported', async () => {
     renderInAppContext(<WriteInsScreen />, { electionDefinition });
-    screen.getByText('Adjudication can begin once CVRs are imported.');
+    await waitFor(() => {
+      screen.getByText('Adjudication can begin once CVRs are imported.');
+    });
     expect(
       screen.getAllByText(/Adjudicate write-ins for “City Zoo Council”/)[0]
     ).toBeDisabled();
@@ -31,12 +50,20 @@ describe('Write-in Adjudication screen', () => {
       electionDefinition,
     });
 
-    const adjudicateButton = screen.getByText(
-      /Adjudicate 649 write-ins for “City Zoo Council”/
-    );
-    expect(adjudicateButton).not.toBeDisabled();
-    adjudicateButton.click();
-    screen.getByText('BALLOT IMAGES GO HERE');
+    renderInAppContext(<WriteInsScreen />, {
+      castVoteRecordFiles: added,
+      electionDefinition,
+    });
+
+    let adjudicateButtons;
+    await waitFor(() => {
+      adjudicateButtons = screen.getAllByText(
+        /Adjudicate 3 write-ins for “City Zoo Council”/
+      );
+    });
+    if (adjudicateButtons) {
+      expect(adjudicateButtons[0]).not.toBeDisabled();
+    }
   });
 
   test('ballot pagination', async () => {
@@ -51,12 +78,14 @@ describe('Write-in Adjudication screen', () => {
       electionDefinition,
     });
 
-    screen.getByText(/Adjudicate 649 write-ins for “City Zoo Council”/).click();
+    await waitFor(() => {
+      screen.getByText(/Adjudicate 3 write-ins for “City Zoo Council”/).click();
+    });
 
     const previousButton = screen.getByText('Previous');
     const nextButton = screen.getByText('Next');
 
-    screen.getByText(/1 of 649/);
+    screen.getByText(/1 of 3/);
     expect(previousButton).toBeDisabled();
     expect(nextButton).not.toBeDisabled();
 
@@ -65,7 +94,7 @@ describe('Write-in Adjudication screen', () => {
         expect(nextButton).not.toBeDisabled();
         nextButton.click();
       } catch {
-        screen.getByText(/649 of 649/);
+        screen.getByText(/3 of 3/);
         expect(previousButton).not.toBeDisabled();
         expect(nextButton).toBeDisabled();
         break;

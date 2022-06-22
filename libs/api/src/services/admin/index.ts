@@ -1,6 +1,44 @@
-import { ContestId, ContestIdSchema } from '@votingworks/types';
+import {
+  // CastVoteRecordSchema,
+  ContestId,
+  ContestIdSchema,
+} from '@votingworks/types';
 import * as z from 'zod';
 import { ErrorsResponse, ErrorsResponseSchema, OkResponse } from '../../base';
+
+/**
+ * @url /admin/write-ins/cvrs
+ * @method POST
+ */
+export interface PostCvrsRequest {
+  files?: any;
+}
+
+/**
+ * @url /admin/write-ins/cvrs
+ * @method POST
+ */
+export const PostCvrsRequestSchema: z.ZodSchema<PostCvrsRequest> = z.object({
+  files: z.any(),
+});
+
+/**
+ * @url /admin/write-ins/cvrs
+ * @method POST
+ */
+export type PostCvrsResponse = OkResponse | ErrorsResponse;
+
+/**
+ * @url /admin/write-ins/cvrs
+ * @method POST
+ */
+export const PostCvrsResponseSchema: z.ZodSchema<PostCvrsResponse> = z.union([
+  z.object({
+    status: z.literal('ok'),
+  }),
+  ErrorsResponseSchema,
+]);
+//
 
 /**
  * @url /admin/write-ins/adjudication

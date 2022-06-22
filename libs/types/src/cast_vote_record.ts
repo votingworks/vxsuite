@@ -28,5 +28,4 @@ export interface CastVoteRecord
   readonly _pageNumber?: number;
   readonly _pageNumbers?: number[];
   readonly _locales?: BallotLocale;
-  adjudications?: Adjudication[];
 }
