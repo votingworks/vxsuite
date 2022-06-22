@@ -1,6 +1,7 @@
 {
   "extends": "../../../tsconfig.shared.json",
   "compilerOptions": {
+    "target": "ES2019",
     "types": ["cypress", "cypress-file-upload"],
     "isolatedModules": false,
     "allowJs": true,

@@ -4,8 +4,10 @@ import {
   BallotTargetMarkPosition,
   Candidate,
   CandidateContest,
+  Contests,
   DistrictIdSchema,
   Election,
+  getContests,
   GridPosition,
   GridPositionOption,
   GridPositionWriteIn,
@@ -17,8 +19,15 @@ import {
   unsafeParse,
   YesNoContest,
 } from '@votingworks/types';
-import { assert, groupBy, throwIllegalValue, zipMin } from '@votingworks/utils';
+import {
+  assert,
+  groupBy,
+  throwIllegalValue,
+  zip,
+  zipMin,
+} from '@votingworks/utils';
 import { sha256 } from 'js-sha256';
+import { decode as decodeHtmlEntities } from 'he';
 import { DateTime } from 'luxon';
 import { ZodError } from 'zod';
 import {
@@ -103,7 +112,7 @@ export enum PairColumnEntriesIssueKind {
 /**
  * Errors that can occur during `pairColumnEntries`.
  */
-export type PairColumnEntriesIssue =
+export type PairColumnEntriesIssue<T extends GridEntry, U extends GridEntry> =
   | {
       kind: PairColumnEntriesIssueKind.ColumnCountMismatch;
       message: string;
@@ -114,6 +123,8 @@ export type PairColumnEntriesIssue =
       message: string;
       columnIndex: number;
       columnEntryCounts: [number, number];
+      extraLeftEntries: T[];
+      extraRightEntries: U[];
     };
 
 /**
@@ -129,7 +140,7 @@ export type PairColumnEntriesResult<T extends GridEntry, U extends GridEntry> =
   | {
       readonly success: false;
       readonly pairs: ReadonlyArray<[T, U]>;
-      readonly issues: readonly PairColumnEntriesIssue[];
+      readonly issues: ReadonlyArray<PairColumnEntriesIssue<T, U>>;
     };
 
 /**
@@ -154,7 +165,7 @@ export function pairColumnEntries<T extends GridEntry, U extends GridEntry>(
     // sort by side, row
     .map(([, entries]) => Array.from(entries).sort(compareGridEntry));
   const pairs: Array<[T, U]> = [];
-  const issues: PairColumnEntriesIssue[] = [];
+  const issues: Array<PairColumnEntriesIssue<T, U>> = [];
 
   if (grid1Columns.length !== grid2Columns.length) {
     issues.push({
@@ -172,6 +183,8 @@ export function pairColumnEntries<T extends GridEntry, U extends GridEntry>(
         message: `Columns at index ${columnIndex} disagree on entry count: grid #1 has ${column1.length} entries, but grid #2 has ${column2.length} entries`,
         columnIndex,
         columnEntryCounts: [column1.length, column2.length],
+        extraLeftEntries: column1.slice(column2.length),
+        extraRightEntries: column2.slice(column1.length),
       });
     }
     for (const [entry1, entry2] of zipMin(column1, column2)) {
@@ -183,6 +196,139 @@ export function pairColumnEntries<T extends GridEntry, U extends GridEntry>(
   return issues.length
     ? { success: false, pairs, issues }
     : { success: true, pairs };
+}
+
+/**
+ * Parse constitutional question gibberish. Here's an example:
+ *
+ * ```html
+ * <![CDATA[<div>CONSTITUTIONAL AMENDMENT QUESTION </div><div>Constitutional Amendment Proposed by the General Court</div><div>Question Proposed pursuant to Part II, Article 100 of the New Hampshire Constitution.</div><div> </div><div>"Shall there be a convention to amend or revise the constitution?     YES  <FONT face=Arial> <IMG src="http://ertuat.sos.nh.gov/ballotpaper/assets/images/oval.png""></FONT>                                  NO  <FONT face=Arial> <IMG src="http://ertuat.sos.nh.gov/ballotpaper/assets/images/oval.png""></FONT></div>
+ * ```
+ *
+ * This is not structured data, and isn't even valid HTML. We just strip all the
+ * tags and assume that:
+ *   1. Each question will start with a capital letter in A-Z.
+ *   2. Each question will end with a question mark "?".
+ *   3. Each question will be followed by "YES" and "NO".
+ */
+function parseConstitutionalQuestions(text: string): string[] {
+  const questions: string[] = [];
+
+  let textWithoutTags = text
+    // remove any CDATA structures
+    .replace(/<!\[CDATA\[/i, '')
+    // remove section header
+    .replace('CONSTITUTIONAL AMENDMENT QUESTION', '')
+    // remove useless tags
+    .replaceAll(/<img\b[^>]*>/gi, '');
+
+  // unwrap all tags leaving just text content
+  for (;;) {
+    const nextTextWithoutTags = textWithoutTags.replaceAll(
+      /<([a-z]+)\b[^>]*>(.*?)<\/\1>/gi,
+      ' $2 '
+    );
+
+    if (nextTextWithoutTags === textWithoutTags) {
+      break;
+    }
+
+    textWithoutTags = nextTextWithoutTags;
+  }
+  const cleanedText = textWithoutTags.replaceAll(/\s+/gi, ' ').trim();
+  const questionPattern = /([A-Z][^.]+\?)\s+YES\s+NO\b/g;
+
+  for (;;) {
+    const match = questionPattern.exec(cleanedText);
+    if (!match || !match[1]) {
+      break;
+    }
+    questions.push(match[1]);
+  }
+
+  return questions;
+}
+
+/**
+ * Matches grid positions from the election definition to ovals found in the
+ * template, correcting for missing YES/NO grid positions by assuming they will
+ * appear after all other contests with all YES options in one column and all NO
+ * options in another.
+ */
+function matchContestOptionsOnGrid(
+  contests: Contests,
+  gridPositions: readonly GridPosition[],
+  ovalGrid: readonly TemplateOvalGridEntry[]
+): PairColumnEntriesResult<GridPosition, TemplateOvalGridEntry> {
+  const pairResult = pairColumnEntries(gridPositions, ovalGrid);
+
+  if (pairResult.success || pairResult.issues.length !== 2 /* YES/NO */) {
+    return pairResult;
+  }
+
+  const pairs = [...pairResult.pairs];
+  let [yesColumnIssue, noColumnIssue] = pairResult.issues;
+  const yesNoContests = contests.filter((contest) => contest.type === 'yesno');
+
+  // Ensure we have exactly two columns with the expected number of extra
+  // entries representing the YES/NO options. If not, then just return the
+  // original result.
+  if (
+    yesColumnIssue?.kind !==
+      PairColumnEntriesIssueKind.ColumnEntryCountMismatch ||
+    noColumnIssue?.kind !==
+      PairColumnEntriesIssueKind.ColumnEntryCountMismatch ||
+    yesColumnIssue.extraLeftEntries.length !== 0 ||
+    noColumnIssue.extraLeftEntries.length !== 0 ||
+    yesColumnIssue.extraRightEntries.length !==
+      noColumnIssue.extraRightEntries.length ||
+    yesColumnIssue.extraRightEntries.length !== yesNoContests.length ||
+    noColumnIssue.extraRightEntries.length !== yesNoContests.length
+  ) {
+    return pairResult;
+  }
+
+  // Swap the YES/NO columns if YES is to the right of NO.
+  if (
+    (yesColumnIssue.extraRightEntries[0]?.column ?? 0) >
+    (noColumnIssue.extraRightEntries[0]?.column ?? 0)
+  ) {
+    [yesColumnIssue, noColumnIssue] = [noColumnIssue, yesColumnIssue];
+  }
+
+  // Add the YES/NO options to the grid.
+  for (const [contest, yesGridEntry, noGridEntry] of zip(
+    yesNoContests,
+    yesColumnIssue.extraRightEntries,
+    noColumnIssue.extraRightEntries
+  )) {
+    pairs.push(
+      [
+        {
+          type: 'option',
+          contestId: contest.id,
+          optionId: 'yes',
+          side: yesGridEntry.side,
+          column: yesGridEntry.column,
+          row: yesGridEntry.row,
+        },
+        yesGridEntry,
+      ],
+      [
+        {
+          type: 'option',
+          contestId: contest.id,
+          optionId: 'no',
+          side: noGridEntry.side,
+          column: noGridEntry.column,
+          row: noGridEntry.row,
+        },
+        noGridEntry,
+      ]
+    );
+  }
+
+  return { success: true, pairs };
 }
 
 /**
@@ -253,6 +399,11 @@ export enum ConvertIssueKind {
 }
 
 /**
+ * A grid entry for a specific template oval.
+ */
+export type TemplateOvalGridEntry = TemplateOval & { side: 'front' | 'back' };
+
+/**
  * Issues that can occur when converting a ballot card definition.
  */
 export type ConvertIssue =
@@ -295,7 +446,10 @@ export type ConvertIssue =
   | {
       kind: ConvertIssueKind.MismatchedOvalGrids;
       message: string;
-      pairColumnEntriesIssue: PairColumnEntriesIssue;
+      pairColumnEntriesIssue: PairColumnEntriesIssue<
+        GridPosition,
+        TemplateOvalGridEntry
+      >;
     }
   | {
       kind: ConvertIssueKind.MissingDefinitionProperty;
@@ -642,6 +796,39 @@ export function convertElectionDefinitionHeader(
     });
   }
 
+  const issues: ConvertIssue[] = [];
+  const ballotPaperInfoElement =
+    root.getElementsByTagName('BallotPaperInfo')[0];
+
+  if (ballotPaperInfoElement) {
+    const questionsElement =
+      ballotPaperInfoElement.getElementsByTagName('Questions')[0];
+
+    if (questionsElement) {
+      const questionsTextContent = questionsElement.textContent;
+
+      if (typeof questionsTextContent !== 'string') {
+        issues.push({
+          kind: ConvertIssueKind.MissingDefinitionProperty,
+          message: 'Questions data is invalid',
+          property: 'AVSInterface > BallotPaperInfo > Questions',
+        });
+      } else {
+        const questionsDecoded = decodeHtmlEntities(questionsTextContent);
+        for (const question of parseConstitutionalQuestions(questionsDecoded)) {
+          contests.push({
+            type: 'yesno',
+            id: makeId(question),
+            section: 'Constitutional Amendment Question',
+            title: 'Constitutional Amendment Question',
+            description: question,
+            districtId,
+          });
+        }
+      }
+    }
+  }
+
   const definitionGrid = readGridFromElectionDefinition(root);
 
   const election: Election = {
@@ -739,7 +926,7 @@ export function convertElectionDefinitionHeader(
   return {
     success: true,
     election: parseElectionResult.ok(),
-    issues: [],
+    issues,
   };
 }
 
@@ -948,7 +1135,6 @@ export function convertElectionDefinition(
   const ballotStyle = election.ballotStyles[0];
   assert(ballotStyle, 'ballot style missing');
 
-  type TemplateOvalGridEntry = TemplateOval & { side: 'front' | 'back' };
   const ovalGrid = [
     ...frontTemplateOvals.map<TemplateOvalGridEntry>((oval) => ({
       ...oval,
@@ -960,7 +1146,8 @@ export function convertElectionDefinition(
     })),
   ];
 
-  const pairColumnEntriesResult = pairColumnEntries(
+  const pairColumnEntriesResult = matchContestOptionsOnGrid(
+    getContests({ ballotStyle, election }),
     gridLayout.gridPositions.map<GridPosition>((gridPosition) => ({
       ...gridPosition,
     })),
