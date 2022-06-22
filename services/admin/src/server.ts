@@ -25,24 +25,21 @@ export function buildApp({ store }: { store: Store }): Application {
     response.status(200).json({ status: 'ok' });
   });
 
-  app.get<NoParams>(
-    '/admin/write-ins/adjudication/:id',
-    (request, response) => {
-      const { id } = request.params;
+  app.get('/admin/write-ins/adjudication/:id', (request, response) => {
+    const { id } = request.params;
 
-      if (typeof id !== 'string') {
-        response.status(404);
-        return;
-      }
-
-      const adjudication = store.getAdjudicationById(id);
-      if (adjudication) {
-        response.json(adjudication);
-      } else {
-        response.status(404).end();
-      }
+    if (typeof id !== 'string') {
+      response.status(404);
+      return;
     }
-  );
+
+    const adjudication = store.getAdjudicationById(id);
+    if (adjudication) {
+      response.json(adjudication);
+    } else {
+      response.status(404).end();
+    }
+  });
 
   app.post<NoParams, Admin.PostCvrsResponse, Admin.PostCvrsRequest>(
     '/admin/write-ins/cvrs',
@@ -125,13 +122,10 @@ export function buildApp({ store }: { store: Store }): Application {
     }
   );
 
-  app.get<NoParams>(
-    '/admin/write-ins/adjudications/:contestId/',
-    (request, response) => {
-      const { contestId } = request.params;
-      response.json(store.getAdjudicationsByContestId(contestId));
-    }
-  );
+  app.get('/admin/write-ins/adjudications/:contestId/', (request, response) => {
+    const { contestId } = request.params;
+    response.json(store.getAdjudicationsByContestId(contestId));
+  });
 
   return app;
 }
