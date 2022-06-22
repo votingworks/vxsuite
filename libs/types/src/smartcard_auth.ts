@@ -181,6 +181,10 @@ export interface PollworkerLoggedInAuth {
   readonly status: 'logged_in';
   readonly user: PollworkerUser;
   readonly card: CardStorage;
+  // A pollworker can "activate" a cardless voter session by selecting a
+  // precinct and ballot style. The activated cardless voter session begins when
+  // the pollworker removes their card, at which point the auth switches to
+  // CardlessVoterLoggedInAuth.
   readonly activateCardlessVoter: (
     precinctId: PrecinctId,
     ballotStyleId: BallotStyleId
