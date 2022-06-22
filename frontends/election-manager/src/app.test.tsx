@@ -1131,9 +1131,12 @@ test('admin UI has expected nav when VVSG2 auth flows are enabled', async () => 
   render(<App card={card} hardware={hardware} storage={storage} />);
   await authenticateWithAdminCard(card);
 
-  screen.getByText('Ballots');
-  screen.getByText('L&A');
-  screen.getByText('Tally');
+  userEvent.click(screen.getByText('Ballots'));
+  await screen.findAllByText('View Ballot');
+  userEvent.click(screen.getByText('L&A'));
+  await screen.findByRole('heading', { name: 'L&A Materials' });
+  userEvent.click(screen.getByText('Tally'));
+  await screen.findByRole('heading', { name: 'Election Tally Reports' });
   screen.getByRole('button', { name: 'Lock Machine' });
 
   expect(screen.queryByText('Definition')).not.toBeInTheDocument();
@@ -1153,11 +1156,16 @@ test('super admin UI has expected nav when VVSG2 auth flows are enabled', async 
   render(<App card={card} hardware={hardware} storage={storage} />);
   await authenticateWithSuperAdminCard(card);
 
-  screen.getByText('Definition');
-  screen.getByText('Draft Ballots');
-  screen.getByText('Smartcards');
-  screen.getByText('Settings');
-  screen.getByText('Logs');
+  userEvent.click(screen.getByText('Definition'));
+  await screen.findByRole('heading', { name: 'Election Definition' });
+  userEvent.click(screen.getByText('Draft Ballots'));
+  await screen.findAllByText('View Ballot');
+  userEvent.click(screen.getByText('Smartcards'));
+  await screen.findByRole('heading', { name: 'Smartcards' });
+  userEvent.click(screen.getByText('Settings'));
+  await screen.findByRole('heading', { name: 'Settings' });
+  userEvent.click(screen.getByText('Logs'));
+  await screen.findByRole('heading', { name: 'Logs' });
   screen.getByRole('button', { name: 'Lock Machine' });
 });
 
@@ -1170,9 +1178,12 @@ test('super admin UI has expected nav when no election and VVSG2 auth flows are 
   render(<App card={card} hardware={hardware} />);
   await authenticateWithSuperAdminCard(card, false);
 
-  screen.getByText('Definition');
-  screen.getByText('Settings');
-  screen.getByText('Logs');
+  userEvent.click(screen.getByText('Definition'));
+  await screen.findByRole('heading', { name: 'Configure VxAdmin' });
+  userEvent.click(screen.getByText('Settings'));
+  await screen.findByRole('heading', { name: 'Settings' });
+  userEvent.click(screen.getByText('Logs'));
+  await screen.findByRole('heading', { name: 'Logs' });
   screen.getByRole('button', { name: 'Lock Machine' });
 
   expect(screen.queryByText('Draft Ballots')).not.toBeInTheDocument();
