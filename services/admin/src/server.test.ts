@@ -241,5 +241,5 @@ test('GET /admin/write-ins/transcribed-values', async () => {
   workspace.store.addAdjudication('county-commissioner', cvrId, 'Daffy');
   await request(app)
     .get('/admin/write-ins/transcribed-values')
-    .expect(200, ['Mickey Mouse', 'Daffy']);
+    .expect(200, ['Daffy', 'Mickey Mouse']);
 });

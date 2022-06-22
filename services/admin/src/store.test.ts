@@ -93,14 +93,15 @@ test('deleteCvrs', () => {
 
 test('getAllTranscribedValues', () => {
   const store = Store.memoryStore();
-  store.addAdjudication('mayor', 'Mickey Mouse');
-  store.addAdjudication('assistant-mayor', 'Mickey Mouse');
-  store.addAdjudication('county-commissioner', 'Daffy');
+  const cvrId = store.addCvr('test');
+  store.addAdjudication('mayor', cvrId, 'Mickey Mouse');
+  store.addAdjudication('assistant-mayor', cvrId, 'Mickey Mouse');
+  store.addAdjudication('county-commissioner', cvrId, 'Daffy');
 
   // Does not include duplicates and is in alphabetical order
   expect(store.getAllTranscribedValues()).toEqual(['Daffy', 'Mickey Mouse']);
 
   // Does not include empty strings
-  store.addAdjudication('chief-of-staff', '');
+  store.addAdjudication('chief-of-staff', cvrId, '');
   expect(store.getAllTranscribedValues()).toEqual(['Daffy', 'Mickey Mouse']);
 });
