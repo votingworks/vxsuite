@@ -15,15 +15,17 @@ export function LogsScreen(): JSX.Element {
       <NavigationScreen>
         <Prose maxWidth={false}>
           <h1>Logs</h1>
-          <Button onPress={() => setLogFileType(LogFileType.Raw)}>
-            Export Log File
-          </Button>{' '}
-          <Button
-            disabled={!electionDefinition} // CDF requires the election to be known
-            onPress={() => setLogFileType(LogFileType.Cdf)}
-          >
-            Export Log File as CDF
-          </Button>
+          <p>
+            <Button onPress={() => setLogFileType(LogFileType.Raw)}>
+              Export Log File
+            </Button>{' '}
+            <Button
+              disabled={!electionDefinition} // CDF requires the election to be known
+              onPress={() => setLogFileType(LogFileType.Cdf)}
+            >
+              Export Log File as CDF
+            </Button>
+          </p>
         </Prose>
       </NavigationScreen>
       {logFileType && (
