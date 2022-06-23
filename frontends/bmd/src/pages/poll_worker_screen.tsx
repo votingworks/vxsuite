@@ -218,8 +218,10 @@ export function PollWorkerScreen({
       }
     }
 
-    void checkCardForTally();
-  }, [pollworkerAuth, election, parties]);
+    if (!precinctScannerTally) {
+      void checkCardForTally();
+    }
+  }, [pollworkerAuth, election, parties, precinctScannerTally]);
 
   const precinctScannerTallyInformation =
     precinctScannerTally &&
@@ -270,6 +272,7 @@ export function PollWorkerScreen({
         await printer.print({ sides: 'one-sided' });
         await sleep(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
         await resetCardTallyData();
+        setPrecinctScannerTally(undefined);
         printLock.unlock();
       }
     }
