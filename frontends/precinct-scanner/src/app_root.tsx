@@ -20,6 +20,7 @@ import {
   useUserSession,
   useDevices,
   RebootFromUsbButton,
+  Button,
 } from '@votingworks/ui';
 import {
   assert,
@@ -722,6 +723,9 @@ export function AppRoot({
             usbDriveStatus={usbDriveDisplayStatus}
             logger={logger}
           />
+          <br />
+          <br />
+          <Button onPress={() => window.kiosk?.quit()}>Reset</Button>
         </CenteredLargeProse>
       </ScreenMainCenterChild>
     );

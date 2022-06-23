@@ -24,6 +24,7 @@ import {
   advanceTimersAndPromises,
   makePollWorkerCard,
   makeAdminCard,
+  makeSuperadminCard,
   getZeroCompressedTally,
 } from '@votingworks/test-utils';
 import { join } from 'path';
@@ -1380,4 +1381,39 @@ test('no printer: open polls, scan ballot, close polls, export results', async (
 
   card.removeCard();
   await screen.findByText('Polls Closed');
+});
+
+test('superadmin card', async () => {
+  const card = new MemoryCard();
+  const storage = new MemoryStorage();
+  const hardware = MemoryHardware.buildStandard();
+  hardware.setCardReaderConnected(true);
+
+  const kiosk = fakeKiosk();
+  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+  window.kiosk = kiosk;
+
+  fetchMock
+    .get('/machine-config', { body: getMachineConfigBody })
+    .get('/config/election', { body: electionSampleDefinition })
+    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
+    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody });
+  render(<App card={card} storage={storage} hardware={hardware} />);
+
+  const superadmincard = makeSuperadminCard();
+
+  await act(async () => {
+    card.insertCard(superadmincard);
+    await advanceTimersAndPromises(1);
+    await advanceTimersAndPromises(1);
+  });
+
+  screen.getByText('Reboot from USB');
+  screen.getByText('Reset');
+  fireEvent.click(screen.getByText('Reset'));
+
+  expect(kiosk.quit).toHaveBeenCalledTimes(1);
+
+  card.removeCard();
 });

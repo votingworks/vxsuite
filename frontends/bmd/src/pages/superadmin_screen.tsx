@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 
-import { Main, RebootFromUsbButton, Screen } from '@votingworks/ui';
+import { Main, RebootFromUsbButton, Screen, Button } from '@votingworks/ui';
 
 import { usbstick } from '@votingworks/utils';
 import { Logger } from '@votingworks/logging';
@@ -25,6 +25,8 @@ export function SuperAdminScreen({
     <Screen white>
       <Main padded centerChild>
         <RebootFromUsbButton usbDriveStatus={usbDriveStatus} logger={logger} />
+        <br />
+        <Button onPress={() => window.kiosk?.quit()}>Reset</Button>
       </Main>
     </Screen>
   );
