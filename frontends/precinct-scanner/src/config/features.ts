@@ -15,6 +15,6 @@ export function isLiveCheckEnabled(): boolean {
   return (
     (process.env.NODE_ENV === 'development' ||
       asBoolean(process.env.REACT_APP_VX_DEV)) &&
-    asBoolean(process.env['REACT_APP_VX_ENABLE_LIVECHECK'])
+    asBoolean(process.env.REACT_APP_VX_ENABLE_LIVECHECK)
   );
 }
