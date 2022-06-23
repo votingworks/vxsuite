@@ -136,7 +136,6 @@ it('MarkAndPrint end-to-end flow', async () => {
   screen.getByText('Card is not configured for this election.');
   screen.getByText('Please ask admin for assistance.');
   card.removeCard();
-  await advanceTimersAndPromises();
 
   // Open Polls with Poll Worker Card
   card.insertCard(pollWorkerCard);
@@ -390,15 +389,11 @@ it('MarkAndPrint end-to-end flow', async () => {
 
   expect(writeLongUint8ArrayMock).toHaveBeenCalledTimes(4);
   expect(writeLongUint8ArrayMock).toHaveBeenNthCalledWith(4, new Uint8Array());
-  card.removeCard();
-  await advanceTimersAndPromises();
 
   // Insert SuperAdmin card
   card.insertCard({ t: 'superadmin' });
   await advanceTimersAndPromises();
   screen.getByText('Reboot from USB');
-  card.removeCard();
-  await advanceTimersAndPromises();
 
   // ---------------
 

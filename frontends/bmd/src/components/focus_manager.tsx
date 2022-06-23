@@ -45,10 +45,8 @@ export function FocusManager({
       window.setTimeout(() => {
         const elementToFocus =
           document.getElementById('audiofocus') ?? screen.current;
-        /* istanbul ignore next */
-        if (!elementToFocus) return;
-        elementToFocus.focus();
-        elementToFocus.click();
+        elementToFocus?.focus();
+        elementToFocus?.click();
       }, 150);
     }
     onPageLoad();

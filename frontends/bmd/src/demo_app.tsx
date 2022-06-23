@@ -8,12 +8,13 @@ import {
   Storage,
   MemoryStorage,
   MemoryHardware,
-  utcTimestamp,
 } from '@votingworks/utils';
 import { App, Props } from './app';
+import { utcTimestamp } from './utils/utc_timestamp';
 import {
   MachineConfig,
   PrecinctSelectionKind,
+  SerializableActivationData,
   MarkAndPrint,
 } from './config/types';
 import { State } from './app_root';
@@ -43,10 +44,19 @@ export function getDemoStorage(): Storage {
     ballotsPrintedCount: 0,
     isLiveMode: true,
     isPollsOpen: true,
+    ballotStyleId,
+    isCardlessVoter: false,
+    precinctId,
+  };
+  const activation: SerializableActivationData = {
+    ballotStyleId,
+    isCardlessVoter: false,
+    precinctId,
   };
   return new MemoryStorage({
     state,
     electionDefinition: electionSampleDefinition,
+    activation,
   });
 }
 

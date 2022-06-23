@@ -89,6 +89,11 @@ describe('Mark Card Void when voter is idle too long', () => {
 
     // Idle reset timeout expires
     await advanceTimersAndPromises();
+
+    // Insert Card screen displays while card is read again.
+    screen.getByText('Insert Card');
+
+    // Card read again and now displays expired msg.
     await advanceTimersAndPromises();
     screen.getByText('Expired Card');
 
@@ -161,8 +166,11 @@ describe('Mark Card Void when voter is idle too long', () => {
     advanceTimers(IDLE_RESET_TIMEOUT_SECONDS - secondsRemaining);
     screen.getByText(`${secondsRemaining} seconds`);
 
-    // Idle reset timeout expires
     advanceTimers(secondsRemaining);
+    screen.getByText('Clearing ballot');
+
+    // Idle reset timeout expires
+    await advanceTimersAndPromises();
 
     // Insert voter card screen is displayed.
     screen.getByText('Insert voter card to load ballot.');
