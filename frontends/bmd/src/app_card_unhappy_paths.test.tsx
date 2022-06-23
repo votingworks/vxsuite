@@ -10,16 +10,11 @@ import {
   makeVoterCard,
   makePollWorkerCard,
 } from '@votingworks/test-utils';
-import {
-  MemoryStorage,
-  MemoryCard,
-  MemoryHardware,
-  utcTimestamp,
-} from '@votingworks/utils';
+import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
 
-import { VOTER_CARD_EXPIRATION_SECONDS } from '@votingworks/ui';
 import { App } from './app';
 
+import { CARD_EXPIRATION_SECONDS } from './config/globals';
 import {
   advanceTimersAndPromises,
   makeExpiredVoterCard,
@@ -30,6 +25,7 @@ import {
   setElectionInStorage,
   setStateInStorage,
 } from '../test/helpers/election';
+import { utcTimestamp } from './utils/utc_timestamp';
 import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
 import { PrintOnly } from './config/types';
 
@@ -102,7 +98,7 @@ test('Display App Card Unhappy Paths', async () => {
 
   // Voter Card which eventually expires
   const expiringCard = makeVoterCard(electionSample, {
-    c: utcTimestamp() - VOTER_CARD_EXPIRATION_SECONDS + 5 * 60, // 5 minutes until expiration
+    c: utcTimestamp() - CARD_EXPIRATION_SECONDS + 5 * 60, // 5 minutes until expiration
   });
 
   // First Insert is Good

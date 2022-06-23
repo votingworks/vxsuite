@@ -30,8 +30,8 @@ export function IdlePage(): JSX.Element {
       await markVoterCardVoided();
       resetBallot();
     }
-    if (countdown === 0 && !isLoading) void reset();
-  }, [countdown, markVoterCardVoided, resetBallot, isLoading]);
+    if (countdown === 0) void reset();
+  }, [countdown, markVoterCardVoided, resetBallot]);
 
   useInterval(() => {
     setCountdown((previous) => previous - 1);
