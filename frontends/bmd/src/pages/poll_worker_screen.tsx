@@ -132,6 +132,7 @@ function PrecinctScannerTallyReportModal({
 
   useEffect(() => {
     async function loadTallyFromCard() {
+      if (precinctScannerTally) return;
       setPrecinctScannerTally(
         (
           await pollworkerAuth.card.readStoredObject(
