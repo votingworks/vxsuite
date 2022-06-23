@@ -167,6 +167,9 @@ function PrecinctScannerTallyReportModal({
   const currentTime = Date.now();
   const reportPurposes = ['Publicly Posted', 'Officially Filed'];
 
+  if (!precinctScannerTally) return null;
+  assert(precinctScannerTallyInformation);
+
   return (
     <React.Fragment>
       {!isPrinting && (
@@ -198,73 +201,68 @@ function PrecinctScannerTallyReportModal({
           }
         />
       )}
-      {precinctScannerTally &&
-        precinctScannerTallyInformation &&
-        reportPurposes.map((reportPurpose) => {
-          return (
-            <React.Fragment key={reportPurpose}>
-              <PrecinctScannerPollsReport
-                key={`polls-report-${reportPurpose}`}
-                ballotCount={precinctScannerTally.totalBallotsScanned}
-                currentTime={currentTime}
-                election={electionDefinition.election}
-                isLiveMode={precinctScannerTally.isLiveMode}
-                isPollsOpen={precinctScannerTally.isPollsOpen}
-                precinctScannerMachineId={precinctScannerTally.machineId}
-                timeTallySaved={precinctScannerTally.timeSaved}
-                precinctSelection={precinctScannerTally.precinctSelection}
-                reportPurpose={reportPurpose}
-              />
-              <PrintableContainer>
-                <TallyReport>
-                  {precinctScannerTallyInformation.precinctList.map(
-                    (precinctSel) =>
-                      parties.map((partyId) => {
-                        const precinctIdIfDefined =
-                          precinctSel.kind ===
-                          PrecinctSelectionKind.SinglePrecinct
-                            ? precinctSel.precinctId
-                            : undefined;
-                        const tallyForReport =
-                          precinctScannerTallyInformation.subTallies.get(
-                            getTallyIdentifier(partyId, precinctIdIfDefined)
-                          );
-                        assert(tallyForReport);
-                        return (
-                          <PrecinctScannerTallyReport
-                            key={getTallyIdentifier(
-                              partyId,
-                              precinctIdIfDefined
-                            )}
-                            electionDefinition={electionDefinition}
-                            tally={tallyForReport}
-                            precinctSelection={precinctSel}
-                            partyId={partyId}
-                            reportPurpose={reportPurpose}
-                            isPollsOpen={precinctScannerTally.isPollsOpen}
-                            reportSavedTime={precinctScannerTally.timeSaved}
-                          />
+      {reportPurposes.map((reportPurpose) => {
+        return (
+          <React.Fragment key={reportPurpose}>
+            <PrecinctScannerPollsReport
+              key={`polls-report-${reportPurpose}`}
+              ballotCount={precinctScannerTally.totalBallotsScanned}
+              currentTime={currentTime}
+              election={electionDefinition.election}
+              isLiveMode={precinctScannerTally.isLiveMode}
+              isPollsOpen={precinctScannerTally.isPollsOpen}
+              precinctScannerMachineId={precinctScannerTally.machineId}
+              timeTallySaved={precinctScannerTally.timeSaved}
+              precinctSelection={precinctScannerTally.precinctSelection}
+              reportPurpose={reportPurpose}
+            />
+            <PrintableContainer>
+              <TallyReport>
+                {precinctScannerTallyInformation.precinctList.map(
+                  (precinctSel) =>
+                    parties.map((partyId) => {
+                      const precinctIdIfDefined =
+                        precinctSel.kind ===
+                        PrecinctSelectionKind.SinglePrecinct
+                          ? precinctSel.precinctId
+                          : undefined;
+                      const tallyForReport =
+                        precinctScannerTallyInformation.subTallies.get(
+                          getTallyIdentifier(partyId, precinctIdIfDefined)
                         );
-                      })
-                  )}
-                  {precinctScannerTally.totalBallotsScanned > 0 && (
-                    <PrecinctScannerTallyQrCode
-                      electionDefinition={electionDefinition}
-                      signingMachineId={machineConfig.machineId}
-                      compressedTally={
-                        precinctScannerTallyInformation.overallTally
-                      }
-                      reportPurpose={reportPurpose}
-                      isPollsOpen={precinctScannerTally.isPollsOpen}
-                      isLiveMode={precinctScannerTally.isLiveMode}
-                      reportSavedTime={precinctScannerTally.timeSaved}
-                    />
-                  )}
-                </TallyReport>
-              </PrintableContainer>
-            </React.Fragment>
-          );
-        })}
+                      assert(tallyForReport);
+                      return (
+                        <PrecinctScannerTallyReport
+                          key={getTallyIdentifier(partyId, precinctIdIfDefined)}
+                          electionDefinition={electionDefinition}
+                          tally={tallyForReport}
+                          precinctSelection={precinctSel}
+                          partyId={partyId}
+                          reportPurpose={reportPurpose}
+                          isPollsOpen={precinctScannerTally.isPollsOpen}
+                          reportSavedTime={precinctScannerTally.timeSaved}
+                        />
+                      );
+                    })
+                )}
+                {precinctScannerTally.totalBallotsScanned > 0 && (
+                  <PrecinctScannerTallyQrCode
+                    electionDefinition={electionDefinition}
+                    signingMachineId={machineConfig.machineId}
+                    compressedTally={
+                      precinctScannerTallyInformation.overallTally
+                    }
+                    reportPurpose={reportPurpose}
+                    isPollsOpen={precinctScannerTally.isPollsOpen}
+                    isLiveMode={precinctScannerTally.isLiveMode}
+                    reportSavedTime={precinctScannerTally.timeSaved}
+                  />
+                )}
+              </TallyReport>
+            </PrintableContainer>
+          </React.Fragment>
+        );
+      })}
     </React.Fragment>
   );
 }
@@ -353,7 +351,6 @@ export function PollWorkerScreen({
    */
   useEffect(() => {
     if (!isConfirmingEnableLiveMode && !pollworkerCardHasTally) {
-      console.log('trigger audio focus');
       triggerAudioFocus();
     }
   }, [
