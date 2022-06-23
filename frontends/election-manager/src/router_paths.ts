@@ -16,7 +16,7 @@ export const routerPaths = {
   definitionEditor: '/definition/editor',
   definitionContest: ({ contestId }: { contestId: ContestId }): string =>
     `/definition/contests/${contestId}`,
-  smartcards: '/cards',
+  smartcards: '/smartcards',
   ballotsList: '/ballots',
   ballotsView: ({ ballotStyleId, precinctId }: BallotScreenProps): string =>
     `/ballots/style/${ballotStyleId}/precinct/${precinctId}`,
