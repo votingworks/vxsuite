@@ -17,6 +17,7 @@ export const routerPaths = {
   definitionContest: ({ contestId }: { contestId: ContestId }): string =>
     `/definition/contests/${contestId}`,
   smartcards: '/smartcards',
+  superAdminSmartcards: '/smartcards/super-admin-smartcards',
   ballotsList: '/ballots',
   ballotsView: ({ ballotStyleId, precinctId }: BallotScreenProps): string =>
     `/ballots/style/${ballotStyleId}/precinct/${precinctId}`,
