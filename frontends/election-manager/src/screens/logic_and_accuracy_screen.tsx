@@ -32,7 +32,9 @@ export function LogicAndAccuracyScreen(): JSX.Element {
                 Print L&amp;A Packages
               </LinkButton>
             </p>
-            <FullTestDeckTallyReportButton />
+            <p>
+              <FullTestDeckTallyReportButton />
+            </p>
           </React.Fragment>
         )}
       </Prose>
