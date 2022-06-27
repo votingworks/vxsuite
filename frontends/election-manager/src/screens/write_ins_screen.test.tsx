@@ -24,6 +24,11 @@ describe('Write-in Adjudication screen', () => {
       contestId: 'zoo-council-mammal',
       transcribedValue: 'Mickey Mouse',
     });
+    fetchMock.get('/admin/write-ins/transcribed-values', [
+      'Daffy',
+      'Mickey Mouse',
+      'Minnie',
+    ]);
   });
 
   afterEach(() => {
