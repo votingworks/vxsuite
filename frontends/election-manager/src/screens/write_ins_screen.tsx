@@ -102,32 +102,34 @@ export function WriteInsScreen(): JSX.Element {
             </p>
           ))}
         </Prose>
-        {contestBeingAdjudicated && election && (
-          <Modal
-            content={
-              <WriteInsTranscriptionScreen
-                election={election}
-                contest={contestBeingAdjudicated}
-                adjudications={adjudicationsForCurrentContest}
-                paginationIdx={paginationIdx}
-                onClose={() => setContestBeingAdjudicated(undefined)}
-                onListAll={placeholderFn}
-                onClickNext={
-                  paginationIdx < adjudicationsForCurrentContest.length - 1
-                    ? () => setPaginationIdx(paginationIdx + 1)
-                    : undefined
-                }
-                onClickPrevious={
-                  paginationIdx
-                    ? () => setPaginationIdx(paginationIdx - 1)
-                    : undefined
-                }
-                saveTranscribedValue={saveTranscribedValue}
-              />
-            }
-            fullscreen
-          />
-        )}
+        {election &&
+          contestBeingAdjudicated &&
+          adjudicationsForCurrentContest.length && (
+            <Modal
+              content={
+                <WriteInsTranscriptionScreen
+                  election={election}
+                  contest={contestBeingAdjudicated}
+                  adjudications={adjudicationsForCurrentContest}
+                  paginationIdx={paginationIdx}
+                  onClose={() => setContestBeingAdjudicated(undefined)}
+                  onListAll={placeholderFn}
+                  onClickNext={
+                    paginationIdx < adjudicationsForCurrentContest.length - 1
+                      ? () => setPaginationIdx(paginationIdx + 1)
+                      : undefined
+                  }
+                  onClickPrevious={
+                    paginationIdx
+                      ? () => setPaginationIdx(paginationIdx - 1)
+                      : undefined
+                  }
+                  saveTranscribedValue={saveTranscribedValue}
+                />
+              }
+              fullscreen
+            />
+          )}
       </NavigationScreen>
     </React.Fragment>
   );
