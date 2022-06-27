@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import {
   Adjudication,
+  AdjudicationId,
   CandidateContest,
   Election,
   getPartyAbbreviationByPartyId,
@@ -76,22 +77,48 @@ export function WriteInsTranscriptionScreen({
     transcribedValue: string
   ) => void;
 }): JSX.Element {
-  const previouslyTranscribedValues = [
-    'Mickey Mouse',
-    'Mickey M',
-    'Micky',
-    'Donald',
-    'Donald Duck',
-    'Roger Rabbit',
-    'RR',
-    'DD',
-    'M. Mouse',
-  ];
+  const [currentTranscribedValue, setCurrentTranscribedValue] = useState('');
+  const [isTranscribedValueInputVisible, setIsTranscribedValueInputVisible] =
+    useState(false);
+  // TODO: initialize these with values from the DB
+  const [previouslyTranscribedValues, setPreviouslyTranscribedValues] =
+    useState([
+      'Mickey Mouse',
+      'Mickey M',
+      'Micky',
+      'Donald',
+      'Donald Duck',
+      'Roger Rabbit',
+      'RR',
+      'DD',
+      'M. Mouse',
+    ]);
+
+  const transcribedValueInput = useRef<HTMLInputElement>(null);
 
   assert(contest);
   assert(election);
 
   const currentAdjudication = adjudications[paginationIdx];
+  const adjudicationId = currentAdjudication.id;
+
+  function onPressSetTranscribedValue(val: string): void {
+    setCurrentTranscribedValue(val);
+    saveTranscribedValue(adjudicationId || '', val);
+  }
+
+  useEffect(() => {
+    async function getTranscribedValue(id: AdjudicationId): Promise<void> {
+      const res = await fetch(`/admin/write-ins/adjudication/${id}`);
+      try {
+        const { transcribedValue } = await res.json();
+        setCurrentTranscribedValue(transcribedValue);
+      } catch {
+        setCurrentTranscribedValue('');
+      }
+    }
+    void getTranscribedValue(adjudicationId || '');
+  }, [adjudicationId]);
 
   return (
     <Screen>
@@ -123,28 +150,50 @@ export function WriteInsTranscriptionScreen({
                   })}
                   )
                 </h1>
+                <h2>Adjudication ID: {adjudicationId}</h2>
               </React.Fragment>
             )}
-            <Text>
-              <label htmlFor="transcription-value">Transcribed Value</label>
-            </Text>
-            <TextInput id="transcribed-value" name="transcribed-value" />
             <PreviouslyTranscribedValuesContainer>
-              {previouslyTranscribedValues.map((transcribedValue) => (
-                <PreviouslyTranscribedValueButtonWrapper key={transcribedValue}>
+              {previouslyTranscribedValues.map((val) => (
+                <PreviouslyTranscribedValueButtonWrapper key={val}>
                   <Button
-                    onPress={() =>
-                      saveTranscribedValue(
-                        currentAdjudication.id,
-                        transcribedValue
-                      )
-                    }
+                    primary={val === currentTranscribedValue}
+                    onPress={() => onPressSetTranscribedValue(val)}
                   >
-                    {transcribedValue}
+                    {val}
                   </Button>
                 </PreviouslyTranscribedValueButtonWrapper>
               ))}
+              <PreviouslyTranscribedValueButtonWrapper>
+                <Button onPress={() => setIsTranscribedValueInputVisible(true)}>
+                  Add new +
+                </Button>
+              </PreviouslyTranscribedValueButtonWrapper>
             </PreviouslyTranscribedValuesContainer>
+            {isTranscribedValueInputVisible && (
+              <React.Fragment>
+                <Text>
+                  <label htmlFor="transcription-value">Transcribed Value</label>
+                  <TextInput
+                    id="transcribed-value"
+                    ref={transcribedValueInput}
+                    name="transcribed-value"
+                  />
+                </Text>
+                <Button
+                  onPress={() => {
+                    const val = transcribedValueInput.current?.value || '';
+                    onPressSetTranscribedValue(val);
+                    setPreviouslyTranscribedValues(
+                      previouslyTranscribedValues.concat([val])
+                    );
+                    setIsTranscribedValueInputVisible(false);
+                  }}
+                >
+                  Save
+                </Button>
+              </React.Fragment>
+            )}
           </TranscriptionMainContentContainer>
           <TranscriptionPaginationContainer>
             <Button

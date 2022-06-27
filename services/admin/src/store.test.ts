@@ -39,8 +39,8 @@ test('add/get adjudications', () => {
 test('getAdjudicationsByContestId', () => {
   const store = Store.memoryStore();
   const cvrId = store.addCvr('test');
-  store.addAdjudication('mayor', cvrId, 'Minnie Mouse');
-  store.addAdjudication('mayor', cvrId, 'Goofy');
+  const adjudicationId = store.addAdjudication('mayor', cvrId, 'Minnie Mouse');
+  const adjudicationId2 = store.addAdjudication('mayor', cvrId, 'Goofy');
   store.addAdjudication('assistant-mayor', cvrId, 'Mickey Mouse');
 
   // Does not include duplicates and is in alphabetical order
@@ -48,11 +48,13 @@ test('getAdjudicationsByContestId', () => {
     {
       contestId: 'mayor',
       cvrId,
+      id: adjudicationId,
       transcribedValue: 'Minnie Mouse',
     },
     {
       contestId: 'mayor',
       cvrId,
+      id: adjudicationId2,
       transcribedValue: 'Goofy',
     },
   ]);

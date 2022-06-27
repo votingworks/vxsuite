@@ -110,8 +110,16 @@ test('GET /admin/write-ins/adjudications/:contestId/', async () => {
     .expect(200, []);
 
   const cvrId = workspace.store.addCvr('test');
-  workspace.store.addAdjudication('mayor', cvrId, 'Minnie Mouse');
-  workspace.store.addAdjudication('mayor', cvrId, 'Goofy');
+  const adjudicationId = workspace.store.addAdjudication(
+    'mayor',
+    cvrId,
+    'Minnie Mouse'
+  );
+  const adjudicationId2 = workspace.store.addAdjudication(
+    'mayor',
+    cvrId,
+    'Goofy'
+  );
   workspace.store.addAdjudication('county-commissioner', cvrId, 'Daffy');
 
   // contestId that does not exist
@@ -126,11 +134,13 @@ test('GET /admin/write-ins/adjudications/:contestId/', async () => {
       {
         contestId: 'mayor',
         cvrId,
+        id: adjudicationId,
         transcribedValue: 'Minnie Mouse',
       },
       {
         contestId: 'mayor',
         cvrId,
+        id: adjudicationId2,
         transcribedValue: 'Goofy',
       },
     ]);

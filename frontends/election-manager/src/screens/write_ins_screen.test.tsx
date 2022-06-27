@@ -19,6 +19,11 @@ describe('Write-in Adjudication screen', () => {
       { id: 'abc', contestId: 'zoo-council-mammal' },
       { id: '456', contestId: 'zoo-council-mammal' },
     ]);
+    fetchMock.get('express:/admin/write-ins/adjudication/:adjudicationId', {
+      id: 'abc',
+      contestId: 'zoo-council-mammal',
+      transcribedValue: 'Mickey Mouse',
+    });
   });
 
   afterEach(() => {
