@@ -862,6 +862,37 @@ export class Store {
       const backAdjudications = backAdjudicationJson
         ? safeParseJson(backAdjudicationJson, MarkAdjudicationsSchema).ok()
         : undefined;
+
+      const frontImages = [];
+      const backImages = [];
+      if (
+        frontInterpretation.type === 'InterpretedHmpbPage' ||
+        frontInterpretation.type === 'UninterpretedHmpbPage'
+      ) {
+        const frontFilenames = this.getBallotFilenames(id, 'front');
+        if (frontFilenames?.normalized) {
+          frontImages.push({
+            normalized: fs.readFileSync(frontFilenames.normalized, 'utf-8'),
+          });
+        }
+        if (frontFilenames?.original) {
+          frontImages.push({
+            original: fs.readFileSync(frontFilenames.original, 'utf-8'),
+          });
+        }
+        const backFilenames = this.getBallotFilenames(id, 'back');
+        if (backFilenames?.normalized) {
+          backImages.push({
+            normalized: fs.readFileSync(backFilenames.normalized, 'utf-8'),
+          });
+        }
+        if (backFilenames?.original) {
+          backImages.push({
+            original: fs.readFileSync(backFilenames.original, 'utf-8'),
+          });
+        }
+      }
+
       const cvr = buildCastVoteRecord(
         id,
         batchId,
@@ -891,7 +922,8 @@ export class Store {
                 : undefined,
             markAdjudications: backAdjudications,
           },
-        ]
+        ],
+        [frontImages, backImages]
       );
 
       if (cvr) {

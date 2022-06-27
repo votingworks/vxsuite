@@ -230,7 +230,8 @@ function buildCastVoteRecordFromHmpbPage(
   election: Election,
   [front, back]: SheetOf<
     BuildCastVoteRecordInput<InterpretedHmpbPage | UninterpretedHmpbPage>
-  >
+  >,
+  [frontImages, backImages]: any
 ): CastVoteRecord {
   if (
     front.interpretation.metadata.pageNumber >
@@ -242,7 +243,8 @@ function buildCastVoteRecordFromHmpbPage(
       batchId,
       batchLabel,
       election,
-      [back, front]
+      [back, front],
+      [backImages, frontImages]
     );
   }
 
@@ -275,6 +277,7 @@ function buildCastVoteRecordFromHmpbPage(
         : {},
       back.markAdjudications
     ),
+    _ballotImages: [frontImages, backImages],
   };
 }
 
@@ -284,7 +287,8 @@ export function buildCastVoteRecord(
   batchLabel: string,
   ballotId: BallotId,
   election: Election,
-  [front, back]: SheetOf<BuildCastVoteRecordInput>
+  [front, back]: SheetOf<BuildCastVoteRecordInput>,
+  [frontImages, backImages]: any // istanbul ignore line
 ): CastVoteRecord | undefined {
   const validationResult = validateSheetInterpretation([
     front.interpretation,
@@ -307,7 +311,8 @@ export function buildCastVoteRecord(
       batchLabel,
       ballotId,
       election,
-      [back, front]
+      [back, front],
+      [frontImages, backImages]
     );
   }
 
@@ -333,7 +338,8 @@ export function buildCastVoteRecord(
       election,
       [front, back] as SheetOf<
         BuildCastVoteRecordInput<InterpretedHmpbPage | UninterpretedHmpbPage>
-      >
+      >,
+      [frontImages, backImages]
     );
   }
 }
