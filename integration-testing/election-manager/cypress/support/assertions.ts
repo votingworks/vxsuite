@@ -56,7 +56,6 @@ export function assertExpectedResultsMatchTallyReport(
   expectedContestResults: ExpectedContestResults[], // {Contest-Id: {Candidate-Id: Number of Votes}}
   summaryData: ExpectedSummaryData
 ): void {
-  cy.contains('Preview Report').click() // Not relevant to the test but useful when debugging with the live video.
   if (!summaryData.hide) {
     const expectedAbsenteeVotes = summaryData.absentee ?? 0
     const expectedPrecinctVotes = summaryData.precinct ?? 0

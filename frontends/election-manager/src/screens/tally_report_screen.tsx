@@ -30,6 +30,7 @@ import { filterTalliesByParamsAndBatchId } from '../lib/votecounting';
 
 import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';
 import { ElectionManagerTallyReport } from '../components/election_manager_tally_report';
+import { PrintableArea } from '../components/printable_area';
 
 const TallyReportPreview = styled(TallyReport)`
   section {
@@ -44,7 +45,6 @@ const TallyReportPreview = styled(TallyReport)`
 export function TallyReportScreen(): JSX.Element {
   const printReportRef = useRef<HTMLDivElement>(null);
   const previewReportRef = useRef<HTMLDivElement>(null);
-  const [showPreview, setShowPreview] = useState(false);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const { precinctId } = useParams<PrecinctReportScreenProps>();
   const { scannerId } = useParams<ScannerReportScreenProps>();
@@ -153,14 +153,12 @@ export function TallyReportScreen(): JSX.Element {
   ]);
 
   useEffect(() => {
-    if (showPreview) {
-      void logger.log(LogEventId.TallyReportPreviewed, currentUserType, {
-        message: `User previewed a ${reportDisplayTitle} to view.`,
-        disposition: 'success',
-        tallyReportTitle: reportDisplayTitle,
-      });
-    }
-  }, [showPreview, logger, reportDisplayTitle, currentUserType]);
+    void logger.log(LogEventId.TallyReportPreviewed, currentUserType, {
+      message: `User previewed the ${reportDisplayTitle}.`,
+      disposition: 'success',
+      tallyReportTitle: reportDisplayTitle,
+    });
+  }, [logger, reportDisplayTitle, currentUserType]);
 
   function afterPrint() {
     void logger.log(LogEventId.TallyReportPrinted, currentUserType, {
@@ -197,10 +195,6 @@ export function TallyReportScreen(): JSX.Element {
     fileSuffix
   );
 
-  function toggleReportPreview() {
-    setShowPreview((s) => !s);
-  }
-
   const generatedAtTime = new Date();
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -208,7 +202,7 @@ export function TallyReportScreen(): JSX.Element {
     if (previewReportRef?.current && printReportRef?.current) {
       previewReportRef.current.innerHTML = printReportRef.current.innerHTML;
     }
-  }, [previewReportRef, printReportRef, showPreview]);
+  }, [previewReportRef, printReportRef]);
 
   return (
     <React.Fragment>
@@ -228,9 +222,6 @@ export function TallyReportScreen(): JSX.Element {
             >
               Print Report
             </PrintButton>{' '}
-            <Button onPress={toggleReportPreview}>
-              {showPreview ? 'Hide Preview' : 'Preview Report'}
-            </Button>{' '}
             {window.kiosk && (
               <Button onPress={() => setIsSaveModalOpen(true)}>
                 Save Report as PDF
@@ -242,17 +233,15 @@ export function TallyReportScreen(): JSX.Element {
               Back to Tally Index
             </LinkButton>
           </p>
-          {showPreview && (
-            <React.Fragment>
-              <h2>Report Preview</h2>
-              <Text italic small>
-                <strong>Note:</strong> Printed reports may be paginated to more
-                than one piece of paper.
-              </Text>
-            </React.Fragment>
-          )}
+          <React.Fragment>
+            <h2>Report Preview</h2>
+            <Text italic small>
+              <strong>Note:</strong> Printed reports may be paginated to more
+              than one piece of paper.
+            </Text>
+          </React.Fragment>
         </Prose>
-        {showPreview && <TallyReportPreview ref={previewReportRef} />}
+        <TallyReportPreview ref={previewReportRef} />
       </NavigationScreen>
       {isSaveModalOpen && (
         <SaveFileToUsb
@@ -262,20 +251,22 @@ export function TallyReportScreen(): JSX.Element {
           fileType={FileType.TallyReport}
         />
       )}
-      <ElectionManagerTallyReport
-        batchId={batchId}
-        batchLabel={batchLabel}
-        election={election}
-        fullElectionExternalTallies={fullElectionExternalTallies}
-        fullElectionTally={fullElectionTally}
-        generatedAtTime={generatedAtTime}
-        isOfficialResults={isOfficialResults}
-        partyId={partyId}
-        precinctId={precinctId}
-        ref={printReportRef}
-        scannerId={scannerId}
-        votingMethod={votingMethod}
-      />
+      <PrintableArea data-testid="printable-area">
+        <ElectionManagerTallyReport
+          batchId={batchId}
+          batchLabel={batchLabel}
+          election={election}
+          fullElectionExternalTallies={fullElectionExternalTallies}
+          fullElectionTally={fullElectionTally}
+          generatedAtTime={generatedAtTime}
+          isOfficialResults={isOfficialResults}
+          partyId={partyId}
+          precinctId={precinctId}
+          ref={printReportRef}
+          scannerId={scannerId}
+          votingMethod={votingMethod}
+        />
+      </PrintableArea>
     </React.Fragment>
   );
 }
