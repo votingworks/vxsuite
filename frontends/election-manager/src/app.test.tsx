@@ -576,17 +576,19 @@ test('tabulating CVRs', async () => {
   );
 
   fireEvent.click(getByText('View Official Full Election Tally Report'));
-
-  expect(
-    getAllByText('Official Mock General Election Choctaw 2020 Tally Report')
-      .length > 0
-  ).toBe(true);
-  // TODO: Snapshots without clear definition of what they are for cause future developers to have to figure out what the test is for each time this test breaks.
-  expect(getByTestId('election-full-tally-report')).toMatchSnapshot();
-  fireEvent.click(getByText('Preview Report'));
   expect(mockKiosk.log).toHaveBeenCalledWith(
     expect.stringContaining(LogEventId.TallyReportPreviewed)
   );
+  // Report title should be rendered 3 times - app, preview, and printed
+  expect(
+    getAllByText('Official Mock General Election Choctaw 2020 Tally Report')
+      .length
+  ).toBe(3);
+  // TODO: Snapshots without clear definition of what they are for cause future developers to have to figure out what the test is for each time this test breaks.
+  const printableArea1 = getByTestId('printable-area');
+  expect(
+    within(printableArea1).getByTestId('election-full-tally-report')
+  ).toMatchSnapshot();
 
   fireEvent.click(getByText('Tally'));
 
@@ -620,7 +622,9 @@ test('tabulating CVRs', async () => {
 
   fireEvent.click(getByText('View Official Batch 2 Tally Report'));
   getByText('Official Batch Tally Report for Batch 2 (Scanner: scanner-1)');
-  expect(getByTestId('total')).toHaveTextContent('4');
+  const printableArea2 = getByTestId('printable-area');
+  const totalRow = within(printableArea2).getByTestId('total');
+  expect(totalRow).toHaveTextContent('4');
 
   fireEvent.click(getByText('Back to Tally Index'));
 
@@ -631,13 +635,17 @@ test('tabulating CVRs', async () => {
   getByText(
     'Official Mock General Election Choctaw 2020 Tally Reports for All Precincts'
   );
-  // Test that each precinct has a tally report generated
+  // Test that each precinct has a tally report generated and
+  // rendered twice: once for preview and once for printing
   for (const p of eitherNeitherElectionDefinition.election.precincts) {
-    getByText(`Official Precinct Tally Report for: ${p.name}`);
+    expect(
+      getAllByText(`Official Precinct Tally Report for: ${p.name}`).length
+    ).toBe(2);
   }
-  // The election title is written one extra time in the footer of the page.
+  // The election title is written once for each precinct the preview, once for each
+  // precinct in the printed report, and one extra time in the footer of the page.
   expect(getAllByText('Mock General Election Choctaw 2020').length).toBe(
-    eitherNeitherElectionDefinition.election.precincts.length + 1
+    eitherNeitherElectionDefinition.election.precincts.length * 2 + 1
   );
 
   // Save SEMS file
@@ -704,7 +712,8 @@ test('tabulating CVRs', async () => {
   // When there are no CVRs imported the full tally report is labeled as the zero report
   fireEvent.click(getByText('View Unofficial Full Election Tally Report'));
   // Verify the zero report generates properly
-  expect(getAllByText('0').length).toBe(40);
+  const printableArea3 = getByTestId('printable-area');
+  expect(within(printableArea3).getAllByText('0').length).toBe(40);
 });
 
 test('tabulating CVRs with SEMS file', async () => {
@@ -728,7 +737,7 @@ test('tabulating CVRs with SEMS file', async () => {
 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
-  const { getByText, getByTestId, getAllByTestId, getAllByText } = render(
+  const { getByText, getByTestId, getAllByText } = render(
     <App storage={storage} card={card} hardware={hardware} />
   );
   jest.advanceTimersByTime(2000);
@@ -745,21 +754,29 @@ test('tabulating CVRs with SEMS file', async () => {
 
   fireEvent.click(getByText('View Unofficial Full Election Tally Report'));
 
-  const ballotsByVotingMethod = getAllByTestId('voting-method-table');
-  expect(ballotsByVotingMethod.length).toBe(1);
-  const absenteeRow = domGetByTestId(ballotsByVotingMethod[0], 'absentee');
+  // Report title should be rendered 3 times - app, preview, and printed
+  expect(
+    getAllByText('Unofficial Mock General Election Choctaw 2020 Tally Report')
+      .length
+  ).toBe(3);
+  const printableArea1 = getByTestId('printable-area');
+  const absenteeRow = within(printableArea1).getByTestId('absentee');
   domGetByText(absenteeRow, 'Absentee');
   domGetByText(absenteeRow, '50');
 
-  const precinctRow = domGetByTestId(ballotsByVotingMethod[0], 'standard');
+  const precinctRow = within(printableArea1).getByTestId('standard');
   domGetByText(precinctRow, 'Precinct');
   domGetByText(precinctRow, '150');
 
-  const totalRow = domGetByTestId(ballotsByVotingMethod[0], 'total');
+  const totalRow = within(printableArea1).getByTestId('total');
   domGetByText(totalRow, 'Total Ballots Cast');
   domGetByText(totalRow, '200');
+
   // TODO: Snapshots without clear definition of what they are for cause future developers to have to figure out what the test is for each time this test breaks.
-  expect(getByTestId('election-full-tally-report')).toMatchSnapshot();
+  const printableArea2 = getByTestId('printable-area');
+  expect(
+    within(printableArea2).getByTestId('election-full-tally-report')
+  ).toMatchSnapshot();
   fireEvent.click(getByText('Back to Tally Index'));
 
   // Test exporting the final results
@@ -833,13 +850,9 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
 
-  const {
-    getByText,
-    getByTestId,
-    getAllByText,
-    getAllByTestId,
-    queryAllByText,
-  } = render(<App storage={storage} card={card} hardware={hardware} />);
+  const { getByText, getByTestId, getAllByText, queryAllByText } = render(
+    <App storage={storage} card={card} hardware={hardware} />
+  );
   await authenticateWithAdminCard(card);
 
   await screen.findByText('0 official ballots');
@@ -893,19 +906,23 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
   domGetByText(manualRow, 'District 5');
 
   fireEvent.click(getByText('View Unofficial Full Election Tally Report'));
-  const ballotsByVotingMethod = getAllByTestId('voting-method-table');
-  expect(ballotsByVotingMethod.length).toBe(1);
-  const absenteeRow = domGetByTestId(ballotsByVotingMethod[0], 'absentee');
-  domGetByText(absenteeRow, 'Absentee');
-  domGetByText(absenteeRow, '50');
+  // Report title should be rendered 3 times - app, preview, and printed
+  expect(
+    getAllByText('Unofficial Mock General Election Choctaw 2020 Tally Report')
+      .length
+  ).toBe(3);
+  const printableArea1 = getByTestId('printable-area');
+  const absenteeRow1 = within(printableArea1).getByTestId('absentee');
+  domGetByText(absenteeRow1, 'Absentee');
+  domGetByText(absenteeRow1, '50');
 
-  const precinctRow = domGetByTestId(ballotsByVotingMethod[0], 'standard');
-  domGetByText(precinctRow, 'Precinct');
-  domGetByText(precinctRow, '250');
+  const precinctRow1 = within(printableArea1).getByTestId('standard');
+  domGetByText(precinctRow1, 'Precinct');
+  domGetByText(precinctRow1, '250');
 
-  const totalRow = domGetByTestId(ballotsByVotingMethod[0], 'total');
-  domGetByText(totalRow, 'Total Ballots Cast');
-  domGetByText(totalRow, '300');
+  const totalRow1 = within(printableArea1).getByTestId('total');
+  domGetByText(totalRow1, 'Total Ballots Cast');
+  domGetByText(totalRow1, '300');
 
   // Now edit the manual data
   fireEvent.click(getByText('Back to Tally Index'));
@@ -957,17 +974,21 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
   domGetByText(manualRow2, 'District 5, Panhandle');
 
   fireEvent.click(getByText('View Unofficial Full Election Tally Report'));
-  const ballotsByVotingMethod2 = getAllByTestId('voting-method-table');
-  expect(ballotsByVotingMethod2.length).toBe(1);
-  const absenteeRow2 = domGetByTestId(ballotsByVotingMethod2[0], 'absentee');
+  // Report title should be rendered 3 times - app, preview, and printed
+  expect(
+    getAllByText('Unofficial Mock General Election Choctaw 2020 Tally Report')
+      .length
+  ).toBe(3);
+  const printableArea2 = getByTestId('printable-area');
+  const absenteeRow2 = within(printableArea2).getByTestId('absentee');
   domGetByText(absenteeRow2, 'Absentee');
   domGetByText(absenteeRow2, '250');
 
-  const precinctRow2 = domGetByTestId(ballotsByVotingMethod2[0], 'standard');
+  const precinctRow2 = within(printableArea2).getByTestId('standard');
   domGetByText(precinctRow2, 'Precinct');
   domGetByText(precinctRow2, '150');
 
-  const totalRow2 = domGetByTestId(ballotsByVotingMethod2[0], 'total');
+  const totalRow2 = within(printableArea2).getByTestId('total');
   domGetByText(totalRow2, 'Total Ballots Cast');
   domGetByText(totalRow2, '400');
 
