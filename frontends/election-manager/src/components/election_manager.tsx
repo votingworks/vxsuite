@@ -28,6 +28,8 @@ import { PrintedBallotsReportScreen } from '../screens/printed_ballots_report_sc
 import { ManualDataImportIndexScreen } from '../screens/manual_data_import_index_screen';
 import { ManualDataImportPrecinctScreen } from '../screens/manual_data_import_precinct_screen';
 import { SmartcardsScreen } from '../screens/smartcards_screen';
+import { ElectionSmartcardsScreen } from '../screens/election_smartcards_screen';
+import { SuperAdminSmartcardsScreen } from '../screens/super_admin_smartcards_screen';
 import { MachineLockedScreen } from '../screens/machine_locked_screen';
 import { InvalidCardScreen } from '../screens/invalid_card_screen';
 import { UnlockMachineScreen } from '../screens/unlock_machine_screen';
@@ -189,7 +191,13 @@ export function ElectionManager(): JSX.Element {
           <BallotScreen />
         </Route>
         <Route exact path={routerPaths.smartcards}>
-          <SmartcardsScreen />
+          <Redirect to={routerPaths.electionSmartcards} />
+        </Route>
+        <Route exact path={routerPaths.electionSmartcards}>
+          <ElectionSmartcardsScreen />
+        </Route>
+        <Route exact path={routerPaths.superAdminSmartcards}>
+          <SuperAdminSmartcardsScreen />
         </Route>
         <Route exact path={routerPaths.settings}>
           <SettingsScreen />

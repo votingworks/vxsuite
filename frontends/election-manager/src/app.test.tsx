@@ -1190,3 +1190,28 @@ test('super admin UI has expected nav when no election and VVSG2 auth flows are 
   expect(screen.queryByText('Draft Ballots')).not.toBeInTheDocument();
   expect(screen.queryByText('Smartcards')).not.toBeInTheDocument();
 });
+
+test('super admin Smartcards screen navigation', async () => {
+  jest.useFakeTimers();
+  (areVvsg2AuthFlowsEnabled as jest.Mock).mockImplementation(() => true);
+
+  const card = new MemoryCard();
+  const hardware = MemoryHardware.buildStandard();
+  const storage = await createMemoryStorageWith({
+    electionDefinition: eitherNeitherElectionDefinition,
+  });
+  render(<App card={card} hardware={hardware} storage={storage} />);
+  await authenticateWithSuperAdminCard(card, false);
+
+  userEvent.click(screen.getByText('Smartcards'));
+  screen.getByRole('heading', { name: 'Smartcards' });
+  screen.getByRole('heading', { name: 'Election Cards' });
+  userEvent.click(screen.getByText('Create Super Admin Cards Instead'));
+
+  screen.getByRole('heading', { name: 'Smartcards' });
+  screen.getByRole('heading', { name: 'Super Admin Cards' });
+  userEvent.click(screen.getByText('Create Election Cards Instead'));
+
+  screen.getByRole('heading', { name: 'Smartcards' });
+  screen.getByRole('heading', { name: 'Election Cards' });
+});
