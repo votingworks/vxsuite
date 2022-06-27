@@ -49,7 +49,7 @@ import {
   SetupCardReaderPage,
   useDevices,
   usePrevious,
-  useSmartcardAuth,
+  useInsertedSmartcardAuth,
   useUsbDrive,
 } from '@votingworks/ui';
 import { Ballot } from './components/ballot';
@@ -353,7 +353,7 @@ export function AppRoot({
   const hasPrinterAttached = printerInfo !== undefined;
   const previousHasPrinterAttached = usePrevious(hasPrinterAttached);
 
-  const auth = useSmartcardAuth({
+  const auth = useInsertedSmartcardAuth({
     allowedUserRoles: [
       'superadmin',
       'admin',
