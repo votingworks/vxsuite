@@ -111,7 +111,7 @@ export class Store {
    */
   getAdjudicationsByContestId(contestId: ContestId): Adjudication[] {
     const rows = this.client.all(
-      'select contest_id as contestId, cvr_id as cvrId, transcribed_value as transcribedValue from adjudications where contest_id = ?',
+      'select id, contest_id as contestId, cvr_id as cvrId, transcribed_value as transcribedValue from adjudications where contest_id = ?',
       contestId
     ) as Adjudication[];
 
