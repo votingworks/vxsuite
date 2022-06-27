@@ -584,8 +584,9 @@ test('tabulating CVRs', async () => {
       .length
   ).toBe(3);
   // TODO: Snapshots without clear definition of what they are for cause future developers to have to figure out what the test is for each time this test breaks.
+  const printableArea1 = getByTestId('printable-area');
   expect(
-    domGetByTestId(getByTestId('printable-area'), 'election-full-tally-report')
+    within(printableArea1).getByTestId('election-full-tally-report')
   ).toMatchSnapshot();
 
   fireEvent.click(getByText('Tally'));
@@ -620,7 +621,8 @@ test('tabulating CVRs', async () => {
 
   fireEvent.click(getByText('View Official Batch 2 Tally Report'));
   getByText('Official Batch Tally Report for Batch 2 (Scanner: scanner-1)');
-  const totalRow = domGetByTestId(getByTestId('printable-area'), 'total');
+  const printableArea2 = getByTestId('printable-area');
+  const totalRow = within(printableArea2).getByTestId('total');
   expect(totalRow).toHaveTextContent('4');
 
   fireEvent.click(getByText('Back to Tally Index'));
@@ -709,7 +711,8 @@ test('tabulating CVRs', async () => {
   // When there are no CVRs imported the full tally report is labeled as the zero report
   fireEvent.click(getByText('View Unofficial Full Election Tally Report'));
   // Verify the zero report generates properly
-  expect(domGetAllByText(getByTestId('printable-area'), '0').length).toBe(40);
+  const printableArea3 = getByTestId('printable-area');
+  expect(within(printableArea3).getAllByText('0').length).toBe(40);
 });
 
 test('tabulating CVRs with SEMS file', async () => {
@@ -733,7 +736,7 @@ test('tabulating CVRs with SEMS file', async () => {
 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
-  const { getByText, getByTestId, getAllByTestId, getAllByText } = render(
+  const { getByText, getByTestId, getAllByText } = render(
     <App storage={storage} card={card} hardware={hardware} />
   );
   jest.advanceTimersByTime(2000);
@@ -750,26 +753,28 @@ test('tabulating CVRs with SEMS file', async () => {
 
   fireEvent.click(getByText('View Unofficial Full Election Tally Report'));
 
-  const ballotsByVotingMethod = getAllByTestId('voting-method-table');
-  // Report should be rendered with identical content for both preview and print
-  expect(ballotsByVotingMethod.length).toBe(2);
-  for (const votingMethodTable of ballotsByVotingMethod) {
-    const absenteeRow = domGetByTestId(votingMethodTable, 'absentee');
-    domGetByText(absenteeRow, 'Absentee');
-    domGetByText(absenteeRow, '50');
+  // Report title should be rendered 3 times - app, preview, and printed
+  expect(
+    getAllByText('Unofficial Mock General Election Choctaw 2020 Tally Report')
+      .length
+  ).toBe(3);
+  const printableArea1 = getByTestId('printable-area');
+  const absenteeRow = within(printableArea1).getByTestId('absentee');
+  domGetByText(absenteeRow, 'Absentee');
+  domGetByText(absenteeRow, '50');
 
-    const precinctRow = domGetByTestId(votingMethodTable, 'standard');
-    domGetByText(precinctRow, 'Precinct');
-    domGetByText(precinctRow, '150');
+  const precinctRow = within(printableArea1).getByTestId('standard');
+  domGetByText(precinctRow, 'Precinct');
+  domGetByText(precinctRow, '150');
 
-    const totalRow = domGetByTestId(votingMethodTable, 'total');
-    domGetByText(totalRow, 'Total Ballots Cast');
-    domGetByText(totalRow, '200');
-  }
+  const totalRow = within(printableArea1).getByTestId('total');
+  domGetByText(totalRow, 'Total Ballots Cast');
+  domGetByText(totalRow, '200');
 
   // TODO: Snapshots without clear definition of what they are for cause future developers to have to figure out what the test is for each time this test breaks.
+  const printableArea2 = getByTestId('printable-area');
   expect(
-    domGetByTestId(getByTestId('printable-area'), 'election-full-tally-report')
+    within(printableArea2).getByTestId('election-full-tally-report')
   ).toMatchSnapshot();
   fireEvent.click(getByText('Back to Tally Index'));
 
@@ -905,16 +910,16 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
     getAllByText('Unofficial Mock General Election Choctaw 2020 Tally Report')
       .length
   ).toBe(3);
-  const printableReport1 = getByTestId('printable-area');
-  const absenteeRow1 = domGetByTestId(printableReport1, 'absentee');
+  const printableArea1 = getByTestId('printable-area');
+  const absenteeRow1 = within(printableArea1).getByTestId('absentee');
   domGetByText(absenteeRow1, 'Absentee');
   domGetByText(absenteeRow1, '50');
 
-  const precinctRow1 = domGetByTestId(printableReport1, 'standard');
+  const precinctRow1 = within(printableArea1).getByTestId('standard');
   domGetByText(precinctRow1, 'Precinct');
   domGetByText(precinctRow1, '250');
 
-  const totalRow1 = domGetByTestId(printableReport1, 'total');
+  const totalRow1 = within(printableArea1).getByTestId('total');
   domGetByText(totalRow1, 'Total Ballots Cast');
   domGetByText(totalRow1, '300');
 
@@ -973,16 +978,16 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
     getAllByText('Unofficial Mock General Election Choctaw 2020 Tally Report')
       .length
   ).toBe(3);
-  const printableReport2 = getByTestId('printable-area');
-  const absenteeRow2 = domGetByTestId(printableReport2, 'absentee');
+  const printableArea2 = getByTestId('printable-area');
+  const absenteeRow2 = within(printableArea2).getByTestId('absentee');
   domGetByText(absenteeRow2, 'Absentee');
   domGetByText(absenteeRow2, '250');
 
-  const precinctRow2 = domGetByTestId(printableReport2, 'standard');
+  const precinctRow2 = within(printableArea2).getByTestId('standard');
   domGetByText(precinctRow2, 'Precinct');
   domGetByText(precinctRow2, '150');
 
-  const totalRow2 = domGetByTestId(printableReport2, 'total');
+  const totalRow2 = within(printableArea2).getByTestId('total');
   domGetByText(totalRow2, 'Total Ballots Cast');
   domGetByText(totalRow2, '400');
 
