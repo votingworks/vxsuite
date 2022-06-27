@@ -117,4 +117,15 @@ export class Store {
 
     return rows;
   }
+
+  /**
+   * Returns a unique list of values for adjudications.transcribed_values.
+   */
+  getAllTranscribedValues(): string[] {
+    const rows = this.client.all(
+      'select distinct transcribed_value as transcribedValue from adjudications order by transcribedValue asc'
+    ) as Array<{ transcribedValue: string }>;
+
+    return rows.map((r) => r.transcribedValue).filter(Boolean);
+  }
 }

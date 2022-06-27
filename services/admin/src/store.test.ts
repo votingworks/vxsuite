@@ -90,3 +90,18 @@ test('deleteCvrs', () => {
   store.deleteCvrs();
   expect(store.getAdjudicationsByContestId('mayor')).toHaveLength(0);
 });
+
+test('getAllTranscribedValues', () => {
+  const store = Store.memoryStore();
+  const cvrId = store.addCvr('test');
+  store.addAdjudication('mayor', cvrId, 'Mickey Mouse');
+  store.addAdjudication('assistant-mayor', cvrId, 'Mickey Mouse');
+  store.addAdjudication('county-commissioner', cvrId, 'Daffy');
+
+  // Does not include duplicates and is in alphabetical order
+  expect(store.getAllTranscribedValues()).toEqual(['Daffy', 'Mickey Mouse']);
+
+  // Does not include empty strings
+  store.addAdjudication('chief-of-staff', cvrId, '');
+  expect(store.getAllTranscribedValues()).toEqual(['Daffy', 'Mickey Mouse']);
+});

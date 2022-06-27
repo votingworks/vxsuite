@@ -231,3 +231,15 @@ test('POST /admin/write-ins/cvrs', async () => {
     JSON.stringify(cvrs[1])
   );
 });
+
+test('GET /admin/write-ins/transcribed-values', async () => {
+  await request(app).get('/admin/write-ins/transcribed-values').expect(200, []);
+
+  const cvrId = workspace.store.addCvr('test');
+
+  workspace.store.addAdjudication('mayor', cvrId, 'Mickey Mouse');
+  workspace.store.addAdjudication('county-commissioner', cvrId, 'Daffy');
+  await request(app)
+    .get('/admin/write-ins/transcribed-values')
+    .expect(200, ['Daffy', 'Mickey Mouse']);
+});
