@@ -1,4 +1,5 @@
 import styled from 'styled-components';
+import { assert } from '@votingworks/utils';
 
 interface Props {
   padded?: boolean;
@@ -8,8 +9,13 @@ interface Props {
 }
 
 export const Main = styled('main')<Props>`
-  display: ${({ centerChild, flexRow, flexColumn }) =>
-    (centerChild || flexRow || flexColumn) && 'flex'};
+  display: ${({ centerChild, flexRow, flexColumn }) => {
+    assert(
+      !(flexRow && flexColumn),
+      'Cannot specify both flexRow and flexColumn'
+    );
+    return (centerChild || flexRow || flexColumn) && 'flex';
+  }};
   flex: 1;
   flex-direction: ${({ centerChild, flexColumn }) =>
     (centerChild || flexColumn) && 'column'};
