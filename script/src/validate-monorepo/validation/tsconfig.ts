@@ -1,6 +1,6 @@
-import { promises as fs } from 'fs';
 import { basename, join } from 'path';
 import * as ts from 'typescript';
+import { maybeReadPackageJson } from './util';
 
 export interface Tsconfig {
   readonly include?: readonly string[];
@@ -9,56 +9,40 @@ export interface Tsconfig {
   readonly references?: readonly ts.ProjectReference[];
 }
 
-export interface Package {
-  readonly name: string;
-  readonly dependencies?: { [name: string]: string };
-  readonly devDependencies?: { [name: string]: string };
-  readonly peerDependencies?: { [name: string]: string };
-}
-
 export enum ValidationIssueKind {
-  TsconfigInvalidPropertyValue = 'TsconfigInvalidValue',
-  TsconfigMissingReference = 'TsconfigMissingReference',
+  InvalidPropertyValue = 'InvalidPropertyValue',
+  MissingConfigFile = 'MissingConfigFile',
+  MissingReference = 'MissingReference',
 }
 
-export interface TsconfigInvalidPropertyValueIssue {
-  readonly kind: ValidationIssueKind.TsconfigInvalidPropertyValue;
+export interface MissingConfigFileIssue {
+  readonly kind: ValidationIssueKind.MissingConfigFile;
+  readonly tsconfigPath: string;
+}
+
+export interface InvalidPropertyValueIssue {
+  readonly kind: ValidationIssueKind.InvalidPropertyValue;
   readonly tsconfigPath: string;
   readonly propertyKeyPath: string;
   readonly actualValue: unknown;
   readonly expectedValue: unknown;
 }
 
-export interface TsconfigMissingReferenceIssue {
-  readonly kind: ValidationIssueKind.TsconfigMissingReference;
+export interface MissingReferenceIssue {
+  readonly kind: ValidationIssueKind.MissingReference;
   readonly tsconfigPath: string;
   readonly referencingPath: string;
   readonly expectedReferencePath: string;
 }
 
 export type ValidationIssue =
-  | TsconfigInvalidPropertyValueIssue
-  | TsconfigMissingReferenceIssue;
+  | MissingConfigFileIssue
+  | InvalidPropertyValueIssue
+  | MissingReferenceIssue;
 
 export function maybeReadTsconfig(filepath: string): Tsconfig | undefined {
   const { config, error } = ts.readConfigFile(filepath, ts.sys.readFile);
   return error ? undefined : config;
-}
-
-export async function maybeReadPackageJson(
-  filepath: string
-): Promise<Package | undefined> {
-  return await maybeReadJson(filepath);
-}
-
-export async function maybeReadJson(
-  filepath: string
-): Promise<any | undefined> {
-  try {
-    return JSON.parse(await fs.readFile(filepath, { encoding: 'utf-8' }));
-  } catch {
-    return undefined;
-  }
 }
 
 export function* checkTsconfig(
@@ -71,7 +55,7 @@ export function* checkTsconfig(
 
   if (noEmit !== !isBuild) {
     yield {
-      kind: ValidationIssueKind.TsconfigInvalidPropertyValue,
+      kind: ValidationIssueKind.InvalidPropertyValue,
       tsconfigPath,
       propertyKeyPath: 'compilerOptions.noEmit',
       actualValue: noEmit,
@@ -82,7 +66,7 @@ export function* checkTsconfig(
   if (isBuild) {
     if (!rootDir) {
       yield {
-        kind: ValidationIssueKind.TsconfigInvalidPropertyValue,
+        kind: ValidationIssueKind.InvalidPropertyValue,
         tsconfigPath,
         propertyKeyPath: 'compilerOptions.rootDir',
         actualValue: rootDir,
@@ -92,7 +76,7 @@ export function* checkTsconfig(
 
     if (!outDir) {
       yield {
-        kind: ValidationIssueKind.TsconfigInvalidPropertyValue,
+        kind: ValidationIssueKind.InvalidPropertyValue,
         tsconfigPath,
         propertyKeyPath: 'compilerOptions.outDir',
         actualValue: rootDir,
@@ -102,7 +86,7 @@ export function* checkTsconfig(
 
     if (declaration !== true) {
       yield {
-        kind: ValidationIssueKind.TsconfigInvalidPropertyValue,
+        kind: ValidationIssueKind.InvalidPropertyValue,
         tsconfigPath,
         propertyKeyPath: 'compilerOptions.declaration',
         actualValue: declaration,
@@ -112,7 +96,7 @@ export function* checkTsconfig(
 
     for (const [key, value] of Object.entries(otherCompilerOptions)) {
       yield {
-        kind: ValidationIssueKind.TsconfigInvalidPropertyValue,
+        kind: ValidationIssueKind.InvalidPropertyValue,
         tsconfigPath,
         propertyKeyPath: `compilerOptions.${key}`,
         actualValue: value,
@@ -123,7 +107,7 @@ export function* checkTsconfig(
 
   if (!Array.isArray(tsconfig.include)) {
     yield {
-      kind: ValidationIssueKind.TsconfigInvalidPropertyValue,
+      kind: ValidationIssueKind.InvalidPropertyValue,
       tsconfigPath,
       propertyKeyPath: `include`,
       actualValue: tsconfig.include,
@@ -133,17 +117,13 @@ export function* checkTsconfig(
 
   if (!Array.isArray(tsconfig.exclude)) {
     yield {
-      kind: ValidationIssueKind.TsconfigInvalidPropertyValue,
+      kind: ValidationIssueKind.InvalidPropertyValue,
       tsconfigPath,
       propertyKeyPath: `exclude`,
       actualValue: tsconfig.exclude,
       expectedValue: 'an array of paths',
     };
   }
-}
-
-export async function readdir(directory: string): Promise<string[]> {
-  return (await fs.readdir(directory)).map((entry) => join(directory, entry));
 }
 
 export async function* checkTsconfigMatchesPackageJson(
@@ -179,7 +159,7 @@ export async function* checkTsconfigMatchesPackageJson(
       !tsconfigReferencesPaths.has(expectedWorkspaceDependencyTsconfigBuildPath)
     ) {
       yield {
-        kind: ValidationIssueKind.TsconfigMissingReference,
+        kind: ValidationIssueKind.MissingReference,
         tsconfigPath,
         referencingPath: packageJsonPath,
         expectedReferencePath: expectedWorkspaceDependencyTsconfigBuildPath,
@@ -206,7 +186,7 @@ export function* checkTsconfigReferencesMatch(
   for (const tsconfigReferencePath of tsconfigReferencesPaths) {
     if (!otherTsconfigReferencesPaths.has(tsconfigReferencePath)) {
       yield {
-        kind: ValidationIssueKind.TsconfigMissingReference,
+        kind: ValidationIssueKind.MissingReference,
         tsconfigPath: otherTsconfigPath,
         referencingPath: tsconfigPath,
         expectedReferencePath: tsconfigReferencePath,
@@ -217,11 +197,80 @@ export function* checkTsconfigReferencesMatch(
   for (const otherTsconfigReferencePath of otherTsconfigReferencesPaths) {
     if (!tsconfigReferencesPaths.has(otherTsconfigReferencePath)) {
       yield {
-        kind: ValidationIssueKind.TsconfigMissingReference,
+        kind: ValidationIssueKind.MissingReference,
         tsconfigPath,
         referencingPath: otherTsconfigPath,
         expectedReferencePath: otherTsconfigReferencePath,
       };
+    }
+  }
+}
+
+export async function* checkConfig({
+  packages,
+}: {
+  packages: readonly string[];
+}): AsyncGenerator<ValidationIssue> {
+  for (const pkg of packages) {
+    const packageJsonPath = join(pkg, 'package.json');
+    const packageJson = await maybeReadPackageJson(packageJsonPath);
+
+    if (!packageJson) {
+      continue;
+    }
+
+    const workspaceDependencies = [
+      ...(packageJson.dependencies
+        ? Object.entries(packageJson.dependencies)
+        : []),
+      ...(packageJson.devDependencies
+        ? Object.entries(packageJson.devDependencies)
+        : []),
+    ].flatMap(([name, version]) =>
+      name !== packageJson.name && version.startsWith('workspace:')
+        ? [name]
+        : []
+    );
+
+    const tsconfigPath = join(pkg, 'tsconfig.json');
+    const tsconfig = maybeReadTsconfig(tsconfigPath);
+
+    if (!tsconfig) {
+      yield {
+        kind: ValidationIssueKind.MissingConfigFile,
+        tsconfigPath,
+      };
+      continue;
+    }
+
+    yield* checkTsconfig(tsconfig, tsconfigPath);
+
+    yield* checkTsconfigMatchesPackageJson(
+      tsconfig,
+      tsconfigPath,
+      workspaceDependencies,
+      packageJsonPath
+    );
+
+    const tsconfigBuildPath = join(pkg, 'tsconfig.build.json');
+    const tsconfigBuild = maybeReadTsconfig(tsconfigBuildPath);
+
+    if (tsconfigBuild) {
+      yield* checkTsconfig(tsconfigBuild, tsconfigBuildPath);
+
+      yield* checkTsconfigMatchesPackageJson(
+        tsconfigBuild,
+        tsconfigBuildPath,
+        workspaceDependencies,
+        packageJsonPath
+      );
+
+      yield* checkTsconfigReferencesMatch(
+        tsconfig,
+        tsconfigPath,
+        tsconfigBuild,
+        tsconfigBuildPath
+      );
     }
   }
 }

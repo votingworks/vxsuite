@@ -4,7 +4,7 @@
 
 require('esbuild-runner/register');
 
-require('./src/validate-monorepo')
+require('./src/validate-monorepo/cli')
   .main({
     stdin: process.stdin,
     stdout: process.stdout,
