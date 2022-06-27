@@ -1,6 +1,6 @@
 import {
-  Adjudication,
   BallotId,
+  BallotImage,
   BallotLocale,
   BallotStyleId,
   PrecinctId,
@@ -15,10 +15,11 @@ export interface CastVoteRecord
     | number
     | number[]
     | BallotLocale
-    | Adjudication[]
+    | BallotImage[]
   > {
   readonly _precinctId: PrecinctId;
   readonly _ballotId?: BallotId;
+  readonly _ballotImages?: BallotImage[];
   readonly _ballotStyleId: BallotStyleId;
   readonly _ballotType: 'absentee' | 'provisional' | 'standard';
   readonly _batchId: string;
