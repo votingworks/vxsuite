@@ -19,3 +19,72 @@ test('create a memory store', () => {
   expect(store).toBeInstanceOf(Store);
   expect(store.getDbPath()).toBe(':memory:');
 });
+
+test('add/get adjudications', () => {
+  const store = Store.memoryStore();
+  const cvrId = store.addCvr('test');
+  const id = store.addAdjudication('mayor', cvrId, 'Mickey Mouse');
+  let added = store.getAdjudicationById(id);
+
+  expect(added).toEqual({
+    id,
+    contestId: 'mayor',
+    transcribedValue: 'Mickey Mouse',
+  });
+  store.updateAdjudicationTranscribedValue(id, 'Mickey');
+  added = store.getAdjudicationById(id);
+  expect(added?.transcribedValue).toEqual('Mickey');
+});
+
+test('getAdjudicationsByContestId', () => {
+  const store = Store.memoryStore();
+  const cvrId = store.addCvr('test');
+  store.addAdjudication('mayor', cvrId, 'Minnie Mouse');
+  store.addAdjudication('mayor', cvrId, 'Goofy');
+  store.addAdjudication('assistant-mayor', cvrId, 'Mickey Mouse');
+
+  // Does not include duplicates and is in alphabetical order
+  expect(store.getAdjudicationsByContestId('mayor')).toEqual([
+    {
+      contestId: 'mayor',
+      cvrId,
+      transcribedValue: 'Minnie Mouse',
+    },
+    {
+      contestId: 'mayor',
+      cvrId,
+      transcribedValue: 'Goofy',
+    },
+  ]);
+});
+
+test('getAdjudicationCountsGroupedByContestId', () => {
+  const store = Store.memoryStore();
+  const cvrId = store.addCvr('test');
+  store.addAdjudication('mayor', cvrId, 'Minnie Mouse');
+  store.addAdjudication('mayor', cvrId, 'Goofy');
+  store.addAdjudication('assistant-mayor', cvrId, 'Mickey Mouse');
+
+  expect(store.getAdjudicationCountsGroupedByContestId()).toEqual([
+    {
+      contestId: 'assistant-mayor',
+      adjudicationCount: 1,
+    },
+    {
+      contestId: 'mayor',
+      adjudicationCount: 2,
+    },
+  ]);
+});
+
+test('deleteCvrs', () => {
+  const store = Store.memoryStore();
+  const cvrId = store.addCvr('test');
+  store.addAdjudication('mayor', cvrId, 'Minnie Mouse');
+
+  expect(store.getAdjudicationsByContestId('mayor')).toHaveLength(1);
+
+  // Deleting CVRs also deletes the associated adjudications
+  store.deleteCvrs();
+  expect(store.getAdjudicationsByContestId('mayor')).toHaveLength(0);
+});

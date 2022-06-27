@@ -133,6 +133,7 @@ beforeEach(() => {
       codeVersion: 'TEST',
     })
   );
+  fetchMock.get('/admin/write-ins/cvrs/reset', { body: { status: 'ok ' } });
   (areVvsg2AuthFlowsEnabled as jest.Mock).mockImplementation(() => false);
 });
 

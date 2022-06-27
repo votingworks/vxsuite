@@ -1,9 +1,21 @@
-import { BallotId, BallotLocale, BallotStyleId, PrecinctId } from './election';
+import {
+  Adjudication,
+  BallotId,
+  BallotLocale,
+  BallotStyleId,
+  PrecinctId,
+} from './election';
 import { Dictionary } from './generic';
 
 export interface CastVoteRecord
   extends Dictionary<
-    string | string[] | boolean | number | number[] | BallotLocale
+    | string
+    | string[]
+    | boolean
+    | number
+    | number[]
+    | BallotLocale
+    | Adjudication[]
   > {
   readonly _precinctId: PrecinctId;
   readonly _ballotId?: BallotId;

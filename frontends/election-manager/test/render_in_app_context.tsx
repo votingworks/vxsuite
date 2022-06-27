@@ -5,12 +5,11 @@ import { render as testRender, RenderResult } from '@testing-library/react';
 
 import { electionWithMsEitherNeitherDefinition } from '@votingworks/fixtures';
 import {
-  BallotId,
-  ContestId,
   ElectionDefinition,
   FullElectionTally,
   FullElectionExternalTally,
   UserSession,
+  AdjudicationId,
 } from '@votingworks/types';
 import { usbstick, NullPrinter, Printer } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
@@ -45,8 +44,7 @@ interface RenderInAppContextParams {
   saveCastVoteRecordFiles?: SaveCastVoteRecordFiles;
   saveElection?: SaveElection;
   saveTranscribedValue?: (
-    ballotId: BallotId,
-    contestId: ContestId,
+    adjudicationId: AdjudicationId,
     transcribedValue: string
   ) => Promise<void>;
   setCastVoteRecordFiles?: React.Dispatch<

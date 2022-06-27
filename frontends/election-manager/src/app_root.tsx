@@ -14,8 +14,6 @@ import {
   LogDispositionStandardTypes,
 } from '@votingworks/logging';
 import {
-  BallotId,
-  ContestId,
   ElectionDefinition,
   safeParseElection,
   FullElectionExternalTally,
@@ -291,19 +289,18 @@ export function AppRoot({
   }
 
   const saveTranscribedValue = useCallback(
-    async (
-      ballotId: BallotId,
-      contestId: ContestId,
-      transcribedValue: string
-    ) => {
+    async (adjudicationId: string, transcribedValue: string) => {
       try {
-        await fetch(`/admin/write-ins/transcribe`, {
-          method: 'POST',
-          body: JSON.stringify({ ballotId, contestId, transcribedValue }),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
+        await fetch(
+          `/admin/write-ins/adjudications/${adjudicationId}/transcription`,
+          {
+            method: 'PATCH',
+            body: JSON.stringify({ transcribedValue }),
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          }
+        );
       } catch (error) {
         assert(error instanceof Error);
         throw error;
@@ -456,6 +453,7 @@ export function AppRoot({
     }
 
     if (newCvrFiles === CastVoteRecordFiles.empty) {
+      await fetch('/admin/write-ins/cvrs/reset', { method: 'GET' });
       await removeStorageKeyAndLog(cvrsStorageKey, 'Cast vote records');
       await removeStorageKeyAndLog(
         isOfficialResultsKey,
@@ -468,6 +466,13 @@ export function AppRoot({
         newCvrFiles.export(),
         'Cast vote records'
       );
+      await fetch('/admin/write-ins/cvrs/', {
+        method: 'POST',
+        body: newCvrFiles.export(),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
     }
   };
 

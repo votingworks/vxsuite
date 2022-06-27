@@ -2,7 +2,7 @@
 import { Logger, LogSource, LogEventId } from '@votingworks/logging';
 import * as server from './server';
 
-const logger = new Logger(LogSource.VxScanService);
+const logger = new Logger(LogSource.VxAdminService);
 
 async function main(): Promise<number> {
   await server.start({});
@@ -13,7 +13,7 @@ if (require.main === module) {
   void main()
     .catch((error) => {
       void logger.log(LogEventId.ApplicationStartup, 'system', {
-        message: `Error in starting Write-Ins Service: ${error.stack}`,
+        message: `Error in starting Admin Service: ${error.stack}`,
         disposition: 'failure',
       });
       return 1;

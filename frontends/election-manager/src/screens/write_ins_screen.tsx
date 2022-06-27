@@ -1,11 +1,10 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 import { Button, Modal, Prose } from '@votingworks/ui';
 import {
+  Adjudication,
   CandidateContest,
-  CastVoteRecord,
   ContestId,
-  ContestOptionId,
   getPartyAbbreviationByPartyId,
 } from '@votingworks/types';
 
@@ -25,44 +24,42 @@ export function WriteInsScreen(): JSX.Element {
       contest.type === 'candidate' && contest.allowWriteIns
   );
 
-  // Aggregate write-ins by contest
-  const writeInsByContest = useMemo(() => {
-    const map = new Map<ContestId, CastVoteRecord[]>();
-    for (const file of castVoteRecordFileList) {
-      for (const cvr of file.allCastVoteRecords) {
-        for (const [key, value] of Object.entries(cvr)) {
-          if (Array.isArray(value)) {
-            const contestId = key;
-            const votes = value as ContestOptionId[];
-            const cvrHasWriteIn = votes.find((m) => m.startsWith('write-in'));
-            if (cvrHasWriteIn) {
-              const currCvrs = map.get(contestId) || [];
-              map.set(contestId, [...currCvrs, cvr]);
-            }
-          }
-        }
-      }
-    }
-    return map;
-  }, [castVoteRecordFileList]);
-
   const [contestBeingAdjudicated, setContestBeingAdjudicated] = useState<
     CandidateContest | undefined
   >();
 
-  const [ballotIdxBeingAdjudicated, setBallotIdxBeingAdjudicated] =
-    useState<number>(0);
+  const [paginationIdx, setPaginationIdx] = useState<number>(0);
+  const [writeInCountsByContest, setWriteInCountsByContest] =
+    useState<Map<ContestId, number>>();
+  const [adjudicationsForCurrentContest, setAdjudicationsForCurrentContest] =
+    useState<Adjudication[]>([]);
 
-  // When we start adjudicating a new contest, reset ballot pagination index
+  // Get write-in counts grouped by contest
   useEffect(() => {
+    async function fetchAdjudicationCounts() {
+      const res = await fetch('/admin/write-ins/adjudications/contestId/count');
+      const map = new Map<ContestId, number>();
+      for (const { contestId, adjudicationCount } of await res.json()) {
+        map.set(contestId, adjudicationCount);
+      }
+      setWriteInCountsByContest(map);
+    }
+    void fetchAdjudicationCounts();
+  }, [castVoteRecordFiles]);
+
+  // When we start adjudicating a new contest, reset pagination index and fetch adjudications
+  useEffect(() => {
+    async function fetchAdjudicationsForContest(contestId: ContestId) {
+      const res = await fetch(`/admin/write-ins/adjudications/${contestId}/`);
+      setAdjudicationsForCurrentContest(await res.json());
+    }
     if (contestBeingAdjudicated) {
-      setBallotIdxBeingAdjudicated(0);
+      setPaginationIdx(0);
+      void fetchAdjudicationsForContest(contestBeingAdjudicated.id);
+    } else {
+      setAdjudicationsForCurrentContest([]);
     }
   }, [contestBeingAdjudicated]);
-
-  const ballotsBeingAdjudicated: CastVoteRecord[] = contestBeingAdjudicated
-    ? writeInsByContest.get(contestBeingAdjudicated.id) || []
-    : [];
 
   /* istanbul ignore next */
   function placeholderFn() {
@@ -83,12 +80,12 @@ export function WriteInsScreen(): JSX.Element {
                 disabled={
                   !(
                     hasCastVoteRecordFiles &&
-                    writeInsByContest.get(contest.id)?.length
+                    writeInCountsByContest?.get(contest.id)
                   )
                 }
                 onPress={() => setContestBeingAdjudicated(contest)}
               >
-                Adjudicate {writeInsByContest.get(contest.id)?.length} write-ins
+                Adjudicate {writeInCountsByContest?.get(contest.id)} write-ins
                 for “{contest.section} {contest.title}”
                 {election && contest.partyId && (
                   <React.Fragment>
@@ -111,24 +108,18 @@ export function WriteInsScreen(): JSX.Element {
               <WriteInsTranscriptionScreen
                 election={election}
                 contest={contestBeingAdjudicated}
-                ballotIdxBeingAdjudicated={ballotIdxBeingAdjudicated}
-                ballotsBeingAdjudicated={ballotsBeingAdjudicated}
+                adjudications={adjudicationsForCurrentContest}
+                paginationIdx={paginationIdx}
                 onClose={() => setContestBeingAdjudicated(undefined)}
                 onListAll={placeholderFn}
                 onClickNext={
-                  ballotIdxBeingAdjudicated < ballotsBeingAdjudicated.length - 1
-                    ? () =>
-                        setBallotIdxBeingAdjudicated(
-                          ballotIdxBeingAdjudicated + 1
-                        )
+                  paginationIdx < adjudicationsForCurrentContest.length - 1
+                    ? () => setPaginationIdx(paginationIdx + 1)
                     : undefined
                 }
                 onClickPrevious={
-                  ballotIdxBeingAdjudicated
-                    ? () =>
-                        setBallotIdxBeingAdjudicated(
-                          ballotIdxBeingAdjudicated - 1
-                        )
+                  paginationIdx
+                    ? () => setPaginationIdx(paginationIdx - 1)
                     : undefined
                 }
                 saveTranscribedValue={saveTranscribedValue}
