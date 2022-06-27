@@ -3,7 +3,7 @@ import React, { ReactChild, useContext, useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { Prose, Table, TD, Text } from '@votingworks/ui';
+import { isAdminAuth, Prose, Table, TD, Text } from '@votingworks/ui';
 import {
   ExternalTallySourceType,
   TallyCategory,
@@ -45,12 +45,12 @@ export function ManualDataImportIndexScreen(): JSX.Element {
     fullElectionExternalTallies,
     saveExternalTallies,
     resetFiles,
-    currentUserSession,
+    auth,
     logger,
   } = useContext(AppContext);
   assert(electionDefinition);
-  assert(currentUserSession); // TODO(auth) check permissions for adding manual tally data
-  const currentUserType = currentUserSession.type;
+  assert(isAdminAuth(auth)); // TODO(auth) check permissions for adding manual tally data
+  const userRole = auth.user.role;
   const { election } = electionDefinition;
   const history = useHistory();
 
@@ -90,7 +90,7 @@ export function ManualDataImportIndexScreen(): JSX.Element {
       MANUAL_DATA_NAME,
       new Date()
     );
-    await logger.log(LogEventId.ManualTallyDataEdited, currentUserType, {
+    await logger.log(LogEventId.ManualTallyDataEdited, userRole, {
       disposition: 'success',
       newBallotType,
       message: `Ballot type for manually entered tally data changed to ${newBallotType}`,

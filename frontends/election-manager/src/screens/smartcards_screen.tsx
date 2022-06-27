@@ -1,8 +1,15 @@
 import React, { useCallback, useContext, useState } from 'react';
+import {
+  isAdminAuth,
+  isSuperadminAuth,
+  Modal,
+  NumberPad,
+  Prose,
+  useCancelablePromise,
+} from '@votingworks/ui';
 import styled from 'styled-components';
 import { assert, sleep } from '@votingworks/utils';
 import { LogEventId } from '@votingworks/logging';
-import { Modal, NumberPad, Prose, useCancelablePromise } from '@votingworks/ui';
 
 import { AppContext } from '../contexts/app_context';
 import { Button } from '../components/button';
@@ -28,9 +35,10 @@ const NumberPadWrapper = styled.div`
 `;
 
 export function SmartcardsScreen(): JSX.Element {
-  const { electionDefinition, logger, currentUserSession } =
-    useContext(AppContext);
+  const { electionDefinition, logger, auth } = useContext(AppContext);
   assert(electionDefinition);
+  assert(isAdminAuth(auth) || isSuperadminAuth(auth)); // TODO(auth) check permissions for writing smartcards
+  const userRole = auth.user.role;
   const { electionData, electionHash } = electionDefinition;
 
   const makeCancelable = useCancelablePromise();
@@ -46,8 +54,7 @@ export function SmartcardsScreen(): JSX.Element {
   }
 
   async function overrideWriteProtection() {
-    assert(currentUserSession); // TODO(auth) check permissions for writing smartcards
-    await logger.log(LogEventId.SmartcardProgramInit, currentUserSession.type, {
+    await logger.log(LogEventId.SmartcardProgramInit, userRole, {
       message: 'Overriding write protection on the current smartcard...',
     });
     setIsProgrammingCard(true);
@@ -58,7 +65,7 @@ export function SmartcardsScreen(): JSX.Element {
     if (!body.success) {
       await logger.log(
         LogEventId.SmartcardProgrammedOverrideWriteProtection,
-        currentUserSession.type,
+        userRole,
         {
           message: 'Error in overriding write protection on smartcard',
           disposition: 'failure',
@@ -68,7 +75,7 @@ export function SmartcardsScreen(): JSX.Element {
     } else {
       await logger.log(
         LogEventId.SmartcardProgrammedOverrideWriteProtection,
-        currentUserSession.type,
+        userRole,
         {
           message:
             'Write protection successfully overridden on the current smartcard.',
@@ -81,8 +88,7 @@ export function SmartcardsScreen(): JSX.Element {
   }
 
   async function programPollWorkerCard() {
-    assert(currentUserSession); // TODO(auth) check permissions for writing smartcards
-    await logger.log(LogEventId.SmartcardProgramInit, currentUserSession.type, {
+    await logger.log(LogEventId.SmartcardProgramInit, userRole, {
       message: 'Programming a pollworker card...',
       programmedUserType: 'pollworker',
     });
@@ -99,26 +105,18 @@ export function SmartcardsScreen(): JSX.Element {
     const body = await response.json();
     if (!body.success) {
       setIsShowingError(true);
-      await logger.log(
-        LogEventId.SmartcardProgrammed,
-        currentUserSession.type,
-        {
-          message: 'Error in programming pollworker card',
-          programmedUserType: 'pollworker',
-          disposition: 'failure',
-          result: 'Card not updated, error message shown to user.',
-        }
-      );
+      await logger.log(LogEventId.SmartcardProgrammed, userRole, {
+        message: 'Error in programming pollworker card',
+        programmedUserType: 'pollworker',
+        disposition: 'failure',
+        result: 'Card not updated, error message shown to user.',
+      });
     } else {
-      await logger.log(
-        LogEventId.SmartcardProgrammed,
-        currentUserSession.type,
-        {
-          message: 'Successfully finished programming a pollworker card.',
-          programmedUserType: 'pollworker',
-          disposition: 'success',
-        }
-      );
+      await logger.log(LogEventId.SmartcardProgrammed, userRole, {
+        message: 'Successfully finished programming a pollworker card.',
+        programmedUserType: 'pollworker',
+        disposition: 'success',
+      });
     }
     setIsProgrammingCard(false);
   }
@@ -126,8 +124,7 @@ export function SmartcardsScreen(): JSX.Element {
     // automatically override write protection when writing a new admin card
     await overrideWriteProtection();
 
-    assert(currentUserSession); // TODO(auth) check permissions for writing smartcards
-    await logger.log(LogEventId.SmartcardProgramInit, currentUserSession.type, {
+    await logger.log(LogEventId.SmartcardProgramInit, userRole, {
       message: 'Programming an admin card...',
       programmedUserType: 'admin',
     });
@@ -158,26 +155,18 @@ export function SmartcardsScreen(): JSX.Element {
     const body = await response.json();
     if (!body.success) {
       setIsShowingError(true);
-      await logger.log(
-        LogEventId.SmartcardProgrammed,
-        currentUserSession.type,
-        {
-          message: 'Error in programming admin card',
-          programmedUserType: 'admin',
-          disposition: 'failure',
-          result: 'Card not updated, error message shown to user.',
-        }
-      );
+      await logger.log(LogEventId.SmartcardProgrammed, userRole, {
+        message: 'Error in programming admin card',
+        programmedUserType: 'admin',
+        disposition: 'failure',
+        result: 'Card not updated, error message shown to user.',
+      });
     } else {
-      await logger.log(
-        LogEventId.SmartcardProgrammed,
-        currentUserSession.type,
-        {
-          message: 'Successfully finished programming an admin card.',
-          programmedUserType: 'admin',
-          disposition: 'success',
-        }
-      );
+      await logger.log(LogEventId.SmartcardProgrammed, userRole, {
+        message: 'Successfully finished programming an admin card.',
+        programmedUserType: 'admin',
+        disposition: 'success',
+      });
     }
 
     setIsProgrammingCard(false);

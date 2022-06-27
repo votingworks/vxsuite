@@ -14,6 +14,7 @@ import {
   find,
 } from '@votingworks/utils';
 import {
+  isAdminAuth,
   Modal,
   Prose,
   Table,
@@ -58,9 +59,11 @@ export function TallyScreen(): JSX.Element {
     generateExportableTallies,
     resetFiles,
     logger,
-    currentUserSession,
+    auth,
   } = useContext(AppContext);
   assert(electionDefinition);
+  assert(isAdminAuth(auth));
+  const userRole = auth.user.role;
   const { election } = electionDefinition;
   const isTestMode = castVoteRecordFiles?.fileMode === 'test';
   const externalFileInput = useRef<HTMLInputElement>(null);
@@ -228,11 +231,7 @@ export function TallyScreen(): JSX.Element {
   );
 
   const generateSemsResults = useCallback(async (): Promise<string> => {
-    assert(currentUserSession);
-    await logger.log(
-      LogEventId.ConvertingResultsToSemsFormat,
-      currentUserSession.type
-    );
+    await logger.log(LogEventId.ConvertingResultsToSemsFormat, userRole);
     const exportableTallies = generateExportableTallies();
     // process on the server
     const client = new MsSemsConverterClient('tallies');
@@ -262,7 +261,7 @@ export function TallyScreen(): JSX.Element {
     electionDefinition.electionData,
     generateExportableTallies,
     logger,
-    currentUserSession,
+    userRole,
   ]);
 
   return (

@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 
 import {
@@ -9,6 +9,7 @@ import {
   RebootFromUsbButton,
   Screen,
   SetupCardReaderPage,
+  isSuperadminAuth,
   RemoveCardPage,
 } from '@votingworks/ui';
 import { AppContext } from '../contexts/app_context';
@@ -47,27 +48,34 @@ export function ElectionManager(): JSX.Element {
   const {
     electionDefinition,
     configuredAt,
-    currentUserSession,
+    auth,
     hasCardReaderAttached,
     machineConfig,
     usbDriveStatus,
-    smartcard,
     logger,
   } = useContext(AppContext);
   const election = electionDefinition?.election;
 
-  const [cardRemovedAfterAuth, setCardRemovedAfterAuth] = useState(false);
-
-  useEffect(() => {
-    if (currentUserSession?.authenticated && smartcard.status === 'no_card') {
-      setCardRemovedAfterAuth(true);
-    } else if (!currentUserSession) {
-      setCardRemovedAfterAuth(false);
-    }
-  }, [currentUserSession, smartcard.status]);
-
   if (!hasCardReaderAttached) {
     return <SetupCardReaderPage usePollWorkerLanguage={false} />;
+  }
+
+  if (auth.status === 'checking_passcode') {
+    return <UnlockMachineScreen />;
+  }
+
+  if (auth.status === 'remove_card') {
+    return (
+      <Screen>
+        <RemoveCardPage />
+        <ElectionInfoBar
+          mode="admin"
+          electionDefinition={electionDefinition}
+          codeVersion={machineConfig.codeVersion}
+          machineId={machineConfig.machineId}
+        />
+      </Screen>
+    );
   }
 
   if (!election || !configuredAt) {
@@ -98,41 +106,12 @@ export function ElectionManager(): JSX.Element {
     );
   }
 
-  if (!currentUserSession) {
-    return <MachineLockedScreen />;
-  }
-
-  if (
-    currentUserSession.type !== 'superadmin' &&
-    currentUserSession.type !== 'admin'
-  ) {
+  if (auth.status === 'logged_out') {
+    if (auth.reason === 'machine_locked') return <MachineLockedScreen />;
     return <InvalidCardScreen />;
   }
 
-  if (!currentUserSession.authenticated) {
-    return <UnlockMachineScreen />;
-  }
-
-  // TODO: Remove 'admin' condition once PIN authentication implemented for super admins
-  if (
-    smartcard.status !== 'no_card' &&
-    !cardRemovedAfterAuth &&
-    currentUserSession.type === 'admin'
-  ) {
-    return (
-      <Screen>
-        <RemoveCardPage />
-        <ElectionInfoBar
-          mode="admin"
-          electionDefinition={electionDefinition}
-          codeVersion={machineConfig.codeVersion}
-          machineId={machineConfig.machineId}
-        />
-      </Screen>
-    );
-  }
-
-  if (currentUserSession.type === 'superadmin') {
+  if (isSuperadminAuth(auth)) {
     if (!areVvsg2AuthFlowsEnabled()) {
       return (
         <Screen>

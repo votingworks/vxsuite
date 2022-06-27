@@ -16,6 +16,8 @@ import {
   useCancelablePromise,
   Modal,
   Prose,
+  isAdminAuth,
+  isSuperadminAuth,
 } from '@votingworks/ui';
 
 import { AppContext } from '../contexts/app_context';
@@ -332,16 +334,11 @@ interface PrintIndex {
 
 export function PrintTestDeckScreen(): JSX.Element {
   const makeCancelable = useCancelablePromise();
-  const {
-    electionDefinition,
-    printer,
-    currentUserSession,
-    logger,
-    printBallotRef,
-  } = useContext(AppContext);
+  const { electionDefinition, printer, auth, logger, printBallotRef } =
+    useContext(AppContext);
   assert(electionDefinition);
-  assert(currentUserSession); // TODO(auth)
-  const currentUserType = currentUserSession.type;
+  assert(isAdminAuth(auth) || isSuperadminAuth(auth)); // TODO(auth) should this check for a specific user type
+  const userRole = auth.user.role;
   const { election, electionHash } = electionDefinition;
   const [precinctIds, setPrecinctIds] = useState<string[]>([]);
   const [printIndex, setPrintIndex] = useState<PrintIndex>();
@@ -437,7 +434,7 @@ export function PrintTestDeckScreen(): JSX.Element {
       } else {
         // eslint-disable-next-line no-alert
         window.alert('Please connect the printer.');
-        await logger.log(LogEventId.TestDeckPrinted, currentUserType, {
+        await logger.log(LogEventId.TestDeckPrinted, userRole, {
           disposition: 'failure',
           message: `Failed to print L&A Package: no printer connected.`,
           result: 'User shown error message, asked to try again.',
@@ -458,7 +455,7 @@ export function PrintTestDeckScreen(): JSX.Element {
 
       const precinctId = precinctIds[printIndex.precinctIndex];
       await printer.print({ sides: 'one-sided' });
-      await logger.log(LogEventId.TestDeckTallyReportPrinted, currentUserType, {
+      await logger.log(LogEventId.TestDeckTallyReportPrinted, userRole, {
         disposition: 'success',
         message: `Test deck tally report printed as part of L&A package for precinct ID: ${precinctId}`,
         precinctId,
@@ -472,7 +469,7 @@ export function PrintTestDeckScreen(): JSX.Element {
       printIndex,
       printer,
       logger,
-      currentUserType,
+      userRole,
       precinctIds,
       makeCancelable,
     ]
@@ -486,7 +483,7 @@ export function PrintTestDeckScreen(): JSX.Element {
 
       const precinctId = precinctIds[printIndex.precinctIndex];
       await printer.print({ sides: 'one-sided' });
-      await logger.log(LogEventId.TestDeckPrinted, currentUserType, {
+      await logger.log(LogEventId.TestDeckPrinted, userRole, {
         disposition: 'success',
         message: `BMD paper ballot test deck printed as part of L&A package for precinct ID: ${precinctId}`,
         precinctId,
@@ -497,7 +494,7 @@ export function PrintTestDeckScreen(): JSX.Element {
     },
     [
       advancePrinting,
-      currentUserType,
+      userRole,
       logger,
       makeCancelable,
       precinctIds,
@@ -514,7 +511,7 @@ export function PrintTestDeckScreen(): JSX.Element {
 
       const precinctId = precinctIds[printIndex.precinctIndex];
       await printer.print({ sides: 'two-sided-long-edge' });
-      await logger.log(LogEventId.TestDeckPrinted, currentUserType, {
+      await logger.log(LogEventId.TestDeckPrinted, userRole, {
         disposition: 'success',
         message: `Hand-marked paper ballot test deck printed as part of L&A package for precinct ID: ${precinctId}`,
         precinctId,
@@ -534,7 +531,7 @@ export function PrintTestDeckScreen(): JSX.Element {
       printIndex,
       printer,
       logger,
-      currentUserType,
+      userRole,
       precinctIds,
       makeCancelable,
     ]

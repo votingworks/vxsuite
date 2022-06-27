@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 
-import { Modal, Prose } from '@votingworks/ui';
+import { isAdminAuth, isSuperadminAuth, Modal, Prose } from '@votingworks/ui';
 import { assert, format } from '@votingworks/utils';
 import { ExternalTallySourceType, VotingMethod } from '@votingworks/types';
 import { LogEventId } from '@votingworks/logging';
@@ -28,12 +28,12 @@ export function ImportExternalResultsModal({
     setIsTabulationRunning,
     electionDefinition,
     fullElectionExternalTallies,
-    currentUserSession,
+    auth,
     logger,
   } = useContext(AppContext);
   assert(electionDefinition);
-  assert(currentUserSession); // TODO(auth) check permissions for importing cvr
-  const currentUserType = currentUserSession.type;
+  assert(isAdminAuth(auth) || isSuperadminAuth(auth)); // TODO(auth) check permissions for importing cvr
+  const userRole = auth.user.role;
 
   const [errorMessage, setErrorMessage] = useState('');
   const [isImportingFile, setIsImportingFile] = useState(true);
@@ -58,18 +58,14 @@ export function ImportExternalResultsModal({
           `Failed to import external file. ${fileErrors.join(' ')}`
         );
         setIsImportingFile(false);
-        await logger.log(
-          LogEventId.ExternalTallyFileImported,
-          currentUserType,
-          {
-            message:
-              'Failed to import external tally file, file contents not compatible with current election.',
-            result: 'User shown error, file not imported.',
-            error: fileErrors.join(' '),
-            disposition: 'failure',
-            fileType: ExternalTallySourceType.SEMS,
-          }
-        );
+        await logger.log(LogEventId.ExternalTallyFileImported, userRole, {
+          message:
+            'Failed to import external tally file, file contents not compatible with current election.',
+          result: 'User shown error, file not imported.',
+          error: fileErrors.join(' '),
+          disposition: 'failure',
+          fileType: ExternalTallySourceType.SEMS,
+        });
         return;
       }
       const tally = convertSemsFileToExternalTally(
@@ -83,7 +79,7 @@ export function ImportExternalResultsModal({
     } catch (error) {
       assert(error instanceof Error);
       setErrorMessage(`Failed to import external file. ${error.message}`);
-      await logger.log(LogEventId.ExternalTallyFileImported, currentUserType, {
+      await logger.log(LogEventId.ExternalTallyFileImported, userRole, {
         message: 'Failed to import external tally file.',
         result: 'User shown error, file not imported.',
         error: error.message,
@@ -113,7 +109,7 @@ export function ImportExternalResultsModal({
         selectedFile.name,
         new Date(selectedFile.lastModified)
       );
-      await logger.log(LogEventId.ExternalTallyFileImported, currentUserType, {
+      await logger.log(LogEventId.ExternalTallyFileImported, userRole, {
         message: 'External Tally File imported successfully.',
         disposition: 'success',
         fileType: ExternalTallySourceType.SEMS,

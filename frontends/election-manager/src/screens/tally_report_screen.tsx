@@ -5,7 +5,13 @@ import { useParams } from 'react-router-dom';
 import { assert, find } from '@votingworks/utils';
 import { LogEventId } from '@votingworks/logging';
 import { VotingMethod, getLabelForVotingMethod } from '@votingworks/types';
-import { Prose, TallyReport, TallyReportMetadata, Text } from '@votingworks/ui';
+import {
+  isAdminAuth,
+  Prose,
+  TallyReport,
+  TallyReportMetadata,
+  Text,
+} from '@votingworks/ui';
 import {
   generateDefaultReportFilename,
   generateFileContentToSaveAsPdf,
@@ -59,12 +65,12 @@ export function TallyReportScreen(): JSX.Element {
     fullElectionTally,
     fullElectionExternalTallies,
     isTabulationRunning,
-    currentUserSession,
+    auth,
     logger,
   } = useContext(AppContext);
   assert(electionDefinition);
-  assert(currentUserSession); // TODO(auth) check permissions for viewing tally reports.
-  const currentUserType = currentUserSession.type;
+  assert(isAdminAuth(auth)); // TODO(auth) check permissions for viewing tally reports.
+  const userRole = auth.user.role;
 
   const { election } = electionDefinition;
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial';
@@ -153,15 +159,15 @@ export function TallyReportScreen(): JSX.Element {
   ]);
 
   useEffect(() => {
-    void logger.log(LogEventId.TallyReportPreviewed, currentUserType, {
+    void logger.log(LogEventId.TallyReportPreviewed, userRole, {
       message: `User previewed the ${reportDisplayTitle}.`,
       disposition: 'success',
       tallyReportTitle: reportDisplayTitle,
     });
-  }, [logger, reportDisplayTitle, currentUserType]);
+  }, [logger, reportDisplayTitle, userRole]);
 
   function afterPrint() {
-    void logger.log(LogEventId.TallyReportPrinted, currentUserType, {
+    void logger.log(LogEventId.TallyReportPrinted, userRole, {
       message: `User printed ${reportDisplayTitle}`,
       disposition: 'success',
       tallyReportTitle: reportDisplayTitle,
@@ -169,7 +175,7 @@ export function TallyReportScreen(): JSX.Element {
   }
 
   function afterPrintError(errorMessage: string) {
-    void logger.log(LogEventId.TallyReportPrinted, currentUserType, {
+    void logger.log(LogEventId.TallyReportPrinted, userRole, {
       message: `Error in attempting to print ${reportDisplayTitle}: ${errorMessage}`,
       disposition: 'failure',
       tallyReportTitle: reportDisplayTitle,

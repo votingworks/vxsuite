@@ -3,7 +3,15 @@ import styled from 'styled-components';
 import path from 'path';
 import moment from 'moment';
 
-import { Modal, ModalWidth, Table, TD, Prose } from '@votingworks/ui';
+import {
+  Modal,
+  ModalWidth,
+  Table,
+  TD,
+  Prose,
+  isAdminAuth,
+  isSuperadminAuth,
+} from '@votingworks/ui';
 import {
   assert,
   generateElectionBasedSubfolderName,
@@ -68,12 +76,12 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
     saveCastVoteRecordFiles,
     castVoteRecordFiles,
     electionDefinition,
-    currentUserSession,
+    auth,
     logger,
   } = useContext(AppContext);
   assert(electionDefinition);
-  assert(currentUserSession); // TODO(auth) check permissions for importing cvr
-  const currentUserType = currentUserSession.type;
+  assert(isAdminAuth(auth) || isSuperadminAuth(auth)); // TODO(auth) check permissions for importing cvr
+  const userRole = auth.user.role;
   const [currentState, setCurrentState] = useState(ModalState.INIT);
   const [importedFile, setImportedFile] = useState<CastVoteRecordFile>();
   const [foundFiles, setFoundFiles] = useState<
@@ -93,7 +101,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
 
     if (newCastVoteRecordFiles.duplicateFiles.includes(fileData.name)) {
       setCurrentState(ModalState.DUPLICATE);
-      await logger.log(LogEventId.CvrImported, currentUserType, {
+      await logger.log(LogEventId.CvrImported, userRole, {
         message:
           'CVR file was not imported as it is a duplicated of a previously imported file.',
         disposition: 'failure',
@@ -102,7 +110,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
       });
     } else if (newCastVoteRecordFiles.lastError?.filename === fileData.name) {
       setCurrentState(ModalState.ERROR);
-      await logger.log(LogEventId.CvrImported, currentUserType, {
+      await logger.log(LogEventId.CvrImported, userRole, {
         message: `Failed to import CVR file: ${newCastVoteRecordFiles.lastError.message}`,
         disposition: 'failure',
         filename: fileData.name,
@@ -114,7 +122,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
         (f) => f.name === fileData.name
       );
       assert(file);
-      await logger.log(LogEventId.CvrImported, currentUserType, {
+      await logger.log(LogEventId.CvrImported, userRole, {
         message: 'CVR file successfully imported.',
         disposition: 'success',
         filename: fileData.name,
@@ -145,7 +153,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
 
       if (newCastVoteRecordFiles.duplicateFiles.includes(filename)) {
         setCurrentState(ModalState.DUPLICATE);
-        await logger.log(LogEventId.CvrImported, currentUserSession.type, {
+        await logger.log(LogEventId.CvrImported, userRole, {
           message:
             'CVR file was not imported as it is a duplicated of a previously imported file.',
           disposition: 'failure',
@@ -154,7 +162,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
         });
       } else if (newCastVoteRecordFiles.lastError?.filename === files[0].name) {
         setCurrentState(ModalState.ERROR);
-        await logger.log(LogEventId.CvrImported, currentUserSession.type, {
+        await logger.log(LogEventId.CvrImported, userRole, {
           message: `Failed to import CVR file: ${newCastVoteRecordFiles.lastError.message}`,
           disposition: 'failure',
           filename,
@@ -166,7 +174,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
           (f) => f.name === filename
         );
         assert(file);
-        await logger.log(LogEventId.CvrImported, currentUserSession.type, {
+        await logger.log(LogEventId.CvrImported, userRole, {
           message: 'CVR file successfully imported.',
           disposition: 'success',
           filename,
@@ -207,7 +215,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
         (a, b) => b.exportTimestamp.getTime() - a.exportTimestamp.getTime()
       );
       setFoundFiles(parsedFileInformation);
-      await logger.log(LogEventId.CvrFilesReadFromUsb, currentUserType, {
+      await logger.log(LogEventId.CvrFilesReadFromUsb, userRole, {
         message: `Found ${newFoundFiles.length} CVR files on USB drive, user shown option to import.`,
         disposition: 'success',
       });
@@ -218,14 +226,14 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
         // No files found
         setFoundFiles([]);
         setCurrentState(ModalState.INIT);
-        await logger.log(LogEventId.CvrFilesReadFromUsb, currentUserType, {
+        await logger.log(LogEventId.CvrFilesReadFromUsb, userRole, {
           message:
             'No CVR files automatically found on USB drive. User allowed to import manually.',
           disposition: 'success',
           result: 'User allowed to manually select files.',
         });
       } else {
-        await logger.log(LogEventId.CvrFilesReadFromUsb, currentUserType, {
+        await logger.log(LogEventId.CvrFilesReadFromUsb, userRole, {
           message: 'Error searching USB for CVR files.',
           disposition: 'failure',
           result: 'Error shown to user.',

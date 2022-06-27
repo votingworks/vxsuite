@@ -3,11 +3,10 @@ import {
   ElectionDefinition,
   FullElectionTally,
   FullElectionExternalTally,
-  UserSession,
+  DippedSmartcardAuth,
 } from '@votingworks/types';
 import { usbstick, NullPrinter, Printer } from '@votingworks/utils';
 import { Logger, LogSource, LoggingUserRole } from '@votingworks/logging';
-import { Smartcard } from '@votingworks/ui';
 import {
   SaveElection,
   PrintedBallot,
@@ -40,7 +39,7 @@ export interface AppContextInterface {
   saveIsOfficialResults: () => Promise<void>;
   resetFiles: (fileType: ResultsFileType) => Promise<void>;
   usbDriveStatus: usbstick.UsbDriveStatus;
-  usbDriveEject: (currentUser: LoggingUserRole) => Promise<void>;
+  usbDriveEject: (currentUserRole: LoggingUserRole) => Promise<void>;
   addPrintedBallot: (printedBallot: PrintedBallot) => void;
   printedBallots: PrintedBallot[];
   fullElectionTally: FullElectionTally;
@@ -56,12 +55,9 @@ export interface AppContextInterface {
   ) => Promise<void>;
   setIsTabulationRunning: React.Dispatch<React.SetStateAction<boolean>>;
   generateExportableTallies: () => ExportableTallies;
-  currentUserSession?: UserSession;
-  attemptToAuthenticateAdminUser: (passcode: string) => boolean;
-  lockMachine: () => void;
+  auth: DippedSmartcardAuth.Auth;
   machineConfig: MachineConfig;
   hasCardReaderAttached: boolean;
-  smartcard: Smartcard;
   logger: Logger;
 }
 
@@ -90,15 +86,16 @@ const appContext: AppContextInterface = {
   isTabulationRunning: false,
   setIsTabulationRunning: () => undefined,
   generateExportableTallies: getEmptyExportableTallies,
-  currentUserSession: undefined,
-  attemptToAuthenticateAdminUser: () => false,
-  lockMachine: () => undefined,
+  auth: {
+    status: 'logged_out',
+    reason: 'machine_locked',
+    bootstrapAuthenticatedAdminSession: () => undefined,
+  },
   machineConfig: {
     machineId: '0000',
     codeVersion: '',
   },
   hasCardReaderAttached: true,
-  smartcard: { status: 'no_card' },
   logger: new Logger(LogSource.VxAdminFrontend),
 };
 /* eslint-enable @typescript-eslint/require-await */

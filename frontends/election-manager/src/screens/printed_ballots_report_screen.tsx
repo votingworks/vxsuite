@@ -4,7 +4,7 @@ import _ from 'lodash';
 
 import { Dictionary } from '@votingworks/types';
 import { assert, format, find } from '@votingworks/utils';
-import { LogoMark, Prose, Table, TD, Text } from '@votingworks/ui';
+import { isAdminAuth, LogoMark, Prose, Table, TD, Text } from '@votingworks/ui';
 import { LogEventId } from '@votingworks/logging';
 import { PrintableBallotType } from '../config/types';
 import { routerPaths } from '../router_paths';
@@ -21,14 +21,11 @@ type PrintCounts = Dictionary<Dictionary<number>>;
 type PrintCountsByType = Dictionary<Dictionary<Dictionary<number>>>;
 
 export function PrintedBallotsReportScreen(): JSX.Element {
-  const {
-    electionDefinition,
-    printedBallots,
-    configuredAt,
-    logger,
-    currentUserSession,
-  } = useContext(AppContext);
+  const { electionDefinition, printedBallots, configuredAt, logger, auth } =
+    useContext(AppContext);
   assert(electionDefinition && typeof configuredAt === 'string');
+  assert(isAdminAuth(auth)); // TODO auth check permissions for printing printed ballot report
+  const userRole = auth.user.role;
   const { election } = electionDefinition;
 
   const totalBallotsPrinted = printedBallots.reduce(
@@ -101,29 +98,18 @@ export function PrintedBallotsReportScreen(): JSX.Element {
   const generatedAt = format.localeLongDateAndTime(new Date());
 
   function logAfterPrint() {
-    assert(currentUserSession); // TODO auth check permissions for printing printed ballot report
-    void logger.log(
-      LogEventId.PrintedBallotReportPrinted,
-      currentUserSession.type,
-      {
-        message: 'Printed ballot report successfully printed.',
-        disposition: 'success',
-      }
-    );
+    void logger.log(LogEventId.PrintedBallotReportPrinted, userRole, {
+      message: 'Printed ballot report successfully printed.',
+      disposition: 'success',
+    });
   }
 
   function logAfterPrintError(errorMessage: string) {
-    assert(currentUserSession); // TODO auth check permissions for printing printed ballot report
-    void logger.log(
-      LogEventId.PrintedBallotReportPrinted,
-      currentUserSession.type,
-      {
-        message: `Error printing Printed ballot Report: ${errorMessage}`,
-        disposition: 'failure',
-        result:
-          'Printed Ballot Report not printed, error message shown to user.',
-      }
-    );
+    void logger.log(LogEventId.PrintedBallotReportPrinted, userRole, {
+      message: `Error printing Printed ballot Report: ${errorMessage}`,
+      disposition: 'failure',
+      result: 'Printed Ballot Report not printed, error message shown to user.',
+    });
   }
 
   const reportContent = (
