@@ -1205,11 +1205,11 @@ test('super admin Smartcards screen navigation', async () => {
   userEvent.click(screen.getByText('Smartcards'));
   screen.getByRole('heading', { name: 'Smartcards' });
   screen.getByRole('heading', { name: 'Election Cards' });
-  userEvent.click(screen.getByText('Create Super Admin Cards'));
+  userEvent.click(screen.getByText('Create Super Admin Cards Instead'));
 
   screen.getByRole('heading', { name: 'Smartcards' });
   screen.getByRole('heading', { name: 'Super Admin Cards' });
-  userEvent.click(screen.getByText('Back to Election Cards'));
+  userEvent.click(screen.getByText('Create Election Cards Instead'));
 
   screen.getByRole('heading', { name: 'Smartcards' });
   screen.getByRole('heading', { name: 'Election Cards' });
