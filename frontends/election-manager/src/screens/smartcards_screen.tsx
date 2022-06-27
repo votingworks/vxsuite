@@ -2,20 +2,12 @@ import React, { useCallback, useContext, useState } from 'react';
 import styled from 'styled-components';
 import { assert, sleep } from '@votingworks/utils';
 import { LogEventId } from '@votingworks/logging';
-import {
-  LinkButton,
-  Modal,
-  NumberPad,
-  Prose,
-  useCancelablePromise,
-} from '@votingworks/ui';
+import { Modal, NumberPad, Prose, useCancelablePromise } from '@votingworks/ui';
 
 import { AppContext } from '../contexts/app_context';
-import { areVvsg2AuthFlowsEnabled } from '../config/features';
 import { Button } from '../components/button';
 import { Loading } from '../components/loading';
 import { NavigationScreen } from '../components/navigation_screen';
-import { routerPaths } from '../router_paths';
 import { SECURITY_PIN_LENGTH } from '../config/globals';
 
 const Passcode = styled.div`
@@ -35,7 +27,7 @@ const NumberPadWrapper = styled.div`
   }
 `;
 
-function LegacySmartcardsScreen(): JSX.Element {
+export function SmartcardsScreen(): JSX.Element {
   const { electionDefinition, logger, currentUserSession } =
     useContext(AppContext);
   assert(electionDefinition);
@@ -302,30 +294,5 @@ function LegacySmartcardsScreen(): JSX.Element {
         />
       )}
     </React.Fragment>
-  );
-}
-
-export function SmartcardsScreen(): JSX.Element {
-  if (!areVvsg2AuthFlowsEnabled()) {
-    return <LegacySmartcardsScreen />;
-  }
-  return (
-    <NavigationScreen>
-      <Prose maxWidth={false}>
-        <h1>Smartcards</h1>
-        <h2>Election Cards</h2>
-        <p>
-          Insert a card to view card details and/or to create an{' '}
-          <strong>Admin or Poll Worker</strong> card for this election. The
-          election definition must be locked before Admin and Poll Worker cards
-          can be created.
-        </p>
-        <p>
-          <LinkButton small to={routerPaths.superAdminSmartcards}>
-            Create Super Admin Cards
-          </LinkButton>
-        </p>
-      </Prose>
-    </NavigationScreen>
   );
 }

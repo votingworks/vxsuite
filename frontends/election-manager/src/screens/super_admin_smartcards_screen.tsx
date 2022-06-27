@@ -15,7 +15,7 @@ export function SuperAdminSmartcardsScreen(): JSX.Element {
           <strong>Super Admin</strong> card.
         </p>
         <p>
-          <LinkButton small to={routerPaths.smartcards}>
+          <LinkButton small to={routerPaths.electionSmartcards}>
             Back to Election Cards
           </LinkButton>
         </p>
