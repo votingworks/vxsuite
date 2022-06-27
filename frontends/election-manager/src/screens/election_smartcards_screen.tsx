@@ -8,7 +8,7 @@ import { routerPaths } from '../router_paths';
 export function ElectionSmartcardsScreen(): JSX.Element {
   return (
     <NavigationScreen>
-      <Prose maxWidth={false} textCenter>
+      <Prose maxWidth={false}>
         <h1>Smartcards</h1>
         <CardProgrammingPrompt cardType="election" />
         <p>

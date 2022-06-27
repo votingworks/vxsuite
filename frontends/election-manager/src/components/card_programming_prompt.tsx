@@ -2,8 +2,6 @@ import React from 'react';
 import styled from 'styled-components';
 
 const InsertCardImage = styled.img`
-  margin-right: auto;
-  margin-left: auto;
   height: 20vw;
 `;
 
@@ -17,7 +15,7 @@ export function CardProgrammingPrompt({
   return (
     <React.Fragment>
       <h2>{cardType === 'election' ? 'Election' : 'Super Admin'} Cards</h2>
-      <InsertCardImage src="/assets/insert-card.svg" alt="" />
+      <InsertCardImage src="/assets/insert-card-no-margins.svg" alt="" />
       <p>
         Insert a card to view card details or to create{' '}
         {cardType === 'election' ? (
