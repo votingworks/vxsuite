@@ -26,12 +26,14 @@ interface Props {
   children: React.ReactNode;
   centerChild?: boolean;
   flexColumn?: boolean;
+  flexRow?: boolean;
 }
 
 export function NavigationScreen({
   children,
   centerChild,
   flexColumn,
+  flexRow,
 }: Props): JSX.Element {
   const location = useLocation();
 
@@ -140,7 +142,12 @@ export function NavigationScreen({
           </React.Fragment>
         }
       />
-      <Main padded centerChild={centerChild} flexColumn={flexColumn}>
+      <Main
+        padded
+        centerChild={centerChild}
+        flexColumn={flexColumn}
+        flexRow={flexRow}
+      >
         {children}
       </Main>
       <ElectionInfoBar
