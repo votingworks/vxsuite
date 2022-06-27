@@ -10,6 +10,7 @@ import {
 } from '@votingworks/types';
 import { sleep, typedAs } from '@votingworks/utils';
 import { Buffer } from 'buffer';
+import { writeFile } from 'fs-extra';
 import * as streams from 'memory-streams';
 import * as tmp from 'tmp';
 import { v4 as uuid } from 'uuid';
@@ -505,7 +506,7 @@ test('adjudication', () => {
   store.cleanupIncompleteBatches();
 });
 
-test('exportCvrs', () => {
+test('exportCvrs', async () => {
   const store = Store.memoryStore();
   store.setElection(stateOfHamilton.electionDefinition);
 
@@ -543,12 +544,24 @@ test('exportCvrs', () => {
     },
   ]);
 
+  const frontOriginalFile = tmp.fileSync();
+  await writeFile(frontOriginalFile.fd, 'front original');
+
+  const frontNormalizedFile = tmp.fileSync();
+  await writeFile(frontNormalizedFile.fd, 'front normalized');
+
+  const backOriginalFile = tmp.fileSync();
+  await writeFile(backOriginalFile.fd, 'back original');
+
+  const backNormalizedFile = tmp.fileSync();
+  await writeFile(backNormalizedFile.fd, 'back normalized');
+
   // Create CVRs, confirm that they are exported should work
   const batchId = store.addBatch();
   const sheetId = store.addSheet(uuid(), batchId, [
     {
-      originalFilename: '/tmp/front-page.png',
-      normalizedFilename: '/tmp/front-normalized-page.png',
+      originalFilename: frontOriginalFile.name,
+      normalizedFilename: frontNormalizedFile.name,
       interpretation: {
         type: 'UninterpretedHmpbPage',
         metadata: {
@@ -558,8 +571,8 @@ test('exportCvrs', () => {
       },
     },
     {
-      originalFilename: '/tmp/back-page.png',
-      normalizedFilename: '/tmp/back-normalized-page.png',
+      originalFilename: backOriginalFile.name,
+      normalizedFilename: backNormalizedFile.name,
       interpretation: {
         type: 'UninterpretedHmpbPage',
         metadata: {
@@ -576,6 +589,9 @@ test('exportCvrs', () => {
   store.exportCvrs(stream);
   expect(stream.toString()).toEqual(
     expect.stringContaining(stateOfHamilton.election.precincts[0].id)
+  );
+  expect(stream.toString()).toEqual(
+    expect.stringContaining('front normalized')
   );
 
   // Confirm that deleted batches are not included in exported CVRs
