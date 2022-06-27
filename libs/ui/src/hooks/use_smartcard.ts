@@ -10,10 +10,9 @@ import {
 import { assert, Card, CardApi, CardApiNotReady } from '@votingworks/utils';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import useInterval from 'use-interval';
+import { CARD_POLLING_INTERVAL } from './smartcard_auth';
 import { useCancelablePromise } from './use_cancelable_promise';
 import { Devices } from './use_devices';
-
-export const CARD_POLLING_INTERVAL = 100;
 
 export interface UseSmartcardProps {
   card: Card;

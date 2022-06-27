@@ -17,7 +17,8 @@ import {
   OmniKeyCardReaderProductId,
   OmniKeyCardReaderVendorId,
 } from '@votingworks/utils';
-import { CARD_POLLING_INTERVAL, useSmartcard } from './use_smartcard';
+import { CARD_POLLING_INTERVAL } from './smartcard_auth';
+import { useSmartcard } from './use_smartcard';
 
 const cardReader: KioskBrowser.Device = {
   deviceAddress: 0,
