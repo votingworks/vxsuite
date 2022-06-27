@@ -63,6 +63,20 @@ test('errors on start with no workspace', async () => {
   }
 });
 
+test('GET /admin/write-ins/adjudication/:id', async () => {
+  // id param not in DB
+  await request(app).get('/admin/write-ins/adjudication/1').expect(404);
+  const cvrId = workspace.store.addCvr('test data');
+
+  // Valid request
+  const id = workspace.store.addAdjudication('mayor', cvrId);
+  await request(app).get(`/admin/write-ins/adjudication/${id}`).expect(200, {
+    id,
+    contestId: 'mayor',
+    transcribedValue: '',
+  });
+});
+
 test('PATCH /admin/write-ins/adjudications/:adjudicationId/transcription', async () => {
   workspace.store.updateAdjudicationTranscribedValue = jest.fn();
   const cvrId = workspace.store.addCvr('test data');
