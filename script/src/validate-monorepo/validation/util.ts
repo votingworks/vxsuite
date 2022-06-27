@@ -6,6 +6,7 @@ export interface Package {
   readonly dependencies?: { [name: string]: string };
   readonly devDependencies?: { [name: string]: string };
   readonly peerDependencies?: { [name: string]: string };
+  readonly packageManager?: string;
 }
 
 export function assertNever(x: never): never {

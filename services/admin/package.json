@@ -84,5 +84,6 @@
   },
   "engines": {
     "node": ">= 16"
-  }
+  },
+  "packageManager": "pnpm@5.18.10"
 }

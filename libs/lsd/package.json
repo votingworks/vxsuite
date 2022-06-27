@@ -67,5 +67,6 @@
     "ts-jest": "^27.0.7",
     "typescript": "4.6.3"
   },
-  "gypfile": true
+  "gypfile": true,
+  "packageManager": "pnpm@5.18.10"
 }

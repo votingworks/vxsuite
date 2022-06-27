@@ -13,6 +13,4 @@ echo "deb-src https://deb.nodesource.com/${NODE_VERSION} ${DISTRO} main" | sudo 
 
 sudo apt update
 sudo apt install -y nodejs
-
-sudo npm install -g yarn pnpm@5
-
+corepack enable

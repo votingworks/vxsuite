@@ -146,6 +146,7 @@
     "url-loader": "4.1.1",
     "vite": "^2.9.12"
   },
+  "packageManager": "pnpm@5.18.10",
   "vx": {
     "isBundled": true,
     "services": [

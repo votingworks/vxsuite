@@ -10,7 +10,7 @@
     "yaml": "^2.1.0"
   },
   "devDependencies": {
-    "@types/node": "^16.11.29",
+    "@types/node": "^16.11.41",
     "esbuild": "^0.13.13",
     "esbuild-runner": "^2.2.1",
     "prettier": "^2.3.1",

@@ -20,6 +20,7 @@
     "test:coverage": "jest --coverage",
     "test:watch": "jest --watch"
   },
+  "packageManager": "pnpm@5.18.10",
   "dependencies": {
     "globby": "11",
     "mime": "^3.0.0",

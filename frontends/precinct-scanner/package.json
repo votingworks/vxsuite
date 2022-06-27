@@ -141,6 +141,7 @@
     "ts-jest": "^26.5.6",
     "vite": "^2.9.12"
   },
+  "packageManager": "pnpm@5.18.10",
   "vx": {
     "isBundled": true,
     "services": [

@@ -138,6 +138,7 @@
     "vite": "^2.9.12",
     "zip-stream": "^3.0.1"
   },
+  "packageManager": "pnpm@5.18.10",
   "vx": {
     "isBundled": true,
     "services": [
