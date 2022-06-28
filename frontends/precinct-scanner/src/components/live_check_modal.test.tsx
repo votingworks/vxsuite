@@ -5,19 +5,14 @@ import MockDate from 'mockdate';
 import { render, fireEvent, waitFor } from '@testing-library/react';
 import { electionSampleDefinition as electionDefinition } from '@votingworks/fixtures';
 
-import { fakeKiosk } from '@votingworks/test-utils';
+import { fakeKiosk, Inserted } from '@votingworks/test-utils';
 
-import { UserSession } from '@votingworks/types';
 import { LiveCheckModal } from './live_check_modal';
 import { AppContext } from '../contexts/app_context';
 import { MachineConfig } from '../config/types';
 
 const machineConfig: MachineConfig = { machineId: '0003', codeVersion: 'TEST' };
-const currentUserSession: UserSession = {
-  type: 'pollworker',
-  authenticated: true,
-  isElectionHashValid: true,
-};
+const auth = Inserted.fakePollworkerAuth();
 
 MockDate.set('2022-06-22T01:23:45.678Z');
 
@@ -32,7 +27,7 @@ test('renders livecheck screen', async () => {
       value={{
         electionDefinition,
         machineConfig,
-        currentUserSession,
+        auth,
       }}
     >
       <LiveCheckModal onClose={closeFn} />

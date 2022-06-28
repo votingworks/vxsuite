@@ -10,20 +10,20 @@ import {
   Provider,
   CastVoteRecord,
   PrecinctId,
-  UserRole,
 } from '@votingworks/types';
 import {
   useCancelablePromise,
-  useSmartcard,
   useUsbDrive,
   SetupCardReaderPage,
-  useUserSession,
   useDevices,
   RebootFromUsbButton,
   Button,
+  useInsertedSmartcardAuth,
+  isSuperadminAuth,
+  isAdminAuth,
+  isPollworkerAuth,
 } from '@votingworks/ui';
 import {
-  assert,
   throwIllegalValue,
   PrecinctScannerCardTally,
   Card,
@@ -32,6 +32,7 @@ import {
   usbstick,
   Printer,
   PrecinctScannerCardTallySchema,
+  assert,
 } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
 
@@ -76,7 +77,6 @@ export interface AppStorage {
 }
 
 export const stateStorageKey = 'state';
-const VALID_USERS: readonly UserRole[] = ['admin', 'pollworker', 'superadmin'];
 
 export interface Props {
   hardware: Hardware;
@@ -345,20 +345,11 @@ export function AppRoot({
     hardware,
     logger,
   });
-  const smartcard = useSmartcard({
-    card,
-    cardReader,
+  const auth = useInsertedSmartcardAuth({
+    allowedUserRoles: ['superadmin', 'admin', 'pollworker'],
+    cardApi: card,
+    scope: { electionDefinition },
   });
-  const { currentUserSession, attemptToAuthenticateAdminUser } = useUserSession(
-    {
-      smartcard,
-      electionDefinition,
-      persistAuthentication: false,
-      logger,
-      validUserTypes: VALID_USERS,
-    }
-  );
-  const hasCardInserted = currentUserSession?.type;
 
   const makeCancelable = useCancelablePromise();
 
@@ -571,7 +562,8 @@ export function AppRoot({
       isScannerConfigured &&
       electionDefinition &&
       isPollsOpen &&
-      !hasCardInserted
+      auth.status === 'logged_out' &&
+      auth.reason === 'no_card'
     ) {
       startBallotStatusPolling();
     } else {
@@ -583,7 +575,7 @@ export function AppRoot({
     isScannerConfigured,
     electionDefinition,
     isPollsOpen,
-    hasCardInserted,
+    auth,
   ]);
 
   const setElectionDefinition = useCallback(
@@ -707,7 +699,7 @@ export function AppRoot({
     return <SetupCardReaderPage />;
   }
 
-  if (smartcard.status === 'error') {
+  if (auth.status === 'logged_out' && auth.reason === 'card_error') {
     return <CardErrorScreen />;
   }
 
@@ -715,7 +707,7 @@ export function AppRoot({
     return <SetupPowerPage />;
   }
 
-  if (currentUserSession?.type === 'superadmin') {
+  if (isSuperadminAuth(auth)) {
     return (
       <ScreenMainCenterChild infoBar>
         <CenteredLargeProse>
@@ -748,31 +740,29 @@ export function AppRoot({
     );
   }
 
-  if (currentUserSession?.type === 'admin') {
+  if (auth.status === 'checking_passcode') {
+    return <UnlockAdminScreen auth={auth} />;
+  }
+
+  if (isAdminAuth(auth)) {
     return (
       <AppContext.Provider
         value={{
           electionDefinition,
           currentPrecinctId,
           machineConfig,
-          currentUserSession,
+          auth,
         }}
       >
-        {currentUserSession.authenticated ? (
-          <AdminScreen
-            updateAppPrecinctId={updatePrecinctId}
-            scannedBallotCount={scannedBallotCount}
-            isTestMode={isTestMode}
-            toggleLiveMode={toggleTestMode}
-            unconfigure={unconfigureServer}
-            calibrate={scan.calibrate}
-            usbDrive={usbDrive}
-          />
-        ) : (
-          <UnlockAdminScreen
-            attemptToAuthenticateUser={attemptToAuthenticateAdminUser}
-          />
-        )}
+        <AdminScreen
+          updateAppPrecinctId={updatePrecinctId}
+          scannedBallotCount={scannedBallotCount}
+          isTestMode={isTestMode}
+          toggleLiveMode={toggleTestMode}
+          unconfigure={unconfigureServer}
+          calibrate={scan.calibrate}
+          usbDrive={usbDrive}
+        />
       </AppContext.Provider>
     );
   }
@@ -781,17 +771,14 @@ export function AppRoot({
     return <InsertUsbScreen />;
   }
 
-  if (
-    currentUserSession?.type === 'pollworker' &&
-    currentUserSession.authenticated
-  ) {
+  if (isPollworkerAuth(auth)) {
     return (
       <AppContext.Provider
         value={{
           electionDefinition,
           currentPrecinctId,
           machineConfig,
-          currentUserSession,
+          auth,
         }}
       >
         <PollWorkerScreen
@@ -809,15 +796,12 @@ export function AppRoot({
     );
   }
 
-  if (
-    currentUserSession?.type === 'voter' ||
-    currentUserSession?.type === 'unknown' ||
-    currentUserSession?.authenticated === false
-  ) {
+  if (auth.status === 'logged_out' && auth.reason !== 'no_card') {
     return <InvalidCardScreen />;
   }
 
-  assert(currentUserSession === undefined);
+  // When no card is inserted, we're in "voter" mode
+  assert(auth.status === 'logged_out' && auth.reason === 'no_card');
 
   let voterScreen = (
     <PollsClosedScreen
@@ -887,7 +871,7 @@ export function AppRoot({
         electionDefinition,
         machineConfig,
         currentPrecinctId,
-        currentUserSession,
+        auth,
       }}
     >
       {voterScreen}

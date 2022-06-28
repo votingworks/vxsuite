@@ -333,10 +333,10 @@ describe('useInsertedSmartcardAuth', () => {
     });
   });
 
-  it('returns logged_in auth for an admin card', async () => {
+  it('when an admin card is inserted, checks the passcode', async () => {
     const cardApi = new MemoryCard();
     const passcode = '123456';
-    cardApi.insertCard(makeAdminCard(electionHash, passcode));
+    const user = fakeAdminUser({ electionHash, passcode });
     const { result, waitForNextUpdate } = renderHook(() =>
       useInsertedSmartcardAuth({
         cardApi,
@@ -344,12 +344,60 @@ describe('useInsertedSmartcardAuth', () => {
         scope: {},
       })
     );
+    expect(result.current.status).toEqual('logged_out');
+
+    // Insert an admin card
+    cardApi.insertCard(makeAdminCard(electionHash, passcode));
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
+    await waitForNextUpdate();
+    expect(result.current).toEqual({
+      status: 'checking_passcode',
+      user,
+      wrongPasscodeEntered: undefined,
+      checkPasscode: expect.any(Function),
+    });
+
+    // Check an incorrect passcode
+    act(() => {
+      assert(result.current.status === 'checking_passcode');
+      result.current.checkPasscode('000000');
+    });
+    await waitForNextUpdate();
+    expect(result.current).toMatchObject({
+      status: 'checking_passcode',
+      user,
+      wrongPasscodeEntered: true,
+    });
+
+    // Check the correct passcode
+    act(() => {
+      assert(result.current.status === 'checking_passcode');
+      result.current.checkPasscode(passcode);
+    });
     await waitForNextUpdate();
     expect(result.current).toMatchObject({
       status: 'logged_in',
-      user: fakeAdminUser({ electionHash, passcode }),
+      user,
       card: expect.any(Object),
+    });
+  });
+
+  it('when checking passcode, logs out if card is removed', async () => {
+    const cardApi = new MemoryCard();
+    cardApi.insertCard(makeAdminCard(electionHash));
+    const { result, waitForNextUpdate } = renderHook(() =>
+      useInsertedSmartcardAuth({ cardApi, allowedUserRoles, scope: {} })
+    );
+    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
+    await waitForNextUpdate();
+    expect(result.current).toMatchObject({ status: 'checking_passcode' });
+
+    cardApi.removeCard();
+    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
+    await waitForNextUpdate();
+    expect(result.current).toMatchObject({
+      status: 'logged_out',
+      reason: 'no_card',
     });
   });
 

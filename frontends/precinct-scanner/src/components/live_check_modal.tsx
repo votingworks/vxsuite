@@ -1,6 +1,13 @@
 import React, { useContext, useEffect, useState } from 'react';
 
-import { Button, Prose, Modal, QrCode } from '@votingworks/ui';
+import {
+  Button,
+  Prose,
+  Modal,
+  QrCode,
+  isAdminAuth,
+  isPollworkerAuth,
+} from '@votingworks/ui';
 
 import { assert } from '@votingworks/utils';
 
@@ -18,11 +25,10 @@ export interface Props {
 
 export function LiveCheckModal({ onClose }: Props): JSX.Element {
   const [livecheckUrl, setLivecheckUrl] = useState('');
-  const { electionDefinition, machineConfig, currentUserSession } =
-    useContext(AppContext);
+  const { electionDefinition, machineConfig, auth } = useContext(AppContext);
   assert(electionDefinition);
   assert(machineConfig);
-  assert(currentUserSession); // TODO(auth) should assert this is an admin or pollworker?
+  assert(isAdminAuth(auth) || isPollworkerAuth(auth));
 
   useEffect(() => {
     void (async () => {

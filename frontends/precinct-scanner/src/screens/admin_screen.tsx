@@ -2,6 +2,7 @@ import {
   Precinct,
   PrecinctId,
   SelectChangeEventFunction,
+  ok,
 } from '@votingworks/types';
 import {
   Button,
@@ -14,6 +15,7 @@ import {
   SetClockButton,
   UsbDrive,
   Bar,
+  isAdminAuth,
 } from '@votingworks/ui';
 import { assert, format, usbstick } from '@votingworks/utils';
 import React, { useCallback, useContext, useState } from 'react';
@@ -43,10 +45,12 @@ export function AdminScreen({
   calibrate,
   usbDrive,
 }: Props): JSX.Element {
-  const { electionDefinition, currentPrecinctId, currentUserSession } =
+  const { electionDefinition, currentPrecinctId, auth } =
     useContext(AppContext);
   assert(electionDefinition);
   const { election } = electionDefinition;
+  assert(isAdminAuth(auth));
+  const userRole = auth.user.role;
 
   const [isLoading, setIsLoading] = useState(false);
   const [isExportingResults, setIsExportingResults] = useState(false);
@@ -83,10 +87,9 @@ export function AdminScreen({
 
   async function handleUnconfigure() {
     setIsLoading(true);
-    assert(currentUserSession);
     // If there is a mounted usb eject it so that it doesn't auto reconfigure the machine.
     if (usbDrive.status === usbstick.UsbDriveStatus.mounted) {
-      await usbDrive.eject(currentUserSession.type);
+      await usbDrive.eject(userRole);
     }
     await unconfigure();
   }
@@ -228,12 +231,28 @@ export function DefaultPreview(): JSX.Element {
   const { machineConfig, electionDefinition } = useContext(AppContext);
   const [isTestMode, setIsTestMode] = useState(false);
   const [precinctId, setPrecinctId] = useState<Precinct['id']>();
+  assert(electionDefinition);
   return (
     <AppContext.Provider
       value={{
         machineConfig,
         electionDefinition,
         currentPrecinctId: precinctId,
+        auth: {
+          status: 'logged_in',
+          user: {
+            role: 'admin',
+            electionHash: electionDefinition.electionHash,
+          },
+          card: {
+            hasStoredData: false,
+            readStoredObject: () => Promise.resolve(ok(undefined)),
+            readStoredString: () => Promise.resolve(ok(undefined)),
+            readStoredUint8Array: () => Promise.resolve(ok(new Uint8Array())),
+            writeStoredData: () => Promise.resolve(ok()),
+            clearStoredData: () => Promise.resolve(ok()),
+          },
+        },
       }}
     >
       <AdminScreen

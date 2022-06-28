@@ -1,18 +1,13 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { Inserted } from '@votingworks/test-utils';
 import { UnlockAdminScreen } from './unlock_admin_screen';
 
 test('authentication', async () => {
-  const attemptToAuthenticateUser = jest.fn();
-
-  render(
-    <UnlockAdminScreen attemptToAuthenticateUser={attemptToAuthenticateUser} />
-  );
+  const auth = Inserted.fakeCheckingPasscodeAuth();
+  render(<UnlockAdminScreen auth={auth} />);
   screen.getByText('- - - - - -');
-
-  // set up a failed attempt
-  attemptToAuthenticateUser.mockReturnValueOnce(false);
 
   userEvent.click(screen.getByText('0'));
   screen.getByText('• - - - - -');
@@ -45,21 +40,15 @@ test('authentication', async () => {
   screen.getByText('• • • • • •');
 
   await waitFor(() =>
-    expect(attemptToAuthenticateUser).toHaveBeenNthCalledWith(1, '012345')
+    expect(auth.checkPasscode).toHaveBeenNthCalledWith(1, '012345')
   );
+  screen.getByText('- - - - - -');
+});
 
+test('If passcode is incorrect, error message is shown', () => {
+  const auth = Inserted.fakeCheckingPasscodeAuth({
+    wrongPasscodeEntered: true,
+  });
+  render(<UnlockAdminScreen auth={auth} />);
   screen.getByText('Invalid code. Please try again.');
-
-  // set up a successful attempt
-  attemptToAuthenticateUser.mockReturnValueOnce(true);
-
-  for (let i = 0; i < 6; i += 1) {
-    userEvent.click(screen.getByText('0'));
-  }
-
-  await waitFor(() =>
-    expect(attemptToAuthenticateUser).toHaveBeenNthCalledWith(2, '000000')
-  );
-
-  expect(screen.queryByText('Invalid code. Please try again.')).toBeNull();
 });

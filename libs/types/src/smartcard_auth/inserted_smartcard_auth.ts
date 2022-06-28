@@ -68,6 +68,13 @@ export interface CardlessVoterLoggedIn {
   readonly logOut: () => void;
 }
 
+export interface CheckingPasscode {
+  readonly status: 'checking_passcode';
+  readonly user: AdminUser;
+  readonly checkPasscode: (passcode: string) => void;
+  readonly wrongPasscodeEntered?: true;
+}
+
 export type LoggedIn =
   | SuperadminLoggedIn
   | AdminLoggedIn
@@ -75,4 +82,4 @@ export type LoggedIn =
   | VoterLoggedIn
   | CardlessVoterLoggedIn;
 
-export type Auth = LoggedOut | LoggedIn;
+export type Auth = LoggedOut | CheckingPasscode | LoggedIn;

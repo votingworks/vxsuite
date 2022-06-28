@@ -15,6 +15,17 @@ import {
   fakeCardlessVoterUser,
 } from './auth';
 
+export function fakeCheckingPasscodeAuth(
+  props: Partial<InsertedSmartcardAuth.CheckingPasscode> = {}
+): InsertedSmartcardAuth.CheckingPasscode {
+  return {
+    status: 'checking_passcode',
+    user: fakeAdminUser(),
+    checkPasscode: jest.fn(),
+    ...props,
+  };
+}
+
 export function fakeSuperadminAuth(
   card: Partial<CardStorage> = {}
 ): InsertedSmartcardAuth.SuperadminLoggedIn {

@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { electionSampleDefinition } from '@votingworks/fixtures';
+import { Inserted } from '@votingworks/test-utils';
 import { AdjudicationReason, CandidateContest } from '@votingworks/types';
 import { integers, take } from '@votingworks/utils';
 import React from 'react';
@@ -21,6 +22,7 @@ test('overvote', () => {
           machineId: '000',
         },
         electionDefinition: electionSampleDefinition,
+        auth: Inserted.fakeLoggedOutAuth(),
       }}
     >
       <ScanWarningScreen
@@ -56,6 +58,7 @@ test('blank ballot', () => {
           machineId: '000',
         },
         electionDefinition: electionSampleDefinition,
+        auth: Inserted.fakeLoggedOutAuth(),
       }}
     >
       <ScanWarningScreen
@@ -85,6 +88,7 @@ test('undervote no votes', () => {
           machineId: '000',
         },
         electionDefinition: electionSampleDefinition,
+        auth: Inserted.fakeLoggedOutAuth(),
       }}
     >
       <ScanWarningScreen
@@ -124,6 +128,7 @@ test('undervote by 1', () => {
           machineId: '000',
         },
         electionDefinition: electionSampleDefinition,
+        auth: Inserted.fakeLoggedOutAuth(),
       }}
     >
       <ScanWarningScreen
@@ -166,6 +171,7 @@ test('undervote by N', () => {
           machineId: '000',
         },
         electionDefinition: electionSampleDefinition,
+        auth: Inserted.fakeLoggedOutAuth(),
       }}
     >
       <ScanWarningScreen
@@ -207,6 +213,7 @@ test('multiple undervotes', () => {
           machineId: '000',
         },
         electionDefinition: electionSampleDefinition,
+        auth: Inserted.fakeLoggedOutAuth(),
       }}
     >
       <ScanWarningScreen
@@ -243,6 +250,7 @@ test('unreadable', () => {
           machineId: '000',
         },
         electionDefinition: electionSampleDefinition,
+        auth: Inserted.fakeLoggedOutAuth(),
       }}
     >
       <ScanWarningScreen
