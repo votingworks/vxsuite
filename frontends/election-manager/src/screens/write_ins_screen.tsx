@@ -16,9 +16,7 @@ export function WriteInsScreen(): JSX.Element {
   const { castVoteRecordFiles, electionDefinition, saveTranscribedValue } =
     useContext(AppContext);
   const election = electionDefinition?.election;
-  const castVoteRecordFileList = castVoteRecordFiles.fileList;
-  const hasCastVoteRecordFiles =
-    castVoteRecordFileList.length > 0 || !!castVoteRecordFiles.lastError;
+  const hasCastVoteRecordFiles = castVoteRecordFiles.length > 0;
   const contestsWithWriteIns = election?.contests.filter(
     (contest): contest is CandidateContest =>
       contest.type === 'candidate' && contest.allowWriteIns
