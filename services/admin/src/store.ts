@@ -3,6 +3,7 @@
 //
 
 import { Adjudication, ContestId } from '@votingworks/types';
+import { SqliteError } from 'better-sqlite3';
 import { join } from 'path';
 import { v4 as uuid } from 'uuid';
 import { DbClient } from './db_client';
@@ -37,9 +38,25 @@ export class Store {
   /**
    * Adds a CVR and returns its id.
    */
-  addCvr(data: string): string {
+  addCvr(ballotId: string, fileId: string, data: string): string | null {
     const id = uuid();
-    this.client.run('insert into cvrs (id, data) values (?, ?)', id, data);
+    try {
+      this.client.run(
+        'insert into cvrs (id, ballot_id, imported_by_file, data) values (?, ?, ?, ?)',
+        id,
+        ballotId,
+        fileId,
+        data
+      );
+    } catch (err) {
+      if (
+        err instanceof SqliteError &&
+        err.code === 'SQLITE_CONSTRAINT_UNIQUE'
+      ) {
+        return null;
+      }
+      throw err;
+    }
     return id;
   }
 
@@ -48,6 +65,70 @@ export class Store {
    */
   deleteCvrs(): void {
     this.client.run('delete from cvrs');
+    this.client.run('delete from cvr_files');
+  }
+
+  /**
+   * Gets all cvr file data
+   */
+  getAllCvrFiles(): string[] {
+    const rows = this.client.all('select * from cvr_files');
+    return rows.map((r) => JSON.stringify(r)).filter(Boolean);
+  }
+
+  getAllCvrBallotIds(): string[] {
+    const rows = this.client.all('select ballot_id from cvrs') as Array<{
+      // eslint-disable-next-line camelcase
+      ballot_id: string;
+    }>;
+    return rows.map((r) => r.ballot_id).filter(Boolean);
+  }
+
+  getAllCvrs(): string[] {
+    // TODO(CARO) remove image data?
+    const rows = this.client.all('select data from cvrs') as Array<{
+      // eslint-disable-next-line camelcase
+      data: string;
+    }>;
+    return rows.map((r) => r.data).filter(Boolean);
+  }
+
+  /**
+   * TODO
+   */
+  addCvrFile(
+    signature: string,
+    filename: string,
+    exportTimestamp: string,
+    scannerIds: string[],
+    precinctIds: string[],
+    containsTestModeCvrs: boolean
+  ): string {
+    const id = uuid();
+    this.client.run(
+      'insert into cvr_files (id, signature, filename, timestamp, scanner_ids, precinct_ids, contains_test_mode_cvrs) values (?, ?, ?, ?, ?, ?, ?)',
+      id,
+      signature,
+      filename,
+      exportTimestamp,
+      scannerIds.join(','),
+      precinctIds.join(','),
+      containsTestModeCvrs.toString()
+    );
+    return id;
+  }
+
+  updateCvrFileCounts(
+    id: string,
+    importedCvrCount: number,
+    duplicatedCvrCount: number
+  ): void {
+    this.client.run(
+      'update cvr_files set imported_cvr_count = ?, duplicated_cvr_count = ? WHERE id = ?',
+      importedCvrCount,
+      duplicatedCvrCount,
+      id
+    );
   }
 
   /**

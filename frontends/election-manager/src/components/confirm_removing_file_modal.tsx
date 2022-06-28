@@ -35,22 +35,14 @@ export function ConfirmRemovingFileModal({
   let singleFileRemoval = true;
   switch (fileType) {
     case ResultsFileType.CastVoteRecord: {
-      const { fileList } = castVoteRecordFiles;
-      singleFileRemoval = fileList.length <= 1;
+      singleFileRemoval = castVoteRecordFiles.length <= 1;
       fileTypeName = 'CVR Files';
       mainContent = (
         <React.Fragment>
-          {fileList.length ? (
-            <p>
-              Do you want to remove the {fileList.length} uploaded CVR{' '}
-              {pluralize('files', fileList.length)}?
-            </p>
-          ) : (
-            <p>
-              Do you want to remove the files causing errors:{' '}
-              {castVoteRecordFiles.lastError?.filename}?
-            </p>
-          )}
+          <p>
+            Do you want to remove the {castVoteRecordFiles.length} uploaded CVR{' '}
+            {pluralize('files', castVoteRecordFiles.length)}?
+          </p>
           <p>All reports will be unavailable without CVR data.</p>
         </React.Fragment>
       );
@@ -76,7 +68,6 @@ export function ConfirmRemovingFileModal({
     case ResultsFileType.All: {
       fileTypeName = 'Data';
       singleFileRemoval = false;
-      const { fileList } = castVoteRecordFiles;
       let externalDetails = '';
       if (semsFile !== undefined && manualData !== undefined) {
         externalDetails = `, the external results file ${semsFile.inputSourceName}, and the manually entered data`;
@@ -88,8 +79,8 @@ export function ConfirmRemovingFileModal({
       mainContent = (
         <React.Fragment>
           <p>
-            Do you want to remove the {fileList.length} uploaded CVR{' '}
-            {pluralize('files', fileList.length)}
+            Do you want to remove the {castVoteRecordFiles.length} uploaded CVR{' '}
+            {pluralize('files', castVoteRecordFiles.length)}
             {externalDetails}?
           </p>
           <p>All reports will be unavailable without CVR data.</p>
