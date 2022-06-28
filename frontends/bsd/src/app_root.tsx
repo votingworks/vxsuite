@@ -24,7 +24,7 @@ import {
   Main,
   Prose,
   RebootFromUsbButton,
-  RemoveCardPage,
+  RemoveCardScreen,
   Screen,
   SetupCardReaderPage,
   Text,
@@ -572,15 +572,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
 
   if (smartcard.status !== 'no_card' && !cardRemovedAfterAuth) {
     return (
-      <Screen>
-        <RemoveCardPage />
-        <ElectionInfoBar
-          mode="admin"
-          electionDefinition={electionDefinition}
-          codeVersion={machineConfig.codeVersion}
-          machineId={machineConfig.machineId}
-        />
-      </Screen>
+      <RemoveCardScreen />
     );
   }
 

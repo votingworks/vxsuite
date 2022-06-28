@@ -1,9 +1,9 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 
-import { RemoveCardPage } from './remove_card_page';
+import { RemoveCardScreen } from './remove_card_screen';
 
 test('renders RemoveCardPage', () => {
-  const { container } = render(<RemoveCardPage />);
+  const { container } = render(<RemoveCardScreen />);
   expect(container.firstChild).toMatchSnapshot();
 });
