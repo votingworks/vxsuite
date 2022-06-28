@@ -11,6 +11,7 @@ then run the service like so:
 
 ```sh
 # in services/scan
+pnpm build:watch &
 pnpm dev
 ```
 
