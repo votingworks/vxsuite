@@ -1,7 +1,7 @@
 import { createMemoryHistory, History } from 'history';
 import React from 'react';
 import { Router } from 'react-router-dom';
-import { render as testRender } from '@testing-library/react';
+import { render as testRender, screen } from '@testing-library/react';
 import {
   BallotStyleId,
   Contests,
@@ -10,6 +10,8 @@ import {
   VotesDict,
 } from '@votingworks/types';
 
+import userEvent from '@testing-library/user-event';
+import { CARD_POLLING_INTERVAL } from '@votingworks/ui';
 import * as GLOBALS from '../src/config/globals';
 
 import {
@@ -96,4 +98,15 @@ export function render(
       </BallotContext.Provider>
     ),
   };
+}
+
+export async function authenticateAdminCard(): Promise<void> {
+  jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
+  await screen.findByText('Enter the card security code to unlock.');
+  userEvent.click(screen.getByText('1'));
+  userEvent.click(screen.getByText('2'));
+  userEvent.click(screen.getByText('3'));
+  userEvent.click(screen.getByText('4'));
+  userEvent.click(screen.getByText('5'));
+  userEvent.click(screen.getByText('6'));
 }

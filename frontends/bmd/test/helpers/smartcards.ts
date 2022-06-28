@@ -15,9 +15,11 @@ import {
   VotesDict,
   VoterCardData,
 } from '@votingworks/types';
-import { VOTER_CARD_EXPIRATION_SECONDS } from '@votingworks/ui';
+import {
+  CARD_POLLING_INTERVAL,
+  VOTER_CARD_EXPIRATION_SECONDS,
+} from '@votingworks/ui';
 import { utcTimestamp } from '@votingworks/utils';
-import * as GLOBALS from '../../src/config/globals';
 
 const contest0 = election.contests[0] as CandidateContest;
 const contest1 = election.contests[1] as CandidateContest;
@@ -154,7 +156,7 @@ export function makeUsedVoterCard(e = election): VoterCardData {
 }
 
 export function advanceTimers(seconds = 0): void {
-  testUtils.advanceTimers(seconds || GLOBALS.CARD_POLLING_INTERVAL / 1000);
+  testUtils.advanceTimers(seconds || CARD_POLLING_INTERVAL / 1000);
 }
 
 export async function advanceTimersAndPromises(seconds = 0): Promise<void> {
