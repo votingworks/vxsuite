@@ -12,6 +12,7 @@ import {
   TallyReport,
   UsbDrive,
   Bar,
+  isPollworkerAuth,
 } from '@votingworks/ui';
 import {
   assert,
@@ -86,13 +87,10 @@ export function PollWorkerScreen({
   printer,
   usbDrive,
 }: Props): JSX.Element {
-  const {
-    electionDefinition,
-    currentPrecinctId,
-    machineConfig,
-    currentUserSession,
-  } = useContext(AppContext);
+  const { electionDefinition, currentPrecinctId, machineConfig, auth } =
+    useContext(AppContext);
   assert(electionDefinition);
+  assert(isPollworkerAuth(auth));
   const [currentTally, setCurrentTally] = useState<FullElectionTally>();
   const [currentSubTallies, setCurrentSubTallies] = useState<
     ReadonlyMap<string, Tally>
@@ -290,7 +288,6 @@ export function PollWorkerScreen({
 
   async function closePolls() {
     assert(electionDefinition);
-    assert(currentUserSession);
     setPollWorkerFlowState(PollWorkerFlowState.CLOSE_POLLS_FLOW__PROCESSING);
     if (hasPrinterAttached) {
       await printTallyReport();

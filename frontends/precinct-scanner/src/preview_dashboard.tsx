@@ -142,6 +142,7 @@ export function PreviewDashboard({
           machineId: '000',
         },
         electionDefinition,
+        auth: { status: 'logged_out', reason: 'no_card' },
       }}
     >
       <BrowserRouter>

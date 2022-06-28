@@ -1,6 +1,7 @@
 import { fontSizeTheme, Prose, Text, NumberPad } from '@votingworks/ui';
 import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
+import { InsertedSmartcardAuth } from '@votingworks/types';
 import { SECURITY_PIN_LENGTH } from '../config/globals';
 import { ScreenMainCenterChild } from '../components/layout';
 
@@ -23,14 +24,11 @@ const EnteredCode = styled.div`
 `;
 
 interface Props {
-  attemptToAuthenticateUser: (passcode: string) => boolean;
+  auth: InsertedSmartcardAuth.CheckingPasscode;
 }
 
-export function UnlockAdminScreen({
-  attemptToAuthenticateUser,
-}: Props): JSX.Element {
+export function UnlockAdminScreen({ auth }: Props): JSX.Element {
   const [currentPasscode, setCurrentPasscode] = useState('');
-  const [showError, setShowError] = useState(false);
   const handleNumberEntry = useCallback((digit: number) => {
     setCurrentPasscode((prev) =>
       `${prev}${digit}`.slice(0, SECURITY_PIN_LENGTH)
@@ -45,11 +43,10 @@ export function UnlockAdminScreen({
 
   useEffect(() => {
     if (currentPasscode.length === SECURITY_PIN_LENGTH) {
-      const success = attemptToAuthenticateUser(currentPasscode);
-      setShowError(!success);
+      auth.checkPasscode(currentPasscode);
       setCurrentPasscode('');
     }
-  }, [currentPasscode, attemptToAuthenticateUser]);
+  }, [currentPasscode, auth]);
 
   const currentPasscodeDisplayString = '•'
     .repeat(currentPasscode.length)
@@ -60,7 +57,7 @@ export function UnlockAdminScreen({
   let primarySentence: JSX.Element = (
     <p>Enter the card security code to unlock.</p>
   );
-  if (showError) {
+  if (auth.wrongPasscodeEntered) {
     primarySentence = <Text warning>Invalid code. Please try again.</Text>;
   }
   return (
@@ -84,7 +81,11 @@ export function UnlockAdminScreen({
 export function DefaultPreview(): JSX.Element {
   return (
     <UnlockAdminScreen
-      attemptToAuthenticateUser={(passcode) => passcode === '000000'}
+      auth={{
+        status: 'checking_passcode',
+        user: { role: 'admin', electionHash: 'preview-election-hash' },
+        checkPasscode: () => undefined,
+      }}
     />
   );
 }
