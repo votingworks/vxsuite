@@ -637,9 +637,8 @@ commands:
     description: Get the code and install dependencies.
     steps:
       - run:
-          name: Install pnpm
-          command: |
-            curl -f https://get.pnpm.io/v6.js | sudo node - add --global pnpm@5
+          name: Enable Corepack
+          command: sudo corepack enable
       - checkout
       # Edit this comment somehow in order to invalidate the CircleCI cache.
       # Since the contents of this file affect the cache key, editing only a

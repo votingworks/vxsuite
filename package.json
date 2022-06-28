@@ -9,13 +9,13 @@
     "package.json": "sort-package-json",
     "*.ts,*.md,*.json": "prettier --write"
   },
+  "packageManager": "pnpm@5.18.10",
   "devDependencies": {
     "@codemod/cli": "^3.1.2",
     "eslint": "^7.29.0",
     "husky": "^7.0.0",
     "lint-staged": "^11.0.0",
     "ora": "^5.2.0",
-    "pnpm": "^5.18.10",
     "prettier": "^2.6.2",
     "sort-package-json": "^1.50.0"
   }
