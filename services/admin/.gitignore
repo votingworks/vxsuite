@@ -5,3 +5,4 @@ dev-workspace/
 coverage/
 .DS_Store
 debug-dump*.zip
+data.db*

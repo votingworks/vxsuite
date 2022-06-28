@@ -17,12 +17,27 @@ export function buildApp({ store }: { store: Store }): Application {
   const app: Application = express();
 
   app.use(express.raw());
-  app.use(express.json({ limit: '5mb', type: 'application/json' }));
+  app.use(express.json({ limit: '50mb', type: 'application/json' }));
   app.use(express.urlencoded({ extended: false }));
 
   app.get<NoParams>('/admin/write-ins/cvrs/reset', (_, response) => {
     store.deleteCvrs();
     response.status(200).json({ status: 'ok' });
+  });
+
+  app.get<NoParams>('/admin/write-ins/cvr-files', (_, response) => {
+    const cvrFiles = store.getAllCvrFiles();
+    response.json(cvrFiles);
+  });
+
+  app.get<NoParams>('/admin/write-ins/cvr-ballot-ids', (_, response) => {
+    const ballotIds = store.getAllCvrBallotIds();
+    response.json(ballotIds);
+  });
+
+  app.get<NoParams>('/admin/write-ins/cvrs', (_, response) => {
+    const cvrs = store.getAllCvrs();
+    response.json(cvrs);
   });
 
   app.get('/admin/write-ins/adjudication/:id', (request, response) => {
@@ -57,24 +72,56 @@ export function buildApp({ store }: { store: Store }): Application {
         return;
       }
 
-      const { files } = bodyParseResult.ok();
-      for (const f of files) {
-        for (const cvr of f.allCastVoteRecords) {
-          const cvrId = store.addCvr(JSON.stringify(cvr));
-          for (const [key, value] of Object.entries(cvr)) {
-            if (!key.startsWith('_') && Array.isArray(value)) {
-              const contestId = key;
-              const votes = value as ContestOptionId[];
-              for (const vote of votes) {
-                if (vote.startsWith('write-in')) {
-                  store.addAdjudication(contestId, cvrId);
-                }
+      const {
+        signature,
+        name,
+        precinctIds,
+        scannerIds,
+        timestamp,
+        castVoteRecords,
+      } = bodyParseResult.ok();
+      const isTestMode =
+        castVoteRecords.filter((cvr: any) => cvr._testBallot === true).length >
+        0;
+      const fileId = store.addCvrFile(
+        signature,
+        name,
+        timestamp,
+        scannerIds,
+        precinctIds,
+        isTestMode
+      );
+      let duplicateCvrCount = 0;
+      for (const cvr of castVoteRecords) {
+        const cvrId = store.addCvr(cvr._ballotId, fileId, JSON.stringify(cvr));
+        if (cvrId === null) {
+          // This was a duplicate cvr.
+          duplicateCvrCount += 1;
+          continue;
+        }
+        for (const [key, value] of Object.entries(cvr)) {
+          if (Array.isArray(value) && !key.startsWith('_')) {
+            const contestId = key;
+            const votes = value as ContestOptionId[];
+            for (const vote of votes) {
+              if (vote.startsWith('write-in')) {
+                store.addAdjudication(contestId, cvrId);
               }
             }
           }
         }
       }
-      response.json({ status: 'ok' });
+      store.updateCvrFileCounts(
+        fileId,
+        castVoteRecords.length - duplicateCvrCount,
+        duplicateCvrCount
+      );
+      response.json({
+        status: 'ok',
+        importedCvrCount: castVoteRecords.length - duplicateCvrCount,
+        duplicateCvrCount,
+        isTestMode,
+      });
     }
   );
 
