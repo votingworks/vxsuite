@@ -48,7 +48,7 @@ test('Unlock machine screen submits passcode', async () => {
 
 test('If passcode is incorrect, error message is shown', () => {
   const fakeAuth = Dipped.fakeCheckingPasscodeAuth({
-    passcodeError: 'wrong_passcode',
+    wrongPasscodeEntered: true,
   });
   renderInAppContext(<UnlockMachineScreen />, { auth: fakeAuth });
   screen.getByText('Invalid code. Please try again.');

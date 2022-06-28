@@ -64,7 +64,7 @@ export function UnlockMachineScreen(): JSX.Element {
   let primarySentence: JSX.Element = (
     <p>Enter the card security code to unlock.</p>
   );
-  if (auth.passcodeError === 'wrong_passcode') {
+  if (auth.wrongPasscodeEntered) {
     primarySentence = <Text warning>Invalid code. Please try again.</Text>;
   }
 
