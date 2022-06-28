@@ -8,6 +8,7 @@ import {
   ProgressEllipsis,
   Prose,
   Screen,
+  useLock,
 } from '@votingworks/ui';
 
 import { BALLOT_PRINTING_TIMEOUT_SECONDS } from '../config/globals';
@@ -46,8 +47,11 @@ export function PrintPage(): JSX.Element {
     'precinctId is required to render PrintPage'
   );
   const printerTimer = useRef(0);
+  const printLock = useLock();
 
   const printBallot = useCallback(async () => {
+    /* istanbul ignore if */
+    if (!printLock.lock()) return;
     const isUsed = await markVoterCardPrinted();
     /* istanbul ignore else */
     if (isUsed) {
@@ -61,6 +65,7 @@ export function PrintPage(): JSX.Element {
     isCardlessVoter,
     markVoterCardPrinted,
     printer,
+    printLock,
     resetBallot,
     updateTally,
   ]);
@@ -76,10 +81,14 @@ export function PrintPage(): JSX.Element {
         void printBallot();
       });
     }
+  }, [printBallot, votes]);
+
+  // Make sure we clean up any pending timeout on unmount
+  useEffect(() => {
     return () => {
       clearTimeout(printerTimer.current);
     };
-  }, [printBallot, votes]);
+  }, []);
 
   return (
     <React.Fragment>
