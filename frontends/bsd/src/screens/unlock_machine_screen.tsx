@@ -9,6 +9,7 @@ import {
 } from '@votingworks/ui';
 import React, { useState, useEffect, useCallback, useContext } from 'react';
 import styled from 'styled-components';
+import { DippedSmartcardAuth } from '@votingworks/types/src/smartcard_auth';
 import { AppContext } from '../contexts/app_context';
 import * as GLOBALS from '../config/globals';
 
@@ -31,15 +32,12 @@ export const EnteredCode = styled.div`
 `;
 
 export interface Props {
-  attemptToAuthenticateAdminUser: (passcode: string) => boolean;
+  auth: DippedSmartcardAuth.CheckingPasscode;
 }
 
-export function UnlockMachineScreen({
-  attemptToAuthenticateAdminUser,
-}: Props): JSX.Element {
+export function UnlockMachineScreen({ auth }: Props): JSX.Element {
   const { electionDefinition, machineConfig } = useContext(AppContext);
   const [currentPasscode, setCurrentPasscode] = useState('');
-  const [showError, setShowError] = useState(false);
   const handleNumberEntry = useCallback((digit: number) => {
     setCurrentPasscode((prev) =>
       `${prev}${digit}`.slice(0, GLOBALS.SECURITY_PIN_LENGTH)
@@ -54,11 +52,10 @@ export function UnlockMachineScreen({
 
   useEffect(() => {
     if (currentPasscode.length === GLOBALS.SECURITY_PIN_LENGTH) {
-      const success = attemptToAuthenticateAdminUser(currentPasscode);
-      setShowError(!success);
+      auth.checkPasscode(currentPasscode);
       setCurrentPasscode('');
     }
-  }, [currentPasscode, attemptToAuthenticateAdminUser]);
+  }, [currentPasscode, auth]);
 
   const currentPasscodeDisplayString = '•'
     .repeat(currentPasscode.length)
@@ -69,7 +66,7 @@ export function UnlockMachineScreen({
   let primarySentence: JSX.Element = (
     <p>Enter the card security code to unlock.</p>
   );
-  if (showError) {
+  if (auth.wrongPasscodeEntered) {
     primarySentence = <Text warning>Invalid code. Please try again.</Text>;
   }
   return (

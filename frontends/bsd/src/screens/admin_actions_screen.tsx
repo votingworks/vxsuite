@@ -3,6 +3,7 @@ import React, { useCallback, useEffect, useState, useContext } from 'react';
 import { LogEventId } from '@votingworks/logging';
 import { assert, LogFileType } from '@votingworks/utils';
 import {
+  isAdminAuth,
   Loading,
   Main,
   Modal,
@@ -19,7 +20,7 @@ import { SetMarkThresholdsModal } from '../components/set_mark_thresholds_modal'
 import { AppContext } from '../contexts/app_context';
 import { ExportLogsModal } from '../components/export_logs_modal';
 
-interface Props {
+export interface AdminActionScreenProps {
   unconfigureServer: () => Promise<void>;
   zeroData: () => Promise<void>;
   backup: () => Promise<void>;
@@ -45,9 +46,10 @@ export function AdminActionsScreen({
   setMarkThresholdOverrides,
   markThresholds,
   electionDefinition,
-}: Props): JSX.Element {
-  const { lockMachine, logger, currentUserSession } = useContext(AppContext);
-  const currentUserType = currentUserSession?.type ?? 'unknown';
+}: AdminActionScreenProps): JSX.Element {
+  const { logger, auth } = useContext(AppContext);
+  assert(isAdminAuth(auth));
+  const userRole = auth.user.role;
   const [isConfirmingUnconfigure, setIsConfirmingUnconfigure] = useState(false);
   const [isDoubleConfirmingUnconfigure, setIsDoubleConfirmingUnconfigure] =
     useState(false);
@@ -73,14 +75,14 @@ export function AdminActionsScreen({
       setBackupError('');
       setIsBackingUp(true);
       await backup();
-      await logger.log(LogEventId.DownloadedScanImageBackup, currentUserType, {
+      await logger.log(LogEventId.DownloadedScanImageBackup, userRole, {
         disposition: 'success',
         message: 'User successfully downloaded ballot data backup files.',
       });
     } catch (error) {
       assert(error instanceof Error);
       setBackupError(error.toString());
-      await logger.log(LogEventId.DownloadedScanImageBackup, currentUserType, {
+      await logger.log(LogEventId.DownloadedScanImageBackup, userRole, {
         disposition: 'failure',
         message: `Error downloading ballot data backup: ${error.message}`,
         result: 'No backup downloaded.',
@@ -88,7 +90,7 @@ export function AdminActionsScreen({
     } finally {
       setIsBackingUp(false);
     }
-  }, [backup, logger, currentUserType]);
+  }, [backup, logger, userRole]);
 
   const deleteBallotData = useCallback(async () => {
     toggleIsConfirmingZero();
@@ -184,7 +186,7 @@ export function AdminActionsScreen({
           </Prose>
         </Main>
         <MainNav isTestMode={isTestMode}>
-          <Button small onPress={lockMachine}>
+          <Button small onPress={() => auth.logOut()}>
             Lock Machine
           </Button>
           <LinkButton small to="/">

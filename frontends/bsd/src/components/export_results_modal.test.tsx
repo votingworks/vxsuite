@@ -6,7 +6,7 @@ import { Router } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
 import fetchMock from 'fetch-mock';
 
-import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
+import { Dipped, fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 import { MemoryStorage, usbstick } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
 import { ExportResultsModal } from './export_results_modal';
@@ -163,8 +163,7 @@ test('render export modal when a usb drive is mounted as expected and allows aut
         usbDriveStatus: UsbDriveStatus.recentlyEjected,
         usbDriveEject: jest.fn(),
         storage: new MemoryStorage(),
-        lockMachine: jest.fn(),
-        currentUserSession: { type: 'admin', authenticated: true },
+        auth: Dipped.fakeAdminAuth(),
         logger: new Logger(LogSource.VxCentralScanFrontend),
       }}
     >
