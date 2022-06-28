@@ -40,7 +40,6 @@ import { LogEventId } from '@votingworks/logging';
 import { CARD_POLLING_INTERVAL } from '@votingworks/ui';
 import {
   configuredAtStorageKey,
-  cvrsStorageKey,
   electionDefinitionStorageKey,
   externalVoteTalliesFileStorageKey,
 } from './app_root';

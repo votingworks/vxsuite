@@ -8,7 +8,8 @@ import { AppContext } from '../contexts/app_context';
 
 export function LogicAndAccuracyScreen(): JSX.Element {
   const { castVoteRecordFiles } = useContext(AppContext);
-  const isLiveMode = castVoteRecordFiles?.fileMode === 'live';
+  const isLiveMode =
+    castVoteRecordFiles.filter((c) => !c.isTestMode).length > 0;
 
   return (
     <NavigationScreen>

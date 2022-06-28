@@ -49,9 +49,9 @@ export function TallyScreen(): JSX.Element {
   const makeCancelable = useCancelablePromise();
 
   const {
-    castVoteRecordFiles,
     electionDefinition,
     converter,
+    castVoteRecordFiles,
     isOfficialResults,
     saveIsOfficialResults,
     isTabulationRunning,
@@ -65,7 +65,8 @@ export function TallyScreen(): JSX.Element {
   assert(isAdminAuth(auth));
   const userRole = auth.user.role;
   const { election } = electionDefinition;
-  const isTestMode = castVoteRecordFiles?.fileMode === 'test';
+  const isTestMode =
+    castVoteRecordFiles.findIndex((file) => file.isTestMode) >= 0;
   const externalFileInput = useRef<HTMLInputElement>(null);
 
   const [confirmingRemoveFileType, setConfirmingRemoveFileType] =
@@ -110,9 +111,7 @@ export function TallyScreen(): JSX.Element {
   }
   const partiesForPrimaries = getPartiesWithPrimaryElections(election);
 
-  const castVoteRecordFileList = castVoteRecordFiles.fileList;
-  const hasCastVoteRecordFiles =
-    castVoteRecordFileList.length > 0 || !!castVoteRecordFiles.lastError;
+  const hasCastVoteRecordFiles = castVoteRecordFiles.length > 0;
   const hasAnyFiles =
     hasCastVoteRecordFiles || fullElectionExternalTallies.length > 0;
   const hasExternalSemsFile = fullElectionExternalTallies.some(
@@ -159,7 +158,11 @@ export function TallyScreen(): JSX.Element {
     })();
   }, [converter, makeCancelable]);
 
-  const fileMode = castVoteRecordFiles?.fileMode;
+  const fileMode = isTestMode
+    ? 'test'
+    : hasCastVoteRecordFiles
+    ? 'live'
+    : undefined;
   const fileModeText =
     fileMode === 'test'
       ? 'Currently tallying test ballots. Once you have completed L&A testing and are ready to start tallying live ballots remove all of the loaded CVR files before importing live ballot results.'
@@ -288,7 +291,7 @@ export function TallyScreen(): JSX.Element {
                     Precinct
                   </TD>
                 </tr>
-                {castVoteRecordFileList.map(
+                {castVoteRecordFiles.map(
                   ({
                     name,
                     exportTimestamp,
@@ -317,7 +320,7 @@ export function TallyScreen(): JSX.Element {
                   </TD>
                   <TD as="th" narrow>
                     {format.count(
-                      castVoteRecordFileList.reduce(
+                      castVoteRecordFiles.reduce(
                         (prev, curr) => prev + curr.importedCvrCount,
                         0
                       ) + externalFileBallotCount

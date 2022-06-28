@@ -30,6 +30,11 @@ import {
 } from '../config/types';
 import { FileInputButton } from './file_input_button';
 import { TIME_FORMAT } from '../config/globals';
+import {
+  importCastVoteRecordFromFile,
+  importCastVoteRecordFromFileData,
+  parseAllFromFileSystemEntries,
+} from '../utils/cast_vote_record_files';
 
 const { UsbDriveStatus } = usbstick;
 
@@ -73,11 +78,12 @@ function throwBadStatus(s: never): never {
 export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
   const {
     usbDriveStatus,
-    saveCastVoteRecordFiles,
     castVoteRecordFiles,
+    refreshCastVoteRecordFiles,
     electionDefinition,
     auth,
     logger,
+    importedBallotIds,
   } = useContext(AppContext);
   assert(electionDefinition);
   assert(isAdminAuth(auth) || isSuperadminAuth(auth)); // TODO(auth) check permissions for importing cvr
@@ -87,50 +93,52 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
   const [foundFiles, setFoundFiles] = useState<
     CastVoteRecordFilePreprocessedData[]
   >([]);
+  const [errorMessage, setErrorMessage] = useState<string>();
   const { election, electionHash } = electionDefinition;
 
   async function importSelectedFile(
     fileData: CastVoteRecordFilePreprocessedData
   ) {
     setCurrentState(ModalState.LOADING);
-    const newCastVoteRecordFiles = castVoteRecordFiles.addFromFileData(
-      fileData,
-      election
-    );
-    await saveCastVoteRecordFiles(newCastVoteRecordFiles);
-
-    if (newCastVoteRecordFiles.duplicateFiles.includes(fileData.name)) {
-      setCurrentState(ModalState.DUPLICATE);
-      await logger.log(LogEventId.CvrImported, userRole, {
-        message:
-          'CVR file was not imported as it is a duplicated of a previously imported file.',
-        disposition: 'failure',
-        filename: fileData.name,
-        result: 'File not imported, error shown to user.',
-      });
-    } else if (newCastVoteRecordFiles.lastError?.filename === fileData.name) {
-      setCurrentState(ModalState.ERROR);
-      await logger.log(LogEventId.CvrImported, userRole, {
-        message: `Failed to import CVR file: ${newCastVoteRecordFiles.lastError.message}`,
-        disposition: 'failure',
-        filename: fileData.name,
-        error: newCastVoteRecordFiles.lastError.message,
-        result: 'File not imported, error shown to user.',
-      });
-    } else {
-      const file = newCastVoteRecordFiles.fileList.find(
-        (f) => f.name === fileData.name
+    try {
+      const cvrFile = await importCastVoteRecordFromFileData(
+        fileData,
+        election,
+        castVoteRecordFiles
       );
-      assert(file);
+      await refreshCastVoteRecordFiles();
+
       await logger.log(LogEventId.CvrImported, userRole, {
         message: 'CVR file successfully imported.',
         disposition: 'success',
         filename: fileData.name,
-        numberOfBallotsImported: file.importedCvrCount,
-        duplicateBallotsIgnored: file.duplicatedCvrCount,
+        numberOfBallotsImported: cvrFile.importedCvrCount,
+        duplicateBallotsIgnored: cvrFile.duplicatedCvrCount,
       });
-      setImportedFile(file);
+      setImportedFile(cvrFile);
       setCurrentState(ModalState.SUCCESS);
+    } catch (err) {
+      assert(err instanceof Error);
+      if (err.message === 'Duplicate File Imported.') {
+        setCurrentState(ModalState.DUPLICATE);
+        await logger.log(LogEventId.CvrImported, userRole, {
+          message:
+            'CVR file was not imported as it is a duplicated of a previously imported file.',
+          disposition: 'failure',
+          filename: fileData.name,
+          result: 'File not imported, error shown to user.',
+        });
+        return;
+      }
+      setCurrentState(ModalState.ERROR);
+      setErrorMessage(err.message);
+      await logger.log(LogEventId.CvrImported, userRole, {
+        message: `Failed to import CVR file: ${err.message}`,
+        disposition: 'failure',
+        filename: fileData.name,
+        error: err.message,
+        result: 'File not imported, error shown to user.',
+      });
     }
   }
 
@@ -142,47 +150,47 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
     setCurrentState(ModalState.LOADING);
 
     if (files.length === 1) {
-      const newCastVoteRecordFiles = await castVoteRecordFiles.addAll(
-        files,
-        election
-      );
-      await saveCastVoteRecordFiles(newCastVoteRecordFiles);
-
-      input.value = '';
-      const filename = files[0].name;
-
-      if (newCastVoteRecordFiles.duplicateFiles.includes(filename)) {
-        setCurrentState(ModalState.DUPLICATE);
-        await logger.log(LogEventId.CvrImported, userRole, {
-          message:
-            'CVR file was not imported as it is a duplicated of a previously imported file.',
-          disposition: 'failure',
-          filename,
-          result: 'File not imported, error shown to user.',
-        });
-      } else if (newCastVoteRecordFiles.lastError?.filename === files[0].name) {
-        setCurrentState(ModalState.ERROR);
-        await logger.log(LogEventId.CvrImported, userRole, {
-          message: `Failed to import CVR file: ${newCastVoteRecordFiles.lastError.message}`,
-          disposition: 'failure',
-          filename,
-          error: newCastVoteRecordFiles.lastError.message,
-          result: 'File not imported, error shown to user.',
-        });
-      } else {
-        const file = newCastVoteRecordFiles.fileList.find(
-          (f) => f.name === filename
+      const file = files[0];
+      try {
+        const cvrFile = await importCastVoteRecordFromFile(
+          file,
+          election,
+          castVoteRecordFiles
         );
-        assert(file);
+        await refreshCastVoteRecordFiles();
+
+        input.value = '';
         await logger.log(LogEventId.CvrImported, userRole, {
           message: 'CVR file successfully imported.',
           disposition: 'success',
-          filename,
-          numberOfBallotsImported: file.importedCvrCount,
-          duplicateBallotsIgnored: file.duplicatedCvrCount,
+          filename: cvrFile.name,
+          numberOfBallotsImported: cvrFile.importedCvrCount,
+          duplicateBallotsIgnored: cvrFile.duplicatedCvrCount,
         });
-        setImportedFile(file);
+        setImportedFile(cvrFile);
         setCurrentState(ModalState.SUCCESS);
+      } catch (err) {
+        assert(err instanceof Error);
+        if (err.message === 'Duplicate File Imported.') {
+          setCurrentState(ModalState.DUPLICATE);
+          await logger.log(LogEventId.CvrImported, userRole, {
+            message:
+              'CVR file was not imported as it is a duplicated of a previously imported file.',
+            disposition: 'failure',
+            filename: file.name,
+            result: 'File not imported, error shown to user.',
+          });
+          return;
+        }
+        setCurrentState(ModalState.ERROR);
+        setErrorMessage(err.message);
+        await logger.log(LogEventId.CvrImported, userRole, {
+          message: `Failed to import CVR file: ${err.message}`,
+          disposition: 'failure',
+          filename: file.name,
+          error: err.message,
+          result: 'File not imported, error shown to user.',
+        });
       }
     } else {
       onClose();
@@ -207,9 +215,11 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
       );
       assert(electionDefinition !== undefined);
       const parsedFileInformation = (
-        await castVoteRecordFiles.parseAllFromFileSystemEntries(
+        await parseAllFromFileSystemEntries(
           newFoundFiles,
-          electionDefinition.election
+          electionDefinition.election,
+          importedBallotIds,
+          castVoteRecordFiles
         )
       ).sort(
         (a, b) => b.exportTimestamp.getTime() - a.exportTimestamp.getTime()
@@ -258,9 +268,8 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
             <h1>Error</h1>
             <p>
               There was an error reading the content of the file{' '}
-              <strong>{castVoteRecordFiles?.lastError?.filename}</strong>:{' '}
-              {castVoteRecordFiles?.lastError?.message}. Please ensure this file
-              only contains valid CVR data for this election.
+              <strong>{errorMessage}</strong>: {errorMessage}. Please ensure
+              this file only contains valid CVR data for this election.
             </p>
           </Prose>
         }
@@ -369,8 +378,10 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
 
   if (usbDriveStatus === UsbDriveStatus.mounted) {
     // Determine if we are already locked to a filemode based on previously imported CVRs
-    const fileMode = castVoteRecordFiles?.fileMode;
-    const fileModeLocked = !!fileMode;
+    const fileMode = castVoteRecordFiles.find((file) => file.isTestMode)
+      ? 'test'
+      : 'live';
+    const fileModeLocked = castVoteRecordFiles.length > 0;
 
     // Parse the file options on the USB drive and build table rows for each valid file.
     const fileTableRows: JSX.Element[] = [];
