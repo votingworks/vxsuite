@@ -10,5 +10,22 @@ create table adjudications (
 
 create table cvrs (
 	id varchar(36) primary key,
-	data text
+	ballot_id varchar(36) unique,
+	imported_by_file varchar(36),
+	data text,
+	foreign key (imported_by_file) references cvr_files(id)
+	  on update cascade
+	  on delete cascade
+);
+
+create table cvr_files (
+	id varchar(36) primary key,
+	signature text,
+	filename text,
+	timestamp text,
+	imported_cvr_count integer,
+	duplicated_cvr_count integer,
+	scanner_ids text,
+	precinct_ids text,
+	contains_test_mode_cvrs boolean
 );
