@@ -34,6 +34,7 @@ import { DateTime } from 'luxon';
 import { AdjudicationReason, PrecinctSelectionKind } from '@votingworks/types';
 
 import { mocked } from 'ts-jest/utils';
+import { CARD_POLLING_INTERVAL } from '@votingworks/ui';
 import { App } from './app';
 import { interpretedHmpb } from '../test/fixtures';
 
@@ -93,6 +94,7 @@ const getPrecinctConfigNoPrecinctResponseBody: Scan.GetCurrentPrecinctConfigResp
   };
 
 async function authenticateAdminCard() {
+  jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
   await screen.findByText('Enter the card security code to unlock.');
   fireEvent.click(screen.getByText('1'));
   fireEvent.click(screen.getByText('2'));
@@ -103,6 +105,7 @@ async function authenticateAdminCard() {
 }
 
 test('shows setup card reader screen when there is no card reader', async () => {
+  const card = new MemoryCard();
   const storage = new MemoryStorage();
   const hardware = MemoryHardware.buildStandard();
   hardware.setCardReaderConnected(false);
@@ -112,7 +115,7 @@ test('shows setup card reader screen when there is no card reader', async () => 
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
     .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody });
-  render(<App storage={storage} hardware={hardware} />);
+  render(<App storage={storage} hardware={hardware} card={card} />);
   await screen.findByText('Card Reader Not Detected');
 });
 
@@ -304,22 +307,12 @@ test('admin and pollworker configuration', async () => {
   await screen.findByText('Election ID');
   await screen.findByText('748dc61ad3');
 
-  // Admin card with no PIN does NOT require authentication screen.
-  const noPinAdminCard = makeAdminCard(electionSampleDefinition.electionHash);
-  card.insertCard(noPinAdminCard, electionSampleDefinition.electionData);
-  await advanceTimersAndPromises(1);
-  await screen.findByText('Administrator Settings');
-  card.removeCard();
-
-  await advanceTimersAndPromises(1);
-
   // Insert admin card to set precinct
   const adminCard = makeAdminCard(
     electionSampleDefinition.electionHash,
     '123456'
   );
   card.insertCard(adminCard, electionSampleDefinition.electionData);
-  await advanceTimersAndPromises(1);
   await authenticateAdminCard();
   await screen.findByText('Administrator Settings');
   fireEvent.click(await screen.findByText('Live Election Mode'));
@@ -347,7 +340,6 @@ test('admin and pollworker configuration', async () => {
   card.removeCard();
   await advanceTimersAndPromises(1);
   card.insertCard(adminCard, electionSampleDefinition.electionData);
-  await advanceTimersAndPromises(1);
   await authenticateAdminCard();
   await screen.findByText('Administrator Settings');
   // Change precinct
@@ -375,7 +367,6 @@ test('admin and pollworker configuration', async () => {
   card.removeCard();
   await advanceTimersAndPromises(1);
   card.insertCard(adminCard, electionSampleDefinition.electionData);
-  await advanceTimersAndPromises(1);
   await authenticateAdminCard();
 
   // Calibrate scanner
@@ -403,7 +394,6 @@ test('admin and pollworker configuration', async () => {
   card.removeCard();
   await advanceTimersAndPromises(1);
   card.insertCard(adminCard, electionSampleDefinition.electionData);
-  await advanceTimersAndPromises(1);
   await authenticateAdminCard();
   fireEvent.click(await screen.findByText('Unconfigure Machine'));
   await screen.findByText(
@@ -551,6 +541,10 @@ test('voter can cast a ballot that scans successfully ', async () => {
   // Remove the usb drive
   kiosk.getUsbDrives.mockResolvedValue([]);
   await advanceTimersAndPromises(2);
+
+  // Remove pollworker card
+  card.removeCard();
+  await advanceTimersAndPromises(1);
 
   // Insert Admin Card
   const adminCard = makeAdminCard(
@@ -1077,7 +1071,6 @@ test('voter can cast another ballot while the success screen is showing', async 
     '123456'
   );
   card.insertCard(adminCard, electionSampleDefinition.electionData);
-  await advanceTimersAndPromises(1);
   await authenticateAdminCard();
   await screen.findByText('Administrator Settings');
   expect((await screen.findByTestId('ballot-count')).textContent).toBe('1');

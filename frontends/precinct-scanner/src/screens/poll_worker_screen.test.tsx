@@ -1,10 +1,10 @@
 import { act, screen, render, fireEvent } from '@testing-library/react';
 import { electionSampleDefinition } from '@votingworks/fixtures';
-import { advanceTimersAndPromises } from '@votingworks/test-utils';
+import { advanceTimersAndPromises, Inserted } from '@votingworks/test-utils';
 import { NullPrinter, usbstick } from '@votingworks/utils';
 import MockDate from 'mockdate';
 import React from 'react';
-import { UserSession } from '@votingworks/types';
+import { InsertedSmartcardAuth } from '@votingworks/types';
 import { mocked } from 'ts-jest/utils';
 import { AppContext } from '../contexts/app_context';
 import { PollWorkerScreen } from './poll_worker_screen';
@@ -25,27 +25,21 @@ afterEach(() => {
   jest.useRealTimers();
 });
 
-const pollworkerSession: UserSession = {
-  type: 'pollworker',
-  authenticated: true,
-  isElectionHashValid: true,
-};
-
 function renderScreen({
   scannedBallotCount = 0,
   isPollsOpen = false,
-  currentUserSession,
+  auth = Inserted.fakePollworkerAuth(),
 }: {
   scannedBallotCount?: number;
   isPollsOpen?: boolean;
-  currentUserSession?: UserSession;
+  auth?: InsertedSmartcardAuth.PollworkerLoggedIn;
 }): void {
   render(
     <AppContext.Provider
       value={{
         electionDefinition: electionSampleDefinition,
         machineConfig: { machineId: '0000', codeVersion: 'TEST' },
-        currentUserSession,
+        auth,
       }}
     >
       <PollWorkerScreen
@@ -136,7 +130,6 @@ describe('shows Livecheck button only when enabled', () => {
       renderScreen({
         scannedBallotCount: 5,
         isPollsOpen: true,
-        currentUserSession: pollworkerSession,
       });
       jest.advanceTimersByTime(2000);
     });
@@ -159,7 +152,6 @@ describe('shows Livecheck button only when enabled', () => {
       renderScreen({
         scannedBallotCount: 5,
         isPollsOpen: true,
-        currentUserSession: pollworkerSession,
       });
       jest.advanceTimersByTime(2000);
     });

@@ -1,7 +1,8 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { electionSampleDefinition } from '@votingworks/fixtures';
-import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
-import { err, ok, UserSession } from '@votingworks/types';
+import { fakeKiosk, fakeUsbDrive, Inserted } from '@votingworks/test-utils';
+
+import { err, ok } from '@votingworks/types';
 import { usbstick } from '@votingworks/utils';
 import React from 'react';
 import { mocked } from 'ts-jest/utils';
@@ -18,7 +19,7 @@ const machineConfig: MachineConfig = {
   machineId: '0003',
   codeVersion: 'TEST',
 };
-const currentUserSession: UserSession = { type: 'admin', authenticated: true };
+const auth = Inserted.fakeAdminAuth();
 
 test('renders loading screen when USB drive is mounting or ejecting in export modal', () => {
   const usbStatuses = [UsbDriveStatus.present, UsbDriveStatus.ejecting];
@@ -30,7 +31,7 @@ test('renders loading screen when USB drive is mounting or ejecting in export mo
         value={{
           electionDefinition: electionSampleDefinition,
           machineConfig,
-          currentUserSession,
+          auth,
         }}
       >
         <ExportBackupModal
@@ -58,7 +59,7 @@ test('render no USB found screen when there is not a mounted USB drive', () => {
         value={{
           electionDefinition: electionSampleDefinition,
           machineConfig,
-          currentUserSession,
+          auth,
         }}
       >
         <ExportBackupModal
@@ -90,7 +91,7 @@ test('render export modal when a USB drive is mounted as expected and allows cus
       value={{
         electionDefinition: electionSampleDefinition,
         machineConfig,
-        currentUserSession,
+        auth,
       }}
     >
       <ExportBackupModal
@@ -116,7 +117,7 @@ test('render export modal when a USB drive is mounted as expected and allows cus
       value={{
         electionDefinition: electionSampleDefinition,
         machineConfig,
-        currentUserSession,
+        auth,
       }}
     >
       <ExportBackupModal
@@ -141,7 +142,7 @@ test('render export modal when a USB drive is mounted as expected and allows aut
       value={{
         electionDefinition: electionSampleDefinition,
         machineConfig,
-        currentUserSession,
+        auth,
       }}
     >
       <ExportBackupModal
@@ -174,7 +175,7 @@ test('handles no USB drives', async () => {
       value={{
         electionDefinition: electionSampleDefinition,
         machineConfig,
-        currentUserSession,
+        auth,
       }}
     >
       <ExportBackupModal
@@ -204,7 +205,7 @@ test('shows a specific error for file writer failure', async () => {
       value={{
         electionDefinition: electionSampleDefinition,
         machineConfig,
-        currentUserSession,
+        auth,
       }}
     >
       <ExportBackupModal
@@ -241,7 +242,7 @@ test('shows a specific error for fetch failure', async () => {
       value={{
         electionDefinition: electionSampleDefinition,
         machineConfig,
-        currentUserSession,
+        auth,
       }}
     >
       <ExportBackupModal

@@ -7,7 +7,7 @@ import {
   within,
 } from '@testing-library/react';
 import { electionSampleDefinition } from '@votingworks/fixtures';
-import { fakeKiosk } from '@votingworks/test-utils';
+import { fakeKiosk, Inserted } from '@votingworks/test-utils';
 import { usbstick } from '@votingworks/utils';
 import MockDate from 'mockdate';
 import React from 'react';
@@ -25,13 +25,15 @@ afterEach(() => {
   window.kiosk = undefined;
 });
 
+const auth = Inserted.fakeAdminAuth();
+
 test('renders date and time settings modal', async () => {
   render(
     <AppContext.Provider
       value={{
         electionDefinition: electionSampleDefinition,
         machineConfig: { machineId: '0000', codeVersion: 'TEST' },
-        currentUserSession: { type: 'admin', authenticated: true },
+        auth,
       }}
     >
       <AdminScreen
@@ -83,7 +85,7 @@ test('setting and un-setting the precinct', async () => {
       value={{
         electionDefinition: electionSampleDefinition,
         machineConfig: { machineId: '0000', codeVersion: 'TEST' },
-        currentUserSession: { type: 'admin', authenticated: true },
+        auth,
       }}
     >
       <AdminScreen
@@ -120,7 +122,7 @@ test('export from admin screen', () => {
       value={{
         electionDefinition: electionSampleDefinition,
         machineConfig: { machineId: '0000', codeVersion: 'TEST' },
-        currentUserSession: { type: 'admin', authenticated: true },
+        auth,
       }}
     >
       <AdminScreen
@@ -146,7 +148,7 @@ test('unconfigure ejects a usb drive when it is mounted', () => {
       value={{
         electionDefinition: electionSampleDefinition,
         machineConfig: { machineId: '0000', codeVersion: 'TEST' },
-        currentUserSession: { type: 'admin', authenticated: true },
+        auth,
       }}
     >
       <AdminScreen
@@ -175,7 +177,7 @@ test('unconfigure does not eject a usb drive that is not mounted', async () => {
       value={{
         electionDefinition: electionSampleDefinition,
         machineConfig: { machineId: '0000', codeVersion: 'TEST' },
-        currentUserSession: { type: 'admin', authenticated: true },
+        auth,
       }}
     >
       <AdminScreen
