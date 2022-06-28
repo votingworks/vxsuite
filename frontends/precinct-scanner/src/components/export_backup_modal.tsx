@@ -1,6 +1,8 @@
 import { Result } from '@votingworks/types';
 import {
   Button,
+  isAdminAuth,
+  isPollworkerAuth,
   Loading,
   Modal,
   Prose,
@@ -41,9 +43,10 @@ export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
   const [currentState, setCurrentState] = useState(ModalState.INIT);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const { electionDefinition, currentUserSession } = useContext(AppContext);
+  const { electionDefinition, auth } = useContext(AppContext);
   assert(electionDefinition);
-  assert(currentUserSession); // TODO(auth) should assert this is an admin or pollworker?
+  assert(isAdminAuth(auth) || isPollworkerAuth(auth));
+  const userRole = auth.user.role;
 
   const exportBackup = useCallback(
     async (openDialog: boolean) => {
@@ -149,7 +152,7 @@ export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
               small={false}
               primary
               usbDriveStatus={usbDrive.status ?? usbstick.UsbDriveStatus.absent}
-              usbDriveEject={() => usbDrive.eject(currentUserSession.type)}
+              usbDriveEject={() => usbDrive.eject(userRole)}
             />
           </React.Fragment>
         }

@@ -52,6 +52,10 @@ export interface UseInsertedSmartcardAuthArgs {
 
 type AuthState =
   | Pick<InsertedSmartcardAuth.LoggedOut, 'status' | 'reason'>
+  | Pick<
+      InsertedSmartcardAuth.CheckingPasscode,
+      'status' | 'user' | 'wrongPasscodeEntered'
+    >
   | Pick<InsertedSmartcardAuth.LoggedIn, 'status' | 'user'>;
 
 interface InsertedSmartcardAuthState {
@@ -59,10 +63,15 @@ interface InsertedSmartcardAuthState {
   auth: AuthState;
 }
 
-interface InsertedSmartcardAuthAction {
-  type: 'card_read';
-  card: CardApi;
-}
+type InsertedSmartcardAuthAction =
+  | {
+      type: 'card_read';
+      card: CardApi;
+    }
+  | {
+      type: 'check_passcode';
+      passcode: string;
+    };
 
 function validateCardUser(
   previousAuth: AuthState,
@@ -140,7 +149,14 @@ function smartcardAuthReducer(allowedUserRoles: UserRole[], scope: AuthScope) {
                 scope
               );
               if (userResult.isOk()) {
-                return { status: 'logged_in', user: userResult.ok() };
+                const user = userResult.ok();
+                if (previousState.auth.status === 'logged_out') {
+                  if (user.role === 'admin') {
+                    return { status: 'checking_passcode', user };
+                  }
+                  return { status: 'logged_in', user };
+                }
+                return previousState.auth;
               }
               return { status: 'logged_out', reason: userResult.err() };
             }
@@ -160,9 +176,21 @@ function smartcardAuthReducer(allowedUserRoles: UserRole[], scope: AuthScope) {
         return deepEqual(newState, previousState) ? previousState : newState;
       }
 
+      case 'check_passcode': {
+        assert(previousState.auth.status === 'checking_passcode');
+        assert(previousState.auth.user.passcode !== undefined);
+        return {
+          ...previousState,
+          auth:
+            action.passcode === previousState.auth.user.passcode
+              ? { status: 'logged_in', user: previousState.auth.user }
+              : { ...previousState.auth, wrongPasscodeEntered: true },
+        };
+      }
+
       /* istanbul ignore next - compile time check for completeness */
       default:
-        throwIllegalValue(action.type);
+        throwIllegalValue(action, 'type');
     }
   };
 }
@@ -280,7 +308,7 @@ export function useInsertedSmartcardAuth({
   );
 
   switch (auth.status) {
-    case 'logged_out':
+    case 'logged_out': {
       if (
         auth.reason === 'no_card' &&
         activatedCardlessVoter &&
@@ -293,6 +321,14 @@ export function useInsertedSmartcardAuth({
         };
       }
       return auth;
+    }
+
+    case 'checking_passcode':
+      return {
+        ...auth,
+        checkPasscode: (passcode: string) =>
+          dispatch({ type: 'check_passcode', passcode }),
+      };
 
     case 'logged_in': {
       assert(card.status === 'ready');
