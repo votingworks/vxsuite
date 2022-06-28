@@ -19,7 +19,6 @@ import {
   FullElectionExternalTally,
   ExternalTallySourceType,
   Provider,
-  UserRole,
 } from '@votingworks/types';
 
 import {
@@ -32,10 +31,9 @@ import {
   Hardware,
 } from '@votingworks/utils';
 import {
-  useSmartcard,
   useUsbDrive,
-  useUserSession,
   useDevices,
+  useDippedSmartcardAuth,
 } from '@votingworks/ui';
 import {
   computeFullElectionTally,
@@ -90,8 +88,6 @@ export const isOfficialResultsKey = 'isOfficialResults';
 export const printedBallotsStorageKey = 'printedBallots';
 export const configuredAtStorageKey = 'configuredAt';
 export const externalVoteTalliesFileStorageKey = 'externalVoteTallies';
-
-const VALID_USERS: readonly UserRole[] = ['admin', 'superadmin'];
 
 export function AppRoot({
   storage,
@@ -160,27 +156,10 @@ export function AppRoot({
     codeVersion: '',
   });
 
-  const smartcard = useSmartcard({
-    card,
-    cardReader,
-  });
-  const {
-    currentUserSession,
-    attemptToAuthenticateAdminUser,
-    lockMachine,
-    bootstrapAuthenticatedAdminSession,
-  } = useUserSession({
-    smartcard,
-    electionDefinition,
-    persistAuthentication: true,
-    logger,
-    validUserTypes: VALID_USERS,
-  });
+  const auth = useDippedSmartcardAuth({ cardApi: card });
+  const currentUserRole =
+    auth.status === 'logged_in' ? auth.user.role : 'unknown';
 
-  const currentUserType = useMemo(
-    () => currentUserSession?.type ?? 'unknown',
-    [currentUserSession]
-  );
   async function setStorageKeyAndLog(
     storageKey: string,
     value: unknown,
@@ -188,14 +167,14 @@ export function AppRoot({
   ) {
     try {
       await storage.set(storageKey, value);
-      await logger.log(LogEventId.SaveToStorage, currentUserType, {
+      await logger.log(LogEventId.SaveToStorage, currentUserRole, {
         message: `${logDescription} successfully saved to storage.`,
         storageKey,
         disposition: 'success',
       });
     } catch (error) {
       assert(error instanceof Error);
-      await logger.log(LogEventId.SaveToStorage, currentUserType, {
+      await logger.log(LogEventId.SaveToStorage, currentUserRole, {
         message: `Failed to save ${logDescription} to storage.`,
         storageKey,
         error: error.message,
@@ -209,14 +188,14 @@ export function AppRoot({
   ) {
     try {
       await storage.remove(storageKey);
-      await logger.log(LogEventId.SaveToStorage, currentUserType, {
+      await logger.log(LogEventId.SaveToStorage, currentUserRole, {
         message: `${logDescription} successfully cleared in storage.`,
         storageKey,
         disposition: 'success',
       });
     } catch (error) {
       assert(error instanceof Error);
-      await logger.log(LogEventId.SaveToStorage, currentUserType, {
+      await logger.log(LogEventId.SaveToStorage, currentUserRole, {
         message: `Failed to clear ${logDescription} in storage.`,
         storageKey,
         error: error.message,
@@ -227,7 +206,7 @@ export function AppRoot({
 
   async function saveIsOfficialResults() {
     setIsOfficialResults(true);
-    await logger.log(LogEventId.MarkedTallyResultsOfficial, currentUserType, {
+    await logger.log(LogEventId.MarkedTallyResultsOfficial, currentUserRole, {
       message:
         'User has marked the tally results as official, no more Cvr files can be imported.',
       disposition: 'success',
@@ -397,16 +376,16 @@ export function AppRoot({
           previous + tally.overallTally.numberOfBallotsCounted,
         0
       );
-    void logger.log(LogEventId.RecomputedTally, currentUserType, {
+    void logger.log(LogEventId.RecomputedTally, currentUserRole, {
       message: `Tally recomputed, there are now ${totalBallots} total ballots tallied.`,
       disposition: 'success',
       totalBallots,
     });
-  }, [fullElectionTally, fullElectionExternalTallies, currentUserType, logger]);
+  }, [fullElectionTally, fullElectionExternalTallies, currentUserRole, logger]);
 
   const computeVoteCounts = useCallback(
     (castVoteRecords: ReadonlySet<CastVoteRecord>) => {
-      void logger.log(LogEventId.RecomputingTally, currentUserType);
+      void logger.log(LogEventId.RecomputingTally, currentUserRole);
       assert(electionDefinition);
       setIsTabulationRunning(true);
       const fullTally = computeFullElectionTally(
@@ -416,7 +395,7 @@ export function AppRoot({
       setFullElectionTally(fullTally);
       setIsTabulationRunning(false);
     },
-    [setFullElectionTally, electionDefinition, logger, currentUserType]
+    [setFullElectionTally, electionDefinition, logger, currentUserRole]
   );
 
   useEffect(() => {
@@ -488,14 +467,14 @@ export function AppRoot({
       // we set a new election definition, reset everything
       try {
         await storage.clear();
-        await logger.log(LogEventId.SaveToStorage, currentUserType, {
+        await logger.log(LogEventId.SaveToStorage, currentUserRole, {
           message:
             'All current data in storage, including election definition, cast vote records, tallies, and printed ballot information cleared.',
           disposition: 'success',
         });
       } catch (error) {
         assert(error instanceof Error);
-        await logger.log(LogEventId.SaveToStorage, currentUserType, {
+        await logger.log(LogEventId.SaveToStorage, currentUserRole, {
           message: 'Failed clearing all current data in storage.',
           disposition: 'failure',
           error: error.message,
@@ -513,7 +492,9 @@ export function AppRoot({
         const election = safeParseElection(electionData).unsafeUnwrap();
         // Temporarily bootstrap an authenticated user session. This will be removed
         // once we have a full story for how to bootstrap the auth process.
-        bootstrapAuthenticatedAdminSession();
+        if (auth.status === 'logged_out') {
+          auth.bootstrapAuthenticatedAdminSession(electionHash);
+        }
 
         setElectionDefinition({
           electionData,
@@ -538,14 +519,10 @@ export function AppRoot({
           },
           'Election Definition'
         );
-        await logger.log(
-          LogEventId.ElectionConfigured,
-          currentUserSession?.type ?? 'unknown',
-          {
-            disposition: LogDispositionStandardTypes.Success,
-            newElectionHash: electionHash,
-          }
-        );
+        await logger.log(LogEventId.ElectionConfigured, currentUserRole, {
+          disposition: LogDispositionStandardTypes.Success,
+          newElectionHash: electionHash,
+        });
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -573,7 +550,7 @@ export function AppRoot({
   async function resetFiles(fileType: ResultsFileType) {
     switch (fileType) {
       case ResultsFileType.CastVoteRecord:
-        await logger.log(LogEventId.RemovedTallyFile, currentUserType, {
+        await logger.log(LogEventId.RemovedTallyFile, currentUserRole, {
           message: 'User removed all Cast vote record files.',
           fileType,
           disposition: 'success',
@@ -584,7 +561,7 @@ export function AppRoot({
         const newFiles = fullElectionExternalTallies.filter(
           (tally) => tally.source !== ExternalTallySourceType.SEMS
         );
-        await logger.log(LogEventId.RemovedTallyFile, currentUserType, {
+        await logger.log(LogEventId.RemovedTallyFile, currentUserRole, {
           message: 'User removed all SEMS external tally files.',
           fileType,
           disposition: 'success',
@@ -596,7 +573,7 @@ export function AppRoot({
         const newFiles = fullElectionExternalTallies.filter(
           (tally) => tally.source !== ExternalTallySourceType.Manual
         );
-        await logger.log(LogEventId.RemovedTallyFile, currentUserType, {
+        await logger.log(LogEventId.RemovedTallyFile, currentUserRole, {
           message: 'User removed all manually entered tally data.',
           fileType,
           disposition: 'success',
@@ -605,7 +582,7 @@ export function AppRoot({
         break;
       }
       case ResultsFileType.All:
-        await logger.log(LogEventId.RemovedTallyFile, currentUserType, {
+        await logger.log(LogEventId.RemovedTallyFile, currentUserRole, {
           message: 'User removed all tally data.',
           fileType,
           disposition: 'success',
@@ -645,12 +622,9 @@ export function AppRoot({
         isTabulationRunning,
         setIsTabulationRunning,
         generateExportableTallies,
-        currentUserSession,
-        attemptToAuthenticateAdminUser,
-        lockMachine,
+        auth,
         machineConfig,
         hasCardReaderAttached: !!cardReader,
-        smartcard,
         logger,
       }}
     >

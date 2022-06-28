@@ -1,20 +1,11 @@
 import {
   UserRole,
-  SmartcardAuth,
   User,
   safeParseJson,
-  AnyCardDataSchema,
-  CardStorage,
   ok,
   err,
-  LoggedOutAuth,
-  LoggedInAuth,
   ElectionDefinition,
   Result,
-  AdminLoggedInAuth,
-  PollworkerLoggedInAuth,
-  SuperadminLoggedInAuth,
-  VoterLoggedInAuth,
   wrapException,
   getBallotStyle,
   getPrecinctById,
@@ -22,11 +13,10 @@ import {
   PrecinctSelection,
   VoterCardData,
   VoterCardDataSchema,
-  Optional,
   PrecinctId,
   BallotStyleId,
   CardlessVoterUser,
-  CardlessVoterLoggedInAuth,
+  InsertedSmartcardAuth,
 } from '@votingworks/types';
 import {
   assert,
@@ -39,101 +29,47 @@ import {
 import { useReducer, useState } from 'react';
 import useInterval from 'use-interval';
 import deepEqual from 'deep-eql';
-import { CARD_POLLING_INTERVAL } from './use_smartcard';
-import { Lock, useLock } from './use_lock';
+import { Lock, useLock } from '../use_lock';
+import {
+  buildCardStorage,
+  CARD_POLLING_INTERVAL,
+  parseUserFromCard,
+} from './auth_helpers';
 
 export const VOTER_CARD_EXPIRATION_SECONDS = 60 * 60; // 1 hour
 
-// Below, we define some useful type guards for checking who's logged in.
-
-export function isSuperadminAuth(
-  auth: SmartcardAuth
-): auth is SuperadminLoggedInAuth {
-  return auth.status === 'logged_in' && auth.user.role === 'superadmin';
-}
-
-export function isAdminAuth(auth: SmartcardAuth): auth is AdminLoggedInAuth {
-  return auth.status === 'logged_in' && auth.user.role === 'admin';
-}
-
-export function isPollworkerAuth(
-  auth: SmartcardAuth
-): auth is PollworkerLoggedInAuth {
-  return auth.status === 'logged_in' && auth.user.role === 'pollworker';
-}
-
-export function isVoterAuth(auth: SmartcardAuth): auth is VoterLoggedInAuth {
-  return auth.status === 'logged_in' && auth.user.role === 'voter';
-}
-
-export function isCardlessVoterAuth(
-  auth: SmartcardAuth
-): auth is CardlessVoterLoggedInAuth {
-  return auth.status === 'logged_in' && auth.user.role === 'cardless_voter';
-}
-
-// Types for the useSmartcardAuth hook
-interface AuthScope {
+// Types for the useInsertedSmartcardAuth hook
+export interface AuthScope {
   electionDefinition?: ElectionDefinition;
   precinct?: PrecinctSelection;
 }
 
-export interface UseSmartcardAuthArgs {
+export interface UseInsertedSmartcardAuthArgs {
   cardApi: Card;
   allowedUserRoles: UserRole[];
   scope: AuthScope;
 }
 
 type AuthState =
-  | Pick<LoggedOutAuth, 'status' | 'reason'>
-  | Pick<LoggedInAuth, 'status' | 'user'>;
+  | Pick<InsertedSmartcardAuth.LoggedOut, 'status' | 'reason'>
+  | Pick<InsertedSmartcardAuth.LoggedIn, 'status' | 'user'>;
 
-interface SmartcardAuthState {
+interface InsertedSmartcardAuthState {
   card: CardApi;
   auth: AuthState;
 }
 
-// For now, there's just one smartcard auth action type, but there will be more
-// as this hook gets fleshed out.
-interface SmartcardAuthAction {
+interface InsertedSmartcardAuthAction {
   type: 'card_read';
   card: CardApi;
 }
 
-function parseUserFromCard(card: CardApiReady): Optional<User> {
-  if (!card.shortValue) return undefined;
-  const cardData = safeParseJson(card.shortValue, AnyCardDataSchema).ok();
-  if (!cardData) return undefined;
-  switch (cardData.t) {
-    case 'superadmin':
-      return { role: 'superadmin' };
-    case 'admin':
-      return { role: 'admin', electionHash: cardData.h, passcode: cardData.p };
-    case 'pollworker':
-      return { role: 'pollworker', electionHash: cardData.h };
-    case 'voter':
-      return {
-        role: 'voter',
-        createdAt: cardData.c,
-        ballotStyleId: cardData.bs,
-        precinctId: cardData.pr,
-        voidedAt: cardData.uz,
-        ballotPrintedAt: cardData.bp,
-        updatedAt: cardData.u,
-        markMachineId: cardData.m,
-      };
-    /* istanbul ignore next - compile time check for completeness */
-    default:
-      throwIllegalValue(cardData, 't');
-  }
-}
-
-function attemptLogin(
+function validateCardUser(
   previousAuth: AuthState,
   card: CardApiReady,
   allowedUserRoles: UserRole[],
   scope: AuthScope
-): Result<User, LoggedOutAuth['reason']> {
+): Result<User, InsertedSmartcardAuth.LoggedOut['reason']> {
   const user = parseUserFromCard(card);
   if (!user) return err('invalid_user_on_card');
   if (!allowedUserRoles.includes(user.role)) {
@@ -185,9 +121,9 @@ function attemptLogin(
 
 function smartcardAuthReducer(allowedUserRoles: UserRole[], scope: AuthScope) {
   return (
-    previousState: SmartcardAuthState,
-    action: SmartcardAuthAction
-  ): SmartcardAuthState => {
+    previousState: InsertedSmartcardAuthState,
+    action: InsertedSmartcardAuthAction
+  ): InsertedSmartcardAuthState => {
     switch (action.type) {
       case 'card_read': {
         const newAuth = ((): AuthState => {
@@ -197,16 +133,16 @@ function smartcardAuthReducer(allowedUserRoles: UserRole[], scope: AuthScope) {
             case 'error':
               return { status: 'logged_out', reason: 'card_error' };
             case 'ready': {
-              const loginResult = attemptLogin(
+              const userResult = validateCardUser(
                 previousState.auth,
                 action.card,
                 allowedUserRoles,
                 scope
               );
-              if (loginResult.isOk()) {
-                return { status: 'logged_in', user: loginResult.ok() };
+              if (userResult.isOk()) {
+                return { status: 'logged_in', user: userResult.ok() };
               }
-              return { status: 'logged_out', reason: loginResult.err() };
+              return { status: 'logged_out', reason: userResult.err() };
             }
             /* istanbul ignore next - compile time check for completeness */
             default:
@@ -217,7 +153,7 @@ function smartcardAuthReducer(allowedUserRoles: UserRole[], scope: AuthScope) {
         // Optimization: if the card and auth state didn't change, then we can
         // return the previous state, which will cause React to not rerender.
         // https://reactjs.org/docs/hooks-reference.html#bailing-out-of-a-dispatch
-        const newState: SmartcardAuthState = {
+        const newState: InsertedSmartcardAuthState = {
           auth: newAuth,
           card: action.card,
         };
@@ -231,73 +167,11 @@ function smartcardAuthReducer(allowedUserRoles: UserRole[], scope: AuthScope) {
   };
 }
 
-function buildCardStorage(
-  card: CardApiReady,
-  cardApi: Card,
-  cardWriteLock: Lock
-): CardStorage {
-  return {
-    hasStoredData: !!card.longValueExists,
-
-    readStoredObject: async (schema) => cardApi.readLongObject(schema),
-
-    readStoredString: async () => {
-      try {
-        const value = await cardApi.readLongString();
-        return ok(value || undefined);
-      } catch (error) {
-        return wrapException(error);
-      }
-    },
-
-    readStoredUint8Array: async () => {
-      try {
-        const value = await cardApi.readLongUint8Array();
-        return ok(value && value.length > 0 ? value : undefined);
-      } catch (error) {
-        return wrapException(error);
-      }
-    },
-
-    writeStoredData: async (value) => {
-      if (!cardWriteLock.lock()) {
-        return err(new Error('Card write in progress'));
-      }
-      try {
-        if (value instanceof Uint8Array) {
-          await cardApi.writeLongUint8Array(value);
-        } else {
-          await cardApi.writeLongObject(value);
-        }
-        return ok();
-      } catch (error) {
-        return wrapException(error);
-      } finally {
-        cardWriteLock.unlock();
-      }
-    },
-
-    clearStoredData: async () => {
-      if (!cardWriteLock.lock()) {
-        return err(new Error('Card write in progress'));
-      }
-      try {
-        await cardApi.writeLongUint8Array(Uint8Array.of());
-        return ok();
-      } catch (error) {
-        return wrapException(error);
-      } finally {
-        cardWriteLock.unlock();
-      }
-    },
-  };
-}
-
 function buildPollworkerCardlessVoterProps(
   activatedCardlessVoter: CardlessVoterUser | undefined,
   setActivatedCardlessVoter: (cardlessVoter?: CardlessVoterUser) => void
 ): Pick<
-  PollworkerLoggedInAuth,
+  InsertedSmartcardAuth.PollworkerLoggedIn,
   'activateCardlessVoter' | 'deactivateCardlessVoter' | 'activatedCardlessVoter'
 > {
   return {
@@ -322,7 +196,10 @@ function buildVoterCardMethods(
   card: CardApiReady,
   cardApi: Card,
   cardWriteLock: Lock
-): Pick<VoterLoggedInAuth, 'markCardVoided' | 'markCardPrinted'> {
+): Pick<
+  InsertedSmartcardAuth.VoterLoggedIn,
+  'markCardVoided' | 'markCardPrinted'
+> {
   async function writeVoterCardData(
     cardData: VoterCardData
   ): Promise<Result<void, Error>> {
@@ -363,17 +240,21 @@ function buildVoterCardMethods(
 }
 
 /**
- * Polls the smartcard reader and returns an auth session based on the inserted
- * card. If a card is inserted, an auth session for the user represented by the
+ * Authenticates a user based on the currently inserted smartcard.
+ *
+ * For this type of authentication, the card must be inserted the entire time
+ * the user is using the app.
+ *
+ * If a card is inserted, an auth session for the user represented by the
  * card, as well as an interface for reading/writing data to the card for
  * storage. If no card is inserted or the card is invalid, returns a logged out
  * state with a reason.
  */
-export function useSmartcardAuth({
+export function useInsertedSmartcardAuth({
   cardApi,
   allowedUserRoles,
   scope,
-}: UseSmartcardAuthArgs): SmartcardAuth {
+}: UseInsertedSmartcardAuthArgs): InsertedSmartcardAuth.Auth {
   const [{ card, auth }, dispatch] = useReducer(
     smartcardAuthReducer(allowedUserRoles, scope),
     {
@@ -414,8 +295,8 @@ export function useSmartcardAuth({
       return auth;
 
     case 'logged_in': {
-      const { status, user } = auth;
       assert(card.status === 'ready');
+      const { status, user } = auth;
       const cardStorage = buildCardStorage(card, cardApi, cardWriteLock);
       switch (user.role) {
         case 'superadmin': {

@@ -18,7 +18,12 @@ import {
 import pluralize from 'pluralize';
 
 import { LogEventId } from '@votingworks/logging';
-import { Monospace, Prose } from '@votingworks/ui';
+import {
+  isAdminAuth,
+  isSuperadminAuth,
+  Monospace,
+  Prose,
+} from '@votingworks/ui';
 import {
   BallotScreenProps,
   InputEventFunction,
@@ -82,13 +87,10 @@ export function BallotScreen(): JSX.Element {
     ballotStyleId,
     localeCode: currentLocaleCode,
   } = useParams<BallotScreenProps>();
-  const {
-    addPrintedBallot,
-    electionDefinition,
-    printBallotRef,
-    logger,
-    currentUserSession,
-  } = useContext(AppContext);
+  const { addPrintedBallot, electionDefinition, printBallotRef, logger, auth } =
+    useContext(AppContext);
+  assert(isAdminAuth(auth) || isSuperadminAuth(auth));
+  const userRole = auth.user.role;
   assert(electionDefinition);
   const { election, electionHash } = electionDefinition;
   const availableLocaleCodes = getElectionLocales(election, DEFAULT_LOCALE);
@@ -147,7 +149,7 @@ export function BallotScreen(): JSX.Element {
   });
 
   function afterPrint(numCopies: number) {
-    assert(currentUserSession); // TODO(auth) check permissions for viewing ballots
+    // TODO(auth) check permissions for viewing ballots
     const type = isAbsentee
       ? PrintableBallotType.Absentee
       : PrintableBallotType.Precinct;
@@ -161,7 +163,7 @@ export function BallotScreen(): JSX.Element {
         type,
       });
     }
-    void logger.log(LogEventId.BallotPrinted, currentUserSession.type, {
+    void logger.log(LogEventId.BallotPrinted, userRole, {
       message: `${numCopies} ${
         isLiveMode ? 'Live mode' : 'Test mode'
       } ${type} ballots printed. Precinct: ${precinctId}, ballot style: ${ballotStyleId}`,
@@ -176,8 +178,8 @@ export function BallotScreen(): JSX.Element {
   }
 
   function afterPrintError(errorMessage: string) {
-    assert(currentUserSession); // TODO(auth) check permissions for viewing ballots
-    void logger.log(LogEventId.BallotPrinted, currentUserSession.type, {
+    // TODO(auth) check permissions for viewing ballots
+    void logger.log(LogEventId.BallotPrinted, userRole, {
       message: `Error attempting to print ballot: ${errorMessage}`,
       disposition: 'failure',
     });

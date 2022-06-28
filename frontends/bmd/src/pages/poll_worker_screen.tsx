@@ -7,7 +7,7 @@ import {
   ElectionDefinition,
   getPartyIdsInBallotStyles,
   PartyId,
-  PollworkerLoggedInAuth,
+  InsertedSmartcardAuth,
   PrecinctId,
   Tally,
 } from '@votingworks/types';
@@ -122,7 +122,7 @@ function PrecinctScannerTallyReportModal({
   machineConfig,
 }: {
   electionDefinition: ElectionDefinition;
-  pollworkerAuth: PollworkerLoggedInAuth;
+  pollworkerAuth: InsertedSmartcardAuth.PollworkerLoggedIn;
   printer: Printer;
   machineConfig: MachineConfig;
 }) {
@@ -269,7 +269,7 @@ function PrecinctScannerTallyReportModal({
 }
 
 export interface PollworkerScreenProps {
-  pollworkerAuth: PollworkerLoggedInAuth;
+  pollworkerAuth: InsertedSmartcardAuth.PollworkerLoggedIn;
   activateCardlessVoterSession: (
     precinctId: PrecinctId,
     ballotStyleId: BallotStyleId

@@ -3,17 +3,16 @@ import { assert, tallyVotesByContest } from '@votingworks/utils';
 import { LogEventId } from '@votingworks/logging';
 import { Tally, VotingMethod } from '@votingworks/types';
 
+import { isAdminAuth } from '@votingworks/ui';
 import { AppContext } from '../contexts/app_context';
 import { PrintButton } from './print_button';
 import { TestDeckTallyReport } from './test_deck_tally_report';
 import { generateTestDeckBallots } from '../utils/election';
 
 export function FullTestDeckTallyReportButton(): JSX.Element {
-  const { currentUserSession, electionDefinition, logger } =
-    useContext(AppContext);
-
-  assert(currentUserSession);
-  const currentUserType = currentUserSession.type;
+  const { auth, electionDefinition, logger } = useContext(AppContext);
+  assert(isAdminAuth(auth));
+  const userRole = auth.user.role;
 
   assert(electionDefinition);
   const { election } = electionDefinition;
@@ -34,22 +33,22 @@ export function FullTestDeckTallyReportButton(): JSX.Element {
   };
 
   const afterPrint = useCallback(() => {
-    void logger.log(LogEventId.TestDeckTallyReportPrinted, currentUserType, {
+    void logger.log(LogEventId.TestDeckTallyReportPrinted, userRole, {
       disposition: 'success',
       message: `User printed the full test deck tally report`,
     });
-  }, [logger, currentUserType]);
+  }, [logger, userRole]);
 
   const afterPrintError = useCallback(
     (errorMessage: string) => {
-      void logger.log(LogEventId.TestDeckTallyReportPrinted, currentUserType, {
+      void logger.log(LogEventId.TestDeckTallyReportPrinted, userRole, {
         disposition: 'failure',
         errorMessage,
         message: `Error printing the full test deck tally report: ${errorMessage}`,
         result: 'User shown error.',
       });
     },
-    [logger, currentUserType]
+    [logger, userRole]
   );
 
   const fullTestDeckTallyReport = (

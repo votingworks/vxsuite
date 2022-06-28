@@ -13,7 +13,7 @@ import {
   ElectionDefinition,
   MsEitherNeitherContestCompressedTally,
   ok,
-  PollworkerLoggedInAuth,
+  InsertedSmartcardAuth,
   YesNoContestCompressedTally,
 } from '@votingworks/types';
 
@@ -26,7 +26,7 @@ import {
 } from '@votingworks/utils';
 import {
   getZeroCompressedTally,
-  fakePollworkerAuth as fakePollworkerAuthUtil,
+  Inserted,
   fakePollworkerUser,
   fakeCardStorage,
 } from '@votingworks/test-utils';
@@ -56,8 +56,8 @@ beforeEach(() => {
 function fakePollworkerAuth(
   electionDefinition: ElectionDefinition,
   tally?: PrecinctScannerCardTally
-): PollworkerLoggedInAuth {
-  return fakePollworkerAuthUtil(
+): InsertedSmartcardAuth.PollworkerLoggedIn {
+  return Inserted.fakePollworkerAuth(
     fakePollworkerUser({ electionHash: electionDefinition.electionHash }),
     fakeCardStorage({
       hasStoredData: tally !== undefined,
@@ -68,7 +68,7 @@ function fakePollworkerAuth(
 
 function renderScreen(
   props: Partial<PollworkerScreenProps> = {},
-  pollworkerAuth: PollworkerLoggedInAuth = fakePollworkerAuth(
+  pollworkerAuth: InsertedSmartcardAuth.PollworkerLoggedIn = fakePollworkerAuth(
     electionSampleWithSealDefinition
   )
 ) {

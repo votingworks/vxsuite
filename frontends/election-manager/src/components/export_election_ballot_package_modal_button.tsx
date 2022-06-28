@@ -19,7 +19,14 @@ import {
   usbstick,
   throwIllegalValue,
 } from '@votingworks/utils';
-import { Monospace, Modal, Prose, UsbControllerButton } from '@votingworks/ui';
+import {
+  Monospace,
+  Modal,
+  Prose,
+  UsbControllerButton,
+  isAdminAuth,
+  isSuperadminAuth,
+} from '@votingworks/ui';
 import { LogEventId } from '@votingworks/logging';
 import { DEFAULT_LOCALE } from '../config/globals';
 import { getHumanBallotLanguageFormat } from '../utils/election';
@@ -41,15 +48,11 @@ const UsbImage = styled.img`
 `;
 
 export function ExportElectionBallotPackageModalButton(): JSX.Element {
-  const {
-    electionDefinition,
-    usbDriveStatus,
-    usbDriveEject,
-    currentUserSession,
-    logger,
-  } = useContext(AppContext);
+  const { electionDefinition, usbDriveStatus, usbDriveEject, auth, logger } =
+    useContext(AppContext);
   assert(electionDefinition);
-  assert(currentUserSession); // TODO(auth) should this make sure we have an admin
+  assert(isAdminAuth(auth) || isSuperadminAuth(auth));
+  const userRole = auth.user.role;
   const { election, electionData, electionHash } = electionDefinition;
   const electionLocaleCodes = getElectionLocales(election, DEFAULT_LOCALE);
 
@@ -74,14 +77,10 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
         case 'ArchiveEnd': {
           await state.archive.end();
           setState(workflow.next);
-          await logger.log(
-            LogEventId.ExportBallotPackageComplete,
-            currentUserSession.type,
-            {
-              disposition: 'success',
-              message: 'Finished successfully exporting ballot package.',
-            }
-          );
+          await logger.log(LogEventId.ExportBallotPackageComplete, userRole, {
+            disposition: 'success',
+            message: 'Finished successfully exporting ballot package.',
+          });
           break;
         }
 
@@ -90,7 +89,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
           break;
       }
     })();
-  }, [state, election, electionData, electionHash, logger, currentUserSession]);
+  }, [state, election, electionData, electionHash, logger, userRole]);
 
   /**
    * Callback from `HandMarkedPaperBallot` to let us know the preview has been
@@ -157,12 +156,9 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
   // Callback to open the file dialog.
   async function saveFileCallback(openDialog: boolean) {
     assert(state.type === 'ArchiveBegin');
-    assert(currentUserSession); // TODO(auth) check proper file permissions
+    // TODO(auth) check proper file permissions
     try {
-      await logger.log(
-        LogEventId.ExportBallotPackageInit,
-        currentUserSession.type
-      );
+      await logger.log(LogEventId.ExportBallotPackageInit, userRole);
       const usbPath = await usbstick.getDevicePath();
       const pathToFolder = usbPath && join(usbPath, BALLOT_PACKAGE_FOLDER);
       const pathToFile = join(pathToFolder ?? '.', defaultFileName);
@@ -183,15 +179,11 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
     } catch (error) {
       assert(error instanceof Error);
       setState(workflow.error(state, error));
-      await logger.log(
-        LogEventId.ExportBallotPackageComplete,
-        currentUserSession.type,
-        {
-          disposition: 'failure',
-          message: `Error exporting ballot package: ${error}`,
-          result: 'Ballot package not exported, error shown to user.',
-        }
-      );
+      await logger.log(LogEventId.ExportBallotPackageComplete, userRole, {
+        disposition: 'failure',
+        message: `Error exporting ballot package: ${error}`,
+        result: 'Ballot package not exported, error shown to user.',
+      });
     }
   }
 
@@ -353,7 +345,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
             <UsbControllerButton
               primary
               small={false}
-              usbDriveEject={() => usbDriveEject(currentUserSession.type)}
+              usbDriveEject={() => usbDriveEject(userRole)}
               usbDriveStatus={usbDriveStatus}
             />
             <LinkButton onPress={closeModal}>Close</LinkButton>

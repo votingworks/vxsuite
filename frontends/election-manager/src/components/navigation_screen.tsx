@@ -3,11 +3,12 @@ import { useLocation } from 'react-router-dom';
 import {
   Button,
   ElectionInfoBar,
+  isAdminAuth,
+  isSuperadminAuth,
   Main,
   Screen,
   UsbControllerButton,
 } from '@votingworks/ui';
-
 import {
   areVvsg2AuthFlowsEnabled,
   isWriteInAdjudicationEnabled,
@@ -50,15 +51,13 @@ export function NavigationScreen({
     electionDefinition,
     usbDriveEject,
     usbDriveStatus,
-    lockMachine,
     machineConfig,
-    currentUserSession,
+    auth,
   } = useContext(AppContext);
   const election = electionDefinition?.election;
-  const currentUserType = currentUserSession?.type ?? 'unknown';
 
   let primaryNavItems: NavItem[] = [];
-  if (currentUserType === 'superadmin') {
+  if (isSuperadminAuth(auth)) {
     primaryNavItems = election
       ? [
           { label: 'Definition', routerPath: routerPaths.electionDefinition },
@@ -66,7 +65,7 @@ export function NavigationScreen({
           { label: 'Smartcards', routerPath: routerPaths.smartcards },
         ]
       : [{ label: 'Definition', routerPath: routerPaths.electionDefinition }];
-  } else if (currentUserType === 'admin') {
+  } else if (isAdminAuth(auth)) {
     let primaryNavItemsUnfiltered: Array<NavItem | false> = [];
     if (areVvsg2AuthFlowsEnabled()) {
       primaryNavItemsUnfiltered = election
@@ -122,7 +121,7 @@ export function NavigationScreen({
         }
         secondaryNav={
           <React.Fragment>
-            {currentUserType === 'superadmin' && (
+            {isSuperadminAuth(auth) && (
               <React.Fragment>
                 <LinkButton small to={routerPaths.settings}>
                   Settings
@@ -132,13 +131,17 @@ export function NavigationScreen({
                 </LinkButton>
               </React.Fragment>
             )}
-            <Button onPress={lockMachine} small>
-              Lock Machine
-            </Button>
-            <UsbControllerButton
-              usbDriveEject={() => usbDriveEject(currentUserType)}
-              usbDriveStatus={usbDriveStatus}
-            />
+            {(isSuperadminAuth(auth) || isAdminAuth(auth)) && (
+              <React.Fragment>
+                <Button onPress={() => auth.logOut()} small>
+                  Lock Machine
+                </Button>
+                <UsbControllerButton
+                  usbDriveEject={() => usbDriveEject(auth.user.role)}
+                  usbDriveStatus={usbDriveStatus}
+                />
+              </React.Fragment>
+            )}
           </React.Fragment>
         }
       />

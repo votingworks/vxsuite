@@ -4,7 +4,13 @@ import path from 'path';
 import fileDownload from 'js-file-download';
 import { assert, usbstick, throwIllegalValue, sleep } from '@votingworks/utils';
 
-import { Modal, UsbControllerButton, Prose } from '@votingworks/ui';
+import {
+  Modal,
+  UsbControllerButton,
+  Prose,
+  isAdminAuth,
+  isSuperadminAuth,
+} from '@votingworks/ui';
 
 import { LogEventId } from '@votingworks/logging';
 import { PromiseOr } from '@votingworks/types';
@@ -51,14 +57,10 @@ export function SaveFileToUsb({
   fileType,
   promptToEjectUsb = false,
 }: Props): JSX.Element {
-  const {
-    usbDriveStatus,
-    usbDriveEject,
-    isOfficialResults,
-    currentUserSession,
-    logger,
-  } = useContext(AppContext);
-  assert(currentUserSession); // TODO(auth) should this check for a specific user type
+  const { usbDriveStatus, usbDriveEject, isOfficialResults, auth, logger } =
+    useContext(AppContext);
+  assert(isAdminAuth(auth) || isSuperadminAuth(auth)); // TODO(auth) should this check for a specific user type
+  const userRole = auth.user.role;
 
   const [currentState, setCurrentState] = useState(ModalState.INIT);
   const [errorMessage, setErrorMessage] = useState('');
@@ -93,7 +95,6 @@ export function SaveFileToUsb({
   }
 
   async function exportResults(openFileDialog: boolean) {
-    assert(currentUserSession); // TODO(auth) should this check for a specific user type
     setCurrentState(ModalState.SAVING);
 
     try {
@@ -126,7 +127,7 @@ export function SaveFileToUsb({
 
       setSavedFilename(filenameLocation);
       await sleep(2000);
-      await logger.log(LogEventId.FileSaved, currentUserSession.type, {
+      await logger.log(LogEventId.FileSaved, userRole, {
         disposition: 'success',
         message: `Successfully saved ${fileName} to ${filenameLocation} on the usb drive.`,
         fileType,
@@ -136,7 +137,7 @@ export function SaveFileToUsb({
     } catch (error) {
       assert(error instanceof Error);
       setErrorMessage(error.message);
-      await logger.log(LogEventId.FileSaved, currentUserSession.type, {
+      await logger.log(LogEventId.FileSaved, userRole, {
         disposition: 'failure',
         message: `Error saving ${fileName}: ${error.message}`,
         result: 'File not saved, error message shown to user.',
@@ -172,7 +173,7 @@ export function SaveFileToUsb({
             small={false}
             primary
             usbDriveStatus={usbDriveStatus}
-            usbDriveEject={() => usbDriveEject(currentUserSession.type)}
+            usbDriveEject={() => usbDriveEject(userRole)}
           />
           <LinkButton onPress={onClose}>Close</LinkButton>
         </React.Fragment>

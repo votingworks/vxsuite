@@ -8,13 +8,13 @@ import {
   ElectionDefinition,
   FullElectionTally,
   FullElectionExternalTally,
-  UserSession,
   AdjudicationId,
+  DippedSmartcardAuth,
 } from '@votingworks/types';
 import { usbstick, NullPrinter, Printer } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
 
-import { Smartcard } from '@votingworks/ui';
+import { Dipped } from '@votingworks/test-utils';
 import { AppContext } from '../src/contexts/app_context';
 import {
   SaveElection,
@@ -67,12 +67,9 @@ interface RenderInAppContextParams {
   ) => Promise<void>;
   fullElectionExternalTallies?: FullElectionExternalTally[];
   generateExportableTallies?: () => ExportableTallies;
-  currentUserSession?: UserSession;
-  attemptToAuthenticateAdminUser?: () => boolean;
-  lockMachine?: () => undefined;
+  auth?: DippedSmartcardAuth.Auth;
   machineConfig?: MachineConfig;
   hasCardReaderAttached?: boolean;
-  smartcard?: Smartcard;
   logger?: Logger;
 }
 
@@ -104,15 +101,12 @@ export function renderInAppContext(
     fullElectionExternalTallies = [],
     saveTranscribedValue = jest.fn(),
     generateExportableTallies = jest.fn(),
-    currentUserSession = { type: 'admin', authenticated: true },
-    attemptToAuthenticateAdminUser = jest.fn(),
-    lockMachine = jest.fn(),
+    auth = Dipped.fakeAdminAuth(),
     machineConfig = {
       machineId: '0000',
       codeVersion: '',
     },
     hasCardReaderAttached = true,
-    smartcard = { status: 'no_card' },
     logger = new Logger(LogSource.VxAdminFrontend),
   }: RenderInAppContextParams = {}
 ): RenderResult {
@@ -143,12 +137,9 @@ export function renderInAppContext(
         fullElectionExternalTallies,
         generateExportableTallies,
         saveTranscribedValue,
-        currentUserSession,
-        attemptToAuthenticateAdminUser,
-        lockMachine,
+        auth,
         machineConfig,
         hasCardReaderAttached,
-        smartcard,
         logger,
       }}
     >

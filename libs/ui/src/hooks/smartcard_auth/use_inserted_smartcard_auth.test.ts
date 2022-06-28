@@ -5,11 +5,6 @@ import {
   electionMinimalExhaustiveSampleDefinition,
 } from '@votingworks/fixtures';
 import {
-  fakeSuperadminAuth,
-  fakeVoterAuth,
-  fakeLoggedOutAuth,
-  fakeAdminAuth,
-  fakePollworkerAuth,
   makePollWorkerCard,
   makeSuperadminCard,
   fakeSuperadminUser,
@@ -21,23 +16,21 @@ import {
   fakeCardlessVoterUser,
 } from '@votingworks/test-utils';
 import {
-  ElectionDefinitionSchema,
-  err,
   PrecinctSelection,
   PrecinctSelectionKind,
   UserRole,
 } from '@votingworks/types';
 import { assert, MemoryCard, utcTimestamp } from '@votingworks/utils';
-import { CARD_POLLING_INTERVAL } from './use_smartcard';
 import {
-  isAdminAuth,
-  isCardlessVoterAuth,
-  isPollworkerAuth,
-  isSuperadminAuth,
+  CARD_POLLING_INTERVAL,
   isVoterAuth,
-  useSmartcardAuth,
+  isPollworkerAuth,
+  isCardlessVoterAuth,
+} from './auth_helpers';
+import {
+  useInsertedSmartcardAuth,
   VOTER_CARD_EXPIRATION_SECONDS,
-} from './use_smartcard_auth';
+} from './use_inserted_smartcard_auth';
 
 const allowedUserRoles: UserRole[] = [
   'superadmin',
@@ -55,14 +48,18 @@ const precinct: PrecinctSelection = {
 };
 const ballotStyle = election.ballotStyles[0];
 
-describe('useSmartcardAuth', () => {
+describe('useInsertedSmartcardAuth', () => {
   beforeEach(() => jest.useFakeTimers());
 
   it("returns logged_out auth when there's no card or a card error", async () => {
     const cardApi = new MemoryCard();
     cardApi.insertCard(undefined, undefined, 'error');
     const { result, waitForNextUpdate } = renderHook(() =>
-      useSmartcardAuth({ cardApi, allowedUserRoles, scope: {} })
+      useInsertedSmartcardAuth({
+        cardApi,
+        allowedUserRoles,
+        scope: {},
+      })
     );
     // Default before reading card is logged_out
     expect(result.current).toEqual({ status: 'logged_out', reason: 'no_card' });
@@ -85,7 +82,11 @@ describe('useSmartcardAuth', () => {
     const cardApi = new MemoryCard();
     cardApi.insertCard();
     const { result, waitForNextUpdate } = renderHook(() =>
-      useSmartcardAuth({ cardApi, allowedUserRoles, scope: {} })
+      useInsertedSmartcardAuth({
+        cardApi,
+        allowedUserRoles,
+        scope: {},
+      })
     );
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
@@ -107,25 +108,7 @@ describe('useSmartcardAuth', () => {
     const cardApi = new MemoryCard();
     cardApi.insertCard(makePollWorkerCard(electionHash));
     const { result, waitForNextUpdate } = renderHook(() =>
-      useSmartcardAuth({
-        cardApi,
-        allowedUserRoles: ['superadmin', 'admin'],
-        scope: { electionDefinition },
-      })
-    );
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
-    await waitForNextUpdate();
-    expect(result.current).toEqual({
-      status: 'logged_out',
-      reason: 'user_role_not_allowed',
-    });
-  });
-
-  it('returns logged_out auth when the user role is not allowed', async () => {
-    const cardApi = new MemoryCard();
-    cardApi.insertCard(makePollWorkerCard(electionHash));
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useSmartcardAuth({
+      useInsertedSmartcardAuth({
         cardApi,
         allowedUserRoles: ['superadmin', 'admin'],
         scope: { electionDefinition },
@@ -143,7 +126,11 @@ describe('useSmartcardAuth', () => {
     const cardApi = new MemoryCard();
     cardApi.insertCard(makePollWorkerCard(electionHash));
     const { result, waitForNextUpdate } = renderHook(() =>
-      useSmartcardAuth({ cardApi, allowedUserRoles, scope: {} })
+      useInsertedSmartcardAuth({
+        cardApi,
+        allowedUserRoles,
+        scope: {},
+      })
     );
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
@@ -157,7 +144,7 @@ describe('useSmartcardAuth', () => {
     const cardApi = new MemoryCard();
     cardApi.insertCard(makePollWorkerCard(electionHash));
     const { result, waitForNextUpdate } = renderHook(() =>
-      useSmartcardAuth({
+      useInsertedSmartcardAuth({
         cardApi,
         allowedUserRoles,
         scope: { electionDefinition: electionSample2Definition },
@@ -179,7 +166,7 @@ describe('useSmartcardAuth', () => {
       })
     );
     const { result, waitForNextUpdate } = renderHook(() =>
-      useSmartcardAuth({
+      useInsertedSmartcardAuth({
         cardApi,
         allowedUserRoles,
         scope: { electionDefinition, precinct },
@@ -197,7 +184,11 @@ describe('useSmartcardAuth', () => {
     const cardApi = new MemoryCard();
     cardApi.insertCard(makeVoterCard(election));
     const { result, waitForNextUpdate } = renderHook(() =>
-      useSmartcardAuth({ cardApi, allowedUserRoles, scope: {} })
+      useInsertedSmartcardAuth({
+        cardApi,
+        allowedUserRoles,
+        scope: {},
+      })
     );
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
@@ -211,7 +202,7 @@ describe('useSmartcardAuth', () => {
     const cardApi = new MemoryCard();
     cardApi.insertCard(makeVoterCard(election));
     const { result, waitForNextUpdate } = renderHook(() =>
-      useSmartcardAuth({
+      useInsertedSmartcardAuth({
         cardApi,
         allowedUserRoles,
         scope: {
@@ -232,7 +223,7 @@ describe('useSmartcardAuth', () => {
     const cardApi = new MemoryCard();
     cardApi.insertCard(makeVoterCard(election));
     const { result, waitForNextUpdate } = renderHook(() =>
-      useSmartcardAuth({
+      useInsertedSmartcardAuth({
         cardApi,
         allowedUserRoles,
         scope: {
@@ -255,7 +246,7 @@ describe('useSmartcardAuth', () => {
       makeVoterCard(election, { pr: election.precincts[1].id })
     );
     const { result, waitForNextUpdate } = renderHook(() =>
-      useSmartcardAuth({
+      useInsertedSmartcardAuth({
         cardApi,
         allowedUserRoles,
         scope: { electionDefinition, precinct },
@@ -273,7 +264,7 @@ describe('useSmartcardAuth', () => {
     const cardApi = new MemoryCard();
     cardApi.insertCard(makeVoterCard(election));
     const { result, waitForNextUpdate } = renderHook(() =>
-      useSmartcardAuth({
+      useInsertedSmartcardAuth({
         cardApi,
         allowedUserRoles,
         scope: {
@@ -291,7 +282,7 @@ describe('useSmartcardAuth', () => {
     const cardApi = new MemoryCard();
     cardApi.insertCard(makeVoterCard(election, { uz: 1 }));
     const { result, waitForNextUpdate } = renderHook(() =>
-      useSmartcardAuth({
+      useInsertedSmartcardAuth({
         cardApi,
         allowedUserRoles,
         scope: { electionDefinition, precinct },
@@ -309,7 +300,7 @@ describe('useSmartcardAuth', () => {
     const cardApi = new MemoryCard();
     cardApi.insertCard(makeVoterCard(election, { bp: 1 }));
     const { result, waitForNextUpdate } = renderHook(() =>
-      useSmartcardAuth({
+      useInsertedSmartcardAuth({
         cardApi,
         allowedUserRoles,
         scope: { electionDefinition, precinct },
@@ -327,7 +318,11 @@ describe('useSmartcardAuth', () => {
     const cardApi = new MemoryCard();
     cardApi.insertCard(makeSuperadminCard());
     const { result, waitForNextUpdate } = renderHook(() =>
-      useSmartcardAuth({ cardApi, allowedUserRoles, scope: {} })
+      useInsertedSmartcardAuth({
+        cardApi,
+        allowedUserRoles,
+        scope: {},
+      })
     );
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
@@ -340,15 +335,20 @@ describe('useSmartcardAuth', () => {
 
   it('returns logged_in auth for an admin card', async () => {
     const cardApi = new MemoryCard();
-    cardApi.insertCard(makeAdminCard(electionHash));
+    const passcode = '123456';
+    cardApi.insertCard(makeAdminCard(electionHash, passcode));
     const { result, waitForNextUpdate } = renderHook(() =>
-      useSmartcardAuth({ cardApi, allowedUserRoles, scope: {} })
+      useInsertedSmartcardAuth({
+        cardApi,
+        allowedUserRoles,
+        scope: {},
+      })
     );
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toMatchObject({
       status: 'logged_in',
-      user: fakeAdminUser({ electionHash }),
+      user: fakeAdminUser({ electionHash, passcode }),
       card: expect.any(Object),
     });
   });
@@ -357,7 +357,7 @@ describe('useSmartcardAuth', () => {
     const cardApi = new MemoryCard();
     cardApi.insertCard(makePollWorkerCard(electionHash));
     const { result, waitForNextUpdate } = renderHook(() =>
-      useSmartcardAuth({
+      useInsertedSmartcardAuth({
         cardApi,
         allowedUserRoles,
         scope: { electionDefinition },
@@ -377,7 +377,7 @@ describe('useSmartcardAuth', () => {
     const voterCard = makeVoterCard(election);
     cardApi.insertCard(voterCard);
     const { result, waitForNextUpdate } = renderHook(() =>
-      useSmartcardAuth({
+      useInsertedSmartcardAuth({
         cardApi,
         allowedUserRoles,
         scope: { electionDefinition, precinct },
@@ -403,7 +403,7 @@ describe('useSmartcardAuth', () => {
     const voterCard = makeVoterCard(election);
     cardApi.insertCard(voterCard);
     const { result, waitForNextUpdate } = renderHook(() =>
-      useSmartcardAuth({
+      useInsertedSmartcardAuth({
         cardApi,
         allowedUserRoles,
         scope: { electionDefinition, precinct },
@@ -426,7 +426,7 @@ describe('useSmartcardAuth', () => {
     const voterCard = makeVoterCard(election);
     cardApi.insertCard(voterCard);
     const { result, waitForNextUpdate } = renderHook(() =>
-      useSmartcardAuth({
+      useInsertedSmartcardAuth({
         cardApi,
         allowedUserRoles,
         scope: { electionDefinition, precinct },
@@ -445,7 +445,7 @@ describe('useSmartcardAuth', () => {
     const voterCard = makeVoterCard(election);
     cardApi.insertCard(voterCard);
     const { result, waitForNextUpdate } = renderHook(() =>
-      useSmartcardAuth({
+      useInsertedSmartcardAuth({
         cardApi,
         allowedUserRoles,
         scope: { electionDefinition, precinct },
@@ -470,7 +470,7 @@ describe('useSmartcardAuth', () => {
     const voterCard = makeVoterCard(election);
     cardApi.insertCard(voterCard);
     const { result, waitForNextUpdate } = renderHook(() =>
-      useSmartcardAuth({
+      useInsertedSmartcardAuth({
         cardApi,
         allowedUserRoles,
         scope: { electionDefinition, precinct },
@@ -491,7 +491,7 @@ describe('useSmartcardAuth', () => {
     const voterCard = makeVoterCard(election);
     cardApi.insertCard(voterCard);
     const { result, waitForNextUpdate } = renderHook(() =>
-      useSmartcardAuth({
+      useInsertedSmartcardAuth({
         cardApi,
         allowedUserRoles,
         scope: { electionDefinition, precinct },
@@ -515,7 +515,11 @@ describe('useSmartcardAuth', () => {
     const cardApi = new MemoryCard();
     cardApi.insertCard(makeSuperadminCard());
     const { result, waitForNextUpdate } = renderHook(() =>
-      useSmartcardAuth({ cardApi, allowedUserRoles, scope: {} })
+      useInsertedSmartcardAuth({
+        cardApi,
+        allowedUserRoles,
+        scope: {},
+      })
     );
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
@@ -535,7 +539,7 @@ describe('useSmartcardAuth', () => {
     const cardApi = new MemoryCard();
     cardApi.insertCard(makePollWorkerCard(electionHash));
     const { result, waitForNextUpdate } = renderHook(() =>
-      useSmartcardAuth({
+      useInsertedSmartcardAuth({
         cardApi,
         allowedUserRoles,
         scope: { electionDefinition },
@@ -602,184 +606,4 @@ describe('useSmartcardAuth', () => {
     await waitForNextUpdate();
     expect(result.current).toEqual({ status: 'logged_out', reason: 'no_card' });
   });
-});
-
-describe('Card interface', () => {
-  it('reads, writes, and clears stored data', async () => {
-    const cardApi = new MemoryCard();
-    cardApi.insertCard(makeSuperadminCard());
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useSmartcardAuth({ cardApi, allowedUserRoles, scope: {} })
-    );
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
-    await waitForNextUpdate();
-    assert(isSuperadminAuth(result.current));
-
-    // Initially, there's no data stored on the card, so reading should return undefined
-    expect(result.current.card.hasStoredData).toBe(false);
-    expect((await result.current.card.readStoredString()).ok()).toBeUndefined();
-    expect(
-      (await result.current.card.readStoredUint8Array()).ok()
-    ).toBeUndefined();
-    expect(
-      (
-        await result.current.card.readStoredObject(ElectionDefinitionSchema)
-      ).ok()
-    ).toBeUndefined();
-
-    // Try writing an object to the card
-    await result.current.card.writeStoredData(electionDefinition);
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
-    await waitForNextUpdate();
-
-    // Now reading should return the written data
-    expect(result.current.card.hasStoredData).toBe(true);
-    expect((await result.current.card.readStoredString()).ok()).toEqual(
-      JSON.stringify(electionDefinition)
-    );
-    expect(
-      (
-        await result.current.card.readStoredObject(ElectionDefinitionSchema)
-      ).ok()
-    ).toEqual(electionDefinition);
-    expect((await result.current.card.readStoredUint8Array()).ok()).toEqual(
-      new TextEncoder().encode(JSON.stringify(electionDefinition))
-    );
-
-    // Try writing a binary value to the card
-    await result.current.card.writeStoredData(Uint8Array.of(1, 2, 3));
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
-    await waitForNextUpdate();
-
-    // Reading should return the written data
-    expect((await result.current.card.readStoredString()).ok()).toEqual(
-      new TextDecoder().decode(Uint8Array.of(1, 2, 3))
-    );
-    expect(
-      (
-        await result.current.card.readStoredObject(ElectionDefinitionSchema)
-      ).ok()
-    ).toBeUndefined();
-    expect((await result.current.card.readStoredUint8Array()).ok()).toEqual(
-      Uint8Array.of(1, 2, 3)
-    );
-
-    // Next, clear the data
-    await result.current.card.clearStoredData();
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
-    await waitForNextUpdate();
-
-    // Data should read as undefined again
-    expect(result.current.card.hasStoredData).toBe(false);
-    expect((await result.current.card.readStoredString()).ok()).toBeUndefined();
-    expect(
-      (await result.current.card.readStoredUint8Array()).ok()
-    ).toBeUndefined();
-    expect(
-      (
-        await result.current.card.readStoredObject(ElectionDefinitionSchema)
-      ).ok()
-    ).toBeUndefined();
-  });
-
-  it('handles errors when reading, writing, or clearing data', async () => {
-    const cardApi = new MemoryCard();
-    cardApi.insertCard(makeSuperadminCard());
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useSmartcardAuth({ cardApi, allowedUserRoles, scope: {} })
-    );
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
-    await waitForNextUpdate();
-    assert(isSuperadminAuth(result.current));
-
-    const error = new Error('test error');
-
-    jest.spyOn(cardApi, 'readLongString').mockRejectedValue(error);
-    expect((await result.current.card.readStoredString()).err()).toEqual(error);
-
-    jest.spyOn(cardApi, 'readLongUint8Array').mockRejectedValue(error);
-    expect((await result.current.card.readStoredUint8Array()).err()).toEqual(
-      error
-    );
-
-    jest.spyOn(cardApi, 'readLongObject').mockResolvedValue(err(error));
-    expect(
-      (
-        await result.current.card.readStoredObject(ElectionDefinitionSchema)
-      ).err()
-    ).toEqual(error);
-
-    jest.spyOn(cardApi, 'writeLongObject').mockRejectedValue(error);
-    expect(
-      (await result.current.card.writeStoredData(electionDefinition)).err()
-    ).toEqual(error);
-
-    jest.spyOn(cardApi, 'writeLongUint8Array').mockRejectedValue(error);
-    expect(
-      (await result.current.card.writeStoredData(Uint8Array.of(1, 2, 3))).err()
-    ).toEqual(error);
-
-    expect((await result.current.card.clearStoredData()).err()).toEqual(error);
-  });
-
-  it('raises an error on concurrent writes', async () => {
-    const cardApi = new MemoryCard();
-    cardApi.insertCard(makeSuperadminCard());
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useSmartcardAuth({ cardApi, allowedUserRoles, scope: {} })
-    );
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
-    await waitForNextUpdate();
-    assert(isSuperadminAuth(result.current));
-
-    const [write1, write2] = await Promise.all([
-      result.current.card.writeStoredData(electionDefinition),
-      result.current.card.writeStoredData(electionDefinition),
-    ]);
-
-    expect(write1.isErr()).toBe(false);
-    expect(write2.isErr()).toBe(true);
-    expect(write2.err()?.message).toEqual('Card write in progress');
-
-    const [write3, clear4] = await Promise.all([
-      result.current.card.writeStoredData(electionDefinition),
-      result.current.card.clearStoredData(),
-    ]);
-    expect(write3.isErr()).toBe(false);
-    expect(clear4.isErr()).toBe(true);
-    expect(clear4.err()?.message).toEqual('Card write in progress');
-
-    // Make sure failed writes still release the lock
-    jest
-      .spyOn(cardApi, 'writeLongObject')
-      .mockRejectedValue(new Error('error'));
-    expect(
-      (await result.current.card.writeStoredData(electionDefinition)).isErr()
-    ).toBe(true);
-    expect((await result.current.card.clearStoredData()).isOk()).toBe(true);
-  });
-});
-
-test('isSuperadminAuth', () => {
-  expect(isSuperadminAuth(fakeSuperadminAuth())).toBe(true);
-  expect(isSuperadminAuth(fakeVoterAuth())).toBe(false);
-  expect(isSuperadminAuth(fakeLoggedOutAuth())).toBe(false);
-});
-
-test('isAdminAuth', () => {
-  expect(isAdminAuth(fakeAdminAuth())).toBe(true);
-  expect(isAdminAuth(fakeVoterAuth())).toBe(false);
-  expect(isAdminAuth(fakeLoggedOutAuth())).toBe(false);
-});
-
-test('isPollworkerAuth', () => {
-  expect(isPollworkerAuth(fakePollworkerAuth())).toBe(true);
-  expect(isPollworkerAuth(fakeVoterAuth())).toBe(false);
-  expect(isPollworkerAuth(fakeLoggedOutAuth())).toBe(false);
-});
-
-test('isVoterAuth', () => {
-  expect(isVoterAuth(fakeVoterAuth())).toBe(true);
-  expect(isVoterAuth(fakePollworkerAuth())).toBe(false);
-  expect(isVoterAuth(fakeLoggedOutAuth())).toBe(false);
 });

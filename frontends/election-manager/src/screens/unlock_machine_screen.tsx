@@ -7,6 +7,7 @@ import {
   Screen,
   Text,
 } from '@votingworks/ui';
+import { assert } from '@votingworks/utils';
 import React, { useState, useContext, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
 import { SECURITY_PIN_LENGTH } from '../config/globals';
@@ -31,10 +32,10 @@ export const EnteredCode = styled.div`
 `;
 
 export function UnlockMachineScreen(): JSX.Element {
-  const { attemptToAuthenticateAdminUser, electionDefinition, machineConfig } =
-    useContext(AppContext);
+  const { auth, electionDefinition, machineConfig } = useContext(AppContext);
+  assert(auth.status === 'checking_passcode');
+
   const [currentPasscode, setCurrentPasscode] = useState('');
-  const [showError, setShowError] = useState(false);
   const handleNumberEntry = useCallback((digit: number) => {
     setCurrentPasscode((prev) =>
       `${prev}${digit}`.slice(0, SECURITY_PIN_LENGTH)
@@ -49,11 +50,10 @@ export function UnlockMachineScreen(): JSX.Element {
 
   useEffect(() => {
     if (currentPasscode.length === SECURITY_PIN_LENGTH) {
-      const success = attemptToAuthenticateAdminUser(currentPasscode);
-      setShowError(!success);
+      auth.checkPasscode(currentPasscode);
       setCurrentPasscode('');
     }
-  }, [currentPasscode, attemptToAuthenticateAdminUser]);
+  }, [currentPasscode, auth]);
 
   const currentPasscodeDisplayString = '•'
     .repeat(currentPasscode.length)
@@ -64,9 +64,10 @@ export function UnlockMachineScreen(): JSX.Element {
   let primarySentence: JSX.Element = (
     <p>Enter the card security code to unlock.</p>
   );
-  if (showError) {
+  if (auth.passcodeError === 'wrong_passcode') {
     primarySentence = <Text warning>Invalid code. Please try again.</Text>;
   }
+
   return (
     <Screen>
       <Main centerChild>
