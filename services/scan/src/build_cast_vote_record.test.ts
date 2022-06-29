@@ -362,14 +362,7 @@ test('generates a CVR from a completed HMPB page', () => {
         "22",
       ],
       "_ballotId": "abcdefg",
-      "_ballotImages": Array [
-        Object {
-          "normalized": "normalized front",
-        },
-        Object {
-          "normalized": "normalized back",
-        },
-      ],
+      "_ballotImages": Array [],
       "_ballotStyleId": "1",
       "_ballotType": "standard",
       "_batchId": "1234",
@@ -597,14 +590,7 @@ test('generates a CVR from a completed absentee HMPB page', () => {
         "22",
       ],
       "_ballotId": "abcdefg",
-      "_ballotImages": Array [
-        Object {
-          "normalized": "front normalized",
-        },
-        Object {
-          "normalized": "back normalized",
-        },
-      ],
+      "_ballotImages": Array [],
       "_ballotStyleId": "1",
       "_ballotType": "absentee",
       "_batchId": "1234",
@@ -730,14 +716,7 @@ test('generates a CVR from an adjudicated HMPB page', () => {
         "22",
       ],
       "_ballotId": "abcdefg",
-      "_ballotImages": Array [
-        Object {
-          "normalized": "normalized back",
-        },
-        Object {
-          "normalized": "normalized front",
-        },
-      ],
+      "_ballotImages": Array [],
       "_ballotStyleId": "1",
       "_ballotType": "standard",
       "_batchId": "1234",
@@ -1096,14 +1075,7 @@ test('generates a CVR from an adjudicated uninterpreted HMPB page', () => {
         "23",
       ],
       "_ballotId": "abcdefg",
-      "_ballotImages": Array [
-        Object {
-          "normalized": "normalized front",
-        },
-        Object {
-          "normalized": "normalized back",
-        },
-      ],
+      "_ballotImages": Array [],
       "_ballotStyleId": "1",
       "_ballotType": "standard",
       "_batchId": "1234",
