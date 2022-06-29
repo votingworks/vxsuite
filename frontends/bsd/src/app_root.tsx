@@ -554,6 +554,11 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
             codeVersion={machineConfig.codeVersion}
             machineId={machineConfig.machineId}
           />
+          <MainNav>
+            <Button small onPress={() => auth.logOut()}>
+              Lock Machine
+            </Button>
+          </MainNav>
         </Screen>
       </AppContext.Provider>
     );
