@@ -875,20 +875,10 @@ export class Store {
             normalized: fs.readFileSync(frontFilenames.normalized, 'utf-8'),
           });
         }
-        if (frontFilenames?.original) {
-          frontImages.push({
-            original: fs.readFileSync(frontFilenames.original, 'utf-8'),
-          });
-        }
         const backFilenames = this.getBallotFilenames(id, 'back');
         if (backFilenames?.normalized) {
           backImages.push({
             normalized: fs.readFileSync(backFilenames.normalized, 'utf-8'),
-          });
-        }
-        if (backFilenames?.original) {
-          backImages.push({
-            original: fs.readFileSync(backFilenames.original, 'utf-8'),
           });
         }
       }
