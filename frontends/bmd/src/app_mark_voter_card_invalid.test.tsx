@@ -70,7 +70,7 @@ describe('Mark Card Void when voter is idle too long', () => {
     // User action removes Idle Screen
     fireEvent.click(screen.getByText('Yes, I’m still voting.'));
     fireEvent.mouseDown(document);
-    await advanceTimersAndPromises();
+    await advanceTimersAndPromises(0.2);
     expect(screen.queryByText(idleScreenCopy)).toBeFalsy();
 
     // Elapse idle timeout
@@ -134,7 +134,7 @@ describe('Mark Card Void when voter is idle too long', () => {
     screen.getByText('Voter session activated: 12');
 
     card.removeCard();
-    await advanceTimersAndPromises();
+    await advanceTimersAndPromises(0.2);
     screen.getByText(/Center Springfield/);
     screen.getByText('Start Voting');
 
@@ -147,7 +147,7 @@ describe('Mark Card Void when voter is idle too long', () => {
     // User action removes Idle Screen
     fireEvent.click(screen.getByText('Yes, I’m still voting.'));
     fireEvent.mouseDown(document);
-    await advanceTimersAndPromises();
+    await advanceTimersAndPromises(0.2);
     expect(screen.queryByText(idleScreenCopy)).toBeFalsy();
 
     // Elapse idle timeout

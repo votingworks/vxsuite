@@ -40,6 +40,7 @@ import { fakePrinter } from '../test/helpers/fake_printer';
 import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
 import { MarkAndPrint } from './config/types';
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from './config/globals';
+import { authenticateAdminCard } from '../test/test_utils';
 
 beforeEach(() => {
   jest.useFakeTimers();
@@ -86,7 +87,7 @@ it('MarkAndPrint end-to-end flow', async () => {
 
   // Configure with Admin Card
   card.insertCard(adminCard, electionDefinition.electionData);
-  await advanceTimersAndPromises();
+  await authenticateAdminCard();
   fireEvent.click(screen.getByText('Load Election Definition'));
 
   await advanceTimersAndPromises();
@@ -101,7 +102,7 @@ it('MarkAndPrint end-to-end flow', async () => {
 
   // Configure election with Admin Card
   card.insertCard(adminCard, electionDefinition.electionData);
-  await advanceTimersAndPromises();
+  await authenticateAdminCard();
   screen.getByLabelText('Precinct');
   screen.queryByText(`Election ID: ${expectedElectionHash}`);
   screen.queryByText('Machine ID: 000');
@@ -404,7 +405,7 @@ it('MarkAndPrint end-to-end flow', async () => {
 
   // Unconfigure with Admin Card
   card.insertCard(adminCard, electionDefinition.electionData);
-  await advanceTimersAndPromises();
+  await authenticateAdminCard();
   screen.getByText('Election definition is loaded.');
   fireEvent.click(screen.getByText('Unconfigure Machine'));
   await advanceTimersAndPromises();

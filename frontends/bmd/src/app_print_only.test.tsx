@@ -32,6 +32,7 @@ import * as GLOBALS from './config/globals';
 import { fakePrinter } from '../test/helpers/fake_printer';
 import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
 import { PrintOnly } from './config/types';
+import { authenticateAdminCard } from '../test/test_utils';
 
 beforeEach(() => {
   window.location.href = '/';
@@ -73,7 +74,7 @@ test('PrintOnly flow', async () => {
 
   // Configure with Admin Card
   card.insertCard(adminCard, electionData);
-  await advanceTimersAndPromises();
+  await authenticateAdminCard();
   fireEvent.click(screen.getByText('Load Election Definition'));
 
   await advanceTimersAndPromises();
@@ -88,7 +89,7 @@ test('PrintOnly flow', async () => {
 
   // Configure election with Admin Card
   card.insertCard(adminCard, electionData);
-  await advanceTimersAndPromises();
+  await authenticateAdminCard();
   screen.getByLabelText('Precinct');
 
   // Select precinct
@@ -130,7 +131,7 @@ test('PrintOnly flow', async () => {
 
   // Set to Live Mode
   card.insertCard(adminCard, electionData);
-  await advanceTimersAndPromises();
+  await authenticateAdminCard();
   expect(window.document.documentElement.style.fontSize).toBe('28px');
   fireEvent.click(screen.getByText('Live Election Mode'));
 
@@ -368,7 +369,7 @@ test('PrintOnly flow', async () => {
 
   // Unconfigure with Admin Card
   card.insertCard(adminCard, electionData);
-  await advanceTimersAndPromises();
+  await authenticateAdminCard();
   screen.getByText('Election definition is loaded.');
   fireEvent.click(screen.getByText('Unconfigure Machine'));
   await advanceTimersAndPromises();
@@ -404,7 +405,7 @@ test('PrintOnly retains app mode when unconfigured', async () => {
   async function configure(): Promise<void> {
     // Configure with Admin Card
     card.insertCard(adminCard, electionData);
-    await advanceTimersAndPromises();
+    await authenticateAdminCard();
     fireEvent.click(screen.getByText('Load Election Definition'));
 
     await advanceTimersAndPromises();
@@ -442,7 +443,7 @@ test('PrintOnly retains app mode when unconfigured', async () => {
   async function unconfigure(): Promise<void> {
     // Unconfigure with Admin Card
     card.insertCard(adminCard, electionData);
-    await advanceTimersAndPromises();
+    await authenticateAdminCard();
     screen.getByText('Election definition is loaded.');
     fireEvent.click(screen.getByText('Unconfigure Machine'));
     await advanceTimersAndPromises();
@@ -507,7 +508,7 @@ test('PrintOnly prompts to change to live mode on election day', async () => {
 
   // Configure with Admin Card
   card.insertCard(adminCard, electionDefinition.electionData);
-  await advanceTimersAndPromises();
+  await authenticateAdminCard();
   fireEvent.click(screen.getByText('Load Election Definition'));
 
   await advanceTimersAndPromises();

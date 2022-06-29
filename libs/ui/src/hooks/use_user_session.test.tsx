@@ -519,24 +519,6 @@ test('basic persist authentication flow works as expected', () => {
       disposition: 'failure',
     })
   );
-
-  // An admin card without a pin is immediately authenticated
-  smartcard = fakeSmartcard({
-    data: makeAdminCard(electionSampleDefinition.electionHash),
-  });
-  rerender();
-  expect(result.current.currentUserSession).toStrictEqual({
-    type: 'admin',
-    authenticated: true,
-  });
-  expect(logSpy).toHaveBeenCalledTimes(14);
-  expect(logSpy).toHaveBeenLastCalledWith(
-    LogEventId.UserSessionActivationAttempt,
-    'admin',
-    expect.objectContaining({
-      disposition: 'success',
-    })
-  );
 });
 
 test('basic flow with no persistance of authentication works as expected', () => {
@@ -858,67 +840,12 @@ test('basic flow with no persistance of authentication works as expected', () =>
     })
   );
 
-  // An admin card without a pin is immediately authenticated
-  smartcard = fakeSmartcard({
-    data: makeAdminCard(electionSampleDefinition.electionHash),
-  });
-  rerender();
-  expect(result.current.currentUserSession).toStrictEqual({
-    type: 'admin',
-    authenticated: true,
+  act(() => {
+    const attemptResult =
+      result.current.attemptToAuthenticateAdminUser('123456');
+    expect(attemptResult).toBe(false);
   });
   expect(logSpy).toHaveBeenCalledTimes(20);
-  expect(logSpy).toHaveBeenLastCalledWith(
-    LogEventId.UserSessionActivationAttempt,
-    'admin',
-    expect.objectContaining({
-      disposition: 'success',
-    })
-  );
-  // Attempting to authenticate an admin card without a pin fails
-  act(() => {
-    const attemptResult =
-      result.current.attemptToAuthenticateAdminUser('123456');
-    expect(attemptResult).toBe(false);
-  });
-  expect(result.current.currentUserSession).toStrictEqual({
-    type: 'admin',
-    authenticated: false,
-  });
-  expect(logSpy).toHaveBeenCalledTimes(22);
-  expect(logSpy).toHaveBeenNthCalledWith(
-    21,
-    LogEventId.AdminAuthenticationTwoFactor,
-    'unknown',
-    expect.objectContaining({
-      disposition: 'failure',
-    })
-  );
-  expect(logSpy).toHaveBeenLastCalledWith(
-    LogEventId.AdminCardInserted,
-    'admin',
-    expect.objectContaining({
-      disposition: 'na',
-    })
-  );
-
-  smartcard = { status: 'no_card' };
-  rerender();
-  expect(result.current.currentUserSession).toStrictEqual(undefined);
-  expect(logSpy).toHaveBeenCalledTimes(23);
-  expect(logSpy).toHaveBeenLastCalledWith(
-    LogEventId.UserLoggedOut,
-    'admin',
-    expect.objectContaining({
-      disposition: 'success',
-    })
-  );
-  act(() => {
-    const attemptResult =
-      result.current.attemptToAuthenticateAdminUser('123456');
-    expect(attemptResult).toBe(false);
-  });
-  expect(logSpy).toHaveBeenCalledTimes(24);
   expect(logSpy).toHaveBeenLastCalledWith(
     LogEventId.AdminAuthenticationTwoFactor,
     'unknown',

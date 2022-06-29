@@ -35,7 +35,7 @@ export function makeAdminCard(
   return {
     t: 'admin',
     h: electionHash,
-    p: pin,
+    p: pin ?? '123456',
   };
 }
 

@@ -1,14 +1,14 @@
 import React from 'react';
 import { MemoryCard, MemoryHardware, MemoryStorage } from '@votingworks/utils';
 import { makeAdminCard } from '@votingworks/test-utils';
-import { fireEvent, screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen } from '@testing-library/react';
 import { electionSample2Definition } from '@votingworks/fixtures';
 import {
   setElectionInStorage,
   setStateInStorage,
 } from '../test/helpers/election';
 import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
-import { render } from '../test/test_utils';
+import { authenticateAdminCard, render } from '../test/test_utils';
 import { App } from './app';
 import { advanceTimersAndPromises } from '../test/helpers/smartcards';
 
@@ -44,10 +44,8 @@ test('replacing a loaded election with one from a card', async () => {
     makeAdminCard(electionSample2Definition.electionHash),
     electionSample2Definition.electionData
   );
-  await advanceTimersAndPromises();
-  await waitFor(() =>
-    screen.getByText('Admin Card is not configured for this election')
-  );
+  await authenticateAdminCard();
+  await screen.findByText('Admin Card is not configured for this election');
 
   // unconfigure
   fireEvent.click(screen.getByText('Remove Current Election and All Data'));
@@ -60,7 +58,7 @@ test('replacing a loaded election with one from a card', async () => {
     makeAdminCard(electionSample2Definition.electionHash),
     electionSample2Definition.electionData
   );
-  await advanceTimersAndPromises();
+  await authenticateAdminCard();
 
   // load new election
   await screen.findByText('Election Admin Actions');
