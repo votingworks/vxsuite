@@ -1,8 +1,8 @@
 import {
   BallotId,
-  BallotImage,
   BallotLocale,
   BallotStyleId,
+  InlineBallotImage,
   PrecinctId,
 } from './election';
 import { Dictionary } from './generic';
@@ -15,11 +15,12 @@ export interface CastVoteRecord
     | number
     | number[]
     | BallotLocale
-    | BallotImage[]
+    | InlineBallotImage[]
+    | Array<BallotPageLayout[]>
   > {
   readonly _precinctId: PrecinctId;
   readonly _ballotId?: BallotId;
-  readonly _ballotImages?: BallotImage[];
+  readonly _ballotImages?: InlineBallotImage[];
   readonly _ballotStyleId: BallotStyleId;
   readonly _ballotType: 'absentee' | 'provisional' | 'standard';
   readonly _batchId: string;
