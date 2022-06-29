@@ -51,6 +51,7 @@ import {
   usePrevious,
   useInsertedSmartcardAuth,
   useUsbDrive,
+  CARD_POLLING_INTERVAL,
 } from '@votingworks/ui';
 import { Ballot } from './components/ballot';
 import * as GLOBALS from './config/globals';
@@ -85,6 +86,7 @@ import { ScreenReader } from './utils/ScreenReader';
 import { ReplaceElectionScreen } from './pages/replace_election_screen';
 import { CardErrorScreen } from './pages/card_error_screen';
 import { SuperAdminScreen } from './pages/superadmin_screen';
+import { UnlockAdminScreen } from './pages/unlock_admin_screen';
 
 interface UserState {
   userSettings: UserSettings;
@@ -596,7 +598,7 @@ export function AppRoot({
         dispatchAppState({ type: 'finishWritingLongValue' });
       }
     },
-    GLOBALS.CARD_POLLING_INTERVAL,
+    CARD_POLLING_INTERVAL,
     true
   );
 
@@ -732,6 +734,9 @@ export function AppRoot({
         useEffectToggleLargeDisplay={useEffectToggleLargeDisplay}
       />
     );
+  }
+  if (auth.status === 'checking_passcode') {
+    return <UnlockAdminScreen auth={auth} />;
   }
   if (isSuperadminAuth(auth)) {
     return (
