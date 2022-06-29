@@ -9,7 +9,7 @@ import {
   readBallotPackageFromFile,
   readBallotPackageFromFilePointer,
 } from '@votingworks/utils';
-import { Screen, Main } from '@votingworks/ui';
+import { Screen, Main, isAdminAuth } from '@votingworks/ui';
 import { LogEventId } from '@votingworks/logging';
 import * as config from '../api/config';
 import { addTemplates, doneTemplates } from '../api/hmpb';
@@ -25,9 +25,9 @@ interface Props {
 export function LoadElectionScreen({
   setElectionDefinition,
 }: Props): JSX.Element {
-  const { currentUserSession, logger } = useContext(AppContext);
-  assert(currentUserSession);
-  const currentUserType = currentUserSession.type;
+  const { auth, logger } = useContext(AppContext);
+  assert(isAdminAuth(auth));
+  const userRole = auth.user.role;
   const [currentUploadingBallotIndex, setCurrentUploadingBallotIndex] =
     useState(-1);
   const [totalTemplates, setTotalTemplates] = useState(0);
@@ -40,7 +40,7 @@ export function LoadElectionScreen({
   const [isLoadingTemplates, setLoadingTemplates] = useState(false);
 
   function handleBallotLoading(pkg: BallotPackage) {
-    addTemplates(pkg, logger, currentUserType)
+    addTemplates(pkg, logger, userRole)
       .on('configuring', () => {
         setCurrentUploadingBallotIndex(0);
         setTotalTemplates(pkg.ballots.length);
@@ -64,7 +64,7 @@ export function LoadElectionScreen({
       .on('completed', async () => {
         setLoadingTemplates(true);
         await doneTemplates();
-        await logger.log(LogEventId.ScannerConfigured, currentUserType, {
+        await logger.log(LogEventId.ScannerConfigured, userRole, {
           message: 'Scanner successfully configured for ballot package.',
           disposition: 'success',
         });
@@ -84,7 +84,7 @@ export function LoadElectionScreen({
           const result = safeParseElectionDefinition(electionData);
 
           if (result.isErr()) {
-            await logger.log(LogEventId.ElectionConfigured, currentUserType, {
+            await logger.log(LogEventId.ElectionConfigured, userRole, {
               message: 'Election definition failed to be read from usb.',
               disposition: 'failure',
               error: result.err().message,
@@ -103,29 +103,21 @@ export function LoadElectionScreen({
     } else {
       try {
         const ballotPackage = await readBallotPackageFromFile(file);
-        await logger.log(
-          LogEventId.BallotPackagedLoadedFromUsb,
-          currentUserType,
-          {
-            message:
-              'Ballot package successfully loaded from Usb, now configuring machine for ballot package...',
-            disposition: 'success',
-          }
-        );
+        await logger.log(LogEventId.BallotPackagedLoadedFromUsb, userRole, {
+          message:
+            'Ballot package successfully loaded from Usb, now configuring machine for ballot package...',
+          disposition: 'success',
+        });
         handleBallotLoading(ballotPackage);
       } catch (error) {
         assert(error instanceof Error);
-        await logger.log(
-          LogEventId.BallotPackagedLoadedFromUsb,
-          currentUserType,
-          {
-            message: 'Error reading ballot package from USB.',
-            error: error.message,
-            result:
-              'User shown error, machine not configured for ballot package.',
-            disposition: 'failure',
-          }
-        );
+        await logger.log(LogEventId.BallotPackagedLoadedFromUsb, userRole, {
+          message: 'Error reading ballot package from USB.',
+          error: error.message,
+          result:
+            'User shown error, machine not configured for ballot package.',
+          disposition: 'failure',
+        });
         throw error;
       }
     }
@@ -135,29 +127,20 @@ export function LoadElectionScreen({
     // All automatic file imports will be on zip packages
     try {
       const ballotPackage = await readBallotPackageFromFilePointer(file);
-      await logger.log(
-        LogEventId.BallotPackagedLoadedFromUsb,
-        currentUserType,
-        {
-          message:
-            'Ballot package successfully loaded from Usb, now configuring machine for ballot package...',
-          disposition: 'success',
-        }
-      );
+      await logger.log(LogEventId.BallotPackagedLoadedFromUsb, userRole, {
+        message:
+          'Ballot package successfully loaded from Usb, now configuring machine for ballot package...',
+        disposition: 'success',
+      });
       handleBallotLoading(ballotPackage);
     } catch (error) {
       assert(error instanceof Error);
-      await logger.log(
-        LogEventId.BallotPackagedLoadedFromUsb,
-        currentUserType,
-        {
-          message: 'Error reading ballot package from USB.',
-          error: error.message,
-          result:
-            'User shown error, machine not configured for ballot package.',
-          disposition: 'failure',
-        }
-      );
+      await logger.log(LogEventId.BallotPackagedLoadedFromUsb, userRole, {
+        message: 'Error reading ballot package from USB.',
+        error: error.message,
+        result: 'User shown error, machine not configured for ballot package.',
+        disposition: 'failure',
+      });
       throw error;
     }
   }

@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import path from 'path';
-import { Modal } from '@votingworks/ui';
+import { isAdminAuth, isSuperadminAuth, Modal } from '@votingworks/ui';
 import {
   assert,
   usbstick,
@@ -35,14 +35,10 @@ enum ModalState {
 }
 
 export function ExportLogsModal({ onClose, logFileType }: Props): JSX.Element {
-  const {
-    usbDriveStatus,
-    currentUserSession,
-    logger,
-    electionDefinition,
-    machineConfig,
-  } = useContext(AppContext);
-  assert(currentUserSession); // TODO(auth) should this check for a specific user type
+  const { usbDriveStatus, auth, logger, electionDefinition, machineConfig } =
+    useContext(AppContext);
+  assert(isAdminAuth(auth) || isSuperadminAuth(auth));
+  const userRole = auth.user.role;
 
   const [currentState, setCurrentState] = useState(ModalState.Init);
   const [errorMessage, setErrorMessage] = useState('');
@@ -53,7 +49,6 @@ export function ExportLogsModal({ onClose, logFileType }: Props): JSX.Element {
 
   useEffect(() => {
     async function checkLogFile() {
-      assert(currentUserSession);
       if (window.kiosk) {
         const allLogs = await window.kiosk.getFileSystemEntries(
           LOGS_ROOT_LOCATION
@@ -61,38 +56,29 @@ export function ExportLogsModal({ onClose, logFileType }: Props): JSX.Element {
         const vxLogFile = allLogs.filter((f) => f.name === `${LOG_NAME}.log`);
         if (vxLogFile.length > 0) {
           setFoundLogFile(true);
-          await logger.log(
-            LogEventId.ExportLogFileFound,
-            currentUserSession.type,
-            {
-              disposition: 'success',
-              message:
-                'Successfully located vx-logs.log file on machine to export.',
-            }
-          );
+          await logger.log(LogEventId.ExportLogFileFound, userRole, {
+            disposition: 'success',
+            message:
+              'Successfully located vx-logs.log file on machine to export.',
+          });
         } else {
           setFoundLogFile(false);
-          await logger.log(
-            LogEventId.ExportLogFileFound,
-            currentUserSession.type,
-            {
-              disposition: 'failure',
-              message:
-                'Could not locate vx-logs.log file on machine. Machine is not configured for production use.',
-              result: 'Logs are not exportable.',
-            }
-          );
+          await logger.log(LogEventId.ExportLogFileFound, userRole, {
+            disposition: 'failure',
+            message:
+              'Could not locate vx-logs.log file on machine. Machine is not configured for production use.',
+            result: 'Logs are not exportable.',
+          });
         }
         setIsLocatingLogFile(false);
       }
     }
     void checkLogFile();
-  }, [currentUserSession, logger]);
+  }, [userRole, logger]);
   const defaultFilename = generateLogFilename('vx-logs', logFileType);
 
   async function exportResults(openFileDialog: boolean) {
     assert(window.kiosk);
-    assert(currentUserSession); // TODO(auth) should this check for a specific user type
     setCurrentState(ModalState.Saving);
 
     try {
@@ -112,7 +98,7 @@ export function ExportLogsModal({ onClose, logFileType }: Props): JSX.Element {
             rawLogFile,
             machineConfig.machineId,
             machineConfig.codeVersion,
-            currentUserSession.type
+            userRole
           );
           break;
         }
@@ -143,7 +129,7 @@ export function ExportLogsModal({ onClose, logFileType }: Props): JSX.Element {
 
       setSavedFilename(filenameLocation);
       await new Promise((resolve) => setTimeout(resolve, 2000));
-      await logger.log(LogEventId.FileSaved, currentUserSession.type, {
+      await logger.log(LogEventId.FileSaved, userRole, {
         disposition: 'success',
         message: `Successfully saved log file to ${filenameLocation} on the usb drive.`,
         fileType: 'logs',
@@ -153,7 +139,7 @@ export function ExportLogsModal({ onClose, logFileType }: Props): JSX.Element {
     } catch (error) {
       assert(error instanceof Error);
       setErrorMessage(error.message);
-      await logger.log(LogEventId.FileSaved, currentUserSession.type, {
+      await logger.log(LogEventId.FileSaved, userRole, {
         disposition: 'failure',
         message: `Error saving log file: ${error.message}`,
         result: 'File not saved, error message shown to user.',

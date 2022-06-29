@@ -65,7 +65,7 @@ describe('useDippedSmartcardAuth', () => {
     expect(result.current).toEqual({
       status: 'checking_passcode',
       user,
-      passcodeError: undefined,
+      wrongPasscodeEntered: undefined,
       checkPasscode: expect.any(Function),
     });
 
@@ -78,7 +78,7 @@ describe('useDippedSmartcardAuth', () => {
     expect(result.current).toMatchObject({
       status: 'checking_passcode',
       user,
-      passcodeError: 'wrong_passcode',
+      wrongPasscodeEntered: true,
     });
 
     // Check the correct passcode

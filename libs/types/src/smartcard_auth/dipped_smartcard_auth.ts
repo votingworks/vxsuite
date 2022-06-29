@@ -14,7 +14,7 @@ export interface CheckingPasscode {
   readonly status: 'checking_passcode';
   readonly user: AdminUser;
   readonly checkPasscode: (passcode: string) => void;
-  readonly passcodeError?: 'wrong_passcode';
+  readonly wrongPasscodeEntered?: true;
 }
 
 export interface RemoveCard {

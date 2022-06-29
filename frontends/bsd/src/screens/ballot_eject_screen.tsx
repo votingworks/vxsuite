@@ -8,7 +8,13 @@ import {
 } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
 import { assert } from '@votingworks/utils';
-import { ElectionInfoBar, Main, Screen, Text } from '@votingworks/ui';
+import {
+  ElectionInfoBar,
+  isAdminAuth,
+  Main,
+  Screen,
+  Text,
+} from '@votingworks/ui';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { fetchNextBallotSheetToReview } from '../api/hmpb';
@@ -81,13 +87,13 @@ export function BallotEjectScreen({
   continueScanning,
   isTestMode,
 }: Props): JSX.Element {
-  const { currentUserSession, logger, electionDefinition, machineConfig } =
+  const { auth, logger, electionDefinition, machineConfig } =
     useContext(AppContext);
   const [reviewInfo, setReviewInfo] =
     useState<Scan.GetNextReviewSheetResponse>();
   const [ballotState, setBallotState] = useState<EjectState>();
-  assert(currentUserSession);
-  const currentUserType = currentUserSession.type;
+  assert(isAdminAuth(auth));
+  const userRole = auth.user.role;
 
   useEffect(() => {
     void (async () => {
@@ -124,7 +130,7 @@ export function BallotEjectScreen({
       (e) => e === frontInterpretation.type || e === backInterpretation.type
     );
     if (errorInterpretations.length > 0) {
-      void logger.log(LogEventId.ScanAdjudicationInfo, currentUserType, {
+      void logger.log(LogEventId.ScanAdjudicationInfo, userRole, {
         message:
           'Sheet scanned that has unresolvable errors. Sheet must be removed to continue scanning.',
         adjudicationTypes: errorInterpretations.join(', '),
@@ -149,7 +155,7 @@ export function BallotEjectScreen({
           adjudicationTypes.add(reason);
         }
       }
-      void logger.log(LogEventId.ScanAdjudicationInfo, currentUserType, {
+      void logger.log(LogEventId.ScanAdjudicationInfo, userRole, {
         message:
           'Sheet scanned has warnings (ex: undervotes or overvotes). The user can either tabulate it as is or remove the ballot to continue scanning.',
         adjudicationTypes: [...adjudicationTypes].join(', '),
@@ -214,7 +220,7 @@ export function BallotEjectScreen({
         setBackMarkAdjudications([]);
       }
     }
-  }, [reviewInfo, logger, currentUserType]);
+  }, [reviewInfo, logger, userRole]);
 
   const onAdjudicationComplete = useCallback(
     (
@@ -240,7 +246,7 @@ export function BallotEjectScreen({
         !!backMarkAdjudications ||
         !!reviewInfo?.interpreted.back.adjudicationFinishedAt;
       if (frontAdjudicationComplete && backAdjudicationComplete) {
-        await logger.log(LogEventId.ScanAdjudicationInfo, currentUserType, {
+        await logger.log(LogEventId.ScanAdjudicationInfo, userRole, {
           message:
             'Sheet does not actually require adjudication, system will automatically accept and continue scanning.',
         });
@@ -258,7 +264,7 @@ export function BallotEjectScreen({
     reviewInfo?.interpreted.back.adjudicationFinishedAt,
     reviewInfo?.interpreted.front.adjudicationFinishedAt,
     logger,
-    currentUserType,
+    userRole,
   ]);
 
   if (!reviewInfo) {

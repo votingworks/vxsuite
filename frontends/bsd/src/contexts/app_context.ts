@@ -1,5 +1,5 @@
 import { LoggingUserRole, LogSource, Logger } from '@votingworks/logging';
-import { ElectionDefinition, UserSession } from '@votingworks/types';
+import { DippedSmartcardAuth, ElectionDefinition } from '@votingworks/types';
 import { MemoryStorage, Storage, usbstick } from '@votingworks/utils';
 import { createContext } from 'react';
 import { MachineConfig } from '../config/types';
@@ -11,8 +11,7 @@ export interface AppContextInterface {
   electionDefinition?: ElectionDefinition;
   electionHash?: string;
   storage: Storage;
-  lockMachine: () => void;
-  currentUserSession?: UserSession;
+  auth: DippedSmartcardAuth.Auth;
   logger: Logger;
 }
 
@@ -26,9 +25,12 @@ const appContext: AppContextInterface = {
   electionDefinition: undefined,
   electionHash: undefined,
   storage: new MemoryStorage(),
-  lockMachine: () => undefined,
-  currentUserSession: undefined,
   logger: new Logger(LogSource.VxCentralScanFrontend),
+  auth: {
+    status: 'logged_out',
+    reason: 'machine_locked',
+    bootstrapAuthenticatedAdminSession: () => undefined,
+  },
 };
 
 export const AppContext = createContext(appContext);

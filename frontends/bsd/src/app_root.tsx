@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import { Route, Switch, useHistory } from 'react-router-dom';
 import {
-  UserRole,
   ElectionDefinition,
   MarkThresholds,
   Optional,
@@ -21,6 +20,7 @@ import {
 import {
   ElectionInfoBar,
   fontSizeTheme,
+  isSuperadminAuth,
   Main,
   Prose,
   RebootFromUsbButton,
@@ -30,9 +30,8 @@ import {
   Text,
   UsbControllerButton,
   useDevices,
-  useSmartcard,
+  useDippedSmartcardAuth,
   useUsbDrive,
-  useUserSession,
 } from '@votingworks/ui';
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
 import { MachineConfig } from './config/types';
@@ -66,7 +65,6 @@ const Buttons = styled.div`
     margin-right: 10px;
   }
 `;
-const VALID_USERS: readonly UserRole[] = ['admin', 'superadmin'];
 
 export interface AppRootProps {
   card: Card;
@@ -85,7 +83,6 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
   const [electionJustLoaded, setElectionJustLoaded] = useState(false);
   const [isTestMode, setTestMode] = useState(false);
   const [isTogglingTestMode, setTogglingTestMode] = useState(false);
-  const [cardRemovedAfterAuth, setCardRemovedAfterAuth] = useState(false);
   const [status, setStatus] = useState<Scan.GetScanStatusResponse>({
     canUnconfigure: true,
     batches: [],
@@ -108,18 +105,9 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
     hardware,
     logger,
   });
-  const smartcard = useSmartcard({
-    card,
-    cardReader,
-  });
-  const { currentUserSession, attemptToAuthenticateAdminUser, lockMachine } =
-    useUserSession({
-      smartcard,
-      electionDefinition,
-      persistAuthentication: true,
-      logger,
-      validUserTypes: VALID_USERS,
-    });
+  const auth = useDippedSmartcardAuth({ cardApi: card });
+  const userRole = auth.status === 'logged_in' ? auth.user.role : 'unknown';
+
   const [isExportingCvrs, setIsExportingCvrs] = useState(false);
 
   const [markThresholds, setMarkThresholds] =
@@ -131,22 +119,21 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
   const [currentScanningBatchId, setCurrentScanningBatchId] =
     useState<string>();
   const [lastScannedSheetIdx, setLastScannedSheetIdx] = useState(0);
-  const currentUserType = currentUserSession?.type ?? 'unknown';
 
   const refreshConfig = useCallback(async () => {
     setElectionDefinition(await config.getElectionDefinition());
     setTestMode(await config.getTestMode());
     setMarkThresholds(await config.getMarkThresholdOverrides());
-    await logger.log(LogEventId.ScannerConfigReloaded, currentUserType, {
+    await logger.log(LogEventId.ScannerConfigReloaded, userRole, {
       message:
         'Loaded election, test mode, and mark threshold information from the scanner service.',
       disposition: 'success',
     });
-  }, [logger, currentUserType]);
+  }, [logger, userRole]);
 
   function updateElectionDefinition(e: ElectionDefinition) {
     setElectionDefinition(e);
-    void logger.log(LogEventId.ElectionConfigured, currentUserType, {
+    void logger.log(LogEventId.ElectionConfigured, userRole, {
       message: `Machine configured for election with hash: ${e.electionHash}`,
       disposition: 'success',
       electionHash: e.electionHash,
@@ -195,7 +182,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
     if (currentBatch.count > lastScannedSheetIdx) {
       if (status.adjudication.remaining > 0) {
         // Scanning a sheet failed and needs adjudication.
-        void logger.log(LogEventId.ScanSheetComplete, currentUserType, {
+        void logger.log(LogEventId.ScanSheetComplete, userRole, {
           disposition: 'failure',
           message: 'Sheet rejected while scanning.',
           result:
@@ -206,7 +193,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
         return;
       }
       setLastScannedSheetIdx(currentBatch.count);
-      void logger.log(LogEventId.ScanSheetComplete, currentUserType, {
+      void logger.log(LogEventId.ScanSheetComplete, userRole, {
         disposition: 'success',
         message: `Sheet number ${currentBatch.count} in batch ${currentScanningBatchId} scanned successfully`,
         batchId: currentScanningBatchId,
@@ -215,7 +202,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
     }
 
     if (currentBatch.endedAt !== undefined) {
-      void logger.log(LogEventId.ScanBatchComplete, currentUserType, {
+      void logger.log(LogEventId.ScanBatchComplete, userRole, {
         disposition: 'success',
         message: `Scanning batch ${currentScanningBatchId} successfully completed scanning ${currentBatch.count} sheets.`,
         batchId: currentScanningBatchId,
@@ -230,17 +217,9 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
     status.adjudication,
     currentScanningBatchId,
     logger,
-    currentUserType,
+    userRole,
     lastScannedSheetIdx,
   ]);
-
-  useEffect(() => {
-    if (currentUserSession?.authenticated && smartcard.status === 'no_card') {
-      setCardRemovedAfterAuth(true);
-    } else if (!currentUserSession) {
-      setCardRemovedAfterAuth(false);
-    }
-  }, [currentUserSession, smartcard.status]);
 
   const updateStatus = useCallback(async () => {
     try {
@@ -272,7 +251,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
     try {
       await config.setElection(undefined);
       await refreshConfig();
-      await logger.log(LogEventId.ElectionUnconfigured, currentUserType, {
+      await logger.log(LogEventId.ElectionUnconfigured, userRole, {
         disposition: 'success',
         message:
           'User successfully unconfigured the machine to remove the current election and all current ballot data.',
@@ -280,13 +259,13 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
       history.replace('/');
     } catch (error) {
       console.log('failed unconfigureServer()', error); // eslint-disable-line no-console
-      await logger.log(LogEventId.ElectionUnconfigured, currentUserType, {
+      await logger.log(LogEventId.ElectionUnconfigured, userRole, {
         disposition: 'failure',
         message: 'Error in unconfiguring the current election on the machine',
         result: 'Election not changed.',
       });
     }
-  }, [history, refreshConfig, logger, currentUserType]);
+  }, [history, refreshConfig, logger, userRole]);
 
   const scanBatch = useCallback(async () => {
     setIsScanning(true);
@@ -302,7 +281,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
       if (result.status !== 'ok') {
         // eslint-disable-next-line no-alert
         window.alert(`could not scan: ${JSON.stringify(result.errors)}`);
-        await logger.log(LogEventId.ScanBatchInit, currentUserType, {
+        await logger.log(LogEventId.ScanBatchInit, userRole, {
           disposition: 'failure',
           message: 'Failed to start scanning a new batch.',
           error: JSON.stringify(result.errors),
@@ -311,7 +290,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
         setIsScanning(false);
       } else {
         setCurrentScanningBatchId(result.batchId);
-        await logger.log(LogEventId.ScanBatchInit, currentUserType, {
+        await logger.log(LogEventId.ScanBatchInit, userRole, {
           disposition: 'success',
           message: `User has begun scanning a new batch with ID: ${result.batchId}`,
           batchId: result.batchId,
@@ -320,14 +299,14 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
     } catch (error) {
       assert(error instanceof Error);
       console.log('failed handleFileInput()', error); // eslint-disable-line no-console
-      await logger.log(LogEventId.ScanBatchInit, currentUserType, {
+      await logger.log(LogEventId.ScanBatchInit, userRole, {
         disposition: 'failure',
         message: 'Failed to start scanning a new batch.',
         error: error.message,
         result: 'Scanning not begun.',
       });
     }
-  }, [logger, currentUserType]);
+  }, [logger, userRole]);
 
   const continueScanning = useCallback(
     async (request: Scan.ScanContinueRequest) => {
@@ -346,7 +325,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
           Scan.ScanContinueResponseSchema
         ).unsafeUnwrap();
         if (result.status === 'ok') {
-          await logger.log(LogEventId.ScanBatchContinue, currentUserType, {
+          await logger.log(LogEventId.ScanBatchContinue, userRole, {
             disposition: 'success',
             message: request.forceAccept
               ? 'Sheet tabulated with warnings and scanning of batch continued.'
@@ -354,7 +333,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
             sheetRemoved: !request.forceAccept,
           });
         } else {
-          await logger.log(LogEventId.ScanBatchContinue, currentUserType, {
+          await logger.log(LogEventId.ScanBatchContinue, userRole, {
             disposition: 'failure',
             message: 'Request to continue scanning failed.',
             error: JSON.stringify(result.errors),
@@ -364,7 +343,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
       } catch (error) {
         assert(error instanceof Error);
         console.log('failed handleFileInput()', error); // eslint-disable-line no-console
-        await logger.log(LogEventId.ScanBatchContinue, currentUserType, {
+        await logger.log(LogEventId.ScanBatchContinue, userRole, {
           disposition: 'failure',
           message: 'Request to continue scanning failed.',
           error: error.message,
@@ -372,12 +351,12 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
         });
       }
     },
-    [logger, currentUserType]
+    [logger, userRole]
   );
 
   const zeroData = useCallback(async () => {
     try {
-      await logger.log(LogEventId.ClearingBallotData, currentUserType, {
+      await logger.log(LogEventId.ClearingBallotData, userRole, {
         message: `Removing all ballot data, clearing ${currentNumberOfBallots} ballots.`,
         currentNumberOfBallots,
       });
@@ -390,7 +369,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
         Scan.ZeroResponseSchema
       ).unsafeUnwrap();
       await refreshConfig();
-      await logger.log(LogEventId.ClearedBallotData, currentUserType, {
+      await logger.log(LogEventId.ClearedBallotData, userRole, {
         disposition: 'success',
         message: 'Successfully cleared all ballot data.',
       });
@@ -398,13 +377,13 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
     } catch (error) {
       assert(error instanceof Error);
       console.log('failed zeroData()', error); // eslint-disable-line no-console
-      await logger.log(LogEventId.ClearedBallotData, currentUserType, {
+      await logger.log(LogEventId.ClearedBallotData, userRole, {
         disposition: 'failure',
         message: `Error clearing ballot data: ${error.message}`,
         result: 'Ballot data not cleared.',
       });
     }
-  }, [history, logger, currentUserType, currentNumberOfBallots, refreshConfig]);
+  }, [history, logger, userRole, currentNumberOfBallots, refreshConfig]);
 
   const backup = useCallback(async () => {
     await download('/scan/backup');
@@ -413,19 +392,19 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
   const toggleTestMode = useCallback(async () => {
     try {
       setTogglingTestMode(true);
-      await logger.log(LogEventId.TogglingTestMode, currentUserType, {
+      await logger.log(LogEventId.TogglingTestMode, userRole, {
         message: `Toggling to ${isTestMode ? 'Live' : 'Test'} Mode...`,
       });
       await config.setTestMode(!isTestMode);
       await refreshConfig();
-      await logger.log(LogEventId.ToggledTestMode, currentUserType, {
+      await logger.log(LogEventId.ToggledTestMode, userRole, {
         disposition: 'success',
         message: `Successfully toggled to ${isTestMode ? 'Live' : 'Test'} Mode`,
       });
       history.replace('/');
     } catch (error) {
       assert(error instanceof Error);
-      await logger.log(LogEventId.ToggledTestMode, currentUserType, {
+      await logger.log(LogEventId.ToggledTestMode, userRole, {
         disposition: 'failure',
         message: `Error toggling to ${isTestMode ? 'Live' : 'Test'} Mode: ${
           error.message
@@ -435,7 +414,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
     } finally {
       setTogglingTestMode(false);
     }
-  }, [history, isTestMode, refreshConfig, logger, currentUserType]);
+  }, [history, isTestMode, refreshConfig, logger, userRole]);
 
   const setMarkThresholdOverrides = useCallback(
     async (markThresholdOverrides?: MarkThresholds) => {
@@ -451,7 +430,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
       try {
         const batch = status.batches.find((b) => b.id === id);
         const numberOfBallotsInBatch = batch?.count ?? 0;
-        await logger.log(LogEventId.DeleteScanBatchInit, currentUserType, {
+        await logger.log(LogEventId.DeleteScanBatchInit, userRole, {
           message: `User deleting batch id ${id}...`,
           numberOfBallotsInBatch,
           batchId: id,
@@ -459,7 +438,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
         await fetch(`/scan/batch/${id}`, {
           method: 'DELETE',
         });
-        await logger.log(LogEventId.DeleteScanBatchComplete, currentUserType, {
+        await logger.log(LogEventId.DeleteScanBatchComplete, userRole, {
           disposition: 'success',
           message: `User successfully deleted batch id: ${id} containing ${numberOfBallotsInBatch} ballots.`,
           numberOfBallotsInBatch,
@@ -467,7 +446,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
         });
       } catch (error) {
         assert(error instanceof Error);
-        await logger.log(LogEventId.DeleteScanBatchComplete, currentUserType, {
+        await logger.log(LogEventId.DeleteScanBatchComplete, userRole, {
           disposition: 'failure',
           message: `Error deleting batch id: ${id}.`,
           error: error.message,
@@ -476,7 +455,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
         throw error;
       }
     },
-    [logger, currentUserType, status.batches]
+    [logger, userRole, status.batches]
   );
 
   useInterval(
@@ -516,20 +495,48 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
     electionDefinition,
     machineConfig,
     storage,
-    lockMachine,
-    currentUserSession,
     logger,
+    auth,
   };
 
-  if (!currentUserSession) {
+  if (auth.status === 'logged_out') {
+    if (auth.reason === 'machine_locked') {
+      return (
+        <AppContext.Provider value={currentContext}>
+          <MachineLockedScreen />
+        </AppContext.Provider>
+      );
+    }
     return (
       <AppContext.Provider value={currentContext}>
-        <MachineLockedScreen />
+        <InvalidCardScreen />
       </AppContext.Provider>
     );
   }
 
-  if (currentUserSession.type === 'superadmin') {
+  if (auth.status === 'checking_passcode') {
+    return (
+      <AppContext.Provider value={currentContext}>
+        <UnlockMachineScreen auth={auth} />
+      </AppContext.Provider>
+    );
+  }
+
+  if (auth.status === 'remove_card') {
+    return (
+      <Screen>
+        <RemoveCardPage />
+        <ElectionInfoBar
+          mode="admin"
+          electionDefinition={electionDefinition}
+          codeVersion={machineConfig.codeVersion}
+          machineId={machineConfig.machineId}
+        />
+      </Screen>
+    );
+  }
+
+  if (isSuperadminAuth(auth)) {
     return (
       <AppContext.Provider value={currentContext}>
         <Screen>
@@ -552,38 +559,6 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
     );
   }
 
-  if (currentUserSession.type !== 'admin') {
-    return (
-      <AppContext.Provider value={currentContext}>
-        <InvalidCardScreen />
-      </AppContext.Provider>
-    );
-  }
-
-  if (!currentUserSession.authenticated) {
-    return (
-      <AppContext.Provider value={currentContext}>
-        <UnlockMachineScreen
-          attemptToAuthenticateAdminUser={attemptToAuthenticateAdminUser}
-        />
-      </AppContext.Provider>
-    );
-  }
-
-  if (smartcard.status !== 'no_card' && !cardRemovedAfterAuth) {
-    return (
-      <Screen>
-        <RemoveCardPage />
-        <ElectionInfoBar
-          mode="admin"
-          electionDefinition={electionDefinition}
-          codeVersion={machineConfig.codeVersion}
-          machineId={machineConfig.machineId}
-        />
-      </Screen>
-    );
-  }
-
   if (electionDefinition) {
     if (electionJustLoaded) {
       return (
@@ -603,15 +578,13 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
                     small={false}
                     primary
                     usbDriveStatus={displayUsbStatus}
-                    usbDriveEject={() =>
-                      usbDrive.eject(currentUserSession.type)
-                    }
+                    usbDriveEject={() => usbDrive.eject(userRole)}
                   />
                 </Buttons>
               </div>
             </Main>
             <MainNav isTestMode={false}>
-              <Button small onPress={lockMachine}>
+              <Button small onPress={() => auth.logOut()}>
                 Lock Machine
               </Button>
             </MainNav>
@@ -669,9 +642,9 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
               <MainNav isTestMode={isTestMode}>
                 <UsbControllerButton
                   usbDriveStatus={displayUsbStatus}
-                  usbDriveEject={() => usbDrive.eject(currentUserSession.type)}
+                  usbDriveEject={() => usbDrive.eject(userRole)}
                 />
-                <Button small onPress={lockMachine}>
+                <Button small onPress={() => auth.logOut()}>
                   Lock Machine
                 </Button>
                 <LinkButton small to="/admin">

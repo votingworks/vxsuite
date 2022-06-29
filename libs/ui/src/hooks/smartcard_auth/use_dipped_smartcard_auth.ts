@@ -32,7 +32,7 @@ type AuthState =
   | Pick<DippedSmartcardAuth.LoggedOut, 'status' | 'reason'>
   | Pick<
       DippedSmartcardAuth.CheckingPasscode,
-      'status' | 'user' | 'passcodeError'
+      'status' | 'user' | 'wrongPasscodeEntered'
     >
   | Pick<DippedSmartcardAuth.RemoveCard, 'status' | 'user'>
   | Pick<DippedSmartcardAuth.LoggedIn, 'status' | 'user'>;
@@ -138,7 +138,7 @@ function smartcardAuthReducer(
         auth:
           action.passcode === previousState.auth.user.passcode
             ? { status: 'remove_card', user: previousState.auth.user }
-            : { ...previousState.auth, passcodeError: 'wrong_passcode' },
+            : { ...previousState.auth, wrongPasscodeEntered: true },
       };
     }
 

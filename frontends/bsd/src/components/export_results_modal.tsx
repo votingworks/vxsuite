@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import fileDownload from 'js-file-download';
 import path from 'path';
 
-import { Modal, UsbControllerButton } from '@votingworks/ui';
+import { isAdminAuth, Modal, UsbControllerButton } from '@votingworks/ui';
 import {
   assert,
   generateElectionBasedSubfolderName,
@@ -53,21 +53,16 @@ export function ExportResultsModal({
   const [currentState, setCurrentState] = useState<ModalState>(ModalState.INIT);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const {
-    machineConfig,
-    usbDriveEject,
-    usbDriveStatus,
-    currentUserSession,
-    logger,
-  } = useContext(AppContext);
-  assert(currentUserSession); // TODO(auth) should this check that the current user is an admin
-  const currentUserType = currentUserSession.type;
+  const { machineConfig, usbDriveEject, usbDriveStatus, auth, logger } =
+    useContext(AppContext);
+  assert(isAdminAuth(auth));
+  const userRole = auth.user.role;
 
   async function exportResults(openDialog: boolean) {
     setCurrentState(ModalState.SAVING);
 
     try {
-      await logger.log(LogEventId.ExportCvrInit, currentUserType);
+      await logger.log(LogEventId.ExportCvrInit, userRole);
       const response = await fetch(`/scan/export`, {
         method: 'post',
       });
@@ -79,7 +74,7 @@ export function ExportResultsModal({
           `Failed to save results. Error retrieving CVRs from the VxCentralScan.`
         );
         setCurrentState(ModalState.ERROR);
-        await logger.log(LogEventId.ExportCvrComplete, currentUserType, {
+        await logger.log(LogEventId.ExportCvrComplete, userRole, {
           message:
             'Error exporting CVR file, could not retrieve CVRs from the VxCentralScan.',
           error: 'Error retrieving CVRs from the VxCentralScan.',
@@ -131,7 +126,7 @@ export function ExportResultsModal({
           await window.kiosk.writeFile(pathToFile, await blob.text());
         }
         setCurrentState(ModalState.DONE);
-        await logger.log(LogEventId.ExportCvrComplete, currentUserType, {
+        await logger.log(LogEventId.ExportCvrComplete, userRole, {
           message: `Successfully exported CVR file with ${numberOfBallots} ballots.`,
           disposition: 'success',
           numberOfBallots,
@@ -144,7 +139,7 @@ export function ExportResultsModal({
       assert(error instanceof Error);
       setErrorMessage(`Failed to save results. ${error.message}`);
       setCurrentState(ModalState.ERROR);
-      await logger.log(LogEventId.ExportCvrComplete, currentUserType, {
+      await logger.log(LogEventId.ExportCvrComplete, userRole, {
         message: 'Error exporting CVR file.',
         error: error.message,
         result: 'User shown error, CVR file not exported.',
@@ -204,7 +199,7 @@ export function ExportResultsModal({
               small={false}
               primary
               usbDriveStatus={usbDriveStatus}
-              usbDriveEject={() => usbDriveEject(currentUserSession.type)}
+              usbDriveEject={() => usbDriveEject(userRole)}
             />
             <LinkButton onPress={onClose}>Cancel</LinkButton>
           </React.Fragment>

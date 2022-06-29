@@ -1,7 +1,8 @@
 import { render as testRender, RenderResult } from '@testing-library/react';
 import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures';
 import { LogSource, Logger } from '@votingworks/logging';
-import { ElectionDefinition, UserSession } from '@votingworks/types';
+import { Dipped } from '@votingworks/test-utils';
+import { DippedSmartcardAuth, ElectionDefinition } from '@votingworks/types';
 import { MemoryStorage, Storage, usbstick } from '@votingworks/utils';
 import { createMemoryHistory, MemoryHistory } from 'history';
 import React from 'react';
@@ -16,8 +17,7 @@ interface RenderInAppContextParams {
   usbDriveStatus?: usbstick.UsbDriveStatus;
   usbDriveEject?: () => void;
   storage?: Storage;
-  lockMachine?: () => void;
-  currentUserSession?: UserSession;
+  auth?: DippedSmartcardAuth.Auth;
   logger?: Logger;
 }
 
@@ -30,8 +30,7 @@ export function makeAppContext({
   usbDriveStatus = usbstick.UsbDriveStatus.absent,
   usbDriveEject = jest.fn(),
   storage = new MemoryStorage(),
-  lockMachine = jest.fn(),
-  currentUserSession = { type: 'admin', authenticated: true },
+  auth = Dipped.fakeAdminAuth(),
   logger = new Logger(LogSource.VxCentralScanFrontend),
 }: Partial<AppContextInterface> = {}): AppContextInterface {
   return {
@@ -40,8 +39,7 @@ export function makeAppContext({
     usbDriveStatus,
     usbDriveEject,
     storage,
-    lockMachine,
-    currentUserSession,
+    auth,
     logger,
   };
 }
@@ -56,8 +54,7 @@ export function renderInAppContext(
     usbDriveStatus,
     usbDriveEject,
     storage,
-    lockMachine,
-    currentUserSession,
+    auth,
     logger,
   }: RenderInAppContextParams = {}
 ): RenderResult {
@@ -69,8 +66,7 @@ export function renderInAppContext(
         usbDriveStatus,
         usbDriveEject,
         storage,
-        lockMachine,
-        currentUserSession,
+        auth,
         logger,
       })}
     >

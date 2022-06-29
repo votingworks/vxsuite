@@ -9,7 +9,13 @@ import {
   usbstick,
   ElectionData,
 } from '@votingworks/utils';
-import { Main, Screen, Text, UsbControllerButton } from '@votingworks/ui';
+import {
+  isAdminAuth,
+  Main,
+  Screen,
+  Text,
+  UsbControllerButton,
+} from '@votingworks/ui';
 import { LogEventId } from '@votingworks/logging';
 import { Prose } from './prose';
 import { MainNav } from './main_nav';
@@ -51,15 +57,10 @@ export function ElectionConfiguration({
   >([]);
   const [loadingFiles, setLoadingFiles] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const {
-    usbDriveStatus,
-    usbDriveEject,
-    lockMachine,
-    logger,
-    currentUserSession,
-  } = useContext(AppContext);
-  assert(currentUserSession); // TODO(auth) should this assert that the user is an admin
-  const currentUserType = currentUserSession.type;
+  const { usbDriveStatus, usbDriveEject, logger, auth } =
+    useContext(AppContext);
+  assert(isAdminAuth(auth));
+  const userRole = auth.user.role;
 
   async function acceptAutomaticallyChosenFile(
     file: KioskBrowser.FileSystemEntry
@@ -96,14 +97,10 @@ export function ElectionConfiguration({
         (f) => f.type === 1 && f.name.endsWith('.zip')
       );
       setFoundFilenames(newFoundFilenames);
-      await logger.log(
-        LogEventId.BallotPackageFilesReadFromUsb,
-        currentUserType,
-        {
-          disposition: 'success',
-          message: `Automatically found ${newFoundFilenames.length} ballot package files to import to machine. User prompted to select one to import.`,
-        }
-      );
+      await logger.log(LogEventId.BallotPackageFilesReadFromUsb, userRole, {
+        disposition: 'success',
+        message: `Automatically found ${newFoundFilenames.length} ballot package files to import to machine. User prompted to select one to import.`,
+      });
       setLoadingFiles(false);
     } catch (err) {
       if (err instanceof Error && err.message.includes('ENOENT')) {
@@ -111,36 +108,22 @@ export function ElectionConfiguration({
         // as finding no matching zip files.
         setFoundFilenames([]);
         setLoadingFiles(false);
-        await logger.log(
-          LogEventId.BallotPackageFilesReadFromUsb,
-          currentUserType,
-          {
-            disposition: 'success',
-            message: `Automatically found 0 ballot package files to import to machine. User prompted to select file manually to import.`,
-          }
-        );
+        await logger.log(LogEventId.BallotPackageFilesReadFromUsb, userRole, {
+          disposition: 'success',
+          message: `Automatically found 0 ballot package files to import to machine. User prompted to select file manually to import.`,
+        });
       } else if (err instanceof Error) {
-        await logger.log(
-          LogEventId.BallotPackageFilesReadFromUsb,
-          currentUserType,
-          {
-            disposition: 'failure',
-            message: `Error searching USB for ballot packages.`,
-            error: err.message,
-            result: 'User shown error.',
-          }
-        );
+        await logger.log(LogEventId.BallotPackageFilesReadFromUsb, userRole, {
+          disposition: 'failure',
+          message: `Error searching USB for ballot packages.`,
+          error: err.message,
+          result: 'User shown error.',
+        });
         throw err;
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    setFoundFilenames,
-    setLoadingFiles,
-    usbDriveStatus,
-    logger,
-    currentUserType,
-  ]);
+  }, [setFoundFilenames, setLoadingFiles, usbDriveStatus, logger, userRole]);
 
   useEffect(() => {
     if (usbDriveStatus === usbstick.UsbDriveStatus.mounted) {
@@ -159,11 +142,11 @@ export function ElectionConfiguration({
 
   const mainNav = (
     <MainNav isTestMode={false}>
-      <Button small onPress={lockMachine}>
+      <Button small onPress={() => auth.logOut()}>
         Lock Machine
       </Button>
       <UsbControllerButton
-        usbDriveEject={() => usbDriveEject(currentUserSession.type)}
+        usbDriveEject={() => usbDriveEject(userRole)}
         usbDriveStatus={usbDriveStatus}
       />
     </MainNav>
