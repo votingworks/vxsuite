@@ -540,18 +540,31 @@ test('exportCvrs', async () => {
         ...metadata,
         pageNumber: 2,
       },
-      contests: [],
+      contests: [
+        {
+          bounds: { x: 0, y: 0, width: 100, height: 100 },
+          corners: [
+            { x: 0, y: 0 },
+            { x: 100, y: 0 },
+            { x: 100, y: 100 },
+            { x: 0, y: 100 },
+          ],
+          options: [
+            {
+              bounds: { x: 0, y: 50, width: 100, height: 50 },
+              target: {
+                bounds: { x: 20, y: 60, width: 20, height: 10 },
+                inner: { x: 22, y: 62, width: 16, height: 6 },
+              },
+            },
+          ],
+        },
+      ],
     },
   ]);
 
-  const frontOriginalFile = tmp.fileSync();
-  await writeFile(frontOriginalFile.fd, 'front original');
-
   const frontNormalizedFile = tmp.fileSync();
   await writeFile(frontNormalizedFile.fd, 'front normalized');
-
-  const backOriginalFile = tmp.fileSync();
-  await writeFile(backOriginalFile.fd, 'back original');
 
   const backNormalizedFile = tmp.fileSync();
   await writeFile(backNormalizedFile.fd, 'back normalized');
@@ -560,7 +573,7 @@ test('exportCvrs', async () => {
   const batchId = store.addBatch();
   const sheetId = store.addSheet(uuid(), batchId, [
     {
-      originalFilename: frontOriginalFile.name,
+      originalFilename: '/tmp/front-page.png',
       normalizedFilename: frontNormalizedFile.name,
       interpretation: {
         type: 'UninterpretedHmpbPage',
@@ -571,7 +584,7 @@ test('exportCvrs', async () => {
       },
     },
     {
-      originalFilename: backOriginalFile.name,
+      originalFilename: '/tmp/back-page.png',
       normalizedFilename: backNormalizedFile.name,
       interpretation: {
         type: 'UninterpretedHmpbPage',
