@@ -5,6 +5,7 @@ import {
   InlineBallotImage,
   PrecinctId,
 } from './election';
+import { BallotPageLayout } from './hmpb';
 import { Dictionary } from './generic';
 
 export interface CastVoteRecord
@@ -29,5 +30,6 @@ export interface CastVoteRecord
   readonly _scannerId: string;
   readonly _pageNumber?: number;
   readonly _pageNumbers?: number[];
+  readonly _layouts?: Array<BallotPageLayout[]>;
   readonly _locales?: BallotLocale;
 }
