@@ -532,7 +532,26 @@ test('exportCvrs', async () => {
         ...metadata,
         pageNumber: 1,
       },
-      contests: [],
+      contests: [
+        {
+          bounds: { x: 0, y: 0, width: 100, height: 100 },
+          corners: [
+            { x: 0, y: 0 },
+            { x: 100, y: 0 },
+            { x: 100, y: 100 },
+            { x: 0, y: 100 },
+          ],
+          options: [
+            {
+              bounds: { x: 0, y: 50, width: 100, height: 50 },
+              target: {
+                bounds: { x: 20, y: 60, width: 20, height: 10 },
+                inner: { x: 22, y: 62, width: 16, height: 6 },
+              },
+            },
+          ],
+        },
+      ],
     },
     {
       pageSize: { width: 1, height: 1 },
@@ -604,7 +623,10 @@ test('exportCvrs', async () => {
     expect.stringContaining(stateOfHamilton.election.precincts[0].id)
   );
   expect(stream.toString()).toEqual(
-    expect.stringContaining('front normalized')
+    expect.stringContaining('front normalized') &&
+      expect.stringContaining(
+        '{"bounds":{"x":0,"y":50,"width":100,"height":50}'
+      )
   );
 
   // Confirm that deleted batches are not included in exported CVRs
