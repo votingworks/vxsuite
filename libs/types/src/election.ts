@@ -1221,12 +1221,14 @@ export const PageInterpretationWithFilesSchema: z.ZodSchema<PageInterpretationWi
     interpretation: PageInterpretationSchema,
   });
 
-export interface BallotImage {
+export interface InlineBallotImage {
   normalized: string;
 }
-export const BallotImageSchema: z.ZodSchema<BallotImage> = z.object({
-  normalized: z.string(),
-});
+export const InlineBallotImageSchema: z.ZodSchema<InlineBallotImage> = z.object(
+  {
+    normalized: z.string(),
+  }
+);
 
 export interface BallotPageInfo {
   image: ImageInfo;
