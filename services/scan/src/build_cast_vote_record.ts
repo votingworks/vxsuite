@@ -2,6 +2,7 @@ import {
   AdjudicationReason,
   AnyContest,
   BallotId,
+  BallotPageLayout,
   BallotMetadata,
   BallotType,
   CandidateVote,
@@ -233,7 +234,7 @@ function buildCastVoteRecordFromHmpbPage(
     BuildCastVoteRecordInput<InterpretedHmpbPage | UninterpretedHmpbPage>
   >,
   [frontImages, backImages]: InlineBallotImage[],
-  [frontLayout, backLayout]: BallotPageLayout[][]
+  [frontLayout, backLayout]: Array<BallotPageLayout[]>
 ): CastVoteRecord {
   if (
     front.interpretation.metadata.pageNumber >
@@ -246,7 +247,8 @@ function buildCastVoteRecordFromHmpbPage(
       batchLabel,
       election,
       [back, front],
-      [backImages, frontImages]
+      [backImages, frontImages],
+      [backLayout, frontLayout]
     );
   }
 
@@ -280,6 +282,7 @@ function buildCastVoteRecordFromHmpbPage(
       back.markAdjudications
     ),
     _ballotImages: [frontImages, backImages],
+    _layouts: [frontLayout, backLayout],
   };
 }
 
@@ -291,7 +294,7 @@ export function buildCastVoteRecord(
   election: Election,
   [front, back]: SheetOf<BuildCastVoteRecordInput>,
   [frontImage, backImage]: InlineBallotImage[],
-  [frontLayout, backLayout]: BallotPageLayout[][] = []
+  [frontLayout, backLayout]: Array<BallotPageLayout[]> = []
 ): CastVoteRecord | undefined {
   const validationResult = validateSheetInterpretation([
     front.interpretation,
