@@ -256,6 +256,25 @@ function buildCastVoteRecordFromHmpbPage(
     throw new Error(`expected sheet to have contest ids with sheet ${sheetId}`);
   }
 
+  const votesEntries = buildCastVoteRecordVotesEntries(
+    getContestsFromIds(election, front.contestIds),
+    front.interpretation.type === 'InterpretedHmpbPage'
+      ? front.interpretation.votes
+      : {},
+    front.markAdjudications
+  );
+  let hasWriteIns = false;
+  for (const contestId of Object.keys(votesEntries)) {
+    if (
+      votesEntries[contestId]?.find((vote: string) =>
+        vote.startsWith('write-in-')
+      )
+    ) {
+      hasWriteIns = true;
+      break;
+    }
+  }
+
   return {
     ...buildCastVoteRecordMetadataEntries(
       ballotId,
@@ -267,13 +286,7 @@ function buildCastVoteRecordFromHmpbPage(
       front.interpretation.metadata.pageNumber,
       back.interpretation.metadata.pageNumber,
     ],
-    ...buildCastVoteRecordVotesEntries(
-      getContestsFromIds(election, front.contestIds),
-      front.interpretation.type === 'InterpretedHmpbPage'
-        ? front.interpretation.votes
-        : {},
-      front.markAdjudications
-    ),
+    ...votesEntries,
     ...buildCastVoteRecordVotesEntries(
       getContestsFromIds(election, back.contestIds),
       back.interpretation.type === 'InterpretedHmpbPage'
@@ -281,7 +294,7 @@ function buildCastVoteRecordFromHmpbPage(
         : {},
       back.markAdjudications
     ),
-    _ballotImages: [frontImages, backImages],
+    _ballotImages: hasWriteIns ? [frontImages, backImages] : [],
     _layouts: [frontLayout, backLayout],
   };
 }
