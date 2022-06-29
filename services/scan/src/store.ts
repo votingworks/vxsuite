@@ -17,6 +17,7 @@ import {
   ElectionDefinitionSchema,
   getBallotStyle,
   getContests,
+  InlineBallotImage,
   MarkAdjudication,
   MarkAdjudicationsSchema,
   MarkThresholds,
@@ -863,23 +864,25 @@ export class Store {
         ? safeParseJson(backAdjudicationJson, MarkAdjudicationsSchema).ok()
         : undefined;
 
-      const frontImages = [];
-      const backImages = [];
+      const frontImage: InlineBallotImage = { normalized: '' };
+      const backImage: InlineBallotImage = { normalized: '' };
       if (
         frontInterpretation.type === 'InterpretedHmpbPage' ||
         frontInterpretation.type === 'UninterpretedHmpbPage'
       ) {
         const frontFilenames = this.getBallotFilenames(id, 'front');
         if (frontFilenames?.normalized) {
-          frontImages.push({
-            normalized: fs.readFileSync(frontFilenames.normalized, 'utf-8'),
-          });
+          frontImage.normalized = fs.readFileSync(
+            frontFilenames.normalized,
+            'utf-8'
+          );
         }
         const backFilenames = this.getBallotFilenames(id, 'back');
         if (backFilenames?.normalized) {
-          backImages.push({
-            normalized: fs.readFileSync(backFilenames.normalized, 'utf-8'),
-          });
+          backImage.normalized = fs.readFileSync(
+            backFilenames.normalized,
+            'utf-8'
+          );
         }
       }
 
