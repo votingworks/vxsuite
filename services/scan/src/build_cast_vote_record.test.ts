@@ -246,10 +246,7 @@ test('generates a CVR from a completed BMD ballot with write in and overvotes', 
             },
           },
         ],
-        [
-          { normalized: 'normalized front', original: 'original front' },
-          { normalized: 'normalized back', original: 'original back' },
-        ]
+        [{ normalized: 'normalized front' }, { normalized: 'normalized back' }]
       )
     ).toMatchInlineSnapshot(`
           Object {
@@ -354,10 +351,7 @@ test('generates a CVR from a completed HMPB page', () => {
           contestIds: ['initiative-65'],
         },
       ],
-      [
-        { normalized: 'normalized front', original: 'original front' },
-        { normalized: 'normalized back', original: 'original back' },
-      ]
+      [{ normalized: 'normalized front' }, { normalized: 'normalized back' }]
     )
   ).toMatchInlineSnapshot(`
     Object {
@@ -371,11 +365,9 @@ test('generates a CVR from a completed HMPB page', () => {
       "_ballotImages": Array [
         Object {
           "normalized": "normalized front",
-          "original": "original front",
         },
         Object {
           "normalized": "normalized back",
-          "original": "original back",
         },
       ],
       "_ballotStyleId": "1",
@@ -472,10 +464,7 @@ test('generates a CVR from a completed HMPB page with write in votes and overvot
           contestIds: ['initiative-65'],
         },
       ],
-      [
-        { normalized: 'normalized front', original: 'original front' },
-        { normalized: 'normalized back', original: 'original back' },
-      ]
+      [{ normalized: 'normalized front' }, { normalized: 'normalized back' }]
     )
   ).toMatchInlineSnapshot(`
     Object {
@@ -490,11 +479,9 @@ test('generates a CVR from a completed HMPB page with write in votes and overvot
       "_ballotImages": Array [
         Object {
           "normalized": "normalized front",
-          "original": "original front",
         },
         Object {
           "normalized": "normalized back",
-          "original": "original back",
         },
       ],
       "_ballotStyleId": "1",
@@ -591,10 +578,7 @@ test('generates a CVR from a completed absentee HMPB page', () => {
           contestIds: ['initiative-65'],
         },
       ],
-      [
-        { normalized: 'front normalized', original: 'front original' },
-        { normalized: 'back normalized', original: 'back original' },
-      ]
+      [{ normalized: 'front normalized' }, { normalized: 'back normalized' }]
     )
   ).toMatchInlineSnapshot(`
     Object {
@@ -608,11 +592,9 @@ test('generates a CVR from a completed absentee HMPB page', () => {
       "_ballotImages": Array [
         Object {
           "normalized": "front normalized",
-          "original": "front original",
         },
         Object {
           "normalized": "back normalized",
-          "original": "back original",
         },
       ],
       "_ballotStyleId": "1",
@@ -725,10 +707,7 @@ test('generates a CVR from an adjudicated HMPB page', () => {
           contestIds: ['1', '2'],
         },
       ],
-      [
-        { normalized: 'normalized front', original: 'original front' },
-        { normalized: 'normalized back', original: 'original back' },
-      ]
+      [{ normalized: 'normalized front' }, { normalized: 'normalized back' }]
     )
   ).toMatchInlineSnapshot(`
     Object {
@@ -742,11 +721,9 @@ test('generates a CVR from an adjudicated HMPB page', () => {
       "_ballotImages": Array [
         Object {
           "normalized": "normalized back",
-          "original": "original back",
         },
         Object {
           "normalized": "normalized front",
-          "original": "original front",
         },
       ],
       "_ballotStyleId": "1",
@@ -826,10 +803,7 @@ test('fails to generate a CVR from an invalid HMPB sheet with two pages having t
           },
         },
       ],
-      [
-        { normalized: 'normalized front', original: 'original front' },
-        { normalized: 'normalized back', original: 'original back' },
-      ]
+      [{ normalized: 'normalized front' }, { normalized: 'normalized back' }]
     )
   ).toThrowError(
     'expected a sheet to have consecutive page numbers, but got front=1 back=1'
@@ -892,10 +866,7 @@ test('fails to generate a CVR from an invalid HMPB sheet with two non-consecutiv
           },
         },
       ],
-      [
-        { normalized: 'normalized front', original: 'original front' },
-        { normalized: 'normalized back', original: 'original back' },
-      ]
+      [{ normalized: 'normalized front' }, { normalized: 'normalized back' }]
     )
   ).toThrowError(
     'expected a sheet to have consecutive page numbers, but got front=1 back=3'
@@ -957,10 +928,7 @@ test('fails to generate a CVR from an invalid HMPB sheet with different ballot s
           },
         },
       ],
-      [
-        { normalized: 'normalized front', original: 'original front' },
-        { normalized: 'normalized back', original: 'original back' },
-      ]
+      [{ normalized: 'normalized front' }, { normalized: 'normalized back' }]
     )
   ).toThrowError(
     'expected a sheet to have the same ballot style, but got front=1 back=2'
@@ -1022,10 +990,7 @@ test('fails to generate a CVR from an invalid HMPB sheet with different precinct
           },
         },
       ],
-      [
-        { normalized: 'normalized front', original: 'original front' },
-        { normalized: 'normalized back', original: 'original back' },
-      ]
+      [{ normalized: 'normalized front' }, { normalized: 'normalized back' }]
     )
   ).toThrowError(
     'expected a sheet to have the same precinct, but got front=6522 back=6523'
@@ -1106,10 +1071,7 @@ test('generates a CVR from an adjudicated uninterpreted HMPB page', () => {
           ],
         },
       ],
-      [
-        { normalized: 'normalized front', original: 'original front' },
-        { normalized: 'normalized back', original: 'original back' },
-      ]
+      [{ normalized: 'normalized front' }, { normalized: 'normalized back' }]
     )
   ).toMatchInlineSnapshot(`
     Object {
@@ -1121,11 +1083,9 @@ test('generates a CVR from an adjudicated uninterpreted HMPB page', () => {
       "_ballotImages": Array [
         Object {
           "normalized": "normalized front",
-          "original": "original front",
         },
         Object {
           "normalized": "normalized back",
-          "original": "original back",
         },
       ],
       "_ballotStyleId": "1",
@@ -1240,10 +1200,7 @@ test('generates a CVR from an adjudicated write-in', () => {
           contestIds: [],
         },
       ],
-      [
-        { normalized: 'normalized front', original: 'original front' },
-        { normalized: 'normalized back', original: 'original back' },
-      ]
+      [{ normalized: 'normalized front' }, { normalized: 'normalized back' }]
     )
   ).toMatchInlineSnapshot(`
     Object {
@@ -1255,11 +1212,9 @@ test('generates a CVR from an adjudicated write-in', () => {
       "_ballotImages": Array [
         Object {
           "normalized": "normalized front",
-          "original": "original front",
         },
         Object {
           "normalized": "normalized back",
-          "original": "original back",
         },
       ],
       "_ballotStyleId": "1",
@@ -1365,10 +1320,7 @@ test('generates a CVR from an adjudicated unmarked write-in', () => {
           contestIds: [],
         },
       ],
-      [
-        { normalized: 'normalized front', original: 'original front' },
-        { normalized: 'normalized back', original: 'original back' },
-      ]
+      [{ normalized: 'normalized front' }, { normalized: 'normalized back' }]
     )
   ).toMatchInlineSnapshot(`
     Object {
@@ -1380,11 +1332,9 @@ test('generates a CVR from an adjudicated unmarked write-in', () => {
       "_ballotImages": Array [
         Object {
           "normalized": "normalized front",
-          "original": "original front",
         },
         Object {
           "normalized": "normalized back",
-          "original": "original back",
         },
       ],
       "_ballotStyleId": "1",
@@ -1422,10 +1372,7 @@ test('fails to generate CVRs from blank pages', () => {
         { interpretation: { type: 'BlankPage' } },
         { interpretation: { type: 'BlankPage' } },
       ],
-      [
-        { normalized: '', original: '' },
-        { normalized: '', original: '' },
-      ]
+      [{ normalized: '' }, { normalized: '' }]
     )
   ).toBeUndefined();
 });
@@ -1461,10 +1408,7 @@ test('fails to generate CVRs from invalid test mode pages', () => {
         },
         { interpretation: { type: 'BlankPage' } },
       ],
-      [
-        { normalized: 'normalized front', original: 'original front' },
-        { normalized: 'normalized back', original: 'original back' },
-      ]
+      [{ normalized: 'normalized front' }, { normalized: 'normalized back' }]
     )
   ).toBeUndefined();
 });

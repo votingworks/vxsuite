@@ -1222,11 +1222,9 @@ export const PageInterpretationWithFilesSchema: z.ZodSchema<PageInterpretationWi
   });
 
 export interface BallotImage {
-  original: string;
   normalized: string;
 }
 export const BallotImageSchema: z.ZodSchema<BallotImage> = z.object({
-  original: z.string(),
   normalized: z.string(),
 });
 
