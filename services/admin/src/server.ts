@@ -62,7 +62,7 @@ export function buildApp({ store }: { store: Store }): Application {
         for (const cvr of f.allCastVoteRecords) {
           const cvrId = store.addCvr(JSON.stringify(cvr));
           for (const [key, value] of Object.entries(cvr)) {
-            if (Array.isArray(value)) {
+            if (!key.startsWith('_') && Array.isArray(value)) {
               const contestId = key;
               const votes = value as ContestOptionId[];
               for (const vote of votes) {
