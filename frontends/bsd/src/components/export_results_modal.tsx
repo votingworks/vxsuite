@@ -2,7 +2,7 @@ import { ElectionDefinition } from '@votingworks/types';
 import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 import fileDownload from 'js-file-download';
-import path from 'path';
+import { join } from 'path';
 
 import { isAdminAuth, Modal, UsbControllerButton } from '@votingworks/ui';
 import {
@@ -102,12 +102,12 @@ export function ExportResultsModal({
           electionDefinition.election,
           electionDefinition.electionHash
         );
-        const pathToFolder = path.join(
+        const pathToFolder = join(
           usbPath,
           SCANNER_RESULTS_FOLDER,
           electionFolderName
         );
-        const pathToFile = path.join(pathToFolder, cvrFilename);
+        const pathToFile = join(pathToFolder, cvrFilename);
         if (openDialog) {
           const fileWriter = await window.kiosk.saveAs({
             defaultPath: pathToFile,

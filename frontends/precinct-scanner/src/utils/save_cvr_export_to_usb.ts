@@ -5,7 +5,7 @@ import {
   usbstick,
   generateElectionBasedSubfolderName,
 } from '@votingworks/utils';
-import path from 'path';
+import { join } from 'path';
 import fileDownload from 'js-file-download';
 import * as scan from '../api/scan';
 import { MachineConfig } from '../config/types';
@@ -47,12 +47,12 @@ export async function saveCvrExportToUsb({
       electionDefinition.election,
       electionDefinition.electionHash
     );
-    const pathToFolder = path.join(
+    const pathToFolder = join(
       usbPath,
       SCANNER_RESULTS_FOLDER,
       electionFolderName
     );
-    const pathToFile = path.join(pathToFolder, cvrFilename);
+    const pathToFile = join(pathToFolder, cvrFilename);
     if (openFilePickerDialog) {
       const fileWriter = await window.kiosk.saveAs({
         defaultPath: pathToFile,

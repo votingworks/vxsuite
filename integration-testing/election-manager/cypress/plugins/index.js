@@ -1,5 +1,5 @@
-import { promises as fs } from 'fs'
-import path from 'path'
+import { promises as fs } from 'fs';
+import { join } from 'path';
 
 /// <reference types="cypress" />
 // ***********************************************************
@@ -24,14 +24,14 @@ module.exports = (on, config) => {
   // `config` is the resolved Cypress config
   on('task', {
     async readMostRecentFile(directoryPath) {
-      const files = await fs.readdir(directoryPath)
-      const paths = files.map((file) => path.join(directoryPath, file))
+      const files = await fs.readdir(directoryPath);
+      const paths = files.map((file) => join(directoryPath, file));
       const ctimes = await Promise.all(
         paths.map(async (p) => (await fs.stat(p)).ctime.getTime())
-      )
-      const mostRecentCtime = Math.max(...ctimes)
-      const mostRecentPath = paths[ctimes.indexOf(mostRecentCtime)]
-      return await fs.readFile(mostRecentPath, 'utf-8')
+      );
+      const mostRecentCtime = Math.max(...ctimes);
+      const mostRecentPath = paths[ctimes.indexOf(mostRecentCtime)];
+      return await fs.readFile(mostRecentPath, 'utf-8');
     },
-  })
-}
+  });
+};

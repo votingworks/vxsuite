@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
-import path from 'path';
+import { join } from 'path';
 import { isAdminAuth, isSuperadminAuth, Modal } from '@votingworks/ui';
 import {
   assert,
@@ -122,7 +122,7 @@ export function ExportLogsModal({ onClose, logFileType }: Props): JSX.Element {
         await fileWriter.end();
       } else {
         assert(typeof usbPath !== 'undefined');
-        const pathToFile = path.join(usbPath, defaultFilename);
+        const pathToFile = join(usbPath, defaultFilename);
         await window.kiosk.writeFile(pathToFile, results);
         filenameLocation = defaultFilename;
       }
