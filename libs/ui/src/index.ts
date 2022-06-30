@@ -19,7 +19,6 @@ export * from './hooks/use_smartcard';
 export * from './hooks/smartcard_auth';
 export * from './hooks/use_stored_state';
 export * from './hooks/use_usb_drive';
-export * from './hooks/use_user_session';
 export * from './horizontal_rule';
 export * from './input_group';
 export * from './link_button';
