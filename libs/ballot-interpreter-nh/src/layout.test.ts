@@ -8,8 +8,8 @@ import {
   readFixtureImage,
   readFixtureJson,
 } from '../test/fixtures';
+import { testImageDebugger } from '../test/utils';
 import { ScannedBallotCardGeometry8pt5x14 } from './accuvote';
-import { withCanvasDebugger } from './debug';
 import {
   generateBallotPageLayouts,
   layoutTimingMarksForGeometry,
@@ -68,18 +68,19 @@ test('generateBallotPageLayouts', async () => {
 
   const frontImageData = await readFixtureImage(
     HudsonFixtureName,
-    'scan-marked-front'
+    'scan-marked-front',
+    ScannedBallotCardGeometry8pt5x14
   );
 
   for (const contest of frontLayout.contests) {
-    withCanvasDebugger(contest.bounds.width, contest.bounds.height, (debug) => {
-      debug.imageData(-contest.bounds.x, -contest.bounds.y, frontImageData);
-    });
+    testImageDebugger(contest.bounds)
+      .imageData(-contest.bounds.x, -contest.bounds.y, frontImageData)
+      .write();
 
     for (const option of contest.options) {
-      withCanvasDebugger(option.bounds.width, option.bounds.height, (debug) => {
-        debug.imageData(-option.bounds.x, -option.bounds.y, frontImageData);
-      });
+      testImageDebugger(option.bounds)
+        .imageData(-option.bounds.x, -option.bounds.y, frontImageData)
+        .write();
     }
   }
 });

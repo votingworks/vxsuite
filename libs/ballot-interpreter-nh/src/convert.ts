@@ -26,34 +26,20 @@ import {
   zip,
   zipMin,
 } from '@votingworks/utils';
-import { sha256 } from 'js-sha256';
 import { decode as decodeHtmlEntities } from 'he';
+import { sha256 } from 'js-sha256';
 import { DateTime } from 'luxon';
 import { ZodError } from 'zod';
 import {
-  decodeBackTimingMarkBits,
-  decodeFrontTimingMarkBits,
   findTemplateOvals,
   getTemplateBallotCardGeometry,
   getTemplateBallotPaperSize,
   TemplateOval,
 } from './accuvote';
-import { Debugger } from './debug';
+import { Debugger, noDebug } from './debug';
 import { DefaultMarkThresholds } from './interpret';
-import { findBallotTimingMarks } from './interpret/find_ballot_timing_marks';
-import {
-  decodeBottomRowTimingMarks,
-  interpolateMissingTimingMarks,
-} from './timing_marks';
-import {
-  BackMarksMetadata,
-  BackMarksMetadataSchema,
-  Bit,
-  FrontMarksMetadata,
-  FrontMarksMetadataSchema,
-  PartialTimingMarks,
-  Size,
-} from './types';
+import { interpretBallotCardLayout } from './interpret/interpret_ballot_card_layout';
+import { Bit, FrontMarksMetadata, PartialTimingMarks, Size } from './types';
 
 export { interpret } from './interpret';
 
@@ -441,7 +427,7 @@ export type ConvertIssue =
       side: 'front' | 'back';
       timingMarks: PartialTimingMarks;
       timingMarkBits: readonly Bit[];
-      validationError: ZodError;
+      validationError?: ZodError;
     }
   | {
       kind: ConvertIssueKind.MismatchedOvalGrids;
@@ -935,7 +921,10 @@ export function convertElectionDefinitionHeader(
  */
 export function convertElectionDefinition(
   cardDefinition: NewHampshireBallotCardDefinition,
-  { ovalTemplate, debug }: { ovalTemplate: ImageData; debug?: Debugger }
+  {
+    ovalTemplate,
+    debug = noDebug(),
+  }: { ovalTemplate: ImageData; debug?: Debugger }
 ): ConvertResult {
   const convertHeaderResult = convertElectionDefinitionHeader(
     cardDefinition.definition
@@ -969,7 +958,7 @@ export function convertElectionDefinition(
     success = frontExpectedPaperSize === backExpectedPaperSize;
     issues.push({
       kind: ConvertIssueKind.InvalidTemplateSize,
-      message: `Template images do not match expected sizes.`,
+      message: `Template images do not match expected sizes. The XML definition says the template images should be "${paperSize}", but the template images are front="${frontExpectedPaperSize}" and back="${backExpectedPaperSize}".`,
       paperSize,
       frontTemplateSize: {
         width: cardDefinition.front.width,
@@ -986,14 +975,15 @@ export function convertElectionDefinition(
   assert(paperSize, 'paperSize should always be set');
   const expectedCardGeometry = getTemplateBallotCardGeometry(paperSize);
 
-  debug?.layer('front page');
-  const frontTimingMarks = findBallotTimingMarks(cardDefinition.front, {
-    geometry: expectedCardGeometry,
-    debug,
+  const frontLayout = debug.capture('front', () => {
+    debug.imageData(0, 0, cardDefinition.front);
+    return interpretBallotCardLayout(cardDefinition.front, {
+      geometry: expectedCardGeometry,
+      debug,
+    });
   });
-  debug?.layerEnd('front page');
 
-  if (!frontTimingMarks) {
+  if (!frontLayout) {
     success = false;
     issues.push({
       kind: ConvertIssueKind.TimingMarkDetectionFailed,
@@ -1002,14 +992,15 @@ export function convertElectionDefinition(
     });
   }
 
-  debug?.layer('back page');
-  const backTimingMarks = findBallotTimingMarks(cardDefinition.back, {
-    geometry: expectedCardGeometry,
-    debug,
+  const backLayout = debug.capture('back', () => {
+    debug.imageData(0, 0, cardDefinition.back);
+    return interpretBallotCardLayout(cardDefinition.back, {
+      geometry: expectedCardGeometry,
+      debug,
+    });
   });
-  debug?.layerEnd('back page');
 
-  if (!backTimingMarks) {
+  if (!backLayout) {
     success = false;
     issues.push({
       kind: ConvertIssueKind.TimingMarkDetectionFailed,
@@ -1018,90 +1009,18 @@ export function convertElectionDefinition(
     });
   }
 
-  let frontBits: Bit[] | undefined;
-  if (frontTimingMarks) {
-    frontBits = decodeBottomRowTimingMarks(frontTimingMarks)?.reverse();
-
-    if (!frontBits) {
-      success = false;
-      issues.push({
-        kind: ConvertIssueKind.MissingTimingMarkMetadata,
-        message: 'could not read bottom timing marks on front as bits',
-        side: 'front',
-        timingMarks: frontTimingMarks,
-      });
-    }
+  if (frontLayout.side !== 'front') {
+    success = false;
+    issues.push({
+      kind: ConvertIssueKind.InvalidTimingMarkMetadata,
+      message: `front page timing mark metadata is invalid: side=${frontLayout.side}`,
+      side: 'front',
+      timingMarkBits: frontLayout.metadata.bits,
+      timingMarks: frontLayout.partialTimingMarks,
+    });
   }
 
-  let backBits: Bit[] | undefined;
-  if (backTimingMarks) {
-    backBits = decodeBottomRowTimingMarks(backTimingMarks)?.reverse();
-
-    if (!backBits) {
-      success = false;
-      issues.push({
-        kind: ConvertIssueKind.MissingTimingMarkMetadata,
-        message: 'could not read bottom timing marks on back as bits',
-        side: 'back',
-        timingMarks: backTimingMarks,
-      });
-    }
-  }
-
-  let frontMetadata: FrontMarksMetadata | undefined;
-  if (frontTimingMarks && frontBits) {
-    const frontMetadataResult = safeParse(
-      FrontMarksMetadataSchema,
-      decodeFrontTimingMarkBits(frontBits)
-    );
-
-    if (frontMetadataResult.isErr()) {
-      success = false;
-      issues.push({
-        kind: ConvertIssueKind.InvalidTimingMarkMetadata,
-        message: `could not parse front timing mark metadata: ${
-          frontMetadataResult.err().message
-        }`,
-        side: 'front',
-        timingMarks: frontTimingMarks,
-        timingMarkBits: frontBits,
-        validationError: frontMetadataResult.err(),
-      });
-    } else {
-      frontMetadata = frontMetadataResult.ok();
-    }
-  }
-
-  let backMetadata: BackMarksMetadata | undefined;
-  if (backTimingMarks && backBits) {
-    const backMetadataResult = safeParse(
-      BackMarksMetadataSchema,
-      decodeBackTimingMarkBits(backBits)
-    );
-
-    if (backMetadataResult.isErr()) {
-      success = false;
-      issues.push({
-        kind: ConvertIssueKind.InvalidTimingMarkMetadata,
-        message: `could not parse back timing mark metadata: ${
-          backMetadataResult.err().message
-        }`,
-        side: 'back',
-        timingMarks: backTimingMarks,
-        timingMarkBits: backBits,
-        validationError: backMetadataResult.err(),
-      });
-    } else {
-      backMetadata = backMetadataResult.ok();
-    }
-  }
-
-  if (
-    !frontMetadata ||
-    !backMetadata ||
-    !frontTimingMarks ||
-    !backTimingMarks
-  ) {
+  if (!success) {
     return {
       success,
       issues,
@@ -1109,24 +1028,24 @@ export function convertElectionDefinition(
     };
   }
 
+  const frontMetadata = frontLayout.metadata as FrontMarksMetadata;
   const ballotStyleId = `card-number-${frontMetadata.cardNumber}`;
 
-  const frontCompleteTimingMarks =
-    interpolateMissingTimingMarks(frontTimingMarks);
-  const backCompleteTimingMarks =
-    interpolateMissingTimingMarks(backTimingMarks);
-
-  const frontTemplateOvals = findTemplateOvals(
-    cardDefinition.front,
-    ovalTemplate,
-    frontCompleteTimingMarks,
-    { usableArea: expectedCardGeometry.frontUsableArea, debug }
+  const frontTemplateOvals = debug.capture('front ovals', () =>
+    findTemplateOvals(
+      cardDefinition.front,
+      ovalTemplate,
+      frontLayout.completeTimingMarks,
+      { usableArea: expectedCardGeometry.frontUsableArea, debug }
+    )
   );
-  const backTemplateOvals = findTemplateOvals(
-    cardDefinition.back,
-    ovalTemplate,
-    backCompleteTimingMarks,
-    { usableArea: expectedCardGeometry.backUsableArea, debug }
+  const backTemplateOvals = debug.capture('back ovals', () =>
+    findTemplateOvals(
+      cardDefinition.back,
+      ovalTemplate,
+      backLayout.completeTimingMarks,
+      { usableArea: expectedCardGeometry.backUsableArea, debug }
+    )
   );
 
   const gridLayout = election.gridLayouts?.[0];

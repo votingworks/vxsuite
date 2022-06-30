@@ -5,16 +5,16 @@ import {
   readFixtureImage,
   readFixtureJson,
 } from '../../test/fixtures';
+import { testImageDebugger } from '../../test/utils';
 import {
   getScannedBallotCardGeometry,
   ScannedBallotCardGeometry8pt5x14,
 } from '../accuvote';
 import * as templates from '../data/templates';
-import { withSvgDebugger } from '../debug';
+import { interpretBallotCardLayout } from './interpret_ballot_card_layout';
 import { interpretOvalMarks } from './interpret_oval_marks';
-import { interpretPageLayout } from './interpret_page_layout';
 
-test('interpretOvalMarks unmarked front', async () => {
+test('interpretOvalMarks unmarked sheet', async () => {
   const electionDefinition = safeParseElectionDefinition(
     await readFixtureJson(HudsonFixtureName, 'election')
   ).unsafeUnwrap();
@@ -23,26 +23,28 @@ test('interpretOvalMarks unmarked front', async () => {
   );
   const frontImageData = await readFixtureImage(
     HudsonFixtureName,
-    'scan-unmarked-front'
+    'scan-unmarked-front',
+    ScannedBallotCardGeometry8pt5x14
   );
   const backImageData = await readFixtureImage(
     HudsonFixtureName,
-    'scan-unmarked-back'
+    'scan-unmarked-back',
+    ScannedBallotCardGeometry8pt5x14
   );
-  const frontLayout = withSvgDebugger((debug) => {
-    debug.imageData(0, 0, frontImageData);
-    return interpretPageLayout(frontImageData, {
+  const frontDebug = testImageDebugger(frontImageData);
+  const frontLayout = frontDebug.capture('front', () =>
+    interpretBallotCardLayout(frontImageData, {
       geometry: ScannedBallotCardGeometry8pt5x14,
-      debug,
-    });
-  });
-  const backLayout = withSvgDebugger((debug) => {
-    debug.imageData(0, 0, backImageData);
-    return interpretPageLayout(backImageData, {
+      debug: frontDebug,
+    })
+  );
+  const backDebug = testImageDebugger(backImageData);
+  const backLayout = backDebug.capture('back', () =>
+    interpretBallotCardLayout(backImageData, {
       geometry: ScannedBallotCardGeometry8pt5x14,
-      debug,
-    });
-  });
+      debug: backDebug,
+    })
+  );
   const gridLayout = electionDefinition.election.gridLayouts?.[0];
 
   assert(frontLayout?.side === 'front', 'frontLayout could not be read');
@@ -92,7 +94,7 @@ test('interpretOvalMarks unmarked front', async () => {
       "score": 0,
       "scoredOffset": Object {
         "x": 2,
-        "y": 1,
+        "y": 2,
       },
     }
   `);
@@ -120,8 +122,8 @@ test('interpretOvalMarks unmarked front', async () => {
       },
       "score": 0.023602484472049712,
       "scoredOffset": Object {
-        "x": 1,
-        "y": 1,
+        "x": 0,
+        "y": 2,
       },
     }
   `);
@@ -136,25 +138,23 @@ test('interpretOvalMarks marked front', async () => {
   );
   const frontImageData = await readFixtureImage(
     HudsonFixtureName,
-    'scan-marked-front'
+    'scan-marked-front',
+    ScannedBallotCardGeometry8pt5x14
   );
   const backImageData = await readFixtureImage(
     HudsonFixtureName,
-    'scan-marked-back'
+    'scan-marked-back',
+    ScannedBallotCardGeometry8pt5x14
   );
-  const frontLayout = withSvgDebugger((debug) => {
-    debug.imageData(0, 0, frontImageData);
-    return interpretPageLayout(frontImageData, {
-      geometry: ScannedBallotCardGeometry8pt5x14,
-      debug,
-    });
+  const frontDebug = testImageDebugger(frontImageData);
+  const frontLayout = interpretBallotCardLayout(frontImageData, {
+    geometry: ScannedBallotCardGeometry8pt5x14,
+    debug: frontDebug,
   });
-  const backLayout = withSvgDebugger((debug) => {
-    debug.imageData(0, 0, backImageData);
-    return interpretPageLayout(backImageData, {
-      geometry: ScannedBallotCardGeometry8pt5x14,
-      debug,
-    });
+  const backDebug = testImageDebugger(backImageData);
+  const backLayout = interpretBallotCardLayout(backImageData, {
+    geometry: ScannedBallotCardGeometry8pt5x14,
+    debug: backDebug,
   });
   const gridLayout = electionDefinition.election.gridLayouts?.[0];
 
@@ -186,26 +186,26 @@ test('interpretOvalMarks marked front', async () => {
     Object {
       "bounds": Object {
         "height": 25,
-        "maxX": 658,
-        "maxY": 2250,
-        "minX": 621,
-        "minY": 2226,
+        "maxX": 660,
+        "maxY": 1763,
+        "minX": 623,
+        "minY": 1739,
         "width": 38,
-        "x": 621,
-        "y": 2226,
+        "x": 623,
+        "y": 1739,
       },
       "gridPosition": Object {
         "column": 12,
         "contestId": "State-Representatives-7d3a8821",
-        "optionId": "Denise-Smith-0a6359c3",
-        "row": 43,
+        "optionId": "Lynne-Ober-f704df17",
+        "row": 33,
         "side": "front",
         "type": "option",
       },
-      "score": 0.05093167701863355,
+      "score": 0.039751552795031064,
       "scoredOffset": Object {
         "x": 3,
-        "y": 2,
+        "y": 1,
       },
     }
   `);
@@ -249,38 +249,23 @@ test('interpretOvalMarks marked rotated front', async () => {
   );
   const frontImageData = await readFixtureImage(
     HudsonFixtureName,
-    'scan-marked-rotated-front'
+    'scan-marked-rotated-front',
+    ScannedBallotCardGeometry8pt5x14
   );
   const backImageData = await readFixtureImage(
     HudsonFixtureName,
-    'scan-marked-rotated-back'
+    'scan-marked-rotated-back',
+    ScannedBallotCardGeometry8pt5x14
   );
-  const frontLayout = withSvgDebugger((debug) => {
-    debug.imageData(0, 0, frontImageData);
-    return interpretPageLayout(frontImageData, {
-      geometry: ScannedBallotCardGeometry8pt5x14,
-      debug,
-    });
+  const frontDebug = testImageDebugger(frontImageData);
+  const frontLayout = interpretBallotCardLayout(frontImageData, {
+    geometry: ScannedBallotCardGeometry8pt5x14,
+    debug: frontDebug,
   });
-  const backLayout = withSvgDebugger((debug) => {
-    debug.imageData(0, 0, backImageData);
-    const result = interpretPageLayout(backImageData, {
-      geometry: ScannedBallotCardGeometry8pt5x14,
-      debug,
-    });
-    result?.completeMarks.left.forEach((mark) => {
-      debug.rect(mark.x, mark.y, mark.width, mark.height, 'green');
-    });
-    result?.completeMarks.right.forEach((mark) => {
-      debug.rect(mark.x, mark.y, mark.width, mark.height, 'blue');
-    });
-    result?.completeMarks.top.forEach((mark) => {
-      debug.rect(mark.x, mark.y, mark.width, mark.height, 'purple');
-    });
-    result?.completeMarks.bottom.forEach((mark) => {
-      debug.rect(mark.x, mark.y, mark.width, mark.height, 'yellow');
-    });
-    return result;
+  const backDebug = testImageDebugger(backImageData);
+  const backLayout = interpretBallotCardLayout(backImageData, {
+    geometry: ScannedBallotCardGeometry8pt5x14,
+    debug: backDebug,
   });
   const gridLayout = electionDefinition.election.gridLayouts?.[0];
 
@@ -313,13 +298,13 @@ test('interpretOvalMarks marked rotated front', async () => {
     Object {
       "bounds": Object {
         "height": 25,
-        "maxX": 1088,
-        "maxY": 2243,
-        "minX": 1051,
-        "minY": 2219,
+        "maxX": 640,
+        "maxY": 577,
+        "minX": 603,
+        "minY": 553,
         "width": 38,
-        "x": 1051,
-        "y": 2219,
+        "x": 603,
+        "y": 553,
       },
       "gridPosition": Object {
         "column": 12,
@@ -329,10 +314,10 @@ test('interpretOvalMarks marked rotated front', async () => {
         "side": "front",
         "type": "option",
       },
-      "score": 0.4496894409937888,
+      "score": 0.4397515527950311,
       "scoredOffset": Object {
-        "x": -3,
-        "y": -3,
+        "x": 1,
+        "y": 2,
       },
     }
   `);

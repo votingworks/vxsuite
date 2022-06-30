@@ -332,10 +332,15 @@ export async function readFixtureDefinition(
 export async function readFixtureImage(
   fixture: string,
   name: string,
+  geometry: BallotCardGeometry,
   ext = '.jpeg'
 ): Promise<ImageData> {
   return images.toImageData(
-    await images.load(getFixturePath(fixture, name, ext))
+    await images.load(getFixturePath(fixture, name, ext)),
+    {
+      maxWidth: geometry.canvasSize.width,
+      maxHeight: geometry.canvasSize.height,
+    }
   );
 }
 
@@ -354,11 +359,12 @@ export async function readFixtureJson(
  */
 export async function readFixtureBallotCardDefinition(
   fixture: string,
+  geometry: BallotCardGeometry,
   variant?: string
 ): Promise<NewHampshireBallotCardDefinition> {
   return {
     definition: await readFixtureDefinition(fixture, variant),
-    front: await readFixtureImage(fixture, 'template-front'),
-    back: await readFixtureImage(fixture, 'template-back'),
+    front: await readFixtureImage(fixture, 'template-front', geometry),
+    back: await readFixtureImage(fixture, 'template-back', geometry),
   };
 }

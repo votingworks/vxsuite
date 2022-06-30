@@ -18,6 +18,7 @@ module.exports = {
     '!src/**/*.d.ts',
     '!src/index.tsx',
     '!src/demo_app.tsx',
+    '!src/stubs/*',
   ],
   coverageThreshold: {
     global: {

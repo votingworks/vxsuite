@@ -1,15 +1,16 @@
 import {
   Candidate,
-  CandidateVote,
+  ContestOptionId,
   Contests,
   MarkThresholds,
+  Vote,
   VotesDict,
 } from '@votingworks/types';
 import { assert, find } from '@votingworks/utils';
 import makeDebug from 'debug';
 import { InterpretedOvalMark } from '../types';
 
-const dbg = makeDebug('ballot-interpreter-nh:interpret');
+const log = makeDebug('ballot-interpreter-nh:interpret');
 
 /**
  * Convert a series of oval marks into a list of candidate votes.
@@ -25,24 +26,34 @@ export function convertMarksToVotes(
     const { gridPosition } = mark;
     const { contestId } = gridPosition;
     const contest = find(contests, (c) => c.id === contestId);
-    assert(
-      contest.type === 'candidate',
-      'only candidate contests are currently supported'
-    );
-    const candidate: Candidate =
-      gridPosition.type === 'option'
-        ? find(contest.candidates, (c) => c.id === gridPosition.optionId)
-        : {
-            id: `write-in-${gridPosition.writeInIndex}`,
-            name: `Write-In #${gridPosition.writeInIndex + 1}`,
-            isWriteIn: true,
-          };
+
+    let vote: Vote;
+    let optionId: ContestOptionId;
+
+    if (contest.type === 'candidate') {
+      const candidate: Candidate =
+        gridPosition.type === 'option'
+          ? find(contest.candidates, (c) => c.id === gridPosition.optionId)
+          : {
+              id: `write-in-${gridPosition.writeInIndex}`,
+              name: `Write-In #${gridPosition.writeInIndex + 1}`,
+              isWriteIn: true,
+            };
+      vote = [candidate];
+      optionId = candidate.id;
+    } else if (contest.type === 'yesno') {
+      assert(gridPosition.type === 'option');
+      vote = [gridPosition.optionId] as Vote;
+      optionId = gridPosition.optionId;
+    } else {
+      throw new Error(`Unsupported contest type: ${contest.type}`);
+    }
 
     if (mark.score < markThresholds.marginal) {
-      dbg(
+      log(
         `Mark for contest '%s' option '%s' will be ignored, score is too low: %d < %d (marginal threshold)`,
         contestId,
-        candidate.id,
+        optionId,
         mark.score,
         markThresholds.marginal
       );
@@ -50,27 +61,30 @@ export function convertMarksToVotes(
     }
 
     if (mark.score < markThresholds.definite) {
-      dbg(
+      log(
         `Mark for contest '%s' option '%s' is marginal, score is too low: %d < %d (definite threshold)`,
         contestId,
-        candidate.id,
+        optionId,
         mark.score,
         markThresholds.definite
       );
       continue;
     }
 
-    dbg(
+    log(
       `Mark for contest '%s' option '%s' will be counted, score is high enough: %d (definite threshold) ≤ %d`,
       contestId,
-      candidate.id,
+      optionId,
       markThresholds.definite,
       mark.score
     );
-    votes[contestId] = [
-      ...((votes[contestId] ?? []) as CandidateVote),
-      candidate,
-    ];
+
+    if (!votes[contestId]) {
+      votes[contestId] = vote;
+    } else {
+      const existing = votes[contestId] as Vote;
+      votes[contestId] = [...existing, ...vote] as Vote;
+    }
   }
 
   return votes;

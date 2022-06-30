@@ -31,7 +31,7 @@ test('--help', async () => {
   const exitCode = await main(['--help'], io);
 
   expect(io.stdout.toString()).toMatchInlineSnapshot(`
-    "usage: interpret [-t [MARGINAL,]DEFINITE] <election.json> <front-ballot.jpg> <back-ballot.jpg>
+    "usage: interpret [-t [MARGINAL,]DEFINITE] <election.json> <front-ballot.jpg> <back-ballot.jpg> [--debug]
     "
   `);
   expect(exitCode).toBe(0);
@@ -47,7 +47,7 @@ test('-h', async () => {
   const exitCode = await main(['-h'], io);
 
   expect(io.stdout.toString()).toMatchInlineSnapshot(`
-    "usage: interpret [-t [MARGINAL,]DEFINITE] <election.json> <front-ballot.jpg> <back-ballot.jpg>
+    "usage: interpret [-t [MARGINAL,]DEFINITE] <election.json> <front-ballot.jpg> <back-ballot.jpg> [--debug]
     "
   `);
   expect(exitCode).toBe(0);
@@ -347,9 +347,9 @@ test('interpret', async () => {
     "front.jpeg:
     Representative in Congress
     ✅ (21.84%) Steven Negron
-    🅾️ ( 4.12%) Ann McLane Kuster
-    🅾️ ( 0.03%) Andrew Olding
-    🅾️ ( 0.00%) Write-In #1
+    ⬜️ ( 4.12%) Ann McLane Kuster
+    ⬜️ ( 0.03%) Andrew Olding
+    ⬜️ ( 0.00%) Write-In #1
 
     back.jpeg:
       BlankPage

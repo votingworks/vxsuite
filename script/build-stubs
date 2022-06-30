@@ -1,0 +1,11 @@
+#!/usr/bin/env node
+
+// @ts-check
+
+require('esbuild-runner/register')
+
+require('./src/build-stubs').main({
+  stdin: process.stdin,
+  stdout: process.stdout,
+  stderr: process.stderr,
+})

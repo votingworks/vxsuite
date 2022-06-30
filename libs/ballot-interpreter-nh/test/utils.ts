@@ -1,3 +1,6 @@
+import { Debugger, imageDebugger } from '../src/debug';
+import { Size } from '../src/types';
+
 /**
  * Minimal information about an oval position.
  */
@@ -30,4 +33,32 @@ export function asciiOvalGrid(ovals: Iterable<Oval>): string {
     result += '\n';
   }
   return result;
+}
+
+function getCurrentTestPath(): string {
+  const { testPath, currentTestName } = expect.getState();
+  return `${testPath}-debug-${currentTestName.replace(/[^-_\w]+/g, '-')}`;
+}
+
+/**
+ * Gets a file name for the current test.
+ */
+export function getDebugImageForCurrentTest(): string {
+  const fileNameRoot = getCurrentTestPath();
+  return `${fileNameRoot}.png`;
+}
+
+/**
+ * Returns an image debugger for the current test.
+ */
+export function testImageDebugger(baseImage: ImageData): Debugger;
+/**
+ * Returns an image debugger for the current test.
+ */
+export function testImageDebugger(size: Size): Debugger;
+/**
+ * Returns an image debugger for the current test.
+ */
+export function testImageDebugger(baseImageOrSize: ImageData | Size): Debugger {
+  return imageDebugger(getCurrentTestPath(), baseImageOrSize);
 }

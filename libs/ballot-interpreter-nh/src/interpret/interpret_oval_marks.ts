@@ -7,14 +7,9 @@ import {
   scoreTemplateMatch,
   simpleRemoveNoise,
 } from '../images';
-import { computeTimingMarkGrid } from '../timing_marks';
-import {
-  BallotCardGeometry,
-  InterpretedOvalMark,
-  ScannedBallotBackPageLayout,
-  ScannedBallotFrontPageLayout,
-} from '../types';
+import { BallotCardGeometry, InterpretedOvalMark } from '../types';
 import { loc, makeRect, vec } from '../utils';
+import { InterpretBallotCardLayoutResult } from './interpret_ballot_card_layout';
 
 /**
  * Interprets a ballot scan page's oval marks.
@@ -32,8 +27,8 @@ export function interpretOvalMarks({
   ovalTemplate: ImageData;
   frontImageData: ImageData;
   backImageData: ImageData;
-  frontLayout: ScannedBallotFrontPageLayout;
-  backLayout: ScannedBallotBackPageLayout;
+  frontLayout: InterpretBallotCardLayoutResult;
+  backLayout: InterpretBallotCardLayoutResult;
   gridLayout: GridLayout;
 }): InterpretedOvalMark[] {
   const frontImageChannels = getChannels(frontImageData);
@@ -44,8 +39,8 @@ export function interpretOvalMarks({
   );
 
   const ovalMask = binarize(ovalTemplate);
-  const frontGrid = computeTimingMarkGrid(frontLayout.completeMarks);
-  const backGrid = computeTimingMarkGrid(backLayout.completeMarks);
+  const frontGrid = frontLayout.grid;
+  const backGrid = backLayout.grid;
 
   return gridLayout.gridPositions.map<InterpretedOvalMark>((gridPosition) => {
     const [imageData, grid] =

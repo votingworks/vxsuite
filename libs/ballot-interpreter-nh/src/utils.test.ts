@@ -1,16 +1,19 @@
+import { typedAs } from '@votingworks/utils';
 import * as fc from 'fast-check';
 import { Segment } from './types';
 import {
   bitsToNumber,
   calculateIntersection,
+  checkApproximatelyColinear,
   closestPointOnLineSegmentToPoint,
   crossProduct,
   distance,
   dotProduct,
   intersectionOfLineSegments,
   loc,
+  makeRect,
   median,
-  splitAt,
+  segmentIntersectionWithRect,
   vec,
   vectorAdd,
   vectorMult,
@@ -300,17 +303,31 @@ test('bitsToNumber', () => {
   expect(bitsToNumber([1, 1, 1, 1, 1, 1, 1, 1])).toBe(0xff);
 });
 
-test('splitAt', () => {
-  expect(splitAt([1, 2, 3, 4, 5], () => false)).toEqual([[1, 2, 3, 4, 5]]);
-  expect(splitAt([1, 2, 3, 4, 5], () => true)).toEqual([
-    [1],
-    [2],
-    [3],
-    [4],
-    [5],
-  ]);
-  expect(splitAt([1, 2, 3, 4, 5], (a, b) => a === 3 && b === 4)).toEqual([
-    [1, 2, 3],
-    [4, 5],
-  ]);
+test('segmentIntersectionWithRect', () => {
+  expect(
+    segmentIntersectionWithRect(
+      makeRect({
+        minX: -1,
+        minY: 10,
+        maxX: 9,
+        maxY: 20,
+      }),
+      { from: loc(0, 15), to: loc(100, 15) },
+      { bounded: false }
+    )
+  ).toEqual(typedAs<Segment>({ from: loc(-1, 15), to: loc(9, 15) }));
+});
+
+test('checkApproximatelyColinear', () => {
+  const degree = Math.PI / 180;
+  expect(checkApproximatelyColinear(0, 0, 0)).toBe(true);
+  expect(checkApproximatelyColinear(0, Math.PI, 0)).toBe(true);
+  expect(checkApproximatelyColinear(1 * degree, 0, 1 * degree)).toBe(true);
+  expect(checkApproximatelyColinear(1 * degree, Math.PI, 1 * degree)).toBe(
+    true
+  );
+  expect(checkApproximatelyColinear(1 * degree, Math.PI, 0)).toBe(false);
+  expect(checkApproximatelyColinear(1 * degree, -1 * degree, 2 * degree)).toBe(
+    true
+  );
 });

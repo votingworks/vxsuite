@@ -14,12 +14,13 @@ import {
 } from '@votingworks/types';
 import { getScannedBallotCardGeometry } from '../accuvote';
 import * as templates from '../data/templates';
+import { imageDebugger } from '../debug';
 import * as images from '../images';
 import { convertMarksToAdjudicationInfo } from './convert_marks_to_adjudication_info';
 import { convertMarksToMarkInfo } from './convert_marks_to_mark_info';
 import { convertMarksToVotes } from './convert_marks_to_votes';
+import { interpretBallotCardLayout } from './interpret_ballot_card_layout';
 import { interpretOvalMarks } from './interpret_oval_marks';
-import { interpretPageLayout } from './interpret_page_layout';
 
 /**
  * Default thresholds for interpreting marks on a ballot as votes.
@@ -63,8 +64,14 @@ export async function interpret(
     maxHeight: geometry.canvasSize.height,
   });
 
-  let frontLayout = interpretPageLayout(frontImageData, { geometry });
-  let backLayout = interpretPageLayout(backImageData, { geometry });
+  let frontLayout = imageDebugger(frontPage, frontImageData).capture(
+    'front',
+    (debug) => interpretBallotCardLayout(frontImageData, { geometry, debug })
+  );
+  let backLayout = imageDebugger(backPage, backImageData).capture(
+    'back',
+    (debug) => interpretBallotCardLayout(backImageData, { geometry, debug })
+  );
 
   if (!frontLayout) {
     return err(new Error('could not interpret front page layout'));

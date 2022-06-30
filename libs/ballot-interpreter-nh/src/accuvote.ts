@@ -1,80 +1,25 @@
-import { BallotPaperSize } from '@votingworks/types';
-import { Debugger } from './debug';
-import { getChannels, matchTemplate } from './images';
-import { otsu } from './otsu';
-import { computeTimingMarkGrid, findBorder } from './timing_marks';
+import { BallotPaperSize, err, Result, safeParse } from '@votingworks/types';
+import { Debugger, noDebug } from './debug';
+import { matchTemplate } from './images';
+import { computeTimingMarkGrid } from './timing_marks';
 import {
   BackMarksMetadata,
+  BackMarksMetadataSchema,
   BallotCardGeometry,
   Bit,
   CompleteTimingMarks,
   FrontMarksMetadata,
-  PartialTimingMarks,
-  Point,
+  FrontMarksMetadataSchema,
+  Inset,
+  MarksMetadata,
   Rect,
   Size,
   ThirtyTwoBits,
 } from './types';
-import {
-  bitsToNumber,
-  centerOfRect,
-  findOverlappingRects,
-  loc,
-  makeRect,
-  median,
-} from './utils';
+import { bitsToNumber, loc, makeRect } from './utils';
 
 const HorizontalTimingMarksCount = 34;
 const BottomTimingMarkMetadataBitCount = HorizontalTimingMarksCount - 2;
-
-const TimingMarkMinSizeRatio: Size = {
-  width: 13 / 612,
-  height: 4 / 612,
-};
-const TimingMarkMaxSizeRatio: Size = {
-  width: 15 / 612,
-  height: 6 / 612,
-};
-const TimingMarkMinGapSizeRatio: Size = {
-  width: 3 / 612,
-  height: 12 / 612,
-};
-const TimingMarkMaxGapSizeRatio: Size = {
-  width: 5 / 612,
-  height: 14 / 612,
-};
-
-function expectedTimingMarkSize(canvasWidth: number): Size {
-  const minTimingMarkSize: Size = {
-    width: canvasWidth * TimingMarkMinSizeRatio.width,
-    height: canvasWidth * TimingMarkMinSizeRatio.height,
-  };
-  const maxTimingMarkSize: Size = {
-    width: canvasWidth * TimingMarkMaxSizeRatio.width,
-    height: canvasWidth * TimingMarkMaxSizeRatio.height,
-  };
-
-  return {
-    width: (minTimingMarkSize.width + maxTimingMarkSize.width) / 2,
-    height: (minTimingMarkSize.height + maxTimingMarkSize.height) / 2,
-  };
-}
-
-function expectedTimingMarkGapSize(canvasWidth: number): Size {
-  const minTimingMarkGapSize: Size = {
-    width: canvasWidth * TimingMarkMinGapSizeRatio.width,
-    height: canvasWidth * TimingMarkMinGapSizeRatio.height,
-  };
-  const maxTimingMarkGapSize: Size = {
-    width: canvasWidth * TimingMarkMaxGapSizeRatio.width,
-    height: canvasWidth * TimingMarkMaxGapSizeRatio.height,
-  };
-
-  return {
-    width: (minTimingMarkGapSize.width + maxTimingMarkGapSize.width) / 2,
-    height: (minTimingMarkGapSize.height + maxTimingMarkGapSize.height) / 2,
-  };
-}
 
 /**
  * Template margins for the front and back of the ballot card in inches.
@@ -102,7 +47,7 @@ export const TemplateBallotCardGeometry8pt5x11: BallotCardGeometry = {
   }),
   ovalSize: { width: 15, height: 10 },
   /* Converted from the documented size in inches: 3/16" x 1/16" */
-  timingMarkSize: { width: 37.5, height: 12.5 },
+  timingMarkSize: { width: 13.5, height: 4.5 },
   gridSize: { width: 34, height: 41 },
   frontUsableArea: makeRect({
     minX: 0 /* index of left column */ + 1 /* left timing mark column */,
@@ -229,311 +174,40 @@ export const ScannedBallotCardGeometry8pt5x14: BallotCardGeometry = {
 /**
  * Gets the amount of pixels to search inward from the edges of an image.
  */
-export function getSearchInset(canvasSize: Size): number {
-  const { width } = canvasSize;
-  const maxTimingMarkSize: Size = {
-    width: Math.ceil(width * TimingMarkMaxSizeRatio.width),
-    height: Math.ceil(width * TimingMarkMaxSizeRatio.height),
-  };
-  return Math.ceil(maxTimingMarkSize.width * 5);
-}
+export function getSearchInset(geometry: BallotCardGeometry): Inset {
+  const timingMarkBufferCount = 3;
+  const timingMarkBuffer =
+    (geometry.timingMarkSize.width + geometry.timingMarkSize.height) *
+    timingMarkBufferCount;
 
-/**
- * Options for {@link scanForTimingMarksByScoringBlocks}.
- */
-export interface ScanForTimingMarksByScoringBlocksOptions {
-  readonly debug?: Debugger;
-  readonly minimumScore: number;
-}
-
-/**
- * Scans an image for timing marks by matching each pixel in a search area
- * against an expected timing mark template.
- */
-export function scanForTimingMarksByScoringBlocks(
-  imageData: ImageData,
-  { debug, minimumScore }: ScanForTimingMarksByScoringBlocksOptions
-): Set<Rect> {
-  const channels = getChannels(imageData);
-  const inset = getSearchInset(imageData);
-
-  /* istanbul ignore next */
-  if (debug) {
-    debug.layer(scanForTimingMarksByScoringBlocks.name);
-
-    const insetColor = '#ff000033';
-    debug
-      .layer('inset search area')
-      .rect(0, 0, inset, imageData.height, insetColor)
-      .rect(imageData.width - inset, 0, inset, imageData.height, insetColor)
-      .rect(inset, 0, imageData.width - 2 * inset, inset, insetColor)
-      .rect(
-        inset,
-        imageData.height - inset,
-        imageData.width - 2 * inset,
-        inset,
-        insetColor
-      )
-      .layerEnd('inset search area');
-  }
-
-  const threshold = otsu(imageData.data, channels);
-  const { width, height } = imageData;
-  const timingMarkSize = expectedTimingMarkSize(width);
-  const timingMarkGapSize = expectedTimingMarkGapSize(width);
-  let scoredPoints: Array<[number, Point]> = [];
-
-  function matchTimingMarkTemplate(centerX: number, centerY: number): number {
-    const expectedTimingMarkMinX = Math.ceil(
-      centerX - timingMarkSize.width / 2
+  if (geometry.contentArea.x === 0 && geometry.contentArea.y === 0) {
+    const verticalInset = Math.ceil(
+      geometry.canvasSize.height -
+        (geometry.timingMarkSize.width + geometry.timingMarkSize.height) *
+          (geometry.gridSize.height - timingMarkBufferCount)
     );
-    const minX = Math.ceil(
-      expectedTimingMarkMinX - timingMarkGapSize.width / 2
+    const horizontalInset = Math.ceil(
+      geometry.canvasSize.width -
+        (geometry.timingMarkSize.width + geometry.timingMarkSize.height) *
+          (geometry.gridSize.width - timingMarkBufferCount)
     );
-    const expectedTimingMarkMaxX = Math.floor(
-      centerX + timingMarkSize.width / 2
-    );
-    const maxX = Math.floor(
-      expectedTimingMarkMaxX + timingMarkGapSize.width / 2
-    );
-    const expectedTimingMarkMinY = Math.ceil(
-      centerY - timingMarkSize.height / 2
-    );
-    const minY = Math.ceil(
-      expectedTimingMarkMinY - timingMarkGapSize.width / 2
-    );
-    const expectedTimingMarkMaxY = Math.floor(
-      centerY + timingMarkSize.height / 2
-    );
-    const maxY = Math.floor(
-      expectedTimingMarkMaxY + timingMarkGapSize.width / 2
-    );
-    const scoreSearchArea = (maxX - minX + 1) * (maxY - minY + 1);
-
-    let matchingPixelCount = 0;
-    for (let x = minX; x <= maxX; x += 1) {
-      for (let y = minY; y <= maxY; y += 1) {
-        const lum =
-          x < 0 || x >= width || y < 0 || y >= height
-            ? 0xff
-            : (imageData.data[(y * width + x) * channels] as number);
-        const isDark = lum < threshold;
-        const expectedDark =
-          x >= expectedTimingMarkMinX &&
-          x <= expectedTimingMarkMaxX &&
-          y >= expectedTimingMarkMinY &&
-          y <= expectedTimingMarkMaxY;
-        if (isDark === expectedDark) {
-          matchingPixelCount += 1;
-        }
-      }
-    }
-
-    return matchingPixelCount / scoreSearchArea;
-  }
-
-  debug?.layer('match timing mark template');
-  const xStep = Math.max(1, Math.round(timingMarkSize.width / 6));
-  const yStep = Math.max(1, Math.round(timingMarkSize.height / 6));
-  for (let x = 0; x < width; x += xStep) {
-    for (let y = 0; y < height; y += yStep) {
-      if (x > inset && x < width - inset && y > inset && y < height - inset) {
-        continue;
-      }
-
-      const score = matchTimingMarkTemplate(x, y);
-      if (score < minimumScore) {
-        continue;
-      }
-
-      scoredPoints.push([score, loc(x, y)]);
-    }
-  }
-  debug?.layerEnd('match timing mark template');
-
-  // Sort by descending score
-  scoredPoints = [...scoredPoints].sort((a, b) => b[0] - a[0]);
-
-  debug?.layer('timing marks by score');
-  const timingMarkRects = new Set<Rect>();
-  for (const [score, { x, y }] of scoredPoints) {
-    const expectedTimingMarkRect = makeRect({
-      minX: x - timingMarkSize.width / 2 + 0.5,
-      minY: y - timingMarkSize.height / 2 + 0.5,
-      maxX: x + timingMarkSize.width / 2 - 0.5,
-      maxY: y + timingMarkSize.height / 2 - 0.5,
-    });
-
-    let isOverlapping = false;
-    for (const rect of timingMarkRects) {
-      if (
-        x >= rect.minX &&
-        y >= rect.minY &&
-        x <= rect.maxX &&
-        y <= rect.maxY
-      ) {
-        isOverlapping = true;
-        break;
-      }
-    }
-
-    if (isOverlapping) {
-      continue;
-    }
-
-    /* istanbul ignore next */
-    if (debug) {
-      const backgroundColor = `#${Math.round((1 - score) * 0xff)
-        .toString(16)
-        .padStart(2, '0')}${Math.round(score * 0xff)
-        .toString(16)
-        .padStart(2, '0')}0077`;
-      debug.rect(
-        expectedTimingMarkRect.x,
-        expectedTimingMarkRect.y,
-        expectedTimingMarkRect.width,
-        expectedTimingMarkRect.height,
-        backgroundColor
-      );
-    }
-
-    // Expand out from the center to find the actual timing mark.
-    const rectCenter = centerOfRect(expectedTimingMarkRect);
-    const midX = Math.round(rectCenter.x);
-    const midY = Math.round(rectCenter.y);
-    let correctedMinX: number;
-    let correctedMinY: number;
-    let correctedMaxX: number;
-    let correctedMaxY: number;
-
-    for (
-      correctedMinX = midX;
-      correctedMinX >= expectedTimingMarkRect.minX;
-      correctedMinX -= 1
-    ) {
-      const lum = imageData.data[
-        (correctedMinX - 1 + midY * width) * channels
-      ] as number;
-      const isDark = lum < threshold;
-      if (!isDark) {
-        break;
-      }
-    }
-
-    for (
-      correctedMaxX = midX;
-      correctedMaxX <= expectedTimingMarkRect.maxX;
-      correctedMaxX += 1
-    ) {
-      const lum = imageData.data[
-        (correctedMaxX + 1 + midY * width) * channels
-      ] as number;
-      const isDark = lum < threshold;
-      if (!isDark) {
-        break;
-      }
-    }
-
-    for (
-      correctedMinY = midY;
-      correctedMinY >= expectedTimingMarkRect.minY;
-      correctedMinY -= 1
-    ) {
-      const lum = imageData.data[
-        (midX + (correctedMinY - 1) * width) * channels
-      ] as number;
-      const isDark = lum < threshold;
-      if (!isDark) {
-        break;
-      }
-    }
-
-    for (
-      correctedMaxY = midY;
-      correctedMaxY <= expectedTimingMarkRect.maxY;
-      correctedMaxY += 1
-    ) {
-      const lum = imageData.data[
-        (midX + (correctedMaxY + 1) * width) * channels
-      ] as number;
-      const isDark = lum < threshold;
-      if (!isDark) {
-        break;
-      }
-    }
-
-    const correctedTimingMarkRect = makeRect({
-      minX: correctedMinX,
-      minY: correctedMinY,
-      maxX: correctedMaxX,
-      maxY: correctedMaxY,
-    });
-
-    if (
-      correctedTimingMarkRect.width > timingMarkSize.width / 2 &&
-      correctedTimingMarkRect.height > timingMarkSize.height / 2
-    ) {
-      timingMarkRects.add(correctedTimingMarkRect);
-    }
-  }
-
-  // Remove timing marks that overlap with another that is a better match.
-  const medianTimingMarkWidth = median(
-    [...timingMarkRects].map((rect) => rect.width)
-  );
-  const medianTimingMarkHeight = median(
-    [...timingMarkRects].map((rect) => rect.height)
-  );
-  const overlappingRects = findOverlappingRects(timingMarkRects);
-  for (const [rect, otherRect] of overlappingRects) {
-    const rectError =
-      Math.abs(rect.width - medianTimingMarkWidth) +
-      Math.abs(rect.height - medianTimingMarkHeight);
-    const otherRectError =
-      Math.abs(otherRect.width - medianTimingMarkWidth) +
-      Math.abs(otherRect.height - medianTimingMarkHeight);
-
-    if (rectError < otherRectError) {
-      timingMarkRects.delete(otherRect);
-    } else {
-      timingMarkRects.delete(rect);
-    }
-  }
-
-  debug
-    ?.layerEnd('timing marks by score')
-    .layerEnd(scanForTimingMarksByScoringBlocks.name);
-  return timingMarkRects;
-}
-
-/**
- * Finds the timing marks in a border pattern from a set of timing mark rects.
- */
-export function findTimingMarks({
-  geometry,
-  rects,
-  debug,
-}: {
-  geometry: BallotCardGeometry;
-  rects: Iterable<Rect>;
-  debug?: Debugger;
-}): PartialTimingMarks | undefined {
-  const border = findBorder({ geometry, rects, debug });
-
-  if (border && border.top.length < border.bottom.length) {
     return {
-      bottom: border.top,
-      left: border.right,
-      right: border.left,
-      top: border.bottom,
-      bottomLeft: border.topRight,
-      bottomRight: border.topLeft,
-      topLeft: border.bottomRight,
-      topRight: border.bottomLeft,
+      left: horizontalInset,
+      top: verticalInset,
+      right: horizontalInset,
+      bottom: verticalInset,
     };
   }
-
-  return border;
+  return {
+    left: Math.ceil(geometry.contentArea.minX + timingMarkBuffer),
+    top: Math.ceil(geometry.contentArea.minY + timingMarkBuffer),
+    right: Math.ceil(
+      geometry.canvasSize.width - geometry.contentArea.maxX + timingMarkBuffer
+    ),
+    bottom: Math.ceil(
+      geometry.canvasSize.height - geometry.contentArea.maxY + timingMarkBuffer
+    ),
+  };
 }
 
 /**
@@ -560,7 +234,7 @@ export function findTemplateOvals(
   ovalTemplate: ImageData,
   timingMarks: CompleteTimingMarks,
   {
-    debug,
+    debug = noDebug(),
     usableArea,
     matchThreshold = DefaultTemplateOvalMatchScoreThreshold,
     matchErrorPixels = 2,
@@ -571,7 +245,7 @@ export function findTemplateOvals(
     matchErrorPixels?: number;
   }
 ): TemplateOval[] {
-  debug?.layer(findTemplateOvals.name).imageData(0, 0, imageData);
+  debug.imageData(0, 0, imageData);
 
   const grid = computeTimingMarkGrid(timingMarks);
   const candidates: TemplateOval[] = [];
@@ -630,7 +304,8 @@ export function findTemplateOvals(
     }
   }
 
-  if (debug) {
+  /* istanbul ignore next */
+  if (debug.isEnabled()) {
     for (const candidate of candidates) {
       const matches = candidate.score >= matchThreshold;
       debug.rect(
@@ -649,7 +324,6 @@ export function findTemplateOvals(
     }
   }
 
-  debug?.layerEnd(findTemplateOvals.name);
   return candidates.filter((oval) => oval.score >= matchThreshold);
 }
 
@@ -680,6 +354,7 @@ export function decodeFrontTimingMarkBits(
   const startBit = bitsRightToLeft[31];
 
   return {
+    side: 'front',
     bits: bitsRightToLeft,
     mod4CheckSum,
     computedMod4CheckSum,
@@ -749,6 +424,7 @@ export function decodeBackTimingMarkBits(
   ];
 
   return {
+    side: 'back',
     bits: bitsRightToLeft as ThirtyTwoBits,
     electionDay,
     electionMonth,
@@ -759,6 +435,37 @@ export function decodeBackTimingMarkBits(
     enderCode,
     expectedEnderCode: [0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0],
   };
+}
+
+/**
+ * Decodes front or back page metadata from a border pattern.
+ */
+export function decodeTimingMarkBits(
+  bits: readonly Bit[]
+): Result<MarksMetadata, Error> {
+  let lastParseResult: Result<MarksMetadata, Error> | undefined;
+
+  for (const data of [bits, [...bits].reverse()]) {
+    const frontParseResult = safeParse(
+      FrontMarksMetadataSchema,
+      decodeFrontTimingMarkBits(data)
+    );
+    if (frontParseResult.isOk()) {
+      return frontParseResult;
+    }
+    lastParseResult = frontParseResult;
+
+    const backParseResult = safeParse(
+      BackMarksMetadataSchema,
+      decodeBackTimingMarkBits(data)
+    );
+    if (backParseResult.isOk()) {
+      return backParseResult;
+    }
+    lastParseResult = backParseResult;
+  }
+
+  return lastParseResult ?? err(new Error('Could not decode timing mark bits'));
 }
 
 /**

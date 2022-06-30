@@ -1,5 +1,5 @@
 import { join } from 'path';
-import { defineConfig, loadEnv } from 'vite';
+import { Alias, defineConfig, loadEnv } from 'vite';
 import { getWorkspacePackageInfo } from '../../script/src/validate-monorepo/pnpm';
 import setupProxy from './prodserver/setupProxy';
 
@@ -49,6 +49,8 @@ export default defineConfig(async (env) => {
         { find: 'assert', replacement: require.resolve('assert/') },
         { find: 'buffer', replacement: require.resolve('buffer/') },
         { find: 'events', replacement: require.resolve('events/') },
+        { find: 'fs', replacement: join(__dirname, './src/stubs/fs.ts') },
+        { find: 'path', replacement: require.resolve('path/') },
         { find: 'stream', replacement: require.resolve('stream-browserify') },
         { find: 'util', replacement: require.resolve('util/') },
         { find: 'zlib', replacement: require.resolve('browserify-zlib') },
@@ -75,7 +77,7 @@ export default defineConfig(async (env) => {
         //
         // This allows re-mapping imports for workspace packages to their
         // TypeScript source code rather than the built JavaScript.
-        ...Array.from(workspacePackages.values()).reduce(
+        ...Array.from(workspacePackages.values()).reduce<Alias[]>(
           (aliases, { path, name, source }) =>
             !source
               ? aliases

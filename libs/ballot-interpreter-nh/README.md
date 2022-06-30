@@ -51,13 +51,13 @@ $ ./bin/interpret \
     test/fixtures/hudson-2020-11-03/scan-marked-{front,back}.jpeg
 test/fixtures/hudson-2020-11-03/scan-marked-front.jpeg:
 President and Vice-President of the United States
-✅ (42.68%) Donald J. Trump  and Michael R. Pence
-✅ (10.49%) Joseph R. Biden  and Kamala D. Harris
-✅ (14.88%) Jo Jorgensen  and Jeremy Cohen
-✅ (76.10%) Write-In #1
+✅ (44.47%) Donald J. Trump  and Michael R. Pence
+❓ (10.81%) Joseph R. Biden  and Kamala D. Harris
+✅ (15.78%) Jo Jorgensen  and Jeremy Cohen
+✅ (77.27%) Write-In #1
 
 Governor
-✅ (13.66%) Chris Sununu
+✅ (15.03%) Chris Sununu
 …
 
 # customize the mark threshold to 5% for both marginal & definite
@@ -67,15 +67,15 @@ $ ./bin/interpret \
     -t 5%
 …
 State Representatives
-🅾️ ( 4.88%) Tony Lekas
-✅ ( 5.85%) Hershel Nunez
-✅ ( 6.34%) Lynne Ober
-✅ (23.41%) Russell Ober
-✅ (20.98%) Andrew Prout
-✅ (18.05%) Andrew Renzullo
-✅ ( 7.07%) Kimberly Rice
-🅾️ ( 4.63%) Denise Smith
-✅ (12.20%) Jordan Ulery
+✅ ( 6.46%) Tony Lekas
+✅ ( 7.58%) Hershel Nunez
+⬜️ ( 3.98%) Lynne Ober
+✅ (24.47%) Russell Ober
+✅ (21.61%) Andrew Prout
+✅ (20.50%) Andrew Renzullo
+✅ ( 8.07%) Kimberly Rice
+✅ ( 5.09%) Denise Smith
+✅ (13.42%) Jordan Ulery
 …
 
 # customize the mark thresholds to 4% for marginal & 7% for definite
@@ -85,15 +85,15 @@ $ ./bin/interpret \
     -t 4%,7%
 …
 Representative in Congress
-✅ (30.98%) Steven Negron
-❓ ( 6.34%) Ann McLane Kuster
-✅ (34.63%) Andrew Olding
-✅ (16.59%) Write-In #1
+✅ (31.55%) Steven Negron
+✅ ( 7.70%) Ann McLane Kuster
+✅ (36.77%) Andrew Olding
+✅ (18.14%) Write-In #1
 
 Executive Councilor
-✅ (70.49%) Dave Wheeler
-❓ ( 6.83%) Debora B. Pignatelli
-✅ (11.71%) Write-In #1
+✅ (71.30%) Dave Wheeler
+✅ ( 7.70%) Debora B. Pignatelli
+✅ (13.79%) Write-In #1
 …
 ```
 
