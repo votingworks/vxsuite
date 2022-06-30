@@ -1,5 +1,5 @@
 import { join } from 'path';
-import { defineConfig } from 'vite';
+import { Alias, defineConfig } from 'vite';
 import setupProxy from './prodserver/setupProxy';
 import { getWorkspacePackageInfo } from '../../script/src/validate-monorepo/pnpm';
 
@@ -25,12 +25,12 @@ export default defineConfig(async () => {
     },
 
     resolve: {
-      alias: {
+      alias: [
         // Replace NodeJS built-in modules with polyfills.
         //
         // The trailing slash is important, otherwise it will be resolved as a
         // built-in NodeJS module.
-        buffer: require.resolve('buffer/'),
+        { find: 'buffer', replacement: require.resolve('buffer/'), },
 
         // Create aliases for all workspace packages, i.e.
         //
@@ -42,14 +42,14 @@ export default defineConfig(async () => {
         //
         // This allows re-mapping imports for workspace packages to their
         // TypeScript source code rather than the built JavaScript.
-        ...Array.from(workspacePackages.values()).reduce<
-          Record<string, string>
-        >(
+        ...Array.from(workspacePackages.values()).reduce<Alias[]>(
           (aliases, { path, name, source }) =>
-            !source ? aliases : { ...aliases, [name]: join(path, source) },
-          {}
+            !source
+              ? aliases
+              : [...aliases, { find: name, replacement: join(path, source) }],
+          []
         ),
-      },
+      ],
     },
 
     plugins: [
