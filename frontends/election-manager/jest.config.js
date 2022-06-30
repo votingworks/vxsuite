@@ -8,6 +8,9 @@ function regexEscape(str) {
   return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+/**
+ * @type {import('@jest/types').Config.InitialOptions}
+ */
 module.exports = {
   collectCoverageFrom: [
     'src/**/*.{js,jsx,ts,tsx}',
