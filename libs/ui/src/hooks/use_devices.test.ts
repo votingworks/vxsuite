@@ -1,5 +1,5 @@
 import { act, renderHook } from '@testing-library/react-hooks';
-import { Logger, LogSource, LogEventId } from '@votingworks/logging';
+import { LogEventId, fakeLogger } from '@votingworks/logging';
 import { fakeMarkerInfo } from '@votingworks/test-utils';
 import {
   AccessibleControllerProductId,
@@ -31,13 +31,12 @@ const emptyDevices: Devices = {
 
 test('can connect printer as expected', async () => {
   const hardware = new MemoryHardware();
-  const fakeLogger = new Logger(LogSource.VxCentralScanFrontend);
-  const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
+  const logger = fakeLogger();
   const { result, rerender, waitForNextUpdate } = renderHook(() =>
-    useDevices({ hardware, logger: fakeLogger })
+    useDevices({ hardware, logger })
   );
   expect(result.current).toEqual(emptyDevices);
-  expect(logSpy).toHaveBeenCalledTimes(0);
+  expect(logger.log).toHaveBeenCalledTimes(0);
 
   const expectedPrinter: Devices['printer'] = {
     connected: true,
@@ -52,8 +51,8 @@ test('can connect printer as expected', async () => {
   act(() => hardware.setPrinterConnected(true));
   rerender();
   expect(result.current.printer).toEqual(expectedPrinter);
-  expect(logSpy).toHaveBeenCalledTimes(2);
-  expect(logSpy).toHaveBeenNthCalledWith(
+  expect(logger.log).toHaveBeenCalledTimes(2);
+  expect(logger.log).toHaveBeenNthCalledWith(
     1,
     LogEventId.PrinterConfigurationAdded,
     'system',
@@ -66,7 +65,7 @@ test('can connect printer as expected', async () => {
   act(() => hardware.setPrinterConnected(false));
   rerender();
   expect(result.current.printer).toBeUndefined();
-  expect(logSpy).toHaveBeenCalledWith(
+  expect(logger.log).toHaveBeenCalledWith(
     LogEventId.PrinterConnectionUpdate,
     'system',
     expect.objectContaining({
@@ -78,7 +77,7 @@ test('can connect printer as expected', async () => {
   act(() => hardware.setPrinterConnected(true));
   rerender();
   expect(result.current.printer).toEqual(expectedPrinter);
-  expect(logSpy).toHaveBeenCalledWith(
+  expect(logger.log).toHaveBeenCalledWith(
     LogEventId.PrinterConnectionUpdate,
     'system',
     expect.objectContaining({
@@ -90,7 +89,7 @@ test('can connect printer as expected', async () => {
   act(() => hardware.detachAllPrinters());
   rerender();
   expect(result.current.printer).toBeUndefined();
-  expect(logSpy).toHaveBeenCalledWith(
+  expect(logger.log).toHaveBeenCalledWith(
     LogEventId.PrinterConfigurationRemoved,
     'system',
     expect.objectContaining({
@@ -104,13 +103,12 @@ test('can connect printer as expected', async () => {
 
 test('can connect card reader as expected', async () => {
   const hardware = new MemoryHardware();
-  const fakeLogger = new Logger(LogSource.VxCentralScanFrontend);
-  const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
+  const logger = fakeLogger();
   const { result, rerender, waitForNextUpdate } = renderHook(() =>
-    useDevices({ hardware, logger: fakeLogger })
+    useDevices({ hardware, logger })
   );
   expect(result.current).toEqual(emptyDevices);
-  expect(logSpy).toHaveBeenCalledTimes(0);
+  expect(logger.log).toHaveBeenCalledTimes(0);
 
   const expectedCardReader: Devices['cardReader'] = {
     deviceAddress: 0,
@@ -125,8 +123,8 @@ test('can connect card reader as expected', async () => {
   act(() => hardware.setCardReaderConnected(true));
   rerender();
   expect(result.current.cardReader).toEqual(expectedCardReader);
-  expect(logSpy).toHaveBeenCalledTimes(1);
-  expect(logSpy).toHaveBeenCalledWith(
+  expect(logger.log).toHaveBeenCalledTimes(1);
+  expect(logger.log).toHaveBeenCalledWith(
     LogEventId.DeviceAttached,
     'system',
     expect.objectContaining({
@@ -139,8 +137,8 @@ test('can connect card reader as expected', async () => {
   act(() => hardware.setCardReaderConnected(false));
   rerender();
   expect(result.current.cardReader).toBeUndefined();
-  expect(logSpy).toHaveBeenCalledTimes(2);
-  expect(logSpy).toHaveBeenLastCalledWith(
+  expect(logger.log).toHaveBeenCalledTimes(2);
+  expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.DeviceUnattached,
     'system',
     expect.objectContaining({
@@ -156,13 +154,12 @@ test('can connect card reader as expected', async () => {
 
 test('can connect accessible controller as expected', async () => {
   const hardware = new MemoryHardware();
-  const fakeLogger = new Logger(LogSource.VxCentralScanFrontend);
-  const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
+  const logger = fakeLogger();
   const { result, rerender, waitForNextUpdate } = renderHook(() =>
-    useDevices({ hardware, logger: fakeLogger })
+    useDevices({ hardware, logger })
   );
   expect(result.current).toEqual(emptyDevices);
-  expect(logSpy).toHaveBeenCalledTimes(0);
+  expect(logger.log).toHaveBeenCalledTimes(0);
 
   const expectedAccessibleController: Devices['accessibleController'] = {
     deviceAddress: 0,
@@ -179,8 +176,8 @@ test('can connect accessible controller as expected', async () => {
   expect(result.current.accessibleController).toEqual(
     expectedAccessibleController
   );
-  expect(logSpy).toHaveBeenCalledTimes(1);
-  expect(logSpy).toHaveBeenCalledWith(
+  expect(logger.log).toHaveBeenCalledTimes(1);
+  expect(logger.log).toHaveBeenCalledWith(
     LogEventId.DeviceAttached,
     'system',
     expect.objectContaining({
@@ -193,8 +190,8 @@ test('can connect accessible controller as expected', async () => {
   act(() => hardware.setAccessibleControllerConnected(false));
   rerender();
   expect(result.current.accessibleController).toBeUndefined();
-  expect(logSpy).toHaveBeenCalledTimes(2);
-  expect(logSpy).toHaveBeenLastCalledWith(
+  expect(logger.log).toHaveBeenCalledTimes(2);
+  expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.DeviceUnattached,
     'system',
     expect.objectContaining({
@@ -210,13 +207,12 @@ test('can connect accessible controller as expected', async () => {
 
 test('can connect batch scanner as expected', async () => {
   const hardware = new MemoryHardware();
-  const fakeLogger = new Logger(LogSource.VxCentralScanFrontend);
-  const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
+  const logger = fakeLogger();
   const { result, rerender, waitForNextUpdate } = renderHook(() =>
-    useDevices({ hardware, logger: fakeLogger })
+    useDevices({ hardware, logger })
   );
   expect(result.current).toEqual(emptyDevices);
-  expect(logSpy).toHaveBeenCalledTimes(0);
+  expect(logger.log).toHaveBeenCalledTimes(0);
 
   const expectedBatchScanner: Devices['batchScanner'] = {
     deviceAddress: 0,
@@ -231,8 +227,8 @@ test('can connect batch scanner as expected', async () => {
   act(() => hardware.setBatchScannerConnected(true));
   rerender();
   expect(result.current.batchScanner).toEqual(expectedBatchScanner);
-  expect(logSpy).toHaveBeenCalledTimes(1);
-  expect(logSpy).toHaveBeenCalledWith(
+  expect(logger.log).toHaveBeenCalledTimes(1);
+  expect(logger.log).toHaveBeenCalledWith(
     LogEventId.DeviceAttached,
     'system',
     expect.objectContaining({
@@ -245,8 +241,8 @@ test('can connect batch scanner as expected', async () => {
   act(() => hardware.setBatchScannerConnected(false));
   rerender();
   expect(result.current.batchScanner).toBeUndefined();
-  expect(logSpy).toHaveBeenCalledTimes(2);
-  expect(logSpy).toHaveBeenLastCalledWith(
+  expect(logger.log).toHaveBeenCalledTimes(2);
+  expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.DeviceUnattached,
     'system',
     expect.objectContaining({
@@ -271,19 +267,18 @@ test('can connect precinct scanner as expected', async () => {
     manufacturer: 'Plustek',
   };
   const hardware = new MemoryHardware();
-  const fakeLogger = new Logger(LogSource.VxCentralScanFrontend);
-  const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
+  const logger = fakeLogger();
   const { result, rerender, waitForNextUpdate } = renderHook(() =>
-    useDevices({ hardware, logger: fakeLogger })
+    useDevices({ hardware, logger })
   );
   expect(result.current).toEqual(emptyDevices);
-  expect(logSpy).toHaveBeenCalledTimes(0);
+  expect(logger.log).toHaveBeenCalledTimes(0);
 
   act(() => hardware.addDevice(plustekDevice));
   rerender();
   expect(result.current.precinctScanner).toEqual(plustekDevice);
-  expect(logSpy).toHaveBeenCalledTimes(1);
-  expect(logSpy).toHaveBeenCalledWith(
+  expect(logger.log).toHaveBeenCalledTimes(1);
+  expect(logger.log).toHaveBeenCalledWith(
     LogEventId.DeviceAttached,
     'system',
     expect.objectContaining({
@@ -298,8 +293,8 @@ test('can connect precinct scanner as expected', async () => {
   act(() => hardware.removeDevice(plustekDevice));
   rerender();
   expect(result.current.batchScanner).toBeUndefined();
-  expect(logSpy).toHaveBeenCalledTimes(2);
-  expect(logSpy).toHaveBeenLastCalledWith(
+  expect(logger.log).toHaveBeenCalledTimes(2);
+  expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.DeviceUnattached,
     'system',
     expect.objectContaining({
@@ -324,17 +319,16 @@ test('can handle logs for a random device as expected', async () => {
     manufacturer: '',
   };
   const hardware = new MemoryHardware();
-  const fakeLogger = new Logger(LogSource.VxCentralScanFrontend);
-  const logSpy = jest.spyOn(fakeLogger, 'log').mockResolvedValue();
+  const logger = fakeLogger();
   const { result, rerender, waitForNextUpdate } = renderHook(() =>
-    useDevices({ hardware, logger: fakeLogger })
+    useDevices({ hardware, logger })
   );
-  expect(logSpy).toHaveBeenCalledTimes(0);
+  expect(logger.log).toHaveBeenCalledTimes(0);
 
   act(() => hardware.addDevice(randomDevice));
   rerender();
-  expect(logSpy).toHaveBeenCalledTimes(1);
-  expect(logSpy).toHaveBeenCalledWith(
+  expect(logger.log).toHaveBeenCalledTimes(1);
+  expect(logger.log).toHaveBeenCalledWith(
     LogEventId.DeviceAttached,
     'system',
     expect.objectContaining({
@@ -347,8 +341,8 @@ test('can handle logs for a random device as expected', async () => {
 
   act(() => hardware.removeDevice(randomDevice));
   rerender();
-  expect(logSpy).toHaveBeenCalledTimes(2);
-  expect(logSpy).toHaveBeenLastCalledWith(
+  expect(logger.log).toHaveBeenCalledTimes(2);
+  expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.DeviceUnattached,
     'system',
     expect.objectContaining({
@@ -365,9 +359,9 @@ test('can handle logs for a random device as expected', async () => {
 test('periodically polls for computer battery status', async () => {
   jest.useFakeTimers();
   const hardware = new MemoryHardware();
-  const fakeLogger = new Logger(LogSource.VxCentralScanFrontend);
+  const logger = fakeLogger();
   const { result, waitForNextUpdate } = renderHook(() =>
-    useDevices({ hardware, logger: fakeLogger })
+    useDevices({ hardware, logger })
   );
   expect(result.current).toEqual(emptyDevices);
 

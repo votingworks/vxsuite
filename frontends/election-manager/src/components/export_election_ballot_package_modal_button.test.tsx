@@ -1,6 +1,6 @@
 import { fireEvent, waitFor } from '@testing-library/react';
 import { interpretTemplate } from '@votingworks/ballot-interpreter-vx';
-import { LogEventId, Logger, LogSource } from '@votingworks/logging';
+import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { fakeKiosk, fakeUsbDrive, mockOf } from '@votingworks/test-utils';
 import { usbstick } from '@votingworks/utils';
 import React from 'react';
@@ -123,8 +123,7 @@ test('Modal renders insert usb screen appropriately', async () => {
 });
 
 test('Modal renders export confirmation screen when usb detected and manual link works as expected', async () => {
-  const logger = new Logger(LogSource.VxAdminFrontend);
-  const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
+  const logger = fakeLogger();
   const { getByText, queryAllByText, queryAllByAltText, queryAllByTestId } =
     renderInAppContext(<ExportElectionBallotPackageModalButton />, {
       usbDriveStatus: UsbDriveStatus.mounted,
@@ -158,11 +157,11 @@ test('Modal renders export confirmation screen when usb detected and manual link
     );
     expect(window.kiosk!.saveAs).toHaveBeenCalledTimes(1);
   });
-  expect(logSpy).toHaveBeenCalledWith(
+  expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ExportBallotPackageInit,
     'admin'
   );
-  expect(logSpy).toHaveBeenCalledWith(
+  expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ExportBallotPackageComplete,
     'admin',
     expect.objectContaining({ disposition: 'success' })
@@ -193,8 +192,7 @@ test('Modal renders loading screen when usb drive is mounting or ejecting', asyn
 });
 
 test('Modal renders error message appropriately', async () => {
-  const logger = new Logger(LogSource.VxAdminFrontend);
-  const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
+  const logger = fakeLogger();
   window.kiosk!.saveAs = jest.fn().mockResolvedValue(undefined);
   const { queryAllByTestId, getByText, queryAllByText } = renderInAppContext(
     <ExportElectionBallotPackageModalButton />,
@@ -217,11 +215,11 @@ test('Modal renders error message appropriately', async () => {
 
   fireEvent.click(getByText('Close'));
   expect(queryAllByTestId('modal')).toHaveLength(0);
-  expect(logSpy).toHaveBeenCalledWith(
+  expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ExportBallotPackageInit,
     'admin'
   );
-  expect(logSpy).toHaveBeenCalledWith(
+  expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ExportBallotPackageComplete,
     'admin',
     expect.objectContaining({ disposition: 'failure' })

@@ -14,7 +14,7 @@ import {
   TallyCategory,
   VotingMethod,
 } from '@votingworks/types';
-import { Logger, LogEventId, LogSource } from '@votingworks/logging';
+import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import {
   getEmptyExternalTalliesByPrecinct,
@@ -106,8 +106,7 @@ test('displays correct contests for each precinct', () => {
 
 test('can enter data for candidate contests as expected', async () => {
   const saveExternalTallies = jest.fn();
-  const logger = new Logger(LogSource.VxAdminFrontend);
-  const logSpy = jest.spyOn(logger, 'log');
+  const logger = fakeLogger();
   const { getByText, queryAllByTestId, getByTestId } = renderInAppContext(
     <Route path="/tally/manual-data-import/precinct/:precinctId">
       <ManualDataImportPrecinctScreen />
@@ -160,7 +159,7 @@ test('can enter data for candidate contests as expected', async () => {
   expect(queryAllByTestId('president-write-in').length).toBe(0);
   fireEvent.click(getByText('Save Precinct Results for Center Springfield'));
   await waitFor(() =>
-    expect(logSpy).toHaveBeenCalledWith(
+    expect(logger.log).toHaveBeenCalledWith(
       LogEventId.ManualTallyDataEdited,
       'admin',
       expect.objectContaining({ disposition: 'success' })
@@ -191,8 +190,7 @@ test('can enter data for candidate contests as expected', async () => {
 
 test('can enter data for candidate contest with a write in row as expected', async () => {
   const saveExternalTallies = jest.fn();
-  const logger = new Logger(LogSource.VxAdminFrontend);
-  const logSpy = jest.spyOn(logger, 'log');
+  const logger = fakeLogger();
   const { getByText, getByTestId } = renderInAppContext(
     <Route path="/tally/manual-data-import/precinct/:precinctId">
       <ManualDataImportPrecinctScreen />
@@ -223,7 +221,7 @@ test('can enter data for candidate contest with a write in row as expected', asy
   );
   fireEvent.click(getByText('Save Precinct Results for Center Springfield'));
   await waitFor(() =>
-    expect(logSpy).toHaveBeenCalledWith(
+    expect(logger.log).toHaveBeenCalledWith(
       LogEventId.ManualTallyDataEdited,
       'admin',
       expect.objectContaining({ disposition: 'success' })
@@ -249,8 +247,7 @@ test('can enter data for candidate contest with a write in row as expected', asy
 
 test('can enter data for yes no contests as expected', async () => {
   const saveExternalTallies = jest.fn();
-  const logger = new Logger(LogSource.VxAdminFrontend);
-  const logSpy = jest.spyOn(logger, 'log');
+  const logger = fakeLogger();
   const { getByText, queryAllByTestId, getByTestId } = renderInAppContext(
     <Route path="/tally/manual-data-import/precinct/:precinctId">
       <ManualDataImportPrecinctScreen />
@@ -313,7 +310,7 @@ test('can enter data for yes no contests as expected', async () => {
   expect(queryAllByTestId('president-write-in').length).toBe(0);
   fireEvent.click(getByText('Save Precinct Results for Center Springfield'));
   await waitFor(() =>
-    expect(logSpy).toHaveBeenCalledWith(
+    expect(logger.log).toHaveBeenCalledWith(
       LogEventId.ManualTallyDataEdited,
       'admin',
       expect.objectContaining({ disposition: 'success' })

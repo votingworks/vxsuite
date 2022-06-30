@@ -1,6 +1,6 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { LogEventId, Logger, LogSource } from '@votingworks/logging';
+import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { AdjudicationReason, BallotType } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
 import { typedAs } from '@votingworks/utils';
@@ -30,8 +30,7 @@ test('says the sheet is unreadable if it is', async () => {
     })
   );
 
-  const logger = new Logger(LogSource.VxCentralScanFrontend);
-  const logSpy = jest.spyOn(logger, 'log');
+  const logger = fakeLogger();
   const continueScanning = jest.fn();
 
   const { container, getByText } = renderInAppContext(
@@ -45,8 +44,8 @@ test('says the sheet is unreadable if it is', async () => {
 
   expect(container).toMatchSnapshot();
 
-  expect(logSpy).toHaveBeenCalledTimes(1);
-  expect(logSpy).toHaveBeenCalledWith(
+  expect(logger.log).toHaveBeenCalledTimes(1);
+  expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ScanAdjudicationInfo,
     'admin',
     expect.objectContaining({
@@ -130,8 +129,7 @@ test('says the ballot sheet is overvoted if it is', async () => {
   );
 
   const continueScanning = jest.fn();
-  const logger = new Logger(LogSource.VxCentralScanFrontend);
-  const logSpy = jest.spyOn(logger, 'log');
+  const logger = fakeLogger();
 
   const { container, getByText } = renderInAppContext(
     <BallotEjectScreen continueScanning={continueScanning} isTestMode />,
@@ -144,8 +142,8 @@ test('says the ballot sheet is overvoted if it is', async () => {
 
   expect(container).toMatchSnapshot();
 
-  expect(logSpy).toHaveBeenCalledTimes(1);
-  expect(logSpy).toHaveBeenCalledWith(
+  expect(logger.log).toHaveBeenCalledTimes(1);
+  expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ScanAdjudicationInfo,
     'admin',
     expect.objectContaining({
@@ -241,8 +239,7 @@ test('says the ballot sheet is undervoted if it is', async () => {
   );
 
   const continueScanning = jest.fn();
-  const logger = new Logger(LogSource.VxCentralScanFrontend);
-  const logSpy = jest.spyOn(logger, 'log');
+  const logger = fakeLogger();
 
   const { container, getByText } = renderInAppContext(
     <BallotEjectScreen continueScanning={continueScanning} isTestMode />,
@@ -254,8 +251,8 @@ test('says the ballot sheet is undervoted if it is', async () => {
   });
 
   expect(container).toMatchSnapshot();
-  expect(logSpy).toHaveBeenCalledTimes(1);
-  expect(logSpy).toHaveBeenCalledWith(
+  expect(logger.log).toHaveBeenCalledTimes(1);
+  expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ScanAdjudicationInfo,
     'admin',
     expect.objectContaining({
@@ -358,8 +355,7 @@ test('says the ballot sheet is blank if it is', async () => {
   );
 
   const continueScanning = jest.fn();
-  const logger = new Logger(LogSource.VxCentralScanFrontend);
-  const logSpy = jest.spyOn(logger, 'log');
+  const logger = fakeLogger();
 
   const { container, getByText } = renderInAppContext(
     <BallotEjectScreen continueScanning={continueScanning} isTestMode />,
@@ -371,8 +367,8 @@ test('says the ballot sheet is blank if it is', async () => {
   });
 
   expect(container).toMatchSnapshot();
-  expect(logSpy).toHaveBeenCalledTimes(1);
-  expect(logSpy).toHaveBeenCalledWith(
+  expect(logger.log).toHaveBeenCalledTimes(1);
+  expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ScanAdjudicationInfo,
     'admin',
     expect.objectContaining({
@@ -438,8 +434,7 @@ test('calls out live ballot sheets in test mode', async () => {
   );
 
   const continueScanning = jest.fn();
-  const logger = new Logger(LogSource.VxCentralScanFrontend);
-  const logSpy = jest.spyOn(logger, 'log');
+  const logger = fakeLogger();
 
   const { container, getByText } = renderInAppContext(
     <BallotEjectScreen continueScanning={continueScanning} isTestMode />,
@@ -451,8 +446,8 @@ test('calls out live ballot sheets in test mode', async () => {
   });
 
   expect(container).toMatchSnapshot();
-  expect(logSpy).toHaveBeenCalledTimes(1);
-  expect(logSpy).toHaveBeenCalledWith(
+  expect(logger.log).toHaveBeenCalledTimes(1);
+  expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ScanAdjudicationInfo,
     'admin',
     expect.objectContaining({
@@ -507,8 +502,7 @@ test('calls out test ballot sheets in live mode', async () => {
   );
 
   const continueScanning = jest.fn();
-  const logger = new Logger(LogSource.VxCentralScanFrontend);
-  const logSpy = jest.spyOn(logger, 'log');
+  const logger = fakeLogger();
 
   const { container, getByText } = renderInAppContext(
     <BallotEjectScreen
@@ -523,8 +517,8 @@ test('calls out test ballot sheets in live mode', async () => {
   });
 
   expect(container).toMatchSnapshot();
-  expect(logSpy).toHaveBeenCalledTimes(1);
-  expect(logSpy).toHaveBeenCalledWith(
+  expect(logger.log).toHaveBeenCalledTimes(1);
+  expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ScanAdjudicationInfo,
     'admin',
     expect.objectContaining({
@@ -561,8 +555,7 @@ test('shows invalid election screen when appropriate', async () => {
   );
 
   const continueScanning = jest.fn();
-  const logger = new Logger(LogSource.VxCentralScanFrontend);
-  const logSpy = jest.spyOn(logger, 'log');
+  const logger = fakeLogger();
 
   const { getByText, queryAllByText } = renderInAppContext(
     <BallotEjectScreen
@@ -579,8 +572,8 @@ test('shows invalid election screen when appropriate', async () => {
   getByText('Wrong Election');
   getByText('Ballot Election Hash: this-is-a-');
   expect(queryAllByText('Tabulate Duplicate Ballot').length).toBe(0);
-  expect(logSpy).toHaveBeenCalledTimes(1);
-  expect(logSpy).toHaveBeenCalledWith(
+  expect(logger.log).toHaveBeenCalledTimes(1);
+  expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ScanAdjudicationInfo,
     'admin',
     expect.objectContaining({
@@ -634,8 +627,7 @@ test('shows invalid precinct screen when appropriate', async () => {
     })
   );
 
-  const logger = new Logger(LogSource.VxCentralScanFrontend);
-  const logSpy = jest.spyOn(logger, 'log');
+  const logger = fakeLogger();
   const continueScanning = jest.fn();
 
   const { getByText, queryAllByText } = renderInAppContext(
@@ -650,8 +642,8 @@ test('shows invalid precinct screen when appropriate', async () => {
     await waitFor(() => fetchMock.called);
   });
 
-  expect(logSpy).toHaveBeenCalledTimes(1);
-  expect(logSpy).toHaveBeenCalledWith(
+  expect(logger.log).toHaveBeenCalledTimes(1);
+  expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ScanAdjudicationInfo,
     'admin',
     expect.objectContaining({
@@ -832,8 +824,7 @@ test('does NOT say ballot is blank if one side is blank and the other requires w
     );
 
     const continueScanning = jest.fn();
-    const logger = new Logger(LogSource.VxCentralScanFrontend);
-    const logSpy = jest.spyOn(logger, 'log');
+    const logger = fakeLogger();
 
     const { unmount } = renderInAppContext(
       <BallotEjectScreen continueScanning={continueScanning} isTestMode />,
@@ -844,8 +835,8 @@ test('does NOT say ballot is blank if one side is blank and the other requires w
       await waitFor(() => fetchMock.called);
     });
 
-    expect(logSpy).toHaveBeenCalledTimes(1);
-    expect(logSpy).toHaveBeenCalledWith(
+    expect(logger.log).toHaveBeenCalledTimes(1);
+    expect(logger.log).toHaveBeenCalledWith(
       LogEventId.ScanAdjudicationInfo,
       'admin',
       expect.objectContaining({

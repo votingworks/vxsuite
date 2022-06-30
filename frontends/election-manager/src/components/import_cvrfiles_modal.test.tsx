@@ -9,7 +9,7 @@ import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 
 import { usbstick } from '@votingworks/utils';
 import { BallotIdSchema, unsafeParse } from '@votingworks/types';
-import { LogEventId, Logger, LogSource } from '@votingworks/logging';
+import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { ImportCvrFilesModal } from './import_cvrfiles_modal';
 import {
   renderInAppContext,
@@ -73,8 +73,7 @@ describe('Screens display properly when USB is mounted', () => {
   test('No files found screen shows when mounted usb has no valid files', async () => {
     const closeFn = jest.fn();
     const saveCvr = jest.fn();
-    const logger = new Logger(LogSource.VxAdminFrontend);
-    const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
+    const logger = fakeLogger();
     const { getByText, getByTestId } = renderInAppContext(
       <ImportCvrFilesModal onClose={closeFn} />,
       {
@@ -98,7 +97,7 @@ describe('Screens display properly when USB is mounted', () => {
     });
     await waitFor(() => getByText('0 new CVRs Imported'));
     expect(saveCvr).toHaveBeenCalledTimes(1);
-    expect(logSpy).toHaveBeenCalledWith(
+    expect(logger.log).toHaveBeenCalledWith(
       LogEventId.CvrFilesReadFromUsb,
       'admin',
       expect.objectContaining({ disposition: 'success' })
@@ -128,8 +127,7 @@ describe('Screens display properly when USB is mounted', () => {
     window.kiosk!.getFileSystemEntries = jest
       .fn()
       .mockResolvedValue(fileEntries);
-    const logger = new Logger(LogSource.VxAdminFrontend);
-    const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
+    const logger = fakeLogger();
     const { getByText, getAllByTestId } = renderInAppContext(
       <ImportCvrFilesModal onClose={closeFn} />,
       {
@@ -161,7 +159,7 @@ describe('Screens display properly when USB is mounted', () => {
       domGetByText(tableRows[2], 'Import').closest('button')!.disabled
     ).toBe(false);
     expect(window.kiosk!.readFile).toHaveBeenCalledTimes(3); // The files should have been read.
-    expect(logSpy).toHaveBeenCalledWith(
+    expect(logger.log).toHaveBeenCalledWith(
       LogEventId.CvrFilesReadFromUsb,
       'admin',
       expect.objectContaining({ disposition: 'success' })
@@ -177,7 +175,7 @@ describe('Screens display properly when USB is mounted', () => {
       // We should not need to read the file another time since it was already read.
       expect(window.kiosk!.readFile).toHaveBeenCalledTimes(3);
       getByText('0 new CVRs Imported');
-      expect(logSpy).toHaveBeenCalledWith(
+      expect(logger.log).toHaveBeenCalledWith(
         LogEventId.CvrImported,
         'admin',
         expect.objectContaining({ disposition: 'success' })
@@ -188,8 +186,7 @@ describe('Screens display properly when USB is mounted', () => {
   test('Can handle errors appropriately', async () => {
     const closeFn = jest.fn();
     const saveCvr = jest.fn();
-    const logger = new Logger(LogSource.VxAdminFrontend);
-    const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
+    const logger = fakeLogger();
     const fileEntries = [
       {
         name: LIVE_FILE1,
@@ -226,7 +223,7 @@ describe('Screens display properly when USB is mounted', () => {
     getByText(
       /There were no new CVR files automatically found on this USB drive./
     );
-    expect(logSpy).toHaveBeenCalledWith(
+    expect(logger.log).toHaveBeenCalledWith(
       LogEventId.CvrFilesReadFromUsb,
       'admin',
       expect.objectContaining({ disposition: 'success' })
@@ -242,7 +239,7 @@ describe('Screens display properly when USB is mounted', () => {
       // There should be an error importing the file.
       getByText('Error');
       getByText(/There was an error reading the content of the file/);
-      expect(logSpy).toHaveBeenCalledWith(
+      expect(logger.log).toHaveBeenCalledWith(
         LogEventId.CvrImported,
         'admin',
         expect.objectContaining({ disposition: 'failure' })
@@ -253,8 +250,7 @@ describe('Screens display properly when USB is mounted', () => {
   test('Import CVR files screen locks to test mode when test files have been imported', async () => {
     const closeFn = jest.fn();
     const saveCvr = jest.fn();
-    const logger = new Logger(LogSource.VxAdminFrontend);
-    const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
+    const logger = fakeLogger();
     const fileEntries = [
       {
         name: LIVE_FILE1,
@@ -353,7 +349,7 @@ describe('Screens display properly when USB is mounted', () => {
       getByText(
         'The selected file was ignored as a duplicate of a previously imported file.'
       );
-      expect(logSpy).toHaveBeenCalledWith(
+      expect(logger.log).toHaveBeenCalledWith(
         LogEventId.CvrImported,
         'admin',
         expect.objectContaining({ disposition: 'failure' })
