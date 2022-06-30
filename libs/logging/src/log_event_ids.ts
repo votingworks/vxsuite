@@ -169,8 +169,7 @@ const AuthLoginEvent: LogDetails = {
 const AuthLogoutEvent: LogDetails = {
   eventId: LogEventId.AuthLogout,
   eventType: LogEventType.UserAction,
-  documentationMessage:
-    'A user logged out. Disposition is success if the user logged out intentionally, failure if they were logged out for a reason. An optional reason may be provided.',
+  documentationMessage: 'A user logged out.',
   defaultMessage: 'User logged out.',
 };
 

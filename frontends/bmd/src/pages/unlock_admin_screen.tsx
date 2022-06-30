@@ -63,7 +63,7 @@ export function UnlockAdminScreen({ auth }: Props): JSX.Element {
   let primarySentence: JSX.Element = (
     <p>Enter the card security code to unlock.</p>
   );
-  if (auth.wrongPasscodeEntered) {
+  if (auth.wrongPasscodeEnteredAt) {
     primarySentence = <Text warning>Invalid code. Please try again.</Text>;
   }
   return (

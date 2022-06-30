@@ -46,7 +46,7 @@ test('authentication', async () => {
 
 test('If passcode is incorrect, error message is shown', () => {
   const auth = Inserted.fakeCheckingPasscodeAuth({
-    wrongPasscodeEntered: true,
+    wrongPasscodeEnteredAt: true,
   });
   render(<UnlockAdminScreen auth={auth} />);
   screen.getByText('Invalid code. Please try again.');

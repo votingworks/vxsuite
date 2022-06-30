@@ -17,6 +17,7 @@ import {
   BallotStyleId,
   CardlessVoterUser,
   InsertedSmartcardAuth,
+  Optional,
 } from '@votingworks/types';
 import {
   assert,
@@ -51,10 +52,10 @@ export interface UseInsertedSmartcardAuthArgs {
 }
 
 type AuthState =
-  | Pick<InsertedSmartcardAuth.LoggedOut, 'status' | 'reason'>
+  | Pick<InsertedSmartcardAuth.LoggedOut, 'status' | 'reason' | 'cardUserRole'>
   | Pick<
       InsertedSmartcardAuth.CheckingPasscode,
-      'status' | 'user' | 'wrongPasscodeEntered'
+      'status' | 'user' | 'wrongPasscodeEnteredAt'
     >
   | Pick<InsertedSmartcardAuth.LoggedIn, 'status' | 'user'>;
 
@@ -73,13 +74,12 @@ type InsertedSmartcardAuthAction =
       passcode: string;
     };
 
-function validateCardUser(
+function attemptLogin(
   previousAuth: AuthState,
-  card: CardApiReady,
+  user: Optional<User>,
   allowedUserRoles: UserRole[],
   scope: AuthScope
 ): Result<User, InsertedSmartcardAuth.LoggedOut['reason']> {
-  const user = parseUserFromCard(card);
   if (!user) return err('invalid_user_on_card');
   if (!allowedUserRoles.includes(user.role)) {
     return err('user_role_not_allowed');
@@ -142,14 +142,15 @@ function smartcardAuthReducer(allowedUserRoles: UserRole[], scope: AuthScope) {
             case 'error':
               return { status: 'logged_out', reason: 'card_error' };
             case 'ready': {
-              const userResult = validateCardUser(
+              const user = parseUserFromCard(action.card);
+              const loginAttempt = attemptLogin(
                 previousState.auth,
-                action.card,
+                user,
                 allowedUserRoles,
                 scope
               );
-              if (userResult.isOk()) {
-                const user = userResult.ok();
+              if (loginAttempt.isOk()) {
+                assert(user);
                 if (previousState.auth.status === 'logged_out') {
                   if (user.role === 'admin') {
                     return { status: 'checking_passcode', user };
@@ -158,7 +159,11 @@ function smartcardAuthReducer(allowedUserRoles: UserRole[], scope: AuthScope) {
                 }
                 return previousState.auth;
               }
-              return { status: 'logged_out', reason: userResult.err() };
+              return {
+                status: 'logged_out',
+                reason: loginAttempt.err(),
+                cardUserRole: user?.role,
+              };
             }
             /* istanbul ignore next - compile time check for completeness */
             default:
@@ -183,7 +188,10 @@ function smartcardAuthReducer(allowedUserRoles: UserRole[], scope: AuthScope) {
           auth:
             action.passcode === previousState.auth.user.passcode
               ? { status: 'logged_in', user: previousState.auth.user }
-              : { ...previousState.auth, wrongPasscodeEntered: true },
+              : {
+                  ...previousState.auth,
+                  wrongPasscodeEnteredAt: new Date(),
+                },
         };
       }
 

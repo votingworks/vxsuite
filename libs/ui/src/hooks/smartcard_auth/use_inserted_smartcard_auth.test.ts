@@ -119,6 +119,7 @@ describe('useInsertedSmartcardAuth', () => {
     expect(result.current).toEqual({
       status: 'logged_out',
       reason: 'user_role_not_allowed',
+      cardUserRole: 'pollworker',
     });
   });
 
@@ -137,6 +138,7 @@ describe('useInsertedSmartcardAuth', () => {
     expect(result.current).toEqual({
       status: 'logged_out',
       reason: 'machine_not_configured',
+      cardUserRole: 'pollworker',
     });
   });
 
@@ -155,6 +157,7 @@ describe('useInsertedSmartcardAuth', () => {
     expect(result.current).toEqual({
       status: 'logged_out',
       reason: 'pollworker_wrong_election',
+      cardUserRole: 'pollworker',
     });
   });
 
@@ -177,6 +180,7 @@ describe('useInsertedSmartcardAuth', () => {
     expect(result.current).toEqual({
       status: 'logged_out',
       reason: 'voter_card_expired',
+      cardUserRole: 'voter',
     });
   });
 
@@ -195,6 +199,7 @@ describe('useInsertedSmartcardAuth', () => {
     expect(result.current).toEqual({
       status: 'logged_out',
       reason: 'machine_not_configured',
+      cardUserRole: 'voter',
     });
   });
 
@@ -216,6 +221,7 @@ describe('useInsertedSmartcardAuth', () => {
     expect(result.current).toEqual({
       status: 'logged_out',
       reason: 'voter_wrong_election',
+      cardUserRole: 'voter',
     });
   });
 
@@ -237,6 +243,7 @@ describe('useInsertedSmartcardAuth', () => {
     expect(result.current).toEqual({
       status: 'logged_out',
       reason: 'voter_wrong_election',
+      cardUserRole: 'voter',
     });
   });
 
@@ -257,6 +264,7 @@ describe('useInsertedSmartcardAuth', () => {
     expect(result.current).toEqual({
       status: 'logged_out',
       reason: 'voter_wrong_precinct',
+      cardUserRole: 'voter',
     });
   });
 
@@ -293,6 +301,7 @@ describe('useInsertedSmartcardAuth', () => {
     expect(result.current).toEqual({
       status: 'logged_out',
       reason: 'voter_card_voided',
+      cardUserRole: 'voter',
     });
   });
 
@@ -311,6 +320,7 @@ describe('useInsertedSmartcardAuth', () => {
     expect(result.current).toEqual({
       status: 'logged_out',
       reason: 'voter_card_printed',
+      cardUserRole: 'voter',
     });
   });
 
@@ -366,7 +376,7 @@ describe('useInsertedSmartcardAuth', () => {
     expect(result.current).toMatchObject({
       status: 'checking_passcode',
       user,
-      wrongPasscodeEntered: true,
+      wrongPasscodeEnteredAt: expect.any(Date),
     });
 
     // Check the correct passcode
@@ -466,6 +476,7 @@ describe('useInsertedSmartcardAuth', () => {
     expect(result.current).toEqual({
       status: 'logged_out',
       reason: 'voter_card_voided',
+      cardUserRole: 'voter',
     });
   });
 

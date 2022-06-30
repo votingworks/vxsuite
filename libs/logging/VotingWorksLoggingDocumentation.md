@@ -48,7 +48,7 @@ IDs are logged with each log to identify the log being written.
 **Machines:** All
 ### auth-logout
 **Type:** [user-action](#user-action)  
-**Description:** A user logged out. Disposition is success if the user logged out intentionally, failure if they were logged out for a reason. An optional reason may be provided.  
+**Description:** A user logged out.  
 **Machines:** All
 ### auth-login
 **Type:** [user-action](#user-action)  
