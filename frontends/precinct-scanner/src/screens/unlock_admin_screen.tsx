@@ -83,7 +83,11 @@ export function DefaultPreview(): JSX.Element {
     <UnlockAdminScreen
       auth={{
         status: 'checking_passcode',
-        user: { role: 'admin', electionHash: 'preview-election-hash' },
+        user: {
+          role: 'admin',
+          electionHash: 'preview-election-hash',
+          passcode: '000000',
+        },
         checkPasscode: () => undefined,
       }}
     />

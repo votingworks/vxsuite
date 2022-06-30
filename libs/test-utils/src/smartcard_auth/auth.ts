@@ -29,6 +29,7 @@ export function fakeAdminUser(props: Partial<AdminUser> = {}): AdminUser {
   return {
     role: 'admin',
     electionHash: 'election-hash',
+    passcode: '123456',
     ...props,
   };
 }

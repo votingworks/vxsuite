@@ -132,7 +132,6 @@ function smartcardAuthReducer(
 
     case 'check_passcode': {
       assert(previousState.auth.status === 'checking_passcode');
-      assert(previousState.auth.user.passcode !== undefined);
       return {
         ...previousState,
         auth:
@@ -153,7 +152,11 @@ function smartcardAuthReducer(
         ...previousState,
         auth: {
           status: 'logged_in',
-          user: { role: 'admin', electionHash: action.electionHash },
+          user: {
+            role: 'admin',
+            electionHash: action.electionHash,
+            passcode: '000000',
+          },
         },
       };
 

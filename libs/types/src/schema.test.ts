@@ -777,11 +777,13 @@ test('validates admin cards have hex-encoded hashes', () => {
   unsafeParse(t.AdminCardDataSchema, {
     t: 'admin',
     h: 'd34db33f',
+    p: '123456',
   });
   expect(
     safeParse(t.AdminCardDataSchema, {
       t: 'admin',
       h: 'not hex',
+      p: '123456',
     }).unsafeUnwrapErr()
   ).toMatchInlineSnapshot(`
     [ZodError: [

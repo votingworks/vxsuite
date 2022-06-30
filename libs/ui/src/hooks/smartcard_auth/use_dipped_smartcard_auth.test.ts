@@ -205,7 +205,7 @@ describe('useDippedSmartcardAuth', () => {
     await waitForNextUpdate();
     expect(result.current).toMatchObject({
       status: 'logged_in',
-      user: fakeAdminUser({ electionHash }),
+      user: fakeAdminUser({ electionHash, passcode: '000000' }),
     });
   });
 
