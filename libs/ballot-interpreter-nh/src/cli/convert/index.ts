@@ -1,6 +1,8 @@
 import { err, ok, Result } from '@votingworks/types';
 import { DOMParser } from '@xmldom/xmldom';
+import { enable as enableDebug } from 'debug';
 import { promises as fs } from 'fs';
+import { basename } from 'path';
 import { RealIo, Stdio } from '..';
 import {
   convertElectionDefinition,
@@ -15,6 +17,7 @@ interface ConvertOptions {
   readonly frontBallotPath: string;
   readonly backBallotPath: string;
   readonly outputPath?: string;
+  readonly debug: boolean;
 }
 
 interface HelpOptions {
@@ -36,6 +39,7 @@ function parseOptions(args: readonly string[]): Result<Options, Error> {
   let frontBallotPath: string | undefined;
   let backBallotPath: string | undefined;
   let outputPath: string | undefined;
+  let debug = false;
 
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i];
@@ -52,6 +56,11 @@ function parseOptions(args: readonly string[]): Result<Options, Error> {
           outputPath = nextArg;
         }
         i += 1;
+        break;
+      }
+
+      case '--debug': {
+        debug = true;
         break;
       }
 
@@ -97,12 +106,13 @@ function parseOptions(args: readonly string[]): Result<Options, Error> {
     frontBallotPath,
     backBallotPath,
     outputPath,
+    debug,
   });
 }
 
 function usage(out: NodeJS.WritableStream): void {
   out.write(
-    `usage: convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg> [-o <output.json>]\n`
+    `usage: convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg> [-o <output.json>] [--debug]\n`
   );
 }
 
@@ -125,6 +135,10 @@ export async function main(
   if (options.type === 'help') {
     usage(io.stdout);
     return 0;
+  }
+
+  if (options.debug) {
+    enableDebug('ballot-interpreter-nh:*');
   }
 
   const { definitionPath, frontBallotPath, backBallotPath, outputPath } =

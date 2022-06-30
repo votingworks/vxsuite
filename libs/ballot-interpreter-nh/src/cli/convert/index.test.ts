@@ -1,5 +1,6 @@
 import { fakeReadable, fakeWritable, mockOf } from '@votingworks/test-utils';
 import { safeParseElection } from '@votingworks/types';
+import { createImageData } from 'canvas';
 import { readFileSync } from 'fs';
 import { fileSync } from 'tmp';
 import { main } from '.';
@@ -12,7 +13,17 @@ import {
 import { convertElectionDefinition, ConvertIssueKind } from '../../convert';
 
 jest.mock('../../convert');
-jest.mock('../../images');
+jest.mock('../../images', (): typeof import('../../images') => ({
+  binarize: jest.fn(),
+  getChannels: jest.fn(),
+  load: jest.fn(),
+  matchTemplate: jest.fn(),
+  matchTemplateImage: jest.fn(),
+  rotate180: jest.fn(),
+  scoreTemplateMatch: jest.fn(),
+  simpleRemoveNoise: jest.fn(),
+  toImageData: jest.fn().mockReturnValue(createImageData(1, 1)),
+}));
 
 test('--help', async () => {
   const io: Stdio = {
@@ -24,7 +35,7 @@ test('--help', async () => {
   expect(await main(['--help'], io)).toBe(0);
 
   expect(io.stdout.toString()).toMatchInlineSnapshot(`
-    "usage: convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg> [-o <output.json>]
+    "usage: convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg> [-o <output.json>] [--debug]
     "
   `);
 });
@@ -39,7 +50,7 @@ test('-h', async () => {
   expect(await main(['-h'], io)).toBe(0);
 
   expect(io.stdout.toString()).toMatchInlineSnapshot(`
-    "usage: convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg> [-o <output.json>]
+    "usage: convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg> [-o <output.json>] [--debug]
     "
   `);
 });

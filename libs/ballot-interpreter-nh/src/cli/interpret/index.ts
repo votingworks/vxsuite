@@ -10,6 +10,7 @@ import {
 } from '@votingworks/types';
 import { find, groupBy } from '@votingworks/utils';
 import chalk from 'chalk';
+import { enable as enableDebug } from 'debug';
 import { promises as fs } from 'fs';
 import { RealIo, Stdio } from '..';
 import { DefaultMarkThresholds, interpret } from '../../interpret';
@@ -20,6 +21,7 @@ interface InterpretOptions {
   readonly frontBallotPath: string;
   readonly backBallotPath: string;
   readonly markThresholds?: MarkThresholds;
+  readonly debug: boolean;
 }
 
 interface HelpOptions {
@@ -34,6 +36,7 @@ function parseOptions(args: readonly string[]): Result<Options, Error> {
   let backBallotPath: string | undefined;
   let marginalMarkThreshold: number | undefined;
   let definiteMarkThreshold: number | undefined;
+  let debug = false;
 
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i];
@@ -73,6 +76,11 @@ function parseOptions(args: readonly string[]): Result<Options, Error> {
           ? parseDefiniteThresholdResult.ok() / 100
           : parseDefiniteThresholdResult.ok();
         i += 1;
+        break;
+      }
+
+      case '--debug': {
+        debug = true;
         break;
       }
 
@@ -123,12 +131,13 @@ function parseOptions(args: readonly string[]): Result<Options, Error> {
             marginal: marginalMarkThreshold ?? definiteMarkThreshold,
           }
         : undefined,
+    debug,
   });
 }
 
 function usage(out: NodeJS.WritableStream): void {
   out.write(
-    `usage: interpret [-t [MARGINAL,]DEFINITE] <election.json> <front-ballot.jpg> <back-ballot.jpg>\n`
+    `usage: interpret [-t [MARGINAL,]DEFINITE] <election.json> <front-ballot.jpg> <back-ballot.jpg> [--debug]\n`
   );
 }
 
@@ -152,6 +161,10 @@ export async function main(
   if (options.type === 'help') {
     usage(io.stdout);
     return 0;
+  }
+
+  if (options.debug) {
+    enableDebug('ballot-interpreter-nh:*');
   }
 
   const { electionPath, frontBallotPath, backBallotPath } = options;
