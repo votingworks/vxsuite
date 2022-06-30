@@ -109,7 +109,7 @@ test('logs unknown disposition as expected', async () => {
 test('logging from a client side app without sending window.kiosk does NOT log to console', async () => {
   console.log = jest.fn();
   const logger = new Logger(LogSource.VxAdminFrontend);
-  await logger.log(LogEventId.AdminCardInserted, 'admin');
+  await logger.log(LogEventId.AuthLogin, 'admin');
   expect(console.log).not.toHaveBeenCalled();
 });
 
@@ -351,11 +351,9 @@ describe('test cdf conversion', () => {
     expect(cdfLogDevice.Type).toBe('ems');
     const events = cdfLogDevice.Event!;
     // There are 37 log lines in the sample file.
-    expect(events).toHaveLength(37);
-    // There should be one admin-card-inserted log from the application logging.
-    expect(
-      events.filter((e) => e.Id === LogEventId.AdminCardInserted)
-    ).toHaveLength(1);
+    expect(events).toHaveLength(35);
+    // There should be one auth-login log from the application logging.
+    expect(events.filter((e) => e.Id === LogEventId.AuthLogin)).toHaveLength(1);
     // There should be 11 device-attached logs from the application logging.
     expect(
       events.filter((e) => e.Id === LogEventId.DeviceAttached)
@@ -365,16 +363,16 @@ describe('test cdf conversion', () => {
       events.filter((e) => e.Id === LogEventId.UsbDeviceChangeDetected)
     ).toHaveLength(4);
     // An application log should match the snapshot expected.
-    expect(events.filter((e) => e.Id === LogEventId.MachineLocked)[0])
+    expect(events.filter((e) => e.Id === LogEventId.AuthLogout)[0])
       .toMatchInlineSnapshot(`
       Object {
         "@type": "EventLogging.Event",
-        "Description": "The current user was logged out and the machine was locked.",
+        "Description": "User logged out.",
         "Details": "{\\"host\\":\\"ubuntu\\",\\"source\\":\\"vx-admin-frontend\\"}",
         "Disposition": "success",
-        "Id": "machine-locked",
-        "Sequence": "32",
-        "TimeStamp": "2021-12-12T15:22:14.237991-08:00",
+        "Id": "auth-logout",
+        "Sequence": "31",
+        "TimeStamp": "2021-12-12T15:22:14.250052-08:00",
         "Type": "user-action",
         "UserId": "admin",
       }
@@ -389,7 +387,7 @@ describe('test cdf conversion', () => {
         "Details": "{\\"host\\":\\"ubuntu\\",\\"source\\":\\"system\\"}",
         "Disposition": "na",
         "Id": "usb-device-change-detected",
-        "Sequence": "26",
+        "Sequence": "25",
         "TimeStamp": "2021-12-12T15:22:07.667632-08:00",
         "Type": "system-status",
         "UserId": "system",

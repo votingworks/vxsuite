@@ -21,11 +21,9 @@ export enum LogEventId {
   MachineShutdownComplete = 'machine-shutdown-complete',
   UsbDeviceChangeDetected = 'usb-device-change-detected',
   // Authentication related logs
-  AdminAuthenticationTwoFactor = 'admin-authentication-2fac',
-  MachineLocked = 'machine-locked',
-  AdminCardInserted = 'admin-card-inserted',
-  UserSessionActivationAttempt = 'user-session-activation',
-  UserLoggedOut = 'user-logged-out',
+  AuthPasscodeEntry = 'auth-passcode-entry',
+  AuthLogout = 'auth-logout',
+  AuthLogin = 'auth-login',
   // USB related logs
   UsbDriveStatusUpdate = 'usb-drive-status-update',
   UsbDriveEjectInit = 'usb-drive-eject-init',
@@ -154,42 +152,26 @@ const MachineShutdownCompleteEvent: LogDetails = {
     'The machine has completed all the steps to shutdown and will now power down or reboot.',
 };
 
-const AdminAuthenticationTwoFactorEvent: LogDetails = {
-  eventId: LogEventId.AdminAuthenticationTwoFactor,
+const AuthPasscodeEntryEvent: LogDetails = {
+  eventId: LogEventId.AuthPasscodeEntry,
   eventType: LogEventType.UserAction,
-  documentationMessage:
-    'Attempt to authenticate an admin user session with a passcode.',
+  documentationMessage: 'A user attempted to enter a passcode to log in.',
 };
 
-const AdminCardInsertedEvent: LogDetails = {
-  eventId: LogEventId.AdminCardInserted,
+const AuthLoginEvent: LogDetails = {
+  eventId: LogEventId.AuthLogin,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'Admin smartcard inserted, the user will be prompted for passcode to complete authentication.',
-  defaultMessage:
-    'Admin smartcard inserted, the user will be prompted for passcode to complete authentication.',
+    'A user attempted to log in. Disposition is success if they logged in, failure if not. An optional reason may be provided.',
+  defaultMessage: 'User logged in.',
 };
 
-const MachineLockedEvent: LogDetails = {
-  eventId: LogEventId.MachineLocked,
+const AuthLogoutEvent: LogDetails = {
+  eventId: LogEventId.AuthLogout,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'The current user was logged out and the machine was locked.',
-  defaultMessage: 'The current user was logged out and the machine was locked.',
-};
-
-const UserSessionActivationAttemptEvent: LogDetails = {
-  eventId: LogEventId.UserSessionActivationAttempt,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'A user attempted to authenticate as a new user role, disposition and message clarify the user roles and success/failure.',
-};
-
-const UserLoggedOutEvent: LogDetails = {
-  eventId: LogEventId.UserLoggedOut,
-  eventType: LogEventType.UserAction,
-  documentationMessage: 'User logged out of the current session.',
-  defaultMessage: 'User logged out of the current session.',
+    'A user logged out. Disposition is success if the user logged out intentionally, failure if they were logged out for a reason. An optional reason may be provided.',
+  defaultMessage: 'User logged out.',
 };
 
 const UsbDriveEjectInit: LogDetails = {
@@ -741,16 +723,12 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return MachineShutdownInitEvent;
     case LogEventId.MachineShutdownComplete:
       return MachineShutdownCompleteEvent;
-    case LogEventId.AdminAuthenticationTwoFactor:
-      return AdminAuthenticationTwoFactorEvent;
-    case LogEventId.MachineLocked:
-      return MachineLockedEvent;
-    case LogEventId.AdminCardInserted:
-      return AdminCardInsertedEvent;
-    case LogEventId.UserSessionActivationAttempt:
-      return UserSessionActivationAttemptEvent;
-    case LogEventId.UserLoggedOut:
-      return UserLoggedOutEvent;
+    case LogEventId.AuthPasscodeEntry:
+      return AuthPasscodeEntryEvent;
+    case LogEventId.AuthLogin:
+      return AuthLoginEvent;
+    case LogEventId.AuthLogout:
+      return AuthLogoutEvent;
     case LogEventId.UsbDriveEjectInit:
       return UsbDriveEjectInit;
     case LogEventId.UsbDriveEjected:
