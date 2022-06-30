@@ -1,3 +1,4 @@
+import react from '@vitejs/plugin-react';
 import { join } from 'path';
 import { Alias, defineConfig, loadEnv } from 'vite';
 import { getWorkspacePackageInfo } from '../../script/src/validate-monorepo/pnpm';
@@ -88,6 +89,8 @@ export default defineConfig(async (env) => {
     },
 
     plugins: [
+      react(),
+
       // Setup the proxy to local services, e.g. `smartcards`.
       {
         name: 'development-proxy',
