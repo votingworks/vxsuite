@@ -874,14 +874,14 @@ export class Store {
         if (frontFilenames?.normalized) {
           frontImage.normalized = fs.readFileSync(
             frontFilenames.normalized,
-            'utf-8'
+            'base64'
           );
         }
         const backFilenames = this.getBallotFilenames(id, 'back');
         if (backFilenames?.normalized) {
           backImage.normalized = fs.readFileSync(
             backFilenames.normalized,
-            'utf-8'
+            'base64'
           );
         }
       }
