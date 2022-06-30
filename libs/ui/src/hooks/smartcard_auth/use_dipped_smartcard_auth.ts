@@ -29,10 +29,10 @@ export interface UseDippedSmartcardAuthArgs {
 }
 
 type AuthState =
-  | Pick<DippedSmartcardAuth.LoggedOut, 'status' | 'reason'>
+  | Pick<DippedSmartcardAuth.LoggedOut, 'status' | 'reason' | 'cardUserRole'>
   | Pick<
       DippedSmartcardAuth.CheckingPasscode,
-      'status' | 'user' | 'wrongPasscodeEntered'
+      'status' | 'user' | 'wrongPasscodeEnteredAt'
     >
   | Pick<DippedSmartcardAuth.RemoveCard, 'status' | 'user'>
   | Pick<DippedSmartcardAuth.LoggedIn, 'status' | 'user'>;
@@ -51,15 +51,12 @@ type SmartcardAuthAction =
   | { type: 'log_out' }
   | { type: 'bootstrap_admin_session'; electionHash: string };
 
-function validateCardUser(
-  card: CardApiReady
-): Result<AdminUser | SuperadminUser, LoggedOut['reason']> {
-  const user = parseUserFromCard(card);
+function validateCardUser(user?: User): Result<void, LoggedOut['reason']> {
   if (!user) return err('invalid_user_on_card');
   if (!(user.role === 'admin' || user.role === 'superadmin')) {
     return err('user_role_not_allowed');
   }
-  return ok(user);
+  return ok();
 }
 
 function smartcardAuthReducer(
@@ -79,16 +76,24 @@ function smartcardAuthReducer(
                 return { status: 'logged_out', reason: 'card_error' };
 
               case 'ready': {
-                const userResult = validateCardUser(action.card);
-                if (userResult.isOk()) {
-                  const user = userResult.ok();
+                const user = parseUserFromCard(action.card);
+                const validationResult = validateCardUser(user);
+                if (validationResult.isOk()) {
+                  assert(
+                    user &&
+                      (user.role === 'superadmin' || user.role === 'admin')
+                  );
                   // TODO: This case can be removed once superadmin cards have passcodes
                   if (user.role === 'superadmin') {
                     return { status: 'remove_card', user };
                   }
                   return { status: 'checking_passcode', user };
                 }
-                return { status: 'logged_out', reason: userResult.err() };
+                return {
+                  status: 'logged_out',
+                  reason: validationResult.err(),
+                  cardUserRole: user?.role,
+                };
               }
 
               /* istanbul ignore next - compile time check for completeness */
@@ -137,7 +142,7 @@ function smartcardAuthReducer(
         auth:
           action.passcode === previousState.auth.user.passcode
             ? { status: 'remove_card', user: previousState.auth.user }
-            : { ...previousState.auth, wrongPasscodeEntered: true },
+            : { ...previousState.auth, wrongPasscodeEnteredAt: new Date() },
       };
     }
 

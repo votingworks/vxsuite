@@ -1,4 +1,4 @@
-import { AdminUser, CardStorage, SuperadminUser } from './auth';
+import { AdminUser, CardStorage, SuperadminUser, UserRole } from './auth';
 
 export interface LoggedOut {
   readonly status: 'logged_out';
@@ -7,6 +7,7 @@ export interface LoggedOut {
     | 'card_error'
     | 'invalid_user_on_card'
     | 'user_role_not_allowed';
+  readonly cardUserRole?: UserRole;
   readonly bootstrapAuthenticatedAdminSession: (electionHash: string) => void;
 }
 
@@ -14,7 +15,7 @@ export interface CheckingPasscode {
   readonly status: 'checking_passcode';
   readonly user: AdminUser;
   readonly checkPasscode: (passcode: string) => void;
-  readonly wrongPasscodeEntered?: true;
+  readonly wrongPasscodeEnteredAt?: Date;
 }
 
 export interface RemoveCard {
