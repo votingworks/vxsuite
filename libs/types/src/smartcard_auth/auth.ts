@@ -10,7 +10,7 @@ export interface SuperadminUser {
 export interface AdminUser {
   readonly role: 'admin';
   readonly electionHash: string;
-  readonly passcode?: string;
+  readonly passcode: string;
 }
 export interface PollworkerUser {
   readonly role: 'pollworker';

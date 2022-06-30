@@ -152,7 +152,11 @@ function smartcardAuthReducer(
         ...previousState,
         auth: {
           status: 'logged_in',
-          user: { role: 'admin', electionHash: action.electionHash },
+          user: {
+            role: 'admin',
+            electionHash: action.electionHash,
+            passcode: '000000',
+          },
         },
       };
 
