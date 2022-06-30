@@ -1441,7 +1441,7 @@ importers:
       eslint-plugin-jest: 26.1.5_ced94bd3986600456475a04278b6144f
       eslint-plugin-prettier: 4.0.0_94254c01413ebaf1ad99cec97ec78f12
       eslint-plugin-vx: link:../eslint-plugin-vx
-      fast-check: 2.23.0
+      fast-check: 2.18.0
       is-ci-cli: 2.2.0
       jest: 27.5.1_canvas@2.9.1
       jest-watch-typeahead: 0.6.5_jest@27.5.1
@@ -1474,7 +1474,7 @@ importers:
       eslint-plugin-jest: ^26.1.5
       eslint-plugin-prettier: ^4.0.0
       eslint-plugin-vx: workspace:*
-      fast-check: ^2.21.0
+      fast-check: 2.18.0
       he: ^1.2.0
       is-ci-cli: ^2.2.0
       jest: ^27.4.7
@@ -19834,7 +19834,7 @@ packages:
       integrity: sha1-lpGEQOMEGnpBT4xS48V06zw+HgU=
   /fast-check/2.18.0:
     dependencies:
-      pure-rand: 5.0.0
+      pure-rand: 5.0.1
     engines:
       node: '>=8.0.0'
     resolution:
@@ -19855,14 +19855,6 @@ packages:
       node: '>=8.0.0'
     resolution:
       integrity: sha512-tFNjLyPnOUg6iimVxOtoWMJOIyybCo7B8gUGm1yv43jDCQ0hlPUn0fmna/XO/n1yPxn/dxQw3+IygPSbMDiiog==
-  /fast-check/2.23.0:
-    dependencies:
-      pure-rand: 5.0.0
-    dev: true
-    engines:
-      node: '>=8.0.0'
-    resolution:
-      integrity: sha512-aV1kOi6zUCytkICuhu9s8MBtJjlAos6MIU5NYCcgt5u2UVdgaAsqTI+u0n6Cea1hKFXdfSmfz6wfxce6Ozcj2w==
   /fast-check/2.23.2:
     dependencies:
       pure-rand: 5.0.1
@@ -28919,10 +28911,10 @@ packages:
     resolution:
       integrity: sha512-XRsRjdf+j5ml+y/6GKHPZbrF/8p2Yga0JPtdqTIY2Xe5ohJPD9saDJJLPvp9+NSBprVvevdXZybnj2cv8OEd0A==
   /pure-rand/5.0.0:
+    dev: true
     resolution:
       integrity: sha512-lD2/y78q+7HqBx2SaT6OT4UcwtvXNRfEpzYEzl0EQ+9gZq2Qi3fa0HDnYPeqQwhlHJFBUhT7AO3mLU3+8bynHA==
   /pure-rand/5.0.1:
-    dev: true
     resolution:
       integrity: sha512-ksWccjmXOHU2gJBnH0cK1lSYdvSZ0zLoCMSz/nTGh6hDvCSgcRxDyIcOBD6KNxFz3xhMPm/T267Tbe2JRymKEQ==
   /q/1.5.1:
