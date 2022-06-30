@@ -223,7 +223,7 @@ export function ElectionConfiguration({
           <Main padded>
             <Prose>
               <h1>No Election Ballot Package Files Found</h1>
-              <Image src="assets/usb-drive.svg" alt="Insert USB Image" />
+              <Image src="/assets/usb-drive.svg" alt="Insert USB Image" />
               <Text>
                 There were no Election Ballot Package files automatically found
                 on the inserted USB drive. Use VxAdmin to export Ballot Package
@@ -306,7 +306,7 @@ export function ElectionConfiguration({
       <Main padded centerChild>
         <Prose maxWidth={false}>
           <h1>Load Election Configuration</h1>
-          <Image src="assets/usb-drive.svg" alt="Insert USB Image" />
+          <Image src="/assets/usb-drive.svg" alt="Insert USB Image" />
           <p>You may load via the following methods:</p>
           <ul>
             <ListItem>
