@@ -1,3 +1,4 @@
+import react from '@vitejs/plugin-react';
 import { join } from 'path';
 import { Alias, defineConfig } from 'vite';
 import setupProxy from './prodserver/setupProxy';
@@ -53,6 +54,8 @@ export default defineConfig(async () => {
     },
 
     plugins: [
+      react(),
+
       // Setup the proxy to local services, e.g. `smartcards`.
       {
         name: 'development-proxy',
