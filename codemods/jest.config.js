@@ -1,4 +1,6 @@
-/** @type {import('ts-jest/dist/types').InitialOptionsTsJest} */
+/**
+ * @type {import('@jest/types').Config.InitialOptions}
+ */
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
@@ -8,6 +10,6 @@ module.exports = {
       functions: 100,
       lines: 100,
       statements: 100,
-    }
-  }
+    },
+  },
 };

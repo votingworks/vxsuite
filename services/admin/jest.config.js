@@ -1,5 +1,8 @@
 const shared = require('../../jest.config.shared');
 
+/**
+ * @type {import('@jest/types').Config.InitialOptions}
+ */
 module.exports = {
   ...shared,
   // This is here because jest finds `build/__mocks__`,
