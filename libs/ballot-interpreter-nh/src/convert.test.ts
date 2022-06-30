@@ -17,7 +17,11 @@ import {
   readFixtureDefinition,
   readFixtureJson,
 } from '../test/fixtures';
-import { asciiOvalGrid } from '../test/utils';
+import { asciiOvalGrid, testImageDebugger } from '../test/utils';
+import {
+  TemplateBallotCardGeometry8pt5x11,
+  TemplateBallotCardGeometry8pt5x14,
+} from './accuvote';
 import {
   convertElectionDefinition,
   convertElectionDefinitionHeader,
@@ -27,7 +31,6 @@ import {
   readGridFromElectionDefinition,
 } from './convert';
 import * as templates from './data/templates';
-import { withSvgDebugger } from './debug';
 
 if (process.env.CI) {
   jest.setTimeout(10_000);
@@ -35,14 +38,13 @@ if (process.env.CI) {
 
 test('converting the Hudson ballot', async () => {
   const hudsonBallotCardDefinition = await readFixtureBallotCardDefinition(
-    HudsonFixtureName
+    HudsonFixtureName,
+    TemplateBallotCardGeometry8pt5x14
   );
-  const convertResult = await withSvgDebugger(async (debug) => {
-    debug.imageData(0, 0, hudsonBallotCardDefinition.front);
-    return convertElectionDefinition(hudsonBallotCardDefinition, {
-      ovalTemplate: await templates.getOvalTemplate(),
-      debug,
-    });
+  const debug = testImageDebugger(hudsonBallotCardDefinition.front);
+  const convertResult = convertElectionDefinition(hudsonBallotCardDefinition, {
+    ovalTemplate: await templates.getOvalTemplate(),
+    debug,
   });
 
   // uncomment this to update the fixture
@@ -86,7 +88,8 @@ test('letter-size card definition', async () => {
 
 test('mismatched ballot image size', async () => {
   const hudsonBallotCardDefinition = await readFixtureBallotCardDefinition(
-    HudsonFixtureName
+    HudsonFixtureName,
+    TemplateBallotCardGeometry8pt5x14
   );
 
   hudsonBallotCardDefinition.definition.getElementsByTagName(
@@ -101,7 +104,9 @@ test('mismatched ballot image size', async () => {
     expect.arrayContaining([
       typedAs<ConvertIssue>({
         kind: ConvertIssueKind.InvalidTemplateSize,
-        message: 'Template images do not match expected sizes.',
+        message: expect.stringContaining(
+          'Template images do not match expected sizes.'
+        ),
         paperSize: BallotPaperSize.Letter,
         frontTemplateSize: { width: 684, height: 1080 },
         backTemplateSize: { width: 684, height: 1080 },
@@ -391,14 +396,13 @@ test('readGridFromElectionDefinition', async () => {
 
 test('default adjudication reasons', async () => {
   const hudsonBallotCardDefinition = await readFixtureBallotCardDefinition(
-    HudsonFixtureName
+    HudsonFixtureName,
+    TemplateBallotCardGeometry8pt5x14
   );
-  const convertResult = await withSvgDebugger(async (debug) => {
-    debug.imageData(0, 0, hudsonBallotCardDefinition.front);
-    return convertElectionDefinition(hudsonBallotCardDefinition, {
-      ovalTemplate: await templates.getOvalTemplate(),
-      debug,
-    });
+  const debug = testImageDebugger(hudsonBallotCardDefinition.front);
+  const convertResult = convertElectionDefinition(hudsonBallotCardDefinition, {
+    ovalTemplate: await templates.getOvalTemplate(),
+    debug,
   });
   expect(convertResult.election?.centralScanAdjudicationReasons).toEqual(
     typedAs<AdjudicationReason[]>([
@@ -419,7 +423,8 @@ test('default adjudication reasons', async () => {
 
 test('constitutional questions become yesno contests', async () => {
   const amherstBallotCardDefinition = await readFixtureBallotCardDefinition(
-    AmherstFixtureName
+    AmherstFixtureName,
+    TemplateBallotCardGeometry8pt5x11
   );
   const convertResult = convertElectionDefinitionHeader(
     amherstBallotCardDefinition.definition
@@ -444,7 +449,8 @@ test('constitutional questions become yesno contests', async () => {
 
 test('constitutional question ovals get placed on the grid correctly', async () => {
   const amherstBallotCardDefinition = await readFixtureBallotCardDefinition(
-    AmherstFixtureName
+    AmherstFixtureName,
+    TemplateBallotCardGeometry8pt5x11
   );
   const convertResult = convertElectionDefinition(amherstBallotCardDefinition, {
     ovalTemplate: await templates.getOvalTemplate(),

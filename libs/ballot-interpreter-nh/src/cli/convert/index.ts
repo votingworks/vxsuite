@@ -9,6 +9,7 @@ import {
   NewHampshireBallotCardDefinition,
 } from '../../convert';
 import * as templates from '../../data/templates';
+import { imageDebugger } from '../../debug';
 import * as images from '../../images';
 
 interface ConvertOptions {
@@ -158,6 +159,13 @@ export async function main(
 
   const convertResult = convertElectionDefinition(cardDefinition, {
     ovalTemplate: await templates.getOvalTemplate(),
+    debug: imageDebugger(
+      outputPath ??
+        `convert-front=${basename(frontBallotPath)}-back=${basename(
+          backBallotPath
+        )}`,
+      { width: frontBallotImage.width, height: frontBallotImage.height }
+    ),
   });
 
   if (convertResult.issues.length > 0) {

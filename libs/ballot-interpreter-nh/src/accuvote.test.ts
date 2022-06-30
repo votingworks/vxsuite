@@ -5,19 +5,17 @@ import {
   readFixtureBallotCardDefinition,
   readFixtureImage,
 } from '../test/fixtures';
-import { asciiOvalGrid } from '../test/utils';
+import { asciiOvalGrid, testImageDebugger } from '../test/utils';
 import {
   decodeBackTimingMarkBits,
   decodeFrontTimingMarkBits,
   findTemplateOvals,
-  findTimingMarks,
-  scanForTimingMarksByScoringBlocks,
   ScannedBallotCardGeometry8pt5x14,
   TemplateBallotCardGeometry8pt5x14,
 } from './accuvote';
 import { pairColumnEntries, readGridFromElectionDefinition } from './convert';
 import * as templates from './data/templates';
-import { withCanvasDebugger, withSvgDebugger } from './debug';
+import { interpretBallotCardLayout } from './interpret/interpret_ballot_card_layout';
 import {
   decodeBottomRowTimingMarks,
   interpolateMissingTimingMarks,
@@ -33,41 +31,28 @@ import {
 test('hudson template', async () => {
   const hudson = await readFixtureBallotCardDefinition(
     HudsonFixtureName,
+    TemplateBallotCardGeometry8pt5x14,
     'definition'
   );
-  const frontRects = withSvgDebugger((debug) => {
-    debug.imageData(0, 0, hudson.front);
-    return scanForTimingMarksByScoringBlocks(hudson.front, {
-      minimumScore: 0.75,
-      debug,
-    });
-  });
-  const backRects = withSvgDebugger((debug) => {
-    debug.imageData(0, 0, hudson.back);
-    return scanForTimingMarksByScoringBlocks(hudson.back, {
-      minimumScore: 0.75,
-      debug,
-    });
-  });
-  const frontTimingMarks = withSvgDebugger((debug) => {
-    debug.imageData(0, 0, hudson.front);
-    return findTimingMarks({
+  const frontDebug = testImageDebugger(hudson.front);
+  const backDebug = testImageDebugger(hudson.back);
+  const frontLayout = frontDebug.capture('front timing marks', () =>
+    interpretBallotCardLayout(hudson.front, {
       geometry: TemplateBallotCardGeometry8pt5x14,
-      rects: frontRects,
-      debug,
-    });
-  });
-  if (!frontTimingMarks) {
+      debug: frontDebug,
+    })
+  );
+  if (!frontLayout) {
     return;
   }
-  const backTimingMarks = withSvgDebugger((debug) => {
-    debug.imageData(0, 0, hudson.back);
-    return findTimingMarks({
+  const backLayout = backDebug.capture('back timing marks', () =>
+    interpretBallotCardLayout(hudson.back, {
       geometry: TemplateBallotCardGeometry8pt5x14,
-      rects: backRects,
-      debug,
-    });
-  });
+      debug: backDebug,
+    })
+  );
+  const frontTimingMarks = frontLayout.partialTimingMarks;
+  const backTimingMarks = backLayout.partialTimingMarks;
   assert(frontTimingMarks && backTimingMarks, 'findTimingMarks failed');
 
   const { gridSize } = TemplateBallotCardGeometry8pt5x14;
@@ -93,16 +78,14 @@ test('hudson template', async () => {
     interpolateMissingTimingMarks(frontTimingMarks);
   const backCompleteTimingMarks =
     interpolateMissingTimingMarks(backTimingMarks);
-  const frontTemplateOvals = await withSvgDebugger(async (debug) =>
-    findTemplateOvals(
-      hudson.front,
-      await templates.getOvalTemplate(),
-      frontCompleteTimingMarks,
-      {
-        usableArea: TemplateBallotCardGeometry8pt5x14.frontUsableArea,
-        debug,
-      }
-    )
+  const frontTemplateOvals = findTemplateOvals(
+    hudson.front,
+    await templates.getOvalTemplate(),
+    frontCompleteTimingMarks,
+    {
+      usableArea: TemplateBallotCardGeometry8pt5x14.frontUsableArea,
+      debug: frontDebug,
+    }
   );
   expect(frontTemplateOvals).toHaveLength(55);
   expect(asciiOvalGrid(frontTemplateOvals)).toMatchInlineSnapshot(`
@@ -158,16 +141,14 @@ test('hudson template', async () => {
                 O                    
     "
   `);
-  const backTemplateOvals = await withSvgDebugger(async (debug) =>
-    findTemplateOvals(
-      hudson.back,
-      await templates.getOvalTemplate(),
-      backCompleteTimingMarks,
-      {
-        usableArea: TemplateBallotCardGeometry8pt5x14.backUsableArea,
-        debug,
-      }
-    )
+  const backTemplateOvals = findTemplateOvals(
+    hudson.back,
+    await templates.getOvalTemplate(),
+    backCompleteTimingMarks,
+    {
+      usableArea: TemplateBallotCardGeometry8pt5x14.backUsableArea,
+      debug: backDebug,
+    }
   );
   expect(backTemplateOvals).toHaveLength(20);
   expect(asciiOvalGrid(backTemplateOvals)).toMatchInlineSnapshot(`
@@ -224,6 +205,7 @@ test('hudson template', async () => {
   const frontMetadata = decodeFrontTimingMarkBits(frontBits);
   expect(frontMetadata).toEqual(
     typedAs<FrontMarksMetadata>({
+      side: 'front',
       batchOrPrecinctNumber: 53,
       bits: [
         1, 0, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0,
@@ -241,6 +223,7 @@ test('hudson template', async () => {
   const backMetadata = decodeBackTimingMarkBits(backBits);
   expect(backMetadata).toEqual(
     typedAs<BackMarksMetadata>({
+      side: 'back',
       bits: [
         1, 1, 0, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1,
         1, 1, 0, 1, 1, 1, 1, 0,
@@ -259,35 +242,14 @@ test('hudson template', async () => {
 test('scanned front', async () => {
   const imageData = await readFixtureImage(
     HudsonFixtureName,
-    'scan-unmarked-front'
+    'scan-unmarked-front',
+    ScannedBallotCardGeometry8pt5x14
   );
-  const rects = withCanvasDebugger(
-    imageData.width,
-    imageData.height,
-    (debug) => {
-      debug.imageData(0, 0, imageData);
-      return scanForTimingMarksByScoringBlocks(imageData, {
-        minimumScore: 0.75,
-        debug,
-      });
-    }
-  );
-  const timingMarks = withCanvasDebugger(
-    imageData.width,
-    imageData.height,
-    (debug) => {
-      debug.imageData(0, 0, imageData);
-      return findTimingMarks({
-        geometry: ScannedBallotCardGeometry8pt5x14,
-        rects,
-        debug,
-      });
-    }
-  );
-  if (timingMarks) {
-    withCanvasDebugger(imageData.width, imageData.height, (debug) => {
-      debug.imageData(0, 0, imageData);
-      renderTimingMarks(debug, timingMarks);
-    });
-  }
+  const debug = testImageDebugger(imageData);
+  const layout = interpretBallotCardLayout(imageData, {
+    geometry: ScannedBallotCardGeometry8pt5x14,
+    debug,
+  });
+  assert(layout, 'interpretBallotCardLayout failed');
+  renderTimingMarks(debug, layout.completeTimingMarks);
 });

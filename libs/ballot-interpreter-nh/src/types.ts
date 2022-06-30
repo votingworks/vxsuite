@@ -21,6 +21,16 @@ export const PointSchema = z.object({
 }) as unknown as z.ZodSchema<Point>;
 
 /**
+ * Insets from a rectangle 2D space.
+ */
+export interface Inset {
+  readonly left: number;
+  readonly top: number;
+  readonly right: number;
+  readonly bottom: number;
+}
+
+/**
  * A vector in 2D space.
  */
 export type Vector = NewType<
@@ -191,6 +201,11 @@ export const ThirtyTwoBitsSchema: z.ZodSchema<ThirtyTwoBits> = z.tuple([
  */
 export interface FrontMarksMetadata {
   /**
+   * Discriminator for the type of metadata.
+   */
+  readonly side: 'front';
+
+  /**
    * Raw bits 0-31 in LSB-MSB order (right-to-left).
    */
   readonly bits: ThirtyTwoBits;
@@ -236,6 +251,7 @@ export interface FrontMarksMetadata {
  */
 export const FrontMarksMetadataSchema: z.ZodSchema<FrontMarksMetadata> = z
   .object({
+    side: z.literal('front'),
     bits: ThirtyTwoBitsSchema,
     mod4CheckSum: z.number(),
     computedMod4CheckSum: z.number(),
@@ -261,6 +277,11 @@ export const FrontMarksMetadataSchema: z.ZodSchema<FrontMarksMetadata> = z
  * Metadata encoded by the bottom row of the back of a ballot card.
  */
 export interface BackMarksMetadata {
+  /**
+   * Discriminator for the type of metadata.
+   */
+  readonly side: 'back';
+
   /**
    * Raw bits 0-31 in LSB-MSB order (right-to-left).
    */
@@ -330,6 +351,7 @@ export interface BackMarksMetadata {
  */
 export const BackMarksMetadataSchema: z.ZodSchema<BackMarksMetadata> = z
   .object({
+    side: z.literal('back'),
     bits: ThirtyTwoBitsSchema,
     electionDay: z
       .number()
@@ -409,6 +431,19 @@ export const BackMarksMetadataSchema: z.ZodSchema<BackMarksMetadata> = z
   );
 
 /**
+ * Metadata encoded by the front or back of a ballot card.
+ */
+export type MarksMetadata = FrontMarksMetadata | BackMarksMetadata;
+
+/**
+ * Schema for {@link MarksMetadata}.
+ */
+export const MarksMetadataSchema: z.ZodSchema<MarksMetadata> = z.union([
+  FrontMarksMetadataSchema,
+  BackMarksMetadataSchema,
+]);
+
+/**
  * An interpretation of an oval mark on a ballot.
  */
 export interface InterpretedOvalMark {
@@ -417,33 +452,6 @@ export interface InterpretedOvalMark {
   readonly scoredOffset: Vector;
   readonly bounds: Rect;
 }
-
-/**
- * Interpreted front ballot scan page layout.
- */
-export interface ScannedBallotFrontPageLayout {
-  readonly side: 'front';
-  readonly metadata: FrontMarksMetadata;
-  readonly partialMarks: PartialTimingMarks;
-  readonly completeMarks: CompleteTimingMarks;
-}
-
-/**
- * Interpreted back ballot scan page layout.
- */
-export interface ScannedBallotBackPageLayout {
-  readonly side: 'back';
-  readonly metadata: BackMarksMetadata;
-  readonly partialMarks: PartialTimingMarks;
-  readonly completeMarks: CompleteTimingMarks;
-}
-
-/**
- * Interpreted ballot scan page.
- */
-export type ScannedBallotPageLayout =
-  | ScannedBallotFrontPageLayout
-  | ScannedBallotBackPageLayout;
 
 /**
  * Geometry information about an ballot card with timing marks.
@@ -499,4 +507,29 @@ export interface BallotCardGeometry {
    * direction that is not usable for ovals.
    */
   readonly backUsableArea: Rect;
+}
+
+/**
+ * Ballot card orientation.
+ */
+export enum BallotCardOrientation {
+  /**
+   * The ballot card is portrait and right-side up.
+   */
+  Portrait = 'portrait',
+
+  /**
+   * The ballot card is portrait and upside down.
+   */
+  PortraitReversed = 'portrait-reversed',
+
+  /**
+   * The ballot card is landscape and right-side up.
+   */
+  Landscape = 'landscape',
+
+  /**
+   * The ballot card is landscape and upside down.
+   */
+  LandscapeReversed = 'landscape-reversed',
 }

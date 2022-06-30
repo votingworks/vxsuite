@@ -35,22 +35,6 @@ export function median(values: number[]): number {
 }
 
 /**
- * Computes the average value of a list of numbers.
- */
-export function average(values: readonly number[]): number {
-  return values.reduce((a, b) => a + b, 0) / values.length;
-}
-
-/**
- * Computes the standard deviation of the given values.
- */
-export function stddev(values: readonly number[]): number {
-  const mean = average(values);
-  const squaredDifferences = values.map((value) => (value - mean) ** 2);
-  return Math.sqrt(average(squaredDifferences));
-}
-
-/**
  * Computes the cross product of two vectors.
  *
  * @see https://en.wikipedia.org/wiki/Cross_product
@@ -111,12 +95,61 @@ export function heading(from: Point, to: Point): Vector {
  * If the segments are parallel or colinear, returns `undefined`.
  */
 export function intersectionOfLineSegments(
+  segment1: Segment,
+  segment2: Segment,
+  options?: { bounded?: boolean }
+): Point | undefined;
+/**
+ * Finds the intersection of two line segments. If {@link bounded} is `false`,
+ * the segments are treated as lines that extend infinitely in both directions.
+ * Otherwise the intersection must be within the segments.
+ *
+ * If the segments are parallel or colinear, returns `undefined`.
+ */
+export function intersectionOfLineSegments(
   p: Point,
   r: Vector,
   q: Point,
   s: Vector,
-  { bounded = true } = {}
+  options?: { bounded?: boolean }
+): Point | undefined;
+/**
+ * Finds the intersection of two line segments. If {@link bounded} is `false`,
+ * the segments are treated as lines that extend infinitely in both directions.
+ * Otherwise the intersection must be within the segments.
+ *
+ * If the segments are parallel or colinear, returns `undefined`.
+ */
+export function intersectionOfLineSegments(
+  arg1: Point | Segment,
+  arg2: Vector | Segment,
+  arg3?: Point | { bounded?: boolean },
+  arg4?: Vector,
+  arg5?: { bounded?: boolean }
 ): Point | undefined {
+  let p: Point;
+  let r: Vector;
+  let q: Point;
+  let s: Vector;
+  let bounded: boolean;
+
+  if (arguments.length < 4) {
+    const segment1 = arg1 as Segment;
+    const segment2 = arg2 as Segment;
+    const options = arg3 as { bounded?: boolean } | undefined;
+    p = segment1.from;
+    r = heading(segment1.from, segment1.to);
+    q = segment2.from;
+    s = heading(segment2.from, segment2.to);
+    bounded = options?.bounded ?? true;
+  } else {
+    p = arg1 as Point;
+    r = arg2 as Vector;
+    q = arg3 as Point;
+    s = arg4 as Vector;
+    bounded = arg5?.bounded ?? true;
+  }
+
   const rxs = crossProduct(r, s);
   if (rxs === 0) {
     // parallel or colinear
@@ -164,6 +197,86 @@ export function closestPointOnLineSegmentToPoint(
 }
 
 /**
+ * Determines whether the given point is inside the given rectangle.
+ */
+export function rectContainsPoint(rect: Rect, point: Point): boolean {
+  return (
+    point.x >= rect.minX &&
+    point.x <= rect.maxX &&
+    point.y >= rect.minY &&
+    point.y <= rect.maxY
+  );
+}
+
+/**
+ * Extends a line segment to a given length.
+ */
+export function extendLineSegmentToLength(
+  segment: Segment,
+  length: number
+): Segment {
+  const vector = heading(segment.from, segment.to);
+  const unitVector = vectorMult(vector, 1 / distance(segment.from, segment.to));
+  return {
+    from: segment.from,
+    to: translate(segment.from, vectorMult(unitVector, length)),
+  };
+}
+
+/**
+ * Determines whether a rect intersects a line segment, even if only at a single
+ * point.
+ */
+export function getRectSegmentIntersectionPoints(
+  rect: Rect,
+  segment: Segment
+): Point[] {
+  const segmentOrigin = segment.from;
+  const segmentVector = heading(segment.from, segment.to);
+
+  const leftSideIntersection = intersectionOfLineSegments(
+    loc(rect.minX, rect.minY),
+    vec(0, rect.height),
+    segmentOrigin,
+    segmentVector,
+    { bounded: true }
+  );
+
+  const rightSideIntersection = intersectionOfLineSegments(
+    loc(rect.maxX, rect.minY),
+    vec(0, rect.height),
+    segmentOrigin,
+    segmentVector,
+    { bounded: true }
+  );
+
+  const topSideIntersection = intersectionOfLineSegments(
+    loc(rect.minX, rect.minY),
+    vec(rect.width, 0),
+    segmentOrigin,
+    segmentVector,
+    { bounded: true }
+  );
+
+  const bottomSideIntersection = intersectionOfLineSegments(
+    loc(rect.minX, rect.maxY),
+    vec(rect.width, 0),
+    segmentOrigin,
+    segmentVector,
+    { bounded: true }
+  );
+
+  const intersectionPoints = [
+    leftSideIntersection,
+    rightSideIntersection,
+    topSideIntersection,
+    bottomSideIntersection,
+  ].filter((point): point is Point => point !== undefined);
+
+  return intersectionPoints;
+}
+
+/**
  * Finds a line segment that intersects the given rectangle. If {@link bounded}
  * is `false`, the segment may be outside the rectangle. If {@link bounded} is
  * `true`, the segment must be inside the rectangle.
@@ -204,14 +317,18 @@ export function segmentIntersectionWithRect(
     segmentVector,
     { bounded }
   );
+  const leftOrTopIntersection =
+    leftSideIntersection && rectContainsPoint(rect, leftSideIntersection)
+      ? leftSideIntersection
+      : topSideIntersection;
+  const rightOrBottomIntersection =
+    rightSideIntersection && rectContainsPoint(rect, rightSideIntersection)
+      ? rightSideIntersection
+      : bottomSideIntersection;
   const from =
-    segmentVector.x > 0
-      ? leftSideIntersection ?? topSideIntersection
-      : rightSideIntersection ?? bottomSideIntersection;
+    segmentVector.x > 0 ? leftOrTopIntersection : rightOrBottomIntersection;
   const to =
-    segmentVector.x > 0
-      ? rightSideIntersection ?? bottomSideIntersection
-      : leftSideIntersection ?? topSideIntersection;
+    segmentVector.x > 0 ? rightOrBottomIntersection : leftOrTopIntersection;
 
   return from && to ? { from, to } : undefined;
 }
@@ -221,42 +338,6 @@ export function segmentIntersectionWithRect(
  */
 export function centerOfRect(rect: Rect): Point {
   return loc((rect.minX + rect.maxX) / 2, (rect.minY + rect.maxY) / 2);
-}
-
-/**
- * Determines whether the given point is inside the given rectangle.
- */
-export function rectContainsPoint(rect: Rect, point: Point): boolean {
-  return (
-    point.x >= rect.minX &&
-    point.x <= rect.maxX &&
-    point.y >= rect.minY &&
-    point.y <= rect.maxY
-  );
-}
-
-/**
- * Finds all rects that overlap with each other.
- */
-export function findOverlappingRects(rects: Iterable<Rect>): Set<[Rect, Rect]> {
-  const allRects = [...rects];
-  const overlappingRects = new Set<[Rect, Rect]>();
-  for (const rect of allRects) {
-    for (const otherRect of allRects) {
-      if (rect === otherRect) {
-        continue;
-      }
-      if (
-        rectContainsPoint(rect, loc(otherRect.minX, otherRect.minY)) ||
-        rectContainsPoint(rect, loc(otherRect.minX, otherRect.maxY)) ||
-        rectContainsPoint(rect, loc(otherRect.maxX, otherRect.minY)) ||
-        rectContainsPoint(rect, loc(otherRect.maxX, otherRect.maxY))
-      ) {
-        overlappingRects.add([rect, otherRect]);
-      }
-    }
-  }
-  return overlappingRects;
 }
 
 /**
@@ -318,6 +399,60 @@ export function calculateIntersection(
 }
 
 /**
+ * Converts degrees to radians.
+ */
+export function degreesToRadians(degrees: number): number {
+  return (degrees * Math.PI) / 180;
+}
+
+/**
+ * Converts degrees to radians.
+ */
+export function radiansToDegrees(radians: number): number {
+  return (radians * 180) / Math.PI;
+}
+
+/**
+ * Computes the angle of a vector.
+ */
+export function vectorAngle(vector: Vector): number {
+  return Math.atan2(vector.y, vector.x);
+}
+
+/**
+ * Computes the angle between the given points. Returns a value between 0 and
+ * 2π.
+ */
+export function angleBetweenPoints(point1: Point, point2: Point): number {
+  return (
+    (2 * Math.PI + Math.atan2(point2.y - point1.y, point2.x - point1.x)) %
+    Math.PI
+  );
+}
+
+/**
+ * Normalizes an angle to the range [0, π), where 0 and π represent the same
+ * angle.
+ */
+export function normalizeHalfAngle(angle: number): number {
+  return (angle % Math.PI) + (angle < 0 ? Math.PI : 0);
+}
+
+/**
+ * Determines whether two angles are approximately colinear.
+ */
+export function checkApproximatelyColinear(
+  angle1: number,
+  angle2: number,
+  tolerance: number
+): boolean {
+  const angleDiff = normalizeHalfAngle(
+    normalizeHalfAngle(angle1) - normalizeHalfAngle(angle2)
+  );
+  return angleDiff <= tolerance || angleDiff >= Math.PI - tolerance;
+}
+
+/**
  * Computes a number from `bits` or a subset.
  *
  * @param bits Bits in LSB to MSB order.
@@ -336,33 +471,4 @@ export function bitsToNumber(
     result = result * 2 + (bits[i] as number);
   }
   return result;
-}
-
-/**
- * Splits an array into chunks at split points determined by a predicate.
- */
-export function splitAt<T>(
-  array: readonly T[],
-  predicate: (left: T, right: T) => boolean
-): Array<T[]> {
-  if (array.length < 2) {
-    return [[...array]];
-  }
-
-  const chunks: Array<T[]> = [];
-  let currentChunk: T[] = [];
-
-  for (let i = 0; i < array.length; i += 1) {
-    currentChunk.push(array[i] as T);
-    if (i !== array.length - 1 && predicate(array[i] as T, array[i + 1] as T)) {
-      chunks.push(currentChunk);
-      currentChunk = [];
-    }
-  }
-
-  if (currentChunk.length > 0) {
-    chunks.push(currentChunk);
-  }
-
-  return chunks;
 }

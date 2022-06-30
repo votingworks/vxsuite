@@ -1,25 +1,48 @@
-/* istanbul ignore file - this file is for debugging during dev & test, not for production */
+/* this file is for debugging during dev & test, not for production */
 
-import { safeParseInt } from '@votingworks/types';
-import { assert } from '@votingworks/utils';
-import { DOMParser } from '@xmldom/xmldom';
 import { Buffer } from 'buffer';
-import { Canvas, createCanvas, createImageData } from 'canvas';
-import { writeFileSync } from 'fs';
+import { createCanvas, createImageData } from 'canvas';
+import makeDebug, {
+  enabled as isDebugEnabled,
+  enable as enableDebug,
+} from 'debug';
+import { mkdirSync, writeFileSync } from 'fs';
+import { join } from 'path';
+import { getChannels } from './images';
+import { Size } from './types';
+
+const log = makeDebug('ballot-interpreter-nh:debug-images');
 
 /**
  * Provides visual debugging for code dealing with image data.
  */
 export interface Debugger {
   /**
-   * Begins a layer, analogous to `console.group`.
+   * Determines if the debugger is enabled.
    */
-  layer(name: string): Debugger;
+  isEnabled(): boolean;
 
   /**
-   * Ends a layer, analogous to `console.groupEnd`.
+   * Calls `fn` and writes the canvas with `name` after it's done, automatically
+   * taking a snapshot of the canvas and restoring it.
    */
-  layerEnd(name: string): Debugger;
+  capture<T>(name: string, fn: (debug: Debugger) => T): T;
+
+  /**
+   * Begins a new group of debugging steps.
+   */
+  group(name: string): Debugger;
+
+  /**
+   * Ends the current group of debugging steps. Expects a name to ensure correct
+   * nesting.
+   */
+  groupEnd(name: string): Debugger;
+
+  /**
+   * Save the current image data.
+   */
+  write(name?: string): Debugger;
 
   /**
    * Renders an image from a URL to the specified area.
@@ -30,6 +53,11 @@ export interface Debugger {
    * Renders a rectangle to the specified area.
    */
   rect(x: number, y: number, w: number, h: number, color: string): Debugger;
+
+  /**
+   * Renders a single pixel.
+   */
+  pixel(x: number, y: number, color: string): Debugger;
 
   /**
    * Renders a line to the specified area.
@@ -60,7 +88,7 @@ export interface SvgLayer {
 }
 
 function toRgba(imageData: ImageData): ImageData {
-  if (imageData.data.length / (imageData.width * imageData.height) === 4) {
+  if (getChannels(imageData) === 4) {
     return imageData;
   }
 
@@ -79,245 +107,120 @@ function toRgba(imageData: ImageData): ImageData {
   return createImageData(data, imageData.width, imageData.height);
 }
 
-function toJpeg(imageData: ImageData): Buffer {
-  const canvas = createCanvas(imageData.width, imageData.height);
-  const ctx = canvas.getContext('2d');
-  ctx.putImageData(toRgba(imageData), 0, 0);
-  return canvas.toBuffer('image/jpeg');
-}
-
-/**
- * Builds a debugger that renders SVG.
- */
-export function svgDebugger(rootElement: SVGElement): SvgDebugger {
-  const document = rootElement.ownerDocument;
-  const root: SvgLayer = {
-    name: 'root',
-    children: [],
-    element: rootElement,
-  };
-  let currentLayer: SvgLayer = root;
-
-  return {
-    getRootLayer() {
-      return root;
-    },
-
-    layer(name: string): Debugger {
-      const layer: SvgLayer = {
-        name,
-        children: [],
-        parent: currentLayer,
-        element: document.createElementNS('http://www.w3.org/2000/svg', 'svg'),
-      };
-      layer.element.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-      layer.element.setAttribute('style', '/* display: none */');
-      currentLayer.children.push(layer);
-      currentLayer.element.appendChild(
-        document.createComment(`layer: ${name}`)
-      );
-      currentLayer.element.appendChild(layer.element);
-      currentLayer = layer;
-      return this;
-    },
-
-    layerEnd(name: string): Debugger {
-      assert(
-        currentLayer.name === name,
-        `Expected layer '${currentLayer.name}' but got '${name}'`
-      );
-      currentLayer = currentLayer.parent ?? root;
-      return this;
-    },
-
-    imageData(x: number, y: number, imageData: ImageData): Debugger {
-      const image = document.createElementNS(
-        'http://www.w3.org/2000/svg',
-        'image'
-      );
-      image.style.imageRendering = 'pixelated';
-      image.setAttributeNS(
-        'http://www.w3.org/1999/xlink',
-        'href',
-        `data:image/jpeg;base64,${toJpeg(imageData).toString('base64')}`
-      );
-      image.setAttribute('x', `${x}`);
-      image.setAttribute('y', `${y}`);
-      image.setAttribute('width', `${imageData.width}`);
-      image.setAttribute('height', `${imageData.height}`);
-      currentLayer.element.appendChild(image);
-      currentLayer.element.setAttribute(
-        'width',
-        `${Math.max(
-          safeParseInt(
-            currentLayer.element.getAttribute('width') ?? '0'
-          ).unsafeUnwrap(),
-          x + imageData.width
-        )}`
-      );
-      currentLayer.element.setAttribute(
-        'height',
-        `${Math.max(
-          safeParseInt(
-            currentLayer.element.getAttribute('height') ?? '0'
-          ).unsafeUnwrap(),
-          y + imageData.height
-        )}`
-      );
-      return this;
-    },
-
-    rect(x: number, y: number, w: number, h: number, color: string): Debugger {
-      const rect = document.createElementNS(
-        'http://www.w3.org/2000/svg',
-        'rect'
-      );
-      rect.setAttribute('x', `${x}`);
-      rect.setAttribute('y', `${y}`);
-      rect.setAttribute('width', `${w}`);
-      rect.setAttribute('height', `${h}`);
-      rect.setAttribute('fill', color);
-      currentLayer.element.appendChild(rect);
-      return this;
-    },
-
-    line(
-      x1: number,
-      y1: number,
-      x2: number,
-      y2: number,
-      color: string
-    ): Debugger {
-      const line = document.createElementNS(
-        'http://www.w3.org/2000/svg',
-        'line'
-      );
-      line.setAttribute('x1', `${x1}`);
-      line.setAttribute('y1', `${y1}`);
-      line.setAttribute('x2', `${x2}`);
-      line.setAttribute('y2', `${y2}`);
-      line.setAttribute('stroke', color);
-      currentLayer.element.appendChild(line);
-      return this;
-    },
-
-    text(x: number, y: number, value: string, color: string): Debugger {
-      const text = document.createElementNS(
-        'http://www.w3.org/2000/svg',
-        'text'
-      );
-      text.setAttribute('x', `${x}`);
-      text.setAttribute('y', `${y}`);
-      text.setAttribute('fill', color);
-      text.textContent = value;
-      currentLayer.element.appendChild(text);
-      return this;
-    },
-  };
-}
-
-interface CanvasDebugger extends Debugger {
-  toBuffer(): Buffer;
-}
-
-interface CanvasLayer {
-  readonly name: string;
-  readonly parent?: CanvasLayer;
-  readonly canvas: Canvas;
-  readonly context: CanvasRenderingContext2D;
-}
-
 /**
  * Provides callbacks for various canvas debugger operations.
  */
 export interface CanvasDebuggerCallbacks {
-  makeCanvas(): Canvas;
-  onLayerEnd(canvasLayer: CanvasLayer): void;
+  write(labels: readonly string[], png: Buffer): void;
 }
 
 /**
  * Creates a debugger that renders to a canvas.
  */
 export function canvasDebugger(
+  width: number,
+  height: number,
   callbacks: CanvasDebuggerCallbacks
-): CanvasDebugger {
-  const rootCanvas = callbacks.makeCanvas();
-  const rootContext = rootCanvas.getContext('2d');
-  const rootLayer: CanvasLayer = {
-    name: 'root',
-    canvas: rootCanvas,
-    context: rootContext,
-  };
-  const layers: CanvasLayer[] = [rootLayer];
+): Debugger {
+  const canvas = createCanvas(width, height);
+  const context = canvas.getContext('2d');
+  context.imageSmoothingEnabled = false;
+  const snapshotStack: Array<{ name: string; imageData: ImageData }> = [];
+  const groupStack: string[] = [];
 
-  return {
-    line(x1: number, y1: number, x2: number, y2: number, color: string) {
-      for (const { context } of layers) {
-        context.beginPath();
-        context.moveTo(x1, y1);
-        context.lineTo(x2, y2);
-        context.strokeStyle = color;
-        context.stroke();
+  const dbug: Debugger = {
+    isEnabled: () => true,
+
+    capture<T>(name: string, fn: (debug: Debugger) => T): T {
+      snapshotStack.push({
+        name,
+        imageData: context.getImageData(0, 0, canvas.width, canvas.height),
+      });
+      dbug.group(name);
+
+      function restore(): void {
+        dbug.groupEnd(name);
+        const lastSnapshot = snapshotStack.pop();
+
+        if (!lastSnapshot) {
+          throw new Error(`No snapshot to restore: ${name}`);
+        }
+        if (lastSnapshot.name !== name) {
+          throw new Error(
+            `Snapshot name mismatch: ${lastSnapshot.name} ≠ ${name}`
+          );
+        }
+
+        dbug.write(name);
+        context.putImageData(lastSnapshot.imageData, 0, 0);
       }
+
+      let result: T;
+
+      try {
+        result = fn(dbug);
+      } catch (error) {
+        restore();
+        throw error;
+      }
+
+      restore();
+      return result;
+    },
+
+    group(name: string): Debugger {
+      groupStack.push(name);
+      return this;
+    },
+
+    groupEnd(name: string): Debugger {
+      const lastGroup = groupStack.pop();
+      if (lastGroup !== name) {
+        throw new Error(`Group name mismatch: ${lastGroup} ≠ ${name}`);
+      }
+      return this;
+    },
+
+    line(x1: number, y1: number, x2: number, y2: number, color: string) {
+      context.beginPath();
+      context.moveTo(x1, y1);
+      context.lineTo(x2, y2);
+      context.strokeStyle = color;
+      context.stroke();
       return this;
     },
 
     rect(x: number, y: number, w: number, h: number, color: string) {
-      for (const { context } of layers) {
-        context.fillStyle = color;
-        context.fillRect(x, y, w, h);
-      }
+      context.fillStyle = color;
+      context.fillRect(x, y, w, h);
+      return this;
+    },
+
+    pixel(x: number, y: number, color: string) {
+      context.fillStyle = color;
+      context.fillRect(x, y, 1, 1);
       return this;
     },
 
     text(x: number, y: number, value: string, color: string) {
-      for (const { context } of layers) {
-        context.fillStyle = color;
-        context.fillText(value, x, y);
-      }
+      context.fillStyle = color;
+      context.fillText(value, x, y);
       return this;
     },
 
     imageData(x: number, y: number, imageData: ImageData) {
-      for (const { context } of layers) {
-        context.putImageData(toRgba(imageData), x, y);
-      }
+      context.putImageData(toRgba(imageData), x, y);
       return this;
     },
 
-    layer(name: string): CanvasDebugger {
-      const currentLayer = layers[layers.length - 1] ?? rootLayer;
-      const newLayerCanvas = callbacks.makeCanvas();
-      const newLayerContext = newLayerCanvas.getContext('2d');
-      newLayerContext.drawImage(currentLayer.canvas, 0, 0);
-      layers.push({
-        name,
-        parent: currentLayer,
-        canvas: newLayerCanvas,
-        context: newLayerContext,
-      });
+    write(name: string) {
+      callbacks.write([...groupStack, name], canvas.toBuffer());
       return this;
-    },
-
-    layerEnd(name: string): CanvasDebugger {
-      const currentLayer = layers.pop();
-      if (currentLayer?.name !== name) {
-        throw new Error(
-          `expected layer ${name} but got ${currentLayer?.name ?? 'none'}`
-        );
-      }
-      callbacks.onLayerEnd(currentLayer);
-      return this;
-    },
-
-    toBuffer(): Buffer {
-      return rootCanvas.toBuffer();
     },
   };
-}
 
-let debugEnabled = false;
-const debugFilenameCounterByTestPathAndTestName = new Map<string, number>();
+  return dbug;
+}
 
 function returnThis<T>(this: T): T {
   return this;
@@ -327,171 +230,81 @@ function returnThis<T>(this: T): T {
  * Builds a no-op debugger for passing to code with image debugging.
  */
 export function noDebug(): Debugger {
-  return {
-    layer: returnThis,
-    layerEnd: returnThis,
+  const dbug: Debugger = {
+    isEnabled: () => false,
+    capture<T>(_name: string, fn: (debug: Debugger) => T): T {
+      return fn(dbug);
+    },
+    group: returnThis,
+    groupEnd: returnThis,
     imageData: returnThis,
     line: returnThis,
     rect: returnThis,
+    pixel: returnThis,
     text: returnThis,
+    write: returnThis,
   };
+  return dbug;
 }
 
 /**
- * Enables or disables the SVG debugger.
+ * Returns an image debugger writing to images at `basePath` and with
+ * `baseImage` as the initial background.
  */
-export function setDebug(newDebugEnabled: boolean): void {
-  debugEnabled = newDebugEnabled;
-}
-
-function getCurrentTestPath(): string {
-  const { testPath, currentTestName } = expect.getState();
-  const key = `${testPath}/${currentTestName}`;
-  const count = debugFilenameCounterByTestPathAndTestName.get(key) ?? 0;
-  debugFilenameCounterByTestPathAndTestName.set(key, count + 1);
-  return `${testPath}-debug-${currentTestName.replace(
-    /[^-_\w]+/g,
-    '-'
-  )}-${count}`;
-}
-
+export function imageDebugger(
+  basePath: string,
+  baseImage: ImageData,
+  enabled?: boolean
+): Debugger;
 /**
- * Run a function with an SVG debugger, and write the result to a file.
+ * Returns an image debugger writing to images at `basePath` and with
+ * `size` defining the canvas size.
  */
-export function withSvgDebugger<T>(callback: (debug: Debugger) => T): T;
-
+export function imageDebugger(
+  basePath: string,
+  size: Size,
+  enabled?: boolean
+): Debugger;
 /**
- * Run a function with an SVG debugger, and write the result to the given file.
+ * Returns an image debugger writing to images at `basePath` and with
+ * either `baseImage` or `size` defining the canvas size.
  */
-export function withSvgDebugger<T>(
-  fileName: string,
-  callback: (debug: Debugger) => T
-): T;
-
-/**
- * Run a function with an SVG debugger, and write the result to a file.
- */
-export function withSvgDebugger<T>(
-  fileNameOrCallback: string | ((debug: Debugger) => T),
-  callbackOrNothing?: (debug: Debugger) => T
-): T {
-  if (
-    typeof fileNameOrCallback === 'function' &&
-    typeof callbackOrNothing === 'undefined'
-  ) {
-    const callback = fileNameOrCallback;
-    const fileName = `${getCurrentTestPath()}.svg`;
-
-    if (!debugEnabled) {
-      return callback(noDebug());
-    }
-
-    return withSvgDebugger(fileName, callback);
+export function imageDebugger(
+  basePath: string,
+  baseImageOrSize: ImageData | Size,
+  enabled = isDebugEnabled('ballot-interpreter-nh:debug-images')
+): Debugger {
+  if (!enabled) {
+    return noDebug();
   }
 
-  assert(
-    typeof fileNameOrCallback === 'string' &&
-      typeof callbackOrNothing === 'function'
-  );
-
-  const fileName = fileNameOrCallback;
-  const callback = callbackOrNothing;
-  const document = new DOMParser().parseFromString(
-    '<svg></svg>',
-    'image/svg+xml'
-  );
-  const root = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  root.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-  const debug = svgDebugger(root);
-  let result: T;
-  try {
-    result = callback(debug);
-    if (result && 'then' in result) {
-      return (result as unknown as Promise<unknown>).then(
-        () => {
-          writeFileSync(fileName, root.toString());
-          return result;
-        },
-        (error) => {
-          writeFileSync(fileName, root.toString());
-          throw error;
-        }
-      ) as unknown as T;
-    }
-  } finally {
-    writeFileSync(fileName, root.toString());
-  }
-  return result;
-}
-
-/**
- * Run a function with a canvas debugger, and write the result to a file.
- */
-export function withCanvasDebugger<T>(
-  width: number,
-  height: number,
-  callback: (debug: Debugger) => Promise<T>
-): Promise<T>;
-/**
- * Run a function with a canvas debugger, and write the result to a file.
- */
-export function withCanvasDebugger<T>(
-  width: number,
-  height: number,
-  callback: (debug: Debugger) => T
-): T;
-/**
- * Run a function with a canvas debugger, and write the result to a file.
- */
-export function withCanvasDebugger<T>(
-  width: number,
-  height: number,
-  callback: (debug: Debugger) => T
-): T {
-  if (!debugEnabled) {
-    return callback(noDebug());
-  }
-
-  const fileNameRoot = getCurrentTestPath();
-  const fileName = `${fileNameRoot}.png`;
-  const debug = canvasDebugger({
-    makeCanvas() {
-      return createCanvas(width, height);
-    },
-
-    onLayerEnd(layer) {
-      let layerFileName = '';
-      for (
-        let parentLayer = layer;
-        parentLayer.parent;
-        parentLayer = parentLayer.parent
-      ) {
-        layerFileName = `${parentLayer.name}--${layerFileName}`;
-      }
-      writeFileSync(
-        `${fileNameRoot}--${layerFileName}.png`,
-        layer.canvas.toBuffer()
-      );
+  const { width, height } = baseImageOrSize;
+  let counter = 0;
+  const debug = canvasDebugger(width, height, {
+    write(labels, imageData) {
+      const debugDirectory = `${basePath}-debug`;
+      const debugFile = `${counter.toString().padStart(2, '0')}${labels
+        .map((label) => `-${label}`)
+        .join('')}.png`;
+      const debugPath = join(debugDirectory, debugFile);
+      mkdirSync(debugDirectory, { recursive: true });
+      writeFileSync(debugPath, imageData);
+      log(debugPath);
+      counter += 1;
     },
   });
-  let result: T;
 
-  try {
-    result = callback(debug);
-    if (result && 'then' in result) {
-      return (result as unknown as Promise<unknown>).then(
-        () => {
-          writeFileSync(fileName, debug.toBuffer());
-          return result;
-        },
-        (error) => {
-          writeFileSync(fileName, debug.toBuffer());
-          throw error;
-        }
-      ) as unknown as T;
-    }
-  } finally {
-    writeFileSync(fileName, debug.toBuffer());
+  if ((baseImageOrSize as ImageData).data) {
+    debug.imageData(0, 0, baseImageOrSize as ImageData);
   }
-  return result;
+
+  return debug;
+}
+
+/**
+ * Enables or disables image debugging. Useful for temporarily enabling during
+ * testing.
+ */
+export function setDebug(enabled: boolean): void {
+  enableDebug(`${enabled ? '' : '-'}ballot-interpreter-nh:debug-images`);
 }
