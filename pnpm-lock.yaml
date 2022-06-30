@@ -84,6 +84,7 @@ importers:
       luxon: 1.27.0
       mini-css-extract-plugin: 0.11.3
       normalize.css: 8.0.1
+      path: 0.12.7
       pluralize: 8.0.0
       prompts: 2.4.0
       react: 17.0.1
@@ -214,6 +215,7 @@ importers:
       luxon: ^1.27.0
       mini-css-extract-plugin: 0.11.3
       normalize.css: ^8.0.1
+      path: ^0.12.7
       pluralize: ^8.0.0
       postcss-flexbugs-fixes: 4.2.1
       postcss-loader: 3.0.0
@@ -292,6 +294,7 @@ importers:
       mini-css-extract-plugin: 0.11.3
       mockdate: 3.0.2
       normalize.css: 8.0.1
+      path: 0.12.7
       pluralize: 8.0.0
       postcss-flexbugs-fixes: 4.2.1
       postcss-loader: 3.0.0
@@ -462,6 +465,7 @@ importers:
       mini-css-extract-plugin: 0.11.3
       mockdate: ^3.0.2
       normalize.css: ^8.0.1
+      path: ^0.12.7
       pluralize: ^8.0.0
       postcss-flexbugs-fixes: 4.2.1
       postcss-loader: 3.0.0
@@ -528,6 +532,7 @@ importers:
       mockdate: 3.0.5
       moment: 2.29.1
       normalize.css: 8.0.1
+      path: 0.12.7
       pluralize: 7.0.0
       react: 17.0.1
       react-dom: 17.0.1_react@17.0.1
@@ -652,6 +657,7 @@ importers:
       moment: ^2.29.1
       node-fetch: ^2.6.0
       normalize.css: ^8.0.1
+      path: ^0.12.7
       pluralize: ^7.0.0
       prettier: ^2.6.2
       react: ^17.0.1
@@ -20560,6 +20566,17 @@ packages:
       node: '>=0.10.0'
     resolution:
       integrity: sha1-UhTXU3pNBqSjAcDMJi/rhBiAAuc=
+  /follow-redirects/1.14.1:
+    dev: false
+    engines:
+      node: '>=4.0'
+    peerDependencies:
+      debug: '*'
+    peerDependenciesMeta:
+      debug:
+        optional: true
+    resolution:
+      integrity: sha512-HWqDgT7ZEkqRzBvc2s64vSZ/hfOceEol3ac/7tKwzuvEyWx3/4UegXh5oBOIotkGsObyk3xznnSRVADBgWSQVg==
   /follow-redirects/1.14.1_debug@4.3.1:
     dependencies:
       debug: 4.3.1
@@ -21738,7 +21755,7 @@ packages:
   /http-proxy/1.18.1:
     dependencies:
       eventemitter3: 4.0.7
-      follow-redirects: 1.14.1_debug@4.3.1
+      follow-redirects: 1.14.1
       requires-port: 1.0.0
     dev: false
     engines:

@@ -1,7 +1,7 @@
 /* eslint-disable max-classes-per-file */
 import { assert } from '@votingworks/utils';
 import { Buffer } from 'buffer';
-import path from 'path';
+import { join } from 'path';
 import { configure, Uint8ArrayReader, ZipWriter, Writer } from '@zip.js/zip.js';
 
 configure({ useWebWorkers: false });
@@ -72,7 +72,7 @@ export class DownloadableArchive {
     await this.getKiosk().makeDirectory(pathToFolder, {
       recursive: true,
     });
-    const filePath = path.join(pathToFolder, filename);
+    const filePath = join(pathToFolder, filename);
     const fileWriter = await this.getKiosk().writeFile(filePath);
 
     if (!fileWriter) {

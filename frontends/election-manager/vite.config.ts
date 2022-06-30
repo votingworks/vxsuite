@@ -35,6 +35,7 @@ export default defineConfig(async (env) => {
     // Node-only globals like `process`.
     define: {
       'process.env.NODE_DEBUG': JSON.stringify(undefined),
+      'process.platform': JSON.stringify('browser'),
       'process.version': JSON.stringify(process.version),
 
       // TODO: Replace these with the appropriate `import.meta.env` values (#1907).

@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect, useContext } from 'react';
-import path from 'path';
+import { join } from 'path';
 
 import styled from 'styled-components';
 import {
@@ -91,7 +91,7 @@ export function ElectionConfiguration({
       assert(typeof usbPath !== 'undefined');
       assert(window.kiosk);
       const files = await window.kiosk.getFileSystemEntries(
-        path.join(usbPath, BALLOT_PACKAGE_FOLDER)
+        join(usbPath, BALLOT_PACKAGE_FOLDER)
       );
       const newFoundFilenames = files.filter(
         (f) => f.type === 1 && f.name.endsWith('.zip')

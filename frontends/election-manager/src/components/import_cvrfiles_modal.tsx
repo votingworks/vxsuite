@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import path from 'path';
+import { join } from 'path';
 import moment from 'moment';
 
 import {
@@ -196,7 +196,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
       assert(typeof usbPath !== 'undefined');
       assert(window.kiosk);
       const files = await window.kiosk.getFileSystemEntries(
-        path.join(
+        join(
           usbPath,
           SCANNER_RESULTS_FOLDER,
           generateElectionBasedSubfolderName(election, electionHash)

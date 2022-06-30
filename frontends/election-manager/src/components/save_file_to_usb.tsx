@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
-import path from 'path';
+import { join } from 'path';
 import fileDownload from 'js-file-download';
 import { assert, usbstick, throwIllegalValue, sleep } from '@votingworks/utils';
 
@@ -118,7 +118,7 @@ export function SaveFileToUsb({
           await fileWriter.end();
         } else {
           assert(typeof usbPath !== 'undefined');
-          const pathToFile = path.join(usbPath, defaultFilename);
+          const pathToFile = join(usbPath, defaultFilename);
           assert(window.kiosk);
           await window.kiosk.writeFile(pathToFile, results);
           filenameLocation = defaultFilename;

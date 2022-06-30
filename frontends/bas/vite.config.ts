@@ -23,6 +23,8 @@ export default defineConfig(async () => {
     // Node-only globals like `process`.
     define: {
       'process.env.NODE_DEBUG': 'undefined',
+      'process.platform': JSON.stringify('browser'),
+      'process.version': JSON.stringify(process.version),
     },
 
     resolve: {
@@ -32,6 +34,7 @@ export default defineConfig(async () => {
         // The trailing slash is important, otherwise it will be resolved as a
         // built-in NodeJS module.
         { find: 'buffer', replacement: require.resolve('buffer/'), },
+        { find: 'path', replacement: require.resolve('path/'), },
 
         // Create aliases for all workspace packages, i.e.
         //

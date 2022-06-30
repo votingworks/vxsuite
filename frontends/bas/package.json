@@ -70,6 +70,7 @@
     "luxon": "^1.27.0",
     "mini-css-extract-plugin": "0.11.3",
     "normalize.css": "^8.0.1",
+    "path": "^0.12.7",
     "pluralize": "^8.0.0",
     "prompts": "2.4.0",
     "react": "^17.0.1",

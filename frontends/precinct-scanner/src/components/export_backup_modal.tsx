@@ -16,7 +16,7 @@ import {
   throwIllegalValue,
   usbstick,
 } from '@votingworks/utils';
-import path from 'path';
+import { join } from 'path';
 import React, { useCallback, useContext, useState } from 'react';
 import styled from 'styled-components';
 import { AppContext } from '../contexts/app_context';
@@ -64,7 +64,7 @@ export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
           electionDefinition.election,
           electionDefinition.electionHash
         );
-        const pathToFolder = path.join(
+        const pathToFolder = join(
           usbPath,
           SCANNER_BACKUPS_FOLDER,
           electionFolderName
