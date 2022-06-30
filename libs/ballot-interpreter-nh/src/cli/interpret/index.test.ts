@@ -347,9 +347,9 @@ test('interpret', async () => {
     "front.jpeg:
     Representative in Congress
     ✅ (21.84%) Steven Negron
-    🅾️ ( 4.12%) Ann McLane Kuster
-    🅾️ ( 0.03%) Andrew Olding
-    🅾️ ( 0.00%) Write-In #1
+    ⬜️ ( 4.12%) Ann McLane Kuster
+    ⬜️ ( 0.03%) Andrew Olding
+    ⬜️ ( 0.00%) Write-In #1
 
     back.jpeg:
       BlankPage

@@ -67,14 +67,14 @@ $ ./bin/interpret \
     -t 5%
 …
 State Representatives
-🅾️ ( 4.88%) Tony Lekas
+⬜️ ( 4.88%) Tony Lekas
 ✅ ( 5.85%) Hershel Nunez
 ✅ ( 6.34%) Lynne Ober
 ✅ (23.41%) Russell Ober
 ✅ (20.98%) Andrew Prout
 ✅ (18.05%) Andrew Renzullo
 ✅ ( 7.07%) Kimberly Rice
-🅾️ ( 4.63%) Denise Smith
+⬜️ ( 4.63%) Denise Smith
 ✅ (12.20%) Jordan Ulery
 …
 

@@ -251,7 +251,7 @@ export async function main(
         io.stdout.write(
           `${
             mark.score < thresholds.marginal
-              ? '🅾️'
+              ? '⬜️'
               : mark.score < thresholds.definite
               ? '❓'
               : '✅'
