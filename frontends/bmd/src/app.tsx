@@ -12,6 +12,7 @@ import {
   getPrinter,
   isAccessibleController,
 } from '@votingworks/utils';
+import { Logger, LogSource } from '@votingworks/logging';
 import { memoize } from './utils/memoize';
 import {
   ScreenReader,
@@ -36,6 +37,7 @@ export interface Props {
   machineConfig?: AppRootProps['machineConfig'];
   screenReader?: ScreenReader;
   reload?: VoidFunction;
+  logger?: AppRootProps['logger'];
 }
 
 export function App({
@@ -49,6 +51,7 @@ export function App({
   hardware,
   machineConfig = machineConfigProvider,
   reload = () => window.location.reload(),
+  logger = new Logger(LogSource.VxBallotMarkingDeviceFrontend, window.kiosk),
 }: Props): JSX.Element {
   screenReader.mute();
   const [internalHardware, setInternalHardware] = useState(hardware);
@@ -143,6 +146,7 @@ export function App({
           machineConfig={machineConfig}
           screenReader={screenReader}
           reload={reload}
+          logger={logger}
         />
       </FocusManager>
     </BrowserRouter>

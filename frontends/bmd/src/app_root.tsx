@@ -1,10 +1,4 @@
-import React, {
-  useCallback,
-  useEffect,
-  useReducer,
-  useRef,
-  useMemo,
-} from 'react';
+import React, { useCallback, useEffect, useReducer, useRef } from 'react';
 import {
   BallotType,
   CompletedBallot,
@@ -38,7 +32,7 @@ import {
   usbstick,
 } from '@votingworks/utils';
 
-import { Logger, LogSource } from '@votingworks/logging';
+import { Logger } from '@votingworks/logging';
 
 import {
   isAdminAuth,
@@ -130,6 +124,7 @@ export interface Props {
   storage: Storage;
   screenReader: ScreenReader;
   reload: VoidFunction;
+  logger: Logger;
 }
 
 export const electionStorageKey = 'electionDefinition';
@@ -320,6 +315,7 @@ export function AppRoot({
   screenReader,
   storage,
   reload,
+  logger,
 }: Props): JSX.Element {
   const PostVotingInstructionsTimeout = useRef(0);
   const [appState, dispatchAppState] = useReducer(appReducer, initialAppState);
@@ -338,10 +334,6 @@ export function AppRoot({
 
   const history = useHistory();
   const { appMode } = machineConfig;
-  const logger = useMemo(
-    () => new Logger(LogSource.VxBallotMarkingDeviceFrontend, window.kiosk),
-    []
-  );
 
   const devices = useDevices({ hardware, logger });
   const {
