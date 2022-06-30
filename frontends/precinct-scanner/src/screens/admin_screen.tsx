@@ -243,6 +243,7 @@ export function DefaultPreview(): JSX.Element {
           user: {
             role: 'admin',
             electionHash: electionDefinition.electionHash,
+            passcode: '000000',
           },
           card: {
             hasStoredData: false,
