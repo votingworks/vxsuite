@@ -349,6 +349,7 @@ export function AppRoot({
     allowedUserRoles: ['superadmin', 'admin', 'pollworker'],
     cardApi: card,
     scope: { electionDefinition },
+    logger,
   });
 
   const makeCancelable = useCancelablePromise();

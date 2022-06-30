@@ -4,6 +4,7 @@ import {
   electionSampleDefinition,
   electionMinimalExhaustiveSampleDefinition,
 } from '@votingworks/fixtures';
+import { fakeLogger, LogEventId } from '@votingworks/logging';
 import {
   makePollWorkerCard,
   makeSuperadminCard,
@@ -52,6 +53,7 @@ describe('useInsertedSmartcardAuth', () => {
   beforeEach(() => jest.useFakeTimers());
 
   it("returns logged_out auth when there's no card or a card error", async () => {
+    const logger = fakeLogger();
     const cardApi = new MemoryCard();
     cardApi.insertCard(undefined, undefined, 'error');
     const { result, waitForNextUpdate } = renderHook(() =>
@@ -59,6 +61,7 @@ describe('useInsertedSmartcardAuth', () => {
         cardApi,
         allowedUserRoles,
         scope: {},
+        logger,
       })
     );
     // Default before reading card is logged_out
@@ -76,9 +79,20 @@ describe('useInsertedSmartcardAuth', () => {
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toEqual({ status: 'logged_out', reason: 'no_card' });
+
+    expect(logger.log).toHaveBeenCalledTimes(1);
+    expect(logger.log).toHaveBeenLastCalledWith(
+      LogEventId.AuthLogin,
+      'unknown',
+      expect.objectContaining({
+        disposition: 'failure',
+        reason: 'card_error',
+      })
+    );
   });
 
   it('returns logged_out auth when the card is not programmed correctly', async () => {
+    const logger = fakeLogger();
     const cardApi = new MemoryCard();
     cardApi.insertCard();
     const { result, waitForNextUpdate } = renderHook(() =>
@@ -86,6 +100,7 @@ describe('useInsertedSmartcardAuth', () => {
         cardApi,
         allowedUserRoles,
         scope: {},
+        logger,
       })
     );
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
@@ -95,6 +110,9 @@ describe('useInsertedSmartcardAuth', () => {
       reason: 'invalid_user_on_card',
     });
 
+    cardApi.removeCard();
+    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
+
     cardApi.insertCard('invalid card data');
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
@@ -102,9 +120,20 @@ describe('useInsertedSmartcardAuth', () => {
       status: 'logged_out',
       reason: 'invalid_user_on_card',
     });
+
+    expect(logger.log).toHaveBeenCalledTimes(2);
+    expect(logger.log).toHaveBeenLastCalledWith(
+      LogEventId.AuthLogin,
+      'unknown',
+      expect.objectContaining({
+        disposition: 'failure',
+        reason: 'invalid_user_on_card',
+      })
+    );
   });
 
   it('returns logged_out auth when the card user role is not allowed', async () => {
+    const logger = fakeLogger();
     const cardApi = new MemoryCard();
     cardApi.insertCard(makePollWorkerCard(electionHash));
     const { result, waitForNextUpdate } = renderHook(() =>
@@ -112,6 +141,7 @@ describe('useInsertedSmartcardAuth', () => {
         cardApi,
         allowedUserRoles: ['superadmin', 'admin'],
         scope: { electionDefinition },
+        logger,
       })
     );
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
@@ -121,9 +151,20 @@ describe('useInsertedSmartcardAuth', () => {
       reason: 'user_role_not_allowed',
       cardUserRole: 'pollworker',
     });
+
+    expect(logger.log).toHaveBeenCalledTimes(1);
+    expect(logger.log).toHaveBeenLastCalledWith(
+      LogEventId.AuthLogin,
+      'pollworker',
+      expect.objectContaining({
+        disposition: 'failure',
+        reason: 'user_role_not_allowed',
+      })
+    );
   });
 
   it('returns logged_out auth when using a pollworker card if the machine is not configured', async () => {
+    const logger = fakeLogger();
     const cardApi = new MemoryCard();
     cardApi.insertCard(makePollWorkerCard(electionHash));
     const { result, waitForNextUpdate } = renderHook(() =>
@@ -131,6 +172,7 @@ describe('useInsertedSmartcardAuth', () => {
         cardApi,
         allowedUserRoles,
         scope: {},
+        logger,
       })
     );
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
@@ -140,9 +182,20 @@ describe('useInsertedSmartcardAuth', () => {
       reason: 'machine_not_configured',
       cardUserRole: 'pollworker',
     });
+
+    expect(logger.log).toHaveBeenCalledTimes(1);
+    expect(logger.log).toHaveBeenLastCalledWith(
+      LogEventId.AuthLogin,
+      'pollworker',
+      expect.objectContaining({
+        disposition: 'failure',
+        reason: 'machine_not_configured',
+      })
+    );
   });
 
   it('returns logged_out auth when using a pollworker card that doesnt match the configured election', async () => {
+    const logger = fakeLogger();
     const cardApi = new MemoryCard();
     cardApi.insertCard(makePollWorkerCard(electionHash));
     const { result, waitForNextUpdate } = renderHook(() =>
@@ -150,6 +203,7 @@ describe('useInsertedSmartcardAuth', () => {
         cardApi,
         allowedUserRoles,
         scope: { electionDefinition: electionSample2Definition },
+        logger,
       })
     );
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
@@ -159,9 +213,20 @@ describe('useInsertedSmartcardAuth', () => {
       reason: 'pollworker_wrong_election',
       cardUserRole: 'pollworker',
     });
+
+    expect(logger.log).toHaveBeenCalledTimes(1);
+    expect(logger.log).toHaveBeenLastCalledWith(
+      LogEventId.AuthLogin,
+      'pollworker',
+      expect.objectContaining({
+        disposition: 'failure',
+        reason: 'pollworker_wrong_election',
+      })
+    );
   });
 
   it('returns logged_out auth when using a voter card that has expired', async () => {
+    const logger = fakeLogger();
     const cardApi = new MemoryCard();
     cardApi.insertCard(
       makeVoterCard(election, {
@@ -173,6 +238,7 @@ describe('useInsertedSmartcardAuth', () => {
         cardApi,
         allowedUserRoles,
         scope: { electionDefinition, precinct },
+        logger,
       })
     );
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
@@ -182,9 +248,20 @@ describe('useInsertedSmartcardAuth', () => {
       reason: 'voter_card_expired',
       cardUserRole: 'voter',
     });
+
+    expect(logger.log).toHaveBeenCalledTimes(1);
+    expect(logger.log).toHaveBeenLastCalledWith(
+      LogEventId.AuthLogin,
+      'voter',
+      expect.objectContaining({
+        disposition: 'failure',
+        reason: 'voter_card_expired',
+      })
+    );
   });
 
   it('returns logged_out auth when using a voter card if the machine is not configured', async () => {
+    const logger = fakeLogger();
     const cardApi = new MemoryCard();
     cardApi.insertCard(makeVoterCard(election));
     const { result, waitForNextUpdate } = renderHook(() =>
@@ -192,6 +269,7 @@ describe('useInsertedSmartcardAuth', () => {
         cardApi,
         allowedUserRoles,
         scope: {},
+        logger,
       })
     );
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
@@ -201,9 +279,20 @@ describe('useInsertedSmartcardAuth', () => {
       reason: 'machine_not_configured',
       cardUserRole: 'voter',
     });
+
+    expect(logger.log).toHaveBeenCalledTimes(1);
+    expect(logger.log).toHaveBeenLastCalledWith(
+      LogEventId.AuthLogin,
+      'voter',
+      expect.objectContaining({
+        disposition: 'failure',
+        reason: 'machine_not_configured',
+      })
+    );
   });
 
   it('returns logged_out auth when using a voter card with a ballot style that doesnt match the configured election', async () => {
+    const logger = fakeLogger();
     const cardApi = new MemoryCard();
     cardApi.insertCard(makeVoterCard(election));
     const { result, waitForNextUpdate } = renderHook(() =>
@@ -214,6 +303,7 @@ describe('useInsertedSmartcardAuth', () => {
           electionDefinition: electionMinimalExhaustiveSampleDefinition,
           precinct,
         },
+        logger,
       })
     );
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
@@ -223,9 +313,20 @@ describe('useInsertedSmartcardAuth', () => {
       reason: 'voter_wrong_election',
       cardUserRole: 'voter',
     });
+
+    expect(logger.log).toHaveBeenCalledTimes(1);
+    expect(logger.log).toHaveBeenLastCalledWith(
+      LogEventId.AuthLogin,
+      'voter',
+      expect.objectContaining({
+        disposition: 'failure',
+        reason: 'voter_wrong_election',
+      })
+    );
   });
 
   it('returns logged_out auth when using a voter card with a precinct that doesnt match the configured election', async () => {
+    const logger = fakeLogger();
     const cardApi = new MemoryCard();
     cardApi.insertCard(makeVoterCard(election));
     const { result, waitForNextUpdate } = renderHook(() =>
@@ -236,6 +337,7 @@ describe('useInsertedSmartcardAuth', () => {
           electionDefinition: electionMinimalExhaustiveSampleDefinition,
           precinct,
         },
+        logger,
       })
     );
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
@@ -245,9 +347,20 @@ describe('useInsertedSmartcardAuth', () => {
       reason: 'voter_wrong_election',
       cardUserRole: 'voter',
     });
+
+    expect(logger.log).toHaveBeenCalledTimes(1);
+    expect(logger.log).toHaveBeenLastCalledWith(
+      LogEventId.AuthLogin,
+      'voter',
+      expect.objectContaining({
+        disposition: 'failure',
+        reason: 'voter_wrong_election',
+      })
+    );
   });
 
   it('returns logged_out auth when using a voter card with a precinct that doesnt match the configured precinct', async () => {
+    const logger = fakeLogger();
     const cardApi = new MemoryCard();
     cardApi.insertCard(
       makeVoterCard(election, { pr: election.precincts[1].id })
@@ -257,6 +370,7 @@ describe('useInsertedSmartcardAuth', () => {
         cardApi,
         allowedUserRoles,
         scope: { electionDefinition, precinct },
+        logger,
       })
     );
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
@@ -266,6 +380,16 @@ describe('useInsertedSmartcardAuth', () => {
       reason: 'voter_wrong_precinct',
       cardUserRole: 'voter',
     });
+
+    expect(logger.log).toHaveBeenCalledTimes(1);
+    expect(logger.log).toHaveBeenLastCalledWith(
+      LogEventId.AuthLogin,
+      'voter',
+      expect.objectContaining({
+        disposition: 'failure',
+        reason: 'voter_wrong_precinct',
+      })
+    );
   });
 
   it('returns logged_in auth when using a voter card and all precincts are configured', async () => {
@@ -287,6 +411,7 @@ describe('useInsertedSmartcardAuth', () => {
   });
 
   it('returns logged_out auth for a voided voter card', async () => {
+    const logger = fakeLogger();
     const cardApi = new MemoryCard();
     cardApi.insertCard(makeVoterCard(election, { uz: 1 }));
     const { result, waitForNextUpdate } = renderHook(() =>
@@ -294,6 +419,7 @@ describe('useInsertedSmartcardAuth', () => {
         cardApi,
         allowedUserRoles,
         scope: { electionDefinition, precinct },
+        logger,
       })
     );
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
@@ -303,9 +429,20 @@ describe('useInsertedSmartcardAuth', () => {
       reason: 'voter_card_voided',
       cardUserRole: 'voter',
     });
+
+    expect(logger.log).toHaveBeenCalledTimes(1);
+    expect(logger.log).toHaveBeenLastCalledWith(
+      LogEventId.AuthLogin,
+      'voter',
+      expect.objectContaining({
+        disposition: 'failure',
+        reason: 'voter_card_voided',
+      })
+    );
   });
 
   it('returns logged_out auth for a printed voter card', async () => {
+    const logger = fakeLogger();
     const cardApi = new MemoryCard();
     cardApi.insertCard(makeVoterCard(election, { bp: 1 }));
     const { result, waitForNextUpdate } = renderHook(() =>
@@ -313,6 +450,7 @@ describe('useInsertedSmartcardAuth', () => {
         cardApi,
         allowedUserRoles,
         scope: { electionDefinition, precinct },
+        logger,
       })
     );
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
@@ -322,9 +460,20 @@ describe('useInsertedSmartcardAuth', () => {
       reason: 'voter_card_printed',
       cardUserRole: 'voter',
     });
+
+    expect(logger.log).toHaveBeenCalledTimes(1);
+    expect(logger.log).toHaveBeenLastCalledWith(
+      LogEventId.AuthLogin,
+      'voter',
+      expect.objectContaining({
+        disposition: 'failure',
+        reason: 'voter_card_printed',
+      })
+    );
   });
 
   it('returns logged_in auth for a superadmin card', async () => {
+    const logger = fakeLogger();
     const cardApi = new MemoryCard();
     cardApi.insertCard(makeSuperadminCard());
     const { result, waitForNextUpdate } = renderHook(() =>
@@ -332,6 +481,7 @@ describe('useInsertedSmartcardAuth', () => {
         cardApi,
         allowedUserRoles,
         scope: {},
+        logger,
       })
     );
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
@@ -341,9 +491,19 @@ describe('useInsertedSmartcardAuth', () => {
       user: fakeSuperadminUser(),
       card: expect.any(Object),
     });
+
+    expect(logger.log).toHaveBeenCalledTimes(1);
+    expect(logger.log).toHaveBeenLastCalledWith(
+      LogEventId.AuthLogin,
+      'superadmin',
+      expect.objectContaining({
+        disposition: 'success',
+      })
+    );
   });
 
   it('when an admin card is inserted, checks the passcode', async () => {
+    const logger = fakeLogger();
     const cardApi = new MemoryCard();
     const passcode = '123456';
     const user = fakeAdminUser({ electionHash, passcode });
@@ -352,6 +512,7 @@ describe('useInsertedSmartcardAuth', () => {
         cardApi,
         allowedUserRoles,
         scope: {},
+        logger,
       })
     );
     expect(result.current.status).toEqual('logged_out');
@@ -363,7 +524,7 @@ describe('useInsertedSmartcardAuth', () => {
     expect(result.current).toEqual({
       status: 'checking_passcode',
       user,
-      wrongPasscodeEntered: undefined,
+      wrongPasscodeEnteredAt: undefined,
       checkPasscode: expect.any(Function),
     });
 
@@ -371,6 +532,18 @@ describe('useInsertedSmartcardAuth', () => {
     act(() => {
       assert(result.current.status === 'checking_passcode');
       result.current.checkPasscode('000000');
+    });
+    await waitForNextUpdate();
+    expect(result.current).toMatchObject({
+      status: 'checking_passcode',
+      user,
+      wrongPasscodeEnteredAt: expect.any(Date),
+    });
+
+    // Check an incorrect passcode again (to make sure we log multiple failed attempts)
+    act(() => {
+      assert(result.current.status === 'checking_passcode');
+      result.current.checkPasscode('111111');
     });
     await waitForNextUpdate();
     expect(result.current).toMatchObject({
@@ -390,13 +563,48 @@ describe('useInsertedSmartcardAuth', () => {
       user,
       card: expect.any(Object),
     });
+
+    expect(logger.log).toHaveBeenCalledTimes(4);
+    expect(logger.log).toHaveBeenNthCalledWith(
+      1,
+      LogEventId.AuthPasscodeEntry,
+      'admin',
+      expect.objectContaining({
+        disposition: 'failure',
+      })
+    );
+    expect(logger.log).toHaveBeenNthCalledWith(
+      2,
+      LogEventId.AuthPasscodeEntry,
+      'admin',
+      expect.objectContaining({
+        disposition: 'failure',
+      })
+    );
+    expect(logger.log).toHaveBeenNthCalledWith(
+      3,
+      LogEventId.AuthPasscodeEntry,
+      'admin',
+      expect.objectContaining({
+        disposition: 'success',
+      })
+    );
+    expect(logger.log).toHaveBeenNthCalledWith(
+      4,
+      LogEventId.AuthLogin,
+      'admin',
+      expect.objectContaining({
+        disposition: 'success',
+      })
+    );
   });
 
   it('when checking passcode, logs out if card is removed', async () => {
+    const logger = fakeLogger();
     const cardApi = new MemoryCard();
     cardApi.insertCard(makeAdminCard(electionHash));
     const { result, waitForNextUpdate } = renderHook(() =>
-      useInsertedSmartcardAuth({ cardApi, allowedUserRoles, scope: {} })
+      useInsertedSmartcardAuth({ cardApi, allowedUserRoles, scope: {}, logger })
     );
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
@@ -409,9 +617,20 @@ describe('useInsertedSmartcardAuth', () => {
       status: 'logged_out',
       reason: 'no_card',
     });
+
+    expect(logger.log).toHaveBeenCalledTimes(1);
+    expect(logger.log).toHaveBeenLastCalledWith(
+      LogEventId.AuthPasscodeEntry,
+      'admin',
+      expect.objectContaining({
+        disposition: 'failure',
+        message: 'User canceled passcode entry.',
+      })
+    );
   });
 
   it('returns logged_in auth for a pollworker card', async () => {
+    const logger = fakeLogger();
     const cardApi = new MemoryCard();
     cardApi.insertCard(makePollWorkerCard(electionHash));
     const { result, waitForNextUpdate } = renderHook(() =>
@@ -419,6 +638,7 @@ describe('useInsertedSmartcardAuth', () => {
         cardApi,
         allowedUserRoles,
         scope: { electionDefinition },
+        logger,
       })
     );
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
@@ -428,9 +648,19 @@ describe('useInsertedSmartcardAuth', () => {
       user: fakePollworkerUser({ electionHash }),
       card: expect.any(Object),
     });
+
+    expect(logger.log).toHaveBeenCalledTimes(1);
+    expect(logger.log).toHaveBeenLastCalledWith(
+      LogEventId.AuthLogin,
+      'pollworker',
+      expect.objectContaining({
+        disposition: 'success',
+      })
+    );
   });
 
   it('returns logged_in auth for a voter card', async () => {
+    const logger = fakeLogger();
     const cardApi = new MemoryCard();
     const voterCard = makeVoterCard(election);
     cardApi.insertCard(voterCard);
@@ -439,6 +669,7 @@ describe('useInsertedSmartcardAuth', () => {
         cardApi,
         allowedUserRoles,
         scope: { electionDefinition, precinct },
+        logger,
       })
     );
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
@@ -454,9 +685,19 @@ describe('useInsertedSmartcardAuth', () => {
       markCardVoided: expect.any(Function),
       markCardPrinted: expect.any(Function),
     });
+
+    expect(logger.log).toHaveBeenCalledTimes(1);
+    expect(logger.log).toHaveBeenLastCalledWith(
+      LogEventId.AuthLogin,
+      'voter',
+      expect.objectContaining({
+        disposition: 'success',
+      })
+    );
   });
 
   it('for a logged in voter, marks the voter card voided', async () => {
+    const logger = fakeLogger();
     const cardApi = new MemoryCard();
     const voterCard = makeVoterCard(election);
     cardApi.insertCard(voterCard);
@@ -465,6 +706,7 @@ describe('useInsertedSmartcardAuth', () => {
         cardApi,
         allowedUserRoles,
         scope: { electionDefinition, precinct },
+        logger,
       })
     );
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
@@ -478,6 +720,16 @@ describe('useInsertedSmartcardAuth', () => {
       reason: 'voter_card_voided',
       cardUserRole: 'voter',
     });
+
+    expect(logger.log).toHaveBeenCalledTimes(2);
+    expect(logger.log).toHaveBeenLastCalledWith(
+      LogEventId.AuthLogout,
+      'voter',
+      expect.objectContaining({
+        disposition: 'success',
+        reason: 'voter_card_voided',
+      })
+    );
   });
 
   it('for a logged in voter, handles an error marking the voter card voided', async () => {
@@ -500,6 +752,7 @@ describe('useInsertedSmartcardAuth', () => {
   });
 
   it('for a logged in voter, marks the voter card printed', async () => {
+    const logger = fakeLogger();
     const cardApi = new MemoryCard();
     const voterCard = makeVoterCard(election);
     cardApi.insertCard(voterCard);
@@ -508,6 +761,7 @@ describe('useInsertedSmartcardAuth', () => {
         cardApi,
         allowedUserRoles,
         scope: { electionDefinition, precinct },
+        logger,
       })
     );
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
@@ -522,6 +776,13 @@ describe('useInsertedSmartcardAuth', () => {
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current.status).toEqual('logged_out');
+
+    expect(logger.log).toHaveBeenCalledTimes(2);
+    expect(logger.log).toHaveBeenLastCalledWith(
+      LogEventId.AuthLogout,
+      'voter',
+      expect.objectContaining({ disposition: 'success', reason: 'no_card' })
+    );
   });
 
   it('for a logged in voter, handles an error marking the voter card printed', async () => {
@@ -571,6 +832,7 @@ describe('useInsertedSmartcardAuth', () => {
   });
 
   it('logs out user when card is removed', async () => {
+    const logger = fakeLogger();
     const cardApi = new MemoryCard();
     cardApi.insertCard(makeSuperadminCard());
     const { result, waitForNextUpdate } = renderHook(() =>
@@ -578,6 +840,7 @@ describe('useInsertedSmartcardAuth', () => {
         cardApi,
         allowedUserRoles,
         scope: {},
+        logger,
       })
     );
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
@@ -592,9 +855,17 @@ describe('useInsertedSmartcardAuth', () => {
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toEqual({ status: 'logged_out', reason: 'no_card' });
+
+    expect(logger.log).toHaveBeenCalledTimes(2);
+    expect(logger.log).toHaveBeenLastCalledWith(
+      LogEventId.AuthLogout,
+      'superadmin',
+      expect.objectContaining({ disposition: 'success' })
+    );
   });
 
   it('for a logged in pollworker, activates and deactivates a cardless voter session', async () => {
+    const logger = fakeLogger();
     const cardApi = new MemoryCard();
     cardApi.insertCard(makePollWorkerCard(electionHash));
     const { result, waitForNextUpdate } = renderHook(() =>
@@ -602,6 +873,7 @@ describe('useInsertedSmartcardAuth', () => {
         cardApi,
         allowedUserRoles,
         scope: { electionDefinition },
+        logger,
       })
     );
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
@@ -664,5 +936,37 @@ describe('useInsertedSmartcardAuth', () => {
     });
     await waitForNextUpdate();
     expect(result.current).toEqual({ status: 'logged_out', reason: 'no_card' });
+
+    // expect(logger.log).toHaveBeenCalledTimes(5);
+    expect(logger.log).toHaveBeenNthCalledWith(
+      1,
+      LogEventId.AuthLogin,
+      'pollworker',
+      expect.objectContaining({ disposition: 'success' })
+    );
+    expect(logger.log).toHaveBeenNthCalledWith(
+      2,
+      LogEventId.AuthLogin,
+      'cardless_voter',
+      expect.objectContaining({ disposition: 'success' })
+    );
+    expect(logger.log).toHaveBeenNthCalledWith(
+      3,
+      LogEventId.AuthLogin,
+      'pollworker',
+      expect.objectContaining({ disposition: 'success' })
+    );
+    expect(logger.log).toHaveBeenNthCalledWith(
+      4,
+      LogEventId.AuthLogin,
+      'cardless_voter',
+      expect.objectContaining({ disposition: 'success' })
+    );
+    expect(logger.log).toHaveBeenNthCalledWith(
+      5,
+      LogEventId.AuthLogout,
+      'cardless_voter',
+      expect.objectContaining({ disposition: 'success' })
+    );
   });
 });

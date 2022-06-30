@@ -368,6 +368,7 @@ export function AppRoot({
       electionDefinition: optionalElectionDefinition,
       precinct: appPrecinct,
     },
+    logger,
   });
 
   const precinctId =
