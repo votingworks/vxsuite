@@ -105,7 +105,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
     hardware,
     logger,
   });
-  const auth = useDippedSmartcardAuth({ cardApi: card });
+  const auth = useDippedSmartcardAuth({ cardApi: card, logger });
   const userRole = auth.status === 'logged_in' ? auth.user.role : 'unknown';
 
   const [isExportingCvrs, setIsExportingCvrs] = useState(false);

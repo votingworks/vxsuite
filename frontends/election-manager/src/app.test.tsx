@@ -293,10 +293,6 @@ test('authentication works', async () => {
   // Insert an admin card and enter the wrong code.
   card.insertCard(adminCard);
   await advanceTimersAndPromises(1);
-  // TODO(jonah) add auth logging to useSmartcardAuth
-  // expect(mockKiosk.log).toHaveBeenCalledWith(
-  //   expect.stringContaining(LogEventId.AdminCardInserted)
-  // );
   await screen.findByText('Enter the card security code to unlock.');
   fireEvent.click(screen.getByText('1'));
   fireEvent.click(screen.getByText('1'));
@@ -305,10 +301,9 @@ test('authentication works', async () => {
   fireEvent.click(screen.getByText('1'));
   fireEvent.click(screen.getByText('1'));
   await screen.findByText('Invalid code. Please try again.');
-  // TODO(jonah) add auth logging to useSmartcardAuth
-  // expect(mockKiosk.log).toHaveBeenLastCalledWith(
-  //   expect.stringMatching(/"admin-authentication-2fac".*disposition":"failure"/)
-  // );
+  expect(mockKiosk.log).toHaveBeenLastCalledWith(
+    expect.stringMatching(/"auth-passcode-entry".*disposition":"failure"/)
+  );
 
   // Remove card and insert a pollworker card.
   card.removeCard();
@@ -333,15 +328,17 @@ test('authentication works', async () => {
 
   // 'Remove Card' screen is shown after successful authentication.
   await screen.findByText('Remove card to continue.');
-  // TODO(jonah) add auth logging to useSmartcardAuth
-  // expect(mockKiosk.log).toHaveBeenCalledWith(
-  //   expect.stringMatching(/"admin-authentication-2fac".*disposition":"success"/)
-  // );
-  // expect(mockKiosk.log).toHaveBeenLastCalledWith(
-  //   expect.stringMatching(
-  //     /"user-session-activation".*"user":"admin".*disposition":"success"/
-  //   )
-  // );
+  card.removeCard();
+  await screen.findByText('Lock Machine');
+
+  expect(mockKiosk.log).toHaveBeenCalledWith(
+    expect.stringMatching(/"auth-passcode-entry".*disposition":"success"/)
+  );
+  expect(mockKiosk.log).toHaveBeenCalledWith(
+    expect.stringMatching(
+      /"auth-login".*"user":"admin".*disposition":"success"/
+    )
+  );
 
   // Machine is unlocked when card removed
   card.removeCard();
@@ -364,10 +361,9 @@ test('authentication works', async () => {
   // Lock the machine
   fireEvent.click(screen.getByText('Lock Machine'));
   await screen.findByText('VxAdmin is Locked');
-  // TODO(jonah) add auth logging to useSmartcardAuth
-  // expect(mockKiosk.log).toHaveBeenCalledWith(
-  //   expect.stringContaining(LogEventId.MachineLocked)
-  // );
+  expect(mockKiosk.log).toHaveBeenCalledWith(
+    expect.stringContaining(LogEventId.AuthLogout)
+  );
 });
 
 test('L&A (logic and accuracy) flow', async () => {

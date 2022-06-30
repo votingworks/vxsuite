@@ -156,7 +156,7 @@ export function AppRoot({
     codeVersion: '',
   });
 
-  const auth = useDippedSmartcardAuth({ cardApi: card });
+  const auth = useDippedSmartcardAuth({ cardApi: card, logger });
   const currentUserRole =
     auth.status === 'logged_in' ? auth.user.role : 'unknown';
 
