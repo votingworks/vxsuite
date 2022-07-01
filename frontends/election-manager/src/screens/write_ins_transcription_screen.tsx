@@ -9,6 +9,9 @@ import {
   Rect,
   getPartyAbbreviationByPartyId,
   CastVoteRecord,
+  getContests,
+  getBallotStyle,
+  BallotPageLayout,
 } from '@votingworks/types';
 import { Button, Loading, Main, Screen, Text } from '@votingworks/ui';
 import { assert } from '@votingworks/utils';
@@ -179,11 +182,28 @@ export function WriteInsTranscriptionScreen({
   }
   assert(cvr !== undefined);
   // eslint-disable-next-line
-  const layout = cvr._layouts![0][0]; // TODO tara: how do we associate the correct layout with the current contest/CVR?
-  const allContestIds = election.contests
-    .map((c) => (c.partyId === contest.partyId ? c.id : null))
-    .filter(Boolean);
-  const contestLayout = layout.contests[allContestIds.indexOf(contest.id)];
+  const ballotStyle = getBallotStyle({
+    ballotStyleId: cvr._ballotStyleId,
+    election,
+  });
+  assert(ballotStyle);
+  const allContestIdsForBallotStyle = getContests({
+    ballotStyle,
+    election,
+  }).map((c) => c.id);
+  // Make sure the layouts are ordered by page number.
+  const layouts = [...cvr._layouts[0]].sort(
+    (a: BallotPageLayout, b: BallotPageLayout): number =>
+      a.metadata.pageNumber - b.metadata.pageNumber
+  );
+  let contestIdx = allContestIdsForBallotStyle.indexOf(contest.id);
+  let currentLayoutOptionIdx = 0;
+  while (contestIdx >= layouts[currentLayoutOptionIdx].contests.length) {
+    currentLayoutOptionIdx += 1;
+    contestIdx -= layouts[currentLayoutOptionIdx].contests.length;
+  }
+
+  const contestLayout = layouts[currentLayoutOptionIdx].contests[contestIdx];
   // eslint-disable-next-line
   const writeInOptionIndex = Number(
     cvr[contest.id]
@@ -194,7 +214,11 @@ export function WriteInsTranscriptionScreen({
     contestLayout.options[contest.candidates.length + writeInOptionIndex];
   const writeInBounds = writeInLayout.bounds;
   const contestBounds = contestLayout.bounds;
-  const fullBallotBounds: Rect = { ...layout.pageSize, x: 0, y: 0 };
+  const fullBallotBounds: Rect = {
+    ...layouts[currentLayoutOptionIdx].pageSize,
+    x: 0,
+    y: 0,
+  };
 
   return (
     <Screen>
