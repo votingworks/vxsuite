@@ -53,15 +53,17 @@ export function renderTimingMarks(
   }
 
   for (const [i, rect] of timingMarks.left.entries()) {
+    const midY = rect.y + rect.height / 2;
     debug
       .rect(rect.x, rect.y, rect.width, rect.height, 'green')
-      .text(rect.x, rect.y, `${i}`, 'green');
+      .text(rect.maxX + 5, midY, `${i}`, 'green');
   }
 
   for (const [i, rect] of timingMarks.right.entries()) {
+    const midY = rect.y + rect.height / 2;
     debug
       .rect(rect.x, rect.y, rect.width, rect.height, 'lightgreen')
-      .text(rect.maxX - 10, rect.y, `${i}`, 'blue');
+      .text(rect.minX - 15, midY, `${i}`, 'lightgreen');
   }
 
   for (const [i, rect] of timingMarks.top.entries()) {
@@ -75,7 +77,7 @@ export function renderTimingMarks(
     const midX = rect.x + rect.width / 2;
     debug
       .rect(rect.x, rect.y, rect.width, rect.height, 'pink')
-      .text(midX, rect.maxY + 15, `${i}`, 'pink');
+      .text(midX, rect.minY + 15, `${i}`, 'pink');
   }
 
   const minX = [...timingMarks.left, ...timingMarks.right].reduce(

@@ -197,6 +197,18 @@ export function closestPointOnLineSegmentToPoint(
 }
 
 /**
+ * Determines whether the given rectangles overlap at all.
+ */
+export function rectsOverlap(rect1: Rect, rect2: Rect): boolean {
+  return (
+    rect1.minX <= rect2.maxX &&
+    rect1.maxX >= rect2.minX &&
+    rect1.minY <= rect2.maxY &&
+    rect1.maxY >= rect2.minY
+  );
+}
+
+/**
  * Determines whether the given point is inside the given rectangle.
  */
 export function rectContainsPoint(rect: Rect, point: Point): boolean {
