@@ -10,6 +10,7 @@ import {
 } from '@votingworks/types';
 import { sleep, typedAs } from '@votingworks/utils';
 import { Buffer } from 'buffer';
+import { writeFile } from 'fs-extra';
 import * as streams from 'memory-streams';
 import * as tmp from 'tmp';
 import { v4 as uuid } from 'uuid';
@@ -505,7 +506,7 @@ test('adjudication', () => {
   store.cleanupIncompleteBatches();
 });
 
-test('exportCvrs', () => {
+test('exportCvrs', async () => {
   const store = Store.memoryStore();
   store.setElection(stateOfHamilton.electionDefinition);
 
@@ -531,7 +532,26 @@ test('exportCvrs', () => {
         ...metadata,
         pageNumber: 1,
       },
-      contests: [],
+      contests: [
+        {
+          bounds: { x: 0, y: 0, width: 100, height: 100 },
+          corners: [
+            { x: 0, y: 0 },
+            { x: 100, y: 0 },
+            { x: 100, y: 100 },
+            { x: 0, y: 100 },
+          ],
+          options: [
+            {
+              bounds: { x: 0, y: 50, width: 100, height: 50 },
+              target: {
+                bounds: { x: 20, y: 60, width: 20, height: 10 },
+                inner: { x: 22, y: 62, width: 16, height: 6 },
+              },
+            },
+          ],
+        },
+      ],
     },
     {
       pageSize: { width: 1, height: 1 },
@@ -539,16 +559,41 @@ test('exportCvrs', () => {
         ...metadata,
         pageNumber: 2,
       },
-      contests: [],
+      contests: [
+        {
+          bounds: { x: 0, y: 0, width: 100, height: 100 },
+          corners: [
+            { x: 0, y: 0 },
+            { x: 100, y: 0 },
+            { x: 100, y: 100 },
+            { x: 0, y: 100 },
+          ],
+          options: [
+            {
+              bounds: { x: 0, y: 50, width: 100, height: 50 },
+              target: {
+                bounds: { x: 20, y: 60, width: 20, height: 10 },
+                inner: { x: 22, y: 62, width: 16, height: 6 },
+              },
+            },
+          ],
+        },
+      ],
     },
   ]);
+
+  const frontNormalizedFile = tmp.fileSync();
+  await writeFile(frontNormalizedFile.fd, 'front normalized');
+
+  const backNormalizedFile = tmp.fileSync();
+  await writeFile(backNormalizedFile.fd, 'back normalized');
 
   // Create CVRs, confirm that they are exported should work
   const batchId = store.addBatch();
   const sheetId = store.addSheet(uuid(), batchId, [
     {
       originalFilename: '/tmp/front-page.png',
-      normalizedFilename: '/tmp/front-normalized-page.png',
+      normalizedFilename: frontNormalizedFile.name,
       interpretation: {
         type: 'UninterpretedHmpbPage',
         metadata: {
@@ -559,7 +604,7 @@ test('exportCvrs', () => {
     },
     {
       originalFilename: '/tmp/back-page.png',
-      normalizedFilename: '/tmp/back-normalized-page.png',
+      normalizedFilename: backNormalizedFile.name,
       interpretation: {
         type: 'UninterpretedHmpbPage',
         metadata: {
@@ -576,6 +621,12 @@ test('exportCvrs', () => {
   store.exportCvrs(stream);
   expect(stream.toString()).toEqual(
     expect.stringContaining(stateOfHamilton.election.precincts[0].id)
+  );
+  expect(stream.toString()).toEqual(
+    expect.stringContaining('front normalized') &&
+      expect.stringContaining(
+        '{"bounds":{"x":0,"y":50,"width":100,"height":50}'
+      )
   );
 
   // Confirm that deleted batches are not included in exported CVRs

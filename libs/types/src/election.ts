@@ -1221,6 +1221,15 @@ export const PageInterpretationWithFilesSchema: z.ZodSchema<PageInterpretationWi
     interpretation: PageInterpretationSchema,
   });
 
+export interface InlineBallotImage {
+  normalized: string;
+}
+export const InlineBallotImageSchema: z.ZodSchema<InlineBallotImage> = z.object(
+  {
+    normalized: z.string(),
+  }
+);
+
 export interface BallotPageInfo {
   image: ImageInfo;
   interpretation: PageInterpretation;
