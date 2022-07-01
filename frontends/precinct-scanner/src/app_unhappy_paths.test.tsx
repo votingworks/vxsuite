@@ -275,7 +275,7 @@ test('error from services/scan in accepting a reviewable ballot', async () => {
             interpretation: interpretedHmpb({
               electionDefinition: electionSampleDefinition,
               pageNumber: 1,
-              adjudicationReason: AdjudicationReason.Overvote,
+              adjudicationReason: AdjudicationReason.Undervote,
             }),
             image: { url: '/not/real.jpg' },
           },

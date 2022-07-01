@@ -42,9 +42,7 @@ test('overvote', () => {
 
   screen.getByText('Too many marks for:');
   screen.getByText(contest.title);
-  userEvent.click(screen.getByText('Count Ballot'));
-  userEvent.click(screen.getByText('Yes, count ballot with errors'));
-  expect(acceptBallot).toHaveBeenCalledTimes(1);
+  expect(screen.queryByText('Count Ballot')).toBeNull();
 });
 
 test('blank ballot', () => {
