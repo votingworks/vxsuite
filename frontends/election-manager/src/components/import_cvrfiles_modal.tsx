@@ -343,7 +343,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
           <Prose>
             <h1>No USB Drive Detected</h1>
             <p>
-              <UsbImage src="assets/usb-drive.svg" alt="Insert USB Image" />
+              <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
               Please insert a USB drive in order to import CVR files from the
               scanner.
             </p>

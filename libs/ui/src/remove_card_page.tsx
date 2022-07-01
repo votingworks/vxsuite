@@ -14,7 +14,7 @@ const RemoveCardImage = styled.img`
 export function RemoveCardPage(): JSX.Element {
   return (
     <Main padded centerChild>
-      <RemoveCardImage src="assets/remove-card.svg" alt="Remove Card Icon" />
+      <RemoveCardImage src="/assets/remove-card.svg" alt="Remove Card Icon" />
       <Prose textCenter theme={fontSizeTheme.medium} maxWidth={false}>
         <h1>Successfully Authenticated</h1>
         <p>Remove card.</p>
