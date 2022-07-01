@@ -378,10 +378,13 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
 
   if (usbDriveStatus === UsbDriveStatus.mounted) {
     // Determine if we are already locked to a filemode based on previously imported CVRs
-    const fileMode = castVoteRecordFiles.find((file) => file.isTestMode)
-      ? 'test'
-      : 'live';
-    const fileModeLocked = castVoteRecordFiles.length > 0;
+    const fileMode =
+      castVoteRecordFiles.length > 0
+        ? castVoteRecordFiles.find((file) => file.isTestMode)
+          ? 'test'
+          : 'live'
+        : null;
+    const fileModeLocked = !!fileMode;
 
     // Parse the file options on the USB drive and build table rows for each valid file.
     const fileTableRows: JSX.Element[] = [];
