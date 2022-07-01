@@ -340,8 +340,10 @@ export function AppRoot({
       const cvrs = cvrsJson.map((c: string) => JSON.parse(c) as CastVoteRecord);
       computeVoteCounts(new Set(cvrs));
     }
-    void updateTallies();
-  }, [castVoteRecordFiles, computeVoteCounts]);
+    if (electionDefinition) {
+      void updateTallies();
+    }
+  }, [castVoteRecordFiles, computeVoteCounts, electionDefinition]);
 
   useEffect(() => {
     void (async () => {

@@ -93,6 +93,14 @@ export class Store {
     return rows.map((r) => r.data).filter(Boolean);
   }
 
+  getCvrByAdjudicationId(id: string): string | undefined {
+    const row = this.client.one(
+      'select data from cvrs inner join adjudications on adjudications.cvr_id = cvrs.id where adjudications.id = ? ',
+      id
+    ) as string | undefined;
+    return row;
+  }
+
   /**
    * TODO
    */
