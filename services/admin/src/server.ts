@@ -40,6 +40,17 @@ export function buildApp({ store }: { store: Store }): Application {
     response.json(cvrs);
   });
 
+  app.get('/admin/write-ins/adjudication/:id/cvr', (request, response) => {
+    const { id } = request.params;
+
+    const cvr = store.getCvrByAdjudicationId(id);
+    if (cvr) {
+      response.json(cvr);
+    } else {
+      response.status(404).end();
+    }
+  });
+
   app.get('/admin/write-ins/adjudication/:id', (request, response) => {
     const { id } = request.params;
 
