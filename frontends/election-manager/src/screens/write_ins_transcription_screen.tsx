@@ -8,8 +8,9 @@ import {
   Election,
   Rect,
   getPartyAbbreviationByPartyId,
+  CastVoteRecord,
 } from '@votingworks/types';
-import { Button, Main, Screen, Text } from '@votingworks/ui';
+import { Button, Loading, Main, Screen, Text } from '@votingworks/ui';
 import { assert } from '@votingworks/utils';
 import { Navigation } from '../components/navigation';
 import { TextInput } from '../components/text_input';
@@ -111,6 +112,7 @@ export function WriteInsTranscriptionScreen({
     useState<string[]>([]);
 
   const transcribedValueInput = useRef<HTMLInputElement>(null);
+  const [cvr, setCvr] = useState<CastVoteRecord>();
 
   assert(contest);
   assert(election);
@@ -123,25 +125,16 @@ export function WriteInsTranscriptionScreen({
     saveTranscribedValue(adjudicationId, val);
   }
 
-  const cvr = JSON.parse(JSON.parse(localStorage['cvrFiles'])).files[0]
-    .allCastVoteRecords[0];
-  // eslint-disable-next-line
-  const layout = cvr._layouts[0][0]; // TODO tara: how do we associate the correct layout with the current contest/CVR?
-  const allContestIds = election.contests
-    .map((c) => (c.partyId === contest.partyId ? c.id : null))
-    .filter(Boolean);
-  const contestLayout = layout.contests[allContestIds.indexOf(contest.id)];
-  // eslint-disable-next-line
-  const writeInOptionIndex = Number(
-    cvr[contest.id]
-      .find((vote: string) => vote.startsWith('write-in'))
-      .slice('write-in-'.length)
-  );
-  const writeInLayout =
-    contestLayout.options[contest.candidates.length + writeInOptionIndex];
-  const writeInBounds = writeInLayout.bounds;
-  const contestBounds = contestLayout.bounds;
-  const fullBallotBounds: Rect = { ...layout.pageSize, x: 0, y: 0 };
+  useEffect(() => {
+    async function fetchCvr() {
+      const resp = await fetch(
+        `/admin/write-ins/adjudication/${adjudicationId}/cvr`
+      );
+      const json = await resp.json();
+      setCvr(JSON.parse(json.data) as CastVoteRecord);
+    }
+    void fetchCvr();
+  }, [adjudicationId]);
 
   useEffect(() => {
     async function getTranscribedValue(id: AdjudicationId): Promise<void> {
@@ -163,6 +156,45 @@ export function WriteInsTranscriptionScreen({
     }
     void getPreviouslyTranscribedValues();
   }, []);
+
+  if (cvr === undefined) {
+    return (
+      <Screen>
+        <Navigation
+          screenTitle="Write-In Adjudication"
+          secondaryNav={
+            <React.Fragment>
+              <Button small onPress={onListAll}>
+                List All
+              </Button>
+              <Button small onPress={onClose}>
+                Exit
+              </Button>
+            </React.Fragment>
+          }
+        />
+        <Loading />
+      </Screen>
+    );
+  }
+  assert(cvr !== undefined);
+  // eslint-disable-next-line
+  const layout = cvr._layouts![0][0]; // TODO tara: how do we associate the correct layout with the current contest/CVR?
+  const allContestIds = election.contests
+    .map((c) => (c.partyId === contest.partyId ? c.id : null))
+    .filter(Boolean);
+  const contestLayout = layout.contests[allContestIds.indexOf(contest.id)];
+  // eslint-disable-next-line
+  const writeInOptionIndex = Number(
+    cvr[contest.id]
+      .find((vote: string) => vote.startsWith('write-in'))
+      .slice('write-in-'.length)
+  );
+  const writeInLayout =
+    contestLayout.options[contest.candidates.length + writeInOptionIndex];
+  const writeInBounds = writeInLayout.bounds;
+  const contestBounds = contestLayout.bounds;
+  const fullBallotBounds: Rect = { ...layout.pageSize, x: 0, y: 0 };
 
   return (
     <Screen>

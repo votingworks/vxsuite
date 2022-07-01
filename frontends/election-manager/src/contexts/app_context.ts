@@ -1,4 +1,4 @@
-import { createContext, RefObject } from 'react';
+import React, { createContext, RefObject } from 'react';
 import {
   ElectionDefinition,
   FullElectionTally,
@@ -15,27 +15,20 @@ import {
   ResultsFileType,
   MachineConfig,
   ConverterClientType,
+  CastVoteRecordFile,
 } from '../config/types';
-import {
-  CastVoteRecordFiles,
-  SaveCastVoteRecordFiles,
-} from '../utils/cast_vote_record_files';
 import { getEmptyFullElectionTally } from '../lib/votecounting';
 import { getEmptyExportableTallies } from '../utils/exportable_tallies';
 
 export interface AppContextInterface {
-  castVoteRecordFiles: CastVoteRecordFiles;
   electionDefinition?: ElectionDefinition;
   configuredAt?: Iso8601Timestamp;
   converter?: ConverterClientType;
   isOfficialResults: boolean;
   printer: Printer;
   printBallotRef?: RefObject<HTMLElement>;
-  saveCastVoteRecordFiles: SaveCastVoteRecordFiles;
+  refreshCastVoteRecordFiles: () => Promise<void>;
   saveElection: SaveElection;
-  setCastVoteRecordFiles: React.Dispatch<
-    React.SetStateAction<CastVoteRecordFiles>
-  >;
   saveIsOfficialResults: () => Promise<void>;
   resetFiles: (fileType: ResultsFileType) => Promise<void>;
   usbDriveStatus: usbstick.UsbDriveStatus;
@@ -59,19 +52,19 @@ export interface AppContextInterface {
   machineConfig: MachineConfig;
   hasCardReaderAttached: boolean;
   logger: Logger;
+  castVoteRecordFiles: CastVoteRecordFile[];
+  importedBallotIds: Set<string>;
 }
 
 /* eslint-disable @typescript-eslint/require-await */
 const appContext: AppContextInterface = {
-  castVoteRecordFiles: CastVoteRecordFiles.empty,
   electionDefinition: undefined,
   configuredAt: undefined,
   isOfficialResults: false,
   printer: new NullPrinter(),
   printBallotRef: undefined,
-  saveCastVoteRecordFiles: async () => undefined,
+  refreshCastVoteRecordFiles: async () => undefined,
   saveElection: async () => undefined,
-  setCastVoteRecordFiles: () => undefined,
   saveIsOfficialResults: async () => undefined,
   resetFiles: async () => undefined,
   usbDriveStatus: usbstick.UsbDriveStatus.notavailable,
@@ -97,6 +90,8 @@ const appContext: AppContextInterface = {
   },
   hasCardReaderAttached: true,
   logger: new Logger(LogSource.VxAdminFrontend),
+  castVoteRecordFiles: [],
+  importedBallotIds: new Set(),
 };
 /* eslint-enable @typescript-eslint/require-await */
 

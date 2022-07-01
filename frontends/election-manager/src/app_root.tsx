@@ -29,23 +29,20 @@ import {
   Printer,
   Card,
   Hardware,
+  typedAs,
 } from '@votingworks/utils';
 import {
   useUsbDrive,
   useDevices,
   useDippedSmartcardAuth,
 } from '@votingworks/ui';
+import moment from 'moment';
 import {
   computeFullElectionTally,
   getEmptyFullElectionTally,
 } from './lib/votecounting';
 
 import { AppContext } from './contexts/app_context';
-
-import {
-  CastVoteRecordFiles,
-  SaveCastVoteRecordFiles,
-} from './utils/cast_vote_record_files';
 
 import { ElectionManager } from './components/election_manager';
 import {
@@ -57,6 +54,7 @@ import {
   MachineConfig,
   CastVoteRecord,
   ConverterClientType,
+  CastVoteRecordFile,
 } from './config/types';
 import { getExportableTallies } from './utils/exportable_tallies';
 import {
@@ -83,7 +81,6 @@ export interface Props {
 }
 
 export const electionDefinitionStorageKey = 'electionDefinition';
-export const cvrsStorageKey = 'cvrFiles';
 export const isOfficialResultsKey = 'isOfficialResults';
 export const printedBallotsStorageKey = 'printedBallots';
 export const configuredAtStorageKey = 'configuredAt';
@@ -121,12 +118,6 @@ export function AppRoot({
     }
   }, [storage]);
 
-  const getCvrFiles = useCallback(
-    async (): Promise<string | undefined> =>
-      // TODO: validate this with zod schema
-      (await storage.get(cvrsStorageKey)) as string | undefined,
-    [storage]
-  );
   const getExternalElectionTallies = useCallback(
     async (): Promise<string | undefined> =>
       // TODO: validate this with zod schema
@@ -146,11 +137,14 @@ export function AppRoot({
     useState<ElectionDefinition>();
   const [configuredAt, setConfiguredAt] = useState<Iso8601Timestamp>();
 
-  const [castVoteRecordFiles, setCastVoteRecordFiles] = useState(
-    CastVoteRecordFiles.empty
-  );
   const [isTabulationRunning, setIsTabulationRunning] = useState(false);
   const [isOfficialResults, setIsOfficialResults] = useState(false);
+  const [castVoteRecordFiles, setCastVoteRecordFiles] = useState<
+    CastVoteRecordFile[]
+  >([]);
+  const [importedBallotIds, setImportedBallotIds] = useState<Set<string>>(
+    new Set()
+  );
   const [machineConfig, setMachineConfig] = useState<MachineConfig>({
     machineId: '0000',
     codeVersion: '',
@@ -296,6 +290,62 @@ export function AppRoot({
     })();
   }, [getPrintedBallots, printedBallots]);
 
+  const computeVoteCounts = useCallback(
+    (castVoteRecords: ReadonlySet<CastVoteRecord>) => {
+      void logger.log(LogEventId.RecomputingTally, currentUserRole);
+      assert(electionDefinition);
+      setIsTabulationRunning(true);
+      const fullTally = computeFullElectionTally(
+        electionDefinition.election,
+        castVoteRecords
+      );
+      setFullElectionTally(fullTally);
+      setIsTabulationRunning(false);
+    },
+    [setFullElectionTally, electionDefinition, logger, currentUserRole]
+  );
+
+  const refreshCastVoteRecordFiles = useCallback(async () => {
+    const response = await fetch('/admin/write-ins/cvr-files', {
+      method: 'GET',
+    });
+    const cvrData = await response.json();
+    const cvrFiles = cvrData.map((c: any) => {
+      const data = JSON.parse(c);
+      return typedAs<CastVoteRecordFile>({
+        signature: data.signature,
+        name: data.filename,
+        exportTimestamp: moment(data.timestamp).toDate(),
+        precinctIds: data.precinct_ids.split(','),
+        scannerIds: data.scanner_ids.split(','),
+        importedCvrCount: data.imported_cvr_count,
+        duplicatedCvrCount: data.duplicated_cvr_count,
+        isTestMode: data.contains_test_mode_cvrs === 'true',
+      });
+    });
+    setCastVoteRecordFiles(cvrFiles);
+
+    const ballotIdResponse = await fetch('/admin/write-ins/cvr-ballot-ids', {
+      method: 'GET',
+    });
+    const ballotIds = await ballotIdResponse.json();
+    setImportedBallotIds(new Set(ballotIds));
+  }, []);
+
+  useEffect(() => {
+    async function updateTallies() {
+      const cvrResponse = await fetch('/admin/write-ins/cvrs', {
+        method: 'GET',
+      });
+      const cvrsJson = await cvrResponse.json();
+      const cvrs = cvrsJson.map((c: string) => JSON.parse(c) as CastVoteRecord);
+      computeVoteCounts(new Set(cvrs));
+    }
+    if (electionDefinition) {
+      void updateTallies();
+    }
+  }, [castVoteRecordFiles, computeVoteCounts, electionDefinition]);
+
   useEffect(() => {
     void (async () => {
       if (!electionDefinition) {
@@ -316,24 +366,18 @@ export function AppRoot({
           });
         }
 
-        if (castVoteRecordFiles === CastVoteRecordFiles.empty) {
-          const storageCvrFiles = await getCvrFiles();
-          if (storageCvrFiles) {
-            const cvrs = CastVoteRecordFiles.import(storageCvrFiles);
-            const newIsOfficialResults =
-              (await getIsOfficialResults()) || false;
-            setCastVoteRecordFiles(cvrs);
-            setIsOfficialResults(newIsOfficialResults);
-            await logger.log(LogEventId.LoadFromStorage, 'system', {
-              message:
-                'Cast vote records automatically loaded into application from local storage.',
-              disposition: 'success',
-              numberOfCvrs: cvrs.fileList.length,
-              isOfficialResults: newIsOfficialResults,
-            });
-          }
+        if (castVoteRecordFiles.length === 0) {
+          await refreshCastVoteRecordFiles();
+          const newIsOfficialResults = (await getIsOfficialResults()) || false;
+          setIsOfficialResults(newIsOfficialResults);
+          await logger.log(LogEventId.LoadFromStorage, 'system', {
+            message:
+              'Cast vote records automatically loaded into application from local storage.',
+            disposition: 'success',
+            numberOfCvrs: 0, // TODO cvrs.fileList.length,
+            isOfficialResults: newIsOfficialResults,
+          });
         }
-
         if (
           fullElectionExternalTallies.length === 0 &&
           storageElectionDefinition
@@ -357,15 +401,15 @@ export function AppRoot({
       }
     })();
   }, [
-    castVoteRecordFiles,
     electionDefinition,
     fullElectionExternalTallies.length,
-    getCvrFiles,
+    refreshCastVoteRecordFiles,
     getElectionDefinition,
     getExternalElectionTallies,
     getIsOfficialResults,
     storage,
     logger,
+    castVoteRecordFiles,
   ]);
 
   useEffect(() => {
@@ -382,28 +426,6 @@ export function AppRoot({
       totalBallots,
     });
   }, [fullElectionTally, fullElectionExternalTallies, currentUserRole, logger]);
-
-  const computeVoteCounts = useCallback(
-    (castVoteRecords: ReadonlySet<CastVoteRecord>) => {
-      void logger.log(LogEventId.RecomputingTally, currentUserRole);
-      assert(electionDefinition);
-      setIsTabulationRunning(true);
-      const fullTally = computeFullElectionTally(
-        electionDefinition.election,
-        castVoteRecords
-      );
-      setFullElectionTally(fullTally);
-      setIsTabulationRunning(false);
-    },
-    [setFullElectionTally, electionDefinition, logger, currentUserRole]
-  );
-
-  useEffect(() => {
-    if (electionDefinition) {
-      computeVoteCounts(new Set(castVoteRecordFiles.castVoteRecords));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [computeVoteCounts, castVoteRecordFiles]);
 
   async function saveExternalTallies(
     externalTallies: FullElectionExternalTally[]
@@ -423,37 +445,16 @@ export function AppRoot({
     }
   }
 
-  const saveCastVoteRecordFiles: SaveCastVoteRecordFiles = async (
-    newCvrFiles = CastVoteRecordFiles.empty
-  ) => {
-    setCastVoteRecordFiles(newCvrFiles);
-    if (newCvrFiles === CastVoteRecordFiles.empty) {
-      setIsOfficialResults(false);
-    }
-
-    if (newCvrFiles === CastVoteRecordFiles.empty) {
-      await fetch('/admin/write-ins/cvrs/reset', { method: 'GET' });
-      await removeStorageKeyAndLog(cvrsStorageKey, 'Cast vote records');
-      await removeStorageKeyAndLog(
-        isOfficialResultsKey,
-        'isOfficialResults flag'
-      );
-      setIsOfficialResults(false);
-    } else {
-      await setStorageKeyAndLog(
-        cvrsStorageKey,
-        newCvrFiles.export(),
-        'Cast vote records'
-      );
-      await fetch('/admin/write-ins/cvrs/', {
-        method: 'POST',
-        body: newCvrFiles.export(),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-    }
-  };
+  async function clearCastVoteRecordFiles() {
+    computeVoteCounts(new Set());
+    await fetch('/admin/write-ins/cvrs/reset', { method: 'GET' });
+    setCastVoteRecordFiles([]);
+    await removeStorageKeyAndLog(
+      isOfficialResultsKey,
+      'isOfficialResults flag'
+    );
+    setIsOfficialResults(false);
+  }
 
   const saveElection: SaveElection = useCallback(
     async (electionJson) => {
@@ -467,6 +468,8 @@ export function AppRoot({
       // we set a new election definition, reset everything
       try {
         await storage.clear();
+        await fetch('/admin/write-ins/cvrs/reset', { method: 'GET' });
+        setCastVoteRecordFiles([]);
         await logger.log(LogEventId.SaveToStorage, currentUserRole, {
           message:
             'All current data in storage, including election definition, cast vote records, tallies, and printed ballot information cleared.',
@@ -481,7 +484,6 @@ export function AppRoot({
         });
       }
       setIsOfficialResults(false);
-      setCastVoteRecordFiles(CastVoteRecordFiles.empty);
       setFullElectionExternalTallies([]);
       setPrintedBallots([]);
       setElectionDefinition(undefined);
@@ -530,7 +532,6 @@ export function AppRoot({
       electionDefinition,
       storage,
       setIsOfficialResults,
-      setCastVoteRecordFiles,
       setPrintedBallots,
       setElectionDefinition,
       setElectionDefinition,
@@ -555,7 +556,7 @@ export function AppRoot({
           fileType,
           disposition: 'success',
         });
-        await saveCastVoteRecordFiles();
+        await clearCastVoteRecordFiles();
         break;
       case ResultsFileType.SEMS: {
         const newFiles = fullElectionExternalTallies.filter(
@@ -587,7 +588,7 @@ export function AppRoot({
           fileType,
           disposition: 'success',
         });
-        await saveCastVoteRecordFiles();
+        await clearCastVoteRecordFiles();
         await saveExternalTallies([]);
         break;
       default:
@@ -598,17 +599,15 @@ export function AppRoot({
   return (
     <AppContext.Provider
       value={{
-        castVoteRecordFiles,
         electionDefinition,
         configuredAt,
         converter,
         isOfficialResults,
         printer,
         printBallotRef,
-        saveCastVoteRecordFiles,
+        refreshCastVoteRecordFiles,
         saveElection,
         saveIsOfficialResults,
-        setCastVoteRecordFiles,
         resetFiles,
         usbDriveStatus: displayUsbStatus,
         usbDriveEject: usbDrive.eject,
@@ -626,6 +625,8 @@ export function AppRoot({
         machineConfig,
         hasCardReaderAttached: !!cardReader,
         logger,
+        castVoteRecordFiles,
+        importedBallotIds,
       }}
     >
       <ElectionManager />
