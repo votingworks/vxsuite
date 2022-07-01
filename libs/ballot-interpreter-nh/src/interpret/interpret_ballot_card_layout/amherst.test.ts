@@ -12,6 +12,7 @@ test.each([
   'scan-unmarked-front',
   'scan-marked-front',
   'scan-marked-stretch-front',
+  'scan-marked-stretch-mid-front',
 ])('%s', async (name) => {
   const geometry = ScannedBallotCardGeometry8pt5x11;
   const frontImageData = await readFixtureImage(
@@ -65,6 +66,7 @@ test.each([
   'scan-unmarked-back',
   'scan-marked-back',
   'scan-marked-stretch-back',
+  'scan-marked-stretch-mid-back',
 ])('%s', async (name) => {
   const geometry = ScannedBallotCardGeometry8pt5x11;
   const backImageData = await readFixtureImage(

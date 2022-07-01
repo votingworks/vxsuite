@@ -37,6 +37,7 @@ import {
   normalizeHalfAngle,
   radiansToDegrees,
   rectContainsPoint,
+  rectsOverlap,
   vectorAngle,
 } from '../utils';
 
@@ -383,7 +384,7 @@ function computeTimingMarksFromGaps(
 
   function addTimingMark(rect: Rect) {
     for (const existing of timingMarks) {
-      if (rectContainsPoint(existing, centerOfRect(rect))) {
+      if (rectsOverlap(existing, rect)) {
         return;
       }
     }

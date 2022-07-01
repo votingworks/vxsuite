@@ -1,6 +1,6 @@
 import { typedAs } from '@votingworks/utils';
 import * as fc from 'fast-check';
-import { Segment } from './types';
+import { Rect, Segment } from './types';
 import {
   bitsToNumber,
   calculateIntersection,
@@ -13,12 +13,31 @@ import {
   loc,
   makeRect,
   median,
+  rectsOverlap,
   segmentIntersectionWithRect,
   vec,
   vectorAdd,
   vectorMult,
   vectorSub,
 } from './utils';
+
+function arbitraryRect(): fc.Arbitrary<Rect> {
+  return fc
+    .record({
+      x: fc.integer({ min: 0, max: 1000 }),
+      y: fc.integer({ min: 0, max: 1000 }),
+      width: fc.integer({ min: 1, max: 1000 }),
+      height: fc.integer({ min: 1, max: 1000 }),
+    })
+    .map(({ x, y, width, height }) =>
+      makeRect({
+        minX: x,
+        minY: y,
+        maxX: x + width - 1,
+        maxY: y + height - 1,
+      })
+    );
+}
 
 test('distance (basics)', () => {
   expect(distance(loc(1, 1), loc(0, 0))).toBe(Math.sqrt(2));
@@ -329,5 +348,69 @@ test('checkApproximatelyColinear', () => {
   expect(checkApproximatelyColinear(1 * degree, Math.PI, 0)).toBe(false);
   expect(checkApproximatelyColinear(1 * degree, -1 * degree, 2 * degree)).toBe(
     true
+  );
+});
+
+test('rectsOverlap(A, A) is always true', () => {
+  fc.assert(
+    fc.property(arbitraryRect(), (rect) => {
+      expect(rectsOverlap(rect, rect)).toBe(true);
+    })
+  );
+});
+
+test(`rectsOverlap(A, A') is always true when A' is shifted less than width/height from A`, () => {
+  fc.assert(
+    fc.property(
+      arbitraryRect()
+        .filter((rect) => rect.minX !== rect.maxX || rect.minY !== rect.maxY)
+        .chain((rect) =>
+          fc.record({
+            rect: fc.constant(rect),
+            offset: fc.record({
+              x: fc.integer({ min: -rect.width + 1, max: rect.width - 1 }),
+              y: fc.integer({ min: -rect.height + 1, max: rect.height - 1 }),
+            }),
+          })
+        ),
+      ({ rect, offset }) => {
+        const shifted = makeRect({
+          minX: rect.minX + offset.x,
+          minY: rect.minY + offset.y,
+          maxX: rect.maxX + offset.x,
+          maxY: rect.maxY + offset.y,
+        });
+        expect(rectsOverlap(rect, shifted)).toBe(true);
+      }
+    )
+  );
+});
+
+test(`rectsOverlap(A, A') is always false when A' is shifted more than either width or height from A`, () => {
+  fc.assert(
+    fc.property(
+      arbitraryRect().chain((rect) =>
+        fc.record({
+          rect: fc.constant(rect),
+          offset: fc
+            .record({
+              x: fc.integer({ min: 1 }),
+              y: fc.integer({ min: 1 }),
+            })
+            .filter(
+              (offset) => offset.x >= rect.width || offset.y >= rect.height
+            ),
+        })
+      ),
+      ({ rect, offset }) => {
+        const shifted = makeRect({
+          minX: rect.minX + offset.x,
+          minY: rect.minY + offset.y,
+          maxX: rect.maxX + offset.x,
+          maxY: rect.maxY + offset.y,
+        });
+        expect(rectsOverlap(rect, shifted)).toBe(false);
+      }
+    )
   );
 });
