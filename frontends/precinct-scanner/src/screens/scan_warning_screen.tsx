@@ -29,29 +29,12 @@ export interface Props {
 interface OvervoteWarningScreenProps {
   electionDefinition: ElectionDefinition;
   overvotes: readonly OvervoteAdjudicationReasonInfo[];
-  acceptBallot: () => Promise<void>;
 }
 
 function OvervoteWarningScreen({
   electionDefinition,
   overvotes,
-  acceptBallot,
 }: OvervoteWarningScreenProps): JSX.Element {
-  const [confirmTabulate, setConfirmTabulate] = useState(false);
-  const openConfirmTabulateModal = useCallback(
-    () => setConfirmTabulate(true),
-    []
-  );
-  const closeConfirmTabulateModal = useCallback(
-    () => setConfirmTabulate(false),
-    []
-  );
-
-  const tabulateBallot = useCallback(async () => {
-    closeConfirmTabulateModal();
-    await acceptBallot();
-  }, [acceptBallot, closeConfirmTabulateModal]);
-
   const contests = electionDefinition.election.contests.filter((c) =>
     overvotes.some((r) => c.id === r.contestId)
   );
@@ -70,38 +53,6 @@ function OvervoteWarningScreen({
           Remove ballot and ask a poll worker for a new ballot.
         </Text>
       </CenteredLargeProse>
-      <Absolute bottom left right>
-        <Bar style={{ justifyContent: 'flex-end' }}>
-          <div>
-            Optionally, this ballot may be counted as-is:{' '}
-            <Button onPress={openConfirmTabulateModal}>Count Ballot</Button>
-          </div>
-        </Bar>
-      </Absolute>
-      {confirmTabulate && (
-        <Modal
-          content={
-            <Prose textCenter>
-              <h1>Count ballot with errors?</h1>
-              <p>
-                {pluralize('contest', overvotes.length, true)} will not be
-                counted.
-              </p>
-            </Prose>
-          }
-          actions={
-            <React.Fragment>
-              <Button primary onPress={tabulateBallot}>
-                Yes, count ballot with errors
-              </Button>
-              <Button onPress={closeConfirmTabulateModal}>
-                No, return my ballot
-              </Button>
-            </React.Fragment>
-          }
-          onOverlayClick={closeConfirmTabulateModal}
-        />
-      )}
     </ScreenMainCenterChild>
   );
 }
@@ -359,7 +310,6 @@ export function ScanWarningScreen({
       <OvervoteWarningScreen
         electionDefinition={electionDefinition}
         overvotes={overvoteReasons}
-        acceptBallot={acceptBallot}
       />
     );
   }
