@@ -51,7 +51,7 @@ const MAX_ROTATION = degreesToRadians(5);
  * ballot card vs the angle of the top and bottom of the card. We expect them
  * to be 90 degrees apart, but allow up to this value for error.
  */
-const MAX_ROTATION_ERROR = degreesToRadians(1);
+const MAX_ROTATION_ERROR = degreesToRadians(2);
 
 /**
  * Convenience value for the angle between orthogonal lines.
@@ -197,11 +197,14 @@ function verticalTimingMarkGapScan(
     const maxY = Math.max(...ranges.map(([, max]) => max));
     const gapRect = makeRect({ minX, minY, maxX, maxY });
 
+    // Keep anything that is close to the expected size in at least one
+    // dimension. This keeps e.g. side timing mark gaps that are narrower than
+    // expected due to the scan being cropped.
     if (
-      gapRect.width >= gapSize.width - allowedGapWidthError &&
-      gapRect.width <= gapSize.width + allowedGapWidthError &&
-      gapRect.height >= gapSize.height - allowedGapHeightError &&
-      gapRect.height <= gapSize.height + allowedGapHeightError
+      (gapRect.width >= gapSize.width - allowedGapWidthError &&
+        gapRect.width <= gapSize.width + allowedGapWidthError) ||
+      (gapRect.height >= gapSize.height - allowedGapHeightError &&
+        gapRect.height <= gapSize.height + allowedGapHeightError)
     ) {
       return [gapRect];
     }
@@ -797,18 +800,18 @@ export function interpretBallotCardLayout(
     debug.imageData(0, 0, imageData);
   }
 
-  const topLeftTimingMarkCenter = intersectionOfLineSegments(
+  const intersectionOfTopAndLeftLines = intersectionOfLineSegments(
     leftSideBestFitLine.lineSegment,
     topSideBestFitLine.lineSegment,
     { bounded: false }
   );
-  assert(topLeftTimingMarkCenter);
-  const topRightTimingMarkCenter = intersectionOfLineSegments(
+  assert(intersectionOfTopAndLeftLines);
+  const intersectionOfTopAndRightLines = intersectionOfLineSegments(
     rightSideBestFitLine.lineSegment,
     topSideBestFitLine.lineSegment,
     { bounded: false }
   );
-  assert(topRightTimingMarkCenter);
+  assert(intersectionOfTopAndRightLines);
 
   /* istanbul ignore next */
   if (debug.isEnabled()) {
@@ -836,8 +839,8 @@ export function interpretBallotCardLayout(
 
       const cornerColor = '#00ff00';
       for (const corner of [
-        topLeftTimingMarkCenter,
-        topRightTimingMarkCenter,
+        intersectionOfTopAndLeftLines,
+        intersectionOfTopAndRightLines,
       ]) {
         const x = Math.round(corner.x);
         const y = Math.round(corner.y);
@@ -871,35 +874,102 @@ export function interpretBallotCardLayout(
   const topSideTimingMarks = computeTimingMarksFromGaps(
     topSideBestFitLine.rects.filter(
       (gap) =>
-        gap.maxX > topLeftTimingMarkCenter.x &&
-        gap.minX < topRightTimingMarkCenter.x
+        gap.maxX > intersectionOfTopAndLeftLines.x &&
+        gap.minX < intersectionOfTopAndRightLines.x
     ),
     { geometry, horizontal: true }
   );
 
   const leftSideTimingMarks = computeTimingMarksFromGaps(
     leftSideBestFitLine.rects.filter(
-      (gap) => gap.maxY > topLeftTimingMarkCenter.y
+      (gap) => gap.maxY > intersectionOfTopAndLeftLines.y
     ),
     { geometry, horizontal: false }
   );
 
   const rightSideTimingMarks = computeTimingMarksFromGaps(
     rightSideBestFitLine.rects.filter(
-      (gap) => gap.maxY > topRightTimingMarkCenter.y
+      (gap) => gap.maxY > intersectionOfTopAndRightLines.y
     ),
     { geometry, horizontal: false }
   );
 
   /// Find the corner timing marks. This is needed to establish the grid and
-  /// determine the timing marks in the bottom row/border.
+  /// determine the timing marks in the bottom row/border. It's possible that
+  /// the sides and the top will not agree on the corner timing marks. We have
+  /// to reconcile them, basing our decision on the assumption that the true
+  /// corner timing marks will contain the intersection of the side/top best fit
+  /// lines.
 
-  const topLeftTimingMark = topSideTimingMarks.reduce((best, mark) =>
+  const leftMostTopTimingMark = topSideTimingMarks.reduce((best, mark) =>
     best.minX < mark.minX ? best : mark
   );
-  const topRightTimingMark = topSideTimingMarks.reduce((best, mark) =>
+  const rightMostTopTimingMark = topSideTimingMarks.reduce((best, mark) =>
     best.maxX > mark.maxX ? best : mark
   );
+  const topMostLeftTimingMark = leftSideTimingMarks.reduce((best, mark) =>
+    best.minY < mark.minY ? best : mark
+  );
+  const topMostRightTimingMark = rightSideTimingMarks.reduce((best, mark) =>
+    best.minY < mark.minY ? best : mark
+  );
+
+  const topLeftTimingMark = rectContainsPoint(
+    topMostLeftTimingMark,
+    intersectionOfTopAndLeftLines
+  )
+    ? topMostLeftTimingMark
+    : rectContainsPoint(leftMostTopTimingMark, intersectionOfTopAndLeftLines)
+    ? leftMostTopTimingMark
+    : findTimingMarkContainingPoint(
+        imageData,
+        intersectionOfTopAndLeftLines,
+        geometry
+      );
+  assert(topLeftTimingMark);
+
+  if (
+    topLeftTimingMark !== leftMostTopTimingMark &&
+    !rectContainsPoint(leftMostTopTimingMark, intersectionOfTopAndLeftLines)
+  ) {
+    topSideTimingMarks.unshift(topLeftTimingMark);
+  }
+
+  if (
+    topLeftTimingMark !== topMostLeftTimingMark &&
+    !rectContainsPoint(topMostLeftTimingMark, intersectionOfTopAndLeftLines)
+  ) {
+    leftSideTimingMarks.unshift(topLeftTimingMark);
+  }
+
+  const topRightTimingMark = rectContainsPoint(
+    topMostRightTimingMark,
+    intersectionOfTopAndRightLines
+  )
+    ? topMostRightTimingMark
+    : rectContainsPoint(rightMostTopTimingMark, intersectionOfTopAndRightLines)
+    ? rightMostTopTimingMark
+    : findTimingMarkContainingPoint(
+        imageData,
+        intersectionOfTopAndRightLines,
+        geometry
+      );
+  assert(topRightTimingMark);
+
+  if (
+    topRightTimingMark !== rightMostTopTimingMark &&
+    !rectContainsPoint(rightMostTopTimingMark, intersectionOfTopAndRightLines)
+  ) {
+    topSideTimingMarks.push(topRightTimingMark);
+  }
+
+  if (
+    topRightTimingMark !== topMostRightTimingMark &&
+    !rectContainsPoint(topMostRightTimingMark, intersectionOfTopAndRightLines)
+  ) {
+    rightSideTimingMarks.unshift(topRightTimingMark);
+  }
+
   const bottomLeftTimingMark = leftSideTimingMarks.reduce((best, mark) =>
     best.maxY > mark.maxY ? best : mark
   );
@@ -948,10 +1018,8 @@ export function interpretBallotCardLayout(
   const metadataResult = decodeTimingMarkBits(bits);
   assert(
     metadataResult.isOk(),
-    `Failed to decode timing mark bits: ${JSON.stringify(
-      bits,
-      undefined,
-      2
+    `Failed to decode timing mark bits (${bits.length}): ${bits.join(
+      ''
     )}\n\nerror: ${JSON.stringify(metadataResult.err(), undefined, 2)}`
   );
 
