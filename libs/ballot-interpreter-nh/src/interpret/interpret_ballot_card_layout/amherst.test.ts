@@ -8,7 +8,11 @@ import {
   InterpretBallotCardLayoutResult,
 } from '../interpret_ballot_card_layout';
 
-test.each(['scan-unmarked-front', 'scan-marked-front'])('%s', async (name) => {
+test.each([
+  'scan-unmarked-front',
+  'scan-marked-front',
+  'scan-marked-stretch-front',
+])('%s', async (name) => {
   const geometry = ScannedBallotCardGeometry8pt5x11;
   const frontImageData = await readFixtureImage(
     AmherstFixtureName,
@@ -57,7 +61,11 @@ test.each(['scan-unmarked-front', 'scan-marked-front'])('%s', async (name) => {
   );
 });
 
-test.each(['scan-unmarked-back', 'scan-marked-back'])('%s', async (name) => {
+test.each([
+  'scan-unmarked-back',
+  'scan-marked-back',
+  'scan-marked-stretch-back',
+])('%s', async (name) => {
   const geometry = ScannedBallotCardGeometry8pt5x11;
   const backImageData = await readFixtureImage(
     AmherstFixtureName,

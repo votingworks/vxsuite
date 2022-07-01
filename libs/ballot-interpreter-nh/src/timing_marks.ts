@@ -60,7 +60,7 @@ export function renderTimingMarks(
 
   for (const [i, rect] of timingMarks.right.entries()) {
     debug
-      .rect(rect.x, rect.y, rect.width, rect.height, 'blue')
+      .rect(rect.x, rect.y, rect.width, rect.height, 'lightgreen')
       .text(rect.maxX - 10, rect.y, `${i}`, 'blue');
   }
 
