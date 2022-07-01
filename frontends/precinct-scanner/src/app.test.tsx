@@ -673,9 +673,6 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
     body: { status: 'ok' },
   });
 
-  fireEvent.click(await screen.findByText('Count Ballot'));
-  await screen.findByText('Count ballot with errors?');
-  fireEvent.click(await screen.findByText('Yes, count ballot with errors'));
   fetchMock.get(
     '/scan/status',
     typedAs<Scan.GetScanStatusResponse>({
@@ -685,7 +682,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
         {
           id: 'test-batch',
           label: 'Batch 1',
-          count: 1,
+          count: 0,
           startedAt: DateTime.now().toISO(),
           endedAt: DateTime.now().toISO(),
         },
@@ -694,11 +691,11 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
     }),
     { overwriteRoutes: true }
   );
-  await screen.findByText('Your ballot was counted!');
-  expect(fetchMock.calls('/scan/scanContinue')).toHaveLength(1);
+
   advanceTimers(5);
   await screen.findByText('Insert Your Ballot Below');
-  expect((await screen.findByTestId('ballot-count')).textContent).toBe('1');
+  expect((await screen.findByTestId('ballot-count')).textContent).toBe('0');
+  expect(fetchMock.calls('/scan/scanContinue')).toHaveLength(1);
 
   // Simulate another ballot
   fetchMock.get(
@@ -710,7 +707,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
         {
           id: 'test-batch',
           label: 'Batch 1',
-          count: 1,
+          count: 0,
           startedAt: DateTime.now().toISO(),
           endedAt: DateTime.now().toISO(),
         },
@@ -731,7 +728,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
             {
               id: 'test-batch',
               label: 'Batch 1',
-              count: 1,
+              count: 0,
               startedAt: DateTime.now().toISO(),
               endedAt: DateTime.now().toISO(),
             },
