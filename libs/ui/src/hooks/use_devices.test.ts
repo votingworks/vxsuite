@@ -15,6 +15,7 @@ import {
   PlustekVtm300ScannerProductId,
 } from '@votingworks/utils';
 import { BATTERY_POLLING_INTERVAL, Devices, useDevices } from './use_devices';
+import * as features from '../config/features';
 
 const emptyDevices: Devices = {
   printer: undefined,
@@ -27,6 +28,16 @@ const emptyDevices: Devices = {
   accessibleController: undefined,
   batchScanner: undefined,
   precinctScanner: undefined,
+};
+
+const expectedCardReader: Devices['cardReader'] = {
+  deviceAddress: 0,
+  deviceName: OmniKeyCardReaderDeviceName,
+  locationId: 0,
+  manufacturer: OmniKeyCardReaderManufacturer,
+  productId: OmniKeyCardReaderProductId,
+  serialNumber: '',
+  vendorId: OmniKeyCardReaderVendorId,
 };
 
 test('can connect printer as expected', async () => {
@@ -109,16 +120,6 @@ test('can connect card reader as expected', async () => {
   );
   expect(result.current).toEqual(emptyDevices);
   expect(logger.log).toHaveBeenCalledTimes(0);
-
-  const expectedCardReader: Devices['cardReader'] = {
-    deviceAddress: 0,
-    deviceName: OmniKeyCardReaderDeviceName,
-    locationId: 0,
-    manufacturer: OmniKeyCardReaderManufacturer,
-    productId: OmniKeyCardReaderProductId,
-    serialNumber: '',
-    vendorId: OmniKeyCardReaderVendorId,
-  };
 
   act(() => hardware.setCardReaderConnected(true));
   rerender();
@@ -393,4 +394,19 @@ test('periodically polls for computer battery status', async () => {
     batteryIsLow: true,
     batteryLevel: 0.2,
   });
+});
+
+test('when card reader check is disabled, fake one returned even if no hardware detected.', async () => {
+  const hardware = new MemoryHardware();
+  const fakeLogger = new Logger(LogSource.VxCentralScanFrontend);
+  jest.spyOn(features, 'isCardReaderCheckDisabled').mockReturnValue(true);
+
+  const { result, waitForNextUpdate } = renderHook(() =>
+    useDevices({ hardware, logger: fakeLogger })
+  );
+
+  expect(result.current.cardReader).toEqual(expectedCardReader);
+
+  // Prevent `act` warning.
+  await waitForNextUpdate();
 });
