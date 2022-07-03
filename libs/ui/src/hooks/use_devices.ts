@@ -5,11 +5,16 @@ import {
   isBatchScanner,
   isCardReader,
   isPrecinctScanner,
+  OmniKeyCardReaderDeviceName,
+  OmniKeyCardReaderManufacturer,
+  OmniKeyCardReaderProductId,
+  OmniKeyCardReaderVendorId,
 } from '@votingworks/utils';
 import { useEffect, useState } from 'react';
 import useInterval from 'use-interval';
 import { useCancelablePromise } from './use_cancelable_promise';
 import { usePrevious } from './use_previous';
+import { isCardReaderCheckDisabled } from '../config/features';
 
 export const LOW_BATTERY_THRESHOLD = 0.25;
 export const BATTERY_POLLING_INTERVAL = 3000;
@@ -33,6 +38,16 @@ export interface Devices {
   batchScanner?: KioskBrowser.Device;
   printer?: KioskBrowser.PrinterInfo;
 }
+
+const fakeCardReader: Devices['cardReader'] = {
+  deviceAddress: 0,
+  deviceName: OmniKeyCardReaderDeviceName,
+  locationId: 0,
+  manufacturer: OmniKeyCardReaderManufacturer,
+  productId: OmniKeyCardReaderProductId,
+  serialNumber: '',
+  vendorId: OmniKeyCardReaderVendorId,
+};
 
 function getDeviceName(device: KioskBrowser.Device) {
   if (isCardReader(device)) {
@@ -168,7 +183,9 @@ export function useDevices({ hardware, logger }: Props): Devices {
 
   return {
     computer,
-    cardReader: allDevices.find(isCardReader),
+    cardReader: isCardReaderCheckDisabled()
+      ? fakeCardReader
+      : allDevices.find(isCardReader),
     accessibleController: allDevices.find(isAccessibleController),
     batchScanner: allDevices.find(isBatchScanner),
     precinctScanner: allDevices.find(isPrecinctScanner),
