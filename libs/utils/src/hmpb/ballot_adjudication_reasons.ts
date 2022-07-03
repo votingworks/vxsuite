@@ -8,7 +8,7 @@ import {
   MarkStatus,
 } from '@votingworks/types';
 import { allContestOptions } from './all_contest_options';
-import { assert, throwIllegalValue } from '../assert';
+import { throwIllegalValue } from '../assert';
 
 export interface Options {
   optionMarkStatus: (option: ContestOption) => MarkStatus;
@@ -58,27 +58,9 @@ export function* ballotAdjudicationReasons(
             selectedOptions.push({ id: option.id, index: option.optionIndex });
             isBlankBallot = false;
 
-            if (option.type === 'candidate' && option.isWriteIn) {
-              yield {
-                type: AdjudicationReason.MarkedWriteIn,
-                contestId: option.contestId,
-                optionId: option.id,
-                optionIndex: option.optionIndex,
-              };
-            }
             break;
 
           case MarkStatus.UnmarkedWriteIn:
-            assert(option.type === 'candidate' && option.isWriteIn);
-
-            yield {
-              type: AdjudicationReason.UnmarkedWriteIn,
-              contestId: option.contestId,
-              optionId: option.id,
-              optionIndex: option.optionIndex,
-            };
-            break;
-
           case MarkStatus.Unmarked:
             break;
 
@@ -159,12 +141,6 @@ export function adjudicationReasonDescription(
       return `Contest '${reason.contestId}' is undervoted, expected ${
         reason.expected
       } but got ${optionIdsAsSentence(reason.optionIds)}.`;
-
-    case AdjudicationReason.MarkedWriteIn:
-      return `Contest '${reason.contestId}' has a write-in.`;
-
-    case AdjudicationReason.UnmarkedWriteIn:
-      return `Contest '${reason.contestId}' has an unmarked write-in.`;
 
     case AdjudicationReason.BlankBallot:
       return `Ballot has no votes.`;

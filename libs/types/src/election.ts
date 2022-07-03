@@ -446,8 +446,6 @@ export enum AdjudicationReason {
   MarginalMark = 'MarginalMark',
   Overvote = 'Overvote',
   Undervote = 'Undervote',
-  MarkedWriteIn = 'WriteIn',
-  UnmarkedWriteIn = 'UnmarkedWriteIn',
   BlankBallot = 'BlankBallot',
 }
 export const AdjudicationReasonSchema: z.ZodSchema<AdjudicationReason> =
@@ -856,67 +854,6 @@ export const UndervoteAdjudicationReasonInfoSchema: z.ZodSchema<UndervoteAdjudic
     expected: z.number(),
   });
 
-/**
- * Information about a write-in whose target was determined to be marked, i.e.
- * the voter filled in the write-in bubble enough for it to count.
- */
-export interface MarkedWriteInAdjudicationReasonInfo {
-  type: AdjudicationReason.MarkedWriteIn;
-  contestId: ContestId;
-  optionId: ContestOptionId;
-  optionIndex: number;
-}
-
-/**
- * Schema for {@link MarkedWriteInAdjudicationReasonInfo}.
- */
-export const MarkedWriteInAdjudicationReasonInfoSchema: z.ZodSchema<MarkedWriteInAdjudicationReasonInfo> =
-  z.object({
-    type: z.literal(AdjudicationReason.MarkedWriteIn),
-    contestId: ContestIdSchema,
-    optionId: WriteInIdSchema,
-    optionIndex: z.number().nonnegative(),
-  });
-
-/**
- * Information about a write-in whose target was determined not to be marked
- * but where there was sufficient marking in the write-in area, i.e. the voter
- * wrote a name but didn't fill the bubble.
- */
-export interface UnmarkedWriteInAdjudicationReasonInfo {
-  type: AdjudicationReason.UnmarkedWriteIn;
-  contestId: ContestId;
-  optionId: ContestOptionId;
-  optionIndex: number;
-}
-
-/**
- * Schema for {@link UnmarkedWriteInAdjudicationReasonInfo}.
- */
-export const UnmarkedWriteInAdjudicationReasonInfoSchema: z.ZodSchema<UnmarkedWriteInAdjudicationReasonInfo> =
-  z.object({
-    type: z.literal(AdjudicationReason.UnmarkedWriteIn),
-    contestId: ContestIdSchema,
-    optionId: WriteInIdSchema,
-    optionIndex: z.number().nonnegative(),
-  });
-
-/**
- * Information about a write-in, whether explicitly marked or not.
- */
-export type WriteInAdjudicationReasonInfo =
-  | MarkedWriteInAdjudicationReasonInfo
-  | UnmarkedWriteInAdjudicationReasonInfo;
-
-/**
- * Schema for {@link WriteInAdjudicationReasonInfo}.
- */
-export const WriteInAdjudicationReasonInfoSchema: z.ZodSchema<WriteInAdjudicationReasonInfo> =
-  z.union([
-    MarkedWriteInAdjudicationReasonInfoSchema,
-    UnmarkedWriteInAdjudicationReasonInfoSchema,
-  ]);
-
 export interface BlankBallotAdjudicationReasonInfo {
   type: AdjudicationReason.BlankBallot;
 }
@@ -930,8 +867,6 @@ export type AdjudicationReasonInfo =
   | MarginalMarkAdjudicationReasonInfo
   | OvervoteAdjudicationReasonInfo
   | UndervoteAdjudicationReasonInfo
-  | MarkedWriteInAdjudicationReasonInfo
-  | UnmarkedWriteInAdjudicationReasonInfo
   | BlankBallotAdjudicationReasonInfo;
 export const AdjudicationReasonInfoSchema: z.ZodSchema<AdjudicationReasonInfo> =
   z.union([
@@ -939,8 +874,6 @@ export const AdjudicationReasonInfoSchema: z.ZodSchema<AdjudicationReasonInfo> =
     MarginalMarkAdjudicationReasonInfoSchema,
     OvervoteAdjudicationReasonInfoSchema,
     UndervoteAdjudicationReasonInfoSchema,
-    MarkedWriteInAdjudicationReasonInfoSchema,
-    UnmarkedWriteInAdjudicationReasonInfoSchema,
     BlankBallotAdjudicationReasonInfoSchema,
   ]);
 

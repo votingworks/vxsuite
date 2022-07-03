@@ -4,7 +4,6 @@ import {
   Contest,
   MarkAdjudications,
   PageInterpretation,
-  WriteInAdjudicationReasonInfo,
 } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
 import { assert } from '@votingworks/utils';
@@ -23,7 +22,6 @@ import { Button } from '../components/button';
 import { MainNav } from '../components/main_nav';
 import { Prose } from '../components/prose';
 import { AppContext } from '../contexts/app_context';
-import { WriteInAdjudicationScreen } from './write_in_adjudication_screen';
 
 const EjectReason = styled.div`
   font-size: 3em;
@@ -185,16 +183,10 @@ export function BallotEjectScreen({
       frontAdjudication.enabledReasonInfos.some(
         (info) => info.type === AdjudicationReason.BlankBallot
       ) &&
-      !frontAdjudication.enabledReasonInfos.some(
-        (info) => info.type === AdjudicationReason.UnmarkedWriteIn
-      ) &&
       (backAdjudication.enabledReasonInfos.some(
         (info) => info.type === AdjudicationReason.BlankBallot
       ) ||
-        backInterpretation.markInfo.marks.length === 0) &&
-      !backAdjudication.enabledReasonInfos.some(
-        (info) => info.type === AdjudicationReason.UnmarkedWriteIn
-      );
+        backInterpretation.markInfo.marks.length === 0);
 
     if (!isBlank) {
       if (
@@ -221,21 +213,6 @@ export function BallotEjectScreen({
       }
     }
   }, [reviewInfo, logger, userRole]);
-
-  const onAdjudicationComplete = useCallback(
-    (
-      sheetId: string,
-      side: Scan.Side,
-      adjudications: MarkAdjudications
-    ): void => {
-      if (side === 'front') {
-        setFrontMarkAdjudications(adjudications);
-      } else {
-        setBackMarkAdjudications(adjudications);
-      }
-    },
-    []
-  );
 
   useEffect(() => {
     void (async () => {
@@ -329,30 +306,6 @@ export function BallotEjectScreen({
           } else if (adjudicationReason.type === AdjudicationReason.Undervote) {
             isUndervotedSheet = true;
             contestIdsWithIssues.add(adjudicationReason.contestId);
-          } else if (
-            adjudicationReason.type === AdjudicationReason.MarkedWriteIn ||
-            adjudicationReason.type === AdjudicationReason.UnmarkedWriteIn
-          ) {
-            if (reviewPageInfo.layout && reviewPageInfo.contestIds) {
-              const writeIns =
-                reviewPageInfo.interpretation.adjudicationInfo.enabledReasonInfos.filter(
-                  (reason): reason is WriteInAdjudicationReasonInfo =>
-                    reason.type === AdjudicationReason.MarkedWriteIn ||
-                    reason.type === AdjudicationReason.UnmarkedWriteIn
-                );
-              return (
-                <WriteInAdjudicationScreen
-                  key={reviewPageInfo.side}
-                  sheetId={reviewInfo.interpreted.id}
-                  side={reviewPageInfo.side}
-                  imageUrl={reviewPageInfo.imageUrl}
-                  writeIns={writeIns}
-                  layout={reviewPageInfo.layout}
-                  allContestIds={reviewPageInfo.contestIds}
-                  onAdjudicationComplete={onAdjudicationComplete}
-                />
-              );
-            }
           } else if (
             adjudicationReason.type === AdjudicationReason.BlankBallot
           ) {

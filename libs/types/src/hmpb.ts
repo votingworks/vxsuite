@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import {
   AdjudicationReason,
-  Candidate,
   Contest,
   ContestId,
   ContestOption,
@@ -10,7 +9,6 @@ import {
   HmpbBallotPageMetadataSchema,
   TargetShape,
   TargetShapeSchema,
-  WriteInIdSchema,
 } from './election';
 import { IdSchema } from './generic';
 import {
@@ -161,67 +159,16 @@ export const MarginalMarkAdjudicationSchema: z.ZodSchema<MarginalMarkAdjudicatio
     isMarked: z.boolean(),
   });
 
-export interface WriteInMarkAdjudicationMarked {
-  readonly type:
-    | AdjudicationReason.MarkedWriteIn
-    | AdjudicationReason.UnmarkedWriteIn;
-  readonly isMarked: true;
-  readonly contestId: Contest['id'];
-  readonly optionId: ContestOption['id'];
-  readonly name: Candidate['name'];
-}
-export const WriteInMarkAdjudicationMarkedSchema: z.ZodSchema<WriteInMarkAdjudicationMarked> =
-  z.object({
-    type: z.union([
-      z.literal(AdjudicationReason.MarkedWriteIn),
-      z.literal(AdjudicationReason.UnmarkedWriteIn),
-    ]),
-    isMarked: z.literal(true),
-    contestId: IdSchema,
-    optionId: WriteInIdSchema,
-    name: z.string(),
-  });
-
-export interface WriteInMarkAdjudicationUnmarked {
-  readonly type:
-    | AdjudicationReason.MarkedWriteIn
-    | AdjudicationReason.UnmarkedWriteIn;
-  readonly isMarked: false;
-  readonly contestId: Contest['id'];
-  readonly optionId: ContestOption['id'];
-}
-export const WriteInMarkAdjudicationUnmarkedSchema: z.ZodSchema<WriteInMarkAdjudicationUnmarked> =
-  z.object({
-    type: z.union([
-      z.literal(AdjudicationReason.MarkedWriteIn),
-      z.literal(AdjudicationReason.UnmarkedWriteIn),
-    ]),
-    isMarked: z.literal(false),
-    contestId: IdSchema,
-    optionId: WriteInIdSchema,
-  });
-
-export type WriteInMarkAdjudication =
-  | WriteInMarkAdjudicationMarked
-  | WriteInMarkAdjudicationUnmarked;
-export const WriteInMarkAdjudicationSchema: z.ZodSchema<WriteInMarkAdjudication> =
-  z.union([
-    WriteInMarkAdjudicationMarkedSchema,
-    WriteInMarkAdjudicationUnmarkedSchema,
-  ]);
-
 export type MarkAdjudication =
   | UninterpretableBallotMarkAdjudication
   | OvervoteMarkAdjudication
   | UndervoteMarkAdjudication
-  | MarginalMarkAdjudication
-  | WriteInMarkAdjudication;
+  | MarginalMarkAdjudication;
 export const MarkAdjudicationSchema: z.ZodSchema<MarkAdjudication> = z.union([
   UninterpretableBallotMarkAdjudicationSchema,
   OvervoteMarkAdjudicationSchema,
   UndervoteMarkAdjudicationSchema,
   MarginalMarkAdjudicationSchema,
-  WriteInMarkAdjudicationSchema,
 ]);
 
 export type MarkAdjudications = readonly MarkAdjudication[];

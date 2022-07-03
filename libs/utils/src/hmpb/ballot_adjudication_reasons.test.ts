@@ -4,8 +4,6 @@ import {
   CandidateContest,
   MarkStatus,
   MsEitherNeitherContest,
-  UnmarkedWriteInAdjudicationReasonInfo,
-  WriteInAdjudicationReasonInfo,
   YesNoContest,
 } from '@votingworks/types';
 import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
@@ -233,24 +231,6 @@ test('multiple contests with issues', () => {
         optionIndexes: [],
       },
       {
-        type: AdjudicationReason.MarkedWriteIn,
-        contestId: zooCouncilMammal.id,
-        optionId: 'write-in-0',
-        optionIndex: 4,
-      },
-      {
-        type: AdjudicationReason.MarkedWriteIn,
-        contestId: zooCouncilMammal.id,
-        optionId: 'write-in-1',
-        optionIndex: 5,
-      },
-      {
-        type: AdjudicationReason.MarkedWriteIn,
-        contestId: zooCouncilMammal.id,
-        optionId: 'write-in-2',
-        optionIndex: 6,
-      },
-      {
         type: AdjudicationReason.Overvote,
         contestId: zooCouncilMammal.id,
         optionIds: [
@@ -272,9 +252,6 @@ test('multiple contests with issues', () => {
     Array [
       "Contest 'best-animal-mammal' has a marginal mark for option 'horse'.",
       "Contest 'best-animal-mammal' is undervoted, expected 1 but got none.",
-      "Contest 'zoo-council-mammal' has a write-in.",
-      "Contest 'zoo-council-mammal' has a write-in.",
-      "Contest 'zoo-council-mammal' has a write-in.",
       "Contest 'zoo-council-mammal' is overvoted, expected 3 but got 7: 'zebra', 'lion', 'kangaroo', 'elephant', 'write-in-0', 'write-in-1', 'write-in-2'.",
     ]
   `);
@@ -316,14 +293,22 @@ test('a ballot with just a write-in', () => {
     }),
   ];
 
-  expect(reasons).toContainEqual(
-    typedAs<WriteInAdjudicationReasonInfo>({
-      type: AdjudicationReason.MarkedWriteIn,
-      contestId: zooCouncilMammal.id,
-      optionId: 'write-in-0',
-      optionIndex: 4,
-    })
-  );
+  // in particular, no write-in adjudication reason anymore.
+  expect(reasons).toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "contestId": "zoo-council-mammal",
+        "expected": 3,
+        "optionIds": Array [
+          "write-in-0",
+        ],
+        "optionIndexes": Array [
+          4,
+        ],
+        "type": "Undervote",
+      },
+    ]
+  `);
 });
 
 test('a ballot with just an unmarked write-in', () => {
@@ -336,17 +321,21 @@ test('a ballot with just an unmarked write-in', () => {
     }),
   ];
 
-  const expectedReason: UnmarkedWriteInAdjudicationReasonInfo = {
-    type: AdjudicationReason.UnmarkedWriteIn,
-    contestId: zooCouncilMammal.id,
-    optionId: 'write-in-0',
-    optionIndex: 4,
-  };
-
-  expect(reasons).toContainEqual(expectedReason);
-  expect(adjudicationReasonDescription(expectedReason)).toMatchInlineSnapshot(
-    `"Contest 'zoo-council-mammal' has an unmarked write-in."`
-  );
+  // in particular, no unmarked write-in adjudication reason anymore.
+  expect(reasons).toMatchInlineSnapshot(`
+    Array [
+      Object {
+        "contestId": "zoo-council-mammal",
+        "expected": 3,
+        "optionIds": Array [],
+        "optionIndexes": Array [],
+        "type": "Undervote",
+      },
+      Object {
+        "type": "BlankBallot",
+      },
+    ]
+  `);
 });
 
 test('a ballot with an ms-either-neither happy path', () => {
