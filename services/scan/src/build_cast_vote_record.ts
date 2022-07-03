@@ -1,5 +1,4 @@
 import {
-  AdjudicationReason,
   AnyContest,
   BallotId,
   BallotMetadata,
@@ -160,13 +159,7 @@ export function buildCastVoteRecordVotesEntries(
         // a single adjudication, use it
         const [markAdjudication] = markAdjudicationsForThisOption;
         if (markAdjudication.isMarked) {
-          resolvedOptionIds.push([
-            option.contestId,
-            markAdjudication.type === AdjudicationReason.MarkedWriteIn ||
-            markAdjudication.type === AdjudicationReason.UnmarkedWriteIn
-              ? `${option.id}-${markAdjudication.name}`
-              : option.id,
-          ]);
+          resolvedOptionIds.push([option.contestId, option.id]);
         }
       } else {
         throw new Error(

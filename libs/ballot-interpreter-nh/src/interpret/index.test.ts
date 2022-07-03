@@ -43,12 +43,6 @@ test('interpret marked', async () => {
             },
             Object {
               "contestId": "President-and-Vice-President-of-the-United-States-18d1a55a",
-              "optionId": "write-in-0",
-              "optionIndex": 3,
-              "type": "WriteIn",
-            },
-            Object {
-              "contestId": "President-and-Vice-President-of-the-United-States-18d1a55a",
               "expected": 1,
               "optionIds": Array [
                 "Donald-J-Trump-and-Michael-R-Pence-3e3f31a7",
@@ -67,12 +61,6 @@ test('interpret marked', async () => {
               "optionId": "Darryl-W-Perry-2f07c455",
               "optionIndex": 2,
               "type": "MarginalMark",
-            },
-            Object {
-              "contestId": "Governor-061a401b",
-              "optionId": "write-in-0",
-              "optionIndex": 3,
-              "type": "WriteIn",
             },
             Object {
               "contestId": "Governor-061a401b",
@@ -97,12 +85,6 @@ test('interpret marked', async () => {
             },
             Object {
               "contestId": "United-States-Senator-d3f1c75b",
-              "optionId": "write-in-0",
-              "optionIndex": 3,
-              "type": "WriteIn",
-            },
-            Object {
-              "contestId": "United-States-Senator-d3f1c75b",
               "expected": 1,
               "optionIds": Array [
                 "Corky-Messner-b6eb216d",
@@ -118,12 +100,6 @@ test('interpret marked', async () => {
             },
             Object {
               "contestId": "Representative-in-Congress-24683b44",
-              "optionId": "write-in-0",
-              "optionIndex": 3,
-              "type": "WriteIn",
-            },
-            Object {
-              "contestId": "Representative-in-Congress-24683b44",
               "expected": 1,
               "optionIds": Array [
                 "Steven-Negron-5d482d72",
@@ -136,12 +112,6 @@ test('interpret marked', async () => {
                 3,
               ],
               "type": "Overvote",
-            },
-            Object {
-              "contestId": "Executive-Councilor-bb22557f",
-              "optionId": "write-in-0",
-              "optionIndex": 2,
-              "type": "WriteIn",
             },
             Object {
               "contestId": "Executive-Councilor-bb22557f",
@@ -161,78 +131,6 @@ test('interpret marked', async () => {
               "optionId": "Nancy-Hendricks-d330559d",
               "optionIndex": 1,
               "type": "MarginalMark",
-            },
-            Object {
-              "contestId": "State-Senator-391381f8",
-              "optionId": "write-in-0",
-              "optionIndex": 2,
-              "type": "WriteIn",
-            },
-            Object {
-              "contestId": "State-Representatives-7d3a8821",
-              "optionId": "write-in-0",
-              "optionIndex": 22,
-              "type": "WriteIn",
-            },
-            Object {
-              "contestId": "State-Representatives-7d3a8821",
-              "optionId": "write-in-1",
-              "optionIndex": 23,
-              "type": "WriteIn",
-            },
-            Object {
-              "contestId": "State-Representatives-7d3a8821",
-              "optionId": "write-in-2",
-              "optionIndex": 24,
-              "type": "WriteIn",
-            },
-            Object {
-              "contestId": "State-Representatives-7d3a8821",
-              "optionId": "write-in-3",
-              "optionIndex": 25,
-              "type": "WriteIn",
-            },
-            Object {
-              "contestId": "State-Representatives-7d3a8821",
-              "optionId": "write-in-4",
-              "optionIndex": 26,
-              "type": "WriteIn",
-            },
-            Object {
-              "contestId": "State-Representatives-7d3a8821",
-              "optionId": "write-in-5",
-              "optionIndex": 27,
-              "type": "WriteIn",
-            },
-            Object {
-              "contestId": "State-Representatives-7d3a8821",
-              "optionId": "write-in-6",
-              "optionIndex": 28,
-              "type": "WriteIn",
-            },
-            Object {
-              "contestId": "State-Representatives-7d3a8821",
-              "optionId": "write-in-7",
-              "optionIndex": 29,
-              "type": "WriteIn",
-            },
-            Object {
-              "contestId": "State-Representatives-7d3a8821",
-              "optionId": "write-in-8",
-              "optionIndex": 30,
-              "type": "WriteIn",
-            },
-            Object {
-              "contestId": "State-Representatives-7d3a8821",
-              "optionId": "write-in-9",
-              "optionIndex": 31,
-              "type": "WriteIn",
-            },
-            Object {
-              "contestId": "State-Representatives-7d3a8821",
-              "optionId": "write-in-10",
-              "optionIndex": 32,
-              "type": "WriteIn",
             },
             Object {
               "contestId": "State-Representatives-7d3a8821",
@@ -4328,12 +4226,6 @@ test('interpret marked', async () => {
           "ignoredReasonInfos": Array [
             Object {
               "contestId": "Sheriff-4243fe0b",
-              "optionId": "write-in-0",
-              "optionIndex": 2,
-              "type": "WriteIn",
-            },
-            Object {
-              "contestId": "Sheriff-4243fe0b",
               "expected": 1,
               "optionIds": Array [
                 "Christopher-Connelly-970b2364",
@@ -4346,12 +4238,6 @@ test('interpret marked', async () => {
                 2,
               ],
               "type": "Overvote",
-            },
-            Object {
-              "contestId": "County-Attorney-133f910f",
-              "optionId": "write-in-0",
-              "optionIndex": 3,
-              "type": "WriteIn",
             },
             Object {
               "contestId": "County-Attorney-133f910f",
@@ -4372,12 +4258,6 @@ test('interpret marked', async () => {
             },
             Object {
               "contestId": "County-Treasurer-87d25a31",
-              "optionId": "write-in-0",
-              "optionIndex": 3,
-              "type": "WriteIn",
-            },
-            Object {
-              "contestId": "County-Treasurer-87d25a31",
               "expected": 1,
               "optionIds": Array [
                 "David-G-Fredette-687f01ae",
@@ -4392,12 +4272,6 @@ test('interpret marked', async () => {
                 3,
               ],
               "type": "Overvote",
-            },
-            Object {
-              "contestId": "Register-of-Deeds-a1278df2",
-              "optionId": "write-in-0",
-              "optionIndex": 2,
-              "type": "WriteIn",
             },
             Object {
               "contestId": "Register-of-Deeds-a1278df2",
@@ -4416,12 +4290,6 @@ test('interpret marked', async () => {
             },
             Object {
               "contestId": "Register-of-Probate-a4117da8",
-              "optionId": "write-in-0",
-              "optionIndex": 2,
-              "type": "WriteIn",
-            },
-            Object {
-              "contestId": "Register-of-Probate-a4117da8",
               "expected": 1,
               "optionIds": Array [
                 "Elizabeth-Ann-Moreau-aec07bb4",
@@ -4434,12 +4302,6 @@ test('interpret marked', async () => {
                 2,
               ],
               "type": "Overvote",
-            },
-            Object {
-              "contestId": "County-Commissioner-d6feed25",
-              "optionId": "write-in-0",
-              "optionIndex": 2,
-              "type": "WriteIn",
             },
             Object {
               "contestId": "County-Commissioner-d6feed25",
