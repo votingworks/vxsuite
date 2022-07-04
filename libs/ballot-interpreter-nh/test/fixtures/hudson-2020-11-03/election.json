@@ -17,7 +17,6 @@
   "centralScanAdjudicationReasons": [
     "UninterpretableBallot",
     "Overvote",
-    "WriteIn",
     "BlankBallot"
   ],
   "contests": [
