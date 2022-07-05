@@ -10,3 +10,5 @@ export const DisplayTextForYesOrNo: Record<YesOrNo, string> = {
   yes: 'Yes',
   no: 'No',
 };
+
+export const SECURITY_PIN_LENGTH = 6;

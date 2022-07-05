@@ -24,7 +24,9 @@ import {
   Main,
   Prose,
   RebootFromUsbButton,
-  RemoveCardPage,
+  UnlockMachineScreen,
+  InvalidCardScreen,
+  RemoveCardScreen,
   Screen,
   SetupCardReaderPage,
   Text,
@@ -56,8 +58,6 @@ import { MainNav } from './components/main_nav';
 import { ExportResultsModal } from './components/export_results_modal';
 import { machineConfigProvider } from './util/machine_config';
 import { MachineLockedScreen } from './screens/machine_locked_screen';
-import { InvalidCardScreen } from './screens/invalid_card_screen';
-import { UnlockMachineScreen } from './screens/unlock_machine_screen';
 
 const Buttons = styled.div`
   padding: 10px 0;
@@ -507,33 +507,15 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
         </AppContext.Provider>
       );
     }
-    return (
-      <AppContext.Provider value={currentContext}>
-        <InvalidCardScreen />
-      </AppContext.Provider>
-    );
+    return <InvalidCardScreen />;
   }
 
   if (auth.status === 'checking_passcode') {
-    return (
-      <AppContext.Provider value={currentContext}>
-        <UnlockMachineScreen auth={auth} />
-      </AppContext.Provider>
-    );
+    return <UnlockMachineScreen auth={auth} />;
   }
 
   if (auth.status === 'remove_card') {
-    return (
-      <Screen>
-        <RemoveCardPage />
-        <ElectionInfoBar
-          mode="admin"
-          electionDefinition={electionDefinition}
-          codeVersion={machineConfig.codeVersion}
-          machineId={machineConfig.machineId}
-        />
-      </Screen>
-    );
+    return <RemoveCardScreen />;
   }
 
   if (isSuperadminAuth(auth)) {

@@ -6,6 +6,7 @@ import {
   NumberPad,
   Prose,
   useCancelablePromise,
+  SECURITY_PIN_LENGTH,
 } from '@votingworks/ui';
 import styled from 'styled-components';
 import { assert, sleep } from '@votingworks/utils';
@@ -15,7 +16,6 @@ import { AppContext } from '../contexts/app_context';
 import { Button } from '../components/button';
 import { Loading } from '../components/loading';
 import { NavigationScreen } from '../components/navigation_screen';
-import { SECURITY_PIN_LENGTH } from '../config/globals';
 
 const Passcode = styled.div`
   text-align: center;
