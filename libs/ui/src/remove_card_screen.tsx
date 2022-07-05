@@ -15,13 +15,7 @@ export function RemoveCardScreen(): JSX.Element {
     <Screen white>
       <Main centerChild>
         <Prose textCenter theme={fontSizeTheme.medium}>
-          <p>
-            <RemoveCardImage
-              aria-hidden
-              src="assets/remove-card.svg"
-              alt="Remove Card Icon"
-            />
-          </p>
+          <RemoveCardImage aria-hidden src="assets/remove-card.svg" alt="" />
           <h1>Successful Authentication</h1>
           <p>Remove card to continue.</p>
         </Prose>

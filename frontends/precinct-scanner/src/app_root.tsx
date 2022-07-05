@@ -18,6 +18,7 @@ import {
   useDevices,
   RebootFromUsbButton,
   Button,
+  UnlockMachineScreen,
   useInsertedSmartcardAuth,
   isSuperadminAuth,
   isAdminAuth,
@@ -64,7 +65,6 @@ import { ScanWarningScreen } from './screens/scan_warning_screen';
 import { ScanProcessingScreen } from './screens/scan_processing_screen';
 import { AppContext } from './contexts/app_context';
 import { SetupPowerPage } from './screens/setup_power_page';
-import { UnlockAdminScreen } from './screens/unlock_admin_screen';
 import { CardErrorScreen } from './screens/card_error_screen';
 import { SetupScannerScreen } from './screens/setup_scanner_screen';
 import { ScreenMainCenterChild, CenteredLargeProse } from './components/layout';
@@ -741,7 +741,7 @@ export function AppRoot({
   }
 
   if (auth.status === 'checking_passcode') {
-    return <UnlockAdminScreen auth={auth} />;
+    return <UnlockMachineScreen auth={auth} />;
   }
 
   if (isAdminAuth(auth)) {

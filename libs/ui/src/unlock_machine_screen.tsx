@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
-import { DippedSmartcardAuth } from '@votingworks/types';
+import { DippedSmartcardAuth, InsertedSmartcardAuth } from '@votingworks/types';
 import { assert } from '@votingworks/utils';
 
 import { Screen } from './screen';
@@ -30,8 +30,12 @@ const EnteredCode = styled.div`
   font-weight: 600;
 `;
 
+type CheckingPassCodeAuth =
+  | DippedSmartcardAuth.CheckingPasscode
+  | InsertedSmartcardAuth.CheckingPasscode;
+
 interface Props {
-  auth: DippedSmartcardAuth.CheckingPasscode;
+  auth: CheckingPassCodeAuth;
 }
 
 export function UnlockMachineScreen({ auth }: Props): JSX.Element {
