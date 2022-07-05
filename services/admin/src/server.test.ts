@@ -1,4 +1,4 @@
-import { Logger, LogSource } from '@votingworks/logging';
+import { fakeLogger } from '@votingworks/logging';
 import { assert } from '@votingworks/utils';
 import { Application } from 'express';
 import request from 'supertest';
@@ -39,13 +39,12 @@ test('start with config options', async () => {
     onListening?.();
     return undefined as unknown as Server;
   });
-  const fakeLogger = new Logger(LogSource.VxScanService);
-  jest.spyOn(fakeLogger, 'log');
+  const logger = fakeLogger();
 
   // start up the server
-  await start({ app, logger: fakeLogger, workspace });
+  await start({ app, logger, workspace });
 
-  expect(fakeLogger.log).toHaveBeenCalled();
+  expect(logger.log).toHaveBeenCalled();
 });
 
 test('errors on start with no workspace', async () => {

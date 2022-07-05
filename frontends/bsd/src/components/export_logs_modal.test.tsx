@@ -8,7 +8,7 @@ import {
 } from '@votingworks/test-utils';
 import { LogFileType, usbstick } from '@votingworks/utils';
 
-import { LogEventId, Logger, LogSource } from '@votingworks/logging';
+import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { ExportLogsModal } from './export_logs_modal';
 import { renderInAppContext } from '../../test/render_in_app_context';
 
@@ -49,8 +49,7 @@ test('renders no log file found when usb is mounted but no log file on machine',
     { ...fileSystemEntry, name: 'not-the-right-file.log' },
   ]);
   mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
-  const logger = new Logger(LogSource.VxAdminFrontend);
-  const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
+  const logger = fakeLogger();
 
   const { getByText } = renderInAppContext(
     <ExportLogsModal onClose={closeFn} logFileType={LogFileType.Raw} />,
@@ -62,7 +61,7 @@ test('renders no log file found when usb is mounted but no log file on machine',
   getByText('Loading');
   await advanceTimersAndPromises();
   getByText('No Log File Present');
-  expect(logSpy).toHaveBeenCalledWith(
+  expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ExportLogFileFound,
     'admin',
     expect.objectContaining({ disposition: 'failure' })
@@ -114,8 +113,7 @@ test('renders save modal when usb is mounted and saves log file on machine', asy
   ]);
   mockKiosk.readFile.mockResolvedValue('this-is-my-file-content');
   mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
-  const logger = new Logger(LogSource.VxAdminFrontend);
-  const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
+  const logger = fakeLogger();
   const logCdfSpy = jest
     .spyOn(logger, 'buildCDFLog')
     .mockReturnValue('this-is-the-cdf-content');
@@ -130,7 +128,7 @@ test('renders save modal when usb is mounted and saves log file on machine', asy
   getByText('Loading');
   await advanceTimersAndPromises();
   getByText('Save Logs');
-  expect(logSpy).toHaveBeenCalledWith(
+  expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ExportLogFileFound,
     'admin',
     expect.objectContaining({ disposition: 'success' })
@@ -154,7 +152,7 @@ test('renders save modal when usb is mounted and saves log file on machine', asy
   fireEvent.click(getByText('Close'));
   expect(closeFn).toHaveBeenCalled();
 
-  expect(logSpy).toHaveBeenCalledWith(
+  expect(logger.log).toHaveBeenCalledWith(
     LogEventId.FileSaved,
     'admin',
     expect.objectContaining({
@@ -175,8 +173,7 @@ test('renders save modal when usb is mounted and saves cdf log file on machine',
   ]);
   mockKiosk.readFile.mockResolvedValue('this-is-my-raw-file-content');
   mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
-  const logger = new Logger(LogSource.VxAdminFrontend);
-  const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
+  const logger = fakeLogger();
   logger.buildCDFLog = jest.fn().mockReturnValue('this-is-the-cdf-content');
 
   const { getByText } = renderInAppContext(
@@ -189,7 +186,7 @@ test('renders save modal when usb is mounted and saves cdf log file on machine',
   getByText('Loading');
   await advanceTimersAndPromises();
   getByText('Save Logs');
-  expect(logSpy).toHaveBeenCalledWith(
+  expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ExportLogFileFound,
     'admin',
     expect.objectContaining({ disposition: 'success' })
@@ -213,7 +210,7 @@ test('renders save modal when usb is mounted and saves cdf log file on machine',
   fireEvent.click(getByText('Close'));
   expect(closeFn).toHaveBeenCalled();
 
-  expect(logSpy).toHaveBeenCalledWith(
+  expect(logger.log).toHaveBeenCalledWith(
     LogEventId.FileSaved,
     'admin',
     expect.objectContaining({
@@ -230,8 +227,7 @@ test('render export modal with errors when appropriate', async () => {
   mockKiosk.getFileSystemEntries.mockResolvedValueOnce([
     { ...fileSystemEntry, name: 'vx-logs.log' },
   ]);
-  const logger = new Logger(LogSource.VxAdminFrontend);
-  const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
+  const logger = fakeLogger();
 
   mockKiosk.readFile.mockRejectedValueOnce(new Error('this-is-an-error'));
 
@@ -255,7 +251,7 @@ test('render export modal with errors when appropriate', async () => {
 
   fireEvent.click(getByText('Close'));
   expect(closeFn).toHaveBeenCalled();
-  expect(logSpy).toHaveBeenCalledWith(
+  expect(logger.log).toHaveBeenCalledWith(
     LogEventId.FileSaved,
     'admin',
     expect.objectContaining({

@@ -1,7 +1,7 @@
 import { electionSampleDefinition as electionDefinition } from '@votingworks/fixtures';
 import fetchMock from 'fetch-mock';
 import { Scan } from '@votingworks/api';
-import { Logger, LogSource, LogEventId } from '@votingworks/logging';
+import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { Buffer } from 'buffer';
 import { addTemplates, fetchNextBallotSheetToReview } from './hmpb';
 import * as config from './config';
@@ -11,7 +11,7 @@ const configMock = config as jest.Mocked<typeof config>;
 
 test('configures the server with the contained election', async () => {
   configMock.setElection.mockResolvedValueOnce();
-  const logger = new Logger(LogSource.VxCentralScanFrontend);
+  const logger = fakeLogger();
   await new Promise<void>((resolve, reject) => {
     addTemplates(
       {
@@ -39,8 +39,7 @@ test('emits an event each time a ballot begins uploading', async () => {
   fetchMock.post('/scan/hmpb/addTemplates', { body: { status: 'ok' } });
 
   const uploading = jest.fn();
-  const logger = new Logger(LogSource.VxCentralScanFrontend);
-  const logSpy = jest.spyOn(logger, 'log');
+  const logger = fakeLogger();
 
   await new Promise<void>((resolve, reject) => {
     addTemplates(
@@ -86,8 +85,8 @@ test('emits an event each time a ballot begins uploading', async () => {
   });
 
   expect(fetchMock.calls('/scan/hmpb/addTemplates').length).toEqual(2);
-  expect(logSpy).toHaveBeenCalledTimes(2);
-  expect(logSpy).toHaveBeenCalledWith(
+  expect(logger.log).toHaveBeenCalledTimes(2);
+  expect(logger.log).toHaveBeenCalledWith(
     LogEventId.BallotConfiguredOnMachine,
     'admin',
     expect.objectContaining({
@@ -97,7 +96,7 @@ test('emits an event each time a ballot begins uploading', async () => {
       isLiveMode: true,
     })
   );
-  expect(logSpy).toHaveBeenCalledWith(
+  expect(logger.log).toHaveBeenCalledWith(
     LogEventId.BallotConfiguredOnMachine,
     'admin',
     expect.objectContaining({
@@ -112,7 +111,7 @@ test('emits an event each time a ballot begins uploading', async () => {
 test('emits error on API failure', async () => {
   configMock.setElection.mockRejectedValueOnce(new Error('bad election!'));
 
-  const logger = new Logger(LogSource.VxCentralScanFrontend);
+  const logger = fakeLogger();
 
   await expect(
     new Promise<void>((resolve, reject) => {
