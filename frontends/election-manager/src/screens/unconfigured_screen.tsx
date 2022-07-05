@@ -24,6 +24,7 @@ import { FileInputButton } from '../components/file_input_button';
 import { HorizontalRule } from '../components/horizontal_rule';
 import { Loading } from '../components/loading';
 import { NavigationScreen } from '../components/navigation_screen';
+import { areVvsg2AuthFlowsEnabled } from '../config/features';
 
 const Loaded = styled.p`
   line-height: 2.5rem;
@@ -214,7 +215,7 @@ export function UnconfiguredScreen(): JSX.Element {
   }, [updateStatus]);
 
   useEffect(() => {
-    if (location.pathname !== '/') {
+    if (!areVvsg2AuthFlowsEnabled() && location.pathname !== '/') {
       history.push(routerPaths.root);
     }
   }, [location, history]);

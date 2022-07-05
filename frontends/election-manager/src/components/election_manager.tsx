@@ -68,7 +68,7 @@ export function ElectionManager(): JSX.Element {
     return <RemoveCardScreen />;
   }
 
-  if (!election || !configuredAt) {
+  if (!areVvsg2AuthFlowsEnabled() && (!election || !configuredAt)) {
     return (
       <Switch>
         <Route exact path={routerPaths.root}>
@@ -77,21 +77,9 @@ export function ElectionManager(): JSX.Element {
         <Route exact path={routerPaths.electionDefinition}>
           <UnconfiguredScreen />
         </Route>
-        {!areVvsg2AuthFlowsEnabled() && (
-          <Route exact path={routerPaths.advanced}>
-            <AdvancedScreen />
-          </Route>
-        )}
-        {areVvsg2AuthFlowsEnabled() && (
-          <Route exact path={routerPaths.settings}>
-            <SettingsScreen />
-          </Route>
-        )}
-        {areVvsg2AuthFlowsEnabled() && (
-          <Route exact path={routerPaths.logs}>
-            <LogsScreen />
-          </Route>
-        )}
+        <Route exact path={routerPaths.advanced}>
+          <AdvancedScreen />
+        </Route>
       </Switch>
     );
   }
@@ -120,6 +108,23 @@ export function ElectionManager(): JSX.Element {
             machineId={machineConfig.machineId}
           />
         </Screen>
+      );
+    }
+
+    if (!election || !configuredAt) {
+      return (
+        <Switch>
+          <Route exact path={routerPaths.electionDefinition}>
+            <UnconfiguredScreen />
+          </Route>
+          <Route exact path={routerPaths.settings}>
+            <SettingsScreen />
+          </Route>
+          <Route exact path={routerPaths.logs}>
+            <LogsScreen />
+          </Route>
+          <Redirect to={routerPaths.electionDefinition} />
+        </Switch>
       );
     }
 
