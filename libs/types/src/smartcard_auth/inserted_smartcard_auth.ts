@@ -7,6 +7,7 @@ import {
   PollworkerUser,
   SuperadminUser,
   VoterUser,
+  UserRole,
 } from './auth';
 
 // Auth status types
@@ -24,6 +25,7 @@ export interface LoggedOut {
     | 'voter_card_expired'
     | 'voter_card_voided'
     | 'voter_card_printed';
+  readonly cardUserRole?: UserRole;
 }
 
 export interface SuperadminLoggedIn {
@@ -72,7 +74,7 @@ export interface CheckingPasscode {
   readonly status: 'checking_passcode';
   readonly user: AdminUser;
   readonly checkPasscode: (passcode: string) => void;
-  readonly wrongPasscodeEntered?: true;
+  readonly wrongPasscodeEnteredAt?: Date;
 }
 
 export type LoggedIn =

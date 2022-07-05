@@ -10,6 +10,7 @@ import {
   typedAs,
   readBallotPackageFromFilePointer,
 } from '@votingworks/utils';
+import { fakeLogger, LogEventId } from '@votingworks/logging';
 import {
   render,
   waitFor,
@@ -241,6 +242,7 @@ test('app can load and configure from a usb stick', async () => {
 });
 
 test('admin and pollworker configuration', async () => {
+  const logger = fakeLogger();
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
@@ -259,7 +261,9 @@ test('admin and pollworker configuration', async () => {
       body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
       status: 200,
     });
-  render(<App card={card} hardware={hardware} storage={storage} />);
+  render(
+    <App card={card} hardware={hardware} storage={storage} logger={logger} />
+  );
   await advanceTimersAndPromises(1);
   await screen.findByText('No USB Drive Detected');
   kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
@@ -274,6 +278,13 @@ test('admin and pollworker configuration', async () => {
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
   await screen.findByText('Do you want to open the polls?');
+
+  // Basic auth logging check
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.AuthLogin,
+    'pollworker',
+    expect.objectContaining({ disposition: 'success' })
+  );
 
   // Open Polls
   act(() => {

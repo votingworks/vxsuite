@@ -1,5 +1,5 @@
 import { Scan } from '@votingworks/api';
-import React, { useCallback, useEffect, useReducer, useMemo } from 'react';
+import React, { useCallback, useEffect, useReducer } from 'react';
 import useInterval from '@rooks/use-interval';
 import 'normalize.css';
 import makeDebug from 'debug';
@@ -35,7 +35,7 @@ import {
   PrecinctScannerCardTallySchema,
   assert,
 } from '@votingworks/utils';
-import { Logger, LogSource } from '@votingworks/logging';
+import { Logger } from '@votingworks/logging';
 
 import { UnconfiguredElectionScreen } from './screens/unconfigured_election_screen';
 import { LoadingConfigurationScreen } from './screens/loading_configuration_screen';
@@ -84,6 +84,7 @@ export interface Props {
   storage: Storage;
   printer: Printer;
   machineConfig: Provider<MachineConfig>;
+  logger: Logger;
 }
 
 interface HardwareState {
@@ -312,6 +313,7 @@ export function AppRoot({
   printer,
   storage,
   machineConfig: machineConfigProvider,
+  logger,
 }: Props): JSX.Element {
   const [appState, dispatchAppState] = useReducer(appReducer, initialAppState);
   const {
@@ -328,10 +330,6 @@ export function AppRoot({
     machineConfig,
   } = appState;
 
-  const logger = useMemo(
-    () => new Logger(LogSource.VxPrecinctScanFrontend, window.kiosk),
-    []
-  );
   const usbDrive = useUsbDrive({ logger });
   const usbDriveDisplayStatus =
     usbDrive.status ?? usbstick.UsbDriveStatus.absent;
@@ -349,6 +347,7 @@ export function AppRoot({
     allowedUserRoles: ['superadmin', 'admin', 'pollworker'],
     cardApi: card,
     scope: { electionDefinition },
+    logger,
   });
 
   const makeCancelable = useCancelablePromise();

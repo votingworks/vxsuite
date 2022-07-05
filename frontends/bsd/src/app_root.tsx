@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Route, Switch, useHistory } from 'react-router-dom';
 import {
   ElectionDefinition,
@@ -35,7 +35,7 @@ import {
   useDippedSmartcardAuth,
   useUsbDrive,
 } from '@votingworks/ui';
-import { LogEventId, Logger, LogSource } from '@votingworks/logging';
+import { LogEventId, Logger } from '@votingworks/logging';
 import { MachineConfig } from './config/types';
 import { AppContext, AppContextInterface } from './contexts/app_context';
 
@@ -69,13 +69,10 @@ const Buttons = styled.div`
 export interface AppRootProps {
   card: Card;
   hardware: Hardware;
+  logger: Logger;
 }
 
-export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
-  const logger = useMemo(
-    () => new Logger(LogSource.VxCentralScanFrontend, window.kiosk),
-    []
-  );
+export function AppRoot({ card, hardware, logger }: AppRootProps): JSX.Element {
   const history = useHistory();
   const [isConfigLoaded, setIsConfigLoaded] = useState(false);
   const [electionDefinition, setElectionDefinition] =
@@ -105,7 +102,7 @@ export function AppRoot({ card, hardware }: AppRootProps): JSX.Element {
     hardware,
     logger,
   });
-  const auth = useDippedSmartcardAuth({ cardApi: card });
+  const auth = useDippedSmartcardAuth({ cardApi: card, logger });
   const userRole = auth.status === 'logged_in' ? auth.user.role : 'unknown';
 
   const [isExportingCvrs, setIsExportingCvrs] = useState(false);

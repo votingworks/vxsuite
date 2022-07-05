@@ -12,5 +12,4 @@ export * from './precinct_selection';
 export * from './result';
 export * from './smartcard_auth';
 export * from './tallies';
-export * from './user_session';
 export * from './voting_method';

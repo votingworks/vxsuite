@@ -42,25 +42,17 @@ IDs are logged with each log to identify the log being written.
 **Type:** [system-status](#system-status)  
 **Description:** A message from the machine kernel about an externally-connected USB device, usually when a new device is connected or disconnected.  
 **Machines:** All
-### admin-authentication-2fac
+### auth-passcode-entry
 **Type:** [user-action](#user-action)  
-**Description:** Attempt to authenticate an admin user session with a passcode.  
+**Description:** A user attempted to enter a passcode to log in.  
 **Machines:** All
-### machine-locked
+### auth-logout
 **Type:** [user-action](#user-action)  
-**Description:** The current user was logged out and the machine was locked.  
+**Description:** A user logged out.  
 **Machines:** All
-### admin-card-inserted
+### auth-login
 **Type:** [user-action](#user-action)  
-**Description:** Admin smartcard inserted, the user will be prompted for passcode to complete authentication.  
-**Machines:** All
-### user-session-activation
-**Type:** [user-action](#user-action)  
-**Description:** A user attempted to authenticate as a new user role, disposition and message clarify the user roles and success/failure.  
-**Machines:** All
-### user-logged-out
-**Type:** [user-action](#user-action)  
-**Description:** User logged out of the current session.  
+**Description:** A user attempted to log in. Disposition is success if they logged in, failure if not. An optional reason may be provided.  
 **Machines:** All
 ### usb-drive-status-update
 **Type:** [application-status](#application-status)  

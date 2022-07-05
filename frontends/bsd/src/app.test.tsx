@@ -12,6 +12,7 @@ import { MemoryCard, MemoryHardware, sleep, typedAs } from '@votingworks/utils';
 import { Scan } from '@votingworks/api';
 import { AdminCardData, PollworkerCardData } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
+import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { App } from './app';
 import { hasTextAcrossElements } from '../test/util/has_text_across_elements';
 import { MachineConfigResponse } from './config/types';
@@ -145,13 +146,22 @@ test('shows a "Live mode" button if the app is in Test Mode', async () => {
 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
+  const logger = fakeLogger();
 
-  const result = render(<App card={card} hardware={hardware} />);
+  const result = render(
+    <App card={card} hardware={hardware} logger={logger} />
+  );
   await authenticateWithAdminCard(card);
 
   fireEvent.click(result.getByText('Admin'));
 
   result.getByText('Toggle to Live Mode');
+
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.AuthLogin,
+    'admin',
+    expect.objectContaining({ disposition: 'success' })
+  );
 });
 
 test('clicking Scan Batch will scan a batch', async () => {

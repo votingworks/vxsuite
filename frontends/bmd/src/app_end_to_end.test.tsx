@@ -15,6 +15,7 @@ import {
   TallySourceMachineType,
 } from '@votingworks/utils';
 import { PrecinctSelectionKind } from '@votingworks/types';
+import { fakeLogger, LogEventId } from '@votingworks/logging';
 import * as GLOBALS from './config/globals';
 
 import { electionSampleDefinition } from './data';
@@ -50,6 +51,7 @@ beforeEach(() => {
 jest.setTimeout(15000);
 
 it('MarkAndPrint end-to-end flow', async () => {
+  const logger = fakeLogger();
   const electionDefinition = electionSampleDefinition;
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
@@ -69,6 +71,7 @@ it('MarkAndPrint end-to-end flow', async () => {
       printer={printer}
       storage={storage}
       reload={reload}
+      logger={logger}
     />
   );
   await advanceTimersAndPromises();
@@ -97,6 +100,13 @@ it('MarkAndPrint end-to-end flow', async () => {
   card.removeCard();
   await advanceTimersAndPromises();
   screen.getByText('Device Not Configured');
+
+  // Basic auth logging check
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.AuthLogin,
+    'admin',
+    expect.objectContaining({ disposition: 'success' })
+  );
 
   // ---------------
 
