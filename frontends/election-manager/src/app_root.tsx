@@ -457,7 +457,7 @@ export function AppRoot({
     async (electionJson) => {
       const previousElection = electionDefinition;
       if (previousElection) {
-        void logger.log(LogEventId.ElectionUnconfigured, 'admin', {
+        void logger.log(LogEventId.ElectionUnconfigured, currentUserRole, {
           disposition: LogDispositionStandardTypes.Success,
           previousElectionHash: previousElection.electionHash,
         });
@@ -529,7 +529,6 @@ export function AppRoot({
       setIsOfficialResults,
       setCastVoteRecordFiles,
       setPrintedBallots,
-      setElectionDefinition,
       setElectionDefinition,
       setConfiguredAt,
     ]
