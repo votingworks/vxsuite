@@ -1,11 +1,15 @@
 import { fakeReadable, fakeWritable, mockOf } from '@votingworks/test-utils';
 import {
   BallotType,
+  HmpbBallotPageMetadata,
   ok,
+  PageInterpretationSchema,
   PageInterpretationWithFiles,
+  safeParseJson,
   VotesDict,
 } from '@votingworks/types';
 import { typedAs } from '@votingworks/utils';
+import { z } from 'zod';
 import { main } from '.';
 import { Stdio } from '..';
 import { getFixturePath, HudsonFixtureName } from '../../../test/fixtures';
@@ -31,7 +35,7 @@ test('--help', async () => {
   const exitCode = await main(['--help'], io);
 
   expect(io.stdout.toString()).toMatchInlineSnapshot(`
-    "usage: interpret [-t [MARGINAL,]DEFINITE] <election.json> <front-ballot.jpg> <back-ballot.jpg> [--debug]
+    "usage: interpret [-t [MARGINAL,]DEFINITE] <election.json> <front-ballot.jpg> <back-ballot.jpg> [--debug] [--json]
     "
   `);
   expect(exitCode).toBe(0);
@@ -47,7 +51,7 @@ test('-h', async () => {
   const exitCode = await main(['-h'], io);
 
   expect(io.stdout.toString()).toMatchInlineSnapshot(`
-    "usage: interpret [-t [MARGINAL,]DEFINITE] <election.json> <front-ballot.jpg> <back-ballot.jpg> [--debug]
+    "usage: interpret [-t [MARGINAL,]DEFINITE] <election.json> <front-ballot.jpg> <back-ballot.jpg> [--debug] [--json]
     "
   `);
   expect(exitCode).toBe(0);
@@ -237,14 +241,19 @@ test('--mark-thresholds MARGINAL,DEFINITE', async () => {
 });
 
 test('interpret', async () => {
-  const io: Stdio = {
-    stdin: fakeReadable(),
-    stdout: fakeWritable(),
-    stderr: fakeWritable(),
+  const metadata: HmpbBallotPageMetadata = {
+    ballotType: BallotType.Standard,
+    ballotStyleId: 'card-number-54',
+    electionHash:
+      '24e75b5d29a99d13d7209c413f654f9863a32f5e7b8530ead92bd7cab1974e10',
+    isTestMode: false,
+    locales: { primary: 'en-US' },
+    pageNumber: 1,
+    precinctId: 'town-id-12101-precinct-id-',
   };
 
   // just use BlankPage because it's easy
-  mockOf(interpret).mockResolvedValueOnce(
+  mockOf(interpret).mockResolvedValue(
     ok([
       typedAs<PageInterpretationWithFiles>({
         interpretation: {
@@ -309,16 +318,7 @@ test('interpret', async () => {
             ],
           },
 
-          metadata: {
-            ballotType: BallotType.Standard,
-            ballotStyleId: 'card-number-54',
-            electionHash:
-              '24e75b5d29a99d13d7209c413f654f9863a32f5e7b8530ead92bd7cab1974e10',
-            isTestMode: false,
-            locales: { primary: 'en-US' },
-            pageNumber: 1,
-            precinctId: 'town-id-12101-precinct-id-',
-          },
+          metadata,
           votes: {
             'Representative-in-Congress-24683b44': [
               {
@@ -328,6 +328,14 @@ test('interpret', async () => {
               },
             ],
           } as unknown as VotesDict,
+          layout: {
+            pageSize: {
+              width: 1,
+              height: 1,
+            },
+            contests: [],
+            metadata,
+          },
         },
         originalFilename: 'front.jpeg',
         normalizedFilename: 'front.jpeg',
@@ -341,22 +349,63 @@ test('interpret', async () => {
   );
 
   const electionPath = getFixturePath(HudsonFixtureName, 'election', '.json');
-  const exitCode = await main([electionPath, 'front.jpeg', 'back.jpeg'], io);
 
-  expect(stripAnsi(io.stdout.toString())).toMatchInlineSnapshot(`
-    "front.jpeg:
-    Representative in Congress
-    ✅ (21.84%) Steven Negron
-    ⬜️ ( 4.12%) Ann McLane Kuster
-    ⬜️ ( 0.03%) Andrew Olding
-    ⬜️ ( 0.00%) Write-In #1
+  {
+    const io: Stdio = {
+      stdin: fakeReadable(),
+      stdout: fakeWritable(),
+      stderr: fakeWritable(),
+    };
+    const exitCode = await main([electionPath, 'front.jpeg', 'back.jpeg'], io);
 
-    back.jpeg:
-      BlankPage
-    "
-  `);
-  expect({ exitCode, stderr: io.stderr.toString() }).toEqual({
-    exitCode: 0,
-    stderr: '',
-  });
+    expect(stripAnsi(io.stdout.toString())).toMatchInlineSnapshot(`
+          "front.jpeg:
+          Representative in Congress
+          ✅ (21.84%) Steven Negron
+          ⬜️ ( 4.12%) Ann McLane Kuster
+          ⬜️ ( 0.03%) Andrew Olding
+          ⬜️ ( 0.00%) Write-In #1
+
+          back.jpeg:
+            BlankPage
+          "
+      `);
+    expect({ exitCode, stderr: io.stderr.toString() }).toEqual({
+      exitCode: 0,
+      stderr: '',
+    });
+  }
+
+  {
+    const io: Stdio = {
+      stdin: fakeReadable(),
+      stdout: fakeWritable(),
+      stderr: fakeWritable(),
+    };
+    const exitCode = await main(
+      [electionPath, 'front.jpeg', 'back.jpeg', '--json'],
+      io
+    );
+
+    expect(
+      safeParseJson(
+        io.stdout.toString(),
+        z.object({
+          front: PageInterpretationSchema,
+          back: PageInterpretationSchema,
+        })
+      ).unsafeUnwrap()
+    ).toStrictEqual({
+      front: expect.objectContaining({
+        type: 'InterpretedHmpbPage',
+      }),
+      back: expect.objectContaining({
+        type: 'BlankPage',
+      }),
+    });
+    expect({ exitCode, stderr: io.stderr.toString() }).toEqual({
+      exitCode: 0,
+      stderr: '',
+    });
+  }
 });
