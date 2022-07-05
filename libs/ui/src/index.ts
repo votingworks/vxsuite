@@ -47,4 +47,6 @@ export * from './test_mode';
 export * from './text';
 export * from './themes';
 export * from './usbcontroller_button';
-export * from './remove_card_page';
+export * from './remove_card_screen';
+export * from './invalid_card_screen';
+export * from './unlock_machine_screen';

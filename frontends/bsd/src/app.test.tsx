@@ -444,7 +444,7 @@ test('authentication works', async () => {
   fireEvent.click(screen.getByText('6'));
 
   // 'Remove Card' screen is shown after successful authentication.
-  await screen.findByText('Remove card.');
+  await screen.findByText('Remove card to continue.');
 
   // Machine is unlocked when card removed
   card.removeCard();
@@ -504,7 +504,7 @@ test('superadmin can log in', async () => {
   await screen.findByText('VxCentralScan is Locked');
 
   card.insertCard(makeSuperadminCard());
-  await screen.findByText('Remove card.');
+  await screen.findByText('Remove card to continue.');
 
   card.removeCard();
   await screen.findByText('Lock Machine');

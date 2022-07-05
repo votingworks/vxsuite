@@ -10,7 +10,9 @@ import {
   Screen,
   SetupCardReaderPage,
   isSuperadminAuth,
-  RemoveCardPage,
+  InvalidCardScreen,
+  UnlockMachineScreen,
+  RemoveCardScreen,
 } from '@votingworks/ui';
 import { AppContext } from '../contexts/app_context';
 
@@ -32,8 +34,6 @@ import { SmartcardsScreen } from '../screens/smartcards_screen';
 import { ElectionSmartcardsScreen } from '../screens/election_smartcards_screen';
 import { SuperAdminSmartcardsScreen } from '../screens/super_admin_smartcards_screen';
 import { MachineLockedScreen } from '../screens/machine_locked_screen';
-import { InvalidCardScreen } from '../screens/invalid_card_screen';
-import { UnlockMachineScreen } from '../screens/unlock_machine_screen';
 import { AdvancedScreen } from '../screens/advanced_screen';
 import { WriteInsScreen } from '../screens/write_ins_screen';
 import { LogicAndAccuracyScreen } from '../screens/logic_and_accuracy_screen';
@@ -61,21 +61,11 @@ export function ElectionManager(): JSX.Element {
   }
 
   if (auth.status === 'checking_passcode') {
-    return <UnlockMachineScreen />;
+    return <UnlockMachineScreen auth={auth} />;
   }
 
   if (auth.status === 'remove_card') {
-    return (
-      <Screen>
-        <RemoveCardPage />
-        <ElectionInfoBar
-          mode="admin"
-          electionDefinition={electionDefinition}
-          codeVersion={machineConfig.codeVersion}
-          machineId={machineConfig.machineId}
-        />
-      </Screen>
-    );
+    return <RemoveCardScreen />;
   }
 
   if (!election || !configuredAt) {

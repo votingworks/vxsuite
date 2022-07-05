@@ -1,17 +1,16 @@
-import {
-  ElectionInfoBar,
-  fontSizeTheme,
-  Main,
-  NumberPad,
-  Prose,
-  Screen,
-  Text,
-} from '@votingworks/ui';
-import React, { useState, useEffect, useCallback, useContext } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import styled from 'styled-components';
-import { DippedSmartcardAuth } from '@votingworks/types/src/smartcard_auth';
-import { AppContext } from '../contexts/app_context';
-import * as GLOBALS from '../config/globals';
+import { DippedSmartcardAuth, InsertedSmartcardAuth } from '@votingworks/types';
+import { assert } from '@votingworks/utils';
+
+import { Screen } from './screen';
+import { Main } from './main';
+import { Text } from './text';
+import { Prose } from './prose';
+import { fontSizeTheme } from './themes';
+import { NumberPad } from './number_pad';
+
+import { SECURITY_PIN_LENGTH } from './globals';
 
 const NumberPadWrapper = styled.div`
   display: flex;
@@ -23,7 +22,7 @@ const NumberPadWrapper = styled.div`
   }
 `;
 
-export const EnteredCode = styled.div`
+const EnteredCode = styled.div`
   margin-top: 5px;
   text-align: center;
   font-family: monospace;
@@ -31,16 +30,21 @@ export const EnteredCode = styled.div`
   font-weight: 600;
 `;
 
-export interface Props {
-  auth: DippedSmartcardAuth.CheckingPasscode;
+type CheckingPassCodeAuth =
+  | DippedSmartcardAuth.CheckingPasscode
+  | InsertedSmartcardAuth.CheckingPasscode;
+
+interface Props {
+  auth: CheckingPassCodeAuth;
 }
 
 export function UnlockMachineScreen({ auth }: Props): JSX.Element {
-  const { electionDefinition, machineConfig } = useContext(AppContext);
+  assert(auth.status === 'checking_passcode');
+
   const [currentPasscode, setCurrentPasscode] = useState('');
   const handleNumberEntry = useCallback((digit: number) => {
     setCurrentPasscode((prev) =>
-      `${prev}${digit}`.slice(0, GLOBALS.SECURITY_PIN_LENGTH)
+      `${prev}${digit}`.slice(0, SECURITY_PIN_LENGTH)
     );
   }, []);
   const handleBackspace = useCallback(() => {
@@ -51,7 +55,7 @@ export function UnlockMachineScreen({ auth }: Props): JSX.Element {
   }, []);
 
   useEffect(() => {
-    if (currentPasscode.length === GLOBALS.SECURITY_PIN_LENGTH) {
+    if (currentPasscode.length === SECURITY_PIN_LENGTH) {
       auth.checkPasscode(currentPasscode);
       setCurrentPasscode('');
     }
@@ -59,7 +63,7 @@ export function UnlockMachineScreen({ auth }: Props): JSX.Element {
 
   const currentPasscodeDisplayString = '•'
     .repeat(currentPasscode.length)
-    .padEnd(GLOBALS.SECURITY_PIN_LENGTH, '-')
+    .padEnd(SECURITY_PIN_LENGTH, '-')
     .split('')
     .join(' ');
 
@@ -69,9 +73,10 @@ export function UnlockMachineScreen({ auth }: Props): JSX.Element {
   if (auth.wrongPasscodeEntered) {
     primarySentence = <Text warning>Invalid code. Please try again.</Text>;
   }
+
   return (
-    <Screen>
-      <Main padded centerChild>
+    <Screen white>
+      <Main centerChild>
         <Prose textCenter theme={fontSizeTheme.medium} maxWidth={false}>
           {primarySentence}
           <EnteredCode>{currentPasscodeDisplayString}</EnteredCode>
@@ -84,12 +89,6 @@ export function UnlockMachineScreen({ auth }: Props): JSX.Element {
           </NumberPadWrapper>
         </Prose>
       </Main>
-      <ElectionInfoBar
-        mode="admin"
-        electionDefinition={electionDefinition}
-        codeVersion={machineConfig.codeVersion}
-        machineId={machineConfig.machineId}
-      />
     </Screen>
   );
 }
