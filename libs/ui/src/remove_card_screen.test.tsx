@@ -6,6 +6,6 @@ import { RemoveCardScreen } from './remove_card_screen';
 describe('RemoveCardPage', () => {
   test('says "Remove card"', () => {
     const { getByText } = render(<RemoveCardScreen />);
-    getByText('Remove Card', { exact: false });
+    getByText('Remove card to continue.');
   });
 });

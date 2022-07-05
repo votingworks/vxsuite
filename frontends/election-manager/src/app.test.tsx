@@ -179,7 +179,7 @@ async function authenticateWithAdminCard(card: MemoryCard) {
   fireEvent.click(screen.getByText('4'));
   fireEvent.click(screen.getByText('5'));
   fireEvent.click(screen.getByText('6'));
-  await screen.findByText('Remove card', { exact: false });
+  await screen.findByText('Remove card to continue.');
   card.removeCard();
   jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
   await screen.findByText('Lock Machine');
@@ -199,7 +199,7 @@ async function authenticateWithSuperAdminCard(
     h: eitherNeitherElectionDefinition.electionHash,
   });
   jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
-  await screen.findByText('Remove card', { exact: false });
+  await screen.findByText('Remove card to continue.');
   card.removeCard();
   jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
   await screen.findByText('Lock Machine');
@@ -332,7 +332,7 @@ test('authentication works', async () => {
   fireEvent.click(screen.getByText('6'));
 
   // 'Remove Card' screen is shown after successful authentication.
-  await screen.findByText('Remove card', { exact: false });
+  await screen.findByText('Remove card to continue.');
   // TODO(jonah) add auth logging to useSmartcardAuth
   // expect(mockKiosk.log).toHaveBeenCalledWith(
   //   expect.stringMatching(/"admin-authentication-2fac".*disposition":"success"/)
