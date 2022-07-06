@@ -2,12 +2,11 @@ import { AdjudicationReason, PageInterpretation } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/utils';
 import makeDebug from 'debug';
 import { readFile } from 'fs-extra';
-import { basename, extname, join } from 'path';
 import { ScannerLocation, SCANNER_LOCATION } from '../globals';
 import { Interpreter, InterpretFileResult } from '../interpreter';
 import { Store } from '../store';
 import { pdfToImages } from '../util/pdf_to_images';
-import { saveImages } from '../util/save_images';
+import { saveSheetImages } from '../util/save_images';
 import * as qrcodeWorker from './qrcode';
 
 const debug = makeDebug('scan:worker:interpret');
@@ -102,19 +101,10 @@ export async function interpret(
     result.interpretation.type,
     ballotImagePath
   );
-  const ext = extname(ballotImagePath);
-  const originalImagePath = join(
+  const images = await saveSheetImages(
+    sheetId,
     ballotImagesPath,
-    `${basename(ballotImagePath, ext)}-${sheetId}-original${ext}`
-  );
-  const normalizedImagePath = join(
-    ballotImagesPath,
-    `${basename(ballotImagePath, ext)}-${sheetId}-normalized${ext}`
-  );
-  const images = await saveImages(
     ballotImagePath,
-    originalImagePath,
-    normalizedImagePath,
     result.normalizedImage
   );
   return {
