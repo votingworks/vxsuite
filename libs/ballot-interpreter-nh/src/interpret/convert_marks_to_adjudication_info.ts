@@ -32,7 +32,7 @@ export function convertMarksToAdjudicationInfo({
     ballotAdjudicationReasons(contests, {
       optionMarkStatus: (option) => {
         const contest = find(contests, (c) => c.id === option.contestId);
-        const mark = ovalMarks.find(({ gridPosition }) => {
+        const marks = ovalMarks.filter(({ gridPosition }) => {
           if (gridPosition.contestId !== option.contestId) {
             return false;
           }
@@ -50,12 +50,21 @@ export function convertMarksToAdjudicationInfo({
 
           return false;
         });
-        assert(mark, `mark for option ${option.id} not found`);
-        return mark.score < markThresholds.marginal
-          ? MarkStatus.Unmarked
-          : mark.score < markThresholds.definite
-          ? MarkStatus.Marginal
-          : MarkStatus.Marked;
+        assert(marks.length > 0, `mark for option ${option.id} not found`);
+
+        let fallbackStatus = MarkStatus.Unmarked;
+
+        for (const mark of marks) {
+          if (mark.score >= markThresholds.definite) {
+            return MarkStatus.Marked;
+          }
+
+          if (mark.score >= markThresholds.marginal) {
+            fallbackStatus = MarkStatus.Marginal;
+          }
+        }
+
+        return fallbackStatus;
       },
     })
   );
