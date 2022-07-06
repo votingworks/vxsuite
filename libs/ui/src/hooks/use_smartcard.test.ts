@@ -160,7 +160,7 @@ test('writing short value succeeds', async () => {
     });
   }
 
-  expect(await card.readStatus()).toEqual({
+  expect(await card.readSummary()).toEqual({
     status: 'ready',
     shortValue: JSON.stringify(voterCard),
     longValueExists: false,

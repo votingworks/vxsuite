@@ -4,7 +4,7 @@ import { MemoryCard } from './memory_card';
 const AbSchema = z.object({ a: z.number(), b: z.number() });
 
 it('defaults to no card', async () => {
-  expect(await new MemoryCard().readStatus()).toEqual({
+  expect(await new MemoryCard().readSummary()).toEqual({
     status: 'no_card',
   });
 });
@@ -13,7 +13,7 @@ it('can round-trip a short value', async () => {
   const card = new MemoryCard().insertCard();
 
   await card.writeShortValue('abc');
-  expect(await card.readStatus()).toEqual(
+  expect(await card.readSummary()).toEqual(
     expect.objectContaining({
       shortValue: 'abc',
     })
@@ -44,7 +44,7 @@ it('can round-trip a binary long value', async () => {
 it('can set a short and long value using #insertCard', async () => {
   const card = new MemoryCard().insertCard('abc', Uint8Array.of(1, 2, 3));
 
-  expect(await card.readStatus()).toEqual({
+  expect(await card.readSummary()).toEqual({
     status: 'ready',
     shortValue: 'abc',
     longValueExists: true,
@@ -54,7 +54,7 @@ it('can set a short and long value using #insertCard', async () => {
 
   card.insertCard(undefined, JSON.stringify({ a: 1, b: 2 }));
 
-  expect(await card.readStatus()).toEqual(
+  expect(await card.readSummary()).toEqual(
     expect.objectContaining({
       shortValue: undefined,
     })
@@ -68,7 +68,7 @@ it('can remove a card using #removeCard', async () => {
     .insertCard('abc', Uint8Array.of(1, 2, 3))
     .removeCard();
 
-  expect(await card.readStatus()).toEqual({
+  expect(await card.readSummary()).toEqual({
     status: 'no_card',
   });
 });

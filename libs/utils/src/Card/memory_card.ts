@@ -1,6 +1,6 @@
 import { ok, Optional, Result, safeParseJson } from '@votingworks/types';
 import { z } from 'zod';
-import { Card, CardApi } from '../types';
+import { Card, CardSummary } from '../types';
 
 /* eslint-disable @typescript-eslint/require-await */
 
@@ -8,7 +8,7 @@ import { Card, CardApi } from '../types';
  * Implements the `Card` API with an in-memory implementation.
  */
 export class MemoryCard implements Card {
-  private status: CardApi['status'] = 'no_card';
+  private status: CardSummary['status'] = 'no_card';
 
   private shortValue?: string;
 
@@ -18,7 +18,7 @@ export class MemoryCard implements Card {
    * Reads basic information about the card, including whether one is present,
    * what its short value is and whether it has a long value.
    */
-  async readStatus(): Promise<CardApi> {
+  async readSummary(): Promise<CardSummary> {
     const { status, shortValue } = this;
 
     if (status === 'ready') {

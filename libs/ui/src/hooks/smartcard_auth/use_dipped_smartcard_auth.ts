@@ -5,7 +5,12 @@ import {
 } from '@votingworks/logging';
 import { DippedSmartcardAuth, err, ok, Result, User } from '@votingworks/types';
 import { LoggedOut } from '@votingworks/types/src/smartcard_auth/dipped_smartcard_auth';
-import { assert, Card, CardApi, throwIllegalValue } from '@votingworks/utils';
+import {
+  assert,
+  Card,
+  CardSummary,
+  throwIllegalValue,
+} from '@votingworks/utils';
 import deepEqual from 'deep-eql';
 import { useEffect, useReducer } from 'react';
 import useInterval from 'use-interval';
@@ -14,7 +19,7 @@ import { usePrevious } from '../use_previous';
 import {
   buildCardStorage,
   CARD_POLLING_INTERVAL,
-  parseUserFromCard,
+  parseUserFromCardSummary,
 } from './auth_helpers';
 
 export interface UseDippedSmartcardAuthArgs {
@@ -32,14 +37,14 @@ type AuthState =
   | Pick<DippedSmartcardAuth.LoggedIn, 'status' | 'user'>;
 
 interface SmartcardAuthState {
-  card: CardApi;
+  cardSummary: CardSummary;
   auth: AuthState;
 }
 
 type SmartcardAuthAction =
   | {
       type: 'card_read';
-      card: CardApi;
+      cardSummary: CardSummary;
     }
   | { type: 'check_passcode'; passcode: string }
   | { type: 'log_out' }
@@ -62,7 +67,7 @@ function smartcardAuthReducer(
       const newAuth = ((): AuthState => {
         switch (previousState.auth.status) {
           case 'logged_out': {
-            switch (action.card.status) {
+            switch (action.cardSummary.status) {
               case 'no_card':
                 return { status: 'logged_out', reason: 'machine_locked' };
 
@@ -70,7 +75,7 @@ function smartcardAuthReducer(
                 return { status: 'logged_out', reason: 'card_error' };
 
               case 'ready': {
-                const user = parseUserFromCard(action.card);
+                const user = parseUserFromCardSummary(action.cardSummary);
                 const validationResult = validateCardUser(user);
                 if (validationResult.isOk()) {
                   assert(
@@ -92,19 +97,19 @@ function smartcardAuthReducer(
 
               /* istanbul ignore next - compile time check for completeness */
               default:
-                return throwIllegalValue(action.card, 'status');
+                return throwIllegalValue(action.cardSummary, 'status');
             }
           }
 
           case 'checking_passcode': {
-            if (action.card.status === 'no_card') {
+            if (action.cardSummary.status === 'no_card') {
               return { status: 'logged_out', reason: 'machine_locked' };
             }
             return previousState.auth;
           }
 
           case 'remove_card': {
-            if (action.card.status === 'no_card') {
+            if (action.cardSummary.status === 'no_card') {
               return { status: 'logged_in', user: previousState.auth.user };
             }
             return previousState.auth;
@@ -124,7 +129,7 @@ function smartcardAuthReducer(
       // https://reactjs.org/docs/hooks-reference.html#bailing-out-of-a-dispatch
       const newState: SmartcardAuthState = {
         auth: newAuth,
-        card: action.card,
+        cardSummary: action.cardSummary,
       };
       return deepEqual(newState, previousState) ? previousState : newState;
     }
@@ -168,8 +173,8 @@ function smartcardAuthReducer(
 function useDippedSmartcardAuthBase({
   cardApi,
 }: UseDippedSmartcardAuthArgs): DippedSmartcardAuth.Auth {
-  const [{ card, auth }, dispatch] = useReducer(smartcardAuthReducer, {
-    card: { status: 'no_card' },
+  const [{ cardSummary, auth }, dispatch] = useReducer(smartcardAuthReducer, {
+    cardSummary: { status: 'no_card' },
     auth: { status: 'logged_out', reason: 'machine_locked' },
   });
   // Use a lock to guard against concurrent writes to the card
@@ -177,8 +182,8 @@ function useDippedSmartcardAuthBase({
 
   useInterval(
     async () => {
-      const newCard = await cardApi.readStatus();
-      dispatch({ type: 'card_read', card: newCard });
+      const newCardSummary = await cardApi.readSummary();
+      dispatch({ type: 'card_read', cardSummary: newCardSummary });
     },
     CARD_POLLING_INTERVAL,
     true
@@ -207,8 +212,8 @@ function useDippedSmartcardAuthBase({
     case 'logged_in': {
       const { status, user } = auth;
       const cardStorage =
-        card.status === 'ready'
-          ? buildCardStorage(card, cardApi, cardWriteLock)
+        cardSummary.status === 'ready'
+          ? buildCardStorage(cardSummary, cardApi, cardWriteLock)
           : undefined;
 
       switch (user.role) {

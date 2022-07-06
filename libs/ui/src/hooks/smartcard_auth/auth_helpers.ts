@@ -10,14 +10,19 @@ import {
   User,
   wrapException,
 } from '@votingworks/types';
-import { Card, CardApiReady, throwIllegalValue } from '@votingworks/utils';
+import { Card, CardSummaryReady, throwIllegalValue } from '@votingworks/utils';
 import { Lock } from '../use_lock';
 
 export const CARD_POLLING_INTERVAL = 100;
 
-export function parseUserFromCard(card: CardApiReady): Optional<User> {
-  if (!card.shortValue) return undefined;
-  const cardData = safeParseJson(card.shortValue, AnyCardDataSchema).ok();
+export function parseUserFromCardSummary(
+  cardSummary: CardSummaryReady
+): Optional<User> {
+  if (!cardSummary.shortValue) return undefined;
+  const cardData = safeParseJson(
+    cardSummary.shortValue,
+    AnyCardDataSchema
+  ).ok();
   if (!cardData) return undefined;
   switch (cardData.t) {
     case 'superadmin':
@@ -44,12 +49,12 @@ export function parseUserFromCard(card: CardApiReady): Optional<User> {
 }
 
 export function buildCardStorage(
-  card: CardApiReady,
+  cardSummary: CardSummaryReady,
   cardApi: Card,
   cardWriteLock: Lock
 ): CardStorage {
   return {
-    hasStoredData: !!card.longValueExists,
+    hasStoredData: !!cardSummary.longValueExists,
 
     readStoredObject: async (schema) => cardApi.readLongObject(schema),
 

@@ -22,8 +22,8 @@ import {
 import {
   assert,
   Card,
-  CardApi,
-  CardApiReady,
+  CardSummary,
+  CardSummaryReady,
   throwIllegalValue,
   utcTimestamp,
 } from '@votingworks/utils';
@@ -39,7 +39,7 @@ import { Lock, useLock } from '../use_lock';
 import {
   buildCardStorage,
   CARD_POLLING_INTERVAL,
-  parseUserFromCard,
+  parseUserFromCardSummary,
 } from './auth_helpers';
 import { usePrevious } from '../use_previous';
 
@@ -67,14 +67,14 @@ type AuthState =
   | Pick<InsertedSmartcardAuth.LoggedIn, 'status' | 'user'>;
 
 interface InsertedSmartcardAuthState {
-  card: CardApi;
+  cardSummary: CardSummary;
   auth: AuthState;
 }
 
 type InsertedSmartcardAuthAction =
   | {
       type: 'card_read';
-      card: CardApi;
+      cardSummary: CardSummary;
     }
   | {
       type: 'check_passcode';
@@ -143,13 +143,13 @@ function smartcardAuthReducer(allowedUserRoles: UserRole[], scope: AuthScope) {
     switch (action.type) {
       case 'card_read': {
         const newAuth = ((): AuthState => {
-          switch (action.card.status) {
+          switch (action.cardSummary.status) {
             case 'no_card':
               return { status: 'logged_out', reason: 'no_card' };
             case 'error':
               return { status: 'logged_out', reason: 'card_error' };
             case 'ready': {
-              const user = parseUserFromCard(action.card);
+              const user = parseUserFromCardSummary(action.cardSummary);
               const validationResult = validateCardUser(
                 previousState.auth,
                 user,
@@ -174,7 +174,7 @@ function smartcardAuthReducer(allowedUserRoles: UserRole[], scope: AuthScope) {
             }
             /* istanbul ignore next - compile time check for completeness */
             default:
-              throwIllegalValue(action.card, 'status');
+              throwIllegalValue(action.cardSummary, 'status');
           }
         })();
 
@@ -183,7 +183,7 @@ function smartcardAuthReducer(allowedUserRoles: UserRole[], scope: AuthScope) {
         // https://reactjs.org/docs/hooks-reference.html#bailing-out-of-a-dispatch
         const newState: InsertedSmartcardAuthState = {
           auth: newAuth,
-          card: action.card,
+          cardSummary: action.cardSummary,
         };
         return deepEqual(newState, previousState) ? previousState : newState;
       }
@@ -235,7 +235,7 @@ function buildPollworkerCardlessVoterProps(
 }
 
 function buildVoterCardMethods(
-  card: CardApiReady,
+  cardSummary: CardSummaryReady,
   cardApi: Card,
   cardWriteLock: Lock
 ): Pick<
@@ -260,8 +260,11 @@ function buildVoterCardMethods(
 
   return {
     markCardVoided: () => {
-      assert(card.shortValue !== undefined);
-      const cardData = safeParseJson(card.shortValue, VoterCardDataSchema).ok();
+      assert(cardSummary.shortValue !== undefined);
+      const cardData = safeParseJson(
+        cardSummary.shortValue,
+        VoterCardDataSchema
+      ).ok();
       assert(cardData);
       return writeVoterCardData({
         ...cardData,
@@ -270,8 +273,11 @@ function buildVoterCardMethods(
     },
 
     markCardPrinted: () => {
-      assert(card.shortValue !== undefined);
-      const cardData = safeParseJson(card.shortValue, VoterCardDataSchema).ok();
+      assert(cardSummary.shortValue !== undefined);
+      const cardData = safeParseJson(
+        cardSummary.shortValue,
+        VoterCardDataSchema
+      ).ok();
       assert(cardData);
       return writeVoterCardData({
         ...cardData,
@@ -286,10 +292,10 @@ function useInsertedSmartcardAuthBase({
   allowedUserRoles,
   scope,
 }: UseInsertedSmartcardAuthArgs): InsertedSmartcardAuth.Auth {
-  const [{ card, auth }, dispatch] = useReducer(
+  const [{ cardSummary, auth }, dispatch] = useReducer(
     smartcardAuthReducer(allowedUserRoles, scope),
     {
-      card: { status: 'no_card' },
+      cardSummary: { status: 'no_card' },
       auth: { status: 'logged_out', reason: 'no_card' },
     }
   );
@@ -303,8 +309,8 @@ function useInsertedSmartcardAuthBase({
 
   useInterval(
     async () => {
-      const newCard = await cardApi.readStatus();
-      dispatch({ type: 'card_read', card: newCard });
+      const newCardSummary = await cardApi.readSummary();
+      dispatch({ type: 'card_read', cardSummary: newCardSummary });
     },
     CARD_POLLING_INTERVAL,
     true
@@ -334,9 +340,9 @@ function useInsertedSmartcardAuthBase({
       };
 
     case 'logged_in': {
-      assert(card.status === 'ready');
+      assert(cardSummary.status === 'ready');
       const { status, user } = auth;
-      const cardStorage = buildCardStorage(card, cardApi, cardWriteLock);
+      const cardStorage = buildCardStorage(cardSummary, cardApi, cardWriteLock);
       switch (user.role) {
         case 'superadmin': {
           return { status, user, card: cardStorage };
@@ -363,7 +369,7 @@ function useInsertedSmartcardAuthBase({
             status,
             user,
             card: cardStorage,
-            ...buildVoterCardMethods(card, cardApi, cardWriteLock),
+            ...buildVoterCardMethods(cardSummary, cardApi, cardWriteLock),
           };
         }
 
