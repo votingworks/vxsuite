@@ -29,6 +29,7 @@ import { AppContext } from '../contexts/app_context';
 interface Props {
   scannedBallotCount: number;
   isTestMode: boolean;
+  canUnconfigure: boolean;
   updateAppPrecinctId(appPrecinctId: PrecinctId): Promise<void>;
   toggleLiveMode(): Promise<void>;
   unconfigure(): Promise<void>;
@@ -39,6 +40,7 @@ interface Props {
 export function AdminScreen({
   scannedBallotCount,
   isTestMode,
+  canUnconfigure,
   updateAppPrecinctId,
   toggleLiveMode,
   unconfigure,
@@ -53,6 +55,20 @@ export function AdminScreen({
   const userRole = auth.user.role;
 
   const [isLoading, setIsLoading] = useState(false);
+
+  const [
+    isShowingToggleLiveModeWarningModal,
+    setIsShowingToggleLiveModeWarningModal,
+  ] = useState(false);
+  const openToggleLiveModeWarningModal = useCallback(
+    () => setIsShowingToggleLiveModeWarningModal(true),
+    []
+  );
+  const closeToggleLiveModeWarningModal = useCallback(
+    () => setIsShowingToggleLiveModeWarningModal(false),
+    []
+  );
+
   const [isExportingResults, setIsExportingResults] = useState(false);
   const [isExportingBackup, setIsExportingBackup] = useState(false);
 
@@ -80,9 +96,13 @@ export function AdminScreen({
   };
 
   async function handleTogglingLiveMode() {
-    setIsLoading(true);
-    await toggleLiveMode();
-    setIsLoading(false);
+    if (!isTestMode && !canUnconfigure) {
+      openToggleLiveModeWarningModal();
+    } else {
+      setIsLoading(true);
+      await toggleLiveMode();
+      setIsLoading(false);
+    }
   }
 
   async function handleUnconfigure() {
@@ -161,13 +181,24 @@ export function AdminScreen({
           <Button onPress={openCalibrateScannerModal}>Calibrate Scanner</Button>
         </p>
         <p>
-          <Button danger small onPress={openConfirmUnconfigureModal}>
+          <Button
+            disabled={!canUnconfigure}
+            danger
+            small
+            onPress={openConfirmUnconfigureModal}
+          >
             <span role="img" aria-label="Warning">
               ⚠️
             </span>{' '}
             Unconfigure Machine
           </Button>
         </p>
+        {!canUnconfigure && (
+          <p>
+            You must &quot;Export Backup&quot; before you may unconfigure the
+            machine.
+          </p>
+        )}
       </Prose>
       <Absolute top left>
         <Bar>
@@ -179,6 +210,34 @@ export function AdminScreen({
           </div>
         </Bar>
       </Absolute>
+      {isShowingToggleLiveModeWarningModal && (
+        <Modal
+          content={
+            <Prose>
+              <h1>Export Backup to switch to Test Mode</h1>
+              <p>
+                You must &quot;Export Backup&quot; before you may switch to
+                Testing Mode.
+              </p>
+            </Prose>
+          }
+          actions={
+            <React.Fragment>
+              <Button
+                primary
+                onPress={() => {
+                  closeToggleLiveModeWarningModal();
+                  setIsExportingBackup(true);
+                }}
+              >
+                Export Backup
+              </Button>
+              <Button onPress={closeToggleLiveModeWarningModal}>Cancel</Button>
+            </React.Fragment>
+          }
+          onOverlayClick={closeToggleLiveModeWarningModal}
+        />
+      )}
       {confirmUnconfigure && (
         <Modal
           content={
@@ -259,6 +318,7 @@ export function DefaultPreview(): JSX.Element {
       <AdminScreen
         calibrate={() => Promise.resolve(true)}
         isTestMode={isTestMode}
+        canUnconfigure
         // eslint-disable-next-line @typescript-eslint/require-await
         toggleLiveMode={async () => setIsTestMode((prev) => !prev)}
         scannedBallotCount={1234}

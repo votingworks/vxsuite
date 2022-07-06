@@ -77,14 +77,14 @@ const getTestModeConfigTrueResponseBody: Scan.GetTestModeConfigResponse = {
 
 const scanStatusWaitingForPaperResponseBody: Scan.GetScanStatusResponse = {
   scanner: Scan.ScannerStatus.WaitingForPaper,
-  canUnconfigure: false,
+  canUnconfigure: true,
   batches: [],
   adjudication: { adjudicated: 0, remaining: 0 },
 };
 
 const scanStatusReadyToScanResponseBody: Scan.GetScanStatusResponse = {
   scanner: Scan.ScannerStatus.ReadyToScan,
-  canUnconfigure: false,
+  canUnconfigure: true,
   batches: [],
   adjudication: { adjudicated: 0, remaining: 0 },
 };
@@ -461,7 +461,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
       '/scan/status',
       typedAs<Scan.GetScanStatusResponse>({
         scanner: Scan.ScannerStatus.WaitingForPaper,
-        canUnconfigure: false,
+        canUnconfigure: true,
         batches: [
           {
             id: 'test-batch',

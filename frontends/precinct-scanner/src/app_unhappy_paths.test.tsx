@@ -46,14 +46,14 @@ const getTestModeConfigTrueResponseBody: Scan.GetTestModeConfigResponse = {
 };
 
 const scanStatusWaitingForPaperResponseBody: Scan.GetScanStatusResponse = {
-  canUnconfigure: false,
+  canUnconfigure: true,
   scanner: Scan.ScannerStatus.WaitingForPaper,
   batches: [],
   adjudication: { adjudicated: 0, remaining: 0 },
 };
 
 const scanStatusReadyToScanResponseBody: Scan.GetScanStatusResponse = {
-  canUnconfigure: false,
+  canUnconfigure: true,
   scanner: Scan.ScannerStatus.ReadyToScan,
   batches: [],
   adjudication: { adjudicated: 0, remaining: 0 },
@@ -252,7 +252,7 @@ test('error from services/scan in accepting a reviewable ballot', async () => {
       '/scan/status',
       typedAs<Scan.GetScanStatusResponse>({
         scanner: Scan.ScannerStatus.ReadyToScan,
-        canUnconfigure: false,
+        canUnconfigure: true,
         batches: [
           {
             id: 'test-batch',
@@ -352,7 +352,7 @@ test('error from services/scan in ejecting a reviewable ballot', async () => {
       '/scan/status',
       typedAs<Scan.GetScanStatusResponse>({
         scanner: Scan.ScannerStatus.ReadyToScan,
-        canUnconfigure: false,
+        canUnconfigure: true,
         batches: [
           {
             id: 'test-batch',
@@ -407,7 +407,7 @@ test('error from services/scan in ejecting a reviewable ballot', async () => {
     '/scan/status',
     typedAs<Scan.GetScanStatusResponse>({
       scanner: Scan.ScannerStatus.WaitingForPaper,
-      canUnconfigure: false,
+      canUnconfigure: true,
       batches: [
         {
           id: 'test-batch',

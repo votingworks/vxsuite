@@ -608,6 +608,7 @@ export function AppRoot({
 
   const scanner = usePrecinctScanner();
   const scannedBallotCount = scanner?.status.ballotCount ?? 0;
+  const canUnconfigure = scanner?.status.canUnconfigure ?? false;
 
   const getCvrsFromExport = useCallback(async (): Promise<CastVoteRecord[]> => {
     if (electionDefinition) {
@@ -756,6 +757,7 @@ export function AppRoot({
         <AdminScreen
           updateAppPrecinctId={updatePrecinctId}
           scannedBallotCount={scannedBallotCount}
+          canUnconfigure={canUnconfigure}
           isTestMode={isTestMode}
           toggleLiveMode={toggleTestMode}
           unconfigure={unconfigureServer}
