@@ -1,18 +1,21 @@
 import makeDebug from 'debug';
 import * as fsExtra from 'fs-extra';
+import { basename, extname, join } from 'path';
 import { writeImageData } from './images';
 
 const debug = makeDebug('scan:importer');
+
+interface SaveImagesResult {
+  original: string;
+  normalized: string;
+}
 
 export async function saveImages(
   imagePath: string,
   originalImagePath: string,
   normalizedImagePath: string,
   normalizedImage?: ImageData
-): Promise<{
-  original: string;
-  normalized: string;
-}> {
+): Promise<SaveImagesResult> {
   if (imagePath !== originalImagePath) {
     debug('linking image file %s from %s', imagePath, originalImagePath);
     await fsExtra.link(imagePath, originalImagePath);
@@ -26,4 +29,36 @@ export async function saveImages(
   }
 
   return { original: originalImagePath, normalized: originalImagePath };
+}
+
+/**
+ * Stores the images for a ballot in the ballot images directory.
+ *
+ * @param sheetId the database id of the sheet
+ * @param ballotImagesPath the location where the ballot images are stored
+ * @param ballotImagePath the location of the original scanned ballot image
+ * @param normalizedImage the normalized ballot image, if any
+ * @returns the locations of the original and normalized ballot images
+ */
+export async function saveSheetImages(
+  sheetId: string,
+  ballotImagesPath: string,
+  ballotImagePath: string,
+  normalizedImage?: ImageData
+): Promise<SaveImagesResult> {
+  const ext = extname(ballotImagePath);
+  const originalImagePath = join(
+    ballotImagesPath,
+    `${basename(ballotImagePath, ext)}-${sheetId}-original${ext}`
+  );
+  const normalizedImagePath = join(
+    ballotImagesPath,
+    `${basename(ballotImagePath, ext)}-${sheetId}-normalized${ext}`
+  );
+  return await saveImages(
+    ballotImagePath,
+    originalImagePath,
+    normalizedImagePath,
+    normalizedImage
+  );
 }
