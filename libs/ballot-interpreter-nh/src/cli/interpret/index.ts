@@ -199,7 +199,7 @@ export async function main(
     return 1;
   }
 
-  const [frontPageInterpretationWithFiles, backPageInterpretationWithFiles] =
+  const [frontPageInterpretationResult, backPageInterpretationResult] =
     interpretResult.ok();
 
   const thresholds =
@@ -211,8 +211,8 @@ export async function main(
     io.stdout.write(
       JSON.stringify(
         {
-          front: frontPageInterpretationWithFiles.interpretation,
-          back: backPageInterpretationWithFiles.interpretation,
+          front: frontPageInterpretationResult.interpretation,
+          back: backPageInterpretationResult.interpretation,
         },
         undefined,
         2
@@ -221,22 +221,18 @@ export async function main(
     return 0;
   }
 
-  for (const pageInterpretation of [
-    frontPageInterpretationWithFiles,
-    backPageInterpretationWithFiles,
-  ]) {
-    io.stdout.write(
-      chalk.bold.underline(`${pageInterpretation.originalFilename}:\n`)
-    );
-    if (pageInterpretation.interpretation.type !== 'InterpretedHmpbPage') {
-      io.stdout.write(
-        `  ${chalk.red(pageInterpretation.interpretation.type)}\n`
-      );
+  for (const [ballotPath, pageInterpretation] of [
+    [frontBallotPath, frontPageInterpretationResult.interpretation],
+    [backBallotPath, backPageInterpretationResult.interpretation],
+  ] as const) {
+    io.stdout.write(chalk.bold.underline(`${ballotPath}:\n`));
+    if (pageInterpretation.type !== 'InterpretedHmpbPage') {
+      io.stdout.write(`  ${chalk.red(pageInterpretation.type)}\n`);
       continue;
     }
 
     const marksByContest = groupBy(
-      pageInterpretation.interpretation.markInfo.marks,
+      pageInterpretation.markInfo.marks,
       (m) => m.contestId
     );
 

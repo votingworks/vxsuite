@@ -10,7 +10,7 @@ import {
   InterpretedHmpbPage,
   MarkThresholds,
   ok,
-  PageInterpretationWithFiles,
+  PageInterpretation,
   Result,
 } from '@votingworks/types';
 import { getScannedBallotCardGeometry } from '../accuvote';
@@ -33,6 +33,15 @@ export const DefaultMarkThresholds: MarkThresholds = {
 };
 
 /**
+ * Result of interpretation of a ballot image, optionally with a normalized
+ * image.
+ */
+export interface InterpretFileResult {
+  interpretation: PageInterpretation;
+  normalizedImage?: ImageData;
+}
+
+/**
  * Interpret a ballot scan sheet.
  */
 export async function interpret(
@@ -46,9 +55,7 @@ export async function interpret(
     markThresholds?: MarkThresholds;
     adjudicationReasons?: readonly AdjudicationReason[];
   } = {}
-): Promise<
-  Result<[PageInterpretationWithFiles, PageInterpretationWithFiles], Error>
-> {
+): Promise<Result<[InterpretFileResult, InterpretFileResult], Error>> {
   const paperSize = electionDefinition.election.ballotLayout?.paperSize;
 
   if (!paperSize) {
@@ -243,19 +250,14 @@ export async function interpret(
     layout: backConvertedLayout.ok(),
   };
 
-  const frontPageInterpretationWithFiles: PageInterpretationWithFiles = {
-    originalFilename: frontPage,
-    normalizedFilename: frontPage,
+  const frontPageInterpretationResult: InterpretFileResult = {
     interpretation: frontInterpretation,
+    normalizedImage: frontLayout.imageData,
   };
-  const backPageInterpretationWithFiles: PageInterpretationWithFiles = {
-    originalFilename: backPage,
-    normalizedFilename: backPage,
+  const backPageInterpretationResult: InterpretFileResult = {
     interpretation: backInterpretation,
+    normalizedImage: backLayout.imageData,
   };
 
-  return ok([
-    frontPageInterpretationWithFiles,
-    backPageInterpretationWithFiles,
-  ]);
+  return ok([frontPageInterpretationResult, backPageInterpretationResult]);
 }
