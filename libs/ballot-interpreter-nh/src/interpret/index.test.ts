@@ -1397,41 +1397,41 @@ test('interpret marked', async () => {
             Object {
               "bounds": Object {
                 "height": 25,
-                "maxX": 995,
-                "maxY": 1808,
-                "minX": 958,
-                "minY": 1784,
+                "maxX": 994,
+                "maxY": 1807,
+                "minX": 957,
+                "minY": 1783,
                 "width": 38,
-                "x": 958,
-                "y": 1784,
+                "x": 957,
+                "y": 1783,
               },
               "contestId": "State-Representatives-7d3a8821",
               "optionId": "Steven-Katsos-077584b8",
-              "score": 0.6074534161490683,
+              "score": 0.5801242236024844,
               "scoredOffset": Object {
-                "x": -1,
+                "x": -2,
                 "y": -3,
               },
               "target": Object {
                 "bounds": Object {
                   "height": 25,
-                  "maxX": 995,
-                  "maxY": 1808,
-                  "minX": 958,
-                  "minY": 1784,
+                  "maxX": 994,
+                  "maxY": 1807,
+                  "minX": 957,
+                  "minY": 1783,
                   "width": 38,
-                  "x": 958,
-                  "y": 1784,
+                  "x": 957,
+                  "y": 1783,
                 },
                 "inner": Object {
                   "height": 25,
-                  "maxX": 995,
-                  "maxY": 1808,
-                  "minX": 958,
-                  "minY": 1784,
+                  "maxX": 994,
+                  "maxY": 1807,
+                  "minX": 957,
+                  "minY": 1783,
                   "width": 38,
-                  "x": 958,
-                  "y": 1784,
+                  "x": 957,
+                  "y": 1783,
                 },
               },
               "type": "candidate",
@@ -2292,7 +2292,7 @@ test('interpret marked', async () => {
               "score": 0.24844720496894412,
               "scoredOffset": Object {
                 "x": 1,
-                "y": 1,
+                "y": 2,
               },
               "target": Object {
                 "bounds": Object {
@@ -5018,7 +5018,7 @@ test('interpret unmarked', async () => {
               "score": 0.012422360248447228,
               "scoredOffset": Object {
                 "x": 1,
-                "y": 3,
+                "y": 2,
               },
               "target": Object {
                 "bounds": Object {
@@ -5522,7 +5522,7 @@ test('interpret unmarked', async () => {
               "score": 0.008695652173912993,
               "scoredOffset": Object {
                 "x": 0,
-                "y": 3,
+                "y": 2,
               },
               "target": Object {
                 "bounds": Object {
@@ -5899,8 +5899,8 @@ test('interpret unmarked', async () => {
               "optionId": "write-in-0",
               "score": 0.022360248447204967,
               "scoredOffset": Object {
-                "x": 1,
-                "y": 2,
+                "x": 2,
+                "y": 1,
               },
               "target": Object {
                 "bounds": Object {
@@ -6404,7 +6404,7 @@ test('interpret unmarked', async () => {
               "score": 0.016149068322981353,
               "scoredOffset": Object {
                 "x": -1,
-                "y": 2,
+                "y": 1,
               },
               "target": Object {
                 "bounds": Object {
@@ -7066,7 +7066,7 @@ test('interpret unmarked', async () => {
               "optionId": "Richard-Manzo-c5fcc876",
               "score": 0.008695652173912993,
               "scoredOffset": Object {
-                "x": -2,
+                "x": -1,
                 "y": 1,
               },
               "target": Object {
