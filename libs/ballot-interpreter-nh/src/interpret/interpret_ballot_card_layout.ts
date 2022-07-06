@@ -52,7 +52,7 @@ const MAX_ROTATION = degreesToRadians(5);
  * ballot card vs the angle of the top and bottom of the card. We expect them
  * to be 90 degrees apart, but allow up to this value for error.
  */
-const MAX_ROTATION_ERROR = degreesToRadians(2);
+const MAX_ROTATION_ERROR = degreesToRadians(3);
 
 /**
  * Convenience value for the angle between orthogonal lines.
@@ -70,11 +70,13 @@ function verticalTimingMarkGapScan(
   {
     threshold,
     geometry,
+    maxAllowedAdjacentGapDiffY = Math.ceil(geometry.timingMarkSize.height / 3),
     rect,
     debug = noDebug(),
   }: {
     threshold: number;
     geometry: BallotCardGeometry;
+    maxAllowedAdjacentGapDiffY?: number;
     rect: Rect;
     debug?: Debugger;
   }
@@ -168,10 +170,10 @@ function verticalTimingMarkGapScan(
         assert(lastRange);
         const [lastRangeMin, lastRangeMax] = lastRange;
         if (
-          lastRangeMin >= yMin - 1 &&
-          lastRangeMin <= yMin + 1 &&
-          lastRangeMax <= yMax + 1 &&
-          lastRangeMax >= yMax - 1
+          lastRangeMin >= yMin - maxAllowedAdjacentGapDiffY &&
+          lastRangeMin <= yMin + maxAllowedAdjacentGapDiffY &&
+          lastRangeMax <= yMax + maxAllowedAdjacentGapDiffY &&
+          lastRangeMax >= yMax - maxAllowedAdjacentGapDiffY
         ) {
           ranges.push([yMin, yMax]);
           foundGroup = true;
@@ -225,11 +227,13 @@ function horizontalTimingMarkGapScan(
   {
     threshold,
     geometry,
+    maxAllowedAdjacentGapDiffX = Math.ceil(geometry.timingMarkSize.width / 3),
     rect,
     debug = noDebug(),
   }: {
     threshold: number;
     geometry: BallotCardGeometry;
+    maxAllowedAdjacentGapDiffX?: number;
     rect: Rect;
     debug?: Debugger;
   }
@@ -323,10 +327,10 @@ function horizontalTimingMarkGapScan(
         assert(lastRange);
         const [lastRangeMin, lastRangeMax] = lastRange;
         if (
-          lastRangeMin >= xMin - 1 &&
-          lastRangeMin <= xMin + 1 &&
-          lastRangeMax <= xMax + 1 &&
-          lastRangeMax >= xMax - 1
+          lastRangeMin >= xMin - maxAllowedAdjacentGapDiffX &&
+          lastRangeMin <= xMin + maxAllowedAdjacentGapDiffX &&
+          lastRangeMax <= xMax + maxAllowedAdjacentGapDiffX &&
+          lastRangeMax >= xMax - maxAllowedAdjacentGapDiffX
         ) {
           ranges.push([xMin, xMax]);
           foundGroup = true;
@@ -726,6 +730,7 @@ export function interpretBallotCardLayout(
         maxX: width - 1,
         maxY: height - 1,
       }),
+      debug,
     })
   );
   let bottomSideBestFitLine = findBestFitLineSegmentThrough({
@@ -1003,6 +1008,7 @@ export function interpretBallotCardLayout(
   });
 
   const completeTimingMarks = interpolateMissingTimingMarks(
+    imageData,
     partialTimingMarks,
     { debug }
   );

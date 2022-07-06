@@ -1876,7 +1876,7 @@ test('interpret marked', async () => {
               "score": 0.315527950310559,
               "scoredOffset": Object {
                 "x": 3,
-                "y": 2,
+                "y": 1,
               },
               "target": Object {
                 "bounds": Object {
@@ -8515,7 +8515,7 @@ test('interpret unmarked', async () => {
               "score": 0.012422360248447228,
               "scoredOffset": Object {
                 "x": 1,
-                "y": 3,
+                "y": 2,
               },
               "target": Object {
                 "bounds": Object {
@@ -9019,7 +9019,7 @@ test('interpret unmarked', async () => {
               "score": 0.008695652173912993,
               "scoredOffset": Object {
                 "x": 0,
-                "y": 3,
+                "y": 2,
               },
               "target": Object {
                 "bounds": Object {
@@ -9396,8 +9396,8 @@ test('interpret unmarked', async () => {
               "optionId": "write-in-0",
               "score": 0.022360248447204967,
               "scoredOffset": Object {
-                "x": 1,
-                "y": 2,
+                "x": 2,
+                "y": 1,
               },
               "target": Object {
                 "bounds": Object {
@@ -9901,7 +9901,7 @@ test('interpret unmarked', async () => {
               "score": 0.016149068322981353,
               "scoredOffset": Object {
                 "x": -1,
-                "y": 2,
+                "y": 1,
               },
               "target": Object {
                 "bounds": Object {
@@ -11196,7 +11196,7 @@ test('interpret unmarked', async () => {
               "optionId": "Richard-Manzo-c5fcc876",
               "score": 0.008695652173912993,
               "scoredOffset": Object {
-                "x": -2,
+                "x": -1,
                 "y": 1,
               },
               "target": Object {
