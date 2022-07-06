@@ -187,13 +187,8 @@ async function authenticateWithAdminCard(card: MemoryCard) {
 
 // TODO: Update this function to check super admin PIN entry once super admin PINs have been
 // implemented
-async function authenticateWithSuperAdminCard(
-  card: MemoryCard,
-  expectLockScreenToStart = true
-) {
-  if (expectLockScreenToStart) {
-    await screen.findByText('VxAdmin is Locked');
-  }
+async function authenticateWithSuperAdminCard(card: MemoryCard) {
+  await screen.findByText('VxAdmin is Locked');
   card.insertCard({
     t: 'superadmin',
     h: eitherNeitherElectionDefinition.electionHash,
@@ -1204,8 +1199,9 @@ test('super admin UI has expected nav when no election and VVSG2 auth flows are 
 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
-  render(<App card={card} hardware={hardware} />);
-  await authenticateWithSuperAdminCard(card, false);
+  const storage = new MemoryStorage();
+  render(<App card={card} hardware={hardware} storage={storage} />);
+  await authenticateWithSuperAdminCard(card);
 
   userEvent.click(screen.getByText('Definition'));
   await screen.findByRole('heading', { name: 'Configure VxAdmin' });
@@ -1215,6 +1211,32 @@ test('super admin UI has expected nav when no election and VVSG2 auth flows are 
   await screen.findByRole('heading', { name: 'Logs' });
   screen.getByRole('button', { name: 'Lock Machine' });
 
+  expect(screen.queryByText('Draft Ballots')).not.toBeInTheDocument();
+  expect(screen.queryByText('Smartcards')).not.toBeInTheDocument();
+
+  // Create an election definition and verify that previously hidden tabs appear
+  userEvent.click(screen.getByText('Definition'));
+  await screen.findByRole('heading', { name: 'Configure VxAdmin' });
+  userEvent.click(
+    screen.getByRole('button', { name: 'Create New Election Definition' })
+  );
+  await waitFor(() =>
+    expect(
+      screen.queryByRole('heading', { name: 'Configure VxAdmin' })
+    ).not.toBeInTheDocument()
+  );
+  screen.getByText('Draft Ballots');
+  screen.getByText('Smartcards');
+
+  // Remove the election definition and verify that those same tabs disappear
+  userEvent.click(screen.getByText('Remove Election'));
+  const modal = await screen.findByRole('alertdialog');
+  userEvent.click(
+    within(modal).getByRole('button', { name: 'Remove Election Definition' })
+  );
+  await waitFor(() =>
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  );
   expect(screen.queryByText('Draft Ballots')).not.toBeInTheDocument();
   expect(screen.queryByText('Smartcards')).not.toBeInTheDocument();
 });
@@ -1229,7 +1251,7 @@ test('super admin Smartcards screen navigation', async () => {
     electionDefinition: eitherNeitherElectionDefinition,
   });
   render(<App card={card} hardware={hardware} storage={storage} />);
-  await authenticateWithSuperAdminCard(card, false);
+  await authenticateWithSuperAdminCard(card);
 
   userEvent.click(screen.getByText('Smartcards'));
   screen.getByRole('heading', { name: 'Smartcards' });

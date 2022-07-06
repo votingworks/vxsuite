@@ -20,7 +20,6 @@ import {
   ExternalTallySourceType,
   Provider,
 } from '@votingworks/types';
-
 import {
   assert,
   Storage,
@@ -41,12 +40,10 @@ import {
 } from './lib/votecounting';
 
 import { AppContext } from './contexts/app_context';
-
 import {
   CastVoteRecordFiles,
   SaveCastVoteRecordFiles,
 } from './utils/cast_vote_record_files';
-
 import { ElectionManager } from './components/election_manager';
 import {
   SaveElection,
@@ -63,6 +60,7 @@ import {
   convertExternalTalliesToStorageString,
   convertStorageStringToExternalTallies,
 } from './utils/external_tallies';
+import { areVvsg2AuthFlowsEnabled } from './config/features';
 
 export interface AppStorage {
   electionDefinition?: ElectionDefinition;
@@ -459,7 +457,7 @@ export function AppRoot({
     async (electionJson) => {
       const previousElection = electionDefinition;
       if (previousElection) {
-        void logger.log(LogEventId.ElectionUnconfigured, 'admin', {
+        void logger.log(LogEventId.ElectionUnconfigured, currentUserRole, {
           disposition: LogDispositionStandardTypes.Success,
           previousElectionHash: previousElection.electionHash,
         });
@@ -490,9 +488,8 @@ export function AppRoot({
         const electionData = electionJson;
         const electionHash = sha256(electionData);
         const election = safeParseElection(electionData).unsafeUnwrap();
-        // Temporarily bootstrap an authenticated user session. This will be removed
-        // once we have a full story for how to bootstrap the auth process.
-        if (auth.status === 'logged_out') {
+
+        if (!areVvsg2AuthFlowsEnabled() && auth.status === 'logged_out') {
           auth.bootstrapAuthenticatedAdminSession(electionHash);
         }
 
@@ -532,7 +529,6 @@ export function AppRoot({
       setIsOfficialResults,
       setCastVoteRecordFiles,
       setPrintedBallots,
-      setElectionDefinition,
       setElectionDefinition,
       setConfiguredAt,
     ]
