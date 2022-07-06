@@ -4,6 +4,7 @@ import {
   ElectionDefinition,
   err,
   getBallotStyle,
+  getContests,
   getContestsFromIds,
   HmpbBallotPageMetadata,
   InterpretedHmpbPage,
@@ -16,6 +17,7 @@ import { getScannedBallotCardGeometry } from '../accuvote';
 import * as templates from '../data/templates';
 import { imageDebugger } from '../debug';
 import * as images from '../images';
+import { convertInterpretedLayoutToBallotLayout } from './convert_interpreted_layout_to_ballot_layout';
 import { convertMarksToAdjudicationInfo } from './convert_marks_to_adjudication_info';
 import { convertMarksToMarkInfo } from './convert_marks_to_mark_info';
 import { convertMarksToVotes } from './convert_marks_to_votes';
@@ -64,13 +66,13 @@ export async function interpret(
     maxHeight: geometry.canvasSize.height,
   });
 
-  let frontLayout = imageDebugger(frontPage, frontImageData).capture(
-    'front',
-    (debug) => interpretBallotCardLayout(frontImageData, { geometry, debug })
+  const frontDebug = imageDebugger(frontPage, frontImageData);
+  const backDebug = imageDebugger(backPage, backImageData);
+  let frontLayout = frontDebug.capture('front-interpret', (debug) =>
+    interpretBallotCardLayout(frontImageData, { geometry, debug })
   );
-  let backLayout = imageDebugger(backPage, backImageData).capture(
-    'back',
-    (debug) => interpretBallotCardLayout(backImageData, { geometry, debug })
+  let backLayout = backDebug.capture('back-interpret', (debug) =>
+    interpretBallotCardLayout(backImageData, { geometry, debug })
   );
 
   if (!frontLayout) {
@@ -117,6 +119,10 @@ export async function interpret(
     return err(new Error(`no ballot style found for ${ballotStyleId}`));
   }
 
+  const contests = getContests({
+    election: electionDefinition.election,
+    ballotStyle,
+  });
   const precinctId = ballotStyle.precincts[0];
 
   if (!precinctId) {
@@ -165,6 +171,33 @@ export async function interpret(
     ...frontMetadata,
     pageNumber: frontMetadata.pageNumber + 1,
   };
+  const frontConvertedLayout = frontDebug.capture('front-layout', () =>
+    convertInterpretedLayoutToBallotLayout({
+      gridLayout,
+      contests,
+      metadata: frontMetadata,
+      interpretedLayout: frontLayout,
+      debug: frontDebug,
+    })
+  );
+  const backConvertedLayout = backDebug.capture('back-layout', () =>
+    convertInterpretedLayoutToBallotLayout({
+      gridLayout,
+      contests,
+      metadata: backMetadata,
+      interpretedLayout: backLayout,
+      debug: backDebug,
+    })
+  );
+
+  if (frontConvertedLayout.isErr()) {
+    return frontConvertedLayout;
+  }
+
+  if (backConvertedLayout.isErr()) {
+    return backConvertedLayout;
+  }
+
   const frontInterpretation: InterpretedHmpbPage = {
     type: 'InterpretedHmpbPage',
     adjudicationInfo: convertMarksToAdjudicationInfo({
@@ -185,6 +218,7 @@ export async function interpret(
       markThresholds,
       frontMarks
     ),
+    layout: frontConvertedLayout.ok(),
   };
   const backInterpretation: InterpretedHmpbPage = {
     type: 'InterpretedHmpbPage',
@@ -206,6 +240,7 @@ export async function interpret(
       markThresholds,
       backMarks
     ),
+    layout: backConvertedLayout.ok(),
   };
 
   const frontPageInterpretationWithFiles: PageInterpretationWithFiles = {

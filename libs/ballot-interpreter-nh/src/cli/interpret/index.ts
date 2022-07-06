@@ -21,6 +21,7 @@ interface InterpretOptions {
   readonly frontBallotPath: string;
   readonly backBallotPath: string;
   readonly markThresholds?: MarkThresholds;
+  readonly json?: boolean;
   readonly debug: boolean;
 }
 
@@ -37,6 +38,7 @@ function parseOptions(args: readonly string[]): Result<Options, Error> {
   let marginalMarkThreshold: number | undefined;
   let definiteMarkThreshold: number | undefined;
   let debug = false;
+  let json = false;
 
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i];
@@ -45,6 +47,12 @@ function parseOptions(args: readonly string[]): Result<Options, Error> {
       case '-h':
       case '--help':
         return ok({ type: 'help' });
+
+      case '-J':
+      case '--json': {
+        json = true;
+        break;
+      }
 
       case '-t':
       case '--mark-thresholds': {
@@ -131,13 +139,14 @@ function parseOptions(args: readonly string[]): Result<Options, Error> {
             marginal: marginalMarkThreshold ?? definiteMarkThreshold,
           }
         : undefined,
+    json,
     debug,
   });
 }
 
 function usage(out: NodeJS.WritableStream): void {
   out.write(
-    `usage: interpret [-t [MARGINAL,]DEFINITE] <election.json> <front-ballot.jpg> <back-ballot.jpg> [--debug]\n`
+    `usage: interpret [-t [MARGINAL,]DEFINITE] <election.json> <front-ballot.jpg> <back-ballot.jpg> [--debug] [--json]\n`
   );
 }
 
@@ -197,6 +206,20 @@ export async function main(
     options.markThresholds ??
     electionDefinition.election.markThresholds ??
     DefaultMarkThresholds;
+
+  if (options.json) {
+    io.stdout.write(
+      JSON.stringify(
+        {
+          front: frontPageInterpretationWithFiles.interpretation,
+          back: backPageInterpretationWithFiles.interpretation,
+        },
+        undefined,
+        2
+      )
+    );
+    return 0;
+  }
 
   for (const pageInterpretation of [
     frontPageInterpretationWithFiles,

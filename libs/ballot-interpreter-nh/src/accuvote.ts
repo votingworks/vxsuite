@@ -328,6 +328,56 @@ export function findTemplateOvals(
 }
 
 /**
+ * Bit offset for `mod4CheckSum`.
+ */
+export const FrontMarksMod4CheckSumStart = 0;
+
+/**
+ * Exclusive end offset for `mod4CheckSum`.
+ */
+export const FrontMarksMod4CheckSumEnd = 2;
+
+/**
+ * Bit offset for `batchOrPrecinctNumber`.
+ */
+export const FrontMarksBatchOrPrecinctNumberStart = 2;
+
+/**
+ * Exclusive end offset for `batchOrPrecinctNumber`.
+ */
+export const FrontMarksBatchOrPrecinctNumberEnd = 15;
+
+/**
+ * Bit offset for `cardNumber`.
+ */
+export const FrontMarksCardNumberStart = 15;
+
+/**
+ * Exclusive end offset for `cardNumber`.
+ */
+export const FrontMarksCardNumberEnd = 28;
+
+/**
+ * Bit offset for `sequenceNumber`.
+ */
+export const FrontMarksSequenceNumberStart = 28;
+
+/**
+ * Exclusive end offset for `sequenceNumber`.
+ */
+export const FrontMarksSequenceNumberEnd = 31;
+
+/**
+ * Bit offset for `startBit`.
+ */
+export const FrontMarksStartBitStart = 31;
+
+/**
+ * Exclusive end offset for `startBit`.
+ */
+export const FrontMarksStartBitEnd = 32;
+
+/**
  * Decodes the front page metadata from a border pattern.
  *
  * @param bits The bits from the timing marks on the front page in LSB to MSB
@@ -343,15 +393,36 @@ export function decodeFrontTimingMarkBits(
   const bitsRightToLeft = bits as unknown as ThirtyTwoBits;
   const computedMod4CheckSum =
     bitsRightToLeft.reduce<number>(
-      (sum, bit, index) => (index >= 2 ? sum + bit : sum),
+      (sum, bit, index) =>
+        index >= FrontMarksMod4CheckSumEnd ? sum + bit : sum,
       0
     ) % 4;
 
-  const mod4CheckSum = bitsToNumber(bitsRightToLeft, 0, 2);
-  const batchOrPrecinctNumber = bitsToNumber(bitsRightToLeft, 2, 15);
-  const cardNumber = bitsToNumber(bitsRightToLeft, 15, 28);
-  const sequenceNumber = bitsToNumber(bitsRightToLeft, 28, 31);
-  const startBit = bitsRightToLeft[31];
+  const mod4CheckSum = bitsToNumber(
+    bitsRightToLeft,
+    FrontMarksMod4CheckSumStart,
+    FrontMarksMod4CheckSumEnd
+  );
+  const batchOrPrecinctNumber = bitsToNumber(
+    bitsRightToLeft,
+    FrontMarksBatchOrPrecinctNumberStart,
+    FrontMarksBatchOrPrecinctNumberEnd
+  );
+  const cardNumber = bitsToNumber(
+    bitsRightToLeft,
+    FrontMarksCardNumberStart,
+    FrontMarksCardNumberEnd
+  );
+  const sequenceNumber = bitsToNumber(
+    bitsRightToLeft,
+    FrontMarksSequenceNumberStart,
+    FrontMarksSequenceNumberEnd
+  );
+  const startBit = bitsToNumber(
+    bitsRightToLeft,
+    FrontMarksStartBitStart,
+    FrontMarksStartBitEnd
+  ) as Bit;
 
   return {
     side: 'front',
@@ -364,6 +435,63 @@ export function decodeFrontTimingMarkBits(
     startBit,
   };
 }
+
+/**
+ * Bit offset for `electionDay`.
+ */
+export const BackMarksElectionDayStart = 0;
+
+/**
+ * Exclusive end offset for `electionDay`.
+ */
+export const BackMarksElectionDayEnd = 5;
+
+/**
+ * Bit offset for `electionMonth`.
+ */
+export const BackMarksElectionMonthStart = 5;
+
+/**
+ * Exclusive end offset for `electionMonth`.
+ */
+export const BackMarksElectionMonthEnd = 9;
+
+/**
+ * Bit offset for `electionYear`.
+ */
+export const BackMarksElectionYearStart = 9;
+
+/**
+ * Exclusive end offset for `electionYear`.
+ */
+export const BackMarksElectionYearEnd = 16;
+
+/**
+ * Bit offset for `electionType`.
+ */
+export const BackMarksElectionTypeStart = 16;
+
+/**
+ * Exclusive end offset for `electionType`.
+ */
+export const BackMarksElectionTypeEnd = 21;
+
+/**
+ * Bit offset for `enderCode`.
+ */
+export const BackMarksEnderCodeStart = 21;
+
+/**
+ * Exclusive end offset for `enderCode`.
+ */
+export const BackMarksEnderCodeEnd = 32;
+
+/**
+ * Expected ender code for the back page.
+ */
+export const BackExpectedEnderCode: BackMarksMetadata['enderCode'] = [
+  0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0,
+];
 
 /**
  * Decodes the back page metadata from a border pattern.
@@ -380,48 +508,34 @@ export function decodeBackTimingMarkBits(
 
   const bitsRightToLeft = bits as unknown as ThirtyTwoBits;
 
-  const electionDay =
-    bitsRightToLeft[0] * (1 << 0) +
-    bitsRightToLeft[1] * (1 << 1) +
-    bitsRightToLeft[2] * (1 << 2) +
-    bitsRightToLeft[3] * (1 << 3) +
-    bitsRightToLeft[4] * (1 << 4);
+  const electionDay = bitsToNumber(
+    bitsRightToLeft,
+    BackMarksElectionDayStart,
+    BackMarksElectionDayEnd
+  );
 
-  const electionMonth =
-    bitsRightToLeft[5] * (1 << 0) +
-    bitsRightToLeft[6] * (1 << 1) +
-    bitsRightToLeft[7] * (1 << 2) +
-    bitsRightToLeft[8] * (1 << 3);
+  const electionMonth = bitsToNumber(
+    bitsRightToLeft,
+    BackMarksElectionMonthStart,
+    BackMarksElectionMonthEnd
+  );
 
-  const electionYear =
-    bitsRightToLeft[9] * (1 << 0) +
-    bitsRightToLeft[10] * (1 << 1) +
-    bitsRightToLeft[11] * (1 << 2) +
-    bitsRightToLeft[12] * (1 << 3) +
-    bitsRightToLeft[13] * (1 << 4) +
-    bitsRightToLeft[14] * (1 << 5) +
-    bitsRightToLeft[15] * (1 << 6);
+  const electionYear = bitsToNumber(
+    bitsRightToLeft,
+    BackMarksElectionYearStart,
+    BackMarksElectionYearEnd
+  );
 
-  const electionTypeOffset =
-    bitsRightToLeft[16] * (1 << 0) +
-    bitsRightToLeft[17] * (1 << 1) +
-    bitsRightToLeft[18] * (1 << 2) +
-    bitsRightToLeft[19] * (1 << 3) +
-    bitsRightToLeft[20] * (1 << 4);
+  const electionTypeOffset = bitsToNumber(
+    bitsRightToLeft,
+    BackMarksElectionTypeStart,
+    BackMarksElectionTypeEnd
+  );
 
-  const enderCode: BackMarksMetadata['enderCode'] = [
-    bitsRightToLeft[21],
-    bitsRightToLeft[22],
-    bitsRightToLeft[23],
-    bitsRightToLeft[24],
-    bitsRightToLeft[25],
-    bitsRightToLeft[26],
-    bitsRightToLeft[27],
-    bitsRightToLeft[28],
-    bitsRightToLeft[29],
-    bitsRightToLeft[30],
-    bitsRightToLeft[31],
-  ];
+  const enderCode = bitsRightToLeft.slice(
+    BackMarksEnderCodeStart,
+    BackMarksEnderCodeEnd
+  ) as BackMarksMetadata['enderCode'];
 
   return {
     side: 'back',
@@ -433,7 +547,7 @@ export function decodeBackTimingMarkBits(
       'A'.charCodeAt(0) + electionTypeOffset
     ) as BackMarksMetadata['electionType'],
     enderCode,
-    expectedEnderCode: [0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0],
+    expectedEnderCode: BackExpectedEnderCode,
   };
 }
 

@@ -7,6 +7,7 @@ export * from './election';
 export * from './generic';
 export * from './geometry';
 export * from './image';
+export * from './interpretation';
 export * from './numeric';
 export * from './precinct_selection';
 export * from './result';

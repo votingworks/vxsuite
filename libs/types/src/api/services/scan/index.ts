@@ -14,8 +14,6 @@ import {
   BallotPageLayoutSchema,
 } from '../../../hmpb';
 import {
-  BallotSheetInfo,
-  BallotSheetInfoSchema,
   Contest,
   ElectionDefinition,
   ElectionDefinitionSchema,
@@ -25,6 +23,10 @@ import {
   PrecinctIdSchema,
 } from '../../../election';
 import { ElectionHash, IdSchema } from '../../../generic';
+import {
+  BallotSheetInfo,
+  BallotSheetInfoSchema,
+} from '../../../interpretation';
 
 export type Side = 'front' | 'back';
 export const SideSchema = z.union([z.literal('front'), z.literal('back')]);
