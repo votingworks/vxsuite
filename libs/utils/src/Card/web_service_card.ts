@@ -8,7 +8,7 @@ import {
 import { fromByteArray, toByteArray } from 'base64-js';
 import { z } from 'zod';
 import { fetchJson } from '../fetch_json';
-import { Card, CardApi, CardApiSchema } from '../types';
+import { Card, CardSummary, CardSummarySchema } from '../types';
 
 /**
  * Implements the `Card` API by accessing it through a web service.
@@ -18,8 +18,8 @@ export class WebServiceCard implements Card {
    * Reads basic information about the card, including whether one is present,
    * what its short value is and whether it has a long value.
    */
-  async readStatus(): Promise<CardApi> {
-    return unsafeParse(CardApiSchema, await fetchJson('/card/read'));
+  async readSummary(): Promise<CardSummary> {
+    return unsafeParse(CardSummarySchema, await fetchJson('/card/read'));
   }
 
   /**
