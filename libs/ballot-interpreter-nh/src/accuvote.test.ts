@@ -74,10 +74,14 @@ test('hudson template', async () => {
   expect(backTimingMarks.top).toHaveLength(gridSize.width);
   expect(backTimingMarks.bottom).toHaveLength(19);
 
-  const frontCompleteTimingMarks =
-    interpolateMissingTimingMarks(frontTimingMarks);
-  const backCompleteTimingMarks =
-    interpolateMissingTimingMarks(backTimingMarks);
+  const frontCompleteTimingMarks = interpolateMissingTimingMarks(
+    hudson.front,
+    frontTimingMarks
+  );
+  const backCompleteTimingMarks = interpolateMissingTimingMarks(
+    hudson.back,
+    backTimingMarks
+  );
   const frontTemplateOvals = findTemplateOvals(
     hudson.front,
     await templates.getOvalTemplate(),

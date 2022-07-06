@@ -1,5 +1,7 @@
 import { assert, integers, map, zip, zipMin } from '@votingworks/utils';
 import { Debugger, noDebug } from './debug';
+import { getChannels } from './images';
+import { otsu } from './otsu';
 import {
   Bit,
   CompleteTimingMarks,
@@ -142,6 +144,8 @@ export function findBestFitLineSegmentThrough({
   let bestFitRectsInSegment: Rect[] = [];
   let bestFitSegment: Segment | undefined;
   let bestFitScore = 0;
+  let bestFitAnchorFrom: Rect | undefined;
+  let bestFitAnchorTo: Rect | undefined;
 
   /* istanbul ignore next */
   if (debug) {
@@ -152,10 +156,10 @@ export function findBestFitLineSegmentThrough({
 
   for (let i = 0; i < rects.length; i += 1) {
     const rectFrom = rects[i] as Rect;
+    const rectFromCenter = centerOfRect(rectFrom);
 
     for (let j = i + 1; j < rects.length; j += 1) {
       const rectTo = rects[j] as Rect;
-      const rectFromCenter = centerOfRect(rectFrom);
       const rectToCenter = centerOfRect(rectTo);
 
       if (typeof expectedAngle === 'number') {
@@ -206,19 +210,48 @@ export function findBestFitLineSegmentThrough({
         const yError = Math.abs(vectorFromCenterToSegment.y);
         const xScore = Math.max(1 - xError / rect.width, 0);
         const yScore = Math.max(1 - yError / rect.height, 0);
-        return acc + xScore + yScore;
+        return acc + xScore * rect.width + yScore * rect.height;
       }, 0);
 
       if (score > bestFitScore) {
         bestFitRectsInSegment = rectsInSegment;
         bestFitSegment = segment;
         bestFitScore = score;
+        bestFitAnchorFrom = rectFrom;
+        bestFitAnchorTo = rectTo;
       }
     }
   }
 
   /* istanbul ignore next */
   if (debug.isEnabled() && bestFitSegment) {
+    const segment = bestFitSegment;
+    const anchorFrom = bestFitAnchorFrom;
+    const anchorTo = bestFitAnchorTo;
+
+    for (const rect of bestFitRectsInSegment) {
+      debug.rect(rect.x, rect.y, rect.width, rect.height, 'yellow');
+
+      const rectCenter = centerOfRect(rect);
+      const segmentPointClosestToCenter = closestPointOnLineSegmentToPoint(
+        segment,
+        rectCenter
+      );
+      debug.line(
+        rectCenter.x,
+        rectCenter.y,
+        segmentPointClosestToCenter.x,
+        segmentPointClosestToCenter.y,
+        'cyan'
+      );
+    }
+
+    if (anchorFrom && anchorTo) {
+      for (const rect of [anchorFrom, anchorTo]) {
+        debug.rect(rect.x, rect.y, rect.width, rect.height, 'pink');
+      }
+    }
+
     debug.line(
       bestFitSegment.from.x,
       bestFitSegment.from.y,
@@ -226,14 +259,6 @@ export function findBestFitLineSegmentThrough({
       bestFitSegment.to.y,
       'green'
     );
-
-    for (const rect of bestFitRectsInSegment) {
-      debug
-        .line(rect.minX, rect.minY, rect.maxX, rect.minY, 'green')
-        .line(rect.maxX, rect.minY, rect.maxX, rect.maxY, 'green')
-        .line(rect.maxX, rect.maxY, rect.minX, rect.maxY, 'green')
-        .line(rect.minX, rect.maxY, rect.minX, rect.minY, 'green');
-    }
   }
 
   return !bestFitSegment
@@ -439,11 +464,78 @@ export function interpolateMissingRects(
 }
 
 /**
+ * Computes the fill ratio for a rectangle,
+ * i.e. count(dark pixels) / count(all pixels).
+ */
+function computeFillRatio(
+  imageData: ImageData,
+  rect: Rect,
+  { threshold }: { threshold: number }
+): number {
+  const { width } = imageData;
+  const minX = Math.round(rect.minX);
+  const minY = Math.round(rect.minY);
+  const maxX = Math.round(rect.maxX);
+  const maxY = Math.round(rect.maxY);
+  const channels = getChannels(imageData);
+  let count = 0;
+
+  for (let y = minY; y <= maxY; y += 1) {
+    for (let x = minX; x <= maxX; x += 1) {
+      const i = (y * width + x) * channels;
+      const lum = imageData.data[i] as number;
+      if (lum < threshold) {
+        count += 1;
+      }
+    }
+  }
+
+  return count / ((maxX - minX + 1) * (maxY - minY + 1));
+}
+
+/**
+ * Removes rectangles that do not appear to be timing marks based on how many
+ * dark pixels they contain as a percentage of the total area of the rectangle.
+ */
+function removeMissingRects(
+  imageData: ImageData,
+  rects: readonly Rect[],
+  {
+    minFillRatio = 0.2,
+    threshold = otsu(imageData.data, getChannels(imageData)),
+    debug = noDebug(),
+  } = {}
+): Rect[] {
+  debug.imageData(0, 0, imageData);
+  const result: Rect[] = [];
+
+  for (const rect of rects) {
+    const fillPercentage = computeFillRatio(imageData, rect, {
+      threshold,
+    });
+    const isMissing = fillPercentage < minFillRatio;
+    debug.rect(rect.x, rect.y, rect.width, rect.height, 'cyan');
+    debug.text(
+      rect.x,
+      rect.y,
+      `${Math.round(fillPercentage * 100)}%`,
+      isMissing ? 'red' : 'green'
+    );
+    if (!isMissing) {
+      result.push(rect);
+    }
+  }
+
+  return result;
+}
+
+/**
  * Infers the locations of timing marks that should be present but were not
  * found. This is primarily used to infer the timing marks for the bottom row
  * but can also be used to infer the timing marks for the other border edges.
  */
 export function interpolateMissingTimingMarks(
+  imageData: ImageData,
   timingMarks: PartialTimingMarks,
   { debug = noDebug() }: { debug?: Debugger } = {}
 ): CompleteTimingMarks {
@@ -461,6 +553,9 @@ export function interpolateMissingTimingMarks(
     topLeft && topRight && bottomLeft && bottomRight,
     'cannot infer missing timing marks without corners'
   );
+
+  const channels = getChannels(imageData);
+  const threshold = otsu(imageData.data, channels);
 
   const expectedVerticalTimingMarkSeparationDistance = median(
     left
@@ -480,10 +575,16 @@ export function interpolateMissingTimingMarks(
   /* istanbul ignore next */
   debug?.group('top');
 
-  const interpolatedTop = interpolateMissingRects(top, {
-    expectedDistance: expectedHorizontalTimingMarkSeparationDistance,
-    debug,
-  });
+  const interpolatedTop = debug.capture('remove-missing-top', () =>
+    removeMissingRects(
+      imageData,
+      interpolateMissingRects(top, {
+        expectedDistance: expectedHorizontalTimingMarkSeparationDistance,
+        debug,
+      }),
+      { threshold, debug }
+    )
+  );
 
   /* istanbul ignore next */
   debug?.groupEnd('top');
@@ -502,10 +603,16 @@ export function interpolateMissingTimingMarks(
   /* istanbul ignore next */
   debug?.group('left');
 
-  const interpolatedLeft = interpolateMissingRects(left, {
-    expectedDistance: expectedVerticalTimingMarkSeparationDistance,
-    debug,
-  });
+  const interpolatedLeft = debug.capture('remove-missing-left', () =>
+    removeMissingRects(
+      imageData,
+      interpolateMissingRects(left, {
+        expectedDistance: expectedVerticalTimingMarkSeparationDistance,
+        debug,
+      }),
+      { threshold, debug }
+    )
+  );
 
   /* istanbul ignore next */
   debug?.groupEnd('left');
@@ -513,10 +620,16 @@ export function interpolateMissingTimingMarks(
   /* istanbul ignore next */
   debug?.group('right');
 
-  const interpolatedRight = interpolateMissingRects(right, {
-    expectedDistance: expectedVerticalTimingMarkSeparationDistance,
-    debug,
-  });
+  const interpolatedRight = debug.capture('remove-missing-right', () =>
+    removeMissingRects(
+      imageData,
+      interpolateMissingRects(right, {
+        expectedDistance: expectedVerticalTimingMarkSeparationDistance,
+        debug,
+      }),
+      { threshold, debug }
+    )
+  );
 
   /* istanbul ignore next */
   debug?.groupEnd('right');

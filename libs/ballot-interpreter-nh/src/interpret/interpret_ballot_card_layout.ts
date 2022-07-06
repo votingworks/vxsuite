@@ -52,7 +52,7 @@ const MAX_ROTATION = degreesToRadians(5);
  * ballot card vs the angle of the top and bottom of the card. We expect them
  * to be 90 degrees apart, but allow up to this value for error.
  */
-const MAX_ROTATION_ERROR = degreesToRadians(2);
+const MAX_ROTATION_ERROR = degreesToRadians(3);
 
 /**
  * Convenience value for the angle between orthogonal lines.
@@ -1008,6 +1008,7 @@ export function interpretBallotCardLayout(
   });
 
   const completeTimingMarks = interpolateMissingTimingMarks(
+    imageData,
     partialTimingMarks,
     { debug }
   );
