@@ -444,10 +444,10 @@ test('interpret marked', async () => {
               "options": Array [
                 Object {
                   "bounds": Object {
-                    "height": 111,
+                    "height": 110,
                     "width": 377,
                     "x": 332,
-                    "y": 720,
+                    "y": 721,
                   },
                   "target": Object {
                     "bounds": Object {
@@ -732,13 +732,13 @@ test('interpret marked', async () => {
                       "height": 25,
                       "width": 38,
                       "x": 1300,
-                      "y": 1055,
+                      "y": 1056,
                     },
                     "inner": Object {
                       "height": 25,
                       "width": 38,
                       "x": 1300,
-                      "y": 1055,
+                      "y": 1056,
                     },
                   },
                 },
@@ -754,13 +754,13 @@ test('interpret marked', async () => {
                       "height": 25,
                       "width": 38,
                       "x": 1593,
-                      "y": 1055,
+                      "y": 1056,
                     },
                     "inner": Object {
                       "height": 25,
                       "width": 38,
                       "x": 1593,
-                      "y": 1055,
+                      "y": 1056,
                     },
                   },
                 },
@@ -1183,10 +1183,10 @@ test('interpret marked', async () => {
                 },
                 Object {
                   "bounds": Object {
-                    "height": 109,
+                    "height": 110,
                     "width": 377,
                     "x": 330,
-                    "y": 2377,
+                    "y": 2376,
                   },
                   "target": Object {
                     "bounds": Object {
@@ -1205,10 +1205,10 @@ test('interpret marked', async () => {
                 },
                 Object {
                   "bounds": Object {
-                    "height": 110,
+                    "height": 109,
                     "width": 378,
                     "x": 329,
-                    "y": 2472,
+                    "y": 2473,
                   },
                   "target": Object {
                     "bounds": Object {
@@ -1457,13 +1457,13 @@ test('interpret marked', async () => {
                       "height": 25,
                       "width": 38,
                       "x": 959,
-                      "y": 2467,
+                      "y": 2468,
                     },
                     "inner": Object {
                       "height": 25,
                       "width": 38,
                       "x": 959,
-                      "y": 2467,
+                      "y": 2468,
                     },
                   },
                 },
@@ -1557,10 +1557,10 @@ test('interpret marked', async () => {
                 },
                 Object {
                   "bounds": Object {
-                    "height": 112,
+                    "height": 111,
                     "width": 330,
                     "x": 1349,
-                    "y": 1844,
+                    "y": 1845,
                   },
                   "target": Object {
                     "bounds": Object {
@@ -1699,13 +1699,13 @@ test('interpret marked', async () => {
                       "height": 25,
                       "width": 38,
                       "x": 1592,
-                      "y": 2470,
+                      "y": 2471,
                     },
                     "inner": Object {
                       "height": 25,
                       "width": 38,
                       "x": 1592,
-                      "y": 2470,
+                      "y": 2471,
                     },
                   },
                 },
@@ -6688,57 +6688,57 @@ test('interpret unmarked', async () => {
                       "height": 25,
                       "width": 38,
                       "x": 616,
-                      "y": 1193,
+                      "y": 1194,
                     },
                     "inner": Object {
                       "height": 25,
                       "width": 38,
                       "x": 616,
-                      "y": 1193,
+                      "y": 1194,
                     },
                   },
                 },
                 Object {
                   "bounds": Object {
-                    "height": 111,
+                    "height": 112,
                     "width": 377,
                     "x": 664,
-                    "y": 1159,
+                    "y": 1158,
                   },
                   "target": Object {
                     "bounds": Object {
                       "height": 25,
                       "width": 38,
                       "x": 955,
-                      "y": 1201,
+                      "y": 1202,
                     },
                     "inner": Object {
                       "height": 25,
                       "width": 38,
                       "x": 955,
-                      "y": 1201,
+                      "y": 1202,
                     },
                   },
                 },
                 Object {
                   "bounds": Object {
-                    "height": 111,
+                    "height": 113,
                     "width": 331,
                     "x": 1343,
-                    "y": 1174,
+                    "y": 1172,
                   },
                   "target": Object {
                     "bounds": Object {
                       "height": 25,
                       "width": 38,
                       "x": 1587,
-                      "y": 1215,
+                      "y": 1217,
                     },
                     "inner": Object {
                       "height": 25,
                       "width": 38,
                       "x": 1587,
-                      "y": 1215,
+                      "y": 1217,
                     },
                   },
                 },
@@ -7088,10 +7088,10 @@ test('interpret unmarked', async () => {
                 },
                 Object {
                   "bounds": Object {
-                    "height": 111,
+                    "height": 110,
                     "width": 377,
                     "x": 295,
-                    "y": 2463,
+                    "y": 2464,
                   },
                   "target": Object {
                     "bounds": Object {
@@ -7339,14 +7339,14 @@ test('interpret unmarked', async () => {
                     "bounds": Object {
                       "height": 25,
                       "width": 38,
-                      "x": 926,
-                      "y": 2466,
+                      "x": 925,
+                      "y": 2467,
                     },
                     "inner": Object {
                       "height": 25,
                       "width": 38,
-                      "x": 926,
-                      "y": 2466,
+                      "x": 925,
+                      "y": 2467,
                     },
                   },
                 },
@@ -7582,13 +7582,13 @@ test('interpret unmarked', async () => {
                       "height": 25,
                       "width": 38,
                       "x": 1558,
-                      "y": 2482,
+                      "y": 2483,
                     },
                     "inner": Object {
                       "height": 25,
                       "width": 38,
                       "x": 1558,
-                      "y": 2482,
+                      "y": 2483,
                     },
                   },
                 },
