@@ -96,27 +96,28 @@ export interface Storage {
   clear(): Promise<void>;
 }
 
-export interface CardApiNotReady {
+export interface CardSummaryNotReady {
   status: 'no_card' | 'error';
 }
-export interface CardApiReady {
+export interface CardSummaryReady {
   status: 'ready';
   shortValue?: string;
   longValueExists?: boolean;
 }
-export type CardApi = CardApiNotReady | CardApiReady;
+export type CardSummary = CardSummaryNotReady | CardSummaryReady;
 
-export const CardApiNotReadySchema: z.ZodSchema<CardApiNotReady> = z.object({
-  status: z.enum(['no_card', 'error']),
-});
-export const CardApiReadySchema: z.ZodSchema<CardApiReady> = z.object({
+export const CardSummaryNotReadySchema: z.ZodSchema<CardSummaryNotReady> =
+  z.object({
+    status: z.enum(['no_card', 'error']),
+  });
+export const CardSummaryReadySchema: z.ZodSchema<CardSummaryReady> = z.object({
   status: z.literal('ready'),
   shortValue: z.string().optional(),
   longValueExists: z.boolean().optional(),
 });
-export const CardApiSchema: z.ZodSchema<CardApi> = z.union([
-  CardApiNotReadySchema,
-  CardApiReadySchema,
+export const CardSummarySchema: z.ZodSchema<CardSummary> = z.union([
+  CardSummaryNotReadySchema,
+  CardSummaryReadySchema,
 ]);
 
 /**
@@ -127,7 +128,7 @@ export interface Card {
    * Reads basic information about the card, including whether one is present,
    * what its short value is and whether it has a long value.
    */
-  readStatus(): Promise<CardApi>;
+  readSummary(): Promise<CardSummary>;
 
   /**
    * Reads the long value as an object, or `undefined` if there is no long
