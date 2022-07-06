@@ -10,6 +10,7 @@ import {
   Provider,
   CastVoteRecord,
   PrecinctId,
+  InsertedSmartcardAuth,
 } from '@votingworks/types';
 import {
   useCancelablePromise,
@@ -23,6 +24,8 @@ import {
   isSuperadminAuth,
   isAdminAuth,
   isPollworkerAuth,
+  Screen,
+  Main,
 } from '@votingworks/ui';
 import {
   throwIllegalValue,
@@ -37,6 +40,7 @@ import {
 } from '@votingworks/utils';
 import { Logger } from '@votingworks/logging';
 
+import { useActor, useInterpret } from '@xstate/react';
 import { UnconfiguredElectionScreen } from './screens/unconfigured_election_screen';
 import { LoadingConfigurationScreen } from './screens/loading_configuration_screen';
 import {
@@ -69,6 +73,7 @@ import { CardErrorScreen } from './screens/card_error_screen';
 import { SetupScannerScreen } from './screens/setup_scanner_screen';
 import { ScreenMainCenterChild, CenteredLargeProse } from './components/layout';
 import { InsertUsbScreen } from './screens/insert_usb_screen';
+import { machine } from './state-machine';
 
 const debug = makeDebug('precinct-scanner:app-root');
 
@@ -343,12 +348,16 @@ export function AppRoot({
     hardware,
     logger,
   });
-  const auth = useInsertedSmartcardAuth({
-    allowedUserRoles: ['superadmin', 'admin', 'pollworker'],
-    cardApi: card,
-    scope: { electionDefinition },
-    logger,
-  });
+  const auth: InsertedSmartcardAuth.LoggedOut = {
+    status: 'logged_out',
+    reason: 'no_card',
+  };
+  // const auth = useInsertedSmartcardAuth({
+  //   allowedUserRoles: ['superadmin', 'admin', 'pollworker'],
+  //   cardApi: card,
+  //   scope: { electionDefinition },
+  //   logger,
+  // });
 
   const makeCancelable = useCancelablePromise();
 
@@ -555,27 +564,27 @@ export function AppRoot({
     dispatchAppState({ type: 'togglePollsOpen' });
   }, []);
 
-  useEffect(() => {
-    if (
-      precinctScanner &&
-      isScannerConfigured &&
-      electionDefinition &&
-      isPollsOpen &&
-      auth.status === 'logged_out' &&
-      auth.reason === 'no_card'
-    ) {
-      startBallotStatusPolling();
-    } else {
-      endBallotStatusPolling();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    precinctScanner,
-    isScannerConfigured,
-    electionDefinition,
-    isPollsOpen,
-    auth,
-  ]);
+  // useEffect(() => {
+  //   if (
+  //     precinctScanner &&
+  //     isScannerConfigured &&
+  //     electionDefinition &&
+  //     isPollsOpen &&
+  //     auth.status === 'logged_out' &&
+  //     auth.reason === 'no_card'
+  //   ) {
+  //     startBallotStatusPolling();
+  //   } else {
+  //     endBallotStatusPolling();
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [
+  //   precinctScanner,
+  //   isScannerConfigured,
+  //   electionDefinition,
+  //   isPollsOpen,
+  //   auth,
+  // ]);
 
   const setElectionDefinition = useCallback(
     async (newElectionDefinition: OptionalElectionDefinition) => {
@@ -693,6 +702,23 @@ export function AppRoot({
     }
     dispatchAppState({ type: 'readyToInsertBallot' });
   }
+
+  const stateMachine = useInterpret(machine);
+  useEffect(() => {
+    stateMachine.onTransition((state) =>
+      console.log('Transition:', state.value)
+    );
+  }, [stateMachine]);
+  const [state] = useActor(stateMachine);
+
+  return (
+    <Screen>
+      <Main padded>
+        <p>State: {state.value}</p>
+        <p>Context: {JSON.stringify(state.context)}</p>
+      </Main>
+    </Screen>
+  );
 
   if (!cardReader) {
     return <SetupCardReaderPage />;
