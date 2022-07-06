@@ -39,6 +39,7 @@ test('renders date and time settings modal', async () => {
       <AdminScreen
         scannedBallotCount={10}
         isTestMode={false}
+        canUnconfigure
         updateAppPrecinctId={jest.fn()}
         toggleLiveMode={jest.fn()}
         unconfigure={jest.fn()}
@@ -91,6 +92,7 @@ test('setting and un-setting the precinct', async () => {
       <AdminScreen
         scannedBallotCount={10}
         isTestMode={false}
+        canUnconfigure
         updateAppPrecinctId={updateAppPrecinctId}
         toggleLiveMode={jest.fn()}
         unconfigure={jest.fn()}
@@ -128,6 +130,7 @@ test('export from admin screen', () => {
       <AdminScreen
         scannedBallotCount={10}
         isTestMode={false}
+        canUnconfigure
         updateAppPrecinctId={jest.fn()}
         toggleLiveMode={jest.fn()}
         unconfigure={jest.fn()}
@@ -154,6 +157,7 @@ test('unconfigure ejects a usb drive when it is mounted', () => {
       <AdminScreen
         scannedBallotCount={10}
         isTestMode={false}
+        canUnconfigure
         updateAppPrecinctId={jest.fn()}
         toggleLiveMode={jest.fn()}
         unconfigure={unconfigureFn}
@@ -183,6 +187,7 @@ test('unconfigure does not eject a usb drive that is not mounted', async () => {
       <AdminScreen
         scannedBallotCount={10}
         isTestMode={false}
+        canUnconfigure
         updateAppPrecinctId={jest.fn()}
         toggleLiveMode={jest.fn()}
         unconfigure={unconfigureFn}
@@ -198,4 +203,59 @@ test('unconfigure does not eject a usb drive that is not mounted', async () => {
     expect(unconfigureFn).toHaveBeenCalledTimes(1);
     expect(ejectFn).toHaveBeenCalledTimes(1);
   });
+});
+
+test('unconfigure button is disabled when the machine cannot be unconfigured', () => {
+  render(
+    <AppContext.Provider
+      value={{
+        electionDefinition: electionSampleDefinition,
+        machineConfig: { machineId: '0000', codeVersion: 'TEST' },
+        auth,
+      }}
+    >
+      <AdminScreen
+        scannedBallotCount={10}
+        isTestMode={false}
+        canUnconfigure={false}
+        updateAppPrecinctId={jest.fn()}
+        toggleLiveMode={jest.fn()}
+        unconfigure={jest.fn()}
+        calibrate={jest.fn()}
+        usbDrive={{ status: usbstick.UsbDriveStatus.mounted, eject: jest.fn() }}
+      />
+    </AppContext.Provider>
+  );
+
+  fireEvent.click(screen.getByText('Unconfigure Machine'));
+  expect(screen.queryByText('Unconfigure Machine?')).toBeNull();
+});
+
+test('cannot toggle to testing mode when the machine cannot be unconfigured', () => {
+  const toggleLiveModeFn = jest.fn();
+
+  render(
+    <AppContext.Provider
+      value={{
+        electionDefinition: electionSampleDefinition,
+        machineConfig: { machineId: '0000', codeVersion: 'TEST' },
+        auth,
+      }}
+    >
+      <AdminScreen
+        scannedBallotCount={10}
+        isTestMode={false}
+        canUnconfigure={false}
+        updateAppPrecinctId={jest.fn()}
+        toggleLiveMode={toggleLiveModeFn}
+        unconfigure={jest.fn()}
+        calibrate={jest.fn()}
+        usbDrive={{ status: usbstick.UsbDriveStatus.mounted, eject: jest.fn() }}
+      />
+    </AppContext.Provider>
+  );
+
+  fireEvent.click(screen.getByText('Testing Mode'));
+  expect(toggleLiveModeFn).not.toHaveBeenCalled();
+  fireEvent.click(screen.getByText('Cancel'));
 });

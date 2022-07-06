@@ -18,10 +18,11 @@ export interface ScannerStatusDetails {
   ballotNeedsReview: boolean;
   scannerState: Scan.ScannerStatus;
   ballotCount: number;
+  canUnconfigure?: boolean;
 }
 
 export async function getCurrentStatus(): Promise<ScannerStatusDetails> {
-  const { scanner, batches, adjudication } = unsafeParse(
+  const { scanner, batches, adjudication, canUnconfigure } = unsafeParse(
     Scan.GetScanStatusResponseSchema,
     await fetchJson('/scan/status')
   );
@@ -34,6 +35,7 @@ export async function getCurrentStatus(): Promise<ScannerStatusDetails> {
     ballotNeedsReview: adjudication.remaining > 0,
     scannerState: scanner,
     ballotCount,
+    canUnconfigure,
   };
 }
 
