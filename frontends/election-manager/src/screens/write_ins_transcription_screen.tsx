@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
@@ -12,9 +13,10 @@ import {
   getContests,
   getBallotStyle,
   BallotPageLayout,
+  InlineBallotImage,
 } from '@votingworks/types';
 import { Button, Loading, Main, Screen, Text } from '@votingworks/ui';
-import { assert } from '@votingworks/utils';
+import { assert, zip } from '@votingworks/utils';
 import { Navigation } from '../components/navigation';
 import { TextInput } from '../components/text_input';
 import { CroppedImage } from '../components/cropped_image';
@@ -187,7 +189,6 @@ export function WriteInsTranscriptionScreen({
     );
   }
   assert(cvr !== undefined);
-  // eslint-disable-next-line
   const ballotStyle = getBallotStyle({
     ballotStyleId: cvr._ballotStyleId,
     election,
@@ -198,11 +199,16 @@ export function WriteInsTranscriptionScreen({
     election,
   }).map((c) => c.id);
   // Make sure the layouts are ordered by page number.
-  // eslint-disable-next-line
-  const layouts = [...cvr._layouts[0]].sort(
-    (a: BallotPageLayout, b: BallotPageLayout): number =>
-      a.metadata.pageNumber - b.metadata.pageNumber
-  );
+  assert(cvr._layouts?.[0] && cvr._ballotImages);
+  const [layouts, ballotImages] = [...zip(cvr._layouts[0], cvr._ballotImages)]
+    .sort(([a], [b]) => a.metadata.pageNumber - b.metadata.pageNumber)
+    .reduce<[BallotPageLayout[], InlineBallotImage[]]>(
+      ([layoutsAcc, ballotImagesAcc], [layout, ballotImage]) => [
+        [...layoutsAcc, layout],
+        [...ballotImagesAcc, ballotImage],
+      ],
+      [[], []]
+    );
   let contestIdx = allContestIdsForBallotStyle.indexOf(contest.id);
   let currentLayoutOptionIdx = 0;
   while (contestIdx >= layouts[currentLayoutOptionIdx].contests.length) {
@@ -253,7 +259,7 @@ export function WriteInsTranscriptionScreen({
           <WriteInImage
             width="50%"
             // eslint-disable-next-line
-            imageUrl={`data:image/png;base64,${cvr._ballotImages[0].normalized}`}
+            imageUrl={`data:image/png;base64,${ballotImages[currentLayoutOptionIdx].normalized}`}
             bounds={writeInBounds}
             margin={0.2}
           />
@@ -262,7 +268,7 @@ export function WriteInsTranscriptionScreen({
               <h2>Cropped Contest</h2>
               <WriteInImage
                 // eslint-disable-next-line
-                imageUrl={`data:image/png;base64,${cvr._ballotImages[0].normalized}`}
+                imageUrl={`data:image/png;base64,${ballotImages[currentLayoutOptionIdx].normalized}`}
                 bounds={contestBounds}
                 margin={0.1}
               />
@@ -271,7 +277,7 @@ export function WriteInsTranscriptionScreen({
               <h2>Full Ballot Image</h2>
               <WriteInImage
                 // eslint-disable-next-line
-                imageUrl={`data:image/png;base64,${cvr._ballotImages[0].normalized}`}
+                imageUrl={`data:image/png;base64,${ballotImages[currentLayoutOptionIdx].normalized}`}
                 bounds={fullBallotBounds}
               />
             </div>
