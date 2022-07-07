@@ -59,15 +59,17 @@ function noop() {
   // nothing to do
 }
 
-const EXTRA_WRITE_IN_MARGIN_PERCENTAGE = 0;
+const DEFAULT_EXTRA_WRITE_IN_MARGIN_PERCENTAGE = 0;
 function WriteInImage({
   imageUrl,
   bounds,
   width,
+  margin,
 }: {
   imageUrl: string;
   bounds: Rect;
   width?: string;
+  margin?: number;
 }) {
   return (
     <CroppedImage
@@ -75,9 +77,13 @@ function WriteInImage({
       alt="write-in area"
       crop={{
         x: bounds.x,
-        y: bounds.y - bounds.height * EXTRA_WRITE_IN_MARGIN_PERCENTAGE,
+        y:
+          bounds.y -
+          bounds.height * (margin || DEFAULT_EXTRA_WRITE_IN_MARGIN_PERCENTAGE),
         width: bounds.width,
-        height: bounds.height * (1 + 2 * EXTRA_WRITE_IN_MARGIN_PERCENTAGE),
+        height:
+          bounds.height *
+          (1 + 2 * (margin || DEFAULT_EXTRA_WRITE_IN_MARGIN_PERCENTAGE)),
       }}
       style={{ width: width || '100%' }}
     />
@@ -249,6 +255,7 @@ export function WriteInsTranscriptionScreen({
             // eslint-disable-next-line
             imageUrl={`data:image/png;base64,${cvr._ballotImages[0].normalized}`}
             bounds={writeInBounds}
+            margin={0.2}
           />
           <div style={{ display: 'flex' }}>
             <div>
@@ -257,6 +264,7 @@ export function WriteInsTranscriptionScreen({
                 // eslint-disable-next-line
                 imageUrl={`data:image/png;base64,${cvr._ballotImages[0].normalized}`}
                 bounds={contestBounds}
+                margin={0.1}
               />
             </div>
             <div>
