@@ -34,7 +34,7 @@ const NumberPadWrapper = styled.div`
   }
 `;
 
-export function SmartcardsScreen(): JSX.Element {
+export function LegacySmartcardsScreen(): JSX.Element {
   const { electionDefinition, logger, auth } = useContext(AppContext);
   assert(electionDefinition);
   assert(isAdminAuth(auth) || isSuperadminAuth(auth)); // TODO(auth) check permissions for writing smartcards

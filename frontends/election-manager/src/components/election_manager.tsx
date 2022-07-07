@@ -30,7 +30,7 @@ import { DefinitionContestsScreen } from '../screens/definition_contests_screen'
 import { PrintedBallotsReportScreen } from '../screens/printed_ballots_report_screen';
 import { ManualDataImportIndexScreen } from '../screens/manual_data_import_index_screen';
 import { ManualDataImportPrecinctScreen } from '../screens/manual_data_import_precinct_screen';
-import { SmartcardsScreen } from '../screens/smartcards_screen';
+import { LegacySmartcardsScreen } from '../screens/legacy_smartcards_screen';
 import { ElectionSmartcardsScreen } from '../screens/election_smartcards_screen';
 import { SuperAdminSmartcardsScreen } from '../screens/super_admin_smartcards_screen';
 import { MachineLockedScreen } from '../screens/machine_locked_screen';
@@ -211,7 +211,7 @@ export function ElectionManager(): JSX.Element {
       )}
       {!areVvsg2AuthFlowsEnabled() && (
         <Route exact path={routerPaths.smartcards}>
-          <SmartcardsScreen />
+          <LegacySmartcardsScreen />
         </Route>
       )}
       <Route exact path={routerPaths.ballotsList}>
