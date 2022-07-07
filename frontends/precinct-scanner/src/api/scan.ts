@@ -1,8 +1,4 @@
-import {
-  AdjudicationReasonInfo,
-  safeParseJson,
-  unsafeParse,
-} from '@votingworks/types';
+import { safeParseJson, unsafeParse } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
 import { fetchJson } from '@votingworks/utils';
 import makeDebug from 'debug';
@@ -11,6 +7,7 @@ import {
   ScanningResult,
   ScanningResultType,
 } from '../config/types';
+import { buildScanningResult } from '../utils/build_scanning_result';
 
 const debug = makeDebug('precinct-scanner:api:scan');
 
@@ -72,53 +69,13 @@ export async function scanDetectedSheet(): Promise<ScanningResult> {
       return { resultType: ScanningResultType.Accepted };
     }
 
-    const adjudicationReasons: AdjudicationReasonInfo[] = [];
     if (status.adjudication.remaining > 0) {
       const sheetInfo = unsafeParse(
         Scan.GetNextReviewSheetResponseSchema,
         await fetchJson('/scan/hmpb/review/next-sheet')
       );
 
-      for (const { interpretation } of [
-        sheetInfo.interpreted.front,
-        sheetInfo.interpreted.back,
-      ]) {
-        if (interpretation.type === 'InvalidTestModePage') {
-          return {
-            resultType: ScanningResultType.Rejected,
-            rejectionReason: RejectedScanningReason.InvalidTestMode,
-          };
-        }
-        if (interpretation.type === 'InvalidElectionHashPage') {
-          return {
-            resultType: ScanningResultType.Rejected,
-            rejectionReason: RejectedScanningReason.InvalidElectionHash,
-          };
-        }
-        if (interpretation.type === 'InvalidPrecinctPage') {
-          return {
-            resultType: ScanningResultType.Rejected,
-            rejectionReason: RejectedScanningReason.InvalidPrecinct,
-          };
-        }
-        if (interpretation.type === 'InterpretedHmpbPage') {
-          if (interpretation.adjudicationInfo.requiresAdjudication) {
-            for (const reasonInfo of interpretation.adjudicationInfo
-              .enabledReasonInfos) {
-              adjudicationReasons.push(reasonInfo);
-            }
-          }
-        } else {
-          return {
-            resultType: ScanningResultType.Rejected,
-            rejectionReason: RejectedScanningReason.Unreadable,
-          };
-        }
-      }
-      return {
-        resultType: ScanningResultType.NeedsReview,
-        adjudicationReasonInfo: adjudicationReasons,
-      };
+      return buildScanningResult(sheetInfo.interpreted);
     }
 
     await new Promise((resolve) => setTimeout(resolve, 100));
