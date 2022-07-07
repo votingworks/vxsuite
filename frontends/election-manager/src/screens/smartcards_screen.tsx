@@ -41,9 +41,8 @@ export function SmartcardsScreen(): JSX.Element {
           <li>
             Create{' '}
             {smartcardType === 'election'
-              ? 'an Admin or Poll Worker card'
-              : 'a Super Admin card'}{' '}
-            for this election
+              ? 'an Admin or Poll Worker card for this election'
+              : 'a Super Admin card'}
           </li>
         </ul>
       </Body>
