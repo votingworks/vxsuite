@@ -175,6 +175,10 @@ export function buildApp({ store }: { store: Store }): Application {
     }
   );
 
+  app.get<NoParams>('/admin/write-ins/adjudications/counts', (_, response) => {
+    response.json(store.getAdjudicationCountsByContestIdAndTranscribedValue());
+  });
+
   app.get('/admin/write-ins/adjudications/:contestId/', (request, response) => {
     const { contestId } = request.params;
     response.json(store.getAdjudicationsByContestId(contestId));

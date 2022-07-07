@@ -24,6 +24,7 @@ import { PrintTestDeckScreen } from '../screens/print_test_deck_screen';
 import { UnconfiguredScreen } from '../screens/unconfigured_screen';
 import { TallyScreen } from '../screens/tally_screen';
 import { TallyReportScreen } from '../screens/tally_report_screen';
+import { TallyWriteInReportScreen } from '../screens/tally_writein_report_screen';
 // import { OvervoteCombinationReportScreen } from '../screens/overvote_combination_report_screen';
 import { DefinitionEditorScreen } from '../screens/definition_editor_screen';
 import { DefinitionContestsScreen } from '../screens/definition_contests_screen';
@@ -266,6 +267,9 @@ export function ElectionManager(): JSX.Element {
         ]}
       >
         <TallyReportScreen />
+      </Route>
+      <Route exact path={[routerPaths.tallyWriteInReport]}>
+        <TallyWriteInReportScreen />
       </Route>
       <Route
         exact
