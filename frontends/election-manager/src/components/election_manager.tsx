@@ -171,7 +171,7 @@ export function ElectionManager(): JSX.Element {
         <Route
           exact
           path={routerPaths.smartcardsByType({
-            smartcardType: ':smartcardType',
+            smartcardType: ':smartcardType(election|super-admin)',
           })}
         >
           <SmartcardsScreen />
