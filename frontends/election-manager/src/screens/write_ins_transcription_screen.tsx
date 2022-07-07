@@ -279,16 +279,16 @@ export function WriteInsTranscriptionScreen({
         </BallotPreviews>
         <TranscriptionContainer>
           <TranscriptionMainContentContainer>
-            {election && contest.partyId && (
+            {election && (
               <React.Fragment>
                 <Text bold>{contest.section}</Text>
                 <h1>
-                  {contest.title} (
-                  {getPartyAbbreviationByPartyId({
-                    partyId: contest.partyId,
-                    election,
-                  })}
-                  )
+                  {contest.title}
+                  {contest.partyId &&
+                    `(${getPartyAbbreviationByPartyId({
+                      partyId: contest.partyId,
+                      election,
+                    })})`}
                 </h1>
                 <h2>Adjudication ID: {adjudicationId}</h2>
               </React.Fragment>
