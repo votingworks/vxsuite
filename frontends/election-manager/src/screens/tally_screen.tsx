@@ -208,6 +208,11 @@ export function TallyScreen(): JSX.Element {
           <LinkButton to={routerPaths.tallyFullReport}>
             View {statusPrefix} Full Election Tally Report
           </LinkButton>
+          <br />
+          <br />
+          <LinkButton to={routerPaths.tallyWriteInReport}>
+            View {statusPrefix} Write-In Tally Report
+          </LinkButton>
         </p>
       </React.Fragment>
     );
