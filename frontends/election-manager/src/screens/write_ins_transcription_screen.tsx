@@ -192,6 +192,7 @@ export function WriteInsTranscriptionScreen({
     election,
   }).map((c) => c.id);
   // Make sure the layouts are ordered by page number.
+  // eslint-disable-next-line
   const layouts = [...cvr._layouts[0]].sort(
     (a: BallotPageLayout, b: BallotPageLayout): number =>
       a.metadata.pageNumber - b.metadata.pageNumber
@@ -204,14 +205,19 @@ export function WriteInsTranscriptionScreen({
   }
 
   const contestLayout = layouts[currentLayoutOptionIdx].contests[contestIdx];
+
+  // Options are laid out from the bottom up, so we reverse write-ins to get the correct bounds
+  const writeInOptions = contestLayout.options
+    .filter((option) => option.definition.id.startsWith('write-in'))
+    .reverse();
+
   // eslint-disable-next-line
   const writeInOptionIndex = Number(
     cvr[contest.id]
       .find((vote: string) => vote.startsWith('write-in'))
       .slice('write-in-'.length)
   );
-  const writeInLayout =
-    contestLayout.options[contest.candidates.length + writeInOptionIndex];
+  const writeInLayout = writeInOptions[writeInOptionIndex];
   const writeInBounds = writeInLayout.bounds;
   const contestBounds = contestLayout.bounds;
   const fullBallotBounds: Rect = {
