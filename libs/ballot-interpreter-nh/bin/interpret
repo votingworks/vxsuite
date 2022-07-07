@@ -5,7 +5,7 @@ require('esbuild-runner/register');
 require('../src/cli/interpret')
   .main(process.argv.slice(2))
   .then((code) => {
-    process.exit(code);
+    process.exitCode = code;
   })
   .catch((err) => {
     console.error(err.stack);
