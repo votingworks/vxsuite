@@ -1036,6 +1036,7 @@ test('voter can cast another ballot while the success screen is showing', async 
               interpretation: interpretedHmpb({
                 electionDefinition: electionSampleDefinition,
                 pageNumber: 2,
+                adjudicationReason: AdjudicationReason.BlankBallot,
               }),
               image: { url: '/not/real.jpg' },
             },
