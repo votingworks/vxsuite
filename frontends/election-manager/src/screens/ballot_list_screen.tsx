@@ -1,7 +1,6 @@
 import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 import pluralize from 'pluralize';
-import moment from 'moment';
 
 import { assert, find } from '@votingworks/utils';
 import { NoWrap, Prose, Table, TD } from '@votingworks/ui';
@@ -26,8 +25,7 @@ const Header = styled.div`
 `;
 
 export function BallotListScreen(): JSX.Element {
-  const { electionDefinition, printedBallots, configuredAt } =
-    useContext(AppContext);
+  const { electionDefinition, configuredAt } = useContext(AppContext);
   assert(electionDefinition && typeof configuredAt === 'string');
   const { election } = electionDefinition;
 
@@ -46,24 +44,11 @@ export function BallotListScreen(): JSX.Element {
 
   const ballots = ballotLists[ballotView];
 
-  const numBallotsPrinted = printedBallots.reduce(
-    (count, ballot) => count + ballot.numCopies,
-    0
-  );
-
   return (
     <NavigationScreen>
       <Header>
         <Prose maxWidth={false}>
           <p>
-            <strong>
-              {pluralize('official ballot', numBallotsPrinted, true)}{' '}
-            </strong>{' '}
-            printed since configuration at{' '}
-            {moment(new Date(configuredAt)).format('MMM D, YYYY [at] h:mma')}.{' '}
-            <LinkButton small to={routerPaths.printedBallotsReport}>
-              Printed Ballots Report
-            </LinkButton>{' '}
             <ExportElectionBallotPackageModalButton />
           </p>
         </Prose>

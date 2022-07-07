@@ -114,7 +114,7 @@ describe('Election Manager can create SEMS tallies', () => {
       encoding: 'utf-8',
     });
     cy.contains('Close').click();
-    cy.get('[data-testid="total-ballot-count"]').within(() => cy.contains('5'));
+    cy.get('[data-testid="total-cvr-count"]').within(() => cy.contains('5'));
 
     // Check that the internal tally reports have the correct tallies
     const expectedFullResults = [
@@ -162,54 +162,55 @@ describe('Election Manager can create SEMS tallies', () => {
         },
       },
     ];
-    cy.contains('View Unofficial Full Election Tally Report').click();
+    cy.contains('Reports').click();
+    cy.contains('Unofficial Full Election Tally Report').click();
     assertExpectedResultsMatchTallyReport(expectedFullResults, {
       absentee: 0,
       precinct: 5,
     });
-    cy.contains('Back to Tally Index').click();
-    cy.contains('View Unofficial Precinct 2 Tally Report').click();
+    cy.contains('Back to Reports').click();
+    cy.contains('Unofficial Precinct 2 Tally Report').click();
     assertExpectedResultsMatchTallyReport(expectedFullResults, {
       absentee: 0,
       precinct: 5,
     });
-    cy.contains('Back to Tally Index').click();
-    cy.contains('View Unofficial Precinct 1 Tally Report').click();
+    cy.contains('Back to Reports').click();
+    cy.contains('Unofficial Precinct 1 Tally Report').click();
     assertExpectedResultsMatchTallyReport(expectedEmptyResults, {
       absentee: 0,
       precinct: 0,
     });
-    cy.contains('Back to Tally Index').click();
-    cy.contains('View Unofficial Precinct 3 Tally Report').click();
+    cy.contains('Back to Reports').click();
+    cy.contains('Unofficial Precinct 3 Tally Report').click();
     assertExpectedResultsMatchTallyReport(expectedEmptyResults, {
       absentee: 0,
       precinct: 0,
     });
-    cy.contains('Back to Tally Index').click();
-    cy.contains('View Unofficial Precinct 4 Tally Report').click();
+    cy.contains('Back to Reports').click();
+    cy.contains('Unofficial Precinct 4 Tally Report').click();
     assertExpectedResultsMatchTallyReport(expectedEmptyResults, {
       absentee: 0,
       precinct: 0,
     });
-    cy.contains('Back to Tally Index').click();
-    cy.contains('View Unofficial Precinct 5 Tally Report').click();
+    cy.contains('Back to Reports').click();
+    cy.contains('Unofficial Precinct 5 Tally Report').click();
     assertExpectedResultsMatchTallyReport(expectedEmptyResults, {
       absentee: 0,
       precinct: 0,
     });
-    cy.contains('Back to Tally Index').click();
-    cy.contains('View Unofficial Liberty Party Tally Report').click();
+    cy.contains('Back to Reports').click();
+    cy.contains('Unofficial Liberty Party Tally Report').click();
     assertExpectedResultsMatchTallyReport(expectedFullResults, {
       absentee: 0,
       precinct: 5,
     });
-    cy.contains('Back to Tally Index').click();
-    cy.contains('View Unofficial Scanner scanner-1 Tally Report').click();
+    cy.contains('Back to Reports').click();
+    cy.contains('Unofficial Scanner scanner-1 Tally Report').click();
     assertExpectedResultsMatchTallyReport(expectedFullResults, {
       absentee: 0,
       precinct: 5,
     });
-    cy.contains('Back to Tally Index').click();
+    cy.contains('Back to Reports').click();
 
     // Check that the exported SEMS result file as the correct tallies
     cy.contains('Save Results File').click();

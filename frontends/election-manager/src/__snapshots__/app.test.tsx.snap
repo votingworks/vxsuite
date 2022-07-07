@@ -70,6 +70,13 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           role="option"
           type="button"
         >
+          Reports
+        </button>
+        <button
+          class="sc-iBPRYJ fvkSI"
+          role="option"
+          type="button"
+        >
           Advanced
         </button>
       </div>
@@ -1489,6 +1496,13 @@ exports[`L&A (logic and accuracy) flow 2`] = `
           role="option"
           type="button"
         >
+          Reports
+        </button>
+        <button
+          class="sc-iBPRYJ fvkSI"
+          role="option"
+          type="button"
+        >
           Advanced
         </button>
       </div>
@@ -2641,6 +2655,13 @@ exports[`L&A (logic and accuracy) flow 3`] = `
           type="button"
         >
           Tally
+        </button>
+        <button
+          class="sc-iBPRYJ fvkSI"
+          role="option"
+          type="button"
+        >
+          Reports
         </button>
         <button
           class="sc-iBPRYJ fvkSI"

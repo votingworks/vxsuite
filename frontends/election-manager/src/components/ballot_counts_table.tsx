@@ -59,7 +59,7 @@ export function BallotCountsTable({ breakdownCategory }: Props): JSX.Element {
                 Precinct
               </TD>
               <TD as="th">Ballot Count</TD>
-              <TD as="th">View Tally</TD>
+              <TD as="th">Report</TD>
             </tr>
             {[...election.precincts]
               .sort((a, b) =>
@@ -98,7 +98,7 @@ export function BallotCountsTable({ breakdownCategory }: Props): JSX.Element {
                           precinctId: precinct.id,
                         })}
                       >
-                        View {statusPrefix} {precinct.name} Tally Report
+                        {statusPrefix} {precinct.name} Tally Report
                       </LinkButton>
                     </TD>
                   </tr>
@@ -117,12 +117,13 @@ export function BallotCountsTable({ breakdownCategory }: Props): JSX.Element {
               </TD>
               <TD>
                 <LinkButton
+                  primary
                   small
                   to={routerPaths.tallyPrecinctReport({
                     precinctId: 'all',
                   })}
                 >
-                  View {statusPrefix} Tally Reports for All Precincts
+                  {statusPrefix} Tally Reports for All Precincts
                 </LinkButton>
               </TD>
             </tr>
@@ -143,7 +144,7 @@ export function BallotCountsTable({ breakdownCategory }: Props): JSX.Element {
                   Scanner ID
                 </TD>
                 <TD as="th">Ballot Count</TD>
-                <TD as="th">View Tally</TD>
+                <TD as="th">Report</TD>
               </tr>
               {Object.keys(resultsByScanner)
                 .sort((a, b) =>
@@ -169,7 +170,7 @@ export function BallotCountsTable({ breakdownCategory }: Props): JSX.Element {
                               scannerId,
                             })}
                           >
-                            View {statusPrefix} Scanner {scannerId} Tally Report
+                            {statusPrefix} Scanner {scannerId} Tally Report
                           </LinkButton>
                         )}
                       </TD>
@@ -222,7 +223,7 @@ export function BallotCountsTable({ breakdownCategory }: Props): JSX.Element {
                 Party
               </TD>
               <TD as="th">Ballot Count</TD>
-              <TD as="th">View Tally</TD>
+              <TD as="th">Report</TD>
             </tr>
             {[...partiesForPrimaries]
               .sort((a, b) =>
@@ -256,7 +257,7 @@ export function BallotCountsTable({ breakdownCategory }: Props): JSX.Element {
                           partyId: party.id,
                         })}
                       >
-                        View {statusPrefix} {party.fullName} Tally Report
+                        {statusPrefix} {party.fullName} Tally Report
                       </LinkButton>
                     </TD>
                   </tr>
@@ -273,11 +274,7 @@ export function BallotCountsTable({ breakdownCategory }: Props): JSX.Element {
                   )}
                 </strong>
               </TD>
-              <TD>
-                <LinkButton small to={routerPaths.tallyFullReport}>
-                  View {statusPrefix} Full Election Tally Report
-                </LinkButton>
-              </TD>
+              <TD />
             </tr>
           </tbody>
         </Table>
@@ -295,7 +292,7 @@ export function BallotCountsTable({ breakdownCategory }: Props): JSX.Element {
                 Voting Method
               </TD>
               <TD as="th">Ballot Count</TD>
-              <TD as="th">View Tally</TD>
+              <TD as="th">Report</TD>
             </tr>
             {Object.values(VotingMethod).map((votingMethod) => {
               const initialBallotsCountedByVotingMethod =
@@ -330,7 +327,7 @@ export function BallotCountsTable({ breakdownCategory }: Props): JSX.Element {
                         votingMethod,
                       })}
                     >
-                      View {statusPrefix} {label} Ballot Tally Report
+                      {statusPrefix} {label} Ballot Tally Report
                     </LinkButton>
                   </TD>
                 </tr>
@@ -366,7 +363,7 @@ export function BallotCountsTable({ breakdownCategory }: Props): JSX.Element {
               </TD>
               <TD as="th">Scanner</TD>
               <TD as="th">Ballot Count</TD>
-              <TD as="th">View Tally</TD>
+              <TD as="th">Report</TD>
             </tr>
             {Object.keys(resultsByBatch).map((batchId) => {
               const batchTally = resultsByBatch[batchId] as BatchTally;
@@ -387,7 +384,7 @@ export function BallotCountsTable({ breakdownCategory }: Props): JSX.Element {
                           batchId,
                         })}
                       >
-                        View {statusPrefix} {batchTally.batchLabel} Tally Report
+                        {statusPrefix} {batchTally.batchLabel} Tally Report
                       </LinkButton>
                     )}
                   </TD>
@@ -399,6 +396,7 @@ export function BallotCountsTable({ breakdownCategory }: Props): JSX.Element {
                 <TD narrow nowrap data-testid="batch-external">
                   External Results ({t.inputSourceName})
                 </TD>
+                <TD />
                 <TD>{format.count(t.overallTally.numberOfBallotsCounted)}</TD>
                 <TD />
               </tr>
@@ -407,6 +405,7 @@ export function BallotCountsTable({ breakdownCategory }: Props): JSX.Element {
               <TD narrow nowrap>
                 <strong>Total Ballot Count</strong>
               </TD>
+              <TD />
               <TD>
                 <strong>
                   {format.count(
@@ -414,7 +413,6 @@ export function BallotCountsTable({ breakdownCategory }: Props): JSX.Element {
                   )}
                 </strong>
               </TD>
-              <TD />
               <TD>
                 <ExportBatchTallyResultsButton />
               </TD>

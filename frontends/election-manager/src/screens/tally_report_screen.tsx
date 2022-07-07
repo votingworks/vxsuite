@@ -1,12 +1,12 @@
 import React, { useContext, useEffect, useRef, useState, useMemo } from 'react';
 import styled from 'styled-components';
-
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { assert, find } from '@votingworks/utils';
 import { LogEventId } from '@votingworks/logging';
 import { VotingMethod, getLabelForVotingMethod } from '@votingworks/types';
 import {
   isAdminAuth,
+  Modal,
   Prose,
   TallyReport,
   TallyReportMetadata,
@@ -52,6 +52,7 @@ export function TallyReportScreen(): JSX.Element {
   const printReportRef = useRef<HTMLDivElement>(null);
   const previewReportRef = useRef<HTMLDivElement>(null);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+  const [isConfirmingOfficial, setIsConfirmingOfficial] = useState(false);
   const { precinctId } = useParams<PrecinctReportScreenProps>();
   const { scannerId } = useParams<ScannerReportScreenProps>();
   const { batchId } = useParams<BatchReportScreenProps>();
@@ -60,8 +61,10 @@ export function TallyReportScreen(): JSX.Element {
     useParams<VotingMethodReportScreenProps>();
   const votingMethod = votingMethodFromProps as VotingMethod;
   const {
+    castVoteRecordFiles,
     electionDefinition,
     isOfficialResults,
+    saveIsOfficialResults,
     fullElectionTally,
     fullElectionExternalTallies,
     isTabulationRunning,
@@ -72,8 +75,14 @@ export function TallyReportScreen(): JSX.Element {
   assert(isAdminAuth(auth)); // TODO(auth) check permissions for viewing tally reports.
   const userRole = auth.user.role;
 
+  const location = useLocation();
+
   const { election } = electionDefinition;
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial';
+
+  const castVoteRecordFileList = castVoteRecordFiles.fileList;
+  const hasCastVoteRecordFiles =
+    castVoteRecordFileList.length > 0 || !!castVoteRecordFiles.lastError;
 
   const precinctName =
     (precinctId &&
@@ -184,6 +193,17 @@ export function TallyReportScreen(): JSX.Element {
     });
   }
 
+  function cancelConfirmingOfficial() {
+    setIsConfirmingOfficial(false);
+  }
+  function confirmOfficial() {
+    setIsConfirmingOfficial(true);
+  }
+  async function setOfficial() {
+    setIsConfirmingOfficial(false);
+    await saveIsOfficialResults();
+  }
+
   if (isTabulationRunning) {
     return (
       <NavigationScreen centerChild>
@@ -208,7 +228,7 @@ export function TallyReportScreen(): JSX.Element {
     if (previewReportRef?.current && printReportRef?.current) {
       previewReportRef.current.innerHTML = printReportRef.current.innerHTML;
     }
-  }, [previewReportRef, printReportRef]);
+  }, [previewReportRef, printReportRef, isOfficialResults]);
 
   return (
     <React.Fragment>
@@ -234,9 +254,19 @@ export function TallyReportScreen(): JSX.Element {
               </Button>
             )}
           </p>
+          {location.pathname === '/reports/full' && (
+            <p>
+              <Button
+                disabled={!hasCastVoteRecordFiles || isOfficialResults}
+                onPress={confirmOfficial}
+              >
+                Mark Tally Results as Official
+              </Button>
+            </p>
+          )}
           <p>
-            <LinkButton small to={routerPaths.tally}>
-              Back to Tally Index
+            <LinkButton small to={routerPaths.reports}>
+              Back to Reports
             </LinkButton>
           </p>
           <React.Fragment>
@@ -255,6 +285,31 @@ export function TallyReportScreen(): JSX.Element {
           generateFileContent={generateFileContentToSaveAsPdf}
           defaultFilename={defaultReportFilename}
           fileType={FileType.TallyReport}
+        />
+      )}
+      {isConfirmingOfficial && (
+        <Modal
+          centerContent
+          content={
+            <Prose textCenter>
+              <h1>Mark Unofficial Tally Results as Official Tally Results?</h1>
+              <p>
+                Have all CVR and external results files been loaded? Once
+                results are marked as official, no additional CVR or external
+                files can be loaded.
+              </p>
+              <p>Have all unofficial tally reports been reviewed?</p>
+            </Prose>
+          }
+          actions={
+            <React.Fragment>
+              <Button primary onPress={setOfficial}>
+                Mark Tally Results as Official
+              </Button>
+              <Button onPress={cancelConfirmingOfficial}>Cancel</Button>
+            </React.Fragment>
+          }
+          onOverlayClick={cancelConfirmingOfficial}
         />
       )}
       <PrintableArea data-testid="printable-area">
