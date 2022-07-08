@@ -55,11 +55,11 @@ exports[`calls out live ballot sheets in test mode 1`] = `
             Live Ballot
           </div>
           <p>
-            This last scanned sheet 
+            This ballot 
             <strong>
-              was not tabulated
+              has not yet been tabulated
             </strong>
-            .
+            . What would you like to do?
           </p>
           <p>
             Remove the LIVE ballot before continuing.
@@ -219,11 +219,11 @@ exports[`calls out test ballot sheets in live mode 1`] = `
             Test Ballot
           </div>
           <p>
-            This last scanned sheet 
+            This ballot 
             <strong>
-              was not tabulated
+              has not yet been tabulated
             </strong>
-            .
+            . What would you like to do?
           </p>
           <p>
             Remove the TEST ballot before continuing.
@@ -384,40 +384,27 @@ exports[`says the ballot sheet is blank if it is 1`] = `
             Blank Ballot
           </div>
           <p>
-            This last scanned sheet 
+            This ballot 
             <strong>
-              was not tabulated
+              has not yet been tabulated
             </strong>
-            .
+            . What would you like to do?
           </p>
-          <h4>
-            Original Ballot Scan
-          </h4>
           <p>
-            Remove ballot and create a duplicate ballot for the Resolution Board to review.
-            <br />
             <button
               class="sc-gsTCUz ftrorQ"
               type="button"
             >
-              Original Ballot Removed
+              Don't Count It
             </button>
           </p>
-          <h4>
-            Duplicate Ballot Scan
-          </h4>
           <p>
-            Confirm ballot sheet was reviewed by the Resolution Board and tabulate as a 
-            <strong>
-              blank
-            </strong>
-             ballot sheet and has no votes.
             <br />
             <button
               class="sc-gsTCUz ftrorQ"
               type="button"
             >
-              Tabulate Duplicate Ballot
+              Count It As Is
             </button>
           </p>
         </div>
@@ -576,41 +563,27 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
             Overvote
           </div>
           <p>
-            This last scanned sheet 
+            This ballot 
             <strong>
-              was not tabulated
+              has not yet been tabulated
             </strong>
-            .
+            . What would you like to do?
           </p>
-          <h4>
-            Original Ballot Scan
-          </h4>
           <p>
-            Remove ballot and create a duplicate ballot for the Resolution Board to review.
-            <br />
             <button
               class="sc-gsTCUz ftrorQ"
               type="button"
             >
-              Original Ballot Removed
+              Don't Count It
             </button>
           </p>
-          <h4>
-            Duplicate Ballot Scan
-          </h4>
           <p>
-            Confirm ballot sheet was reviewed by the Resolution Board and tabulate as ballot sheet with an
-             
-            <strong>
-              overvote
-            </strong>
-            .
             <br />
             <button
               class="sc-gsTCUz ftrorQ"
               type="button"
             >
-              Tabulate Duplicate Ballot
+              Count It As Is
             </button>
           </p>
         </div>
@@ -769,36 +742,27 @@ exports[`says the ballot sheet is undervoted if it is 1`] = `
             Undervote
           </div>
           <p>
-            This last scanned sheet 
+            This ballot 
             <strong>
-              was not tabulated
+              has not yet been tabulated
             </strong>
-            .
+            . What would you like to do?
           </p>
-          <h4>
-            Original Ballot Scan
-          </h4>
           <p>
-            Remove ballot and create a duplicate ballot for the Resolution Board to review.
-            <br />
             <button
               class="sc-gsTCUz ftrorQ"
               type="button"
             >
-              Original Ballot Removed
+              Don't Count It
             </button>
           </p>
-          <h4>
-            Duplicate Ballot Scan
-          </h4>
           <p>
-            Confirm ballot sheet was reviewed by the Resolution Board and tabulate as ballot with issue which could not be determined.
             <br />
             <button
               class="sc-gsTCUz ftrorQ"
               type="button"
             >
-              Tabulate Duplicate Ballot
+              Count It As Is
             </button>
           </p>
         </div>
@@ -956,11 +920,11 @@ exports[`says the sheet is unreadable if it is 1`] = `
             Unreadable
           </div>
           <p>
-            This last scanned sheet 
+            This ballot 
             <strong>
-              was not tabulated
+              has not yet been tabulated
             </strong>
-            .
+            . What would you like to do?
           </p>
           <p>
             There was a problem reading the ballot. Remove ballot and reload in the scanner to try again.
