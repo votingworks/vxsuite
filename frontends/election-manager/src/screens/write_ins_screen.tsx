@@ -84,7 +84,9 @@ export function WriteInsScreen(): JSX.Element {
                 onPress={() => setContestBeingAdjudicated(contest)}
               >
                 Adjudicate {writeInCountsByContest?.get(contest.id)} write-ins
-                for “{contest.section} {contest.title}”
+                for “
+                {contest.section === contest.title ? '' : `${contest.section} `}
+                {contest.title}”
                 {election && contest.partyId && (
                   <React.Fragment>
                     {' '}
