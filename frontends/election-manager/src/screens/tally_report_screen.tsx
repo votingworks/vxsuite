@@ -52,7 +52,7 @@ export function TallyReportScreen(): JSX.Element {
   const printReportRef = useRef<HTMLDivElement>(null);
   const previewReportRef = useRef<HTMLDivElement>(null);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
-  const [isConfirmingOfficial, setIsConfirmingOfficial] = useState(false);
+  const [isMarkOfficialModalOpen, setIsMarkOfficialModalOpen] = useState(false);
   const { precinctId } = useParams<PrecinctReportScreenProps>();
   const { scannerId } = useParams<ScannerReportScreenProps>();
   const { batchId } = useParams<BatchReportScreenProps>();
@@ -79,10 +79,6 @@ export function TallyReportScreen(): JSX.Element {
 
   const { election } = electionDefinition;
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial';
-
-  const castVoteRecordFileList = castVoteRecordFiles.fileList;
-  const hasCastVoteRecordFiles =
-    castVoteRecordFileList.length > 0 || !!castVoteRecordFiles.lastError;
 
   const precinctName =
     (precinctId &&
@@ -193,14 +189,14 @@ export function TallyReportScreen(): JSX.Element {
     });
   }
 
-  function cancelConfirmingOfficial() {
-    setIsConfirmingOfficial(false);
+  function closeMarkOfficialModal() {
+    setIsMarkOfficialModalOpen(false);
   }
-  function confirmOfficial() {
-    setIsConfirmingOfficial(true);
+  function openMarkOfficialModal() {
+    setIsMarkOfficialModalOpen(true);
   }
-  async function setOfficial() {
-    setIsConfirmingOfficial(false);
+  async function markOfficial() {
+    setIsMarkOfficialModalOpen(false);
     await saveIsOfficialResults();
   }
 
@@ -254,11 +250,11 @@ export function TallyReportScreen(): JSX.Element {
               </Button>
             )}
           </p>
-          {location.pathname === '/reports/full' && (
+          {location.pathname === routerPaths.tallyFullReport && (
             <p>
               <Button
-                disabled={!hasCastVoteRecordFiles || isOfficialResults}
-                onPress={confirmOfficial}
+                disabled={!castVoteRecordFiles.wereAdded || isOfficialResults}
+                onPress={openMarkOfficialModal}
               >
                 Mark Tally Results as Official
               </Button>
@@ -287,7 +283,7 @@ export function TallyReportScreen(): JSX.Element {
           fileType={FileType.TallyReport}
         />
       )}
-      {isConfirmingOfficial && (
+      {isMarkOfficialModalOpen && (
         <Modal
           centerContent
           content={
@@ -303,13 +299,13 @@ export function TallyReportScreen(): JSX.Element {
           }
           actions={
             <React.Fragment>
-              <Button primary onPress={setOfficial}>
+              <Button primary onPress={markOfficial}>
                 Mark Tally Results as Official
               </Button>
-              <Button onPress={cancelConfirmingOfficial}>Cancel</Button>
+              <Button onPress={closeMarkOfficialModal}>Cancel</Button>
             </React.Fragment>
           }
-          onOverlayClick={cancelConfirmingOfficial}
+          onOverlayClick={closeMarkOfficialModal}
         />
       )}
       <PrintableArea data-testid="printable-area">

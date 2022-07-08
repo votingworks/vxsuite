@@ -16,9 +16,6 @@ export function WriteInsScreen(): JSX.Element {
   const { castVoteRecordFiles, electionDefinition, saveTranscribedValue } =
     useContext(AppContext);
   const election = electionDefinition?.election;
-  const castVoteRecordFileList = castVoteRecordFiles.fileList;
-  const hasCastVoteRecordFiles =
-    castVoteRecordFileList.length > 0 || !!castVoteRecordFiles.lastError;
   const contestsWithWriteIns = election?.contests.filter(
     (contest): contest is CandidateContest =>
       contest.type === 'candidate' && contest.allowWriteIns
@@ -71,7 +68,7 @@ export function WriteInsScreen(): JSX.Element {
       <NavigationScreen>
         <Prose maxWidth={false}>
           <h1>Write-Ins</h1>
-          {!hasCastVoteRecordFiles && (
+          {!castVoteRecordFiles.wereAdded && (
             <p>Adjudication can begin once CVRs are imported.</p>
           )}
           {contestsWithWriteIns?.map((contest) => (
@@ -79,7 +76,7 @@ export function WriteInsScreen(): JSX.Element {
               <Button
                 disabled={
                   !(
-                    hasCastVoteRecordFiles &&
+                    castVoteRecordFiles.wereAdded &&
                     writeInCountsByContest?.get(contest.id)
                   )
                 }

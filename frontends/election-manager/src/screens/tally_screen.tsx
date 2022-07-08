@@ -56,10 +56,8 @@ export function TallyScreen(): JSX.Element {
   }
 
   const castVoteRecordFileList = castVoteRecordFiles.fileList;
-  const hasCastVoteRecordFiles =
-    castVoteRecordFileList.length > 0 || !!castVoteRecordFiles.lastError;
   const hasAnyFiles =
-    hasCastVoteRecordFiles || fullElectionExternalTallies.length > 0;
+    castVoteRecordFiles.wereAdded || fullElectionExternalTallies.length > 0;
   const hasExternalSemsFile = fullElectionExternalTallies.some(
     (t) => t.source === ExternalTallySourceType.SEMS
   );
@@ -142,7 +140,7 @@ export function TallyScreen(): JSX.Element {
               Import CVR Files
             </Button>{' '}
             <Button
-              disabled={!hasCastVoteRecordFiles || isOfficialResults}
+              disabled={!castVoteRecordFiles.wereAdded || isOfficialResults}
               onPress={() =>
                 beginConfirmRemoveFiles(ResultsFileType.CastVoteRecord)
               }

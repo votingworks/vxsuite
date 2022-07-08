@@ -456,6 +456,13 @@ export class CastVoteRecordFiles {
     }
     return liveSeen ? 'live' : undefined;
   }
+
+  /**
+   * Whether CVR files were added, even if adding failed with an error.
+   */
+  get wereAdded(): boolean {
+    return this.fileList.length > 0 || Boolean(this.lastError);
+  }
 }
 
 export type SaveCastVoteRecordFiles = (

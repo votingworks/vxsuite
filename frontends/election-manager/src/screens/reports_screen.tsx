@@ -57,10 +57,6 @@ export function ReportsScreen(): JSX.Element {
 
   const partiesForPrimaries = getPartiesWithPrimaryElections(election);
 
-  const castVoteRecordFileList = castVoteRecordFiles.fileList;
-  const hasCastVoteRecordFiles =
-    castVoteRecordFileList.length > 0 || !!castVoteRecordFiles.lastError;
-
   const totalBallotCountInternal =
     fullElectionTally?.overallTally.numberOfBallotsCounted ?? 0;
   const totalBallotCountExternal = fullElectionExternalTallies.reduce(
@@ -188,7 +184,7 @@ export function ReportsScreen(): JSX.Element {
             <LinkButton primary to={routerPaths.tallyFullReport}>
               {statusPrefix} Full Election Tally Report
             </LinkButton>{' '}
-            {hasConverter && hasCastVoteRecordFiles && (
+            {hasConverter && castVoteRecordFiles.wereAdded && (
               <Button onPress={() => setIsExportResultsModalOpen(true)}>
                 Save Results File
               </Button>
