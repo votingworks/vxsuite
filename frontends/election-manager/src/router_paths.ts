@@ -7,6 +7,7 @@ import {
   VotingMethodReportScreenProps,
   ManualDataPrecinctScreenProps,
   BatchReportScreenProps,
+  SmartcardsScreenProps,
 } from './config/types';
 
 export const routerPaths = {
@@ -17,8 +18,8 @@ export const routerPaths = {
   definitionContest: ({ contestId }: { contestId: ContestId }): string =>
     `/definition/contests/${contestId}`,
   smartcards: '/smartcards',
-  electionSmartcards: '/smartcards/election-smartcards',
-  superAdminSmartcards: '/smartcards/super-admin-smartcards',
+  smartcardsByType: ({ smartcardType }: SmartcardsScreenProps): string =>
+    `/smartcards/smartcard-types/${smartcardType}`,
   ballotsList: '/ballots',
   ballotsView: ({ ballotStyleId, precinctId }: BallotScreenProps): string =>
     `/ballots/style/${ballotStyleId}/precinct/${precinctId}`,

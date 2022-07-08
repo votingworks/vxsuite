@@ -1185,7 +1185,7 @@ test('super admin UI has expected nav when VVSG2 auth flows are enabled', async 
   userEvent.click(screen.getByText('Draft Ballots'));
   await screen.findAllByText('View Ballot');
   userEvent.click(screen.getByText('Smartcards'));
-  await screen.findByRole('heading', { name: 'Smartcards' });
+  await screen.findByRole('heading', { name: 'Election Cards' });
   userEvent.click(screen.getByText('Settings'));
   await screen.findByRole('heading', { name: 'Settings' });
   userEvent.click(screen.getByText('Logs'));
@@ -1254,13 +1254,9 @@ test('super admin Smartcards screen navigation', async () => {
   await authenticateWithSuperAdminCard(card);
 
   userEvent.click(screen.getByText('Smartcards'));
-  screen.getByRole('heading', { name: 'Smartcards' });
-
-  screen.getByText(/Admin or Poll Worker/);
+  screen.getByRole('heading', { name: 'Election Cards' });
   userEvent.click(screen.getByText('Create Super Admin Cards'));
-
-  screen.getByText(/Super Admin/);
+  screen.getByRole('heading', { name: 'Super Admin Cards' });
   userEvent.click(screen.getByText('Create Election Cards'));
-
-  screen.getByText(/Admin or Poll Worker/);
+  screen.getByRole('heading', { name: 'Election Cards' });
 });

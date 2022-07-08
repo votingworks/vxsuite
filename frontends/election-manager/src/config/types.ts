@@ -76,6 +76,9 @@ export interface VotingMethodReportScreenProps {
 export interface ManualDataPrecinctScreenProps {
   precinctId: PrecinctId;
 }
+export interface SmartcardsScreenProps {
+  smartcardType: string;
+}
 
 // Tallies
 export interface ExportableContestTally {
