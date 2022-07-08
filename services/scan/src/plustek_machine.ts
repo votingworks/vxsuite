@@ -15,25 +15,24 @@ import {
   PropertyAssigner,
   send,
   TransitionsConfig,
-  interpret as interpretMachine,
 } from 'xstate';
 import { pure } from 'xstate/lib/actions';
 import { SheetOf } from './types';
 
-type ScannerError =
-  | { message: 'both_sides_have_paper' }
-  | { message: 'jammed' }
-  | { message: 'scanning_error' }
-  | { message: 'interpreting_error' }
-  | { message: 'accepting_error' }
-  | { message: 'rejecting_error' }
-  | { message: 'unexpected_event'; event: Event };
+// type ScannerError =
+//   | { message: 'both_sides_have_paper' }
+//   | { message: 'jammed' }
+//   | { message: 'scanning_error'; details: Error }
+//   | { message: 'interpreting_error'; details: Error }
+//   | { message: 'accepting_error'; details: Error }
+//   | { message: 'rejecting_error'; details: Error }
+//   | { message: 'unexpected_event'; event: Event };
 
 export interface Context {
   client?: ScannerClient;
   scannedSheet?: SheetOf<string>;
   interpretation?: PageInterpretation;
-  error?: ScannerError;
+  error?: Error;
 }
 
 function assign(arg: Assigner<Context, any> | PropertyAssigner<Context, any>) {
@@ -50,7 +49,8 @@ export type Event =
   | { type: 'INTERPRETATION_NEEDS_REVIEW' }
   | { type: 'INTERPRETATION_INVALID' }
   | { type: 'REVIEW_ACCEPTED' }
-  | { type: 'REVIEW_REJECTED' };
+  | { type: 'REVIEW_REJECTED' }
+  | { type: 'RESET' };
 
 async function connectToPlustek(): Promise<ScannerClient> {
   const plustekClient = await createClient(DEFAULT_CONFIG);
@@ -101,6 +101,7 @@ const pollPaperStatus: InvokeConfig<Context, Event> = {
 async function scan({ client }: Context): Promise<SheetOf<string>> {
   assert(client);
   const scanResult = await client.scan();
+  console.log('scan', scanResult);
   if (scanResult.isOk()) {
     const [front, back] = scanResult.ok().files;
     return [front, back];
@@ -121,31 +122,27 @@ async function interpretSheet({
 async function accept({ client }: Context) {
   assert(client);
   const acceptResult = await client.accept();
+  console.log('accept', acceptResult);
   if (acceptResult.isOk()) return acceptResult.ok();
   throw acceptResult.err();
 }
 
 async function reject({ client }: Context) {
   assert(client);
-  const rejectResult = await client.reject({ hold: false });
+  const rejectResult = await client.reject({ hold: true });
+  console.log('reject', rejectResult);
   if (rejectResult.isOk()) return rejectResult.ok();
   throw rejectResult.err();
 }
 
 const onUnexpectedEvent: TransitionsConfig<Context, Event> = {
   '*': {
-    target: 'error',
-    actions: (_context, event) =>
-      assign({ error: { message: 'unexpected_event', event } }),
+    target: '#plustek.error_unexpected_event',
+    actions: assign({
+      error: (_context, event) => new Error(`Unexpected event: ${event.type}`),
+    }),
   },
 };
-
-function transitionToErrorState(error: ScannerError) {
-  return {
-    target: 'error',
-    actions: assign({ error }),
-  };
-}
 
 export const machine = createMachine<Context, Event>({
   id: 'plustek',
@@ -160,23 +157,29 @@ export const machine = createMachine<Context, Event>({
           target: 'checking_initial_paper_status',
           actions: assign((_context, event) => ({ client: event.data })),
         },
-        onError: { target: 'error' },
+        onError: 'error_disconnected',
       },
     },
     checking_initial_paper_status: {
       invoke: pollPaperStatus,
       on: {
         SCANNER_NO_PAPER: 'no_paper',
-        SCANNER_READY_TO_SCAN: 'rejecting',
-        SCANNER_READY_TO_EJECT: 'rejecting',
-        SCANNER_BOTH_SIDES_HAVE_PAPER: transitionToErrorState({
-          message: 'both_sides_have_paper',
-        }),
-        SCANNER_JAM: transitionToErrorState({ message: 'jammed' }),
+        // TODO Should just start scanning?
+        SCANNER_READY_TO_SCAN: {
+          target: 'rejecting',
+          actions: assign({ error: new Error('Unexpected ballot in front') }),
+        },
+        SCANNER_READY_TO_EJECT: {
+          target: 'rejecting',
+          actions: assign({ error: new Error('Unexpected ballot in back') }),
+        },
+        SCANNER_BOTH_SIDES_HAVE_PAPER: 'error_both_sides_have_paper',
+        SCANNER_JAM: 'error_jammed',
         ...onUnexpectedEvent,
       },
     },
     no_paper: {
+      entry: assign({ error: undefined }),
       invoke: pollPaperStatus,
       on: {
         SCANNER_NO_PAPER: 'no_paper',
@@ -191,7 +194,10 @@ export const machine = createMachine<Context, Event>({
           target: 'interpreting',
           actions: assign((_context, event) => ({ scannedSheet: event.data })),
         },
-        onError: transitionToErrorState({ message: 'scanning_error' }),
+        onError: {
+          target: 'error_scanning',
+          actions: assign((_context, event) => ({ error: event.data })),
+        },
       },
     },
     interpreting: {
@@ -221,7 +227,10 @@ export const machine = createMachine<Context, Event>({
             }),
           ],
         },
-        onError: transitionToErrorState({ message: 'interpreting_error' }),
+        onError: {
+          target: 'rejecting',
+          actions: assign((_context, event) => ({ error: event.data })),
+        },
       },
       on: {
         INTERPRETATION_VALID: 'accepting',
@@ -233,43 +242,99 @@ export const machine = createMachine<Context, Event>({
     accepting: {
       invoke: {
         src: accept,
-        onDone: { target: 'accepted' },
-        onError: transitionToErrorState({ message: 'accepting_error' }),
+        onDone: 'accepted',
+        onError: {
+          target: 'rejecting',
+          actions: assign((_context, event) => ({ error: event.data })),
+        },
       },
     },
     accepted: {
+      // TODO should we record the interpretation at this point?
+      entry: assign(() => ({
+        scannedSheet: undefined,
+        interpretation: undefined,
+      })),
       invoke: pollPaperStatus,
+      // Delay on this state for 5s to show accepted screen, then go to no_paper
+      // (unless we get a different status in the meantime, e.g. ready to scan)
+      after: {
+        5000: 'checking_initial_paper_status',
+      },
       on: {
-        SCANNER_NO_PAPER: { target: 'no_paper', actions: assign(() => ({})) },
-        SCANNER_READY_TO_EJECT: transitionToErrorState({
-          message: 'accepting_error',
-        }),
+        SCANNER_NO_PAPER: 'accepted',
+        SCANNER_READY_TO_SCAN: 'scanning',
+        // If the paper didn't get dropped, reject it
+        SCANNER_READY_TO_EJECT: {
+          target: 'rejecting',
+          actions: assign({ error: new Error('Failed to accept') }),
+        },
         ...onUnexpectedEvent,
       },
     },
     needs_review: {
-      on: { REVIEW_ACCEPTED: 'accepting', REVIEW_REJECTED: 'rejecting' },
+      // TODO do we need a way to flag that the user requested the ballot to be
+      // returned so we can show a nice message?
+      on: {
+        REVIEW_ACCEPTED: 'accepting',
+        REVIEW_REJECTED: 'rejecting',
+        ...onUnexpectedEvent,
+      },
     },
     rejecting: {
       invoke: {
         src: reject,
-        onDone: { target: 'rejected' },
-        onError: transitionToErrorState({ message: 'rejecting_error' }),
+        onDone: 'rejected',
+        onError: 'error_jammed',
       },
     },
-    // TODO do we need a timeout after rejecting to go back to no_paper?
     rejected: {
       invoke: pollPaperStatus,
       on: {
+        SCANNER_READY_TO_SCAN: 'rejected',
         SCANNER_NO_PAPER: 'no_paper',
-        SCANNER_READY_TO_EJECT: transitionToErrorState({
-          message: 'rejecting_error',
-        }),
-        SCANNER_JAM: transitionToErrorState({ message: 'jammed' }),
+        SCANNER_READY_TO_EJECT: 'error_jammed',
+        SCANNER_JAM: 'error_jammed',
         ...onUnexpectedEvent,
       },
     },
-    error: {},
+    error_scanning: {
+      invoke: pollPaperStatus,
+      on: {
+        SCANNER_READY_TO_EJECT: 'rejecting',
+        SCANNER_READY_TO_SCAN: 'rejecting',
+        SCANNER_NO_PAPER: 'no_paper',
+        SCANNER_BOTH_SIDES_HAVE_PAPER: 'error_both_sides_have_paper',
+        SCANNER_JAM: 'error_jammed',
+      },
+    },
+    error_jammed: {
+      invoke: pollPaperStatus,
+      on: {
+        SCANNER_NO_PAPER: 'no_paper',
+        ...onUnexpectedEvent,
+      },
+    },
+    error_both_sides_have_paper: {
+      invoke: pollPaperStatus,
+      on: {
+        // For now, if the front paper is removed, just reject the back paper,
+        // since we don't have context on what was supposed to happen
+        SCANNER_READY_TO_EJECT: {
+          target: 'rejecting',
+          actions: assign({
+            error: new Error('Detected paper in front and back'),
+          }),
+        },
+        ...onUnexpectedEvent,
+      },
+    },
+    // TODO only retry connecting a fixed number of times
+    error_disconnected: {
+      entry: send('RESET'),
+      on: { RESET: 'connecting' },
+    },
+    error_unexpected_event: {},
   },
 });
 

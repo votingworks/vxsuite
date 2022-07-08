@@ -45,14 +45,20 @@ function MachineTextAdventure() {
             <Text dimColor>Context</Text>
             <Newline />
             {Object.entries(state?.context ?? {}).map(([key, value]) => {
+              let valueString;
               if (key === 'client' && value) {
-                // eslint-disable-next-line no-param-reassign
-                value = { isConnected: (value as ScannerClient).isConnected() };
+                valueString = (value as ScannerClient).isConnected()
+                  ? 'connected'
+                  : 'disconnected';
+              } else if (value instanceof Error) {
+                valueString = value.toString();
+              } else {
+                valueString = JSON.stringify(value);
               }
 
               return (
                 <Text key={key}>
-                  - {key}: {JSON.stringify(value)}
+                  - {key}: {valueString}
                   <Newline />
                 </Text>
               );
