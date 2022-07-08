@@ -38,6 +38,7 @@ class KioskBrowserZipFileWriter extends Writer {
  */
 export class DownloadableArchive {
   private writer?: ZipWriter;
+  private kioskWriter?: KioskBrowser.FileWriter;
 
   constructor(private readonly kiosk = window.kiosk) {}
 
@@ -52,13 +53,13 @@ export class DownloadableArchive {
    * files.
    */
   async beginWithDialog(options?: KioskBrowser.SaveAsOptions): Promise<void> {
-    const fileWriter = await this.getKiosk().saveAs(options);
+    this.kioskWriter = await this.getKiosk().saveAs(options);
 
-    if (!fileWriter) {
+    if (!this.kioskWriter) {
       throw new Error('could not begin download; no file was chosen');
     }
 
-    this.prepareZip(fileWriter);
+    this.prepareZip();
   }
 
   /**
@@ -73,20 +74,23 @@ export class DownloadableArchive {
       recursive: true,
     });
     const filePath = join(pathToFolder, filename);
-    const fileWriter = await this.getKiosk().writeFile(filePath);
+    this.kioskWriter = await this.getKiosk().writeFile(filePath);
 
-    if (!fileWriter) {
+    if (!this.kioskWriter) {
       throw new Error('could not begin download; an error occurred');
     }
 
-    this.prepareZip(fileWriter);
+    this.prepareZip();
   }
 
   /**
    * Prepares the zip archive for writing to the given file writer.
    */
-  private prepareZip(fileWriter: KioskBrowser.FileWriter): void {
-    this.writer = new ZipWriter(new KioskBrowserZipFileWriter(fileWriter));
+  private prepareZip(): void {
+    assert(this.kioskWriter);
+    this.writer = new ZipWriter(
+      new KioskBrowserZipFileWriter(this.kioskWriter)
+    );
   }
 
   /**
@@ -106,11 +110,14 @@ export class DownloadableArchive {
    * Finishes the zip archive and ends the download.
    */
   async end(): Promise<void> {
-    if (!this.writer) {
+    if (!this.writer || !this.kioskWriter) {
       throw new Error('cannot call end() before begin()');
     }
 
     await this.writer.close();
     this.writer = undefined;
+
+    await this.kioskWriter.end();
+    this.kioskWriter = undefined;
   }
 }
