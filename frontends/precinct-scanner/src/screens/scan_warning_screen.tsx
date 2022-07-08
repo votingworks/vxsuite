@@ -50,7 +50,7 @@ function OvervoteWarningScreen({
         <p>Too many marks for:</p>
         <p>{contestNames}</p>
         <Text italic>
-          Remove ballot and ask a poll worker for a new ballot.
+          Remove ballot and place ballot in auxiliary ballot box.
         </Text>
       </CenteredLargeProse>
     </ScreenMainCenterChild>
