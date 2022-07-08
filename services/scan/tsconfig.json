@@ -3,6 +3,7 @@
   "include": ["src", "test"],
   "exclude": [],
   "compilerOptions": {
+    "jsx": "react-jsx",
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
