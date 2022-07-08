@@ -1,83 +1,42 @@
-import React, {
-  useContext,
-  useState,
-  useEffect,
-  useRef,
-  useCallback,
-} from 'react';
+import React, { useContext, useState, useRef } from 'react';
 import moment from 'moment';
 
-import {
-  assert,
-  generateFinalExportDefaultFilename,
-  format,
-  find,
-} from '@votingworks/utils';
-import {
-  isAdminAuth,
-  Modal,
-  Prose,
-  Table,
-  TD,
-  Text,
-  useCancelablePromise,
-} from '@votingworks/ui';
-import { TallyCategory, ExternalTallySourceType } from '@votingworks/types';
-import { LogEventId } from '@votingworks/logging';
+import { assert, format, find } from '@votingworks/utils';
+import { isAdminAuth, Prose, Table, TD, Text } from '@votingworks/ui';
+import { ExternalTallySourceType } from '@votingworks/types';
 import { InputEventFunction, ResultsFileType } from '../config/types';
 
 import { AppContext } from '../contexts/app_context';
-import { MsSemsConverterClient } from '../lib/converters/ms_sems_converter_client';
 import { getPrecinctIdsInExternalTally } from '../utils/external_tallies';
 
 import { Button } from '../components/button';
-import { Loading } from '../components/loading';
 import { NavigationScreen } from '../components/navigation_screen';
 import { routerPaths } from '../router_paths';
 import { LinkButton } from '../components/link_button';
 import { ImportCvrFilesModal } from '../components/import_cvrfiles_modal';
-import { BallotCountsTable } from '../components/ballot_counts_table';
 import { FileInputButton } from '../components/file_input_button';
 import { ConfirmRemovingFileModal } from '../components/confirm_removing_file_modal';
 import { TIME_FORMAT } from '../config/globals';
-import { getPartiesWithPrimaryElections } from '../utils/election';
 import { ImportExternalResultsModal } from '../components/import_external_results_modal';
-import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';
-import { getTallyConverterClient } from '../lib/converters';
 
 export function TallyScreen(): JSX.Element {
-  const makeCancelable = useCancelablePromise();
-
   const {
     castVoteRecordFiles,
     electionDefinition,
     converter,
     isOfficialResults,
-    saveIsOfficialResults,
-    isTabulationRunning,
     fullElectionExternalTallies,
-    generateExportableTallies,
     resetFiles,
-    logger,
     auth,
   } = useContext(AppContext);
   assert(electionDefinition);
   assert(isAdminAuth(auth));
-  const userRole = auth.user.role;
   const { election } = electionDefinition;
-  const isTestMode = castVoteRecordFiles?.fileMode === 'test';
   const externalFileInput = useRef<HTMLInputElement>(null);
 
   const [confirmingRemoveFileType, setConfirmingRemoveFileType] =
     useState<ResultsFileType>();
   const [isImportCvrModalOpen, setIsImportCvrModalOpen] = useState(false);
-  const [isExportResultsModalOpen, setIsExportResultsModalOpen] =
-    useState(false);
-
-  const [isShowingBatchResults, setIsShowingBatchResults] = useState(false);
-  const toggleShowingBatchResults = useCallback(() => {
-    setIsShowingBatchResults(!isShowingBatchResults);
-  }, [isShowingBatchResults, setIsShowingBatchResults]);
 
   function beginConfirmRemoveFiles(fileType: ResultsFileType) {
     setConfirmingRemoveFileType(fileType);
@@ -90,31 +49,15 @@ export function TallyScreen(): JSX.Element {
     await resetFiles(fileType);
   }
 
-  const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial';
-  const [isConfirmingOfficial, setIsConfirmingOfficial] = useState(false);
-  function cancelConfirmingOfficial() {
-    setIsConfirmingOfficial(false);
-  }
-  function confirmOfficial() {
-    setIsConfirmingOfficial(true);
-  }
-  async function setOfficial() {
-    setIsConfirmingOfficial(false);
-    await saveIsOfficialResults();
-  }
-
   function getPrecinctNames(precinctIds: readonly string[]) {
     return precinctIds
       .map((id) => find(election.precincts, (p) => p.id === id).name)
       .join(', ');
   }
-  const partiesForPrimaries = getPartiesWithPrimaryElections(election);
 
   const castVoteRecordFileList = castVoteRecordFiles.fileList;
-  const hasCastVoteRecordFiles =
-    castVoteRecordFileList.length > 0 || !!castVoteRecordFiles.lastError;
   const hasAnyFiles =
-    hasCastVoteRecordFiles || fullElectionExternalTallies.length > 0;
+    castVoteRecordFiles.wereAdded || fullElectionExternalTallies.length > 0;
   const hasExternalSemsFile = fullElectionExternalTallies.some(
     (t) => t.source === ExternalTallySourceType.SEMS
   );
@@ -144,21 +87,6 @@ export function TallyScreen(): JSX.Element {
     }
   }
 
-  const [hasConverter, setHasConverter] = useState(false);
-  useEffect(() => {
-    void (async () => {
-      try {
-        const client = getTallyConverterClient(converter);
-        if (client) {
-          await makeCancelable(client.getFiles());
-          setHasConverter(true);
-        }
-      } catch {
-        setHasConverter(false);
-      }
-    })();
-  }, [converter, makeCancelable]);
-
   const fileMode = castVoteRecordFiles?.fileMode;
   const fileModeText =
     fileMode === 'test'
@@ -166,49 +94,6 @@ export function TallyScreen(): JSX.Element {
       : fileMode === 'live'
       ? 'Currently tallying live ballots.'
       : '';
-
-  let tallyResultsInfo = <Loading>Tabulating Results…</Loading>;
-  if (!isTabulationRunning) {
-    const resultTables = (
-      <React.Fragment>
-        <h2>Ballot Counts by Precinct</h2>
-        <BallotCountsTable breakdownCategory={TallyCategory.Precinct} />
-        <h2>Ballot Counts by Voting Method</h2>
-        <BallotCountsTable breakdownCategory={TallyCategory.VotingMethod} />
-        {partiesForPrimaries.length > 0 && (
-          <React.Fragment>
-            <h2>Ballot Counts by Party</h2>
-            <BallotCountsTable breakdownCategory={TallyCategory.Party} />
-          </React.Fragment>
-        )}
-        <h2>Ballot Counts by Scanner</h2>
-        <Button small onPress={toggleShowingBatchResults}>
-          {isShowingBatchResults
-            ? 'Show Results by Scanner'
-            : 'Show Results by Batch and Scanner'}
-        </Button>
-        <br />
-        <br />
-        {isShowingBatchResults ? (
-          <BallotCountsTable breakdownCategory={TallyCategory.Batch} />
-        ) : (
-          <BallotCountsTable breakdownCategory={TallyCategory.Scanner} />
-        )}
-      </React.Fragment>
-    );
-
-    tallyResultsInfo = (
-      <React.Fragment>
-        {resultTables}
-        <h2>{statusPrefix} Tally Reports</h2>
-        <p>
-          <LinkButton to={routerPaths.tallyFullReport}>
-            View {statusPrefix} Full Election Tally Report
-          </LinkButton>
-        </p>
-      </React.Fragment>
-    );
-  }
 
   const externalTallyRows = fullElectionExternalTallies.map((t) => {
     const precinctsInExternalFile = getPrecinctIdsInExternalTally(t);
@@ -230,199 +115,145 @@ export function TallyScreen(): JSX.Element {
     0
   );
 
-  const generateSemsResults = useCallback(async (): Promise<string> => {
-    await logger.log(LogEventId.ConvertingResultsToSemsFormat, userRole);
-    const exportableTallies = generateExportableTallies();
-    // process on the server
-    const client = new MsSemsConverterClient('tallies');
-    const { inputFiles, outputFiles } = await client.getFiles();
-    const [electionDefinitionFile, talliesFile] = inputFiles;
-    const resultsFile = outputFiles[0];
-
-    await client.setInputFile(
-      electionDefinitionFile.name,
-      new File([electionDefinition.electionData], electionDefinitionFile.name, {
-        type: 'application/json',
-      })
-    );
-    await client.setInputFile(
-      talliesFile.name,
-      new File([JSON.stringify(exportableTallies)], 'tallies')
-    );
-    await client.process();
-
-    // download the result
-    const results = await client.getOutputFile(resultsFile.name);
-
-    // reset files on the server
-    await client.reset();
-    return await results.text();
-  }, [
-    electionDefinition.electionData,
-    generateExportableTallies,
-    logger,
-    userRole,
-  ]);
-
   return (
     <React.Fragment>
       <NavigationScreen>
-        <h1>Election Tally Reports</h1>
-        <h2>Cast Vote Record (CVR) files</h2>
-        <Text>{fileModeText}</Text>
-        <Table data-testid="loaded-file-table">
-          <tbody>
-            {hasAnyFiles ? (
-              <React.Fragment>
-                <tr>
-                  <TD as="th" narrow nowrap>
-                    File Exported At
-                  </TD>
-                  <TD as="th" nowrap>
-                    CVR Count
-                  </TD>
-                  <TD as="th" narrow nowrap>
-                    Scanner ID
-                  </TD>
-                  <TD as="th" nowrap>
-                    Precinct
-                  </TD>
-                </tr>
-                {castVoteRecordFileList.map(
-                  ({
-                    name,
-                    exportTimestamp,
-                    importedCvrCount,
-                    scannerIds,
-                    precinctIds,
-                  }) => (
-                    <tr key={name}>
-                      <TD narrow nowrap>
-                        {moment(exportTimestamp).format(
-                          'MM/DD/YYYY hh:mm:ss A'
-                        )}
-                      </TD>
-                      <TD nowrap>{format.count(importedCvrCount)} </TD>
-                      <TD narrow nowrap>
-                        {scannerIds.join(', ')}
-                      </TD>
-                      <TD>{getPrecinctNames(precinctIds)}</TD>
-                    </tr>
-                  )
-                )}
-                {externalTallyRows}
-                <tr>
-                  <TD as="th" narrow nowrap>
-                    Total CVRs Count
-                  </TD>
-                  <TD as="th" narrow>
-                    {format.count(
-                      castVoteRecordFileList.reduce(
-                        (prev, curr) => prev + curr.importedCvrCount,
-                        0
-                      ) + externalFileBallotCount
-                    )}
-                  </TD>
-                  <TD />
-                  <TD as="th" />
-                </tr>
-              </React.Fragment>
-            ) : (
-              <tr>
-                <TD colSpan={2}>
-                  <em>No CVR files loaded.</em>
-                </TD>
-              </tr>
-            )}
-          </tbody>
-        </Table>
-        <p>
-          <Button
-            onPress={() => setIsImportCvrModalOpen(true)}
-            disabled={isOfficialResults}
-          >
-            Import CVR Files
-          </Button>{' '}
-          {converter === 'ms-sems' && (
-            <React.Fragment>
-              <FileInputButton
-                innerRef={externalFileInput}
-                onChange={importExternalSemsFile}
-                accept="*"
-                data-testid="import-sems-button"
-                disabled={hasExternalSemsFile || isOfficialResults}
-              >
-                Import External Results File
-              </FileInputButton>{' '}
-            </React.Fragment>
-          )}
-          <LinkButton
-            to={routerPaths.manualDataImport}
-            disabled={isOfficialResults}
-          >
-            {hasExternalManualData
-              ? 'Edit Manually Entered Results'
-              : 'Add Manually Entered Results'}
-          </LinkButton>{' '}
-          <Button
-            disabled={!hasCastVoteRecordFiles || isOfficialResults}
-            onPress={confirmOfficial}
-          >
-            Mark Tally Results as Official
-          </Button>
-        </p>
-        {isOfficialResults ? (
-          <p>
+        <Prose maxWidth={false}>
+          <h1>Cast Vote Record (CVR) Management</h1>
+          <Text>{fileModeText}</Text>
+          {isOfficialResults && (
             <Button
               danger
               disabled={!hasAnyFiles}
               onPress={() => beginConfirmRemoveFiles(ResultsFileType.All)}
             >
-              Clear All Results
+              Clear All Tallies and Results
             </Button>
-          </p>
-        ) : (
+          )}
+
           <p>
             <Button
-              danger
-              disabled={!hasCastVoteRecordFiles}
+              primary
+              disabled={isOfficialResults}
+              onPress={() => setIsImportCvrModalOpen(true)}
+            >
+              Import CVR Files
+            </Button>{' '}
+            <Button
+              disabled={!castVoteRecordFiles.wereAdded || isOfficialResults}
               onPress={() =>
                 beginConfirmRemoveFiles(ResultsFileType.CastVoteRecord)
               }
             >
               Remove CVR Files
-            </Button>{' '}
-            {converter === 'ms-sems' && (
-              <React.Fragment>
-                <Button
-                  danger
-                  disabled={!hasExternalSemsFile}
-                  onPress={() => beginConfirmRemoveFiles(ResultsFileType.SEMS)}
-                >
-                  Remove External Results File
-                </Button>{' '}
-              </React.Fragment>
-            )}
+            </Button>
+          </p>
+          <Table data-testid="loaded-file-table">
+            <tbody>
+              {hasAnyFiles ? (
+                <React.Fragment>
+                  <tr>
+                    <TD as="th" narrow nowrap>
+                      File Exported At
+                    </TD>
+                    <TD as="th" nowrap>
+                      CVR Count
+                    </TD>
+                    <TD as="th" narrow nowrap>
+                      Scanner ID
+                    </TD>
+                    <TD as="th" nowrap>
+                      Precinct
+                    </TD>
+                  </tr>
+                  {castVoteRecordFileList.map(
+                    ({
+                      name,
+                      exportTimestamp,
+                      importedCvrCount,
+                      scannerIds,
+                      precinctIds,
+                    }) => (
+                      <tr key={name}>
+                        <TD narrow nowrap>
+                          {moment(exportTimestamp).format(
+                            'MM/DD/YYYY hh:mm:ss A'
+                          )}
+                        </TD>
+                        <TD nowrap>{format.count(importedCvrCount)} </TD>
+                        <TD narrow nowrap>
+                          {scannerIds.join(', ')}
+                        </TD>
+                        <TD>{getPrecinctNames(precinctIds)}</TD>
+                      </tr>
+                    )
+                  )}
+                  {externalTallyRows}
+                  <tr>
+                    <TD as="th" narrow nowrap>
+                      Total CVRs Count
+                    </TD>
+                    <TD as="th" narrow data-testid="total-cvr-count">
+                      {format.count(
+                        castVoteRecordFileList.reduce(
+                          (prev, curr) => prev + curr.importedCvrCount,
+                          0
+                        ) + externalFileBallotCount
+                      )}
+                    </TD>
+                    <TD />
+                    <TD as="th" />
+                  </tr>
+                </React.Fragment>
+              ) : (
+                <tr>
+                  <TD colSpan={2}>
+                    <em>No CVR files loaded.</em>
+                  </TD>
+                </tr>
+              )}
+            </tbody>
+          </Table>
+          <h2>Manually Entered Results</h2>
+          <p>
+            <LinkButton
+              to={routerPaths.manualDataImport}
+              disabled={isOfficialResults}
+            >
+              {hasExternalManualData
+                ? 'Edit Manually Entered Results'
+                : 'Add Manually Entered Results'}
+            </LinkButton>{' '}
             <Button
-              danger
-              disabled={!hasExternalManualData}
+              disabled={!hasExternalManualData || isOfficialResults}
               onPress={() => beginConfirmRemoveFiles(ResultsFileType.Manual)}
             >
               Remove Manual Data
             </Button>
           </p>
-        )}
-        {tallyResultsInfo}
-        {hasConverter && hasCastVoteRecordFiles && (
-          <React.Fragment>
-            <h2>Export Options</h2>
-            <p>
-              <Button onPress={() => setIsExportResultsModalOpen(true)}>
-                Save Results File
-              </Button>
-            </p>
-          </React.Fragment>
-        )}
+          {converter === 'ms-sems' && (
+            <React.Fragment>
+              <h2>External Results</h2>
+              <p>
+                <FileInputButton
+                  innerRef={externalFileInput}
+                  onChange={importExternalSemsFile}
+                  accept="*"
+                  data-testid="import-sems-button"
+                  disabled={hasExternalSemsFile || isOfficialResults}
+                >
+                  Import External Results File
+                </FileInputButton>{' '}
+                <Button
+                  disabled={!hasExternalSemsFile || isOfficialResults}
+                  onPress={() => beginConfirmRemoveFiles(ResultsFileType.SEMS)}
+                >
+                  Remove External Results File
+                </Button>
+              </p>
+            </React.Fragment>
+          )}
+        </Prose>
       </NavigationScreen>
       {confirmingRemoveFileType && (
         <ConfirmRemovingFileModal
@@ -431,52 +262,14 @@ export function TallyScreen(): JSX.Element {
           onCancel={cancelConfirmingRemoveFiles}
         />
       )}
-      {isConfirmingOfficial && (
-        <Modal
-          centerContent
-          content={
-            <Prose textCenter>
-              <h1>Mark Unofficial Tally Results as Official Tally Results?</h1>
-              <p>
-                Have all CVR and external results files been loaded? Once
-                results are marked as official, no additional CVR or external
-                files can be loaded.
-              </p>
-              <p>Have all unofficial tally reports been reviewed?</p>
-            </Prose>
-          }
-          actions={
-            <React.Fragment>
-              <Button primary onPress={setOfficial}>
-                Mark Tally Results as Official
-              </Button>
-              <Button onPress={cancelConfirmingOfficial}>Cancel</Button>
-            </React.Fragment>
-          }
-          onOverlayClick={cancelConfirmingOfficial}
-        />
-      )}
       {isImportExternalModalOpen && (
         <ImportExternalResultsModal
           onClose={closeExternalFileImport}
           selectedFile={externalResultsSelectedFile}
         />
       )}
-
       {isImportCvrModalOpen && (
         <ImportCvrFilesModal onClose={() => setIsImportCvrModalOpen(false)} />
-      )}
-      {isExportResultsModalOpen && (
-        <SaveFileToUsb
-          onClose={() => setIsExportResultsModalOpen(false)}
-          generateFileContent={generateSemsResults}
-          defaultFilename={generateFinalExportDefaultFilename(
-            isTestMode,
-            electionDefinition.election
-          )}
-          fileType={FileType.Results}
-          promptToEjectUsb
-        />
       )}
     </React.Fragment>
   );

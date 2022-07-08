@@ -72,11 +72,12 @@ export function NavigationScreen({
         ? [
             { label: 'Ballots', routerPath: routerPaths.ballotsList },
             { label: 'L&A', routerPath: routerPaths.logicAndAccuracy },
+            { label: 'Tally', routerPath: routerPaths.tally },
             isWriteInAdjudicationEnabled() && {
               label: 'Write-Ins',
               routerPath: routerPaths.writeIns,
             },
-            { label: 'Tally', routerPath: routerPaths.tally },
+            { label: 'Reports', routerPath: routerPaths.reports },
           ]
         : [];
     } else {
@@ -86,11 +87,12 @@ export function NavigationScreen({
             { label: 'Smartcards', routerPath: routerPaths.smartcards },
             { label: 'Ballots', routerPath: routerPaths.ballotsList },
             { label: 'L&A', routerPath: routerPaths.logicAndAccuracy },
+            { label: 'Tally', routerPath: routerPaths.tally },
             isWriteInAdjudicationEnabled() && {
               label: 'Write-Ins',
               routerPath: routerPaths.writeIns,
             },
-            { label: 'Tally', routerPath: routerPaths.tally },
+            { label: 'Reports', routerPath: routerPaths.reports },
             { label: 'Advanced', routerPath: routerPaths.advanced },
           ]
         : [

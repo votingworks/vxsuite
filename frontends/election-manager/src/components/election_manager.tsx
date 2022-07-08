@@ -38,6 +38,7 @@ import { WriteInsScreen } from '../screens/write_ins_screen';
 import { LogicAndAccuracyScreen } from '../screens/logic_and_accuracy_screen';
 import { SettingsScreen } from '../screens/settings_screen';
 import { LogsScreen } from '../screens/logs_screen';
+import { ReportsScreen } from '../screens/reports_screen';
 import {
   areVvsg2AuthFlowsEnabled,
   isWriteInAdjudicationEnabled,
@@ -257,6 +258,9 @@ export function ElectionManager(): JSX.Element {
       </Route>
       <Route exact path={routerPaths.tally}>
         <TallyScreen />
+      </Route>
+      <Route exact path={routerPaths.reports}>
+        <ReportsScreen />
       </Route>
       <Route
         exact

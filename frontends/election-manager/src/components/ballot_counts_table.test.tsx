@@ -90,7 +90,7 @@ describe('Ballot Counts by Precinct', () => {
       expect(tableRow).toBeDefined();
       expect(domGetByText(tableRow!, 0)).toBeInTheDocument();
       expect(
-        domGetByText(tableRow!, `View Unofficial ${precinct.name} Tally Report`)
+        domGetByText(tableRow!, `Unofficial ${precinct.name} Tally Report`)
       ).toBeInTheDocument();
     }
     getByText('Total Ballot Count');
@@ -98,7 +98,7 @@ describe('Ballot Counts by Precinct', () => {
     expect(tableRow).toBeDefined();
     expect(domGetByText(tableRow!, 0)).toBeInTheDocument();
     expect(
-      domGetByText(tableRow!, 'View Unofficial Tally Reports for All Precincts')
+      domGetByText(tableRow!, 'Unofficial Tally Reports for All Precincts')
     ).toBeInTheDocument();
 
     // There should be 2 more rows then the number of precincts (header row and totals row)
@@ -125,7 +125,7 @@ describe('Ballot Counts by Precinct', () => {
         domGetByText(tableRow!, expectedNumberOfBallots)
       ).toBeInTheDocument();
       expect(
-        domGetByText(tableRow!, `View Unofficial ${precinct.name} Tally Report`)
+        domGetByText(tableRow!, `Unofficial ${precinct.name} Tally Report`)
       ).toBeInTheDocument();
     }
     getByText('Total Ballot Count');
@@ -133,7 +133,7 @@ describe('Ballot Counts by Precinct', () => {
     expect(tableRow).toBeDefined();
     expect(domGetByText(tableRow!, 77)).toBeInTheDocument();
     expect(
-      domGetByText(tableRow!, 'View Unofficial Tally Reports for All Precincts')
+      domGetByText(tableRow!, 'Unofficial Tally Reports for All Precincts')
     ).toBeInTheDocument();
 
     // There should be 2 more rows then the number of precincts (header row and totals row)
@@ -162,7 +162,7 @@ describe('Ballot Counts by Precinct', () => {
         domGetByText(tableRow!, expectedNumberOfBallots)
       ).toBeInTheDocument();
       expect(
-        domGetByText(tableRow!, `View Unofficial ${precinct.name} Tally Report`)
+        domGetByText(tableRow!, `Unofficial ${precinct.name} Tally Report`)
       ).toBeInTheDocument();
     }
     getByText('Total Ballot Count');
@@ -170,7 +170,7 @@ describe('Ballot Counts by Precinct', () => {
     expect(tableRow).toBeDefined();
     expect(domGetByText(tableRow!, 131)).toBeInTheDocument();
     expect(
-      domGetByText(tableRow!, 'View Unofficial Tally Reports for All Precincts')
+      domGetByText(tableRow!, 'Unofficial Tally Reports for All Precincts')
     ).toBeInTheDocument();
 
     // There should be 2 more rows then the number of precincts (header row and totals row)
@@ -250,7 +250,7 @@ describe('Ballot Counts by Scanner', () => {
         expect(
           domGetByText(
             tableRow!,
-            `View Unofficial Scanner ${scannerId} Tally Report`
+            `Unofficial Scanner ${scannerId} Tally Report`
           )
         ).toBeInTheDocument();
       }
@@ -288,7 +288,7 @@ describe('Ballot Counts by Scanner', () => {
         expect(
           domGetByText(
             tableRow!,
-            `View Unofficial Scanner ${scannerId} Tally Report`
+            `Unofficial Scanner ${scannerId} Tally Report`
           )
         ).toBeInTheDocument();
       }
@@ -386,7 +386,7 @@ describe('Ballots Counts by Party', () => {
       expect(tableRow).toBeDefined();
       expect(domGetByText(tableRow!, 0)).toBeInTheDocument();
       expect(
-        domGetByText(tableRow!, `View Unofficial ${partyName} Tally Report`)
+        domGetByText(tableRow!, `Unofficial ${partyName} Tally Report`)
       ).toBeInTheDocument();
     }
 
@@ -394,9 +394,6 @@ describe('Ballots Counts by Party', () => {
     const tableRow = getByText('Total Ballot Count').closest('tr');
     expect(tableRow).toBeDefined();
     expect(domGetByText(tableRow!, 0)).toBeInTheDocument();
-    expect(
-      domGetByText(tableRow!, 'View Unofficial Full Election Tally Report')
-    ).toBeInTheDocument();
 
     expect(getAllByTestId('table-row').length).toBe(expectedParties.length + 2);
   });
@@ -428,7 +425,7 @@ describe('Ballots Counts by Party', () => {
         domGetByText(tableRow!, expectedNumberOfBallots)
       ).toBeInTheDocument();
       expect(
-        domGetByText(tableRow!, `View Unofficial ${partyName} Tally Report`)
+        domGetByText(tableRow!, `Unofficial ${partyName} Tally Report`)
       ).toBeInTheDocument();
     }
 
@@ -436,9 +433,6 @@ describe('Ballots Counts by Party', () => {
     const tableRow = getByText('Total Ballot Count').closest('tr');
     expect(tableRow).toBeDefined();
     expect(domGetByText(tableRow!, 77)).toBeInTheDocument();
-    expect(
-      domGetByText(tableRow!, 'View Unofficial Full Election Tally Report')
-    ).toBeInTheDocument();
 
     expect(getAllByTestId('table-row').length).toBe(expectedParties.length + 2);
   });
@@ -472,7 +466,7 @@ describe('Ballots Counts by Party', () => {
         domGetByText(tableRow!, expectedNumberOfBallots)
       ).toBeInTheDocument();
       expect(
-        domGetByText(tableRow!, `View Unofficial ${partyName} Tally Report`)
+        domGetByText(tableRow!, `Unofficial ${partyName} Tally Report`)
       ).toBeInTheDocument();
     }
 
@@ -480,9 +474,6 @@ describe('Ballots Counts by Party', () => {
     const tableRow = getByText('Total Ballot Count').closest('tr');
     expect(tableRow).toBeDefined();
     expect(domGetByText(tableRow!, 131)).toBeInTheDocument();
-    expect(
-      domGetByText(tableRow!, 'View Unofficial Full Election Tally Report')
-    ).toBeInTheDocument();
 
     expect(getAllByTestId('table-row').length).toBe(expectedParties.length + 2);
   });
@@ -536,7 +527,7 @@ describe('Ballots Counts by VotingMethod', () => {
       expect(tableRow).toBeDefined();
       expect(domGetByText(tableRow!, 0)).toBeInTheDocument();
       expect(
-        domGetByText(tableRow!, `View Unofficial ${label} Ballot Tally Report`)
+        domGetByText(tableRow!, `Unofficial ${label} Ballot Tally Report`)
       ).toBeInTheDocument();
     }
 
@@ -572,7 +563,7 @@ describe('Ballots Counts by VotingMethod', () => {
         domGetByText(tableRow!, expectedNumberOfBallots)
       ).toBeInTheDocument();
       expect(
-        domGetByText(tableRow!, `View Unofficial ${label} Ballot Tally Report`)
+        domGetByText(tableRow!, `Unofficial ${label} Ballot Tally Report`)
       ).toBeInTheDocument();
     }
 
@@ -616,7 +607,7 @@ describe('Ballots Counts by VotingMethod', () => {
         domGetByText(tableRow!, expectedNumberOfBallots)
       ).toBeInTheDocument();
       expect(
-        domGetByText(tableRow!, `View Unofficial ${label} Ballot Tally Report`)
+        domGetByText(tableRow!, `Unofficial ${label} Ballot Tally Report`)
       ).toBeInTheDocument();
     }
 
@@ -736,7 +727,7 @@ describe('Ballots Counts by Batch', () => {
       ).toBeInTheDocument();
       expect(domGetByText(tableRow, scannerLabel)).toBeInTheDocument();
       expect(
-        domGetByText(tableRow, `View Unofficial ${label} Tally Report`)
+        domGetByText(tableRow, `Unofficial ${label} Tally Report`)
       ).toBeInTheDocument();
     }
 
@@ -790,7 +781,7 @@ describe('Ballots Counts by Batch', () => {
       domGetByText(tableRow!, label);
       domGetByText(tableRow!, expectedNumberOfBallots);
       domGetByText(tableRow!, scannerLabel);
-      domGetByText(tableRow!, `View Unofficial ${label} Tally Report`);
+      domGetByText(tableRow!, `Unofficial ${label} Tally Report`);
     }
 
     const externalTableRow = getAllByTestId('batch-external')[0].closest('tr');

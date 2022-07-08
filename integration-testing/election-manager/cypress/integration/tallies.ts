@@ -15,9 +15,10 @@ describe('Election Manager can create SEMS tallies', () => {
       'multiPartyPrimaryCVRResults.jsonl'
     );
     cy.contains('Close').click();
-    cy.get('[data-testid="total-ballot-count"]').within(() =>
+    cy.get('[data-testid="total-cvr-count"]').within(() =>
       cy.contains('4,530')
     );
+    cy.contains('Reports').click();
     cy.contains('Save Results File').click();
     cy.get('[data-testid="manual-export"]').click();
     cy.contains('Results Saved');

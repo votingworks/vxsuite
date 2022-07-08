@@ -150,8 +150,8 @@ export function PrintedBallotsReportScreen(): JSX.Element {
         </PrintButton>
       </p>
       <p className="no-print">
-        <LinkButton small to={routerPaths.ballotsList}>
-          Back to List Ballots
+        <LinkButton small to={routerPaths.reports}>
+          Back to Reports
         </LinkButton>
       </p>
 

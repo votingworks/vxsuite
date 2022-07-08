@@ -51,7 +51,6 @@ import { App } from './app';
 
 import { fakePrinter } from '../test/helpers/fake_printer';
 import { eitherNeitherElectionDefinition } from '../test/render_in_app_context';
-import { hasTextAcrossElements } from '../test/util/has_text_across_elements';
 
 import { convertSemsFileToExternalTally } from './utils/sems_tallies';
 import {
@@ -467,10 +466,8 @@ test('L&A features are available after test results are loaded', async () => {
 
   // Confirm that test results are loaded
   userEvent.click(screen.getByText('Tally'));
-  await waitFor(() =>
-    expect(screen.getByTestId('total-ballot-count').textContent).toEqual('100')
-  );
   screen.getByText('Currently tallying test ballots.', { exact: false });
+  expect(screen.getByTestId('total-cvr-count').textContent).toEqual('100');
 
   // Confirm that L&A materials are available
   userEvent.click(screen.getByText('L&A'));
@@ -493,14 +490,8 @@ test('printing ballots and printed ballots report', async () => {
   jest.advanceTimersByTime(2000); // Cause the usb drive to be detected
   await authenticateWithAdminCard(card);
 
+  fireEvent.click(getByText('Reports'));
   await screen.findByText('0 official ballots');
-
-  getByText('Mock General Election Choctaw 2020');
-  getByText(
-    hasTextAcrossElements(
-      `Election ID${eitherNeitherElectionDefinition.electionHash.slice(0, 10)}`
-    )
-  );
 
   fireEvent.click(getByText('Ballots'));
   fireEvent.click(getAllByText('View Ballot')[0]);
@@ -524,7 +515,7 @@ test('printing ballots and printed ballots report', async () => {
 
   await waitFor(() => !getByText('Printing'));
 
-  fireEvent.click(getByText('Ballots'));
+  fireEvent.click(getByText('Reports'));
   getByText('3 official ballots', { exact: false });
   fireEvent.click(getByText('Printed Ballots Report'));
   expect(getAllByText(/2 absentee ballots/).length).toBe(2);
@@ -560,15 +551,14 @@ test('tabulating CVRs', async () => {
   jest.advanceTimersByTime(2000); // Cause the usb drive to be detected
   await authenticateWithAdminCard(card);
 
-  await screen.findByText('0 official ballots');
+  fireEvent.click(getByText('Reports'));
+  expect(getByTestId('total-ballot-count').textContent).toEqual('100');
 
-  fireEvent.click(getByText('Tally'));
-
-  await waitFor(() =>
-    expect(getByTestId('total-ballot-count').textContent).toEqual('100')
+  fireEvent.click(getByText('Unofficial Full Election Tally Report'));
+  expect(mockKiosk.log).toHaveBeenCalledWith(
+    expect.stringContaining(LogEventId.TallyReportPreviewed)
   );
 
-  getByText('View Unofficial Full Election Tally Report');
   fireEvent.click(getByText('Mark Tally Results as Official'));
   getByText('Mark Unofficial Tally Results as Official Tally Results?');
   const modal = await screen.findByRole('alertdialog');
@@ -577,22 +567,19 @@ test('tabulating CVRs', async () => {
     expect.stringContaining(LogEventId.MarkedTallyResultsOfficial)
   );
 
-  fireEvent.click(getByText('View Official Full Election Tally Report'));
-  expect(mockKiosk.log).toHaveBeenCalledWith(
-    expect.stringContaining(LogEventId.TallyReportPreviewed)
-  );
   // Report title should be rendered 3 times - app, preview, and printed
   expect(
     getAllByText('Official Mock General Election Choctaw 2020 Tally Report')
       .length
   ).toBe(3);
+
   // TODO: Snapshots without clear definition of what they are for cause future developers to have to figure out what the test is for each time this test breaks.
   const printableArea1 = getByTestId('printable-area');
   expect(
     within(printableArea1).getByTestId('election-full-tally-report')
   ).toMatchSnapshot();
 
-  fireEvent.click(getByText('Tally'));
+  fireEvent.click(getByText('Reports'));
 
   fireEvent.click(getByText('Show Results by Batch and Scanner'));
   getByText('Batch Name');
@@ -622,16 +609,16 @@ test('tabulating CVRs', async () => {
     expect.stringContaining(LogEventId.FileSaved)
   );
 
-  fireEvent.click(getByText('View Official Batch 2 Tally Report'));
+  fireEvent.click(getByText('Official Batch 2 Tally Report'));
   getByText('Official Batch Tally Report for Batch 2 (Scanner: scanner-1)');
   const printableArea2 = getByTestId('printable-area');
   const totalRow = within(printableArea2).getByTestId('total');
   expect(totalRow).toHaveTextContent('4');
 
-  fireEvent.click(getByText('Back to Tally Index'));
+  fireEvent.click(getByText('Back to Reports'));
 
   await waitFor(() => {
-    fireEvent.click(getByText('View Official Tally Reports for All Precincts'));
+    fireEvent.click(getByText('Official Tally Reports for All Precincts'));
   });
 
   getByText(
@@ -659,7 +646,7 @@ test('tabulating CVRs', async () => {
   });
 
   fetchMock.post('/convert/reset', { body: { status: 'ok' } });
-  fireEvent.click(getByText('Tally'));
+  fireEvent.click(getByText('Reports'));
   await waitFor(() => getByText('Save Results File'));
   fireEvent.click(getByText('Save Results File'));
   jest.advanceTimersByTime(2000);
@@ -702,18 +689,16 @@ test('tabulating CVRs', async () => {
 
   // Clear results
   fireEvent.click(getByText('Tally'));
-  fireEvent.click(getByText('Clear All Results'));
+  fireEvent.click(getByText('Clear All Tallies and Results'));
   fireEvent.click(getByText('Remove All Data'));
-  await waitFor(() =>
-    expect(getByTestId('total-ballot-count').textContent).toEqual('0')
-  );
+  await waitFor(() => expect(getByText('No CVR files loaded.')));
   expect(mockKiosk.log).toHaveBeenCalledWith(
     expect.stringContaining(LogEventId.RemovedTallyFile)
   );
 
-  // When there are no CVRs imported the full tally report is labeled as the zero report
-  fireEvent.click(getByText('View Unofficial Full Election Tally Report'));
-  // Verify the zero report generates properly
+  fireEvent.click(getByText('Reports'));
+  expect(getByTestId('total-ballot-count').textContent).toEqual('0');
+  fireEvent.click(getByText('Unofficial Full Election Tally Report'));
   const printableArea3 = getByTestId('printable-area');
   expect(within(printableArea3).getAllByText('0').length).toBe(40);
 });
@@ -745,16 +730,14 @@ test('tabulating CVRs with SEMS file', async () => {
   jest.advanceTimersByTime(2000);
   await authenticateWithAdminCard(card);
 
-  await screen.findByText('0 official ballots');
-
   fireEvent.click(getByText('Tally'));
+  getByText('External Results (sems-results.csv)');
 
-  await waitFor(() =>
-    expect(getByTestId('total-ballot-count').textContent).toEqual('200')
-  );
-  expect(getAllByText('External Results (sems-results.csv)').length).toBe(2);
+  fireEvent.click(getByText('Reports'));
+  getByText('External Results (sems-results.csv)');
+  expect(getByTestId('total-ballot-count').textContent).toEqual('200');
 
-  fireEvent.click(getByText('View Unofficial Full Election Tally Report'));
+  fireEvent.click(getByText('Unofficial Full Election Tally Report'));
 
   // Report title should be rendered 3 times - app, preview, and printed
   expect(
@@ -779,7 +762,7 @@ test('tabulating CVRs with SEMS file', async () => {
   expect(
     within(printableArea2).getByTestId('election-full-tally-report')
   ).toMatchSnapshot();
-  fireEvent.click(getByText('Back to Tally Index'));
+  fireEvent.click(getByText('Back to Reports'));
 
   // Test exporting the final results
   fetchMock.post('/convert/tallies/submitfile', { body: { status: 'ok' } });
@@ -820,14 +803,15 @@ test('tabulating CVRs with SEMS file', async () => {
   fireEvent.click(getByText('Close'));
 
   // Test removing the SEMS file
+  fireEvent.click(getByText('Tally'));
   fireEvent.click(getByText('Remove External Results File'));
   fireEvent.click(getByText('Remove External Files'));
-
   await waitFor(() =>
-    expect(getByTestId('total-ballot-count').textContent).toEqual('100')
+    expect(getByTestId('total-cvr-count').textContent).toEqual('100')
   );
 
-  fireEvent.click(getByText('View Unofficial Full Election Tally Report'));
+  fireEvent.click(getByText('Reports'));
+  fireEvent.click(getByText('Unofficial Full Election Tally Report'));
 });
 
 test('tabulating CVRs with SEMS file and manual data', async () => {
@@ -857,13 +841,8 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
   );
   await authenticateWithAdminCard(card);
 
-  await screen.findByText('0 official ballots');
-
   fireEvent.click(getByText('Tally'));
-
-  await waitFor(() =>
-    expect(getByTestId('total-ballot-count').textContent).toEqual('200')
-  );
+  expect(getByTestId('total-cvr-count').textContent).toEqual('200');
 
   fireEvent.click(getByText('Add Manually Entered Results'));
   getByText('Manually Entered Precinct Results');
@@ -894,10 +873,7 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
     expect(getByTestId('total-ballots-entered').textContent).toEqual('100');
   });
   fireEvent.click(getByText('Back to Tally'));
-  await waitFor(() => {
-    expect(getByTestId('total-ballot-count').textContent).toEqual('300');
-  });
-  expect(getAllByText('External Results (Manually Added Data)').length).toBe(2);
+  expect(getByTestId('total-cvr-count').textContent).toEqual('300');
 
   const fileTable = getByTestId('loaded-file-table');
   const manualRow = domGetByText(
@@ -907,7 +883,11 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
   domGetByText(manualRow, '100');
   domGetByText(manualRow, 'District 5');
 
-  fireEvent.click(getByText('View Unofficial Full Election Tally Report'));
+  fireEvent.click(getByText('Reports'));
+  getByText('External Results (Manually Added Data)');
+  expect(getByTestId('total-ballot-count').textContent).toEqual('300');
+
+  fireEvent.click(getByText('Unofficial Full Election Tally Report'));
   // Report title should be rendered 3 times - app, preview, and printed
   expect(
     getAllByText('Unofficial Mock General Election Choctaw 2020 Tally Report')
@@ -927,7 +907,7 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
   domGetByText(totalRow1, '300');
 
   // Now edit the manual data
-  fireEvent.click(getByText('Back to Tally Index'));
+  fireEvent.click(getByText('Tally'));
   fireEvent.click(getByText('Edit Manually Entered Results'));
 
   // Existing data is still there
@@ -960,13 +940,9 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
   await waitFor(() => {
     expect(getByTestId('total-ballots-entered').textContent).toEqual('200');
   });
+
   fireEvent.click(getByText('Back to Tally'));
-
-  await waitFor(() => {
-    expect(getByTestId('total-ballot-count').textContent).toEqual('400');
-  });
-  expect(getAllByText('External Results (Manually Added Data)').length).toBe(2);
-
+  expect(getByTestId('total-cvr-count').textContent).toEqual('400');
   const fileTable2 = getByTestId('loaded-file-table');
   const manualRow2 = domGetByText(
     fileTable2,
@@ -975,7 +951,11 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
   domGetByText(manualRow2, '200');
   domGetByText(manualRow2, 'District 5, Panhandle');
 
-  fireEvent.click(getByText('View Unofficial Full Election Tally Report'));
+  fireEvent.click(getByText('Reports'));
+  expect(getByTestId('total-ballot-count').textContent).toEqual('400');
+  getByText('External Results (Manually Added Data)');
+
+  fireEvent.click(getByText('Unofficial Full Election Tally Report'));
   // Report title should be rendered 3 times - app, preview, and printed
   expect(
     getAllByText('Unofficial Mock General Election Choctaw 2020 Tally Report')
@@ -995,18 +975,18 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
   domGetByText(totalRow2, '400');
 
   // Remove the manual data
-  fireEvent.click(getByText('Back to Tally Index'));
+  fireEvent.click(getByText('Tally'));
   fireEvent.click(getByText('Remove Manual Data'));
 
   getByText('Do you want to remove the manually entered data?');
   const modal = await screen.findByRole('alertdialog');
   fireEvent.click(within(modal).getByText('Remove Manual Data'));
   await waitFor(() => {
-    expect(getByTestId('total-ballot-count').textContent).toEqual('200');
+    expect(getByTestId('total-cvr-count').textContent).toEqual('200');
+    expect(
+      queryAllByText('External Results (Manually Added Data)').length
+    ).toBe(0);
   });
-  expect(queryAllByText('External Results (Manually Added Data)').length).toBe(
-    0
-  );
 });
 
 test('changing election resets sems, cvr, and manual data files', async () => {
@@ -1044,10 +1024,9 @@ test('changing election resets sems, cvr, and manual data files', async () => {
   );
 
   await authenticateWithAdminCard(card);
+
+  fireEvent.click(getByText('Reports'));
   await screen.findByText('0 official ballots');
-
-  fireEvent.click(getByText('Tally'));
-
   await waitFor(() =>
     expect(getByTestId('total-ballot-count').textContent).toEqual('300')
   );
@@ -1058,11 +1037,8 @@ test('changing election resets sems, cvr, and manual data files', async () => {
   await waitFor(() => {
     fireEvent.click(getByText('Create New Election Definition'));
   });
-  fireEvent.click(getByText('Tally'));
 
-  await waitFor(() =>
-    expect(getByTestId('total-ballot-count').textContent).toEqual('0')
-  );
+  fireEvent.click(getByText('Tally'));
   getByText('No CVR files loaded.');
 });
 
@@ -1095,7 +1071,7 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
-  const { getByText, getByTestId } = render(
+  const { getByText, getByTestId, queryByText } = render(
     <App
       storage={storage}
       card={card}
@@ -1104,42 +1080,55 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
     />
   );
   await authenticateWithAdminCard(card);
+
+  fireEvent.click(getByText('Reports'));
   await screen.findByText('0 official ballots');
-
-  fireEvent.click(getByText('Tally'));
-
   await waitFor(() =>
     expect(getByTestId('total-ballot-count').textContent).toEqual('300')
   );
 
-  fireEvent.click(getByText('Tally'));
+  fireEvent.click(getByText('Unofficial Full Election Tally Report'));
   fireEvent.click(getByText('Mark Tally Results as Official'));
   const modal = await screen.findByRole('alertdialog');
   fireEvent.click(within(modal).getByText('Mark Tally Results as Official'));
 
-  getByText('View Official Full Election Tally Report');
-  expect(getByText('Import CVR Files').closest('button')).toBeDisabled();
-  expect(getByTestId('import-sems-button')).toBeDisabled();
+  fireEvent.click(getByText('Reports'));
+  getByText('Official Full Election Tally Report');
 
-  fireEvent.click(getByText('Clear All Results'));
+  fireEvent.click(getByText('Tally'));
+  expect(getByText('Import CVR Files').closest('button')).toBeDisabled();
+  expect(getByText('Remove CVR Files').closest('button')).toBeDisabled();
+  expect(
+    getByText('Edit Manually Entered Results').closest('button')
+  ).toBeDisabled();
+  expect(getByText('Remove Manual Data').closest('button')).toBeDisabled();
+  expect(getByTestId('import-sems-button')).toBeDisabled();
+  expect(
+    getByText('Remove External Results File').closest('button')
+  ).toBeDisabled();
+
+  fireEvent.click(getByText('Clear All Tallies and Results'));
   getByText(
     'Do you want to remove the 1 uploaded CVR file, the external results file sems-results.csv, and the manually entered data?'
   );
   fireEvent.click(getByText('Remove All Data'));
 
-  await waitFor(() =>
-    expect(getByText('Remove CVR Files').closest('button')).toBeDisabled()
-  );
+  await waitFor(() => {
+    expect(getByText('Import CVR Files').closest('button')).toBeEnabled();
+  });
+  expect(
+    getByText('Add Manually Entered Results').closest('button')
+  ).toBeEnabled();
+  expect(getByTestId('import-sems-button')).toBeEnabled();
+
+  expect(getByText('Remove CVR Files').closest('button')).toBeDisabled();
+  expect(getByText('Remove Manual Data').closest('button')).toBeDisabled();
   expect(
     getByText('Remove External Results File').closest('button')
   ).toBeDisabled();
 
-  expect(getByText('Import CVR Files').closest('button')).toBeEnabled();
-  expect(getByTestId('import-sems-button')).toBeEnabled();
+  expect(queryByText('Clear All Tallies and Results')).not.toBeInTheDocument();
 
-  await waitFor(() =>
-    expect(getByTestId('total-ballot-count').textContent).toEqual('0')
-  );
   getByText('No CVR files loaded.');
 });
 
@@ -1160,7 +1149,11 @@ test('admin UI has expected nav when VVSG2 auth flows are enabled', async () => 
   userEvent.click(screen.getByText('L&A'));
   await screen.findByRole('heading', { name: 'L&A Materials' });
   userEvent.click(screen.getByText('Tally'));
-  await screen.findByRole('heading', { name: 'Election Tally Reports' });
+  await screen.findByRole('heading', {
+    name: 'Cast Vote Record (CVR) Management',
+  });
+  userEvent.click(screen.getByText('Reports'));
+  await screen.findByRole('heading', { name: 'Election Reports' });
   screen.getByRole('button', { name: 'Lock Machine' });
 
   expect(screen.queryByText('Definition')).not.toBeInTheDocument();
