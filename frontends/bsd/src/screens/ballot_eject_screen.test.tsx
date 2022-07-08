@@ -151,14 +151,14 @@ test('says the ballot sheet is overvoted if it is', async () => {
     })
   );
 
-  fireEvent.click(getByText('Original Ballot Removed'));
-  fireEvent.click(getByText('Confirm Ballot Removed and Continue Scanning'));
+  fireEvent.click(getByText("Don't Count It"));
+  fireEvent.click(getByText("I've Removed the Ballot, Continue Scanning"));
   expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false });
 
   continueScanning.mockClear();
 
-  fireEvent.click(getByText('Tabulate Duplicate Ballot'));
-  fireEvent.click(getByText('Tabulate Ballot and Continue Scanning'));
+  fireEvent.click(getByText('Count It As Is'));
+  fireEvent.click(getByText('Count It and Keep Scanning'));
   expect(continueScanning).toHaveBeenCalledWith({
     forceAccept: true,
     frontMarkAdjudications: [],
@@ -260,14 +260,14 @@ test('says the ballot sheet is undervoted if it is', async () => {
     })
   );
 
-  fireEvent.click(getByText('Original Ballot Removed'));
-  fireEvent.click(getByText('Confirm Ballot Removed and Continue Scanning'));
+  fireEvent.click(getByText("Don't Count It"));
+  fireEvent.click(getByText("I've Removed the Ballot, Continue Scanning"));
   expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false });
 
   continueScanning.mockClear();
 
-  fireEvent.click(getByText('Tabulate Duplicate Ballot'));
-  fireEvent.click(getByText('Tabulate Ballot and Continue Scanning'));
+  fireEvent.click(getByText('Count It As Is'));
+  fireEvent.click(getByText('Count It and Keep Scanning'));
   expect(continueScanning).toHaveBeenCalledWith({
     forceAccept: true,
     frontMarkAdjudications: [],
@@ -376,14 +376,14 @@ test('says the ballot sheet is blank if it is', async () => {
     })
   );
 
-  fireEvent.click(getByText('Original Ballot Removed'));
-  fireEvent.click(getByText('Confirm Ballot Removed and Continue Scanning'));
+  fireEvent.click(getByText("Don't Count It"));
+  fireEvent.click(getByText("I've Removed the Ballot, Continue Scanning"));
   expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false });
 
   continueScanning.mockClear();
 
-  fireEvent.click(getByText('Tabulate Duplicate Ballot'));
-  fireEvent.click(getByText('Tabulate Ballot and Continue Scanning'));
+  fireEvent.click(getByText('Count It As Is'));
+  fireEvent.click(getByText('Count It and Keep Scanning'));
   expect(continueScanning).toHaveBeenCalledWith({
     forceAccept: true,
     frontMarkAdjudications: [],
@@ -571,7 +571,7 @@ test('shows invalid election screen when appropriate', async () => {
 
   getByText('Wrong Election');
   getByText('Ballot Election Hash: this-is-a-');
-  expect(queryAllByText('Tabulate Duplicate Ballot').length).toBe(0);
+  expect(queryAllByText('Count It As Is').length).toBe(0);
   expect(logger.log).toHaveBeenCalledTimes(1);
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ScanAdjudicationInfo,
@@ -652,7 +652,7 @@ test('shows invalid precinct screen when appropriate', async () => {
   );
 
   getByText('Wrong Precinct');
-  expect(queryAllByText('Tabulate Duplicate Ballot').length).toBe(0);
+  expect(queryAllByText('Count It As Is').length).toBe(0);
 
   fireEvent.click(getByText('Confirm Ballot Removed and Continue Scanning'));
   expect(continueScanning).toHaveBeenCalledWith({ forceAccept: false });
