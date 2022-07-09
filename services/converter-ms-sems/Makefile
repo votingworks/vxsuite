@@ -1,23 +1,26 @@
 
-install-python:
-	sudo apt install -y python3-dev python3-pip
+add-ppa:
+	apt-cache search --names-only "^python3.9$$" | grep python || sudo add-apt-repository -y ppa:deadsnakes/ppa # add deadsnakes only if we need to
+
+install-python: add-ppa
+	sudo apt install -y python3.9 python3.9-dev python3-distutils python3-pip
 
 install: install-python
 
 install-dependencies:
-	python3 -m pip install pipenv || sudo python3 -m pip install pipenv
-	python3 -m pipenv install
+	python3.9 -m pip install pipenv
+	python3.9 -m pipenv install
 
 install-dev-dependencies:
-	python3 -m pipenv install --dev
+	python3.9 -m pipenv install --dev
 
 build: install-dependencies
 
 test:
-	pipenv run python -m pytest
+	python3.9 -m pipenv run python -m pytest
 
 coverage:
-	pipenv run python -m pytest --cov=converter --cov-report term-missing --cov-fail-under=100 tests/
+	python3.9 -m pipenv run python3.9 -m pytest --cov=converter --cov-report term-missing --cov-fail-under=100 tests/
 
 run:
-	FLASK_APP=converter.core python3 -m pipenv run python -m flask run --port 3003
+	FLASK_APP=converter.core python3.9 -m pipenv run python -m flask run --port 3003
