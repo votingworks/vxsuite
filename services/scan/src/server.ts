@@ -336,6 +336,14 @@ export function buildApp({ store, importer }: AppOptions): Application {
     }
   );
 
+  app.post<NoParams, Scan.ScanContinueResponse, Scan.ScanBatchRequest>(
+    '/scan/precinctScanNoInterpret',
+    async (_request, response) => {
+      await importer.doTestScan();
+      response.json({ status: 'ok' });
+    }
+  );
+
   app.post<NoParams, Scan.ScanContinueResponse, Scan.ScanContinueRequest>(
     '/scan/scanContinue',
     async (request, response) => {

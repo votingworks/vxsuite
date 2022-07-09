@@ -1,5 +1,5 @@
 import { Scan } from '@votingworks/api';
-import React, { useCallback, useEffect, useReducer } from 'react';
+import React, { useCallback, useEffect, useReducer, useState } from 'react';
 import useInterval from '@rooks/use-interval';
 import 'normalize.css';
 import makeDebug from 'debug';
@@ -316,6 +316,8 @@ export function AppRoot({
   machineConfig: machineConfigProvider,
   logger,
 }: Props): JSX.Element {
+  const [isScanTesting, setIsScanTesting] = useState(false);
+  const [numScanTests, setNumScanTests] = useState(0);
   const [appState, dispatchAppState] = useReducer(appReducer, initialAppState);
   const {
     electionDefinition,
@@ -376,6 +378,24 @@ export function AppRoot({
       TIME_TO_DISMISS_ERROR_SUCCESS_SCREENS_MS
     );
   }, [dispatchAppState]);
+
+  // scan testing local storage
+  useEffect(() => {
+    let num = 0;
+    try {
+      num =
+        JSON.parse(window.localStorage['__vx_testing_num_scan_tests'])[
+          'numScanTests'
+        ] || 0;
+    } finally {
+      setNumScanTests(num);
+    }
+  }, []);
+  useEffect(() => {
+    window.localStorage['__vx_testing_num_scan_tests'] = JSON.stringify({
+      numScanTests,
+    });
+  }, [numScanTests]);
 
   // Handle Machine Config
   useEffect(() => {
@@ -552,9 +572,43 @@ export function AppRoot({
     POLLING_INTERVAL_FOR_SCANNER_STATUS_MS
   );
 
+  const [
+    startBallotStatusPollingForScanTesting,
+    endBallotStatusPollingForScanTesting,
+  ] = useInterval(async () => {
+    try {
+      const { scannerState } = await scan.getCurrentStatus();
+      console.log('Getting state', scannerState);
+
+      // Figure out what ballot state we are in, defaulting to the current state.
+      if (scannerState === Scan.ScannerStatus.ReadyToScan) {
+        console.log('Scanning');
+        await scan.scanDetectedSheetNoInterpret();
+        setNumScanTests(numScanTests + 1);
+      }
+    } catch (err) {
+      debug('error in fetching module scan status');
+    }
+  }, POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
+
   const togglePollsOpen = useCallback(() => {
     dispatchAppState({ type: 'togglePollsOpen' });
   }, []);
+
+  useEffect(() => {
+    if (isSuperadminAuth(auth) && isScanTesting) {
+      console.log('starting interval');
+      startBallotStatusPollingForScanTesting();
+    } else {
+      console.log('ending interval');
+      endBallotStatusPollingForScanTesting();
+    }
+  }, [
+    auth,
+    isScanTesting,
+    startBallotStatusPollingForScanTesting,
+    endBallotStatusPollingForScanTesting,
+  ]);
 
   useEffect(() => {
     if (
@@ -709,6 +763,27 @@ export function AppRoot({
   }
 
   if (isSuperadminAuth(auth)) {
+    if (isScanTesting) {
+      return (
+        <ScreenMainCenterChild infoBar>
+          <CenteredLargeProse>
+            <h1>Scan Testing</h1>
+            <Button onPress={() => setIsScanTesting(false)}>
+              Stop Scan Testing
+            </Button>
+            <br />
+            <br />
+            <p>
+              <b># Scanned:</b> {numScanTests}
+            </p>
+            <Button onPress={() => setNumScanTests(0)}>
+              Reset Scan Testing Counter
+            </Button>
+          </CenteredLargeProse>
+        </ScreenMainCenterChild>
+      );
+    }
+
     return (
       <ScreenMainCenterChild infoBar>
         <CenteredLargeProse>
@@ -719,6 +794,9 @@ export function AppRoot({
           <br />
           <br />
           <Button onPress={() => window.kiosk?.quit()}>Reset</Button>
+          <br />
+          <br />
+          <Button onPress={() => setIsScanTesting(true)}>Scan Testing</Button>
         </CenteredLargeProse>
       </ScreenMainCenterChild>
     );

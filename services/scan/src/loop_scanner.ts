@@ -97,6 +97,9 @@ export class LoopScanner implements Scanner {
     return Scan.ScannerStatus.Unknown;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  async scanSheetsNoInterpret(): Promise<void> {}
+
   /**
    * "Scans" the next sheet by returning the paths for the next two images.
    */

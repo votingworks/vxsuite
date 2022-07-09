@@ -91,6 +91,25 @@ export class PlustekScanner implements Scanner {
     return await this.getHardwareStatus();
   }
 
+  async scanSheetsNoInterpret(): Promise<void> {
+    const clientResult = await this.clientProvider.get();
+    const client = clientResult.ok();
+
+    if (!client) {
+      return;
+    }
+
+    const scanResult = await client.scan({
+      shouldRetry: retryFor({
+        seconds: SCANNER_RETRY_DURATION_SECONDS,
+      }),
+    });
+
+    if (!scanResult.isErr()) {
+      await client.accept();
+    }
+  }
+
   scanSheets({ directory, pageSize }: ScanOptions = {}): BatchControl {
     debug('scanSheets: ignoring directory: %s', directory);
     debug('scanSheets: ignoring pageSize: %s', pageSize);

@@ -478,6 +478,13 @@ export class Importer {
   }
 
   /**
+   * for testing
+   */
+  async doTestScan(): Promise<void> {
+    await this.scanner.scanSheetsNoInterpret();
+  }
+
+  /**
    * Create a new batch and begin the scanning process
    */
   async startImport(): Promise<string> {

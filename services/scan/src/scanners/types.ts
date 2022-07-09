@@ -18,6 +18,7 @@ export interface ScanOptions {
 export interface Scanner {
   getStatus(): Promise<Scan.ScannerStatus>;
   scanSheets(options?: ScanOptions): BatchControl;
+  scanSheetsNoInterpret(): Promise<void>;
   calibrate(): Promise<boolean>;
 }
 

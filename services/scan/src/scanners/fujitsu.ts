@@ -55,6 +55,9 @@ export class FujitsuScanner implements Scanner {
     return Scan.ScannerStatus.Unknown;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  async scanSheetsNoInterpret(): Promise<void> {}
+
   scanSheets({
     directory = dirSync().name,
     pageSize = BallotPaperSize.Letter,

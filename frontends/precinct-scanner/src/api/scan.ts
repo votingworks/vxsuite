@@ -82,6 +82,16 @@ export async function scanDetectedSheet(): Promise<ScanningResult> {
   }
 }
 
+export async function scanDetectedSheetNoInterpret(): Promise<void> {
+  const result = await (
+    await fetch('/scan/precinctScanNoInterpret', { method: 'post' })
+  ).json();
+
+  if (result.status === 'error') {
+    throw new Error(result.error);
+  }
+}
+
 export async function acceptBallotAfterReview(): Promise<boolean> {
   const body: Scan.ScanContinueRequest = {
     forceAccept: true,
