@@ -1,5 +1,6 @@
 import {
   AnyCardDataSchema,
+  CardProgramming,
   CardStorage,
   DippedSmartcardAuth,
   err,
@@ -106,6 +107,18 @@ export function buildCardStorage(
       } finally {
         cardWriteLock.unlock();
       }
+    },
+  };
+}
+
+export function buildCardProgramming(
+  cardSummary: CardSummaryReady
+): CardProgramming {
+  return {
+    programmedUser: parseUserFromCardSummary(cardSummary),
+    programUser: /* istanbul ignore next */ () => {
+      // A stub soon to be populated
+      return Promise.resolve(ok());
     },
   };
 }
