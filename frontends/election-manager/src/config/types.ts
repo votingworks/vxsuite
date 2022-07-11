@@ -157,7 +157,7 @@ export const ConverterClientTypeSchema = z.union([
 ]);
 
 export type SmartcardType = 'election' | 'super-admin';
-export const smartcardTypeRegex = '(election|super-admin)';
+export const SmartcardTypeRegExPattern = '(election|super-admin)';
 
 export interface MachineConfig {
   machineId: string;
