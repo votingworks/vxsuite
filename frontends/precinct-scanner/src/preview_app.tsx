@@ -21,6 +21,7 @@ import * as ScanProcessingScreen from './screens/scan_processing_screen';
 import * as ScanSuccessScreen from './screens/scan_success_screen';
 import * as ScanWarningScreen from './screens/scan_warning_screen';
 import * as SetupPowerPage from './screens/setup_power_page';
+import * as SetupScannerInternalWiringScreen from './screens/setup_scanner_internal_wiring_screen';
 import * as SetupScannerScreen from './screens/setup_scanner_screen';
 import * as UnconfiguredElectionScreen from './screens/unconfigured_election_screen';
 
@@ -45,6 +46,7 @@ export function PreviewApp(): JSX.Element {
         ScanSuccessScreen,
         ScanWarningScreen,
         SetupPowerPage,
+        SetupScannerInternalWiringScreen,
         SetupScannerScreen,
         UnconfiguredElectionScreen,
       ]}

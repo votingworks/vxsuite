@@ -4,14 +4,14 @@ import {
   CenteredLargeProse,
 } from '../components/layout';
 
-export function SetupScannerScreen(): JSX.Element {
+export function SetupScannerInternalWiringScreen(): JSX.Element {
   return (
     <ScreenMainCenterChild infoBar={false}>
       <CenteredLargeProse>
         <h1>Scanner Not Detected</h1>
         <p>
-          Please ask a poll worker to check that the power cable is connected to
-          an outlet.
+          There is an internal connection problem. Please report to election
+          clerk.
         </p>
       </CenteredLargeProse>
     </ScreenMainCenterChild>
@@ -20,5 +20,5 @@ export function SetupScannerScreen(): JSX.Element {
 
 /* istanbul ignore next */
 export function DefaultPreview(): JSX.Element {
-  return <SetupScannerScreen />;
+  return <SetupScannerInternalWiringScreen />;
 }
