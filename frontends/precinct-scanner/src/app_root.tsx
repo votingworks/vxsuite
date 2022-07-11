@@ -67,6 +67,7 @@ import { AppContext } from './contexts/app_context';
 import { SetupPowerPage } from './screens/setup_power_page';
 import { CardErrorScreen } from './screens/card_error_screen';
 import { SetupScannerScreen } from './screens/setup_scanner_screen';
+import { SetupScannerInternalWiringScreen } from './screens/setup_scanner_internal_wiring_screen';
 import { ScreenMainCenterChild, CenteredLargeProse } from './components/layout';
 import { InsertUsbScreen } from './screens/insert_usb_screen';
 
@@ -723,6 +724,12 @@ export function AppRoot({
     );
   }
 
+  // If the power cord is plugged in, but we can't detect a scanner, it's an internal wiring issue
+  if (computer.batteryIsCharging && !precinctScanner) {
+    return <SetupScannerInternalWiringScreen />;
+  }
+
+  // Otherwise if we can't detect the scanner, the power cord is likely not plugged in
   if (!precinctScanner) {
     return <SetupScannerScreen />;
   }

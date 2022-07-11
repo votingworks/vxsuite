@@ -192,11 +192,12 @@ test('show card backwards screen when card connection error occurs', async () =>
   await screen.findByText('Polls Closed');
 });
 
-test('shows setup scanner screen when there is no plustek scanner', async () => {
+test('shows internal wiring message when there is no plustek scanner, but tablet is plugged in', async () => {
   const card = new MemoryCard();
   const storage = new MemoryStorage();
   const hardware = MemoryHardware.buildStandard();
   hardware.setPrecinctScannerConnected(false);
+  hardware.setBatteryDischarging(false);
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
     .get('/config/election', { body: electionSampleDefinition })
@@ -206,7 +207,29 @@ test('shows setup scanner screen when there is no plustek scanner', async () => 
   // don't poll for scan status when the scanner is disconnected.
   render(<App card={card} storage={storage} hardware={hardware} />);
   await screen.findByRole('heading', { name: 'Scanner Not Detected' });
-  screen.getByText('Please ask a poll worker to connect scanner.');
+  screen.getByText(
+    'There is an internal connection problem, please report to election clerk.'
+  );
+});
+
+test('shows power cable message when there is no plustek scanner and tablet is not plugged in', async () => {
+  const card = new MemoryCard();
+  const storage = new MemoryStorage();
+  const hardware = MemoryHardware.buildStandard();
+  hardware.setPrecinctScannerConnected(false);
+  hardware.setBatteryDischarging(true);
+  fetchMock
+    .get('/machine-config', { body: getMachineConfigBody })
+    .get('/config/election', { body: electionSampleDefinition })
+    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
+    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody });
+  // Note that we don't mock /scan/status here because we want to make sure that we
+  // don't poll for scan status when the scanner is disconnected.
+  render(<App card={card} storage={storage} hardware={hardware} />);
+  await screen.findByRole('heading', { name: 'Scanner Not Detected' });
+  screen.getByText(
+    'Please ask a poll worker to check that the power cable is connected to an outlet.'
+  );
 
   fetchMock.get('/scan/status', {
     body: scanStatusWaitingForPaperResponseBody,
