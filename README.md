@@ -21,11 +21,6 @@ Most of the code is written in TypeScript. We follow the
 and parts of [Airbnb JavaScript Style Guide](https://airbnb.io/javascript/),
 with most of it enforced by ESLint rules.
 
-By default developing a React app will show ESLint errors while developing. To
-disable this feature, run with this environment variable:
-`ESLINT_NO_DEV_ERRORS=true`. If you always prefer not to have this behavior,
-consider setting that in your shell configuration (e.g. `.bashrc`).
-
 ### Developing on a VM from MacOS
 
 We strongly recommend development in this repo on a VM running Debian. Our
