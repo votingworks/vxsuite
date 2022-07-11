@@ -10,6 +10,7 @@ export enum PaperStatus {
   Loading = 'PAPER_STATUS_LOADING',
   Ejecting = 'PAPER_STATUS_EJECTING',
   Jam = 'PAPER_STATUS_JAM',
+  JamError = 'PLKSS_ERRCODE_PAPER_STATUS_JAM',
   ErrorFeeding = 'PAPER_STATUS_ERROR_FEEDING',
   CoverOpened = 'PAPER_STATUS_COVER_OPENED',
   Scanning = 'PAPER_STATUS_SCANNING',

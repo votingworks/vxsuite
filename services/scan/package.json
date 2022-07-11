@@ -23,7 +23,7 @@
     "test:coverage": "jest --coverage",
     "test:debug": "node --inspect-brk $(which jest) --runInBand --no-cache",
     "test:watch": "jest --watch",
-    "run-machine": "esr ./src/machine_cli.tsx",
+    "run-machine": "esr ./src/cli/run_machine.tsx",
     "pre-commit": "lint-staged"
   },
   "lint-staged": {
@@ -73,6 +73,7 @@
     "ora": "^5.2.0",
     "pdfjs-dist": "2.3.200",
     "react": "^17.0.1",
+    "rxjs": "^7.5.5",
     "tmp": "^0.2.1",
     "uuid": "^8.3.2",
     "xstate": "^4.32.1",

@@ -6,7 +6,7 @@ import {
 } from '@votingworks/plustek-sdk';
 import { PageInterpretation } from '@votingworks/types';
 import { assert, throwIllegalValue } from '@votingworks/utils';
-import { interval, map, switchMap, timer } from 'rxjs';
+import { switchMap, timer } from 'rxjs';
 import {
   assign as xassign,
   Assigner,
@@ -18,26 +18,23 @@ import {
   TransitionsConfig,
 } from 'xstate';
 import { pure } from 'xstate/lib/actions';
-import { retryFor } from './scanners';
 import { SheetOf } from './types';
 
-// type ScannerError =
-//   | { message: 'both_sides_have_paper' }
-//   | { message: 'jammed' }
-//   | { message: 'scanning_error'; details: Error }
-//   | { message: 'interpreting_error'; details: Error }
-//   | { message: 'accepting_error'; details: Error }
-//   | { message: 'rejecting_error'; details: Error }
-//   | { message: 'unexpected_event'; event: Event };
+// Temporary mode to control how we fake interpreting ballots
+export type InterpretationMode = 'valid' | 'invalid' | 'adjudicate';
 
 export interface Context {
   client?: ScannerClient;
+  ballotsCounted: number;
   scannedSheet?: SheetOf<string>;
   interpretation?: PageInterpretation;
   error?: Error;
+  interpretationMode: InterpretationMode;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function assign(arg: Assigner<Context, any> | PropertyAssigner<Context, any>) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return xassign<Context, any>(arg);
 }
 
@@ -50,23 +47,17 @@ export type Event =
   | { type: 'INTERPRETATION_VALID' }
   | { type: 'INTERPRETATION_NEEDS_REVIEW' }
   | { type: 'INTERPRETATION_INVALID' }
-  | { type: 'REVIEW_ACCEPTED' }
-  | { type: 'REVIEW_REJECTED' };
+  | { type: 'REVIEW_CAST' }
+  | { type: 'REVIEW_RETURN' }
+  | { type: 'SET_INTERPRETATION_MODE'; mode: InterpretationMode };
 
-async function connectToPlustek({ client }: Context): Promise<ScannerClient> {
-  // TODO when we timeout on a scan attempt, sometimes the plustek gets non-responsive to paper status requests
-  // this was an attempt to close and reopen the connection, but it didn't work
-  if (client) {
-    void client.close();
-  }
+async function connectToPlustek(): Promise<ScannerClient> {
   const plustekClient = await createClient(DEFAULT_CONFIG);
   // console.log(plustekClient);
   if (plustekClient.isOk()) return plustekClient.ok();
   throw plustekClient.err();
 }
 
-// TODO it's possible to get a "no paper" status when a paper is jammed in the back after scanning
-// Need to repro this and handle
 function paperStatusToEventType(paperStatus: PaperStatus): Event['type'] {
   switch (paperStatus) {
     // When there's no paper in the scanner
@@ -83,6 +74,7 @@ function paperStatusToEventType(paperStatus: PaperStatus): Event['type'] {
     case PaperStatus.VtmBothSideHavePaper:
       return 'SCANNER_BOTH_SIDES_HAVE_PAPER';
     // When there's a paper jammed in the scanner
+    case PaperStatus.JamError:
     case PaperStatus.VtmFrontAndBackSensorHavePaperReady:
       return 'SCANNER_JAM';
     default:
@@ -95,11 +87,10 @@ function paperStatusToEventType(paperStatus: PaperStatus): Event['type'] {
 function paperStatusObserver({ client }: Context) {
   assert(client);
   return timer(0, 500).pipe(
-    switchMap(async (i) => {
-      console.log(i);
+    switchMap(async () => {
       const paperStatus = await client.getPaperStatus();
       if (paperStatus.isOk()) {
-        console.log(paperStatus.ok());
+        // console.log(paperStatus.ok());
         return { type: paperStatusToEventType(paperStatus.ok()) };
       }
       throw paperStatus.err();
@@ -109,45 +100,17 @@ function paperStatusObserver({ client }: Context) {
 
 const pollPaperStatus: InvokeConfig<Context, Event> = {
   src: paperStatusObserver,
-  onDone: 'error_disconnected',
-  onError: 'error_disconnected',
-};
-
-const getPaperStatus: InvokeConfig<Context, Event> = {
-  src: async ({ client }: Context) => {
-    assert(client);
-    // console.log('getPaperStatus');
-    const paperStatus = await client.getPaperStatus();
-    if (paperStatus.isOk()) {
-      // console.log(paperStatus.ok());
-      return { type: paperStatusToEventType(paperStatus.ok()) };
-    }
-    throw paperStatus.err();
+  onError: {
+    target: 'error_disconnected',
+    actions: assign({ error: (_, event) => event.data }),
   },
-  onDone: { actions: send((_context, event) => event.data) },
-  onError: 'error_disconnected',
 };
-// const pollPaperStatus: InvokeConfig<Context, Event> = {
-//   src:
-//     ({ client }: Context) =>
-//     (callback) => {
-//       assert(client);
-//       const interval = setInterval(async () => {
-//         const paperStatus = await client.getPaperStatus();
-//         if (paperStatus.isOk()) {
-//           return callback(paperStatusToEventType(paperStatus.ok()));
-//         }
-//         throw paperStatus.err();
-//       }, 1000);
-//       return () => clearInterval(interval);
-//     },
-//   onError: { target: 'error_disconnected' },
-// };
 
 async function scan({ client }: Context): Promise<SheetOf<string>> {
   assert(client);
+  // console.log('start scan');
   const scanResult = await client.scan({
-    shouldRetry: retryFor({ seconds: 1 }),
+    // shouldRetry: retryFor({ seconds: 1 }),
   });
   // console.log('scan result', scanResult);
   if (scanResult.isOk()) {
@@ -159,12 +122,20 @@ async function scan({ client }: Context): Promise<SheetOf<string>> {
 
 // eslint-disable-next-line @typescript-eslint/require-await
 async function interpretSheet({
-  scannedSheet,
+  interpretationMode,
 }: Context): Promise<PageInterpretation> {
   // console.log('interpreting', scannedSheet);
   // TODO hook up interpreter worker pool
-  // return { type: 'BlankPage' };
-  return { type: 'InterpretedBmdPage' };
+  switch (interpretationMode) {
+    case 'valid':
+      return { type: 'InterpretedBmdPage' } as unknown as PageInterpretation;
+    case 'invalid':
+      return { type: 'UnreadablePage' };
+    case 'adjudicate':
+      return { type: 'BlankPage' };
+    default:
+      throwIllegalValue(interpretationMode);
+  }
 }
 
 async function accept({ client }: Context) {
@@ -184,6 +155,9 @@ async function reject({ client }: Context) {
 }
 
 const onUnexpectedEvent: TransitionsConfig<Context, Event> = {
+  SET_INTERPRETATION_MODE: {
+    actions: assign({ interpretationMode: (_, event) => event.mode }),
+  },
   '*': {
     target: '#plustek.error_unexpected_event',
     actions: assign({
@@ -196,8 +170,15 @@ export const machine = createMachine<Context, Event>({
   id: 'plustek',
   initial: 'connecting',
   strict: true,
-  context: { client: undefined },
+  context: { interpretationMode: 'valid', ballotsCounted: 0 },
+  on: {
+    SET_INTERPRETATION_MODE: {
+      actions: assign({ interpretationMode: (_, event) => event.mode }),
+    },
+  },
   states: {
+    // TODO should we close and reconnect to plustek after every scan finishes
+    // to avoid long-running process crashes?
     connecting: {
       invoke: {
         src: connectToPlustek,
@@ -208,8 +189,10 @@ export const machine = createMachine<Context, Event>({
         onError: 'error_disconnected',
       },
     },
-    // TODO only retry connecting a fixed number of times
     error_disconnected: {
+      after: { 500: 'reconnecting' },
+    },
+    reconnecting: {
       invoke: {
         src: connectToPlustek,
         onDone: {
@@ -220,10 +203,9 @@ export const machine = createMachine<Context, Event>({
       },
     },
     checking_initial_paper_status: {
-      invoke: getPaperStatus,
+      invoke: pollPaperStatus,
       on: {
         SCANNER_NO_PAPER: 'no_paper',
-        // TODO Should just start scanning?
         SCANNER_READY_TO_SCAN: {
           target: 'rejecting',
           actions: assign({ error: new Error('Unexpected ballot in front') }),
@@ -238,7 +220,11 @@ export const machine = createMachine<Context, Event>({
       },
     },
     no_paper: {
-      entry: assign({ error: undefined }),
+      entry: assign({
+        error: undefined,
+        scannedSheet: undefined,
+        interpretation: undefined,
+      }),
       invoke: pollPaperStatus,
       on: {
         SCANNER_NO_PAPER: { target: 'no_paper', internal: true },
@@ -247,6 +233,7 @@ export const machine = createMachine<Context, Event>({
       },
     },
     scanning: {
+      entry: assign({ error: undefined }),
       invoke: {
         src: scan,
         onDone: {
@@ -256,12 +243,6 @@ export const machine = createMachine<Context, Event>({
         onError: {
           target: 'error_scanning',
           actions: assign((_context, event) => ({ error: event.data })),
-        },
-      },
-      after: {
-        5000: {
-          target: 'error_disconnected',
-          actions: assign({ error: new Error('Scanning timed out') }),
         },
       },
     },
@@ -289,7 +270,7 @@ export const machine = createMachine<Context, Event>({
                   return send('INTERPRETATION_NEEDS_REVIEW');
                 case 'InterpretedBmdPage':
                 case 'InterpretedHmpbPage':
-                  // TODO check for adjudication?
+                  // TODO check for adjudication
                   return send('INTERPRETATION_VALID');
                 case 'InvalidElectionHashPage':
                 case 'InvalidPrecinctPage':
@@ -325,14 +306,13 @@ export const machine = createMachine<Context, Event>({
         },
       },
     },
+    // TODO record the interpretation at this point?
     accepted: {
-      // TODO should we record the interpretation at this point?
-      entry: assign(() => ({
-        scannedSheet: undefined,
-        interpretation: undefined,
-      })),
       // Delay on this state for 5s to show accepted screen, then go to no_paper
       // (unless we get a different status in the meantime, e.g. ready to scan)
+      entry: assign({
+        ballotsCounted: (context) => context.ballotsCounted + 1,
+      }),
       after: { 5000: 'no_paper' },
       invoke: pollPaperStatus,
       on: {
@@ -348,11 +328,40 @@ export const machine = createMachine<Context, Event>({
       },
     },
     needs_review: {
-      // TODO do we need a way to flag that the user requested the ballot to be
-      // returned so we can show a nice message?
       on: {
-        REVIEW_ACCEPTED: 'accepting',
-        REVIEW_REJECTED: 'rejecting',
+        REVIEW_CAST: 'accepting',
+        REVIEW_RETURN: 'returning',
+        ...onUnexpectedEvent,
+      },
+    },
+    returning: {
+      invoke: {
+        src: reject,
+        onDone: 'checking_returning_completed',
+        onError: 'error_jammed',
+      },
+    },
+    // After rejecting, even though the plustek is holding the paper, it sends a
+    // NO_PAPER status before sending READY_TO_SCAN. So we need to wait for the
+    // READY_TO_SCAN.
+    checking_returning_completed: {
+      invoke: pollPaperStatus,
+      on: {
+        SCANNER_NO_PAPER: {
+          target: 'checking_returning_completed',
+          internal: true,
+        },
+        SCANNER_READY_TO_SCAN: 'returned',
+        SCANNER_READY_TO_EJECT: 'error_jammed',
+        SCANNER_JAM: 'error_jammed',
+        ...onUnexpectedEvent,
+      },
+    },
+    returned: {
+      invoke: pollPaperStatus,
+      on: {
+        SCANNER_READY_TO_SCAN: { target: 'returned', internal: true },
+        SCANNER_NO_PAPER: 'no_paper',
         ...onUnexpectedEvent,
       },
     },
@@ -391,10 +400,8 @@ export const machine = createMachine<Context, Event>({
     error_jammed: {
       invoke: pollPaperStatus,
       on: {
-        SCANNER_JAM: { target: 'error_jammed', internal: true },
         SCANNER_NO_PAPER: 'no_paper',
-        SCANNER_READY_TO_SCAN: 'rejecting',
-        ...onUnexpectedEvent,
+        '*': { target: 'error_jammed', internal: true },
       },
     },
     error_both_sides_have_paper: {
@@ -419,13 +426,3 @@ export const machine = createMachine<Context, Event>({
     error_unexpected_event: {},
   },
 });
-
-// const service = interpretMachine(machine).onTransition((state) => {
-//   const { error } = state.context;
-//   console.log('Transitioned to:', state.value);
-//   if (error) {
-//     console.error('Error:', error.message);
-//   }
-// });
-
-// service.start();
