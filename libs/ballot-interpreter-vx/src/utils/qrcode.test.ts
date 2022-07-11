@@ -1,7 +1,7 @@
 import { join } from 'path';
 import { hardQrCodePage1 } from '../../test/fixtures/choctaw-2020-09-22-f30480cc99';
 import { loadImageData } from './images';
-import { detect as detectQrCode } from './qrcode';
+import { detect as detectQrCode, getSearchAreas } from './qrcode';
 
 test('falls back to jsQR if the other QR code readers cannot read them', async () => {
   const imageData = await loadImageData(
@@ -110,4 +110,22 @@ test('decodes QR codes with qrdetect (zbar) by default', async () => {
       "position": "top",
     }
   `);
+});
+
+test('getSearchArea for letter-size image', () => {
+  expect([...getSearchAreas({ width: 85, height: 110 })]).toHaveLength(
+    4 // 2 top, 2 bottom
+  );
+});
+
+test('getSearchArea for legal-size image', () => {
+  expect([...getSearchAreas({ width: 85, height: 140 })]).toHaveLength(
+    8 // 4 top, 4 bottom
+  );
+});
+
+test('getSearchArea for 8.5x17" image', () => {
+  expect([...getSearchAreas({ width: 85, height: 170 })]).toHaveLength(
+    8 // 4 top, 4 bottom
+  );
 });
