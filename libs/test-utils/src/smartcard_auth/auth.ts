@@ -1,5 +1,6 @@
 import {
   CardStorage,
+  CardProgramming,
   SuperadminUser,
   AdminUser,
   PollworkerUser,
@@ -15,6 +16,16 @@ export function fakeCardStorage(props: Partial<CardStorage> = {}): CardStorage {
     readStoredUint8Array: jest.fn(),
     writeStoredData: jest.fn(),
     clearStoredData: jest.fn(),
+    ...props,
+  };
+}
+
+export function fakeCardProgramming(
+  props: Partial<CardProgramming> = {}
+): CardProgramming {
+  return {
+    programmedUser: undefined,
+    programUser: jest.fn(),
     ...props,
   };
 }

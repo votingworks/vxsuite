@@ -1,9 +1,15 @@
 import {
   AdminUser,
+  CardProgramming,
   CardStorage,
   DippedSmartcardAuth,
 } from '@votingworks/types';
-import { fakeSuperadminUser, fakeCardStorage, fakeAdminUser } from './auth';
+import {
+  fakeSuperadminUser,
+  fakeCardStorage,
+  fakeAdminUser,
+  fakeCardProgramming,
+} from './auth';
 
 export function fakeCheckingPasscodeAuth(
   props: Partial<DippedSmartcardAuth.CheckingPasscode> = {}
@@ -17,12 +23,15 @@ export function fakeCheckingPasscodeAuth(
 }
 
 export function fakeSuperadminAuth(
-  card: Partial<CardStorage> = {}
+  card: Partial<CardStorage & CardProgramming> = {}
 ): DippedSmartcardAuth.SuperadminLoggedIn {
   return {
     status: 'logged_in',
     user: fakeSuperadminUser(),
-    card: fakeCardStorage(card),
+    card: {
+      ...fakeCardStorage(card),
+      ...fakeCardProgramming(card),
+    },
     logOut: jest.fn(),
   };
 }
