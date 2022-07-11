@@ -208,7 +208,7 @@ test('shows internal wiring message when there is no plustek scanner, but tablet
   render(<App card={card} storage={storage} hardware={hardware} />);
   await screen.findByRole('heading', { name: 'Scanner Not Detected' });
   screen.getByText(
-    'There is an internal connection problem, please report to election clerk.'
+    'There is an internal connection problem. Please report to election clerk.'
   );
 });
 

@@ -10,7 +10,7 @@ export function SetupScannerInternalWiringScreen(): JSX.Element {
       <CenteredLargeProse>
         <h1>Scanner Not Detected</h1>
         <p>
-          There is an internal connection problem, please report to election
+          There is an internal connection problem. Please report to election
           clerk.
         </p>
       </CenteredLargeProse>
