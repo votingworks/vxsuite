@@ -398,11 +398,11 @@ test('periodically polls for computer battery status', async () => {
 
 test('when card reader check is disabled, fake one returned even if no hardware detected.', async () => {
   const hardware = new MemoryHardware();
-  const fakeLogger = new Logger(LogSource.VxCentralScanFrontend);
+  const logger = fakeLogger();
   jest.spyOn(features, 'isCardReaderCheckDisabled').mockReturnValue(true);
 
   const { result, waitForNextUpdate } = renderHook(() =>
-    useDevices({ hardware, logger: fakeLogger })
+    useDevices({ hardware, logger })
   );
 
   expect(result.current.cardReader).toEqual(expectedCardReader);
