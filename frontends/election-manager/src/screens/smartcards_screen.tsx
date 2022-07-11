@@ -6,7 +6,7 @@ import { useParams } from 'react-router-dom';
 
 import { NavigationScreen } from '../components/navigation_screen';
 import { routerPaths } from '../router_paths';
-import { SmartcardsScreenProps } from '../config/types';
+import { SmartcardsScreenProps, SmartcardType } from '../config/types';
 
 const Body = styled(Prose)`
   flex-grow: 1;
@@ -15,8 +15,6 @@ const Body = styled(Prose)`
 const ToggleSmartcardTypeButton = styled(LinkButton)`
   align-self: start;
 `;
-
-type SmartcardType = 'election' | 'super-admin';
 
 const smartcardTypeToReadableString: Record<SmartcardType, string> = {
   election: 'Election',

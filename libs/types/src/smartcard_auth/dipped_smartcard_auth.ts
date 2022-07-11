@@ -1,4 +1,10 @@
-import { AdminUser, CardStorage, SuperadminUser, UserRole } from './auth';
+import {
+  AdminUser,
+  CardProgramming,
+  CardStorage,
+  SuperadminUser,
+  UserRole,
+} from './auth';
 
 export interface LoggedOut {
   readonly status: 'logged_out';
@@ -26,7 +32,7 @@ export interface RemoveCard {
 export interface SuperadminLoggedIn {
   readonly status: 'logged_in';
   readonly user: SuperadminUser;
-  readonly card?: CardStorage;
+  readonly card?: CardStorage & CardProgramming;
   readonly logOut: () => void;
 }
 

@@ -147,3 +147,7 @@ export interface CardStorage {
   ) => Promise<Result<void, Error>>;
   readonly clearStoredData: () => Promise<Result<void, Error>>;
 }
+export interface CardProgramming {
+  readonly programmedUser?: User;
+  readonly programUser: (user?: User) => Promise<Result<void, Error>>;
+}

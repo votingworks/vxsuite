@@ -156,6 +156,9 @@ export const ConverterClientTypeSchema = z.union([
   z.literal('nh-accuvote'),
 ]);
 
+export type SmartcardType = 'election' | 'super-admin';
+export const SmartcardTypeRegExPattern = '(election|super-admin)';
+
 export interface MachineConfig {
   machineId: string;
   codeVersion: string;

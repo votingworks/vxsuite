@@ -17,6 +17,7 @@ import useInterval from 'use-interval';
 import { useLock } from '../use_lock';
 import { usePrevious } from '../use_previous';
 import {
+  buildCardProgramming,
   buildCardStorage,
   CARD_POLLING_INTERVAL,
   parseUserFromCardSummary,
@@ -211,17 +212,19 @@ function useDippedSmartcardAuthBase({
 
     case 'logged_in': {
       const { status, user } = auth;
-      const cardStorage =
-        cardSummary.status === 'ready'
-          ? buildCardStorage(cardSummary, cardApi, cardWriteLock)
-          : undefined;
 
       switch (user.role) {
         case 'superadmin': {
           return {
             status,
             user,
-            card: cardStorage,
+            card:
+              cardSummary.status === 'ready'
+                ? {
+                    ...buildCardStorage(cardSummary, cardApi, cardWriteLock),
+                    ...buildCardProgramming(cardSummary),
+                  }
+                : undefined,
             logOut: () => dispatch({ type: 'log_out' }),
           };
         }
@@ -230,7 +233,10 @@ function useDippedSmartcardAuthBase({
           return {
             status,
             user,
-            card: cardStorage,
+            card:
+              cardSummary.status === 'ready'
+                ? buildCardStorage(cardSummary, cardApi, cardWriteLock)
+                : undefined,
             logOut: () => dispatch({ type: 'log_out' }),
           };
         }
