@@ -19,6 +19,7 @@ import {
 } from '@votingworks/ui';
 import { assert, format, usbstick } from '@votingworks/utils';
 import React, { useCallback, useContext, useState } from 'react';
+import styled from 'styled-components';
 import { Absolute } from '../components/absolute';
 import { CalibrateScannerModal } from '../components/calibrate_scanner_modal';
 import { ExportBackupModal } from '../components/export_backup_modal';
@@ -36,6 +37,10 @@ interface Props {
   calibrate(): Promise<boolean>;
   usbDrive: UsbDrive;
 }
+
+const BallotsScannedText = styled.div`
+  font-size: larger;
+`;
 
 export function AdminScreen({
   scannedBallotCount,
@@ -202,12 +207,12 @@ export function AdminScreen({
       </Prose>
       <Absolute top left>
         <Bar>
-          <div>
+          <BallotsScannedText>
             Ballots Scanned:{' '}
             <strong data-testid="ballot-count">
               {format.count(scannedBallotCount)}
             </strong>{' '}
-          </div>
+          </BallotsScannedText>
         </Bar>
       </Absolute>
       {isShowingToggleLiveModeWarningModal && (
