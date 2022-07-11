@@ -27,6 +27,9 @@ import {
   fakeKiosk,
   fakePrinterInfo,
   fakeUsbDrive,
+  makeAdminCard,
+  makeSuperadminCard,
+  mockOf,
 } from '@votingworks/test-utils';
 import {
   AdminCardData,
@@ -134,7 +137,7 @@ beforeEach(() => {
     })
   );
   fetchMock.get('/admin/write-ins/cvrs/reset', { body: { status: 'ok ' } });
-  (areVvsg2AuthFlowsEnabled as jest.Mock).mockImplementation(() => false);
+  mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => false);
 });
 
 afterEach(() => {
@@ -1134,7 +1137,7 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
 
 test('admin UI has expected nav when VVSG2 auth flows are enabled', async () => {
   jest.useFakeTimers();
-  (areVvsg2AuthFlowsEnabled as jest.Mock).mockImplementation(() => true);
+  mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => true);
 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
@@ -1163,7 +1166,7 @@ test('admin UI has expected nav when VVSG2 auth flows are enabled', async () => 
 
 test('super admin UI has expected nav when VVSG2 auth flows are enabled', async () => {
   jest.useFakeTimers();
-  (areVvsg2AuthFlowsEnabled as jest.Mock).mockImplementation(() => true);
+  mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => true);
 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
@@ -1188,7 +1191,7 @@ test('super admin UI has expected nav when VVSG2 auth flows are enabled', async 
 
 test('super admin UI has expected nav when no election and VVSG2 auth flows are enabled', async () => {
   jest.useFakeTimers();
-  (areVvsg2AuthFlowsEnabled as jest.Mock).mockImplementation(() => true);
+  mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => true);
 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
@@ -1236,7 +1239,7 @@ test('super admin UI has expected nav when no election and VVSG2 auth flows are 
 
 test('super admin Smartcards screen navigation', async () => {
   jest.useFakeTimers();
-  (areVvsg2AuthFlowsEnabled as jest.Mock).mockImplementation(() => true);
+  mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => true);
 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
@@ -1256,7 +1259,7 @@ test('super admin Smartcards screen navigation', async () => {
 
 test('super admin smartcard modal', async () => {
   jest.useFakeTimers();
-  (areVvsg2AuthFlowsEnabled as jest.Mock).mockImplementation(() => true);
+  mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => true);
 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
@@ -1268,16 +1271,13 @@ test('super admin smartcard modal', async () => {
 
   let modal: HTMLElement;
   const blankCard = undefined;
-  const programmedCard1 = {
-    t: 'admin',
-    h: eitherNeitherElectionDefinition.electionHash,
-    p: '123456',
-  } as const;
-  const programmedCard2 = {
-    t: 'superadmin',
-  } as const;
+  const programmedCard1 = makeAdminCard(
+    eitherNeitherElectionDefinition.electionHash
+  );
+  const programmedCard2 = makeSuperadminCard();
 
   // The smartcard modal should open on any screen, not just the Smartcards screen
+  await screen.findByRole('heading', { name: 'Election Definition' });
   card.insertCard(blankCard);
   modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Program Election Card' });
@@ -1285,6 +1285,7 @@ test('super admin smartcard modal', async () => {
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
+  await screen.findByRole('heading', { name: 'Election Definition' });
 
   card.insertCard(programmedCard1);
   modal = await screen.findByRole('alertdialog');
@@ -1293,6 +1294,7 @@ test('super admin smartcard modal', async () => {
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
+  await screen.findByRole('heading', { name: 'Election Definition' });
 
   card.insertCard(programmedCard2);
   modal = await screen.findByRole('alertdialog');
@@ -1301,9 +1303,11 @@ test('super admin smartcard modal', async () => {
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
+  await screen.findByRole('heading', { name: 'Election Definition' });
 
   userEvent.click(screen.getByText('Smartcards'));
   userEvent.click(screen.getByText('Create Super Admin Cards'));
+  await screen.findByRole('heading', { name: 'Super Admin Cards' });
   card.insertCard(blankCard);
   modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Program Super Admin Card' });
@@ -1311,6 +1315,7 @@ test('super admin smartcard modal', async () => {
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
+  await screen.findByRole('heading', { name: 'Super Admin Cards' });
 
   card.insertCard(programmedCard1);
   modal = await screen.findByRole('alertdialog');
@@ -1319,11 +1324,12 @@ test('super admin smartcard modal', async () => {
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
+  await screen.findByRole('heading', { name: 'Super Admin Cards' });
 });
 
 test('super admin smartcard modal when no election', async () => {
   jest.useFakeTimers();
-  (areVvsg2AuthFlowsEnabled as jest.Mock).mockImplementation(() => true);
+  mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => true);
 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
@@ -1331,12 +1337,11 @@ test('super admin smartcard modal when no election', async () => {
   render(<App card={card} hardware={hardware} storage={storage} />);
   await authenticateWithSuperAdminCard(card);
 
-  const programmedCard = {
-    t: 'admin',
-    h: eitherNeitherElectionDefinition.electionHash,
-    p: '123456',
-  } as const;
+  const programmedCard = makeAdminCard(
+    eitherNeitherElectionDefinition.electionHash
+  );
 
+  await screen.findByRole('heading', { name: 'Configure VxAdmin' });
   card.insertCard(programmedCard);
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Card Details' });
@@ -1344,4 +1349,5 @@ test('super admin smartcard modal when no election', async () => {
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
+  await screen.findByRole('heading', { name: 'Configure VxAdmin' });
 });
