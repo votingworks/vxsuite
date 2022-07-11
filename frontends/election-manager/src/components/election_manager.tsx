@@ -39,6 +39,7 @@ import { LogicAndAccuracyScreen } from '../screens/logic_and_accuracy_screen';
 import { SettingsScreen } from '../screens/settings_screen';
 import { LogsScreen } from '../screens/logs_screen';
 import { ReportsScreen } from '../screens/reports_screen';
+import { smartcardTypeRegex } from '../config/types';
 import {
   areVvsg2AuthFlowsEnabled,
   isWriteInAdjudicationEnabled,
@@ -172,7 +173,7 @@ export function ElectionManager(): JSX.Element {
         <Route
           exact
           path={routerPaths.smartcardsByType({
-            smartcardType: ':smartcardType(election|super-admin)',
+            smartcardType: `:smartcardType${smartcardTypeRegex}`,
           })}
         >
           <SmartcardsScreen />
