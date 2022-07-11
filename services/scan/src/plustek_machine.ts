@@ -6,6 +6,7 @@ import {
 } from '@votingworks/plustek-sdk';
 import { PageInterpretation } from '@votingworks/types';
 import { assert, throwIllegalValue } from '@votingworks/utils';
+import { interval, map, switchMap, timer } from 'rxjs';
 import {
   assign as xassign,
   Assigner,
@@ -17,6 +18,7 @@ import {
   TransitionsConfig,
 } from 'xstate';
 import { pure } from 'xstate/lib/actions';
+import { retryFor } from './scanners';
 import { SheetOf } from './types';
 
 // type ScannerError =
@@ -49,11 +51,16 @@ export type Event =
   | { type: 'INTERPRETATION_NEEDS_REVIEW' }
   | { type: 'INTERPRETATION_INVALID' }
   | { type: 'REVIEW_ACCEPTED' }
-  | { type: 'REVIEW_REJECTED' }
-  | { type: 'RESET' };
+  | { type: 'REVIEW_REJECTED' };
 
-async function connectToPlustek(): Promise<ScannerClient> {
+async function connectToPlustek({ client }: Context): Promise<ScannerClient> {
+  // TODO when we timeout on a scan attempt, sometimes the plustek gets non-responsive to paper status requests
+  // this was an attempt to close and reopen the connection, but it didn't work
+  if (client) {
+    void client.close();
+  }
   const plustekClient = await createClient(DEFAULT_CONFIG);
+  // console.log(plustekClient);
   if (plustekClient.isOk()) return plustekClient.ok();
   throw plustekClient.err();
 }
@@ -63,6 +70,7 @@ async function connectToPlustek(): Promise<ScannerClient> {
 function paperStatusToEventType(paperStatus: PaperStatus): Event['type'] {
   switch (paperStatus) {
     // When there's no paper in the scanner
+    case PaperStatus.NoPaper:
     case PaperStatus.VtmDevReadyNoPaper:
       return 'SCANNER_NO_PAPER';
     // When there's a paper held in the front
@@ -82,26 +90,66 @@ function paperStatusToEventType(paperStatus: PaperStatus): Event['type'] {
   }
 }
 
+// Create a paper status observable, then use internal transitions to avoid
+// changing state when paper status doesn't change
+function paperStatusObserver({ client }: Context) {
+  assert(client);
+  return timer(0, 500).pipe(
+    switchMap(async (i) => {
+      console.log(i);
+      const paperStatus = await client.getPaperStatus();
+      if (paperStatus.isOk()) {
+        console.log(paperStatus.ok());
+        return { type: paperStatusToEventType(paperStatus.ok()) };
+      }
+      throw paperStatus.err();
+    })
+  );
+}
+
 const pollPaperStatus: InvokeConfig<Context, Event> = {
-  src:
-    ({ client }: Context) =>
-    (callback) => {
-      assert(client);
-      const interval = setInterval(async () => {
-        const paperStatus = await client.getPaperStatus();
-        if (paperStatus.isOk()) {
-          return callback(paperStatusToEventType(paperStatus.ok()));
-        }
-        throw paperStatus.err();
-      }, 1000);
-      return () => clearInterval(interval);
-    },
+  src: paperStatusObserver,
+  onDone: 'error_disconnected',
+  onError: 'error_disconnected',
 };
+
+const getPaperStatus: InvokeConfig<Context, Event> = {
+  src: async ({ client }: Context) => {
+    assert(client);
+    // console.log('getPaperStatus');
+    const paperStatus = await client.getPaperStatus();
+    if (paperStatus.isOk()) {
+      // console.log(paperStatus.ok());
+      return { type: paperStatusToEventType(paperStatus.ok()) };
+    }
+    throw paperStatus.err();
+  },
+  onDone: { actions: send((_context, event) => event.data) },
+  onError: 'error_disconnected',
+};
+// const pollPaperStatus: InvokeConfig<Context, Event> = {
+//   src:
+//     ({ client }: Context) =>
+//     (callback) => {
+//       assert(client);
+//       const interval = setInterval(async () => {
+//         const paperStatus = await client.getPaperStatus();
+//         if (paperStatus.isOk()) {
+//           return callback(paperStatusToEventType(paperStatus.ok()));
+//         }
+//         throw paperStatus.err();
+//       }, 1000);
+//       return () => clearInterval(interval);
+//     },
+//   onError: { target: 'error_disconnected' },
+// };
 
 async function scan({ client }: Context): Promise<SheetOf<string>> {
   assert(client);
-  const scanResult = await client.scan();
-  console.log('scan', scanResult);
+  const scanResult = await client.scan({
+    shouldRetry: retryFor({ seconds: 1 }),
+  });
+  // console.log('scan result', scanResult);
   if (scanResult.isOk()) {
     const [front, back] = scanResult.ok().files;
     return [front, back];
@@ -122,7 +170,7 @@ async function interpretSheet({
 async function accept({ client }: Context) {
   assert(client);
   const acceptResult = await client.accept();
-  console.log('accept', acceptResult);
+  // console.log('accept', acceptResult);
   if (acceptResult.isOk()) return acceptResult.ok();
   throw acceptResult.err();
 }
@@ -130,7 +178,7 @@ async function accept({ client }: Context) {
 async function reject({ client }: Context) {
   assert(client);
   const rejectResult = await client.reject({ hold: true });
-  console.log('reject', rejectResult);
+  // console.log('reject', rejectResult);
   if (rejectResult.isOk()) return rejectResult.ok();
   throw rejectResult.err();
 }
@@ -160,8 +208,19 @@ export const machine = createMachine<Context, Event>({
         onError: 'error_disconnected',
       },
     },
+    // TODO only retry connecting a fixed number of times
+    error_disconnected: {
+      invoke: {
+        src: connectToPlustek,
+        onDone: {
+          target: 'checking_initial_paper_status',
+          actions: assign({ client: (_context, event) => event.data }),
+        },
+        onError: 'error_disconnected',
+      },
+    },
     checking_initial_paper_status: {
-      invoke: pollPaperStatus,
+      invoke: getPaperStatus,
       on: {
         SCANNER_NO_PAPER: 'no_paper',
         // TODO Should just start scanning?
@@ -182,7 +241,7 @@ export const machine = createMachine<Context, Event>({
       entry: assign({ error: undefined }),
       invoke: pollPaperStatus,
       on: {
-        SCANNER_NO_PAPER: 'no_paper',
+        SCANNER_NO_PAPER: { target: 'no_paper', internal: true },
         SCANNER_READY_TO_SCAN: 'scanning',
         ...onUnexpectedEvent,
       },
@@ -198,6 +257,23 @@ export const machine = createMachine<Context, Event>({
           target: 'error_scanning',
           actions: assign((_context, event) => ({ error: event.data })),
         },
+      },
+      after: {
+        5000: {
+          target: 'error_disconnected',
+          actions: assign({ error: new Error('Scanning timed out') }),
+        },
+      },
+    },
+    error_scanning: {
+      invoke: pollPaperStatus,
+      on: {
+        SCANNER_READY_TO_SCAN: 'scanning',
+        SCANNER_NO_PAPER: 'no_paper',
+        SCANNER_READY_TO_EJECT: 'rejecting',
+        SCANNER_BOTH_SIDES_HAVE_PAPER: 'error_both_sides_have_paper',
+        SCANNER_JAM: 'error_jammed',
+        ...onUnexpectedEvent,
       },
     },
     interpreting: {
@@ -255,21 +331,20 @@ export const machine = createMachine<Context, Event>({
         scannedSheet: undefined,
         interpretation: undefined,
       })),
-      invoke: pollPaperStatus,
       // Delay on this state for 5s to show accepted screen, then go to no_paper
       // (unless we get a different status in the meantime, e.g. ready to scan)
-      after: {
-        5000: 'checking_initial_paper_status',
-      },
+      after: { 5000: 'no_paper' },
+      invoke: pollPaperStatus,
       on: {
-        SCANNER_NO_PAPER: 'accepted',
+        SCANNER_NO_PAPER: { target: 'accepted', internal: true },
         SCANNER_READY_TO_SCAN: 'scanning',
         // If the paper didn't get dropped, reject it
         SCANNER_READY_TO_EJECT: {
           target: 'rejecting',
           actions: assign({ error: new Error('Failed to accept') }),
         },
-        ...onUnexpectedEvent,
+        // TODO we can't use onUnexpectedEvent here because it breaks the "after" transition
+        // ...onUnexpectedEvent,
       },
     },
     needs_review: {
@@ -284,42 +359,54 @@ export const machine = createMachine<Context, Event>({
     rejecting: {
       invoke: {
         src: reject,
-        onDone: 'rejected',
+        onDone: 'checking_rejecting_completed',
         onError: 'error_jammed',
       },
     },
-    rejected: {
+    // After rejecting, even though the plustek is holding the paper, it sends a
+    // NO_PAPER status before sending READY_TO_SCAN. So we need to wait for the
+    // READY_TO_SCAN.
+    checking_rejecting_completed: {
       invoke: pollPaperStatus,
       on: {
+        SCANNER_NO_PAPER: {
+          target: 'checking_rejecting_completed',
+          internal: true,
+        },
         SCANNER_READY_TO_SCAN: 'rejected',
-        SCANNER_NO_PAPER: 'no_paper',
         SCANNER_READY_TO_EJECT: 'error_jammed',
         SCANNER_JAM: 'error_jammed',
         ...onUnexpectedEvent,
       },
     },
-    error_scanning: {
+    // Paper has been rejected and is held in the front, waiting for removal.
+    rejected: {
       invoke: pollPaperStatus,
       on: {
-        SCANNER_READY_TO_EJECT: 'rejecting',
-        SCANNER_READY_TO_SCAN: 'rejecting',
+        SCANNER_READY_TO_SCAN: { target: 'rejected', internal: true },
         SCANNER_NO_PAPER: 'no_paper',
-        SCANNER_BOTH_SIDES_HAVE_PAPER: 'error_both_sides_have_paper',
-        SCANNER_JAM: 'error_jammed',
+        ...onUnexpectedEvent,
       },
     },
     error_jammed: {
       invoke: pollPaperStatus,
       on: {
+        SCANNER_JAM: { target: 'error_jammed', internal: true },
         SCANNER_NO_PAPER: 'no_paper',
+        SCANNER_READY_TO_SCAN: 'rejecting',
         ...onUnexpectedEvent,
       },
     },
     error_both_sides_have_paper: {
       invoke: pollPaperStatus,
       on: {
+        SCANNER_BOTH_SIDES_HAVE_PAPER: {
+          target: 'error_both_sides_have_paper',
+          internal: true,
+        },
         // For now, if the front paper is removed, just reject the back paper,
-        // since we don't have context on what was supposed to happen
+        // since we don't have context on how we got here and what was supposed
+        // to happen.
         SCANNER_READY_TO_EJECT: {
           target: 'rejecting',
           actions: assign({
@@ -328,11 +415,6 @@ export const machine = createMachine<Context, Event>({
         },
         ...onUnexpectedEvent,
       },
-    },
-    // TODO only retry connecting a fixed number of times
-    error_disconnected: {
-      entry: send('RESET'),
-      on: { RESET: 'connecting' },
     },
     error_unexpected_event: {},
   },
