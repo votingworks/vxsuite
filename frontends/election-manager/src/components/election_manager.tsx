@@ -40,6 +40,7 @@ import { SettingsScreen } from '../screens/settings_screen';
 import { LogsScreen } from '../screens/logs_screen';
 import { ReportsScreen } from '../screens/reports_screen';
 import { smartcardTypeRegex } from '../config/types';
+import { SmartcardModal } from './smartcard_modal';
 import {
   areVvsg2AuthFlowsEnabled,
   isWriteInAdjudicationEnabled,
@@ -114,9 +115,73 @@ export function ElectionManager(): JSX.Element {
 
     if (!election || !configuredAt) {
       return (
+        <React.Fragment>
+          <Switch>
+            <Route exact path={routerPaths.electionDefinition}>
+              <UnconfiguredScreen />
+            </Route>
+            <Route exact path={routerPaths.settings}>
+              <SettingsScreen />
+            </Route>
+            <Route exact path={routerPaths.logs}>
+              <LogsScreen />
+            </Route>
+            <Redirect to={routerPaths.electionDefinition} />
+          </Switch>
+          <SmartcardModal />
+        </React.Fragment>
+      );
+    }
+
+    return (
+      <React.Fragment>
         <Switch>
           <Route exact path={routerPaths.electionDefinition}>
-            <UnconfiguredScreen />
+            <DefinitionScreen />
+          </Route>
+          <Route exact path={routerPaths.definitionEditor}>
+            <DefinitionEditorScreen allowEditing={false} />
+          </Route>
+          <Route
+            exact
+            path={routerPaths.definitionContest({ contestId: ':contestId' })}
+          >
+            <DefinitionContestsScreen allowEditing={false} />
+          </Route>
+          <Route exact path={routerPaths.ballotsList}>
+            <BallotListScreen />
+          </Route>
+          <Route exact path={routerPaths.printedBallotsReport}>
+            <PrintedBallotsReportScreen />
+          </Route>
+          <Route
+            exact
+            path={[
+              routerPaths.ballotsViewLanguage({
+                ballotStyleId: ':ballotStyleId',
+                precinctId: ':precinctId',
+                localeCode: ':localeCode',
+              }),
+              routerPaths.ballotsView({
+                ballotStyleId: ':ballotStyleId',
+                precinctId: ':precinctId',
+              }),
+            ]}
+          >
+            <BallotScreen />
+          </Route>
+          <Route exact path={routerPaths.smartcards}>
+            <Redirect
+              to={routerPaths.smartcardsByType({ smartcardType: 'election' })}
+            />
+          </Route>
+          <Route
+            exact
+            path={routerPaths.smartcardsByType({
+              smartcardType: `:smartcardType${smartcardTypeRegex}`,
+            })}
+          >
+            <SmartcardsScreen />
           </Route>
           <Route exact path={routerPaths.settings}>
             <SettingsScreen />
@@ -126,66 +191,8 @@ export function ElectionManager(): JSX.Element {
           </Route>
           <Redirect to={routerPaths.electionDefinition} />
         </Switch>
-      );
-    }
-
-    return (
-      <Switch>
-        <Route exact path={routerPaths.electionDefinition}>
-          <DefinitionScreen />
-        </Route>
-        <Route exact path={routerPaths.definitionEditor}>
-          <DefinitionEditorScreen allowEditing={false} />
-        </Route>
-        <Route
-          exact
-          path={routerPaths.definitionContest({ contestId: ':contestId' })}
-        >
-          <DefinitionContestsScreen allowEditing={false} />
-        </Route>
-        <Route exact path={routerPaths.ballotsList}>
-          <BallotListScreen />
-        </Route>
-        <Route exact path={routerPaths.printedBallotsReport}>
-          <PrintedBallotsReportScreen />
-        </Route>
-        <Route
-          exact
-          path={[
-            routerPaths.ballotsViewLanguage({
-              ballotStyleId: ':ballotStyleId',
-              precinctId: ':precinctId',
-              localeCode: ':localeCode',
-            }),
-            routerPaths.ballotsView({
-              ballotStyleId: ':ballotStyleId',
-              precinctId: ':precinctId',
-            }),
-          ]}
-        >
-          <BallotScreen />
-        </Route>
-        <Route exact path={routerPaths.smartcards}>
-          <Redirect
-            to={routerPaths.smartcardsByType({ smartcardType: 'election' })}
-          />
-        </Route>
-        <Route
-          exact
-          path={routerPaths.smartcardsByType({
-            smartcardType: `:smartcardType${smartcardTypeRegex}`,
-          })}
-        >
-          <SmartcardsScreen />
-        </Route>
-        <Route exact path={routerPaths.settings}>
-          <SettingsScreen />
-        </Route>
-        <Route exact path={routerPaths.logs}>
-          <LogsScreen />
-        </Route>
-        <Redirect to={routerPaths.electionDefinition} />
-      </Switch>
+        <SmartcardModal />
+      </React.Fragment>
     );
   }
 
