@@ -16,17 +16,18 @@ const ModalContents = styled.div`
 
 export function SmartcardModal(): JSX.Element | null {
   const { auth } = useContext(AppContext);
-  assert(isSuperadminAuth(auth));
-
   const location = useLocation();
-  const onSuperAdminSmartcardsScreen =
-    location.pathname ===
-    routerPaths.smartcardsByType({ smartcardType: 'super-admin' });
+
+  assert(isSuperadminAuth(auth));
 
   // Auto-open the modal when a card is inserted, and auto-close the modal when a card is removed
   if (!auth.card) {
     return null;
   }
+
+  const onSuperAdminSmartcardsScreen =
+    location.pathname ===
+    routerPaths.smartcardsByType({ smartcardType: 'super-admin' });
 
   let contents: JSX.Element;
   if (auth.card.programmedUser) {
