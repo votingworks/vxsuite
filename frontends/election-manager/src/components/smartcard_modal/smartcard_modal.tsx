@@ -6,15 +6,13 @@ import { useLocation } from 'react-router-dom';
 
 import { AppContext } from '../../contexts/app_context';
 import { routerPaths } from '../../router_paths';
+import { CardDetailsView } from './card_details_view';
+import { ProgramSuperAdminCardView } from './program_super_admin_card_view';
+import { ProgramElectionCardView } from './program_election_card_view';
 
 const ModalContents = styled.div`
   padding: 1rem;
 `;
-
-type SmartcardModalView =
-  | 'CardDetails'
-  | 'ProgramElectionCard'
-  | 'ProgramSuperAdminCard';
 
 export function SmartcardModal(): JSX.Element | null {
   const { auth } = useContext(AppContext);
@@ -30,29 +28,13 @@ export function SmartcardModal(): JSX.Element | null {
     return null;
   }
 
-  let currentView: SmartcardModalView;
+  let contents: JSX.Element;
   if (auth.card.programmedUser) {
-    currentView = 'CardDetails';
+    contents = <CardDetailsView />;
+  } else if (onSuperAdminSmartcardsScreen) {
+    contents = <ProgramSuperAdminCardView />;
   } else {
-    currentView = onSuperAdminSmartcardsScreen
-      ? 'ProgramSuperAdminCard'
-      : 'ProgramElectionCard';
-  }
-
-  let contents: JSX.Element | null;
-  switch (currentView) {
-    case 'CardDetails':
-      contents = <h2>Card Details</h2>;
-      break;
-    case 'ProgramElectionCard':
-      contents = <h2>Program Election Card</h2>;
-      break;
-    case 'ProgramSuperAdminCard':
-      contents = <h2>Program Super Admin Card</h2>;
-      break;
-    /* istanbul ignore next: Compile-time check for completeness */
-    default:
-      contents = null;
+    contents = <ProgramElectionCardView />;
   }
   return (
     <Modal
