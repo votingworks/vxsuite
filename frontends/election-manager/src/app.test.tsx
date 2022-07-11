@@ -1253,3 +1253,95 @@ test('super admin Smartcards screen navigation', async () => {
   userEvent.click(screen.getByText('Create Election Cards'));
   screen.getByRole('heading', { name: 'Election Cards' });
 });
+
+test('super admin smartcard modal', async () => {
+  jest.useFakeTimers();
+  (areVvsg2AuthFlowsEnabled as jest.Mock).mockImplementation(() => true);
+
+  const card = new MemoryCard();
+  const hardware = MemoryHardware.buildStandard();
+  const storage = await createMemoryStorageWith({
+    electionDefinition: eitherNeitherElectionDefinition,
+  });
+  render(<App card={card} hardware={hardware} storage={storage} />);
+  await authenticateWithSuperAdminCard(card);
+
+  let modal: HTMLElement;
+  const blankCard = undefined;
+  const programmedCard1 = {
+    t: 'admin',
+    h: eitherNeitherElectionDefinition.electionHash,
+    p: '123456',
+  } as const;
+  const programmedCard2 = {
+    t: 'superadmin',
+  } as const;
+
+  // The smartcard modal should open on any screen, not just the Smartcards screen
+  card.insertCard(blankCard);
+  modal = await screen.findByRole('alertdialog');
+  within(modal).getByRole('heading', { name: 'Program Election Card' });
+  card.removeCard();
+  await waitFor(() =>
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  );
+
+  card.insertCard(programmedCard1);
+  modal = await screen.findByRole('alertdialog');
+  within(modal).getByRole('heading', { name: 'Card Details' });
+  card.removeCard();
+  await waitFor(() =>
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  );
+
+  card.insertCard(programmedCard2);
+  modal = await screen.findByRole('alertdialog');
+  within(modal).getByRole('heading', { name: 'Card Details' });
+  card.removeCard();
+  await waitFor(() =>
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  );
+
+  userEvent.click(screen.getByText('Smartcards'));
+  userEvent.click(screen.getByText('Create Super Admin Cards'));
+  card.insertCard(blankCard);
+  modal = await screen.findByRole('alertdialog');
+  within(modal).getByRole('heading', { name: 'Program Super Admin Card' });
+  card.removeCard();
+  await waitFor(() =>
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  );
+
+  card.insertCard(programmedCard1);
+  modal = await screen.findByRole('alertdialog');
+  within(modal).getByRole('heading', { name: 'Card Details' });
+  card.removeCard();
+  await waitFor(() =>
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  );
+});
+
+test('super admin smartcard modal when no election', async () => {
+  jest.useFakeTimers();
+  (areVvsg2AuthFlowsEnabled as jest.Mock).mockImplementation(() => true);
+
+  const card = new MemoryCard();
+  const hardware = MemoryHardware.buildStandard();
+  const storage = new MemoryStorage();
+  render(<App card={card} hardware={hardware} storage={storage} />);
+  await authenticateWithSuperAdminCard(card);
+
+  const programmedCard = {
+    t: 'admin',
+    h: eitherNeitherElectionDefinition.electionHash,
+    p: '123456',
+  } as const;
+
+  card.insertCard(programmedCard);
+  const modal = await screen.findByRole('alertdialog');
+  within(modal).getByRole('heading', { name: 'Card Details' });
+  card.removeCard();
+  await waitFor(() =>
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  );
+});
