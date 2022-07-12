@@ -1,12 +1,11 @@
 import React from 'react';
-import { format } from '@votingworks/utils';
-import { Text, Bar } from '@votingworks/ui';
-import { Absolute } from '../components/absolute';
+import { Text } from '@votingworks/ui';
 import { InsertBallot } from '../components/graphics';
 import {
   CenteredLargeProse,
   ScreenMainCenterChild,
 } from '../components/layout';
+import { ScannedBallotCount } from '../components/scanned_ballot_count';
 
 interface Props {
   isLiveMode: boolean;
@@ -32,16 +31,7 @@ export function InsertBallotScreen({
         <h1>Insert Your Ballot Below</h1>
         <p>Scan one ballot sheet at a time.</p>
       </CenteredLargeProse>
-      <Absolute top left>
-        <Bar>
-          <div>
-            Ballots Scanned:{' '}
-            <strong data-testid="ballot-count">
-              {format.count(scannedBallotCount)}
-            </strong>
-          </div>
-        </Bar>
-      </Absolute>
+      <ScannedBallotCount count={scannedBallotCount} />
     </ScreenMainCenterChild>
   );
 }
