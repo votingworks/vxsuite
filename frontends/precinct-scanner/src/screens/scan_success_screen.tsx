@@ -7,7 +7,7 @@ import {
   ScreenMainCenterChild,
 } from '../components/layout';
 
-export interface Props {
+interface Props {
   scannedBallotCount: number;
 }
 
