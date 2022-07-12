@@ -14,15 +14,14 @@ import {
   Select,
   SetClockButton,
   UsbDrive,
-  Bar,
   isAdminAuth,
 } from '@votingworks/ui';
-import { assert, format, usbstick } from '@votingworks/utils';
+import { assert, usbstick } from '@votingworks/utils';
 import React, { useCallback, useContext, useState } from 'react';
-import { Absolute } from '../components/absolute';
 import { CalibrateScannerModal } from '../components/calibrate_scanner_modal';
 import { ExportBackupModal } from '../components/export_backup_modal';
 import { ExportResultsModal } from '../components/export_results_modal';
+import { ScannedBallotCount } from '../components/scanned_ballot_count';
 import { ScreenMainCenterChild } from '../components/layout';
 import { AppContext } from '../contexts/app_context';
 
@@ -200,16 +199,7 @@ export function AdminScreen({
           </p>
         )}
       </Prose>
-      <Absolute top left>
-        <Bar>
-          <div>
-            Ballots Scanned:{' '}
-            <strong data-testid="ballot-count">
-              {format.count(scannedBallotCount)}
-            </strong>{' '}
-          </div>
-        </Bar>
-      </Absolute>
+      <ScannedBallotCount count={scannedBallotCount} />
       {isShowingToggleLiveModeWarningModal && (
         <Modal
           content={

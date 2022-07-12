@@ -11,7 +11,6 @@ import {
   PrintableContainer,
   TallyReport,
   UsbDrive,
-  Bar,
   isPollworkerAuth,
 } from '@votingworks/ui';
 import {
@@ -20,7 +19,6 @@ import {
   compressTally,
   computeTallyWithPrecomputedCategories,
   filterTalliesByParams,
-  format,
   getTallyIdentifier,
   PrecinctScannerCardTally,
   Printer,
@@ -43,13 +41,13 @@ import {
   CenteredLargeProse,
   ScreenMainCenterChild,
 } from '../components/layout';
-import { Absolute } from '../components/absolute';
 
 import { ExportResultsModal } from '../components/export_results_modal';
 import { LiveCheckModal } from '../components/live_check_modal';
 
 import { AppContext } from '../contexts/app_context';
 import { IndeterminateProgressBar } from '../components/graphics';
+import { ScannedBallotCount } from '../components/scanned_ballot_count';
 import { saveCvrExportToUsb } from '../utils/save_cvr_export_to_usb';
 
 enum PollWorkerFlowState {
@@ -507,16 +505,7 @@ export function PollWorkerScreen({
             </p>
           )}
         </Prose>
-        <Absolute top left>
-          <Bar>
-            <div>
-              Ballots Scanned:{' '}
-              <strong data-testid="ballot-count">
-                {format.count(scannedBallotCount)}
-              </strong>{' '}
-            </div>
-          </Bar>
-        </Absolute>
+        <ScannedBallotCount count={scannedBallotCount} />
         {isExportingResults && (
           <ExportResultsModal
             onClose={() => setIsExportingResults(false)}
