@@ -46,7 +46,7 @@ export interface InterpretFileResult {
  */
 export async function interpret(
   electionDefinition: ElectionDefinition,
-  sheet: [string, string],
+  sheet: readonly [string, string],
   {
     markThresholds = electionDefinition.election.markThresholds ??
       DefaultMarkThresholds,
