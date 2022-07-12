@@ -109,6 +109,7 @@ interface SharedState {
   isStatusPollingEnabled: boolean;
   currentPrecinctId?: PrecinctId;
   isPollsOpen: boolean;
+  initializedFromStorage: boolean;
 }
 
 export interface State
@@ -135,6 +136,7 @@ const initialSharedState: Readonly<SharedState> = {
   isStatusPollingEnabled: true,
   currentPrecinctId: undefined,
   isPollsOpen: false,
+  initializedFromStorage: false,
 };
 
 const initialScanInformationState: Readonly<ScanInformationState> = {
@@ -207,6 +209,7 @@ function appReducer(state: State, action: AppAction): State {
       return {
         ...state,
         isPollsOpen: action.isPollsOpen,
+        initializedFromStorage: true,
       };
     case 'updateElectionDefinition':
       return {
@@ -328,6 +331,7 @@ export function AppRoot({
     isTestMode,
     currentPrecinctId,
     isPollsOpen,
+    initializedFromStorage,
     machineConfig,
   } = appState;
 
@@ -679,14 +683,17 @@ export function AppRoot({
 
   useEffect(() => {
     async function storeAppState() {
-      await storage.set(stateStorageKey, {
-        isPollsOpen,
-      });
+      // only store app state if we've first initialized from the stored state
+      if (initializedFromStorage) {
+        await storage.set(stateStorageKey, {
+          isPollsOpen,
+        });
+      }
     }
 
     void storeAppState();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPollsOpen]);
+  }, [isPollsOpen, initializedFromStorage]);
 
   function dismissError() {
     /* istanbul ignore next */

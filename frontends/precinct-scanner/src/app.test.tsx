@@ -120,6 +120,43 @@ test('shows setup card reader screen when there is no card reader', async () => 
   await screen.findByText('Card Reader Not Detected');
 });
 
+test('initializes app with stored state', async () => {
+  const logger = fakeLogger();
+  const card = new MemoryCard();
+  const hardware = MemoryHardware.buildStandard();
+  const storage = new MemoryStorage();
+  await storage.set(stateStorageKey, { isPollsOpen: true });
+  const kiosk = fakeKiosk();
+  kiosk.getUsbDrives.mockResolvedValue([]);
+  window.kiosk = kiosk;
+  fetchMock
+    .get('/machine-config', { body: getMachineConfigBody })
+    .get('/config/election', { body: electionSampleDefinition })
+    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
+    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody })
+    .patchOnce('/config/testMode', {
+      body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
+      status: 200,
+    });
+  render(
+    <App card={card} hardware={hardware} storage={storage} logger={logger} />
+  );
+  await advanceTimersAndPromises(1);
+  await screen.findByText('No USB Drive Detected');
+  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+  await advanceTimersAndPromises(1);
+
+  // Insert a pollworker card
+  fetchMock.post('/scan/export', {});
+  const pollWorkerCard = makePollWorkerCard(
+    electionSampleDefinition.electionHash
+  );
+  card.insertCard(pollWorkerCard);
+  await advanceTimersAndPromises(1);
+  await screen.findByText('Do you want to close the polls?');
+});
+
 test('app can load and configure from a usb stick', async () => {
   const storage = new MemoryStorage();
   const card = new MemoryCard();
