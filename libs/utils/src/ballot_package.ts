@@ -23,10 +23,7 @@ export interface BallotPackage {
 export interface BallotPackageEntry {
   pdf: Buffer;
   ballotConfig: BallotConfig;
-  // TODO: Make this required.
-  // For now we have fixtures that don't have this, but we should fix that.
-  // https://github.com/votingworks/vxsuite/issues/1595
-  layout?: BallotPageLayout[];
+  layout: readonly BallotPageLayout[];
 }
 
 export interface BallotPackageManifest {
@@ -41,10 +38,7 @@ export interface BallotStyleData {
 
 export interface BallotConfig extends BallotStyleData {
   filename: string;
-  // TODO: Make this required.
-  // For now we have fixtures that don't have this, but we should fix that.
-  // https://github.com/votingworks/vxsuite/issues/1595
-  layoutFilename?: string;
+  layoutFilename: string;
   locales: BallotLocales;
   isLiveMode: boolean;
   isAbsentee: boolean;
@@ -88,27 +82,23 @@ async function readJsonEntry(entry: JSZipObject): Promise<unknown> {
   return JSON.parse(await readTextEntry(entry));
 }
 
+function getFileByName(entries: JSZipObject[], name: string): JSZipObject {
+  const result = entries.find((entry) => entry.name === name);
+
+  if (!result) {
+    throw new Error(`ballot package does not have a file called '${name}'`);
+  }
+
+  return result;
+}
+
 export async function readBallotPackageFromBuffer(
-  source: Buffer,
-  fileName: string,
-  fileSize: number
+  source: Buffer
 ): Promise<BallotPackage> {
   const zipfile = await openZip(source);
   const entries = getEntries(zipfile);
-  const electionEntry = entries.find((entry) => entry.name === 'election.json');
-  const manifestEntry = entries.find((entry) => entry.name === 'manifest.json');
-
-  if (!electionEntry) {
-    throw new Error(
-      `ballot package does not have a file called 'election.json': ${fileName} (size=${fileSize})`
-    );
-  }
-
-  if (!manifestEntry) {
-    throw new Error(
-      `ballot package does not have a file called 'manifest.json': ${fileName} (size=${fileSize})`
-    );
-  }
+  const electionEntry = getFileByName(entries, 'election.json');
+  const manifestEntry = getFileByName(entries, 'manifest.json');
 
   const electionData = await readTextEntry(electionEntry);
   const manifest = (await readJsonEntry(
@@ -116,27 +106,14 @@ export async function readBallotPackageFromBuffer(
   )) as BallotPackageManifest;
   const ballots = await Promise.all(
     manifest.ballots.map<Promise<BallotPackageEntry>>(async (ballotConfig) => {
-      const ballotEntry = entries.find(
-        (entry) => entry.name === ballotConfig.filename
-      );
-
-      if (!ballotEntry) {
-        throw new Error(
-          `ballot package does not have a file called '${ballotConfig.filename}': ${fileName} (size=${fileSize})`
-        );
-      }
-
-      const layoutEntry = entries.find(
-        (entry) => entry.name === ballotConfig.layoutFilename
-      );
+      const ballotEntry = getFileByName(entries, ballotConfig.filename);
+      const layoutEntry = getFileByName(entries, ballotConfig.layoutFilename);
 
       const pdf = await readEntry(ballotEntry);
-      const layout = layoutEntry
-        ? safeParseJson(
-            await readTextEntry(layoutEntry),
-            z.array(BallotPageLayoutSchema)
-          ).unsafeUnwrap()
-        : undefined;
+      const layout = safeParseJson(
+        await readTextEntry(layoutEntry),
+        z.array(BallotPageLayoutSchema)
+      ).unsafeUnwrap();
       return {
         pdf,
         layout,
@@ -155,11 +132,7 @@ export async function readBallotPackageFromBuffer(
 export async function readBallotPackageFromFile(
   file: File
 ): Promise<BallotPackage> {
-  return readBallotPackageFromBuffer(
-    await readFile(file),
-    file.name,
-    file.size
-  );
+  return readBallotPackageFromBuffer(await readFile(file));
 }
 
 export async function readBallotPackageFromFilePointer(
@@ -167,8 +140,6 @@ export async function readBallotPackageFromFilePointer(
 ): Promise<BallotPackage> {
   assert(window.kiosk);
   return readBallotPackageFromBuffer(
-    Buffer.from(await window.kiosk.readFile(file.path)),
-    file.name,
-    file.size
+    Buffer.from(await window.kiosk.readFile(file.path))
   );
 }

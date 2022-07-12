@@ -20,7 +20,7 @@ export const { election } = electionDefinition;
  */
 export const ballotPackage = join(
   __dirname,
-  'franklin-county_lincoln-municipal-general-election_befef88b3a__2022-06-15_16-37-51.zip'
+  'franklin-county_lincoln-municipal-general-election_5c6ed04c64.zip'
 );
 
 /**
@@ -28,7 +28,7 @@ export const ballotPackage = join(
  */
 export const sampleBallotUndervotePage1 = join(
   __dirname,
-  'sample-ballot-undervotes-p1.png'
+  'sample-ballot-undervotes-p1.jpeg'
 );
 
 /**
@@ -36,5 +36,5 @@ export const sampleBallotUndervotePage1 = join(
  */
 export const sampleBallotUndervotePage2 = join(
   __dirname,
-  'sample-ballot-undervotes-p2.png'
+  'sample-ballot-undervotes-p2.jpeg'
 );

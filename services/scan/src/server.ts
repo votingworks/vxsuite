@@ -5,7 +5,6 @@
 
 import { createClient, DEFAULT_CONFIG } from '@votingworks/plustek-sdk';
 import {
-  BallotType,
   safeParse,
   safeParseElectionDefinition,
   BallotPageLayout,
@@ -38,7 +37,6 @@ import {
   withReconnect,
 } from './scanners';
 import { Store } from './store';
-import { BallotConfig } from './types';
 import { createWorkspace, Workspace } from './util/workspace';
 import * as workers from './workers/combined';
 import { childProcessPool, WorkerPool } from './workers/pool';
@@ -175,26 +173,11 @@ export function buildApp({ store, importer }: AppOptions): Application {
         return;
       }
 
-      const pkg = await readBallotPackageFromBuffer(
-        await readFile(file.path),
-        file.filename,
-        file.size
-      );
+      const pkg = await readBallotPackageFromBuffer(await readFile(file.path));
 
       importer.configure(pkg.electionDefinition);
-      for (const { ballotConfig, pdf, layout } of pkg.ballots) {
-        await importer.addHmpbTemplates(
-          pdf,
-          {
-            electionHash: pkg.electionDefinition.electionHash,
-            ballotType: BallotType.Standard,
-            ballotStyleId: ballotConfig.ballotStyleId,
-            precinctId: ballotConfig.precinctId,
-            isTestMode: !ballotConfig.isLiveMode,
-            locales: ballotConfig.locales,
-          },
-          layout
-        );
+      for (const { pdf, layout } of pkg.ballots) {
+        await importer.addHmpbTemplates(pdf, layout);
       }
 
       response.json({ status: 'ok' });
@@ -461,7 +444,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
             return;
           }
 
-          if (layoutFile && layoutFile.mimetype !== 'application/json') {
+          if (layoutFile.mimetype !== 'application/json') {
             response.status(400).json({
               status: 'error',
               errors: [
@@ -474,30 +457,13 @@ export function buildApp({ store, importer }: AppOptions): Application {
             return;
           }
 
-          const metadata = safeParseJson(
-            await readFile(metadataFile.path, 'utf8')
-            // TODO: use BallotConfigSchema and delete the cast once it exists
-          ).unsafeUnwrap() as BallotConfig;
-
-          // TODO: require the layout to be provided
-          // https://github.com/votingworks/vxsuite/issues/1595
-          const layout = layoutFile
-            ? safeParseJson(
-                await readFile(layoutFile.path, 'utf8'),
-                z.array(BallotPageLayoutSchema)
-              ).unsafeUnwrap()
-            : undefined;
+          const layout = safeParseJson(
+            await readFile(layoutFile.path, 'utf8'),
+            z.array(BallotPageLayoutSchema)
+          ).unsafeUnwrap();
 
           await importer.addHmpbTemplates(
             await readFile(ballotFile.path),
-            {
-              electionHash: electionDefinition.electionHash,
-              ballotType: BallotType.Standard,
-              ballotStyleId: metadata.ballotStyleId,
-              precinctId: metadata.precinctId,
-              isTestMode: !metadata.isLiveMode,
-              locales: metadata.locales,
-            },
             layout
           );
         }

@@ -195,16 +195,7 @@ test('cannot add HMPB templates before configuring an election', async () => {
     scanner,
   });
 
-  await expect(
-    importer.addHmpbTemplates(Buffer.of(), {
-      electionHash: electionDefinition.electionHash,
-      ballotType: BallotType.Standard,
-      locales: { primary: 'en-US' },
-      ballotStyleId: '77',
-      precinctId: '42',
-      isTestMode: false,
-    })
-  ).rejects.toThrowError(
+  await expect(importer.addHmpbTemplates(Buffer.of(), [])).rejects.toThrowError(
     'cannot add a HMPB template without a configured election'
   );
 });

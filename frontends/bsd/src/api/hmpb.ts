@@ -77,15 +77,13 @@ export function addTemplates(
           'ballot-config.json'
         );
 
-        if (ballot.layout) {
-          body.append(
-            'layouts',
-            new Blob([JSON.stringify(ballot.layout)], {
-              type: 'application/json',
-            }),
-            ballot.ballotConfig.layoutFilename
-          );
-        }
+        body.append(
+          'layouts',
+          new Blob([JSON.stringify(ballot.layout)], {
+            type: 'application/json',
+          }),
+          ballot.ballotConfig.layoutFilename
+        );
 
         try {
           await fetch('/scan/hmpb/addTemplates', { method: 'POST', body });

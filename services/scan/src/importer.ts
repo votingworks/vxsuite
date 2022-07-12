@@ -1,7 +1,5 @@
 import { Scan } from '@votingworks/api';
-import { Interpreter } from '@votingworks/ballot-interpreter-vx';
 import {
-  BallotMetadata,
   BallotPageLayout,
   BallotPageLayoutWithImage,
   ElectionDefinition,
@@ -13,7 +11,7 @@ import {
   PageInterpretationWithFiles,
   Result,
 } from '@votingworks/types';
-import { sleep } from '@votingworks/utils';
+import { find, sleep } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import makeDebug from 'debug';
 import * as fsExtra from 'fs-extra';
@@ -93,8 +91,7 @@ export class Importer {
 
   async addHmpbTemplates(
     pdf: Buffer,
-    metadata: BallotMetadata,
-    layouts?: readonly BallotPageLayout[]
+    layouts: readonly BallotPageLayout[]
   ): Promise<BallotPageLayoutWithImage[]> {
     const electionDefinition = this.workspace.store.getElectionDefinition();
     const result: BallotPageLayoutWithImage[] = [];
@@ -105,32 +102,14 @@ export class Importer {
       );
     }
 
-    const interpreter = new Interpreter({
-      electionDefinition,
-    });
     for await (const { page, pageNumber } of pdfToImages(pdf, {
       scale: 2,
     })) {
-      try {
-        // TODO: Replace metadata with layouts, which also has the metadata,
-        // and remove the `interpretTemplate` call.
-        // https://github.com/votingworks/vxsuite/issues/1595
-        const ballotPageLayout = layouts?.find(
-          (l) => l.metadata.pageNumber === pageNumber
-        );
-        result.push(
-          ballotPageLayout
-            ? { ballotPageLayout, imageData: page }
-            : await interpreter.interpretTemplate(page, {
-                ...metadata,
-                pageNumber,
-              })
-        );
-      } catch (error) {
-        throw new HmpbInterpretationError(
-          `Ballot image on page ${pageNumber} could not be interpreted as a template: ${error}`
-        );
-      }
+      const ballotPageLayout = find(
+        layouts,
+        (l) => l.metadata.pageNumber === pageNumber
+      );
+      result.push({ ballotPageLayout, imageData: page });
     }
 
     this.workspace.store.addHmpbTemplate(
