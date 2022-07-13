@@ -3,7 +3,7 @@ SCAN := ../../services/scan
 SMARTCARDS := ../../services/smartcards
 export PIPENV_VENV_IN_PROJECT=1
 export SCAN_WORKSPACE=/tmp
-export MOCK_SCANNER_FILES=test/fixtures/hamilton-seal-5c6ed04c64/sample-ballot-undervotes-p1.jpeg,test/fixtures/hamilton-seal-5c6ed04c64/sample-ballot-undervotes-p2.jpeg
+export MOCK_SCANNER_FILES=../../libs/fixtures/data/electionFamousNames2021/sample-ballot-undervotes-p1.jpeg,../../libs/fixtures/data/electionFamousNames2021/sample-ballot-undervotes-p2.jpeg
 
 build-bsd:
 	make -C $(BSD) build; \

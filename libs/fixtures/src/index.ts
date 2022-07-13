@@ -33,6 +33,8 @@ import { electionMinimalExhaustiveSemsData } from './data/electionMinimalExhaust
 import { asText as electionMinimalExhaustiveSampleRightSideTargetsAsText } from './data/electionMinimalExhaustiveSampleRightSideTargets/electionMinimalExhaustiveSampleRightSideTargets.json';
 import { asText as electionSampleNoSealAsText } from './data/electionSampleNoSeal.json';
 
+export * as electionFamousNames2021Fixtures from './data/electionFamousNames2021';
+
 export function asElectionDefinition(election: Election): ElectionDefinition {
   const electionData = JSON.stringify(election);
   return {

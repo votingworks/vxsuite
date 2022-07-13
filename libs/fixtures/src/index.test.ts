@@ -21,6 +21,7 @@ test('has various election definitions', () => {
       .sort()
   ).toMatchInlineSnapshot(`
     Array [
+      "electionFamousNames2021Fixtures",
       "electionMinimalExhaustiveSample",
       "electionMinimalExhaustiveSampleDefinition",
       "electionMinimalExhaustiveSampleRightSideTargets",
