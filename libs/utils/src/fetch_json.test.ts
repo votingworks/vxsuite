@@ -45,7 +45,7 @@ test('preserves custom headers', async () => {
 test('throws on non-ok response', async () => {
   fetchMock.getOnce('/example', { status: 400 });
   await expect(fetchJson('/example')).rejects.toThrowError(
-    'fetch response is not ok'
+    'Received 400 status code'
   );
 });
 
