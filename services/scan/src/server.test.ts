@@ -1,4 +1,7 @@
-import { electionSampleDefinition as testElectionDefinition } from '@votingworks/fixtures';
+import {
+  electionSampleDefinition as testElectionDefinition,
+  electionFamousNames2021Fixtures,
+} from '@votingworks/fixtures';
 import { fakeLogger } from '@votingworks/logging';
 import * as plusteksdk from '@votingworks/plustek-sdk';
 import {
@@ -13,13 +16,12 @@ import { Scan } from '@votingworks/api';
 import { BallotConfig, typedAs } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import { Application } from 'express';
-import { createReadStream, promises as fs } from 'fs';
+import * as fs from 'fs/promises';
 import { Server } from 'http';
 import request from 'supertest';
 import { dirSync } from 'tmp';
 import { mocked } from 'ts-jest/dist/utils/testing';
 import { v4 as uuid } from 'uuid';
-import * as hamiltonSealFixtures from '../test/fixtures/hamilton-seal-5c6ed04c64';
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { makeMock } from '../test/util/mocks';
 import { Importer } from './importer';
@@ -258,14 +260,18 @@ test('PUT /config/package', async () => {
   await request(app)
     .put('/config/package')
     .set('Accept', 'application/json')
-    .field('package', createReadStream(hamiltonSealFixtures.ballotPackage))
+    .attach(
+      'package',
+      electionFamousNames2021Fixtures.ballotPackageAsBuffer(),
+      'ballot-package.zip'
+    )
     .expect(200, { status: 'ok' });
   expect(importer.configure).toBeCalledWith(
-    hamiltonSealFixtures.electionDefinition
+    electionFamousNames2021Fixtures.electionDefinition
   );
   expect(importer.addHmpbTemplates).toHaveBeenCalledTimes(
     2 /* test & live */ *
-      hamiltonSealFixtures.election.ballotStyles.reduce(
+      electionFamousNames2021Fixtures.election.ballotStyles.reduce(
         (acc, bs) => acc + bs.precincts.length,
         0
       )
