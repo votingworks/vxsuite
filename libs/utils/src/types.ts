@@ -120,6 +120,11 @@ export const CardSummarySchema: z.ZodSchema<CardSummary> = z.union([
   CardSummaryReadySchema,
 ]);
 
+export interface ShortAndLongValues {
+  shortValue: string;
+  longValue: string;
+}
+
 /**
  * Defines the API for accessing a smart card reader.
  */
@@ -164,6 +169,16 @@ export interface Card {
    * Writes binary data to the long value.
    */
   writeLongUint8Array(value: Uint8Array): Promise<void>;
+
+  /**
+   * Writes new short and long values to the card.
+   */
+  writeShortAndLongValues(values: ShortAndLongValues): Promise<void>;
+
+  /**
+   * Overrides card write protection.
+   */
+  overrideWriteProtection(): Promise<void>;
 }
 
 /**

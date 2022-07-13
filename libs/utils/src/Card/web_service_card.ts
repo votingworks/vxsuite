@@ -8,7 +8,12 @@ import {
 import { fromByteArray, toByteArray } from 'base64-js';
 import { z } from 'zod';
 import { fetchJson } from '../fetch_json';
-import { Card, CardSummary, CardSummarySchema } from '../types';
+import {
+  Card,
+  CardSummary,
+  CardSummarySchema,
+  ShortAndLongValues,
+} from '../types';
 
 interface LongValueResponse {
   longValue?: string;
@@ -102,6 +107,39 @@ export class WebServiceCard implements Card {
     })) as SuccessIndicationResponse;
     if (!success) {
       throw new Error('Failed to write long value');
+    }
+  }
+
+  /**
+   * Writes new short and long values to the card.
+   */
+  async writeShortAndLongValues({
+    shortValue,
+    longValue,
+  }: ShortAndLongValues): Promise<void> {
+    const { success } = (await fetchJson('/card/write_short_and_long', {
+      method: 'post',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+      },
+      body:
+        `short_value=${encodeURIComponent(shortValue)}&` +
+        `long_value=${encodeURIComponent(longValue)}`,
+    })) as SuccessIndicationResponse;
+    if (!success) {
+      throw new Error('Failed to write short and long values');
+    }
+  }
+
+  /**
+   * Overrides card write protection.
+   */
+  async overrideWriteProtection(): Promise<void> {
+    const { success } = (await fetchJson('/card/write_protect_override', {
+      method: 'post',
+    })) as SuccessIndicationResponse;
+    if (!success) {
+      throw new Error('Failed to override write protection');
     }
   }
 }
