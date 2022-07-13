@@ -52,20 +52,19 @@ function PrecinctTallyReport({
   precinctId,
   onRendered,
 }: PrecinctTallyReportProps): JSX.Element {
-  const ballots = [
-    // Account for both the BMD and HMPB test decks
-    ...generateTestDeckBallots({ election, precinctId }),
-    ...generateTestDeckBallots({ election, precinctId }),
-  ];
+  const ballots = generateTestDeckBallots({ election, precinctId });
+  const votes = ballots.map((b) => b.votes);
 
+  // Precinct test deck tally is 2 times a single test deck tally, because it
+  // counts scanning 2 test decks (BMD + HMPB)
   const testDeckTally: Tally = {
-    numberOfBallotsCounted: ballots.length,
+    numberOfBallotsCounted: ballots.length * 2,
     castVoteRecords: new Set(),
     contestTallies: tallyVotesByContest({
       election,
-      votes: ballots.map((b) => b.votes),
+      votes: [...votes, ...votes],
     }),
-    ballotCountsByVotingMethod: { [VotingMethod.Unknown]: ballots.length },
+    ballotCountsByVotingMethod: { [VotingMethod.Unknown]: ballots.length * 2 },
   };
 
   useEffect(() => {

@@ -29,7 +29,9 @@ export function FullTestDeckTallyReportButton(): JSX.Element {
       election,
       votes: [...votes, ...votes, ...votes, ...votes],
     }),
-    ballotCountsByVotingMethod: { [VotingMethod.Unknown]: ballots.length },
+    ballotCountsByVotingMethod: {
+      [VotingMethod.Unknown]: ballots.length * 4,
+    },
   };
 
   const afterPrint = useCallback(() => {
