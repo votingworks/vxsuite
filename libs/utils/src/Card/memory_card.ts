@@ -1,6 +1,6 @@
 import { ok, Optional, Result, safeParseJson } from '@votingworks/types';
 import { z } from 'zod';
-import { Card, CardSummary } from '../types';
+import { Card, CardSummary, ShortAndLongValues } from '../types';
 
 /* eslint-disable @typescript-eslint/require-await */
 
@@ -101,6 +101,25 @@ export class MemoryCard implements Card {
     }
 
     this.longValue = Uint8Array.from(value);
+  }
+
+  /**
+   * Writes new short and long values to the card.
+   */
+  async writeShortAndLongValues({
+    shortValue,
+    longValue,
+  }: ShortAndLongValues): Promise<void> {
+    await this.writeShortValue(shortValue);
+    await this.writeLongUint8Array(new TextEncoder().encode(longValue));
+  }
+
+  /* istanbul ignore next: A no-op but necessary to satisfy the Card interface */
+  /**
+   * Overrides card write protection.
+   */
+  async overrideWriteProtection(): Promise<void> {
+    return Promise.resolve();
   }
 
   /**
