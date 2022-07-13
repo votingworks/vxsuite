@@ -93,13 +93,12 @@ export class WebServiceCard implements Card {
    */
   async writeLongUint8Array(value: Uint8Array): Promise<void> {
     const longValueBase64 = fromByteArray(value);
-    const formData = new FormData();
-
-    formData.append('long_value', longValueBase64);
-
     const { success } = (await fetchJson('/card/write_long_b64', {
       method: 'post',
-      body: formData,
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+      },
+      body: `long_value=${encodeURIComponent(longValueBase64)}`,
     })) as SuccessIndicationResponse;
     if (!success) {
       throw new Error('Failed to write long value');
