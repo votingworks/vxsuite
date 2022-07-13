@@ -10,6 +10,14 @@ import { z } from 'zod';
 import { fetchJson } from '../fetch_json';
 import { Card, CardSummary, CardSummarySchema } from '../types';
 
+interface LongValueResponse {
+  longValue?: string;
+}
+
+interface SuccessIndicationResponse {
+  success: boolean;
+}
+
 /**
  * Implements the `Card` API by accessing it through a web service.
  */
@@ -29,8 +37,9 @@ export class WebServiceCard implements Card {
   async readLongObject<T>(
     schema: z.ZodSchema<T>
   ): Promise<Result<Optional<T>, SyntaxError | z.ZodError>> {
-    const response = await fetch('/card/read_long');
-    const { longValue } = await response.json();
+    const { longValue } = (await fetchJson(
+      '/card/read_long'
+    )) as LongValueResponse;
     return longValue ? safeParseJson(longValue, schema) : ok(undefined);
   }
 
@@ -39,8 +48,9 @@ export class WebServiceCard implements Card {
    * value.
    */
   async readLongString(): Promise<Optional<string>> {
-    const response = await fetch('/card/read_long');
-    const { longValue } = await response.json();
+    const { longValue } = (await fetchJson(
+      '/card/read_long'
+    )) as LongValueResponse;
     return longValue || undefined;
   }
 
@@ -49,8 +59,9 @@ export class WebServiceCard implements Card {
    * value.
    */
   async readLongUint8Array(): Promise<Optional<Uint8Array>> {
-    const response = await fetch('/card/read_long_b64');
-    const { longValue } = await response.json();
+    const { longValue } = (await fetchJson(
+      '/card/read_long_b64'
+    )) as LongValueResponse;
     return longValue ? toByteArray(longValue) : undefined;
   }
 
@@ -58,11 +69,14 @@ export class WebServiceCard implements Card {
    * Writes a new short value to the card.
    */
   async writeShortValue(value: string): Promise<void> {
-    await fetch('/card/write', {
+    const { success } = (await fetchJson('/card/write', {
       method: 'post',
-      body: value,
       headers: { 'Content-Type': 'application/json' },
-    });
+      body: value,
+    })) as SuccessIndicationResponse;
+    if (!success) {
+      throw new Error('Failed to write short value');
+    }
   }
 
   /**
@@ -83,9 +97,12 @@ export class WebServiceCard implements Card {
 
     formData.append('long_value', longValueBase64);
 
-    await fetch('/card/write_long_b64', {
+    const { success } = (await fetchJson('/card/write_long_b64', {
       method: 'post',
       body: formData,
-    });
+    })) as SuccessIndicationResponse;
+    if (!success) {
+      throw new Error('Failed to write long value');
+    }
   }
 }
