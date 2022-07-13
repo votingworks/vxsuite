@@ -39,6 +39,8 @@ function VoterScreen({ state }: { state?: MachineState }) {
     state &&
     (() => {
       switch (true) {
+        case state.matches('configuring_interpreter'):
+          return 'connecting';
         case state.matches('connecting'):
           return 'connecting';
         case state.matches('checking_initial_paper_status'):
@@ -49,11 +51,15 @@ function VoterScreen({ state }: { state?: MachineState }) {
           return 'disconnected';
         case state.matches('no_paper'):
           return 'no_paper';
+        case state.matches('ready_to_scan'):
+          return 'no_paper';
         case state.matches('scanning'):
           return 'scanning';
         case state.matches('error_scanning'):
           return 'scanning';
         case state.matches('interpreting'):
+          return 'scanning';
+        case state.matches('ready_to_accept'):
           return 'scanning';
         case state.matches('accepting'):
           return 'scanning';
@@ -153,14 +159,17 @@ function MachineTextAdventure() {
         }
         return prevHistory;
       });
+      if (state.matches('ready_to_scan')) {
+        machineService.send('SCAN');
+      } else if (state.matches('ready_to_accept')) {
+        machineService.send('ACCEPT');
+      }
     });
-    // machineService.onTransition((state) => {
-    //   console.log('transition:', state.value);
-    // });
   }, []);
 
   useInput((input) => {
     switch (input) {
+      // Interpretation mode
       case 'v':
         machineService.send({ type: 'SET_INTERPRETATION_MODE', mode: 'valid' });
         break;
@@ -176,17 +185,20 @@ function MachineTextAdventure() {
           mode: 'adjudicate',
         });
         break;
+
+      // Ballot review
       case 'c':
         if (state?.matches('needs_review')) {
-          machineService.send({ type: 'REVIEW_CAST' });
+          machineService.send('ACCEPT');
         }
         break;
       case 'r':
         if (state?.matches('needs_review')) {
-          machineService.send({ type: 'REVIEW_RETURN' });
+          machineService.send('RETURN');
         }
         break;
 
+      // General commands
       case 'q':
         process.exit(0);
         break;

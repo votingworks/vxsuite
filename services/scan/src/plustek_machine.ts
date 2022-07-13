@@ -4,7 +4,13 @@ import {
   PaperStatus,
   ScannerClient,
 } from '@votingworks/plustek-sdk';
-import { PageInterpretation } from '@votingworks/types';
+import { v4 as uuid } from 'uuid';
+import {
+  AdjudicationReason,
+  AdjudicationReasonInfo,
+  PageInterpretation,
+  PageInterpretationWithFiles,
+} from '@votingworks/types';
 import { assert, throwIllegalValue } from '@votingworks/utils';
 import { switchMap, timer } from 'rxjs';
 import {
@@ -18,12 +24,22 @@ import {
   TransitionsConfig,
 } from 'xstate';
 import { pure } from 'xstate/lib/actions';
+import { electionSampleNoSealDefinition as electionDefinition } from '@votingworks/fixtures';
+import { SCAN_WORKSPACE } from './globals';
+import {
+  createInterpreter,
+  loadLayouts,
+  SimpleInterpreter,
+} from './simple_interpreter';
 import { SheetOf } from './types';
+import { createWorkspace } from './util/workspace';
+import { DefaultMarkThresholds } from './store';
 
 // Temporary mode to control how we fake interpreting ballots
 export type InterpretationMode = 'valid' | 'invalid' | 'adjudicate';
 
 export interface Context {
+  interpreter?: SimpleInterpreter;
   client?: ScannerClient;
   ballotsCounted: number;
   scannedSheet?: SheetOf<string>;
@@ -38,18 +54,62 @@ function assign(arg: Assigner<Context, any> | PropertyAssigner<Context, any>) {
   return xassign<Context, any>(arg);
 }
 
-export type Event =
+type InvalidInterpretationReason =
+  | 'invalid_test_mode'
+  | 'invalid_election_hash'
+  | 'invalid_precinct'
+  | 'unreadable'
+  | 'unknown';
+
+type ScannerStatusEvent =
   | { type: 'SCANNER_NO_PAPER' }
   | { type: 'SCANNER_READY_TO_SCAN' }
   | { type: 'SCANNER_READY_TO_EJECT' }
   | { type: 'SCANNER_BOTH_SIDES_HAVE_PAPER' }
-  | { type: 'SCANNER_JAM' }
-  | { type: 'INTERPRETATION_VALID' }
-  | { type: 'INTERPRETATION_NEEDS_REVIEW' }
-  | { type: 'INTERPRETATION_INVALID' }
-  | { type: 'REVIEW_CAST' }
-  | { type: 'REVIEW_RETURN' }
+  | { type: 'SCANNER_JAM' };
+
+type InterpretationResultEvent =
+  | {
+      type: 'INTERPRETATION_VALID';
+      interpretation: SheetOf<PageInterpretationWithFiles>;
+    }
+  | {
+      type: 'INTERPRETATION_INVALID';
+      interpretation: SheetOf<PageInterpretationWithFiles>;
+      reason: InvalidInterpretationReason;
+    }
+  | {
+      type: 'INTERPRETATION_NEEDS_REVIEW';
+      interpretation: SheetOf<PageInterpretationWithFiles>;
+      reasons: AdjudicationReasonInfo[];
+    };
+
+type CommandEvent = { type: 'SCAN' } | { type: 'ACCEPT' } | { type: 'RETURN' };
+
+export type Event =
+  | ScannerStatusEvent
+  | InterpretationResultEvent
+  | CommandEvent
   | { type: 'SET_INTERPRETATION_MODE'; mode: InterpretationMode };
+
+async function configureInterpreter(): Promise<SimpleInterpreter> {
+  assert(SCAN_WORKSPACE !== undefined);
+  electionDefinition.election = {
+    ...electionDefinition.election,
+    markThresholds: DefaultMarkThresholds,
+  };
+  const workspace = await createWorkspace(SCAN_WORKSPACE);
+  workspace.store.setElection(electionDefinition);
+  const layouts = await loadLayouts(workspace.store);
+  console.log({ layouts });
+  assert(layouts);
+  return createInterpreter({
+    electionDefinition,
+    ballotImagesPath: workspace.ballotImagesPath,
+    testMode: false,
+    layouts,
+  });
+}
 
 async function connectToPlustek(): Promise<ScannerClient> {
   const plustekClient = await createClient(DEFAULT_CONFIG);
@@ -58,25 +118,25 @@ async function connectToPlustek(): Promise<ScannerClient> {
   throw plustekClient.err();
 }
 
-function paperStatusToEventType(paperStatus: PaperStatus): Event['type'] {
+function paperStatusToEvent(paperStatus: PaperStatus): ScannerStatusEvent {
   switch (paperStatus) {
     // When there's no paper in the scanner
     case PaperStatus.NoPaper:
     case PaperStatus.VtmDevReadyNoPaper:
-      return 'SCANNER_NO_PAPER';
+      return { type: 'SCANNER_NO_PAPER' };
     // When there's a paper held in the front
     case PaperStatus.VtmReadyToScan:
-      return 'SCANNER_READY_TO_SCAN';
+      return { type: 'SCANNER_READY_TO_SCAN' };
     // When there's a paper held in the back
     case PaperStatus.VtmReadyToEject:
-      return 'SCANNER_READY_TO_EJECT';
+      return { type: 'SCANNER_READY_TO_EJECT' };
     // When there's a paper held in the back and inserted in the front
     case PaperStatus.VtmBothSideHavePaper:
-      return 'SCANNER_BOTH_SIDES_HAVE_PAPER';
+      return { type: 'SCANNER_BOTH_SIDES_HAVE_PAPER' };
     // When there's a paper jammed in the scanner
     case PaperStatus.JamError:
     case PaperStatus.VtmFrontAndBackSensorHavePaperReady:
-      return 'SCANNER_JAM';
+      return { type: 'SCANNER_JAM' };
     default:
       throw new Error(`Unexpected paper status: ${paperStatus}`);
   }
@@ -91,7 +151,7 @@ function paperStatusObserver({ client }: Context) {
       const paperStatus = await client.getPaperStatus();
       if (paperStatus.isOk()) {
         // console.log(paperStatus.ok());
-        return { type: paperStatusToEventType(paperStatus.ok()) };
+        return paperStatusToEvent(paperStatus.ok());
       }
       throw paperStatus.err();
     })
@@ -122,20 +182,120 @@ async function scan({ client }: Context): Promise<SheetOf<string>> {
 
 // eslint-disable-next-line @typescript-eslint/require-await
 async function interpretSheet({
-  interpretationMode,
-}: Context): Promise<PageInterpretation> {
+  interpreter,
+  scannedSheet,
+}: // interpretationMode,
+Context): Promise<InterpretationResultEvent> {
+  assert(interpreter);
+  assert(scannedSheet);
+  const sheetId = uuid();
+  const result = await interpreter.interpret(sheetId, scannedSheet);
+  const interpretation = result.unsafeUnwrap();
+  const [front, back] = interpretation;
+  const frontType = front.interpretation.type;
+  const backType = back.interpretation.type;
+
+  if (frontType === 'BlankPage' && backType === 'BlankPage') {
+    return {
+      type: 'INTERPRETATION_NEEDS_REVIEW',
+      interpretation,
+      reasons: [{ type: AdjudicationReason.BlankBallot }],
+    };
+  }
+
+  if (
+    frontType === 'InvalidElectionHashPage' ||
+    backType === 'InvalidElectionHashPage'
+  ) {
+    return {
+      type: 'INTERPRETATION_INVALID',
+      interpretation,
+      reason: 'invalid_election_hash',
+    };
+  }
+
+  if (
+    frontType === 'InvalidTestModePage' ||
+    backType === 'InvalidTestModePage'
+  ) {
+    return {
+      type: 'INTERPRETATION_INVALID',
+      interpretation,
+      reason: 'invalid_test_mode',
+    };
+  }
+
+  if (
+    frontType === 'InvalidPrecinctPage' ||
+    backType === 'InvalidPrecinctPage'
+  ) {
+    return {
+      type: 'INTERPRETATION_INVALID',
+      interpretation,
+      reason: 'invalid_precinct',
+    };
+  }
+
+  if (frontType === 'UnreadablePage' || backType === 'UnreadablePage') {
+    return {
+      type: 'INTERPRETATION_INVALID',
+      interpretation,
+      reason: 'unreadable',
+    };
+  }
+
+  // TODO what does this case actually mean?
+  if (
+    frontType === 'UninterpretedHmpbPage' ||
+    backType === 'UninterpretedHmpbPage'
+  ) {
+    return {
+      type: 'INTERPRETATION_INVALID',
+      interpretation,
+      reason: 'unknown',
+    };
+  }
+
+  if (frontType === 'InterpretedBmdPage' || backType === 'InterpretedBmdPage') {
+    return { type: 'INTERPRETATION_VALID', interpretation };
+  }
+
+  assert(
+    frontType === 'InterpretedHmpbPage' && backType === 'InterpretedHmpbPage'
+  );
+  const frontAdjudication = front.interpretation.adjudicationInfo;
+  const backAdjudication = back.interpretation.adjudicationInfo;
+  if (
+    frontAdjudication.requiresAdjudication ||
+    backAdjudication.requiresAdjudication
+  ) {
+    return {
+      type: 'INTERPRETATION_NEEDS_REVIEW',
+      interpretation,
+      reasons: [
+        ...frontAdjudication.enabledReasonInfos,
+        ...backAdjudication.enabledReasonInfos,
+      ],
+    };
+  }
+
+  return {
+    type: 'INTERPRETATION_VALID',
+    interpretation,
+  };
+
   // console.log('interpreting', scannedSheet);
   // TODO hook up interpreter worker pool
-  switch (interpretationMode) {
-    case 'valid':
-      return { type: 'InterpretedBmdPage' } as unknown as PageInterpretation;
-    case 'invalid':
-      return { type: 'UnreadablePage' };
-    case 'adjudicate':
-      return { type: 'BlankPage' };
-    default:
-      throwIllegalValue(interpretationMode);
-  }
+  // switch (interpretationMode) {
+  //   case 'valid':
+  //     return { type: 'InterpretedBmdPage' } as unknown as PageInterpretation;
+  //   case 'invalid':
+  //     return { type: 'UnreadablePage' };
+  //   case 'adjudicate':
+  //     return { type: 'BlankPage' };
+  //   default:
+  //     throwIllegalValue(interpretationMode);
+  // }
 }
 
 async function accept({ client }: Context) {
@@ -168,7 +328,7 @@ const onUnexpectedEvent: TransitionsConfig<Context, Event> = {
 
 export const machine = createMachine<Context, Event>({
   id: 'plustek',
-  initial: 'connecting',
+  initial: 'configuring_interpreter',
   strict: true,
   context: { interpretationMode: 'valid', ballotsCounted: 0 },
   on: {
@@ -177,6 +337,23 @@ export const machine = createMachine<Context, Event>({
     },
   },
   states: {
+    configuring_interpreter: {
+      invoke: {
+        src: configureInterpreter,
+        onDone: {
+          target: 'connecting',
+          actions: assign({ interpreter: (_, event) => event.data }),
+        },
+        onError: {
+          actions: assign({
+            error: (_context, event) => {
+              console.log(event.data);
+              return event.data;
+            },
+          }),
+        },
+      },
+    },
     // TODO should we close and reconnect to plustek after every scan finishes
     // to avoid long-running process crashes?
     connecting: {
@@ -228,9 +405,12 @@ export const machine = createMachine<Context, Event>({
       invoke: pollPaperStatus,
       on: {
         SCANNER_NO_PAPER: { target: 'no_paper', internal: true },
-        SCANNER_READY_TO_SCAN: 'scanning',
+        SCANNER_READY_TO_SCAN: 'ready_to_scan',
         ...onUnexpectedEvent,
       },
+    },
+    ready_to_scan: {
+      on: { SCAN: 'scanning' },
     },
     scanning: {
       entry: assign({ error: undefined }),
@@ -249,7 +429,7 @@ export const machine = createMachine<Context, Event>({
     error_scanning: {
       invoke: pollPaperStatus,
       on: {
-        SCANNER_READY_TO_SCAN: 'scanning',
+        SCANNER_READY_TO_SCAN: 'ready_to_scan',
         SCANNER_NO_PAPER: 'no_paper',
         SCANNER_READY_TO_EJECT: 'rejecting',
         SCANNER_BOTH_SIDES_HAVE_PAPER: 'error_both_sides_have_paper',
@@ -290,11 +470,14 @@ export const machine = createMachine<Context, Event>({
         },
       },
       on: {
-        INTERPRETATION_VALID: 'accepting',
+        INTERPRETATION_VALID: 'ready_to_accept',
         INTERPRETATION_NEEDS_REVIEW: 'needs_review',
         INTERPRETATION_INVALID: 'rejecting',
         ...onUnexpectedEvent,
       },
+    },
+    ready_to_accept: {
+      on: { ACCEPT: 'accepting' },
     },
     accepting: {
       invoke: {
@@ -317,7 +500,7 @@ export const machine = createMachine<Context, Event>({
       invoke: pollPaperStatus,
       on: {
         SCANNER_NO_PAPER: { target: 'accepted', internal: true },
-        SCANNER_READY_TO_SCAN: 'scanning',
+        SCANNER_READY_TO_SCAN: 'ready_to_scan',
         // If the paper didn't get dropped, reject it
         SCANNER_READY_TO_EJECT: {
           target: 'rejecting',
@@ -329,8 +512,8 @@ export const machine = createMachine<Context, Event>({
     },
     needs_review: {
       on: {
-        REVIEW_CAST: 'accepting',
-        REVIEW_RETURN: 'returning',
+        ACCEPT: 'accepting',
+        RETURN: 'returning',
         ...onUnexpectedEvent,
       },
     },
