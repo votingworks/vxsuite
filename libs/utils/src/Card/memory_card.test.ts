@@ -9,7 +9,7 @@ it('defaults to no card', async () => {
   });
 });
 
-it('can round-trip a short value', async () => {
+it('can write and read a short value', async () => {
   const card = new MemoryCard().insertCard();
 
   await card.writeShortValue('abc');
@@ -20,7 +20,7 @@ it('can round-trip a short value', async () => {
   );
 });
 
-it('can round-trip an object long value', async () => {
+it('can write and read an object long value', async () => {
   const card = new MemoryCard().insertCard();
 
   await card.writeLongObject({ a: 1, b: 2 });
@@ -34,11 +34,23 @@ it('can read a string long value', async () => {
   expect(await card.readLongString()).toEqual(JSON.stringify({ a: 1 }));
 });
 
-it('can round-trip a binary long value', async () => {
+it('can write and read a binary long value', async () => {
   const card = new MemoryCard().insertCard();
 
   await card.writeLongUint8Array(Uint8Array.of(1, 2, 3));
   expect(await card.readLongUint8Array()).toEqual(Uint8Array.of(1, 2, 3));
+});
+
+it('can write and read short and long values', async () => {
+  const card = new MemoryCard().insertCard();
+
+  await card.writeShortAndLongValues({ shortValue: 'abc', longValue: 'def' });
+  expect(await card.readSummary()).toEqual({
+    status: 'ready',
+    shortValue: 'abc',
+    longValueExists: true,
+  });
+  expect(await card.readLongString()).toEqual('def');
 });
 
 it('can set a short and long value using #insertCard', async () => {

@@ -11,7 +11,7 @@ export async function fetchJson(
   });
 
   if (!response.ok) {
-    throw new Error('fetch response is not ok');
+    throw new Error(`Received ${response.status} status code`);
   }
 
   return await response.json();
