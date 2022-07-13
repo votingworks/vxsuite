@@ -28,7 +28,7 @@ test('yields the right number of images sized correctly', async () => {
     ballotNotRequiringPdfjsIntermediateCanvasPath
   );
   const pages = await asyncIterableToArray(pdfToImages(pdfBytes));
-  expect(pages.length).toEqual(5);
+  expect(pages.length).toEqual(6);
 
   const [
     {

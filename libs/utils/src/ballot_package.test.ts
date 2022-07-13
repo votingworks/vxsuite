@@ -46,11 +46,7 @@ test('readBallotPackageFromBuffer finds all expected ballots', async () => {
   const {
     ballots,
     electionDefinition: { election },
-  } = await readBallotPackageFromBuffer(
-    buffer,
-    'ballot-package-state-of-hamilton.zip',
-    buffer.length
-  );
+  } = await readBallotPackageFromBuffer(buffer);
   const ballotStyleIds = election.ballotStyles.map(({ id }) => id);
   const precinctIds = election.precincts.map(({ id }) => id);
   expect(election.title).toEqual('General Election');
@@ -156,7 +152,7 @@ test('readBallotPackageFromFile throws when an election.json is not present', as
   await expect(
     readBallotPackageFromFile(new File([pkg], 'election-ballot-package.zip'))
   ).rejects.toThrowError(
-    "ballot package does not have a file called 'election.json': election-ballot-package.zip"
+    "ballot package does not have a file called 'election.json'"
   );
 });
 
@@ -167,7 +163,7 @@ test('readBallotPackageFromFile throws when an manifest.json is not present', as
   await expect(
     readBallotPackageFromFile(new File([pkg], 'election-ballot-package.zip'))
   ).rejects.toThrowError(
-    "ballot package does not have a file called 'manifest.json': election-ballot-package.zip"
+    "ballot package does not have a file called 'manifest.json'"
   );
 });
 
@@ -178,6 +174,7 @@ test('readBallotPackageFromFile throws when the manifest does not match ballots'
         ballotStyleId: '5',
         precinctId: '21',
         filename: 'test/election-deadbeef-whatever.pdf',
+        layoutFilename: 'test/election-deadbeef-whatever-layout.json',
         contestIds: ['1', '2'],
         isLiveMode: false,
         isAbsentee: false,
@@ -193,7 +190,7 @@ test('readBallotPackageFromFile throws when the manifest does not match ballots'
   await expect(
     readBallotPackageFromFile(new File([pkg], 'election-ballot-package.zip'))
   ).rejects.toThrowError(
-    "ballot package does not have a file called 'test/election-deadbeef-whatever.pdf': election-ballot-package.zip"
+    "ballot package does not have a file called 'test/election-deadbeef-whatever.pdf'"
   );
 });
 

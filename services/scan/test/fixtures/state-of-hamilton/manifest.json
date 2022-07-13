@@ -31,7 +31,8 @@
         "primary": "en-US",
         "secondary": "es-US"
       },
-      "filename": "ballot.pdf"
+      "filename": "ballot.pdf",
+      "layoutFilename": "layout.json"
     }
   ]
 }

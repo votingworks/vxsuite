@@ -102,7 +102,8 @@ test('going through the whole process works', async () => {
         'metadatas',
         Buffer.from(new TextEncoder().encode(JSON.stringify(config))),
         { filename: 'config.json', contentType: 'application/json' }
-      );
+      )
+      .attach('layouts', join(electionFixturesRoot, config.layoutFilename));
   }
 
   await addTemplatesRequest.expect(200, { status: 'ok' });
@@ -232,7 +233,8 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
         'metadatas',
         Buffer.from(new TextEncoder().encode(JSON.stringify(config))),
         { filename: 'config.json', contentType: 'application/json' }
-      );
+      )
+      .attach('layouts', join(electionFixturesRoot, config.layoutFilename));
   }
 
   await addTemplatesRequest.expect(200, { status: 'ok' });
@@ -331,12 +333,12 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
       _precinctId: '23',
       _scannerId: '000',
       _testBallot: false,
-      'city-council': [],
+      'city-council': ['rupp', 'shry', 'davis', 'smith'],
       'city-mayor': ['seldon'],
-      'county-commissioners': [],
+      'county-commissioners': ['argent', 'altman', 'write-in-2'],
       'county-registrar-of-wills': [],
       'judicial-elmer-hull': ['yes'],
-      'judicial-robert-demergue': [],
+      'judicial-robert-demergue': ['yes', 'no'],
       'question-a': ['no'],
       'question-b': ['yes'],
       'question-c': ['no'],
@@ -386,7 +388,8 @@ test('ms-either-neither end-to-end', async () => {
         'metadatas',
         Buffer.from(new TextEncoder().encode(JSON.stringify(config))),
         { filename: 'ballot-config.json', contentType: 'application/json' }
-      );
+      )
+      .attach('layouts', join(root, config.layoutFilename));
   }
 
   await addTemplatesRequest.expect(200, { status: 'ok' });

@@ -17,7 +17,4 @@ export const filledInPage2 = join(__dirname, 'filled-in-dual-language-p2.jpg');
 export const filledInPage3 = join(__dirname, 'filled-in-dual-language-p3.jpg');
 export const filledInPage4 = join(__dirname, 'filled-in-dual-language-p4.jpg');
 export const filledInPage5 = join(__dirname, 'filled-in-dual-language-p5.jpg');
-export const filledInPage5YesNoOvervotes = join(
-  __dirname,
-  'filled-in-dual-language-p5-yesno-overvotes.jpg'
-);
+export const filledInPage6 = join(__dirname, 'filled-in-dual-language-p6.jpg');

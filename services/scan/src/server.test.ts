@@ -19,7 +19,7 @@ import request from 'supertest';
 import { dirSync } from 'tmp';
 import { mocked } from 'ts-jest/dist/utils/testing';
 import { v4 as uuid } from 'uuid';
-import * as hamiltonSealFixtures from '../test/fixtures/hamilton-seal-befef88b3a';
+import * as hamiltonSealFixtures from '../test/fixtures/hamilton-seal-5c6ed04c64';
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { makeMock } from '../test/util/mocks';
 import { Importer } from './importer';
@@ -552,6 +552,7 @@ test('POST /scan/hmpb/addTemplates', async () => {
     contestIds: [],
     locales: { primary: 'en-US' },
     filename: 'ballot.pdf',
+    layoutFilename: 'layout.json',
   };
   const ballotPageLayoutWithImage: BallotPageLayoutWithImage = {
     imageData: {
@@ -596,18 +597,11 @@ test('POST /scan/hmpb/addTemplates', async () => {
       { filename: 'layout.json', contentType: 'application/json' }
     )
     .expect(200);
-  const {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    pageNumber,
-    ...metadata
-  } = ballotPageLayoutWithImage.ballotPageLayout.metadata;
 
   expect(JSON.parse(response.text)).toEqual({ status: 'ok' });
-  expect(importer.addHmpbTemplates).toHaveBeenCalledWith(
-    Buffer.from('%PDF'),
-    metadata,
-    [ballotPageLayoutWithImage.ballotPageLayout]
-  );
+  expect(importer.addHmpbTemplates).toHaveBeenCalledWith(Buffer.from('%PDF'), [
+    ballotPageLayoutWithImage.ballotPageLayout,
+  ]);
 });
 
 test('start reloads configuration from the store', async () => {

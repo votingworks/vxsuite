@@ -178,8 +178,6 @@ test('interprets marks on an upside-down HMPB', async () => {
     testMode: false,
     adjudicationReasons:
       electionSampleDefinition.election.centralScanAdjudicationReasons ?? [],
-    // TODO: remove this once the QR code is fixed (https://github.com/votingworks/vxsuite/issues/1524)
-    skipElectionHashCheck: true,
   });
 
   for await (const { page, pageNumber } of pdfToImages(
@@ -204,620 +202,9 @@ test('interprets marks on an upside-down HMPB', async () => {
     ).interpretation as InterpretedHmpbPage
   ).toMatchInlineSnapshot(`
     Object {
-      "adjudicationInfo": Object {
-        "enabledReasonInfos": Array [],
-        "enabledReasons": Array [],
-        "ignoredReasonInfos": Array [],
-        "requiresAdjudication": false,
-      },
-      "markInfo": Object {
-        "ballotSize": Object {
-          "height": 1584,
-          "width": 1224,
-        },
-        "marks": Array [
-          Object {
-            "bounds": Object {
-              "height": 22,
-              "width": 32,
-              "x": 451,
-              "y": 232,
-            },
-            "contestId": "president",
-            "optionId": "barchi-hallaren",
-            "score": 0.6550802139037433,
-            "scoredOffset": Object {
-              "x": 0,
-              "y": -1,
-            },
-            "target": Object {
-              "bounds": Object {
-                "height": 22,
-                "width": 32,
-                "x": 451,
-                "y": 232,
-              },
-              "inner": Object {
-                "height": 18,
-                "width": 28,
-                "x": 453,
-                "y": 234,
-              },
-            },
-            "type": "candidate",
-            "writeInTextScore": undefined,
-          },
-          Object {
-            "bounds": Object {
-              "height": 22,
-              "width": 32,
-              "x": 451,
-              "y": 334,
-            },
-            "contestId": "president",
-            "optionId": "cramer-vuocolo",
-            "score": 0,
-            "scoredOffset": Object {
-              "x": 0,
-              "y": -1,
-            },
-            "target": Object {
-              "bounds": Object {
-                "height": 22,
-                "width": 32,
-                "x": 451,
-                "y": 334,
-              },
-              "inner": Object {
-                "height": 18,
-                "width": 28,
-                "x": 453,
-                "y": 336,
-              },
-            },
-            "type": "candidate",
-            "writeInTextScore": undefined,
-          },
-          Object {
-            "bounds": Object {
-              "height": 22,
-              "width": 32,
-              "x": 451,
-              "y": 436,
-            },
-            "contestId": "president",
-            "optionId": "court-blumhardt",
-            "score": 0,
-            "scoredOffset": Object {
-              "x": 0,
-              "y": -2,
-            },
-            "target": Object {
-              "bounds": Object {
-                "height": 22,
-                "width": 32,
-                "x": 451,
-                "y": 436,
-              },
-              "inner": Object {
-                "height": 18,
-                "width": 28,
-                "x": 453,
-                "y": 438,
-              },
-            },
-            "type": "candidate",
-            "writeInTextScore": undefined,
-          },
-          Object {
-            "bounds": Object {
-              "height": 22,
-              "width": 32,
-              "x": 451,
-              "y": 538,
-            },
-            "contestId": "president",
-            "optionId": "boone-lian",
-            "score": 0,
-            "scoredOffset": Object {
-              "x": 0,
-              "y": -2,
-            },
-            "target": Object {
-              "bounds": Object {
-                "height": 22,
-                "width": 32,
-                "x": 451,
-                "y": 538,
-              },
-              "inner": Object {
-                "height": 18,
-                "width": 28,
-                "x": 453,
-                "y": 540,
-              },
-            },
-            "type": "candidate",
-            "writeInTextScore": undefined,
-          },
-          Object {
-            "bounds": Object {
-              "height": 22,
-              "width": 32,
-              "x": 451,
-              "y": 613,
-            },
-            "contestId": "president",
-            "optionId": "hildebrand-garritty",
-            "score": 0.00267379679144385,
-            "scoredOffset": Object {
-              "x": 1,
-              "y": -1,
-            },
-            "target": Object {
-              "bounds": Object {
-                "height": 22,
-                "width": 32,
-                "x": 451,
-                "y": 613,
-              },
-              "inner": Object {
-                "height": 18,
-                "width": 28,
-                "x": 453,
-                "y": 615,
-              },
-            },
-            "type": "candidate",
-            "writeInTextScore": undefined,
-          },
-          Object {
-            "bounds": Object {
-              "height": 22,
-              "width": 32,
-              "x": 451,
-              "y": 742,
-            },
-            "contestId": "president",
-            "optionId": "patterson-lariviere",
-            "score": 0,
-            "scoredOffset": Object {
-              "x": 0,
-              "y": -1,
-            },
-            "target": Object {
-              "bounds": Object {
-                "height": 22,
-                "width": 32,
-                "x": 451,
-                "y": 742,
-              },
-              "inner": Object {
-                "height": 18,
-                "width": 28,
-                "x": 453,
-                "y": 744,
-              },
-            },
-            "type": "candidate",
-            "writeInTextScore": undefined,
-          },
-          Object {
-            "bounds": Object {
-              "height": 21,
-              "width": 32,
-              "x": 837,
-              "y": 168,
-            },
-            "contestId": "senator",
-            "optionId": "weiford",
-            "score": 0.01358695652173913,
-            "scoredOffset": Object {
-              "x": 0,
-              "y": 1,
-            },
-            "target": Object {
-              "bounds": Object {
-                "height": 21,
-                "width": 32,
-                "x": 837,
-                "y": 168,
-              },
-              "inner": Object {
-                "height": 17,
-                "width": 28,
-                "x": 839,
-                "y": 170,
-              },
-            },
-            "type": "candidate",
-            "writeInTextScore": undefined,
-          },
-          Object {
-            "bounds": Object {
-              "height": 21,
-              "width": 32,
-              "x": 837,
-              "y": 243,
-            },
-            "contestId": "senator",
-            "optionId": "garriss",
-            "score": 0.008152173913043478,
-            "scoredOffset": Object {
-              "x": 0,
-              "y": 0,
-            },
-            "target": Object {
-              "bounds": Object {
-                "height": 21,
-                "width": 32,
-                "x": 837,
-                "y": 243,
-              },
-              "inner": Object {
-                "height": 17,
-                "width": 28,
-                "x": 839,
-                "y": 245,
-              },
-            },
-            "type": "candidate",
-            "writeInTextScore": undefined,
-          },
-          Object {
-            "bounds": Object {
-              "height": 21,
-              "width": 32,
-              "x": 837,
-              "y": 318,
-            },
-            "contestId": "senator",
-            "optionId": "wentworthfarthington",
-            "score": 0.01358695652173913,
-            "scoredOffset": Object {
-              "x": 0,
-              "y": 0,
-            },
-            "target": Object {
-              "bounds": Object {
-                "height": 21,
-                "width": 32,
-                "x": 837,
-                "y": 318,
-              },
-              "inner": Object {
-                "height": 17,
-                "width": 28,
-                "x": 839,
-                "y": 320,
-              },
-            },
-            "type": "candidate",
-            "writeInTextScore": undefined,
-          },
-          Object {
-            "bounds": Object {
-              "height": 21,
-              "width": 32,
-              "x": 837,
-              "y": 420,
-            },
-            "contestId": "senator",
-            "optionId": "hewetson",
-            "score": 0,
-            "scoredOffset": Object {
-              "x": 0,
-              "y": -1,
-            },
-            "target": Object {
-              "bounds": Object {
-                "height": 21,
-                "width": 32,
-                "x": 837,
-                "y": 420,
-              },
-              "inner": Object {
-                "height": 17,
-                "width": 28,
-                "x": 839,
-                "y": 422,
-              },
-            },
-            "type": "candidate",
-            "writeInTextScore": undefined,
-          },
-          Object {
-            "bounds": Object {
-              "height": 21,
-              "width": 32,
-              "x": 837,
-              "y": 495,
-            },
-            "contestId": "senator",
-            "optionId": "martinez",
-            "score": 0.021739130434782608,
-            "scoredOffset": Object {
-              "x": 0,
-              "y": -1,
-            },
-            "target": Object {
-              "bounds": Object {
-                "height": 21,
-                "width": 32,
-                "x": 837,
-                "y": 495,
-              },
-              "inner": Object {
-                "height": 17,
-                "width": 28,
-                "x": 839,
-                "y": 497,
-              },
-            },
-            "type": "candidate",
-            "writeInTextScore": undefined,
-          },
-          Object {
-            "bounds": Object {
-              "height": 21,
-              "width": 32,
-              "x": 837,
-              "y": 570,
-            },
-            "contestId": "senator",
-            "optionId": "brown",
-            "score": 0.5869565217391305,
-            "scoredOffset": Object {
-              "x": -1,
-              "y": -1,
-            },
-            "target": Object {
-              "bounds": Object {
-                "height": 21,
-                "width": 32,
-                "x": 837,
-                "y": 570,
-              },
-              "inner": Object {
-                "height": 17,
-                "width": 28,
-                "x": 839,
-                "y": 572,
-              },
-            },
-            "type": "candidate",
-            "writeInTextScore": undefined,
-          },
-          Object {
-            "bounds": Object {
-              "height": 21,
-              "width": 32,
-              "x": 837,
-              "y": 663,
-            },
-            "contestId": "senator",
-            "optionId": "pound",
-            "score": 0.016304347826086956,
-            "scoredOffset": Object {
-              "x": 0,
-              "y": 0,
-            },
-            "target": Object {
-              "bounds": Object {
-                "height": 21,
-                "width": 32,
-                "x": 837,
-                "y": 663,
-              },
-              "inner": Object {
-                "height": 17,
-                "width": 28,
-                "x": 839,
-                "y": 665,
-              },
-            },
-            "type": "candidate",
-            "writeInTextScore": undefined,
-          },
-          Object {
-            "bounds": Object {
-              "height": 22,
-              "width": 32,
-              "x": 837,
-              "y": 913,
-            },
-            "contestId": "representative-district-6",
-            "optionId": "plunkard",
-            "score": 0,
-            "scoredOffset": Object {
-              "x": 1,
-              "y": 0,
-            },
-            "target": Object {
-              "bounds": Object {
-                "height": 22,
-                "width": 32,
-                "x": 837,
-                "y": 913,
-              },
-              "inner": Object {
-                "height": 18,
-                "width": 28,
-                "x": 839,
-                "y": 915,
-              },
-            },
-            "type": "candidate",
-            "writeInTextScore": undefined,
-          },
-          Object {
-            "bounds": Object {
-              "height": 22,
-              "width": 32,
-              "x": 837,
-              "y": 988,
-            },
-            "contestId": "representative-district-6",
-            "optionId": "reeder",
-            "score": 0,
-            "scoredOffset": Object {
-              "x": 1,
-              "y": 0,
-            },
-            "target": Object {
-              "bounds": Object {
-                "height": 22,
-                "width": 32,
-                "x": 837,
-                "y": 988,
-              },
-              "inner": Object {
-                "height": 18,
-                "width": 28,
-                "x": 839,
-                "y": 990,
-              },
-            },
-            "type": "candidate",
-            "writeInTextScore": undefined,
-          },
-          Object {
-            "bounds": Object {
-              "height": 22,
-              "width": 32,
-              "x": 837,
-              "y": 1063,
-            },
-            "contestId": "representative-district-6",
-            "optionId": "schott",
-            "score": 0.8850267379679144,
-            "scoredOffset": Object {
-              "x": 1,
-              "y": 0,
-            },
-            "target": Object {
-              "bounds": Object {
-                "height": 22,
-                "width": 32,
-                "x": 837,
-                "y": 1063,
-              },
-              "inner": Object {
-                "height": 18,
-                "width": 28,
-                "x": 839,
-                "y": 1065,
-              },
-            },
-            "type": "candidate",
-            "writeInTextScore": undefined,
-          },
-          Object {
-            "bounds": Object {
-              "height": 22,
-              "width": 32,
-              "x": 837,
-              "y": 1138,
-            },
-            "contestId": "representative-district-6",
-            "optionId": "tawney",
-            "score": 0,
-            "scoredOffset": Object {
-              "x": 1,
-              "y": 0,
-            },
-            "target": Object {
-              "bounds": Object {
-                "height": 22,
-                "width": 32,
-                "x": 837,
-                "y": 1138,
-              },
-              "inner": Object {
-                "height": 18,
-                "width": 28,
-                "x": 839,
-                "y": 1140,
-              },
-            },
-            "type": "candidate",
-            "writeInTextScore": undefined,
-          },
-          Object {
-            "bounds": Object {
-              "height": 22,
-              "width": 32,
-              "x": 837,
-              "y": 1213,
-            },
-            "contestId": "representative-district-6",
-            "optionId": "forrest",
-            "score": 0.00267379679144385,
-            "scoredOffset": Object {
-              "x": 1,
-              "y": 1,
-            },
-            "target": Object {
-              "bounds": Object {
-                "height": 22,
-                "width": 32,
-                "x": 837,
-                "y": 1213,
-              },
-              "inner": Object {
-                "height": 18,
-                "width": 28,
-                "x": 839,
-                "y": 1215,
-              },
-            },
-            "type": "candidate",
-            "writeInTextScore": undefined,
-          },
-        ],
-      },
-      "metadata": Object {
-        "ballotStyleId": "12",
-        "ballotType": 0,
-        "electionHash": "965aa0b918b9bab9a2a445ede07b23b65f84dfbdf6012621eb5b6b7e984442cb",
-        "isTestMode": false,
-        "locales": Object {
-          "primary": "en-US",
-          "secondary": "es-US",
-        },
-        "pageNumber": 1,
-        "precinctId": "23",
-      },
-      "type": "InterpretedHmpbPage",
-      "votes": Object {
-        "president": Array [
-          Object {
-            "id": "barchi-hallaren",
-            "name": "Joseph Barchi and Joseph Hallaren",
-            "partyIds": Array [
-              "0",
-            ],
-          },
-        ],
-        "representative-district-6": Array [
-          Object {
-            "id": "schott",
-            "name": "Brad Schott",
-            "partyIds": Array [
-              "2",
-            ],
-          },
-        ],
-        "senator": Array [
-          Object {
-            "id": "brown",
-            "name": "David Brown",
-            "partyIds": Array [
-              "6",
-            ],
-          },
-        ],
-      },
+      "actualElectionHash": "602c9b551d08a348c3e1",
+      "expectedElectionHash": "965aa0b918b9bab9a2a4",
+      "type": "InvalidElectionHashPage",
     }
   `);
 });
@@ -964,10 +351,970 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
     ).interpretation as UninterpretedHmpbPage
   ).toMatchInlineSnapshot(`
     Object {
+      "adjudicationInfo": Object {
+        "enabledReasonInfos": Array [],
+        "enabledReasons": Array [],
+        "ignoredReasonInfos": Array [
+          Object {
+            "contestId": "county-commissioners",
+            "optionId": "write-in-2",
+            "optionIndex": 13,
+            "type": "WriteIn",
+          },
+          Object {
+            "contestId": "county-commissioners",
+            "expected": 4,
+            "optionIds": Array [
+              "argent",
+              "altman",
+              "write-in-2",
+            ],
+            "optionIndexes": Array [
+              0,
+              8,
+              13,
+            ],
+            "type": "Undervote",
+          },
+          Object {
+            "contestId": "county-registrar-of-wills",
+            "expected": 1,
+            "optionIds": Array [],
+            "optionIndexes": Array [],
+            "type": "Undervote",
+          },
+          Object {
+            "contestId": "city-council",
+            "expected": 3,
+            "optionIds": Array [
+              "rupp",
+              "shry",
+              "davis",
+              "smith",
+            ],
+            "optionIndexes": Array [
+              1,
+              2,
+              4,
+              5,
+            ],
+            "type": "Overvote",
+          },
+        ],
+        "requiresAdjudication": false,
+      },
+      "markInfo": Object {
+        "ballotSize": Object {
+          "height": 1584,
+          "width": 1224,
+        },
+        "marks": Array [
+          Object {
+            "bounds": Object {
+              "height": 21,
+              "width": 32,
+              "x": 69,
+              "y": 219,
+            },
+            "contestId": "county-commissioners",
+            "optionId": "argent",
+            "score": 0.5163934426229508,
+            "scoredOffset": Object {
+              "x": 0,
+              "y": 1,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 21,
+                "width": 32,
+                "x": 69,
+                "y": 219,
+              },
+              "inner": Object {
+                "height": 17,
+                "width": 28,
+                "x": 71,
+                "y": 221,
+              },
+            },
+            "type": "candidate",
+            "writeInTextScore": undefined,
+          },
+          Object {
+            "bounds": Object {
+              "height": 22,
+              "width": 32,
+              "x": 69,
+              "y": 289,
+            },
+            "contestId": "county-commissioners",
+            "optionId": "witherspoonsmithson",
+            "score": 0,
+            "scoredOffset": Object {
+              "x": 0,
+              "y": 0,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 22,
+                "width": 32,
+                "x": 69,
+                "y": 289,
+              },
+              "inner": Object {
+                "height": 18,
+                "width": 28,
+                "x": 71,
+                "y": 291,
+              },
+            },
+            "type": "candidate",
+            "writeInTextScore": undefined,
+          },
+          Object {
+            "bounds": Object {
+              "height": 21,
+              "width": 32,
+              "x": 69,
+              "y": 360,
+            },
+            "contestId": "county-commissioners",
+            "optionId": "bainbridge",
+            "score": 0,
+            "scoredOffset": Object {
+              "x": 0,
+              "y": 0,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 21,
+                "width": 32,
+                "x": 69,
+                "y": 360,
+              },
+              "inner": Object {
+                "height": 17,
+                "width": 28,
+                "x": 71,
+                "y": 362,
+              },
+            },
+            "type": "candidate",
+            "writeInTextScore": undefined,
+          },
+          Object {
+            "bounds": Object {
+              "height": 21,
+              "width": 32,
+              "x": 69,
+              "y": 429,
+            },
+            "contestId": "county-commissioners",
+            "optionId": "hennessey",
+            "score": 0.00546448087431694,
+            "scoredOffset": Object {
+              "x": 0,
+              "y": 1,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 21,
+                "width": 32,
+                "x": 69,
+                "y": 429,
+              },
+              "inner": Object {
+                "height": 17,
+                "width": 28,
+                "x": 71,
+                "y": 431,
+              },
+            },
+            "type": "candidate",
+            "writeInTextScore": undefined,
+          },
+          Object {
+            "bounds": Object {
+              "height": 22,
+              "width": 32,
+              "x": 69,
+              "y": 499,
+            },
+            "contestId": "county-commissioners",
+            "optionId": "savoy",
+            "score": 0.002717391304347826,
+            "scoredOffset": Object {
+              "x": 0,
+              "y": 0,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 22,
+                "width": 32,
+                "x": 69,
+                "y": 499,
+              },
+              "inner": Object {
+                "height": 18,
+                "width": 28,
+                "x": 71,
+                "y": 501,
+              },
+            },
+            "type": "candidate",
+            "writeInTextScore": undefined,
+          },
+          Object {
+            "bounds": Object {
+              "height": 21,
+              "width": 32,
+              "x": 69,
+              "y": 570,
+            },
+            "contestId": "county-commissioners",
+            "optionId": "tawa",
+            "score": 0.00546448087431694,
+            "scoredOffset": Object {
+              "x": 0,
+              "y": 1,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 21,
+                "width": 32,
+                "x": 69,
+                "y": 570,
+              },
+              "inner": Object {
+                "height": 17,
+                "width": 28,
+                "x": 71,
+                "y": 572,
+              },
+            },
+            "type": "candidate",
+            "writeInTextScore": undefined,
+          },
+          Object {
+            "bounds": Object {
+              "height": 21,
+              "width": 32,
+              "x": 69,
+              "y": 639,
+            },
+            "contestId": "county-commissioners",
+            "optionId": "tawa-mary",
+            "score": 0,
+            "scoredOffset": Object {
+              "x": 0,
+              "y": 0,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 21,
+                "width": 32,
+                "x": 69,
+                "y": 639,
+              },
+              "inner": Object {
+                "height": 17,
+                "width": 28,
+                "x": 71,
+                "y": 641,
+              },
+            },
+            "type": "candidate",
+            "writeInTextScore": undefined,
+          },
+          Object {
+            "bounds": Object {
+              "height": 22,
+              "width": 32,
+              "x": 69,
+              "y": 709,
+            },
+            "contestId": "county-commissioners",
+            "optionId": "rangel",
+            "score": 0,
+            "scoredOffset": Object {
+              "x": 0,
+              "y": 1,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 22,
+                "width": 32,
+                "x": 69,
+                "y": 709,
+              },
+              "inner": Object {
+                "height": 18,
+                "width": 28,
+                "x": 71,
+                "y": 711,
+              },
+            },
+            "type": "candidate",
+            "writeInTextScore": undefined,
+          },
+          Object {
+            "bounds": Object {
+              "height": 21,
+              "width": 32,
+              "x": 69,
+              "y": 780,
+            },
+            "contestId": "county-commissioners",
+            "optionId": "altman",
+            "score": 0.5519125683060109,
+            "scoredOffset": Object {
+              "x": -1,
+              "y": 0,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 21,
+                "width": 32,
+                "x": 69,
+                "y": 780,
+              },
+              "inner": Object {
+                "height": 17,
+                "width": 28,
+                "x": 71,
+                "y": 782,
+              },
+            },
+            "type": "candidate",
+            "writeInTextScore": undefined,
+          },
+          Object {
+            "bounds": Object {
+              "height": 22,
+              "width": 32,
+              "x": 69,
+              "y": 850,
+            },
+            "contestId": "county-commissioners",
+            "optionId": "moore",
+            "score": 0,
+            "scoredOffset": Object {
+              "x": 0,
+              "y": 1,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 22,
+                "width": 32,
+                "x": 69,
+                "y": 850,
+              },
+              "inner": Object {
+                "height": 18,
+                "width": 28,
+                "x": 71,
+                "y": 852,
+              },
+            },
+            "type": "candidate",
+            "writeInTextScore": undefined,
+          },
+          Object {
+            "bounds": Object {
+              "height": 22,
+              "width": 32,
+              "x": 69,
+              "y": 919,
+            },
+            "contestId": "county-commissioners",
+            "optionId": "schreiner",
+            "score": 0,
+            "scoredOffset": Object {
+              "x": 0,
+              "y": 1,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 22,
+                "width": 32,
+                "x": 69,
+                "y": 919,
+              },
+              "inner": Object {
+                "height": 18,
+                "width": 28,
+                "x": 71,
+                "y": 921,
+              },
+            },
+            "type": "candidate",
+            "writeInTextScore": undefined,
+          },
+          Object {
+            "bounds": Object {
+              "height": 21,
+              "width": 32,
+              "x": 69,
+              "y": 990,
+            },
+            "contestId": "county-commissioners",
+            "optionId": "write-in-0",
+            "score": 0,
+            "scoredOffset": Object {
+              "x": 0,
+              "y": 0,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 21,
+                "width": 32,
+                "x": 69,
+                "y": 990,
+              },
+              "inner": Object {
+                "height": 17,
+                "width": 28,
+                "x": 71,
+                "y": 992,
+              },
+            },
+            "type": "candidate",
+            "writeInTextScore": 0,
+          },
+          Object {
+            "bounds": Object {
+              "height": 22,
+              "width": 32,
+              "x": 69,
+              "y": 1045,
+            },
+            "contestId": "county-commissioners",
+            "optionId": "write-in-1",
+            "score": 0.002717391304347826,
+            "scoredOffset": Object {
+              "x": 0,
+              "y": 0,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 22,
+                "width": 32,
+                "x": 69,
+                "y": 1045,
+              },
+              "inner": Object {
+                "height": 18,
+                "width": 28,
+                "x": 71,
+                "y": 1047,
+              },
+            },
+            "type": "candidate",
+            "writeInTextScore": 0,
+          },
+          Object {
+            "bounds": Object {
+              "height": 21,
+              "width": 32,
+              "x": 69,
+              "y": 1101,
+            },
+            "contestId": "county-commissioners",
+            "optionId": "write-in-2",
+            "score": 0.505464480874317,
+            "scoredOffset": Object {
+              "x": 1,
+              "y": 1,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 21,
+                "width": 32,
+                "x": 69,
+                "y": 1101,
+              },
+              "inner": Object {
+                "height": 17,
+                "width": 28,
+                "x": 71,
+                "y": 1103,
+              },
+            },
+            "type": "candidate",
+            "writeInTextScore": 0.026644826644826643,
+          },
+          Object {
+            "bounds": Object {
+              "height": 22,
+              "width": 32,
+              "x": 69,
+              "y": 1156,
+            },
+            "contestId": "county-commissioners",
+            "optionId": "write-in-3",
+            "score": 0,
+            "scoredOffset": Object {
+              "x": 0,
+              "y": 1,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 22,
+                "width": 32,
+                "x": 69,
+                "y": 1156,
+              },
+              "inner": Object {
+                "height": 18,
+                "width": 28,
+                "x": 71,
+                "y": 1158,
+              },
+            },
+            "type": "candidate",
+            "writeInTextScore": 0,
+          },
+          Object {
+            "bounds": Object {
+              "height": 21,
+              "width": 32,
+              "x": 454,
+              "y": 192,
+            },
+            "contestId": "county-registrar-of-wills",
+            "optionId": "ramachandrani",
+            "score": 0.00273224043715847,
+            "scoredOffset": Object {
+              "x": 0,
+              "y": 0,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 21,
+                "width": 32,
+                "x": 454,
+                "y": 192,
+              },
+              "inner": Object {
+                "height": 17,
+                "width": 28,
+                "x": 456,
+                "y": 194,
+              },
+            },
+            "type": "candidate",
+            "writeInTextScore": undefined,
+          },
+          Object {
+            "bounds": Object {
+              "height": 22,
+              "width": 32,
+              "x": 454,
+              "y": 262,
+            },
+            "contestId": "county-registrar-of-wills",
+            "optionId": "write-in-0",
+            "score": 0,
+            "scoredOffset": Object {
+              "x": 0,
+              "y": 0,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 22,
+                "width": 32,
+                "x": 454,
+                "y": 262,
+              },
+              "inner": Object {
+                "height": 18,
+                "width": 28,
+                "x": 456,
+                "y": 264,
+              },
+            },
+            "type": "candidate",
+            "writeInTextScore": 0,
+          },
+          Object {
+            "bounds": Object {
+              "height": 21,
+              "width": 32,
+              "x": 454,
+              "y": 495,
+            },
+            "contestId": "city-mayor",
+            "optionId": "white",
+            "score": 0.00273224043715847,
+            "scoredOffset": Object {
+              "x": 0,
+              "y": 1,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 21,
+                "width": 32,
+                "x": 454,
+                "y": 495,
+              },
+              "inner": Object {
+                "height": 17,
+                "width": 28,
+                "x": 456,
+                "y": 497,
+              },
+            },
+            "type": "candidate",
+            "writeInTextScore": undefined,
+          },
+          Object {
+            "bounds": Object {
+              "height": 21,
+              "width": 32,
+              "x": 454,
+              "y": 564,
+            },
+            "contestId": "city-mayor",
+            "optionId": "seldon",
+            "score": 0.587431693989071,
+            "scoredOffset": Object {
+              "x": 0,
+              "y": 1,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 21,
+                "width": 32,
+                "x": 454,
+                "y": 564,
+              },
+              "inner": Object {
+                "height": 17,
+                "width": 28,
+                "x": 456,
+                "y": 566,
+              },
+            },
+            "type": "candidate",
+            "writeInTextScore": undefined,
+          },
+          Object {
+            "bounds": Object {
+              "height": 22,
+              "width": 32,
+              "x": 454,
+              "y": 634,
+            },
+            "contestId": "city-mayor",
+            "optionId": "write-in-0",
+            "score": 0,
+            "scoredOffset": Object {
+              "x": 0,
+              "y": 0,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 22,
+                "width": 32,
+                "x": 454,
+                "y": 634,
+              },
+              "inner": Object {
+                "height": 18,
+                "width": 28,
+                "x": 456,
+                "y": 636,
+              },
+            },
+            "type": "candidate",
+            "writeInTextScore": 0,
+          },
+          Object {
+            "bounds": Object {
+              "height": 22,
+              "width": 32,
+              "x": 841,
+              "y": 241,
+            },
+            "contestId": "city-council",
+            "optionId": "eagle",
+            "score": 0.005434782608695652,
+            "scoredOffset": Object {
+              "x": 1,
+              "y": 1,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 22,
+                "width": 32,
+                "x": 841,
+                "y": 241,
+              },
+              "inner": Object {
+                "height": 18,
+                "width": 28,
+                "x": 843,
+                "y": 243,
+              },
+            },
+            "type": "candidate",
+            "writeInTextScore": undefined,
+          },
+          Object {
+            "bounds": Object {
+              "height": 22,
+              "width": 32,
+              "x": 841,
+              "y": 310,
+            },
+            "contestId": "city-council",
+            "optionId": "rupp",
+            "score": 0.453804347826087,
+            "scoredOffset": Object {
+              "x": -1,
+              "y": 1,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 22,
+                "width": 32,
+                "x": 841,
+                "y": 310,
+              },
+              "inner": Object {
+                "height": 18,
+                "width": 28,
+                "x": 843,
+                "y": 312,
+              },
+            },
+            "type": "candidate",
+            "writeInTextScore": undefined,
+          },
+          Object {
+            "bounds": Object {
+              "height": 21,
+              "width": 32,
+              "x": 841,
+              "y": 381,
+            },
+            "contestId": "city-council",
+            "optionId": "shry",
+            "score": 0.5355191256830601,
+            "scoredOffset": Object {
+              "x": 0,
+              "y": 0,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 21,
+                "width": 32,
+                "x": 841,
+                "y": 381,
+              },
+              "inner": Object {
+                "height": 17,
+                "width": 28,
+                "x": 843,
+                "y": 383,
+              },
+            },
+            "type": "candidate",
+            "writeInTextScore": undefined,
+          },
+          Object {
+            "bounds": Object {
+              "height": 22,
+              "width": 32,
+              "x": 841,
+              "y": 451,
+            },
+            "contestId": "city-council",
+            "optionId": "barker",
+            "score": 0,
+            "scoredOffset": Object {
+              "x": 0,
+              "y": 0,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 22,
+                "width": 32,
+                "x": 841,
+                "y": 451,
+              },
+              "inner": Object {
+                "height": 18,
+                "width": 28,
+                "x": 843,
+                "y": 453,
+              },
+            },
+            "type": "candidate",
+            "writeInTextScore": undefined,
+          },
+          Object {
+            "bounds": Object {
+              "height": 21,
+              "width": 32,
+              "x": 841,
+              "y": 522,
+            },
+            "contestId": "city-council",
+            "optionId": "davis",
+            "score": 0.5081967213114754,
+            "scoredOffset": Object {
+              "x": -1,
+              "y": 0,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 21,
+                "width": 32,
+                "x": 841,
+                "y": 522,
+              },
+              "inner": Object {
+                "height": 17,
+                "width": 28,
+                "x": 843,
+                "y": 524,
+              },
+            },
+            "type": "candidate",
+            "writeInTextScore": undefined,
+          },
+          Object {
+            "bounds": Object {
+              "height": 21,
+              "width": 32,
+              "x": 841,
+              "y": 591,
+            },
+            "contestId": "city-council",
+            "optionId": "smith",
+            "score": 0.5300546448087432,
+            "scoredOffset": Object {
+              "x": 1,
+              "y": 1,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 21,
+                "width": 32,
+                "x": 841,
+                "y": 591,
+              },
+              "inner": Object {
+                "height": 17,
+                "width": 28,
+                "x": 843,
+                "y": 593,
+              },
+            },
+            "type": "candidate",
+            "writeInTextScore": undefined,
+          },
+          Object {
+            "bounds": Object {
+              "height": 22,
+              "width": 32,
+              "x": 841,
+              "y": 661,
+            },
+            "contestId": "city-council",
+            "optionId": "write-in-0",
+            "score": 0,
+            "scoredOffset": Object {
+              "x": -1,
+              "y": 0,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 22,
+                "width": 32,
+                "x": 841,
+                "y": 661,
+              },
+              "inner": Object {
+                "height": 18,
+                "width": 28,
+                "x": 843,
+                "y": 663,
+              },
+            },
+            "type": "candidate",
+            "writeInTextScore": 0,
+          },
+          Object {
+            "bounds": Object {
+              "height": 21,
+              "width": 32,
+              "x": 841,
+              "y": 717,
+            },
+            "contestId": "city-council",
+            "optionId": "write-in-1",
+            "score": 0,
+            "scoredOffset": Object {
+              "x": 0,
+              "y": 0,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 21,
+                "width": 32,
+                "x": 841,
+                "y": 717,
+              },
+              "inner": Object {
+                "height": 17,
+                "width": 28,
+                "x": 843,
+                "y": 719,
+              },
+            },
+            "type": "candidate",
+            "writeInTextScore": 0,
+          },
+          Object {
+            "bounds": Object {
+              "height": 22,
+              "width": 32,
+              "x": 841,
+              "y": 772,
+            },
+            "contestId": "city-council",
+            "optionId": "write-in-2",
+            "score": 0,
+            "scoredOffset": Object {
+              "x": 0,
+              "y": 0,
+            },
+            "target": Object {
+              "bounds": Object {
+                "height": 22,
+                "width": 32,
+                "x": 841,
+                "y": 772,
+              },
+              "inner": Object {
+                "height": 18,
+                "width": 28,
+                "x": 843,
+                "y": 774,
+              },
+            },
+            "type": "candidate",
+            "writeInTextScore": 0.000044820940343328406,
+          },
+        ],
+      },
       "metadata": Object {
+        "ballotId": undefined,
         "ballotStyleId": "12",
         "ballotType": 0,
-        "electionHash": "965aa0b918b9bab9a2a445ede07b23b65f84dfbdf6012621eb5b6b7e984442cb",
+        "electionHash": "602c9b551d08a348c3e1",
         "isTestMode": false,
         "locales": Object {
           "primary": "en-US",
@@ -976,7 +1323,69 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
         "pageNumber": 3,
         "precinctId": "23",
       },
-      "type": "UninterpretedHmpbPage",
+      "type": "InterpretedHmpbPage",
+      "votes": Object {
+        "city-council": Array [
+          Object {
+            "id": "rupp",
+            "name": "Randall Rupp",
+            "partyIds": Array [
+              "0",
+            ],
+          },
+          Object {
+            "id": "shry",
+            "name": "Carroll Shry",
+            "partyIds": Array [
+              "0",
+            ],
+          },
+          Object {
+            "id": "davis",
+            "name": "Donald Davis",
+            "partyIds": Array [
+              "1",
+            ],
+          },
+          Object {
+            "id": "smith",
+            "name": "Hugo Smith",
+            "partyIds": Array [
+              "1",
+            ],
+          },
+        ],
+        "city-mayor": Array [
+          Object {
+            "id": "seldon",
+            "name": "Gregory Seldon",
+            "partyIds": Array [
+              "2",
+            ],
+          },
+        ],
+        "county-commissioners": Array [
+          Object {
+            "id": "argent",
+            "name": "Camille Argent",
+            "partyIds": Array [
+              "0",
+            ],
+          },
+          Object {
+            "id": "altman",
+            "name": "Valarie Altman",
+            "partyIds": Array [
+              "3",
+            ],
+          },
+          Object {
+            "id": "write-in-2",
+            "isWriteIn": true,
+            "name": "Write-In",
+          },
+        ],
+      },
     }
   `);
 });

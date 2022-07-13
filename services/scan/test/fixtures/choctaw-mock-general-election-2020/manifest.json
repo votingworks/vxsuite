@@ -17,7 +17,8 @@
       "locales": {
         "primary": "en-US"
       },
-      "filename": "ballot.pdf"
+      "filename": "ballot.pdf",
+      "layoutFilename": "layout.json"
     }
   ]
 }

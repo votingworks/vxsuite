@@ -54,9 +54,11 @@ test('emits an event each time a ballot begins uploading', async () => {
               isAbsentee: false,
               contestIds: ['a', 'b', 'c'],
               filename: 'ballot-1.pdf',
+              layoutFilename: 'layout-1.json',
               locales: { primary: 'en-US' },
             },
             pdf: Buffer.of(),
+            layout: [],
           },
           {
             ballotConfig: {
@@ -66,9 +68,11 @@ test('emits an event each time a ballot begins uploading', async () => {
               isAbsentee: false,
               contestIds: ['a', 'b', 'c'],
               filename: 'ballot-1-test.pdf',
+              layoutFilename: 'layout-1.json',
               locales: { primary: 'en-US' },
             },
             pdf: Buffer.of(),
+            layout: [],
           },
         ],
       },
