@@ -5,10 +5,10 @@ import { isSuperadminAuth, Modal, Prose } from '@votingworks/ui';
 import { useLocation } from 'react-router-dom';
 
 import { AppContext } from '../../contexts/app_context';
-import { routerPaths } from '../../router_paths';
 import { CardDetailsView } from './card_details_view';
-import { ProgramSuperAdminCardView } from './program_super_admin_card_view';
 import { ProgramElectionCardView } from './program_election_card_view';
+import { ProgramSuperAdminCardView } from './program_super_admin_card_view';
+import { routerPaths } from '../../router_paths';
 
 const ModalContents = styled.div`
   padding: 1rem;
@@ -31,11 +31,11 @@ export function SmartcardModal(): JSX.Element | null {
 
   let contents: JSX.Element;
   if (auth.card.programmedUser) {
-    contents = <CardDetailsView />;
+    contents = <CardDetailsView card={auth.card} />;
   } else if (onSuperAdminSmartcardsScreen) {
-    contents = <ProgramSuperAdminCardView />;
+    contents = <ProgramSuperAdminCardView card={auth.card} />;
   } else {
-    contents = <ProgramElectionCardView />;
+    contents = <ProgramElectionCardView card={auth.card} />;
   }
   return (
     <Modal
