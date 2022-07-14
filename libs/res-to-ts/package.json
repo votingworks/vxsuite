@@ -23,6 +23,7 @@
   "packageManager": "pnpm@5.18.10",
   "dependencies": {
     "globby": "11",
+    "js-sha256": "^0.9.0",
     "mime": "^3.0.0",
     "tmp": "^0.2.1"
   },

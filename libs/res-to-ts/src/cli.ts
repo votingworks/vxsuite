@@ -1,6 +1,6 @@
-import { promises as fs } from 'fs';
+import * as fs from 'fs/promises';
 import globby from 'globby';
-import { basename, isAbsolute, join, relative } from 'path';
+import { basename, dirname, isAbsolute, join, relative } from 'path';
 import { convert, Resource } from './convert';
 import { getMimeType } from './mime';
 import { assert } from './utils/assert';
@@ -248,6 +248,7 @@ export async function main(
         io.stdout.write(`✅ ${displayPath}\n`);
       }
     } else {
+      await fs.mkdir(dirname(resource.tsPath), { recursive: true });
       await fs.writeFile(resource.tsPath, output);
       io.stdout.write(`📝 ${displayPath}\n`);
     }
