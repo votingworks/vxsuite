@@ -337,6 +337,39 @@ test('convert text adjacent', async () => {
   expect(content).not.toContain(`export async function asImage()`);
 });
 
+test('convert Election JSON adjacent', async () => {
+  const path = fileSync({ template: 'election-XXXXXX.json' }).name;
+  await fs.writeFile(path, '{}');
+
+  const stdio: Stdio = {
+    stdin: fakeReadable(),
+    stdout: fakeWritable(),
+    stderr: fakeWritable(),
+  };
+
+  const tsPath = getOutputPath(path);
+  const exitCode = await main(['node', '/path/to/res-to-ts', path], stdio);
+  expect({
+    exitCode,
+    stdout: stdio.stdout.toString(),
+    stderr: stdio.stderr.toString(),
+  }).toEqual({
+    exitCode: 0,
+    stdout: `📝 ${relativize(tsPath, process.cwd())}\n`,
+    stderr: '',
+  });
+
+  const content = await fs.readFile(tsPath, 'utf8');
+  expect(content).toContain(`const resourceDataBase64 = 'e30='`);
+  expect(content).toContain(
+    `SHA-256 hash of file data: 44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a`
+  );
+  expect(content).toContain(`const mimeType = 'application/json'`);
+  expect(content).toContain(`export function asText()`);
+  expect(content).toContain(`export const electionDefinition =`);
+  expect(content).not.toContain(`export async function asImage()`);
+});
+
 test('convert unknown type adjacent', async () => {
   const path = fileSync({ template: 'XXXXXX' }).name;
   await fs.writeFile(path, 'content');

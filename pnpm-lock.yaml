@@ -2110,6 +2110,7 @@ importers:
   libs/res-to-ts:
     dependencies:
       globby: 11.0.4
+      js-sha256: 0.9.0
       mime: 3.0.0
       tmp: 0.2.1
     devDependencies:
@@ -2155,6 +2156,7 @@ importers:
       is-ci-cli: ^2.2.0
       jest: ^27.5.1
       jest-watch-typeahead: ^0.6.4
+      js-sha256: ^0.9.0
       mime: ^3.0.0
       tmp: ^0.2.1
       ts-jest: ^27.1.3
