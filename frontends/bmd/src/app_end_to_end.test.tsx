@@ -154,6 +154,7 @@ it('MarkAndPrint end-to-end flow', async () => {
   await advanceTimersAndPromises();
   screen.queryByText(`Election ID: ${expectedElectionHash}`);
   fireEvent.click(screen.getByText('Open Polls for Center Springfield'));
+  fireEvent.click(screen.getByText('Open Polls Now'));
   screen.getByText('Close Polls for Center Springfield');
   // Force refresh
   fireEvent.click(screen.getByText('Reset Accessible Controller'));
@@ -362,6 +363,7 @@ it('MarkAndPrint end-to-end flow', async () => {
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises();
   fireEvent.click(screen.getByText('Close Polls for Center Springfield'));
+  fireEvent.click(screen.getByText('Close Polls Now'));
   screen.getByText('Open Polls for Center Springfield');
 
   // Remove card

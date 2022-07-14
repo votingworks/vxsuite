@@ -1267,3 +1267,64 @@ test('navigates to System Diagnostics screen', () => {
   // we properly cancel the request for printer status.
   unmount();
 });
+
+test('shows instructions to open/close polls on VxScan if no tally report on card', () => {
+  const togglePollsOpen = jest.fn();
+  renderScreen({
+    isPollsOpen: false,
+    togglePollsOpen,
+  });
+
+  fireEvent.click(screen.getByText('Open Polls for Center Springfield'));
+
+  // Should show the modal and not open/close polls
+  expect(togglePollsOpen).not.toHaveBeenCalled();
+  screen.getByText('Open Polls on VxScan');
+
+  // Clicking Cancel closes the modal
+  fireEvent.click(screen.getByText('Open Polls for Center Springfield'));
+  fireEvent.click(screen.getByText('Cancel'));
+  screen.getByText('Open Polls for Center Springfield');
+
+  // Clicking Open Polls Now should open/close polls anyway
+  fireEvent.click(screen.getByText('Open Polls for Center Springfield'));
+  fireEvent.click(screen.getByText('Open Polls Now'));
+  expect(togglePollsOpen).toHaveBeenCalled();
+});
+
+test('open/close polls opens and closes the polls if there is a tally report on the pollworker card', () => {
+  const togglePollsOpen = jest.fn();
+
+  const existingTally = getZeroCompressedTally(electionSampleWithSeal);
+  // add tallies to the president contest
+  existingTally[0] = typedAs<CandidateContestWithoutWriteInsCompressedTally>([
+    6 /* undervotes */, 0 /* overvotes */, 34 /* ballotsCast */,
+    6 /* for 'barchi-hallaren' */, 5 /* for 'cramer-vuocolo' */,
+    6 /* for 'court-blumhardt' */, 5 /* for 'boone-lian' */,
+    3 /* for 'hildebrand-garritty' */, 0 /* for 'patterson-lariviere' */,
+  ]);
+  const tallyOnCard: PrecinctScannerCardTally = {
+    tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
+    tally: existingTally,
+    totalBallotsScanned: 25,
+    machineId: '001',
+    timeSaved: new Date('2020-10-31').getTime(),
+    precinctSelection: { kind: PrecinctSelectionKind.AllPrecincts },
+    isLiveMode: false,
+    isPollsOpen: false,
+    ballotCounts: { 'undefined,__ALL_PRECINCTS': [20, 5] },
+  };
+  const pollworkerAuth = fakePollworkerAuth(
+    electionSampleWithSealDefinition,
+    tallyOnCard
+  );
+
+  renderScreen({
+    pollworkerAuth,
+    isPollsOpen: false,
+    togglePollsOpen,
+  });
+
+  fireEvent.click(screen.getByText('Open Polls for Center Springfield'));
+  expect(togglePollsOpen).toHaveBeenCalled();
+});

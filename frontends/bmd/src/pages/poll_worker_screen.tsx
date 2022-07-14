@@ -324,6 +324,9 @@ export function PollWorkerScreen({
         ? appPrecinct.precinctId
         : undefined
     );
+  const [isShowingVxScanPollsOpenModal, setIsShowingVxScanPollsOpenModal] =
+    useState(false);
+
   const precinctBallotStyles = selectedCardlessVoterPrecinctId
     ? election.ballotStyles.filter((bs) =>
         bs.precincts.includes(selectedCardlessVoterPrecinctId)
@@ -362,6 +365,14 @@ export function PollWorkerScreen({
   function confirmEnableLiveMode() {
     enableLiveMode();
     setIsConfirmingEnableLiveMode(false);
+  }
+
+  function handleTogglePollsOpen() {
+    if (pollworkerCardHasTally) {
+      togglePollsOpen();
+    } else {
+      setIsShowingVxScanPollsOpenModal(true);
+    }
   }
 
   if (hasVotes && pollworkerAuth.activatedCardlessVoter) {
@@ -529,7 +540,7 @@ export function PollWorkerScreen({
               )}
             </Text>
             <p>
-              <Button primary large onPress={togglePollsOpen}>
+              <Button primary large onPress={handleTogglePollsOpen}>
                 {isPollsOpen
                   ? `Close Polls for ${precinctName}`
                   : `Open Polls for ${precinctName}`}
@@ -550,6 +561,38 @@ export function PollWorkerScreen({
             <Text center>Remove card when finished.</Text>
           </Prose>
         </Sidebar>
+        {isShowingVxScanPollsOpenModal && (
+          <Modal
+            centerContent
+            content={
+              <Prose textCenter id="modalaudiofocus">
+                <h1>{isPollsOpen ? 'Close' : 'Open'} Polls on VxScan</h1>
+                <p>
+                  {isPollsOpen ? 'Close' : 'Open'} polls on VxScan first before{' '}
+                  {isPollsOpen ? 'closing' : 'opening'} VxMark.
+                </p>
+              </Prose>
+            }
+            actions={
+              <React.Fragment>
+                <Button
+                  primary
+                  onPress={() => setIsShowingVxScanPollsOpenModal(false)}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onPress={() => {
+                    togglePollsOpen();
+                    setIsShowingVxScanPollsOpenModal(false);
+                  }}
+                >
+                  {isPollsOpen ? 'Close' : 'Open'} Polls Now
+                </Button>
+              </React.Fragment>
+            }
+          />
+        )}
         {isConfirmingEnableLiveMode && (
           <Modal
             centerContent

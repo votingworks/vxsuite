@@ -107,6 +107,7 @@ it('MarkOnly flow', async () => {
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises();
   fireEvent.click(screen.getByText('Open Polls for Center Springfield'));
+  fireEvent.click(screen.getByText('Open Polls Now'));
   screen.getByText('Close Polls for Center Springfield');
 
   // Remove card
@@ -197,6 +198,7 @@ it('MarkOnly flow', async () => {
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises();
   fireEvent.click(screen.getByText('Close Polls for Center Springfield'));
+  fireEvent.click(screen.getByText('Close Polls Now'));
   screen.getByText('Open Polls for Center Springfield');
 
   // Remove card
