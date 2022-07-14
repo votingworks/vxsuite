@@ -1,4 +1,4 @@
-import { electionMultiPartyPrimaryWithDataFiles } from '@votingworks/fixtures';
+import { electionMultiPartyPrimaryFixtures } from '@votingworks/fixtures';
 import {
   generateCvr,
   generateFileContentFromCvrs,
@@ -11,7 +11,7 @@ import {
 
 describe('Election Manager can create SEMS tallies', () => {
   it('Tallies for candidate contests compute end to end as expected', () => {
-    const { electionDefinition } = electionMultiPartyPrimaryWithDataFiles;
+    const { electionDefinition } = electionMultiPartyPrimaryFixtures;
     const { election } = electionDefinition;
     // Generate a CVR file with votes in the president contest.
     const fakeCvrFileContents = generateFileContentFromCvrs([

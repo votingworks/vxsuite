@@ -1,6 +1,6 @@
 import {
-  electionMultiPartyPrimaryWithDataFiles,
-  electionWithMsEitherNeitherWithDataFiles,
+  electionMultiPartyPrimaryFixtures,
+  electionWithMsEitherNeitherFixtures,
 } from '@votingworks/fixtures';
 import {
   CandidateContest,
@@ -23,9 +23,9 @@ import {
 import { convertSemsFileToExternalTally } from './sems_tallies';
 
 const multiPartyPrimaryElection =
-  electionMultiPartyPrimaryWithDataFiles.electionDefinition.election;
+  electionMultiPartyPrimaryFixtures.electionDefinition.election;
 const electionWithMsEitherNeither =
-  electionWithMsEitherNeitherWithDataFiles.electionDefinition.election;
+  electionWithMsEitherNeitherFixtures.electionDefinition.election;
 
 const yesnocontest = electionWithMsEitherNeither.contests.find(
   (c) => c.id === '750000017'
@@ -251,7 +251,7 @@ describe('getCombinedExportableContestTally', () => {
 describe('getExportableTallies', () => {
   it('builds expected tally object for election with either neither with just internal data', () => {
     const castVoteRecords = parseCvrsAndAssertSuccess(
-      electionWithMsEitherNeitherWithDataFiles.cvrData,
+      electionWithMsEitherNeitherFixtures.cvrData,
       electionWithMsEitherNeither
     );
     const fullInternalTally = computeFullElectionTally(
@@ -268,7 +268,7 @@ describe('getExportableTallies', () => {
 
   it('builds expected tally object for election with either neither with external and internal data', () => {
     const castVoteRecords = parseCvrsAndAssertSuccess(
-      electionWithMsEitherNeitherWithDataFiles.cvrData,
+      electionWithMsEitherNeitherFixtures.cvrData,
       electionWithMsEitherNeither
     );
     const fullInternalTally = computeFullElectionTally(
@@ -276,7 +276,7 @@ describe('getExportableTallies', () => {
       new Set(castVoteRecords)
     );
     const fullExternalTally = convertSemsFileToExternalTally(
-      electionWithMsEitherNeitherWithDataFiles.semsData,
+      electionWithMsEitherNeitherFixtures.semsData,
       electionWithMsEitherNeither,
       VotingMethod.Precinct,
       'file-name',
@@ -309,7 +309,7 @@ describe('getExportableTallies', () => {
 
   it('builds expected tally object for primary election with just internal data', () => {
     const castVoteRecords = parseCvrsAndAssertSuccess(
-      electionMultiPartyPrimaryWithDataFiles.cvrData,
+      electionMultiPartyPrimaryFixtures.cvrData,
       multiPartyPrimaryElection
     );
     const fullInternalTally = computeFullElectionTally(
@@ -326,7 +326,7 @@ describe('getExportableTallies', () => {
 
   it('builds expected tally object for primary election with external and internal data', () => {
     const castVoteRecords = parseCvrsAndAssertSuccess(
-      electionMultiPartyPrimaryWithDataFiles.cvrData,
+      electionMultiPartyPrimaryFixtures.cvrData,
       multiPartyPrimaryElection
     );
     const fullInternalTally = computeFullElectionTally(
@@ -334,7 +334,7 @@ describe('getExportableTallies', () => {
       new Set(castVoteRecords)
     );
     const fullExternalTally = convertSemsFileToExternalTally(
-      electionMultiPartyPrimaryWithDataFiles.semsData,
+      electionMultiPartyPrimaryFixtures.semsData,
       multiPartyPrimaryElection,
       VotingMethod.Precinct,
       'file-name',
