@@ -106,33 +106,33 @@ async function configure(): Promise<Pick<Context, 'store' | 'interpreter'>> {
   assert(SCAN_WORKSPACE !== undefined);
   const workspace = await createWorkspace(SCAN_WORKSPACE);
   const { store } = workspace;
+  let electionDefinition = store.getElectionDefinition();
 
-  const ballotPackage = await readBallotPackageFromBuffer(
-    electionFamousNames2021Fixtures.ballotPackageAsBuffer()
-  );
-  const { electionDefinition } = ballotPackage;
-  // electionDefinition.election = {
-  //   ...electionDefinition.election,
-  //   markThresholds: DefaultMarkThresholds,
-  // };
-  store.setElection(electionDefinition);
-  for (const { ballotConfig, pdf, layout } of ballotPackage.ballots) {
-    assert(layout);
-    store.addHmpbTemplate(
-      pdf,
-      {
-        electionHash: electionDefinition.electionHash,
-        ballotType: BallotType.Standard,
-        ballotStyleId: ballotConfig.ballotStyleId,
-        precinctId: ballotConfig.precinctId,
-        isTestMode: !ballotConfig.isLiveMode,
-        locales: ballotConfig.locales,
-      },
-      layout
+  // Configure from ballot package if not already configured
+  if (!electionDefinition) {
+    const ballotPackage = await readBallotPackageFromBuffer(
+      electionFamousNames2021Fixtures.ballotPackageAsBuffer()
     );
+    electionDefinition = ballotPackage.electionDefinition;
+    store.setElection(electionDefinition);
+    for (const { ballotConfig, pdf, layout } of ballotPackage.ballots) {
+      assert(layout);
+      store.addHmpbTemplate(
+        pdf,
+        {
+          electionHash: electionDefinition.electionHash,
+          ballotType: BallotType.Standard,
+          ballotStyleId: ballotConfig.ballotStyleId,
+          precinctId: ballotConfig.precinctId,
+          isTestMode: !ballotConfig.isLiveMode,
+          locales: ballotConfig.locales,
+        },
+        layout
+      );
+    }
   }
+
   const layouts = await loadLayouts(workspace.store);
-  // console.log({ layouts });
   assert(layouts);
   const interpreter = createInterpreter({
     electionDefinition,
@@ -204,7 +204,6 @@ async function scan({ client }: Context): Promise<SheetOf<string>> {
   return [front, back];
 }
 
-// eslint-disable-next-line @typescript-eslint/require-await
 async function interpretSheet({
   interpreter,
   scannedSheet,
@@ -291,8 +290,6 @@ Context): Promise<InterpretationResultEvent> {
   const frontAdjudication = front.interpretation.adjudicationInfo;
   const backAdjudication = back.interpretation.adjudicationInfo;
 
-  console.log(frontAdjudication);
-  console.log(backAdjudication);
   if (
     frontAdjudication.requiresAdjudication ||
     backAdjudication.requiresAdjudication
