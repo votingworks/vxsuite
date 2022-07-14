@@ -566,11 +566,17 @@ export function PollWorkerScreen({
             centerContent
             content={
               <Prose textCenter id="modalaudiofocus">
-                <h1>{isPollsOpen ? 'Close' : 'Open'} Polls on VxScan</h1>
-                <p>
-                  {isPollsOpen ? 'Close' : 'Open'} polls on VxScan first before{' '}
-                  {isPollsOpen ? 'closing' : 'opening'} VxMark.
-                </p>
+                {isPollsOpen ? (
+                  <React.Fragment>
+                    <h1>Close Polls on VxScan</h1>
+                    <p>Close polls on VxScan first before closing VxMark.</p>
+                  </React.Fragment>
+                ) : (
+                  <React.Fragment>
+                    <h1>Open Polls on VxScan</h1>
+                    <p>Open polls on VxScan first before opening VxMark.</p>
+                  </React.Fragment>
+                )}
               </Prose>
             }
             actions={
