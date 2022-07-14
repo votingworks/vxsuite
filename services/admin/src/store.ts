@@ -3,6 +3,7 @@
 //
 
 import { Adjudication, ContestId } from '@votingworks/types';
+import { SqliteError } from 'better-sqlite3';
 import { join } from 'path';
 import { v4 as uuid } from 'uuid';
 import { DbClient } from './db_client';
@@ -37,9 +38,48 @@ export class Store {
   /**
    * Adds a CVR and returns its id.
    */
-  addCvr(data: string): string {
+  addCvr(ballotId: string, fileId: string, data: string): string | null {
     const id = uuid();
-    this.client.run('insert into cvrs (id, data) values (?, ?)', id, data);
+    try {
+      this.client.run(
+        'insert into cvrs (id, ballot_id, imported_by_file, data) values (?, ?, ?, ?)',
+        id,
+        ballotId,
+        fileId,
+        data
+      );
+    } catch (err) {
+      /* istanbul ignore next */
+      if (
+        err instanceof SqliteError &&
+        err.code === 'SQLITE_CONSTRAINT_UNIQUE'
+      ) {
+        return null;
+      }
+      throw err;
+    }
+    return id;
+  }
+
+  addCvrFile(
+    signature: string,
+    filename: string,
+    exportTimestamp: string,
+    scannerIds: string[],
+    precinctIds: string[],
+    containsTestModeCvrs: boolean
+  ): string {
+    const id = uuid();
+    this.client.run(
+      'insert into cvr_files (id, signature, filename, timestamp, scanner_ids, precinct_ids, contains_test_mode_cvrs) values (?, ?, ?, ?, ?, ?, ?)',
+      id,
+      signature,
+      filename,
+      exportTimestamp,
+      scannerIds.join(','),
+      precinctIds.join(','),
+      containsTestModeCvrs.toString()
+    );
     return id;
   }
 

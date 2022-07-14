@@ -4,6 +4,19 @@ import { tmpNameSync } from 'tmp';
 
 import { Store } from './store';
 
+function addTestCvr(store: Store): string {
+  const cvrFileId = store.addCvrFile(
+    'abc',
+    'cvrs.jsonl',
+    '123',
+    ['123', 'abc'],
+    ['zoo'],
+    false
+  );
+  const cvrId = store.addCvr('123', cvrFileId, 'test') as string;
+  return cvrId;
+}
+
 test('create a file store', async () => {
   const tmpDir = tmpNameSync();
   await fs.mkdir(tmpDir);
@@ -22,7 +35,8 @@ test('create a memory store', () => {
 
 test('add/get adjudications', () => {
   const store = Store.memoryStore();
-  const cvrId = store.addCvr('test');
+  const cvrId = addTestCvr(store);
+
   const id = store.addAdjudication('mayor', cvrId, 'Mickey Mouse');
   let added = store.getAdjudicationById(id);
 
@@ -38,7 +52,8 @@ test('add/get adjudications', () => {
 
 test('getAdjudicationsByContestId', () => {
   const store = Store.memoryStore();
-  const cvrId = store.addCvr('test');
+  const cvrId = addTestCvr(store);
+
   const adjudicationId = store.addAdjudication('mayor', cvrId, 'Minnie Mouse');
   const adjudicationId2 = store.addAdjudication('mayor', cvrId, 'Goofy');
   store.addAdjudication('assistant-mayor', cvrId, 'Mickey Mouse');
@@ -62,7 +77,8 @@ test('getAdjudicationsByContestId', () => {
 
 test('getAdjudicationCountsGroupedByContestId', () => {
   const store = Store.memoryStore();
-  const cvrId = store.addCvr('test');
+  const cvrId = addTestCvr(store);
+
   store.addAdjudication('mayor', cvrId, 'Minnie Mouse');
   store.addAdjudication('mayor', cvrId, 'Goofy');
   store.addAdjudication('assistant-mayor', cvrId, 'Mickey Mouse');
@@ -79,9 +95,27 @@ test('getAdjudicationCountsGroupedByContestId', () => {
   ]);
 });
 
+test('addCvr throws when adding a CVR with duplicate ballotId', () => {
+  const store = Store.memoryStore();
+  const cvrFileId = store.addCvrFile(
+    'abc',
+    'cvrs.jsonl',
+    '123',
+    ['123', 'abc'],
+    ['zoo'],
+    false
+  );
+  store.addCvr('123', cvrFileId, 'test') as string;
+  expect(() => {
+    const nullCvrId = store.addCvr('123', cvrFileId, 'test');
+    expect(nullCvrId).toBeNull();
+  }).toThrowError('UNIQUE constraint failed: cvrs.ballot_id');
+});
+
 test('deleteCvrs', () => {
   const store = Store.memoryStore();
-  const cvrId = store.addCvr('test');
+  const cvrId = addTestCvr(store);
+
   store.addAdjudication('mayor', cvrId, 'Minnie Mouse');
 
   expect(store.getAdjudicationsByContestId('mayor')).toHaveLength(1);
@@ -93,7 +127,8 @@ test('deleteCvrs', () => {
 
 test('getAllTranscribedValues', () => {
   const store = Store.memoryStore();
-  const cvrId = store.addCvr('test');
+  const cvrId = addTestCvr(store);
+
   store.addAdjudication('mayor', cvrId, 'Mickey Mouse');
   store.addAdjudication('assistant-mayor', cvrId, 'Mickey Mouse');
   store.addAdjudication('county-commissioner', cvrId, 'Daffy');
@@ -108,7 +143,8 @@ test('getAllTranscribedValues', () => {
 
 test('getAdjudicationCountsByContestIdAndTranscribedValue', () => {
   const store = Store.memoryStore();
-  const cvrId = store.addCvr('test');
+  const cvrId = addTestCvr(store);
+
   store.addAdjudication('mayor', cvrId, 'Mickey Mouse');
   store.addAdjudication('mayor', cvrId, 'Mickey Mouse');
   store.addAdjudication('county-commissioner', cvrId, 'Daffy');
