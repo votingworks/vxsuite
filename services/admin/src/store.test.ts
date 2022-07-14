@@ -101,14 +101,7 @@ test('getAdjudicationCountsGroupedByContestId', () => {
 
 test('addCvr throws when adding a CVR with duplicate ballotId', () => {
   const store = Store.memoryStore();
-  const cvrFileId = store.addCvrFile(
-    'abc',
-    'cvrs.jsonl',
-    '123',
-    ['123', 'abc'],
-    ['zoo'],
-    false
-  );
+  const cvrFileId = addTestCvrFile(store);
   store.addCvr('123', cvrFileId, 'test') as string;
   expect(() => {
     const nullCvrId = store.addCvr('123', cvrFileId, 'test');
