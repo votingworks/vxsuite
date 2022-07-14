@@ -16,8 +16,8 @@ function addTestCvrFile(store: Store): string {
   return id;
 }
 
-function addTestCvr(store: Store): string {
-  const id = store.addCvr('123', addTestCvrFile(store), 'test') as string;
+function addTestCvr(store: Store, { ballotId } = { ballotId: '123' }): string {
+  const id = store.addCvr(ballotId, addTestCvrFile(store), 'test') as string;
   return id;
 }
 
@@ -121,6 +121,13 @@ test('getAllCvrFiles', () => {
   addTestCvrFile(store);
   addTestCvrFile(store);
   expect(store.getAllCvrFiles()).toHaveLength(2);
+});
+
+test('getAllCvrBallotIds', () => {
+  const store = Store.memoryStore();
+  addTestCvr(store, { ballotId: '123' });
+  addTestCvr(store, { ballotId: '456' });
+  expect(store.getAllCvrBallotIds()).toEqual(['123', '456']);
 });
 
 test('deleteCvrs', () => {

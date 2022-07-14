@@ -91,6 +91,15 @@ export class Store {
     return rows.map((r) => JSON.stringify(r)).filter(Boolean);
   }
 
+  getAllCvrBallotIds(): string[] {
+    const rows = this.client.all(
+      'select ballot_id as ballotId from cvrs'
+    ) as Array<{
+      ballotId: string;
+    }>;
+    return rows.map((r) => r.ballotId).filter(Boolean);
+  }
+
   /**
    * Delete all CVRs
    */
