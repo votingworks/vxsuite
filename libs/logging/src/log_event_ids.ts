@@ -48,7 +48,11 @@ export enum LogEventId {
   BallotPrinted = 'ballot-printed',
   PrintedBallotReportPrinted = 'printed-ballot-report-printed',
   SmartcardProgramInit = 'smartcard-program-init',
-  SmartcardProgrammed = 'smartcard-programmed',
+  SmartcardProgramComplete = 'smartcard-program-complete',
+  SmartcardUnprogramInit = 'smartcard-unprogram-init',
+  SmartcardUnprogramComplete = 'smartcard-unprogram-complete',
+  // TODO(https://github.com/votingworks/vxsuite/issues/2085):
+  // Remove SmartcardProgrammedOverrideWriteProtection when removing legacy smartcards screen
   SmartcardProgrammedOverrideWriteProtection = 'smartcard-programmed-override-write-protection',
   CvrImported = 'cvr-imported',
   CvrFilesReadFromUsb = 'cvr-files-read-from-usb',
@@ -312,14 +316,29 @@ const FileSaved: LogDetails = {
 const SmartcardProgramInit: LogDetails = {
   eventId: LogEventId.SmartcardProgramInit,
   eventType: LogEventType.UserAction,
-  documentationMessage: 'A write to smartcard is being initiated.',
+  documentationMessage:
+    'A smartcard is being programmed for a specific user role. The user role is indicated by the programmedUserRole key.',
   restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
 };
-const SmartcardProgrammed: LogDetails = {
-  eventId: LogEventId.SmartcardProgrammed,
+const SmartcardProgramComplete: LogDetails = {
+  eventId: LogEventId.SmartcardProgramComplete,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'Smartcard is programmed for a new user type. User type is indicated by the programmedUser key. Success or failure is indicated by the disposition.',
+    'A smartcard has been programmed for a specific user role. The user role is indicated by the programmedUserRole key. Success or failure is indicated by the disposition.',
+  restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
+};
+const SmartcardUnprogramInit: LogDetails = {
+  eventId: LogEventId.SmartcardUnprogramInit,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A smartcard is being unprogrammed. The current smartcard user role is indicated by the programmedUserRole key.',
+  restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
+};
+const SmartcardUnprogramComplete: LogDetails = {
+  eventId: LogEventId.SmartcardUnprogramComplete,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A smartcard has been unprogrammed. The previous (or current in the case of failure) smartcard user role is indicated by the previousProgrammedUserRole (or programmedUserRole in the case of failure) key. Success or failure is indicated by the disposition.',
   restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
 };
 const SmartcardProgrammedOverrideWriteProtection: LogDetails = {
@@ -766,12 +785,16 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return PrintedBallotReportPrinted;
     case LogEventId.FileSaved:
       return FileSaved;
-    case LogEventId.SmartcardProgrammed:
-      return SmartcardProgrammed;
-    case LogEventId.SmartcardProgrammedOverrideWriteProtection:
-      return SmartcardProgrammedOverrideWriteProtection;
     case LogEventId.SmartcardProgramInit:
       return SmartcardProgramInit;
+    case LogEventId.SmartcardProgramComplete:
+      return SmartcardProgramComplete;
+    case LogEventId.SmartcardUnprogramInit:
+      return SmartcardUnprogramInit;
+    case LogEventId.SmartcardUnprogramComplete:
+      return SmartcardUnprogramComplete;
+    case LogEventId.SmartcardProgrammedOverrideWriteProtection:
+      return SmartcardProgrammedOverrideWriteProtection;
     case LogEventId.CvrFilesReadFromUsb:
       return CvrFilesReadFromUsb;
     case LogEventId.CvrImported:

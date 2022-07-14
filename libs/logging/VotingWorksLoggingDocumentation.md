@@ -128,11 +128,19 @@ IDs are logged with each log to identify the log being written.
 **Machines:** vx-admin-frontend
 ### smartcard-program-init
 **Type:** [user-action](#user-action)  
-**Description:** A write to smartcard is being initiated.  
+**Description:** A smartcard is being programmed for a specific user role. The user role is indicated by the programmedUserRole key.  
 **Machines:** vx-admin-frontend
-### smartcard-programmed
+### smartcard-program-complete
 **Type:** [user-action](#user-action)  
-**Description:** Smartcard is programmed for a new user type. User type is indicated by the programmedUser key. Success or failure is indicated by the disposition.  
+**Description:** A smartcard has been programmed for a specific user role. The user role is indicated by the programmedUserRole key. Success or failure is indicated by the disposition.  
+**Machines:** vx-admin-frontend
+### smartcard-unprogram-init
+**Type:** [user-action](#user-action)  
+**Description:** A smartcard is being unprogrammed. The current smartcard user role is indicated by the programmedUserRole key.  
+**Machines:** vx-admin-frontend
+### smartcard-unprogram-complete
+**Type:** [user-action](#user-action)  
+**Description:** A smartcard has been unprogrammed. The previous (or current in the case of failure) smartcard user role is indicated by the previousProgrammedUserRole (or programmedUserRole in the case of failure) key. Success or failure is indicated by the disposition.  
 **Machines:** vx-admin-frontend
 ### smartcard-programmed-override-write-protection
 **Type:** [user-action](#user-action)  

@@ -173,6 +173,7 @@ function smartcardAuthReducer(
 
 function useDippedSmartcardAuthBase({
   cardApi,
+  logger,
 }: UseDippedSmartcardAuthArgs): DippedSmartcardAuth.Auth {
   const [{ cardSummary, auth }, dispatch] = useReducer(smartcardAuthReducer, {
     cardSummary: { status: 'no_card' },
@@ -222,7 +223,12 @@ function useDippedSmartcardAuthBase({
               cardSummary.status === 'ready'
                 ? {
                     ...buildCardStorage(cardSummary, cardApi, cardWriteLock),
-                    ...buildCardProgramming(cardSummary),
+                    ...buildCardProgramming(
+                      cardSummary,
+                      cardApi,
+                      cardWriteLock,
+                      logger
+                    ),
                   }
                 : undefined,
             logOut: () => dispatch({ type: 'log_out' }),

@@ -26,6 +26,7 @@ export function fakeCardProgramming(
   return {
     programmedUser: undefined,
     programUser: jest.fn(),
+    unprogramUser: jest.fn(),
     ...props,
   };
 }
