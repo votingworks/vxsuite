@@ -126,126 +126,131 @@ export function buildCardProgramming(
   cardWriteLock: Lock,
   logger?: Logger
 ): CardProgramming {
+  const programmedUser = parseUserFromCardSummary(cardSummary);
+
+  const programUser: CardProgramming['programUser'] = async (userData) => {
+    const { role } = userData;
+    try {
+      if (!cardWriteLock.lock()) {
+        throw new Error('Card write in progress');
+      }
+      switch (role) {
+        case 'superadmin': {
+          const cardData: SuperadminCardData = {
+            t: 'superadmin',
+          };
+          await cardApi.overrideWriteProtection();
+          await cardApi.writeShortValue(JSON.stringify(cardData));
+          break;
+        }
+        case 'admin': {
+          const cardData: AdminCardData = {
+            t: 'admin',
+            h: userData.electionHash,
+            p: userData.passcode,
+          };
+          await cardApi.overrideWriteProtection();
+          await cardApi.writeShortAndLongValues({
+            shortValue: JSON.stringify(cardData),
+            longValue: userData.electionData,
+          });
+          break;
+        }
+        case 'pollworker': {
+          const cardData: PollworkerCardData = {
+            t: 'pollworker',
+            h: userData.electionHash,
+          };
+          await cardApi.overrideWriteProtection();
+          await cardApi.writeShortValue(JSON.stringify(cardData));
+          break;
+        }
+        /* istanbul ignore next: Compile-time check for completeness */
+        default:
+          throwIllegalValue(role);
+      }
+      return ok();
+    } catch (error) {
+      return wrapException(error);
+    } finally {
+      cardWriteLock.unlock();
+    }
+  };
+
+  const unprogramUser: CardProgramming['unprogramUser'] = async () => {
+    if (!programmedUser) {
+      // Short-circuit if the card is already unprogrammed
+      return ok();
+    }
+    try {
+      if (!cardWriteLock.lock()) {
+        throw new Error('Card write in progress');
+      }
+      await cardApi.overrideWriteProtection();
+      await cardApi.writeShortAndLongValues({
+        shortValue: '',
+        longValue: '',
+      });
+      return ok();
+    } catch (error) {
+      return wrapException(error);
+    } finally {
+      cardWriteLock.unlock();
+    }
+  };
+
   return {
-    programmedUser: parseUserFromCardSummary(cardSummary),
+    programmedUser,
+
     programUser: async (userData) => {
+      if (!logger) {
+        return await programUser(userData);
+      }
+
       const { role } = userData;
-      if (logger) {
-        await logger.log(LogEventId.SmartcardProgramInit, 'superadmin', {
-          message: `Programming ${role} smartcard...`,
-          programmedUserRole: role,
-        });
-      }
-      try {
-        if (!cardWriteLock.lock()) {
-          throw new Error('Card write in progress');
-        }
-        switch (role) {
-          case 'superadmin': {
-            const cardData: SuperadminCardData = {
-              t: 'superadmin',
-            };
-            await cardApi.overrideWriteProtection();
-            await cardApi.writeShortValue(JSON.stringify(cardData));
-            break;
-          }
-          case 'admin': {
-            const cardData: AdminCardData = {
-              t: 'admin',
-              h: userData.electionHash,
-              p: userData.passcode,
-            };
-            await cardApi.overrideWriteProtection();
-            await cardApi.writeShortAndLongValues({
-              shortValue: JSON.stringify(cardData),
-              longValue: userData.electionData,
-            });
-            break;
-          }
-          case 'pollworker': {
-            const cardData: PollworkerCardData = {
-              t: 'pollworker',
-              h: userData.electionHash,
-            };
-            await cardApi.overrideWriteProtection();
-            await cardApi.writeShortValue(JSON.stringify(cardData));
-            break;
-          }
-          /* istanbul ignore next: Compile-time check for completeness */
-          default:
-            throwIllegalValue(role);
-        }
-        if (logger) {
-          await logger.log(LogEventId.SmartcardProgramComplete, 'superadmin', {
-            disposition: 'success',
-            message: `Successfully programmed ${role} smartcard.`,
-            programmedUserRole: role,
-          });
-        }
-        return ok();
-      } catch (error) {
-        if (logger) {
-          await logger.log(LogEventId.SmartcardProgramComplete, 'superadmin', {
-            disposition: 'failure',
-            message: `Error programming ${role} smartcard.`,
-            programmedUserRole: role,
-          });
-        }
-        return wrapException(error);
-      } finally {
-        cardWriteLock.unlock();
-      }
+      await logger.log(LogEventId.SmartcardProgramInit, 'superadmin', {
+        message: `Programming ${role} smartcard...`,
+        programmedUserRole: role,
+      });
+      const result = await programUser(userData);
+      await logger.log(LogEventId.SmartcardProgramComplete, 'superadmin', {
+        disposition: result.isOk() ? 'success' : 'failure',
+        message: result.isOk()
+          ? `Successfully programmed ${role} smartcard.`
+          : `Error programming ${role} smartcard.`,
+        programmedUserRole: role,
+      });
+      return result;
     },
+
     unprogramUser: async () => {
-      const programmedUser = parseUserFromCardSummary(cardSummary);
-      if (!programmedUser) {
-        // Short-circuit if the card is already unprogrammed
-        return ok();
+      if (!logger) {
+        return await unprogramUser();
       }
-      const programmedUserRole = programmedUser.role;
-      if (logger) {
-        await logger.log(LogEventId.SmartcardUnprogramInit, 'superadmin', {
-          message: `Unprogramming ${programmedUserRole} smartcard...`,
+
+      const programmedUserRole = programmedUser?.role || 'unprogrammed';
+      await logger.log(LogEventId.SmartcardUnprogramInit, 'superadmin', {
+        message: `Unprogramming ${programmedUserRole} smartcard...`,
+        programmedUserRole,
+      });
+      const result = await unprogramUser();
+      if (result.isOk()) {
+        await logger.log(LogEventId.SmartcardUnprogramComplete, 'superadmin', {
+          disposition: 'success',
+          message:
+            programmedUserRole === 'unprogrammed'
+              ? 'Smartcard already unprogrammed (no-op).'
+              : `Successfully unprogrammed ${programmedUserRole} smartcard.`,
+          previousProgrammedUserRole: programmedUserRole,
+        });
+      } else {
+        await logger.log(LogEventId.SmartcardUnprogramComplete, 'superadmin', {
+          disposition: 'failure',
+          message: `Error unprogramming ${programmedUserRole} smartcard.`,
           programmedUserRole,
         });
       }
-      try {
-        if (!cardWriteLock.lock()) {
-          throw new Error('Card write in progress');
-        }
-        await cardApi.overrideWriteProtection();
-        await cardApi.writeShortAndLongValues({
-          shortValue: '',
-          longValue: '',
-        });
-        if (logger) {
-          await logger.log(
-            LogEventId.SmartcardUnprogramComplete,
-            'superadmin',
-            {
-              disposition: 'success',
-              message: `Successfully unprogrammed ${programmedUserRole} smartcard.`,
-              previousProgrammedUserRole: programmedUserRole,
-            }
-          );
-        }
-        return ok();
-      } catch (error) {
-        if (logger) {
-          await logger.log(
-            LogEventId.SmartcardUnprogramComplete,
-            'superadmin',
-            {
-              disposition: 'failure',
-              message: `Error unprogramming ${programmedUserRole} smartcard.`,
-              programmedUserRole,
-            }
-          );
-        }
-        return wrapException(error);
-      } finally {
-        cardWriteLock.unlock();
-      }
+      return result;
     },
   };
 }

@@ -425,7 +425,25 @@ describe('Card interface', () => {
     card = result.current.card!;
     expect(card.programmedUser).not.toBeDefined();
     expect(card.hasStoredData).toEqual(false);
-    expect(logger.log).toHaveBeenCalledTimes(13); // Expect no additional logs since this is a no-op
+    expect(logger.log).toHaveBeenNthCalledWith(
+      14,
+      LogEventId.SmartcardUnprogramInit,
+      'superadmin',
+      {
+        message: 'Unprogramming unprogrammed smartcard...',
+        programmedUserRole: 'unprogrammed',
+      }
+    );
+    expect(logger.log).toHaveBeenNthCalledWith(
+      15,
+      LogEventId.SmartcardUnprogramComplete,
+      'superadmin',
+      {
+        disposition: 'success',
+        message: 'Smartcard already unprogrammed (no-op).',
+        previousProgrammedUserRole: 'unprogrammed',
+      }
+    );
   });
 
   it('raises an error on concurrent programming requests', async () => {
@@ -598,6 +616,43 @@ describe('Card interface', () => {
     // Verify that failed writes still release the lock
     spy.mockRestore();
     expect((await card.unprogramUser()).isOk()).toEqual(true);
+  });
+
+  it('can program and unprogram cards without a logger', async () => {
+    const cardApi = new MemoryCard();
+    const { result, waitForNextUpdate } = renderHook(() =>
+      useDippedSmartcardAuth({ cardApi, logger: undefined })
+    );
+    authAsSuperAdmin(cardApi);
+    await waitForNextUpdate();
+    assert(isSuperadminAuth(result.current));
+
+    // Insert an unprogrammed card
+    cardApi.insertCard();
+    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
+    await waitForNextUpdate();
+    expect(result.current.card).toBeDefined();
+    let card = result.current.card!;
+
+    // Program a super admin card
+    expect((await card.programUser({ role: 'superadmin' })).isOk()).toEqual(
+      true
+    );
+    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
+    await waitForNextUpdate();
+    expect(result.current.card).toBeDefined();
+    card = result.current.card!;
+    expect(card.programmedUser).toEqual({ role: 'superadmin' });
+    expect(card.hasStoredData).toEqual(false);
+
+    // Unprogram the card
+    expect((await card.unprogramUser()).isOk()).toEqual(true);
+    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
+    await waitForNextUpdate();
+    expect(result.current.card).toBeDefined();
+    card = result.current.card!;
+    expect(card.programmedUser).not.toBeDefined();
+    expect(card.hasStoredData).toEqual(false);
   });
 });
 
