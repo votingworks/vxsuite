@@ -4,8 +4,8 @@ import { tmpNameSync } from 'tmp';
 
 import { Store } from './store';
 
-function addTestCvr(store: Store): string {
-  const cvrFileId = store.addCvrFile(
+function addTestCvrFile(store: Store): string {
+  const id = store.addCvrFile(
     'abc',
     'cvrs.jsonl',
     '123',
@@ -13,8 +13,12 @@ function addTestCvr(store: Store): string {
     ['zoo'],
     false
   );
-  const cvrId = store.addCvr('123', cvrFileId, 'test') as string;
-  return cvrId;
+  return id;
+}
+
+function addTestCvr(store: Store): string {
+  const id = store.addCvr('123', addTestCvrFile(store), 'test') as string;
+  return id;
 }
 
 test('create a file store', async () => {
@@ -110,6 +114,13 @@ test('addCvr throws when adding a CVR with duplicate ballotId', () => {
     const nullCvrId = store.addCvr('123', cvrFileId, 'test');
     expect(nullCvrId).toBeNull();
   }).toThrowError('UNIQUE constraint failed: cvrs.ballot_id');
+});
+
+test('getAllCvrFiles', () => {
+  const store = Store.memoryStore();
+  addTestCvrFile(store);
+  addTestCvrFile(store);
+  expect(store.getAllCvrFiles()).toHaveLength(2);
 });
 
 test('deleteCvrs', () => {

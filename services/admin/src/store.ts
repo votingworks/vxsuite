@@ -84,6 +84,14 @@ export class Store {
   }
 
   /**
+   * Gets all cvr file data
+   */
+  getAllCvrFiles(): string[] {
+    const rows = this.client.all('select * from cvr_files');
+    return rows.map((r) => JSON.stringify(r)).filter(Boolean);
+  }
+
+  /**
    * Delete all CVRs
    */
   deleteCvrs(): void {
