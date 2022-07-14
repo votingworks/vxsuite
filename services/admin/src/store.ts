@@ -105,6 +105,7 @@ export class Store {
    */
   deleteCvrs(): void {
     this.client.run('delete from cvrs');
+    this.client.run('delete from cvr_files');
   }
 
   /**
