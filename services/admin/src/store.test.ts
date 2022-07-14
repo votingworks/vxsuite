@@ -16,8 +16,11 @@ function addTestCvrFile(store: Store): string {
   return id;
 }
 
-function addTestCvr(store: Store, { ballotId } = { ballotId: '123' }): string {
-  const id = store.addCvr(ballotId, addTestCvrFile(store), 'test') as string;
+function addTestCvr(
+  store: Store,
+  { ballotId = '123', data = 'testCvrData' } = {}
+): string {
+  const id = store.addCvr(ballotId, addTestCvrFile(store), data) as string;
   return id;
 }
 
@@ -107,6 +110,13 @@ test('addCvr throws when adding a CVR with duplicate ballotId', () => {
     const nullCvrId = store.addCvr('123', cvrFileId, 'test');
     expect(nullCvrId).toBeNull();
   }).toThrowError('UNIQUE constraint failed: cvrs.ballot_id');
+});
+
+test('getAllCvrs', () => {
+  const store = Store.memoryStore();
+  addTestCvr(store, { ballotId: '123', data: 'abc' });
+  addTestCvr(store, { ballotId: '456', data: 'def' });
+  expect(store.getAllCvrs()).toEqual(['abc', 'def']);
 });
 
 test('getAllCvrFiles', () => {

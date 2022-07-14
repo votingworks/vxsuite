@@ -84,7 +84,18 @@ export class Store {
   }
 
   /**
-   * Gets all cvr file data
+   * Gets all CVRs
+   */
+  getAllCvrs(): string[] {
+    // TODO(CARO) remove image data?
+    const rows = this.client.all('select data from cvrs') as Array<{
+      data: string;
+    }>;
+    return rows.map((r) => r.data).filter(Boolean);
+  }
+
+  /**
+   * Gets all CVR file data
    */
   getAllCvrFiles(): string[] {
     const rows = this.client.all('select * from cvr_files');
