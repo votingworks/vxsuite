@@ -11,10 +11,13 @@ import {
   State,
   TypegenDisabled,
 } from 'xstate';
-import { throwIllegalValue } from '@votingworks/utils';
-import { PageInterpretationWithFiles } from '@votingworks/types';
-import { Context, Event, machine } from '../plustek_machine';
-import { SheetOf } from '../types';
+import { throwIllegalValue, assert } from '@votingworks/utils';
+import {
+  Context,
+  Event,
+  InterpretationResultEvent,
+  machine,
+} from '../plustek_machine';
 
 // Copy-pasted from return type of machineService.subscribe
 type MachineState = State<
@@ -58,6 +61,8 @@ function VoterScreen({ state }: { state?: MachineState }) {
         case state.matches('scanning'):
           return 'scanning';
         case state.matches('error_scanning'):
+          return 'scanning';
+        case state.matches('checking_scanning_completed'):
           return 'scanning';
         case state.matches('interpreting'):
           return 'scanning';
@@ -138,12 +143,18 @@ function VoterScreen({ state }: { state?: MachineState }) {
           {showError && state?.context.error && (
             <Text dimColor>{state.context.error.toString()}</Text>
           )}
-          {voterState === 'needs_review' && (
-            <>
-              <Text>(c)ast ballot | (r)eturn ballot</Text>
-              <Text>{JSON.stringify(state?.context.reviewReasons)}</Text>
-            </>
-          )}
+          {voterState === 'needs_review' &&
+            (() => {
+              assert(state);
+              const { interpretation } = state.context;
+              assert(interpretation?.type === 'INTERPRETATION_NEEDS_REVIEW');
+              return (
+                <>
+                  <Text>(c)ast ballot | (r)eturn ballot</Text>
+                  <Text>{JSON.stringify(interpretation.reasons)}</Text>
+                </>
+              );
+            })()}
         </Box>
       </Box>
     </Box>
@@ -174,17 +185,17 @@ function MachineTextAdventure() {
 
   useInput((input) => {
     switch (input) {
-      // Do Interpretation
+      // Interpretation mode
       case 'i':
         machineService.send({
-          type: 'DO_INTERPRETATION',
-          doInterpretation: true,
+          type: 'SET_INTERPRETATION_MODE',
+          mode: 'interpret',
         });
         break;
       case 's':
         machineService.send({
-          type: 'DO_INTERPRETATION',
-          doInterpretation: false,
+          type: 'SET_INTERPRETATION_MODE',
+          mode: 'skip',
         });
         break;
 
@@ -210,7 +221,7 @@ function MachineTextAdventure() {
   });
 
   return (
-    <Box height={31} flexDirection="column">
+    <Box height={33} flexDirection="column">
       <Box justifyContent="space-between">
         <Text color="#6638b6" inverse bold>
           Ballot Quest
@@ -218,12 +229,12 @@ function MachineTextAdventure() {
         <Text>(q)uit</Text>
         <Text>
           Run Interpretation:{' '}
-          <Text bold={state?.context.doInterpretation === true}>
+          <Text bold={state?.context.interpretationMode === 'interpret'}>
             (i)nterpret
           </Text>{' '}
           |{' '}
-          <Text bold={state?.context.doInterpretation === false}>
-            (s)kip interpretation
+          <Text bold={state?.context.interpretationMode === 'skip'}>
+            (s)kip
           </Text>{' '}
         </Text>
       </Box>
@@ -254,13 +265,18 @@ function MachineTextAdventure() {
                 } else if (value instanceof Error) {
                   valueString = value.toString();
                 } else if (key === 'interpretation' && value) {
-                  const {
-                    sheet: [front, back],
-                  } = value as { sheet: SheetOf<PageInterpretationWithFiles> };
-                  valueString = JSON.stringify([
-                    front.interpretation.type,
-                    back.interpretation.type,
-                  ]);
+                  const interpretation = value as InterpretationResultEvent;
+                  if (interpretation.type === 'INTERPRETATION_INVALID') {
+                    valueString = `Invalid: ${interpretation.reason}`;
+                  } else if (
+                    interpretation.type === 'INTERPRETATION_NEEDS_REVIEW'
+                  ) {
+                    valueString = `Needs review: ${JSON.stringify(
+                      interpretation.reasons
+                    )}`;
+                  } else {
+                    valueString = 'Valid';
+                  }
                 } else {
                   valueString = JSON.stringify(value);
                 }
@@ -275,16 +291,30 @@ function MachineTextAdventure() {
           </Text>
         </Box>
         <Box borderStyle="classic" paddingX={2} flexBasis="50%">
-          <Text>
-            <Text dimColor>Transition History</Text>
-            <Newline />
+          <Box flexDirection="column">
+            <Box>
+              <Box flexBasis="50%">
+                <Text dimColor>Event</Text>
+              </Box>
+              <Box flexBasis="50%">
+                <Text dimColor>Next State</Text>
+              </Box>
+            </Box>
             {history.map((state, i) => (
-              <Text key={i}>
-                {stateToString(state)}
-                <Newline />
-              </Text>
+              <Box key={i}>
+                <Box flexBasis="50%">
+                  <Text>
+                    {state.event.type
+                      .replace(/#?plustek./, '')
+                      .replace(':invocation[0]', '')}
+                  </Text>
+                </Box>
+                <Box flexBasis="50%">
+                  <Text>{stateToString(state)}</Text>
+                </Box>
+              </Box>
             ))}
-          </Text>
+          </Box>
         </Box>
       </Box>
     </Box>

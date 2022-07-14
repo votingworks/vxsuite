@@ -35,8 +35,8 @@ import { SheetOf } from './types';
 import { createWorkspace } from './util/workspace';
 import { Store } from './store';
 
-// Temporary mode to control how we fake interpreting ballots
-export type InterpretationMode = 'valid' | 'invalid' | 'adjudicate';
+// Temporary mode to control whether we interpreting ballots or not
+export type InterpretationMode = 'interpret' | 'skip';
 
 export interface Context {
   store?: Store;
@@ -44,11 +44,9 @@ export interface Context {
   client?: ScannerClient;
   ballotsCounted: number;
   scannedSheet?: SheetOf<string>;
-  interpretation?: Interpretation;
-  reviewReasons?: AdjudicationReasonInfo[];
+  interpretation?: InterpretationResultEvent;
   error?: Error;
   interpretationMode: InterpretationMode;
-  doInterpretation: boolean;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -76,7 +74,7 @@ interface Interpretation {
   sheet: SheetOf<PageInterpretationWithFiles>;
 }
 
-type InterpretationResultEvent =
+export type InterpretationResultEvent =
   | {
       type: 'INTERPRETATION_VALID';
       interpretation: Interpretation;
@@ -98,8 +96,7 @@ export type Event =
   | ScannerStatusEvent
   | InterpretationResultEvent
   | CommandEvent
-  | { type: 'SET_INTERPRETATION_MODE'; mode: InterpretationMode }
-  | { type: 'DO_INTERPRETATION'; doInterpretation: boolean };
+  | { type: 'SET_INTERPRETATION_MODE'; mode: InterpretationMode };
 
 async function configure(): Promise<Pick<Context, 'store' | 'interpreter'>> {
   assert(SCAN_WORKSPACE !== undefined);
@@ -206,13 +203,12 @@ async function scan({ client }: Context): Promise<SheetOf<string>> {
 async function interpretSheet({
   interpreter,
   scannedSheet,
-  doInterpretation,
-}: // interpretationMode,
-Context): Promise<InterpretationResultEvent> {
+  interpretationMode,
+}: Context): Promise<InterpretationResultEvent> {
   assert(interpreter);
   assert(scannedSheet);
 
-  if (!doInterpretation) {
+  if (interpretationMode === 'skip') {
     return {
       type: 'INTERPRETATION_VALID',
       interpretation: {
@@ -221,16 +217,12 @@ Context): Promise<InterpretationResultEvent> {
           {
             originalFilename: '/front-original-mock',
             normalizedFilename: '/front-normalized-mock',
-            interpretation: {
-              type: 'BlankPage',
-            },
+            interpretation: { type: 'BlankPage' },
           },
           {
             originalFilename: '/back-original-mock',
             normalizedFilename: '/back-normalized-mock',
-            interpretation: {
-              type: 'BlankPage',
-            },
+            interpretation: { type: 'BlankPage' },
           },
         ],
       },
@@ -322,6 +314,7 @@ Context): Promise<InterpretationResultEvent> {
   ) {
     const frontReasons = frontAdjudication.enabledReasonInfos;
     const backReasons = backAdjudication.enabledReasonInfos;
+
     let reasons: AdjudicationReasonInfo[];
     // If both sides are blank, the ballot is blank
     if (
@@ -334,36 +327,25 @@ Context): Promise<InterpretationResultEvent> {
     }
     // Otherwise, we can ignore blank sides
     else {
-      reasons = [
-        ...frontAdjudication.enabledReasonInfos,
-        ...backAdjudication.enabledReasonInfos,
-      ].filter((reason) => reason.type !== AdjudicationReason.BlankBallot);
+      reasons = [...frontReasons, ...backReasons].filter(
+        (reason) => reason.type !== AdjudicationReason.BlankBallot
+      );
     }
 
-    return {
-      type: 'INTERPRETATION_NEEDS_REVIEW',
-      interpretation,
-      reasons,
-    };
+    // If there are any non-blank reasons, they should be reviewed
+    if (reasons.length > 0) {
+      return {
+        type: 'INTERPRETATION_NEEDS_REVIEW',
+        interpretation,
+        reasons,
+      };
+    }
   }
 
   return {
     type: 'INTERPRETATION_VALID',
     interpretation,
   };
-
-  // console.log('interpreting', scannedSheet);
-  // TODO hook up interpreter worker pool
-  // switch (interpretationMode) {
-  //   case 'valid':
-  //     return { type: 'InterpretedBmdPage' } as unknown as PageInterpretation;
-  //   case 'invalid':
-  //     return { type: 'UnreadablePage' };
-  //   case 'adjudicate':
-  //     return { type: 'BlankPage' };
-  //   default:
-  //     throwIllegalValue(interpretationMode);
-  // }
 }
 
 async function accept({ client, store, interpretation }: Context) {
@@ -372,8 +354,10 @@ async function accept({ client, store, interpretation }: Context) {
   assert(interpretation);
   // TODO how can we make this as safe as possible so that if the paper gets
   // dropped we definitely record the interpretation?
-  (await client.accept()).unsafeUnwrap();
-  const { sheetId, sheet } = interpretation;
+  const acceptResult = await client.accept();
+  acceptResult.unsafeUnwrap();
+  const { sheetId, sheet } = interpretation.interpretation;
+  // TODO how do we handle errors here?
   storeInterpretedSheet(store, sheetId, sheet);
 }
 
@@ -388,9 +372,6 @@ const onUnexpectedEvent: TransitionsConfig<Context, Event> = {
   SET_INTERPRETATION_MODE: {
     actions: assign({ interpretationMode: (_, event) => event.mode }),
   },
-  DO_INTERPRETATION: {
-    actions: assign({ doInterpretation: (_, event) => event.doInterpretation }),
-  },
   '*': {
     target: '#plustek.error_unexpected_event',
     actions: assign({
@@ -404,9 +385,8 @@ export const machine = createMachine<Context, Event>({
   initial: 'configuring',
   strict: true,
   context: {
-    interpretationMode: 'valid',
+    interpretationMode: 'interpret',
     ballotsCounted: 0,
-    doInterpretation: true,
   },
   on: {
     SET_INTERPRETATION_MODE: {
@@ -473,7 +453,6 @@ export const machine = createMachine<Context, Event>({
         error: undefined,
         scannedSheet: undefined,
         interpretation: undefined,
-        reviewReasons: undefined,
       }),
       invoke: pollPaperStatus,
       on: {
@@ -490,7 +469,7 @@ export const machine = createMachine<Context, Event>({
       invoke: {
         src: scan,
         onDone: {
-          target: 'interpreting',
+          target: 'checking_scanning_completed',
           actions: assign((_context, event) => ({ scannedSheet: event.data })),
         },
         onError: {
@@ -510,15 +489,22 @@ export const machine = createMachine<Context, Event>({
         ...onUnexpectedEvent,
       },
     },
+    // Sometimes Plustek auto-rejects the ballot without returning a scanning
+    // error (e.g. if the paper is slightly mis-aligned). So we need to check
+    // that the paper is still there before interpreting.
+    checking_scanning_completed: {
+      invoke: pollPaperStatus,
+      on: {
+        SCANNER_READY_TO_EJECT: 'interpreting',
+        '*': 'error_scanning',
+      },
+    },
     interpreting: {
       invoke: {
         src: interpretSheet,
         onDone: {
           actions: [
-            assign({
-              interpretation: (_context, event) => event.data.interpretation,
-              reviewReasons: (_context, event) => event.data.reasons,
-            }),
+            assign({ interpretation: (_context, event) => event.data }),
             send((_context, event) => event.data),
           ],
         },
@@ -547,7 +533,6 @@ export const machine = createMachine<Context, Event>({
         },
       },
     },
-    // TODO record the interpretation at this point?
     accepted: {
       // Delay on this state for 5s to show accepted screen, then go to no_paper
       // (unless we get a different status in the meantime, e.g. ready to scan)
