@@ -198,7 +198,11 @@ export function buildCardProgramming(
     },
     unprogramUser: async () => {
       const programmedUser = parseUserFromCardSummary(cardSummary);
-      const programmedUserRole = programmedUser?.role || 'unprogrammed';
+      if (!programmedUser) {
+        // Short-circuit if the card is already unprogrammed
+        return ok();
+      }
+      const programmedUserRole = programmedUser.role;
       if (logger) {
         await logger.log(LogEventId.SmartcardUnprogramInit, 'superadmin', {
           message: `Unprogramming ${programmedUserRole} smartcard...`,

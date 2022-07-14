@@ -228,7 +228,9 @@ describe('Card interface', () => {
     expect(card.unprogramUser).toBeDefined();
 
     // Program a super admin card
-    await card.programUser({ role: 'superadmin' });
+    expect((await card.programUser({ role: 'superadmin' })).isOk()).toEqual(
+      true
+    );
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current.card).toBeDefined();
@@ -256,7 +258,7 @@ describe('Card interface', () => {
     );
 
     // Unprogram the card
-    await card.unprogramUser();
+    expect((await card.unprogramUser()).isOk()).toEqual(true);
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current.card).toBeDefined();
@@ -284,12 +286,16 @@ describe('Card interface', () => {
     );
 
     // Program an admin card
-    await card.programUser({
-      role: 'admin',
-      electionHash,
-      passcode: '000000',
-      electionData,
-    });
+    expect(
+      (
+        await card.programUser({
+          role: 'admin',
+          electionHash,
+          passcode: '000000',
+          electionData,
+        })
+      ).isOk()
+    ).toEqual(true);
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current.card).toBeDefined();
@@ -322,7 +328,7 @@ describe('Card interface', () => {
     );
 
     // Unprogram the card
-    await card.unprogramUser();
+    expect((await card.unprogramUser()).isOk()).toEqual(true);
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current.card).toBeDefined();
@@ -350,10 +356,9 @@ describe('Card interface', () => {
     );
 
     // Program a poll worker card
-    await card.programUser({
-      role: 'pollworker',
-      electionHash,
-    });
+    expect(
+      (await card.programUser({ role: 'pollworker', electionHash })).isOk()
+    ).toEqual(true);
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current.card).toBeDefined();
@@ -384,7 +389,7 @@ describe('Card interface', () => {
     );
 
     // Unprogram the card
-    await card.unprogramUser();
+    expect((await card.unprogramUser()).isOk()).toEqual(true);
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current.card).toBeDefined();
@@ -411,34 +416,16 @@ describe('Card interface', () => {
       }
     );
 
-    // Unprogram the card again to verify that unprogramming an already unprogrammed card doesn't
-    // cause problems
-    await card.unprogramUser();
+    // Unprogram the card again to verify that attempting to unprogram an already unprogrammed card
+    // doesn't cause problems
+    expect((await card.unprogramUser()).isOk()).toEqual(true);
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current.card).toBeDefined();
     card = result.current.card!;
     expect(card.programmedUser).not.toBeDefined();
     expect(card.hasStoredData).toEqual(false);
-    expect(logger.log).toHaveBeenNthCalledWith(
-      14,
-      LogEventId.SmartcardUnprogramInit,
-      'superadmin',
-      {
-        message: 'Unprogramming unprogrammed smartcard...',
-        programmedUserRole: 'unprogrammed',
-      }
-    );
-    expect(logger.log).toHaveBeenNthCalledWith(
-      15,
-      LogEventId.SmartcardUnprogramComplete,
-      'superadmin',
-      {
-        disposition: 'success',
-        message: 'Successfully unprogrammed unprogrammed smartcard.',
-        previousProgrammedUserRole: 'unprogrammed',
-      }
-    );
+    expect(logger.log).toHaveBeenCalledTimes(13); // Expect no additional logs since this is a no-op
   });
 
   it('raises an error on concurrent programming requests', async () => {
@@ -456,13 +443,17 @@ describe('Card interface', () => {
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current.card).toBeDefined();
-    const card = result.current.card!;
+    let card = result.current.card!;
 
     // Make concurrent programming requests
     const [write1, write2] = await Promise.all([
       card.programUser({ role: 'superadmin' }),
       card.programUser({ role: 'pollworker', electionHash }),
     ]);
+    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
+    await waitForNextUpdate();
+    expect(result.current.card).toBeDefined();
+    card = result.current.card!;
     expect(
       (write1.isErr() && !write2.isErr()) || (!write1.isErr() && write2.isErr())
     ).toEqual(true);
@@ -482,6 +473,10 @@ describe('Card interface', () => {
       card.unprogramUser(),
       card.unprogramUser(),
     ]);
+    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
+    await waitForNextUpdate();
+    expect(result.current.card).toBeDefined();
+    card = result.current.card!;
     expect(
       (write3.isErr() && !write4.isErr()) || (!write3.isErr() && write4.isErr())
     ).toEqual(true);
@@ -495,6 +490,15 @@ describe('Card interface', () => {
       'superadmin',
       expect.objectContaining({ disposition: 'failure' })
     );
+
+    // Program the card in prep for one last test case involving unprogramming
+    expect((await card.programUser({ role: 'superadmin' })).isOk()).toEqual(
+      true
+    );
+    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
+    await waitForNextUpdate();
+    expect(result.current.card).toBeDefined();
+    card = result.current.card!;
 
     // Make concurrent programming and unprogramming requests
     const [write5, write6] = await Promise.all([
