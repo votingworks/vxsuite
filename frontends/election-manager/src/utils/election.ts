@@ -176,12 +176,12 @@ export function getContestsForPrecinct(
   });
 }
 
-export function generateWriteIn(position: number): WriteInCandidate {
+export function generateTestDeckWriteIn(position: number): WriteInCandidate {
   return {
     id: 'write-in',
     isWriteIn: true,
     name: 'WRITE-IN',
-    writeInPosition: position,
+    writeInIndex: position,
   };
 }
 
@@ -194,7 +194,7 @@ export function numBallotPositions(contest: AnyContest): number {
   return 2;
 }
 
-export function candidateAtPosition(
+export function getTestDeckCandidateAtIndex(
   contest: CandidateContest,
   position: number
 ): Candidate {
@@ -202,7 +202,7 @@ export function candidateAtPosition(
   if (position < contest.candidates.length) {
     return contest.candidates[position];
   }
-  return generateWriteIn(position - contest.candidates.length);
+  return generateTestDeckWriteIn(position - contest.candidates.length);
 }
 
 const yesOrNo: YesNoVote[] = [['yes'], ['no']];
@@ -254,8 +254,10 @@ export function generateTestDeckBallots({
             contest.type === 'candidate' &&
             contest.candidates.length > 0 // safety check
           ) {
-            const ballotPosition = ballotNum % numBallotPositions(contest);
-            votes[contest.id] = [candidateAtPosition(contest, ballotPosition)];
+            const choiceIndex = ballotNum % numBallotPositions(contest);
+            votes[contest.id] = [
+              getTestDeckCandidateAtIndex(contest, choiceIndex),
+            ];
           }
         }
         ballots.push({

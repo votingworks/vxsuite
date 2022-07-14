@@ -1,4 +1,4 @@
-import { assert } from '@votingworks/utils';
+import { assert, integers, take } from '@votingworks/utils';
 import React, { useLayoutEffect, useRef, useContext } from 'react';
 import ReactDom from 'react-dom';
 import styled from 'styled-components';
@@ -65,16 +65,16 @@ function hasWriteInAtPosition(
   position: number
 ): boolean {
   return (
-    vote?.some((candidate) => candidate.writeInPosition === position) ?? false
+    vote?.some((candidate) => candidate.writeInIndex === position) ?? false
   );
 }
 
-function writeInNameAtPosition(
+function getWriteInNameAtPosition(
   vote: CandidateVote | undefined,
   position: number
 ): string | undefined {
   const writeIn = vote?.find(
-    (candidate) => candidate.writeInPosition === position
+    (candidate) => candidate.writeInIndex === position
   );
   return writeIn?.name;
 }
@@ -467,7 +467,7 @@ const WriteInItem = styled.p`
 const WriteInName = styled.span`
   position: absolute;
   top: -5px;
-  left: 33%;
+  left: 40%;
   font-family: 'Edu TAS Beginner', 'Georgia', serif;
 `;
 
@@ -493,7 +493,7 @@ export function CandidateContestChoices({
   targetMarkPosition,
 }: CandidateContestChoicesProps): JSX.Element {
   const { t } = useTranslation();
-  const writeInItemKeys = [...Array.from({ length: contest.seats }).keys()].map(
+  const writeInItemKeys = take(contest.seats, integers()).map(
     (num) => `write-in-${contest.id}-${num}`
   );
   const dualLanguageWithSlash = dualLanguageComposer(t, locales);
@@ -534,7 +534,9 @@ export function CandidateContestChoices({
               </Text>
             </BubbleMark>
             {hasWriteInAtPosition(vote, position) && (
-              <WriteInName>{writeInNameAtPosition(vote, position)}</WriteInName>
+              <WriteInName>
+                {getWriteInNameAtPosition(vote, position)}
+              </WriteInName>
             )}
           </WriteInItem>
         ))}

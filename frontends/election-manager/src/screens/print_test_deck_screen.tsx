@@ -55,16 +55,17 @@ function PrecinctTallyReport({
   const ballots = generateTestDeckBallots({ election, precinctId });
   const votes = ballots.map((b) => b.votes);
 
-  // Precinct test deck tally is 2 times a single test deck tally, because it
-  // counts scanning 2 test decks (BMD + HMPB)
+  // Precinct test deck tallies should be twice that of a single test
+  // deck because it counts scanning 2 test decks (BMD + HMPB)
+  const doubledVotes = [...votes, ...votes];
   const testDeckTally: Tally = {
-    numberOfBallotsCounted: ballots.length * 2,
+    numberOfBallotsCounted: doubledVotes.length,
     castVoteRecords: new Set(),
     contestTallies: tallyVotesByContest({
       election,
-      votes: [...votes, ...votes],
+      votes: doubledVotes,
     }),
-    ballotCountsByVotingMethod: { [VotingMethod.Unknown]: ballots.length * 2 },
+    ballotCountsByVotingMethod: { [VotingMethod.Unknown]: doubledVotes.length },
   };
 
   useEffect(() => {
