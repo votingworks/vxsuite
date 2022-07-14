@@ -196,8 +196,10 @@ export function createInterpreter(
 export function storeInterpretedSheet(
   store: Store,
   sheetId: Id,
-  batchId: Id,
   sheet: SheetOf<PageInterpretationWithFiles>
 ): Id {
-  return store.addSheet(sheetId, batchId, sheet);
+  const batchId = store.addBatch();
+  const addedSheetId = store.addSheet(sheetId, batchId, sheet);
+  store.finishBatch({ batchId });
+  return addedSheetId;
 }

@@ -12,7 +12,9 @@ import {
   TypegenDisabled,
 } from 'xstate';
 import { throwIllegalValue } from '@votingworks/utils';
+import { PageInterpretationWithFiles } from '@votingworks/types';
 import { Context, Event, machine } from '../plustek_machine';
+import { SheetOf } from '../types';
 
 // Copy-pasted from return type of machineService.subscribe
 type MachineState = State<
@@ -39,7 +41,7 @@ function VoterScreen({ state }: { state?: MachineState }) {
     state &&
     (() => {
       switch (true) {
-        case state.matches('configuring_interpreter'):
+        case state.matches('configuring'):
           return 'connecting';
         case state.matches('connecting'):
           return 'connecting';
@@ -249,8 +251,20 @@ function MachineTextAdventure() {
                   valueString = (value as ScannerClient).isConnected()
                     ? 'connected'
                     : 'disconnected';
+                } else if (key === 'store' && value) {
+                  valueString = 'Store';
+                } else if (key === 'interpreter' && value) {
+                  valueString = 'SimpleInterpreter';
                 } else if (value instanceof Error) {
                   valueString = value.toString();
+                } else if (key === 'interpretation' && value) {
+                  const {
+                    sheet: [front, back],
+                  } = value as { sheet: SheetOf<PageInterpretationWithFiles> };
+                  valueString = JSON.stringify([
+                    front.interpretation.type,
+                    back.interpretation.type,
+                  ]);
                 } else {
                   valueString = JSON.stringify(value);
                 }

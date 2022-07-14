@@ -23,7 +23,7 @@
     "test:coverage": "jest --coverage",
     "test:debug": "node --inspect-brk $(which jest) --runInBand --no-cache",
     "test:watch": "jest --watch",
-    "run-machine": "esr ./src/cli/run_machine.tsx",
+    "run-machine": "esr --cache ./src/cli/run_machine.tsx",
     "pre-commit": "lint-staged"
   },
   "lint-staged": {

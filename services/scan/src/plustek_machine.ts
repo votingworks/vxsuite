@@ -8,42 +8,43 @@ import { v4 as uuid } from 'uuid';
 import {
   AdjudicationReason,
   AdjudicationReasonInfo,
-  PageInterpretation,
+  BallotType,
+  Id,
   PageInterpretationWithFiles,
 } from '@votingworks/types';
-import { assert, throwIllegalValue } from '@votingworks/utils';
+import { assert, readBallotPackageFromBuffer } from '@votingworks/utils';
 import { switchMap, timer } from 'rxjs';
 import {
   assign as xassign,
   Assigner,
   createMachine,
-  DoneInvokeEvent,
   InvokeConfig,
   PropertyAssigner,
   send,
   TransitionsConfig,
 } from 'xstate';
-import { pure } from 'xstate/lib/actions';
-import { electionSampleNoSealDefinition as electionDefinition } from '@votingworks/fixtures';
+import { readFile } from 'fs-extra';
 import { SCAN_WORKSPACE } from './globals';
 import {
   createInterpreter,
   loadLayouts,
   SimpleInterpreter,
+  storeInterpretedSheet,
 } from './simple_interpreter';
 import { SheetOf } from './types';
 import { createWorkspace } from './util/workspace';
-import { DefaultMarkThresholds } from './store';
+import { DefaultMarkThresholds, Store } from './store';
 
 // Temporary mode to control how we fake interpreting ballots
 export type InterpretationMode = 'valid' | 'invalid' | 'adjudicate';
 
 export interface Context {
+  store?: Store;
   interpreter?: SimpleInterpreter;
   client?: ScannerClient;
   ballotsCounted: number;
   scannedSheet?: SheetOf<string>;
-  interpretation?: PageInterpretation;
+  interpretation?: Interpretation;
   error?: Error;
   interpretationMode: InterpretationMode;
 }
@@ -68,19 +69,24 @@ type ScannerStatusEvent =
   | { type: 'SCANNER_BOTH_SIDES_HAVE_PAPER' }
   | { type: 'SCANNER_JAM' };
 
+interface Interpretation {
+  sheetId: Id;
+  sheet: SheetOf<PageInterpretationWithFiles>;
+}
+
 type InterpretationResultEvent =
   | {
       type: 'INTERPRETATION_VALID';
-      interpretation: SheetOf<PageInterpretationWithFiles>;
+      interpretation: Interpretation;
     }
   | {
       type: 'INTERPRETATION_INVALID';
-      interpretation: SheetOf<PageInterpretationWithFiles>;
+      interpretation: Interpretation;
       reason: InvalidInterpretationReason;
     }
   | {
       type: 'INTERPRETATION_NEEDS_REVIEW';
-      interpretation: SheetOf<PageInterpretationWithFiles>;
+      interpretation: Interpretation;
       reasons: AdjudicationReasonInfo[];
     };
 
@@ -92,30 +98,55 @@ export type Event =
   | CommandEvent
   | { type: 'SET_INTERPRETATION_MODE'; mode: InterpretationMode };
 
-async function configureInterpreter(): Promise<SimpleInterpreter> {
+const ballotPackagePath =
+  '/home/jonahkagan/code/vxsuite/services/scan/franklin-county_general-election_e3be3a731c__2022-07-05_17-05-24.zip';
+
+async function configure(): Promise<Pick<Context, 'store' | 'interpreter'>> {
   assert(SCAN_WORKSPACE !== undefined);
+  const workspace = await createWorkspace(SCAN_WORKSPACE);
+  const { store } = workspace;
+  const ballotPackage = await readBallotPackageFromBuffer(
+    await readFile(ballotPackagePath),
+    'package',
+    0
+  );
+  const { electionDefinition } = ballotPackage;
   electionDefinition.election = {
     ...electionDefinition.election,
     markThresholds: DefaultMarkThresholds,
   };
-  const workspace = await createWorkspace(SCAN_WORKSPACE);
-  workspace.store.setElection(electionDefinition);
+  store.setElection(electionDefinition);
+  for (const { ballotConfig, pdf, layout } of ballotPackage.ballots) {
+    assert(layout);
+    store.addHmpbTemplate(
+      pdf,
+      {
+        electionHash: electionDefinition.electionHash,
+        ballotType: BallotType.Standard,
+        ballotStyleId: ballotConfig.ballotStyleId,
+        precinctId: ballotConfig.precinctId,
+        isTestMode: !ballotConfig.isLiveMode,
+        locales: ballotConfig.locales,
+      },
+      layout
+    );
+  }
   const layouts = await loadLayouts(workspace.store);
-  console.log({ layouts });
+  // console.log({ layouts });
   assert(layouts);
-  return createInterpreter({
+  const interpreter = createInterpreter({
     electionDefinition,
     ballotImagesPath: workspace.ballotImagesPath,
-    testMode: false,
+    testMode: true,
     layouts,
   });
+  return { store, interpreter };
 }
 
 async function connectToPlustek(): Promise<ScannerClient> {
   const plustekClient = await createClient(DEFAULT_CONFIG);
   // console.log(plustekClient);
-  if (plustekClient.isOk()) return plustekClient.ok();
-  throw plustekClient.err();
+  return plustekClient.unsafeUnwrap();
 }
 
 function paperStatusToEvent(paperStatus: PaperStatus): ScannerStatusEvent {
@@ -149,11 +180,7 @@ function paperStatusObserver({ client }: Context) {
   return timer(0, 500).pipe(
     switchMap(async () => {
       const paperStatus = await client.getPaperStatus();
-      if (paperStatus.isOk()) {
-        // console.log(paperStatus.ok());
-        return paperStatusToEvent(paperStatus.ok());
-      }
-      throw paperStatus.err();
+      return paperStatusToEvent(paperStatus.unsafeUnwrap());
     })
   );
 }
@@ -173,11 +200,8 @@ async function scan({ client }: Context): Promise<SheetOf<string>> {
     // shouldRetry: retryFor({ seconds: 1 }),
   });
   // console.log('scan result', scanResult);
-  if (scanResult.isOk()) {
-    const [front, back] = scanResult.ok().files;
-    return [front, back];
-  }
-  throw scanResult.err();
+  const [front, back] = scanResult.unsafeUnwrap().files;
+  return [front, back];
 }
 
 // eslint-disable-next-line @typescript-eslint/require-await
@@ -190,10 +214,11 @@ Context): Promise<InterpretationResultEvent> {
   assert(scannedSheet);
   const sheetId = uuid();
   const result = await interpreter.interpret(sheetId, scannedSheet);
-  const interpretation = result.unsafeUnwrap();
-  const [front, back] = interpretation;
+  const interpretedSheet = result.unsafeUnwrap();
+  const [front, back] = interpretedSheet;
   const frontType = front.interpretation.type;
   const backType = back.interpretation.type;
+  const interpretation: Interpretation = { sheetId, sheet: interpretedSheet };
 
   if (frontType === 'BlankPage' && backType === 'BlankPage') {
     return {
@@ -298,20 +323,22 @@ Context): Promise<InterpretationResultEvent> {
   // }
 }
 
-async function accept({ client }: Context) {
+async function accept({ client, store, interpretation }: Context) {
+  assert(store);
   assert(client);
-  const acceptResult = await client.accept();
-  // console.log('accept', acceptResult);
-  if (acceptResult.isOk()) return acceptResult.ok();
-  throw acceptResult.err();
+  assert(interpretation);
+  // TODO how can we make this as safe as possible so that if the paper gets
+  // dropped we definitely record the interpretation?
+  (await client.accept()).unsafeUnwrap();
+  const { sheetId, sheet } = interpretation;
+  storeInterpretedSheet(store, sheetId, sheet);
 }
 
 async function reject({ client }: Context) {
   assert(client);
   const rejectResult = await client.reject({ hold: true });
   // console.log('reject', rejectResult);
-  if (rejectResult.isOk()) return rejectResult.ok();
-  throw rejectResult.err();
+  return rejectResult.unsafeUnwrap();
 }
 
 const onUnexpectedEvent: TransitionsConfig<Context, Event> = {
@@ -328,7 +355,7 @@ const onUnexpectedEvent: TransitionsConfig<Context, Event> = {
 
 export const machine = createMachine<Context, Event>({
   id: 'plustek',
-  initial: 'configuring_interpreter',
+  initial: 'configuring',
   strict: true,
   context: { interpretationMode: 'valid', ballotsCounted: 0 },
   on: {
@@ -337,20 +364,15 @@ export const machine = createMachine<Context, Event>({
     },
   },
   states: {
-    configuring_interpreter: {
+    configuring: {
       invoke: {
-        src: configureInterpreter,
+        src: configure,
         onDone: {
           target: 'connecting',
-          actions: assign({ interpreter: (_, event) => event.data }),
+          actions: assign((_context, event) => event.data),
         },
         onError: {
-          actions: assign({
-            error: (_context, event) => {
-              console.log(event.data);
-              return event.data;
-            },
-          }),
+          actions: assign({ error: (_context, event) => event.data }),
         },
       },
     },
@@ -442,26 +464,10 @@ export const machine = createMachine<Context, Event>({
         src: interpretSheet,
         onDone: {
           actions: [
-            assign({ interpretation: (_context, event) => event.data }),
-            pure((_context, event: DoneInvokeEvent<PageInterpretation>) => {
-              const interpretation = event.data;
-              switch (interpretation.type) {
-                case 'BlankPage':
-                  return send('INTERPRETATION_NEEDS_REVIEW');
-                case 'InterpretedBmdPage':
-                case 'InterpretedHmpbPage':
-                  // TODO check for adjudication
-                  return send('INTERPRETATION_VALID');
-                case 'InvalidElectionHashPage':
-                case 'InvalidPrecinctPage':
-                case 'InvalidTestModePage':
-                case 'UninterpretedHmpbPage':
-                case 'UnreadablePage':
-                  return send('INTERPRETATION_INVALID');
-                default:
-                  throwIllegalValue(interpretation, 'type');
-              }
+            assign({
+              interpretation: (_context, event) => event.data.interpretation,
             }),
+            send((_context, event) => event.data),
           ],
         },
         onError: {

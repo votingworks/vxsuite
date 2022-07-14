@@ -63,7 +63,7 @@ export enum BackupKey {
   Cvrs = 'cvrs',
 }
 
-const SchemaPath = join(__dirname, '../../schema.sql');
+const SchemaPath = join(__dirname, '../schema.sql');
 
 export const ALLOWED_CONFIG_KEYS: readonly string[] = Object.values(ConfigKey);
 
