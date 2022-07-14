@@ -593,7 +593,7 @@ export function PollWorkerScreen({
                     setIsShowingVxScanPollsOpenModal(false);
                   }}
                 >
-                  {isPollsOpen ? 'Close' : 'Open'} Polls Now
+                  {isPollsOpen ? 'Close Polls Now' : 'Open Polls Now'}
                 </Button>
               </React.Fragment>
             }
