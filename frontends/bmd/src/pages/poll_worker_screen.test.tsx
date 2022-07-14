@@ -1282,7 +1282,6 @@ test('shows instructions to open/close polls on VxScan if no tally report on car
   screen.getByText('Open Polls on VxScan');
 
   // Clicking Cancel closes the modal
-  fireEvent.click(screen.getByText('Open Polls for Center Springfield'));
   fireEvent.click(screen.getByText('Cancel'));
   screen.getByText('Open Polls for Center Springfield');
 
