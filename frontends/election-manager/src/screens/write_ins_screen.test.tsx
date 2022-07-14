@@ -1,7 +1,7 @@
 import { screen, waitFor } from '@testing-library/react';
 import React from 'react';
 import fetchMock from 'fetch-mock';
-import { electionMinimalExhaustiveSampleWithDataFiles } from '@votingworks/fixtures';
+import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { CastVoteRecordFiles } from '../utils/cast_vote_record_files';
 import { WriteInsScreen } from './write_ins_screen';
@@ -36,7 +36,7 @@ describe('Write-in Adjudication screen', () => {
   });
 
   const { electionDefinition, cvrData } =
-    electionMinimalExhaustiveSampleWithDataFiles;
+    electionMinimalExhaustiveSampleFixtures;
 
   test('No CVRs imported', async () => {
     renderInAppContext(<WriteInsScreen />, { electionDefinition });

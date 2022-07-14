@@ -11,9 +11,9 @@ import {
   writeInCandidate,
 } from '@votingworks/types';
 import {
-  electionMultiPartyPrimaryWithDataFiles,
+  electionMultiPartyPrimaryFixtures,
   electionSampleDefinition,
-  electionWithMsEitherNeitherWithDataFiles,
+  electionWithMsEitherNeitherFixtures,
 } from '@votingworks/fixtures';
 import { getZeroCompressedTally } from '@votingworks/test-utils';
 
@@ -30,7 +30,7 @@ import { assert } from './assert';
 describe('compressTally', () => {
   test('compressTally returns empty tally when no contest tallies provided', () => {
     const electionEitherNeither =
-      electionWithMsEitherNeitherWithDataFiles.electionDefinition.election;
+      electionWithMsEitherNeitherFixtures.electionDefinition.election;
     const emptyTally: Tally = {
       numberOfBallotsCounted: 0,
       castVoteRecords: new Set<CastVoteRecord>(),
@@ -59,7 +59,7 @@ describe('compressTally', () => {
   });
   test('compressTally compresses a candidate tally properly', () => {
     const electionEitherNeither =
-      electionWithMsEitherNeitherWithDataFiles.electionDefinition.election;
+      electionWithMsEitherNeitherFixtures.electionDefinition.election;
     const emptyTally = calculateTallyForCastVoteRecords(
       electionEitherNeither,
       new Set()
@@ -105,7 +105,7 @@ describe('compressTally', () => {
 
   test('compressTally compresses a yes no tally properly', () => {
     const electionEitherNeither =
-      electionWithMsEitherNeitherWithDataFiles.electionDefinition.election;
+      electionWithMsEitherNeitherFixtures.electionDefinition.election;
     const emptyTally = calculateTallyForCastVoteRecords(
       electionEitherNeither,
       new Set()
@@ -144,7 +144,7 @@ describe('compressTally', () => {
 
   test('compressTally compresses an either neither tally properly', () => {
     const electionEitherNeither =
-      electionWithMsEitherNeitherWithDataFiles.electionDefinition.election;
+      electionWithMsEitherNeitherFixtures.electionDefinition.election;
     const emptyTally = calculateTallyForCastVoteRecords(
       electionEitherNeither,
       new Set()
@@ -206,7 +206,7 @@ describe('compressTally', () => {
 describe('readCompressTally', () => {
   test('reads a empty tally as expected', () => {
     const electionEitherNeither =
-      electionWithMsEitherNeitherWithDataFiles.electionDefinition.election;
+      electionWithMsEitherNeitherFixtures.electionDefinition.election;
     const zeroTally = getZeroCompressedTally(electionEitherNeither);
     const tally = readCompressedTally(electionEitherNeither, zeroTally, [0, 0]);
     expect(tally.numberOfBallotsCounted).toBe(0);
@@ -236,7 +236,7 @@ describe('readCompressTally', () => {
 
   test('reads a candidate tally with write ins as expected', () => {
     const electionEitherNeither =
-      electionWithMsEitherNeitherWithDataFiles.electionDefinition.election;
+      electionWithMsEitherNeitherFixtures.electionDefinition.election;
     const compressedTally = getZeroCompressedTally(electionEitherNeither);
     compressedTally[0] = [5, 4, 20, 0, 2, 4, 5];
     const presidentContest = electionEitherNeither.contests.find(
@@ -355,7 +355,7 @@ describe('readCompressTally', () => {
 
   test('reads a yes no tally as expected', () => {
     const electionEitherNeither =
-      electionWithMsEitherNeitherWithDataFiles.electionDefinition.election;
+      electionWithMsEitherNeitherFixtures.electionDefinition.election;
     const compressedTally = getZeroCompressedTally(electionEitherNeither);
     const yesNoContestIdx = electionEitherNeither.contests.findIndex(
       (contest) => contest.id === '750000017'
@@ -390,7 +390,7 @@ describe('readCompressTally', () => {
 
   test('reads an either neither tally as expected', () => {
     const electionEitherNeither =
-      electionWithMsEitherNeitherWithDataFiles.electionDefinition.election;
+      electionWithMsEitherNeitherFixtures.electionDefinition.election;
     const compressedTally = getZeroCompressedTally(electionEitherNeither);
     const eitherNeitherContestIdx = electionEitherNeither.contests.findIndex(
       (contest) => contest.id === '750000015-either-neither'
@@ -443,14 +443,13 @@ describe('readCompressTally', () => {
 });
 
 test('either neither tally can compress and be read back and end with the original tally', () => {
-  const castVoteRecordsContent =
-    electionWithMsEitherNeitherWithDataFiles.cvrData;
+  const castVoteRecordsContent = electionWithMsEitherNeitherFixtures.cvrData;
   const lines = castVoteRecordsContent.split('\n');
   const castVoteRecords = lines.flatMap((line) =>
     line.length > 0 ? (JSON.parse(line) as CastVoteRecord) : []
   );
   const electionEitherNeither =
-    electionWithMsEitherNeitherWithDataFiles.electionDefinition.election;
+    electionWithMsEitherNeitherFixtures.electionDefinition.election;
 
   const expectedTally = calculateTallyForCastVoteRecords(
     electionEitherNeither,
@@ -478,13 +477,13 @@ test('either neither tally can compress and be read back and end with the origin
 });
 
 test('multi party primary tally can compress and be read back and end with the original tally', () => {
-  const castVoteRecordsContent = electionMultiPartyPrimaryWithDataFiles.cvrData;
+  const castVoteRecordsContent = electionMultiPartyPrimaryFixtures.cvrData;
   const lines = castVoteRecordsContent.split('\n');
   const castVoteRecords = lines.flatMap((line) =>
     line.length > 0 ? (JSON.parse(line) as CastVoteRecord) : []
   );
   const electionMultiParty =
-    electionMultiPartyPrimaryWithDataFiles.electionDefinition.election;
+    electionMultiPartyPrimaryFixtures.electionDefinition.election;
 
   const expectedTally = calculateTallyForCastVoteRecords(
     electionMultiParty,

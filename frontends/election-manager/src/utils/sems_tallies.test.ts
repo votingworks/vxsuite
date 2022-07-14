@@ -1,7 +1,7 @@
 import {
   electionSample,
-  electionMultiPartyPrimaryWithDataFiles,
-  electionWithMsEitherNeitherWithDataFiles,
+  electionMultiPartyPrimaryFixtures,
+  electionWithMsEitherNeitherFixtures,
 } from '@votingworks/fixtures';
 import {
   CandidateContest,
@@ -26,13 +26,12 @@ import {
 } from './sems_tallies';
 
 const multiPartyPrimaryElection =
-  electionMultiPartyPrimaryWithDataFiles.electionDefinition.election;
+  electionMultiPartyPrimaryFixtures.electionDefinition.election;
 const electionWithMsEitherNeither =
-  electionWithMsEitherNeitherWithDataFiles.electionDefinition.election;
+  electionWithMsEitherNeitherFixtures.electionDefinition.election;
 
-const eitherNeitherSemsContent =
-  electionWithMsEitherNeitherWithDataFiles.semsData;
-const primarySemsContent = electionMultiPartyPrimaryWithDataFiles.semsData;
+const eitherNeitherSemsContent = electionWithMsEitherNeitherFixtures.semsData;
+const primarySemsContent = electionMultiPartyPrimaryFixtures.semsData;
 
 const presidentcontest = electionSample.contests.find(
   (c) => c.id === 'president'

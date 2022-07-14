@@ -1,6 +1,6 @@
 import {
-  electionMultiPartyPrimaryWithDataFiles,
-  electionWithMsEitherNeitherWithDataFiles,
+  electionMultiPartyPrimaryFixtures,
+  electionWithMsEitherNeitherFixtures,
 } from '@votingworks/fixtures';
 import {
   generateCvr,
@@ -16,8 +16,7 @@ import {
 
 describe('generateBatchTallyResultsCSV', () => {
   it('generates correct candidate tallies in primary election', () => {
-    const { election } =
-      electionMultiPartyPrimaryWithDataFiles.electionDefinition;
+    const { election } = electionMultiPartyPrimaryFixtures;
     const cvrsFileContent = generateFileContentFromCvrs([
       generateCvr(
         election,
@@ -74,8 +73,7 @@ describe('generateBatchTallyResultsCSV', () => {
   });
 
   it('generates correct candidate tallies in general election', () => {
-    const { election } =
-      electionWithMsEitherNeitherWithDataFiles.electionDefinition;
+    const { election } = electionWithMsEitherNeitherFixtures;
     const cvrsFileContent = generateFileContentFromCvrs([
       generateCvr(
         election,
@@ -143,7 +141,7 @@ describe('generateBatchTallyResultsCSV', () => {
 
   it('conversion of full tally matches snapshot', () => {
     const { electionDefinition, cvrData, csvData } =
-      electionMultiPartyPrimaryWithDataFiles;
+      electionMultiPartyPrimaryFixtures;
     const { election } = electionDefinition;
     const castVoteRecords = parseCvrsAndAssertSuccess(cvrData, election);
     const fullTally = computeFullElectionTally(

@@ -1,8 +1,8 @@
 import {
-  electionMultiPartyPrimaryWithDataFiles,
+  electionMultiPartyPrimaryFixtures,
   electionSample,
   electionSample2,
-  electionSample2WithDataFiles,
+  electionSample2Fixtures,
   electionWithMsEitherNeither,
 } from '@votingworks/fixtures';
 import {
@@ -43,7 +43,7 @@ import {
 } from './votes';
 
 const multiPartyPrimaryElection =
-  electionMultiPartyPrimaryWithDataFiles.electionDefinition.election;
+  electionMultiPartyPrimaryFixtures.electionDefinition.election;
 const party0 = unsafeParse(PartyIdSchema, '0');
 const party2 = unsafeParse(PartyIdSchema, '2');
 const party3 = unsafeParse(PartyIdSchema, '3');
@@ -279,11 +279,10 @@ describe('filterTalliesByParams fallback to empty tally when the proper category
   let electionTally: FullElectionTally;
   let election: Election;
   beforeEach(() => {
-    election =
-      electionMultiPartyPrimaryWithDataFiles.electionDefinition.election;
+    election = electionMultiPartyPrimaryFixtures.electionDefinition.election;
 
     // get the CVRs
-    const cvrsFileContents = electionMultiPartyPrimaryWithDataFiles.cvrData;
+    const cvrsFileContents = electionMultiPartyPrimaryFixtures.cvrData;
     const castVoteRecords = parseCvrs(cvrsFileContents);
 
     // tabulate it
@@ -346,7 +345,7 @@ describe('filterTalliesByParams in a typical election', () => {
     election = electionSample2;
 
     // get the CVRs
-    const cvrsFileContents = electionSample2WithDataFiles.cvrDataStandard1;
+    const cvrsFileContents = electionSample2Fixtures.cvrDataStandard1;
     const castVoteRecords = parseCvrs(cvrsFileContents);
 
     // tabulate it
@@ -687,7 +686,7 @@ describe('filterTalliesByParams in a primary election', () => {
 
   beforeEach(() => {
     // get the CVRs
-    const cvrsFileContents = electionMultiPartyPrimaryWithDataFiles.cvrData;
+    const cvrsFileContents = electionMultiPartyPrimaryFixtures.cvrData;
     const castVoteRecords = parseCvrs(cvrsFileContents);
 
     // tabulate it
@@ -1073,7 +1072,7 @@ describe('filterTalliesByParty', () => {
     const election = electionSample2;
 
     // get the CVRs
-    const cvrsFileContents = electionSample2WithDataFiles.cvrDataStandard1;
+    const cvrsFileContents = electionSample2Fixtures.cvrDataStandard1;
     const castVoteRecords = parseCvrs(cvrsFileContents);
 
     // tabulate it
@@ -1088,10 +1087,9 @@ describe('filterTalliesByParty', () => {
   });
 
   test('can filter by party as expected', () => {
-    const { election } =
-      electionMultiPartyPrimaryWithDataFiles.electionDefinition;
+    const { election } = electionMultiPartyPrimaryFixtures.electionDefinition;
     // get the CVRs
-    const cvrsFileContents = electionMultiPartyPrimaryWithDataFiles.cvrData;
+    const cvrsFileContents = electionMultiPartyPrimaryFixtures.cvrData;
     const castVoteRecords = parseCvrs(cvrsFileContents);
 
     const party = election.parties.find((p) => p.id === '0');
@@ -1149,8 +1147,7 @@ describe('filterTalliesByParty', () => {
 });
 
 test('getPartyIdForCvr', () => {
-  const { election } =
-    electionMultiPartyPrimaryWithDataFiles.electionDefinition;
+  const { election } = electionMultiPartyPrimaryFixtures.electionDefinition;
   const cvr: CastVoteRecord = {
     _ballotStyleId: '1L',
     _precinctId: 'precinct-1',

@@ -1,4 +1,4 @@
-import { electionMultiPartyPrimaryWithDataFiles } from '@votingworks/fixtures';
+import { electionMultiPartyPrimaryFixtures } from '@votingworks/fixtures';
 
 describe('Election Manager can create SEMS tallies', () => {
   it('Election Manager can tally results properly', () => {
@@ -24,10 +24,7 @@ describe('Election Manager can create SEMS tallies', () => {
     cy.contains('Results Saved');
     cy.task('readMostRecentFile', 'cypress/downloads').then((fileContent) => {
       const receivedLines = (fileContent as string).split('\r\n');
-      for (const [
-        i,
-        expectedLine,
-      ] of electionMultiPartyPrimaryWithDataFiles.semsData
+      for (const [i, expectedLine] of electionMultiPartyPrimaryFixtures.semsData
         .split('\r\n')
         .entries()) {
         expect(receivedLines[i].replace('\r\n', ': ')).to.eqls(expectedLine);

@@ -15,7 +15,7 @@ import {
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import fetchMock from 'fetch-mock';
-import { electionWithMsEitherNeitherWithDataFiles } from '@votingworks/fixtures';
+import { electionWithMsEitherNeitherFixtures } from '@votingworks/fixtures';
 import {
   MemoryStorage,
   MemoryCard,
@@ -64,19 +64,17 @@ import { MachineConfig } from './config/types';
 import { VxFiles } from './lib/converters';
 import { areVvsg2AuthFlowsEnabled } from './config/features';
 
-const EITHER_NEITHER_CVR_DATA =
-  electionWithMsEitherNeitherWithDataFiles.cvrData;
+const EITHER_NEITHER_CVR_DATA = electionWithMsEitherNeitherFixtures.cvrData;
 const EITHER_NEITHER_CVR_FILE = new File([EITHER_NEITHER_CVR_DATA], 'cvrs.txt');
 
 const EITHER_NEITHER_CVR_TEST_DATA =
-  electionWithMsEitherNeitherWithDataFiles.cvrTestData;
+  electionWithMsEitherNeitherFixtures.cvrTestData;
 const EITHER_NEITHER_CVR_TEST_FILE = new File(
   [EITHER_NEITHER_CVR_TEST_DATA],
   'cvrs.txt'
 );
 
-const EITHER_NEITHER_SEMS_DATA =
-  electionWithMsEitherNeitherWithDataFiles.semsData;
+const EITHER_NEITHER_SEMS_DATA = electionWithMsEitherNeitherFixtures.semsData;
 
 jest.mock('./components/hand_marked_paper_ballot');
 jest.mock('./utils/pdf_to_images');

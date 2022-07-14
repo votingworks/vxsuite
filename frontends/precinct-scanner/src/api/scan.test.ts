@@ -1,6 +1,6 @@
 import {
   electionSampleDefinition,
-  electionWithMsEitherNeitherWithDataFiles,
+  electionWithMsEitherNeitherFixtures,
 } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
@@ -424,7 +424,7 @@ test('calibrate returns false on failure', async () => {
 });
 
 test('getExport returns CVRs on success', async () => {
-  const fileContent = electionWithMsEitherNeitherWithDataFiles.cvrData;
+  const fileContent = electionWithMsEitherNeitherFixtures.cvrData;
   fetchMock.postOnce('/scan/export', fileContent);
   const cvrsFileString = await scan.getExport();
   const lines = cvrsFileString.split('\n');

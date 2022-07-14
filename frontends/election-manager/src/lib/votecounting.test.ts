@@ -7,10 +7,10 @@ import {
 } from '@votingworks/types';
 import {
   electionSample,
-  electionSample2WithDataFiles,
+  electionSample2Fixtures,
   primaryElectionSample,
   electionWithMsEitherNeither,
-  electionMultiPartyPrimaryWithDataFiles,
+  electionMultiPartyPrimaryFixtures,
   multiPartyPrimaryElection,
 } from '@votingworks/fixtures';
 
@@ -23,8 +23,7 @@ import {
 } from './votecounting';
 import { CastVoteRecord } from '../config/types';
 
-const electionSample2 =
-  electionSample2WithDataFiles.electionDefinition.election;
+const electionSample2 = electionSample2Fixtures.electionDefinition.election;
 
 export function parseCvrsAndAssertSuccess(
   cvrsFileContents: string,
@@ -41,7 +40,7 @@ test('tabulating a set of CVRs gives expected output', () => {
   const election = electionSample2;
 
   // get the CVRs
-  const cvrsFileContents = electionSample2WithDataFiles.cvrDataStandard1;
+  const cvrsFileContents = electionSample2Fixtures.cvrDataStandard1;
   const castVoteRecords = parseCvrsAndAssertSuccess(cvrsFileContents, election);
 
   // tabulate it
@@ -324,7 +323,7 @@ test('overvote report', () => {
   const election = electionSample2;
 
   // get the CVRs
-  const cvrsFileContents = electionSample2WithDataFiles.cvrDataStandard1;
+  const cvrsFileContents = electionSample2Fixtures.cvrDataStandard1;
   const castVoteRecords = parseCvrsAndAssertSuccess(cvrsFileContents, election);
 
   const pairTallies = getOvervotePairTallies({ election, castVoteRecords });
@@ -721,10 +720,10 @@ describe('filterTalliesByParams in a primary election', () => {
 
   beforeEach(() => {
     // get the CVRs
-    const cvrsFileContents = electionMultiPartyPrimaryWithDataFiles.cvrData;
+    const cvrsFileContents = electionMultiPartyPrimaryFixtures.cvrData;
     const castVoteRecords = parseCvrsAndAssertSuccess(
       cvrsFileContents,
-      electionMultiPartyPrimaryWithDataFiles.electionDefinition.election
+      electionMultiPartyPrimaryFixtures.electionDefinition.election
     );
 
     // tabulate it

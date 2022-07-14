@@ -2,8 +2,8 @@ import React from 'react';
 import { computeTallyWithPrecomputedCategories } from '@votingworks/utils';
 import { Election, ExternalTally, Tally } from '@votingworks/types';
 import {
-  electionMultiPartyPrimaryWithDataFiles,
-  electionSample2WithDataFiles,
+  electionMultiPartyPrimaryFixtures,
+  electionSample2Fixtures,
 } from '@votingworks/fixtures';
 import { parseCvrsFileContents } from '@votingworks/test-utils';
 import { render } from '@testing-library/react';
@@ -25,9 +25,9 @@ let electionTally: Tally;
 let externalTallies: ExternalTally[];
 
 beforeEach(() => {
-  election = electionSample2WithDataFiles.electionDefinition.election;
+  election = electionSample2Fixtures.electionDefinition.election;
   electionTally = constructTally(
-    electionSample2WithDataFiles.cvrDataSmall1,
+    electionSample2Fixtures.cvrDataSmall1,
     election
   );
   externalTallies = [];
@@ -48,10 +48,9 @@ it('Renders', () => {
 
 describe('When an election has a contest with multiple seats', () => {
   beforeEach(() => {
-    election =
-      electionMultiPartyPrimaryWithDataFiles.electionDefinition.election;
+    election = electionMultiPartyPrimaryFixtures.electionDefinition.election;
     electionTally = constructTally(
-      electionMultiPartyPrimaryWithDataFiles.cvrData,
+      electionMultiPartyPrimaryFixtures.cvrData,
       election
     );
     externalTallies = [];
