@@ -48,6 +48,7 @@ export interface Context {
   reviewReasons?: AdjudicationReasonInfo[];
   error?: Error;
   interpretationMode: InterpretationMode;
+  doInterpretation: boolean;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -97,10 +98,8 @@ export type Event =
   | ScannerStatusEvent
   | InterpretationResultEvent
   | CommandEvent
-  | { type: 'SET_INTERPRETATION_MODE'; mode: InterpretationMode };
-
-// const ballotPackagePath =
-//   '/home/jonahkagan/code/vxsuite/services/scan/franklin-county_general-election_e3be3a731c__2022-07-05_17-05-24.zip';
+  | { type: 'SET_INTERPRETATION_MODE'; mode: InterpretationMode }
+  | { type: 'DO_INTERPRETATION'; doInterpretation: boolean };
 
 async function configure(): Promise<Pick<Context, 'store' | 'interpreter'>> {
   assert(SCAN_WORKSPACE !== undefined);
@@ -207,10 +206,37 @@ async function scan({ client }: Context): Promise<SheetOf<string>> {
 async function interpretSheet({
   interpreter,
   scannedSheet,
+  doInterpretation,
 }: // interpretationMode,
 Context): Promise<InterpretationResultEvent> {
   assert(interpreter);
   assert(scannedSheet);
+
+  if (!doInterpretation) {
+    return {
+      type: 'INTERPRETATION_VALID',
+      interpretation: {
+        sheetId: 'mock-sheet-id',
+        sheet: [
+          {
+            originalFilename: '/front-original-mock',
+            normalizedFilename: '/front-normalized-mock',
+            interpretation: {
+              type: 'BlankPage',
+            },
+          },
+          {
+            originalFilename: '/back-original-mock',
+            normalizedFilename: '/back-normalized-mock',
+            interpretation: {
+              type: 'BlankPage',
+            },
+          },
+        ],
+      },
+    };
+  }
+
   const sheetId = uuid();
   const result = await interpreter.interpret(sheetId, scannedSheet);
   const interpretedSheet = result.unsafeUnwrap();
@@ -362,6 +388,9 @@ const onUnexpectedEvent: TransitionsConfig<Context, Event> = {
   SET_INTERPRETATION_MODE: {
     actions: assign({ interpretationMode: (_, event) => event.mode }),
   },
+  DO_INTERPRETATION: {
+    actions: assign({ doInterpretation: (_, event) => event.doInterpretation }),
+  },
   '*': {
     target: '#plustek.error_unexpected_event',
     actions: assign({
@@ -374,7 +403,11 @@ export const machine = createMachine<Context, Event>({
   id: 'plustek',
   initial: 'configuring',
   strict: true,
-  context: { interpretationMode: 'valid', ballotsCounted: 0 },
+  context: {
+    interpretationMode: 'valid',
+    ballotsCounted: 0,
+    doInterpretation: true,
+  },
   on: {
     SET_INTERPRETATION_MODE: {
       actions: assign({ interpretationMode: (_, event) => event.mode }),

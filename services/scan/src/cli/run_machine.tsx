@@ -174,20 +174,17 @@ function MachineTextAdventure() {
 
   useInput((input) => {
     switch (input) {
-      // Interpretation mode
-      case 'v':
-        machineService.send({ type: 'SET_INTERPRETATION_MODE', mode: 'valid' });
-        break;
+      // Do Interpretation
       case 'i':
         machineService.send({
-          type: 'SET_INTERPRETATION_MODE',
-          mode: 'invalid',
+          type: 'DO_INTERPRETATION',
+          doInterpretation: true,
         });
         break;
-      case 'a':
+      case 's':
         machineService.send({
-          type: 'SET_INTERPRETATION_MODE',
-          mode: 'adjudicate',
+          type: 'DO_INTERPRETATION',
+          doInterpretation: false,
         });
         break;
 
@@ -220,18 +217,14 @@ function MachineTextAdventure() {
         </Text>
         <Text>(q)uit</Text>
         <Text>
-          Interpretation mode:{' '}
-          <Text bold={state?.context.interpretationMode === 'valid'}>
-            (v)alid
+          Run Interpretation:{' '}
+          <Text bold={state?.context.doInterpretation === true}>
+            (i)nterpret
           </Text>{' '}
           |{' '}
-          <Text bold={state?.context.interpretationMode === 'invalid'}>
-            (i)nvalid
+          <Text bold={state?.context.doInterpretation === false}>
+            (s)kip interpretation
           </Text>{' '}
-          |{' '}
-          <Text bold={state?.context.interpretationMode === 'adjudicate'}>
-            (a)djudicate
-          </Text>
         </Text>
       </Box>
       <VoterScreen state={state} />
