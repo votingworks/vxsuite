@@ -105,16 +105,16 @@ export function LegacySmartcardsScreen(): JSX.Element {
     const body = await response.json();
     if (!body.success) {
       setIsShowingError(true);
-      await logger.log(LogEventId.SmartcardProgrammed, userRole, {
+      await logger.log(LogEventId.SmartcardProgramComplete, userRole, {
         message: 'Error in programming pollworker card',
-        programmedUserType: 'pollworker',
+        programmedUserRole: 'pollworker',
         disposition: 'failure',
         result: 'Card not updated, error message shown to user.',
       });
     } else {
-      await logger.log(LogEventId.SmartcardProgrammed, userRole, {
+      await logger.log(LogEventId.SmartcardProgramComplete, userRole, {
         message: 'Successfully finished programming a pollworker card.',
-        programmedUserType: 'pollworker',
+        programmedUserRole: 'pollworker',
         disposition: 'success',
       });
     }
@@ -126,7 +126,7 @@ export function LegacySmartcardsScreen(): JSX.Element {
 
     await logger.log(LogEventId.SmartcardProgramInit, userRole, {
       message: 'Programming an admin card...',
-      programmedUserType: 'admin',
+      programmedUserRole: 'admin',
     });
     setIsProgrammingCard(true);
     setIsPromptingForAdminPasscode(false);
@@ -155,16 +155,16 @@ export function LegacySmartcardsScreen(): JSX.Element {
     const body = await response.json();
     if (!body.success) {
       setIsShowingError(true);
-      await logger.log(LogEventId.SmartcardProgrammed, userRole, {
+      await logger.log(LogEventId.SmartcardProgramComplete, userRole, {
         message: 'Error in programming admin card',
-        programmedUserType: 'admin',
+        programmedUserRole: 'admin',
         disposition: 'failure',
         result: 'Card not updated, error message shown to user.',
       });
     } else {
-      await logger.log(LogEventId.SmartcardProgrammed, userRole, {
+      await logger.log(LogEventId.SmartcardProgramComplete, userRole, {
         message: 'Successfully finished programming an admin card.',
-        programmedUserType: 'admin',
+        programmedUserRole: 'admin',
         disposition: 'success',
       });
     }
