@@ -105,3 +105,23 @@ test('getAllTranscribedValues', () => {
   store.addAdjudication('chief-of-staff', cvrId, '');
   expect(store.getAllTranscribedValues()).toEqual(['Daffy', 'Mickey Mouse']);
 });
+
+test('getAdjudicationCountsByContestIdAndTranscribedValue', () => {
+  const store = Store.memoryStore();
+  const cvrId = store.addCvr('test');
+  store.addAdjudication('mayor', cvrId, 'Mickey Mouse');
+  store.addAdjudication('mayor', cvrId, 'Mickey Mouse');
+  store.addAdjudication('county-commissioner', cvrId, 'Daffy');
+  expect(store.getAdjudicationCountsByContestIdAndTranscribedValue()).toEqual([
+    {
+      contestId: 'county-commissioner',
+      transcribedValue: 'Daffy',
+      adjudicationCount: 1,
+    },
+    {
+      contestId: 'mayor',
+      transcribedValue: 'Mickey Mouse',
+      adjudicationCount: 2,
+    },
+  ]);
+});

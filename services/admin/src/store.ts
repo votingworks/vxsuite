@@ -119,6 +119,25 @@ export class Store {
   }
 
   /**
+   * Get adjudications grouped by contestId and transcribedValue.
+   */
+  getAdjudicationCountsByContestIdAndTranscribedValue(): Array<{
+    contestId: ContestId;
+    transcribedValue: string;
+    adjudicationCount: number;
+  }> {
+    const rows = this.client.all(
+      'select contest_id as contestId, transcribed_value as transcribedValue, count(*) as adjudicationCount from adjudications group by contest_id, transcribed_value order by contest_id, count(*) desc'
+    ) as Array<{
+      contestId: ContestId;
+      transcribedValue: string;
+      adjudicationCount: number;
+    }>;
+
+    return rows;
+  }
+
+  /**
    * Returns a unique list of values for adjudications.transcribed_values.
    */
   getAllTranscribedValues(): string[] {
