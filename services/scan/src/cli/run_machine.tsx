@@ -139,7 +139,10 @@ function VoterScreen({ state }: { state?: MachineState }) {
             <Text dimColor>{state.context.error.toString()}</Text>
           )}
           {voterState === 'needs_review' && (
-            <Text>(c)ast ballot | (r)eturn ballot</Text>
+            <>
+              <Text>(c)ast ballot | (r)eturn ballot</Text>
+              <Text>{JSON.stringify(state?.context.reviewReasons)}</Text>
+            </>
           )}
         </Box>
       </Box>
@@ -210,7 +213,7 @@ function MachineTextAdventure() {
   });
 
   return (
-    <Box height={30} flexDirection="column">
+    <Box height={31} flexDirection="column">
       <Box justifyContent="space-between">
         <Text color="#6638b6" inverse bold>
           Ballot Quest

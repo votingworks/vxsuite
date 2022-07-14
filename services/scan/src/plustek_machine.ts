@@ -23,7 +23,7 @@ import {
   send,
   TransitionsConfig,
 } from 'xstate';
-import { readFile } from 'fs-extra';
+import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { SCAN_WORKSPACE } from './globals';
 import {
   createInterpreter,
@@ -33,7 +33,7 @@ import {
 } from './simple_interpreter';
 import { SheetOf } from './types';
 import { createWorkspace } from './util/workspace';
-import { DefaultMarkThresholds, Store } from './store';
+import { Store } from './store';
 
 // Temporary mode to control how we fake interpreting ballots
 export type InterpretationMode = 'valid' | 'invalid' | 'adjudicate';
@@ -45,6 +45,7 @@ export interface Context {
   ballotsCounted: number;
   scannedSheet?: SheetOf<string>;
   interpretation?: Interpretation;
+  reviewReasons?: AdjudicationReasonInfo[];
   error?: Error;
   interpretationMode: InterpretationMode;
 }
@@ -98,23 +99,22 @@ export type Event =
   | CommandEvent
   | { type: 'SET_INTERPRETATION_MODE'; mode: InterpretationMode };
 
-const ballotPackagePath =
-  '/home/jonahkagan/code/vxsuite/services/scan/franklin-county_general-election_e3be3a731c__2022-07-05_17-05-24.zip';
+// const ballotPackagePath =
+//   '/home/jonahkagan/code/vxsuite/services/scan/franklin-county_general-election_e3be3a731c__2022-07-05_17-05-24.zip';
 
 async function configure(): Promise<Pick<Context, 'store' | 'interpreter'>> {
   assert(SCAN_WORKSPACE !== undefined);
   const workspace = await createWorkspace(SCAN_WORKSPACE);
   const { store } = workspace;
+
   const ballotPackage = await readBallotPackageFromBuffer(
-    await readFile(ballotPackagePath),
-    'package',
-    0
+    electionFamousNames2021Fixtures.ballotPackageAsBuffer()
   );
   const { electionDefinition } = ballotPackage;
-  electionDefinition.election = {
-    ...electionDefinition.election,
-    markThresholds: DefaultMarkThresholds,
-  };
+  // electionDefinition.election = {
+  //   ...electionDefinition.election,
+  //   markThresholds: DefaultMarkThresholds,
+  // };
   store.setElection(electionDefinition);
   for (const { ballotConfig, pdf, layout } of ballotPackage.ballots) {
     assert(layout);
@@ -137,7 +137,7 @@ async function configure(): Promise<Pick<Context, 'store' | 'interpreter'>> {
   const interpreter = createInterpreter({
     electionDefinition,
     ballotImagesPath: workspace.ballotImagesPath,
-    testMode: true,
+    testMode: false,
     layouts,
   });
   return { store, interpreter };
@@ -290,17 +290,37 @@ Context): Promise<InterpretationResultEvent> {
   );
   const frontAdjudication = front.interpretation.adjudicationInfo;
   const backAdjudication = back.interpretation.adjudicationInfo;
+
+  console.log(frontAdjudication);
+  console.log(backAdjudication);
   if (
     frontAdjudication.requiresAdjudication ||
     backAdjudication.requiresAdjudication
   ) {
+    const frontReasons = frontAdjudication.enabledReasonInfos;
+    const backReasons = backAdjudication.enabledReasonInfos;
+    let reasons: AdjudicationReasonInfo[];
+    // If both sides are blank, the ballot is blank
+    if (
+      frontReasons.length === 1 &&
+      frontReasons[0].type === AdjudicationReason.BlankBallot &&
+      backReasons.length === 1 &&
+      backReasons[0].type === AdjudicationReason.BlankBallot
+    ) {
+      reasons = [{ type: AdjudicationReason.BlankBallot }];
+    }
+    // Otherwise, we can ignore blank sides
+    else {
+      reasons = [
+        ...frontAdjudication.enabledReasonInfos,
+        ...backAdjudication.enabledReasonInfos,
+      ].filter((reason) => reason.type !== AdjudicationReason.BlankBallot);
+    }
+
     return {
       type: 'INTERPRETATION_NEEDS_REVIEW',
       interpretation,
-      reasons: [
-        ...frontAdjudication.enabledReasonInfos,
-        ...backAdjudication.enabledReasonInfos,
-      ],
+      reasons,
     };
   }
 
@@ -423,6 +443,7 @@ export const machine = createMachine<Context, Event>({
         error: undefined,
         scannedSheet: undefined,
         interpretation: undefined,
+        reviewReasons: undefined,
       }),
       invoke: pollPaperStatus,
       on: {
@@ -466,6 +487,7 @@ export const machine = createMachine<Context, Event>({
           actions: [
             assign({
               interpretation: (_context, event) => event.data.interpretation,
+              reviewReasons: (_context, event) => event.data.reasons,
             }),
             send((_context, event) => event.data),
           ],
