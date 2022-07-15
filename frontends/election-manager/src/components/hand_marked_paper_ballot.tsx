@@ -1,4 +1,4 @@
-import { assert } from '@votingworks/utils';
+import { assert, integers, take } from '@votingworks/utils';
 import React, { useLayoutEffect, useRef, useContext } from 'react';
 import ReactDom from 'react-dom';
 import styled from 'styled-components';
@@ -58,6 +58,25 @@ function hasVote(
       typeof choice === 'string' ? choice === optionId : choice.id === optionId
     ) ?? false
   );
+}
+
+function hasWriteInAtPosition(
+  vote: CandidateVote | undefined,
+  position: number
+): boolean {
+  return (
+    vote?.some((candidate) => candidate.writeInIndex === position) ?? false
+  );
+}
+
+function getWriteInNameAtPosition(
+  vote: CandidateVote | undefined,
+  position: number
+): string | undefined {
+  const writeIn = vote?.find(
+    (candidate) => candidate.writeInIndex === position
+  );
+  return writeIn?.name;
 }
 
 function localeDateLong(dateString: string, locale: string) {
@@ -437,11 +456,19 @@ const StyledColumnFooter = styled.div`
   page-break-inside: avoid;
 `;
 const WriteInItem = styled.p`
+  position: relative;
   margin: 0.5em 0 !important; /* stylelint-disable-line declaration-no-important */
   page-break-inside: avoid;
   &:last-child {
     margin-bottom: 0 !important; /* stylelint-disable-line declaration-no-important */
   }
+`;
+
+const WriteInName = styled.span`
+  position: absolute;
+  top: -5px;
+  left: 40%;
+  font-family: 'Edu TAS Beginner', 'Georgia', serif;
 `;
 
 const CandidateDescription = styled.span<{ isSmall?: boolean }>`
@@ -466,8 +493,9 @@ export function CandidateContestChoices({
   targetMarkPosition,
 }: CandidateContestChoicesProps): JSX.Element {
   const { t } = useTranslation();
-  const writeInCandidates = vote?.filter((c) => c.isWriteIn);
-  const remainingChoices = [...Array.from({ length: contest.seats }).keys()];
+  const writeInItemKeys = take(contest.seats, integers()).map(
+    (num) => `write-in-${contest.id}-${num}`
+  );
   const dualLanguageWithSlash = dualLanguageComposer(t, locales);
   return (
     <React.Fragment>
@@ -493,25 +521,23 @@ export function CandidateContestChoices({
           </BubbleMark>
         </Text>
       ))}
-      {writeInCandidates?.map((candidate) => (
-        <Text key={candidate.name} bold noWrap>
-          <BubbleMark position={targetMarkPosition} checked>
-            <span>
-              <strong>{candidate.name}</strong> (
-              {dualLanguageWithSlash('write-in')})
-            </span>
-          </BubbleMark>
-        </Text>
-      ))}
       {contest.allowWriteIns &&
-        remainingChoices.map((k) => (
-          <WriteInItem key={k} data-write-in>
-            <BubbleMark position={targetMarkPosition}>
+        writeInItemKeys.map((key, position) => (
+          <WriteInItem key={key} data-write-in>
+            <BubbleMark
+              position={targetMarkPosition}
+              checked={hasWriteInAtPosition(vote, position)}
+            >
               <WriteInLine />
               <Text small noWrap as="span">
                 {dualLanguageWithSlash('write-in')}
               </Text>
             </BubbleMark>
+            {hasWriteInAtPosition(vote, position) && (
+              <WriteInName>
+                {getWriteInNameAtPosition(vote, position)}
+              </WriteInName>
+            )}
           </WriteInItem>
         ))}
     </React.Fragment>

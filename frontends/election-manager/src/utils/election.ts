@@ -12,6 +12,8 @@ import {
   PartyId,
   BallotStyleId,
   PrecinctId,
+  WriteInCandidate,
+  YesNoVote,
 } from '@votingworks/types';
 import { assert, BallotStyleData, find } from '@votingworks/utils';
 import dashify from 'dashify';
@@ -174,6 +176,37 @@ export function getContestsForPrecinct(
   });
 }
 
+export function numBallotPositions(contest: AnyContest): number {
+  if (contest.type === 'candidate') {
+    return (
+      contest.candidates.length + (contest.allowWriteIns ? contest.seats : 0)
+    );
+  }
+  return 2;
+}
+
+export function generateTestDeckWriteIn(index: number): WriteInCandidate {
+  return {
+    id: 'write-in',
+    isWriteIn: true,
+    name: 'WRITE-IN',
+    writeInIndex: index,
+  };
+}
+
+export function getTestDeckCandidateAtIndex(
+  contest: CandidateContest,
+  position: number
+): Candidate {
+  assert(position < numBallotPositions(contest)); // safety check
+  if (position < contest.candidates.length) {
+    return contest.candidates[position];
+  }
+  return generateTestDeckWriteIn(position - contest.candidates.length);
+}
+
+const yesOrNo: YesNoVote[] = [['yes'], ['no']];
+
 interface GenerateTestDeckParams {
   election: Election;
   precinctId?: PrecinctId;
@@ -206,27 +239,24 @@ export function generateTestDeckBallots({
       );
 
       const numBallots = Math.max(
-        ...contests.map((c) =>
-          c.type === 'candidate' ? c.candidates.length : 2
-        )
+        ...contests.map((c) => numBallotPositions(c))
       );
 
       for (let ballotNum = 0; ballotNum < numBallots; ballotNum += 1) {
         const votes: VotesDict = {};
         for (const contest of contests) {
           if (contest.type === 'yesno') {
-            votes[contest.id] = ballotNum % 2 === 0 ? ['yes'] : ['no'];
+            votes[contest.id] = yesOrNo[ballotNum % 2];
           } else if (contest.type === 'ms-either-neither') {
-            votes[contest.eitherNeitherContestId] =
-              ballotNum % 2 === 0 ? ['yes'] : ['no'];
-            votes[contest.pickOneContestId] =
-              ballotNum % 2 === 0 ? ['yes'] : ['no'];
+            votes[contest.eitherNeitherContestId] = yesOrNo[ballotNum % 2];
+            votes[contest.pickOneContestId] = yesOrNo[ballotNum % 2];
           } else if (
             contest.type === 'candidate' &&
             contest.candidates.length > 0 // safety check
           ) {
+            const choiceIndex = ballotNum % numBallotPositions(contest);
             votes[contest.id] = [
-              contest.candidates[ballotNum % contest.candidates.length],
+              getTestDeckCandidateAtIndex(contest, choiceIndex),
             ];
           }
         }

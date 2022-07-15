@@ -427,14 +427,12 @@ test('L&A (logic and accuracy) flow', async () => {
 
   // Test printing full test deck tally
   const expectedTallies: { [tally: string]: number } = {
-    '104': 6,
+    '104': 10,
     '52': 12,
-    '36': 2,
-    '24': 2,
-    '12': 3,
-    '8': 1,
-    '4': 1,
-    '0': 10,
+    '24': 6,
+    '12': 4,
+    '8': 3,
+    '4': 2,
   };
   userEvent.click(screen.getByText('L&A'));
   userEvent.click(screen.getByText('Print Full Test Deck Tally Report'));

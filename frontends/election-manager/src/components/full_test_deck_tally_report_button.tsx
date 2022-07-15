@@ -20,16 +20,19 @@ export function FullTestDeckTallyReportButton(): JSX.Element {
   const ballots = generateTestDeckBallots({ election });
   const votes = ballots.map((b) => b.votes);
 
-  // Full test deck tally is 4 times a single test deck tally, because it counts scanning
-  // 2 test decks (BMD + HMPB) in 2 places (VxScan + VxCentralScan)
+  // Full test deck tallies should be 4 times that of a single test deck because
+  // it counts scanning 2 test decks (BMD + HMPB) twice (VxScan + VxCentralScan)
+  const quadrupledVotes = [...votes, ...votes, ...votes, ...votes];
   const testDeckTally: Tally = {
-    numberOfBallotsCounted: ballots.length * 4,
+    numberOfBallotsCounted: quadrupledVotes.length,
     castVoteRecords: new Set(),
     contestTallies: tallyVotesByContest({
       election,
-      votes: [...votes, ...votes, ...votes, ...votes],
+      votes: quadrupledVotes,
     }),
-    ballotCountsByVotingMethod: { [VotingMethod.Unknown]: ballots.length },
+    ballotCountsByVotingMethod: {
+      [VotingMethod.Unknown]: quadrupledVotes.length,
+    },
   };
 
   const afterPrint = useCallback(() => {

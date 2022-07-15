@@ -74,7 +74,7 @@ test('Printing L&A package for one precinct', async () => {
   expect(mockKiosk.log).toHaveBeenLastCalledWith(
     expect.stringContaining('BMD paper ballot test deck printed')
   );
-  jest.advanceTimersByTime(3 * ONE_SIDED_PAGE_PRINT_TIME_MS);
+  jest.advanceTimersByTime(4 * ONE_SIDED_PAGE_PRINT_TIME_MS);
 
   await screen.findByText('Printing L&A Package for District 5');
   await waitFor(() => expect(mockPrinter.print).toHaveBeenCalledTimes(3));
@@ -149,7 +149,7 @@ test('Printing L&A packages for all precincts', async () => {
     expect(mockKiosk.log).toHaveBeenLastCalledWith(
       expect.stringContaining('BMD paper ballot test deck printed')
     );
-    jest.advanceTimersByTime(3 * ONE_SIDED_PAGE_PRINT_TIME_MS);
+    jest.advanceTimersByTime(4 * ONE_SIDED_PAGE_PRINT_TIME_MS);
 
     await screen.findByText(`Printing L&A Package for ${precinct}`);
     await screen.findByText(`This is package ${i + 1} of 13.`);
@@ -168,7 +168,7 @@ test('Printing L&A packages for all precincts', async () => {
       expect.stringContaining('Hand-marked paper ballot test deck printed')
     );
     if (i < precinctsInAlphabeticalOrder.length - 1) {
-      jest.advanceTimersByTime(6 * TWO_SIDED_PAGE_PRINT_TIME_MS);
+      jest.advanceTimersByTime(7 * TWO_SIDED_PAGE_PRINT_TIME_MS);
     } else {
       jest.advanceTimersByTime(LAST_PRINT_JOB_SLEEP_MS);
     }
@@ -218,7 +218,7 @@ test('Printing L&A package for one precinct, when HMPBs are not letter-size', as
   expect(mockKiosk.log).toHaveBeenLastCalledWith(
     expect.stringContaining('BMD paper ballot test deck printed')
   );
-  jest.advanceTimersByTime(3 * ONE_SIDED_PAGE_PRINT_TIME_MS);
+  jest.advanceTimersByTime(4 * ONE_SIDED_PAGE_PRINT_TIME_MS);
 
   userEvent.click(
     await screen.findByText('Legal Paper Loaded, Continue Printing')
@@ -308,7 +308,7 @@ test('Printing L&A packages for all precincts, when HMPBs are not letter-size', 
     expect(mockKiosk.log).toHaveBeenLastCalledWith(
       expect.stringContaining('BMD paper ballot test deck printed')
     );
-    jest.advanceTimersByTime(3 * ONE_SIDED_PAGE_PRINT_TIME_MS);
+    jest.advanceTimersByTime(4 * ONE_SIDED_PAGE_PRINT_TIME_MS);
   }
 
   userEvent.click(
@@ -336,7 +336,7 @@ test('Printing L&A packages for all precincts, when HMPBs are not letter-size', 
       expect.stringContaining('Hand-marked paper ballot test deck printed')
     );
     if (i < precinctsInAlphabeticalOrder.length - 1) {
-      jest.advanceTimersByTime(6 * TWO_SIDED_PAGE_PRINT_TIME_MS);
+      jest.advanceTimersByTime(7 * TWO_SIDED_PAGE_PRINT_TIME_MS);
     } else {
       jest.advanceTimersByTime(LAST_PRINT_JOB_SLEEP_MS);
     }

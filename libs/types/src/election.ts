@@ -115,6 +115,7 @@ export interface Candidate {
   readonly name: string;
   readonly partyIds?: readonly PartyId[];
   readonly isWriteIn?: boolean;
+  readonly writeInIndex?: number;
 }
 export const CandidateSchema: z.ZodSchema<Candidate> = z
   .object({
@@ -123,6 +124,7 @@ export const CandidateSchema: z.ZodSchema<Candidate> = z
     name: z.string().nonempty(),
     partyIds: z.array(PartyIdSchema).optional(),
     isWriteIn: z.boolean().optional(),
+    writeInIndex: z.number().int().nonnegative().optional(),
   })
   .refine(
     ({ id, isWriteIn }) => !!isWriteIn === id.startsWith('write-in'),
@@ -133,6 +135,7 @@ export interface WriteInCandidate {
   readonly id: WriteInId;
   readonly name: string;
   readonly isWriteIn: true;
+  readonly writeInIndex?: number;
   readonly partyId?: PartyId;
   readonly partyIds?: readonly PartyId[];
 }
@@ -141,6 +144,7 @@ export const WriteInCandidateSchema: z.ZodSchema<WriteInCandidate> = z.object({
   id: WriteInIdSchema,
   name: z.string().nonempty(),
   isWriteIn: z.literal(true),
+  writeInIndex: z.number().int().nonnegative().optional(),
   partyIds: z.array(PartyIdSchema).optional(),
 });
 
