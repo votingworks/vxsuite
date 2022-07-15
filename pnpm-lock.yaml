@@ -19,7 +19,6 @@ importers:
   codemods:
     dependencies:
       '@babel/core': 7.18.2
-      '@babel/types': 7.18.4
       sucrase: 3.21.0
       ts-morph: 12.2.0
     devDependencies:
@@ -48,7 +47,6 @@ importers:
       '@babel/core': ^7.18.2
       '@babel/generator': ^7.18.2
       '@babel/traverse': ^7.18.2
-      '@babel/types': ^7.18.2
       '@jest/types': ^28.1.1
       '@types/babel__core': ^7.1.19
       '@types/babel__generator': ^7.6.4
@@ -1523,7 +1521,6 @@ importers:
       jsfeat: 0.0.8
       jsqr: 1.3.1
       node-quirc: 2.3.0
-      randombytes: 2.1.0
       table: 6.0.7
       util: 0.12.4
       uuid: 8.3.2
@@ -1535,7 +1532,6 @@ importers:
       '@types/memorystream': 0.3.0
       '@types/node': 16.11.29
       '@types/node-quirc': link:../@types/node-quirc
-      '@types/randombytes': 2.0.0
       '@types/table': 6.0.0
       '@types/tmp': 0.2.0
       '@types/uuid': 8.3.0
@@ -1573,7 +1569,6 @@ importers:
       '@types/memorystream': ^0.3.0
       '@types/node': 16.11.29
       '@types/node-quirc': workspace:*
-      '@types/randombytes': ^2.0.0
       '@types/table': ^6.0.0
       '@types/tmp': ^0.2.0
       '@types/uuid': ^8.3.0
@@ -1611,7 +1606,6 @@ importers:
       memorystream: ^0.3.1
       node-quirc: ^2.2.1
       prettier: ^2.6.2
-      randombytes: ^2.1.0
       sort-package-json: ^1.50.0
       table: ^6.0.3
       tmp: ^0.2.1

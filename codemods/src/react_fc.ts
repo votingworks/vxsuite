@@ -44,8 +44,7 @@
  * ```
  */
 
-import { PluginItem, NodePath } from '@babel/core';
-import * as t from '@babel/types';
+import { PluginItem, NodePath, types as t } from '@babel/core';
 import { strict as assert } from 'assert';
 
 function rewriteFunction(id: t.Identifier, fn: t.Function): boolean {

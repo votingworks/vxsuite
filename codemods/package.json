@@ -14,7 +14,6 @@
   },
   "dependencies": {
     "@babel/core": "^7.18.2",
-    "@babel/types": "^7.18.2",
     "sucrase": "^3.21.0",
     "ts-morph": "^12.2.0"
   },
