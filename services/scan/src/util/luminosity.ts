@@ -1,4 +1,4 @@
-import { otsu } from '@votingworks/ballot-interpreter-vx';
+import { otsu } from '@votingworks/image-utils';
 import { Rect } from '@votingworks/types';
 import makeDebug from 'debug';
 

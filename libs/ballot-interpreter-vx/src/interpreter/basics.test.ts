@@ -36,7 +36,6 @@ test('takes the mark score vote threshold from the election definition if presen
     },
   });
 
-  // eslint-disable-next-line dot-notation
   expect(interpreter['markScoreVoteThreshold']).toEqual(0.99);
 });
 

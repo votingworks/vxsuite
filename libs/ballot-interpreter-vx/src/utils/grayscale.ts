@@ -1,8 +1,8 @@
+import { isRgba } from '@votingworks/image-utils';
 import {
   assertGrayscaleImage,
   assertRgbaImage,
   assertSizesMatch,
-  isRgba,
   makeInPlaceImageTransform,
 } from './image_format_utils';
 

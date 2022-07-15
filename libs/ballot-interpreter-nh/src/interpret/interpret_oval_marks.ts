@@ -1,8 +1,8 @@
+import { getImageChannelCount } from '@votingworks/image-utils';
 import { GridLayout } from '@votingworks/types';
 import { assert } from '@votingworks/utils';
 import {
   binarize,
-  getChannels,
   matchTemplateImage,
   scoreTemplateMatch,
   simpleRemoveNoise,
@@ -31,8 +31,8 @@ export function interpretOvalMarks({
   backLayout: InterpretBallotCardLayoutResult;
   gridLayout: GridLayout;
 }): InterpretedOvalMark[] {
-  const frontImageChannels = getChannels(frontImageData);
-  const backImageChannels = getChannels(backImageData);
+  const frontImageChannels = getImageChannelCount(frontImageData);
+  const backImageChannels = getImageChannelCount(backImageData);
   assert(
     frontImageChannels === backImageChannels,
     `frontImageChannels ${frontImageChannels} !== backImageChannels ${backImageChannels}`

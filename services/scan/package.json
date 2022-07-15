@@ -42,6 +42,7 @@
     "@votingworks/ballot-interpreter-nh": "workspace:*",
     "@votingworks/ballot-interpreter-vx": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
+    "@votingworks/image-utils": "workspace:*",
     "@votingworks/logging": "workspace:*",
     "@votingworks/plustek-sdk": "workspace:*",
     "@votingworks/test-utils": "workspace:*",

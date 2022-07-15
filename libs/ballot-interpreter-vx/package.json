@@ -41,6 +41,7 @@
   },
   "dependencies": {
     "@votingworks/ballot-encoder": "workspace:*",
+    "@votingworks/image-utils": "workspace:*",
     "@votingworks/qrdetect": "^1.0.1",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",

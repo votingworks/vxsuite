@@ -1,3 +1,4 @@
+import { loadImage, toImageData } from '@votingworks/image-utils';
 import {
   AdjudicationReason,
   BallotType,
@@ -16,7 +17,6 @@ import {
 import { getScannedBallotCardGeometry } from '../accuvote';
 import * as templates from '../data/templates';
 import { imageDebugger } from '../debug';
-import * as images from '../images';
 import { convertInterpretedLayoutToBallotLayout } from './convert_interpreted_layout_to_ballot_layout';
 import { convertMarksToAdjudicationInfo } from './convert_marks_to_adjudication_info';
 import { convertMarksToMarkInfo } from './convert_marks_to_mark_info';
@@ -64,11 +64,11 @@ export async function interpret(
 
   const geometry = getScannedBallotCardGeometry(paperSize);
   let [frontPage, backPage] = sheet;
-  let frontImageData = images.toImageData(await images.load(frontPage), {
+  let frontImageData = toImageData(await loadImage(frontPage), {
     maxWidth: geometry.canvasSize.width,
     maxHeight: geometry.canvasSize.height,
   });
-  let backImageData = images.toImageData(await images.load(backPage), {
+  let backImageData = toImageData(await loadImage(backPage), {
     maxWidth: geometry.canvasSize.width,
     maxHeight: geometry.canvasSize.height,
   });

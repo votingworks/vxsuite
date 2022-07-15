@@ -1,5 +1,10 @@
-import { assert, fail } from '@votingworks/utils';
+import {
+  getImageChannelCount,
+  isGrayscale,
+  isRgba,
+} from '@votingworks/image-utils';
 import { Size } from '@votingworks/types';
+import { assert, fail } from '@votingworks/utils';
 
 export type InPlaceImageTransform<A extends unknown[], R> = (
   srcImageData: ImageData,
@@ -12,8 +17,7 @@ export function makeInPlaceImageTransform<A extends unknown[], R>(
   rgba: InPlaceImageTransform<A, R>
 ): InPlaceImageTransform<A, R> {
   return (srcImageData: ImageData, dstImageData?: ImageData, ...args: A): R => {
-    const channels =
-      srcImageData.data.length / (srcImageData.width * srcImageData.height);
+    const channels = getImageChannelCount(srcImageData);
 
     switch (channels) {
       case 1:
@@ -38,8 +42,7 @@ export function makeImageTransform<A extends unknown[], R>(
   rgba: ImageTransform<A, R>
 ): ImageTransform<A, R> {
   return (imageData: ImageData, ...args: A): R => {
-    const channels =
-      imageData.data.length / (imageData.width * imageData.height);
+    const channels = getImageChannelCount(imageData);
 
     switch (channels) {
       case 1:
@@ -52,18 +55,6 @@ export function makeImageTransform<A extends unknown[], R>(
         throw new Error(`unexpected ${channels}-channel image`);
     }
   };
-}
-
-export function getImageChannelCount(imageData: ImageData): number {
-  return imageData.data.length / (imageData.width * imageData.height);
-}
-
-export function isGrayscale(imageData: ImageData): boolean {
-  return getImageChannelCount(imageData) === 1;
-}
-
-export function isRgba(imageData: ImageData): boolean {
-  return getImageChannelCount(imageData) === 4;
 }
 
 export function assertRgbaImage(imageData: ImageData): void {

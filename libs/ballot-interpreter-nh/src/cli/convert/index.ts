@@ -1,3 +1,4 @@
+import { loadImage, toImageData } from '@votingworks/image-utils';
 import { err, ok, Result } from '@votingworks/types';
 import { DOMParser } from '@xmldom/xmldom';
 import { enable as enableDebug } from 'debug';
@@ -10,7 +11,6 @@ import {
 } from '../../convert';
 import * as templates from '../../data/templates';
 import { imageDebugger } from '../../debug';
-import * as images from '../../images';
 
 interface ConvertOptions {
   readonly type: 'convert';
@@ -146,10 +146,8 @@ export async function main(
     options;
 
   const definitionContent = await fs.readFile(definitionPath, 'utf8');
-  const frontBallotImage = images.toImageData(
-    await images.load(frontBallotPath)
-  );
-  const backBallotImage = images.toImageData(await images.load(backBallotPath));
+  const frontBallotImage = toImageData(await loadImage(frontBallotPath));
+  const backBallotImage = toImageData(await loadImage(backBallotPath));
 
   const cardDefinition: NewHampshireBallotCardDefinition = {
     definition: parseXml(definitionContent),

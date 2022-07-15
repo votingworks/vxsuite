@@ -65,6 +65,10 @@
       "path": "libs/cdf-types-election-event-logging"
     },
     {
+      "name": "libs/image-utils",
+      "path": "libs/image-utils"
+    },
+    {
       "name": "libs/logging",
       "path": "libs/logging"
     },

@@ -15,15 +15,18 @@ import { convertElectionDefinition, ConvertIssueKind } from '../../convert';
 jest.mock('../../convert');
 jest.mock('../../images', (): typeof import('../../images') => ({
   binarize: jest.fn(),
-  getChannels: jest.fn(),
-  load: jest.fn(),
   matchTemplate: jest.fn(),
   matchTemplateImage: jest.fn(),
-  rotate180: jest.fn(),
   scoreTemplateMatch: jest.fn(),
   simpleRemoveNoise: jest.fn(),
-  toImageData: jest.fn().mockReturnValue(createImageData(1, 1)),
 }));
+jest.mock(
+  '@votingworks/image-utils',
+  (): Partial<typeof import('@votingworks/image-utils')> => ({
+    loadImage: jest.fn(),
+    toImageData: jest.fn().mockReturnValue(createImageData(1, 1)),
+  })
+);
 
 test('--help', async () => {
   const io: Stdio = {

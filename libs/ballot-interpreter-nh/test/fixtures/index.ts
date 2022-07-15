@@ -1,3 +1,4 @@
+import { loadImage, toImageData } from '@votingworks/image-utils';
 import { BallotPaperSize } from '@votingworks/types';
 import { assert, throwIllegalValue } from '@votingworks/utils';
 import { DOMParser } from '@xmldom/xmldom';
@@ -5,7 +6,6 @@ import { promises as fs } from 'fs';
 import { join } from 'path';
 import { BallotCardTemplateMargins } from '../../src/accuvote';
 import { NewHampshireBallotCardDefinition } from '../../src/convert';
-import * as images from '../../src/images';
 import {
   BallotCardGeometry,
   CompleteTimingMarks,
@@ -335,13 +335,10 @@ export async function readFixtureImage(
   geometry: BallotCardGeometry,
   ext = '.jpeg'
 ): Promise<ImageData> {
-  return images.toImageData(
-    await images.load(getFixturePath(fixture, name, ext)),
-    {
-      maxWidth: geometry.canvasSize.width,
-      maxHeight: geometry.canvasSize.height,
-    }
-  );
+  return toImageData(await loadImage(getFixturePath(fixture, name, ext)), {
+    maxWidth: geometry.canvasSize.width,
+    maxHeight: geometry.canvasSize.height,
+  });
 }
 
 /**

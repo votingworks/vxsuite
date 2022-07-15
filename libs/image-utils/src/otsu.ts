@@ -17,6 +17,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+import { u8, usize } from './types';
+
 const UINT8_MAX = (1 << 8) - 1;
 
 /**
@@ -24,20 +26,23 @@ const UINT8_MAX = (1 << 8) - 1;
  *
  * @see https://en.wikipedia.org/wiki/Otsu%27s_method
  */
-export function otsu(data: Uint8Array | Uint8ClampedArray, step = 1): number {
+export function otsu(
+  data: Uint8Array | Uint8ClampedArray,
+  step: usize = 1
+): u8 {
   const numPixels = data.length / step;
 
   // Calculate histogram
   const histogram = new Int32Array(UINT8_MAX + 1);
   for (let ptr = 0, length = numPixels; length; length -= 1, ptr += step) {
-    histogram[data[ptr]] += 1;
+    histogram[data[ptr] as u8] += 1;
   }
 
   // Calculate weighted sum of histogram values
   let sum = 0;
   let i = 0;
   for (i = 0; i <= UINT8_MAX; i += 1) {
-    sum += i * histogram[i];
+    sum += i * (histogram[i] as u8);
   }
 
   // Compute threshold
@@ -47,14 +52,14 @@ export function otsu(data: Uint8Array | Uint8ClampedArray, step = 1): number {
   let threshold = 0;
   for (i = 0; i <= UINT8_MAX; i += 1) {
     // Weighted background
-    q1 += histogram[i];
+    q1 += histogram[i] as u8;
     if (q1 === 0) continue;
 
     // Weighted foreground
     const q2 = numPixels - q1;
     if (q2 === 0) break;
 
-    sumB += i * histogram[i];
+    sumB += i * (histogram[i] as u8);
     const m1 = sumB / q1;
     const m2 = (sum - sumB) / q2;
     const m1m2 = m1 - m2;

@@ -1,6 +1,5 @@
+import { getImageChannelCount, isRgba, otsu } from '@votingworks/image-utils';
 import { grayscale } from './grayscale';
-import { getImageChannelCount, isRgba } from './image_format_utils';
-import { otsu } from './otsu';
 
 export type RGBA = [number, number, number, number];
 

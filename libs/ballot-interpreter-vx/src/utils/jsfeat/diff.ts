@@ -1,10 +1,9 @@
+import { getImageChannelCount, isRgba } from '@votingworks/image-utils';
 import { Rect } from '@votingworks/types';
 import { PIXEL_BLACK, PIXEL_WHITE } from '../binarize';
 import {
   assertImageChannelsMatch,
   assertSizesMatch,
-  getImageChannelCount,
-  isRgba,
 } from '../image_format_utils';
 
 /**

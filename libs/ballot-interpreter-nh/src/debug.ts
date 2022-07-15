@@ -1,14 +1,14 @@
 /* this file is for debugging during dev & test, not for production */
 
+import { getImageChannelCount } from '@votingworks/image-utils';
 import { Buffer } from 'buffer';
 import { createCanvas, createImageData } from 'canvas';
 import makeDebug, {
-  enabled as isDebugEnabled,
   enable as enableDebug,
+  enabled as isDebugEnabled,
 } from 'debug';
 import { mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
-import { getChannels } from './images';
 import { Size } from './types';
 
 const log = makeDebug('ballot-interpreter-nh:debug-images');
@@ -88,7 +88,7 @@ export interface SvgLayer {
 }
 
 function toRgba(imageData: ImageData): ImageData {
-  if (getChannels(imageData) === 4) {
+  if (getImageChannelCount(imageData) === 4) {
     return imageData;
   }
 
