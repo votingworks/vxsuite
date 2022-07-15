@@ -15,6 +15,7 @@
     { "path": "../../libs/ballot-interpreter-vx/tsconfig.build.json" },
     { "path": "../../libs/eslint-plugin-vx/tsconfig.build.json" },
     { "path": "../../libs/fixtures/tsconfig.build.json" },
+    { "path": "../../libs/image-utils/tsconfig.build.json" },
     { "path": "../../libs/logging/tsconfig.build.json" },
     { "path": "../../libs/plustek-sdk/tsconfig.build.json" },
     { "path": "../../libs/test-utils/tsconfig.build.json" },

@@ -1,3 +1,4 @@
+import { crop, rotate180 } from '@votingworks/image-utils';
 import {
   BallotCandidateTargetMark,
   BallotIdSchema,
@@ -41,9 +42,7 @@ import {
 import { detect } from '../metadata';
 import { FindMarksResult, Interpreted } from '../types';
 import { binarize, PIXEL_BLACK, PIXEL_WHITE } from '../utils/binarize';
-import { crop } from '../utils/crop';
 import { defined } from '../utils/defined';
-import { vh as flipVH } from '../utils/flip';
 import { rectCorners } from '../utils/geometry';
 import { countPixels, diff } from '../utils/jsfeat/diff';
 import { matToImageData } from '../utils/jsfeat/mat_to_image_data';
@@ -355,7 +354,7 @@ export class Interpreter {
 
     if (metadata) {
       if (flipped) {
-        flipVH(imageData);
+        rotate180(imageData);
       }
 
       return { imageData, metadata };
@@ -365,7 +364,7 @@ export class Interpreter {
 
     if (detectResult.flipped) {
       debug('detected image is flipped, correcting orientation');
-      flipVH(imageData);
+      rotate180(imageData);
     }
 
     return { imageData, metadata: detectResult.metadata };

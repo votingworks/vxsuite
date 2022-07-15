@@ -1,6 +1,6 @@
+import { getImageChannelCount } from '@votingworks/image-utils';
 import { createImageData } from 'canvas';
 import { PIXEL_BLACK } from './binarize';
-import { getImageChannelCount } from './image_format_utils';
 
 /**
  * Outline pixels of a certain color with the same color.

@@ -1,5 +1,4 @@
-import { NodePath } from '@babel/core';
-import * as t from '@babel/types';
+import { NodePath, types as t } from '@babel/core';
 import { strict as assert } from 'assert';
 
 /**

@@ -1,3 +1,4 @@
+import { rotate180 } from '@votingworks/image-utils';
 import {
   BallotPageLayoutWithImage,
   BallotPageMetadata,
@@ -10,7 +11,6 @@ import { findContestOptions } from './hmpb/find_contest_options';
 import { findTargets } from './hmpb/find_targets';
 import { detect } from './metadata';
 import { binarize } from './utils/binarize';
-import { vh as flipVH } from './utils/flip';
 
 const debug = makeDebug('ballot-interpreter-vx:layout');
 
@@ -33,7 +33,7 @@ export async function normalizeImageDataAndMetadata({
 
   if (metadata) {
     if (flipped) {
-      flipVH(imageData);
+      rotate180(imageData);
     }
 
     return { imageData, metadata };
@@ -43,7 +43,7 @@ export async function normalizeImageDataAndMetadata({
 
   if (detectResult.flipped) {
     debug('detected image is flipped, correcting orientation');
-    flipVH(imageData);
+    rotate180(imageData);
   }
 
   return { imageData, metadata: detectResult.metadata };

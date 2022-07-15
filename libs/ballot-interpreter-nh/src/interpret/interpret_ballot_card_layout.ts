@@ -1,8 +1,11 @@
+import {
+  getImageChannelCount,
+  otsu,
+  rotate180,
+} from '@votingworks/image-utils';
 import { assert } from '@votingworks/utils';
 import { decodeTimingMarkBits, getSearchInset } from '../accuvote';
 import { Debugger, noDebug } from '../debug';
-import { getChannels, rotate180 } from '../images';
-import { otsu } from '../otsu';
 import {
   BestFitLineSegmentResult,
   computeTimingMarkGrid,
@@ -82,7 +85,7 @@ function verticalTimingMarkGapScan(
   }
 ): Rect[] {
   const { data, width } = imageData;
-  const channels = getChannels(imageData);
+  const channels = getImageChannelCount(imageData);
 
   const markSize = geometry.timingMarkSize;
   const gapSize: Size = {
@@ -239,7 +242,7 @@ function horizontalTimingMarkGapScan(
   }
 ): Rect[] {
   const { data, width } = imageData;
-  const channels = getChannels(imageData);
+  const channels = getImageChannelCount(imageData);
 
   const markSize = geometry.timingMarkSize;
   const gapSize: Size = {
@@ -486,7 +489,7 @@ function findTimingMarkContainingPoint(
   geometry: BallotCardGeometry
 ): Rect | undefined {
   const { data, width, height } = imageData;
-  const channels = getChannels(imageData);
+  const channels = getImageChannelCount(imageData);
   const threshold = otsu(data, channels);
 
   const maxWidth = Math.ceil(geometry.timingMarkSize.width);
@@ -588,7 +591,7 @@ export function interpretBallotCardLayout(
   }: { geometry: BallotCardGeometry; debug?: Debugger }
 ): InterpretBallotCardLayoutResult {
   const { width, height } = imageData;
-  const channels = getChannels(imageData);
+  const channels = getImageChannelCount(imageData);
   const inset = getSearchInset(geometry);
   const threshold = otsu(imageData.data, channels);
 

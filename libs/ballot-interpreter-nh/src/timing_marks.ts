@@ -1,7 +1,6 @@
+import { getImageChannelCount, otsu } from '@votingworks/image-utils';
 import { assert, integers, map, zip, zipMin } from '@votingworks/utils';
 import { Debugger, noDebug } from './debug';
-import { getChannels } from './images';
-import { otsu } from './otsu';
 import {
   Bit,
   CompleteTimingMarks,
@@ -477,7 +476,7 @@ function computeFillRatio(
   const minY = Math.round(rect.minY);
   const maxX = Math.round(rect.maxX);
   const maxY = Math.round(rect.maxY);
-  const channels = getChannels(imageData);
+  const channels = getImageChannelCount(imageData);
   let count = 0;
 
   for (let y = minY; y <= maxY; y += 1) {
@@ -502,7 +501,7 @@ function removeMissingRects(
   rects: readonly Rect[],
   {
     minFillRatio = 0.2,
-    threshold = otsu(imageData.data, getChannels(imageData)),
+    threshold = otsu(imageData.data, getImageChannelCount(imageData)),
     debug = noDebug(),
   } = {}
 ): Rect[] {
@@ -554,7 +553,7 @@ export function interpolateMissingTimingMarks(
     'cannot infer missing timing marks without corners'
   );
 
-  const channels = getChannels(imageData);
+  const channels = getImageChannelCount(imageData);
   const threshold = otsu(imageData.data, channels);
 
   const expectedVerticalTimingMarkSeparationDistance = median(

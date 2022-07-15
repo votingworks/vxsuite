@@ -1,3 +1,4 @@
+import { getImageChannelCount, rotate180 } from '@votingworks/image-utils';
 import {
   BallotTargetMarkPosition,
   BallotTargetMarkPositionSchema,
@@ -10,18 +11,16 @@ import {
   TargetShape,
 } from '@votingworks/types';
 import { assert } from '@votingworks/utils';
-import chalk from 'chalk';
 import { createImageData } from 'canvas';
+import chalk from 'chalk';
 import { basename } from 'path';
-import { Command, GlobalOptions } from '../types';
-import { findContests, ContestShape } from '../../hmpb/find_contests';
+import { ContestShape, findContests } from '../../hmpb/find_contests';
+import { findTargets } from '../../hmpb/find_targets';
 import { binarize, RGBA } from '../../utils/binarize';
-import { vh } from '../../utils/flip';
-import { getImageChannelCount } from '../../utils/image_format_utils';
+import { rectCenter } from '../../utils/geometry';
 import { loadImageData, writeImageData } from '../../utils/images';
 import { adjacentFile } from '../../utils/path';
-import { findTargets } from '../../hmpb/find_targets';
-import { rectCenter } from '../../utils/geometry';
+import { Command, GlobalOptions } from '../types';
 
 export interface HelpOptions {
   help: true;
@@ -113,11 +112,11 @@ function analyzeImage(
     }),
     (toTransform: ImageData): { imageData: ImageData; rotated: boolean } => {
       const rotatedImageData = createImageData(
-        new Uint8ClampedArray(toTransform.data.length),
+        Uint8ClampedArray.from(toTransform.data),
         toTransform.width,
         toTransform.height
       );
-      vh(toTransform, rotatedImageData);
+      rotate180(rotatedImageData);
       return { imageData: rotatedImageData, rotated: true };
     },
   ];
@@ -256,7 +255,7 @@ export async function run(
     const targetWidth = Math.max(15, Math.round(imageData.width * 0.01));
 
     if (rotated) {
-      vh(imageData);
+      rotate180(imageData);
     }
 
     for (const contest of contests) {

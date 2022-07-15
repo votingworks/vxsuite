@@ -1,9 +1,9 @@
+import { crop } from '@votingworks/image-utils';
 import { Rect } from '@votingworks/types';
 import { createImageData } from 'canvas';
 import { croppedQrCode } from '../../../test/fixtures';
 import { PIXEL_BLACK, PIXEL_WHITE } from '../binarize';
-import { crop } from '../crop';
-import { diff, countPixels, ratio } from './diff';
+import { countPixels, diff, ratio } from './diff';
 
 const imageData4x4: Readonly<ImageData> = createImageData(
   Uint8ClampedArray.of(

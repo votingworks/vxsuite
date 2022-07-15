@@ -1,11 +1,11 @@
 import { detect as detectMetadata } from '@votingworks/ballot-encoder';
+import { crop } from '@votingworks/image-utils';
 import { Rect, Size } from '@votingworks/types';
 import { Buffer } from 'buffer';
 import makeDebug from 'debug';
 import jsQr from 'jsqr';
 import { QRCode } from 'node-quirc';
 import { DetectQrCodeResult } from '../types';
-import { crop } from './crop';
 
 const LETTER_WIDTH_TO_HEIGHT_RATIO = 8.5 / 11;
 const LEGAL_WIDTH_TO_HEIGHT_RATIO = 8.5 / 14;

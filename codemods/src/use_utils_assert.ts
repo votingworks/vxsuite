@@ -30,8 +30,7 @@
  * ```
  */
 
-import { PluginItem, NodePath } from '@babel/core';
-import * as t from '@babel/types';
+import { PluginItem, NodePath, types as t } from '@babel/core';
 import assert from 'assert';
 import { addSpecifierToImport } from './utils';
 

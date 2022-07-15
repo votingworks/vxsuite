@@ -1,53 +1,7 @@
+import { getImageChannelCount, otsu } from '@votingworks/image-utils';
 import { assert } from '@votingworks/utils';
-import { createCanvas, createImageData, Image, loadImage } from 'canvas';
-import { otsu } from './otsu';
+import { createImageData } from 'canvas';
 import { Point } from './types';
-
-/**
- * Loads an image from a file path.
- */
-export async function load(path: string): Promise<Image> {
-  return await loadImage(path);
-}
-
-/**
- * Get the number of channels in an image data object.
- */
-export function getChannels(imageData: ImageData): 1 | 4 {
-  const channels = Math.round(
-    imageData.data.length / imageData.width / imageData.height
-  );
-  assert(
-    channels === 1 || channels === 4,
-    `Expected 1 or 4 channels, got ${channels}`
-  );
-  return channels;
-}
-
-/**
- * Extracts image data from an image.
- */
-export function toImageData(
-  image: Image,
-  {
-    maxWidth = image.width,
-    maxHeight = image.height,
-  }: {
-    maxWidth?: number;
-    maxHeight?: number;
-  } = {}
-): ImageData {
-  const xScale = maxWidth / image.width;
-  const yScale = maxHeight / image.height;
-  const scale = Math.min(xScale, yScale);
-  const width = Math.round(image.width * scale);
-  const height = Math.round(image.height * scale);
-  const canvas = createCanvas(width, height);
-  const context = canvas.getContext('2d');
-
-  context.drawImage(image, 0, 0, width, height);
-  return context.getImageData(0, 0, width, height);
-}
 
 /**
  * Matches an image against a template image.
@@ -64,8 +18,8 @@ export function matchTemplateImage(
   template: ImageData,
   point: Point
 ): ImageData {
-  const imageChannels = getChannels(image);
-  const templateChannels = getChannels(template);
+  const imageChannels = getImageChannelCount(image);
+  const templateChannels = getImageChannelCount(template);
   const resultChannels = imageChannels;
   const result = createImageData(
     new Uint8ClampedArray(template.width * template.height * resultChannels),
@@ -122,8 +76,8 @@ export function matchTemplate(
   point: Point,
   minScore = 0
 ): number {
-  const imageChannels = getChannels(image);
-  const templateChannels = getChannels(template);
+  const imageChannels = getImageChannelCount(image);
+  const templateChannels = getImageChannelCount(template);
   const { width: imageWidth } = image;
   const { width: templateWidth, height: templateHeight } = template;
   const px = point.x;
@@ -156,8 +110,8 @@ export function matchTemplate(
  * image compared to a mask.
  */
 export function scoreTemplateMatch(image: ImageData, mask: ImageData): number {
-  const imageChannels = getChannels(image);
-  const maskChannels = getChannels(mask);
+  const imageChannels = getImageChannelCount(image);
+  const maskChannels = getImageChannelCount(mask);
 
   assert(image.width === mask.width, 'expected same width');
   assert(image.height === mask.height, 'expected same height');
@@ -186,9 +140,9 @@ export function scoreTemplateMatch(image: ImageData, mask: ImageData): number {
  */
 export function binarize(
   image: ImageData,
-  threshold = otsu(image.data, getChannels(image))
+  threshold = otsu(image.data, getImageChannelCount(image))
 ): ImageData {
-  const channels = getChannels(image);
+  const channels = getImageChannelCount(image);
   const { data, width, height } = image;
   const result = createImageData(
     new Uint8ClampedArray(data.length),
@@ -222,7 +176,7 @@ export function simpleRemoveNoise(
   foreground: 0 | 255,
   minimumNeighbors: 0 | 1 | 2 | 3 | 4 = 1
 ): ImageData {
-  const channels = getChannels(image);
+  const channels = getImageChannelCount(image);
   const background = 255 - foreground;
   const { data, width, height } = image;
   const result = createImageData(
@@ -261,24 +215,4 @@ export function simpleRemoveNoise(
   }
 
   return result;
-}
-
-/**
- * Rotate an image 180 degrees in place.
- */
-export function rotate180(imageData: ImageData): void {
-  const { data } = imageData;
-  const channels = getChannels(imageData);
-
-  for (
-    let head = 0, tail = data.length - channels;
-    head < tail;
-    head += channels, tail -= channels
-  ) {
-    for (let i = 0; i < channels; i += 1) {
-      const temp = data[head + i] as number;
-      data[head + i] = data[tail + i] as number;
-      data[tail + i] = temp;
-    }
-  }
 }

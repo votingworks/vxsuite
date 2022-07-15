@@ -1,7 +1,6 @@
-import { NodePath, parseSync } from '@babel/core';
+import { NodePath, parseSync, types as t } from '@babel/core';
 import generate from '@babel/generator';
 import traverse from '@babel/traverse';
-import * as t from '@babel/types';
 import { addSpecifierToImport } from './utils';
 
 test('addSpecifierToImport without specifiers', () => {

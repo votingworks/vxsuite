@@ -7,8 +7,7 @@
  * $ pnpx codemod -p codemods/src/safe_parse_helpers.ts --printer prettier frontends/ libs/
  * ```
  */
-import { PluginItem, NodePath } from '@babel/core';
-import * as t from '@babel/types';
+import { NodePath, PluginItem, types as t } from '@babel/core';
 import assert from 'assert';
 import { addSpecifierToImport } from './utils';
 

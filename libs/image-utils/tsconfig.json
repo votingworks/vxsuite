@@ -1,0 +1,22 @@
+{
+  "extends": "../../tsconfig.shared.json",
+  "include": [
+    "src",
+    "test"
+  ],
+  "exclude": [],
+  "compilerOptions": {
+    "module": "commonjs",
+    "allowJs": true,
+    "composite": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+  },
+  "references": [
+    { "path": "../eslint-plugin-vx/tsconfig.build.json" },
+    { "path": "../test-utils/tsconfig.build.json" },
+    { "path": "../types/tsconfig.build.json" },
+    { "path": "../utils/tsconfig.build.json" },
+  ]
+}

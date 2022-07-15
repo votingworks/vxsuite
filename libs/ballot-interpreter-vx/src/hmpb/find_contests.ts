@@ -1,3 +1,4 @@
+import { getImageChannelCount } from '@votingworks/image-utils';
 import {
   AnyContest,
   BallotPageContestLayout,
@@ -11,7 +12,6 @@ import makeDebug from 'debug';
 import { PIXEL_BLACK } from '../utils/binarize';
 import { getCorners } from '../utils/corners';
 import { euclideanDistance } from '../utils/geometry';
-import { getImageChannelCount } from '../utils/image_format_utils';
 import { VisitedPoints } from '../utils/visited_points';
 import { findShape, parseRectangle, Shape } from './shapes';
 

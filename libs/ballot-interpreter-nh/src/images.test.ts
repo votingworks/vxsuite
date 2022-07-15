@@ -1,10 +1,6 @@
+import { getImageChannelCount } from '@votingworks/image-utils';
 import { createImageData } from 'canvas';
-import {
-  binarize,
-  getChannels,
-  matchTemplateImage,
-  simpleRemoveNoise,
-} from './images';
+import { binarize, matchTemplateImage, simpleRemoveNoise } from './images';
 import { Rect } from './types';
 import { loc } from './utils';
 
@@ -27,7 +23,7 @@ export function describeBinaryImageData(
     maxX = imageData.width - 1,
     maxY = imageData.height - 1,
   } = bounds ?? {};
-  const channels = getChannels(imageData);
+  const channels = getImageChannelCount(imageData);
   const rows = [];
   for (let y = minY; y <= maxY; y += 1) {
     const row = [];

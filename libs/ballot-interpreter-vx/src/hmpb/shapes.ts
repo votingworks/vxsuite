@@ -1,7 +1,7 @@
+import { getImageChannelCount } from '@votingworks/image-utils';
 import { Corners, Point, Rect } from '@votingworks/types';
 import { PIXEL_BLACK } from '../utils/binarize';
 import { angleBetweenPoints } from '../utils/geometry';
-import { getImageChannelCount } from '../utils/image_format_utils';
 import { VisitedPoints } from '../utils/visited_points';
 
 export type Edge = Int32Array;

@@ -1,3 +1,4 @@
+import { rotate180 } from '@votingworks/image-utils';
 import {
   BallotPageMetadata,
   BallotPageMetadataSchema,
@@ -6,7 +7,6 @@ import {
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { Input } from '../src';
-import { vh as flipVH } from '../src/utils/flip';
 import { loadImageData } from '../src/utils/images';
 import { adjacentFile } from '../src/utils/path';
 
@@ -28,7 +28,7 @@ export class Fixture implements Input {
   async imageData({ flipped = false } = {}): Promise<ImageData> {
     const imageData = await loadImageData(this.filePath());
     if (flipped) {
-      flipVH(imageData);
+      rotate180(imageData);
     }
     return imageData;
   }

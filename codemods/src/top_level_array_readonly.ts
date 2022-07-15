@@ -23,8 +23,7 @@
  * ```
  */
 
-import { PluginItem, NodePath } from '@babel/core';
-import * as t from '@babel/types';
+import { PluginItem, NodePath, types as t } from '@babel/core';
 
 export default (): PluginItem => {
   return {
