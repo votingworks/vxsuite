@@ -176,15 +176,6 @@ export function getContestsForPrecinct(
   });
 }
 
-export function generateTestDeckWriteIn(position: number): WriteInCandidate {
-  return {
-    id: 'write-in',
-    isWriteIn: true,
-    name: 'WRITE-IN',
-    writeInIndex: position,
-  };
-}
-
 export function numBallotPositions(contest: AnyContest): number {
   if (contest.type === 'candidate') {
     return (
@@ -192,6 +183,15 @@ export function numBallotPositions(contest: AnyContest): number {
     );
   }
   return 2;
+}
+
+export function generateTestDeckWriteIn(index: number): WriteInCandidate {
+  return {
+    id: 'write-in',
+    isWriteIn: true,
+    name: 'WRITE-IN',
+    writeInIndex: index,
+  };
 }
 
 export function getTestDeckCandidateAtIndex(
