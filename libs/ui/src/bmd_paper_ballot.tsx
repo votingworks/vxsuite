@@ -1,6 +1,6 @@
 import { fromByteArray } from 'base64-js';
 import { DateTime } from 'luxon';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { encodeBallot } from '@votingworks/ballot-encoder';
@@ -244,6 +244,7 @@ interface Props {
   isLiveMode: boolean;
   precinctId: PrecinctId;
   votes: VotesDict;
+  onRendered?: () => void;
 }
 
 /**
@@ -255,6 +256,7 @@ export function BmdPaperBallot({
   isLiveMode,
   precinctId,
   votes,
+  onRendered,
 }: Props): JSX.Element {
   const ballotId = randomBallotId();
   const {
@@ -280,6 +282,14 @@ export function BmdPaperBallot({
     ballotType: BallotType.Standard,
   });
 
+  const [sealLoaded, setSealLoaded] = useState(false);
+  useEffect(() => {
+    const isRendered = seal || !sealUrl || (sealUrl && sealLoaded);
+    if (isRendered && onRendered) {
+      onRendered();
+    }
+  }, [seal, sealUrl, sealLoaded, onRendered]);
+
   return (
     <Ballot aria-hidden>
       <Header>
@@ -300,6 +310,7 @@ export function BmdPaperBallot({
               src={sealUrl}
               alt=""
               data-testid="printed-ballot-seal-image"
+              onLoad={() => setSealLoaded(true)}
             />
           </div>
         ) : (

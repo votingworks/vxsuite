@@ -11,7 +11,7 @@ import {
   electionSampleNoSealDefinition,
   electionWithMsEitherNeitherDefinition,
 } from '@votingworks/fixtures';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 
 import { BmdPaperBallot } from './bmd_paper_ballot';
 
@@ -34,12 +34,14 @@ function renderBmdPaperBallot({
   precinctId,
   votes,
   isLiveMode = false,
+  onRendered,
 }: {
   electionDefinition: ElectionDefinition;
   ballotStyleId: string;
   precinctId: string;
   votes: { [key: string]: string | string[] | Candidate };
   isLiveMode?: boolean;
+  onRendered?: () => void;
 }) {
   return render(
     <BmdPaperBallot
@@ -57,6 +59,7 @@ function renderBmdPaperBallot({
         }),
         votes
       )}
+      onRendered={onRendered}
     />
   );
 }
@@ -221,4 +224,47 @@ test('BmdPaperBallot renders no seal when not provided', () => {
   });
 
   expect(screen.queryByTestId('printed-ballot-seal')).not.toBeInTheDocument();
+});
+
+describe('BmdPaperBallot calls onRendered', () => {
+  test('when "seal" present', () => {
+    const onRendered = jest.fn();
+    renderBmdPaperBallot({
+      electionDefinition: electionSampleDefinition,
+      ballotStyleId: '5',
+      precinctId: '21',
+      votes: {},
+      onRendered,
+    });
+
+    expect(onRendered).toHaveBeenCalledTimes(1);
+  });
+
+  test('when no seal available', () => {
+    const onRendered = jest.fn();
+    renderBmdPaperBallot({
+      electionDefinition: electionSampleNoSealDefinition,
+      ballotStyleId: '5',
+      precinctId: '21',
+      votes: {},
+      onRendered,
+    });
+
+    expect(onRendered).toHaveBeenCalledTimes(1);
+  });
+
+  test('when "sealUrl" present', () => {
+    const onRendered = jest.fn();
+    renderBmdPaperBallot({
+      electionDefinition: electionWithMsEitherNeitherDefinition,
+      ballotStyleId: '1',
+      precinctId: '6525',
+      votes: {},
+      onRendered,
+    });
+
+    expect(onRendered).not.toHaveBeenCalled();
+    fireEvent.load(screen.getByTestId('printed-ballot-seal-image'));
+    expect(onRendered).toHaveBeenCalledTimes(1);
+  });
 });

@@ -53,6 +53,7 @@ import { CastVoteRecordFiles } from './utils/cast_vote_record_files';
 import { App } from './app';
 
 import { fakePrinter } from '../test/helpers/fake_printer';
+import { loadBallotSealImages } from '../test/util/load_ballot_seal_images';
 import { eitherNeitherElectionDefinition } from '../test/render_in_app_context';
 
 import { convertSemsFileToExternalTally } from './utils/sems_tallies';
@@ -398,7 +399,8 @@ test('L&A (logic and accuracy) flow', async () => {
   await screen.findByText('Printing L&A Package for District 5', {
     exact: false,
   });
-  expect(printer.print).toHaveBeenCalledTimes(2);
+  loadBallotSealImages();
+  await waitFor(() => expect(printer.print).toHaveBeenCalledTimes(2));
   await waitFor(() =>
     expect(mockKiosk.log).toHaveBeenCalledWith(
       expect.stringContaining(LogEventId.TestDeckPrinted)

@@ -96,9 +96,13 @@ function BmdPaperBallots({
   const { election } = electionDefinition;
   const ballots = generateTestDeckBallots({ election, precinctId });
 
-  useEffect(() => {
-    onAllRendered(ballots.length);
-  }, [ballots, onAllRendered]);
+  let numRendered = 0;
+  function onRendered() {
+    numRendered += 1;
+    if (numRendered === ballots.length) {
+      onAllRendered(ballots.length);
+    }
+  }
 
   return (
     <div className="print-only">
@@ -110,6 +114,7 @@ function BmdPaperBallots({
           key={`ballot-${i}`} // eslint-disable-line react/no-array-index-key
           precinctId={ballot.precinctId}
           votes={ballot.votes}
+          onRendered={onRendered}
         />
       ))}
     </div>
