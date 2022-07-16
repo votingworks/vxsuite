@@ -38,9 +38,19 @@ import { Prose } from './prose';
 import { QrCode } from './qrcode';
 
 const Ballot = styled.div`
+  background: #ffffff;
+  line-height: 1;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  font-size: 16px;
   page-break-after: always;
   @media screen {
     display: none;
+  }
+  @page {
+    margin: 0.375in;
+    size: letter portrait;
   }
 `;
 
@@ -52,9 +62,9 @@ const Header = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
-  border-bottom: 0.2rem solid #000000;
+  border-bottom: 0.2em solid #000000;
   & > .seal {
-    margin: 0.25rem 0;
+    margin: 0.25em 0;
     width: 1in;
   }
   & h2 {
@@ -65,7 +75,7 @@ const Header = styled.div`
   }
   & > .ballot-header-content {
     flex: 4;
-    margin: 0 1rem;
+    margin: 0 1em;
     max-width: 100%;
   }
 `;
@@ -74,12 +84,12 @@ const QrCodeContainer = styled.div`
   flex: 3;
   flex-direction: row;
   align-self: flex-end;
-  border: 0.2rem solid #000000;
+  border: 0.2em solid #000000;
   border-bottom: 0;
   max-width: 50%;
-  padding: 0.25rem;
+  padding: 0.25em;
   & > div:first-child {
-    margin-right: 0.25rem;
+    margin-right: 0.25em;
     width: 1.1in;
   }
   & > div:last-child {
@@ -90,15 +100,15 @@ const QrCodeContainer = styled.div`
       flex: 1;
       flex-direction: column;
       align-self: stretch;
-      font-size: 0.8rem;
+      font-size: 0.8em;
       & > div {
-        margin-bottom: 0.75rem;
+        margin-bottom: 0.9375em;
       }
       & > div:last-child {
         margin-bottom: 0;
       }
       & strong {
-        font-size: 1rem;
+        font-size: 1.25em;
         word-break: break-word;
       }
     }
@@ -109,11 +119,11 @@ const Content = styled.div`
 `;
 const BallotSelections = styled.div`
   columns: 2;
-  column-gap: 2rem;
+  column-gap: 2em;
 `;
 const Contest = styled.div`
-  border-bottom: 0.01rem solid #000000;
-  padding: 0.5rem 0;
+  border-bottom: 0.01em solid #000000;
+  padding: 0.5em 0;
   break-inside: avoid;
   page-break-inside: avoid;
 `;
