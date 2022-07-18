@@ -31,7 +31,12 @@ export const RectSchema: z.ZodSchema<Rect> = z.object({
   height: z.number(),
 });
 
-export type Corners = readonly [Point, Point, Point, Point];
+export type Corners = readonly [
+  topLeft: Point,
+  topRight: Point,
+  bottomLeft: Point,
+  bottomRight: Point
+];
 export const CornersSchema: z.ZodSchema<Corners> = z.tuple([
   PointSchema,
   PointSchema,
