@@ -1,6 +1,5 @@
 import React from 'react';
 import MockDate from 'mockdate';
-
 import {
   fireEvent,
   render,
@@ -33,28 +32,17 @@ import {
 } from '@votingworks/test-utils';
 import {
   AdminCardData,
-  ElectionDefinition,
   ExternalTallySourceType,
   PollworkerCardData,
   VotingMethod,
 } from '@votingworks/types';
-
 import { LogEventId } from '@votingworks/logging';
 import { CARD_POLLING_INTERVAL } from '@votingworks/ui';
-import {
-  configuredAtStorageKey,
-  cvrsStorageKey,
-  electionDefinitionStorageKey,
-  externalVoteTalliesFileStorageKey,
-} from './app_root';
 
-import { CastVoteRecordFiles } from './utils/cast_vote_record_files';
-
+import { externalVoteTalliesFileStorageKey } from './app_root';
 import { App } from './app';
-
 import { fakePrinter } from '../test/helpers/fake_printer';
 import { eitherNeitherElectionDefinition } from '../test/render_in_app_context';
-
 import { convertSemsFileToExternalTally } from './utils/sems_tallies';
 import {
   convertExternalTalliesToStorageString,
@@ -63,6 +51,7 @@ import {
 import { MachineConfig } from './config/types';
 import { VxFiles } from './lib/converters';
 import { areVvsg2AuthFlowsEnabled } from './config/features';
+import { createMemoryStorageWith } from '../test/util/create_memory_storage_with';
 
 const EITHER_NEITHER_CVR_DATA = electionWithMsEitherNeitherFixtures.cvrData;
 const EITHER_NEITHER_CVR_FILE = new File([EITHER_NEITHER_CVR_DATA], 'cvrs.txt');
@@ -143,34 +132,12 @@ afterEach(() => {
   MockDate.reset();
 });
 
-async function createMemoryStorageWith({
-  electionDefinition,
-  crvFile,
-}: {
-  electionDefinition: ElectionDefinition;
-  crvFile?: File;
-}) {
-  const storage = new MemoryStorage();
-  await storage.set(electionDefinitionStorageKey, electionDefinition);
-  if (crvFile) {
-    const castVoteRecordFiles = await CastVoteRecordFiles.empty.add(
-      crvFile,
-      electionDefinition.election
-    );
-    await storage.set(cvrsStorageKey, castVoteRecordFiles.export());
-  }
-  await storage.set(configuredAtStorageKey, new Date().toISOString());
-  return storage;
-}
-
 async function authenticateWithAdminCard(card: MemoryCard) {
   // Machine should be locked
   await screen.findByText('VxAdmin is Locked');
-  card.insertCard({
-    t: 'admin',
-    h: eitherNeitherElectionDefinition.electionHash,
-    p: '123456',
-  });
+  card.insertCard(
+    makeAdminCard(eitherNeitherElectionDefinition.electionHash, '123456')
+  );
   jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
   await screen.findByText('Enter the card security code to unlock.');
   fireEvent.click(screen.getByText('1'));
@@ -189,10 +156,7 @@ async function authenticateWithAdminCard(card: MemoryCard) {
 // implemented
 async function authenticateWithSuperAdminCard(card: MemoryCard) {
   await screen.findByText('VxAdmin is Locked');
-  card.insertCard({
-    t: 'superadmin',
-    h: eitherNeitherElectionDefinition.electionHash,
-  });
+  card.insertCard(makeSuperadminCard());
   jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
   await screen.findByText('Remove card to continue.');
   card.removeCard();
@@ -1246,104 +1210,11 @@ test('super admin Smartcards screen navigation', async () => {
   await authenticateWithSuperAdminCard(card);
 
   userEvent.click(screen.getByText('Smartcards'));
-  screen.getByRole('heading', { name: 'Election Cards' });
+  await screen.findByRole('heading', { name: 'Election Cards' });
   userEvent.click(screen.getByText('Create Super Admin Cards'));
-  screen.getByRole('heading', { name: 'Super Admin Cards' });
+  await screen.findByRole('heading', { name: 'Super Admin Cards' });
   userEvent.click(screen.getByText('Create Election Cards'));
-  screen.getByRole('heading', { name: 'Election Cards' });
-});
+  await screen.findByRole('heading', { name: 'Election Cards' });
 
-test('super admin smartcard modal', async () => {
-  jest.useFakeTimers();
-  mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => true);
-
-  const card = new MemoryCard();
-  const hardware = MemoryHardware.buildStandard();
-  const storage = await createMemoryStorageWith({
-    electionDefinition: eitherNeitherElectionDefinition,
-  });
-  render(<App card={card} hardware={hardware} storage={storage} />);
-  await authenticateWithSuperAdminCard(card);
-
-  let modal: HTMLElement;
-  const blankCard = undefined;
-  const programmedCard1 = makeAdminCard(
-    eitherNeitherElectionDefinition.electionHash
-  );
-  const programmedCard2 = makeSuperadminCard();
-
-  // The smartcard modal should open on any screen, not just the Smartcards screen
-  await screen.findByRole('heading', { name: 'Election Definition' });
-  card.insertCard(blankCard);
-  modal = await screen.findByRole('alertdialog');
-  within(modal).getByRole('heading', { name: 'Program Election Card' });
-  card.removeCard();
-  await waitFor(() =>
-    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
-  );
-  await screen.findByRole('heading', { name: 'Election Definition' });
-
-  card.insertCard(programmedCard1);
-  modal = await screen.findByRole('alertdialog');
-  within(modal).getByRole('heading', { name: 'Card Details' });
-  card.removeCard();
-  await waitFor(() =>
-    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
-  );
-  await screen.findByRole('heading', { name: 'Election Definition' });
-
-  card.insertCard(programmedCard2);
-  modal = await screen.findByRole('alertdialog');
-  within(modal).getByRole('heading', { name: 'Card Details' });
-  card.removeCard();
-  await waitFor(() =>
-    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
-  );
-  await screen.findByRole('heading', { name: 'Election Definition' });
-
-  userEvent.click(screen.getByText('Smartcards'));
-  userEvent.click(screen.getByText('Create Super Admin Cards'));
-  await screen.findByRole('heading', { name: 'Super Admin Cards' });
-  card.insertCard(blankCard);
-  modal = await screen.findByRole('alertdialog');
-  within(modal).getByRole('heading', { name: 'Program Super Admin Card' });
-  card.removeCard();
-  await waitFor(() =>
-    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
-  );
-  await screen.findByRole('heading', { name: 'Super Admin Cards' });
-
-  card.insertCard(programmedCard1);
-  modal = await screen.findByRole('alertdialog');
-  within(modal).getByRole('heading', { name: 'Card Details' });
-  card.removeCard();
-  await waitFor(() =>
-    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
-  );
-  await screen.findByRole('heading', { name: 'Super Admin Cards' });
-});
-
-test('super admin smartcard modal when no election', async () => {
-  jest.useFakeTimers();
-  mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => true);
-
-  const card = new MemoryCard();
-  const hardware = MemoryHardware.buildStandard();
-  const storage = new MemoryStorage();
-  render(<App card={card} hardware={hardware} storage={storage} />);
-  await authenticateWithSuperAdminCard(card);
-
-  const programmedCard = makeAdminCard(
-    eitherNeitherElectionDefinition.electionHash
-  );
-
-  await screen.findByRole('heading', { name: 'Configure VxAdmin' });
-  card.insertCard(programmedCard);
-  const modal = await screen.findByRole('alertdialog');
-  within(modal).getByRole('heading', { name: 'Card Details' });
-  card.removeCard();
-  await waitFor(() =>
-    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
-  );
-  await screen.findByRole('heading', { name: 'Configure VxAdmin' });
+  // The smartcard modal and smartcard programming flows are tested in smartcard_modal.test.tsx
 });
