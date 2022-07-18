@@ -1,7 +1,7 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 import { assert } from '@votingworks/utils';
-import { isSuperadminAuth, Modal, Prose } from '@votingworks/ui';
+import { isSuperadminAuth, Modal } from '@votingworks/ui';
 import { useLocation } from 'react-router-dom';
 
 import { AppContext } from '../../contexts/app_context';
@@ -9,6 +9,7 @@ import { CardDetailsView } from './card_details_view';
 import { ProgramElectionCardView } from './program_election_card_view';
 import { ProgramSuperAdminCardView } from './program_super_admin_card_view';
 import { routerPaths } from '../../router_paths';
+import { SmartcardActionStatus } from './status_message';
 
 const ModalContents = styled.div`
   padding: 1rem;
@@ -16,9 +17,16 @@ const ModalContents = styled.div`
 
 export function SmartcardModal(): JSX.Element | null {
   const { auth } = useContext(AppContext);
-  const location = useLocation();
-
   assert(isSuperadminAuth(auth));
+  const location = useLocation();
+  const [actionStatus, setActionStatus] = useState<SmartcardActionStatus>();
+
+  useEffect(() => {
+    // Clear the current status message when the card is removed
+    if (!auth.card) {
+      setActionStatus(undefined);
+    }
+  }, [auth.card]);
 
   // Auto-open the modal when a card is inserted, and auto-close the modal when a card is removed
   if (!auth.card) {
@@ -31,22 +39,31 @@ export function SmartcardModal(): JSX.Element | null {
 
   let contents: JSX.Element;
   if (auth.card.programmedUser) {
-    contents = <CardDetailsView card={auth.card} />;
+    contents = (
+      <CardDetailsView
+        actionStatus={actionStatus}
+        card={auth.card}
+        setActionStatus={setActionStatus}
+      />
+    );
   } else if (onSuperAdminSmartcardsScreen) {
-    contents = <ProgramSuperAdminCardView card={auth.card} />;
+    contents = (
+      <ProgramSuperAdminCardView
+        actionStatus={actionStatus}
+        card={auth.card}
+        setActionStatus={setActionStatus}
+      />
+    );
   } else {
-    contents = <ProgramElectionCardView card={auth.card} />;
+    contents = (
+      <ProgramElectionCardView
+        actionStatus={actionStatus}
+        card={auth.card}
+        setActionStatus={setActionStatus}
+      />
+    );
   }
   return (
-    <Modal
-      content={
-        <ModalContents>
-          <Prose maxWidth={false} textCenter>
-            {contents}
-          </Prose>
-        </ModalContents>
-      }
-      fullscreen
-    />
+    <Modal content={<ModalContents>{contents}</ModalContents>} fullscreen />
   );
 }
