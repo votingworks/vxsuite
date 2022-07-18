@@ -1,4 +1,7 @@
-import { getImageChannelCount } from '@votingworks/image-utils';
+import {
+  getImageChannelCount,
+  checkApproximatelyColinear,
+} from '@votingworks/image-utils';
 import {
   AnyContest,
   BallotPageContestLayout,
@@ -16,6 +19,17 @@ import { VisitedPoints } from '../utils/visited_points';
 import { findShape, parseRectangle, Shape } from './shapes';
 
 const debug = makeDebug('ballot-interpreter-vx:findContests');
+
+/**
+ * This error threshold is used to reject any contest boxes that are too
+ * stretched at the top or bottom, i.e. the top and bottom lines are far enough
+ * away from parallel that we're unlikely to correctly interpret the ballot.
+ *
+ * This value was chosen by trial and error. If you find a better value, please
+ * do update it. For reference, the top-right contest in
+ * marked-precinct-scanner-stretch-p2.jpeg has an error of ~1.5°.
+ */
+const MAXIMUM_CONTEST_TOP_BOTTOM_ANGLE_ERROR = (1.25 / 180) * Math.PI;
 
 export interface ContestShape {
   bounds: Rect;
@@ -257,7 +271,7 @@ export function findBallotLayoutCorrespondence(
   )) {
     const [templateTopLeft, templateTopRight, templateBottomLeft] =
       templateContest.corners;
-    const [ballotTopLeft, ballotTopRight, ballotBottomLeft] =
+    const [ballotTopLeft, ballotTopRight, ballotBottomLeft, ballotBottomRight] =
       ballotContest.corners;
     const templateContestWidth = euclideanDistance(
       templateTopLeft,
@@ -273,6 +287,31 @@ export function findBallotLayoutCorrespondence(
       ballotBottomLeft
     );
 
+    const ballotTopAngle = Math.atan2(
+      ballotTopRight.y - ballotTopLeft.y,
+      ballotTopRight.x - ballotTopLeft.x
+    );
+    const ballotBottomAngle = Math.atan2(
+      ballotBottomLeft.y - ballotBottomRight.y,
+      ballotBottomLeft.x - ballotBottomRight.x
+    );
+
+    if (
+      !checkApproximatelyColinear(
+        ballotTopAngle,
+        ballotBottomAngle,
+        MAXIMUM_CONTEST_TOP_BOTTOM_ANGLE_ERROR
+      )
+    ) {
+      debug('contest top and bottom lines are not colinear: %O', ballotContest);
+      mismatchedContests.push({
+        template: templateContest,
+        ballot: ballotContest,
+        definition,
+      });
+      continue;
+    }
+
     // The closer this value is to 1, the better the correspondence between the
     // template and the ballot contest shapes.
     const correspondence =
@@ -284,6 +323,10 @@ export function findBallotLayoutCorrespondence(
 
     // If the correspondence is too far from perfect, count it as a mismatch.
     if (correspondenceError > maxCorrespondenceError) {
+      debug(
+        'contest does not correspond properly with the template: %O',
+        ballotContest
+      );
       mismatchedContests.push({
         definition,
         template: templateContest,
