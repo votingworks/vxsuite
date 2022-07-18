@@ -10,6 +10,18 @@ interface SaveImagesResult {
   normalized: string;
 }
 
+/**
+ * Links {@link src} to {@link dest} if both paths are on the same file system,
+ * otherwise does a file copy.
+ */
+async function linkOrCopy(src: string, dest: string): Promise<void> {
+  try {
+    await fsExtra.link(src, dest);
+  } catch {
+    await fsExtra.copy(src, dest);
+  }
+}
+
 export async function saveImages(
   imagePath: string,
   originalImagePath: string,
@@ -18,7 +30,7 @@ export async function saveImages(
 ): Promise<SaveImagesResult> {
   if (imagePath !== originalImagePath) {
     debug('linking image file %s from %s', imagePath, originalImagePath);
-    await fsExtra.link(imagePath, originalImagePath);
+    await linkOrCopy(imagePath, originalImagePath);
   }
 
   if (normalizedImage) {
