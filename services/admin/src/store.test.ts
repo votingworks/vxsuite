@@ -102,14 +102,11 @@ test('getAdjudicationCountsGroupedByContestId', () => {
   ]);
 });
 
-test('addCvr throws when adding a CVR with duplicate ballotId', () => {
+test('addCvr returns null when trying to add a CVR with duplicate ballotId', () => {
   const store = Store.memoryStore();
-  const cvrFileId = addTestCvrFile(store);
-  store.addCvr('123', cvrFileId, 'test') as string;
-  expect(() => {
-    const nullCvrId = store.addCvr('123', cvrFileId, 'test');
-    expect(nullCvrId).toBeNull();
-  }).toThrowError('UNIQUE constraint failed: cvrs.ballot_id');
+  addTestCvr(store, { ballotId: '123' });
+  const nullCvrId = addTestCvr(store, { ballotId: '123' });
+  expect(nullCvrId).toBeNull();
 });
 
 test('getAllCvrs', () => {
@@ -124,6 +121,15 @@ test('getAllCvrFiles', () => {
   addTestCvrFile(store);
   addTestCvrFile(store);
   expect(store.getAllCvrFiles()).toHaveLength(2);
+});
+
+test('getCvrByAdjudicationId', () => {
+  const store = Store.memoryStore();
+  const cvrId = addTestCvr(store, { data: 'test' });
+  const adjudicationId = store.addAdjudication('mayor', cvrId, 'Mickey Mouse');
+  expect(store.getCvrByAdjudicationId(adjudicationId)).toMatchObject({
+    data: 'test',
+  });
 });
 
 test('getAllCvrBallotIds', () => {

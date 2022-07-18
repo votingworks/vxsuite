@@ -49,13 +49,13 @@ export class Store {
         data
       );
     } catch (err) {
-      /* istanbul ignore next */
       if (
         err instanceof SqliteError &&
         err.code === 'SQLITE_CONSTRAINT_UNIQUE'
       ) {
         return null;
       }
+      /* istanbul ignore next */
       throw err;
     }
     return id;
@@ -100,6 +100,17 @@ export class Store {
   getAllCvrFiles(): string[] {
     const rows = this.client.all('select * from cvr_files');
     return rows.map((r) => JSON.stringify(r)).filter(Boolean);
+  }
+
+  /**
+   * Gets CVR data by adjudication ID
+   */
+  getCvrByAdjudicationId(id: string): string | undefined {
+    const row = this.client.one(
+      'select data from cvrs inner join adjudications on adjudications.cvr_id = cvrs.id where adjudications.id = ? ',
+      id
+    ) as string | undefined;
+    return row;
   }
 
   getAllCvrBallotIds(): string[] {
