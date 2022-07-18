@@ -2,27 +2,8 @@ import { promises as fs } from 'fs';
 import { join } from 'path';
 import { tmpNameSync } from 'tmp';
 
+import { addTestCvr, addTestCvrFile } from './util/store';
 import { Store } from './store';
-
-function addTestCvrFile(store: Store): string {
-  const id = store.addCvrFile(
-    'abc',
-    'cvrs.jsonl',
-    '123',
-    ['123', 'abc'],
-    ['zoo'],
-    false
-  );
-  return id;
-}
-
-function addTestCvr(
-  store: Store,
-  { ballotId = '123', data = 'testCvrData' } = {}
-): string {
-  const id = store.addCvr(ballotId, addTestCvrFile(store), data) as string;
-  return id;
-}
 
 test('create a file store', async () => {
   const tmpDir = tmpNameSync();
