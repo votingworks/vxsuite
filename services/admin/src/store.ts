@@ -61,6 +61,9 @@ export class Store {
     return id;
   }
 
+  /*
+   * Adds a CVR file.
+   */
   addCvrFile(
     signature: string,
     filename: string,
