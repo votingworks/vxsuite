@@ -54,7 +54,7 @@ test('errors on start with no workspace', async () => {
       app,
       workspace: undefined,
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     assert(err instanceof Error);
     expect(err.message).toMatch(
       'workspace path could not be determined; pass a workspace or run with ADMIN_WORKSPACE'
