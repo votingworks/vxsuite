@@ -87,6 +87,27 @@ export class Store {
   }
 
   /**
+   * Gets all CVR file data
+   */
+  getAllCvrFiles(): string[] {
+    const rows = this.client.all('select * from cvr_files');
+    return rows.map((r) => JSON.stringify(r)).filter(Boolean);
+  }
+
+  updateCvrFileCounts(
+    id: string,
+    importedCvrCount: number,
+    duplicatedCvrCount: number
+  ): void {
+    this.client.run(
+      'update cvr_files set imported_cvr_count = ?, duplicated_cvr_count = ? WHERE id = ?',
+      importedCvrCount,
+      duplicatedCvrCount,
+      id
+    );
+  }
+
+  /**
    * Gets all CVRs
    */
   getAllCvrs(): string[] {
@@ -95,14 +116,6 @@ export class Store {
       data: string;
     }>;
     return rows.map((r) => r.data).filter(Boolean);
-  }
-
-  /**
-   * Gets all CVR file data
-   */
-  getAllCvrFiles(): string[] {
-    const rows = this.client.all('select * from cvr_files');
-    return rows.map((r) => JSON.stringify(r)).filter(Boolean);
   }
 
   /**

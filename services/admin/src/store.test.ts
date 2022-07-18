@@ -123,6 +123,17 @@ test('getAllCvrFiles', () => {
   expect(store.getAllCvrFiles()).toHaveLength(2);
 });
 
+test('updateCvrFileCounts', () => {
+  const store = Store.memoryStore();
+  const id = addTestCvrFile(store);
+  store.updateCvrFileCounts(id, 10, 20);
+  const cvrFile = store.getAllCvrFiles()[0] as string;
+  expect(JSON.parse(cvrFile)).toMatchObject({
+    imported_cvr_count: 10,
+    duplicated_cvr_count: 20,
+  });
+});
+
 test('getCvrByAdjudicationId', () => {
   const store = Store.memoryStore();
   const cvrId = addTestCvr(store, { data: 'test' });
