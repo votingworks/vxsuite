@@ -102,13 +102,6 @@ test('getAdjudicationCountsGroupedByContestId', () => {
   ]);
 });
 
-test('addCvr returns null when trying to add a CVR with duplicate ballotId', () => {
-  const store = Store.memoryStore();
-  addTestCvr(store, { ballotId: '123' });
-  const nullCvrId = addTestCvr(store, { ballotId: '123' });
-  expect(nullCvrId).toBeNull();
-});
-
 test('getAllCvrs', () => {
   const store = Store.memoryStore();
   addTestCvr(store, { ballotId: '123', data: 'abc' });

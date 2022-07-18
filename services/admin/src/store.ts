@@ -49,6 +49,9 @@ export class Store {
         data
       );
     } catch (err) {
+      // Ignoring this because for some reason, instanceof SqliteError does not behave
+      // predictably in jest, which makes testing this block challenging.
+      /* istanbul ignore next */
       if (
         err instanceof SqliteError &&
         err.code === 'SQLITE_CONSTRAINT_UNIQUE'
