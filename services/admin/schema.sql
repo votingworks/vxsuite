@@ -18,7 +18,6 @@ create table cvrs (
 	  on delete cascade
 );
 
-
 create table cvr_files (
 	id varchar(36) primary key,
 	signature text,
