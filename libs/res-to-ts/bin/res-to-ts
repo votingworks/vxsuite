@@ -9,7 +9,7 @@ require('../src/cli')
     stderr: process.stderr,
   })
   .then((code) => {
-    process.exit(code);
+    process.exitCode = code;
   })
   .catch((err) => {
     console.error(err.stack);
