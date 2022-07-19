@@ -17,7 +17,7 @@ export function buildApp({ store }: { store: Store }): Application {
   const app: Application = express();
 
   app.use(express.raw());
-  app.use(express.json({ limit: '5mb', type: 'application/json' }));
+  app.use(express.json({ limit: '50mb', type: 'application/json' }));
   app.use(express.urlencoded({ extended: false }));
 
   app.get<NoParams>('/admin/write-ins/cvrs/reset', (_, response) => {
