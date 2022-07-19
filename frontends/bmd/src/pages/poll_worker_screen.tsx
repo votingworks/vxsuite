@@ -568,13 +568,19 @@ export function PollWorkerScreen({
               <Prose textCenter id="modalaudiofocus">
                 {isPollsOpen ? (
                   <React.Fragment>
-                    <h1>Close Polls on VxScan</h1>
-                    <p>Close polls on VxScan first before closing VxMark.</p>
+                    <h1>No Polls Closed Report on Card</h1>
+                    <p>
+                      Close polls on VxScan to save the polls closed report
+                      before closing polls on VxMark.
+                    </p>
                   </React.Fragment>
                 ) : (
                   <React.Fragment>
-                    <h1>Open Polls on VxScan</h1>
-                    <p>Open polls on VxScan first before opening VxMark.</p>
+                    <h1>No Polls Opened Report on Card</h1>
+                    <p>
+                      Open polls on VxScan to save the polls opened report
+                      before opening polls on VxMark.
+                    </p>
                   </React.Fragment>
                 )}
               </Prose>
@@ -593,7 +599,7 @@ export function PollWorkerScreen({
                     setIsShowingVxScanPollsOpenModal(false);
                   }}
                 >
-                  {isPollsOpen ? 'Close Polls Now' : 'Open Polls Now'}
+                  {isPollsOpen ? 'Close VxMark Now' : 'Open VxMark Now'}
                 </Button>
               </React.Fragment>
             }

@@ -1279,15 +1279,15 @@ test('shows instructions to open/close polls on VxScan if no tally report on car
 
   // Should show the modal and not open/close polls
   expect(togglePollsOpen).not.toHaveBeenCalled();
-  screen.getByText('Open Polls on VxScan');
+  screen.getByText('No Polls Opened Report on Card');
 
   // Clicking Cancel closes the modal
   fireEvent.click(screen.getByText('Cancel'));
   screen.getByText('Open Polls for Center Springfield');
 
-  // Clicking Open Polls Now should open/close polls anyway
+  // Clicking Open VxMark Now should open/close polls anyway
   fireEvent.click(screen.getByText('Open Polls for Center Springfield'));
-  fireEvent.click(screen.getByText('Open Polls Now'));
+  fireEvent.click(screen.getByText('Open VxMark Now'));
   expect(togglePollsOpen).toHaveBeenCalled();
 });
 
