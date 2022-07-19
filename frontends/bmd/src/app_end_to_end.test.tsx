@@ -395,7 +395,7 @@ it('MarkAndPrint end-to-end flow', async () => {
   expect(writeLongUint8ArrayMock).toHaveBeenCalledTimes(3);
   await advanceTimersAndPromises();
   await screen.findByText('Polls Closed Report on Card');
-  fireEvent.click(screen.getByText('Print Polls Closed Report'));
+  fireEvent.click(screen.getByText('Close Polls and Print Report'));
   await advanceTimersAndPromises();
   screen.getByText('Printing polls closed report');
   await advanceTimersAndPromises(REPORT_PRINTING_TIMEOUT_SECONDS);

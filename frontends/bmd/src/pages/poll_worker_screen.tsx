@@ -215,8 +215,8 @@ function PrecinctScannerTallyReportModal({
           actions={
             <Button primary onPress={printReportAndTogglePolls}>
               {precinctScannerTally.isPollsOpen
-                ? 'Print Polls Opened Report'
-                : 'Print Polls Closed Report'}
+                ? 'Open Polls and Print Report'
+                : 'Close Polls and Print Report'}
             </Button>
           }
         />

@@ -148,7 +148,7 @@ function expectContestResultsInReport(
 
 async function printPollsClosedReport() {
   await screen.findByText('Polls Closed Report on Card');
-  fireEvent.click(screen.getByText('Print Polls Closed Report'));
+  fireEvent.click(screen.getByText('Close Polls and Print Report'));
 
   // check that print starts and finishes
   await screen.findByText('Printing polls closed report');
@@ -1243,7 +1243,7 @@ test('printing polls opened report clears card and opens the polls', async () =>
 
   // print report and open polls
   screen.getByText('Polls Opened Report on Card');
-  fireEvent.click(screen.getByText('Print Polls Opened Report'));
+  fireEvent.click(screen.getByText('Open Polls and Print Report'));
 
   // check that the print started
   await waitFor(() => {
@@ -1302,7 +1302,7 @@ test('printing polls closed report clears card and closes the polls', async () =
 
   // print report and close polls
   screen.getByText('Polls Closed Report on Card');
-  fireEvent.click(screen.getByText('Print Polls Closed Report'));
+  fireEvent.click(screen.getByText('Close Polls and Print Report'));
 
   // check that the print started
   await waitFor(() => {
