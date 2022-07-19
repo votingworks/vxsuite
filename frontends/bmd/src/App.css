@@ -80,7 +80,7 @@ html {
   html {
     background: #ffffff;
 
-    /* Adjust printed ballot font-size */
+    /* Adjust printed report font-size */
     font-size: 16px !important; /* stylelint-disable-line declaration-no-important */
   }
 }
@@ -121,7 +121,7 @@ html body .cvox_indicator_container {
   display: none !important; /* stylelint-disable-line declaration-no-important */
 }
 
-/* Adjust printed ballot paper settings */
+/* Adjust printed report paper settings */
 @page {
   margin: 0.375in;
   size: letter portrait;

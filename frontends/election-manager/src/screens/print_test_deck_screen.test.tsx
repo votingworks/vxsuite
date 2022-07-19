@@ -18,6 +18,7 @@ import {
   TWO_SIDED_PAGE_PRINT_TIME_MS,
 } from './print_test_deck_screen';
 import { renderInAppContext } from '../../test/render_in_app_context';
+import { loadBallotSealImages } from '../../test/util/load_ballot_seal_images';
 
 jest.mock('../components/hand_marked_paper_ballot');
 
@@ -64,6 +65,7 @@ test('Printing L&A package for one precinct', async () => {
   jest.advanceTimersByTime(ONE_SIDED_PAGE_PRINT_TIME_MS);
 
   await screen.findByText('Printing L&A Package for District 5');
+  loadBallotSealImages();
   await waitFor(() => expect(mockPrinter.print).toHaveBeenCalledTimes(2));
   expect(mockPrinter.print).toHaveBeenLastCalledWith({ sides: 'one-sided' });
   await waitFor(() =>
@@ -137,6 +139,7 @@ test('Printing L&A packages for all precincts', async () => {
 
     await screen.findByText(`Printing L&A Package for ${precinct}`);
     await screen.findByText(`This is package ${i + 1} of 13.`);
+    loadBallotSealImages();
     await waitFor(() =>
       expect(mockPrinter.print).toHaveBeenCalledTimes(3 * i + 2)
     );
@@ -208,6 +211,7 @@ test('Printing L&A package for one precinct, when HMPBs are not letter-size', as
 
   await screen.findByText('Printing L&A Package for District 5');
   await screen.findByText('Currently printing letter-size pages.');
+  loadBallotSealImages();
   await waitFor(() => expect(mockPrinter.print).toHaveBeenCalledTimes(2));
   expect(mockPrinter.print).toHaveBeenLastCalledWith({ sides: 'one-sided' });
   await waitFor(() =>
@@ -296,6 +300,7 @@ test('Printing L&A packages for all precincts, when HMPBs are not letter-size', 
     await screen.findByText(`Printing L&A Package for ${precinct}`);
     await screen.findByText(`This is package ${i + 1} of 13.`);
     await screen.findByText('Currently printing letter-size pages.');
+    loadBallotSealImages();
     await waitFor(() =>
       expect(mockPrinter.print).toHaveBeenCalledTimes(2 * i + 2)
     );
