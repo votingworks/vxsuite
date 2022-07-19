@@ -146,6 +146,16 @@ test('GET /admin/write-ins/adjudications/:contestId/', async () => {
     ]);
 });
 
+test('GET /admin/write-ins/adjudications/counts', async () => {
+  workspace.store.getAdjudicationCountsByContestIdAndTranscribedValue =
+    jest.fn();
+
+  await request(app).get('/admin/write-ins/adjudications/counts').expect(200);
+  expect(
+    workspace.store.getAdjudicationCountsByContestIdAndTranscribedValue
+  ).toHaveBeenCalled();
+});
+
 test('GET /admin/write-ins/adjudications/contestId/count', async () => {
   await request(app)
     .get('/admin/write-ins/adjudications/contestId/count')
