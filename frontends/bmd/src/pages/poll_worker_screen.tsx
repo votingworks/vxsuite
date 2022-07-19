@@ -644,15 +644,15 @@ export function PollWorkerScreen({
             }
           />
         )}
-        {pollworkerCardHasTally && (
-          <PrecinctScannerTallyReportModal
-            pollworkerAuth={pollworkerAuth}
-            electionDefinition={electionDefinition}
-            machineConfig={machineConfig}
-            printer={printer}
-          />
-        )}
       </Screen>
+      {pollworkerCardHasTally && (
+        <PrecinctScannerTallyReportModal
+          pollworkerAuth={pollworkerAuth}
+          electionDefinition={electionDefinition}
+          machineConfig={machineConfig}
+          printer={printer}
+        />
+      )}
     </React.Fragment>
   );
 }
