@@ -17,7 +17,13 @@ import {
   YesNoContestCompressedTally,
 } from '@votingworks/types';
 
-import { fireEvent, screen, waitFor, within } from '@testing-library/react';
+import {
+  fireEvent,
+  screen,
+  waitFor,
+  waitForElementToBeRemoved,
+  within,
+} from '@testing-library/react';
 import {
   TallySourceMachineType,
   PrecinctScannerCardTally,
@@ -140,6 +146,18 @@ function expectContestResultsInReport(
   }
 }
 
+async function printPollsClosedReport() {
+  await screen.findByText('Polls Closed Report on Card');
+  fireEvent.click(screen.getByText('Print Polls Closed Report'));
+
+  // check that print starts and finishes
+  await screen.findByText('Printing polls closed report');
+  jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
+  await waitForElementToBeRemoved(() =>
+    screen.queryByText('Printing polls closed report')
+  );
+}
+
 test('renders PollWorkerScreen', () => {
   renderScreen();
   screen.getByText(/Polls are currently open./);
@@ -176,9 +194,7 @@ test('live mode on election day', () => {
   expect(screen.queryByText('Switch to Live Election Mode?')).toBeNull();
 });
 
-test('printing precinct scanner report works as expected with all precinct data for general election', async () => {
-  const printFn = jest.fn();
-
+test('precinct scanner report populated as expected with all precinct data for general election', async () => {
   const existingTally = getZeroCompressedTally(electionSampleWithSeal);
   // add tallies to the president contest
   existingTally[0] = typedAs<CandidateContestWithoutWriteInsCompressedTally>([
@@ -206,29 +222,14 @@ test('printing precinct scanner report works as expected with all precinct data 
   renderScreen({
     pollworkerAuth,
     isLiveMode: true,
-    isPollsOpen: false,
+    isPollsOpen: true,
     machineConfig: fakeMachineConfig({
       appMode: PrintOnly,
       machineId: '314',
     }),
-    printer: { ...fakePrinter(), print: printFn },
   });
 
-  await screen.findByText('Tally Report on Card');
-  fireEvent.click(screen.getByText('Print Tally Report'));
-
-  // check that the print started
-  await waitFor(() => {
-    expect(printFn).toHaveBeenCalledTimes(1);
-  });
-
-  // wait for the print to finish
-  jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
-
-  // check that the tallies are cleared
-  await waitFor(() => {
-    expect(pollworkerAuth.card.clearStoredData).toHaveBeenCalledTimes(1);
-  });
+  await printPollsClosedReport();
 
   const allPrecinctsReports = screen.getAllByTestId(
     'tally-report-undefined-undefined'
@@ -255,10 +256,8 @@ test('printing precinct scanner report works as expected with all precinct data 
   expect(within(senatorContest).getAllByText('0')).toHaveLength(7); // All 7 candidates should have 0 totals
 });
 
-test('printing precinct scanner report works as expected with single precinct data for general election', async () => {
+test('precinct scanner report populated as expected with single precinct data for general election', async () => {
   const election = electionSampleWithSeal;
-  const printFn = jest.fn();
-
   const existingTally = getZeroCompressedTally(election);
   // add tallies to the president contest
   existingTally[0] = typedAs<CandidateContestWithoutWriteInsCompressedTally>([
@@ -293,29 +292,14 @@ test('printing precinct scanner report works as expected with single precinct da
   renderScreen({
     pollworkerAuth,
     isLiveMode: true,
-    isPollsOpen: false,
+    isPollsOpen: true,
     machineConfig: fakeMachineConfig({
       appMode: PrintOnly,
       machineId: '314',
     }),
-    printer: { ...fakePrinter(), print: printFn },
   });
 
-  await screen.findByText('Tally Report on Card');
-  fireEvent.click(screen.getByText('Print Tally Report'));
-
-  // check that the print started
-  await waitFor(() => {
-    expect(printFn).toHaveBeenCalledTimes(1);
-  });
-
-  // wait for the print to finish
-  jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
-
-  // check that the tallies are cleared
-  await waitFor(() => {
-    expect(pollworkerAuth.card.clearStoredData).toHaveBeenCalledTimes(1);
-  });
+  await printPollsClosedReport();
 
   const centerSpringfieldReports = screen.getAllByTestId(
     'tally-report-undefined-23'
@@ -346,9 +330,8 @@ test('printing precinct scanner report works as expected with single precinct da
   expect(within(senatorContest).getAllByText('0')).toHaveLength(7); // All 7 candidates should have 0 totals
 });
 
-test('printing precinct scanner report works as expected with all precinct specific data for general election', async () => {
+test('precinct scanner report populated as expected with all precinct specific data for general election', async () => {
   const election = electionSampleWithSeal;
-  const printFn = jest.fn();
 
   const centerSpringfield = getZeroCompressedTally(election);
   const northSpringfield = getZeroCompressedTally(election);
@@ -409,29 +392,14 @@ test('printing precinct scanner report works as expected with all precinct speci
   renderScreen({
     pollworkerAuth,
     isLiveMode: true,
-    isPollsOpen: false,
+    isPollsOpen: true,
     machineConfig: fakeMachineConfig({
       appMode: PrintOnly,
       machineId: '314',
     }),
-    printer: { ...fakePrinter(), print: printFn },
   });
 
-  await screen.findByText('Tally Report on Card');
-  fireEvent.click(screen.getByText('Print Tally Report'));
-
-  // check that the print started
-  await waitFor(() => {
-    expect(printFn).toHaveBeenCalledTimes(1);
-  });
-
-  // wait for the print to finish
-  jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
-
-  // check that the tallies are cleared
-  await waitFor(() => {
-    expect(pollworkerAuth.card.clearStoredData).toHaveBeenCalledTimes(1);
-  });
+  await printPollsClosedReport();
 
   const centerSpringfieldReports = screen.getAllByTestId(
     'tally-report-undefined-23'
@@ -503,9 +471,8 @@ test('printing precinct scanner report works as expected with all precinct speci
   );
 });
 
-test('printing precinct scanner report works as expected with all precinct specific data for primary election', async () => {
+test('precinct scanner report populated as expected with all precinct specific data for primary election', async () => {
   const electionDefinition = electionMinimalExhaustiveSampleDefinition;
-  const printFn = jest.fn();
 
   const combinedTally: CompressedTally = [
     // best animal mammal
@@ -651,29 +618,14 @@ test('printing precinct scanner report works as expected with all precinct speci
       precinctId: 'precinct-1',
     },
     isLiveMode: true,
-    isPollsOpen: false,
+    isPollsOpen: true,
     machineConfig: fakeMachineConfig({
       appMode: PrintOnly,
       machineId: '314',
     }),
-    printer: { ...fakePrinter(), print: printFn },
   });
 
-  await screen.findByText('Tally Report on Card');
-  fireEvent.click(screen.getByText('Print Tally Report'));
-
-  // check that the print started
-  await waitFor(() => {
-    expect(printFn).toHaveBeenCalledTimes(1);
-  });
-
-  // wait for the print to finish
-  jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
-
-  // check that the tallies are cleared
-  await waitFor(() => {
-    expect(pollworkerAuth.card.clearStoredData).toHaveBeenCalledTimes(1);
-  });
+  await printPollsClosedReport();
 
   // Check that the expected results are on the tally report for Precinct 1 Mammal Party
   const precinct1MammalReports = screen.getAllByTestId(
@@ -865,9 +817,8 @@ test('printing precinct scanner report works as expected with all precinct speci
   );
 });
 
-test('printing precinct scanner report works as expected with all precinct combined data for primary election', async () => {
+test('precinct scanner report populated as expected with all precinct combined data for primary election', async () => {
   const electionDefinition = electionMinimalExhaustiveSampleDefinition;
-  const printFn = jest.fn();
 
   const combinedTally: CompressedTally = [
     // best animal mammal
@@ -936,29 +887,14 @@ test('printing precinct scanner report works as expected with all precinct combi
       precinctId: 'precinct-1',
     },
     isLiveMode: true,
-    isPollsOpen: false,
+    isPollsOpen: true,
     machineConfig: fakeMachineConfig({
       appMode: PrintOnly,
       machineId: '314',
     }),
-    printer: { ...fakePrinter(), print: printFn },
   });
 
-  await screen.findByText('Tally Report on Card');
-  fireEvent.click(screen.getByText('Print Tally Report'));
-
-  // check that the print started
-  await waitFor(() => {
-    expect(printFn).toHaveBeenCalledTimes(1);
-  });
-
-  // wait for the print to finish
-  jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
-
-  // check that the tallies are cleared
-  await waitFor(() => {
-    expect(pollworkerAuth.card.clearStoredData).toHaveBeenCalledTimes(1);
-  });
+  await printPollsClosedReport();
 
   // Check that the expected results are on the tally report for Precinct 1 Mammal Party
   const allPrecinctMammalReports = screen.getAllByTestId(
@@ -1060,9 +996,8 @@ test('printing precinct scanner report works as expected with all precinct combi
   );
 });
 
-test('printing precinct scanner report works as expected with a single precinct for primary election', async () => {
+test('precinct scanner report populated as expected with a single precinct for primary election', async () => {
   const electionDefinition = electionMinimalExhaustiveSampleDefinition;
-  const printFn = jest.fn();
 
   const combinedTally: CompressedTally = [
     // best animal mammal
@@ -1130,29 +1065,14 @@ test('printing precinct scanner report works as expected with a single precinct 
       precinctId: 'precinct-1',
     },
     isLiveMode: true,
-    isPollsOpen: false,
+    isPollsOpen: true,
     machineConfig: fakeMachineConfig({
       appMode: PrintOnly,
       machineId: '314',
     }),
-    printer: { ...fakePrinter(), print: printFn },
   });
 
-  await screen.findByText('Tally Report on Card');
-  fireEvent.click(screen.getByText('Print Tally Report'));
-
-  // check that the print started
-  await waitFor(() => {
-    expect(printFn).toHaveBeenCalledTimes(1);
-  });
-
-  // wait for the print to finish
-  jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
-
-  // check that the tallies are cleared
-  await waitFor(() => {
-    expect(pollworkerAuth.card.clearStoredData).toHaveBeenCalledTimes(1);
-  });
+  await printPollsClosedReport();
 
   // Check that the expected results are on the tally report for Precinct 1 Mammal Party
   const allPrecinctMammalReports = screen.getAllByTestId(
@@ -1291,7 +1211,59 @@ test('shows instructions to open/close polls on VxScan if no tally report on car
   expect(togglePollsOpen).toHaveBeenCalled();
 });
 
-test('open/close polls opens and closes the polls if there is a tally report on the pollworker card', () => {
+test('printing polls opened report clears card and opens the polls', async () => {
+  const printFn = jest.fn();
+  const togglePollsOpen = jest.fn();
+
+  const tallyOnCard: PrecinctScannerCardTally = {
+    tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
+    tally: getZeroCompressedTally(electionSampleWithSeal),
+    totalBallotsScanned: 0,
+    machineId: '001',
+    timeSaved: new Date('2020-10-31').getTime(),
+    precinctSelection: { kind: PrecinctSelectionKind.AllPrecincts },
+    isLiveMode: false,
+    isPollsOpen: true,
+    ballotCounts: {},
+  };
+  const pollworkerAuth = fakePollworkerAuth(
+    electionSampleWithSealDefinition,
+    tallyOnCard
+  );
+
+  renderScreen({
+    pollworkerAuth,
+    isPollsOpen: false,
+    togglePollsOpen,
+    printer: { ...fakePrinter(), print: printFn },
+  });
+
+  // confirm we start with polls closed
+  await screen.findByText(/Polls are currently closed./);
+
+  // print report and open polls
+  screen.getByText('Polls Opened Report on Card');
+  fireEvent.click(screen.getByText('Print Polls Opened Report'));
+
+  // check that the print started
+  await waitFor(() => {
+    expect(printFn).toHaveBeenCalledTimes(1);
+  });
+
+  // wait for the print to finish
+  jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
+
+  // check that the tallies are cleared
+  await waitFor(() => {
+    expect(pollworkerAuth.card.clearStoredData).toHaveBeenCalledTimes(1);
+  });
+
+  // check that polls were opened
+  expect(togglePollsOpen).toHaveBeenCalledTimes(1);
+});
+
+test('printing polls closed report clears card and closes the polls', async () => {
+  const printFn = jest.fn();
   const togglePollsOpen = jest.fn();
 
   const existingTally = getZeroCompressedTally(electionSampleWithSeal);
@@ -1320,10 +1292,33 @@ test('open/close polls opens and closes the polls if there is a tally report on 
 
   renderScreen({
     pollworkerAuth,
-    isPollsOpen: false,
+    isPollsOpen: true,
     togglePollsOpen,
+    printer: { ...fakePrinter(), print: printFn },
   });
 
-  fireEvent.click(screen.getByText('Open Polls for Center Springfield'));
-  expect(togglePollsOpen).toHaveBeenCalled();
+  // confirm we start with polls open
+  await screen.findByText(/Polls are currently open./);
+
+  // print report and close polls
+  screen.getByText('Polls Closed Report on Card');
+  fireEvent.click(screen.getByText('Print Polls Closed Report'));
+
+  // check that the print started
+  await waitFor(() => {
+    expect(printFn).toHaveBeenCalledTimes(1);
+  });
+
+  screen.getByText('Printing polls closed report');
+
+  // wait for the print to finish
+  jest.advanceTimersByTime(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
+
+  // check that the tallies are cleared
+  await waitFor(() => {
+    expect(pollworkerAuth.card.clearStoredData).toHaveBeenCalledTimes(1);
+  });
+
+  // check that polls were closed
+  expect(togglePollsOpen).toHaveBeenCalledTimes(1);
 });
