@@ -120,11 +120,15 @@ function PrecinctScannerTallyReportModal({
   pollworkerAuth,
   printer,
   machineConfig,
+  isPollsOpen,
+  togglePollsOpen,
 }: {
   electionDefinition: ElectionDefinition;
   pollworkerAuth: InsertedSmartcardAuth.PollworkerLoggedIn;
   printer: Printer;
   machineConfig: MachineConfig;
+  isPollsOpen: boolean;
+  togglePollsOpen: () => void;
 }) {
   const [precinctScannerTally, setPrecinctScannerTally] =
     useState<PrecinctScannerCardTally>();
@@ -153,12 +157,22 @@ function PrecinctScannerTallyReportModal({
       parties
     );
 
-  async function printReport() {
+  function togglePollsToMatchReport() {
+    if (
+      precinctScannerTally &&
+      precinctScannerTally.isPollsOpen !== isPollsOpen
+    ) {
+      togglePollsOpen();
+    }
+  }
+
+  async function printReportAndTogglePolls() {
     setIsPrinting(true);
     try {
       await printer.print({ sides: 'one-sided' });
       await sleep(REPORT_PRINTING_TIMEOUT_SECONDS * 1000);
       await pollworkerAuth.card.clearStoredData();
+      togglePollsToMatchReport();
     } finally {
       setIsPrinting(false);
       setPrecinctScannerTally(undefined);
@@ -177,19 +191,33 @@ function PrecinctScannerTallyReportModal({
         <Modal
           content={
             <Prose id="modalaudiofocus">
-              <h1>Tally Report on Card</h1>
-              <p>
-                This poll worker card contains a tally report. The report will
-                be cleared from the card after being printed.
-              </p>
+              {precinctScannerTally.isPollsOpen ? (
+                <React.Fragment>
+                  <h1>Polls Opened Report on Card</h1>
+                  <p>
+                    This poll worker card contains a polls opened report. After
+                    printing, the report will be cleared from the card and the
+                    polls will be opened on VxMark.
+                  </p>
+                </React.Fragment>
+              ) : (
+                <React.Fragment>
+                  <h1>Polls Closed Report on Card</h1>
+                  <p>
+                    This poll worker card contains a polls closed report. After
+                    printing, the report will be cleared from the card and the
+                    polls will be closed on VxMark.
+                  </p>
+                </React.Fragment>
+              )}
             </Prose>
           }
           actions={
-            <React.Fragment>
-              <Button primary onPress={printReport}>
-                Print Tally Report
-              </Button>
-            </React.Fragment>
+            <Button primary onPress={printReportAndTogglePolls}>
+              {precinctScannerTally.isPollsOpen
+                ? 'Open Polls and Print Report'
+                : 'Close Polls and Print Report'}
+            </Button>
           }
         />
       )}
@@ -197,7 +225,11 @@ function PrecinctScannerTallyReportModal({
         <Modal
           content={
             <Prose textCenter id="modalaudiofocus">
-              <Loading>Printing tally report</Loading>
+              <Loading>
+                {precinctScannerTally.isPollsOpen
+                  ? 'Printing polls opened report'
+                  : 'Printing polls closed report'}
+              </Loading>
             </Prose>
           }
         />
@@ -367,14 +399,6 @@ export function PollWorkerScreen({
     setIsConfirmingEnableLiveMode(false);
   }
 
-  function handleTogglePollsOpen() {
-    if (pollworkerCardHasTally) {
-      togglePollsOpen();
-    } else {
-      setIsShowingVxScanPollsOpenModal(true);
-    }
-  }
-
   if (hasVotes && pollworkerAuth.activatedCardlessVoter) {
     return (
       <Screen>
@@ -540,7 +564,11 @@ export function PollWorkerScreen({
               )}
             </Text>
             <p>
-              <Button primary large onPress={handleTogglePollsOpen}>
+              <Button
+                primary
+                large
+                onPress={() => setIsShowingVxScanPollsOpenModal(true)}
+              >
                 {isPollsOpen
                   ? `Close Polls for ${precinctName}`
                   : `Open Polls for ${precinctName}`}
@@ -651,6 +679,8 @@ export function PollWorkerScreen({
           electionDefinition={electionDefinition}
           machineConfig={machineConfig}
           printer={printer}
+          isPollsOpen={isPollsOpen}
+          togglePollsOpen={togglePollsOpen}
         />
       )}
     </React.Fragment>
