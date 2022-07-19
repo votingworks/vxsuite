@@ -182,6 +182,12 @@ test('GET /admin/write-ins/cvr-ballot-ids', async () => {
   expect(workspace.store.getAllCvrBallotIds).toHaveBeenCalled();
 });
 
+test('GET /admin/write-ins/cvrs', async () => {
+  workspace.store.getAllCvrs = jest.fn();
+  await request(app).get('/admin/write-ins/cvrs').expect(200);
+  expect(workspace.store.getAllCvrs).toHaveBeenCalled();
+});
+
 test('POST /admin/write-ins/cvrs', async () => {
   const cvrFileId = '2';
   workspace.store.addCvr = jest.fn().mockImplementationOnce(() => '1');

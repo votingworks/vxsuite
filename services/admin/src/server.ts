@@ -35,6 +35,11 @@ export function buildApp({ store }: { store: Store }): Application {
     response.json(ballotIds);
   });
 
+  app.get<NoParams>('/admin/write-ins/cvrs', (_, response) => {
+    const cvrs = store.getAllCvrs();
+    response.json(cvrs);
+  });
+
   app.get('/admin/write-ins/adjudication/:id', (request, response) => {
     const { id } = request.params;
 
