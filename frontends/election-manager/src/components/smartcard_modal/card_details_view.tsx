@@ -1,16 +1,163 @@
-import React from 'react';
-import { Button } from '@votingworks/ui';
-import { CardProgramming } from '@votingworks/types';
+import React, { useContext, useState } from 'react';
+import styled from 'styled-components';
+import { assert, format } from '@votingworks/utils';
+import { Button, Prose, Table } from '@votingworks/ui';
+import { CardProgramming, ElectionDefinition, User } from '@votingworks/types';
 
-interface Props {
-  card: CardProgramming;
+import { AppContext } from '../../contexts/app_context';
+import { generatePin } from './pins';
+import { SmartcardActionStatus, StatusMessage } from './status_message';
+import { UnprogramCardConfirmationModal } from './unprogram_card_confirmation_modal';
+import { userRoleToReadableString } from './user_roles';
+
+const CardDetailsTable = styled(Table)`
+  margin: auto;
+  width: auto;
+  min-width: 25%;
+`;
+
+function checkDoesCardElectionHashMatchMachineElectionHash(
+  programmedUser: User,
+  electionDefinition: ElectionDefinition
+): boolean {
+  if (!('electionHash' in programmedUser)) {
+    return false;
+  }
+  return programmedUser.electionHash === electionDefinition.electionHash;
 }
 
-export function CardDetailsView({ card }: Props): JSX.Element {
+interface Props {
+  actionStatus?: SmartcardActionStatus;
+  card: CardProgramming;
+  setActionStatus: (status?: SmartcardActionStatus) => void;
+}
+
+export function CardDetailsView({
+  actionStatus,
+  card,
+  setActionStatus,
+}: Props): JSX.Element {
+  const { programmedUser } = card;
+  assert(programmedUser);
+  const { electionDefinition } = useContext(AppContext);
+  const [
+    isUnprogramCardConfirmationModalOpen,
+    setIsUnprogramCardConfirmationModalOpen,
+  ] = useState(false);
+
+  const { role } = programmedUser;
+  const doesCardElectionHashMatchMachineElectionHash =
+    electionDefinition &&
+    checkDoesCardElectionHashMatchMachineElectionHash(
+      programmedUser,
+      electionDefinition
+    );
+  const cardJustProgrammed =
+    actionStatus?.action === 'Program' && actionStatus?.status === 'Success';
+
+  async function resetCardPin() {
+    if (!electionDefinition) {
+      return;
+    }
+    setActionStatus({
+      action: 'PinReset',
+      role,
+      status: 'InProgress',
+    });
+    const result = await card.programUser({
+      role: 'admin',
+      electionData: electionDefinition.electionData,
+      electionHash: electionDefinition.electionHash,
+      passcode: generatePin(),
+    });
+    setActionStatus({
+      action: 'PinReset',
+      role,
+      status: result.isOk() ? 'Success' : 'Error',
+    });
+  }
+
+  function openUnprogramCardConfirmationModal() {
+    setIsUnprogramCardConfirmationModalOpen(true);
+  }
+
+  function closeUnprogramCardConfirmationModal() {
+    setIsUnprogramCardConfirmationModalOpen(false);
+  }
+
+  let electionDisplayString = 'Unknown';
+  if (doesCardElectionHashMatchMachineElectionHash) {
+    const { election } = electionDefinition;
+    const electionDateFormatted = format.localeWeekdayAndDate(
+      new Date(election.date)
+    );
+    electionDisplayString = `${election.title} — ${electionDateFormatted}`;
+  } else if (role === 'superadmin') {
+    electionDisplayString = 'N/A';
+  }
+
   return (
-    <React.Fragment>
+    <Prose textCenter>
       <h2>Card Details</h2>
-      <Button onPress={() => card.unprogramUser()}>Unprogram</Button>
-    </React.Fragment>
+      {/* An empty div to maintain space between the header and subsequent p. TODO: Consider adding
+        a `maintainSpaceBelowHeaders` prop to `Prose` */}
+      <div />
+      {actionStatus && (
+        <StatusMessage
+          actionStatus={actionStatus}
+          programmedUser={programmedUser}
+        />
+      )}
+      <CardDetailsTable>
+        <thead>
+          <tr>
+            <th>Role</th>
+            <th>Election</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{userRoleToReadableString(role)}</td>
+            <td>{electionDisplayString}</td>
+          </tr>
+        </tbody>
+      </CardDetailsTable>
+      <p>Remove card to leave this screen.</p>
+      {'passcode' in programmedUser &&
+        // If the card is from a prior election, no need to display PIN resetting. Unprogramming is
+        // the only meaningful action in this case
+        doesCardElectionHashMatchMachineElectionHash && (
+          <p>
+            <Button disabled={cardJustProgrammed} onPress={resetCardPin}>
+              Reset Card PIN
+            </Button>
+          </p>
+        )}
+      {/* Don't allow unprogramming super admin cards to ensure election officials don't get
+        accidentally locked out. Likewise prevent unprogramming when there's no election definition
+        on the machine since cards can't be programmed in this state */}
+      {(role === 'admin' || role === 'pollworker') && electionDefinition && (
+        <React.Fragment>
+          <p>
+            <Button
+              danger={doesCardElectionHashMatchMachineElectionHash}
+              onPress={openUnprogramCardConfirmationModal}
+              primary={!doesCardElectionHashMatchMachineElectionHash}
+            >
+              Unprogram Card
+            </Button>
+          </p>
+          {isUnprogramCardConfirmationModalOpen && (
+            <UnprogramCardConfirmationModal
+              actionStatus={actionStatus}
+              card={card}
+              closeModal={closeUnprogramCardConfirmationModal}
+              programmedUserRole={role}
+              setActionStatus={setActionStatus}
+            />
+          )}
+        </React.Fragment>
+      )}
+    </Prose>
   );
 }
