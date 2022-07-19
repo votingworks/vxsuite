@@ -170,6 +170,12 @@ test('GET /admin/write-ins/reset', async () => {
   expect(workspace.store.deleteCvrs).toHaveBeenCalled();
 });
 
+test('GET /admin/write-ins/cvr-files', async () => {
+  workspace.store.getAllCvrFiles = jest.fn();
+  await request(app).get('/admin/write-ins/cvr-files').expect(200);
+  expect(workspace.store.getAllCvrFiles).toHaveBeenCalled();
+});
+
 test('POST /admin/write-ins/cvrs', async () => {
   const cvrFileId = '2';
   workspace.store.addCvr = jest.fn().mockImplementationOnce(() => '1');

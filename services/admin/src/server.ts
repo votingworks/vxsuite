@@ -25,6 +25,11 @@ export function buildApp({ store }: { store: Store }): Application {
     response.status(200).json({ status: 'ok' });
   });
 
+  app.get<NoParams>('/admin/write-ins/cvr-files', (_, response) => {
+    const cvrFiles = store.getAllCvrFiles();
+    response.json(cvrFiles);
+  });
+
   app.get('/admin/write-ins/adjudication/:id', (request, response) => {
     const { id } = request.params;
 
