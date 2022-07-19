@@ -12,7 +12,9 @@ export interface PostCvrsRequest {
   precinctIds: string[];
   scannerIds: string[];
   timestamp: string;
-  castVoteRecords: any[]; // TODO TV: This should be CastVoteRecord
+  // TODO: this should not be any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  castVoteRecords?: any;
 }
 
 /**
@@ -25,7 +27,7 @@ export const PostCvrsRequestSchema: z.ZodSchema<PostCvrsRequest> = z.object({
   precinctIds: z.array(z.string()),
   scannerIds: z.array(z.string()),
   timestamp: z.string(),
-  castVoteRecords: z.array(z.any()),
+  castVoteRecords: z.any(),
 });
 
 /**
