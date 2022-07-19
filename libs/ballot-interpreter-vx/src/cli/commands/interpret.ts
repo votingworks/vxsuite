@@ -78,9 +78,9 @@ export function printHelp(
     `${$0} interpret -e election.json -f json template*.png ballot*.png\n`
   );
   out.write(`\n`);
-  out.write(chalk.gray(`# Specify image metadata (file:metdata-file).\n`));
+  out.write(chalk.gray(`# Specify image metadata (file:metadata-file).\n`));
   out.write(
-    `${$0} interpret -e election.json template1.png:template1-metadata.json template2.png:template2-metdata.json ballot1.png:ballot1-metadata.json\n`
+    `${$0} interpret -e election.json template1.png:template1-metadata.json template2.png:template2-metadata.json ballot1.png:ballot1-metadata.json\n`
   );
   out.write(`\n`);
   out.write(chalk.gray(`# Set an explicit minimum mark score (0-1).\n`));
