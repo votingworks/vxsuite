@@ -198,6 +198,19 @@ test('GET /admin/write-ins/cvrs', async () => {
   expect(workspace.store.getAllCvrs).toHaveBeenCalled();
 });
 
+test('GET /admin/write-ins/adjudication/:id/cvr', async () => {
+  jest
+    .spyOn(workspace.store, 'getCvrByAdjudicationId')
+    .mockImplementationOnce(() => {
+      return 'test CVR';
+    })
+    .mockImplementationOnce(() => {
+      return undefined;
+    });
+  await request(app).get('/admin/write-ins/adjudication/1/cvr').expect(200);
+  await request(app).get('/admin/write-ins/adjudication/2/cvr').expect(404);
+});
+
 test('POST /admin/write-ins/cvrs', async () => {
   const cvrFileId = '2';
   workspace.store.addCvr = jest.fn().mockImplementationOnce(() => '1');
