@@ -47,7 +47,6 @@ function renderScreen({
         isPollsOpen={isPollsOpen}
         togglePollsOpen={jest.fn()}
         getCvrsFromExport={jest.fn().mockResolvedValue([])}
-        saveTallyToCard={jest.fn()}
         isLiveMode
         hasPrinterAttached={false}
         printer={new NullPrinter()}
