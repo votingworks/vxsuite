@@ -68,7 +68,7 @@ export function buildApp({ store }: { store: Store }): Application {
         castVoteRecords,
       } = bodyParseResult.ok();
       const isTestMode =
-        castVoteRecords.filter((cvr: any) => cvr._testBallot === true).length >
+        castVoteRecords.some((cvr: any) => cvr._testBallot === true)
         0;
       const fileId = store.addCvrFile(
         signature,
