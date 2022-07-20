@@ -13,9 +13,51 @@ test('stretched precinct scanner ballot', async () => {
     await interpreter.interpretTemplate(await fixtures.blankPage2AsImageData())
   );
 
-  await expect(async () => {
-    await interpreter.interpretBallot(
-      await fixtures.markedPrecinctScannerStretchPage2AsImageData()
-    );
-  }).rejects.toThrow();
+  expect(
+    (
+      await interpreter.interpretBallot(
+        await fixtures.markedPrecinctScannerStretchPage2AsImageData()
+      )
+    ).ballot.votes
+  ).toMatchInlineSnapshot(`
+    Object {
+      "board-of-alderman": Array [
+        Object {
+          "id": "steve-jobs",
+          "name": "Steve Jobs",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        Object {
+          "id": "pablo-picasso",
+          "name": "Pablo Picasso",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+      ],
+      "city-council": Array [
+        Object {
+          "id": "mark-antony",
+          "name": "Mark Antony",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "marilyn-monroe",
+          "name": "Marilyn Monroe",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        Object {
+          "id": "write-in-0",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+      ],
+    }
+  `);
 });

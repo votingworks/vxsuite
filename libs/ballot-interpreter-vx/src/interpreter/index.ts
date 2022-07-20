@@ -624,19 +624,12 @@ export class Interpreter {
     template: ImageData,
     ballot: ImageData,
     target: TargetShape,
-    {
-      zeroScoreThreshold = 0,
-      highScoreThreshold = 0.25,
-      maximumCorrectionPixelsX = 2,
-      maximumCorrectionPixelsY = 2,
-    } = {}
+    { maximumCorrectionPixelsX = 5, maximumCorrectionPixelsY = 5 } = {}
   ): { offset: Offset; score: number } {
     debug(
-      'computing target mark score for target at (x=%d, y=%d) with zero threshold %d and high threshold %d',
+      'computing target mark score for target at (x=%d, y=%d)',
       target.inner.x,
-      target.inner.y,
-      zeroScoreThreshold,
-      highScoreThreshold
+      target.inner.y
     );
 
     let bestMatchNewTemplatePixels: number | undefined;
