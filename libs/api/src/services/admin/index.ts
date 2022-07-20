@@ -1,8 +1,4 @@
-import {
-  // CastVoteRecordSchema,
-  ContestId,
-  ContestIdSchema,
-} from '@votingworks/types';
+import { CastVoteRecord, ContestId, ContestIdSchema } from '@votingworks/types';
 import * as z from 'zod';
 import { ErrorsResponse, ErrorsResponseSchema, OkResponse } from '../../base';
 
@@ -11,7 +7,12 @@ import { ErrorsResponse, ErrorsResponseSchema, OkResponse } from '../../base';
  * @method POST
  */
 export interface PostCvrsRequest {
-  files?: any;
+  signature: string;
+  name: string;
+  precinctIds: string[];
+  scannerIds: string[];
+  timestamp: string;
+  castVoteRecords: CastVoteRecord[];
 }
 
 /**
@@ -19,7 +20,12 @@ export interface PostCvrsRequest {
  * @method POST
  */
 export const PostCvrsRequestSchema: z.ZodSchema<PostCvrsRequest> = z.object({
-  files: z.any(),
+  signature: z.string(),
+  name: z.string(),
+  precinctIds: z.array(z.string()),
+  scannerIds: z.array(z.string()),
+  timestamp: z.string(),
+  castVoteRecords: z.array(z.any()), // TODO https://github.com/votingworks/vxsuite/issues/2168
 });
 
 /**

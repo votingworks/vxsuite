@@ -1,10 +1,12 @@
 import { fakeLogger } from '@votingworks/logging';
-import { assert } from '@votingworks/utils';
+import { assert, typedAs } from '@votingworks/utils';
+import { Admin } from '@votingworks/api';
 import { Application } from 'express';
 import request from 'supertest';
 import { dirSync } from 'tmp';
 import { Server } from 'http';
 import { buildApp, start } from './server';
+import { addTestCvr } from '../test/util/store';
 import { createWorkspace, Workspace } from './util/workspace';
 
 let app: Application;
@@ -65,7 +67,7 @@ test('errors on start with no workspace', async () => {
 test('GET /admin/write-ins/adjudication/:id', async () => {
   // id param not in DB
   await request(app).get('/admin/write-ins/adjudication/1').expect(404);
-  const cvrId = workspace.store.addCvr('test data');
+  const cvrId = addTestCvr(workspace.store);
 
   // Valid request
   const id = workspace.store.addAdjudication('mayor', cvrId);
@@ -78,7 +80,7 @@ test('GET /admin/write-ins/adjudication/:id', async () => {
 
 test('PATCH /admin/write-ins/adjudications/:adjudicationId/transcription', async () => {
   workspace.store.updateAdjudicationTranscribedValue = jest.fn();
-  const cvrId = workspace.store.addCvr('test data');
+  const cvrId = addTestCvr(workspace.store);
 
   // Invalid request
   await request(app)
@@ -108,7 +110,7 @@ test('GET /admin/write-ins/adjudications/:contestId/', async () => {
     .get('/admin/write-ins/adjudications/mayor/')
     .expect(200, []);
 
-  const cvrId = workspace.store.addCvr('test');
+  const cvrId = addTestCvr(workspace.store);
   const adjudicationId = workspace.store.addAdjudication(
     'mayor',
     cvrId,
@@ -150,7 +152,7 @@ test('GET /admin/write-ins/adjudications/contestId/count', async () => {
     .get('/admin/write-ins/adjudications/contestId/count')
     .expect(200, []);
 
-  const cvrId = workspace.store.addCvr('test');
+  const cvrId = addTestCvr(workspace.store);
   workspace.store.addAdjudication('mayor', cvrId, 'Minnie Mouse');
   workspace.store.addAdjudication('mayor', cvrId, 'Goofy');
   workspace.store.addAdjudication('county-commissioner', cvrId, 'Daffy');
@@ -163,14 +165,18 @@ test('GET /admin/write-ins/adjudications/contestId/count', async () => {
 });
 
 test('GET /admin/write-ins/reset', async () => {
-  workspace.store.deleteCvrs = jest.fn();
+  workspace.store.deleteCvrsAndCvrFiles = jest.fn();
 
   await request(app).get('/admin/write-ins/cvrs/reset').expect(200);
-  expect(workspace.store.deleteCvrs).toHaveBeenCalled();
+  expect(workspace.store.deleteCvrsAndCvrFiles).toHaveBeenCalled();
 });
 
 test('POST /admin/write-ins/cvrs', async () => {
+  const cvrFileId = '2';
   workspace.store.addCvr = jest.fn().mockImplementationOnce(() => '1');
+  workspace.store.addCvrFile = jest
+    .fn()
+    .mockImplementationOnce(() => cvrFileId);
   workspace.store.addAdjudication = jest.fn();
 
   const cvrs = [
@@ -202,39 +208,62 @@ test('POST /admin/write-ins/cvrs', async () => {
     },
   ];
 
-  // TODO: re-enable this, see note in server.ts
-  // Invalid request
-  // await request(app)
-  //   .post('/admin/write-ins/cvrs')
-  //   .set('Accept', 'application/json')
-  //   .expect(400);
-  // expect(workspace.store.addCvr).not.toHaveBeenCalled();
+  const reqParams: Admin.PostCvrsRequest = {
+    signature: 'abc',
+    name: 'test.jsonl',
+    precinctIds: ['abc', '123'],
+    scannerIds: ['1', '2'],
+    timestamp: '12345678',
+    castVoteRecords: [],
+  };
+
+  await request(app)
+    .post('/admin/write-ins/cvrs')
+    .set('Accept', 'application/json')
+    .expect(400);
+  expect(workspace.store.addCvr).not.toHaveBeenCalled();
+  expect(workspace.store.addCvrFile).not.toHaveBeenCalled();
 
   // Valid request with no CVRs
   await request(app)
     .post('/admin/write-ins/cvrs')
     .set('Accept', 'application/json')
-    .send({ files: [] })
-    .expect(200, { status: 'ok' });
-  expect(workspace.store.addCvr).not.toBeCalled();
+    .send(reqParams)
+    .expect(
+      200,
+      typedAs<Admin.PostCvrsResponse>({
+        status: 'ok',
+        importedCvrCount: 0,
+        duplicateCvrCount: 0,
+        isTestMode: false,
+      })
+    );
+  expect(workspace.store.addCvr).not.toHaveBeenCalled();
+  expect(workspace.store.addCvrFile).toHaveBeenCalledTimes(1);
 
   // Valid request with CVRs
   await request(app)
     .post('/admin/write-ins/cvrs')
     .set('Accept', 'application/json')
-    .send({ files: [{ allCastVoteRecords: cvrs }] })
-    .expect(200, { status: 'ok' });
-  expect(workspace.store.addCvr).toBeCalledTimes(2);
+    .send({ ...reqParams, castVoteRecords: cvrs })
+    .expect(
+      200,
+      typedAs({
+        status: 'ok',
+        importedCvrCount: 2,
+        duplicateCvrCount: 0,
+        isTestMode: true,
+      })
+    );
   expect(workspace.store.addAdjudication).toBeCalledTimes(1);
-  expect(workspace.store.addCvr).toHaveBeenLastCalledWith(
-    JSON.stringify(cvrs[1])
-  );
+  expect(workspace.store.addCvr).toBeCalledTimes(2);
+  expect(workspace.store.addCvrFile).toBeCalledTimes(2);
 });
 
 test('GET /admin/write-ins/transcribed-values', async () => {
   await request(app).get('/admin/write-ins/transcribed-values').expect(200, []);
 
-  const cvrId = workspace.store.addCvr('test');
+  const cvrId = addTestCvr(workspace.store);
 
   workspace.store.addAdjudication('mayor', cvrId, 'Mickey Mouse');
   workspace.store.addAdjudication('county-commissioner', cvrId, 'Daffy');

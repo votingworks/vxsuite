@@ -21,7 +21,7 @@ export function buildApp({ store }: { store: Store }): Application {
   app.use(express.urlencoded({ extended: false }));
 
   app.get<NoParams>('/admin/write-ins/cvrs/reset', (_, response) => {
-    store.deleteCvrs();
+    store.deleteCvrsAndCvrFiles();
     response.status(200).json({ status: 'ok' });
   });
 
@@ -36,6 +36,8 @@ export function buildApp({ store }: { store: Store }): Application {
     }
   });
 
+  /* TODO: #2153 */
+  /* istanbul ignore next */
   app.post<NoParams, Admin.PostCvrsResponse, Admin.PostCvrsRequest>(
     '/admin/write-ins/cvrs',
     (request, response) => {
@@ -57,24 +59,62 @@ export function buildApp({ store }: { store: Store }): Application {
         return;
       }
 
-      const { files } = bodyParseResult.ok();
-      for (const f of files) {
-        for (const cvr of f.allCastVoteRecords) {
-          const cvrId = store.addCvr(JSON.stringify(cvr));
-          for (const [key, value] of Object.entries(cvr)) {
-            if (Array.isArray(value)) {
-              const contestId = key;
-              const votes = value as ContestOptionId[];
-              for (const vote of votes) {
-                if (vote.startsWith('write-in')) {
-                  store.addAdjudication(contestId, cvrId);
-                }
+      const {
+        signature,
+        name,
+        precinctIds,
+        scannerIds,
+        timestamp,
+        castVoteRecords,
+      } = bodyParseResult.ok();
+      const isTestMode = castVoteRecords.some(
+        (cvr: any) => cvr._testBallot === true
+      );
+      const fileId = store.addCvrFile(
+        signature,
+        name,
+        timestamp,
+        scannerIds,
+        precinctIds,
+        isTestMode
+      );
+      let duplicateCvrCount = 0;
+      for (const cvr of castVoteRecords) {
+        // This should never happen, we assume every CVR has a ballot ID.
+        // Maybe ultimately we should make CastVoteRecord._ballotId required?
+        if (!cvr._ballotId) {
+          return;
+        }
+        const cvrId = store.addCvr(cvr._ballotId, fileId, JSON.stringify(cvr));
+        if (cvrId === null) {
+          // This was a duplicate cvr.
+          duplicateCvrCount += 1;
+          continue;
+        }
+        for (const [key, value] of Object.entries(cvr)) {
+          if (Array.isArray(value) && !key.startsWith('_')) {
+            const contestId = key;
+            const votes = value as ContestOptionId[];
+            for (const vote of votes) {
+              if (vote.startsWith('write-in')) {
+                store.addAdjudication(contestId, cvrId);
               }
             }
           }
         }
       }
-      response.json({ status: 'ok' });
+
+      store.updateCvrFileCounts(
+        fileId,
+        castVoteRecords.length - duplicateCvrCount,
+        duplicateCvrCount
+      );
+      response.json({
+        status: 'ok',
+        importedCvrCount: castVoteRecords.length - duplicateCvrCount,
+        duplicateCvrCount,
+        isTestMode,
+      });
     }
   );
 

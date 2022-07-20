@@ -3,6 +3,7 @@
 //
 
 import { Adjudication, ContestId } from '@votingworks/types';
+import { SqliteError } from 'better-sqlite3';
 import { join } from 'path';
 import { v4 as uuid } from 'uuid';
 import { DbClient } from './db_client';
@@ -37,17 +38,115 @@ export class Store {
   /**
    * Adds a CVR and returns its id.
    */
-  addCvr(data: string): string {
+  addCvr(ballotId: string, fileId: string, data: string): string | null {
     const id = uuid();
-    this.client.run('insert into cvrs (id, data) values (?, ?)', id, data);
+    try {
+      this.client.run(
+        'insert into cvrs (id, ballot_id, imported_by_file, data) values (?, ?, ?, ?)',
+        id,
+        ballotId,
+        fileId,
+        data
+      );
+    } catch (err) {
+      // Ignoring this because for some reason, instanceof SqliteError does not behave
+      // predictably in jest, which makes testing this block challenging.
+      /* istanbul ignore next */
+      if (
+        err instanceof SqliteError &&
+        err.code === 'SQLITE_CONSTRAINT_UNIQUE'
+      ) {
+        return null;
+      }
+      /* istanbul ignore next */
+      throw err;
+    }
     return id;
+  }
+
+  /*
+   * Adds a CVR file.
+   */
+  addCvrFile(
+    signature: string,
+    filename: string,
+    exportTimestamp: string,
+    scannerIds: string[],
+    precinctIds: string[],
+    containsTestModeCvrs: boolean
+  ): string {
+    const id = uuid();
+    this.client.run(
+      'insert into cvr_files (id, signature, filename, timestamp, scanner_ids, precinct_ids, contains_test_mode_cvrs) values (?, ?, ?, ?, ?, ?, ?)',
+      id,
+      signature,
+      filename,
+      exportTimestamp,
+      scannerIds.join(','),
+      precinctIds.join(','),
+      containsTestModeCvrs.toString()
+    );
+    return id;
+  }
+
+  /**
+   * Gets all CVR file data
+   */
+  getAllCvrFiles(): string[] {
+    const rows = this.client.all('select * from cvr_files');
+    return rows.map((r) => JSON.stringify(r));
+  }
+
+  updateCvrFileCounts(
+    id: string,
+    importedCvrCount: number,
+    duplicatedCvrCount: number
+  ): void {
+    this.client.run(
+      'update cvr_files set imported_cvr_count = ?, duplicated_cvr_count = ? WHERE id = ?',
+      importedCvrCount,
+      duplicatedCvrCount,
+      id
+    );
+  }
+
+  /**
+   * Gets all CVRs
+   */
+  getAllCvrs(): string[] {
+    // TODO(CARO) remove image data?
+    const rows = this.client.all('select data from cvrs') as Array<{
+      data: string;
+    }>;
+    return rows.map((r) => r.data).filter(Boolean);
+  }
+
+  /**
+   * Gets CVR data by adjudication ID
+   */
+  getCvrByAdjudicationId(id: string): string | undefined {
+    const row = this.client.one(
+      'select data from cvrs inner join adjudications on adjudications.cvr_id = cvrs.id where adjudications.id = ? ',
+      id
+    ) as string | undefined;
+    return row;
+  }
+
+  getAllCvrBallotIds(): string[] {
+    const rows = this.client.all(
+      'select ballot_id as ballotId from cvrs'
+    ) as Array<{
+      ballotId: string;
+    }>;
+    return rows.map((r) => r.ballotId).filter(Boolean);
   }
 
   /**
    * Delete all CVRs
    */
-  deleteCvrs(): void {
+  deleteCvrsAndCvrFiles(): void {
     this.client.run('delete from cvrs');
+    this.client.run('delete from cvr_files');
   }
 
   /**
@@ -114,6 +213,25 @@ export class Store {
       'select id, contest_id as contestId, cvr_id as cvrId, transcribed_value as transcribedValue from adjudications where contest_id = ?',
       contestId
     ) as Adjudication[];
+
+    return rows;
+  }
+
+  /**
+   * Get adjudications grouped by contestId and transcribedValue.
+   */
+  getAdjudicationCountsByContestIdAndTranscribedValue(): Array<{
+    contestId: ContestId;
+    transcribedValue: string;
+    adjudicationCount: number;
+  }> {
+    const rows = this.client.all(
+      'select contest_id as contestId, transcribed_value as transcribedValue, count(*) as adjudicationCount from adjudications group by contest_id, transcribed_value order by contest_id, count(*) desc'
+    ) as Array<{
+      contestId: ContestId;
+      transcribedValue: string;
+      adjudicationCount: number;
+    }>;
 
     return rows;
   }
