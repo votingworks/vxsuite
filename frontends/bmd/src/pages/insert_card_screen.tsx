@@ -54,8 +54,7 @@ export function InsertCardScreen({
           </p>
           {isPollsOpen ? (
             <React.Fragment>
-              <h1 aria-hidden>Insert Card</h1>
-              <p>Insert voter card to load ballot.</p>
+              <h1>Insert Card</h1>
             </React.Fragment>
           ) : (
             <React.Fragment>

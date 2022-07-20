@@ -95,7 +95,7 @@ describe('Mark Card Void when voter is idle too long', () => {
     // Remove card
     card.removeCard();
     await advanceTimersAndPromises();
-    screen.getByText('Insert voter card to load ballot.');
+    screen.getByText('Insert Card');
   });
 
   test('Reset ballot when idle voter times out when cardless voting', async () => {
@@ -165,11 +165,11 @@ describe('Mark Card Void when voter is idle too long', () => {
     advanceTimers(secondsRemaining);
 
     // Insert voter card screen is displayed.
-    screen.getByText('Insert voter card to load ballot.');
+    screen.getByText('Insert Card');
 
     // Card read again has no impact.
     await advanceTimersAndPromises();
-    screen.getByText('Insert voter card to load ballot.');
+    screen.getByText('Insert Card');
   });
 
   test('Reset ballot when card write does not match card read.', async () => {

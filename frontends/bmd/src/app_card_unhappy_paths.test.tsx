@@ -72,7 +72,7 @@ test('Display App Card Unhappy Paths', async () => {
   // Remove card
   card.removeCard();
   await advanceTimersAndPromises();
-  screen.getByText('Insert voter card to load ballot.');
+  screen.getByText('Insert Card');
 
   // ---------------
 
@@ -84,7 +84,7 @@ test('Display App Card Unhappy Paths', async () => {
   // Remove card
   card.removeCard();
   await advanceTimersAndPromises();
-  screen.getByText('Insert voter card to load ballot.');
+  screen.getByText('Insert Card');
 
   // ---------------
 
@@ -96,7 +96,7 @@ test('Display App Card Unhappy Paths', async () => {
   // Remove card
   card.removeCard();
   await advanceTimersAndPromises();
-  screen.getByText('Insert voter card to load ballot.');
+  screen.getByText('Insert Card');
 
   // ---------------
 
@@ -141,7 +141,7 @@ test('Display App Card Unhappy Paths', async () => {
   // Remove card
   card.removeCard();
   await advanceTimersAndPromises();
-  screen.getByText('Insert voter card to load ballot.');
+  screen.getByText('Insert Card');
 
   // Reinsert expired card
   card.insertCard(makeExpiredVoterCard());
@@ -151,7 +151,7 @@ test('Display App Card Unhappy Paths', async () => {
   // Remove Card
   card.removeCard();
   await advanceTimersAndPromises();
-  screen.getByText('Insert voter card to load ballot.');
+  screen.getByText('Insert Card');
 
   // ---------------
 });
