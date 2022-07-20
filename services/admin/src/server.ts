@@ -80,6 +80,11 @@ export function buildApp({ store }: { store: Store }): Application {
       );
       let duplicateCvrCount = 0;
       for (const cvr of castVoteRecords) {
+        // This should never happen, we assume every CVR has a ballot ID.
+        // Maybe ultimately we should make CastVoteRecord._ballotId required?
+        if (!cvr._ballotId) {
+          return;
+        }
         const cvrId = store.addCvr(cvr._ballotId, fileId, JSON.stringify(cvr));
         if (cvrId === null) {
           // This was a duplicate cvr.
