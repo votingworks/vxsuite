@@ -10,6 +10,7 @@ import {
   Provider,
   CastVoteRecord,
   PrecinctId,
+  ElectionDefinition,
 } from '@votingworks/types';
 import {
   useCancelablePromise,
@@ -90,26 +91,30 @@ interface HardwareState {
   machineConfig: Readonly<MachineConfig>;
 }
 
+interface ScannerConfigState {
+  isScannerConfigLoaded: boolean;
+  electionDefinition?: ElectionDefinition;
+  isTestMode: boolean;
+  currentPrecinctId?: PrecinctId;
+}
+
+interface SharedState {
+  scannedBallotCount: number;
+  ballotState: BallotState;
+  timeoutToInsertScreen?: number;
+  isStatusPollingEnabled: boolean;
+  isPollsOpen: boolean;
+  initializedFromStorage: boolean;
+}
+
 interface ScanInformationState {
   adjudicationReasonInfo: AdjudicationReasonInfo[];
   rejectionReason?: RejectedScanningReason;
 }
 
-interface SharedState {
-  electionDefinition: OptionalElectionDefinition;
-  isScannerConfigured: boolean;
-  isTestMode: boolean;
-  scannedBallotCount: number;
-  ballotState: BallotState;
-  timeoutToInsertScreen?: number;
-  isStatusPollingEnabled: boolean;
-  currentPrecinctId?: PrecinctId;
-  isPollsOpen: boolean;
-  initializedFromStorage: boolean;
-}
-
 export interface State
   extends HardwareState,
+    ScannerConfigState,
     SharedState,
     ScanInformationState {}
 
@@ -120,14 +125,17 @@ const initialHardwareState: Readonly<HardwareState> = {
   },
 };
 
-const initialSharedState: Readonly<SharedState> = {
+const initialScannerConfigState: Readonly<ScannerConfigState> = {
+  isScannerConfigLoaded: false,
   electionDefinition: undefined,
-  isScannerConfigured: false,
   isTestMode: false,
+  currentPrecinctId: undefined,
+};
+
+const initialSharedState: Readonly<SharedState> = {
   scannedBallotCount: 0,
   ballotState: BallotState.IDLE,
   isStatusPollingEnabled: true,
-  currentPrecinctId: undefined,
   isPollsOpen: false,
   initializedFromStorage: false,
 };
@@ -139,6 +147,7 @@ const initialScanInformationState: Readonly<ScanInformationState> = {
 
 const initialAppState: Readonly<State> = {
   ...initialHardwareState,
+  ...initialScannerConfigState,
   ...initialSharedState,
   ...initialScanInformationState,
 };
@@ -146,7 +155,6 @@ const initialAppState: Readonly<State> = {
 // Sets State.
 type AppAction =
   | { type: 'initializeAppState'; isPollsOpen: boolean }
-  | { type: 'unconfigureScanner' }
   | { type: 'resetPollsToClosed' }
   | {
       type: 'updateElectionDefinition';
@@ -154,7 +162,7 @@ type AppAction =
     }
   | {
       type: 'refreshConfigFromScanner';
-      electionDefinition: OptionalElectionDefinition;
+      electionDefinition?: ElectionDefinition;
       isTestMode: boolean;
       currentPrecinctId?: PrecinctId;
     }
@@ -221,15 +229,9 @@ function appReducer(state: State, action: AppAction): State {
         electionDefinition: action.electionDefinition,
         currentPrecinctId: action.currentPrecinctId,
         isTestMode: action.isTestMode,
-        isScannerConfigured: true,
+        isScannerConfigLoaded: true,
       };
     }
-    case 'unconfigureScanner':
-      return {
-        ...state,
-        isScannerConfigured: false,
-        isPollsOpen: false,
-      };
     case 'ballotScanning':
       return {
         ...state,
@@ -315,7 +317,7 @@ export function AppRoot({
   const [appState, dispatchAppState] = useReducer(appReducer, initialAppState);
   const {
     electionDefinition,
-    isScannerConfigured,
+    isScannerConfigLoaded,
     ballotState,
     timeoutToInsertScreen,
     isStatusPollingEnabled,
@@ -556,7 +558,6 @@ export function AppRoot({
   useEffect(() => {
     if (
       precinctScanner &&
-      isScannerConfigured &&
       electionDefinition &&
       isPollsOpen &&
       auth.status === 'logged_out' &&
@@ -567,13 +568,7 @@ export function AppRoot({
       endBallotStatusPolling();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    precinctScanner,
-    isScannerConfigured,
-    electionDefinition,
-    isPollsOpen,
-    auth,
-  ]);
+  }, [precinctScanner, electionDefinition, isPollsOpen, auth]);
 
   const setElectionDefinition = useCallback(
     async (newElectionDefinition: OptionalElectionDefinition) => {
@@ -630,9 +625,6 @@ export function AppRoot({
         await refreshConfig();
       } catch (e) {
         debug('failed to initialize:', e);
-        dispatchAppState({
-          type: 'unconfigureScanner',
-        });
         endBallotStatusPolling();
         window.setTimeout(initializeScanner, 1000);
       }
@@ -723,7 +715,7 @@ export function AppRoot({
     return <SetupScannerScreen />;
   }
 
-  if (!isScannerConfigured) {
+  if (!isScannerConfigLoaded) {
     return <LoadingConfigurationScreen />;
   }
 
