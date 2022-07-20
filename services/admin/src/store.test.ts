@@ -133,7 +133,7 @@ test('deleteCvrs', () => {
   expect(store.getAdjudicationsByContestId('mayor')).toHaveLength(1);
 
   // Deleting CVRs also deletes the associated adjudications and CVR files
-  store.deleteCvrs();
+  store.deleteCvrsAndCvrFiles();
   expect(store.getAllCvrFiles()).toHaveLength(0);
   expect(store.getAdjudicationsByContestId('mayor')).toHaveLength(0);
 });

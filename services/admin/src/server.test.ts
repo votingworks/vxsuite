@@ -164,10 +164,10 @@ test('GET /admin/write-ins/adjudications/contestId/count', async () => {
 });
 
 test('GET /admin/write-ins/reset', async () => {
-  workspace.store.deleteCvrs = jest.fn();
+  workspace.store.deleteCvrsAndCvrFiles = jest.fn();
 
   await request(app).get('/admin/write-ins/cvrs/reset').expect(200);
-  expect(workspace.store.deleteCvrs).toHaveBeenCalled();
+  expect(workspace.store.deleteCvrsAndCvrFiles).toHaveBeenCalled();
 });
 
 test('POST /admin/write-ins/cvrs', async () => {

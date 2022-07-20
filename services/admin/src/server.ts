@@ -21,7 +21,7 @@ export function buildApp({ store }: { store: Store }): Application {
   app.use(express.urlencoded({ extended: false }));
 
   app.get<NoParams>('/admin/write-ins/cvrs/reset', (_, response) => {
-    store.deleteCvrs();
+    store.deleteCvrsAndCvrFiles();
     response.status(200).json({ status: 'ok' });
   });
 
