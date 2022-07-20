@@ -1,11 +1,12 @@
 import {
+  Debugger,
   getImageChannelCount,
+  noDebug,
   otsu,
   rotate180,
 } from '@votingworks/image-utils';
 import { assert } from '@votingworks/utils';
 import { decodeTimingMarkBits, getSearchInset } from '../accuvote';
-import { Debugger, noDebug } from '../debug';
 import {
   BestFitLineSegmentResult,
   computeTimingMarkGrid,

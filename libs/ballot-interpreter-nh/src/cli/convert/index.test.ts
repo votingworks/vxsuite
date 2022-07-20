@@ -23,6 +23,7 @@ jest.mock('../../images', (): typeof import('../../images') => ({
 jest.mock(
   '@votingworks/image-utils',
   (): Partial<typeof import('@votingworks/image-utils')> => ({
+    imageDebugger: jest.fn(),
     loadImage: jest.fn(),
     toImageData: jest.fn().mockReturnValue(createImageData(1, 1)),
   })

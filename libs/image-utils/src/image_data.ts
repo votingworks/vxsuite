@@ -1,13 +1,57 @@
+import { err, ok, Result } from '@votingworks/types';
 import { deferred } from '@votingworks/utils';
 import {
   createCanvas,
+  createImageData,
   Image,
   ImageData,
   loadImage as canvasLoadImage,
 } from 'canvas';
 import { createWriteStream } from 'fs';
+import { extname } from 'path';
 import { assertInteger } from './numeric';
 import { int, usize } from './types';
+
+/**
+ * Error kinds that can occur during image processing.
+ */
+export enum ImageProcessingErrorKind {
+  UnsupportedChannelCount = 'UnsupportedChannelCount',
+  UnsupportedImageFormat = 'UnsupportedImageFormat',
+  WriteError = 'WriteError',
+}
+
+/**
+ * Error that occurs when an image has an unexpected number of channels.
+ */
+export interface UnsupportedChannelCountError {
+  readonly kind: ImageProcessingErrorKind.UnsupportedChannelCount;
+  readonly channelCount: int;
+}
+
+/**
+ * Error that occurs when an image has an unsupported format.
+ */
+export interface UnsupportedImageFormatError {
+  readonly kind: ImageProcessingErrorKind.UnsupportedImageFormat;
+  readonly format: string;
+}
+
+/**
+ * Error that occurs when writing an image to disk.
+ */
+export interface WriteError {
+  readonly kind: ImageProcessingErrorKind.WriteError;
+  readonly error: Error;
+}
+
+/**
+ * Errors that can occur during image processing.
+ */
+export type ImageProcessingError =
+  | UnsupportedChannelCountError
+  | UnsupportedImageFormatError
+  | WriteError;
 
 /**
  * The number of channels a grayscale image has (1).
@@ -58,27 +102,46 @@ export async function loadImage(path: string): Promise<Image> {
 export async function writeImageData(
   path: string,
   image: ImageData
-): Promise<void> {
+): Promise<Result<void, ImageProcessingError>> {
   const canvas = createCanvas(image.width, image.height);
   const ctx = canvas.getContext('2d');
   ctx.putImageData(image, 0, 0);
 
-  const { promise, resolve, reject } = deferred<void>();
+  const { promise, resolve } = deferred<Result<void, ImageProcessingError>>();
 
   if (path.endsWith('.png')) {
     canvas
       .createPNGStream()
       .pipe(createWriteStream(path))
-      .on('finish', resolve)
-      .on('error', reject);
+      .on('finish', () => resolve(ok()))
+      .on('error', (error) =>
+        resolve(
+          err({
+            kind: ImageProcessingErrorKind.WriteError,
+            error,
+          })
+        )
+      );
   } else if (path.endsWith('.jpg') || path.endsWith('.jpeg')) {
     canvas
       .createJPEGStream()
       .pipe(createWriteStream(path))
-      .on('finish', resolve)
-      .on('error', reject);
+      .on('finish', () => resolve(ok()))
+      .on('error', (error) =>
+        resolve(
+          err({
+            kind: ImageProcessingErrorKind.WriteError,
+            error,
+          })
+        )
+      );
   } else {
-    throw new Error(`Unsupported image format: ${path}`);
+    resolve(
+      err({
+        kind: ImageProcessingErrorKind.UnsupportedImageFormat,
+        format: extname(path),
+      })
+    );
   }
 
   return promise;
@@ -107,4 +170,36 @@ export function toImageData(
 
   context.drawImage(image, 0, 0, width, height);
   return context.getImageData(0, 0, width, height);
+}
+
+/**
+ * Converts an image to an RGBA image.
+ */
+export function toRgba(
+  imageData: ImageData
+): Result<ImageData, ImageProcessingError> {
+  if (isRgba(imageData)) {
+    return ok(imageData);
+  }
+
+  if (isGrayscale(imageData)) {
+    const data = new Uint8ClampedArray(imageData.data.length * 4);
+    for (
+      let sourceIndex = 0, destIndex = 0;
+      sourceIndex < imageData.data.length;
+      sourceIndex += 1, destIndex += 4
+    ) {
+      const lum = imageData.data[sourceIndex] as number;
+      data[destIndex] = lum;
+      data[destIndex + 1] = lum;
+      data[destIndex + 2] = lum;
+      data[destIndex + 3] = 255;
+    }
+    return ok(createImageData(data, imageData.width, imageData.height));
+  }
+
+  return err({
+    kind: ImageProcessingErrorKind.UnsupportedChannelCount,
+    channelCount: getImageChannelCount(imageData),
+  });
 }

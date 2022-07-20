@@ -1,4 +1,8 @@
-import { loadImage, toImageData } from '@votingworks/image-utils';
+import {
+  loadImage,
+  toImageData,
+  imageDebugger,
+} from '@votingworks/image-utils';
 import { err, ok, Result } from '@votingworks/types';
 import { DOMParser } from '@xmldom/xmldom';
 import { enable as enableDebug } from 'debug';
@@ -10,7 +14,6 @@ import {
   NewHampshireBallotCardDefinition,
 } from '../../convert';
 import * as templates from '../../data/templates';
-import { imageDebugger } from '../../debug';
 
 interface ConvertOptions {
   readonly type: 'convert';

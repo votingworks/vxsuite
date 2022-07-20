@@ -1,6 +1,10 @@
-import { getImageChannelCount, otsu } from '@votingworks/image-utils';
+import {
+  getImageChannelCount,
+  otsu,
+  Debugger,
+  noDebug,
+} from '@votingworks/image-utils';
 import { assert, integers, map, zip, zipMin } from '@votingworks/utils';
-import { Debugger, noDebug } from './debug';
 import {
   Bit,
   CompleteTimingMarks,

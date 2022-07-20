@@ -127,6 +127,7 @@
       "cvrs",
       "frontends",
       "hmpb",
+      "imdebug",
       "jsonl",
       "luxon",
       "overvote",

@@ -1,5 +1,5 @@
+import { Debugger, noDebug } from '@votingworks/image-utils';
 import { BallotPaperSize, err, Result, safeParse } from '@votingworks/types';
-import { Debugger, noDebug } from './debug';
 import { matchTemplate } from './images';
 import { computeTimingMarkGrid } from './timing_marks';
 import {

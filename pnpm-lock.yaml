@@ -1912,8 +1912,10 @@ importers:
       '@votingworks/types': link:../types
       '@votingworks/utils': link:../utils
       canvas: 2.9.1
+      debug: 4.3.4
     devDependencies:
       '@jest/types': 28.1.3
+      '@types/debug': 4.1.7
       '@types/jest': 28.1.5
       '@types/node': 18.0.3
       '@types/tmp': 0.2.3
@@ -1935,6 +1937,7 @@ importers:
       typescript: 4.6.3
     specifiers:
       '@jest/types': ^28.1.3
+      '@types/debug': ^4.1.7
       '@types/jest': ^28.1.5
       '@types/node': ^18.0.3
       '@types/tmp': ^0.2.3
@@ -1943,6 +1946,7 @@ importers:
       '@votingworks/types': workspace:*
       '@votingworks/utils': workspace:*
       canvas: 2.9.1
+      debug: ^4.3.4
       eslint-config-prettier: ^8.5.0
       eslint-import-resolver-node: ^0.3.6
       eslint-plugin-import: ^2.26.0
