@@ -7,6 +7,25 @@ export function count(value: number): string {
   return countFormatter.format(value);
 }
 
+/**
+ * Formats a number as a percentage.
+ *
+ * @example
+ *   percent(0.591)                               // '59%'
+ *   percent(0.591, { maximumFractionDigits: 1 }) // '59.1%'
+ */
+export function percent(
+  value: number,
+  { maximumFractionDigits = 0 } = {}
+): string {
+  const percentFormatter = new Intl.NumberFormat(undefined, {
+    useGrouping: true,
+    style: 'percent',
+    maximumFractionDigits,
+  });
+  return percentFormatter.format(value);
+}
+
 export const DEFAULT_LOCALE = 'en-US';
 
 export function localeLongDateAndTime(time?: number | Date): string {

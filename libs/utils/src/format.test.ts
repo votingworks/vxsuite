@@ -27,3 +27,12 @@ test('formats locale weekday and date properly', () => {
     format.localeWeekdayAndDate(new Date(2020, 3, 14, 1, 15, 9, 26))
   ).toEqual('Tuesday, April 14, 2020');
 });
+
+test('formats percentages properly', () => {
+  expect(format.percent(0)).toEqual('0%');
+  expect(format.percent(1)).toEqual('100%');
+  expect(format.percent(0.591)).toEqual('59%');
+  expect(format.percent(0.591, { maximumFractionDigits: 1 })).toEqual('59.1%');
+  expect(format.percent(0.591, { maximumFractionDigits: 2 })).toEqual('59.1%');
+  expect(format.percent(0.5999, { maximumFractionDigits: 1 })).toEqual('60%');
+});
