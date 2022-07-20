@@ -1,8 +1,11 @@
 import { electionSample } from '@votingworks/fixtures';
-import { BallotIdSchema, unsafeParse } from '@votingworks/types';
+import {
+  BallotIdSchema,
+  CastVoteRecord,
+  unsafeParse,
+} from '@votingworks/types';
 import { fakeKiosk } from '@votingworks/test-utils';
 import { CastVoteRecordFiles } from './cast_vote_record_files';
-import { CastVoteRecord } from '../config/types';
 
 const TEST_DATE = new Date(2020, 3, 14, 1, 59, 26);
 

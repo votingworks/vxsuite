@@ -1,9 +1,8 @@
 import arrayUnique from 'array-unique';
 import { sha256 } from 'js-sha256';
-import { Election } from '@votingworks/types';
+import { CastVoteRecord, Election } from '@votingworks/types';
 import { assert, parseCvrFileInfoFromFilename } from '@votingworks/utils';
 import {
-  CastVoteRecord,
   CastVoteRecordFile,
   CastVoteRecordFilePreprocessedData,
   CastVoteRecordFileMode,
@@ -405,10 +404,10 @@ export class CastVoteRecordFiles {
       this.deduplicatedCastVoteRecords
     );
     for (const cvr of castVoteRecords) {
-      if (deduplicatedCastVoteRecords.has(cvr._ballotId)) {
+      if (deduplicatedCastVoteRecords.has(cvr._ballotId as string)) {
         duplicateCount += 1;
       } else {
-        deduplicatedCastVoteRecords.set(cvr._ballotId, cvr);
+        deduplicatedCastVoteRecords.set(cvr._ballotId as string, cvr);
       }
     }
     return [deduplicatedCastVoteRecords, duplicateCount];

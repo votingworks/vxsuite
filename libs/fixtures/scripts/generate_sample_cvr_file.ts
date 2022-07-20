@@ -1,18 +1,15 @@
-import yargs from 'yargs/yargs';
-import * as fs from 'fs';
 import {
-  BallotId,
   BallotIdSchema,
-  BallotLocale,
-  BallotStyleId,
   Candidate,
   CandidateContest,
-  Dictionary,
+  CastVoteRecord,
   Election,
-  PrecinctId,
   safeParseElection,
   unsafeParse,
+  YesNoVote,
 } from '@votingworks/types';
+import * as fs from 'fs';
+import yargs from 'yargs/yargs';
 
 /**
  * Script to generate a cast vote record file for a given election.
@@ -20,21 +17,6 @@ import {
  * pnpx esr --cache generate_sample_cvr_file.ts --help
  * To see more information and all possible arguments.
  */
-
-interface CastVoteRecord
-  extends Dictionary<
-    string | string[] | boolean | number | number[] | BallotLocale
-  > {
-  readonly _precinctId: PrecinctId;
-  readonly _ballotId: BallotId;
-  readonly _ballotStyleId: BallotStyleId;
-  readonly _ballotType: string;
-  readonly _testBallot: boolean;
-  readonly _scannerId: string;
-  readonly _pageNumber?: number;
-  readonly _pageNumbers?: number[];
-  readonly _locales?: BallotLocale;
-}
 
 /**
  * Generate all combinations of an array.
@@ -61,7 +43,7 @@ function generateCombinations<T>(
   ) {
     const oneAwayFromComboLength = remainingCount === 1;
 
-    // For each element that remaines to be added to the working combination.
+    // For each element that remains to be added to the working combination.
     for (
       let sourceIndex = currentIndex;
       sourceIndex < sourceLength;
@@ -84,7 +66,7 @@ function generateCombinations<T>(
 }
 
 // All valid contest choice options for a yes no contest
-const YES_NO_OPTIONS = [['yes'], ['no'], ['yes', 'no'], []];
+const YES_NO_OPTIONS: YesNoVote[] = [['yes'], ['no'], ['yes', 'no'], []];
 
 /**
  * Generates all possible contest choice options for a given CandidateContest
@@ -142,8 +124,11 @@ function getCandidateOptionsForContest(
  * @returns Array of dictionaries where each dictionary represents the votes across all contests provided from each contest ID to the votes to mark on that contest.
  */
 function getVoteConfigurationsForCandidateOptions(
-  candidateOptionsForContest: ReadonlyMap<string, Array<string[]>>
-): Array<Map<string, string[]>> {
+  candidateOptionsForContest: ReadonlyMap<
+    string,
+    ReadonlyArray<readonly string[]>
+  >
+): Array<Map<string, readonly string[]>> {
   // Find the contest with the most vote combinations generated to determine the number of vote combinations to generate.
   const numOptionsToProduce = [...candidateOptionsForContest.values()].reduce(
     (prev, options) => Math.max(prev, options?.length ?? 0),
@@ -151,7 +136,7 @@ function getVoteConfigurationsForCandidateOptions(
   );
   const voteOptions = [];
   for (let i = 0; i < numOptionsToProduce; i += 1) {
-    const voteOption = new Map<string, string[]>();
+    const voteOption = new Map<string, readonly string[]>();
     for (const [contest, optionsForContest] of candidateOptionsForContest) {
       // Add the ith contest choice option as the vote for each contest
       // If i is greater then the number of votes generated for this contest, vote for the final generated vote again.
@@ -183,7 +168,7 @@ function* generateCvrs(
   for (const ballotStyle of ballotStyles) {
     const { precincts } = ballotStyle;
     const { districts } = ballotStyle;
-    for (const ballotType of ['absentee', 'provisional', 'standard']) {
+    for (const ballotType of ['absentee', 'provisional', 'standard'] as const) {
       for (const precinct of precincts) {
         for (const scanner of scannerNames) {
           // Define base information for all resulting CVRs with this precinct, ballot style and scanner.
@@ -192,10 +177,15 @@ function* generateCvrs(
             _ballotStyleId: ballotStyle.id,
             _testBallot: testMode,
             _scannerId: scanner,
+            _batchId: 'batch-1',
+            _batchLabel: 'Batch 1',
           } as const;
 
           // For each contest determine all possible contest choices.
-          const candidateOptionsForContest = new Map<string, Array<string[]>>();
+          const candidateOptionsForContest = new Map<
+            string,
+            ReadonlyArray<readonly string[]>
+          >();
           for (const contest of contests) {
             if (
               districts.includes(contest.districtId) &&
