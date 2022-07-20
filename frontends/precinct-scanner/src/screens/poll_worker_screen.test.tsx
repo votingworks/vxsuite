@@ -6,6 +6,7 @@ import MockDate from 'mockdate';
 import React from 'react';
 import { InsertedSmartcardAuth } from '@votingworks/types';
 import { mocked } from 'ts-jest/utils';
+import fetchMock from 'fetch-mock';
 import { AppContext } from '../contexts/app_context';
 import { PollWorkerScreen } from './poll_worker_screen';
 
@@ -18,6 +19,7 @@ MockDate.set('2020-10-31T00:00:00.000Z');
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
+  fetchMock.post('/scan/export', {});
 });
 
 afterEach(() => {
@@ -46,7 +48,6 @@ function renderScreen({
         scannedBallotCount={scannedBallotCount}
         isPollsOpen={isPollsOpen}
         togglePollsOpen={jest.fn()}
-        getCvrsFromExport={jest.fn().mockResolvedValue([])}
         isLiveMode
         hasPrinterAttached={false}
         printer={new NullPrinter()}
