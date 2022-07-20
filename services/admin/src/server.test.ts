@@ -1,5 +1,6 @@
 import { fakeLogger } from '@votingworks/logging';
 import { assert } from '@votingworks/utils';
+import { Admin } from '@votingworks/api';
 import { Application } from 'express';
 import request from 'supertest';
 import { dirSync } from 'tmp';
@@ -207,8 +208,7 @@ test('POST /admin/write-ins/cvrs', async () => {
     },
   ];
 
-  // eslint-disable-next-line
-  const reqParams = {
+  const reqParams: Admin.PostCvrsRequest = {
     signature: 'abc',
     name: 'test.jsonl',
     precinctIds: ['abc', '123'],
