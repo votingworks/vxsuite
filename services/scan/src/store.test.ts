@@ -584,3 +584,31 @@ test('exportCvrs', () => {
   store.exportCvrs(stream);
   expect(stream.toString()).toEqual('');
 });
+
+test('zero', () => {
+  const dbFile = tmp.fileSync();
+  const store = Store.fileStore(dbFile.name);
+
+  store.addBatch();
+  store.addBatch();
+  expect(
+    store
+      .batchStatus()
+      .map((batch) => batch.label)
+      .sort((a, b) => a.localeCompare(b))
+  ).toEqual(['Batch 1', 'Batch 2']);
+
+  // zero should clear all batches
+  store.zero();
+  expect(store.batchStatus()).toEqual([]);
+
+  // zero should reset the autoincrement in the batch label
+  store.addBatch();
+  store.addBatch();
+  expect(
+    store
+      .batchStatus()
+      .map((batch) => batch.label)
+      .sort((a, b) => a.localeCompare(b))
+  ).toEqual(['Batch 1', 'Batch 2']);
+});

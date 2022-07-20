@@ -555,6 +555,8 @@ export class Store {
 
   zero(): void {
     this.client.run('delete from batches');
+    // reset autoincrementing key on "batches" table
+    this.client.run("delete from sqlite_sequence where name = 'batches'");
   }
 
   getBallotFilenames(
