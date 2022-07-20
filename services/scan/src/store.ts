@@ -59,7 +59,7 @@ export enum ConfigKey {
 }
 
 export enum BackupKey {
-  Batches = 'batches',
+  Scanner = 'scanner',
   Cvrs = 'cvrs',
 }
 
@@ -381,8 +381,8 @@ export class Store {
   /**
    * Records that batches have been backed up.
    */
-  setBatchesAsBackedUp(): void {
-    this.setBackupTimestamp(BackupKey.Batches);
+  setScannerAsBackedUp(): void {
+    this.setBackupTimestamp(BackupKey.Scanner);
   }
 
   /**
@@ -423,15 +423,14 @@ export class Store {
       return true;
     }
 
-    const batchesBackedUpAt = this.getBackupTimestamp(BackupKey.Batches);
-    const cvrsBackedUpAt = this.getBackupTimestamp(BackupKey.Cvrs);
+    const scannerBackedUpAt = this.getBackupTimestamp(BackupKey.Scanner);
 
     if (!this.batchStatus().length) {
       return true;
     }
 
-    // Require both batches and CVRs to have been backed up
-    if (!(cvrsBackedUpAt && batchesBackedUpAt)) {
+    // Require that a scanner backup has taken place
+    if (!scannerBackedUpAt) {
       return false;
     }
 
@@ -455,11 +454,14 @@ export class Store {
       .filter(Boolean)
       .reduce((max, curr) => (max > curr ? max : curr), '');
 
-    const isCvrsBackupUpToDate =
-      !cvrsLastUpdatedAt || cvrsBackedUpAt >= cvrsLastUpdatedAt;
-    const isBatchBackupUpToDate =
-      !batchesLastUpdatedAt || batchesBackedUpAt >= batchesLastUpdatedAt;
-    return isCvrsBackupUpToDate && isBatchBackupUpToDate;
+    if (!batchesLastUpdatedAt) {
+      return true;
+    }
+
+    const isBackupUpToDate =
+      scannerBackedUpAt >= cvrsLastUpdatedAt &&
+      scannerBackedUpAt >= batchesLastUpdatedAt;
+    return isBackupUpToDate;
   }
 
   addBallotCard(batchId: string): string {
