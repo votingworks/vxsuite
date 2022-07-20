@@ -1,4 +1,4 @@
-import { ContestId, ContestIdSchema } from '@votingworks/types';
+import { CastVoteRecord, ContestId, ContestIdSchema } from '@votingworks/types';
 import * as z from 'zod';
 import { ErrorsResponse, ErrorsResponseSchema, OkResponse } from '../../base';
 
@@ -12,9 +12,7 @@ export interface PostCvrsRequest {
   precinctIds: string[];
   scannerIds: string[];
   timestamp: string;
-  // TODO: this should not be any
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  castVoteRecords?: any;
+  castVoteRecords: CastVoteRecord[];
 }
 
 /**
@@ -27,7 +25,7 @@ export const PostCvrsRequestSchema: z.ZodSchema<PostCvrsRequest> = z.object({
   precinctIds: z.array(z.string()),
   scannerIds: z.array(z.string()),
   timestamp: z.string(),
-  castVoteRecords: z.any(),
+  castVoteRecords: z.array(z.any()), // TODO https://github.com/votingworks/vxsuite/issues/2168
 });
 
 /**
