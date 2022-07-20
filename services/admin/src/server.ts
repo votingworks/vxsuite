@@ -44,7 +44,6 @@ export function buildApp({ store }: { store: Store }): Application {
     const { id } = request.params;
 
     const cvr = store.getCvrByAdjudicationId(id);
-    console.log(cvr);
     if (cvr) {
       response.json(cvr);
     } else {
