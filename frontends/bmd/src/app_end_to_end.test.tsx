@@ -164,7 +164,7 @@ it('MarkAndPrint end-to-end flow', async () => {
   // Remove card
   card.removeCard();
   await advanceTimersAndPromises();
-  screen.getByText('Insert voter card to load ballot.');
+  screen.getByText('Insert Card');
 
   // ---------------
 
@@ -184,7 +184,7 @@ it('MarkAndPrint end-to-end flow', async () => {
   // Remove card
   card.removeCard();
   await advanceTimersAndPromises();
-  screen.getByText('Insert voter card to load ballot.');
+  screen.getByText('Insert Card');
 
   // ---------------
 
@@ -197,7 +197,7 @@ it('MarkAndPrint end-to-end flow', async () => {
   // Remove card
   card.removeCard();
   await advanceTimersAndPromises();
-  screen.getByText('Insert voter card to load ballot.');
+  screen.getByText('Insert Card');
 
   // ---------------
 
@@ -342,7 +342,7 @@ it('MarkAndPrint end-to-end flow', async () => {
   // Remove card
   card.removeCard();
   await advanceTimersAndPromises();
-  screen.getByText('Insert voter card to load ballot.');
+  screen.getByText('Insert Card');
 
   // Font size has been reset to default on Insert Card screen
   expect(window.document.documentElement.style.fontSize).toBe('28px');
@@ -355,7 +355,7 @@ it('MarkAndPrint end-to-end flow', async () => {
   // Remove card
   card.removeCard();
   await advanceTimersAndPromises();
-  screen.getByText('Insert voter card to load ballot.');
+  screen.getByText('Insert Card');
 
   // ---------------
 

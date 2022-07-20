@@ -113,7 +113,7 @@ it('MarkOnly flow', async () => {
   // Remove card
   card.removeCard();
   await advanceTimersAndPromises();
-  screen.getByText('Insert voter card to load ballot.');
+  screen.getByText('Insert Card');
 
   // ---------------
 
@@ -190,7 +190,7 @@ it('MarkOnly flow', async () => {
   // Remove card
   card.removeCard();
   await advanceTimersAndPromises();
-  screen.getByText('Insert voter card to load ballot.');
+  screen.getByText('Insert Card');
 
   // ---------------
 

@@ -28,7 +28,7 @@ beforeEach(() => {
   window.location.href = '/';
 });
 
-const insertCardScreenText = 'Insert voter card to load ballot.';
+const insertCardScreenText = 'Insert Card';
 const lowBatteryErrorScreenText = 'No Power Detected and Battery is Low';
 const noPowerDetectedWarningText = 'No Power Detected.';
 

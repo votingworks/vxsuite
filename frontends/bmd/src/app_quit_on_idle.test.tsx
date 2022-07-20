@@ -51,7 +51,8 @@ test('Insert Card screen idle timeout to quit app', async () => {
   await advanceTimersAndPromises();
 
   // Ensure we're on the Insert Card screen
-  screen.getByText('Insert voter card to load ballot.');
+  screen.getByText('Insert Card');
+
   expect(window.kiosk?.quit).not.toHaveBeenCalled();
 
   // Check that we requested a quit after the idle timer fired.

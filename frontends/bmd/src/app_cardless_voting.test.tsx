@@ -106,7 +106,7 @@ test('Cardless Voting Flow', async () => {
   // Remove card
   card.removeCard();
   await advanceTimersAndPromises();
-  screen.getByText('Insert voter card to load ballot.');
+  screen.getByText('Insert Card');
 
   // ---------------
 
@@ -198,7 +198,7 @@ test('Cardless Voting Flow', async () => {
 
   // Wait for timeout to return to Insert Card screen
   await advanceTimersAndPromises(GLOBALS.BALLOT_INSTRUCTIONS_TIMEOUT_SECONDS);
-  screen.getByText('Insert voter card to load ballot.');
+  screen.getByText('Insert Card');
 });
 
 test('Another Voter submits blank ballot and clicks Done', async () => {
@@ -283,7 +283,7 @@ test('Another Voter submits blank ballot and clicks Done', async () => {
   // Click "Done" to get back to Insert Card screen
   fireEvent.click(screen.getByText('Done'));
   await advanceTimersAndPromises();
-  screen.getByText('Insert voter card to load ballot.');
+  screen.getByText('Insert Card');
 });
 
 test('poll worker must select a precinct first', async () => {
@@ -359,7 +359,7 @@ test('poll worker must select a precinct first', async () => {
   // Remove card
   card.removeCard();
   await advanceTimersAndPromises();
-  screen.getByText('Insert voter card to load ballot.');
+  screen.getByText('Insert Card');
 
   // ---------------
 
@@ -460,5 +460,5 @@ test('poll worker must select a precinct first', async () => {
 
   // Wait for timeout to return to Insert Card screen
   await advanceTimersAndPromises(GLOBALS.BALLOT_INSTRUCTIONS_TIMEOUT_SECONDS);
-  screen.getByText('Insert voter card to load ballot.');
+  screen.getByText('Insert Card');
 });
