@@ -11,6 +11,7 @@ import chalk from 'chalk';
 import { promises as fs } from 'fs';
 import { table } from 'table';
 import { basename } from 'path';
+import { imageDebugger, setDebug } from '@votingworks/image-utils';
 import { Command, GlobalOptions } from '../types';
 import { Interpreter } from '../..';
 import { DEFAULT_MARK_SCORE_VOTE_THRESHOLD } from '../../interpreter';
@@ -37,6 +38,7 @@ export interface InterpretOptions {
   ballotInputs: readonly Input[];
   markScoreVoteThreshold: number;
   format: OutputFormat;
+  debug: boolean;
 }
 
 export type Options = HelpOptions | InterpretOptions;
@@ -98,6 +100,7 @@ export async function parseOptions({
   const ballotInputs: Input[] = [];
   let markScoreVoteThreshold = DEFAULT_MARK_SCORE_VOTE_THRESHOLD;
   let format = OutputFormat.Table;
+  let debug = false;
 
   for (let i = 0; i < args.length; i += 1) {
     const arg = args[i];
@@ -196,6 +199,11 @@ export async function parseOptions({
         break;
       }
 
+      case '--debug': {
+        debug = true;
+        break;
+      }
+
       default: {
         if (arg.startsWith('-')) {
           return err(new Error(`Unknown option: ${arg}`));
@@ -218,6 +226,7 @@ export async function parseOptions({
     ballotInputs,
     markScoreVoteThreshold,
     format,
+    debug,
   });
 }
 
@@ -242,6 +251,10 @@ export async function run(
     return 0;
   }
 
+  if (options.debug) {
+    setDebug(true);
+  }
+
   const interpreter = new Interpreter({
     electionDefinition: options.electionDefinition,
     testMode: options.testMode,
@@ -253,7 +266,13 @@ export async function run(
     interpreter.addTemplate(
       await interpreter.interpretTemplate(
         await templateInput.imageData(),
-        await templateInput.metadata?.()
+        await templateInput.metadata?.(),
+        {
+          imdebug: imageDebugger(
+            templateInput.id(),
+            await templateInput.imageData()
+          ),
+        }
       )
     );
   }
@@ -265,7 +284,13 @@ export async function run(
       input: ballotInput,
       interpreted: await interpreter.interpretBallot(
         await ballotInput.imageData(),
-        await ballotInput.metadata?.()
+        await ballotInput.metadata?.(),
+        {
+          imdebug: imageDebugger(
+            ballotInput.id(),
+            await ballotInput.imageData()
+          ),
+        }
       ),
     });
   }

@@ -1,9 +1,11 @@
+import { noDebug } from '@votingworks/image-utils';
 import {
   BallotTargetMarkPosition,
   Rect,
   TargetShape,
 } from '@votingworks/types';
 import makeDebug from 'debug';
+import { EXPECTED_OPTION_TARGET_COLOR, IGNORED_SHAPE_COLOR } from '../debug';
 import { PIXEL_WHITE } from '../utils/binarize';
 import { rectCenter } from '../utils/geometry';
 import { VisitedPoints } from '../utils/visited_points';
@@ -21,6 +23,7 @@ export function* findTargets(
     aspectRatioTolerance = 0.1,
     expectedWidth = Math.round(0.025 * ballotImage.width),
     errorMargin = Math.ceil(0.04 * expectedWidth),
+    imdebug = noDebug(),
   } = {}
 ): Generator<TargetShape> {
   debug('finding targets in %o', bounds);
@@ -65,6 +68,13 @@ export function* findTargets(
           shape.bounds,
           lastShape.bounds
         );
+        imdebug.rect(
+          shape.bounds.x,
+          shape.bounds.y,
+          shape.bounds.width,
+          shape.bounds.height,
+          IGNORED_SHAPE_COLOR
+        );
         found = false;
       }
     } else {
@@ -80,6 +90,13 @@ export function* findTargets(
           aspectRatioTolerance,
           shape.bounds
         );
+        imdebug.rect(
+          shape.bounds.x,
+          shape.bounds.y,
+          shape.bounds.width,
+          shape.bounds.height,
+          IGNORED_SHAPE_COLOR
+        );
         found = false;
       } else if (
         shape.bounds.width < expectedWidth - errorMargin ||
@@ -91,6 +108,13 @@ export function* findTargets(
           expectedWidth,
           errorMargin,
           shape.bounds
+        );
+        imdebug.rect(
+          shape.bounds.x,
+          shape.bounds.y,
+          shape.bounds.width,
+          shape.bounds.height,
+          IGNORED_SHAPE_COLOR
         );
         found = false;
       } else {
@@ -106,6 +130,20 @@ export function* findTargets(
         { color: PIXEL_WHITE }
       );
       lastShape = shape;
+      imdebug.rect(
+        shape.bounds.x,
+        shape.bounds.y,
+        shape.bounds.width,
+        shape.bounds.height,
+        EXPECTED_OPTION_TARGET_COLOR
+      );
+      imdebug.rect(
+        innerShape.bounds.x,
+        innerShape.bounds.y,
+        innerShape.bounds.width,
+        innerShape.bounds.height,
+        EXPECTED_OPTION_TARGET_COLOR
+      );
       yield {
         bounds: shape.bounds,
         inner: innerShape.bounds,

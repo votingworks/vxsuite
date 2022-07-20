@@ -1,4 +1,4 @@
-import { rotate180 } from '@votingworks/image-utils';
+import { Debugger, noDebug, rotate180 } from '@votingworks/image-utils';
 import {
   BallotPageLayoutWithImage,
   BallotPageMetadata,
@@ -52,16 +52,23 @@ export async function normalizeImageDataAndMetadata({
 /**
  * Find contests in a ballot image, either with two or three columns.
  */
-export function findContestsWithUnknownColumnLayout(imageData: ImageData): {
+export function findContestsWithUnknownColumnLayout(
+  imageData: ImageData,
+  { imdebug = noDebug() }: { imdebug?: Debugger } = {}
+): {
   contests: ContestShape[];
   columns: number;
 } {
   // Try three columns, i.e. candidate pages.
-  const shapesWithThreeColumns = [
-    ...findContests(imageData, {
-      columns: [true, true, true],
-    }),
-  ];
+  const shapesWithThreeColumns = imdebug.capture(
+    'findContests-3-column',
+    () => [
+      ...findContests(imageData, {
+        columns: [true, true, true],
+        imdebug,
+      }),
+    ]
+  );
 
   if (shapesWithThreeColumns.length > 0) {
     return { contests: shapesWithThreeColumns, columns: 3 };
@@ -69,11 +76,12 @@ export function findContestsWithUnknownColumnLayout(imageData: ImageData): {
 
   // Try two columns, i.e. measure pages.
   return {
-    contests: [
+    contests: imdebug.capture('findContests-2-column', () => [
       ...findContests(imageData, {
         columns: [true, true],
+        imdebug,
       }),
-    ],
+    ]),
     columns: 2,
   };
 }
@@ -87,10 +95,12 @@ export async function interpretTemplate({
   electionDefinition,
   imageData,
   metadata,
+  imdebug = noDebug(),
 }: {
   electionDefinition: ElectionDefinition;
   imageData: ImageData;
   metadata?: BallotPageMetadata;
+  imdebug?: Debugger;
 }): Promise<BallotPageLayoutWithImage> {
   debug(
     'interpretTemplate: looking for contests in %d×%d image',
@@ -111,14 +121,15 @@ export async function interpretTemplate({
       ({ bounds, corners }) => ({
         bounds,
         corners,
-        targets: [
+        targets: imdebug.capture('targets', () => [
           ...reversed(
             findTargets(normalized.imageData, bounds, {
               targetMarkPosition:
                 electionDefinition.election.ballotLayout?.targetMarkPosition,
+              imdebug,
             })
           ),
-        ],
+        ]),
       })
     ),
   ]);

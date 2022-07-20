@@ -179,6 +179,27 @@ test('parse options: --format', async () => {
   ).toEqual('Unknown output format: yaml');
 });
 
+test('parse option: --debug', async () => {
+  expect(
+    (
+      await parseOptions(
+        parseGlobalOptions([
+          'node',
+          'ballot-interpreter-vx',
+          'interpret',
+          '--election',
+          electionPath,
+          '--debug',
+        ]).unsafeUnwrap()
+      )
+    ).unsafeUnwrap()
+  ).toEqual(
+    expect.objectContaining({
+      debug: true,
+    })
+  );
+});
+
 test('parse options requires election', async () => {
   expect(
     (
