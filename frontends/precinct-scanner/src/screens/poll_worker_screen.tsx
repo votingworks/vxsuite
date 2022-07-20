@@ -51,6 +51,7 @@ import { AppContext } from '../contexts/app_context';
 import { IndeterminateProgressBar } from '../components/graphics';
 import { ScannedBallotCount } from '../components/scanned_ballot_count';
 import { saveCvrExportToUsb } from '../utils/save_cvr_export_to_usb';
+import * as scan from '../api/scan';
 
 enum PollWorkerFlowState {
   OPEN_POLLS_FLOW__CONFIRM = 'open polls flow: confirm',
@@ -72,6 +73,16 @@ async function saveTallyToCard(
   return possibleTally.ok()?.timeSaved === cardTally.timeSaved;
 }
 
+async function getCvrsFromExport(): Promise<CastVoteRecord[]> {
+  const castVoteRecordsString = await scan.getExport();
+  const lines = castVoteRecordsString.split('\n');
+  const cvrs = lines.flatMap((line) =>
+    line.length > 0 ? (JSON.parse(line) as CastVoteRecord) : []
+  );
+  // TODO add more validation of the CVR, move the validation code from election-manager to utils
+  return cvrs.filter((cvr) => cvr._precinctId !== undefined);
+}
+
 const debug = makeDebug('precinct-scanner:pollworker-screen');
 const reportPurposes = ['Publicly Posted', 'Officially Filed'];
 
@@ -80,7 +91,6 @@ interface Props {
   isPollsOpen: boolean;
   isLiveMode: boolean;
   togglePollsOpen: () => void;
-  getCvrsFromExport: () => Promise<CastVoteRecord[]>;
   printer: Printer;
   hasPrinterAttached: boolean;
   usbDrive: UsbDrive;
@@ -90,7 +100,6 @@ export function PollWorkerScreen({
   scannedBallotCount,
   isPollsOpen,
   togglePollsOpen,
-  getCvrsFromExport,
   isLiveMode,
   hasPrinterAttached: printerFromProps,
   printer,
@@ -177,14 +186,7 @@ export function PollWorkerScreen({
       setCurrentTally(tally);
     }
     void calculateTally();
-  }, [
-    election,
-    getCvrsFromExport,
-    scannedBallotCount,
-    precinctSelection,
-    parties,
-    precinctList,
-  ]);
+  }, [election, scannedBallotCount, precinctSelection, parties, precinctList]);
 
   async function saveTally() {
     assert(currentTally);
