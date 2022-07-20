@@ -1,5 +1,5 @@
 import { fakeLogger } from '@votingworks/logging';
-import { assert } from '@votingworks/utils';
+import { assert, typedAs } from '@votingworks/utils';
 import { Admin } from '@votingworks/api';
 import { Application } from 'express';
 import request from 'supertest';
@@ -229,12 +229,15 @@ test('POST /admin/write-ins/cvrs', async () => {
     .post('/admin/write-ins/cvrs')
     .set('Accept', 'application/json')
     .send(reqParams)
-    .expect(200, {
-      status: 'ok',
-      importedCvrCount: 0,
-      duplicateCvrCount: 0,
-      isTestMode: false,
-    });
+    .expect(
+      200,
+      typedAs<Admin.PostCvrsResponse>({
+        status: 'ok',
+        importedCvrCount: 0,
+        duplicateCvrCount: 0,
+        isTestMode: false,
+      })
+    );
   expect(workspace.store.addCvr).not.toHaveBeenCalled();
   expect(workspace.store.addCvrFile).toHaveBeenCalledTimes(1);
 
@@ -243,12 +246,15 @@ test('POST /admin/write-ins/cvrs', async () => {
     .post('/admin/write-ins/cvrs')
     .set('Accept', 'application/json')
     .send({ ...reqParams, castVoteRecords: cvrs })
-    .expect(200, {
-      status: 'ok',
-      importedCvrCount: 2,
-      duplicateCvrCount: 0,
-      isTestMode: true,
-    });
+    .expect(
+      200,
+      typedAs({
+        status: 'ok',
+        importedCvrCount: 2,
+        duplicateCvrCount: 0,
+        isTestMode: true,
+      })
+    );
   expect(workspace.store.addAdjudication).toBeCalledTimes(1);
   expect(workspace.store.addCvr).toBeCalledTimes(2);
   expect(workspace.store.addCvrFile).toBeCalledTimes(2);

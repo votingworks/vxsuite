@@ -160,8 +160,15 @@ test('getAdjudicationCountsByContestIdAndTranscribedValue', () => {
 
   store.addAdjudication('mayor', cvrId, 'Mickey Mouse');
   store.addAdjudication('mayor', cvrId, 'Mickey Mouse');
+  store.addAdjudication('mayor', cvrId, 'Donald');
   store.addAdjudication('county-commissioner', cvrId, 'Daffy');
+  store.addAdjudication('county-commissioner', cvrId, 'Mickey Mouse');
   expect(store.getAdjudicationCountsByContestIdAndTranscribedValue()).toEqual([
+    {
+      contestId: 'county-commissioner',
+      transcribedValue: 'Mickey Mouse',
+      adjudicationCount: 1,
+    },
     {
       contestId: 'county-commissioner',
       transcribedValue: 'Daffy',
@@ -171,6 +178,11 @@ test('getAdjudicationCountsByContestIdAndTranscribedValue', () => {
       contestId: 'mayor',
       transcribedValue: 'Mickey Mouse',
       adjudicationCount: 2,
+    },
+    {
+      adjudicationCount: 1,
+      contestId: 'mayor',
+      transcribedValue: 'Donald',
     },
   ]);
 });
