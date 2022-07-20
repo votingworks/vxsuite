@@ -89,8 +89,6 @@ export interface Props {
 }
 
 interface HardwareState {
-  adminCardElectionHash: string;
-  invalidCardPresent: boolean;
   machineConfig: Readonly<MachineConfig>;
 }
 
@@ -118,9 +116,6 @@ export interface State
     ScanInformationState {}
 
 const initialHardwareState: Readonly<HardwareState> = {
-  adminCardElectionHash: '',
-  // TODO add concept for invalid card to current user session object
-  invalidCardPresent: false,
   machineConfig: {
     machineId: '0000',
     codeVersion: 'dev',
