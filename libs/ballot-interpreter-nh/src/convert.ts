@@ -1,3 +1,4 @@
+import { Debugger, noDebug } from '@votingworks/image-utils';
 import {
   AdjudicationReason,
   BallotPaperSize,
@@ -36,7 +37,6 @@ import {
   getTemplateBallotPaperSize,
   TemplateOval,
 } from './accuvote';
-import { Debugger, noDebug } from './debug';
 import { DefaultMarkThresholds } from './interpret';
 import { interpretBallotCardLayout } from './interpret/interpret_ballot_card_layout';
 import { Bit, FrontMarksMetadata, PartialTimingMarks, Size } from './types';

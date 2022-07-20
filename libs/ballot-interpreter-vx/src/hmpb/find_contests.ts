@@ -1,6 +1,7 @@
 import {
   getImageChannelCount,
-  checkApproximatelyColinear,
+  noDebug,
+  Debugger,
 } from '@votingworks/image-utils';
 import {
   AnyContest,
@@ -12,6 +13,11 @@ import {
 } from '@votingworks/types';
 import { zip } from '@votingworks/utils';
 import makeDebug from 'debug';
+import {
+  CONTEST_BOUNDING_BOX_COLOR,
+  CORNER_COLOR,
+  IGNORED_SHAPE_COLOR,
+} from '../debug';
 import { PIXEL_BLACK } from '../utils/binarize';
 import { getCorners } from '../utils/corners';
 import { euclideanDistance } from '../utils/geometry';
@@ -19,17 +25,6 @@ import { VisitedPoints } from '../utils/visited_points';
 import { findShape, parseRectangle, Shape } from './shapes';
 
 const debug = makeDebug('ballot-interpreter-vx:findContests');
-
-/**
- * This error threshold is used to reject any contest boxes that are too
- * stretched at the top or bottom, i.e. the top and bottom lines are far enough
- * away from parallel that we're unlikely to correctly interpret the ballot.
- *
- * This value was chosen by trial and error. If you find a better value, please
- * do update it. For reference, the top-right contest in
- * marked-precinct-scanner-stretch-p2.jpeg has an error of ~1.5°.
- */
-const MAXIMUM_CONTEST_TOP_BOTTOM_ANGLE_ERROR = (1.25 / 180) * Math.PI;
 
 export interface ContestShape {
   bounds: Rect;
@@ -44,6 +39,7 @@ export interface Options {
   minExpectedHeight?: number;
   maxExpectedHeight?: number;
   errorMargin?: number;
+  imdebug?: Debugger;
 }
 
 function findTopBorderInset(
@@ -130,6 +126,7 @@ export function* findContests(
     minExpectedHeight = Math.floor(0.1 * ballotImage.height),
     maxExpectedHeight = Math.ceil(0.96 * ballotImage.height),
     errorMargin = Math.ceil(0.025 * ballotImage.width),
+    imdebug = noDebug(),
   }: Options = {}
 ): Generator<ContestShape> {
   const visitedPoints = new VisitedPoints(
@@ -145,6 +142,8 @@ export function* findContests(
     const columnMidX = Math.round(
       inset + columnIndex * (expectedWidth + separation) + expectedWidth / 2
     );
+
+    imdebug.line(columnMidX, 0, columnMidX, ballotImage.height, '#00ff00');
 
     let lastShape: Shape | undefined;
     const expectedContestTop =
@@ -213,6 +212,13 @@ export function* findContests(
             (angle) => `${Math.round(((angle * 180) / Math.PI) * 100) / 100}°`
           )
         );
+        imdebug.rect(
+          shape.bounds.x,
+          shape.bounds.y,
+          shape.bounds.width,
+          shape.bounds.height,
+          IGNORED_SHAPE_COLOR
+        );
       } else if (
         cornerBasedHeight < minExpectedHeight ||
         cornerBasedHeight > maxExpectedHeight ||
@@ -231,6 +237,24 @@ export function* findContests(
         );
       } else {
         debug('found contest shape: %O', shape.bounds);
+        imdebug.rect(
+          shape.bounds.x,
+          shape.bounds.y,
+          shape.bounds.width,
+          shape.bounds.height,
+          CONTEST_BOUNDING_BOX_COLOR
+        );
+        const CORNER_SIZE = Math.round(shape.bounds.width / 100);
+        for (const corner of corners) {
+          imdebug.rect(
+            corner.x - (CORNER_SIZE - 1) / 2,
+            corner.y - (CORNER_SIZE - 1) / 2,
+            CORNER_SIZE,
+            CORNER_SIZE,
+            CORNER_COLOR
+          );
+        }
+
         yield {
           bounds: shape.bounds,
           corners,
@@ -271,7 +295,7 @@ export function findBallotLayoutCorrespondence(
   )) {
     const [templateTopLeft, templateTopRight, templateBottomLeft] =
       templateContest.corners;
-    const [ballotTopLeft, ballotTopRight, ballotBottomLeft, ballotBottomRight] =
+    const [ballotTopLeft, ballotTopRight, ballotBottomLeft] =
       ballotContest.corners;
     const templateContestWidth = euclideanDistance(
       templateTopLeft,
@@ -286,31 +310,6 @@ export function findBallotLayoutCorrespondence(
       ballotTopLeft,
       ballotBottomLeft
     );
-
-    const ballotTopAngle = Math.atan2(
-      ballotTopRight.y - ballotTopLeft.y,
-      ballotTopRight.x - ballotTopLeft.x
-    );
-    const ballotBottomAngle = Math.atan2(
-      ballotBottomLeft.y - ballotBottomRight.y,
-      ballotBottomLeft.x - ballotBottomRight.x
-    );
-
-    if (
-      !checkApproximatelyColinear(
-        ballotTopAngle,
-        ballotBottomAngle,
-        MAXIMUM_CONTEST_TOP_BOTTOM_ANGLE_ERROR
-      )
-    ) {
-      debug('contest top and bottom lines are not colinear: %O', ballotContest);
-      mismatchedContests.push({
-        template: templateContest,
-        ballot: ballotContest,
-        definition,
-      });
-      continue;
-    }
 
     // The closer this value is to 1, the better the correspondence between the
     // template and the ballot contest shapes.

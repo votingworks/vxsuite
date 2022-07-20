@@ -1,17 +1,17 @@
 /* this file is for debugging during dev & test, not for production */
 
-import { getImageChannelCount } from '@votingworks/image-utils';
+import { Size } from '@votingworks/types';
 import { Buffer } from 'buffer';
-import { createCanvas, createImageData } from 'canvas';
+import { createCanvas } from 'canvas';
 import makeDebug, {
   enable as enableDebug,
   enabled as isDebugEnabled,
 } from 'debug';
 import { mkdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
-import { Size } from './types';
+import { toRgba } from './image_data';
 
-const log = makeDebug('ballot-interpreter-nh:debug-images');
+const log = makeDebug('image-utils:debug-images');
 
 /**
  * Provides visual debugging for code dealing with image data.
@@ -71,43 +71,6 @@ export interface Debugger {
 }
 
 /**
- * Represents a debugger that renders SVG.
- */
-export interface SvgDebugger extends Debugger {
-  getRootLayer(): SvgLayer;
-}
-
-/**
- * Represents a layer in a debugger wrapping an SVG element.
- */
-export interface SvgLayer {
-  readonly name: string;
-  readonly parent?: SvgLayer;
-  readonly children: SvgLayer[];
-  readonly element: SVGElement;
-}
-
-function toRgba(imageData: ImageData): ImageData {
-  if (getImageChannelCount(imageData) === 4) {
-    return imageData;
-  }
-
-  const data = new Uint8ClampedArray(imageData.data.length * 4);
-  for (
-    let sourceIndex = 0, destIndex = 0;
-    sourceIndex < imageData.data.length;
-    sourceIndex += 1, destIndex += 4
-  ) {
-    const lum = imageData.data[sourceIndex] as number;
-    data[destIndex] = lum;
-    data[destIndex + 1] = lum;
-    data[destIndex + 2] = lum;
-    data[destIndex + 3] = 255;
-  }
-  return createImageData(data, imageData.width, imageData.height);
-}
-
-/**
  * Provides callbacks for various canvas debugger operations.
  */
 export interface CanvasDebuggerCallbacks {
@@ -128,7 +91,7 @@ export function canvasDebugger(
   const snapshotStack: Array<{ name: string; imageData: ImageData }> = [];
   const groupStack: string[] = [];
 
-  const dbug: Debugger = {
+  const imdebug: Debugger = {
     isEnabled: () => true,
 
     capture<T>(name: string, fn: (debug: Debugger) => T): T {
@@ -136,29 +99,32 @@ export function canvasDebugger(
         name,
         imageData: context.getImageData(0, 0, canvas.width, canvas.height),
       });
-      dbug.group(name);
+      imdebug.group(name);
 
       function restore(): void {
-        dbug.groupEnd(name);
+        imdebug.groupEnd(name);
         const lastSnapshot = snapshotStack.pop();
 
+        /* istanbul ignore next */
         if (!lastSnapshot) {
           throw new Error(`No snapshot to restore: ${name}`);
         }
+
+        /* istanbul ignore next */
         if (lastSnapshot.name !== name) {
           throw new Error(
             `Snapshot name mismatch: ${lastSnapshot.name} ≠ ${name}`
           );
         }
 
-        dbug.write(name);
+        imdebug.write(name);
         context.putImageData(lastSnapshot.imageData, 0, 0);
       }
 
       let result: T;
 
       try {
-        result = fn(dbug);
+        result = fn(imdebug);
       } catch (error) {
         restore();
         throw error;
@@ -174,10 +140,11 @@ export function canvasDebugger(
     },
 
     groupEnd(name: string): Debugger {
-      const lastGroup = groupStack.pop();
+      const lastGroup = groupStack[groupStack.length - 1];
       if (lastGroup !== name) {
         throw new Error(`Group name mismatch: ${lastGroup} ≠ ${name}`);
       }
+      groupStack.pop();
       return this;
     },
 
@@ -209,7 +176,8 @@ export function canvasDebugger(
     },
 
     imageData(x: number, y: number, imageData: ImageData) {
-      context.putImageData(toRgba(imageData), x, y);
+      const rgbaImageData = toRgba(imageData).unsafeUnwrap();
+      context.putImageData(rgbaImageData, x, y);
       return this;
     },
 
@@ -219,7 +187,7 @@ export function canvasDebugger(
     },
   };
 
-  return dbug;
+  return imdebug;
 }
 
 function returnThis<T>(this: T): T {
@@ -230,10 +198,10 @@ function returnThis<T>(this: T): T {
  * Builds a no-op debugger for passing to code with image debugging.
  */
 export function noDebug(): Debugger {
-  const dbug: Debugger = {
+  const imdebug: Debugger = {
     isEnabled: () => false,
     capture<T>(_name: string, fn: (debug: Debugger) => T): T {
-      return fn(dbug);
+      return fn(imdebug);
     },
     group: returnThis,
     groupEnd: returnThis,
@@ -244,7 +212,7 @@ export function noDebug(): Debugger {
     text: returnThis,
     write: returnThis,
   };
-  return dbug;
+  return imdebug;
 }
 
 /**
@@ -272,7 +240,7 @@ export function imageDebugger(
 export function imageDebugger(
   basePath: string,
   baseImageOrSize: ImageData | Size,
-  enabled = isDebugEnabled('ballot-interpreter-nh:debug-images')
+  enabled = isDebugEnabled('image-utils:debug-images')
 ): Debugger {
   if (!enabled) {
     return noDebug();
@@ -306,5 +274,5 @@ export function imageDebugger(
  * testing.
  */
 export function setDebug(enabled: boolean): void {
-  enableDebug(`${enabled ? '' : '-'}ballot-interpreter-nh:debug-images`);
+  enableDebug(`${enabled ? '' : '-'}image-utils:debug-images`);
 }

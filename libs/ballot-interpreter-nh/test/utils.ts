@@ -1,4 +1,4 @@
-import { Debugger, imageDebugger } from '../src/debug';
+import { Debugger, imageDebugger } from '@votingworks/image-utils';
 import { Size } from '../src/types';
 
 /**

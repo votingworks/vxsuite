@@ -1,3 +1,4 @@
+import { Debugger, noDebug } from '@votingworks/image-utils';
 import {
   BallotPageContestLayout,
   BallotPageContestOptionLayout,
@@ -11,7 +12,6 @@ import {
   Result,
 } from '@votingworks/types';
 import { groupBy } from '@votingworks/utils';
-import { Debugger, noDebug } from '../debug';
 import { Size } from '../types';
 import { loc } from '../utils';
 import { InterpretBallotCardLayoutResult } from './interpret_ballot_card_layout';

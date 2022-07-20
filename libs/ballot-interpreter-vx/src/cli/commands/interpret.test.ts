@@ -179,6 +179,27 @@ test('parse options: --format', async () => {
   ).toEqual('Unknown output format: yaml');
 });
 
+test('parse option: --debug', async () => {
+  expect(
+    (
+      await parseOptions(
+        parseGlobalOptions([
+          'node',
+          'ballot-interpreter-vx',
+          'interpret',
+          '--election',
+          electionPath,
+          '--debug',
+        ]).unsafeUnwrap()
+      )
+    ).unsafeUnwrap()
+  ).toEqual(
+    expect.objectContaining({
+      debug: true,
+    })
+  );
+});
+
 test('parse options requires election', async () => {
   expect(
     (
@@ -371,8 +392,8 @@ test('help', async () => {
     # Interpret ballots to JSON.
     ballot-interpreter-vx interpret -e election.json -f json template*.png ballot*.png
 
-    # Specify image metadata (file:metdata-file).
-    ballot-interpreter-vx interpret -e election.json template1.png:template1-metadata.json template2.png:template2-metdata.json ballot1.png:ballot1-metadata.json
+    # Specify image metadata (file:metadata-file).
+    ballot-interpreter-vx interpret -e election.json template1.png:template1-metadata.json template2.png:template2-metadata.json ballot1.png:ballot1-metadata.json
 
     # Set an explicit minimum mark score (0-1).
     ballot-interpreter-vx interpret -e election.json -m 0.5 template*.png ballot*.png

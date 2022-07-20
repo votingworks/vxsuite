@@ -1,4 +1,8 @@
-import { loadImage, toImageData } from '@votingworks/image-utils';
+import {
+  imageDebugger,
+  loadImage,
+  toImageData,
+} from '@votingworks/image-utils';
 import {
   AdjudicationReason,
   BallotType,
@@ -16,7 +20,6 @@ import {
 } from '@votingworks/types';
 import { getScannedBallotCardGeometry } from '../accuvote';
 import * as templates from '../data/templates';
-import { imageDebugger } from '../debug';
 import { convertInterpretedLayoutToBallotLayout } from './convert_interpreted_layout_to_ballot_layout';
 import { convertMarksToAdjudicationInfo } from './convert_marks_to_adjudication_info';
 import { convertMarksToMarkInfo } from './convert_marks_to_mark_info';

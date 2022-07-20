@@ -1,4 +1,4 @@
-import { crop, rotate180 } from '@votingworks/image-utils';
+import { crop, Debugger, noDebug, rotate180 } from '@votingworks/image-utils';
 import {
   BallotCandidateTargetMark,
   BallotIdSchema,
@@ -28,11 +28,15 @@ import {
   YesNoContest,
   YesNoOption,
 } from '@votingworks/types';
-import { assert, map, zip, zipMin } from '@votingworks/utils';
+import { assert, format, map, zip, zipMin } from '@votingworks/utils';
 import makeDebug from 'debug';
 import * as jsfeat from 'jsfeat';
 import { inspect } from 'util';
 import { v4 as uuid } from 'uuid';
+import {
+  EXPECTED_OPTION_TARGET_COLOR,
+  SCORED_OPTION_TARGET_COLOR,
+} from '../debug';
 import { getVotesFromMarks } from '../get_votes_from_marks';
 import { findBallotLayoutCorrespondence } from '../hmpb/find_contests';
 import {
@@ -161,12 +165,14 @@ export class Interpreter {
    */
   async interpretTemplate(
     imageData: ImageData,
-    metadata?: BallotPageMetadata
+    metadata?: BallotPageMetadata,
+    { imdebug = noDebug() }: { imdebug?: Debugger } = {}
   ): Promise<BallotPageLayoutWithImage> {
     return interpretTemplate({
       electionDefinition: this.electionDefinition,
       imageData,
       metadata,
+      imdebug,
     });
   }
 
@@ -217,6 +223,11 @@ export class Interpreter {
     {
       flipped = false,
       markScoreVoteThreshold = this.markScoreVoteThreshold,
+      imdebug = noDebug(),
+    }: {
+      flipped?: boolean;
+      markScoreVoteThreshold?: number;
+      imdebug?: Debugger;
     } = {}
   ): Promise<Interpreted> {
     debug(
@@ -227,9 +238,7 @@ export class Interpreter {
     const normalized = await this.normalizeImageDataAndMetadata(
       imageData,
       metadata,
-      {
-        flipped,
-      }
+      { flipped }
     );
 
     if (normalized.metadata.isTestMode !== this.testMode) {
@@ -239,14 +248,17 @@ export class Interpreter {
     }
 
     debug('using metadata: %O', normalized.metadata);
-    const marked = this.findMarks(normalized.imageData, normalized.metadata);
+    const marked = this.findMarks(normalized.imageData, normalized.metadata, {
+      imdebug,
+    });
     const ballot = this.interpretMarks(marked, { markScoreVoteThreshold });
     return { ...marked, ballot };
   }
 
   private findMarks(
     imageData: ImageData,
-    metadata: BallotPageMetadata
+    metadata: BallotPageMetadata,
+    { imdebug = noDebug() }: { imdebug?: Debugger } = {}
   ): FindMarksResult {
     debug(
       'looking for marks in %d×%d image',
@@ -260,7 +272,9 @@ export class Interpreter {
       );
     }
 
-    const { contests } = findContestsWithUnknownColumnLayout(imageData);
+    const { contests } = findContestsWithUnknownColumnLayout(imageData, {
+      imdebug,
+    });
     const ballotLayout: BallotPageLayoutWithImage = {
       imageData,
       ballotPageLayout: {
@@ -287,10 +301,13 @@ export class Interpreter {
     const matchedTemplate = defined(
       this.getTemplate({ locales, ballotStyleId, precinctId, pageNumber })
     );
-    const [mappedBallot, marks] = this.getMarksForBallot(
-      ballotLayout,
-      matchedTemplate,
-      this.getContestsForTemplate(matchedTemplate.ballotPageLayout)
+    const [mappedBallot, marks] = imdebug.capture('getMarksForBallot', () =>
+      this.getMarksForBallot(
+        ballotLayout,
+        matchedTemplate,
+        this.getContestsForTemplate(matchedTemplate.ballotPageLayout),
+        { imdebug }
+      )
     );
 
     return { matchedTemplate, mappedBallot, metadata, marks };
@@ -373,7 +390,8 @@ export class Interpreter {
   private getMarksForBallot(
     ballotLayout: BallotPageLayoutWithImage,
     template: BallotPageLayoutWithImage,
-    contests: Contests
+    contests: Contests,
+    { imdebug = noDebug() }: { imdebug?: Debugger } = {}
   ): [ImageData, BallotMark[]] {
     assert(
       template.ballotPageLayout.contests.length === contests.length,
@@ -405,7 +423,38 @@ export class Interpreter {
       template.ballotPageLayout,
       { leftSideOnly: false }
     );
+    imdebug.imageData(0, 0, mappedBallot);
     const marks: BallotMark[] = [];
+
+    function debugScoredMark(
+      optionLayout: BallotPageContestOptionLayout,
+      debugLabel: string,
+      scoredOffset: Offset,
+      score: number
+    ): void {
+      debug(`'${debugLabel}' mark score: %d`, score);
+      imdebug.rect(
+        optionLayout.target.bounds.x + scoredOffset.x,
+        optionLayout.target.bounds.y + scoredOffset.y,
+        optionLayout.target.bounds.width,
+        optionLayout.target.bounds.height,
+        SCORED_OPTION_TARGET_COLOR
+      );
+      imdebug.text(
+        optionLayout.target.bounds.x +
+          optionLayout.target.bounds.width +
+          scoredOffset.x,
+        optionLayout.target.bounds.y +
+          optionLayout.target.bounds.height +
+          scoredOffset.y,
+        `${debugLabel}: ${format.percent(score, {
+          // allow e.g. 12.3% instead of just 12%
+          maximumFractionDigits: 1,
+        })}`,
+        SCORED_OPTION_TARGET_COLOR
+      );
+      debug(`'${debugLabel}' mark score: %d`, score);
+    }
 
     const addCandidateMark = (
       contest: CandidateContest,
@@ -429,7 +478,7 @@ export class Interpreter {
         mappedBallot,
         layout.target
       );
-      debug(`'${option.id}' mark score: %d`, score);
+      debugScoredMark(layout, option.id, offset, score);
       const mark: BallotCandidateTargetMark = {
         type: 'candidate',
         bounds: layout.target.bounds,
@@ -453,7 +502,7 @@ export class Interpreter {
         mappedBallot,
         layout.target
       );
-      debug(`'${optionId}' mark score: %d`, score);
+      debugScoredMark(layout, optionId, offset, score);
       const mark: BallotYesNoTargetMark = {
         type: 'yesno',
         bounds: layout.target.bounds,
@@ -476,16 +525,16 @@ export class Interpreter {
         mappedBallot,
         layout.target
       );
-      debug(
-        `'${
-          option === contest.eitherOption
-            ? 'either'
-            : option === contest.neitherOption
-            ? 'neither'
-            : option === contest.firstOption
-            ? 'first'
-            : 'second'
-        }' mark score: %d`,
+      debugScoredMark(
+        layout,
+        option === contest.eitherOption
+          ? 'either'
+          : option === contest.neitherOption
+          ? 'neither'
+          : option === contest.firstOption
+          ? 'first'
+          : 'second',
+        offset,
         score
       );
       const mark: BallotMsEitherNeitherTargetMark = {
@@ -505,6 +554,16 @@ export class Interpreter {
       contests
     )) {
       debug(`getting marks for %s contest '%s'`, contest.type, contest.id);
+
+      for (const option of options) {
+        imdebug.rect(
+          option.target.bounds.x,
+          option.target.bounds.y,
+          option.target.bounds.width,
+          option.target.bounds.height,
+          EXPECTED_OPTION_TARGET_COLOR
+        );
+      }
 
       if (contest.type === 'candidate') {
         const expectedOptions =
@@ -565,19 +624,12 @@ export class Interpreter {
     template: ImageData,
     ballot: ImageData,
     target: TargetShape,
-    {
-      zeroScoreThreshold = 0,
-      highScoreThreshold = 0.25,
-      maximumCorrectionPixelsX = 2,
-      maximumCorrectionPixelsY = 2,
-    } = {}
+    { maximumCorrectionPixelsX = 5, maximumCorrectionPixelsY = 5 } = {}
   ): { offset: Offset; score: number } {
     debug(
-      'computing target mark score for target at (x=%d, y=%d) with zero threshold %d and high threshold %d',
+      'computing target mark score for target at (x=%d, y=%d)',
       target.inner.x,
-      target.inner.y,
-      zeroScoreThreshold,
-      highScoreThreshold
+      target.inner.y
     );
 
     let bestMatchNewTemplatePixels: number | undefined;
