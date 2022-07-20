@@ -21,6 +21,7 @@ import {
   filterTalliesByParams,
   getTallyIdentifier,
   PrecinctScannerCardTally,
+  PrecinctScannerCardTallySchema,
   Printer,
   TallySourceMachineType,
 } from '@votingworks/utils';
@@ -35,6 +36,7 @@ import {
   Dictionary,
   CompressedTally,
   getPartyIdsInBallotStyles,
+  InsertedSmartcardAuth,
 } from '@votingworks/types';
 import { isLiveCheckEnabled } from '../config/features';
 import {
@@ -59,6 +61,17 @@ enum PollWorkerFlowState {
   CLOSE_POLLS_FLOW__COMPLETE = 'close polls flow: complete',
 }
 
+async function saveTallyToCard(
+  auth: InsertedSmartcardAuth.PollworkerLoggedIn,
+  cardTally: PrecinctScannerCardTally
+): Promise<boolean> {
+  await auth.card.writeStoredData(cardTally);
+  const possibleTally = await auth.card.readStoredObject(
+    PrecinctScannerCardTallySchema
+  );
+  return possibleTally.ok()?.timeSaved === cardTally.timeSaved;
+}
+
 const debug = makeDebug('precinct-scanner:pollworker-screen');
 const reportPurposes = ['Publicly Posted', 'Officially Filed'];
 
@@ -68,7 +81,6 @@ interface Props {
   isLiveMode: boolean;
   togglePollsOpen: () => void;
   getCvrsFromExport: () => Promise<CastVoteRecord[]>;
-  saveTallyToCard: (cardTally: PrecinctScannerCardTally) => Promise<boolean>;
   printer: Printer;
   hasPrinterAttached: boolean;
   usbDrive: UsbDrive;
@@ -79,7 +91,6 @@ export function PollWorkerScreen({
   isPollsOpen,
   togglePollsOpen,
   getCvrsFromExport,
-  saveTallyToCard,
   isLiveMode,
   hasPrinterAttached: printerFromProps,
   printer,
@@ -244,13 +255,14 @@ export function PollWorkerScreen({
       tally: currentCompressedTally,
     };
 
-    const success = await saveTallyToCard(fullTallyInformation);
+    assert(isPollworkerAuth(auth));
+    const success = await saveTallyToCard(auth, fullTallyInformation);
     if (!success) {
       debug(
         'Error saving tally information to card, trying again without precinct-specific data'
       );
       // TODO show an error message if this attempt also fails.
-      await saveTallyToCard({
+      await saveTallyToCard(auth, {
         ...fullTallyInformation,
         talliesByPrecinct: undefined,
         timeSaved: Date.now(),

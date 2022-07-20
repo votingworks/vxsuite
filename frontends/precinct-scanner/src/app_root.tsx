@@ -26,13 +26,11 @@ import {
 } from '@votingworks/ui';
 import {
   throwIllegalValue,
-  PrecinctScannerCardTally,
   Card,
   Hardware,
   Storage,
   usbstick,
   Printer,
-  PrecinctScannerCardTallySchema,
   assert,
 } from '@votingworks/utils';
 import { Logger } from '@votingworks/logging';
@@ -89,8 +87,6 @@ export interface Props {
 }
 
 interface HardwareState {
-  adminCardElectionHash: string;
-  invalidCardPresent: boolean;
   machineConfig: Readonly<MachineConfig>;
 }
 
@@ -118,9 +114,6 @@ export interface State
     ScanInformationState {}
 
 const initialHardwareState: Readonly<HardwareState> = {
-  adminCardElectionHash: '',
-  // TODO add concept for invalid card to current user session object
-  invalidCardPresent: false,
   machineConfig: {
     machineId: '0000',
     codeVersion: 'dev',
@@ -630,17 +623,6 @@ export function AppRoot({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [electionDefinition, scannedBallotCount]);
 
-  const saveTallyToCard = useCallback(
-    async (cardTally: PrecinctScannerCardTally): Promise<boolean> => {
-      await card.writeLongObject(cardTally);
-      const possibleTally = await card.readLongObject(
-        PrecinctScannerCardTallySchema
-      );
-      return possibleTally.ok()?.timeSaved === cardTally.timeSaved;
-    },
-    [card]
-  );
-
   // Initialize app state
   useEffect(() => {
     async function initializeScanner() {
@@ -800,7 +782,6 @@ export function AppRoot({
           scannedBallotCount={scannedBallotCount}
           isPollsOpen={isPollsOpen}
           togglePollsOpen={togglePollsOpen}
-          saveTallyToCard={saveTallyToCard}
           getCvrsFromExport={getCvrsFromExport}
           printer={printer}
           hasPrinterAttached={!!printerInfo}
