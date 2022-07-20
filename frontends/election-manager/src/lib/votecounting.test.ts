@@ -1,5 +1,6 @@
 import {
   BallotIdSchema,
+  CastVoteRecord,
   Election,
   FullElectionTally,
   TallyCategory,
@@ -21,7 +22,6 @@ import {
   getOvervotePairTallies,
   filterTalliesByParamsAndBatchId,
 } from './votecounting';
-import { CastVoteRecord } from '../config/types';
 
 const electionSample2 = electionSample2Fixtures.electionDefinition.election;
 

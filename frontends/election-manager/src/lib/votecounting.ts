@@ -1,6 +1,7 @@
 import {
   Candidate,
   CandidateContest,
+  CastVoteRecord,
   Contest,
   Election,
   Vote,
@@ -29,8 +30,6 @@ import {
   throwIllegalValue,
   typedAs,
 } from '@votingworks/utils';
-
-import { CastVoteRecord } from '../config/types';
 
 export interface ParseCastVoteRecordResult {
   cvr: CastVoteRecord;

@@ -8,7 +8,11 @@ import {
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 
 import { usbstick } from '@votingworks/utils';
-import { BallotIdSchema, unsafeParse } from '@votingworks/types';
+import {
+  BallotIdSchema,
+  CastVoteRecord,
+  unsafeParse,
+} from '@votingworks/types';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { ImportCvrFilesModal } from './import_cvrfiles_modal';
 import {
@@ -16,7 +20,6 @@ import {
   eitherNeitherElectionDefinition,
 } from '../../test/render_in_app_context';
 import { CastVoteRecordFiles } from '../utils/cast_vote_record_files';
-import { CastVoteRecord } from '../config/types';
 
 const TEST_FILE1 = 'TEST__machine_0001__10_ballots__2020-12-09_15-49-32.jsonl';
 const TEST_FILE2 = 'TEST__machine_0003__5_ballots__2020-12-07_15-49-32.jsonl';

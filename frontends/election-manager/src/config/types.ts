@@ -1,8 +1,8 @@
 import {
-  BallotId,
   BallotLocale,
   BallotStyle,
   BallotStyleId,
+  CastVoteRecord,
   ContestTallyMeta,
   Dictionary,
   MachineId,
@@ -96,30 +96,13 @@ export interface ExternalFileConfiguration {
 }
 
 export enum ResultsFileType {
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   CastVoteRecord = 'cvr',
   SEMS = 'sems',
   All = 'all',
   Manual = 'manual',
 }
 export type OptionalFile = Optional<File>;
-
-// Cast Vote Records
-export interface CastVoteRecord
-  extends Dictionary<
-    string | string[] | boolean | number | number[] | BallotLocale
-  > {
-  readonly _precinctId: PrecinctId;
-  readonly _ballotId: BallotId;
-  readonly _ballotStyleId: BallotStyleId;
-  readonly _ballotType: 'absentee' | 'provisional' | 'standard';
-  readonly _batchId: string;
-  readonly _batchLabel: string;
-  readonly _testBallot: boolean;
-  readonly _scannerId: string;
-  readonly _pageNumber?: number;
-  readonly _pageNumbers?: number[];
-  readonly _locales?: BallotLocale;
-}
 
 export type CastVoteRecordFileMode = 'test' | 'live';
 

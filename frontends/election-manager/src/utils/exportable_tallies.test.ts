@@ -4,17 +4,14 @@ import {
 } from '@votingworks/fixtures';
 import {
   CandidateContest,
-  Election,
-  YesNoContest,
+  CastVoteRecord,
   ContestTally,
+  Election,
   VotingMethod,
   writeInCandidate,
+  YesNoContest,
 } from '@votingworks/types';
-import {
-  CastVoteRecord,
-  ExportableContestTally,
-  ExportableTallies,
-} from '../config/types';
+import { ExportableContestTally, ExportableTallies } from '../config/types';
 import { computeFullElectionTally, parseCvrs } from '../lib/votecounting';
 import {
   getCombinedExportableContestTally,

@@ -14,6 +14,7 @@ import {
   LogDispositionStandardTypes,
 } from '@votingworks/logging';
 import {
+  CastVoteRecord,
   ElectionDefinition,
   safeParseElection,
   FullElectionExternalTally,
@@ -52,7 +53,6 @@ import {
   ExportableTallies,
   ResultsFileType,
   MachineConfig,
-  CastVoteRecord,
   ConverterClientType,
 } from './config/types';
 import { getExportableTallies } from './utils/exportable_tallies';

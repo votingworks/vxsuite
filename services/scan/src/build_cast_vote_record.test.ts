@@ -72,7 +72,7 @@ test('getWriteInOptionIdsForContestVote', () => {
       } as unknown as AnyContest,
       {}
     )
-  ).toThrowError('contest type not yet supported: not-supported-type');
+  ).toThrowError('Illegal Value: not-supported-type');
 });
 
 test('getOptionIdsForContestVote', () => {
