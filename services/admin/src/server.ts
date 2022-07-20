@@ -17,12 +17,38 @@ export function buildApp({ store }: { store: Store }): Application {
   const app: Application = express();
 
   app.use(express.raw());
-  app.use(express.json({ limit: '5mb', type: 'application/json' }));
+  app.use(express.json({ limit: '50mb', type: 'application/json' }));
   app.use(express.urlencoded({ extended: false }));
 
   app.get<NoParams>('/admin/write-ins/cvrs/reset', (_, response) => {
     store.deleteCvrsAndCvrFiles();
     response.status(200).json({ status: 'ok' });
+  });
+
+  app.get<NoParams>('/admin/write-ins/cvr-files', (_, response) => {
+    const cvrFiles = store.getAllCvrFiles();
+    response.json(cvrFiles);
+  });
+
+  app.get<NoParams>('/admin/write-ins/cvr-ballot-ids', (_, response) => {
+    const ballotIds = store.getAllCvrBallotIds();
+    response.json(ballotIds);
+  });
+
+  app.get<NoParams>('/admin/write-ins/cvrs', (_, response) => {
+    const cvrs = store.getAllCvrs();
+    response.json(cvrs);
+  });
+
+  app.get('/admin/write-ins/adjudication/:id/cvr', (request, response) => {
+    const { id } = request.params;
+
+    const cvr = store.getCvrByAdjudicationId(id);
+    if (cvr) {
+      response.json(cvr);
+    } else {
+      response.status(404).end();
+    }
   });
 
   app.get('/admin/write-ins/adjudication/:id', (request, response) => {
@@ -156,6 +182,10 @@ export function buildApp({ store }: { store: Store }): Application {
       response.json(store.getAdjudicationCountsGroupedByContestId());
     }
   );
+
+  app.get<NoParams>('/admin/write-ins/adjudications/counts', (_, response) => {
+    response.json(store.getAdjudicationCountsByContestIdAndTranscribedValue());
+  });
 
   app.get('/admin/write-ins/adjudications/:contestId/', (request, response) => {
     const { contestId } = request.params;

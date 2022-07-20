@@ -147,6 +147,16 @@ test('GET /admin/write-ins/adjudications/:contestId/', async () => {
     ]);
 });
 
+test('GET /admin/write-ins/adjudications/counts', async () => {
+  workspace.store.getAdjudicationCountsByContestIdAndTranscribedValue =
+    jest.fn();
+
+  await request(app).get('/admin/write-ins/adjudications/counts').expect(200);
+  expect(
+    workspace.store.getAdjudicationCountsByContestIdAndTranscribedValue
+  ).toHaveBeenCalled();
+});
+
 test('GET /admin/write-ins/adjudications/contestId/count', async () => {
   await request(app)
     .get('/admin/write-ins/adjudications/contestId/count')
@@ -169,6 +179,37 @@ test('GET /admin/write-ins/reset', async () => {
 
   await request(app).get('/admin/write-ins/cvrs/reset').expect(200);
   expect(workspace.store.deleteCvrsAndCvrFiles).toHaveBeenCalled();
+});
+
+test('GET /admin/write-ins/cvr-files', async () => {
+  workspace.store.getAllCvrFiles = jest.fn();
+  await request(app).get('/admin/write-ins/cvr-files').expect(200);
+  expect(workspace.store.getAllCvrFiles).toHaveBeenCalled();
+});
+
+test('GET /admin/write-ins/cvr-ballot-ids', async () => {
+  workspace.store.getAllCvrBallotIds = jest.fn();
+  await request(app).get('/admin/write-ins/cvr-ballot-ids').expect(200);
+  expect(workspace.store.getAllCvrBallotIds).toHaveBeenCalled();
+});
+
+test('GET /admin/write-ins/cvrs', async () => {
+  workspace.store.getAllCvrs = jest.fn();
+  await request(app).get('/admin/write-ins/cvrs').expect(200);
+  expect(workspace.store.getAllCvrs).toHaveBeenCalled();
+});
+
+test('GET /admin/write-ins/adjudication/:id/cvr', async () => {
+  jest
+    .spyOn(workspace.store, 'getCvrByAdjudicationId')
+    .mockImplementationOnce(() => {
+      return 'test CVR';
+    })
+    .mockImplementationOnce(() => {
+      return undefined;
+    });
+  await request(app).get('/admin/write-ins/adjudication/1/cvr').expect(200);
+  await request(app).get('/admin/write-ins/adjudication/2/cvr').expect(404);
 });
 
 test('POST /admin/write-ins/cvrs', async () => {
