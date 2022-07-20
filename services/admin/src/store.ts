@@ -94,7 +94,7 @@ export class Store {
    */
   getAllCvrFiles(): string[] {
     const rows = this.client.all('select * from cvr_files');
-    return rows.map((r) => JSON.stringify(r)).filter(Boolean);
+    return rows.map((r) => JSON.stringify(r));
   }
 
   updateCvrFileCounts(
