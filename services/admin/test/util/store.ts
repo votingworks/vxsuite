@@ -1,5 +1,5 @@
 /* istanbul ignore file */
-import { Store } from '../store';
+import { Store } from '../../src/store';
 
 /**
  * Adds a CVR file to the store with default test data

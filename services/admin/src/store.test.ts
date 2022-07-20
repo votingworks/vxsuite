@@ -2,7 +2,7 @@ import { promises as fs } from 'fs';
 import { join } from 'path';
 import { tmpNameSync } from 'tmp';
 
-import { addTestCvr, addTestCvrFile } from './test-util/store';
+import { addTestCvr, addTestCvrFile } from '../test/util/store';
 import { Store } from './store';
 
 test('create a file store', async () => {

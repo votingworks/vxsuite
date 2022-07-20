@@ -6,7 +6,7 @@ import request from 'supertest';
 import { dirSync } from 'tmp';
 import { Server } from 'http';
 import { buildApp, start } from './server';
-import { addTestCvr } from './test-util/store';
+import { addTestCvr } from '../test/util/store';
 import { createWorkspace, Workspace } from './util/workspace';
 
 let app: Application;
