@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { join } from 'path';
-import {
-  OptionalElectionDefinition,
-  getPrecinctById,
-} from '@votingworks/types';
+import { getPrecinctById } from '@votingworks/types';
 import {
   assert,
   readBallotPackageFromFilePointer,
@@ -22,14 +19,12 @@ import {
 
 interface Props {
   usbDriveStatus: usbstick.UsbDriveStatus;
-  setElectionDefinition: (
-    electionDefinition: OptionalElectionDefinition
-  ) => Promise<void>;
+  refreshConfig: () => Promise<void>;
 }
 
 export function UnconfiguredElectionScreen({
   usbDriveStatus,
-  setElectionDefinition,
+  refreshConfig,
 }: Props): JSX.Element {
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoadingBallotPackage, setIsLoadingBallotPackage] = useState(false);
@@ -110,7 +105,7 @@ export function UnconfiguredElectionScreen({
             setLoadingTemplates(true);
             await doneTemplates();
             setLoadingTemplates(false);
-            await setElectionDefinition(ballotPackage.electionDefinition);
+            await refreshConfig();
           });
       } catch (error) {
         if (error instanceof Error) {
@@ -207,7 +202,7 @@ export function DefaultPreview(): JSX.Element {
   return (
     <UnconfiguredElectionScreen
       usbDriveStatus={usbstick.UsbDriveStatus.notavailable}
-      setElectionDefinition={() => Promise.resolve()}
+      refreshConfig={() => Promise.resolve()}
     />
   );
 }

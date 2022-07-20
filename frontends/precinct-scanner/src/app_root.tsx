@@ -570,17 +570,6 @@ export function AppRoot({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [precinctScanner, electionDefinition, isPollsOpen, auth]);
 
-  const setElectionDefinition = useCallback(
-    async (newElectionDefinition: OptionalElectionDefinition) => {
-      dispatchAppState({
-        type: 'updateElectionDefinition',
-        electionDefinition: newElectionDefinition,
-      });
-      await refreshConfig();
-    },
-    [dispatchAppState, refreshConfig]
-  );
-
   const toggleTestMode = useCallback(async () => {
     await config.setTestMode(!isTestMode);
     dispatchAppState({ type: 'resetPollsToClosed' });
@@ -723,7 +712,7 @@ export function AppRoot({
     return (
       <UnconfiguredElectionScreen
         usbDriveStatus={usbDriveDisplayStatus}
-        setElectionDefinition={setElectionDefinition}
+        refreshConfig={refreshConfig}
       />
     );
   }
