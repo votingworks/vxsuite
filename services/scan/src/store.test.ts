@@ -587,7 +587,7 @@ test('exportCvrs', async () => {
     expect.stringContaining(stateOfHamilton.election.precincts[0].id)
   );
 
-  // Confirm that front and back images are included when building the CVR
+  // Confirm that ballot images and layouts are included when building the CVR
   expect(buildCastVoteRecordMock).toHaveBeenCalledWith(
     expect.anything(),
     expect.anything(),
@@ -598,7 +598,17 @@ test('exportCvrs', async () => {
     [
       { normalized: 'ZnJvbnQgbm9ybWFsaXplZA==' },
       { normalized: 'YmFjayBub3JtYWxpemVk' },
-    ]
+    ],
+    expect.arrayContaining([
+      expect.arrayContaining([
+        expect.objectContaining({ contests: [] }),
+        expect.objectContaining({ contests: [] }),
+      ]),
+      expect.arrayContaining([
+        expect.objectContaining({ contests: [] }),
+        expect.objectContaining({ contests: [] }),
+      ]),
+    ])
   );
 
   // Confirm that deleted batches are not included in exported CVRs

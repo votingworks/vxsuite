@@ -367,6 +367,10 @@ test('generates a CVR from a completed HMPB page', () => {
       "_ballotType": "standard",
       "_batchId": "1234",
       "_batchLabel": "Batch 1",
+      "_layouts": Array [
+        undefined,
+        undefined,
+      ],
       "_locales": Object {
         "primary": "en-US",
       },
@@ -481,6 +485,10 @@ test('generates a CVR from a completed HMPB page with write in votes and overvot
       "_ballotType": "standard",
       "_batchId": "1234",
       "_batchLabel": "Batch 1",
+      "_layouts": Array [
+        undefined,
+        undefined,
+      ],
       "_locales": Object {
         "primary": "en-US",
       },
@@ -587,6 +595,10 @@ test('generates a CVR from a completed absentee HMPB page', () => {
       "_ballotType": "absentee",
       "_batchId": "1234",
       "_batchLabel": "Batch 1",
+      "_layouts": Array [
+        undefined,
+        undefined,
+      ],
       "_locales": Object {
         "primary": "en-US",
       },
@@ -709,6 +721,10 @@ test('generates a CVR from an adjudicated HMPB page', () => {
       "_ballotType": "standard",
       "_batchId": "1234",
       "_batchLabel": "Batch 1",
+      "_layouts": Array [
+        undefined,
+        undefined,
+      ],
       "_locales": Object {
         "primary": "en-US",
       },
@@ -1064,6 +1080,10 @@ test('generates a CVR from an adjudicated uninterpreted HMPB page', () => {
       "_ballotType": "standard",
       "_batchId": "1234",
       "_batchLabel": "Batch 1",
+      "_layouts": Array [
+        undefined,
+        undefined,
+      ],
       "_locales": Object {
         "primary": "en-US",
       },
@@ -1193,6 +1213,10 @@ test('generates a CVR from an adjudicated write-in', () => {
       "_ballotType": "standard",
       "_batchId": "1234",
       "_batchLabel": "Batch 1",
+      "_layouts": Array [
+        undefined,
+        undefined,
+      ],
       "_locales": Object {
         "primary": "en-US",
       },
@@ -1313,6 +1337,10 @@ test('generates a CVR from an adjudicated unmarked write-in', () => {
       "_ballotType": "standard",
       "_batchId": "1234",
       "_batchLabel": "Batch 1",
+      "_layouts": Array [
+        undefined,
+        undefined,
+      ],
       "_locales": Object {
         "primary": "en-US",
       },
