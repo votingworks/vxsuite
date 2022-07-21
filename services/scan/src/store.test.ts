@@ -10,12 +10,14 @@ import {
 } from '@votingworks/types';
 import { sleep, typedAs } from '@votingworks/utils';
 import { Buffer } from 'buffer';
+import { writeFile } from 'fs-extra';
 import * as streams from 'memory-streams';
 import * as tmp from 'tmp';
 import { v4 as uuid } from 'uuid';
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { zeroRect } from '../test/fixtures/zero_rect';
 import { Store } from './store';
+import * as buildCastVoteRecord from './build_cast_vote_record';
 
 // We pause in some of these tests so we need to increase the timeout
 jest.setTimeout(20000);
@@ -497,7 +499,11 @@ test('adjudication', () => {
   store.cleanupIncompleteBatches();
 });
 
-test('exportCvrs', () => {
+test('exportCvrs', async () => {
+  const buildCastVoteRecordMock = jest.spyOn(
+    buildCastVoteRecord,
+    'buildCastVoteRecord'
+  );
   const store = Store.memoryStore();
   store.setElection(stateOfHamilton.electionDefinition);
 
@@ -535,12 +541,18 @@ test('exportCvrs', () => {
     },
   ]);
 
+  const frontNormalizedFile = tmp.fileSync();
+  await writeFile(frontNormalizedFile.fd, 'front normalized');
+
+  const backNormalizedFile = tmp.fileSync();
+  await writeFile(backNormalizedFile.fd, 'back normalized');
+
   // Create CVRs, confirm that they are exported should work
   const batchId = store.addBatch();
   const sheetId = store.addSheet(uuid(), batchId, [
     {
       originalFilename: '/tmp/front-page.png',
-      normalizedFilename: '/tmp/front-normalized-page.png',
+      normalizedFilename: frontNormalizedFile.name,
       interpretation: {
         type: 'UninterpretedHmpbPage',
         metadata: {
@@ -551,7 +563,7 @@ test('exportCvrs', () => {
     },
     {
       originalFilename: '/tmp/back-page.png',
-      normalizedFilename: '/tmp/back-normalized-page.png',
+      normalizedFilename: backNormalizedFile.name,
       interpretation: {
         type: 'UninterpretedHmpbPage',
         metadata: {
@@ -568,6 +580,20 @@ test('exportCvrs', () => {
   store.exportCvrs(stream);
   expect(stream.toString()).toEqual(
     expect.stringContaining(stateOfHamilton.election.precincts[0].id)
+  );
+
+  // Confirm that front and back images are included when building the CVR
+  expect(buildCastVoteRecordMock).toHaveBeenCalledWith(
+    expect.anything(),
+    expect.anything(),
+    expect.anything(),
+    expect.anything(),
+    expect.anything(),
+    expect.anything(),
+    [
+      { normalized: 'ZnJvbnQgbm9ybWFsaXplZA==' },
+      { normalized: 'YmFjayBub3JtYWxpemVk' },
+    ]
   );
 
   // Confirm that deleted batches are not included in exported CVRs
