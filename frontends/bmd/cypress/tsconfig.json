@@ -6,6 +6,8 @@
   "include": [
     "../node_modules/cypress",
     "../node_modules/@testing-library/cypress",
-    "**/*.ts"
+    "**/*.ts",
+    "support/commands.js",
+    "support/e2e.js"
   ]
 }
