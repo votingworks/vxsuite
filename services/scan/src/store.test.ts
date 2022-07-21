@@ -298,8 +298,7 @@ test('canUnconfigure not in test mode', async () => {
 
   // Pause so timestamps are not equal
   await sleep(1000);
-  store.setBatchesAsBackedUp();
-  store.setCvrsAsBackedUp();
+  store.setScannerAsBackedUp();
   expect(store.getCanUnconfigure()).toBe(true);
 
   await sleep(1000);
@@ -325,8 +324,7 @@ test('canUnconfigure not in test mode', async () => {
   expect(store.getCanUnconfigure()).toBe(false);
 
   await sleep(1000);
-  store.setBatchesAsBackedUp();
-  store.setCvrsAsBackedUp();
+  store.setScannerAsBackedUp();
   expect(store.getCanUnconfigure()).toBe(true);
 
   // Delete the sheet, confirm that invalidates the backup/export
@@ -338,8 +336,7 @@ test('canUnconfigure not in test mode', async () => {
   const batchId2 = store.addBatch();
   // Pause before marking as exported so timestamps are not equal
   await sleep(1000);
-  store.setBatchesAsBackedUp();
-  store.setCvrsAsBackedUp();
+  store.setScannerAsBackedUp();
   expect(store.getCanUnconfigure()).toBe(true);
 
   // Delete the second batch, confirm that invalidates the backup/export

@@ -690,7 +690,7 @@ export function buildApp({ store, importer }: AppOptions): Application {
         });
       })
       .on('end', () => {
-        store.setBatchesAsBackedUp();
+        store.setScannerAsBackedUp();
       })
       .pipe(response);
   });
