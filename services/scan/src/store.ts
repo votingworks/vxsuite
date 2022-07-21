@@ -920,7 +920,16 @@ export class Store {
             markAdjudications: backAdjudications,
           },
         ],
-        [frontImage, backImage]
+        [frontImage, backImage],
+        (frontInterpretation.type === 'InterpretedHmpbPage' ||
+          frontInterpretation.type === 'UninterpretedHmpbPage') &&
+          (backInterpretation.type === 'InterpretedHmpbPage' ||
+            backInterpretation.type === 'UninterpretedHmpbPage')
+          ? [
+              this.getBallotLayoutsForMetadata(frontInterpretation.metadata),
+              this.getBallotLayoutsForMetadata(backInterpretation.metadata),
+            ]
+          : undefined
       );
 
       if (cvr) {
