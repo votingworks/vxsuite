@@ -22,11 +22,8 @@ import {
   Iso8601Timestamp,
   ExportableTallies,
   MachineConfig,
+  CastVoteRecordFile,
 } from '../src/config/types';
-import {
-  CastVoteRecordFiles,
-  SaveCastVoteRecordFiles,
-} from '../src/utils/cast_vote_record_files';
 import { getEmptyFullElectionTally } from '../src/lib/votecounting';
 
 export const eitherNeitherElectionDefinition =
@@ -35,21 +32,19 @@ export const eitherNeitherElectionDefinition =
 interface RenderInAppContextParams {
   route?: string;
   history?: MemoryHistory;
-  castVoteRecordFiles?: CastVoteRecordFiles;
+  castVoteRecordFiles?: CastVoteRecordFile[];
+  importedBallotIds?: Set<string>;
   electionDefinition?: ElectionDefinition | 'NONE';
   configuredAt?: Iso8601Timestamp;
   isOfficialResults?: boolean;
   printer?: Printer;
   printBallotRef?: RefObject<HTMLElement>;
-  saveCastVoteRecordFiles?: SaveCastVoteRecordFiles;
+  refreshCastVoteRecordFiles?: () => Promise<void>;
   saveElection?: SaveElection;
   saveTranscribedValue?: (
     adjudicationId: AdjudicationId,
     transcribedValue: string
   ) => Promise<void>;
-  setCastVoteRecordFiles?: React.Dispatch<
-    React.SetStateAction<CastVoteRecordFiles>
-  >;
   saveIsOfficialResults?: () => Promise<void>;
   resetFiles?: () => Promise<void>;
   usbDriveStatus?: usbstick.UsbDriveStatus;
@@ -79,15 +74,15 @@ export function renderInAppContext(
   {
     route = '/',
     history = createMemoryHistory({ initialEntries: [route] }),
-    castVoteRecordFiles = CastVoteRecordFiles.empty,
     electionDefinition = eitherNeitherElectionDefinition,
     configuredAt = new Date().toISOString(),
     isOfficialResults = false,
     printer = new NullPrinter(),
     printBallotRef = undefined,
-    saveCastVoteRecordFiles = jest.fn(),
+    refreshCastVoteRecordFiles = jest.fn(),
+    castVoteRecordFiles = [],
+    importedBallotIds = new Set(),
     saveElection = jest.fn(),
-    setCastVoteRecordFiles = jest.fn(),
     saveIsOfficialResults = jest.fn(),
     resetFiles = jest.fn(),
     usbDriveStatus = usbstick.UsbDriveStatus.absent,
@@ -115,16 +110,14 @@ export function renderInAppContext(
   return testRender(
     <AppContext.Provider
       value={{
-        castVoteRecordFiles,
         electionDefinition:
           electionDefinition === 'NONE' ? undefined : electionDefinition,
         configuredAt,
         isOfficialResults,
         printer,
         printBallotRef,
-        saveCastVoteRecordFiles,
+        refreshCastVoteRecordFiles,
         saveElection,
-        setCastVoteRecordFiles,
         saveIsOfficialResults,
         resetFiles,
         usbDriveStatus,
@@ -144,6 +137,8 @@ export function renderInAppContext(
         hasCardReaderAttached,
         hasPrinterAttached,
         logger,
+        castVoteRecordFiles,
+        importedBallotIds,
       }}
     >
       <Router history={history}>{component}</Router>

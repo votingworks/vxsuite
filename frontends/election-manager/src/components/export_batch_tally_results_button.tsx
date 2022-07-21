@@ -13,7 +13,7 @@ export function ExportBatchTallyResultsButton(): JSX.Element {
   const { fullElectionTally, castVoteRecordFiles, electionDefinition } =
     useContext(AppContext);
   assert(electionDefinition);
-  const isTestMode = castVoteRecordFiles?.fileMode === 'test';
+  const isTestMode = castVoteRecordFiles.filter((c) => c.isTestMode).length > 0;
   const { election } = electionDefinition;
 
   const defaultFilename = generateBatchResultsDefaultFilename(

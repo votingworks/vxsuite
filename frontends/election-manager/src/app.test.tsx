@@ -142,7 +142,14 @@ beforeEach(() => {
     })
   );
   fetchMock.get('/admin/write-ins/cvrs/reset', { body: { status: 'ok ' } });
+<<<<<<< HEAD
   disableVvsg2AuthFlows();
+=======
+  fetchMock.get('/admin/write-ins/cvrs', { body: [] });
+  fetchMock.get('/admin/write-ins/cvr-files', { body: [] });
+  fetchMock.get('/admin/write-ins/cvr-ballot-ids', { body: [] });
+  mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => false);
+>>>>>>> fd01ae4df (feat(election-manager): Pull in nh-demo changes)
 });
 
 afterEach(() => {

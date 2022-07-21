@@ -50,6 +50,7 @@ export const routerPaths = {
   tallyBatchReport: ({ batchId }: BatchReportScreenProps): string =>
     `/reports/tally-reports/batches/${batchId}`,
   tallyFullReport: '/reports/tally-reports/full',
+  tallyWriteInReport: '/tally/writeins',
   overvoteCombinationReport: '/tally/pairs',
   logicAndAccuracy: '/logic-and-accuracy',
   testDecks: '/logic-and-accuracy/test-decks',
