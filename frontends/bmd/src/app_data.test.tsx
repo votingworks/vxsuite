@@ -3,7 +3,6 @@ import { render, screen } from '@testing-library/react';
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
 
 import { App } from './app';
-import { DemoApp, getDemoStorage } from './demo_app';
 import { electionStorageKey } from './app_root';
 
 import {
@@ -58,20 +57,6 @@ describe('loads election', () => {
     await advanceTimersAndPromises();
 
     screen.getByText(election.title);
-    expect(storage.get(electionStorageKey)).toBeTruthy();
-  });
-
-  it('demo app loads election and activates ballot', async () => {
-    const storage = getDemoStorage();
-    render(<DemoApp storage={storage} reload={jest.fn()} />);
-
-    // Let the initial hardware detection run.
-    await advanceTimersAndPromises();
-    await advanceTimersAndPromises();
-
-    expect(screen.getAllByText(election.title).length).toBeGreaterThan(1);
-    screen.getByText(/Center Springfield/);
-    screen.getByText(/ballot style 12/);
     expect(storage.get(electionStorageKey)).toBeTruthy();
   });
 });
