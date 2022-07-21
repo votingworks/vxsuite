@@ -1027,6 +1027,15 @@ export const AdjudicationInfoSchema: z.ZodSchema<AdjudicationInfo> = z.object({
   ignoredReasonInfos: z.array(AdjudicationReasonInfoSchema),
 });
 
+export interface InlineBallotImage {
+  normalized: string;
+}
+export const InlineBallotImageSchema: z.ZodSchema<InlineBallotImage> = z.object(
+  {
+    normalized: z.string(),
+  }
+);
+
 export interface CompletedBallot {
   readonly electionHash: string;
   readonly ballotStyleId: BallotStyleId;
