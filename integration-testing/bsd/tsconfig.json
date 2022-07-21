@@ -1,5 +1,5 @@
 {
-  "extends": "../../../tsconfig.shared.json",
+  "extends": "../../tsconfig.shared.json",
   "compilerOptions": {
     "types": ["cypress", "cypress-file-upload"],
     "isolatedModules": false,
@@ -15,13 +15,9 @@
     "resolveJsonModule": true,
     "skipLibCheck": true
   },
-  "include": [
-    "../node_modules/cypress",
-    "../node_modules/@testing-library/cypress",
-    "**/*.ts"
-  ],
+  "include": ["**/*.ts"],
   "references": [
-    { "path": "../../../libs/fixtures/tsconfig.build.json" },
-    { "path": "../../../libs/eslint-plugin-vx/tsconfig.build.json" }
+    { "path": "../../libs/fixtures/tsconfig.build.json" },
+    { "path": "../../libs/eslint-plugin-vx/tsconfig.build.json" }
   ]
 }
