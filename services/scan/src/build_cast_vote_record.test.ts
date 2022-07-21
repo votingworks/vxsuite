@@ -132,32 +132,40 @@ test('generates a CVR from a completed BMD ballot', () => {
   const blankPageTypes = ['BlankPage', 'UnreadablePage'];
   for (const blankPageType of blankPageTypes) {
     expect(
-      buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
-        {
-          interpretation: {
-            type: 'InterpretedBmdPage',
-            ballotId,
-            metadata: {
-              locales: { primary: 'en-US' },
-              electionHash: electionDefinition.electionHash,
-              ballotType: BallotType.Standard,
-              ballotStyleId,
-              precinctId,
-              isTestMode: false,
+      buildCastVoteRecord(
+        sheetId,
+        batchId,
+        batchLabel,
+        ballotId,
+        election,
+        [
+          {
+            interpretation: {
+              type: 'InterpretedBmdPage',
+              ballotId,
+              metadata: {
+                locales: { primary: 'en-US' },
+                electionHash: electionDefinition.electionHash,
+                ballotType: BallotType.Standard,
+                ballotStyleId,
+                precinctId,
+                isTestMode: false,
+              },
+              votes: vote(contests, {
+                '1': '1',
+                '2': '22',
+                'initiative-65': ['yes', 'no'],
+              }),
             },
-            votes: vote(contests, {
-              '1': '1',
-              '2': '22',
-              'initiative-65': ['yes', 'no'],
-            }),
           },
-        },
-        {
-          interpretation: {
-            type: blankPageType as 'BlankPage' | 'UnreadablePage',
+          {
+            interpretation: {
+              type: blankPageType as 'BlankPage' | 'UnreadablePage',
+            },
           },
-        },
-      ])
+        ],
+        []
+      )
     ).toMatchInlineSnapshot(`
           Object {
             "1": Array [
@@ -203,35 +211,43 @@ test('generates a CVR from a completed BMD ballot with write in and overvotes', 
   const blankPageTypes = ['BlankPage', 'UnreadablePage'];
   for (const blankPageType of blankPageTypes) {
     expect(
-      buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
-        {
-          interpretation: {
-            type: 'InterpretedBmdPage',
-            ballotId,
-            metadata: {
-              locales: { primary: 'en-US' },
-              electionHash: electionDefinition.electionHash,
-              ballotType: BallotType.Standard,
-              ballotStyleId,
-              precinctId,
-              isTestMode: false,
-            },
-            votes: vote(contests, {
-              '1': {
-                id: 'write-in-PIKACHU',
-                name: 'Pikachu',
-                isWriteIn: true,
+      buildCastVoteRecord(
+        sheetId,
+        batchId,
+        batchLabel,
+        ballotId,
+        election,
+        [
+          {
+            interpretation: {
+              type: 'InterpretedBmdPage',
+              ballotId,
+              metadata: {
+                locales: { primary: 'en-US' },
+                electionHash: electionDefinition.electionHash,
+                ballotType: BallotType.Standard,
+                ballotStyleId,
+                precinctId,
+                isTestMode: false,
               },
-              '2': ['21', '22'],
-            }),
+              votes: vote(contests, {
+                '1': {
+                  id: 'write-in-PIKACHU',
+                  name: 'Pikachu',
+                  isWriteIn: true,
+                },
+                '2': ['21', '22'],
+              }),
+            },
           },
-        },
-        {
-          interpretation: {
-            type: blankPageType as 'BlankPage' | 'UnreadablePage',
+          {
+            interpretation: {
+              type: blankPageType as 'BlankPage' | 'UnreadablePage',
+            },
           },
-        },
-      ])
+        ],
+        [{ normalized: 'normalized front' }, { normalized: 'normalized back' }]
+      )
     ).toMatchInlineSnapshot(`
           Object {
             "1": Array [
@@ -274,61 +290,69 @@ test('generates a CVR from a completed HMPB page', () => {
   const contests = getContests({ ballotStyle, election });
 
   expect(
-    buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
-      {
-        interpretation: {
-          type: 'InterpretedHmpbPage',
-          ballotId,
-          metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Standard,
-            ballotStyleId,
-            precinctId,
-            isTestMode: false,
-            pageNumber: 1,
+    buildCastVoteRecord(
+      sheetId,
+      batchId,
+      batchLabel,
+      ballotId,
+      election,
+      [
+        {
+          interpretation: {
+            type: 'InterpretedHmpbPage',
+            ballotId,
+            metadata: {
+              locales: { primary: 'en-US' },
+              electionHash: electionDefinition.electionHash,
+              ballotType: BallotType.Standard,
+              ballotStyleId,
+              precinctId,
+              isTestMode: false,
+              pageNumber: 1,
+            },
+            markInfo: { marks: [], ballotSize: { width: 1, height: 1 } },
+            adjudicationInfo: {
+              requiresAdjudication: false,
+              enabledReasons: [],
+              enabledReasonInfos: [],
+              ignoredReasonInfos: [],
+            },
+            votes: vote(contests, {
+              '1': '1',
+              '2': '22',
+            }),
           },
-          markInfo: { marks: [], ballotSize: { width: 1, height: 1 } },
-          adjudicationInfo: {
-            requiresAdjudication: false,
-            enabledReasons: [],
-            enabledReasonInfos: [],
-            ignoredReasonInfos: [],
-          },
-          votes: vote(contests, {
-            '1': '1',
-            '2': '22',
-          }),
+          contestIds: ['1', '2'],
         },
-        contestIds: ['1', '2'],
-      },
-      {
-        interpretation: {
-          type: 'InterpretedHmpbPage',
-          ballotId,
-          metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Standard,
-            ballotStyleId,
-            precinctId,
-            isTestMode: false,
-            pageNumber: 2,
+        {
+          interpretation: {
+            type: 'InterpretedHmpbPage',
+            ballotId,
+            metadata: {
+              locales: { primary: 'en-US' },
+              electionHash: electionDefinition.electionHash,
+              ballotType: BallotType.Standard,
+              ballotStyleId,
+              precinctId,
+              isTestMode: false,
+              pageNumber: 2,
+            },
+            markInfo: { marks: [], ballotSize: { width: 1, height: 1 } },
+            adjudicationInfo: {
+              requiresAdjudication: false,
+              enabledReasons: [],
+              enabledReasonInfos: [],
+              ignoredReasonInfos: [],
+            },
+            votes: vote(contests, {
+              'initiative-65': ['yes', 'no'],
+            }),
           },
-          markInfo: { marks: [], ballotSize: { width: 1, height: 1 } },
-          adjudicationInfo: {
-            requiresAdjudication: false,
-            enabledReasons: [],
-            enabledReasonInfos: [],
-            ignoredReasonInfos: [],
-          },
-          votes: vote(contests, {
-            'initiative-65': ['yes', 'no'],
-          }),
+          contestIds: ['initiative-65'],
         },
-        contestIds: ['initiative-65'],
-      },
-    ])
+      ],
+      [{ normalized: 'normalized front' }, { normalized: 'normalized back' }]
+    )
   ).toMatchInlineSnapshot(`
     Object {
       "1": Array [
@@ -338,6 +362,7 @@ test('generates a CVR from a completed HMPB page', () => {
         "22",
       ],
       "_ballotId": "abcdefg",
+      "_ballotImages": Array [],
       "_ballotStyleId": "1",
       "_ballotType": "standard",
       "_batchId": "1234",
@@ -371,61 +396,69 @@ test('generates a CVR from a completed HMPB page with write in votes and overvot
   const contests = getContests({ ballotStyle, election });
 
   expect(
-    buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
-      {
-        interpretation: {
-          type: 'InterpretedHmpbPage',
-          ballotId,
-          metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Standard,
-            ballotStyleId,
-            precinctId,
-            isTestMode: false,
-            pageNumber: 1,
+    buildCastVoteRecord(
+      sheetId,
+      batchId,
+      batchLabel,
+      ballotId,
+      election,
+      [
+        {
+          interpretation: {
+            type: 'InterpretedHmpbPage',
+            ballotId,
+            metadata: {
+              locales: { primary: 'en-US' },
+              electionHash: electionDefinition.electionHash,
+              ballotType: BallotType.Standard,
+              ballotStyleId,
+              precinctId,
+              isTestMode: false,
+              pageNumber: 1,
+            },
+            markInfo: { marks: [], ballotSize: { width: 1, height: 1 } },
+            adjudicationInfo: {
+              requiresAdjudication: false,
+              enabledReasons: [],
+              enabledReasonInfos: [],
+              ignoredReasonInfos: [],
+            },
+            votes: vote(contests, {
+              '1': { id: 'write-in-0', name: 'Pikachu', isWriteIn: true },
+              '2': ['21', '22'],
+            }),
           },
-          markInfo: { marks: [], ballotSize: { width: 1, height: 1 } },
-          adjudicationInfo: {
-            requiresAdjudication: false,
-            enabledReasons: [],
-            enabledReasonInfos: [],
-            ignoredReasonInfos: [],
-          },
-          votes: vote(contests, {
-            '1': { id: 'write-in-0', name: 'Pikachu', isWriteIn: true },
-            '2': ['21', '22'],
-          }),
+          contestIds: ['1', '2'],
         },
-        contestIds: ['1', '2'],
-      },
-      {
-        interpretation: {
-          type: 'InterpretedHmpbPage',
-          ballotId,
-          metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Standard,
-            ballotStyleId,
-            precinctId,
-            isTestMode: false,
-            pageNumber: 2,
+        {
+          interpretation: {
+            type: 'InterpretedHmpbPage',
+            ballotId,
+            metadata: {
+              locales: { primary: 'en-US' },
+              electionHash: electionDefinition.electionHash,
+              ballotType: BallotType.Standard,
+              ballotStyleId,
+              precinctId,
+              isTestMode: false,
+              pageNumber: 2,
+            },
+            markInfo: { marks: [], ballotSize: { width: 1, height: 1 } },
+            adjudicationInfo: {
+              requiresAdjudication: false,
+              enabledReasons: [],
+              enabledReasonInfos: [],
+              ignoredReasonInfos: [],
+            },
+            votes: vote(contests, {
+              'initiative-65': ['yes', 'no'],
+            }),
           },
-          markInfo: { marks: [], ballotSize: { width: 1, height: 1 } },
-          adjudicationInfo: {
-            requiresAdjudication: false,
-            enabledReasons: [],
-            enabledReasonInfos: [],
-            ignoredReasonInfos: [],
-          },
-          votes: vote(contests, {
-            'initiative-65': ['yes', 'no'],
-          }),
+          contestIds: ['initiative-65'],
         },
-        contestIds: ['initiative-65'],
-      },
-    ])
+      ],
+      [{ normalized: 'normalized front' }, { normalized: 'normalized back' }]
+    )
   ).toMatchInlineSnapshot(`
     Object {
       "1": Array [
@@ -436,6 +469,14 @@ test('generates a CVR from a completed HMPB page with write in votes and overvot
         "22",
       ],
       "_ballotId": "abcdefg",
+      "_ballotImages": Array [
+        Object {
+          "normalized": "normalized front",
+        },
+        Object {
+          "normalized": "normalized back",
+        },
+      ],
       "_ballotStyleId": "1",
       "_ballotType": "standard",
       "_batchId": "1234",
@@ -469,61 +510,69 @@ test('generates a CVR from a completed absentee HMPB page', () => {
   const contests = getContests({ ballotStyle, election });
 
   expect(
-    buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
-      {
-        interpretation: {
-          type: 'InterpretedHmpbPage',
-          ballotId,
-          metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Absentee,
-            ballotStyleId,
-            precinctId,
-            isTestMode: false,
-            pageNumber: 1,
+    buildCastVoteRecord(
+      sheetId,
+      batchId,
+      batchLabel,
+      ballotId,
+      election,
+      [
+        {
+          interpretation: {
+            type: 'InterpretedHmpbPage',
+            ballotId,
+            metadata: {
+              locales: { primary: 'en-US' },
+              electionHash: electionDefinition.electionHash,
+              ballotType: BallotType.Absentee,
+              ballotStyleId,
+              precinctId,
+              isTestMode: false,
+              pageNumber: 1,
+            },
+            markInfo: { marks: [], ballotSize: { width: 1, height: 1 } },
+            adjudicationInfo: {
+              requiresAdjudication: false,
+              enabledReasons: [],
+              enabledReasonInfos: [],
+              ignoredReasonInfos: [],
+            },
+            votes: vote(contests, {
+              '1': '1',
+              '2': '22',
+            }),
           },
-          markInfo: { marks: [], ballotSize: { width: 1, height: 1 } },
-          adjudicationInfo: {
-            requiresAdjudication: false,
-            enabledReasons: [],
-            enabledReasonInfos: [],
-            ignoredReasonInfos: [],
-          },
-          votes: vote(contests, {
-            '1': '1',
-            '2': '22',
-          }),
+          contestIds: ['1', '2'],
         },
-        contestIds: ['1', '2'],
-      },
-      {
-        interpretation: {
-          type: 'InterpretedHmpbPage',
-          ballotId,
-          metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Absentee,
-            ballotStyleId,
-            precinctId,
-            isTestMode: false,
-            pageNumber: 2,
+        {
+          interpretation: {
+            type: 'InterpretedHmpbPage',
+            ballotId,
+            metadata: {
+              locales: { primary: 'en-US' },
+              electionHash: electionDefinition.electionHash,
+              ballotType: BallotType.Absentee,
+              ballotStyleId,
+              precinctId,
+              isTestMode: false,
+              pageNumber: 2,
+            },
+            markInfo: { marks: [], ballotSize: { width: 1, height: 1 } },
+            adjudicationInfo: {
+              requiresAdjudication: false,
+              enabledReasons: [],
+              enabledReasonInfos: [],
+              ignoredReasonInfos: [],
+            },
+            votes: vote(contests, {
+              'initiative-65': ['yes', 'no'],
+            }),
           },
-          markInfo: { marks: [], ballotSize: { width: 1, height: 1 } },
-          adjudicationInfo: {
-            requiresAdjudication: false,
-            enabledReasons: [],
-            enabledReasonInfos: [],
-            ignoredReasonInfos: [],
-          },
-          votes: vote(contests, {
-            'initiative-65': ['yes', 'no'],
-          }),
+          contestIds: ['initiative-65'],
         },
-        contestIds: ['initiative-65'],
-      },
-    ])
+      ],
+      [{ normalized: 'front normalized' }, { normalized: 'back normalized' }]
+    )
   ).toMatchInlineSnapshot(`
     Object {
       "1": Array [
@@ -533,6 +582,7 @@ test('generates a CVR from a completed absentee HMPB page', () => {
         "22",
       ],
       "_ballotId": "abcdefg",
+      "_ballotImages": Array [],
       "_ballotStyleId": "1",
       "_ballotType": "absentee",
       "_batchId": "1234",
@@ -566,77 +616,85 @@ test('generates a CVR from an adjudicated HMPB page', () => {
   const contests = getContests({ ballotStyle, election });
 
   expect(
-    buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
-      {
-        interpretation: {
-          type: 'InterpretedHmpbPage',
-          ballotId,
-          metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Standard,
-            ballotStyleId,
-            precinctId,
-            isTestMode: false,
-            pageNumber: 2,
+    buildCastVoteRecord(
+      sheetId,
+      batchId,
+      batchLabel,
+      ballotId,
+      election,
+      [
+        {
+          interpretation: {
+            type: 'InterpretedHmpbPage',
+            ballotId,
+            metadata: {
+              locales: { primary: 'en-US' },
+              electionHash: electionDefinition.electionHash,
+              ballotType: BallotType.Standard,
+              ballotStyleId,
+              precinctId,
+              isTestMode: false,
+              pageNumber: 2,
+            },
+            markInfo: { marks: [], ballotSize: { width: 1, height: 1 } },
+            adjudicationInfo: {
+              requiresAdjudication: true,
+              enabledReasons: [AdjudicationReason.Overvote],
+              enabledReasonInfos: [
+                {
+                  type: AdjudicationReason.Overvote,
+                  contestId: 'initiative-65',
+                  expected: 1,
+                  optionIds: ['yes', 'no'],
+                  optionIndexes: [0, 1],
+                },
+              ],
+              ignoredReasonInfos: [],
+            },
+            votes: vote(contests, {
+              'initiative-65': ['yes', 'no'],
+            }),
           },
-          markInfo: { marks: [], ballotSize: { width: 1, height: 1 } },
-          adjudicationInfo: {
-            requiresAdjudication: true,
-            enabledReasons: [AdjudicationReason.Overvote],
-            enabledReasonInfos: [
-              {
-                type: AdjudicationReason.Overvote,
-                contestId: 'initiative-65',
-                expected: 1,
-                optionIds: ['yes', 'no'],
-                optionIndexes: [0, 1],
-              },
-            ],
-            ignoredReasonInfos: [],
-          },
-          votes: vote(contests, {
-            'initiative-65': ['yes', 'no'],
-          }),
+          markAdjudications: [
+            {
+              type: AdjudicationReason.Overvote,
+              contestId: 'initiative-65',
+              optionId: 'no',
+              isMarked: false,
+            },
+          ],
+          contestIds: ['initiative-65'],
         },
-        markAdjudications: [
-          {
-            type: AdjudicationReason.Overvote,
-            contestId: 'initiative-65',
-            optionId: 'no',
-            isMarked: false,
+        {
+          interpretation: {
+            type: 'InterpretedHmpbPage',
+            ballotId,
+            metadata: {
+              locales: { primary: 'en-US' },
+              electionHash: electionDefinition.electionHash,
+              ballotType: BallotType.Standard,
+              ballotStyleId,
+              precinctId,
+              isTestMode: false,
+              pageNumber: 1,
+            },
+            markInfo: { marks: [], ballotSize: { width: 1, height: 1 } },
+            adjudicationInfo: {
+              requiresAdjudication: false,
+              enabledReasons: [AdjudicationReason.Overvote],
+              enabledReasonInfos: [],
+              ignoredReasonInfos: [],
+            },
+            votes: vote(contests, {
+              '1': '1',
+              '2': '22',
+            }),
           },
-        ],
-        contestIds: ['initiative-65'],
-      },
-      {
-        interpretation: {
-          type: 'InterpretedHmpbPage',
-          ballotId,
-          metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Standard,
-            ballotStyleId,
-            precinctId,
-            isTestMode: false,
-            pageNumber: 1,
-          },
-          markInfo: { marks: [], ballotSize: { width: 1, height: 1 } },
-          adjudicationInfo: {
-            requiresAdjudication: false,
-            enabledReasons: [AdjudicationReason.Overvote],
-            enabledReasonInfos: [],
-            ignoredReasonInfos: [],
-          },
-          votes: vote(contests, {
-            '1': '1',
-            '2': '22',
-          }),
+          contestIds: ['1', '2'],
         },
-        contestIds: ['1', '2'],
-      },
-    ])
+      ],
+      [{ normalized: 'front normalized' }, { normalized: 'back normalized' }]
+    )
   ).toMatchInlineSnapshot(`
     Object {
       "1": Array [
@@ -646,6 +704,7 @@ test('generates a CVR from an adjudicated HMPB page', () => {
         "22",
       ],
       "_ballotId": "abcdefg",
+      "_ballotImages": Array [],
       "_ballotStyleId": "1",
       "_ballotType": "standard",
       "_batchId": "1234",
@@ -676,47 +735,55 @@ test('fails to generate a CVR from an invalid HMPB sheet with two pages having t
   const batchLabel = 'Batch 1';
 
   expect(() =>
-    buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
-      {
-        interpretation: {
-          type: 'InterpretedHmpbPage',
-          metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Standard,
-            ballotStyleId,
-            precinctId,
-            isTestMode: false,
-            pageNumber: 1,
-          },
-          adjudicationInfo: {
-            requiresAdjudication: false,
-            enabledReasons: [],
-            enabledReasonInfos: [],
-            ignoredReasonInfos: [],
-          },
-          markInfo: {
-            marks: [],
-            ballotSize: { width: 1, height: 1 },
-          },
-          votes: {},
-        },
-      },
-      {
-        interpretation: {
-          type: 'UninterpretedHmpbPage',
-          metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Standard,
-            ballotStyleId,
-            precinctId,
-            isTestMode: false,
-            pageNumber: 1,
+    buildCastVoteRecord(
+      sheetId,
+      batchId,
+      batchLabel,
+      ballotId,
+      election,
+      [
+        {
+          interpretation: {
+            type: 'InterpretedHmpbPage',
+            metadata: {
+              locales: { primary: 'en-US' },
+              electionHash: electionDefinition.electionHash,
+              ballotType: BallotType.Standard,
+              ballotStyleId,
+              precinctId,
+              isTestMode: false,
+              pageNumber: 1,
+            },
+            adjudicationInfo: {
+              requiresAdjudication: false,
+              enabledReasons: [],
+              enabledReasonInfos: [],
+              ignoredReasonInfos: [],
+            },
+            markInfo: {
+              marks: [],
+              ballotSize: { width: 1, height: 1 },
+            },
+            votes: {},
           },
         },
-      },
-    ])
+        {
+          interpretation: {
+            type: 'UninterpretedHmpbPage',
+            metadata: {
+              locales: { primary: 'en-US' },
+              electionHash: electionDefinition.electionHash,
+              ballotType: BallotType.Standard,
+              ballotStyleId,
+              precinctId,
+              isTestMode: false,
+              pageNumber: 1,
+            },
+          },
+        },
+      ],
+      []
+    )
   ).toThrowError(
     'expected a sheet to have consecutive page numbers, but got front=1 back=1'
   );
@@ -731,47 +798,55 @@ test('fails to generate a CVR from an invalid HMPB sheet with two non-consecutiv
   const batchLabel = 'Batch 1';
 
   expect(() =>
-    buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
-      {
-        interpretation: {
-          type: 'InterpretedHmpbPage',
-          metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Standard,
-            ballotStyleId,
-            precinctId,
-            isTestMode: false,
-            pageNumber: 1,
-          },
-          adjudicationInfo: {
-            requiresAdjudication: false,
-            enabledReasons: [],
-            enabledReasonInfos: [],
-            ignoredReasonInfos: [],
-          },
-          markInfo: {
-            marks: [],
-            ballotSize: { width: 1, height: 1 },
-          },
-          votes: {},
-        },
-      },
-      {
-        interpretation: {
-          type: 'UninterpretedHmpbPage',
-          metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Standard,
-            ballotStyleId,
-            precinctId,
-            isTestMode: false,
-            pageNumber: 3,
+    buildCastVoteRecord(
+      sheetId,
+      batchId,
+      batchLabel,
+      ballotId,
+      election,
+      [
+        {
+          interpretation: {
+            type: 'InterpretedHmpbPage',
+            metadata: {
+              locales: { primary: 'en-US' },
+              electionHash: electionDefinition.electionHash,
+              ballotType: BallotType.Standard,
+              ballotStyleId,
+              precinctId,
+              isTestMode: false,
+              pageNumber: 1,
+            },
+            adjudicationInfo: {
+              requiresAdjudication: false,
+              enabledReasons: [],
+              enabledReasonInfos: [],
+              ignoredReasonInfos: [],
+            },
+            markInfo: {
+              marks: [],
+              ballotSize: { width: 1, height: 1 },
+            },
+            votes: {},
           },
         },
-      },
-    ])
+        {
+          interpretation: {
+            type: 'UninterpretedHmpbPage',
+            metadata: {
+              locales: { primary: 'en-US' },
+              electionHash: electionDefinition.electionHash,
+              ballotType: BallotType.Standard,
+              ballotStyleId,
+              precinctId,
+              isTestMode: false,
+              pageNumber: 3,
+            },
+          },
+        },
+      ],
+      [{ normalized: 'normalized front' }, { normalized: 'normalized back' }]
+    )
   ).toThrowError(
     'expected a sheet to have consecutive page numbers, but got front=1 back=3'
   );
@@ -785,47 +860,55 @@ test('fails to generate a CVR from an invalid HMPB sheet with different ballot s
   const batchLabel = 'Batch 1';
 
   expect(() =>
-    buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
-      {
-        interpretation: {
-          type: 'InterpretedHmpbPage',
-          metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Standard,
-            ballotStyleId: '1',
-            precinctId,
-            isTestMode: false,
-            pageNumber: 1,
-          },
-          adjudicationInfo: {
-            requiresAdjudication: false,
-            enabledReasons: [],
-            enabledReasonInfos: [],
-            ignoredReasonInfos: [],
-          },
-          markInfo: {
-            marks: [],
-            ballotSize: { width: 1, height: 1 },
-          },
-          votes: {},
-        },
-      },
-      {
-        interpretation: {
-          type: 'UninterpretedHmpbPage',
-          metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Standard,
-            ballotStyleId: '2',
-            precinctId,
-            isTestMode: false,
-            pageNumber: 2,
+    buildCastVoteRecord(
+      sheetId,
+      batchId,
+      batchLabel,
+      ballotId,
+      election,
+      [
+        {
+          interpretation: {
+            type: 'InterpretedHmpbPage',
+            metadata: {
+              locales: { primary: 'en-US' },
+              electionHash: electionDefinition.electionHash,
+              ballotType: BallotType.Standard,
+              ballotStyleId: '1',
+              precinctId,
+              isTestMode: false,
+              pageNumber: 1,
+            },
+            adjudicationInfo: {
+              requiresAdjudication: false,
+              enabledReasons: [],
+              enabledReasonInfos: [],
+              ignoredReasonInfos: [],
+            },
+            markInfo: {
+              marks: [],
+              ballotSize: { width: 1, height: 1 },
+            },
+            votes: {},
           },
         },
-      },
-    ])
+        {
+          interpretation: {
+            type: 'UninterpretedHmpbPage',
+            metadata: {
+              locales: { primary: 'en-US' },
+              electionHash: electionDefinition.electionHash,
+              ballotType: BallotType.Standard,
+              ballotStyleId: '2',
+              precinctId,
+              isTestMode: false,
+              pageNumber: 2,
+            },
+          },
+        },
+      ],
+      [{ normalized: 'normalized front' }, { normalized: 'normalized back' }]
+    )
   ).toThrowError(
     'expected a sheet to have the same ballot style, but got front=1 back=2'
   );
@@ -839,47 +922,55 @@ test('fails to generate a CVR from an invalid HMPB sheet with different precinct
   const batchLabel = 'Batch 1';
 
   expect(() =>
-    buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
-      {
-        interpretation: {
-          type: 'InterpretedHmpbPage',
-          metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Standard,
-            ballotStyleId,
-            precinctId: '6522',
-            isTestMode: false,
-            pageNumber: 1,
-          },
-          adjudicationInfo: {
-            requiresAdjudication: false,
-            enabledReasons: [],
-            enabledReasonInfos: [],
-            ignoredReasonInfos: [],
-          },
-          markInfo: {
-            marks: [],
-            ballotSize: { width: 1, height: 1 },
-          },
-          votes: {},
-        },
-      },
-      {
-        interpretation: {
-          type: 'UninterpretedHmpbPage',
-          metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Standard,
-            ballotStyleId,
-            precinctId: '6523',
-            isTestMode: false,
-            pageNumber: 2,
+    buildCastVoteRecord(
+      sheetId,
+      batchId,
+      batchLabel,
+      ballotId,
+      election,
+      [
+        {
+          interpretation: {
+            type: 'InterpretedHmpbPage',
+            metadata: {
+              locales: { primary: 'en-US' },
+              electionHash: electionDefinition.electionHash,
+              ballotType: BallotType.Standard,
+              ballotStyleId,
+              precinctId: '6522',
+              isTestMode: false,
+              pageNumber: 1,
+            },
+            adjudicationInfo: {
+              requiresAdjudication: false,
+              enabledReasons: [],
+              enabledReasonInfos: [],
+              ignoredReasonInfos: [],
+            },
+            markInfo: {
+              marks: [],
+              ballotSize: { width: 1, height: 1 },
+            },
+            votes: {},
           },
         },
-      },
-    ])
+        {
+          interpretation: {
+            type: 'UninterpretedHmpbPage',
+            metadata: {
+              locales: { primary: 'en-US' },
+              electionHash: electionDefinition.electionHash,
+              ballotType: BallotType.Standard,
+              ballotStyleId,
+              precinctId: '6523',
+              isTestMode: false,
+              pageNumber: 2,
+            },
+          },
+        },
+      ],
+      []
+    )
   ).toThrowError(
     'expected a sheet to have the same precinct, but got front=6522 back=6523'
   );
@@ -894,65 +985,73 @@ test('generates a CVR from an adjudicated uninterpreted HMPB page', () => {
   const batchLabel = 'Batch 1';
 
   expect(
-    buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
-      {
-        interpretation: {
-          type: 'InterpretedHmpbPage',
-          metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Standard,
-            ballotStyleId,
-            precinctId,
-            isTestMode: false,
-            pageNumber: 1,
+    buildCastVoteRecord(
+      sheetId,
+      batchId,
+      batchLabel,
+      ballotId,
+      election,
+      [
+        {
+          interpretation: {
+            type: 'InterpretedHmpbPage',
+            metadata: {
+              locales: { primary: 'en-US' },
+              electionHash: electionDefinition.electionHash,
+              ballotType: BallotType.Standard,
+              ballotStyleId,
+              precinctId,
+              isTestMode: false,
+              pageNumber: 1,
+            },
+            adjudicationInfo: {
+              requiresAdjudication: false,
+              enabledReasons: [],
+              enabledReasonInfos: [],
+              ignoredReasonInfos: [],
+            },
+            markInfo: {
+              marks: [],
+              ballotSize: { width: 1, height: 1 },
+            },
+            votes: {
+              '2': [
+                {
+                  id: '23',
+                  name: 'Jimmy Edwards',
+                  partyIds: [unsafeParse(PartyIdSchema, '4')],
+                },
+              ],
+            },
           },
-          adjudicationInfo: {
-            requiresAdjudication: false,
-            enabledReasons: [],
-            enabledReasonInfos: [],
-            ignoredReasonInfos: [],
-          },
-          markInfo: {
-            marks: [],
-            ballotSize: { width: 1, height: 1 },
-          },
-          votes: {
-            '2': [
-              {
-                id: '23',
-                name: 'Jimmy Edwards',
-                partyIds: [unsafeParse(PartyIdSchema, '4')],
-              },
-            ],
-          },
+          contestIds: ['1', '2'],
         },
-        contestIds: ['1', '2'],
-      },
-      {
-        interpretation: {
-          type: 'UninterpretedHmpbPage',
-          metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Standard,
-            ballotStyleId,
-            precinctId,
-            isTestMode: false,
-            pageNumber: 2,
+        {
+          interpretation: {
+            type: 'UninterpretedHmpbPage',
+            metadata: {
+              locales: { primary: 'en-US' },
+              electionHash: electionDefinition.electionHash,
+              ballotType: BallotType.Standard,
+              ballotStyleId,
+              precinctId,
+              isTestMode: false,
+              pageNumber: 2,
+            },
           },
+          contestIds: ['initiative-65'],
+          markAdjudications: [
+            {
+              type: AdjudicationReason.UninterpretableBallot,
+              contestId: 'initiative-65',
+              optionId: 'no',
+              isMarked: true,
+            },
+          ],
         },
-        contestIds: ['initiative-65'],
-        markAdjudications: [
-          {
-            type: AdjudicationReason.UninterpretableBallot,
-            contestId: 'initiative-65',
-            optionId: 'no',
-            isMarked: true,
-          },
-        ],
-      },
-    ])
+      ],
+      [{ normalized: 'normalized front' }, { normalized: 'normalized back' }]
+    )
   ).toMatchInlineSnapshot(`
     Object {
       "1": Array [],
@@ -960,6 +1059,7 @@ test('generates a CVR from an adjudicated uninterpreted HMPB page', () => {
         "23",
       ],
       "_ballotId": "abcdefg",
+      "_ballotImages": Array [],
       "_ballotStyleId": "1",
       "_ballotType": "standard",
       "_batchId": "1234",
@@ -990,82 +1090,90 @@ test('generates a CVR from an adjudicated write-in', () => {
   const batchLabel = 'Batch 1';
 
   expect(
-    buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
-      {
-        interpretation: {
-          type: 'InterpretedHmpbPage',
-          metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Standard,
-            ballotStyleId,
-            precinctId,
-            isTestMode: false,
-            pageNumber: 1,
-          },
-          adjudicationInfo: {
-            requiresAdjudication: true,
-            enabledReasons: [AdjudicationReason.MarkedWriteIn],
-            enabledReasonInfos: [
-              {
-                type: AdjudicationReason.MarkedWriteIn,
-                contestId: '2',
-                optionId: 'write-in-0',
-                optionIndex: 3,
-              },
-            ],
-            ignoredReasonInfos: [],
-          },
-          markInfo: {
-            marks: [],
-            ballotSize: { width: 1, height: 1 },
-          },
-          votes: vote(election.contests, {
-            '2': {
-              id: 'write-in-0',
-              isWriteIn: true,
-              name: '',
+    buildCastVoteRecord(
+      sheetId,
+      batchId,
+      batchLabel,
+      ballotId,
+      election,
+      [
+        {
+          interpretation: {
+            type: 'InterpretedHmpbPage',
+            metadata: {
+              locales: { primary: 'en-US' },
+              electionHash: electionDefinition.electionHash,
+              ballotType: BallotType.Standard,
+              ballotStyleId,
+              precinctId,
+              isTestMode: false,
+              pageNumber: 1,
             },
-          }),
+            adjudicationInfo: {
+              requiresAdjudication: true,
+              enabledReasons: [AdjudicationReason.MarkedWriteIn],
+              enabledReasonInfos: [
+                {
+                  type: AdjudicationReason.MarkedWriteIn,
+                  contestId: '2',
+                  optionId: 'write-in-0',
+                  optionIndex: 3,
+                },
+              ],
+              ignoredReasonInfos: [],
+            },
+            markInfo: {
+              marks: [],
+              ballotSize: { width: 1, height: 1 },
+            },
+            votes: vote(election.contests, {
+              '2': {
+                id: 'write-in-0',
+                isWriteIn: true,
+                name: '',
+              },
+            }),
+          },
+          contestIds: ['1', '2'],
+          markAdjudications: [
+            {
+              type: AdjudicationReason.MarkedWriteIn,
+              contestId: '2',
+              optionId: 'write-in-0',
+              isMarked: true,
+              name: 'Pikachu',
+            },
+          ],
         },
-        contestIds: ['1', '2'],
-        markAdjudications: [
-          {
-            type: AdjudicationReason.MarkedWriteIn,
-            contestId: '2',
-            optionId: 'write-in-0',
-            isMarked: true,
-            name: 'Pikachu',
+        {
+          interpretation: {
+            type: 'InterpretedHmpbPage',
+            metadata: {
+              locales: { primary: 'en-US' },
+              electionHash: electionDefinition.electionHash,
+              ballotType: BallotType.Standard,
+              ballotStyleId,
+              precinctId,
+              isTestMode: false,
+              pageNumber: 2,
+            },
+            adjudicationInfo: {
+              requiresAdjudication: false,
+              enabledReasons: [],
+              enabledReasonInfos: [],
+              ignoredReasonInfos: [],
+            },
+            markInfo: {
+              marks: [],
+              ballotSize: { width: 1, height: 1 },
+            },
+            votes: {},
           },
-        ],
-      },
-      {
-        interpretation: {
-          type: 'InterpretedHmpbPage',
-          metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Standard,
-            ballotStyleId,
-            precinctId,
-            isTestMode: false,
-            pageNumber: 2,
-          },
-          adjudicationInfo: {
-            requiresAdjudication: false,
-            enabledReasons: [],
-            enabledReasonInfos: [],
-            ignoredReasonInfos: [],
-          },
-          markInfo: {
-            marks: [],
-            ballotSize: { width: 1, height: 1 },
-          },
-          votes: {},
+          contestIds: [],
         },
-        contestIds: [],
-      },
-    ])
+      ],
+      [{ normalized: 'normalized front' }, { normalized: 'normalized back' }]
+    )
   ).toMatchInlineSnapshot(`
     Object {
       "1": Array [],
@@ -1073,6 +1181,14 @@ test('generates a CVR from an adjudicated write-in', () => {
         "write-in-0-Pikachu",
       ],
       "_ballotId": "abcdefg",
+      "_ballotImages": Array [
+        Object {
+          "normalized": "normalized front",
+        },
+        Object {
+          "normalized": "normalized back",
+        },
+      ],
       "_ballotStyleId": "1",
       "_ballotType": "standard",
       "_batchId": "1234",
@@ -1100,76 +1216,84 @@ test('generates a CVR from an adjudicated unmarked write-in', () => {
   const batchLabel = 'Batch 1';
 
   expect(
-    buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
-      {
-        interpretation: {
-          type: 'InterpretedHmpbPage',
-          metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Standard,
-            ballotStyleId,
-            precinctId,
-            isTestMode: false,
-            pageNumber: 1,
+    buildCastVoteRecord(
+      sheetId,
+      batchId,
+      batchLabel,
+      ballotId,
+      election,
+      [
+        {
+          interpretation: {
+            type: 'InterpretedHmpbPage',
+            metadata: {
+              locales: { primary: 'en-US' },
+              electionHash: electionDefinition.electionHash,
+              ballotType: BallotType.Standard,
+              ballotStyleId,
+              precinctId,
+              isTestMode: false,
+              pageNumber: 1,
+            },
+            adjudicationInfo: {
+              requiresAdjudication: true,
+              enabledReasons: [AdjudicationReason.UnmarkedWriteIn],
+              enabledReasonInfos: [
+                {
+                  type: AdjudicationReason.UnmarkedWriteIn,
+                  contestId: '2',
+                  optionId: 'write-in-0',
+                  optionIndex: 3,
+                },
+              ],
+              ignoredReasonInfos: [],
+            },
+            markInfo: {
+              marks: [],
+              ballotSize: { width: 1, height: 1 },
+            },
+            votes: {},
           },
-          adjudicationInfo: {
-            requiresAdjudication: true,
-            enabledReasons: [AdjudicationReason.UnmarkedWriteIn],
-            enabledReasonInfos: [
-              {
-                type: AdjudicationReason.UnmarkedWriteIn,
-                contestId: '2',
-                optionId: 'write-in-0',
-                optionIndex: 3,
-              },
-            ],
-            ignoredReasonInfos: [],
-          },
-          markInfo: {
-            marks: [],
-            ballotSize: { width: 1, height: 1 },
-          },
-          votes: {},
+          contestIds: ['1', '2'],
+          markAdjudications: [
+            {
+              type: AdjudicationReason.UnmarkedWriteIn,
+              contestId: '2',
+              optionId: 'write-in-0',
+              isMarked: true,
+              name: 'Pikachu',
+            },
+          ],
         },
-        contestIds: ['1', '2'],
-        markAdjudications: [
-          {
-            type: AdjudicationReason.UnmarkedWriteIn,
-            contestId: '2',
-            optionId: 'write-in-0',
-            isMarked: true,
-            name: 'Pikachu',
+        {
+          interpretation: {
+            type: 'InterpretedHmpbPage',
+            metadata: {
+              locales: { primary: 'en-US' },
+              electionHash: electionDefinition.electionHash,
+              ballotType: BallotType.Standard,
+              ballotStyleId,
+              precinctId,
+              isTestMode: false,
+              pageNumber: 2,
+            },
+            adjudicationInfo: {
+              requiresAdjudication: false,
+              enabledReasons: [],
+              enabledReasonInfos: [],
+              ignoredReasonInfos: [],
+            },
+            markInfo: {
+              marks: [],
+              ballotSize: { width: 1, height: 1 },
+            },
+            votes: {},
           },
-        ],
-      },
-      {
-        interpretation: {
-          type: 'InterpretedHmpbPage',
-          metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Standard,
-            ballotStyleId,
-            precinctId,
-            isTestMode: false,
-            pageNumber: 2,
-          },
-          adjudicationInfo: {
-            requiresAdjudication: false,
-            enabledReasons: [],
-            enabledReasonInfos: [],
-            ignoredReasonInfos: [],
-          },
-          markInfo: {
-            marks: [],
-            ballotSize: { width: 1, height: 1 },
-          },
-          votes: {},
+          contestIds: [],
         },
-        contestIds: [],
-      },
-    ])
+      ],
+      [{ normalized: 'normalized front' }, { normalized: 'normalized back' }]
+    )
   ).toMatchInlineSnapshot(`
     Object {
       "1": Array [],
@@ -1177,6 +1301,14 @@ test('generates a CVR from an adjudicated unmarked write-in', () => {
         "write-in-0-Pikachu",
       ],
       "_ballotId": "abcdefg",
+      "_ballotImages": Array [
+        Object {
+          "normalized": "normalized front",
+        },
+        Object {
+          "normalized": "normalized back",
+        },
+      ],
       "_ballotStyleId": "1",
       "_ballotType": "standard",
       "_batchId": "1234",
@@ -1202,10 +1334,18 @@ test('fails to generate CVRs from blank pages', () => {
   const batchLabel = 'Batch 1';
 
   expect(
-    buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
-      { interpretation: { type: 'BlankPage' } },
-      { interpretation: { type: 'BlankPage' } },
-    ])
+    buildCastVoteRecord(
+      sheetId,
+      batchId,
+      batchLabel,
+      ballotId,
+      election,
+      [
+        { interpretation: { type: 'BlankPage' } },
+        { interpretation: { type: 'BlankPage' } },
+      ],
+      []
+    )
   ).toBeUndefined();
 });
 
@@ -1218,21 +1358,29 @@ test('fails to generate CVRs from invalid test mode pages', () => {
   const batchLabel = 'Batch 1';
 
   expect(
-    buildCastVoteRecord(sheetId, batchId, batchLabel, ballotId, election, [
-      {
-        interpretation: {
-          type: 'InvalidTestModePage',
-          metadata: {
-            locales: { primary: 'en-US' },
-            electionHash: electionDefinition.electionHash,
-            ballotType: BallotType.Standard,
-            ballotStyleId,
-            precinctId,
-            isTestMode: false,
+    buildCastVoteRecord(
+      sheetId,
+      batchId,
+      batchLabel,
+      ballotId,
+      election,
+      [
+        {
+          interpretation: {
+            type: 'InvalidTestModePage',
+            metadata: {
+              locales: { primary: 'en-US' },
+              electionHash: electionDefinition.electionHash,
+              ballotType: BallotType.Standard,
+              ballotStyleId,
+              precinctId,
+              isTestMode: false,
+            },
           },
         },
-      },
-      { interpretation: { type: 'BlankPage' } },
-    ])
+        { interpretation: { type: 'BlankPage' } },
+      ],
+      []
+    )
   ).toBeUndefined();
 });

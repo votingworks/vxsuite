@@ -17,6 +17,7 @@ import {
   ElectionDefinitionSchema,
   getBallotStyle,
   getContests,
+  InlineBallotImage,
   MarkAdjudication,
   MarkAdjudicationsSchema,
   MarkThresholds,
@@ -866,6 +867,29 @@ export class Store {
       const backAdjudications = backAdjudicationJson
         ? safeParseJson(backAdjudicationJson, MarkAdjudicationsSchema).ok()
         : undefined;
+
+      const frontImage: InlineBallotImage = { normalized: '' };
+      const backImage: InlineBallotImage = { normalized: '' };
+      if (
+        frontInterpretation.type === 'InterpretedHmpbPage' ||
+        frontInterpretation.type === 'UninterpretedHmpbPage'
+      ) {
+        const frontFilenames = this.getBallotFilenames(id, 'front');
+        if (frontFilenames?.normalized) {
+          frontImage.normalized = fs.readFileSync(
+            frontFilenames.normalized,
+            'base64'
+          );
+        }
+        const backFilenames = this.getBallotFilenames(id, 'back');
+        if (backFilenames?.normalized) {
+          backImage.normalized = fs.readFileSync(
+            backFilenames.normalized,
+            'base64'
+          );
+        }
+      }
+
       const cvr = buildCastVoteRecord(
         id,
         batchId,
@@ -895,7 +919,8 @@ export class Store {
                 : undefined,
             markAdjudications: backAdjudications,
           },
-        ]
+        ],
+        [frontImage, backImage]
       );
 
       if (cvr) {

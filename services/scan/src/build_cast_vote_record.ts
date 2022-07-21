@@ -13,6 +13,7 @@ import {
   getBallotStyle,
   getContests,
   getContestsFromIds,
+  InlineBallotImage,
   InterpretedBmdPage,
   InterpretedHmpbPage,
   MarkAdjudications,
@@ -229,7 +230,8 @@ function buildCastVoteRecordFromHmpbPage(
   election: Election,
   [front, back]: SheetOf<
     BuildCastVoteRecordInput<InterpretedHmpbPage | UninterpretedHmpbPage>
-  >
+  >,
+  [frontImages, backImages]: InlineBallotImage[]
 ): CastVoteRecord {
   if (
     front.interpretation.metadata.pageNumber >
@@ -241,12 +243,43 @@ function buildCastVoteRecordFromHmpbPage(
       batchId,
       batchLabel,
       election,
-      [back, front]
+      [back, front],
+      [backImages, frontImages]
     );
   }
 
   if (!front.contestIds || !back.contestIds) {
     throw new Error(`expected sheet to have contest ids with sheet ${sheetId}`);
+  }
+
+  const frontVotesEntries = buildCastVoteRecordVotesEntries(
+    getContestsFromIds(election, front.contestIds),
+    front.interpretation.type === 'InterpretedHmpbPage'
+      ? front.interpretation.votes
+      : {},
+    front.markAdjudications
+  );
+  const backVotesEntries = buildCastVoteRecordVotesEntries(
+    getContestsFromIds(election, back.contestIds),
+    back.interpretation.type === 'InterpretedHmpbPage'
+      ? back.interpretation.votes
+      : {},
+    back.markAdjudications
+  );
+  const votesEntries: Dictionary<string[]> = {
+    ...frontVotesEntries,
+    ...backVotesEntries,
+  };
+  let hasWriteIns = false;
+  for (const contestId of Object.keys(votesEntries)) {
+    if (
+      votesEntries[contestId]?.find((vote: string) =>
+        vote.startsWith('write-in-')
+      )
+    ) {
+      hasWriteIns = true;
+      break;
+    }
   }
 
   return {
@@ -260,20 +293,8 @@ function buildCastVoteRecordFromHmpbPage(
       front.interpretation.metadata.pageNumber,
       back.interpretation.metadata.pageNumber,
     ],
-    ...buildCastVoteRecordVotesEntries(
-      getContestsFromIds(election, front.contestIds),
-      front.interpretation.type === 'InterpretedHmpbPage'
-        ? front.interpretation.votes
-        : {},
-      front.markAdjudications
-    ),
-    ...buildCastVoteRecordVotesEntries(
-      getContestsFromIds(election, back.contestIds),
-      back.interpretation.type === 'InterpretedHmpbPage'
-        ? back.interpretation.votes
-        : {},
-      back.markAdjudications
-    ),
+    ...votesEntries,
+    _ballotImages: hasWriteIns ? [frontImages, backImages] : [],
   };
 }
 
@@ -283,7 +304,8 @@ export function buildCastVoteRecord(
   batchLabel: string,
   ballotId: BallotId,
   election: Election,
-  [front, back]: SheetOf<BuildCastVoteRecordInput>
+  [front, back]: SheetOf<BuildCastVoteRecordInput>,
+  [frontImage, backImage]: InlineBallotImage[]
 ): CastVoteRecord | undefined {
   const validationResult = validateSheetInterpretation([
     front.interpretation,
@@ -306,7 +328,8 @@ export function buildCastVoteRecord(
       batchLabel,
       ballotId,
       election,
-      [back, front]
+      [back, front],
+      [frontImage, backImage]
     );
   }
 
@@ -332,7 +355,8 @@ export function buildCastVoteRecord(
       election,
       [front, back] as SheetOf<
         BuildCastVoteRecordInput<InterpretedHmpbPage | UninterpretedHmpbPage>
-      >
+      >,
+      [frontImage, backImage]
     );
   }
 }
