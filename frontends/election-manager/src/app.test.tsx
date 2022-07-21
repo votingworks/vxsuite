@@ -125,6 +125,9 @@ beforeEach(() => {
     })
   );
   fetchMock.get('/admin/write-ins/cvrs/reset', { body: { status: 'ok ' } });
+  fetchMock.get('/admin/write-ins/cvrs', { body: [] });
+  fetchMock.get('/admin/write-ins/cvr-files', { body: [] });
+  fetchMock.get('/admin/write-ins/cvr-ballot-ids', { body: [] });
   mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => false);
 });
 

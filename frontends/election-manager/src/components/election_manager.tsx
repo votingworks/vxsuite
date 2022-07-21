@@ -24,7 +24,8 @@ import { PrintTestDeckScreen } from '../screens/print_test_deck_screen';
 import { UnconfiguredScreen } from '../screens/unconfigured_screen';
 import { TallyScreen } from '../screens/tally_screen';
 import { TallyReportScreen } from '../screens/tally_report_screen';
-import { OvervoteCombinationReportScreen } from '../screens/overvote_combination_report_screen';
+import { TallyWriteInReportScreen } from '../screens/tally_writein_report_screen';
+// import { OvervoteCombinationReportScreen } from '../screens/overvote_combination_report_screen';
 import { DefinitionEditorScreen } from '../screens/definition_editor_screen';
 import { DefinitionContestsScreen } from '../screens/definition_contests_screen';
 import { PrintedBallotsReportScreen } from '../screens/printed_ballots_report_screen';
@@ -38,9 +39,6 @@ import { WriteInsScreen } from '../screens/write_ins_screen';
 import { LogicAndAccuracyScreen } from '../screens/logic_and_accuracy_screen';
 import { SettingsScreen } from '../screens/settings_screen';
 import { LogsScreen } from '../screens/logs_screen';
-import { ReportsScreen } from '../screens/reports_screen';
-import { SmartcardTypeRegExPattern } from '../config/types';
-import { SmartcardModal } from './smartcard_modal';
 import {
   areVvsg2AuthFlowsEnabled,
   isWriteInAdjudicationEnabled,
@@ -115,73 +113,9 @@ export function ElectionManager(): JSX.Element {
 
     if (!election || !configuredAt) {
       return (
-        <React.Fragment>
-          <Switch>
-            <Route exact path={routerPaths.electionDefinition}>
-              <UnconfiguredScreen />
-            </Route>
-            <Route exact path={routerPaths.settings}>
-              <SettingsScreen />
-            </Route>
-            <Route exact path={routerPaths.logs}>
-              <LogsScreen />
-            </Route>
-            <Redirect to={routerPaths.electionDefinition} />
-          </Switch>
-          <SmartcardModal />
-        </React.Fragment>
-      );
-    }
-
-    return (
-      <React.Fragment>
         <Switch>
           <Route exact path={routerPaths.electionDefinition}>
-            <DefinitionScreen />
-          </Route>
-          <Route exact path={routerPaths.definitionEditor}>
-            <DefinitionEditorScreen allowEditing={false} />
-          </Route>
-          <Route
-            exact
-            path={routerPaths.definitionContest({ contestId: ':contestId' })}
-          >
-            <DefinitionContestsScreen allowEditing={false} />
-          </Route>
-          <Route exact path={routerPaths.ballotsList}>
-            <BallotListScreen />
-          </Route>
-          <Route exact path={routerPaths.printedBallotsReport}>
-            <PrintedBallotsReportScreen />
-          </Route>
-          <Route
-            exact
-            path={[
-              routerPaths.ballotsViewLanguage({
-                ballotStyleId: ':ballotStyleId',
-                precinctId: ':precinctId',
-                localeCode: ':localeCode',
-              }),
-              routerPaths.ballotsView({
-                ballotStyleId: ':ballotStyleId',
-                precinctId: ':precinctId',
-              }),
-            ]}
-          >
-            <BallotScreen />
-          </Route>
-          <Route exact path={routerPaths.smartcards}>
-            <Redirect
-              to={routerPaths.smartcardsByType({ smartcardType: 'election' })}
-            />
-          </Route>
-          <Route
-            exact
-            path={routerPaths.smartcardsByType({
-              smartcardType: `:smartcardType${SmartcardTypeRegExPattern}`,
-            })}
-          >
-            <SmartcardsScreen />
+            <UnconfiguredScreen />
           </Route>
           <Route exact path={routerPaths.settings}>
             <SettingsScreen />
@@ -191,8 +125,66 @@ export function ElectionManager(): JSX.Element {
           </Route>
           <Redirect to={routerPaths.electionDefinition} />
         </Switch>
-        <SmartcardModal />
-      </React.Fragment>
+      );
+    }
+
+    return (
+      <Switch>
+        <Route exact path={routerPaths.electionDefinition}>
+          <DefinitionScreen />
+        </Route>
+        <Route exact path={routerPaths.definitionEditor}>
+          <DefinitionEditorScreen allowEditing={false} />
+        </Route>
+        <Route
+          exact
+          path={routerPaths.definitionContest({ contestId: ':contestId' })}
+        >
+          <DefinitionContestsScreen allowEditing={false} />
+        </Route>
+        <Route exact path={routerPaths.ballotsList}>
+          <BallotListScreen />
+        </Route>
+        <Route exact path={routerPaths.printedBallotsReport}>
+          <PrintedBallotsReportScreen />
+        </Route>
+        <Route
+          exact
+          path={[
+            routerPaths.ballotsViewLanguage({
+              ballotStyleId: ':ballotStyleId',
+              precinctId: ':precinctId',
+              localeCode: ':localeCode',
+            }),
+            routerPaths.ballotsView({
+              ballotStyleId: ':ballotStyleId',
+              precinctId: ':precinctId',
+            }),
+          ]}
+        >
+          <BallotScreen />
+        </Route>
+        <Route exact path={routerPaths.smartcards}>
+          <Redirect
+            to={routerPaths.smartcardsByType({ smartcardType: 'election' })}
+          />
+        </Route>
+        <Route
+          exact
+          path={routerPaths.smartcardsByType({
+            smartcardType: ':smartcardType(election|super-admin)',
+          })}
+        >
+          <SmartcardsScreen />
+        </Route>
+        <Route exact path={routerPaths.settings}>
+          <SettingsScreen />
+        </Route>
+        <Route exact path={routerPaths.logs}>
+          <LogsScreen />
+        </Route>
+        <Redirect to={routerPaths.electionDefinition} />
+      </Switch>
     );
   }
 
@@ -267,9 +259,6 @@ export function ElectionManager(): JSX.Element {
       <Route exact path={routerPaths.tally}>
         <TallyScreen />
       </Route>
-      <Route exact path={routerPaths.reports}>
-        <ReportsScreen />
-      </Route>
       <Route
         exact
         path={[
@@ -278,6 +267,9 @@ export function ElectionManager(): JSX.Element {
         ]}
       >
         <TallyReportScreen />
+      </Route>
+      <Route exact path={[routerPaths.tallyWriteInReport]}>
+        <TallyWriteInReportScreen />
       </Route>
       <Route
         exact
@@ -316,9 +308,6 @@ export function ElectionManager(): JSX.Element {
         ]}
       >
         <TallyReportScreen />
-      </Route>
-      <Route exact path={routerPaths.overvoteCombinationReport}>
-        <OvervoteCombinationReportScreen />
       </Route>
       <Route exact path={routerPaths.logicAndAccuracy}>
         <LogicAndAccuracyScreen />

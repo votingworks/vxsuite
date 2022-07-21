@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
@@ -6,12 +7,19 @@ import {
   AdjudicationId,
   CandidateContest,
   Election,
+  Rect,
   getPartyAbbreviationByPartyId,
+  CastVoteRecord,
+  getContests,
+  getBallotStyle,
+  BallotPageLayout,
+  InlineBallotImage,
 } from '@votingworks/types';
-import { Button, Main, Screen, Text } from '@votingworks/ui';
-import { assert } from '@votingworks/utils';
+import { Button, Loading, Main, Screen, Text } from '@votingworks/ui';
+import { assert, zip } from '@votingworks/utils';
 import { Navigation } from '../components/navigation';
 import { TextInput } from '../components/text_input';
+import { CroppedImage } from '../components/cropped_image';
 
 const BallotPreviews = styled.div`
   flex: 3;
@@ -53,6 +61,37 @@ function noop() {
   // nothing to do
 }
 
+const DEFAULT_EXTRA_WRITE_IN_MARGIN_PERCENTAGE = 0;
+function WriteInImage({
+  imageUrl,
+  bounds,
+  width,
+  margin,
+}: {
+  imageUrl: string;
+  bounds: Rect;
+  width?: string;
+  margin?: number;
+}) {
+  return (
+    <CroppedImage
+      src={imageUrl}
+      alt="write-in area"
+      crop={{
+        x: bounds.x,
+        y:
+          bounds.y -
+          bounds.height * (margin || DEFAULT_EXTRA_WRITE_IN_MARGIN_PERCENTAGE),
+        width: bounds.width,
+        height:
+          bounds.height *
+          (1 + 2 * (margin || DEFAULT_EXTRA_WRITE_IN_MARGIN_PERCENTAGE)),
+      }}
+      style={{ width: width || '100%' }}
+    />
+  );
+}
+
 export function WriteInsTranscriptionScreen({
   contest,
   election,
@@ -84,6 +123,7 @@ export function WriteInsTranscriptionScreen({
     useState<string[]>([]);
 
   const transcribedValueInput = useRef<HTMLInputElement>(null);
+  const [cvr, setCvr] = useState<CastVoteRecord>();
 
   assert(contest);
   assert(election);
@@ -95,6 +135,17 @@ export function WriteInsTranscriptionScreen({
     setCurrentTranscribedValue(val);
     saveTranscribedValue(adjudicationId, val);
   }
+
+  useEffect(() => {
+    async function fetchCvr() {
+      const resp = await fetch(
+        `/admin/write-ins/adjudication/${adjudicationId}/cvr`
+      );
+      const json = await resp.json();
+      setCvr(JSON.parse(json.data) as CastVoteRecord);
+    }
+    void fetchCvr();
+  }, [adjudicationId]);
 
   useEffect(() => {
     async function getTranscribedValue(id: AdjudicationId): Promise<void> {
@@ -117,6 +168,76 @@ export function WriteInsTranscriptionScreen({
     void getPreviouslyTranscribedValues();
   }, []);
 
+  if (cvr === undefined) {
+    return (
+      <Screen>
+        <Navigation
+          screenTitle="Write-In Adjudication"
+          secondaryNav={
+            <React.Fragment>
+              <Button small onPress={onListAll}>
+                List All
+              </Button>
+              <Button small onPress={onClose}>
+                Exit
+              </Button>
+            </React.Fragment>
+          }
+        />
+        <Loading />
+      </Screen>
+    );
+  }
+  assert(cvr !== undefined);
+  const ballotStyle = getBallotStyle({
+    ballotStyleId: cvr._ballotStyleId,
+    election,
+  });
+  assert(ballotStyle);
+  const allContestIdsForBallotStyle = getContests({
+    ballotStyle,
+    election,
+  }).map((c) => c.id);
+  // Make sure the layouts are ordered by page number.
+  assert(cvr._layouts?.[0] && cvr._ballotImages);
+  const [layouts, ballotImages] = [...zip(cvr._layouts[0], cvr._ballotImages)]
+    .sort(([a], [b]) => a.metadata.pageNumber - b.metadata.pageNumber)
+    .reduce<[BallotPageLayout[], InlineBallotImage[]]>(
+      ([layoutsAcc, ballotImagesAcc], [layout, ballotImage]) => [
+        [...layoutsAcc, layout],
+        [...ballotImagesAcc, ballotImage],
+      ],
+      [[], []]
+    );
+  let contestIdx = allContestIdsForBallotStyle.indexOf(contest.id);
+  let currentLayoutOptionIdx = 0;
+  while (contestIdx >= layouts[currentLayoutOptionIdx].contests.length) {
+    currentLayoutOptionIdx += 1;
+    contestIdx -= layouts[currentLayoutOptionIdx].contests.length;
+  }
+
+  const contestLayout = layouts[currentLayoutOptionIdx].contests[contestIdx];
+
+  // Options are laid out from the bottom up, so we reverse write-ins to get the correct bounds
+  const writeInOptions = contestLayout.options
+    .filter((option) => option.definition.id.startsWith('write-in'))
+    .reverse();
+
+  // eslint-disable-next-line
+  const writeInOptionIndex = Number(
+    cvr[contest.id]
+      .find((vote: string) => vote.startsWith('write-in'))
+      .slice('write-in-'.length)
+  );
+  const writeInLayout = writeInOptions[writeInOptionIndex];
+  const writeInBounds = writeInLayout.bounds;
+  const contestBounds = contestLayout.bounds;
+  const fullBallotBounds: Rect = {
+    ...layouts[currentLayoutOptionIdx].pageSize,
+    x: 0,
+    y: 0,
+  };
+
   return (
     <Screen>
       <Navigation
@@ -133,19 +254,47 @@ export function WriteInsTranscriptionScreen({
         }
       />
       <Main flexRow>
-        <BallotPreviews>BALLOT IMAGES GO HERE</BallotPreviews>
+        <BallotPreviews>
+          <h2>Write-In</h2>
+          <WriteInImage
+            width="50%"
+            // eslint-disable-next-line
+            imageUrl={`data:image/png;base64,${ballotImages[currentLayoutOptionIdx].normalized}`}
+            bounds={writeInBounds}
+            margin={0.2}
+          />
+          <div style={{ display: 'flex' }}>
+            <div>
+              <h2>Cropped Contest</h2>
+              <WriteInImage
+                // eslint-disable-next-line
+                imageUrl={`data:image/png;base64,${ballotImages[currentLayoutOptionIdx].normalized}`}
+                bounds={contestBounds}
+                margin={0.1}
+              />
+            </div>
+            <div>
+              <h2>Full Ballot Image</h2>
+              <WriteInImage
+                // eslint-disable-next-line
+                imageUrl={`data:image/png;base64,${ballotImages[currentLayoutOptionIdx].normalized}`}
+                bounds={fullBallotBounds}
+              />
+            </div>
+          </div>
+        </BallotPreviews>
         <TranscriptionContainer>
           <TranscriptionMainContentContainer>
-            {election && contest.partyId && (
+            {election && (
               <React.Fragment>
                 <Text bold>{contest.section}</Text>
                 <h1>
-                  {contest.title} (
-                  {getPartyAbbreviationByPartyId({
-                    partyId: contest.partyId,
-                    election,
-                  })}
-                  )
+                  {contest.title}
+                  {contest.partyId &&
+                    `(${getPartyAbbreviationByPartyId({
+                      partyId: contest.partyId,
+                      election,
+                    })})`}
                 </h1>
                 <h2>Adjudication ID: {adjudicationId}</h2>
               </React.Fragment>
