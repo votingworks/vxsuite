@@ -2,7 +2,6 @@ import './polyfills';
 import React from 'react';
 import ReactDom from 'react-dom';
 import { App } from './app';
-import { DemoApp } from './demo_app';
 
 import {
   AriaScreenReader,
@@ -11,9 +10,6 @@ import {
 import { memoize } from './utils/memoize';
 import { getUsEnglishVoice } from './utils/voices';
 
-const isDemoApp =
-  window.location.hash === '#demo' ||
-  window.location.hostname.endsWith('votingworks.app');
 // FIXME: `?reader=on` won't be here on reload since we're using the browser
 // history `pushState` API to manipulate the location. Perhaps disable that
 // since we don't really care about page URLs anyway?
@@ -29,10 +25,6 @@ if (readerEnabled) {
 }
 
 ReactDom.render(
-  isDemoApp ? (
-    <DemoApp screenReader={screenReader} />
-  ) : (
-    <App screenReader={screenReader} />
-  ),
+  <App screenReader={screenReader} />,
   document.getElementById('root') as HTMLElement
 );
