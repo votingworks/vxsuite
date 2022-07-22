@@ -1452,6 +1452,7 @@ test('superadmin card', async () => {
   });
 
   screen.getByText('Reboot from USB');
+  screen.getByText('Reboot to BIOS');
   screen.getByText('Reset');
   fireEvent.click(screen.getByText('Reset'));
 

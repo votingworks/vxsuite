@@ -24,6 +24,7 @@ import {
   Main,
   Prose,
   RebootFromUsbButton,
+  RebootToBiosButton,
   UnlockMachineScreen,
   InvalidCardScreen,
   RemoveCardScreen,
@@ -525,6 +526,8 @@ export function AppRoot({ card, hardware, logger }: AppRootProps): JSX.Element {
                 usbDriveStatus={displayUsbStatus}
                 logger={logger}
               />
+              <br />
+              <RebootToBiosButton logger={logger} />
             </Prose>
           </Main>
           <ElectionInfoBar
