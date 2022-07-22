@@ -3,6 +3,7 @@ import {
   CurrentDateAndTime,
   Prose,
   RebootFromUsbButton,
+  RebootToBiosButton,
   SetClockButton,
 } from '@votingworks/ui';
 
@@ -25,8 +26,11 @@ export function SettingsScreen(): JSX.Element {
         </p>
         <h2>Software Update</h2>
         {/* Intentionally not wrapping this button in a <p> tag because the default <Prose> spacing
-          of a <p> following an <h2> looks cramped when the <p> contains a button */}
+            of a <p> following an <h2> looks cramped when the <p> contains a button */}
         <RebootFromUsbButton logger={logger} usbDriveStatus={usbDriveStatus} />
+        <br />
+        <RebootToBiosButton logger={logger} />
+        <br />
       </Prose>
     </NavigationScreen>
   );

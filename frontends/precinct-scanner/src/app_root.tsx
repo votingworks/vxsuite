@@ -17,6 +17,7 @@ import {
   SetupCardReaderPage,
   useDevices,
   RebootFromUsbButton,
+  RebootToBiosButton,
   Button,
   UnlockMachineScreen,
   useInsertedSmartcardAuth,
@@ -670,6 +671,9 @@ export function AppRoot({
             usbDriveStatus={usbDriveDisplayStatus}
             logger={logger}
           />
+          <br />
+          <br />
+          <RebootToBiosButton logger={logger} />
           <br />
           <br />
           <Button onPress={() => window.kiosk?.quit()}>Reset</Button>

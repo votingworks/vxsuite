@@ -521,6 +521,8 @@ test('superadmin can log in', async () => {
 
   screen.getByText('Reboot from USB');
 
+  screen.getByText('Reboot to BIOS');
+
   userEvent.click(screen.getByText('Lock Machine'));
   await screen.findByText('VxCentralScan is Locked');
 });

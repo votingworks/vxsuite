@@ -51,3 +51,12 @@ test('Rebooting from USB', async () => {
   within(modal).getByRole('heading', { name: 'No USB Drive Detected' });
   userEvent.click(within(modal).getByRole('button', { name: 'Cancel' }));
 });
+
+test('Rebooting to BIOS', () => {
+  renderInAppContext(<SettingsScreen />);
+
+  screen.getByRole('heading', { name: 'Software Update' });
+
+  // Rebooting to BIOS is tested in libs/ui/src/reboot_to_bios_button.test.tsx
+  screen.getByText('Reboot to BIOS');
+});

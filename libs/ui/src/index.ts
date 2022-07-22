@@ -35,6 +35,7 @@ export * from './progress_ellipsis';
 export * from './prose';
 export * from './qrcode';
 export * from './reboot_from_usb_button';
+export * from './reboot_to_bios_button';
 export * from './screen';
 export * from './select';
 export * from './setup_card_reader_page';

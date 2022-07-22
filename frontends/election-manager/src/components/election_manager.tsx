@@ -7,6 +7,7 @@ import {
   Main,
   Prose,
   RebootFromUsbButton,
+  RebootToBiosButton,
   Screen,
   SetupCardReaderPage,
   isSuperadminAuth,
@@ -101,6 +102,8 @@ export function ElectionManager(): JSX.Element {
                 usbDriveStatus={usbDriveStatus}
                 logger={logger}
               />
+              <br />
+              <RebootToBiosButton logger={logger} />
             </Prose>
           </Main>
           <ElectionInfoBar

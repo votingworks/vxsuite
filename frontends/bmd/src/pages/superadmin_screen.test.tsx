@@ -1,5 +1,5 @@
 import React from 'react';
-import { fireEvent, screen } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { fakeKiosk } from '@votingworks/test-utils';
 
 import { usbstick } from '@votingworks/utils';
@@ -11,7 +11,7 @@ import { SuperAdminScreen } from './superadmin_screen';
 
 const logger = new Logger(LogSource.VxBallotMarkingDeviceService);
 
-it('the right buttons and reset calls quit', () => {
+it('the right buttons and reset calls quit', async () => {
   render(
     <SuperAdminScreen
       usbDriveStatus={usbstick.UsbDriveStatus.absent}
@@ -20,6 +20,7 @@ it('the right buttons and reset calls quit', () => {
     />
   );
   screen.getByText('Reboot from USB');
+  screen.getByText('Reboot to BIOS');
   screen.getByText('Reset');
 
   // test without kiosk
@@ -28,6 +29,12 @@ it('the right buttons and reset calls quit', () => {
   // test with kiosk
   window.kiosk = fakeKiosk();
   fireEvent.click(screen.getByText('Reset'));
+  await waitFor(() => {
+    expect(window.kiosk!.quit).toHaveBeenCalledTimes(1);
+  });
 
-  expect(window.kiosk.quit).toHaveBeenCalledTimes(1);
+  fireEvent.click(screen.getByText('Reboot to BIOS'));
+  await waitFor(() => {
+    expect(window.kiosk!.rebootToBios).toHaveBeenCalledTimes(1);
+  });
 });

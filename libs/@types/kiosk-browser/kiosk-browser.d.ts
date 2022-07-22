@@ -60,10 +60,10 @@ declare namespace KioskBrowser {
   export type PrinterIppAttributes =
     | { state: 'unknown' } // We didn't get a response from the printer
     | {
-        state: 'idle' | 'processing' | 'stopped';
-        stateReasons: IppPrinterStateReason[];
-        markerInfos: IppMarkerInfo[];
-      };
+      state: 'idle' | 'processing' | 'stopped';
+      stateReasons: IppPrinterStateReason[];
+      markerInfos: IppMarkerInfo[];
+    };
 
   interface PrinterInfoBase {
     // Docs: http://electronjs.org/docs/api/structures/printer-info
@@ -244,6 +244,8 @@ declare namespace KioskBrowser {
     sign(params: SignParams): Promise<string>;
 
     reboot(): Promise<void>;
+
+    rebootToBios(): Promise<void>;
 
     prepareToBootFromUsb(): Promise<boolean>;
   }
