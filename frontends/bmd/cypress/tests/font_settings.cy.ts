@@ -2,9 +2,8 @@ describe('Font Settings', () => {
   const globalFontSizes = [22, 28, 36];
   const label = 'Change Text Size';
   const buttons = '[data-testid="change-text-size-buttons"]';
-  it('Voter can adjust font settings', () => {
-    cy.visit('/#demo');
 
+  it('Voter can adjust font settings', () => {
     // Default font size
     cy.contains(label)
       .should('have.css', 'font-size')
