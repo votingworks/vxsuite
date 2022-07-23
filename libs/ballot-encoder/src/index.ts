@@ -775,3 +775,6 @@ export function decodeHmpbBallotPageMetadata(
 ): HmpbBallotPageMetadata {
   return decodeHmpbBallotPageMetadataFromReader(election, new BitReader(data));
 }
+
+// TODO: this should be refactored into utils rather than exported from here.
+export * from './bits';
