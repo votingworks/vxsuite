@@ -525,6 +525,24 @@ jobs:
           command: |
             pnpm --dir libs/utils test
 
+  test-libs-quickresults:
+    executor: nodejs-browsers
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/quickresults build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/quickresults lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/quickresults test
+
   test-services-admin:
     executor: nodejs
     resource_class: xlarge
