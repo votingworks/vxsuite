@@ -14,12 +14,10 @@ import {
   unsafeParse,
 } from '@votingworks/types';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
+import fetchMock from 'fetch-mock';
+import { sha256 } from 'js-sha256';
 import { ImportCvrFilesModal } from './import_cvrfiles_modal';
-import {
-  renderInAppContext,
-  eitherNeitherElectionDefinition,
-} from '../../test/render_in_app_context';
-import { CastVoteRecordFiles } from '../utils/cast_vote_record_files';
+import { renderInAppContext } from '../../test/render_in_app_context';
 
 const TEST_FILE1 = 'TEST__machine_0001__10_ballots__2020-12-09_15-49-32.jsonl';
 const TEST_FILE2 = 'TEST__machine_0003__5_ballots__2020-12-07_15-49-32.jsonl';
@@ -67,6 +65,7 @@ describe('Screens display properly when USB is mounted', () => {
     const mockKiosk = fakeKiosk();
     mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
     window.kiosk = mockKiosk;
+    fetchMock.reset();
   });
 
   afterEach(() => {
@@ -75,13 +74,16 @@ describe('Screens display properly when USB is mounted', () => {
 
   test('No files found screen shows when mounted usb has no valid files', async () => {
     const closeFn = jest.fn();
-    const saveCvr = jest.fn();
     const logger = fakeLogger();
+    fetchMock.postOnce('/admin/write-ins/cvrs', {
+      importedCvrCount: 0,
+      duplicateCvrCount: 0,
+      isTestMode: false,
+    });
     const { getByText, getByTestId } = renderInAppContext(
       <ImportCvrFilesModal onClose={closeFn} />,
       {
         usbDriveStatus: UsbDriveStatus.mounted,
-        saveCastVoteRecordFiles: saveCvr,
         logger,
       }
     );
@@ -99,7 +101,7 @@ describe('Screens display properly when USB is mounted', () => {
       target: { files: [new File([''], 'file.jsonl')] },
     });
     await waitFor(() => getByText('0 new CVRs Imported'));
-    expect(saveCvr).toHaveBeenCalledTimes(1);
+    expect(fetchMock.called('/admin/write-ins/cvrs')).toBe(true);
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.CvrFilesReadFromUsb,
       'admin',
@@ -109,7 +111,6 @@ describe('Screens display properly when USB is mounted', () => {
 
   test('Import CVR files screen shows table with test and live CVRs', async () => {
     const closeFn = jest.fn();
-    const saveCvr = jest.fn();
     const fileEntries = [
       {
         name: LIVE_FILE1,
@@ -130,12 +131,16 @@ describe('Screens display properly when USB is mounted', () => {
     window.kiosk!.getFileSystemEntries = jest
       .fn()
       .mockResolvedValue(fileEntries);
+    fetchMock.postOnce('/admin/write-ins/cvrs', {
+      importedCvrCount: 0,
+      duplicateCvrCount: 0,
+      isTestMode: false,
+    });
     const logger = fakeLogger();
     const { getByText, getAllByTestId } = renderInAppContext(
       <ImportCvrFilesModal onClose={closeFn} />,
       {
         usbDriveStatus: UsbDriveStatus.mounted,
-        saveCastVoteRecordFiles: saveCvr,
         logger,
       }
     );
@@ -174,10 +179,10 @@ describe('Screens display properly when USB is mounted', () => {
     fireEvent.click(domGetByText(tableRows[0], 'Import'));
     getByText('Loading');
     await waitFor(() => {
-      expect(saveCvr).toHaveBeenCalledTimes(1);
       // We should not need to read the file another time since it was already read.
       expect(window.kiosk!.readFile).toHaveBeenCalledTimes(3);
       getByText('0 new CVRs Imported');
+      expect(fetchMock.called('/admin/write-ins/cvrs')).toBe(true);
       expect(logger.log).toHaveBeenCalledWith(
         LogEventId.CvrImported,
         'admin',
@@ -188,7 +193,6 @@ describe('Screens display properly when USB is mounted', () => {
 
   test('Can handle errors appropriately', async () => {
     const closeFn = jest.fn();
-    const saveCvr = jest.fn();
     const logger = fakeLogger();
     const fileEntries = [
       {
@@ -217,7 +221,6 @@ describe('Screens display properly when USB is mounted', () => {
       <ImportCvrFilesModal onClose={closeFn} />,
       {
         usbDriveStatus: UsbDriveStatus.mounted,
-        saveCastVoteRecordFiles: saveCvr,
         logger,
       }
     );
@@ -238,7 +241,6 @@ describe('Screens display properly when USB is mounted', () => {
     });
     getByText('Loading');
     await waitFor(() => {
-      expect(saveCvr).toHaveBeenCalledTimes(1);
       // There should be an error importing the file.
       getByText('Error');
       getByText(/There was an error reading the content of the file/);
@@ -252,7 +254,6 @@ describe('Screens display properly when USB is mounted', () => {
 
   test('Import CVR files screen locks to test mode when test files have been imported', async () => {
     const closeFn = jest.fn();
-    const saveCvr = jest.fn();
     const logger = fakeLogger();
     const fileEntries = [
       {
@@ -284,11 +285,6 @@ describe('Screens display properly when USB is mounted', () => {
       _batchId: 'batch-1',
       _batchLabel: 'Batch 1',
     };
-    const mockFiles = CastVoteRecordFiles.empty;
-    const added = await mockFiles.addAll(
-      [new File([JSON.stringify(cvr)], TEST_FILE1)],
-      eitherNeitherElectionDefinition.election
-    );
 
     window.kiosk!.readFile = jest.fn().mockImplementation((path) => {
       if (path === 'live1') {
@@ -299,12 +295,29 @@ describe('Screens display properly when USB is mounted', () => {
       }
       return JSON.stringify(cvr);
     });
+    fetchMock.postOnce('/admin/write-ins/cvrs', {
+      importedCvrCount: 1,
+      duplicateCvrCount: 0,
+      isTestMode: true,
+    });
     const { getByText, getAllByTestId, getByTestId } = renderInAppContext(
       <ImportCvrFilesModal onClose={closeFn} />,
       {
         usbDriveStatus: UsbDriveStatus.mounted,
-        castVoteRecordFiles: added,
-        saveCastVoteRecordFiles: saveCvr,
+        castVoteRecordFiles: [
+          {
+            name: TEST_FILE1,
+            importedCvrCount: 1,
+            duplicatedCvrCount: 0,
+            scannerIds: ['abc'],
+            precinctIds: ['6522'],
+            exportTimestamp: new Date(2020, 11, 9, 15, 49, 32),
+            isTestMode: true,
+            signature: sha256(JSON.stringify(cvr)),
+            allCastVoteRecords: [cvr],
+          },
+        ],
+        importedBallotIds: new Set(['abc']),
         logger,
       }
     );
@@ -321,8 +334,10 @@ describe('Screens display properly when USB is mounted', () => {
     expect(
       domGetByText(tableRows[0], 'Imported').closest('button')!.disabled
     ).toBe(true);
-    expect(domGetByTestId(tableRows[0], 'new-cvr-count')).toHaveTextContent(
-      '0'
+    await waitFor(() =>
+      expect(domGetByTestId(tableRows[0], 'new-cvr-count')).toHaveTextContent(
+        '0'
+      )
     );
     expect(
       domGetByTestId(tableRows[0], 'imported-cvr-count')
@@ -346,7 +361,6 @@ describe('Screens display properly when USB is mounted', () => {
     fireEvent.click(domGetByText(tableRows[1], 'Import'));
     getByText('Loading');
     await waitFor(() => {
-      expect(saveCvr).toHaveBeenCalledTimes(1);
       // There should be a message about importing a duplicate file displayed.
       getByText('Duplicate File');
       getByText(
@@ -362,7 +376,11 @@ describe('Screens display properly when USB is mounted', () => {
 
   test('Import CVR files screen locks to live mode when live files have been imported', async () => {
     const closeFn = jest.fn();
-    const saveCvr = jest.fn();
+    fetchMock.postOnce('/admin/write-ins/cvrs', {
+      importedCvrCount: 0,
+      duplicateCvrCount: 0,
+      isTestMode: false,
+    });
     const fileEntries = [
       {
         name: LIVE_FILE1,
@@ -393,17 +411,24 @@ describe('Screens display properly when USB is mounted', () => {
       _batchId: 'batch-1',
       _batchLabel: 'Batch 1',
     };
-    const mockFiles = CastVoteRecordFiles.empty;
-    const added = await mockFiles.addAll(
-      [new File([JSON.stringify(cvr)], 'randomname')],
-      eitherNeitherElectionDefinition.election
-    );
     const { getByText, getAllByTestId } = renderInAppContext(
       <ImportCvrFilesModal onClose={closeFn} />,
       {
         usbDriveStatus: UsbDriveStatus.mounted,
-        castVoteRecordFiles: added,
-        saveCastVoteRecordFiles: saveCvr,
+        importedBallotIds: new Set(['abc']),
+        castVoteRecordFiles: [
+          {
+            name: 'randomname',
+            importedCvrCount: 1,
+            duplicatedCvrCount: 0,
+            scannerIds: ['abc'],
+            precinctIds: ['6522'],
+            exportTimestamp: new Date(),
+            isTestMode: false,
+            signature: sha256(JSON.stringify(cvr)),
+            allCastVoteRecords: [cvr],
+          },
+        ],
       }
     );
     await waitFor(() => getByText('Import Live Mode CVR Files'));
@@ -423,14 +448,13 @@ describe('Screens display properly when USB is mounted', () => {
     fireEvent.click(domGetByText(tableRows[0], 'Import'));
     getByText('Loading');
     await waitFor(() => {
-      expect(saveCvr).toHaveBeenCalledTimes(1);
+      expect(fetchMock.called('/admin/write-ins/cvrs')).toBe(true);
       getByText('0 new CVRs Imported');
     });
   });
 
   test('Shows previously imported files when all files have already been imported', async () => {
     const closeFn = jest.fn();
-    const saveCvr = jest.fn();
     const fileEntries = [
       {
         name: LIVE_FILE1,
@@ -451,17 +475,23 @@ describe('Screens display properly when USB is mounted', () => {
       _batchId: 'batch-1',
       _batchLabel: 'Batch 1',
     };
-    const mockFiles = CastVoteRecordFiles.empty;
-    const added = await mockFiles.addAll(
-      [new File([JSON.stringify(cvr)], LIVE_FILE1)],
-      eitherNeitherElectionDefinition.election
-    );
     const { getByText, getAllByTestId } = renderInAppContext(
       <ImportCvrFilesModal onClose={closeFn} />,
       {
         usbDriveStatus: UsbDriveStatus.mounted,
-        castVoteRecordFiles: added,
-        saveCastVoteRecordFiles: saveCvr,
+        castVoteRecordFiles: [
+          {
+            name: LIVE_FILE1,
+            importedCvrCount: 1,
+            duplicatedCvrCount: 0,
+            scannerIds: ['abc'],
+            precinctIds: ['6522'],
+            exportTimestamp: new Date(2020, 11, 9, 15, 59, 32),
+            isTestMode: false,
+            signature: sha256(JSON.stringify(cvr)),
+            allCastVoteRecords: [cvr],
+          },
+        ],
       }
     );
     await waitFor(() => getByText('Import Live Mode CVR Files'));

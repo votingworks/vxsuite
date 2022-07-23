@@ -160,7 +160,7 @@ function parseFromFileContent(
 
   let duplicateCount = 0;
   for (const cvr of fileCastVoteRecords) {
-    if (importedBallotIds.has(cvr._ballotId)) {
+    if (cvr._ballotId && importedBallotIds.has(cvr._ballotId)) {
       duplicateCount += 1;
     }
   }

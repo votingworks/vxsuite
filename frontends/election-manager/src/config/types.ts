@@ -112,11 +112,10 @@ export interface CastVoteRecordFile {
   readonly duplicatedCvrCount: number;
   readonly scannerIds: readonly string[];
   readonly precinctIds: readonly PrecinctId[];
-  readonly allCastVoteRecords: readonly CastVoteRecord[];
   readonly exportTimestamp: Date;
   readonly isTestMode: boolean;
   readonly signature: string;
-  readonly allCastVoteRecords?: CastVoteRecord[];
+  readonly allCastVoteRecords?: readonly CastVoteRecord[];
 }
 export interface CastVoteRecordFilePreprocessedData {
   readonly name: string;

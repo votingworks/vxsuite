@@ -447,7 +447,7 @@ export function AppRoot({
   async function clearCastVoteRecordFiles() {
     computeVoteCounts(new Set());
     await fetch('/admin/write-ins/cvrs/reset', { method: 'GET' });
-    setCastVoteRecordFiles([]);
+    await refreshCastVoteRecordFiles();
     await removeStorageKeyAndLog(
       isOfficialResultsKey,
       'isOfficialResults flag'

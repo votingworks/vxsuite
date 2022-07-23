@@ -217,16 +217,15 @@ export function WriteInsTranscriptionScreen({
   }
 
   const contestLayout = layouts[currentLayoutOptionIdx].contests[contestIdx];
-
   // Options are laid out from the bottom up, so we reverse write-ins to get the correct bounds
   const writeInOptions = contestLayout.options
-    .filter((option) => option.definition.id.startsWith('write-in'))
+    .filter((option) => option.definition?.id.startsWith('write-in'))
     .reverse();
 
   // eslint-disable-next-line
   const writeInOptionIndex = Number(
     cvr[contest.id]
-      .find((vote: string) => vote.startsWith('write-in'))
+      ?.find((vote: string) => vote.startsWith('write-in'))
       .slice('write-in-'.length)
   );
   const writeInLayout = writeInOptions[writeInOptionIndex];
