@@ -1,6 +1,7 @@
 import {
   CardStorage,
   InsertedSmartcardAuth,
+  SuperadminUser,
   AdminUser,
   PollworkerUser,
   VoterUser,
@@ -27,11 +28,12 @@ export function fakeCheckingPasscodeAuth(
 }
 
 export function fakeSuperadminAuth(
+  user: Partial<SuperadminUser> = {},
   card: Partial<CardStorage> = {}
 ): InsertedSmartcardAuth.SuperadminLoggedIn {
   return {
     status: 'logged_in',
-    user: fakeSuperadminUser(),
+    user: fakeSuperadminUser(user),
     card: fakeCardStorage(card),
   };
 }
