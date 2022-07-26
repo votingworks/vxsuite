@@ -7,6 +7,7 @@ import {
   makeVoterCard,
   makePollWorkerCard,
   getZeroCompressedTally,
+  makeSuperadminCard,
 } from '@votingworks/test-utils';
 import {
   MemoryStorage,
@@ -407,9 +408,9 @@ it('MarkAndPrint end-to-end flow', async () => {
   await advanceTimersAndPromises();
 
   // Insert SuperAdmin card
-  card.insertCard({ t: 'superadmin' });
-  await advanceTimersAndPromises();
-  screen.getByText('Reboot from USB');
+  card.insertCard(makeSuperadminCard());
+  await authenticateAdminCard();
+  await screen.findByText('Reboot from USB');
   card.removeCard();
   await advanceTimersAndPromises();
 
@@ -428,7 +429,7 @@ it('MarkAndPrint end-to-end flow', async () => {
   screen.getByText('Device Not Configured');
 
   // Insert SuperAdmin card works when unconfigured
-  card.insertCard({ t: 'superadmin' });
-  await advanceTimersAndPromises();
-  screen.getByText('Reboot from USB');
+  card.insertCard(makeSuperadminCard());
+  await authenticateAdminCard();
+  await screen.findByText('Reboot from USB');
 });

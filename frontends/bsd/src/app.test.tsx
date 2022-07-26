@@ -514,8 +514,14 @@ test('superadmin can log in', async () => {
   await screen.findByText('VxCentralScan is Locked');
 
   card.insertCard(makeSuperadminCard());
+  await screen.findByText('Enter the card security code to unlock.');
+  userEvent.click(screen.getByText('1'));
+  userEvent.click(screen.getByText('2'));
+  userEvent.click(screen.getByText('3'));
+  userEvent.click(screen.getByText('4'));
+  userEvent.click(screen.getByText('5'));
+  userEvent.click(screen.getByText('6'));
   await screen.findByText('Remove card to continue.');
-
   card.removeCard();
   await screen.findByText('Lock Machine');
 
