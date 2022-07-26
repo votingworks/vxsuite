@@ -10,11 +10,8 @@ import { v4 as uuid } from 'uuid';
 import {
   AdjudicationReason,
   AdjudicationReasonInfo,
-  err,
   Id,
-  ok,
   PageInterpretationWithFiles,
-  Result,
 } from '@votingworks/types';
 import { assert } from '@votingworks/utils';
 import { switchMap, timer } from 'rxjs';
@@ -186,12 +183,12 @@ async function scan({ client }: Context): Promise<SheetOf<string>> {
   return [front, back];
 }
 
-async function calibrate({ client }: Context): Promise<void> {
+async function calibrate({ client }: Context) {
   assert(client);
   debug('Calibrating');
   const calibrateResult = await client.calibrate();
   debug('Calibrate result: %o', calibrateResult);
-  calibrateResult.unsafeUnwrap();
+  return calibrateResult.unsafeUnwrap();
 }
 
 async function interpretSheet({
@@ -347,7 +344,7 @@ async function accept({ client, store, interpretation }: Context) {
   debug('Accepting');
   const acceptResult = await client.accept();
   debug('Accept result: %o', acceptResult);
-  acceptResult.unsafeUnwrap();
+  return acceptResult.unsafeUnwrap();
 }
 
 function deleteLastAcceptedBallot({ store, interpretation }: Context) {
@@ -679,11 +676,14 @@ export interface PrecinctScannerStateMachine {
   configure: (store: Store, interpreter: SimpleInterpreter) => void;
   unconfigure: () => void;
   status: () => Scan.PrecinctScannerMachineStatus;
-  scan: () => Result<void, Error>;
-  accept: () => Result<void, Error>;
-  return: () => Result<void, Error>;
-  startOver: () => Result<void, Error>;
-  calibrate: () => Result<void, Error>;
+  // The commands are non-blocking and do not return a result. They just send an
+  // event to the machine. The effects of the event (or any error) will show up
+  // in the status.
+  scan: () => void;
+  accept: () => void;
+  return: () => void;
+  startOver: () => void;
+  calibrate: () => void;
 }
 
 export function createPrecinctScannerStateMachine(): PrecinctScannerStateMachine {
@@ -781,74 +781,31 @@ export function createPrecinctScannerStateMachine(): PrecinctScannerStateMachine
         state: scannerState,
         interpretation,
         error:
-          error instanceof PrecinctScannerError ? error.type : 'plustek_error',
+          error &&
+          (error instanceof PrecinctScannerError
+            ? error.type
+            : 'plustek_error'),
       };
     },
 
     scan: () => {
-      if (!machineService.state.matches('ready_to_scan')) {
-        return err(
-          new Error('Scanner must be in ready_to_scan state in order to scan')
-        );
-      }
       machineService.send('SCAN');
-      return ok();
     },
 
     accept: () => {
-      if (
-        !(
-          machineService.state.matches('ready_to_accept') ||
-          machineService.state.matches('needs_review')
-        )
-      ) {
-        return err(
-          new Error(
-            'Scanner must be in ready_to_accept or needs_review state in order to accept'
-          )
-        );
-      }
       machineService.send('ACCEPT');
-      return ok();
     },
 
     return: () => {
-      if (!machineService.state.matches('needs_review')) {
-        return err(
-          new Error('Scanner must be in needs_review state in order to review')
-        );
-      }
       machineService.send('RETURN');
-      return ok();
     },
 
     startOver: () => {
-      if (
-        !(
-          machineService.state.matches('accepted') ||
-          machineService.state.matches('calibrated')
-        )
-      ) {
-        return err(
-          new Error(
-            'Scanner must be in accepted or calibrated state in order to start over'
-          )
-        );
-      }
       machineService.send('START_OVER');
-      return ok();
     },
 
     calibrate: () => {
-      if (!machineService.state.matches('ready_to_scan')) {
-        return err(
-          new Error(
-            'Scanner must be in ready_to_scan state in order to calibrate'
-          )
-        );
-      }
       machineService.send('CALIBRATE');
-      return ok();
     },
   };
 }
