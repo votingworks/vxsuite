@@ -65,11 +65,16 @@ beforeEach(() => {
   mockOf(generatePin).mockImplementation(() => '123456');
 });
 
-// TODO: Update this function to check super admin PIN entry once super admin PINs have been
-// implemented
 async function authenticateWithSuperAdminCard(card: MemoryCard) {
   await screen.findByText('VxAdmin is Locked');
   card.insertCard(makeSuperadminCard());
+  await screen.findByText('Enter the card security code to unlock.');
+  userEvent.click(screen.getByText('1'));
+  userEvent.click(screen.getByText('2'));
+  userEvent.click(screen.getByText('3'));
+  userEvent.click(screen.getByText('4'));
+  userEvent.click(screen.getByText('5'));
+  userEvent.click(screen.getByText('6'));
   await screen.findByText('Remove card to continue.');
   card.removeCard();
   await screen.findByText('Lock Machine');
@@ -93,7 +98,7 @@ test('Smartcard modal displays card details', async () => {
       cardData: makeSuperadminCard(),
       expectedRoleString: 'Super Admin',
       expectedElectionString: 'N/A',
-      shouldResetCardPinButtonBeDisplayed: false,
+      shouldResetCardPinButtonBeDisplayed: true,
       shouldUnprogramCardButtonBeDisplayed: false,
     },
     {
@@ -184,33 +189,43 @@ test('Smartcard modal displays card details when no election definition on machi
     cardData: AnyCardData;
     expectedRoleString: string;
     expectedElectionString: string;
+    shouldResetCardPinButtonBeDisplayed: boolean;
   }> = [
     {
       cardData: makeSuperadminCard(),
       expectedRoleString: 'Super Admin',
       expectedElectionString: 'N/A',
+      shouldResetCardPinButtonBeDisplayed: true,
     },
     {
       cardData: makeAdminCard(electionHash),
       expectedRoleString: 'Admin',
       expectedElectionString: 'Unknown',
+      shouldResetCardPinButtonBeDisplayed: false,
     },
     {
       cardData: makePollWorkerCard(electionHash),
       expectedRoleString: 'Poll Worker',
       expectedElectionString: 'Unknown',
+      shouldResetCardPinButtonBeDisplayed: false,
     },
     {
       cardData: makeVoterCard(election),
       expectedRoleString: 'Voter',
       expectedElectionString: 'Unknown',
+      shouldResetCardPinButtonBeDisplayed: false,
     },
   ];
 
   await screen.findByRole('heading', { name: 'Configure VxAdmin' });
 
   for (const testCase of testCases) {
-    const { cardData, expectedRoleString, expectedElectionString } = testCase;
+    const {
+      cardData,
+      expectedRoleString,
+      expectedElectionString,
+      shouldResetCardPinButtonBeDisplayed,
+    } = testCase;
 
     card.insertCard(cardData);
     const modal = await screen.findByRole('alertdialog');
@@ -218,7 +233,16 @@ test('Smartcard modal displays card details when no election definition on machi
     within(modal).getByText(expectedRoleString);
     within(modal).getByText(expectedElectionString);
     within(modal).getByText('Remove card to leave this screen.');
-    expect(within(modal).queryAllByRole('button')).toEqual([]);
+    if (shouldResetCardPinButtonBeDisplayed) {
+      within(modal).getByRole('button', { name: 'Reset Card PIN' });
+    } else {
+      expect(
+        within(modal).queryByRole('button', { name: 'Reset Card PIN' })
+      ).not.toBeInTheDocument();
+    }
+    expect(
+      within(modal).queryByRole('button', { name: 'Unprogram Card' })
+    ).not.toBeInTheDocument();
     card.removeCard();
     await waitFor(() =>
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
@@ -359,7 +383,13 @@ test('Programming super admin smartcards', async () => {
   within(modal).getByText('Super Admin');
   within(modal).getByText('N/A'); // Card election
   within(modal).getByText('Remove card to leave this screen.');
-  expect(within(modal).queryAllByRole('button')).toEqual([]);
+  // PIN resetting is disabled right after a card has been created
+  expect(
+    within(modal).getByRole('button', { name: 'Reset Card PIN' })
+  ).toHaveAttribute('disabled');
+  expect(
+    within(modal).queryByRole('button', { name: 'Unprogram Card' })
+  ).not.toBeInTheDocument();
   card.removeCard();
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
@@ -409,47 +439,76 @@ test('Resetting smartcard PINs', async () => {
   const newPin = '123456';
   mockOf(generatePin).mockImplementation(() => newPin);
 
+  const testCases: Array<{
+    cardData: AnyCardData;
+    cardLongValue?: string;
+    expectedProgressText: string;
+    expectedSuccessText: string;
+  }> = [
+    {
+      cardData: makeSuperadminCard(oldPin),
+      cardLongValue: undefined,
+      expectedProgressText: 'Resetting Super Admin card PIN',
+      expectedSuccessText: 'Super Admin card PIN has been reset.',
+    },
+    {
+      cardData: makeAdminCard(electionHash, oldPin),
+      cardLongValue: electionData,
+      expectedProgressText: 'Resetting Admin card PIN',
+      expectedSuccessText: 'Admin card PIN has been reset.',
+    },
+  ];
+
   // The smartcard modal should open on any screen, not just the Smartcards screen
   await screen.findByRole('heading', { name: 'Election Definition' });
 
-  // Fully mock an admin card
-  card.insertCard(makeAdminCard(electionHash, oldPin));
-  await card.writeLongUint8Array(new TextEncoder().encode(electionData));
-  const summaryBefore = await card.readSummary();
-  const shortValueBefore =
-    summaryBefore.status === 'ready' ? summaryBefore.shortValue : undefined;
-  const longValueBefore = await card.readLongString();
-  expect(shortValueBefore).toContain(oldPin);
-  expect(longValueBefore).toEqual(electionData);
-  assert(shortValueBefore !== undefined);
-  assert(longValueBefore !== undefined);
+  for (const testCase of testCases) {
+    const {
+      cardData,
+      cardLongValue,
+      expectedProgressText,
+      expectedSuccessText,
+    } = testCase;
 
-  const modal = await screen.findByRole('alertdialog');
-  within(modal).getByRole('heading', { name: 'Card Details' });
-  userEvent.click(
-    within(modal).getByRole('button', { name: 'Reset Card PIN' })
-  );
-  await screen.findByText(/Resetting Admin card PIN/);
-  await within(modal).findByText(/Admin card PIN has been reset./);
-  await within(modal).findByText(
-    /The new PIN is 123-456. Write this PIN down./
-  );
+    card.insertCard(cardData);
+    if (cardLongValue) {
+      await card.writeLongUint8Array(new TextEncoder().encode(cardLongValue));
+    }
+    const summaryBefore = await card.readSummary();
+    const shortValueBefore =
+      summaryBefore.status === 'ready' ? summaryBefore.shortValue : undefined;
+    const longValueBefore = await card.readLongString();
+    expect(shortValueBefore).toContain(oldPin);
+    assert(shortValueBefore !== undefined);
+    expect(longValueBefore).toEqual(cardLongValue);
 
-  // Verify that the card PIN and nothing else was changed under the hood
-  const summaryAfter = await card.readSummary();
-  const shortValueAfter =
-    summaryAfter.status === 'ready' ? summaryAfter.shortValue : undefined;
-  const longValueAfter = await card.readLongString();
-  expect(shortValueAfter).toEqual(shortValueBefore.replace(oldPin, newPin));
-  expect(longValueAfter).toEqual(longValueBefore);
+    const modal = await screen.findByRole('alertdialog');
+    within(modal).getByRole('heading', { name: 'Card Details' });
+    userEvent.click(
+      within(modal).getByRole('button', { name: 'Reset Card PIN' })
+    );
+    await screen.findByText(new RegExp(expectedProgressText));
+    await within(modal).findByText(new RegExp(expectedSuccessText));
+    await within(modal).findByText(
+      /The new PIN is 123-456. Write this PIN down./
+    );
 
-  card.removeCard();
-  await waitFor(() =>
-    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
-  );
-  // For some reason, finding by role doesn't work here, though 'Election Definition' is present
-  // in a heading
-  await screen.findByText('Election Definition');
+    // Verify that the card PIN and nothing else was changed under the hood
+    const summaryAfter = await card.readSummary();
+    const shortValueAfter =
+      summaryAfter.status === 'ready' ? summaryAfter.shortValue : undefined;
+    const longValueAfter = await card.readLongString();
+    expect(shortValueAfter).toEqual(shortValueBefore.replace(oldPin, newPin));
+    expect(longValueAfter).toEqual(longValueBefore);
+
+    card.removeCard();
+    await waitFor(() =>
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+    );
+    // For some reason, finding by role doesn't work here, though 'Election Definition' is present
+    // in a heading
+    await screen.findByText('Election Definition');
+  }
 });
 
 test('Unprogramming smartcards', async () => {
