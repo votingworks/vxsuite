@@ -1,11 +1,8 @@
-import { Scan } from '@votingworks/api';
 import React, { useCallback, useEffect, useReducer } from 'react';
-import useInterval from '@rooks/use-interval';
 import 'normalize.css';
 import makeDebug from 'debug';
 
 import {
-  AdjudicationReasonInfo,
   OptionalElectionDefinition,
   Provider,
   PrecinctId,
@@ -24,6 +21,7 @@ import {
   isSuperadminAuth,
   isAdminAuth,
   isPollworkerAuth,
+  useLock,
 } from '@votingworks/ui';
 import {
   throwIllegalValue,
@@ -38,21 +36,12 @@ import { Logger } from '@votingworks/logging';
 
 import { UnconfiguredElectionScreen } from './screens/unconfigured_election_screen';
 import { LoadingConfigurationScreen } from './screens/loading_configuration_screen';
-import {
-  BallotState,
-  ScanningResultType,
-  RejectedScanningReason,
-  MachineConfig,
-} from './config/types';
-import {
-  POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
-  TIME_TO_DISMISS_ERROR_SUCCESS_SCREENS_MS,
-} from './config/globals';
+import { MachineConfig } from './config/types';
 
 import * as config from './api/config';
-import * as scan from './api/scan';
+import * as scanner from './api/scan';
 
-import { usePrecinctScanner } from './hooks/use_precinct_scanner';
+import { usePrecinctScannerStatus } from './hooks/use_precinct_scanner_status';
 import { AdminScreen } from './screens/admin_screen';
 import { InvalidCardScreen } from './screens/invalid_card_screen';
 import { PollsClosedScreen } from './screens/polls_closed_screen';
@@ -66,9 +55,11 @@ import { AppContext } from './contexts/app_context';
 import { SetupPowerPage } from './screens/setup_power_page';
 import { CardErrorScreen } from './screens/card_error_screen';
 import { SetupScannerScreen } from './screens/setup_scanner_screen';
-import { SetupScannerInternalWiringScreen } from './screens/setup_scanner_internal_wiring_screen';
 import { ScreenMainCenterChild, CenteredLargeProse } from './components/layout';
 import { InsertUsbScreen } from './screens/insert_usb_screen';
+import { ScanReturnedBallotScreen } from './screens/scan_returned_ballot_screen';
+import { ScanJamScreen } from './screens/scan_jam_screen';
+import { ScanBusyScreen } from './screens/scan_busy_screen';
 
 const debug = makeDebug('precinct-scanner:app-root');
 
@@ -94,29 +85,19 @@ interface HardwareState {
 interface ScannerConfigState {
   isScannerConfigLoaded: boolean;
   electionDefinition?: ElectionDefinition;
-  isTestMode: boolean;
   currentPrecinctId?: PrecinctId;
+  isTestMode: boolean;
 }
 
-interface SharedState {
-  scannedBallotCount: number;
-  ballotState: BallotState;
-  timeoutToInsertScreen?: number;
-  isStatusPollingEnabled: boolean;
+interface FrontendState {
   isPollsOpen: boolean;
   initializedFromStorage: boolean;
-}
-
-interface ScanInformationState {
-  adjudicationReasonInfo: AdjudicationReasonInfo[];
-  rejectionReason?: RejectedScanningReason;
 }
 
 export interface State
   extends HardwareState,
     ScannerConfigState,
-    SharedState,
-    ScanInformationState {}
+    FrontendState {}
 
 const initialHardwareState: Readonly<HardwareState> = {
   machineConfig: {
@@ -132,24 +113,15 @@ const initialScannerConfigState: Readonly<ScannerConfigState> = {
   currentPrecinctId: undefined,
 };
 
-const initialSharedState: Readonly<SharedState> = {
-  scannedBallotCount: 0,
-  ballotState: BallotState.IDLE,
-  isStatusPollingEnabled: true,
+const initialAppState: Readonly<FrontendState> = {
   isPollsOpen: false,
   initializedFromStorage: false,
 };
 
-const initialScanInformationState: Readonly<ScanInformationState> = {
-  adjudicationReasonInfo: [],
-  rejectionReason: undefined,
-};
-
-const initialAppState: Readonly<State> = {
+const initialState: Readonly<State> = {
   ...initialHardwareState,
   ...initialScannerConfigState,
-  ...initialSharedState,
-  ...initialScanInformationState,
+  ...initialAppState,
 };
 
 // Sets State.
@@ -166,30 +138,6 @@ type AppAction =
       isTestMode: boolean;
       currentPrecinctId?: PrecinctId;
     }
-  | {
-      type: 'ballotScanning';
-    }
-  | {
-      type: 'ballotCast';
-      timeoutToInsertScreen: number;
-    }
-  | {
-      type: 'ballotNeedsReview';
-      adjudicationReasonInfo: AdjudicationReasonInfo[];
-    }
-  | {
-      type: 'ballotRejected';
-      rejectionReason?: RejectedScanningReason;
-    }
-  | {
-      type: 'scannerError';
-      timeoutToInsertScreen: number;
-    }
-  | {
-      type: 'readyToInsertBallot';
-    }
-  | { type: 'disableStatusPolling' }
-  | { type: 'enableStatusPolling' }
   | { type: 'updatePrecinctId'; precinctId?: PrecinctId }
   | { type: 'togglePollsOpen' }
   | { type: 'setMachineConfig'; machineConfig: MachineConfig };
@@ -232,58 +180,6 @@ function appReducer(state: State, action: AppAction): State {
         isScannerConfigLoaded: true,
       };
     }
-    case 'ballotScanning':
-      return {
-        ...state,
-        ...initialScanInformationState,
-        ballotState: BallotState.SCANNING,
-        timeoutToInsertScreen: undefined,
-      };
-    case 'ballotCast':
-      return {
-        ...state,
-        ...initialScanInformationState,
-        ballotState: BallotState.CAST,
-        timeoutToInsertScreen: action.timeoutToInsertScreen,
-      };
-    case 'scannerError':
-      return {
-        ...state,
-        ...initialScanInformationState,
-        ballotState: BallotState.SCANNER_ERROR,
-        timeoutToInsertScreen: action.timeoutToInsertScreen,
-      };
-    case 'ballotRejected':
-      return {
-        ...state,
-        ...initialScanInformationState,
-        rejectionReason: action.rejectionReason,
-        ballotState: BallotState.REJECTED,
-      };
-    case 'ballotNeedsReview':
-      return {
-        ...state,
-        ...initialScanInformationState,
-        adjudicationReasonInfo: action.adjudicationReasonInfo,
-        ballotState: BallotState.NEEDS_REVIEW,
-      };
-    case 'readyToInsertBallot':
-      return {
-        ...state,
-        ...initialScanInformationState,
-        ballotState: BallotState.IDLE,
-        timeoutToInsertScreen: undefined,
-      };
-    case 'disableStatusPolling':
-      return {
-        ...state,
-        isStatusPollingEnabled: false,
-      };
-    case 'enableStatusPolling':
-      return {
-        ...state,
-        isStatusPollingEnabled: true,
-      };
     case 'updatePrecinctId':
       return {
         ...state,
@@ -313,16 +209,11 @@ export function AppRoot({
   storage,
   machineConfig: machineConfigProvider,
   logger,
-}: Props): JSX.Element {
-  const [appState, dispatchAppState] = useReducer(appReducer, initialAppState);
+}: Props): JSX.Element | null {
+  const [appState, dispatchAppState] = useReducer(appReducer, initialState);
   const {
     electionDefinition,
     isScannerConfigLoaded,
-    ballotState,
-    timeoutToInsertScreen,
-    isStatusPollingEnabled,
-    adjudicationReasonInfo,
-    rejectionReason,
     isTestMode,
     currentPrecinctId,
     isPollsOpen,
@@ -366,15 +257,7 @@ export function AppRoot({
       isTestMode: newIsTestMode,
       currentPrecinctId: newCurrentPrecinctId,
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatchAppState]);
-
-  const dismissCurrentBallotMessage = useCallback((): number => {
-    return window.setTimeout(
-      () => dispatchAppState({ type: 'readyToInsertBallot' }),
-      TIME_TO_DISMISS_ERROR_SUCCESS_SCREENS_MS
-    );
-  }, [dispatchAppState]);
+  }, [makeCancelable]);
 
   // Handle Machine Config
   useEffect(() => {
@@ -392,206 +275,6 @@ export function AppRoot({
     void setMachineConfig();
   }, [machineConfigProvider]);
 
-  const scanDetectedBallot = useCallback(async () => {
-    dispatchAppState({ type: 'disableStatusPolling' });
-    try {
-      const scanningResult = await scan.scanDetectedSheet();
-      switch (scanningResult.resultType) {
-        case ScanningResultType.Rejected: {
-          dispatchAppState({
-            type: 'ballotRejected',
-            rejectionReason: scanningResult.rejectionReason,
-          });
-          break;
-        }
-        case ScanningResultType.NeedsReview:
-          dispatchAppState({
-            type: 'ballotNeedsReview',
-            adjudicationReasonInfo: scanningResult.adjudicationReasonInfo,
-          });
-          break;
-        case ScanningResultType.Accepted: {
-          dispatchAppState({
-            type: 'ballotCast',
-            timeoutToInsertScreen: dismissCurrentBallotMessage(),
-          });
-          break;
-        }
-        /* istanbul ignore next - compile time check for completeness */
-        default:
-          throwIllegalValue(scanningResult);
-      }
-    } catch (error) {
-      /* istanbul ignore next */
-      dispatchAppState({
-        type: 'ballotRejected',
-      });
-    } finally {
-      dispatchAppState({
-        type: 'enableStatusPolling',
-      });
-    }
-  }, [dispatchAppState, dismissCurrentBallotMessage]);
-
-  const acceptBallot = useCallback(async () => {
-    try {
-      dispatchAppState({
-        type: 'disableStatusPolling',
-      });
-      dispatchAppState({
-        type: 'ballotScanning',
-      });
-      const success = await scan.acceptBallotAfterReview();
-      if (success) {
-        dispatchAppState({
-          type: 'ballotCast',
-          timeoutToInsertScreen: dismissCurrentBallotMessage(),
-        });
-      } else {
-        dispatchAppState({
-          type: 'ballotRejected',
-        });
-      }
-    } finally {
-      dispatchAppState({
-        type: 'enableStatusPolling',
-      });
-    }
-  }, [dispatchAppState, dismissCurrentBallotMessage]);
-
-  const endBatch = useCallback(async () => {
-    dispatchAppState({ type: 'disableStatusPolling' });
-    try {
-      await scan.endBatch();
-    } finally {
-      dispatchAppState({
-        type: 'enableStatusPolling',
-      });
-    }
-  }, [dispatchAppState]);
-
-  const [startBallotStatusPolling, endBallotStatusPolling] = useInterval(
-    async () => {
-      if (!isStatusPollingEnabled) {
-        return;
-      }
-      dispatchAppState({ type: 'disableStatusPolling' });
-
-      try {
-        const { scannerState } = await scan.getCurrentStatus();
-
-        const isCapableOfBeginningNewScan =
-          ballotState === BallotState.IDLE ||
-          ballotState === BallotState.CAST ||
-          ballotState === BallotState.SCANNER_ERROR;
-
-        const isHoldingPaperForVoterRemoval =
-          ballotState === BallotState.REJECTED ||
-          ballotState === BallotState.NEEDS_REVIEW;
-
-        debug({
-          scannerState,
-          ballotState,
-          isCapableOfBeginningNewScan,
-          isHoldingPaperForVoterRemoval,
-        });
-
-        // Figure out what ballot state we are in, defaulting to the current state.
-        switch (scannerState) {
-          case Scan.ScannerStatus.Error:
-          case Scan.ScannerStatus.Unknown: {
-            // The scanner returned an error move to the error screen. Assume there is not currently paper in the scanner.
-            // TODO(531) Bugs in services/scan make this happen at confusing moments, ignore for now.
-            debug('got a bad scanner status', scannerState);
-            /* dispatchAppState({
-            type: 'scannerError',
-            timeoutToInsertScreen: dismissCurrentBallotMessage(),
-          }) */
-            return;
-          }
-          case Scan.ScannerStatus.ReadyToScan:
-            if (isCapableOfBeginningNewScan) {
-              // If we are going to reset the machine back to the insert ballot screen, cancel that.
-              if (timeoutToInsertScreen) {
-                window.clearTimeout(timeoutToInsertScreen);
-              }
-              // begin scanning
-              dispatchAppState({
-                type: 'ballotScanning',
-              });
-              await scanDetectedBallot();
-            }
-            return;
-          case Scan.ScannerStatus.WaitingForPaper:
-            // When we can not begin a new scan we are not expecting to be waiting for paper
-            // This will happen if someone is ripping the paper out of the scanner while scanning, or reviewing
-            // a ballot.
-            if (isHoldingPaperForVoterRemoval) {
-              // The voter has removed the ballot, end the batch and reset to the insert screen.
-              await endBatch();
-              /* istanbul ignore next */
-              if (timeoutToInsertScreen) {
-                window.clearTimeout(timeoutToInsertScreen);
-              }
-              dispatchAppState({ type: 'readyToInsertBallot' });
-              return;
-            }
-            break;
-
-          default:
-            // nothing to do
-            break;
-        }
-      } catch (err) {
-        debug('error in fetching module scan status');
-      } finally {
-        dispatchAppState({ type: 'enableStatusPolling' });
-      }
-    },
-    POLLING_INTERVAL_FOR_SCANNER_STATUS_MS
-  );
-
-  const togglePollsOpen = useCallback(() => {
-    dispatchAppState({ type: 'togglePollsOpen' });
-  }, []);
-
-  useEffect(() => {
-    if (
-      precinctScanner &&
-      electionDefinition &&
-      isPollsOpen &&
-      auth.status === 'logged_out' &&
-      auth.reason === 'no_card'
-    ) {
-      startBallotStatusPolling();
-    } else {
-      endBallotStatusPolling();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [precinctScanner, electionDefinition, isPollsOpen, auth]);
-
-  const toggleTestMode = useCallback(async () => {
-    await config.setTestMode(!isTestMode);
-    dispatchAppState({ type: 'resetPollsToClosed' });
-    await refreshConfig();
-  }, [dispatchAppState, refreshConfig, isTestMode]);
-
-  const unconfigureServer = useCallback(async () => {
-    try {
-      await config.setElection(undefined);
-      endBallotStatusPolling();
-      dispatchAppState({ type: 'resetPollsToClosed' });
-      await refreshConfig();
-    } catch (error) {
-      debug('failed unconfigureServer()', error);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatchAppState, refreshConfig]);
-
-  const scanner = usePrecinctScanner();
-  const scannedBallotCount = scanner?.status.ballotCount ?? 0;
-  const canUnconfigure = scanner?.status.canUnconfigure ?? false;
-
   // Initialize app state
   useEffect(() => {
     async function initializeScanner() {
@@ -599,7 +282,6 @@ export function AppRoot({
         await refreshConfig();
       } catch (e) {
         debug('failed to initialize:', e);
-        endBallotStatusPolling();
         window.setTimeout(initializeScanner, 1000);
       }
     }
@@ -618,16 +300,7 @@ export function AppRoot({
 
     void initializeScanner();
     void updateStateFromStorage();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [refreshConfig, storage]);
-
-  const updatePrecinctId = useCallback(
-    async (precinctId: PrecinctId) => {
-      dispatchAppState({ type: 'updatePrecinctId', precinctId });
-      await config.setCurrentPrecinctId(precinctId);
-    },
-    [dispatchAppState]
-  );
 
   useEffect(() => {
     async function storeAppState() {
@@ -643,13 +316,54 @@ export function AppRoot({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isPollsOpen, initializedFromStorage]);
 
-  function dismissError() {
-    /* istanbul ignore next */
-    if (timeoutToInsertScreen) {
-      window.clearTimeout(timeoutToInsertScreen);
+  const togglePollsOpen = useCallback(() => {
+    dispatchAppState({ type: 'togglePollsOpen' });
+  }, []);
+
+  const toggleTestMode = useCallback(async () => {
+    await config.setTestMode(!isTestMode);
+    dispatchAppState({ type: 'resetPollsToClosed' });
+    await refreshConfig();
+  }, [refreshConfig, isTestMode]);
+
+  const unconfigureServer = useCallback(async () => {
+    try {
+      await config.setElection(undefined);
+      dispatchAppState({ type: 'resetPollsToClosed' });
+      await refreshConfig();
+    } catch (error) {
+      debug('failed unconfigureServer()', error);
     }
-    dispatchAppState({ type: 'readyToInsertBallot' });
+  }, [refreshConfig]);
+
+  async function updatePrecinctId(precinctId: PrecinctId) {
+    dispatchAppState({ type: 'updatePrecinctId', precinctId });
+    await config.setCurrentPrecinctId(precinctId);
   }
+
+  const scannerStatus = usePrecinctScannerStatus();
+
+  // The scan service waits to receive a command to scan or accept a ballot. The
+  // frontend controls when this happens so that ensure we're only scanning when
+  // we're in voter mode.
+  const voterMode = auth.status === 'logged_out' && auth.reason === 'no_card';
+  const scannerCommandLock = useLock();
+  useEffect(() => {
+    async function automaticallyScanAndAcceptBallots() {
+      if (!(voterMode && isPollsOpen)) return;
+      if (!scannerCommandLock.lock()) return;
+      try {
+        if (scannerStatus?.state === 'ready_to_scan') {
+          await scanner.scanBallot();
+        } else if (scannerStatus?.state === 'ready_to_accept') {
+          await scanner.acceptBallot();
+        }
+      } finally {
+        scannerCommandLock.unlock();
+      }
+    }
+    void automaticallyScanAndAcceptBallots();
+  });
 
   if (!cardReader) {
     return <SetupCardReaderPage />;
@@ -682,14 +396,10 @@ export function AppRoot({
     );
   }
 
-  // If the power cord is plugged in, but we can't detect a scanner, it's an internal wiring issue
-  if (computer.batteryIsCharging && !precinctScanner) {
-    return <SetupScannerInternalWiringScreen />;
-  }
-
-  // Otherwise if we can't detect the scanner, the power cord is likely not plugged in
   if (!precinctScanner) {
-    return <SetupScannerScreen />;
+    return (
+      <SetupScannerScreen batteryIsCharging={computer.batteryIsCharging} />
+    );
   }
 
   if (!isScannerConfigLoaded) {
@@ -709,6 +419,9 @@ export function AppRoot({
     return <UnlockMachineScreen auth={auth} />;
   }
 
+  // Wait until we load scanner status for the first time
+  if (!scannerStatus) return null;
+
   if (isAdminAuth(auth)) {
     return (
       <AppContext.Provider
@@ -721,12 +434,10 @@ export function AppRoot({
       >
         <AdminScreen
           updateAppPrecinctId={updatePrecinctId}
-          scannedBallotCount={scannedBallotCount}
-          canUnconfigure={canUnconfigure}
+          scannerStatus={scannerStatus}
           isTestMode={isTestMode}
           toggleLiveMode={toggleTestMode}
           unconfigure={unconfigureServer}
-          calibrate={scan.calibrate}
           usbDrive={usbDrive}
         />
       </AppContext.Provider>
@@ -748,7 +459,7 @@ export function AppRoot({
         }}
       >
         <PollWorkerScreen
-          scannedBallotCount={scannedBallotCount}
+          scannedBallotCount={scannerStatus.ballotsCounted}
           isPollsOpen={isPollsOpen}
           togglePollsOpen={togglePollsOpen}
           printer={printer}
@@ -767,74 +478,94 @@ export function AppRoot({
   // When no card is inserted, we're in "voter" mode
   assert(auth.status === 'logged_out' && auth.reason === 'no_card');
 
-  let voterScreen = (
-    <PollsClosedScreen
-      isLiveMode={!isTestMode}
-      showNoChargerWarning={!computer.batteryIsCharging}
-    />
-  );
+  if (!isPollsOpen) {
+    return (
+      <PollsClosedScreen
+        isLiveMode={!isTestMode}
+        showNoChargerWarning={!computer.batteryIsCharging}
+      />
+    );
+  }
 
-  // The polls are open for voters to utilize.
-  if (isPollsOpen) {
-    switch (ballotState) {
-      case BallotState.IDLE: {
-        voterScreen = (
+  assert(scannerStatus.state !== 'unconfigured');
+  assert(scannerStatus.state !== 'calibrating');
+  assert(scannerStatus.state !== 'calibrated');
+  const voterScreen = (() => {
+    switch (scannerStatus.state) {
+      case 'connecting':
+        return null;
+      case 'disconnected':
+        return (
+          <SetupScannerScreen batteryIsCharging={computer.batteryIsCharging} />
+        );
+      case 'no_paper':
+        return (
           <InsertBallotScreen
             isLiveMode={!isTestMode}
-            scannedBallotCount={scannedBallotCount}
+            scannedBallotCount={scannerStatus.ballotsCounted}
             showNoChargerWarning={!computer.batteryIsCharging}
           />
         );
-        break;
-      }
-      case BallotState.SCANNING: {
-        voterScreen = <ScanProcessingScreen />;
-        break;
-      }
-      case BallotState.NEEDS_REVIEW: {
-        voterScreen = (
+      case 'ready_to_scan':
+      case 'scanning':
+      case 'ready_to_accept':
+      case 'accepting':
+        // TODO if you review a ballot and choose to accept it, then we show
+        // this same scan processing screen, which is a little weird since we're
+        // not checking their ballot for errors anymore, we've already done that
+        return <ScanProcessingScreen />;
+      case 'accepted':
+        return (
+          <ScanSuccessScreen
+            scannedBallotCount={scannerStatus.ballotsCounted}
+          />
+        );
+      case 'needs_review':
+        assert(
+          scannerStatus.interpretation?.type === 'INTERPRETATION_NEEDS_REVIEW'
+        );
+        return (
           <ScanWarningScreen
-            acceptBallot={acceptBallot}
-            adjudicationReasonInfo={adjudicationReasonInfo}
+            adjudicationReasonInfo={scannerStatus.interpretation.reasons}
           />
         );
-        break;
-      }
-      case BallotState.CAST: {
-        voterScreen = (
-          <ScanSuccessScreen scannedBallotCount={scannedBallotCount} />
-        );
-        break;
-      }
-      case BallotState.SCANNER_ERROR: {
-        voterScreen = (
+      case 'returning':
+      case 'returned':
+        return <ScanReturnedBallotScreen />;
+      case 'rejecting':
+      case 'rejected':
+        return (
           <ScanErrorScreen
-            dismissError={dismissError}
+            error={
+              scannerStatus.interpretation?.type === 'INTERPRETATION_INVALID'
+                ? scannerStatus.interpretation.reason
+                : scannerStatus.error
+            }
             isTestMode={isTestMode}
           />
         );
-        break;
-      }
-      case BallotState.REJECTED: {
-        voterScreen = (
+      case 'jammed':
+        return <ScanJamScreen />;
+      case 'both_sides_have_paper':
+        return <ScanBusyScreen />;
+      case 'error':
+        return (
           <ScanErrorScreen
-            rejectionReason={rejectionReason}
+            error={scannerStatus.error}
             isTestMode={isTestMode}
           />
         );
-        break;
-      }
       /* istanbul ignore next - compile time check for completeness */
       default:
-        throwIllegalValue(ballotState);
+        throwIllegalValue(scannerStatus.state);
     }
-  }
+  })();
   return (
     <AppContext.Provider
       value={{
         electionDefinition,
-        machineConfig,
         currentPrecinctId,
+        machineConfig,
         auth,
       }}
     >
