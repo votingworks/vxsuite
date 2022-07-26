@@ -1,6 +1,7 @@
 import { BallotLocales, Election } from '@votingworks/types';
 import { BallotConfig } from '@votingworks/utils';
 import { DEFAULT_LOCALE } from '../config/globals';
+import { BallotMode } from '../config/types';
 import { getBallotPath, getBallotStylesDataByStyle } from './election';
 
 export function getAllBallotConfigs(
@@ -29,7 +30,7 @@ export function getAllBallotConfigs(
             election,
             electionHash,
             locales,
-            isLiveMode,
+            ballotMode: isLiveMode ? BallotMode.Official : BallotMode.Test,
             isAbsentee,
           }),
           layoutFilename: getBallotPath({
@@ -37,7 +38,7 @@ export function getAllBallotConfigs(
             election,
             electionHash,
             locales,
-            isLiveMode,
+            ballotMode: isLiveMode ? BallotMode.Official : BallotMode.Test,
             isAbsentee,
             variant: 'layout',
             extension: '.json',

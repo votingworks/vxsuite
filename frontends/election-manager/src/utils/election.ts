@@ -18,6 +18,7 @@ import {
 import { assert, BallotStyleData, find } from '@votingworks/utils';
 import dashify from 'dashify';
 import { LANGUAGES } from '../config/globals';
+import { BallotMode } from '../config/types';
 
 import { sortBy } from './sort_by';
 
@@ -117,7 +118,7 @@ export function getBallotPath({
   electionHash,
   precinctId,
   locales,
-  isLiveMode,
+  ballotMode,
   isAbsentee,
   variant,
   extension = '.pdf',
@@ -127,7 +128,7 @@ export function getBallotPath({
   electionHash: string;
   precinctId: PrecinctId;
   locales: BallotLocale;
-  isLiveMode: boolean;
+  ballotMode: BallotMode;
   isAbsentee: boolean;
   variant?: string;
   extension?: string;
@@ -142,9 +143,9 @@ export function getBallotPath({
     precinctName
   )}-id-${precinctId}-style-${ballotStyleId}-${getHumanBallotLanguageFormat(
     locales
-  ).replace(/[^a-z]+/gi, '-')}-${isLiveMode ? 'live' : 'test'}${
-    isAbsentee ? '-absentee' : ''
-  }${variant ? `-${variant}` : ''}${extension}`;
+  ).replace(/[^a-z]+/gi, '-')}-${ballotMode}${isAbsentee ? '-absentee' : ''}${
+    variant ? `-${variant}` : ''
+  }${extension}`;
 }
 
 export function getAllPossibleCandidatesForCandidateContest(

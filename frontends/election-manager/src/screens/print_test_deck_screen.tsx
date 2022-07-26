@@ -36,6 +36,7 @@ import {
   getBallotLayoutPageSize,
   getBallotLayoutPageSizeReadableString,
 } from '../utils/get_ballot_layout_page_size';
+import { BallotMode } from '../config/types';
 
 export const ONE_SIDED_PAGE_PRINT_TIME_MS = 3000;
 export const TWO_SIDED_PAGE_PRINT_TIME_MS = 5000;
@@ -174,7 +175,7 @@ function HandMarkedPaperBallots({
           ballotStyleId={ballot.ballotStyleId}
           election={election}
           electionHash={electionHash}
-          isLiveMode={false}
+          ballotMode={BallotMode.Test}
           isAbsentee={false}
           precinctId={ballot.precinctId}
           locales={{ primary: 'en-US' }}

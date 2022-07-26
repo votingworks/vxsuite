@@ -48,6 +48,7 @@ import { HorizontalRule } from './horizontal_rule';
 import { ABSENTEE_TINT_COLOR } from '../config/globals';
 import { getBallotLayoutPageSize } from '../utils/get_ballot_layout_page_size';
 import { getBallotLayoutDensity } from '../utils/get_ballot_layout_density';
+import { BallotMode } from '../config/types';
 
 function hasVote(
   vote: Vote | undefined,
@@ -159,10 +160,6 @@ const BlankPageContent = styled.div`
 
 type HmpbBallotMetadata = Omit<HmpbBallotPageMetadata, 'pageNumber'>;
 
-interface HmpbBallotMetadataRender extends HmpbBallotMetadata {
-  readonly isSampleBallot: boolean;
-}
-
 interface PagedJsPage {
   element: HTMLElement;
   id: string;
@@ -227,11 +224,10 @@ class PostRenderBallotProcessor extends Handler {
           precinctId,
           ballotStyleId,
           isTestMode,
-          isSampleBallot,
           locales,
           ballotType,
           ballotId,
-        }: HmpbBallotMetadataRender = JSON.parse(
+        }: HmpbBallotMetadata = JSON.parse(
           qrCodeTarget.dataset['metadata'] ?? ''
         );
 
@@ -247,12 +243,10 @@ class PostRenderBallotProcessor extends Handler {
           ballotId,
         });
 
-        if (!isSampleBallot) {
-          ReactDom.render(
-            <QrCode level="L" value={fromByteArray(encoded)} />,
-            qrCodeTarget
-          );
-        }
+        ReactDom.render(
+          <QrCode level="L" value={fromByteArray(encoded)} />,
+          qrCodeTarget
+        );
       }
     }
   }
@@ -365,12 +359,13 @@ const PageFooterRow = styled.div`
     margin-left: 0.05in;
   }
 `;
-const PageFooterQrCode = styled.div<{ isSampleBallot: boolean }>`
+const PageFooterQrCode = styled.div`
   margin-left: 0.15in;
-  border: ${({ isSampleBallot }) =>
-    isSampleBallot ? '1px solid #000000' : undefined};
   width: 0.55in;
   height: 0.55in;
+`;
+const PageFooterQrCodeOutline = styled(PageFooterQrCode)`
+  border: 1px solid #000000;
 `;
 const CandidateContestsLayout = styled.div`
   columns: 3;
@@ -548,9 +543,8 @@ export interface HandMarkedPaperBallotProps {
   ballotStyleId: BallotStyleId;
   election: Election;
   electionHash: string;
-  isLiveMode?: boolean;
+  ballotMode?: BallotMode;
   isAbsentee?: boolean;
-  isSampleBallot?: boolean;
   precinctId: PrecinctId;
   locales: BallotLocale;
   ballotId?: BallotId;
@@ -563,9 +557,8 @@ export function HandMarkedPaperBallot({
   ballotStyleId,
   election,
   electionHash,
-  isLiveMode = true,
+  ballotMode = BallotMode.Official,
   isAbsentee = true,
-  isSampleBallot = false,
   precinctId,
   locales,
   ballotId,
@@ -653,9 +646,8 @@ export function HandMarkedPaperBallot({
         ballotStyleId,
         election,
         electionHash,
-        isLiveMode,
+        ballotMode,
         isAbsentee,
-        isSampleBallot,
         precinctId,
         votes,
         locales,
@@ -674,8 +666,7 @@ export function HandMarkedPaperBallot({
     ballotStyleId,
     election,
     electionHash,
-    isLiveMode,
-    isSampleBallot,
+    ballotMode,
     onRendered,
     precinctId,
     isAbsentee,
@@ -802,30 +793,32 @@ export function HandMarkedPaperBallot({
               </div>
             </PageFooterRow>
           </PageFooterMain>
-          <PageFooterQrCode
-            className={qrCodeTargetClassName}
-            isSampleBallot={isSampleBallot}
-            data-election={JSON.stringify(election)}
-            data-metadata={JSON.stringify(
-              ((): HmpbBallotMetadataRender => ({
-                electionHash,
-                ballotStyleId,
-                precinctId,
-                locales,
-                isTestMode: !isLiveMode,
-                isSampleBallot,
-                ballotType: isAbsentee
-                  ? BallotType.Absentee
-                  : BallotType.Standard,
-                ballotId,
-              }))()
-            )}
-          />
+          {ballotMode === BallotMode.Sample ? (
+            <PageFooterQrCodeOutline />
+          ) : (
+            <PageFooterQrCode
+              className={qrCodeTargetClassName}
+              data-election={JSON.stringify(election)}
+              data-metadata={JSON.stringify(
+                ((): HmpbBallotMetadata => ({
+                  electionHash,
+                  ballotStyleId,
+                  precinctId,
+                  locales,
+                  isTestMode: ballotMode === BallotMode.Test,
+                  ballotType: isAbsentee
+                    ? BallotType.Absentee
+                    : BallotType.Standard,
+                  ballotId,
+                }))()
+              )}
+            />
+          )}
         </PageFooter>
       </div>
 
       <div className="watermark">
-        {isSampleBallot && (
+        {ballotMode === BallotMode.Sample && (
           <Watermark>
             <div>SAMPLE</div>
           </Watermark>
@@ -858,11 +851,11 @@ export function HandMarkedPaperBallot({
               )}
               <HandMarkedPaperBallotProse>
                 <h2>
-                  {isSampleBallot
-                    ? t('SAMPLE BALLOT', { lng: locales.primary })
-                    : isLiveMode
+                  {ballotMode === BallotMode.Official
                     ? t('Official Ballot', { lng: locales.primary })
-                    : t('TEST BALLOT', { lng: locales.primary })}
+                    : ballotMode === BallotMode.Test
+                    ? t('TEST BALLOT', { lng: locales.primary })
+                    : t('SAMPLE BALLOT', { lng: locales.primary })}
                 </h2>
                 <h3>
                   {ballotStyle.partyId && primaryPartyName} {title}
@@ -877,11 +870,11 @@ export function HandMarkedPaperBallot({
                 {localeElection && locales.secondary && (
                   <p>
                     <strong>
-                      {isSampleBallot
-                        ? t('SAMPLE BALLOT', { lng: locales.secondary })
-                        : isLiveMode
+                      {ballotMode === BallotMode.Official
                         ? t('Official Ballot', { lng: locales.secondary })
-                        : t('TEST BALLOT', {
+                        : ballotMode === BallotMode.Test
+                        ? t('TEST BALLOT', { lng: locales.secondary })
+                        : t('SAMPLE BALLOT', {
                             lng: locales.secondary,
                           })}
                     </strong>

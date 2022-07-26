@@ -25,6 +25,7 @@ import {
   Prose,
 } from '@votingworks/ui';
 import {
+  BallotMode,
   BallotScreenProps,
   InputEventFunction,
   PrintableBallotType,
@@ -109,12 +110,7 @@ export function BallotScreen(): JSX.Element {
 
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [ballotPages, setBallotPages] = useState(0);
-  const [isSampleBallot, setIsSampleBallot] = useState(false);
-  const [isLiveMode, setIsLiveMode] = useState(true);
-  function updateSetIsLiveMode(mode: boolean) {
-    setIsLiveMode(mode);
-    setIsSampleBallot(false);
-  }
+  const [ballotMode, setBallotMode] = useState(BallotMode.Official);
   const [isAbsentee, setIsAbsentee] = useState(true);
   function toggleIsAbsentee() {
     return setIsAbsentee((m) => !m);
@@ -144,7 +140,7 @@ export function BallotScreen(): JSX.Element {
     electionHash,
     precinctId,
     locales,
-    isLiveMode,
+    ballotMode,
     isAbsentee,
   });
 
@@ -153,7 +149,7 @@ export function BallotScreen(): JSX.Element {
     const type = isAbsentee
       ? PrintableBallotType.Absentee
       : PrintableBallotType.Precinct;
-    if (isLiveMode) {
+    if (ballotMode === BallotMode.Official) {
       addPrintedBallot({
         ballotStyleId,
         precinctId,
@@ -164,11 +160,9 @@ export function BallotScreen(): JSX.Element {
       });
     }
     void logger.log(LogEventId.BallotPrinted, userRole, {
-      message: `${numCopies} ${
-        isLiveMode ? 'Live mode' : 'Test mode'
-      } ${type} ballots printed. Precinct: ${precinctId}, ballot style: ${ballotStyleId}`,
+      message: `${numCopies} ${ballotMode} ${type} ballots printed. Precinct: ${precinctId}, ballot style: ${ballotStyleId}`,
       disposition: 'success',
-      isLiveMode,
+      ballotMode,
       ballotStyleId,
       precinctId,
       locales: getHumanBallotLanguageFormat(locales),
@@ -212,22 +206,22 @@ export function BallotScreen(): JSX.Element {
           <p>
             <SegmentedButton>
               <Button
-                disabled={isLiveMode && !isSampleBallot}
-                onPress={() => updateSetIsLiveMode(true)}
+                disabled={ballotMode === BallotMode.Official}
+                onPress={() => setBallotMode(BallotMode.Official)}
                 small
               >
                 Official
               </Button>
               <Button
-                disabled={!isLiveMode && !isSampleBallot}
-                onPress={() => updateSetIsLiveMode(false)}
+                disabled={ballotMode === BallotMode.Test}
+                onPress={() => setBallotMode(BallotMode.Test)}
                 small
               >
                 Test
               </Button>
               <Button
-                disabled={isSampleBallot}
-                onPress={() => setIsSampleBallot(true)}
+                disabled={ballotMode === BallotMode.Sample}
+                onPress={() => setBallotMode(BallotMode.Sample)}
                 small
               >
                 Sample
@@ -287,15 +281,15 @@ export function BallotScreen(): JSX.Element {
               afterPrintError={afterPrintError}
               copies={ballotCopies}
               sides="two-sided-long-edge"
-              warning={!isLiveMode || isSampleBallot}
+              warning={ballotMode !== BallotMode.Official}
             >
               Print {ballotCopies}{' '}
-              {isSampleBallot ? (
-                <strong>Sample</strong>
-              ) : isLiveMode ? (
+              {ballotMode === BallotMode.Official ? (
                 'Official'
               ) : (
-                <strong>Test</strong>
+                <strong>
+                  {ballotMode === BallotMode.Test ? 'Test' : 'Sample'}
+                </strong>
               )}{' '}
               {isAbsentee ? <strong>Absentee</strong> : 'Precinct'}{' '}
               {pluralize('Ballot', ballotCopies)}{' '}
@@ -356,8 +350,7 @@ export function BallotScreen(): JSX.Element {
         ballotStyleId={ballotStyleId}
         election={election}
         electionHash={electionHash}
-        isSampleBallot={isSampleBallot}
-        isLiveMode={isLiveMode}
+        ballotMode={ballotMode}
         isAbsentee={isAbsentee}
         precinctId={precinctId}
         locales={locales}

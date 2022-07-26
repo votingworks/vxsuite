@@ -39,6 +39,7 @@ import { LinkButton } from './link_button';
 import { Loading } from './loading';
 
 import * as workflow from '../workflows/export_election_ballot_package_workflow';
+import { BallotMode } from '../config/types';
 
 const { UsbDriveStatus } = usbstick;
 const UsbImage = styled.img`
@@ -309,7 +310,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
             ballotStyleId={ballotStyleId}
             election={election}
             electionHash={electionHash}
-            isLiveMode={isLiveMode}
+            ballotMode={isLiveMode ? BallotMode.Official : BallotMode.Test}
             isAbsentee={isAbsentee}
             precinctId={precinctId}
             onRendered={onRendered}
