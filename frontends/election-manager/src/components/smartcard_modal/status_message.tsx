@@ -42,6 +42,7 @@ export function StatusMessage({
         text = `Error unprogramming ${actionRoleReadableString} card.`;
         break;
       }
+      /* istanbul ignore next: Compile-time check for completeness */
       default: {
         throwIllegalValue(action);
       }
@@ -64,6 +65,7 @@ export function StatusMessage({
         // Handled in UnprogramCardConfirmationModal
         return null;
       }
+      /* istanbul ignore next: Compile-time check for completeness */
       default: {
         throwIllegalValue(action);
       }

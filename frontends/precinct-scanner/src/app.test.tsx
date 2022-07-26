@@ -36,6 +36,7 @@ import { AdjudicationReason, PrecinctSelectionKind } from '@votingworks/types';
 
 import { mocked } from 'ts-jest/utils';
 import { CARD_POLLING_INTERVAL } from '@votingworks/ui';
+import userEvent from '@testing-library/user-event';
 import { App } from './app';
 import { interpretedHmpb } from '../test/fixtures';
 
@@ -1443,15 +1444,16 @@ test('superadmin card', async () => {
     .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody });
   render(<App card={card} storage={storage} hardware={hardware} />);
 
-  const superadmincard = makeSuperadminCard();
+  card.insertCard(makeSuperadminCard());
+  await screen.findByText('Enter the card security code to unlock.');
+  userEvent.click(screen.getByText('1'));
+  userEvent.click(screen.getByText('2'));
+  userEvent.click(screen.getByText('3'));
+  userEvent.click(screen.getByText('4'));
+  userEvent.click(screen.getByText('5'));
+  userEvent.click(screen.getByText('6'));
 
-  await act(async () => {
-    card.insertCard(superadmincard);
-    await advanceTimersAndPromises(1);
-    await advanceTimersAndPromises(1);
-  });
-
-  screen.getByText('Reboot from USB');
+  await screen.findByText('Reboot from USB');
   screen.getByText('Reboot to BIOS');
   screen.getByText('Reset');
   fireEvent.click(screen.getByText('Reset'));

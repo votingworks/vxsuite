@@ -12,8 +12,11 @@ f = open(sys.argv[1], "rb")
 election_bytes = f.read()
 f.close()
 
-short_value = json.dumps(
-    {'t': 'admin', 'h': hashlib.sha256(election_bytes).hexdigest()})
+short_value = json.dumps({
+    't': 'admin',
+    'h': hashlib.sha256(election_bytes).hexdigest(),
+    'p': '000000',
+})
 
 print(CardInterface.card)
 CardInterface.override_protection()

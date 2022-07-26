@@ -37,7 +37,6 @@ import {
   VotingMethod,
 } from '@votingworks/types';
 import { LogEventId } from '@votingworks/logging';
-import { CARD_POLLING_INTERVAL } from '@votingworks/ui';
 
 import { externalVoteTalliesFileStorageKey } from './app_root';
 import { App } from './app';
@@ -139,29 +138,30 @@ async function authenticateWithAdminCard(card: MemoryCard) {
   card.insertCard(
     makeAdminCard(eitherNeitherElectionDefinition.electionHash, '123456')
   );
-  jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
   await screen.findByText('Enter the card security code to unlock.');
-  fireEvent.click(screen.getByText('1'));
-  fireEvent.click(screen.getByText('2'));
-  fireEvent.click(screen.getByText('3'));
-  fireEvent.click(screen.getByText('4'));
-  fireEvent.click(screen.getByText('5'));
-  fireEvent.click(screen.getByText('6'));
+  userEvent.click(screen.getByText('1'));
+  userEvent.click(screen.getByText('2'));
+  userEvent.click(screen.getByText('3'));
+  userEvent.click(screen.getByText('4'));
+  userEvent.click(screen.getByText('5'));
+  userEvent.click(screen.getByText('6'));
   await screen.findByText('Remove card to continue.');
   card.removeCard();
-  jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
   await screen.findByText('Lock Machine');
 }
 
-// TODO: Update this function to check super admin PIN entry once super admin PINs have been
-// implemented
 async function authenticateWithSuperAdminCard(card: MemoryCard) {
   await screen.findByText('VxAdmin is Locked');
   card.insertCard(makeSuperadminCard());
-  jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
+  await screen.findByText('Enter the card security code to unlock.');
+  userEvent.click(screen.getByText('1'));
+  userEvent.click(screen.getByText('2'));
+  userEvent.click(screen.getByText('3'));
+  userEvent.click(screen.getByText('4'));
+  userEvent.click(screen.getByText('5'));
+  userEvent.click(screen.getByText('6'));
   await screen.findByText('Remove card to continue.');
   card.removeCard();
-  jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
   await screen.findByText('Lock Machine');
 }
 

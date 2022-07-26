@@ -55,6 +55,131 @@ describe('useDippedSmartcardAuth', () => {
     );
   });
 
+  it('when a super admin card is inserted, checks the passcode', async () => {
+    const logger = fakeLogger();
+    const cardApi = new MemoryCard();
+    const { result, waitForNextUpdate } = renderHook(() =>
+      useDippedSmartcardAuth({ cardApi, logger })
+    );
+    expect(result.current).toMatchObject({
+      status: 'logged_out',
+      reason: 'machine_locked',
+    });
+
+    // Insert a super admin card
+    const passcode = '123456';
+    const user = fakeSuperadminUser({ passcode });
+    cardApi.insertCard(makeSuperadminCard(passcode));
+    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
+    await waitForNextUpdate();
+    expect(result.current).toEqual({
+      status: 'checking_passcode',
+      user,
+      wrongPasscodeEnteredAt: undefined,
+      checkPasscode: expect.any(Function),
+    });
+
+    // Check an incorrect passcode
+    act(() => {
+      assert(result.current.status === 'checking_passcode');
+      result.current.checkPasscode('000000');
+    });
+    await waitForNextUpdate();
+    expect(result.current).toMatchObject({
+      status: 'checking_passcode',
+      user,
+      wrongPasscodeEnteredAt: expect.any(Date),
+    });
+
+    // Check an incorrect passcode again (to make sure we log multiple failed attempts)
+    act(() => {
+      assert(result.current.status === 'checking_passcode');
+      result.current.checkPasscode('111111');
+    });
+    await waitForNextUpdate();
+    expect(result.current).toMatchObject({
+      status: 'checking_passcode',
+      user,
+      wrongPasscodeEnteredAt: expect.any(Date),
+    });
+
+    // Check the correct passcode
+    act(() => {
+      assert(result.current.status === 'checking_passcode');
+      result.current.checkPasscode(passcode);
+    });
+    await waitForNextUpdate();
+    expect(result.current).toMatchObject({
+      status: 'remove_card',
+      user,
+    });
+
+    // Remove the card to log in
+    cardApi.removeCard();
+    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
+    await waitForNextUpdate();
+    expect(result.current).toEqual({
+      status: 'logged_in',
+      card: undefined,
+      user,
+      logOut: expect.any(Function),
+    });
+
+    // Inserting a different card doesn't log out (so card can be programmed)
+    cardApi.insertCard(makeAdminCard(electionHash));
+    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
+    await waitForNextUpdate();
+    expect(result.current).toMatchObject({
+      status: 'logged_in',
+      card: expect.any(Object),
+      user,
+    });
+    cardApi.removeCard();
+
+    // Super admin can log out
+    act(() => {
+      assert(result.current.status === 'logged_in');
+      result.current.logOut();
+    });
+    await waitForNextUpdate();
+    expect(result.current).toMatchObject({
+      status: 'logged_out',
+      reason: 'machine_locked',
+    });
+
+    expect(logger.log).toHaveBeenCalledTimes(5);
+    expect(logger.log).toHaveBeenNthCalledWith(
+      1,
+      LogEventId.AuthPasscodeEntry,
+      'superadmin',
+      expect.objectContaining({ disposition: 'failure' })
+    );
+    expect(logger.log).toHaveBeenNthCalledWith(
+      2,
+      LogEventId.AuthPasscodeEntry,
+      'superadmin',
+      expect.objectContaining({ disposition: 'failure' })
+    );
+    expect(logger.log).toHaveBeenNthCalledWith(
+      3,
+      LogEventId.AuthPasscodeEntry,
+      'superadmin',
+      expect.objectContaining({ disposition: 'success' })
+    );
+    expect(logger.log).toHaveBeenNthCalledWith(
+      4,
+      LogEventId.AuthLogin,
+      'superadmin',
+      expect.objectContaining({ disposition: 'success' })
+    );
+    expect(logger.log).toHaveBeenNthCalledWith(
+      5,
+      LogEventId.AuthLogout,
+      'superadmin',
+      expect.objectContaining({ disposition: 'success' })
+    );
+  });
+
   it('when an admin card is inserted, checks the passcode', async () => {
     const logger = fakeLogger();
     const cardApi = new MemoryCard();
@@ -125,7 +250,7 @@ describe('useDippedSmartcardAuth', () => {
       logOut: expect.any(Function),
     });
 
-    // Inserting a different card doesn't log out (so card can be programmed)
+    // Inserting a different card doesn't log out
     cardApi.insertCard(makeSuperadminCard());
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
@@ -207,69 +332,6 @@ describe('useDippedSmartcardAuth', () => {
         disposition: 'failure',
         message: 'User canceled passcode entry.',
       })
-    );
-  });
-
-  it('when a superadmin card is dipped, logs in', async () => {
-    const logger = fakeLogger();
-    const cardApi = new MemoryCard();
-    const user = fakeSuperadminUser();
-    cardApi.insertCard(makeSuperadminCard());
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useDippedSmartcardAuth({ cardApi, logger })
-    );
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
-    await waitForNextUpdate();
-    expect(result.current).toEqual({
-      status: 'remove_card',
-      user,
-    });
-
-    // Remove card to log in
-    cardApi.removeCard();
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
-    await waitForNextUpdate();
-    expect(result.current).toEqual({
-      status: 'logged_in',
-      user,
-      card: undefined,
-      logOut: expect.any(Function),
-    });
-
-    // Inserting a different card doesn't log out (so card can be programmed)
-    cardApi.insertCard(makeAdminCard(electionHash));
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
-    await waitForNextUpdate();
-    expect(result.current).toMatchObject({
-      status: 'logged_in',
-      card: expect.any(Object),
-      user,
-    });
-    cardApi.removeCard();
-
-    // Superadmin can log out
-    act(() => {
-      assert(result.current.status === 'logged_in');
-      result.current.logOut();
-    });
-    await waitForNextUpdate();
-    expect(result.current).toMatchObject({
-      status: 'logged_out',
-      reason: 'machine_locked',
-    });
-
-    expect(logger.log).toHaveBeenCalledTimes(2);
-    expect(logger.log).toHaveBeenNthCalledWith(
-      1,
-      LogEventId.AuthLogin,
-      'superadmin',
-      expect.objectContaining({ disposition: 'success' })
-    );
-    expect(logger.log).toHaveBeenNthCalledWith(
-      2,
-      LogEventId.AuthLogout,
-      'superadmin',
-      expect.objectContaining({ disposition: 'success' })
     );
   });
 

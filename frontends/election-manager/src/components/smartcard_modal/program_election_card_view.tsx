@@ -1,4 +1,5 @@
 import React, { useContext } from 'react';
+import { assert } from '@votingworks/utils';
 import { Button, Prose } from '@votingworks/ui';
 import { CardProgramming } from '@votingworks/types';
 
@@ -20,9 +21,8 @@ export function ProgramElectionCardView({
   const { electionDefinition } = useContext(AppContext);
 
   async function programAdminCard() {
-    if (!electionDefinition) {
-      return;
-    }
+    assert(electionDefinition);
+
     setActionStatus({
       action: 'Program',
       role: 'admin',
@@ -42,9 +42,8 @@ export function ProgramElectionCardView({
   }
 
   async function programPollWorkerCard() {
-    if (!electionDefinition) {
-      return;
-    }
+    assert(electionDefinition);
+
     setActionStatus({
       action: 'Program',
       role: 'pollworker',

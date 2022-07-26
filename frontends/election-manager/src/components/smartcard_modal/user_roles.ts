@@ -13,6 +13,7 @@ export function userRoleToReadableString(userRole: UserRole): string {
       return 'Voter';
     case 'cardless_voter':
       return 'Cardless Voter';
+    /* istanbul ignore next: Compile-time check for completeness */
     default:
       throwIllegalValue(userRole);
   }

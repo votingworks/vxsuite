@@ -6,6 +6,7 @@ import { Result } from '../result';
 // User data types
 export interface SuperadminUser {
   readonly role: 'superadmin';
+  readonly passcode: string;
 }
 export interface AdminUser {
   readonly role: 'admin';
@@ -116,9 +117,14 @@ export const AdminCardDataSchema: z.ZodSchema<AdminCardData> =
  */
 export interface SuperadminCardData extends CardData {
   readonly t: 'superadmin';
+  /** Card Passcode */
+  readonly p: string;
 }
 export const SuperadminCardDataSchema: z.ZodSchema<SuperadminCardData> =
-  CardDataInternalSchema.extend({ t: z.literal('superadmin') });
+  CardDataInternalSchema.extend({
+    t: z.literal('superadmin'),
+    p: z.string(),
+  });
 
 export type AnyCardData =
   | VoterCardData

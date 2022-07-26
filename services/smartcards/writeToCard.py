@@ -11,8 +11,11 @@ election = json.loads(f.read())
 f.close()
 
 election_json_bytes = json.dumps(election).encode('utf-8')
-short_value = json.dumps(
-    {'t': 'admin', 'h': hashlib.sha256(election_json_bytes).hexdigest()})
+short_value = json.dumps({
+    't': 'admin',
+    'h': hashlib.sha256(election_json_bytes).hexdigest(),
+    'p': '000000',
+})
 
 print(CardInterface.card)
 CardInterface.write_short_and_long(

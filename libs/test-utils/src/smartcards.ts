@@ -24,8 +24,11 @@ function assert(condition: unknown, message?: string): asserts condition {
   }
 }
 
-export function makeSuperadminCard(): SuperadminCardData {
-  return { t: 'superadmin' };
+export function makeSuperadminCard(pin?: string): SuperadminCardData {
+  return {
+    t: 'superadmin',
+    p: pin ?? '123456',
+  };
 }
 
 export function makeAdminCard(

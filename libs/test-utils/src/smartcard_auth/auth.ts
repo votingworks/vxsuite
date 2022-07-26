@@ -31,9 +31,13 @@ export function fakeCardProgramming(
   };
 }
 
-export function fakeSuperadminUser(): SuperadminUser {
+export function fakeSuperadminUser(
+  props: Partial<SuperadminUser> = {}
+): SuperadminUser {
   return {
     role: 'superadmin',
+    passcode: '123456',
+    ...props,
   };
 }
 
