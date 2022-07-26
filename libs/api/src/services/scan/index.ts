@@ -1,4 +1,6 @@
 import {
+  AdjudicationReasonInfo,
+  AdjudicationReasonInfoSchema,
   BallotPageLayout,
   BallotPageLayoutSchema,
   BallotSheetInfo,
@@ -639,3 +641,104 @@ export const GetNextReviewSheetResponseSchema: z.ZodSchema<GetNextReviewSheetRes
       back: z.object({ contestIds: z.array(IdSchema) }).optional(),
     }),
   });
+
+// Precinct Scanner API types
+export const PrecinctScannerStateSchema = z.enum([
+  'unconfigured',
+  'connecting',
+  'disconnected',
+  'no_paper',
+  'ready_to_scan',
+  'scanning',
+  'ready_to_accept',
+  'accepting',
+  'accepted',
+  'needs_review',
+  'returning',
+  'returned',
+  'rejecting',
+  'rejected',
+  'calibrating',
+  'calibrated',
+  'jammed',
+  'both_sides_have_paper',
+  'error',
+]);
+export type PrecinctScannerState = z.infer<typeof PrecinctScannerStateSchema>;
+
+export const InvalidInterpretationReasonSchema = z.enum([
+  'invalid_test_mode',
+  'invalid_election_hash',
+  'invalid_precinct',
+  'unreadable',
+  'unknown',
+]);
+export type InvalidInterpretationReason = z.infer<
+  typeof InvalidInterpretationReasonSchema
+>;
+
+export type InterpretationResult =
+  | {
+      type: 'INTERPRETATION_VALID';
+    }
+  | {
+      type: 'INTERPRETATION_INVALID';
+      reason: InvalidInterpretationReason;
+    }
+  | {
+      type: 'INTERPRETATION_NEEDS_REVIEW';
+      reasons: AdjudicationReasonInfo[];
+    };
+export const InterpretationResultSchema: z.ZodSchema<InterpretationResult> =
+  z.union([
+    z.object({
+      type: z.literal('INTERPRETATION_VALID'),
+    }),
+    z.object({
+      type: z.literal('INTERPRETATION_INVALID'),
+      reason: InvalidInterpretationReasonSchema,
+    }),
+    z.object({
+      type: z.literal('INTERPRETATION_NEEDS_REVIEW'),
+      reasons: z.array(AdjudicationReasonInfoSchema),
+    }),
+  ]);
+
+export const PrecinctScannerErrorTypeSchema = z.enum([
+  'both_sides_have_paper',
+  'paper_in_front_on_startup',
+  'paper_in_back_on_startup',
+  'unexpected_paper_status',
+  'unexpected_event',
+  'plustek_error',
+]);
+export type PrecinctScannerErrorType = z.infer<
+  typeof PrecinctScannerErrorTypeSchema
+>;
+
+export interface PrecinctScannerMachineStatus {
+  state: PrecinctScannerState;
+  interpretation?: InterpretationResult;
+  error?: PrecinctScannerErrorType;
+}
+export interface PrecinctScannerStatus extends PrecinctScannerMachineStatus {
+  ballotsCounted: number;
+  canUnconfigure: boolean;
+}
+
+export const PrecinctScannerStatusSchema: z.ZodSchema<PrecinctScannerStatus> =
+  z.object({
+    state: PrecinctScannerStateSchema,
+    interpretation: InterpretationResultSchema.optional(),
+    error: PrecinctScannerErrorTypeSchema.optional(),
+    ballotsCounted: z.number(),
+    canUnconfigure: z.boolean(),
+  });
+
+export type GetPrecinctScannerStatusResponse = PrecinctScannerStatus;
+/**
+ * @url /scanner/status
+ * @method GET
+ */
+export const GetPrecinctScannerStatusResponseSchema: z.ZodSchema<GetPrecinctScannerStatusResponse> =
+  PrecinctScannerStatusSchema;

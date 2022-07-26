@@ -857,11 +857,11 @@ test('overlapping calls', async () => {
   expect(plustekctl.stdin.toString()).toEqual('scan\nget-paper-status\n');
 
   plustekctl.stdout.append(
-    `<<<>>>\nget-paper-status: ${PaperStatus.ReadyToEject}\n<<<>>>\n`
+    `<<<>>>\nget-paper-status: ${PaperStatus.VtmReadyToEject}\n<<<>>>\n`
   );
 
   expect((await getPaperStatusResultPromise).unsafeUnwrap()).toEqual(
-    PaperStatus.ReadyToEject
+    PaperStatus.VtmReadyToEject
   );
 
   // now IPC #3 runs
