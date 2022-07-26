@@ -1,38 +1,33 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
-import { mocked } from 'ts-jest/utils';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { Scan } from '@votingworks/api';
-import { deferred } from '@votingworks/utils';
+import fetchMock from 'fetch-mock';
 import { CalibrateScannerModal } from './calibrate_scanner_modal';
-import { usePrecinctScanner } from '../hooks/use_precinct_scanner';
 
-jest.mock('../hooks/use_precinct_scanner');
-
-const usePrecinctScannerMock = mocked(usePrecinctScanner);
+const fakeScannerStatus: Scan.PrecinctScannerStatus = {
+  state: 'no_paper',
+  ballotsCounted: 0,
+  canUnconfigure: true,
+};
 
 test('shows instructions', async () => {
-  const onCalibrate = jest.fn();
-  const onCancel = jest.fn();
   render(
-    <CalibrateScannerModal onCalibrate={onCalibrate} onCancel={onCancel} />
+    <CalibrateScannerModal
+      scannerStatus={fakeScannerStatus}
+      onCancel={jest.fn()}
+    />
   );
 
   await screen.findByText(/blank sheet of white paper/);
 });
 
 test('waiting for paper', async () => {
-  usePrecinctScannerMock.mockReturnValueOnce({
-    status: {
-      ballotCount: 0,
-      ballotNeedsReview: false,
-      scannerState: Scan.ScannerStatus.WaitingForPaper,
-    },
-  });
-
-  const onCalibrate = jest.fn();
   const onCancel = jest.fn();
   render(
-    <CalibrateScannerModal onCalibrate={onCalibrate} onCancel={onCancel} />
+    <CalibrateScannerModal
+      scannerStatus={fakeScannerStatus}
+      onCancel={onCancel}
+    />
   );
 
   expect(
@@ -44,18 +39,12 @@ test('waiting for paper', async () => {
 });
 
 test('scanner not available', async () => {
-  usePrecinctScannerMock.mockReturnValueOnce({
-    status: {
-      ballotCount: 0,
-      ballotNeedsReview: false,
-      scannerState: Scan.ScannerStatus.Error,
-    },
-  });
-
-  const onCalibrate = jest.fn();
   const onCancel = jest.fn();
   render(
-    <CalibrateScannerModal onCalibrate={onCalibrate} onCancel={onCancel} />
+    <CalibrateScannerModal
+      scannerStatus={{ ...fakeScannerStatus, state: 'jammed' }}
+      onCancel={onCancel}
+    />
   );
 
   expect(
@@ -66,98 +55,81 @@ test('scanner not available', async () => {
   expect(onCancel).toHaveBeenCalled();
 });
 
-test('calibrate success', async () => {
-  const { promise, resolve } = deferred<boolean>();
-  usePrecinctScannerMock.mockReturnValueOnce({
-    status: {
-      ballotCount: 0,
-      ballotNeedsReview: false,
-      scannerState: Scan.ScannerStatus.ReadyToScan,
-    },
-  });
-
-  const onCalibrate = jest.fn().mockResolvedValueOnce(promise);
-  const onCancel = jest.fn();
+test('calibrate start', async () => {
+  fetchMock.postOnce('/scanner/calibrate', { body: { status: 'ok' } });
   render(
-    <CalibrateScannerModal onCalibrate={onCalibrate} onCancel={onCancel} />
+    <CalibrateScannerModal
+      scannerStatus={{ ...fakeScannerStatus, state: 'ready_to_scan' }}
+      onCancel={jest.fn()}
+    />
   );
 
   // calibrate
   fireEvent.click(await screen.findByText('Calibrate'));
-  expect(onCalibrate).toHaveBeenCalled();
-  await screen.findByText('Calibrating…');
-  resolve(true);
+  expect(fetchMock.done()).toBe(true);
+});
+
+test('calibrate progress', async () => {
+  render(
+    <CalibrateScannerModal
+      scannerStatus={{ ...fakeScannerStatus, state: 'calibrating' }}
+      onCancel={jest.fn()}
+    />
+  );
+  await screen.findByText(/Calibrating/);
+});
+
+test('calibrate success', async () => {
+  fetchMock.postOnce('/scanner/start-over', { body: { status: 'ok' } });
+  const onCancel = jest.fn();
+  render(
+    <CalibrateScannerModal
+      scannerStatus={{ ...fakeScannerStatus, state: 'calibrated' }}
+      onCancel={onCancel}
+    />
+  );
   await screen.findByText('Calibration succeeded!');
 
-  // finish
   fireEvent.click(await screen.findByText('Close'));
-  expect(onCancel).toHaveBeenCalled();
+  expect(fetchMock.done()).toBe(true);
+  await waitFor(() => expect(onCancel).toHaveBeenCalled());
 });
 
 test('calibrate error', async () => {
-  const { promise, resolve } = deferred<boolean>();
-  usePrecinctScannerMock.mockReturnValueOnce({
-    status: {
-      ballotCount: 0,
-      ballotNeedsReview: false,
-      scannerState: Scan.ScannerStatus.ReadyToScan,
-    },
-  });
-
-  const onCalibrate = jest.fn().mockResolvedValueOnce(promise);
+  fetchMock.postOnce('/scanner/start-over', { body: { status: 'ok' } });
   const onCancel = jest.fn();
   render(
-    <CalibrateScannerModal onCalibrate={onCalibrate} onCancel={onCancel} />
+    <CalibrateScannerModal
+      scannerStatus={{
+        ...fakeScannerStatus,
+        state: 'calibrated',
+        error: 'plustek_error',
+      }}
+      onCancel={onCancel}
+    />
   );
-
-  // calibrate
-  fireEvent.click(await screen.findByText('Calibrate'));
-  expect(onCalibrate).toHaveBeenCalled();
-  await screen.findByText('Calibrating…');
-  resolve(false);
   await screen.findByText('Calibration failed!');
 
-  // finish
   fireEvent.click(await screen.findByText('Cancel'));
-  expect(onCancel).toHaveBeenCalled();
+  expect(fetchMock.done()).toBe(true);
+  await waitFor(() => expect(onCancel).toHaveBeenCalled());
 });
 
 test('calibrate error & try again', async () => {
-  const calibrateDeferred1 = deferred<boolean>();
-  const calibrateDeferred2 = deferred<boolean>();
-  usePrecinctScannerMock.mockReturnValue({
-    status: {
-      ballotCount: 0,
-      ballotNeedsReview: false,
-      scannerState: Scan.ScannerStatus.ReadyToScan,
-    },
-  });
-
-  const onCalibrate = jest
-    .fn()
-    .mockResolvedValueOnce(calibrateDeferred1.promise)
-    .mockResolvedValueOnce(calibrateDeferred2.promise);
+  fetchMock.postOnce('/scanner/start-over', { body: { status: 'ok' } });
   const onCancel = jest.fn();
   render(
-    <CalibrateScannerModal onCalibrate={onCalibrate} onCancel={onCancel} />
+    <CalibrateScannerModal
+      scannerStatus={{
+        ...fakeScannerStatus,
+        state: 'calibrated',
+        error: 'plustek_error',
+      }}
+      onCancel={onCancel}
+    />
   );
-
-  // calibrate
-  fireEvent.click(await screen.findByText('Calibrate'));
-  expect(onCalibrate).toHaveBeenCalledTimes(1);
-  await screen.findByText('Calibrating…');
-  calibrateDeferred1.resolve(false);
   await screen.findByText('Calibration failed!');
 
-  // try again
   fireEvent.click(await screen.findByText('Try again'));
-  fireEvent.click(await screen.findByText('Calibrate'));
-  expect(onCalibrate).toHaveBeenCalledTimes(2);
-  await screen.findByText('Calibrating…');
-  calibrateDeferred2.resolve(true);
-  await screen.findByText('Calibration succeeded!');
-
-  // finish
-  fireEvent.click(await screen.findByText('Close'));
-  expect(onCancel).toHaveBeenCalled();
+  expect(fetchMock.done()).toBe(true);
 });
