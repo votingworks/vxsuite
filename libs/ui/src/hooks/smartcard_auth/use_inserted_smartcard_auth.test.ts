@@ -472,10 +472,12 @@ describe('useInsertedSmartcardAuth', () => {
     );
   });
 
-  it('returns logged_in auth for a superadmin card', async () => {
-    const logger = fakeLogger();
+  it('when a super admin card is inserted, checks the passcode', async () => {
     const cardApi = new MemoryCard();
-    cardApi.insertCard(makeSuperadminCard());
+    const logger = fakeLogger();
+    const passcode = '123456';
+    const user = fakeSuperadminUser({ passcode });
+
     const { result, waitForNextUpdate } = renderHook(() =>
       useInsertedSmartcardAuth({
         cardApi,
@@ -484,16 +486,82 @@ describe('useInsertedSmartcardAuth', () => {
         logger,
       })
     );
+    expect(result.current.status).toEqual('logged_out');
+
+    // Insert a super admin card
+    cardApi.insertCard(makeSuperadminCard(passcode));
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
+    await waitForNextUpdate();
+    expect(result.current).toEqual({
+      status: 'checking_passcode',
+      user,
+      wrongPasscodeEnteredAt: undefined,
+      checkPasscode: expect.any(Function),
+    });
+
+    // Check an incorrect passcode
+    act(() => {
+      assert(result.current.status === 'checking_passcode');
+      result.current.checkPasscode('000000');
+    });
+    await waitForNextUpdate();
+    expect(result.current).toMatchObject({
+      status: 'checking_passcode',
+      user,
+      wrongPasscodeEnteredAt: expect.any(Date),
+    });
+
+    // Check an incorrect passcode again (to make sure we log multiple failed attempts)
+    act(() => {
+      assert(result.current.status === 'checking_passcode');
+      result.current.checkPasscode('111111');
+    });
+    await waitForNextUpdate();
+    expect(result.current).toMatchObject({
+      status: 'checking_passcode',
+      user,
+      wrongPasscodeEnteredAt: expect.any(Date),
+    });
+
+    // Check the correct passcode
+    act(() => {
+      assert(result.current.status === 'checking_passcode');
+      result.current.checkPasscode(passcode);
+    });
     await waitForNextUpdate();
     expect(result.current).toMatchObject({
       status: 'logged_in',
-      user: fakeSuperadminUser(),
+      user,
       card: expect.any(Object),
     });
 
-    expect(logger.log).toHaveBeenCalledTimes(1);
-    expect(logger.log).toHaveBeenLastCalledWith(
+    expect(logger.log).toHaveBeenCalledTimes(4);
+    expect(logger.log).toHaveBeenNthCalledWith(
+      1,
+      LogEventId.AuthPasscodeEntry,
+      'superadmin',
+      expect.objectContaining({
+        disposition: 'failure',
+      })
+    );
+    expect(logger.log).toHaveBeenNthCalledWith(
+      2,
+      LogEventId.AuthPasscodeEntry,
+      'superadmin',
+      expect.objectContaining({
+        disposition: 'failure',
+      })
+    );
+    expect(logger.log).toHaveBeenNthCalledWith(
+      3,
+      LogEventId.AuthPasscodeEntry,
+      'superadmin',
+      expect.objectContaining({
+        disposition: 'success',
+      })
+    );
+    expect(logger.log).toHaveBeenNthCalledWith(
+      4,
       LogEventId.AuthLogin,
       'superadmin',
       expect.objectContaining({
@@ -834,12 +902,12 @@ describe('useInsertedSmartcardAuth', () => {
   it('logs out user when card is removed', async () => {
     const logger = fakeLogger();
     const cardApi = new MemoryCard();
-    cardApi.insertCard(makeSuperadminCard());
+    cardApi.insertCard(makePollWorkerCard(electionHash));
     const { result, waitForNextUpdate } = renderHook(() =>
       useInsertedSmartcardAuth({
         cardApi,
         allowedUserRoles,
-        scope: {},
+        scope: { electionDefinition },
         logger,
       })
     );
@@ -847,7 +915,7 @@ describe('useInsertedSmartcardAuth', () => {
     await waitForNextUpdate();
     expect(result.current).toMatchObject({
       status: 'logged_in',
-      user: fakeSuperadminUser(),
+      user: fakePollworkerUser({ electionHash }),
       card: expect.any(Object),
     });
 
@@ -859,7 +927,7 @@ describe('useInsertedSmartcardAuth', () => {
     expect(logger.log).toHaveBeenCalledTimes(2);
     expect(logger.log).toHaveBeenLastCalledWith(
       LogEventId.AuthLogout,
-      'superadmin',
+      'pollworker',
       expect.objectContaining({ disposition: 'success' })
     );
   });

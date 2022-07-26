@@ -1,3 +1,4 @@
+import { act } from '@testing-library/react';
 import { renderHook } from '@testing-library/react-hooks';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
@@ -29,13 +30,6 @@ const allowedUserRoles: UserRole[] = [
   'voter',
   'cardless_voter',
 ];
-
-function authAsSuperAdmin(cardApi: MemoryCard) {
-  cardApi.insertCard(makeSuperadminCard());
-  jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
-  cardApi.removeCard();
-  jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
-}
 
 describe('Card interface', () => {
   beforeAll(() => jest.useFakeTimers());
@@ -212,7 +206,20 @@ describe('Card interface', () => {
     const { result, waitForNextUpdate } = renderHook(() =>
       useDippedSmartcardAuth({ cardApi, logger })
     );
-    authAsSuperAdmin(cardApi);
+
+    // Auth as a super admin
+    cardApi.insertCard(makeSuperadminCard());
+    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
+    await waitForNextUpdate();
+    expect(result.current.status).toEqual('checking_passcode');
+    act(() => {
+      assert(result.current.status === 'checking_passcode');
+      result.current.checkPasscode('123456');
+    });
+    await waitForNextUpdate();
+    expect(result.current.status).toEqual('remove_card');
+    cardApi.removeCard();
+    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     assert(isSuperadminAuth(result.current));
 
@@ -228,17 +235,22 @@ describe('Card interface', () => {
     expect(card.unprogramUser).toBeDefined();
 
     // Program a super admin card
-    expect((await card.programUser({ role: 'superadmin' })).isOk()).toEqual(
-      true
-    );
+    expect(
+      (
+        await card.programUser({ role: 'superadmin', passcode: '123456' })
+      ).isOk()
+    ).toEqual(true);
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current.card).toBeDefined();
     card = result.current.card!;
-    expect(card.programmedUser).toEqual({ role: 'superadmin' });
+    expect(card.programmedUser).toEqual({
+      role: 'superadmin',
+      passcode: '123456',
+    });
     expect(card.hasStoredData).toEqual(false);
     expect(logger.log).toHaveBeenNthCalledWith(
-      2,
+      3,
       LogEventId.SmartcardProgramInit,
       'superadmin',
       {
@@ -247,7 +259,7 @@ describe('Card interface', () => {
       }
     );
     expect(logger.log).toHaveBeenNthCalledWith(
-      3,
+      4,
       LogEventId.SmartcardProgramComplete,
       'superadmin',
       {
@@ -266,7 +278,7 @@ describe('Card interface', () => {
     expect(card.programmedUser).not.toBeDefined();
     expect(card.hasStoredData).toEqual(false);
     expect(logger.log).toHaveBeenNthCalledWith(
-      4,
+      5,
       LogEventId.SmartcardUnprogramInit,
       'superadmin',
       {
@@ -275,7 +287,7 @@ describe('Card interface', () => {
       }
     );
     expect(logger.log).toHaveBeenNthCalledWith(
-      5,
+      6,
       LogEventId.SmartcardUnprogramComplete,
       'superadmin',
       {
@@ -308,7 +320,7 @@ describe('Card interface', () => {
     expect(card.hasStoredData).toEqual(true);
     expect((await card.readStoredString()).ok()).toEqual(electionData);
     expect(logger.log).toHaveBeenNthCalledWith(
-      6,
+      7,
       LogEventId.SmartcardProgramInit,
       'superadmin',
       {
@@ -317,7 +329,7 @@ describe('Card interface', () => {
       }
     );
     expect(logger.log).toHaveBeenNthCalledWith(
-      7,
+      8,
       LogEventId.SmartcardProgramComplete,
       'superadmin',
       {
@@ -336,7 +348,7 @@ describe('Card interface', () => {
     expect(card.programmedUser).not.toBeDefined();
     expect(card.hasStoredData).toEqual(false);
     expect(logger.log).toHaveBeenNthCalledWith(
-      8,
+      9,
       LogEventId.SmartcardUnprogramInit,
       'superadmin',
       {
@@ -345,7 +357,7 @@ describe('Card interface', () => {
       }
     );
     expect(logger.log).toHaveBeenNthCalledWith(
-      9,
+      10,
       LogEventId.SmartcardUnprogramComplete,
       'superadmin',
       {
@@ -369,7 +381,7 @@ describe('Card interface', () => {
     });
     expect(card.hasStoredData).toEqual(false);
     expect(logger.log).toHaveBeenNthCalledWith(
-      10,
+      11,
       LogEventId.SmartcardProgramInit,
       'superadmin',
       {
@@ -378,7 +390,7 @@ describe('Card interface', () => {
       }
     );
     expect(logger.log).toHaveBeenNthCalledWith(
-      11,
+      12,
       LogEventId.SmartcardProgramComplete,
       'superadmin',
       {
@@ -397,7 +409,7 @@ describe('Card interface', () => {
     expect(card.programmedUser).not.toBeDefined();
     expect(card.hasStoredData).toEqual(false);
     expect(logger.log).toHaveBeenNthCalledWith(
-      12,
+      13,
       LogEventId.SmartcardUnprogramInit,
       'superadmin',
       {
@@ -406,7 +418,7 @@ describe('Card interface', () => {
       }
     );
     expect(logger.log).toHaveBeenNthCalledWith(
-      13,
+      14,
       LogEventId.SmartcardUnprogramComplete,
       'superadmin',
       {
@@ -426,7 +438,7 @@ describe('Card interface', () => {
     expect(card.programmedUser).not.toBeDefined();
     expect(card.hasStoredData).toEqual(false);
     expect(logger.log).toHaveBeenNthCalledWith(
-      14,
+      15,
       LogEventId.SmartcardUnprogramInit,
       'superadmin',
       {
@@ -435,7 +447,7 @@ describe('Card interface', () => {
       }
     );
     expect(logger.log).toHaveBeenNthCalledWith(
-      15,
+      16,
       LogEventId.SmartcardUnprogramComplete,
       'superadmin',
       {
@@ -452,7 +464,20 @@ describe('Card interface', () => {
     const { result, waitForNextUpdate } = renderHook(() =>
       useDippedSmartcardAuth({ cardApi, logger })
     );
-    authAsSuperAdmin(cardApi);
+
+    // Auth as a super admin
+    cardApi.insertCard(makeSuperadminCard());
+    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
+    await waitForNextUpdate();
+    expect(result.current.status).toEqual('checking_passcode');
+    act(() => {
+      assert(result.current.status === 'checking_passcode');
+      result.current.checkPasscode('123456');
+    });
+    await waitForNextUpdate();
+    expect(result.current.status).toEqual('remove_card');
+    cardApi.removeCard();
+    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     assert(isSuperadminAuth(result.current));
 
@@ -465,7 +490,7 @@ describe('Card interface', () => {
 
     // Make concurrent programming requests
     const [write1, write2] = await Promise.all([
-      card.programUser({ role: 'superadmin' }),
+      card.programUser({ role: 'superadmin', passcode: '123456' }),
       card.programUser({ role: 'pollworker', electionHash }),
     ]);
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
@@ -510,9 +535,11 @@ describe('Card interface', () => {
     );
 
     // Program the card in prep for one last test case involving unprogramming
-    expect((await card.programUser({ role: 'superadmin' })).isOk()).toEqual(
-      true
-    );
+    expect(
+      (
+        await card.programUser({ role: 'superadmin', passcode: '123456' })
+      ).isOk()
+    ).toEqual(true);
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current.card).toBeDefined();
@@ -520,7 +547,7 @@ describe('Card interface', () => {
 
     // Make concurrent programming and unprogramming requests
     const [write5, write6] = await Promise.all([
-      card.programUser({ role: 'superadmin' }),
+      card.programUser({ role: 'superadmin', passcode: '123456' }),
       card.unprogramUser(),
     ]);
     expect(
@@ -539,7 +566,20 @@ describe('Card interface', () => {
     const { result, waitForNextUpdate } = renderHook(() =>
       useDippedSmartcardAuth({ cardApi, logger })
     );
-    authAsSuperAdmin(cardApi);
+
+    // Auth as a super admin
+    cardApi.insertCard(makeSuperadminCard());
+    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
+    await waitForNextUpdate();
+    expect(result.current.status).toEqual('checking_passcode');
+    act(() => {
+      assert(result.current.status === 'checking_passcode');
+      result.current.checkPasscode('123456');
+    });
+    await waitForNextUpdate();
+    expect(result.current.status).toEqual('remove_card');
+    cardApi.removeCard();
+    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     assert(isSuperadminAuth(result.current));
 
@@ -555,11 +595,11 @@ describe('Card interface', () => {
     let spy = jest
       .spyOn(cardApi, 'overrideWriteProtection')
       .mockRejectedValue(error);
-    expect((await card.programUser({ role: 'superadmin' })).err()).toEqual(
-      error
-    );
+    expect(
+      (await card.programUser({ role: 'superadmin', passcode: '123456' })).err()
+    ).toEqual(error);
     expect(logger.log).toHaveBeenNthCalledWith(
-      2,
+      3,
       LogEventId.SmartcardProgramInit,
       'superadmin',
       {
@@ -568,7 +608,7 @@ describe('Card interface', () => {
       }
     );
     expect(logger.log).toHaveBeenNthCalledWith(
-      3,
+      4,
       LogEventId.SmartcardProgramComplete,
       'superadmin',
       {
@@ -580,9 +620,11 @@ describe('Card interface', () => {
 
     // Verify that failed writes still release the lock
     spy.mockRestore();
-    expect((await card.programUser({ role: 'superadmin' })).isOk()).toEqual(
-      true
-    );
+    expect(
+      (
+        await card.programUser({ role: 'superadmin', passcode: '123456' })
+      ).isOk()
+    ).toEqual(true);
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current.card).toBeDefined();
@@ -594,7 +636,7 @@ describe('Card interface', () => {
       .mockRejectedValue(error);
     expect((await card.unprogramUser()).err()).toEqual(error);
     expect(logger.log).toHaveBeenNthCalledWith(
-      6,
+      7,
       LogEventId.SmartcardUnprogramInit,
       'superadmin',
       {
@@ -603,7 +645,7 @@ describe('Card interface', () => {
       }
     );
     expect(logger.log).toHaveBeenNthCalledWith(
-      7,
+      8,
       LogEventId.SmartcardUnprogramComplete,
       'superadmin',
       {
@@ -623,7 +665,20 @@ describe('Card interface', () => {
     const { result, waitForNextUpdate } = renderHook(() =>
       useDippedSmartcardAuth({ cardApi, logger: undefined })
     );
-    authAsSuperAdmin(cardApi);
+
+    // Auth as a super admin
+    cardApi.insertCard(makeSuperadminCard());
+    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
+    await waitForNextUpdate();
+    expect(result.current.status).toEqual('checking_passcode');
+    act(() => {
+      assert(result.current.status === 'checking_passcode');
+      result.current.checkPasscode('123456');
+    });
+    await waitForNextUpdate();
+    expect(result.current.status).toEqual('remove_card');
+    cardApi.removeCard();
+    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     assert(isSuperadminAuth(result.current));
 
@@ -635,14 +690,19 @@ describe('Card interface', () => {
     let card = result.current.card!;
 
     // Program a super admin card
-    expect((await card.programUser({ role: 'superadmin' })).isOk()).toEqual(
-      true
-    );
+    expect(
+      (
+        await card.programUser({ role: 'superadmin', passcode: '123456' })
+      ).isOk()
+    ).toEqual(true);
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current.card).toBeDefined();
     card = result.current.card!;
-    expect(card.programmedUser).toEqual({ role: 'superadmin' });
+    expect(card.programmedUser).toEqual({
+      role: 'superadmin',
+      passcode: '123456',
+    });
     expect(card.hasStoredData).toEqual(false);
 
     // Unprogram the card
