@@ -148,7 +148,7 @@ def enable_superadmin():
         {
             "enabled": True,
             "shortValue": json.dumps(
-                {"t": "superadmin"}
+                {"t": "superadmin", "p": "000000"}
             ),
             "longValue": None,
         }
