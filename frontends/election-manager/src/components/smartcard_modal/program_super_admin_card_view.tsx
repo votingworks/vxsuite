@@ -2,6 +2,7 @@ import React from 'react';
 import { Button, Prose } from '@votingworks/ui';
 import { CardProgramming } from '@votingworks/types';
 
+import { generatePin } from './pins';
 import { SmartcardActionStatus, StatusMessage } from './status_message';
 
 interface Props {
@@ -21,7 +22,10 @@ export function ProgramSuperAdminCardView({
       role: 'superadmin',
       status: 'InProgress',
     });
-    const result = await card.programUser({ role: 'superadmin' });
+    const result = await card.programUser({
+      role: 'superadmin',
+      passcode: generatePin(),
+    });
     setActionStatus({
       action: 'Program',
       role: 'superadmin',

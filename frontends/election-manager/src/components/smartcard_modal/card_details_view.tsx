@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
-import { assert, format } from '@votingworks/utils';
+import { assert, format, throwIllegalValue } from '@votingworks/utils';
 import { Button, Prose, Table } from '@votingworks/ui';
 import { CardProgramming, ElectionDefinition, User } from '@votingworks/types';
 
@@ -56,20 +56,36 @@ export function CardDetailsView({
     actionStatus?.action === 'Program' && actionStatus?.status === 'Success';
 
   async function resetCardPin() {
-    if (!electionDefinition) {
-      return;
-    }
+    assert(electionDefinition);
+    assert(role === 'superadmin' || role === 'admin');
+
     setActionStatus({
       action: 'PinReset',
       role,
       status: 'InProgress',
     });
-    const result = await card.programUser({
-      role: 'admin',
-      electionData: electionDefinition.electionData,
-      electionHash: electionDefinition.electionHash,
-      passcode: generatePin(),
-    });
+    let result;
+    switch (role) {
+      case 'superadmin': {
+        result = await card.programUser({
+          role: 'superadmin',
+          passcode: generatePin(),
+        });
+        break;
+      }
+      case 'admin': {
+        result = await card.programUser({
+          role: 'admin',
+          electionData: electionDefinition.electionData,
+          electionHash: electionDefinition.electionHash,
+          passcode: generatePin(),
+        });
+        break;
+      }
+      default: {
+        throwIllegalValue(role);
+      }
+    }
     setActionStatus({
       action: 'PinReset',
       role,
@@ -124,9 +140,10 @@ export function CardDetailsView({
       </CardDetailsTable>
       <p>Remove card to leave this screen.</p>
       {'passcode' in programmedUser &&
-        // If the card is from a prior election, no need to display PIN resetting. Unprogramming is
-        // the only meaningful action in this case
-        doesCardElectionHashMatchMachineElectionHash && (
+        (role === 'superadmin' ||
+          // If the card is from a prior election, no need to display PIN resetting. Unprogramming is
+          // the only meaningful action in this case
+          doesCardElectionHashMatchMachineElectionHash) && (
           <p>
             <Button disabled={cardJustProgrammed} onPress={resetCardPin}>
               Reset Card PIN
