@@ -204,6 +204,7 @@ declare namespace KioskBrowser {
     getUsbDrives(): Promise<UsbDrive[]>;
     mountUsbDrive(device: string): Promise<void>;
     unmountUsbDrive(device: string): Promise<void>;
+    syncUsbDrive(mountPoint: string): Promise<void>;
 
     /**
      * Writes a file to a specified file path

@@ -70,6 +70,7 @@ export async function saveCvrExportToUsb({
       });
       await window.kiosk.writeFile(pathToFile, cvrFileString);
     }
+    await usbstick.doSync();
   } else {
     fileDownload(cvrFileString, cvrFilename, 'application/x-jsonlines');
   }

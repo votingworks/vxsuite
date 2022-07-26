@@ -61,3 +61,15 @@ export async function doUnmount(): Promise<void> {
   await window.kiosk.unmountUsbDrive(device.deviceName);
   return await sleep(FLUSH_IO_DELAY_MS);
 }
+
+// Triggers linux 'sync' command which forces any cached file data to be
+// flushed to the removable drive. Used to prevent incomplete file transfers.
+export async function doSync(): Promise<void> {
+  const device = await getDevice();
+  const mountPoint = device?.mountPoint;
+  if (!mountPoint) {
+    return;
+  }
+  assert(window.kiosk);
+  await window.kiosk.syncUsbDrive(mountPoint);
+}

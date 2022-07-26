@@ -82,6 +82,7 @@ export function fakeKiosk({
     getUsbDrives: jest.fn().mockResolvedValue([]),
     mountUsbDrive: jest.fn().mockResolvedValue(undefined),
     unmountUsbDrive: jest.fn().mockResolvedValue(undefined),
+    syncUsbDrive: jest.fn().mockResolvedValue(undefined),
     writeFile: jest.fn().mockResolvedValue(undefined),
     readFile: jest.fn().mockResolvedValue(''),
     getFileSystemEntries: jest.fn().mockResolvedValue([]),
