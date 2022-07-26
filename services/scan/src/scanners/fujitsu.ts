@@ -127,9 +127,8 @@ export class FujitsuScanner implements Scanner {
 
       scannedFiles.push(path);
       if (scannedFiles.length % 2 === 0) {
-        results.resolve(
-          Promise.resolve(scannedFiles.slice(-2) as SheetOf<string>)
-        );
+        const [frontPath, backPath] = scannedFiles.slice(-2);
+        results.resolve(Promise.resolve([frontPath, backPath]));
       }
     });
 
