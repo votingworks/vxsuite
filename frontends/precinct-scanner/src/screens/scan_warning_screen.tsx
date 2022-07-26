@@ -1,3 +1,4 @@
+import React, { useContext, useState } from 'react';
 import {
   AdjudicationReason,
   CandidateContest,
@@ -6,11 +7,10 @@ import {
   OvervoteAdjudicationReasonInfo,
   UndervoteAdjudicationReasonInfo,
 } from '@votingworks/types';
-import { Button, Modal, Prose, Text, Bar } from '@votingworks/ui';
-import { assert, integers, take } from '@votingworks/utils';
+import { Button, Modal, Prose, Text } from '@votingworks/ui';
+import { assert, find, integers, take } from '@votingworks/utils';
 import pluralize from 'pluralize';
-import React, { useCallback, useContext, useState } from 'react';
-import { Absolute } from '../components/absolute';
+import * as scanner from '../api/scan';
 
 import { ExclamationTriangle } from '../components/graphics';
 import {
@@ -21,85 +21,65 @@ import {
 import { AppContext } from '../contexts/app_context';
 import { toSentence } from '../utils/to_sentence';
 
-export interface Props {
-  acceptBallot: () => Promise<void>;
-  adjudicationReasonInfo: readonly AdjudicationReasonInfo[];
-}
-
 interface OvervoteWarningScreenProps {
   electionDefinition: ElectionDefinition;
   overvotes: readonly OvervoteAdjudicationReasonInfo[];
-  acceptBallot: () => Promise<void>;
 }
 
 function OvervoteWarningScreen({
   electionDefinition,
   overvotes,
-  acceptBallot,
 }: OvervoteWarningScreenProps): JSX.Element {
   const [confirmTabulate, setConfirmTabulate] = useState(false);
-  const openConfirmTabulateModal = useCallback(
-    () => setConfirmTabulate(true),
-    []
-  );
-  const closeConfirmTabulateModal = useCallback(
-    () => setConfirmTabulate(false),
-    []
-  );
-
-  const tabulateBallot = useCallback(async () => {
-    closeConfirmTabulateModal();
-    await acceptBallot();
-  }, [acceptBallot, closeConfirmTabulateModal]);
-
-  const contests = electionDefinition.election.contests.filter((c) =>
-    overvotes.some((r) => c.id === r.contestId)
-  );
-  const contestNames = toSentence(
-    contests.map(({ id, title }) => <strong key={id}>{title}</strong>)
+  const contestNames = overvotes.map(
+    (overvote) =>
+      find(
+        electionDefinition.election.contests,
+        (contest) => contest.id === overvote.contestId
+      ).title
   );
 
   return (
     <ScreenMainCenterChild infoBar={false}>
       <ExclamationTriangle />
       <CenteredLargeProse>
-        <h1>Ballot Requires Review</h1>
-        <p>Too many marks for:</p>
-        <p>{contestNames}</p>
-        <Text italic>
-          Remove ballot and ask a poll worker for a new ballot.
+        <h1>Too Many Votes</h1>
+        <Text small>
+          You voted for too many choices for {toSentence(contestNames)}. To fix
+          this, take your ballot and ask a poll worker for a new ballot.
         </Text>
+        <p>
+          <Button primary large onPress={scanner.returnBallot}>
+            Return my ballot
+          </Button>
+        </p>
+        <p>
+          <Button small onPress={() => setConfirmTabulate(true)}>
+            Count my ballot
+          </Button>
+        </p>
+        <Text italic>Ask a poll worker if you need help.</Text>
       </CenteredLargeProse>
-      <Absolute bottom left right>
-        <Bar style={{ justifyContent: 'flex-end' }}>
-          <div>
-            Optionally, this ballot may be counted as-is:{' '}
-            <Button onPress={openConfirmTabulateModal}>Count Ballot</Button>
-          </div>
-        </Bar>
-      </Absolute>
       {confirmTabulate && (
         <Modal
           content={
             <Prose textCenter>
-              <h1>Count ballot with errors?</h1>
+              <h1>Are you sure?</h1>
               <p>
-                {pluralize('contest', overvotes.length, true)} will not be
-                counted.
+                Your votes for {pluralize('contest', overvotes.length, true)}{' '}
+                will not be counted.
               </p>
             </Prose>
           }
           actions={
             <React.Fragment>
-              <Button primary onPress={tabulateBallot}>
-                Yes, count ballot with errors
+              <Button primary onPress={scanner.acceptBallot}>
+                Yes, count my ballot
               </Button>
-              <Button onPress={closeConfirmTabulateModal}>
-                No, return my ballot
-              </Button>
+              <Button onPress={() => setConfirmTabulate(false)}>Cancel</Button>
             </React.Fragment>
           }
-          onOverlayClick={closeConfirmTabulateModal}
+          onOverlayClick={() => setConfirmTabulate(false)}
         />
       )}
     </ScreenMainCenterChild>
@@ -109,228 +89,188 @@ function OvervoteWarningScreen({
 interface UndervoteWarningScreenProps {
   electionDefinition: ElectionDefinition;
   undervotes: readonly UndervoteAdjudicationReasonInfo[];
-  acceptBallot: () => Promise<void>;
 }
 
 function UndervoteWarningScreen({
   electionDefinition,
   undervotes,
-  acceptBallot,
 }: UndervoteWarningScreenProps): JSX.Element {
   const [confirmTabulate, setConfirmTabulate] = useState(false);
-  const openConfirmTabulateModal = useCallback(
-    () => setConfirmTabulate(true),
-    []
-  );
-  const closeConfirmTabulateModal = useCallback(
-    () => setConfirmTabulate(false),
-    []
-  );
 
-  const tabulateBallot = useCallback(async () => {
-    closeConfirmTabulateModal();
-    await acceptBallot();
-  }, [acceptBallot, closeConfirmTabulateModal]);
-
-  const contests = electionDefinition.election.contests.filter((c) =>
-    undervotes.some((r) => c.id === r.contestId)
-  );
-  const contestNames = toSentence(
-    contests.map(({ id, title }) => <strong key={id}>{title}</strong>)
-  );
-
-  const singleCandidateUndervote =
-    undervotes.length === 1 && contests[0].type === 'candidate'
-      ? undervotes[0]
-      : undefined;
-  const remainingChoices = singleCandidateUndervote
-    ? singleCandidateUndervote.expected -
-      singleCandidateUndervote.optionIds.length
-    : 0;
+  const { contests } = electionDefinition.election;
+  const blankContestNames = undervotes
+    .filter((undervote) => undervote.optionIds.length === 0)
+    .map(
+      (undervote) =>
+        find(contests, (contest) => contest.id === undervote.contestId).title
+    );
+  const partiallyVotedContestNames = undervotes
+    .filter((undervote) => undervote.optionIds.length > 0)
+    .map(
+      (undervote) =>
+        find(contests, (contest) => contest.id === undervote.contestId).title
+    );
 
   return (
     <ScreenMainCenterChild infoBar={false}>
       <ExclamationTriangle />
       <CenteredLargeProse>
-        <h1>Ballot Requires Review</h1>
+        <h1>Review Your Ballot</h1>
+        {blankContestNames.length > 0 && (
+          <Text small>
+            You did not vote for {toSentence(blankContestNames, ', ', ' or ')}.
+          </Text>
+        )}
+        {partiallyVotedContestNames.length > 0 && (
+          <Text small>
+            You can vote for more people for{' '}
+            {toSentence(partiallyVotedContestNames, ', ', ' and ')}.
+          </Text>
+        )}
         <p>
-          {singleCandidateUndervote
-            ? singleCandidateUndervote.optionIds.length === 0
-              ? 'You may still vote in this contest:'
-              : `You may still vote for ${remainingChoices} more ${pluralize(
-                  'candidate',
-                  remainingChoices
-                )} in this contest:`
-            : 'You may still vote in these contests:'}
+          <Button primary large onPress={() => setConfirmTabulate(true)}>
+            Count my ballot
+          </Button>
         </p>
-        <p>{contestNames}</p>
-        <p>Remove the ballot, fix the issue, then scan again.</p>
-        <Text italic>Ask a poll worker if you need assistance.</Text>
+        <p>
+          <Button small onPress={scanner.returnBallot}>
+            Return my ballot
+          </Button>
+        </p>
+        <Text italic>Ask a poll worker if you need help.</Text>
       </CenteredLargeProse>
-      <Absolute bottom left right>
-        <Bar style={{ justifyContent: 'flex-end' }}>
-          <div>
-            Optionally, this ballot may be counted as-is:{' '}
-            <Button onPress={openConfirmTabulateModal}>Count Ballot</Button>
-          </div>
-        </Bar>
-      </Absolute>
       {confirmTabulate && (
         <Modal
           content={
             <Prose textCenter>
-              <h1>Count ballot with undervotes?</h1>
+              <h1>Are you sure?</h1>
               <p>
-                You may still vote in{' '}
-                {pluralize('contest', undervotes.length, true)}.
+                {blankContestNames.length > 0 && (
+                  <span>
+                    You did not vote in{' '}
+                    {pluralize('contest', blankContestNames.length, true)}.
+                    <br />
+                  </span>
+                )}
+                {partiallyVotedContestNames.length > 0 && (
+                  <span>
+                    You can vote for more people in{' '}
+                    {pluralize(
+                      'contest',
+                      partiallyVotedContestNames.length,
+                      true
+                    )}
+                    .
+                  </span>
+                )}
               </p>
             </Prose>
           }
           actions={
             <React.Fragment>
-              <Button primary onPress={tabulateBallot}>
-                Yes, count ballot with undervotes
+              <Button primary onPress={scanner.acceptBallot}>
+                Yes, count my ballot
               </Button>
-              <Button onPress={closeConfirmTabulateModal}>
-                No, return my ballot
-              </Button>
+              <Button onPress={() => setConfirmTabulate(false)}>Cancel</Button>
             </React.Fragment>
           }
-          onOverlayClick={closeConfirmTabulateModal}
+          onOverlayClick={() => setConfirmTabulate(false)}
         />
       )}
     </ScreenMainCenterChild>
   );
 }
 
-interface BlankBallotWarningScreenProps {
-  acceptBallot: () => Promise<void>;
-}
-
-function BlankBallotWarningScreen({
-  acceptBallot,
-}: BlankBallotWarningScreenProps): JSX.Element {
+function BlankBallotWarningScreen(): JSX.Element {
   const [confirmTabulate, setConfirmTabulate] = useState(false);
-  const openConfirmTabulateModal = useCallback(
-    () => setConfirmTabulate(true),
-    []
-  );
-  const closeConfirmTabulateModal = useCallback(
-    () => setConfirmTabulate(false),
-    []
-  );
-
-  const tabulateBallot = useCallback(async () => {
-    closeConfirmTabulateModal();
-    await acceptBallot();
-  }, [acceptBallot, closeConfirmTabulateModal]);
-
   return (
     <ScreenMainCenterChild infoBar={false}>
       <ExclamationTriangle />
       <CenteredLargeProse>
         <h1>Blank Ballot</h1>
-        <p>Remove the ballot, fix the issue, then scan again.</p>
-        <Text italic>Ask a poll worker if you need assistance.</Text>
+        <p>Your ballot does not have any votes.</p>
+        <p>
+          <Button primary large onPress={scanner.returnBallot}>
+            Return my ballot
+          </Button>
+        </p>
+        <p>
+          <Button small onPress={() => setConfirmTabulate(true)}>
+            Count blank ballot
+          </Button>
+        </p>
+        <Text italic>Ask a poll worker if you need help.</Text>
       </CenteredLargeProse>
-      <Absolute bottom left right>
-        <Bar style={{ justifyContent: 'flex-end' }}>
-          <div>
-            Optionally, this ballot may be counted as-is:{' '}
-            <Button onPress={openConfirmTabulateModal}>Count Ballot</Button>
-          </div>
-        </Bar>
-      </Absolute>
       {confirmTabulate && (
         <Modal
           content={
             <Prose textCenter>
-              <h1>Count blank ballot?</h1>
+              <h1>Are you sure?</h1>
               <p>No votes will be counted from this ballot.</p>
             </Prose>
           }
           actions={
             <React.Fragment>
-              <Button primary onPress={tabulateBallot}>
+              <Button primary onPress={scanner.acceptBallot}>
                 Yes, count blank ballot
               </Button>
-              <Button onPress={closeConfirmTabulateModal}>
-                No, return my ballot
-              </Button>
+              <Button onPress={() => setConfirmTabulate(false)}>Cancel</Button>
             </React.Fragment>
           }
-          onOverlayClick={closeConfirmTabulateModal}
+          onOverlayClick={() => setConfirmTabulate(false)}
         />
       )}
     </ScreenMainCenterChild>
   );
 }
 
-interface OtherReasonWarningScreenProps {
-  acceptBallot: () => Promise<void>;
-}
-
-function OtherReasonWarningScreen({
-  acceptBallot,
-}: OtherReasonWarningScreenProps): JSX.Element {
+function OtherReasonWarningScreen(): JSX.Element {
   const [confirmTabulate, setConfirmTabulate] = useState(false);
-  const openConfirmTabulateModal = useCallback(
-    () => setConfirmTabulate(true),
-    []
-  );
-  const closeConfirmTabulateModal = useCallback(
-    () => setConfirmTabulate(false),
-    []
-  );
-
-  const tabulateBallot = useCallback(async () => {
-    closeConfirmTabulateModal();
-    await acceptBallot();
-  }, [acceptBallot, closeConfirmTabulateModal]);
 
   return (
     <ScreenMainCenterChild infoBar={false}>
       <ExclamationTriangle />
       <CenteredLargeProse>
-        <h1>Ballot Requires Review</h1>
-        <p>Remove the ballot, fix the issue, then scan again.</p>
-        <Text italic>Ask a poll worker if you need assistance.</Text>
+        <h1>Review Your Ballot</h1>
+        <p>
+          <Button primary large onPress={scanner.returnBallot}>
+            Return my ballot
+          </Button>
+        </p>
+        <p>
+          <Button small onPress={() => setConfirmTabulate(true)}>
+            Count my ballot
+          </Button>
+        </p>
+        <Text italic>Ask a poll worker if you need help.</Text>
       </CenteredLargeProse>
-      <Absolute bottom left right>
-        <Bar style={{ justifyContent: 'flex-end' }}>
-          <div>
-            Optionally, this ballot may be counted as-is:{' '}
-            <Button onPress={openConfirmTabulateModal}>Count Ballot</Button>
-          </div>
-        </Bar>
-      </Absolute>
       {confirmTabulate && (
         <Modal
           content={
             <Prose textCenter>
-              <h1>Count ballot with errors?</h1>
-              <p>Contests with errors will not be counted.</p>
+              <h1>Are you sure?</h1>
             </Prose>
           }
           actions={
             <React.Fragment>
-              <Button primary onPress={tabulateBallot}>
-                Yes, count ballot with errors
+              <Button primary onPress={scanner.acceptBallot}>
+                Yes, count my ballot
               </Button>
-              <Button onPress={closeConfirmTabulateModal}>
-                No, return my ballot
-              </Button>
+              <Button onPress={() => setConfirmTabulate(false)}>Cancel</Button>
             </React.Fragment>
           }
-          onOverlayClick={closeConfirmTabulateModal}
+          onOverlayClick={() => setConfirmTabulate(false)}
         />
       )}
     </ScreenMainCenterChild>
   );
 }
 
+export interface Props {
+  adjudicationReasonInfo: readonly AdjudicationReasonInfo[];
+}
+
 export function ScanWarningScreen({
-  acceptBallot,
   adjudicationReasonInfo,
 }: Props): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
@@ -351,7 +291,7 @@ export function ScanWarningScreen({
   }
 
   if (isBlank) {
-    return <BlankBallotWarningScreen acceptBallot={acceptBallot} />;
+    return <BlankBallotWarningScreen />;
   }
 
   if (overvoteReasons.length > 0) {
@@ -359,7 +299,6 @@ export function ScanWarningScreen({
       <OvervoteWarningScreen
         electionDefinition={electionDefinition}
         overvotes={overvoteReasons}
-        acceptBallot={acceptBallot}
       />
     );
   }
@@ -369,12 +308,11 @@ export function ScanWarningScreen({
       <UndervoteWarningScreen
         electionDefinition={electionDefinition}
         undervotes={undervoteReasons}
-        acceptBallot={acceptBallot}
       />
     );
   }
 
-  return <OtherReasonWarningScreen acceptBallot={acceptBallot} />;
+  return <OtherReasonWarningScreen />;
 }
 
 /* istanbul ignore next */
@@ -390,7 +328,6 @@ export function OvervotePreview(): JSX.Element {
 
   return (
     <ScanWarningScreen
-      acceptBallot={() => Promise.resolve()}
       adjudicationReasonInfo={[
         {
           type: AdjudicationReason.Overvote,
@@ -423,7 +360,6 @@ export function UndervoteNoVotesPreview(): JSX.Element {
 
   return (
     <ScanWarningScreen
-      acceptBallot={() => Promise.resolve()}
       adjudicationReasonInfo={[
         {
           type: AdjudicationReason.Undervote,
@@ -449,7 +385,6 @@ export function UndervoteBy1Preview(): JSX.Element {
 
   return (
     <ScanWarningScreen
-      acceptBallot={() => Promise.resolve()}
       adjudicationReasonInfo={[
         {
           type: AdjudicationReason.Undervote,
@@ -458,36 +393,6 @@ export function UndervoteBy1Preview(): JSX.Element {
             .slice(0, contest.seats - 1)
             .map(({ id }) => id),
           optionIndexes: take(contest.seats, integers()),
-          expected: contest.seats,
-        },
-      ]}
-    />
-  );
-}
-
-/* istanbul ignore next */
-// eslint-disable-next-line vx/gts-identifiers
-export function UndervoteByNPreview(): JSX.Element {
-  const { electionDefinition } = useContext(AppContext);
-  assert(electionDefinition);
-
-  const contest = electionDefinition.election.contests.find(
-    (c): c is CandidateContest => c.type === 'candidate' && c.seats > 1
-  );
-  assert(contest);
-
-  const undervotedOptionCount = 1;
-  return (
-    <ScanWarningScreen
-      acceptBallot={() => Promise.resolve()}
-      adjudicationReasonInfo={[
-        {
-          type: AdjudicationReason.Undervote,
-          contestId: contest.id,
-          optionIds: contest.candidates
-            .slice(0, undervotedOptionCount)
-            .map(({ id }) => id),
-          optionIndexes: take(undervotedOptionCount, integers()),
           expected: contest.seats,
         },
       ]}
@@ -507,7 +412,6 @@ export function MultipleUndervotesPreview(): JSX.Element {
 
   return (
     <ScanWarningScreen
-      acceptBallot={() => Promise.resolve()}
       adjudicationReasonInfo={contests.map((contest) => ({
         type: AdjudicationReason.Undervote,
         contestId: contest.id,
@@ -523,7 +427,6 @@ export function MultipleUndervotesPreview(): JSX.Element {
 export function BlankBallotPreview(): JSX.Element {
   return (
     <ScanWarningScreen
-      acceptBallot={() => Promise.resolve()}
       adjudicationReasonInfo={[{ type: AdjudicationReason.BlankBallot }]}
     />
   );
@@ -533,7 +436,6 @@ export function BlankBallotPreview(): JSX.Element {
 export function UninterpretableBallotPreview(): JSX.Element {
   return (
     <ScanWarningScreen
-      acceptBallot={() => Promise.resolve()}
       adjudicationReasonInfo={[
         { type: AdjudicationReason.UninterpretableBallot },
       ]}
