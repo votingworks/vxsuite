@@ -2336,6 +2336,7 @@
   "precinctScanAdjudicationReasons": [
     "UninterpretableBallot",
     "Overvote",
+    "Undervote",
     "BlankBallot"
   ],
   "markThresholds": {
