@@ -8,9 +8,10 @@ from smartcards.core import CardInterface
 import time
 time.sleep(2)
 
-short_value = json.dumps(
-    {'t': 'superadmin'}
-)
+short_value = json.dumps({
+    't': 'superadmin',
+    'p': '000000',
+})
 
 print(CardInterface.card)
 CardInterface.override_protection()
