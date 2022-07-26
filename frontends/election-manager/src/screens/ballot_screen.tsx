@@ -27,7 +27,6 @@ import {
 import {
   BallotMode,
   BallotScreenProps,
-  InputEventFunction,
   PrintableBallotType,
 } from '../config/types';
 import { AppContext } from '../contexts/app_context';
@@ -39,19 +38,13 @@ import { getBallotPath, getHumanBallotLanguageFormat } from '../utils/election';
 import { NavigationScreen } from '../components/navigation_screen';
 import { DEFAULT_LOCALE } from '../config/globals';
 import { routerPaths } from '../router_paths';
-import { TextInput } from '../components/text_input';
 import { LinkButton } from '../components/link_button';
 import { getBallotLayoutPageSizeReadableString } from '../utils/get_ballot_layout_page_size';
 import { generateFileContentToSaveAsPdf } from '../utils/save_as_pdf';
 import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';
-
-const BallotCopiesInput = styled(TextInput)`
-  width: 4em;
-  &::-webkit-inner-spin-button,
-  &::-webkit-outer-spin-button {
-    opacity: 1;
-  }
-`;
+import { BallotCopiesInput } from '../components/ballot_copies_input';
+import { BallotModeToggle } from '../components/ballot_mode_toggle';
+import { BallotTypeToggle } from '../components/ballot_type_toggle';
 
 const BallotPreviewHeader = styled.div`
   margin-top: 1rem;
@@ -112,16 +105,8 @@ export function BallotScreen(): JSX.Element {
   const [ballotPages, setBallotPages] = useState(0);
   const [ballotMode, setBallotMode] = useState(BallotMode.Official);
   const [isAbsentee, setIsAbsentee] = useState(true);
-  function toggleIsAbsentee() {
-    return setIsAbsentee((m) => !m);
-  }
   const [ballotCopies, setBallotCopies] = useState(1);
-  const updateBallotCopies: InputEventFunction = (event) => {
-    const { value } = event.currentTarget;
-    // eslint-disable-next-line vx/gts-safe-number-parse
-    const copies = value ? parseInt(value, 10) : 1;
-    setBallotCopies(copies < 1 ? 1 : copies);
-  };
+
   function changeLocale(localeCode: string) {
     return history.replace(
       localeCode === DEFAULT_LOCALE
@@ -204,46 +189,18 @@ export function BallotScreen(): JSX.Element {
             <strong>{pluralize('contest', ballotContests.length, true)}</strong>
           </h1>
           <p>
-            <SegmentedButton>
-              <Button
-                disabled={ballotMode === BallotMode.Official}
-                onPress={() => setBallotMode(BallotMode.Official)}
-                small
-              >
-                Official
-              </Button>
-              <Button
-                disabled={ballotMode === BallotMode.Test}
-                onPress={() => setBallotMode(BallotMode.Test)}
-                small
-              >
-                Test
-              </Button>
-              <Button
-                disabled={ballotMode === BallotMode.Sample}
-                onPress={() => setBallotMode(BallotMode.Sample)}
-                small
-              >
-                Sample
-              </Button>
-            </SegmentedButton>{' '}
-            <SegmentedButton>
-              <Button disabled={isAbsentee} onPress={toggleIsAbsentee} small>
-                Absentee
-              </Button>
-              <Button disabled={!isAbsentee} onPress={toggleIsAbsentee} small>
-                Precinct
-              </Button>
-            </SegmentedButton>{' '}
+            <BallotModeToggle
+              ballotMode={ballotMode}
+              setBallotMode={setBallotMode}
+            />{' '}
+            <BallotTypeToggle
+              isAbsentee={isAbsentee}
+              setIsAbsentee={setIsAbsentee}
+            />{' '}
             Copies{' '}
             <BallotCopiesInput
-              name="copies"
-              defaultValue={ballotCopies}
-              type="number"
-              min={1}
-              step={1}
-              pattern="\d*"
-              onChange={updateBallotCopies}
+              ballotCopies={ballotCopies}
+              setBallotCopies={setBallotCopies}
             />
             {availableLocaleCodes.length > 1 && (
               <React.Fragment>
