@@ -82,6 +82,7 @@ export function CardDetailsView({
         });
         break;
       }
+      /* istanbul ignore next: Compile-time check for completeness */
       default: {
         throwIllegalValue(role);
       }
