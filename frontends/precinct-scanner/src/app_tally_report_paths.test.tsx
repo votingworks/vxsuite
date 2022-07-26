@@ -35,6 +35,8 @@ import { App } from './app';
 import { stateStorageKey } from './app_root';
 import { MachineConfigResponse } from './config/types';
 
+jest.setTimeout(10000);
+
 beforeEach(() => {
   jest.useFakeTimers();
   fetchMock.reset();
@@ -67,11 +69,10 @@ const getPrecinctConfigPrecinct23ResponseBody: Scan.GetCurrentPrecinctConfigResp
     precinctId: '23',
   };
 
-const scanStatusWaitingForPaperResponseBody: Scan.GetScanStatusResponse = {
-  scanner: Scan.ScannerStatus.WaitingForPaper,
+const statusNoPaper: Scan.GetPrecinctScannerStatusResponse = {
+  state: 'no_paper',
   canUnconfigure: false,
-  batches: [],
-  adjudication: { adjudicated: 0, remaining: 0 },
+  ballotsCounted: 0,
 };
 
 function expectBallotCountsInReport(
@@ -125,7 +126,7 @@ test('expected tally reports are printed for a primary election with all precinc
     })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody })
+    .get('/scanner/status', { body: statusNoPaper })
     .patchOnce('/config/testMode', {
       body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
       status: 200,
@@ -180,20 +181,6 @@ test('expected tally reports for a primary election with all precincts with CVRs
   window.kiosk = kiosk;
   const { election } = electionMinimalExhaustiveSampleDefinition;
 
-  const scanStatus: Scan.GetScanStatusResponse = {
-    scanner: Scan.ScannerStatus.WaitingForPaper,
-    canUnconfigure: false,
-    batches: [
-      {
-        id: 'test-batch',
-        label: 'Batch 1',
-        count: 3,
-        startedAt: '2021-05-13T13:19:42.353Z',
-        endedAt: '2021-05-13T13:19:42.353Z',
-      },
-    ],
-    adjudication: { adjudicated: 0, remaining: 0 },
-  };
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
     .get('/config/election', {
@@ -201,7 +188,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
     })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/scan/status', { body: scanStatus })
+    .get('/scanner/status', { body: { ...statusNoPaper, ballotsCounted: 3 } })
     .patchOnce('/config/testMode', {
       body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
       status: 200,
@@ -562,20 +549,6 @@ test('expected tally reports for a primary election with a single precincts with
   window.kiosk = kiosk;
   const { election } = electionMinimalExhaustiveSampleDefinition;
 
-  const scanStatus: Scan.GetScanStatusResponse = {
-    scanner: Scan.ScannerStatus.WaitingForPaper,
-    canUnconfigure: false,
-    batches: [
-      {
-        id: 'test-batch',
-        label: 'Batch 1',
-        count: 3,
-        startedAt: '2021-05-13T13:19:42.353Z',
-        endedAt: '2021-05-13T13:19:42.353Z',
-      },
-    ],
-    adjudication: { adjudicated: 0, remaining: 0 },
-  };
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
     .get('/config/election', {
@@ -583,7 +556,7 @@ test('expected tally reports for a primary election with a single precincts with
     })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigPrecinct1ResponseBody })
-    .get('/scan/status', { body: scanStatus })
+    .get('/scanner/status', { body: { ...statusNoPaper, ballotsCounted: 3 } })
     .patchOnce('/config/testMode', {
       body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
       status: 200,
@@ -858,26 +831,12 @@ test('expected tally reports for a general election with all precincts with CVRs
   window.kiosk = kiosk;
   const { election } = electionSample2Definition;
 
-  const scanStatus: Scan.GetScanStatusResponse = {
-    scanner: Scan.ScannerStatus.WaitingForPaper,
-    canUnconfigure: false,
-    batches: [
-      {
-        id: 'test-batch',
-        label: 'Batch 1',
-        count: 2,
-        startedAt: '2021-05-13T13:19:42.353Z',
-        endedAt: '2021-05-13T13:19:42.353Z',
-      },
-    ],
-    adjudication: { adjudicated: 0, remaining: 0 },
-  };
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
     .get('/config/election', { body: electionSample2Definition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/scan/status', { body: scanStatus })
+    .get('/scanner/status', { body: { ...statusNoPaper, ballotsCounted: 2 } })
     .patchOnce('/config/testMode', {
       body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
       status: 200,
@@ -1120,26 +1079,12 @@ test('expected tally reports for a general election with a single precincts with
   window.kiosk = kiosk;
   const { election } = electionSample2Definition;
 
-  const scanStatus: Scan.GetScanStatusResponse = {
-    scanner: Scan.ScannerStatus.WaitingForPaper,
-    canUnconfigure: false,
-    batches: [
-      {
-        id: 'test-batch',
-        label: 'Batch 1',
-        count: 2,
-        startedAt: '2021-05-13T13:19:42.353Z',
-        endedAt: '2021-05-13T13:19:42.353Z',
-      },
-    ],
-    adjudication: { adjudicated: 0, remaining: 0 },
-  };
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
     .get('/config/election', { body: electionSample2Definition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigPrecinct23ResponseBody })
-    .get('/scan/status', { body: scanStatus })
+    .get('/scanner/status', { body: { ...statusNoPaper, ballotsCounted: 2 } })
     .patchOnce('/config/testMode', {
       body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
       status: 200,

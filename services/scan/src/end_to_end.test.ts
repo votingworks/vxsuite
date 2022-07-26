@@ -9,8 +9,8 @@ import * as path from 'path';
 import request from 'supertest';
 import { dirSync } from 'tmp';
 import { makeMockScanner, MockScanner } from '../test/util/mocks';
+import { buildCentralScannerApp } from './central_scanner_app';
 import { Importer } from './importer';
-import { buildApp } from './server';
 import { createWorkspace, Workspace } from './util/workspace';
 
 const sampleBallotImagesPath = path.join(
@@ -34,7 +34,7 @@ beforeEach(async () => {
     workspace,
     scanner,
   });
-  app = buildApp({ importer, store: workspace.store });
+  app = await buildCentralScannerApp({ importer, store: workspace.store });
 });
 
 afterEach(async () => {

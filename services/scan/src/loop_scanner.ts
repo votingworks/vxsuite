@@ -56,23 +56,15 @@ export function parseBatchesFromEnv(env?: string): Batch[] | undefined {
     const batchManifestPath = env.slice(1);
     const batches = parseBatches(
       readFileSync(batchManifestPath, 'utf8').split('\n')
+    ).map((batch) =>
+      batch.map(
+        (sheet) =>
+          [
+            resolve(process.cwd(), join(batchManifestPath, '..'), sheet[0]),
+            resolve(process.cwd(), join(batchManifestPath, '..'), sheet[1]),
+          ] as SheetOf<string>
+      )
     );
-
-    for (const batch of batches) {
-      for (const sheet of batch) {
-        sheet[0] = resolve(
-          process.cwd(),
-          join(batchManifestPath, '..'),
-          sheet[0]
-        );
-        sheet[1] = resolve(
-          process.cwd(),
-          join(batchManifestPath, '..'),
-          sheet[1]
-        );
-      }
-    }
-
     return batches;
   }
 

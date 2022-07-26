@@ -18,6 +18,7 @@ import {
 } from '@votingworks/ui';
 import { assert, usbstick } from '@votingworks/utils';
 import React, { useCallback, useContext, useState } from 'react';
+import { Scan } from '@votingworks/api';
 import { CalibrateScannerModal } from '../components/calibrate_scanner_modal';
 import { ExportBackupModal } from '../components/export_backup_modal';
 import { ExportResultsModal } from '../components/export_results_modal';
@@ -26,24 +27,20 @@ import { ScreenMainCenterChild } from '../components/layout';
 import { AppContext } from '../contexts/app_context';
 
 interface Props {
-  scannedBallotCount: number;
+  scannerStatus: Scan.PrecinctScannerStatus;
   isTestMode: boolean;
-  canUnconfigure: boolean;
   updateAppPrecinctId(appPrecinctId: PrecinctId): Promise<void>;
   toggleLiveMode(): Promise<void>;
   unconfigure(): Promise<void>;
-  calibrate(): Promise<boolean>;
   usbDrive: UsbDrive;
 }
 
 export function AdminScreen({
-  scannedBallotCount,
+  scannerStatus,
   isTestMode,
-  canUnconfigure,
   updateAppPrecinctId,
   toggleLiveMode,
   unconfigure,
-  calibrate,
   usbDrive,
 }: Props): JSX.Element {
   const { electionDefinition, currentPrecinctId, auth } =
@@ -95,7 +92,7 @@ export function AdminScreen({
   };
 
   async function handleTogglingLiveMode() {
-    if (!isTestMode && !canUnconfigure) {
+    if (!isTestMode && !scannerStatus.canUnconfigure) {
       openToggleLiveModeWarningModal();
     } else {
       setIsLoading(true);
@@ -181,7 +178,7 @@ export function AdminScreen({
         </p>
         <p>
           <Button
-            disabled={!canUnconfigure}
+            disabled={!scannerStatus.canUnconfigure}
             danger
             small
             onPress={openConfirmUnconfigureModal}
@@ -192,14 +189,14 @@ export function AdminScreen({
             Unconfigure Machine
           </Button>
         </p>
-        {!canUnconfigure && (
+        {!scannerStatus.canUnconfigure && (
           <p>
             You must &quot;Export Backup&quot; before you may unconfigure the
             machine.
           </p>
         )}
       </Prose>
-      <ScannedBallotCount count={scannedBallotCount} />
+      <ScannedBallotCount count={scannerStatus.ballotsCounted} />
       {isShowingToggleLiveModeWarningModal && (
         <Modal
           content={
@@ -252,7 +249,7 @@ export function AdminScreen({
       )}
       {isCalibratingScanner && (
         <CalibrateScannerModal
-          onCalibrate={calibrate}
+          scannerStatus={scannerStatus}
           onCancel={closeCalibrateScannerModal}
         />
       )}
@@ -262,7 +259,7 @@ export function AdminScreen({
           onClose={() => setIsExportingResults(false)}
           usbDrive={usbDrive}
           isTestMode={isTestMode}
-          scannedBallotCount={scannedBallotCount}
+          scannedBallotCount={scannerStatus.ballotsCounted}
         />
       )}
       {isExportingBackup && (
@@ -306,12 +303,14 @@ export function DefaultPreview(): JSX.Element {
       }}
     >
       <AdminScreen
-        calibrate={() => Promise.resolve(true)}
+        scannerStatus={{
+          state: 'no_paper',
+          ballotsCounted: 1234,
+          canUnconfigure: true,
+        }}
         isTestMode={isTestMode}
-        canUnconfigure
         // eslint-disable-next-line @typescript-eslint/require-await
         toggleLiveMode={async () => setIsTestMode((prev) => !prev)}
-        scannedBallotCount={1234}
         unconfigure={() => Promise.resolve()}
         // eslint-disable-next-line @typescript-eslint/require-await
         updateAppPrecinctId={async (newPrecinctId) =>

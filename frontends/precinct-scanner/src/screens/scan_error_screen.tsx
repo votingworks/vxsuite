@@ -1,126 +1,84 @@
 import React from 'react';
-import { Button, Text } from '@votingworks/ui';
+import { Text } from '@votingworks/ui';
 import { throwIllegalValue } from '@votingworks/utils';
-import { Absolute } from '../components/absolute';
+import { Scan } from '@votingworks/api';
 import { TimesCircle } from '../components/graphics';
 import {
   CenteredLargeProse,
   ScreenMainCenterChild,
 } from '../components/layout';
-import { RejectedScanningReason } from '../config/types';
 
 interface Props {
-  dismissError?: () => void;
-  rejectionReason?: RejectedScanningReason;
+  error?: Scan.InvalidInterpretationReason | Scan.PrecinctScannerErrorType;
   isTestMode: boolean;
 }
 
-export function ScanErrorScreen({
-  dismissError,
-  rejectionReason,
-  isTestMode,
-}: Props): JSX.Element {
-  let errorInformation = '';
-  if (rejectionReason && rejectionReason !== RejectedScanningReason.Unknown) {
-    switch (rejectionReason) {
-      case RejectedScanningReason.InvalidTestMode: {
-        errorInformation = isTestMode
-          ? 'Live Ballot detected.'
-          : 'Test ballot detected.';
-        break;
-      }
-      case RejectedScanningReason.InvalidElectionHash: {
-        errorInformation =
-          'Scanned ballot does not match the election this scanner is configured for.';
-        break;
-      }
-      case RejectedScanningReason.InvalidPrecinct: {
-        errorInformation =
-          'Scanned ballot does not match the precinct this scanner is configured for.';
-        break;
-      }
-      case RejectedScanningReason.Unreadable: {
-        errorInformation =
-          'There was a problem reading this ballot. Please try again.';
-        break;
-      }
+export function ScanErrorScreen({ error, isTestMode }: Props): JSX.Element {
+  const errorMessage = (() => {
+    if (!error) return undefined;
+    switch (error) {
+      // Invalid interpretation
+      case 'invalid_test_mode':
+        return isTestMode ? 'Live Ballot detected.' : 'Test ballot detected.';
+      case 'invalid_election_hash':
+        return 'Scanned ballot does not match the election this scanner is configured for.';
+      case 'invalid_precinct':
+        return 'Scanned ballot does not match the precinct this scanner is configured for.';
+      case 'unreadable':
+        return 'There was a problem reading this ballot. Please try again.';
+      case 'unknown':
+        return undefined;
+      // Precinct scanner error
+      case 'both_sides_have_paper':
+      case 'paper_in_front_on_startup':
+      case 'paper_in_back_on_startup':
+        return 'Take your ballot out of the tray and try again.';
+      case 'unexpected_paper_status':
+      case 'unexpected_event':
+      case 'plustek_error':
+        return undefined;
       default:
-        throwIllegalValue(rejectionReason);
+        throwIllegalValue(error);
     }
-  }
+  })();
   return (
     <ScreenMainCenterChild infoBar={false}>
       <TimesCircle />
       <CenteredLargeProse>
         <h1>Scanning Error</h1>
-        <p>{errorInformation}</p>
-        <Text italic>Ask a poll worker for assistance.</Text>
+        <p>{errorMessage}</p>
+        <Text italic>Ask a poll worker for help.</Text>
       </CenteredLargeProse>
-      {dismissError && (
-        <Absolute top right padded>
-          <Button onPress={dismissError}>Dismiss Error</Button>
-        </Absolute>
-      )}
     </ScreenMainCenterChild>
   );
 }
 
 /* istanbul ignore next */
 export function UnreadablePreview(): JSX.Element {
-  return (
-    <ScanErrorScreen
-      isTestMode={false}
-      rejectionReason={RejectedScanningReason.Unreadable}
-    />
-  );
+  return <ScanErrorScreen isTestMode={false} error="unreadable" />;
 }
 
 /* istanbul ignore next */
 export function InvalidElectionHashPreview(): JSX.Element {
-  return (
-    <ScanErrorScreen
-      isTestMode={false}
-      rejectionReason={RejectedScanningReason.InvalidElectionHash}
-    />
-  );
+  return <ScanErrorScreen isTestMode={false} error="invalid_election_hash" />;
 }
 
 /* istanbul ignore next */
 export function InvalidTestModeBallotPreview(): JSX.Element {
-  return (
-    <ScanErrorScreen
-      isTestMode={false}
-      rejectionReason={RejectedScanningReason.InvalidTestMode}
-    />
-  );
+  return <ScanErrorScreen isTestMode={false} error="invalid_test_mode" />;
 }
 
 /* istanbul ignore next */
 export function InvalidLiveModeBallotPreview(): JSX.Element {
-  return (
-    <ScanErrorScreen
-      isTestMode
-      rejectionReason={RejectedScanningReason.InvalidTestMode}
-    />
-  );
+  return <ScanErrorScreen isTestMode error="invalid_test_mode" />;
 }
 
 /* istanbul ignore next */
 export function InvalidPrecinctPreview(): JSX.Element {
-  return (
-    <ScanErrorScreen
-      isTestMode={false}
-      rejectionReason={RejectedScanningReason.InvalidPrecinct}
-    />
-  );
+  return <ScanErrorScreen isTestMode={false} error="invalid_precinct" />;
 }
 
 /* istanbul ignore next */
 export function UnknownErrorPreview(): JSX.Element {
-  return (
-    <ScanErrorScreen
-      isTestMode={false}
-      rejectionReason={RejectedScanningReason.Unknown}
-    />
-  );
+  return <ScanErrorScreen isTestMode={false} error="unknown" />;
 }

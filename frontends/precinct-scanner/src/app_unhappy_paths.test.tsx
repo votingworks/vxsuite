@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   act,
   fireEvent,
@@ -10,7 +11,6 @@ import {
   electionWithMsEitherNeitherDefinition,
 } from '@votingworks/fixtures';
 import {
-  advanceTimers,
   advanceTimersAndPromises,
   fakeKiosk,
   fakeUsbDrive,
@@ -18,22 +18,11 @@ import {
   makePollWorkerCard,
   makeVoterCard,
 } from '@votingworks/test-utils';
-import { AdjudicationReason } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
 import fetchMock from 'fetch-mock';
-import { DateTime } from 'luxon';
-import React from 'react';
-import {
-  MemoryCard,
-  MemoryStorage,
-  MemoryHardware,
-  typedAs,
-} from '@votingworks/utils';
-import { interpretedHmpb } from '../test/fixtures';
+import { MemoryCard, MemoryStorage, MemoryHardware } from '@votingworks/utils';
 import { App } from './app';
-import { stateStorageKey } from './app_root';
 import { MachineConfigResponse } from './config/types';
-import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from './config/globals';
 
 const getMachineConfigBody: MachineConfigResponse = {
   machineId: '0002',
@@ -45,18 +34,10 @@ const getTestModeConfigTrueResponseBody: Scan.GetTestModeConfigResponse = {
   testMode: true,
 };
 
-const scanStatusWaitingForPaperResponseBody: Scan.GetScanStatusResponse = {
+const statusNoPaper: Scan.GetPrecinctScannerStatusResponse = {
+  state: 'no_paper',
   canUnconfigure: true,
-  scanner: Scan.ScannerStatus.WaitingForPaper,
-  batches: [],
-  adjudication: { adjudicated: 0, remaining: 0 },
-};
-
-const scanStatusReadyToScanResponseBody: Scan.GetScanStatusResponse = {
-  canUnconfigure: true,
-  scanner: Scan.ScannerStatus.ReadyToScan,
-  batches: [],
-  adjudication: { adjudicated: 0, remaining: 0 },
+  ballotsCounted: 0,
 };
 
 const getPrecinctConfigNoPrecinctResponseBody: Scan.GetCurrentPrecinctConfigResponse =
@@ -70,8 +51,10 @@ beforeEach(() => {
 });
 
 test('when services/scan does not respond shows loading screen', async () => {
-  fetchMock.get('/config/election', { status: 404 });
-  fetchMock.get('/machine-config', { body: getMachineConfigBody });
+  fetchMock
+    .get('/config/election', { status: 404 })
+    .get('/machine-config', { body: getMachineConfigBody })
+    .get('/scanner/status', { status: 404 });
 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
@@ -87,7 +70,7 @@ test('services/scan fails to unconfigure', async () => {
     .get('/config/precinct', {
       body: getPrecinctConfigNoPrecinctResponseBody,
     })
-    .get('/scan/status', scanStatusWaitingForPaperResponseBody)
+    .get('/scanner/status', statusNoPaper)
     .deleteOnce('/config/election', { status: 404 });
 
   const card = new MemoryCard();
@@ -123,7 +106,7 @@ test('Show invalid card screen when unsupported cards are given', async () => {
       body: getPrecinctConfigNoPrecinctResponseBody,
     })
     .deleteOnce('/config/election', { status: 404 })
-    .get('/scan/status', scanStatusWaitingForPaperResponseBody);
+    .get('/scanner/status', statusNoPaper);
 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
@@ -176,7 +159,7 @@ test('show card backwards screen when card connection error occurs', async () =>
       body: getPrecinctConfigNoPrecinctResponseBody,
     })
     .deleteOnce('/config/election', { status: 404 })
-    .get('/scan/status', scanStatusWaitingForPaperResponseBody);
+    .get('/scanner/status', statusNoPaper);
 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
@@ -202,14 +185,11 @@ test('shows internal wiring message when there is no plustek scanner, but tablet
     .get('/machine-config', { body: getMachineConfigBody })
     .get('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
-    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody });
-  // Note that we don't mock /scan/status here because we want to make sure that we
-  // don't poll for scan status when the scanner is disconnected.
+    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/scanner/status', { ...statusNoPaper, state: 'disconnected' });
   render(<App card={card} storage={storage} hardware={hardware} />);
-  await screen.findByRole('heading', { name: 'Scanner Not Detected' });
-  screen.getByText(
-    'There is an internal connection problem. Please report to election clerk.'
-  );
+  await screen.findByRole('heading', { name: 'Internal Connection Problem' });
+  screen.getByText('Please tell the election clerk.');
 });
 
 test('shows power cable message when there is no plustek scanner and tablet is not plugged in', async () => {
@@ -222,232 +202,26 @@ test('shows power cable message when there is no plustek scanner and tablet is n
     .get('/machine-config', { body: getMachineConfigBody })
     .get('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
-    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody });
-  // Note that we don't mock /scan/status here because we want to make sure that we
-  // don't poll for scan status when the scanner is disconnected.
+    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/scanner/status', { ...statusNoPaper, state: 'disconnected' });
   render(<App card={card} storage={storage} hardware={hardware} />);
-  await screen.findByRole('heading', { name: 'Scanner Not Detected' });
+  await screen.findByRole('heading', { name: 'Power Cord Unplugged' });
   screen.getByText(
-    'Please ask a poll worker to check that the power cable is connected to an outlet.'
+    'Please ask a poll worker to check that the power cord is plugged in.'
   );
 
-  fetchMock.get('/scan/status', {
-    body: scanStatusWaitingForPaperResponseBody,
-  });
+  fetchMock.get(
+    '/scanner/status',
+    { body: statusNoPaper },
+    { overwriteRoutes: true }
+  );
   act(() => hardware.setPrecinctScannerConnected(true));
   await screen.findByRole('heading', { name: 'Polls Closed' });
   await advanceTimersAndPromises(1);
-  await waitFor(() => expect(fetchMock.lastUrl()).toEqual('/scan/status'));
+  await waitFor(() => expect(fetchMock.lastUrl()).toEqual('/scanner/status'));
   expect(fetchMock.done()).toBe(true);
 });
 
-test('error from services/scan in accepting a reviewable ballot', async () => {
-  const storage = new MemoryStorage();
-  await storage.set(stateStorageKey, { isPollsOpen: true });
-  fetchMock
-    .get('/machine-config', { body: getMachineConfigBody })
-    .get('/config/election', { body: electionSampleDefinition })
-    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
-    .get('/config/precinct', {
-      body: getPrecinctConfigNoPrecinctResponseBody,
-    })
-    .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody });
-  const card = new MemoryCard();
-  const hardware = MemoryHardware.buildStandard();
-  render(<App storage={storage} card={card} hardware={hardware} />);
-  advanceTimers(1);
-  await screen.findByText('Insert Your Ballot Below');
-  await screen.findByText('Scan one ballot sheet at a time.');
-  await screen.findByText('General Election');
-  await screen.findByText(/Franklin County/);
-  await screen.findByText(/State of Hamilton/);
-  await screen.findByText('Election ID');
-  await screen.findByText('748dc61ad3');
-
-  fetchMock.get(
-    '/scan/status',
-    { body: scanStatusReadyToScanResponseBody },
-    { overwriteRoutes: true }
-  );
-  fetchMock.post('/scan/scanBatch', () => {
-    // update status on scan
-    fetchMock.get(
-      '/scan/status',
-      typedAs<Scan.GetScanStatusResponse>({
-        scanner: Scan.ScannerStatus.ReadyToScan,
-        canUnconfigure: true,
-        batches: [
-          {
-            id: 'test-batch',
-            label: 'Batch 1',
-            count: 1,
-            startedAt: DateTime.now().toISO(),
-            endedAt: DateTime.now().toISO(),
-          },
-        ],
-        adjudication: { adjudicated: 0, remaining: 1 },
-      }),
-      { overwriteRoutes: true }
-    );
-    fetchMock.get(
-      '/scan/hmpb/review/next-sheet',
-      typedAs<Scan.GetNextReviewSheetResponse>({
-        interpreted: {
-          id: 'test-sheet',
-          front: {
-            interpretation: interpretedHmpb({
-              electionDefinition: electionSampleDefinition,
-              pageNumber: 1,
-              adjudicationReason: AdjudicationReason.Overvote,
-            }),
-            image: { url: '/not/real.jpg' },
-          },
-          back: {
-            interpretation: interpretedHmpb({
-              electionDefinition: electionSampleDefinition,
-              pageNumber: 2,
-            }),
-            image: { url: '/not/real.jpg' },
-          },
-        },
-        layouts: {},
-        definitions: {},
-      })
-    );
-    return {
-      body: { status: 'ok', batchId: 'test-batch' },
-    };
-  });
-
-  // trigger scan
-  await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS / 1000);
-  expect(fetchMock.calls('/scan/scanBatch')).toHaveLength(1);
-
-  await screen.findByText('Ballot Requires Review');
-  fetchMock.post('/scan/scanContinue', {
-    body: { status: 'error' },
-  });
-
-  fireEvent.click(await screen.findByText('Count Ballot'));
-  fireEvent.click(await screen.findByText('Yes, count ballot with errors'));
-  await screen.findByText('Scanning Error');
-  expect(fetchMock.calls('/scan/scanContinue')).toHaveLength(1);
-  await advanceTimersAndPromises(5);
-  // Screen does NOT reset automatically to insert ballot screen
-  await screen.findByText('Scanning Error');
-  // Removing ballot resets to insert screen
-  fetchMock.get(
-    '/scan/status',
-    { body: scanStatusWaitingForPaperResponseBody },
-    { overwriteRoutes: true }
-  );
-  await advanceTimersAndPromises(1);
-  await screen.findByText('Insert Your Ballot Below');
-});
-
-test('error from services/scan in ejecting a reviewable ballot', async () => {
-  const storage = new MemoryStorage();
-  await storage.set(stateStorageKey, { isPollsOpen: true });
-  fetchMock
-    .get('/machine-config', { body: getMachineConfigBody })
-    .get('/config/election', electionSampleDefinition)
-    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
-    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody });
-  const card = new MemoryCard();
-  const hardware = MemoryHardware.buildStandard();
-  render(<App storage={storage} card={card} hardware={hardware} />);
-  advanceTimers(1);
-  await screen.findByText('Insert Your Ballot Below');
-  await screen.findByText('Scan one ballot sheet at a time.');
-  await screen.findByText('General Election');
-  await screen.findByText(/Franklin County/);
-  await screen.findByText(/State of Hamilton/);
-  await screen.findByText('Election ID');
-  await screen.findByText('748dc61ad3');
-
-  fetchMock.get('/scan/status', scanStatusReadyToScanResponseBody, {
-    overwriteRoutes: true,
-  });
-  fetchMock.post('/scan/scanBatch', () => {
-    // update status on scan
-    fetchMock.get(
-      '/scan/status',
-      typedAs<Scan.GetScanStatusResponse>({
-        scanner: Scan.ScannerStatus.ReadyToScan,
-        canUnconfigure: true,
-        batches: [
-          {
-            id: 'test-batch',
-            label: 'Batch 1',
-            count: 1,
-            startedAt: DateTime.now().toISO(),
-            endedAt: DateTime.now().toISO(),
-          },
-        ],
-        adjudication: { adjudicated: 0, remaining: 1 },
-      }),
-      { overwriteRoutes: true }
-    );
-    fetchMock.get(
-      '/scan/hmpb/review/next-sheet',
-      typedAs<Scan.GetNextReviewSheetResponse>({
-        interpreted: {
-          id: 'test-sheet',
-          front: {
-            interpretation: interpretedHmpb({
-              electionDefinition: electionSampleDefinition,
-              pageNumber: 1,
-              adjudicationReason: AdjudicationReason.Overvote,
-            }),
-            image: { url: '/not/real.jpg' },
-          },
-          back: {
-            interpretation: interpretedHmpb({
-              electionDefinition: electionSampleDefinition,
-              pageNumber: 2,
-            }),
-            image: { url: '/not/real.jpg' },
-          },
-        },
-        layouts: {},
-        definitions: {},
-      })
-    );
-    return {
-      body: { status: 'ok', batchId: 'test-batch' },
-    };
-  });
-
-  // trigger scan
-  await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS / 1000);
-  expect(fetchMock.calls('/scan/scanBatch')).toHaveLength(1);
-
-  fetchMock.post('/scan/scanContinue', {
-    body: { status: 'error' },
-  });
-  fetchMock.get(
-    '/scan/status',
-    typedAs<Scan.GetScanStatusResponse>({
-      scanner: Scan.ScannerStatus.WaitingForPaper,
-      canUnconfigure: true,
-      batches: [
-        {
-          id: 'test-batch',
-          label: 'Batch 1',
-          count: 1,
-          startedAt: DateTime.now().toISO(),
-          endedAt: DateTime.now().toISO(),
-        },
-      ],
-      adjudication: { adjudicated: 0, remaining: 1 },
-    }),
-    { overwriteRoutes: true }
-  );
-  await advanceTimersAndPromises(1);
-  await screen.findByText('Insert Your Ballot Below');
-  expect(fetchMock.calls('/scan/scanContinue')).toHaveLength(1);
-});
 test('App shows message to connect to power when disconnected and battery is low', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
@@ -461,7 +235,7 @@ test('App shows message to connect to power when disconnected and battery is low
     .get('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody });
+    .get('/scanner/status', { body: statusNoPaper });
   render(<App card={card} hardware={hardware} storage={storage} />);
   await advanceTimersAndPromises(1);
   await screen.findByText('No Power Detected');
@@ -486,7 +260,7 @@ test('App shows warning message to connect to power when disconnected', async ()
     .get('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody });
+    .get('/scanner/status', { body: statusNoPaper });
   render(<App card={card} hardware={hardware} storage={storage} />);
   fetchMock.post('/scan/export', {});
   await advanceTimersAndPromises(1);

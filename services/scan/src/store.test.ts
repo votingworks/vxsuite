@@ -16,7 +16,6 @@ import { v4 as uuid } from 'uuid';
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { zeroRect } from '../test/fixtures/zero_rect';
 import { Store } from './store';
-import { SheetOf } from './types';
 
 // We pause in some of these tests so we need to increase the timeout
 jest.setTimeout(20000);
@@ -413,84 +412,80 @@ test('adjudication', () => {
       ],
     }))
   );
-  const batchId = store.addBatch();
-  const ballotId = store.addSheet(
-    uuid(),
-    batchId,
-    [0, 1].map((i) =>
-      typedAs<PageInterpretationWithFiles>({
-        originalFilename:
-          i === 0 ? '/front-original.png' : '/back-original.png',
-        normalizedFilename:
-          i === 0 ? '/front-normalized.png' : '/back-normalized.png',
-        interpretation: {
-          type: 'InterpretedHmpbPage',
-          votes: {},
-          markInfo: {
-            ballotSize: { width: 800, height: 1000 },
-            marks: [
-              {
-                type: 'candidate',
-                contestId: candidateContests[i].id,
-                optionId: candidateContests[i].candidates[0].id,
-                score: 0.12, // marginal
-                scoredOffset: { x: 0, y: 0 },
+  function fakePage(i: 0 | 1): PageInterpretationWithFiles {
+    return {
+      originalFilename: i === 0 ? '/front-original.png' : '/back-original.png',
+      normalizedFilename:
+        i === 0 ? '/front-normalized.png' : '/back-normalized.png',
+      interpretation: {
+        type: 'InterpretedHmpbPage',
+        votes: {},
+        markInfo: {
+          ballotSize: { width: 800, height: 1000 },
+          marks: [
+            {
+              type: 'candidate',
+              contestId: candidateContests[i].id,
+              optionId: candidateContests[i].candidates[0].id,
+              score: 0.12, // marginal
+              scoredOffset: { x: 0, y: 0 },
+              bounds: zeroRect,
+              target: {
                 bounds: zeroRect,
-                target: {
-                  bounds: zeroRect,
-                  inner: zeroRect,
-                },
+                inner: zeroRect,
               },
-              {
-                type: 'yesno',
-                contestId: yesnoContests[i].id,
-                optionId: yesnoOption,
-                score: 1, // definite
-                scoredOffset: { x: 0, y: 0 },
+            },
+            {
+              type: 'yesno',
+              contestId: yesnoContests[i].id,
+              optionId: yesnoOption,
+              score: 1, // definite
+              scoredOffset: { x: 0, y: 0 },
+              bounds: zeroRect,
+              target: {
                 bounds: zeroRect,
-                target: {
-                  bounds: zeroRect,
-                  inner: zeroRect,
-                },
+                inner: zeroRect,
               },
-            ],
-          },
-          metadata: {
-            electionHash: stateOfHamilton.electionDefinition.electionHash,
-            ballotStyleId: '12',
-            precinctId: '23',
-            isTestMode: false,
-            pageNumber: 1,
-            locales: { primary: 'en-US' },
-            ballotType: BallotType.Standard,
-          },
-          adjudicationInfo: {
-            requiresAdjudication: true,
-            enabledReasons: [
-              AdjudicationReason.UninterpretableBallot,
-              AdjudicationReason.MarginalMark,
-            ],
-            enabledReasonInfos: [
-              {
-                type: AdjudicationReason.MarginalMark,
-                contestId: candidateContests[i].id,
-                optionId: candidateContests[i].candidates[0].id,
-                optionIndex: 0,
-              },
-              {
-                type: AdjudicationReason.Undervote,
-                contestId: candidateContests[i].id,
-                expected: 1,
-                optionIds: [],
-                optionIndexes: [],
-              },
-            ],
-            ignoredReasonInfos: [],
-          },
+            },
+          ],
         },
-      })
-    ) as SheetOf<PageInterpretationWithFiles>
-  );
+        metadata: {
+          electionHash: stateOfHamilton.electionDefinition.electionHash,
+          ballotStyleId: '12',
+          precinctId: '23',
+          isTestMode: false,
+          pageNumber: 1,
+          locales: { primary: 'en-US' },
+          ballotType: BallotType.Standard,
+        },
+        adjudicationInfo: {
+          requiresAdjudication: true,
+          enabledReasons: [
+            AdjudicationReason.UninterpretableBallot,
+            AdjudicationReason.MarginalMark,
+          ],
+          enabledReasonInfos: [
+            {
+              type: AdjudicationReason.MarginalMark,
+              contestId: candidateContests[i].id,
+              optionId: candidateContests[i].candidates[0].id,
+              optionIndex: 0,
+            },
+            {
+              type: AdjudicationReason.Undervote,
+              contestId: candidateContests[i].id,
+              expected: 1,
+              optionIds: [],
+              optionIndexes: [],
+            },
+          ],
+          ignoredReasonInfos: [],
+        },
+      },
+    };
+  }
+  const batchId = store.addBatch();
+  const ballotId = store.addSheet(uuid(), batchId, [fakePage(0), fakePage(1)]);
 
   // check the review paths
   const reviewSheet = store.getNextAdjudicationSheet();

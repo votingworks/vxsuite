@@ -1,18 +1,18 @@
 import React from 'react';
+import { Text } from '@votingworks/ui';
+import { TimesCircle } from '../components/graphics';
 import {
-  ScreenMainCenterChild,
   CenteredLargeProse,
+  ScreenMainCenterChild,
 } from '../components/layout';
 
-export function SetupScannerInternalWiringScreen(): JSX.Element {
+export function ScanJamScreen(): JSX.Element {
   return (
     <ScreenMainCenterChild infoBar={false}>
+      <TimesCircle />
       <CenteredLargeProse>
-        <h1>Scanner Not Detected</h1>
-        <p>
-          There is an internal connection problem. Please report to election
-          clerk.
-        </p>
+        <h1>Scanner Jammed</h1>
+        <Text italic>Ask a poll worker for help.</Text>
       </CenteredLargeProse>
     </ScreenMainCenterChild>
   );
@@ -20,5 +20,5 @@ export function SetupScannerInternalWiringScreen(): JSX.Element {
 
 /* istanbul ignore next */
 export function DefaultPreview(): JSX.Element {
-  return <SetupScannerInternalWiringScreen />;
+  return <ScanJamScreen />;
 }

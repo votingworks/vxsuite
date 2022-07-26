@@ -21,7 +21,6 @@ import {
 import {
   fakeKiosk,
   fakeUsbDrive,
-  advanceTimers,
   advanceTimersAndPromises,
   makePollWorkerCard,
   makeAdminCard,
@@ -31,23 +30,23 @@ import {
 import { join } from 'path';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 
-import { DateTime } from 'luxon';
 import { AdjudicationReason, PrecinctSelectionKind } from '@votingworks/types';
 
 import { mocked } from 'ts-jest/utils';
 import { CARD_POLLING_INTERVAL } from '@votingworks/ui';
 import userEvent from '@testing-library/user-event';
 import { App } from './app';
-import { interpretedHmpb } from '../test/fixtures';
 
 import { stateStorageKey } from './app_root';
 import {
   POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
-  TIME_TO_DISMISS_ERROR_SUCCESS_SCREENS_MS,
+  TIME_TO_DISMISS_SUCCESS_SCREEN_MS,
 } from './config/globals';
 import { MachineConfigResponse } from './config/types';
 
 jest.setTimeout(20000);
+
+fetchMock.config.overwriteRoutes = false;
 
 // Mock just `readBallotPackageFromFilePointer` from `@votingworks/utils`.
 const readBallotPackageFromFilePointerMock = mocked(
@@ -76,19 +75,19 @@ const getTestModeConfigTrueResponseBody: Scan.GetTestModeConfigResponse = {
   testMode: true,
 };
 
-const scanStatusWaitingForPaperResponseBody: Scan.GetScanStatusResponse = {
-  scanner: Scan.ScannerStatus.WaitingForPaper,
-  canUnconfigure: true,
-  batches: [],
-  adjudication: { adjudicated: 0, remaining: 0 },
-};
+function scannerStatus(
+  props: Partial<Scan.GetPrecinctScannerStatusResponse> = {}
+) {
+  return {
+    state: 'no_paper',
+    ballotsCounted: 0,
+    canUnconfigure: false,
+    ...props,
+  };
+}
 
-const scanStatusReadyToScanResponseBody: Scan.GetScanStatusResponse = {
-  scanner: Scan.ScannerStatus.ReadyToScan,
-  canUnconfigure: true,
-  batches: [],
-  adjudication: { adjudicated: 0, remaining: 0 },
-};
+const statusNoPaper = scannerStatus({ state: 'no_paper' });
+const statusReadyToScan = scannerStatus({ state: 'ready_to_scan' });
 
 const getPrecinctConfigNoPrecinctResponseBody: Scan.GetCurrentPrecinctConfigResponse =
   {
@@ -104,6 +103,7 @@ async function authenticateAdminCard() {
   fireEvent.click(screen.getByText('4'));
   fireEvent.click(screen.getByText('5'));
   fireEvent.click(screen.getByText('6'));
+  screen.getByText('Administrator Settings');
 }
 
 test('shows setup card reader screen when there is no card reader', async () => {
@@ -116,7 +116,7 @@ test('shows setup card reader screen when there is no card reader', async () => 
     .get('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody });
+    .get('/scanner/status', { body: statusNoPaper });
   render(<App storage={storage} hardware={hardware} card={card} />);
   await screen.findByText('Card Reader Not Detected');
 });
@@ -135,7 +135,7 @@ test('initializes app with stored state', async () => {
     .get('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody })
+    .get('/scanner/status', { body: statusNoPaper })
     .patchOnce('/config/testMode', {
       body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
       status: 200,
@@ -170,7 +170,7 @@ test('app can load and configure from a usb stick', async () => {
     .getOnce('/config/election', new Response('null'))
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody });
+    .get('/scanner/status', { body: statusNoPaper });
   render(<App storage={storage} card={card} hardware={hardware} />);
   await screen.findByText('Loading Configuration…');
   await advanceTimersAndPromises(1);
@@ -294,7 +294,7 @@ test('admin and pollworker configuration', async () => {
     .get('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody })
+    .get('/scanner/status', { body: statusNoPaper })
     .patchOnce('/config/testMode', {
       body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
       status: 200,
@@ -363,7 +363,6 @@ test('admin and pollworker configuration', async () => {
   );
   card.insertCard(adminCard, electionSampleDefinition.electionData);
   await authenticateAdminCard();
-  await screen.findByText('Administrator Settings');
   fireEvent.click(await screen.findByText('Live Election Mode'));
   await screen.findByText('Loading');
   await advanceTimersAndPromises(1);
@@ -390,7 +389,6 @@ test('admin and pollworker configuration', async () => {
   await advanceTimersAndPromises(1);
   card.insertCard(adminCard, electionSampleDefinition.electionData);
   await authenticateAdminCard();
-  await screen.findByText('Administrator Settings');
   // Change precinct
   fireEvent.change(await screen.findByTestId('selectPrecinct'), {
     target: { value: '23' },
@@ -419,27 +417,41 @@ test('admin and pollworker configuration', async () => {
   await authenticateAdminCard();
 
   // Calibrate scanner
-  fetchMock.postOnce('/scan/calibrate', { body: { status: 'ok' } });
+  fetchMock.postOnce('/scanner/calibrate', { body: { status: 'ok' } });
   fireEvent.click(await screen.findByText('Calibrate Scanner'));
-  await screen.findByText('Cannot Calibrate');
+  await screen.findByText('Waiting for Paper');
   fireEvent.click(await screen.findByText('Cancel'));
-  expect(screen.queryByText('Cannot Calibrate')).toBeNull();
+  expect(screen.queryByText('Waiting for Paper')).toBeNull();
   fireEvent.click(await screen.findByText('Calibrate Scanner'));
-  fetchMock.get('/scan/status', scanStatusReadyToScanResponseBody, {
-    overwriteRoutes: true,
-  });
+  fetchMock.getOnce(
+    '/scanner/status',
+    { body: statusReadyToScan },
+    { overwriteRoutes: true }
+  );
   await advanceTimersAndPromises(1);
   fireEvent.click(await screen.findByText('Calibrate'));
-  expect(fetchMock.calls('/scan/calibrate')).toHaveLength(1);
-  fetchMock.get('/scan/status', scanStatusWaitingForPaperResponseBody, {
-    overwriteRoutes: true,
+  expect(fetchMock.calls('/scanner/calibrate')).toHaveLength(1);
+  fetchMock.getOnce('/scanner/status', {
+    body: { ...statusReadyToScan, state: 'calibrated' },
   });
+  fetchMock.postOnce('/scanner/wait-for-paper', { body: { status: 'ok' } });
+  await advanceTimersAndPromises(1);
+  screen.getByText('Calibration succeeded!');
+  fireEvent.click(screen.getByRole('button', { name: 'Close' }));
+  await screen.findByText('Administrator Settings');
+  expect(fetchMock.calls('/scanner/wait-for-paper')).toHaveLength(1);
 
   // Remove card and insert admin card to unconfigure
-  fetchMock.delete('./config/election', {
-    body: '{"status": "ok"}',
-    status: 200,
-  });
+  fetchMock
+    .get(
+      '/scanner/status',
+      { body: { ...statusNoPaper, canUnconfigure: true } },
+      { overwriteRoutes: true }
+    )
+    .delete('./config/election', {
+      body: '{"status": "ok"}',
+      status: 200,
+    });
   card.removeCard();
   await advanceTimersAndPromises(1);
   card.insertCard(adminCard, electionSampleDefinition.electionData);
@@ -478,7 +490,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
     .get('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody });
+    .getOnce('/scanner/status', { body: statusNoPaper });
   render(<App card={card} hardware={hardware} storage={storage} />);
   await advanceTimersAndPromises(1);
   await screen.findByText('Insert Your Ballot Below');
@@ -489,46 +501,43 @@ test('voter can cast a ballot that scans successfully ', async () => {
   await screen.findByText('Election ID');
   await screen.findByText('748dc61ad3');
 
-  fetchMock.get('/scan/status', scanStatusReadyToScanResponseBody, {
-    overwriteRoutes: true,
-  });
-
-  fetchMock.postOnce('/scan/scanBatch', () => {
-    // update status on scan
-    fetchMock.get(
-      '/scan/status',
-      typedAs<Scan.GetScanStatusResponse>({
-        scanner: Scan.ScannerStatus.WaitingForPaper,
-        canUnconfigure: true,
-        batches: [
-          {
-            id: 'test-batch',
-            label: 'Batch 1',
-            count: 1,
-            startedAt: DateTime.now().toISO(),
-            endedAt: DateTime.now().toISO(),
-          },
-        ],
-        adjudication: { adjudicated: 0, remaining: 0 },
-      }),
-      { overwriteRoutes: true }
-    );
-
-    return {
-      body: { status: 'ok', batchId: 'test-batch' },
-    };
-  });
+  // We use a slight delay on post requests to simulate async response, which is
+  // needed to make sure the locking that prevents dup requests works correctly
+  fetchMock
+    .getOnce('/scanner/status', {
+      body: scannerStatus({ state: 'ready_to_scan' }),
+    })
+    .postOnce('/scanner/scan', { body: { status: 'ok' } }, { delay: 1 })
+    .getOnce('/scanner/status', {
+      body: scannerStatus({ state: 'scanning' }),
+    })
+    .getOnce('/scanner/status', {
+      body: scannerStatus({ state: 'ready_to_accept' }),
+    })
+    .postOnce('/scanner/accept', { body: { status: 'ok' } }, { delay: 1 })
+    .getOnce('/scanner/status', {
+      body: scannerStatus({ state: 'accepted' }),
+    })
+    .postOnce(
+      '/scanner/wait-for-paper',
+      { body: { status: 'ok' } },
+      { delay: 1 }
+    )
+    .get('/scanner/status', {
+      body: scannerStatus({ state: 'no_paper', ballotsCounted: 1 }),
+    });
 
   // trigger scan
   await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS / 1000);
-  expect(fetchMock.calls('/scan/scanBatch')).toHaveLength(1);
-
-  await screen.findByText('Your ballot was counted!');
-  await advanceTimersAndPromises(
-    TIME_TO_DISMISS_ERROR_SUCCESS_SCREENS_MS / 1000
-  );
+  screen.getByText(/Please wait/);
+  await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS / 1000);
+  await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS / 1000);
+  await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS / 1000);
+  screen.getByText('Your ballot was counted!');
+  await advanceTimersAndPromises(TIME_TO_DISMISS_SUCCESS_SCREEN_MS / 1000);
   await screen.findByText('Scan one ballot sheet at a time.');
   expect((await screen.findByTestId('ballot-count')).textContent).toBe('1');
+  expect(fetchMock.done()).toBe(true);
 
   // Insert a pollworker card
   fetchMock.post('/scan/export', {
@@ -649,9 +658,8 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
     .get('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody });
+    .getOnce('/scanner/status', { body: statusNoPaper });
   render(<App storage={storage} card={card} hardware={hardware} />);
-  advanceTimers(1);
   await screen.findByText('Insert Your Ballot Below');
   await screen.findByText('Scan one ballot sheet at a time.');
   await screen.findByText('General Election');
@@ -660,181 +668,56 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   await screen.findByText('Election ID');
   await screen.findByText('748dc61ad3');
 
-  fetchMock.get('/scan/status', scanStatusReadyToScanResponseBody, {
-    overwriteRoutes: true,
-  });
-  fetchMock.post('/scan/scanBatch', () => {
-    // update status on scan
-    fetchMock.get(
-      '/scan/status',
-      typedAs<Scan.GetScanStatusResponse>({
-        scanner: Scan.ScannerStatus.ReadyToScan,
-        canUnconfigure: false,
-        batches: [
-          {
-            id: 'test-batch',
-            label: 'Batch 1',
-            count: 1,
-            startedAt: DateTime.now().toISO(),
-          },
-        ],
-        adjudication: { adjudicated: 0, remaining: 1 },
-      }),
-      { overwriteRoutes: true }
-    );
-    fetchMock.get(
-      '/scan/hmpb/review/next-sheet',
-      typedAs<Scan.GetNextReviewSheetResponse>({
-        interpreted: {
-          id: 'test-sheet',
-          front: {
-            interpretation: interpretedHmpb({
-              electionDefinition: electionSampleDefinition,
-              pageNumber: 1,
-              adjudicationReason: AdjudicationReason.Overvote,
-            }),
-            image: { url: '/not/real.jpg' },
-          },
-          back: {
-            interpretation: interpretedHmpb({
-              electionDefinition: electionSampleDefinition,
-              pageNumber: 2,
-            }),
-            image: { url: '/not/real.jpg' },
-          },
+  fetchMock
+    .getOnce('/scanner/status', {
+      body: scannerStatus({ state: 'ready_to_scan' }),
+    })
+    .postOnce('/scanner/scan', { body: { status: 'ok' } }, { delay: 1 })
+    .getOnce('/scanner/status', {
+      body: scannerStatus({ state: 'scanning' }),
+    })
+    .getOnce('/scanner/status', {
+      body: scannerStatus({
+        state: 'needs_review',
+        interpretation: {
+          type: 'INTERPRETATION_NEEDS_REVIEW',
+          reasons: [{ type: AdjudicationReason.BlankBallot }],
         },
-        layouts: {},
-        definitions: {},
-      })
-    );
-
-    return {
-      body: { status: 'ok', batchId: 'test-batch' },
-    };
-  });
+      }),
+    });
 
   // trigger scan
-  await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS / 1000);
-  expect(fetchMock.calls('/scan/scanBatch')).toHaveLength(1);
-  await screen.findByText('Ballot Requires Review');
+  jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
+  await screen.findByText(/Please wait/);
+  jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
+  await screen.findByText('Blank Ballot');
 
-  fetchMock.post('/scan/scanContinue', {
-    body: { status: 'ok' },
-  });
+  fetchMock
+    .postOnce('/scanner/accept', { body: { status: 'ok' } }, { delay: 1 })
+    .getOnce('/scanner/status', {
+      body: scannerStatus({ state: 'accepted' }),
+    })
+    .postOnce(
+      '/scanner/wait-for-paper',
+      { body: { status: 'ok' } },
+      { delay: 1 }
+    )
+    .get('/scanner/status', {
+      body: scannerStatus({ state: 'no_paper', ballotsCounted: 1 }),
+    });
 
-  fireEvent.click(await screen.findByText('Count Ballot'));
-  await screen.findByText('Count ballot with errors?');
-  fireEvent.click(await screen.findByText('Yes, count ballot with errors'));
-  fetchMock.get(
-    '/scan/status',
-    typedAs<Scan.GetScanStatusResponse>({
-      scanner: Scan.ScannerStatus.WaitingForPaper,
-      canUnconfigure: false,
-      batches: [
-        {
-          id: 'test-batch',
-          label: 'Batch 1',
-          count: 1,
-          startedAt: DateTime.now().toISO(),
-          endedAt: DateTime.now().toISO(),
-        },
-      ],
-      adjudication: { adjudicated: 0, remaining: 0 },
-    }),
-    { overwriteRoutes: true }
+  fireEvent.click(screen.getByRole('button', { name: 'Count blank ballot' }));
+  await screen.findByText('Are you sure?');
+  fireEvent.click(
+    screen.getByRole('button', { name: 'Yes, count blank ballot' })
   );
+
+  jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText('Your ballot was counted!');
-  expect(fetchMock.calls('/scan/scanContinue')).toHaveLength(1);
-  advanceTimers(5);
+  jest.advanceTimersByTime(TIME_TO_DISMISS_SUCCESS_SCREEN_MS);
   await screen.findByText('Insert Your Ballot Below');
-  expect((await screen.findByTestId('ballot-count')).textContent).toBe('1');
-
-  // Simulate another ballot
-  fetchMock.get(
-    '/scan/status',
-    typedAs<Scan.GetScanStatusResponse>({
-      scanner: Scan.ScannerStatus.ReadyToScan,
-      canUnconfigure: false,
-      batches: [
-        {
-          id: 'test-batch',
-          label: 'Batch 1',
-          count: 1,
-          startedAt: DateTime.now().toISO(),
-          endedAt: DateTime.now().toISO(),
-        },
-      ],
-      adjudication: { adjudicated: 0, remaining: 0 },
-    }),
-    { overwriteRoutes: true }
-  );
-  fetchMock.post(
-    '/scan/scanBatch',
-    () => {
-      fetchMock.get(
-        '/scan/status',
-        typedAs<Scan.GetScanStatusResponse>({
-          scanner: Scan.ScannerStatus.ReadyToScan,
-          canUnconfigure: false,
-          batches: [
-            {
-              id: 'test-batch',
-              label: 'Batch 1',
-              count: 1,
-              startedAt: DateTime.now().toISO(),
-              endedAt: DateTime.now().toISO(),
-            },
-            {
-              id: 'test-batch2',
-              label: 'Batch 2',
-              count: 1,
-              startedAt: DateTime.now().toISO(),
-              endedAt: DateTime.now().toISO(),
-            },
-          ],
-          adjudication: { adjudicated: 0, remaining: 1 },
-        }),
-        { overwriteRoutes: true }
-      );
-      return {
-        body: { status: 'ok', batchId: 'test-batch2' },
-      };
-    },
-    { overwriteRoutes: true }
-  );
-  await advanceTimersAndPromises(1);
-  await screen.findByText('Ballot Requires Review');
-  expect(fetchMock.calls('/scan/scanBatch')).toHaveLength(2);
-
-  // Simulate voter pulling out the ballot
-  fetchMock.get(
-    '/scan/status',
-    typedAs<Scan.GetScanStatusResponse>({
-      scanner: Scan.ScannerStatus.WaitingForPaper,
-      canUnconfigure: false,
-      batches: [
-        {
-          id: 'test-batch',
-          label: 'Batch 1',
-          count: 1,
-          startedAt: DateTime.now().toISO(),
-          endedAt: DateTime.now().toISO(),
-        },
-        {
-          id: 'test-batch2',
-          label: 'Batch 2',
-          count: 0,
-          startedAt: DateTime.now().toISO(),
-          endedAt: DateTime.now().toISO(),
-        },
-      ],
-      adjudication: { adjudicated: 0, remaining: 0 },
-    }),
-    { overwriteRoutes: true }
-  );
-  await advanceTimersAndPromises(1);
-  await screen.findByText('Insert Your Ballot Below');
-  expect(fetchMock.calls('/scan/scanContinue')).toHaveLength(2);
+  expect(screen.getByTestId('ballot-count').textContent).toBe('1');
+  expect(fetchMock.done()).toBe(true);
 });
 
 test('voter can cast a rejected ballot', async () => {
@@ -848,11 +731,10 @@ test('voter can cast a rejected ballot', async () => {
     .getOnce('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody });
+    .getOnce('/scanner/status', { body: statusNoPaper });
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   render(<App storage={storage} card={card} hardware={hardware} />);
-  advanceTimers(1);
   await screen.findByText('Insert Your Ballot Below');
   await screen.findByText('Scan one ballot sheet at a time.');
   await screen.findByText('General Election');
@@ -861,111 +743,40 @@ test('voter can cast a rejected ballot', async () => {
   await screen.findByText('Election ID');
   await screen.findByText('748dc61ad3');
 
-  fetchMock.post('/scan/scanBatch', {
-    body: { status: 'ok', batchId: 'test-batch' },
-  });
-  fetchMock.getOnce(
-    '/scan/status',
-    typedAs<Scan.GetScanStatusResponse>({
-      scanner: Scan.ScannerStatus.ReadyToScan,
-      canUnconfigure: false,
-      batches: [],
-      adjudication: { adjudicated: 0, remaining: 0 },
-    }),
-    { overwriteRoutes: true, repeat: 3 }
-  );
-  fetchMock.getOnce(
-    '/scan/status',
-    typedAs<Scan.GetScanStatusResponse>({
-      scanner: Scan.ScannerStatus.WaitingForPaper,
-      canUnconfigure: false,
-      batches: [
-        {
-          id: 'test-batch',
-          label: 'Batch 1',
-          count: 1,
-          startedAt: DateTime.now().toISO(),
-          endedAt: DateTime.now().toISO(),
-        },
-      ],
-      adjudication: { adjudicated: 0, remaining: 1 },
-    }),
-    { overwriteRoutes: false }
-  );
-  fetchMock.get(
-    '/scan/status',
-    typedAs<Scan.GetScanStatusResponse>({
-      scanner: Scan.ScannerStatus.ReadyToScan,
-      canUnconfigure: false,
-      batches: [
-        {
-          id: 'test-batch',
-          label: 'Batch 1',
-          count: 1,
-          startedAt: DateTime.now().toISO(),
-        },
-      ],
-      adjudication: { adjudicated: 0, remaining: 1 },
-    }),
-    { overwriteRoutes: true }
-  );
-  fetchMock.getOnce(
-    '/scan/hmpb/review/next-sheet',
-    typedAs<Scan.GetNextReviewSheetResponse>({
-      interpreted: {
-        id: 'test-sheet',
-        front: {
-          interpretation: {
-            type: 'InvalidElectionHashPage',
-            expectedElectionHash: 'a',
-            actualElectionHash: 'b',
-          },
-          image: { url: '/not/real.jpg' },
-        },
-        back: {
-          interpretation: interpretedHmpb({
-            electionDefinition: electionSampleDefinition,
-            pageNumber: 2,
-          }),
-          image: { url: '/not/real.jpg' },
-        },
-      },
-      layouts: {},
-      definitions: {},
+  fetchMock
+    .getOnce('/scanner/status', {
+      body: scannerStatus({ state: 'ready_to_scan' }),
     })
-  );
-  await advanceTimersAndPromises(1);
+    .postOnce('/scanner/scan', { body: { status: 'ok' } }, { delay: 1 })
+    .getOnce('/scanner/status', {
+      body: scannerStatus({ state: 'scanning' }),
+    })
+    .getOnce('/scanner/status', {
+      body: scannerStatus({
+        state: 'rejected',
+        interpretation: {
+          type: 'INTERPRETATION_INVALID',
+          reason: 'invalid_election_hash',
+        },
+      }),
+    });
+
+  jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
+  await screen.findByText(/Please wait/);
+  jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText('Scanning Error');
-  await screen.findByText(
+  screen.getByText(
     'Scanned ballot does not match the election this scanner is configured for.'
   );
-  expect(fetchMock.calls('scan/scanBatch')).toHaveLength(1);
-  fetchMock.post('/scan/scanContinue', {
-    body: { status: 'ok' },
-  });
+  expect(fetchMock.done()).toBe(true);
 
   // When the voter removes the ballot return to the insert ballot screen
-  fetchMock.get(
-    '/scan/status',
-    typedAs<Scan.GetScanStatusResponse>({
-      scanner: Scan.ScannerStatus.WaitingForPaper,
-      canUnconfigure: false,
-      batches: [
-        {
-          id: 'test-batch',
-          label: 'Batch 1',
-          count: 0,
-          startedAt: DateTime.now().toISO(),
-          endedAt: DateTime.now().toISO(),
-        },
-      ],
-      adjudication: { adjudicated: 0, remaining: 0 },
-    }),
-    { overwriteRoutes: true }
-  );
-  await advanceTimersAndPromises(1);
+  fetchMock.getOnce('/scanner/status', {
+    body: scannerStatus({ state: 'no_paper' }),
+  });
+  jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText('Insert Your Ballot Below');
-  expect(fetchMock.calls('/scan/scanContinue')).toHaveLength(1);
+  expect(fetchMock.done()).toBe(true);
 });
 
 test('voter can cast another ballot while the success screen is showing', async () => {
@@ -981,149 +792,52 @@ test('voter can cast another ballot while the success screen is showing', async 
     .get('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody });
+    .getOnce('/scanner/status', {
+      body: scannerStatus({ state: 'accepted', ballotsCounted: 1 }),
+    });
   render(<App storage={storage} card={card} hardware={hardware} />);
-  await advanceTimersAndPromises(1);
-  await screen.findByText('Insert Your Ballot Below');
-  await screen.findByText('Scan one ballot sheet at a time.');
+  await screen.findByText('Your ballot was counted!');
   await screen.findByText('General Election');
   await screen.findByText(/Franklin County/);
   await screen.findByText(/State of Hamilton/);
   await screen.findByText('Election ID');
   await screen.findByText('748dc61ad3');
 
-  fetchMock.get('/scan/status', scanStatusReadyToScanResponseBody, {
-    overwriteRoutes: true,
+  fetchMock.getOnce('/scanner/status', {
+    body: scannerStatus({ state: 'accepted', ballotsCounted: 1 }),
   });
-  const batch1: Scan.BatchInfo = {
-    id: 'test-batch',
-    label: 'Batch 1',
-    count: 1,
-    startedAt: DateTime.now().toISO(),
-    endedAt: DateTime.now().toISO(),
-  };
-  fetchMock.postOnce('/scan/scanBatch', () => {
-    // update status on scan
-    fetchMock.get(
-      '/scan/status',
-      typedAs<Scan.GetScanStatusResponse>({
-        scanner: Scan.ScannerStatus.WaitingForPaper,
-        canUnconfigure: false,
-        batches: [batch1],
-        adjudication: { adjudicated: 0, remaining: 0 },
+  jest.advanceTimersByTime(TIME_TO_DISMISS_SUCCESS_SCREEN_MS / 2);
+  screen.getByText('Your ballot was counted!'); // Still on the success screen
+  expect(screen.getByTestId('ballot-count').textContent).toBe('1');
+
+  fetchMock
+    .getOnce('/scanner/status', {
+      body: scannerStatus({ state: 'ready_to_scan' }),
+    })
+    .postOnce('/scanner/scan', { body: { status: 'ok' } }, { delay: 1 })
+    .getOnce('/scanner/status', {
+      body: scannerStatus({ state: 'scanning' }),
+    })
+    .get('/scanner/status', {
+      body: scannerStatus({
+        state: 'needs_review',
+        interpretation: {
+          type: 'INTERPRETATION_NEEDS_REVIEW',
+          reasons: [{ type: AdjudicationReason.BlankBallot }],
+        },
       }),
-      { overwriteRoutes: true }
-    );
+    });
 
-    return {
-      body: { status: 'ok', batchId: 'test-batch' },
-    };
-  });
-  await advanceTimersAndPromises(1);
-  await screen.findByText('Your ballot was counted!');
-  expect(fetchMock.calls('/scan/scanBatch')).toHaveLength(1);
-  await advanceTimersAndPromises(
-    TIME_TO_DISMISS_ERROR_SUCCESS_SCREENS_MS / 2 / 1000
-  );
-  expect((await screen.findByTestId('ballot-count')).textContent).toBe('1');
-  await screen.findByText('Your ballot was counted!'); // Still on the success screen
-  const batch2: Scan.BatchInfo = {
-    id: 'test-batch2',
-    label: 'Batch 2',
-    count: 1,
-    startedAt: DateTime.now().toISO(),
-  };
-  fetchMock.get(
-    '/scan/status',
-    typedAs<Scan.GetScanStatusResponse>({
-      scanner: Scan.ScannerStatus.ReadyToScan,
-      canUnconfigure: false,
-      batches: [batch1],
-      adjudication: { adjudicated: 0, remaining: 0 },
-    }),
-    { overwriteRoutes: true, repeat: 3 }
-  );
-  fetchMock.postOnce(
-    '/scan/scanBatch',
-    () => {
-      // update to include both batches on next scan
-      fetchMock.get(
-        '/scan/status',
-        typedAs<Scan.GetScanStatusResponse>({
-          scanner: Scan.ScannerStatus.WaitingForPaper,
-          canUnconfigure: false,
-          batches: [batch1, batch2],
-          adjudication: { adjudicated: 0, remaining: 1 },
-        }),
-        { overwriteRoutes: true }
-      );
-      fetchMock.getOnce(
-        '/scan/hmpb/review/next-sheet',
-        typedAs<Scan.GetNextReviewSheetResponse>({
-          interpreted: {
-            id: 'test-sheet',
-            front: {
-              interpretation: interpretedHmpb({
-                electionDefinition: electionSampleDefinition,
-                pageNumber: 1,
-                adjudicationReason: AdjudicationReason.BlankBallot,
-              }),
-              image: { url: '/not/real.jpg' },
-            },
-            back: {
-              interpretation: interpretedHmpb({
-                electionDefinition: electionSampleDefinition,
-                pageNumber: 2,
-                adjudicationReason: AdjudicationReason.BlankBallot,
-              }),
-              image: { url: '/not/real.jpg' },
-            },
-          },
-          layouts: {},
-          definitions: {},
-        }),
-        { overwriteRoutes: true }
-      );
-
-      return {
-        body: { status: 'ok', batchId: 'test-batch2' },
-      };
-    },
-    { overwriteRoutes: true }
-  );
-
-  expect(fetchMock.calls('/scan/scanBatch')).toHaveLength(1);
-  await advanceTimersAndPromises(1);
-  await waitFor(() =>
-    expect(fetchMock.calls('/scan/scanBatch')).toHaveLength(2)
-  );
+  jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
+  await screen.findByText(/Please wait/);
+  jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText('Blank Ballot');
-  // Insert more paper
-  fetchMock.get(
-    '/scan/status',
-    typedAs<Scan.GetScanStatusResponse>({
-      scanner: Scan.ScannerStatus.ReadyToScan,
-      canUnconfigure: false,
-      batches: [batch1, batch2],
-      adjudication: { adjudicated: 0, remaining: 1 },
-    }),
-    { overwriteRoutes: true }
-  );
+
   // Even after the timeout to expire the success screen occurs we stay on the review screen.
-  await advanceTimersAndPromises(
-    TIME_TO_DISMISS_ERROR_SUCCESS_SCREENS_MS / 1000
-  );
+  jest.advanceTimersByTime(TIME_TO_DISMISS_SUCCESS_SCREEN_MS / 2);
   await screen.findByText('Blank Ballot');
-  // No more ballots have scanned even though the scanner is ready to scan
-  expect(fetchMock.calls('/scan/scanBatch')).toHaveLength(2);
-  const adminCard = makeAdminCard(
-    electionSampleDefinition.electionHash,
-    '123456'
-  );
-  card.insertCard(adminCard, electionSampleDefinition.electionData);
-  await authenticateAdminCard();
-  await screen.findByText('Administrator Settings');
-  expect((await screen.findByTestId('ballot-count')).textContent).toBe('1');
+
+  expect(fetchMock.done()).toBe(true);
 });
 
 test('scanning is not triggered when polls closed or cards present', async () => {
@@ -1139,29 +853,15 @@ test('scanning is not triggered when polls closed or cards present', async () =>
     .get('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get(
-      '/scan/status',
-      typedAs<Scan.GetScanStatusResponse>({
-        scanner: Scan.ScannerStatus.WaitingForPaper,
-        canUnconfigure: false,
-        batches: [
-          {
-            id: 'test-batch',
-            label: 'Batch 1',
-            count: 15,
-            startedAt: DateTime.now().toISO(),
-            endedAt: DateTime.now().toISO(),
-          },
-        ],
-        adjudication: { adjudicated: 0, remaining: 0 },
-      })
-    ); // Set up the status endpoint with 15 ballots scanned
+    // Set up the status endpoint with 15 ballots scanned
+    .get('/scanner/status', {
+      body: scannerStatus({ state: 'ready_to_scan', ballotsCounted: 15 }),
+    })
+    // Mock the scan endpoint just so we can check that we don't hit it
+    .post('/scanner/scan', { status: 500 });
+
   render(<App storage={storage} card={card} hardware={hardware} />);
-  await advanceTimersAndPromises(1);
-  await advanceTimersAndPromises(1);
   await screen.findByText('Polls Closed');
-  // Make sure we haven't tried to scan
-  expect(fetchMock.calls('/scan/scanBatch')).toHaveLength(0);
   fetchMock.post('/scan/export', {});
   const pollWorkerCard = makePollWorkerCard(
     electionSampleDefinition.electionHash
@@ -1172,22 +872,20 @@ test('scanning is not triggered when polls closed or cards present', async () =>
   // We should see 15 ballots were scanned
   fireEvent.click(screen.getAllByText('No')[0]);
   expect((await screen.findByTestId('ballot-count')).textContent).toBe('15');
-  // Make sure we haven't tried to scan
-  await advanceTimersAndPromises(1);
-  expect(fetchMock.calls('/scan/scanBatch')).toHaveLength(0);
   // Open Polls
   fireEvent.click(await screen.findByText('Open Polls for All Precincts'));
   await screen.findByText('Polls are open.');
-  // Make sure we haven't tried to scan
-  await advanceTimersAndPromises(1);
-  expect(fetchMock.calls('/scan/scanBatch')).toHaveLength(0);
 
+  // Once we remove the poll worker card, scanning should start
+  fetchMock.post(
+    '/scanner/scan',
+    { body: { status: 'ok' } },
+    { overwriteRoutes: true }
+  );
   card.removeCard();
-  await advanceTimersAndPromises(1);
-  // We are now polling the status endpoint
-  await screen.findByText('Insert Your Ballot Below');
-  await advanceTimersAndPromises(1);
-  expect(fetchMock.calls('/scan/scanBatch')).toHaveLength(0);
+  jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
+  await screen.findByText(/Please wait/);
+  expect(fetchMock.done()).toBe(true);
 });
 
 test('no printer: poll worker can open and close polls without scanning any ballots', async () => {
@@ -1204,7 +902,7 @@ test('no printer: poll worker can open and close polls without scanning any ball
     .get('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody })
+    .get('/scanner/status', { body: statusNoPaper })
     .patchOnce('/config/testMode', {
       body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
       status: 200,
@@ -1254,7 +952,7 @@ test('with printer: poll worker can open and close polls without scanning any ba
     .get('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody })
+    .get('/scanner/status', { body: statusNoPaper })
     .patchOnce('/config/testMode', {
       body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
       status: 200,
@@ -1304,7 +1002,7 @@ test('no printer: open polls, scan ballot, close polls, export results', async (
     .get('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody })
+    .get('/scanner/status', { body: statusNoPaper })
     .patchOnce('/config/testMode', {
       body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
       status: 200,
@@ -1330,40 +1028,43 @@ test('no printer: open polls, scan ballot, close polls, export results', async (
   await screen.findByText('Insert Your Ballot Below');
 
   // Voter scans a ballot
-  fetchMock.get('/scan/status', scanStatusReadyToScanResponseBody, {
-    overwriteRoutes: true,
-  });
-  fetchMock.postOnce('/scan/scanBatch', () => {
-    fetchMock.get(
-      '/scan/status',
-      typedAs<Scan.GetScanStatusResponse>({
-        scanner: Scan.ScannerStatus.WaitingForPaper,
-        canUnconfigure: false,
-        batches: [
-          {
-            id: 'test-batch',
-            label: 'Batch 1',
-            count: 1,
-            startedAt: DateTime.now().toISO(),
-            endedAt: DateTime.now().toISO(),
-          },
-        ],
-        adjudication: { adjudicated: 0, remaining: 0 },
-      }),
+  fetchMock
+    .getOnce(
+      '/scanner/status',
+      { body: scannerStatus({ state: 'ready_to_scan' }) },
       { overwriteRoutes: true }
-    );
-    return {
-      body: { status: 'ok', batchId: 'test-batch' },
-    };
-  });
+    )
+    .postOnce('/scanner/scan', { body: { status: 'ok' } }, { delay: 1 })
+    .getOnce('/scanner/status', {
+      body: scannerStatus({ state: 'scanning' }),
+    })
+    .getOnce('/scanner/status', {
+      body: scannerStatus({ state: 'ready_to_accept' }),
+    })
+    .postOnce('/scanner/accept', { body: { status: 'ok' } }, { delay: 1 })
+    .getOnce('/scanner/status', {
+      body: scannerStatus({ state: 'accepted' }),
+    })
+    .postOnce(
+      '/scanner/wait-for-paper',
+      { body: { status: 'ok' } },
+      { delay: 1 }
+    )
+    .get('/scanner/status', {
+      body: scannerStatus({ state: 'no_paper', ballotsCounted: 1 }),
+    });
+
+  // trigger scan
   await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS / 1000);
-  expect(fetchMock.calls('/scan/scanBatch')).toHaveLength(1);
-  await screen.findByText('Your ballot was counted!');
-  await advanceTimersAndPromises(
-    TIME_TO_DISMISS_ERROR_SUCCESS_SCREENS_MS / 1000
-  );
-  await screen.findByText('Insert Your Ballot Below');
+  screen.getByText(/Please wait/);
+  await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS / 1000);
+  await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS / 1000);
+  await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS / 1000);
+  screen.getByText('Your ballot was counted!');
+  await advanceTimersAndPromises(TIME_TO_DISMISS_SUCCESS_SCREEN_MS / 1000);
+  await screen.findByText('Scan one ballot sheet at a time.');
   expect((await screen.findByTestId('ballot-count')).textContent).toBe('1');
+  expect(fetchMock.done()).toBe(true);
 
   // Close Polls
   fetchMock.post(
@@ -1441,7 +1142,7 @@ test('superadmin card', async () => {
     .get('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/scan/status', { body: scanStatusWaitingForPaperResponseBody });
+    .get('/scanner/status', { body: statusNoPaper });
   render(<App card={card} storage={storage} hardware={hardware} />);
 
   card.insertCard(makeSuperadminCard());
