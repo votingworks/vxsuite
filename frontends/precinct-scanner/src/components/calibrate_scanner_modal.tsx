@@ -17,7 +17,7 @@ export function CalibrateScannerModal({
   onCancel,
 }: Props): JSX.Element {
   async function finish() {
-    await scanner.startOver();
+    await scanner.waitForPaper();
     onCancel();
   }
 
@@ -47,7 +47,7 @@ export function CalibrateScannerModal({
           }
           actions={
             <React.Fragment>
-              <Button primary onPress={scanner.startOver}>
+              <Button primary onPress={scanner.waitForPaper}>
                 Try again
               </Button>
               <Button onPress={finish}>Cancel</Button>

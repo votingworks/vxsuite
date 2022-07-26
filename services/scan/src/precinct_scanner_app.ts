@@ -439,9 +439,9 @@ export function buildPrecinctScannerApp(
   });
 
   app.post<NoParams, OkResponse>(
-    '/scanner/start-over',
+    '/scanner/wait-for-paper',
     (_request, response) => {
-      machine.startOver();
+      machine.waitForPaper();
       response.json({ status: 'ok' });
     }
   );

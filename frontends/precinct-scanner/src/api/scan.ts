@@ -24,8 +24,8 @@ export async function returnBallot(): Promise<void> {
   await fetchJson('/scanner/return', { method: 'POST' });
 }
 
-export async function startOver(): Promise<void> {
-  await fetchJson('/scanner/start-over', { method: 'POST' });
+export async function waitForPaper(): Promise<void> {
+  await fetchJson('/scanner/wait-for-paper', { method: 'POST' });
 }
 
 export async function calibrate(): Promise<void> {

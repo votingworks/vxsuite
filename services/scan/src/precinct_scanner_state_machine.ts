@@ -89,7 +89,7 @@ type CommandEvent =
   | { type: 'SCAN' }
   | { type: 'ACCEPT' }
   | { type: 'RETURN' }
-  | { type: 'START_OVER' }
+  | { type: 'WAIT_FOR_PAPER' }
   | { type: 'CALIBRATE' };
 
 export type Event =
@@ -543,7 +543,7 @@ export const machine = createMachine<Context, Event>({
     accepted: {
       invoke: pollPaperStatus,
       on: {
-        START_OVER: 'no_paper',
+        WAIT_FOR_PAPER: 'no_paper',
         SCANNER_NO_PAPER: { target: 'accepted', internal: true },
         SCANNER_READY_TO_SCAN: 'ready_to_scan',
         // If the paper didn't get dropped, it's an error
@@ -639,7 +639,7 @@ export const machine = createMachine<Context, Event>({
     },
     calibrated: {
       on: {
-        START_OVER: 'no_paper',
+        WAIT_FOR_PAPER: 'no_paper',
       },
     },
     error_jammed: {
@@ -682,7 +682,7 @@ export interface PrecinctScannerStateMachine {
   scan: () => void;
   accept: () => void;
   return: () => void;
-  startOver: () => void;
+  waitForPaper: () => void;
   calibrate: () => void;
 }
 
@@ -800,8 +800,8 @@ export function createPrecinctScannerStateMachine(): PrecinctScannerStateMachine
       machineService.send('RETURN');
     },
 
-    startOver: () => {
-      machineService.send('START_OVER');
+    waitForPaper: () => {
+      machineService.send('WAIT_FOR_PAPER');
     },
 
     calibrate: () => {

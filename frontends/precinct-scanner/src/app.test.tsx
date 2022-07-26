@@ -434,12 +434,12 @@ test('admin and pollworker configuration', async () => {
   fetchMock.getOnce('/scanner/status', {
     body: { ...statusReadyToScan, state: 'calibrated' },
   });
-  fetchMock.postOnce('/scanner/start-over', { body: { status: 'ok' } });
+  fetchMock.postOnce('/scanner/wait-for-paper', { body: { status: 'ok' } });
   await advanceTimersAndPromises(1);
   screen.getByText('Calibration succeeded!');
   fireEvent.click(screen.getByRole('button', { name: 'Close' }));
   await screen.findByText('Administrator Settings');
-  expect(fetchMock.calls('/scanner/start-over')).toHaveLength(1);
+  expect(fetchMock.calls('/scanner/wait-for-paper')).toHaveLength(1);
 
   // Remove card and insert admin card to unconfigure
   fetchMock
@@ -518,7 +518,11 @@ test('voter can cast a ballot that scans successfully ', async () => {
     .getOnce('/scanner/status', {
       body: scannerStatus({ state: 'accepted' }),
     })
-    .postOnce('/scanner/start-over', { body: { status: 'ok' } }, { delay: 1 })
+    .postOnce(
+      '/scanner/wait-for-paper',
+      { body: { status: 'ok' } },
+      { delay: 1 }
+    )
     .get('/scanner/status', {
       body: scannerStatus({ state: 'no_paper', ballotsCounted: 1 }),
     });
@@ -693,7 +697,11 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
     .getOnce('/scanner/status', {
       body: scannerStatus({ state: 'accepted' }),
     })
-    .postOnce('/scanner/start-over', { body: { status: 'ok' } }, { delay: 1 })
+    .postOnce(
+      '/scanner/wait-for-paper',
+      { body: { status: 'ok' } },
+      { delay: 1 }
+    )
     .get('/scanner/status', {
       body: scannerStatus({ state: 'no_paper', ballotsCounted: 1 }),
     });
@@ -1037,7 +1045,11 @@ test('no printer: open polls, scan ballot, close polls, export results', async (
     .getOnce('/scanner/status', {
       body: scannerStatus({ state: 'accepted' }),
     })
-    .postOnce('/scanner/start-over', { body: { status: 'ok' } }, { delay: 1 })
+    .postOnce(
+      '/scanner/wait-for-paper',
+      { body: { status: 'ok' } },
+      { delay: 1 }
+    )
     .get('/scanner/status', {
       body: scannerStatus({ state: 'no_paper', ballotsCounted: 1 }),
     });

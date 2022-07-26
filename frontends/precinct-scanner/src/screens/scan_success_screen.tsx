@@ -17,7 +17,7 @@ export function ScanSuccessScreen({ scannedBallotCount }: Props): JSX.Element {
   // Go back to the Insert Ballot screen after a bit
   useEffect(() => {
     const timeout = window.setTimeout(
-      scanner.startOver,
+      scanner.waitForPaper,
       TIME_TO_DISMISS_SUCCESS_SCREEN_MS
     );
     return () => window.clearTimeout(timeout);

@@ -80,7 +80,7 @@ test('calibrate progress', async () => {
 });
 
 test('calibrate success', async () => {
-  fetchMock.postOnce('/scanner/start-over', { body: { status: 'ok' } });
+  fetchMock.postOnce('/scanner/wait-for-paper', { body: { status: 'ok' } });
   const onCancel = jest.fn();
   render(
     <CalibrateScannerModal
@@ -96,7 +96,7 @@ test('calibrate success', async () => {
 });
 
 test('calibrate error', async () => {
-  fetchMock.postOnce('/scanner/start-over', { body: { status: 'ok' } });
+  fetchMock.postOnce('/scanner/wait-for-paper', { body: { status: 'ok' } });
   const onCancel = jest.fn();
   render(
     <CalibrateScannerModal
@@ -116,7 +116,7 @@ test('calibrate error', async () => {
 });
 
 test('calibrate error & try again', async () => {
-  fetchMock.postOnce('/scanner/start-over', { body: { status: 'ok' } });
+  fetchMock.postOnce('/scanner/wait-for-paper', { body: { status: 'ok' } });
   const onCancel = jest.fn();
   render(
     <CalibrateScannerModal
