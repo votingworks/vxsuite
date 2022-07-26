@@ -2,31 +2,26 @@ import {
   electionSampleDefinition as testElectionDefinition,
   electionFamousNames2021Fixtures,
 } from '@votingworks/fixtures';
-import { fakeLogger } from '@votingworks/logging';
-import * as plusteksdk from '@votingworks/plustek-sdk';
 import {
   AdjudicationReason,
   BallotPageLayout,
   BallotPageLayoutWithImage,
   BallotType,
   InterpretedHmpbPage,
-  ok,
 } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
 import { BallotConfig, typedAs } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import { Application } from 'express';
 import * as fs from 'fs/promises';
-import { Server } from 'http';
 import request from 'supertest';
 import { dirSync } from 'tmp';
-import { mocked } from 'ts-jest/dist/utils/testing';
 import { v4 as uuid } from 'uuid';
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { makeMock } from '../test/util/mocks';
 import { Importer } from './importer';
-import { buildApp, start } from './server';
 import { createWorkspace, Workspace } from './util/workspace';
+import { buildCentralScannerApp } from './central_scanner_app';
 
 jest.mock('./importer');
 jest.mock('@votingworks/plustek-sdk');
@@ -79,7 +74,12 @@ beforeEach(async () => {
       },
     ]
   );
-  app = buildApp({ importer, store: workspace.store });
+  app = await buildCentralScannerApp({ importer, store: workspace.store });
+});
+
+test('reloads configuration from the store', () => {
+  // did we load everything from the store?
+  expect(importer.restoreConfig).toHaveBeenCalled();
 });
 
 test('GET /scan/status', async () => {
@@ -606,52 +606,6 @@ test('POST /scan/hmpb/addTemplates', async () => {
   expect(importer.addHmpbTemplates).toHaveBeenCalledWith(Buffer.from('%PDF'), [
     ballotPageLayoutWithImage.ballotPageLayout,
   ]);
-});
-
-test('start reloads configuration from the store', async () => {
-  // don't actually listen
-  jest.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
-    onListening?.();
-    return undefined as unknown as Server;
-  });
-  const logger = fakeLogger();
-
-  // start up the server
-  await start({ importer, app, log: jest.fn(), workspace, logger });
-
-  // did we load everything from the store?
-  expect(importer.restoreConfig).toHaveBeenCalled();
-});
-
-test('start as precinct-scanner rejects a held sheet at startup', async () => {
-  // don't actually listen
-  jest.spyOn(app, 'listen').mockImplementation();
-  const { MockScannerClient, PaperStatus }: typeof plusteksdk =
-    jest.requireActual('@votingworks/plustek-sdk');
-
-  const mockClient = new MockScannerClient({
-    toggleHoldDuration: 0,
-    passthroughDuration: 0,
-  });
-  await mockClient.connect();
-  (await mockClient.simulateLoadSheet(['a.jpg', 'b.jpg'])).unsafeUnwrap();
-  (await mockClient.scan()).unsafeUnwrap();
-  mocked(plusteksdk.createClient).mockResolvedValueOnce(ok(mockClient));
-  const logger = fakeLogger();
-
-  // start up the server
-  await start({
-    importer,
-    app,
-    log: jest.fn(),
-    logger,
-    workspace,
-    machineType: 'precinct-scanner',
-  });
-
-  expect((await mockClient.getPaperStatus()).unsafeUnwrap()).toEqual(
-    PaperStatus.VtmReadyToScan
-  );
 });
 
 test('get next sheet', async () => {

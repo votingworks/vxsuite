@@ -13,8 +13,8 @@ import * as choctawMockGeneral2020Fixtures from '../test/fixtures/choctaw-mock-g
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { makeMockScanner, MockScanner } from '../test/util/mocks';
 import { Importer } from './importer';
-import { buildApp } from './server';
 import { createWorkspace, Workspace } from './util/workspace';
+import { buildCentralScannerApp } from './central_scanner_app';
 
 const electionFixturesRoot = join(
   __dirname,
@@ -52,7 +52,7 @@ beforeEach(async () => {
   workspace = await createWorkspace(dirSync().name);
   scanner = makeMockScanner();
   importer = new Importer({ workspace, scanner });
-  app = buildApp({ importer, store: workspace.store });
+  app = await buildCentralScannerApp({ importer, store: workspace.store });
 });
 
 afterEach(async () => {
