@@ -5,6 +5,7 @@ import {
   doMount,
   doUnmount,
   getDevicePath,
+  doSync,
 } from './usbstick';
 
 const mountedDevices = [
@@ -73,6 +74,7 @@ test('without a kiosk, calls do not crash', async () => {
 
   await doMount();
   await doUnmount();
+  await doSync();
 });
 
 test('can get device path', async () => {
@@ -82,4 +84,19 @@ test('can get device path', async () => {
   fKiosk.getUsbDrives.mockResolvedValue(mountedDevices);
 
   expect(await getDevicePath()).toEqual('/media/usb-drive-sdb');
+});
+
+test('doSync triggers a sync', async () => {
+  const fKiosk = fakeKiosk();
+  window.kiosk = fKiosk;
+
+  // try sync without drive mounted
+  await doSync();
+  expect(window.kiosk.syncUsbDrive).not.toBeCalled();
+
+  // try sync with drive mounted
+  fKiosk.getUsbDrives.mockResolvedValue(mountedDevices);
+  await doMount();
+  await doSync();
+  expect(window.kiosk.syncUsbDrive).toBeCalledWith('/media/usb-drive-sdb');
 });
