@@ -6,6 +6,7 @@ import {
   waitFor,
   within,
 } from '@testing-library/react';
+import { Scan } from '@votingworks/api';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { fakeKiosk, Inserted } from '@votingworks/test-utils';
 import { usbstick } from '@votingworks/utils';
@@ -27,6 +28,12 @@ afterEach(() => {
 
 const auth = Inserted.fakeAdminAuth();
 
+const scannerStatus: Scan.PrecinctScannerStatus = {
+  state: 'no_paper',
+  ballotsCounted: 0,
+  canUnconfigure: false,
+};
+
 test('renders date and time settings modal', async () => {
   render(
     <AppContext.Provider
@@ -37,13 +44,11 @@ test('renders date and time settings modal', async () => {
       }}
     >
       <AdminScreen
-        scannedBallotCount={10}
+        scannerStatus={scannerStatus}
         isTestMode={false}
-        canUnconfigure
         updateAppPrecinctId={jest.fn()}
         toggleLiveMode={jest.fn()}
         unconfigure={jest.fn()}
-        calibrate={jest.fn()}
         usbDrive={{ status: usbstick.UsbDriveStatus.absent, eject: jest.fn() }}
       />
     </AppContext.Provider>
@@ -90,13 +95,11 @@ test('setting and un-setting the precinct', async () => {
       }}
     >
       <AdminScreen
-        scannedBallotCount={10}
+        scannerStatus={scannerStatus}
         isTestMode={false}
-        canUnconfigure
         updateAppPrecinctId={updateAppPrecinctId}
         toggleLiveMode={jest.fn()}
         unconfigure={jest.fn()}
-        calibrate={jest.fn()}
         usbDrive={{ status: usbstick.UsbDriveStatus.absent, eject: jest.fn() }}
       />
     </AppContext.Provider>
@@ -128,13 +131,11 @@ test('export from admin screen', () => {
       }}
     >
       <AdminScreen
-        scannedBallotCount={10}
+        scannerStatus={scannerStatus}
         isTestMode={false}
-        canUnconfigure
         updateAppPrecinctId={jest.fn()}
         toggleLiveMode={jest.fn()}
         unconfigure={jest.fn()}
-        calibrate={jest.fn()}
         usbDrive={{ status: usbstick.UsbDriveStatus.absent, eject: jest.fn() }}
       />
     </AppContext.Provider>
@@ -155,13 +156,11 @@ test('unconfigure ejects a usb drive when it is mounted', () => {
       }}
     >
       <AdminScreen
-        scannedBallotCount={10}
+        scannerStatus={{ ...scannerStatus, canUnconfigure: true }}
         isTestMode={false}
-        canUnconfigure
         updateAppPrecinctId={jest.fn()}
         toggleLiveMode={jest.fn()}
         unconfigure={unconfigureFn}
-        calibrate={jest.fn()}
         usbDrive={{ status: usbstick.UsbDriveStatus.absent, eject: ejectFn }}
       />
     </AppContext.Provider>
@@ -185,13 +184,11 @@ test('unconfigure does not eject a usb drive that is not mounted', async () => {
       }}
     >
       <AdminScreen
-        scannedBallotCount={10}
+        scannerStatus={{ ...scannerStatus, canUnconfigure: true }}
         isTestMode={false}
-        canUnconfigure
         updateAppPrecinctId={jest.fn()}
         toggleLiveMode={jest.fn()}
         unconfigure={unconfigureFn}
-        calibrate={jest.fn()}
         usbDrive={{ status: usbstick.UsbDriveStatus.mounted, eject: ejectFn }}
       />
     </AppContext.Provider>
@@ -215,13 +212,11 @@ test('unconfigure button is disabled when the machine cannot be unconfigured', (
       }}
     >
       <AdminScreen
-        scannedBallotCount={10}
+        scannerStatus={scannerStatus}
         isTestMode={false}
-        canUnconfigure={false}
         updateAppPrecinctId={jest.fn()}
         toggleLiveMode={jest.fn()}
         unconfigure={jest.fn()}
-        calibrate={jest.fn()}
         usbDrive={{ status: usbstick.UsbDriveStatus.mounted, eject: jest.fn() }}
       />
     </AppContext.Provider>
@@ -243,13 +238,11 @@ test('cannot toggle to testing mode when the machine cannot be unconfigured', ()
       }}
     >
       <AdminScreen
-        scannedBallotCount={10}
+        scannerStatus={scannerStatus}
         isTestMode={false}
-        canUnconfigure={false}
         updateAppPrecinctId={jest.fn()}
         toggleLiveMode={toggleLiveModeFn}
         unconfigure={jest.fn()}
-        calibrate={jest.fn()}
         usbDrive={{ status: usbstick.UsbDriveStatus.mounted, eject: jest.fn() }}
       />
     </AppContext.Provider>
