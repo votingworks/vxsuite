@@ -83,10 +83,6 @@ function smartcardAuthReducer(
                     user &&
                       (user.role === 'superadmin' || user.role === 'admin')
                   );
-                  // TODO: This case can be removed once superadmin cards have passcodes
-                  if (user.role === 'superadmin') {
-                    return { status: 'remove_card', user };
-                  }
                   return { status: 'checking_passcode', user };
                 }
                 return {

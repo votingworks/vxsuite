@@ -19,7 +19,7 @@ export interface LoggedOut {
 
 export interface CheckingPasscode {
   readonly status: 'checking_passcode';
-  readonly user: AdminUser;
+  readonly user: SuperadminUser | AdminUser;
   readonly checkPasscode: (passcode: string) => void;
   readonly wrongPasscodeEnteredAt?: Date;
 }

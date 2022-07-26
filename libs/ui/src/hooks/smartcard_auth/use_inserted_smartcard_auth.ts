@@ -159,7 +159,7 @@ function smartcardAuthReducer(allowedUserRoles: UserRole[], scope: AuthScope) {
               if (validationResult.isOk()) {
                 assert(user);
                 if (previousState.auth.status === 'logged_out') {
-                  if (user.role === 'admin') {
+                  if (user.role === 'superadmin' || user.role === 'admin') {
                     return { status: 'checking_passcode', user };
                   }
                   return { status: 'logged_in', user };

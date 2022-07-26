@@ -32,7 +32,7 @@ export function parseUserFromCardSummary(
   if (!cardData) return undefined;
   switch (cardData.t) {
     case 'superadmin':
-      return { role: 'superadmin' };
+      return { role: 'superadmin', passcode: cardData.p };
     case 'admin':
       return { role: 'admin', electionHash: cardData.h, passcode: cardData.p };
     case 'pollworker':
@@ -138,6 +138,7 @@ export function buildCardProgramming(
         case 'superadmin': {
           const cardData: SuperadminCardData = {
             t: 'superadmin',
+            p: userData.passcode,
           };
           await cardApi.overrideWriteProtection();
           await cardApi.writeShortValue(JSON.stringify(cardData));
