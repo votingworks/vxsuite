@@ -63,7 +63,7 @@ interface BallotImageData {
 export async function getBallotImageData(
   file: Buffer,
   filename: string,
-  detectQrcodeResult: qrcodeWorker.Output
+  detectQrcodeResult: qrcodeWorker.NonBlankPageOutput
 ): Promise<Result<BallotImageData, PageInterpretation>> {
   const { data, width, height } = await loadImageData(file);
   const image: ImageData = {
@@ -72,7 +72,7 @@ export async function getBallotImageData(
     height,
   };
 
-  if (!detectQrcodeResult.blank && detectQrcodeResult.qrcode) {
+  if (detectQrcodeResult.qrcode) {
     return ok({ file, image, qrcode: detectQrcodeResult.qrcode });
   }
 
@@ -230,6 +230,11 @@ export class Interpreter {
     detectQrcodeResult,
   }: InterpretFileParams): Promise<InterpretFileResult> {
     const timer = time(`interpretFile: ${ballotImagePath}`);
+
+    if (detectQrcodeResult.blank) {
+      return { interpretation: { type: 'BlankPage' } };
+    }
+
     const result = await getBallotImageData(
       ballotImageFile,
       ballotImagePath,

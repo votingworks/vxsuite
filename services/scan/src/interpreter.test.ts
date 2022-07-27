@@ -109,6 +109,21 @@ test('properly detects test ballot in live mode', async () => {
   );
 });
 
+test('detects a blank page', async () => {
+  const ballotImagePath = join(sampleBallotImagesPath, 'blank-page.png');
+  const interpretationResult = await new Interpreter({
+    electionDefinition: stateOfHamiltonFixtures.electionDefinition,
+    testMode: true,
+    adjudicationReasons: [],
+  }).interpretFile({
+    ballotImagePath,
+    ballotImageFile: await readFile(ballotImagePath),
+    detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
+  });
+
+  expect(interpretationResult.interpretation.type).toEqual('BlankPage');
+});
+
 test('interprets marks on a HMPB', async () => {
   const interpreter = new Interpreter({
     electionDefinition: stateOfHamiltonFixtures.electionDefinition,
