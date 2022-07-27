@@ -3,7 +3,7 @@ import { throwIllegalValue } from '@votingworks/utils';
 import makeDebug from 'debug';
 import { readFile } from 'fs-extra';
 import { ScannerLocation, SCANNER_LOCATION } from '../globals';
-import { Interpreter, InterpretFileResult } from '../interpreter';
+import { Interpreter } from '../interpreter';
 import { Store } from '../store';
 import { pdfToImages } from '../util/pdf_to_images';
 import { saveSheetImages } from '../util/save_images';
@@ -89,13 +89,11 @@ export async function interpret(
     throw new Error('cannot interpret ballot with no configured election');
   }
 
-  const result: InterpretFileResult = !detectQrcodeResult.blank
-    ? await interpreter.interpretFile({
-        ballotImagePath,
-        ballotImageFile: await readFile(ballotImagePath),
-        detectQrcodeResult,
-      })
-    : { interpretation: { type: 'BlankPage' } };
+  const result = await interpreter.interpretFile({
+    ballotImagePath,
+    ballotImageFile: await readFile(ballotImagePath),
+    detectQrcodeResult,
+  });
   debug(
     'interpreted ballot image as %s: %s',
     result.interpretation.type,

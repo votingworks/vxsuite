@@ -1,4 +1,5 @@
 import { metadataFromBytes } from '@votingworks/ballot-interpreter-vx';
+import { assert } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import { readFile } from 'fs-extra';
 import { join } from 'path';
@@ -11,13 +12,11 @@ const sampleBallotImagesPath = join(__dirname, '../../sample-ballot-images');
 
 test('does not find QR codes when there are none to find', async () => {
   const filepath = join(sampleBallotImagesPath, 'not-a-ballot.jpg');
+  const detectResult = await detectQrcodeInFilePath(filepath);
+  assert(!detectResult.blank);
   expect(
     (
-      await getBallotImageData(
-        await readFile(filepath),
-        filepath,
-        await detectQrcodeInFilePath(filepath)
-      )
+      await getBallotImageData(await readFile(filepath), filepath, detectResult)
     ).unsafeUnwrapErr()
   ).toEqual({ type: 'UnreadablePage', reason: 'No QR code found' });
 });
@@ -25,11 +24,13 @@ test('does not find QR codes when there are none to find', async () => {
 test('can read metadata encoded in a QR code with base64', async () => {
   const fixtures = choctaw2020SpecialFixtures;
   const { electionDefinition } = fixtures;
+  const detectResult = await detectQrcodeInFilePath(fixtures.blankPage1);
+  assert(!detectResult.blank);
   const { qrcode } = (
     await getBallotImageData(
       await readFile(fixtures.blankPage1),
       fixtures.blankPage1,
-      await detectQrcodeInFilePath(fixtures.blankPage1)
+      detectResult
     )
   ).unsafeUnwrap();
 
@@ -53,11 +54,15 @@ test('can read metadata encoded in a QR code with base64', async () => {
 
 test('can read metadata in QR code with skewed / dirty ballot', async () => {
   const fixtures = general2020Fixtures;
+  const detectResult = await detectQrcodeInFilePath(
+    fixtures.skewedQrCodeBallotPage
+  );
+  assert(!detectResult.blank);
   const { qrcode } = (
     await getBallotImageData(
       await readFile(fixtures.skewedQrCodeBallotPage),
       fixtures.skewedQrCodeBallotPage,
-      await detectQrcodeInFilePath(fixtures.skewedQrCodeBallotPage)
+      detectResult
     )
   ).unsafeUnwrap();
 
