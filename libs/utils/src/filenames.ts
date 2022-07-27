@@ -13,6 +13,7 @@ const WORD_SEPARATOR = '-';
 const TIME_FORMAT_STRING = `YYYY${WORD_SEPARATOR}MM${WORD_SEPARATOR}DD${SUBSECTION_SEPARATOR}HH${WORD_SEPARATOR}mm${WORD_SEPARATOR}ss`;
 
 export const BALLOT_PACKAGE_FOLDER = 'ballot-packages';
+export const BALLOT_PDFS_FOLDER = 'ballot-pdfs';
 export const SCANNER_RESULTS_FOLDER = 'cast-vote-records';
 export const SCANNER_BACKUPS_FOLDER = 'scanner-backups';
 

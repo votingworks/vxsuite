@@ -148,6 +148,16 @@ export function getBallotPath({
   }${extension}`;
 }
 
+export function getBallotArchiveFilename(
+  electionHash: string,
+  ballotMode: BallotMode,
+  isAbsentee: boolean
+): string {
+  return `ballot-pdfs-election-${electionHash.slice(0, 10)}-${ballotMode}${
+    isAbsentee ? '-absentee' : ''
+  }`;
+}
+
 export function getAllPossibleCandidatesForCandidateContest(
   contest: CandidateContest
 ): readonly Candidate[] {
