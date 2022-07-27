@@ -21,7 +21,6 @@ import {
   isSuperadminAuth,
   isAdminAuth,
   isPollworkerAuth,
-  useLock,
 } from '@votingworks/ui';
 import {
   throwIllegalValue,
@@ -347,19 +346,13 @@ export function AppRoot({
   // frontend controls when this happens so that ensure we're only scanning when
   // we're in voter mode.
   const voterMode = auth.status === 'logged_out' && auth.reason === 'no_card';
-  const scannerCommandLock = useLock();
   useEffect(() => {
     async function automaticallyScanAndAcceptBallots() {
       if (!(voterMode && isPollsOpen)) return;
-      if (!scannerCommandLock.lock()) return;
-      try {
-        if (scannerStatus?.state === 'ready_to_scan') {
-          await scanner.scanBallot();
-        } else if (scannerStatus?.state === 'ready_to_accept') {
-          await scanner.acceptBallot();
-        }
-      } finally {
-        scannerCommandLock.unlock();
+      if (scannerStatus?.state === 'ready_to_scan') {
+        await scanner.scanBallot();
+      } else if (scannerStatus?.state === 'ready_to_accept') {
+        await scanner.acceptBallot();
       }
     }
     void automaticallyScanAndAcceptBallots();

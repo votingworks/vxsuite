@@ -384,9 +384,19 @@ export const machine = createMachine<Context, Event>({
     SCANNER_DISCONNECTED: 'error_disconnected',
     SCANNER_BOTH_SIDES_HAVE_PAPER: 'error_both_sides_have_paper',
     SCANNER_JAM: 'error_jammed',
+    // On unhandled commands, do nothing. This guards against any race
+    // conditions where the frontend has an outdated scanner status and tries to
+    // send a command.
+    SCAN: {},
+    ACCEPT: {},
+    RETURN: {},
+    WAIT_FOR_PAPER: {},
+    CALIBRATE: {},
     SET_INTERPRETATION_MODE: {
       actions: assign({ interpretationMode: (_, event) => event.mode }),
     },
+    // On events that are not handled by a specified transition (e.g. unhandled
+    // paper status), return an error so we can figure out what happened
     '*': {
       target: 'error',
       actions: assign({
