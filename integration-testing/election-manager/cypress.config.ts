@@ -1,6 +1,6 @@
 import { defineConfig } from 'cypress';
-import { promises as fs } from 'fs';
-import { join } from 'path';
+
+import { readMostRecentFile } from './cypress/support/read_most_recent_file';
 
 /**
  * Define the configuration for the Cypress tests.
@@ -10,18 +10,7 @@ export default defineConfig({
   viewportWidth: 1920,
   e2e: {
     setupNodeEvents(on) {
-      on('task', {
-        async readMostRecentFile(directoryPath: string) {
-          const files = await fs.readdir(directoryPath);
-          const paths = files.map((file) => join(directoryPath, file));
-          const ctimes = await Promise.all(
-            paths.map(async (p) => (await fs.stat(p)).ctime.getTime())
-          );
-          const mostRecentCtime = Math.max(...ctimes);
-          const mostRecentPath = paths[ctimes.indexOf(mostRecentCtime)];
-          return await fs.readFile(mostRecentPath, 'utf-8');
-        },
-      });
+      on('task', { readMostRecentFile });
     },
     baseUrl: 'http://localhost:3000',
   },
