@@ -417,7 +417,7 @@ test('admin and pollworker configuration', async () => {
   await authenticateAdminCard();
 
   // Calibrate scanner
-  fetchMock.postOnce('/scanner/calibrate', { body: { status: 'ok' } });
+  fetchMock.post('/scanner/calibrate', { body: { status: 'ok' } });
   fireEvent.click(await screen.findByText('Calibrate Scanner'));
   await screen.findByText('Waiting for Paper');
   fireEvent.click(await screen.findByText('Cancel'));
@@ -434,7 +434,7 @@ test('admin and pollworker configuration', async () => {
   fetchMock.getOnce('/scanner/status', {
     body: { ...statusReadyToScan, state: 'calibrated' },
   });
-  fetchMock.postOnce('/scanner/wait-for-paper', { body: { status: 'ok' } });
+  fetchMock.post('/scanner/wait-for-paper', { body: { status: 'ok' } });
   await advanceTimersAndPromises(1);
   screen.getByText('Calibration succeeded!');
   fireEvent.click(screen.getByRole('button', { name: 'Close' }));
@@ -501,28 +501,22 @@ test('voter can cast a ballot that scans successfully ', async () => {
   await screen.findByText('Election ID');
   await screen.findByText('748dc61ad3');
 
-  // We use a slight delay on post requests to simulate async response, which is
-  // needed to make sure the locking that prevents dup requests works correctly
   fetchMock
     .getOnce('/scanner/status', {
       body: scannerStatus({ state: 'ready_to_scan' }),
     })
-    .postOnce('/scanner/scan', { body: { status: 'ok' } }, { delay: 1 })
+    .post('/scanner/scan', { body: { status: 'ok' } })
     .getOnce('/scanner/status', {
       body: scannerStatus({ state: 'scanning' }),
     })
     .getOnce('/scanner/status', {
       body: scannerStatus({ state: 'ready_to_accept' }),
     })
-    .postOnce('/scanner/accept', { body: { status: 'ok' } }, { delay: 1 })
+    .post('/scanner/accept', { body: { status: 'ok' } })
     .getOnce('/scanner/status', {
       body: scannerStatus({ state: 'accepted' }),
     })
-    .postOnce(
-      '/scanner/wait-for-paper',
-      { body: { status: 'ok' } },
-      { delay: 1 }
-    )
+    .post('/scanner/wait-for-paper', { body: { status: 'ok' } })
     .get('/scanner/status', {
       body: scannerStatus({ state: 'no_paper', ballotsCounted: 1 }),
     });
@@ -672,7 +666,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
     .getOnce('/scanner/status', {
       body: scannerStatus({ state: 'ready_to_scan' }),
     })
-    .postOnce('/scanner/scan', { body: { status: 'ok' } }, { delay: 1 })
+    .post('/scanner/scan', { body: { status: 'ok' } })
     .getOnce('/scanner/status', {
       body: scannerStatus({ state: 'scanning' }),
     })
@@ -693,15 +687,11 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   await screen.findByText('Blank Ballot');
 
   fetchMock
-    .postOnce('/scanner/accept', { body: { status: 'ok' } }, { delay: 1 })
+    .post('/scanner/accept', { body: { status: 'ok' } })
     .getOnce('/scanner/status', {
       body: scannerStatus({ state: 'accepted' }),
     })
-    .postOnce(
-      '/scanner/wait-for-paper',
-      { body: { status: 'ok' } },
-      { delay: 1 }
-    )
+    .post('/scanner/wait-for-paper', { body: { status: 'ok' } })
     .get('/scanner/status', {
       body: scannerStatus({ state: 'no_paper', ballotsCounted: 1 }),
     });
@@ -747,7 +737,7 @@ test('voter can cast a rejected ballot', async () => {
     .getOnce('/scanner/status', {
       body: scannerStatus({ state: 'ready_to_scan' }),
     })
-    .postOnce('/scanner/scan', { body: { status: 'ok' } }, { delay: 1 })
+    .post('/scanner/scan', { body: { status: 'ok' } })
     .getOnce('/scanner/status', {
       body: scannerStatus({ state: 'scanning' }),
     })
@@ -814,7 +804,7 @@ test('voter can cast another ballot while the success screen is showing', async 
     .getOnce('/scanner/status', {
       body: scannerStatus({ state: 'ready_to_scan' }),
     })
-    .postOnce('/scanner/scan', { body: { status: 'ok' } }, { delay: 1 })
+    .post('/scanner/scan', { body: { status: 'ok' } })
     .getOnce('/scanner/status', {
       body: scannerStatus({ state: 'scanning' }),
     })
@@ -1034,22 +1024,18 @@ test('no printer: open polls, scan ballot, close polls, export results', async (
       { body: scannerStatus({ state: 'ready_to_scan' }) },
       { overwriteRoutes: true }
     )
-    .postOnce('/scanner/scan', { body: { status: 'ok' } }, { delay: 1 })
+    .post('/scanner/scan', { body: { status: 'ok' } })
     .getOnce('/scanner/status', {
       body: scannerStatus({ state: 'scanning' }),
     })
     .getOnce('/scanner/status', {
       body: scannerStatus({ state: 'ready_to_accept' }),
     })
-    .postOnce('/scanner/accept', { body: { status: 'ok' } }, { delay: 1 })
+    .post('/scanner/accept', { body: { status: 'ok' } })
     .getOnce('/scanner/status', {
       body: scannerStatus({ state: 'accepted' }),
     })
-    .postOnce(
-      '/scanner/wait-for-paper',
-      { body: { status: 'ok' } },
-      { delay: 1 }
-    )
+    .post('/scanner/wait-for-paper', { body: { status: 'ok' } }, { delay: 1 })
     .get('/scanner/status', {
       body: scannerStatus({ state: 'no_paper', ballotsCounted: 1 }),
     });
