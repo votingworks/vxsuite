@@ -1,5 +1,5 @@
 import {
-  BallotLocale,
+  BallotLocales,
   BallotStyle,
   BallotStyleId,
   CastVoteRecord,
@@ -45,7 +45,7 @@ export enum BallotMode {
 export interface PrintedBallot {
   ballotStyleId: BallotStyle['id'];
   precinctId: Precinct['id'];
-  locales: BallotLocale;
+  locales: BallotLocales;
   numCopies: number;
   printedAt: Iso8601Timestamp;
   type: PrintableBallotType;

@@ -11,7 +11,7 @@ import { TFunction, StringMap } from 'i18next';
 import { useTranslation, Trans } from 'react-i18next';
 import {
   AnyContest,
-  BallotLocale,
+  BallotLocales,
   BallotType,
   Candidate,
   CandidateContest,
@@ -124,7 +124,7 @@ function dualPhraseWithSlash(
 
 function dualLanguageComposer(
   t: TFunction,
-  locales: BallotLocale,
+  locales: BallotLocales,
   separator?: string
 ) {
   return (key: string, options: StringMap = {}) => {
@@ -473,7 +473,7 @@ const CandidateDescription = styled.span<{ isSmall?: boolean }>`
 export interface CandidateContestChoicesProps {
   election: Election;
   contest: CandidateContest;
-  locales: BallotLocale;
+  locales: BallotLocales;
   vote?: CandidateVote;
   density?: number;
   targetMarkPosition?: BallotTargetMarkPosition;
@@ -546,7 +546,7 @@ export interface HandMarkedPaperBallotProps {
   ballotMode?: BallotMode;
   isAbsentee?: boolean;
   precinctId: PrecinctId;
-  locales: BallotLocale;
+  locales: BallotLocales;
   ballotId?: BallotId;
   votes?: VotesDict;
   onRendered?(props: Omit<HandMarkedPaperBallotProps, 'onRendered'>): void;

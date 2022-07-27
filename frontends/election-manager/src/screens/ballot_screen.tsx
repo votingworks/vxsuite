@@ -9,7 +9,7 @@ import React, {
 import { useParams, useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import {
-  BallotLocale,
+  BallotLocales,
   getBallotStyle,
   getContests,
   getPrecinctById,
@@ -88,7 +88,7 @@ export function BallotScreen(): JSX.Element {
   assert(electionDefinition);
   const { election, electionHash } = electionDefinition;
   const availableLocaleCodes = getElectionLocales(election, DEFAULT_LOCALE);
-  const locales = useMemo<BallotLocale>(
+  const locales = useMemo<BallotLocales>(
     () => ({
       primary: DEFAULT_LOCALE,
       secondary: currentLocaleCode,

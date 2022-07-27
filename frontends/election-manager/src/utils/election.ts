@@ -1,6 +1,6 @@
 import {
   AnyContest,
-  BallotLocale,
+  BallotLocales,
   Candidate,
   CandidateContest,
   Election,
@@ -104,7 +104,7 @@ export function getLanguageByLocaleCode(localeCode: string): string {
   return LANGUAGES[localeCode.split('-')[0]] ?? localeCode;
 }
 
-export function getHumanBallotLanguageFormat(locales: BallotLocale): string {
+export function getHumanBallotLanguageFormat(locales: BallotLocales): string {
   return !locales.secondary
     ? getLanguageByLocaleCode(locales.primary)
     : `${getLanguageByLocaleCode(locales.primary)}/${getLanguageByLocaleCode(
@@ -127,7 +127,7 @@ export function getBallotPath({
   election: Election;
   electionHash: string;
   precinctId: PrecinctId;
-  locales: BallotLocale;
+  locales: BallotLocales;
   ballotMode: BallotMode;
   isAbsentee: boolean;
   variant?: string;
