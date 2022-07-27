@@ -49,7 +49,4 @@ Cypress makes it easy to use fixtures files in the `cypress/fixtures` directory.
 For this reason some fixtures from the shared `lib/fixtures` module are
 duplicated into tests fixtures folders. Tests also rely on the data in
 `lib/fixtures` so you must run pnpm build to make sure those files get built
-properly. For this reason some fixtures from the shared `lib/fixtures` module
-are duplicated into tests fixtures folders. Tests also rely on the data in
-`lib/fixtures` so you must run pnpm build to make sure those files get built
 properly.
