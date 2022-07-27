@@ -1,4 +1,4 @@
-import { assert } from '@votingworks/utils';
+import { assert, BALLOT_PDFS_FOLDER } from '@votingworks/utils';
 import React, {
   useCallback,
   useContext,
@@ -300,6 +300,7 @@ export function BallotScreen(): JSX.Element {
           onClose={() => setIsSaveModalOpen(false)}
           generateFileContent={generateFileContentToSaveAsPdf}
           defaultFilename={filename}
+          defaultDirectory={BALLOT_PDFS_FOLDER}
           fileType={FileType.Ballot}
         />
       )}

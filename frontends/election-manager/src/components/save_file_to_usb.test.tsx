@@ -5,6 +5,7 @@ import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
 import { usbstick } from '@votingworks/utils';
 
 import { fakeLogger, LogEventId } from '@votingworks/logging';
+import userEvent from '@testing-library/user-event';
 import { SaveFileToUsb, FileType } from './save_file_to_usb';
 import { renderInAppContext } from '../../test/render_in_app_context';
 
@@ -223,4 +224,41 @@ test('render export modal with errors when appropriate', async () => {
       message: 'Error saving tally report: this-is-an-error',
     })
   );
+});
+
+test('creates new directory and saves to it, if specified', async () => {
+  jest.useFakeTimers();
+  const closeFn = jest.fn();
+  const fileContentFn = jest.fn().mockResolvedValueOnce('file-content');
+  const mockKiosk = fakeKiosk();
+  window.kiosk = mockKiosk;
+  mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+
+  const { getByText } = renderInAppContext(
+    <SaveFileToUsb
+      onClose={closeFn}
+      generateFileContent={fileContentFn}
+      defaultFilename="ballot.pdf"
+      defaultDirectory="directory"
+      fileType={FileType.Ballot}
+    />,
+    {
+      usbDriveStatus: UsbDriveStatus.mounted,
+    }
+  );
+
+  userEvent.click(getByText('Save'));
+  jest.advanceTimersByTime(2000);
+  await waitFor(() => {
+    expect(mockKiosk.makeDirectory).toHaveBeenCalledTimes(1);
+    expect(mockKiosk.makeDirectory).toHaveBeenCalledWith(
+      'fake mount point/directory',
+      { recursive: true }
+    );
+    expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
+    expect(mockKiosk.writeFile).toHaveBeenCalledWith(
+      'fake mount point/directory/ballot.pdf',
+      'file-content'
+    );
+  });
 });

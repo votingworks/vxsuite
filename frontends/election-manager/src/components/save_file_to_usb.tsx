@@ -40,6 +40,7 @@ export interface Props {
   generateFileContent: () => PromiseOr<Uint8Array | string>;
   defaultFilename: string;
   fileType: FileType;
+  defaultDirectory?: string;
   promptToEjectUsb?: boolean;
 }
 
@@ -55,6 +56,7 @@ export function SaveFileToUsb({
   generateFileContent,
   defaultFilename,
   fileType,
+  defaultDirectory = '',
   promptToEjectUsb = false,
 }: Props): JSX.Element {
   const { usbDriveStatus, usbDriveEject, isOfficialResults, auth, logger } =
@@ -118,8 +120,16 @@ export function SaveFileToUsb({
           await fileWriter.end();
         } else {
           assert(typeof usbPath !== 'undefined');
-          const pathToFile = join(usbPath, defaultFilename);
           assert(window.kiosk);
+
+          if (defaultDirectory) {
+            const pathToFolder = join(usbPath, defaultDirectory);
+            await window.kiosk.makeDirectory(pathToFolder, {
+              recursive: true,
+            });
+          }
+
+          const pathToFile = join(usbPath, defaultDirectory, defaultFilename);
           await window.kiosk.writeFile(pathToFile, results);
           filenameLocation = defaultFilename;
         }
@@ -261,8 +271,8 @@ export function SaveFileToUsb({
             <Prose>
               <h1>Save {title}</h1>
               <p>
-                Save the {fileName} as <strong>{defaultFilename}</strong>{' '}
-                directly on the inserted USB drive?
+                Save the {fileName} as <strong>{defaultFilename}</strong> on the
+                inserted USB drive?
               </p>
             </Prose>
           }
