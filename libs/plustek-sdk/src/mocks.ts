@@ -379,22 +379,27 @@ export class MockScannerClient implements ScannerClient {
       }
       case 'no_paper':
       case 'no_paper_before_hold':
+        debug('no paper');
         return ok(
           Math.random() > 0.5
             ? PaperStatus.VtmDevReadyNoPaper
             : PaperStatus.NoPaperStatus
         );
       case 'ready_to_scan':
+        debug('ready to scan');
         return ok(PaperStatus.VtmReadyToScan);
       case 'ready_to_eject':
+        debug('ready to eject');
         return ok(PaperStatus.VtmReadyToEject);
       case 'jam':
+        debug('jam');
         return ok(
           Math.random() > 0.5
             ? PaperStatus.VtmFrontAndBackSensorHavePaperReady
             : PaperStatus.Jam
         );
       case 'both_sides_have_paper':
+        debug('both sides have paper');
         return ok(PaperStatus.VtmBothSideHavePaper);
       /* istanbul ignore next */
       default:

@@ -69,7 +69,7 @@ export class PlustekScanner implements Scanner {
       paperStatus
     );
     return paperStatus === PaperStatus.VtmDevReadyNoPaper ||
-      paperStatus === PaperStatus.NoPaper
+      paperStatus === PaperStatus.NoPaperStatus
       ? Scan.ScannerStatus.WaitingForPaper
       : paperStatus === PaperStatus.VtmReadyToScan
       ? Scan.ScannerStatus.ReadyToScan
