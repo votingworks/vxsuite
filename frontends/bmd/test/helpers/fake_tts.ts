@@ -11,6 +11,7 @@ export function fakeTts(): jest.Mocked<TextToSpeech> {
     stop: jest.fn(),
     mute: jest.fn(() => {
       isMuted = true;
+      return Promise.resolve();
     }),
     unmute: jest.fn(() => {
       isMuted = false;
@@ -18,6 +19,7 @@ export function fakeTts(): jest.Mocked<TextToSpeech> {
     isMuted: jest.fn(() => isMuted),
     toggleMuted: jest.fn((muted = !isMuted) => {
       isMuted = muted;
+      return Promise.resolve();
     }),
   };
 }

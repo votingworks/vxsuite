@@ -87,8 +87,10 @@ export function AdminScreen({
   // Disable the audiotrack when in admin mode
   useEffect(() => {
     const initialMuted = screenReader.isMuted();
-    screenReader.mute();
-    return () => screenReader.toggleMuted(initialMuted);
+    void screenReader.mute();
+    return () => {
+      void screenReader.toggleMuted(initialMuted);
+    };
   }, [screenReader]);
 
   if (isTestDeck && electionDefinition) {

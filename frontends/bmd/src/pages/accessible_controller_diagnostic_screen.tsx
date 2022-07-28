@@ -178,7 +178,7 @@ function AccessibleControllerSoundDiagnostic({
         await screenReader.speak(
           'Press the select button to confirm sound is working.'
         );
-        screenReader.toggleMuted(wasMuted);
+        await screenReader.toggleMuted(wasMuted);
         setHasPlayedAudio(true);
       }
       if (event.key === 'Enter' && hasPlayedAudio) {

@@ -13,10 +13,7 @@ import { advanceTimers } from '../../test/helpers/smartcards';
 import { AdminScreen } from './admin_screen';
 import { PrintOnly, MarkOnly, PrecinctSelectionKind } from '../config/types';
 import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
-import {
-  AriaScreenReader,
-  SpeechSynthesisTextToSpeech,
-} from '../utils/ScreenReader';
+import { AriaScreenReader, KioskTextToSpeech } from '../utils/ScreenReader';
 
 MockDate.set('2020-10-31T00:00:00.000Z');
 
@@ -49,7 +46,7 @@ test('renders AdminScreen for PrintOnly', () => {
         codeVersion: '', // Override default
       })}
       printer={fakePrinter()}
-      screenReader={new AriaScreenReader(new SpeechSynthesisTextToSpeech())}
+      screenReader={new AriaScreenReader(new KioskTextToSpeech(true))}
     />
   );
 
@@ -94,7 +91,7 @@ test('renders date and time settings modal', async () => {
         codeVersion: 'test',
       })}
       printer={fakePrinter()}
-      screenReader={new AriaScreenReader(new SpeechSynthesisTextToSpeech())}
+      screenReader={new AriaScreenReader(new KioskTextToSpeech(true))}
     />
   );
 
@@ -144,7 +141,7 @@ test('select All Precincts', () => {
       unconfigure={jest.fn()}
       machineConfig={fakeMachineConfig()}
       printer={fakePrinter()}
-      screenReader={new AriaScreenReader(new SpeechSynthesisTextToSpeech())}
+      screenReader={new AriaScreenReader(new KioskTextToSpeech(true))}
     />
   );
 
@@ -172,7 +169,7 @@ test('blur precinct selector without a selection', () => {
       unconfigure={jest.fn()}
       machineConfig={fakeMachineConfig()}
       printer={fakePrinter()}
-      screenReader={new AriaScreenReader(new SpeechSynthesisTextToSpeech())}
+      screenReader={new AriaScreenReader(new KioskTextToSpeech(true))}
     />
   );
 
@@ -195,7 +192,7 @@ test('render All Precincts', () => {
       unconfigure={jest.fn()}
       machineConfig={fakeMachineConfig()}
       printer={fakePrinter()}
-      screenReader={new AriaScreenReader(new SpeechSynthesisTextToSpeech())}
+      screenReader={new AriaScreenReader(new KioskTextToSpeech(true))}
     />
   );
 

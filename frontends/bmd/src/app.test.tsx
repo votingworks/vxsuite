@@ -72,6 +72,7 @@ it('uses kiosk storage when in kiosk-browser', async () => {
   );
   await advanceTimersAndPromises();
   expect(kiosk.storage.get).toHaveBeenCalled();
+  delete window.kiosk;
 });
 
 // This test is only really here to provide coverage for the default value for

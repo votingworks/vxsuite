@@ -13,36 +13,7 @@ beforeEach(() => {
   });
 });
 
-function makeSpeechSynthesisDouble(): typeof speechSynthesis {
-  return {
-    addEventListener: jest.fn(),
-    cancel: jest.fn(),
-    dispatchEvent: jest.fn(),
-    getVoices: jest.fn().mockImplementation(() => []),
-    onvoiceschanged: jest.fn(),
-    pause: jest.fn(),
-    paused: false,
-    pending: false,
-    removeEventListener: jest.fn(),
-    resume: jest.fn(),
-    // eslint-disable-next-line @typescript-eslint/require-await
-    speak: jest.fn(async (utterance) =>
-      utterance.onend?.(new SpeechSynthesisEvent('end', { utterance }))
-    ),
-    speaking: false,
-  };
-}
-
-function mockSpeechSynthesis() {
-  globalThis.speechSynthesis = makeSpeechSynthesisDouble();
-  globalThis.SpeechSynthesisUtterance = jest
-    .fn()
-    .mockImplementation((text) => ({ text }));
-  globalThis.SpeechSynthesisEvent = jest.fn();
-}
-
 beforeEach(() => {
-  mockSpeechSynthesis();
   fetchMock.mock();
 });
 

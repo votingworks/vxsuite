@@ -13,13 +13,11 @@ import {
   isAccessibleController,
 } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
-import { memoize } from './utils/memoize';
 import {
   ScreenReader,
   AriaScreenReader,
-  SpeechSynthesisTextToSpeech,
+  KioskTextToSpeech,
 } from './utils/ScreenReader';
-import { getUsEnglishVoice } from './utils/voices';
 
 import { AppRoot, Props as AppRootProps } from './app_root';
 import { FocusManager } from './components/focus_manager';
@@ -41,10 +39,7 @@ export interface Props {
 }
 
 export function App({
-  screenReader = new AriaScreenReader(
-    new SpeechSynthesisTextToSpeech(memoize(getUsEnglishVoice))
-  ),
-
+  screenReader = new AriaScreenReader(new KioskTextToSpeech(true)),
   card = new WebServiceCard(),
   storage = window.kiosk ? new KioskStorage(window.kiosk) : new LocalStorage(),
   printer = getPrinter(),
@@ -53,7 +48,6 @@ export function App({
   reload = () => window.location.reload(),
   logger = new Logger(LogSource.VxBallotMarkingDeviceFrontend, window.kiosk),
 }: Props): JSX.Element {
-  screenReader.mute();
   const [internalHardware, setInternalHardware] = useState(hardware);
 
   useEffect(() => {

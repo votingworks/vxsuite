@@ -26,9 +26,8 @@ export class AriaScreenReader implements ScreenReader {
   /**
    * Call this when a page load occurs. Resolves when speaking is done.
    */
-  // eslint-disable-next-line @typescript-eslint/require-await
   async onPageLoad(): Promise<void> {
-    this.tts.stop();
+    await this.tts.stop();
   }
 
   /**
@@ -46,7 +45,7 @@ export class AriaScreenReader implements ScreenReader {
    */
   async disable(): Promise<void> {
     await this.speak('Screen reader disabled', { now: true });
-    this.mute();
+    await this.mute();
   }
 
   /**
@@ -64,8 +63,8 @@ export class AriaScreenReader implements ScreenReader {
   /**
    * Prevents any sound from being made but otherwise functions normally.
    */
-  mute(): void {
-    return this.tts.mute();
+  async mute(): Promise<void> {
+    await this.tts.mute();
   }
 
   /**
@@ -85,8 +84,8 @@ export class AriaScreenReader implements ScreenReader {
   /**
    * Toggles muted state, or sets it according to the argument.
    */
-  toggleMuted(muted?: boolean): void {
-    this.tts.toggleMuted(muted);
+  async toggleMuted(muted?: boolean): Promise<void> {
+    await this.tts.toggleMuted(muted);
   }
 
   /**

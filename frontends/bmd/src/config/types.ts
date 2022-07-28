@@ -178,12 +178,12 @@ export interface TextToSpeech {
   /**
    * Stops any speaking that is currently happening.
    */
-  stop(): void;
+  stop(): Promise<void>;
 
   /**
    * Prevents any sound from being made but otherwise functions normally.
    */
-  mute(): void;
+  mute(): Promise<void>;
 
   /**
    * Allows sounds to be made.
@@ -198,7 +198,7 @@ export interface TextToSpeech {
   /**
    * Toggles muted state, or sets it according to the argument.
    */
-  toggleMuted(muted?: boolean): void;
+  toggleMuted(muted?: boolean): Promise<void>;
 }
 
 /**
@@ -241,7 +241,7 @@ export interface ScreenReader {
   /**
    * Prevents any sound from being made but otherwise functions normally.
    */
-  mute(): void;
+  mute(): Promise<void>;
 
   /**
    * Allows sounds to be made.
@@ -256,7 +256,7 @@ export interface ScreenReader {
   /**
    * Toggles muted state, or sets it according to the argument.
    */
-  toggleMuted(muted?: boolean): void;
+  toggleMuted(muted?: boolean): Promise<void>;
 
   /**
    * Directly triggers speech of text. Resolves when speaking is done.
@@ -272,8 +272,4 @@ export interface ScreenReader {
    * Directly triggers speech of an event target. Resolves when speaking is done.
    */
   speakEventTarget(target?: EventTarget, options?: SpeakOptions): Promise<void>;
-}
-
-export interface VoiceSelector {
-  (): SpeechSynthesisVoice | undefined;
 }

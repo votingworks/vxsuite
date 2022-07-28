@@ -3,15 +3,12 @@ import { screen, waitFor } from '@testing-library/react';
 import { render } from '../../test/test_utils';
 
 import { FocusManager } from './focus_manager';
-import {
-  AriaScreenReader,
-  SpeechSynthesisTextToSpeech,
-} from '../utils/ScreenReader';
+import { AriaScreenReader, KioskTextToSpeech } from '../utils/ScreenReader';
 
 it('renders FocusManager', () => {
   const { container } = render(
     <FocusManager
-      screenReader={new AriaScreenReader(new SpeechSynthesisTextToSpeech())}
+      screenReader={new AriaScreenReader(new KioskTextToSpeech(true))}
     >
       <div>foo</div>
     </FocusManager>
@@ -22,7 +19,7 @@ it('renders FocusManager', () => {
 it('focuses the element with id audiofocus', async () => {
   render(
     <FocusManager
-      screenReader={new AriaScreenReader(new SpeechSynthesisTextToSpeech())}
+      screenReader={new AriaScreenReader(new KioskTextToSpeech(true))}
     >
       <button type="button">dont focus me</button>
       <button type="button" id="audiofocus">

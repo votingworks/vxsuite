@@ -78,8 +78,10 @@ export function ReplaceElectionScreen({
 
   useEffect(() => {
     const muted = screenReader.isMuted();
-    screenReader.mute();
-    return () => screenReader.toggleMuted(muted);
+    void screenReader.mute();
+    return () => {
+      void screenReader.toggleMuted(muted);
+    };
   }, [screenReader]);
 
   return (
