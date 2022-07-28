@@ -12,7 +12,9 @@ export interface LoggedOut {
     | 'machine_locked'
     | 'card_error'
     | 'invalid_user_on_card'
-    | 'user_role_not_allowed';
+    | 'user_role_not_allowed'
+    | 'machine_not_configured'
+    | 'admin_wrong_election';
   readonly cardUserRole?: UserRole;
   readonly bootstrapAuthenticatedAdminSession: (electionHash: string) => void;
 }

@@ -15,6 +15,7 @@ import {
   makeVoterCard,
   fakeVoterUser,
   fakeCardlessVoterUser,
+  mockOf,
 } from '@votingworks/test-utils';
 import {
   PrecinctSelection,
@@ -22,8 +23,9 @@ import {
   UserRole,
 } from '@votingworks/types';
 import { assert, MemoryCard, utcTimestamp } from '@votingworks/utils';
+
+import { areVvsg2AuthFlowsEnabled } from '../../config/features';
 import {
-  CARD_POLLING_INTERVAL,
   isVoterAuth,
   isPollworkerAuth,
   isCardlessVoterAuth,
@@ -43,14 +45,31 @@ const allowedUserRoles: UserRole[] = [
 
 const electionDefinition = electionSampleDefinition;
 const { electionHash, election } = electionDefinition;
+const otherElectionHash = electionSample2Definition.electionHash;
 const precinct: PrecinctSelection = {
   kind: PrecinctSelectionKind.SinglePrecinct,
   precinctId: election.precincts[0].id,
 };
 const ballotStyle = election.ballotStyles[0];
 
+jest.mock(
+  '../../config/features',
+  (): typeof import('../../config/features') => {
+    const original: typeof import('../../config/features') = jest.requireActual(
+      '../../config/features'
+    );
+    return {
+      ...original,
+      areVvsg2AuthFlowsEnabled: jest.fn(),
+    };
+  }
+);
+
 describe('useInsertedSmartcardAuth', () => {
-  beforeEach(() => jest.useFakeTimers());
+  beforeEach(() => {
+    jest.useFakeTimers();
+    mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => false);
+  });
 
   it("returns logged_out auth when there's no card or a card error", async () => {
     const logger = fakeLogger();
@@ -67,7 +86,6 @@ describe('useInsertedSmartcardAuth', () => {
     // Default before reading card is logged_out
     expect(result.current).toEqual({ status: 'logged_out', reason: 'no_card' });
 
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toEqual({
       status: 'logged_out',
@@ -76,7 +94,6 @@ describe('useInsertedSmartcardAuth', () => {
 
     // Now remove the card and check again
     cardApi.removeCard();
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toEqual({ status: 'logged_out', reason: 'no_card' });
 
@@ -103,7 +120,6 @@ describe('useInsertedSmartcardAuth', () => {
         logger,
       })
     );
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toEqual({
       status: 'logged_out',
@@ -111,10 +127,9 @@ describe('useInsertedSmartcardAuth', () => {
     });
 
     cardApi.removeCard();
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
+    await waitForNextUpdate();
 
     cardApi.insertCard('invalid card data');
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toEqual({
       status: 'logged_out',
@@ -144,7 +159,6 @@ describe('useInsertedSmartcardAuth', () => {
         logger,
       })
     );
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toEqual({
       status: 'logged_out',
@@ -175,7 +189,6 @@ describe('useInsertedSmartcardAuth', () => {
         logger,
       })
     );
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toEqual({
       status: 'logged_out',
@@ -197,16 +210,15 @@ describe('useInsertedSmartcardAuth', () => {
   it('returns logged_out auth when using a pollworker card that doesnt match the configured election', async () => {
     const logger = fakeLogger();
     const cardApi = new MemoryCard();
-    cardApi.insertCard(makePollWorkerCard(electionHash));
+    cardApi.insertCard(makePollWorkerCard(otherElectionHash));
     const { result, waitForNextUpdate } = renderHook(() =>
       useInsertedSmartcardAuth({
         cardApi,
         allowedUserRoles,
-        scope: { electionDefinition: electionSample2Definition },
+        scope: { electionDefinition },
         logger,
       })
     );
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toEqual({
       status: 'logged_out',
@@ -241,7 +253,6 @@ describe('useInsertedSmartcardAuth', () => {
         logger,
       })
     );
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toEqual({
       status: 'logged_out',
@@ -272,7 +283,6 @@ describe('useInsertedSmartcardAuth', () => {
         logger,
       })
     );
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toEqual({
       status: 'logged_out',
@@ -306,7 +316,6 @@ describe('useInsertedSmartcardAuth', () => {
         logger,
       })
     );
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toEqual({
       status: 'logged_out',
@@ -340,7 +349,6 @@ describe('useInsertedSmartcardAuth', () => {
         logger,
       })
     );
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toEqual({
       status: 'logged_out',
@@ -373,7 +381,6 @@ describe('useInsertedSmartcardAuth', () => {
         logger,
       })
     );
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toEqual({
       status: 'logged_out',
@@ -405,7 +412,6 @@ describe('useInsertedSmartcardAuth', () => {
         },
       })
     );
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toMatchObject({ status: 'logged_in' });
   });
@@ -422,7 +428,6 @@ describe('useInsertedSmartcardAuth', () => {
         logger,
       })
     );
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toEqual({
       status: 'logged_out',
@@ -453,7 +458,6 @@ describe('useInsertedSmartcardAuth', () => {
         logger,
       })
     );
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toEqual({
       status: 'logged_out',
@@ -490,7 +494,6 @@ describe('useInsertedSmartcardAuth', () => {
 
     // Insert a super admin card
     cardApi.insertCard(makeSuperadminCard(passcode));
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toEqual({
       status: 'checking_passcode',
@@ -587,7 +590,6 @@ describe('useInsertedSmartcardAuth', () => {
 
     // Insert an admin card
     cardApi.insertCard(makeAdminCard(electionHash, passcode));
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toEqual({
       status: 'checking_passcode',
@@ -674,12 +676,10 @@ describe('useInsertedSmartcardAuth', () => {
     const { result, waitForNextUpdate } = renderHook(() =>
       useInsertedSmartcardAuth({ cardApi, allowedUserRoles, scope: {}, logger })
     );
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toMatchObject({ status: 'checking_passcode' });
 
     cardApi.removeCard();
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toMatchObject({
       status: 'logged_out',
@@ -709,7 +709,6 @@ describe('useInsertedSmartcardAuth', () => {
         logger,
       })
     );
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toMatchObject({
       status: 'logged_in',
@@ -740,7 +739,6 @@ describe('useInsertedSmartcardAuth', () => {
         logger,
       })
     );
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toMatchObject({
       status: 'logged_in',
@@ -777,11 +775,9 @@ describe('useInsertedSmartcardAuth', () => {
         logger,
       })
     );
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     assert(isVoterAuth(result.current));
     await result.current.markCardVoided();
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toEqual({
       status: 'logged_out',
@@ -811,7 +807,6 @@ describe('useInsertedSmartcardAuth', () => {
         scope: { electionDefinition, precinct },
       })
     );
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     assert(isVoterAuth(result.current));
     const error = new Error('test error');
@@ -832,16 +827,13 @@ describe('useInsertedSmartcardAuth', () => {
         logger,
       })
     );
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     assert(isVoterAuth(result.current));
     await result.current.markCardPrinted();
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     // Shouldn't log out until card removed
     expect(result.current.status).toEqual('logged_in');
     cardApi.removeCard();
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current.status).toEqual('logged_out');
 
@@ -864,7 +856,6 @@ describe('useInsertedSmartcardAuth', () => {
         scope: { electionDefinition, precinct },
       })
     );
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     assert(isVoterAuth(result.current));
     const error = new Error('test error');
@@ -885,7 +876,6 @@ describe('useInsertedSmartcardAuth', () => {
         scope: { electionDefinition, precinct },
       })
     );
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     assert(isVoterAuth(result.current));
 
@@ -911,7 +901,6 @@ describe('useInsertedSmartcardAuth', () => {
         logger,
       })
     );
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toMatchObject({
       status: 'logged_in',
@@ -920,7 +909,6 @@ describe('useInsertedSmartcardAuth', () => {
     });
 
     cardApi.removeCard();
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toEqual({ status: 'logged_out', reason: 'no_card' });
 
@@ -944,7 +932,6 @@ describe('useInsertedSmartcardAuth', () => {
         logger,
       })
     );
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     assert(isPollworkerAuth(result.current));
     expect(result.current.activatedCardlessVoter).toBeUndefined();
@@ -966,7 +953,6 @@ describe('useInsertedSmartcardAuth', () => {
 
     // Remove pollworker card to log in cardless voter
     cardApi.removeCard();
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toMatchObject({
       status: 'logged_in',
@@ -976,7 +962,6 @@ describe('useInsertedSmartcardAuth', () => {
 
     // Pollworker can deactivate cardless voter, logging them out
     cardApi.insertCard(makePollWorkerCard(electionHash));
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     act(() => {
       assert(isPollworkerAuth(result.current));
@@ -994,7 +979,6 @@ describe('useInsertedSmartcardAuth', () => {
       );
     });
     cardApi.removeCard();
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
 
     // Cardless voter can log out themselves
@@ -1036,5 +1020,86 @@ describe('useInsertedSmartcardAuth', () => {
       'cardless_voter',
       expect.objectContaining({ disposition: 'success' })
     );
+  });
+
+  it('allows admins to access unconfigured machines', async () => {
+    mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => true);
+    const cardApi = new MemoryCard();
+    const logger = fakeLogger();
+
+    cardApi.insertCard(makeAdminCard(electionHash));
+    const { result, waitForNextUpdate } = renderHook(() =>
+      useInsertedSmartcardAuth({
+        allowedUserRoles,
+        cardApi,
+        logger,
+        scope: { electionDefinition: undefined },
+      })
+    );
+    await waitForNextUpdate();
+
+    expect(result.current).toMatchObject({
+      status: 'checking_passcode',
+    });
+
+    expect(logger.log).toHaveBeenCalledTimes(0);
+  });
+
+  it('returns logged_out auth when admin card election hash does not match machine election hash', async () => {
+    mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => true);
+    const cardApi = new MemoryCard();
+    const logger = fakeLogger();
+
+    cardApi.insertCard(makeAdminCard(otherElectionHash));
+    const { result, waitForNextUpdate } = renderHook(() =>
+      useInsertedSmartcardAuth({
+        allowedUserRoles,
+        cardApi,
+        logger,
+        scope: { electionDefinition },
+      })
+    );
+    await waitForNextUpdate();
+
+    expect(result.current).toMatchObject({
+      status: 'logged_out',
+      reason: 'admin_wrong_election',
+    });
+
+    expect(logger.log).toHaveBeenCalledTimes(1);
+    expect(logger.log).toHaveBeenLastCalledWith(
+      LogEventId.AuthLogin,
+      'admin',
+      expect.objectContaining({
+        disposition: 'failure',
+        reason: 'admin_wrong_election',
+      })
+    );
+  });
+
+  it('allows admins to access machines configured for other elections when setting is enabled', async () => {
+    mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => true);
+    const cardApi = new MemoryCard();
+    const logger = fakeLogger();
+
+    cardApi.insertCard(makeAdminCard(otherElectionHash));
+    const { result, waitForNextUpdate } = renderHook(() =>
+      useInsertedSmartcardAuth({
+        allowedUserRoles,
+        cardApi,
+        logger,
+        scope: {
+          allowAdminsToAccessMachinesConfiguredForOtherElections: true,
+          electionDefinition,
+        },
+      })
+    );
+    await waitForNextUpdate();
+
+    expect(result.current).toMatchObject({
+      status: 'checking_passcode',
+    });
+
+    expect(logger.log).toHaveBeenCalledTimes(0);
   });
 });

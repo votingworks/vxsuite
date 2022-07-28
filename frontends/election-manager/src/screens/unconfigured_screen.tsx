@@ -3,7 +3,12 @@ import { useHistory, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { safeParseElection } from '@votingworks/types';
 
-import { Modal, useCancelablePromise, Prose } from '@votingworks/ui';
+import {
+  Modal,
+  useCancelablePromise,
+  Prose,
+  areVvsg2AuthFlowsEnabled,
+} from '@votingworks/ui';
 import { assert } from '@votingworks/utils';
 import {
   ConverterClient,
@@ -24,7 +29,6 @@ import { FileInputButton } from '../components/file_input_button';
 import { HorizontalRule } from '../components/horizontal_rule';
 import { Loading } from '../components/loading';
 import { NavigationScreen } from '../components/navigation_screen';
-import { areVvsg2AuthFlowsEnabled } from '../config/features';
 
 const Loaded = styled.p`
   line-height: 2.5rem;

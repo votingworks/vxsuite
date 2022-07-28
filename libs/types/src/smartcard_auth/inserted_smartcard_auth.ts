@@ -19,6 +19,7 @@ export interface LoggedOut {
     | 'invalid_user_on_card'
     | 'user_role_not_allowed'
     | 'machine_not_configured'
+    | 'admin_wrong_election'
     | 'pollworker_wrong_election'
     | 'voter_wrong_election'
     | 'voter_wrong_precinct'

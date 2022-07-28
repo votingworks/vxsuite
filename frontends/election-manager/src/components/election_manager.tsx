@@ -1,6 +1,5 @@
 import React, { useContext } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
-
 import {
   fontSizeTheme,
   ElectionInfoBar,
@@ -14,9 +13,10 @@ import {
   InvalidCardScreen,
   UnlockMachineScreen,
   RemoveCardScreen,
+  areVvsg2AuthFlowsEnabled,
 } from '@votingworks/ui';
-import { AppContext } from '../contexts/app_context';
 
+import { AppContext } from '../contexts/app_context';
 import { routerPaths } from '../router_paths';
 import { DefinitionScreen } from '../screens/definition_screen';
 import { BallotListScreen } from '../screens/ballot_list_screen';
@@ -42,10 +42,7 @@ import { LogsScreen } from '../screens/logs_screen';
 import { ReportsScreen } from '../screens/reports_screen';
 import { SmartcardTypeRegExPattern } from '../config/types';
 import { SmartcardModal } from './smartcard_modal';
-import {
-  areVvsg2AuthFlowsEnabled,
-  isWriteInAdjudicationEnabled,
-} from '../config/features';
+import { isWriteInAdjudicationEnabled } from '../config/features';
 
 export function ElectionManager(): JSX.Element {
   const {
@@ -88,8 +85,18 @@ export function ElectionManager(): JSX.Element {
   }
 
   if (auth.status === 'logged_out') {
-    if (auth.reason === 'machine_locked') return <MachineLockedScreen />;
-    return <InvalidCardScreen />;
+    if (auth.reason === 'machine_locked') {
+      return <MachineLockedScreen />;
+    }
+    if (auth.reason === 'machine_not_configured') {
+      return (
+        <InvalidCardScreen
+          reason={auth.reason}
+          recommendedAction="Please insert a System Administrator card."
+        />
+      );
+    }
+    return <InvalidCardScreen reason={auth.reason} />;
   }
 
   if (isSuperadminAuth(auth)) {

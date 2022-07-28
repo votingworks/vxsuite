@@ -5,19 +5,44 @@ import { act } from 'react-dom/test-utils';
 import {
   electionSample,
   electionSampleDefinition,
+  electionSample2Definition,
 } from '@votingworks/fixtures';
 import fileDownload from 'js-file-download';
-import { fakeKiosk, makeSuperadminCard } from '@votingworks/test-utils';
+import {
+  fakeKiosk,
+  makeAdminCard,
+  makeSuperadminCard,
+  mockOf,
+} from '@votingworks/test-utils';
 import { MemoryCard, MemoryHardware, sleep, typedAs } from '@votingworks/utils';
 import { Scan } from '@votingworks/api';
 import { AdminCardData, PollworkerCardData } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
+import { areVvsg2AuthFlowsEnabled } from '@votingworks/ui';
 import { App } from './app';
 import { hasTextAcrossElements } from '../test/util/has_text_across_elements';
 import { MachineConfigResponse } from './config/types';
 
 jest.mock('js-file-download');
+jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => {
+  const original: typeof import('@votingworks/ui') =
+    jest.requireActual('@votingworks/ui');
+  return {
+    ...original,
+    areVvsg2AuthFlowsEnabled: jest.fn(),
+  };
+});
+
+function enableVvsg2AuthFlows() {
+  mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => true);
+  process.env['REACT_APP_VX_ENABLE_VVSG2_AUTH_FLOWS'] = 'true';
+}
+
+function disableVvsg2AuthFlows() {
+  mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => false);
+  process.env['REACT_APP_VX_ENABLE_VVSG2_AUTH_FLOWS'] = undefined;
+}
 
 beforeEach(() => {
   fetchMock.config.fallbackToNetwork = true;
@@ -46,6 +71,8 @@ beforeEach(() => {
     },
     configurable: true,
   });
+
+  disableVvsg2AuthFlows();
 });
 
 afterEach(() => {
@@ -531,4 +558,35 @@ test('superadmin can log in', async () => {
 
   userEvent.click(screen.getByText('Lock Machine'));
   await screen.findByText('VxCentralScan is Locked');
+});
+
+test('admin cannot auth onto machine with different election hash when VVSG2 auth flows are enabled', async () => {
+  enableVvsg2AuthFlows();
+
+  const getElectionResponseBody: Scan.GetElectionConfigResponse =
+    electionSampleDefinition;
+  const getTestModeResponseBody: Scan.GetTestModeConfigResponse = {
+    status: 'ok',
+    testMode: true,
+  };
+  const getMarkThresholdOverridesResponseBody: Scan.GetMarkThresholdOverridesConfigResponse =
+    { status: 'ok' };
+
+  fetchMock
+    .get('/config/election', { body: getElectionResponseBody })
+    .get('/config/testMode', { body: getTestModeResponseBody })
+    .get('/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesResponseBody,
+    });
+
+  const card = new MemoryCard();
+  const hardware = MemoryHardware.buildStandard();
+  render(<App card={card} hardware={hardware} />);
+
+  await screen.findByText('VxCentralScan is Locked');
+  card.insertCard(makeAdminCard(electionSample2Definition.electionHash));
+  await screen.findByText(
+    'The inserted Election Manager card is programmed for another election and cannot be used to unlock this machine. ' +
+      'Please insert a valid Election Manager or System Administrator card.'
+  );
 });

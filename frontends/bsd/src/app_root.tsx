@@ -103,7 +103,15 @@ export function AppRoot({ card, hardware, logger }: AppRootProps): JSX.Element {
     hardware,
     logger,
   });
-  const auth = useDippedSmartcardAuth({ cardApi: card, logger });
+  const auth = useDippedSmartcardAuth({
+    cardApi: card,
+    logger,
+    scope: {
+      // By default with dipped smartcard auth, only super admins have this ability
+      allowAdminsToAccessUnconfiguredMachines: true,
+      electionDefinition,
+    },
+  });
   const userRole = auth.status === 'logged_in' ? auth.user.role : 'unknown';
 
   const [isExportingCvrs, setIsExportingCvrs] = useState(false);
@@ -505,7 +513,15 @@ export function AppRoot({ card, hardware, logger }: AppRootProps): JSX.Element {
         </AppContext.Provider>
       );
     }
-    return <InvalidCardScreen />;
+    if (auth.reason === 'machine_not_configured') {
+      return (
+        <InvalidCardScreen
+          reason={auth.reason}
+          recommendedAction="Please insert an Election Manager card."
+        />
+      );
+    }
+    return <InvalidCardScreen reason={auth.reason} />;
   }
 
   if (auth.status === 'checking_passcode') {

@@ -2,6 +2,7 @@ import fetchMock from 'fetch-mock';
 import React from 'react';
 import userEvent from '@testing-library/user-event';
 import { AdminUser, AnyCardData, PollworkerUser } from '@votingworks/types';
+import { areVvsg2AuthFlowsEnabled } from '@votingworks/ui';
 import {
   assert,
   MemoryCard,
@@ -24,27 +25,28 @@ import {
 import { render, screen, waitFor, within } from '@testing-library/react';
 
 import { App } from '../../app';
-import { areVvsg2AuthFlowsEnabled } from '../../config/features';
 import { createMemoryStorageWith } from '../../../test/util/create_memory_storage_with';
 import { generatePin } from './pins';
 import { MachineConfig } from '../../config/types';
 import { VxFiles } from '../../lib/converters';
 
-jest.mock(
-  '../../config/features',
-  (): typeof import('../../config/features') => {
-    return {
-      ...jest.requireActual('../../config/features'),
-      areVvsg2AuthFlowsEnabled: jest.fn(),
-    };
-  }
-);
+jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => {
+  return {
+    ...jest.requireActual('@votingworks/ui'),
+    areVvsg2AuthFlowsEnabled: jest.fn(),
+  };
+});
 jest.mock('./pins', (): typeof import('./pins') => {
   return {
     ...jest.requireActual('./pins'),
     generatePin: jest.fn(),
   };
 });
+
+function enableVvsg2AuthFlows() {
+  mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => true);
+  process.env['REACT_APP_VX_ENABLE_VVSG2_AUTH_FLOWS'] = 'true';
+}
 
 const electionDefinition = electionSampleDefinition;
 const { election, electionData, electionHash } = electionDefinition;
@@ -61,7 +63,7 @@ beforeEach(() => {
     typedAs<MachineConfig>({ codeVersion: '', machineId: '' })
   );
 
-  mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => true);
+  enableVvsg2AuthFlows();
   mockOf(generatePin).mockImplementation(() => '123456');
 });
 

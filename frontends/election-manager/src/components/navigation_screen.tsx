@@ -8,11 +8,9 @@ import {
   Main,
   Screen,
   UsbControllerButton,
-} from '@votingworks/ui';
-import {
   areVvsg2AuthFlowsEnabled,
-  isWriteInAdjudicationEnabled,
-} from '../config/features';
+} from '@votingworks/ui';
+import { isWriteInAdjudicationEnabled } from '../config/features';
 import { AppContext } from '../contexts/app_context';
 import { routerPaths } from '../router_paths';
 import { Navigation } from './navigation';

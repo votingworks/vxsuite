@@ -14,7 +14,10 @@ import {
 } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import fetchMock from 'fetch-mock';
-import { electionWithMsEitherNeitherFixtures } from '@votingworks/fixtures';
+import {
+  electionWithMsEitherNeitherFixtures,
+  electionSampleDefinition,
+} from '@votingworks/fixtures';
 import {
   MemoryStorage,
   MemoryCard,
@@ -37,6 +40,7 @@ import {
   VotingMethod,
 } from '@votingworks/types';
 import { LogEventId } from '@votingworks/logging';
+import { areVvsg2AuthFlowsEnabled } from '@votingworks/ui';
 
 import { externalVoteTalliesFileStorageKey } from './app_root';
 import { App } from './app';
@@ -50,7 +54,6 @@ import {
 } from './utils/external_tallies';
 import { MachineConfig } from './config/types';
 import { VxFiles } from './lib/converters';
-import { areVvsg2AuthFlowsEnabled } from './config/features';
 import { createMemoryStorageWith } from '../test/util/create_memory_storage_with';
 
 const EITHER_NEITHER_CVR_DATA = electionWithMsEitherNeitherFixtures.cvrData;
@@ -77,18 +80,30 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
     randomBallotId: () => 'Asdf1234Asdf12',
   };
 });
-jest.mock('./config/features', (): typeof import('./config/features') => {
-  const original: typeof import('./config/features') =
-    jest.requireActual('./config/features');
+jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => {
+  const original: typeof import('@votingworks/ui') =
+    jest.requireActual('@votingworks/ui');
   return {
     ...original,
     areVvsg2AuthFlowsEnabled: jest.fn(),
   };
 });
 
+function enableVvsg2AuthFlows() {
+  mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => true);
+  process.env['REACT_APP_VX_ENABLE_VVSG2_AUTH_FLOWS'] = 'true';
+}
+
+function disableVvsg2AuthFlows() {
+  mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => false);
+  process.env['REACT_APP_VX_ENABLE_VVSG2_AUTH_FLOWS'] = undefined;
+}
+
 let mockKiosk!: jest.Mocked<KioskBrowser.Kiosk>;
 
 beforeEach(() => {
+  jest.useFakeTimers();
+
   Object.defineProperty(window, 'location', {
     writable: true,
     value: { assign: jest.fn() },
@@ -124,7 +139,7 @@ beforeEach(() => {
     })
   );
   fetchMock.get('/admin/write-ins/cvrs/reset', { body: { status: 'ok ' } });
-  mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => false);
+  disableVvsg2AuthFlows();
 });
 
 afterEach(() => {
@@ -166,7 +181,6 @@ async function authenticateWithSuperAdminCard(card: MemoryCard) {
 }
 
 test('create election works', async () => {
-  jest.useFakeTimers();
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const { getByText, getAllByText, queryAllByText, getByTestId } = render(
@@ -223,7 +237,6 @@ test('create election works', async () => {
 });
 
 test('authentication works', async () => {
-  jest.useFakeTimers();
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const storage = await createMemoryStorageWith({
@@ -328,7 +341,6 @@ test('authentication works', async () => {
 
 test('L&A (logic and accuracy) flow', async () => {
   // TODO: Move common setup logic to a beforeEach block
-  jest.useFakeTimers();
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const printer = fakePrinter();
@@ -418,7 +430,6 @@ test('L&A (logic and accuracy) flow', async () => {
 });
 
 test('L&A features are available after test results are loaded', async () => {
-  jest.useFakeTimers();
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const storage = await createMemoryStorageWith({
@@ -444,7 +455,6 @@ test('printing ballots and printed ballots report', async () => {
   const storage = await createMemoryStorageWith({
     electionDefinition: eitherNeitherElectionDefinition,
   });
-  jest.useFakeTimers();
 
   const printer = fakePrinter();
   const card = new MemoryCard();
@@ -501,7 +511,6 @@ test('printing ballots and printed ballots report', async () => {
 });
 
 test('tabulating CVRs', async () => {
-  jest.useFakeTimers();
   const storage = await createMemoryStorageWith({
     electionDefinition: eitherNeitherElectionDefinition,
     crvFile: EITHER_NEITHER_CVR_FILE,
@@ -669,7 +678,6 @@ test('tabulating CVRs', async () => {
 });
 
 test('tabulating CVRs with SEMS file', async () => {
-  jest.useFakeTimers();
   const storage = await createMemoryStorageWith({
     electionDefinition: eitherNeitherElectionDefinition,
     crvFile: EITHER_NEITHER_CVR_FILE,
@@ -780,7 +788,6 @@ test('tabulating CVRs with SEMS file', async () => {
 });
 
 test('tabulating CVRs with SEMS file and manual data', async () => {
-  jest.useFakeTimers();
   const storage = await createMemoryStorageWith({
     electionDefinition: eitherNeitherElectionDefinition,
     crvFile: EITHER_NEITHER_CVR_FILE,
@@ -955,7 +962,6 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
 });
 
 test('changing election resets sems, cvr, and manual data files', async () => {
-  jest.useFakeTimers();
   const storage = await createMemoryStorageWith({
     electionDefinition: eitherNeitherElectionDefinition,
     crvFile: EITHER_NEITHER_CVR_FILE,
@@ -1008,7 +1014,6 @@ test('changing election resets sems, cvr, and manual data files', async () => {
 });
 
 test('clearing all files after marking as official clears SEMS, CVR, and manual file', async () => {
-  jest.useFakeTimers();
   const storage = await createMemoryStorageWith({
     electionDefinition: eitherNeitherElectionDefinition,
     crvFile: EITHER_NEITHER_CVR_FILE,
@@ -1098,8 +1103,7 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
 });
 
 test('admin UI has expected nav when VVSG2 auth flows are enabled', async () => {
-  jest.useFakeTimers();
-  mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => true);
+  enableVvsg2AuthFlows();
 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
@@ -1127,8 +1131,7 @@ test('admin UI has expected nav when VVSG2 auth flows are enabled', async () => 
 });
 
 test('super admin UI has expected nav when VVSG2 auth flows are enabled', async () => {
-  jest.useFakeTimers();
-  mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => true);
+  enableVvsg2AuthFlows();
 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
@@ -1152,8 +1155,7 @@ test('super admin UI has expected nav when VVSG2 auth flows are enabled', async 
 });
 
 test('super admin UI has expected nav when no election and VVSG2 auth flows are enabled', async () => {
-  jest.useFakeTimers();
-  mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => true);
+  enableVvsg2AuthFlows();
 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
@@ -1200,8 +1202,7 @@ test('super admin UI has expected nav when no election and VVSG2 auth flows are 
 });
 
 test('super admin Smartcards screen navigation', async () => {
-  jest.useFakeTimers();
-  mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => true);
+  enableVvsg2AuthFlows();
 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
@@ -1219,4 +1220,41 @@ test('super admin Smartcards screen navigation', async () => {
   await screen.findByRole('heading', { name: 'Election Cards' });
 
   // The smartcard modal and smartcard programming flows are tested in smartcard_modal.test.tsx
+});
+
+test('admin cannot auth onto unconfigured machine when VVSG2 auth flows are enabled', async () => {
+  enableVvsg2AuthFlows();
+
+  const card = new MemoryCard();
+  const hardware = MemoryHardware.buildStandard();
+  const storage = new MemoryStorage();
+  render(<App card={card} hardware={hardware} storage={storage} />);
+
+  await screen.findByText('VxAdmin is Locked');
+  card.insertCard(makeAdminCard(eitherNeitherElectionDefinition.electionHash));
+  await screen.findByText('Invalid Card');
+  await screen.findByText(
+    'This machine is unconfigured and cannot be unlocked with this card. ' +
+      'Please insert a System Administrator card.'
+  );
+});
+
+test('admin cannot auth onto machine with different election hash when VVSG2 auth flows are enabled', async () => {
+  enableVvsg2AuthFlows();
+
+  const card = new MemoryCard();
+  const hardware = MemoryHardware.buildStandard();
+  const storage = await createMemoryStorageWith({
+    electionDefinition: eitherNeitherElectionDefinition,
+  });
+  render(<App card={card} hardware={hardware} storage={storage} />);
+
+  await screen.findByText('VxAdmin is Locked');
+  card.insertCard(makeAdminCard(electionSampleDefinition.electionHash));
+  await screen.findByText('Invalid Card');
+  await screen.findByText(
+    'The inserted Election Manager card is programmed for another election ' +
+      'and cannot be used to unlock this machine. ' +
+      'Please insert a valid Election Manager or System Administrator card.'
+  );
 });

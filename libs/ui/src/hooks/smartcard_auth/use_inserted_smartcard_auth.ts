@@ -42,20 +42,21 @@ import {
   parseUserFromCardSummary,
 } from './auth_helpers';
 import { usePrevious } from '../use_previous';
+import { areVvsg2AuthFlowsEnabled } from '../../config/features';
 
 export const VOTER_CARD_EXPIRATION_SECONDS = 60 * 60; // 1 hour
 
-// Types for the useInsertedSmartcardAuth hook
-export interface AuthScope {
+interface InsertedSmartcardAuthScope {
+  allowAdminsToAccessMachinesConfiguredForOtherElections?: boolean;
   electionDefinition?: ElectionDefinition;
   precinct?: PrecinctSelection;
 }
 
 export interface UseInsertedSmartcardAuthArgs {
-  cardApi: Card;
   allowedUserRoles: UserRole[];
-  scope: AuthScope;
+  cardApi: Card;
   logger?: Logger;
+  scope: InsertedSmartcardAuthScope;
 }
 
 type AuthState =
@@ -85,15 +86,35 @@ function validateCardUser(
   previousAuth: AuthState,
   user: Optional<User>,
   allowedUserRoles: UserRole[],
-  scope: AuthScope
-): Result<User, InsertedSmartcardAuth.LoggedOut['reason']> {
-  if (!user) return err('invalid_user_on_card');
+  scope: InsertedSmartcardAuthScope
+): Result<void, InsertedSmartcardAuth.LoggedOut['reason']> {
+  if (!user) {
+    return err('invalid_user_on_card');
+  }
+
   if (!allowedUserRoles.includes(user.role)) {
     return err('user_role_not_allowed');
   }
 
+  if (user.role === 'admin') {
+    if (!areVvsg2AuthFlowsEnabled()) {
+      return ok();
+    }
+    if (!scope.electionDefinition) {
+      return ok();
+    }
+    if (
+      user.electionHash !== scope.electionDefinition.electionHash &&
+      !scope.allowAdminsToAccessMachinesConfiguredForOtherElections
+    ) {
+      return err('admin_wrong_election');
+    }
+  }
+
   if (user.role === 'pollworker') {
-    if (!scope.electionDefinition) return err('machine_not_configured');
+    if (!scope.electionDefinition) {
+      return err('machine_not_configured');
+    }
     if (user.electionHash !== scope.electionDefinition.electionHash) {
       return err('pollworker_wrong_election');
     }
@@ -132,10 +153,14 @@ function validateCardUser(
       return err('voter_wrong_precinct');
     }
   }
-  return ok(user);
+
+  return ok();
 }
 
-function smartcardAuthReducer(allowedUserRoles: UserRole[], scope: AuthScope) {
+function smartcardAuthReducer(
+  allowedUserRoles: UserRole[],
+  scope: InsertedSmartcardAuthScope
+) {
   return (
     previousState: InsertedSmartcardAuthState,
     action: InsertedSmartcardAuthAction

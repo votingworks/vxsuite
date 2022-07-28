@@ -31,6 +31,7 @@ import {
   Hardware,
 } from '@votingworks/utils';
 import {
+  areVvsg2AuthFlowsEnabled,
   useUsbDrive,
   useDevices,
   useDippedSmartcardAuth,
@@ -60,7 +61,6 @@ import {
   convertExternalTalliesToStorageString,
   convertStorageStringToExternalTallies,
 } from './utils/external_tallies';
-import { areVvsg2AuthFlowsEnabled } from './config/features';
 
 export interface AppStorage {
   electionDefinition?: ElectionDefinition;
@@ -154,7 +154,11 @@ export function AppRoot({
     codeVersion: '',
   });
 
-  const auth = useDippedSmartcardAuth({ cardApi: card, logger });
+  const auth = useDippedSmartcardAuth({
+    cardApi: card,
+    logger,
+    scope: { electionDefinition },
+  });
   const currentUserRole =
     auth.status === 'logged_in' ? auth.user.role : 'unknown';
 
