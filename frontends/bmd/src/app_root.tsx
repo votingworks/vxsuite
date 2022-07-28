@@ -357,6 +357,9 @@ export function AppRoot({
     ],
     cardApi: card,
     scope: {
+      // The BMD allows admins to update the machine to use the election definition on the card in
+      // this case
+      allowAdminsToAccessMachinesConfiguredForOtherElections: true,
       electionDefinition: optionalElectionDefinition,
       precinct: appPrecinct,
     },
