@@ -57,7 +57,7 @@ function assign(arg: Assigner<Context, any> | PropertyAssigner<Context, any>) {
 /**
  * A state machine to model the internal state of the Plustek.
  */
-const plustekMachine = createMachine<Context, Event>({
+const mockPlustekMachine = createMachine<Context, Event>({
   id: 'plustek',
   initial: 'disconnected',
   strict: true,
@@ -222,7 +222,7 @@ export class MockScannerClient implements ScannerClient {
   }: Options = {}) {
     this.toggleHoldDuration = toggleHoldDuration;
     this.machine = interpret(
-      plustekMachine.withConfig({
+      mockPlustekMachine.withConfig({
         delays: {
           SCANNING_DELAY: passthroughDuration,
           ACCEPTING_DELAY: toggleHoldDuration,
