@@ -164,6 +164,10 @@ declare namespace KioskBrowser {
     payload: string;
   }
 
+  export interface SpeakParams {
+    volume: number;
+  }
+
   export interface Observable<T> {
     subscribe(callback: (value: T) => void): () => void;
   }
@@ -243,6 +247,9 @@ declare namespace KioskBrowser {
     };
 
     sign(params: SignParams): Promise<string>;
+
+    speak(utterance: string, options: SpeakParams): Promise<void>;
+    cancelSpeak(): Promise<void>;
 
     reboot(): Promise<void>;
 
