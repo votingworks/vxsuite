@@ -110,6 +110,17 @@ function connectToPlustek(createPlustekClient: CreatePlustekClient) {
   };
 }
 
+function closeAndReconnectToPlustek(createPlustekClient: CreatePlustekClient) {
+  const reconnect = connectToPlustek(createPlustekClient);
+  return async ({ client }: Context): Promise<ScannerClient> => {
+    assert(client);
+    debug('Closing plustek client');
+    const closeResult = await client.close();
+    debug('Plustek client closed: %s', closeResult.isOk());
+    return reconnect();
+  };
+}
+
 function paperStatusToEvent(paperStatus: PaperStatus): ScannerStatusEvent {
   switch (paperStatus) {
     // When there's no paper in the scanner
@@ -413,8 +424,6 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
         }),
       },
     },
-    // TODO should we close and reconnect to plustek after every scan finishes
-    // to avoid long-running process crashes?
     states: {
       connecting: {
         invoke: {
@@ -548,11 +557,30 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
       accepting: {
         invoke: {
           src: accept,
-          onDone: 'accepted',
+          onDone: 'accepted_reconnecting',
           onError: {
             target: 'error_accepting',
             actions: assign({ error: (_context, event) => event.data }),
           },
+        },
+      },
+      checking_accepting_completed: {
+        invoke: pollPaperStatus,
+        on: {
+          SCANNER_NO_PAPER: 'accepted_reconnecting',
+          SCANNER_READY_TO_SCAN: 'accepted_reconnecting',
+          // If the paper didn't get dropped, it's an error
+          SCANNER_READY_TO_EJECT: 'error_accepting',
+        },
+      },
+      accepted_reconnecting: {
+        invoke: {
+          src: closeAndReconnectToPlustek(createPlustekClient),
+          onDone: {
+            target: 'accepted',
+            actions: assign({ client: (_context, event) => event.data }),
+          },
+          onError: 'error_disconnected',
         },
       },
       accepted: {
@@ -561,8 +589,6 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
           WAIT_FOR_PAPER: 'no_paper',
           SCANNER_NO_PAPER: { target: 'accepted', internal: true },
           SCANNER_READY_TO_SCAN: 'ready_to_scan',
-          // If the paper didn't get dropped, it's an error
-          SCANNER_READY_TO_EJECT: 'error_accepting',
         },
       },
       // If accepting fails, reject the ballot and "uncount" it
@@ -762,8 +788,12 @@ export function createPrecinctScannerStateMachine(
             return 'ready_to_accept';
           case state.matches('accepting'):
             return 'accepting';
+          case state.matches('checking_accepting_completed'):
+            return 'accepting';
           case state.matches('error_accepting'):
             return 'accepting';
+          case state.matches('accepted_reconnecting'):
+            return 'accepted';
           case state.matches('accepted'):
             return 'accepted';
           case state.matches('needs_review'):
