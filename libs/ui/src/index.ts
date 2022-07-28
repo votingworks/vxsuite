@@ -49,6 +49,6 @@ export * from './text';
 export * from './themes';
 export * from './usbcontroller_button';
 export * from './remove_card_screen';
-export * from './invalid_card_screen';
+export { InvalidCardScreen } from './invalid_card_screen';
 export * from './unlock_machine_screen';
 export { areVvsg2AuthFlowsEnabled } from './config/features';
