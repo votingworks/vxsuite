@@ -3,7 +3,15 @@ import {
   LogEventId,
   Logger,
 } from '@votingworks/logging';
-import { DippedSmartcardAuth, err, ok, Result, User } from '@votingworks/types';
+import {
+  DippedSmartcardAuth,
+  ElectionDefinition,
+  err,
+  ok,
+  Optional,
+  Result,
+  User,
+} from '@votingworks/types';
 import { LoggedOut } from '@votingworks/types/src/smartcard_auth/dipped_smartcard_auth';
 import {
   assert,
@@ -14,6 +22,7 @@ import {
 import deepEqual from 'deep-eql';
 import { useEffect, useReducer } from 'react';
 import useInterval from 'use-interval';
+import { areVvsg2AuthFlowsEnabled } from '../../config/features';
 import { useLock } from '../use_lock';
 import { usePrevious } from '../use_previous';
 import {
@@ -23,9 +32,15 @@ import {
   parseUserFromCardSummary,
 } from './auth_helpers';
 
+interface DippedSmartcardAuthScope {
+  allowAdminsToAccessUnconfiguredMachines?: boolean;
+  electionDefinition?: ElectionDefinition;
+}
+
 export interface UseDippedSmartcardAuthArgs {
   cardApi: Card;
   logger?: Logger;
+  scope: DippedSmartcardAuthScope;
 }
 
 type AuthState =
@@ -51,130 +66,157 @@ type SmartcardAuthAction =
   | { type: 'log_out' }
   | { type: 'bootstrap_admin_session'; electionHash: string };
 
-function validateCardUser(user?: User): Result<void, LoggedOut['reason']> {
-  if (!user) return err('invalid_user_on_card');
-  if (!(user.role === 'admin' || user.role === 'superadmin')) {
+function validateCardUser(
+  user: Optional<User>,
+  scope: DippedSmartcardAuthScope
+): Result<void, LoggedOut['reason']> {
+  if (!user) {
+    return err('invalid_user_on_card');
+  }
+
+  if (!['superadmin', 'admin'].includes(user.role)) {
     return err('user_role_not_allowed');
   }
+
+  if (user.role === 'admin') {
+    if (!areVvsg2AuthFlowsEnabled()) {
+      return ok();
+    }
+    if (!scope.electionDefinition) {
+      return scope.allowAdminsToAccessUnconfiguredMachines
+        ? ok()
+        : err('machine_not_configured');
+    }
+    if (user.electionHash !== scope.electionDefinition.electionHash) {
+      return err('admin_wrong_election');
+    }
+  }
+
   return ok();
 }
 
-function smartcardAuthReducer(
-  previousState: SmartcardAuthState,
-  action: SmartcardAuthAction
-): SmartcardAuthState {
-  switch (action.type) {
-    case 'card_read': {
-      const newAuth = ((): AuthState => {
-        switch (previousState.auth.status) {
-          case 'logged_out': {
-            switch (action.cardSummary.status) {
-              case 'no_card':
-                return { status: 'logged_out', reason: 'machine_locked' };
+function smartcardAuthReducer(scope: DippedSmartcardAuthScope) {
+  return (
+    previousState: SmartcardAuthState,
+    action: SmartcardAuthAction
+  ): SmartcardAuthState => {
+    switch (action.type) {
+      case 'card_read': {
+        const newAuth = ((): AuthState => {
+          switch (previousState.auth.status) {
+            case 'logged_out': {
+              switch (action.cardSummary.status) {
+                case 'no_card':
+                  return { status: 'logged_out', reason: 'machine_locked' };
 
-              case 'error':
-                return { status: 'logged_out', reason: 'card_error' };
+                case 'error':
+                  return { status: 'logged_out', reason: 'card_error' };
 
-              case 'ready': {
-                const user = parseUserFromCardSummary(action.cardSummary);
-                const validationResult = validateCardUser(user);
-                if (validationResult.isOk()) {
-                  assert(
-                    user &&
-                      (user.role === 'superadmin' || user.role === 'admin')
-                  );
-                  return { status: 'checking_passcode', user };
+                case 'ready': {
+                  const user = parseUserFromCardSummary(action.cardSummary);
+                  const validationResult = validateCardUser(user, scope);
+                  if (validationResult.isOk()) {
+                    assert(
+                      user &&
+                        (user.role === 'superadmin' || user.role === 'admin')
+                    );
+                    return { status: 'checking_passcode', user };
+                  }
+                  return {
+                    status: 'logged_out',
+                    reason: validationResult.err(),
+                    cardUserRole: user?.role,
+                  };
                 }
-                return {
-                  status: 'logged_out',
-                  reason: validationResult.err(),
-                  cardUserRole: user?.role,
-                };
+
+                /* istanbul ignore next - compile time check for completeness */
+                default:
+                  return throwIllegalValue(action.cardSummary, 'status');
               }
-
-              /* istanbul ignore next - compile time check for completeness */
-              default:
-                return throwIllegalValue(action.cardSummary, 'status');
             }
-          }
 
-          case 'checking_passcode': {
-            if (action.cardSummary.status === 'no_card') {
-              return { status: 'logged_out', reason: 'machine_locked' };
+            case 'checking_passcode': {
+              if (action.cardSummary.status === 'no_card') {
+                return { status: 'logged_out', reason: 'machine_locked' };
+              }
+              return previousState.auth;
             }
-            return previousState.auth;
-          }
 
-          case 'remove_card': {
-            if (action.cardSummary.status === 'no_card') {
-              return { status: 'logged_in', user: previousState.auth.user };
+            case 'remove_card': {
+              if (action.cardSummary.status === 'no_card') {
+                return { status: 'logged_in', user: previousState.auth.user };
+              }
+              return previousState.auth;
             }
-            return previousState.auth;
+
+            case 'logged_in':
+              return previousState.auth;
+
+            /* istanbul ignore next - compile time check for completeness */
+            default:
+              throwIllegalValue(previousState.auth, 'status');
           }
+        })();
 
-          case 'logged_in':
-            return previousState.auth;
+        // Optimization: if the card and auth state didn't change, then we can
+        // return the previous state, which will cause React to not rerender.
+        // https://reactjs.org/docs/hooks-reference.html#bailing-out-of-a-dispatch
+        const newState: SmartcardAuthState = {
+          auth: newAuth,
+          cardSummary: action.cardSummary,
+        };
+        return deepEqual(newState, previousState) ? previousState : newState;
+      }
 
-          /* istanbul ignore next - compile time check for completeness */
-          default:
-            throwIllegalValue(previousState.auth, 'status');
-        }
-      })();
+      case 'check_passcode': {
+        assert(previousState.auth.status === 'checking_passcode');
+        return {
+          ...previousState,
+          auth:
+            action.passcode === previousState.auth.user.passcode
+              ? { status: 'remove_card', user: previousState.auth.user }
+              : { ...previousState.auth, wrongPasscodeEnteredAt: new Date() },
+        };
+      }
 
-      // Optimization: if the card and auth state didn't change, then we can
-      // return the previous state, which will cause React to not rerender.
-      // https://reactjs.org/docs/hooks-reference.html#bailing-out-of-a-dispatch
-      const newState: SmartcardAuthState = {
-        auth: newAuth,
-        cardSummary: action.cardSummary,
-      };
-      return deepEqual(newState, previousState) ? previousState : newState;
-    }
+      case 'log_out':
+        return {
+          ...previousState,
+          auth: { status: 'logged_out', reason: 'machine_locked' },
+        };
 
-    case 'check_passcode': {
-      assert(previousState.auth.status === 'checking_passcode');
-      return {
-        ...previousState,
-        auth:
-          action.passcode === previousState.auth.user.passcode
-            ? { status: 'remove_card', user: previousState.auth.user }
-            : { ...previousState.auth, wrongPasscodeEnteredAt: new Date() },
-      };
-    }
-
-    case 'log_out':
-      return {
-        ...previousState,
-        auth: { status: 'logged_out', reason: 'machine_locked' },
-      };
-
-    case 'bootstrap_admin_session':
-      return {
-        ...previousState,
-        auth: {
-          status: 'logged_in',
-          user: {
-            role: 'admin',
-            electionHash: action.electionHash,
-            passcode: '000000',
+      case 'bootstrap_admin_session':
+        return {
+          ...previousState,
+          auth: {
+            status: 'logged_in',
+            user: {
+              role: 'admin',
+              electionHash: action.electionHash,
+              passcode: '000000',
+            },
           },
-        },
-      };
+        };
 
-    /* istanbul ignore next - compile time check for completeness */
-    default:
-      throwIllegalValue(action, 'type');
-  }
+      /* istanbul ignore next - compile time check for completeness */
+      default:
+        throwIllegalValue(action, 'type');
+    }
+  };
 }
 
 function useDippedSmartcardAuthBase({
   cardApi,
   logger,
+  scope,
 }: UseDippedSmartcardAuthArgs): DippedSmartcardAuth.Auth {
-  const [{ cardSummary, auth }, dispatch] = useReducer(smartcardAuthReducer, {
-    cardSummary: { status: 'no_card' },
-    auth: { status: 'logged_out', reason: 'machine_locked' },
-  });
+  const [{ cardSummary, auth }, dispatch] = useReducer(
+    smartcardAuthReducer(scope),
+    {
+      cardSummary: { status: 'no_card' },
+      auth: { status: 'logged_out', reason: 'machine_locked' },
+    }
+  );
   // Use a lock to guard against concurrent writes to the card
   const cardWriteLock = useLock();
 
@@ -345,7 +387,7 @@ async function logAuthEvents(
  * logged in. Once logged in, further card insertions won't change the auth state.
  * To log out, the user must manually lock the machine.
  *
- * Only superadmins and admins are supported.
+ * Only super admins and admins are supported.
  */
 export function useDippedSmartcardAuth(
   args: UseDippedSmartcardAuthArgs
