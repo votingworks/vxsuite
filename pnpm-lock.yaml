@@ -2106,6 +2106,7 @@ importers:
       '@votingworks/utils': link:../utils
       debug: 4.3.1
       temp: 0.9.4
+      xstate: 4.32.1
       zod: 3.14.4
     devDependencies:
       '@types/debug': 4.1.5
@@ -2163,6 +2164,7 @@ importers:
       temp: ^0.9.4
       ts-jest: ^27.0.7
       typescript: 4.6.3
+      xstate: ^4.32.1
       zod: 3.14.4
   libs/res-to-ts:
     dependencies:
@@ -9036,6 +9038,7 @@ packages:
   /@sideway/address/4.1.0:
     dependencies:
       '@hapi/hoek': 9.1.1
+    dev: false
     resolution:
       integrity: sha512-wAH/JYRXeIFQRsxerIuLjgUu2Xszam+O5xKeatJ4oudShOOirfmsQ1D6LL54XOU2tizpCYku+s1wmU0SYdpoSA==
   /@sideway/address/4.1.4:

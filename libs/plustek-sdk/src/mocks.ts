@@ -1,6 +1,14 @@
 import { err, ok, Result } from '@votingworks/types';
 import { assert, sleep } from '@votingworks/utils';
 import makeDebug from 'debug';
+import {
+  createMachine,
+  assign as xassign,
+  Assigner,
+  PropertyAssigner,
+  interpret,
+} from 'xstate';
+import { waitFor } from 'xstate/lib/waitFor';
 import { ScannerError } from './errors';
 import { PaperStatus } from './paper_status';
 import {
@@ -17,6 +25,163 @@ import {
 /* eslint-disable @typescript-eslint/require-await */
 
 const debug = makeDebug('plustek-sdk:mock-client');
+
+interface Context {
+  sheetFiles?: readonly string[];
+  holdAfterReject?: boolean;
+  jamOnNextOperation: boolean;
+}
+
+type Event =
+  | { type: 'CONNECT' }
+  | { type: 'DISCONNECT' }
+  | { type: 'POWER_OFF' }
+  | { type: 'CRASH' }
+  | {
+      type: 'LOAD_SHEET';
+      sheetFiles: readonly string[];
+    }
+  | { type: 'REMOVE_SHEET' }
+  | { type: 'SCAN' }
+  | { type: 'ACCEPT' }
+  | { type: 'REJECT'; hold: boolean }
+  | { type: 'CALIBRATE' }
+  | { type: 'JAM_ON_NEXT_OPERATION' };
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function assign(arg: Assigner<Context, any> | PropertyAssigner<Context, any>) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return xassign<Context, any>(arg);
+}
+
+/**
+ * A state machine to model the internal state of the Plustek.
+ */
+const plustekMachine = createMachine<Context, Event>({
+  id: 'plustek',
+  initial: 'disconnected',
+  strict: true,
+  context: { jamOnNextOperation: false },
+  on: {
+    DISCONNECT: 'disconnected',
+    POWER_OFF: 'powered_off',
+    CRASH: 'crashed',
+    JAM_ON_NEXT_OPERATION: {
+      actions: assign({ jamOnNextOperation: true }),
+    },
+  },
+  states: {
+    powered_off: {},
+    crashed: {},
+    disconnected: {
+      on: { CONNECT: 'no_paper' },
+    },
+    no_paper: {
+      entry: assign({ sheetFiles: undefined, holdAfterReject: undefined }),
+      on: {
+        LOAD_SHEET: {
+          target: 'ready_to_scan',
+          actions: assign({
+            sheetFiles: (_context, event) => event.sheetFiles,
+          }),
+        },
+      },
+    },
+    ready_to_scan: {
+      on: {
+        REMOVE_SHEET: 'no_paper',
+        SCAN: 'scanning',
+        CALIBRATE: 'calibrating',
+        ACCEPT: 'accepting',
+        REJECT: {
+          target: 'rejecting',
+          actions: assign({
+            holdAfterReject: (_context, event) => event.hold,
+          }),
+        },
+      },
+    },
+    scanning: {
+      always: {
+        target: 'jam',
+        cond: (context) => context.jamOnNextOperation,
+      },
+      after: { SCANNING_DELAY: 'ready_to_eject' },
+      on: { LOAD_SHEET: 'both_sides_have_paper' },
+    },
+    ready_to_eject: {
+      on: {
+        ACCEPT: [
+          {
+            target: 'accepting',
+            cond: (context) => !context.jamOnNextOperation,
+          },
+          // Weird case: paper jams when accepting a paper from ready_to_eject
+          // will result in going back to the ready_to_eject state
+          {
+            target: 'ready_to_eject',
+            cond: (context) => context.jamOnNextOperation,
+            actions: assign({ jamOnNextOperation: false }),
+          },
+        ],
+        REJECT: {
+          target: 'rejecting',
+          actions: assign({
+            holdAfterReject: (_context, event) => event.hold,
+          }),
+        },
+        LOAD_SHEET: 'both_sides_have_paper',
+      },
+    },
+    accepting: {
+      always: {
+        target: 'jam',
+        cond: (context) => context.jamOnNextOperation,
+      },
+      after: { ACCEPTING_DELAY: 'no_paper' },
+      on: { LOAD_SHEET: 'both_sides_have_paper' },
+    },
+    rejecting: {
+      always: {
+        target: 'jam',
+        cond: (context) => context.jamOnNextOperation,
+      },
+      after: {
+        REJECTING_DELAY: [
+          {
+            target: 'no_paper',
+            cond: (context) => !context.holdAfterReject,
+          },
+          {
+            target: 'no_paper_before_hold',
+            cond: (context) => context.holdAfterReject === true,
+          },
+        ],
+      },
+      on: { LOAD_SHEET: 'both_sides_have_paper' },
+    },
+    no_paper_before_hold: {
+      after: { HOLD_DELAY: 'ready_to_scan' },
+    },
+    calibrating: {
+      always: {
+        target: 'jam',
+        cond: (context) => context.jamOnNextOperation,
+      },
+      after: { CALIBRATING_DELAY: 'no_paper' },
+    },
+    both_sides_have_paper: {
+      on: {
+        REMOVE_SHEET: 'ready_to_eject',
+        CALIBRATE: 'calibrating',
+      },
+    },
+    jam: {
+      entry: assign({ jamOnNextOperation: false }),
+      on: { REMOVE_SHEET: 'no_paper' },
+    },
+  },
+});
 
 /**
  * Possible errors the {@link MockScannerClient} might encounter.
@@ -49,20 +214,24 @@ export interface Options {
  * Provides a mock `ScannerClient` that acts like the plustek VTM 300.
  */
 export class MockScannerClient implements ScannerClient {
-  private connected = false;
-  private unresponsive = false;
-  private crashed = false;
-  private frontSheet?: readonly string[];
-  private backSheet?: readonly string[];
+  private readonly machine;
   private readonly toggleHoldDuration: number;
-  private readonly passthroughDuration: number;
-
   constructor({
     toggleHoldDuration = 100,
     passthroughDuration = 1000,
   }: Options = {}) {
     this.toggleHoldDuration = toggleHoldDuration;
-    this.passthroughDuration = passthroughDuration;
+    this.machine = interpret(
+      plustekMachine.withConfig({
+        delays: {
+          SCANNING_DELAY: passthroughDuration,
+          ACCEPTING_DELAY: toggleHoldDuration,
+          REJECTING_DELAY: passthroughDuration,
+          HOLD_DELAY: toggleHoldDuration,
+          CALIBRATING_DELAY: passthroughDuration * 3,
+        },
+      })
+    ).start();
   }
 
   /**
@@ -70,7 +239,8 @@ export class MockScannerClient implements ScannerClient {
    */
   async connect(): Promise<void> {
     debug('connecting');
-    this.connected = true;
+    this.machine.send({ type: 'CONNECT' });
+    await waitFor(this.machine, (state) => state.value === 'no_paper');
   }
 
   /**
@@ -78,7 +248,8 @@ export class MockScannerClient implements ScannerClient {
    */
   async disconnect(): Promise<void> {
     debug('disconnecting');
-    this.connected = false;
+    this.machine.send({ type: 'DISCONNECT' });
+    await waitFor(this.machine, (state) => state.value === 'disconnected');
   }
 
   /**
@@ -89,28 +260,28 @@ export class MockScannerClient implements ScannerClient {
   ): Promise<Result<void, Errors>> {
     debug('manualLoad files=%o', files);
 
-    if (this.unresponsive) {
+    if (this.machine.state.value === 'powered_off') {
       debug('cannot load, scanner unresponsive');
       return err(Errors.Unresponsive);
     }
 
-    if (this.crashed) {
+    if (this.machine.state.value === 'crashed') {
       debug('cannot load, plustekctl crashed');
       return err(Errors.Crashed);
     }
 
-    if (!this.connected) {
+    if (this.machine.state.value === 'disconnected') {
       debug('cannot load, not connected');
       return err(Errors.NotConnected);
     }
 
-    if (this.frontSheet) {
+    if (this.machine.state.value === 'ready_to_scan') {
       debug('cannot load, already loaded');
       return err(Errors.DuplicateLoad);
     }
 
+    this.machine.send({ type: 'LOAD_SHEET', sheetFiles: files });
     await sleep(this.toggleHoldDuration);
-    this.frontSheet = files;
     debug('manualLoad success');
     return ok();
   }
@@ -121,29 +292,42 @@ export class MockScannerClient implements ScannerClient {
   async simulateRemoveSheet(): Promise<Result<void, Errors>> {
     debug('manualRemove');
 
-    if (this.unresponsive) {
+    if (this.machine.state.value === 'powered_off') {
       debug('cannot remove, scanner unresponsive');
       return err(Errors.Unresponsive);
     }
 
-    if (this.crashed) {
+    if (this.machine.state.value === 'crashed') {
       debug('cannot remove, plustekctl crashed');
       return err(Errors.Crashed);
     }
 
-    if (!this.connected) {
+    if (this.machine.state.value === 'disconnected') {
       debug('cannot remove, not connected');
       return err(Errors.NotConnected);
     }
 
-    if (!this.frontSheet) {
+    if (
+      !(
+        this.machine.state.value === 'ready_to_scan' ||
+        this.machine.state.value === 'jam' ||
+        this.machine.state.value === 'both_sides_have_paper'
+      )
+    ) {
       debug('cannot remove, no paper');
       return err(Errors.NoPaperToRemove);
     }
 
-    delete this.frontSheet;
+    this.machine.send({ type: 'REMOVE_SHEET' });
     debug('manualRemove success');
     return ok();
+  }
+
+  /**
+   * On the next scan/accept/reject/calibrate operation, simulate a paper jam.
+   */
+  simulateJamOnNextOperation(): void {
+    this.machine.send({ type: 'JAM_ON_NEXT_OPERATION' });
   }
 
   /**
@@ -152,7 +336,7 @@ export class MockScannerClient implements ScannerClient {
    * become responsive again, and a new client/connection must be established.
    */
   simulateUnresponsive(): void {
-    this.unresponsive = true;
+    this.machine.send({ type: 'POWER_OFF' });
   }
 
   /**
@@ -160,14 +344,17 @@ export class MockScannerClient implements ScannerClient {
    * must be established.
    */
   simulatePlustekctlCrash(): void {
-    this.crashed = true;
+    this.machine.send({ type: 'CRASH' });
   }
 
   /**
    * Determines whether the client is connected.
    */
   isConnected(): boolean {
-    return this.connected && !this.crashed;
+    return !(
+      this.machine.state.value === 'disconnected' ||
+      this.machine.state.value === 'crashed'
+    );
   }
 
   /**
@@ -175,92 +362,59 @@ export class MockScannerClient implements ScannerClient {
    */
   async getPaperStatus(): Promise<GetPaperStatusResult> {
     debug('getPaperStatus');
-
-    if (this.unresponsive) {
-      debug('cannot get paper status, scanner unresponsive');
-      return err(ScannerError.SaneStatusIoError);
+    switch (this.machine.state.value) {
+      case 'powered_off': {
+        debug('cannot get paper status, scanner unresponsive');
+        return err(ScannerError.SaneStatusIoError);
+      }
+      case 'crashed': {
+        debug('cannot get paper status, plustekctl crashed');
+        return err(
+          new ClientDisconnectedError('#simulateCrash was previously called')
+        );
+      }
+      case 'disconnected': {
+        debug('cannot get paper status, not connected');
+        return err(ScannerError.NoDevices);
+      }
+      case 'no_paper':
+      case 'no_paper_before_hold':
+        return ok(
+          Math.random() > 0.5
+            ? PaperStatus.VtmDevReadyNoPaper
+            : PaperStatus.NoPaperStatus
+        );
+      case 'ready_to_scan':
+        return ok(PaperStatus.VtmReadyToScan);
+      case 'ready_to_eject':
+        return ok(PaperStatus.VtmReadyToEject);
+      case 'jam':
+        return ok(
+          Math.random() > 0.5
+            ? PaperStatus.VtmFrontAndBackSensorHavePaperReady
+            : PaperStatus.Jam
+        );
+      case 'both_sides_have_paper':
+        return ok(PaperStatus.VtmBothSideHavePaper);
+      /* istanbul ignore next */
+      default:
+        throw new Error(`Unexpected state: ${this.machine.state.value}`);
     }
-
-    if (this.crashed) {
-      debug('cannot get paper status, plustekctl crashed');
-      return err(
-        new ClientDisconnectedError('#simulateCrash was previously called')
-      );
-    }
-
-    if (!this.connected) {
-      debug('cannot get paper status, not connected');
-      return err(ScannerError.NoDevices);
-    }
-
-    if (!this.frontSheet && !this.backSheet) {
-      debug('nothing loaded');
-      return ok(PaperStatus.VtmDevReadyNoPaper);
-    }
-
-    if (this.frontSheet && !this.backSheet) {
-      debug('only front has paper');
-      return ok(PaperStatus.VtmReadyToScan);
-    }
-
-    if (!this.frontSheet && this.backSheet) {
-      debug('only back has paper');
-      return ok(PaperStatus.VtmReadyToEject);
-    }
-
-    debug('front and back both have paper');
-    return ok(PaperStatus.VtmBothSideHavePaper);
   }
 
   /**
    * Waits for a given `status` up to `timeout` milliseconds, checking every
    * `interval` milliseconds.
    */
-  async waitForStatus({
-    status,
-    interval = 50,
-    timeout,
-  }: {
+  /* istanbul ignore next */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async waitForStatus(_props: {
     status: PaperStatus;
     timeout?: number;
     interval?: number;
   }): Promise<GetPaperStatusResult | undefined> {
-    debug('waitForStatus');
-
-    if (this.unresponsive) {
-      debug('cannot wait for status, scanner unresponsive');
-      return err(ScannerError.SaneStatusIoError);
-    }
-
-    if (this.crashed) {
-      debug('cannot wait for status, plustekctl crashed');
-      return err(
-        new ClientDisconnectedError('#simulateCrash was previously called')
-      );
-    }
-
-    if (!this.connected) {
-      debug('cannot wait for status, not connected');
-      return err(ScannerError.NoDevices);
-    }
-
-    let result: GetPaperStatusResult | undefined;
-    const until = typeof timeout === 'number' ? Date.now() + timeout : Infinity;
-
-    while (Date.now() < until) {
-      result = await this.getPaperStatus();
-      /* istanbul ignore next */
-      debug('got paper status: %s', result.ok() ?? result.err());
-      if (result.ok() === status) {
-        break;
-      }
-
-      await sleep(Math.min(interval, until - Date.now()));
-    }
-
-    /* istanbul ignore next */
-    debug('final paper status: %s', result?.ok() ?? result?.err());
-    return result;
+    // TODO remove this method from ScannerClient
+    throw new Error('deprecated');
   }
 
   /**
@@ -268,45 +422,57 @@ export class MockScannerClient implements ScannerClient {
    */
   async scan(): Promise<ScanResult> {
     debug('scan');
-
-    if (this.unresponsive) {
-      debug('cannot scan, scanner unresponsive');
-      return err(ScannerError.PaperStatusErrorFeeding);
+    switch (this.machine.state.value) {
+      case 'powered_off': {
+        debug('cannot scan, scanner unresponsive');
+        return err(ScannerError.SaneStatusIoError);
+      }
+      case 'crashed': {
+        debug('cannot scan, plustekctl crashed');
+        return err(
+          new ClientDisconnectedError('#simulateCrash was previously called')
+        );
+      }
+      case 'disconnected': {
+        debug('cannot scan, not connected');
+        return err(ScannerError.NoDevices);
+      }
+      case 'no_paper':
+      case 'no_paper_before_hold': {
+        debug('cannot scan, no paper');
+        return err(ScannerError.VtmPsDevReadyNoPaper);
+      }
+      case 'ready_to_scan': {
+        this.machine.send({ type: 'SCAN' });
+        await waitFor(
+          this.machine,
+          (state) => state.value === 'ready_to_eject' || state.value === 'jam'
+        );
+        if ((this.machine.state.value as string) === 'jam') {
+          debug('scan failed, jam');
+          return err(ScannerError.PaperStatusJam);
+        }
+        const files = this.machine.state.context.sheetFiles;
+        assert(files);
+        debug('scanned files=%o', files);
+        return ok({ files: files.slice() });
+      }
+      case 'ready_to_eject': {
+        debug('cannot scan, paper is held at back');
+        return err(ScannerError.VtmPsReadyToEject);
+      }
+      case 'jam': {
+        debug('cannot scan, jammed');
+        return err(ScannerError.PaperStatusJam);
+      }
+      case 'both_sides_have_paper': {
+        debug('cannot scan, both sides have paper');
+        return err(ScannerError.VtmBothSideHavePaper);
+      }
+      /* istanbul ignore next */
+      default:
+        throw new Error(`Unexpected state: ${this.machine.state.value}`);
     }
-
-    if (this.crashed) {
-      debug('cannot scan, plustekctl crashed');
-      return err(
-        new ClientDisconnectedError('#simulateCrash was previously called')
-      );
-    }
-
-    if (!this.connected) {
-      debug('cannot scan, not connected');
-      return err(ScannerError.NoDevices);
-    }
-
-    if (!this.frontSheet && this.backSheet) {
-      debug('cannot scan, paper is held at back');
-      return err(ScannerError.VtmPsReadyToEject);
-    }
-
-    if (!this.frontSheet && !this.backSheet) {
-      debug('cannot scan, no paper');
-      return err(ScannerError.VtmPsDevReadyNoPaper);
-    }
-
-    if (this.frontSheet && this.backSheet) {
-      debug('cannot scan, both sides have paper');
-      return err(ScannerError.VtmBothSideHavePaper);
-    }
-
-    await sleep(this.passthroughDuration);
-    assert(this.frontSheet);
-    this.backSheet = this.frontSheet;
-    delete this.frontSheet;
-    debug('scanned files=%o', this.backSheet);
-    return ok({ files: this.backSheet.slice() });
   }
 
   /**
@@ -314,44 +480,61 @@ export class MockScannerClient implements ScannerClient {
    */
   async accept(): Promise<AcceptResult> {
     debug('accept');
-
-    if (this.unresponsive) {
-      debug('cannot accept, scanner unresponsive');
-      return err(ScannerError.SaneStatusIoError);
+    switch (this.machine.state.value) {
+      case 'powered_off': {
+        debug('cannot accept, scanner unresponsive');
+        return err(ScannerError.SaneStatusIoError);
+      }
+      case 'crashed': {
+        debug('cannot accept, plustekctl crashed');
+        return err(
+          new ClientDisconnectedError('#simulateCrash was previously called')
+        );
+      }
+      case 'disconnected': {
+        debug('cannot accept, not connected');
+        return err(ScannerError.NoDevices);
+      }
+      case 'no_paper':
+      case 'no_paper_before_hold': {
+        debug('cannot accept, no paper');
+        return err(ScannerError.VtmPsDevReadyNoPaper);
+      }
+      case 'ready_to_scan': {
+        this.machine.send({ type: 'ACCEPT' });
+        await waitFor(
+          this.machine,
+          (state) => state.value === 'no_paper' || state.value === 'jam'
+        );
+        if ((this.machine.state.value as string) === 'jam') {
+          debug('accept failed, jam');
+          return err(ScannerError.PaperStatusJam);
+        }
+        debug('accept success');
+        return ok();
+      }
+      case 'ready_to_eject': {
+        this.machine.send({ type: 'ACCEPT' });
+        await waitFor(
+          this.machine,
+          (state) =>
+            state.value === 'no_paper' || state.value === 'ready_to_eject'
+        );
+        debug('accept success');
+        return ok();
+      }
+      case 'jam': {
+        debug('cannot accept, jammed');
+        return err(ScannerError.PaperStatusJam);
+      }
+      case 'both_sides_have_paper': {
+        debug('cannot accept, both sides have paper');
+        return err(ScannerError.VtmBothSideHavePaper);
+      }
+      /* istanbul ignore next */
+      default:
+        throw new Error(`Unexpected state: ${this.machine.state.value}`);
     }
-
-    if (this.crashed) {
-      debug('cannot accept, plustekctl crashed');
-      return err(
-        new ClientDisconnectedError('#simulateCrash was previously called')
-      );
-    }
-
-    if (!this.connected) {
-      debug('cannot accept, not connected');
-      return err(ScannerError.NoDevices);
-    }
-
-    if (this.frontSheet && this.backSheet) {
-      debug('cannot accept, both sides have paper');
-      return err(ScannerError.VtmBothSideHavePaper);
-    }
-
-    if (!this.frontSheet && !this.backSheet) {
-      debug('cannot accept, no paper');
-      return err(ScannerError.VtmPsDevReadyNoPaper);
-    }
-
-    if (this.frontSheet) {
-      await sleep(this.passthroughDuration);
-    } else {
-      await sleep(this.toggleHoldDuration);
-    }
-
-    delete this.frontSheet;
-    delete this.backSheet;
-    debug('accept success');
-    return ok();
   }
 
   /**
@@ -359,92 +542,107 @@ export class MockScannerClient implements ScannerClient {
    */
   async reject({ hold }: { hold: boolean }): Promise<RejectResult> {
     debug('reject hold=%s', hold);
-
-    if (this.unresponsive) {
-      debug('cannot reject, scanner unresponsive');
-      return err(ScannerError.SaneStatusIoError);
+    switch (this.machine.state.value) {
+      case 'powered_off': {
+        debug('cannot reject, scanner unresponsive');
+        return err(ScannerError.SaneStatusIoError);
+      }
+      case 'crashed': {
+        debug('cannot reject, plustekctl crashed');
+        return err(
+          new ClientDisconnectedError('#simulateCrash was previously called')
+        );
+      }
+      case 'disconnected': {
+        debug('cannot reject, not connected');
+        return err(ScannerError.NoDevices);
+      }
+      case 'no_paper':
+      case 'no_paper_before_hold': {
+        debug('cannot reject, no paper');
+        return err(ScannerError.VtmPsDevReadyNoPaper);
+      }
+      case 'ready_to_scan':
+      case 'ready_to_eject': {
+        this.machine.send({ type: 'REJECT', hold });
+        await waitFor(
+          this.machine,
+          (state) =>
+            state.value === (hold ? 'no_paper_before_hold' : 'no_paper') ||
+            state.value === 'jam'
+        );
+        if ((this.machine.state.value as string) === 'jam') {
+          debug('reject failed, jam');
+          return err(ScannerError.PaperStatusJam);
+        }
+        debug('reject success');
+        return ok();
+      }
+      case 'jam': {
+        debug('cannot reject, jammed');
+        return err(ScannerError.PaperStatusJam);
+      }
+      case 'both_sides_have_paper': {
+        debug('cannot reject, both sides have paper');
+        return err(ScannerError.VtmBothSideHavePaper);
+      }
+      /* istanbul ignore next */
+      default:
+        throw new Error(`Unexpected state: ${this.machine.state.value}`);
     }
-
-    if (this.crashed) {
-      debug('cannot reject, plustekctl crashed');
-      return err(
-        new ClientDisconnectedError('#simulateCrash was previously called')
-      );
-    }
-
-    if (!this.connected) {
-      debug('cannot reject, not connected');
-      return err(ScannerError.NoDevices);
-    }
-
-    if (this.frontSheet && this.backSheet) {
-      debug('cannot reject, both sides have paper');
-      return err(ScannerError.VtmBothSideHavePaper);
-    }
-
-    if (!this.frontSheet && !this.backSheet) {
-      debug('cannot reject, no paper');
-      return err(ScannerError.VtmPsDevReadyNoPaper);
-    }
-
-    if (this.frontSheet) {
-      await sleep(this.passthroughDuration);
-    } else {
-      await sleep(this.toggleHoldDuration);
-    }
-
-    if (hold) {
-      this.frontSheet = this.backSheet ?? this.frontSheet;
-      delete this.backSheet;
-    } else {
-      delete this.frontSheet;
-      delete this.backSheet;
-    }
-
-    debug('reject success');
-    return ok();
   }
 
+  /**
+   * Calibrates the scanner using a blank sheet of paper
+   */
   async calibrate(): Promise<CalibrateResult> {
     debug('calibrate');
-
-    if (this.unresponsive) {
-      debug('cannot calibrate, scanner unresponsive');
-      return err(ScannerError.SaneStatusIoError);
+    switch (this.machine.state.value) {
+      case 'powered_off': {
+        debug('cannot calibrate, scanner unresponsive');
+        return err(ScannerError.SaneStatusIoError);
+      }
+      case 'crashed': {
+        debug('cannot calibrate, plustekctl crashed');
+        return err(
+          new ClientDisconnectedError('#simulateCrash was previously called')
+        );
+      }
+      case 'disconnected': {
+        debug('cannot calibrate, not connected');
+        return err(ScannerError.NoDevices);
+      }
+      case 'no_paper':
+      case 'no_paper_before_hold': {
+        debug('cannot calibrate, no paper');
+        return err(ScannerError.VtmPsDevReadyNoPaper);
+      }
+      case 'both_sides_have_paper':
+      case 'ready_to_scan': {
+        this.machine.send({ type: 'CALIBRATE' });
+        await waitFor(
+          this.machine,
+          (state) => state.value === 'no_paper' || state.value === 'jam'
+        );
+        if ((this.machine.state.value as string) === 'jam') {
+          debug('calibrate failed, jam');
+          return err(ScannerError.PaperStatusJam);
+        }
+        debug('calibrate success');
+        return ok();
+      }
+      case 'ready_to_eject': {
+        debug('cannot calibrate, paper in back');
+        return err(ScannerError.SaneStatusNoDocs);
+      }
+      case 'jam': {
+        debug('cannot calibrate, jammed');
+        return err(ScannerError.PaperStatusJam);
+      }
+      /* istanbul ignore next */
+      default:
+        throw new Error(`Unexpected state: ${this.machine.state.value}`);
     }
-
-    if (this.crashed) {
-      debug('cannot calibrate, plustekctl crashed');
-      return err(
-        new ClientDisconnectedError('#simulateCrash was previously called')
-      );
-    }
-
-    if (!this.connected) {
-      debug('cannot reject, not connected');
-      return err(ScannerError.NoDevices);
-    }
-
-    if (this.frontSheet && this.backSheet) {
-      debug('cannot calibrate, both sides have paper');
-      return err(ScannerError.VtmBothSideHavePaper);
-    }
-
-    if (!this.frontSheet && !this.backSheet) {
-      debug('cannot calibrate, no paper');
-      return err(ScannerError.VtmPsDevReadyNoPaper);
-    }
-
-    if (!this.frontSheet && this.backSheet) {
-      debug('cannot calibrate, paper held at back');
-      return err(ScannerError.SaneStatusNoDocs);
-    }
-
-    await sleep(this.passthroughDuration * 3);
-    delete this.frontSheet;
-    delete this.backSheet;
-    debug('calibrate success');
-    return ok();
   }
 
   /**
@@ -452,7 +650,7 @@ export class MockScannerClient implements ScannerClient {
    */
   async close(): Promise<CloseResult> {
     debug('close');
-    this.connected = false;
+    await this.disconnect();
     return ok();
   }
 }
