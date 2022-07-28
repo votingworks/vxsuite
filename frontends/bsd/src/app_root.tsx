@@ -513,7 +513,15 @@ export function AppRoot({ card, hardware, logger }: AppRootProps): JSX.Element {
         </AppContext.Provider>
       );
     }
-    return <InvalidCardScreen machine="VxCentralScan" reason={auth.reason} />;
+    if (auth.reason === 'machine_not_configured') {
+      return (
+        <InvalidCardScreen
+          reason={auth.reason}
+          recommendedAction="Please insert an Election Manager card."
+        />
+      );
+    }
+    return <InvalidCardScreen reason={auth.reason} />;
   }
 
   if (auth.status === 'checking_passcode') {

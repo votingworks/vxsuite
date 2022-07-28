@@ -11,12 +11,14 @@ type LoggedOutReason =
   | InsertedSmartcardAuth.LoggedOut['reason'];
 
 export interface Props {
-  // TODO: Update this component to support VxMark and VxScan, too
-  machine: 'VxAdmin' | 'VxCentralScan';
   reason: LoggedOutReason;
+  recommendedAction?: string;
 }
 
-export function InvalidCardScreen({ machine, reason }: Props): JSX.Element {
+export function InvalidCardScreen({
+  reason,
+  recommendedAction,
+}: Props): JSX.Element {
   let errorDescription: string;
   if (reason === 'machine_not_configured') {
     errorDescription =
@@ -29,17 +31,8 @@ export function InvalidCardScreen({ machine, reason }: Props): JSX.Element {
     errorDescription = 'The inserted card is not valid to unlock this machine.';
   }
 
-  let recommendedAction: string;
-  if (reason === 'machine_not_configured') {
-    if (machine === 'VxAdmin') {
-      recommendedAction = 'Please insert a System Administrator card.';
-    } else {
-      recommendedAction = 'Please insert an Election Manager card.';
-    }
-  } else {
-    recommendedAction =
-      'Please insert a valid Election Manager or System Administrator card.';
-  }
+  const defaultRecommendedAction =
+    'Please insert a valid Election Manager or System Administrator card.';
 
   return (
     <Screen white>
@@ -47,7 +40,7 @@ export function InvalidCardScreen({ machine, reason }: Props): JSX.Element {
         <Prose textCenter theme={fontSizeTheme.medium}>
           <h1>Invalid Card</h1>
           <p>
-            {errorDescription} {recommendedAction}
+            {errorDescription} {recommendedAction || defaultRecommendedAction}
           </p>
         </Prose>
       </Main>

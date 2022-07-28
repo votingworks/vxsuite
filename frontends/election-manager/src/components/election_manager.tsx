@@ -88,7 +88,15 @@ export function ElectionManager(): JSX.Element {
     if (auth.reason === 'machine_locked') {
       return <MachineLockedScreen />;
     }
-    return <InvalidCardScreen machine="VxAdmin" reason={auth.reason} />;
+    if (auth.reason === 'machine_not_configured') {
+      return (
+        <InvalidCardScreen
+          reason={auth.reason}
+          recommendedAction="Please insert a System Administrator card."
+        />
+      );
+    }
+    return <InvalidCardScreen reason={auth.reason} />;
   }
 
   if (isSuperadminAuth(auth)) {

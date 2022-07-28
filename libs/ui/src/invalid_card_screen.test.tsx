@@ -5,55 +5,35 @@ import { InvalidCardScreen, Props } from './invalid_card_screen';
 
 const testCases: Array<{
   description: string;
-  machine: Props['machine'];
   reason: Props['reason'];
+  recommendedAction?: string;
   expectedText: string;
 }> = [
   {
-    description: 'VxAdmin not configured',
-    machine: 'VxAdmin',
+    description: 'machine not configured',
     reason: 'machine_not_configured',
+    expectedText:
+      'This machine is unconfigured and cannot be unlocked with this card. ' +
+      'Please insert a valid Election Manager or System Administrator card.',
+  },
+  {
+    description: 'machine not configured, custom recommended action',
+    reason: 'machine_not_configured',
+    recommendedAction: 'Please insert a System Administrator card.',
     expectedText:
       'This machine is unconfigured and cannot be unlocked with this card. ' +
       'Please insert a System Administrator card.',
   },
   {
-    description: 'VxCentralScan not configured',
-    machine: 'VxCentralScan',
-    reason: 'machine_not_configured',
-    expectedText:
-      'This machine is unconfigured and cannot be unlocked with this card. ' +
-      'Please insert an Election Manager card.',
-  },
-  {
     description:
-      'Election Manager card election hash does not match VxAdmin election hash',
-    machine: 'VxAdmin',
+      'election manager card election hash does not match machine election hash',
     reason: 'admin_wrong_election',
     expectedText:
       'The inserted Election Manager card is programmed for another election and cannot be used to unlock this machine. ' +
       'Please insert a valid Election Manager or System Administrator card.',
   },
   {
-    description:
-      'Election Manager card election hash does not match VxCentralScan election hash',
-    machine: 'VxCentralScan',
-    reason: 'admin_wrong_election',
-    expectedText:
-      'The inserted Election Manager card is programmed for another election and cannot be used to unlock this machine. ' +
-      'Please insert a valid Election Manager or System Administrator card.',
-  },
-  {
-    description: 'other error on VxAdmin',
-    machine: 'VxAdmin',
-    reason: 'invalid_user_on_card',
-    expectedText:
-      'The inserted card is not valid to unlock this machine. ' +
-      'Please insert a valid Election Manager or System Administrator card.',
-  },
-  {
-    description: 'other error on VxCentralScan',
-    machine: 'VxCentralScan',
+    description: 'other error',
     reason: 'invalid_user_on_card',
     expectedText:
       'The inserted card is not valid to unlock this machine. ' +
@@ -63,8 +43,13 @@ const testCases: Array<{
 
 test.each(testCases)(
   'InvalidCardScreen renders expected text ($description)',
-  ({ machine, reason, expectedText }) => {
-    render(<InvalidCardScreen machine={machine} reason={reason} />);
+  ({ reason, recommendedAction, expectedText }) => {
+    render(
+      <InvalidCardScreen
+        reason={reason}
+        recommendedAction={recommendedAction}
+      />
+    );
 
     screen.getByText(expectedText);
   }
