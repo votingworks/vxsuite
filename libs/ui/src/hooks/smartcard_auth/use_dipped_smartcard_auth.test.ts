@@ -15,7 +15,6 @@ import {
 import { assert, MemoryCard } from '@votingworks/utils';
 
 import { areVvsg2AuthFlowsEnabled } from '../../config/features';
-import { CARD_POLLING_INTERVAL } from './auth_helpers';
 import { useDippedSmartcardAuth } from './use_dipped_smartcard_auth';
 
 const electionDefinition = electionSampleDefinition;
@@ -58,7 +57,6 @@ describe('useDippedSmartcardAuth', () => {
       reason: 'machine_locked',
     });
 
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toMatchObject({
       status: 'logged_out',
@@ -67,7 +65,6 @@ describe('useDippedSmartcardAuth', () => {
 
     // Now remove the card and check again
     cardApi.removeCard();
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toMatchObject({
       status: 'logged_out',
@@ -101,7 +98,6 @@ describe('useDippedSmartcardAuth', () => {
     const passcode = '123456';
     const user = fakeSuperadminUser({ passcode });
     cardApi.insertCard(makeSuperadminCard(passcode));
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toEqual({
       status: 'checking_passcode',
@@ -147,7 +143,6 @@ describe('useDippedSmartcardAuth', () => {
 
     // Remove the card to log in
     cardApi.removeCard();
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toEqual({
       status: 'logged_in',
@@ -158,7 +153,6 @@ describe('useDippedSmartcardAuth', () => {
 
     // Inserting a different card doesn't log out (so card can be programmed)
     cardApi.insertCard(makeAdminCard(electionHash));
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toMatchObject({
       status: 'logged_in',
@@ -230,7 +224,6 @@ describe('useDippedSmartcardAuth', () => {
     const passcode = '123456';
     const user = fakeAdminUser({ electionHash, passcode });
     cardApi.insertCard(makeAdminCard(electionHash, passcode));
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toEqual({
       status: 'checking_passcode',
@@ -276,7 +269,6 @@ describe('useDippedSmartcardAuth', () => {
 
     // Remove the card to log in
     cardApi.removeCard();
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toEqual({
       status: 'logged_in',
@@ -287,7 +279,6 @@ describe('useDippedSmartcardAuth', () => {
 
     // Inserting a different card doesn't log out
     cardApi.insertCard(makeSuperadminCard());
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toMatchObject({
       status: 'logged_in',
@@ -351,12 +342,10 @@ describe('useDippedSmartcardAuth', () => {
         scope: { electionDefinition },
       })
     );
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toMatchObject({ status: 'checking_passcode' });
 
     cardApi.removeCard();
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toMatchObject({
       status: 'logged_out',
@@ -413,7 +402,6 @@ describe('useDippedSmartcardAuth', () => {
         scope: { electionDefinition },
       })
     );
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toMatchObject({
       status: 'logged_out',
@@ -421,10 +409,9 @@ describe('useDippedSmartcardAuth', () => {
     });
 
     cardApi.removeCard();
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
+    await waitForNextUpdate();
 
     cardApi.insertCard('invalid card data');
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toMatchObject({
       status: 'logged_out',
@@ -453,7 +440,6 @@ describe('useDippedSmartcardAuth', () => {
         scope: { electionDefinition },
       })
     );
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current).toMatchObject({
       status: 'logged_out',
@@ -484,7 +470,6 @@ describe('useDippedSmartcardAuth', () => {
         scope: { electionDefinition: undefined },
       })
     );
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
 
     expect(result.current).toMatchObject({
@@ -519,7 +504,6 @@ describe('useDippedSmartcardAuth', () => {
         },
       })
     );
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
 
     expect(result.current).toMatchObject({
@@ -542,7 +526,6 @@ describe('useDippedSmartcardAuth', () => {
         scope: { electionDefinition },
       })
     );
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
 
     expect(result.current).toMatchObject({

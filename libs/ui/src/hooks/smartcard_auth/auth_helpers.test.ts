@@ -15,7 +15,6 @@ import {
   isAdminAuth,
   isPollworkerAuth,
   isVoterAuth,
-  CARD_POLLING_INTERVAL,
 } from './auth_helpers';
 import { useDippedSmartcardAuth } from './use_dipped_smartcard_auth';
 import { useInsertedSmartcardAuth } from './use_inserted_smartcard_auth';
@@ -44,7 +43,6 @@ describe('Card interface', () => {
         scope: { electionDefinition },
       })
     );
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     assert(isPollworkerAuth(result.current));
 
@@ -62,7 +60,6 @@ describe('Card interface', () => {
 
     // Try writing an object to the card
     await result.current.card.writeStoredData(electionDefinition);
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
 
     // Now reading should return the written data
@@ -81,7 +78,6 @@ describe('Card interface', () => {
 
     // Try writing a binary value to the card
     await result.current.card.writeStoredData(Uint8Array.of(1, 2, 3));
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
 
     // Reading should return the written data
@@ -99,7 +95,6 @@ describe('Card interface', () => {
 
     // Next, clear the data
     await result.current.card.clearStoredData();
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
 
     // Data should read as undefined again
@@ -125,7 +120,6 @@ describe('Card interface', () => {
         scope: { electionDefinition },
       })
     );
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     assert(isPollworkerAuth(result.current));
 
@@ -169,7 +163,6 @@ describe('Card interface', () => {
         scope: { electionDefinition },
       })
     );
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     assert(isPollworkerAuth(result.current));
 
@@ -213,7 +206,6 @@ describe('Card interface', () => {
 
     // Auth as a super admin
     cardApi.insertCard(makeSuperadminCard());
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current.status).toEqual('checking_passcode');
     act(() => {
@@ -223,14 +215,12 @@ describe('Card interface', () => {
     await waitForNextUpdate();
     expect(result.current.status).toEqual('remove_card');
     cardApi.removeCard();
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     assert(isSuperadminAuth(result.current));
 
     // Insert an unprogrammed card
     expect(result.current.card).not.toBeDefined();
     cardApi.insertCard();
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current.card).toBeDefined();
     let card = result.current.card!;
@@ -244,7 +234,6 @@ describe('Card interface', () => {
         await card.programUser({ role: 'superadmin', passcode: '123456' })
       ).isOk()
     ).toEqual(true);
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current.card).toBeDefined();
     card = result.current.card!;
@@ -275,7 +264,6 @@ describe('Card interface', () => {
 
     // Unprogram the card
     expect((await card.unprogramUser()).isOk()).toEqual(true);
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current.card).toBeDefined();
     card = result.current.card!;
@@ -312,7 +300,6 @@ describe('Card interface', () => {
         })
       ).isOk()
     ).toEqual(true);
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current.card).toBeDefined();
     card = result.current.card!;
@@ -345,7 +332,6 @@ describe('Card interface', () => {
 
     // Unprogram the card
     expect((await card.unprogramUser()).isOk()).toEqual(true);
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current.card).toBeDefined();
     card = result.current.card!;
@@ -375,7 +361,6 @@ describe('Card interface', () => {
     expect(
       (await card.programUser({ role: 'pollworker', electionHash })).isOk()
     ).toEqual(true);
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current.card).toBeDefined();
     card = result.current.card!;
@@ -406,7 +391,6 @@ describe('Card interface', () => {
 
     // Unprogram the card
     expect((await card.unprogramUser()).isOk()).toEqual(true);
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current.card).toBeDefined();
     card = result.current.card!;
@@ -435,7 +419,6 @@ describe('Card interface', () => {
     // Unprogram the card again to verify that attempting to unprogram an already unprogrammed card
     // doesn't cause problems
     expect((await card.unprogramUser()).isOk()).toEqual(true);
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current.card).toBeDefined();
     card = result.current.card!;
@@ -475,7 +458,6 @@ describe('Card interface', () => {
 
     // Auth as a super admin
     cardApi.insertCard(makeSuperadminCard());
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current.status).toEqual('checking_passcode');
     act(() => {
@@ -485,13 +467,11 @@ describe('Card interface', () => {
     await waitForNextUpdate();
     expect(result.current.status).toEqual('remove_card');
     cardApi.removeCard();
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     assert(isSuperadminAuth(result.current));
 
     // Insert an unprogrammed card
     cardApi.insertCard();
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current.card).toBeDefined();
     let card = result.current.card!;
@@ -501,7 +481,6 @@ describe('Card interface', () => {
       card.programUser({ role: 'superadmin', passcode: '123456' }),
       card.programUser({ role: 'pollworker', electionHash }),
     ]);
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current.card).toBeDefined();
     card = result.current.card!;
@@ -524,7 +503,6 @@ describe('Card interface', () => {
       card.unprogramUser(),
       card.unprogramUser(),
     ]);
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current.card).toBeDefined();
     card = result.current.card!;
@@ -548,7 +526,6 @@ describe('Card interface', () => {
         await card.programUser({ role: 'superadmin', passcode: '123456' })
       ).isOk()
     ).toEqual(true);
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current.card).toBeDefined();
     card = result.current.card!;
@@ -581,7 +558,6 @@ describe('Card interface', () => {
 
     // Auth as a super admin
     cardApi.insertCard(makeSuperadminCard());
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current.status).toEqual('checking_passcode');
     act(() => {
@@ -591,13 +567,11 @@ describe('Card interface', () => {
     await waitForNextUpdate();
     expect(result.current.status).toEqual('remove_card');
     cardApi.removeCard();
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     assert(isSuperadminAuth(result.current));
 
     // Insert an unprogrammed card
     cardApi.insertCard();
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current.card).toBeDefined();
     let card = result.current.card!;
@@ -637,7 +611,6 @@ describe('Card interface', () => {
         await card.programUser({ role: 'superadmin', passcode: '123456' })
       ).isOk()
     ).toEqual(true);
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current.card).toBeDefined();
     card = result.current.card!;
@@ -684,7 +657,6 @@ describe('Card interface', () => {
 
     // Auth as a super admin
     cardApi.insertCard(makeSuperadminCard());
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current.status).toEqual('checking_passcode');
     act(() => {
@@ -694,13 +666,11 @@ describe('Card interface', () => {
     await waitForNextUpdate();
     expect(result.current.status).toEqual('remove_card');
     cardApi.removeCard();
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     assert(isSuperadminAuth(result.current));
 
     // Insert an unprogrammed card
     cardApi.insertCard();
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current.card).toBeDefined();
     let card = result.current.card!;
@@ -711,7 +681,6 @@ describe('Card interface', () => {
         await card.programUser({ role: 'superadmin', passcode: '123456' })
       ).isOk()
     ).toEqual(true);
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current.card).toBeDefined();
     card = result.current.card!;
@@ -723,7 +692,6 @@ describe('Card interface', () => {
 
     // Unprogram the card
     expect((await card.unprogramUser()).isOk()).toEqual(true);
-    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
     expect(result.current.card).toBeDefined();
     card = result.current.card!;
