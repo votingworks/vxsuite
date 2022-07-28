@@ -1,5 +1,8 @@
 import { act, renderHook } from '@testing-library/react-hooks';
-import { electionSampleDefinition } from '@votingworks/fixtures';
+import {
+  electionSampleDefinition,
+  electionSample2Definition,
+} from '@votingworks/fixtures';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import {
   fakeAdminUser,
@@ -7,23 +10,47 @@ import {
   makeAdminCard,
   makePollWorkerCard,
   makeSuperadminCard,
+  mockOf,
 } from '@votingworks/test-utils';
 import { assert, MemoryCard } from '@votingworks/utils';
+
+import { areVvsg2AuthFlowsEnabled } from '../../config/features';
 import { CARD_POLLING_INTERVAL } from './auth_helpers';
 import { useDippedSmartcardAuth } from './use_dipped_smartcard_auth';
 
 const electionDefinition = electionSampleDefinition;
 const { electionHash } = electionDefinition;
+const otherElectionHash = electionSample2Definition.electionHash;
+
+jest.mock(
+  '../../config/features',
+  (): typeof import('../../config/features') => {
+    const original: typeof import('../../config/features') = jest.requireActual(
+      '../../config/features'
+    );
+    return {
+      ...original,
+      areVvsg2AuthFlowsEnabled: jest.fn(),
+    };
+  }
+);
 
 describe('useDippedSmartcardAuth', () => {
-  beforeEach(() => jest.useFakeTimers());
+  beforeEach(() => {
+    jest.useFakeTimers();
+    mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => false);
+  });
 
   it("when machine is locked, returns logged_out auth when there's no card or a card error", async () => {
     const logger = fakeLogger();
     const cardApi = new MemoryCard();
     cardApi.insertCard(undefined, undefined, 'error');
     const { result, waitForNextUpdate } = renderHook(() =>
-      useDippedSmartcardAuth({ cardApi, logger })
+      useDippedSmartcardAuth({
+        cardApi,
+        logger,
+        scope: { electionDefinition },
+      })
     );
     // Default before reading card is logged_out
     expect(result.current).toMatchObject({
@@ -59,7 +86,11 @@ describe('useDippedSmartcardAuth', () => {
     const logger = fakeLogger();
     const cardApi = new MemoryCard();
     const { result, waitForNextUpdate } = renderHook(() =>
-      useDippedSmartcardAuth({ cardApi, logger })
+      useDippedSmartcardAuth({
+        cardApi,
+        logger,
+        scope: { electionDefinition },
+      })
     );
     expect(result.current).toMatchObject({
       status: 'logged_out',
@@ -184,7 +215,11 @@ describe('useDippedSmartcardAuth', () => {
     const logger = fakeLogger();
     const cardApi = new MemoryCard();
     const { result, waitForNextUpdate } = renderHook(() =>
-      useDippedSmartcardAuth({ cardApi, logger })
+      useDippedSmartcardAuth({
+        cardApi,
+        logger,
+        scope: { electionDefinition },
+      })
     );
     expect(result.current).toMatchObject({
       status: 'logged_out',
@@ -310,7 +345,11 @@ describe('useDippedSmartcardAuth', () => {
     const cardApi = new MemoryCard();
     cardApi.insertCard(makeAdminCard(electionHash));
     const { result, waitForNextUpdate } = renderHook(() =>
-      useDippedSmartcardAuth({ cardApi, logger })
+      useDippedSmartcardAuth({
+        cardApi,
+        logger,
+        scope: { electionDefinition },
+      })
     );
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
@@ -339,7 +378,11 @@ describe('useDippedSmartcardAuth', () => {
     const logger = fakeLogger();
     const cardApi = new MemoryCard();
     const { result, waitForNextUpdate } = renderHook(() =>
-      useDippedSmartcardAuth({ cardApi, logger })
+      useDippedSmartcardAuth({
+        cardApi,
+        logger,
+        scope: { electionDefinition },
+      })
     );
     act(() => {
       assert(result.current.status === 'logged_out');
@@ -364,7 +407,11 @@ describe('useDippedSmartcardAuth', () => {
     const cardApi = new MemoryCard();
     cardApi.insertCard();
     const { result, waitForNextUpdate } = renderHook(() =>
-      useDippedSmartcardAuth({ cardApi, logger })
+      useDippedSmartcardAuth({
+        cardApi,
+        logger,
+        scope: { electionDefinition },
+      })
     );
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
@@ -400,7 +447,11 @@ describe('useDippedSmartcardAuth', () => {
     const cardApi = new MemoryCard();
     cardApi.insertCard(makePollWorkerCard(electionHash));
     const { result, waitForNextUpdate } = renderHook(() =>
-      useDippedSmartcardAuth({ cardApi, logger })
+      useDippedSmartcardAuth({
+        cardApi,
+        logger,
+        scope: { electionDefinition },
+      })
     );
     jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
     await waitForNextUpdate();
@@ -416,6 +467,96 @@ describe('useDippedSmartcardAuth', () => {
       expect.objectContaining({
         disposition: 'failure',
         reason: 'user_role_not_allowed',
+      })
+    );
+  });
+
+  it('returns logged_out auth when machine is not configured and admin is not allowed to access unconfigured machines', async () => {
+    mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => true);
+    const cardApi = new MemoryCard();
+    const logger = fakeLogger();
+
+    cardApi.insertCard(makeAdminCard(electionHash));
+    const { result, waitForNextUpdate } = renderHook(() =>
+      useDippedSmartcardAuth({
+        cardApi,
+        logger,
+        scope: { electionDefinition: undefined },
+      })
+    );
+    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
+    await waitForNextUpdate();
+
+    expect(result.current).toMatchObject({
+      status: 'logged_out',
+      reason: 'machine_not_configured',
+    });
+
+    expect(logger.log).toHaveBeenCalledTimes(1);
+    expect(logger.log).toHaveBeenLastCalledWith(
+      LogEventId.AuthLogin,
+      'admin',
+      expect.objectContaining({
+        disposition: 'failure',
+        reason: 'machine_not_configured',
+      })
+    );
+  });
+
+  it('allows admins to access unconfigured machines when setting is enabled', async () => {
+    mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => true);
+    const cardApi = new MemoryCard();
+    const logger = fakeLogger();
+
+    cardApi.insertCard(makeAdminCard(electionHash));
+    const { result, waitForNextUpdate } = renderHook(() =>
+      useDippedSmartcardAuth({
+        cardApi,
+        logger,
+        scope: {
+          allowAdminsToAccessUnconfiguredMachines: true,
+          electionDefinition: undefined,
+        },
+      })
+    );
+    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
+    await waitForNextUpdate();
+
+    expect(result.current).toMatchObject({
+      status: 'checking_passcode',
+    });
+
+    expect(logger.log).toHaveBeenCalledTimes(0);
+  });
+
+  it('returns logged_out auth when admin card election hash does not match machine election hash', async () => {
+    mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => true);
+    const cardApi = new MemoryCard();
+    const logger = fakeLogger();
+
+    cardApi.insertCard(makeAdminCard(otherElectionHash));
+    const { result, waitForNextUpdate } = renderHook(() =>
+      useDippedSmartcardAuth({
+        cardApi,
+        logger,
+        scope: { electionDefinition },
+      })
+    );
+    jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
+    await waitForNextUpdate();
+
+    expect(result.current).toMatchObject({
+      status: 'logged_out',
+      reason: 'admin_wrong_election',
+    });
+
+    expect(logger.log).toHaveBeenCalledTimes(1);
+    expect(logger.log).toHaveBeenLastCalledWith(
+      LogEventId.AuthLogin,
+      'admin',
+      expect.objectContaining({
+        disposition: 'failure',
+        reason: 'admin_wrong_election',
       })
     );
   });

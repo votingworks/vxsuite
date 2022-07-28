@@ -204,7 +204,11 @@ describe('Card interface', () => {
     const cardApi = new MemoryCard();
     const logger = fakeLogger();
     const { result, waitForNextUpdate } = renderHook(() =>
-      useDippedSmartcardAuth({ cardApi, logger })
+      useDippedSmartcardAuth({
+        cardApi,
+        logger,
+        scope: { electionDefinition },
+      })
     );
 
     // Auth as a super admin
@@ -462,7 +466,11 @@ describe('Card interface', () => {
     const cardApi = new MemoryCard();
     const logger = fakeLogger();
     const { result, waitForNextUpdate } = renderHook(() =>
-      useDippedSmartcardAuth({ cardApi, logger })
+      useDippedSmartcardAuth({
+        cardApi,
+        logger,
+        scope: { electionDefinition },
+      })
     );
 
     // Auth as a super admin
@@ -564,7 +572,11 @@ describe('Card interface', () => {
     const cardApi = new MemoryCard();
     const logger = fakeLogger();
     const { result, waitForNextUpdate } = renderHook(() =>
-      useDippedSmartcardAuth({ cardApi, logger })
+      useDippedSmartcardAuth({
+        cardApi,
+        logger,
+        scope: { electionDefinition },
+      })
     );
 
     // Auth as a super admin
@@ -663,7 +675,11 @@ describe('Card interface', () => {
   it('can program and unprogram cards without a logger', async () => {
     const cardApi = new MemoryCard();
     const { result, waitForNextUpdate } = renderHook(() =>
-      useDippedSmartcardAuth({ cardApi, logger: undefined })
+      useDippedSmartcardAuth({
+        cardApi,
+        logger: undefined,
+        scope: { electionDefinition },
+      })
     );
 
     // Auth as a super admin
