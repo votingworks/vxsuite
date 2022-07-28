@@ -1,63 +1,58 @@
 // Import the rest of our application.
 import { MockScannerClient, ScannerClient } from '@votingworks/plustek-sdk';
-import { ok, Result } from '@votingworks/types';
 import { Logger, LogSource, LogEventId } from '@votingworks/logging';
+import { ok, Result } from '@votingworks/types';
 import {
   MOCK_SCANNER_FILES,
   MOCK_SCANNER_HTTP,
   MOCK_SCANNER_PORT,
-  SCAN_ALWAYS_HOLD_ON_REJECT,
   VX_MACHINE_TYPE,
 } from './globals';
 import { LoopScanner, parseBatchesFromEnv } from './loop_scanner';
-import { plustekMockServer, PlustekScanner, Scanner } from './scanners';
+import { plustekMockServer, Scanner } from './scanners';
 import * as server from './server';
 
 const logger = new Logger(LogSource.VxScanService);
 
-async function getScanner(): Promise<Scanner | undefined> {
-  if (VX_MACHINE_TYPE === 'precinct-scanner') {
-    if (MOCK_SCANNER_HTTP) {
-      const client = new MockScannerClient();
-      await client.connect();
-      const port = MOCK_SCANNER_PORT;
-      process.stdout.write(
-        `Starting mock plustek scanner API at http://localhost:${port}/mock\n`
-      );
-      process.stdout.write(
-        `→ Load paper: curl -X PUT -d '{"files":["/path/to/front.jpg", "/path/to/back.jpg"]}' -H 'Content-Type: application/json' http://localhost:${port}/mock\n`
-      );
-      process.stdout.write(
-        `→ Remove paper: curl -X DELETE http://localhost:${port}/mock\n`
-      );
-      plustekMockServer(client).listen(port);
-      return new PlustekScanner(
-        {
-          // eslint-disable-next-line @typescript-eslint/require-await
-          get: async (): Promise<Result<ScannerClient, Error>> => ok(client),
-        },
-        SCAN_ALWAYS_HOLD_ON_REJECT
-      );
-    }
-  } else {
-    const mockScannerFiles = parseBatchesFromEnv(MOCK_SCANNER_FILES);
+async function createMockPlustekClient(): Promise<
+  Result<ScannerClient, Error>
+> {
+  const client = new MockScannerClient();
+  await client.connect();
+  const port = MOCK_SCANNER_PORT;
+  process.stdout.write(
+    `Starting mock plustek scanner API at http://localhost:${port}/mock\n`
+  );
+  process.stdout.write(
+    `→ Load paper: curl -X PUT -d '{"files":["/path/to/front.jpg", "/path/to/back.jpg"]}' -H 'Content-Type: application/json' http://localhost:${port}/mock\n`
+  );
+  process.stdout.write(
+    `→ Remove paper: curl -X DELETE http://localhost:${port}/mock\n`
+  );
+  plustekMockServer(client).listen(port);
+  return ok(client);
+}
+const createPlustekClient =
+  VX_MACHINE_TYPE === 'precinct-scanner' && MOCK_SCANNER_HTTP
+    ? createMockPlustekClient
+    : undefined;
 
-    if (mockScannerFiles) {
-      process.stdout.write(
-        `Using mock scanner that scans ${mockScannerFiles.reduce(
-          (count, sheets) => count + sheets.length,
-          0
-        )} sheet(s) in ${mockScannerFiles.length} batch(es) repeatedly.\n`
-      );
-      return new LoopScanner(mockScannerFiles);
-    }
-  }
+function getScanner(): Scanner | undefined {
+  if (VX_MACHINE_TYPE === 'precinct-scanner') return undefined;
 
-  return undefined;
+  const mockScannerFiles = parseBatchesFromEnv(MOCK_SCANNER_FILES);
+  if (!mockScannerFiles) return undefined;
+  process.stdout.write(
+    `Using mock scanner that scans ${mockScannerFiles.reduce(
+      (count, sheets) => count + sheets.length,
+      0
+    )} sheet(s) in ${mockScannerFiles.length} batch(es) repeatedly.\n`
+  );
+  return new LoopScanner(mockScannerFiles);
 }
 
 async function main(): Promise<number> {
-  await server.start({ scanner: await getScanner() });
+  await server.start({ scanner: getScanner(), createPlustekClient });
   return 0;
 }
 

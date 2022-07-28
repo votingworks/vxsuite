@@ -5,13 +5,17 @@
 
 import { Logger, LogEventId, LogSource } from '@votingworks/logging';
 import express, { Application } from 'express';
+import { createClient } from '@votingworks/plustek-sdk';
 import { PORT, SCAN_WORKSPACE, VX_MACHINE_TYPE } from './globals';
 import { Importer } from './importer';
 import { FujitsuScanner, Scanner, ScannerMode } from './scanners';
 import { createWorkspace, Workspace } from './util/workspace';
 import * as workers from './workers/combined';
 import { childProcessPool, WorkerPool } from './workers/pool';
-import { createPrecinctScannerStateMachine } from './precinct_scanner_state_machine';
+import {
+  CreatePlustekClient,
+  createPrecinctScannerStateMachine,
+} from './precinct_scanner_state_machine';
 import { buildPrecinctScannerApp } from './precinct_scanner_app';
 import { buildCentralScannerApp } from './central_scanner_app';
 
@@ -20,6 +24,7 @@ export interface StartOptions {
   scanner: Scanner;
   importer: Importer;
   app: Application;
+  createPlustekClient: CreatePlustekClient;
   log(message: string): void; // TODO(caro) Remove once all logging is moved over to logger
   logger: Logger;
   workspace: Workspace;
@@ -33,6 +38,7 @@ export async function start({
   port = PORT,
   scanner,
   importer,
+  createPlustekClient = createClient,
   app,
   logger = new Logger(LogSource.VxScanService),
   workspace,
@@ -60,7 +66,9 @@ export async function start({
   let resolvedApp: express.Application;
 
   if (machineType === 'precinct-scanner') {
-    const precinctScannerMachine = createPrecinctScannerStateMachine();
+    const precinctScannerMachine =
+      createPrecinctScannerStateMachine(createPlustekClient);
+
     resolvedApp = buildPrecinctScannerApp(
       precinctScannerMachine,
       resolvedWorkspace

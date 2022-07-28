@@ -1,9 +1,23 @@
+import { sleep } from '@votingworks/utils';
 import { ScannerError } from './errors';
 import { Errors, MockScannerClient } from './mocks';
 import { PaperStatus } from './paper_status';
 import { ClientDisconnectedError } from './scanner';
 
 const files: readonly string[] = ['/tmp/a.jpg', '/tmp/b.jpg'];
+
+function expectNoPaper(status?: PaperStatus) {
+  expect([PaperStatus.VtmDevReadyNoPaper, PaperStatus.NoPaperStatus]).toContain(
+    status
+  );
+}
+
+function expectJam(status?: PaperStatus) {
+  expect([
+    PaperStatus.Jam,
+    PaperStatus.VtmFrontAndBackSensorHavePaperReady,
+  ]).toContain(status);
+}
 
 beforeEach(() => {
   jest.useRealTimers();
@@ -33,9 +47,7 @@ test('loading', async () => {
   expect((await mock.simulateRemoveSheet()).err()).toEqual(Errors.NotConnected);
 
   await mock.connect();
-  expect((await mock.getPaperStatus()).ok()).toEqual(
-    PaperStatus.VtmDevReadyNoPaper
-  );
+  expectNoPaper((await mock.getPaperStatus()).ok());
   expect((await mock.simulateRemoveSheet()).err()).toEqual(
     Errors.NoPaperToRemove
   );
@@ -47,9 +59,7 @@ test('loading', async () => {
     Errors.DuplicateLoad
   );
   expect((await mock.simulateRemoveSheet()).err()).toBeUndefined();
-  expect((await mock.getPaperStatus()).ok()).toEqual(
-    PaperStatus.VtmDevReadyNoPaper
-  );
+  expectNoPaper((await mock.getPaperStatus()).ok());
   expect((await mock.simulateLoadSheet(files)).err()).toBeUndefined();
   expect((await mock.getPaperStatus()).ok()).toEqual(
     PaperStatus.VtmReadyToScan
@@ -81,12 +91,7 @@ test('unresponsive', async () => {
   expect((await mock.reject({ hold: true })).err()).toEqual(
     ScannerError.SaneStatusIoError
   );
-  expect((await mock.scan()).err()).toEqual(
-    ScannerError.PaperStatusErrorFeeding
-  );
-  expect(
-    (await mock.waitForStatus({ status: PaperStatus.VtmReadyToScan }))?.err()
-  ).toEqual(ScannerError.SaneStatusIoError);
+  expect((await mock.scan()).err()).toEqual(ScannerError.SaneStatusIoError);
   (await mock.close()).unsafeUnwrap();
 });
 
@@ -114,9 +119,6 @@ test('crashed', async () => {
     ClientDisconnectedError
   );
   expect((await mock.scan()).err()).toBeInstanceOf(ClientDisconnectedError);
-  expect(
-    (await mock.waitForStatus({ status: PaperStatus.VtmReadyToScan }))?.err()
-  ).toBeInstanceOf(ClientDisconnectedError);
   (await mock.close()).unsafeUnwrap();
 });
 
@@ -152,17 +154,13 @@ test('accept', async () => {
   // accept w/o scan
   (await mock.simulateLoadSheet(files)).unsafeUnwrap();
   (await mock.accept()).unsafeUnwrap();
-  expect((await mock.getPaperStatus()).ok()).toEqual(
-    PaperStatus.VtmDevReadyNoPaper
-  );
+  expectNoPaper((await mock.getPaperStatus()).ok());
 
   // accept w/scan
   (await mock.simulateLoadSheet(files)).unsafeUnwrap();
   await mock.scan();
   (await mock.accept()).unsafeUnwrap();
-  expect((await mock.getPaperStatus()).ok()).toEqual(
-    PaperStatus.VtmDevReadyNoPaper
-  );
+  expectNoPaper((await mock.getPaperStatus()).ok());
 });
 
 test('reject & hold', async () => {
@@ -182,6 +180,8 @@ test('reject & hold', async () => {
   // reject w/o scan
   (await mock.simulateLoadSheet(files)).unsafeUnwrap();
   (await mock.reject({ hold: true })).unsafeUnwrap();
+  expectNoPaper((await mock.getPaperStatus()).ok());
+  await sleep(1);
   expect((await mock.getPaperStatus()).ok()).toEqual(
     PaperStatus.VtmReadyToScan
   );
@@ -193,6 +193,8 @@ test('reject & hold', async () => {
   (await mock.simulateLoadSheet(files)).unsafeUnwrap();
   await mock.scan();
   (await mock.reject({ hold: true })).unsafeUnwrap();
+  expectNoPaper((await mock.getPaperStatus()).ok());
+  await sleep(1);
   expect((await mock.getPaperStatus()).ok()).toEqual(
     PaperStatus.VtmReadyToScan
   );
@@ -215,17 +217,13 @@ test('reject w/o hold', async () => {
   // reject w/o scan
   (await mock.simulateLoadSheet(files)).unsafeUnwrap();
   (await mock.reject({ hold: false })).unsafeUnwrap();
-  expect((await mock.getPaperStatus()).ok()).toEqual(
-    PaperStatus.VtmDevReadyNoPaper
-  );
+  expectNoPaper((await mock.getPaperStatus()).ok());
 
   // reject w/scan
   (await mock.simulateLoadSheet(files)).unsafeUnwrap();
   await mock.scan();
   (await mock.reject({ hold: false })).unsafeUnwrap();
-  expect((await mock.getPaperStatus()).ok()).toEqual(
-    PaperStatus.VtmDevReadyNoPaper
-  );
+  expectNoPaper((await mock.getPaperStatus()).ok());
 });
 
 test('calibrate', async () => {
@@ -243,10 +241,9 @@ test('calibrate', async () => {
   await mock.scan();
   expect((await mock.calibrate()).err()).toEqual(ScannerError.SaneStatusNoDocs);
   await mock.reject({ hold: true });
+  await sleep(1);
   (await mock.calibrate()).unsafeUnwrap();
-  expect((await mock.getPaperStatus()).ok()).toEqual(
-    PaperStatus.VtmDevReadyNoPaper
-  );
+  expectNoPaper((await mock.getPaperStatus()).ok());
 });
 
 test('paper held at both sides', async () => {
@@ -277,34 +274,86 @@ test('paper held at both sides', async () => {
   expect((await mock.reject({ hold: true })).err()).toEqual(
     ScannerError.VtmBothSideHavePaper
   );
-  expect((await mock.calibrate()).err()).toEqual(
-    ScannerError.VtmBothSideHavePaper
+  // On calibrate, plustek will just eject the back paper and go for it
+  (await mock.calibrate()).unsafeUnwrap();
+
+  // Removing the front sheet fixes it
+  (await mock.simulateLoadSheet(files)).unsafeUnwrap();
+  (await mock.scan()).unsafeUnwrap();
+  (await mock.simulateLoadSheet(files)).unsafeUnwrap();
+  expect((await mock.getPaperStatus()).ok()).toEqual(
+    PaperStatus.VtmBothSideHavePaper
+  );
+  (await mock.simulateRemoveSheet()).unsafeUnwrap();
+  expect((await mock.getPaperStatus()).ok()).toEqual(
+    PaperStatus.VtmReadyToEject
   );
 });
 
-test('waitForStatus', async () => {
+test('paper jam', async () => {
   const mock = new MockScannerClient({
     toggleHoldDuration: 0,
     passthroughDuration: 0,
   });
-  expect(
-    (await mock.waitForStatus({ status: PaperStatus.VtmReadyToScan }))?.err()
-  ).toEqual(ScannerError.NoDevices);
   await mock.connect();
 
-  expect(
-    (
-      await mock.waitForStatus({ status: PaperStatus.Scanning, timeout: 5 })
-    )?.ok()
-  ).toEqual(PaperStatus.VtmDevReadyNoPaper);
+  // Jam on scan
+  (await mock.simulateLoadSheet(files)).unsafeUnwrap();
+  mock.simulateJamOnNextOperation();
+  expect((await mock.scan()).err()).toEqual(ScannerError.PaperStatusJam);
+  expectJam((await mock.getPaperStatus()).ok());
+  // Once jammed, still jammed til paper removed
+  expect((await mock.scan()).err()).toEqual(ScannerError.PaperStatusJam);
+  expectJam((await mock.getPaperStatus()).ok());
+  (await mock.simulateRemoveSheet()).unsafeUnwrap();
+  expectNoPaper((await mock.getPaperStatus()).ok());
 
-  expect(
-    await mock.waitForStatus({ status: PaperStatus.Scanning, timeout: 0 })
-  ).toBeUndefined();
+  // Jam on reject with paper in back
+  (await mock.simulateLoadSheet(files)).unsafeUnwrap();
+  (await mock.scan()).unsafeUnwrap();
+  mock.simulateJamOnNextOperation();
+  expect((await mock.reject({ hold: true })).err()).toEqual(
+    ScannerError.PaperStatusJam
+  );
+  expectJam((await mock.getPaperStatus()).ok());
+  expect((await mock.reject({ hold: true })).err()).toEqual(
+    ScannerError.PaperStatusJam
+  );
+  expectJam((await mock.getPaperStatus()).ok());
+  (await mock.simulateRemoveSheet()).unsafeUnwrap();
+  expectNoPaper((await mock.getPaperStatus()).ok());
 
-  expect(
-    (await mock.waitForStatus({ status: PaperStatus.VtmDevReadyNoPaper }))?.ok()
-  ).toEqual(PaperStatus.VtmDevReadyNoPaper);
+  // Jam on accept with paper in front
+  (await mock.simulateLoadSheet(files)).unsafeUnwrap();
+  mock.simulateJamOnNextOperation();
+  expect((await mock.accept()).err()).toEqual(ScannerError.PaperStatusJam);
+  expectJam((await mock.getPaperStatus()).ok());
+  expect((await mock.accept()).err()).toEqual(ScannerError.PaperStatusJam);
+  expectJam((await mock.getPaperStatus()).ok());
+  (await mock.simulateRemoveSheet()).unsafeUnwrap();
+  expectNoPaper((await mock.getPaperStatus()).ok());
+
+  // Jam on accept with paper in the back
+  // This completes successfully even though the paper doesn't get dropped
+  (await mock.simulateLoadSheet(files)).unsafeUnwrap();
+  (await mock.scan()).unsafeUnwrap();
+  mock.simulateJamOnNextOperation();
+  (await mock.accept()).unsafeUnwrap();
+  expect((await mock.getPaperStatus()).ok()).toEqual(
+    PaperStatus.VtmReadyToEject
+  );
+  (await mock.accept()).unsafeUnwrap();
+  expectNoPaper((await mock.getPaperStatus()).ok());
+
+  // Jam on calibrate
+  (await mock.simulateLoadSheet(files)).unsafeUnwrap();
+  mock.simulateJamOnNextOperation();
+  expect((await mock.calibrate()).err()).toEqual(ScannerError.PaperStatusJam);
+  expectJam((await mock.getPaperStatus()).ok());
+  expect((await mock.calibrate()).err()).toEqual(ScannerError.PaperStatusJam);
+  expectJam((await mock.getPaperStatus()).ok());
+  (await mock.simulateRemoveSheet()).unsafeUnwrap();
+  expectNoPaper((await mock.getPaperStatus()).ok());
 });
 
 test('close', async () => {

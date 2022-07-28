@@ -6,6 +6,7 @@ import {
 import { err, ok } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
 import request from 'supertest';
+import { sleep } from '@votingworks/utils';
 import { makeMockPlustekClient } from '../../test/util/mocks';
 import { plustekMockServer, PlustekScanner, withReconnect } from './plustek';
 
@@ -248,27 +249,30 @@ test('withReconnect', async () => {
     toggleHoldDuration: 0,
   });
   await client.connect();
-  const unresponsiveClient = new MockScannerClient({
-    passthroughDuration: 0,
-    toggleHoldDuration: 0,
-  });
-  await client.connect();
-  unresponsiveClient.simulateUnresponsive();
+  async function makeUnresponsiveClient() {
+    const unresponsiveClient = new MockScannerClient({
+      passthroughDuration: 0,
+      toggleHoldDuration: 0,
+    });
+    await unresponsiveClient.connect();
+    unresponsiveClient.simulateUnresponsive();
+    return ok(unresponsiveClient);
+  }
 
   // set up provider to fail before eventually succeeding
   const getClient = jest
     .fn()
-    .mockResolvedValueOnce(ok(unresponsiveClient))
-    .mockResolvedValueOnce(ok(unresponsiveClient))
-    .mockResolvedValueOnce(ok(unresponsiveClient))
+    .mockResolvedValueOnce(makeUnresponsiveClient())
+    .mockResolvedValueOnce(makeUnresponsiveClient())
+    .mockResolvedValueOnce(makeUnresponsiveClient())
     .mockResolvedValueOnce(ok(client));
   const provider = withReconnect({ get: getClient });
 
   // ensure we tried until we got to the good client
   const wrappedClient = (await provider.get()).unsafeUnwrap();
   expect(wrappedClient).toBeDefined();
-  expect((await wrappedClient.getPaperStatus()).unsafeUnwrap()).toEqual(
-    PaperStatus.VtmDevReadyNoPaper
+  expect([PaperStatus.VtmDevReadyNoPaper, PaperStatus.NoPaperStatus]).toContain(
+    (await wrappedClient.getPaperStatus()).unsafeUnwrap()
   );
   expect(getClient).toHaveBeenCalledTimes(4);
 
@@ -281,6 +285,7 @@ test('withReconnect', async () => {
   (await client.simulateLoadSheet(['/tmp/a.jpg', '/tmp/b.jpg'])).unsafeUnwrap();
   (await wrappedClient.scan()).unsafeUnwrap();
   (await wrappedClient.reject({ hold: true })).unsafeUnwrap();
+  await sleep(1);
   (await wrappedClient.accept()).unsafeUnwrap();
   (
     await client.simulateLoadSheet(['/tmp/blank.jpg', '/tmp/blank.jpg'])
