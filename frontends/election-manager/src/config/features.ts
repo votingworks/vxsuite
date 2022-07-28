@@ -27,25 +27,6 @@ export function isWriteInAdjudicationEnabled(): boolean {
 }
 
 /**
- * Determines whether VVSG2 auth flows are enabled.
- *
- * To enable VVSG2 auth flows, add this line to `frontends/election-manager/.env.local`:
- *
- *     REACT_APP_VX_ENABLE_VVSG2_AUTH_FLOWS=true
- *
- * To disable them, remove the line or comment it out. Restarting the server is required.
- *
- * @see https://create-react-app.dev/docs/adding-custom-environment-variables/
- */
-export function areVvsg2AuthFlowsEnabled(): boolean {
-  return (
-    (process.env.NODE_ENV === 'development' ||
-      asBoolean(process.env.REACT_APP_VX_DEV)) &&
-    asBoolean(process.env.REACT_APP_VX_ENABLE_VVSG2_AUTH_FLOWS)
-  );
-}
-
-/**
  * Determines which converter client to use, if any.
  */
 export function getConverterClientType(): ConverterClientType | undefined {
