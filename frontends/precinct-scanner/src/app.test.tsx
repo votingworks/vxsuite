@@ -26,14 +26,21 @@ import {
   makeAdminCard,
   makeSuperadminCard,
   getZeroCompressedTally,
+  mockOf,
 } from '@votingworks/test-utils';
 import { join } from 'path';
-import { electionSampleDefinition } from '@votingworks/fixtures';
+import {
+  electionSampleDefinition,
+  electionSample2Definition,
+} from '@votingworks/fixtures';
 
 import { AdjudicationReason, PrecinctSelectionKind } from '@votingworks/types';
 
 import { mocked } from 'ts-jest/utils';
-import { CARD_POLLING_INTERVAL } from '@votingworks/ui';
+import {
+  CARD_POLLING_INTERVAL,
+  areVvsg2AuthFlowsEnabled,
+} from '@votingworks/ui';
 import userEvent from '@testing-library/user-event';
 import { App } from './app';
 
@@ -60,9 +67,29 @@ jest.mock('@votingworks/utils/build/ballot_package', () => ({
 }));
 // End mocking `readBallotPackageFromFilePointer`.
 
+jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => {
+  const original: typeof import('@votingworks/ui') =
+    jest.requireActual('@votingworks/ui');
+  return {
+    ...original,
+    areVvsg2AuthFlowsEnabled: jest.fn(),
+  };
+});
+
+function enableVvsg2AuthFlows() {
+  mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => true);
+  process.env['REACT_APP_VX_ENABLE_VVSG2_AUTH_FLOWS'] = 'true';
+}
+
+function disableVvsg2AuthFlows() {
+  mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => false);
+  process.env['REACT_APP_VX_ENABLE_VVSG2_AUTH_FLOWS'] = undefined;
+}
+
 beforeEach(() => {
   jest.useFakeTimers();
   fetchMock.reset();
+  disableVvsg2AuthFlows();
 });
 
 const getMachineConfigBody: MachineConfigResponse = {
@@ -1148,4 +1175,29 @@ test('superadmin card', async () => {
   expect(kiosk.quit).toHaveBeenCalledTimes(1);
 
   card.removeCard();
+});
+
+test('admin cannot auth onto machine with different election hash when VVSG2 auth flows are enabled', async () => {
+  enableVvsg2AuthFlows();
+
+  const card = new MemoryCard();
+  const hardware = MemoryHardware.buildStandard();
+  hardware.setCardReaderConnected(true);
+  const storage = new MemoryStorage();
+
+  const kiosk = fakeKiosk();
+  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+  window.kiosk = kiosk;
+
+  fetchMock
+    .get('/machine-config', { body: getMachineConfigBody })
+    .get('/config/election', { body: electionSampleDefinition })
+    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
+    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/scanner/status', { body: statusNoPaper });
+
+  render(<App card={card} storage={storage} hardware={hardware} />);
+
+  card.insertCard(makeAdminCard(electionSample2Definition.electionHash));
+  await screen.findByText('Invalid Card, please remove.');
 });
