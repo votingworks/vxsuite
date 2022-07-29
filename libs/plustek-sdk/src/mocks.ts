@@ -210,28 +210,45 @@ export interface Options {
   passthroughDuration?: number;
 }
 
+function initMachine(toggleHoldDuration: number, passthroughDuration: number) {
+  return interpret(
+    mockPlustekMachine.withConfig({
+      delays: {
+        SCANNING_DELAY: passthroughDuration,
+        ACCEPTING_DELAY: toggleHoldDuration,
+        REJECTING_DELAY: passthroughDuration,
+        HOLD_DELAY: toggleHoldDuration,
+        CALIBRATING_DELAY: passthroughDuration * 3,
+      },
+    })
+  ).start();
+}
+
 /**
  * Provides a mock `ScannerClient` that acts like the plustek VTM 300.
  */
 export class MockScannerClient implements ScannerClient {
-  private readonly machine;
+  private machine;
   private readonly toggleHoldDuration: number;
+  private readonly passthroughDuration: number;
   constructor({
     toggleHoldDuration = 100,
     passthroughDuration = 1000,
   }: Options = {}) {
     this.toggleHoldDuration = toggleHoldDuration;
-    this.machine = interpret(
-      mockPlustekMachine.withConfig({
-        delays: {
-          SCANNING_DELAY: passthroughDuration,
-          ACCEPTING_DELAY: toggleHoldDuration,
-          REJECTING_DELAY: passthroughDuration,
-          HOLD_DELAY: toggleHoldDuration,
-          CALIBRATING_DELAY: passthroughDuration * 3,
-        },
-      })
-    ).start();
+    this.passthroughDuration = passthroughDuration;
+    this.machine = initMachine(toggleHoldDuration, passthroughDuration);
+  }
+
+  /**
+   * Resets the mock to its initial state.
+   */
+  reset(): void {
+    debug('resetting mock');
+    this.machine = initMachine(
+      this.toggleHoldDuration,
+      this.passthroughDuration
+    );
   }
 
   /**
