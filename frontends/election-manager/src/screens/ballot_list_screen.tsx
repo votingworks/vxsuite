@@ -16,6 +16,7 @@ import {
 } from '../utils/election';
 import { NavigationScreen } from '../components/navigation_screen';
 import { ExportElectionBallotPackageModalButton } from '../components/export_election_ballot_package_modal_button';
+import { ExportBallotPdfsButton } from '../components/export_ballot_pdfs_button';
 
 const Header = styled.div`
   display: flex;
@@ -49,6 +50,7 @@ export function BallotListScreen(): JSX.Element {
       <Header>
         <Prose maxWidth={false}>
           <p>
+            <ExportBallotPdfsButton />{' '}
             <ExportElectionBallotPackageModalButton />
           </p>
         </Prose>

@@ -1,5 +1,5 @@
 import {
-  BallotLocale,
+  BallotLocales,
   BallotStyle,
   BallotStyleId,
   CastVoteRecord,
@@ -36,10 +36,16 @@ export const PrintableBallotType = {
 export type PrintableBallotType =
   typeof PrintableBallotType[keyof typeof PrintableBallotType];
 
+export enum BallotMode {
+  Official = 'live',
+  Test = 'test',
+  Sample = 'sample',
+}
+
 export interface PrintedBallot {
   ballotStyleId: BallotStyle['id'];
   precinctId: Precinct['id'];
-  locales: BallotLocale;
+  locales: BallotLocales;
   numCopies: number;
   printedAt: Iso8601Timestamp;
   type: PrintableBallotType;

@@ -1,6 +1,6 @@
 import {
   AnyContest,
-  BallotLocale,
+  BallotLocales,
   Candidate,
   CandidateContest,
   Election,
@@ -18,6 +18,7 @@ import {
 import { assert, BallotStyleData, find } from '@votingworks/utils';
 import dashify from 'dashify';
 import { LANGUAGES } from '../config/globals';
+import { BallotMode } from '../config/types';
 
 import { sortBy } from './sort_by';
 
@@ -103,7 +104,7 @@ export function getLanguageByLocaleCode(localeCode: string): string {
   return LANGUAGES[localeCode.split('-')[0]] ?? localeCode;
 }
 
-export function getHumanBallotLanguageFormat(locales: BallotLocale): string {
+export function getHumanBallotLanguageFormat(locales: BallotLocales): string {
   return !locales.secondary
     ? getLanguageByLocaleCode(locales.primary)
     : `${getLanguageByLocaleCode(locales.primary)}/${getLanguageByLocaleCode(
@@ -117,7 +118,7 @@ export function getBallotPath({
   electionHash,
   precinctId,
   locales,
-  isLiveMode,
+  ballotMode,
   isAbsentee,
   variant,
   extension = '.pdf',
@@ -126,8 +127,8 @@ export function getBallotPath({
   election: Election;
   electionHash: string;
   precinctId: PrecinctId;
-  locales: BallotLocale;
-  isLiveMode: boolean;
+  locales: BallotLocales;
+  ballotMode: BallotMode;
   isAbsentee: boolean;
   variant?: string;
   extension?: string;
@@ -142,9 +143,19 @@ export function getBallotPath({
     precinctName
   )}-id-${precinctId}-style-${ballotStyleId}-${getHumanBallotLanguageFormat(
     locales
-  ).replace(/[^a-z]+/gi, '-')}-${isLiveMode ? 'live' : 'test'}${
+  ).replace(/[^a-z]+/gi, '-')}-${ballotMode}${isAbsentee ? '-absentee' : ''}${
+    variant ? `-${variant}` : ''
+  }${extension}`;
+}
+
+export function getBallotArchiveFilename(
+  electionHash: string,
+  ballotMode: BallotMode,
+  isAbsentee: boolean
+): string {
+  return `ballot-pdfs-election-${electionHash.slice(0, 10)}-${ballotMode}${
     isAbsentee ? '-absentee' : ''
-  }${variant ? `-${variant}` : ''}${extension}`;
+  }`;
 }
 
 export function getAllPossibleCandidatesForCandidateContest(
