@@ -80,7 +80,7 @@ export const DEFAULT_CONFIG: Readonly<Config> = {
   multifeed: true,
   imagefmt: 'jpeg',
   quality: 80,
-  swdeskew: true,
+  swdeskew: false,
   swcrop: false,
   thumbnail: false,
   'remove-blankpage': 0,
