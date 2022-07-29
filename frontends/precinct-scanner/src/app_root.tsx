@@ -13,14 +13,12 @@ import {
   useUsbDrive,
   SetupCardReaderPage,
   useDevices,
-  RebootFromUsbButton,
-  RebootToBiosButton,
-  Button,
   UnlockMachineScreen,
   useInsertedSmartcardAuth,
   isSuperadminAuth,
   isAdminAuth,
   isPollworkerAuth,
+  SystemAdministratorScreenContents,
 } from '@votingworks/ui';
 import {
   throwIllegalValue,
@@ -54,7 +52,7 @@ import { AppContext } from './contexts/app_context';
 import { SetupPowerPage } from './screens/setup_power_page';
 import { CardErrorScreen } from './screens/card_error_screen';
 import { SetupScannerScreen } from './screens/setup_scanner_screen';
-import { ScreenMainCenterChild, CenteredLargeProse } from './components/layout';
+import { ScreenMainCenterChild } from './components/layout';
 import { InsertUsbScreen } from './screens/insert_usb_screen';
 import { ScanReturnedBallotScreen } from './screens/scan_returned_ballot_screen';
 import { ScanJamScreen } from './screens/scan_jam_screen';
@@ -370,21 +368,26 @@ export function AppRoot({
     return <SetupPowerPage />;
   }
 
+  if (auth.status === 'checking_passcode' && auth.user.role === 'superadmin') {
+    return <UnlockMachineScreen auth={auth} />;
+  }
+
   if (isSuperadminAuth(auth)) {
     return (
       <ScreenMainCenterChild infoBar>
-        <CenteredLargeProse>
-          <RebootFromUsbButton
-            usbDriveStatus={usbDriveDisplayStatus}
-            logger={logger}
-          />
-          <br />
-          <br />
-          <RebootToBiosButton logger={logger} />
-          <br />
-          <br />
-          <Button onPress={() => window.kiosk?.quit()}>Reset</Button>
-        </CenteredLargeProse>
+        <SystemAdministratorScreenContents
+          displayRemoveCardToLeavePrompt
+          logger={logger}
+          primaryText={
+            <React.Fragment>
+              To adjust settings for the current election,
+              <br />
+              please insert an Election Manager or Poll Worker card.
+            </React.Fragment>
+          }
+          unconfigureMachine={unconfigureServer}
+          usbDriveStatus={usbDriveDisplayStatus}
+        />
       </ScreenMainCenterChild>
     );
   }

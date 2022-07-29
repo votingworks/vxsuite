@@ -1,41 +1,38 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 
-import {
-  Main,
-  RebootFromUsbButton,
-  RebootToBiosButton,
-  Screen,
-  Button,
-} from '@votingworks/ui';
-
-import { usbstick } from '@votingworks/utils';
 import { Logger } from '@votingworks/logging';
+import { Screen, SystemAdministratorScreenContents } from '@votingworks/ui';
+import { usbstick } from '@votingworks/utils';
 
 interface Props {
-  usbDriveStatus: usbstick.UsbDriveStatus;
-  useEffectToggleLargeDisplay: () => void;
   logger: Logger;
+  unconfigureMachine: () => Promise<void>;
+  usbDriveStatus: usbstick.UsbDriveStatus;
 }
 
 /**
- * Screen when a super admin card is inserted. More functionality will be added to this in the future, for now it just can reboot from usb.
+ * Screen when a super admin card is inserted
  */
 export function SuperAdminScreen({
-  usbDriveStatus,
-  useEffectToggleLargeDisplay,
   logger,
+  unconfigureMachine,
+  usbDriveStatus,
 }: Props): JSX.Element {
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(useEffectToggleLargeDisplay, []);
   return (
     <Screen white>
-      <Main padded centerChild>
-        <RebootFromUsbButton usbDriveStatus={usbDriveStatus} logger={logger} />
-        <br />
-        <RebootToBiosButton logger={logger} />
-        <br />
-        <Button onPress={() => window.kiosk?.quit()}>Reset</Button>
-      </Main>
+      <SystemAdministratorScreenContents
+        displayRemoveCardToLeavePrompt
+        logger={logger}
+        primaryText={
+          <React.Fragment>
+            To adjust settings for the current election,
+            <br />
+            please insert an Election Manager or Poll Worker card.
+          </React.Fragment>
+        }
+        unconfigureMachine={unconfigureMachine}
+        usbDriveStatus={usbDriveStatus}
+      />
     </Screen>
   );
 }

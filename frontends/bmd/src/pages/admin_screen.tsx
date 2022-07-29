@@ -208,7 +208,7 @@ export function AdminScreen({
             <p>Loading Election Definition from Admin Card…</p>
           ) : (
             <React.Fragment>
-              <Text warningIcon>Election definition is not Loaded.</Text>
+              <Text warningIcon>Election definition is not loaded.</Text>
               <p>
                 <Button onPress={loadElection}>Load Election Definition</Button>
               </p>
