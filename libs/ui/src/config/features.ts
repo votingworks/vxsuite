@@ -1,5 +1,9 @@
 import { asBoolean } from '@votingworks/utils';
 
+export function isVxDev(): boolean {
+  return asBoolean(process.env.REACT_APP_VX_DEV);
+}
+
 /**
  * Determines whether to actually check for presence of card reader
  *
@@ -11,8 +15,7 @@ import { asBoolean } from '@votingworks/utils';
  */
 export function isCardReaderCheckDisabled(): boolean {
   return (
-    (process.env.NODE_ENV === 'development' ||
-      asBoolean(process.env.REACT_APP_VX_DEV)) &&
+    (process.env.NODE_ENV === 'development' || isVxDev()) &&
     asBoolean(process.env.REACT_APP_VX_DISABLE_CARD_READER_CHECK)
   );
 }
@@ -31,9 +34,7 @@ export function isCardReaderCheckDisabled(): boolean {
  */
 export function areVvsg2AuthFlowsEnabled(): boolean {
   return (
-    (process.env.NODE_ENV === 'development' ||
-      process.env.NODE_ENV === 'test' ||
-      asBoolean(process.env.REACT_APP_VX_DEV)) &&
+    (['development', 'test'].includes(process.env.NODE_ENV) || isVxDev()) &&
     asBoolean(process.env.REACT_APP_VX_ENABLE_VVSG2_AUTH_FLOWS)
   );
 }
