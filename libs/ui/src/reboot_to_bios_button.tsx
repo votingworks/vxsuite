@@ -12,8 +12,6 @@ interface Props {
 /**
  * Button that reboots into the BIOS setup.
  */
-
-// eslint-disable-next-line vx/gts-identifiers
 export function RebootToBiosButton({ logger }: Props): JSX.Element {
   const [isRebooting, setIsRebooting] = useState(false);
   async function reboot() {
@@ -22,12 +20,11 @@ export function RebootToBiosButton({ logger }: Props): JSX.Element {
       message: 'User trigged a reboot of the machine to BIOS screen…',
     });
     setIsRebooting(true);
-    // eslint-disable-next-line vx/gts-identifiers
     await window.kiosk.rebootToBios();
   }
 
   if (isRebooting) {
-    return <Modal content={<Loading>Rebooting…</Loading>} />;
+    return <Modal content={<Loading>Rebooting</Loading>} />;
   }
   return <Button onPress={reboot}>Reboot to BIOS</Button>;
 }

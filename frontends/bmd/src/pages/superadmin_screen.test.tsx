@@ -1,40 +1,24 @@
 import React from 'react';
-import { fireEvent, screen, waitFor } from '@testing-library/react';
-import { fakeKiosk } from '@votingworks/test-utils';
-
+import { fakeLogger } from '@votingworks/logging';
+import { screen } from '@testing-library/react';
 import { usbstick } from '@votingworks/utils';
 
-import { Logger, LogSource } from '@votingworks/logging';
 import { render } from '../../test/test_utils';
-
 import { SuperAdminScreen } from './superadmin_screen';
 
-const logger = new Logger(LogSource.VxBallotMarkingDeviceService);
-
-it('the right buttons and reset calls quit', async () => {
+test('SuperAdminScreen renders expected contents', () => {
+  const logger = fakeLogger();
+  const unconfigureMachine = jest.fn();
   render(
     <SuperAdminScreen
-      usbDriveStatus={usbstick.UsbDriveStatus.absent}
-      useEffectToggleLargeDisplay={jest.fn()}
       logger={logger}
+      unconfigureMachine={unconfigureMachine}
+      usbDriveStatus={usbstick.UsbDriveStatus.absent}
     />
   );
-  screen.getByText('Reboot from USB');
-  screen.getByText('Reboot to BIOS');
-  screen.getByText('Reset');
 
-  // test without kiosk
-  fireEvent.click(screen.getByText('Reset'));
-
-  // test with kiosk
-  window.kiosk = fakeKiosk();
-  fireEvent.click(screen.getByText('Reset'));
-  await waitFor(() => {
-    expect(window.kiosk!.quit).toHaveBeenCalledTimes(1);
-  });
-
-  fireEvent.click(screen.getByText('Reboot to BIOS'));
-  await waitFor(() => {
-    expect(window.kiosk!.rebootToBios).toHaveBeenCalledTimes(1);
-  });
+  // These buttons are further tested in libs/ui
+  screen.getByRole('button', { name: 'Reboot from USB' });
+  screen.getByRole('button', { name: 'Reboot to BIOS' });
+  screen.getByRole('button', { name: 'Unconfigure Machine' });
 });

@@ -17,6 +17,7 @@ import {
   fireEvent,
   screen,
   act,
+  within,
 } from '@testing-library/react';
 import {
   fakeKiosk,
@@ -100,6 +101,10 @@ const getMachineConfigBody: MachineConfigResponse = {
 const getTestModeConfigTrueResponseBody: Scan.GetTestModeConfigResponse = {
   status: 'ok',
   testMode: true,
+};
+
+const deleteElectionConfigResponseBody: Scan.DeleteElectionConfigResponse = {
+  status: 'ok',
 };
 
 function scannerStatus(
@@ -1140,7 +1145,7 @@ test('no printer: open polls, scan ballot, close polls, export results', async (
   await screen.findByText('Polls Closed');
 });
 
-test('superadmin card', async () => {
+test('super admin can log in and unconfigure machine', async () => {
   const card = new MemoryCard();
   const storage = new MemoryStorage();
   const hardware = MemoryHardware.buildStandard();
@@ -1155,7 +1160,8 @@ test('superadmin card', async () => {
     .get('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/scanner/status', { body: statusNoPaper });
+    .get('/scanner/status', { body: statusNoPaper })
+    .delete('/config/election', { body: deleteElectionConfigResponseBody });
   render(<App card={card} storage={storage} hardware={hardware} />);
 
   card.insertCard(makeSuperadminCard());
@@ -1167,14 +1173,47 @@ test('superadmin card', async () => {
   userEvent.click(screen.getByText('5'));
   userEvent.click(screen.getByText('6'));
 
-  await screen.findByText('Reboot from USB');
-  screen.getByText('Reboot to BIOS');
-  screen.getByText('Reset');
-  fireEvent.click(screen.getByText('Reset'));
+  await screen.findByRole('button', { name: 'Reboot from USB' });
+  screen.getByRole('button', { name: 'Reboot to BIOS' });
+  const unconfigureMachineButton = screen.getByRole('button', {
+    name: 'Unconfigure Machine',
+  });
 
-  expect(kiosk.quit).toHaveBeenCalledTimes(1);
+  userEvent.click(unconfigureMachineButton);
+  const modal = await screen.findByRole('alertdialog');
+  userEvent.click(
+    within(modal).getByRole('button', {
+      name: 'Yes, Delete Election Data',
+    })
+  );
+  await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull(), {
+    timeout: 2000,
+  });
 
   card.removeCard();
+});
+
+test('super admin allowed to log in on unconfigured machine', async () => {
+  const card = new MemoryCard();
+  const hardware = MemoryHardware.buildStandard();
+  hardware.setCardReaderConnected(true);
+  const storage = new MemoryStorage();
+
+  const kiosk = fakeKiosk();
+  kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+  window.kiosk = kiosk;
+
+  fetchMock
+    .get('/machine-config', { body: getMachineConfigBody })
+    .get('/config/election', { body: null })
+    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
+    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/scanner/status', { body: statusNoPaper });
+
+  render(<App card={card} storage={storage} hardware={hardware} />);
+
+  card.insertCard(makeSuperadminCard());
+  await screen.findByText('Enter the card security code to unlock.');
 });
 
 test('admin cannot auth onto machine with different election hash when VVSG2 auth flows are enabled', async () => {

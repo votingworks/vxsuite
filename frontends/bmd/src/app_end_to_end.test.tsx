@@ -1,5 +1,11 @@
 import React from 'react';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from '@testing-library/react';
 import { advanceBy } from 'jest-date-mock';
 import {
   makeAdminCard,
@@ -17,6 +23,7 @@ import {
 } from '@votingworks/utils';
 import { PrecinctSelectionKind } from '@votingworks/types';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
+import userEvent from '@testing-library/user-event';
 import * as GLOBALS from './config/globals';
 
 import { electionSampleDefinition } from './data';
@@ -432,4 +439,41 @@ it('MarkAndPrint end-to-end flow', async () => {
   card.insertCard(makeSuperadminCard());
   await authenticateAdminCard();
   await screen.findByText('Reboot from USB');
+  card.removeCard();
+  await advanceTimersAndPromises();
+
+  // ---------------
+
+  // Configure with Admin card
+  card.insertCard(adminCard, electionDefinition.electionData);
+  await authenticateAdminCard();
+  userEvent.click(
+    screen.getByRole('button', { name: 'Load Election Definition' })
+  );
+  await screen.findByText('Election definition is loaded.');
+  card.removeCard();
+  await advanceTimersAndPromises();
+
+  // Unconfigure with Super Admin card
+  card.insertCard(makeSuperadminCard());
+  await authenticateAdminCard();
+  userEvent.click(screen.getByRole('button', { name: 'Unconfigure Machine' }));
+  const modal = await screen.findByRole('alertdialog');
+  userEvent.click(
+    within(modal).getByRole('button', {
+      name: 'Yes, Delete Election Data',
+    })
+  );
+  await waitFor(
+    () => expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument(),
+    { timeout: 2000 }
+  );
+  card.removeCard();
+  await advanceTimersAndPromises();
+
+  // Verify that machine was unconfigured
+  screen.getByText('Device Not Configured');
+  card.insertCard(adminCard, electionDefinition.electionData);
+  await authenticateAdminCard();
+  screen.getByText('Election definition is not loaded.');
 });

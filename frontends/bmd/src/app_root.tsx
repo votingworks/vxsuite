@@ -737,9 +737,9 @@ export function AppRoot({
   if (isSuperadminAuth(auth)) {
     return (
       <SuperAdminScreen
-        useEffectToggleLargeDisplay={useEffectToggleLargeDisplay}
-        usbDriveStatus={displayUsbStatus}
         logger={logger}
+        unconfigureMachine={unconfigure}
+        usbDriveStatus={displayUsbStatus}
       />
     );
   }

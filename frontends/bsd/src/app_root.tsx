@@ -19,17 +19,15 @@ import {
 } from '@votingworks/utils';
 import {
   ElectionInfoBar,
-  fontSizeTheme,
   isSuperadminAuth,
   Main,
   Prose,
-  RebootFromUsbButton,
-  RebootToBiosButton,
   UnlockMachineScreen,
   InvalidCardScreen,
   RemoveCardScreen,
   Screen,
   SetupCardReaderPage,
+  SystemAdministratorScreenContents,
   Text,
   UsbControllerButton,
   useDevices,
@@ -536,16 +534,17 @@ export function AppRoot({ card, hardware, logger }: AppRootProps): JSX.Element {
     return (
       <AppContext.Provider value={currentContext}>
         <Screen>
-          <Main padded centerChild>
-            <Prose theme={fontSizeTheme.large}>
-              <RebootFromUsbButton
-                usbDriveStatus={displayUsbStatus}
-                logger={logger}
-              />
-              <br />
-              <RebootToBiosButton logger={logger} />
-            </Prose>
-          </Main>
+          <SystemAdministratorScreenContents
+            logger={logger}
+            primaryText={
+              <React.Fragment>
+                To adjust settings for the current election, please insert an
+                Election Manager card.
+              </React.Fragment>
+            }
+            unconfigureMachine={unconfigureServer}
+            usbDriveStatus={displayUsbStatus}
+          />
           <ElectionInfoBar
             mode="admin"
             electionDefinition={electionDefinition}

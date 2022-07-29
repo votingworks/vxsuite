@@ -1,6 +1,12 @@
 import fetchMock from 'fetch-mock';
 import React from 'react';
-import { render, waitFor, fireEvent, screen } from '@testing-library/react';
+import {
+  render,
+  waitFor,
+  within,
+  fireEvent,
+  screen,
+} from '@testing-library/react';
 import { act } from 'react-dom/test-utils';
 import {
   electionSample,
@@ -80,25 +86,34 @@ afterEach(() => {
   expect(fetchMock.calls('unmatched')).toEqual([]);
 });
 
-async function authenticateWithAdminCard(card: MemoryCard) {
-  // Machine should be locked
+async function authenticateWithSuperAdminCard(card: MemoryCard) {
   await screen.findByText('VxCentralScan is Locked');
-  card.insertCard({
-    t: 'admin',
-    h: electionSampleDefinition.electionHash,
-    p: '123456',
-  });
-  await act(async () => await sleep(100));
+  card.insertCard(makeSuperadminCard());
   await screen.findByText('Enter the card security code to unlock.');
-  fireEvent.click(screen.getByText('1'));
-  fireEvent.click(screen.getByText('2'));
-  fireEvent.click(screen.getByText('3'));
-  fireEvent.click(screen.getByText('4'));
-  fireEvent.click(screen.getByText('5'));
-  fireEvent.click(screen.getByText('6'));
-  await act(async () => await sleep(100));
+  userEvent.click(screen.getByText('1'));
+  userEvent.click(screen.getByText('2'));
+  userEvent.click(screen.getByText('3'));
+  userEvent.click(screen.getByText('4'));
+  userEvent.click(screen.getByText('5'));
+  userEvent.click(screen.getByText('6'));
+  await screen.findByText('Remove card to continue.');
   card.removeCard();
-  await act(async () => await sleep(100));
+  await screen.findByText('Lock Machine');
+}
+
+async function authenticateWithAdminCard(card: MemoryCard) {
+  await screen.findByText('VxCentralScan is Locked');
+  card.insertCard(makeAdminCard(electionSampleDefinition.electionHash));
+  await screen.findByText('Enter the card security code to unlock.');
+  userEvent.click(screen.getByText('1'));
+  userEvent.click(screen.getByText('2'));
+  userEvent.click(screen.getByText('3'));
+  userEvent.click(screen.getByText('4'));
+  userEvent.click(screen.getByText('5'));
+  userEvent.click(screen.getByText('6'));
+  await screen.findByText('Remove card to continue.');
+  card.removeCard();
+  await screen.findByText('Lock Machine');
 }
 
 test('renders without crashing', async () => {
@@ -516,7 +531,7 @@ test('authentication works', async () => {
   await screen.findByText('VxCentralScan is Locked');
 });
 
-test('superadmin can log in', async () => {
+test('super admin can log in and unconfigure machine', async () => {
   const getElectionResponseBody: Scan.GetElectionConfigResponse =
     electionSampleDefinition;
   const getTestModeResponseBody: Scan.GetTestModeConfigResponse = {
@@ -527,34 +542,40 @@ test('superadmin can log in', async () => {
     {
       status: 'ok',
     };
+  const deleteElectionConfigResponseBody: Scan.DeleteElectionConfigResponse = {
+    status: 'ok',
+  };
 
   fetchMock
     .get('/config/election', { body: getElectionResponseBody })
     .get('/config/testMode', { body: getTestModeResponseBody })
     .get('/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesResponseBody,
-    });
+    })
+    .delete('/config/election', { body: deleteElectionConfigResponseBody });
 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   render(<App card={card} hardware={hardware} />);
-  await screen.findByText('VxCentralScan is Locked');
 
-  card.insertCard(makeSuperadminCard());
-  await screen.findByText('Enter the card security code to unlock.');
-  userEvent.click(screen.getByText('1'));
-  userEvent.click(screen.getByText('2'));
-  userEvent.click(screen.getByText('3'));
-  userEvent.click(screen.getByText('4'));
-  userEvent.click(screen.getByText('5'));
-  userEvent.click(screen.getByText('6'));
-  await screen.findByText('Remove card to continue.');
-  card.removeCard();
-  await screen.findByText('Lock Machine');
+  await authenticateWithSuperAdminCard(card);
 
-  screen.getByText('Reboot from USB');
+  screen.getByRole('button', { name: 'Reboot from USB' });
+  screen.getByRole('button', { name: 'Reboot to BIOS' });
+  const unconfigureMachineButton = screen.getByRole('button', {
+    name: 'Unconfigure Machine',
+  });
 
-  screen.getByText('Reboot to BIOS');
+  userEvent.click(unconfigureMachineButton);
+  const modal = await screen.findByRole('alertdialog');
+  userEvent.click(
+    within(modal).getByRole('button', {
+      name: 'Yes, Delete Election Data',
+    })
+  );
+  await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull(), {
+    timeout: 2000,
+  });
 
   userEvent.click(screen.getByText('Lock Machine'));
   await screen.findByText('VxCentralScan is Locked');

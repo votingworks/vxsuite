@@ -1,8 +1,9 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
-
+import userEvent from '@testing-library/user-event';
 import { fakeKiosk } from '@votingworks/test-utils';
 import { Logger, LogSource } from '@votingworks/logging';
+import { render, screen, waitFor } from '@testing-library/react';
+
 import { RebootToBiosButton } from './reboot_to_bios_button';
 
 beforeEach(() => {
@@ -24,6 +25,10 @@ test('renders as expected.', async () => {
       </button>
     </div>
   `);
-  fireEvent.click(screen.getByText('Reboot to BIOS'));
-  await screen.findByText('Rebooting…');
+
+  userEvent.click(screen.getByText('Reboot to BIOS'));
+  await screen.findByText(/Rebooting/);
+  await waitFor(() =>
+    expect(window.kiosk!.rebootToBios).toHaveBeenCalledTimes(1)
+  );
 });
