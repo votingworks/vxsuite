@@ -13,7 +13,7 @@ import {
   Id,
   PageInterpretationWithFiles,
 } from '@votingworks/types';
-import { assert } from '@votingworks/utils';
+import { assert, throwIllegalValue } from '@votingworks/utils';
 import { switchMap, timer } from 'rxjs';
 import {
   assign as xassign,
@@ -795,15 +795,35 @@ export function createPrecinctScannerStateMachine(
         }
       })();
       const { error, interpretation } = state.context;
+      // Remove interpretation details
+      const interpretationResult: Scan.InterpretationResult | undefined =
+        (() => {
+          if (!interpretation) return undefined;
+          switch (interpretation.type) {
+            case 'INTERPRETATION_VALID':
+              return { type: interpretation.type };
+            case 'INTERPRETATION_NEEDS_REVIEW':
+              return {
+                type: interpretation.type,
+                reasons: interpretation.reasons,
+              };
+            case 'INTERPRETATION_INVALID':
+              return {
+                type: interpretation.type,
+                reason: interpretation.reason,
+              };
+            default:
+              throwIllegalValue(interpretation, 'type');
+          }
+        })();
       // TODO log any errors, especially unexpected paper status/event or other unexpected errors
+      const errorType =
+        error &&
+        (error instanceof PrecinctScannerError ? error.type : 'plustek_error');
       return {
         state: scannerState,
-        interpretation,
-        error:
-          error &&
-          (error instanceof PrecinctScannerError
-            ? error.type
-            : 'plustek_error'),
+        interpretation: interpretationResult,
+        error: errorType,
       };
     },
 
