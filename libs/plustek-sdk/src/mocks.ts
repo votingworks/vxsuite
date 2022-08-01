@@ -134,10 +134,6 @@ const mockPlustekMachine = createMachine<Context, Event>({
       },
     },
     accepting: {
-      always: {
-        target: 'jam',
-        cond: (context) => context.jamOnNextOperation,
-      },
       after: { ACCEPTING_DELAY: 'no_paper' },
       on: { LOAD_SHEET: 'both_sides_have_paper' },
     },
@@ -221,7 +217,7 @@ function initMachine(toggleHoldDuration: number, passthroughDuration: number) {
         CALIBRATING_DELAY: passthroughDuration * 3,
       },
     })
-  ).start();
+  );
 }
 
 /**
@@ -237,18 +233,7 @@ export class MockScannerClient implements ScannerClient {
   }: Options = {}) {
     this.toggleHoldDuration = toggleHoldDuration;
     this.passthroughDuration = passthroughDuration;
-    this.machine = initMachine(toggleHoldDuration, passthroughDuration);
-  }
-
-  /**
-   * Resets the mock to its initial state.
-   */
-  reset(): void {
-    debug('resetting mock');
-    this.machine = initMachine(
-      this.toggleHoldDuration,
-      this.passthroughDuration
-    );
+    this.machine = initMachine(toggleHoldDuration, passthroughDuration).start();
   }
 
   /**
@@ -257,7 +242,7 @@ export class MockScannerClient implements ScannerClient {
   async connect(): Promise<void> {
     debug('connecting');
     this.machine.send({ type: 'CONNECT' });
-    await waitFor(this.machine, (state) => state.value === 'no_paper');
+    await waitFor(this.machine, (state) => state.value !== 'disconnected');
   }
 
   /**
@@ -352,8 +337,29 @@ export class MockScannerClient implements ScannerClient {
    * cable removed or power turned off. Once a scanner is unresponsive it cannot
    * become responsive again, and a new client/connection must be established.
    */
-  simulateUnresponsive(): void {
+  simulatePowerOff(): void {
+    debug('power off');
     this.machine.send({ type: 'POWER_OFF' });
+  }
+
+  /**
+   * Simulates turning the scanner back on after it having been turned off. In
+   * the real Plustek client, once powered off, a new client must be created.
+   * However, for the sake of testing it's sometimes useful to be able to reuse
+   * the same mock instance.
+   */
+  simulatePowerOn(
+    initialState:
+      | 'no_paper'
+      | 'ready_to_scan'
+      | 'ready_to_eject'
+      | 'jam' = 'no_paper'
+  ): void {
+    debug('power on, initial state: %s', initialState);
+    this.machine = initMachine(
+      this.toggleHoldDuration,
+      this.passthroughDuration
+    ).start(initialState);
   }
 
   /**
@@ -466,13 +472,18 @@ export class MockScannerClient implements ScannerClient {
       }
       case 'ready_to_scan': {
         this.machine.send({ type: 'SCAN' });
-        await waitFor(
-          this.machine,
-          (state) => state.value === 'ready_to_eject' || state.value === 'jam'
-        );
+        await waitFor(this.machine, (state) => state.value !== 'scanning');
         if ((this.machine.state.value as string) === 'jam') {
           debug('scan failed, jam');
           return err(ScannerError.PaperStatusJam);
+        }
+        if ((this.machine.state.value as string) === 'both_sides_have_paper') {
+          debug('scan failed, both sides have paper');
+          return err(ScannerError.PaperStatusErrorFeeding);
+        }
+        if ((this.machine.state.value as string) === 'power_off') {
+          debug('scan failed, powered off');
+          return err(ScannerError.PaperStatusErrorFeeding);
         }
         const files = this.machine.state.context.sheetFiles;
         assert(files);
@@ -524,12 +535,9 @@ export class MockScannerClient implements ScannerClient {
       }
       case 'ready_to_scan': {
         this.machine.send({ type: 'ACCEPT' });
-        await waitFor(
-          this.machine,
-          (state) => state.value === 'no_paper' || state.value === 'jam'
-        );
-        if ((this.machine.state.value as string) === 'jam') {
-          debug('accept failed, jam');
+        await waitFor(this.machine, (state) => state.value !== 'accepting');
+        if ((this.machine.state.value as string) === 'power_off') {
+          debug('accept failed, power off');
           return err(ScannerError.PaperStatusJam);
         }
         debug('accept success');
@@ -537,11 +545,11 @@ export class MockScannerClient implements ScannerClient {
       }
       case 'ready_to_eject': {
         this.machine.send({ type: 'ACCEPT' });
-        await waitFor(
-          this.machine,
-          (state) =>
-            state.value === 'no_paper' || state.value === 'ready_to_eject'
-        );
+        await waitFor(this.machine, (state) => state.value !== 'accepting');
+        if ((this.machine.state.value as string) === 'power_off') {
+          debug('accept failed, power off');
+          return err(ScannerError.PaperStatusJam);
+        }
         debug('accept success');
         return ok();
       }
@@ -587,14 +595,13 @@ export class MockScannerClient implements ScannerClient {
       case 'ready_to_scan':
       case 'ready_to_eject': {
         this.machine.send({ type: 'REJECT', hold });
-        await waitFor(
-          this.machine,
-          (state) =>
-            state.value === (hold ? 'no_paper_before_hold' : 'no_paper') ||
-            state.value === 'jam'
-        );
+        await waitFor(this.machine, (state) => state.value !== 'rejecting');
         if ((this.machine.state.value as string) === 'jam') {
           debug('reject failed, jam');
+          return err(ScannerError.PaperStatusJam);
+        }
+        if ((this.machine.state.value as string) === 'power_off') {
+          debug('reject failed, powered off');
           return err(ScannerError.PaperStatusJam);
         }
         debug('reject success');

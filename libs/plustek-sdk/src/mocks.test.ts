@@ -74,7 +74,7 @@ test('unresponsive', async () => {
 
   await mock.connect();
   expect(mock.isConnected()).toEqual(true);
-  mock.simulateUnresponsive();
+  mock.simulatePowerOff();
 
   expect(mock.isConnected()).toEqual(true);
   expect((await mock.simulateLoadSheet(files)).err()).toEqual(
