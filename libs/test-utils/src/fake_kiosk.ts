@@ -98,6 +98,8 @@ export function fakeKiosk({
       get: jest.fn(),
     },
     sign: jest.fn(),
+    speak: jest.fn().mockResolvedValue(undefined),
+    cancelSpeak: jest.fn().mockResolvedValue(undefined),
     log: jest.fn(),
     reboot: jest.fn(),
     // eslint-disable-next-line vx/gts-identifiers
