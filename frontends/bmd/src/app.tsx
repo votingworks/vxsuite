@@ -18,6 +18,7 @@ import {
   ScreenReader,
   AriaScreenReader,
   SpeechSynthesisTextToSpeech,
+  KioskTextToSpeech,
 } from './utils/ScreenReader';
 import { getUsEnglishVoice } from './utils/voices';
 
@@ -42,7 +43,9 @@ export interface Props {
 
 export function App({
   screenReader = new AriaScreenReader(
-    new SpeechSynthesisTextToSpeech(memoize(getUsEnglishVoice))
+    window.kiosk
+      ? new KioskTextToSpeech()
+      : new SpeechSynthesisTextToSpeech(memoize(getUsEnglishVoice))
   ),
 
   card = new WebServiceCard(),
