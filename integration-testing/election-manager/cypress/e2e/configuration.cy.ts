@@ -1,6 +1,15 @@
+import {
+  enterPin,
+  mockCardRemoval,
+  mockSystemAdministratorCardInsertion,
+} from '../support/auth';
+
 describe('Election Manager and Module Converter MS SEMS configuration', () => {
   it('Election Manager can be configured with MS SEMS files', () => {
     cy.visit('/');
+    mockSystemAdministratorCardInsertion();
+    enterPin();
+    mockCardRemoval();
     cy.contains('Convert from SEMS files').click();
     cy.get('input[name="SEMS main file"]').attachFile('semsMainFile.txt');
     cy.get('input[name="SEMS candidate mapping file"]').attachFile(

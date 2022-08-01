@@ -1,4 +1,4 @@
-import { electionWithMsEitherNeither } from '@votingworks/fixtures';
+import { electionWithMsEitherNeitherDefinition } from '@votingworks/fixtures';
 import {
   generateCvr,
   generateFileContentFromCvrs,
@@ -8,9 +8,18 @@ import {
   assertExpectedResultsMatchSEMsFile,
   assertExpectedResultsMatchTallyReport,
 } from '../support/assertions';
+import {
+  electionWithMsEitherNeitherCypressHash,
+  enterPin,
+  mockCardRemoval,
+  mockElectionManagerCardInsertion,
+  mockSystemAdministratorCardInsertion,
+} from '../support/auth';
 
 describe('Election Manager can create SEMS tallies', () => {
   it('Tallies for yes no and either neither contests compute end to end as expected', () => {
+    const electionWithMsEitherNeither =
+      electionWithMsEitherNeitherDefinition.election;
     // Generate a CVR file with votes in the president contest.
     const fakeCvrFileContents = generateFileContentFromCvrs([
       generateCvr(
@@ -150,10 +159,21 @@ describe('Election Manager can create SEMS tallies', () => {
       ),
     ]);
     cy.visit('/');
+    mockSystemAdministratorCardInsertion();
+    enterPin();
+    mockCardRemoval();
     cy.contains('Convert from SEMS files');
     cy.get('input[type="file"]').attachFile('electionWithMsEitherNeither.json');
     cy.contains('Election loading');
-    cy.contains('6bcee1a9ba');
+    cy.contains(electionWithMsEitherNeitherCypressHash.slice(0, 10));
+    cy.pause();
+    cy.contains('Lock Machine').click();
+    mockElectionManagerCardInsertion({
+      electionData: electionWithMsEitherNeitherDefinition.electionData,
+      electionHash: electionWithMsEitherNeitherCypressHash,
+    });
+    enterPin();
+    mockCardRemoval();
     cy.contains('Tally').click();
     cy.contains('Import CVR Files').click();
     cy.get('input[data-testid="manual-input"]').attachFile({
