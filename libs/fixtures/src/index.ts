@@ -5,6 +5,7 @@ export * as electionFamousNames2021Fixtures from './data/electionFamousNames2021
 export * as electionSample2Fixtures from './data/electionSample2';
 export * as electionMultiPartyPrimaryFixtures from './data/electionMultiPartyPrimary';
 export * as electionMinimalExhaustiveSampleFixtures from './data/electionMinimalExhaustiveSample';
+export * as electionMinimalExhaustiveSampleWithReportingUrlFixtures from './data/electionMinimalExhaustiveSampleWithReportingUrl';
 export * as electionWithMsEitherNeitherFixtures from './data/electionWithMsEitherNeither';
 export * as primaryElectionSampleFixtures from './data/electionPrimary';
 export {
@@ -23,6 +24,10 @@ export {
   electionDefinition as electionMinimalExhaustiveSampleDefinition,
   election as electionMinimalExhaustiveSample,
 } from './data/electionMinimalExhaustiveSample';
+export {
+  electionDefinition as electionMinimalExhaustiveSampleWithReportingUrlDefinition,
+  election as electionMinimalExhaustiveSampleWithReportingUrl,
+} from './data/electionMinimalExhaustiveSampleWithReportingUrl';
 export {
   electionDefinition as electionWithMsEitherNeitherDefinition,
   election as electionWithMsEitherNeither,

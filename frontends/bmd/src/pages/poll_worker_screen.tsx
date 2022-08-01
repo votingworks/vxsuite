@@ -278,19 +278,20 @@ function PrecinctScannerTallyReportModal({
                       );
                     })
                 )}
-                {precinctScannerTally.totalBallotsScanned > 0 && (
-                  <PrecinctScannerTallyQrCode
-                    electionDefinition={electionDefinition}
-                    signingMachineId={machineConfig.machineId}
-                    compressedTally={
-                      precinctScannerTallyInformation.overallTally
-                    }
-                    reportPurpose={reportPurpose}
-                    isPollsOpen={precinctScannerTally.isPollsOpen}
-                    isLiveMode={precinctScannerTally.isLiveMode}
-                    reportSavedTime={precinctScannerTally.timeSaved}
-                  />
-                )}
+                {electionDefinition.election.quickResultsReportingUrl &&
+                  precinctScannerTally.totalBallotsScanned > 0 && (
+                    <PrecinctScannerTallyQrCode
+                      electionDefinition={electionDefinition}
+                      signingMachineId={machineConfig.machineId}
+                      compressedTally={
+                        precinctScannerTallyInformation.overallTally
+                      }
+                      reportPurpose={reportPurpose}
+                      isPollsOpen={precinctScannerTally.isPollsOpen}
+                      isLiveMode={precinctScannerTally.isLiveMode}
+                      reportSavedTime={precinctScannerTally.timeSaved}
+                    />
+                  )}
               </TallyReport>
             </PrintableContainer>
           </React.Fragment>

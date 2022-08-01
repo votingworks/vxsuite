@@ -3,6 +3,7 @@ import fetchMock from 'fetch-mock';
 import { render, fireEvent, screen, act, within } from '@testing-library/react';
 import {
   electionMinimalExhaustiveSampleDefinition,
+  electionMinimalExhaustiveSampleWithReportingUrlDefinition,
   electionSample2Definition,
 } from '@votingworks/fixtures';
 import {
@@ -118,7 +119,8 @@ test('expected tally reports are printed for a primary election with all precinc
   const kiosk = fakeKiosk();
   kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
   window.kiosk = kiosk;
-  const { election } = electionMinimalExhaustiveSampleDefinition;
+  const { election } =
+    electionMinimalExhaustiveSampleWithReportingUrlDefinition;
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
     .get('/config/election', {
@@ -164,13 +166,13 @@ test('expected tally reports are printed for a primary election with all precinc
     screen.queryAllByText('Fish Party Example Primary Election')
   ).toHaveLength(1 * NUMBER_REPORT_PURPOSES * election.precincts.length);
 
-  // Check there there are no QR code pages since we are opening polls
+  // Check there there are no QR code pages since we are opening polls, even though reporting is turned on.
   expect(
     screen.queryAllByText('Automatic Election Results Reporting')
   ).toHaveLength(0);
 });
 
-test('expected tally reports for a primary election with all precincts with CVRs', async () => {
+test('expected tally reports for a primary election with all precincts with CVRs, and quickresults turned on', async () => {
   const card = new MemoryCard();
   const writeLongObjectMock = jest.spyOn(card, 'writeLongObject');
   const hardware = MemoryHardware.buildStandard();
@@ -179,12 +181,13 @@ test('expected tally reports for a primary election with all precincts with CVRs
   const kiosk = fakeKiosk();
   kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
   window.kiosk = kiosk;
-  const { election } = electionMinimalExhaustiveSampleDefinition;
+  const { election } =
+    electionMinimalExhaustiveSampleWithReportingUrlDefinition;
 
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
     .get('/config/election', {
-      body: electionMinimalExhaustiveSampleDefinition,
+      body: electionMinimalExhaustiveSampleWithReportingUrlDefinition,
     })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
@@ -245,7 +248,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
     ])
   );
   const pollWorkerCard = makePollWorkerCard(
-    electionMinimalExhaustiveSampleDefinition.electionHash
+    electionMinimalExhaustiveSampleWithReportingUrlDefinition.electionHash
   );
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
@@ -639,10 +642,10 @@ test('expected tally reports for a primary election with a single precincts with
     screen.queryAllByText('Fish Party Example Primary Election')
   ).toHaveLength(1 * NUMBER_REPORT_PURPOSES);
 
-  // Check there there is 1 QR code page per report purpose since we are closing polls
+  // quickresults disabled by default
   expect(
     screen.queryAllByText('Automatic Election Results Reporting')
-  ).toHaveLength(1 * NUMBER_REPORT_PURPOSES);
+  ).toHaveLength(0);
 
   // Check that the expected results are on the tally report for Precinct 1 Mammal Party
   const precinct1MammalReports = screen.getAllByTestId(
@@ -898,10 +901,10 @@ test('expected tally reports for a general election with all precincts with CVRs
     screen.queryAllByText('South Springfield Polls Closed Tally Report')
   ).toHaveLength(1 * NUMBER_REPORT_PURPOSES);
 
-  // Check there there is 1 QR code page per report purpose since we are closing polls
+  // quickresults is turned off by default
   expect(
     screen.queryAllByText('Automatic Election Results Reporting')
-  ).toHaveLength(1 * NUMBER_REPORT_PURPOSES);
+  ).toHaveLength(0);
 
   // Check that the expected results are on the tally report for Center Springfield
   const centerSpringfieldReports = screen.getAllByTestId(
@@ -1148,10 +1151,10 @@ test('expected tally reports for a general election with a single precincts with
     screen.queryAllByText('South Springfield Polls Closed Tally Report')
   ).toHaveLength(0);
 
-  // Check there there is 1 QR code page per report purpose since we are closing polls
+  // quickresults turned off by default
   expect(
     screen.queryAllByText('Automatic Election Results Reporting')
-  ).toHaveLength(1 * NUMBER_REPORT_PURPOSES);
+  ).toHaveLength(0);
 
   // Check that the expected results are on the tally report for Center Springfield
   const centerSpringfieldReports = screen.getAllByTestId(

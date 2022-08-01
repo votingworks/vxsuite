@@ -374,17 +374,19 @@ export function PollWorkerScreen({
                   );
                 })
               )}
-              {currentCompressedTally && scannedBallotCount > 0 && (
-                <PrecinctScannerTallyQrCode
-                  electionDefinition={electionDefinition}
-                  signingMachineId={machineConfig.machineId}
-                  compressedTally={currentCompressedTally}
-                  reportPurpose={reportPurpose}
-                  isPollsOpen={!isPollsOpen}
-                  isLiveMode={isLiveMode}
-                  reportSavedTime={currentTime}
-                />
-              )}
+              {electionDefinition.election.quickResultsReportingUrl &&
+                currentCompressedTally &&
+                scannedBallotCount > 0 && (
+                  <PrecinctScannerTallyQrCode
+                    electionDefinition={electionDefinition}
+                    signingMachineId={machineConfig.machineId}
+                    compressedTally={currentCompressedTally}
+                    reportPurpose={reportPurpose}
+                    isPollsOpen={!isPollsOpen}
+                    isLiveMode={isLiveMode}
+                    reportSavedTime={currentTime}
+                  />
+                )}
             </TallyReport>
           </PrintableContainer>
         </React.Fragment>
