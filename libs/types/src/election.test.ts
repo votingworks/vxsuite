@@ -500,6 +500,22 @@ test('election schema', () => {
   }
 });
 
+test('election scheme results reporting URL', () => {
+  expect(() => {
+    safeParseElection({
+      ...election,
+      quickResultsReportingUrl: 'https://results.voting.works/',
+    }).unsafeUnwrap();
+  }).toThrowError();
+
+  expect(() => {
+    safeParseElection({
+      ...election,
+      quickResultsReportingUrl: 'https://results.voting.works',
+    }).unsafeUnwrap();
+  }).not.toThrowError();
+});
+
 test('loading an election with the old sealURL field', () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { sealUrl, ...rest } = election;

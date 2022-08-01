@@ -58,7 +58,7 @@ export function PrecinctScannerTallyQrCode({
         }
 
         setResultsReportingUrl(
-          `https://results.voting.works/?p=${encodeURIComponent(
+          `${election.quickResultsReportingUrl}/?p=${encodeURIComponent(
             stringToSign
           )}&s=${encodeURIComponent(signature || '')}`
         );

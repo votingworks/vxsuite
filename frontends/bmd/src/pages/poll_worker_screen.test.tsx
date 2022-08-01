@@ -50,10 +50,15 @@ import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
 import { fakeDevices } from '../../test/helpers/fake_devices';
 import { AriaScreenReader } from '../utils/ScreenReader';
 import { fakeTts } from '../../test/helpers/fake_tts';
-import { electionSampleWithSealDefinition } from '../data';
+import {
+  electionSampleWithSealDefinition,
+  electionSampleWithSealAndReportingUrlDefinition,
+} from '../data';
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from '../config/globals';
 
 const electionSampleWithSeal = electionSampleWithSealDefinition.election;
+const electionSampleWithSealAndReportingUrl =
+  electionSampleWithSealAndReportingUrlDefinition.election;
 
 beforeEach(() => {
   jest.useFakeTimers();
@@ -76,7 +81,8 @@ function renderScreen(
   props: Partial<PollworkerScreenProps> = {},
   pollworkerAuth: InsertedSmartcardAuth.PollworkerLoggedIn = fakePollworkerAuth(
     electionSampleWithSealDefinition
-  )
+  ),
+  electionDefinition: ElectionDefinition = electionSampleWithSealDefinition
 ) {
   return render(
     <PollWorkerScreen
@@ -87,7 +93,7 @@ function renderScreen(
         kind: PrecinctSelectionKind.SinglePrecinct,
         precinctId: defaultPrecinctId,
       }}
-      electionDefinition={electionSampleWithSealDefinition}
+      electionDefinition={electionDefinition}
       enableLiveMode={jest.fn()}
       hasVotes={false}
       isLiveMode={false}
@@ -231,6 +237,11 @@ test('precinct scanner report populated as expected with all precinct data for g
 
   await printPollsClosedReport();
 
+  // vxqr is turned off by default
+  expect(
+    screen.queryAllByText('Automatic Election Results Reporting')
+  ).toHaveLength(0);
+
   const allPrecinctsReports = screen.getAllByTestId(
     'tally-report-undefined-undefined'
   );
@@ -254,6 +265,55 @@ test('precinct scanner report populated as expected with all precinct data for g
   within(senatorContest).getByText(/0 undervotes/);
   within(senatorContest).getByText(/0 overvotes/);
   expect(within(senatorContest).getAllByText('0')).toHaveLength(7); // All 7 candidates should have 0 totals
+});
+
+test('precinct scanner report with quickresults reporting turned on', async () => {
+  const existingTally = getZeroCompressedTally(
+    electionSampleWithSealAndReportingUrl
+  );
+  // add tallies to the president contest
+  existingTally[0] = typedAs<CandidateContestWithoutWriteInsCompressedTally>([
+    6 /* undervotes */, 0 /* overvotes */, 34 /* ballotsCast */,
+    6 /* for 'barchi-hallaren' */, 5 /* for 'cramer-vuocolo' */,
+    6 /* for 'court-blumhardt' */, 5 /* for 'boone-lian' */,
+    3 /* for 'hildebrand-garritty' */, 0 /* for 'patterson-lariviere' */,
+  ]);
+  const tallyOnCard: PrecinctScannerCardTally = {
+    tallyMachineType: TallySourceMachineType.PRECINCT_SCANNER,
+    tally: existingTally,
+    totalBallotsScanned: 25,
+    machineId: '001',
+    timeSaved: new Date('2020-10-31').getTime(),
+    precinctSelection: { kind: PrecinctSelectionKind.AllPrecincts },
+    isLiveMode: false,
+    isPollsOpen: false,
+    ballotCounts: { 'undefined,__ALL_PRECINCTS': [20, 5] },
+  };
+  const pollworkerAuth = fakePollworkerAuth(
+    electionSampleWithSealAndReportingUrlDefinition,
+    tallyOnCard
+  );
+
+  renderScreen(
+    {
+      pollworkerAuth,
+      isLiveMode: true,
+      isPollsOpen: true,
+      machineConfig: fakeMachineConfig({
+        appMode: PrintOnly,
+        machineId: '314',
+      }),
+    },
+    pollworkerAuth,
+    electionSampleWithSealAndReportingUrlDefinition
+  );
+
+  await printPollsClosedReport();
+
+  // vxqr is turned on for this election
+  expect(
+    screen.queryAllByText('Automatic Election Results Reporting')
+  ).toHaveLength(2); // two copies of the report
 });
 
 test('precinct scanner report populated as expected with single precinct data for general election', async () => {

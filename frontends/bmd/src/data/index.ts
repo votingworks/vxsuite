@@ -3,6 +3,7 @@ import * as electionPrimarySample from './electionPrimarySample.json';
 import * as electionSample from './electionSample.json';
 import * as electionSampleNoSeal from './electionSampleNoSeal.json';
 import * as electionSampleWithSeal from './electionSampleWithSeal.json';
+import * as electionSampleWithSealAndReportingUrl from './electionSampleWithSealAndReportingUrl.json';
 
 /**
  * Election definition from `./electionPrimarySample.json`.
@@ -31,3 +32,11 @@ export const electionSampleNoSealDefinition = safeParseElectionDefinition(
 export const electionSampleWithSealDefinition = safeParseElectionDefinition(
   electionSampleWithSeal.asText()
 ).unsafeUnwrap();
+
+/**
+ * Election definition from `./electionSampleWithSealAndReportingUrl.json`.
+ */
+export const electionSampleWithSealAndReportingUrlDefinition =
+  safeParseElectionDefinition(
+    electionSampleWithSealAndReportingUrl.asText()
+  ).unsafeUnwrap();
