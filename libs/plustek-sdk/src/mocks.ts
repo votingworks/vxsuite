@@ -134,6 +134,10 @@ const mockPlustekMachine = createMachine<Context, Event>({
       },
     },
     accepting: {
+      always: {
+        target: 'jam',
+        cond: (context) => context.jamOnNextOperation,
+      },
       after: { ACCEPTING_DELAY: 'no_paper' },
       on: { LOAD_SHEET: 'both_sides_have_paper' },
     },
@@ -481,7 +485,7 @@ export class MockScannerClient implements ScannerClient {
           debug('scan failed, both sides have paper');
           return err(ScannerError.PaperStatusErrorFeeding);
         }
-        if ((this.machine.state.value as string) === 'power_off') {
+        if ((this.machine.state.value as string) === 'powered_off') {
           debug('scan failed, powered off');
           return err(ScannerError.PaperStatusErrorFeeding);
         }
@@ -536,7 +540,11 @@ export class MockScannerClient implements ScannerClient {
       case 'ready_to_scan': {
         this.machine.send({ type: 'ACCEPT' });
         await waitFor(this.machine, (state) => state.value !== 'accepting');
-        if ((this.machine.state.value as string) === 'power_off') {
+        if ((this.machine.state.value as string) === 'jam') {
+          debug('accept failed, jam');
+          return err(ScannerError.PaperStatusJam);
+        }
+        if ((this.machine.state.value as string) === 'powered_off') {
           debug('accept failed, power off');
           return err(ScannerError.PaperStatusJam);
         }
@@ -546,7 +554,7 @@ export class MockScannerClient implements ScannerClient {
       case 'ready_to_eject': {
         this.machine.send({ type: 'ACCEPT' });
         await waitFor(this.machine, (state) => state.value !== 'accepting');
-        if ((this.machine.state.value as string) === 'power_off') {
+        if ((this.machine.state.value as string) === 'powered_off') {
           debug('accept failed, power off');
           return err(ScannerError.PaperStatusJam);
         }
@@ -600,7 +608,7 @@ export class MockScannerClient implements ScannerClient {
           debug('reject failed, jam');
           return err(ScannerError.PaperStatusJam);
         }
-        if ((this.machine.state.value as string) === 'power_off') {
+        if ((this.machine.state.value as string) === 'powered_off') {
           debug('reject failed, powered off');
           return err(ScannerError.PaperStatusJam);
         }
