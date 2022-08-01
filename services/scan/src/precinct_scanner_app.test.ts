@@ -370,10 +370,10 @@ test('scanner powered off while scanning', async () => {
   await post(app, '/scanner/scan');
   await expectStatus(app, { state: 'scanning' });
   mockPlustek.simulatePowerOff();
-  await waitForStatus(app, { state: 'disconnected' });
+  await waitForStatus(app, { state: 'disconnected', error: 'plustek_error' });
 
   mockPlustek.simulatePowerOn('jam');
-  await waitForStatus(app, { state: 'jammed' });
+  await waitForStatus(app, { state: 'jammed', error: 'plustek_error' });
 });
 
 test('scanner powered off while accepting', async () => {
