@@ -372,12 +372,6 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
         "ignoredReasonInfos": Array [
           Object {
             "contestId": "county-commissioners",
-            "optionId": "write-in-2",
-            "optionIndex": 13,
-            "type": "WriteIn",
-          },
-          Object {
-            "contestId": "county-commissioners",
             "expected": 4,
             "optionIds": Array [
               "argent",
