@@ -1,14 +1,32 @@
 import { electionMultiPartyPrimaryFixtures } from '@votingworks/fixtures';
+import {
+  electionMultiPartyPrimaryCypressHash,
+  enterPin,
+  mockCardRemoval,
+  mockElectionManagerCardInsertion,
+  mockSystemAdministratorCardInsertion,
+} from '../support/auth';
 
 describe('Election Manager can create SEMS tallies', () => {
   it('Election Manager can tally results properly', () => {
     cy.visit('/');
+    mockSystemAdministratorCardInsertion();
+    enterPin();
+    mockCardRemoval();
     cy.contains('Convert from SEMS files');
     cy.get('input[type="file"]').attachFile(
       'electionMultiPartyPrimarySample.json'
     );
     cy.contains('Election loading');
-    cy.contains('0e16618fc9');
+    cy.contains(electionMultiPartyPrimaryCypressHash.slice(0, 10));
+    cy.contains('Lock Machine').click();
+    mockElectionManagerCardInsertion({
+      electionData:
+        electionMultiPartyPrimaryFixtures.electionDefinition.electionData,
+      electionHash: electionMultiPartyPrimaryCypressHash,
+    });
+    enterPin();
+    mockCardRemoval();
     cy.contains('Tally').click();
     cy.contains('Import CVR Files').click();
     cy.get('input[data-testid="manual-input"]').attachFile(

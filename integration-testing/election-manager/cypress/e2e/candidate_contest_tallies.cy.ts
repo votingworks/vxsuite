@@ -8,11 +8,18 @@ import {
   assertExpectedResultsMatchSEMsFile,
   assertExpectedResultsMatchTallyReport,
 } from '../support/assertions';
+import {
+  electionMultiPartyPrimaryCypressHash,
+  enterPin,
+  mockCardRemoval,
+  mockElectionManagerCardInsertion,
+  mockSystemAdministratorCardInsertion,
+} from '../support/auth';
 
 describe('Election Manager can create SEMS tallies', () => {
   it('Tallies for candidate contests compute end to end as expected', () => {
     const { electionDefinition } = electionMultiPartyPrimaryFixtures;
-    const { election } = electionDefinition;
+    const { election, electionData } = electionDefinition;
     // Generate a CVR file with votes in the president contest.
     const fakeCvrFileContents = generateFileContentFromCvrs([
       generateCvr(
@@ -99,12 +106,23 @@ describe('Election Manager can create SEMS tallies', () => {
       ),
     ]);
     cy.visit('/');
+    mockSystemAdministratorCardInsertion();
+    enterPin();
+    mockCardRemoval();
     cy.contains('Convert from SEMS files');
     cy.get('input[type="file"]').attachFile(
       'electionMultiPartyPrimarySample.json'
     );
     cy.contains('Election loading');
-    cy.contains('0e16618fc9');
+    cy.contains(electionMultiPartyPrimaryCypressHash.slice(0, 10));
+    cy.pause();
+    cy.contains('Lock Machine').click();
+    mockElectionManagerCardInsertion({
+      electionData,
+      electionHash: electionMultiPartyPrimaryCypressHash,
+    });
+    enterPin();
+    mockCardRemoval();
     cy.contains('Tally').click();
     cy.contains('Import CVR Files').click();
     cy.get('input[data-testid="manual-input"]').attachFile({
