@@ -32,6 +32,7 @@ export function ScanErrorScreen({ error, isTestMode }: Props): JSX.Element {
       case 'both_sides_have_paper':
       case 'paper_in_front_on_startup':
       case 'paper_in_back_on_startup':
+      case 'paper_in_back_after_accept':
         return 'Take your ballot out of the tray and try again.';
       case 'unexpected_paper_status':
       case 'unexpected_event':

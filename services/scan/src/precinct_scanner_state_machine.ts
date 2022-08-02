@@ -13,7 +13,7 @@ import {
   Id,
   PageInterpretationWithFiles,
 } from '@votingworks/types';
-import { assert } from '@votingworks/utils';
+import { assert, throwIllegalValue } from '@votingworks/utils';
 import { switchMap, timer } from 'rxjs';
 import {
   assign as xassign,
@@ -367,6 +367,11 @@ async function reject({ client }: Context) {
   return rejectResult.unsafeUnwrap();
 }
 
+const clearLastScan = assign({
+  scannedSheet: undefined,
+  interpretation: undefined,
+});
+
 function buildMachine(createPlustekClient: CreatePlustekClient) {
   return createMachine<Context, Event>({
     id: 'precint_scanner',
@@ -429,6 +434,7 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
         },
       },
       error_disconnected: {
+        entry: clearLastScan,
         after: { 500: 'reconnecting' },
       },
       reconnecting: {
@@ -467,11 +473,7 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
         },
       },
       no_paper: {
-        entry: assign({
-          error: undefined,
-          scannedSheet: undefined,
-          interpretation: undefined,
-        }),
+        entry: [assign({ error: undefined }), clearLastScan],
         invoke: pollPaperStatus,
         on: {
           SCANNER_NO_PAPER: { target: 'no_paper', internal: true },
@@ -560,9 +562,17 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
         on: {
           WAIT_FOR_PAPER: 'no_paper',
           SCANNER_NO_PAPER: { target: 'accepted', internal: true },
-          SCANNER_READY_TO_SCAN: 'ready_to_scan',
+          SCANNER_READY_TO_SCAN: {
+            target: 'ready_to_scan',
+            actions: clearLastScan,
+          },
           // If the paper didn't get dropped, it's an error
-          SCANNER_READY_TO_EJECT: 'error_accepting',
+          SCANNER_READY_TO_EJECT: {
+            target: 'error_accepting',
+            actions: assign({
+              error: new PrecinctScannerError('paper_in_back_after_accept'),
+            }),
+          },
         },
       },
       // If accepting fails, reject the ballot and "uncount" it
@@ -795,15 +805,35 @@ export function createPrecinctScannerStateMachine(
         }
       })();
       const { error, interpretation } = state.context;
+      // Remove interpretation details
+      const interpretationResult: Scan.InterpretationResult | undefined =
+        (() => {
+          if (!interpretation) return undefined;
+          switch (interpretation.type) {
+            case 'INTERPRETATION_VALID':
+              return { type: interpretation.type };
+            case 'INTERPRETATION_NEEDS_REVIEW':
+              return {
+                type: interpretation.type,
+                reasons: interpretation.reasons,
+              };
+            case 'INTERPRETATION_INVALID':
+              return {
+                type: interpretation.type,
+                reason: interpretation.reason,
+              };
+            default:
+              throwIllegalValue(interpretation, 'type');
+          }
+        })();
       // TODO log any errors, especially unexpected paper status/event or other unexpected errors
+      const errorType =
+        error &&
+        (error instanceof PrecinctScannerError ? error.type : 'plustek_error');
       return {
         state: scannerState,
-        interpretation,
-        error:
-          error &&
-          (error instanceof PrecinctScannerError
-            ? error.type
-            : 'plustek_error'),
+        interpretation: interpretationResult,
+        error: errorType,
       };
     },
 

@@ -114,7 +114,8 @@
     "sort-package-json": "^1.50.0",
     "supertest": "^6.0.1",
     "ts-jest": "^26.4.4",
-    "typescript": "4.6.3"
+    "typescript": "4.6.3",
+    "wait-for-expect": "^3.0.2"
   },
   "engines": {
     "node": ">= 12"

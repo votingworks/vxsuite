@@ -255,7 +255,7 @@ test('withReconnect', async () => {
       toggleHoldDuration: 0,
     });
     await unresponsiveClient.connect();
-    unresponsiveClient.simulateUnresponsive();
+    unresponsiveClient.simulatePowerOff();
     return ok(unresponsiveClient);
   }
 
@@ -304,7 +304,7 @@ test('withReconnect only re-creates the client once per failure', async () => {
     toggleHoldDuration: 0,
   });
   await client.connect();
-  unresponsiveClient.simulateUnresponsive();
+  unresponsiveClient.simulatePowerOff();
 
   // set up provider to once
   const getClient = jest

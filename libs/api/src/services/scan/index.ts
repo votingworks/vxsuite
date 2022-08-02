@@ -706,6 +706,7 @@ export const InterpretationResultSchema: z.ZodSchema<InterpretationResult> =
 
 export const PrecinctScannerErrorTypeSchema = z.enum([
   'both_sides_have_paper',
+  'paper_in_back_after_accept',
   'paper_in_front_on_startup',
   'paper_in_back_on_startup',
   'unexpected_paper_status',

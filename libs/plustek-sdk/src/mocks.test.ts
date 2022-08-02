@@ -66,15 +66,15 @@ test('loading', async () => {
   );
 });
 
-test('unresponsive', async () => {
+test('power off', async () => {
   const mock = new MockScannerClient({
-    toggleHoldDuration: 0,
-    passthroughDuration: 0,
+    toggleHoldDuration: 100,
+    passthroughDuration: 100,
   });
 
   await mock.connect();
   expect(mock.isConnected()).toEqual(true);
-  mock.simulateUnresponsive();
+  mock.simulatePowerOff();
 
   expect(mock.isConnected()).toEqual(true);
   expect((await mock.simulateLoadSheet(files)).err()).toEqual(
@@ -93,6 +93,33 @@ test('unresponsive', async () => {
   );
   expect((await mock.scan()).err()).toEqual(ScannerError.SaneStatusIoError);
   (await mock.close()).unsafeUnwrap();
+
+  // during scan
+  mock.simulatePowerOn();
+  (await mock.simulateLoadSheet(files)).unsafeUnwrap();
+  const scanResult = mock.scan();
+  mock.simulatePowerOff();
+  expect((await scanResult).err()).toEqual(
+    ScannerError.PaperStatusErrorFeeding
+  );
+
+  // during accept from front
+  mock.simulatePowerOn('ready_to_scan');
+  const acceptResult = mock.accept();
+  mock.simulatePowerOff();
+  expect((await acceptResult).err()).toEqual(ScannerError.PaperStatusJam);
+
+  // during accept from back
+  mock.simulatePowerOn('ready_to_eject');
+  const acceptBackResult = mock.accept();
+  mock.simulatePowerOff();
+  expect((await acceptBackResult).err()).toEqual(ScannerError.PaperStatusJam);
+
+  // during reject
+  mock.simulatePowerOn('ready_to_eject');
+  const rejectResult = mock.reject({ hold: true });
+  mock.simulatePowerOff();
+  expect((await rejectResult).err()).toEqual(ScannerError.PaperStatusJam);
 });
 
 test('crashed', async () => {
@@ -248,19 +275,19 @@ test('calibrate', async () => {
 
 test('paper held at both sides', async () => {
   const mock = new MockScannerClient({
-    toggleHoldDuration: 0,
-    passthroughDuration: 0,
+    toggleHoldDuration: 100,
+    passthroughDuration: 100,
   });
   expect((await mock.scan()).err()).toEqual(ScannerError.NoDevices);
   await mock.connect();
 
   expect((await mock.scan()).err()).toEqual(ScannerError.VtmPsDevReadyNoPaper);
   (await mock.simulateLoadSheet(files)).unsafeUnwrap();
-  expect((await mock.scan()).ok()).toEqual({ files });
-  expect((await mock.getPaperStatus()).ok()).toEqual(
-    PaperStatus.VtmReadyToEject
-  );
+  const scanResult = mock.scan();
   (await mock.simulateLoadSheet(files)).unsafeUnwrap();
+  expect((await scanResult).err()).toEqual(
+    ScannerError.PaperStatusErrorFeeding
+  );
   expect((await mock.getPaperStatus()).ok()).toEqual(
     PaperStatus.VtmBothSideHavePaper
   );
