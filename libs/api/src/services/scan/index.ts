@@ -677,29 +677,29 @@ export type InvalidInterpretationReason = z.infer<
   typeof InvalidInterpretationReasonSchema
 >;
 
-export type InterpretationResult =
+export type SheetInterpretation =
   | {
-      type: 'INTERPRETATION_VALID';
+      type: 'ValidSheet';
     }
   | {
-      type: 'INTERPRETATION_INVALID';
+      type: 'InvalidSheet';
       reason: InvalidInterpretationReason;
     }
   | {
-      type: 'INTERPRETATION_NEEDS_REVIEW';
+      type: 'NeedsReviewSheet';
       reasons: AdjudicationReasonInfo[];
     };
-export const InterpretationResultSchema: z.ZodSchema<InterpretationResult> =
+export const SheetInterpretationSchema: z.ZodSchema<SheetInterpretation> =
   z.union([
     z.object({
-      type: z.literal('INTERPRETATION_VALID'),
+      type: z.literal('ValidSheet'),
     }),
     z.object({
-      type: z.literal('INTERPRETATION_INVALID'),
+      type: z.literal('InvalidSheet'),
       reason: InvalidInterpretationReasonSchema,
     }),
     z.object({
-      type: z.literal('INTERPRETATION_NEEDS_REVIEW'),
+      type: z.literal('NeedsReviewSheet'),
       reasons: z.array(AdjudicationReasonInfoSchema),
     }),
   ]);
@@ -719,7 +719,7 @@ export type PrecinctScannerErrorType = z.infer<
 
 export interface PrecinctScannerMachineStatus {
   state: PrecinctScannerState;
-  interpretation?: InterpretationResult;
+  interpretation?: SheetInterpretation;
   error?: PrecinctScannerErrorType;
 }
 export interface PrecinctScannerStatus extends PrecinctScannerMachineStatus {
@@ -730,7 +730,7 @@ export interface PrecinctScannerStatus extends PrecinctScannerMachineStatus {
 export const PrecinctScannerStatusSchema: z.ZodSchema<PrecinctScannerStatus> =
   z.object({
     state: PrecinctScannerStateSchema,
-    interpretation: InterpretationResultSchema.optional(),
+    interpretation: SheetInterpretationSchema.optional(),
     error: PrecinctScannerErrorTypeSchema.optional(),
     ballotsCounted: z.number(),
     canUnconfigure: z.boolean(),

@@ -188,8 +188,8 @@ test('configure and scan hmpb', async () => {
   await mockPlustek.simulateLoadSheet(ballotImages.completeHmpb);
   await waitForStatus(app, { state: 'ready_to_scan' });
 
-  const interpretation: Scan.InterpretationResult = {
-    type: 'INTERPRETATION_VALID',
+  const interpretation: Scan.SheetInterpretation = {
+    type: 'ValidSheet',
   };
 
   await post(app, '/scanner/scan');
@@ -220,8 +220,8 @@ test('configure and scan bmd ballot', async () => {
   await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
   await waitForStatus(app, { state: 'ready_to_scan' });
 
-  const interpretation: Scan.InterpretationResult = {
-    type: 'INTERPRETATION_VALID',
+  const interpretation: Scan.SheetInterpretation = {
+    type: 'ValidSheet',
   };
 
   await post(app, '/scanner/scan');
@@ -254,8 +254,8 @@ function undervote(contestId: string, expected = 1): AdjudicationReasonInfo {
     expected,
   };
 }
-const needsReviewInterpretation: Scan.InterpretationResult = {
-  type: 'INTERPRETATION_NEEDS_REVIEW',
+const needsReviewInterpretation: Scan.SheetInterpretation = {
+  type: 'NeedsReviewSheet',
   reasons: [
     undervote('mayor'),
     undervote('controller'),
@@ -333,8 +333,8 @@ test('invalid ballot rejected', async () => {
   await mockPlustek.simulateLoadSheet(ballotImages.wrongElection);
   await waitForStatus(app, { state: 'ready_to_scan' });
 
-  const interpretation: Scan.InterpretationResult = {
-    type: 'INTERPRETATION_INVALID',
+  const interpretation: Scan.SheetInterpretation = {
+    type: 'InvalidSheet',
     reason: 'invalid_election_hash',
   };
 
@@ -388,8 +388,8 @@ test('scanner powered off while accepting', async () => {
   await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
   await waitForStatus(app, { state: 'ready_to_scan' });
 
-  const interpretation: Scan.InterpretationResult = {
-    type: 'INTERPRETATION_VALID',
+  const interpretation: Scan.SheetInterpretation = {
+    type: 'ValidSheet',
   };
 
   await post(app, '/scanner/scan');
@@ -425,8 +425,8 @@ test('scanner powered off after accepting', async () => {
   await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
   await waitForStatus(app, { state: 'ready_to_scan' });
 
-  const interpretation: Scan.InterpretationResult = {
-    type: 'INTERPRETATION_VALID',
+  const interpretation: Scan.SheetInterpretation = {
+    type: 'ValidSheet',
   };
 
   await post(app, '/scanner/scan');
@@ -461,8 +461,8 @@ test('scanner powered off while rejecting', async () => {
   await mockPlustek.simulateLoadSheet(ballotImages.wrongElection);
   await waitForStatus(app, { state: 'ready_to_scan' });
 
-  const interpretation: Scan.InterpretationResult = {
-    type: 'INTERPRETATION_INVALID',
+  const interpretation: Scan.SheetInterpretation = {
+    type: 'InvalidSheet',
     reason: 'invalid_election_hash',
   };
 
@@ -537,8 +537,8 @@ test('insert second ballot before first ballot accept', async () => {
   await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
   await waitForStatus(app, { state: 'ready_to_scan' });
 
-  const interpretation: Scan.InterpretationResult = {
-    type: 'INTERPRETATION_VALID',
+  const interpretation: Scan.SheetInterpretation = {
+    type: 'ValidSheet',
   };
 
   await post(app, '/scanner/scan');
@@ -582,8 +582,8 @@ test('insert second ballot while first ballot is rejecting', async () => {
   await mockPlustek.simulateLoadSheet(ballotImages.wrongElection);
   await waitForStatus(app, { state: 'ready_to_scan' });
 
-  const interpretation: Scan.InterpretationResult = {
-    type: 'INTERPRETATION_INVALID',
+  const interpretation: Scan.SheetInterpretation = {
+    type: 'InvalidSheet',
     reason: 'invalid_election_hash',
   };
 
@@ -675,8 +675,8 @@ test('jam on accept', async () => {
   await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
   await waitForStatus(app, { state: 'ready_to_scan' });
 
-  const interpretation: Scan.InterpretationResult = {
-    type: 'INTERPRETATION_VALID',
+  const interpretation: Scan.SheetInterpretation = {
+    type: 'ValidSheet',
   };
 
   await post(app, '/scanner/scan');

@@ -706,7 +706,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
       body: scannerStatus({
         state: 'needs_review',
         interpretation: {
-          type: 'INTERPRETATION_NEEDS_REVIEW',
+          type: 'NeedsReviewSheet',
           reasons: [{ type: AdjudicationReason.BlankBallot }],
         },
       }),
@@ -777,7 +777,7 @@ test('voter can cast a rejected ballot', async () => {
       body: scannerStatus({
         state: 'rejected',
         interpretation: {
-          type: 'INTERPRETATION_INVALID',
+          type: 'InvalidSheet',
           reason: 'invalid_election_hash',
         },
       }),
@@ -844,7 +844,7 @@ test('voter can cast another ballot while the success screen is showing', async 
       body: scannerStatus({
         state: 'needs_review',
         interpretation: {
-          type: 'INTERPRETATION_NEEDS_REVIEW',
+          type: 'NeedsReviewSheet',
           reasons: [{ type: AdjudicationReason.BlankBallot }],
         },
       }),
