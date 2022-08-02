@@ -40,6 +40,7 @@ export enum BallotMode {
   Official = 'live',
   Test = 'test',
   Sample = 'sample',
+  Draft = 'draft',
 }
 
 export interface PrintedBallot {
