@@ -42,10 +42,7 @@ import {
   parseUserFromCardSummary,
 } from './auth_helpers';
 import { usePrevious } from '../use_previous';
-import {
-  areAllZeroSmartcardPinsEnabled,
-  areVvsg2AuthFlowsEnabled,
-} from '../../config/features';
+import { areVvsg2AuthFlowsEnabled } from '../../config/features';
 
 export const VOTER_CARD_EXPIRATION_SECONDS = 60 * 60; // 1 hour
 
@@ -218,17 +215,15 @@ function smartcardAuthReducer(
 
       case 'check_passcode': {
         assert(previousState.auth.status === 'checking_passcode');
-        const isPasscodeCorrect = areAllZeroSmartcardPinsEnabled()
-          ? action.passcode === '000000'
-          : action.passcode === previousState.auth.user.passcode;
         return {
           ...previousState,
-          auth: isPasscodeCorrect
-            ? { status: 'logged_in', user: previousState.auth.user }
-            : {
-                ...previousState.auth,
-                wrongPasscodeEnteredAt: new Date(),
-              },
+          auth:
+            action.passcode === previousState.auth.user.passcode
+              ? { status: 'logged_in', user: previousState.auth.user }
+              : {
+                  ...previousState.auth,
+                  wrongPasscodeEnteredAt: new Date(),
+                },
         };
       }
 

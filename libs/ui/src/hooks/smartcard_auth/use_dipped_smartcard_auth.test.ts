@@ -14,10 +14,7 @@ import {
 } from '@votingworks/test-utils';
 import { assert, MemoryCard } from '@votingworks/utils';
 
-import {
-  areAllZeroSmartcardPinsEnabled,
-  areVvsg2AuthFlowsEnabled,
-} from '../../config/features';
+import { areVvsg2AuthFlowsEnabled } from '../../config/features';
 import { useDippedSmartcardAuth } from './use_dipped_smartcard_auth';
 
 const electionDefinition = electionSampleDefinition;
@@ -29,7 +26,6 @@ jest.mock(
   (): typeof import('../../config/features') => {
     return {
       ...jest.requireActual('../../config/features'),
-      areAllZeroSmartcardPinsEnabled: jest.fn(),
       areVvsg2AuthFlowsEnabled: jest.fn(),
     };
   }
@@ -38,7 +34,6 @@ jest.mock(
 describe('useDippedSmartcardAuth', () => {
   beforeEach(() => {
     jest.useFakeTimers();
-    mockOf(areAllZeroSmartcardPinsEnabled).mockImplementation(() => false);
     mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => false);
   });
 
@@ -364,50 +359,6 @@ describe('useDippedSmartcardAuth', () => {
       })
     );
   });
-
-  it(
-    'accepts 000000 as a correct passcode, regardless of the passcode actually on the card, ' +
-      'when all-zero smartcard PINs feature flag is enabled',
-    async () => {
-      mockOf(areAllZeroSmartcardPinsEnabled).mockImplementation(() => true);
-      const cardApi = new MemoryCard();
-      const logger = fakeLogger();
-
-      const actualPin = '123456';
-      const cardData = makeSuperadminCard(actualPin);
-      const user = fakeSuperadminUser({ passcode: actualPin });
-
-      cardApi.insertCard(cardData);
-      const { result, waitForNextUpdate } = renderHook(() =>
-        useDippedSmartcardAuth({
-          cardApi,
-          logger,
-          scope: { electionDefinition },
-        })
-      );
-      await waitForNextUpdate();
-      expect(result.current).toMatchObject({ status: 'checking_passcode' });
-
-      act(() => {
-        assert(result.current.status === 'checking_passcode');
-        result.current.checkPasscode('000000');
-      });
-      await waitForNextUpdate();
-      expect(result.current).toMatchObject({
-        status: 'remove_card',
-        user,
-      });
-
-      cardApi.removeCard();
-      await waitForNextUpdate();
-      expect(result.current).toEqual({
-        status: 'logged_in',
-        card: undefined,
-        logOut: expect.any(Function),
-        user,
-      });
-    }
-  );
 
   it('can bootstrap an admin session', async () => {
     const logger = fakeLogger();
