@@ -7,12 +7,7 @@ import {
   ScannerError,
 } from '@votingworks/plustek-sdk';
 import { v4 as uuid } from 'uuid';
-import {
-  AdjudicationReason,
-  AdjudicationReasonInfo,
-  Id,
-  PageInterpretationWithFiles,
-} from '@votingworks/types';
+import { Id } from '@votingworks/types';
 import { assert, throwIllegalValue } from '@votingworks/utils';
 import { switchMap, timer } from 'rxjs';
 import {
@@ -28,6 +23,7 @@ import { Scan } from '@votingworks/api';
 import makeDebug from 'debug';
 import {
   deleteInterpretedSheet,
+  SheetInterpretation,
   SimpleInterpreter,
   storeInterpretedSheet,
 } from './simple_interpreter';
@@ -50,12 +46,14 @@ class PrecinctScannerError extends Error {
   }
 }
 
+type InterpretationResult = SheetInterpretation & { sheetId: Id };
+
 export interface Context {
   store?: Store;
   interpreter?: SimpleInterpreter;
   client?: ScannerClient;
   scannedSheet?: SheetOf<string>;
-  interpretation?: InterpretationResultEvent;
+  interpretation?: InterpretationResult;
   error?: Error;
   interpretationMode: InterpretationMode;
 }
@@ -78,14 +76,10 @@ type ScannerStatusEvent =
   | { type: 'SCANNER_JAM' }
   | { type: 'SCANNER_DISCONNECTED' };
 
-interface Interpretation {
-  sheetId: Id;
-  sheet: SheetOf<PageInterpretationWithFiles>;
+interface InterpretationResultEvent {
+  type: 'INTERPRETATION_RESULT';
+  interpretation: InterpretationResult;
 }
-
-export type InterpretationResultEvent = Scan.InterpretationResult & {
-  interpretation: Interpretation;
-};
 
 type CommandEvent =
   | { type: 'SCAN' }
@@ -199,139 +193,36 @@ async function interpretSheet({
   interpreter,
   scannedSheet,
   interpretationMode,
-}: Context): Promise<InterpretationResultEvent> {
+}: Context): Promise<InterpretationResult> {
   assert(interpreter);
   assert(scannedSheet);
 
   if (interpretationMode === 'skip') {
     return {
-      type: 'INTERPRETATION_VALID',
-      interpretation: {
-        sheetId: 'mock-sheet-id',
-        sheet: [
-          {
-            originalFilename: '/front-original-mock',
-            normalizedFilename: '/front-normalized-mock',
-            interpretation: { type: 'BlankPage' },
-          },
-          {
-            originalFilename: '/back-original-mock',
-            normalizedFilename: '/back-normalized-mock',
-            interpretation: { type: 'BlankPage' },
-          },
-        ],
-      },
+      type: 'ValidSheet',
+      pages: [
+        {
+          originalFilename: '/front-original-mock',
+          normalizedFilename: '/front-normalized-mock',
+          interpretation: { type: 'BlankPage' },
+        },
+        {
+          originalFilename: '/back-original-mock',
+          normalizedFilename: '/back-normalized-mock',
+          interpretation: { type: 'BlankPage' },
+        },
+      ],
+      sheetId: 'mock-sheet-id',
     };
   }
 
   const sheetId = uuid();
-  const result = await interpreter.interpret(sheetId, scannedSheet);
-  const interpretedSheet = result.unsafeUnwrap();
-  const [front, back] = interpretedSheet;
-  const frontType = front.interpretation.type;
-  const backType = back.interpretation.type;
-  const interpretation: Interpretation = { sheetId, sheet: interpretedSheet };
-
-  if (
-    frontType === 'InvalidElectionHashPage' ||
-    backType === 'InvalidElectionHashPage'
-  ) {
-    return {
-      type: 'INTERPRETATION_INVALID',
-      interpretation,
-      reason: 'invalid_election_hash',
-    };
-  }
-
-  if (
-    frontType === 'InvalidTestModePage' ||
-    backType === 'InvalidTestModePage'
-  ) {
-    return {
-      type: 'INTERPRETATION_INVALID',
-      interpretation,
-      reason: 'invalid_test_mode',
-    };
-  }
-
-  if (
-    frontType === 'InvalidPrecinctPage' ||
-    backType === 'InvalidPrecinctPage'
-  ) {
-    return {
-      type: 'INTERPRETATION_INVALID',
-      interpretation,
-      reason: 'invalid_precinct',
-    };
-  }
-
-  if (frontType === 'UnreadablePage' || backType === 'UnreadablePage') {
-    return {
-      type: 'INTERPRETATION_INVALID',
-      interpretation,
-      reason: 'unreadable',
-    };
-  }
-
-  // TODO what does this case actually mean?
-  if (
-    frontType === 'UninterpretedHmpbPage' ||
-    backType === 'UninterpretedHmpbPage'
-  ) {
-    return {
-      type: 'INTERPRETATION_INVALID',
-      interpretation,
-      reason: 'unknown',
-    };
-  }
-
-  if (frontType === 'InterpretedBmdPage' || backType === 'InterpretedBmdPage') {
-    return { type: 'INTERPRETATION_VALID', interpretation };
-  }
-
-  assert(
-    frontType === 'InterpretedHmpbPage' && backType === 'InterpretedHmpbPage'
-  );
-  const frontAdjudication = front.interpretation.adjudicationInfo;
-  const backAdjudication = back.interpretation.adjudicationInfo;
-
-  if (
-    frontAdjudication.requiresAdjudication ||
-    backAdjudication.requiresAdjudication
-  ) {
-    const frontReasons = frontAdjudication.enabledReasonInfos;
-    const backReasons = backAdjudication.enabledReasonInfos;
-
-    let reasons: AdjudicationReasonInfo[];
-    // If both sides are blank, the ballot is blank
-    if (
-      frontReasons.length === 1 &&
-      frontReasons[0].type === AdjudicationReason.BlankBallot &&
-      backReasons.length === 1 &&
-      backReasons[0].type === AdjudicationReason.BlankBallot
-    ) {
-      reasons = [{ type: AdjudicationReason.BlankBallot }];
-    }
-    // Otherwise, we can ignore blank sides
-    else {
-      reasons = [...frontReasons, ...backReasons].filter(
-        (reason) => reason.type !== AdjudicationReason.BlankBallot
-      );
-    }
-
-    // If there are any non-blank reasons, they should be reviewed
-    if (reasons.length > 0) {
-      return {
-        type: 'INTERPRETATION_NEEDS_REVIEW',
-        interpretation,
-        reasons,
-      };
-    }
-  }
-
+  const interpretation = (
+    await interpreter.interpret(sheetId, scannedSheet)
+  ).unsafeUnwrap();
   return {
-    type: 'INTERPRETATION_VALID',
-    interpretation,
+    ...interpretation,
+    sheetId,
   };
 }
 
@@ -342,8 +233,8 @@ async function accept({ client, store, interpretation }: Context) {
   // Optimistically record the interpretation in the store. If accept fails
   // (e.g. due to paper jam), we delete the interpretation from the store. If
   // the Plustek crashes during accept, it will automatically accept on reboot.
-  const { sheetId, sheet } = interpretation.interpretation;
-  storeInterpretedSheet(store, sheetId, sheet);
+  const { sheetId, pages } = interpretation;
+  storeInterpretedSheet(store, sheetId, pages);
   debug('Stored sheet before accepting: %s', sheetId);
   debug('Accepting');
   const acceptResult = await client.accept();
@@ -354,7 +245,7 @@ async function accept({ client, store, interpretation }: Context) {
 function deleteLastAcceptedBallot({ store, interpretation }: Context) {
   assert(store);
   assert(interpretation);
-  const { sheetId } = interpretation.interpretation;
+  const { sheetId } = interpretation;
   deleteInterpretedSheet(store, sheetId);
   debug('Deleted last accepted sheet: %s', sheetId);
 }
@@ -530,7 +421,10 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
           onDone: {
             actions: [
               assign({ interpretation: (_context, event) => event.data }),
-              send((_context, event) => event.data),
+              send((_context, event) => ({
+                type: 'INTERPRETATION_RESULT',
+                interpretation: event.data,
+              })),
             ],
           },
           onError: {
@@ -539,9 +433,23 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
           },
         },
         on: {
-          INTERPRETATION_VALID: 'ready_to_accept',
-          INTERPRETATION_NEEDS_REVIEW: 'needs_review',
-          INTERPRETATION_INVALID: 'rejecting',
+          INTERPRETATION_RESULT: [
+            {
+              target: 'ready_to_accept',
+              cond: (_context, event) =>
+                event.interpretation.type === 'ValidSheet',
+            },
+            {
+              target: 'rejecting',
+              cond: (_context, event) =>
+                event.interpretation.type === 'InvalidSheet',
+            },
+            {
+              target: 'needs_review',
+              cond: (_context, event) =>
+                event.interpretation.type === 'NeedsReviewSheet',
+            },
+          ],
         },
       },
       ready_to_accept: {
@@ -805,22 +713,22 @@ export function createPrecinctScannerStateMachine(
         }
       })();
       const { error, interpretation } = state.context;
-      // Remove interpretation details
-      const interpretationResult: Scan.InterpretationResult | undefined =
+      // Remove interpretation details that are only used internally (e.g. sheetId, pages)
+      const interpretationResult: Scan.SheetInterpretation | undefined =
         (() => {
           if (!interpretation) return undefined;
           switch (interpretation.type) {
-            case 'INTERPRETATION_VALID':
+            case 'ValidSheet':
               return { type: interpretation.type };
-            case 'INTERPRETATION_NEEDS_REVIEW':
-              return {
-                type: interpretation.type,
-                reasons: interpretation.reasons,
-              };
-            case 'INTERPRETATION_INVALID':
+            case 'InvalidSheet':
               return {
                 type: interpretation.type,
                 reason: interpretation.reason,
+              };
+            case 'NeedsReviewSheet':
+              return {
+                type: interpretation.type,
+                reasons: interpretation.reasons,
               };
             default:
               throwIllegalValue(interpretation, 'type');

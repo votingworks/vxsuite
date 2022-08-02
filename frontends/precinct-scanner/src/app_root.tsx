@@ -517,9 +517,7 @@ export function AppRoot({
           />
         );
       case 'needs_review':
-        assert(
-          scannerStatus.interpretation?.type === 'INTERPRETATION_NEEDS_REVIEW'
-        );
+        assert(scannerStatus.interpretation?.type === 'NeedsReviewSheet');
         return (
           <ScanWarningScreen
             adjudicationReasonInfo={scannerStatus.interpretation.reasons}
@@ -533,7 +531,7 @@ export function AppRoot({
         return (
           <ScanErrorScreen
             error={
-              scannerStatus.interpretation?.type === 'INTERPRETATION_INVALID'
+              scannerStatus.interpretation?.type === 'InvalidSheet'
                 ? scannerStatus.interpretation.reason
                 : scannerStatus.error
             }

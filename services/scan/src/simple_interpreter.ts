@@ -1,5 +1,7 @@
 import { interpret as interpretNh } from '@votingworks/ballot-interpreter-nh';
 import {
+  AdjudicationReason,
+  AdjudicationReasonInfo,
   BallotPageLayoutWithImage,
   ElectionDefinition,
   Id,
@@ -9,6 +11,8 @@ import {
 } from '@votingworks/types';
 import { readFile } from 'fs/promises';
 import { interpretTemplate } from '@votingworks/ballot-interpreter-vx';
+import { Scan } from '@votingworks/api';
+import { assert } from '@votingworks/utils';
 import * as qrcodeWorker from './workers/qrcode';
 import { Interpreter as VxInterpreter } from './interpreter';
 import { mapSheet, SheetOf } from './types';
@@ -24,6 +28,10 @@ export interface CreateInterpreterOptions {
   readonly testMode: boolean;
 }
 
+export type SheetInterpretation = Scan.SheetInterpretation & {
+  pages: SheetOf<PageInterpretationWithFiles>;
+};
+
 /**
  * Provides a simple interface for interpreting a sheet of ballot paper.
  */
@@ -31,7 +39,108 @@ export interface SimpleInterpreter {
   interpret(
     sheetId: Id,
     sheet: SheetOf<string>
-  ): Promise<Result<SheetOf<PageInterpretationWithFiles>, Error>>;
+  ): Promise<Result<SheetInterpretation, Error>>;
+}
+
+function combinePageInterpretationsForSheet(
+  pages: SheetOf<PageInterpretationWithFiles>
+): Scan.SheetInterpretation {
+  const [front, back] = pages;
+  const frontType = front.interpretation.type;
+  const backType = back.interpretation.type;
+
+  if (
+    frontType === 'InvalidElectionHashPage' ||
+    backType === 'InvalidElectionHashPage'
+  ) {
+    return {
+      type: 'InvalidSheet',
+      reason: 'invalid_election_hash',
+    };
+  }
+
+  if (
+    frontType === 'InvalidTestModePage' ||
+    backType === 'InvalidTestModePage'
+  ) {
+    return {
+      type: 'InvalidSheet',
+      reason: 'invalid_test_mode',
+    };
+  }
+
+  if (
+    frontType === 'InvalidPrecinctPage' ||
+    backType === 'InvalidPrecinctPage'
+  ) {
+    return {
+      type: 'InvalidSheet',
+      reason: 'invalid_precinct',
+    };
+  }
+
+  if (frontType === 'UnreadablePage' || backType === 'UnreadablePage') {
+    return {
+      type: 'InvalidSheet',
+      reason: 'unreadable',
+    };
+  }
+
+  // TODO what does this case actually mean?
+  if (
+    frontType === 'UninterpretedHmpbPage' ||
+    backType === 'UninterpretedHmpbPage'
+  ) {
+    return {
+      type: 'InvalidSheet',
+      reason: 'unknown',
+    };
+  }
+
+  if (frontType === 'InterpretedBmdPage' || backType === 'InterpretedBmdPage') {
+    return { type: 'ValidSheet' };
+  }
+
+  assert(
+    frontType === 'InterpretedHmpbPage' && backType === 'InterpretedHmpbPage'
+  );
+  const frontAdjudication = front.interpretation.adjudicationInfo;
+  const backAdjudication = back.interpretation.adjudicationInfo;
+
+  if (
+    frontAdjudication.requiresAdjudication ||
+    backAdjudication.requiresAdjudication
+  ) {
+    const frontReasons = frontAdjudication.enabledReasonInfos;
+    const backReasons = backAdjudication.enabledReasonInfos;
+
+    let reasons: AdjudicationReasonInfo[];
+    // If both sides are blank, the ballot is blank
+    if (
+      frontReasons.length === 1 &&
+      frontReasons[0].type === AdjudicationReason.BlankBallot &&
+      backReasons.length === 1 &&
+      backReasons[0].type === AdjudicationReason.BlankBallot
+    ) {
+      reasons = [{ type: AdjudicationReason.BlankBallot }];
+    }
+    // Otherwise, we can ignore blank sides
+    else {
+      reasons = [...frontReasons, ...backReasons].filter(
+        (reason) => reason.type !== AdjudicationReason.BlankBallot
+      );
+    }
+
+    // If there are any non-blank reasons, they should be reviewed
+    if (reasons.length > 0) {
+      return {
+        type: 'NeedsReviewSheet',
+        reasons,
+      };
+    }
+  }
+
+  return { type: 'ValidSheet' };
 }
 
 function createNhInterpreter(
@@ -60,8 +169,7 @@ function createNhInterpreter(
         sheet[1],
         backResult.normalizedImage
       );
-
-      return ok([
+      const pageInterpretations: SheetOf<PageInterpretationWithFiles> = [
         {
           interpretation: frontResult.interpretation,
           originalFilename: frontImages.original,
@@ -72,7 +180,11 @@ function createNhInterpreter(
           originalFilename: backImages.original,
           normalizedFilename: backImages.normalized,
         },
-      ]);
+      ];
+      return ok({
+        pages: pageInterpretations,
+        ...combinePageInterpretationsForSheet(pageInterpretations),
+      });
     },
   };
 }
@@ -106,38 +218,40 @@ function createVxInterpreter({
             qrcodeWorker.detectQrcodeInFilePath
           )
         );
-      return ok(
-        await mapSheet(
-          [
-            [frontPath, frontQrcodeOutput],
-            [backPath, backQrcodeOutput],
-          ] as const,
-          async ([
+      const pageInterpretations = await mapSheet(
+        [
+          [frontPath, frontQrcodeOutput],
+          [backPath, backQrcodeOutput],
+        ] as const,
+        async ([
+          ballotImagePath,
+          detectQrcodeResult,
+        ]): Promise<PageInterpretationWithFiles> => {
+          const ballotImageFile = await readFile(ballotImagePath);
+          const result = await vxInterpreter.interpretFile({
             ballotImagePath,
+            ballotImageFile,
             detectQrcodeResult,
-          ]): Promise<PageInterpretationWithFiles> => {
-            const ballotImageFile = await readFile(ballotImagePath);
-            const result = await vxInterpreter.interpretFile({
-              ballotImagePath,
-              ballotImageFile,
-              detectQrcodeResult,
-            });
+          });
 
-            const images = await saveSheetImages(
-              sheetId,
-              ballotImagesPath,
-              ballotImagePath,
-              result.normalizedImage
-            );
+          const images = await saveSheetImages(
+            sheetId,
+            ballotImagesPath,
+            ballotImagePath,
+            result.normalizedImage
+          );
 
-            return {
-              interpretation: result.interpretation,
-              originalFilename: images.original,
-              normalizedFilename: images.normalized,
-            };
-          }
-        )
+          return {
+            interpretation: result.interpretation,
+            originalFilename: images.original,
+            normalizedFilename: images.normalized,
+          };
+        }
       );
+      return ok({
+        pages: pageInterpretations,
+        ...combinePageInterpretationsForSheet(pageInterpretations),
+      });
     },
   };
 }
