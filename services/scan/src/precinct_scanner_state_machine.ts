@@ -521,9 +521,11 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
           },
         },
         needs_review: {
+          invoke: pollPaperStatus,
           on: {
             ACCEPT: 'accepting',
             RETURN: 'returning',
+            SCANNER_READY_TO_EJECT: { target: undefined }, // Do nothing
           },
         },
         returning: {
@@ -618,21 +620,30 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
             SCANNER_READY_TO_EJECT: { target: 'error_jammed', internal: true },
           },
         },
+        back_to_last_state: {
+          type: 'history',
+        },
         error_both_sides_have_paper: {
-          entry: assign({
-            error: new PrecinctScannerError('both_sides_have_paper'),
-          }),
           invoke: pollPaperStatus,
           on: {
-            SCANNER_BOTH_SIDES_HAVE_PAPER: {
-              target: 'error_both_sides_have_paper',
-              internal: true,
-            },
-            // For now, if the front paper is removed, just reject the back paper,
-            // since we don't have context on how we got here and what was supposed
-            // to happen.
-            SCANNER_READY_TO_EJECT: 'rejecting',
-            SCANNER_NO_PAPER: 'rejecting',
+            SCANNER_BOTH_SIDES_HAVE_PAPER: { target: undefined }, // Do nothing
+            SCANNER_READY_TO_EJECT: 'back_to_last_state',
+            //     // After the front paper is removed, if we have scanned images from
+            //     // the back paper, try to interpret them
+            //     {
+            //       target: 'interpreting',
+            //       cond: (context) => context.scannedSheet !== undefined,
+            //     },
+            //     // Otherwise, reject the back paper
+            //     {
+            //       target: 'rejecting',
+            //       cond: (context) => context.scannedSheet === undefined,
+            //       actions: assign({
+            //         error: new PrecinctScannerError('both_sides_have_paper'),
+            //       }),
+            //     },
+            //   ],
+            // },
           },
         },
         error: {},
