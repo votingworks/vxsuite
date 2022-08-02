@@ -37,9 +37,14 @@ export type PrintableBallotType =
   typeof PrintableBallotType[keyof typeof PrintableBallotType];
 
 export enum BallotMode {
+  /** Real ballots to be used and scanned during an election */
   Official = 'live',
+  /** Test ballots to be used and scanned during pre-election testing / L&A */
   Test = 'test',
+  /** Sample ballots to be provided to voters ahead of an election */
   Sample = 'sample',
+  /** Draft ballots to verify that an election definition has been properly configured */
+  Draft = 'draft',
 }
 
 export interface PrintedBallot {

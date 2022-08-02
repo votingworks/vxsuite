@@ -20,12 +20,15 @@ import { ExportBallotPdfsButton } from '../components/export_ballot_pdfs_button'
 
 const Header = styled.div`
   display: flex;
-  flex-direction: row-reverse;
   justify-content: space-between;
   margin-bottom: 1rem;
 `;
 
-export function BallotListScreen(): JSX.Element {
+interface Props {
+  draftMode?: boolean;
+}
+
+export function BallotListScreen({ draftMode }: Props): JSX.Element {
   const { electionDefinition, configuredAt } = useContext(AppContext);
   assert(electionDefinition && typeof configuredAt === 'string');
   const { election } = electionDefinition;
@@ -50,12 +53,6 @@ export function BallotListScreen(): JSX.Element {
       <Header>
         <Prose maxWidth={false}>
           <p>
-            <ExportBallotPdfsButton />{' '}
-            <ExportElectionBallotPackageModalButton />
-          </p>
-        </Prose>
-        <Prose maxWidth={false}>
-          <p>
             {`Sort ${pluralize('ballot', ballots.length, true)} by: `}
             <SegmentedButton>
               <Button
@@ -71,6 +68,14 @@ export function BallotListScreen(): JSX.Element {
             </SegmentedButton>
           </p>
         </Prose>
+        {!draftMode && (
+          <Prose maxWidth={false}>
+            <p>
+              <ExportBallotPdfsButton />{' '}
+              <ExportElectionBallotPackageModalButton />
+            </p>
+          </Prose>
+        )}
       </Header>
       <Table>
         <thead>
