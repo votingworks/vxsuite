@@ -1,4 +1,4 @@
-import { areAllZeroSmartcardPinsEnabled } from '@votingworks/ui';
+import { isAllZeroSmartcardPinGenerationEnabled } from '@votingworks/ui';
 
 /**
  * generatePin generates random numeric PINs of the specified length (default = 6).
@@ -13,7 +13,7 @@ export function generatePin(length = 6): string {
 
   let pin = '';
   for (let i = 0; i < length; i += 1) {
-    const nextDigit = areAllZeroSmartcardPinsEnabled()
+    const nextDigit = isAllZeroSmartcardPinGenerationEnabled()
       ? 0
       : Math.floor(Math.random() * 10);
     pin += `${nextDigit}`;

@@ -1,4 +1,4 @@
-import { areAllZeroSmartcardPinsEnabled } from '@votingworks/ui';
+import { isAllZeroSmartcardPinGenerationEnabled } from '@votingworks/ui';
 import { mockOf } from '@votingworks/test-utils';
 
 import { generatePin, hyphenatePin } from './pins';
@@ -6,12 +6,14 @@ import { generatePin, hyphenatePin } from './pins';
 jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => {
   return {
     ...jest.requireActual('@votingworks/ui'),
-    areAllZeroSmartcardPinsEnabled: jest.fn(),
+    isAllZeroSmartcardPinGenerationEnabled: jest.fn(),
   };
 });
 
 beforeEach(() => {
-  mockOf(areAllZeroSmartcardPinsEnabled).mockImplementation(() => false);
+  mockOf(isAllZeroSmartcardPinGenerationEnabled).mockImplementation(
+    () => false
+  );
 });
 
 test('generatePin generates PINs', () => {
@@ -27,8 +29,8 @@ test('generatePin generates PINs', () => {
   expect(() => generatePin(-1)).toThrow('PIN length must be greater than 0');
 });
 
-test('generatePIN generates PINs with all zeros when all-zero smartcard PINs feature flag is enabled', () => {
-  mockOf(areAllZeroSmartcardPinsEnabled).mockImplementation(() => true);
+test('generatePIN generates PINs with all zeros when all-zero smartcard PIN generation feature flag is enabled', () => {
+  mockOf(isAllZeroSmartcardPinGenerationEnabled).mockImplementation(() => true);
 
   expect(generatePin()).toEqual('000000');
   expect(generatePin(10)).toEqual('0000000000');

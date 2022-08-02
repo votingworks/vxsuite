@@ -52,8 +52,8 @@ export * from './remove_card_screen';
 export { InvalidCardScreen } from './invalid_card_screen';
 export * from './unlock_machine_screen';
 export {
-  areAllZeroSmartcardPinsEnabled,
   areVvsg2AuthFlowsEnabled,
+  isAllZeroSmartcardPinGenerationEnabled,
 } from './config/features';
 export * from './system_administrator_screen_contents';
 export * from './unconfigure_machine_button';
