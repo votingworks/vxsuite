@@ -157,7 +157,7 @@ test('Smartcard modal displays card details', async () => {
     within(modal).getByRole('heading', { name: 'Card Details' });
     within(modal).getByText(expectedRoleString);
     within(modal).getByText(expectedElectionString);
-    within(modal).getByText('Remove card to leave this screen.');
+    within(modal).getByText('Remove card to continue.');
     if (shouldResetCardPinButtonBeDisplayed) {
       within(modal).getByRole('button', { name: 'Reset Card PIN' });
     } else {
@@ -234,7 +234,7 @@ test('Smartcard modal displays card details when no election definition on machi
     within(modal).getByRole('heading', { name: 'Card Details' });
     within(modal).getByText(expectedRoleString);
     within(modal).getByText(expectedElectionString);
-    within(modal).getByText('Remove card to leave this screen.');
+    within(modal).getByText('Remove card to continue.');
     if (shouldResetCardPinButtonBeDisplayed) {
       within(modal).getByRole('button', { name: 'Reset Card PIN' });
     } else {
@@ -333,7 +333,7 @@ test('Programming admin and poll worker smartcards', async () => {
     }
     within(modal).getByText(expectedRoleString);
     within(modal).getByText('General Election — Tuesday, November 3, 2020');
-    within(modal).getByText('Remove card to leave this screen.');
+    within(modal).getByText('Remove card to continue.');
     if (shouldCardHavePin) {
       // PIN resetting is disabled right after a card has been created
       expect(
@@ -384,7 +384,7 @@ test('Programming super admin smartcards', async () => {
   within(modal).getByText(/New Super Admin card has been programmed./);
   within(modal).getByText('Super Admin');
   within(modal).getByText('N/A'); // Card election
-  within(modal).getByText('Remove card to leave this screen.');
+  within(modal).getByText('Remove card to continue.');
   // PIN resetting is disabled right after a card has been created
   expect(
     within(modal).getByRole('button', { name: 'Reset Card PIN' })

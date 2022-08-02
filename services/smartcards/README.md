@@ -51,6 +51,8 @@ of the existing [`fixtures/`](./fixtures).
 ### Using your own election definition
 
 ```sh
+# authenticate with super admin card
+./mockCardReader.py enable --superadmin
 # configure with admin card
 ./mockCardReader.py enable --admin /path/to/election.json
 # open polls with poll worker card

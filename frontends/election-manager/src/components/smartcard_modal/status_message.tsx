@@ -47,7 +47,11 @@ export function StatusMessage({
         throwIllegalValue(action);
       }
     }
-    return <Text error>{text} Please try again.</Text>;
+    return (
+      <Text as="span" error>
+        {text} Please try again.
+      </Text>
+    );
   }
 
   if (status === 'InProgress') {
@@ -75,13 +79,15 @@ export function StatusMessage({
 
   if (action === 'Program' && programmedUser) {
     return (
-      <Text success>
-        New {actionRoleReadableString} card has been programmed.
-        {'passcode' in programmedUser && (
+      <Text as="span" success>
+        {'passcode' in programmedUser ? (
           <React.Fragment>
-            <br />
-            The card PIN is {hyphenatePin(programmedUser.passcode)}. Write this
-            PIN down.
+            New {actionRoleReadableString} Card PIN is{' '}
+            <strong>{hyphenatePin(programmedUser.passcode)}</strong>.
+          </React.Fragment>
+        ) : (
+          <React.Fragment>
+            New {actionRoleReadableString} Card created.
           </React.Fragment>
         )}
       </Text>
@@ -90,18 +96,15 @@ export function StatusMessage({
 
   if (action === 'PinReset' && programmedUser && 'passcode' in programmedUser) {
     return (
-      <Text success>
-        {actionRoleReadableString} card PIN has been reset.
-        <br />
-        The new PIN is {hyphenatePin(programmedUser.passcode)}. Write this PIN
-        down.
+      <Text as="span" success>
+        New PIN is <strong>{hyphenatePin(programmedUser.passcode)}</strong>.
       </Text>
     );
   }
 
   if (action === 'Unprogram') {
     return (
-      <Text success>
+      <Text as="span" success>
         {actionRoleReadableString} card has been unprogrammed.
       </Text>
     );

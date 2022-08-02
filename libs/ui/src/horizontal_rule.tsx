@@ -2,6 +2,7 @@ import styled from 'styled-components';
 
 interface Props {
   color?: string;
+  children?: string;
 }
 
 export const HorizontalRule = styled.p<Props>`
@@ -16,9 +17,9 @@ export const HorizontalRule = styled.p<Props>`
     content: '';
   }
   &::before {
-    margin-right: 0.5rem;
+    margin-right: ${({ children }) => (children ? '0.5rem' : undefined)};
   }
   &::after {
-    margin-left: 0.5rem;
+    margin-left: ${({ children }) => (children ? '0.5rem' : undefined)};
   }
 `;

@@ -1,7 +1,12 @@
 import React, { useContext, useState } from 'react';
-import styled from 'styled-components';
 import { assert, format, throwIllegalValue } from '@votingworks/utils';
-import { Button, Prose, Table } from '@votingworks/ui';
+import {
+  Button,
+  Prose,
+  fontSizeTheme,
+  HorizontalRule,
+  Text,
+} from '@votingworks/ui';
 import { CardProgramming, ElectionDefinition, User } from '@votingworks/types';
 
 import { AppContext } from '../../contexts/app_context';
@@ -9,12 +14,6 @@ import { generatePin } from './pins';
 import { SmartcardActionStatus, StatusMessage } from './status_message';
 import { UnprogramCardConfirmationModal } from './unprogram_card_confirmation_modal';
 import { userRoleToReadableString } from './user_roles';
-
-const CardDetailsTable = styled(Table)`
-  margin: auto;
-  width: auto;
-  min-width: 25%;
-`;
 
 function checkDoesCardElectionHashMatchMachineElectionHash(
   programmedUser: User,
@@ -102,79 +101,68 @@ export function CardDetailsView({
     setIsUnprogramCardConfirmationModalOpen(false);
   }
 
-  let electionDisplayString = 'Unknown';
-  if (doesCardElectionHashMatchMachineElectionHash) {
-    const { election } = electionDefinition;
-    const electionDateFormatted = format.localeWeekdayAndDate(
-      new Date(election.date)
-    );
-    electionDisplayString = `${election.title} — ${electionDateFormatted}`;
-  } else if (role === 'superadmin') {
-    electionDisplayString = 'N/A';
-  }
+  const election = electionDefinition?.election;
+  const electionDisplayString =
+    election && doesCardElectionHashMatchMachineElectionHash
+      ? `${election.title} — ${format.localeWeekdayAndDate(
+          new Date(election.date)
+        )}`
+      : 'Unknown Election';
 
   return (
-    <Prose textCenter>
-      <h2>Card Details</h2>
-      {/* An empty div to maintain space between the header and subsequent p. TODO: Consider adding
-        a `maintainSpaceBelowHeaders` prop to `Prose` */}
-      <div />
-      {actionStatus && (
-        <StatusMessage
-          actionStatus={actionStatus}
-          programmedUser={programmedUser}
-        />
-      )}
-      <CardDetailsTable>
-        <thead>
-          <tr>
-            <th>Role</th>
-            <th>Election</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>{userRoleToReadableString(role)}</td>
-            <td>{electionDisplayString}</td>
-          </tr>
-        </tbody>
-      </CardDetailsTable>
-      <p>Remove card to leave this screen.</p>
-      {'passcode' in programmedUser &&
-        (role === 'superadmin' ||
-          // If the card is from a prior election, no need to display PIN resetting. Unprogramming is
-          // the only meaningful action in this case
-          doesCardElectionHashMatchMachineElectionHash) && (
-          <p>
-            <Button disabled={cardJustProgrammed} onPress={resetCardPin}>
-              Reset Card PIN
-            </Button>
-          </p>
-        )}
-      {/* Don't allow unprogramming super admin cards to ensure election officials don't get
-        accidentally locked out. Likewise prevent unprogramming when there's no election definition
-        on the machine since cards can't be programmed in this state */}
-      {(role === 'admin' || role === 'pollworker') && electionDefinition && (
-        <React.Fragment>
-          <p>
-            <Button
-              danger={doesCardElectionHashMatchMachineElectionHash}
-              onPress={openUnprogramCardConfirmationModal}
-              primary={!doesCardElectionHashMatchMachineElectionHash}
-            >
-              Unprogram Card
-            </Button>
-          </p>
-          {isUnprogramCardConfirmationModalOpen && (
-            <UnprogramCardConfirmationModal
-              actionStatus={actionStatus}
-              card={card}
-              closeModal={closeUnprogramCardConfirmationModal}
-              programmedUserRole={role}
-              setActionStatus={setActionStatus}
-            />
+    <Prose textCenter theme={fontSizeTheme.large}>
+      <h1>{userRoleToReadableString(role)} Card</h1>
+      {role !== 'superadmin' && <p>{electionDisplayString}</p>}
+      <HorizontalRule />
+      {actionStatus ? (
+        <Text style={{ fontSize: '1.5em' }}>
+          <StatusMessage
+            actionStatus={actionStatus}
+            programmedUser={programmedUser}
+          />
+        </Text>
+      ) : (
+        <p>
+          {'passcode' in programmedUser &&
+            (role === 'superadmin' ||
+              // If the card is from a prior election, no need to display PIN resetting. Unprogramming is
+              // the only meaningful action in this case
+              doesCardElectionHashMatchMachineElectionHash) && (
+              <Button disabled={cardJustProgrammed} onPress={resetCardPin}>
+                Reset Card PIN
+              </Button>
+            )}
+          {/* Don't allow unprogramming super admin cards to ensure election officials don't get
+            accidentally locked out. Likewise prevent unprogramming when there's no election definition
+            on the machine since cards can't be programmed in this state */}
+          {(role === 'admin' || role === 'pollworker') && electionDefinition && (
+            <React.Fragment>
+              {' '}
+              <Button
+                danger={doesCardElectionHashMatchMachineElectionHash}
+                onPress={openUnprogramCardConfirmationModal}
+                primary={!doesCardElectionHashMatchMachineElectionHash}
+              >
+                Unprogram Card
+              </Button>
+              {isUnprogramCardConfirmationModalOpen && (
+                <UnprogramCardConfirmationModal
+                  actionStatus={actionStatus}
+                  card={card}
+                  closeModal={closeUnprogramCardConfirmationModal}
+                  programmedUserRole={role}
+                  setActionStatus={setActionStatus}
+                />
+              )}
+            </React.Fragment>
           )}
-        </React.Fragment>
+        </p>
+      )}
+      <HorizontalRule />
+      {actionStatus ? (
+        <Text bold>Remove card to continue.</Text>
+      ) : (
+        <p>Remove card to cancel.</p>
       )}
     </Prose>
   );

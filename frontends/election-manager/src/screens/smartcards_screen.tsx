@@ -1,5 +1,4 @@
 import React from 'react';
-import styled from 'styled-components';
 import { assert } from '@votingworks/utils';
 import { LinkButton, Prose } from '@votingworks/ui';
 import { useParams } from 'react-router-dom';
@@ -7,14 +6,6 @@ import { useParams } from 'react-router-dom';
 import { NavigationScreen } from '../components/navigation_screen';
 import { routerPaths } from '../router_paths';
 import { SmartcardsScreenProps, SmartcardType } from '../config/types';
-
-const Body = styled(Prose)`
-  flex-grow: 1;
-`;
-
-const ToggleSmartcardTypeButton = styled(LinkButton)`
-  align-self: start;
-`;
 
 const smartcardTypeToReadableString: Record<SmartcardType, string> = {
   election: 'Election',
@@ -31,29 +22,30 @@ export function SmartcardsScreen(): JSX.Element {
 
   return (
     <NavigationScreen flexRow>
-      <Body maxWidth={false}>
+      <Prose maxWidth={false} style={{ flex: 1 }}>
         <h1>{smartcardTypeToReadableString[smartcardType]} Cards</h1>
         <p>Insert a smartcard to:</p>
         <ul>
-          <li>View card details</li>
+          <li>View card details.</li>
           <li>
-            Create{' '}
             {smartcardType === 'election'
-              ? 'an Admin or Poll Worker card for this election'
-              : 'a Super Admin card'}
+              ? 'Create an Admin or Poll Worker card for this election.'
+              : 'Create a Super Admin card.'}
           </li>
         </ul>
-      </Body>
-      <ToggleSmartcardTypeButton
-        small
-        to={routerPaths.smartcardsByType({
-          smartcardType: getOtherSmartcardType(smartcardType),
-        })}
-      >
-        Create{' '}
-        {smartcardTypeToReadableString[getOtherSmartcardType(smartcardType)]}{' '}
-        Cards
-      </ToggleSmartcardTypeButton>
+      </Prose>
+      <div>
+        <LinkButton
+          small
+          to={routerPaths.smartcardsByType({
+            smartcardType: getOtherSmartcardType(smartcardType),
+          })}
+        >
+          Create{' '}
+          {smartcardTypeToReadableString[getOtherSmartcardType(smartcardType)]}{' '}
+          Cards
+        </LinkButton>
+      </div>
     </NavigationScreen>
   );
 }

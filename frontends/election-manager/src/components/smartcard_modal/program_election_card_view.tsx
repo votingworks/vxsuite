@@ -1,6 +1,12 @@
 import React, { useContext } from 'react';
-import { assert } from '@votingworks/utils';
-import { Button, Prose } from '@votingworks/ui';
+import { assert, format } from '@votingworks/utils';
+import {
+  Button,
+  Prose,
+  HorizontalRule,
+  Text,
+  fontSizeTheme,
+} from '@votingworks/ui';
 import { CardProgramming } from '@votingworks/types';
 
 import { AppContext } from '../../contexts/app_context';
@@ -60,32 +66,44 @@ export function ProgramElectionCardView({
     });
   }
 
+  const election = electionDefinition?.election;
+
   return (
-    <Prose textCenter>
-      <h2>Program Election Card</h2>
-      {/* An empty div to maintain space between the header and subsequent p. TODO: Consider adding
-        a `maintainSpaceBelowHeaders` prop to `Prose` */}
-      <div />
-      {actionStatus && <StatusMessage actionStatus={actionStatus} />}
+    <Prose textCenter theme={fontSizeTheme.large}>
+      {actionStatus && (
+        <Text style={{ marginBottom: '-1.5em' }}>
+          <StatusMessage actionStatus={actionStatus} />
+        </Text>
+      )}
+      <h1>Create New Election Card</h1>
+      {election && (
+        <p>
+          {election.title} —{' '}
+          {format.localeWeekdayAndDate(new Date(election.date))}
+        </p>
+      )}
+      <HorizontalRule />
       {electionDefinition ? (
-        <p>Admin and Poll Worker cards only work for the current election.</p>
+        <p>
+          <Button disabled={!electionDefinition} onPress={programAdminCard}>
+            Admin Card
+          </Button>{' '}
+          or{' '}
+          <Button
+            disabled={!electionDefinition}
+            onPress={programPollWorkerCard}
+          >
+            Poll Worker Card
+          </Button>
+        </p>
       ) : (
         <p>
           An election must be defined before Admin and Poll Worker cards can be
           programmed.
         </p>
       )}
-      <p>Remove card to leave card unprogrammed.</p>
-      <p>
-        <Button disabled={!electionDefinition} onPress={programAdminCard}>
-          Program Admin Card
-        </Button>
-      </p>
-      <p>
-        <Button disabled={!electionDefinition} onPress={programPollWorkerCard}>
-          Program Poll Worker Card
-        </Button>
-      </p>
+      <HorizontalRule />
+      <p>Remove card to cancel.</p>
     </Prose>
   );
 }
