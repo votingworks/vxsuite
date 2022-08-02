@@ -1198,7 +1198,7 @@ test('generates a CVR from an adjudicated write-in', () => {
     Object {
       "1": Array [],
       "2": Array [
-        "write-in-0-Pikachu",
+        "write-in-0",
       ],
       "_ballotId": "abcdefg",
       "_ballotImages": Array [
@@ -1322,7 +1322,7 @@ test('generates a CVR from an adjudicated unmarked write-in', () => {
     Object {
       "1": Array [],
       "2": Array [
-        "write-in-0-Pikachu",
+        "write-in-0",
       ],
       "_ballotId": "abcdefg",
       "_ballotImages": Array [
