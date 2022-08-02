@@ -1,4 +1,4 @@
-import { assert, integers, take } from '@votingworks/utils';
+import { assert, integers, take, throwIllegalValue } from '@votingworks/utils';
 import React, { useLayoutEffect, useRef, useContext } from 'react';
 import ReactDom from 'react-dom';
 import styled from 'styled-components';
@@ -147,6 +147,27 @@ function dualLanguageComposer(
       normal: true,
     });
   };
+}
+
+function ballotModeToBallotTitle(ballotMode: BallotMode): string {
+  switch (ballotMode) {
+    case BallotMode.Draft: {
+      return 'DRAFT BALLOT';
+    }
+    case BallotMode.Official: {
+      return 'Official Ballot';
+    }
+    case BallotMode.Sample: {
+      return 'SAMPLE BALLOT';
+    }
+    case BallotMode.Test: {
+      return 'TEST BALLOT';
+    }
+    /* istanbul ignore next: Compile-time check for completeness */
+    default: {
+      throwIllegalValue(ballotMode);
+    }
+  }
 }
 
 const qrCodeTargetClassName = 'qr-code-target';
@@ -823,6 +844,11 @@ export function HandMarkedPaperBallot({
             <div>SAMPLE</div>
           </Watermark>
         )}
+        {ballotMode === BallotMode.Draft && (
+          <Watermark>
+            <div>DRAFT</div>
+          </Watermark>
+        )}
       </div>
 
       <Content>
@@ -851,11 +877,9 @@ export function HandMarkedPaperBallot({
               )}
               <HandMarkedPaperBallotProse>
                 <h2>
-                  {ballotMode === BallotMode.Official
-                    ? t('Official Ballot', { lng: locales.primary })
-                    : ballotMode === BallotMode.Test
-                    ? t('TEST BALLOT', { lng: locales.primary })
-                    : t('SAMPLE BALLOT', { lng: locales.primary })}
+                  {t(ballotModeToBallotTitle(ballotMode), {
+                    lng: locales.primary,
+                  })}
                 </h2>
                 <h3>
                   {ballotStyle.partyId && primaryPartyName} {title}
@@ -870,13 +894,9 @@ export function HandMarkedPaperBallot({
                 {localeElection && locales.secondary && (
                   <p>
                     <strong>
-                      {ballotMode === BallotMode.Official
-                        ? t('Official Ballot', { lng: locales.secondary })
-                        : ballotMode === BallotMode.Test
-                        ? t('TEST BALLOT', { lng: locales.secondary })
-                        : t('SAMPLE BALLOT', {
-                            lng: locales.secondary,
-                          })}
+                      {t(ballotModeToBallotTitle(ballotMode), {
+                        lng: locales.secondary,
+                      })}
                     </strong>
                     <br />
                     <strong>
