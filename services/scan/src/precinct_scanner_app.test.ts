@@ -160,7 +160,10 @@ const ballotImages = {
   ],
 } as const;
 
-async function configureApp(app: Application) {
+async function configureApp(
+  app: Application,
+  { addTemplates } = { addTemplates: false }
+) {
   const { ballots, electionDefinition } = await readBallotPackageFromBuffer(
     electionFamousNames2021Fixtures.ballotPackageAsBuffer()
   );
@@ -168,9 +171,11 @@ async function configureApp(app: Application) {
 
   await patch(app, '/config/election', electionDefinition.electionData);
   await patch(app, '/config/testMode', { testMode: false });
-  // It takes about a second per template, so we only do some
-  for (const ballot of ballots.slice(0, 2)) {
-    await postTemplate(app, '/scan/hmpb/addTemplates', ballot);
+  if (addTemplates) {
+    // It takes about a second per template, so we only do some
+    for (const ballot of ballots.slice(0, 2)) {
+      await postTemplate(app, '/scan/hmpb/addTemplates', ballot);
+    }
   }
   await post(app, '/scan/hmpb/doneTemplates');
   await expectStatus(app, { state: 'no_paper' });
@@ -178,7 +183,7 @@ async function configureApp(app: Application) {
 
 test('configure and scan hmpb', async () => {
   const { app, mockPlustek } = await createApp();
-  await configureApp(app);
+  await configureApp(app, { addTemplates: true });
 
   await mockPlustek.simulateLoadSheet(ballotImages.completeHmpb);
   await waitForStatus(app, { state: 'ready_to_scan' });
@@ -265,7 +270,7 @@ const needsReviewInterpretation: Scan.InterpretationResult = {
 
 test('ballot needs review - return', async () => {
   const { app, mockPlustek } = await createApp();
-  await configureApp(app);
+  await configureApp(app, { addTemplates: true });
 
   await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb);
   await waitForStatus(app, { state: 'ready_to_scan' });
@@ -290,7 +295,7 @@ test('ballot needs review - return', async () => {
 
 test('ballot needs review - accept', async () => {
   const { app, mockPlustek } = await createApp();
-  await configureApp(app);
+  await configureApp(app, { addTemplates: true });
 
   await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb);
   await waitForStatus(app, { state: 'ready_to_scan' });
@@ -474,7 +479,7 @@ test('scanner powered off while rejecting', async () => {
 
 test('scanner powered off while returning', async () => {
   const { app, mockPlustek } = await createApp();
-  await configureApp(app);
+  await configureApp(app, { addTemplates: true });
 
   await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb);
   await waitForStatus(app, { state: 'ready_to_scan' });
@@ -611,7 +616,7 @@ test('insert second ballot while first ballot is rejecting', async () => {
 
 test('insert second ballot while first ballot is returning', async () => {
   const { app, mockPlustek } = await createApp();
-  await configureApp(app);
+  await configureApp(app, { addTemplates: true });
 
   await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb);
   await waitForStatus(app, { state: 'ready_to_scan' });
@@ -703,7 +708,7 @@ test('jam on accept', async () => {
 
 test('jam on return', async () => {
   const { app, mockPlustek } = await createApp();
-  await configureApp(app);
+  await configureApp(app, { addTemplates: true });
 
   await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb);
   await waitForStatus(app, { state: 'ready_to_scan' });
