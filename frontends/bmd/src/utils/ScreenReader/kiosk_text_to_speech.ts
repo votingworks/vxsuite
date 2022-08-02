@@ -1,9 +1,27 @@
 import { assert } from '@votingworks/utils';
 import { SpeakOptions, TextToSpeech } from '../../config/types';
 
+// Default volume, range, and increment are
+export const MAX_KIOSK_VOLUME = 100;
+export const MIN_KIOSK_VOLUME = 28;
+export const MAX_VOLUME_INCREMENT = 10;
+export const MIN_VOLUME_INCREMENT = 1;
+export const INITIAL_VOLUME_INCREMENT = 3;
+export const VOLUME_INCREMENT_VALUE =
+  (MAX_KIOSK_VOLUME - MIN_KIOSK_VOLUME) /
+  (MAX_VOLUME_INCREMENT - MIN_VOLUME_INCREMENT);
+
+export function incrementToVolume(increment: number): number {
+  return (
+    MIN_KIOSK_VOLUME +
+    (increment - MIN_VOLUME_INCREMENT) * VOLUME_INCREMENT_VALUE
+  );
+}
+
 export class KioskTextToSpeech implements TextToSpeech {
   private muted = false;
-  private readonly volume = 50;
+  private volumeIncrement = INITIAL_VOLUME_INCREMENT;
+  private isVolumeIncreasing = true;
 
   constructor() {
     assert(window.kiosk, 'KioskTextToSpeech requires window.kiosk');
@@ -25,7 +43,9 @@ export class KioskTextToSpeech implements TextToSpeech {
       await window.kiosk.cancelSpeak();
     }
 
-    await window.kiosk.speak(text, { volume: this.volume });
+    await window.kiosk.speak(text, {
+      volume: incrementToVolume(this.volumeIncrement),
+    });
   }
 
   /**
@@ -66,6 +86,27 @@ export class KioskTextToSpeech implements TextToSpeech {
       this.mute();
     } else {
       this.unmute();
+    }
+  }
+
+  changeVolume(): void {
+    // reverse volume change direction if necessary
+    if (this.volumeIncrement === MAX_VOLUME_INCREMENT) {
+      this.isVolumeIncreasing = false;
+    } else if (this.volumeIncrement === MIN_VOLUME_INCREMENT) {
+      this.isVolumeIncreasing = true;
+    }
+
+    if (this.isVolumeIncreasing) {
+      this.volumeIncrement += 1;
+      void this.speak(
+        `Increased volume to ${this.volumeIncrement} out of ${MAX_VOLUME_INCREMENT}.`
+      );
+    } else {
+      this.volumeIncrement -= 1;
+      void this.speak(
+        `Decreased volume to ${this.volumeIncrement} out of ${MAX_VOLUME_INCREMENT}.`
+      );
     }
   }
 }

@@ -199,6 +199,11 @@ export interface TextToSpeech {
    * Toggles muted state, or sets it according to the argument.
    */
   toggleMuted(muted?: boolean): void;
+
+  /**
+   * Changes the current volume setting either up or down.
+   */
+  changeVolume?(): void;
 }
 
 /**
@@ -272,6 +277,11 @@ export interface ScreenReader {
    * Directly triggers speech of an event target. Resolves when speaking is done.
    */
   speakEventTarget(target?: EventTarget, options?: SpeakOptions): Promise<void>;
+
+  /**
+   * Changes the current volume setting either up or down.
+   */
+  changeVolume(): void;
 }
 
 export interface VoiceSelector {

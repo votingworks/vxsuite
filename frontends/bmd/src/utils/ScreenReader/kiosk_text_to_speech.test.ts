@@ -1,3 +1,4 @@
+import { waitFor } from '@testing-library/react';
 import { fakeKiosk } from '@votingworks/test-utils';
 import { KioskTextToSpeech } from './kiosk_text_to_speech';
 
@@ -12,7 +13,7 @@ it('speaks an utterance when given text to speak', async () => {
   await tts.speak('hello world');
   expect(window.kiosk.cancelSpeak).toHaveBeenCalled();
   expect(window.kiosk.speak).toHaveBeenCalledWith('hello world', {
-    volume: 50,
+    volume: 44,
   });
 });
 
@@ -32,7 +33,7 @@ it('is unmuted by default, which means utterances are spoken', async () => {
   expect(tts.isMuted()).toBe(false);
   await tts.speak('hello world');
   expect(window.kiosk.speak).toHaveBeenCalledWith('hello world', {
-    volume: 50,
+    volume: 44,
   });
 });
 
@@ -54,7 +55,7 @@ it('can be muted and then unmuted, which means utterances are spoken', async () 
   tts.unmute();
   await tts.speak('hello world');
   expect(window.kiosk.speak).toHaveBeenCalledWith('hello world', {
-    volume: 50,
+    volume: 44,
   });
 });
 
@@ -78,4 +79,60 @@ it('can set muted by calling toggle with an argument', () => {
 
   tts.toggleMuted(true);
   expect(tts.isMuted()).toBe(true);
+});
+
+it('changeVolume cycles through volumes and announces the change', async () => {
+  window.kiosk = fakeKiosk();
+  const tts = new KioskTextToSpeech();
+
+  // check initial volume
+  await tts.speak('hello world');
+  expect(window.kiosk.speak).toHaveBeenCalledWith('hello world', {
+    volume: 44,
+  });
+
+  // check increasing volume
+  for (let i = 4; i <= 10; i += 1) {
+    tts.changeVolume();
+    await waitFor(() => {
+      expect(window.kiosk!.speak).toHaveBeenLastCalledWith(
+        `Increased volume to ${i} out of 10.`,
+        {
+          volume: 20 + i * 8,
+        }
+      );
+    });
+  }
+
+  // check that changed volume applies to other requests
+  await tts.speak('hello world');
+  expect(window.kiosk.speak).toHaveBeenLastCalledWith('hello world', {
+    volume: 100,
+  });
+
+  // check decreasing volume
+  for (let i = 9; i >= 1; i -= 1) {
+    tts.changeVolume();
+    await waitFor(() => {
+      expect(window.kiosk!.speak).toHaveBeenLastCalledWith(
+        `Decreased volume to ${i} out of 10.`,
+        {
+          volume: 20 + i * 8,
+        }
+      );
+    });
+  }
+
+  // check return to initial volume
+  for (let i = 2; i <= 3; i += 1) {
+    tts.changeVolume();
+    await waitFor(() => {
+      expect(window.kiosk!.speak).toHaveBeenLastCalledWith(
+        `Increased volume to ${i} out of 10.`,
+        {
+          volume: 20 + i * 8,
+        }
+      );
+    });
+  }
 });

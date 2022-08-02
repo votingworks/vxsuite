@@ -1,4 +1,4 @@
-import { fireEvent, screen } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { fakeKiosk, makePollWorkerCard } from '@votingworks/test-utils';
 import { MemoryCard, MemoryHardware, MemoryStorage } from '@votingworks/utils';
 import fetchMock from 'fetch-mock';
@@ -8,11 +8,13 @@ import {
   setStateInStorage,
 } from '../test/helpers/election';
 import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
+import { fakeTts } from '../test/helpers/fake_tts';
 import { advanceTimersAndPromises } from '../test/helpers/smartcards';
 import { render } from '../test/test_utils';
 import { App } from './app';
 import { PrecinctSelectionKind, MarkAndPrint } from './config/types';
 import { electionSampleDefinition } from './data';
+import { AriaScreenReader } from './utils/ScreenReader';
 
 beforeEach(() => {
   jest.useFakeTimers();
@@ -72,6 +74,38 @@ it('uses kiosk storage when in kiosk-browser', async () => {
   );
   await advanceTimersAndPromises();
   expect(kiosk.storage.get).toHaveBeenCalled();
+  delete window.kiosk;
+});
+
+it('changes screen reader settings based on keyboard inputs', async () => {
+  const mockTts = fakeTts();
+  const screenReader = new AriaScreenReader(mockTts);
+  jest.spyOn(screenReader, 'toggle');
+  jest.spyOn(screenReader, 'changeVolume');
+
+  render(
+    <App
+      screenReader={screenReader}
+      card={new MemoryCard()}
+      machineConfig={fakeMachineConfigProvider()}
+    />
+  );
+
+  await advanceTimersAndPromises();
+
+  // check that 'r' toggles the screen reader
+  expect(screenReader.toggle).toHaveBeenCalledTimes(0);
+  fireEvent.keyDown(screen.getByRole('main'), { key: 'r' });
+  await waitFor(() => {
+    expect(screenReader.toggle).toHaveBeenCalledTimes(1);
+  });
+
+  // check that 'F17' changes volume
+  expect(screenReader.changeVolume).toHaveBeenCalledTimes(0);
+  fireEvent.keyDown(screen.getByRole('main'), { key: 'F17' });
+  await waitFor(() => {
+    expect(screenReader.changeVolume).toHaveBeenCalledTimes(1);
+  });
 });
 
 // This test is only really here to provide coverage for the default value for
