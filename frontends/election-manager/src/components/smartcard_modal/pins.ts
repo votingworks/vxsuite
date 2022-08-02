@@ -1,5 +1,10 @@
+import { areAllZeroSmartcardPinsEnabled } from '@votingworks/ui';
+
 /**
- * generatePin generates a random numeric PIN of the specified length (default = 6)
+ * generatePin generates random numeric PINs of the specified length (default = 6).
+ *
+ * When the all-zero smartcard PINs feature flag is enabled, generatePin generates PINs with all
+ * zeros.
  */
 export function generatePin(length = 6): string {
   if (length < 1) {
@@ -8,14 +13,17 @@ export function generatePin(length = 6): string {
 
   let pin = '';
   for (let i = 0; i < length; i += 1) {
-    pin += `${Math.floor(Math.random() * 10)}`;
+    const nextDigit = areAllZeroSmartcardPinsEnabled()
+      ? 0
+      : Math.floor(Math.random() * 10);
+    pin += `${nextDigit}`;
   }
   return pin;
 }
 
 /**
- * hyphenatePin adds hyphens to the provided pin, creating segments of the specified length
- * (default = 3), e.g. turning '123456' into '123-456'
+ * hyphenatePin adds hyphens to the provided PIN, creating segments of the specified length
+ * (default = 3), e.g. turning '123456' into '123-456'.
  */
 export function hyphenatePin(pin: string, segmentLength = 3): string {
   if (segmentLength < 1) {

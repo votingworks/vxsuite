@@ -1,4 +1,18 @@
+import { areAllZeroSmartcardPinsEnabled } from '@votingworks/ui';
+import { mockOf } from '@votingworks/test-utils';
+
 import { generatePin, hyphenatePin } from './pins';
+
+jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => {
+  return {
+    ...jest.requireActual('@votingworks/ui'),
+    areAllZeroSmartcardPinsEnabled: jest.fn(),
+  };
+});
+
+beforeEach(() => {
+  mockOf(areAllZeroSmartcardPinsEnabled).mockImplementation(() => false);
+});
 
 test('generatePin generates PINs', () => {
   const digitRegex = new RegExp('^[0-9]+$');
@@ -11,6 +25,13 @@ test('generatePin generates PINs', () => {
 
   expect(() => generatePin(0)).toThrow('PIN length must be greater than 0');
   expect(() => generatePin(-1)).toThrow('PIN length must be greater than 0');
+});
+
+test('generatePIN generates PINs with all zeros when all-zero smartcard PINs feature flag is enabled', () => {
+  mockOf(areAllZeroSmartcardPinsEnabled).mockImplementation(() => true);
+
+  expect(generatePin()).toEqual('000000');
+  expect(generatePin(10)).toEqual('0000000000');
 });
 
 test('hyphenatePin hyphenates PINs', () => {
