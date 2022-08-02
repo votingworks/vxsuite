@@ -159,10 +159,7 @@ export function ElectionManager(): JSX.Element {
             <DefinitionContestsScreen allowEditing={false} />
           </Route>
           <Route exact path={routerPaths.ballotsList}>
-            <BallotListScreen />
-          </Route>
-          <Route exact path={routerPaths.printedBallotsReport}>
-            <PrintedBallotsReportScreen />
+            <BallotListScreen draftMode />
           </Route>
           <Route
             exact
@@ -178,7 +175,7 @@ export function ElectionManager(): JSX.Element {
               }),
             ]}
           >
-            <BallotScreen />
+            <BallotScreen draftMode />
           </Route>
           <Route exact path={routerPaths.smartcards}>
             <Redirect

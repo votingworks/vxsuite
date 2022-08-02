@@ -1,4 +1,8 @@
-import { assert, BALLOT_PDFS_FOLDER } from '@votingworks/utils';
+import {
+  assert,
+  BALLOT_PDFS_FOLDER,
+  throwIllegalValue,
+} from '@votingworks/utils';
 import React, {
   useCallback,
   useContext,
@@ -73,7 +77,32 @@ const BallotPreview = styled.div`
   }
 `;
 
-export function BallotScreen(): JSX.Element {
+function ballotModeToReadableString(ballotMode: BallotMode): string {
+  switch (ballotMode) {
+    case BallotMode.Draft: {
+      return 'Draft';
+    }
+    case BallotMode.Official: {
+      return 'Official';
+    }
+    case BallotMode.Sample: {
+      return 'Sample';
+    }
+    case BallotMode.Test: {
+      return 'Test';
+    }
+    /* istanbul ignore next: Compile-time check for completeness */
+    default: {
+      throwIllegalValue(ballotMode);
+    }
+  }
+}
+
+interface Props {
+  draftMode?: boolean;
+}
+
+export function BallotScreen({ draftMode }: Props): JSX.Element {
   const history = useHistory();
   const ballotPreviewRef = useRef<HTMLDivElement>(null);
   const {
@@ -103,7 +132,9 @@ export function BallotScreen(): JSX.Element {
 
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [ballotPages, setBallotPages] = useState(0);
-  const [ballotMode, setBallotMode] = useState(BallotMode.Official);
+  const [ballotMode, setBallotMode] = useState(
+    draftMode ? BallotMode.Draft : BallotMode.Official
+  );
   const [isAbsentee, setIsAbsentee] = useState(true);
   const [ballotCopies, setBallotCopies] = useState(1);
 
@@ -189,10 +220,14 @@ export function BallotScreen(): JSX.Element {
             <strong>{pluralize('contest', ballotContests.length, true)}</strong>
           </h1>
           <p>
-            <BallotModeToggle
-              ballotMode={ballotMode}
-              setBallotMode={setBallotMode}
-            />{' '}
+            {!draftMode && (
+              <React.Fragment>
+                <BallotModeToggle
+                  ballotMode={ballotMode}
+                  setBallotMode={setBallotMode}
+                />{' '}
+              </React.Fragment>
+            )}
             <BallotTypeToggle
               isAbsentee={isAbsentee}
               setIsAbsentee={setIsAbsentee}
@@ -241,14 +276,10 @@ export function BallotScreen(): JSX.Element {
               warning={ballotMode !== BallotMode.Official}
             >
               Print {ballotCopies}{' '}
-              {ballotMode === BallotMode.Official ? (
-                'Official'
-              ) : (
-                <strong>
-                  {ballotMode === BallotMode.Test ? 'Test' : 'Sample'}
-                </strong>
-              )}{' '}
-              {isAbsentee ? <strong>Absentee</strong> : 'Precinct'}{' '}
+              <strong>
+                {ballotModeToReadableString(ballotMode)}{' '}
+                {isAbsentee ? 'Absentee' : 'Precinct'}
+              </strong>{' '}
               {pluralize('Ballot', ballotCopies)}{' '}
               {availableLocaleCodes.length > 1 &&
                 currentLocaleCode &&
@@ -271,9 +302,11 @@ export function BallotScreen(): JSX.Element {
               Back to List Ballots
             </LinkButton>
           </p>
-          <p>
-            Ballot Package Filename: <Monospace>{filename}</Monospace>
-          </p>
+          {!draftMode && (
+            <p>
+              Ballot Package Filename: <Monospace>{filename}</Monospace>
+            </p>
+          )}
           <h3>Ballot Preview</h3>
           {ballotPages > 0 && (
             <p>
