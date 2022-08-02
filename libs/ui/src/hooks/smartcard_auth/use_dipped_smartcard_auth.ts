@@ -22,7 +22,10 @@ import {
 import deepEqual from 'deep-eql';
 import { useEffect, useReducer } from 'react';
 import useInterval from 'use-interval';
-import { areVvsg2AuthFlowsEnabled } from '../../config/features';
+import {
+  areAllZeroSmartcardPinsEnabled,
+  areVvsg2AuthFlowsEnabled,
+} from '../../config/features';
 import { useLock } from '../use_lock';
 import { usePrevious } from '../use_previous';
 import {
@@ -170,12 +173,14 @@ function smartcardAuthReducer(scope: DippedSmartcardAuthScope) {
 
       case 'check_passcode': {
         assert(previousState.auth.status === 'checking_passcode');
+        const isPasscodeCorrect = areAllZeroSmartcardPinsEnabled()
+          ? action.passcode === '000000'
+          : action.passcode === previousState.auth.user.passcode;
         return {
           ...previousState,
-          auth:
-            action.passcode === previousState.auth.user.passcode
-              ? { status: 'remove_card', user: previousState.auth.user }
-              : { ...previousState.auth, wrongPasscodeEnteredAt: new Date() },
+          auth: isPasscodeCorrect
+            ? { status: 'remove_card', user: previousState.auth.user }
+            : { ...previousState.auth, wrongPasscodeEnteredAt: new Date() },
         };
       }
 
