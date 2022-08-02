@@ -261,6 +261,10 @@ const clearLastScan = assign({
   interpretation: undefined,
 });
 
+const clearError = assign({
+  error: undefined,
+});
+
 function buildMachine(createPlustekClient: CreatePlustekClient) {
   return createMachine<Context, Event>(
     {
@@ -365,7 +369,7 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
           },
         },
         no_paper: {
-          entry: [assign({ error: undefined }), clearLastScan],
+          entry: [clearError, clearLastScan],
           invoke: pollPaperStatus,
           on: {
             SCANNER_NO_PAPER: { target: 'no_paper', internal: true },
@@ -373,6 +377,7 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
           },
         },
         ready_to_scan: {
+          entry: [clearError, clearLastScan],
           invoke: pollPaperStatus,
           on: {
             SCAN: 'scanning',
@@ -382,7 +387,6 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
           },
         },
         scanning: {
-          entry: assign({ error: undefined }),
           invoke: {
             src: scan,
             onDone: {
@@ -485,12 +489,20 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
           invoke: pollPaperStatus,
           on: {
             SCANNER_NO_PAPER: { target: 'accepted', internal: true },
-            SCANNER_READY_TO_SCAN: {
-              target: 'ready_to_scan',
-              actions: clearLastScan,
-            },
+            SCANNER_READY_TO_SCAN: 'ready_to_scan',
           },
-          after: { DELAY_ACCEPTED_RESET_TO_NO_PAPER: 'no_paper' },
+          after: {
+            DELAY_ACCEPTED_RESET_TO_NO_PAPER: 'no_paper',
+            DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT:
+              'accepted_and_ready_for_next_ballot',
+          },
+        },
+        accepted_and_ready_for_next_ballot: {
+          invoke: pollPaperStatus,
+          on: {
+            SCANNER_NO_PAPER: { target: 'accepted', internal: true },
+            SCANNER_READY_TO_SCAN: 'ready_to_scan',
+          },
         },
         needs_review: {
           on: {
@@ -712,6 +724,8 @@ export function createPrecinctScannerStateMachine(
           case state.matches('checking_accepting_completed'):
             return 'accepting';
           case state.matches('accepted'):
+            return 'accepted';
+          case state.matches('accepted_and_ready_for_next_ballot'):
             return 'accepted';
           case state.matches('needs_review'):
             return 'needs_review';

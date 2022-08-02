@@ -315,6 +315,14 @@ test('paper held at both sides', async () => {
   expect((await mock.getPaperStatus()).ok()).toEqual(
     PaperStatus.VtmReadyToEject
   );
+
+  // Inserting a second sheet during accept
+  const acceptResult = mock.accept();
+  (await mock.simulateLoadSheet(files)).unsafeUnwrap();
+  expect((await acceptResult).err()).toEqual(ScannerError.PaperStatusJam);
+  expect((await mock.getPaperStatus()).ok()).toEqual(
+    PaperStatus.VtmReadyToScan
+  );
 });
 
 test('paper jam', async () => {

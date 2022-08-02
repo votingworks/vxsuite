@@ -567,6 +567,35 @@ test('insert second ballot before first ballot accept', async () => {
   await waitForStatus(app, { state: 'no_paper' });
 });
 
+test('insert second ballot while first ballot is accepting', async () => {
+  const { app, mockPlustek } = await createApp();
+  await configureApp(app);
+
+  await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
+  await waitForStatus(app, { state: 'ready_to_scan' });
+
+  const interpretation: Scan.SheetInterpretation = {
+    type: 'ValidSheet',
+  };
+
+  await post(app, '/scanner/scan');
+  await expectStatus(app, { state: 'scanning' });
+  await waitForStatus(app, { state: 'ready_to_accept', interpretation });
+  await post(app, '/scanner/accept');
+  await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
+
+  await waitForStatus(app, {
+    state: 'accepted',
+    error: 'plustek_error',
+    interpretation,
+    ballotsCounted: 1,
+  });
+  await waitForStatus(app, {
+    state: 'ready_to_scan',
+    ballotsCounted: 1,
+  });
+});
+
 test('insert second ballot while first ballot is rejecting', async () => {
   const { app, mockPlustek } = await createApp();
   await configureApp(app);
