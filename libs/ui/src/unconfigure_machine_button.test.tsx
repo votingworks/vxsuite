@@ -52,9 +52,10 @@ test('UnconfigureMachineButton interactions', async () => {
 });
 
 test('UnconfigureMachineButton does not sleep when not necessary', async () => {
+  const bufferTimeMs = 100;
   const unconfigureMachine = jest.fn(async () => {
     await new Promise<void>((resolve) => {
-      setTimeout(resolve, MIN_TIME_TO_UNCONFIGURE_MACHINE_MS);
+      setTimeout(resolve, MIN_TIME_TO_UNCONFIGURE_MACHINE_MS + bufferTimeMs);
     });
   });
   render(<UnconfigureMachineButton unconfigureMachine={unconfigureMachine} />);
@@ -66,8 +67,9 @@ test('UnconfigureMachineButton does not sleep when not necessary', async () => {
       name: 'Yes, Delete Election Data',
     })
   );
-  await waitFor(() =>
-    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  await waitFor(
+    () => expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument(),
+    { timeout: MIN_TIME_TO_UNCONFIGURE_MACHINE_MS + bufferTimeMs * 2 }
   );
 
   expect(unconfigureMachine).toHaveBeenCalledTimes(1);
