@@ -200,7 +200,6 @@ test('configure and scan hmpb', async () => {
   await expectStatus(app, {
     state: 'accepting',
     interpretation,
-    ballotsCounted: 1,
   });
   await waitForStatus(app, {
     state: 'accepted',
@@ -232,7 +231,6 @@ test('configure and scan bmd ballot', async () => {
   await expectStatus(app, {
     state: 'accepting',
     interpretation,
-    ballotsCounted: 1,
   });
   await waitForStatus(app, {
     state: 'accepted',
@@ -310,7 +308,6 @@ test('ballot needs review - accept', async () => {
   await expectStatus(app, {
     state: 'accepting',
     interpretation,
-    ballotsCounted: 1,
   });
   await waitForStatus(app, {
     state: 'accepted',
@@ -400,21 +397,16 @@ test('scanner powered off while accepting', async () => {
   await waitForStatus(app, {
     state: 'disconnected',
     error: 'plustek_error',
-    // TODO canUnconfigure should be true, but this will be fixed when we stop
-    // optimistically counting ballots
-    canUnconfigure: false,
   });
 
   mockPlustek.simulatePowerOn('ready_to_eject');
   await waitForStatus(app, {
     state: 'rejecting',
     error: 'paper_in_back_on_startup',
-    canUnconfigure: false,
   });
   await waitForStatus(app, {
     state: 'rejected',
     error: 'paper_in_back_on_startup',
-    canUnconfigure: false,
   });
 });
 
@@ -436,7 +428,6 @@ test('scanner powered off after accepting', async () => {
   await waitForStatus(app, {
     state: 'accepting',
     interpretation,
-    ballotsCounted: 1,
   });
   await waitForStatus(app, {
     state: 'accepted',
@@ -550,11 +541,7 @@ test('insert second ballot before first ballot accept', async () => {
   await waitForStatus(app, {
     state: 'both_sides_have_paper',
     error: 'both_sides_have_paper',
-    ballotsCounted: 0,
     interpretation,
-    // TODO canUnconfigure should be true, but this will be fixed when we stop
-    // optimistically counting ballots
-    canUnconfigure: false,
   });
 
   await mockPlustek.simulateRemoveSheet();
@@ -562,17 +549,15 @@ test('insert second ballot before first ballot accept', async () => {
     state: 'rejecting',
     error: 'both_sides_have_paper',
     interpretation,
-    canUnconfigure: false,
   });
   await waitForStatus(app, {
     state: 'rejected',
     error: 'both_sides_have_paper',
     interpretation,
-    canUnconfigure: false,
   });
 
   await mockPlustek.simulateRemoveSheet();
-  await waitForStatus(app, { state: 'no_paper', canUnconfigure: false });
+  await waitForStatus(app, { state: 'no_paper' });
 });
 
 test('insert second ballot while first ballot is rejecting', async () => {
@@ -687,23 +672,19 @@ test('jam on accept', async () => {
   await post(app, '/scanner/accept');
   // The paper can't get permanently jammed on accept - it just stays held in
   // the back and we can reject at that point
-  // TODO canUnconfigure should be true, but this will be fixed when we stop
-  // optimistically counting ballots
   await expectStatus(app, {
     state: 'rejecting',
     interpretation,
     error: 'paper_in_back_after_accept',
-    canUnconfigure: false,
   });
   await waitForStatus(app, {
     state: 'rejected',
     error: 'paper_in_back_after_accept',
     interpretation,
-    canUnconfigure: false,
   });
 
   await mockPlustek.simulateRemoveSheet();
-  await waitForStatus(app, { state: 'no_paper', canUnconfigure: false });
+  await waitForStatus(app, { state: 'no_paper' });
 });
 
 test('jam on return', async () => {
