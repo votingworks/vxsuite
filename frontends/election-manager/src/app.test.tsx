@@ -474,17 +474,17 @@ test('printing ballots and printed ballots report', async () => {
   fireEvent.click(getByText('Absentee'));
   fireEvent.click(getByText('Test'));
   fireEvent.click(getByText('Official'));
-  fireEvent.click(getByText('Print 1 Official', { exact: false }));
+  fireEvent.click(getByText('Print 1', { exact: false }));
   await waitFor(() => getByText('Printing'));
   expect(printer.print).toHaveBeenCalledTimes(1);
   expect(mockKiosk.log).toHaveBeenCalledWith(
     expect.stringContaining(LogEventId.BallotPrinted)
   );
-  fireEvent.click(getByText('Print 1 Official', { exact: false }));
+  fireEvent.click(getByText('Print 1', { exact: false }));
   await waitFor(() => getByText('Printing'));
   expect(printer.print).toHaveBeenCalledTimes(2);
   fireEvent.click(getByText('Precinct'));
-  fireEvent.click(getByText('Print 1 Official', { exact: false }));
+  fireEvent.click(getByText('Print 1', { exact: false }));
   await waitFor(() => getByText('Printing'));
   expect(printer.print).toHaveBeenCalledTimes(3);
 
@@ -1257,4 +1257,59 @@ test('admin cannot auth onto machine with different election hash when VVSG2 aut
       'and cannot be used to unlock this machine. ' +
       'Please insert a valid Election Manager or System Administrator card.'
   );
+});
+
+test('super admin Draft Ballots tab and admin Ballots tab have expected differences', async () => {
+  enableVvsg2AuthFlows();
+
+  const card = new MemoryCard();
+  const hardware = MemoryHardware.buildStandard();
+  const storage = await createMemoryStorageWith({
+    electionDefinition: eitherNeitherElectionDefinition,
+  });
+  render(<App card={card} hardware={hardware} storage={storage} />);
+  await authenticateWithSuperAdminCard(card);
+
+  userEvent.click(screen.getByText('Draft Ballots'));
+  await screen.findAllByText('View Ballot');
+  expect(screen.queryByText('Export Ballot PDFs')).not.toBeInTheDocument();
+  expect(screen.queryByText('Export Ballot Package')).not.toBeInTheDocument();
+
+  userEvent.click(screen.getAllByText('View Ballot')[0]);
+  await screen.findByRole('heading', {
+    name: 'Ballot Style 4 for Bywy has 8 contests',
+  });
+  screen.getByRole('button', { name: 'Absentee' });
+  screen.getByRole('button', { name: 'Precinct' });
+  expect(
+    screen.queryByRole('button', { name: 'Official' })
+  ).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole('button', { name: 'Test' })
+  ).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole('button', { name: 'Sample' })
+  ).not.toBeInTheDocument();
+  screen.getByRole('button', { name: 'Print 1 Draft Absentee Ballot' });
+  expect(screen.queryByText(/Ballot Package Filename/)).not.toBeInTheDocument();
+
+  userEvent.click(screen.getByText('Lock Machine'));
+  await authenticateWithAdminCard(card);
+
+  userEvent.click(screen.getByText('Ballots'));
+  await screen.findAllByText('View Ballot');
+  screen.getByText('Export Ballot PDFs');
+  screen.getByText('Export Ballot Package');
+
+  userEvent.click(screen.getAllByText('View Ballot')[0]);
+  await screen.findByRole('heading', {
+    name: 'Ballot Style 4 for Bywy has 8 contests',
+  });
+  screen.getByRole('button', { name: 'Absentee' });
+  screen.getByRole('button', { name: 'Precinct' });
+  screen.getByRole('button', { name: 'Official' });
+  screen.getByRole('button', { name: 'Test' });
+  screen.getByRole('button', { name: 'Sample' });
+  screen.getByRole('button', { name: 'Print 1 Official Absentee Ballot' });
+  screen.getByText(/Ballot Package Filename/);
 });
