@@ -16,16 +16,16 @@ export interface Props {
   onClickCapture?: React.DOMAttributes<HTMLElement>['onClickCapture'];
   onFocus?: React.DOMAttributes<HTMLElement>['onFocus'];
   onFocusCapture?: React.DOMAttributes<HTMLElement>['onFocusCapture'];
-  onKeyPress?: React.DOMAttributes<HTMLElement>['onKeyPress'];
-  onKeyPressCapture?: React.DOMAttributes<HTMLElement>['onKeyPressCapture'];
+  onKeyDown?: React.DOMAttributes<HTMLElement>['onKeyDown'];
+  onKeyDownCapture?: React.DOMAttributes<HTMLElement>['onKeyDownCapture'];
   screenReader: ScreenReader;
 }
 
 export function FocusManager({
-  onKeyPress,
+  onKeyDown,
   onClick,
   onFocus,
-  onKeyPressCapture,
+  onKeyDownCapture,
   onClickCapture,
   onFocusCapture,
   children,
@@ -58,10 +58,10 @@ export function FocusManager({
     <StyledFocusManager
       ref={screen}
       tabIndex={-1}
-      onKeyPress={onKeyPress}
+      onKeyDown={onKeyDown}
       onClick={onClick}
       onFocus={onFocus}
-      onKeyPressCapture={onKeyPressCapture}
+      onKeyDownCapture={onKeyDownCapture}
       onClickCapture={onClickCapture}
       onFocusCapture={onFocusCapture}
     >

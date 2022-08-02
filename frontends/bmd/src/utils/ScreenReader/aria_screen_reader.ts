@@ -134,6 +134,12 @@ export class AriaScreenReader implements ScreenReader {
     return this.cleanDescription(this.describeNode(node));
   }
 
+  changeVolume(): void {
+    if (this.tts.changeVolume) {
+      this.tts.changeVolume();
+    }
+  }
+
   /**
    * Assembles all text to be spoken for a node but does not clean it up yet.
    */

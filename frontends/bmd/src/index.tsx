@@ -6,6 +6,7 @@ import { App } from './app';
 import {
   AriaScreenReader,
   SpeechSynthesisTextToSpeech,
+  KioskTextToSpeech,
 } from './utils/ScreenReader';
 import { memoize } from './utils/memoize';
 import { getUsEnglishVoice } from './utils/voices';
@@ -15,13 +16,16 @@ import { getUsEnglishVoice } from './utils/voices';
 // since we don't really care about page URLs anyway?
 const readerEnabled =
   new URLSearchParams(window.location.search).get('reader') === 'on';
-const tts = new SpeechSynthesisTextToSpeech(memoize(getUsEnglishVoice));
-const screenReader = new AriaScreenReader(tts);
+const screenReader = new AriaScreenReader(
+  window.kiosk
+    ? new KioskTextToSpeech()
+    : new SpeechSynthesisTextToSpeech(memoize(getUsEnglishVoice))
+);
 
 if (readerEnabled) {
-  tts.unmute();
+  screenReader.unmute();
 } else {
-  tts.mute();
+  screenReader.mute();
 }
 
 ReactDom.render(

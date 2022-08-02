@@ -18,6 +18,7 @@ import {
   ScreenReader,
   AriaScreenReader,
   SpeechSynthesisTextToSpeech,
+  KioskTextToSpeech,
 } from './utils/ScreenReader';
 import { getUsEnglishVoice } from './utils/voices';
 
@@ -42,7 +43,9 @@ export interface Props {
 
 export function App({
   screenReader = new AriaScreenReader(
-    new SpeechSynthesisTextToSpeech(memoize(getUsEnglishVoice))
+    window.kiosk
+      ? new KioskTextToSpeech()
+      : new SpeechSynthesisTextToSpeech(memoize(getUsEnglishVoice))
   ),
 
   card = new WebServiceCard(),
@@ -76,11 +79,12 @@ export function App({
     }
   }, [internalHardware, screenReader]);
 
-  /* istanbul ignore next - need to figure out how to test this */
-  const onKeyPress = useCallback(
+  const onKeyDown = useCallback(
     async (event: React.KeyboardEvent) => {
       if (event.key === 'r') {
         await screenReader.toggle();
+      } else if (event.key === 'F17') {
+        screenReader.changeVolume();
       }
     },
     [screenReader]
@@ -134,7 +138,7 @@ export function App({
     <BrowserRouter>
       <FocusManager
         screenReader={screenReader}
-        onKeyPress={onKeyPress}
+        onKeyDown={onKeyDown}
         onClickCapture={onClick}
         onFocusCapture={onFocus}
       >
