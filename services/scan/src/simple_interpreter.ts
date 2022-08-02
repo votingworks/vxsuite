@@ -319,7 +319,3 @@ export function storeInterpretedSheet(
   store.finishBatch({ batchId });
   return addedSheetId;
 }
-
-export function deleteInterpretedSheet(store: Store, sheetId: Id): void {
-  store.deleteSheet(sheetId);
-}

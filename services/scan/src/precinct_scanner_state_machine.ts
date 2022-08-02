@@ -22,7 +22,6 @@ import {
 import { Scan } from '@votingworks/api';
 import makeDebug from 'debug';
 import {
-  deleteInterpretedSheet,
   SheetInterpretation,
   SimpleInterpreter,
   storeInterpretedSheet,
@@ -226,28 +225,20 @@ async function interpretSheet({
   };
 }
 
-async function accept({ client, store, interpretation }: Context) {
-  assert(store);
+async function accept({ client }: Context) {
   assert(client);
-  assert(interpretation);
-  // Optimistically record the interpretation in the store. If accept fails
-  // (e.g. due to paper jam), we delete the interpretation from the store. If
-  // the Plustek crashes during accept, it will automatically accept on reboot.
-  const { sheetId, pages } = interpretation;
-  storeInterpretedSheet(store, sheetId, pages);
-  debug('Stored sheet before accepting: %s', sheetId);
   debug('Accepting');
   const acceptResult = await client.accept();
   debug('Accept result: %o', acceptResult);
   return acceptResult.unsafeUnwrap();
 }
 
-function deleteLastAcceptedBallot({ store, interpretation }: Context) {
+function storeAcceptedSheet({ store, interpretation }: Context) {
   assert(store);
   assert(interpretation);
-  const { sheetId } = interpretation;
-  deleteInterpretedSheet(store, sheetId);
-  debug('Deleted last accepted sheet: %s', sheetId);
+  const { sheetId, pages } = interpretation;
+  storeInterpretedSheet(store, sheetId, pages);
+  debug('Stored accepted sheet: %s', sheetId);
 }
 
 async function reject({ client }: Context) {
@@ -458,14 +449,29 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
       accepting: {
         invoke: {
           src: accept,
-          onDone: 'accepted',
+          onDone: 'checking_accepting_completed',
           onError: {
-            target: 'error_accepting',
+            target: 'rejecting',
             actions: assign({ error: (_context, event) => event.data }),
           },
         },
       },
+      checking_accepting_completed: {
+        invoke: pollPaperStatus,
+        on: {
+          SCANNER_NO_PAPER: 'accepted',
+          SCANNER_READY_TO_SCAN: 'accepted',
+          // If the paper didn't get dropped, it's an error
+          SCANNER_READY_TO_EJECT: {
+            target: 'rejecting',
+            actions: assign({
+              error: new PrecinctScannerError('paper_in_back_after_accept'),
+            }),
+          },
+        },
+      },
       accepted: {
+        entry: storeAcceptedSheet,
         invoke: pollPaperStatus,
         on: {
           WAIT_FOR_PAPER: 'no_paper',
@@ -474,19 +480,7 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
             target: 'ready_to_scan',
             actions: clearLastScan,
           },
-          // If the paper didn't get dropped, it's an error
-          SCANNER_READY_TO_EJECT: {
-            target: 'error_accepting',
-            actions: assign({
-              error: new PrecinctScannerError('paper_in_back_after_accept'),
-            }),
-          },
         },
-      },
-      // If accepting fails, reject the ballot and "uncount" it
-      error_accepting: {
-        entry: deleteLastAcceptedBallot,
-        always: 'rejecting',
       },
       needs_review: {
         on: {
@@ -680,7 +674,7 @@ export function createPrecinctScannerStateMachine(
             return 'ready_to_accept';
           case state.matches('accepting'):
             return 'accepting';
-          case state.matches('error_accepting'):
+          case state.matches('checking_accepting_completed'):
             return 'accepting';
           case state.matches('accepted'):
             return 'accepted';
