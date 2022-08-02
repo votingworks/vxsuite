@@ -21,6 +21,24 @@ export function isCardReaderCheckDisabled(): boolean {
 }
 
 /**
+ * Determines whether generated smartcard PINs are all zeros (000000) instead of random. This can
+ * be useful for local development and demos.
+ *
+ * To enable, add this line to the relevant frontend app's .env.local, e.g.
+ * frontends/election-manager/.env.local:
+ *
+ *     REACT_APP_VX_ENABLE_ALL_ZERO_SMARTCARD_PIN_GENERATION=true
+ *
+ * @see https://create-react-app.dev/docs/adding-custom-environment-variables/
+ */
+export function isAllZeroSmartcardPinGenerationEnabled(): boolean {
+  return (
+    (process.env.NODE_ENV === 'development' || isVxDev()) &&
+    asBoolean(process.env.REACT_APP_VX_ENABLE_ALL_ZERO_SMARTCARD_PIN_GENERATION)
+  );
+}
+
+/**
  * Determines whether VVSG2 auth flows are enabled.
  *
  * Now enabled by default.

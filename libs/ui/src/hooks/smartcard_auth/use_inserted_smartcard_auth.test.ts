@@ -55,11 +55,8 @@ const ballotStyle = election.ballotStyles[0];
 jest.mock(
   '../../config/features',
   (): typeof import('../../config/features') => {
-    const original: typeof import('../../config/features') = jest.requireActual(
-      '../../config/features'
-    );
     return {
-      ...original,
+      ...jest.requireActual('../../config/features'),
       areVvsg2AuthFlowsEnabled: jest.fn(),
     };
   }
@@ -1037,7 +1034,6 @@ describe('useInsertedSmartcardAuth', () => {
       })
     );
     await waitForNextUpdate();
-
     expect(result.current).toMatchObject({
       status: 'checking_passcode',
     });
@@ -1060,7 +1056,6 @@ describe('useInsertedSmartcardAuth', () => {
       })
     );
     await waitForNextUpdate();
-
     expect(result.current).toMatchObject({
       status: 'logged_out',
       reason: 'admin_wrong_election',
@@ -1095,7 +1090,6 @@ describe('useInsertedSmartcardAuth', () => {
       })
     );
     await waitForNextUpdate();
-
     expect(result.current).toMatchObject({
       status: 'checking_passcode',
     });

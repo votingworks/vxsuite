@@ -24,11 +24,8 @@ const otherElectionHash = electionSample2Definition.electionHash;
 jest.mock(
   '../../config/features',
   (): typeof import('../../config/features') => {
-    const original: typeof import('../../config/features') = jest.requireActual(
-      '../../config/features'
-    );
     return {
-      ...original,
+      ...jest.requireActual('../../config/features'),
       areVvsg2AuthFlowsEnabled: jest.fn(),
     };
   }
@@ -471,7 +468,6 @@ describe('useDippedSmartcardAuth', () => {
       })
     );
     await waitForNextUpdate();
-
     expect(result.current).toMatchObject({
       status: 'logged_out',
       reason: 'machine_not_configured',
@@ -505,7 +501,6 @@ describe('useDippedSmartcardAuth', () => {
       })
     );
     await waitForNextUpdate();
-
     expect(result.current).toMatchObject({
       status: 'checking_passcode',
     });
@@ -527,7 +522,6 @@ describe('useDippedSmartcardAuth', () => {
       })
     );
     await waitForNextUpdate();
-
     expect(result.current).toMatchObject({
       status: 'logged_out',
       reason: 'admin_wrong_election',
