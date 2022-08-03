@@ -91,52 +91,59 @@ test('Smartcard modal displays card details', async () => {
 
   const testCases: Array<{
     cardData: AnyCardData;
-    expectedRoleString: string;
-    expectedElectionString: string;
+    expectedHeading: string;
+    expectedElectionString?: string;
     shouldResetCardPinButtonBeDisplayed: boolean;
     shouldUnprogramCardButtonBeDisplayed: boolean;
+    expectedFooter: string;
   }> = [
     {
       cardData: makeSuperadminCard(),
-      expectedRoleString: 'Super Admin',
-      expectedElectionString: 'N/A',
+      expectedHeading: 'Super Admin Card',
+      expectedElectionString: undefined,
       shouldResetCardPinButtonBeDisplayed: true,
       shouldUnprogramCardButtonBeDisplayed: false,
+      expectedFooter: 'Remove card to cancel.',
     },
     {
       cardData: makeAdminCard(electionHash),
-      expectedRoleString: 'Admin',
+      expectedHeading: 'Admin Card',
       expectedElectionString: 'General Election — Tuesday, November 3, 2020',
       shouldResetCardPinButtonBeDisplayed: true,
       shouldUnprogramCardButtonBeDisplayed: true,
+      expectedFooter: 'Remove card to cancel.',
     },
     {
       cardData: makePollWorkerCard(electionHash),
-      expectedRoleString: 'Poll Worker',
+      expectedHeading: 'Poll Worker Card',
       expectedElectionString: 'General Election — Tuesday, November 3, 2020',
       shouldResetCardPinButtonBeDisplayed: false,
       shouldUnprogramCardButtonBeDisplayed: true,
+      expectedFooter: 'Remove card to cancel.',
     },
     {
       cardData: makeVoterCard(election),
-      expectedRoleString: 'Voter',
-      expectedElectionString: 'Unknown',
+      expectedHeading: 'Voter Card',
+      expectedElectionString: 'Unknown Election',
       shouldResetCardPinButtonBeDisplayed: false,
       shouldUnprogramCardButtonBeDisplayed: false,
+      expectedFooter: 'Remove card to leave this screen.',
     },
     {
       cardData: makeAdminCard(otherElectionHash),
-      expectedRoleString: 'Admin',
-      expectedElectionString: 'Unknown',
+      expectedHeading: 'Admin Card',
+      expectedElectionString: 'Unknown Election',
       shouldResetCardPinButtonBeDisplayed: false,
       shouldUnprogramCardButtonBeDisplayed: true,
+      expectedFooter: 'Remove card to cancel.',
     },
     {
       cardData: makePollWorkerCard(otherElectionHash),
-      expectedRoleString: 'Poll Worker',
-      expectedElectionString: 'Unknown',
+      expectedHeading: 'Poll Worker Card',
+      expectedElectionString: 'Unknown Election',
       shouldResetCardPinButtonBeDisplayed: false,
       shouldUnprogramCardButtonBeDisplayed: true,
+      expectedFooter: 'Remove card to cancel.',
     },
   ];
 
@@ -146,18 +153,20 @@ test('Smartcard modal displays card details', async () => {
   for (const testCase of testCases) {
     const {
       cardData,
-      expectedRoleString,
+      expectedHeading,
       expectedElectionString,
       shouldResetCardPinButtonBeDisplayed,
       shouldUnprogramCardButtonBeDisplayed,
+      expectedFooter,
     } = testCase;
 
     card.insertCard(cardData);
+
     const modal = await screen.findByRole('alertdialog');
-    within(modal).getByRole('heading', { name: 'Card Details' });
-    within(modal).getByText(expectedRoleString);
-    within(modal).getByText(expectedElectionString);
-    within(modal).getByText('Remove card to leave this screen.');
+    within(modal).getByRole('heading', { name: expectedHeading });
+    if (expectedElectionString) {
+      within(modal).getByText(expectedElectionString);
+    }
     if (shouldResetCardPinButtonBeDisplayed) {
       within(modal).getByRole('button', { name: 'Reset Card PIN' });
     } else {
@@ -172,6 +181,8 @@ test('Smartcard modal displays card details', async () => {
         within(modal).queryByRole('button', { name: 'Unprogram Card' })
       ).not.toBeInTheDocument();
     }
+    within(modal).getByText(expectedFooter);
+
     card.removeCard();
     await waitFor(() =>
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
@@ -189,33 +200,38 @@ test('Smartcard modal displays card details when no election definition on machi
 
   const testCases: Array<{
     cardData: AnyCardData;
-    expectedRoleString: string;
-    expectedElectionString: string;
+    expectedHeading: string;
+    expectedElectionString?: string;
     shouldResetCardPinButtonBeDisplayed: boolean;
+    expectedFooter: string;
   }> = [
     {
       cardData: makeSuperadminCard(),
-      expectedRoleString: 'Super Admin',
-      expectedElectionString: 'N/A',
+      expectedHeading: 'Super Admin Card',
+      expectedElectionString: undefined,
       shouldResetCardPinButtonBeDisplayed: true,
+      expectedFooter: 'Remove card to cancel.',
     },
     {
       cardData: makeAdminCard(electionHash),
-      expectedRoleString: 'Admin',
-      expectedElectionString: 'Unknown',
+      expectedHeading: 'Admin Card',
+      expectedElectionString: 'Unknown Election',
       shouldResetCardPinButtonBeDisplayed: false,
+      expectedFooter: 'Remove card to leave this screen.',
     },
     {
       cardData: makePollWorkerCard(electionHash),
-      expectedRoleString: 'Poll Worker',
-      expectedElectionString: 'Unknown',
+      expectedHeading: 'Poll Worker Card',
+      expectedElectionString: 'Unknown Election',
       shouldResetCardPinButtonBeDisplayed: false,
+      expectedFooter: 'Remove card to leave this screen.',
     },
     {
       cardData: makeVoterCard(election),
-      expectedRoleString: 'Voter',
-      expectedElectionString: 'Unknown',
+      expectedHeading: 'Voter Card',
+      expectedElectionString: 'Unknown Election',
       shouldResetCardPinButtonBeDisplayed: false,
+      expectedFooter: 'Remove card to leave this screen.',
     },
   ];
 
@@ -224,17 +240,19 @@ test('Smartcard modal displays card details when no election definition on machi
   for (const testCase of testCases) {
     const {
       cardData,
-      expectedRoleString,
+      expectedHeading,
       expectedElectionString,
       shouldResetCardPinButtonBeDisplayed,
+      expectedFooter,
     } = testCase;
 
     card.insertCard(cardData);
+
     const modal = await screen.findByRole('alertdialog');
-    within(modal).getByRole('heading', { name: 'Card Details' });
-    within(modal).getByText(expectedRoleString);
-    within(modal).getByText(expectedElectionString);
-    within(modal).getByText('Remove card to leave this screen.');
+    within(modal).getByRole('heading', { name: expectedHeading });
+    if (expectedElectionString) {
+      within(modal).getByText(expectedElectionString);
+    }
     if (shouldResetCardPinButtonBeDisplayed) {
       within(modal).getByRole('button', { name: 'Reset Card PIN' });
     } else {
@@ -245,6 +263,8 @@ test('Smartcard modal displays card details when no election definition on machi
     expect(
       within(modal).queryByRole('button', { name: 'Unprogram Card' })
     ).not.toBeInTheDocument();
+    within(modal).getByText(expectedFooter);
+
     card.removeCard();
     await waitFor(() =>
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
@@ -263,25 +283,22 @@ test('Programming admin and poll worker smartcards', async () => {
   const testCases: Array<{
     role: AdminUser['role'] | PollworkerUser['role'];
     expectedProgressText: string;
-    expectedSuccessText: string;
-    shouldCardHavePin: boolean;
-    expectedRoleString: string;
+    expectedHeadingAfterProgramming: string;
+    expectedSuccessText: Array<string | RegExp>;
     expectedCardLongString?: string;
   }> = [
     {
       role: 'admin',
       expectedProgressText: 'Programming Admin card',
-      expectedSuccessText: 'New Admin card has been programmed.',
-      shouldCardHavePin: true,
-      expectedRoleString: 'Admin',
+      expectedHeadingAfterProgramming: 'Admin Card',
+      expectedSuccessText: [/New card PIN is /, '123-456'],
       expectedCardLongString: electionData,
     },
     {
       role: 'pollworker',
       expectedProgressText: 'Programming Poll Worker card',
-      expectedSuccessText: 'New Poll Worker card has been programmed.',
-      shouldCardHavePin: false,
-      expectedRoleString: 'Poll Worker',
+      expectedHeadingAfterProgramming: 'Poll Worker Card',
+      expectedSuccessText: ['New card created.'],
       expectedCardLongString: undefined,
     },
   ];
@@ -293,13 +310,13 @@ test('Programming admin and poll worker smartcards', async () => {
     const {
       role,
       expectedProgressText,
+      expectedHeadingAfterProgramming,
       expectedSuccessText,
-      shouldCardHavePin,
-      expectedRoleString,
       expectedCardLongString,
     } = testCase;
 
     card.insertCard(); // Blank card
+
     const modal = await screen.findByRole('alertdialog');
     within(modal).getByRole('heading', { name: 'Program Election Card' });
     within(modal).getByText(
@@ -326,26 +343,16 @@ test('Programming admin and poll worker smartcards', async () => {
       }
     }
     await screen.findByText(new RegExp(expectedProgressText));
-    await within(modal).findByRole('heading', { name: 'Card Details' });
-    within(modal).getByText(new RegExp(expectedSuccessText));
-    if (shouldCardHavePin) {
-      within(modal).getByText(/The card PIN is 123-456. Write this PIN down./);
-    }
-    within(modal).getByText(expectedRoleString);
+    await within(modal).findByRole('heading', {
+      name: expectedHeadingAfterProgramming,
+    });
     within(modal).getByText('General Election — Tuesday, November 3, 2020');
-    within(modal).getByText('Remove card to leave this screen.');
-    if (shouldCardHavePin) {
-      // PIN resetting is disabled right after a card has been created
-      expect(
-        within(modal).getByRole('button', { name: 'Reset Card PIN' })
-      ).toHaveAttribute('disabled');
-    } else {
-      expect(
-        within(modal).queryByRole('button', { name: 'Reset Card PIN' })
-      ).not.toBeInTheDocument();
+    for (const text of expectedSuccessText) {
+      within(modal).getByText(text);
     }
-    within(modal).getByRole('button', { name: 'Unprogram Card' });
+    within(modal).getByText('Remove card to continue.');
     expect(await card.readLongString()).toEqual(expectedCardLongString);
+
     card.removeCard();
     await waitFor(() =>
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
@@ -367,8 +374,8 @@ test('Programming super admin smartcards', async () => {
   userEvent.click(screen.getByText('Smartcards'));
   userEvent.click(await screen.findByText('Create Super Admin Cards'));
   await screen.findByRole('heading', { name: 'Super Admin Cards' });
-
   card.insertCard(); // Blank card
+
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Program Super Admin Card' });
   within(modal).getByText(
@@ -380,18 +387,11 @@ test('Programming super admin smartcards', async () => {
     within(modal).getByRole('button', { name: 'Program Super Admin Card' })
   );
   await screen.findByText(/Programming Super Admin card/);
-  await within(modal).findByRole('heading', { name: 'Card Details' });
-  within(modal).getByText(/New Super Admin card has been programmed./);
-  within(modal).getByText('Super Admin');
-  within(modal).getByText('N/A'); // Card election
-  within(modal).getByText('Remove card to leave this screen.');
-  // PIN resetting is disabled right after a card has been created
-  expect(
-    within(modal).getByRole('button', { name: 'Reset Card PIN' })
-  ).toHaveAttribute('disabled');
-  expect(
-    within(modal).queryByRole('button', { name: 'Unprogram Card' })
-  ).not.toBeInTheDocument();
+  await within(modal).findByRole('heading', { name: 'Super Admin Card' });
+  within(modal).getByText(/New card PIN is /);
+  within(modal).getByText('123-456');
+  within(modal).getByText('Remove card to continue.');
+
   card.removeCard();
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
@@ -409,8 +409,8 @@ test('Programming smartcards when no election definition on machine', async () =
   await authenticateWithSuperAdminCard(card);
 
   await screen.findByRole('heading', { name: 'Configure VxAdmin' });
-
   card.insertCard(); // Blank card
+
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Program Election Card' });
   within(modal).getByText(
@@ -423,6 +423,7 @@ test('Programming smartcards when no election definition on machine', async () =
   expect(
     within(modal).getByRole('button', { name: 'Program Poll Worker Card' })
   ).toHaveAttribute('disabled');
+
   card.removeCard();
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
@@ -444,20 +445,20 @@ test('Resetting smartcard PINs', async () => {
   const testCases: Array<{
     cardData: AnyCardData;
     cardLongValue?: string;
+    expectedHeading: string;
     expectedProgressText: string;
-    expectedSuccessText: string;
   }> = [
     {
       cardData: makeSuperadminCard(oldPin),
       cardLongValue: undefined,
+      expectedHeading: 'Super Admin Card',
       expectedProgressText: 'Resetting Super Admin card PIN',
-      expectedSuccessText: 'Super Admin card PIN has been reset.',
     },
     {
       cardData: makeAdminCard(electionHash, oldPin),
       cardLongValue: electionData,
+      expectedHeading: 'Admin Card',
       expectedProgressText: 'Resetting Admin card PIN',
-      expectedSuccessText: 'Admin card PIN has been reset.',
     },
   ];
 
@@ -465,12 +466,8 @@ test('Resetting smartcard PINs', async () => {
   await screen.findByRole('heading', { name: 'Election Definition' });
 
   for (const testCase of testCases) {
-    const {
-      cardData,
-      cardLongValue,
-      expectedProgressText,
-      expectedSuccessText,
-    } = testCase;
+    const { cardData, cardLongValue, expectedHeading, expectedProgressText } =
+      testCase;
 
     card.insertCard(cardData);
     if (cardLongValue) {
@@ -485,15 +482,14 @@ test('Resetting smartcard PINs', async () => {
     expect(longValueBefore).toEqual(cardLongValue);
 
     const modal = await screen.findByRole('alertdialog');
-    within(modal).getByRole('heading', { name: 'Card Details' });
+    within(modal).getByRole('heading', { name: expectedHeading });
     userEvent.click(
       within(modal).getByRole('button', { name: 'Reset Card PIN' })
     );
     await screen.findByText(new RegExp(expectedProgressText));
-    await within(modal).findByText(new RegExp(expectedSuccessText));
-    await within(modal).findByText(
-      /The new PIN is 123-456. Write this PIN down./
-    );
+    await within(modal).findByText(/New card PIN is /);
+    await within(modal).findByText('123-456');
+    within(modal).getByText('Remove card to continue.');
 
     // Verify that the card PIN and nothing else was changed under the hood
     const summaryAfter = await card.readSummary();
@@ -525,28 +521,38 @@ test('Unprogramming smartcards', async () => {
 
   const testCases: Array<{
     cardData: AnyCardData;
+    expectedHeadingBeforeUnprogramming: string;
     expectedProgressText: string;
     expectedSuccessText: string;
   }> = [
     {
       cardData: makeAdminCard(electionHash),
+      expectedHeadingBeforeUnprogramming: 'Admin Card',
       expectedProgressText: 'Unprogramming Admin card',
       expectedSuccessText: 'Admin card has been unprogrammed.',
     },
     {
       cardData: makePollWorkerCard(electionHash),
+      expectedHeadingBeforeUnprogramming: 'Poll Worker Card',
       expectedProgressText: 'Unprogramming Poll Worker card',
       expectedSuccessText: 'Poll Worker card has been unprogrammed.',
     },
   ];
 
   for (const testCase of testCases) {
-    const { cardData, expectedProgressText, expectedSuccessText } = testCase;
+    const {
+      cardData,
+      expectedHeadingBeforeUnprogramming,
+      expectedProgressText,
+      expectedSuccessText,
+    } = testCase;
 
     card.insertCard(cardData);
-    const modal = await screen.findByRole('alertdialog');
-    within(modal).getByRole('heading', { name: 'Card Details' });
 
+    const modal = await screen.findByRole('alertdialog');
+    within(modal).getByRole('heading', {
+      name: expectedHeadingBeforeUnprogramming,
+    });
     userEvent.click(
       within(modal).getByRole('button', { name: 'Unprogram Card' })
     );
@@ -644,12 +650,13 @@ test('Error handling', async () => {
       userEvent.click(screen.getByText('Smartcards'));
       await screen.findByText('Election Cards');
     }
-
     card.insertCard(cardData);
+
     const modal = await screen.findByRole('alertdialog');
     userEvent.click(within(modal).getByRole('button', { name: buttonToPress }));
     await screen.findByText(new RegExp(expectedProgressText));
     await within(modal).findByText(expectedErrorText);
+
     card.removeCard();
     await waitFor(() =>
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
