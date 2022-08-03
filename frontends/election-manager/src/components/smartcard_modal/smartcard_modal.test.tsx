@@ -318,24 +318,22 @@ test('Programming admin and poll worker smartcards', async () => {
     card.insertCard(); // Blank card
 
     const modal = await screen.findByRole('alertdialog');
-    within(modal).getByRole('heading', { name: 'Program Election Card' });
-    within(modal).getByText(
-      'Admin and Poll Worker cards only work for the current election.'
-    );
-    within(modal).getByText('Remove card to leave card unprogrammed.');
-    const programAdminCardButton = within(modal).getByRole('button', {
-      name: 'Program Admin Card',
+    within(modal).getByRole('heading', { name: 'Create New Election Card' });
+    within(modal).getByText('General Election — Tuesday, November 3, 2020');
+    const adminCardButton = within(modal).getByRole('button', {
+      name: 'Admin Card',
     });
-    const programPollWorkerCardButton = within(modal).getByRole('button', {
-      name: 'Program Poll Worker Card',
+    const pollWorkerCardButton = within(modal).getByRole('button', {
+      name: 'Poll Worker Card',
     });
+    within(modal).getByText('Remove card to cancel.');
     switch (role) {
       case 'admin': {
-        userEvent.click(programAdminCardButton);
+        userEvent.click(adminCardButton);
         break;
       }
       case 'pollworker': {
-        userEvent.click(programPollWorkerCardButton);
+        userEvent.click(pollWorkerCardButton);
         break;
       }
       default: {
@@ -412,17 +410,17 @@ test('Programming smartcards when no election definition on machine', async () =
   card.insertCard(); // Blank card
 
   const modal = await screen.findByRole('alertdialog');
-  within(modal).getByRole('heading', { name: 'Program Election Card' });
+  within(modal).getByRole('heading', { name: 'Create New Election Card' });
   within(modal).getByText(
     'An election must be defined before Admin and Poll Worker cards can be programmed.'
   );
-  within(modal).getByText('Remove card to leave card unprogrammed.');
   expect(
-    within(modal).getByRole('button', { name: 'Program Admin Card' })
-  ).toHaveAttribute('disabled');
+    within(modal).queryByRole('button', { name: 'Admin Card' })
+  ).not.toBeInTheDocument();
   expect(
-    within(modal).getByRole('button', { name: 'Program Poll Worker Card' })
-  ).toHaveAttribute('disabled');
+    within(modal).queryByRole('button', { name: 'Poll Worker Card' })
+  ).not.toBeInTheDocument();
+  within(modal).getByText('Remove card to cancel.');
 
   card.removeCard();
   await waitFor(() =>
@@ -558,7 +556,7 @@ test('Unprogramming smartcards', async () => {
     );
     await screen.findByText(new RegExp(expectedProgressText));
     await within(modal).findByRole('heading', {
-      name: 'Program Election Card',
+      name: 'Create New Election Card',
     });
     within(modal).getByText(expectedSuccessText);
 
@@ -593,13 +591,13 @@ test('Error handling', async () => {
   }> = [
     {
       cardData: undefined,
-      buttonToPress: 'Program Admin Card',
+      buttonToPress: 'Admin Card',
       expectedProgressText: 'Programming Admin card',
       expectedErrorText: 'Error programming Admin card. Please try again.',
     },
     {
       cardData: undefined,
-      buttonToPress: 'Program Poll Worker Card',
+      buttonToPress: 'Poll Worker Card',
       expectedProgressText: 'Programming Poll Worker card',
       expectedErrorText:
         'Error programming Poll Worker card. Please try again.',
