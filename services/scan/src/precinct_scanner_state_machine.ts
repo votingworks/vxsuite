@@ -244,8 +244,16 @@ async function accept({ client }: Context) {
 function storeAcceptedSheet({ store, interpretation }: Context) {
   assert(store);
   assert(interpretation);
-  const { sheetId, pages } = interpretation;
+  const { sheetId, pages, type } = interpretation;
   storeInterpretedSheet(store, sheetId, pages);
+
+  // if we're storing an accepted sheet that needed review
+  // that means it was adjudicated.
+  if (type === 'NeedsReviewSheet') {
+    store.adjudicateSheet(sheetId, 'front', []);
+    store.adjudicateSheet(sheetId, 'back', []);
+  }
+
   debug('Stored accepted sheet: %s', sheetId);
 }
 
