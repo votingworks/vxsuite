@@ -1,7 +1,9 @@
 import React from 'react';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { Scan } from '@votingworks/api';
 import fetchMock from 'fetch-mock';
+import { deferred } from '@votingworks/utils';
+import userEvent from '@testing-library/user-event';
 import { CalibrateScannerModal } from './calibrate_scanner_modal';
 
 const fakeScannerStatus: Scan.PrecinctScannerStatus = {
@@ -10,7 +12,7 @@ const fakeScannerStatus: Scan.PrecinctScannerStatus = {
   canUnconfigure: true,
 };
 
-test('shows instructions', async () => {
+test('shows instructions', () => {
   render(
     <CalibrateScannerModal
       scannerStatus={fakeScannerStatus}
@@ -18,7 +20,8 @@ test('shows instructions', async () => {
     />
   );
 
-  await screen.findByText(/blank sheet of white paper/);
+  screen.getByRole('heading', { name: 'Calibrate Scanner' });
+  screen.getByText(/blank sheet of white paper/);
 });
 
 test('waiting for paper', async () => {
@@ -34,7 +37,7 @@ test('waiting for paper', async () => {
     (await screen.findByText<HTMLButtonElement>('Waiting for Paper')).disabled
   ).toBe(true);
 
-  fireEvent.click(await screen.findByText('Cancel'));
+  userEvent.click(await screen.findByText('Cancel'));
   expect(onCancel).toHaveBeenCalled();
 });
 
@@ -51,85 +54,114 @@ test('scanner not available', async () => {
     (await screen.findByText<HTMLButtonElement>('Cannot Calibrate')).disabled
   ).toBe(true);
 
-  fireEvent.click(await screen.findByText('Cancel'));
+  userEvent.click(await screen.findByText('Cancel'));
   expect(onCancel).toHaveBeenCalled();
 });
 
-test('calibrate start', async () => {
-  fetchMock.postOnce('/scanner/calibrate', { body: { status: 'ok' } });
+test('calibrate success', async () => {
+  const { promise, resolve } = deferred<{ body: Scan.CalibrateResponse }>();
+  fetchMock.postOnce('/scanner/calibrate', promise);
   render(
+    <CalibrateScannerModal
+      // Note that in reality, scanner status would update as the scanner
+      // calibrates, but the modal ignores it, so we don't bother mocking the
+      // changes.
+      scannerStatus={{ ...fakeScannerStatus, state: 'ready_to_scan' }}
+      onCancel={jest.fn()}
+    />
+  );
+
+  userEvent.click(await screen.findByText('Calibrate'));
+  expect(fetchMock.done()).toBe(true);
+
+  screen.getByText('Calibrating…');
+
+  resolve({ body: { status: 'ok' } });
+
+  await screen.findByText('Calibration succeeded!');
+});
+
+test('calibrate error and cancel', async () => {
+  const { promise, resolve } = deferred<{ body: Scan.CalibrateResponse }>();
+  fetchMock.postOnce('/scanner/calibrate', promise);
+  const onCancel = jest.fn();
+  render(
+    <CalibrateScannerModal
+      // Note that in reality, scanner status would update as the scanner
+      // calibrates, but the modal ignores it, so we don't bother mocking the
+      // changes.
+      scannerStatus={{ ...fakeScannerStatus, state: 'ready_to_scan' }}
+      onCancel={onCancel}
+    />
+  );
+
+  userEvent.click(await screen.findByText('Calibrate'));
+  expect(fetchMock.done()).toBe(true);
+
+  screen.getByText('Calibrating…');
+
+  resolve({
+    body: {
+      status: 'error',
+      errors: [{ type: 'error', message: 'Calibration error' }],
+    },
+  });
+
+  await screen.findByText('Calibration failed!');
+
+  userEvent.click(await screen.findByText('Cancel'));
+  await waitFor(() => expect(onCancel).toHaveBeenCalled());
+});
+
+test('calibrate error and try again', async () => {
+  const { promise, resolve } = deferred<{ body: Scan.CalibrateResponse }>();
+  fetchMock.postOnce('/scanner/calibrate', promise);
+  render(
+    <CalibrateScannerModal
+      // Note that in reality, scanner status would update as the scanner
+      // calibrates, but the modal ignores it, so we don't bother mocking the
+      // changes.
+      scannerStatus={{ ...fakeScannerStatus, state: 'ready_to_scan' }}
+      onCancel={jest.fn()}
+    />
+  );
+
+  userEvent.click(await screen.findByText('Calibrate'));
+  expect(fetchMock.done()).toBe(true);
+
+  screen.getByText('Calibrating…');
+
+  resolve({
+    body: {
+      status: 'error',
+      errors: [{ type: 'error', message: 'Calibration error' }],
+    },
+  });
+
+  await screen.findByText('Calibration failed!');
+
+  userEvent.click(await screen.findByText('Try again'));
+  screen.getByRole('heading', { name: 'Calibrate Scanner' });
+});
+
+// This test won't actually fail, but it will cause the warning:
+// "An update to CalibrateScannerModal inside a test was not wrapped in act(...)."
+test('unmount during calibration (e.g. if admin card removed)', async () => {
+  const { promise, resolve } = deferred<{ body: Scan.CalibrateResponse }>();
+  fetchMock.postOnce('/scanner/calibrate', promise);
+  const { unmount } = render(
     <CalibrateScannerModal
       scannerStatus={{ ...fakeScannerStatus, state: 'ready_to_scan' }}
       onCancel={jest.fn()}
     />
   );
 
-  // calibrate
-  fireEvent.click(await screen.findByText('Calibrate'));
+  userEvent.click(await screen.findByText('Calibrate'));
   expect(fetchMock.done()).toBe(true);
-});
 
-test('calibrate progress', async () => {
-  render(
-    <CalibrateScannerModal
-      scannerStatus={{ ...fakeScannerStatus, state: 'calibrating' }}
-      onCancel={jest.fn()}
-    />
-  );
-  await screen.findByText(/Calibrating/);
-});
+  screen.getByText('Calibrating…');
 
-test('calibrate success', async () => {
-  fetchMock.postOnce('/scanner/wait-for-paper', { body: { status: 'ok' } });
-  const onCancel = jest.fn();
-  render(
-    <CalibrateScannerModal
-      scannerStatus={{ ...fakeScannerStatus, state: 'calibrated' }}
-      onCancel={onCancel}
-    />
-  );
-  await screen.findByText('Calibration succeeded!');
+  unmount();
 
-  fireEvent.click(await screen.findByText('Close'));
-  expect(fetchMock.done()).toBe(true);
-  await waitFor(() => expect(onCancel).toHaveBeenCalled());
-});
-
-test('calibrate error', async () => {
-  fetchMock.postOnce('/scanner/wait-for-paper', { body: { status: 'ok' } });
-  const onCancel = jest.fn();
-  render(
-    <CalibrateScannerModal
-      scannerStatus={{
-        ...fakeScannerStatus,
-        state: 'calibrated',
-        error: 'plustek_error',
-      }}
-      onCancel={onCancel}
-    />
-  );
-  await screen.findByText('Calibration failed!');
-
-  fireEvent.click(await screen.findByText('Cancel'));
-  expect(fetchMock.done()).toBe(true);
-  await waitFor(() => expect(onCancel).toHaveBeenCalled());
-});
-
-test('calibrate error & try again', async () => {
-  fetchMock.postOnce('/scanner/wait-for-paper', { body: { status: 'ok' } });
-  const onCancel = jest.fn();
-  render(
-    <CalibrateScannerModal
-      scannerStatus={{
-        ...fakeScannerStatus,
-        state: 'calibrated',
-        error: 'plustek_error',
-      }}
-      onCancel={onCancel}
-    />
-  );
-  await screen.findByText('Calibration failed!');
-
-  fireEvent.click(await screen.findByText('Try again'));
-  expect(fetchMock.done()).toBe(true);
+  resolve({ body: { status: 'ok' } });
 });

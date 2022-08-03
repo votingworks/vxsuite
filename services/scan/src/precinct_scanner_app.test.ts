@@ -158,6 +158,10 @@ const ballotImages = {
     // Blank BMD ballot back
     join(famousNamesPath, 'bmd-ballot-complete-p2.jpg'),
   ],
+  blankSheet: [
+    join(sampleBallotImagesPath, 'blank-page.png'),
+    join(sampleBallotImagesPath, 'blank-page.png'),
+  ],
 } as const;
 
 async function configureApp(
@@ -375,7 +379,7 @@ test('scanner powered off while scanning', async () => {
   await waitForStatus(app, { state: 'disconnected', error: 'plustek_error' });
 
   mockPlustek.simulatePowerOn('jam');
-  await waitForStatus(app, { state: 'jammed', error: 'plustek_error' });
+  await waitForStatus(app, { state: 'jammed' });
 });
 
 test('scanner powered off while accepting', async () => {
@@ -728,4 +732,36 @@ test('jam on reject', async () => {
 
   await mockPlustek.simulateRemoveSheet();
   await waitForStatus(app, { state: 'no_paper' });
+});
+
+test('calibrate', async () => {
+  const { app, mockPlustek } = await createApp();
+  await configureApp(app);
+
+  await mockPlustek.simulateLoadSheet(ballotImages.blankSheet);
+  await waitForStatus(app, { state: 'ready_to_scan' });
+
+  // Supertest won't actually start the request until you call .then()
+  const calibratePromise = post(app, '/scanner/calibrate').then();
+  await waitForStatus(app, { state: 'calibrating' });
+  await calibratePromise;
+  await expectStatus(app, { state: 'no_paper' });
+});
+
+test('jam on calibrate', async () => {
+  const { app, mockPlustek } = await createApp();
+  await configureApp(app);
+
+  await mockPlustek.simulateLoadSheet(ballotImages.blankSheet);
+  await waitForStatus(app, { state: 'ready_to_scan' });
+
+  mockPlustek.simulateJamOnNextOperation();
+  await request(app)
+    .post('/scanner/calibrate')
+    .accept('application/json')
+    .expect(200, {
+      status: 'error',
+      errors: [{ type: 'error', message: 'plustek_error' }],
+    });
+  await expectStatus(app, { state: 'jammed', error: 'plustek_error' });
 });

@@ -446,10 +446,20 @@ export function buildPrecinctScannerApp(
     }
   );
 
-  app.post<NoParams, OkResponse>('/scanner/calibrate', (_request, response) => {
-    machine.calibrate();
-    response.json({ status: 'ok' });
-  });
+  app.post<NoParams, Scan.CalibrateResponse>(
+    '/scanner/calibrate',
+    async (_request, response) => {
+      const result = await machine.calibrate();
+      if (result.isOk()) {
+        response.json({ status: 'ok' });
+      } else {
+        response.json({
+          status: 'error',
+          errors: [{ type: 'error', message: result.err() }],
+        });
+      }
+    }
+  );
 
   app.get('/*', (request, response) => {
     const url = new URL(`http://${request.get('host')}${request.originalUrl}`);

@@ -7,7 +7,7 @@ import {
   ScannerError,
 } from '@votingworks/plustek-sdk';
 import { v4 as uuid } from 'uuid';
-import { Id } from '@votingworks/types';
+import { err, Id, ok, Result } from '@votingworks/types';
 import { assert, throwIllegalValue } from '@votingworks/utils';
 import { switchMap, timer } from 'rxjs';
 import {
@@ -21,6 +21,7 @@ import {
 } from 'xstate';
 import { Scan } from '@votingworks/api';
 import makeDebug from 'debug';
+import { waitFor } from 'xstate/lib/waitFor';
 import {
   SheetInterpretation,
   SimpleInterpreter,
@@ -557,16 +558,18 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
         entry: assign({ error: undefined }),
         invoke: {
           src: calibrate,
-          onDone: 'calibrated',
+          onDone: 'checking_calibration_completed',
           onError: {
-            target: 'calibrated',
+            target: 'checking_calibration_completed',
             actions: assign({ error: (_context, event) => event.data }),
           },
         },
       },
-      calibrated: {
+      checking_calibration_completed: {
+        invoke: pollPaperStatus,
         on: {
-          WAIT_FOR_PAPER: 'no_paper',
+          SCANNER_NO_PAPER: 'no_paper',
+          SCANNER_READY_TO_SCAN: 'ready_to_scan',
         },
       },
       error_jammed: {
@@ -600,6 +603,13 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
   });
 }
 
+function errorToString(error: Context['error']) {
+  return (
+    error &&
+    (error instanceof PrecinctScannerError ? error.type : 'plustek_error')
+  );
+}
+
 export interface PrecinctScannerStateMachine {
   configure: (store: Store, interpreter: SimpleInterpreter) => void;
   unconfigure: () => void;
@@ -611,7 +621,9 @@ export interface PrecinctScannerStateMachine {
   accept: () => void;
   return: () => void;
   waitForPaper: () => void;
-  calibrate: () => void;
+  // Calibrate is the exception, which blocks until calibration is finished and
+  // returns a result.
+  calibrate: () => Promise<Result<void, string>>;
 }
 
 export function createPrecinctScannerStateMachine(
@@ -729,13 +741,10 @@ export function createPrecinctScannerStateMachine(
           }
         })();
       // TODO log any errors, especially unexpected paper status/event or other unexpected errors
-      const errorType =
-        error &&
-        (error instanceof PrecinctScannerError ? error.type : 'plustek_error');
       return {
         state: scannerState,
         interpretation: interpretationResult,
-        error: errorType,
+        error: errorToString(error),
       };
     },
 
@@ -755,8 +764,13 @@ export function createPrecinctScannerStateMachine(
       machineService.send('WAIT_FOR_PAPER');
     },
 
-    calibrate: () => {
+    calibrate: async () => {
       machineService.send('CALIBRATE');
+      await waitFor(machineService, (state) => !state.matches('calibrating'), {
+        timeout: 20_000,
+      });
+      const { error } = machineService.state.context;
+      return error ? err(errorToString(error)) : ok();
     },
   };
 }

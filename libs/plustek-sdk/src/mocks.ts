@@ -657,10 +657,7 @@ export class MockScannerClient implements ScannerClient {
       case 'both_sides_have_paper':
       case 'ready_to_scan': {
         this.machine.send({ type: 'CALIBRATE' });
-        await waitFor(
-          this.machine,
-          (state) => state.value === 'no_paper' || state.value === 'jam'
-        );
+        await waitFor(this.machine, (state) => state.value !== 'calibrating');
         if ((this.machine.state.value as string) === 'jam') {
           debug('calibrate failed, jam');
           return err(ScannerError.PaperStatusJam);
