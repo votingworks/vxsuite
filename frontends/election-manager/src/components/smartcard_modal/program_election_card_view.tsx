@@ -1,11 +1,22 @@
 import React, { useContext } from 'react';
+import styled from 'styled-components';
 import { assert } from '@votingworks/utils';
-import { Button, Prose } from '@votingworks/ui';
+import { Button, fontSizeTheme, HorizontalRule, Prose } from '@votingworks/ui';
 import { CardProgramming } from '@votingworks/types';
 
 import { AppContext } from '../../contexts/app_context';
+import { electionToDisplayString } from './elections';
 import { generatePin } from './pins';
 import { SmartcardActionStatus, StatusMessage } from './status_message';
+
+interface HeadingProps {
+  marginTop: string;
+}
+
+const Heading = styled.h1<HeadingProps>`
+  /* stylelint-disable-next-line declaration-no-important */
+  margin-top: ${(props) => props.marginTop} !important;
+`;
 
 interface Props {
   actionStatus?: SmartcardActionStatus;
@@ -19,6 +30,9 @@ export function ProgramElectionCardView({
   setActionStatus,
 }: Props): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
+
+  const showingSuccessOrErrorMessage =
+    actionStatus?.status === 'Success' || actionStatus?.status === 'Error';
 
   async function programAdminCard() {
     assert(electionDefinition);
@@ -61,31 +75,42 @@ export function ProgramElectionCardView({
   }
 
   return (
-    <Prose textCenter>
-      <h2>Program Election Card</h2>
-      {/* An empty div to maintain space between the header and subsequent p. TODO: Consider adding
-        a `maintainSpaceBelowHeaders` prop to `Prose` */}
-      <div />
-      {actionStatus && <StatusMessage actionStatus={actionStatus} />}
+    <Prose textCenter theme={fontSizeTheme.medium}>
+      {actionStatus && (
+        <p>
+          <StatusMessage actionStatus={actionStatus} />
+        </p>
+      )}
+      <Heading marginTop={showingSuccessOrErrorMessage ? '1em' : '0'}>
+        Create New Election Card
+      </Heading>
+      {electionDefinition && (
+        <p>{electionToDisplayString(electionDefinition.election)}</p>
+      )}
+
+      <HorizontalRule />
       {electionDefinition ? (
-        <p>Admin and Poll Worker cards only work for the current election.</p>
+        <p>
+          <Button disabled={!electionDefinition} onPress={programAdminCard}>
+            Admin Card
+          </Button>{' '}
+          or{' '}
+          <Button
+            disabled={!electionDefinition}
+            onPress={programPollWorkerCard}
+          >
+            Poll Worker Card
+          </Button>
+        </p>
       ) : (
         <p>
           An election must be defined before Admin and Poll Worker cards can be
           programmed.
         </p>
       )}
-      <p>Remove card to leave card unprogrammed.</p>
-      <p>
-        <Button disabled={!electionDefinition} onPress={programAdminCard}>
-          Program Admin Card
-        </Button>
-      </p>
-      <p>
-        <Button disabled={!electionDefinition} onPress={programPollWorkerCard}>
-          Program Poll Worker Card
-        </Button>
-      </p>
+      <HorizontalRule />
+
+      <p>Remove card to cancel.</p>
     </Prose>
   );
 }

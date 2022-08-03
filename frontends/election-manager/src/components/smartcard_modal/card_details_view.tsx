@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
-import { assert, format, throwIllegalValue } from '@votingworks/utils';
+import { assert, throwIllegalValue } from '@votingworks/utils';
 import {
   Button,
   fontSizeTheme,
@@ -11,6 +11,7 @@ import {
 import { CardProgramming, ElectionDefinition, User } from '@votingworks/types';
 
 import { AppContext } from '../../contexts/app_context';
+import { electionToDisplayString } from './elections';
 import { generatePin } from './pins';
 import { SmartcardActionStatus, StatusMessage } from './status_message';
 import { userRoleToReadableString } from './user_roles';
@@ -111,14 +112,9 @@ export function CardDetailsView({
     });
   }
 
-  let electionDisplayString = 'Unknown Election';
-  if (doesCardElectionHashMatchMachineElectionHash) {
-    const { election } = electionDefinition;
-    const electionDateFormatted = format.localeWeekdayAndDate(
-      new Date(election.date)
-    );
-    electionDisplayString = `${election.title} — ${electionDateFormatted}`;
-  }
+  const electionDisplayString = doesCardElectionHashMatchMachineElectionHash
+    ? electionToDisplayString(electionDefinition.election)
+    : 'Unknown Election';
 
   const possibleActions = new Set<SmartcardActionStatus['action']>();
   if (
