@@ -525,57 +525,32 @@ test('Unprogramming smartcards', async () => {
 
   const testCases: Array<{
     cardData: AnyCardData;
-    expectedConfirmationText: string;
+    expectedProgressText: string;
     expectedSuccessText: string;
   }> = [
     {
       cardData: makeAdminCard(electionHash),
-      expectedConfirmationText:
-        'Are you sure you want to unprogram this Admin card and delete all data on it?',
+      expectedProgressText: 'Unprogramming Admin card',
       expectedSuccessText: 'Admin card has been unprogrammed.',
     },
     {
       cardData: makePollWorkerCard(electionHash),
-      expectedConfirmationText:
-        'Are you sure you want to unprogram this Poll Worker card and delete all data on it?',
+      expectedProgressText: 'Unprogramming Poll Worker card',
       expectedSuccessText: 'Poll Worker card has been unprogrammed.',
     },
   ];
 
   for (const testCase of testCases) {
-    const { cardData, expectedConfirmationText, expectedSuccessText } =
-      testCase;
+    const { cardData, expectedProgressText, expectedSuccessText } = testCase;
 
     card.insertCard(cardData);
     const modal = await screen.findByRole('alertdialog');
     within(modal).getByRole('heading', { name: 'Card Details' });
 
-    // Cancel the first time
     userEvent.click(
       within(modal).getByRole('button', { name: 'Unprogram Card' })
     );
-    let confirmationModal: HTMLElement = (
-      await screen.findByRole('heading', { name: 'Unprogram Card' })
-    ).closest('[role="alertdialog"]')!;
-    await within(confirmationModal).findByText(expectedConfirmationText);
-    userEvent.click(
-      within(confirmationModal).getByRole('button', { name: 'Cancel' })
-    );
-    await waitFor(() => expect(confirmationModal).not.toBeInTheDocument());
-
-    // Go through with it the second time
-    userEvent.click(
-      within(modal).getByRole('button', { name: 'Unprogram Card' })
-    );
-    confirmationModal = (
-      await screen.findByRole('heading', { name: 'Unprogram Card' })
-    ).closest('[role="alertdialog"]')!;
-    await within(confirmationModal).findByText(expectedConfirmationText);
-    userEvent.click(
-      within(confirmationModal).getByRole('button', { name: 'Yes' })
-    );
-    await within(confirmationModal).findByText(/Deleting all data on card/);
-    await waitFor(() => expect(confirmationModal).not.toBeInTheDocument());
+    await screen.findByText(new RegExp(expectedProgressText));
     await within(modal).findByRole('heading', {
       name: 'Program Election Card',
     });
@@ -607,7 +582,6 @@ test('Error handling', async () => {
     beginFromSuperAdminCardsScreen?: boolean;
     cardData?: AnyCardData;
     buttonToPress: string;
-    confirmButtonToPress?: string;
     expectedProgressText: string;
     expectedErrorText: string;
   }> = [
@@ -641,15 +615,13 @@ test('Error handling', async () => {
     {
       cardData: makeAdminCard(electionHash),
       buttonToPress: 'Unprogram Card',
-      confirmButtonToPress: 'Yes',
-      expectedProgressText: 'Deleting all data on card',
+      expectedProgressText: 'Unprogramming Admin card',
       expectedErrorText: 'Error unprogramming Admin card. Please try again.',
     },
     {
       cardData: makePollWorkerCard(electionHash),
       buttonToPress: 'Unprogram Card',
-      confirmButtonToPress: 'Yes',
-      expectedProgressText: 'Deleting all data on card',
+      expectedProgressText: 'Unprogramming Poll Worker card',
       expectedErrorText:
         'Error unprogramming Poll Worker card. Please try again.',
     },
@@ -660,7 +632,6 @@ test('Error handling', async () => {
       beginFromSuperAdminCardsScreen,
       cardData,
       buttonToPress,
-      confirmButtonToPress,
       expectedProgressText,
       expectedErrorText,
     } = testCase;
@@ -677,11 +648,6 @@ test('Error handling', async () => {
     card.insertCard(cardData);
     const modal = await screen.findByRole('alertdialog');
     userEvent.click(within(modal).getByRole('button', { name: buttonToPress }));
-    if (confirmButtonToPress) {
-      userEvent.click(
-        await screen.findByRole('button', { name: confirmButtonToPress })
-      );
-    }
     await screen.findByText(new RegExp(expectedProgressText));
     await within(modal).findByText(expectedErrorText);
     card.removeCard();
