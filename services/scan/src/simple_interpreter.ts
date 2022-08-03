@@ -86,6 +86,14 @@ function combinePageInterpretationsForSheet(
     };
   }
 
+  // TODO is this the right way to handle a blank sheet of paper?
+  if (frontType === 'BlankPage' && backType === 'BlankPage') {
+    return {
+      type: 'InvalidSheet',
+      reason: 'unreadable',
+    };
+  }
+
   // TODO what does this case actually mean?
   if (
     frontType === 'UninterpretedHmpbPage' ||
