@@ -2,6 +2,7 @@ import { MockScannerClient, ScannerClient } from '@votingworks/plustek-sdk';
 import {
   AdjudicationReason,
   AdjudicationReasonInfo,
+  CastVoteRecord,
   ok,
   Result,
 } from '@votingworks/types';
@@ -87,6 +88,19 @@ function postTemplate(
       if (res.status !== 200) console.error(res.body);
     })
     .expect(200, { status: 'ok' });
+}
+
+async function postExportCvrs(app: Application) {
+  const exportResponse = await request(app)
+    .post('/scan/export')
+    .set('Accept', 'application/json')
+    .expect(200);
+
+  const cvrs: CastVoteRecord[] = exportResponse.text
+    .split('\n')
+    .filter((line) => line !== '')
+    .map((line) => JSON.parse(line));
+  return cvrs;
 }
 
 async function expectStatus(
@@ -219,6 +233,11 @@ test('configure and scan hmpb', async () => {
 
   // Test waiting for automatic transition back to no_paper
   await waitForStatus(app, { state: 'no_paper', ballotsCounted: 1 });
+
+  // Check the CVR
+  const cvrs = await postExportCvrs(app);
+  expect(cvrs).toHaveLength(1);
+  // TODO what do we actually want to check about the CVRs to make sure they work?
 });
 
 test('configure and scan bmd ballot', async () => {
@@ -250,6 +269,10 @@ test('configure and scan bmd ballot', async () => {
   // Test scanning again without first transitioning back to no_paper
   await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
   await waitForStatus(app, { state: 'ready_to_scan', ballotsCounted: 1 });
+
+  // Check the CVR
+  const cvrs = await postExportCvrs(app);
+  expect(cvrs).toHaveLength(1);
 });
 
 function undervote(contestId: string, expected = 1): AdjudicationReasonInfo {
@@ -328,6 +351,10 @@ test('ballot needs review - accept', async () => {
     state: 'no_paper',
     ballotsCounted: 1,
   });
+
+  // Check the CVR
+  const cvrs = await postExportCvrs(app);
+  expect(cvrs).toHaveLength(1);
 });
 
 // TODO test all the invalid ballot reasons?
