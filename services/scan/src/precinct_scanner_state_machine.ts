@@ -325,7 +325,10 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
           src: connectToPlustek(createPlustekClient),
           onDone: {
             target: 'checking_initial_paper_status',
-            actions: assign({ client: (_context, event) => event.data }),
+            actions: assign({
+              client: (_context, event) => event.data,
+              error: undefined,
+            }),
           },
           onError: 'error_disconnected',
         },
