@@ -375,15 +375,16 @@ test('Programming super admin smartcards', async () => {
   card.insertCard(); // Blank card
 
   const modal = await screen.findByRole('alertdialog');
-  within(modal).getByRole('heading', { name: 'Program Super Admin Card' });
+  within(modal).getByRole('heading', { name: 'Create New Super Admin Card' });
   within(modal).getByText(
     'This card performs all system actions. ' +
       'Strictly limit the number created and keep all Super Admin cards secure.'
   );
-  within(modal).getByText('Remove card to leave card unprogrammed.');
-  userEvent.click(
-    within(modal).getByRole('button', { name: 'Program Super Admin Card' })
-  );
+  const superAdminCardButton = within(modal).getByRole('button', {
+    name: 'Create Super Admin Card',
+  });
+  within(modal).getByText('Remove card to cancel.');
+  userEvent.click(superAdminCardButton);
   await screen.findByText(/Programming Super Admin card/);
   await within(modal).findByRole('heading', { name: 'Super Admin Card' });
   within(modal).getByText(/New card PIN is /);
@@ -605,7 +606,7 @@ test('Error handling', async () => {
     {
       beginFromSuperAdminCardsScreen: true,
       cardData: undefined,
-      buttonToPress: 'Program Super Admin Card',
+      buttonToPress: 'Create Super Admin Card',
       expectedProgressText: 'Programming Super Admin card',
       expectedErrorText:
         'Error programming Super Admin card. Please try again.',
