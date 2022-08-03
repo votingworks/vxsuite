@@ -460,18 +460,12 @@ test('admin and pollworker configuration', async () => {
     { body: statusReadyToScan },
     { overwriteRoutes: true }
   );
-  await advanceTimersAndPromises(1);
+  await advanceTimersAndPromises();
   fireEvent.click(await screen.findByText('Calibrate'));
   expect(fetchMock.calls('/scanner/calibrate')).toHaveLength(1);
-  fetchMock.getOnce('/scanner/status', {
-    body: { ...statusReadyToScan, state: 'calibrated' },
-  });
-  fetchMock.post('/scanner/wait-for-paper', { body: { status: 'ok' } });
-  await advanceTimersAndPromises(1);
-  screen.getByText('Calibration succeeded!');
+  await advanceTimersAndPromises();
+  await screen.findByText('Calibration succeeded!');
   fireEvent.click(screen.getByRole('button', { name: 'Close' }));
-  await screen.findByText('Administrator Settings');
-  expect(fetchMock.calls('/scanner/wait-for-paper')).toHaveLength(1);
 
   // Remove card and insert admin card to unconfigure
   fetchMock

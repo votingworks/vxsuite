@@ -28,8 +28,12 @@ export async function waitForPaper(): Promise<void> {
   await fetchJson('/scanner/wait-for-paper', { method: 'POST' });
 }
 
-export async function calibrate(): Promise<void> {
-  await fetchJson('/scanner/calibrate', { method: 'POST' });
+export async function calibrate(): Promise<boolean> {
+  const result = unsafeParse(
+    Scan.CalibrateResponseSchema,
+    await fetchJson('/scanner/calibrate', { method: 'POST' })
+  );
+  return result.status === 'ok';
 }
 
 export async function getExport(): Promise<string> {
