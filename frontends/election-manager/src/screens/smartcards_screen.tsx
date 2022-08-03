@@ -12,10 +12,6 @@ const Body = styled(Prose)`
   flex-grow: 1;
 `;
 
-const ToggleSmartcardTypeButton = styled(LinkButton)`
-  align-self: start;
-`;
-
 const smartcardTypeToReadableString: Record<SmartcardType, string> = {
   election: 'Election',
   'super-admin': 'Super Admin',
@@ -35,25 +31,26 @@ export function SmartcardsScreen(): JSX.Element {
         <h1>{smartcardTypeToReadableString[smartcardType]} Cards</h1>
         <p>Insert a smartcard to:</p>
         <ul>
-          <li>View card details</li>
+          <li>View card details.</li>
           <li>
-            Create{' '}
             {smartcardType === 'election'
-              ? 'an Admin or Poll Worker card for this election'
-              : 'a Super Admin card'}
+              ? 'Create an Admin or Poll Worker card for this election.'
+              : 'Create a Super Admin card.'}
           </li>
         </ul>
       </Body>
-      <ToggleSmartcardTypeButton
-        small
-        to={routerPaths.smartcardsByType({
-          smartcardType: getOtherSmartcardType(smartcardType),
-        })}
-      >
-        Create{' '}
-        {smartcardTypeToReadableString[getOtherSmartcardType(smartcardType)]}{' '}
-        Cards
-      </ToggleSmartcardTypeButton>
+      <div>
+        <LinkButton
+          small
+          to={routerPaths.smartcardsByType({
+            smartcardType: getOtherSmartcardType(smartcardType),
+          })}
+        >
+          Create{' '}
+          {smartcardTypeToReadableString[getOtherSmartcardType(smartcardType)]}{' '}
+          Cards
+        </LinkButton>
+      </div>
     </NavigationScreen>
   );
 }
