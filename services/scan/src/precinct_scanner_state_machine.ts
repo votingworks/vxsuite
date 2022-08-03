@@ -604,10 +604,7 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
 }
 
 function errorToString(error: Context['error']) {
-  return (
-    error &&
-    (error instanceof PrecinctScannerError ? error.type : 'plustek_error')
-  );
+  return error instanceof PrecinctScannerError ? error.type : 'plustek_error';
 }
 
 export interface PrecinctScannerStateMachine {
@@ -744,7 +741,7 @@ export function createPrecinctScannerStateMachine(
       return {
         state: scannerState,
         interpretation: interpretationResult,
-        error: errorToString(error),
+        error: error && errorToString(error),
       };
     },
 
