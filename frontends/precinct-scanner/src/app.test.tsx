@@ -46,10 +46,7 @@ import userEvent from '@testing-library/user-event';
 import { App } from './app';
 
 import { stateStorageKey } from './app_root';
-import {
-  POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
-  TIME_TO_DISMISS_SUCCESS_SCREEN_MS,
-} from './config/globals';
+import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from './config/globals';
 import { MachineConfigResponse } from './config/types';
 
 jest.setTimeout(20000);
@@ -542,7 +539,6 @@ test('voter can cast a ballot that scans successfully ', async () => {
     .getOnce('/scanner/status', {
       body: scannerStatus({ state: 'accepted' }),
     })
-    .post('/scanner/wait-for-paper', { body: { status: 'ok' } })
     .get('/scanner/status', {
       body: scannerStatus({ state: 'no_paper', ballotsCounted: 1 }),
     });
@@ -554,7 +550,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
   await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS / 1000);
   await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS / 1000);
   screen.getByText('Your ballot was counted!');
-  await advanceTimersAndPromises(TIME_TO_DISMISS_SUCCESS_SCREEN_MS / 1000);
+  await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS / 1000);
   await screen.findByText('Scan one ballot sheet at a time.');
   expect((await screen.findByTestId('ballot-count')).textContent).toBe('1');
   expect(fetchMock.done()).toBe(true);
@@ -717,7 +713,6 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
     .getOnce('/scanner/status', {
       body: scannerStatus({ state: 'accepted' }),
     })
-    .post('/scanner/wait-for-paper', { body: { status: 'ok' } })
     .get('/scanner/status', {
       body: scannerStatus({ state: 'no_paper', ballotsCounted: 1 }),
     });
@@ -730,7 +725,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
 
   jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText('Your ballot was counted!');
-  jest.advanceTimersByTime(TIME_TO_DISMISS_SUCCESS_SCREEN_MS);
+  jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText('Insert Your Ballot Below');
   expect(screen.getByTestId('ballot-count').textContent).toBe('1');
   expect(fetchMock.done()).toBe(true);
@@ -822,8 +817,7 @@ test('voter can cast another ballot while the success screen is showing', async 
   fetchMock.getOnce('/scanner/status', {
     body: scannerStatus({ state: 'accepted', ballotsCounted: 1 }),
   });
-  jest.advanceTimersByTime(TIME_TO_DISMISS_SUCCESS_SCREEN_MS / 2);
-  screen.getByText('Your ballot was counted!'); // Still on the success screen
+  screen.getByText('Your ballot was counted!');
   expect(screen.getByTestId('ballot-count').textContent).toBe('1');
 
   fetchMock
@@ -847,10 +841,6 @@ test('voter can cast another ballot while the success screen is showing', async 
   jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText(/Please wait/);
   jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
-  await screen.findByText('Blank Ballot');
-
-  // Even after the timeout to expire the success screen occurs we stay on the review screen.
-  jest.advanceTimersByTime(TIME_TO_DISMISS_SUCCESS_SCREEN_MS / 2);
   await screen.findByText('Blank Ballot');
 
   expect(fetchMock.done()).toBe(true);
@@ -1061,7 +1051,6 @@ test('no printer: open polls, scan ballot, close polls, export results', async (
     .getOnce('/scanner/status', {
       body: scannerStatus({ state: 'accepted' }),
     })
-    .post('/scanner/wait-for-paper', { body: { status: 'ok' } }, { delay: 1 })
     .get('/scanner/status', {
       body: scannerStatus({ state: 'no_paper', ballotsCounted: 1 }),
     });
@@ -1073,7 +1062,7 @@ test('no printer: open polls, scan ballot, close polls, export results', async (
   await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS / 1000);
   await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS / 1000);
   screen.getByText('Your ballot was counted!');
-  await advanceTimersAndPromises(TIME_TO_DISMISS_SUCCESS_SCREEN_MS / 1000);
+  await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS / 1000);
   await screen.findByText('Scan one ballot sheet at a time.');
   expect((await screen.findByTestId('ballot-count')).textContent).toBe('1');
   expect(fetchMock.done()).toBe(true);

@@ -128,8 +128,13 @@ async function createApp() {
     await mockPlustek.connect();
     return ok(mockPlustek);
   }
-  const precinctScannerMachine =
-    createPrecinctScannerStateMachine(createPlustekClient);
+  const precinctScannerMachine = createPrecinctScannerStateMachine(
+    createPlustekClient,
+    {
+      DELAY_RECONNECT: 100,
+      DELAY_ACCEPTED_RESET_TO_NO_PAPER: 500,
+    }
+  );
   const app = buildPrecinctScannerApp(precinctScannerMachine, workspace);
   return { app, mockPlustek };
 }
@@ -211,9 +216,8 @@ test('configure and scan hmpb', async () => {
     ballotsCounted: 1,
   });
 
-  // Test transitioning back to no_paper
-  await post(app, '/scanner/wait-for-paper');
-  await expectStatus(app, { state: 'no_paper', ballotsCounted: 1 });
+  // Test waiting for automatic transition back to no_paper
+  await waitForStatus(app, { state: 'no_paper', ballotsCounted: 1 });
 });
 
 test('configure and scan bmd ballot', async () => {
@@ -319,8 +323,7 @@ test('ballot needs review - accept', async () => {
     ballotsCounted: 1,
   });
 
-  await post(app, '/scanner/wait-for-paper');
-  await expectStatus(app, {
+  await waitForStatus(app, {
     state: 'no_paper',
     ballotsCounted: 1,
   });
