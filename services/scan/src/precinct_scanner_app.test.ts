@@ -21,7 +21,7 @@ import { buildPrecinctScannerApp } from './precinct_scanner_app';
 import { createPrecinctScannerStateMachine } from './precinct_scanner_state_machine';
 import { createWorkspace } from './util/workspace';
 
-jest.setTimeout(10_000);
+jest.setTimeout(15_000);
 
 function get(app: Application, path: string) {
   return request(app).get(path).accept('application/json').expect(200);
@@ -132,7 +132,8 @@ async function createApp() {
     createPlustekClient,
     {
       DELAY_RECONNECT: 100,
-      DELAY_ACCEPTED_RESET_TO_NO_PAPER: 500,
+      DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 500,
+      DELAY_ACCEPTED_RESET_TO_NO_PAPER: 1000,
     }
   );
   const app = buildPrecinctScannerApp(precinctScannerMachine, workspace);
