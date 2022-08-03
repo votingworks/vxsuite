@@ -1,4 +1,4 @@
-import { isAllZeroSmartcardPinGenerationEnabled } from '@votingworks/ui';
+import { isAllZeroSmartcardPinGenerationEnabled } from '../../config/features';
 
 /**
  * generatePin generates random numeric PINs of the specified length (default = 6).

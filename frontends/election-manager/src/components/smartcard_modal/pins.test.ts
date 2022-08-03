@@ -1,14 +1,17 @@
-import { isAllZeroSmartcardPinGenerationEnabled } from '@votingworks/ui';
 import { mockOf } from '@votingworks/test-utils';
 
 import { generatePin, hyphenatePin } from './pins';
+import { isAllZeroSmartcardPinGenerationEnabled } from '../../config/features';
 
-jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => {
-  return {
-    ...jest.requireActual('@votingworks/ui'),
-    isAllZeroSmartcardPinGenerationEnabled: jest.fn(),
-  };
-});
+jest.mock(
+  '../../config/features',
+  (): typeof import('../../config/features') => {
+    return {
+      ...jest.requireActual('../../config/features'),
+      isAllZeroSmartcardPinGenerationEnabled: jest.fn(),
+    };
+  }
+);
 
 beforeEach(() => {
   mockOf(isAllZeroSmartcardPinGenerationEnabled).mockImplementation(
