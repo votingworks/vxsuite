@@ -30,6 +30,8 @@ import {
 import { SheetOf } from './types';
 import { Store } from './store';
 
+const PAPER_STATUS_POLLING_INTERVAL = 500;
+
 export type CreatePlustekClient = typeof createClient;
 
 const debug = makeDebug('scan:precinct-scanner');
@@ -97,7 +99,6 @@ export type Event =
 interface Delays {
   DELAY_RECONNECT: number;
   DELAY_ACCEPTED_RESET_TO_NO_PAPER: number;
-  DELAY_REJECTED_WAIT_FOR_HOLD: number;
 }
 
 function connectToPlustek(createPlustekClient: CreatePlustekClient) {
@@ -158,7 +159,7 @@ function paperStatusErrorToEvent(
 // changing state when paper status doesn't change
 function paperStatusObserver({ client }: Context) {
   assert(client);
-  return timer(0, 500).pipe(
+  return timer(0, PAPER_STATUS_POLLING_INTERVAL).pipe(
     switchMap(async () => {
       const paperStatus = await client.getPaperStatus();
       debugPaperStatus('Paper status: %s', paperStatus);
@@ -520,7 +521,7 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
           // But, if you pull the paper out right after rejecting, we go straight to
           // NO_PAPER, skipping READY_TO_SCAN completely. So we need to eventually
           // timeout waiting for READY_TO_SCAN.
-          after: { DELAY_REJECTED_WAIT_FOR_HOLD: 'no_paper' },
+          after: { DELAY_WAIT_FOR_HOLD_AFTER_REJECT: 'no_paper' },
         },
         returned: {
           invoke: pollPaperStatus,
@@ -552,7 +553,7 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
           // But, if you pull the paper out right after rejecting, we go straight to
           // NO_PAPER, skipping READY_TO_SCAN completely. So we need to eventually
           // timeout waiting for READY_TO_SCAN.
-          after: { DELAY_REJECTED_WAIT_FOR_HOLD: 'no_paper' },
+          after: { DELAY_WAIT_FOR_HOLD_AFTER_REJECT: 'no_paper' },
         },
         // Paper has been rejected and is held in the front, waiting for removal.
         rejected: {
@@ -611,9 +612,18 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
     },
     {
       delays: {
+        // When disconnected, how long to wait before trying to reconnect.
         DELAY_RECONNECT: 500,
+        // How long to wait on the accepted state before automatically going
+        // back to no_paper.
         DELAY_ACCEPTED_RESET_TO_NO_PAPER: 5000,
-        DELAY_REJECTED_WAIT_FOR_HOLD: 1000,
+        // How long to wait for Plustek to grab the paper and return paper
+        // status READY_TO_SCAN after rejecting. Needs to be greater than
+        // PAPER_STATUS_POLLING_INTERVAL otherwise we'll never have a chance to
+        // see the READY_TO_SCAN status. Experimentally, 1000ms seems to be a
+        // good amount. Don't change this delay lightly since it impacts the
+        // actual logic of the scanner.
+        DELAY_WAIT_FOR_HOLD_AFTER_REJECT: 1000,
       },
     }
   );

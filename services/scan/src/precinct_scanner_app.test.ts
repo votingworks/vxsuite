@@ -133,7 +133,6 @@ async function createApp() {
     {
       DELAY_RECONNECT: 100,
       DELAY_ACCEPTED_RESET_TO_NO_PAPER: 500,
-      DELAY_REJECTED_WAIT_FOR_HOLD: 500,
     }
   );
   const app = buildPrecinctScannerApp(precinctScannerMachine, workspace);
