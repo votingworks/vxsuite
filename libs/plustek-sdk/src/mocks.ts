@@ -139,7 +139,10 @@ const mockPlustekMachine = createMachine<Context, Event>({
         cond: (context) => context.jamOnNextOperation,
       },
       after: { ACCEPTING_DELAY: 'no_paper' },
-      on: { LOAD_SHEET: 'both_sides_have_paper' },
+      // Weird case: If you put in a second paper while accepting, it will accept the
+      // first paper and return ready_to_scan paper status (but fail the accept
+      // command with a jam error)
+      on: { LOAD_SHEET: 'ready_to_scan' },
     },
     rejecting: {
       always: {
@@ -556,6 +559,13 @@ export class MockScannerClient implements ScannerClient {
         await waitFor(this.machine, (state) => state.value !== 'accepting');
         if ((this.machine.state.value as string) === 'powered_off') {
           debug('accept failed, power off');
+          return err(ScannerError.PaperStatusJam);
+        }
+        // Weird case where Plustek returns an error even though the paper was accepted
+        if ((this.machine.state.value as string) === 'ready_to_scan') {
+          debug(
+            'accept succeeded but returning jam error because paper in front'
+          );
           return err(ScannerError.PaperStatusJam);
         }
         debug('accept success');

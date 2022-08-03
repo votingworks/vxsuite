@@ -98,6 +98,7 @@ export type Event =
 
 interface Delays {
   DELAY_RECONNECT: number;
+  DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: number;
   DELAY_ACCEPTED_RESET_TO_NO_PAPER: number;
 }
 
@@ -261,6 +262,10 @@ const clearLastScan = assign({
   interpretation: undefined,
 });
 
+const clearError = assign({
+  error: undefined,
+});
+
 function buildMachine(createPlustekClient: CreatePlustekClient) {
   return createMachine<Context, Event>(
     {
@@ -365,7 +370,7 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
           },
         },
         no_paper: {
-          entry: [assign({ error: undefined }), clearLastScan],
+          entry: [clearError, clearLastScan],
           invoke: pollPaperStatus,
           on: {
             SCANNER_NO_PAPER: { target: 'no_paper', internal: true },
@@ -373,6 +378,7 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
           },
         },
         ready_to_scan: {
+          entry: [clearError, clearLastScan],
           invoke: pollPaperStatus,
           on: {
             SCAN: 'scanning',
@@ -382,7 +388,6 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
           },
         },
         scanning: {
-          entry: assign({ error: undefined }),
           invoke: {
             src: scan,
             onDone: {
@@ -460,8 +465,11 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
           invoke: {
             src: accept,
             onDone: 'checking_accepting_completed',
+            // In some cases, Plustek can return an error even if the paper got
+            // accepted, so we need to check paper status to determine what to do
+            // next. We still record the error for debugging purposes.
             onError: {
-              target: 'rejecting',
+              target: 'checking_accepting_completed',
               actions: assign({ error: (_context, event) => event.data }),
             },
           },
@@ -470,6 +478,9 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
           invoke: pollPaperStatus,
           on: {
             SCANNER_NO_PAPER: 'accepted',
+            // If there's a paper in front, that means the ballot in back did get
+            // dropped but somebody quickly inserted a new ballot in front, so we
+            // should count the first ballot as accepted.
             SCANNER_READY_TO_SCAN: 'accepted',
             // If the paper didn't get dropped, it's an error
             SCANNER_READY_TO_EJECT: {
@@ -483,14 +494,22 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
         accepted: {
           entry: storeAcceptedSheet,
           invoke: pollPaperStatus,
-          on: {
-            SCANNER_NO_PAPER: { target: 'accepted', internal: true },
-            SCANNER_READY_TO_SCAN: {
-              target: 'ready_to_scan',
-              actions: clearLastScan,
+          initial: 'scanning_paused',
+          on: { SCANNER_NO_PAPER: { target: undefined } }, // Do nothing
+          states: {
+            scanning_paused: {
+              on: { SCANNER_READY_TO_SCAN: { target: undefined } }, // Do nothing
+              after: {
+                DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 'ready_for_next_ballot',
+              },
+            },
+            ready_for_next_ballot: {
+              on: { SCANNER_READY_TO_SCAN: '..ready_to_scan' },
             },
           },
-          after: { DELAY_ACCEPTED_RESET_TO_NO_PAPER: 'no_paper' },
+          after: {
+            DELAY_ACCEPTED_RESET_TO_NO_PAPER: 'no_paper',
+          },
         },
         needs_review: {
           on: {
@@ -614,6 +633,10 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
       delays: {
         // When disconnected, how long to wait before trying to reconnect.
         DELAY_RECONNECT: 500,
+        // When in accepted state, how long to ignore any new ballot that is
+        // inserted (this ensures the user sees the accepted screen for a bit
+        // before starting a new scan).
+        DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 2000,
         // How long to wait on the accepted state before automatically going
         // back to no_paper.
         DELAY_ACCEPTED_RESET_TO_NO_PAPER: 5000,
