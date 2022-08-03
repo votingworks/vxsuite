@@ -17,6 +17,7 @@ import {
 import { NavigationScreen } from '../components/navigation_screen';
 import { ExportElectionBallotPackageModalButton } from '../components/export_election_ballot_package_modal_button';
 import { ExportBallotPdfsButton } from '../components/export_ballot_pdfs_button';
+import { PrintAllBallotsButton } from '../components/print_all_ballots_button';
 
 const Header = styled.div`
   display: flex;
@@ -68,14 +69,18 @@ export function BallotListScreen({ draftMode }: Props): JSX.Element {
             </SegmentedButton>
           </p>
         </Prose>
-        {!draftMode && (
-          <Prose maxWidth={false}>
-            <p>
-              <ExportBallotPdfsButton />{' '}
-              <ExportElectionBallotPackageModalButton />
-            </p>
-          </Prose>
-        )}
+
+        <Prose maxWidth={false}>
+          <p>
+            <PrintAllBallotsButton draftMode={draftMode} />{' '}
+            {!draftMode && (
+              <React.Fragment>
+                <ExportBallotPdfsButton />{' '}
+                <ExportElectionBallotPackageModalButton />
+              </React.Fragment>
+            )}
+          </p>
+        </Prose>
       </Header>
       <Table>
         <thead>

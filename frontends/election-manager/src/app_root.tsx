@@ -101,7 +101,7 @@ export function AppRoot({
 
   const printBallotRef = useRef<HTMLDivElement>(null);
 
-  const { cardReader } = useDevices({ hardware, logger });
+  const { cardReader, printer: printerInfo } = useDevices({ hardware, logger });
 
   const getElectionDefinition = useCallback(async (): Promise<
     ElectionDefinition | undefined
@@ -641,6 +641,7 @@ export function AppRoot({
         auth,
         machineConfig,
         hasCardReaderAttached: !!cardReader,
+        hasPrinterAttached: !!printerInfo,
         logger,
       }}
     >

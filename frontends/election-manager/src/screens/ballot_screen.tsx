@@ -1,8 +1,4 @@
-import {
-  assert,
-  BALLOT_PDFS_FOLDER,
-  throwIllegalValue,
-} from '@votingworks/utils';
+import { assert, BALLOT_PDFS_FOLDER } from '@votingworks/utils';
 import React, {
   useCallback,
   useContext,
@@ -49,6 +45,7 @@ import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';
 import { BallotCopiesInput } from '../components/ballot_copies_input';
 import { BallotModeToggle } from '../components/ballot_mode_toggle';
 import { BallotTypeToggle } from '../components/ballot_type_toggle';
+import { PrintBallotButtonText } from '../components/print_ballot_button_text';
 
 const BallotPreviewHeader = styled.div`
   margin-top: 1rem;
@@ -76,27 +73,6 @@ const BallotPreview = styled.div`
     }
   }
 `;
-
-function ballotModeToReadableString(ballotMode: BallotMode): string {
-  switch (ballotMode) {
-    case BallotMode.Draft: {
-      return 'Draft';
-    }
-    case BallotMode.Official: {
-      return 'Official';
-    }
-    case BallotMode.Sample: {
-      return 'Sample';
-    }
-    case BallotMode.Test: {
-      return 'Test';
-    }
-    /* istanbul ignore next: Compile-time check for completeness */
-    default: {
-      throwIllegalValue(ballotMode);
-    }
-  }
-}
 
 interface Props {
   draftMode?: boolean;
@@ -275,15 +251,13 @@ export function BallotScreen({ draftMode }: Props): JSX.Element {
               sides="two-sided-long-edge"
               warning={ballotMode !== BallotMode.Official}
             >
-              Print {ballotCopies}{' '}
-              <strong>
-                {ballotModeToReadableString(ballotMode)}{' '}
-                {isAbsentee ? 'Absentee' : 'Precinct'}
-              </strong>{' '}
-              {pluralize('Ballot', ballotCopies)}{' '}
-              {availableLocaleCodes.length > 1 &&
-                currentLocaleCode &&
-                ` in ${getHumanBallotLanguageFormat(locales)}`}
+              <PrintBallotButtonText
+                ballotCopies={ballotCopies}
+                ballotMode={ballotMode}
+                isAbsentee={isAbsentee}
+                election={election}
+                localeCode={currentLocaleCode}
+              />
             </PrintButton>
             {window.kiosk && (
               <React.Fragment>

@@ -30,7 +30,6 @@ import {
   fakePrinterInfo,
   fakeUsbDrive,
   makeAdminCard,
-  makeSuperadminCard,
   mockOf,
 } from '@votingworks/test-utils';
 import {
@@ -55,6 +54,10 @@ import {
 import { MachineConfig } from './config/types';
 import { VxFiles } from './lib/converters';
 import { createMemoryStorageWith } from '../test/util/create_memory_storage_with';
+import {
+  authenticateWithAdminCard,
+  authenticateWithSuperAdminCard,
+} from '../test/util/authenticate';
 
 const EITHER_NEITHER_CVR_DATA = electionWithMsEitherNeitherFixtures.cvrData;
 const EITHER_NEITHER_CVR_FILE = new File([EITHER_NEITHER_CVR_DATA], 'cvrs.txt');
@@ -146,39 +149,6 @@ afterEach(() => {
   delete window.kiosk;
   MockDate.reset();
 });
-
-async function authenticateWithAdminCard(card: MemoryCard) {
-  // Machine should be locked
-  await screen.findByText('VxAdmin is Locked');
-  card.insertCard(
-    makeAdminCard(eitherNeitherElectionDefinition.electionHash, '123456')
-  );
-  await screen.findByText('Enter the card security code to unlock.');
-  userEvent.click(screen.getByText('1'));
-  userEvent.click(screen.getByText('2'));
-  userEvent.click(screen.getByText('3'));
-  userEvent.click(screen.getByText('4'));
-  userEvent.click(screen.getByText('5'));
-  userEvent.click(screen.getByText('6'));
-  await screen.findByText('Remove card to continue.');
-  card.removeCard();
-  await screen.findByText('Lock Machine');
-}
-
-async function authenticateWithSuperAdminCard(card: MemoryCard) {
-  await screen.findByText('VxAdmin is Locked');
-  card.insertCard(makeSuperadminCard());
-  await screen.findByText('Enter the card security code to unlock.');
-  userEvent.click(screen.getByText('1'));
-  userEvent.click(screen.getByText('2'));
-  userEvent.click(screen.getByText('3'));
-  userEvent.click(screen.getByText('4'));
-  userEvent.click(screen.getByText('5'));
-  userEvent.click(screen.getByText('6'));
-  await screen.findByText('Remove card to continue.');
-  card.removeCard();
-  await screen.findByText('Lock Machine');
-}
 
 test('create election works', async () => {
   const card = new MemoryCard();
@@ -350,7 +320,7 @@ test('L&A (logic and accuracy) flow', async () => {
   const { container, getByTestId } = render(
     <App card={card} hardware={hardware} printer={printer} storage={storage} />
   );
-  await authenticateWithAdminCard(card);
+  await authenticateWithAdminCard(card, eitherNeitherElectionDefinition);
 
   userEvent.click(screen.getByText('L&A'));
 
@@ -438,7 +408,7 @@ test('L&A features are available after test results are loaded', async () => {
   });
   render(<App card={card} hardware={hardware} storage={storage} />);
 
-  await authenticateWithAdminCard(card);
+  await authenticateWithAdminCard(card, eitherNeitherElectionDefinition);
 
   // Confirm that test results are loaded
   userEvent.click(screen.getByText('Tally'));
@@ -463,7 +433,7 @@ test('printing ballots and printed ballots report', async () => {
     <App storage={storage} printer={printer} card={card} hardware={hardware} />
   );
   jest.advanceTimersByTime(2000); // Cause the usb drive to be detected
-  await authenticateWithAdminCard(card);
+  await authenticateWithAdminCard(card, eitherNeitherElectionDefinition);
 
   fireEvent.click(getByText('Reports'));
   await screen.findByText('0 official ballots');
@@ -523,7 +493,7 @@ test('tabulating CVRs', async () => {
     <App storage={storage} card={card} hardware={hardware} printer={printer} />
   );
   jest.advanceTimersByTime(2000); // Cause the usb drive to be detected
-  await authenticateWithAdminCard(card);
+  await authenticateWithAdminCard(card, eitherNeitherElectionDefinition);
 
   fireEvent.click(getByText('Reports'));
   expect(getByTestId('total-ballot-count').textContent).toEqual('100');
@@ -704,7 +674,7 @@ test('tabulating CVRs with SEMS file', async () => {
     <App storage={storage} card={card} hardware={hardware} />
   );
   jest.advanceTimersByTime(2000);
-  await authenticateWithAdminCard(card);
+  await authenticateWithAdminCard(card, eitherNeitherElectionDefinition);
 
   fireEvent.click(getByText('Tally'));
   getByText('External Results (sems-results.csv)');
@@ -814,7 +784,7 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
   const { getByText, getByTestId, getAllByText, queryAllByText } = render(
     <App storage={storage} card={card} hardware={hardware} />
   );
-  await authenticateWithAdminCard(card);
+  await authenticateWithAdminCard(card, eitherNeitherElectionDefinition);
 
   fireEvent.click(getByText('Tally'));
   expect(getByTestId('total-cvr-count').textContent).toEqual('200');
@@ -997,7 +967,7 @@ test('changing election resets sems, cvr, and manual data files', async () => {
     <App storage={storage} card={card} hardware={hardware} />
   );
 
-  await authenticateWithAdminCard(card);
+  await authenticateWithAdminCard(card, eitherNeitherElectionDefinition);
 
   fireEvent.click(getByText('Reports'));
   await screen.findByText('0 official ballots');
@@ -1052,7 +1022,7 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
       converter="ms-sems"
     />
   );
-  await authenticateWithAdminCard(card);
+  await authenticateWithAdminCard(card, eitherNeitherElectionDefinition);
 
   fireEvent.click(getByText('Reports'));
   await screen.findByText('0 official ballots');
@@ -1114,7 +1084,7 @@ test('admin UI has expected nav when VVSG2 auth flows are enabled', async () => 
     electionDefinition: eitherNeitherElectionDefinition,
   });
   render(<App card={card} hardware={hardware} storage={storage} />);
-  await authenticateWithAdminCard(card);
+  await authenticateWithAdminCard(card, eitherNeitherElectionDefinition);
 
   userEvent.click(screen.getByText('Ballots'));
   await screen.findAllByText('View Ballot');
@@ -1275,8 +1245,8 @@ test('super admin Draft Ballots tab and admin Ballots tab have expected differen
 
   userEvent.click(screen.getByText('Draft Ballots'));
   await screen.findAllByText('View Ballot');
-  expect(screen.queryByText('Export Ballot PDFs')).not.toBeInTheDocument();
-  expect(screen.queryByText('Export Ballot Package')).not.toBeInTheDocument();
+  expect(screen.queryByText('Save PDFs')).not.toBeInTheDocument();
+  expect(screen.queryByText('Export Package')).not.toBeInTheDocument();
 
   userEvent.click(screen.getAllByText('View Ballot')[0]);
   await screen.findByRole('heading', {
@@ -1297,12 +1267,12 @@ test('super admin Draft Ballots tab and admin Ballots tab have expected differen
   expect(screen.queryByText(/Ballot Package Filename/)).not.toBeInTheDocument();
 
   userEvent.click(screen.getByText('Lock Machine'));
-  await authenticateWithAdminCard(card);
+  await authenticateWithAdminCard(card, eitherNeitherElectionDefinition);
 
   userEvent.click(screen.getByText('Ballots'));
   await screen.findAllByText('View Ballot');
-  screen.getByText('Export Ballot PDFs');
-  screen.getByText('Export Ballot Package');
+  screen.getByText('Save PDFs');
+  screen.getByText('Export Package');
 
   userEvent.click(screen.getAllByText('View Ballot')[0]);
   await screen.findByRole('heading', {

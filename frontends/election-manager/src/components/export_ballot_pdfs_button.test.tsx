@@ -28,10 +28,7 @@ afterEach(() => {
 test('button renders properly when not clicked', () => {
   renderInAppContext(<ExportBallotPdfsButton />);
 
-  expect(screen.queryByText('Export Ballot PDFs')).toHaveProperty(
-    'type',
-    'button'
-  );
+  expect(screen.queryByText('Save PDFs')).toHaveProperty('type', 'button');
   expect(screen.queryByRole('alertdialog')).toBeNull();
 });
 
@@ -46,7 +43,7 @@ test('modal renders insert usb screen appropriately', async () => {
     const { unmount } = renderInAppContext(<ExportBallotPdfsButton />, {
       usbDriveStatus: usbStatus,
     });
-    userEvent.click(screen.getByText('Export Ballot PDFs'));
+    userEvent.click(screen.getByText('Save PDFs'));
 
     const modal = await screen.findByRole('alertdialog');
     within(modal).getByText('No USB Drive Detected');
@@ -65,7 +62,7 @@ test('modal renders loading screen when usb drive is mounting or ejecting', asyn
     const { unmount } = renderInAppContext(<ExportBallotPdfsButton />, {
       usbDriveStatus: usbStatus,
     });
-    userEvent.click(screen.getByText('Export Ballot PDFs'));
+    userEvent.click(screen.getByText('Save PDFs'));
     const modal = await screen.findByRole('alertdialog');
     within(modal).getByText('Loading');
 
@@ -82,7 +79,7 @@ test('modal happy path flow works', async () => {
     usbDriveEject: ejectFunction,
   });
 
-  userEvent.click(screen.getByText('Export Ballot PDFs'));
+  userEvent.click(screen.getByText('Save PDFs'));
   const modal = await screen.findByRole('alertdialog');
   userEvent.click(within(modal).getByText('Export'));
   await within(modal).findByText('Generating Ballot PDFs…');
@@ -113,7 +110,7 @@ test('can select options to export different ballots', async () => {
     usbDriveStatus: UsbDriveStatus.mounted,
   });
 
-  userEvent.click(screen.getByText('Export Ballot PDFs'));
+  userEvent.click(screen.getByText('Save PDFs'));
   const modal = await screen.findByRole('alertdialog');
   userEvent.click(within(modal).getByText('Absentee'));
   userEvent.click(within(modal).getByText('Sample'));
@@ -131,7 +128,7 @@ test('modal custom flow works', async () => {
     usbDriveStatus: UsbDriveStatus.mounted,
     logger,
   });
-  userEvent.click(screen.getByText('Export Ballot PDFs'));
+  userEvent.click(screen.getByText('Save PDFs'));
   const modal = await screen.findByRole('alertdialog');
 
   userEvent.click(within(modal).getByText('Custom'));
@@ -150,7 +147,7 @@ test('modal renders error message appropriately', async () => {
   renderInAppContext(<ExportBallotPdfsButton />, {
     usbDriveStatus: UsbDriveStatus.mounted,
   });
-  userEvent.click(screen.getByText('Export Ballot PDFs'));
+  userEvent.click(screen.getByText('Save PDFs'));
   const modal = await screen.findByRole('alertdialog');
 
   userEvent.click(within(modal).getByText('Custom'));
