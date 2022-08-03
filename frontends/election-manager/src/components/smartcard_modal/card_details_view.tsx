@@ -1,7 +1,13 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { assert, format, throwIllegalValue } from '@votingworks/utils';
-import { Button, Prose, Table } from '@votingworks/ui';
+import {
+  Button,
+  fontSizeTheme,
+  HorizontalRule,
+  Prose,
+  Text,
+} from '@votingworks/ui';
 import { CardProgramming, ElectionDefinition, User } from '@votingworks/types';
 
 import { AppContext } from '../../contexts/app_context';
@@ -9,10 +15,12 @@ import { generatePin } from './pins';
 import { SmartcardActionStatus, StatusMessage } from './status_message';
 import { userRoleToReadableString } from './user_roles';
 
-const CardDetailsTable = styled(Table)`
-  margin: auto;
-  width: auto;
-  min-width: 25%;
+interface StatusMessageContainerProps {
+  large?: boolean;
+}
+
+const StatusMessageContainer = styled.p<StatusMessageContainerProps>`
+  font-size: ${(props) => (props.large ? '1.5em' : undefined)};
 `;
 
 function checkDoesCardElectionHashMatchMachineElectionHash(
@@ -47,8 +55,8 @@ export function CardDetailsView({
       programmedUser,
       electionDefinition
     );
-  const cardJustProgrammed =
-    actionStatus?.action === 'Program' && actionStatus?.status === 'Success';
+  const showingSuccessOrErrorMessage =
+    actionStatus?.status === 'Success' || actionStatus?.status === 'Error';
 
   async function resetCardPin() {
     assert(electionDefinition);
@@ -103,61 +111,53 @@ export function CardDetailsView({
     });
   }
 
-  let electionDisplayString = 'Unknown';
+  let electionDisplayString = 'Unknown Election';
   if (doesCardElectionHashMatchMachineElectionHash) {
     const { election } = electionDefinition;
     const electionDateFormatted = format.localeWeekdayAndDate(
       new Date(election.date)
     );
     electionDisplayString = `${election.title} — ${electionDateFormatted}`;
-  } else if (role === 'superadmin') {
-    electionDisplayString = 'N/A';
+  }
+
+  const possibleActions = new Set<SmartcardActionStatus['action']>();
+  if (
+    'passcode' in programmedUser &&
+    (role === 'superadmin' ||
+      // If the card is from a prior election, no need to display PIN resetting. Unprogramming is
+      // the only meaningful action in this case
+      doesCardElectionHashMatchMachineElectionHash)
+  ) {
+    possibleActions.add('PinReset');
+  }
+  // Don't allow unprogramming super admin cards to ensure election officials don't get
+  // accidentally locked out. Likewise prevent unprogramming when there's no election definition on
+  // the machine since cards can't be programmed in this state
+  if ((role === 'admin' || role === 'pollworker') && electionDefinition) {
+    possibleActions.add('Unprogram');
   }
 
   return (
-    <Prose textCenter>
-      <h2>Card Details</h2>
-      {/* An empty div to maintain space between the header and subsequent p. TODO: Consider adding
-        a `maintainSpaceBelowHeaders` prop to `Prose` */}
-      <div />
+    <Prose textCenter theme={fontSizeTheme.medium}>
+      <h1>{userRoleToReadableString(role)} Card</h1>
+      {role !== 'superadmin' && <p>{electionDisplayString}</p>}
+
+      <HorizontalRule />
       {actionStatus && (
-        <StatusMessage
-          actionStatus={actionStatus}
-          programmedUser={programmedUser}
-        />
+        <StatusMessageContainer large={actionStatus.status === 'Success'}>
+          <StatusMessage
+            actionStatus={actionStatus}
+            programmedUser={programmedUser}
+          />
+        </StatusMessageContainer>
       )}
-      <CardDetailsTable>
-        <thead>
-          <tr>
-            <th>Role</th>
-            <th>Election</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>{userRoleToReadableString(role)}</td>
-            <td>{electionDisplayString}</td>
-          </tr>
-        </tbody>
-      </CardDetailsTable>
-      <p>Remove card to leave this screen.</p>
-      {'passcode' in programmedUser &&
-        (role === 'superadmin' ||
-          // If the card is from a prior election, no need to display PIN resetting. Unprogramming is
-          // the only meaningful action in this case
-          doesCardElectionHashMatchMachineElectionHash) && (
-          <p>
-            <Button disabled={cardJustProgrammed} onPress={resetCardPin}>
-              Reset Card PIN
-            </Button>
-          </p>
-        )}
-      {/* Don't allow unprogramming super admin cards to ensure election officials don't get
-        accidentally locked out. Likewise prevent unprogramming when there's no election definition
-        on the machine since cards can't be programmed in this state */}
-      {(role === 'admin' || role === 'pollworker') && electionDefinition && (
-        <React.Fragment>
-          <p>
+      {!showingSuccessOrErrorMessage && possibleActions.size > 0 && (
+        <p>
+          {possibleActions.has('PinReset') && (
+            <Button onPress={resetCardPin}>Reset Card PIN</Button>
+          )}
+          {possibleActions.size > 1 && ' '}
+          {possibleActions.has('Unprogram') && (
             <Button
               danger={doesCardElectionHashMatchMachineElectionHash}
               onPress={unprogramCard}
@@ -165,8 +165,18 @@ export function CardDetailsView({
             >
               Unprogram Card
             </Button>
-          </p>
-        </React.Fragment>
+          )}
+        </p>
+      )}
+      {(actionStatus || possibleActions.size > 0) && <HorizontalRule />}
+
+      {showingSuccessOrErrorMessage ? (
+        <Text bold>Remove card to continue.</Text>
+      ) : (
+        <p>
+          Remove card to{' '}
+          {possibleActions.size > 0 ? 'cancel' : 'leave this screen'}.
+        </p>
       )}
     </Prose>
   );
