@@ -62,8 +62,8 @@ export function StatusMessage({
         break;
       }
       case 'Unprogram': {
-        // Handled in UnprogramCardConfirmationModal
-        return null;
+        text = `Unprogramming ${actionRoleReadableString} card`;
+        break;
       }
       /* istanbul ignore next: Compile-time check for completeness */
       default: {

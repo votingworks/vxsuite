@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import styled from 'styled-components';
 import { assert, format, throwIllegalValue } from '@votingworks/utils';
 import { Button, Prose, Table } from '@votingworks/ui';
@@ -7,7 +7,6 @@ import { CardProgramming, ElectionDefinition, User } from '@votingworks/types';
 import { AppContext } from '../../contexts/app_context';
 import { generatePin } from './pins';
 import { SmartcardActionStatus, StatusMessage } from './status_message';
-import { UnprogramCardConfirmationModal } from './unprogram_card_confirmation_modal';
 import { userRoleToReadableString } from './user_roles';
 
 const CardDetailsTable = styled(Table)`
@@ -40,10 +39,6 @@ export function CardDetailsView({
   const { programmedUser } = card;
   assert(programmedUser);
   const { electionDefinition } = useContext(AppContext);
-  const [
-    isUnprogramCardConfirmationModalOpen,
-    setIsUnprogramCardConfirmationModalOpen,
-  ] = useState(false);
 
   const { role } = programmedUser;
   const doesCardElectionHashMatchMachineElectionHash =
@@ -94,12 +89,18 @@ export function CardDetailsView({
     });
   }
 
-  function openUnprogramCardConfirmationModal() {
-    setIsUnprogramCardConfirmationModalOpen(true);
-  }
-
-  function closeUnprogramCardConfirmationModal() {
-    setIsUnprogramCardConfirmationModalOpen(false);
+  async function unprogramCard() {
+    setActionStatus({
+      action: 'Unprogram',
+      role,
+      status: 'InProgress',
+    });
+    const result = await card.unprogramUser();
+    setActionStatus({
+      action: 'Unprogram',
+      role,
+      status: result.isOk() ? 'Success' : 'Error',
+    });
   }
 
   let electionDisplayString = 'Unknown';
@@ -159,21 +160,12 @@ export function CardDetailsView({
           <p>
             <Button
               danger={doesCardElectionHashMatchMachineElectionHash}
-              onPress={openUnprogramCardConfirmationModal}
+              onPress={unprogramCard}
               primary={!doesCardElectionHashMatchMachineElectionHash}
             >
               Unprogram Card
             </Button>
           </p>
-          {isUnprogramCardConfirmationModalOpen && (
-            <UnprogramCardConfirmationModal
-              actionStatus={actionStatus}
-              card={card}
-              closeModal={closeUnprogramCardConfirmationModal}
-              programmedUserRole={role}
-              setActionStatus={setActionStatus}
-            />
-          )}
         </React.Fragment>
       )}
     </Prose>
