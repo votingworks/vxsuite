@@ -31,7 +31,7 @@ export function StatusMessage({
     let text: string;
     switch (action) {
       case 'Program': {
-        text = `Error programming ${actionRoleReadableString} card.`;
+        text = `Error creating ${actionRoleReadableString} card.`;
         break;
       }
       case 'PinReset': {
@@ -58,7 +58,7 @@ export function StatusMessage({
     let text: string;
     switch (action) {
       case 'Program': {
-        text = `Programming ${actionRoleReadableString} card`;
+        text = `Creating ${actionRoleReadableString} card`;
         break;
       }
       case 'PinReset': {
@@ -74,7 +74,9 @@ export function StatusMessage({
         throwIllegalValue(action);
       }
     }
-    return <Modal content={<Loading as="p">{text}</Loading>} />;
+    return (
+      <Modal centerContent content={<Loading as="strong">{text}</Loading>} />
+    );
   }
 
   if (action === 'Program' && programmedUser) {
