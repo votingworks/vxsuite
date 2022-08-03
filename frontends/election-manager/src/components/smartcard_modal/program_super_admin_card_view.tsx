@@ -1,9 +1,19 @@
 import React from 'react';
-import { Button, Prose } from '@votingworks/ui';
+import styled from 'styled-components';
+import { Button, fontSizeTheme, HorizontalRule, Prose } from '@votingworks/ui';
 import { CardProgramming } from '@votingworks/types';
 
 import { generatePin } from './pins';
 import { SmartcardActionStatus, StatusMessage } from './status_message';
+
+interface HeadingProps {
+  marginTop: string;
+}
+
+const Heading = styled.h1<HeadingProps>`
+  /* stylelint-disable-next-line declaration-no-important */
+  margin-top: ${(props) => props.marginTop} !important;
+`;
 
 interface Props {
   actionStatus?: SmartcardActionStatus;
@@ -16,6 +26,9 @@ export function ProgramSuperAdminCardView({
   card,
   setActionStatus,
 }: Props): JSX.Element {
+  const showingSuccessOrErrorMessage =
+    actionStatus?.status === 'Success' || actionStatus?.status === 'Error';
+
   async function programSuperAdminCard() {
     setActionStatus({
       action: 'Program',
@@ -34,22 +47,27 @@ export function ProgramSuperAdminCardView({
   }
 
   return (
-    <Prose textCenter>
-      <h2>Program Super Admin Card</h2>
-      {/* An empty div to maintain space between the header and subsequent p. TODO: Consider adding
-        a `maintainSpaceBelowHeaders` prop to `Prose` */}
-      <div />
-      {actionStatus && <StatusMessage actionStatus={actionStatus} />}
+    <Prose textCenter theme={fontSizeTheme.medium}>
+      {actionStatus && (
+        <p>
+          <StatusMessage actionStatus={actionStatus} />
+        </p>
+      )}
+      <Heading marginTop={showingSuccessOrErrorMessage ? '1em' : '0'}>
+        Create New Super Admin Card
+      </Heading>
       <p>
         This card performs all system actions. Strictly limit the number created
         and keep all Super Admin cards secure.
       </p>
-      <p>Remove card to leave card unprogrammed.</p>
+
+      <HorizontalRule />
       <p>
-        <Button onPress={programSuperAdminCard}>
-          Program Super Admin Card
-        </Button>
+        <Button onPress={programSuperAdminCard}>Create Super Admin Card</Button>
       </p>
+      <HorizontalRule />
+
+      <p>Remove card to cancel.</p>
     </Prose>
   );
 }
