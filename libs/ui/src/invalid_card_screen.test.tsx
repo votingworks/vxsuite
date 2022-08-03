@@ -36,7 +36,6 @@ const testCases: Array<{
     description: 'other error',
     reason: 'invalid_user_on_card',
     expectedText:
-      'The inserted card is not valid to unlock this machine. ' +
       'Please insert a valid Election Manager or System Administrator card.',
   },
 ];

@@ -28,7 +28,7 @@ export function InvalidCardScreen({
       'The inserted Election Manager card is programmed for another election ' +
       'and cannot be used to unlock this machine.';
   } else {
-    errorDescription = 'The inserted card is not valid to unlock this machine.';
+    errorDescription = '';
   }
 
   const defaultRecommendedAction =
