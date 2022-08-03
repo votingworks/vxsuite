@@ -289,14 +289,14 @@ test('Programming admin and poll worker smartcards', async () => {
   }> = [
     {
       role: 'admin',
-      expectedProgressText: 'Programming Admin card',
+      expectedProgressText: 'Creating Admin card',
       expectedHeadingAfterProgramming: 'Admin Card',
       expectedSuccessText: [/New card PIN is /, '123-456'],
       expectedCardLongString: electionData,
     },
     {
       role: 'pollworker',
-      expectedProgressText: 'Programming Poll Worker card',
+      expectedProgressText: 'Creating Poll Worker card',
       expectedHeadingAfterProgramming: 'Poll Worker Card',
       expectedSuccessText: ['New card created.'],
       expectedCardLongString: undefined,
@@ -385,7 +385,7 @@ test('Programming super admin smartcards', async () => {
   });
   within(modal).getByText('Remove card to cancel.');
   userEvent.click(superAdminCardButton);
-  await screen.findByText(/Programming Super Admin card/);
+  await screen.findByText(/Creating Super Admin card/);
   await within(modal).findByRole('heading', { name: 'Super Admin Card' });
   within(modal).getByText(/New card PIN is /);
   within(modal).getByText('123-456');
@@ -593,23 +593,21 @@ test('Error handling', async () => {
     {
       cardData: undefined,
       buttonToPress: 'Admin Card',
-      expectedProgressText: 'Programming Admin card',
-      expectedErrorText: 'Error programming Admin card. Please try again.',
+      expectedProgressText: 'Creating Admin card',
+      expectedErrorText: 'Error creating Admin card. Please try again.',
     },
     {
       cardData: undefined,
       buttonToPress: 'Poll Worker Card',
-      expectedProgressText: 'Programming Poll Worker card',
-      expectedErrorText:
-        'Error programming Poll Worker card. Please try again.',
+      expectedProgressText: 'Creating Poll Worker card',
+      expectedErrorText: 'Error creating Poll Worker card. Please try again.',
     },
     {
       beginFromSuperAdminCardsScreen: true,
       cardData: undefined,
       buttonToPress: 'Create Super Admin Card',
-      expectedProgressText: 'Programming Super Admin card',
-      expectedErrorText:
-        'Error programming Super Admin card. Please try again.',
+      expectedProgressText: 'Creating Super Admin card',
+      expectedErrorText: 'Error creating Super Admin card. Please try again.',
     },
     {
       cardData: makeAdminCard(electionHash),
