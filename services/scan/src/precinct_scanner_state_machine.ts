@@ -85,7 +85,6 @@ type CommandEvent =
   | { type: 'SCAN' }
   | { type: 'ACCEPT' }
   | { type: 'RETURN' }
-  | { type: 'WAIT_FOR_PAPER' }
   | { type: 'CALIBRATE' };
 
 export type Event =
@@ -94,6 +93,12 @@ export type Event =
   | CommandEvent
   | ConfigurationEvent
   | { type: 'SET_INTERPRETATION_MODE'; mode: InterpretationMode };
+
+interface Delays {
+  DELAY_RECONNECT: number;
+  DELAY_ACCEPTED_RESET_TO_NO_PAPER: number;
+  DELAY_REJECTED_WAIT_FOR_HOLD: number;
+}
 
 function connectToPlustek(createPlustekClient: CreatePlustekClient) {
   return async (): Promise<ScannerClient> => {
@@ -256,354 +261,362 @@ const clearLastScan = assign({
 });
 
 function buildMachine(createPlustekClient: CreatePlustekClient) {
-  return createMachine<Context, Event>({
-    id: 'precint_scanner',
-    initial: 'connecting',
-    strict: true,
-    context: {
-      interpretationMode: 'interpret',
-    },
-    on: {
-      UNCONFIGURE: {
-        target: 'waiting_for_configuration',
-        actions: assign({ store: undefined }),
+  return createMachine<Context, Event>(
+    {
+      id: 'precint_scanner',
+      initial: 'connecting',
+      strict: true,
+      context: {
+        interpretationMode: 'interpret',
       },
-      CONFIGURE: {
-        actions: assign({
-          store: (_, event) => event.store,
-          interpreter: (_, event) => event.interpreter,
-        }),
-      },
-      SCANNER_DISCONNECTED: 'error_disconnected',
-      SCANNER_BOTH_SIDES_HAVE_PAPER: 'error_both_sides_have_paper',
-      SCANNER_JAM: 'error_jammed',
-      // On unhandled commands, do nothing. This guards against any race
-      // conditions where the frontend has an outdated scanner status and tries to
-      // send a command.
-      SCAN: {},
-      ACCEPT: {},
-      RETURN: {},
-      WAIT_FOR_PAPER: {},
-      CALIBRATE: {},
-      SET_INTERPRETATION_MODE: {
-        actions: assign({ interpretationMode: (_, event) => event.mode }),
-      },
-      // On events that are not handled by a specified transition (e.g. unhandled
-      // paper status), return an error so we can figure out what happened
-      '*': {
-        target: 'error',
-        actions: assign({
-          error: (_context, event) =>
-            new PrecinctScannerError(
-              'unexpected_event',
-              `Unexpected event: ${event.type}`
-            ),
-        }),
-      },
-    },
-    // TODO should we close and reconnect to plustek after every scan finishes
-    // to avoid long-running process crashes?
-    states: {
-      connecting: {
-        invoke: {
-          src: connectToPlustek(createPlustekClient),
-          onDone: {
-            target: 'waiting_for_configuration',
-            actions: assign((_context, event) => ({
-              client: event.data,
-            })),
-          },
-          onError: 'error_disconnected',
+      on: {
+        UNCONFIGURE: {
+          target: 'waiting_for_configuration',
+          actions: assign({ store: undefined }),
+        },
+        CONFIGURE: {
+          actions: assign({
+            store: (_, event) => event.store,
+            interpreter: (_, event) => event.interpreter,
+          }),
+        },
+        SCANNER_DISCONNECTED: 'error_disconnected',
+        SCANNER_BOTH_SIDES_HAVE_PAPER: 'error_both_sides_have_paper',
+        SCANNER_JAM: 'error_jammed',
+        // On unhandled commands, do nothing. This guards against any race
+        // conditions where the frontend has an outdated scanner status and tries to
+        // send a command.
+        SCAN: {},
+        ACCEPT: {},
+        RETURN: {},
+        CALIBRATE: {},
+        SET_INTERPRETATION_MODE: {
+          actions: assign({ interpretationMode: (_, event) => event.mode }),
+        },
+        // On events that are not handled by a specified transition (e.g. unhandled
+        // paper status), return an error so we can figure out what happened
+        '*': {
+          target: 'error',
+          actions: assign({
+            error: (_context, event) =>
+              new PrecinctScannerError(
+                'unexpected_event',
+                `Unexpected event: ${event.type}`
+              ),
+          }),
         },
       },
-      error_disconnected: {
-        entry: clearLastScan,
-        after: { 500: 'reconnecting' },
-      },
-      reconnecting: {
-        invoke: {
-          src: connectToPlustek(createPlustekClient),
-          onDone: {
-            target: 'checking_initial_paper_status',
-            actions: assign({
-              client: (_context, event) => event.data,
-              error: undefined,
-            }),
-          },
-          onError: 'error_disconnected',
-        },
-      },
-      waiting_for_configuration: {
-        always: {
-          target: 'checking_initial_paper_status',
-          cond: (context) =>
-            context.store !== undefined && context.interpreter !== undefined,
-        },
-      },
-      checking_initial_paper_status: {
-        invoke: pollPaperStatus,
-        on: {
-          SCANNER_NO_PAPER: 'no_paper',
-          SCANNER_READY_TO_SCAN: {
-            target: 'rejecting',
-            actions: assign({
-              error: new PrecinctScannerError('paper_in_front_on_startup'),
-            }),
-          },
-          SCANNER_READY_TO_EJECT: {
-            target: 'rejecting',
-            actions: assign({
-              error: new PrecinctScannerError('paper_in_back_on_startup'),
-            }),
-          },
-        },
-      },
-      no_paper: {
-        entry: [assign({ error: undefined }), clearLastScan],
-        invoke: pollPaperStatus,
-        on: {
-          SCANNER_NO_PAPER: { target: 'no_paper', internal: true },
-          SCANNER_READY_TO_SCAN: 'ready_to_scan',
-        },
-      },
-      ready_to_scan: {
-        invoke: pollPaperStatus,
-        on: {
-          SCAN: 'scanning',
-          CALIBRATE: 'calibrating',
-          SCANNER_NO_PAPER: 'no_paper',
-          SCANNER_READY_TO_SCAN: { target: 'ready_to_scan', internal: true },
-        },
-      },
-      scanning: {
-        entry: assign({ error: undefined }),
-        invoke: {
-          src: scan,
-          onDone: {
-            target: 'checking_scanning_completed',
-            actions: assign((_context, event) => ({
-              scannedSheet: event.data,
-            })),
-          },
-          onError: {
-            target: 'error_scanning',
-            actions: assign((_context, event) => ({ error: event.data })),
-          },
-        },
-      },
-      error_scanning: {
-        invoke: pollPaperStatus,
-        on: {
-          SCANNER_READY_TO_SCAN: 'ready_to_scan',
-          SCANNER_NO_PAPER: 'no_paper',
-          SCANNER_READY_TO_EJECT: 'rejecting',
-        },
-      },
-      // Sometimes Plustek auto-rejects the ballot without returning a scanning
-      // error (e.g. if the paper is slightly mis-aligned). So we need to check
-      // that the paper is still there before interpreting.
-      checking_scanning_completed: {
-        invoke: pollPaperStatus,
-        on: {
-          SCANNER_READY_TO_EJECT: 'interpreting',
-          SCANNER_NO_PAPER: 'error_scanning',
-          SCANNER_READY_TO_SCAN: 'error_scanning',
-        },
-      },
-      interpreting: {
-        invoke: {
-          src: interpretSheet,
-          onDone: {
-            actions: [
-              assign({ interpretation: (_context, event) => event.data }),
-              send((_context, event) => ({
-                type: 'INTERPRETATION_RESULT',
-                interpretation: event.data,
+      // TODO should we close and reconnect to plustek after every scan finishes
+      // to avoid long-running process crashes?
+      states: {
+        connecting: {
+          invoke: {
+            src: connectToPlustek(createPlustekClient),
+            onDone: {
+              target: 'waiting_for_configuration',
+              actions: assign((_context, event) => ({
+                client: event.data,
               })),
+            },
+            onError: 'error_disconnected',
+          },
+        },
+        error_disconnected: {
+          entry: clearLastScan,
+          after: { DELAY_RECONNECT: 'reconnecting' },
+        },
+        reconnecting: {
+          invoke: {
+            src: connectToPlustek(createPlustekClient),
+            onDone: {
+              target: 'checking_initial_paper_status',
+              actions: assign({
+                client: (_context, event) => event.data,
+                error: undefined,
+              }),
+            },
+            onError: 'error_disconnected',
+          },
+        },
+        waiting_for_configuration: {
+          always: {
+            target: 'checking_initial_paper_status',
+            cond: (context) =>
+              context.store !== undefined && context.interpreter !== undefined,
+          },
+        },
+        checking_initial_paper_status: {
+          invoke: pollPaperStatus,
+          on: {
+            SCANNER_NO_PAPER: 'no_paper',
+            SCANNER_READY_TO_SCAN: {
+              target: 'rejecting',
+              actions: assign({
+                error: new PrecinctScannerError('paper_in_front_on_startup'),
+              }),
+            },
+            SCANNER_READY_TO_EJECT: {
+              target: 'rejecting',
+              actions: assign({
+                error: new PrecinctScannerError('paper_in_back_on_startup'),
+              }),
+            },
+          },
+        },
+        no_paper: {
+          entry: [assign({ error: undefined }), clearLastScan],
+          invoke: pollPaperStatus,
+          on: {
+            SCANNER_NO_PAPER: { target: 'no_paper', internal: true },
+            SCANNER_READY_TO_SCAN: 'ready_to_scan',
+          },
+        },
+        ready_to_scan: {
+          invoke: pollPaperStatus,
+          on: {
+            SCAN: 'scanning',
+            CALIBRATE: 'calibrating',
+            SCANNER_NO_PAPER: 'no_paper',
+            SCANNER_READY_TO_SCAN: { target: 'ready_to_scan', internal: true },
+          },
+        },
+        scanning: {
+          entry: assign({ error: undefined }),
+          invoke: {
+            src: scan,
+            onDone: {
+              target: 'checking_scanning_completed',
+              actions: assign((_context, event) => ({
+                scannedSheet: event.data,
+              })),
+            },
+            onError: {
+              target: 'error_scanning',
+              actions: assign((_context, event) => ({ error: event.data })),
+            },
+          },
+        },
+        error_scanning: {
+          invoke: pollPaperStatus,
+          on: {
+            SCANNER_READY_TO_SCAN: 'ready_to_scan',
+            SCANNER_NO_PAPER: 'no_paper',
+            SCANNER_READY_TO_EJECT: 'rejecting',
+          },
+        },
+        // Sometimes Plustek auto-rejects the ballot without returning a scanning
+        // error (e.g. if the paper is slightly mis-aligned). So we need to check
+        // that the paper is still there before interpreting.
+        checking_scanning_completed: {
+          invoke: pollPaperStatus,
+          on: {
+            SCANNER_READY_TO_EJECT: 'interpreting',
+            SCANNER_NO_PAPER: 'error_scanning',
+            SCANNER_READY_TO_SCAN: 'error_scanning',
+          },
+        },
+        interpreting: {
+          invoke: {
+            src: interpretSheet,
+            onDone: {
+              actions: [
+                assign({ interpretation: (_context, event) => event.data }),
+                send((_context, event) => ({
+                  type: 'INTERPRETATION_RESULT',
+                  interpretation: event.data,
+                })),
+              ],
+            },
+            onError: {
+              target: 'rejecting',
+              actions: assign((_context, event) => ({ error: event.data })),
+            },
+          },
+          on: {
+            INTERPRETATION_RESULT: [
+              {
+                target: 'ready_to_accept',
+                cond: (_context, event) =>
+                  event.interpretation.type === 'ValidSheet',
+              },
+              {
+                target: 'rejecting',
+                cond: (_context, event) =>
+                  event.interpretation.type === 'InvalidSheet',
+              },
+              {
+                target: 'needs_review',
+                cond: (_context, event) =>
+                  event.interpretation.type === 'NeedsReviewSheet',
+              },
             ],
           },
-          onError: {
-            target: 'rejecting',
-            actions: assign((_context, event) => ({ error: event.data })),
-          },
         },
-        on: {
-          INTERPRETATION_RESULT: [
-            {
-              target: 'ready_to_accept',
-              cond: (_context, event) =>
-                event.interpretation.type === 'ValidSheet',
-            },
-            {
+        ready_to_accept: {
+          on: { ACCEPT: 'accepting' },
+        },
+        accepting: {
+          invoke: {
+            src: accept,
+            onDone: 'checking_accepting_completed',
+            onError: {
               target: 'rejecting',
-              cond: (_context, event) =>
-                event.interpretation.type === 'InvalidSheet',
+              actions: assign({ error: (_context, event) => event.data }),
             },
-            {
-              target: 'needs_review',
-              cond: (_context, event) =>
-                event.interpretation.type === 'NeedsReviewSheet',
+          },
+        },
+        checking_accepting_completed: {
+          invoke: pollPaperStatus,
+          on: {
+            SCANNER_NO_PAPER: 'accepted',
+            SCANNER_READY_TO_SCAN: 'accepted',
+            // If the paper didn't get dropped, it's an error
+            SCANNER_READY_TO_EJECT: {
+              target: 'rejecting',
+              actions: assign({
+                error: new PrecinctScannerError('paper_in_back_after_accept'),
+              }),
             },
-          ],
-        },
-      },
-      ready_to_accept: {
-        on: { ACCEPT: 'accepting' },
-      },
-      accepting: {
-        invoke: {
-          src: accept,
-          onDone: 'checking_accepting_completed',
-          onError: {
-            target: 'rejecting',
-            actions: assign({ error: (_context, event) => event.data }),
           },
         },
-      },
-      checking_accepting_completed: {
-        invoke: pollPaperStatus,
-        on: {
-          SCANNER_NO_PAPER: 'accepted',
-          SCANNER_READY_TO_SCAN: 'accepted',
-          // If the paper didn't get dropped, it's an error
-          SCANNER_READY_TO_EJECT: {
-            target: 'rejecting',
-            actions: assign({
-              error: new PrecinctScannerError('paper_in_back_after_accept'),
-            }),
+        accepted: {
+          entry: storeAcceptedSheet,
+          invoke: pollPaperStatus,
+          on: {
+            SCANNER_NO_PAPER: { target: 'accepted', internal: true },
+            SCANNER_READY_TO_SCAN: {
+              target: 'ready_to_scan',
+              actions: clearLastScan,
+            },
+          },
+          after: { DELAY_ACCEPTED_RESET_TO_NO_PAPER: 'no_paper' },
+        },
+        needs_review: {
+          on: {
+            ACCEPT: 'accepting',
+            RETURN: 'returning',
           },
         },
-      },
-      accepted: {
-        entry: storeAcceptedSheet,
-        invoke: pollPaperStatus,
-        on: {
-          WAIT_FOR_PAPER: 'no_paper',
-          SCANNER_NO_PAPER: { target: 'accepted', internal: true },
-          SCANNER_READY_TO_SCAN: {
-            target: 'ready_to_scan',
-            actions: clearLastScan,
+        returning: {
+          invoke: {
+            src: reject,
+            onDone: 'checking_returning_completed',
+            onError: 'error_jammed',
           },
         },
-      },
-      needs_review: {
-        on: {
-          ACCEPT: 'accepting',
-          RETURN: 'returning',
-        },
-      },
-      returning: {
-        invoke: {
-          src: reject,
-          onDone: 'checking_returning_completed',
-          onError: 'error_jammed',
-        },
-      },
-      // After rejecting, before the plustek grabs the paper to hold it, it sends
-      // NO_PAPER status for a bit before sending READY_TO_SCAN. So we need to
-      // wait for the READY_TO_SCAN.
-      checking_returning_completed: {
-        invoke: pollPaperStatus,
-        on: {
-          SCANNER_NO_PAPER: {
-            target: 'checking_returning_completed',
-            internal: true,
+        // After rejecting, before the plustek grabs the paper to hold it, it sends
+        // NO_PAPER status for a bit before sending READY_TO_SCAN. So we need to
+        // wait for the READY_TO_SCAN.
+        checking_returning_completed: {
+          invoke: pollPaperStatus,
+          on: {
+            SCANNER_NO_PAPER: {
+              target: 'checking_returning_completed',
+              internal: true,
+            },
+            SCANNER_READY_TO_SCAN: 'returned',
+            SCANNER_READY_TO_EJECT: 'error_jammed',
           },
-          SCANNER_READY_TO_SCAN: 'returned',
-          SCANNER_READY_TO_EJECT: 'error_jammed',
+          // But, if you pull the paper out right after rejecting, we go straight to
+          // NO_PAPER, skipping READY_TO_SCAN completely. So we need to eventually
+          // timeout waiting for READY_TO_SCAN.
+          after: { DELAY_REJECTED_WAIT_FOR_HOLD: 'no_paper' },
         },
-        // But, if you pull the paper out right after rejecting, we go straight to
-        // NO_PAPER, skipping READY_TO_SCAN completely. So we need to eventually
-        // timeout waiting for READY_TO_SCAN.
-        after: { 1000: 'no_paper' },
-      },
-      returned: {
-        invoke: pollPaperStatus,
-        on: {
-          SCANNER_READY_TO_SCAN: { target: 'returned', internal: true },
-          SCANNER_NO_PAPER: 'no_paper',
-        },
-      },
-      rejecting: {
-        invoke: {
-          src: reject,
-          onDone: 'checking_rejecting_completed',
-          onError: 'error_jammed',
-        },
-      },
-      // After rejecting, before the plustek grabs the paper to hold it, it sends
-      // NO_PAPER status for a bit before sending READY_TO_SCAN. So we need to
-      // wait for the READY_TO_SCAN.
-      checking_rejecting_completed: {
-        invoke: pollPaperStatus,
-        on: {
-          SCANNER_NO_PAPER: {
-            target: 'checking_rejecting_completed',
-            internal: true,
-          },
-          SCANNER_READY_TO_SCAN: 'rejected',
-          SCANNER_READY_TO_EJECT: 'error_jammed',
-        },
-        // But, if you pull the paper out right after rejecting, we go straight to
-        // NO_PAPER, skipping READY_TO_SCAN completely. So we need to eventually
-        // timeout waiting for READY_TO_SCAN.
-        after: { 1000: 'no_paper' },
-      },
-      // Paper has been rejected and is held in the front, waiting for removal.
-      rejected: {
-        invoke: pollPaperStatus,
-        on: {
-          SCANNER_READY_TO_SCAN: { target: 'rejected', internal: true },
-          SCANNER_NO_PAPER: 'no_paper',
-        },
-      },
-      calibrating: {
-        entry: assign({ error: undefined }),
-        invoke: {
-          src: calibrate,
-          onDone: 'checking_calibration_completed',
-          onError: {
-            target: 'checking_calibration_completed',
-            actions: assign({ error: (_context, event) => event.data }),
+        returned: {
+          invoke: pollPaperStatus,
+          on: {
+            SCANNER_READY_TO_SCAN: { target: 'returned', internal: true },
+            SCANNER_NO_PAPER: 'no_paper',
           },
         },
-      },
-      checking_calibration_completed: {
-        invoke: pollPaperStatus,
-        on: {
-          SCANNER_NO_PAPER: 'no_paper',
-          SCANNER_READY_TO_SCAN: 'ready_to_scan',
-        },
-      },
-      error_jammed: {
-        invoke: pollPaperStatus,
-        on: {
-          SCANNER_NO_PAPER: 'no_paper',
-          SCANNER_JAM: { target: 'error_jammed', internal: true },
-          SCANNER_READY_TO_SCAN: { target: 'error_jammed', internal: true },
-          SCANNER_READY_TO_EJECT: { target: 'error_jammed', internal: true },
-        },
-      },
-      error_both_sides_have_paper: {
-        entry: assign({
-          error: new PrecinctScannerError('both_sides_have_paper'),
-        }),
-        invoke: pollPaperStatus,
-        on: {
-          SCANNER_BOTH_SIDES_HAVE_PAPER: {
-            target: 'error_both_sides_have_paper',
-            internal: true,
+        rejecting: {
+          invoke: {
+            src: reject,
+            onDone: 'checking_rejecting_completed',
+            onError: 'error_jammed',
           },
-          // For now, if the front paper is removed, just reject the back paper,
-          // since we don't have context on how we got here and what was supposed
-          // to happen.
-          SCANNER_READY_TO_EJECT: 'rejecting',
-          SCANNER_NO_PAPER: 'rejecting',
         },
+        // After rejecting, before the plustek grabs the paper to hold it, it sends
+        // NO_PAPER status for a bit before sending READY_TO_SCAN. So we need to
+        // wait for the READY_TO_SCAN.
+        checking_rejecting_completed: {
+          invoke: pollPaperStatus,
+          on: {
+            SCANNER_NO_PAPER: {
+              target: 'checking_rejecting_completed',
+              internal: true,
+            },
+            SCANNER_READY_TO_SCAN: 'rejected',
+            SCANNER_READY_TO_EJECT: 'error_jammed',
+          },
+          // But, if you pull the paper out right after rejecting, we go straight to
+          // NO_PAPER, skipping READY_TO_SCAN completely. So we need to eventually
+          // timeout waiting for READY_TO_SCAN.
+          after: { DELAY_REJECTED_WAIT_FOR_HOLD: 'no_paper' },
+        },
+        // Paper has been rejected and is held in the front, waiting for removal.
+        rejected: {
+          invoke: pollPaperStatus,
+          on: {
+            SCANNER_READY_TO_SCAN: { target: 'rejected', internal: true },
+            SCANNER_NO_PAPER: 'no_paper',
+          },
+        },
+        calibrating: {
+          entry: assign({ error: undefined }),
+          invoke: {
+            src: calibrate,
+            onDone: 'checking_calibration_completed',
+            onError: {
+              target: 'checking_calibration_completed',
+              actions: assign({ error: (_context, event) => event.data }),
+            },
+          },
+        },
+        checking_calibration_completed: {
+          invoke: pollPaperStatus,
+          on: {
+            SCANNER_NO_PAPER: 'no_paper',
+            SCANNER_READY_TO_SCAN: 'ready_to_scan',
+          },
+        },
+        error_jammed: {
+          invoke: pollPaperStatus,
+          on: {
+            SCANNER_NO_PAPER: 'no_paper',
+            SCANNER_JAM: { target: 'error_jammed', internal: true },
+            SCANNER_READY_TO_SCAN: { target: 'error_jammed', internal: true },
+            SCANNER_READY_TO_EJECT: { target: 'error_jammed', internal: true },
+          },
+        },
+        error_both_sides_have_paper: {
+          entry: assign({
+            error: new PrecinctScannerError('both_sides_have_paper'),
+          }),
+          invoke: pollPaperStatus,
+          on: {
+            SCANNER_BOTH_SIDES_HAVE_PAPER: {
+              target: 'error_both_sides_have_paper',
+              internal: true,
+            },
+            // For now, if the front paper is removed, just reject the back paper,
+            // since we don't have context on how we got here and what was supposed
+            // to happen.
+            SCANNER_READY_TO_EJECT: 'rejecting',
+            SCANNER_NO_PAPER: 'rejecting',
+          },
+        },
+        error: {},
       },
-      error: {},
     },
-  });
+    {
+      delays: {
+        DELAY_RECONNECT: 500,
+        DELAY_ACCEPTED_RESET_TO_NO_PAPER: 5000,
+        DELAY_REJECTED_WAIT_FOR_HOLD: 1000,
+      },
+    }
+  );
 }
 
 function errorToString(error: Context['error']) {
@@ -620,16 +633,16 @@ export interface PrecinctScannerStateMachine {
   scan: () => void;
   accept: () => void;
   return: () => void;
-  waitForPaper: () => void;
   // Calibrate is the exception, which blocks until calibration is finished and
   // returns a result.
   calibrate: () => Promise<Result<void, string>>;
 }
 
 export function createPrecinctScannerStateMachine(
-  createPlustekClient: CreatePlustekClient
+  createPlustekClient: CreatePlustekClient,
+  delays: Partial<Delays> = {}
 ): PrecinctScannerStateMachine {
-  const machine = buildMachine(createPlustekClient);
+  const machine = buildMachine(createPlustekClient).withConfig({ delays });
   const machineService = interpret(machine).start();
 
   // Set up debug logging
@@ -758,10 +771,6 @@ export function createPrecinctScannerStateMachine(
 
     return: () => {
       machineService.send('RETURN');
-    },
-
-    waitForPaper: () => {
-      machineService.send('WAIT_FOR_PAPER');
     },
 
     calibrate: async () => {

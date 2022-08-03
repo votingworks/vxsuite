@@ -438,14 +438,6 @@ export function buildPrecinctScannerApp(
     response.json({ status: 'ok' });
   });
 
-  app.post<NoParams, OkResponse>(
-    '/scanner/wait-for-paper',
-    (_request, response) => {
-      machine.waitForPaper();
-      response.json({ status: 'ok' });
-    }
-  );
-
   app.post<NoParams, Scan.CalibrateResponse>(
     '/scanner/calibrate',
     async (_request, response) => {
