@@ -31,7 +31,7 @@ import {
 } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
 import { Iso8601Timestamp } from '@votingworks/types/src/api';
-import { assert } from '@votingworks/utils';
+import { assert, asBoolean } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import makeDebug from 'debug';
 import * as fs from 'fs-extra';
@@ -871,22 +871,28 @@ export class Store {
       const frontImage: InlineBallotImage = { normalized: '' };
       const backImage: InlineBallotImage = { normalized: '' };
       if (
-        frontInterpretation.type === 'InterpretedHmpbPage' ||
-        frontInterpretation.type === 'UninterpretedHmpbPage'
+        asBoolean(
+          process.env['ENABLE_WRITE_IN_ADJUDICATION_EXPORT_BALLOT_IMAGES']
+        )
       ) {
-        const frontFilenames = this.getBallotFilenames(id, 'front');
-        if (frontFilenames?.normalized) {
-          frontImage.normalized = fs.readFileSync(
-            frontFilenames.normalized,
-            'base64'
-          );
-        }
-        const backFilenames = this.getBallotFilenames(id, 'back');
-        if (backFilenames?.normalized) {
-          backImage.normalized = fs.readFileSync(
-            backFilenames.normalized,
-            'base64'
-          );
+        if (
+          frontInterpretation.type === 'InterpretedHmpbPage' ||
+          frontInterpretation.type === 'UninterpretedHmpbPage'
+        ) {
+          const frontFilenames = this.getBallotFilenames(id, 'front');
+          if (frontFilenames?.normalized) {
+            frontImage.normalized = fs.readFileSync(
+              frontFilenames.normalized,
+              'base64'
+            );
+          }
+          const backFilenames = this.getBallotFilenames(id, 'back');
+          if (backFilenames?.normalized) {
+            backImage.normalized = fs.readFileSync(
+              backFilenames.normalized,
+              'base64'
+            );
+          }
         }
       }
 
