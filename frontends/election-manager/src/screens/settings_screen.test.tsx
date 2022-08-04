@@ -23,7 +23,9 @@ test('Setting current date and time', async () => {
   screen.getByText(startDateTime);
 
   // Clock setting is tested fully in libs/ui/src/set_clock.test.tsx
-  userEvent.click(screen.getByRole('button', { name: 'Update Date and Time' }));
+  userEvent.click(
+    screen.getByRole('button', { name: 'Wed, Jun 22, 2022, 12:00 AM UTC' })
+  );
   const modal = screen.getByRole('alertdialog');
   within(modal).getByText('Wed, Jun 22, 2022, 12:00 AM');
   userEvent.selectOptions(within(modal).getByTestId('selectYear'), '2023');
