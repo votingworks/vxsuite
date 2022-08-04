@@ -441,16 +441,6 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
             },
           },
         },
-        // Give up trying to scan and wait for the paper to be removed after
-        // we've failed enough times
-        scanning_failed: {
-          id: 'scanning_failed',
-          invoke: pollPaperStatus,
-          on: {
-            SCANNER_READY_TO_SCAN: { target: undefined },
-            SCANNER_NO_PAPER: 'no_paper',
-          },
-        },
         interpreting: {
           id: 'interpreting',
           invoke: {
