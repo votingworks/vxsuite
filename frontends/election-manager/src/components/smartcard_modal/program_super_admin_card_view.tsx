@@ -54,7 +54,7 @@ export function ProgramSuperAdminCardView({
         <h1>Create New Super Admin Card</h1>
         <p>
           This card performs all system actions. Strictly limit the number
-          created and keep all Super Admin cards secure.
+          created and keep all Super Admin Cards secure.
         </p>
 
         <HorizontalRule />

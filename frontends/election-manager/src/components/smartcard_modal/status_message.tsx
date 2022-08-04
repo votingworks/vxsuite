@@ -61,15 +61,15 @@ export function SuccessOrErrorStatusMessage({
     let text: string;
     switch (action) {
       case 'Program': {
-        text = `Error creating ${actionRoleReadableString} card.`;
+        text = `Error creating ${actionRoleReadableString} Card.`;
         break;
       }
       case 'PinReset': {
-        text = `Error resetting ${actionRoleReadableString} card PIN.`;
+        text = `Error resetting ${actionRoleReadableString} Card PIN.`;
         break;
       }
       case 'Unprogram': {
-        text = `Error unprogramming ${actionRoleReadableString} card.`;
+        text = `Error unprogramming ${actionRoleReadableString} Card.`;
         break;
       }
       /* istanbul ignore next: Compile-time check for completeness */
@@ -111,7 +111,7 @@ export function SuccessOrErrorStatusMessage({
   if (action === 'Unprogram') {
     return (
       <Text success>
-        {actionRoleReadableString} card has been unprogrammed.
+        {actionRoleReadableString} Card has been unprogrammed.
       </Text>
     );
   }
@@ -135,15 +135,15 @@ export function InProgressStatusMessage({
   let text: string;
   switch (action) {
     case 'Program': {
-      text = `Creating ${actionRoleReadableString} card`;
+      text = `Creating ${actionRoleReadableString} Card`;
       break;
     }
     case 'PinReset': {
-      text = `Resetting ${actionRoleReadableString} card PIN`;
+      text = `Resetting ${actionRoleReadableString} Card PIN`;
       break;
     }
     case 'Unprogram': {
-      text = `Unprogramming ${actionRoleReadableString} card`;
+      text = `Unprogramming ${actionRoleReadableString} Card`;
       break;
     }
     /* istanbul ignore next: Compile-time check for completeness */

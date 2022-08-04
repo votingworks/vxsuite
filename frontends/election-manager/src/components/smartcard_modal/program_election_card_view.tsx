@@ -99,10 +99,7 @@ export function ProgramElectionCardView({
             </Button>
           </p>
         ) : (
-          <p>
-            An election must be defined before Admin and Poll Worker cards can
-            be programmed.
-          </p>
+          <p>An election must be defined before cards can be programmed.</p>
         )}
         <HorizontalRule />
 

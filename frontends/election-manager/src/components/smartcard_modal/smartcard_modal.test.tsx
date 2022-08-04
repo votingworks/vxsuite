@@ -289,14 +289,14 @@ test('Programming admin and poll worker smartcards', async () => {
   }> = [
     {
       role: 'admin',
-      expectedProgressText: 'Creating Admin card',
+      expectedProgressText: 'Creating Admin Card',
       expectedHeadingAfterProgramming: 'Admin Card',
       expectedSuccessText: [/New card PIN is /, '123-456'],
       expectedCardLongString: electionData,
     },
     {
       role: 'pollworker',
-      expectedProgressText: 'Creating Poll Worker card',
+      expectedProgressText: 'Creating Poll Worker Card',
       expectedHeadingAfterProgramming: 'Poll Worker Card',
       expectedSuccessText: ['New card created.'],
       expectedCardLongString: undefined,
@@ -378,14 +378,14 @@ test('Programming super admin smartcards', async () => {
   within(modal).getByRole('heading', { name: 'Create New Super Admin Card' });
   within(modal).getByText(
     'This card performs all system actions. ' +
-      'Strictly limit the number created and keep all Super Admin cards secure.'
+      'Strictly limit the number created and keep all Super Admin Cards secure.'
   );
   const superAdminCardButton = within(modal).getByRole('button', {
     name: 'Create Super Admin Card',
   });
   within(modal).getByText('Remove card to cancel.');
   userEvent.click(superAdminCardButton);
-  await screen.findByText(/Creating Super Admin card/);
+  await screen.findByText(/Creating Super Admin Card/);
   await within(modal).findByRole('heading', { name: 'Super Admin Card' });
   within(modal).getByText(/New card PIN is /);
   within(modal).getByText('123-456');
@@ -413,7 +413,7 @@ test('Programming smartcards when no election definition on machine', async () =
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Create New Election Card' });
   within(modal).getByText(
-    'An election must be defined before Admin and Poll Worker cards can be programmed.'
+    'An election must be defined before cards can be programmed.'
   );
   expect(
     within(modal).queryByRole('button', { name: 'Admin Card' })
@@ -451,13 +451,13 @@ test('Resetting smartcard PINs', async () => {
       cardData: makeSuperadminCard(oldPin),
       cardLongValue: undefined,
       expectedHeading: 'Super Admin Card',
-      expectedProgressText: 'Resetting Super Admin card PIN',
+      expectedProgressText: 'Resetting Super Admin Card PIN',
     },
     {
       cardData: makeAdminCard(electionHash, oldPin),
       cardLongValue: electionData,
       expectedHeading: 'Admin Card',
-      expectedProgressText: 'Resetting Admin card PIN',
+      expectedProgressText: 'Resetting Admin Card PIN',
     },
   ];
 
@@ -527,14 +527,14 @@ test('Unprogramming smartcards', async () => {
     {
       cardData: makeAdminCard(electionHash),
       expectedHeadingBeforeUnprogramming: 'Admin Card',
-      expectedProgressText: 'Unprogramming Admin card',
-      expectedSuccessText: 'Admin card has been unprogrammed.',
+      expectedProgressText: 'Unprogramming Admin Card',
+      expectedSuccessText: 'Admin Card has been unprogrammed.',
     },
     {
       cardData: makePollWorkerCard(electionHash),
       expectedHeadingBeforeUnprogramming: 'Poll Worker Card',
-      expectedProgressText: 'Unprogramming Poll Worker card',
-      expectedSuccessText: 'Poll Worker card has been unprogrammed.',
+      expectedProgressText: 'Unprogramming Poll Worker Card',
+      expectedSuccessText: 'Poll Worker Card has been unprogrammed.',
     },
   ];
 
@@ -593,40 +593,40 @@ test('Error handling', async () => {
     {
       cardData: undefined,
       buttonToPress: 'Admin Card',
-      expectedProgressText: 'Creating Admin card',
-      expectedErrorText: 'Error creating Admin card. Please try again.',
+      expectedProgressText: 'Creating Admin Card',
+      expectedErrorText: 'Error creating Admin Card. Please try again.',
     },
     {
       cardData: undefined,
       buttonToPress: 'Poll Worker Card',
-      expectedProgressText: 'Creating Poll Worker card',
-      expectedErrorText: 'Error creating Poll Worker card. Please try again.',
+      expectedProgressText: 'Creating Poll Worker Card',
+      expectedErrorText: 'Error creating Poll Worker Card. Please try again.',
     },
     {
       beginFromSuperAdminCardsScreen: true,
       cardData: undefined,
       buttonToPress: 'Create Super Admin Card',
-      expectedProgressText: 'Creating Super Admin card',
-      expectedErrorText: 'Error creating Super Admin card. Please try again.',
+      expectedProgressText: 'Creating Super Admin Card',
+      expectedErrorText: 'Error creating Super Admin Card. Please try again.',
     },
     {
       cardData: makeAdminCard(electionHash),
       buttonToPress: 'Reset Card PIN',
-      expectedProgressText: 'Resetting Admin card PIN',
-      expectedErrorText: 'Error resetting Admin card PIN. Please try again.',
+      expectedProgressText: 'Resetting Admin Card PIN',
+      expectedErrorText: 'Error resetting Admin Card PIN. Please try again.',
     },
     {
       cardData: makeAdminCard(electionHash),
       buttonToPress: 'Unprogram Card',
-      expectedProgressText: 'Unprogramming Admin card',
-      expectedErrorText: 'Error unprogramming Admin card. Please try again.',
+      expectedProgressText: 'Unprogramming Admin Card',
+      expectedErrorText: 'Error unprogramming Admin Card. Please try again.',
     },
     {
       cardData: makePollWorkerCard(electionHash),
       buttonToPress: 'Unprogram Card',
-      expectedProgressText: 'Unprogramming Poll Worker card',
+      expectedProgressText: 'Unprogramming Poll Worker Card',
       expectedErrorText:
-        'Error unprogramming Poll Worker card. Please try again.',
+        'Error unprogramming Poll Worker Card. Please try again.',
     },
   ];
 
