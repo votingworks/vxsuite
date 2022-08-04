@@ -173,8 +173,9 @@ export function CardDetailsView({
           <Text bold>Remove card to continue.</Text>
         ) : (
           <p>
-            Remove card to{' '}
-            {possibleActions.size > 0 ? 'cancel' : 'leave this screen'}.
+            {possibleActions.size > 0
+              ? 'Remove card to cancel.'
+              : 'Remove card to leave this screen.'}
           </p>
         )}
       </Prose>
