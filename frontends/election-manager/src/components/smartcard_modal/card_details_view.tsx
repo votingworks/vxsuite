@@ -118,8 +118,9 @@ export function CardDetailsView({
   if (
     'passcode' in programmedUser &&
     (role === 'superadmin' ||
-      // If the card is from a prior election, no need to display PIN resetting. Unprogramming is
-      // the only meaningful action in this case
+      // We can support PIN resets on cards from other elections once we update PIN resetting to
+      // change only PINs and leave other card data, like election definitions, intact. As of
+      // 8/4/22, PIN resetting reprograms cards entirely
       doesCardElectionHashMatchMachineElectionHash)
   ) {
     possibleActions.add('PinReset');
