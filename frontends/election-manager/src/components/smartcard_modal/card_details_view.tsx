@@ -155,8 +155,7 @@ export function CardDetailsView({
           <p>
             {possibleActions.has('PinReset') && (
               <Button onPress={resetCardPin}>Reset Card PIN</Button>
-            )}
-            {possibleActions.size > 1 && ' '}
+            )}{' '}
             {possibleActions.has('Unprogram') && (
               <Button
                 danger={doesCardElectionHashMatchMachineElectionHash}
