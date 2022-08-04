@@ -9,6 +9,7 @@ import {
   YesNoContest,
 } from '@votingworks/types';
 import { sleep, typedAs } from '@votingworks/utils';
+import { mockOf } from '@votingworks/test-utils';
 import { Buffer } from 'buffer';
 import { writeFile } from 'fs-extra';
 import * as streams from 'memory-streams';
@@ -17,10 +18,24 @@ import { v4 as uuid } from 'uuid';
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { zeroRect } from '../test/fixtures/zero_rect';
 import { Store } from './store';
+import { isWriteInAdjudicationBallotImageExportEnabled } from './config/features';
 import * as buildCastVoteRecord from './build_cast_vote_record';
 
 // We pause in some of these tests so we need to increase the timeout
 jest.setTimeout(20000);
+
+jest.mock('./config/features', (): typeof import('./config/features') => {
+  return {
+    ...jest.requireActual('./config/features'),
+    isWriteInAdjudicationBallotImageExportEnabled: jest.fn(),
+  };
+});
+
+beforeEach(() => {
+  mockOf(isWriteInAdjudicationBallotImageExportEnabled).mockImplementation(
+    () => false
+  );
+});
 
 test('get/set election', () => {
   const store = Store.memoryStore();
@@ -500,6 +515,10 @@ test('adjudication', () => {
 });
 
 test('exportCvrs', async () => {
+  mockOf(isWriteInAdjudicationBallotImageExportEnabled).mockImplementation(
+    () => true
+  );
+
   const buildCastVoteRecordMock = jest.spyOn(
     buildCastVoteRecord,
     'buildCastVoteRecord'
@@ -611,6 +630,109 @@ test('exportCvrs', async () => {
   store.deleteBatch(batchId);
   store.exportCvrs(stream);
   expect(stream.toString()).toEqual('');
+});
+
+test('exportCvrs does not export ballot images when feature flag turned off', async () => {
+  const buildCastVoteRecordMock = jest.spyOn(
+    buildCastVoteRecord,
+    'buildCastVoteRecord'
+  );
+  const store = Store.memoryStore();
+  store.setElection(stateOfHamilton.electionDefinition);
+
+  // No CVRs, export should be empty
+  let stream = new streams.WritableStream();
+
+  const metadata: BallotPageMetadata = {
+    locales: { primary: 'en-US' },
+    electionHash: stateOfHamilton.electionDefinition.electionHash,
+    ballotType: BallotType.Standard,
+    ballotStyleId: stateOfHamilton.election.ballotStyles[0].id,
+    precinctId: stateOfHamilton.election.precincts[0].id,
+    isTestMode: false,
+    pageNumber: 1,
+  };
+
+  store.addHmpbTemplate(Buffer.of(1, 2, 3), metadata, [
+    {
+      pageSize: { width: 1, height: 1 },
+      metadata: {
+        ...metadata,
+        pageNumber: 1,
+      },
+      contests: [],
+    },
+    {
+      pageSize: { width: 1, height: 1 },
+      metadata: {
+        ...metadata,
+        pageNumber: 2,
+      },
+      contests: [],
+    },
+  ]);
+
+  const frontNormalizedFile = tmp.fileSync();
+  await writeFile(frontNormalizedFile.fd, 'front normalized');
+
+  const backNormalizedFile = tmp.fileSync();
+  await writeFile(backNormalizedFile.fd, 'back normalized');
+
+  // Create CVRs, confirm that they are exported should work
+  const batchId = store.addBatch();
+  const sheetId = store.addSheet(uuid(), batchId, [
+    {
+      originalFilename: '/tmp/front-page.png',
+      normalizedFilename: frontNormalizedFile.name,
+      interpretation: {
+        type: 'UninterpretedHmpbPage',
+        metadata: {
+          ...metadata,
+          pageNumber: 1,
+        },
+      },
+    },
+    {
+      originalFilename: '/tmp/back-page.png',
+      normalizedFilename: backNormalizedFile.name,
+      interpretation: {
+        type: 'UninterpretedHmpbPage',
+        metadata: {
+          ...metadata,
+          pageNumber: 2,
+        },
+      },
+    },
+  ]);
+  store.adjudicateSheet(sheetId, 'front', []);
+  store.adjudicateSheet(sheetId, 'back', []);
+
+  stream = new streams.WritableStream();
+  store.exportCvrs(stream);
+  expect(stream.toString()).toEqual(
+    expect.stringContaining(stateOfHamilton.election.precincts[0].id)
+  );
+
+  // Confirm that ballot images and layouts are NOT included when building the CVR
+  expect(buildCastVoteRecordMock).toHaveBeenCalledWith(
+    expect.anything(),
+    expect.anything(),
+    expect.anything(),
+    expect.anything(),
+    expect.anything(),
+    expect.anything(),
+    [{ normalized: '' }, { normalized: '' }],
+    expect.arrayContaining([
+      expect.arrayContaining([
+        expect.objectContaining({ contests: [] }),
+        expect.objectContaining({ contests: [] }),
+      ]),
+      expect.arrayContaining([
+        expect.objectContaining({ contests: [] }),
+        expect.objectContaining({ contests: [] }),
+      ]),
+    ])
+  );
 });
 
 test('zero', () => {

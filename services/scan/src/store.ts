@@ -46,6 +46,7 @@ import { buildCastVoteRecord } from './build_cast_vote_record';
 import { Bindable, DbClient } from './db_client';
 import { sheetRequiresAdjudication } from './interpreter';
 import { SheetOf } from './types';
+import { isWriteInAdjudicationBallotImageExportEnabled } from './config/features';
 import { normalizeAndJoin } from './util/path';
 
 const debug = makeDebug('scan:store');
@@ -870,23 +871,25 @@ export class Store {
 
       const frontImage: InlineBallotImage = { normalized: '' };
       const backImage: InlineBallotImage = { normalized: '' };
-      if (
-        frontInterpretation.type === 'InterpretedHmpbPage' ||
-        frontInterpretation.type === 'UninterpretedHmpbPage'
-      ) {
-        const frontFilenames = this.getBallotFilenames(id, 'front');
-        if (frontFilenames?.normalized) {
-          frontImage.normalized = fs.readFileSync(
-            frontFilenames.normalized,
-            'base64'
-          );
-        }
-        const backFilenames = this.getBallotFilenames(id, 'back');
-        if (backFilenames?.normalized) {
-          backImage.normalized = fs.readFileSync(
-            backFilenames.normalized,
-            'base64'
-          );
+      if (isWriteInAdjudicationBallotImageExportEnabled()) {
+        if (
+          frontInterpretation.type === 'InterpretedHmpbPage' ||
+          frontInterpretation.type === 'UninterpretedHmpbPage'
+        ) {
+          const frontFilenames = this.getBallotFilenames(id, 'front');
+          if (frontFilenames?.normalized) {
+            frontImage.normalized = fs.readFileSync(
+              frontFilenames.normalized,
+              'base64'
+            );
+          }
+          const backFilenames = this.getBallotFilenames(id, 'back');
+          if (backFilenames?.normalized) {
+            backImage.normalized = fs.readFileSync(
+              backFilenames.normalized,
+              'base64'
+            );
+          }
         }
       }
 
