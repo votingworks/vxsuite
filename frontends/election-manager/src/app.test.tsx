@@ -355,7 +355,7 @@ test('L&A (logic and accuracy) flow', async () => {
   userEvent.click(screen.getByText('L&A'));
 
   // Test printing L&A package
-  userEvent.click(screen.getByText('Print L&A Packages'));
+  userEvent.click(screen.getByText('List Precinct L&A Packages'));
   userEvent.click(screen.getByText('District 5'));
 
   // L&A package: Tally report
@@ -447,7 +447,7 @@ test('L&A features are available after test results are loaded', async () => {
 
   // Confirm that L&A materials are available
   userEvent.click(screen.getByText('L&A'));
-  screen.getByText('Print L&A Packages');
+  screen.getByText('List Precinct L&A Packages');
   screen.getByText('Print Full Test Deck Tally Report');
 });
 
@@ -655,8 +655,11 @@ test('tabulating CVRs', async () => {
 
   // Confirm that L&A Materials are unavailable after live CVRs have been loaded
   fireEvent.click(getByText('L&A'));
-  getByText('L&A materials are not available', { exact: false });
-  expect(queryByText('Print L&A Packages')).not.toBeInTheDocument();
+  getByText(
+    'L&A testing documents are not available after official election CVRs have been imported.',
+    { exact: false }
+  );
+  expect(queryByText('List Precinct L&A Packages')).not.toBeInTheDocument();
   expect(
     queryByText('Print Full Test Deck Tally Report')
   ).not.toBeInTheDocument();
@@ -1116,7 +1119,7 @@ test('admin UI has expected nav when VVSG2 auth flows are enabled', async () => 
   userEvent.click(screen.getByText('Ballots'));
   await screen.findAllByText('View Ballot');
   userEvent.click(screen.getByText('L&A'));
-  await screen.findByRole('heading', { name: 'L&A Materials' });
+  await screen.findByRole('heading', { name: 'L&A Testing Documents' });
   userEvent.click(screen.getByText('Tally'));
   await screen.findByRole('heading', {
     name: 'Cast Vote Record (CVR) Management',

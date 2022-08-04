@@ -104,7 +104,7 @@ test('Printing L&A packages for all precincts', async () => {
     printer: mockPrinter,
   });
 
-  userEvent.click(screen.getByText('All Precincts'));
+  userEvent.click(screen.getByText('Print Packages for All Precincts'));
 
   // Check that the printing modals appear in alphabetical order
   const precinctsInAlphabeticalOrder = [
@@ -177,7 +177,7 @@ test('Printing L&A packages for all precincts', async () => {
     }
   }
 
-  await screen.findByText('All Precincts');
+  await screen.findByText('Print Packages for All Precincts');
   expect(screen.queryByText('Printing')).not.toBeInTheDocument();
 });
 
@@ -263,7 +263,7 @@ test('Printing L&A packages for all precincts, when HMPBs are not letter-size', 
     printer: mockPrinter,
   });
 
-  userEvent.click(screen.getByText('All Precincts'));
+  userEvent.click(screen.getByText('Print Packages for All Precincts'));
 
   // Check that the printing modals appear in alphabetical order
   const precinctsInAlphabeticalOrder = [
@@ -347,6 +347,6 @@ test('Printing L&A packages for all precincts, when HMPBs are not letter-size', 
     }
   }
 
-  await screen.findByText('All Precincts');
+  await screen.findByText('Print Packages for All Precincts');
   expect(screen.queryByText('Printing')).not.toBeInTheDocument();
 });

@@ -18,6 +18,7 @@ import {
   Prose,
   isAdminAuth,
   isSuperadminAuth,
+  HorizontalRule,
 } from '@votingworks/ui';
 
 import { AppContext } from '../contexts/app_context';
@@ -349,7 +350,7 @@ export function PrintTestDeckScreen(): JSX.Element {
   const [precinctIds, setPrecinctIds] = useState<string[]>([]);
   const [printIndex, setPrintIndex] = useState<PrintIndex>();
 
-  const pageTitle = 'L&A Packages';
+  const pageTitle = 'Precinct L&A Packages';
 
   function generatePrecinctIds(precinctId: string): string[] {
     if (precinctId === 'all') {
@@ -574,15 +575,33 @@ export function PrintTestDeckScreen(): JSX.Element {
         />
       )}
       <NavigationScreen>
-        <Prose>
+        <Prose maxWidth={false}>
           <h1>{pageTitle}</h1>
+
           <p>
-            Select desired precinct for <strong>{election.title}</strong>.
+            Print the L&A Packages for all precincts, or for a specific
+            precinct, by selecting a button below.
           </p>
+          <HorizontalRule />
+          <p>Each Precinct L&A Package prints:</p>
+          <ol>
+            <li>
+              A Precinct Tally Report — the expected results of the precinct.
+            </li>
+            <li>Pre-voted VxMark test ballots.</li>
+            <li>Pre-voted hand-marked test ballots.</li>
+            <li>
+              Two blank hand-marked test ballots — one remains blank, one is
+              hand-marked by an election official to replace a pre-voted
+              hand-marked test ballot.
+            </li>
+            <li>One overvoted hand-marked test ballot.</li>
+          </ol>
+          <HorizontalRule />
         </Prose>
         <p>
           <Button onPress={() => startPrint('all')} fullWidth>
-            <strong>All Precincts</strong>
+            <strong>Print Packages for All Precincts</strong>
           </Button>
         </p>
         <ButtonList>

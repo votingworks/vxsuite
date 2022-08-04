@@ -101,18 +101,40 @@ exports[`L&A (logic and accuracy) flow 1`] = `
       class="sc-llYToB cOKKyR"
     >
       <div
-        class="sc-jRQAMF boeJiV"
+        class="sc-jRQAMF foBEwC"
       >
         <h1>
-          L&A Packages
+          Precinct L&A Packages
         </h1>
         <p>
-          Select desired precinct for 
-          <strong>
-            Mock General Election Choctaw 2020
-          </strong>
-          .
+          Print the L&A Packages for all precincts, or for a specific precinct, by selecting a button below.
         </p>
+        <p
+          class="sc-kfPtPH hgOEDc"
+        />
+        <p>
+          Each Precinct L&A Package prints:
+        </p>
+        <ol>
+          <li>
+            A Precinct Tally Report — the expected results of the precinct.
+          </li>
+          <li>
+            Pre-voted VxMark test ballots.
+          </li>
+          <li>
+            Pre-voted hand-marked test ballots.
+          </li>
+          <li>
+            Two blank hand-marked test ballots — one remains blank, one is hand-marked by an election official to replace a pre-voted hand-marked test ballot.
+          </li>
+          <li>
+            One overvoted hand-marked test ballot.
+          </li>
+        </ol>
+        <p
+          class="sc-kfPtPH hgOEDc"
+        />
       </div>
       <p>
         <button
@@ -120,7 +142,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           type="button"
         >
           <strong>
-            All Precincts
+            Print Packages for All Precincts
           </strong>
         </button>
       </p>
@@ -1527,18 +1549,40 @@ exports[`L&A (logic and accuracy) flow 2`] = `
       class="sc-llYToB cOKKyR"
     >
       <div
-        class="sc-jRQAMF boeJiV"
+        class="sc-jRQAMF foBEwC"
       >
         <h1>
-          L&A Packages
+          Precinct L&A Packages
         </h1>
         <p>
-          Select desired precinct for 
-          <strong>
-            Mock General Election Choctaw 2020
-          </strong>
-          .
+          Print the L&A Packages for all precincts, or for a specific precinct, by selecting a button below.
         </p>
+        <p
+          class="sc-kfPtPH hgOEDc"
+        />
+        <p>
+          Each Precinct L&A Package prints:
+        </p>
+        <ol>
+          <li>
+            A Precinct Tally Report — the expected results of the precinct.
+          </li>
+          <li>
+            Pre-voted VxMark test ballots.
+          </li>
+          <li>
+            Pre-voted hand-marked test ballots.
+          </li>
+          <li>
+            Two blank hand-marked test ballots — one remains blank, one is hand-marked by an election official to replace a pre-voted hand-marked test ballot.
+          </li>
+          <li>
+            One overvoted hand-marked test ballot.
+          </li>
+        </ol>
+        <p
+          class="sc-kfPtPH hgOEDc"
+        />
       </div>
       <p>
         <button
@@ -1546,7 +1590,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
           type="button"
         >
           <strong>
-            All Precincts
+            Print Packages for All Precincts
           </strong>
         </button>
       </p>
@@ -2987,18 +3031,40 @@ exports[`L&A (logic and accuracy) flow 3`] = `
       class="sc-llYToB cOKKyR"
     >
       <div
-        class="sc-jRQAMF boeJiV"
+        class="sc-jRQAMF foBEwC"
       >
         <h1>
-          L&A Packages
+          Precinct L&A Packages
         </h1>
         <p>
-          Select desired precinct for 
-          <strong>
-            Mock General Election Choctaw 2020
-          </strong>
-          .
+          Print the L&A Packages for all precincts, or for a specific precinct, by selecting a button below.
         </p>
+        <p
+          class="sc-kfPtPH hgOEDc"
+        />
+        <p>
+          Each Precinct L&A Package prints:
+        </p>
+        <ol>
+          <li>
+            A Precinct Tally Report — the expected results of the precinct.
+          </li>
+          <li>
+            Pre-voted VxMark test ballots.
+          </li>
+          <li>
+            Pre-voted hand-marked test ballots.
+          </li>
+          <li>
+            Two blank hand-marked test ballots — one remains blank, one is hand-marked by an election official to replace a pre-voted hand-marked test ballot.
+          </li>
+          <li>
+            One overvoted hand-marked test ballot.
+          </li>
+        </ol>
+        <p
+          class="sc-kfPtPH hgOEDc"
+        />
       </div>
       <p>
         <button
@@ -3006,7 +3072,7 @@ exports[`L&A (logic and accuracy) flow 3`] = `
           type="button"
         >
           <strong>
-            All Precincts
+            Print Packages for All Precincts
           </strong>
         </button>
       </p>
