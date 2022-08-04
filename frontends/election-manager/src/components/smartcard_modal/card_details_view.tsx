@@ -13,15 +13,15 @@ import { CardProgramming, ElectionDefinition, User } from '@votingworks/types';
 import { AppContext } from '../../contexts/app_context';
 import { electionToDisplayString } from './elections';
 import { generatePin } from './pins';
-import { SmartcardActionStatus, StatusMessage } from './status_message';
+import {
+  SmartcardAction,
+  SmartcardActionStatus,
+  SuccessOrErrorStatusMessage,
+} from './status_message';
 import { userRoleToReadableString } from './user_roles';
 
-interface StatusMessageContainerProps {
-  large?: boolean;
-}
-
-const StatusMessageContainer = styled.p<StatusMessageContainerProps>`
-  font-size: ${(props) => (props.large ? '1.5em' : undefined)};
+const ErrorStatusMessageProse = styled(Prose)`
+  margin-bottom: 1.5em;
 `;
 
 function checkDoesCardElectionHashMatchMachineElectionHash(
@@ -37,7 +37,7 @@ function checkDoesCardElectionHashMatchMachineElectionHash(
 interface Props {
   actionStatus?: SmartcardActionStatus;
   card: CardProgramming;
-  setActionStatus: (status?: SmartcardActionStatus) => void;
+  setActionStatus: (actionStatus?: SmartcardActionStatus) => void;
 }
 
 export function CardDetailsView({
@@ -56,8 +56,6 @@ export function CardDetailsView({
       programmedUser,
       electionDefinition
     );
-  const showingSuccessOrErrorMessage =
-    actionStatus?.status === 'Success' || actionStatus?.status === 'Error';
 
   async function resetCardPin() {
     assert(electionDefinition);
@@ -116,7 +114,7 @@ export function CardDetailsView({
     ? electionToDisplayString(electionDefinition.election)
     : 'Unknown Election';
 
-  const possibleActions = new Set<SmartcardActionStatus['action']>();
+  const possibleActions = new Set<SmartcardAction>();
   if (
     'passcode' in programmedUser &&
     (role === 'superadmin' ||
@@ -134,46 +132,52 @@ export function CardDetailsView({
   }
 
   return (
-    <Prose textCenter theme={fontSizeTheme.medium}>
-      <h1>{userRoleToReadableString(role)} Card</h1>
-      {role !== 'superadmin' && <p>{electionDisplayString}</p>}
+    <React.Fragment>
+      {actionStatus?.status === 'Error' && (
+        <ErrorStatusMessageProse textCenter theme={fontSizeTheme.medium}>
+          <SuccessOrErrorStatusMessage actionStatus={actionStatus} />
+        </ErrorStatusMessageProse>
+      )}
 
-      <HorizontalRule />
-      {actionStatus && (
-        <StatusMessageContainer large={actionStatus.status === 'Success'}>
-          <StatusMessage
+      <Prose textCenter theme={fontSizeTheme.medium}>
+        <h1>{userRoleToReadableString(role)} Card</h1>
+        {role !== 'superadmin' && <p>{electionDisplayString}</p>}
+
+        <HorizontalRule />
+        {actionStatus?.status === 'Success' && (
+          <SuccessOrErrorStatusMessage
             actionStatus={actionStatus}
             programmedUser={programmedUser}
           />
-        </StatusMessageContainer>
-      )}
-      {!showingSuccessOrErrorMessage && possibleActions.size > 0 && (
-        <p>
-          {possibleActions.has('PinReset') && (
-            <Button onPress={resetCardPin}>Reset Card PIN</Button>
-          )}
-          {possibleActions.size > 1 && ' '}
-          {possibleActions.has('Unprogram') && (
-            <Button
-              danger={doesCardElectionHashMatchMachineElectionHash}
-              onPress={unprogramCard}
-              primary={!doesCardElectionHashMatchMachineElectionHash}
-            >
-              Unprogram Card
-            </Button>
-          )}
-        </p>
-      )}
-      {(actionStatus || possibleActions.size > 0) && <HorizontalRule />}
+        )}
+        {actionStatus?.status !== 'Success' && possibleActions.size > 0 && (
+          <p>
+            {possibleActions.has('PinReset') && (
+              <Button onPress={resetCardPin}>Reset Card PIN</Button>
+            )}
+            {possibleActions.size > 1 && ' '}
+            {possibleActions.has('Unprogram') && (
+              <Button
+                danger={doesCardElectionHashMatchMachineElectionHash}
+                onPress={unprogramCard}
+                primary={!doesCardElectionHashMatchMachineElectionHash}
+              >
+                Unprogram Card
+              </Button>
+            )}
+          </p>
+        )}
+        {(actionStatus || possibleActions.size > 0) && <HorizontalRule />}
 
-      {showingSuccessOrErrorMessage ? (
-        <Text bold>Remove card to continue.</Text>
-      ) : (
-        <p>
-          Remove card to{' '}
-          {possibleActions.size > 0 ? 'cancel' : 'leave this screen'}.
-        </p>
-      )}
-    </Prose>
+        {actionStatus?.status === 'Success' ? (
+          <Text bold>Remove card to continue.</Text>
+        ) : (
+          <p>
+            Remove card to{' '}
+            {possibleActions.size > 0 ? 'cancel' : 'leave this screen'}.
+          </p>
+        )}
+      </Prose>
+    </React.Fragment>
   );
 }

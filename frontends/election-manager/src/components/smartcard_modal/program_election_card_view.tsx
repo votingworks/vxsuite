@@ -7,21 +7,20 @@ import { CardProgramming } from '@votingworks/types';
 import { AppContext } from '../../contexts/app_context';
 import { electionToDisplayString } from './elections';
 import { generatePin } from './pins';
-import { SmartcardActionStatus, StatusMessage } from './status_message';
+import {
+  isSmartcardActionComplete,
+  SmartcardActionStatus,
+  SuccessOrErrorStatusMessage,
+} from './status_message';
 
-interface HeadingProps {
-  marginTop: string;
-}
-
-const Heading = styled.h1<HeadingProps>`
-  /* stylelint-disable-next-line declaration-no-important */
-  margin-top: ${(props) => props.marginTop} !important;
+const StatusMessageProse = styled(Prose)`
+  margin-bottom: 1.5em;
 `;
 
 interface Props {
   actionStatus?: SmartcardActionStatus;
   card: CardProgramming;
-  setActionStatus: (status?: SmartcardActionStatus) => void;
+  setActionStatus: (actionStatus?: SmartcardActionStatus) => void;
 }
 
 export function ProgramElectionCardView({
@@ -30,9 +29,6 @@ export function ProgramElectionCardView({
   setActionStatus,
 }: Props): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
-
-  const showingSuccessOrErrorMessage =
-    actionStatus?.status === 'Success' || actionStatus?.status === 'Error';
 
   async function programAdminCard() {
     assert(electionDefinition);
@@ -75,42 +71,43 @@ export function ProgramElectionCardView({
   }
 
   return (
-    <Prose textCenter theme={fontSizeTheme.medium}>
-      {actionStatus && (
-        <p>
-          <StatusMessage actionStatus={actionStatus} />
-        </p>
-      )}
-      <Heading marginTop={showingSuccessOrErrorMessage ? '1em' : '0'}>
-        Create New Election Card
-      </Heading>
-      {electionDefinition && (
-        <p>{electionToDisplayString(electionDefinition.election)}</p>
+    <React.Fragment>
+      {isSmartcardActionComplete(actionStatus) && (
+        <StatusMessageProse textCenter theme={fontSizeTheme.medium}>
+          <SuccessOrErrorStatusMessage actionStatus={actionStatus} />
+        </StatusMessageProse>
       )}
 
-      <HorizontalRule />
-      {electionDefinition ? (
-        <p>
-          <Button disabled={!electionDefinition} onPress={programAdminCard}>
-            Admin Card
-          </Button>{' '}
-          or{' '}
-          <Button
-            disabled={!electionDefinition}
-            onPress={programPollWorkerCard}
-          >
-            Poll Worker Card
-          </Button>
-        </p>
-      ) : (
-        <p>
-          An election must be defined before Admin and Poll Worker cards can be
-          programmed.
-        </p>
-      )}
-      <HorizontalRule />
+      <Prose textCenter theme={fontSizeTheme.medium}>
+        <h1>Create New Election Card</h1>
+        {electionDefinition && (
+          <p>{electionToDisplayString(electionDefinition.election)}</p>
+        )}
 
-      <p>Remove card to cancel.</p>
-    </Prose>
+        <HorizontalRule />
+        {electionDefinition ? (
+          <p>
+            <Button disabled={!electionDefinition} onPress={programAdminCard}>
+              Admin Card
+            </Button>{' '}
+            or{' '}
+            <Button
+              disabled={!electionDefinition}
+              onPress={programPollWorkerCard}
+            >
+              Poll Worker Card
+            </Button>
+          </p>
+        ) : (
+          <p>
+            An election must be defined before Admin and Poll Worker cards can
+            be programmed.
+          </p>
+        )}
+        <HorizontalRule />
+
+        <p>Remove card to cancel.</p>
+      </Prose>
+    </React.Fragment>
   );
 }
