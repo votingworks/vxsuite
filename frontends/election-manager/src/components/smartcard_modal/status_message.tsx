@@ -81,8 +81,6 @@ export function SuccessOrErrorStatusMessage({
   }
 
   if (action === 'Program' && programmedUser) {
-    // No need to include the programmed user role in these messages since it's so prominent
-    // elsewhere on the screen
     return (
       <TextLarge success>
         {'passcode' in programmedUser ? (
@@ -98,8 +96,6 @@ export function SuccessOrErrorStatusMessage({
   }
 
   if (action === 'PinReset' && programmedUser && 'passcode' in programmedUser) {
-    // No need to include the programmed user role in these messages since it's so prominent
-    // elsewhere on the screen
     return (
       <TextLarge success>
         New card PIN is <strong>{hyphenatePin(programmedUser.passcode)}</strong>
