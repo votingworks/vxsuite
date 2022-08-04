@@ -705,6 +705,7 @@ export const SheetInterpretationSchema: z.ZodSchema<SheetInterpretation> =
   ]);
 
 export const PrecinctScannerErrorTypeSchema = z.enum([
+  'scanning_failed',
   'both_sides_have_paper',
   'paper_in_back_after_accept',
   'paper_in_front_on_startup',

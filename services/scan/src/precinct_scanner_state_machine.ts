@@ -58,6 +58,7 @@ export interface Context {
   interpretation?: InterpretationResult;
   error?: Error;
   interpretationMode: InterpretationMode;
+  scanRetries: number;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -174,7 +175,7 @@ function paperStatusObserver({ client }: Context) {
 const pollPaperStatus: InvokeConfig<Context, Event> = {
   src: paperStatusObserver,
   onError: {
-    target: 'error',
+    target: '#precinct_scanner.error',
     actions: assign({ error: (_, event) => event.data }),
   },
 };
@@ -269,11 +270,12 @@ const clearError = assign({
 function buildMachine(createPlustekClient: CreatePlustekClient) {
   return createMachine<Context, Event>(
     {
-      id: 'precint_scanner',
+      id: 'precinct_scanner',
       initial: 'connecting',
       strict: true,
       context: {
         interpretationMode: 'interpret',
+        scanRetries: 0,
       },
       on: {
         UNCONFIGURE: {
@@ -370,6 +372,7 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
           },
         },
         no_paper: {
+          id: 'no_paper',
           entry: [clearError, clearLastScan],
           invoke: pollPaperStatus,
           on: {
@@ -378,6 +381,7 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
           },
         },
         ready_to_scan: {
+          id: 'ready_to_scan',
           entry: [clearError, clearLastScan],
           invoke: pollPaperStatus,
           on: {
@@ -388,40 +392,67 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
           },
         },
         scanning: {
-          invoke: {
-            src: scan,
-            onDone: {
-              target: 'checking_scanning_completed',
-              actions: assign((_context, event) => ({
-                scannedSheet: event.data,
-              })),
+          entry: assign({ scanRetries: 0 }),
+          initial: 'starting_scan',
+          states: {
+            starting_scan: {
+              entry: assign({
+                scanRetries: (context) => context.scanRetries + 1,
+              }),
+              always: {
+                target: '#rejected',
+                cond: (context) => context.scanRetries > 9,
+                actions: assign({
+                  error: new PrecinctScannerError('scanning_failed'),
+                }),
+              },
+              invoke: {
+                src: scan,
+                onDone: {
+                  target: 'checking_scanning_completed',
+                  actions: assign((_context, event) => ({
+                    scannedSheet: event.data,
+                  })),
+                },
+                onError: {
+                  target: 'error_scanning',
+                  actions: assign((_context, event) => ({ error: event.data })),
+                },
+              },
             },
-            onError: {
-              target: 'error_scanning',
-              actions: assign((_context, event) => ({ error: event.data })),
+            // Sometimes Plustek auto-rejects the ballot without returning a scanning
+            // error (e.g. if the paper is slightly mis-aligned). So we need to check
+            // that the paper is still there before interpreting.
+            checking_scanning_completed: {
+              invoke: pollPaperStatus,
+              on: {
+                SCANNER_READY_TO_EJECT: '#interpreting',
+                SCANNER_NO_PAPER: 'error_scanning',
+                SCANNER_READY_TO_SCAN: 'error_scanning',
+              },
+            },
+            error_scanning: {
+              invoke: pollPaperStatus,
+              on: {
+                SCANNER_READY_TO_SCAN: 'starting_scan',
+                SCANNER_NO_PAPER: '#no_paper',
+                SCANNER_READY_TO_EJECT: '#rejecting',
+              },
             },
           },
         },
-        error_scanning: {
+        // Give up trying to scan and wait for the paper to be removed after
+        // we've failed enough times
+        scanning_failed: {
+          id: 'scanning_failed',
           invoke: pollPaperStatus,
           on: {
-            SCANNER_READY_TO_SCAN: 'ready_to_scan',
+            SCANNER_READY_TO_SCAN: { target: undefined },
             SCANNER_NO_PAPER: 'no_paper',
-            SCANNER_READY_TO_EJECT: 'rejecting',
-          },
-        },
-        // Sometimes Plustek auto-rejects the ballot without returning a scanning
-        // error (e.g. if the paper is slightly mis-aligned). So we need to check
-        // that the paper is still there before interpreting.
-        checking_scanning_completed: {
-          invoke: pollPaperStatus,
-          on: {
-            SCANNER_READY_TO_EJECT: 'interpreting',
-            SCANNER_NO_PAPER: 'error_scanning',
-            SCANNER_READY_TO_SCAN: 'error_scanning',
           },
         },
         interpreting: {
+          id: 'interpreting',
           invoke: {
             src: interpretSheet,
             onDone: {
@@ -504,7 +535,7 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
               },
             },
             ready_for_next_ballot: {
-              on: { SCANNER_READY_TO_SCAN: '..ready_to_scan' },
+              on: { SCANNER_READY_TO_SCAN: '#ready_to_scan' },
             },
           },
           after: {
@@ -550,6 +581,7 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
           },
         },
         rejecting: {
+          id: 'rejecting',
           invoke: {
             src: reject,
             onDone: 'checking_rejecting_completed',
@@ -576,6 +608,7 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
         },
         // Paper has been rejected and is held in the front, waiting for removal.
         rejected: {
+          id: 'rejected',
           invoke: pollPaperStatus,
           on: {
             SCANNER_READY_TO_SCAN: { target: 'rejected', internal: true },
@@ -722,10 +755,10 @@ export function createPrecinctScannerStateMachine(
             return 'ready_to_scan';
           case state.matches('scanning'):
             return 'scanning';
-          case state.matches('error_scanning'):
-            return 'scanning';
-          case state.matches('checking_scanning_completed'):
-            return 'scanning';
+          // case state.matches('error_scanning'):
+          //   return 'scanning';
+          // case state.matches('checking_scanning_completed'):
+          //   return 'scanning';
           case state.matches('interpreting'):
             return 'scanning';
           case state.matches('ready_to_accept'):
