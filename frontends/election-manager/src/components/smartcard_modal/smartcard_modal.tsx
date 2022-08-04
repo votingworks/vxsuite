@@ -1,19 +1,18 @@
 import React, { useContext, useEffect, useState } from 'react';
-import styled from 'styled-components';
 import { assert } from '@votingworks/utils';
 import { isSuperadminAuth, Modal } from '@votingworks/ui';
 import { useLocation } from 'react-router-dom';
 
 import { AppContext } from '../../contexts/app_context';
 import { CardDetailsView } from './card_details_view';
+import {
+  InProgressStatusMessage,
+  isSmartcardActionInProgress,
+  SmartcardActionStatus,
+} from './status_message';
 import { ProgramElectionCardView } from './program_election_card_view';
 import { ProgramSuperAdminCardView } from './program_super_admin_card_view';
 import { routerPaths } from '../../router_paths';
-import { SmartcardActionStatus } from './status_message';
-
-const ModalContents = styled.div`
-  padding: 1rem;
-`;
 
 export function SmartcardModal(): JSX.Element | null {
   const { auth } = useContext(AppContext);
@@ -64,6 +63,11 @@ export function SmartcardModal(): JSX.Element | null {
     );
   }
   return (
-    <Modal content={<ModalContents>{contents}</ModalContents>} fullscreen />
+    <React.Fragment>
+      <Modal centerContent content={contents} fullscreen />
+      {isSmartcardActionInProgress(actionStatus) && (
+        <InProgressStatusMessage actionStatus={actionStatus} />
+      )}
+    </React.Fragment>
   );
 }

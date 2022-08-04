@@ -1,14 +1,23 @@
 import React from 'react';
-import { Button, Prose } from '@votingworks/ui';
+import styled from 'styled-components';
+import { Button, fontSizeTheme, HorizontalRule, Prose } from '@votingworks/ui';
 import { CardProgramming } from '@votingworks/types';
 
 import { generatePin } from './pins';
-import { SmartcardActionStatus, StatusMessage } from './status_message';
+import {
+  isSmartcardActionComplete,
+  SmartcardActionStatus,
+  SuccessOrErrorStatusMessage,
+} from './status_message';
+
+const StatusMessageProse = styled(Prose)`
+  margin-bottom: 1.5em;
+`;
 
 interface Props {
   actionStatus?: SmartcardActionStatus;
   card: CardProgramming;
-  setActionStatus: (status?: SmartcardActionStatus) => void;
+  setActionStatus: (actionStatus?: SmartcardActionStatus) => void;
 }
 
 export function ProgramSuperAdminCardView({
@@ -34,22 +43,30 @@ export function ProgramSuperAdminCardView({
   }
 
   return (
-    <Prose textCenter>
-      <h2>Program Super Admin Card</h2>
-      {/* An empty div to maintain space between the header and subsequent p. TODO: Consider adding
-        a `maintainSpaceBelowHeaders` prop to `Prose` */}
-      <div />
-      {actionStatus && <StatusMessage actionStatus={actionStatus} />}
-      <p>
-        This card performs all system actions. Strictly limit the number created
-        and keep all Super Admin cards secure.
-      </p>
-      <p>Remove card to leave card unprogrammed.</p>
-      <p>
-        <Button onPress={programSuperAdminCard}>
-          Program Super Admin Card
-        </Button>
-      </p>
-    </Prose>
+    <React.Fragment>
+      {isSmartcardActionComplete(actionStatus) && (
+        <StatusMessageProse textCenter theme={fontSizeTheme.medium}>
+          <SuccessOrErrorStatusMessage actionStatus={actionStatus} />
+        </StatusMessageProse>
+      )}
+
+      <Prose textCenter theme={fontSizeTheme.medium}>
+        <h1>Create New Super Admin Card</h1>
+        <p>
+          This card performs all system actions. Strictly limit the number
+          created and keep all Super Admin Cards secure.
+        </p>
+
+        <HorizontalRule />
+        <p>
+          <Button onPress={programSuperAdminCard}>
+            Create Super Admin Card
+          </Button>
+        </p>
+        <HorizontalRule />
+
+        <p>Remove card to cancel.</p>
+      </Prose>
+    </React.Fragment>
   );
 }

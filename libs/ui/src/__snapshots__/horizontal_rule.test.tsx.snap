@@ -2,7 +2,7 @@
 
 exports[`Renders HorizontalRule with custom green color 1`] = `
 <p
-  class="sc-bdvvaa InMLu"
+  class="sc-bdvvaa dtpVlW"
   color="#00FF00"
 >
   or
@@ -11,8 +11,14 @@ exports[`Renders HorizontalRule with custom green color 1`] = `
 
 exports[`Renders HorizontalRule with defaults 1`] = `
 <p
-  class="sc-bdvvaa jHuSWr"
+  class="sc-bdvvaa kogUhP"
 >
   or
 </p>
+`;
+
+exports[`Renders HorizontalRule without children 1`] = `
+<p
+  class="sc-bdvvaa hbOlrr"
+/>
 `;

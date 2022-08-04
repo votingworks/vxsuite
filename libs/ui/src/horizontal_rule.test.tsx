@@ -15,4 +15,9 @@ describe('Renders HorizontalRule', () => {
     );
     expect(container.firstChild).toMatchSnapshot();
   });
+
+  test('without children', () => {
+    const { container } = render(<HorizontalRule />);
+    expect(container.firstChild).toMatchSnapshot();
+  });
 });

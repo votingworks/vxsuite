@@ -1,16 +1,26 @@
 import React, { useContext } from 'react';
+import styled from 'styled-components';
 import { assert } from '@votingworks/utils';
-import { Button, Prose } from '@votingworks/ui';
+import { Button, fontSizeTheme, HorizontalRule, Prose } from '@votingworks/ui';
 import { CardProgramming } from '@votingworks/types';
 
 import { AppContext } from '../../contexts/app_context';
+import { electionToDisplayString } from './elections';
 import { generatePin } from './pins';
-import { SmartcardActionStatus, StatusMessage } from './status_message';
+import {
+  isSmartcardActionComplete,
+  SmartcardActionStatus,
+  SuccessOrErrorStatusMessage,
+} from './status_message';
+
+const StatusMessageProse = styled(Prose)`
+  margin-bottom: 1.5em;
+`;
 
 interface Props {
   actionStatus?: SmartcardActionStatus;
   card: CardProgramming;
-  setActionStatus: (status?: SmartcardActionStatus) => void;
+  setActionStatus: (actionStatus?: SmartcardActionStatus) => void;
 }
 
 export function ProgramElectionCardView({
@@ -61,31 +71,46 @@ export function ProgramElectionCardView({
   }
 
   return (
-    <Prose textCenter>
-      <h2>Program Election Card</h2>
-      {/* An empty div to maintain space between the header and subsequent p. TODO: Consider adding
-        a `maintainSpaceBelowHeaders` prop to `Prose` */}
-      <div />
-      {actionStatus && <StatusMessage actionStatus={actionStatus} />}
-      {electionDefinition ? (
-        <p>Admin and Poll Worker cards only work for the current election.</p>
-      ) : (
-        <p>
-          An election must be defined before Admin and Poll Worker cards can be
-          programmed.
-        </p>
+    <React.Fragment>
+      {isSmartcardActionComplete(actionStatus) && (
+        <StatusMessageProse textCenter theme={fontSizeTheme.medium}>
+          <SuccessOrErrorStatusMessage actionStatus={actionStatus} />
+        </StatusMessageProse>
       )}
-      <p>Remove card to leave card unprogrammed.</p>
-      <p>
-        <Button disabled={!electionDefinition} onPress={programAdminCard}>
-          Program Admin Card
-        </Button>
-      </p>
-      <p>
-        <Button disabled={!electionDefinition} onPress={programPollWorkerCard}>
-          Program Poll Worker Card
-        </Button>
-      </p>
-    </Prose>
+
+      <Prose textCenter theme={fontSizeTheme.medium}>
+        <h1>Create New Election Card</h1>
+        {electionDefinition ? (
+          <React.Fragment>
+            <p>{electionToDisplayString(electionDefinition.election)}</p>
+
+            <HorizontalRule />
+            <p>
+              <Button disabled={!electionDefinition} onPress={programAdminCard}>
+                Admin Card
+              </Button>{' '}
+              or{' '}
+              <Button
+                disabled={!electionDefinition}
+                onPress={programPollWorkerCard}
+              >
+                Poll Worker Card
+              </Button>
+            </p>
+            <HorizontalRule />
+
+            <p>Remove card to cancel.</p>
+          </React.Fragment>
+        ) : (
+          <React.Fragment>
+            <HorizontalRule />
+            <p>An election must be defined before cards can be created.</p>
+            <HorizontalRule />
+
+            <p>Remove card to leave this screen.</p>
+          </React.Fragment>
+        )}
+      </Prose>
+    </React.Fragment>
   );
 }

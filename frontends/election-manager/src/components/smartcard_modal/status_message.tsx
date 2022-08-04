@@ -1,4 +1,5 @@
 import React from 'react';
+import styled from 'styled-components';
 import { Loading, Modal, Text } from '@votingworks/ui';
 import { throwIllegalValue } from '@votingworks/utils';
 import { User, UserRole } from '@votingworks/types';
@@ -6,24 +7,53 @@ import { User, UserRole } from '@votingworks/types';
 import { hyphenatePin } from './pins';
 import { userRoleToReadableString } from './user_roles';
 
-export interface SmartcardActionStatus {
-  action: 'Program' | 'PinReset' | 'Unprogram';
+const TextLarge = styled(Text)`
+  font-size: 1.5em;
+`;
+
+export type SmartcardAction = 'Program' | 'PinReset' | 'Unprogram';
+
+interface SmartcardActionComplete {
+  action: SmartcardAction;
   role: UserRole;
-  status: 'Success' | 'Error' | 'InProgress';
+  status: 'Success' | 'Error';
 }
 
-interface Props {
-  actionStatus: SmartcardActionStatus;
+interface SmartcardActionInProgress {
+  action: SmartcardAction;
+  role: UserRole;
+  status: 'InProgress';
+}
+
+export type SmartcardActionStatus =
+  | SmartcardActionComplete
+  | SmartcardActionInProgress;
+
+export function isSmartcardActionComplete(
+  actionStatus?: SmartcardActionStatus
+): actionStatus is SmartcardActionComplete {
+  return actionStatus?.status === 'Success' || actionStatus?.status === 'Error';
+}
+
+export function isSmartcardActionInProgress(
+  actionStatus?: SmartcardActionStatus
+): actionStatus is SmartcardActionInProgress {
+  return actionStatus?.status === 'InProgress';
+}
+
+interface SuccessOrErrorStatusMessageProps {
+  actionStatus: SmartcardActionComplete;
   programmedUser?: User;
 }
 
 /**
- * StatusMessage facilitates display of status messages across smartcard modal views
+ * SuccessOrErrorStatusMessage displays success and error status messages across smartcard modal
+ * views
  */
-export function StatusMessage({
+export function SuccessOrErrorStatusMessage({
   actionStatus,
   programmedUser,
-}: Props): JSX.Element | null {
+}: SuccessOrErrorStatusMessageProps): JSX.Element | null {
   const { action, status } = actionStatus;
   const actionRoleReadableString = userRoleToReadableString(actionStatus.role);
 
@@ -31,15 +61,15 @@ export function StatusMessage({
     let text: string;
     switch (action) {
       case 'Program': {
-        text = `Error programming ${actionRoleReadableString} card.`;
+        text = `Error creating ${actionRoleReadableString} Card.`;
         break;
       }
       case 'PinReset': {
-        text = `Error resetting ${actionRoleReadableString} card PIN.`;
+        text = `Error resetting ${actionRoleReadableString} Card PIN.`;
         break;
       }
       case 'Unprogram': {
-        text = `Error unprogramming ${actionRoleReadableString} card.`;
+        text = `Error unprogramming ${actionRoleReadableString} Card.`;
         break;
       }
       /* istanbul ignore next: Compile-time check for completeness */
@@ -50,62 +80,74 @@ export function StatusMessage({
     return <Text error>{text} Please try again.</Text>;
   }
 
-  if (status === 'InProgress') {
-    let text: string;
-    switch (action) {
-      case 'Program': {
-        text = `Programming ${actionRoleReadableString} card`;
-        break;
-      }
-      case 'PinReset': {
-        text = `Resetting ${actionRoleReadableString} card PIN`;
-        break;
-      }
-      case 'Unprogram': {
-        // Handled in UnprogramCardConfirmationModal
-        return null;
-      }
-      /* istanbul ignore next: Compile-time check for completeness */
-      default: {
-        throwIllegalValue(action);
-      }
-    }
-    return <Modal content={<Loading as="p">{text}</Loading>} />;
-  }
-
   if (action === 'Program' && programmedUser) {
     return (
-      <Text success>
-        New {actionRoleReadableString} card has been programmed.
-        {'passcode' in programmedUser && (
+      <TextLarge success>
+        {'passcode' in programmedUser ? (
           <React.Fragment>
-            <br />
-            The card PIN is {hyphenatePin(programmedUser.passcode)}. Write this
-            PIN down.
+            New card PIN is{' '}
+            <strong>{hyphenatePin(programmedUser.passcode)}</strong>.
           </React.Fragment>
+        ) : (
+          <React.Fragment>New card created.</React.Fragment>
         )}
-      </Text>
+      </TextLarge>
     );
   }
 
   if (action === 'PinReset' && programmedUser && 'passcode' in programmedUser) {
     return (
-      <Text success>
-        {actionRoleReadableString} card PIN has been reset.
-        <br />
-        The new PIN is {hyphenatePin(programmedUser.passcode)}. Write this PIN
-        down.
-      </Text>
+      <TextLarge success>
+        New card PIN is <strong>{hyphenatePin(programmedUser.passcode)}</strong>
+        .
+      </TextLarge>
     );
   }
 
   if (action === 'Unprogram') {
     return (
       <Text success>
-        {actionRoleReadableString} card has been unprogrammed.
+        {actionRoleReadableString} Card has been unprogrammed.
       </Text>
     );
   }
 
   return null;
+}
+
+interface InProgressStatusMessageProps {
+  actionStatus: SmartcardActionInProgress;
+}
+
+/**
+ * InProgressStatusMessage displays in-progress status messages across smartcard modal views
+ */
+export function InProgressStatusMessage({
+  actionStatus,
+}: InProgressStatusMessageProps): JSX.Element | null {
+  const { action } = actionStatus;
+  const actionRoleReadableString = userRoleToReadableString(actionStatus.role);
+
+  let text: string;
+  switch (action) {
+    case 'Program': {
+      text = `Creating ${actionRoleReadableString} Card`;
+      break;
+    }
+    case 'PinReset': {
+      text = `Resetting ${actionRoleReadableString} Card PIN`;
+      break;
+    }
+    case 'Unprogram': {
+      text = `Unprogramming ${actionRoleReadableString} Card`;
+      break;
+    }
+    /* istanbul ignore next: Compile-time check for completeness */
+    default: {
+      throwIllegalValue(action);
+    }
+  }
+  return (
+    <Modal centerContent content={<Loading as="strong">{text}</Loading>} />
+  );
 }
