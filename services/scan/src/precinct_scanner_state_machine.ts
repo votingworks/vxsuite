@@ -56,7 +56,7 @@ export interface Context {
   client?: ScannerClient;
   scannedSheet?: SheetOf<string>;
   interpretation?: InterpretationResult;
-  error?: Error;
+  error?: Error | ScannerError;
   interpretationMode: InterpretationMode;
   scanRetries: number;
 }
@@ -401,7 +401,9 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
               }),
               always: {
                 target: '#rejected',
-                cond: (context) => context.scanRetries > 9,
+                cond: (context) =>
+                  context.scanRetries > 9 ||
+                  context.error === ScannerError.PaperStatusJam,
                 actions: assign({
                   error: new PrecinctScannerError('scanning_failed'),
                 }),
@@ -685,7 +687,7 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
   );
 }
 
-function errorToString(error: Context['error']) {
+function errorToString(error: Error | ScannerError) {
   return error instanceof PrecinctScannerError ? error.type : 'plustek_error';
 }
 
