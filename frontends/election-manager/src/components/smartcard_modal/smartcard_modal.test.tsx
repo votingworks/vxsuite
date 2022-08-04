@@ -203,6 +203,7 @@ test('Smartcard modal displays card details when no election definition on machi
     expectedHeading: string;
     expectedElectionString?: string;
     shouldResetCardPinButtonBeDisplayed: boolean;
+    shouldElectionDefinitionPromptBeDisplayed: boolean;
     expectedFooter: string;
   }> = [
     {
@@ -210,6 +211,7 @@ test('Smartcard modal displays card details when no election definition on machi
       expectedHeading: 'Super Admin Card',
       expectedElectionString: undefined,
       shouldResetCardPinButtonBeDisplayed: true,
+      shouldElectionDefinitionPromptBeDisplayed: false,
       expectedFooter: 'Remove card to cancel.',
     },
     {
@@ -217,6 +219,7 @@ test('Smartcard modal displays card details when no election definition on machi
       expectedHeading: 'Admin Card',
       expectedElectionString: 'Unknown Election',
       shouldResetCardPinButtonBeDisplayed: false,
+      shouldElectionDefinitionPromptBeDisplayed: true,
       expectedFooter: 'Remove card to leave this screen.',
     },
     {
@@ -224,6 +227,7 @@ test('Smartcard modal displays card details when no election definition on machi
       expectedHeading: 'Poll Worker Card',
       expectedElectionString: 'Unknown Election',
       shouldResetCardPinButtonBeDisplayed: false,
+      shouldElectionDefinitionPromptBeDisplayed: true,
       expectedFooter: 'Remove card to leave this screen.',
     },
     {
@@ -231,6 +235,7 @@ test('Smartcard modal displays card details when no election definition on machi
       expectedHeading: 'Voter Card',
       expectedElectionString: 'Unknown Election',
       shouldResetCardPinButtonBeDisplayed: false,
+      shouldElectionDefinitionPromptBeDisplayed: true,
       expectedFooter: 'Remove card to leave this screen.',
     },
   ];
@@ -243,6 +248,7 @@ test('Smartcard modal displays card details when no election definition on machi
       expectedHeading,
       expectedElectionString,
       shouldResetCardPinButtonBeDisplayed,
+      shouldElectionDefinitionPromptBeDisplayed,
       expectedFooter,
     } = testCase;
 
@@ -263,6 +269,17 @@ test('Smartcard modal displays card details when no election definition on machi
     expect(
       within(modal).queryByRole('button', { name: 'Unprogram Card' })
     ).not.toBeInTheDocument();
+    if (shouldElectionDefinitionPromptBeDisplayed) {
+      within(modal).getByText(
+        'An election must be defined before cards can be created.'
+      );
+    } else {
+      expect(
+        within(modal).queryByText(
+          'An election must be defined before cards can be created.'
+        )
+      ).not.toBeInTheDocument();
+    }
     within(modal).getByText(expectedFooter);
 
     card.removeCard();
@@ -413,7 +430,7 @@ test('Programming smartcards when no election definition on machine', async () =
   const modal = await screen.findByRole('alertdialog');
   within(modal).getByRole('heading', { name: 'Create New Election Card' });
   within(modal).getByText(
-    'An election must be defined before cards can be programmed.'
+    'An election must be defined before cards can be created.'
   );
   expect(
     within(modal).queryByRole('button', { name: 'Admin Card' })

@@ -167,7 +167,10 @@ export function CardDetailsView({
             )}
           </p>
         )}
-        {(actionStatus || possibleActions.size > 0) && <HorizontalRule />}
+        {possibleActions.size === 0 && !electionDefinition && (
+          <p>An election must be defined before cards can be created.</p>
+        )}
+        <HorizontalRule />
 
         {actionStatus?.status === 'Success' ? (
           <Text bold>Remove card to continue.</Text>
