@@ -378,6 +378,7 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
           },
         },
         ready_to_scan: {
+          id: 'ready_to_scan',
           entry: [clearError, clearLastScan],
           invoke: pollPaperStatus,
           on: {
@@ -504,7 +505,7 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
               },
             },
             ready_for_next_ballot: {
-              on: { SCANNER_READY_TO_SCAN: '..ready_to_scan' },
+              on: { SCANNER_READY_TO_SCAN: '#ready_to_scan' },
             },
           },
           after: {
