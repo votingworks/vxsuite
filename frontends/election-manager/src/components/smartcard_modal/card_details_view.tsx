@@ -132,6 +132,57 @@ export function CardDetailsView({
     possibleActions.add('Unprogram');
   }
 
+  let bodyContent: JSX.Element;
+  if (actionStatus?.status === 'Success') {
+    bodyContent = (
+      <React.Fragment>
+        <HorizontalRule />
+        <SuccessOrErrorStatusMessage
+          actionStatus={actionStatus}
+          programmedUser={programmedUser}
+        />
+        <HorizontalRule />
+
+        <Text bold>Remove card to continue.</Text>
+      </React.Fragment>
+    );
+  } else if (possibleActions.size > 0) {
+    bodyContent = (
+      <React.Fragment>
+        <HorizontalRule />
+        <p>
+          {possibleActions.has('PinReset') && (
+            <Button onPress={resetCardPin}>Reset Card PIN</Button>
+          )}{' '}
+          {possibleActions.has('Unprogram') && (
+            <Button
+              danger={doesCardElectionHashMatchMachineElectionHash}
+              onPress={unprogramCard}
+              primary={!doesCardElectionHashMatchMachineElectionHash}
+            >
+              Unprogram Card
+            </Button>
+          )}
+        </p>
+        <HorizontalRule />
+
+        <p>Remove card to cancel.</p>
+      </React.Fragment>
+    );
+  } else if (!electionDefinition) {
+    bodyContent = (
+      <React.Fragment>
+        <HorizontalRule />
+        <p>An election must be defined before cards can be created.</p>
+        <HorizontalRule />
+
+        <p>Remove card to leave this screen.</p>
+      </React.Fragment>
+    );
+  } else {
+    bodyContent = <p>Remove card to leave this screen.</p>;
+  }
+
   return (
     <React.Fragment>
       {actionStatus?.status === 'Error' && (
@@ -143,44 +194,7 @@ export function CardDetailsView({
       <Prose textCenter theme={fontSizeTheme.medium}>
         <h1>{userRoleToReadableString(role)} Card</h1>
         {role !== 'superadmin' && <p>{electionDisplayString}</p>}
-
-        <HorizontalRule />
-        {actionStatus?.status === 'Success' && (
-          <SuccessOrErrorStatusMessage
-            actionStatus={actionStatus}
-            programmedUser={programmedUser}
-          />
-        )}
-        {actionStatus?.status !== 'Success' && possibleActions.size > 0 && (
-          <p>
-            {possibleActions.has('PinReset') && (
-              <Button onPress={resetCardPin}>Reset Card PIN</Button>
-            )}{' '}
-            {possibleActions.has('Unprogram') && (
-              <Button
-                danger={doesCardElectionHashMatchMachineElectionHash}
-                onPress={unprogramCard}
-                primary={!doesCardElectionHashMatchMachineElectionHash}
-              >
-                Unprogram Card
-              </Button>
-            )}
-          </p>
-        )}
-        {possibleActions.size === 0 && !electionDefinition && (
-          <p>An election must be defined before cards can be created.</p>
-        )}
-        <HorizontalRule />
-
-        {actionStatus?.status === 'Success' ? (
-          <Text bold>Remove card to continue.</Text>
-        ) : (
-          <p>
-            {possibleActions.size > 0
-              ? 'Remove card to cancel.'
-              : 'Remove card to leave this screen.'}
-          </p>
-        )}
+        {bodyContent}
       </Prose>
     </React.Fragment>
   );

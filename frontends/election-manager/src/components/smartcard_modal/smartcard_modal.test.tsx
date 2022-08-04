@@ -438,7 +438,7 @@ test('Programming smartcards when no election definition on machine', async () =
   expect(
     within(modal).queryByRole('button', { name: 'Poll Worker Card' })
   ).not.toBeInTheDocument();
-  within(modal).getByText('Remove card to cancel.');
+  within(modal).getByText('Remove card to leave this screen.');
 
   card.removeCard();
   await waitFor(() =>

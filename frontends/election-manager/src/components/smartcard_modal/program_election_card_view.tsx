@@ -80,30 +80,36 @@ export function ProgramElectionCardView({
 
       <Prose textCenter theme={fontSizeTheme.medium}>
         <h1>Create New Election Card</h1>
-        {electionDefinition && (
-          <p>{electionToDisplayString(electionDefinition.election)}</p>
-        )}
-
-        <HorizontalRule />
         {electionDefinition ? (
-          <p>
-            <Button disabled={!electionDefinition} onPress={programAdminCard}>
-              Admin Card
-            </Button>{' '}
-            or{' '}
-            <Button
-              disabled={!electionDefinition}
-              onPress={programPollWorkerCard}
-            >
-              Poll Worker Card
-            </Button>
-          </p>
-        ) : (
-          <p>An election must be defined before cards can be created.</p>
-        )}
-        <HorizontalRule />
+          <React.Fragment>
+            <p>{electionToDisplayString(electionDefinition.election)}</p>
 
-        <p>Remove card to cancel.</p>
+            <HorizontalRule />
+            <p>
+              <Button disabled={!electionDefinition} onPress={programAdminCard}>
+                Admin Card
+              </Button>{' '}
+              or{' '}
+              <Button
+                disabled={!electionDefinition}
+                onPress={programPollWorkerCard}
+              >
+                Poll Worker Card
+              </Button>
+            </p>
+            <HorizontalRule />
+
+            <p>Remove card to cancel.</p>
+          </React.Fragment>
+        ) : (
+          <React.Fragment>
+            <HorizontalRule />
+            <p>An election must be defined before cards can be created.</p>
+            <HorizontalRule />
+
+            <p>Remove card to leave this screen.</p>
+          </React.Fragment>
+        )}
       </Prose>
     </React.Fragment>
   );
