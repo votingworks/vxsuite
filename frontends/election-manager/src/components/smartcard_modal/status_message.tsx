@@ -7,7 +7,7 @@ import { User, UserRole } from '@votingworks/types';
 import { hyphenatePin } from './pins';
 import { userRoleToReadableString } from './user_roles';
 
-const ExtraLargeText = styled(Text)`
+const TextLarge = styled(Text)`
   font-size: 1.5em;
 `;
 
@@ -84,7 +84,7 @@ export function SuccessOrErrorStatusMessage({
     // No need to include the programmed user role in these messages since it's so prominent
     // elsewhere on the screen
     return (
-      <ExtraLargeText success>
+      <TextLarge success>
         {'passcode' in programmedUser ? (
           <React.Fragment>
             New card PIN is{' '}
@@ -93,7 +93,7 @@ export function SuccessOrErrorStatusMessage({
         ) : (
           <React.Fragment>New card created.</React.Fragment>
         )}
-      </ExtraLargeText>
+      </TextLarge>
     );
   }
 
@@ -101,10 +101,10 @@ export function SuccessOrErrorStatusMessage({
     // No need to include the programmed user role in these messages since it's so prominent
     // elsewhere on the screen
     return (
-      <ExtraLargeText success>
+      <TextLarge success>
         New card PIN is <strong>{hyphenatePin(programmedUser.passcode)}</strong>
         .
-      </ExtraLargeText>
+      </TextLarge>
     );
   }
 
