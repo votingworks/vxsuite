@@ -31,7 +31,7 @@ import {
 } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
 import { Iso8601Timestamp } from '@votingworks/types/src/api';
-import { assert, asBoolean } from '@votingworks/utils';
+import { assert } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import makeDebug from 'debug';
 import * as fs from 'fs-extra';
@@ -46,6 +46,7 @@ import { buildCastVoteRecord } from './build_cast_vote_record';
 import { Bindable, DbClient } from './db_client';
 import { sheetRequiresAdjudication } from './interpreter';
 import { SheetOf } from './types';
+import { isWriteInAdjudicationBallotImageExportEnabled } from './config/features';
 import { normalizeAndJoin } from './util/path';
 
 const debug = makeDebug('scan:store');
@@ -870,11 +871,7 @@ export class Store {
 
       const frontImage: InlineBallotImage = { normalized: '' };
       const backImage: InlineBallotImage = { normalized: '' };
-      if (
-        asBoolean(
-          process.env['ENABLE_WRITE_IN_ADJUDICATION_EXPORT_BALLOT_IMAGES']
-        )
-      ) {
+      if (isWriteInAdjudicationBallotImageExportEnabled()) {
         if (
           frontInterpretation.type === 'InterpretedHmpbPage' ||
           frontInterpretation.type === 'UninterpretedHmpbPage'

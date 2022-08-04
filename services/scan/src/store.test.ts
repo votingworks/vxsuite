@@ -9,6 +9,7 @@ import {
   YesNoContest,
 } from '@votingworks/types';
 import { sleep, typedAs } from '@votingworks/utils';
+import { mockOf } from '@votingworks/test-utils';
 import { Buffer } from 'buffer';
 import { writeFile } from 'fs-extra';
 import * as streams from 'memory-streams';
@@ -17,16 +18,23 @@ import { v4 as uuid } from 'uuid';
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { zeroRect } from '../test/fixtures/zero_rect';
 import { Store } from './store';
+import { isWriteInAdjudicationBallotImageExportEnabled } from './config/features';
 import * as buildCastVoteRecord from './build_cast_vote_record';
 
 // We pause in some of these tests so we need to increase the timeout
 jest.setTimeout(20000);
 
-const ENV = process.env;
+jest.mock('./config/features', (): typeof import('./config/features') => {
+  return {
+    ...jest.requireActual('./config/features'),
+    isWriteInAdjudicationBallotImageExportEnabled: jest.fn(),
+  };
+});
 
 beforeEach(() => {
-  jest.resetModules();
-  process.env = { ...ENV };
+  mockOf(isWriteInAdjudicationBallotImageExportEnabled).mockImplementation(
+    () => false
+  );
 });
 
 test('get/set election', () => {
@@ -507,7 +515,9 @@ test('adjudication', () => {
 });
 
 test('exportCvrs', async () => {
-  process.env['ENABLE_WRITE_IN_ADJUDICATION_EXPORT_BALLOT_IMAGES'] = 'true';
+  mockOf(isWriteInAdjudicationBallotImageExportEnabled).mockImplementation(
+    () => true
+  );
 
   const buildCastVoteRecordMock = jest.spyOn(
     buildCastVoteRecord,
