@@ -633,7 +633,6 @@ test('exportCvrs', async () => {
 });
 
 test('exportCvrs does not export ballot images when feature flag turned off', async () => {
-  process.env['ENABLE_WRITE_IN_ADJUDICATION_EXPORT_BALLOT_IMAGES'] = 'false';
   const buildCastVoteRecordMock = jest.spyOn(
     buildCastVoteRecord,
     'buildCastVoteRecord'
