@@ -155,13 +155,13 @@ export function AppRoot({ card, hardware, storage }: Props): JSX.Element {
 
   useEffect(() => {
     setIsCardPresent(smartcard.status === 'ready');
-    setIsAdminCardPresent(smartcard.data?.t === 'admin');
-    setIsPollWorkerCardPresent(smartcard.data?.t === 'pollworker');
+    setIsAdminCardPresent(smartcard.data?.t === 'election_manager');
+    setIsPollWorkerCardPresent(smartcard.data?.t === 'poll_worker');
     setIsWritableCard(smartcard.data?.t === 'voter');
     setIsLocked((prev) =>
-      smartcard.data?.t === 'admin'
+      smartcard.data?.t === 'election_manager'
         ? true
-        : smartcard.data?.t === 'pollworker'
+        : smartcard.data?.t === 'poll_worker'
         ? false
         : prev
     );
