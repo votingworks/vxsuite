@@ -1,7 +1,10 @@
 import React from 'react';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryStorage, MemoryCard, MemoryHardware } from '@votingworks/utils';
-import { makeAdminCard, makePollWorkerCard } from '@votingworks/test-utils';
+import {
+  makeElectionManagerCard,
+  makePollWorkerCard,
+} from '@votingworks/test-utils';
 import * as GLOBALS from './config/globals';
 
 import { electionSampleDefinition } from './data';
@@ -35,7 +38,7 @@ test('Cardless Voting Flow', async () => {
   const electionDefinition = electionSampleDefinition;
   const { electionData, electionHash } = electionDefinition;
   const card = new MemoryCard();
-  const adminCard = makeAdminCard(electionHash);
+  const electionManagerCard = makeElectionManagerCard(electionHash);
   const pollWorkerCard = makePollWorkerCard(electionHash);
   const hardware = MemoryHardware.buildStandard();
   const printer = fakePrinter();
@@ -64,8 +67,8 @@ test('Cardless Voting Flow', async () => {
 
   // ---------------
 
-  // Configure with Admin Card
-  card.insertCard(adminCard, electionData);
+  // Configure with Election Manager Card
+  card.insertCard(electionManagerCard, electionData);
   await authenticateAdminCard();
   fireEvent.click(screen.getByText('Load Election Definition'));
 
@@ -290,7 +293,7 @@ test('poll worker must select a precinct first', async () => {
   const electionDefinition = electionSampleDefinition;
   const { electionData, electionHash } = electionDefinition;
   const card = new MemoryCard();
-  const adminCard = makeAdminCard(electionHash);
+  const electionManagerCard = makeElectionManagerCard(electionHash);
   const pollWorkerCard = makePollWorkerCard(electionHash);
   const hardware = MemoryHardware.buildStandard();
   const printer = fakePrinter();
@@ -319,8 +322,8 @@ test('poll worker must select a precinct first', async () => {
 
   // ---------------
 
-  // Configure with Admin Card
-  card.insertCard(adminCard, electionData);
+  // Configure with Election Manager Card
+  card.insertCard(electionManagerCard, electionData);
   await authenticateAdminCard();
   fireEvent.click(screen.getByText('Load Election Definition'));
 

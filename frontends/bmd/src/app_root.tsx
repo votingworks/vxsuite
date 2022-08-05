@@ -35,10 +35,10 @@ import {
 import { Logger } from '@votingworks/logging';
 
 import {
-  isAdminAuth,
+  isElectionManagerAuth,
   isCardlessVoterAuth,
-  isPollworkerAuth,
-  isSuperadminAuth,
+  isPollWorkerAuth,
+  isSystemAdministratorAuth,
   isVoterAuth,
   SetupCardReaderPage,
   useDevices,
@@ -79,7 +79,7 @@ import { WrongPrecinctScreen } from './pages/wrong_precinct_screen';
 import { ScreenReader } from './utils/ScreenReader';
 import { ReplaceElectionScreen } from './pages/replace_election_screen';
 import { CardErrorScreen } from './pages/card_error_screen';
-import { SuperAdminScreen } from './pages/superadmin_screen';
+import { SystemAdministratorScreen } from './pages/system_administrator_screen';
 import { UnlockAdminScreen } from './pages/unlock_admin_screen';
 
 interface UserState {
@@ -349,17 +349,17 @@ export function AppRoot({
 
   const auth = useInsertedSmartcardAuth({
     allowedUserRoles: [
-      'superadmin',
-      'admin',
-      'pollworker',
+      'system_administrator',
+      'election_manager',
+      'poll_worker',
       'voter',
       'cardless_voter',
     ],
     cardApi: card,
     scope: {
-      // The BMD allows admins to update the machine to use the election definition on the card in
-      // this case
-      allowAdminsToAccessMachinesConfiguredForOtherElections: true,
+      // The BMD allows election managers to update the machine to use the election definition on
+      // the card in this case
+      allowElectionManagersToAccessMachinesConfiguredForOtherElections: true,
       electionDefinition: optionalElectionDefinition,
       precinct: appPrecinct,
     },
@@ -497,7 +497,7 @@ export function AppRoot({
   const getElectionDefinitionFromCard = useCallback(async (): Promise<
     Optional<ElectionDefinition>
   > => {
-    assert(isAdminAuth(auth));
+    assert(isElectionManagerAuth(auth));
     const electionData = (await auth.card.readStoredString()).ok();
     /* istanbul ignore else */
     if (electionData) {
@@ -527,7 +527,7 @@ export function AppRoot({
 
   const activateCardlessBallot = useCallback(
     (sessionPrecinctId: PrecinctId, sessionBallotStyleId: BallotStyleId) => {
-      assert(isPollworkerAuth(auth));
+      assert(isPollWorkerAuth(auth));
       auth.activateCardlessVoter(sessionPrecinctId, sessionBallotStyleId);
       resetBallot();
     },
@@ -535,7 +535,7 @@ export function AppRoot({
   );
 
   const resetCardlessBallot = useCallback(() => {
-    assert(isPollworkerAuth(auth));
+    assert(isPollWorkerAuth(auth));
     auth.deactivateCardlessVoter();
     history.push('/');
   }, [history, auth]);
@@ -734,16 +734,16 @@ export function AppRoot({
   if (auth.status === 'checking_passcode') {
     return <UnlockAdminScreen auth={auth} />;
   }
-  if (isSuperadminAuth(auth)) {
+  if (isSystemAdministratorAuth(auth)) {
     return (
-      <SuperAdminScreen
+      <SystemAdministratorScreen
         logger={logger}
         unconfigureMachine={unconfigure}
         usbDriveStatus={displayUsbStatus}
       />
     );
   }
-  if (isAdminAuth(auth)) {
+  if (isElectionManagerAuth(auth)) {
     if (
       optionalElectionDefinition &&
       auth.user.electionHash !== optionalElectionDefinition.electionHash
@@ -787,7 +787,7 @@ export function AppRoot({
     }
     if (
       auth.status === 'logged_out' &&
-      (auth.reason === 'pollworker_wrong_election' ||
+      (auth.reason === 'poll_worker_wrong_election' ||
         auth.reason === 'voter_wrong_election')
     ) {
       return (
@@ -797,7 +797,7 @@ export function AppRoot({
         />
       );
     }
-    if (isPollworkerAuth(auth)) {
+    if (isPollWorkerAuth(auth)) {
       return (
         <PollWorkerScreen
           pollworkerAuth={auth}

@@ -17,14 +17,14 @@ import '@testing-library/cypress/add-commands';
 import './commands';
 
 import { electionSampleDefinition } from '@votingworks/fixtures';
-import { makeAdminCard, makePollWorkerCard } from '@votingworks/test-utils';
+import { makeElectionManagerCard, makePollWorkerCard } from '@votingworks/test-utils';
 import { CardData } from '@votingworks/types';
 
-const ADMIN_CARD_DATA = makeAdminCard(
+const ELECTION_MANAGER_CARD_DATA = makeElectionManagerCard(
   electionSampleDefinition.electionHash,
   '000000'
 );
-const POLLWORKER_CARD_DATA = makePollWorkerCard(
+const POLL_WORKER_CARD_DATA = makePollWorkerCard(
   electionSampleDefinition.electionHash
 );
 
@@ -67,12 +67,12 @@ function removeCard() {
 }
 
 beforeEach(() => {
-  insertCard(ADMIN_CARD_DATA, electionSampleDefinition.electionData);
+  insertCard(ELECTION_MANAGER_CARD_DATA, electionSampleDefinition.electionData);
 
   cy.visit('/');
 
   // Authenticate
-  for (const digit of ADMIN_CARD_DATA.p) {
+  for (const digit of ELECTION_MANAGER_CARD_DATA.p) {
     cy.contains(digit).click();
   }
 
@@ -85,7 +85,7 @@ beforeEach(() => {
   cy.contains('Insert Poll Worker card to open');
 
   // Open polls
-  insertCard(POLLWORKER_CARD_DATA);
+  insertCard(POLL_WORKER_CARD_DATA);
   cy.contains('Open Polls for All Precincts').click();
   cy.contains('Open VxMark Now').click();
 
