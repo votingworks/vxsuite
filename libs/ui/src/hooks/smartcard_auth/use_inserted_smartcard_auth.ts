@@ -47,7 +47,7 @@ import { areVvsg2AuthFlowsEnabled } from '../../config/features';
 export const VOTER_CARD_EXPIRATION_SECONDS = 60 * 60; // 1 hour
 
 interface InsertedSmartcardAuthScope {
-  allowAdminsToAccessMachinesConfiguredForOtherElections?: boolean;
+  allowElectionManagersToAccessMachinesConfiguredForOtherElections?: boolean;
   electionDefinition?: ElectionDefinition;
   precinct?: PrecinctSelection;
 }
@@ -96,7 +96,7 @@ function validateCardUser(
     return err('user_role_not_allowed');
   }
 
-  if (user.role === 'admin') {
+  if (user.role === 'election_manager') {
     if (!areVvsg2AuthFlowsEnabled()) {
       return ok();
     }
@@ -105,18 +105,18 @@ function validateCardUser(
     }
     if (
       user.electionHash !== scope.electionDefinition.electionHash &&
-      !scope.allowAdminsToAccessMachinesConfiguredForOtherElections
+      !scope.allowElectionManagersToAccessMachinesConfiguredForOtherElections
     ) {
-      return err('admin_wrong_election');
+      return err('election_manager_wrong_election');
     }
   }
 
-  if (user.role === 'pollworker') {
+  if (user.role === 'poll_worker') {
     if (!scope.electionDefinition) {
       return err('machine_not_configured');
     }
     if (user.electionHash !== scope.electionDefinition.electionHash) {
-      return err('pollworker_wrong_election');
+      return err('poll_worker_wrong_election');
     }
   }
 
@@ -184,7 +184,10 @@ function smartcardAuthReducer(
               if (validationResult.isOk()) {
                 assert(user);
                 if (previousState.auth.status === 'logged_out') {
-                  if (user.role === 'superadmin' || user.role === 'admin') {
+                  if (
+                    user.role === 'system_administrator' ||
+                    user.role === 'election_manager'
+                  ) {
                     return { status: 'checking_passcode', user };
                   }
                   return { status: 'logged_in', user };
@@ -234,11 +237,11 @@ function smartcardAuthReducer(
   };
 }
 
-function buildPollworkerCardlessVoterProps(
+function buildPollWorkerCardlessVoterProps(
   activatedCardlessVoter: CardlessVoterUser | undefined,
   setActivatedCardlessVoter: (cardlessVoter?: CardlessVoterUser) => void
 ): Pick<
-  InsertedSmartcardAuth.PollworkerLoggedIn,
+  InsertedSmartcardAuth.PollWorkerLoggedIn,
   'activateCardlessVoter' | 'deactivateCardlessVoter' | 'activatedCardlessVoter'
 > {
   return {
@@ -369,20 +372,20 @@ function useInsertedSmartcardAuthBase({
       const { status, user } = auth;
       const cardStorage = buildCardStorage(cardSummary, cardApi, cardWriteLock);
       switch (user.role) {
-        case 'superadmin': {
+        case 'system_administrator': {
           return { status, user, card: cardStorage };
         }
 
-        case 'admin': {
+        case 'election_manager': {
           return { status, user, card: cardStorage };
         }
 
-        case 'pollworker': {
+        case 'poll_worker': {
           return {
             status,
             user,
             card: cardStorage,
-            ...buildPollworkerCardlessVoterProps(
+            ...buildPollWorkerCardlessVoterProps(
               activatedCardlessVoter,
               setActivatedCardlessVoter
             ),

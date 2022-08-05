@@ -5,7 +5,7 @@ import {
 } from '@votingworks/fixtures';
 import {
   advanceTimersAndPromises,
-  makeAdminCard,
+  makeElectionManagerCard,
   makePollWorkerCard,
   makeVoterCard,
 } from '@votingworks/test-utils';
@@ -88,7 +88,7 @@ test('with card reader and a voter card', async () => {
   });
 });
 
-test('with card reader and a pollworker card', async () => {
+test('with card reader and a poll worker card', async () => {
   const card = new MemoryCard();
 
   card.insertCard(makePollWorkerCard(electionSampleDefinition.electionHash));
@@ -100,17 +100,19 @@ test('with card reader and a pollworker card', async () => {
     smartcard: expect.objectContaining({
       longValueExists: false,
       data: expect.objectContaining({
-        t: 'pollworker',
+        t: 'poll_worker',
         h: electionSampleDefinition.electionHash,
       }),
     }),
   });
 });
 
-test('with card reader and an admin card', async () => {
+test('with card reader and an election manager card', async () => {
   const card = new MemoryCard();
 
-  card.insertCard(makeAdminCard(electionSampleDefinition.electionHash));
+  card.insertCard(
+    makeElectionManagerCard(electionSampleDefinition.electionHash)
+  );
 
   const { result } = renderHook(() => useSmartcard({ card, cardReader }));
   await advanceTimersAndPromises(CARD_POLLING_INTERVAL / 1000);
@@ -119,7 +121,7 @@ test('with card reader and an admin card', async () => {
     smartcard: expect.objectContaining({
       longValueExists: false,
       data: expect.objectContaining({
-        t: 'admin',
+        t: 'election_manager',
         h: electionSampleDefinition.electionHash,
       }),
     }),

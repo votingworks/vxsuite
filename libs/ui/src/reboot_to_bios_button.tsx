@@ -16,7 +16,7 @@ export function RebootToBiosButton({ logger }: Props): JSX.Element {
   const [isRebooting, setIsRebooting] = useState(false);
   async function reboot() {
     assert(window.kiosk);
-    await logger.log(LogEventId.RebootMachine, 'superadmin', {
+    await logger.log(LogEventId.RebootMachine, 'system_administrator', {
       message: 'User trigged a reboot of the machine to BIOS screen…',
     });
     setIsRebooting(true);

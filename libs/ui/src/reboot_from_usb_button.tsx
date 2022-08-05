@@ -39,43 +39,59 @@ export function RebootFromUsbButton({
   const [currentState, setCurrentState] = useState(State.CLOSED);
   const attemptReboot = useCallback(async () => {
     assert(window.kiosk);
-    await logger.log(LogEventId.PrepareBootFromUsbInit, 'superadmin', {
-      message:
-        'Attempting to set the USB drive next in the boot order and reboot',
-    });
+    await logger.log(
+      LogEventId.PrepareBootFromUsbInit,
+      'system_administrator',
+      {
+        message:
+          'Attempting to set the USB drive next in the boot order and reboot',
+      }
+    );
     if (usbDriveStatus !== usbstick.UsbDriveStatus.mounted) {
       setCurrentState(State.NO_USB_INSERTED);
-      await logger.log(LogEventId.PrepareBootFromUsbComplete, 'superadmin', {
-        message: 'No USB drive found, could not boot from usb',
-        disposition: 'failure',
-      });
+      await logger.log(
+        LogEventId.PrepareBootFromUsbComplete,
+        'system_administrator',
+        {
+          message: 'No USB drive found, could not boot from usb',
+          disposition: 'failure',
+        }
+      );
       return;
     }
     setCurrentState(State.PREPARING_BOOT);
     const readyToReboot = await window.kiosk.prepareToBootFromUsb();
     if (readyToReboot) {
-      await logger.log(LogEventId.PrepareBootFromUsbComplete, 'superadmin', {
-        message:
-          'USB Drive successfully set next in the boot order for the next boot.',
-        disposition: 'success',
-      });
-      await logger.log(LogEventId.RebootMachine, 'superadmin', {
+      await logger.log(
+        LogEventId.PrepareBootFromUsbComplete,
+        'system_administrator',
+        {
+          message:
+            'USB Drive successfully set next in the boot order for the next boot.',
+          disposition: 'success',
+        }
+      );
+      await logger.log(LogEventId.RebootMachine, 'system_administrator', {
         message: 'Machine will now reboot…',
       });
       setCurrentState(State.REBOOTING);
       await window.kiosk.reboot();
     } else {
       setCurrentState(State.NO_BOOTABLE_USB_OPTION);
-      await logger.log(LogEventId.PrepareBootFromUsbComplete, 'superadmin', {
-        message:
-          'USB Drive not found in the list of bootable options, boot order is not modified.',
-        disposition: 'failure',
-      });
+      await logger.log(
+        LogEventId.PrepareBootFromUsbComplete,
+        'system_administrator',
+        {
+          message:
+            'USB Drive not found in the list of bootable options, boot order is not modified.',
+          disposition: 'failure',
+        }
+      );
     }
   }, [usbDriveStatus, logger]);
   async function reboot() {
     assert(window.kiosk);
-    await logger.log(LogEventId.RebootMachine, 'superadmin', {
+    await logger.log(LogEventId.RebootMachine, 'system_administrator', {
       message: 'User trigged a reboot of the machine…',
     });
     setCurrentState(State.REBOOTING);

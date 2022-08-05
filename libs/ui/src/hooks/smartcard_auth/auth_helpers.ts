@@ -1,5 +1,5 @@
 import {
-  AdminCardData,
+  ElectionManagerCardData,
   AnyCardDataSchema,
   CardProgramming,
   CardStorage,
@@ -8,9 +8,9 @@ import {
   InsertedSmartcardAuth,
   ok,
   Optional,
-  PollworkerCardData,
+  PollWorkerCardData,
   safeParseJson,
-  SuperadminCardData,
+  SystemAdministratorCardData,
   User,
   wrapException,
 } from '@votingworks/types';
@@ -31,12 +31,16 @@ export function parseUserFromCardSummary(
   ).ok();
   if (!cardData) return undefined;
   switch (cardData.t) {
-    case 'superadmin':
-      return { role: 'superadmin', passcode: cardData.p };
-    case 'admin':
-      return { role: 'admin', electionHash: cardData.h, passcode: cardData.p };
-    case 'pollworker':
-      return { role: 'pollworker', electionHash: cardData.h };
+    case 'system_administrator':
+      return { role: 'system_administrator', passcode: cardData.p };
+    case 'election_manager':
+      return {
+        role: 'election_manager',
+        electionHash: cardData.h,
+        passcode: cardData.p,
+      };
+    case 'poll_worker':
+      return { role: 'poll_worker', electionHash: cardData.h };
     case 'voter':
       return {
         role: 'voter',
@@ -135,18 +139,18 @@ export function buildCardProgramming(
         throw new Error('Card write in progress');
       }
       switch (role) {
-        case 'superadmin': {
-          const cardData: SuperadminCardData = {
-            t: 'superadmin',
+        case 'system_administrator': {
+          const cardData: SystemAdministratorCardData = {
+            t: 'system_administrator',
             p: userData.passcode,
           };
           await cardApi.overrideWriteProtection();
           await cardApi.writeShortValue(JSON.stringify(cardData));
           break;
         }
-        case 'admin': {
-          const cardData: AdminCardData = {
-            t: 'admin',
+        case 'election_manager': {
+          const cardData: ElectionManagerCardData = {
+            t: 'election_manager',
             h: userData.electionHash,
             p: userData.passcode,
           };
@@ -157,9 +161,9 @@ export function buildCardProgramming(
           });
           break;
         }
-        case 'pollworker': {
-          const cardData: PollworkerCardData = {
-            t: 'pollworker',
+        case 'poll_worker': {
+          const cardData: PollWorkerCardData = {
+            t: 'poll_worker',
             h: userData.electionHash,
           };
           await cardApi.overrideWriteProtection();
@@ -209,18 +213,26 @@ export function buildCardProgramming(
       }
 
       const { role } = userData;
-      await logger.log(LogEventId.SmartcardProgramInit, 'superadmin', {
-        message: `Programming ${role} smartcard...`,
-        programmedUserRole: role,
-      });
+      await logger.log(
+        LogEventId.SmartcardProgramInit,
+        'system_administrator',
+        {
+          message: `Programming ${role} smartcard...`,
+          programmedUserRole: role,
+        }
+      );
       const result = await programUser(userData);
-      await logger.log(LogEventId.SmartcardProgramComplete, 'superadmin', {
-        disposition: result.isOk() ? 'success' : 'failure',
-        message: result.isOk()
-          ? `Successfully programmed ${role} smartcard.`
-          : `Error programming ${role} smartcard.`,
-        programmedUserRole: role,
-      });
+      await logger.log(
+        LogEventId.SmartcardProgramComplete,
+        'system_administrator',
+        {
+          disposition: result.isOk() ? 'success' : 'failure',
+          message: result.isOk()
+            ? `Successfully programmed ${role} smartcard.`
+            : `Error programming ${role} smartcard.`,
+          programmedUserRole: role,
+        }
+      );
       return result;
     },
 
@@ -230,26 +242,38 @@ export function buildCardProgramming(
       }
 
       const programmedUserRole = programmedUser?.role || 'unprogrammed';
-      await logger.log(LogEventId.SmartcardUnprogramInit, 'superadmin', {
-        message: `Unprogramming ${programmedUserRole} smartcard...`,
-        programmedUserRole,
-      });
+      await logger.log(
+        LogEventId.SmartcardUnprogramInit,
+        'system_administrator',
+        {
+          message: `Unprogramming ${programmedUserRole} smartcard...`,
+          programmedUserRole,
+        }
+      );
       const result = await unprogramUser();
       if (result.isOk()) {
-        await logger.log(LogEventId.SmartcardUnprogramComplete, 'superadmin', {
-          disposition: 'success',
-          message:
-            programmedUserRole === 'unprogrammed'
-              ? 'Smartcard already unprogrammed (no-op).'
-              : `Successfully unprogrammed ${programmedUserRole} smartcard.`,
-          previousProgrammedUserRole: programmedUserRole,
-        });
+        await logger.log(
+          LogEventId.SmartcardUnprogramComplete,
+          'system_administrator',
+          {
+            disposition: 'success',
+            message:
+              programmedUserRole === 'unprogrammed'
+                ? 'Smartcard already unprogrammed (no-op).'
+                : `Successfully unprogrammed ${programmedUserRole} smartcard.`,
+            previousProgrammedUserRole: programmedUserRole,
+          }
+        );
       } else {
-        await logger.log(LogEventId.SmartcardUnprogramComplete, 'superadmin', {
-          disposition: 'failure',
-          message: `Error unprogramming ${programmedUserRole} smartcard.`,
-          programmedUserRole,
-        });
+        await logger.log(
+          LogEventId.SmartcardUnprogramComplete,
+          'system_administrator',
+          {
+            disposition: 'failure',
+            message: `Error unprogramming ${programmedUserRole} smartcard.`,
+            programmedUserRole,
+          }
+        );
       }
       return result;
     },
@@ -259,34 +283,36 @@ export function buildCardProgramming(
 // Below, we define some useful type guards for checking who's logged in
 // We use function overloads to make them work with either Inserted or Dipped auth
 
-export function isSuperadminAuth(
+export function isSystemAdministratorAuth(
   auth: InsertedSmartcardAuth.Auth
-): auth is InsertedSmartcardAuth.SuperadminLoggedIn;
-export function isSuperadminAuth(
+): auth is InsertedSmartcardAuth.SystemAdministratorLoggedIn;
+export function isSystemAdministratorAuth(
   auth: DippedSmartcardAuth.Auth
-): auth is DippedSmartcardAuth.SuperadminLoggedIn;
-export function isSuperadminAuth(
+): auth is DippedSmartcardAuth.SystemAdministratorLoggedIn;
+export function isSystemAdministratorAuth(
   auth: InsertedSmartcardAuth.Auth | DippedSmartcardAuth.Auth
 ): boolean {
-  return auth.status === 'logged_in' && auth.user.role === 'superadmin';
+  return (
+    auth.status === 'logged_in' && auth.user.role === 'system_administrator'
+  );
 }
 
-export function isAdminAuth(
+export function isElectionManagerAuth(
   auth: InsertedSmartcardAuth.Auth
-): auth is InsertedSmartcardAuth.AdminLoggedIn;
-export function isAdminAuth(
+): auth is InsertedSmartcardAuth.ElectionManagerLoggedIn;
+export function isElectionManagerAuth(
   auth: DippedSmartcardAuth.Auth
-): auth is DippedSmartcardAuth.AdminLoggedIn;
-export function isAdminAuth(
+): auth is DippedSmartcardAuth.ElectionManagerLoggedIn;
+export function isElectionManagerAuth(
   auth: InsertedSmartcardAuth.Auth | DippedSmartcardAuth.Auth
 ): boolean {
-  return auth.status === 'logged_in' && auth.user.role === 'admin';
+  return auth.status === 'logged_in' && auth.user.role === 'election_manager';
 }
 
-export function isPollworkerAuth(
+export function isPollWorkerAuth(
   auth: InsertedSmartcardAuth.Auth
-): auth is InsertedSmartcardAuth.PollworkerLoggedIn {
-  return auth.status === 'logged_in' && auth.user.role === 'pollworker';
+): auth is InsertedSmartcardAuth.PollWorkerLoggedIn {
+  return auth.status === 'logged_in' && auth.user.role === 'poll_worker';
 }
 
 export function isVoterAuth(
