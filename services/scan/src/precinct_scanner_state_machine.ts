@@ -9,7 +9,7 @@ import {
 import { v4 as uuid } from 'uuid';
 import { err, Id, ok, Result } from '@votingworks/types';
 import { assert, throwIllegalValue } from '@votingworks/utils';
-import { switchMap, timer } from 'rxjs';
+import { retry, switchMap, timer } from 'rxjs';
 import {
   assign as xassign,
   Assigner,
@@ -55,7 +55,7 @@ export interface Context {
   client?: ScannerClient;
   scannedSheet?: SheetOf<string>;
   interpretation?: InterpretationResult;
-  error?: Error;
+  error?: Error | ScannerError;
   interpretationMode: InterpretationMode;
 }
 
@@ -102,6 +102,13 @@ function connectToPlustek(createPlustekClient: CreatePlustekClient) {
     debug('Plustek client connected: %s', plustekClient.isOk());
     return plustekClient.unsafeUnwrap();
   };
+}
+
+async function disconnectFromPlustek({ client }: Context) {
+  assert(client);
+  debug('Disconnecting from plustek');
+  await client.close();
+  debug('Plustek client disconnected');
 }
 
 function paperStatusToEvent(paperStatus: PaperStatus): ScannerStatusEvent {
@@ -160,7 +167,9 @@ function paperStatusObserver({ client }: Context) {
       return paperStatus.isOk()
         ? paperStatusToEvent(paperStatus.ok())
         : paperStatusErrorToEvent(paperStatus.err());
-    })
+    }),
+    // Try to ignore blips of bad paper statuses
+    retry({ count: 3, delay: PAPER_STATUS_POLLING_INTERVAL })
   );
 }
 
@@ -353,6 +362,7 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
           },
         },
         checking_initial_paper_status: {
+          id: 'checking_initial_paper_status',
           invoke: pollPaperStatus,
           on: {
             SCANNER_NO_PAPER: 'no_paper',
@@ -654,13 +664,41 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
             ],
           },
         },
-        error: {},
+        // If we see an unexpected error, try disconnecting from Plustek and starting over.
+        error: {
+          invoke: { src: disconnectFromPlustek, onDone: {}, onError: {} },
+          initial: 'cooling_off',
+          states: {
+            cooling_off: {
+              after: { DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 'reconnecting' },
+            },
+            reconnecting: {
+              invoke: {
+                src: connectToPlustek(createPlustekClient),
+                onDone: {
+                  target: '#checking_initial_paper_status',
+                  actions: assign({
+                    client: (_context, event) => event.data,
+                    error: undefined,
+                  }),
+                },
+                onError: 'failed_reconnecting',
+              },
+            },
+            failed_reconnecting: {},
+          },
+        },
       },
     },
     {
       delays: {
         // When disconnected, how long to wait before trying to reconnect.
         DELAY_RECONNECT: 500,
+        // When we run into an unexpected error (e.g. unexpected paper status),
+        // how long to wait before trying to reconnect. This should be pretty
+        // long in order to let Plustek finish whatever it's doing (yes, even
+        // after disconnecting, Plustek might keep scanning).
+        DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 5000,
         // When in accepted state, how long to ignore any new ballot that is
         // inserted (this ensures the user sees the accepted screen for a bit
         // before starting a new scan).
