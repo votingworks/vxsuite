@@ -624,7 +624,7 @@ export class Interpreter {
     template: ImageData,
     ballot: ImageData,
     target: TargetShape,
-    { maximumCorrectionPixelsX = 5, maximumCorrectionPixelsY = 5 } = {}
+    { maximumCorrectionPixelsX = 7, maximumCorrectionPixelsY = 7 } = {}
   ): { offset: Offset; score: number } {
     debug(
       'computing target mark score for target at (x=%d, y=%d)',
