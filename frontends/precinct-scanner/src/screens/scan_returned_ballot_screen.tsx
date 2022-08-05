@@ -1,6 +1,6 @@
 import React from 'react';
 import { Text } from '@votingworks/ui';
-import { ExclamationTriangle } from '../components/graphics';
+import { InsertBallot } from '../components/graphics';
 import {
   CenteredLargeProse,
   ScreenMainCenterChild,
@@ -10,11 +10,12 @@ export function ScanReturnedBallotScreen(): JSX.Element {
   return (
     <ScreenMainCenterChild infoBar={false}>
       {/* TODO: make a better graphic for this screen */}
-      <ExclamationTriangle />
+      <InsertBallot />
       <CenteredLargeProse>
-        <h1>Take Your Ballot</h1>
-        <p>After you fix it, come back and scan it again.</p>
-        <Text italic>Ask a poll worker if you need help.</Text>
+        <h1>Remove Your Ballot</h1>
+        <Text small italic>
+          Ask a poll worker if you need help.
+        </Text>
       </CenteredLargeProse>
     </ScreenMainCenterChild>
   );

@@ -11,13 +11,11 @@ export function ScanBusyScreen(): JSX.Element {
     <ScreenMainCenterChild infoBar={false}>
       <ExclamationTriangle />
       <CenteredLargeProse>
-        <h1>Scanner Busy</h1>
-        <p>
-          Another ballot is already being scanned.
-          <br />
-          Take your ballot out of the tray.
-        </p>
-        <Text italic>Ask a poll worker if you need help.</Text>
+        <h1>Remove Your Ballot</h1>
+        <p>Another ballot is being scanned.</p>
+        <Text small italic>
+          Ask a poll worker if you need help.
+        </Text>
       </CenteredLargeProse>
     </ScreenMainCenterChild>
   );

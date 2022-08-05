@@ -681,7 +681,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText(/Please wait/);
   jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
-  await screen.findByText('Blank Ballot');
+  await screen.findByText('No votes were found when scanning this ballot.');
 
   fetchMock
     .post('/scanner/accept', { body: { status: 'ok' } })
@@ -692,7 +692,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
       body: scannerStatus({ state: 'no_paper', ballotsCounted: 1 }),
     });
 
-  fireEvent.click(screen.getByRole('button', { name: 'Count blank ballot' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Cast Ballot As Is' }));
   await screen.findByText('Are you sure?');
   fireEvent.click(
     screen.getByRole('button', { name: 'Yes, count blank ballot' })
@@ -750,9 +750,9 @@ test('voter can cast a rejected ballot', async () => {
   jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText(/Please wait/);
   jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
-  await screen.findByText('Scanning Error');
+  await screen.findByText('Ballot Not Counted');
   screen.getByText(
-    'Scanned ballot does not match the election this scanner is configured for.'
+    'The ballot does not match the election this scanner is configured for.'
   );
   expect(fetchMock.done()).toBe(true);
 
@@ -816,7 +816,7 @@ test('voter can cast another ballot while the success screen is showing', async 
   jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText(/Please wait/);
   jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
-  await screen.findByText('Blank Ballot');
+  await screen.findByText('No votes were found when scanning this ballot.');
 
   expect(fetchMock.done()).toBe(true);
 });
@@ -1198,5 +1198,5 @@ test('election manager cannot auth onto machine with different election hash whe
   card.insertCard(
     makeElectionManagerCard(electionSample2Definition.electionHash)
   );
-  await screen.findByText('Invalid Card, please remove.');
+  await screen.findByText('Invalid Card');
 });

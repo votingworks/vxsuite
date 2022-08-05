@@ -46,10 +46,14 @@ test('overvote', () => {
 
   screen.getByRole('heading', { name: 'Too Many Votes' });
   screen.getByText(
-    new RegExp(`You voted for too many choices for ${contest.title}.`)
+    new RegExp(
+      `There are too many votes marked in the contest for: ${contest.title}.`
+    )
   );
-  userEvent.click(screen.getByRole('button', { name: 'Count my ballot' }));
-  userEvent.click(screen.getByRole('button', { name: 'Yes, count my ballot' }));
+  userEvent.click(screen.getByRole('button', { name: 'Cast Ballot As Is' }));
+  userEvent.click(
+    screen.getByRole('button', { name: 'Yes, Cast Ballot As Is' })
+  );
   expect(fetchMock.done()).toBe(true);
 });
 
@@ -59,9 +63,11 @@ test('blank ballot', () => {
     adjudicationReasonInfo: [{ type: AdjudicationReason.BlankBallot }],
   });
 
-  screen.getByRole('heading', { name: 'Blank Ballot' });
-  screen.getByText('Your ballot does not have any votes.');
-  userEvent.click(screen.getByRole('button', { name: 'Count blank ballot' }));
+  screen.getByRole('heading', {
+    name: 'Review Your Ballot',
+  });
+  screen.getByText('No votes were found when scanning this ballot.');
+  userEvent.click(screen.getByRole('button', { name: 'Cast Ballot As Is' }));
   userEvent.click(
     screen.getByRole('button', { name: 'Yes, count blank ballot' })
   );
@@ -87,9 +93,11 @@ test('undervote no votes', () => {
   });
 
   screen.getByRole('heading', { name: 'Review Your Ballot' });
-  screen.getByText(new RegExp(`You did not vote for ${contest.title}.`));
-  userEvent.click(screen.getByRole('button', { name: 'Count my ballot' }));
-  userEvent.click(screen.getByRole('button', { name: 'Yes, count my ballot' }));
+  screen.getByText(new RegExp(`No votes detected for: ${contest.title}.`));
+  userEvent.click(screen.getByRole('button', { name: 'Cast Ballot As Is' }));
+  userEvent.click(
+    screen.getByRole('button', { name: 'Yes, Cast Ballot As Is' })
+  );
   expect(fetchMock.done()).toBe(true);
 });
 
@@ -115,10 +123,14 @@ test('undervote by 1', () => {
 
   screen.getByRole('heading', { name: 'Review Your Ballot' });
   screen.getByText(
-    new RegExp(`You can vote for more people for ${contest.title}.`)
+    new RegExp(
+      `You may vote for more candidates in the contests for: ${contest.title}.`
+    )
   );
-  userEvent.click(screen.getByRole('button', { name: 'Count my ballot' }));
-  userEvent.click(screen.getByRole('button', { name: 'Yes, count my ballot' }));
+  userEvent.click(screen.getByRole('button', { name: 'Cast Ballot As Is' }));
+  userEvent.click(
+    screen.getByRole('button', { name: 'Yes, Cast Ballot As Is' })
+  );
   expect(fetchMock.done()).toBe(true);
 });
 
@@ -141,11 +153,13 @@ test('multiple undervotes', () => {
   screen.getByRole('heading', { name: 'Review Your Ballot' });
   screen.getByText(
     new RegExp(
-      `You can vote for more people for ${contests[0].title} and ${contests[1].title}.`
+      `You may vote for more candidates in the contests for: ${contests[0].title} and ${contests[1].title}.`
     )
   );
-  userEvent.click(screen.getByRole('button', { name: 'Count my ballot' }));
-  userEvent.click(screen.getByRole('button', { name: 'Yes, count my ballot' }));
+  userEvent.click(screen.getByRole('button', { name: 'Cast Ballot As Is' }));
+  userEvent.click(
+    screen.getByRole('button', { name: 'Yes, Cast Ballot As Is' })
+  );
   expect(fetchMock.done()).toBe(true);
 });
 
@@ -158,8 +172,10 @@ test('unreadable', () => {
     ],
   });
 
-  screen.getByRole('heading', { name: 'Review Your Ballot' });
-  userEvent.click(screen.getByRole('button', { name: 'Count my ballot' }));
-  userEvent.click(screen.getByRole('button', { name: 'Yes, count my ballot' }));
+  screen.getByRole('heading', { name: 'Scanning Failed' });
+  userEvent.click(screen.getByRole('button', { name: 'Cast Ballot As Is' }));
+  userEvent.click(
+    screen.getByRole('button', { name: 'Yes, Cast Ballot As Is' })
+  );
   expect(fetchMock.done()).toBe(true);
 });

@@ -11,8 +11,11 @@ export function ScanJamScreen(): JSX.Element {
     <ScreenMainCenterChild infoBar={false}>
       <TimesCircle />
       <CenteredLargeProse>
-        <h1>Scanner Jammed</h1>
-        <Text italic>Ask a poll worker for help.</Text>
+        <h1>Ballot Not Counted</h1>
+        <p>The ballot is jammed in the scanner.</p>
+        <Text small italic>
+          Ask a poll worker for help.
+        </Text>
       </CenteredLargeProse>
     </ScreenMainCenterChild>
   );

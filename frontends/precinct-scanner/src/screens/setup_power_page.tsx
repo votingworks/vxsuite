@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Main, Prose, NoWrap } from '@votingworks/ui';
+import { Main, Prose, NoWrap, Text } from '@votingworks/ui';
 
 import { ScreenMainCenterChild } from '../components/layout';
 
@@ -12,9 +12,9 @@ export function SetupPowerPage(): JSX.Element {
           <h1>
             No Power Detected <NoWrap>and Battery is Low</NoWrap>
           </h1>
-          <p>
-            Please ask a poll worker to plug-in the power cord for this machine.
-          </p>
+          <Text italic>
+            Please ask a poll worker to plug-in the power cord.
+          </Text>
         </Prose>
       </Main>
     </ScreenMainCenterChild>
