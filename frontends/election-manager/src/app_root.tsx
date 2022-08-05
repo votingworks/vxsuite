@@ -51,7 +51,6 @@ import {
   SaveElection,
   PrintedBallot,
   Iso8601Timestamp,
-  ExportableTallies,
   ResultsFileType,
   MachineConfig,
   ConverterClientType,
@@ -162,51 +161,51 @@ export function AppRoot({
   const currentUserRole =
     auth.status === 'logged_in' ? auth.user.role : 'unknown';
 
-  async function setStorageKeyAndLog(
-    storageKey: string,
-    value: unknown,
-    logDescription: string
-  ) {
-    try {
-      await storage.set(storageKey, value);
-      await logger.log(LogEventId.SaveToStorage, currentUserRole, {
-        message: `${logDescription} successfully saved to storage.`,
-        storageKey,
-        disposition: 'success',
-      });
-    } catch (error) {
-      assert(error instanceof Error);
-      await logger.log(LogEventId.SaveToStorage, currentUserRole, {
-        message: `Failed to save ${logDescription} to storage.`,
-        storageKey,
-        error: error.message,
-        disposition: 'failure',
-      });
-    }
-  }
-  async function removeStorageKeyAndLog(
-    storageKey: string,
-    logDescription: string
-  ) {
-    try {
-      await storage.remove(storageKey);
-      await logger.log(LogEventId.SaveToStorage, currentUserRole, {
-        message: `${logDescription} successfully cleared in storage.`,
-        storageKey,
-        disposition: 'success',
-      });
-    } catch (error) {
-      assert(error instanceof Error);
-      await logger.log(LogEventId.SaveToStorage, currentUserRole, {
-        message: `Failed to clear ${logDescription} in storage.`,
-        storageKey,
-        error: error.message,
-        disposition: 'failure',
-      });
-    }
-  }
+  const setStorageKeyAndLog = useCallback(
+    async (storageKey: string, value: unknown, logDescription: string) => {
+      try {
+        await storage.set(storageKey, value);
+        await logger.log(LogEventId.SaveToStorage, currentUserRole, {
+          message: `${logDescription} successfully saved to storage.`,
+          storageKey,
+          disposition: 'success',
+        });
+      } catch (error) {
+        assert(error instanceof Error);
+        await logger.log(LogEventId.SaveToStorage, currentUserRole, {
+          message: `Failed to save ${logDescription} to storage.`,
+          storageKey,
+          error: error.message,
+          disposition: 'failure',
+        });
+      }
+    },
+    [currentUserRole, logger, storage]
+  );
 
-  async function saveIsOfficialResults() {
+  const removeStorageKeyAndLog = useCallback(
+    async (storageKey: string, logDescription: string) => {
+      try {
+        await storage.remove(storageKey);
+        await logger.log(LogEventId.SaveToStorage, currentUserRole, {
+          message: `${logDescription} successfully cleared in storage.`,
+          storageKey,
+          disposition: 'success',
+        });
+      } catch (error) {
+        assert(error instanceof Error);
+        await logger.log(LogEventId.SaveToStorage, currentUserRole, {
+          message: `Failed to clear ${logDescription} in storage.`,
+          storageKey,
+          error: error.message,
+          disposition: 'failure',
+        });
+      }
+    },
+    [currentUserRole, logger, storage]
+  );
+
+  const saveIsOfficialResults = useCallback(async () => {
     setIsOfficialResults(true);
     await logger.log(LogEventId.MarkedTallyResultsOfficial, currentUserRole, {
       message:
@@ -218,7 +217,7 @@ export function AppRoot({
       true,
       'isOfficialResults flag'
     );
-  }
+  }, [currentUserRole, logger, setStorageKeyAndLog]);
 
   const [fullElectionTally, setFullElectionTally] = useState(
     getEmptyFullElectionTally()
@@ -254,20 +253,26 @@ export function AppRoot({
     );
   }, [storage]);
 
-  async function savePrintedBallots(printedBallotsToStore: PrintedBallot[]) {
-    await setStorageKeyAndLog(
-      printedBallotsStorageKey,
-      printedBallotsToStore,
-      'Printed ballot information'
-    );
-  }
+  const savePrintedBallots = useCallback(
+    async (printedBallotsToStore: PrintedBallot[]) => {
+      await setStorageKeyAndLog(
+        printedBallotsStorageKey,
+        printedBallotsToStore,
+        'Printed ballot information'
+      );
+    },
+    [setStorageKeyAndLog]
+  );
 
-  async function addPrintedBallot(printedBallot: PrintedBallot) {
-    const ballots = await getPrintedBallots();
-    ballots.push(printedBallot);
-    await savePrintedBallots(ballots);
-    setPrintedBallots(ballots);
-  }
+  const addPrintedBallot = useCallback(
+    async (printedBallot: PrintedBallot) => {
+      const ballots = await getPrintedBallots();
+      ballots.push(printedBallot);
+      await savePrintedBallots(ballots);
+      setPrintedBallots(ballots);
+    },
+    [getPrintedBallots, savePrintedBallots]
+  );
 
   const saveTranscribedValue = useCallback(
     async (adjudicationId: string, transcribedValue: string) => {
@@ -407,55 +412,57 @@ export function AppRoot({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [computeVoteCounts, castVoteRecordFiles]);
 
-  async function saveExternalTallies(
-    externalTallies: FullElectionExternalTally[]
-  ) {
-    setFullElectionExternalTallies(externalTallies);
-    if (externalTallies.length > 0) {
-      await setStorageKeyAndLog(
-        externalVoteTalliesFileStorageKey,
-        convertExternalTalliesToStorageString(externalTallies),
-        'Imported tally data from external file formats'
-      );
-    } else {
-      await removeStorageKeyAndLog(
-        externalVoteTalliesFileStorageKey,
-        'Imported tally data from external files'
-      );
-    }
-  }
+  const saveExternalTallies = useCallback(
+    async (externalTallies: FullElectionExternalTally[]) => {
+      setFullElectionExternalTallies(externalTallies);
+      if (externalTallies.length > 0) {
+        await setStorageKeyAndLog(
+          externalVoteTalliesFileStorageKey,
+          convertExternalTalliesToStorageString(externalTallies),
+          'Imported tally data from external file formats'
+        );
+      } else {
+        await removeStorageKeyAndLog(
+          externalVoteTalliesFileStorageKey,
+          'Imported tally data from external files'
+        );
+      }
+    },
+    [removeStorageKeyAndLog, setStorageKeyAndLog]
+  );
 
-  const saveCastVoteRecordFiles: SaveCastVoteRecordFiles = async (
-    newCvrFiles = CastVoteRecordFiles.empty
-  ) => {
-    setCastVoteRecordFiles(newCvrFiles);
-    if (newCvrFiles === CastVoteRecordFiles.empty) {
-      setIsOfficialResults(false);
-    }
+  const saveCastVoteRecordFiles: SaveCastVoteRecordFiles = useCallback(
+    async (newCvrFiles = CastVoteRecordFiles.empty) => {
+      setCastVoteRecordFiles(newCvrFiles);
+      if (newCvrFiles === CastVoteRecordFiles.empty) {
+        setIsOfficialResults(false);
+      }
 
-    if (newCvrFiles === CastVoteRecordFiles.empty) {
-      await fetch('/admin/write-ins/cvrs/reset', { method: 'GET' });
-      await removeStorageKeyAndLog(cvrsStorageKey, 'Cast vote records');
-      await removeStorageKeyAndLog(
-        isOfficialResultsKey,
-        'isOfficialResults flag'
-      );
-      setIsOfficialResults(false);
-    } else {
-      await setStorageKeyAndLog(
-        cvrsStorageKey,
-        newCvrFiles.export(),
-        'Cast vote records'
-      );
-      await fetch('/admin/write-ins/cvrs/', {
-        method: 'POST',
-        body: newCvrFiles.export(),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-    }
-  };
+      if (newCvrFiles === CastVoteRecordFiles.empty) {
+        await fetch('/admin/write-ins/cvrs/reset', { method: 'GET' });
+        await removeStorageKeyAndLog(cvrsStorageKey, 'Cast vote records');
+        await removeStorageKeyAndLog(
+          isOfficialResultsKey,
+          'isOfficialResults flag'
+        );
+        setIsOfficialResults(false);
+      } else {
+        await setStorageKeyAndLog(
+          cvrsStorageKey,
+          newCvrFiles.export(),
+          'Cast vote records'
+        );
+        await fetch('/admin/write-ins/cvrs/', {
+          method: 'POST',
+          body: newCvrFiles.export(),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+      }
+    },
+    [removeStorageKeyAndLog, setStorageKeyAndLog]
+  );
 
   const saveElection: SaveElection = useCallback(
     async (electionJson) => {
@@ -538,62 +545,71 @@ export function AppRoot({
     ]
   );
 
-  function generateExportableTallies(): ExportableTallies {
+  const generateExportableTallies = useCallback(() => {
     assert(electionDefinition);
     return getExportableTallies(
       fullElectionTally,
       fullElectionExternalTallies,
       electionDefinition.election
     );
-  }
+  }, [electionDefinition, fullElectionExternalTallies, fullElectionTally]);
 
-  async function resetFiles(fileType: ResultsFileType) {
-    switch (fileType) {
-      case ResultsFileType.CastVoteRecord:
-        await logger.log(LogEventId.RemovedTallyFile, currentUserRole, {
-          message: 'User removed all Cast vote record files.',
-          fileType,
-          disposition: 'success',
-        });
-        await saveCastVoteRecordFiles();
-        break;
-      case ResultsFileType.SEMS: {
-        const newFiles = fullElectionExternalTallies.filter(
-          (tally) => tally.source !== ExternalTallySourceType.SEMS
-        );
-        await logger.log(LogEventId.RemovedTallyFile, currentUserRole, {
-          message: 'User removed all SEMS external tally files.',
-          fileType,
-          disposition: 'success',
-        });
-        await saveExternalTallies(newFiles);
-        break;
+  const resetFiles = useCallback(
+    async (fileType: ResultsFileType) => {
+      switch (fileType) {
+        case ResultsFileType.CastVoteRecord:
+          await logger.log(LogEventId.RemovedTallyFile, currentUserRole, {
+            message: 'User removed all Cast vote record files.',
+            fileType,
+            disposition: 'success',
+          });
+          await saveCastVoteRecordFiles();
+          break;
+        case ResultsFileType.SEMS: {
+          const newFiles = fullElectionExternalTallies.filter(
+            (tally) => tally.source !== ExternalTallySourceType.SEMS
+          );
+          await logger.log(LogEventId.RemovedTallyFile, currentUserRole, {
+            message: 'User removed all SEMS external tally files.',
+            fileType,
+            disposition: 'success',
+          });
+          await saveExternalTallies(newFiles);
+          break;
+        }
+        case ResultsFileType.Manual: {
+          const newFiles = fullElectionExternalTallies.filter(
+            (tally) => tally.source !== ExternalTallySourceType.Manual
+          );
+          await logger.log(LogEventId.RemovedTallyFile, currentUserRole, {
+            message: 'User removed all manually entered tally data.',
+            fileType,
+            disposition: 'success',
+          });
+          await saveExternalTallies(newFiles);
+          break;
+        }
+        case ResultsFileType.All:
+          await logger.log(LogEventId.RemovedTallyFile, currentUserRole, {
+            message: 'User removed all tally data.',
+            fileType,
+            disposition: 'success',
+          });
+          await saveCastVoteRecordFiles();
+          await saveExternalTallies([]);
+          break;
+        default:
+          throwIllegalValue(fileType);
       }
-      case ResultsFileType.Manual: {
-        const newFiles = fullElectionExternalTallies.filter(
-          (tally) => tally.source !== ExternalTallySourceType.Manual
-        );
-        await logger.log(LogEventId.RemovedTallyFile, currentUserRole, {
-          message: 'User removed all manually entered tally data.',
-          fileType,
-          disposition: 'success',
-        });
-        await saveExternalTallies(newFiles);
-        break;
-      }
-      case ResultsFileType.All:
-        await logger.log(LogEventId.RemovedTallyFile, currentUserRole, {
-          message: 'User removed all tally data.',
-          fileType,
-          disposition: 'success',
-        });
-        await saveCastVoteRecordFiles();
-        await saveExternalTallies([]);
-        break;
-      default:
-        throwIllegalValue(fileType);
-    }
-  }
+    },
+    [
+      currentUserRole,
+      fullElectionExternalTallies,
+      logger,
+      saveCastVoteRecordFiles,
+      saveExternalTallies,
+    ]
+  );
 
   return (
     <AppContext.Provider
