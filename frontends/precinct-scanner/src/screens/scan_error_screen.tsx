@@ -29,6 +29,7 @@ export function ScanErrorScreen({ error, isTestMode }: Props): JSX.Element {
       case 'unknown':
         return undefined;
       // Precinct scanner error
+      case 'scanning_failed':
       case 'both_sides_have_paper':
       case 'paper_in_front_on_startup':
       case 'paper_in_back_on_startup':
