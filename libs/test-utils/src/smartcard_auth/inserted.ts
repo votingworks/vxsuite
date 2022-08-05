@@ -1,17 +1,17 @@
 import {
   CardStorage,
   InsertedSmartcardAuth,
-  SuperadminUser,
-  AdminUser,
-  PollworkerUser,
+  SystemAdministratorUser,
+  ElectionManagerUser,
+  PollWorkerUser,
   VoterUser,
   CardlessVoterUser,
 } from '@votingworks/types';
 import {
-  fakeSuperadminUser,
+  fakeSystemAdministratorUser,
   fakeCardStorage,
-  fakeAdminUser,
-  fakePollworkerUser,
+  fakeElectionManagerUser,
+  fakePollWorkerUser,
   fakeVoterUser,
   fakeCardlessVoterUser,
 } from './auth';
@@ -21,41 +21,41 @@ export function fakeCheckingPasscodeAuth(
 ): InsertedSmartcardAuth.CheckingPasscode {
   return {
     status: 'checking_passcode',
-    user: fakeAdminUser(),
+    user: fakeElectionManagerUser(),
     checkPasscode: jest.fn(),
     ...props,
   };
 }
 
-export function fakeSuperadminAuth(
-  user: Partial<SuperadminUser> = {},
+export function fakeSystemAdministratorAuth(
+  user: Partial<SystemAdministratorUser> = {},
   card: Partial<CardStorage> = {}
-): InsertedSmartcardAuth.SuperadminLoggedIn {
+): InsertedSmartcardAuth.SystemAdministratorLoggedIn {
   return {
     status: 'logged_in',
-    user: fakeSuperadminUser(user),
+    user: fakeSystemAdministratorUser(user),
     card: fakeCardStorage(card),
   };
 }
 
-export function fakeAdminAuth(
-  user: Partial<AdminUser> = {},
+export function fakeElectionManagerAuth(
+  user: Partial<ElectionManagerUser> = {},
   card: Partial<CardStorage> = {}
-): InsertedSmartcardAuth.AdminLoggedIn {
+): InsertedSmartcardAuth.ElectionManagerLoggedIn {
   return {
     status: 'logged_in',
-    user: fakeAdminUser(user),
+    user: fakeElectionManagerUser(user),
     card: fakeCardStorage(card),
   };
 }
 
-export function fakePollworkerAuth(
-  user: Partial<PollworkerUser> = {},
+export function fakePollWorkerAuth(
+  user: Partial<PollWorkerUser> = {},
   card: Partial<CardStorage> = {}
-): InsertedSmartcardAuth.PollworkerLoggedIn {
+): InsertedSmartcardAuth.PollWorkerLoggedIn {
   return {
     status: 'logged_in',
-    user: fakePollworkerUser(user),
+    user: fakePollWorkerUser(user),
     card: fakeCardStorage(card),
     activateCardlessVoter: jest.fn(),
     deactivateCardlessVoter: jest.fn(),

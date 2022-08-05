@@ -1,8 +1,8 @@
 import {
-  AdminCardData,
+  ElectionManagerCardData,
   Election,
-  PollworkerCardData,
-  SuperadminCardData,
+  PollWorkerCardData,
+  SystemAdministratorCardData,
   VoterCardData,
 } from '@votingworks/types';
 
@@ -24,32 +24,34 @@ function assert(condition: unknown, message?: string): asserts condition {
   }
 }
 
-export function makeSuperadminCard(pin?: string): SuperadminCardData {
+export function makeSystemAdministratorCard(
+  pin?: string
+): SystemAdministratorCardData {
   return {
-    t: 'superadmin',
+    t: 'system_administrator',
     p: pin ?? '123456',
   };
 }
 
-export function makeAdminCard(
+export function makeElectionManagerCard(
   electionHash: string,
   pin?: string
-): AdminCardData {
+): ElectionManagerCardData {
   return {
-    t: 'admin',
+    t: 'election_manager',
     h: electionHash,
     p: pin ?? '123456',
   };
 }
 
-export function makePollWorkerCard(electionHash: string): PollworkerCardData {
+export function makePollWorkerCard(electionHash: string): PollWorkerCardData {
   return {
-    t: 'pollworker',
+    t: 'poll_worker',
     h: electionHash,
   };
 }
 
-export function makeInvalidPollWorkerCard(): PollworkerCardData {
+export function makeInvalidPollWorkerCard(): PollWorkerCardData {
   return makePollWorkerCard(
     'd34db33f' // wrong election
   );
