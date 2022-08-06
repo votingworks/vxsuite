@@ -8,8 +8,8 @@ import {
   Modal,
   UsbControllerButton,
   UsbDrive,
-  isAdminAuth,
-  isPollworkerAuth,
+  isElectionManagerAuth,
+  isPollWorkerAuth,
 } from '@votingworks/ui';
 import { assert, throwIllegalValue, usbstick } from '@votingworks/utils';
 import { AppContext } from '../contexts/app_context';
@@ -45,7 +45,7 @@ export function ExportResultsModal({
 
   const { electionDefinition, machineConfig, auth } = useContext(AppContext);
   assert(electionDefinition);
-  assert(isAdminAuth(auth) || isPollworkerAuth(auth));
+  assert(isElectionManagerAuth(auth) || isPollWorkerAuth(auth));
   const userRole = auth.user.role;
 
   const exportResults = useCallback(

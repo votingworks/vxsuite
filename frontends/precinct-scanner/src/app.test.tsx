@@ -24,8 +24,8 @@ import {
   fakeUsbDrive,
   advanceTimersAndPromises,
   makePollWorkerCard,
-  makeAdminCard,
-  makeSuperadminCard,
+  makeElectionManagerCard,
+  makeSystemAdministratorCard,
   getZeroCompressedTally,
   mockOf,
 } from '@votingworks/test-utils';
@@ -308,7 +308,7 @@ test('app can load and configure from a usb stick', async () => {
   );
 });
 
-test('admin and pollworker configuration', async () => {
+test('election manager and poll worker configuration', async () => {
   const logger = fakeLogger();
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
@@ -349,7 +349,7 @@ test('admin and pollworker configuration', async () => {
   // Basic auth logging check
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.AuthLogin,
-    'pollworker',
+    'poll_worker',
     expect.objectContaining({ disposition: 'success' })
   );
 
@@ -385,12 +385,12 @@ test('admin and pollworker configuration', async () => {
   await screen.findByText('Election ID');
   await screen.findByText('748dc61ad3');
 
-  // Insert admin card to set precinct
-  const adminCard = makeAdminCard(
+  // Insert election manager card to set precinct
+  const electionManagerCard = makeElectionManagerCard(
     electionSampleDefinition.electionHash,
     '123456'
   );
-  card.insertCard(adminCard, electionSampleDefinition.electionData);
+  card.insertCard(electionManagerCard, electionSampleDefinition.electionData);
   await authenticateAdminCard();
   fireEvent.click(await screen.findByText('Live Election Mode'));
   await screen.findByText('Loading');
@@ -413,10 +413,10 @@ test('admin and pollworker configuration', async () => {
     'Insert poll worker card into VxMark to print the report.'
   );
 
-  // Switch back to admin screen
+  // Switch back to election manager screen
   card.removeCard();
   await advanceTimersAndPromises(1);
-  card.insertCard(adminCard, electionSampleDefinition.electionData);
+  card.insertCard(electionManagerCard, electionSampleDefinition.electionData);
   await authenticateAdminCard();
   // Change precinct
   fireEvent.change(await screen.findByTestId('selectPrecinct'), {
@@ -439,10 +439,10 @@ test('admin and pollworker configuration', async () => {
   // Polls should be reset to closed.
   await screen.findByText('Yes, Open the Polls');
 
-  // Switch back to admin screen
+  // Switch back to election manager screen
   card.removeCard();
   await advanceTimersAndPromises(1);
-  card.insertCard(adminCard, electionSampleDefinition.electionData);
+  card.insertCard(electionManagerCard, electionSampleDefinition.electionData);
   await authenticateAdminCard();
 
   // Calibrate scanner
@@ -464,7 +464,7 @@ test('admin and pollworker configuration', async () => {
   await screen.findByText('Calibration succeeded!');
   fireEvent.click(screen.getByRole('button', { name: 'Close' }));
 
-  // Remove card and insert admin card to unconfigure
+  // Remove card and insert election manager card to unconfigure
   fetchMock
     .get(
       '/scanner/status',
@@ -477,7 +477,7 @@ test('admin and pollworker configuration', async () => {
     });
   card.removeCard();
   await advanceTimersAndPromises(1);
-  card.insertCard(adminCard, electionSampleDefinition.electionData);
+  card.insertCard(electionManagerCard, electionSampleDefinition.electionData);
   await authenticateAdminCard();
   fireEvent.click(await screen.findByText('Unconfigure Machine'));
   await screen.findByText(
@@ -620,12 +620,12 @@ test('voter can cast a ballot that scans successfully ', async () => {
   card.removeCard();
   await advanceTimersAndPromises(1);
 
-  // Insert Admin Card
-  const adminCard = makeAdminCard(
+  // Insert Election Manager Card
+  const electionManagerCard = makeElectionManagerCard(
     electionSampleDefinition.electionHash,
     '123456'
   );
-  card.insertCard(adminCard, electionSampleDefinition.electionData);
+  card.insertCard(electionManagerCard, electionSampleDefinition.electionData);
   await authenticateAdminCard();
   await screen.findByText('Administrator Settings');
   fireEvent.click(await screen.findByText('Export Results to USB Drive'));
@@ -1128,7 +1128,7 @@ test('no printer: open polls, scan ballot, close polls, export results', async (
   await screen.findByText('Polls Closed');
 });
 
-test('super admin can log in and unconfigure machine', async () => {
+test('system administrator can log in and unconfigure machine', async () => {
   const card = new MemoryCard();
   const storage = new MemoryStorage();
   const hardware = MemoryHardware.buildStandard();
@@ -1147,7 +1147,7 @@ test('super admin can log in and unconfigure machine', async () => {
     .delete('/config/election', { body: deleteElectionConfigResponseBody });
   render(<App card={card} storage={storage} hardware={hardware} />);
 
-  card.insertCard(makeSuperadminCard());
+  card.insertCard(makeSystemAdministratorCard());
   await screen.findByText('Enter the card security code to unlock.');
   userEvent.click(screen.getByText('1'));
   userEvent.click(screen.getByText('2'));
@@ -1176,7 +1176,7 @@ test('super admin can log in and unconfigure machine', async () => {
   card.removeCard();
 });
 
-test('super admin allowed to log in on unconfigured machine', async () => {
+test('system administrator allowed to log in on unconfigured machine', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   hardware.setCardReaderConnected(true);
@@ -1195,11 +1195,11 @@ test('super admin allowed to log in on unconfigured machine', async () => {
 
   render(<App card={card} storage={storage} hardware={hardware} />);
 
-  card.insertCard(makeSuperadminCard());
+  card.insertCard(makeSystemAdministratorCard());
   await screen.findByText('Enter the card security code to unlock.');
 });
 
-test('admin cannot auth onto machine with different election hash when VVSG2 auth flows are enabled', async () => {
+test('election manager cannot auth onto machine with different election hash when VVSG2 auth flows are enabled', async () => {
   enableVvsg2AuthFlows();
 
   const card = new MemoryCard();
@@ -1220,6 +1220,8 @@ test('admin cannot auth onto machine with different election hash when VVSG2 aut
 
   render(<App card={card} storage={storage} hardware={hardware} />);
 
-  card.insertCard(makeAdminCard(electionSample2Definition.electionHash));
+  card.insertCard(
+    makeElectionManagerCard(electionSample2Definition.electionHash)
+  );
   await screen.findByText('Invalid Card, please remove.');
 });

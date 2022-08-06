@@ -1,8 +1,8 @@
 import { Result } from '@votingworks/types';
 import {
   Button,
-  isAdminAuth,
-  isPollworkerAuth,
+  isElectionManagerAuth,
+  isPollWorkerAuth,
   Loading,
   Modal,
   Prose,
@@ -45,7 +45,7 @@ export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
 
   const { electionDefinition, auth } = useContext(AppContext);
   assert(electionDefinition);
-  assert(isAdminAuth(auth) || isPollworkerAuth(auth));
+  assert(isElectionManagerAuth(auth) || isPollWorkerAuth(auth));
   const userRole = auth.user.role;
 
   const exportBackup = useCallback(

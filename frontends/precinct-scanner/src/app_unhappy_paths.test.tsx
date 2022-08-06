@@ -14,7 +14,7 @@ import {
   advanceTimersAndPromises,
   fakeKiosk,
   fakeUsbDrive,
-  makeAdminCard,
+  makeElectionManagerCard,
   makePollWorkerCard,
   makeVoterCard,
 } from '@votingworks/test-utils';
@@ -76,11 +76,11 @@ test('services/scan fails to unconfigure', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   render(<App card={card} hardware={hardware} />);
-  const adminCard = makeAdminCard(
+  const electionManagerCard = makeElectionManagerCard(
     electionSampleDefinition.electionHash,
     '123456'
   );
-  card.insertCard(adminCard, electionSampleDefinition.electionData);
+  card.insertCard(electionManagerCard, electionSampleDefinition.electionData);
   await advanceTimersAndPromises(1);
   await screen.findByText('Enter the card security code to unlock.');
   fireEvent.click(screen.getByText('1'));

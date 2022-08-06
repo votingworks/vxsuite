@@ -5,8 +5,8 @@ import {
   Prose,
   Modal,
   QrCode,
-  isAdminAuth,
-  isPollworkerAuth,
+  isElectionManagerAuth,
+  isPollWorkerAuth,
 } from '@votingworks/ui';
 
 import { assert } from '@votingworks/utils';
@@ -28,7 +28,7 @@ export function LiveCheckModal({ onClose }: Props): JSX.Element {
   const { electionDefinition, machineConfig, auth } = useContext(AppContext);
   assert(electionDefinition);
   assert(machineConfig);
-  assert(isAdminAuth(auth) || isPollworkerAuth(auth));
+  assert(isElectionManagerAuth(auth) || isPollWorkerAuth(auth));
 
   useEffect(() => {
     void (async () => {

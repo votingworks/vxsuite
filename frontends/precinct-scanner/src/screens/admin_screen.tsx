@@ -14,7 +14,7 @@ import {
   Select,
   SetClockButton,
   UsbDrive,
-  isAdminAuth,
+  isElectionManagerAuth,
 } from '@votingworks/ui';
 import { assert, usbstick } from '@votingworks/utils';
 import React, { useCallback, useContext, useState } from 'react';
@@ -47,7 +47,7 @@ export function AdminScreen({
     useContext(AppContext);
   assert(electionDefinition);
   const { election } = electionDefinition;
-  assert(isAdminAuth(auth));
+  assert(isElectionManagerAuth(auth));
   const userRole = auth.user.role;
 
   const [isLoading, setIsLoading] = useState(false);
@@ -287,7 +287,7 @@ export function DefaultPreview(): JSX.Element {
         auth: {
           status: 'logged_in',
           user: {
-            role: 'admin',
+            role: 'election_manager',
             electionHash: electionDefinition.electionHash,
             passcode: '000000',
           },
