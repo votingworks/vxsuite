@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useState, useContext } from 'react';
 import { LogEventId } from '@votingworks/logging';
 import { assert, LogFileType } from '@votingworks/utils';
 import {
-  isAdminAuth,
+  isElectionManagerAuth,
   Loading,
   Main,
   Modal,
@@ -48,7 +48,7 @@ export function AdminActionsScreen({
   electionDefinition,
 }: AdminActionScreenProps): JSX.Element {
   const { logger, auth } = useContext(AppContext);
-  assert(isAdminAuth(auth));
+  assert(isElectionManagerAuth(auth));
   const userRole = auth.user.role;
   const [isConfirmingUnconfigure, setIsConfirmingUnconfigure] = useState(false);
   const [isDoubleConfirmingUnconfigure, setIsDoubleConfirmingUnconfigure] =

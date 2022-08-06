@@ -10,7 +10,7 @@ import {
   ElectionData,
 } from '@votingworks/utils';
 import {
-  isAdminAuth,
+  isElectionManagerAuth,
   Main,
   Screen,
   Text,
@@ -59,7 +59,7 @@ export function ElectionConfiguration({
   const [errorMessage, setErrorMessage] = useState('');
   const { usbDriveStatus, usbDriveEject, logger, auth } =
     useContext(AppContext);
-  assert(isAdminAuth(auth));
+  assert(isElectionManagerAuth(auth));
   const userRole = auth.user.role;
 
   async function acceptAutomaticallyChosenFile(

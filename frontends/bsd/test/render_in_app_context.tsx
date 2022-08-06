@@ -30,7 +30,7 @@ export function makeAppContext({
   usbDriveStatus = usbstick.UsbDriveStatus.absent,
   usbDriveEject = jest.fn(),
   storage = new MemoryStorage(),
-  auth = Dipped.fakeAdminAuth(),
+  auth = Dipped.fakeElectionManagerAuth(),
   logger = new Logger(LogSource.VxCentralScanFrontend),
 }: Partial<AppContextInterface> = {}): AppContextInterface {
   return {

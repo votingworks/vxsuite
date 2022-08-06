@@ -1,6 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { join } from 'path';
-import { isAdminAuth, isSuperadminAuth, Modal } from '@votingworks/ui';
+import {
+  isElectionManagerAuth,
+  isSystemAdministratorAuth,
+  Modal,
+} from '@votingworks/ui';
 import {
   assert,
   usbstick,
@@ -37,7 +41,7 @@ enum ModalState {
 export function ExportLogsModal({ onClose, logFileType }: Props): JSX.Element {
   const { usbDriveStatus, auth, logger, electionDefinition, machineConfig } =
     useContext(AppContext);
-  assert(isAdminAuth(auth) || isSuperadminAuth(auth));
+  assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth));
   const userRole = auth.user.role;
 
   const [currentState, setCurrentState] = useState(ModalState.Init);

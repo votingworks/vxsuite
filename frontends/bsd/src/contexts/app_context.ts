@@ -29,7 +29,7 @@ const appContext: AppContextInterface = {
   auth: {
     status: 'logged_out',
     reason: 'machine_locked',
-    bootstrapAuthenticatedAdminSession: () => undefined,
+    bootstrapAuthenticatedElectionManagerSession: () => undefined,
   },
 };
 
