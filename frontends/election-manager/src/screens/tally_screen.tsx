@@ -2,7 +2,7 @@ import React, { useContext, useState, useRef } from 'react';
 import moment from 'moment';
 
 import { assert, format, find } from '@votingworks/utils';
-import { isAdminAuth, Prose, Table, TD, Text } from '@votingworks/ui';
+import { isElectionManagerAuth, Prose, Table, TD, Text } from '@votingworks/ui';
 import { ExternalTallySourceType } from '@votingworks/types';
 import { InputEventFunction, ResultsFileType } from '../config/types';
 
@@ -30,7 +30,7 @@ export function TallyScreen(): JSX.Element {
     auth,
   } = useContext(AppContext);
   assert(electionDefinition);
-  assert(isAdminAuth(auth));
+  assert(isElectionManagerAuth(auth));
   const { election } = electionDefinition;
   const externalFileInput = useRef<HTMLInputElement>(null);
 

@@ -4,7 +4,14 @@ import _ from 'lodash';
 
 import { Dictionary } from '@votingworks/types';
 import { assert, format, find } from '@votingworks/utils';
-import { isAdminAuth, LogoMark, Prose, Table, TD, Text } from '@votingworks/ui';
+import {
+  isElectionManagerAuth,
+  LogoMark,
+  Prose,
+  Table,
+  TD,
+  Text,
+} from '@votingworks/ui';
 import { LogEventId } from '@votingworks/logging';
 import { PrintableBallotType } from '../config/types';
 import { routerPaths } from '../router_paths';
@@ -24,7 +31,7 @@ export function PrintedBallotsReportScreen(): JSX.Element {
   const { electionDefinition, printedBallots, configuredAt, logger, auth } =
     useContext(AppContext);
   assert(electionDefinition && typeof configuredAt === 'string');
-  assert(isAdminAuth(auth)); // TODO auth check permissions for printing printed ballot report
+  assert(isElectionManagerAuth(auth)); // TODO auth check permissions for printing printed ballot report
   const userRole = auth.user.role;
   const { election } = electionDefinition;
 

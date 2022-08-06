@@ -5,7 +5,7 @@ import { assert, find } from '@votingworks/utils';
 import { LogEventId } from '@votingworks/logging';
 import { VotingMethod, getLabelForVotingMethod } from '@votingworks/types';
 import {
-  isAdminAuth,
+  isElectionManagerAuth,
   Modal,
   Prose,
   TallyReport,
@@ -72,7 +72,7 @@ export function TallyReportScreen(): JSX.Element {
     logger,
   } = useContext(AppContext);
   assert(electionDefinition);
-  assert(isAdminAuth(auth)); // TODO(auth) check permissions for viewing tally reports.
+  assert(isElectionManagerAuth(auth)); // TODO(auth) check permissions for viewing tally reports.
   const userRole = auth.user.role;
 
   const location = useLocation();

@@ -9,8 +9,8 @@ import { fakeKiosk } from '@votingworks/test-utils';
 import { hasTextAcrossElements } from '../../test/util/has_text_across_elements';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import {
-  authenticateWithAdminCard,
-  authenticateWithSuperAdminCard,
+  authenticateWithElectionManagerCard,
+  authenticateWithSystemAdministratorCard,
 } from '../../test/util/authenticate';
 import { createMemoryStorageWith } from '../../test/util/create_memory_storage_with';
 import { App } from '../app';
@@ -121,7 +121,7 @@ test('print sequence proceeds as expected', async () => {
     expect(logger.log).toHaveBeenCalledTimes(i + 1);
     expect(logger.log).toHaveBeenLastCalledWith(
       LogEventId.BallotPrinted,
-      'admin',
+      'election_manager',
       expect.objectContaining({
         disposition: 'success',
       })
@@ -150,7 +150,7 @@ test('initial modal state toggles based on printer state', async () => {
   });
   render(<App card={card} hardware={hardware} storage={storage} />);
 
-  await authenticateWithAdminCard(
+  await authenticateWithElectionManagerCard(
     card,
     electionMinimalExhaustiveSampleDefinition
   );
@@ -179,7 +179,7 @@ test('modal shows "Printer Disconnected" if printer disconnected while printing'
   });
   render(<App card={card} hardware={hardware} storage={storage} />);
 
-  await authenticateWithAdminCard(
+  await authenticateWithElectionManagerCard(
     card,
     electionMinimalExhaustiveSampleDefinition
   );
@@ -201,7 +201,7 @@ test('modal shows "Printer Disconnected" if printer disconnected while printing'
   delete window.kiosk;
 });
 
-test('modal is different for super admins', async () => {
+test('modal is different for system administrators', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.build({
     connectCardReader: true,
@@ -212,7 +212,7 @@ test('modal is different for super admins', async () => {
   });
   render(<App card={card} hardware={hardware} storage={storage} />);
 
-  await authenticateWithAdminCard(
+  await authenticateWithElectionManagerCard(
     card,
     electionMinimalExhaustiveSampleDefinition
   );
@@ -224,21 +224,21 @@ test('modal is different for super admins', async () => {
   userEvent.click(within(modal).getByText('Cancel'));
   userEvent.click(screen.getByText('Lock Machine'));
 
-  const adminOptions = ['Official', 'Test', 'Sample'];
+  const electionManagerOptions = ['Official', 'Test', 'Sample'];
 
-  await authenticateWithSuperAdminCard(card);
+  await authenticateWithSystemAdministratorCard(card);
   userEvent.click(await screen.findByText('Print All'));
   modal = await screen.findByRole('alertdialog');
   within(modal).getByText(
     hasTextAcrossElements('Print 4 Draft Absentee Ballots')
   );
-  for (const adminOption of adminOptions) {
-    expect(within(modal).queryAllByText(adminOption).length).toBe(0);
+  for (const electionManagerOption of electionManagerOptions) {
+    expect(within(modal).queryAllByText(electionManagerOption).length).toBe(0);
   }
   userEvent.click(within(modal).getByText('Cancel'));
   userEvent.click(screen.getByText('Lock Machine'));
 
-  await authenticateWithAdminCard(
+  await authenticateWithElectionManagerCard(
     card,
     electionMinimalExhaustiveSampleDefinition
   );
@@ -247,7 +247,7 @@ test('modal is different for super admins', async () => {
   within(modal).getByText(
     hasTextAcrossElements('Print 4 Official Absentee Ballots')
   );
-  for (const adminOption of adminOptions) {
-    within(modal).getByText(adminOption);
+  for (const electionManagerOption of electionManagerOptions) {
+    within(modal).getByText(electionManagerOption);
   }
 });

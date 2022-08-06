@@ -1,6 +1,11 @@
 import React, { useContext, useEffect, useState } from 'react';
 
-import { isAdminAuth, isSuperadminAuth, Modal, Prose } from '@votingworks/ui';
+import {
+  isElectionManagerAuth,
+  isSystemAdministratorAuth,
+  Modal,
+  Prose,
+} from '@votingworks/ui';
 import { assert, format } from '@votingworks/utils';
 import { ExternalTallySourceType, VotingMethod } from '@votingworks/types';
 import { LogEventId } from '@votingworks/logging';
@@ -32,7 +37,7 @@ export function ImportExternalResultsModal({
     logger,
   } = useContext(AppContext);
   assert(electionDefinition);
-  assert(isAdminAuth(auth) || isSuperadminAuth(auth)); // TODO(auth) check permissions for importing cvr
+  assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth)); // TODO(auth) check permissions for importing cvr
   const userRole = auth.user.role;
 
   const [errorMessage, setErrorMessage] = useState('');

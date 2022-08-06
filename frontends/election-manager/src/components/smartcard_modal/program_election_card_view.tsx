@@ -35,18 +35,18 @@ export function ProgramElectionCardView({
 
     setActionStatus({
       action: 'Program',
-      role: 'admin',
+      role: 'election_manager',
       status: 'InProgress',
     });
     const result = await card.programUser({
-      role: 'admin',
+      role: 'election_manager',
       electionData: electionDefinition.electionData,
       electionHash: electionDefinition.electionHash,
       passcode: generatePin(),
     });
     setActionStatus({
       action: 'Program',
-      role: 'admin',
+      role: 'election_manager',
       status: result.isOk() ? 'Success' : 'Error',
     });
   }
@@ -56,16 +56,16 @@ export function ProgramElectionCardView({
 
     setActionStatus({
       action: 'Program',
-      role: 'pollworker',
+      role: 'poll_worker',
       status: 'InProgress',
     });
     const result = await card.programUser({
-      role: 'pollworker',
+      role: 'poll_worker',
       electionHash: electionDefinition.electionHash,
     });
     setActionStatus({
       action: 'Program',
-      role: 'pollworker',
+      role: 'poll_worker',
       status: result.isOk() ? 'Success' : 'Error',
     });
   }
@@ -87,7 +87,7 @@ export function ProgramElectionCardView({
             <HorizontalRule />
             <p>
               <Button disabled={!electionDefinition} onPress={programAdminCard}>
-                Admin Card
+                Election Manager Card
               </Button>{' '}
               or{' '}
               <Button

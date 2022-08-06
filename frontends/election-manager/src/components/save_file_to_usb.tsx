@@ -8,8 +8,8 @@ import {
   Modal,
   UsbControllerButton,
   Prose,
-  isAdminAuth,
-  isSuperadminAuth,
+  isElectionManagerAuth,
+  isSystemAdministratorAuth,
 } from '@votingworks/ui';
 
 import { LogEventId } from '@votingworks/logging';
@@ -61,7 +61,7 @@ export function SaveFileToUsb({
 }: Props): JSX.Element {
   const { usbDriveStatus, usbDriveEject, isOfficialResults, auth, logger } =
     useContext(AppContext);
-  assert(isAdminAuth(auth) || isSuperadminAuth(auth)); // TODO(auth) should this check for a specific user type
+  assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth)); // TODO(auth) should this check for a specific user type
   const userRole = auth.user.role;
 
   const [currentState, setCurrentState] = useState(ModalState.INIT);

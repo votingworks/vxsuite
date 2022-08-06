@@ -6,7 +6,11 @@ import {
   generateFinalExportDefaultFilename,
   format,
 } from '@votingworks/utils';
-import { Prose, useCancelablePromise, isAdminAuth } from '@votingworks/ui';
+import {
+  Prose,
+  useCancelablePromise,
+  isElectionManagerAuth,
+} from '@votingworks/ui';
 import { TallyCategory } from '@votingworks/types';
 import { LogEventId } from '@votingworks/logging';
 
@@ -40,7 +44,7 @@ export function ReportsScreen(): JSX.Element {
     logger,
     auth,
   } = useContext(AppContext);
-  assert(isAdminAuth(auth));
+  assert(isElectionManagerAuth(auth));
   const userRole = auth.user.role;
   assert(electionDefinition && typeof configuredAt === 'string');
   const { election } = electionDefinition;

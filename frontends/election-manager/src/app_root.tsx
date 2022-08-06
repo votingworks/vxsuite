@@ -501,7 +501,7 @@ export function AppRoot({
         const election = safeParseElection(electionData).unsafeUnwrap();
 
         if (!areVvsg2AuthFlowsEnabled() && auth.status === 'logged_out') {
-          auth.bootstrapAuthenticatedAdminSession(electionHash);
+          auth.bootstrapAuthenticatedElectionManagerSession(electionHash);
         }
 
         setElectionDefinition({

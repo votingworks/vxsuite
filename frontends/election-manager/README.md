@@ -1,6 +1,10 @@
 # Election Manager (VxAdmin)
 
-This app is intended to be used on an offline computer by an election admin.
+This app is intended to be used on an offline computer by system administrators
+and election managers.
+
+Note: Election manager can refer to VxAdmin or a user role, depending on the
+context.
 
 ## Setup
 

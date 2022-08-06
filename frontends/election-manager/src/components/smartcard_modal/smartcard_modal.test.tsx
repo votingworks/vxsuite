@@ -1,7 +1,11 @@
 import fetchMock from 'fetch-mock';
 import React from 'react';
 import userEvent from '@testing-library/user-event';
-import { AdminUser, AnyCardData, PollworkerUser } from '@votingworks/types';
+import {
+  ElectionManagerUser,
+  AnyCardData,
+  PollWorkerUser,
+} from '@votingworks/types';
 import { areVvsg2AuthFlowsEnabled } from '@votingworks/ui';
 import {
   assert,
@@ -16,20 +20,20 @@ import {
   electionSample2Definition,
 } from '@votingworks/fixtures';
 import {
-  makeAdminCard,
+  makeElectionManagerCard,
   makePollWorkerCard,
-  makeSuperadminCard,
+  makeSystemAdministratorCard,
   makeVoterCard,
   mockOf,
 } from '@votingworks/test-utils';
 import { render, screen, waitFor, within } from '@testing-library/react';
 
 import { App } from '../../app';
+import { authenticateWithSystemAdministratorCard } from '../../../test/util/authenticate';
 import { createMemoryStorageWith } from '../../../test/util/create_memory_storage_with';
 import { generatePin } from './pins';
 import { MachineConfig } from '../../config/types';
 import { VxFiles } from '../../lib/converters';
-import { authenticateWithSuperAdminCard } from '../../../test/util/authenticate';
 
 jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => {
   return {
@@ -73,7 +77,7 @@ test('Smartcard modal displays card details', async () => {
   const hardware = MemoryHardware.buildStandard();
   const storage = await createMemoryStorageWith({ electionDefinition });
   render(<App card={card} hardware={hardware} storage={storage} />);
-  await authenticateWithSuperAdminCard(card);
+  await authenticateWithSystemAdministratorCard(card);
 
   const testCases: Array<{
     cardData: AnyCardData;
@@ -84,16 +88,16 @@ test('Smartcard modal displays card details', async () => {
     expectedFooter: string;
   }> = [
     {
-      cardData: makeSuperadminCard(),
-      expectedHeading: 'Super Admin Card',
+      cardData: makeSystemAdministratorCard(),
+      expectedHeading: 'System Administrator Card',
       expectedElectionString: undefined,
       shouldResetCardPinButtonBeDisplayed: true,
       shouldUnprogramCardButtonBeDisplayed: false,
       expectedFooter: 'Remove card to cancel.',
     },
     {
-      cardData: makeAdminCard(electionHash),
-      expectedHeading: 'Admin Card',
+      cardData: makeElectionManagerCard(electionHash),
+      expectedHeading: 'Election Manager Card',
       expectedElectionString: 'General Election — Tuesday, November 3, 2020',
       shouldResetCardPinButtonBeDisplayed: true,
       shouldUnprogramCardButtonBeDisplayed: true,
@@ -116,8 +120,8 @@ test('Smartcard modal displays card details', async () => {
       expectedFooter: 'Remove card to leave this screen.',
     },
     {
-      cardData: makeAdminCard(otherElectionHash),
-      expectedHeading: 'Admin Card',
+      cardData: makeElectionManagerCard(otherElectionHash),
+      expectedHeading: 'Election Manager Card',
       expectedElectionString: 'Unknown Election',
       shouldResetCardPinButtonBeDisplayed: false,
       shouldUnprogramCardButtonBeDisplayed: true,
@@ -182,7 +186,7 @@ test('Smartcard modal displays card details when no election definition on machi
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   render(<App card={card} hardware={hardware} storage={storage} />);
-  await authenticateWithSuperAdminCard(card);
+  await authenticateWithSystemAdministratorCard(card);
 
   const testCases: Array<{
     cardData: AnyCardData;
@@ -193,16 +197,16 @@ test('Smartcard modal displays card details when no election definition on machi
     expectedFooter: string;
   }> = [
     {
-      cardData: makeSuperadminCard(),
-      expectedHeading: 'Super Admin Card',
+      cardData: makeSystemAdministratorCard(),
+      expectedHeading: 'System Administrator Card',
       expectedElectionString: undefined,
       shouldResetCardPinButtonBeDisplayed: true,
       shouldElectionDefinitionPromptBeDisplayed: false,
       expectedFooter: 'Remove card to cancel.',
     },
     {
-      cardData: makeAdminCard(electionHash),
-      expectedHeading: 'Admin Card',
+      cardData: makeElectionManagerCard(electionHash),
+      expectedHeading: 'Election Manager Card',
       expectedElectionString: 'Unknown Election',
       shouldResetCardPinButtonBeDisplayed: false,
       shouldElectionDefinitionPromptBeDisplayed: true,
@@ -276,29 +280,29 @@ test('Smartcard modal displays card details when no election definition on machi
   }
 });
 
-test('Programming admin and poll worker smartcards', async () => {
+test('Programming election manager and poll worker smartcards', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const storage = await createMemoryStorageWith({ electionDefinition });
   render(<App card={card} hardware={hardware} storage={storage} />);
-  await authenticateWithSuperAdminCard(card);
+  await authenticateWithSystemAdministratorCard(card);
 
   const testCases: Array<{
-    role: AdminUser['role'] | PollworkerUser['role'];
+    role: ElectionManagerUser['role'] | PollWorkerUser['role'];
     expectedProgressText: string;
     expectedHeadingAfterProgramming: string;
     expectedSuccessText: Array<string | RegExp>;
     expectedCardLongString?: string;
   }> = [
     {
-      role: 'admin',
-      expectedProgressText: 'Creating Admin Card',
-      expectedHeadingAfterProgramming: 'Admin Card',
+      role: 'election_manager',
+      expectedProgressText: 'Creating Election Manager Card',
+      expectedHeadingAfterProgramming: 'Election Manager Card',
       expectedSuccessText: [/New card PIN is /, '123-456'],
       expectedCardLongString: electionData,
     },
     {
-      role: 'pollworker',
+      role: 'poll_worker',
       expectedProgressText: 'Creating Poll Worker Card',
       expectedHeadingAfterProgramming: 'Poll Worker Card',
       expectedSuccessText: ['New card created.'],
@@ -323,19 +327,19 @@ test('Programming admin and poll worker smartcards', async () => {
     const modal = await screen.findByRole('alertdialog');
     within(modal).getByRole('heading', { name: 'Create New Election Card' });
     within(modal).getByText('General Election — Tuesday, November 3, 2020');
-    const adminCardButton = within(modal).getByRole('button', {
-      name: 'Admin Card',
+    const electionManagerCardButton = within(modal).getByRole('button', {
+      name: 'Election Manager Card',
     });
     const pollWorkerCardButton = within(modal).getByRole('button', {
       name: 'Poll Worker Card',
     });
     within(modal).getByText('Remove card to cancel.');
     switch (role) {
-      case 'admin': {
-        userEvent.click(adminCardButton);
+      case 'election_manager': {
+        userEvent.click(electionManagerCardButton);
         break;
       }
-      case 'pollworker': {
+      case 'poll_worker': {
         userEvent.click(pollWorkerCardButton);
         break;
       }
@@ -364,32 +368,36 @@ test('Programming admin and poll worker smartcards', async () => {
   }
 });
 
-test('Programming super admin smartcards', async () => {
+test('Programming system administrator smartcards', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const storage = await createMemoryStorageWith({ electionDefinition });
   render(<App card={card} hardware={hardware} storage={storage} />);
-  await authenticateWithSuperAdminCard(card);
+  await authenticateWithSystemAdministratorCard(card);
 
-  // Programming super admin smartcards requires being on a specific screen
+  // Programming system administrator smartcards requires being on a specific screen
   userEvent.click(screen.getByText('Smartcards'));
-  userEvent.click(await screen.findByText('Create Super Admin Cards'));
-  await screen.findByRole('heading', { name: 'Super Admin Cards' });
+  userEvent.click(await screen.findByText('Create System Administrator Cards'));
+  await screen.findByRole('heading', { name: 'System Administrator Cards' });
   card.insertCard(); // Blank card
 
   const modal = await screen.findByRole('alertdialog');
-  within(modal).getByRole('heading', { name: 'Create New Super Admin Card' });
+  within(modal).getByRole('heading', {
+    name: 'Create New System Administrator Card',
+  });
   within(modal).getByText(
     'This card performs all system actions. ' +
-      'Strictly limit the number created and keep all Super Admin Cards secure.'
+      'Strictly limit the number created and keep all System Administrator Cards secure.'
   );
-  const superAdminCardButton = within(modal).getByRole('button', {
-    name: 'Create Super Admin Card',
+  const systemAdministratorCardButton = within(modal).getByRole('button', {
+    name: 'Create System Administrator Card',
   });
   within(modal).getByText('Remove card to cancel.');
-  userEvent.click(superAdminCardButton);
-  await screen.findByText(/Creating Super Admin Card/);
-  await within(modal).findByRole('heading', { name: 'Super Admin Card' });
+  userEvent.click(systemAdministratorCardButton);
+  await screen.findByText(/Creating System Administrator Card/);
+  await within(modal).findByRole('heading', {
+    name: 'System Administrator Card',
+  });
   within(modal).getByText(/New card PIN is /);
   within(modal).getByText('123-456');
   within(modal).getByText('Remove card to continue.');
@@ -398,9 +406,9 @@ test('Programming super admin smartcards', async () => {
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
-  // For some reason, finding by role doesn't work here, though 'Super Admin Cards' is present in a
-  // heading
-  await screen.findByText('Super Admin Cards');
+  // For some reason, finding by role doesn't work here, though 'System Administrator Cards' is
+  // present in a heading
+  await screen.findByText('System Administrator Cards');
 });
 
 test('Programming smartcards when no election definition on machine', async () => {
@@ -408,7 +416,7 @@ test('Programming smartcards when no election definition on machine', async () =
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   render(<App card={card} hardware={hardware} storage={storage} />);
-  await authenticateWithSuperAdminCard(card);
+  await authenticateWithSystemAdministratorCard(card);
 
   await screen.findByRole('heading', { name: 'Configure VxAdmin' });
   card.insertCard(); // Blank card
@@ -419,7 +427,7 @@ test('Programming smartcards when no election definition on machine', async () =
     'An election must be defined before cards can be created.'
   );
   expect(
-    within(modal).queryByRole('button', { name: 'Admin Card' })
+    within(modal).queryByRole('button', { name: 'Election Manager Card' })
   ).not.toBeInTheDocument();
   expect(
     within(modal).queryByRole('button', { name: 'Poll Worker Card' })
@@ -438,7 +446,7 @@ test('Resetting smartcard PINs', async () => {
   const hardware = MemoryHardware.buildStandard();
   const storage = await createMemoryStorageWith({ electionDefinition });
   render(<App card={card} hardware={hardware} storage={storage} />);
-  await authenticateWithSuperAdminCard(card);
+  await authenticateWithSystemAdministratorCard(card);
 
   const oldPin = '000000';
   const newPin = '123456';
@@ -451,16 +459,16 @@ test('Resetting smartcard PINs', async () => {
     expectedProgressText: string;
   }> = [
     {
-      cardData: makeSuperadminCard(oldPin),
+      cardData: makeSystemAdministratorCard(oldPin),
       cardLongValue: undefined,
-      expectedHeading: 'Super Admin Card',
-      expectedProgressText: 'Resetting Super Admin Card PIN',
+      expectedHeading: 'System Administrator Card',
+      expectedProgressText: 'Resetting System Administrator Card PIN',
     },
     {
-      cardData: makeAdminCard(electionHash, oldPin),
+      cardData: makeElectionManagerCard(electionHash, oldPin),
       cardLongValue: electionData,
-      expectedHeading: 'Admin Card',
-      expectedProgressText: 'Resetting Admin Card PIN',
+      expectedHeading: 'Election Manager Card',
+      expectedProgressText: 'Resetting Election Manager Card PIN',
     },
   ];
 
@@ -516,7 +524,7 @@ test('Unprogramming smartcards', async () => {
   const hardware = MemoryHardware.buildStandard();
   const storage = await createMemoryStorageWith({ electionDefinition });
   render(<App card={card} hardware={hardware} storage={storage} />);
-  await authenticateWithSuperAdminCard(card);
+  await authenticateWithSystemAdministratorCard(card);
 
   // The smartcard modal should open on any screen, not just the Smartcards screen
   await screen.findByRole('heading', { name: 'Election Definition' });
@@ -528,10 +536,10 @@ test('Unprogramming smartcards', async () => {
     expectedSuccessText: string;
   }> = [
     {
-      cardData: makeAdminCard(electionHash),
-      expectedHeadingBeforeUnprogramming: 'Admin Card',
-      expectedProgressText: 'Unprogramming Admin Card',
-      expectedSuccessText: 'Admin Card has been unprogrammed.',
+      cardData: makeElectionManagerCard(electionHash),
+      expectedHeadingBeforeUnprogramming: 'Election Manager Card',
+      expectedProgressText: 'Unprogramming Election Manager Card',
+      expectedSuccessText: 'Election Manager Card has been unprogrammed.',
     },
     {
       cardData: makePollWorkerCard(electionHash),
@@ -579,7 +587,7 @@ test('Error handling', async () => {
   const hardware = MemoryHardware.buildStandard();
   const storage = await createMemoryStorageWith({ electionDefinition });
   render(<App card={card} hardware={hardware} storage={storage} />);
-  await authenticateWithSuperAdminCard(card);
+  await authenticateWithSystemAdministratorCard(card);
 
   card.overrideWriteProtection = jest.fn();
   mockOf(card.overrideWriteProtection).mockImplementation(() =>
@@ -595,9 +603,10 @@ test('Error handling', async () => {
   }> = [
     {
       cardData: undefined,
-      buttonToPress: 'Admin Card',
-      expectedProgressText: 'Creating Admin Card',
-      expectedErrorText: 'Error creating Admin Card. Please try again.',
+      buttonToPress: 'Election Manager Card',
+      expectedProgressText: 'Creating Election Manager Card',
+      expectedErrorText:
+        'Error creating Election Manager Card. Please try again.',
     },
     {
       cardData: undefined,
@@ -608,21 +617,24 @@ test('Error handling', async () => {
     {
       beginFromSuperAdminCardsScreen: true,
       cardData: undefined,
-      buttonToPress: 'Create Super Admin Card',
-      expectedProgressText: 'Creating Super Admin Card',
-      expectedErrorText: 'Error creating Super Admin Card. Please try again.',
+      buttonToPress: 'Create System Administrator Card',
+      expectedProgressText: 'Creating System Administrator Card',
+      expectedErrorText:
+        'Error creating System Administrator Card. Please try again.',
     },
     {
-      cardData: makeAdminCard(electionHash),
+      cardData: makeElectionManagerCard(electionHash),
       buttonToPress: 'Reset Card PIN',
-      expectedProgressText: 'Resetting Admin Card PIN',
-      expectedErrorText: 'Error resetting Admin Card PIN. Please try again.',
+      expectedProgressText: 'Resetting Election Manager Card PIN',
+      expectedErrorText:
+        'Error resetting Election Manager Card PIN. Please try again.',
     },
     {
-      cardData: makeAdminCard(electionHash),
+      cardData: makeElectionManagerCard(electionHash),
       buttonToPress: 'Unprogram Card',
-      expectedProgressText: 'Unprogramming Admin Card',
-      expectedErrorText: 'Error unprogramming Admin Card. Please try again.',
+      expectedProgressText: 'Unprogramming Election Manager Card',
+      expectedErrorText:
+        'Error unprogramming Election Manager Card. Please try again.',
     },
     {
       cardData: makePollWorkerCard(electionHash),
@@ -644,8 +656,10 @@ test('Error handling', async () => {
 
     if (beginFromSuperAdminCardsScreen) {
       userEvent.click(screen.getByText('Smartcards'));
-      userEvent.click(await screen.findByText('Create Super Admin Cards'));
-      await screen.findByText('Super Admin Cards');
+      userEvent.click(
+        await screen.findByText('Create System Administrator Cards')
+      );
+      await screen.findByText('System Administrator Cards');
     } else {
       userEvent.click(screen.getByText('Smartcards'));
       await screen.findByText('Election Cards');

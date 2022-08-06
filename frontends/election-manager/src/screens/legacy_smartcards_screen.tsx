@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useState } from 'react';
 import {
-  isAdminAuth,
-  isSuperadminAuth,
+  isElectionManagerAuth,
+  isSystemAdministratorAuth,
   Modal,
   NumberPad,
   Prose,
@@ -37,7 +37,7 @@ const NumberPadWrapper = styled.div`
 export function LegacySmartcardsScreen(): JSX.Element {
   const { electionDefinition, logger, auth } = useContext(AppContext);
   assert(electionDefinition);
-  assert(isAdminAuth(auth) || isSuperadminAuth(auth)); // TODO(auth) check permissions for writing smartcards
+  assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth)); // TODO(auth) check permissions for writing smartcards
   const userRole = auth.user.role;
   const { electionData, electionHash } = electionDefinition;
 
@@ -131,7 +131,7 @@ export function LegacySmartcardsScreen(): JSX.Element {
     setIsProgrammingCard(true);
     setIsPromptingForAdminPasscode(false);
     const shortValue = JSON.stringify({
-      t: 'admin',
+      t: 'election_manager',
       h: electionHash,
       p: passcode,
     });

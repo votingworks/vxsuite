@@ -3,8 +3,8 @@ import { useLocation } from 'react-router-dom';
 import {
   Button,
   ElectionInfoBar,
-  isAdminAuth,
-  isSuperadminAuth,
+  isElectionManagerAuth,
+  isSystemAdministratorAuth,
   Main,
   Screen,
   UsbControllerButton,
@@ -55,7 +55,7 @@ export function NavigationScreen({
   const election = electionDefinition?.election;
 
   let primaryNavItems: NavItem[] = [];
-  if (isSuperadminAuth(auth)) {
+  if (isSystemAdministratorAuth(auth)) {
     primaryNavItems = election
       ? [
           { label: 'Definition', routerPath: routerPaths.electionDefinition },
@@ -63,7 +63,7 @@ export function NavigationScreen({
           { label: 'Smartcards', routerPath: routerPaths.smartcards },
         ]
       : [{ label: 'Definition', routerPath: routerPaths.electionDefinition }];
-  } else if (isAdminAuth(auth)) {
+  } else if (isElectionManagerAuth(auth)) {
     let primaryNavItemsUnfiltered: Array<NavItem | false> = [];
     if (areVvsg2AuthFlowsEnabled()) {
       primaryNavItemsUnfiltered = election
@@ -121,7 +121,7 @@ export function NavigationScreen({
         }
         secondaryNav={
           <React.Fragment>
-            {isSuperadminAuth(auth) && (
+            {isSystemAdministratorAuth(auth) && (
               <React.Fragment>
                 <LinkButton small to={routerPaths.settings}>
                   Settings
@@ -131,7 +131,8 @@ export function NavigationScreen({
                 </LinkButton>
               </React.Fragment>
             )}
-            {(isSuperadminAuth(auth) || isAdminAuth(auth)) && (
+            {(isSystemAdministratorAuth(auth) ||
+              isElectionManagerAuth(auth)) && (
               <React.Fragment>
                 <Button onPress={() => auth.logOut()} small>
                   Lock Machine

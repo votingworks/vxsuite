@@ -3,11 +3,11 @@ import { UserRole } from '@votingworks/types';
 
 export function userRoleToReadableString(userRole: UserRole): string {
   switch (userRole) {
-    case 'superadmin':
-      return 'Super Admin';
-    case 'admin':
-      return 'Admin';
-    case 'pollworker':
+    case 'system_administrator':
+      return 'System Administrator';
+    case 'election_manager':
+      return 'Election Manager';
+    case 'poll_worker':
       return 'Poll Worker';
     case 'voter':
       return 'Voter';

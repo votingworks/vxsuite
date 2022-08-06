@@ -3,7 +3,7 @@ import React, { ReactChild, useContext, useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { isAdminAuth, Prose, Table, TD, Text } from '@votingworks/ui';
+import { isElectionManagerAuth, Prose, Table, TD, Text } from '@votingworks/ui';
 import {
   ExternalTallySourceType,
   TallyCategory,
@@ -49,7 +49,7 @@ export function ManualDataImportIndexScreen(): JSX.Element {
     logger,
   } = useContext(AppContext);
   assert(electionDefinition);
-  assert(isAdminAuth(auth)); // TODO(auth) check permissions for adding manual tally data
+  assert(isElectionManagerAuth(auth)); // TODO(auth) check permissions for adding manual tally data
   const userRole = auth.user.role;
   const { election } = electionDefinition;
   const history = useHistory();

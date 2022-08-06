@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { assert } from '@votingworks/utils';
-import { isSuperadminAuth, Modal } from '@votingworks/ui';
+import { isSystemAdministratorAuth, Modal } from '@votingworks/ui';
 import { useLocation } from 'react-router-dom';
 
 import { AppContext } from '../../contexts/app_context';
@@ -11,12 +11,12 @@ import {
   SmartcardActionStatus,
 } from './status_message';
 import { ProgramElectionCardView } from './program_election_card_view';
-import { ProgramSuperAdminCardView } from './program_super_admin_card_view';
+import { ProgramSystemAdministratorCardView } from './program_system_administrator_card_view';
 import { routerPaths } from '../../router_paths';
 
 export function SmartcardModal(): JSX.Element | null {
   const { auth } = useContext(AppContext);
-  assert(isSuperadminAuth(auth));
+  assert(isSystemAdministratorAuth(auth));
   const location = useLocation();
   const [actionStatus, setActionStatus] = useState<SmartcardActionStatus>();
 
@@ -32,9 +32,9 @@ export function SmartcardModal(): JSX.Element | null {
     return null;
   }
 
-  const onSuperAdminSmartcardsScreen =
+  const onSystemAdministratorSmartcardsScreen =
     location.pathname ===
-    routerPaths.smartcardsByType({ smartcardType: 'super-admin' });
+    routerPaths.smartcardsByType({ smartcardType: 'system-administrator' });
 
   let contents: JSX.Element;
   if (auth.card.programmedUser) {
@@ -45,9 +45,9 @@ export function SmartcardModal(): JSX.Element | null {
         setActionStatus={setActionStatus}
       />
     );
-  } else if (onSuperAdminSmartcardsScreen) {
+  } else if (onSystemAdministratorSmartcardsScreen) {
     contents = (
-      <ProgramSuperAdminCardView
+      <ProgramSystemAdministratorCardView
         actionStatus={actionStatus}
         card={auth.card}
         setActionStatus={setActionStatus}

@@ -19,8 +19,8 @@ import pluralize from 'pluralize';
 
 import { LogEventId } from '@votingworks/logging';
 import {
-  isAdminAuth,
-  isSuperadminAuth,
+  isElectionManagerAuth,
+  isSystemAdministratorAuth,
   Monospace,
   Prose,
 } from '@votingworks/ui';
@@ -88,7 +88,7 @@ export function BallotScreen({ draftMode }: Props): JSX.Element {
   } = useParams<BallotScreenProps>();
   const { addPrintedBallot, electionDefinition, printBallotRef, logger, auth } =
     useContext(AppContext);
-  assert(isAdminAuth(auth) || isSuperadminAuth(auth));
+  assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth));
   const userRole = auth.user.role;
   assert(electionDefinition);
   const { election, electionHash } = electionDefinition;

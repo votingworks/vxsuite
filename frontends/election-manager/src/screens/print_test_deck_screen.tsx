@@ -16,8 +16,8 @@ import {
   useCancelablePromise,
   Modal,
   Prose,
-  isAdminAuth,
-  isSuperadminAuth,
+  isElectionManagerAuth,
+  isSystemAdministratorAuth,
   HorizontalRule,
 } from '@votingworks/ui';
 
@@ -344,7 +344,7 @@ export function PrintTestDeckScreen(): JSX.Element {
   const { electionDefinition, printer, auth, logger, printBallotRef } =
     useContext(AppContext);
   assert(electionDefinition);
-  assert(isAdminAuth(auth) || isSuperadminAuth(auth)); // TODO(auth) should this check for a specific user type
+  assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth)); // TODO(auth) should this check for a specific user type
   const userRole = auth.user.role;
   const { election, electionHash } = electionDefinition;
   const [precinctIds, setPrecinctIds] = useState<string[]>([]);

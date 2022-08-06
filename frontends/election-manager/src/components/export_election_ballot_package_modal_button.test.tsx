@@ -162,11 +162,11 @@ test('Modal renders export confirmation screen when usb detected and manual link
   });
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ExportBallotPackageInit,
-    'admin'
+    'election_manager'
   );
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ExportBallotPackageComplete,
-    'admin',
+    'election_manager',
     expect.objectContaining({ disposition: 'success' })
   );
 
@@ -220,11 +220,11 @@ test('Modal renders error message appropriately', async () => {
   expect(queryAllByTestId('modal')).toHaveLength(0);
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ExportBallotPackageInit,
-    'admin'
+    'election_manager'
   );
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ExportBallotPackageComplete,
-    'admin',
+    'election_manager',
     expect.objectContaining({ disposition: 'failure' })
   );
 });
