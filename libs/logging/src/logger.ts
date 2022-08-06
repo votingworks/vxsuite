@@ -26,6 +26,7 @@ import { LogEventId, getDetailsForEventId } from './log_event_ids';
 
 export const LOGS_ROOT_LOCATION = '/var/log';
 export const LOG_NAME = 'vx-logs';
+export const FULL_LOG_PATH = `${LOGS_ROOT_LOCATION}/${LOG_NAME}.log`;
 
 const debug = makeDebug('logger');
 

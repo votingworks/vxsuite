@@ -8,7 +8,12 @@ import {
   LogFileType,
 } from '@votingworks/utils';
 
-import { LogEventId } from '@votingworks/logging';
+import {
+  LogEventId,
+  LOGS_ROOT_LOCATION,
+  LOG_NAME,
+  FULL_LOG_PATH,
+} from '@votingworks/logging';
 import {
   isElectionManagerAuth,
   isSystemAdministratorAuth,
@@ -22,9 +27,6 @@ import { Loading } from './loading';
 import { UsbImage } from './save_file_to_usb';
 
 const { UsbDriveStatus } = usbstick;
-
-const LOGS_ROOT_LOCATION = '/var/log';
-const LOG_NAME = 'vx-logs';
 
 export interface Props {
   onClose: () => void;
@@ -86,10 +88,7 @@ export function ExportLogsModal({ onClose, logFileType }: Props): JSX.Element {
     setCurrentState(ModalState.Saving);
 
     try {
-      const rawLogFile = await window.kiosk.readFile(
-        `${LOGS_ROOT_LOCATION}/${LOG_NAME}.log`,
-        'utf8'
-      );
+      const rawLogFile = await window.kiosk.readFile(FULL_LOG_PATH, 'utf8');
       let results = '';
       switch (logFileType) {
         case LogFileType.Raw:
