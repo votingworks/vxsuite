@@ -391,6 +391,11 @@ export function AppRoot({ card, hardware, logger }: AppRootProps): JSX.Element {
 
   const backup = useCallback(async () => {
     await download('/scan/backup');
+    if (window.kiosk) {
+      // Backups can take several minutes. Ensure the data is flushed to the
+      // usb before prompting the user to eject it.
+      await usbstick.doSync();
+    }
   }, []);
 
   const toggleTestMode = useCallback(async () => {

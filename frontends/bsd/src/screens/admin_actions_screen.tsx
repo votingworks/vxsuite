@@ -301,6 +301,9 @@ export function AdminActionsScreen({
           logFileType={exportingLogType}
         />
       )}
+      {isBackingUp && (
+        <Modal centerContent content={<Loading>Exporting Backup</Loading>} />
+      )}
     </React.Fragment>
   );
 }

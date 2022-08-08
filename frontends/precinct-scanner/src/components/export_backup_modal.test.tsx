@@ -158,6 +158,7 @@ test('render export modal when a USB drive is mounted as expected and allows aut
   expect(download).toHaveBeenCalledWith('/scan/backup', {
     into: 'fake mount point/scanner-backups/franklin-county_general-election_748dc61ad3',
   });
+  expect(mockKiosk.syncUsbDrive).toHaveBeenCalledWith('fake mount point');
 
   fireEvent.click(screen.getByText('Eject USB'));
   expect(ejectFn).toHaveBeenCalled();
