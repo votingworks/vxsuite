@@ -808,6 +808,7 @@ export function AppRoot({
           enableLiveMode={enableLiveMode}
           isLiveMode={isLiveMode}
           isPollsOpen={isPollsOpen}
+          ballotsPrintedCount={ballotsPrintedCount}
           machineConfig={machineConfig}
           hardware={hardware}
           devices={devices}

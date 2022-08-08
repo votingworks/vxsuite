@@ -316,6 +316,7 @@ export interface PollworkerScreenProps {
   hasVotes: boolean;
   isLiveMode: boolean;
   isPollsOpen: boolean;
+  ballotsPrintedCount: number;
   machineConfig: MachineConfig;
   hardware: Hardware;
   devices: Devices;
@@ -334,6 +335,7 @@ export function PollWorkerScreen({
   enableLiveMode,
   isLiveMode,
   isPollsOpen,
+  ballotsPrintedCount,
   machineConfig,
   hardware,
   devices,
@@ -588,6 +590,13 @@ export function PollWorkerScreen({
         <Sidebar {...sidebarProps}>
           <Prose>
             <Text center>Remove card when finished.</Text>
+          </Prose>
+          <Prose>
+            <br />
+            <Text center>Ballots Printed:</Text>
+          </Prose>
+          <Prose theme={{ fontSize: '3rem' }}>
+            <Text center>{ballotsPrintedCount}</Text>
           </Prose>
         </Sidebar>
         {isShowingVxScanPollsOpenModal && (
