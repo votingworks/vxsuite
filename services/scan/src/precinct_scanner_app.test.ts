@@ -526,6 +526,33 @@ test('scanner powered off while returning', async () => {
   await waitForStatus(app, { state: 'jammed' });
 });
 
+test('scanner powered off after returning', async () => {
+  const { app, mockPlustek } = await createApp();
+  await configureApp(app, { addTemplates: true });
+
+  await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb);
+  await waitForStatus(app, { state: 'ready_to_scan' });
+
+  const interpretation = needsReviewInterpretation;
+
+  await post(app, '/scanner/scan');
+  await expectStatus(app, { state: 'scanning' });
+  await waitForStatus(app, { state: 'needs_review', interpretation });
+
+  await post(app, '/scanner/return');
+  await waitForStatus(app, { state: 'returning', interpretation });
+  await waitForStatus(app, { state: 'returned', interpretation });
+
+  mockPlustek.simulatePowerOff();
+  await waitForStatus(app, { state: 'disconnected' });
+
+  mockPlustek.simulatePowerOn('ready_to_scan');
+  await waitForStatus(app, {
+    state: 'rejected',
+    error: 'paper_in_front_on_startup',
+  });
+});
+
 test('insert second ballot while first ballot is scanning', async () => {
   const { app, mockPlustek } = await createApp();
   await configureApp(app);
