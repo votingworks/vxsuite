@@ -80,6 +80,37 @@ export function InvalidPrecinctPreview(): JSX.Element {
 }
 
 /* istanbul ignore next */
-export function UnknownErrorPreview(): JSX.Element {
+export function UnknownInterpretationErrorPreview(): JSX.Element {
   return <ScanErrorScreen isTestMode={false} error="unknown" />;
+}
+
+/* istanbul ignore next */
+export function BallotInsertedWhileOtherBallotAlreadyScanningPreview(): JSX.Element {
+  return <ScanErrorScreen isTestMode={false} error="both_sides_have_paper" />;
+}
+
+/* istanbul ignore next */
+export function BallotInFrontOnStartupPreview(): JSX.Element {
+  return (
+    <ScanErrorScreen isTestMode={false} error="paper_in_front_on_startup" />
+  );
+}
+
+/* istanbul ignore next */
+export function BallotInBackOnStartupPreview(): JSX.Element {
+  return (
+    <ScanErrorScreen isTestMode={false} error="paper_in_back_on_startup" />
+  );
+}
+
+/* istanbul ignore next */
+export function BallotNotDroppedAfterAcceptPreview(): JSX.Element {
+  return (
+    <ScanErrorScreen isTestMode={false} error="paper_in_back_after_accept" />
+  );
+}
+
+/* istanbul ignore next */
+export function UnexpectedPlustekErrorPreview(): JSX.Element {
+  return <ScanErrorScreen isTestMode={false} error="plustek_error" />;
 }
