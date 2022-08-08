@@ -386,7 +386,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
   return (
     <React.Fragment>
       <LinkButton small onPress={() => setIsModalOpen(true)}>
-        Export Ballot Package
+        Export Package
       </LinkButton>
       {isModalOpen && (
         <Modal

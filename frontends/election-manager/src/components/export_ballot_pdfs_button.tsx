@@ -222,7 +222,7 @@ export function ExportBallotPdfsButton(): JSX.Element {
         case UsbDriveStatus.mounted: {
           mainContent = (
             <Prose>
-              <h1>Export Ballot PDFs</h1>
+              <h1>Save Ballot PDFs</h1>
               <p>
                 The export will include a PDF for each ballot style of the
                 current election. Select the type of ballots you would like to
@@ -346,7 +346,7 @@ export function ExportBallotPdfsButton(): JSX.Element {
   return (
     <React.Fragment>
       <LinkButton small onPress={() => setIsModalOpen(true)}>
-        Export Ballot PDFs
+        Save PDFs
       </LinkButton>
       {isModalOpen && (
         <Modal

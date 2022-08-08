@@ -29,6 +29,7 @@ import { createMemoryStorageWith } from '../../../test/util/create_memory_storag
 import { generatePin } from './pins';
 import { MachineConfig } from '../../config/types';
 import { VxFiles } from '../../lib/converters';
+import { authenticateWithSuperAdminCard } from '../../../test/util/authenticate';
 
 jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => {
   return {
@@ -66,21 +67,6 @@ beforeEach(() => {
   enableVvsg2AuthFlows();
   mockOf(generatePin).mockImplementation(() => '123456');
 });
-
-async function authenticateWithSuperAdminCard(card: MemoryCard) {
-  await screen.findByText('VxAdmin is Locked');
-  card.insertCard(makeSuperadminCard());
-  await screen.findByText('Enter the card security code to unlock.');
-  userEvent.click(screen.getByText('1'));
-  userEvent.click(screen.getByText('2'));
-  userEvent.click(screen.getByText('3'));
-  userEvent.click(screen.getByText('4'));
-  userEvent.click(screen.getByText('5'));
-  userEvent.click(screen.getByText('6'));
-  await screen.findByText('Remove card to continue.');
-  card.removeCard();
-  await screen.findByText('Lock Machine');
-}
 
 test('Smartcard modal displays card details', async () => {
   const card = new MemoryCard();

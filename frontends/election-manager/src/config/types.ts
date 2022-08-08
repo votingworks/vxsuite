@@ -12,6 +12,7 @@ import {
   PromiseOr,
   VotingMethod,
 } from '@votingworks/types';
+import { throwIllegalValue } from '@votingworks/utils';
 import { z } from 'zod';
 
 // Events
@@ -45,6 +46,27 @@ export enum BallotMode {
   Sample = 'sample',
   /** Draft ballots to verify that an election definition has been properly configured */
   Draft = 'draft',
+}
+
+export function ballotModeToReadableString(ballotMode: BallotMode): string {
+  switch (ballotMode) {
+    case BallotMode.Draft: {
+      return 'Draft';
+    }
+    case BallotMode.Official: {
+      return 'Official';
+    }
+    case BallotMode.Sample: {
+      return 'Sample';
+    }
+    case BallotMode.Test: {
+      return 'Test';
+    }
+    /* istanbul ignore next: Compile-time check for completeness */
+    default: {
+      throwIllegalValue(ballotMode);
+    }
+  }
 }
 
 export interface PrintedBallot {

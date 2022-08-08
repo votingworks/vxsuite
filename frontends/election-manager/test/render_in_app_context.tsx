@@ -70,6 +70,7 @@ interface RenderInAppContextParams {
   auth?: DippedSmartcardAuth.Auth;
   machineConfig?: MachineConfig;
   hasCardReaderAttached?: boolean;
+  hasPrinterAttached?: boolean;
   logger?: Logger;
 }
 
@@ -107,6 +108,7 @@ export function renderInAppContext(
       codeVersion: '',
     },
     hasCardReaderAttached = true,
+    hasPrinterAttached = true,
     logger = new Logger(LogSource.VxAdminFrontend),
   }: RenderInAppContextParams = {}
 ): RenderResult {
@@ -140,6 +142,7 @@ export function renderInAppContext(
         auth,
         machineConfig,
         hasCardReaderAttached,
+        hasPrinterAttached,
         logger,
       }}
     >
