@@ -564,10 +564,7 @@ test('insert second ballot while first ballot is scanning', async () => {
   await expectStatus(app, { state: 'scanning' });
 
   await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
-  await expectStatus(app, {
-    state: 'both_sides_have_paper',
-    error: 'both_sides_have_paper',
-  });
+  await expectStatus(app, { state: 'both_sides_have_paper' });
 
   await mockPlustek.simulateRemoveSheet();
   await waitForStatus(app, {
@@ -600,26 +597,17 @@ test('insert second ballot before first ballot accept', async () => {
   await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
   await post(app, '/scanner/accept');
 
-  await waitForStatus(app, {
-    state: 'both_sides_have_paper',
-    error: 'both_sides_have_paper',
-    interpretation,
-  });
+  await waitForStatus(app, { state: 'both_sides_have_paper', interpretation });
 
   await mockPlustek.simulateRemoveSheet();
+  await waitForStatus(app, { state: 'ready_to_accept', interpretation });
+  await post(app, '/scanner/accept');
+  await expectStatus(app, { state: 'accepting', interpretation });
   await waitForStatus(app, {
-    state: 'rejecting',
-    error: 'both_sides_have_paper',
+    state: 'accepted',
     interpretation,
+    ballotsCounted: 1,
   });
-  await waitForStatus(app, {
-    state: 'rejected',
-    error: 'both_sides_have_paper',
-    interpretation,
-  });
-
-  await mockPlustek.simulateRemoveSheet();
-  await waitForStatus(app, { state: 'no_paper' });
 });
 
 test('insert second ballot while first ballot is accepting', async () => {
@@ -651,6 +639,33 @@ test('insert second ballot while first ballot is accepting', async () => {
   });
 });
 
+test('insert second ballot while first ballot needs review', async () => {
+  const { app, mockPlustek } = await createApp();
+  await configureApp(app, { addTemplates: true });
+
+  await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb);
+  await waitForStatus(app, { state: 'ready_to_scan' });
+
+  const interpretation = needsReviewInterpretation;
+
+  await post(app, '/scanner/scan');
+  await expectStatus(app, { state: 'scanning' });
+  await waitForStatus(app, { state: 'needs_review', interpretation });
+
+  await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb);
+  await waitForStatus(app, { state: 'both_sides_have_paper', interpretation });
+
+  await mockPlustek.simulateRemoveSheet();
+  await waitForStatus(app, { state: 'needs_review', interpretation });
+
+  await post(app, '/scanner/accept');
+  await waitForStatus(app, {
+    state: 'accepted',
+    interpretation,
+    ballotsCounted: 1,
+  });
+});
+
 test('insert second ballot while first ballot is rejecting', async () => {
   const { app, mockPlustek } = await createApp();
   await configureApp(app);
@@ -668,23 +683,11 @@ test('insert second ballot while first ballot is rejecting', async () => {
   await waitForStatus(app, { state: 'rejecting', interpretation });
 
   await mockPlustek.simulateLoadSheet(ballotImages.wrongElection);
-  await waitForStatus(app, {
-    state: 'both_sides_have_paper',
-    error: 'both_sides_have_paper',
-    interpretation,
-  });
+  await waitForStatus(app, { state: 'both_sides_have_paper', interpretation });
 
   await mockPlustek.simulateRemoveSheet();
-  await waitForStatus(app, {
-    state: 'rejecting',
-    error: 'both_sides_have_paper',
-    interpretation,
-  });
-  await waitForStatus(app, {
-    state: 'rejected',
-    error: 'both_sides_have_paper',
-    interpretation,
-  });
+  await waitForStatus(app, { state: 'rejecting', interpretation });
+  await waitForStatus(app, { state: 'rejected', interpretation });
 
   await mockPlustek.simulateRemoveSheet();
   await waitForStatus(app, { state: 'no_paper' });
@@ -707,23 +710,12 @@ test('insert second ballot while first ballot is returning', async () => {
   await waitForStatus(app, { state: 'returning', interpretation });
 
   await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb);
-  await waitForStatus(app, {
-    state: 'both_sides_have_paper',
-    error: 'both_sides_have_paper',
-    interpretation,
-  });
+  await waitForStatus(app, { state: 'both_sides_have_paper', interpretation });
 
   await mockPlustek.simulateRemoveSheet();
-  await waitForStatus(app, {
-    state: 'rejecting',
-    error: 'both_sides_have_paper',
-    interpretation,
-  });
-  await waitForStatus(app, {
-    state: 'rejected',
-    error: 'both_sides_have_paper',
-    interpretation,
-  });
+  await waitForStatus(app, { state: 'needs_review', interpretation });
+  await post(app, '/scanner/return');
+  await waitForStatus(app, { state: 'returned', interpretation });
 
   await mockPlustek.simulateRemoveSheet();
   await waitForStatus(app, { state: 'no_paper' });

@@ -17,7 +17,6 @@ import {
   interpret,
   InvokeConfig,
   PropertyAssigner,
-  send,
 } from 'xstate';
 import { Scan } from '@votingworks/api';
 import makeDebug from 'debug';
@@ -78,11 +77,6 @@ type ScannerStatusEvent =
   | { type: 'SCANNER_JAM' }
   | { type: 'SCANNER_DISCONNECTED' };
 
-interface InterpretationResultEvent {
-  type: 'INTERPRETATION_RESULT';
-  interpretation: InterpretationResult;
-}
-
 type CommandEvent =
   | { type: 'SCAN' }
   | { type: 'ACCEPT' }
@@ -91,7 +85,6 @@ type CommandEvent =
 
 export type Event =
   | ScannerStatusEvent
-  | InterpretationResultEvent
   | CommandEvent
   | ConfigurationEvent
   | { type: 'SET_INTERPRETATION_MODE'; mode: InterpretationMode };
@@ -431,43 +424,52 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
           },
         },
         interpreting: {
-          invoke: {
-            src: interpretSheet,
-            onDone: {
-              actions: [
-                assign({ interpretation: (_context, event) => event.data }),
-                send((_context, event) => ({
-                  type: 'INTERPRETATION_RESULT',
-                  interpretation: event.data,
-                })),
+          initial: 'starting',
+          states: {
+            starting: {
+              invoke: {
+                src: interpretSheet,
+                onDone: {
+                  target: 'routing_result',
+                  actions: assign({
+                    interpretation: (_context, event) => event.data,
+                  }),
+                },
+                onError: {
+                  target: '#rejecting',
+                  actions: assign((_context, event) => ({ error: event.data })),
+                },
+              },
+            },
+            routing_result: {
+              always: [
+                {
+                  target: '#ready_to_accept',
+                  cond: (context) => {
+                    assert(context.interpretation);
+                    return context.interpretation.type === 'ValidSheet';
+                  },
+                },
+                {
+                  target: '#rejecting',
+                  cond: (context) => {
+                    assert(context.interpretation);
+                    return context.interpretation.type === 'InvalidSheet';
+                  },
+                },
+                {
+                  target: '#needs_review',
+                  cond: (context) => {
+                    assert(context.interpretation);
+                    return context.interpretation.type === 'NeedsReviewSheet';
+                  },
+                },
               ],
             },
-            onError: {
-              target: 'rejecting',
-              actions: assign((_context, event) => ({ error: event.data })),
-            },
-          },
-          on: {
-            INTERPRETATION_RESULT: [
-              {
-                target: 'ready_to_accept',
-                cond: (_context, event) =>
-                  event.interpretation.type === 'ValidSheet',
-              },
-              {
-                target: 'rejecting',
-                cond: (_context, event) =>
-                  event.interpretation.type === 'InvalidSheet',
-              },
-              {
-                target: 'needs_review',
-                cond: (_context, event) =>
-                  event.interpretation.type === 'NeedsReviewSheet',
-              },
-            ],
           },
         },
         ready_to_accept: {
+          id: 'ready_to_accept',
           on: { ACCEPT: 'accepting' },
         },
         accepting: {
@@ -521,9 +523,12 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
           },
         },
         needs_review: {
+          id: 'needs_review',
+          invoke: pollPaperStatus,
           on: {
             ACCEPT: 'accepting',
             RETURN: 'returning',
+            SCANNER_READY_TO_EJECT: { target: undefined }, // Do nothing
           },
         },
         returning: {
@@ -559,6 +564,7 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
           },
         },
         rejecting: {
+          id: 'rejecting',
           invoke: {
             src: reject,
             onDone: 'checking_rejecting_completed',
@@ -619,20 +625,33 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
           },
         },
         error_both_sides_have_paper: {
-          entry: assign({
-            error: new PrecinctScannerError('both_sides_have_paper'),
-          }),
+          entry: clearError,
           invoke: pollPaperStatus,
           on: {
-            SCANNER_BOTH_SIDES_HAVE_PAPER: {
-              target: 'error_both_sides_have_paper',
-              internal: true,
-            },
-            // For now, if the front paper is removed, just reject the back paper,
-            // since we don't have context on how we got here and what was supposed
-            // to happen.
-            SCANNER_READY_TO_EJECT: 'rejecting',
-            SCANNER_NO_PAPER: 'rejecting',
+            SCANNER_BOTH_SIDES_HAVE_PAPER: { target: undefined }, // Do nothing
+            // Sometimes we get a no_paper blip when removing the front paper quickly
+            SCANNER_NO_PAPER: { target: undefined }, // Do nothing
+            // After the front paper is removed:
+            SCANNER_READY_TO_EJECT: [
+              // If we already interpreted the paper, go back to routing to the
+              // resulting state for that interpretation
+              {
+                target: 'interpreting.routing_result',
+                cond: (context) => context.interpretation !== undefined,
+              },
+              // Else, if we have scanned images, try to interpret them
+              {
+                target: 'interpreting.starting',
+                cond: (context) => context.scannedSheet !== undefined,
+              },
+              // Otherwise, reject the back paper
+              {
+                target: 'rejecting',
+                actions: assign({
+                  error: new PrecinctScannerError('both_sides_have_paper'),
+                }),
+              },
+            ],
           },
         },
         error: {},
