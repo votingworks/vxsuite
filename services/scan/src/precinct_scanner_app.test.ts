@@ -1,7 +1,6 @@
 import { MockScannerClient, ScannerClient } from '@votingworks/plustek-sdk';
 import {
   AdjudicationReason,
-  AdjudicationReasonInfo,
   CastVoteRecord,
   ok,
   Result,
@@ -275,27 +274,9 @@ test('configure and scan bmd ballot', async () => {
   expect(cvrs).toHaveLength(1);
 });
 
-function undervote(contestId: string, expected = 1): AdjudicationReasonInfo {
-  return {
-    type: AdjudicationReason.Undervote,
-    contestId,
-    optionIds: [],
-    optionIndexes: [],
-    expected,
-  };
-}
 const needsReviewInterpretation: Scan.SheetInterpretation = {
   type: 'NeedsReviewSheet',
-  reasons: [
-    undervote('mayor'),
-    undervote('controller'),
-    undervote('attorney'),
-    undervote('public-works-director'),
-    undervote('chief-of-police'),
-    undervote('parks-and-recreation-director'),
-    undervote('board-of-alderman', 4),
-    undervote('city-council', 4),
-  ],
+  reasons: [{ type: AdjudicationReason.BlankBallot }],
 };
 
 test('ballot needs review - return', async () => {
