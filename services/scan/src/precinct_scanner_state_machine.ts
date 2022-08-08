@@ -356,7 +356,7 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
           on: {
             SCANNER_NO_PAPER: 'no_paper',
             SCANNER_READY_TO_SCAN: {
-              target: 'rejecting',
+              target: 'rejected',
               actions: assign({
                 error: new PrecinctScannerError('paper_in_front_on_startup'),
               }),
