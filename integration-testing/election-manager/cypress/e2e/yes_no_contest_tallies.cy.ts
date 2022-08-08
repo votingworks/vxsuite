@@ -164,7 +164,7 @@ describe('Election Manager can create SEMS tallies', () => {
     mockCardRemoval();
     cy.contains('Convert from SEMS files');
     cy.get('input[type="file"]').attachFile('electionWithMsEitherNeither.json');
-    cy.contains('Election loading');
+    cy.contains('Election loading', { timeout: 8000 });
     cy.contains(electionWithMsEitherNeitherCypressHash.slice(0, 10));
     cy.pause();
     cy.contains('Lock Machine').click();
@@ -503,7 +503,7 @@ describe('Election Manager can create SEMS tallies', () => {
     // Check that the exported SEMS result file as the correct tallies
     cy.contains('Save Results File').click();
     cy.get('[data-testid="manual-export"]').click();
-    cy.contains('Results Saved');
+    cy.contains('Results Saved', { timeout: 8000 });
     cy.task<string>('readMostRecentFile', 'cypress/downloads').then(
       (fileContent) => {
         assertExpectedResultsMatchSEMsFile(
