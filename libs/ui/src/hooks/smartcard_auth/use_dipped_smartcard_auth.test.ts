@@ -5,11 +5,11 @@ import {
 } from '@votingworks/fixtures';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import {
-  fakeAdminUser,
-  fakeSuperadminUser,
-  makeAdminCard,
+  fakeElectionManagerUser,
+  fakeSystemAdministratorUser,
+  makeElectionManagerCard,
   makePollWorkerCard,
-  makeSuperadminCard,
+  makeSystemAdministratorCard,
   mockOf,
 } from '@votingworks/test-utils';
 import { assert, MemoryCard } from '@votingworks/utils';
@@ -76,7 +76,7 @@ describe('useDippedSmartcardAuth', () => {
     );
   });
 
-  it('when a super admin card is inserted, checks the passcode', async () => {
+  it('when a system administrator card is inserted, checks the passcode', async () => {
     const logger = fakeLogger();
     const cardApi = new MemoryCard();
     const { result, waitForNextUpdate } = renderHook(() =>
@@ -91,10 +91,10 @@ describe('useDippedSmartcardAuth', () => {
       reason: 'machine_locked',
     });
 
-    // Insert a super admin card
+    // Insert a system administrator card
     const passcode = '123456';
-    const user = fakeSuperadminUser({ passcode });
-    cardApi.insertCard(makeSuperadminCard(passcode));
+    const user = fakeSystemAdministratorUser({ passcode });
+    cardApi.insertCard(makeSystemAdministratorCard(passcode));
     await waitForNextUpdate();
     expect(result.current).toEqual({
       status: 'checking_passcode',
@@ -149,7 +149,7 @@ describe('useDippedSmartcardAuth', () => {
     });
 
     // Inserting a different card doesn't log out (so card can be programmed)
-    cardApi.insertCard(makeAdminCard(electionHash));
+    cardApi.insertCard(makeElectionManagerCard(electionHash));
     await waitForNextUpdate();
     expect(result.current).toMatchObject({
       status: 'logged_in',
@@ -158,7 +158,7 @@ describe('useDippedSmartcardAuth', () => {
     });
     cardApi.removeCard();
 
-    // Super admin can log out
+    // System administrator can log out
     act(() => {
       assert(result.current.status === 'logged_in');
       result.current.logOut();
@@ -173,36 +173,36 @@ describe('useDippedSmartcardAuth', () => {
     expect(logger.log).toHaveBeenNthCalledWith(
       1,
       LogEventId.AuthPasscodeEntry,
-      'superadmin',
+      'system_administrator',
       expect.objectContaining({ disposition: 'failure' })
     );
     expect(logger.log).toHaveBeenNthCalledWith(
       2,
       LogEventId.AuthPasscodeEntry,
-      'superadmin',
+      'system_administrator',
       expect.objectContaining({ disposition: 'failure' })
     );
     expect(logger.log).toHaveBeenNthCalledWith(
       3,
       LogEventId.AuthPasscodeEntry,
-      'superadmin',
+      'system_administrator',
       expect.objectContaining({ disposition: 'success' })
     );
     expect(logger.log).toHaveBeenNthCalledWith(
       4,
       LogEventId.AuthLogin,
-      'superadmin',
+      'system_administrator',
       expect.objectContaining({ disposition: 'success' })
     );
     expect(logger.log).toHaveBeenNthCalledWith(
       5,
       LogEventId.AuthLogout,
-      'superadmin',
+      'system_administrator',
       expect.objectContaining({ disposition: 'success' })
     );
   });
 
-  it('when an admin card is inserted, checks the passcode', async () => {
+  it('when an election manager card is inserted, checks the passcode', async () => {
     const logger = fakeLogger();
     const cardApi = new MemoryCard();
     const { result, waitForNextUpdate } = renderHook(() =>
@@ -217,10 +217,10 @@ describe('useDippedSmartcardAuth', () => {
       reason: 'machine_locked',
     });
 
-    // Insert an admin card
+    // Insert an election manager card
     const passcode = '123456';
-    const user = fakeAdminUser({ electionHash, passcode });
-    cardApi.insertCard(makeAdminCard(electionHash, passcode));
+    const user = fakeElectionManagerUser({ electionHash, passcode });
+    cardApi.insertCard(makeElectionManagerCard(electionHash, passcode));
     await waitForNextUpdate();
     expect(result.current).toEqual({
       status: 'checking_passcode',
@@ -275,7 +275,7 @@ describe('useDippedSmartcardAuth', () => {
     });
 
     // Inserting a different card doesn't log out
-    cardApi.insertCard(makeSuperadminCard());
+    cardApi.insertCard(makeSystemAdministratorCard());
     await waitForNextUpdate();
     expect(result.current).toMatchObject({
       status: 'logged_in',
@@ -299,31 +299,31 @@ describe('useDippedSmartcardAuth', () => {
     expect(logger.log).toHaveBeenNthCalledWith(
       1,
       LogEventId.AuthPasscodeEntry,
-      'admin',
+      'election_manager',
       expect.objectContaining({ disposition: 'failure' })
     );
     expect(logger.log).toHaveBeenNthCalledWith(
       2,
       LogEventId.AuthPasscodeEntry,
-      'admin',
+      'election_manager',
       expect.objectContaining({ disposition: 'failure' })
     );
     expect(logger.log).toHaveBeenNthCalledWith(
       3,
       LogEventId.AuthPasscodeEntry,
-      'admin',
+      'election_manager',
       expect.objectContaining({ disposition: 'success' })
     );
     expect(logger.log).toHaveBeenNthCalledWith(
       4,
       LogEventId.AuthLogin,
-      'admin',
+      'election_manager',
       expect.objectContaining({ disposition: 'success' })
     );
     expect(logger.log).toHaveBeenNthCalledWith(
       5,
       LogEventId.AuthLogout,
-      'admin',
+      'election_manager',
       expect.objectContaining({ disposition: 'success' })
     );
   });
@@ -331,7 +331,7 @@ describe('useDippedSmartcardAuth', () => {
   it('when checking passcode, locks machine if card is removed', async () => {
     const logger = fakeLogger();
     const cardApi = new MemoryCard();
-    cardApi.insertCard(makeAdminCard(electionHash));
+    cardApi.insertCard(makeElectionManagerCard(electionHash));
     const { result, waitForNextUpdate } = renderHook(() =>
       useDippedSmartcardAuth({
         cardApi,
@@ -352,7 +352,7 @@ describe('useDippedSmartcardAuth', () => {
     expect(logger.log).toHaveBeenCalledTimes(1);
     expect(logger.log).toHaveBeenLastCalledWith(
       LogEventId.AuthPasscodeEntry,
-      'admin',
+      'election_manager',
       expect.objectContaining({
         disposition: 'failure',
         message: 'User canceled passcode entry.',
@@ -360,7 +360,7 @@ describe('useDippedSmartcardAuth', () => {
     );
   });
 
-  it('can bootstrap an admin session', async () => {
+  it('can bootstrap an election manager session', async () => {
     const logger = fakeLogger();
     const cardApi = new MemoryCard();
     const { result, waitForNextUpdate } = renderHook(() =>
@@ -372,18 +372,18 @@ describe('useDippedSmartcardAuth', () => {
     );
     act(() => {
       assert(result.current.status === 'logged_out');
-      result.current.bootstrapAuthenticatedAdminSession(electionHash);
+      result.current.bootstrapAuthenticatedElectionManagerSession(electionHash);
     });
     await waitForNextUpdate();
     expect(result.current).toMatchObject({
       status: 'logged_in',
-      user: fakeAdminUser({ electionHash, passcode: '000000' }),
+      user: fakeElectionManagerUser({ electionHash, passcode: '000000' }),
     });
 
     expect(logger.log).toHaveBeenCalledTimes(1);
     expect(logger.log).toHaveBeenLastCalledWith(
       LogEventId.AuthLogin,
-      'admin',
+      'election_manager',
       expect.objectContaining({ disposition: 'success' })
     );
   });
@@ -446,7 +446,7 @@ describe('useDippedSmartcardAuth', () => {
     expect(logger.log).toHaveBeenCalledTimes(1);
     expect(logger.log).toHaveBeenLastCalledWith(
       LogEventId.AuthLogin,
-      'pollworker',
+      'poll_worker',
       expect.objectContaining({
         disposition: 'failure',
         reason: 'user_role_not_allowed',
@@ -454,12 +454,12 @@ describe('useDippedSmartcardAuth', () => {
     );
   });
 
-  it('returns logged_out auth when machine is not configured and admin is not allowed to access unconfigured machines', async () => {
+  it('returns logged_out auth when machine is not configured and election manager is not allowed to access unconfigured machines', async () => {
     mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => true);
     const cardApi = new MemoryCard();
     const logger = fakeLogger();
 
-    cardApi.insertCard(makeAdminCard(electionHash));
+    cardApi.insertCard(makeElectionManagerCard(electionHash));
     const { result, waitForNextUpdate } = renderHook(() =>
       useDippedSmartcardAuth({
         cardApi,
@@ -476,7 +476,7 @@ describe('useDippedSmartcardAuth', () => {
     expect(logger.log).toHaveBeenCalledTimes(1);
     expect(logger.log).toHaveBeenLastCalledWith(
       LogEventId.AuthLogin,
-      'admin',
+      'election_manager',
       expect.objectContaining({
         disposition: 'failure',
         reason: 'machine_not_configured',
@@ -484,18 +484,18 @@ describe('useDippedSmartcardAuth', () => {
     );
   });
 
-  it('allows admins to access unconfigured machines when setting is enabled', async () => {
+  it('allows election managers to access unconfigured machines when setting is enabled', async () => {
     mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => true);
     const cardApi = new MemoryCard();
     const logger = fakeLogger();
 
-    cardApi.insertCard(makeAdminCard(electionHash));
+    cardApi.insertCard(makeElectionManagerCard(electionHash));
     const { result, waitForNextUpdate } = renderHook(() =>
       useDippedSmartcardAuth({
         cardApi,
         logger,
         scope: {
-          allowAdminsToAccessUnconfiguredMachines: true,
+          allowElectionManagersToAccessUnconfiguredMachines: true,
           electionDefinition: undefined,
         },
       })
@@ -508,12 +508,12 @@ describe('useDippedSmartcardAuth', () => {
     expect(logger.log).toHaveBeenCalledTimes(0);
   });
 
-  it('returns logged_out auth when admin card election hash does not match machine election hash', async () => {
+  it('returns logged_out auth when election manager card election hash does not match machine election hash', async () => {
     mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => true);
     const cardApi = new MemoryCard();
     const logger = fakeLogger();
 
-    cardApi.insertCard(makeAdminCard(otherElectionHash));
+    cardApi.insertCard(makeElectionManagerCard(otherElectionHash));
     const { result, waitForNextUpdate } = renderHook(() =>
       useDippedSmartcardAuth({
         cardApi,
@@ -524,16 +524,16 @@ describe('useDippedSmartcardAuth', () => {
     await waitForNextUpdate();
     expect(result.current).toMatchObject({
       status: 'logged_out',
-      reason: 'admin_wrong_election',
+      reason: 'election_manager_wrong_election',
     });
 
     expect(logger.log).toHaveBeenCalledTimes(1);
     expect(logger.log).toHaveBeenLastCalledWith(
       LogEventId.AuthLogin,
-      'admin',
+      'election_manager',
       expect.objectContaining({
         disposition: 'failure',
-        reason: 'admin_wrong_election',
+        reason: 'election_manager_wrong_election',
       })
     );
   });

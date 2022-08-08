@@ -9,8 +9,8 @@ import {
   Table,
   TD,
   Prose,
-  isAdminAuth,
-  isSuperadminAuth,
+  isElectionManagerAuth,
+  isSystemAdministratorAuth,
 } from '@votingworks/ui';
 import {
   assert,
@@ -80,7 +80,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
     logger,
   } = useContext(AppContext);
   assert(electionDefinition);
-  assert(isAdminAuth(auth) || isSuperadminAuth(auth)); // TODO(auth) check permissions for importing cvr
+  assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth)); // TODO(auth) check permissions for importing cvr
   const userRole = auth.user.role;
   const [currentState, setCurrentState] = useState(ModalState.INIT);
   const [importedFile, setImportedFile] = useState<CastVoteRecordFile>();

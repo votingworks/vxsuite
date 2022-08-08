@@ -12,7 +12,7 @@ f.close()
 
 election_json_bytes = json.dumps(election).encode('utf-8')
 short_value = json.dumps({
-    't': 'admin',
+    't': 'election_manager',
     'h': hashlib.sha256(election_json_bytes).hexdigest(),
     'p': '000000',
 })

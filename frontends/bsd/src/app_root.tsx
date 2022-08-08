@@ -19,7 +19,7 @@ import {
 } from '@votingworks/utils';
 import {
   ElectionInfoBar,
-  isSuperadminAuth,
+  isSystemAdministratorAuth,
   Main,
   Prose,
   UnlockMachineScreen,
@@ -105,8 +105,8 @@ export function AppRoot({ card, hardware, logger }: AppRootProps): JSX.Element {
     cardApi: card,
     logger,
     scope: {
-      // By default with dipped smartcard auth, only super admins have this ability
-      allowAdminsToAccessUnconfiguredMachines: true,
+      // By default with dipped smartcard auth, only system administrators have this ability
+      allowElectionManagersToAccessUnconfiguredMachines: true,
       electionDefinition,
     },
   });
@@ -530,7 +530,7 @@ export function AppRoot({ card, hardware, logger }: AppRootProps): JSX.Element {
     return <RemoveCardScreen />;
   }
 
-  if (isSuperadminAuth(auth)) {
+  if (isSystemAdministratorAuth(auth)) {
     return (
       <AppContext.Provider value={currentContext}>
         <Screen>

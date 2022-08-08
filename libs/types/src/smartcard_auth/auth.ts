@@ -4,17 +4,17 @@ import { ElectionHash, IdSchema, Optional } from '../generic';
 import { Result } from '../result';
 
 // User data types
-export interface SuperadminUser {
-  readonly role: 'superadmin';
+export interface SystemAdministratorUser {
+  readonly role: 'system_administrator';
   readonly passcode: string;
 }
-export interface AdminUser {
-  readonly role: 'admin';
+export interface ElectionManagerUser {
+  readonly role: 'election_manager';
   readonly electionHash: string;
   readonly passcode: string;
 }
-export interface PollworkerUser {
-  readonly role: 'pollworker';
+export interface PollWorkerUser {
+  readonly role: 'poll_worker';
   readonly electionHash: string;
 }
 export interface VoterUser {
@@ -33,18 +33,18 @@ export interface CardlessVoterUser {
   readonly precinctId: PrecinctId;
 }
 export type User =
-  | SuperadminUser
-  | AdminUser
-  | PollworkerUser
+  | SystemAdministratorUser
+  | ElectionManagerUser
+  | PollWorkerUser
   | VoterUser
   | CardlessVoterUser;
 
 export type UserRole = User['role'];
 export const UserRoleSchema: z.ZodSchema<UserRole> = z.union([
   z.literal('voter'),
-  z.literal('pollworker'),
-  z.literal('admin'),
-  z.literal('superadmin'),
+  z.literal('poll_worker'),
+  z.literal('election_manager'),
+  z.literal('system_administrator'),
 ]);
 
 // Smartcard data types
@@ -86,56 +86,52 @@ export const VoterCardDataSchema: z.ZodSchema<VoterCardData> =
     m: IdSchema.optional(),
   });
 
-export interface PollworkerCardData extends CardData {
-  readonly t: 'pollworker';
+export interface PollWorkerCardData extends CardData {
+  readonly t: 'poll_worker';
   /** Election hash */
   readonly h: string;
 }
-export const PollworkerCardDataSchema: z.ZodSchema<PollworkerCardData> =
+export const PollWorkerCardDataSchema: z.ZodSchema<PollWorkerCardData> =
   CardDataInternalSchema.extend({
-    t: z.literal('pollworker'),
+    t: z.literal('poll_worker'),
     h: ElectionHash,
   });
 
-export interface AdminCardData extends CardData {
-  readonly t: 'admin';
+export interface ElectionManagerCardData extends CardData {
+  readonly t: 'election_manager';
   /** Election hash */
   readonly h: string;
   /** Card Passcode */
   readonly p: string;
 }
-export const AdminCardDataSchema: z.ZodSchema<AdminCardData> =
+export const ElectionManagerCardDataSchema: z.ZodSchema<ElectionManagerCardData> =
   CardDataInternalSchema.extend({
-    t: z.literal('admin'),
+    t: z.literal('election_manager'),
     h: ElectionHash,
     p: z.string(),
   });
 
-/**
- * Beginning of the SuperAdmin card schema. More will be added to this as we fully flesh out this role
- * This is a minimal implementation for the purposes of rebooting from usb.
- */
-export interface SuperadminCardData extends CardData {
-  readonly t: 'superadmin';
+export interface SystemAdministratorCardData extends CardData {
+  readonly t: 'system_administrator';
   /** Card Passcode */
   readonly p: string;
 }
-export const SuperadminCardDataSchema: z.ZodSchema<SuperadminCardData> =
+export const SystemAdministratorCardDataSchema: z.ZodSchema<SystemAdministratorCardData> =
   CardDataInternalSchema.extend({
-    t: z.literal('superadmin'),
+    t: z.literal('system_administrator'),
     p: z.string(),
   });
 
 export type AnyCardData =
   | VoterCardData
-  | PollworkerCardData
-  | AdminCardData
-  | SuperadminCardData;
+  | PollWorkerCardData
+  | ElectionManagerCardData
+  | SystemAdministratorCardData;
 export const AnyCardDataSchema: z.ZodSchema<AnyCardData> = z.union([
   VoterCardDataSchema,
-  PollworkerCardDataSchema,
-  AdminCardDataSchema,
-  SuperadminCardDataSchema,
+  PollWorkerCardDataSchema,
+  ElectionManagerCardDataSchema,
+  SystemAdministratorCardDataSchema,
 ]);
 
 // Card interface types
@@ -158,9 +154,9 @@ export interface CardProgramming {
   readonly programmedUser?: User;
   readonly programUser: (
     userData:
-      | SuperadminUser
-      | (AdminUser & { electionData: string })
-      | PollworkerUser
+      | SystemAdministratorUser
+      | (ElectionManagerUser & { electionData: string })
+      | PollWorkerUser
   ) => Promise<Result<void, Error>>;
   readonly unprogramUser: () => Promise<Result<void, Error>>;
 }

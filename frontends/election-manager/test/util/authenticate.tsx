@@ -1,16 +1,21 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { makeAdminCard, makeSuperadminCard } from '@votingworks/test-utils';
+import {
+  makeElectionManagerCard,
+  makeSystemAdministratorCard,
+} from '@votingworks/test-utils';
 import { ElectionDefinition } from '@votingworks/types';
 import { MemoryCard } from '@votingworks/utils';
 
-export async function authenticateWithAdminCard(
+export async function authenticateWithElectionManagerCard(
   card: MemoryCard,
   electionDefinition: ElectionDefinition
 ): Promise<void> {
   // Machine should be locked
   await screen.findByText('VxAdmin is Locked');
-  card.insertCard(makeAdminCard(electionDefinition.electionHash, '123456'));
+  card.insertCard(
+    makeElectionManagerCard(electionDefinition.electionHash, '123456')
+  );
   await screen.findByText('Enter the card security code to unlock.');
   userEvent.click(screen.getByText('1'));
   userEvent.click(screen.getByText('2'));
@@ -23,11 +28,11 @@ export async function authenticateWithAdminCard(
   await screen.findByText('Lock Machine');
 }
 
-export async function authenticateWithSuperAdminCard(
+export async function authenticateWithSystemAdministratorCard(
   card: MemoryCard
 ): Promise<void> {
   await screen.findByText('VxAdmin is Locked');
-  card.insertCard(makeSuperadminCard());
+  card.insertCard(makeSystemAdministratorCard());
   await screen.findByText('Enter the card security code to unlock.');
   userEvent.click(screen.getByText('1'));
   userEvent.click(screen.getByText('2'));

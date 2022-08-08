@@ -12,7 +12,7 @@ import { AppContext } from '../contexts/app_context';
 import { MachineConfig } from '../config/types';
 
 const machineConfig: MachineConfig = { machineId: '0003', codeVersion: 'TEST' };
-const auth = Inserted.fakePollworkerAuth();
+const auth = Inserted.fakePollWorkerAuth();
 
 MockDate.set('2022-06-22T01:23:45.678Z');
 

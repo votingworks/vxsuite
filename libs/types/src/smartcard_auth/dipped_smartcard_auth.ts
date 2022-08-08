@@ -1,8 +1,8 @@
 import {
-  AdminUser,
+  ElectionManagerUser,
   CardProgramming,
   CardStorage,
-  SuperadminUser,
+  SystemAdministratorUser,
   UserRole,
 } from './auth';
 
@@ -14,37 +14,39 @@ export interface LoggedOut {
     | 'invalid_user_on_card'
     | 'user_role_not_allowed'
     | 'machine_not_configured'
-    | 'admin_wrong_election';
+    | 'election_manager_wrong_election';
   readonly cardUserRole?: UserRole;
-  readonly bootstrapAuthenticatedAdminSession: (electionHash: string) => void;
+  readonly bootstrapAuthenticatedElectionManagerSession: (
+    electionHash: string
+  ) => void;
 }
 
 export interface CheckingPasscode {
   readonly status: 'checking_passcode';
-  readonly user: SuperadminUser | AdminUser;
+  readonly user: SystemAdministratorUser | ElectionManagerUser;
   readonly checkPasscode: (passcode: string) => void;
   readonly wrongPasscodeEnteredAt?: Date;
 }
 
 export interface RemoveCard {
   readonly status: 'remove_card';
-  readonly user: SuperadminUser | AdminUser;
+  readonly user: SystemAdministratorUser | ElectionManagerUser;
 }
 
-export interface SuperadminLoggedIn {
+export interface SystemAdministratorLoggedIn {
   readonly status: 'logged_in';
-  readonly user: SuperadminUser;
+  readonly user: SystemAdministratorUser;
   readonly card?: CardStorage & CardProgramming;
   readonly logOut: () => void;
 }
 
-export interface AdminLoggedIn {
+export interface ElectionManagerLoggedIn {
   readonly status: 'logged_in';
-  readonly user: AdminUser;
+  readonly user: ElectionManagerUser;
   readonly card?: CardStorage;
   readonly logOut: () => void;
 }
 
-export type LoggedIn = SuperadminLoggedIn | AdminLoggedIn;
+export type LoggedIn = SystemAdministratorLoggedIn | ElectionManagerLoggedIn;
 
 export type Auth = LoggedOut | CheckingPasscode | RemoveCard | LoggedIn;

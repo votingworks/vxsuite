@@ -15,8 +15,8 @@ import {
   Modal,
   Prose,
   UsbControllerButton,
-  isAdminAuth,
-  isSuperadminAuth,
+  isElectionManagerAuth,
+  isSystemAdministratorAuth,
 } from '@votingworks/ui';
 import { LogEventId } from '@votingworks/logging';
 import {
@@ -64,7 +64,7 @@ export function ExportBallotPdfsButton(): JSX.Element {
   const { electionDefinition, usbDriveStatus, usbDriveEject, auth, logger } =
     useContext(AppContext);
   assert(electionDefinition);
-  assert(isAdminAuth(auth) || isSuperadminAuth(auth));
+  assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth));
   const userRole = auth.user.role;
   const { election, electionHash } = electionDefinition;
 

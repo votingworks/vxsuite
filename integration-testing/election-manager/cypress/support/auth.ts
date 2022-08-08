@@ -17,7 +17,7 @@ export function mockSystemAdministratorCardInsertion(): void {
   cy.request('PUT', 'http://localhost:3001/mock', {
     enabled: true,
     shortValue: JSON.stringify({
-      t: 'superadmin',
+      t: 'system_administrator',
       p: PIN,
     }),
   });
@@ -36,7 +36,7 @@ export function mockElectionManagerCardInsertion({
   cy.request('PUT', 'http://localhost:3001/mock', {
     enabled: true,
     shortValue: JSON.stringify({
-      t: 'admin',
+      t: 'election_manager',
       h: electionHash,
       p: PIN,
     }),

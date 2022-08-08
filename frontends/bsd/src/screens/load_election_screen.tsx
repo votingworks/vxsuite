@@ -9,7 +9,7 @@ import {
   readBallotPackageFromFile,
   readBallotPackageFromFilePointer,
 } from '@votingworks/utils';
-import { Screen, Main, isAdminAuth } from '@votingworks/ui';
+import { Screen, Main, isElectionManagerAuth } from '@votingworks/ui';
 import { LogEventId } from '@votingworks/logging';
 import * as config from '../api/config';
 import { addTemplates, doneTemplates } from '../api/hmpb';
@@ -26,7 +26,7 @@ export function LoadElectionScreen({
   setElectionDefinition,
 }: Props): JSX.Element {
   const { auth, logger } = useContext(AppContext);
-  assert(isAdminAuth(auth));
+  assert(isElectionManagerAuth(auth));
   const userRole = auth.user.role;
   const [currentUploadingBallotIndex, setCurrentUploadingBallotIndex] =
     useState(-1);

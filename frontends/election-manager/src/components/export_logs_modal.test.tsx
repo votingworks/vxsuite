@@ -63,7 +63,7 @@ test('renders no log file found when usb is mounted but no log file on machine',
   getByText('No Log File Present');
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ExportLogFileFound,
-    'admin',
+    'election_manager',
     expect.objectContaining({ disposition: 'failure' })
   );
 });
@@ -130,7 +130,7 @@ test('renders save modal when usb is mounted and saves log file on machine', asy
   getByText('Save Logs');
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ExportLogFileFound,
-    'admin',
+    'election_manager',
     expect.objectContaining({ disposition: 'success' })
   );
 
@@ -154,7 +154,7 @@ test('renders save modal when usb is mounted and saves log file on machine', asy
 
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.FileSaved,
-    'admin',
+    'election_manager',
     expect.objectContaining({
       disposition: 'success',
       filename: expect.stringContaining('vx-log'),
@@ -188,7 +188,7 @@ test('renders save modal when usb is mounted and saves cdf log file on machine',
   getByText('Save Logs');
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ExportLogFileFound,
-    'admin',
+    'election_manager',
     expect.objectContaining({ disposition: 'success' })
   );
 
@@ -212,7 +212,7 @@ test('renders save modal when usb is mounted and saves cdf log file on machine',
 
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.FileSaved,
-    'admin',
+    'election_manager',
     expect.objectContaining({
       disposition: 'success',
       filename: expect.stringContaining('vx-log'),
@@ -253,7 +253,7 @@ test('render export modal with errors when appropriate', async () => {
   expect(closeFn).toHaveBeenCalled();
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.FileSaved,
-    'admin',
+    'election_manager',
     expect.objectContaining({
       disposition: 'failure',
       fileType: 'logs',

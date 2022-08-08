@@ -17,8 +17,8 @@ import {
 import {
   Modal,
   Prose,
-  isAdminAuth,
-  isSuperadminAuth,
+  isElectionManagerAuth,
+  isSystemAdministratorAuth,
   useCancelablePromise,
   Loading,
   useLock,
@@ -77,7 +77,7 @@ export function PrintAllBallotsButton({ draftMode }: Props): JSX.Element {
     addPrintedBallot,
   } = useContext(AppContext);
   assert(electionDefinition);
-  assert(isAdminAuth(auth) || isSuperadminAuth(auth));
+  assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth));
   const userRole = auth.user.role;
   const { election, electionHash } = electionDefinition;
 

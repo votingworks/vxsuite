@@ -9,9 +9,9 @@ on a memory smart card. This is used for:
   election
 
 Because reading from / writing to the smart card can be slow for anything more
-than a few bytes, the `services/smartcard` API exposes a short value that is up to
-250 bytes, and a long value that is up to 32,000 bytes. The short value is read
-by default, while the long value is only read upon request.
+than a few bytes, the `services/smartcard` API exposes a short value that is up
+to 250 bytes, and a long value that is up to 32,000 bytes. The short value is
+read by default, while the long value is only read upon request.
 
 The short value on the card is always serialized JSON with short field names to
 save space.
@@ -35,21 +35,21 @@ A voter card does _not_ use the long value on the card.
 A poll worker card includes the following additional fields in the short value's
 serialized JSON:
 
-- `t` -- `pollworker`
+- `t` -- `poll_worker`
 - `h` -- the base64-encoded SHA256 of the election for which this is a valid
   poll worker card
 
 A poll worker card does _not_ use the long value on the card.
 
-## Admin Card
+## Election Manager Card
 
-The admin card is the full administrative card, and contains the following
+The election manager card is an administrative card and contains the following
 fields in the short value.
 
-- `t` -- `admin`
+- `t` -- `election_manager`
 - `h` -- the base64-encoded SHA256 of the `election.json`
 
-The admin card also includes the serialized `election.json` in the long value of
-the card. This is the value which, when hashed with SHA256, should match `h` in
-both the admin and poll-worker cards. This election definition data is used to
-configure the BMD, BAS, and BSD.
+The election manager card also includes the serialized `election.json` in the
+long value of the card. This is the value which, when hashed with SHA256, should
+match `h` in both the election manager and poll worker cards. This election
+definition data is used to configure the BMD, BAS, and BSD.

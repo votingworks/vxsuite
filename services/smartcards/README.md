@@ -51,11 +51,16 @@ of the existing [`fixtures/`](./fixtures).
 ### Using your own election definition
 
 ```sh
-# configure with admin card
-./mockCardReader.py enable --admin /path/to/election.json
-# open polls with poll worker card
-./mockCardReader.py enable --pollworker /path/to/election.json
-# vote with voter card
+# Configure with system administrator card
+./mockCardReader.py enable --system-administrator
+
+# Configure with election manager card
+./mockCardReader.py enable --election-manager /path/to/election.json
+
+# Open polls with poll worker card
+./mockCardReader.py enable --poll-worker /path/to/election.json
+
+# Vote with voter card
 ./mockCardReader.py enable --voter /path/to/election.json --precinct 123 --ballot-style 1R
 ```
 
@@ -64,11 +69,13 @@ of the existing [`fixtures/`](./fixtures).
 Use any fixture paths you like. This shows using the default fixtures:
 
 ```sh
-# configure with admin card
-./mockCardReader.py enable --fixture fixtures/admin
-# open polls with poll worker card
-./mockCardReader.py enable --fixture fixtures/pollworker
-# vote with voter card
+# Configure with election manager card
+./mockCardReader.py enable --fixture fixtures/election_manager
+
+# Open polls with poll worker card
+./mockCardReader.py enable --fixture fixtures/poll_worker
+
+# Vote with voter card
 ./mockCardReader.py enable --fixture fixtures/voter
 ```
 

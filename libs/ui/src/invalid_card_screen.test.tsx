@@ -27,7 +27,7 @@ const testCases: Array<{
   {
     description:
       'election manager card election hash does not match machine election hash',
-    reason: 'admin_wrong_election',
+    reason: 'election_manager_wrong_election',
     expectedText:
       'The inserted Election Manager card is programmed for another election and cannot be used to unlock this machine. ' +
       'Please insert a valid Election Manager or System Administrator card.',

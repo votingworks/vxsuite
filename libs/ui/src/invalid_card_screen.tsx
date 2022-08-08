@@ -23,7 +23,7 @@ export function InvalidCardScreen({
   if (reason === 'machine_not_configured') {
     errorDescription =
       'This machine is unconfigured and cannot be unlocked with this card.';
-  } else if (reason === 'admin_wrong_election') {
+  } else if (reason === 'election_manager_wrong_election') {
     errorDescription =
       'The inserted Election Manager card is programmed for another election ' +
       'and cannot be used to unlock this machine.';

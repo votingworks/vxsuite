@@ -8,12 +8,12 @@ import {
 } from '@testing-library/react';
 import { advanceBy } from 'jest-date-mock';
 import {
-  makeAdminCard,
+  makeElectionManagerCard,
   makeInvalidPollWorkerCard,
   makeVoterCard,
   makePollWorkerCard,
   getZeroCompressedTally,
-  makeSuperadminCard,
+  makeSystemAdministratorCard,
 } from '@votingworks/test-utils';
 import {
   MemoryStorage,
@@ -83,7 +83,9 @@ it('MarkAndPrint end-to-end flow', async () => {
     />
   );
   await advanceTimersAndPromises();
-  const adminCard = makeAdminCard(electionDefinition.electionHash);
+  const electionManagerCard = makeElectionManagerCard(
+    electionDefinition.electionHash
+  );
   const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
   const invalidPollWorkerCard = makeInvalidPollWorkerCard();
   const getByTextWithMarkup = withMarkup(screen.getByText);
@@ -96,8 +98,8 @@ it('MarkAndPrint end-to-end flow', async () => {
 
   // ---------------
 
-  // Configure with Admin Card
-  card.insertCard(adminCard, electionDefinition.electionData);
+  // Configure with Election Manager Card
+  card.insertCard(electionManagerCard, electionDefinition.electionData);
   await authenticateAdminCard();
   fireEvent.click(screen.getByText('Load Election Definition'));
 
@@ -112,14 +114,14 @@ it('MarkAndPrint end-to-end flow', async () => {
   // Basic auth logging check
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.AuthLogin,
-    'admin',
+    'election_manager',
     expect.objectContaining({ disposition: 'success' })
   );
 
   // ---------------
 
-  // Configure election with Admin Card
-  card.insertCard(adminCard, electionDefinition.electionData);
+  // Configure election with Election Manager Card
+  card.insertCard(electionManagerCard, electionDefinition.electionData);
   await authenticateAdminCard();
   screen.getByLabelText('Precinct');
   screen.queryByText(`Election ID: ${expectedElectionHash}`);
@@ -414,8 +416,8 @@ it('MarkAndPrint end-to-end flow', async () => {
   card.removeCard();
   await advanceTimersAndPromises();
 
-  // Insert SuperAdmin card
-  card.insertCard(makeSuperadminCard());
+  // Insert System Administrator card
+  card.insertCard(makeSystemAdministratorCard());
   await authenticateAdminCard();
   await screen.findByText('Reboot from USB');
   card.removeCard();
@@ -423,8 +425,8 @@ it('MarkAndPrint end-to-end flow', async () => {
 
   // ---------------
 
-  // Unconfigure with Admin Card
-  card.insertCard(adminCard, electionDefinition.electionData);
+  // Unconfigure with Election Manager Card
+  card.insertCard(electionManagerCard, electionDefinition.electionData);
   await authenticateAdminCard();
   screen.getByText('Election definition is loaded.');
   fireEvent.click(screen.getByText('Unconfigure Machine'));
@@ -435,8 +437,8 @@ it('MarkAndPrint end-to-end flow', async () => {
   await advanceTimersAndPromises();
   screen.getByText('Device Not Configured');
 
-  // Insert SuperAdmin card works when unconfigured
-  card.insertCard(makeSuperadminCard());
+  // Insert System Administrator card works when unconfigured
+  card.insertCard(makeSystemAdministratorCard());
   await authenticateAdminCard();
   await screen.findByText('Reboot from USB');
   card.removeCard();
@@ -444,8 +446,8 @@ it('MarkAndPrint end-to-end flow', async () => {
 
   // ---------------
 
-  // Configure with Admin card
-  card.insertCard(adminCard, electionDefinition.electionData);
+  // Configure with Election Manager card
+  card.insertCard(electionManagerCard, electionDefinition.electionData);
   await authenticateAdminCard();
   userEvent.click(
     screen.getByRole('button', { name: 'Load Election Definition' })
@@ -454,8 +456,8 @@ it('MarkAndPrint end-to-end flow', async () => {
   card.removeCard();
   await advanceTimersAndPromises();
 
-  // Unconfigure with Super Admin card
-  card.insertCard(makeSuperadminCard());
+  // Unconfigure with System Administrator card
+  card.insertCard(makeSystemAdministratorCard());
   await authenticateAdminCard();
   userEvent.click(screen.getByRole('button', { name: 'Unconfigure Machine' }));
   const modal = await screen.findByRole('alertdialog');
@@ -473,7 +475,7 @@ it('MarkAndPrint end-to-end flow', async () => {
 
   // Verify that machine was unconfigured
   screen.getByText('Device Not Configured');
-  card.insertCard(adminCard, electionDefinition.electionData);
+  card.insertCard(electionManagerCard, electionDefinition.electionData);
   await authenticateAdminCard();
   screen.getByText('Election definition is not loaded.');
 });

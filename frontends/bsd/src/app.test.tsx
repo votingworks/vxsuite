@@ -16,13 +16,16 @@ import {
 import fileDownload from 'js-file-download';
 import {
   fakeKiosk,
-  makeAdminCard,
-  makeSuperadminCard,
+  makeElectionManagerCard,
+  makeSystemAdministratorCard,
   mockOf,
 } from '@votingworks/test-utils';
 import { MemoryCard, MemoryHardware, sleep, typedAs } from '@votingworks/utils';
 import { Scan } from '@votingworks/api';
-import { AdminCardData, PollworkerCardData } from '@votingworks/types';
+import {
+  ElectionManagerCardData,
+  PollWorkerCardData,
+} from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { areVvsg2AuthFlowsEnabled } from '@votingworks/ui';
@@ -86,9 +89,9 @@ afterEach(() => {
   expect(fetchMock.calls('unmatched')).toEqual([]);
 });
 
-async function authenticateWithSuperAdminCard(card: MemoryCard) {
+async function authenticateWithSystemAdministratorCard(card: MemoryCard) {
   await screen.findByText('VxCentralScan is Locked');
-  card.insertCard(makeSuperadminCard());
+  card.insertCard(makeSystemAdministratorCard());
   await screen.findByText('Enter the card security code to unlock.');
   userEvent.click(screen.getByText('1'));
   userEvent.click(screen.getByText('2'));
@@ -101,9 +104,11 @@ async function authenticateWithSuperAdminCard(card: MemoryCard) {
   await screen.findByText('Lock Machine');
 }
 
-async function authenticateWithAdminCard(card: MemoryCard) {
+async function authenticateWithElectionManagerCard(card: MemoryCard) {
   await screen.findByText('VxCentralScan is Locked');
-  card.insertCard(makeAdminCard(electionSampleDefinition.electionHash));
+  card.insertCard(
+    makeElectionManagerCard(electionSampleDefinition.electionHash)
+  );
   await screen.findByText('Enter the card security code to unlock.');
   userEvent.click(screen.getByText('1'));
   userEvent.click(screen.getByText('2'));
@@ -161,7 +166,7 @@ test('shows a "Test mode" button if the app is in Live Mode', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const result = render(<App card={card} hardware={hardware} />);
-  await authenticateWithAdminCard(card);
+  await authenticateWithElectionManagerCard(card);
 
   fireEvent.click(result.getByText('Admin'));
 
@@ -193,7 +198,7 @@ test('shows a "Live mode" button if the app is in Test Mode', async () => {
   const result = render(
     <App card={card} hardware={hardware} logger={logger} />
   );
-  await authenticateWithAdminCard(card);
+  await authenticateWithElectionManagerCard(card);
 
   fireEvent.click(result.getByText('Admin'));
 
@@ -201,7 +206,7 @@ test('shows a "Live mode" button if the app is in Test Mode', async () => {
 
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.AuthLogin,
-    'admin',
+    'election_manager',
     expect.objectContaining({ disposition: 'success' })
   );
 });
@@ -236,7 +241,7 @@ test('clicking Scan Batch will scan a batch', async () => {
 
   await act(async () => {
     const { getByText } = render(<App card={card} hardware={hardware} />);
-    await authenticateWithAdminCard(card);
+    await authenticateWithElectionManagerCard(card);
     fireEvent.click(getByText('Scan New Batch'));
   });
 
@@ -297,7 +302,7 @@ test('clicking export shows modal and makes a request to export', async () => {
   const { getByText, queryByText, getByTestId } = render(
     <App card={card} hardware={hardware} />
   );
-  await authenticateWithAdminCard(card);
+  await authenticateWithElectionManagerCard(card);
   const exportingModalText = 'No USB Drive Detected';
 
   await act(async () => {
@@ -345,7 +350,7 @@ test('configuring election from usb ballot package works end to end', async () =
   const { getByText, getByTestId } = render(
     <App card={card} hardware={hardware} />
   );
-  await authenticateWithAdminCard(card);
+  await authenticateWithElectionManagerCard(card);
 
   const mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
@@ -432,13 +437,13 @@ test('authentication works', async () => {
   render(<App card={card} hardware={hardware} />);
 
   await screen.findByText('VxCentralScan is Locked');
-  const adminCard: AdminCardData = {
-    t: 'admin',
+  const electionManagerCard: ElectionManagerCardData = {
+    t: 'election_manager',
     h: electionSampleDefinition.electionHash,
     p: '123456',
   };
-  const pollWorkerCard: PollworkerCardData = {
-    t: 'pollworker',
+  const pollWorkerCard: PollWorkerCardData = {
+    t: 'poll_worker',
     h: electionSampleDefinition.electionHash,
   };
 
@@ -452,8 +457,8 @@ test('authentication works', async () => {
   });
   await screen.findByText('VxCentralScan is Locked');
 
-  // Insert an admin card and enter the wrong code.
-  card.insertCard(adminCard);
+  // Insert an election manager card and enter the wrong code.
+  card.insertCard(electionManagerCard);
   await act(async () => {
     await sleep(100);
   });
@@ -482,8 +487,8 @@ test('authentication works', async () => {
     await sleep(100);
   });
 
-  // Insert admin card and enter correct code.
-  card.insertCard(adminCard);
+  // Insert election manager card and enter correct code.
+  card.insertCard(electionManagerCard);
   await act(async () => {
     await sleep(100);
   });
@@ -506,7 +511,7 @@ test('authentication works', async () => {
   await screen.findByText('No Scanner');
 
   // The card and other cards can be inserted with no impact.
-  card.insertCard(adminCard);
+  card.insertCard(electionManagerCard);
   await act(async () => {
     await sleep(100);
   });
@@ -531,7 +536,7 @@ test('authentication works', async () => {
   await screen.findByText('VxCentralScan is Locked');
 });
 
-test('super admin can log in and unconfigure machine', async () => {
+test('system administrator can log in and unconfigure machine', async () => {
   const getElectionResponseBody: Scan.GetElectionConfigResponse =
     electionSampleDefinition;
   const getTestModeResponseBody: Scan.GetTestModeConfigResponse = {
@@ -558,7 +563,7 @@ test('super admin can log in and unconfigure machine', async () => {
   const hardware = MemoryHardware.buildStandard();
   render(<App card={card} hardware={hardware} />);
 
-  await authenticateWithSuperAdminCard(card);
+  await authenticateWithSystemAdministratorCard(card);
 
   screen.getByRole('button', { name: 'Reboot from USB' });
   screen.getByRole('button', { name: 'Reboot to BIOS' });
@@ -581,7 +586,7 @@ test('super admin can log in and unconfigure machine', async () => {
   await screen.findByText('VxCentralScan is Locked');
 });
 
-test('admin cannot auth onto machine with different election hash when VVSG2 auth flows are enabled', async () => {
+test('election manager cannot auth onto machine with different election hash when VVSG2 auth flows are enabled', async () => {
   enableVvsg2AuthFlows();
 
   const getElectionResponseBody: Scan.GetElectionConfigResponse =
@@ -605,7 +610,9 @@ test('admin cannot auth onto machine with different election hash when VVSG2 aut
   render(<App card={card} hardware={hardware} />);
 
   await screen.findByText('VxCentralScan is Locked');
-  card.insertCard(makeAdminCard(electionSample2Definition.electionHash));
+  card.insertCard(
+    makeElectionManagerCard(electionSample2Definition.electionHash)
+  );
   await screen.findByText(
     'The inserted Election Manager card is programmed for another election and cannot be used to unlock this machine. ' +
       'Please insert a valid Election Manager or System Administrator card.'

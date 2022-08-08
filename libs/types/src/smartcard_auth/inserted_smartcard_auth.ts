@@ -1,11 +1,11 @@
 import { BallotStyleId, PrecinctId } from '../election';
 import { Result } from '../result';
 import {
-  AdminUser,
+  ElectionManagerUser,
   CardlessVoterUser,
   CardStorage,
-  PollworkerUser,
-  SuperadminUser,
+  PollWorkerUser,
+  SystemAdministratorUser,
   VoterUser,
   UserRole,
 } from './auth';
@@ -19,8 +19,8 @@ export interface LoggedOut {
     | 'invalid_user_on_card'
     | 'user_role_not_allowed'
     | 'machine_not_configured'
-    | 'admin_wrong_election'
-    | 'pollworker_wrong_election'
+    | 'election_manager_wrong_election'
+    | 'poll_worker_wrong_election'
     | 'voter_wrong_election'
     | 'voter_wrong_precinct'
     | 'voter_card_expired'
@@ -29,21 +29,21 @@ export interface LoggedOut {
   readonly cardUserRole?: UserRole;
 }
 
-export interface SuperadminLoggedIn {
+export interface SystemAdministratorLoggedIn {
   readonly status: 'logged_in';
-  readonly user: SuperadminUser;
+  readonly user: SystemAdministratorUser;
   readonly card: CardStorage;
 }
 
-export interface AdminLoggedIn {
+export interface ElectionManagerLoggedIn {
   readonly status: 'logged_in';
-  readonly user: AdminUser;
+  readonly user: ElectionManagerUser;
   readonly card: CardStorage;
 }
 
-export interface PollworkerLoggedIn {
+export interface PollWorkerLoggedIn {
   readonly status: 'logged_in';
-  readonly user: PollworkerUser;
+  readonly user: PollWorkerUser;
   readonly card: CardStorage;
   // A pollworker can "activate" a cardless voter session by selecting a
   // precinct and ballot style. The activated cardless voter session begins when
@@ -73,15 +73,15 @@ export interface CardlessVoterLoggedIn {
 
 export interface CheckingPasscode {
   readonly status: 'checking_passcode';
-  readonly user: SuperadminUser | AdminUser;
+  readonly user: SystemAdministratorUser | ElectionManagerUser;
   readonly checkPasscode: (passcode: string) => void;
   readonly wrongPasscodeEnteredAt?: Date;
 }
 
 export type LoggedIn =
-  | SuperadminLoggedIn
-  | AdminLoggedIn
-  | PollworkerLoggedIn
+  | SystemAdministratorLoggedIn
+  | ElectionManagerLoggedIn
+  | PollWorkerLoggedIn
   | VoterLoggedIn
   | CardlessVoterLoggedIn;
 

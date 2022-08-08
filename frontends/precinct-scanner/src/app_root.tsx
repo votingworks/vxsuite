@@ -15,9 +15,9 @@ import {
   useDevices,
   UnlockMachineScreen,
   useInsertedSmartcardAuth,
-  isSuperadminAuth,
-  isAdminAuth,
-  isPollworkerAuth,
+  isSystemAdministratorAuth,
+  isElectionManagerAuth,
+  isPollWorkerAuth,
   SystemAdministratorScreenContents,
 } from '@votingworks/ui';
 import {
@@ -232,7 +232,11 @@ export function AppRoot({
     logger,
   });
   const auth = useInsertedSmartcardAuth({
-    allowedUserRoles: ['superadmin', 'admin', 'pollworker'],
+    allowedUserRoles: [
+      'system_administrator',
+      'election_manager',
+      'poll_worker',
+    ],
     cardApi: card,
     scope: { electionDefinition },
     logger,
@@ -368,11 +372,14 @@ export function AppRoot({
     return <SetupPowerPage />;
   }
 
-  if (auth.status === 'checking_passcode' && auth.user.role === 'superadmin') {
+  if (
+    auth.status === 'checking_passcode' &&
+    auth.user.role === 'system_administrator'
+  ) {
     return <UnlockMachineScreen auth={auth} />;
   }
 
-  if (isSuperadminAuth(auth)) {
+  if (isSystemAdministratorAuth(auth)) {
     return (
       <ScreenMainCenterChild infoBar>
         <SystemAdministratorScreenContents
@@ -418,7 +425,7 @@ export function AppRoot({
   // Wait until we load scanner status for the first time
   if (!scannerStatus) return null;
 
-  if (isAdminAuth(auth)) {
+  if (isElectionManagerAuth(auth)) {
     return (
       <AppContext.Provider
         value={{
@@ -444,7 +451,7 @@ export function AppRoot({
     return <InsertUsbScreen />;
   }
 
-  if (isPollworkerAuth(auth)) {
+  if (isPollWorkerAuth(auth)) {
     return (
       <AppContext.Provider
         value={{

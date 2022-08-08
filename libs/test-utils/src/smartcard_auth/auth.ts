@@ -1,9 +1,9 @@
 import {
   CardStorage,
   CardProgramming,
-  SuperadminUser,
-  AdminUser,
-  PollworkerUser,
+  SystemAdministratorUser,
+  ElectionManagerUser,
+  PollWorkerUser,
   VoterUser,
   CardlessVoterUser,
 } from '@votingworks/types';
@@ -31,30 +31,32 @@ export function fakeCardProgramming(
   };
 }
 
-export function fakeSuperadminUser(
-  props: Partial<SuperadminUser> = {}
-): SuperadminUser {
+export function fakeSystemAdministratorUser(
+  props: Partial<SystemAdministratorUser> = {}
+): SystemAdministratorUser {
   return {
-    role: 'superadmin',
+    role: 'system_administrator',
     passcode: '123456',
     ...props,
   };
 }
 
-export function fakeAdminUser(props: Partial<AdminUser> = {}): AdminUser {
+export function fakeElectionManagerUser(
+  props: Partial<ElectionManagerUser> = {}
+): ElectionManagerUser {
   return {
-    role: 'admin',
+    role: 'election_manager',
     electionHash: 'election-hash',
     passcode: '123456',
     ...props,
   };
 }
 
-export function fakePollworkerUser(
-  props: Partial<PollworkerUser> = {}
-): PollworkerUser {
+export function fakePollWorkerUser(
+  props: Partial<PollWorkerUser> = {}
+): PollWorkerUser {
   return {
-    role: 'pollworker',
+    role: 'poll_worker',
     electionHash: 'election-hash',
     ...props,
   };

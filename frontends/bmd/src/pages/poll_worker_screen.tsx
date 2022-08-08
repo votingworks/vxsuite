@@ -124,7 +124,7 @@ function PrecinctScannerTallyReportModal({
   togglePollsOpen,
 }: {
   electionDefinition: ElectionDefinition;
-  pollworkerAuth: InsertedSmartcardAuth.PollworkerLoggedIn;
+  pollworkerAuth: InsertedSmartcardAuth.PollWorkerLoggedIn;
   printer: Printer;
   machineConfig: MachineConfig;
   isPollsOpen: boolean;
@@ -302,7 +302,7 @@ function PrecinctScannerTallyReportModal({
 }
 
 export interface PollworkerScreenProps {
-  pollworkerAuth: InsertedSmartcardAuth.PollworkerLoggedIn;
+  pollworkerAuth: InsertedSmartcardAuth.PollWorkerLoggedIn;
   activateCardlessVoterSession: (
     precinctId: PrecinctId,
     ballotStyleId: BallotStyleId

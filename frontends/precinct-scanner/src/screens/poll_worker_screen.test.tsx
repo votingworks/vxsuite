@@ -30,11 +30,11 @@ afterEach(() => {
 function renderScreen({
   scannedBallotCount = 0,
   isPollsOpen = false,
-  auth = Inserted.fakePollworkerAuth(),
+  auth = Inserted.fakePollWorkerAuth(),
 }: {
   scannedBallotCount?: number;
   isPollsOpen?: boolean;
-  auth?: InsertedSmartcardAuth.PollworkerLoggedIn;
+  auth?: InsertedSmartcardAuth.PollWorkerLoggedIn;
 }): void {
   render(
     <AppContext.Provider

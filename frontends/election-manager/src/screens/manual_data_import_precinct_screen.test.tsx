@@ -161,7 +161,7 @@ test('can enter data for candidate contests as expected', async () => {
   await waitFor(() =>
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.ManualTallyDataEdited,
-      'admin',
+      'election_manager',
       expect.objectContaining({ disposition: 'success' })
     )
   );
@@ -223,7 +223,7 @@ test('can enter data for candidate contest with a write in row as expected', asy
   await waitFor(() =>
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.ManualTallyDataEdited,
-      'admin',
+      'election_manager',
       expect.objectContaining({ disposition: 'success' })
     )
   );
@@ -312,7 +312,7 @@ test('can enter data for yes no contests as expected', async () => {
   await waitFor(() =>
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.ManualTallyDataEdited,
-      'admin',
+      'election_manager',
       expect.objectContaining({ disposition: 'success' })
     )
   );

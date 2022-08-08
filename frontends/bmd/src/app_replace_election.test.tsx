@@ -1,6 +1,6 @@
 import React from 'react';
 import { MemoryCard, MemoryHardware, MemoryStorage } from '@votingworks/utils';
-import { makeAdminCard } from '@votingworks/test-utils';
+import { makeElectionManagerCard } from '@votingworks/test-utils';
 import { fireEvent, screen } from '@testing-library/react';
 import { electionSample2Definition } from '@votingworks/fixtures';
 import {
@@ -39,9 +39,9 @@ test('replacing a loaded election with one from a card', async () => {
     />
   );
 
-  // insert admin card with different election
+  // insert election manager card with different election
   card.insertCard(
-    makeAdminCard(electionSample2Definition.electionHash),
+    makeElectionManagerCard(electionSample2Definition.electionHash),
     electionSample2Definition.electionData
   );
   await authenticateAdminCard();
@@ -55,7 +55,7 @@ test('replacing a loaded election with one from a card', async () => {
   card.removeCard();
   await advanceTimersAndPromises();
   card.insertCard(
-    makeAdminCard(electionSample2Definition.electionHash),
+    makeElectionManagerCard(electionSample2Definition.electionHash),
     electionSample2Definition.electionData
   );
   await authenticateAdminCard();

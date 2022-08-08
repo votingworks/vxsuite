@@ -19,7 +19,7 @@ const machineConfig: MachineConfig = {
   machineId: '0003',
   codeVersion: 'TEST',
 };
-const auth = Inserted.fakeAdminAuth();
+const auth = Inserted.fakeElectionManagerAuth();
 
 test('renders loading screen when USB drive is mounting or ejecting in export modal', () => {
   const usbStatuses = [UsbDriveStatus.present, UsbDriveStatus.ejecting];

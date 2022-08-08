@@ -16,7 +16,7 @@ import {
   VotingMethod,
   ContestId,
 } from '@votingworks/types';
-import { isAdminAuth, Prose, Table, TD, Text } from '@votingworks/ui';
+import { isElectionManagerAuth, Prose, Table, TD, Text } from '@votingworks/ui';
 
 import { LogEventId } from '@votingworks/logging';
 import { ManualDataPrecinctScreenProps } from '../config/types';
@@ -141,7 +141,7 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
     logger,
   } = useContext(AppContext);
   assert(electionDefinition);
-  assert(isAdminAuth(auth)); // TODO(auth) check permissions for adding manual tally data
+  assert(isElectionManagerAuth(auth)); // TODO(auth) check permissions for adding manual tally data
   const userRole = auth.user.role;
   const { election } = electionDefinition;
   // TODO export the type for this somewhere

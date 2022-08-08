@@ -102,7 +102,7 @@ export function renderInAppContext(
     fullElectionExternalTallies = [],
     saveTranscribedValue = jest.fn(),
     generateExportableTallies = jest.fn(),
-    auth = Dipped.fakeAdminAuth(),
+    auth = Dipped.fakeElectionManagerAuth(),
     machineConfig = {
       machineId: '0000',
       codeVersion: '',

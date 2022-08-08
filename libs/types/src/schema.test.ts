@@ -771,15 +771,15 @@ test('validates uniqueness of candidate ids within a contest', () => {
   `);
 });
 
-test('validates admin cards have hex-encoded hashes', () => {
-  unsafeParse(t.AdminCardDataSchema, {
-    t: 'admin',
+test('validates election manager cards have hex-encoded hashes', () => {
+  unsafeParse(t.ElectionManagerCardDataSchema, {
+    t: 'election_manager',
     h: 'd34db33f',
     p: '123456',
   });
   expect(
-    safeParse(t.AdminCardDataSchema, {
-      t: 'admin',
+    safeParse(t.ElectionManagerCardDataSchema, {
+      t: 'election_manager',
       h: 'not hex',
       p: '123456',
     }).unsafeUnwrapErr()

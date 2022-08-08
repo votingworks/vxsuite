@@ -102,7 +102,7 @@ describe('Screens display properly when USB is mounted', () => {
     expect(saveCvr).toHaveBeenCalledTimes(1);
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.CvrFilesReadFromUsb,
-      'admin',
+      'election_manager',
       expect.objectContaining({ disposition: 'success' })
     );
   });
@@ -164,7 +164,7 @@ describe('Screens display properly when USB is mounted', () => {
     expect(window.kiosk!.readFile).toHaveBeenCalledTimes(3); // The files should have been read.
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.CvrFilesReadFromUsb,
-      'admin',
+      'election_manager',
       expect.objectContaining({ disposition: 'success' })
     );
 
@@ -180,7 +180,7 @@ describe('Screens display properly when USB is mounted', () => {
       getByText('0 new CVRs Imported');
       expect(logger.log).toHaveBeenCalledWith(
         LogEventId.CvrImported,
-        'admin',
+        'election_manager',
         expect.objectContaining({ disposition: 'success' })
       );
     });
@@ -228,7 +228,7 @@ describe('Screens display properly when USB is mounted', () => {
     );
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.CvrFilesReadFromUsb,
-      'admin',
+      'election_manager',
       expect.objectContaining({ disposition: 'success' })
     );
     expect(window.kiosk!.readFile).toHaveBeenCalledTimes(3); // The files should have been read.
@@ -244,7 +244,7 @@ describe('Screens display properly when USB is mounted', () => {
       getByText(/There was an error reading the content of the file/);
       expect(logger.log).toHaveBeenCalledWith(
         LogEventId.CvrImported,
-        'admin',
+        'election_manager',
         expect.objectContaining({ disposition: 'failure' })
       );
     });
@@ -354,7 +354,7 @@ describe('Screens display properly when USB is mounted', () => {
       );
       expect(logger.log).toHaveBeenCalledWith(
         LogEventId.CvrImported,
-        'admin',
+        'election_manager',
         expect.objectContaining({ disposition: 'failure' })
       );
     });

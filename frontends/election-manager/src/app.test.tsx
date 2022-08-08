@@ -29,13 +29,13 @@ import {
   fakeKiosk,
   fakePrinterInfo,
   fakeUsbDrive,
-  makeAdminCard,
+  makeElectionManagerCard,
   mockOf,
 } from '@votingworks/test-utils';
 import {
-  AdminCardData,
+  ElectionManagerCardData,
   ExternalTallySourceType,
-  PollworkerCardData,
+  PollWorkerCardData,
   VotingMethod,
 } from '@votingworks/types';
 import { LogEventId } from '@votingworks/logging';
@@ -55,8 +55,8 @@ import { MachineConfig } from './config/types';
 import { VxFiles } from './lib/converters';
 import { createMemoryStorageWith } from '../test/util/create_memory_storage_with';
 import {
-  authenticateWithAdminCard,
-  authenticateWithSuperAdminCard,
+  authenticateWithElectionManagerCard,
+  authenticateWithSystemAdministratorCard,
 } from '../test/util/authenticate';
 
 const EITHER_NEITHER_CVR_DATA = electionWithMsEitherNeitherFixtures.cvrData;
@@ -215,13 +215,13 @@ test('authentication works', async () => {
   render(<App card={card} hardware={hardware} storage={storage} />);
 
   await screen.findByText('VxAdmin is Locked');
-  const adminCard: AdminCardData = {
-    t: 'admin',
+  const electionManagerCard: ElectionManagerCardData = {
+    t: 'election_manager',
     h: eitherNeitherElectionDefinition.electionHash,
     p: '123456',
   };
-  const pollWorkerCard: PollworkerCardData = {
-    t: 'pollworker',
+  const pollWorkerCard: PollWorkerCardData = {
+    t: 'poll_worker',
     h: eitherNeitherElectionDefinition.electionHash,
   };
 
@@ -233,8 +233,8 @@ test('authentication works', async () => {
   await advanceTimersAndPromises(1);
   await screen.findByText('VxAdmin is Locked');
 
-  // Insert an admin card and enter the wrong code.
-  card.insertCard(adminCard);
+  // Insert an election manager card and enter the wrong code.
+  card.insertCard(electionManagerCard);
   await advanceTimersAndPromises(1);
   await screen.findByText('Enter the card security code to unlock.');
   fireEvent.click(screen.getByText('1'));
@@ -258,8 +258,8 @@ test('authentication works', async () => {
   card.removeCard();
   await advanceTimersAndPromises(1);
 
-  // Insert admin card and enter correct code.
-  card.insertCard(adminCard);
+  // Insert election manager card and enter correct code.
+  card.insertCard(electionManagerCard);
   await advanceTimersAndPromises(1);
   await screen.findByText('Enter the card security code to unlock.');
   fireEvent.click(screen.getByText('1'));
@@ -279,7 +279,7 @@ test('authentication works', async () => {
   );
   expect(mockKiosk.log).toHaveBeenCalledWith(
     expect.stringMatching(
-      /"auth-login".*"user":"admin".*disposition":"success"/
+      /"auth-login".*"user":"election_manager".*disposition":"success"/
     )
   );
 
@@ -289,7 +289,7 @@ test('authentication works', async () => {
   await screen.findByText('Definition');
 
   // The card and other cards can be inserted with no impact.
-  card.insertCard(adminCard);
+  card.insertCard(electionManagerCard);
   await advanceTimersAndPromises(1);
   await screen.findByText('Definition');
   card.removeCard();
@@ -320,7 +320,10 @@ test('L&A (logic and accuracy) flow', async () => {
   const { container, getByTestId } = render(
     <App card={card} hardware={hardware} printer={printer} storage={storage} />
   );
-  await authenticateWithAdminCard(card, eitherNeitherElectionDefinition);
+  await authenticateWithElectionManagerCard(
+    card,
+    eitherNeitherElectionDefinition
+  );
 
   userEvent.click(screen.getByText('L&A'));
 
@@ -408,7 +411,10 @@ test('L&A features are available after test results are loaded', async () => {
   });
   render(<App card={card} hardware={hardware} storage={storage} />);
 
-  await authenticateWithAdminCard(card, eitherNeitherElectionDefinition);
+  await authenticateWithElectionManagerCard(
+    card,
+    eitherNeitherElectionDefinition
+  );
 
   // Confirm that test results are loaded
   userEvent.click(screen.getByText('Tally'));
@@ -433,7 +439,10 @@ test('printing ballots and printed ballots report', async () => {
     <App storage={storage} printer={printer} card={card} hardware={hardware} />
   );
   jest.advanceTimersByTime(2000); // Cause the usb drive to be detected
-  await authenticateWithAdminCard(card, eitherNeitherElectionDefinition);
+  await authenticateWithElectionManagerCard(
+    card,
+    eitherNeitherElectionDefinition
+  );
 
   fireEvent.click(getByText('Reports'));
   await screen.findByText('0 official ballots');
@@ -493,7 +502,10 @@ test('tabulating CVRs', async () => {
     <App storage={storage} card={card} hardware={hardware} printer={printer} />
   );
   jest.advanceTimersByTime(2000); // Cause the usb drive to be detected
-  await authenticateWithAdminCard(card, eitherNeitherElectionDefinition);
+  await authenticateWithElectionManagerCard(
+    card,
+    eitherNeitherElectionDefinition
+  );
 
   fireEvent.click(getByText('Reports'));
   expect(getByTestId('total-ballot-count').textContent).toEqual('100');
@@ -674,7 +686,10 @@ test('tabulating CVRs with SEMS file', async () => {
     <App storage={storage} card={card} hardware={hardware} />
   );
   jest.advanceTimersByTime(2000);
-  await authenticateWithAdminCard(card, eitherNeitherElectionDefinition);
+  await authenticateWithElectionManagerCard(
+    card,
+    eitherNeitherElectionDefinition
+  );
 
   fireEvent.click(getByText('Tally'));
   getByText('External Results (sems-results.csv)');
@@ -784,7 +799,10 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
   const { getByText, getByTestId, getAllByText, queryAllByText } = render(
     <App storage={storage} card={card} hardware={hardware} />
   );
-  await authenticateWithAdminCard(card, eitherNeitherElectionDefinition);
+  await authenticateWithElectionManagerCard(
+    card,
+    eitherNeitherElectionDefinition
+  );
 
   fireEvent.click(getByText('Tally'));
   expect(getByTestId('total-cvr-count').textContent).toEqual('200');
@@ -967,7 +985,10 @@ test('changing election resets sems, cvr, and manual data files', async () => {
     <App storage={storage} card={card} hardware={hardware} />
   );
 
-  await authenticateWithAdminCard(card, eitherNeitherElectionDefinition);
+  await authenticateWithElectionManagerCard(
+    card,
+    eitherNeitherElectionDefinition
+  );
 
   fireEvent.click(getByText('Reports'));
   await screen.findByText('0 official ballots');
@@ -1022,7 +1043,10 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
       converter="ms-sems"
     />
   );
-  await authenticateWithAdminCard(card, eitherNeitherElectionDefinition);
+  await authenticateWithElectionManagerCard(
+    card,
+    eitherNeitherElectionDefinition
+  );
 
   fireEvent.click(getByText('Reports'));
   await screen.findByText('0 official ballots');
@@ -1075,7 +1099,7 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
   getByText('No CVR files loaded.');
 });
 
-test('admin UI has expected nav when VVSG2 auth flows are enabled', async () => {
+test('election manager UI has expected nav when VVSG2 auth flows are enabled', async () => {
   enableVvsg2AuthFlows();
 
   const card = new MemoryCard();
@@ -1084,7 +1108,10 @@ test('admin UI has expected nav when VVSG2 auth flows are enabled', async () => 
     electionDefinition: eitherNeitherElectionDefinition,
   });
   render(<App card={card} hardware={hardware} storage={storage} />);
-  await authenticateWithAdminCard(card, eitherNeitherElectionDefinition);
+  await authenticateWithElectionManagerCard(
+    card,
+    eitherNeitherElectionDefinition
+  );
 
   userEvent.click(screen.getByText('Ballots'));
   await screen.findAllByText('View Ballot');
@@ -1103,7 +1130,7 @@ test('admin UI has expected nav when VVSG2 auth flows are enabled', async () => 
   expect(screen.queryByText('Advanced')).not.toBeInTheDocument();
 });
 
-test('super admin UI has expected nav when VVSG2 auth flows are enabled', async () => {
+test('system administrator UI has expected nav when VVSG2 auth flows are enabled', async () => {
   enableVvsg2AuthFlows();
 
   const card = new MemoryCard();
@@ -1112,7 +1139,7 @@ test('super admin UI has expected nav when VVSG2 auth flows are enabled', async 
     electionDefinition: eitherNeitherElectionDefinition,
   });
   render(<App card={card} hardware={hardware} storage={storage} />);
-  await authenticateWithSuperAdminCard(card);
+  await authenticateWithSystemAdministratorCard(card);
 
   userEvent.click(screen.getByText('Definition'));
   await screen.findByRole('heading', { name: 'Election Definition' });
@@ -1127,14 +1154,14 @@ test('super admin UI has expected nav when VVSG2 auth flows are enabled', async 
   screen.getByRole('button', { name: 'Lock Machine' });
 });
 
-test('super admin UI has expected nav when no election and VVSG2 auth flows are enabled', async () => {
+test('system administrator UI has expected nav when no election and VVSG2 auth flows are enabled', async () => {
   enableVvsg2AuthFlows();
 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
   render(<App card={card} hardware={hardware} storage={storage} />);
-  await authenticateWithSuperAdminCard(card);
+  await authenticateWithSystemAdministratorCard(card);
 
   userEvent.click(screen.getByText('Definition'));
   await screen.findByRole('heading', { name: 'Configure VxAdmin' });
@@ -1174,7 +1201,7 @@ test('super admin UI has expected nav when no election and VVSG2 auth flows are 
   expect(screen.queryByText('Smartcards')).not.toBeInTheDocument();
 });
 
-test('super admin Smartcards screen navigation', async () => {
+test('system administrator Smartcards screen navigation', async () => {
   enableVvsg2AuthFlows();
 
   const card = new MemoryCard();
@@ -1183,19 +1210,19 @@ test('super admin Smartcards screen navigation', async () => {
     electionDefinition: eitherNeitherElectionDefinition,
   });
   render(<App card={card} hardware={hardware} storage={storage} />);
-  await authenticateWithSuperAdminCard(card);
+  await authenticateWithSystemAdministratorCard(card);
 
   userEvent.click(screen.getByText('Smartcards'));
   await screen.findByRole('heading', { name: 'Election Cards' });
-  userEvent.click(screen.getByText('Create Super Admin Cards'));
-  await screen.findByRole('heading', { name: 'Super Admin Cards' });
+  userEvent.click(screen.getByText('Create System Administrator Cards'));
+  await screen.findByRole('heading', { name: 'System Administrator Cards' });
   userEvent.click(screen.getByText('Create Election Cards'));
   await screen.findByRole('heading', { name: 'Election Cards' });
 
   // The smartcard modal and smartcard programming flows are tested in smartcard_modal.test.tsx
 });
 
-test('admin cannot auth onto unconfigured machine when VVSG2 auth flows are enabled', async () => {
+test('election manager cannot auth onto unconfigured machine when VVSG2 auth flows are enabled', async () => {
   enableVvsg2AuthFlows();
 
   const card = new MemoryCard();
@@ -1204,7 +1231,9 @@ test('admin cannot auth onto unconfigured machine when VVSG2 auth flows are enab
   render(<App card={card} hardware={hardware} storage={storage} />);
 
   await screen.findByText('VxAdmin is Locked');
-  card.insertCard(makeAdminCard(eitherNeitherElectionDefinition.electionHash));
+  card.insertCard(
+    makeElectionManagerCard(eitherNeitherElectionDefinition.electionHash)
+  );
   await screen.findByText('Invalid Card');
   await screen.findByText(
     'This machine is unconfigured and cannot be unlocked with this card. ' +
@@ -1212,7 +1241,7 @@ test('admin cannot auth onto unconfigured machine when VVSG2 auth flows are enab
   );
 });
 
-test('admin cannot auth onto machine with different election hash when VVSG2 auth flows are enabled', async () => {
+test('election manager cannot auth onto machine with different election hash when VVSG2 auth flows are enabled', async () => {
   enableVvsg2AuthFlows();
 
   const card = new MemoryCard();
@@ -1223,7 +1252,9 @@ test('admin cannot auth onto machine with different election hash when VVSG2 aut
   render(<App card={card} hardware={hardware} storage={storage} />);
 
   await screen.findByText('VxAdmin is Locked');
-  card.insertCard(makeAdminCard(electionSampleDefinition.electionHash));
+  card.insertCard(
+    makeElectionManagerCard(electionSampleDefinition.electionHash)
+  );
   await screen.findByText('Invalid Card');
   await screen.findByText(
     'The inserted Election Manager card is programmed for another election ' +
@@ -1232,7 +1263,7 @@ test('admin cannot auth onto machine with different election hash when VVSG2 aut
   );
 });
 
-test('super admin Draft Ballots tab and admin Ballots tab have expected differences', async () => {
+test('system administrator Draft Ballots tab and election manager Ballots tab have expected differences', async () => {
   enableVvsg2AuthFlows();
 
   const card = new MemoryCard();
@@ -1241,7 +1272,7 @@ test('super admin Draft Ballots tab and admin Ballots tab have expected differen
     electionDefinition: eitherNeitherElectionDefinition,
   });
   render(<App card={card} hardware={hardware} storage={storage} />);
-  await authenticateWithSuperAdminCard(card);
+  await authenticateWithSystemAdministratorCard(card);
 
   userEvent.click(screen.getByText('Draft Ballots'));
   await screen.findAllByText('View Ballot');
@@ -1267,7 +1298,10 @@ test('super admin Draft Ballots tab and admin Ballots tab have expected differen
   expect(screen.queryByText(/Ballot Package Filename/)).not.toBeInTheDocument();
 
   userEvent.click(screen.getByText('Lock Machine'));
-  await authenticateWithAdminCard(card, eitherNeitherElectionDefinition);
+  await authenticateWithElectionManagerCard(
+    card,
+    eitherNeitherElectionDefinition
+  );
 
   userEvent.click(screen.getByText('Ballots'));
   await screen.findAllByText('View Ballot');

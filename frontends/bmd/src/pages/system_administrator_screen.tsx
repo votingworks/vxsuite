@@ -11,9 +11,9 @@ interface Props {
 }
 
 /**
- * Screen when a super admin card is inserted
+ * Screen when a system administrator card is inserted
  */
-export function SuperAdminScreen({
+export function SystemAdministratorScreen({
   logger,
   unconfigureMachine,
   usbDriveStatus,

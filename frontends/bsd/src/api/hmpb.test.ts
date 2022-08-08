@@ -19,7 +19,7 @@ test('configures the server with the contained election', async () => {
         ballots: [],
       },
       logger,
-      'admin'
+      'election_manager'
     )
       .on('error', (error) => {
         reject(error);
@@ -77,7 +77,7 @@ test('emits an event each time a ballot begins uploading', async () => {
         ],
       },
       logger,
-      'admin'
+      'election_manager'
     )
       .on('error', (error) => {
         reject(error);
@@ -92,7 +92,7 @@ test('emits an event each time a ballot begins uploading', async () => {
   expect(logger.log).toHaveBeenCalledTimes(2);
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.BallotConfiguredOnMachine,
-    'admin',
+    'election_manager',
     expect.objectContaining({
       disposition: 'success',
       ballotStyleId: '5',
@@ -102,7 +102,7 @@ test('emits an event each time a ballot begins uploading', async () => {
   );
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.BallotConfiguredOnMachine,
-    'admin',
+    'election_manager',
     expect.objectContaining({
       disposition: 'success',
       ballotStyleId: '5',
@@ -125,7 +125,7 @@ test('emits error on API failure', async () => {
           ballots: [],
         },
         logger,
-        'admin'
+        'election_manager'
       )
         .on('error', (error) => {
           reject(error);

@@ -4,13 +4,13 @@ import { screen } from '@testing-library/react';
 import { usbstick } from '@votingworks/utils';
 
 import { render } from '../../test/test_utils';
-import { SuperAdminScreen } from './superadmin_screen';
+import { SystemAdministratorScreen } from './system_administrator_screen';
 
-test('SuperAdminScreen renders expected contents', () => {
+test('SystemAdministratorScreen renders expected contents', () => {
   const logger = fakeLogger();
   const unconfigureMachine = jest.fn();
   render(
-    <SuperAdminScreen
+    <SystemAdministratorScreen
       logger={logger}
       unconfigureMachine={unconfigureMachine}
       usbDriveStatus={usbstick.UsbDriveStatus.absent}

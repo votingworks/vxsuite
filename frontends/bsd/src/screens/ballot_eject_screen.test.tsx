@@ -46,7 +46,7 @@ test('says the sheet is unreadable if it is', async () => {
   expect(logger.log).toHaveBeenCalledTimes(1);
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ScanAdjudicationInfo,
-    'admin',
+    'election_manager',
     expect.objectContaining({
       adjudicationTypes: 'BlankPage',
     })
@@ -144,7 +144,7 @@ test('says the ballot sheet is overvoted if it is', async () => {
   expect(logger.log).toHaveBeenCalledTimes(1);
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ScanAdjudicationInfo,
-    'admin',
+    'election_manager',
     expect.objectContaining({
       adjudicationTypes: 'Overvote',
     })
@@ -253,7 +253,7 @@ test('says the ballot sheet is undervoted if it is', async () => {
   expect(logger.log).toHaveBeenCalledTimes(1);
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ScanAdjudicationInfo,
-    'admin',
+    'election_manager',
     expect.objectContaining({
       adjudicationTypes: 'Undervote',
     })
@@ -369,7 +369,7 @@ test('says the ballot sheet is blank if it is', async () => {
   expect(logger.log).toHaveBeenCalledTimes(1);
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ScanAdjudicationInfo,
-    'admin',
+    'election_manager',
     expect.objectContaining({
       adjudicationTypes: 'BlankBallot, Undervote',
     })
@@ -448,7 +448,7 @@ test('calls out live ballot sheets in test mode', async () => {
   expect(logger.log).toHaveBeenCalledTimes(1);
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ScanAdjudicationInfo,
-    'admin',
+    'election_manager',
     expect.objectContaining({
       adjudicationTypes: 'InvalidTestModePage',
     })
@@ -519,7 +519,7 @@ test('calls out test ballot sheets in live mode', async () => {
   expect(logger.log).toHaveBeenCalledTimes(1);
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ScanAdjudicationInfo,
-    'admin',
+    'election_manager',
     expect.objectContaining({
       adjudicationTypes: 'InvalidTestModePage',
     })
@@ -574,7 +574,7 @@ test('shows invalid election screen when appropriate', async () => {
   expect(logger.log).toHaveBeenCalledTimes(1);
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ScanAdjudicationInfo,
-    'admin',
+    'election_manager',
     expect.objectContaining({
       adjudicationTypes: 'InvalidElectionHashPage, BlankPage',
     })
@@ -644,7 +644,7 @@ test('shows invalid precinct screen when appropriate', async () => {
   expect(logger.log).toHaveBeenCalledTimes(1);
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.ScanAdjudicationInfo,
-    'admin',
+    'election_manager',
     expect.objectContaining({
       adjudicationTypes: 'InvalidPrecinctPage',
     })

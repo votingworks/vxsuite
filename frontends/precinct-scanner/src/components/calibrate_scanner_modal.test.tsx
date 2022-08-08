@@ -146,7 +146,7 @@ test('calibrate error and try again', async () => {
 
 // This test won't actually fail, but it will cause the warning:
 // "An update to CalibrateScannerModal inside a test was not wrapped in act(...)."
-test('unmount during calibration (e.g. if admin card removed)', async () => {
+test('unmount during calibration (e.g. if election manager card removed)', async () => {
   const { promise, resolve } = deferred<{ body: Scan.CalibrateResponse }>();
   fetchMock.postOnce('/scanner/calibrate', promise);
   const { unmount } = render(

@@ -9,7 +9,7 @@ import {
   RebootToBiosButton,
   Screen,
   SetupCardReaderPage,
-  isSuperadminAuth,
+  isSystemAdministratorAuth,
   InvalidCardScreen,
   UnlockMachineScreen,
   RemoveCardScreen,
@@ -99,7 +99,7 @@ export function ElectionManager(): JSX.Element {
     return <InvalidCardScreen reason={auth.reason} />;
   }
 
-  if (isSuperadminAuth(auth)) {
+  if (isSystemAdministratorAuth(auth)) {
     if (!areVvsg2AuthFlowsEnabled()) {
       return (
         <Screen>

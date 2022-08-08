@@ -26,7 +26,7 @@ afterEach(() => {
   window.kiosk = undefined;
 });
 
-const auth = Inserted.fakeAdminAuth();
+const auth = Inserted.fakeElectionManagerAuth();
 
 const scannerStatus: Scan.PrecinctScannerStatus = {
   state: 'no_paper',

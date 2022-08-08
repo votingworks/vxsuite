@@ -9,7 +9,7 @@ import { Scan } from '@votingworks/api';
 import { assert } from '@votingworks/utils';
 import {
   ElectionInfoBar,
-  isAdminAuth,
+  isElectionManagerAuth,
   Main,
   Screen,
   Text,
@@ -90,7 +90,7 @@ export function BallotEjectScreen({
   const [reviewInfo, setReviewInfo] =
     useState<Scan.GetNextReviewSheetResponse>();
   const [ballotState, setBallotState] = useState<EjectState>();
-  assert(isAdminAuth(auth));
+  assert(isElectionManagerAuth(auth));
   const userRole = auth.user.role;
 
   useEffect(() => {

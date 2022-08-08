@@ -3,14 +3,14 @@ import { sha256 } from 'js-sha256';
 
 const PIN = '000000';
 
-function mockAdminCard() {
+function mockElectionManagerCard() {
   cy.readFile('cypress/fixtures/election.json', null).then(
     (electionBytes: Uint8Array) => {
       const electionData = Buffer.from(electionBytes).toString('utf-8');
       cy.request('PUT', 'http://localhost:3001/mock', {
         enabled: true,
         shortValue: JSON.stringify({
-          t: 'admin',
+          t: 'election_manager',
           h: sha256(electionBytes),
           p: PIN,
         }),
@@ -37,7 +37,7 @@ describe('BSD and services/Scan', () => {
   beforeEach(() => {
     // Unconfigure services/scan
     cy.request('DELETE', '/config/election');
-    mockAdminCard();
+    mockElectionManagerCard();
     cy.visit('/');
     enterPin();
     removeCard();

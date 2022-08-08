@@ -1,13 +1,13 @@
 import {
-  AdminUser,
+  ElectionManagerUser,
   CardProgramming,
   CardStorage,
   DippedSmartcardAuth,
 } from '@votingworks/types';
 import {
-  fakeSuperadminUser,
+  fakeSystemAdministratorUser,
   fakeCardStorage,
-  fakeAdminUser,
+  fakeElectionManagerUser,
   fakeCardProgramming,
 } from './auth';
 
@@ -16,18 +16,18 @@ export function fakeCheckingPasscodeAuth(
 ): DippedSmartcardAuth.CheckingPasscode {
   return {
     status: 'checking_passcode',
-    user: fakeAdminUser(),
+    user: fakeElectionManagerUser(),
     checkPasscode: jest.fn(),
     ...props,
   };
 }
 
-export function fakeSuperadminAuth(
+export function fakeSystemAdministratorAuth(
   card: Partial<CardStorage & CardProgramming> = {}
-): DippedSmartcardAuth.SuperadminLoggedIn {
+): DippedSmartcardAuth.SystemAdministratorLoggedIn {
   return {
     status: 'logged_in',
-    user: fakeSuperadminUser(),
+    user: fakeSystemAdministratorUser(),
     card: {
       ...fakeCardStorage(card),
       ...fakeCardProgramming(card),
@@ -36,13 +36,13 @@ export function fakeSuperadminAuth(
   };
 }
 
-export function fakeAdminAuth(
-  user: Partial<AdminUser> = {},
+export function fakeElectionManagerAuth(
+  user: Partial<ElectionManagerUser> = {},
   card: Partial<CardStorage> = {}
-): DippedSmartcardAuth.AdminLoggedIn {
+): DippedSmartcardAuth.ElectionManagerLoggedIn {
   return {
     status: 'logged_in',
-    user: fakeAdminUser(user),
+    user: fakeElectionManagerUser(user),
     card: fakeCardStorage(card),
     logOut: jest.fn(),
   };
@@ -54,7 +54,7 @@ export function fakeLoggedOutAuth(
   return {
     status: 'logged_out',
     reason: 'machine_locked',
-    bootstrapAuthenticatedAdminSession: jest.fn(),
+    bootstrapAuthenticatedElectionManagerSession: jest.fn(),
     ...props,
   };
 }

@@ -20,24 +20,24 @@ interface Props {
   setActionStatus: (actionStatus?: SmartcardActionStatus) => void;
 }
 
-export function ProgramSuperAdminCardView({
+export function ProgramSystemAdministratorCardView({
   actionStatus,
   card,
   setActionStatus,
 }: Props): JSX.Element {
-  async function programSuperAdminCard() {
+  async function programSystemAdministratorCard() {
     setActionStatus({
       action: 'Program',
-      role: 'superadmin',
+      role: 'system_administrator',
       status: 'InProgress',
     });
     const result = await card.programUser({
-      role: 'superadmin',
+      role: 'system_administrator',
       passcode: generatePin(),
     });
     setActionStatus({
       action: 'Program',
-      role: 'superadmin',
+      role: 'system_administrator',
       status: result.isOk() ? 'Success' : 'Error',
     });
   }
@@ -51,16 +51,16 @@ export function ProgramSuperAdminCardView({
       )}
 
       <Prose textCenter theme={fontSizeTheme.medium}>
-        <h1>Create New Super Admin Card</h1>
+        <h1>Create New System Administrator Card</h1>
         <p>
           This card performs all system actions. Strictly limit the number
-          created and keep all Super Admin Cards secure.
+          created and keep all System Administrator Cards secure.
         </p>
 
         <HorizontalRule />
         <p>
-          <Button onPress={programSuperAdminCard}>
-            Create Super Admin Card
+          <Button onPress={programSystemAdministratorCard}>
+            Create System Administrator Card
           </Button>
         </p>
         <HorizontalRule />

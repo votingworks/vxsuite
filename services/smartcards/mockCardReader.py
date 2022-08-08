@@ -33,14 +33,14 @@ def usage(file=sys.stdout, code=0):
         "# enable mock reader with a card of a certain type for an election definition",
         file=file,
     )
-    print("%s enable --admin DEFINITION" % argv0, file=file)
-    print("%s enable --pollworker DEFINITION" % argv0, file=file)
+    print("%s enable --election-manager DEFINITION" % argv0, file=file)
+    print("%s enable --poll-worker DEFINITION" % argv0, file=file)
     print(
         "%s enable --voter DEFINITION --precinct PRECINCT_ID --ballot-style BALLOT_STYLE_ID"
         % argv0,
         file=file,
     )
-    print("%s enable --superadmin" % argv0, file=file)
+    print("%s enable --system-administrator" % argv0, file=file)
     print("", file=file)
     print(
         "# enable mock reader with a card and set long/short values from fixture data",
@@ -119,36 +119,46 @@ class ElectionDefinition(object):
         self.election = json.loads(election_data)
 
 
-def enable_admin(election_definition: ElectionDefinition):
+def enable_election_manager(election_definition: ElectionDefinition):
     set_mock(
         {
             "enabled": True,
             "shortValue": json.dumps(
-                {"t": "admin", "h": election_definition.election_hash, "p": "000000"}
+                {
+                    "t": "election_manager",
+                    "h": election_definition.election_hash,
+                    "p": "000000",
+                }
             ),
             "longValue": election_definition.election_data,
         }
     )
 
 
-def enable_pollworker(election_definition: ElectionDefinition):
+def enable_poll_worker(election_definition: ElectionDefinition):
     set_mock(
         {
             "enabled": True,
             "shortValue": json.dumps(
-                {"t": "pollworker", "h": election_definition.election_hash}
+                {
+                    "t": "poll_worker",
+                    "h": election_definition.election_hash,
+                }
             ),
             "longValue": None,
         }
     )
 
 
-def enable_superadmin():
+def enable_system_administrator():
     set_mock(
         {
             "enabled": True,
             "shortValue": json.dumps(
-                {"t": "superadmin", "p": "000000"}
+                {
+                    "t": "system_administrator",
+                    "p": "000000",
+                }
             ),
             "longValue": None,
         }
@@ -202,16 +212,16 @@ if command == "enable":
         elif arg == "--fixture":
             i += 1
             fixture_path = sys.argv[i]
-        elif arg == "--admin":
+        elif arg == "--election-manager":
             i += 1
             election_path = sys.argv[i]
-            card_type = "admin"
-        elif arg == "--pollworker":
+            card_type = "election_manager"
+        elif arg == "--poll-worker":
             i += 1
             election_path = sys.argv[i]
-            card_type = "pollworker"
-        elif arg == "--superadmin":
-            card_type = "superadmin"
+            card_type = "poll_worker"
+        elif arg == "--system-administrator":
+            card_type = "system_administrator"
         elif arg == "--voter":
             i += 1
             election_path = sys.argv[i]
@@ -240,10 +250,10 @@ if command == "enable":
             election_data = election_file.read()
 
         election_definition = ElectionDefinition(election_data)
-        if card_type == "admin":
-            enable_admin(election_definition)
-        elif card_type == "pollworker":
-            enable_pollworker(election_definition)
+        if card_type == "election_manager":
+            enable_election_manager(election_definition)
+        elif card_type == "poll_worker":
+            enable_poll_worker(election_definition)
         elif card_type == "voter":
             if not precinct_id:
                 fatal("--voter requires --precinct")
@@ -251,8 +261,8 @@ if command == "enable":
                 fatal("--voter requires --ballot-style")
 
             enable_voter(election_definition, precinct_id, ballot_style_id)
-    elif card_type == "superadmin":
-        enable_superadmin()
+    elif card_type == "system_administrator":
+        enable_system_administrator()
     else:
         enable_no_card()
 

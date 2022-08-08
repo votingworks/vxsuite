@@ -163,7 +163,7 @@ test('render export modal when a usb drive is mounted as expected and allows aut
         usbDriveStatus: UsbDriveStatus.recentlyEjected,
         usbDriveEject: jest.fn(),
         storage: new MemoryStorage(),
-        auth: Dipped.fakeAdminAuth(),
+        auth: Dipped.fakeElectionManagerAuth(),
         logger: new Logger(LogSource.VxCentralScanFrontend),
       }}
     >

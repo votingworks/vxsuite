@@ -11,7 +11,7 @@ import {
   PrintableContainer,
   TallyReport,
   UsbDrive,
-  isPollworkerAuth,
+  isPollWorkerAuth,
 } from '@votingworks/ui';
 import {
   assert,
@@ -63,7 +63,7 @@ enum PollWorkerFlowState {
 }
 
 async function saveTallyToCard(
-  auth: InsertedSmartcardAuth.PollworkerLoggedIn,
+  auth: InsertedSmartcardAuth.PollWorkerLoggedIn,
   cardTally: PrecinctScannerCardTally
 ): Promise<boolean> {
   await auth.card.writeStoredData(cardTally);
@@ -108,7 +108,7 @@ export function PollWorkerScreen({
   const { electionDefinition, currentPrecinctId, machineConfig, auth } =
     useContext(AppContext);
   assert(electionDefinition);
-  assert(isPollworkerAuth(auth));
+  assert(isPollWorkerAuth(auth));
   const [currentTally, setCurrentTally] = useState<FullElectionTally>();
   const [currentSubTallies, setCurrentSubTallies] = useState<
     ReadonlyMap<string, Tally>
@@ -257,7 +257,7 @@ export function PollWorkerScreen({
       tally: currentCompressedTally,
     };
 
-    assert(isPollworkerAuth(auth));
+    assert(isPollWorkerAuth(auth));
     const success = await saveTallyToCard(auth, fullTallyInformation);
     if (!success) {
       debug(

@@ -94,7 +94,7 @@ test('modal happy path flow works', async () => {
   );
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.FileSaved,
-    'admin',
+    'election_manager',
     expect.objectContaining({ disposition: 'success' })
   );
 
@@ -136,7 +136,7 @@ test('modal custom flow works', async () => {
   expect(window.kiosk!.saveAs).toHaveBeenCalledTimes(1);
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.FileSaved,
-    'admin',
+    'election_manager',
     expect.objectContaining({ disposition: 'success' })
   );
 });

@@ -7,7 +7,7 @@ import {
 } from '@votingworks/fixtures';
 import { encodeBallot } from '@votingworks/ballot-encoder';
 import {
-  makeAdminCard,
+  makeElectionManagerCard,
   makeVoterCard,
   makePollWorkerCard,
 } from '@votingworks/test-utils';
@@ -44,7 +44,7 @@ jest.setTimeout(12000);
 test('PrintOnly flow', async () => {
   const { election, electionData, electionHash } = electionSampleDefinition;
   const card = new MemoryCard();
-  const adminCard = makeAdminCard(electionHash);
+  const electionManagerCard = makeElectionManagerCard(electionHash);
   const pollWorkerCard = makePollWorkerCard(electionHash);
   const printer = fakePrinter();
   const hardware = MemoryHardware.buildStandard();
@@ -72,8 +72,8 @@ test('PrintOnly flow', async () => {
 
   // ---------------
 
-  // Configure with Admin Card
-  card.insertCard(adminCard, electionData);
+  // Configure with Election Manager Card
+  card.insertCard(electionManagerCard, electionData);
   await authenticateAdminCard();
   fireEvent.click(screen.getByText('Load Election Definition'));
 
@@ -87,8 +87,8 @@ test('PrintOnly flow', async () => {
 
   // ---------------
 
-  // Configure election with Admin Card
-  card.insertCard(adminCard, electionData);
+  // Configure election with Election Manager Card
+  card.insertCard(electionManagerCard, electionData);
   await authenticateAdminCard();
   screen.getByLabelText('Precinct');
 
@@ -131,7 +131,7 @@ test('PrintOnly flow', async () => {
   // ---------------
 
   // Set to Live Mode
-  card.insertCard(adminCard, electionData);
+  card.insertCard(electionManagerCard, electionData);
   await authenticateAdminCard();
   expect(window.document.documentElement.style.fontSize).toBe('28px');
   fireEvent.click(screen.getByText('Live Election Mode'));
@@ -370,8 +370,8 @@ test('PrintOnly flow', async () => {
 
   // ---------------
 
-  // Unconfigure with Admin Card
-  card.insertCard(adminCard, electionData);
+  // Unconfigure with Election Manager Card
+  card.insertCard(electionManagerCard, electionData);
   await authenticateAdminCard();
   screen.getByText('Election definition is loaded.');
   fireEvent.click(screen.getByText('Unconfigure Machine'));
@@ -386,7 +386,7 @@ test('PrintOnly flow', async () => {
 test('PrintOnly retains app mode when unconfigured', async () => {
   const { electionData, electionHash } = electionSampleDefinition;
   const card = new MemoryCard();
-  const adminCard = makeAdminCard(electionHash);
+  const electionManagerCard = makeElectionManagerCard(electionHash);
   const pollWorkerCard = makePollWorkerCard(electionHash);
   const printer = fakePrinter();
   const hardware = MemoryHardware.buildStandard();
@@ -406,8 +406,8 @@ test('PrintOnly retains app mode when unconfigured', async () => {
   await advanceTimersAndPromises();
 
   async function configure(): Promise<void> {
-    // Configure with Admin Card
-    card.insertCard(adminCard, electionData);
+    // Configure with Election Manager Card
+    card.insertCard(electionManagerCard, electionData);
     await authenticateAdminCard();
     fireEvent.click(screen.getByText('Load Election Definition'));
 
@@ -445,8 +445,8 @@ test('PrintOnly retains app mode when unconfigured', async () => {
   }
 
   async function unconfigure(): Promise<void> {
-    // Unconfigure with Admin Card
-    card.insertCard(adminCard, electionData);
+    // Unconfigure with Election Manager Card
+    card.insertCard(electionManagerCard, electionData);
     await authenticateAdminCard();
     screen.getByText('Election definition is loaded.');
     fireEvent.click(screen.getByText('Unconfigure Machine'));
@@ -486,7 +486,9 @@ test('PrintOnly prompts to change to live mode on election day', async () => {
     ...electionSampleDefinition.election,
     date: new Date().toISOString(),
   });
-  const adminCard = makeAdminCard(electionDefinition.electionHash);
+  const electionManagerCard = makeElectionManagerCard(
+    electionDefinition.electionHash
+  );
   const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
   const card = new MemoryCard();
   const printer = fakePrinter();
@@ -510,8 +512,8 @@ test('PrintOnly prompts to change to live mode on election day', async () => {
 
   // ---------------
 
-  // Configure with Admin Card
-  card.insertCard(adminCard, electionDefinition.electionData);
+  // Configure with Election Manager Card
+  card.insertCard(electionManagerCard, electionDefinition.electionData);
   await authenticateAdminCard();
   fireEvent.click(screen.getByText('Load Election Definition'));
 

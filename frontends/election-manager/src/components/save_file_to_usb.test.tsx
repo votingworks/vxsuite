@@ -116,7 +116,7 @@ test('renders save screen when usb is mounted with ballot filetype', async () =>
   expect(queryAllByText('Eject USB')).toHaveLength(0);
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.FileSaved,
-    'admin',
+    'election_manager',
     expect.objectContaining({
       disposition: 'success',
       filename: 'this-is-a-file-name.pdf',
@@ -174,7 +174,7 @@ test('renders save screen when usb is mounted with results filetype and prompts 
   getByText('Eject USB');
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.FileSaved,
-    'admin',
+    'election_manager',
     expect.objectContaining({
       disposition: 'success',
       filename: 'this-is-a-file-name.pdf',
@@ -217,7 +217,7 @@ test('render export modal with errors when appropriate', async () => {
   expect(closeFn).toHaveBeenCalled();
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.FileSaved,
-    'admin',
+    'election_manager',
     expect.objectContaining({
       disposition: 'failure',
       fileType: FileType.TallyReport,

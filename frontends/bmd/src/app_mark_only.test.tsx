@@ -1,7 +1,7 @@
 import React from 'react';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import {
-  makeAdminCard,
+  makeElectionManagerCard,
   makeVoterCard,
   makePollWorkerCard,
 } from '@votingworks/test-utils';
@@ -35,7 +35,9 @@ beforeEach(() => {
 it('MarkOnly flow', async () => {
   const electionDefinition = electionSampleDefinition;
   const card = new MemoryCard();
-  const adminCard = makeAdminCard(electionDefinition.electionHash);
+  const electionManagerCard = makeElectionManagerCard(
+    electionDefinition.electionHash
+  );
   const pollWorkerCard = makePollWorkerCard(electionDefinition.electionHash);
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
@@ -60,8 +62,8 @@ it('MarkOnly flow', async () => {
 
   // ---------------
 
-  // Configure election with Admin Card
-  card.insertCard(adminCard, electionDefinition.electionData);
+  // Configure election with Election Manager Card
+  card.insertCard(electionManagerCard, electionDefinition.electionData);
   await authenticateAdminCard();
   fireEvent.click(screen.getByText('Load Election Definition'));
 
@@ -75,8 +77,8 @@ it('MarkOnly flow', async () => {
 
   // ---------------
 
-  // Configure election with Admin Card
-  card.insertCard(adminCard, electionDefinition.electionData);
+  // Configure election with Election Manager Card
+  card.insertCard(electionManagerCard, electionDefinition.electionData);
   await authenticateAdminCard();
   screen.getByLabelText('Precinct');
 
@@ -208,8 +210,8 @@ it('MarkOnly flow', async () => {
 
   // ---------------
 
-  // Unconfigure with Admin Card
-  card.insertCard(adminCard, electionDefinition.electionData);
+  // Unconfigure with Election Manager Card
+  card.insertCard(electionManagerCard, electionDefinition.electionData);
   await authenticateAdminCard();
   screen.getByText('Election definition is loaded.');
   fireEvent.click(screen.getByText('Unconfigure Machine'));

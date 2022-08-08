@@ -3,7 +3,7 @@ import { assert, tallyVotesByContest } from '@votingworks/utils';
 import { LogEventId } from '@votingworks/logging';
 import { Tally, VotingMethod } from '@votingworks/types';
 
-import { isAdminAuth } from '@votingworks/ui';
+import { isElectionManagerAuth } from '@votingworks/ui';
 import { AppContext } from '../contexts/app_context';
 import { PrintButton } from './print_button';
 import { TestDeckTallyReport } from './test_deck_tally_report';
@@ -11,7 +11,7 @@ import { generateTestDeckBallots } from '../utils/election';
 
 export function FullTestDeckTallyReportButton(): JSX.Element {
   const { auth, electionDefinition, logger } = useContext(AppContext);
-  assert(isAdminAuth(auth));
+  assert(isElectionManagerAuth(auth));
   const userRole = auth.user.role;
 
   assert(electionDefinition);

@@ -59,7 +59,7 @@ export function CardDetailsView({
 
   async function resetCardPin() {
     assert(electionDefinition);
-    assert(role === 'superadmin' || role === 'admin');
+    assert(role === 'system_administrator' || role === 'election_manager');
 
     setActionStatus({
       action: 'PinReset',
@@ -68,16 +68,16 @@ export function CardDetailsView({
     });
     let result;
     switch (role) {
-      case 'superadmin': {
+      case 'system_administrator': {
         result = await card.programUser({
-          role: 'superadmin',
+          role: 'system_administrator',
           passcode: generatePin(),
         });
         break;
       }
-      case 'admin': {
+      case 'election_manager': {
         result = await card.programUser({
-          role: 'admin',
+          role: 'election_manager',
           electionData: electionDefinition.electionData,
           electionHash: electionDefinition.electionHash,
           passcode: generatePin(),
@@ -117,7 +117,7 @@ export function CardDetailsView({
   const possibleActions = new Set<SmartcardAction>();
   if (
     'passcode' in programmedUser &&
-    (role === 'superadmin' ||
+    (role === 'system_administrator' ||
       // We can support PIN resets on cards from other elections once we update PIN resetting to
       // change only PINs and leave other card data, like election definitions, intact. As of
       // 8/4/22, PIN resetting reprograms cards entirely
@@ -125,10 +125,13 @@ export function CardDetailsView({
   ) {
     possibleActions.add('PinReset');
   }
-  // Don't allow unprogramming super admin cards to ensure election officials don't get
+  // Don't allow unprogramming system administrator cards to ensure election officials don't get
   // accidentally locked out. Likewise prevent unprogramming when there's no election definition on
   // the machine since cards can't be programmed in this state
-  if ((role === 'admin' || role === 'pollworker') && electionDefinition) {
+  if (
+    (role === 'election_manager' || role === 'poll_worker') &&
+    electionDefinition
+  ) {
     possibleActions.add('Unprogram');
   }
 
@@ -193,7 +196,7 @@ export function CardDetailsView({
 
       <Prose textCenter theme={fontSizeTheme.medium}>
         <h1>{userRoleToReadableString(role)} Card</h1>
-        {role !== 'superadmin' && <p>{electionDisplayString}</p>}
+        {role !== 'system_administrator' && <p>{electionDisplayString}</p>}
         {bodyContent}
       </Prose>
     </React.Fragment>

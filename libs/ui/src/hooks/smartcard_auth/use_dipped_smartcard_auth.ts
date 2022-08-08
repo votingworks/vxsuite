@@ -33,7 +33,7 @@ import {
 } from './auth_helpers';
 
 interface DippedSmartcardAuthScope {
-  allowAdminsToAccessUnconfiguredMachines?: boolean;
+  allowElectionManagersToAccessUnconfiguredMachines?: boolean;
   electionDefinition?: ElectionDefinition;
 }
 
@@ -64,7 +64,7 @@ type SmartcardAuthAction =
     }
   | { type: 'check_passcode'; passcode: string }
   | { type: 'log_out' }
-  | { type: 'bootstrap_admin_session'; electionHash: string };
+  | { type: 'bootstrap_election_manager_session'; electionHash: string };
 
 function validateCardUser(
   user: Optional<User>,
@@ -74,21 +74,21 @@ function validateCardUser(
     return err('invalid_user_on_card');
   }
 
-  if (!['superadmin', 'admin'].includes(user.role)) {
+  if (!['system_administrator', 'election_manager'].includes(user.role)) {
     return err('user_role_not_allowed');
   }
 
-  if (user.role === 'admin') {
+  if (user.role === 'election_manager') {
     if (!areVvsg2AuthFlowsEnabled()) {
       return ok();
     }
     if (!scope.electionDefinition) {
-      return scope.allowAdminsToAccessUnconfiguredMachines
+      return scope.allowElectionManagersToAccessUnconfiguredMachines
         ? ok()
         : err('machine_not_configured');
     }
     if (user.electionHash !== scope.electionDefinition.electionHash) {
-      return err('admin_wrong_election');
+      return err('election_manager_wrong_election');
     }
   }
 
@@ -118,7 +118,8 @@ function smartcardAuthReducer(scope: DippedSmartcardAuthScope) {
                   if (validationResult.isOk()) {
                     assert(
                       user &&
-                        (user.role === 'superadmin' || user.role === 'admin')
+                        (user.role === 'system_administrator' ||
+                          user.role === 'election_manager')
                     );
                     return { status: 'checking_passcode', user };
                   }
@@ -185,13 +186,13 @@ function smartcardAuthReducer(scope: DippedSmartcardAuthScope) {
           auth: { status: 'logged_out', reason: 'machine_locked' },
         };
 
-      case 'bootstrap_admin_session':
+      case 'bootstrap_election_manager_session':
         return {
           ...previousState,
           auth: {
             status: 'logged_in',
             user: {
-              role: 'admin',
+              role: 'election_manager',
               electionHash: action.electionHash,
               passcode: '000000',
             },
@@ -233,8 +234,11 @@ function useDippedSmartcardAuthBase({
     case 'logged_out':
       return {
         ...auth,
-        bootstrapAuthenticatedAdminSession: (electionHash: string) =>
-          dispatch({ type: 'bootstrap_admin_session', electionHash }),
+        bootstrapAuthenticatedElectionManagerSession: (electionHash: string) =>
+          dispatch({
+            type: 'bootstrap_election_manager_session',
+            electionHash,
+          }),
       };
 
     case 'checking_passcode': {
@@ -253,7 +257,7 @@ function useDippedSmartcardAuthBase({
       const { status, user } = auth;
 
       switch (user.role) {
-        case 'superadmin': {
+        case 'system_administrator': {
           return {
             status,
             user,
@@ -273,7 +277,7 @@ function useDippedSmartcardAuthBase({
           };
         }
 
-        case 'admin': {
+        case 'election_manager': {
           return {
             status,
             user,
@@ -302,8 +306,8 @@ async function logAuthEvents(
   previousAuth: DippedSmartcardAuth.Auth = {
     status: 'logged_out',
     reason: 'machine_locked',
-    bootstrapAuthenticatedAdminSession: /* istanbul ignore next */ () =>
-      undefined,
+    bootstrapAuthenticatedElectionManagerSession:
+      /* istanbul ignore next */ () => undefined,
   },
   auth: DippedSmartcardAuth.Auth
 ) {

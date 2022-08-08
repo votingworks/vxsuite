@@ -4,7 +4,11 @@ import styled from 'styled-components';
 import fileDownload from 'js-file-download';
 import { join } from 'path';
 
-import { isAdminAuth, Modal, UsbControllerButton } from '@votingworks/ui';
+import {
+  isElectionManagerAuth,
+  Modal,
+  UsbControllerButton,
+} from '@votingworks/ui';
 import {
   assert,
   generateElectionBasedSubfolderName,
@@ -55,7 +59,7 @@ export function ExportResultsModal({
 
   const { machineConfig, usbDriveEject, usbDriveStatus, auth, logger } =
     useContext(AppContext);
-  assert(isAdminAuth(auth));
+  assert(isElectionManagerAuth(auth));
   const userRole = auth.user.role;
 
   async function exportResults(openDialog: boolean) {

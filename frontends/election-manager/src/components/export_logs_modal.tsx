@@ -9,7 +9,12 @@ import {
 } from '@votingworks/utils';
 
 import { LogEventId } from '@votingworks/logging';
-import { isAdminAuth, isSuperadminAuth, Modal, Prose } from '@votingworks/ui';
+import {
+  isElectionManagerAuth,
+  isSystemAdministratorAuth,
+  Modal,
+  Prose,
+} from '@votingworks/ui';
 import { AppContext } from '../contexts/app_context';
 import { Button } from './button';
 import { LinkButton } from './link_button';
@@ -36,7 +41,7 @@ enum ModalState {
 export function ExportLogsModal({ onClose, logFileType }: Props): JSX.Element {
   const { usbDriveStatus, auth, logger, electionDefinition, machineConfig } =
     useContext(AppContext);
-  assert(isSuperadminAuth(auth) || isAdminAuth(auth)); // TODO(auth) should this check for a specific user type
+  assert(isSystemAdministratorAuth(auth) || isElectionManagerAuth(auth)); // TODO(auth) should this check for a specific user type
   const userRole = auth.user.role;
 
   const [currentState, setCurrentState] = useState(ModalState.Init);

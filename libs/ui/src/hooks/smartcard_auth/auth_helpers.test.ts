@@ -6,14 +6,14 @@ import {
   Inserted,
   Dipped,
   makePollWorkerCard,
-  makeSuperadminCard,
+  makeSystemAdministratorCard,
 } from '@votingworks/test-utils';
 import { ElectionDefinitionSchema, err, UserRole } from '@votingworks/types';
 import { MemoryCard, assert } from '@votingworks/utils';
 import {
-  isSuperadminAuth,
-  isAdminAuth,
-  isPollworkerAuth,
+  isSystemAdministratorAuth,
+  isElectionManagerAuth,
+  isPollWorkerAuth,
   isVoterAuth,
 } from './auth_helpers';
 import { useDippedSmartcardAuth } from './use_dipped_smartcard_auth';
@@ -23,9 +23,9 @@ const electionDefinition = electionSampleDefinition;
 const { electionData, electionHash } = electionDefinition;
 
 const allowedUserRoles: UserRole[] = [
-  'superadmin',
-  'admin',
-  'pollworker',
+  'system_administrator',
+  'election_manager',
+  'poll_worker',
   'voter',
   'cardless_voter',
 ];
@@ -44,7 +44,7 @@ describe('Card interface', () => {
       })
     );
     await waitForNextUpdate();
-    assert(isPollworkerAuth(result.current));
+    assert(isPollWorkerAuth(result.current));
 
     // Initially, there's no data stored on the card, so reading should return undefined
     expect(result.current.card.hasStoredData).toBe(false);
@@ -121,7 +121,7 @@ describe('Card interface', () => {
       })
     );
     await waitForNextUpdate();
-    assert(isPollworkerAuth(result.current));
+    assert(isPollWorkerAuth(result.current));
 
     const error = new Error('test error');
 
@@ -164,7 +164,7 @@ describe('Card interface', () => {
       })
     );
     await waitForNextUpdate();
-    assert(isPollworkerAuth(result.current));
+    assert(isPollWorkerAuth(result.current));
 
     const [write1, write2] = await Promise.all([
       result.current.card.writeStoredData(electionDefinition),
@@ -204,8 +204,8 @@ describe('Card interface', () => {
       })
     );
 
-    // Auth as a super admin
-    cardApi.insertCard(makeSuperadminCard());
+    // Auth as a system administrator
+    cardApi.insertCard(makeSystemAdministratorCard());
     await waitForNextUpdate();
     expect(result.current.status).toEqual('checking_passcode');
     act(() => {
@@ -216,7 +216,7 @@ describe('Card interface', () => {
     expect(result.current.status).toEqual('remove_card');
     cardApi.removeCard();
     await waitForNextUpdate();
-    assert(isSuperadminAuth(result.current));
+    assert(isSystemAdministratorAuth(result.current));
 
     // Insert an unprogrammed card
     expect(result.current.card).not.toBeDefined();
@@ -228,37 +228,40 @@ describe('Card interface', () => {
     expect(card.programUser).toBeDefined();
     expect(card.unprogramUser).toBeDefined();
 
-    // Program a super admin card
+    // Program a system administrator card
     expect(
       (
-        await card.programUser({ role: 'superadmin', passcode: '123456' })
+        await card.programUser({
+          role: 'system_administrator',
+          passcode: '123456',
+        })
       ).isOk()
     ).toEqual(true);
     await waitForNextUpdate();
     expect(result.current.card).toBeDefined();
     card = result.current.card!;
     expect(card.programmedUser).toEqual({
-      role: 'superadmin',
+      role: 'system_administrator',
       passcode: '123456',
     });
     expect(card.hasStoredData).toEqual(false);
     expect(logger.log).toHaveBeenNthCalledWith(
       3,
       LogEventId.SmartcardProgramInit,
-      'superadmin',
+      'system_administrator',
       {
-        message: 'Programming superadmin smartcard...',
-        programmedUserRole: 'superadmin',
+        message: 'Programming system_administrator smartcard...',
+        programmedUserRole: 'system_administrator',
       }
     );
     expect(logger.log).toHaveBeenNthCalledWith(
       4,
       LogEventId.SmartcardProgramComplete,
-      'superadmin',
+      'system_administrator',
       {
         disposition: 'success',
-        message: 'Successfully programmed superadmin smartcard.',
-        programmedUserRole: 'superadmin',
+        message: 'Successfully programmed system_administrator smartcard.',
+        programmedUserRole: 'system_administrator',
       }
     );
 
@@ -272,28 +275,28 @@ describe('Card interface', () => {
     expect(logger.log).toHaveBeenNthCalledWith(
       5,
       LogEventId.SmartcardUnprogramInit,
-      'superadmin',
+      'system_administrator',
       {
-        message: 'Unprogramming superadmin smartcard...',
-        programmedUserRole: 'superadmin',
+        message: 'Unprogramming system_administrator smartcard...',
+        programmedUserRole: 'system_administrator',
       }
     );
     expect(logger.log).toHaveBeenNthCalledWith(
       6,
       LogEventId.SmartcardUnprogramComplete,
-      'superadmin',
+      'system_administrator',
       {
         disposition: 'success',
-        message: 'Successfully unprogrammed superadmin smartcard.',
-        previousProgrammedUserRole: 'superadmin',
+        message: 'Successfully unprogrammed system_administrator smartcard.',
+        previousProgrammedUserRole: 'system_administrator',
       }
     );
 
-    // Program an admin card
+    // Program an election manager card
     expect(
       (
         await card.programUser({
-          role: 'admin',
+          role: 'election_manager',
           electionHash,
           passcode: '000000',
           electionData,
@@ -304,7 +307,7 @@ describe('Card interface', () => {
     expect(result.current.card).toBeDefined();
     card = result.current.card!;
     expect(card.programmedUser).toEqual({
-      role: 'admin',
+      role: 'election_manager',
       electionHash,
       passcode: '000000',
     });
@@ -313,20 +316,20 @@ describe('Card interface', () => {
     expect(logger.log).toHaveBeenNthCalledWith(
       7,
       LogEventId.SmartcardProgramInit,
-      'superadmin',
+      'system_administrator',
       {
-        message: 'Programming admin smartcard...',
-        programmedUserRole: 'admin',
+        message: 'Programming election_manager smartcard...',
+        programmedUserRole: 'election_manager',
       }
     );
     expect(logger.log).toHaveBeenNthCalledWith(
       8,
       LogEventId.SmartcardProgramComplete,
-      'superadmin',
+      'system_administrator',
       {
         disposition: 'success',
-        message: 'Successfully programmed admin smartcard.',
-        programmedUserRole: 'admin',
+        message: 'Successfully programmed election_manager smartcard.',
+        programmedUserRole: 'election_manager',
       }
     );
 
@@ -340,52 +343,52 @@ describe('Card interface', () => {
     expect(logger.log).toHaveBeenNthCalledWith(
       9,
       LogEventId.SmartcardUnprogramInit,
-      'superadmin',
+      'system_administrator',
       {
-        message: 'Unprogramming admin smartcard...',
-        programmedUserRole: 'admin',
+        message: 'Unprogramming election_manager smartcard...',
+        programmedUserRole: 'election_manager',
       }
     );
     expect(logger.log).toHaveBeenNthCalledWith(
       10,
       LogEventId.SmartcardUnprogramComplete,
-      'superadmin',
+      'system_administrator',
       {
         disposition: 'success',
-        message: 'Successfully unprogrammed admin smartcard.',
-        previousProgrammedUserRole: 'admin',
+        message: 'Successfully unprogrammed election_manager smartcard.',
+        previousProgrammedUserRole: 'election_manager',
       }
     );
 
     // Program a poll worker card
     expect(
-      (await card.programUser({ role: 'pollworker', electionHash })).isOk()
+      (await card.programUser({ role: 'poll_worker', electionHash })).isOk()
     ).toEqual(true);
     await waitForNextUpdate();
     expect(result.current.card).toBeDefined();
     card = result.current.card!;
     expect(card.programmedUser).toEqual({
-      role: 'pollworker',
+      role: 'poll_worker',
       electionHash,
     });
     expect(card.hasStoredData).toEqual(false);
     expect(logger.log).toHaveBeenNthCalledWith(
       11,
       LogEventId.SmartcardProgramInit,
-      'superadmin',
+      'system_administrator',
       {
-        message: 'Programming pollworker smartcard...',
-        programmedUserRole: 'pollworker',
+        message: 'Programming poll_worker smartcard...',
+        programmedUserRole: 'poll_worker',
       }
     );
     expect(logger.log).toHaveBeenNthCalledWith(
       12,
       LogEventId.SmartcardProgramComplete,
-      'superadmin',
+      'system_administrator',
       {
         disposition: 'success',
-        message: 'Successfully programmed pollworker smartcard.',
-        programmedUserRole: 'pollworker',
+        message: 'Successfully programmed poll_worker smartcard.',
+        programmedUserRole: 'poll_worker',
       }
     );
 
@@ -399,20 +402,20 @@ describe('Card interface', () => {
     expect(logger.log).toHaveBeenNthCalledWith(
       13,
       LogEventId.SmartcardUnprogramInit,
-      'superadmin',
+      'system_administrator',
       {
-        message: 'Unprogramming pollworker smartcard...',
-        programmedUserRole: 'pollworker',
+        message: 'Unprogramming poll_worker smartcard...',
+        programmedUserRole: 'poll_worker',
       }
     );
     expect(logger.log).toHaveBeenNthCalledWith(
       14,
       LogEventId.SmartcardUnprogramComplete,
-      'superadmin',
+      'system_administrator',
       {
         disposition: 'success',
-        message: 'Successfully unprogrammed pollworker smartcard.',
-        previousProgrammedUserRole: 'pollworker',
+        message: 'Successfully unprogrammed poll_worker smartcard.',
+        previousProgrammedUserRole: 'poll_worker',
       }
     );
 
@@ -427,7 +430,7 @@ describe('Card interface', () => {
     expect(logger.log).toHaveBeenNthCalledWith(
       15,
       LogEventId.SmartcardUnprogramInit,
-      'superadmin',
+      'system_administrator',
       {
         message: 'Unprogramming unprogrammed smartcard...',
         programmedUserRole: 'unprogrammed',
@@ -436,7 +439,7 @@ describe('Card interface', () => {
     expect(logger.log).toHaveBeenNthCalledWith(
       16,
       LogEventId.SmartcardUnprogramComplete,
-      'superadmin',
+      'system_administrator',
       {
         disposition: 'success',
         message: 'Smartcard already unprogrammed (no-op).',
@@ -456,8 +459,8 @@ describe('Card interface', () => {
       })
     );
 
-    // Auth as a super admin
-    cardApi.insertCard(makeSuperadminCard());
+    // Auth as a system administrator
+    cardApi.insertCard(makeSystemAdministratorCard());
     await waitForNextUpdate();
     expect(result.current.status).toEqual('checking_passcode');
     act(() => {
@@ -468,7 +471,7 @@ describe('Card interface', () => {
     expect(result.current.status).toEqual('remove_card');
     cardApi.removeCard();
     await waitForNextUpdate();
-    assert(isSuperadminAuth(result.current));
+    assert(isSystemAdministratorAuth(result.current));
 
     // Insert an unprogrammed card
     cardApi.insertCard();
@@ -478,8 +481,8 @@ describe('Card interface', () => {
 
     // Make concurrent programming requests
     const [write1, write2] = await Promise.all([
-      card.programUser({ role: 'superadmin', passcode: '123456' }),
-      card.programUser({ role: 'pollworker', electionHash }),
+      card.programUser({ role: 'system_administrator', passcode: '123456' }),
+      card.programUser({ role: 'poll_worker', electionHash }),
     ]);
     await waitForNextUpdate();
     expect(result.current.card).toBeDefined();
@@ -494,7 +497,7 @@ describe('Card interface', () => {
     }
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.SmartcardProgramComplete,
-      'superadmin',
+      'system_administrator',
       expect.objectContaining({ disposition: 'failure' })
     );
 
@@ -516,14 +519,17 @@ describe('Card interface', () => {
     }
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.SmartcardUnprogramComplete,
-      'superadmin',
+      'system_administrator',
       expect.objectContaining({ disposition: 'failure' })
     );
 
     // Program the card in prep for one last test case involving unprogramming
     expect(
       (
-        await card.programUser({ role: 'superadmin', passcode: '123456' })
+        await card.programUser({
+          role: 'system_administrator',
+          passcode: '123456',
+        })
       ).isOk()
     ).toEqual(true);
     await waitForNextUpdate();
@@ -532,7 +538,7 @@ describe('Card interface', () => {
 
     // Make concurrent programming and unprogramming requests
     const [write5, write6] = await Promise.all([
-      card.programUser({ role: 'superadmin', passcode: '123456' }),
+      card.programUser({ role: 'system_administrator', passcode: '123456' }),
       card.unprogramUser(),
     ]);
     expect(
@@ -556,8 +562,8 @@ describe('Card interface', () => {
       })
     );
 
-    // Auth as a super admin
-    cardApi.insertCard(makeSuperadminCard());
+    // Auth as a system administrator
+    cardApi.insertCard(makeSystemAdministratorCard());
     await waitForNextUpdate();
     expect(result.current.status).toEqual('checking_passcode');
     act(() => {
@@ -568,7 +574,7 @@ describe('Card interface', () => {
     expect(result.current.status).toEqual('remove_card');
     cardApi.removeCard();
     await waitForNextUpdate();
-    assert(isSuperadminAuth(result.current));
+    assert(isSystemAdministratorAuth(result.current));
 
     // Insert an unprogrammed card
     cardApi.insertCard();
@@ -582,25 +588,30 @@ describe('Card interface', () => {
       .spyOn(cardApi, 'overrideWriteProtection')
       .mockRejectedValue(error);
     expect(
-      (await card.programUser({ role: 'superadmin', passcode: '123456' })).err()
+      (
+        await card.programUser({
+          role: 'system_administrator',
+          passcode: '123456',
+        })
+      ).err()
     ).toEqual(error);
     expect(logger.log).toHaveBeenNthCalledWith(
       3,
       LogEventId.SmartcardProgramInit,
-      'superadmin',
+      'system_administrator',
       {
-        message: 'Programming superadmin smartcard...',
-        programmedUserRole: 'superadmin',
+        message: 'Programming system_administrator smartcard...',
+        programmedUserRole: 'system_administrator',
       }
     );
     expect(logger.log).toHaveBeenNthCalledWith(
       4,
       LogEventId.SmartcardProgramComplete,
-      'superadmin',
+      'system_administrator',
       {
         disposition: 'failure',
-        message: 'Error programming superadmin smartcard.',
-        programmedUserRole: 'superadmin',
+        message: 'Error programming system_administrator smartcard.',
+        programmedUserRole: 'system_administrator',
       }
     );
 
@@ -608,7 +619,10 @@ describe('Card interface', () => {
     spy.mockRestore();
     expect(
       (
-        await card.programUser({ role: 'superadmin', passcode: '123456' })
+        await card.programUser({
+          role: 'system_administrator',
+          passcode: '123456',
+        })
       ).isOk()
     ).toEqual(true);
     await waitForNextUpdate();
@@ -623,20 +637,20 @@ describe('Card interface', () => {
     expect(logger.log).toHaveBeenNthCalledWith(
       7,
       LogEventId.SmartcardUnprogramInit,
-      'superadmin',
+      'system_administrator',
       {
-        message: 'Unprogramming superadmin smartcard...',
-        programmedUserRole: 'superadmin',
+        message: 'Unprogramming system_administrator smartcard...',
+        programmedUserRole: 'system_administrator',
       }
     );
     expect(logger.log).toHaveBeenNthCalledWith(
       8,
       LogEventId.SmartcardUnprogramComplete,
-      'superadmin',
+      'system_administrator',
       {
         disposition: 'failure',
-        message: 'Error unprogramming superadmin smartcard.',
-        programmedUserRole: 'superadmin',
+        message: 'Error unprogramming system_administrator smartcard.',
+        programmedUserRole: 'system_administrator',
       }
     );
 
@@ -655,8 +669,8 @@ describe('Card interface', () => {
       })
     );
 
-    // Auth as a super admin
-    cardApi.insertCard(makeSuperadminCard());
+    // Auth as a system administrator
+    cardApi.insertCard(makeSystemAdministratorCard());
     await waitForNextUpdate();
     expect(result.current.status).toEqual('checking_passcode');
     act(() => {
@@ -667,7 +681,7 @@ describe('Card interface', () => {
     expect(result.current.status).toEqual('remove_card');
     cardApi.removeCard();
     await waitForNextUpdate();
-    assert(isSuperadminAuth(result.current));
+    assert(isSystemAdministratorAuth(result.current));
 
     // Insert an unprogrammed card
     cardApi.insertCard();
@@ -675,17 +689,20 @@ describe('Card interface', () => {
     expect(result.current.card).toBeDefined();
     let card = result.current.card!;
 
-    // Program a super admin card
+    // Program a system administrator card
     expect(
       (
-        await card.programUser({ role: 'superadmin', passcode: '123456' })
+        await card.programUser({
+          role: 'system_administrator',
+          passcode: '123456',
+        })
       ).isOk()
     ).toEqual(true);
     await waitForNextUpdate();
     expect(result.current.card).toBeDefined();
     card = result.current.card!;
     expect(card.programmedUser).toEqual({
-      role: 'superadmin',
+      role: 'system_administrator',
       passcode: '123456',
     });
     expect(card.hasStoredData).toEqual(false);
@@ -701,33 +718,43 @@ describe('Card interface', () => {
 });
 
 describe('Type guards', () => {
-  test('isSuperadminAuth', () => {
-    expect(isSuperadminAuth(Inserted.fakeSuperadminAuth())).toBe(true);
-    expect(isSuperadminAuth(Inserted.fakeVoterAuth())).toBe(false);
-    expect(isSuperadminAuth(Inserted.fakeLoggedOutAuth())).toBe(false);
-    expect(isSuperadminAuth(Dipped.fakeSuperadminAuth())).toBe(true);
-    expect(isSuperadminAuth(Dipped.fakeAdminAuth())).toBe(false);
-    expect(isSuperadminAuth(Dipped.fakeLoggedOutAuth())).toBe(false);
+  test('isSystemAdministratorAuth', () => {
+    expect(
+      isSystemAdministratorAuth(Inserted.fakeSystemAdministratorAuth())
+    ).toBe(true);
+    expect(isSystemAdministratorAuth(Inserted.fakeVoterAuth())).toBe(false);
+    expect(isSystemAdministratorAuth(Inserted.fakeLoggedOutAuth())).toBe(false);
+    expect(
+      isSystemAdministratorAuth(Dipped.fakeSystemAdministratorAuth())
+    ).toBe(true);
+    expect(isSystemAdministratorAuth(Dipped.fakeElectionManagerAuth())).toBe(
+      false
+    );
+    expect(isSystemAdministratorAuth(Dipped.fakeLoggedOutAuth())).toBe(false);
   });
 
-  test('isAdminAuth', () => {
-    expect(isAdminAuth(Inserted.fakeAdminAuth())).toBe(true);
-    expect(isAdminAuth(Inserted.fakeVoterAuth())).toBe(false);
-    expect(isAdminAuth(Inserted.fakeLoggedOutAuth())).toBe(false);
-    expect(isAdminAuth(Dipped.fakeAdminAuth())).toBe(true);
-    expect(isAdminAuth(Dipped.fakeSuperadminAuth())).toBe(false);
-    expect(isAdminAuth(Dipped.fakeLoggedOutAuth())).toBe(false);
+  test('isElectionManagerAuth', () => {
+    expect(isElectionManagerAuth(Inserted.fakeElectionManagerAuth())).toBe(
+      true
+    );
+    expect(isElectionManagerAuth(Inserted.fakeVoterAuth())).toBe(false);
+    expect(isElectionManagerAuth(Inserted.fakeLoggedOutAuth())).toBe(false);
+    expect(isElectionManagerAuth(Dipped.fakeElectionManagerAuth())).toBe(true);
+    expect(isElectionManagerAuth(Dipped.fakeSystemAdministratorAuth())).toBe(
+      false
+    );
+    expect(isElectionManagerAuth(Dipped.fakeLoggedOutAuth())).toBe(false);
   });
 
-  test('isPollworkerAuth', () => {
-    expect(isPollworkerAuth(Inserted.fakePollworkerAuth())).toBe(true);
-    expect(isPollworkerAuth(Inserted.fakeVoterAuth())).toBe(false);
-    expect(isPollworkerAuth(Inserted.fakeLoggedOutAuth())).toBe(false);
+  test('isPollWorkerAuth', () => {
+    expect(isPollWorkerAuth(Inserted.fakePollWorkerAuth())).toBe(true);
+    expect(isPollWorkerAuth(Inserted.fakeVoterAuth())).toBe(false);
+    expect(isPollWorkerAuth(Inserted.fakeLoggedOutAuth())).toBe(false);
   });
 
   test('isVoterAuth', () => {
     expect(isVoterAuth(Inserted.fakeVoterAuth())).toBe(true);
-    expect(isVoterAuth(Inserted.fakePollworkerAuth())).toBe(false);
+    expect(isVoterAuth(Inserted.fakePollWorkerAuth())).toBe(false);
     expect(isVoterAuth(Inserted.fakeLoggedOutAuth())).toBe(false);
   });
 });

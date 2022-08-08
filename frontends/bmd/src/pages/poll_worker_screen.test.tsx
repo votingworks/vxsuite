@@ -33,7 +33,7 @@ import {
 import {
   getZeroCompressedTally,
   Inserted,
-  fakePollworkerUser,
+  fakePollWorkerUser,
   fakeCardStorage,
 } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
@@ -67,9 +67,9 @@ beforeEach(() => {
 function fakePollworkerAuth(
   electionDefinition: ElectionDefinition,
   tally?: PrecinctScannerCardTally
-): InsertedSmartcardAuth.PollworkerLoggedIn {
-  return Inserted.fakePollworkerAuth(
-    fakePollworkerUser({ electionHash: electionDefinition.electionHash }),
+): InsertedSmartcardAuth.PollWorkerLoggedIn {
+  return Inserted.fakePollWorkerAuth(
+    fakePollWorkerUser({ electionHash: electionDefinition.electionHash }),
     fakeCardStorage({
       hasStoredData: tally !== undefined,
       readStoredObject: jest.fn().mockResolvedValue(ok(tally)),
@@ -79,7 +79,7 @@ function fakePollworkerAuth(
 
 function renderScreen(
   props: Partial<PollworkerScreenProps> = {},
-  pollworkerAuth: InsertedSmartcardAuth.PollworkerLoggedIn = fakePollworkerAuth(
+  pollworkerAuth: InsertedSmartcardAuth.PollWorkerLoggedIn = fakePollworkerAuth(
     electionSampleWithSealDefinition
   ),
   electionDefinition: ElectionDefinition = electionSampleWithSealDefinition

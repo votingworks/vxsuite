@@ -12,30 +12,31 @@ const Body = styled(Prose)`
   flex-grow: 1;
 `;
 
-const smartcardTypeToReadableString: Record<SmartcardType, string> = {
-  election: 'Election',
-  'super-admin': 'Super Admin',
-};
-
 function getOtherSmartcardType(smartcardType: SmartcardType): SmartcardType {
-  return smartcardType === 'election' ? 'super-admin' : 'election';
+  return smartcardType === 'election' ? 'system-administrator' : 'election';
 }
 
 export function SmartcardsScreen(): JSX.Element {
   const { smartcardType } = useParams<SmartcardsScreenProps>();
-  assert(smartcardType === 'election' || smartcardType === 'super-admin');
+  assert(
+    smartcardType === 'election' || smartcardType === 'system-administrator'
+  );
 
   return (
     <NavigationScreen flexRow>
       <Body maxWidth={false}>
-        <h1>{smartcardTypeToReadableString[smartcardType]} Cards</h1>
+        <h1>
+          {smartcardType === 'election'
+            ? 'Election Cards'
+            : 'System Administrator Cards'}
+        </h1>
         <p>Insert a smartcard to:</p>
         <ul>
           <li>View card details.</li>
           <li>
             {smartcardType === 'election'
-              ? 'Create an Admin or Poll Worker card for this election.'
-              : 'Create a Super Admin card.'}
+              ? 'Create an Election Manager or Poll Worker card for this election.'
+              : 'Create a System Administrator card.'}
           </li>
         </ul>
       </Body>
@@ -46,9 +47,9 @@ export function SmartcardsScreen(): JSX.Element {
             smartcardType: getOtherSmartcardType(smartcardType),
           })}
         >
-          Create{' '}
-          {smartcardTypeToReadableString[getOtherSmartcardType(smartcardType)]}{' '}
-          Cards
+          {getOtherSmartcardType(smartcardType) === 'election'
+            ? 'Create Election Cards'
+            : 'Create System Administrator Cards'}
         </LinkButton>
       </div>
     </NavigationScreen>
