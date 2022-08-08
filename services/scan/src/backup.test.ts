@@ -1,16 +1,37 @@
 import { asElectionDefinition } from '@votingworks/fixtures';
+import { mockOf } from '@votingworks/test-utils';
 import { BallotIdSchema, BallotType, unsafeParse } from '@votingworks/types';
 import Database from 'better-sqlite3';
 import { Buffer } from 'buffer';
-import { writeFile } from 'fs-extra';
+import { writeFileSync } from 'fs';
+import { writeFile, existsSync } from 'fs-extra';
 import JsZip, { JSZipObject } from 'jszip';
 import { WritableStream } from 'memory-streams';
 import { basename } from 'path';
-import { fileSync } from 'tmp';
+import { fileSync, tmpNameSync } from 'tmp';
 import ZipStream from 'zip-stream';
 import { election, electionDefinition } from '../test/fixtures/2020-choctaw';
 import { backup, Backup } from './backup';
 import { ConfigKey, Store } from './store';
+
+jest.mock('fs-extra', (): typeof import('fs-extra') => {
+  return {
+    ...jest.requireActual('fs-extra'),
+    existsSync: jest.fn((path) =>
+      jest.requireActual('fs-extra').existsSync(path)
+    ),
+    createReadStream: jest.fn((path) => {
+      if (path === '/var/log/vx-logs.log') {
+        const tmpFile = tmpNameSync();
+        writeFileSync(tmpFile, 'mock logs');
+        return jest.requireActual('fs-extra').createReadStream(tmpFile);
+      }
+      return jest.requireActual('fs-extra').createReadStream(path);
+    }),
+  };
+});
+
+const existsSyncMock = mockOf(existsSync);
 
 function getEntries(zipfile: JsZip): JSZipObject[] {
   return Object.values(zipfile.files);
@@ -239,4 +260,37 @@ test('has cvrs.jsonl', async () => {
   expect(await readTextEntry(cvrsEntry)).toEqual(
     `{"1":[],"2":[],"3":[],"4":[],"_ballotId":"abc","_ballotStyleId":"1","_ballotType":"standard","_batchId":"${batchId}","_batchLabel":"Batch 1","_precinctId":"6522","_scannerId":"000","_testBallot":false,"_locales":{"primary":"en-US"},"initiative-65":[],"initiative-65-a":[],"flag-question":["yes"],"runoffs-question":[]}\n`
   );
+});
+
+test('does not have vx-logs.log if file does not exist', async () => {
+  existsSyncMock.mockReturnValueOnce(false);
+
+  const store = Store.memoryStore();
+  store.setElection(asElectionDefinition(election));
+  const result = new WritableStream();
+
+  await new Promise((resolve, reject) => {
+    backup(store).on('error', reject).pipe(result).on('finish', resolve);
+  });
+
+  const zipfile = await openZip(result.toBuffer());
+  const entries = getEntries(zipfile);
+  expect(!entries.some(({ name }) => name === 'vx-logs.log')).toBe(true);
+});
+
+test('has vx-logs.log if file exists', async () => {
+  existsSyncMock.mockReturnValueOnce(true);
+
+  const store = Store.memoryStore();
+  store.setElection(asElectionDefinition(election));
+  const result = new WritableStream();
+
+  await new Promise((resolve, reject) => {
+    backup(store).on('error', reject).pipe(result).on('finish', resolve);
+  });
+
+  const zipfile = await openZip(result.toBuffer());
+  const entries = getEntries(zipfile);
+  const logsEntry = entries.find(({ name }) => name === 'vx-logs.log')!;
+  expect(await readTextEntry(logsEntry)).toEqual('mock logs');
 });

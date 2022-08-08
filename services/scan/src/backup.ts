@@ -1,11 +1,12 @@
 import { Buffer } from 'buffer';
 import makeDebug from 'debug';
-import { createReadStream } from 'fs-extra';
+import { createReadStream, existsSync } from 'fs-extra';
 import { WritableStream } from 'memory-streams';
 import { basename } from 'path';
 import Database from 'better-sqlite3';
 import { fileSync } from 'tmp';
 import ZipStream from 'zip-stream';
+import { FULL_LOG_PATH } from '@votingworks/logging';
 import { Store } from './store';
 
 const debug = makeDebug('scan:backup');
@@ -87,6 +88,10 @@ export class Backup {
       await this.addFileEntry(sheet.front.normalized);
       await this.addFileEntry(sheet.back.original);
       await this.addFileEntry(sheet.back.normalized);
+    }
+
+    if (existsSync(FULL_LOG_PATH)) {
+      await this.addFileEntry(FULL_LOG_PATH);
     }
 
     this.zip.finalize();
