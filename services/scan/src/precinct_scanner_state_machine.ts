@@ -472,6 +472,7 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
           },
         },
         interpreting: {
+          id: 'interpreting',
           initial: 'starting',
           states: {
             starting: {
