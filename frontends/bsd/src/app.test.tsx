@@ -104,8 +104,22 @@ async function authenticateWithSystemAdministratorCard(card: MemoryCard) {
   await screen.findByText('Lock Machine');
 }
 
-async function authenticateWithElectionManagerCard(card: MemoryCard) {
-  await screen.findByText('VxCentralScan is Locked');
+async function authenticateWithElectionManagerCard(
+  card: MemoryCard,
+  options: { isMachineConfigured?: boolean } = {}
+) {
+  const isMachineConfigured = options.isMachineConfigured ?? true;
+
+  await screen.findByText(
+    isMachineConfigured
+      ? 'VxCentralScan is Locked'
+      : 'VxCentralScan is Not Configured'
+  );
+  await screen.findByText(
+    isMachineConfigured
+      ? 'Insert Election Manager card to unlock.'
+      : 'Insert Election Manager card to configure.'
+  );
   card.insertCard(
     makeElectionManagerCard(electionSampleDefinition.electionHash)
   );
@@ -350,7 +364,9 @@ test('configuring election from usb ballot package works end to end', async () =
   const { getByText, getByTestId } = render(
     <App card={card} hardware={hardware} />
   );
-  await authenticateWithElectionManagerCard(card);
+  await authenticateWithElectionManagerCard(card, {
+    isMachineConfigured: false,
+  });
 
   const mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
