@@ -54,7 +54,7 @@ export function ProgramSystemAdministratorCardView({
         <h1>Create New System Administrator Card</h1>
         <p>
           This card performs all system actions. Strictly limit the number
-          created and keep all System Administrator Cards secure.
+          created and keep all System Administrator cards secure.
         </p>
 
         <HorizontalRule />

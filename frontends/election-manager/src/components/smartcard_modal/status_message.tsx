@@ -61,15 +61,15 @@ export function SuccessOrErrorStatusMessage({
     let text: string;
     switch (action) {
       case 'Program': {
-        text = `Error creating ${actionRoleReadableString} Card.`;
+        text = `Error creating ${actionRoleReadableString} card.`;
         break;
       }
       case 'PinReset': {
-        text = `Error resetting ${actionRoleReadableString} Card PIN.`;
+        text = `Error resetting ${actionRoleReadableString} card PIN.`;
         break;
       }
       case 'Unprogram': {
-        text = `Error unprogramming ${actionRoleReadableString} Card.`;
+        text = `Error unprogramming ${actionRoleReadableString} card.`;
         break;
       }
       /* istanbul ignore next: Compile-time check for completeness */
@@ -107,7 +107,7 @@ export function SuccessOrErrorStatusMessage({
   if (action === 'Unprogram') {
     return (
       <Text success>
-        {actionRoleReadableString} Card has been unprogrammed.
+        {actionRoleReadableString} card has been unprogrammed.
       </Text>
     );
   }
@@ -126,20 +126,19 @@ export function InProgressStatusMessage({
   actionStatus,
 }: InProgressStatusMessageProps): JSX.Element | null {
   const { action } = actionStatus;
-  const actionRoleReadableString = userRoleToReadableString(actionStatus.role);
 
   let text: string;
   switch (action) {
     case 'Program': {
-      text = `Creating ${actionRoleReadableString} Card`;
+      text = 'Programming card';
       break;
     }
     case 'PinReset': {
-      text = `Resetting ${actionRoleReadableString} Card PIN`;
+      text = 'Resetting card PIN';
       break;
     }
     case 'Unprogram': {
-      text = `Unprogramming ${actionRoleReadableString} Card`;
+      text = 'Unprogramming card';
       break;
     }
     /* istanbul ignore next: Compile-time check for completeness */
@@ -147,7 +146,5 @@ export function InProgressStatusMessage({
       throwIllegalValue(action);
     }
   }
-  return (
-    <Modal centerContent content={<Loading as="strong">{text}</Loading>} />
-  );
+  return <Modal centerContent content={<Loading>{text}</Loading>} />;
 }
