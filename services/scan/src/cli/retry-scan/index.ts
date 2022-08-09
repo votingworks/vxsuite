@@ -1,14 +1,9 @@
 import { ElectionDefinition, PageInterpretation } from '@votingworks/types';
-import { zip } from '@votingworks/utils';
-import { cpus } from 'os';
 import { isAbsolute, join, resolve } from 'path';
 import { dirSync } from 'tmp';
 import { createWorkspace } from '../../util/workspace';
-import * as workers from '../../workers/combined';
-import { InterpretOutput } from '../../workers/interpret_vx';
-import { childProcessPool, WorkerPool } from '../../workers/pool';
-import * as qrcodeWorker from '../../workers/qrcode';
 import { Options } from './options';
+import { loadLayouts, createInterpreter } from '../../simple_interpreter';
 
 export function queryFromOptions(options: Options): [string, string[]] {
   const conditions: string[] = [];
@@ -121,16 +116,17 @@ export async function retryScan(
   listeners?.sheetsLoaded?.(sheets.length, electionDefinition);
 
   listeners?.interpreterLoading?.();
-  const pool = childProcessPool(
-    workers.workerPath,
-    cpus().length - 1
-  ) as WorkerPool<workers.Input, workers.Output>;
-  pool.start();
-
-  await pool.callAll({
-    action: 'configure',
-    dbPath: input.store.getDbPath(),
+  const layouts = await loadLayouts(input.store);
+  if (!layouts) {
+    throw new Error('no layouts');
+  }
+  const interpreter = createInterpreter({
+    electionDefinition,
+    layouts,
+    ballotImagesPath: output.ballotImagesPath,
+    testMode: input.store.getTestMode(),
   });
+
   listeners?.interpreterLoaded?.();
 
   function absolutify(path: string): string {
@@ -139,90 +135,60 @@ export async function retryScan(
       : resolve(input.store.getDbPath(), '..', path);
   }
 
-  await Promise.all(
-    sheets.map(
-      async ({
-        id,
-        frontOriginalFilename,
-        backOriginalFilename,
-        frontNormalizedFilename,
-        backNormalizedFilename,
-        frontInterpretationJson,
-        backInterpretationJson,
-      }) => {
-        const frontInterpretation: PageInterpretation = JSON.parse(
-          frontInterpretationJson
-        );
-        const backInterpretation: PageInterpretation = JSON.parse(
-          backInterpretationJson
-        );
-        const originalScans: [PageScan, PageScan] = [
-          {
-            interpretation: frontInterpretation,
-            originalFilename: absolutify(frontOriginalFilename),
-            normalizedFilename: absolutify(frontNormalizedFilename),
-          },
-          {
-            interpretation: backInterpretation,
-            originalFilename: absolutify(backOriginalFilename),
-            normalizedFilename: absolutify(backNormalizedFilename),
-          },
-        ];
-
-        const [frontDetectQrcodeOutput, backDetectQrcodeOutput] =
-          qrcodeWorker.normalizeSheetOutput(
-            electionDefinition,
-            await Promise.all(
-              originalScans.map(
-                async (scan) =>
-                  await pool.call({
-                    action: 'detect-qrcode',
-                    imagePath: scan.originalFilename,
-                  })
-              ) as [Promise<qrcodeWorker.Output>, Promise<qrcodeWorker.Output>]
-            )
+  // stupid for loop because `inGroupsOf` is not doing what I expect it to wrt types
+  for (let start = 0; start < sheets.length; start += 20) {
+    const smallArrayOfSheets = sheets.slice(start, start + 20);
+    await Promise.all(
+      smallArrayOfSheets.map(
+        async ({
+          id,
+          frontOriginalFilename,
+          backOriginalFilename,
+          frontNormalizedFilename,
+          backNormalizedFilename,
+          frontInterpretationJson,
+          backInterpretationJson,
+        }) => {
+          const frontInterpretation: PageInterpretation = JSON.parse(
+            frontInterpretationJson
           );
+          const backInterpretation: PageInterpretation = JSON.parse(
+            backInterpretationJson
+          );
+          const originalScans: [PageScan, PageScan] = [
+            {
+              interpretation: frontInterpretation,
+              originalFilename: absolutify(frontOriginalFilename),
+              normalizedFilename: absolutify(frontNormalizedFilename),
+            },
+            {
+              interpretation: backInterpretation,
+              originalFilename: absolutify(backOriginalFilename),
+              normalizedFilename: absolutify(backNormalizedFilename),
+            },
+          ];
 
-        const [front, back] = await Promise.all(
-          [
-            ...zip(originalScans, [
-              frontDetectQrcodeOutput,
-              backDetectQrcodeOutput,
-            ]),
-          ].map(async ([scan, qrcode], i) => {
-            const imagePath = isAbsolute(scan.originalFilename)
-              ? scan.originalFilename
-              : resolve(input.store.getDbPath(), '..', scan.originalFilename);
-            const rescan = (await pool.call({
-              action: 'interpret',
-              interpreter: 'vx',
-              sheetId: id,
-              imagePath,
-              detectQrcodeResult: qrcode,
-              ballotImagesPath: output.ballotImagesPath,
-            })) as InterpretOutput;
+          const interpretationResult = (
+            await interpreter.interpret(id, [
+              originalScans[0].originalFilename,
+              originalScans[1].originalFilename,
+            ])
+          ).unsafeUnwrap();
 
-            if (rescan) {
-              listeners?.pageInterpreted?.(
-                id,
-                i === 0 ? 'front' : 'back',
-                scan,
-                rescan
-              );
-            }
+          const [front, back] = interpretationResult.pages;
 
-            return rescan;
-          })
-        );
+          listeners?.pageInterpreted?.(id, 'front', originalScans[0], front);
 
-        if (front && back) {
-          output.store.addSheet(id, outputBatchId, [front, back]);
+          listeners?.pageInterpreted?.(id, 'back', originalScans[1], back);
+
+          if (front && back) {
+            output.store.addSheet(id, outputBatchId, [front, back]);
+          }
         }
-      }
-    )
-  );
+      )
+    );
+  }
 
-  pool.stop();
   listeners?.interpreterUnloaded?.();
   listeners?.complete?.();
 }
