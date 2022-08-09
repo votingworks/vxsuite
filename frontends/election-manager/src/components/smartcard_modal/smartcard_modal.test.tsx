@@ -289,21 +289,18 @@ test('Programming election manager and poll worker smartcards', async () => {
 
   const testCases: Array<{
     role: ElectionManagerUser['role'] | PollWorkerUser['role'];
-    expectedProgressText: string;
     expectedHeadingAfterProgramming: string;
     expectedSuccessText: Array<string | RegExp>;
     expectedCardLongString?: string;
   }> = [
     {
       role: 'election_manager',
-      expectedProgressText: 'Creating Election Manager Card',
       expectedHeadingAfterProgramming: 'Election Manager Card',
       expectedSuccessText: [/New card PIN is /, '123-456'],
       expectedCardLongString: electionData,
     },
     {
       role: 'poll_worker',
-      expectedProgressText: 'Creating Poll Worker Card',
       expectedHeadingAfterProgramming: 'Poll Worker Card',
       expectedSuccessText: ['New card created.'],
       expectedCardLongString: undefined,
@@ -316,7 +313,6 @@ test('Programming election manager and poll worker smartcards', async () => {
   for (const testCase of testCases) {
     const {
       role,
-      expectedProgressText,
       expectedHeadingAfterProgramming,
       expectedSuccessText,
       expectedCardLongString,
@@ -347,7 +343,7 @@ test('Programming election manager and poll worker smartcards', async () => {
         throwIllegalValue(role);
       }
     }
-    await screen.findByText(new RegExp(expectedProgressText));
+    await screen.findByText(/Programming card/);
     await within(modal).findByRole('heading', {
       name: expectedHeadingAfterProgramming,
     });
@@ -387,14 +383,14 @@ test('Programming system administrator smartcards', async () => {
   });
   within(modal).getByText(
     'This card performs all system actions. ' +
-      'Strictly limit the number created and keep all System Administrator Cards secure.'
+      'Strictly limit the number created and keep all System Administrator cards secure.'
   );
   const systemAdministratorCardButton = within(modal).getByRole('button', {
     name: 'Create System Administrator Card',
   });
   within(modal).getByText('Remove card to cancel.');
   userEvent.click(systemAdministratorCardButton);
-  await screen.findByText(/Creating System Administrator Card/);
+  await screen.findByText(/Programming card/);
   await within(modal).findByRole('heading', {
     name: 'System Administrator Card',
   });
@@ -456,19 +452,16 @@ test('Resetting smartcard PINs', async () => {
     cardData: AnyCardData;
     cardLongValue?: string;
     expectedHeading: string;
-    expectedProgressText: string;
   }> = [
     {
       cardData: makeSystemAdministratorCard(oldPin),
       cardLongValue: undefined,
       expectedHeading: 'System Administrator Card',
-      expectedProgressText: 'Resetting System Administrator Card PIN',
     },
     {
       cardData: makeElectionManagerCard(electionHash, oldPin),
       cardLongValue: electionData,
       expectedHeading: 'Election Manager Card',
-      expectedProgressText: 'Resetting Election Manager Card PIN',
     },
   ];
 
@@ -476,8 +469,7 @@ test('Resetting smartcard PINs', async () => {
   await screen.findByRole('heading', { name: 'Election Definition' });
 
   for (const testCase of testCases) {
-    const { cardData, cardLongValue, expectedHeading, expectedProgressText } =
-      testCase;
+    const { cardData, cardLongValue, expectedHeading } = testCase;
 
     card.insertCard(cardData);
     if (cardLongValue) {
@@ -496,7 +488,7 @@ test('Resetting smartcard PINs', async () => {
     userEvent.click(
       within(modal).getByRole('button', { name: 'Reset Card PIN' })
     );
-    await screen.findByText(new RegExp(expectedProgressText));
+    await screen.findByText(/Resetting card PIN/);
     await within(modal).findByText(/New card PIN is /);
     await within(modal).findByText('123-456');
     within(modal).getByText('Remove card to continue.');
@@ -532,20 +524,17 @@ test('Unprogramming smartcards', async () => {
   const testCases: Array<{
     cardData: AnyCardData;
     expectedHeadingBeforeUnprogramming: string;
-    expectedProgressText: string;
     expectedSuccessText: string;
   }> = [
     {
       cardData: makeElectionManagerCard(electionHash),
       expectedHeadingBeforeUnprogramming: 'Election Manager Card',
-      expectedProgressText: 'Unprogramming Election Manager Card',
-      expectedSuccessText: 'Election Manager Card has been unprogrammed.',
+      expectedSuccessText: 'Election Manager card has been unprogrammed.',
     },
     {
       cardData: makePollWorkerCard(electionHash),
       expectedHeadingBeforeUnprogramming: 'Poll Worker Card',
-      expectedProgressText: 'Unprogramming Poll Worker Card',
-      expectedSuccessText: 'Poll Worker Card has been unprogrammed.',
+      expectedSuccessText: 'Poll Worker card has been unprogrammed.',
     },
   ];
 
@@ -553,7 +542,6 @@ test('Unprogramming smartcards', async () => {
     const {
       cardData,
       expectedHeadingBeforeUnprogramming,
-      expectedProgressText,
       expectedSuccessText,
     } = testCase;
 
@@ -566,7 +554,7 @@ test('Unprogramming smartcards', async () => {
     userEvent.click(
       within(modal).getByRole('button', { name: 'Unprogram Card' })
     );
-    await screen.findByText(new RegExp(expectedProgressText));
+    await screen.findByText(/Unprogramming card/);
     await within(modal).findByRole('heading', {
       name: 'Create New Election Card',
     });
@@ -604,44 +592,44 @@ test('Error handling', async () => {
     {
       cardData: undefined,
       buttonToPress: 'Election Manager Card',
-      expectedProgressText: 'Creating Election Manager Card',
+      expectedProgressText: 'Programming card',
       expectedErrorText:
-        'Error creating Election Manager Card. Please try again.',
+        'Error creating Election Manager card. Please try again.',
     },
     {
       cardData: undefined,
       buttonToPress: 'Poll Worker Card',
-      expectedProgressText: 'Creating Poll Worker Card',
-      expectedErrorText: 'Error creating Poll Worker Card. Please try again.',
+      expectedProgressText: 'Programming card',
+      expectedErrorText: 'Error creating Poll Worker card. Please try again.',
     },
     {
       beginFromSuperAdminCardsScreen: true,
       cardData: undefined,
       buttonToPress: 'Create System Administrator Card',
-      expectedProgressText: 'Creating System Administrator Card',
+      expectedProgressText: 'Programming card',
       expectedErrorText:
-        'Error creating System Administrator Card. Please try again.',
+        'Error creating System Administrator card. Please try again.',
     },
     {
       cardData: makeElectionManagerCard(electionHash),
       buttonToPress: 'Reset Card PIN',
-      expectedProgressText: 'Resetting Election Manager Card PIN',
+      expectedProgressText: 'Resetting card PIN',
       expectedErrorText:
-        'Error resetting Election Manager Card PIN. Please try again.',
+        'Error resetting Election Manager card PIN. Please try again.',
     },
     {
       cardData: makeElectionManagerCard(electionHash),
       buttonToPress: 'Unprogram Card',
-      expectedProgressText: 'Unprogramming Election Manager Card',
+      expectedProgressText: 'Unprogramming card',
       expectedErrorText:
-        'Error unprogramming Election Manager Card. Please try again.',
+        'Error unprogramming Election Manager card. Please try again.',
     },
     {
       cardData: makePollWorkerCard(electionHash),
       buttonToPress: 'Unprogram Card',
-      expectedProgressText: 'Unprogramming Poll Worker Card',
+      expectedProgressText: 'Unprogramming card',
       expectedErrorText:
-        'Error unprogramming Poll Worker Card. Please try again.',
+        'Error unprogramming Poll Worker card. Please try again.',
     },
   ];
 
