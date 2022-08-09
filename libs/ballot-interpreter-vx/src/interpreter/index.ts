@@ -224,10 +224,16 @@ export class Interpreter {
       flipped = false,
       markScoreVoteThreshold = this.markScoreVoteThreshold,
       imdebug = noDebug(),
+      maximumCorrectionPixelsX,
+      maximumCorrectionPixelsY,
+      maximumNewTemplatePixels,
     }: {
       flipped?: boolean;
       markScoreVoteThreshold?: number;
       imdebug?: Debugger;
+      maximumCorrectionPixelsX?: number;
+      maximumCorrectionPixelsY?: number;
+      maximumNewTemplatePixels?: number;
     } = {}
   ): Promise<Interpreted> {
     debug(
@@ -250,6 +256,9 @@ export class Interpreter {
     debug('using metadata: %O', normalized.metadata);
     const marked = this.findMarks(normalized.imageData, normalized.metadata, {
       imdebug,
+      maximumCorrectionPixelsX,
+      maximumCorrectionPixelsY,
+      maximumNewTemplatePixels,
     });
     const ballot = this.interpretMarks(marked, { markScoreVoteThreshold });
     return { ...marked, ballot };
@@ -258,7 +267,17 @@ export class Interpreter {
   private findMarks(
     imageData: ImageData,
     metadata: BallotPageMetadata,
-    { imdebug = noDebug() }: { imdebug?: Debugger } = {}
+    {
+      imdebug = noDebug(),
+      maximumCorrectionPixelsX,
+      maximumCorrectionPixelsY,
+      maximumNewTemplatePixels,
+    }: {
+      imdebug?: Debugger;
+      maximumCorrectionPixelsX?: number;
+      maximumCorrectionPixelsY?: number;
+      maximumNewTemplatePixels?: number;
+    } = {}
   ): FindMarksResult {
     debug(
       'looking for marks in %d×%d image',
@@ -306,7 +325,12 @@ export class Interpreter {
         ballotLayout,
         matchedTemplate,
         this.getContestsForTemplate(matchedTemplate.ballotPageLayout),
-        { imdebug }
+        {
+          imdebug,
+          maximumCorrectionPixelsX,
+          maximumCorrectionPixelsY,
+          maximumNewTemplatePixels,
+        }
       )
     );
 
@@ -391,7 +415,17 @@ export class Interpreter {
     ballotLayout: BallotPageLayoutWithImage,
     template: BallotPageLayoutWithImage,
     contests: Contests,
-    { imdebug = noDebug() }: { imdebug?: Debugger } = {}
+    {
+      imdebug = noDebug(),
+      maximumCorrectionPixelsX,
+      maximumCorrectionPixelsY,
+      maximumNewTemplatePixels,
+    }: {
+      imdebug?: Debugger;
+      maximumCorrectionPixelsX?: number;
+      maximumCorrectionPixelsY?: number;
+      maximumNewTemplatePixels?: number;
+    } = {}
   ): [ImageData, BallotMark[]] {
     assert(
       template.ballotPageLayout.contests.length === contests.length,
@@ -476,7 +510,12 @@ export class Interpreter {
       const { score, offset } = this.targetMarkScore(
         template.imageData,
         mappedBallot,
-        layout.target
+        layout.target,
+        {
+          maximumCorrectionPixelsX,
+          maximumCorrectionPixelsY,
+          maximumNewTemplatePixels,
+        }
       );
       debugScoredMark(layout, option.id, offset, score);
       const mark: BallotCandidateTargetMark = {
@@ -500,7 +539,12 @@ export class Interpreter {
       const { score, offset } = this.targetMarkScore(
         template.imageData,
         mappedBallot,
-        layout.target
+        layout.target,
+        {
+          maximumCorrectionPixelsX,
+          maximumCorrectionPixelsY,
+          maximumNewTemplatePixels,
+        }
       );
       debugScoredMark(layout, optionId, offset, score);
       const mark: BallotYesNoTargetMark = {
@@ -523,7 +567,12 @@ export class Interpreter {
       const { score, offset } = this.targetMarkScore(
         template.imageData,
         mappedBallot,
-        layout.target
+        layout.target,
+        {
+          maximumCorrectionPixelsX,
+          maximumCorrectionPixelsY,
+          maximumNewTemplatePixels,
+        }
       );
       debugScoredMark(
         layout,
@@ -624,7 +673,11 @@ export class Interpreter {
     template: ImageData,
     ballot: ImageData,
     target: TargetShape,
-    { maximumCorrectionPixelsX = 7, maximumCorrectionPixelsY = 7 } = {}
+    {
+      maximumCorrectionPixelsX = 7,
+      maximumCorrectionPixelsY = 7,
+      maximumNewTemplatePixels = 85,
+    } = {}
   ): { offset: Offset; score: number } {
     debug(
       'computing target mark score for target at (x=%d, y=%d)',
@@ -697,6 +750,16 @@ export class Interpreter {
         bestMatchOffset = { x, y };
         bestMatchScore = score;
       }
+    }
+
+    // if we couldn't find a close enough alignment, the skew is too much and we bail
+    if (
+      bestMatchNewTemplatePixels === undefined ||
+      bestMatchNewTemplatePixels > maximumNewTemplatePixels
+    ) {
+      throw new Error(
+        `Could not find good enough template alignment: ${bestMatchNewTemplatePixels}.`
+      );
     }
 
     debug(
