@@ -1231,6 +1231,7 @@ test('election manager cannot auth onto unconfigured machine when VVSG2 auth flo
   render(<App card={card} hardware={hardware} storage={storage} />);
 
   await screen.findByText('VxAdmin is Locked');
+  screen.getByText('Insert System Administrator card to unlock.');
   card.insertCard(
     makeElectionManagerCard(eitherNeitherElectionDefinition.electionHash)
   );
@@ -1252,6 +1253,9 @@ test('election manager cannot auth onto machine with different election hash whe
   render(<App card={card} hardware={hardware} storage={storage} />);
 
   await screen.findByText('VxAdmin is Locked');
+  screen.getByText(
+    'Insert System Administrator or Election Manager card to unlock.'
+  );
   card.insertCard(
     makeElectionManagerCard(electionSampleDefinition.electionHash)
   );
