@@ -38,16 +38,14 @@ import {
 import { AdjudicationReason, PrecinctSelectionKind } from '@votingworks/types';
 
 import { mocked } from 'ts-jest/utils';
-import {
-  CARD_POLLING_INTERVAL,
-  areVvsg2AuthFlowsEnabled,
-} from '@votingworks/ui';
+import { areVvsg2AuthFlowsEnabled } from '@votingworks/ui';
 import userEvent from '@testing-library/user-event';
 import { App } from './app';
 
 import { stateStorageKey } from './app_root';
 import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from './config/globals';
 import { MachineConfigResponse } from './config/types';
+import { authenticateAdminCard, scannerStatus } from '../test/helpers/helpers';
 
 jest.setTimeout(20000);
 
@@ -104,17 +102,6 @@ const deleteElectionConfigResponseBody: Scan.DeleteElectionConfigResponse = {
   status: 'ok',
 };
 
-function scannerStatus(
-  props: Partial<Scan.GetPrecinctScannerStatusResponse> = {}
-) {
-  return {
-    state: 'no_paper',
-    ballotsCounted: 0,
-    canUnconfigure: false,
-    ...props,
-  };
-}
-
 const statusNoPaper = scannerStatus({ state: 'no_paper' });
 const statusReadyToScan = scannerStatus({ state: 'ready_to_scan' });
 
@@ -122,18 +109,6 @@ const getPrecinctConfigNoPrecinctResponseBody: Scan.GetCurrentPrecinctConfigResp
   {
     status: 'ok',
   };
-
-async function authenticateAdminCard() {
-  jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
-  await screen.findByText('Enter the card security code to unlock.');
-  fireEvent.click(screen.getByText('1'));
-  fireEvent.click(screen.getByText('2'));
-  fireEvent.click(screen.getByText('3'));
-  fireEvent.click(screen.getByText('4'));
-  fireEvent.click(screen.getByText('5'));
-  fireEvent.click(screen.getByText('6'));
-  screen.getByText('Administrator Settings');
-}
 
 test('shows setup card reader screen when there is no card reader', async () => {
   const card = new MemoryCard();

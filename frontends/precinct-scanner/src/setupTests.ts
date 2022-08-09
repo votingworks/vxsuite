@@ -1,5 +1,6 @@
 import fetchMock from 'fetch-mock';
 import jestFetchMock from 'jest-fetch-mock';
+import '@testing-library/jest-dom/extend-expect';
 import { TextDecoder, TextEncoder } from 'util';
 
 beforeEach(() => {

@@ -780,8 +780,6 @@ export function createPrecinctScannerStateMachine(
             return 'rejected';
           case state.matches('calibrating'):
             return 'calibrating';
-          case state.matches('calibrated'):
-            return 'calibrated';
           case state.matches('error_jammed'):
             return 'jammed';
           case state.matches('error_both_sides_have_paper'):

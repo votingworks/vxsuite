@@ -659,7 +659,6 @@ export const PrecinctScannerStateSchema = z.enum([
   'rejecting',
   'rejected',
   'calibrating',
-  'calibrated',
   'jammed',
   'both_sides_have_paper',
   'error',
