@@ -31,7 +31,10 @@ import {
 import userEvent from '@testing-library/user-event';
 import { App } from './app';
 import { MachineConfigResponse } from './config/types';
-import { authenticateAdminCard, scannerStatus } from '../test/helpers/helpers';
+import {
+  authenticateElectionManagerCard,
+  scannerStatus,
+} from '../test/helpers/helpers';
 
 const getMachineConfigBody: MachineConfigResponse = {
   machineId: '0002',
@@ -345,7 +348,7 @@ test('removing card during calibration', async () => {
     electionSampleDefinition.electionHash
   );
   card.insertCard(electionManagerCard, electionSampleDefinition.electionData);
-  await authenticateAdminCard();
+  await authenticateElectionManagerCard();
 
   const { promise, resolve } = deferred();
   fetchMock.post('/scanner/calibrate', promise);

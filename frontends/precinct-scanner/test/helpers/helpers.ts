@@ -3,7 +3,7 @@ import { screen } from '@testing-library/react';
 import { Scan } from '@votingworks/api';
 import { CARD_POLLING_INTERVAL } from '../../src/config/globals';
 
-export async function authenticateAdminCard(): Promise<void> {
+export async function authenticateElectionManagerCard(): Promise<void> {
   jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
   await screen.findByText('Enter the card security code to unlock.');
   userEvent.click(screen.getByText('1'));
