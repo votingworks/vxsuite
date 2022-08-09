@@ -94,7 +94,7 @@ it('MarkAndPrint end-to-end flow', async () => {
   await advanceTimersAndPromises();
 
   // Default Unconfigured
-  screen.getByText('Device Not Configured');
+  screen.getByText('VxMark is Not Configured');
 
   // ---------------
 
@@ -104,12 +104,12 @@ it('MarkAndPrint end-to-end flow', async () => {
   fireEvent.click(screen.getByText('Load Election Definition'));
 
   await advanceTimersAndPromises();
-  screen.getByText('Election definition is loaded.');
+  screen.getByText('Election Definition is loaded.');
 
   // Remove card and expect not configured because precinct not selected
   card.removeCard();
   await advanceTimersAndPromises();
-  screen.getByText('Device Not Configured');
+  screen.getByText('VxMark is Not Configured');
 
   // Basic auth logging check
   expect(logger.log).toHaveBeenCalledWith(
@@ -428,14 +428,14 @@ it('MarkAndPrint end-to-end flow', async () => {
   // Unconfigure with Election Manager Card
   card.insertCard(electionManagerCard, electionDefinition.electionData);
   await authenticateAdminCard();
-  screen.getByText('Election definition is loaded.');
+  screen.getByText('Election Definition is loaded.');
   fireEvent.click(screen.getByText('Unconfigure Machine'));
   await advanceTimersAndPromises();
 
   // Default Unconfigured
   card.removeCard();
   await advanceTimersAndPromises();
-  screen.getByText('Device Not Configured');
+  screen.getByText('VxMark is Not Configured');
 
   // Insert System Administrator card works when unconfigured
   card.insertCard(makeSystemAdministratorCard());
@@ -452,7 +452,7 @@ it('MarkAndPrint end-to-end flow', async () => {
   userEvent.click(
     screen.getByRole('button', { name: 'Load Election Definition' })
   );
-  await screen.findByText('Election definition is loaded.');
+  await screen.findByText('Election Definition is loaded.');
   card.removeCard();
   await advanceTimersAndPromises();
 
@@ -474,8 +474,8 @@ it('MarkAndPrint end-to-end flow', async () => {
   await advanceTimersAndPromises();
 
   // Verify that machine was unconfigured
-  screen.getByText('Device Not Configured');
+  screen.getByText('VxMark is Not Configured');
   card.insertCard(electionManagerCard, electionDefinition.electionData);
   await authenticateAdminCard();
-  screen.getByText('Election definition is not loaded.');
+  screen.getByText('Election Definition is not loaded.');
 });

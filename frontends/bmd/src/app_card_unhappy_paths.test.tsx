@@ -180,12 +180,12 @@ test('Inserting voter card when machine is unconfigured does nothing', async () 
   // ====================== END CONTEST SETUP ====================== //
 
   // Default Unconfigured
-  screen.getByText('Device Not Configured');
+  screen.getByText('VxMark is Not Configured');
 
   card.insertCard(makeVoterCard(electionSample));
   await advanceTimersAndPromises();
 
-  screen.getByText('Device Not Configured');
+  screen.getByText('VxMark is Not Configured');
 });
 
 test('Inserting pollworker card with invalid long data fall back as if there is no long data', async () => {

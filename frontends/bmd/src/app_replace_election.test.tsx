@@ -45,7 +45,9 @@ test('replacing a loaded election with one from a card', async () => {
     electionSample2Definition.electionData
   );
   await authenticateAdminCard();
-  await screen.findByText('Admin Card is not configured for this election');
+  await screen.findByText(
+    'Election Manager card is not configured for this election'
+  );
 
   // unconfigure
   fireEvent.click(screen.getByText('Remove Current Election and All Data'));
@@ -61,7 +63,7 @@ test('replacing a loaded election with one from a card', async () => {
   await authenticateAdminCard();
 
   // load new election
-  await screen.findByText('Election Admin Actions');
+  await screen.findByText('Election Manager Actions');
   fireEvent.click(screen.getByText('Load Election Definition'));
   await advanceTimersAndPromises();
   screen.getByText(electionSample2Definition.election.title);

@@ -68,7 +68,7 @@ test('PrintOnly flow', async () => {
   await advanceTimersAndPromises();
 
   // Default Unconfigured
-  screen.getByText('Device Not Configured');
+  screen.getByText('VxMark is Not Configured');
 
   // ---------------
 
@@ -78,12 +78,12 @@ test('PrintOnly flow', async () => {
   fireEvent.click(screen.getByText('Load Election Definition'));
 
   await advanceTimersAndPromises();
-  screen.getByText('Election definition is loaded.');
+  screen.getByText('Election Definition is loaded.');
 
   // Remove card
   card.removeCard();
   await advanceTimersAndPromises();
-  screen.getByText('Device Not Configured');
+  screen.getByText('VxMark is Not Configured');
 
   // ---------------
 
@@ -373,14 +373,14 @@ test('PrintOnly flow', async () => {
   // Unconfigure with Election Manager Card
   card.insertCard(electionManagerCard, electionData);
   await authenticateAdminCard();
-  screen.getByText('Election definition is loaded.');
+  screen.getByText('Election Definition is loaded.');
   fireEvent.click(screen.getByText('Unconfigure Machine'));
   await advanceTimersAndPromises();
 
   // Default Unconfigured
   card.removeCard();
   await advanceTimersAndPromises();
-  screen.getByText('Device Not Configured');
+  screen.getByText('VxMark is Not Configured');
 });
 
 test('PrintOnly retains app mode when unconfigured', async () => {
@@ -412,7 +412,7 @@ test('PrintOnly retains app mode when unconfigured', async () => {
     fireEvent.click(screen.getByText('Load Election Definition'));
 
     await advanceTimersAndPromises();
-    screen.getByText('Election definition is loaded.');
+    screen.getByText('Election Definition is loaded.');
 
     // Select precinct
     screen.getByText('State of Hamilton');
@@ -448,20 +448,20 @@ test('PrintOnly retains app mode when unconfigured', async () => {
     // Unconfigure with Election Manager Card
     card.insertCard(electionManagerCard, electionData);
     await authenticateAdminCard();
-    screen.getByText('Election definition is loaded.');
+    screen.getByText('Election Definition is loaded.');
     fireEvent.click(screen.getByText('Unconfigure Machine'));
     await advanceTimersAndPromises();
 
     // Default Unconfigured
     card.removeCard();
     await advanceTimersAndPromises();
-    screen.getByText('Device Not Configured');
+    screen.getByText('VxMark is Not Configured');
   }
 
   // ---------------
 
   // Default Unconfigured
-  screen.getByText('Device Not Configured');
+  screen.getByText('VxMark is Not Configured');
 
   // Do the initial configuration & open polls.
   await configure();
@@ -508,7 +508,7 @@ test('PrintOnly prompts to change to live mode on election day', async () => {
   await advanceTimersAndPromises();
 
   // Default Unconfigured
-  screen.getByText('Device Not Configured');
+  screen.getByText('VxMark is Not Configured');
 
   // ---------------
 
@@ -518,7 +518,7 @@ test('PrintOnly prompts to change to live mode on election day', async () => {
   fireEvent.click(screen.getByText('Load Election Definition'));
 
   await advanceTimersAndPromises();
-  screen.getByText('Election definition is loaded.');
+  screen.getByText('Election Definition is loaded.');
   screen.getByLabelText('Precinct');
 
   // Select precinct

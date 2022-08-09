@@ -241,7 +241,7 @@ describe('Displays setup warning messages and errors screens', () => {
     await authenticateAdminCard();
 
     // expect to see election manager screen
-    screen.getByText('Election Admin Actions');
+    screen.getByText('Election Manager Actions');
   });
 
   it('Displays "discharging battery" warning message and "discharging battery + low battery" error screen', async () => {

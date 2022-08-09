@@ -63,7 +63,7 @@ test('Cardless Voting Flow', async () => {
   await advanceTimersAndPromises();
 
   // Default Unconfigured
-  screen.getByText('Device Not Configured');
+  screen.getByText('VxMark is Not Configured');
 
   // ---------------
 
@@ -73,7 +73,7 @@ test('Cardless Voting Flow', async () => {
   fireEvent.click(screen.getByText('Load Election Definition'));
 
   await advanceTimersAndPromises();
-  screen.getByText('Election definition is loaded.');
+  screen.getByText('Election Definition is loaded.');
   screen.getByLabelText('Precinct');
   screen.queryByText(`Election ID: ${electionHash.slice(0, 10)}`);
 
@@ -318,7 +318,7 @@ test('poll worker must select a precinct first', async () => {
   await advanceTimersAndPromises();
 
   // Default Unconfigured
-  screen.getByText('Device Not Configured');
+  screen.getByText('VxMark is Not Configured');
 
   // ---------------
 
@@ -328,7 +328,7 @@ test('poll worker must select a precinct first', async () => {
   fireEvent.click(screen.getByText('Load Election Definition'));
 
   await advanceTimersAndPromises();
-  screen.getByText('Election definition is loaded.');
+  screen.getByText('Election Definition is loaded.');
   screen.getByLabelText('Precinct');
   screen.queryByText(`Election ID: ${electionHash.slice(0, 10)}`);
 
