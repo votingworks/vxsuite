@@ -4,7 +4,7 @@ exports[`BmdPaperBallot renders votes for MS either-neither contests 1`] = `
 <div>
   <div
     aria-hidden="true"
-    class="sc-jRQAMF bFYiKD"
+    class="sc-jRQAMF kQCdaK"
   >
     <div
       class="sc-iCfLBT cSkaik"
@@ -249,7 +249,7 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
 <div>
   <div
     aria-hidden="true"
-    class="sc-jRQAMF bFYiKD"
+    class="sc-jRQAMF kQCdaK"
   >
     <div
       class="sc-iCfLBT cSkaik"

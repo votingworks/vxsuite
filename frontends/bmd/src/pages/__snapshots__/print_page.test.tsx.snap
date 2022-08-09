@@ -3,7 +3,7 @@
 exports[`renders PrintPage with votes 1`] = `
 <div
   aria-hidden="true"
-  class="sc-iCfLBT hbmhyi"
+  class="sc-iCfLBT epQCjn"
 >
   <div
     class="sc-pVTma YfIWc"
@@ -324,7 +324,7 @@ exports[`renders PrintPage without votes 1`] = `
 exports[`renders PrintPage without votes and inline seal 1`] = `
 <div
   aria-hidden="true"
-  class="sc-iCfLBT hbmhyi"
+  class="sc-iCfLBT epQCjn"
 >
   <div
     class="sc-pVTma YfIWc"
@@ -760,7 +760,7 @@ exports[`renders PrintPage without votes and inline seal 1`] = `
 exports[`renders PrintPage without votes and no seal 1`] = `
 <div
   aria-hidden="true"
-  class="sc-iCfLBT hbmhyi"
+  class="sc-iCfLBT epQCjn"
 >
   <div
     class="sc-pVTma YfIWc"

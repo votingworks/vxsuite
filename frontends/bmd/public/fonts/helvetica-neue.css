@@ -1,0 +1,97 @@
+@font-face {
+  font-family: 'Vx Helvetica Neue';
+  font-weight: 100;
+  font-style: normal;
+  src: url('HelveticaNeue-UltraLight.woff') format('woff');
+}
+@font-face {
+  font-family: 'Vx Helvetica Neue';
+  font-weight: 100;
+  font-style: italic;
+  src: url('HelveticaNeue-UltraLightItalic.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Vx Helvetica Neue';
+  font-weight: 200;
+  font-style: normal;
+  src: url('HelveticaNeue-Thin.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Vx Helvetica Neue';
+  font-weight: 200;
+  font-style: italic;
+  src: url('HelveticaNeue-ThinItalic.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Vx Helvetica Neue';
+  font-weight: 300;
+  font-style: normal;
+  src: url('HelveticaNeue-Light.woff') format('woff');
+}
+@font-face {
+  font-family: 'Vx Helvetica Neue';
+  font-weight: 300;
+  font-style: italic;
+  src: url('HelveticaNeue-LightItalic.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Vx Helvetica Neue';
+  font-weight: 400;
+  font-style: normal;
+  src: url('HelveticaNeue.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Vx Helvetica Neue';
+  font-weight: 400;
+  font-style: italic;
+  src: url('HelveticaNeue-Italic.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Vx Helvetica Neue';
+  font-weight: 500;
+  font-style: normal;
+  src: url('HelveticaNeue-Medium.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Vx Helvetica Neue';
+  font-weight: 500;
+  font-style: italic;
+  src: url('HelveticaNeue-MediumItalic.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Vx Helvetica Neue';
+  font-weight: 700;
+  font-style: italic;
+  src: url('HelveticaNeue-BoldItalic.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Vx Helvetica Neue';
+  font-weight: 700;
+  font-style: normal;
+  src: url('HelveticaNeue-Bold.woff') format('woff');
+}
+
+/* Condensed */
+
+@font-face {
+  font-family: 'Vx Helvetica Neue Condensed';
+  font-weight: 700;
+  font-style: normal;
+  src: url('HelveticaNeue-CondensedBold.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Vx Helvetica Neue Condensed';
+  font-weight: 900;
+  font-style: normal;
+  src: url('HelveticaNeue-CondensedBlack.woff') format('woff');
+}

@@ -63,6 +63,7 @@ const SignatureLine = styled.div`
   width: 50%;
   min-height: 4em;
   &::before {
+    font-family: 'Noto Emoji', sans-serif;
     font-size: 1.5rem;
     content: '⨉';
   }
