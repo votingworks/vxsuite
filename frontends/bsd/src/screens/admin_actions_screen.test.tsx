@@ -48,12 +48,17 @@ test('clicking "Export Backup" shows progress', async () => {
     backupButton.click();
     expect(backup).toHaveBeenCalledTimes(1);
 
-    // Verify progress message is shown.
-    await waitFor(() => screen.getByText('Exporting…'));
+    // Verify progress modal is shown.
+    await waitFor(() => {
+      const modal = screen.getByRole('alertdialog');
+      within(modal).getByText('Exporting Backup');
+      screen.getByText('Exporting…');
+    });
 
     // Trigger backup finished, verify back to normal.
     resolve();
     await waitFor(() => screen.getByText('Export Backup'));
+    expect(screen.queryAllByRole('alertdialog').length).toBe(0);
   });
 });
 

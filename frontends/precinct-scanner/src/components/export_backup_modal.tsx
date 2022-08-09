@@ -70,9 +70,14 @@ export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
           electionFolderName
         );
         result = await download('/scan/backup', { into: pathToFolder });
-        setCurrentState(result.isOk() ? ModalState.DONE : ModalState.ERROR);
       } else {
         result = await download('/scan/backup');
+      }
+
+      if (window.kiosk) {
+        // Backups can take several minutes. Ensure the data is flushed to the
+        // usb before prompting the user to eject it.
+        await usbstick.doSync();
       }
 
       if (result.isOk()) {
