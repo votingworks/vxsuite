@@ -434,6 +434,10 @@ export function AppRoot({
     return () => {
       clearTimeout(PostVotingInstructionsTimeout.current);
     };
+    /* We don't include hidePostVotingInstructions because it is updatedi
+     * frequently due to its dependency on auth, which causes this effect to
+     * run/cleanup,clearing the timeout.
+     */
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [showPostVotingInstructions]);
 
