@@ -9,8 +9,8 @@ import {
 } from '@votingworks/fixtures';
 import React from 'react';
 import { PreviewDashboard } from './preview_dashboard';
-import * as AdminScreen from './screens/admin_screen';
 import * as CardErrorScreen from './screens/card_error_screen';
+import * as ElectionManagerScreen from './screens/election_manager_screen';
 import * as InsertBallotScreen from './screens/insert_ballot_screen';
 import * as InvalidCardScreen from './screens/invalid_card_screen';
 import * as LoadingConfigurationScreen from './screens/loading_configuration_screen';
@@ -36,8 +36,8 @@ export function PreviewApp(): JSX.Element {
         electionWithMsEitherNeitherDefinition,
       ]}
       modules={[
-        AdminScreen,
         CardErrorScreen,
+        ElectionManagerScreen,
         InsertBallotScreen,
         InvalidCardScreen,
         LoadingConfigurationScreen,

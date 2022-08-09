@@ -39,7 +39,7 @@ import * as config from './api/config';
 import * as scanner from './api/scan';
 
 import { usePrecinctScannerStatus } from './hooks/use_precinct_scanner_status';
-import { AdminScreen } from './screens/admin_screen';
+import { ElectionManagerScreen } from './screens/election_manager_screen';
 import { InvalidCardScreen } from './screens/invalid_card_screen';
 import { PollsClosedScreen } from './screens/polls_closed_screen';
 import { PollWorkerScreen } from './screens/poll_worker_screen';
@@ -435,7 +435,7 @@ export function AppRoot({
           auth,
         }}
       >
-        <AdminScreen
+        <ElectionManagerScreen
           updateAppPrecinctId={updatePrecinctId}
           scannerStatus={scannerStatus}
           isTestMode={isTestMode}
