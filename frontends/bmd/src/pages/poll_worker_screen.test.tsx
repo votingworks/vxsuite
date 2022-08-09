@@ -98,6 +98,7 @@ function renderScreen(
       hasVotes={false}
       isLiveMode={false}
       isPollsOpen
+      ballotsPrintedCount={0}
       machineConfig={fakeMachineConfig({ appMode: MarkOnly })}
       hardware={MemoryHardware.buildStandard()}
       devices={fakeDevices()}
@@ -167,6 +168,7 @@ async function printPollsClosedReport() {
 test('renders PollWorkerScreen', () => {
   renderScreen();
   screen.getByText(/Polls are currently open./);
+  screen.getByText('Ballots Printed:');
 });
 
 test('switching out of test mode on election day', () => {
