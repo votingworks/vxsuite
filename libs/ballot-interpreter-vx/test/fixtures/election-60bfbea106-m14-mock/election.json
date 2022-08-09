@@ -1,0 +1,384 @@
+{
+  "title": "m14 Mock Election",
+  "state": "State of Mississippi",
+  "county": {
+    "id": "75",
+    "name": "Warren County"
+  },
+  "date": "2022-08-12T00:00:00-10:00",
+  "parties": [
+    {
+      "id": "2",
+      "name": "Democrat",
+      "fullName": "Democratic Party",
+      "abbrev": "D"
+    },
+    {
+      "id": "3",
+      "name": "Republican",
+      "fullName": "Republican Party",
+      "abbrev": "R"
+    },
+    {
+      "id": "4",
+      "name": "Libertarian",
+      "fullName": "Libertarian Party",
+      "abbrev": "L"
+    },
+    {
+      "id": "5",
+      "name": "Reform",
+      "fullName": "Reform Party",
+      "abbrev": "REF"
+    },
+    {
+      "id": "6",
+      "name": "Natural Law",
+      "fullName": "Natural Law Party",
+      "abbrev": "N"
+    },
+    {
+      "id": "8",
+      "name": "Constitution",
+      "fullName": "Constitution Party",
+      "abbrev": "C"
+    },
+    {
+      "id": "9",
+      "name": "Green",
+      "fullName": "Green Party",
+      "abbrev": "G"
+    },
+    {
+      "id": "10",
+      "name": "America First",
+      "fullName": "America First Party",
+      "abbrev": "A"
+    },
+    {
+      "id": "11",
+      "name": "Independent",
+      "fullName": "Independent Party",
+      "abbrev": "I"
+    },
+    {
+      "id": "12",
+      "name": "Nonpartisan",
+      "fullName": "Nonpartisan",
+      "abbrev": "NP"
+    },
+    {
+      "id": "575000001",
+      "name": "Justice",
+      "fullName": "Justice Party",
+      "abbrev": "JUS"
+    },
+    {
+      "id": "575000002",
+      "name": "Prohibition",
+      "fullName": "Prohibition Party",
+      "abbrev": "PRO"
+    },
+    {
+      "id": "575000003",
+      "name": "American Delta",
+      "fullName": "American Delta Party",
+      "abbrev": "ADP"
+    },
+    {
+      "id": "575000004",
+      "name": "Veterans",
+      "fullName": "Veterans Party",
+      "abbrev": "VET"
+    },
+    {
+      "id": "775000001",
+      "name": "American Solidarity",
+      "fullName": "American Solidarity Party",
+      "abbrev": "ASP"
+    },
+    {
+      "id": "775000002",
+      "name": "American Constitution",
+      "fullName": "American Constitution Party",
+      "abbrev": "AMC"
+    }
+  ],
+  "contests": [
+    {
+      "id": "congress",
+      "section": "2nd Congressional District",
+      "districtId": "congress",
+      "type": "candidate",
+      "title": "US House of Representatives",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "congress-1",
+          "name": "Bennie G. Thompson",
+          "partyId": "2"
+        },
+        {
+          "id": "congress-2",
+          "name": "Brian Flowers",
+          "partyId": "3"
+        }
+      ]
+    },
+    {
+      "id": "courtappeals",
+      "section": "Court of Appeals District 4",
+      "districtId": "judicial",
+      "type": "candidate",
+      "title": "Court of Appeals Judge",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "courtappeals-1",
+          "name": "Bruce W. Burton"
+        },
+        {
+          "id": "courtappeals-2",
+          "name": "Virginia Carlton"
+        }
+      ]
+    },
+    {
+      "id": "chancerycourt-9-1",
+      "section": "District 9",
+      "districtId": "judicial",
+      "type": "candidate",
+      "title": "Chancery Court Judge Position 1",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "chancery-1-1",
+          "name": "Bennie L. Richard"
+        }
+      ]
+    },
+    {
+      "id": "chancerycourt-9-2",
+      "section": "District 9",
+      "districtId": "judicial",
+      "type": "candidate",
+      "title": "Chancery Court Judge Position 2",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "chancery-2-1",
+          "name": "Renia A. Anderson"
+        },
+        {
+          "id": "chancery-2-2",
+          "name": "Debra M. Giles"
+        }
+      ]
+    },
+    {
+      "id": "chancerycourt-9-3",
+      "section": "District 9",
+      "districtId": "judicial",
+      "type": "candidate",
+      "title": "Chancery Court Judge Position 3",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "chancery-3-1",
+          "name": "Vicki Roach Barnes"
+        }
+      ]
+    },
+    {
+      "id": "circuit-9-1",
+      "section": "District 9",
+      "districtId": "judicial",
+      "type": "candidate",
+      "title": "Circuit Court Judge Position 1",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "circuit-1-1",
+          "name": "Toni Walker"
+        }
+      ]
+    },
+    {
+      "id": "circuit-9-2",
+      "section": "District 9",
+      "districtId": "judicial",
+      "type": "candidate",
+      "title": "Circuit Court Judge Position 2",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "circuit-2-1",
+          "name": "M. James (Jim) Chaney, Jr."
+        }
+      ]
+    },
+    {
+      "id": "warren-judge",
+      "section": "Warren County",
+      "districtId": "county",
+      "type": "candidate",
+      "title": "County Judge",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "warren-judge-1",
+          "name": "Foo Bar One"
+        },
+        {
+          "id": "warren-judge-2",
+          "name": "Foo Bar Two"
+        },
+        {
+          "id": "warren-judge-3",
+          "name": "Foo Bar Three"
+        },
+        {
+          "id": "warren-judge-4",
+          "name": "Foo Bar Four"
+        },
+        {
+          "id": "warren-judge-5",
+          "name": "Foo Bar Five"
+        }
+      ]
+    },
+    {
+      "id": "warren-school-board-1",
+      "section": "Warren County",
+      "districtId": "school-board-district-1",
+      "type": "candidate",
+      "title": "School Board Position 1",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "warren-school-board-1-1",
+          "name": "Foo Bar One"
+        },
+        {
+          "id": "warren-school-board-1-2",
+          "name": "Foo Bar Two"
+        },
+        {
+          "id": "warren-school-board-1-3",
+          "name": "Foo Bar Three"
+        },
+        {
+          "id": "warren-school-board-1-4",
+          "name": "Foo Bar Four"
+        },
+        {
+          "id": "warren-school-board-1-5",
+          "name": "Foo Bar Five"
+        }
+      ]
+    },
+    {
+      "id": "warren-school-board-2",
+      "section": "Warren County",
+      "districtId": "school-board-district-2",
+      "type": "candidate",
+      "title": "School Board Position 2",
+      "seats": 1,
+      "allowWriteIns": true,
+      "candidates": [
+        {
+          "id": "warren-school-board-2-1",
+          "name": "Foo Bar One"
+        },
+        {
+          "id": "warren-school-board-2-2",
+          "name": "Foo Bar Two"
+        },
+        {
+          "id": "warren-school-board-2-3",
+          "name": "Foo Bar Three"
+        },
+        {
+          "id": "warren-school-board-2-4",
+          "name": "Foo Bar Four"
+        },
+        {
+          "id": "warren-school-board-2-5",
+          "name": "Foo Bar Five"
+        }
+      ]
+    }
+  ],
+  "districts": [
+    {
+      "id": "county",
+      "name": "Warren County"
+    },
+    {
+      "id": "judicial",
+      "name": "District 9"
+    },
+    {
+      "id": "school-board-district-1",
+      "name": "School Board District 1"
+    },
+    {
+      "id": "school-board-district-2",
+      "name": "School Board District 2"
+    },
+    {
+      "id": "congress",
+      "name": "District 2"
+    }
+  ],
+  "precincts": [
+    {
+      "id": "1",
+      "name": "Demo Precinct One"
+    },
+    {
+      "id": "2",
+      "name": "Demo Precinct Two"
+    }
+  ],
+  "ballotStyles": [
+    {
+      "id": "1",
+      "precincts": ["1", "2"],
+      "districts": ["county", "judicial", "congress", "school-board-district-1"]
+    },
+    {
+      "id": "2",
+      "precincts": ["1", "2"],
+      "districts": ["county", "judicial", "congress", "school-board-district-2"]
+    }
+  ],
+  "sealURL": "/seals/Seal_of_Mississippi_BW.svg",
+  "ballotStrings": {
+    "officialInitials": "Initialing Manager"
+  },
+  "centralScanAdjudicationReasons": [
+    "UninterpretableBallot",
+    "Overvote",
+    "BlankBallot"
+  ],
+  "precinctScanAdjudicationReasons": [
+    "UninterpretableBallot",
+    "Overvote",
+    "BlankBallot",
+    "Undervote"
+  ],
+  "markThresholds": {
+    "definite": 0.12,
+    "marginal": 0.12
+  }
+}
