@@ -12,7 +12,7 @@ export async function authenticateAdminCard(): Promise<void> {
   userEvent.click(screen.getByText('4'));
   userEvent.click(screen.getByText('5'));
   userEvent.click(screen.getByText('6'));
-  await screen.findByText('Administrator Settings');
+  await screen.findByText('Election Manager Settings');
 }
 
 export function scannerStatus(

@@ -98,7 +98,7 @@ test('services/scan fails to unconfigure', async () => {
   fireEvent.click(screen.getByText('4'));
   fireEvent.click(screen.getByText('5'));
   fireEvent.click(screen.getByText('6'));
-  await screen.findByText('Administrator Settings');
+  await screen.findByText('Election Manager Settings');
 
   fireEvent.click(await screen.findByText('Unconfigure Machine'));
   fireEvent.click(await screen.findByText('Unconfigure'));

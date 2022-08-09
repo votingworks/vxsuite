@@ -602,7 +602,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
   );
   card.insertCard(electionManagerCard, electionSampleDefinition.electionData);
   await authenticateAdminCard();
-  await screen.findByText('Administrator Settings');
+  await screen.findByText('Election Manager Settings');
   fireEvent.click(await screen.findByText('Export Results to USB Drive'));
   await screen.findByText('No USB Drive Detected');
   fireEvent.click(await screen.findByText('Cancel'));
