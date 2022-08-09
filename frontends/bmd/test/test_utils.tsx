@@ -100,7 +100,7 @@ export function render(
   };
 }
 
-export async function authenticateAdminCard(): Promise<void> {
+export async function enterPin(): Promise<void> {
   jest.advanceTimersByTime(CARD_POLLING_INTERVAL);
   await screen.findByText('Enter the card security code to unlock.');
   userEvent.click(screen.getByText('1'));

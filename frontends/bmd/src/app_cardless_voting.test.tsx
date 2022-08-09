@@ -25,7 +25,7 @@ import { advanceTimersAndPromises } from '../test/helpers/smartcards';
 import { fakePrinter } from '../test/helpers/fake_printer';
 import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
 import { MarkAndPrint } from './config/types';
-import { authenticateAdminCard } from '../test/test_utils';
+import { enterPin } from '../test/test_utils';
 
 beforeEach(() => {
   jest.useFakeTimers();
@@ -69,7 +69,7 @@ test('Cardless Voting Flow', async () => {
 
   // Configure with Election Manager Card
   card.insertCard(electionManagerCard, electionData);
-  await authenticateAdminCard();
+  await enterPin();
   fireEvent.click(screen.getByText('Load Election Definition'));
 
   await advanceTimersAndPromises();
@@ -324,7 +324,7 @@ test('poll worker must select a precinct first', async () => {
 
   // Configure with Election Manager Card
   card.insertCard(electionManagerCard, electionData);
-  await authenticateAdminCard();
+  await enterPin();
   fireEvent.click(screen.getByText('Load Election Definition'));
 
   await advanceTimersAndPromises();

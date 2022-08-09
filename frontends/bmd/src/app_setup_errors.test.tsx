@@ -21,7 +21,7 @@ import {
 import { withMarkup } from '../test/helpers/with_markup';
 import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
 import { PrintOnly } from './config/types';
-import { authenticateAdminCard } from '../test/test_utils';
+import { enterPin } from '../test/test_utils';
 
 beforeEach(() => {
   jest.useFakeTimers();
@@ -238,7 +238,7 @@ describe('Displays setup warning messages and errors screens', () => {
 
     // Insert election manager card
     card.insertCard(electionManagerCard, electionSampleDefinition.electionData);
-    await authenticateAdminCard();
+    await enterPin();
 
     // expect to see election manager screen
     screen.getByText('Election Manager Actions');

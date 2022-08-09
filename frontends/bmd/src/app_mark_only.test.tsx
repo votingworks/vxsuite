@@ -23,7 +23,7 @@ import {
   voterContests,
 } from '../test/helpers/election';
 import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
-import { authenticateAdminCard } from '../test/test_utils';
+import { enterPin } from '../test/test_utils';
 
 jest.setTimeout(10_000);
 
@@ -64,7 +64,7 @@ it('MarkOnly flow', async () => {
 
   // Configure election with Election Manager Card
   card.insertCard(electionManagerCard, electionDefinition.electionData);
-  await authenticateAdminCard();
+  await enterPin();
   fireEvent.click(screen.getByText('Load Election Definition'));
 
   await advanceTimersAndPromises();
@@ -79,7 +79,7 @@ it('MarkOnly flow', async () => {
 
   // Configure election with Election Manager Card
   card.insertCard(electionManagerCard, electionDefinition.electionData);
-  await authenticateAdminCard();
+  await enterPin();
   screen.getByLabelText('Precinct');
 
   // select precinct
@@ -212,7 +212,7 @@ it('MarkOnly flow', async () => {
 
   // Unconfigure with Election Manager Card
   card.insertCard(electionManagerCard, electionDefinition.electionData);
-  await authenticateAdminCard();
+  await enterPin();
   screen.getByText('Election Definition is loaded.');
   fireEvent.click(screen.getByText('Unconfigure Machine'));
   await advanceTimersAndPromises();
