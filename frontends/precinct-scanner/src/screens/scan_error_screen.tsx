@@ -35,6 +35,7 @@ export function ScanErrorScreen({ error, isTestMode }: Props): JSX.Element {
       case 'paper_in_back_on_startup':
       case 'paper_in_back_after_accept':
         return 'Take your ballot out of the tray and try again.';
+      case 'scanning_timed_out':
       case 'unexpected_paper_status':
       case 'unexpected_event':
       case 'plustek_error':

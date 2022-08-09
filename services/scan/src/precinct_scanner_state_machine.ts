@@ -9,7 +9,7 @@ import {
 import { v4 as uuid } from 'uuid';
 import { err, Id, ok, Result } from '@votingworks/types';
 import { assert, throwIllegalValue } from '@votingworks/utils';
-import { retry, switchMap, timer } from 'rxjs';
+import { switchMap, timeout, timer } from 'rxjs';
 import {
   assign as xassign,
   Assigner,
@@ -30,11 +30,13 @@ import { SheetOf } from './types';
 import { Store } from './store';
 
 const PAPER_STATUS_POLLING_INTERVAL = 500;
+const PAPER_STATUS_POLLING_TIMEOUT = 5_000;
 
 // 10 attempts is about the amount of time it takes for Plustek to stop trying
 // to grab the paper. Up until that point, if you reposition the paper so the
 // rollers grab it, it will get scanned successfully.
 const MAX_FAILED_SCAN_ATTEMPTS = 10;
+const SCAN_TIMEOUT = 10_000;
 
 export type CreatePlustekClient = typeof createClient;
 
@@ -174,8 +176,7 @@ function paperStatusObserver({ client }: Context) {
         ? paperStatusToEvent(paperStatus.ok())
         : paperStatusErrorToEvent(paperStatus.err());
     }),
-    // Try to ignore blips of bad paper statuses
-    retry({ count: 3, delay: PAPER_STATUS_POLLING_INTERVAL })
+    timeout(PAPER_STATUS_POLLING_TIMEOUT)
   );
 }
 
@@ -422,6 +423,14 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
                 onError: {
                   target: 'error_scanning',
                   actions: assign((_context, event) => ({ error: event.data })),
+                },
+              },
+              after: {
+                DELAY_SCAN_TIMEOUT: {
+                  target: '#error',
+                  actions: assign({
+                    error: new PrecinctScannerError('scanning_timed_out'),
+                  }),
                 },
               },
             },
@@ -739,21 +748,24 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
         // how long to wait before trying to reconnect. This should be pretty
         // long in order to let Plustek finish whatever it's doing (yes, even
         // after disconnecting, Plustek might keep scanning).
-        DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 5000,
+        DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 5_000,
+        // How long to attempt scanning before giving up and disconnecting and
+        // reconnecting to Plustek.
+        DELAY_SCAN_TIMEOUT: SCAN_TIMEOUT,
         // When in accepted state, how long to ignore any new ballot that is
         // inserted (this ensures the user sees the accepted screen for a bit
         // before starting a new scan).
-        DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 2000,
+        DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 2_000,
         // How long to wait on the accepted state before automatically going
         // back to no_paper.
-        DELAY_ACCEPTED_RESET_TO_NO_PAPER: 5000,
+        DELAY_ACCEPTED_RESET_TO_NO_PAPER: 5_000,
         // How long to wait for Plustek to grab the paper and return paper
         // status READY_TO_SCAN after rejecting. Needs to be greater than
         // PAPER_STATUS_POLLING_INTERVAL otherwise we'll never have a chance to
         // see the READY_TO_SCAN status. Experimentally, 1000ms seems to be a
         // good amount. Don't change this delay lightly since it impacts the
         // actual logic of the scanner.
-        DELAY_WAIT_FOR_HOLD_AFTER_REJECT: 1000,
+        DELAY_WAIT_FOR_HOLD_AFTER_REJECT: 1_000,
       },
     }
   );
