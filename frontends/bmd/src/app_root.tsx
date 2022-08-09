@@ -434,7 +434,8 @@ export function AppRoot({
     return () => {
       clearTimeout(PostVotingInstructionsTimeout.current);
     };
-  }, [showPostVotingInstructions, hidePostVotingInstructions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showPostVotingInstructions]);
 
   const unconfigure = useCallback(async () => {
     await storage.clear();
