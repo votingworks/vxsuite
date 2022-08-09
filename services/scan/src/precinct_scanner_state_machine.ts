@@ -35,8 +35,7 @@ const PAPER_STATUS_POLLING_TIMEOUT = 5_000;
 // 10 attempts is about the amount of time it takes for Plustek to stop trying
 // to grab the paper. Up until that point, if you reposition the paper so the
 // rollers grab it, it will get scanned successfully.
-const MAX_FAILED_SCAN_ATTEMPTS = 10;
-const SCAN_TIMEOUT = 10_000;
+export const MAX_FAILED_SCAN_ATTEMPTS = 10;
 
 export type CreatePlustekClient = typeof createClient;
 
@@ -97,10 +96,12 @@ export type Event =
   | ConfigurationEvent
   | { type: 'SET_INTERPRETATION_MODE'; mode: InterpretationMode };
 
-interface Delays {
+export interface Delays {
   DELAY_RECONNECT: number;
+  DELAY_RECONNECT_ON_UNEXPECTED_ERROR: number;
   DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: number;
   DELAY_ACCEPTED_RESET_TO_NO_PAPER: number;
+  DELAY_SCANNING_TIMEOUT: number;
 }
 
 function connectToPlustek(createPlustekClient: CreatePlustekClient) {
@@ -412,6 +413,7 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
           initial: 'starting_scan',
           states: {
             starting_scan: {
+              entry: [clearError, clearLastScan],
               invoke: {
                 src: scan,
                 onDone: {
@@ -426,7 +428,7 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
                 },
               },
               after: {
-                DELAY_SCAN_TIMEOUT: {
+                DELAY_SCANNING_TIMEOUT: {
                   target: '#error',
                   actions: assign({
                     error: new PrecinctScannerError('scanning_timed_out'),
@@ -751,7 +753,7 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
         DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 5_000,
         // How long to attempt scanning before giving up and disconnecting and
         // reconnecting to Plustek.
-        DELAY_SCAN_TIMEOUT: SCAN_TIMEOUT,
+        DELAY_SCANNING_TIMEOUT: 10_000,
         // When in accepted state, how long to ignore any new ballot that is
         // inserted (this ensures the user sees the accepted screen for a bit
         // before starting a new scan).
@@ -903,7 +905,10 @@ export function createPrecinctScannerStateMachine(
       return {
         state: scannerState,
         interpretation: interpretationResult,
-        error: error && errorToString(error),
+        error:
+          ['rejecting', 'rejected', 'error'].includes(scannerState) && error
+            ? errorToString(error)
+            : undefined,
       };
     },
 

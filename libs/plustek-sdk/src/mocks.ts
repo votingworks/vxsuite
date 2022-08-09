@@ -8,6 +8,7 @@ import {
   PropertyAssigner,
   interpret,
 } from 'xstate';
+import { send } from 'xstate/lib/actions';
 import { waitFor } from 'xstate/lib/waitFor';
 import { ScannerError } from './errors';
 import { PaperStatus } from './paper_status';
@@ -46,7 +47,9 @@ type Event =
   | { type: 'ACCEPT' }
   | { type: 'REJECT'; hold: boolean }
   | { type: 'CALIBRATE' }
-  | { type: 'JAM_ON_NEXT_OPERATION' };
+  | { type: 'ERROR_FEEDING' }
+  | { type: 'JAM_ON_NEXT_OPERATION' }
+  | { type: 'CHECK_JAM_FLAG' };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function assign(arg: Assigner<Context, any> | PropertyAssigner<Context, any>) {
@@ -68,6 +71,10 @@ const mockPlustekMachine = createMachine<Context, Event>({
     CRASH: 'crashed',
     JAM_ON_NEXT_OPERATION: {
       actions: assign({ jamOnNextOperation: true }),
+    },
+    CHECK_JAM_FLAG: {
+      target: 'jam',
+      cond: (context) => context.jamOnNextOperation,
     },
   },
   states: {
@@ -102,26 +109,25 @@ const mockPlustekMachine = createMachine<Context, Event>({
       },
     },
     scanning: {
-      always: {
-        target: 'jam',
-        cond: (context) => context.jamOnNextOperation,
-      },
+      entry: send('CHECK_JAM_FLAG'),
       after: { SCANNING_DELAY: 'ready_to_eject' },
-      on: { LOAD_SHEET: 'both_sides_have_paper' },
+      on: {
+        ERROR_FEEDING: 'ready_to_scan',
+        LOAD_SHEET: 'both_sides_have_paper',
+      },
     },
     ready_to_eject: {
       on: {
         ACCEPT: [
-          {
-            target: 'accepting',
-            cond: (context) => !context.jamOnNextOperation,
-          },
           // Weird case: paper jams when accepting a paper from ready_to_eject
           // will result in going back to the ready_to_eject state
           {
-            target: 'ready_to_eject',
             cond: (context) => context.jamOnNextOperation,
+            target: 'ready_to_eject',
             actions: assign({ jamOnNextOperation: false }),
+          },
+          {
+            target: 'accepting',
           },
         ],
         REJECT: {
@@ -134,10 +140,7 @@ const mockPlustekMachine = createMachine<Context, Event>({
       },
     },
     accepting: {
-      always: {
-        target: 'jam',
-        cond: (context) => context.jamOnNextOperation,
-      },
+      entry: send('CHECK_JAM_FLAG'),
       after: { ACCEPTING_DELAY: 'no_paper' },
       // Weird case: If you put in a second paper while accepting, it will accept the
       // first paper and return ready_to_scan paper status (but fail the accept
@@ -145,10 +148,7 @@ const mockPlustekMachine = createMachine<Context, Event>({
       on: { LOAD_SHEET: 'ready_to_scan' },
     },
     rejecting: {
-      always: {
-        target: 'jam',
-        cond: (context) => context.jamOnNextOperation,
-      },
+      entry: send('CHECK_JAM_FLAG'),
       after: {
         REJECTING_DELAY: [
           {
@@ -340,6 +340,14 @@ export class MockScannerClient implements ScannerClient {
   }
 
   /**
+   * Run during a scan operation to simulate an error pulling the paper into the scanner.
+   */
+  simulateErrorFeeding(): void {
+    debug('simulating error feeding');
+    this.machine.send({ type: 'ERROR_FEEDING' });
+  }
+
+  /**
    * Simulates an unresponsive scanner, i.e. the once-connected scanner had its
    * cable removed or power turned off. Once a scanner is unresponsive it cannot
    * become responsive again, and a new client/connection must be established.
@@ -483,6 +491,14 @@ export class MockScannerClient implements ScannerClient {
         if ((this.machine.state.value as string) === 'jam') {
           debug('scan failed, jam');
           return err(ScannerError.PaperStatusJam);
+        }
+        if ((this.machine.state.value as string) === 'ready_to_scan') {
+          debug('scan failed, error feeding');
+          return err(
+            Math.random() > 0.5
+              ? ScannerError.PaperStatusErrorFeeding
+              : ScannerError.PaperStatusNoPaper
+          );
         }
         if ((this.machine.state.value as string) === 'both_sides_have_paper') {
           debug('scan failed, both sides have paper');

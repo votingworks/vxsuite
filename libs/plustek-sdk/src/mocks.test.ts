@@ -391,6 +391,26 @@ test('paper jam', async () => {
   expectNoPaper((await mock.getPaperStatus()).ok());
 });
 
+test('scanning error feeding', async () => {
+  const mock = new MockScannerClient({
+    toggleHoldDuration: 0,
+    passthroughDuration: 0,
+  });
+  await mock.connect();
+
+  (await mock.simulateLoadSheet(files)).unsafeUnwrap();
+  const scanResult = mock.scan();
+  mock.simulateErrorFeeding();
+  expect([
+    ScannerError.PaperStatusErrorFeeding,
+    ScannerError.PaperStatusNoPaper,
+  ]).toContain((await scanResult).err());
+
+  expect((await mock.getPaperStatus()).ok()).toEqual(
+    PaperStatus.VtmReadyToScan
+  );
+});
+
 test('close', async () => {
   const mock = new MockScannerClient({
     toggleHoldDuration: 0,

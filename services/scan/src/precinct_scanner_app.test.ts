@@ -18,7 +18,11 @@ import waitForExpect from 'wait-for-expect';
 import { Scan } from '@votingworks/api';
 import { join } from 'path';
 import { buildPrecinctScannerApp } from './precinct_scanner_app';
-import { createPrecinctScannerStateMachine } from './precinct_scanner_state_machine';
+import {
+  createPrecinctScannerStateMachine,
+  Delays,
+  MAX_FAILED_SCAN_ATTEMPTS,
+} from './precinct_scanner_state_machine';
 import { createWorkspace } from './util/workspace';
 
 jest.setTimeout(15_000);
@@ -131,7 +135,13 @@ async function waitForStatus(
   });
 }
 
-async function createApp() {
+async function createApp(
+  delays: Partial<Delays> = {
+    DELAY_RECONNECT: 100,
+    DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 500,
+    DELAY_ACCEPTED_RESET_TO_NO_PAPER: 1000,
+  }
+) {
   const workspace = await createWorkspace(dirSync().name);
   const mockPlustek = new MockScannerClient({
     toggleHoldDuration: 100,
@@ -143,11 +153,7 @@ async function createApp() {
   }
   const precinctScannerMachine = createPrecinctScannerStateMachine(
     createPlustekClient,
-    {
-      DELAY_RECONNECT: 100,
-      DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 500,
-      DELAY_ACCEPTED_RESET_TO_NO_PAPER: 1000,
-    }
+    delays
   );
   const app = buildPrecinctScannerApp(precinctScannerMachine, workspace);
   return { app, mockPlustek };
@@ -711,7 +717,7 @@ test('jam on scan', async () => {
 
   mockPlustek.simulateJamOnNextOperation();
   await post(app, '/scanner/scan');
-  await waitForStatus(app, { state: 'jammed', error: 'plustek_error' });
+  await waitForStatus(app, { state: 'jammed', error: 'scanning_failed' });
 
   await mockPlustek.simulateRemoveSheet();
   await waitForStatus(app, { state: 'no_paper' });
@@ -782,12 +788,17 @@ test('jam on reject', async () => {
   await mockPlustek.simulateLoadSheet(ballotImages.wrongElection);
   await waitForStatus(app, { state: 'ready_to_scan' });
 
+  const interpretation: Scan.SheetInterpretation = {
+    type: 'InvalidSheet',
+    reason: 'invalid_election_hash',
+  };
+
   await post(app, '/scanner/scan');
   await expectStatus(app, { state: 'scanning' });
   mockPlustek.simulateJamOnNextOperation();
   await waitForStatus(app, {
     state: 'jammed',
-    error: 'plustek_error',
+    interpretation,
   });
 
   await mockPlustek.simulateRemoveSheet();
@@ -825,3 +836,58 @@ test('jam on calibrate', async () => {
     });
   await expectStatus(app, { state: 'jammed', error: 'plustek_error' });
 });
+
+test('scan fails and retries', async () => {
+  const { app, mockPlustek } = await createApp();
+  await configureApp(app);
+
+  await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
+  await waitForStatus(app, { state: 'ready_to_scan' });
+
+  const interpretation: Scan.SheetInterpretation = {
+    type: 'ValidSheet',
+  };
+
+  await post(app, '/scanner/scan');
+  await expectStatus(app, { state: 'scanning' });
+  mockPlustek.simulateErrorFeeding();
+  await expectStatus(app, { state: 'scanning' });
+  await waitForStatus(app, { state: 'ready_to_accept', interpretation });
+});
+
+test('scan fails repeatedly and eventually gives up', async () => {
+  const { app, mockPlustek } = await createApp();
+  await configureApp(app);
+
+  await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
+  await waitForStatus(app, { state: 'ready_to_scan' });
+
+  const scanSpy = jest.spyOn(mockPlustek, 'scan');
+  await post(app, '/scanner/scan');
+  for (let i = 0; i < MAX_FAILED_SCAN_ATTEMPTS; i += 1) {
+    await waitForExpect(() => {
+      expect(scanSpy).toHaveBeenCalledTimes(i + 1);
+    });
+    await expectStatus(app, { state: 'scanning' });
+    mockPlustek.simulateErrorFeeding();
+  }
+  await waitForStatus(app, { state: 'rejected', error: 'scanning_failed' });
+});
+
+test('scanning time out', async () => {
+  const { app, mockPlustek } = await createApp({
+    DELAY_SCANNING_TIMEOUT: 50,
+    DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 500,
+  });
+  await configureApp(app);
+
+  await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
+  await waitForStatus(app, { state: 'ready_to_scan' });
+
+  await post(app, '/scanner/scan');
+  await expectStatus(app, { state: 'scanning' });
+  await waitForStatus(app, { state: 'error', error: 'scanning_timed_out' });
+  await waitForStatus(app, { state: 'no_paper' });
+});
+
+// test('paper status time out', async () => {});
