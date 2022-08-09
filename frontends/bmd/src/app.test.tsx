@@ -132,6 +132,7 @@ it('uses window.location.reload by default', async () => {
   await setElectionInStorage(storage, electionDefinition);
   await setStateInStorage(storage, {
     appPrecinct: { kind: PrecinctSelectionKind.AllPrecincts },
+    isPollsOpen: false,
   });
 
   render(

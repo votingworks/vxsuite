@@ -15,6 +15,7 @@ import {
   Button,
   ButtonList,
   Devices,
+  fontSizeTheme,
   HorizontalRule,
   Loading,
   Main,
@@ -397,6 +398,10 @@ export function PollWorkerScreen({
   const isMarkAndPrintMode =
     machineConfig.appMode.isPrint && machineConfig.appMode.isMark;
 
+  const canSelectBallotStyle = isMarkAndPrintMode && isPollsOpen;
+  const [isHidingSelectBallotStyle, setIsHidingSelectBallotStyle] =
+    useState(false);
+
   function confirmEnableLiveMode() {
     enableLiveMode();
     setIsConfirmingEnableLiveMode(false);
@@ -499,14 +504,20 @@ export function PollWorkerScreen({
     <React.Fragment>
       <Screen navLeft>
         <Main padded>
-          {isMarkAndPrintMode && isPollsOpen && (
-            <React.Fragment>
-              <Prose>
-                <h1>Activate Voter Session</h1>
-              </Prose>
+          <Prose theme={fontSizeTheme.medium} compact>
+            <p>
+              <strong>Polls:</strong> {isPollsOpen ? 'Open' : 'Closed'}
+            </p>
+            <p>
+              <strong>Mode:</strong> {isLiveMode ? 'Live Election' : 'Testing'}
+            </p>
+          </Prose>
+          <br />
+          {canSelectBallotStyle && !isHidingSelectBallotStyle ? (
+            <Prose compact>
               {appPrecinct.kind === PrecinctSelectionKind.AllPrecincts && (
                 <React.Fragment>
-                  <h3>Choose Precinct</h3>
+                  <h1>Select Precinct</h1>
                   <ButtonList data-testid="precincts">
                     {election.precincts.map((precinct) => (
                       <Button
@@ -528,7 +539,7 @@ export function PollWorkerScreen({
               )}
               {selectedCardlessVoterPrecinctId && (
                 <React.Fragment>
-                  <h3>Choose Ballot Style</h3>
+                  <h1>Select Ballot Style</h1>
                   <ButtonList data-testid="ballot-styles">
                     {precinctBallotStyles.map((ballotStyle) => (
                       <Button
@@ -548,48 +559,37 @@ export function PollWorkerScreen({
                   </ButtonList>
                 </React.Fragment>
               )}
-            </React.Fragment>
-          )}
-          <Prose>
-            <h1>Open/Close Polls</h1>
-            <Text warningIcon={!isPollsOpen} voteIcon={isPollsOpen}>
-              {isPollsOpen
-                ? 'Polls are currently open.'
-                : 'Polls are currently closed.'}{' '}
-              {isLiveMode ? (
-                <React.Fragment>
-                  Machine is in Live&nbsp;Election&nbsp;Mode.
-                </React.Fragment>
-              ) : (
-                <React.Fragment>
-                  Machine is in Testing&nbsp;Mode.
-                </React.Fragment>
-              )}
-            </Text>
-            <p>
-              <Button
-                primary
-                large
-                onPress={() => setIsShowingVxScanPollsOpenModal(true)}
-              >
-                {isPollsOpen
-                  ? `Close Polls for ${precinctName}`
-                  : `Open Polls for ${precinctName}`}
+              <h2>Other Actions</h2>
+              <Button onPress={() => setIsHidingSelectBallotStyle(true)}>
+                View Other Actions
               </Button>
-            </p>
-
-            <h1>Advanced</h1>
-            <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
-              System Diagnostics
-            </Button>
-            <p>
-              <Button onPress={reload}>Reset Accessible Controller</Button>
-            </p>
-          </Prose>
+            </Prose>
+          ) : (
+            <Prose>
+              <p>
+                <Button onPress={() => setIsShowingVxScanPollsOpenModal(true)}>
+                  {isPollsOpen
+                    ? `Close Polls for ${precinctName}`
+                    : `Open Polls for ${precinctName}`}
+                </Button>
+              </p>
+              <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
+                System Diagnostics
+              </Button>
+              <p>
+                <Button onPress={reload}>Reset Accessible Controller</Button>
+              </p>
+            </Prose>
+          )}
         </Main>
         <Sidebar {...sidebarProps}>
           <Prose>
             <Text center>Remove card when finished.</Text>
+            {canSelectBallotStyle && isHidingSelectBallotStyle && (
+              <Button onPress={() => setIsHidingSelectBallotStyle(false)} small>
+                Back to Ballot Style Selection
+              </Button>
+            )}
           </Prose>
           <Prose>
             <br />

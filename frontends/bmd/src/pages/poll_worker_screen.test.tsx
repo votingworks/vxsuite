@@ -35,10 +35,16 @@ import {
   Inserted,
   fakePollWorkerUser,
   fakeCardStorage,
+  hasTextAcrossElements,
 } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 
-import { PrecinctSelectionKind, MarkOnly, PrintOnly } from '../config/types';
+import {
+  PrecinctSelectionKind,
+  MarkOnly,
+  PrintOnly,
+  MarkAndPrint,
+} from '../config/types';
 
 import { render } from '../../test/test_utils';
 
@@ -167,7 +173,7 @@ async function printPollsClosedReport() {
 
 test('renders PollWorkerScreen', () => {
   renderScreen();
-  screen.getByText(/Polls are currently open./);
+  screen.getByText('Poll Worker Actions');
   screen.getByText('Ballots Printed:');
 });
 
@@ -1243,7 +1249,7 @@ test('navigates to System Diagnostics screen', () => {
   screen.getByRole('heading', { name: 'System Diagnostics' });
 
   userEvent.click(screen.getByRole('button', { name: 'Back' }));
-  screen.getByRole('heading', { name: 'Open/Close Polls' });
+  screen.getByText(hasTextAcrossElements('Polls: Open'));
 
   // Explicitly unmount before the printer status has resolved to verify that
   // we properly cancel the request for printer status.
@@ -1301,7 +1307,7 @@ test('printing polls opened report clears card and opens the polls', async () =>
   });
 
   // confirm we start with polls closed
-  await screen.findByText(/Polls are currently closed./);
+  await screen.findByText(hasTextAcrossElements('Polls: Closed'));
 
   // print report and open polls
   screen.getByText('Polls Opened Report on Card');
@@ -1360,7 +1366,7 @@ test('printing polls closed report clears card and closes the polls', async () =
   });
 
   // confirm we start with polls open
-  await screen.findByText(/Polls are currently open./);
+  await screen.findByText(hasTextAcrossElements('Polls: Open'));
 
   // print report and close polls
   screen.getByText('Polls Closed Report on Card');
@@ -1383,4 +1389,22 @@ test('printing polls closed report clears card and closes the polls', async () =
 
   // check that polls were closed
   expect(togglePollsOpen).toHaveBeenCalledTimes(1);
+});
+
+test('can toggle between vote activation and "other actions" during polls open', async () => {
+  renderScreen({
+    isPollsOpen: true,
+    machineConfig: fakeMachineConfig({ appMode: MarkAndPrint }),
+  });
+
+  // confirm we start with polls open
+  await screen.findByText(hasTextAcrossElements('Select Ballot Style'));
+
+  // switch to other actions pane
+  userEvent.click(screen.getByText('View Other Actions'));
+  screen.getByText('System Diagnostics');
+
+  // switch back
+  userEvent.click(screen.getByText('Back to Ballot Style Selection'));
+  screen.getByText('Select Ballot Style');
 });
