@@ -10,6 +10,7 @@ import {
   electionSampleDefinition,
   electionWithMsEitherNeitherDefinition,
 } from '@votingworks/fixtures';
+import { fakeLogger } from '@votingworks/logging';
 import {
   advanceTimersAndPromises,
   fakeKiosk,
@@ -20,9 +21,17 @@ import {
 } from '@votingworks/test-utils';
 import { Scan } from '@votingworks/api';
 import fetchMock from 'fetch-mock';
-import { MemoryCard, MemoryStorage, MemoryHardware } from '@votingworks/utils';
+import {
+  MemoryCard,
+  MemoryStorage,
+  MemoryHardware,
+  deferred,
+} from '@votingworks/utils';
+
+import userEvent from '@testing-library/user-event';
 import { App } from './app';
 import { MachineConfigResponse } from './config/types';
+import { authenticateAdminCard, scannerStatus } from '../test/helpers/helpers';
 
 const getMachineConfigBody: MachineConfigResponse = {
   machineId: '0002',
@@ -298,4 +307,87 @@ test('App shows warning message to connect to power when disconnected', async ()
   });
   await advanceTimersAndPromises(3);
   await screen.findByText('No Power Detected.');
+});
+
+test('removing card during calibration', async () => {
+  const logger = fakeLogger();
+  const card = new MemoryCard();
+  const hardware = MemoryHardware.buildStandard();
+  const storage = new MemoryStorage();
+  const kiosk = fakeKiosk();
+  kiosk.getUsbDrives = jest.fn().mockResolvedValue([fakeUsbDrive()]);
+  window.kiosk = kiosk;
+  fetchMock
+    .get('/machine-config', { body: getMachineConfigBody })
+    .get('/config/election', { body: electionSampleDefinition })
+    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
+    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/scanner/status', { body: statusNoPaper })
+    .post('/scan/export', {});
+  render(
+    <App card={card} hardware={hardware} storage={storage} logger={logger} />
+  );
+
+  // Open Polls
+  const pollWorkerCard = makePollWorkerCard(
+    electionSampleDefinition.electionHash
+  );
+  card.insertCard(pollWorkerCard);
+  userEvent.click(
+    await screen.findByRole('button', { name: 'Yes, Open the Polls' })
+  );
+  await screen.findByText('Polls are open.');
+  card.removeCard();
+  await screen.findByText('Insert Your Ballot Below');
+
+  // Start calibrating
+  const electionManagerCard = makeElectionManagerCard(
+    electionSampleDefinition.electionHash
+  );
+  card.insertCard(electionManagerCard, electionSampleDefinition.electionData);
+  await authenticateAdminCard();
+
+  const { promise, resolve } = deferred();
+  fetchMock.post('/scanner/calibrate', promise);
+  userEvent.click(
+    await screen.findByRole('button', { name: 'Calibrate Scanner' })
+  );
+  await screen.findByText('Waiting for Paper');
+  fetchMock.getOnce(
+    '/scanner/status',
+    { body: scannerStatus({ state: 'ready_to_scan' }) },
+    { overwriteRoutes: true }
+  );
+  userEvent.click(await screen.findByRole('button', { name: 'Calibrate' }));
+  expect(fetchMock.calls('/scanner/calibrate')).toHaveLength(1);
+  await screen.findByText(/Calibrating/);
+
+  fetchMock.get(
+    '/scanner/status',
+    { body: scannerStatus({ state: 'calibrating' }) },
+    { overwriteRoutes: true }
+  );
+  // Wait for status to update to calibrating (no way to tell on screen)
+  const statusCallCount = fetchMock.calls('/scanner/status').length;
+  await waitFor(() =>
+    expect(fetchMock.calls('/scanner/status').length).toBeGreaterThan(
+      statusCallCount
+    )
+  );
+
+  // Removing card shouldn't crash the app - for now we just show a blank screen
+  card.removeCard();
+  await waitFor(() => {
+    expect(screen.queryByText(/Calibrating/)).not.toBeInTheDocument();
+  });
+
+  fetchMock.get(
+    '/scanner/status',
+    { body: statusNoPaper },
+    { overwriteRoutes: true }
+  );
+  resolve({ body: { status: 'ok' } });
+  await screen.findByText('Insert Your Ballot Below');
+
+  expect(fetchMock.done()).toBe(true);
 });

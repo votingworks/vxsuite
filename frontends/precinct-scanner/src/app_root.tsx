@@ -491,8 +491,6 @@ export function AppRoot({
   }
 
   assert(scannerStatus.state !== 'unconfigured');
-  assert(scannerStatus.state !== 'calibrating');
-  assert(scannerStatus.state !== 'calibrated');
   const voterScreen = (() => {
     switch (scannerStatus.state) {
       case 'connecting':
@@ -556,6 +554,11 @@ export function AppRoot({
             isTestMode={isTestMode}
           />
         );
+      // If an election manager removes their card during calibration, we'll
+      // hit this case. Just show a blank screen for now, since this shouldn't
+      // really happen.
+      case 'calibrating':
+        return null;
       /* istanbul ignore next - compile time check for completeness */
       default:
         throwIllegalValue(scannerStatus.state);
