@@ -6,7 +6,7 @@
 import {
   decodeBallot,
   decodeElectionHash,
-  detect,
+  detectRawBytesBmdBallot,
   ELECTION_HASH_LENGTH,
 } from '@votingworks/ballot-encoder';
 import {
@@ -349,7 +349,7 @@ export class Interpreter {
   private interpretBMDFile({
     qrcode,
   }: BallotImageData): InterpretFileResult | undefined {
-    if (!detect(qrcode.data)) {
+    if (!detectRawBytesBmdBallot(qrcode.data)) {
       return;
     }
 

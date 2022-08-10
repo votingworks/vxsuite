@@ -31,6 +31,7 @@ import {
   toUint8,
   Uint8,
   Uint8Size,
+  Utf8Encoding,
 } from './bits';
 
 /**
@@ -90,13 +91,49 @@ export const HmpbPrelude: readonly Uint8[] = [
 /**
  * Detects whether `data` is a v1-encoded ballot.
  */
-export function detect(data: Uint8Array): boolean {
+export function detectRawBytesBmdBallot(data: Uint8Array): boolean {
   const prelude = data.slice(0, Prelude.length);
-
   return (
     prelude.length === Prelude.length &&
     prelude.every((byte, i) => byte === Prelude[i])
   );
+}
+
+/**
+ * Detect whether `data` is bmd ballot data.
+ */
+export function isBmdBallot(data: Uint8Array): boolean {
+  if (detectRawBytesBmdBallot(data)) {
+    return true;
+  }
+
+  // legacy BMD ballot with a URL
+  const dataAsString = Utf8Encoding.decode(data);
+  return dataAsString.startsWith('https://vx.vote');
+}
+
+/**
+ * Detect whether `data` is hmpb ballot metadata.
+ */
+export function isHmpbMetadata(data: Uint8Array): boolean {
+  const prelude = data.slice(0, HmpbPrelude.length);
+  if (
+    prelude.length === HmpbPrelude.length &&
+    prelude.every((byte, i) => byte === HmpbPrelude[i])
+  ) {
+    return true;
+  }
+
+  // legacy HMPB ballot metadata with a URL
+  const dataAsString = Utf8Encoding.decode(data);
+  return dataAsString.startsWith('https://ballot.page');
+}
+
+/**
+ * Detect whether `data` is a votingworks encoded ballot / metadata.
+ */
+export function isVxBallot(data: Uint8Array): boolean {
+  return isBmdBallot(data) || isHmpbMetadata(data);
 }
 
 /**

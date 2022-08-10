@@ -12,15 +12,19 @@ import {
   unsafeParse,
 } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/utils';
-import { readFile } from 'fs-extra';
+import { readFile, emptyDirSync } from 'fs-extra';
 import { join } from 'path';
 import * as choctaw2020Fixtures from '../test/fixtures/2020-choctaw';
 import * as stateOfHamiltonFixtures from '../test/fixtures/state-of-hamilton';
+import * as msDemoFixtures from '../test/fixtures/election-b0260b4e-mississippi-demo';
 import { Interpreter, sheetRequiresAdjudication } from './interpreter';
+import { createInterpreter } from './simple_interpreter';
 import { pdfToImages } from './util/pdf_to_images';
 import { detectQrcodeInFilePath } from './workers/qrcode';
 
 const sampleBallotImagesPath = join(__dirname, '..', 'sample-ballot-images/');
+const interpreterOutputPath = join(__dirname, '..', 'test-output-dir/');
+emptyDirSync(interpreterOutputPath);
 
 jest.setTimeout(10000);
 
@@ -78,6 +82,25 @@ test('extracts votes encoded in a QR code', async () => {
       },
     }
   `);
+});
+
+test('properly scans a BMD ballot with a phantom QR code on back', async () => {
+  const { electionDefinition, page1, page2 } = msDemoFixtures;
+  const interpreter = createInterpreter({
+    electionDefinition,
+    testMode: true,
+    layouts: [],
+    ballotImagesPath: interpreterOutputPath,
+  });
+
+  const interpretation = (
+    await interpreter.interpret('ballot-42', [page1, page2])
+  ).ok();
+  expect(interpretation?.pages.length).toBe(2);
+  expect(interpretation?.pages[0].interpretation.type).toBe(
+    'InterpretedBmdPage'
+  );
+  expect(interpretation?.pages[1].interpretation.type).toBe('BlankPage');
 });
 
 test('properly detects test ballot in live mode', async () => {
