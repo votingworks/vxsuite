@@ -737,7 +737,12 @@ export function AppRoot({
     );
   }
   if (auth.status === 'checking_passcode') {
-    return <UnlockAdminScreen auth={auth} />;
+    return (
+      <UnlockAdminScreen
+        areFocusOutlinesVisible={Boolean(accessibleController)}
+        auth={auth}
+      />
+    );
   }
   if (isSystemAdministratorAuth(auth)) {
     return (

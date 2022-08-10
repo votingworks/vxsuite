@@ -30,10 +30,14 @@ const EnteredCode = styled.div`
 `;
 
 interface Props {
+  areFocusOutlinesVisible?: boolean;
   auth: InsertedSmartcardAuth.CheckingPasscode;
 }
 
-export function UnlockAdminScreen({ auth }: Props): JSX.Element {
+export function UnlockAdminScreen({
+  areFocusOutlinesVisible = true,
+  auth,
+}: Props): JSX.Element {
   const [currentPasscode, setCurrentPasscode] = useState('');
   const handleNumberEntry = useCallback((digit: number) => {
     setCurrentPasscode((prev) =>
@@ -67,7 +71,9 @@ export function UnlockAdminScreen({ auth }: Props): JSX.Element {
     primarySentence = <Text warning>Invalid code. Please try again.</Text>;
   }
   return (
-    <Screen>
+    <Screen
+      className={!areFocusOutlinesVisible ? 'hide-focus-outlines' : undefined}
+    >
       <Main centerChild>
         <Prose textCenter theme={fontSizeTheme.medium} maxWidth={false}>
           {primarySentence}
