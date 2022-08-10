@@ -7,6 +7,7 @@
     "composite": true,
     "noEmit": true,
     "esModuleInterop": true,
+    "lib": ["dom", "dom.iterable", "esnext"],
     "skipLibCheck": true,
     "noUncheckedIndexedAccess": true
   },
