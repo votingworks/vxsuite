@@ -318,7 +318,7 @@ export function createInterpreter(
 
 function storeInterpretedSheet(
   store: Store,
-  sheetId: string,
+  sheetId: Id,
   interpretation: SheetInterpretation
 ): Id {
   // TODO instead of one batch per ballot, use one batch per scanning session
@@ -335,7 +335,7 @@ function storeInterpretedSheet(
  */
 export function storeAcceptedSheet(
   store: Store,
-  sheetId: string,
+  sheetId: Id,
   interpretation: SheetInterpretation
 ): void {
   storeInterpretedSheet(store, sheetId, interpretation);
@@ -353,7 +353,7 @@ export function storeAcceptedSheet(
  */
 export function storeRejectedSheet(
   store: Store,
-  sheetId: string,
+  sheetId: Id,
   interpretation: SheetInterpretation
 ): void {
   storeInterpretedSheet(store, sheetId, interpretation);
