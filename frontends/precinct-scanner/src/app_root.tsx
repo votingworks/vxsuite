@@ -57,6 +57,8 @@ import { InsertUsbScreen } from './screens/insert_usb_screen';
 import { ScanReturnedBallotScreen } from './screens/scan_returned_ballot_screen';
 import { ScanJamScreen } from './screens/scan_jam_screen';
 import { ScanBusyScreen } from './screens/scan_busy_screen';
+import { ReplaceBallotBagModal } from './components/replace_ballot_bag_modal';
+import { BALLOT_BAG_CAPACITY } from './config/globals';
 
 const debug = makeDebug('precinct-scanner:app-root');
 
@@ -88,6 +90,7 @@ interface ScannerConfigState {
 
 interface FrontendState {
   isPollsOpen: boolean;
+  ballotBagLastReplacedAt: number;
   initializedFromStorage: boolean;
 }
 
@@ -112,6 +115,7 @@ const initialScannerConfigState: Readonly<ScannerConfigState> = {
 
 const initialAppState: Readonly<FrontendState> = {
   isPollsOpen: false,
+  ballotBagLastReplacedAt: 0,
   initializedFromStorage: false,
 };
 
@@ -123,7 +127,11 @@ const initialState: Readonly<State> = {
 
 // Sets State.
 type AppAction =
-  | { type: 'initializeAppState'; isPollsOpen: boolean }
+  | {
+      type: 'initializeAppState';
+      isPollsOpen: boolean;
+      ballotBagLastReplacedAt: number;
+    }
   | { type: 'resetPollsToClosed' }
   | {
       type: 'updateElectionDefinition';
@@ -137,6 +145,7 @@ type AppAction =
     }
   | { type: 'updatePrecinctId'; precinctId?: PrecinctId }
   | { type: 'togglePollsOpen' }
+  | { type: 'ballotBagReplaced' }
   | { type: 'setMachineConfig'; machineConfig: MachineConfig };
 
 function appReducer(state: State, action: AppAction): State {
@@ -155,6 +164,7 @@ function appReducer(state: State, action: AppAction): State {
       return {
         ...state,
         isPollsOpen: action.isPollsOpen,
+        ballotBagLastReplacedAt: action.ballotBagLastReplacedAt,
         initializedFromStorage: true,
       };
     case 'updateElectionDefinition':
@@ -162,11 +172,13 @@ function appReducer(state: State, action: AppAction): State {
         ...state,
         electionDefinition: action.electionDefinition,
         isPollsOpen: false,
+        ballotBagLastReplacedAt: 0,
       };
     case 'resetPollsToClosed':
       return {
         ...state,
         isPollsOpen: false,
+        ballotBagLastReplacedAt: 0,
       };
     case 'refreshConfigFromScanner': {
       return {
@@ -187,6 +199,12 @@ function appReducer(state: State, action: AppAction): State {
       return {
         ...state,
         isPollsOpen: !state.isPollsOpen,
+      };
+    case 'ballotBagReplaced':
+      return {
+        ...state,
+        ballotBagLastReplacedAt:
+          state.ballotBagLastReplacedAt + BALLOT_BAG_CAPACITY,
       };
     case 'setMachineConfig':
       return {
@@ -291,11 +309,15 @@ export function AppRoot({
       const storedAppState: Partial<State> =
         ((await storage.get(stateStorageKey)) as Partial<State> | undefined) ||
         {};
-      const { isPollsOpen: storedIsPollsOpen = initialAppState.isPollsOpen } =
-        storedAppState;
+      const {
+        isPollsOpen: storedIsPollsOpen = initialAppState.isPollsOpen,
+        ballotBagLastReplacedAt:
+          storedBallotBagLastReplacedAt = initialAppState.ballotBagLastReplacedAt,
+      } = storedAppState;
       dispatchAppState({
         type: 'initializeAppState',
         isPollsOpen: storedIsPollsOpen,
+        ballotBagLastReplacedAt: storedBallotBagLastReplacedAt,
       });
     }
 
@@ -344,13 +366,18 @@ export function AppRoot({
 
   const scannerStatus = usePrecinctScannerStatus();
 
+  const needsToReplaceBallotBag =
+    scannerStatus &&
+    scannerStatus.ballotsCounted >=
+      appState.ballotBagLastReplacedAt + BALLOT_BAG_CAPACITY;
+
   // The scan service waits to receive a command to scan or accept a ballot. The
   // frontend controls when this happens so that ensure we're only scanning when
   // we're in voter mode.
   const voterMode = auth.status === 'logged_out' && auth.reason === 'no_card';
   useEffect(() => {
     async function automaticallyScanAndAcceptBallots() {
-      if (!(voterMode && isPollsOpen)) return;
+      if (!(isPollsOpen && voterMode && !needsToReplaceBallotBag)) return;
       if (scannerStatus?.state === 'ready_to_scan') {
         await scanner.scanBallot();
       } else if (scannerStatus?.state === 'ready_to_accept') {
@@ -449,6 +476,16 @@ export function AppRoot({
 
   if (window.kiosk && usbDrive.status !== usbstick.UsbDriveStatus.mounted) {
     return <InsertUsbScreen />;
+  }
+
+  if (needsToReplaceBallotBag && scannerStatus.state !== 'accepted') {
+    return (
+      <ReplaceBallotBagModal
+        scannedBallotCount={scannerStatus.ballotsCounted}
+        pollWorkerAuthenticated={isPollWorkerAuth(auth)}
+        onComplete={() => dispatchAppState({ type: 'ballotBagReplaced' })}
+      />
+    );
   }
 
   if (isPollWorkerAuth(auth)) {
