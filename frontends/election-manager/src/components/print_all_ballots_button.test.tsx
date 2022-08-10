@@ -5,8 +5,7 @@ import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { MemoryCard, MemoryHardware, typedAs } from '@votingworks/utils';
 import React from 'react';
-import { fakeKiosk } from '@votingworks/test-utils';
-import { hasTextAcrossElements } from '../../test/util/has_text_across_elements';
+import { fakeKiosk, hasTextAcrossElements } from '@votingworks/test-utils';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import {
   authenticateWithElectionManagerCard,

@@ -116,13 +116,13 @@ test('Cardless Voting Flow', async () => {
   // Activate Voter Session for Cardless Voter
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises();
-  screen.getByText('Activate Voter Session');
+  screen.getByText('Select Ballot Style');
   fireEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
   screen.getByText('Voter session activated: 12');
 
   // Poll Worker deactivates ballot style
   fireEvent.click(screen.getByText('Deactivate Voter Session'));
-  screen.getByText('Activate Voter Session');
+  screen.getByText('Select Ballot Style');
 
   // Poll Worker reactivates ballot style
   fireEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
@@ -149,7 +149,7 @@ test('Cardless Voting Flow', async () => {
   fireEvent.click(screen.getByText('Reset Ballot'));
 
   // Back on Poll Worker screen
-  screen.getByText('Activate Voter Session');
+  screen.getByText('Select Ballot Style');
 
   // Activates Ballot Style again
   fireEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
@@ -369,16 +369,17 @@ test('poll worker must select a precinct first', async () => {
   // Activate Voter Session for Cardless Voter
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises();
-  screen.getByText('Activate Voter Session');
+  screen.getByText('Select Precinct');
   fireEvent.click(
     within(screen.getByTestId('precincts')).getByText('Center Springfield')
   );
+  screen.getByText('Select Ballot Style');
   fireEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
   screen.getByText('Voter session activated: 12 @ Center Springfield');
 
   // Poll Worker deactivates ballot style
   fireEvent.click(screen.getByText('Deactivate Voter Session'));
-  screen.getByText('Activate Voter Session');
+  screen.getByText('Select Ballot Style');
 
   // Poll Worker reactivates ballot style
   fireEvent.click(
@@ -408,12 +409,13 @@ test('poll worker must select a precinct first', async () => {
   fireEvent.click(screen.getByText('Reset Ballot'));
 
   // Back on Poll Worker screen
-  screen.getByText('Activate Voter Session');
+  screen.getByText('Select Precinct');
 
   // Activates Ballot Style again
   fireEvent.click(
     within(screen.getByTestId('precincts')).getByText('Center Springfield')
   );
+  screen.getByText('Select Ballot Style');
   fireEvent.click(within(screen.getByTestId('ballot-styles')).getByText('12'));
   screen.getByText('Voter session activated: 12 @ Center Springfield');
 

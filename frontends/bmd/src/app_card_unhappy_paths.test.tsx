@@ -9,6 +9,7 @@ import {
   makeVoidedVoterCard,
   makeVoterCard,
   makePollWorkerCard,
+  hasTextAcrossElements,
 } from '@votingworks/test-utils';
 import {
   MemoryStorage,
@@ -223,7 +224,7 @@ test('Inserting pollworker card with invalid long data fall back as if there is 
   await advanceTimersAndPromises();
 
   // Land on pollworker screen
-  screen.getByText('Open/Close Polls');
+  screen.getByText(hasTextAcrossElements('Polls: Closed'));
 
   // No prompt to print precinct tally report
   expect(screen.queryAllByText('Tally Report on Card')).toHaveLength(0);

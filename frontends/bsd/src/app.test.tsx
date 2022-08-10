@@ -16,6 +16,7 @@ import {
 import fileDownload from 'js-file-download';
 import {
   fakeKiosk,
+  hasTextAcrossElements,
   makeElectionManagerCard,
   makeSystemAdministratorCard,
   mockOf,
@@ -30,7 +31,6 @@ import userEvent from '@testing-library/user-event';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { areVvsg2AuthFlowsEnabled } from '@votingworks/ui';
 import { App } from './app';
-import { hasTextAcrossElements } from '../test/util/has_text_across_elements';
 import { MachineConfigResponse } from './config/types';
 
 jest.mock('js-file-download');
