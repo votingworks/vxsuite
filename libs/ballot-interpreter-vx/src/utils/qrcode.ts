@@ -8,6 +8,7 @@ import { Buffer } from 'buffer';
 import makeDebug from 'debug';
 import jsQr from 'jsqr';
 import { QRCode } from 'node-quirc';
+import { binarize } from './binarize';
 import { DetectQrCodeResult } from '../types';
 
 const LETTER_WIDTH_TO_HEIGHT_RATIO = 8.5 / 11;
@@ -245,6 +246,7 @@ export async function detect(
     for (const { position, bounds } of getSearchAreas(imageData)) {
       debug('cropping %s to check for QR code: %o', position, bounds);
       const cropped = crop(imageData, bounds);
+      binarize(cropped);
       debug('scanning with %s', detector.name);
       const results = await detector.detect(cropped);
 
