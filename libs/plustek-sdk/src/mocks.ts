@@ -494,6 +494,7 @@ export class MockScannerClient implements ScannerClient {
         }
         if ((this.machine.state.value as string) === 'ready_to_scan') {
           debug('scan failed, error feeding');
+          /* istanbul ignore next - randomness makes this hard to cover */
           return err(
             Math.random() > 0.5
               ? ScannerError.PaperStatusErrorFeeding

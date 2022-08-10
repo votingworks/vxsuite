@@ -394,7 +394,7 @@ test('scanner powered off while scanning', async () => {
   await post(app, '/scanner/scan');
   await expectStatus(app, { state: 'scanning' });
   mockPlustek.simulatePowerOff();
-  await waitForStatus(app, { state: 'disconnected', error: 'plustek_error' });
+  await waitForStatus(app, { state: 'disconnected' });
 
   mockPlustek.simulatePowerOn('jam');
   await waitForStatus(app, { state: 'jammed' });
@@ -416,10 +416,7 @@ test('scanner powered off while accepting', async () => {
   await waitForStatus(app, { state: 'ready_to_accept', interpretation });
   mockPlustek.simulatePowerOff();
   await post(app, '/scanner/accept');
-  await waitForStatus(app, {
-    state: 'disconnected',
-    error: 'plustek_error',
-  });
+  await waitForStatus(app, { state: 'disconnected' });
 
   mockPlustek.simulatePowerOn('ready_to_eject');
   await waitForStatus(app, {
@@ -616,7 +613,6 @@ test('insert second ballot while first ballot is accepting', async () => {
 
   await waitForStatus(app, {
     state: 'accepted',
-    error: 'plustek_error',
     interpretation,
     ballotsCounted: 1,
   });
@@ -717,7 +713,7 @@ test('jam on scan', async () => {
 
   mockPlustek.simulateJamOnNextOperation();
   await post(app, '/scanner/scan');
-  await waitForStatus(app, { state: 'jammed', error: 'scanning_failed' });
+  await waitForStatus(app, { state: 'jammed' });
 
   await mockPlustek.simulateRemoveSheet();
   await waitForStatus(app, { state: 'no_paper' });
@@ -834,7 +830,7 @@ test('jam on calibrate', async () => {
       status: 'error',
       errors: [{ type: 'error', message: 'plustek_error' }],
     });
-  await expectStatus(app, { state: 'jammed', error: 'plustek_error' });
+  await expectStatus(app, { state: 'jammed' });
 });
 
 test('scan fails and retries', async () => {
@@ -890,4 +886,5 @@ test('scanning time out', async () => {
   await waitForStatus(app, { state: 'no_paper' });
 });
 
+// TODO
 // test('paper status time out', async () => {});
