@@ -24,7 +24,8 @@ import { waitFor } from 'xstate/lib/waitFor';
 import {
   SheetInterpretation,
   SimpleInterpreter,
-  storeInterpretedSheet,
+  storeAcceptedSheet,
+  storeRejectedSheet,
 } from './simple_interpreter';
 import { SheetOf } from './types';
 import { Store } from './store';
@@ -251,20 +252,20 @@ async function accept({ client }: Context) {
   return acceptResult.unsafeUnwrap();
 }
 
-function storeAcceptedSheet({ store, interpretation }: Context) {
+function recordAcceptedSheet({ store, interpretation }: Context) {
   assert(store);
   assert(interpretation);
-  const { sheetId, pages, type } = interpretation;
-  storeInterpretedSheet(store, sheetId, pages);
-
-  // if we're storing an accepted sheet that needed review
-  // that means it was adjudicated.
-  if (type === 'NeedsReviewSheet') {
-    store.adjudicateSheet(sheetId, 'front', []);
-    store.adjudicateSheet(sheetId, 'back', []);
-  }
-
+  const { sheetId } = interpretation;
+  storeAcceptedSheet(store, sheetId, interpretation);
   debug('Stored accepted sheet: %s', sheetId);
+}
+
+function recordRejectedSheet({ store, interpretation }: Context) {
+  assert(store);
+  if (!interpretation) return;
+  const { sheetId } = interpretation;
+  storeRejectedSheet(store, sheetId, interpretation);
+  debug('Stored rejected sheet: %s', sheetId);
 }
 
 async function reject({ client }: Context) {
@@ -563,7 +564,7 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
           },
         },
         accepted: {
-          entry: storeAcceptedSheet,
+          entry: recordAcceptedSheet,
           invoke: pollPaperStatus,
           initial: 'scanning_paused',
           on: { SCANNER_NO_PAPER: { target: undefined } }, // Do nothing
@@ -592,6 +593,7 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
           },
         },
         returning: {
+          entry: recordRejectedSheet,
           invoke: {
             src: reject,
             onDone: 'checking_returning_completed',
@@ -624,6 +626,7 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
           },
         },
         rejecting: {
+          entry: recordRejectedSheet,
           id: 'rejecting',
           invoke: {
             src: reject,

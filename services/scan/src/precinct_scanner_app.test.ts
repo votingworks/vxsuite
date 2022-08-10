@@ -132,7 +132,7 @@ async function waitForStatus(
 ) {
   await waitForExpect(async () => {
     await expectStatus(app, status);
-  });
+  }, 1_000);
 }
 
 async function createApp(
@@ -156,7 +156,7 @@ async function createApp(
     delays
   );
   const app = buildPrecinctScannerApp(precinctScannerMachine, workspace);
-  return { app, mockPlustek };
+  return { app, mockPlustek, workspace };
 }
 
 const famousNamesPath = join(
@@ -289,7 +289,7 @@ const needsReviewInterpretation: Scan.SheetInterpretation = {
 };
 
 test('ballot needs review - return', async () => {
-  const { app, mockPlustek } = await createApp();
+  const { app, mockPlustek, workspace } = await createApp();
   await configureApp(app, { addTemplates: true });
 
   await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb);
@@ -302,15 +302,29 @@ test('ballot needs review - return', async () => {
   await waitForStatus(app, { state: 'needs_review', interpretation });
 
   await post(app, '/scanner/return');
-  await expectStatus(app, { state: 'returning', interpretation });
+  await expectStatus(app, {
+    state: 'returning',
+    interpretation,
+    canUnconfigure: false,
+  });
   await waitForStatus(app, {
     state: 'returned',
     interpretation,
-    ballotsCounted: 0,
+    canUnconfigure: false,
   });
 
   await mockPlustek.simulateRemoveSheet();
-  await waitForStatus(app, { state: 'no_paper', ballotsCounted: 0 });
+  await waitForStatus(app, {
+    state: 'no_paper',
+    canUnconfigure: false,
+  });
+
+  // Check the CVR
+  const cvrs = await postExportCvrs(app);
+  expect(cvrs).toHaveLength(0);
+
+  // Make sure the ballot was still recorded in the db for backup purposes
+  expect(Array.from(workspace.store.getSheets())).toHaveLength(1);
 });
 
 test('ballot needs review - accept', async () => {
@@ -349,7 +363,7 @@ test('ballot needs review - accept', async () => {
 
 // TODO test all the invalid ballot reasons?
 test('invalid ballot rejected', async () => {
-  const { app, mockPlustek } = await createApp();
+  const { app, mockPlustek, workspace } = await createApp();
   await configureApp(app);
 
   await mockPlustek.simulateLoadSheet(ballotImages.wrongElection);
@@ -365,15 +379,23 @@ test('invalid ballot rejected', async () => {
   await waitForStatus(app, {
     state: 'rejecting',
     interpretation,
+    canUnconfigure: false,
   });
   await waitForStatus(app, {
     state: 'rejected',
-    ballotsCounted: 0,
     interpretation,
+    canUnconfigure: false,
   });
 
   await mockPlustek.simulateRemoveSheet();
-  await waitForStatus(app, { state: 'no_paper' });
+  await waitForStatus(app, { state: 'no_paper', canUnconfigure: false });
+
+  // Check the CVR
+  const cvrs = await postExportCvrs(app);
+  expect(cvrs).toHaveLength(0);
+
+  // Make sure the ballot was still recorded in the db for backup purposes
+  expect(Array.from(workspace.store.getSheets())).toHaveLength(1);
 });
 
 test('blank paper rejected', async () => {
@@ -393,15 +415,16 @@ test('blank paper rejected', async () => {
   await waitForStatus(app, {
     state: 'rejecting',
     interpretation,
+    canUnconfigure: false,
   });
   await waitForStatus(app, {
     state: 'rejected',
-    ballotsCounted: 0,
     interpretation,
+    canUnconfigure: false,
   });
 
   await mockPlustek.simulateRemoveSheet();
-  await waitForStatus(app, { state: 'no_paper' });
+  await waitForStatus(app, { state: 'no_paper', canUnconfigure: false });
 });
 
 test('scanner powered off while waiting for paper', async () => {
@@ -509,13 +532,17 @@ test('scanner powered off while rejecting', async () => {
 
   await post(app, '/scanner/scan');
   await expectStatus(app, { state: 'scanning' });
-  await waitForStatus(app, { state: 'rejecting', interpretation });
+  await waitForStatus(app, {
+    state: 'rejecting',
+    interpretation,
+    canUnconfigure: false,
+  });
 
   mockPlustek.simulatePowerOff();
-  await waitForStatus(app, { state: 'disconnected' });
+  await waitForStatus(app, { state: 'disconnected', canUnconfigure: false });
 
   mockPlustek.simulatePowerOn('jam');
-  await waitForStatus(app, { state: 'jammed' });
+  await waitForStatus(app, { state: 'jammed', canUnconfigure: false });
 });
 
 test('scanner powered off while returning', async () => {
@@ -532,13 +559,17 @@ test('scanner powered off while returning', async () => {
   await waitForStatus(app, { state: 'needs_review', interpretation });
 
   await post(app, '/scanner/return');
-  await waitForStatus(app, { state: 'returning', interpretation });
+  await waitForStatus(app, {
+    state: 'returning',
+    interpretation,
+    canUnconfigure: false,
+  });
 
   mockPlustek.simulatePowerOff();
-  await waitForStatus(app, { state: 'disconnected' });
+  await waitForStatus(app, { state: 'disconnected', canUnconfigure: false });
 
   mockPlustek.simulatePowerOn('jam');
-  await waitForStatus(app, { state: 'jammed' });
+  await waitForStatus(app, { state: 'jammed', canUnconfigure: false });
 });
 
 test('scanner powered off after returning', async () => {
@@ -555,16 +586,26 @@ test('scanner powered off after returning', async () => {
   await waitForStatus(app, { state: 'needs_review', interpretation });
 
   await post(app, '/scanner/return');
-  await waitForStatus(app, { state: 'returning', interpretation });
-  await waitForStatus(app, { state: 'returned', interpretation });
+  await waitForStatus(app, {
+    state: 'returning',
+    interpretation,
+    canUnconfigure: false,
+  });
+  await waitForStatus(app, {
+    state: 'returned',
+    interpretation,
+    canUnconfigure: false,
+  });
 
   mockPlustek.simulatePowerOff();
-  await waitForStatus(app, { state: 'disconnected' });
+  await waitForStatus(app, { state: 'disconnected', canUnconfigure: false });
 
   mockPlustek.simulatePowerOn('ready_to_scan');
   await waitForStatus(app, {
     state: 'rejected',
     error: 'paper_in_front_on_startup',
+
+    canUnconfigure: false,
   });
 });
 
@@ -694,17 +735,33 @@ test('insert second ballot while first ballot is rejecting', async () => {
 
   await post(app, '/scanner/scan');
   await expectStatus(app, { state: 'scanning' });
-  await waitForStatus(app, { state: 'rejecting', interpretation });
+  await waitForStatus(app, {
+    state: 'rejecting',
+    interpretation,
+    canUnconfigure: false,
+  });
 
   await mockPlustek.simulateLoadSheet(ballotImages.wrongElection);
-  await waitForStatus(app, { state: 'both_sides_have_paper', interpretation });
+  await waitForStatus(app, {
+    state: 'both_sides_have_paper',
+    interpretation,
+    canUnconfigure: false,
+  });
 
   await mockPlustek.simulateRemoveSheet();
-  await waitForStatus(app, { state: 'rejecting', interpretation });
-  await waitForStatus(app, { state: 'rejected', interpretation });
+  await waitForStatus(app, {
+    state: 'rejecting',
+    interpretation,
+    canUnconfigure: false,
+  });
+  await waitForStatus(app, {
+    state: 'rejected',
+    interpretation,
+    canUnconfigure: false,
+  });
 
   await mockPlustek.simulateRemoveSheet();
-  await waitForStatus(app, { state: 'no_paper' });
+  await waitForStatus(app, { state: 'no_paper', canUnconfigure: false });
 });
 
 test('insert second ballot while first ballot is returning', async () => {
@@ -721,18 +778,34 @@ test('insert second ballot while first ballot is returning', async () => {
   await waitForStatus(app, { state: 'needs_review', interpretation });
 
   await post(app, '/scanner/return');
-  await waitForStatus(app, { state: 'returning', interpretation });
+  await waitForStatus(app, {
+    state: 'returning',
+    interpretation,
+    canUnconfigure: false,
+  });
 
   await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb);
-  await waitForStatus(app, { state: 'both_sides_have_paper', interpretation });
+  await waitForStatus(app, {
+    state: 'both_sides_have_paper',
+    interpretation,
+    canUnconfigure: false,
+  });
 
   await mockPlustek.simulateRemoveSheet();
-  await waitForStatus(app, { state: 'needs_review', interpretation });
+  await waitForStatus(app, {
+    state: 'needs_review',
+    interpretation,
+    canUnconfigure: false,
+  });
   await post(app, '/scanner/return');
-  await waitForStatus(app, { state: 'returned', interpretation });
+  await waitForStatus(app, {
+    state: 'returned',
+    interpretation,
+    canUnconfigure: false,
+  });
 
   await mockPlustek.simulateRemoveSheet();
-  await waitForStatus(app, { state: 'no_paper' });
+  await waitForStatus(app, { state: 'no_paper', canUnconfigure: false });
 });
 
 test('jam on scan', async () => {
@@ -773,15 +846,17 @@ test('jam on accept', async () => {
     state: 'rejecting',
     interpretation,
     error: 'paper_in_back_after_accept',
+    canUnconfigure: false,
   });
   await waitForStatus(app, {
     state: 'rejected',
     error: 'paper_in_back_after_accept',
     interpretation,
+    canUnconfigure: false,
   });
 
   await mockPlustek.simulateRemoveSheet();
-  await waitForStatus(app, { state: 'no_paper' });
+  await waitForStatus(app, { state: 'no_paper', canUnconfigure: false });
 });
 
 test('jam on return', async () => {
@@ -802,10 +877,11 @@ test('jam on return', async () => {
   await waitForStatus(app, {
     state: 'jammed',
     interpretation,
+    canUnconfigure: false,
   });
 
   await mockPlustek.simulateRemoveSheet();
-  await waitForStatus(app, { state: 'no_paper' });
+  await waitForStatus(app, { state: 'no_paper', canUnconfigure: false });
 });
 
 test('jam on reject', async () => {
@@ -826,10 +902,11 @@ test('jam on reject', async () => {
   await waitForStatus(app, {
     state: 'jammed',
     interpretation,
+    canUnconfigure: false,
   });
 
   await mockPlustek.simulateRemoveSheet();
-  await waitForStatus(app, { state: 'no_paper' });
+  await waitForStatus(app, { state: 'no_paper', canUnconfigure: false });
 });
 
 test('calibrate', async () => {
