@@ -316,19 +316,50 @@ export function createInterpreter(
   return createVxInterpreter(options);
 }
 
-/**
- * Stores an interpreted sheet of ballot paper in the {@link Store}, returning
- * the effective sheet ID.
- */
-export function storeInterpretedSheet(
+function storeInterpretedSheet(
   store: Store,
-  sheetId: Id,
-  sheet: SheetOf<PageInterpretationWithFiles>
+  sheetId: string,
+  interpretation: SheetInterpretation
 ): Id {
   // TODO instead of one batch per ballot, use one batch per scanning session
   // (e.g. from polls open to polls close)
   const batchId = store.addBatch();
-  const addedSheetId = store.addSheet(sheetId, batchId, sheet);
+  const addedSheetId = store.addSheet(sheetId, batchId, interpretation.pages);
   store.finishBatch({ batchId });
   return addedSheetId;
+}
+
+/**
+ * Stores a sheet that was accepted (i.e. the ballot was cast) in the {@link
+ * Store}, recording that the ballot was counted.
+ */
+export function storeAcceptedSheet(
+  store: Store,
+  sheetId: string,
+  interpretation: SheetInterpretation
+): void {
+  storeInterpretedSheet(store, sheetId, interpretation);
+  // If we're storing an accepted sheet that needed review that means it was
+  // "adjudicated" (i.e. the voter said to count it without changing anything)
+  if (interpretation.type === 'NeedsReviewSheet') {
+    store.adjudicateSheet(sheetId, 'front', []);
+    store.adjudicateSheet(sheetId, 'back', []);
+  }
+}
+
+/**
+ * Stores a sheet that was rejected or returned (i.e. the ballot was not cast)
+ * in the {@link Store}, recording that the ballot was not counted.
+ */
+export function storeRejectedSheet(
+  store: Store,
+  sheetId: string,
+  interpretation: SheetInterpretation
+): void {
+  storeInterpretedSheet(store, sheetId, interpretation);
+  // We want to keep rejected ballots in the store so we know what happened, but
+  // not count them. The way to do that is to "delete" them, which just marks
+  // them as deleted and currently is the way to indicate an interpreted ballot
+  // was not counted.
+  store.deleteSheet(sheetId);
 }
