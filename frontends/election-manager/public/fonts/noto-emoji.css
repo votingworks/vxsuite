@@ -16,20 +16,20 @@
   src: local(''), url('noto-emoji-v26-emoji-regular.woff2') format('woff2');
 }
 
-/* noto-emoji-600 - emoji */
-@font-face {
-  font-family: 'Noto Emoji';
-  font-weight: 600;
-  font-style: normal;
-  src: local(''), url('noto-emoji-v26-emoji-600.woff2') format('woff2');
-}
-
 /* noto-emoji-500 - emoji */
 @font-face {
   font-family: 'Noto Emoji';
   font-weight: 500;
   font-style: normal;
   src: local(''), url('noto-emoji-v26-emoji-500.woff2') format('woff2');
+}
+
+/* noto-emoji-600 - emoji */
+@font-face {
+  font-family: 'Noto Emoji';
+  font-weight: 600;
+  font-style: normal;
+  src: local(''), url('noto-emoji-v26-emoji-600.woff2') format('woff2');
 }
 
 /* noto-emoji-700 - emoji */
