@@ -1,4 +1,7 @@
-import { detect as detectMetadata } from '@votingworks/ballot-encoder';
+import {
+  detectRawBytesBmdBallot as detectMetadata,
+  isVxBallot,
+} from '@votingworks/ballot-encoder';
 import { crop } from '@votingworks/image-utils';
 import { Rect, Size } from '@votingworks/types';
 import { Buffer } from 'buffer';
@@ -246,7 +249,25 @@ export async function detect(
       const results = await detector.detect(cropped);
 
       if (results.length === 0) {
-        debug('%s found no QR codes in %s', detector.name, position);
+        debug('%s found no raw QR codes in %s', detector.name, position);
+        continue;
+      }
+
+      debug(
+        '%s found pre-filtered QR code in %s! data length=%d',
+        detector.name,
+        position,
+        results[0].length
+      );
+
+      // Sometimes, our QR code detectors hallucinate and see QR codes in the noise
+      // We filter the QR codes down to the ones that look like Vx ballot data.
+      const recognizedResults = results
+        .map((result) => maybeDecodeBase64(result))
+        .filter((result) => isVxBallot(result));
+
+      if (recognizedResults.length === 0) {
+        debug('%s no recognized QR codes in %s', detector.name, position);
         continue;
       }
 
@@ -254,11 +275,10 @@ export async function detect(
         '%s found QR code in %s! data length=%d',
         detector.name,
         position,
-        results[0].length
+        recognizedResults[0].length
       );
-      const data = maybeDecodeBase64(results[0]);
 
-      return { data, position, detector: detector.name };
+      return { data: recognizedResults[0], position, detector: detector.name };
     }
   }
 
