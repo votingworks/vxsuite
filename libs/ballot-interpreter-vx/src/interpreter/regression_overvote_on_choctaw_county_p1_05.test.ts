@@ -3,7 +3,8 @@ import { Interpreter } from '.';
 
 jest.setTimeout(10000);
 
-test('regression: overvote on choctaw county p1-05', async () => {
+// disabling this test as we've disabled jsQR for now
+test.skip('regression: overvote on choctaw county p1-05', async () => {
   const fixtures = choctaw2020LegalSize;
   const { electionDefinition } = fixtures;
   const interpreter = new Interpreter({ electionDefinition, testMode: true });

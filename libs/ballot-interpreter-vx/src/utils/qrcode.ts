@@ -6,7 +6,7 @@ import { crop } from '@votingworks/image-utils';
 import { Rect, Size } from '@votingworks/types';
 import { Buffer } from 'buffer';
 import makeDebug from 'debug';
-import jsQr from 'jsqr';
+// import jsQr from 'jsqr';
 import { QRCode } from 'node-quirc';
 import { DetectQrCodeResult } from '../types';
 
@@ -230,13 +230,6 @@ export async function detect(
         return results
           .filter((result): result is QRCode => !('err' in result))
           .map((result) => result.data);
-      },
-    },
-    {
-      name: 'jsQR',
-      detect: ({ data, width, height }: ImageData): Buffer[] => {
-        const result = jsQr(data, width, height);
-        return result ? [Buffer.from(result.binaryData)] : [];
       },
     },
   ];

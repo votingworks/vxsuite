@@ -3,7 +3,8 @@ import { hardQrCodePage1 } from '../../test/fixtures/choctaw-2020-09-22-f30480cc
 import { loadImageData } from './images';
 import { detect as detectQrCode, getSearchAreas } from './qrcode';
 
-test('falls back to jsQR if the other QR code readers cannot read them', async () => {
+// disabling this test as we've disabled jsQR for now
+test.skip('falls back to jsQR if the other QR code readers cannot read them', async () => {
   const imageData = await loadImageData(
     join(__dirname, '../../test/fixtures/jsqr-only-qrcode.png')
   );
