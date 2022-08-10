@@ -86,21 +86,21 @@ export function ReplaceElectionScreen({
     <Screen navLeft>
       <Main padded>
         <Prose id="audiofocus">
-          <h1>Admin Card is not configured for this election</h1>
+          <h1>Election Manager card is not configured for this election</h1>
           {!cardElectionDefinition ? (
-            <p>Reading Election Definition from Admin Card…</p>
+            <p>Reading Election Definition from Election Manager card…</p>
           ) : (
             <React.Fragment>
               <p>
                 You may replace the Election Definition on this machine with the
-                one from the Admin Card. Doing so will replace all data on this
-                machine.
+                one from the Election Manager card. Doing so will replace all
+                data on this machine.
               </p>
               <h3>Current Election Definition:</h3>
               <BriefElectionDefinitionInfo
                 electionDefinition={electionDefinition}
               />
-              <h3> Card Election Definition: </h3>
+              <h3>Card Election Definition:</h3>
               <BriefElectionDefinitionInfo
                 electionDefinition={cardElectionDefinition}
               />
@@ -142,10 +142,10 @@ export function ReplaceElectionScreen({
         <Prose>
           <h2>Instructions</h2>
           <p>
-            Loading an election definition from the Admin Card will reset all
-            data on this device.
+            Loading an Election Definition from the Election Manager card will
+            reset all data on this device.
           </p>
-          <p>Remove Admin Card to cancel.</p>
+          <p>Remove Election Manager card to cancel.</p>
         </Prose>
       </Sidebar>
     </Screen>

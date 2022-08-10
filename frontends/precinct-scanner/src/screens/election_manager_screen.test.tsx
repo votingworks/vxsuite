@@ -13,7 +13,7 @@ import { usbstick } from '@votingworks/utils';
 import MockDate from 'mockdate';
 import React from 'react';
 import { AppContext } from '../contexts/app_context';
-import { AdminScreen } from './admin_screen';
+import { ElectionManagerScreen } from './election_manager_screen';
 
 beforeEach(() => {
   MockDate.set('2020-10-31T00:00:00.000Z');
@@ -43,7 +43,7 @@ test('renders date and time settings modal', async () => {
         auth,
       }}
     >
-      <AdminScreen
+      <ElectionManagerScreen
         scannerStatus={scannerStatus}
         isTestMode={false}
         updateAppPrecinctId={jest.fn()}
@@ -94,7 +94,7 @@ test('setting and un-setting the precinct', async () => {
         auth,
       }}
     >
-      <AdminScreen
+      <ElectionManagerScreen
         scannerStatus={scannerStatus}
         isTestMode={false}
         updateAppPrecinctId={updateAppPrecinctId}
@@ -130,7 +130,7 @@ test('export from admin screen', () => {
         auth,
       }}
     >
-      <AdminScreen
+      <ElectionManagerScreen
         scannerStatus={scannerStatus}
         isTestMode={false}
         updateAppPrecinctId={jest.fn()}
@@ -155,7 +155,7 @@ test('unconfigure ejects a usb drive when it is mounted', () => {
         auth,
       }}
     >
-      <AdminScreen
+      <ElectionManagerScreen
         scannerStatus={{ ...scannerStatus, canUnconfigure: true }}
         isTestMode={false}
         updateAppPrecinctId={jest.fn()}
@@ -183,7 +183,7 @@ test('unconfigure does not eject a usb drive that is not mounted', async () => {
         auth,
       }}
     >
-      <AdminScreen
+      <ElectionManagerScreen
         scannerStatus={{ ...scannerStatus, canUnconfigure: true }}
         isTestMode={false}
         updateAppPrecinctId={jest.fn()}
@@ -211,7 +211,7 @@ test('unconfigure button is disabled when the machine cannot be unconfigured', (
         auth,
       }}
     >
-      <AdminScreen
+      <ElectionManagerScreen
         scannerStatus={scannerStatus}
         isTestMode={false}
         updateAppPrecinctId={jest.fn()}
@@ -237,7 +237,7 @@ test('cannot toggle to testing mode when the machine cannot be unconfigured', ()
         auth,
       }}
     >
-      <AdminScreen
+      <ElectionManagerScreen
         scannerStatus={scannerStatus}
         isTestMode={false}
         updateAppPrecinctId={jest.fn()}

@@ -31,7 +31,10 @@ import {
 import userEvent from '@testing-library/user-event';
 import { App } from './app';
 import { MachineConfigResponse } from './config/types';
-import { authenticateAdminCard, scannerStatus } from '../test/helpers/helpers';
+import {
+  authenticateElectionManagerCard,
+  scannerStatus,
+} from '../test/helpers/helpers';
 
 const getMachineConfigBody: MachineConfigResponse = {
   machineId: '0002',
@@ -98,7 +101,7 @@ test('services/scan fails to unconfigure', async () => {
   fireEvent.click(screen.getByText('4'));
   fireEvent.click(screen.getByText('5'));
   fireEvent.click(screen.getByText('6'));
-  await screen.findByText('Administrator Settings');
+  await screen.findByText('Election Manager Settings');
 
   fireEvent.click(await screen.findByText('Unconfigure Machine'));
   fireEvent.click(await screen.findByText('Unconfigure'));
@@ -345,7 +348,7 @@ test('removing card during calibration', async () => {
     electionSampleDefinition.electionHash
   );
   card.insertCard(electionManagerCard, electionSampleDefinition.electionData);
-  await authenticateAdminCard();
+  await authenticateElectionManagerCard();
 
   const { promise, resolve } = deferred();
   fetchMock.post('/scanner/calibrate', promise);

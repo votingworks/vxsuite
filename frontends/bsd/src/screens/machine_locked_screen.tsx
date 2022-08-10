@@ -12,7 +12,7 @@ import { AppContext } from '../contexts/app_context';
 
 const LockedImage = styled.img`
   margin-right: auto;
-  margin-bottom: 5px;
+  margin-bottom: 1.25em;
   margin-left: auto;
   height: 20vw;
 `;
@@ -25,8 +25,17 @@ export function MachineLockedScreen(): JSX.Element {
         <div>
           <LockedImage src="/locked.svg" alt="Locked Icon" />
           <Prose textCenter theme={fontSizeTheme.medium} maxWidth={false}>
-            <h1>VxCentralScan is Locked</h1>
-            <p>Insert an admin card to unlock.</p>
+            {electionDefinition ? (
+              <React.Fragment>
+                <h1>VxCentralScan is Locked</h1>
+                <p>Insert Election Manager card to unlock.</p>
+              </React.Fragment>
+            ) : (
+              <React.Fragment>
+                <h1>VxCentralScan is Not Configured</h1>
+                <p>Insert Election Manager card to configure.</p>
+              </React.Fragment>
+            )}
           </Prose>
         </div>
       </Main>

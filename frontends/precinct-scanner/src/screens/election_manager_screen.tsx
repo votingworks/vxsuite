@@ -35,7 +35,7 @@ interface Props {
   usbDrive: UsbDrive;
 }
 
-export function AdminScreen({
+export function ElectionManagerScreen({
   scannerStatus,
   isTestMode,
   updateAppPrecinctId,
@@ -113,7 +113,7 @@ export function AdminScreen({
   return (
     <ScreenMainCenterChild infoBarMode="admin">
       <Prose textCenter>
-        <h1>Administrator Settings</h1>
+        <h1>Election Manager Settings</h1>
         <p>
           <Select
             id="selectPrecinct"
@@ -302,7 +302,7 @@ export function DefaultPreview(): JSX.Element {
         },
       }}
     >
-      <AdminScreen
+      <ElectionManagerScreen
         scannerStatus={{
           state: 'no_paper',
           ballotsCounted: 1234,

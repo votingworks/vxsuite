@@ -23,7 +23,7 @@ import {
   voterContests,
 } from '../test/helpers/election';
 import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
-import { authenticateAdminCard } from '../test/test_utils';
+import { enterPin } from '../test/test_utils';
 
 jest.setTimeout(10_000);
 
@@ -58,28 +58,28 @@ it('MarkOnly flow', async () => {
   await advanceTimersAndPromises();
 
   // Default Unconfigured
-  screen.getByText('Device Not Configured');
+  screen.getByText('VxMark is Not Configured');
 
   // ---------------
 
   // Configure election with Election Manager Card
   card.insertCard(electionManagerCard, electionDefinition.electionData);
-  await authenticateAdminCard();
+  await enterPin();
   fireEvent.click(screen.getByText('Load Election Definition'));
 
   await advanceTimersAndPromises();
-  screen.getByText('Election definition is loaded.');
+  screen.getByText('Election Definition is loaded.');
 
   // Remove card and expect not configured because precinct not selected
   card.removeCard();
   await advanceTimersAndPromises();
-  screen.getByText('Device Not Configured');
+  screen.getByText('VxMark is Not Configured');
 
   // ---------------
 
   // Configure election with Election Manager Card
   card.insertCard(electionManagerCard, electionDefinition.electionData);
-  await authenticateAdminCard();
+  await enterPin();
   screen.getByLabelText('Precinct');
 
   // select precinct
@@ -212,13 +212,13 @@ it('MarkOnly flow', async () => {
 
   // Unconfigure with Election Manager Card
   card.insertCard(electionManagerCard, electionDefinition.electionData);
-  await authenticateAdminCard();
-  screen.getByText('Election definition is loaded.');
+  await enterPin();
+  screen.getByText('Election Definition is loaded.');
   fireEvent.click(screen.getByText('Unconfigure Machine'));
   await advanceTimersAndPromises();
 
   // Default Unconfigured
   card.removeCard();
   await advanceTimersAndPromises();
-  screen.getByText('Device Not Configured');
+  screen.getByText('VxMark is Not Configured');
 });

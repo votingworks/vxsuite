@@ -231,7 +231,7 @@ export function TestBallotDeckScreen({
         <Sidebar
           appName={machineConfig.appMode.productName}
           centerContent
-          title="Election Admin Actions"
+          title="Election Manager Actions"
           footer={
             election && (
               <ElectionInfo

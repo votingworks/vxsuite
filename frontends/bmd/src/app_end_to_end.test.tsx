@@ -49,7 +49,7 @@ import { fakePrinter } from '../test/helpers/fake_printer';
 import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
 import { MarkAndPrint } from './config/types';
 import { REPORT_PRINTING_TIMEOUT_SECONDS } from './config/globals';
-import { authenticateAdminCard } from '../test/test_utils';
+import { enterPin } from '../test/test_utils';
 
 beforeEach(() => {
   jest.useFakeTimers();
@@ -94,22 +94,22 @@ it('MarkAndPrint end-to-end flow', async () => {
   await advanceTimersAndPromises();
 
   // Default Unconfigured
-  screen.getByText('Device Not Configured');
+  screen.getByText('VxMark is Not Configured');
 
   // ---------------
 
   // Configure with Election Manager Card
   card.insertCard(electionManagerCard, electionDefinition.electionData);
-  await authenticateAdminCard();
+  await enterPin();
   fireEvent.click(screen.getByText('Load Election Definition'));
 
   await advanceTimersAndPromises();
-  screen.getByText('Election definition is loaded.');
+  screen.getByText('Election Definition is loaded.');
 
   // Remove card and expect not configured because precinct not selected
   card.removeCard();
   await advanceTimersAndPromises();
-  screen.getByText('Device Not Configured');
+  screen.getByText('VxMark is Not Configured');
 
   // Basic auth logging check
   expect(logger.log).toHaveBeenCalledWith(
@@ -122,7 +122,7 @@ it('MarkAndPrint end-to-end flow', async () => {
 
   // Configure election with Election Manager Card
   card.insertCard(electionManagerCard, electionDefinition.electionData);
-  await authenticateAdminCard();
+  await enterPin();
   screen.getByLabelText('Precinct');
   screen.queryByText(`Election ID: ${expectedElectionHash}`);
   screen.queryByText('Machine ID: 000');
@@ -418,7 +418,7 @@ it('MarkAndPrint end-to-end flow', async () => {
 
   // Insert System Administrator card
   card.insertCard(makeSystemAdministratorCard());
-  await authenticateAdminCard();
+  await enterPin();
   await screen.findByText('Reboot from USB');
   card.removeCard();
   await advanceTimersAndPromises();
@@ -427,19 +427,19 @@ it('MarkAndPrint end-to-end flow', async () => {
 
   // Unconfigure with Election Manager Card
   card.insertCard(electionManagerCard, electionDefinition.electionData);
-  await authenticateAdminCard();
-  screen.getByText('Election definition is loaded.');
+  await enterPin();
+  screen.getByText('Election Definition is loaded.');
   fireEvent.click(screen.getByText('Unconfigure Machine'));
   await advanceTimersAndPromises();
 
   // Default Unconfigured
   card.removeCard();
   await advanceTimersAndPromises();
-  screen.getByText('Device Not Configured');
+  screen.getByText('VxMark is Not Configured');
 
   // Insert System Administrator card works when unconfigured
   card.insertCard(makeSystemAdministratorCard());
-  await authenticateAdminCard();
+  await enterPin();
   await screen.findByText('Reboot from USB');
   card.removeCard();
   await advanceTimersAndPromises();
@@ -448,17 +448,17 @@ it('MarkAndPrint end-to-end flow', async () => {
 
   // Configure with Election Manager card
   card.insertCard(electionManagerCard, electionDefinition.electionData);
-  await authenticateAdminCard();
+  await enterPin();
   userEvent.click(
     screen.getByRole('button', { name: 'Load Election Definition' })
   );
-  await screen.findByText('Election definition is loaded.');
+  await screen.findByText('Election Definition is loaded.');
   card.removeCard();
   await advanceTimersAndPromises();
 
   // Unconfigure with System Administrator card
   card.insertCard(makeSystemAdministratorCard());
-  await authenticateAdminCard();
+  await enterPin();
   userEvent.click(screen.getByRole('button', { name: 'Unconfigure Machine' }));
   const modal = await screen.findByRole('alertdialog');
   userEvent.click(
@@ -474,8 +474,8 @@ it('MarkAndPrint end-to-end flow', async () => {
   await advanceTimersAndPromises();
 
   // Verify that machine was unconfigured
-  screen.getByText('Device Not Configured');
+  screen.getByText('VxMark is Not Configured');
   card.insertCard(electionManagerCard, electionDefinition.electionData);
-  await authenticateAdminCard();
-  screen.getByText('Election definition is not loaded.');
+  await enterPin();
+  screen.getByText('Election Definition is not loaded.');
 });

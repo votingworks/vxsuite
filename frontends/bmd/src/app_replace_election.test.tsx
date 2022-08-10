@@ -8,7 +8,7 @@ import {
   setStateInStorage,
 } from '../test/helpers/election';
 import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
-import { authenticateAdminCard, render } from '../test/test_utils';
+import { enterPin, render } from '../test/test_utils';
 import { App } from './app';
 import { advanceTimersAndPromises } from '../test/helpers/smartcards';
 
@@ -44,8 +44,10 @@ test('replacing a loaded election with one from a card', async () => {
     makeElectionManagerCard(electionSample2Definition.electionHash),
     electionSample2Definition.electionData
   );
-  await authenticateAdminCard();
-  await screen.findByText('Admin Card is not configured for this election');
+  await enterPin();
+  await screen.findByText(
+    'Election Manager card is not configured for this election'
+  );
 
   // unconfigure
   fireEvent.click(screen.getByText('Remove Current Election and All Data'));
@@ -58,10 +60,10 @@ test('replacing a loaded election with one from a card', async () => {
     makeElectionManagerCard(electionSample2Definition.electionHash),
     electionSample2Definition.electionData
   );
-  await authenticateAdminCard();
+  await enterPin();
 
   // load new election
-  await screen.findByText('Election Admin Actions');
+  await screen.findByText('Election Manager Actions');
   fireEvent.click(screen.getByText('Load Election Definition'));
   await advanceTimersAndPromises();
   screen.getByText(electionSample2Definition.election.title);

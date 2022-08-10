@@ -33,7 +33,7 @@ describe('loads election', () => {
     // Let the initial hardware detection run.
     await advanceTimersAndPromises();
 
-    screen.getByText('Device Not Configured');
+    screen.getByText('VxMark is Not Configured');
   });
 
   it('from storage', async () => {

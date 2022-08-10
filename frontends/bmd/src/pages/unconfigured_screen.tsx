@@ -7,8 +7,8 @@ export function UnconfiguredScreen(): JSX.Element {
     <Screen>
       <Main centerChild>
         <Prose textCenter>
-          <h1>Device Not Configured</h1>
-          <p>Insert Election Admin card.</p>
+          <h1>VxMark is Not Configured</h1>
+          <p>Insert Election Manager card to configure.</p>
         </Prose>
       </Main>
     </Screen>

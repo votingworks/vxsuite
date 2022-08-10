@@ -45,7 +45,10 @@ import { App } from './app';
 import { stateStorageKey } from './app_root';
 import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from './config/globals';
 import { MachineConfigResponse } from './config/types';
-import { authenticateAdminCard, scannerStatus } from '../test/helpers/helpers';
+import {
+  authenticateElectionManagerCard,
+  scannerStatus,
+} from '../test/helpers/helpers';
 
 jest.setTimeout(20000);
 
@@ -366,7 +369,7 @@ test('election manager and poll worker configuration', async () => {
     '123456'
   );
   card.insertCard(electionManagerCard, electionSampleDefinition.electionData);
-  await authenticateAdminCard();
+  await authenticateElectionManagerCard();
   fireEvent.click(await screen.findByText('Live Election Mode'));
   await screen.findByText('Loading');
   await advanceTimersAndPromises(1);
@@ -392,7 +395,7 @@ test('election manager and poll worker configuration', async () => {
   card.removeCard();
   await advanceTimersAndPromises(1);
   card.insertCard(electionManagerCard, electionSampleDefinition.electionData);
-  await authenticateAdminCard();
+  await authenticateElectionManagerCard();
   // Change precinct
   fireEvent.change(await screen.findByTestId('selectPrecinct'), {
     target: { value: '23' },
@@ -418,7 +421,7 @@ test('election manager and poll worker configuration', async () => {
   card.removeCard();
   await advanceTimersAndPromises(1);
   card.insertCard(electionManagerCard, electionSampleDefinition.electionData);
-  await authenticateAdminCard();
+  await authenticateElectionManagerCard();
 
   // Calibrate scanner
   fetchMock.post('/scanner/calibrate', { body: { status: 'ok' } });
@@ -453,7 +456,7 @@ test('election manager and poll worker configuration', async () => {
   card.removeCard();
   await advanceTimersAndPromises(1);
   card.insertCard(electionManagerCard, electionSampleDefinition.electionData);
-  await authenticateAdminCard();
+  await authenticateElectionManagerCard();
   fireEvent.click(await screen.findByText('Unconfigure Machine'));
   await screen.findByText(
     'Do you want to remove all election information and data from this machine?'
@@ -601,8 +604,8 @@ test('voter can cast a ballot that scans successfully ', async () => {
     '123456'
   );
   card.insertCard(electionManagerCard, electionSampleDefinition.electionData);
-  await authenticateAdminCard();
-  await screen.findByText('Administrator Settings');
+  await authenticateElectionManagerCard();
+  await screen.findByText('Election Manager Settings');
   fireEvent.click(await screen.findByText('Export Results to USB Drive'));
   await screen.findByText('No USB Drive Detected');
   fireEvent.click(await screen.findByText('Cancel'));

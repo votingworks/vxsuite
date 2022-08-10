@@ -53,7 +53,7 @@ test('renders AdminScreen for PrintOnly', () => {
     />
   );
 
-  // Configure with Admin Card
+  // Configure with Election Manager Card
   advanceTimers();
 
   // View Test Ballot Decks
@@ -98,7 +98,7 @@ test('renders date and time settings modal', async () => {
     />
   );
 
-  // Configure with Admin Card
+  // Configure with Election Manager Card
   advanceTimers();
 
   // We just do a simple happy path test here, since the libs/ui/set_clock unit

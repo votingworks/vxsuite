@@ -198,17 +198,17 @@ export function AdminScreen({
           {election ? (
             <p>
               <Text as="span" voteIcon>
-                Election definition is loaded.
+                Election Definition is loaded.
               </Text>{' '}
               <Button danger small onPress={unconfigure}>
                 Unconfigure Machine
               </Button>
             </p>
           ) : isFetchingElection ? (
-            <p>Loading Election Definition from Admin Card…</p>
+            <p>Loading Election Definition from Election Manager card…</p>
           ) : (
             <React.Fragment>
-              <Text warningIcon>Election definition is not loaded.</Text>
+              <Text warningIcon>Election Definition is not loaded.</Text>
               <p>
                 <Button onPress={loadElection}>Load Election Definition</Button>
               </p>
@@ -219,7 +219,7 @@ export function AdminScreen({
       <Sidebar
         appName={election ? machineConfig.appMode.productName : ''}
         centerContent
-        title="Election Admin Actions"
+        title="Election Manager Actions"
         footer={
           <React.Fragment>
             {electionDefinition && (
