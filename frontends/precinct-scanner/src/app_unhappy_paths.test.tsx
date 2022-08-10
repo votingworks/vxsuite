@@ -127,7 +127,7 @@ test('Show invalid card screen when unsupported cards are given', async () => {
   const voterCard = makeVoterCard(electionSampleDefinition.election);
   card.insertCard(voterCard);
   await advanceTimersAndPromises(1);
-  await screen.findByText('Invalid Card, please remove.');
+  await screen.findByText('Invalid Card');
 
   // Remove card
   card.removeCard();
@@ -137,7 +137,7 @@ test('Show invalid card screen when unsupported cards are given', async () => {
   // Insert an invalid card
   card.insertCard(JSON.stringify({ t: 'something' }));
   await advanceTimersAndPromises(2);
-  await screen.findByText('Invalid Card, please remove.');
+  await screen.findByText('Invalid Card');
 
   // Remove card
   card.removeCard();
@@ -147,7 +147,7 @@ test('Show invalid card screen when unsupported cards are given', async () => {
   // Insert a voter card which is invalid
   card.insertCard(JSON.stringify({ t: 'voter' }));
   await advanceTimersAndPromises(2);
-  await screen.findByText('Invalid Card, please remove.');
+  await screen.findByText('Invalid Card');
 
   // Remove card
   card.removeCard();
@@ -159,7 +159,7 @@ test('Show invalid card screen when unsupported cards are given', async () => {
   );
   card.insertCard(pollWorkerCardWrongElection);
   await advanceTimersAndPromises(1);
-  await screen.findByText('Invalid Card, please remove.');
+  await screen.findByText('Invalid Card');
 });
 
 test('show card backwards screen when card connection error occurs', async () => {
@@ -201,7 +201,7 @@ test('shows internal wiring message when there is no plustek scanner, but tablet
     .get('/scanner/status', { ...statusNoPaper, state: 'disconnected' });
   render(<App card={card} storage={storage} hardware={hardware} />);
   await screen.findByRole('heading', { name: 'Internal Connection Problem' });
-  screen.getByText('Please tell the election clerk.');
+  screen.getByText('Please ask a poll worker for help.');
 });
 
 test('shows power cable message when there is no plustek scanner and tablet is not plugged in', async () => {
@@ -217,10 +217,8 @@ test('shows power cable message when there is no plustek scanner and tablet is n
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
     .get('/scanner/status', { ...statusNoPaper, state: 'disconnected' });
   render(<App card={card} storage={storage} hardware={hardware} />);
-  await screen.findByRole('heading', { name: 'Power Cord Unplugged' });
-  screen.getByText(
-    'Please ask a poll worker to check that the power cord is plugged in.'
-  );
+  await screen.findByRole('heading', { name: 'No Power Detected' });
+  screen.getByText('Please ask a poll worker to plug in the power cord.');
 
   fetchMock.get(
     '/scanner/status',
@@ -253,7 +251,7 @@ test('App shows message to connect to power when disconnected and battery is low
   await screen.findByText('No Power Detected');
   await screen.findByText('and Battery is Low');
   await screen.findByText(
-    'Please ask a poll worker to plug-in the power cord for this machine.'
+    'Please ask a poll worker to plug-in the power cord.'
   );
 });
 
@@ -279,7 +277,7 @@ test('App shows warning message to connect to power when disconnected', async ()
   await screen.findByText('Polls Closed');
   await screen.findByText('No Power Detected.');
   await screen.findByText(
-    'Please ask a poll worker to plug in the power cord for this machine.'
+    'Please ask a poll worker to plug in the power cord.'
   );
   // Plug in power and see that warning goes away
   act(() => {

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Text } from '@votingworks/ui';
 import {
   ScreenMainCenterChild,
   CenteredLargeProse,
@@ -17,14 +18,14 @@ export function SetupScannerScreen({ batteryIsCharging }: Props): JSX.Element {
       {batteryIsCharging ? (
         <CenteredLargeProse>
           <h1>Internal Connection Problem</h1>
-          <p>Please tell the election clerk.</p>
+          <Text italic>Please ask a poll worker for help.</Text>
         </CenteredLargeProse>
       ) : (
         <CenteredLargeProse>
-          <h1>Power Cord Unplugged</h1>
-          <p>
-            Please ask a poll worker to check that the power cord is plugged in.
-          </p>
+          <h1>No Power Detected</h1>
+          <Text italic>
+            Please ask a poll worker to plug in the power cord.
+          </Text>
         </CenteredLargeProse>
       )}
     </ScreenMainCenterChild>

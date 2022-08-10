@@ -17,29 +17,33 @@ export function ScanErrorScreen({ error, isTestMode }: Props): JSX.Element {
   const errorMessage = (() => {
     if (!error) return undefined;
     switch (error) {
-      // Invalid interpretation
+      // Invalid ballot interpretations
       case 'invalid_test_mode':
-        return isTestMode ? 'Live Ballot detected.' : 'Test ballot detected.';
+        return isTestMode
+          ? 'Live ballot detected. Scanner is in test mode.'
+          : 'Test ballot detected. Scanner is in live mode.';
       case 'invalid_election_hash':
-        return 'Scanned ballot does not match the election this scanner is configured for.';
+        return 'The ballot does not match the election this scanner is configured for.';
       case 'invalid_precinct':
-        return 'Scanned ballot does not match the precinct this scanner is configured for.';
+        return 'The ballot does not match the precinct this scanner is configured for.';
       case 'unreadable':
-        return 'There was a problem reading this ballot. Please try again.';
       case 'unknown':
-        return undefined;
-      // Precinct scanner error
+        return 'There was a problem reading this ballot. Please scan again.';
+      // Precinct scanner errors
       case 'scanning_failed':
+        return 'Ballot not fully inserted. Remove ballot to continue.';
       case 'both_sides_have_paper':
+        return 'Scanning interrupted. Remove ballot to continue.';
       case 'paper_in_front_on_startup':
+        return 'Scanner detected an unexpected ballot in the tray. Remove ballot to continue.';
       case 'paper_in_back_on_startup':
       case 'paper_in_back_after_accept':
-        return 'Take your ballot out of the tray and try again.';
+        return 'Scanner detected an unexpected ballot at the back of the scanner. Remove ballot to continue.';
       case 'scanning_timed_out':
       case 'unexpected_paper_status':
       case 'unexpected_event':
       case 'plustek_error':
-        return undefined;
+        return 'The scanner experienced an error and needs to be reset. Please turn off and unplug the scanner from the power outlet. Plug it back in and turn it on again.';
       default:
         throwIllegalValue(error);
     }
@@ -48,9 +52,11 @@ export function ScanErrorScreen({ error, isTestMode }: Props): JSX.Element {
     <ScreenMainCenterChild infoBar={false}>
       <TimesCircle />
       <CenteredLargeProse>
-        <h1>Scanning Error</h1>
+        <h1>Ballot Not Counted</h1>
         <p>{errorMessage}</p>
-        <Text italic>Ask a poll worker for help.</Text>
+        <Text small italic>
+          Ask a poll worker for help.
+        </Text>
       </CenteredLargeProse>
     </ScreenMainCenterChild>
   );

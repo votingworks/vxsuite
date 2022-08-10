@@ -11,7 +11,8 @@ export function InvalidCardScreen(): JSX.Element {
     <ScreenMainCenterChild infoBar={false}>
       <TimesCircle />
       <CenteredLargeProse>
-        <h1>Invalid Card, please remove.</h1>
+        <h1>Invalid Card</h1>
+        <p>Remove the card to continue.</p>
       </CenteredLargeProse>
     </ScreenMainCenterChild>
   );

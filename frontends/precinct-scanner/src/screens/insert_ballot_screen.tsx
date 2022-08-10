@@ -23,7 +23,7 @@ export function InsertBallotScreen({
       {showNoChargerWarning && (
         <Text warning small center>
           <strong>No Power Detected.</strong> Please ask a poll worker to plug
-          in the power cord for this machine.
+          in the power cord.
         </Text>
       )}
       <InsertBallot />

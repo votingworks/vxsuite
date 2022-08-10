@@ -7,7 +7,7 @@ import {
 
 export function ScanProcessingScreen(): JSX.Element {
   return (
-    <ScreenMainCenterChild>
+    <ScreenMainCenterChild infoBar={false}>
       <IndeterminateProgressBar />
       <CenteredLargeProse>
         <h1>Please wait…</h1>

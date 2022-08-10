@@ -6,6 +6,7 @@ import {
   AdjudicationReasonInfo,
   OvervoteAdjudicationReasonInfo,
   UndervoteAdjudicationReasonInfo,
+  AnyContest,
 } from '@votingworks/types';
 import { Button, Modal, Prose, Text } from '@votingworks/ui';
 import { assert, find, integers, take } from '@votingworks/utils';
@@ -31,34 +32,41 @@ function OvervoteWarningScreen({
   overvotes,
 }: OvervoteWarningScreenProps): JSX.Element {
   const [confirmTabulate, setConfirmTabulate] = useState(false);
-  const contestNames = overvotes.map(
-    (overvote) =>
+  const contestNames = overvotes
+    .map((overvote) =>
       find(
         electionDefinition.election.contests,
         (contest) => contest.id === overvote.contestId
-      ).title
-  );
+      )
+    )
+    .reduce<AnyContest[]>(
+      (a, c) => (a.findIndex((o) => o.title === c.title) >= 0 ? a : [...a, c]),
+      []
+    )
+    .map((c) => c.title);
 
   return (
     <ScreenMainCenterChild infoBar={false}>
       <ExclamationTriangle />
       <CenteredLargeProse>
         <h1>Too Many Votes</h1>
-        <Text small>
-          You voted for too many choices for {toSentence(contestNames)}. To fix
-          this, take your ballot and ask a poll worker for a new ballot.
+        <Text>
+          There are too many votes marked in the{' '}
+          {pluralize('contest', contestNames.length)} for:{' '}
+          {toSentence(contestNames)}.
         </Text>
         <p>
-          <Button primary large onPress={scanner.returnBallot}>
-            Return my ballot
+          <Button primary onPress={scanner.returnBallot}>
+            Return Ballot
+          </Button>{' '}
+          or{' '}
+          <Button onPress={() => setConfirmTabulate(true)}>
+            Cast Ballot As Is
           </Button>
         </p>
-        <p>
-          <Button small onPress={() => setConfirmTabulate(true)}>
-            Count my ballot
-          </Button>
-        </p>
-        <Text italic>Ask a poll worker if you need help.</Text>
+        <Text italic small>
+          Ask a poll worker if you need help.
+        </Text>
       </CenteredLargeProse>
       {confirmTabulate && (
         <Modal
@@ -66,7 +74,7 @@ function OvervoteWarningScreen({
             <Prose textCenter>
               <h1>Are you sure?</h1>
               <p>
-                Your votes for {pluralize('contest', overvotes.length, true)}{' '}
+                Your votes in {pluralize('contest', contestNames.length, true)}{' '}
                 will not be counted.
               </p>
             </Prose>
@@ -74,7 +82,7 @@ function OvervoteWarningScreen({
           actions={
             <React.Fragment>
               <Button primary onPress={scanner.acceptBallot}>
-                Yes, count my ballot
+                Yes, Cast Ballot As Is
               </Button>
               <Button onPress={() => setConfirmTabulate(false)}>Cancel</Button>
             </React.Fragment>
@@ -111,33 +119,46 @@ function UndervoteWarningScreen({
         find(contests, (contest) => contest.id === undervote.contestId).title
     );
 
+  function truncateContestNames(names: string[], min = 3, max = 5) {
+    const displayLength = names.length > max ? min : names.length;
+    const remainderLength = names.length - displayLength;
+    const displayNames = names.slice(0, displayLength);
+    if (remainderLength) {
+      displayNames.push(
+        `${remainderLength} more ${pluralize('contest', remainderLength)}`
+      );
+    }
+    return displayNames;
+  }
+
   return (
     <ScreenMainCenterChild infoBar={false}>
       <ExclamationTriangle />
       <CenteredLargeProse>
         <h1>Review Your Ballot</h1>
         {blankContestNames.length > 0 && (
-          <Text small>
-            You did not vote for {toSentence(blankContestNames, ', ', ' or ')}.
-          </Text>
+          <p>
+            No votes detected for:{' '}
+            {toSentence(truncateContestNames(blankContestNames))}.
+          </p>
         )}
         {partiallyVotedContestNames.length > 0 && (
-          <Text small>
-            You can vote for more people for{' '}
-            {toSentence(partiallyVotedContestNames, ', ', ' and ')}.
-          </Text>
+          <p>
+            You may vote for more candidates in the contests for:{' '}
+            {toSentence(truncateContestNames(partiallyVotedContestNames))}.
+          </p>
         )}
         <p>
-          <Button primary large onPress={() => setConfirmTabulate(true)}>
-            Count my ballot
+          <Button onPress={scanner.returnBallot}>Return Ballot</Button> or{' '}
+          <Button primary onPress={() => setConfirmTabulate(true)}>
+            Cast Ballot As Is
           </Button>
         </p>
-        <p>
-          <Button small onPress={scanner.returnBallot}>
-            Return my ballot
-          </Button>
-        </p>
-        <Text italic>Ask a poll worker if you need help.</Text>
+        <Text italic small>
+          Your votes will count, even if you leave some blank.
+          <br />
+          Ask a poll worker if you need help.
+        </Text>
       </CenteredLargeProse>
       {confirmTabulate && (
         <Modal
@@ -154,7 +175,7 @@ function UndervoteWarningScreen({
                 )}
                 {partiallyVotedContestNames.length > 0 && (
                   <span>
-                    You can vote for more people in{' '}
+                    You can still vote for more candidates in{' '}
                     {pluralize(
                       'contest',
                       partiallyVotedContestNames.length,
@@ -164,12 +185,15 @@ function UndervoteWarningScreen({
                   </span>
                 )}
               </p>
+              <Text italic>
+                Your votes will count, even if you leave some blank.
+              </Text>
             </Prose>
           }
           actions={
             <React.Fragment>
               <Button primary onPress={scanner.acceptBallot}>
-                Yes, count my ballot
+                Yes, Cast Ballot As Is
               </Button>
               <Button onPress={() => setConfirmTabulate(false)}>Cancel</Button>
             </React.Fragment>
@@ -187,19 +211,22 @@ function BlankBallotWarningScreen(): JSX.Element {
     <ScreenMainCenterChild infoBar={false}>
       <ExclamationTriangle />
       <CenteredLargeProse>
-        <h1>Blank Ballot</h1>
-        <p>Your ballot does not have any votes.</p>
+        <h1>Review Your Ballot</h1>
+        <p>No votes were found when scanning this ballot.</p>
         <p>
-          <Button primary large onPress={scanner.returnBallot}>
-            Return my ballot
+          <Button primary onPress={scanner.returnBallot}>
+            Return Ballot
+          </Button>{' '}
+          or{' '}
+          <Button onPress={() => setConfirmTabulate(true)}>
+            Cast Ballot As Is
           </Button>
         </p>
-        <p>
-          <Button small onPress={() => setConfirmTabulate(true)}>
-            Count blank ballot
-          </Button>
-        </p>
-        <Text italic>Ask a poll worker if you need help.</Text>
+        <Text small italic>
+          Your votes will count, even if you leave some blank.
+          <br />
+          Ask a poll worker if you need help.
+        </Text>
       </CenteredLargeProse>
       {confirmTabulate && (
         <Modal
@@ -226,35 +253,37 @@ function BlankBallotWarningScreen(): JSX.Element {
 
 function OtherReasonWarningScreen(): JSX.Element {
   const [confirmTabulate, setConfirmTabulate] = useState(false);
-
   return (
     <ScreenMainCenterChild infoBar={false}>
       <ExclamationTriangle />
       <CenteredLargeProse>
-        <h1>Review Your Ballot</h1>
+        <h1>Scanning Failed</h1>
+        <p>There was a problem scanning this ballot.</p>
         <p>
-          <Button primary large onPress={scanner.returnBallot}>
-            Return my ballot
+          <Button primary onPress={scanner.returnBallot}>
+            Return Ballot
+          </Button>{' '}
+          or{' '}
+          <Button onPress={() => setConfirmTabulate(true)}>
+            Cast Ballot As Is
           </Button>
         </p>
-        <p>
-          <Button small onPress={() => setConfirmTabulate(true)}>
-            Count my ballot
-          </Button>
-        </p>
-        <Text italic>Ask a poll worker if you need help.</Text>
+        <Text small italic>
+          Ask a poll worker if you need help.
+        </Text>
       </CenteredLargeProse>
       {confirmTabulate && (
         <Modal
           content={
             <Prose textCenter>
               <h1>Are you sure?</h1>
+              <p>No votes will be recorded for this ballot.</p>
             </Prose>
           }
           actions={
             <React.Fragment>
               <Button primary onPress={scanner.acceptBallot}>
-                Yes, count my ballot
+                Yes, Cast Ballot As Is
               </Button>
               <Button onPress={() => setConfirmTabulate(false)}>Cancel</Button>
             </React.Fragment>
@@ -401,7 +430,7 @@ export function UndervoteBy1Preview(): JSX.Element {
 }
 
 /* istanbul ignore next */
-export function MultipleUndervotesPreview(): JSX.Element {
+export function UndervoteManyPreview(): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
 
