@@ -9,7 +9,7 @@ import {
 import { v4 as uuid } from 'uuid';
 import { err, Id, ok, Result } from '@votingworks/types';
 import { assert, throwIllegalValue } from '@votingworks/utils';
-import { switchMap, timer } from 'rxjs';
+import { switchMap, timeout, timer } from 'rxjs';
 import {
   assign as xassign,
   Assigner,
@@ -30,6 +30,12 @@ import { SheetOf } from './types';
 import { Store } from './store';
 
 const PAPER_STATUS_POLLING_INTERVAL = 500;
+const PAPER_STATUS_POLLING_TIMEOUT = 5_000;
+
+// 10 attempts is about the amount of time it takes for Plustek to stop trying
+// to grab the paper. Up until that point, if you reposition the paper so the
+// rollers grab it, it will get scanned successfully.
+export const MAX_FAILED_SCAN_ATTEMPTS = 10;
 
 export type CreatePlustekClient = typeof createClient;
 
@@ -55,8 +61,9 @@ export interface Context {
   client?: ScannerClient;
   scannedSheet?: SheetOf<string>;
   interpretation?: InterpretationResult;
-  error?: Error;
+  error?: Error | ScannerError;
   interpretationMode: InterpretationMode;
+  failedScanAttempts?: number;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -89,10 +96,12 @@ export type Event =
   | ConfigurationEvent
   | { type: 'SET_INTERPRETATION_MODE'; mode: InterpretationMode };
 
-interface Delays {
+export interface Delays {
   DELAY_RECONNECT: number;
+  DELAY_RECONNECT_ON_UNEXPECTED_ERROR: number;
   DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: number;
   DELAY_ACCEPTED_RESET_TO_NO_PAPER: number;
+  DELAY_SCANNING_TIMEOUT: number;
 }
 
 function connectToPlustek(createPlustekClient: CreatePlustekClient) {
@@ -102,6 +111,13 @@ function connectToPlustek(createPlustekClient: CreatePlustekClient) {
     debug('Plustek client connected: %s', plustekClient.isOk());
     return plustekClient.unsafeUnwrap();
   };
+}
+
+async function disconnectFromPlustek({ client }: Context) {
+  assert(client);
+  debug('Disconnecting from plustek');
+  await client.close();
+  debug('Plustek client disconnected');
 }
 
 function paperStatusToEvent(paperStatus: PaperStatus): ScannerStatusEvent {
@@ -160,14 +176,15 @@ function paperStatusObserver({ client }: Context) {
       return paperStatus.isOk()
         ? paperStatusToEvent(paperStatus.ok())
         : paperStatusErrorToEvent(paperStatus.err());
-    })
+    }),
+    timeout(PAPER_STATUS_POLLING_TIMEOUT)
   );
 }
 
 const pollPaperStatus: InvokeConfig<Context, Event> = {
   src: paperStatusObserver,
   onError: {
-    target: 'error',
+    target: '#error',
     actions: assign({ error: (_, event) => event.data }),
   },
 };
@@ -270,7 +287,7 @@ const clearError = assign({
 function buildMachine(createPlustekClient: CreatePlustekClient) {
   return createMachine<Context, Event>(
     {
-      id: 'precint_scanner',
+      id: 'precinct_scanner',
       initial: 'connecting',
       strict: true,
       context: {
@@ -353,6 +370,7 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
           },
         },
         checking_initial_paper_status: {
+          id: 'checking_initial_paper_status',
           invoke: pollPaperStatus,
           on: {
             SCANNER_NO_PAPER: 'no_paper',
@@ -371,6 +389,7 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
           },
         },
         no_paper: {
+          id: 'no_paper',
           entry: [clearError, clearLastScan],
           invoke: pollPaperStatus,
           on: {
@@ -390,40 +409,81 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
           },
         },
         scanning: {
-          invoke: {
-            src: scan,
-            onDone: {
-              target: 'checking_scanning_completed',
-              actions: assign((_context, event) => ({
-                scannedSheet: event.data,
-              })),
+          entry: assign({ failedScanAttempts: 0 }),
+          initial: 'starting_scan',
+          states: {
+            starting_scan: {
+              entry: [clearError, clearLastScan],
+              invoke: {
+                src: scan,
+                onDone: {
+                  target: 'checking_scanning_completed',
+                  actions: assign((_context, event) => ({
+                    scannedSheet: event.data,
+                  })),
+                },
+                onError: {
+                  target: 'error_scanning',
+                  actions: assign((_context, event) => ({ error: event.data })),
+                },
+              },
+              after: {
+                DELAY_SCANNING_TIMEOUT: {
+                  target: '#error',
+                  actions: assign({
+                    error: new PrecinctScannerError('scanning_timed_out'),
+                  }),
+                },
+              },
             },
-            onError: {
-              target: 'error_scanning',
-              actions: assign((_context, event) => ({ error: event.data })),
+            // Sometimes Plustek auto-rejects the ballot without returning a scanning
+            // error (e.g. if the paper is slightly mis-aligned). So we need to check
+            // that the paper is still there before interpreting.
+            checking_scanning_completed: {
+              invoke: pollPaperStatus,
+              on: {
+                SCANNER_READY_TO_EJECT: '#interpreting',
+                SCANNER_NO_PAPER: 'error_scanning',
+                SCANNER_READY_TO_SCAN: 'error_scanning',
+              },
             },
-          },
-        },
-        error_scanning: {
-          invoke: pollPaperStatus,
-          on: {
-            SCANNER_READY_TO_SCAN: 'ready_to_scan',
-            SCANNER_NO_PAPER: 'no_paper',
-            SCANNER_READY_TO_EJECT: 'rejecting',
-          },
-        },
-        // Sometimes Plustek auto-rejects the ballot without returning a scanning
-        // error (e.g. if the paper is slightly mis-aligned). So we need to check
-        // that the paper is still there before interpreting.
-        checking_scanning_completed: {
-          invoke: pollPaperStatus,
-          on: {
-            SCANNER_READY_TO_EJECT: 'interpreting',
-            SCANNER_NO_PAPER: 'error_scanning',
-            SCANNER_READY_TO_SCAN: 'error_scanning',
+            // If scanning fails, we should retry if the paper is still ready to be
+            // scanned and scanning failed for a known reason. We only retry up to a
+            // certain number of attempts.
+            error_scanning: {
+              entry: assign({
+                failedScanAttempts: (context) => {
+                  assert(context.failedScanAttempts !== undefined);
+                  return context.failedScanAttempts + 1;
+                },
+              }),
+              always: {
+                target: '#rejected',
+                actions: assign({
+                  error: new PrecinctScannerError('scanning_failed'),
+                }),
+                cond: (context) => {
+                  assert(context.failedScanAttempts !== undefined);
+                  const gotExpectedScanningError =
+                    context.error === ScannerError.PaperStatusErrorFeeding ||
+                    context.error === ScannerError.PaperStatusNoPaper;
+                  const shouldRetry =
+                    (!context.error || gotExpectedScanningError) &&
+                    context.failedScanAttempts < MAX_FAILED_SCAN_ATTEMPTS;
+                  return !shouldRetry;
+                },
+              },
+              invoke: pollPaperStatus,
+              on: {
+                SCANNER_READY_TO_SCAN: 'starting_scan',
+                SCANNER_NO_PAPER: '#no_paper',
+                SCANNER_READY_TO_EJECT: '#rejecting',
+              },
+            },
           },
         },
         interpreting: {
+          id: 'interpreting',
           initial: 'starting',
           states: {
             starting: {
@@ -591,6 +651,7 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
         },
         // Paper has been rejected and is held in the front, waiting for removal.
         rejected: {
+          id: 'rejected',
           invoke: pollPaperStatus,
           on: {
             SCANNER_READY_TO_SCAN: { target: 'rejected', internal: true },
@@ -654,27 +715,59 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
             ],
           },
         },
-        error: {},
+        // If we see an unexpected error, try disconnecting from Plustek and starting over.
+        error: {
+          id: 'error',
+          invoke: { src: disconnectFromPlustek, onDone: {}, onError: {} },
+          initial: 'cooling_off',
+          states: {
+            cooling_off: {
+              after: { DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 'reconnecting' },
+            },
+            reconnecting: {
+              invoke: {
+                src: connectToPlustek(createPlustekClient),
+                onDone: {
+                  target: '#checking_initial_paper_status',
+                  actions: assign({
+                    client: (_context, event) => event.data,
+                    error: undefined,
+                  }),
+                },
+                onError: 'failed_reconnecting',
+              },
+            },
+            failed_reconnecting: {},
+          },
+        },
       },
     },
     {
       delays: {
         // When disconnected, how long to wait before trying to reconnect.
         DELAY_RECONNECT: 500,
+        // When we run into an unexpected error (e.g. unexpected paper status),
+        // how long to wait before trying to reconnect. This should be pretty
+        // long in order to let Plustek finish whatever it's doing (yes, even
+        // after disconnecting, Plustek might keep scanning).
+        DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 5_000,
+        // How long to attempt scanning before giving up and disconnecting and
+        // reconnecting to Plustek.
+        DELAY_SCANNING_TIMEOUT: 10_000,
         // When in accepted state, how long to ignore any new ballot that is
         // inserted (this ensures the user sees the accepted screen for a bit
         // before starting a new scan).
-        DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 2000,
+        DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 2_000,
         // How long to wait on the accepted state before automatically going
         // back to no_paper.
-        DELAY_ACCEPTED_RESET_TO_NO_PAPER: 5000,
+        DELAY_ACCEPTED_RESET_TO_NO_PAPER: 5_000,
         // How long to wait for Plustek to grab the paper and return paper
         // status READY_TO_SCAN after rejecting. Needs to be greater than
         // PAPER_STATUS_POLLING_INTERVAL otherwise we'll never have a chance to
         // see the READY_TO_SCAN status. Experimentally, 1000ms seems to be a
         // good amount. Don't change this delay lightly since it impacts the
         // actual logic of the scanner.
-        DELAY_WAIT_FOR_HOLD_AFTER_REJECT: 1000,
+        DELAY_WAIT_FOR_HOLD_AFTER_REJECT: 1_000,
       },
     }
   );
@@ -750,10 +843,6 @@ export function createPrecinctScannerStateMachine(
             return 'ready_to_scan';
           case state.matches('scanning'):
             return 'scanning';
-          case state.matches('error_scanning'):
-            return 'scanning';
-          case state.matches('checking_scanning_completed'):
-            return 'scanning';
           case state.matches('interpreting'):
             return 'scanning';
           case state.matches('ready_to_accept'):
@@ -816,7 +905,10 @@ export function createPrecinctScannerStateMachine(
       return {
         state: scannerState,
         interpretation: interpretationResult,
-        error: error && errorToString(error),
+        error:
+          ['rejecting', 'rejected', 'error'].includes(scannerState) && error
+            ? errorToString(error)
+            : undefined,
       };
     },
 
