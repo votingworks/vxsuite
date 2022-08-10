@@ -81,7 +81,7 @@ export const DEFAULT_CONFIG: Readonly<Config> = {
   imagefmt: 'jpeg',
   quality: 80,
   swdeskew: false,
-  swcrop: false,
+  swcrop: true,
   thumbnail: false,
   'remove-blankpage': 0,
   borderfill: 10,
