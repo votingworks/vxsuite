@@ -43,7 +43,10 @@ import userEvent from '@testing-library/user-event';
 import { App } from './app';
 
 import { stateStorageKey } from './app_root';
-import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from './config/globals';
+import {
+  BALLOT_BAG_CAPACITY,
+  POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
+} from './config/globals';
 import { MachineConfigResponse } from './config/types';
 import {
   authenticateElectionManagerCard,
@@ -1202,4 +1205,87 @@ test('election manager cannot auth onto machine with different election hash whe
     makeElectionManagerCard(electionSample2Definition.electionHash)
   );
   await screen.findByText('Invalid Card');
+});
+
+test('replace ballot bag flow', async () => {
+  const storage = new MemoryStorage();
+  await storage.set(stateStorageKey, { isPollsOpen: true });
+  const kiosk = fakeKiosk();
+  kiosk.getUsbDrives = jest.fn().mockResolvedValue([fakeUsbDrive()]);
+  window.kiosk = kiosk;
+  fetchMock
+    .get('/machine-config', { body: getMachineConfigBody })
+    .get('/config/election', { body: electionSampleDefinition })
+    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
+    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .getOnce('/scanner/status', { body: statusNoPaper });
+  const card = new MemoryCard();
+  const hardware = MemoryHardware.buildStandard();
+  const pollWorkerCard = makePollWorkerCard(
+    electionSampleDefinition.electionHash
+  );
+  render(<App card={card} hardware={hardware} storage={storage} />);
+  await advanceTimersAndPromises(1);
+  await screen.findByText('Insert Your Ballot Below');
+
+  fetchMock
+    .getOnce('/scanner/status', {
+      body: scannerStatus({ state: 'ready_to_scan' }),
+    })
+    .post('/scanner/scan', { body: { status: 'ok' } })
+    .getOnce('/scanner/status', {
+      body: scannerStatus({ state: 'scanning' }),
+    })
+    .getOnce('/scanner/status', {
+      body: scannerStatus({ state: 'ready_to_accept' }),
+    })
+    .post('/scanner/accept', { body: { status: 'ok' } })
+    .getOnce('/scanner/status', {
+      body: scannerStatus({ state: 'accepted' }),
+    })
+    .get('/scanner/status', {
+      body: scannerStatus({
+        state: 'no_paper',
+        ballotsCounted: BALLOT_BAG_CAPACITY,
+      }),
+    });
+
+  // trigger scan
+  await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS / 1000);
+  screen.getByText(/Please wait/);
+  await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS / 1000);
+  await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS / 1000);
+  await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS / 1000);
+
+  // we should see still see accepted screen
+  screen.getByText('Your ballot was counted!');
+  await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS / 1000);
+
+  // should go to modal after accepted screen
+  await screen.findByText('The Ballot Bag is Full');
+
+  // Insert a pollworker card to enter confirmation step
+  card.insertCard(pollWorkerCard);
+  await advanceTimersAndPromises(1);
+  await screen.findByText('Ready to Resume Voting?');
+
+  // Removing card at this point returns to initial screen
+  card.removeCard();
+  await advanceTimersAndPromises(1);
+  await screen.findByText('The Ballot Bag is Full');
+
+  // Can confirm with pollworker card
+  card.insertCard(pollWorkerCard);
+  await advanceTimersAndPromises(1);
+  await screen.findByText('Ready to Resume Voting?');
+  userEvent.click(screen.getByText('Yes, Resume Voting'));
+
+  // Prompted to remove card
+  await advanceTimersAndPromises(1);
+  await screen.findByText('Resume Voting');
+
+  // Removing card returns to voter screen
+  card.removeCard();
+  await advanceTimersAndPromises(1);
+  await screen.findByText('Insert Your Ballot Below');
 });
