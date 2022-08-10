@@ -183,9 +183,12 @@ const ballotImages = {
     // Blank BMD ballot back
     join(famousNamesPath, 'bmd-ballot-complete-p2.jpg'),
   ],
+  // The interpreter expects two different image files, so we use two
+  // different blank page images
   blankSheet: [
     join(sampleBallotImagesPath, 'blank-page.png'),
-    join(sampleBallotImagesPath, 'blank-page.png'),
+    // Blank BMD ballot back
+    join(famousNamesPath, 'bmd-ballot-complete-p2.jpg'),
   ],
 } as const;
 
@@ -355,6 +358,34 @@ test('invalid ballot rejected', async () => {
   const interpretation: Scan.SheetInterpretation = {
     type: 'InvalidSheet',
     reason: 'invalid_election_hash',
+  };
+
+  await post(app, '/scanner/scan');
+  await expectStatus(app, { state: 'scanning' });
+  await waitForStatus(app, {
+    state: 'rejecting',
+    interpretation,
+  });
+  await waitForStatus(app, {
+    state: 'rejected',
+    ballotsCounted: 0,
+    interpretation,
+  });
+
+  await mockPlustek.simulateRemoveSheet();
+  await waitForStatus(app, { state: 'no_paper' });
+});
+
+test('blank paper rejected', async () => {
+  const { app, mockPlustek } = await createApp();
+  await configureApp(app);
+
+  await mockPlustek.simulateLoadSheet(ballotImages.blankSheet);
+  await waitForStatus(app, { state: 'ready_to_scan' });
+
+  const interpretation: Scan.SheetInterpretation = {
+    type: 'InvalidSheet',
+    reason: 'unknown',
   };
 
   await post(app, '/scanner/scan');
