@@ -12,7 +12,6 @@ import {
 import { readFile } from 'fs/promises';
 import { interpretTemplate } from '@votingworks/ballot-interpreter-vx';
 import { Scan } from '@votingworks/api';
-import { assert } from '@votingworks/utils';
 import * as qrcodeWorker from './workers/qrcode';
 import { Interpreter as VxInterpreter } from './interpreter';
 import { mapSheet, SheetOf } from './types';
@@ -48,6 +47,61 @@ function combinePageInterpretationsForSheet(
   const [front, back] = pages;
   const frontType = front.interpretation.type;
   const backType = back.interpretation.type;
+
+  if (
+    (frontType === 'InterpretedBmdPage' && backType === 'BlankPage') ||
+    (backType === 'InterpretedBmdPage' && frontType === 'BlankPage')
+  ) {
+    return { type: 'ValidSheet' };
+  }
+
+  if (
+    frontType === 'InterpretedHmpbPage' &&
+    backType === 'InterpretedHmpbPage'
+  ) {
+    const frontAdjudication = front.interpretation.adjudicationInfo;
+    const backAdjudication = back.interpretation.adjudicationInfo;
+
+    if (
+      !(
+        frontAdjudication.requiresAdjudication ||
+        backAdjudication.requiresAdjudication
+      )
+    ) {
+      return { type: 'ValidSheet' };
+    }
+
+    const frontReasons = frontAdjudication.enabledReasonInfos;
+    const backReasons = backAdjudication.enabledReasonInfos;
+
+    let reasons: AdjudicationReasonInfo[];
+    // If both sides are blank, the ballot is blank
+    if (
+      frontReasons.some(
+        (reason) => reason.type === AdjudicationReason.BlankBallot
+      ) &&
+      backReasons.some(
+        (reason) => reason.type === AdjudicationReason.BlankBallot
+      )
+    ) {
+      reasons = [{ type: AdjudicationReason.BlankBallot }];
+    }
+    // Otherwise, we can ignore blank sides
+    else {
+      reasons = [...frontReasons, ...backReasons].filter(
+        (reason) => reason.type !== AdjudicationReason.BlankBallot
+      );
+    }
+
+    // If there are any non-blank reasons, they should be reviewed
+    if (reasons.length > 0) {
+      return {
+        type: 'NeedsReviewSheet',
+        reasons,
+      };
+    }
+    return { type: 'ValidSheet' };
+  }
 
   if (
     frontType === 'InvalidElectionHashPage' ||
@@ -86,15 +140,6 @@ function combinePageInterpretationsForSheet(
     };
   }
 
-  // TODO is this the right way to handle a blank sheet of paper?
-  if (frontType === 'BlankPage' && backType === 'BlankPage') {
-    return {
-      type: 'InvalidSheet',
-      reason: 'unreadable',
-    };
-  }
-
-  // TODO what does this case actually mean?
   if (
     frontType === 'UninterpretedHmpbPage' ||
     backType === 'UninterpretedHmpbPage'
@@ -105,52 +150,10 @@ function combinePageInterpretationsForSheet(
     };
   }
 
-  if (frontType === 'InterpretedBmdPage' || backType === 'InterpretedBmdPage') {
-    return { type: 'ValidSheet' };
-  }
-
-  assert(
-    frontType === 'InterpretedHmpbPage' && backType === 'InterpretedHmpbPage'
-  );
-  const frontAdjudication = front.interpretation.adjudicationInfo;
-  const backAdjudication = back.interpretation.adjudicationInfo;
-
-  if (
-    frontAdjudication.requiresAdjudication ||
-    backAdjudication.requiresAdjudication
-  ) {
-    const frontReasons = frontAdjudication.enabledReasonInfos;
-    const backReasons = backAdjudication.enabledReasonInfos;
-
-    let reasons: AdjudicationReasonInfo[];
-    // If both sides are blank, the ballot is blank
-    if (
-      frontReasons.some(
-        (reason) => reason.type === AdjudicationReason.BlankBallot
-      ) &&
-      backReasons.some(
-        (reason) => reason.type === AdjudicationReason.BlankBallot
-      )
-    ) {
-      reasons = [{ type: AdjudicationReason.BlankBallot }];
-    }
-    // Otherwise, we can ignore blank sides
-    else {
-      reasons = [...frontReasons, ...backReasons].filter(
-        (reason) => reason.type !== AdjudicationReason.BlankBallot
-      );
-    }
-
-    // If there are any non-blank reasons, they should be reviewed
-    if (reasons.length > 0) {
-      return {
-        type: 'NeedsReviewSheet',
-        reasons,
-      };
-    }
-  }
-
-  return { type: 'ValidSheet' };
+  return {
+    type: 'InvalidSheet',
+    reason: 'unknown',
+  };
 }
 
 function createNhInterpreter(
