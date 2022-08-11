@@ -10,7 +10,7 @@ import { asBoolean } from '@votingworks/utils';
  * To disable it, remove the line or comment it out. Restarting the server is required.
  *
  */
-export function isWriteInAdjudicationBallotImageExportEnabled(): boolean {
+export function isWriteInAdjudicationBallotImageAndLayoutExportEnabled(): boolean {
   return asBoolean(
     process.env['ENABLE_WRITE_IN_ADJUDICATION_EXPORT_BALLOT_IMAGES']
   );

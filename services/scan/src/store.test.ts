@@ -18,7 +18,7 @@ import { v4 as uuid } from 'uuid';
 import * as stateOfHamilton from '../test/fixtures/state-of-hamilton';
 import { zeroRect } from '../test/fixtures/zero_rect';
 import { Store } from './store';
-import { isWriteInAdjudicationBallotImageExportEnabled } from './config/features';
+import { isWriteInAdjudicationBallotImageAndLayoutExportEnabled } from './config/features';
 import * as buildCastVoteRecord from './build_cast_vote_record';
 
 // We pause in some of these tests so we need to increase the timeout
@@ -27,14 +27,14 @@ jest.setTimeout(20000);
 jest.mock('./config/features', (): typeof import('./config/features') => {
   return {
     ...jest.requireActual('./config/features'),
-    isWriteInAdjudicationBallotImageExportEnabled: jest.fn(),
+    isWriteInAdjudicationBallotImageAndLayoutExportEnabled: jest.fn(),
   };
 });
 
 beforeEach(() => {
-  mockOf(isWriteInAdjudicationBallotImageExportEnabled).mockImplementation(
-    () => false
-  );
+  mockOf(
+    isWriteInAdjudicationBallotImageAndLayoutExportEnabled
+  ).mockImplementation(() => false);
 });
 
 test('get/set election', () => {
@@ -515,9 +515,9 @@ test('adjudication', () => {
 });
 
 test('exportCvrs', async () => {
-  mockOf(isWriteInAdjudicationBallotImageExportEnabled).mockImplementation(
-    () => true
-  );
+  mockOf(
+    isWriteInAdjudicationBallotImageAndLayoutExportEnabled
+  ).mockImplementation(() => true);
 
   const buildCastVoteRecordMock = jest.spyOn(
     buildCastVoteRecord,
@@ -721,17 +721,8 @@ test('exportCvrs does not export ballot images when feature flag turned off', as
     expect.anything(),
     expect.anything(),
     expect.anything(),
-    [{ normalized: '' }, { normalized: '' }],
-    expect.arrayContaining([
-      expect.arrayContaining([
-        expect.objectContaining({ contests: [] }),
-        expect.objectContaining({ contests: [] }),
-      ]),
-      expect.arrayContaining([
-        expect.objectContaining({ contests: [] }),
-        expect.objectContaining({ contests: [] }),
-      ]),
-    ])
+    [{ normalized: '' }, { normalized: '' }], // leave ballot images as empty string when feature flag turned off
+    undefined // layouts are undefined when feature flag turned off
   );
 });
 

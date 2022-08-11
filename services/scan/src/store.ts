@@ -46,7 +46,7 @@ import { buildCastVoteRecord } from './build_cast_vote_record';
 import { Bindable, DbClient } from './db_client';
 import { sheetRequiresAdjudication } from './interpreter';
 import { SheetOf } from './types';
-import { isWriteInAdjudicationBallotImageExportEnabled } from './config/features';
+import { isWriteInAdjudicationBallotImageAndLayoutExportEnabled } from './config/features';
 import { normalizeAndJoin } from './util/path';
 
 const debug = makeDebug('scan:store');
@@ -871,7 +871,7 @@ export class Store {
 
       const frontImage: InlineBallotImage = { normalized: '' };
       const backImage: InlineBallotImage = { normalized: '' };
-      if (isWriteInAdjudicationBallotImageExportEnabled()) {
+      if (isWriteInAdjudicationBallotImageAndLayoutExportEnabled()) {
         if (
           frontInterpretation.type === 'InterpretedHmpbPage' ||
           frontInterpretation.type === 'UninterpretedHmpbPage'
@@ -924,8 +924,9 @@ export class Store {
           },
         ],
         [frontImage, backImage],
-        (frontInterpretation.type === 'InterpretedHmpbPage' ||
-          frontInterpretation.type === 'UninterpretedHmpbPage') &&
+        isWriteInAdjudicationBallotImageAndLayoutExportEnabled() &&
+          (frontInterpretation.type === 'InterpretedHmpbPage' ||
+            frontInterpretation.type === 'UninterpretedHmpbPage') &&
           (backInterpretation.type === 'InterpretedHmpbPage' ||
             backInterpretation.type === 'UninterpretedHmpbPage')
           ? [
