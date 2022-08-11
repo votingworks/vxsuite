@@ -40,8 +40,8 @@ export function ScanErrorScreen({
       // Precinct scanner errors
       case 'scanning_failed':
       case 'both_sides_have_paper':
-      case 'paper_in_front_on_startup':
-      case 'paper_in_back_on_startup':
+      case 'paper_in_front_after_reconnect':
+      case 'paper_in_back_after_reconnect':
       case 'paper_in_back_after_accept':
         return 'Remove ballot to continue.';
       case 'scanning_timed_out':
@@ -152,22 +152,22 @@ export function BallotInsertedWhileOtherBallotAlreadyScanningPreview(): JSX.Elem
 }
 
 /* istanbul ignore next */
-export function BallotInFrontOnStartupPreview(): JSX.Element {
+export function BallotInFrontAfterReconnectPreview(): JSX.Element {
   return (
     <ScanErrorScreen
       isTestMode={false}
-      error="paper_in_front_on_startup"
+      error="paper_in_front_after_reconnect"
       scannedBallotCount={42}
     />
   );
 }
 
 /* istanbul ignore next */
-export function BallotInBackOnStartupPreview(): JSX.Element {
+export function BallotInBackAfterReconnectPreview(): JSX.Element {
   return (
     <ScanErrorScreen
       isTestMode={false}
-      error="paper_in_back_on_startup"
+      error="paper_in_back_after_reconnect"
       scannedBallotCount={42}
     />
   );

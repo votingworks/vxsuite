@@ -388,13 +388,17 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
             SCANNER_READY_TO_SCAN: {
               target: 'rejected',
               actions: assign({
-                error: new PrecinctScannerError('paper_in_front_on_startup'),
+                error: new PrecinctScannerError(
+                  'paper_in_front_after_reconnect'
+                ),
               }),
             },
             SCANNER_READY_TO_EJECT: {
               target: 'rejecting',
               actions: assign({
-                error: new PrecinctScannerError('paper_in_back_on_startup'),
+                error: new PrecinctScannerError(
+                  'paper_in_back_after_reconnect'
+                ),
               }),
             },
           },

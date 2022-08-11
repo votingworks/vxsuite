@@ -522,11 +522,11 @@ test('scanner powered off while accepting', async () => {
   mockPlustek.simulatePowerOn('ready_to_eject');
   await waitForStatus(app, {
     state: 'rejecting',
-    error: 'paper_in_back_on_startup',
+    error: 'paper_in_back_after_reconnect',
   });
   await waitForStatus(app, {
     state: 'rejected',
-    error: 'paper_in_back_on_startup',
+    error: 'paper_in_back_after_reconnect',
   });
 });
 
@@ -650,7 +650,7 @@ test('scanner powered off after returning', async () => {
   mockPlustek.simulatePowerOn('ready_to_scan');
   await waitForStatus(app, {
     state: 'rejected',
-    error: 'paper_in_front_on_startup',
+    error: 'paper_in_front_after_reconnect',
 
     canUnconfigure: false,
   });
