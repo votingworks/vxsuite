@@ -58,7 +58,7 @@ export class Logger {
     eventId: LogEventId,
     user: LoggingUserRole,
     logData: LogData = {},
-    outerDebug?: debug.Debugger
+    outerDebug?: (logLine: LogLine) => void
   ): Promise<void> {
     const eventSpecificDetails = getDetailsForEventId(eventId);
     const {
