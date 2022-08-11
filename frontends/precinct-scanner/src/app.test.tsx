@@ -1288,4 +1288,28 @@ test('replace ballot bag flow', async () => {
   card.removeCard();
   await advanceTimersAndPromises(1);
   await screen.findByText('Insert Your Ballot Below');
+
+  // Does not prompt again if new threshold hasn't been reached
+  fetchMock.restore();
+  fetchMock.get('/scanner/status', {
+    body: scannerStatus({
+      state: 'no_paper',
+      ballotsCounted: BALLOT_BAG_CAPACITY * 2 - 1,
+    }),
+  });
+  await advanceTimersAndPromises(1);
+  await screen.findByText('Insert Your Ballot Below');
+
+  // Prompts again if new threshold has been reached
+  fetchMock.restore();
+  fetchMock.get('/scanner/status', {
+    body: scannerStatus({
+      state: 'no_paper',
+      ballotsCounted: BALLOT_BAG_CAPACITY * 2,
+    }),
+  });
+  await advanceTimersAndPromises(1);
+  await advanceTimersAndPromises(1);
+  await advanceTimersAndPromises(1);
+  await screen.findByText('The Ballot Bag is Full');
 });
