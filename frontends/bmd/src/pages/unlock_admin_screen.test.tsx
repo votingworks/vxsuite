@@ -52,26 +52,8 @@ test('If passcode is incorrect, error message is shown', () => {
   screen.getByText('Invalid code. Please try again.');
 });
 
-test('Hides focus outlines when necessary', () => {
+test('Hides focus outlines', () => {
   const auth = Inserted.fakeCheckingPasscodeAuth();
-  const hideFocusOutlinesCssClass = '.hide-focus-outlines';
-
-  let renderResult = render(
-    <UnlockAdminScreen areFocusOutlinesVisible={false} auth={auth} />
-  );
-  expect(document.querySelector(hideFocusOutlinesCssClass)).toBeInTheDocument();
-  renderResult.unmount();
-
-  renderResult = render(
-    <UnlockAdminScreen areFocusOutlinesVisible auth={auth} />
-  );
-  expect(
-    document.querySelector(hideFocusOutlinesCssClass)
-  ).not.toBeInTheDocument();
-  renderResult.unmount();
-
   render(<UnlockAdminScreen auth={auth} />);
-  expect(
-    document.querySelector(hideFocusOutlinesCssClass)
-  ).not.toBeInTheDocument();
+  expect(document.querySelector('.hide-focus-outlines')).toBeInTheDocument();
 });
