@@ -156,8 +156,8 @@ test('create election works', async () => {
   const { getByText, getAllByText, queryAllByText, getByTestId } = render(
     <App card={card} hardware={hardware} />
   );
-  await screen.findByText('Create New Election Definition');
-  fireEvent.click(getByText('Create New Election Definition'));
+  await screen.findByText('Load Demo Election Definition');
+  fireEvent.click(getByText('Load Demo Election Definition'));
 
   await screen.findByText('Ballots');
   expect(mockKiosk.log).toHaveBeenCalledWith(
@@ -203,7 +203,7 @@ test('create election works', async () => {
   expect(screen.queryAllByText('No Log File Present')).toHaveLength(0);
 
   fireEvent.click(screen.getByText('Configure'));
-  await screen.findByText('Create New Election Definition');
+  await screen.findByText('Load Demo Election Definition');
 });
 
 test('authentication works', async () => {
@@ -1000,7 +1000,7 @@ test('changing election resets sems, cvr, and manual data files', async () => {
   fireEvent.click(getByText('Remove Election'));
   fireEvent.click(getByText('Remove Election Definition'));
   await waitFor(() => {
-    fireEvent.click(getByText('Create New Election Definition'));
+    fireEvent.click(getByText('Load Demo Election Definition'));
   });
 
   fireEvent.click(getByText('Tally'));
@@ -1178,7 +1178,7 @@ test('system administrator UI has expected nav when no election and VVSG2 auth f
   userEvent.click(screen.getByText('Definition'));
   await screen.findByRole('heading', { name: 'Configure VxAdmin' });
   userEvent.click(
-    screen.getByRole('button', { name: 'Create New Election Definition' })
+    screen.getByRole('button', { name: 'Load Demo Election Definition' })
   );
   await waitFor(() =>
     expect(

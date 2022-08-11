@@ -3,6 +3,8 @@ import { useHistory, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { safeParseElection } from '@votingworks/types';
 
+import { electionSampleDefinition } from '@votingworks/fixtures';
+
 import {
   Modal,
   useCancelablePromise,
@@ -18,8 +20,6 @@ import {
 import { readFileAsync } from '../lib/read_file_async';
 
 import { InputEventFunction } from '../config/types';
-
-import defaultElection from '../data/defaultElection.json';
 
 import { AppContext } from '../contexts/app_context';
 
@@ -57,7 +57,7 @@ function someFilesExist(files: VxFile[]) {
   return files.some((f) => f.path);
 }
 
-const newElection = JSON.stringify(defaultElection);
+const demoElection = electionSampleDefinition.electionData;
 
 export function UnconfiguredScreen(): JSX.Element {
   const history = useHistory();
@@ -81,8 +81,8 @@ export function UnconfiguredScreen(): JSX.Element {
     setClient(getElectionDefinitionConverterClient(converter));
   }, [converter]);
 
-  async function createNewElection() {
-    await saveElection(newElection);
+  async function loadDemoElection() {
+    await saveElection(demoElection);
     history.push(routerPaths.electionDefinition);
   }
 
@@ -299,13 +299,6 @@ export function UnconfiguredScreen(): JSX.Element {
       <Prose textCenter>
         <h1>Configure VxAdmin</h1>
         <p>How would you like to start?</p>
-        <p>
-          <Button onPress={createNewElection}>
-            Create New Election Definition
-          </Button>
-        </p>
-        <HorizontalRule>or</HorizontalRule>
-
         {vxElectionFileIsInvalid && (
           <Invalid>Invalid Vx Election Definition file.</Invalid>
         )}
@@ -328,6 +321,12 @@ export function UnconfiguredScreen(): JSX.Element {
             )}
           </React.Fragment>
         )}
+        <HorizontalRule>or</HorizontalRule>
+        <p>
+          <Button onPress={loadDemoElection}>
+            Load Demo Election Definition
+          </Button>
+        </p>
       </Prose>
     </NavigationScreen>
   );
