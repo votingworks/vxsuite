@@ -25,7 +25,6 @@ export interface StartOptions {
   importer: Importer;
   app: Application;
   createPlustekClient: CreatePlustekClient;
-  log(message: string): void; // TODO(caro) Remove once all logging is moved over to logger
   logger: Logger;
   workspace: Workspace;
   machineType: 'bsd' | 'precinct-scanner';
@@ -66,8 +65,10 @@ export async function start({
   let resolvedApp: express.Application;
 
   if (machineType === 'precinct-scanner') {
-    const precinctScannerMachine =
-      createPrecinctScannerStateMachine(createPlustekClient);
+    const precinctScannerMachine = createPrecinctScannerStateMachine(
+      createPlustekClient,
+      logger
+    );
     resolvedApp = buildPrecinctScannerApp(
       precinctScannerMachine,
       resolvedWorkspace
