@@ -777,7 +777,6 @@ export function AppRoot({
         toggleLiveMode={toggleLiveMode}
         unconfigure={unconfigure}
         machineConfig={machineConfig}
-        printer={printer}
         screenReader={screenReader}
       />
     );
