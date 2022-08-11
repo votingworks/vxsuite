@@ -31,7 +31,12 @@ def card_read():
 
     card_bytes, long_value_exists = CardInterface.read()
     assert card_bytes is not None
-    card_data = card_bytes.decode('utf-8')
+    try:
+        card_data = card_bytes.decode('utf-8')
+    except UnicodeDecodeError:  # pragma: no cover - Triggering a UnicodeDecodeError is tricky with our current testing setup
+        # If the card data can't be decoded, e.g because the card was removed mid-programming and
+        # corrupted as a result, treat it as a blank card so that it can be reprogrammed
+        card_data = ''
     if card_data:
         return json.dumps({"status": "ready", "shortValue": card_data, "longValueExists": long_value_exists})
     else:
