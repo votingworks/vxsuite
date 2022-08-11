@@ -1262,7 +1262,7 @@ test('replace ballot bag flow', async () => {
   await advanceTimersAndPromises(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS / 1000);
 
   // should go to modal after accepted screen
-  await screen.findByText('The Ballot Bag is Full');
+  await screen.findByText('Ballot Bag Full');
 
   // Insert a pollworker card to enter confirmation step
   card.insertCard(pollWorkerCard);
@@ -1272,7 +1272,7 @@ test('replace ballot bag flow', async () => {
   // Removing card at this point returns to initial screen
   card.removeCard();
   await advanceTimersAndPromises(1);
-  await screen.findByText('The Ballot Bag is Full');
+  await screen.findByText('Ballot Bag Full');
 
   // Can confirm with pollworker card
   card.insertCard(pollWorkerCard);
@@ -1309,7 +1309,5 @@ test('replace ballot bag flow', async () => {
     }),
   });
   await advanceTimersAndPromises(1);
-  await advanceTimersAndPromises(1);
-  await advanceTimersAndPromises(1);
-  await screen.findByText('The Ballot Bag is Full');
+  await screen.findByText('Ballot Bag Full');
 });

@@ -26,7 +26,7 @@ import * as ScanBusyScreen from './screens/scan_busy_screen';
 import * as SetupPowerPage from './screens/setup_power_page';
 import * as SetupScannerScreen from './screens/setup_scanner_screen';
 import * as UnconfiguredElectionScreen from './screens/unconfigured_election_screen';
-import * as ReplaceBallotBagModal from './components/replace_ballot_bag_modal';
+import * as ReplaceBallotBagScreen from './components/replace_ballot_bag_screen';
 
 export function PreviewApp(): JSX.Element {
   return (
@@ -54,7 +54,7 @@ export function PreviewApp(): JSX.Element {
         SetupPowerPage,
         SetupScannerScreen,
         UnconfiguredElectionScreen,
-        ReplaceBallotBagModal,
+        ReplaceBallotBagScreen,
       ]}
     />
   );
