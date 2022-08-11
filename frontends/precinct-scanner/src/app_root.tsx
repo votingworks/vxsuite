@@ -6,6 +6,7 @@ import {
   OptionalElectionDefinition,
   Provider,
   PrecinctId,
+  MarkThresholds,
   ElectionDefinition,
 } from '@votingworks/types';
 import {
@@ -83,6 +84,7 @@ interface ScannerConfigState {
   isScannerConfigLoaded: boolean;
   electionDefinition?: ElectionDefinition;
   currentPrecinctId?: PrecinctId;
+  currentMarkThresholds?: MarkThresholds;
   isTestMode: boolean;
 }
 
@@ -107,6 +109,7 @@ const initialScannerConfigState: Readonly<ScannerConfigState> = {
   isScannerConfigLoaded: false,
   electionDefinition: undefined,
   isTestMode: false,
+  currentMarkThresholds: undefined,
   currentPrecinctId: undefined,
 };
 
@@ -133,9 +136,11 @@ type AppAction =
       type: 'refreshConfigFromScanner';
       electionDefinition?: ElectionDefinition;
       isTestMode: boolean;
+      currentMarkThresholds?: MarkThresholds;
       currentPrecinctId?: PrecinctId;
     }
   | { type: 'updatePrecinctId'; precinctId?: PrecinctId }
+  | { type: 'updateMarkThresholds'; markThresholds?: MarkThresholds }
   | { type: 'togglePollsOpen' }
   | { type: 'setMachineConfig'; machineConfig: MachineConfig };
 
@@ -173,6 +178,7 @@ function appReducer(state: State, action: AppAction): State {
         ...state,
         electionDefinition: action.electionDefinition,
         currentPrecinctId: action.currentPrecinctId,
+        currentMarkThresholds: action.currentMarkThresholds,
         isTestMode: action.isTestMode,
         isScannerConfigLoaded: true,
       };
@@ -182,6 +188,11 @@ function appReducer(state: State, action: AppAction): State {
         ...state,
         currentPrecinctId: action.precinctId,
         isPollsOpen: false,
+      };
+    case 'updateMarkThresholds':
+      return {
+        ...state,
+        currentMarkThresholds: action.markThresholds,
       };
     case 'togglePollsOpen':
       return {
@@ -213,6 +224,7 @@ export function AppRoot({
     isScannerConfigLoaded,
     isTestMode,
     currentPrecinctId,
+    currentMarkThresholds,
     isPollsOpen,
     initializedFromStorage,
     machineConfig,
@@ -252,10 +264,12 @@ export function AppRoot({
     const newCurrentPrecinctId = await makeCancelable(
       config.getCurrentPrecinctId()
     );
+    const newMarkThresholds = await makeCancelable(config.getMarkThresholds());
     dispatchAppState({
       type: 'refreshConfigFromScanner',
       electionDefinition: newElectionDefinition,
       isTestMode: newIsTestMode,
+      currentMarkThresholds: newMarkThresholds,
       currentPrecinctId: newCurrentPrecinctId,
     });
   }, [makeCancelable]);
@@ -340,6 +354,11 @@ export function AppRoot({
   async function updatePrecinctId(precinctId: PrecinctId) {
     dispatchAppState({ type: 'updatePrecinctId', precinctId });
     await config.setCurrentPrecinctId(precinctId);
+  }
+
+  async function updateMarkThresholds(markThresholds?: MarkThresholds) {
+    dispatchAppState({ type: 'updateMarkThresholds', markThresholds });
+    await config.setMarkThresholdOverrides(markThresholds);
   }
 
   const scannerStatus = usePrecinctScannerStatus();
@@ -434,6 +453,7 @@ export function AppRoot({
         value={{
           electionDefinition,
           currentPrecinctId,
+          currentMarkThresholds,
           machineConfig,
           auth,
         }}
@@ -443,6 +463,7 @@ export function AppRoot({
           scannerStatus={scannerStatus}
           isTestMode={isTestMode}
           toggleLiveMode={toggleTestMode}
+          setMarkThresholdOverrides={updateMarkThresholds}
           unconfigure={unconfigureServer}
           usbDrive={usbDrive}
         />
@@ -460,6 +481,7 @@ export function AppRoot({
         value={{
           electionDefinition,
           currentPrecinctId,
+          currentMarkThresholds,
           machineConfig,
           auth,
         }}
@@ -580,6 +602,7 @@ export function AppRoot({
       value={{
         electionDefinition,
         currentPrecinctId,
+        currentMarkThresholds,
         machineConfig,
         auth,
       }}
