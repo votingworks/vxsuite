@@ -57,6 +57,11 @@ const getPrecinctConfigNoPrecinctResponseBody: Scan.GetCurrentPrecinctConfigResp
     status: 'ok',
   };
 
+const getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody: Scan.GetMarkThresholdOverridesConfigResponse =
+  {
+    status: 'ok',
+  };
+
 beforeEach(() => {
   jest.useFakeTimers();
   fetchMock.reset();
@@ -81,6 +86,9 @@ test('services/scan fails to unconfigure', async () => {
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', {
       body: getPrecinctConfigNoPrecinctResponseBody,
+    })
+    .get('/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
     })
     .get('/scanner/status', statusNoPaper)
     .deleteOnce('/config/election', { status: 404 });
@@ -116,6 +124,9 @@ test('Show invalid card screen when unsupported cards are given', async () => {
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', {
       body: getPrecinctConfigNoPrecinctResponseBody,
+    })
+    .get('/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
     })
     .deleteOnce('/config/election', { status: 404 })
     .get('/scanner/status', statusNoPaper);
@@ -170,6 +181,9 @@ test('show card backwards screen when card connection error occurs', async () =>
     .get('/config/precinct', {
       body: getPrecinctConfigNoPrecinctResponseBody,
     })
+    .get('/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
+    })
     .deleteOnce('/config/election', { status: 404 })
     .get('/scanner/status', statusNoPaper);
 
@@ -198,6 +212,9 @@ test('shows internal wiring message when there is no plustek scanner, but tablet
     .get('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
+    })
     .get('/scanner/status', { ...statusNoPaper, state: 'disconnected' });
   render(<App card={card} storage={storage} hardware={hardware} />);
   await screen.findByRole('heading', { name: 'Internal Connection Problem' });
@@ -215,6 +232,9 @@ test('shows power cable message when there is no plustek scanner and tablet is n
     .get('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
+    })
     .get('/scanner/status', { ...statusNoPaper, state: 'disconnected' });
   render(<App card={card} storage={storage} hardware={hardware} />);
   await screen.findByRole('heading', { name: 'No Power Detected' });
@@ -245,6 +265,9 @@ test('App shows message to connect to power when disconnected and battery is low
     .get('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
+    })
     .get('/scanner/status', { body: statusNoPaper });
   render(<App card={card} hardware={hardware} storage={storage} />);
   await advanceTimersAndPromises(1);
@@ -270,6 +293,9 @@ test('App shows warning message to connect to power when disconnected', async ()
     .get('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
+    })
     .get('/scanner/status', { body: statusNoPaper });
   render(<App card={card} hardware={hardware} storage={storage} />);
   fetchMock.post('/scan/export', {});
@@ -323,6 +349,9 @@ test('removing card during calibration', async () => {
     .get('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
+    })
     .get('/scanner/status', { body: statusNoPaper })
     .post('/scan/export', {});
   render(

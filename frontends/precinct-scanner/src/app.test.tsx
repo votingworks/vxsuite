@@ -113,6 +113,17 @@ const getPrecinctConfigNoPrecinctResponseBody: Scan.GetCurrentPrecinctConfigResp
     status: 'ok',
   };
 
+const getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody: Scan.GetMarkThresholdOverridesConfigResponse =
+  {
+    status: 'ok',
+  };
+
+const getMarkThresholdOverridesConfigResponseBody: Scan.GetMarkThresholdOverridesConfigResponse =
+  {
+    status: 'ok',
+    markThresholdOverrides: { definite: 0.5, marginal: 0.25 },
+  };
+
 test('shows setup card reader screen when there is no card reader', async () => {
   const card = new MemoryCard();
   const storage = new MemoryStorage();
@@ -123,6 +134,9 @@ test('shows setup card reader screen when there is no card reader', async () => 
     .get('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesConfigResponseBody,
+    })
     .get('/scanner/status', { body: statusNoPaper });
   render(<App storage={storage} hardware={hardware} card={card} />);
   await screen.findByText('Card Reader Not Detected');
@@ -142,6 +156,9 @@ test('initializes app with stored state', async () => {
     .get('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
+    })
     .get('/scanner/status', { body: statusNoPaper })
     .patchOnce('/config/testMode', {
       body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
@@ -177,6 +194,9 @@ test('app can load and configure from a usb stick', async () => {
     .getOnce('/config/election', new Response('null'))
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
+    })
     .get('/scanner/status', { body: statusNoPaper });
   render(<App storage={storage} card={card} hardware={hardware} />);
   await screen.findByText('Loading Configuration…');
@@ -301,6 +321,9 @@ test('election manager and poll worker configuration', async () => {
     .get('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
+    })
     .get('/scanner/status', { body: statusNoPaper })
     .patchOnce('/config/testMode', {
       body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
@@ -377,6 +400,9 @@ test('election manager and poll worker configuration', async () => {
     1
   );
   fetchMock.putOnce('/config/precinct', { body: { status: 'ok' } });
+  fetchMock.putOnce('/config/markThresholdOverrides', {
+    body: { status: 'ok' },
+  });
 
   // Remove Card and check polls were reset to closed.
   card.removeCard();
@@ -491,6 +517,9 @@ test('voter can cast a ballot that scans successfully ', async () => {
     .get('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
+    })
     .getOnce('/scanner/status', { body: statusNoPaper });
   render(<App card={card} hardware={hardware} storage={storage} />);
   await advanceTimersAndPromises(1);
@@ -652,6 +681,9 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
     .get('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
+    })
     .getOnce('/scanner/status', { body: statusNoPaper });
   render(<App storage={storage} card={card} hardware={hardware} />);
   await screen.findByText('Insert Your Ballot Below');
@@ -720,6 +752,9 @@ test('voter can cast a rejected ballot', async () => {
     .getOnce('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
+    })
     .getOnce('/scanner/status', { body: statusNoPaper });
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
@@ -781,6 +816,9 @@ test('voter can cast another ballot while the success screen is showing', async 
     .get('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
+    })
     .getOnce('/scanner/status', {
       body: scannerStatus({ state: 'accepted', ballotsCounted: 1 }),
     });
@@ -837,6 +875,9 @@ test('scanning is not triggered when polls closed or cards present', async () =>
     .get('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
+    })
     // Set up the status endpoint with 15 ballots scanned
     .get('/scanner/status', {
       body: scannerStatus({ state: 'ready_to_scan', ballotsCounted: 15 }),
@@ -886,6 +927,9 @@ test('no printer: poll worker can open and close polls without scanning any ball
     .get('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
+    })
     .get('/scanner/status', { body: statusNoPaper })
     .patchOnce('/config/testMode', {
       body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
@@ -936,6 +980,9 @@ test('with printer: poll worker can open and close polls without scanning any ba
     .get('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
+    })
     .get('/scanner/status', { body: statusNoPaper })
     .patchOnce('/config/testMode', {
       body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
@@ -986,6 +1033,9 @@ test('no printer: open polls, scan ballot, close polls, export results', async (
     .get('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
+    })
     .get('/scanner/status', { body: statusNoPaper })
     .patchOnce('/config/testMode', {
       body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
@@ -1121,6 +1171,9 @@ test('system administrator can log in and unconfigure machine', async () => {
     .get('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
+    })
     .get('/scanner/status', { body: statusNoPaper })
     .delete('/config/election', { body: deleteElectionConfigResponseBody });
   render(<App card={card} storage={storage} hardware={hardware} />);
@@ -1169,6 +1222,9 @@ test('system administrator allowed to log in on unconfigured machine', async () 
     .get('/config/election', { body: null })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
+    })
     .get('/scanner/status', { body: statusNoPaper });
 
   render(<App card={card} storage={storage} hardware={hardware} />);
@@ -1194,6 +1250,9 @@ test('election manager cannot auth onto machine with different election hash whe
     .get('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
+    })
     .get('/scanner/status', { body: statusNoPaper });
 
   render(<App card={card} storage={storage} hardware={hardware} />);
