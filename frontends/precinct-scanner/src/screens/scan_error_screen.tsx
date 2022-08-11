@@ -39,14 +39,11 @@ export function ScanErrorScreen({
         return 'There was a problem reading this ballot. Please scan again.';
       // Precinct scanner errors
       case 'scanning_failed':
-        return 'Ballot not fully inserted. Remove ballot to continue.';
       case 'both_sides_have_paper':
-        return 'Scanning interrupted. Remove ballot to continue.';
       case 'paper_in_front_on_startup':
-        return 'Scanner detected an unexpected ballot in the tray. Remove ballot to continue.';
       case 'paper_in_back_on_startup':
       case 'paper_in_back_after_accept':
-        return 'Scanner detected an unexpected ballot at the back of the scanner. Remove ballot to continue.';
+        return 'Remove ballot to continue.';
       case 'scanning_timed_out':
       case 'unexpected_paper_status':
       case 'unexpected_event':
@@ -68,7 +65,7 @@ export function ScanErrorScreen({
           <Text>Ask a poll worker to restart the scanner.</Text>
         ) : (
           <Text small italic>
-            Ask a poll worker for help.
+            Ask a poll worker if you need help.
           </Text>
         )}
       </CenteredLargeProse>
