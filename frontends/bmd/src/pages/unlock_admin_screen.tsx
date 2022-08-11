@@ -67,7 +67,7 @@ export function UnlockAdminScreen({ auth }: Props): JSX.Element {
     primarySentence = <Text warning>Invalid code. Please try again.</Text>;
   }
   return (
-    <Screen>
+    <Screen className="hide-focus-outlines">
       <Main centerChild>
         <Prose textCenter theme={fontSizeTheme.medium} maxWidth={false}>
           {primarySentence}

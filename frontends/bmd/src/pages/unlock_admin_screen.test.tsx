@@ -51,3 +51,9 @@ test('If passcode is incorrect, error message is shown', () => {
   render(<UnlockAdminScreen auth={auth} />);
   screen.getByText('Invalid code. Please try again.');
 });
+
+test('Hides focus outlines', () => {
+  const auth = Inserted.fakeCheckingPasscodeAuth();
+  render(<UnlockAdminScreen auth={auth} />);
+  expect(document.querySelector('.hide-focus-outlines')).toBeInTheDocument();
+});
