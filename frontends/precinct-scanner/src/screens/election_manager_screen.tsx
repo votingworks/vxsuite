@@ -1,4 +1,5 @@
 import {
+  MarkThresholds,
   Precinct,
   PrecinctId,
   SelectChangeEventFunction,
@@ -25,11 +26,13 @@ import { ExportResultsModal } from '../components/export_results_modal';
 import { ScannedBallotCount } from '../components/scanned_ballot_count';
 import { ScreenMainCenterChild } from '../components/layout';
 import { AppContext } from '../contexts/app_context';
+import { SetMarkThresholdsModal } from '../components/set_mark_thresholds_modal';
 
 interface Props {
   scannerStatus: Scan.PrecinctScannerStatus;
   isTestMode: boolean;
   updateAppPrecinctId(appPrecinctId: PrecinctId): Promise<void>;
+  setMarkThresholdOverrides: (markThresholds?: MarkThresholds) => Promise<void>;
   toggleLiveMode(): Promise<void>;
   unconfigure(): Promise<void>;
   usbDrive: UsbDrive;
@@ -40,10 +43,11 @@ export function ElectionManagerScreen({
   isTestMode,
   updateAppPrecinctId,
   toggleLiveMode,
+  setMarkThresholdOverrides,
   unconfigure,
   usbDrive,
 }: Props): JSX.Element {
-  const { electionDefinition, currentPrecinctId, auth } =
+  const { electionDefinition, currentPrecinctId, currentMarkThresholds, auth } =
     useContext(AppContext);
   assert(electionDefinition);
   const { election } = electionDefinition;
@@ -86,6 +90,9 @@ export function ElectionManagerScreen({
     () => setIsCalibratingScanner(false),
     []
   );
+
+  const [isMarkThresholdModalOpen, setIsMarkThresholdModalOpen] =
+    useState(false);
 
   const changeAppPrecinctId: SelectChangeEventFunction = async (event) => {
     await updateAppPrecinctId(event.currentTarget.value);
@@ -174,6 +181,13 @@ export function ElectionManagerScreen({
           </Button>
         </p>
         <p>
+          <Button onPress={() => setIsMarkThresholdModalOpen(true)}>
+            {currentMarkThresholds === undefined
+              ? 'Override Mark Thresholds'
+              : 'Reset Mark Thresholds'}
+          </Button>
+        </p>
+        <p>
           <Button onPress={openCalibrateScannerModal}>Calibrate Scanner</Button>
         </p>
         <p>
@@ -197,6 +211,14 @@ export function ElectionManagerScreen({
         )}
       </Prose>
       <ScannedBallotCount count={scannerStatus.ballotsCounted} />
+      {isMarkThresholdModalOpen && (
+        <SetMarkThresholdsModal
+          setMarkThresholdOverrides={setMarkThresholdOverrides}
+          markThresholds={electionDefinition.election.markThresholds}
+          markThresholdOverrides={currentMarkThresholds}
+          onClose={() => setIsMarkThresholdModalOpen(false)}
+        />
+      )}
       {isShowingToggleLiveModeWarningModal && (
         <Modal
           content={
@@ -284,6 +306,7 @@ export function DefaultPreview(): JSX.Element {
         machineConfig,
         electionDefinition,
         currentPrecinctId: precinctId,
+        currentMarkThresholds: undefined,
         auth: {
           status: 'logged_in',
           user: {
@@ -312,6 +335,7 @@ export function DefaultPreview(): JSX.Element {
         // eslint-disable-next-line @typescript-eslint/require-await
         toggleLiveMode={async () => setIsTestMode((prev) => !prev)}
         unconfigure={() => Promise.resolve()}
+        setMarkThresholdOverrides={() => Promise.resolve()}
         // eslint-disable-next-line @typescript-eslint/require-await
         updateAppPrecinctId={async (newPrecinctId) =>
           setPrecinctId(newPrecinctId)

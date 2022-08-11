@@ -48,6 +48,7 @@ test('renders date and time settings modal', async () => {
         isTestMode={false}
         updateAppPrecinctId={jest.fn()}
         toggleLiveMode={jest.fn()}
+        setMarkThresholdOverrides={jest.fn()}
         unconfigure={jest.fn()}
         usbDrive={{ status: usbstick.UsbDriveStatus.absent, eject: jest.fn() }}
       />
@@ -99,6 +100,7 @@ test('setting and un-setting the precinct', async () => {
         isTestMode={false}
         updateAppPrecinctId={updateAppPrecinctId}
         toggleLiveMode={jest.fn()}
+        setMarkThresholdOverrides={jest.fn()}
         unconfigure={jest.fn()}
         usbDrive={{ status: usbstick.UsbDriveStatus.absent, eject: jest.fn() }}
       />
@@ -135,6 +137,7 @@ test('export from admin screen', () => {
         isTestMode={false}
         updateAppPrecinctId={jest.fn()}
         toggleLiveMode={jest.fn()}
+        setMarkThresholdOverrides={jest.fn()}
         unconfigure={jest.fn()}
         usbDrive={{ status: usbstick.UsbDriveStatus.absent, eject: jest.fn() }}
       />
@@ -160,6 +163,7 @@ test('unconfigure ejects a usb drive when it is mounted', () => {
         isTestMode={false}
         updateAppPrecinctId={jest.fn()}
         toggleLiveMode={jest.fn()}
+        setMarkThresholdOverrides={jest.fn()}
         unconfigure={unconfigureFn}
         usbDrive={{ status: usbstick.UsbDriveStatus.absent, eject: ejectFn }}
       />
@@ -188,6 +192,7 @@ test('unconfigure does not eject a usb drive that is not mounted', async () => {
         isTestMode={false}
         updateAppPrecinctId={jest.fn()}
         toggleLiveMode={jest.fn()}
+        setMarkThresholdOverrides={jest.fn()}
         unconfigure={unconfigureFn}
         usbDrive={{ status: usbstick.UsbDriveStatus.mounted, eject: ejectFn }}
       />
@@ -216,6 +221,7 @@ test('unconfigure button is disabled when the machine cannot be unconfigured', (
         isTestMode={false}
         updateAppPrecinctId={jest.fn()}
         toggleLiveMode={jest.fn()}
+        setMarkThresholdOverrides={jest.fn()}
         unconfigure={jest.fn()}
         usbDrive={{ status: usbstick.UsbDriveStatus.mounted, eject: jest.fn() }}
       />
@@ -242,6 +248,7 @@ test('cannot toggle to testing mode when the machine cannot be unconfigured', ()
         isTestMode={false}
         updateAppPrecinctId={jest.fn()}
         toggleLiveMode={toggleLiveModeFn}
+        setMarkThresholdOverrides={jest.fn()}
         unconfigure={jest.fn()}
         usbDrive={{ status: usbstick.UsbDriveStatus.mounted, eject: jest.fn() }}
       />
@@ -251,4 +258,42 @@ test('cannot toggle to testing mode when the machine cannot be unconfigured', ()
   fireEvent.click(screen.getByText('Testing Mode'));
   expect(toggleLiveModeFn).not.toHaveBeenCalled();
   fireEvent.click(screen.getByText('Cancel'));
+});
+
+test('Allows overriding mark thresholds', () => {
+  const setMarkThresholdOverridesFn = jest.fn();
+
+  render(
+    <AppContext.Provider
+      value={{
+        electionDefinition: electionSampleDefinition,
+        machineConfig: { machineId: '0000', codeVersion: 'TEST' },
+        auth,
+      }}
+    >
+      <ElectionManagerScreen
+        scannerStatus={scannerStatus}
+        isTestMode={false}
+        updateAppPrecinctId={jest.fn()}
+        toggleLiveMode={jest.fn()}
+        setMarkThresholdOverrides={setMarkThresholdOverridesFn}
+        unconfigure={jest.fn()}
+        usbDrive={{ status: usbstick.UsbDriveStatus.mounted, eject: jest.fn() }}
+      />
+    </AppContext.Provider>
+  );
+
+  fireEvent.click(screen.getByText('Override Mark Thresholds'));
+  fireEvent.click(screen.getByText('Proceed to Override Thresholds'));
+  fireEvent.change(screen.getByTestId('definite-text-input'), {
+    target: { value: '.5' },
+  });
+  fireEvent.change(screen.getByTestId('marginal-text-input'), {
+    target: { value: '.25' },
+  });
+  fireEvent.click(screen.getByText('Override Thresholds'));
+  expect(setMarkThresholdOverridesFn).toHaveBeenCalledWith({
+    definite: 0.5,
+    marginal: 0.25,
+  });
 });
