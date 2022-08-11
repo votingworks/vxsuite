@@ -401,7 +401,10 @@ export function AppRoot({
 
   if (!precinctScanner) {
     return (
-      <SetupScannerScreen batteryIsCharging={computer.batteryIsCharging} />
+      <SetupScannerScreen
+        batteryIsCharging={computer.batteryIsCharging}
+        scannedBallotCount={scannerStatus?.ballotsCounted}
+      />
     );
   }
 
@@ -486,6 +489,7 @@ export function AppRoot({
       <PollsClosedScreen
         isLiveMode={!isTestMode}
         showNoChargerWarning={!computer.batteryIsCharging}
+        scannedBallotCount={scannerStatus.ballotsCounted}
       />
     );
   }
@@ -541,10 +545,13 @@ export function AppRoot({
                 : scannerStatus.error
             }
             isTestMode={isTestMode}
+            scannedBallotCount={scannerStatus.ballotsCounted}
           />
         );
       case 'jammed':
-        return <ScanJamScreen />;
+        return (
+          <ScanJamScreen scannedBallotCount={scannerStatus.ballotsCounted} />
+        );
       case 'both_sides_have_paper':
         return <ScanBusyScreen />;
       case 'error':
@@ -552,6 +559,7 @@ export function AppRoot({
           <ScanErrorScreen
             error={scannerStatus.error}
             isTestMode={isTestMode}
+            scannedBallotCount={scannerStatus.ballotsCounted}
           />
         );
       // If an election manager removes their card during calibration, we'll

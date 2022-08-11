@@ -5,8 +5,13 @@ import {
   CenteredLargeProse,
   ScreenMainCenterChild,
 } from '../components/layout';
+import { ScannedBallotCount } from '../components/scanned_ballot_count';
 
-export function ScanJamScreen(): JSX.Element {
+interface Props {
+  scannedBallotCount: number;
+}
+
+export function ScanJamScreen({ scannedBallotCount }: Props): JSX.Element {
   return (
     <ScreenMainCenterChild infoBar={false}>
       <TimesCircle />
@@ -17,11 +22,12 @@ export function ScanJamScreen(): JSX.Element {
           Ask a poll worker for help.
         </Text>
       </CenteredLargeProse>
+      <ScannedBallotCount count={scannedBallotCount} />
     </ScreenMainCenterChild>
   );
 }
 
 /* istanbul ignore next */
 export function DefaultPreview(): JSX.Element {
-  return <ScanJamScreen />;
+  return <ScanJamScreen scannedBallotCount={42} />;
 }

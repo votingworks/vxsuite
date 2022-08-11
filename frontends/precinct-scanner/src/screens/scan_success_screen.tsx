@@ -26,5 +26,5 @@ export function ScanSuccessScreen({ scannedBallotCount }: Props): JSX.Element {
 
 /* istanbul ignore next */
 export function DefaultPreview(): JSX.Element {
-  return <ScanSuccessScreen scannedBallotCount={1} />;
+  return <ScanSuccessScreen scannedBallotCount={42} />;
 }

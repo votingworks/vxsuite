@@ -7,13 +7,19 @@ import {
   CenteredLargeProse,
   ScreenMainCenterChild,
 } from '../components/layout';
+import { ScannedBallotCount } from '../components/scanned_ballot_count';
 
 interface Props {
   error?: Scan.InvalidInterpretationReason | Scan.PrecinctScannerErrorType;
   isTestMode: boolean;
+  scannedBallotCount: number;
 }
 
-export function ScanErrorScreen({ error, isTestMode }: Props): JSX.Element {
+export function ScanErrorScreen({
+  error,
+  isTestMode,
+  scannedBallotCount,
+}: Props): JSX.Element {
   const errorMessage = (() => {
     if (!error) return undefined;
     switch (error) {
@@ -58,67 +64,128 @@ export function ScanErrorScreen({ error, isTestMode }: Props): JSX.Element {
           Ask a poll worker for help.
         </Text>
       </CenteredLargeProse>
+      <ScannedBallotCount count={scannedBallotCount} />
     </ScreenMainCenterChild>
   );
 }
 
 /* istanbul ignore next */
 export function UnreadablePreview(): JSX.Element {
-  return <ScanErrorScreen isTestMode={false} error="unreadable" />;
+  return (
+    <ScanErrorScreen
+      isTestMode={false}
+      error="unreadable"
+      scannedBallotCount={42}
+    />
+  );
 }
 
 /* istanbul ignore next */
 export function InvalidElectionHashPreview(): JSX.Element {
-  return <ScanErrorScreen isTestMode={false} error="invalid_election_hash" />;
+  return (
+    <ScanErrorScreen
+      isTestMode={false}
+      error="invalid_election_hash"
+      scannedBallotCount={42}
+    />
+  );
 }
 
 /* istanbul ignore next */
 export function InvalidTestModeBallotPreview(): JSX.Element {
-  return <ScanErrorScreen isTestMode={false} error="invalid_test_mode" />;
+  return (
+    <ScanErrorScreen
+      isTestMode={false}
+      error="invalid_test_mode"
+      scannedBallotCount={42}
+    />
+  );
 }
 
 /* istanbul ignore next */
 export function InvalidLiveModeBallotPreview(): JSX.Element {
-  return <ScanErrorScreen isTestMode error="invalid_test_mode" />;
+  return (
+    <ScanErrorScreen
+      isTestMode
+      error="invalid_test_mode"
+      scannedBallotCount={42}
+    />
+  );
 }
 
 /* istanbul ignore next */
 export function InvalidPrecinctPreview(): JSX.Element {
-  return <ScanErrorScreen isTestMode={false} error="invalid_precinct" />;
+  return (
+    <ScanErrorScreen
+      isTestMode={false}
+      error="invalid_precinct"
+      scannedBallotCount={42}
+    />
+  );
 }
 
 /* istanbul ignore next */
 export function UnknownInterpretationErrorPreview(): JSX.Element {
-  return <ScanErrorScreen isTestMode={false} error="unknown" />;
+  return (
+    <ScanErrorScreen
+      isTestMode={false}
+      error="unknown"
+      scannedBallotCount={42}
+    />
+  );
 }
 
 /* istanbul ignore next */
 export function BallotInsertedWhileOtherBallotAlreadyScanningPreview(): JSX.Element {
-  return <ScanErrorScreen isTestMode={false} error="both_sides_have_paper" />;
+  return (
+    <ScanErrorScreen
+      isTestMode={false}
+      error="both_sides_have_paper"
+      scannedBallotCount={42}
+    />
+  );
 }
 
 /* istanbul ignore next */
 export function BallotInFrontOnStartupPreview(): JSX.Element {
   return (
-    <ScanErrorScreen isTestMode={false} error="paper_in_front_on_startup" />
+    <ScanErrorScreen
+      isTestMode={false}
+      error="paper_in_front_on_startup"
+      scannedBallotCount={42}
+    />
   );
 }
 
 /* istanbul ignore next */
 export function BallotInBackOnStartupPreview(): JSX.Element {
   return (
-    <ScanErrorScreen isTestMode={false} error="paper_in_back_on_startup" />
+    <ScanErrorScreen
+      isTestMode={false}
+      error="paper_in_back_on_startup"
+      scannedBallotCount={42}
+    />
   );
 }
 
 /* istanbul ignore next */
 export function BallotNotDroppedAfterAcceptPreview(): JSX.Element {
   return (
-    <ScanErrorScreen isTestMode={false} error="paper_in_back_after_accept" />
+    <ScanErrorScreen
+      isTestMode={false}
+      error="paper_in_back_after_accept"
+      scannedBallotCount={42}
+    />
   );
 }
 
 /* istanbul ignore next */
 export function UnexpectedPlustekErrorPreview(): JSX.Element {
-  return <ScanErrorScreen isTestMode={false} error="plustek_error" />;
+  return (
+    <ScanErrorScreen
+      isTestMode={false}
+      error="plustek_error"
+      scannedBallotCount={42}
+    />
+  );
 }
