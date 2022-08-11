@@ -2,6 +2,7 @@ import {
   ElectionDefinition,
   Optional,
   Precinct,
+  MarkThresholds,
   safeParseJson,
 } from '@votingworks/types';
 import { ErrorsResponse, OkResponse, Scan } from '@votingworks/api';
@@ -102,6 +103,30 @@ export async function setTestMode(testMode: boolean): Promise<void> {
   await patch<Scan.PatchTestModeConfigRequest>('/config/testMode', {
     testMode,
   });
+}
+
+export async function getMarkThresholds(): Promise<Optional<MarkThresholds>> {
+  return safeParseJson(
+    await (
+      await fetch('/config/markThresholdOverrides', {
+        headers: { Accept: 'application/json' },
+      })
+    ).text(),
+    Scan.GetMarkThresholdOverridesConfigResponseSchema
+  ).unsafeUnwrap().markThresholdOverrides;
+}
+
+export async function setMarkThresholdOverrides(
+  markThresholdOverrides?: MarkThresholds
+): Promise<void> {
+  if (typeof markThresholdOverrides === 'undefined') {
+    await del('/config/markThresholdOverrides');
+  } else {
+    await patch<Scan.PatchMarkThresholdOverridesConfigRequest>(
+      '/config/markThresholdOverrides',
+      { markThresholdOverrides }
+    );
+  }
 }
 
 export async function getCurrentPrecinctId(): Promise<
