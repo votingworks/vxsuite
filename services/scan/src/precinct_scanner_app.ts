@@ -218,6 +218,47 @@ export function buildPrecinctScannerApp(
     }
   );
 
+  app.get<NoParams, Scan.GetMarkThresholdOverridesConfigResponse>(
+    '/config/markThresholdOverrides',
+    (_request, response) => {
+      const markThresholdOverrides = store.getMarkThresholdOverrides();
+      response.json({ status: 'ok', markThresholdOverrides });
+    }
+  );
+
+  app.delete<NoParams, Scan.DeleteMarkThresholdOverridesConfigResponse>(
+    '/config/markThresholdOverrides',
+    (_request, response) => {
+      store.setMarkThresholdOverrides(undefined);
+      response.json({ status: 'ok' });
+    }
+  );
+
+  app.patch<
+    NoParams,
+    Scan.PatchMarkThresholdOverridesConfigResponse,
+    Scan.PatchMarkThresholdOverridesConfigRequest
+  >('/config/markThresholdOverrides', (request, response) => {
+    const bodyParseResult = safeParse(
+      Scan.PatchMarkThresholdOverridesConfigRequestSchema,
+      request.body
+    );
+
+    if (bodyParseResult.isErr()) {
+      const error = bodyParseResult.err();
+      response.status(400).json({
+        status: 'error',
+        errors: [{ type: error.name, message: error.message }],
+      });
+      return;
+    }
+
+    store.setMarkThresholdOverrides(
+      bodyParseResult.ok().markThresholdOverrides
+    );
+    response.json({ status: 'ok' });
+  });
+
   app.post<NoParams, Scan.AddTemplatesResponse, Scan.AddTemplatesRequest>(
     '/scan/hmpb/addTemplates',
     upload.fields([
