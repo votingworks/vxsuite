@@ -1282,7 +1282,7 @@ test('replace ballot bag flow', async () => {
 
   // Prompted to remove card
   await advanceTimersAndPromises(1);
-  await screen.findByText('Resume Voting');
+  await screen.findByText('Ready to Resume Voting');
 
   // Removing card returns to voter screen
   card.removeCard();
