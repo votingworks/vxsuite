@@ -38,6 +38,7 @@ export function InvalidCardScreen({
         src="/assets/rotate-card.svg"
       />
     );
+    // The only cause we currently know of for a card error
     heading = 'Card is Backwards';
     recommendedAction = 'Remove the card, turn it around, and insert it again.';
   }
