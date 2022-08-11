@@ -15,12 +15,14 @@ import {
   Assigner,
   createMachine,
   interpret,
+  Interpreter,
   InvokeConfig,
   PropertyAssigner,
 } from 'xstate';
 import { Scan } from '@votingworks/api';
 import makeDebug from 'debug';
 import { waitFor } from 'xstate/lib/waitFor';
+import { LogEventId, Logger } from '@votingworks/logging';
 import {
   SheetInterpretation,
   SimpleInterpreter,
@@ -776,7 +778,64 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
   );
 }
 
-function errorToString(error: Context['error']) {
+function setupLogging(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  machineService: Interpreter<Context, any, Event, any, any>,
+  logger: Logger
+) {
+  machineService
+    .onEvent(async (event) => {
+      // To protect voter privacy, we only log the event type (since some event
+      // objects include ballot interpretations)
+      await logger.log(LogEventId.ScannerEvent, 'system', {
+        message: `Event: ${event.type}`,
+      });
+      debugEvents('Event: %s', event);
+    })
+    .onChange(async (context, previousContext) => {
+      if (!previousContext) return;
+      const changed = Object.entries(context).filter(
+        ([key, value]) => previousContext[key as keyof Context] !== value
+      );
+      if (changed.length === 0) return;
+      debug('Context updated: %o', Object.fromEntries(changed));
+      // In prod, we only log fields that are key for understanding state
+      // machine behavior, since others would be too verbose (e.g. Plustek
+      // client object)
+      const changedToLog = changed
+        .filter(([key]) =>
+          [
+            'scannedSheet',
+            'interpretation',
+            'error',
+            'failedScanAttempts',
+          ].includes(key)
+        )
+        // To protect voter privacy, only log the interpretation type
+        .map(([key, value]) =>
+          key === 'interpretation' ? [key, value?.type] : [key, value]
+        )
+        .map(([key, value]) => [
+          key,
+          value === undefined ? 'undefined' : value,
+        ]);
+
+      if (changedToLog.length === 0) return;
+      await logger.log(LogEventId.ScannerStateChanged, 'system', {
+        message: `Context updated`,
+        changedFields: JSON.stringify(Object.fromEntries(changedToLog)),
+      });
+    })
+    .onTransition(async (state) => {
+      if (!state.changed) return;
+      await logger.log(LogEventId.ScannerStateChanged, 'system', {
+        message: `Transitioned to: ${JSON.stringify(state.value)}`,
+      });
+      debug('Transitioned to: %s', state.value);
+    });
+}
+
+function errorToString(error: NonNullable<Context['error']>) {
   return error instanceof PrecinctScannerError ? error.type : 'plustek_error';
 }
 
@@ -797,25 +856,12 @@ export interface PrecinctScannerStateMachine {
 
 export function createPrecinctScannerStateMachine(
   createPlustekClient: CreatePlustekClient,
+  logger: Logger,
   delays: Partial<Delays> = {}
 ): PrecinctScannerStateMachine {
   const machine = buildMachine(createPlustekClient).withConfig({ delays });
   const machineService = interpret(machine).start();
-
-  // Set up debug logging
-  machineService
-    .onEvent((event) => debugEvents('Event: %s', event))
-    .onChange((context, previousContext) => {
-      if (!previousContext) return;
-      const changed = Object.entries(context).filter(
-        ([key, value]) => previousContext[key as keyof Context] !== value
-      );
-      if (changed.length === 0) return;
-      debug('Context update: %o', Object.fromEntries(changed));
-    })
-    .onTransition(
-      (state) => state.changed && debug('Transition to: %s', state.value)
-    );
+  setupLogging(machineService, logger);
 
   return {
     configure: (store: Store, interpreter: SimpleInterpreter) => {

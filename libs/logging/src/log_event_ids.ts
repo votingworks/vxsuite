@@ -102,6 +102,9 @@ export enum LogEventId {
   PrepareBootFromUsbInit = 'prepare-boot-from-usb-init',
   PrepareBootFromUsbComplete = 'prepare-boot-from-usb-complete',
   RebootMachine = 'reboot-machine',
+  // VxScan service state machine logs
+  ScannerEvent = 'scanner-state-machine-event',
+  ScannerStateChanged = 'scanner-state-machine-transition',
 }
 
 export interface LogDetails {
@@ -727,6 +730,20 @@ const RebootMachine: LogDetails = {
   documentationMessage: 'User has triggered a reboot of the machine.',
 };
 
+const ScannerEvent: LogDetails = {
+  eventId: LogEventId.ScannerEvent,
+  eventType: LogEventType.ApplicationAction,
+  documentationMessage: 'Precinct scanner state machine received an event.',
+  restrictInDocumentationToApps: [LogSource.VxScanService],
+};
+
+const ScannerStateChanged: LogDetails = {
+  eventId: LogEventId.ScannerStateChanged,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage: 'Precinct scanner state machine transitioned states.',
+  restrictInDocumentationToApps: [LogSource.VxScanService],
+};
+
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
   switch (eventId) {
     case LogEventId.ElectionConfigured:
@@ -889,6 +906,10 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return PrepareBootFromUsbComplete;
     case LogEventId.RebootMachine:
       return RebootMachine;
+    case LogEventId.ScannerEvent:
+      return ScannerEvent;
+    case LogEventId.ScannerStateChanged:
+      return ScannerStateChanged;
     /* istanbul ignore next - compile time check for completeness */
     default:
       throwIllegalValue(eventId);

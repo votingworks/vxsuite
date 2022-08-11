@@ -334,3 +334,11 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** User has triggered a reboot of the machine.  
 **Machines:** All
+### scanner-state-machine-event
+**Type:** [application-action](#application-action)  
+**Description:** Precinct scanner state machine received an event.  
+**Machines:** vx-scan-service
+### scanner-state-machine-transition
+**Type:** [application-status](#application-status)  
+**Description:** Precinct scanner state machine transitioned states.  
+**Machines:** vx-scan-service

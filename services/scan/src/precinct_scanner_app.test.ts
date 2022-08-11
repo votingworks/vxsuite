@@ -17,6 +17,7 @@ import { Buffer } from 'buffer';
 import waitForExpect from 'wait-for-expect';
 import { Scan } from '@votingworks/api';
 import { join } from 'path';
+import { fakeLogger, Logger } from '@votingworks/logging';
 import { buildPrecinctScannerApp } from './precinct_scanner_app';
 import {
   createPrecinctScannerStateMachine,
@@ -135,6 +136,35 @@ async function waitForStatus(
   }, 1_000);
 }
 
+// Basic checks for logging. We don't try to be exhaustive here because paper
+// status polling can be a bit non-deterministic, so logs can vary between runs.
+function checkLogs(logger: Logger) {
+  // Make sure we got a transition
+  expect(logger.log).toHaveBeenCalledWith(
+    'scanner-state-machine-transition',
+    'system',
+    { message: 'Transitioned to: "checking_initial_paper_status"' }
+  );
+  // Make sure we got an event
+  expect(logger.log).toHaveBeenCalledWith(
+    'scanner-state-machine-event',
+    'system',
+    { message: 'Event: SCANNER_NO_PAPER' }
+  );
+  // Make sure we got a context update. And make sure we didn't log the votes in
+  // the interpretation, just the type, to protect voter privacy.
+  expect(logger.log).toHaveBeenCalledWith(
+    'scanner-state-machine-transition',
+    'system',
+    {
+      message: 'Context updated',
+      changedFields: expect.stringMatching(
+        /{"interpretation":"(ValidSheet|InvalidSheet|NeedsReviewSheet)"}/
+      ),
+    }
+  );
+}
+
 async function createApp(
   delays: Partial<Delays> = {
     DELAY_RECONNECT: 100,
@@ -142,6 +172,7 @@ async function createApp(
     DELAY_ACCEPTED_RESET_TO_NO_PAPER: 1000,
   }
 ) {
+  const logger = fakeLogger();
   const workspace = await createWorkspace(dirSync().name);
   const mockPlustek = new MockScannerClient({
     toggleHoldDuration: 100,
@@ -153,10 +184,16 @@ async function createApp(
   }
   const precinctScannerMachine = createPrecinctScannerStateMachine(
     createPlustekClient,
+    logger,
     delays
   );
   const app = buildPrecinctScannerApp(precinctScannerMachine, workspace);
-  return { app, mockPlustek, workspace };
+  return {
+    app,
+    mockPlustek,
+    workspace,
+    logger,
+  };
 }
 
 const famousNamesPath = join(
@@ -214,7 +251,7 @@ async function configureApp(
 }
 
 test('configure and scan hmpb', async () => {
-  const { app, mockPlustek } = await createApp();
+  const { app, mockPlustek, logger } = await createApp();
   await configureApp(app, { addTemplates: true });
 
   await mockPlustek.simulateLoadSheet(ballotImages.completeHmpb);
@@ -246,10 +283,12 @@ test('configure and scan hmpb', async () => {
   const cvrs = await postExportCvrs(app);
   expect(cvrs).toHaveLength(1);
   // TODO what do we actually want to check about the CVRs to make sure they work?
+
+  checkLogs(logger);
 });
 
 test('configure and scan bmd ballot', async () => {
-  const { app, mockPlustek } = await createApp();
+  const { app, mockPlustek, logger } = await createApp();
   await configureApp(app);
 
   await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
@@ -281,6 +320,8 @@ test('configure and scan bmd ballot', async () => {
   // Check the CVR
   const cvrs = await postExportCvrs(app);
   expect(cvrs).toHaveLength(1);
+
+  checkLogs(logger);
 });
 
 const needsReviewInterpretation: Scan.SheetInterpretation = {
@@ -289,7 +330,7 @@ const needsReviewInterpretation: Scan.SheetInterpretation = {
 };
 
 test('ballot needs review - return', async () => {
-  const { app, mockPlustek, workspace } = await createApp();
+  const { app, mockPlustek, workspace, logger } = await createApp();
   await configureApp(app, { addTemplates: true });
 
   await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb);
@@ -325,10 +366,12 @@ test('ballot needs review - return', async () => {
 
   // Make sure the ballot was still recorded in the db for backup purposes
   expect(Array.from(workspace.store.getSheets())).toHaveLength(1);
+
+  checkLogs(logger);
 });
 
 test('ballot needs review - accept', async () => {
-  const { app, mockPlustek } = await createApp();
+  const { app, mockPlustek, logger } = await createApp();
   await configureApp(app, { addTemplates: true });
 
   await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb);
@@ -359,11 +402,13 @@ test('ballot needs review - accept', async () => {
   // Check the CVR
   const cvrs = await postExportCvrs(app);
   expect(cvrs).toHaveLength(1);
+
+  checkLogs(logger);
 });
 
 // TODO test all the invalid ballot reasons?
 test('invalid ballot rejected', async () => {
-  const { app, mockPlustek, workspace } = await createApp();
+  const { app, mockPlustek, workspace, logger } = await createApp();
   await configureApp(app);
 
   await mockPlustek.simulateLoadSheet(ballotImages.wrongElection);
@@ -396,6 +441,8 @@ test('invalid ballot rejected', async () => {
 
   // Make sure the ballot was still recorded in the db for backup purposes
   expect(Array.from(workspace.store.getSheets())).toHaveLength(1);
+
+  checkLogs(logger);
 });
 
 test('blank paper rejected', async () => {
