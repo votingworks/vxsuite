@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
 import { ElectionDefinition } from '@votingworks/types';
-import { Printer } from '@votingworks/utils';
 import {
   Button,
   CurrentDateAndTime,
@@ -20,7 +19,6 @@ import {
   SelectChangeEventFunction,
 } from '../config/types';
 
-import { TestBallotDeckScreen } from './test_ballot_deck_screen';
 import { Sidebar } from '../components/sidebar';
 import { ElectionInfo } from '../components/election_info';
 import { Select } from '../components/select';
@@ -37,7 +35,6 @@ interface Props {
   toggleLiveMode: VoidFunction;
   unconfigure: () => Promise<void>;
   machineConfig: MachineConfig;
-  printer: Printer;
   screenReader: ScreenReader;
 }
 
@@ -53,7 +50,6 @@ export function AdminScreen({
   toggleLiveMode,
   unconfigure,
   machineConfig,
-  printer,
   screenReader,
 }: Props): JSX.Element {
   const election = electionDefinition?.election;
@@ -76,14 +72,6 @@ export function AdminScreen({
     fetchElection();
   }
 
-  const [isTestDeck, setIsTestDeck] = useState(false);
-  function showTestDeck() {
-    return setIsTestDeck(true);
-  }
-  function hideTestDeck() {
-    return setIsTestDeck(false);
-  }
-
   // Disable the audiotrack when in admin mode
   useEffect(() => {
     const initialMuted = screenReader.isMuted();
@@ -91,20 +79,6 @@ export function AdminScreen({
     return () => screenReader.toggleMuted(initialMuted);
   }, [screenReader]);
 
-  if (isTestDeck && electionDefinition) {
-    return (
-      <TestBallotDeckScreen
-        appPrecinct={appPrecinct}
-        electionDefinition={electionDefinition}
-        hideTestDeck={hideTestDeck}
-        machineConfig={machineConfig}
-        isLiveMode={false} // always false for Test Mode
-        printer={printer}
-      />
-    );
-  }
-
-  const isTestDecksAvailable = !isLiveMode && machineConfig.appMode.isPrint;
   return (
     <Screen navLeft>
       <Main padded>
@@ -165,20 +139,6 @@ export function AdminScreen({
               </p>
               {machineConfig.appMode.isPrint && (
                 <React.Fragment>
-                  <p>
-                    <Button
-                      small
-                      disabled={!isTestDecksAvailable}
-                      onPress={showTestDeck}
-                    >
-                      View Test Ballot Decks
-                    </Button>{' '}
-                    {isLiveMode && (
-                      <Text as="small" muted>
-                        (Available in testing mode)
-                      </Text>
-                    )}
-                  </p>
                   <Text as="h1">Stats</Text>
                   <Text>
                     Printed Ballots: <strong>{ballotsPrintedCount}</strong>{' '}

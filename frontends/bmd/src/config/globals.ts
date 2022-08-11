@@ -5,7 +5,6 @@ export const CARD_LONG_VALUE_WRITE_DELAY = 1000;
 export const BALLOT_PRINTING_TIMEOUT_SECONDS = 5;
 export const BALLOT_INSTRUCTIONS_TIMEOUT_SECONDS = 30;
 export const REPORT_PRINTING_TIMEOUT_SECONDS = 4;
-export const TEST_DECK_PRINTING_TIMEOUT_SECONDS = 3;
 export const CHECK_ICON = '✓';
 export const FONT_SIZES = [22, 28, 36, 48];
 export const DEFAULT_FONT_SIZE = 1;

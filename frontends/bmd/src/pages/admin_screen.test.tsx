@@ -7,7 +7,6 @@ import { fakeKiosk } from '@votingworks/test-utils';
 import { render } from '../../test/test_utils';
 import { election, defaultPrecinctId } from '../../test/helpers/election';
 
-import { fakePrinter } from '../../test/helpers/fake_printer';
 import { advanceTimers } from '../../test/helpers/smartcards';
 
 import { AdminScreen } from './admin_screen';
@@ -48,7 +47,6 @@ test('renders AdminScreen for PrintOnly', () => {
         appMode: PrintOnly,
         codeVersion: '', // Override default
       })}
-      printer={fakePrinter()}
       screenReader={new AriaScreenReader(new SpeechSynthesisTextToSpeech())}
     />
   );
@@ -56,23 +54,14 @@ test('renders AdminScreen for PrintOnly', () => {
   // Configure with Election Manager Card
   advanceTimers();
 
-  // View Test Ballot Decks
-  fireEvent.click(screen.getByText('View Test Ballot Decks'));
-  fireEvent.click(
-    within(screen.getByTestId('precincts')).getByText('Center Springfield')
-  );
+  // test mode
+  screen.getAllByText('Testing Mode');
 
-  // Back All Decks
-  fireEvent.click(screen.getByText('Back to Precincts List'));
+  fireEvent.click(screen.getByRole('button', { name: 'Live Election Mode' }));
+  fireEvent.click(screen.getByRole('button', { name: 'Testing Mode' }));
 
-  // Single Precinct
-  fireEvent.click(screen.getByText('North Springfield'));
-  fireEvent.click(screen.getByText('Back to Admin Dashboard'));
-
-  // All Precincts
-  fireEvent.click(screen.getByText('View Test Ballot Decks'));
-  fireEvent.click(screen.getByText('All Precincts'));
-  fireEvent.click(screen.getByText('Back to Admin Dashboard'));
+  // view stats
+  screen.getByText('Stats');
 });
 
 test('renders date and time settings modal', async () => {
@@ -93,7 +82,6 @@ test('renders date and time settings modal', async () => {
         appMode: MarkOnly,
         codeVersion: 'test',
       })}
-      printer={fakePrinter()}
       screenReader={new AriaScreenReader(new SpeechSynthesisTextToSpeech())}
     />
   );
@@ -143,7 +131,6 @@ test('select All Precincts', () => {
       toggleLiveMode={jest.fn()}
       unconfigure={jest.fn()}
       machineConfig={fakeMachineConfig()}
-      printer={fakePrinter()}
       screenReader={new AriaScreenReader(new SpeechSynthesisTextToSpeech())}
     />
   );
@@ -171,7 +158,6 @@ test('blur precinct selector without a selection', () => {
       toggleLiveMode={jest.fn()}
       unconfigure={jest.fn()}
       machineConfig={fakeMachineConfig()}
-      printer={fakePrinter()}
       screenReader={new AriaScreenReader(new SpeechSynthesisTextToSpeech())}
     />
   );
@@ -194,7 +180,6 @@ test('render All Precincts', () => {
       toggleLiveMode={jest.fn()}
       unconfigure={jest.fn()}
       machineConfig={fakeMachineConfig()}
-      printer={fakePrinter()}
       screenReader={new AriaScreenReader(new SpeechSynthesisTextToSpeech())}
     />
   );
