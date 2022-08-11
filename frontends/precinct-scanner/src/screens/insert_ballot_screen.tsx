@@ -20,16 +20,16 @@ export function InsertBallotScreen({
 }: Props): JSX.Element {
   return (
     <ScreenMainCenterChild isLiveMode={isLiveMode}>
-      {showNoChargerWarning && (
-        <Text warning small center>
-          <strong>No Power Detected.</strong> Please ask a poll worker to plug
-          in the power cord.
-        </Text>
-      )}
       <InsertBallot />
       <CenteredLargeProse>
         <h1>Insert Your Ballot Below</h1>
         <p>Scan one ballot sheet at a time.</p>
+        {showNoChargerWarning && (
+          <Text warning small center>
+            <strong>No Power Detected.</strong> Please ask a poll worker to plug
+            in the power cord.
+          </Text>
+        )}
       </CenteredLargeProse>
       <ScannedBallotCount count={scannedBallotCount} />
     </ScreenMainCenterChild>

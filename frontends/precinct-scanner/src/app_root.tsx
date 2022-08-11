@@ -50,7 +50,6 @@ import { ScanSuccessScreen } from './screens/scan_success_screen';
 import { ScanWarningScreen } from './screens/scan_warning_screen';
 import { ScanProcessingScreen } from './screens/scan_processing_screen';
 import { AppContext } from './contexts/app_context';
-import { SetupPowerPage } from './screens/setup_power_page';
 import { CardErrorScreen } from './screens/card_error_screen';
 import { SetupScannerScreen } from './screens/setup_scanner_screen';
 import { ScreenMainCenterChild } from './components/layout';
@@ -413,10 +412,6 @@ export function AppRoot({
 
   if (auth.status === 'logged_out' && auth.reason === 'card_error') {
     return <CardErrorScreen />;
-  }
-
-  if (computer.batteryIsLow && !computer.batteryIsCharging) {
-    return <SetupPowerPage />;
   }
 
   if (

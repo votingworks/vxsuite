@@ -254,32 +254,6 @@ test('shows power cable message when there is no plustek scanner and tablet is n
   expect(fetchMock.done()).toBe(true);
 });
 
-test('App shows message to connect to power when disconnected and battery is low', async () => {
-  const card = new MemoryCard();
-  const hardware = MemoryHardware.buildStandard();
-  hardware.setBatteryDischarging(true);
-  hardware.setBatteryLevel(0.1);
-  const storage = new MemoryStorage();
-  const kiosk = fakeKiosk();
-  window.kiosk = kiosk;
-  fetchMock
-    .get('/machine-config', { body: getMachineConfigBody })
-    .get('/config/election', { body: electionSampleDefinition })
-    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
-    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/config/markThresholdOverrides', {
-      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
-    })
-    .get('/scanner/status', { body: statusNoPaper });
-  render(<App card={card} hardware={hardware} storage={storage} />);
-  await advanceTimersAndPromises(1);
-  await screen.findByText('No Power Detected');
-  await screen.findByText('and Battery is Low');
-  await screen.findByText(
-    'Please ask a poll worker to plug-in the power cord.'
-  );
-});
-
 test('App shows warning message to connect to power when disconnected', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
