@@ -16,6 +16,7 @@ import {
   AcceptResult,
   CalibrateResult,
   ClientDisconnectedError,
+  ClientError,
   CloseResult,
   GetPaperStatusResult,
   RejectResult,
@@ -712,6 +713,13 @@ export class MockScannerClient implements ScannerClient {
   async close(): Promise<CloseResult> {
     debug('close');
     await this.disconnect();
+    return ok();
+  }
+
+  kill(): Result<void, ClientError> {
+    debug('kill');
+    this.machine.stop();
+    this.machine.start();
     return ok();
   }
 }

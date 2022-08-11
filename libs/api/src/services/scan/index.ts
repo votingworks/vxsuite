@@ -661,7 +661,8 @@ export const PrecinctScannerStateSchema = z.enum([
   'calibrating',
   'jammed',
   'both_sides_have_paper',
-  'error',
+  'recovering_from_error',
+  'unrecoverable_error',
 ]);
 export type PrecinctScannerState = z.infer<typeof PrecinctScannerStateSchema>;
 

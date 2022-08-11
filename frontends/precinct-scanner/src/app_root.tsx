@@ -554,12 +554,15 @@ export function AppRoot({
         );
       case 'both_sides_have_paper':
         return <ScanBusyScreen />;
-      case 'error':
+      case 'recovering_from_error':
+        return <ScanProcessingScreen />;
+      case 'unrecoverable_error':
         return (
           <ScanErrorScreen
             error={scannerStatus.error}
             isTestMode={isTestMode}
             scannedBallotCount={scannerStatus.ballotsCounted}
+            restartRequired
           />
         );
       // If an election manager removes their card during calibration, we'll

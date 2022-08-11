@@ -13,12 +13,14 @@ interface Props {
   error?: Scan.InvalidInterpretationReason | Scan.PrecinctScannerErrorType;
   isTestMode: boolean;
   scannedBallotCount: number;
+  restartRequired?: boolean;
 }
 
 export function ScanErrorScreen({
   error,
   isTestMode,
   scannedBallotCount,
+  restartRequired = false,
 }: Props): JSX.Element {
   const errorMessage = (() => {
     if (!error) return undefined;
@@ -49,7 +51,9 @@ export function ScanErrorScreen({
       case 'unexpected_paper_status':
       case 'unexpected_event':
       case 'plustek_error':
-        return 'The scanner experienced an error and needs to be reset. Please turn off and unplug the scanner from the power outlet. Plug it back in and turn it on again.';
+        // These cases require restart, so we don't need to show an error
+        // message, since that's handled below.
+        return undefined;
       default:
         throwIllegalValue(error);
     }
@@ -60,9 +64,13 @@ export function ScanErrorScreen({
       <CenteredLargeProse>
         <h1>Ballot Not Counted</h1>
         <p>{errorMessage}</p>
-        <Text small italic>
-          Ask a poll worker for help.
-        </Text>
+        {restartRequired ? (
+          <Text>Ask a poll worker to restart the scanner.</Text>
+        ) : (
+          <Text small italic>
+            Ask a poll worker for help.
+          </Text>
+        )}
       </CenteredLargeProse>
       <ScannedBallotCount count={scannedBallotCount} />
     </ScreenMainCenterChild>

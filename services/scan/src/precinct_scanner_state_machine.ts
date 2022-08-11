@@ -117,10 +117,17 @@ function connectToPlustek(createPlustekClient: CreatePlustekClient) {
 }
 
 async function disconnectFromPlustek({ client }: Context) {
-  assert(client);
+  if (!client) return;
   debug('Disconnecting from plustek');
   await client.close();
   debug('Plustek client disconnected');
+}
+
+async function killPlustekClient({ client }: Context) {
+  if (!client) return;
+  debug('Killing plustek client');
+  await new Promise((resolve) => resolve(client.kill().unsafeUnwrap()));
+  debug('Plustek client killed');
 }
 
 function paperStatusToEvent(paperStatus: PaperStatus): ScannerStatusEvent {
@@ -350,6 +357,7 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
         },
         error_disconnected: {
           entry: clearLastScan,
+          invoke: { src: disconnectFromPlustek, onDone: {}, onError: {} },
           after: { DELAY_RECONNECT: 'reconnecting' },
         },
         reconnecting: {
@@ -723,12 +731,31 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
         // If we see an unexpected error, try disconnecting from Plustek and starting over.
         error: {
           id: 'error',
-          invoke: { src: disconnectFromPlustek, onDone: {}, onError: {} },
-          initial: 'cooling_off',
+          initial: 'disconnecting',
           states: {
+            // First, try disconnecting the "nice" way
+            disconnecting: {
+              invoke: {
+                src: disconnectFromPlustek,
+                onDone: 'cooling_off',
+                onError: 'killing',
+              },
+              after: { DELAY_KILL_AFTER_DISCONNECT_TIMEOUT: 'killing' },
+            },
+            // If that doesn't work or takes too long, send a kill signal
+            killing: {
+              invoke: {
+                src: killPlustekClient,
+                onDone: 'cooling_off',
+                onError: '#unrecoverable_error',
+              },
+            },
+            // Now that we've disconnected, wait a bit to give Plustek time to
+            // finish up anything it might be doing
             cooling_off: {
               after: { DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 'reconnecting' },
             },
+            // Finally, we're ready to try reconnecting
             reconnecting: {
               invoke: {
                 src: connectToPlustek(createPlustekClient),
@@ -739,23 +766,16 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
                     error: undefined,
                   }),
                 },
-                onError: 'failed_reconnecting',
+                onError: '#unrecoverable_error',
               },
             },
-            failed_reconnecting: {},
           },
         },
+        unrecoverable_error: { id: 'unrecoverable_error' },
       },
     },
     {
       delays: {
-        // When disconnected, how long to wait before trying to reconnect.
-        DELAY_RECONNECT: 500,
-        // When we run into an unexpected error (e.g. unexpected paper status),
-        // how long to wait before trying to reconnect. This should be pretty
-        // long in order to let Plustek finish whatever it's doing (yes, even
-        // after disconnecting, Plustek might keep scanning).
-        DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 5_000,
         // How long to attempt scanning before giving up and disconnecting and
         // reconnecting to Plustek.
         DELAY_SCANNING_TIMEOUT: 10_000,
@@ -773,6 +793,17 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
         // good amount. Don't change this delay lightly since it impacts the
         // actual logic of the scanner.
         DELAY_WAIT_FOR_HOLD_AFTER_REJECT: 1_000,
+        // When disconnected, how long to wait before trying to reconnect.
+        DELAY_RECONNECT: 500,
+        // When we run into an unexpected error (e.g. unexpected paper status),
+        // how long to wait before trying to reconnect. This should be pretty
+        // long in order to let Plustek finish whatever it's doing (yes, even
+        // after disconnecting, Plustek might keep scanning).
+        DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 5_000,
+        // When attempting to disconnect from Plustek after an unexpected error,
+        // how long to wait before giving up on disconnecting the "nice" way and
+        // just sending a kill signal.
+        DELAY_KILL_AFTER_DISCONNECT_TIMEOUT: 2_000,
       },
     }
   );
@@ -923,7 +954,9 @@ export function createPrecinctScannerStateMachine(
           case state.matches('error_both_sides_have_paper'):
             return 'both_sides_have_paper';
           case state.matches('error'):
-            return 'error';
+            return 'recovering_from_error';
+          case state.matches('unrecoverable_error'):
+            return 'unrecoverable_error';
           default:
             throw new Error(`Unexpected state: ${state.value}`);
         }
