@@ -228,8 +228,9 @@ export function buildPrecinctScannerApp(
 
   app.delete<NoParams, Scan.DeleteMarkThresholdOverridesConfigResponse>(
     '/config/markThresholdOverrides',
-    (_request, response) => {
+    async (_request, response) => {
       store.setMarkThresholdOverrides(undefined);
+      await configureMachine(machine, workspace);
       response.json({ status: 'ok' });
     }
   );
@@ -238,7 +239,7 @@ export function buildPrecinctScannerApp(
     NoParams,
     Scan.PatchMarkThresholdOverridesConfigResponse,
     Scan.PatchMarkThresholdOverridesConfigRequest
-  >('/config/markThresholdOverrides', (request, response) => {
+  >('/config/markThresholdOverrides', async (request, response) => {
     const bodyParseResult = safeParse(
       Scan.PatchMarkThresholdOverridesConfigRequestSchema,
       request.body
@@ -256,6 +257,7 @@ export function buildPrecinctScannerApp(
     store.setMarkThresholdOverrides(
       bodyParseResult.ok().markThresholdOverrides
     );
+    await configureMachine(machine, workspace);
     response.json({ status: 'ok' });
   });
 
