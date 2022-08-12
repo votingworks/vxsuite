@@ -154,13 +154,13 @@ export function TallyScreen(): JSX.Element {
                 <React.Fragment>
                   <tr>
                     <TD as="th" narrow nowrap>
-                      File Exported At
+                      Created At
                     </TD>
                     <TD as="th" nowrap>
                       CVR Count
                     </TD>
                     <TD as="th" narrow nowrap>
-                      Scanner ID
+                      Source
                     </TD>
                     <TD as="th" nowrap>
                       Precinct
