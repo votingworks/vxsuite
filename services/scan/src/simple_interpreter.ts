@@ -5,6 +5,7 @@ import {
   BallotPageLayoutWithImage,
   ElectionDefinition,
   Id,
+  MarkThresholds,
   ok,
   PageInterpretationWithFiles,
   Result,
@@ -24,6 +25,7 @@ export interface CreateInterpreterOptions {
   readonly electionDefinition: ElectionDefinition;
   readonly layouts: readonly BallotPageLayoutWithImage[];
   readonly ballotImagesPath: string;
+  readonly markThresholdOverrides?: MarkThresholds;
   readonly testMode: boolean;
 }
 
@@ -159,10 +161,13 @@ function combinePageInterpretationsForSheet(
 function createNhInterpreter(
   options: CreateInterpreterOptions
 ): SimpleInterpreter {
-  const { electionDefinition, ballotImagesPath } = options;
+  const { electionDefinition, ballotImagesPath, markThresholdOverrides } =
+    options;
   return {
     interpret: async (sheetId, sheet) => {
-      const result = await interpretNh(electionDefinition, sheet);
+      const result = await interpretNh(electionDefinition, sheet, {
+        markThresholds: markThresholdOverrides,
+      });
 
       if (result.isErr()) {
         return result;
@@ -206,11 +211,13 @@ function createVxInterpreter({
   electionDefinition,
   ballotImagesPath,
   layouts,
+  markThresholdOverrides,
   testMode,
 }: CreateInterpreterOptions): SimpleInterpreter {
   const vxInterpreter = new VxInterpreter({
     electionDefinition,
     testMode,
+    markThresholdOverrides,
     adjudicationReasons:
       (SCANNER_LOCATION === ScannerLocation.Central
         ? electionDefinition.election.centralScanAdjudicationReasons

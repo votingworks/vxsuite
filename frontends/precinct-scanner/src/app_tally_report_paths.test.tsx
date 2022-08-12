@@ -70,6 +70,17 @@ const getPrecinctConfigPrecinct23ResponseBody: Scan.GetCurrentPrecinctConfigResp
     precinctId: '23',
   };
 
+const getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody: Scan.GetMarkThresholdOverridesConfigResponse =
+  {
+    status: 'ok',
+  };
+
+const getMarkThresholdOverridesConfigResponseBody: Scan.GetMarkThresholdOverridesConfigResponse =
+  {
+    status: 'ok',
+    markThresholdOverrides: { definite: 0.5, marginal: 0.25 },
+  };
+
 const statusNoPaper: Scan.GetPrecinctScannerStatusResponse = {
   state: 'no_paper',
   canUnconfigure: false,
@@ -127,6 +138,9 @@ test('expected tally reports are printed for a primary election with all precinc
       body: electionMinimalExhaustiveSampleDefinition,
     })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
+    .get('/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
+    })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
     .get('/scanner/status', { body: statusNoPaper })
     .patchOnce('/config/testMode', {
@@ -191,6 +205,9 @@ test('expected tally reports for a primary election with all precincts with CVRs
     })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
+    })
     .get('/scanner/status', { body: { ...statusNoPaper, ballotsCounted: 3 } })
     .patchOnce('/config/testMode', {
       body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
@@ -559,6 +576,9 @@ test('expected tally reports for a primary election with a single precincts with
     })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigPrecinct1ResponseBody })
+    .get('/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesConfigResponseBody,
+    })
     .get('/scanner/status', { body: { ...statusNoPaper, ballotsCounted: 3 } })
     .patchOnce('/config/testMode', {
       body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
@@ -839,6 +859,9 @@ test('expected tally reports for a general election with all precincts with CVRs
     .get('/config/election', { body: electionSample2Definition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
+    })
     .get('/scanner/status', { body: { ...statusNoPaper, ballotsCounted: 2 } })
     .patchOnce('/config/testMode', {
       body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
@@ -1087,6 +1110,9 @@ test('expected tally reports for a general election with a single precincts with
     .get('/config/election', { body: electionSample2Definition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigPrecinct23ResponseBody })
+    .get('/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesConfigResponseBody,
+    })
     .get('/scanner/status', { body: { ...statusNoPaper, ballotsCounted: 2 } })
     .patchOnce('/config/testMode', {
       body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),

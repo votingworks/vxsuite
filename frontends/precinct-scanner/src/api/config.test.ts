@@ -93,3 +93,25 @@ test('setCurrentPrecinctId fails', async () => {
     '"PUT /config/precinct failed: undefined"'
   );
 });
+
+test('PATCH setMarkThresholds', async () => {
+  fetchMock.patchOnce('/config/markThresholdOverrides', {
+    body: { status: 'ok' },
+  });
+  await config.setMarkThresholdOverrides({ definite: 0.25, marginal: 0.5 });
+
+  expect(
+    fetchMock.calls('/config/markThresholdOverrides', { method: 'PATCH' })
+  ).toHaveLength(1);
+});
+
+test('setMarkThresholds deletes', async () => {
+  fetchMock.deleteOnce('/config/markThresholdOverrides', {
+    body: { status: 'ok' },
+  });
+  await config.setMarkThresholdOverrides(undefined);
+
+  expect(
+    fetchMock.calls('/config/markThresholdOverrides', { method: 'DELETE' })
+  ).toHaveLength(1);
+});
