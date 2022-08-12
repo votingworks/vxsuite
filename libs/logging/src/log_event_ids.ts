@@ -74,7 +74,7 @@ export enum LogEventId {
   ClearedBallotData = 'clear-ballot-data-complete',
   OverridingMarkThresholds = 'override-mark-threshold-init',
   OverrodeMarkThresholds = 'override-mark-thresholds-complete',
-  SavedScanImageBackup = 'saved-backup-scan-images',
+  SavedScanImageBackup = 'saved-scan-image-backup',
   ConfigureFromBallotPackageInit = 'configure-from-ballot-package-init',
   BallotPackageFilesReadFromUsb = 'ballot-package-files-read-from-usb',
   BallotPackagedLoadedFromUsb = 'ballot-package-load-from-usb-complete',

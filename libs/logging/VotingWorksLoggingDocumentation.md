@@ -222,7 +222,7 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** User has finished overriding the thresholds of when to count marks seen by the scanning module. Success or failure is indicated by the disposition. New mark thresholds specified in the keys `marginal` `definite` and, if defined, `writeInText`.  
 **Machines:** vx-central-scan-frontend, vx-precinct-scan-frontend
-### saved-backup-scan-images
+### saved-scan-image-backup
 **Type:** [user-action](#user-action)  
 **Description:** User saved a backup file of the scanned ballot image files and CVRs. Success or failure indicated by disposition.  
 **Machines:** vx-central-scan-frontend, vx-precinct-scan-frontend
