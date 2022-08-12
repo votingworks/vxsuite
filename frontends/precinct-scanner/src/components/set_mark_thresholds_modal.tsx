@@ -158,7 +158,8 @@ export function SetMarkThresholdsModal({
               <h1>Override Mark Thresholds</h1>
               <Text>Definite:</Text>
               <input
-                type="text"
+                type="number"
+                step=".005"
                 data-testid="definite-text-input"
                 value={definiteThreshold}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
@@ -167,7 +168,8 @@ export function SetMarkThresholdsModal({
               />
               <Text>Marginal:</Text>
               <input
-                type="text"
+                type="number"
+                step=".005"
                 data-testid="marginal-text-input"
                 value={marginalThreshold}
                 onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
