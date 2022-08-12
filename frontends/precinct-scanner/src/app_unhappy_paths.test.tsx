@@ -103,8 +103,10 @@ test('services/scan fails to unconfigure', async () => {
   fireEvent.click(screen.getByText('6'));
   await screen.findByText('Election Manager Settings');
 
-  fireEvent.click(await screen.findByText('Unconfigure Machine'));
-  fireEvent.click(await screen.findByText('Unconfigure'));
+  fireEvent.click(
+    await screen.findByText('Delete All Election Data from VxScan')
+  );
+  fireEvent.click(await screen.findByText('Yes, Delete All'));
 
   await screen.findByText('Loading');
 });

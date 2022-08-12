@@ -186,13 +186,13 @@ export function ElectionManagerScreen({
             <span role="img" aria-label="Warning">
               ⚠️
             </span>{' '}
-            Unconfigure Machine
+            Delete All Election Data from VxScan
           </Button>
         </p>
         {!scannerStatus.canUnconfigure && (
           <p>
-            You must &quot;Export Backup&quot; before you may unconfigure the
-            machine.
+            You must “Export Backup” before you can delete election data from
+            VxScan.
           </p>
         )}
       </Prose>
@@ -229,7 +229,7 @@ export function ElectionManagerScreen({
         <Modal
           content={
             <Prose>
-              <h1>Unconfigure Machine?</h1>
+              <h1>Delete All Election Data?</h1>
               <p>
                 Do you want to remove all election information and data from
                 this machine?
@@ -239,7 +239,7 @@ export function ElectionManagerScreen({
           actions={
             <React.Fragment>
               <Button danger onPress={handleUnconfigure}>
-                Unconfigure
+                Yes, Delete All
               </Button>
               <Button onPress={closeConfirmUnconfigureModal}>Cancel</Button>
             </React.Fragment>

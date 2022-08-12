@@ -166,8 +166,8 @@ test('unconfigure ejects a usb drive when it is mounted', () => {
     </AppContext.Provider>
   );
 
-  fireEvent.click(screen.getByText('Unconfigure Machine'));
-  fireEvent.click(screen.getByText('Unconfigure'));
+  fireEvent.click(screen.getByText('Delete All Election Data from VxScan'));
+  fireEvent.click(screen.getByText('Yes, Delete All'));
   expect(unconfigureFn).toHaveBeenCalledTimes(1);
   expect(ejectFn).toHaveBeenCalledTimes(0);
 });
@@ -194,8 +194,8 @@ test('unconfigure does not eject a usb drive that is not mounted', async () => {
     </AppContext.Provider>
   );
 
-  fireEvent.click(screen.getByText('Unconfigure Machine'));
-  fireEvent.click(screen.getByText('Unconfigure'));
+  fireEvent.click(screen.getByText('Delete All Election Data from VxScan'));
+  fireEvent.click(screen.getByText('Yes, Delete All'));
   await waitFor(() => {
     expect(unconfigureFn).toHaveBeenCalledTimes(1);
     expect(ejectFn).toHaveBeenCalledTimes(1);
@@ -222,7 +222,7 @@ test('unconfigure button is disabled when the machine cannot be unconfigured', (
     </AppContext.Provider>
   );
 
-  fireEvent.click(screen.getByText('Unconfigure Machine'));
+  fireEvent.click(screen.getByText('Delete All Election Data from VxScan'));
   expect(screen.queryByText('Unconfigure Machine?')).toBeNull();
 });
 
