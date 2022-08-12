@@ -486,7 +486,9 @@ test('election manager and poll worker configuration', async () => {
   await advanceTimersAndPromises(1);
   card.insertCard(electionManagerCard, electionSampleDefinition.electionData);
   await authenticateElectionManagerCard();
-  fireEvent.click(await screen.findByText('Unconfigure Machine'));
+  fireEvent.click(
+    await screen.findByText('Delete All Election Data from VxScan')
+  );
   await screen.findByText(
     'Do you want to remove all election information and data from this machine?'
   );
@@ -496,8 +498,10 @@ test('election manager and poll worker configuration', async () => {
       'Do you want to remove all election information and data from this machine?'
     )
   ).toBeNull();
-  fireEvent.click(await screen.findByText('Unconfigure Machine'));
-  fireEvent.click(await screen.findByText('Unconfigure'));
+  fireEvent.click(
+    await screen.findByText('Delete All Election Data from VxScan')
+  );
+  fireEvent.click(await screen.findByText('Yes, Delete All'));
   await screen.findByText('Loading');
   await waitFor(() =>
     expect(fetchMock.calls('./config/election', { method: 'DELETE' }))
