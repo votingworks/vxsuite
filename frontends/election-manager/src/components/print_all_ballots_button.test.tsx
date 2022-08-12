@@ -229,10 +229,12 @@ test('modal is different for system administrators', async () => {
   userEvent.click(await screen.findByText('Print All'));
   modal = await screen.findByRole('alertdialog');
   within(modal).getByText(
-    hasTextAcrossElements('Print 4 Draft Absentee Ballots')
+    hasTextAcrossElements('Print 5 Sample Absentee Ballots')
   );
   for (const electionManagerOption of electionManagerOptions) {
-    expect(within(modal).queryAllByText(electionManagerOption).length).toBe(0);
+    expect(
+      within(modal).queryByText(electionManagerOption)
+    ).not.toBeInTheDocument();
   }
   userEvent.click(within(modal).getByText('Cancel'));
   userEvent.click(screen.getByText('Lock Machine'));

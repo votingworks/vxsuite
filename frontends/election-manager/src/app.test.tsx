@@ -1142,7 +1142,7 @@ test('system administrator UI has expected nav when VVSG2 auth flows are enabled
 
   userEvent.click(screen.getByText('Definition'));
   await screen.findByRole('heading', { name: 'Election Definition' });
-  userEvent.click(screen.getByText('Draft Ballots'));
+  userEvent.click(screen.getByText('Ballots'));
   await screen.findAllByText('View Ballot');
   userEvent.click(screen.getByText('Smartcards'));
   await screen.findByRole('heading', { name: 'Election Cards' });
@@ -1170,7 +1170,7 @@ test('system administrator UI has expected nav when no election and VVSG2 auth f
   await screen.findByRole('heading', { name: 'Logs' });
   screen.getByRole('button', { name: 'Lock Machine' });
 
-  expect(screen.queryByText('Draft Ballots')).not.toBeInTheDocument();
+  expect(screen.queryByText('Ballots')).not.toBeInTheDocument();
   expect(screen.queryByText('Smartcards')).not.toBeInTheDocument();
 
   // Create an election definition and verify that previously hidden tabs appear
@@ -1184,7 +1184,7 @@ test('system administrator UI has expected nav when no election and VVSG2 auth f
       screen.queryByRole('heading', { name: 'Configure VxAdmin' })
     ).not.toBeInTheDocument()
   );
-  screen.getByText('Draft Ballots');
+  screen.getByText('Ballots');
   screen.getByText('Smartcards');
 
   // Remove the election definition and verify that those same tabs disappear
@@ -1196,7 +1196,7 @@ test('system administrator UI has expected nav when no election and VVSG2 auth f
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
-  expect(screen.queryByText('Draft Ballots')).not.toBeInTheDocument();
+  expect(screen.queryByText('Ballots')).not.toBeInTheDocument();
   expect(screen.queryByText('Smartcards')).not.toBeInTheDocument();
 });
 
@@ -1266,7 +1266,7 @@ test('election manager cannot auth onto machine with different election hash whe
   );
 });
 
-test('system administrator Draft Ballots tab and election manager Ballots tab have expected differences', async () => {
+test('system administrator Ballots tab and election manager Ballots tab have expected differences', async () => {
   enableVvsg2AuthFlows();
 
   const card = new MemoryCard();
@@ -1277,12 +1277,40 @@ test('system administrator Draft Ballots tab and election manager Ballots tab ha
   render(<App card={card} hardware={hardware} storage={storage} />);
   await authenticateWithSystemAdministratorCard(card);
 
-  userEvent.click(screen.getByText('Draft Ballots'));
-  await screen.findAllByText('View Ballot');
+  const numPrecinctBallots = 13;
+
+  userEvent.click(screen.getByText('Ballots'));
+  let viewBallotButtons = await screen.findAllByText('View Ballot');
+  expect(viewBallotButtons).toHaveLength(
+    numPrecinctBallots + 1 // Super ballot
+  );
+  screen.getByText('Print All');
   expect(screen.queryByText('Save PDFs')).not.toBeInTheDocument();
   expect(screen.queryByText('Export Package')).not.toBeInTheDocument();
 
-  userEvent.click(screen.getAllByText('View Ballot')[0]);
+  // View super ballot
+  userEvent.click(viewBallotButtons[0]);
+  await screen.findByRole('heading', {
+    name: 'Ballot Style All has 13 contests',
+  });
+  screen.getByRole('button', { name: 'Absentee' });
+  screen.getByRole('button', { name: 'Precinct' });
+  expect(
+    screen.queryByRole('button', { name: 'Official' })
+  ).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole('button', { name: 'Test' })
+  ).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole('button', { name: 'Sample' })
+  ).not.toBeInTheDocument();
+  screen.getByRole('button', { name: 'Print 1 Sample Absentee Ballot' });
+  expect(screen.queryByText(/Ballot Package Filename/)).not.toBeInTheDocument();
+
+  // View precinct ballot
+  userEvent.click(screen.getByText('Back to List Ballots'));
+  viewBallotButtons = await screen.findAllByText('View Ballot');
+  userEvent.click(viewBallotButtons[1]);
   await screen.findByRole('heading', {
     name: 'Ballot Style 4 for Bywy has 8 contests',
   });
@@ -1297,7 +1325,8 @@ test('system administrator Draft Ballots tab and election manager Ballots tab ha
   expect(
     screen.queryByRole('button', { name: 'Sample' })
   ).not.toBeInTheDocument();
-  screen.getByRole('button', { name: 'Print 1 Draft Absentee Ballot' });
+  screen.getByRole('button', { name: 'Print 1 Sample Absentee Ballot' });
+  screen.getByRole('button', { name: 'Save Ballot as PDF' });
   expect(screen.queryByText(/Ballot Package Filename/)).not.toBeInTheDocument();
 
   userEvent.click(screen.getByText('Lock Machine'));
@@ -1307,11 +1336,13 @@ test('system administrator Draft Ballots tab and election manager Ballots tab ha
   );
 
   userEvent.click(screen.getByText('Ballots'));
-  await screen.findAllByText('View Ballot');
+  viewBallotButtons = await screen.findAllByText('View Ballot');
+  expect(viewBallotButtons).toHaveLength(numPrecinctBallots);
+  screen.getByText('Print All');
   screen.getByText('Save PDFs');
   screen.getByText('Export Package');
 
-  userEvent.click(screen.getAllByText('View Ballot')[0]);
+  userEvent.click(viewBallotButtons[0]);
   await screen.findByRole('heading', {
     name: 'Ballot Style 4 for Bywy has 8 contests',
   });
@@ -1321,5 +1352,6 @@ test('system administrator Draft Ballots tab and election manager Ballots tab ha
   screen.getByRole('button', { name: 'Test' });
   screen.getByRole('button', { name: 'Sample' });
   screen.getByRole('button', { name: 'Print 1 Official Absentee Ballot' });
+  screen.getByRole('button', { name: 'Save Ballot as PDF' });
   screen.getByText(/Ballot Package Filename/);
 });
