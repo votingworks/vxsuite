@@ -52,6 +52,7 @@ import { IndeterminateProgressBar } from '../components/graphics';
 import { ScannedBallotCount } from '../components/scanned_ballot_count';
 import { saveCvrExportToUsb } from '../utils/save_cvr_export_to_usb';
 import * as scan from '../api/scan';
+import { ALL_PRECINCTS_OPTION_VALUE } from './election_manager_screen';
 
 enum PollWorkerFlowState {
   OPEN_POLLS_FLOW__CONFIRM = 'open polls flow: confirm',
@@ -118,30 +119,37 @@ export function PollWorkerScreen({
   const hasPrinterAttached = printerFromProps || !window.kiosk;
   const { election } = electionDefinition;
 
-  const precinct = election.precincts.find((p) => p.id === currentPrecinctId);
-  const precinctSelection: PrecinctSelection = useMemo(
-    () =>
-      precinct === undefined
-        ? { kind: PrecinctSelectionKind.AllPrecincts }
-        : {
-            kind: PrecinctSelectionKind.SinglePrecinct,
-            precinctId: precinct.id,
-          },
-    [precinct]
-  );
+  const precinct =
+    currentPrecinctId && currentPrecinctId !== ALL_PRECINCTS_OPTION_VALUE
+      ? election.precincts.find((p) => p.id === currentPrecinctId)
+      : undefined;
+  const precinctSelection: PrecinctSelection | undefined = useMemo(() => {
+    if (currentPrecinctId === undefined) {
+      return undefined;
+    }
+    if (currentPrecinctId === ALL_PRECINCTS_OPTION_VALUE) {
+      return { kind: PrecinctSelectionKind.AllPrecincts };
+    }
+    return {
+      kind: PrecinctSelectionKind.SinglePrecinct,
+      precinctId: currentPrecinctId,
+    };
+  }, [currentPrecinctId]);
 
   const currentCompressedTally = useMemo(
     () => currentTally && compressTally(election, currentTally.overallTally),
     [election, currentTally]
   );
 
-  const precinctList = useMemo(
-    () =>
-      precinctSelection.kind === PrecinctSelectionKind.AllPrecincts
-        ? election.precincts.map(({ id }) => id)
-        : [precinctSelection.precinctId],
-    [precinctSelection, election.precincts]
-  );
+  const precinctList = useMemo(() => {
+    if (!precinctSelection) {
+      return [];
+    }
+    if (precinctSelection.kind === PrecinctSelectionKind.AllPrecincts) {
+      return election.precincts.map(({ id }) => id);
+    }
+    return [precinctSelection.precinctId];
+  }, [election.precincts, precinctSelection]);
 
   const parties = useMemo(
     () => getPartyIdsInBallotStyles(election),
@@ -190,6 +198,7 @@ export function PollWorkerScreen({
 
   async function saveTally() {
     assert(currentTally);
+    assert(precinctSelection);
     let compressedTalliesByPrecinct: Dictionary<CompressedTally> = {};
     // We only need to save tallies by precinct if the precinct scanner is configured for all precincts
     if (precinctSelection.kind === PrecinctSelectionKind.AllPrecincts) {
@@ -319,6 +328,16 @@ export function PollWorkerScreen({
     setPollWorkerFlowState(PollWorkerFlowState.CLOSE_POLLS_FLOW__COMPLETE);
   }
 
+  if (!precinctSelection) {
+    return (
+      <ScreenMainCenterChild infoBarMode="pollworker">
+        <CenteredLargeProse>
+          An election manager needs to select a precinct for this machine first.
+        </CenteredLargeProse>
+      </ScreenMainCenterChild>
+    );
+  }
+
   const precinctName = precinct === undefined ? 'All Precincts' : precinct.name;
   const currentTime = Date.now();
 
@@ -334,6 +353,7 @@ export function PollWorkerScreen({
 
   const printableReport =
     currentTally &&
+    precinctSelection &&
     reportPurposes.map((reportPurpose) => {
       // TODO filter to precinct tally, (unless this is the only precinct then use overallTally)
       return (
