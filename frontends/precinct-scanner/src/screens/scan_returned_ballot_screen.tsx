@@ -1,6 +1,5 @@
 import React from 'react';
 import { Text } from '@votingworks/ui';
-import { InsertBallot } from '../components/graphics';
 import {
   CenteredLargeProse,
   ScreenMainCenterChild,
@@ -9,8 +8,7 @@ import {
 export function ScanReturnedBallotScreen(): JSX.Element {
   return (
     <ScreenMainCenterChild infoBar={false}>
-      {/* TODO: make a better graphic for this screen */}
-      <InsertBallot />
+      {/* TODO: make a graphic for this screen */}
       <CenteredLargeProse>
         <h1>Remove Your Ballot</h1>
         <Text small italic>
