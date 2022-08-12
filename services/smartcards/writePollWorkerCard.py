@@ -13,7 +13,7 @@ election_bytes = f.read()
 f.close()
 
 short_value = json.dumps({
-    't': 'pollworker',
+    't': 'poll_worker',
     'h': hashlib.sha256(election_bytes).hexdigest(),
 })
 
