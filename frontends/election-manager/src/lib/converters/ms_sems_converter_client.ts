@@ -20,7 +20,7 @@ export class MsSemsConverterClient implements ConverterClient {
 
     if (result.status !== 'ok') {
       throw new Error(
-        `failed to upload file named "${name}": ${JSON.stringify(result)}`
+        `failed to load file named "${name}": ${JSON.stringify(result)}`
       );
     }
   }

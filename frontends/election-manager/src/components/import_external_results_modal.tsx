@@ -37,7 +37,7 @@ export function ImportExternalResultsModal({
     logger,
   } = useContext(AppContext);
   assert(electionDefinition);
-  assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth)); // TODO(auth) check permissions for importing cvr
+  assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth)); // TODO(auth) check permissions for loading cvr
   const userRole = auth.user.role;
 
   const [errorMessage, setErrorMessage] = useState('');
@@ -60,13 +60,13 @@ export function ImportExternalResultsModal({
       );
       if (fileErrors.length > 0) {
         setErrorMessage(
-          `Failed to import external file. ${fileErrors.join(' ')}`
+          `Failed to load external file. ${fileErrors.join(' ')}`
         );
         setIsImportingFile(false);
-        await logger.log(LogEventId.ExternalTallyFileImported, userRole, {
+        await logger.log(LogEventId.ExternalTallyFileLoaded, userRole, {
           message:
-            'Failed to import external tally file, file contents not compatible with current election.',
-          result: 'User shown error, file not imported.',
+            'Failed to load external tally file, file contents not compatible with current election.',
+          result: 'User shown error, file not loaded.',
           error: fileErrors.join(' '),
           disposition: 'failure',
           fileType: ExternalTallySourceType.SEMS,
@@ -83,10 +83,10 @@ export function ImportExternalResultsModal({
       setNumberBallotsToImport(tally.overallTally.numberOfBallotsCounted);
     } catch (error) {
       assert(error instanceof Error);
-      setErrorMessage(`Failed to import external file. ${error.message}`);
-      await logger.log(LogEventId.ExternalTallyFileImported, userRole, {
-        message: 'Failed to import external tally file.',
-        result: 'User shown error, file not imported.',
+      setErrorMessage(`Failed to load external file. ${error.message}`);
+      await logger.log(LogEventId.ExternalTallyFileLoaded, userRole, {
+        message: 'Failed to load external tally file.',
+        result: 'User shown error, file not loaded.',
         error: error.message,
         fileType: ExternalTallySourceType.SEMS,
         disposition: 'failure',
@@ -114,8 +114,8 @@ export function ImportExternalResultsModal({
         selectedFile.name,
         new Date(selectedFile.lastModified)
       );
-      await logger.log(LogEventId.ExternalTallyFileImported, userRole, {
-        message: 'External Tally File imported successfully.',
+      await logger.log(LogEventId.ExternalTallyFileLoaded, userRole, {
+        message: 'External Tally File loaded successfully.',
         disposition: 'success',
         fileType: ExternalTallySourceType.SEMS,
         numberOfBallotsImported: tally.overallTally.numberOfBallotsCounted,
@@ -135,7 +135,7 @@ export function ImportExternalResultsModal({
             Close
           </LinkButton>
         }
-        content={<Loading>Importing File</Loading>}
+        content={<Loading>Loading File</Loading>}
       />
     );
   }
@@ -161,7 +161,7 @@ export function ImportExternalResultsModal({
       actions={
         <React.Fragment>
           <LinkButton primary onPress={saveImportedFile}>
-            Import Results
+            Load Results
           </LinkButton>
           <LinkButton onPress={onClose}>Cancel</LinkButton>
         </React.Fragment>

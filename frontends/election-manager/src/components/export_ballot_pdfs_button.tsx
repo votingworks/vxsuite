@@ -178,8 +178,8 @@ export function ExportBallotPdfsButton(): JSX.Element {
       setModalError(error);
       await logger.log(LogEventId.FileSaved, userRole, {
         disposition: 'failure',
-        message: `Error exporting ballot PDFs: ${error}`,
-        result: 'Ballot PDFs not exported, error shown to user.',
+        message: `Error saving ballot PDFs: ${error}`,
+        result: 'Ballot PDFs not saved, error shown to user.',
       });
     }
   }
@@ -200,10 +200,10 @@ export function ExportBallotPdfsButton(): JSX.Element {
                 <UsbImage
                   src="/assets/usb-drive.svg"
                   alt="Insert USB Image"
-                  // hidden feature to export with file dialog by double-clicking
+                  // hidden feature to save with file dialog by double-clicking
                   onDoubleClick={() => saveFileCallback(true)}
                 />
-                Please insert a USB drive in order to export the ballot PDF
+                Please insert a USB drive in order to save the ballot PDF
                 archive.
               </p>
             </Prose>
@@ -224,9 +224,9 @@ export function ExportBallotPdfsButton(): JSX.Element {
             <Prose>
               <h1>Save Ballot PDFs</h1>
               <p>
-                The export will include a PDF for each ballot style of the
-                current election. Select the type of ballots you would like to
-                export:
+                The saved zip file will include a PDF for each ballot style of
+                the current election. Select the type of ballots you would like
+                to save:
               </p>
               <CenteredOptions>
                 <p>
@@ -246,14 +246,14 @@ export function ExportBallotPdfsButton(): JSX.Element {
               <p>
                 A zip archive will automatically be saved to the default
                 location on the mounted USB drive. Optionally, you may pick a
-                custom export location.
+                custom save location.
               </p>
             </Prose>
           );
           actions = (
             <React.Fragment>
               <Button primary onPress={() => saveFileCallback(false)}>
-                Export
+                Save
               </Button>
               <LinkButton onPress={closeModal}>Cancel</LinkButton>
               <Button onPress={() => saveFileCallback(true)}>Custom</Button>
@@ -296,7 +296,7 @@ export function ExportBallotPdfsButton(): JSX.Element {
       mainContent = (
         <Prose textCenter>
           <h1>
-            <strong>Finishing Export…</strong>
+            <strong>Saving…</strong>
           </h1>
         </Prose>
       );
@@ -306,7 +306,7 @@ export function ExportBallotPdfsButton(): JSX.Element {
     case 'Done': {
       mainContent = (
         <Prose>
-          <h1>Export Complete</h1>
+          <h1>Ballot PDFs Saved</h1>
           <p>You may now eject the USB drive.</p>
         </Prose>
       );
@@ -331,7 +331,7 @@ export function ExportBallotPdfsButton(): JSX.Element {
     case 'Error': {
       mainContent = (
         <Prose>
-          <h1>Export Failed</h1>
+          <h1>Failed to Save Ballot PDFs</h1>
           <p>An error occurred: {modalError && modalError.message}.</p>
         </Prose>
       );

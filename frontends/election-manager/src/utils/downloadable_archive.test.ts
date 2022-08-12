@@ -12,7 +12,7 @@ test('file prompt fails', async () => {
 
   kiosk.saveAs.mockResolvedValueOnce(undefined);
   await expect(archive.beginWithDialog()).rejects.toThrowError(
-    'could not begin download; no file was chosen'
+    'could not save; no file was chosen'
   );
 });
 
@@ -23,7 +23,7 @@ test('direct file save fails', async () => {
 
   await expect(
     archive.beginWithDirectSave('/path/to/folder', 'file.zip')
-  ).rejects.toThrowError('could not begin download; an error occurred');
+  ).rejects.toThrowError('could not save file; an error occurred');
 });
 
 test('empty zip file when user is prompted for file location', async () => {

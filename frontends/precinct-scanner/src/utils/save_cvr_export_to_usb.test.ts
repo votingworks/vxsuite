@@ -51,7 +51,7 @@ test('throws error when there is no usb mounted in kiosk mode', async () => {
       openFilePickerDialog: false,
     })
   ).rejects.toThrowErrorMatchingInlineSnapshot(
-    `"could not begin download; path to usb drive missing"`
+    `"could not save file; path to usb drive missing"`
   );
 });
 
@@ -97,7 +97,7 @@ test('throws error when no file is chosen in file picker', async () => {
       openFilePickerDialog: true,
     })
   ).rejects.toThrowErrorMatchingInlineSnapshot(
-    `"could not begin download; no file was chosen"`
+    `"could not save; no file was chosen"`
   );
 });
 

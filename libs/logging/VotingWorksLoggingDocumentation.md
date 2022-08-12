@@ -100,23 +100,23 @@ IDs are logged with each log to identify the log being written.
 **Machines:** All
 ### load-from-storage
 **Type:** [application-action](#application-action)  
-**Description:** A piece of information (current election, imported CVR files, etc.) is loaded from storage. May happen as an automated action when an application starts up, or as a result of a user action.  
+**Description:** A piece of information (current election, loaded CVR files, etc.) is loaded from storage. May happen as an automated action when an application starts up, or as a result of a user action.  
 **Machines:** All
 ### save-to-storage
 **Type:** [user-action](#user-action)  
-**Description:** A piece of information is saved to storage, usually resulting from a user action for example a user importing CVR files results in those files being saved to storage.  
+**Description:** A piece of information is saved to storage, usually resulting from a user action for example a user loading CVR files results in those files being saved to storage.  
 **Machines:** All
 ### file-saved
 **Type:** [user-action](#user-action)  
 **Description:** File is saved to a USB drive. Success or failure indicated by disposition. Type of file specified with "fileType" key. For success logs the saved filename specified with "filename" key.  
 **Machines:** All
-### export-ballot-package-init
+### save-ballot-package-init
 **Type:** [user-action](#user-action)  
-**Description:** Exporting the ballot package is initiated.  
+**Description:** Saving the ballot package is initiated.  
 **Machines:** vx-admin-frontend
-### export-ballot-package-complete
+### save-ballot-package-complete
 **Type:** [user-action](#user-action)  
-**Description:** Exporting the ballot package completed, success or failure is indicated by the disposition.  
+**Description:** Saving the ballot package completed, success or failure is indicated by the disposition.  
 **Machines:** vx-admin-frontend
 ### ballot-printed
 **Type:** [user-action](#user-action)  
@@ -146,13 +146,13 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** Smartcard is programmed to override a flag protecting writes on the card. By default admin cards can not be written unless write protection is first overridden.  
 **Machines:** vx-admin-frontend
-### cvr-imported
+### cvr-loaded
 **Type:** [user-action](#user-action)  
-**Description:** User imported CVR to the machine. Success or failure indicated by disposition.  
+**Description:** User loaded CVR to the machine. Success or failure indicated by disposition.  
 **Machines:** vx-admin-frontend
 ### cvr-files-read-from-usb
 **Type:** [user-action](#user-action)  
-**Description:** User opened import CVR modal and usb is searched for possible CVR files to import.  
+**Description:** User opened load CVR modal and usb is searched for possible CVR files to load.  
 **Machines:** vx-admin-frontend
 ### recompute-tally-init
 **Type:** [user-action](#user-action)  
@@ -162,17 +162,17 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** Tally recomputed with new cast vote record files, success or failure indicated by disposition.  
 **Machines:** vx-admin-frontend
-### external-tally-file-imported
+### external-tally-file-loaded
 **Type:** [user-action](#user-action)  
-**Description:** User imported external tally file to the machine. File type indicated by fileType key. Success or failure indicated by disposition.  
+**Description:** User loaded external tally file to the machine. File type indicated by fileType key. Success or failure indicated by disposition.  
 **Machines:** vx-admin-frontend
 ### manual-tally-data-edited
 **Type:** [user-action](#user-action)  
-**Description:** User added or edited manually entered tally data to be included alongside imported Cvr files.  
+**Description:** User added or edited manually entered tally data to be included alongside loaded Cvr files.  
 **Machines:** vx-admin-frontend
 ### marked-tally-results-official
 **Type:** [user-action](#user-action)  
-**Description:** User marked the tally results as official. This disabled importing any more cvr or other tally data files.  
+**Description:** User marked the tally results as official. This disabled loading any more cvr or other tally data files.  
 **Machines:** vx-admin-frontend
 ### removed-tally-file
 **Type:** [user-action](#user-action)  
@@ -222,9 +222,9 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** User has finished overriding the thresholds of when to count marks seen by the scanning module. Success or failure is indicated by the disposition. New mark thresholds specified in the keys `marginal` `definite` and, if defined, `writeInText`.  
 **Machines:** vx-central-scan-frontend, vx-precinct-scan-frontend
-### download-backup-scan-images
+### saved-scan-image-backup
 **Type:** [user-action](#user-action)  
-**Description:** User downloaded a backup file of the scanned ballot image files and CVRs. Success or failure indicated by disposition.  
+**Description:** User saved a backup file of the scanned ballot image files and CVRs. Success or failure indicated by disposition.  
 **Machines:** vx-central-scan-frontend, vx-precinct-scan-frontend
 ### configure-from-ballot-package-init
 **Type:** [user-action](#user-action)  
@@ -232,7 +232,7 @@ IDs are logged with each log to identify the log being written.
 **Machines:** vx-central-scan-frontend, vx-precinct-scan-frontend
 ### ballot-package-files-read-from-usb
 **Type:** [user-action](#user-action)  
-**Description:** List of ballot packages read from usb and displayed to user to import to machine.  
+**Description:** List of ballot packages read from usb and displayed to user to load to machine.  
 **Machines:** vx-central-scan-frontend, vx-precinct-scan-frontend
 ### ballot-package-load-from-usb-complete
 **Type:** [user-action](#user-action)  
@@ -246,13 +246,13 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** The final configuration steps for the scanner for the ballot package have completed. Success or failure indicated by disposition.  
 **Machines:** vx-central-scan-frontend, vx-precinct-scan-frontend
-### export-cvr-init
+### save-cvr-init
 **Type:** [user-action](#user-action)  
-**Description:** User has initiated exporting CVR file to the USB drive.  
+**Description:** User has initiated saving CVR file to the USB drive.  
 **Machines:** vx-central-scan-frontend, vx-precinct-scan-frontend
-### export-cvr-complete
+### save-cvr-complete
 **Type:** [user-action](#user-action)  
-**Description:** User has finished exporting a CVR file of all results to the USB drive. Success or failure indicated by disposition. On success, number of ballots included in CVR specified by `numberOfBallots`.  
+**Description:** User has finished saving a CVR file of all results to the USB drive. Success or failure indicated by disposition. On success, number of ballots included in CVR specified by `numberOfBallots`.  
 **Machines:** vx-central-scan-frontend, vx-precinct-scan-frontend
 ### delete-cvr-batch-init
 **Type:** [user-action](#user-action)  
@@ -286,9 +286,9 @@ IDs are logged with each log to identify the log being written.
 **Type:** [application-status](#application-status)  
 **Description:** Configuration information for the machine including the election, if the machine is in test mode, and mark threshold override values were reloaded from the backend service storing this information.  
 **Machines:** vx-central-scan-frontend, vx-precinct-scan-frontend
-### export-log-file-found
+### save-log-file-found
 **Type:** [application-status](#application-status)  
-**Description:** When the user is exporting logs, indicates the success/failure of finding the expected log file on the machine.  
+**Description:** When the user is saving logs, indicates the success/failure of finding the expected log file on the machine.  
 **Machines:** All
 ### scan-service-config
 **Type:** [application-status](#application-status)  
@@ -316,7 +316,7 @@ IDs are logged with each log to identify the log being written.
 **Machines:** vx-central-scan-frontend
 ### convert-log-cdf-complete
 **Type:** [user-action](#user-action)  
-**Description:** The user has converted the log file to a CDF format for export. Success or failure indicated by disposition.  
+**Description:** The user has converted the log file to a CDF format for saving. Success or failure indicated by disposition.  
 **Machines:** All
 ### convert-log-cdf-log-line-error
 **Type:** [user-action](#user-action)  

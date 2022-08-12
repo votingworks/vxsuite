@@ -110,7 +110,7 @@ export function ReportsScreen(): JSX.Element {
     );
     await client.process();
 
-    // download the result
+    // save the result
     const results = await client.getOutputFile(resultsFile.name);
 
     // reset files on the server

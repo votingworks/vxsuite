@@ -56,7 +56,7 @@ export class DownloadableArchive {
     this.kioskWriter = await this.getKiosk().saveAs(options);
 
     if (!this.kioskWriter) {
-      throw new Error('could not begin download; no file was chosen');
+      throw new Error('could not save; no file was chosen');
     }
 
     this.prepareZip();
@@ -77,7 +77,7 @@ export class DownloadableArchive {
     this.kioskWriter = await this.getKiosk().writeFile(filePath);
 
     if (!this.kioskWriter) {
-      throw new Error('could not begin download; an error occurred');
+      throw new Error('could not save file; an error occurred');
     }
 
     this.prepareZip();

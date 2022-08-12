@@ -90,7 +90,7 @@ export function getContestTallyForCandidateContest(
       numCandidateVotes += row.numberOfVotes;
     } else {
       throw new Error(
-        `Imported file has unexpected candidate id ${row.candidateId} for contest ${contest.id}`
+        `Loaded file has unexpected candidate id ${row.candidateId} for contest ${contest.id}`
       );
     }
   }
@@ -150,7 +150,7 @@ export function getContestTallyForYesNoContest(
       // Ignore row
     } else {
       throw new Error(
-        `Imported file has unexpected option id ${row.candidateId} for contest ${contest.id}`
+        `Loaded file has unexpected option id ${row.candidateId} for contest ${contest.id}`
       );
     }
   }
@@ -206,7 +206,7 @@ export function parseSemsFileAndValidateForElection(
 
   if (parsedRows.length === 0) {
     return [
-      'No valid CSV data found in imported file. Please check file contents.',
+      'No valid CSV data found in loaded file. Please check file contents.',
     ];
   }
 
@@ -305,7 +305,7 @@ export function convertSemsFileToExternalTally(
 
   for (const precinctId of Object.keys(parsedRowsByPrecinct)) {
     if (!election.precincts.find((p) => p.id === precinctId)) {
-      throw new Error(`Imported file has unexpected PrecinctId: ${precinctId}`);
+      throw new Error(`Loaded file has unexpected PrecinctId: ${precinctId}`);
     }
     const rowsForPrecinct = parsedRowsByPrecinct[precinctId];
 
@@ -313,9 +313,7 @@ export function convertSemsFileToExternalTally(
     const rowsForPrecinctAndContest = _.groupBy(rowsForPrecinct, 'contestId');
     for (const contestId of Object.keys(rowsForPrecinctAndContest)) {
       if (!(contestId in contestsById)) {
-        throw new Error(
-          `Imported file has unexpected PrecinctId: ${contestId}`
-        );
+        throw new Error(`Loaded file has unexpected PrecinctId: ${contestId}`);
       }
       const electionContest = contestsById[contestId];
       assert(electionContest);

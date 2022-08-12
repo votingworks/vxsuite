@@ -163,7 +163,7 @@ export function LoadElectionScreen({
         <Main padded centerChild>
           <Prose textCenter>
             <h1>
-              Uploading ballot package {currentUploadingBallotIndex + 1} of{' '}
+              Loading ballot package {currentUploadingBallotIndex + 1} of{' '}
               {totalTemplates}
             </h1>
             <ul style={{ textAlign: 'left' }}>

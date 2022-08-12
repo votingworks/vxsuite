@@ -23,7 +23,7 @@ export function ExportBatchTallyResultsButton(): JSX.Element {
   return (
     <React.Fragment>
       <Button small onPress={() => setIsSaveModalOpen(true)}>
-        Export Batch Results as CSV
+        Save Batch Results as CSV
       </Button>
       {isSaveModalOpen && (
         <SaveFileToUsb

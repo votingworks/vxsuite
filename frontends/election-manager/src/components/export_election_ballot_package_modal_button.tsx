@@ -78,9 +78,9 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
         case 'ArchiveEnd': {
           await state.archive.end();
           setState(workflow.next);
-          await logger.log(LogEventId.ExportBallotPackageComplete, userRole, {
+          await logger.log(LogEventId.SaveBallotPackageComplete, userRole, {
             disposition: 'success',
-            message: 'Finished successfully exporting ballot package.',
+            message: 'Finished successfully saving ballot package.',
           });
           break;
         }
@@ -159,7 +159,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
     assert(state.type === 'ArchiveBegin');
     // TODO(auth) check proper file permissions
     try {
-      await logger.log(LogEventId.ExportBallotPackageInit, userRole);
+      await logger.log(LogEventId.SaveBallotPackageInit, userRole);
       const usbPath = await usbstick.getDevicePath();
       const pathToFolder = usbPath && join(usbPath, BALLOT_PACKAGE_FOLDER);
       const pathToFile = join(pathToFolder ?? '.', defaultFileName);
@@ -180,10 +180,10 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
     } catch (error) {
       assert(error instanceof Error);
       setState(workflow.error(state, error));
-      await logger.log(LogEventId.ExportBallotPackageComplete, userRole, {
+      await logger.log(LogEventId.SaveBallotPackageComplete, userRole, {
         disposition: 'failure',
-        message: `Error exporting ballot package: ${error}`,
-        result: 'Ballot package not exported, error shown to user.',
+        message: `Error saving ballot package: ${error}`,
+        result: 'Ballot package not saved, error shown to user.',
       });
     }
   }
@@ -215,10 +215,10 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
                 <UsbImage
                   src="/assets/usb-drive.svg"
                   alt="Insert USB Image"
-                  // hidden feature to export with file dialog by double-clicking
+                  // hidden feature to save with file dialog by double-clicking
                   onDoubleClick={() => saveFileCallback(true)}
                 />
-                Please insert a USB drive in order to export the ballot
+                Please insert a USB drive in order to save the ballot
                 configuration.
               </p>
             </Prose>
@@ -237,7 +237,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
           actions = (
             <React.Fragment>
               <Button primary onPress={() => saveFileCallback(false)}>
-                Export
+                Save
               </Button>
               <LinkButton onPress={closeModal}>Cancel</LinkButton>
               <Button onPress={() => saveFileCallback(true)}>Custom</Button>
@@ -245,12 +245,12 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
           );
           mainContent = (
             <Prose>
-              <h1>Export Ballot Package</h1>
+              <h1>Save Ballot Package</h1>
               <p>
                 <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />A
                 zip archive will automatically be saved to the default location
-                on the mounted USB drive. Optionally, you may pick a custom
-                export location.
+                on the mounted USB drive. Optionally, you may pick a custom save
+                location.
               </p>
             </Prose>
           );
@@ -329,7 +329,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
       );
       mainContent = (
         <Prose>
-          <h1>Finishing Download…</h1>
+          <h1>Saving…</h1>
           <p>
             Rendered {pluralize('ballot', state.ballotConfigsCount, true)},
             closing zip file.
@@ -357,9 +357,9 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
       }
       mainContent = (
         <Prose>
-          <h1>Download Complete</h1>
+          <h1>Ballot Package Saved</h1>
           <p>
-            You may now eject the USB drive. Use the exported ballot package on
+            You may now eject the USB drive. Use the saved ballot package on
             this USB drive to configure VxScan or VxCentralScan.
           </p>
         </Prose>
@@ -371,7 +371,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
       actions = <LinkButton onPress={closeModal}>Close</LinkButton>;
       mainContent = (
         <Prose>
-          <h1>Download Failed</h1>
+          <h1>Failed to Save Ballot Package</h1>
           <p>An error occurred: {state.message}.</p>
         </Prose>
       );
@@ -386,7 +386,7 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
   return (
     <React.Fragment>
       <LinkButton small onPress={() => setIsModalOpen(true)}>
-        Export Package
+        Save Ballot Package
       </LinkButton>
       {isModalOpen && (
         <Modal

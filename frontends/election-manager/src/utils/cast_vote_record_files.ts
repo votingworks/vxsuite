@@ -218,7 +218,7 @@ export class CastVoteRecordFiles {
           results.push(parsedFile);
         }
       } catch (error) {
-        // The file isn't able to be read or isn't a valid CVR file for import and could not be processed.
+        // The file isn't able to be read or isn't a valid CVR file for loading and could not be processed.
         // Only valid CVR files will be returned by this function so ignore this file and continue processing the rest.
         continue;
       }

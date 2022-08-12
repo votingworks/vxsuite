@@ -116,7 +116,7 @@ export function DefinitionEditorScreen({
           <div />
           <div />
           <Button small disabled={dirty} onPress={downloadElectionDefinition}>
-            Download
+            Save
           </Button>
           <Button
             small

@@ -27,7 +27,7 @@ test('shows loading screen when usb is mounting or ejecting', () => {
   }
 });
 
-test('shows insert usb screen when no usb is present with manual upload button', async () => {
+test('shows insert usb screen when no usb is present with manual load button', async () => {
   const usbStatuses = [
     UsbDriveStatus.absent,
     UsbDriveStatus.notavailable,
@@ -74,9 +74,9 @@ test('reads files from usb when mounted and shows proper display when there are 
     { usbDriveStatus: UsbDriveStatus.mounted }
   );
 
-  await waitFor(() => getByText('No Election Ballot Package Files Found'));
+  await waitFor(() => getByText('No Election Ballot Packages Found'));
   getByText(
-    /There were no Election Ballot Package files automatically found on the inserted USB drive. /
+    /There were no Election Ballot Packages automatically found on the inserted USB drive. /
   );
   getByText('Select File…');
   getByAltText('Insert USB Image');
@@ -142,7 +142,7 @@ test('reads files from usb when mounted and shows list of files', async () => {
   await waitFor(() => expect(manualUpload).toHaveBeenCalledTimes(1));
 });
 
-test('shows errors that occur when importing in file list screen', async () => {
+test('shows errors that occur when loading in file list screen', async () => {
   const file1 =
     'choctaw-county_2020-general-election_a5753d5776__2020-12-02_09-42-50.zip';
   const mockKiosk = fakeKiosk();
@@ -168,12 +168,10 @@ test('shows errors that occur when importing in file list screen', async () => {
   expect(tableRows).toHaveLength(1);
   expect(queryAllByText('FAKE-ERROR')).toHaveLength(0);
   expect(
-    queryAllByText(
-      /An error occurred while importing the election configuration/
-    )
+    queryAllByText(/An error occurred while loading the election configuration/)
   ).toHaveLength(0);
 
   fireEvent.click(domGetByText(tableRows[0], 'Select'));
   await waitFor(() => getByText(/FAKE-ERROR/));
-  getByText(/An error occurred while importing the election configuration/);
+  getByText(/An error occurred while loading the election configuration/);
 });

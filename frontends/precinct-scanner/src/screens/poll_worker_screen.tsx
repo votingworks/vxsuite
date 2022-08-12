@@ -509,7 +509,7 @@ export function PollWorkerScreen({
           {!isPollsOpen && scannedBallotCount > 0 && (
             <p>
               <Button onPress={() => setIsExportingResults(true)}>
-                Export Results to USB Drive
+                Save Results to USB Drive
               </Button>
             </p>
           )}

@@ -41,7 +41,7 @@ export async function saveCvrExportToUsb({
   if (window.kiosk) {
     const usbPath = await usbstick.getDevicePath();
     if (!usbPath) {
-      throw new Error('could not begin download; path to usb drive missing');
+      throw new Error('could not save file; path to usb drive missing');
     }
     const electionFolderName = generateElectionBasedSubfolderName(
       electionDefinition.election,
@@ -59,7 +59,7 @@ export async function saveCvrExportToUsb({
       });
 
       if (!fileWriter) {
-        throw new Error('could not begin download; no file was chosen');
+        throw new Error('could not save; no file was chosen');
       }
 
       await fileWriter.write(cvrFileString);

@@ -69,7 +69,7 @@ export function WriteInsScreen(): JSX.Element {
         <Prose maxWidth={false}>
           <h1>Write-Ins</h1>
           {!castVoteRecordFiles.wereAdded && (
-            <p>Adjudication can begin once CVRs are imported.</p>
+            <p>Adjudication can begin once CVRs are loaded.</p>
           )}
           {contestsWithWriteIns?.map((contest) => (
             <p key={contest.id}>

@@ -38,17 +38,17 @@ describe('Write-in Adjudication screen', () => {
   const { electionDefinition, cvrData } =
     electionMinimalExhaustiveSampleFixtures;
 
-  test('No CVRs imported', async () => {
+  test('No CVRs loaded', async () => {
     renderInAppContext(<WriteInsScreen />, { electionDefinition });
     await waitFor(() => {
-      screen.getByText('Adjudication can begin once CVRs are imported.');
+      screen.getByText('Adjudication can begin once CVRs are loaded.');
     });
     expect(
       screen.getAllByText(/Adjudicate write-ins for “City Zoo Council”/)[0]
     ).toBeDisabled();
   });
 
-  test('CVRs with write-ins imported', async () => {
+  test('CVRs with write-ins loaded', async () => {
     const mockFiles = CastVoteRecordFiles.empty;
     const added = await mockFiles.addAll(
       [new File([cvrData], TEST_FILE1)],

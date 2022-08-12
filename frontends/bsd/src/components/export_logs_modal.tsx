@@ -62,18 +62,18 @@ export function ExportLogsModal({ onClose, logFileType }: Props): JSX.Element {
         const vxLogFile = allLogs.filter((f) => f.name === `${LOG_NAME}.log`);
         if (vxLogFile.length > 0) {
           setFoundLogFile(true);
-          await logger.log(LogEventId.ExportLogFileFound, userRole, {
+          await logger.log(LogEventId.SaveLogFileFound, userRole, {
             disposition: 'success',
             message:
-              'Successfully located vx-logs.log file on machine to export.',
+              'Successfully located vx-logs.log file on machine to save.',
           });
         } else {
           setFoundLogFile(false);
-          await logger.log(LogEventId.ExportLogFileFound, userRole, {
+          await logger.log(LogEventId.SaveLogFileFound, userRole, {
             disposition: 'failure',
             message:
               'Could not locate vx-logs.log file on machine. Machine is not configured for production use.',
-            result: 'Logs are not exportable.',
+            result: 'Logs are not saveable.',
           });
         }
         setIsLocatingLogFile(false);
@@ -117,7 +117,7 @@ export function ExportLogsModal({ onClose, logFileType }: Props): JSX.Element {
         });
 
         if (!fileWriter) {
-          throw new Error('could not begin download; no file was chosen');
+          throw new Error('could not save; no file was chosen');
         }
         await fileWriter.write(results);
 
@@ -227,7 +227,7 @@ export function ExportLogsModal({ onClose, logFileType }: Props): JSX.Element {
     case UsbDriveStatus.absent:
     case UsbDriveStatus.notavailable:
     case UsbDriveStatus.recentlyEjected:
-      // When run not through kiosk mode let the user download the file
+      // When run not through kiosk mode let the user save the file
       // on the machine for internal debugging use
       return (
         <Modal

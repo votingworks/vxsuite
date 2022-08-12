@@ -112,7 +112,7 @@ export function SaveFileToUsb({
           });
 
           if (!fileWriter) {
-            throw new Error('could not begin download; no file was chosen');
+            throw new Error('could not save; no file was chosen');
           }
 
           await fileWriter.write(results);
@@ -225,7 +225,7 @@ export function SaveFileToUsb({
     case UsbDriveStatus.absent:
     case UsbDriveStatus.notavailable:
     case UsbDriveStatus.recentlyEjected:
-      // When run not through kiosk mode let the user download the file
+      // When run not through kiosk mode let the user save the file
       // on the machine for internal debugging use
       return (
         <Modal

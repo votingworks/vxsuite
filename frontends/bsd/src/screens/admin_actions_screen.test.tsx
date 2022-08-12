@@ -30,7 +30,7 @@ function renderScreen(props: Partial<AdminActionScreenProps> = {}) {
   );
 }
 
-test('clicking "Export Backup" shows progress', async () => {
+test('clicking "Save Backup" shows progress', async () => {
   const backup = jest.fn();
   renderScreen({ backup });
 

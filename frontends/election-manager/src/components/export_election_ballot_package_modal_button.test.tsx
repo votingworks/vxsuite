@@ -1,4 +1,4 @@
-import { fireEvent, waitFor } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { interpretTemplate } from '@votingworks/ballot-interpreter-vx';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { fakeKiosk, fakeUsbDrive, mockOf } from '@votingworks/test-utils';
@@ -84,7 +84,7 @@ test('Button renders properly when not clicked', () => {
     <ExportElectionBallotPackageModalButton />
   );
 
-  expect(queryByText('Export Package')).toHaveProperty('type', 'button');
+  expect(queryByText('Save Ballot Package')).toHaveProperty('type', 'button');
   expect(queryByTestId('modal')).toBeNull();
 });
 
@@ -105,13 +105,13 @@ test('Modal renders insert usb screen appropriately', async () => {
     } = renderInAppContext(<ExportElectionBallotPackageModalButton />, {
       usbDriveStatus: usbStatus,
     });
-    fireEvent.click(getByText('Export Package'));
+    fireEvent.click(getByText('Save Ballot Package'));
     await waitFor(() => getByText('No USB Drive Detected'));
     expect(queryAllByAltText('Insert USB Image')).toHaveLength(1);
     expect(queryAllByTestId('modal')).toHaveLength(1);
     expect(
       queryAllByText(
-        'Please insert a USB drive in order to export the ballot configuration.'
+        'Please insert a USB drive in order to save the ballot configuration.'
       )
     ).toHaveLength(1);
 
@@ -124,31 +124,21 @@ test('Modal renders insert usb screen appropriately', async () => {
 
 test('Modal renders export confirmation screen when usb detected and manual link works as expected', async () => {
   const logger = fakeLogger();
-  const {
-    getByText,
-    findByText,
-    queryAllByText,
-    queryAllByAltText,
-    queryAllByTestId,
-  } = renderInAppContext(<ExportElectionBallotPackageModalButton />, {
+  renderInAppContext(<ExportElectionBallotPackageModalButton />, {
     usbDriveStatus: UsbDriveStatus.mounted,
     logger,
   });
-  fireEvent.click(getByText('Export Package'));
-  await findByText('Export Ballot Package');
-  expect(queryAllByAltText('Insert USB Image')).toHaveLength(1);
-  expect(queryAllByTestId('modal')).toHaveLength(1);
-  expect(
-    queryAllByText(
-      /A zip archive will automatically be saved to the default location on the mounted USB drive./
-    )
-  ).toHaveLength(1);
-  expect(
-    queryAllByText(/Optionally, you may pick a custom export location./)
-  ).toHaveLength(1);
+  fireEvent.click(screen.getByText('Save Ballot Package'));
+  const modal = await screen.findByRole('alertdialog');
+  within(modal).getByText('Save Ballot Package');
+  within(modal).getByAltText('Insert USB Image');
+  within(modal).getByText(
+    /A zip archive will automatically be saved to the default location on the mounted USB drive./
+  );
+  within(modal).getByText(/Optionally, you may pick a custom save location./);
 
-  fireEvent.click(getByText('Custom'));
-  await waitFor(() => getByText(/Download Complete/));
+  fireEvent.click(within(modal).getByText('Custom'));
+  await waitFor(() => within(modal).getByText('Ballot Package Saved'));
   await waitFor(() => {
     expect(interpretTemplate).toHaveBeenCalledTimes(
       2 /* pages per ballot */ *
@@ -161,17 +151,17 @@ test('Modal renders export confirmation screen when usb detected and manual link
     expect(window.kiosk!.saveAs).toHaveBeenCalledTimes(1);
   });
   expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.ExportBallotPackageInit,
+    LogEventId.SaveBallotPackageInit,
     'election_manager'
   );
   expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.ExportBallotPackageComplete,
+    LogEventId.SaveBallotPackageComplete,
     'election_manager',
     expect.objectContaining({ disposition: 'success' })
   );
 
-  fireEvent.click(getByText('Close'));
-  expect(queryAllByTestId('modal')).toHaveLength(0);
+  fireEvent.click(within(modal).getByText('Close'));
+  expect(screen.queryAllByTestId('modal')).toHaveLength(0);
 });
 
 test('Modal renders loading screen when usb drive is mounting or ejecting', async () => {
@@ -184,7 +174,7 @@ test('Modal renders loading screen when usb drive is mounting or ejecting', asyn
         usbDriveStatus: usbStatus,
       }
     );
-    fireEvent.click(getByText('Export Package'));
+    fireEvent.click(getByText('Save Ballot Package'));
     await waitFor(() => getByText('Loading'));
 
     expect(queryAllByTestId('modal')).toHaveLength(1);
@@ -204,26 +194,24 @@ test('Modal renders error message appropriately', async () => {
       logger,
     }
   );
-  fireEvent.click(getByText('Export Package'));
-  await waitFor(() => getByText('Export'));
+  fireEvent.click(getByText('Save Ballot Package'));
+  await waitFor(() => getByText('Save'));
 
   fireEvent.click(getByText('Custom'));
 
-  await waitFor(() => getByText(/Download Failed/));
+  await waitFor(() => getByText('Failed to Save Ballot Package'));
   expect(queryAllByTestId('modal')).toHaveLength(1);
   expect(queryAllByText(/An error occurred:/)).toHaveLength(1);
-  expect(
-    queryAllByText(/could not begin download; no file was chosen/)
-  ).toHaveLength(1);
+  expect(queryAllByText(/could not save; no file was chosen/)).toHaveLength(1);
 
   fireEvent.click(getByText('Close'));
   expect(queryAllByTestId('modal')).toHaveLength(0);
   expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.ExportBallotPackageInit,
+    LogEventId.SaveBallotPackageInit,
     'election_manager'
   );
   expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.ExportBallotPackageComplete,
+    LogEventId.SaveBallotPackageComplete,
     'election_manager',
     expect.objectContaining({ disposition: 'failure' })
   );
@@ -238,19 +226,19 @@ test('Modal renders renders loading message while rendering ballots appropriatel
       usbDriveEject: ejectFunction,
     }
   );
-  fireEvent.click(getByText('Export Package'));
-  await waitFor(() => getByText('Export'));
+  fireEvent.click(getByText('Save Ballot Package'));
+  await waitFor(() => getByText('Save'));
 
-  fireEvent.click(getByText('Export'));
+  fireEvent.click(getByText('Save'));
 
-  await waitFor(() => getByText(/Download Complete/));
+  await waitFor(() => getByText('Ballot Package Saved'));
   expect(window.kiosk!.writeFile).toHaveBeenCalledTimes(1);
   expect(window.kiosk!.makeDirectory).toHaveBeenCalledTimes(1);
 
   expect(queryAllByTestId('modal')).toHaveLength(1);
   expect(
     queryByText(
-      'You may now eject the USB drive. Use the exported ballot package on this USB drive to configure VxScan or VxCentralScan.'
+      'You may now eject the USB drive. Use the saved ballot package on this USB drive to configure VxScan or VxCentralScan.'
     )
   ).toBeInTheDocument();
 

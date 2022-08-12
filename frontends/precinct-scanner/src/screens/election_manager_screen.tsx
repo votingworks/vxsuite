@@ -172,12 +172,12 @@ export function ElectionManagerScreen({
         </p>
         <p>
           <Button onPress={() => setIsExportingResults(true)}>
-            Export Results to USB Drive
+            Save Results to USB Drive
           </Button>
         </p>
         <p>
           <Button onPress={() => setIsExportingBackup(true)}>
-            Export Backup to USB Drive
+            Save Backup to USB Drive
           </Button>
         </p>
         <p>
@@ -205,7 +205,7 @@ export function ElectionManagerScreen({
         </p>
         {!scannerStatus.canUnconfigure && (
           <p>
-            You must “Export Backup” before you can delete election data from
+            You must “Save Backup” before you can delete election data from
             VxScan.
           </p>
         )}
@@ -223,9 +223,9 @@ export function ElectionManagerScreen({
         <Modal
           content={
             <Prose>
-              <h1>Export Backup to switch to Test Mode</h1>
+              <h1>Save Backup to switch to Test Mode</h1>
               <p>
-                You must &quot;Export Backup&quot; before you may switch to
+                You must &quot;Save Backup&quot; before you may switch to
                 Testing Mode.
               </p>
             </Prose>
@@ -239,7 +239,7 @@ export function ElectionManagerScreen({
                   setIsExportingBackup(true);
                 }}
               >
-                Export Backup
+                Save Backup
               </Button>
               <Button onPress={closeToggleLiveModeWarningModal}>Cancel</Button>
             </React.Fragment>
