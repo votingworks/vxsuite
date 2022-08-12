@@ -3,7 +3,7 @@ import { useHistory, useLocation } from 'react-router-dom';
 import styled from 'styled-components';
 import { safeParseElection } from '@votingworks/types';
 
-import { electionSampleDefinition } from '@votingworks/fixtures';
+import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 
 import {
   Modal,
@@ -57,7 +57,8 @@ function someFilesExist(files: VxFile[]) {
   return files.some((f) => f.path);
 }
 
-const demoElection = electionSampleDefinition.electionData;
+const demoElection =
+  electionFamousNames2021Fixtures.electionDefinition.electionData;
 
 export function UnconfiguredScreen(): JSX.Element {
   const history = useHistory();
