@@ -51,9 +51,11 @@ test('overvote', () => {
     )
   );
   userEvent.click(screen.getByRole('button', { name: 'Cast Ballot As Is' }));
-  userEvent.click(
-    screen.getByRole('button', { name: 'Yes, Cast Ballot As Is' })
-  );
+  const confirmButton = screen.getByRole('button', {
+    name: 'Yes, Cast Ballot As Is',
+  });
+  userEvent.click(confirmButton);
+  expect(confirmButton).toBeDisabled();
   expect(fetchMock.done()).toBe(true);
 });
 
@@ -68,9 +70,11 @@ test('blank ballot', () => {
   });
   screen.getByText('No votes were found when scanning this ballot.');
   userEvent.click(screen.getByRole('button', { name: 'Cast Ballot As Is' }));
-  userEvent.click(
-    screen.getByRole('button', { name: 'Yes, count blank ballot' })
-  );
+  const confirmButton = screen.getByRole('button', {
+    name: 'Yes, Cast Ballot As Is',
+  });
+  userEvent.click(confirmButton);
+  expect(confirmButton).toBeDisabled();
   expect(fetchMock.done()).toBe(true);
 });
 
@@ -95,9 +99,11 @@ test('undervote no votes', () => {
   screen.getByRole('heading', { name: 'Review Your Ballot' });
   screen.getByText(new RegExp(`No votes detected for: ${contest.title}.`));
   userEvent.click(screen.getByRole('button', { name: 'Cast Ballot As Is' }));
-  userEvent.click(
-    screen.getByRole('button', { name: 'Yes, Cast Ballot As Is' })
-  );
+  const confirmButton = screen.getByRole('button', {
+    name: 'Yes, Cast Ballot As Is',
+  });
+  userEvent.click(confirmButton);
+  expect(confirmButton).toBeDisabled();
   expect(fetchMock.done()).toBe(true);
 });
 
@@ -174,8 +180,10 @@ test('unreadable', () => {
 
   screen.getByRole('heading', { name: 'Scanning Failed' });
   userEvent.click(screen.getByRole('button', { name: 'Cast Ballot As Is' }));
-  userEvent.click(
-    screen.getByRole('button', { name: 'Yes, Cast Ballot As Is' })
-  );
+  const confirmButton = screen.getByRole('button', {
+    name: 'Yes, Cast Ballot As Is',
+  });
+  userEvent.click(confirmButton);
+  expect(confirmButton).toBeDisabled();
   expect(fetchMock.done()).toBe(true);
 });

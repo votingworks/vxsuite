@@ -30,6 +30,42 @@ import { AppContext } from '../contexts/app_context';
 import { toSentence } from '../utils/to_sentence';
 import { useSound } from '../hooks/use_sound';
 
+interface ConfirmModalProps {
+  content?: React.ReactNode;
+  onConfirm: () => void;
+  onCancel: () => void;
+}
+
+function ConfirmModal({ content, onConfirm, onCancel }: ConfirmModalProps) {
+  const [confirmed, setConfirmed] = useState(false);
+
+  return (
+    <Modal
+      theme={fontSizeTheme.large}
+      modalWidth={ModalWidth.Wide}
+      content={content}
+      actions={
+        <React.Fragment>
+          <Button
+            primary
+            onPress={() => {
+              setConfirmed(true);
+              onConfirm();
+            }}
+            disabled={confirmed}
+          >
+            Yes, Cast Ballot As Is
+          </Button>
+          <Button onPress={onCancel} disabled={confirmed}>
+            Cancel
+          </Button>
+        </React.Fragment>
+      }
+      onOverlayClick={onCancel}
+    />
+  );
+}
+
 interface OvervoteWarningScreenProps {
   electionDefinition: ElectionDefinition;
   overvotes: readonly OvervoteAdjudicationReasonInfo[];
@@ -77,9 +113,7 @@ function OvervoteWarningScreen({
         </Text>
       </CenteredLargeProse>
       {confirmTabulate && (
-        <Modal
-          theme={fontSizeTheme.large}
-          modalWidth={ModalWidth.Wide}
+        <ConfirmModal
           content={
             <Prose textCenter>
               <h1>Are you sure?</h1>
@@ -89,15 +123,8 @@ function OvervoteWarningScreen({
               </p>
             </Prose>
           }
-          actions={
-            <React.Fragment>
-              <Button primary onPress={scanner.acceptBallot}>
-                Yes, Cast Ballot As Is
-              </Button>
-              <Button onPress={() => setConfirmTabulate(false)}>Cancel</Button>
-            </React.Fragment>
-          }
-          onOverlayClick={() => setConfirmTabulate(false)}
+          onConfirm={scanner.acceptBallot}
+          onCancel={() => setConfirmTabulate(false)}
         />
       )}
     </ScreenMainCenterChild>
@@ -171,9 +198,7 @@ function UndervoteWarningScreen({
         </Text>
       </CenteredLargeProse>
       {confirmTabulate && (
-        <Modal
-          theme={fontSizeTheme.large}
-          modalWidth={ModalWidth.Wide}
+        <ConfirmModal
           content={
             <Prose textCenter>
               <h1>Are you sure?</h1>
@@ -197,20 +222,13 @@ function UndervoteWarningScreen({
                   </span>
                 )}
               </p>
-              <Text italic>
+              <Text italic small>
                 Your votes will count, even if you leave some blank.
               </Text>
             </Prose>
           }
-          actions={
-            <React.Fragment>
-              <Button primary onPress={scanner.acceptBallot}>
-                Yes, Cast Ballot As Is
-              </Button>
-              <Button onPress={() => setConfirmTabulate(false)}>Cancel</Button>
-            </React.Fragment>
-          }
-          onOverlayClick={() => setConfirmTabulate(false)}
+          onConfirm={scanner.acceptBallot}
+          onCancel={() => setConfirmTabulate(false)}
         />
       )}
     </ScreenMainCenterChild>
@@ -241,24 +259,15 @@ function BlankBallotWarningScreen(): JSX.Element {
         </Text>
       </CenteredLargeProse>
       {confirmTabulate && (
-        <Modal
-          theme={fontSizeTheme.large}
-          modalWidth={ModalWidth.Wide}
+        <ConfirmModal
           content={
             <Prose textCenter>
               <h1>Are you sure?</h1>
               <p>No votes will be counted from this ballot.</p>
             </Prose>
           }
-          actions={
-            <React.Fragment>
-              <Button primary onPress={scanner.acceptBallot}>
-                Yes, count blank ballot
-              </Button>
-              <Button onPress={() => setConfirmTabulate(false)}>Cancel</Button>
-            </React.Fragment>
-          }
-          onOverlayClick={() => setConfirmTabulate(false)}
+          onConfirm={scanner.acceptBallot}
+          onCancel={() => setConfirmTabulate(false)}
         />
       )}
     </ScreenMainCenterChild>
@@ -287,24 +296,15 @@ function OtherReasonWarningScreen(): JSX.Element {
         </Text>
       </CenteredLargeProse>
       {confirmTabulate && (
-        <Modal
-          theme={fontSizeTheme.large}
-          modalWidth={ModalWidth.Wide}
+        <ConfirmModal
           content={
             <Prose textCenter>
               <h1>Are you sure?</h1>
               <p>No votes will be recorded for this ballot.</p>
             </Prose>
           }
-          actions={
-            <React.Fragment>
-              <Button primary onPress={scanner.acceptBallot}>
-                Yes, Cast Ballot As Is
-              </Button>
-              <Button onPress={() => setConfirmTabulate(false)}>Cancel</Button>
-            </React.Fragment>
-          }
-          onOverlayClick={() => setConfirmTabulate(false)}
+          onConfirm={scanner.acceptBallot}
+          onCancel={() => setConfirmTabulate(false)}
         />
       )}
     </ScreenMainCenterChild>

@@ -13,11 +13,13 @@ import { switchMap, throwError, timeout, timer } from 'rxjs';
 import {
   assign as xassign,
   Assigner,
+  BaseActionObject,
   createMachine,
   interpret,
   Interpreter,
   InvokeConfig,
   PropertyAssigner,
+  StateNodeConfig,
 } from 'xstate';
 import { Scan } from '@votingworks/api';
 import makeDebug from 'debug';
@@ -117,11 +119,11 @@ function connectToPlustek(createPlustekClient: CreatePlustekClient) {
   };
 }
 
-async function disconnectFromPlustek({ client }: Context) {
+async function closePlustekClient({ client }: Context) {
   if (!client) return;
-  debug('Disconnecting from plustek');
+  debug('Closing plustek client');
   await client.close();
-  debug('Plustek client disconnected');
+  debug('Plustek client closed');
 }
 
 async function killPlustekClient({ client }: Context) {
@@ -348,6 +350,48 @@ function buildMachine(
     },
   };
 
+  const acceptingState: StateNodeConfig<
+    Context,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    any,
+    Event,
+    BaseActionObject
+  > = {
+    initial: 'starting',
+    states: {
+      starting: {
+        invoke: {
+          src: accept,
+          onDone: 'checking_completed',
+          // In some cases, Plustek can return an error even if the paper got
+          // accepted, so we need to check paper status to determine what to do
+          // next. We still record the error for debugging purposes.
+          onError: {
+            target: 'checking_completed',
+            actions: assign({ error: (_context, event) => event.data }),
+          },
+        },
+      },
+      checking_completed: {
+        invoke: pollPaperStatus,
+        on: {
+          SCANNER_NO_PAPER: '#accepted',
+          // If there's a paper in front, that means the ballot in back did get
+          // dropped but somebody quickly inserted a new ballot in front, so we
+          // should count the first ballot as accepted.
+          SCANNER_READY_TO_SCAN: '#accepted',
+          // If the paper didn't get dropped, it's an error
+          SCANNER_READY_TO_EJECT: {
+            target: '#rejecting',
+            actions: assign({
+              error: new PrecinctScannerError('paper_in_back_after_accept'),
+            }),
+          },
+        },
+      },
+    },
+  };
+
   return createMachine<Context, Event>(
     {
       id: 'precinct_scanner',
@@ -408,7 +452,7 @@ function buildMachine(
         },
         error_disconnected: {
           entry: clearLastScan,
-          invoke: { src: disconnectFromPlustek, onDone: {}, onError: {} },
+          invoke: { src: closePlustekClient, onDone: {}, onError: {} },
           after: { DELAY_RECONNECT: 'reconnecting' },
         },
         reconnecting: {
@@ -598,37 +642,9 @@ function buildMachine(
           id: 'ready_to_accept',
           on: { ACCEPT: 'accepting' },
         },
-        accepting: {
-          invoke: {
-            src: accept,
-            onDone: 'checking_accepting_completed',
-            // In some cases, Plustek can return an error even if the paper got
-            // accepted, so we need to check paper status to determine what to do
-            // next. We still record the error for debugging purposes.
-            onError: {
-              target: 'checking_accepting_completed',
-              actions: assign({ error: (_context, event) => event.data }),
-            },
-          },
-        },
-        checking_accepting_completed: {
-          invoke: pollPaperStatus,
-          on: {
-            SCANNER_NO_PAPER: 'accepted',
-            // If there's a paper in front, that means the ballot in back did get
-            // dropped but somebody quickly inserted a new ballot in front, so we
-            // should count the first ballot as accepted.
-            SCANNER_READY_TO_SCAN: 'accepted',
-            // If the paper didn't get dropped, it's an error
-            SCANNER_READY_TO_EJECT: {
-              target: 'rejecting',
-              actions: assign({
-                error: new PrecinctScannerError('paper_in_back_after_accept'),
-              }),
-            },
-          },
-        },
+        accepting: acceptingState,
         accepted: {
+          id: 'accepted',
           entry: recordAcceptedSheet,
           invoke: pollPaperStatus,
           initial: 'scanning_paused',
@@ -652,11 +668,12 @@ function buildMachine(
           id: 'needs_review',
           invoke: pollPaperStatus,
           on: {
-            ACCEPT: 'accepting',
+            ACCEPT: 'accepting_after_review',
             RETURN: 'returning',
             SCANNER_READY_TO_EJECT: { target: undefined }, // Do nothing
           },
         },
+        accepting_after_review: acceptingState,
         returning: {
           entry: recordRejectedSheet,
           invoke: {
@@ -791,7 +808,7 @@ function buildMachine(
             // First, try disconnecting the "nice" way
             disconnecting: {
               invoke: {
-                src: disconnectFromPlustek,
+                src: closePlustekClient,
                 onDone: 'cooling_off',
                 onError: 'killing',
               },
@@ -960,12 +977,12 @@ export function createPrecinctScannerStateMachine(
             return 'ready_to_accept';
           case state.matches('accepting'):
             return 'accepting';
-          case state.matches('checking_accepting_completed'):
-            return 'accepting';
           case state.matches('accepted'):
             return 'accepted';
           case state.matches('needs_review'):
             return 'needs_review';
+          case state.matches('accepting_after_review'):
+            return 'accepting_after_review';
           case state.matches('returning'):
             return 'returning';
           case state.matches('checking_returning_completed'):
@@ -1014,7 +1031,6 @@ export function createPrecinctScannerStateMachine(
               throwIllegalValue(interpretation, 'type');
           }
         })();
-      // TODO log any errors, especially unexpected paper status/event or other unexpected errors
       return {
         state: scannerState,
         interpretation: interpretationResult,

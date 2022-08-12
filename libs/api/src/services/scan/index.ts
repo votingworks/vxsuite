@@ -654,6 +654,7 @@ export const PrecinctScannerStateSchema = z.enum([
   'accepting',
   'accepted',
   'needs_review',
+  'accepting_after_review',
   'returning',
   'returned',
   'rejecting',
