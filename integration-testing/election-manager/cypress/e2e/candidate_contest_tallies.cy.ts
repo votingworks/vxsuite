@@ -124,7 +124,7 @@ describe('Election Manager can create SEMS tallies', () => {
     enterPin();
     mockCardRemoval();
     cy.contains('Tally').click();
-    cy.contains('Import CVR Files').click();
+    cy.contains('Load CVR Files').click();
     cy.get('input[data-testid="manual-input"]').attachFile({
       fileContent: new Blob([fakeCvrFileContents]),
       fileName: 'cvrFile.jsonl',
@@ -230,7 +230,7 @@ describe('Election Manager can create SEMS tallies', () => {
     });
     cy.contains('Back to Reports').click();
 
-    // Check that the exported SEMS result file as the correct tallies
+    // Check that the saved SEMS result file as the correct tallies
     cy.contains('Save Results File').click();
     cy.get('[data-testid="manual-export"]').click();
     cy.contains('Results Saved');

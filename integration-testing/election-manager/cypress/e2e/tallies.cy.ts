@@ -28,7 +28,7 @@ describe('Election Manager can create SEMS tallies', () => {
     enterPin();
     mockCardRemoval();
     cy.contains('Tally').click();
-    cy.contains('Import CVR Files').click();
+    cy.contains('Load CVR Files').click();
     cy.get('input[data-testid="manual-input"]').attachFile(
       'multiPartyPrimaryCVRResults.jsonl'
     );
