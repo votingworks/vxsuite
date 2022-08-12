@@ -4,12 +4,17 @@ import {
   ScreenMainCenterChild,
   CenteredLargeProse,
 } from '../components/layout';
+import { ScannedBallotCount } from '../components/scanned_ballot_count';
 
 interface Props {
   batteryIsCharging: boolean;
+  scannedBallotCount?: number;
 }
 
-export function SetupScannerScreen({ batteryIsCharging }: Props): JSX.Element {
+export function SetupScannerScreen({
+  batteryIsCharging,
+  scannedBallotCount,
+}: Props): JSX.Element {
   // If the power cord is plugged in, but we can't detect a scanner, it's an
   // internal wiring issue. Otherwise if we can't detect the scanner, the power
   // cord is likely not plugged in.
@@ -28,16 +33,21 @@ export function SetupScannerScreen({ batteryIsCharging }: Props): JSX.Element {
           </Text>
         </CenteredLargeProse>
       )}
+      {scannedBallotCount !== undefined && (
+        <ScannedBallotCount count={scannedBallotCount} />
+      )}
     </ScreenMainCenterChild>
   );
 }
 
 /* istanbul ignore next */
 export function PowerDisconnectedPreview(): JSX.Element {
-  return <SetupScannerScreen batteryIsCharging={false} />;
+  return (
+    <SetupScannerScreen batteryIsCharging={false} scannedBallotCount={42} />
+  );
 }
 
 /* istanbul ignore next */
 export function ScannerDisconnectedPreview(): JSX.Element {
-  return <SetupScannerScreen batteryIsCharging />;
+  return <SetupScannerScreen batteryIsCharging scannedBallotCount={42} />;
 }

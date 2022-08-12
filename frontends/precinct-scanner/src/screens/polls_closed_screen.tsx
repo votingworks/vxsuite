@@ -5,15 +5,18 @@ import {
   CenteredLargeProse,
   ScreenMainCenterChild,
 } from '../components/layout';
+import { ScannedBallotCount } from '../components/scanned_ballot_count';
 
 interface Props {
   isLiveMode: boolean;
   showNoChargerWarning: boolean;
+  scannedBallotCount: number;
 }
 
 export function PollsClosedScreen({
   isLiveMode,
   showNoChargerWarning,
+  scannedBallotCount,
 }: Props): JSX.Element {
   return (
     <ScreenMainCenterChild isLiveMode={isLiveMode}>
@@ -28,26 +31,51 @@ export function PollsClosedScreen({
           </Text>
         )}
       </CenteredLargeProse>
+      <ScannedBallotCount count={scannedBallotCount} />
     </ScreenMainCenterChild>
   );
 }
 
 /* istanbul ignore next */
 export function DefaultPreview(): JSX.Element {
-  return <PollsClosedScreen isLiveMode showNoChargerWarning={false} />;
+  return (
+    <PollsClosedScreen
+      isLiveMode
+      showNoChargerWarning={false}
+      scannedBallotCount={42}
+    />
+  );
 }
 
 /* istanbul ignore next */
 export function DefaultTestModePreview(): JSX.Element {
-  return <PollsClosedScreen isLiveMode={false} showNoChargerWarning={false} />;
+  return (
+    <PollsClosedScreen
+      isLiveMode={false}
+      showNoChargerWarning={false}
+      scannedBallotCount={42}
+    />
+  );
 }
 
 /* istanbul ignore next */
 export function NoPowerConnectedLivePreview(): JSX.Element {
-  return <PollsClosedScreen isLiveMode showNoChargerWarning />;
+  return (
+    <PollsClosedScreen
+      isLiveMode
+      showNoChargerWarning
+      scannedBallotCount={42}
+    />
+  );
 }
 
 /* istanbul ignore next */
 export function NoPowerConnectedTestModePreview(): JSX.Element {
-  return <PollsClosedScreen isLiveMode={false} showNoChargerWarning />;
+  return (
+    <PollsClosedScreen
+      isLiveMode={false}
+      showNoChargerWarning
+      scannedBallotCount={42}
+    />
+  );
 }
