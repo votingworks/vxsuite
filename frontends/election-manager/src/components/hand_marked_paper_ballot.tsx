@@ -814,7 +814,7 @@ export function HandMarkedPaperBallot({
               </div>
             </PageFooterRow>
           </PageFooterMain>
-          {ballotMode === BallotMode.Sample ? (
+          {[BallotMode.Draft, BallotMode.Sample].includes(ballotMode) ? (
             <PageFooterQrCodeOutline />
           ) : (
             <PageFooterQrCode
@@ -839,14 +839,14 @@ export function HandMarkedPaperBallot({
       </div>
 
       <div className="watermark">
-        {ballotMode === BallotMode.Sample && (
-          <Watermark>
-            <div>SAMPLE</div>
-          </Watermark>
-        )}
         {ballotMode === BallotMode.Draft && (
           <Watermark>
             <div>DRAFT</div>
+          </Watermark>
+        )}
+        {ballotMode === BallotMode.Sample && (
+          <Watermark>
+            <div>SAMPLE</div>
           </Watermark>
         )}
       </div>
