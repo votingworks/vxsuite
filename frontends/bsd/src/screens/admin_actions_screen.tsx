@@ -141,7 +141,7 @@ export function AdminActionsScreen({
             {backupError && <p style={{ color: 'red' }}>{backupError}</p>}
             <p>
               <Button onPress={exportBackup} disabled={isBackingUp}>
-                {isBackingUp ? 'Exporting…' : 'Export Backup'}
+                {isBackingUp ? 'Saving…' : 'Save Backup'}
               </Button>
             </p>
             <p>
@@ -177,7 +177,7 @@ export function AdminActionsScreen({
                 <React.Fragment>
                   <br />
                   <Text as="span" warning warningIcon>
-                    You must &quot;Export Backup&quot; before you may delete
+                    You must &quot;Save Backup&quot; before you may delete
                     election data.
                   </Text>
                 </React.Fragment>
@@ -302,7 +302,7 @@ export function AdminActionsScreen({
         />
       )}
       {isBackingUp && (
-        <Modal centerContent content={<Loading>Exporting Backup</Loading>} />
+        <Modal centerContent content={<Loading>Saving Backup</Loading>} />
       )}
     </React.Fragment>
   );
