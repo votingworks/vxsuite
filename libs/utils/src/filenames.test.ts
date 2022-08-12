@@ -17,6 +17,7 @@ import {
   generateBatchResultsDefaultFilename,
   generateLogFilename,
   LogFileType,
+  generateSemsFinalExportDefaultFilename,
 } from './filenames';
 import { typedAs } from './types';
 
@@ -244,6 +245,41 @@ test('generates ballot export package name with zero padded time pieces', () => 
   expect(generateFilenameForBallotExportPackage(mockElection, time)).toBe(
     'king-county_general-election_testHash12__2019-03-01_01-09-02.zip'
   );
+});
+
+describe('generateSemsFinalExportDefaultFilename', () => {
+  test('generates the correct filename for test mode', () => {
+    const mockElection: Election = {
+      ...electionWithMsEitherNeitherDefinition.election,
+      county: { name: 'King County', id: '' },
+      title: 'General Election',
+    };
+    const time = new Date(2019, 2, 1, 1, 9, 2);
+    expect(
+      generateSemsFinalExportDefaultFilename(true, mockElection, time)
+    ).toBe(
+      'votingworks-sems-test-results_king-county_general-election_2019-03-01_01-09-02.csv'
+    );
+  });
+
+  test('generates the correct filename for live mode', () => {
+    const time = new Date(2019, 2, 1, 1, 9, 2);
+    const mockElection: Election = {
+      ...electionWithMsEitherNeitherDefinition.election,
+      county: { name: 'King County', id: '' },
+      title: 'General Election',
+    };
+    expect(
+      generateSemsFinalExportDefaultFilename(false, mockElection, time)
+    ).toBe(
+      'votingworks-sems-live-results_king-county_general-election_2019-03-01_01-09-02.csv'
+    );
+    expect(generateSemsFinalExportDefaultFilename(false, mockElection)).toEqual(
+      expect.stringMatching(
+        'votingworks-sems-live-results_king-county_general-election'
+      )
+    );
+  });
 });
 
 describe('generateFinalExportDefaultFilename', () => {

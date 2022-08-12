@@ -1,0 +1,3855 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`overvote report 1`] = `
+Object {
+  "Chief-Justice-1": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Estado de Hamilton",
+          "title": "Jefe de Justicia, 1er Tribunal de Apelaciones",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "charles-darwin",
+          "name": "Charles Darwin",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "stephen-hawking",
+          "name": "Stephen Hawking",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+      ],
+      "districtId": "district-1",
+      "id": "Chief-Justice-1",
+      "seats": 1,
+      "section": "State of Hamilton",
+      "title": "Chief Justice, 1st Court of Appeals",
+      "type": "candidate",
+    },
+    "tallies": Array [
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "charles-darwin",
+            "name": "Charles Darwin",
+            "partyIds": Array [
+              "0",
+            ],
+          },
+          "second": Object {
+            "id": "stephen-hawking",
+            "name": "Stephen Hawking",
+            "partyIds": Array [
+              "1",
+            ],
+          },
+        },
+        "tally": 9,
+      },
+    ],
+  },
+  "District-judge-11": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Estado de Hamilton",
+          "title": "Juez de Distrito, Distrito Judicial 11",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "bill-gates",
+          "name": "Bill Gates",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "pablo-picasso",
+          "name": "Pablo Picasso",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        Object {
+          "id": "wolfgang-amadeus-mozart",
+          "name": "Wolfgang Amadeus Mozart",
+          "partyIds": Array [
+            "2",
+          ],
+        },
+      ],
+      "districtId": "district-1",
+      "id": "District-judge-11",
+      "seats": 1,
+      "section": "State of Hamilton",
+      "title": "District Judge, 11th Judicial District",
+      "type": "candidate",
+    },
+    "tallies": Array [
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "bill-gates",
+            "name": "Bill Gates",
+            "partyIds": Array [
+              "0",
+            ],
+          },
+          "second": Object {
+            "id": "pablo-picasso",
+            "name": "Pablo Picasso",
+            "partyIds": Array [
+              "1",
+            ],
+          },
+        },
+        "tally": 11,
+      },
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "bill-gates",
+            "name": "Bill Gates",
+            "partyIds": Array [
+              "0",
+            ],
+          },
+          "second": Object {
+            "id": "wolfgang-amadeus-mozart",
+            "name": "Wolfgang Amadeus Mozart",
+            "partyIds": Array [
+              "2",
+            ],
+          },
+        },
+        "tally": 11,
+      },
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "pablo-picasso",
+            "name": "Pablo Picasso",
+            "partyIds": Array [
+              "1",
+            ],
+          },
+          "second": Object {
+            "id": "wolfgang-amadeus-mozart",
+            "name": "Wolfgang Amadeus Mozart",
+            "partyIds": Array [
+              "2",
+            ],
+          },
+        },
+        "tally": 10,
+      },
+    ],
+  },
+  "District-judge-125": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Estado de Hamilton",
+          "title": "Juez de Distrito, 125º Distrito Judicial",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "jane-austen",
+          "name": "Jane Austen",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "carrie-fisher",
+          "name": "Carrie Fisher",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+      ],
+      "districtId": "district-1",
+      "id": "District-judge-125",
+      "seats": 1,
+      "section": "State of Hamilton",
+      "title": "District Judge, 125th Judicial District",
+      "type": "candidate",
+    },
+    "tallies": Array [
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "jane-austen",
+            "name": "Jane Austen",
+            "partyIds": Array [
+              "0",
+            ],
+          },
+          "second": Object {
+            "id": "carrie-fisher",
+            "name": "Carrie Fisher",
+            "partyIds": Array [
+              "1",
+            ],
+          },
+        },
+        "tally": 9,
+      },
+    ],
+  },
+  "District-judge-127": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Estado de Hamilton",
+          "title": "Juez de Distrito, 127º Distrito Judicial",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "bob-barker",
+          "name": "Bob Barker",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "angelina-jolie",
+          "name": "Angelina Jolie",
+          "partyIds": Array [
+            "3",
+          ],
+        },
+      ],
+      "districtId": "district-1",
+      "id": "District-judge-127",
+      "seats": 1,
+      "section": "State of Hamilton",
+      "title": "District Judge, 127th Judicial District",
+      "type": "candidate",
+    },
+    "tallies": Array [
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "bob-barker",
+            "name": "Bob Barker",
+            "partyIds": Array [
+              "0",
+            ],
+          },
+          "second": Object {
+            "id": "angelina-jolie",
+            "name": "Angelina Jolie",
+            "partyIds": Array [
+              "3",
+            ],
+          },
+        },
+        "tally": 11,
+      },
+    ],
+  },
+  "District-judge-129": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Estado de Hamilton",
+          "title": "Juez de Distrito, 129° Distrito Judicial",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "salvador-dali",
+          "name": "Salvador Dali",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        Object {
+          "id": "anne-hathaway",
+          "name": "Anne Hathaway",
+          "partyIds": Array [
+            "3",
+          ],
+        },
+      ],
+      "districtId": "district-1",
+      "id": "District-judge-129",
+      "seats": 1,
+      "section": "State of Hamilton",
+      "title": "District Judge, 129th Judicial District",
+      "type": "candidate",
+    },
+    "tallies": Array [
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "salvador-dali",
+            "name": "Salvador Dali",
+            "partyIds": Array [
+              "1",
+            ],
+          },
+          "second": Object {
+            "id": "anne-hathaway",
+            "name": "Anne Hathaway",
+            "partyIds": Array [
+              "3",
+            ],
+          },
+        },
+        "tally": 10,
+      },
+    ],
+  },
+  "District-judge-61": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Estado de Hamilton",
+          "title": "Juez de Distrito, 61° Distrito Judicial",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "george-washington",
+          "name": "George Washington",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "steven-spielberg",
+          "name": "Steven Spielberg",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+      ],
+      "districtId": "district-1",
+      "id": "District-judge-61",
+      "seats": 1,
+      "section": "State of Hamilton",
+      "title": "District Judge, 61st Judicial District",
+      "type": "candidate",
+    },
+    "tallies": Array [
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "george-washington",
+            "name": "George Washington",
+            "partyIds": Array [
+              "0",
+            ],
+          },
+          "second": Object {
+            "id": "steven-spielberg",
+            "name": "Steven Spielberg",
+            "partyIds": Array [
+              "1",
+            ],
+          },
+        },
+        "tally": 8,
+      },
+    ],
+  },
+  "District-judge-80": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Estado de Hamilton",
+          "title": "Juez de Distrito, 80º Distrito Judicial",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "johan-sebastian-bach",
+          "name": "Johann Sebastian Bach",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "alexander-graham-bell",
+          "name": "Alexander Graham Bell",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+      ],
+      "districtId": "district-1",
+      "id": "District-judge-80",
+      "seats": 1,
+      "section": "State of Hamilton",
+      "title": "District Judge, 80th Judicial District",
+      "type": "candidate",
+    },
+    "tallies": Array [
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "johan-sebastian-bach",
+            "name": "Johann Sebastian Bach",
+            "partyIds": Array [
+              "0",
+            ],
+          },
+          "second": Object {
+            "id": "alexander-graham-bell",
+            "name": "Alexander Graham Bell",
+            "partyIds": Array [
+              "1",
+            ],
+          },
+        },
+        "tally": 16,
+      },
+    ],
+  },
+  "Justice-1-4": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Estado de Hamilton",
+          "title": "Justicia, 1er Tribunal de Apelaciones, Lugar 4",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "mark-antony",
+          "name": "Mark Antony",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "harriet-tubman",
+          "name": "Harriet Tubman",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+      ],
+      "districtId": "district-1",
+      "id": "Justice-1-4",
+      "seats": 1,
+      "section": "State of Hamilton",
+      "title": "Justice, 1st Court of Appeals, Place 4",
+      "type": "candidate",
+    },
+    "tallies": Array [
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "mark-antony",
+            "name": "Mark Antony",
+            "partyIds": Array [
+              "0",
+            ],
+          },
+          "second": Object {
+            "id": "harriet-tubman",
+            "name": "Harriet Tubman",
+            "partyIds": Array [
+              "1",
+            ],
+          },
+        },
+        "tally": 11,
+      },
+    ],
+  },
+  "Justice-14-2": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Estado de Hamilton",
+          "title": "Justicia, 14a Corte de Apelaciones, Lugar 2",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "martin-luther-king",
+          "name": "Dr. Martin Luther King Jr.",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "marilyn-monroe",
+          "name": "Marilyn Monroe",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+      ],
+      "districtId": "district-1",
+      "id": "Justice-14-2",
+      "seats": 1,
+      "section": "State of Hamilton",
+      "title": "Justice, 14th Court of Appeals, Place 2",
+      "type": "candidate",
+    },
+    "tallies": Array [
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "martin-luther-king",
+            "name": "Dr. Martin Luther King Jr.",
+            "partyIds": Array [
+              "0",
+            ],
+          },
+          "second": Object {
+            "id": "marilyn-monroe",
+            "name": "Marilyn Monroe",
+            "partyIds": Array [
+              "1",
+            ],
+          },
+        },
+        "tally": 12,
+      },
+    ],
+  },
+  "Justice-14-9": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Estado de Hamilton",
+          "title": "Justicia, 14a Corte de Apelaciones, Lugar 9",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "nikola-tesla",
+          "name": "Nikola Tesla",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "vincent-van-gogh",
+          "name": "Vincent Van Gogh",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+      ],
+      "districtId": "district-1",
+      "id": "Justice-14-9",
+      "seats": 1,
+      "section": "State of Hamilton",
+      "title": "Justice, 14th Court of Appeals, Place 9",
+      "type": "candidate",
+    },
+    "tallies": Array [
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "nikola-tesla",
+            "name": "Nikola Tesla",
+            "partyIds": Array [
+              "0",
+            ],
+          },
+          "second": Object {
+            "id": "vincent-van-gogh",
+            "name": "Vincent Van Gogh",
+            "partyIds": Array [
+              "1",
+            ],
+          },
+        },
+        "tally": 16,
+      },
+    ],
+  },
+  "Justice-peace-1-1": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Condado de Franklin",
+          "title": "Juez de Paz, Precinto 1, Lugar 1",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "julia-child",
+          "name": "Julia Child",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "paul-mccartney",
+          "name": "Paul McCartney",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+      ],
+      "districtId": "district-2",
+      "id": "Justice-peace-1-1",
+      "seats": 1,
+      "section": "Franklin County",
+      "title": "Justice of the Peace, Precinct 1, Place 1",
+      "type": "candidate",
+    },
+    "tallies": Array [
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "julia-child",
+            "name": "Julia Child",
+            "partyIds": Array [
+              "0",
+            ],
+          },
+          "second": Object {
+            "id": "paul-mccartney",
+            "name": "Paul McCartney",
+            "partyIds": Array [
+              "1",
+            ],
+          },
+        },
+        "tally": 9,
+      },
+    ],
+  },
+  "comm-ag": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Estado de Hamilton",
+          "title": "Comisionado de Agricultura",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "helen-keller",
+          "name": "Helen Keller",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "steve-jobs",
+          "name": "Steve Jobs",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+      ],
+      "districtId": "district-1",
+      "id": "comm-ag",
+      "seats": 1,
+      "section": "State of Hamilton",
+      "title": "Commissioner of Agriculture",
+      "type": "candidate",
+    },
+    "tallies": Array [
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "helen-keller",
+            "name": "Helen Keller",
+            "partyIds": Array [
+              "0",
+            ],
+          },
+          "second": Object {
+            "id": "steve-jobs",
+            "name": "Steve Jobs",
+            "partyIds": Array [
+              "1",
+            ],
+          },
+        },
+        "tally": 17,
+      },
+    ],
+  },
+  "comptroller": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Estado de Hamilton",
+          "title": "Contralor Estatal",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "natalie-portman",
+          "name": "Natalie Portman",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "frank-sinatra",
+          "name": "Frank Sinatra",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        Object {
+          "id": "andy-warhol",
+          "name": "Andy Warhol",
+          "partyIds": Array [
+            "3",
+          ],
+        },
+        Object {
+          "id": "alfred-hitchcock",
+          "name": "Alfred Hitchcock",
+          "partyIds": Array [
+            "3",
+          ],
+        },
+      ],
+      "districtId": "district-1",
+      "id": "comptroller",
+      "seats": 1,
+      "section": "State of Hamilton",
+      "title": "State Comptroller",
+      "type": "candidate",
+    },
+    "tallies": Array [
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "natalie-portman",
+            "name": "Natalie Portman",
+            "partyIds": Array [
+              "0",
+            ],
+          },
+          "second": Object {
+            "id": "andy-warhol",
+            "name": "Andy Warhol",
+            "partyIds": Array [
+              "3",
+            ],
+          },
+        },
+        "tally": 5,
+      },
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "natalie-portman",
+            "name": "Natalie Portman",
+            "partyIds": Array [
+              "0",
+            ],
+          },
+          "second": Object {
+            "id": "alfred-hitchcock",
+            "name": "Alfred Hitchcock",
+            "partyIds": Array [
+              "3",
+            ],
+          },
+        },
+        "tally": 8,
+      },
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "andy-warhol",
+            "name": "Andy Warhol",
+            "partyIds": Array [
+              "3",
+            ],
+          },
+          "second": Object {
+            "id": "alfred-hitchcock",
+            "name": "Alfred Hitchcock",
+            "partyIds": Array [
+              "3",
+            ],
+          },
+        },
+        "tally": 4,
+      },
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "natalie-portman",
+            "name": "Natalie Portman",
+            "partyIds": Array [
+              "0",
+            ],
+          },
+          "second": Object {
+            "id": "frank-sinatra",
+            "name": "Frank Sinatra",
+            "partyIds": Array [
+              "1",
+            ],
+          },
+        },
+        "tally": 5,
+      },
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "frank-sinatra",
+            "name": "Frank Sinatra",
+            "partyIds": Array [
+              "1",
+            ],
+          },
+          "second": Object {
+            "id": "alfred-hitchcock",
+            "name": "Alfred Hitchcock",
+            "partyIds": Array [
+              "3",
+            ],
+          },
+        },
+        "tally": 4,
+      },
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "frank-sinatra",
+            "name": "Frank Sinatra",
+            "partyIds": Array [
+              "1",
+            ],
+          },
+          "second": Object {
+            "id": "andy-warhol",
+            "name": "Andy Warhol",
+            "partyIds": Array [
+              "3",
+            ],
+          },
+        },
+        "tally": 2,
+      },
+    ],
+  },
+  "constable-1": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Condado de Franklin",
+          "title": "Alguacil, distrito 1",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "beethoven",
+          "name": "Ludwig Van Beethoven",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "walt-disney",
+          "name": "Walt Disney",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+      ],
+      "districtId": "district-2",
+      "id": "constable-1",
+      "seats": 1,
+      "section": "Franklin County",
+      "title": "Constable, Precinct 1",
+      "type": "candidate",
+    },
+    "tallies": Array [
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "beethoven",
+            "name": "Ludwig Van Beethoven",
+            "partyIds": Array [
+              "0",
+            ],
+          },
+          "second": Object {
+            "id": "walt-disney",
+            "name": "Walt Disney",
+            "partyIds": Array [
+              "1",
+            ],
+          },
+        },
+        "tally": 4,
+      },
+    ],
+  },
+  "county-attorney": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Condado de Franklin",
+          "title": "Abogado del Condado",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "isaac-newton",
+          "name": "Isaac Newton",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "harry-potter",
+          "name": "Harry Potter",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+      ],
+      "districtId": "district-2",
+      "id": "county-attorney",
+      "seats": 1,
+      "section": "Franklin County",
+      "title": "County Attorney",
+      "type": "candidate",
+    },
+    "tallies": Array [
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "isaac-newton",
+            "name": "Isaac Newton",
+            "partyIds": Array [
+              "0",
+            ],
+          },
+          "second": Object {
+            "id": "harry-potter",
+            "name": "Harry Potter",
+            "partyIds": Array [
+              "1",
+            ],
+          },
+        },
+        "tally": 5,
+      },
+    ],
+  },
+  "county-tax-assessor": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Condado de Franklin",
+          "title": "Asesor-Recaudador de Impuestos del País",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "bruce-lee",
+          "name": "Bruce Lee",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "christopher-columbus",
+          "name": "Christopher Columbus",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+      ],
+      "districtId": "district-2",
+      "id": "county-tax-assessor",
+      "seats": 1,
+      "section": "Franklin County",
+      "title": "Country Tax Assessor-Collector",
+      "type": "candidate",
+    },
+    "tallies": Array [
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "bruce-lee",
+            "name": "Bruce Lee",
+            "partyIds": Array [
+              "0",
+            ],
+          },
+          "second": Object {
+            "id": "christopher-columbus",
+            "name": "Christopher Columbus",
+            "partyIds": Array [
+              "1",
+            ],
+          },
+        },
+        "tally": 5,
+      },
+    ],
+  },
+  "district-attorney": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Condado de Franklin",
+          "title": "Fiscal de Distrito",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "theodore-roosevelt",
+          "name": "Theodore Roosevelt",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "edgar-allan-poe",
+          "name": "Edgar Allan Poe",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+      ],
+      "districtId": "district-2",
+      "id": "district-attorney",
+      "seats": 1,
+      "section": "Franklin County",
+      "title": "District Attorney",
+      "type": "candidate",
+    },
+    "tallies": Array [
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "theodore-roosevelt",
+            "name": "Theodore Roosevelt",
+            "partyIds": Array [
+              "0",
+            ],
+          },
+          "second": Object {
+            "id": "edgar-allan-poe",
+            "name": "Edgar Allan Poe",
+            "partyIds": Array [
+              "1",
+            ],
+          },
+        },
+        "tally": 2,
+      },
+    ],
+  },
+  "governor": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Estado de Hamilton",
+          "title": "Gobernador",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "sherlock-holmes",
+          "name": "Sherlock Holmes",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "thomas-edison",
+          "name": "Thomas Edison",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+      ],
+      "districtId": "district-2",
+      "id": "governor",
+      "seats": 1,
+      "section": "State of Hamilton",
+      "title": "Governor",
+      "type": "candidate",
+    },
+    "tallies": Array [
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "sherlock-holmes",
+            "name": "Sherlock Holmes",
+            "partyIds": Array [
+              "0",
+            ],
+          },
+          "second": Object {
+            "id": "thomas-edison",
+            "name": "Thomas Edison",
+            "partyIds": Array [
+              "1",
+            ],
+          },
+        },
+        "tally": 5,
+      },
+    ],
+  },
+  "lieutenant-governor": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Estado de Hamilton",
+          "title": "Vicegobernador",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "winston-churchill",
+          "name": "Winston Churchill",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "oprah-winfrey",
+          "name": "Oprah Winfrey",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        Object {
+          "id": "louis-armstrong",
+          "name": "Louis Armstrong",
+          "partyIds": Array [
+            "3",
+          ],
+        },
+      ],
+      "districtId": "district-1",
+      "id": "lieutenant-governor",
+      "seats": 1,
+      "section": "State of Hamilton",
+      "title": "Lieutenant Governor",
+      "type": "candidate",
+    },
+    "tallies": Array [
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "oprah-winfrey",
+            "name": "Oprah Winfrey",
+            "partyIds": Array [
+              "1",
+            ],
+          },
+          "second": Object {
+            "id": "louis-armstrong",
+            "name": "Louis Armstrong",
+            "partyIds": Array [
+              "3",
+            ],
+          },
+        },
+        "tally": 15,
+      },
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "winston-churchill",
+            "name": "Winston Churchill",
+            "partyIds": Array [
+              "0",
+            ],
+          },
+          "second": Object {
+            "id": "oprah-winfrey",
+            "name": "Oprah Winfrey",
+            "partyIds": Array [
+              "1",
+            ],
+          },
+        },
+        "tally": 15,
+      },
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "winston-churchill",
+            "name": "Winston Churchill",
+            "partyIds": Array [
+              "0",
+            ],
+          },
+          "second": Object {
+            "id": "louis-armstrong",
+            "name": "Louis Armstrong",
+            "partyIds": Array [
+              "3",
+            ],
+          },
+        },
+        "tally": 13,
+      },
+    ],
+  },
+  "president": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Estados Unidos",
+          "title": "Presidente",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "marie-curie",
+          "name": "Marie Curie",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "indiana-jones",
+          "name": "Indiana Jones",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        Object {
+          "id": "mona-lisa",
+          "name": "Mona Lisa",
+          "partyIds": Array [
+            "3",
+          ],
+        },
+        Object {
+          "id": "jackie-chan",
+          "name": "Jackie Chan",
+          "partyIds": Array [
+            "3",
+          ],
+        },
+        Object {
+          "id": "tim-allen",
+          "name": "Tim Allen",
+          "partyIds": Array [
+            "2",
+          ],
+        },
+      ],
+      "districtId": "district-1",
+      "id": "president",
+      "seats": 1,
+      "section": "United States",
+      "title": "President",
+      "type": "candidate",
+    },
+    "tallies": Array [
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "mona-lisa",
+            "name": "Mona Lisa",
+            "partyIds": Array [
+              "3",
+            ],
+          },
+          "second": Object {
+            "id": "jackie-chan",
+            "name": "Jackie Chan",
+            "partyIds": Array [
+              "3",
+            ],
+          },
+        },
+        "tally": 3,
+      },
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "marie-curie",
+            "name": "Marie Curie",
+            "partyIds": Array [
+              "0",
+            ],
+          },
+          "second": Object {
+            "id": "indiana-jones",
+            "name": "Indiana Jones",
+            "partyIds": Array [
+              "1",
+            ],
+          },
+        },
+        "tally": 6,
+      },
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "marie-curie",
+            "name": "Marie Curie",
+            "partyIds": Array [
+              "0",
+            ],
+          },
+          "second": Object {
+            "id": "jackie-chan",
+            "name": "Jackie Chan",
+            "partyIds": Array [
+              "3",
+            ],
+          },
+        },
+        "tally": 5,
+      },
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "indiana-jones",
+            "name": "Indiana Jones",
+            "partyIds": Array [
+              "1",
+            ],
+          },
+          "second": Object {
+            "id": "jackie-chan",
+            "name": "Jackie Chan",
+            "partyIds": Array [
+              "3",
+            ],
+          },
+        },
+        "tally": 3,
+      },
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "marie-curie",
+            "name": "Marie Curie",
+            "partyIds": Array [
+              "0",
+            ],
+          },
+          "second": Object {
+            "id": "tim-allen",
+            "name": "Tim Allen",
+            "partyIds": Array [
+              "2",
+            ],
+          },
+        },
+        "tally": 3,
+      },
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "indiana-jones",
+            "name": "Indiana Jones",
+            "partyIds": Array [
+              "1",
+            ],
+          },
+          "second": Object {
+            "id": "tim-allen",
+            "name": "Tim Allen",
+            "partyIds": Array [
+              "2",
+            ],
+          },
+        },
+        "tally": 6,
+      },
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "indiana-jones",
+            "name": "Indiana Jones",
+            "partyIds": Array [
+              "1",
+            ],
+          },
+          "second": Object {
+            "id": "mona-lisa",
+            "name": "Mona Lisa",
+            "partyIds": Array [
+              "3",
+            ],
+          },
+        },
+        "tally": 4,
+      },
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "mona-lisa",
+            "name": "Mona Lisa",
+            "partyIds": Array [
+              "3",
+            ],
+          },
+          "second": Object {
+            "id": "tim-allen",
+            "name": "Tim Allen",
+            "partyIds": Array [
+              "2",
+            ],
+          },
+        },
+        "tally": 5,
+      },
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "jackie-chan",
+            "name": "Jackie Chan",
+            "partyIds": Array [
+              "3",
+            ],
+          },
+          "second": Object {
+            "id": "tim-allen",
+            "name": "Tim Allen",
+            "partyIds": Array [
+              "2",
+            ],
+          },
+        },
+        "tally": 3,
+      },
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "marie-curie",
+            "name": "Marie Curie",
+            "partyIds": Array [
+              "0",
+            ],
+          },
+          "second": Object {
+            "id": "mona-lisa",
+            "name": "Mona Lisa",
+            "partyIds": Array [
+              "3",
+            ],
+          },
+        },
+        "tally": 2,
+      },
+    ],
+  },
+  "representative-district-18": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Estados Unidos",
+          "title": "Representante, Distrito 18",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "michael-jordan",
+          "name": "Michael Jordan",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "albert-einstein",
+          "name": "Albert Einstein",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        Object {
+          "id": "neil-armstrong",
+          "name": "Neil Armstrong",
+          "partyIds": Array [
+            "3",
+          ],
+        },
+      ],
+      "districtId": "district-1",
+      "id": "representative-district-18",
+      "seats": 1,
+      "section": "United States",
+      "title": "Representative, District 18",
+      "type": "candidate",
+    },
+    "tallies": Array [
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "michael-jordan",
+            "name": "Michael Jordan",
+            "partyIds": Array [
+              "0",
+            ],
+          },
+          "second": Object {
+            "id": "neil-armstrong",
+            "name": "Neil Armstrong",
+            "partyIds": Array [
+              "3",
+            ],
+          },
+        },
+        "tally": 6,
+      },
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "michael-jordan",
+            "name": "Michael Jordan",
+            "partyIds": Array [
+              "0",
+            ],
+          },
+          "second": Object {
+            "id": "albert-einstein",
+            "name": "Albert Einstein",
+            "partyIds": Array [
+              "1",
+            ],
+          },
+        },
+        "tally": 8,
+      },
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "albert-einstein",
+            "name": "Albert Einstein",
+            "partyIds": Array [
+              "1",
+            ],
+          },
+          "second": Object {
+            "id": "neil-armstrong",
+            "name": "Neil Armstrong",
+            "partyIds": Array [
+              "3",
+            ],
+          },
+        },
+        "tally": 8,
+      },
+    ],
+  },
+  "senator": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Estados Unidos",
+          "title": "Senador",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "earhart",
+          "name": "Amelia Earhart",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "bond",
+          "name": "James Bond",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        Object {
+          "id": "antoinette",
+          "name": "Marie Antoinette",
+          "partyIds": Array [
+            "3",
+          ],
+        },
+      ],
+      "districtId": "district-2",
+      "id": "senator",
+      "seats": 1,
+      "section": "United States",
+      "title": "Senator",
+      "type": "candidate",
+    },
+    "tallies": Array [
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "earhart",
+            "name": "Amelia Earhart",
+            "partyIds": Array [
+              "0",
+            ],
+          },
+          "second": Object {
+            "id": "antoinette",
+            "name": "Marie Antoinette",
+            "partyIds": Array [
+              "3",
+            ],
+          },
+        },
+        "tally": 4,
+      },
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "earhart",
+            "name": "Amelia Earhart",
+            "partyIds": Array [
+              "0",
+            ],
+          },
+          "second": Object {
+            "id": "bond",
+            "name": "James Bond",
+            "partyIds": Array [
+              "1",
+            ],
+          },
+        },
+        "tally": 1,
+      },
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "bond",
+            "name": "James Bond",
+            "partyIds": Array [
+              "1",
+            ],
+          },
+          "second": Object {
+            "id": "antoinette",
+            "name": "Marie Antoinette",
+            "partyIds": Array [
+              "3",
+            ],
+          },
+        },
+        "tally": 1,
+      },
+    ],
+  },
+  "sheriff": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Condado de Franklin",
+          "title": "Alguacil",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "robin-williams",
+          "name": "Robin Williams",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "brad-pitt",
+          "name": "Brad Pitt",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        Object {
+          "id": "william-shakespeare",
+          "name": "William Shakespeare",
+          "partyIds": Array [
+            "3",
+          ],
+        },
+      ],
+      "districtId": "district-2",
+      "id": "sheriff",
+      "seats": 1,
+      "section": "Franklin County",
+      "title": "Sheriff",
+      "type": "candidate",
+    },
+    "tallies": Array [
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "robin-williams",
+            "name": "Robin Williams",
+            "partyIds": Array [
+              "0",
+            ],
+          },
+          "second": Object {
+            "id": "brad-pitt",
+            "name": "Brad Pitt",
+            "partyIds": Array [
+              "1",
+            ],
+          },
+        },
+        "tally": 3,
+      },
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "robin-williams",
+            "name": "Robin Williams",
+            "partyIds": Array [
+              "0",
+            ],
+          },
+          "second": Object {
+            "id": "william-shakespeare",
+            "name": "William Shakespeare",
+            "partyIds": Array [
+              "3",
+            ],
+          },
+        },
+        "tally": 3,
+      },
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "brad-pitt",
+            "name": "Brad Pitt",
+            "partyIds": Array [
+              "1",
+            ],
+          },
+          "second": Object {
+            "id": "william-shakespeare",
+            "name": "William Shakespeare",
+            "partyIds": Array [
+              "3",
+            ],
+          },
+        },
+        "tally": 5,
+      },
+    ],
+  },
+  "ss-justic-3": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Estado de Hamilton",
+          "title": "Justicia, Corte Suprema, Lugar 3",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "john-snow",
+          "name": "John Snow",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        Object {
+          "id": "mark-twain",
+          "name": "Mark Twain",
+          "partyIds": Array [
+            "3",
+          ],
+        },
+      ],
+      "districtId": "district-2",
+      "id": "ss-justic-3",
+      "seats": 1,
+      "section": "State of Hamilton",
+      "title": "Justice, Supreme Court, Place 3",
+      "type": "candidate",
+    },
+    "tallies": Array [
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "john-snow",
+            "name": "John Snow",
+            "partyIds": Array [
+              "1",
+            ],
+          },
+          "second": Object {
+            "id": "mark-twain",
+            "name": "Mark Twain",
+            "partyIds": Array [
+              "3",
+            ],
+          },
+        },
+        "tally": 3,
+      },
+    ],
+  },
+  "ss-justic-5": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Estado de Hamilton",
+          "title": "Justicia, Corte Suprema, Lugar 5",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "benjamin-franklin",
+          "name": "Benjamin Franklin",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "robert-downey-jr",
+          "name": "Robert Downey Jr.",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        Object {
+          "id": "bill-nye",
+          "name": "Bill Nye",
+          "partyIds": Array [
+            "3",
+          ],
+        },
+      ],
+      "districtId": "district-2",
+      "id": "ss-justic-5",
+      "seats": 1,
+      "section": "State of Hamilton",
+      "title": "Justice, Supreme Court, Place 5",
+      "type": "candidate",
+    },
+    "tallies": Array [
+      Object {
+        "candidates": Object {
+          "first": Object {
+            "id": "benjamin-franklin",
+            "name": "Benjamin Franklin",
+            "partyIds": Array [
+              "0",
+            ],
+          },
+          "second": Object {
+            "id": "bill-nye",
+            "name": "Bill Nye",
+            "partyIds": Array [
+              "3",
+            ],
+          },
+        },
+        "tally": 1,
+      },
+    ],
+  },
+}
+`;
+
+exports[`tabulating a set of CVRs gives expected output 1`] = `
+Object {
+  "Chief-Justice-1": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Estado de Hamilton",
+          "title": "Jefe de Justicia, 1er Tribunal de Apelaciones",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "charles-darwin",
+          "name": "Charles Darwin",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "stephen-hawking",
+          "name": "Stephen Hawking",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+      ],
+      "districtId": "district-1",
+      "id": "Chief-Justice-1",
+      "seats": 1,
+      "section": "State of Hamilton",
+      "title": "Chief Justice, 1st Court of Appeals",
+      "type": "candidate",
+    },
+    "metadata": Object {
+      "ballots": 7033,
+      "overvotes": 10,
+      "undervotes": 327,
+    },
+    "tallies": Object {
+      "charles-darwin": Object {
+        "option": Object {
+          "id": "charles-darwin",
+          "name": "Charles Darwin",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        "tally": 3342,
+      },
+      "stephen-hawking": Object {
+        "option": Object {
+          "id": "stephen-hawking",
+          "name": "Stephen Hawking",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        "tally": 3339,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 15,
+      },
+    },
+  },
+  "District-judge-11": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Estado de Hamilton",
+          "title": "Juez de Distrito, Distrito Judicial 11",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "bill-gates",
+          "name": "Bill Gates",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "pablo-picasso",
+          "name": "Pablo Picasso",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        Object {
+          "id": "wolfgang-amadeus-mozart",
+          "name": "Wolfgang Amadeus Mozart",
+          "partyIds": Array [
+            "2",
+          ],
+        },
+      ],
+      "districtId": "district-1",
+      "id": "District-judge-11",
+      "seats": 1,
+      "section": "State of Hamilton",
+      "title": "District Judge, 11th Judicial District",
+      "type": "candidate",
+    },
+    "metadata": Object {
+      "ballots": 7017,
+      "overvotes": 16,
+      "undervotes": 303,
+    },
+    "tallies": Object {
+      "bill-gates": Object {
+        "option": Object {
+          "id": "bill-gates",
+          "name": "Bill Gates",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        "tally": 2210,
+      },
+      "pablo-picasso": Object {
+        "option": Object {
+          "id": "pablo-picasso",
+          "name": "Pablo Picasso",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        "tally": 2229,
+      },
+      "wolfgang-amadeus-mozart": Object {
+        "option": Object {
+          "id": "wolfgang-amadeus-mozart",
+          "name": "Wolfgang Amadeus Mozart",
+          "partyIds": Array [
+            "2",
+          ],
+        },
+        "tally": 2244,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 15,
+      },
+    },
+  },
+  "District-judge-125": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Estado de Hamilton",
+          "title": "Juez de Distrito, 125º Distrito Judicial",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "jane-austen",
+          "name": "Jane Austen",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "carrie-fisher",
+          "name": "Carrie Fisher",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+      ],
+      "districtId": "district-1",
+      "id": "District-judge-125",
+      "seats": 1,
+      "section": "State of Hamilton",
+      "title": "District Judge, 125th Judicial District",
+      "type": "candidate",
+    },
+    "metadata": Object {
+      "ballots": 7019,
+      "overvotes": 9,
+      "undervotes": 299,
+    },
+    "tallies": Object {
+      "carrie-fisher": Object {
+        "option": Object {
+          "id": "carrie-fisher",
+          "name": "Carrie Fisher",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        "tally": 3360,
+      },
+      "jane-austen": Object {
+        "option": Object {
+          "id": "jane-austen",
+          "name": "Jane Austen",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        "tally": 3336,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 15,
+      },
+    },
+  },
+  "District-judge-127": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Estado de Hamilton",
+          "title": "Juez de Distrito, 127º Distrito Judicial",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "bob-barker",
+          "name": "Bob Barker",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "angelina-jolie",
+          "name": "Angelina Jolie",
+          "partyIds": Array [
+            "3",
+          ],
+        },
+      ],
+      "districtId": "district-1",
+      "id": "District-judge-127",
+      "seats": 1,
+      "section": "State of Hamilton",
+      "title": "District Judge, 127th Judicial District",
+      "type": "candidate",
+    },
+    "metadata": Object {
+      "ballots": 7019,
+      "overvotes": 11,
+      "undervotes": 313,
+    },
+    "tallies": Object {
+      "angelina-jolie": Object {
+        "option": Object {
+          "id": "angelina-jolie",
+          "name": "Angelina Jolie",
+          "partyIds": Array [
+            "3",
+          ],
+        },
+        "tally": 3362,
+      },
+      "bob-barker": Object {
+        "option": Object {
+          "id": "bob-barker",
+          "name": "Bob Barker",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        "tally": 3321,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 12,
+      },
+    },
+  },
+  "District-judge-129": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Estado de Hamilton",
+          "title": "Juez de Distrito, 129° Distrito Judicial",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "salvador-dali",
+          "name": "Salvador Dali",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        Object {
+          "id": "anne-hathaway",
+          "name": "Anne Hathaway",
+          "partyIds": Array [
+            "3",
+          ],
+        },
+      ],
+      "districtId": "district-1",
+      "id": "District-judge-129",
+      "seats": 1,
+      "section": "State of Hamilton",
+      "title": "District Judge, 129th Judicial District",
+      "type": "candidate",
+    },
+    "metadata": Object {
+      "ballots": 7019,
+      "overvotes": 10,
+      "undervotes": 300,
+    },
+    "tallies": Object {
+      "anne-hathaway": Object {
+        "option": Object {
+          "id": "anne-hathaway",
+          "name": "Anne Hathaway",
+          "partyIds": Array [
+            "3",
+          ],
+        },
+        "tally": 3340,
+      },
+      "salvador-dali": Object {
+        "option": Object {
+          "id": "salvador-dali",
+          "name": "Salvador Dali",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        "tally": 3352,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 17,
+      },
+    },
+  },
+  "District-judge-61": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Estado de Hamilton",
+          "title": "Juez de Distrito, 61° Distrito Judicial",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "george-washington",
+          "name": "George Washington",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "steven-spielberg",
+          "name": "Steven Spielberg",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+      ],
+      "districtId": "district-1",
+      "id": "District-judge-61",
+      "seats": 1,
+      "section": "State of Hamilton",
+      "title": "District Judge, 61st Judicial District",
+      "type": "candidate",
+    },
+    "metadata": Object {
+      "ballots": 7019,
+      "overvotes": 8,
+      "undervotes": 316,
+    },
+    "tallies": Object {
+      "george-washington": Object {
+        "option": Object {
+          "id": "george-washington",
+          "name": "George Washington",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        "tally": 3289,
+      },
+      "steven-spielberg": Object {
+        "option": Object {
+          "id": "steven-spielberg",
+          "name": "Steven Spielberg",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        "tally": 3387,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 19,
+      },
+    },
+  },
+  "District-judge-80": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Estado de Hamilton",
+          "title": "Juez de Distrito, 80º Distrito Judicial",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "johan-sebastian-bach",
+          "name": "Johann Sebastian Bach",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "alexander-graham-bell",
+          "name": "Alexander Graham Bell",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+      ],
+      "districtId": "district-1",
+      "id": "District-judge-80",
+      "seats": 1,
+      "section": "State of Hamilton",
+      "title": "District Judge, 80th Judicial District",
+      "type": "candidate",
+    },
+    "metadata": Object {
+      "ballots": 7019,
+      "overvotes": 16,
+      "undervotes": 321,
+    },
+    "tallies": Object {
+      "alexander-graham-bell": Object {
+        "option": Object {
+          "id": "alexander-graham-bell",
+          "name": "Alexander Graham Bell",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        "tally": 3349,
+      },
+      "johan-sebastian-bach": Object {
+        "option": Object {
+          "id": "johan-sebastian-bach",
+          "name": "Johann Sebastian Bach",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        "tally": 3319,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 14,
+      },
+    },
+  },
+  "Justice-1-4": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Estado de Hamilton",
+          "title": "Justicia, 1er Tribunal de Apelaciones, Lugar 4",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "mark-antony",
+          "name": "Mark Antony",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "harriet-tubman",
+          "name": "Harriet Tubman",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+      ],
+      "districtId": "district-1",
+      "id": "Justice-1-4",
+      "seats": 1,
+      "section": "State of Hamilton",
+      "title": "Justice, 1st Court of Appeals, Place 4",
+      "type": "candidate",
+    },
+    "metadata": Object {
+      "ballots": 7017,
+      "overvotes": 11,
+      "undervotes": 316,
+    },
+    "tallies": Object {
+      "harriet-tubman": Object {
+        "option": Object {
+          "id": "harriet-tubman",
+          "name": "Harriet Tubman",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        "tally": 3352,
+      },
+      "mark-antony": Object {
+        "option": Object {
+          "id": "mark-antony",
+          "name": "Mark Antony",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        "tally": 3328,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 10,
+      },
+    },
+  },
+  "Justice-14-2": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Estado de Hamilton",
+          "title": "Justicia, 14a Corte de Apelaciones, Lugar 2",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "martin-luther-king",
+          "name": "Dr. Martin Luther King Jr.",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "marilyn-monroe",
+          "name": "Marilyn Monroe",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+      ],
+      "districtId": "district-1",
+      "id": "Justice-14-2",
+      "seats": 1,
+      "section": "State of Hamilton",
+      "title": "Justice, 14th Court of Appeals, Place 2",
+      "type": "candidate",
+    },
+    "metadata": Object {
+      "ballots": 7017,
+      "overvotes": 12,
+      "undervotes": 312,
+    },
+    "tallies": Object {
+      "marilyn-monroe": Object {
+        "option": Object {
+          "id": "marilyn-monroe",
+          "name": "Marilyn Monroe",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        "tally": 3355,
+      },
+      "martin-luther-king": Object {
+        "option": Object {
+          "id": "martin-luther-king",
+          "name": "Dr. Martin Luther King Jr.",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        "tally": 3325,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 13,
+      },
+    },
+  },
+  "Justice-14-9": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Estado de Hamilton",
+          "title": "Justicia, 14a Corte de Apelaciones, Lugar 9",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "nikola-tesla",
+          "name": "Nikola Tesla",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "vincent-van-gogh",
+          "name": "Vincent Van Gogh",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+      ],
+      "districtId": "district-1",
+      "id": "Justice-14-9",
+      "seats": 1,
+      "section": "State of Hamilton",
+      "title": "Justice, 14th Court of Appeals, Place 9",
+      "type": "candidate",
+    },
+    "metadata": Object {
+      "ballots": 7017,
+      "overvotes": 17,
+      "undervotes": 292,
+    },
+    "tallies": Object {
+      "nikola-tesla": Object {
+        "option": Object {
+          "id": "nikola-tesla",
+          "name": "Nikola Tesla",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        "tally": 3306,
+      },
+      "vincent-van-gogh": Object {
+        "option": Object {
+          "id": "vincent-van-gogh",
+          "name": "Vincent Van Gogh",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        "tally": 3382,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 20,
+      },
+    },
+  },
+  "Justice-peace-1-1": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Condado de Franklin",
+          "title": "Juez de Paz, Precinto 1, Lugar 1",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "julia-child",
+          "name": "Julia Child",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "paul-mccartney",
+          "name": "Paul McCartney",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+      ],
+      "districtId": "district-2",
+      "id": "Justice-peace-1-1",
+      "seats": 1,
+      "section": "Franklin County",
+      "title": "Justice of the Peace, Precinct 1, Place 1",
+      "type": "candidate",
+    },
+    "metadata": Object {
+      "ballots": 3243,
+      "overvotes": 9,
+      "undervotes": 140,
+    },
+    "tallies": Object {
+      "julia-child": Object {
+        "option": Object {
+          "id": "julia-child",
+          "name": "Julia Child",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        "tally": 1540,
+      },
+      "paul-mccartney": Object {
+        "option": Object {
+          "id": "paul-mccartney",
+          "name": "Paul McCartney",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        "tally": 1544,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 10,
+      },
+    },
+  },
+  "comm-ag": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Estado de Hamilton",
+          "title": "Comisionado de Agricultura",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "helen-keller",
+          "name": "Helen Keller",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "steve-jobs",
+          "name": "Steve Jobs",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+      ],
+      "districtId": "district-1",
+      "id": "comm-ag",
+      "seats": 1,
+      "section": "State of Hamilton",
+      "title": "Commissioner of Agriculture",
+      "type": "candidate",
+    },
+    "metadata": Object {
+      "ballots": 7033,
+      "overvotes": 17,
+      "undervotes": 292,
+    },
+    "tallies": Object {
+      "helen-keller": Object {
+        "option": Object {
+          "id": "helen-keller",
+          "name": "Helen Keller",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        "tally": 3251,
+      },
+      "steve-jobs": Object {
+        "option": Object {
+          "id": "steve-jobs",
+          "name": "Steve Jobs",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        "tally": 3464,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 9,
+      },
+    },
+  },
+  "comptroller": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Estado de Hamilton",
+          "title": "Contralor Estatal",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "natalie-portman",
+          "name": "Natalie Portman",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "frank-sinatra",
+          "name": "Frank Sinatra",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        Object {
+          "id": "andy-warhol",
+          "name": "Andy Warhol",
+          "partyIds": Array [
+            "3",
+          ],
+        },
+        Object {
+          "id": "alfred-hitchcock",
+          "name": "Alfred Hitchcock",
+          "partyIds": Array [
+            "3",
+          ],
+        },
+      ],
+      "districtId": "district-1",
+      "id": "comptroller",
+      "seats": 1,
+      "section": "State of Hamilton",
+      "title": "State Comptroller",
+      "type": "candidate",
+    },
+    "metadata": Object {
+      "ballots": 7033,
+      "overvotes": 16,
+      "undervotes": 309,
+    },
+    "tallies": Object {
+      "alfred-hitchcock": Object {
+        "option": Object {
+          "id": "alfred-hitchcock",
+          "name": "Alfred Hitchcock",
+          "partyIds": Array [
+            "3",
+          ],
+        },
+        "tally": 1636,
+      },
+      "andy-warhol": Object {
+        "option": Object {
+          "id": "andy-warhol",
+          "name": "Andy Warhol",
+          "partyIds": Array [
+            "3",
+          ],
+        },
+        "tally": 1646,
+      },
+      "frank-sinatra": Object {
+        "option": Object {
+          "id": "frank-sinatra",
+          "name": "Frank Sinatra",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        "tally": 1749,
+      },
+      "natalie-portman": Object {
+        "option": Object {
+          "id": "natalie-portman",
+          "name": "Natalie Portman",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        "tally": 1667,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 10,
+      },
+    },
+  },
+  "constable-1": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Condado de Franklin",
+          "title": "Alguacil, distrito 1",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "beethoven",
+          "name": "Ludwig Van Beethoven",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "walt-disney",
+          "name": "Walt Disney",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+      ],
+      "districtId": "district-2",
+      "id": "constable-1",
+      "seats": 1,
+      "section": "Franklin County",
+      "title": "Constable, Precinct 1",
+      "type": "candidate",
+    },
+    "metadata": Object {
+      "ballots": 3243,
+      "overvotes": 4,
+      "undervotes": 152,
+    },
+    "tallies": Object {
+      "beethoven": Object {
+        "option": Object {
+          "id": "beethoven",
+          "name": "Ludwig Van Beethoven",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        "tally": 1516,
+      },
+      "walt-disney": Object {
+        "option": Object {
+          "id": "walt-disney",
+          "name": "Walt Disney",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        "tally": 1566,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 5,
+      },
+    },
+  },
+  "county-attorney": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Condado de Franklin",
+          "title": "Abogado del Condado",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "isaac-newton",
+          "name": "Isaac Newton",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "harry-potter",
+          "name": "Harry Potter",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+      ],
+      "districtId": "district-2",
+      "id": "county-attorney",
+      "seats": 1,
+      "section": "Franklin County",
+      "title": "County Attorney",
+      "type": "candidate",
+    },
+    "metadata": Object {
+      "ballots": 3243,
+      "overvotes": 5,
+      "undervotes": 160,
+    },
+    "tallies": Object {
+      "harry-potter": Object {
+        "option": Object {
+          "id": "harry-potter",
+          "name": "Harry Potter",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        "tally": 1527,
+      },
+      "isaac-newton": Object {
+        "option": Object {
+          "id": "isaac-newton",
+          "name": "Isaac Newton",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        "tally": 1547,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 4,
+      },
+    },
+  },
+  "county-tax-assessor": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Condado de Franklin",
+          "title": "Asesor-Recaudador de Impuestos del País",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "bruce-lee",
+          "name": "Bruce Lee",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "christopher-columbus",
+          "name": "Christopher Columbus",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+      ],
+      "districtId": "district-2",
+      "id": "county-tax-assessor",
+      "seats": 1,
+      "section": "Franklin County",
+      "title": "Country Tax Assessor-Collector",
+      "type": "candidate",
+    },
+    "metadata": Object {
+      "ballots": 3243,
+      "overvotes": 5,
+      "undervotes": 136,
+    },
+    "tallies": Object {
+      "bruce-lee": Object {
+        "option": Object {
+          "id": "bruce-lee",
+          "name": "Bruce Lee",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        "tally": 1570,
+      },
+      "christopher-columbus": Object {
+        "option": Object {
+          "id": "christopher-columbus",
+          "name": "Christopher Columbus",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        "tally": 1528,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 4,
+      },
+    },
+  },
+  "district-attorney": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Condado de Franklin",
+          "title": "Fiscal de Distrito",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "theodore-roosevelt",
+          "name": "Theodore Roosevelt",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "edgar-allan-poe",
+          "name": "Edgar Allan Poe",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+      ],
+      "districtId": "district-2",
+      "id": "district-attorney",
+      "seats": 1,
+      "section": "Franklin County",
+      "title": "District Attorney",
+      "type": "candidate",
+    },
+    "metadata": Object {
+      "ballots": 3185,
+      "overvotes": 2,
+      "undervotes": 122,
+    },
+    "tallies": Object {
+      "edgar-allan-poe": Object {
+        "option": Object {
+          "id": "edgar-allan-poe",
+          "name": "Edgar Allan Poe",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        "tally": 1519,
+      },
+      "theodore-roosevelt": Object {
+        "option": Object {
+          "id": "theodore-roosevelt",
+          "name": "Theodore Roosevelt",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        "tally": 1540,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 2,
+      },
+    },
+  },
+  "governor": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Estado de Hamilton",
+          "title": "Gobernador",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "sherlock-holmes",
+          "name": "Sherlock Holmes",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "thomas-edison",
+          "name": "Thomas Edison",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+      ],
+      "districtId": "district-2",
+      "id": "governor",
+      "seats": 1,
+      "section": "State of Hamilton",
+      "title": "Governor",
+      "type": "candidate",
+    },
+    "metadata": Object {
+      "ballots": 3201,
+      "overvotes": 5,
+      "undervotes": 148,
+    },
+    "tallies": Object {
+      "sherlock-holmes": Object {
+        "option": Object {
+          "id": "sherlock-holmes",
+          "name": "Sherlock Holmes",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        "tally": 1477,
+      },
+      "thomas-edison": Object {
+        "option": Object {
+          "id": "thomas-edison",
+          "name": "Thomas Edison",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        "tally": 1565,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 6,
+      },
+    },
+  },
+  "lieutenant-governor": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Estado de Hamilton",
+          "title": "Vicegobernador",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "winston-churchill",
+          "name": "Winston Churchill",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "oprah-winfrey",
+          "name": "Oprah Winfrey",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        Object {
+          "id": "louis-armstrong",
+          "name": "Louis Armstrong",
+          "partyIds": Array [
+            "3",
+          ],
+        },
+      ],
+      "districtId": "district-1",
+      "id": "lieutenant-governor",
+      "seats": 1,
+      "section": "State of Hamilton",
+      "title": "Lieutenant Governor",
+      "type": "candidate",
+    },
+    "metadata": Object {
+      "ballots": 7033,
+      "overvotes": 19,
+      "undervotes": 296,
+    },
+    "tallies": Object {
+      "louis-armstrong": Object {
+        "option": Object {
+          "id": "louis-armstrong",
+          "name": "Louis Armstrong",
+          "partyIds": Array [
+            "3",
+          ],
+        },
+        "tally": 2232,
+      },
+      "oprah-winfrey": Object {
+        "option": Object {
+          "id": "oprah-winfrey",
+          "name": "Oprah Winfrey",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        "tally": 2237,
+      },
+      "winston-churchill": Object {
+        "option": Object {
+          "id": "winston-churchill",
+          "name": "Winston Churchill",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        "tally": 2237,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 12,
+      },
+    },
+  },
+  "president": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Estados Unidos",
+          "title": "Presidente",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "marie-curie",
+          "name": "Marie Curie",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "indiana-jones",
+          "name": "Indiana Jones",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        Object {
+          "id": "mona-lisa",
+          "name": "Mona Lisa",
+          "partyIds": Array [
+            "3",
+          ],
+        },
+        Object {
+          "id": "jackie-chan",
+          "name": "Jackie Chan",
+          "partyIds": Array [
+            "3",
+          ],
+        },
+        Object {
+          "id": "tim-allen",
+          "name": "Tim Allen",
+          "partyIds": Array [
+            "2",
+          ],
+        },
+      ],
+      "districtId": "district-1",
+      "id": "president",
+      "seats": 1,
+      "section": "United States",
+      "title": "President",
+      "type": "candidate",
+    },
+    "metadata": Object {
+      "ballots": 7033,
+      "overvotes": 18,
+      "undervotes": 293,
+    },
+    "tallies": Object {
+      "indiana-jones": Object {
+        "option": Object {
+          "id": "indiana-jones",
+          "name": "Indiana Jones",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        "tally": 1314,
+      },
+      "jackie-chan": Object {
+        "option": Object {
+          "id": "jackie-chan",
+          "name": "Jackie Chan",
+          "partyIds": Array [
+            "3",
+          ],
+        },
+        "tally": 1372,
+      },
+      "marie-curie": Object {
+        "option": Object {
+          "id": "marie-curie",
+          "name": "Marie Curie",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        "tally": 1351,
+      },
+      "mona-lisa": Object {
+        "option": Object {
+          "id": "mona-lisa",
+          "name": "Mona Lisa",
+          "partyIds": Array [
+            "3",
+          ],
+        },
+        "tally": 1367,
+      },
+      "tim-allen": Object {
+        "option": Object {
+          "id": "tim-allen",
+          "name": "Tim Allen",
+          "partyIds": Array [
+            "2",
+          ],
+        },
+        "tally": 1311,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 7,
+      },
+    },
+  },
+  "prop-1": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "description": "¿Deberá haber una enmienda a la constitución del estado con respecto a las peticiones de iniciativa y referéndum y, en relación con esto, el cambio de los derechos y procedimientos de petición; permitir que se presenten peticiones en todos los niveles del gobierno estatal; limitar los títulos de las papeletas de iniciativa a 75 palabras; cambio de requisitos y procedimientos de una sola asignatura; limitar el número anual de nuevas leyes que los gobiernos pueden excluir de posibles peticiones de referéndum; establecer estándares para la revisión de peticiones presentadas; especificando que las peticiones se pueden votar en cualquier elección de noviembre; limitar el uso de recursos del gobierno para discutir una petición; requerir la aprobación de los votantes para futuras leyes y reglas de petición y para cambios en ciertas peticiones aprobadas por los votantes; y medidas de autorización para hacer cumplir la enmienda?",
+          "section": "Estado de Hamilton",
+          "title": "Proposición 1",
+        },
+      },
+      "description": "Shall there be an amendment to the state constitution concerning initiative and referendum petitions, and, in connection therewith, changing petition rights and procedures; allowing petitions to be submitted at all levels of state government; limiting initiative ballot titles to 75 words; changing single-subject requirements and procedures; limiting the annual number of new laws that governments may exclude from possible referendum petitions; establishing standards for review of filed petitions; specifying that petitions may be voted on at any November election; limiting the use of government resources to discuss a petition; requiring voter approval for future petition laws and rules and for changes to certain voter-approved petitions; and authorizing measures to enforce the amendment?",
+      "districtId": "district-2",
+      "id": "prop-1",
+      "section": "State of Hamilton",
+      "title": "Proposition 1",
+      "type": "yesno",
+    },
+    "metadata": Object {
+      "ballots": 3243,
+      "overvotes": 3,
+      "undervotes": 153,
+    },
+    "tallies": Object {
+      "no": Object {
+        "option": Array [
+          "no",
+        ],
+        "tally": 1546,
+      },
+      "yes": Object {
+        "option": Array [
+          "yes",
+        ],
+        "tally": 1541,
+      },
+    },
+  },
+  "prop-2": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "description": "¿Se enmendará la Constitución del estado para crear un Fondo Fiduciario Healthy Future que: 1) se utilizará para reducir y prevenir el consumo de tabaco, para aumentar la financiación para el acceso a la atención médica y el tratamiento para personas elegibles de bajos ingresos y beneficiarios de Medicaid, y cubrir los costos administrativos; 2) ser financiado por impuestos de cuatro centavos por cigarrillo y veinte por ciento en otros productos de tabaco; y 3) mantenerse separado de los ingresos generales y auditado anualmente?",
+          "section": "Estado de Hamilton",
+          "shortTitle": "Proposición 2",
+          "title": "Proposición 2",
+        },
+      },
+      "description": "Shall the state Constitution be amended to create a Healthy Future Trust Fund which will: 1) be used to reduce and prevent tobacco use, to increase funding for healthcare access and treatment for eligible low-income individuals and Medicaid recipients, and cover administrative costs; 2) be funded by tax of four cents per cigarette and twenty percent on other tobacco products; and 3) be kept separate from general revenue and annually audited?",
+      "districtId": "district-1",
+      "id": "prop-2",
+      "section": "State of Hamilton",
+      "shortTitle": "Proposition 2",
+      "title": "Proposition 2",
+      "type": "yesno",
+    },
+    "metadata": Object {
+      "ballots": 7077,
+      "overvotes": 11,
+      "undervotes": 323,
+    },
+    "tallies": Object {
+      "no": Object {
+        "option": Array [
+          "no",
+        ],
+        "tally": 3365,
+      },
+      "yes": Object {
+        "option": Array [
+          "yes",
+        ],
+        "tally": 3378,
+      },
+    },
+  },
+  "representative-district-18": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Estados Unidos",
+          "title": "Representante, Distrito 18",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "michael-jordan",
+          "name": "Michael Jordan",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "albert-einstein",
+          "name": "Albert Einstein",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        Object {
+          "id": "neil-armstrong",
+          "name": "Neil Armstrong",
+          "partyIds": Array [
+            "3",
+          ],
+        },
+      ],
+      "districtId": "district-1",
+      "id": "representative-district-18",
+      "seats": 1,
+      "section": "United States",
+      "title": "Representative, District 18",
+      "type": "candidate",
+    },
+    "metadata": Object {
+      "ballots": 7033,
+      "overvotes": 14,
+      "undervotes": 317,
+    },
+    "tallies": Object {
+      "albert-einstein": Object {
+        "option": Object {
+          "id": "albert-einstein",
+          "name": "Albert Einstein",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        "tally": 2253,
+      },
+      "michael-jordan": Object {
+        "option": Object {
+          "id": "michael-jordan",
+          "name": "Michael Jordan",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        "tally": 2237,
+      },
+      "neil-armstrong": Object {
+        "option": Object {
+          "id": "neil-armstrong",
+          "name": "Neil Armstrong",
+          "partyIds": Array [
+            "3",
+          ],
+        },
+        "tally": 2197,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 15,
+      },
+    },
+  },
+  "senator": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Estados Unidos",
+          "title": "Senador",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "earhart",
+          "name": "Amelia Earhart",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "bond",
+          "name": "James Bond",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        Object {
+          "id": "antoinette",
+          "name": "Marie Antoinette",
+          "partyIds": Array [
+            "3",
+          ],
+        },
+      ],
+      "districtId": "district-2",
+      "id": "senator",
+      "seats": 1,
+      "section": "United States",
+      "title": "Senator",
+      "type": "candidate",
+    },
+    "metadata": Object {
+      "ballots": 3201,
+      "overvotes": 4,
+      "undervotes": 134,
+    },
+    "tallies": Object {
+      "antoinette": Object {
+        "option": Object {
+          "id": "antoinette",
+          "name": "Marie Antoinette",
+          "partyIds": Array [
+            "3",
+          ],
+        },
+        "tally": 1003,
+      },
+      "bond": Object {
+        "option": Object {
+          "id": "bond",
+          "name": "James Bond",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        "tally": 992,
+      },
+      "earhart": Object {
+        "option": Object {
+          "id": "earhart",
+          "name": "Amelia Earhart",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        "tally": 1063,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 5,
+      },
+    },
+  },
+  "sheriff": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Condado de Franklin",
+          "title": "Alguacil",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "robin-williams",
+          "name": "Robin Williams",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "brad-pitt",
+          "name": "Brad Pitt",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        Object {
+          "id": "william-shakespeare",
+          "name": "William Shakespeare",
+          "partyIds": Array [
+            "3",
+          ],
+        },
+      ],
+      "districtId": "district-2",
+      "id": "sheriff",
+      "seats": 1,
+      "section": "Franklin County",
+      "title": "Sheriff",
+      "type": "candidate",
+    },
+    "metadata": Object {
+      "ballots": 3243,
+      "overvotes": 5,
+      "undervotes": 146,
+    },
+    "tallies": Object {
+      "brad-pitt": Object {
+        "option": Object {
+          "id": "brad-pitt",
+          "name": "Brad Pitt",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        "tally": 1012,
+      },
+      "robin-williams": Object {
+        "option": Object {
+          "id": "robin-williams",
+          "name": "Robin Williams",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        "tally": 1015,
+      },
+      "william-shakespeare": Object {
+        "option": Object {
+          "id": "william-shakespeare",
+          "name": "William Shakespeare",
+          "partyIds": Array [
+            "3",
+          ],
+        },
+        "tally": 1058,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 7,
+      },
+    },
+  },
+  "ss-justic-3": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Estado de Hamilton",
+          "title": "Justicia, Corte Suprema, Lugar 3",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "john-snow",
+          "name": "John Snow",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        Object {
+          "id": "mark-twain",
+          "name": "Mark Twain",
+          "partyIds": Array [
+            "3",
+          ],
+        },
+      ],
+      "districtId": "district-2",
+      "id": "ss-justic-3",
+      "seats": 1,
+      "section": "State of Hamilton",
+      "title": "Justice, Supreme Court, Place 3",
+      "type": "candidate",
+    },
+    "metadata": Object {
+      "ballots": 3201,
+      "overvotes": 3,
+      "undervotes": 133,
+    },
+    "tallies": Object {
+      "john-snow": Object {
+        "option": Object {
+          "id": "john-snow",
+          "name": "John Snow",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        "tally": 1551,
+      },
+      "mark-twain": Object {
+        "option": Object {
+          "id": "mark-twain",
+          "name": "Mark Twain",
+          "partyIds": Array [
+            "3",
+          ],
+        },
+        "tally": 1507,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 7,
+      },
+    },
+  },
+  "ss-justic-5": Object {
+    "contest": Object {
+      "_lang": Object {
+        "es-US": Object {
+          "section": "Estado de Hamilton",
+          "title": "Justicia, Corte Suprema, Lugar 5",
+        },
+      },
+      "allowWriteIns": true,
+      "candidates": Array [
+        Object {
+          "id": "benjamin-franklin",
+          "name": "Benjamin Franklin",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        Object {
+          "id": "robert-downey-jr",
+          "name": "Robert Downey Jr.",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        Object {
+          "id": "bill-nye",
+          "name": "Bill Nye",
+          "partyIds": Array [
+            "3",
+          ],
+        },
+      ],
+      "districtId": "district-2",
+      "id": "ss-justic-5",
+      "seats": 1,
+      "section": "State of Hamilton",
+      "title": "Justice, Supreme Court, Place 5",
+      "type": "candidate",
+    },
+    "metadata": Object {
+      "ballots": 3201,
+      "overvotes": 1,
+      "undervotes": 107,
+    },
+    "tallies": Object {
+      "benjamin-franklin": Object {
+        "option": Object {
+          "id": "benjamin-franklin",
+          "name": "Benjamin Franklin",
+          "partyIds": Array [
+            "0",
+          ],
+        },
+        "tally": 1056,
+      },
+      "bill-nye": Object {
+        "option": Object {
+          "id": "bill-nye",
+          "name": "Bill Nye",
+          "partyIds": Array [
+            "3",
+          ],
+        },
+        "tally": 1003,
+      },
+      "robert-downey-jr": Object {
+        "option": Object {
+          "id": "robert-downey-jr",
+          "name": "Robert Downey Jr.",
+          "partyIds": Array [
+            "1",
+          ],
+        },
+        "tally": 1027,
+      },
+      "write-in": Object {
+        "option": Object {
+          "id": "write-in",
+          "isWriteIn": true,
+          "name": "Write-In",
+        },
+        "tally": 7,
+      },
+    },
+  },
+}
+`;

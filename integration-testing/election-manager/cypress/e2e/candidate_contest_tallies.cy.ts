@@ -230,8 +230,8 @@ describe('Election Manager can create SEMS tallies', () => {
     });
     cy.contains('Back to Reports').click();
 
-    // Check that the saved SEMS result file as the correct tallies
-    cy.contains('Save Results File').click();
+    // Check that the exported SEMS result file as the correct tallies
+    cy.contains('Save SEMS Results').click();
     cy.get('[data-testid="manual-export"]').click();
     cy.contains('Results Saved');
     cy.task<string>('readMostRecentFile', 'cypress/downloads').then(

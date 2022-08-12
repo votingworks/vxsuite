@@ -221,6 +221,18 @@ export function generateFinalExportDefaultFilename(
   return `votingworks${WORD_SEPARATOR}${filemode}${WORD_SEPARATOR}results${SUBSECTION_SEPARATOR}${electionName}${SUBSECTION_SEPARATOR}${timeInformation}.csv`;
 }
 
+/* Generate the filename for final sems results export from election manager */
+export function generateSemsFinalExportDefaultFilename(
+  isTestModeResults: boolean,
+  election: Election,
+  time: Date = new Date()
+): string {
+  const filemode = isTestModeResults ? 'test' : 'live';
+  const timeInformation = moment(time).format(TIME_FORMAT_STRING);
+  const electionName = generateElectionName(election);
+  return `votingworks${WORD_SEPARATOR}sems${WORD_SEPARATOR}${filemode}${WORD_SEPARATOR}results${SUBSECTION_SEPARATOR}${electionName}${SUBSECTION_SEPARATOR}${timeInformation}.csv`;
+}
+
 /**
  * Generates a filename for the tally results CSV broken down by batch.
  * @param isTestModeResults Boolean representing if the results are testmode or livemode

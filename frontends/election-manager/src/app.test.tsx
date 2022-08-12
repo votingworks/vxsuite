@@ -555,7 +555,7 @@ test('tabulating CVRs', async () => {
       1,
       'fake mount point/votingworks-live-batch-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.csv',
       expect.stringContaining(
-        'Batch ID,Batch Name,Tabulator,Number of Ballots,President - Ballots Cast'
+        'Batch ID,Batch Name,Tabulator,Number of Ballots,"President - Ballots Cast"'
       )
     );
   });
@@ -601,13 +601,11 @@ test('tabulating CVRs', async () => {
 
   fetchMock.post('/convert/reset', { body: { status: 'ok' } });
   fireEvent.click(getByText('Reports'));
-  await waitFor(() => getByText('Save Results File'));
-  fireEvent.click(getByText('Save Results File'));
+  await waitFor(() => getByText('Save SEMS Results'));
+  fireEvent.click(getByText('Save SEMS Results'));
   jest.advanceTimersByTime(2000);
-  getByText('Save Results');
-  getByText(/Save the election results as /);
   getByText(
-    'votingworks-live-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.csv'
+    'votingworks-sems-live-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.csv'
   );
 
   fireEvent.click(getByText('Save'));
@@ -618,7 +616,7 @@ test('tabulating CVRs', async () => {
     expect(mockKiosk.writeFile).toHaveBeenCalledTimes(2);
     expect(mockKiosk.writeFile).toHaveBeenNthCalledWith(
       2,
-      'fake mount point/votingworks-live-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.csv',
+      'fake mount point/votingworks-sems-live-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.csv',
       'test-content'
     );
   });
@@ -732,13 +730,11 @@ test('tabulating CVRs with SEMS file', async () => {
   });
 
   fetchMock.post('/convert/reset', { body: { status: 'ok' } });
-  await waitFor(() => getByText('Save Results File'));
-  fireEvent.click(getByText('Save Results File'));
+  await waitFor(() => getByText('Save SEMS Results'));
+  fireEvent.click(getByText('Save SEMS Results'));
   jest.advanceTimersByTime(2000);
-  getByText('Save Results');
-  getByText(/Save the election results as /);
   getByText(
-    'votingworks-live-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.csv'
+    'votingworks-sems-live-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.csv'
   );
 
   fireEvent.click(getByText('Save'));
@@ -749,7 +745,7 @@ test('tabulating CVRs with SEMS file', async () => {
     expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
     expect(mockKiosk.writeFile).toHaveBeenNthCalledWith(
       1,
-      'fake mount point/votingworks-live-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.csv',
+      'fake mount point/votingworks-sems-live-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.csv',
       'test-content'
     );
   });
