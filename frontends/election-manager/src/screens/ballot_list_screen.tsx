@@ -3,7 +3,13 @@ import styled from 'styled-components';
 import pluralize from 'pluralize';
 
 import { assert, find } from '@votingworks/utils';
-import { NoWrap, Prose, Table, TD } from '@votingworks/ui';
+import {
+  isElectionManagerAuth,
+  NoWrap,
+  Prose,
+  Table,
+  TD,
+} from '@votingworks/ui';
 import { AppContext } from '../contexts/app_context';
 
 import { routerPaths } from '../router_paths';
@@ -25,12 +31,8 @@ const Header = styled.div`
   margin-bottom: 1rem;
 `;
 
-interface Props {
-  draftMode?: boolean;
-}
-
-export function BallotListScreen({ draftMode }: Props): JSX.Element {
-  const { electionDefinition, configuredAt } = useContext(AppContext);
+export function BallotListScreen(): JSX.Element {
+  const { auth, electionDefinition, configuredAt } = useContext(AppContext);
   assert(electionDefinition && typeof configuredAt === 'string');
   const { election } = electionDefinition;
 
@@ -72,8 +74,8 @@ export function BallotListScreen({ draftMode }: Props): JSX.Element {
 
         <Prose maxWidth={false}>
           <p>
-            <PrintAllBallotsButton draftMode={draftMode} />{' '}
-            {!draftMode && (
+            <PrintAllBallotsButton />{' '}
+            {isElectionManagerAuth(auth) && (
               <React.Fragment>
                 <ExportBallotPdfsButton />{' '}
                 <ExportElectionBallotPackageModalButton />

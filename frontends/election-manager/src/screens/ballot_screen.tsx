@@ -74,11 +74,7 @@ const BallotPreview = styled.div`
   }
 `;
 
-interface Props {
-  draftMode?: boolean;
-}
-
-export function BallotScreen({ draftMode }: Props): JSX.Element {
+export function BallotScreen(): JSX.Element {
   const history = useHistory();
   const ballotPreviewRef = useRef<HTMLDivElement>(null);
   const {
@@ -109,7 +105,7 @@ export function BallotScreen({ draftMode }: Props): JSX.Element {
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [ballotPages, setBallotPages] = useState(0);
   const [ballotMode, setBallotMode] = useState(
-    draftMode ? BallotMode.Draft : BallotMode.Official
+    isSystemAdministratorAuth(auth) ? BallotMode.Sample : BallotMode.Official
   );
   const [isAbsentee, setIsAbsentee] = useState(true);
   const [ballotCopies, setBallotCopies] = useState(1);
@@ -196,7 +192,7 @@ export function BallotScreen({ draftMode }: Props): JSX.Element {
             <strong>{pluralize('contest', ballotContests.length, true)}</strong>
           </h1>
           <p>
-            {!draftMode && (
+            {isElectionManagerAuth(auth) && (
               <React.Fragment>
                 <BallotModeToggle
                   ballotMode={ballotMode}
@@ -276,7 +272,7 @@ export function BallotScreen({ draftMode }: Props): JSX.Element {
               Back to List Ballots
             </LinkButton>
           </p>
-          {!draftMode && (
+          {isElectionManagerAuth(auth) && (
             <p>
               Ballot Package Filename: <Monospace>{filename}</Monospace>
             </p>

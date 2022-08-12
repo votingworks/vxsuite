@@ -62,11 +62,7 @@ type ModalState = 'no-printer' | 'options' | 'printing';
 
 const defaultBallotLocales: BallotLocales = { primary: DEFAULT_LOCALE };
 
-interface Props {
-  draftMode?: boolean;
-}
-
-export function PrintAllBallotsButton({ draftMode }: Props): JSX.Element {
+export function PrintAllBallotsButton(): JSX.Element {
   const makeCancelable = useCancelablePromise();
   const {
     electionDefinition,
@@ -90,7 +86,7 @@ export function PrintAllBallotsButton({ draftMode }: Props): JSX.Element {
   const [printFailed, setPrintFailed] = useState(false);
 
   const [ballotMode, setBallotMode] = useState(
-    draftMode ? BallotMode.Draft : BallotMode.Official
+    isSystemAdministratorAuth(auth) ? BallotMode.Sample : BallotMode.Official
   );
   const [isAbsentee, setIsAbsentee] = useState(true);
   const [ballotCopies, setBallotCopies] = useState(1);
@@ -249,7 +245,7 @@ export function PrintAllBallotsButton({ draftMode }: Props): JSX.Element {
           <h1>Print All Ballot Styles</h1>
           <p>Select the ballot type and number of copies to print:</p>
           <CenteredOptions>
-            {!draftMode && (
+            {isElectionManagerAuth(auth) && (
               <p>
                 <BallotModeToggle
                   ballotMode={ballotMode}
@@ -278,7 +274,9 @@ export function PrintAllBallotsButton({ draftMode }: Props): JSX.Element {
           <Button
             primary
             onPress={() => startPrint()}
-            warning={!draftMode && ballotMode !== BallotMode.Official}
+            warning={
+              isElectionManagerAuth(auth) && ballotMode !== BallotMode.Official
+            }
           >
             <PrintBallotButtonText
               ballotCopies={ballotCopies * ballotStyles.length}
