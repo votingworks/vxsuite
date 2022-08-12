@@ -580,9 +580,6 @@ export function AppRoot({
       case 'scanning':
       case 'ready_to_accept':
       case 'accepting':
-        // TODO if you review a ballot and choose to accept it, then we show
-        // this same scan processing screen, which is a little weird since we're
-        // not checking their ballot for errors anymore, we've already done that
         return <ScanProcessingScreen />;
       case 'accepted':
         return (
@@ -591,6 +588,7 @@ export function AppRoot({
           />
         );
       case 'needs_review':
+      case 'accepting_after_review':
         assert(scannerStatus.interpretation?.type === 'NeedsReviewSheet');
         return (
           <ScanWarningScreen

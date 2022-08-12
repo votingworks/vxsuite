@@ -701,6 +701,10 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   await screen.findByText('Election ID');
   await screen.findByText('748dc61ad3');
 
+  const interpretation: Scan.SheetInterpretation = {
+    type: 'NeedsReviewSheet',
+    reasons: [{ type: AdjudicationReason.BlankBallot }],
+  };
   fetchMock
     .getOnce('/scanner/status', {
       body: scannerStatus({ state: 'ready_to_scan' }),
@@ -710,13 +714,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
       body: scannerStatus({ state: 'scanning' }),
     })
     .getOnce('/scanner/status', {
-      body: scannerStatus({
-        state: 'needs_review',
-        interpretation: {
-          type: 'NeedsReviewSheet',
-          reasons: [{ type: AdjudicationReason.BlankBallot }],
-        },
-      }),
+      body: scannerStatus({ state: 'needs_review', interpretation }),
     });
 
   // trigger scan
@@ -728,7 +726,10 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   fetchMock
     .post('/scanner/accept', { body: { status: 'ok' } })
     .getOnce('/scanner/status', {
-      body: scannerStatus({ state: 'accepted' }),
+      body: scannerStatus({ state: 'accepting_after_review', interpretation }),
+    })
+    .getOnce('/scanner/status', {
+      body: scannerStatus({ state: 'accepted', interpretation }),
     })
     .get('/scanner/status', {
       body: scannerStatus({ state: 'no_paper', ballotsCounted: 1 }),
@@ -737,7 +738,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   fireEvent.click(screen.getByRole('button', { name: 'Cast Ballot As Is' }));
   await screen.findByText('Are you sure?');
   fireEvent.click(
-    screen.getByRole('button', { name: 'Yes, count blank ballot' })
+    screen.getByRole('button', { name: 'Yes, Cast Ballot As Is' })
   );
 
   jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);

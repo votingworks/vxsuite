@@ -389,7 +389,7 @@ test('ballot needs review - accept', async () => {
 
   await post(app, '/scanner/accept');
   await expectStatus(app, {
-    state: 'accepting',
+    state: 'accepting_after_review',
     interpretation,
   });
   await waitForStatus(app, {
