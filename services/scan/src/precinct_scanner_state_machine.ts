@@ -22,7 +22,7 @@ import {
 import { Scan } from '@votingworks/api';
 import makeDebug from 'debug';
 import { waitFor } from 'xstate/lib/waitFor';
-import { LogEventId, Logger } from '@votingworks/logging';
+import { LogEventId, Logger, LogLine } from '@votingworks/logging';
 import {
   SheetInterpretation,
   SimpleInterpreter,
@@ -842,22 +842,22 @@ function setupLogging(
     .onEvent(async (event) => {
       // To protect voter privacy, we only log the event type (since some event
       // objects include ballot interpretations)
-      await logger.log(LogEventId.ScannerEvent, 'system', {
-        message: `Event: ${event.type}`,
-      });
-      debugEvents('Event: %s', event);
+      await logger.log(
+        LogEventId.ScannerEvent,
+        'system',
+        { message: `Event: ${event.type}` },
+        (logLine: LogLine) => debugEvents(logLine.message)
+      );
     })
     .onChange(async (context, previousContext) => {
       if (!previousContext) return;
-      const changed = Object.entries(context).filter(
-        ([key, value]) => previousContext[key as keyof Context] !== value
-      );
-      if (changed.length === 0) return;
-      debug('Context updated: %o', Object.fromEntries(changed));
-      // In prod, we only log fields that are key for understanding state
-      // machine behavior, since others would be too verbose (e.g. Plustek
-      // client object)
-      const changedToLog = changed
+      const changed = Object.entries(context)
+        .filter(
+          ([key, value]) => previousContext[key as keyof Context] !== value
+        )
+        // We only log fields that are key for understanding state
+        // machine behavior, since others would be too verbose (e.g. Plustek
+        // client object)
         .filter(([key]) =>
           [
             'scannedSheet',
@@ -875,18 +875,25 @@ function setupLogging(
           value === undefined ? 'undefined' : value,
         ]);
 
-      if (changedToLog.length === 0) return;
-      await logger.log(LogEventId.ScannerStateChanged, 'system', {
-        message: `Context updated`,
-        changedFields: JSON.stringify(Object.fromEntries(changedToLog)),
-      });
+      if (changed.length === 0) return;
+      await logger.log(
+        LogEventId.ScannerStateChanged,
+        'system',
+        {
+          message: `Context updated`,
+          changedFields: JSON.stringify(Object.fromEntries(changed)),
+        },
+        () => debug('Context updated: %o', Object.fromEntries(changed))
+      );
     })
     .onTransition(async (state) => {
       if (!state.changed) return;
-      await logger.log(LogEventId.ScannerStateChanged, 'system', {
-        message: `Transitioned to: ${JSON.stringify(state.value)}`,
-      });
-      debug('Transitioned to: %s', state.value);
+      await logger.log(
+        LogEventId.ScannerStateChanged,
+        'system',
+        { message: `Transitioned to: ${JSON.stringify(state.value)}` },
+        (logLine: LogLine) => debug(logLine.message)
+      );
     });
 }
 

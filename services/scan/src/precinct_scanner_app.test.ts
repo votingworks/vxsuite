@@ -144,13 +144,15 @@ function checkLogs(logger: Logger) {
   expect(logger.log).toHaveBeenCalledWith(
     'scanner-state-machine-transition',
     'system',
-    { message: 'Transitioned to: "checking_initial_paper_status"' }
+    { message: 'Transitioned to: "checking_initial_paper_status"' },
+    expect.any(Function)
   );
   // Make sure we got an event
   expect(logger.log).toHaveBeenCalledWith(
     'scanner-state-machine-event',
     'system',
-    { message: 'Event: SCANNER_NO_PAPER' }
+    { message: 'Event: SCANNER_NO_PAPER' },
+    expect.any(Function)
   );
   // Make sure we got a context update. And make sure we didn't log the votes in
   // the interpretation, just the type, to protect voter privacy.
@@ -162,7 +164,8 @@ function checkLogs(logger: Logger) {
       changedFields: expect.stringMatching(
         /{"interpretation":"(ValidSheet|InvalidSheet|NeedsReviewSheet)"}/
       ),
-    }
+    },
+    expect.any(Function)
   );
 }
 
