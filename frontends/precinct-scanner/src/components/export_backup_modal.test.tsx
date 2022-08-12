@@ -69,7 +69,7 @@ test('render no USB found screen when there is not a mounted USB drive', () => {
       </AppContext.Provider>
     );
     screen.getByText('No USB Drive Detected');
-    screen.getByText('Please insert a USB drive to export the backup.');
+    screen.getByText('Please insert a USB drive to save the backup.');
     screen.getByAltText('Insert USB Image');
 
     fireEvent.click(screen.getByText('Cancel'));
@@ -100,14 +100,14 @@ test('render export modal when a USB drive is mounted as expected and allows cus
       />
     </AppContext.Provider>
   );
-  screen.getByText('Export Backup');
+  screen.getByText('Save Backup');
   screen.getByText(
     /A ZIP file will automatically be saved to the default location on the mounted USB drive./
   );
   screen.getByAltText('Insert USB Image');
 
   fireEvent.click(screen.getByText('Custom'));
-  await screen.findByText(/Download Complete/);
+  await screen.findByText('Backup Saved');
   expect(download).toHaveBeenCalledWith('/scan/backup');
 
   fireEvent.click(screen.getByText('Cancel'));
@@ -151,10 +151,10 @@ test('render export modal when a USB drive is mounted as expected and allows aut
       />
     </AppContext.Provider>
   );
-  screen.getByText('Export Backup');
+  screen.getByText('Save Backup');
 
-  fireEvent.click(screen.getByText('Export'));
-  await screen.findByText(/Download Complete/);
+  fireEvent.click(screen.getByText('Save'));
+  await screen.findByText('Backup Saved');
   expect(download).toHaveBeenCalledWith('/scan/backup', {
     into: 'fake mount point/scanner-backups/franklin-county_general-election_748dc61ad3',
   });
@@ -185,11 +185,11 @@ test('handles no USB drives', async () => {
       />
     </AppContext.Provider>
   );
-  getByText('Export Backup');
+  getByText('Save Backup');
 
   mockKiosk.getUsbDrives.mockResolvedValueOnce([]);
-  fireEvent.click(getByText('Export'));
-  await waitFor(() => getByText(/Download Failed/));
+  fireEvent.click(getByText('Save'));
+  await waitFor(() => getByText('Failed to Save Backup'));
   getByText(/No USB drive found./);
 
   fireEvent.click(getByText('Close'));
@@ -215,7 +215,7 @@ test('shows a specific error for file writer failure', async () => {
       />
     </AppContext.Provider>
   );
-  getByText('Export Backup');
+  getByText('Save Backup');
 
   mockKiosk.getUsbDrives.mockResolvedValueOnce([fakeUsbDrive()]);
   mocked(download).mockResolvedValueOnce(
@@ -225,8 +225,8 @@ test('shows a specific error for file writer failure', async () => {
       error: new Error('NOPE'),
     })
   );
-  fireEvent.click(getByText('Export'));
-  await waitFor(() => getByText(/Download Failed/));
+  fireEvent.click(getByText('Save'));
+  await waitFor(() => getByText('Failed to Save Backup'));
   getByText(/Unable to write file to download location: backup.zip/);
 
   fireEvent.click(getByText('Close'));
@@ -252,7 +252,7 @@ test('shows a specific error for fetch failure', async () => {
       />
     </AppContext.Provider>
   );
-  screen.getByText('Export Backup');
+  screen.getByText('Save Backup');
 
   mockKiosk.getUsbDrives.mockResolvedValueOnce([fakeUsbDrive()]);
   mocked(download).mockResolvedValueOnce(
@@ -261,8 +261,8 @@ test('shows a specific error for fetch failure', async () => {
       response: new Response('', { status: 504, statusText: 'Bad Gateway' }),
     })
   );
-  fireEvent.click(screen.getByText('Export'));
-  await screen.findByText('Download Failed');
+  fireEvent.click(screen.getByText('Save'));
+  await screen.findByText('Failed to Save Backup');
   screen.getByText('Unable to get backup: FetchFailed (status=Bad Gateway)');
 
   fireEvent.click(screen.getByText('Close'));

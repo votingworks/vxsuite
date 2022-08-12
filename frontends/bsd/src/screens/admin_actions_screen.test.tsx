@@ -43,7 +43,7 @@ test('clicking "Export Backup" shows progress', async () => {
 
   await act(async () => {
     // Click to backup, verify we got called.
-    const backupButton = screen.getByText('Export Backup');
+    const backupButton = screen.getByText('Save Backup');
     expect(backup).not.toHaveBeenCalled();
     backupButton.click();
     expect(backup).toHaveBeenCalledTimes(1);
@@ -51,13 +51,13 @@ test('clicking "Export Backup" shows progress', async () => {
     // Verify progress modal is shown.
     await waitFor(() => {
       const modal = screen.getByRole('alertdialog');
-      within(modal).getByText('Exporting Backup');
-      screen.getByText('Exporting…');
+      within(modal).getByText('Saving Backup');
+      screen.getByText('Saving…');
     });
 
     // Trigger backup finished, verify back to normal.
     resolve();
-    await waitFor(() => screen.getByText('Export Backup'));
+    await waitFor(() => screen.getByText('Save Backup'));
     expect(screen.queryAllByRole('alertdialog').length).toBe(0);
   });
 });
@@ -185,17 +185,17 @@ test('backup error shows message', async () => {
 
   await act(async () => {
     // Click to backup, verify we got called.
-    const backupButton = screen.getByText('Export Backup');
+    const backupButton = screen.getByText('Save Backup');
     expect(backup).not.toHaveBeenCalled();
     backupButton.click();
     expect(backup).toHaveBeenCalledTimes(1);
 
     // Verify progress message is shown.
-    await waitFor(() => screen.getByText('Exporting…'));
+    await waitFor(() => screen.getByText('Saving…'));
 
     // Trigger backup error, verify back to normal with error.
     reject(new Error('two is one and one is none'));
-    await waitFor(() => screen.getByText('Export Backup'));
+    await waitFor(() => screen.getByText('Save Backup'));
     await waitFor(() => screen.getByText('Error: two is one and one is none'));
   });
 });

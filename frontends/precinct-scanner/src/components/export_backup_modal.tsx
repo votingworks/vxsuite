@@ -113,7 +113,7 @@ export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
       <Modal
         content={
           <Prose>
-            <h1>Download Failed</h1>
+            <h1>Failed to Save Backup</h1>
             <p>{errorMessage}</p>
           </Prose>
         }
@@ -129,7 +129,7 @@ export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
         <Modal
           content={
             <Prose>
-              <h1>Download Complete</h1>
+              <h1>Backup Saved</h1>
               <p>USB drive successfully ejected.</p>
             </Prose>
           }
@@ -143,7 +143,7 @@ export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
       <Modal
         content={
           <Prose>
-            <h1>Download Complete</h1>
+            <h1>Backup Saved</h1>
             <p>
               Backup file saved successfully! You may now eject the USB drive.
             </p>
@@ -166,7 +166,7 @@ export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
   }
 
   if (currentState === ModalState.SAVING) {
-    return <Modal content={<Loading />} onOverlayClick={onClose} />;
+    return <Modal content={<Loading>Saving Backup</Loading>} />;
   }
 
   /* istanbul ignore next - compile time check for completeness */
@@ -187,7 +187,7 @@ export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
             <Prose>
               <h1>No USB Drive Detected</h1>
               <p>
-                Please insert a USB drive to export the backup.
+                Please insert a USB drive to save the backup.
                 <UsbImage
                   src="/assets/usb-drive.svg"
                   onDoubleClick={() => exportBackup(true)}
@@ -205,7 +205,7 @@ export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
                   data-testid="manual-export"
                   onPress={() => exportBackup(true)}
                 >
-                  Export
+                  Save
                 </Button>
               )}{' '}
             </React.Fragment>
@@ -230,7 +230,7 @@ export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
         <Modal
           content={
             <Prose>
-              <h1>Export Backup</h1>
+              <h1>Save Backup</h1>
               <UsbImage
                 src="/assets/usb-drive.svg"
                 onDoubleClick={() => exportBackup(true)}
@@ -238,8 +238,8 @@ export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
               />
               <p>
                 A ZIP file will automatically be saved to the default location
-                on the mounted USB drive. Optionally, you may pick a custom
-                export location.
+                on the mounted USB drive. Optionally, you may pick a custom save
+                location.
               </p>
             </Prose>
           }
@@ -247,7 +247,7 @@ export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
           actions={
             <React.Fragment>
               <Button primary onPress={() => exportBackup(false)}>
-                Export
+                Save
               </Button>
               <Button onPress={onClose}>Cancel</Button>
               <Button onPress={() => exportBackup(true)}>Custom</Button>
