@@ -7,6 +7,8 @@ export const NumberPadContainer = styled.div`
   flex-wrap: wrap;
   justify-content: center;
   > button {
+    display: flex;
+    justify-content: center;
     margin: 2px;
     width: 26%;
   }
