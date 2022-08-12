@@ -81,10 +81,10 @@ test('modal happy path flow works', async () => {
 
   userEvent.click(screen.getByText('Save PDFs'));
   const modal = await screen.findByRole('alertdialog');
-  userEvent.click(within(modal).getByText('Export'));
+  userEvent.click(within(modal).getByText('Save'));
   await within(modal).findByText('Generating Ballot PDFs…');
-  await within(modal).findByText('Finishing Export…');
-  await within(modal).findByText('Export Complete');
+  await within(modal).findByText('Saving…');
+  await within(modal).findByText('Ballot PDFs Saved');
 
   assert(window.kiosk);
   expect(window.kiosk.makeDirectory).toHaveBeenCalledTimes(1);
@@ -105,7 +105,7 @@ test('modal happy path flow works', async () => {
   expect(screen.queryByRole('alertdialog')).toBeNull();
 });
 
-test('can select options to export different ballots', async () => {
+test('can select options to save different ballots', async () => {
   renderInAppContext(<ExportBallotPdfsButton />, {
     usbDriveStatus: UsbDriveStatus.mounted,
   });
@@ -114,8 +114,8 @@ test('can select options to export different ballots', async () => {
   const modal = await screen.findByRole('alertdialog');
   userEvent.click(within(modal).getByText('Absentee'));
   userEvent.click(within(modal).getByText('Sample'));
-  userEvent.click(within(modal).getByText('Export'));
-  await within(modal).findByText('Export Complete');
+  userEvent.click(within(modal).getByText('Save'));
+  await within(modal).findByText('Ballot PDFs Saved');
 
   expect(window.kiosk!.writeFile).toHaveBeenCalledWith(
     'fake mount point/ballot-pdfs/ballot-pdfs-election-b1e83122e8-sample-absentee.zip'
@@ -132,7 +132,7 @@ test('modal custom flow works', async () => {
   const modal = await screen.findByRole('alertdialog');
 
   userEvent.click(within(modal).getByText('Custom'));
-  await within(modal).findByText('Export Complete');
+  await within(modal).findByText('Ballot PDFs Saved');
   expect(window.kiosk!.saveAs).toHaveBeenCalledTimes(1);
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.FileSaved,
@@ -152,8 +152,8 @@ test('modal renders error message appropriately', async () => {
 
   userEvent.click(within(modal).getByText('Custom'));
 
-  await within(modal).findByText('Export Failed');
+  await within(modal).findByText('Failed to Save Ballot PDFs');
   expect(modal).toBeInTheDocument();
   within(modal).getByText(/An error occurred:/);
-  within(modal).getByText(/could not begin download; no file was chosen/);
+  within(modal).getByText(/could not save; no file was chosen/);
 });

@@ -90,7 +90,7 @@ export function TallyScreen(): JSX.Element {
   const fileMode = castVoteRecordFiles?.fileMode;
   const fileModeText =
     fileMode === 'test'
-      ? 'Currently tallying test ballots. Once you have completed L&A testing and are ready to start tallying live ballots remove all of the loaded CVR files before importing live ballot results.'
+      ? 'Currently tallying test ballots. Once you have completed L&A testing and are ready to start tallying live ballots remove all of the loaded CVR files before loading live ballot results.'
       : fileMode === 'live'
       ? 'Currently tallying live ballots.'
       : '';
@@ -137,7 +137,7 @@ export function TallyScreen(): JSX.Element {
               disabled={isOfficialResults}
               onPress={() => setIsImportCvrModalOpen(true)}
             >
-              Import CVR Files
+              Load CVR Files
             </Button>{' '}
             <Button
               disabled={!castVoteRecordFiles.wereAdded || isOfficialResults}
@@ -242,7 +242,7 @@ export function TallyScreen(): JSX.Element {
                   data-testid="import-sems-button"
                   disabled={hasExternalSemsFile || isOfficialResults}
                 >
-                  Import External Results File
+                  Load External Results File
                 </FileInputButton>{' '}
                 <Button
                   disabled={!hasExternalSemsFile || isOfficialResults}

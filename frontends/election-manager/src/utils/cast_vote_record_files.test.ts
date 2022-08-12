@@ -218,7 +218,7 @@ test('can preprocess files to give information about expected duplicates', async
     },
   ]);
 
-  // Can handle a previously imported file properly
+  // Can handle a previously loaded file properly
   window.kiosk.readFile = jest.fn().mockResolvedValue(JSON.stringify(cvr));
   const parsedData2 = await added.parseAllFromFileSystemEntries(
     [
@@ -376,7 +376,7 @@ test('records CVR data errors', async () => {
   });
 });
 
-test('records identical uploaded files', async () => {
+test('records identical loaded files', async () => {
   const cvr: CastVoteRecord = {
     _ballotId: unsafeParse(BallotIdSchema, 'abc'),
     _ballotStyleId: '12',

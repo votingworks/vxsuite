@@ -42,7 +42,7 @@ export function ConfirmRemovingFileModal({
         <React.Fragment>
           {fileList.length ? (
             <p>
-              Do you want to remove the {fileList.length} uploaded CVR{' '}
+              Do you want to remove the {fileList.length} loaded CVR{' '}
               {pluralize('files', fileList.length)}?
             </p>
           ) : (
@@ -88,7 +88,7 @@ export function ConfirmRemovingFileModal({
       mainContent = (
         <React.Fragment>
           <p>
-            Do you want to remove the {fileList.length} uploaded CVR{' '}
+            Do you want to remove the {fileList.length} loaded CVR{' '}
             {pluralize('files', fileList.length)}
             {externalDetails}?
           </p>

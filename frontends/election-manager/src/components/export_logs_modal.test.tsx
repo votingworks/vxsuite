@@ -62,7 +62,7 @@ test('renders no log file found when usb is mounted but no log file on machine',
   await advanceTimersAndPromises();
   getByText('No Log File Present');
   expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.ExportLogFileFound,
+    LogEventId.SaveLogFileFound,
     'election_manager',
     expect.objectContaining({ disposition: 'failure' })
   );
@@ -129,7 +129,7 @@ test('renders save modal when usb is mounted and saves log file on machine', asy
   await advanceTimersAndPromises();
   getByText('Save Logs');
   expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.ExportLogFileFound,
+    LogEventId.SaveLogFileFound,
     'election_manager',
     expect.objectContaining({ disposition: 'success' })
   );
@@ -187,7 +187,7 @@ test('renders save modal when usb is mounted and saves cdf log file on machine',
   await advanceTimersAndPromises();
   getByText('Save Logs');
   expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.ExportLogFileFound,
+    LogEventId.SaveLogFileFound,
     'election_manager',
     expect.objectContaining({ disposition: 'success' })
   );

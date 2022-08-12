@@ -209,7 +209,7 @@ export function AppRoot({
     setIsOfficialResults(true);
     await logger.log(LogEventId.MarkedTallyResultsOfficial, currentUserRole, {
       message:
-        'User has marked the tally results as official, no more Cvr files can be imported.',
+        'User has marked the tally results as official, no more Cvr files can be loaded.',
       disposition: 'success',
     });
     await setStorageKeyAndLog(
@@ -419,12 +419,12 @@ export function AppRoot({
         await setStorageKeyAndLog(
           externalVoteTalliesFileStorageKey,
           convertExternalTalliesToStorageString(externalTallies),
-          'Imported tally data from external file formats'
+          'Loaded tally data from external file formats'
         );
       } else {
         await removeStorageKeyAndLog(
           externalVoteTalliesFileStorageKey,
-          'Imported tally data from external files'
+          'Loaded tally data from external files'
         );
       }
     },

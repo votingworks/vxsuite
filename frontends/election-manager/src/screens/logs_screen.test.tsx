@@ -16,13 +16,13 @@ beforeEach(() => {
 test('Exporting logs', async () => {
   renderInAppContext(<LogsScreen />);
 
-  // Log exporting is tested fully in src/components/export_logs_modal.test.tsx
-  userEvent.click(screen.getByText('Export Log File'));
+  // Log saving is tested fully in src/components/export_logs_modal.test.tsx
+  userEvent.click(screen.getByText('Save Log File'));
   await screen.findByText('No Log File Present');
   userEvent.click(screen.getByText('Close'));
 
-  // Log exporting is tested fully in src/components/export_logs_modal.test.tsx
-  userEvent.click(screen.getByText('Export Log File as CDF'));
+  // Log saving is tested fully in src/components/export_logs_modal.test.tsx
+  userEvent.click(screen.getByText('Save Log File as CDF'));
   await screen.findByText('No Log File Present');
   userEvent.click(screen.getByText('Close'));
 });
@@ -30,12 +30,12 @@ test('Exporting logs', async () => {
 test('Exporting logs when no election definition', async () => {
   renderInAppContext(<LogsScreen />, { electionDefinition: 'NONE' });
 
-  // Log exporting is tested fully in src/components/export_logs_modal.test.tsx
-  userEvent.click(screen.getByText('Export Log File'));
+  // Log saving is tested fully in src/components/export_logs_modal.test.tsx
+  userEvent.click(screen.getByText('Save Log File'));
   await screen.findByText('No Log File Present');
   userEvent.click(screen.getByText('Close'));
 
   expect(
-    screen.getByText('Export Log File as CDF').closest('button')
+    screen.getByText('Save Log File as CDF').closest('button')
   ).toHaveAttribute('disabled');
 });

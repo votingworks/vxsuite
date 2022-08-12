@@ -197,7 +197,7 @@ describe('getContestTallyForCandidateContest', () => {
     expect(() => {
       getContestTallyForCandidateContest(presidentcontest, rows);
     }).toThrowError(
-      'Imported file has unexpected candidate id eevee for contest president'
+      'Loaded file has unexpected candidate id eevee for contest president'
     );
   });
 });
@@ -255,7 +255,7 @@ describe('getContestTallyForYesNoContest', () => {
     expect(() => {
       getContestTallyForYesNoContest(yesnocontest, rows);
     }).toThrowError(
-      'Imported file has unexpected option id purple for contest 750000018'
+      'Loaded file has unexpected option id purple for contest 750000018'
     );
   });
 });
@@ -585,7 +585,7 @@ describe('parseSemsFileAndValidateForElection', () => {
     ).toEqual([]);
   });
 
-  it('rejects importing a yes/no contest if the yes no options are not specified in the election definition', () => {
+  it('rejects loading a yes/no contest if the yes no options are not specified in the election definition', () => {
     // Write in candidate row for a contest with write ins allowed
     const csvRowRaw2 =
       '"10","23","judicial-robert-demergue","Judicial Robert Demergue","0","NP","1","Over Votes","0","NP","0",';
@@ -625,7 +625,7 @@ describe('parseSemsFileAndValidateForElection', () => {
     expect(
       parseSemsFileAndValidateForElection('', multiPartyPrimaryElection)
     ).toEqual([
-      'No valid CSV data found in imported file. Please check file contents.',
+      'No valid CSV data found in loaded file. Please check file contents.',
     ]);
 
     expect(
@@ -634,7 +634,7 @@ describe('parseSemsFileAndValidateForElection', () => {
         multiPartyPrimaryElection
       )
     ).toEqual([
-      'No valid CSV data found in imported file. Please check file contents.',
+      'No valid CSV data found in loaded file. Please check file contents.',
     ]);
   });
 

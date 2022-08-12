@@ -167,19 +167,18 @@ test('create election works', async () => {
   fireEvent.click(getByText('Ballots'));
   fireEvent.click(getAllByText('View Ballot')[0]);
 
-  // You can view the advanced screen and export log files when there is an election.
+  // You can view the advanced screen and save log files when there is an election.
   fireEvent.click(screen.getByText('Advanced'));
-  fireEvent.click(screen.getByText('Export Log File'));
+  fireEvent.click(screen.getByText('Save Log File'));
   await screen.findByText('No Log File Present');
   fireEvent.click(screen.getByText('Close'));
-  fireEvent.click(screen.getByText('Export Log File as CDF'));
+  fireEvent.click(screen.getByText('Save Log File as CDF'));
   await screen.findByText('No Log File Present');
 
   fireEvent.click(getByText('Definition'));
 
   // Verify editing an election is disabled
   fireEvent.click(getByText('View Definition JSON'));
-  expect(queryAllByText('Save').length).toBe(0);
   expect(queryAllByText('Reset').length).toBe(0);
   expect(getByTestId('json-input').hasAttribute('disabled')).toBe(true);
 
@@ -192,13 +191,13 @@ test('create election works', async () => {
     expect.stringContaining(LogEventId.ElectionUnconfigured)
   );
 
-  // You can view the advanced screen and export log files when there is no election.
+  // You can view the advanced screen and save log files when there is no election.
   fireEvent.click(screen.getByText('Advanced'));
-  fireEvent.click(screen.getByText('Export Log File'));
+  fireEvent.click(screen.getByText('Save Log File'));
   await screen.findByText('No Log File Present');
   fireEvent.click(screen.getByText('Close'));
-  fireEvent.click(screen.getByText('Export Log File as CDF'));
-  // You can not export as CDF when there is no election.
+  fireEvent.click(screen.getByText('Save Log File as CDF'));
+  // You can not save as CDF when there is no election.
   expect(screen.queryAllByText('No Log File Present')).toHaveLength(0);
 
   fireEvent.click(screen.getByText('Configure'));
@@ -538,7 +537,7 @@ test('tabulating CVRs', async () => {
 
   fireEvent.click(getByText('Show Results by Batch and Scanner'));
   getByText('Batch Name');
-  fireEvent.click(getByText('Export Batch Results as CSV'));
+  fireEvent.click(getByText('Save Batch Results as CSV'));
   jest.advanceTimersByTime(2000);
   getByText('Save Batch Results');
   getByText(/Save the election batch results as /);
@@ -637,7 +636,7 @@ test('tabulating CVRs', async () => {
   // Confirm that L&A Materials are unavailable after live CVRs have been loaded
   fireEvent.click(getByText('L&A'));
   getByText(
-    'L&A testing documents are not available after official election CVRs have been imported.',
+    'L&A testing documents are not available after official election CVRs have been loaded.',
     { exact: false }
   );
   expect(queryByText('List Precinct L&A Packages')).not.toBeInTheDocument();
@@ -724,7 +723,7 @@ test('tabulating CVRs with SEMS file', async () => {
   ).toMatchSnapshot();
   fireEvent.click(getByText('Back to Reports'));
 
-  // Test exporting the final results
+  // Test saving the final results
   fetchMock.post('/convert/tallies/submitfile', { body: { status: 'ok' } });
   fetchMock.post('/convert/tallies/process', { body: { status: 'ok' } });
 
@@ -1062,7 +1061,7 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
   getByText('Official Full Election Tally Report');
 
   fireEvent.click(getByText('Tally'));
-  expect(getByText('Import CVR Files').closest('button')).toBeDisabled();
+  expect(getByText('Load CVR Files').closest('button')).toBeDisabled();
   expect(getByText('Remove CVR Files').closest('button')).toBeDisabled();
   expect(
     getByText('Edit Manually Entered Results').closest('button')
@@ -1075,12 +1074,12 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
 
   fireEvent.click(getByText('Clear All Tallies and Results'));
   getByText(
-    'Do you want to remove the 1 uploaded CVR file, the external results file sems-results.csv, and the manually entered data?'
+    'Do you want to remove the 1 loaded CVR file, the external results file sems-results.csv, and the manually entered data?'
   );
   fireEvent.click(getByText('Remove All Data'));
 
   await waitFor(() => {
-    expect(getByText('Import CVR Files').closest('button')).toBeEnabled();
+    expect(getByText('Load CVR Files').closest('button')).toBeEnabled();
   });
   expect(
     getByText('Add Manually Entered Results').closest('button')
@@ -1286,7 +1285,7 @@ test('system administrator Ballots tab and election manager Ballots tab have exp
   );
   screen.getByText('Print All');
   expect(screen.queryByText('Save PDFs')).not.toBeInTheDocument();
-  expect(screen.queryByText('Export Package')).not.toBeInTheDocument();
+  expect(screen.queryByText('Save Package')).not.toBeInTheDocument();
 
   // View super ballot
   userEvent.click(viewBallotButtons[0]);
@@ -1340,7 +1339,7 @@ test('system administrator Ballots tab and election manager Ballots tab have exp
   expect(viewBallotButtons).toHaveLength(numPrecinctBallots);
   screen.getByText('Print All');
   screen.getByText('Save PDFs');
-  screen.getByText('Export Package');
+  screen.getByText('Save Package');
 
   userEvent.click(viewBallotButtons[0]);
   await screen.findByRole('heading', {

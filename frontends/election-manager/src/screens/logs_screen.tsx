@@ -17,13 +17,13 @@ export function LogsScreen(): JSX.Element {
           <h1>Logs</h1>
           <p>
             <Button onPress={() => setLogFileType(LogFileType.Raw)}>
-              Export Log File
+              Save Log File
             </Button>{' '}
             <Button
               disabled={!electionDefinition} // CDF requires the election to be known
               onPress={() => setLogFileType(LogFileType.Cdf)}
             >
-              Export Log File as CDF
+              Save Log File as CDF
             </Button>
           </p>
         </Prose>

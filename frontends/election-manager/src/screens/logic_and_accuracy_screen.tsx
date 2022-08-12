@@ -17,7 +17,7 @@ export function LogicAndAccuracyScreen(): JSX.Element {
         {isLiveMode ? (
           <p>
             L&A testing documents are not available after official election CVRs
-            have been imported.
+            have been loaded.
           </p>
         ) : (
           <React.Fragment>

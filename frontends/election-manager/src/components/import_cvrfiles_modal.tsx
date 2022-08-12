@@ -80,7 +80,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
     logger,
   } = useContext(AppContext);
   assert(electionDefinition);
-  assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth)); // TODO(auth) check permissions for importing cvr
+  assert(isElectionManagerAuth(auth) || isSystemAdministratorAuth(auth)); // TODO(auth) check permissions for loaded cvr
   const userRole = auth.user.role;
   const [currentState, setCurrentState] = useState(ModalState.INIT);
   const [importedFile, setImportedFile] = useState<CastVoteRecordFile>();
@@ -101,29 +101,29 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
 
     if (newCastVoteRecordFiles.duplicateFiles.includes(fileData.name)) {
       setCurrentState(ModalState.DUPLICATE);
-      await logger.log(LogEventId.CvrImported, userRole, {
+      await logger.log(LogEventId.CvrLoaded, userRole, {
         message:
-          'CVR file was not imported as it is a duplicated of a previously imported file.',
+          'CVR file was not loaded as it is a duplicated of a previously loaded file.',
         disposition: 'failure',
         filename: fileData.name,
-        result: 'File not imported, error shown to user.',
+        result: 'File not loaded, error shown to user.',
       });
     } else if (newCastVoteRecordFiles.lastError?.filename === fileData.name) {
       setCurrentState(ModalState.ERROR);
-      await logger.log(LogEventId.CvrImported, userRole, {
-        message: `Failed to import CVR file: ${newCastVoteRecordFiles.lastError.message}`,
+      await logger.log(LogEventId.CvrLoaded, userRole, {
+        message: `Failed to load CVR file: ${newCastVoteRecordFiles.lastError.message}`,
         disposition: 'failure',
         filename: fileData.name,
         error: newCastVoteRecordFiles.lastError.message,
-        result: 'File not imported, error shown to user.',
+        result: 'File not loaded, error shown to user.',
       });
     } else {
       const file = newCastVoteRecordFiles.fileList.find(
         (f) => f.name === fileData.name
       );
       assert(file);
-      await logger.log(LogEventId.CvrImported, userRole, {
-        message: 'CVR file successfully imported.',
+      await logger.log(LogEventId.CvrLoaded, userRole, {
+        message: 'CVR file successfully loaded.',
         disposition: 'success',
         filename: fileData.name,
         numberOfBallotsImported: file.importedCvrCount,
@@ -153,29 +153,29 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
 
       if (newCastVoteRecordFiles.duplicateFiles.includes(filename)) {
         setCurrentState(ModalState.DUPLICATE);
-        await logger.log(LogEventId.CvrImported, userRole, {
+        await logger.log(LogEventId.CvrLoaded, userRole, {
           message:
-            'CVR file was not imported as it is a duplicated of a previously imported file.',
+            'CVR file was not loaded as it is a duplicated of a previously loaded file.',
           disposition: 'failure',
           filename,
-          result: 'File not imported, error shown to user.',
+          result: 'File not loaded, error shown to user.',
         });
       } else if (newCastVoteRecordFiles.lastError?.filename === files[0].name) {
         setCurrentState(ModalState.ERROR);
-        await logger.log(LogEventId.CvrImported, userRole, {
-          message: `Failed to import CVR file: ${newCastVoteRecordFiles.lastError.message}`,
+        await logger.log(LogEventId.CvrLoaded, userRole, {
+          message: `Failed to load CVR file: ${newCastVoteRecordFiles.lastError.message}`,
           disposition: 'failure',
           filename,
           error: newCastVoteRecordFiles.lastError.message,
-          result: 'File not imported, error shown to user.',
+          result: 'File not loaded, error shown to user.',
         });
       } else {
         const file = newCastVoteRecordFiles.fileList.find(
           (f) => f.name === filename
         );
         assert(file);
-        await logger.log(LogEventId.CvrImported, userRole, {
-          message: 'CVR file successfully imported.',
+        await logger.log(LogEventId.CvrLoaded, userRole, {
+          message: 'CVR file successfully loaded.',
           disposition: 'success',
           filename,
           numberOfBallotsImported: file.importedCvrCount,
@@ -216,7 +216,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
       );
       setFoundFiles(parsedFileInformation);
       await logger.log(LogEventId.CvrFilesReadFromUsb, userRole, {
-        message: `Found ${newFoundFiles.length} CVR files on USB drive, user shown option to import.`,
+        message: `Found ${newFoundFiles.length} CVR files on USB drive, user shown option to load.`,
         disposition: 'success',
       });
       setCurrentState(ModalState.INIT);
@@ -228,7 +228,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
         setCurrentState(ModalState.INIT);
         await logger.log(LogEventId.CvrFilesReadFromUsb, userRole, {
           message:
-            'No CVR files automatically found on USB drive. User allowed to import manually.',
+            'No CVR files automatically found on USB drive. User allowed to load manually.',
           disposition: 'success',
           result: 'User allowed to manually select files.',
         });
@@ -278,7 +278,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
             <h1>Duplicate File</h1>
             <p>
               The selected file was ignored as a duplicate of a previously
-              imported file.
+              loaded file.
             </p>
           </Prose>
         }
@@ -294,7 +294,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
       <Modal
         content={
           <Prose>
-            <h1>{importedFile.importedCvrCount} new CVRs Imported</h1>
+            <h1>{importedFile.importedCvrCount} new CVRs Loaded</h1>
             {importedFile.duplicatedCvrCount > 0 && (
               <React.Fragment>
                 <p>
@@ -302,7 +302,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
                   {importedFile.importedCvrCount +
                     importedFile.duplicatedCvrCount}{' '}
                   total CVRs in this file, {importedFile.duplicatedCvrCount}{' '}
-                  were previously imported.
+                  were previously loaded.
                 </p>
               </React.Fragment>
             )}
@@ -344,7 +344,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
             <h1>No USB Drive Detected</h1>
             <p>
               <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
-              Please insert a USB drive in order to import CVR files from the
+              Please insert a USB drive in order to load CVR files from the
               scanner.
             </p>
           </Prose>
@@ -368,7 +368,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
   }
 
   if (usbDriveStatus === UsbDriveStatus.mounted) {
-    // Determine if we are already locked to a filemode based on previously imported CVRs
+    // Determine if we are already locked to a filemode based on previously loaded CVRs
     const fileMode = castVoteRecordFiles?.fileMode;
     const fileModeLocked = !!fileMode;
 
@@ -410,7 +410,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
               small
               primary
             >
-              {canImport ? 'Import' : 'Imported'}
+              {canImport ? 'Load' : 'Loaded'}
             </LinkButton>
           </TD>
         </tr>
@@ -437,22 +437,22 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
       instructionalText = fileModeLocked ? (
         <React.Fragment>
           There were no new {headerModeText} CVR files automatically found on
-          this USB drive. Export CVR files to this USB drive from the scanner.
-          Optionally, you may manually select files to import.
+          this USB drive. Save CVR files to this USB drive from the scanner.
+          Optionally, you may manually select files to load.
         </React.Fragment>
       ) : (
-        'There were no new CVR files automatically found on this USB drive. Export CVR files to this USB drive from the scanner. Optionally, you may manually select files to import.'
+        'There were no new CVR files automatically found on this USB drive. Save CVR files to this USB drive from the scanner. Optionally, you may manually select files to load.'
       );
     } else if (fileModeLocked) {
       instructionalText = (
         <React.Fragment>
           The following {headerModeText} CVR files were automatically found on
-          this USB drive. Previously imported CVR entries will be ignored.
+          this USB drive. Previously loaded CVR entries will be ignored.
         </React.Fragment>
       );
     } else {
       instructionalText =
-        'The following CVR files were automatically found on this USB drive. Previously imported CVR entries will be ignored.';
+        'The following CVR files were automatically found on this USB drive. Previously loaded CVR entries will be ignored.';
     }
 
     return (
@@ -462,7 +462,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
           <React.Fragment>
             <Prose maxWidth={false}>
               <h1 data-testid="modal-title">
-                Import {headerModeText} CVR Files{' '}
+                Load {headerModeText} CVR Files{' '}
               </h1>
               <p>{instructionalText}</p>
             </Prose>
@@ -470,10 +470,10 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
               <CvrFileTable>
                 <thead>
                   <tr>
-                    <th>Exported At</th>
+                    <th>Saved At</th>
                     <th>Scanner ID</th>
                     <th>New CVRs</th>
-                    <th>Imported CVRs</th>
+                    <th>Loaded CVRs</th>
                     {!fileModeLocked && <th>Ballot Type</th>}
                     <th />
                   </tr>

@@ -21,13 +21,13 @@ export function AdvancedScreen(): JSX.Element {
           <h1>Advanced Options</h1>
           <h2>Logs</h2>
           <Button onPress={() => setExportingLogType(LogFileType.Raw)}>
-            Export Log File
+            Save Log File
           </Button>{' '}
           <Button
             onPress={() => setExportingLogType(LogFileType.Cdf)}
             disabled={electionDefinition === undefined} // CDF requires the election being known.
           >
-            Export Log File as CDF
+            Save Log File as CDF
           </Button>
           <h2>Current Date and Time</h2>
           <p>

@@ -94,11 +94,11 @@ describe('Screens display properly when USB is mounted', () => {
     fireEvent.click(getByText('Cancel'));
     expect(closeFn).toHaveBeenCalledTimes(1);
 
-    // You can still manually import files
+    // You can still manually load files
     fireEvent.change(getByTestId('manual-input'), {
       target: { files: [new File([''], 'file.jsonl')] },
     });
-    await waitFor(() => getByText('0 new CVRs Imported'));
+    await waitFor(() => getByText('0 new CVRs Loaded'));
     expect(saveCvr).toHaveBeenCalledTimes(1);
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.CvrFilesReadFromUsb,
@@ -107,7 +107,7 @@ describe('Screens display properly when USB is mounted', () => {
     );
   });
 
-  test('Import CVR files screen shows table with test and live CVRs', async () => {
+  test('Load CVR files screen shows table with test and live CVRs', async () => {
     const closeFn = jest.fn();
     const saveCvr = jest.fn();
     const fileEntries = [
@@ -139,7 +139,7 @@ describe('Screens display properly when USB is mounted', () => {
         logger,
       }
     );
-    await waitFor(() => getByText('Import CVR Files'));
+    await waitFor(() => getByText('Load CVR Files'));
     getByText(
       /The following CVR files were automatically found on this USB drive./
     );
@@ -148,19 +148,19 @@ describe('Screens display properly when USB is mounted', () => {
     expect(tableRows).toHaveLength(3);
     domGetByText(tableRows[0], '12/09/2020 03:59:32 PM');
     domGetByText(tableRows[0], '0002');
-    expect(
-      domGetByText(tableRows[0], 'Import').closest('button')!.disabled
-    ).toBe(false);
+    expect(domGetByText(tableRows[0], 'Load').closest('button')!.disabled).toBe(
+      false
+    );
     domGetByText(tableRows[1], '12/09/2020 03:49:32 PM');
     domGetByText(tableRows[1], '0001');
-    expect(
-      domGetByText(tableRows[1], 'Import').closest('button')!.disabled
-    ).toBe(false);
+    expect(domGetByText(tableRows[1], 'Load').closest('button')!.disabled).toBe(
+      false
+    );
     domGetByText(tableRows[2], '12/07/2020 03:49:32 PM');
     domGetByText(tableRows[2], '0003');
-    expect(
-      domGetByText(tableRows[2], 'Import').closest('button')!.disabled
-    ).toBe(false);
+    expect(domGetByText(tableRows[2], 'Load').closest('button')!.disabled).toBe(
+      false
+    );
     expect(window.kiosk!.readFile).toHaveBeenCalledTimes(3); // The files should have been read.
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.CvrFilesReadFromUsb,
@@ -171,15 +171,15 @@ describe('Screens display properly when USB is mounted', () => {
     fireEvent.click(getByText('Cancel'));
     expect(closeFn).toHaveBeenCalledTimes(1);
 
-    fireEvent.click(domGetByText(tableRows[0], 'Import'));
+    fireEvent.click(domGetByText(tableRows[0], 'Load'));
     getByText('Loading');
     await waitFor(() => {
       expect(saveCvr).toHaveBeenCalledTimes(1);
       // We should not need to read the file another time since it was already read.
       expect(window.kiosk!.readFile).toHaveBeenCalledTimes(3);
-      getByText('0 new CVRs Imported');
+      getByText('0 new CVRs Loaded');
       expect(logger.log).toHaveBeenCalledWith(
-        LogEventId.CvrImported,
+        LogEventId.CvrLoaded,
         'election_manager',
         expect.objectContaining({ disposition: 'success' })
       );
@@ -221,8 +221,8 @@ describe('Screens display properly when USB is mounted', () => {
         logger,
       }
     );
-    await waitFor(() => getByText('Import CVR Files'));
-    // If the files can not be parsed properly they are not automatically shown to import.
+    await waitFor(() => getByText('Load CVR Files'));
+    // If the files can not be parsed properly they are not automatically shown to load.
     getByText(
       /There were no new CVR files automatically found on this USB drive./
     );
@@ -239,18 +239,18 @@ describe('Screens display properly when USB is mounted', () => {
     getByText('Loading');
     await waitFor(() => {
       expect(saveCvr).toHaveBeenCalledTimes(1);
-      // There should be an error importing the file.
+      // There should be an error loading the file.
       getByText('Error');
       getByText(/There was an error reading the content of the file/);
       expect(logger.log).toHaveBeenCalledWith(
-        LogEventId.CvrImported,
+        LogEventId.CvrLoaded,
         'election_manager',
         expect.objectContaining({ disposition: 'failure' })
       );
     });
   });
 
-  test('Import CVR files screen locks to test mode when test files have been imported', async () => {
+  test('Load CVR files screen locks to test mode when test files have been loaded', async () => {
     const closeFn = jest.fn();
     const saveCvr = jest.fn();
     const logger = fakeLogger();
@@ -310,7 +310,7 @@ describe('Screens display properly when USB is mounted', () => {
     );
     await waitFor(() =>
       expect(getByTestId('modal-title')).toHaveTextContent(
-        'Import Test Mode CVR Files'
+        'Load Test Mode CVR Files'
       )
     );
 
@@ -319,7 +319,7 @@ describe('Screens display properly when USB is mounted', () => {
     domGetByText(tableRows[0], '12/09/2020 03:49:32 PM');
     domGetByText(tableRows[0], 'abc');
     expect(
-      domGetByText(tableRows[0], 'Imported').closest('button')!.disabled
+      domGetByText(tableRows[0], 'Loaded').closest('button')!.disabled
     ).toBe(true);
     expect(domGetByTestId(tableRows[0], 'new-cvr-count')).toHaveTextContent(
       '0'
@@ -335,32 +335,32 @@ describe('Screens display properly when USB is mounted', () => {
     expect(
       domGetByTestId(tableRows[1], 'imported-cvr-count')
     ).toHaveTextContent('1');
-    expect(
-      domGetByText(tableRows[1], 'Import').closest('button')!.disabled
-    ).toBe(false);
+    expect(domGetByText(tableRows[1], 'Load').closest('button')!.disabled).toBe(
+      false
+    );
 
     expect(window.kiosk!.readFile).toHaveBeenCalledTimes(2);
     fireEvent.click(getByText('Cancel'));
     expect(closeFn).toHaveBeenCalledTimes(1);
 
-    fireEvent.click(domGetByText(tableRows[1], 'Import'));
+    fireEvent.click(domGetByText(tableRows[1], 'Load'));
     getByText('Loading');
     await waitFor(() => {
       expect(saveCvr).toHaveBeenCalledTimes(1);
-      // There should be a message about importing a duplicate file displayed.
+      // There should be a message about loading a duplicate file displayed.
       getByText('Duplicate File');
       getByText(
-        'The selected file was ignored as a duplicate of a previously imported file.'
+        'The selected file was ignored as a duplicate of a previously loaded file.'
       );
       expect(logger.log).toHaveBeenCalledWith(
-        LogEventId.CvrImported,
+        LogEventId.CvrLoaded,
         'election_manager',
         expect.objectContaining({ disposition: 'failure' })
       );
     });
   });
 
-  test('Import CVR files screen locks to live mode when live files have been imported', async () => {
+  test('Load CVR files screen locks to live mode when live files have been loaded', async () => {
     const closeFn = jest.fn();
     const saveCvr = jest.fn();
     const fileEntries = [
@@ -406,29 +406,29 @@ describe('Screens display properly when USB is mounted', () => {
         saveCastVoteRecordFiles: saveCvr,
       }
     );
-    await waitFor(() => getByText('Import Live Mode CVR Files'));
+    await waitFor(() => getByText('Load Live Mode CVR Files'));
 
     const tableRows = getAllByTestId('table-row');
     expect(tableRows).toHaveLength(1);
     domGetByText(tableRows[0], '12/09/2020 03:59:32 PM');
     domGetByText(tableRows[0], '0002');
-    expect(
-      domGetByText(tableRows[0], 'Import').closest('button')!.disabled
-    ).toBe(false);
+    expect(domGetByText(tableRows[0], 'Load').closest('button')!.disabled).toBe(
+      false
+    );
 
     expect(window.kiosk!.readFile).toHaveBeenCalledTimes(3);
     fireEvent.click(getByText('Cancel'));
     expect(closeFn).toHaveBeenCalledTimes(1);
 
-    fireEvent.click(domGetByText(tableRows[0], 'Import'));
+    fireEvent.click(domGetByText(tableRows[0], 'Load'));
     getByText('Loading');
     await waitFor(() => {
       expect(saveCvr).toHaveBeenCalledTimes(1);
-      getByText('0 new CVRs Imported');
+      getByText('0 new CVRs Loaded');
     });
   });
 
-  test('Shows previously imported files when all files have already been imported', async () => {
+  test('Shows previously loaded files when all files have already been loaded', async () => {
     const closeFn = jest.fn();
     const saveCvr = jest.fn();
     const fileEntries = [
@@ -464,7 +464,7 @@ describe('Screens display properly when USB is mounted', () => {
         saveCastVoteRecordFiles: saveCvr,
       }
     );
-    await waitFor(() => getByText('Import Live Mode CVR Files'));
+    await waitFor(() => getByText('Load Live Mode CVR Files'));
     getByText(
       /There were no new Live Mode CVR files automatically found on this USB drive./
     );
@@ -474,7 +474,7 @@ describe('Screens display properly when USB is mounted', () => {
     domGetByText(tableRows[0], '12/09/2020 03:59:32 PM');
     domGetByText(tableRows[0], 'abc');
     expect(
-      domGetByText(tableRows[0], 'Imported').closest('button')!.disabled
+      domGetByText(tableRows[0], 'Loaded').closest('button')!.disabled
     ).toBe(true);
 
     fireEvent.click(getByText('Cancel'));
