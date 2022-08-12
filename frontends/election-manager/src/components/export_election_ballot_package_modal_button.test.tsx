@@ -84,7 +84,7 @@ test('Button renders properly when not clicked', () => {
     <ExportElectionBallotPackageModalButton />
   );
 
-  expect(queryByText('Save Package')).toHaveProperty('type', 'button');
+  expect(queryByText('Save Ballot Package')).toHaveProperty('type', 'button');
   expect(queryByTestId('modal')).toBeNull();
 });
 
@@ -105,7 +105,7 @@ test('Modal renders insert usb screen appropriately', async () => {
     } = renderInAppContext(<ExportElectionBallotPackageModalButton />, {
       usbDriveStatus: usbStatus,
     });
-    fireEvent.click(getByText('Save Package'));
+    fireEvent.click(getByText('Save Ballot Package'));
     await waitFor(() => getByText('No USB Drive Detected'));
     expect(queryAllByAltText('Insert USB Image')).toHaveLength(1);
     expect(queryAllByTestId('modal')).toHaveLength(1);
@@ -134,7 +134,7 @@ test('Modal renders export confirmation screen when usb detected and manual link
     usbDriveStatus: UsbDriveStatus.mounted,
     logger,
   });
-  fireEvent.click(getByText('Save Package'));
+  fireEvent.click(getByText('Save Ballot Package'));
   await findByText('Save Ballot Package');
   expect(queryAllByAltText('Insert USB Image')).toHaveLength(1);
   expect(queryAllByTestId('modal')).toHaveLength(1);
@@ -184,7 +184,7 @@ test('Modal renders loading screen when usb drive is mounting or ejecting', asyn
         usbDriveStatus: usbStatus,
       }
     );
-    fireEvent.click(getByText('Save Package'));
+    fireEvent.click(getByText('Save Ballot Package'));
     await waitFor(() => getByText('Loading'));
 
     expect(queryAllByTestId('modal')).toHaveLength(1);
@@ -204,7 +204,7 @@ test('Modal renders error message appropriately', async () => {
       logger,
     }
   );
-  fireEvent.click(getByText('Save Package'));
+  fireEvent.click(getByText('Save Ballot Package'));
   await waitFor(() => getByText('Save'));
 
   fireEvent.click(getByText('Custom'));
@@ -236,7 +236,7 @@ test('Modal renders renders loading message while rendering ballots appropriatel
       usbDriveEject: ejectFunction,
     }
   );
-  fireEvent.click(getByText('Save Package'));
+  fireEvent.click(getByText('Save Ballot Package'));
   await waitFor(() => getByText('Save'));
 
   fireEvent.click(getByText('Save'));

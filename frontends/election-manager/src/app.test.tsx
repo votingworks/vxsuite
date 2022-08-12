@@ -1285,7 +1285,7 @@ test('system administrator Ballots tab and election manager Ballots tab have exp
   );
   screen.getByText('Print All');
   expect(screen.queryByText('Save PDFs')).not.toBeInTheDocument();
-  expect(screen.queryByText('Save Package')).not.toBeInTheDocument();
+  expect(screen.queryByText('Save Ballot Package')).not.toBeInTheDocument();
 
   // View super ballot
   userEvent.click(viewBallotButtons[0]);
@@ -1339,7 +1339,7 @@ test('system administrator Ballots tab and election manager Ballots tab have exp
   expect(viewBallotButtons).toHaveLength(numPrecinctBallots);
   screen.getByText('Print All');
   screen.getByText('Save PDFs');
-  screen.getByText('Save Package');
+  screen.getByText('Save Ballot Package');
 
   userEvent.click(viewBallotButtons[0]);
   await screen.findByRole('heading', {
