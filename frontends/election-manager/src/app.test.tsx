@@ -166,7 +166,6 @@ test('create election works', async () => {
 
   fireEvent.click(getByText('Ballots'));
   fireEvent.click(getAllByText('View Ballot')[0]);
-  fireEvent.click(getByText('English/Spanish'));
 
   // You can view the advanced screen and export log files when there is an election.
   fireEvent.click(screen.getByText('Advanced'));
