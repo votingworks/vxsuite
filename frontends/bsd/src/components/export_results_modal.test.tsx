@@ -59,7 +59,7 @@ test('render no usb found screen when there is not a mounted usb drive', () => {
     );
     getByText('No USB Drive Detected');
     getByText(
-      'Please insert a USB drive in order to export the scanner results.'
+      'Please insert a USB drive in order to save the scanner results.'
     );
     getByAltText('Insert USB Image');
 
@@ -94,14 +94,14 @@ test('render export modal when a usb drive is mounted as expected and allows cus
     </Router>,
     { usbDriveStatus: UsbDriveStatus.mounted }
   );
-  getByText('Export Results');
+  getByText('Save Results');
   getByText(
     /A CVR file will automatically be saved to the default location on the mounted USB drive. /
   );
   getByAltText('Insert USB Image');
 
   fireEvent.click(getByText('Custom'));
-  await waitFor(() => getByText(/Download Complete/));
+  await waitFor(() => getByText('Results Saved'));
   await waitFor(() => {
     expect(saveAsFunction).toHaveBeenCalledTimes(1);
   });
@@ -131,10 +131,10 @@ test('render export modal when a usb drive is mounted as expected and allows aut
     />,
     { usbDriveStatus: UsbDriveStatus.mounted, history }
   );
-  getByText('Export Results');
+  getByText('Save Results');
 
-  fireEvent.click(getByText('Export'));
-  await waitFor(() => getByText(/Download Complete/));
+  fireEvent.click(getByText('Save'));
+  await waitFor(() => getByText('Results Saved'));
   await waitFor(() => {
     expect(mockKiosk.makeDirectory).toHaveBeenCalledTimes(1);
   });
@@ -202,11 +202,11 @@ test('render export modal with errors when appropriate', async () => {
     </Router>,
     { usbDriveStatus: UsbDriveStatus.mounted }
   );
-  getByText('Export Results');
+  getByText('Save Results');
 
   mockKiosk.getUsbDrives.mockRejectedValueOnce(new Error('NOPE'));
-  fireEvent.click(getByText('Export'));
-  await waitFor(() => getByText(/Download Failed/));
+  fireEvent.click(getByText('Save'));
+  await waitFor(() => getByText('Failed to Save Results'));
   getByText(/Failed to save results./);
   getByText(/NOPE/);
 

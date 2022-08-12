@@ -99,7 +99,7 @@ export function ElectionConfiguration({
       setFoundFilenames(newFoundFilenames);
       await logger.log(LogEventId.BallotPackageFilesReadFromUsb, userRole, {
         disposition: 'success',
-        message: `Automatically found ${newFoundFilenames.length} ballot package files to import to machine. User prompted to select one to import.`,
+        message: `Automatically found ${newFoundFilenames.length} ballot package files to load to machine. User prompted to select one to load.`,
       });
       setLoadingFiles(false);
     } catch (err) {
@@ -110,7 +110,7 @@ export function ElectionConfiguration({
         setLoadingFiles(false);
         await logger.log(LogEventId.BallotPackageFilesReadFromUsb, userRole, {
           disposition: 'success',
-          message: `Automatically found 0 ballot package files to import to machine. User prompted to select file manually to import.`,
+          message: `Automatically found 0 ballot package files to load to machine. User prompted to select file manually to load.`,
         });
       } else if (err instanceof Error) {
         await logger.log(LogEventId.BallotPackageFilesReadFromUsb, userRole, {
@@ -222,12 +222,12 @@ export function ElectionConfiguration({
         <Screen>
           <Main padded>
             <Prose>
-              <h1>No Election Ballot Package Files Found</h1>
+              <h1>No Election Ballot Packages Found</h1>
               <Image src="/assets/usb-drive.svg" alt="Insert USB Image" />
               <Text>
-                There were no Election Ballot Package files automatically found
-                on the inserted USB drive. Use VxAdmin to export Ballot Package
-                files to this USB drive.
+                There were no Election Ballot Packages automatically found on
+                the inserted USB drive. Use VxAdmin to save a Ballot Package to
+                this USB drive.
               </Text>
               <Text>
                 Optionally, you may manually select a file to configure:
@@ -259,15 +259,15 @@ export function ElectionConfiguration({
             </Text>
             {errorMessage !== '' && (
               <Text error>
-                An error occurred while importing the election configuration:{' '}
-                {errorMessage}. Please check the file you are importing and try
+                An error occurred while loading the election configuration:{' '}
+                {errorMessage}. Please check the file you are loading and try
                 again.
               </Text>
             )}
             <Table>
               <thead>
                 <tr>
-                  <th>Export Date</th>
+                  <th>Date Saved</th>
                   <th>County</th>
                   <th>Election Name</th>
                   <th>ID</th>
@@ -311,7 +311,7 @@ export function ElectionConfiguration({
           <ul>
             <ListItem>
               <strong>Insert a USB drive</strong> with election ballot packages
-              exported from VxAdmin.
+              saved from VxAdmin.
             </ListItem>
             <ListItem>
               Manually select a file to configure:{' '}

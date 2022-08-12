@@ -613,10 +613,10 @@ export function AppRoot({ card, hardware, logger }: AppRootProps): JSX.Element {
     let exportButtonTitle;
     if (adjudication.remaining > 0) {
       exportButtonTitle =
-        'You cannot export results until all ballots have been adjudicated.';
+        'You cannot save results until all ballots have been adjudicated.';
     } else if (status.batches.length === 0) {
       exportButtonTitle =
-        'You cannot export results until you have scanned at least 1 ballot.';
+        'You cannot save results until you have scanned at least 1 ballot.';
     }
 
     return (
@@ -665,7 +665,7 @@ export function AppRoot({ card, hardware, logger }: AppRootProps): JSX.Element {
                   }
                   title={exportButtonTitle}
                 >
-                  Export
+                  Save Results
                 </Button>
                 <ScanButton
                   onPress={scanBatch}

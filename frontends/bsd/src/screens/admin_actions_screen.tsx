@@ -75,17 +75,17 @@ export function AdminActionsScreen({
       setBackupError('');
       setIsBackingUp(true);
       await backup();
-      await logger.log(LogEventId.DownloadedScanImageBackup, userRole, {
+      await logger.log(LogEventId.SavedScanImageBackup, userRole, {
         disposition: 'success',
-        message: 'User successfully downloaded ballot data backup files.',
+        message: 'User successfully saved ballot data backup files.',
       });
     } catch (error) {
       assert(error instanceof Error);
       setBackupError(error.toString());
-      await logger.log(LogEventId.DownloadedScanImageBackup, userRole, {
+      await logger.log(LogEventId.SavedScanImageBackup, userRole, {
         disposition: 'failure',
-        message: `Error downloading ballot data backup: ${error.message}`,
-        result: 'No backup downloaded.',
+        message: `Error saving ballot data backup: ${error.message}`,
+        result: 'No backup saved.',
       });
     } finally {
       setIsBackingUp(false);
@@ -146,10 +146,10 @@ export function AdminActionsScreen({
             </p>
             <p>
               <Button onPress={() => setExportingLogType(LogFileType.Raw)}>
-                Export Logs
+                Save Logs
               </Button>{' '}
               <Button onPress={() => setExportingLogType(LogFileType.Cdf)}>
-                Export Logs as CDF
+                Save Logs as CDF
               </Button>
             </p>
             <p>

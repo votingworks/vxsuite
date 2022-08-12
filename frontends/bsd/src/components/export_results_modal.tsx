@@ -66,7 +66,7 @@ export function ExportResultsModal({
     setCurrentState(ModalState.SAVING);
 
     try {
-      await logger.log(LogEventId.ExportCvrInit, userRole);
+      await logger.log(LogEventId.SaveCvrInit, userRole);
       const response = await fetch(`/scan/export`, {
         method: 'post',
       });
@@ -78,11 +78,11 @@ export function ExportResultsModal({
           `Failed to save results. Error retrieving CVRs from the VxCentralScan.`
         );
         setCurrentState(ModalState.ERROR);
-        await logger.log(LogEventId.ExportCvrComplete, userRole, {
+        await logger.log(LogEventId.SaveCvrComplete, userRole, {
           message:
-            'Error exporting CVR file, could not retrieve CVRs from the VxCentralScan.',
+            'Error saving CVR file, could not retrieve CVRs from the VxCentralScan.',
           error: 'Error retrieving CVRs from the VxCentralScan.',
-          result: 'User shown error, CVR file not exported.',
+          result: 'User shown error, CVR file not saved.',
           disposition: 'failure',
         });
         return;
@@ -98,9 +98,7 @@ export function ExportResultsModal({
       if (window.kiosk) {
         const usbPath = await usbstick.getDevicePath();
         if (!usbPath) {
-          throw new Error(
-            'could not begin download; path to usb drive missing'
-          );
+          throw new Error('could not save file; path to usb drive missing');
         }
         const electionFolderName = generateElectionBasedSubfolderName(
           electionDefinition.election,
@@ -118,7 +116,7 @@ export function ExportResultsModal({
           });
 
           if (!fileWriter) {
-            throw new Error('could not begin download; no file was chosen');
+            throw new Error('could not save; no file was chosen');
           }
 
           await fileWriter.write(await blob.text());
@@ -130,8 +128,8 @@ export function ExportResultsModal({
           await window.kiosk.writeFile(pathToFile, await blob.text());
         }
         setCurrentState(ModalState.DONE);
-        await logger.log(LogEventId.ExportCvrComplete, userRole, {
-          message: `Successfully exported CVR file with ${numberOfBallots} ballots.`,
+        await logger.log(LogEventId.SaveCvrComplete, userRole, {
+          message: `Successfully saved CVR file with ${numberOfBallots} ballots.`,
           disposition: 'success',
           numberOfBallots,
         });
@@ -143,10 +141,10 @@ export function ExportResultsModal({
       assert(error instanceof Error);
       setErrorMessage(`Failed to save results. ${error.message}`);
       setCurrentState(ModalState.ERROR);
-      await logger.log(LogEventId.ExportCvrComplete, userRole, {
-        message: 'Error exporting CVR file.',
+      await logger.log(LogEventId.SaveCvrComplete, userRole, {
+        message: 'Error saving CVR file.',
         error: error.message,
-        result: 'User shown error, CVR file not exported.',
+        result: 'User shown error, CVR file not saved.',
         disposition: 'failure',
       });
     }
@@ -157,7 +155,7 @@ export function ExportResultsModal({
       <Modal
         content={
           <Prose>
-            <h1>Download Failed</h1>
+            <h1>Failed to Save Results</h1>
             <p>{errorMessage}</p>
           </Prose>
         }
@@ -173,7 +171,7 @@ export function ExportResultsModal({
         <Modal
           content={
             <Prose>
-              <h1>Download Complete</h1>
+              <h1>Results Saved</h1>
               <p>
                 USB drive successfully ejected, you may now take it to VxAdmin
                 for tabulation.
@@ -189,7 +187,7 @@ export function ExportResultsModal({
       <Modal
         content={
           <Prose>
-            <h1>Download Complete</h1>
+            <h1>Results Saved</h1>
             <p>
               CVR results file saved successfully! You may now eject the USB
               drive and take it to VxAdmin for tabulation.
@@ -224,7 +222,7 @@ export function ExportResultsModal({
     case usbstick.UsbDriveStatus.absent:
     case usbstick.UsbDriveStatus.notavailable:
     case usbstick.UsbDriveStatus.recentlyEjected:
-      // When run not through kiosk mode let the user download the file
+      // When run not through kiosk mode let the user save the file
       // on the machine for internal debugging use
       return (
         <Modal
@@ -237,8 +235,7 @@ export function ExportResultsModal({
                   alt="Insert USB Image"
                   onDoubleClick={() => exportResults(true)}
                 />
-                Please insert a USB drive in order to export the scanner
-                results.
+                Please insert a USB drive in order to save the scanner results.
               </p>
             </Prose>
           }
@@ -250,7 +247,7 @@ export function ExportResultsModal({
                   data-testid="manual-export"
                   onPress={() => exportResults(true)}
                 >
-                  Export
+                  Save
                 </Button>
               )}
               <LinkButton onPress={onClose}>Cancel</LinkButton>
@@ -276,7 +273,7 @@ export function ExportResultsModal({
         <Modal
           content={
             <Prose>
-              <h1>Export Results</h1>
+              <h1>Save Results</h1>
               <UsbImage
                 src="/assets/usb-drive.svg"
                 alt="Insert USB Image"
@@ -284,8 +281,8 @@ export function ExportResultsModal({
               />
               <p>
                 A CVR file will automatically be saved to the default location
-                on the mounted USB drive. Optionally, you may pick a custom
-                export location.
+                on the mounted USB drive. Optionally, you may pick a custom save
+                location.
               </p>
             </Prose>
           }
@@ -293,7 +290,7 @@ export function ExportResultsModal({
           actions={
             <React.Fragment>
               <Button primary onPress={() => exportResults(false)}>
-                Export
+                Save
               </Button>
               <LinkButton onPress={onClose}>Cancel</LinkButton>
               <Button onPress={() => exportResults(true)}>Custom</Button>
