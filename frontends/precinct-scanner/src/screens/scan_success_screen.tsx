@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import useSound from 'use-sound';
 import { CircleCheck } from '../components/graphics';
 import { ScannedBallotCount } from '../components/scanned_ballot_count';
 
@@ -12,6 +13,10 @@ interface Props {
 }
 
 export function ScanSuccessScreen({ scannedBallotCount }: Props): JSX.Element {
+  const [playSuccess] = useSound('/sounds/success.mp3');
+  useEffect(() => {
+    playSuccess();
+  }, [playSuccess]);
   return (
     <ScreenMainCenterChild>
       <CircleCheck />

@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Text } from '@votingworks/ui';
 import { throwIllegalValue } from '@votingworks/utils';
 import { Scan } from '@votingworks/api';
+import useSound from 'use-sound';
 import { TimesCircle } from '../components/graphics';
 import {
   CenteredLargeProse,
@@ -22,6 +23,11 @@ export function ScanErrorScreen({
   scannedBallotCount,
   restartRequired = false,
 }: Props): JSX.Element {
+  const [playFailure] = useSound('/sounds/failure.mp3');
+  useEffect(() => {
+    playFailure();
+  }, [playFailure]);
+
   const errorMessage = (() => {
     if (!error) return undefined;
     switch (error) {

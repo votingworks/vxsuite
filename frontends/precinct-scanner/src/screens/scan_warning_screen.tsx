@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import {
   AdjudicationReason,
   CandidateContest,
@@ -18,6 +18,7 @@ import {
 } from '@votingworks/ui';
 import { assert, find, integers, take } from '@votingworks/utils';
 import pluralize from 'pluralize';
+import useSound from 'use-sound';
 import * as scanner from '../api/scan';
 
 import { ExclamationTriangle } from '../components/graphics';
@@ -317,6 +318,11 @@ export interface Props {
 export function ScanWarningScreen({
   adjudicationReasonInfo,
 }: Props): JSX.Element {
+  const [playFailure] = useSound('/sounds/failure.mp3');
+  useEffect(() => {
+    playFailure();
+  }, [playFailure]);
+
   const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
 
