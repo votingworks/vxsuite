@@ -127,17 +127,17 @@ export function ReportsScreen(): JSX.Element {
   if (!isTabulationRunning) {
     const resultTables = (
       <React.Fragment>
-        <h2>Ballot Counts by Precinct</h2>
+        <h2>Tally Report by Precinct</h2>
         <BallotCountsTable breakdownCategory={TallyCategory.Precinct} />
-        <h2>Ballot Counts by Voting Method</h2>
+        <h2>Tally Report by Voting Method</h2>
         <BallotCountsTable breakdownCategory={TallyCategory.VotingMethod} />
         {partiesForPrimaries.length > 0 && (
           <React.Fragment>
-            <h2>Ballot Counts by Party</h2>
+            <h2>Tally Report by Party</h2>
             <BallotCountsTable breakdownCategory={TallyCategory.Party} />
           </React.Fragment>
         )}
-        <h2>Ballot Counts by Scanner</h2>
+        <h2>Tally Report by Scanner</h2>
         <Button small onPress={toggleShowingBatchResults}>
           {isShowingBatchResults
             ? 'Show Results by Scanner'
