@@ -43,8 +43,8 @@ export enum LogEventId {
   SaveToStorage = 'save-to-storage',
   FileSaved = 'file-saved',
   // VxAdmin specific user action logs
-  ExportBallotPackageInit = 'export-ballot-package-init',
-  ExportBallotPackageComplete = 'export-ballot-package-complete',
+  SaveBallotPackageInit = 'save-ballot-package-init',
+  SaveBallotPackageComplete = 'save-ballot-package-complete',
   BallotPrinted = 'ballot-printed',
   PrintedBallotReportPrinted = 'printed-ballot-report-printed',
   SmartcardProgramInit = 'smartcard-program-init',
@@ -54,11 +54,11 @@ export enum LogEventId {
   // TODO(https://github.com/votingworks/vxsuite/issues/2085):
   // Remove SmartcardProgrammedOverrideWriteProtection when removing legacy smartcards screen
   SmartcardProgrammedOverrideWriteProtection = 'smartcard-programmed-override-write-protection',
-  CvrImported = 'cvr-imported',
+  CvrLoaded = 'cvr-loaded',
   CvrFilesReadFromUsb = 'cvr-files-read-from-usb',
   RecomputingTally = 'recompute-tally-init',
   RecomputedTally = 'recompute-tally-complete',
-  ExternalTallyFileImported = 'external-tally-file-imported',
+  ExternalTallyFileLoaded = 'external-tally-file-loaded',
   ManualTallyDataEdited = 'manual-tally-data-edited',
   MarkedTallyResultsOfficial = 'marked-tally-results-official',
   RemovedTallyFile = 'removed-tally-file',
@@ -74,14 +74,14 @@ export enum LogEventId {
   ClearedBallotData = 'clear-ballot-data-complete',
   OverridingMarkThresholds = 'override-mark-threshold-init',
   OverrodeMarkThresholds = 'override-mark-thresholds-complete',
-  DownloadedScanImageBackup = 'download-backup-scan-images',
+  SavedScanImageBackup = 'saved-backup-scan-images',
   ConfigureFromBallotPackageInit = 'configure-from-ballot-package-init',
   BallotPackageFilesReadFromUsb = 'ballot-package-files-read-from-usb',
   BallotPackagedLoadedFromUsb = 'ballot-package-load-from-usb-complete',
   BallotConfiguredOnMachine = 'ballot-configure-machine-complete',
   ScannerConfigured = 'scanner-configure-complete',
-  ExportCvrInit = 'export-cvr-init',
-  ExportCvrComplete = 'export-cvr-complete',
+  SaveCvrInit = 'save-cvr-init',
+  SaveCvrComplete = 'save-cvr-complete',
   DeleteScanBatchInit = 'delete-cvr-batch-init',
   DeleteScanBatchComplete = 'delete-cvr-batch-complete',
   ScanBatchInit = 'scan-batch-init',
@@ -90,7 +90,7 @@ export enum LogEventId {
   ScanBatchContinue = 'scan-batch-continue',
   ScanAdjudicationInfo = 'scan-adjudication-info',
   ScannerConfigReloaded = 'scanner-config-reloaded',
-  ExportLogFileFound = 'export-log-file-found',
+  SaveLogFileFound = 'save-log-file-found',
   ScanServiceConfigurationMessage = 'scan-service-config',
   AdminServiceConfigurationMessage = 'admin-service-config',
   FujitsuScanInit = 'fujitsu-scan-init',
@@ -270,27 +270,27 @@ const LoadFromStorage: LogDetails = {
   eventId: LogEventId.LoadFromStorage,
   eventType: LogEventType.ApplicationAction,
   documentationMessage:
-    'A piece of information (current election, imported CVR files, etc.) is loaded from storage. May happen as an automated action when an application starts up, or as a result of a user action.',
+    'A piece of information (current election, loaded CVR files, etc.) is loaded from storage. May happen as an automated action when an application starts up, or as a result of a user action.',
 };
 const SaveToStorage: LogDetails = {
   eventId: LogEventId.SaveToStorage,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'A piece of information is saved to storage, usually resulting from a user action for example a user importing CVR files results in those files being saved to storage.',
+    'A piece of information is saved to storage, usually resulting from a user action for example a user loading CVR files results in those files being saved to storage.',
 };
 
-const ExportBallotPackageInit: LogDetails = {
-  eventId: LogEventId.ExportBallotPackageInit,
+const SaveBallotPackageInit: LogDetails = {
+  eventId: LogEventId.SaveBallotPackageInit,
   eventType: LogEventType.UserAction,
-  documentationMessage: 'Exporting the ballot package is initiated.',
-  defaultMessage: 'User initiated exporting the ballot package...',
+  documentationMessage: 'Saving the ballot package is initiated.',
+  defaultMessage: 'User initiated saving the ballot package...',
   restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
 };
-const ExportBallotPackageComplete: LogDetails = {
-  eventId: LogEventId.ExportBallotPackageComplete,
+const SaveBallotPackageComplete: LogDetails = {
+  eventId: LogEventId.SaveBallotPackageComplete,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'Exporting the ballot package completed, success or failure is indicated by the disposition.',
+    'Saving the ballot package completed, success or failure is indicated by the disposition.',
   restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
 };
 
@@ -351,18 +351,18 @@ const SmartcardProgrammedOverrideWriteProtection: LogDetails = {
     'Smartcard is programmed to override a flag protecting writes on the card. By default admin cards can not be written unless write protection is first overridden.',
   restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
 };
-const CvrImported: LogDetails = {
-  eventId: LogEventId.CvrImported,
+const CvrLoaded: LogDetails = {
+  eventId: LogEventId.CvrLoaded,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'User imported CVR to the machine. Success or failure indicated by disposition.',
+    'User loaded CVR to the machine. Success or failure indicated by disposition.',
   restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
 };
 const CvrFilesReadFromUsb: LogDetails = {
   eventId: LogEventId.CvrFilesReadFromUsb,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'User opened import CVR modal and usb is searched for possible CVR files to import.',
+    'User opened load CVR modal and usb is searched for possible CVR files to load.',
   restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
 };
 const RecomputingTally: LogDetails = {
@@ -380,25 +380,25 @@ const RecomputedTally: LogDetails = {
     'Tally recomputed with new cast vote record files, success or failure indicated by disposition.',
   restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
 };
-const ExternalTallyFileImported: LogDetails = {
-  eventId: LogEventId.ExternalTallyFileImported,
+const ExternalTallyFileLoaded: LogDetails = {
+  eventId: LogEventId.ExternalTallyFileLoaded,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'User imported external tally file to the machine. File type indicated by fileType key. Success or failure indicated by disposition.',
+    'User loaded external tally file to the machine. File type indicated by fileType key. Success or failure indicated by disposition.',
   restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
 };
 const ManualTallyDataEdited: LogDetails = {
   eventId: LogEventId.ManualTallyDataEdited,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'User added or edited manually entered tally data to be included alongside imported Cvr files.',
+    'User added or edited manually entered tally data to be included alongside loaded Cvr files.',
   restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
 };
 const MarkedTallyResultsOfficial: LogDetails = {
   eventId: LogEventId.MarkedTallyResultsOfficial,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'User marked the tally results as official. This disabled importing any more cvr or other tally data files.',
+    'User marked the tally results as official. This disabled loading any more cvr or other tally data files.',
   restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
 };
 const RemovedTallyFile: LogDetails = {
@@ -502,11 +502,11 @@ const OverrodeMarkThresholds: LogDetails = {
     LogSource.VxPrecinctScanFrontend,
   ],
 };
-const DownloadedScanImageBackup: LogDetails = {
-  eventId: LogEventId.DownloadedScanImageBackup,
+const SavedScanImageBackup: LogDetails = {
+  eventId: LogEventId.SavedScanImageBackup,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'User downloaded a backup file of the scanned ballot image files and CVRs. Success or failure indicated by disposition.',
+    'User saved a backup file of the scanned ballot image files and CVRs. Success or failure indicated by disposition.',
   restrictInDocumentationToApps: [
     LogSource.VxCentralScanFrontend,
     LogSource.VxPrecinctScanFrontend,
@@ -558,28 +558,27 @@ const BallotPackageFilesReadFromUsb: LogDetails = {
   eventId: LogEventId.BallotPackageFilesReadFromUsb,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'List of ballot packages read from usb and displayed to user to import to machine.',
+    'List of ballot packages read from usb and displayed to user to load to machine.',
   restrictInDocumentationToApps: [
     LogSource.VxCentralScanFrontend,
     LogSource.VxPrecinctScanFrontend,
   ],
 };
-const ExportCvrInit: LogDetails = {
-  eventId: LogEventId.ExportCvrInit,
+const SaveCvrInit: LogDetails = {
+  eventId: LogEventId.SaveCvrInit,
   eventType: LogEventType.UserAction,
-  documentationMessage:
-    'User has initiated exporting CVR file to the USB drive.',
-  defaultMessage: 'Exporting CVR file to USB...',
+  documentationMessage: 'User has initiated saving CVR file to the USB drive.',
+  defaultMessage: 'Saving CVR file to USB...',
   restrictInDocumentationToApps: [
     LogSource.VxCentralScanFrontend,
     LogSource.VxPrecinctScanFrontend,
   ],
 };
-const ExportCvrComplete: LogDetails = {
-  eventId: LogEventId.ExportCvrComplete,
+const SaveCvrComplete: LogDetails = {
+  eventId: LogEventId.SaveCvrComplete,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'User has finished exporting a CVR file of all results to the USB drive. Success or failure indicated by disposition. On success, number of ballots included in CVR specified by `numberOfBallots`.',
+    'User has finished saving a CVR file of all results to the USB drive. Success or failure indicated by disposition. On success, number of ballots included in CVR specified by `numberOfBallots`.',
   restrictInDocumentationToApps: [
     LogSource.VxCentralScanFrontend,
     LogSource.VxPrecinctScanFrontend,
@@ -645,17 +644,17 @@ const ScannerConfigReloaded: LogDetails = {
   ],
 };
 
-const ExportLogFileFound: LogDetails = {
-  eventId: LogEventId.ExportLogFileFound,
+const SaveLogFileFound: LogDetails = {
+  eventId: LogEventId.SaveLogFileFound,
   eventType: LogEventType.ApplicationStatus,
   documentationMessage:
-    'When the user is exporting logs, indicates the success/failure of finding the expected log file on the machine.',
+    'When the user is saving logs, indicates the success/failure of finding the expected log file on the machine.',
 };
 const LogConversionToCdfComplete: LogDetails = {
   eventId: LogEventId.LogConversionToCdfComplete,
   eventType: LogEventType.UserAction,
   documentationMessage:
-    'The user has converted the log file to a CDF format for export. Success or failure indicated by disposition.',
+    'The user has converted the log file to a CDF format for saving. Success or failure indicated by disposition.',
 };
 const LogConversionToCdfLogLineError: LogDetails = {
   eventId: LogEventId.LogConversionToCdfLogLineError,
@@ -792,10 +791,10 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return SaveToStorage;
     case LogEventId.LoadFromStorage:
       return LoadFromStorage;
-    case LogEventId.ExportBallotPackageInit:
-      return ExportBallotPackageInit;
-    case LogEventId.ExportBallotPackageComplete:
-      return ExportBallotPackageComplete;
+    case LogEventId.SaveBallotPackageInit:
+      return SaveBallotPackageInit;
+    case LogEventId.SaveBallotPackageComplete:
+      return SaveBallotPackageComplete;
     case LogEventId.BallotPrinted:
       return BallotPrinted;
     case LogEventId.PrintedBallotReportPrinted:
@@ -814,14 +813,14 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return SmartcardProgrammedOverrideWriteProtection;
     case LogEventId.CvrFilesReadFromUsb:
       return CvrFilesReadFromUsb;
-    case LogEventId.CvrImported:
-      return CvrImported;
+    case LogEventId.CvrLoaded:
+      return CvrLoaded;
     case LogEventId.RecomputingTally:
       return RecomputingTally;
     case LogEventId.RecomputedTally:
       return RecomputedTally;
-    case LogEventId.ExternalTallyFileImported:
-      return ExternalTallyFileImported;
+    case LogEventId.ExternalTallyFileLoaded:
+      return ExternalTallyFileLoaded;
     case LogEventId.ManualTallyDataEdited:
       return ManualTallyDataEdited;
     case LogEventId.MarkedTallyResultsOfficial:
@@ -850,8 +849,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return OverridingMarkThresholds;
     case LogEventId.OverrodeMarkThresholds:
       return OverrodeMarkThresholds;
-    case LogEventId.DownloadedScanImageBackup:
-      return DownloadedScanImageBackup;
+    case LogEventId.SavedScanImageBackup:
+      return SavedScanImageBackup;
     case LogEventId.ConfigureFromBallotPackageInit:
       return ConfigureFromBallotPackageInit;
     case LogEventId.BallotPackagedLoadedFromUsb:
@@ -862,10 +861,10 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ScannerConfigured;
     case LogEventId.BallotPackageFilesReadFromUsb:
       return BallotPackageFilesReadFromUsb;
-    case LogEventId.ExportCvrInit:
-      return ExportCvrInit;
-    case LogEventId.ExportCvrComplete:
-      return ExportCvrComplete;
+    case LogEventId.SaveCvrInit:
+      return SaveCvrInit;
+    case LogEventId.SaveCvrComplete:
+      return SaveCvrComplete;
     case LogEventId.DeleteScanBatchInit:
       return DeleteScanBatchInit;
     case LogEventId.DeleteScanBatchComplete:
@@ -882,8 +881,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ScanAdjudicationInfo;
     case LogEventId.ScannerConfigReloaded:
       return ScannerConfigReloaded;
-    case LogEventId.ExportLogFileFound:
-      return ExportLogFileFound;
+    case LogEventId.SaveLogFileFound:
+      return SaveLogFileFound;
     case LogEventId.ScanServiceConfigurationMessage:
       return ScanServiceConfigurationMessage;
     case LogEventId.AdminServiceConfigurationMessage:
