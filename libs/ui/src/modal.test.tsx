@@ -3,6 +3,8 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Modal, ModalWidth } from './modal';
 import { Button } from './button';
+import { fontSizeTheme } from './themes';
+import { FONT_SIZES, LARGE_DISPLAY_FONT_SIZE } from './globals';
 
 describe('Modal', () => {
   it('renders a modal with content and actions', () => {
@@ -35,7 +37,7 @@ describe('Modal', () => {
       <div
         aria-label="Alert Modal"
         aria-modal="true"
-        class="sc-gsDJrp kSjhGM ReactModal__Content _"
+        class="sc-gsDJrp izKgnL ReactModal__Content _"
         data-testid="modal"
         role="alertdialog"
         tabindex="-1"
@@ -67,7 +69,7 @@ describe('Modal', () => {
       <div
         aria-label="Alert Modal"
         aria-modal="true"
-        class="sc-gsDJrp hCzYbG ReactModal__Content _"
+        class="sc-gsDJrp iYIygY ReactModal__Content _"
         data-testid="modal"
         role="alertdialog"
         tabindex="-1"
@@ -89,7 +91,7 @@ describe('Modal', () => {
       <div
         aria-label="Alert Modal"
         aria-modal="true"
-        class="sc-gsDJrp hXVzBN ReactModal__Content _"
+        class="sc-gsDJrp ySjSS ReactModal__Content _"
         data-testid="modal"
         role="alertdialog"
         tabindex="-1"
@@ -104,6 +106,20 @@ describe('Modal', () => {
 
     const content = within(modal).getByText('Do you want to do the thing?');
     expect(content).not.toHaveStyle({ padding: '2rem' });
+  });
+
+  it('can use theme', () => {
+    render(
+      <Modal
+        theme={fontSizeTheme.large}
+        content="Do you want to do the thing?"
+      />
+    );
+
+    const modal = screen.getByRole('alertdialog');
+    expect(modal).toHaveStyle({
+      fontSize: `${FONT_SIZES[LARGE_DISPLAY_FONT_SIZE]}px`,
+    });
   });
 
   it('handles overlay click', () => {

@@ -8,7 +8,14 @@ import {
   UndervoteAdjudicationReasonInfo,
   AnyContest,
 } from '@votingworks/types';
-import { Button, Modal, Prose, Text } from '@votingworks/ui';
+import {
+  Button,
+  fontSizeTheme,
+  Modal,
+  ModalWidth,
+  Prose,
+  Text,
+} from '@votingworks/ui';
 import { assert, find, integers, take } from '@votingworks/utils';
 import pluralize from 'pluralize';
 import * as scanner from '../api/scan';
@@ -70,6 +77,8 @@ function OvervoteWarningScreen({
       </CenteredLargeProse>
       {confirmTabulate && (
         <Modal
+          theme={fontSizeTheme.large}
+          modalWidth={ModalWidth.Wide}
           content={
             <Prose textCenter>
               <h1>Are you sure?</h1>
@@ -162,6 +171,8 @@ function UndervoteWarningScreen({
       </CenteredLargeProse>
       {confirmTabulate && (
         <Modal
+          theme={fontSizeTheme.large}
+          modalWidth={ModalWidth.Wide}
           content={
             <Prose textCenter>
               <h1>Are you sure?</h1>
@@ -230,6 +241,8 @@ function BlankBallotWarningScreen(): JSX.Element {
       </CenteredLargeProse>
       {confirmTabulate && (
         <Modal
+          theme={fontSizeTheme.large}
+          modalWidth={ModalWidth.Wide}
           content={
             <Prose textCenter>
               <h1>Are you sure?</h1>
@@ -274,6 +287,8 @@ function OtherReasonWarningScreen(): JSX.Element {
       </CenteredLargeProse>
       {confirmTabulate && (
         <Modal
+          theme={fontSizeTheme.large}
+          modalWidth={ModalWidth.Wide}
           content={
             <Prose textCenter>
               <h1>Are you sure?</h1>
