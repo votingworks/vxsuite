@@ -3,7 +3,14 @@ import styled from 'styled-components';
 import pluralize from 'pluralize';
 
 import { assert, find } from '@votingworks/utils';
-import { NoWrap, Prose, Table, TD } from '@votingworks/ui';
+import {
+  isElectionManagerAuth,
+  isSystemAdministratorAuth,
+  NoWrap,
+  Prose,
+  Table,
+  TD,
+} from '@votingworks/ui';
 import { AppContext } from '../contexts/app_context';
 
 import { routerPaths } from '../router_paths';
@@ -11,6 +18,8 @@ import { Button, SegmentedButton } from '../components/button';
 import { LinkButton } from '../components/link_button';
 import {
   getBallotStylesData,
+  getSuperBallotStyleData,
+  isSuperBallotStyle,
   sortBallotStyleDataByPrecinct,
   sortBallotStyleDataByStyle,
 } from '../utils/election';
@@ -25,12 +34,8 @@ const Header = styled.div`
   margin-bottom: 1rem;
 `;
 
-interface Props {
-  draftMode?: boolean;
-}
-
-export function BallotListScreen({ draftMode }: Props): JSX.Element {
-  const { electionDefinition, configuredAt } = useContext(AppContext);
+export function BallotListScreen(): JSX.Element {
+  const { auth, electionDefinition, configuredAt } = useContext(AppContext);
   assert(electionDefinition && typeof configuredAt === 'string');
   const { election } = electionDefinition;
 
@@ -39,6 +44,11 @@ export function BallotListScreen({ draftMode }: Props): JSX.Element {
     sortBallotStyleDataByStyle(election, allBallotStyles),
     sortBallotStyleDataByPrecinct(election, allBallotStyles),
   ];
+  if (isSystemAdministratorAuth(auth)) {
+    const superBallotStyleData = getSuperBallotStyleData(election);
+    ballotLists[0].unshift(superBallotStyleData);
+    ballotLists[1].unshift(superBallotStyleData);
+  }
   const [ballotView, setBallotView] = useState(1);
   function sortByStyle() {
     return setBallotView(0);
@@ -72,8 +82,8 @@ export function BallotListScreen({ draftMode }: Props): JSX.Element {
 
         <Prose maxWidth={false}>
           <p>
-            <PrintAllBallotsButton draftMode={draftMode} />{' '}
-            {!draftMode && (
+            <PrintAllBallotsButton />{' '}
+            {isElectionManagerAuth(auth) && (
               <React.Fragment>
                 <ExportBallotPdfsButton />{' '}
                 <ExportElectionBallotPackageModalButton />
@@ -93,10 +103,10 @@ export function BallotListScreen({ draftMode }: Props): JSX.Element {
         </thead>
         <tbody>
           {ballots.map((ballot) => {
-            const precinctName = find(
-              election.precincts,
-              (p) => p.id === ballot.precinctId
-            ).name;
+            const precinctName = isSuperBallotStyle(ballot.ballotStyleId)
+              ? 'All'
+              : find(election.precincts, (p) => p.id === ballot.precinctId)
+                  .name;
             return (
               <tr key={ballot.ballotStyleId + ballot.precinctId}>
                 <TD textAlign="right" nowrap>
@@ -111,7 +121,11 @@ export function BallotListScreen({ draftMode }: Props): JSX.Element {
                 <TD>
                   <NoWrap>{precinctName}</NoWrap>
                 </TD>
-                <TD>{ballot.ballotStyleId}</TD>
+                <TD>
+                  {isSuperBallotStyle(ballot.ballotStyleId)
+                    ? 'All'
+                    : ballot.ballotStyleId}
+                </TD>
                 <TD>{ballot.contestIds.length}</TD>
               </tr>
             );

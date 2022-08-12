@@ -27,6 +27,8 @@ import { LogEventId } from '@votingworks/logging';
 import pluralize from 'pluralize';
 import {
   getBallotStylesData,
+  getSuperBallotStyleData,
+  isSuperBallotStyle,
   sortBallotStyleDataByPrecinct,
 } from '../utils/election';
 
@@ -62,11 +64,7 @@ type ModalState = 'no-printer' | 'options' | 'printing';
 
 const defaultBallotLocales: BallotLocales = { primary: DEFAULT_LOCALE };
 
-interface Props {
-  draftMode?: boolean;
-}
-
-export function PrintAllBallotsButton({ draftMode }: Props): JSX.Element {
+export function PrintAllBallotsButton(): JSX.Element {
   const makeCancelable = useCancelablePromise();
   const {
     electionDefinition,
@@ -90,17 +88,22 @@ export function PrintAllBallotsButton({ draftMode }: Props): JSX.Element {
   const [printFailed, setPrintFailed] = useState(false);
 
   const [ballotMode, setBallotMode] = useState(
-    draftMode ? BallotMode.Draft : BallotMode.Official
+    isSystemAdministratorAuth(auth) ? BallotMode.Sample : BallotMode.Official
   );
   const [isAbsentee, setIsAbsentee] = useState(true);
   const [ballotCopies, setBallotCopies] = useState(1);
 
   const [ballotIndex, setBallotIndex] = useState<number>();
-  const ballotStyles = useMemo<BallotStyleData[]>(
-    () =>
-      sortBallotStyleDataByPrecinct(election, getBallotStylesData(election)),
-    [election]
-  );
+  const ballotStyles = useMemo<BallotStyleData[]>(() => {
+    const ballotStylesData = sortBallotStyleDataByPrecinct(
+      election,
+      getBallotStylesData(election)
+    );
+    if (isSystemAdministratorAuth(auth)) {
+      ballotStylesData.unshift(getSuperBallotStyleData(election));
+    }
+    return ballotStylesData;
+  }, [auth, election]);
 
   useEffect(() => {
     if (hasPrinterAttached && modalState === 'no-printer') {
@@ -249,7 +252,7 @@ export function PrintAllBallotsButton({ draftMode }: Props): JSX.Element {
           <h1>Print All Ballot Styles</h1>
           <p>Select the ballot type and number of copies to print:</p>
           <CenteredOptions>
-            {!draftMode && (
+            {isElectionManagerAuth(auth) && (
               <p>
                 <BallotModeToggle
                   ballotMode={ballotMode}
@@ -278,7 +281,9 @@ export function PrintAllBallotsButton({ draftMode }: Props): JSX.Element {
           <Button
             primary
             onPress={() => startPrint()}
-            warning={!draftMode && ballotMode !== BallotMode.Official}
+            warning={
+              isElectionManagerAuth(auth) && ballotMode !== BallotMode.Official
+            }
           >
             <PrintBallotButtonText
               ballotCopies={ballotCopies * ballotStyles.length}
@@ -295,7 +300,9 @@ export function PrintAllBallotsButton({ draftMode }: Props): JSX.Element {
     case 'printing': {
       assert(ballotIndex !== undefined);
       const { ballotStyleId, precinctId } = ballotStyles[ballotIndex];
-      const precinct = getPrecinctById({ election, precinctId });
+      const precinctName = isSuperBallotStyle(ballotStyleId)
+        ? 'All'
+        : getPrecinctById({ election, precinctId })?.name;
       mainContent = (
         <React.Fragment>
           <Prose textCenter>
@@ -307,8 +314,10 @@ export function PrintAllBallotsButton({ draftMode }: Props): JSX.Element {
               )} (${ballotIndex + 1} of ${ballotStyles.length})`}
             </Loading>
             <p>
-              Precinct: <strong>{precinct?.name}</strong>, Ballot Style:{' '}
-              <strong>{ballotStyleId}</strong>
+              Precinct: <strong>{precinctName}</strong>, Ballot Style:{' '}
+              <strong>
+                {isSuperBallotStyle(ballotStyleId) ? 'All' : ballotStyleId}
+              </strong>
             </p>
           </Prose>
           <PrintableArea>

@@ -59,6 +59,29 @@ export function getBallotStylesData(election: Election): BallotStyleData[] {
   );
 }
 
+const superBallotStyleId = 'vx-super-ballot';
+const superBallotStylePrecinctId = 'vx-all-precincts';
+
+/**
+ * Generates the data necessary to render a super ballot, a special ballot only available to system
+ * admins that includes all contests across all precincts
+ */
+export function getSuperBallotStyleData(election: Election): BallotStyleData {
+  return {
+    ballotStyleId: superBallotStyleId,
+    contestIds: election.contests.map((c) => c.id),
+    precinctId: superBallotStylePrecinctId,
+  };
+}
+
+/**
+ * Returns whether a ballot style ID corresponds to the super ballot, a special ballot only
+ * available to system admins that includes all contests across all precincts
+ */
+export function isSuperBallotStyle(ballotStyleId: string): boolean {
+  return ballotStyleId === superBallotStyleId;
+}
+
 function ballotStyleComparator(a: BallotStyleData, b: BallotStyleData) {
   return a.ballotStyleId.localeCompare(b.ballotStyleId, undefined, sortOptions);
 }
@@ -133,10 +156,9 @@ export function getBallotPath({
   variant?: string;
   extension?: string;
 }): string {
-  const precinctName = getPrecinctById({
-    election,
-    precinctId,
-  })?.name;
+  const precinctName = isSuperBallotStyle(ballotStyleId)
+    ? 'All'
+    : getPrecinctById({ election, precinctId })?.name;
   assert(typeof precinctName !== 'undefined');
 
   return `election-${electionHash.slice(0, 10)}-precinct-${dashify(

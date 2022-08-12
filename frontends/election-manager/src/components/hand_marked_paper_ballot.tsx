@@ -35,6 +35,7 @@ import {
   BallotId,
   BallotTargetMarkPosition,
   getCandidatePartiesDescription,
+  BallotStyle,
 } from '@votingworks/types';
 import { QrCode, HandMarkedPaperBallotProse, Text } from '@votingworks/ui';
 
@@ -49,6 +50,7 @@ import { ABSENTEE_TINT_COLOR } from '../config/globals';
 import { getBallotLayoutPageSize } from '../utils/get_ballot_layout_page_size';
 import { getBallotLayoutDensity } from '../utils/get_ballot_layout_density';
 import { BallotMode } from '../config/types';
+import { isSuperBallotStyle } from '../utils/election';
 
 function hasVote(
   vote: Vote | undefined,
@@ -607,22 +609,33 @@ export function HandMarkedPaperBallot({
       localeElection.ballotStrings
     );
   }
-  const primaryPartyName = getPartyFullNameFromBallotStyle({
-    ballotStyleId,
-    election,
-  });
+  const primaryPartyName = !isSuperBallotStyle(ballotStyleId)
+    ? getPartyFullNameFromBallotStyle({
+        ballotStyleId,
+        election,
+      })
+    : undefined;
   const localePrimaryPartyName =
-    localeElection &&
-    getPartyFullNameFromBallotStyle({
-      ballotStyleId,
-      election: localeElection,
-    });
-  const ballotStyle = getBallotStyle({ ballotStyleId, election });
-  assert(ballotStyle);
-  const contests = getContests({ ballotStyle, election });
+    !isSuperBallotStyle(ballotStyleId) && localeElection
+      ? getPartyFullNameFromBallotStyle({
+          ballotStyleId,
+          election: localeElection,
+        })
+      : undefined;
+  let ballotStyle: BallotStyle | undefined;
+  if (isSuperBallotStyle(ballotStyleId)) {
+    ballotStyle = undefined;
+  } else {
+    ballotStyle = getBallotStyle({ ballotStyleId, election });
+    assert(ballotStyle);
+  }
+  const contests = ballotStyle
+    ? getContests({ ballotStyle, election })
+    : election.contests;
   const candidateContests = contests.filter((c) => c.type === 'candidate');
   const otherContests = contests.filter((c) => c.type !== 'candidate');
   const localeContestsById =
+    ballotStyle &&
     localeElection &&
     getContests({ ballotStyle, election: localeElection }).reduce<
       Dictionary<AnyContest>
@@ -633,7 +646,9 @@ export function HandMarkedPaperBallot({
       }),
       {}
     );
-  const precinct = getPrecinctById({ election, precinctId });
+  const precinct = isSuperBallotStyle(ballotStyleId)
+    ? { id: precinctId, name: 'All' }
+    : getPrecinctById({ election, precinctId });
   assert(precinct);
 
   const ballotRef = useRef<HTMLDivElement>(null);
@@ -750,7 +765,7 @@ export function HandMarkedPaperBallot({
                 <Text small right as="div">
                   {dualLanguageWithBreak('Style')}
                 </Text>
-                <Text as="h2">{ballotStyle.id}</Text>
+                <Text as="h2">{ballotStyle?.id || 'All'}</Text>
               </div>
               <div />
               <div>
@@ -770,11 +785,11 @@ export function HandMarkedPaperBallot({
             <PageFooterRow>
               <div>
                 <Text small left as="div">
-                  {ballotStyle.partyId &&
+                  {ballotStyle?.partyId &&
                   primaryPartyName &&
                   localePrimaryPartyName
                     ? dualPhraseWithBreak(
-                        `${ballotStyle.partyId && primaryPartyName} ${title}`,
+                        `${ballotStyle?.partyId && primaryPartyName} ${title}`,
                         localeElection &&
                           t('{{primaryPartyName}} {{electionTitle}}', {
                             lng: locales.secondary,
@@ -814,7 +829,7 @@ export function HandMarkedPaperBallot({
               </div>
             </PageFooterRow>
           </PageFooterMain>
-          {ballotMode === BallotMode.Sample ? (
+          {[BallotMode.Draft, BallotMode.Sample].includes(ballotMode) ? (
             <PageFooterQrCodeOutline />
           ) : (
             <PageFooterQrCode
@@ -839,14 +854,14 @@ export function HandMarkedPaperBallot({
       </div>
 
       <div className="watermark">
-        {ballotMode === BallotMode.Sample && (
-          <Watermark>
-            <div>SAMPLE</div>
-          </Watermark>
-        )}
         {ballotMode === BallotMode.Draft && (
           <Watermark>
             <div>DRAFT</div>
+          </Watermark>
+        )}
+        {ballotMode === BallotMode.Sample && (
+          <Watermark>
+            <div>SAMPLE</div>
           </Watermark>
         )}
       </div>
@@ -882,7 +897,7 @@ export function HandMarkedPaperBallot({
                   })}
                 </h2>
                 <h3>
-                  {ballotStyle.partyId && primaryPartyName} {title}
+                  {ballotStyle?.partyId && primaryPartyName} {title}
                 </h3>
                 <p>
                   {state}
@@ -900,7 +915,7 @@ export function HandMarkedPaperBallot({
                     </strong>
                     <br />
                     <strong>
-                      {ballotStyle.partyId && primaryPartyName
+                      {ballotStyle?.partyId && primaryPartyName
                         ? t('{{primaryPartyName}} {{electionTitle}}', {
                             lng: locales.secondary,
                             primaryPartyName: localePrimaryPartyName,

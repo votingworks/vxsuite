@@ -59,7 +59,7 @@ export function NavigationScreen({
     primaryNavItems = election
       ? [
           { label: 'Definition', routerPath: routerPaths.electionDefinition },
-          { label: 'Draft Ballots', routerPath: routerPaths.ballotsList },
+          { label: 'Ballots', routerPath: routerPaths.ballotsList },
           { label: 'Smartcards', routerPath: routerPaths.smartcards },
         ]
       : [{ label: 'Definition', routerPath: routerPaths.electionDefinition }];
