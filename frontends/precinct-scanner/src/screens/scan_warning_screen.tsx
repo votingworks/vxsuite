@@ -18,7 +18,6 @@ import {
 } from '@votingworks/ui';
 import { assert, find, integers, take } from '@votingworks/utils';
 import pluralize from 'pluralize';
-import useSound from 'use-sound';
 import * as scanner from '../api/scan';
 
 import { ExclamationTriangle } from '../components/graphics';
@@ -29,6 +28,7 @@ import {
 
 import { AppContext } from '../contexts/app_context';
 import { toSentence } from '../utils/to_sentence';
+import { useSound } from '../hooks/use_sound';
 
 interface OvervoteWarningScreenProps {
   electionDefinition: ElectionDefinition;
@@ -318,10 +318,8 @@ export interface Props {
 export function ScanWarningScreen({
   adjudicationReasonInfo,
 }: Props): JSX.Element {
-  const [playFailure] = useSound('/sounds/failure.mp3');
-  useEffect(() => {
-    playFailure();
-  }, [playFailure]);
+  const playWarning = useSound('warning');
+  useEffect(playWarning, [playWarning]);
 
   const { electionDefinition } = useContext(AppContext);
   assert(electionDefinition);
