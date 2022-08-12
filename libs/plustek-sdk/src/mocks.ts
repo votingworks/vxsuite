@@ -16,6 +16,7 @@ import {
   AcceptResult,
   CalibrateResult,
   ClientDisconnectedError,
+  ClientError,
   CloseResult,
   GetPaperStatusResult,
   RejectResult,
@@ -38,6 +39,7 @@ type Event =
   | { type: 'DISCONNECT' }
   | { type: 'POWER_OFF' }
   | { type: 'CRASH' }
+  | { type: 'FREEZE' }
   | {
       type: 'LOAD_SHEET';
       sheetFiles: readonly string[];
@@ -69,6 +71,7 @@ const mockPlustekMachine = createMachine<Context, Event>({
     DISCONNECT: 'disconnected',
     POWER_OFF: 'powered_off',
     CRASH: 'crashed',
+    FREEZE: 'frozen',
     JAM_ON_NEXT_OPERATION: {
       actions: assign({ jamOnNextOperation: true }),
     },
@@ -80,6 +83,7 @@ const mockPlustekMachine = createMachine<Context, Event>({
   states: {
     powered_off: {},
     crashed: {},
+    frozen: { on: { '*': { target: undefined } } }, // Don't accept any further commands
     disconnected: {
       on: { CONNECT: 'no_paper' },
     },
@@ -211,6 +215,11 @@ export interface Options {
    * backward?
    */
   passthroughDuration?: number;
+
+  /**
+   * How long to hang when in a frozen state
+   */
+  frozenTimeout?: number;
 }
 
 function initMachine(toggleHoldDuration: number, passthroughDuration: number) {
@@ -234,12 +243,15 @@ export class MockScannerClient implements ScannerClient {
   private machine;
   private readonly toggleHoldDuration: number;
   private readonly passthroughDuration: number;
+  private readonly frozenTimeout: number;
   constructor({
     toggleHoldDuration = 100,
     passthroughDuration = 1000,
+    frozenTimeout = 60_000,
   }: Options = {}) {
     this.toggleHoldDuration = toggleHoldDuration;
     this.passthroughDuration = passthroughDuration;
+    this.frozenTimeout = frozenTimeout;
     this.machine = initMachine(toggleHoldDuration, passthroughDuration).start();
   }
 
@@ -258,7 +270,9 @@ export class MockScannerClient implements ScannerClient {
   async disconnect(): Promise<void> {
     debug('disconnecting');
     this.machine.send({ type: 'DISCONNECT' });
-    await waitFor(this.machine, (state) => state.value === 'disconnected');
+    await waitFor(this.machine, (state) => state.value === 'disconnected', {
+      timeout: this.frozenTimeout,
+    });
   }
 
   /**
@@ -386,6 +400,13 @@ export class MockScannerClient implements ScannerClient {
   }
 
   /**
+   * Simulates `plustekctl` freezing. Once this happens the process needs to be killed.
+   */
+  simulatePlustekctlFreeze(): void {
+    this.machine.send({ type: 'FREEZE' });
+  }
+
+  /**
    * Determines whether the client is connected.
    */
   isConnected(): boolean {
@@ -401,6 +422,18 @@ export class MockScannerClient implements ScannerClient {
   async getPaperStatus(): Promise<GetPaperStatusResult> {
     debug('getPaperStatus');
     switch (this.machine.state.value) {
+      // When frozen, simulate hanging for a long time
+      case 'frozen': {
+        const timeStep = 500;
+        for (
+          let frozenTime = 0;
+          frozenTime < this.frozenTimeout;
+          frozenTime += timeStep
+        ) {
+          await sleep(timeStep);
+        }
+        return err(new Error('Timed out while frozen'));
+      }
       case 'powered_off': {
         debug('cannot get paper status, scanner unresponsive');
         return err(ScannerError.SaneStatusIoError);
@@ -712,6 +745,13 @@ export class MockScannerClient implements ScannerClient {
   async close(): Promise<CloseResult> {
     debug('close');
     await this.disconnect();
+    return ok();
+  }
+
+  kill(): Result<void, ClientError> {
+    debug('kill');
+    this.machine.stop();
+    this.machine.start();
     return ok();
   }
 }

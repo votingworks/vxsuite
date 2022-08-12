@@ -172,6 +172,7 @@ export function fakeChildProcess(): FakeChildProcess {
     stdin: fakeWritable(),
     stdout: fakeReadable(),
     stderr: fakeReadable(),
+    kill: jest.fn(),
   };
 
   return Object.assign(new EventEmitter(), result) as FakeChildProcess;

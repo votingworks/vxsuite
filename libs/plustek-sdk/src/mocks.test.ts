@@ -421,6 +421,43 @@ test('close', async () => {
   expect(mock.isConnected()).toBeFalsy();
 });
 
+test('freeze and kill', async () => {
+  const mock = new MockScannerClient({
+    toggleHoldDuration: 0,
+    passthroughDuration: 0,
+    frozenTimeout: 1_000,
+  });
+  await mock.connect();
+  mock.simulatePlustekctlFreeze();
+
+  // After freeze, paper status hangs
+  const paperStatusPromise = mock.getPaperStatus();
+  let paperStatusFinished = false;
+  paperStatusPromise.finally(() => {
+    paperStatusFinished = true;
+  });
+  await sleep(500);
+  expect(paperStatusFinished).toBe(false);
+  await paperStatusPromise;
+  expect(paperStatusFinished).toBe(true);
+
+  // Same with close
+  const closePromise = mock.close();
+  let closeFinished = false;
+  closePromise.catch(() => {
+    closeFinished = true;
+  });
+  await sleep(500);
+  expect(closeFinished).toBe(false);
+  await expect(closePromise).rejects.toThrow(Error);
+  expect(closeFinished).toBe(true);
+
+  // Only killing stops the madness
+  mock.kill();
+  await mock.connect();
+  expectNoPaper((await mock.getPaperStatus()).ok());
+});
+
 test('operation timing', async () => {
   jest.useFakeTimers();
 

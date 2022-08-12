@@ -494,6 +494,8 @@ export function withReconnect(
         return result;
       }
     },
+
+    kill: () => client?.kill() ?? ok(),
   };
 
   const wrapperProvider: ScannerClientProvider = {

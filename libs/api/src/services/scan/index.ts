@@ -661,7 +661,8 @@ export const PrecinctScannerStateSchema = z.enum([
   'calibrating',
   'jammed',
   'both_sides_have_paper',
-  'error',
+  'recovering_from_error',
+  'unrecoverable_error',
 ]);
 export type PrecinctScannerState = z.infer<typeof PrecinctScannerStateSchema>;
 
@@ -704,12 +705,13 @@ export const SheetInterpretationSchema: z.ZodSchema<SheetInterpretation> =
   ]);
 
 export const PrecinctScannerErrorTypeSchema = z.enum([
+  'paper_status_timed_out',
   'scanning_timed_out',
   'scanning_failed',
   'both_sides_have_paper',
   'paper_in_back_after_accept',
-  'paper_in_front_on_startup',
-  'paper_in_back_on_startup',
+  'paper_in_front_after_reconnect',
+  'paper_in_back_after_reconnect',
   'unexpected_paper_status',
   'unexpected_event',
   'plustek_error',

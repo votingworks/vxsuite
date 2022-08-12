@@ -13,12 +13,14 @@ interface Props {
   error?: Scan.InvalidInterpretationReason | Scan.PrecinctScannerErrorType;
   isTestMode: boolean;
   scannedBallotCount: number;
+  restartRequired?: boolean;
 }
 
 export function ScanErrorScreen({
   error,
   isTestMode,
   scannedBallotCount,
+  restartRequired = false,
 }: Props): JSX.Element {
   const errorMessage = (() => {
     if (!error) return undefined;
@@ -37,19 +39,19 @@ export function ScanErrorScreen({
         return 'There was a problem reading this ballot. Please scan again.';
       // Precinct scanner errors
       case 'scanning_failed':
-        return 'Ballot not fully inserted. Remove ballot to continue.';
       case 'both_sides_have_paper':
-        return 'Scanning interrupted. Remove ballot to continue.';
-      case 'paper_in_front_on_startup':
-        return 'Scanner detected an unexpected ballot in the tray. Remove ballot to continue.';
-      case 'paper_in_back_on_startup':
+      case 'paper_in_front_after_reconnect':
+      case 'paper_in_back_after_reconnect':
       case 'paper_in_back_after_accept':
-        return 'Scanner detected an unexpected ballot at the back of the scanner. Remove ballot to continue.';
+        return 'Remove ballot to continue.';
+      case 'paper_status_timed_out':
       case 'scanning_timed_out':
       case 'unexpected_paper_status':
       case 'unexpected_event':
       case 'plustek_error':
-        return 'The scanner experienced an error and needs to be reset. Please turn off and unplug the scanner from the power outlet. Plug it back in and turn it on again.';
+        // These cases require restart, so we don't need to show an error
+        // message, since that's handled below.
+        return undefined;
       default:
         throwIllegalValue(error);
     }
@@ -60,9 +62,13 @@ export function ScanErrorScreen({
       <CenteredLargeProse>
         <h1>Ballot Not Counted</h1>
         <p>{errorMessage}</p>
-        <Text small italic>
-          Ask a poll worker for help.
-        </Text>
+        {restartRequired ? (
+          <Text>Ask a poll worker to restart the scanner.</Text>
+        ) : (
+          <Text small italic>
+            Ask a poll worker if you need help.
+          </Text>
+        )}
       </CenteredLargeProse>
       <ScannedBallotCount count={scannedBallotCount} />
     </ScreenMainCenterChild>
@@ -147,22 +153,22 @@ export function BallotInsertedWhileOtherBallotAlreadyScanningPreview(): JSX.Elem
 }
 
 /* istanbul ignore next */
-export function BallotInFrontOnStartupPreview(): JSX.Element {
+export function BallotInFrontAfterReconnectPreview(): JSX.Element {
   return (
     <ScanErrorScreen
       isTestMode={false}
-      error="paper_in_front_on_startup"
+      error="paper_in_front_after_reconnect"
       scannedBallotCount={42}
     />
   );
 }
 
 /* istanbul ignore next */
-export function BallotInBackOnStartupPreview(): JSX.Element {
+export function BallotInBackAfterReconnectPreview(): JSX.Element {
   return (
     <ScanErrorScreen
       isTestMode={false}
-      error="paper_in_back_on_startup"
+      error="paper_in_back_after_reconnect"
       scannedBallotCount={42}
     />
   );

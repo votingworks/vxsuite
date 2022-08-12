@@ -139,6 +139,12 @@ export interface ScannerClient {
    * will fail and {@link isConnected} will return `false`.
    */
   close(): Promise<CloseResult>;
+
+  /**
+   * Kills the underlying plustekctl process. Should only be called if close()
+   * does not work because the scanner is not responsive.
+   */
+  kill(): Result<void, ClientError>;
 }
 
 interface IpcHandlers<T> {
@@ -471,6 +477,16 @@ export async function createClient(
             err(new InvalidClientResponseError(`invalid response: ${line}`))
           ),
       });
+    },
+
+    kill: () => {
+      debug('Killing plustekctl process');
+      if (plustekctl.kill()) {
+        debug('Killed plustekctl process');
+        return ok();
+      }
+      debug('Failed to kill plustekctl process');
+      return err(new ClientError('Failed to kill plustekctl'));
     },
   };
 
