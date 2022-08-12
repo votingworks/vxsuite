@@ -27,6 +27,8 @@ import { LogEventId } from '@votingworks/logging';
 import pluralize from 'pluralize';
 import {
   getBallotStylesData,
+  getSuperBallotStyleData,
+  isSuperBallotStyle,
   sortBallotStyleDataByPrecinct,
 } from '../utils/election';
 
@@ -92,11 +94,16 @@ export function PrintAllBallotsButton(): JSX.Element {
   const [ballotCopies, setBallotCopies] = useState(1);
 
   const [ballotIndex, setBallotIndex] = useState<number>();
-  const ballotStyles = useMemo<BallotStyleData[]>(
-    () =>
-      sortBallotStyleDataByPrecinct(election, getBallotStylesData(election)),
-    [election]
-  );
+  const ballotStyles = useMemo<BallotStyleData[]>(() => {
+    const ballotStylesData = sortBallotStyleDataByPrecinct(
+      election,
+      getBallotStylesData(election)
+    );
+    if (isSystemAdministratorAuth(auth)) {
+      ballotStylesData.unshift(getSuperBallotStyleData(election));
+    }
+    return ballotStylesData;
+  }, [auth, election]);
 
   useEffect(() => {
     if (hasPrinterAttached && modalState === 'no-printer') {
@@ -293,7 +300,9 @@ export function PrintAllBallotsButton(): JSX.Element {
     case 'printing': {
       assert(ballotIndex !== undefined);
       const { ballotStyleId, precinctId } = ballotStyles[ballotIndex];
-      const precinct = getPrecinctById({ election, precinctId });
+      const precinctName = isSuperBallotStyle(ballotStyleId)
+        ? 'All'
+        : getPrecinctById({ election, precinctId })?.name;
       mainContent = (
         <React.Fragment>
           <Prose textCenter>
@@ -305,8 +314,10 @@ export function PrintAllBallotsButton(): JSX.Element {
               )} (${ballotIndex + 1} of ${ballotStyles.length})`}
             </Loading>
             <p>
-              Precinct: <strong>{precinct?.name}</strong>, Ballot Style:{' '}
-              <strong>{ballotStyleId}</strong>
+              Precinct: <strong>{precinctName}</strong>, Ballot Style:{' '}
+              <strong>
+                {isSuperBallotStyle(ballotStyleId) ? 'All' : ballotStyleId}
+              </strong>
             </p>
           </Prose>
           <PrintableArea>

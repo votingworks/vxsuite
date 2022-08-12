@@ -5,6 +5,7 @@ import pluralize from 'pluralize';
 import { assert, find } from '@votingworks/utils';
 import {
   isElectionManagerAuth,
+  isSystemAdministratorAuth,
   NoWrap,
   Prose,
   Table,
@@ -17,6 +18,8 @@ import { Button, SegmentedButton } from '../components/button';
 import { LinkButton } from '../components/link_button';
 import {
   getBallotStylesData,
+  getSuperBallotStyleData,
+  isSuperBallotStyle,
   sortBallotStyleDataByPrecinct,
   sortBallotStyleDataByStyle,
 } from '../utils/election';
@@ -41,6 +44,11 @@ export function BallotListScreen(): JSX.Element {
     sortBallotStyleDataByStyle(election, allBallotStyles),
     sortBallotStyleDataByPrecinct(election, allBallotStyles),
   ];
+  if (isSystemAdministratorAuth(auth)) {
+    const superBallotStyleData = getSuperBallotStyleData(election);
+    ballotLists[0].unshift(superBallotStyleData);
+    ballotLists[1].unshift(superBallotStyleData);
+  }
   const [ballotView, setBallotView] = useState(1);
   function sortByStyle() {
     return setBallotView(0);
@@ -95,10 +103,10 @@ export function BallotListScreen(): JSX.Element {
         </thead>
         <tbody>
           {ballots.map((ballot) => {
-            const precinctName = find(
-              election.precincts,
-              (p) => p.id === ballot.precinctId
-            ).name;
+            const precinctName = isSuperBallotStyle(ballot.ballotStyleId)
+              ? 'All'
+              : find(election.precincts, (p) => p.id === ballot.precinctId)
+                  .name;
             return (
               <tr key={ballot.ballotStyleId + ballot.precinctId}>
                 <TD textAlign="right" nowrap>
@@ -113,7 +121,11 @@ export function BallotListScreen(): JSX.Element {
                 <TD>
                   <NoWrap>{precinctName}</NoWrap>
                 </TD>
-                <TD>{ballot.ballotStyleId}</TD>
+                <TD>
+                  {isSuperBallotStyle(ballot.ballotStyleId)
+                    ? 'All'
+                    : ballot.ballotStyleId}
+                </TD>
                 <TD>{ballot.contestIds.length}</TD>
               </tr>
             );

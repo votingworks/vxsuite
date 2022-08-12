@@ -14,6 +14,7 @@ import {
   getContests,
   getPrecinctById,
   getElectionLocales,
+  BallotStyle,
 } from '@votingworks/types';
 import pluralize from 'pluralize';
 
@@ -34,7 +35,11 @@ import { AppContext } from '../contexts/app_context';
 import { Button, SegmentedButton } from '../components/button';
 import { PrintButton } from '../components/print_button';
 import { HandMarkedPaperBallot } from '../components/hand_marked_paper_ballot';
-import { getBallotPath, getHumanBallotLanguageFormat } from '../utils/election';
+import {
+  getBallotPath,
+  getHumanBallotLanguageFormat,
+  isSuperBallotStyle,
+} from '../utils/election';
 import { NavigationScreen } from '../components/navigation_screen';
 import { DEFAULT_LOCALE } from '../config/globals';
 import { routerPaths } from '../router_paths';
@@ -97,10 +102,19 @@ export function BallotScreen(): JSX.Element {
     [currentLocaleCode]
   );
 
-  const precinctName = getPrecinctById({ election, precinctId })?.name;
-  const ballotStyle = getBallotStyle({ ballotStyleId, election });
-  assert(ballotStyle);
-  const ballotContests = getContests({ ballotStyle, election });
+  const precinctName = isSuperBallotStyle(ballotStyleId)
+    ? 'All'
+    : getPrecinctById({ election, precinctId })?.name;
+  let ballotStyle: BallotStyle | undefined;
+  if (isSuperBallotStyle(ballotStyleId)) {
+    ballotStyle = undefined;
+  } else {
+    ballotStyle = getBallotStyle({ ballotStyleId, election });
+    assert(ballotStyle);
+  }
+  const ballotContests = ballotStyle
+    ? getContests({ ballotStyle, election })
+    : election.contests;
 
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
   const [ballotPages, setBallotPages] = useState(0);
@@ -187,10 +201,22 @@ export function BallotScreen(): JSX.Element {
     <React.Fragment>
       <NavigationScreen>
         <Prose maxWidth={false}>
-          <h1>
-            Ballot Style <strong>{ballotStyleId}</strong> for {precinctName} has{' '}
-            <strong>{pluralize('contest', ballotContests.length, true)}</strong>
-          </h1>
+          {isSuperBallotStyle(ballotStyleId) ? (
+            <h1>
+              Ballot Style <strong>All</strong> has{' '}
+              <strong>
+                {pluralize('contest', ballotContests.length, true)}
+              </strong>
+            </h1>
+          ) : (
+            <h1>
+              Ballot Style <strong>{ballotStyleId}</strong> for {precinctName}{' '}
+              has{' '}
+              <strong>
+                {pluralize('contest', ballotContests.length, true)}
+              </strong>
+            </h1>
+          )}
           <p>
             {isElectionManagerAuth(auth) && (
               <React.Fragment>
