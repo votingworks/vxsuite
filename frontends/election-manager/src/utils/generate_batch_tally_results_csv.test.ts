@@ -1,4 +1,5 @@
 import {
+  electionMinimalExhaustiveSampleFixtures,
   electionMultiPartyPrimaryFixtures,
   electionWithMsEitherNeitherFixtures,
 } from '@votingworks/fixtures';
@@ -56,7 +57,7 @@ describe('generateBatchTallyResultsCSV', () => {
       'Batch ID,Batch Name,Tabulator,Number of Ballots'
     );
     expect(headerRow).toContain(
-      'Liberty Party Governor - Ballots Cast,Liberty Party Governor - Undervotes,Liberty Party Governor - Overvotes,Liberty Party Governor - Aaron Aligator,Liberty Party Governor - Peter Pigeon,Liberty Party Governor - Write In,'
+      '"Liberty Party Governor - Ballots Cast","Liberty Party Governor - Undervotes","Liberty Party Governor - Overvotes","Liberty Party Governor - Aaron Aligator","Liberty Party Governor - Peter Pigeon","Liberty Party Governor - Write In",'
     );
     const expectedDataRows = [
       'batch-1,Batch 1,scanner-1,2,2,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0',
@@ -127,10 +128,10 @@ describe('generateBatchTallyResultsCSV', () => {
       'Batch ID,Batch Name,Tabulator,Number of Ballots'
     );
     expect(headerRow).toContain(
-      'Ballot Measure 2 House Concurrent Resolution No  47 - Ballots Cast,Ballot Measure 2 House Concurrent Resolution No  47 - Undervotes,Ballot Measure 2 House Concurrent Resolution No  47 - Overvotes,Ballot Measure 2 House Concurrent Resolution No  47 - Yes,Ballot Measure 2 House Concurrent Resolution No  47 - No'
+      '"Ballot Measure 2 House Concurrent Resolution No  47 - Ballots Cast","Ballot Measure 2 House Concurrent Resolution No  47 - Undervotes","Ballot Measure 2 House Concurrent Resolution No  47 - Overvotes","Ballot Measure 2 House Concurrent Resolution No  47 - Yes","Ballot Measure 2 House Concurrent Resolution No  47 - No'
     );
     expect(headerRow).toContain(
-      'Ballot Measure 1   Either Neither - Ballots Cast,Ballot Measure 1   Either Neither - Undervotes,Ballot Measure 1   Either Neither - Overvotes,Ballot Measure 1   Either Neither - Yes,Ballot Measure 1   Either Neither - No,Ballot Measure 1   Pick One - Ballots Cast,Ballot Measure 1   Pick One - Undervotes,Ballot Measure 1   Pick One - Overvotes,Ballot Measure 1   Pick One - Yes,Ballot Measure 1   Pick One - No'
+      '"Ballot Measure 1   Either Neither - Ballots Cast","Ballot Measure 1   Either Neither - Undervotes","Ballot Measure 1   Either Neither - Overvotes","Ballot Measure 1   Either Neither - Yes","Ballot Measure 1   Either Neither - No","Ballot Measure 1   Pick One - Ballots Cast","Ballot Measure 1   Pick One - Undervotes","Ballot Measure 1   Pick One - Overvotes","Ballot Measure 1   Pick One - Yes","Ballot Measure 1   Pick One - No"'
     );
     let i = 0;
     for (const resultDataRow of generatedRows) {
@@ -153,5 +154,21 @@ describe('generateBatchTallyResultsCSV', () => {
       election
     );
     expect(generatedCsvFileContent).toEqual(csvData);
+  });
+
+  it('conversion of full tally matches snapshot - 2', () => {
+    const { electionDefinition, cvrData, batchCsvData } =
+      electionMinimalExhaustiveSampleFixtures;
+    const { election } = electionDefinition;
+    const castVoteRecords = parseCvrsAndAssertSuccess(cvrData, election);
+    const fullTally = computeFullElectionTally(
+      election,
+      new Set(castVoteRecords)
+    );
+    const generatedCsvFileContent = generateBatchTallyResultsCsv(
+      fullTally,
+      election
+    );
+    expect(generatedCsvFileContent).toEqual(batchCsvData);
   });
 });

@@ -78,19 +78,19 @@ export function generateHeaderRowForBatchResultsCsv(
       }
     }
     contestTitle = contestTitle.replace(/[^a-z0-9 _-]+/gi, ' ').trim();
-    contestSelectionHeaders.push(`${contestTitle} - Ballots Cast`);
-    contestSelectionHeaders.push(`${contestTitle} - Undervotes`);
-    contestSelectionHeaders.push(`${contestTitle} - Overvotes`);
+    contestSelectionHeaders.push(`"${contestTitle} - Ballots Cast"`);
+    contestSelectionHeaders.push(`"${contestTitle} - Undervotes"`);
+    contestSelectionHeaders.push(`"${contestTitle} - Overvotes"`);
     if (contest.type === 'candidate') {
       for (const candidate of contest.candidates) {
-        contestSelectionHeaders.push(`${contestTitle} - ${candidate.name}`);
+        contestSelectionHeaders.push(`"${contestTitle} - ${candidate.name}"`);
       }
       if (contest.allowWriteIns) {
-        contestSelectionHeaders.push(`${contestTitle} - Write In`);
+        contestSelectionHeaders.push(`"${contestTitle} - Write In"`);
       }
     } else if (contest.type === 'yesno') {
-      contestSelectionHeaders.push(`${contestTitle} - Yes`);
-      contestSelectionHeaders.push(`${contestTitle} - No`);
+      contestSelectionHeaders.push(`"${contestTitle} - Yes"`);
+      contestSelectionHeaders.push(`"${contestTitle} - No"`);
     }
   }
   const headers = [

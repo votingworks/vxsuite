@@ -3,7 +3,7 @@ import pluralize from 'pluralize';
 
 import {
   assert,
-  generateFinalExportDefaultFilename,
+  generateSemsFinalExportDefaultFilename,
   format,
 } from '@votingworks/utils';
 import {
@@ -26,6 +26,7 @@ import { BallotCountsTable } from '../components/ballot_counts_table';
 import { getPartiesWithPrimaryElections } from '../utils/election';
 import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';
 import { getTallyConverterClient } from '../lib/converters';
+import { SaveResultsButton } from '../components/save_results_button';
 
 export function ReportsScreen(): JSX.Element {
   const makeCancelable = useCancelablePromise();
@@ -74,17 +75,17 @@ export function ReportsScreen(): JSX.Element {
     0
   );
 
-  const [hasConverter, setHasConverter] = useState(false);
+  const [converterName, setConverterName] = useState('');
   useEffect(() => {
     void (async () => {
       try {
         const client = getTallyConverterClient(converter);
         if (client) {
           await makeCancelable(client.getFiles());
-          setHasConverter(true);
+          setConverterName(client.getDisplayName());
         }
       } catch {
-        setHasConverter(false);
+        setConverterName('');
       }
     })();
   }, [converter, makeCancelable]);
@@ -188,10 +189,17 @@ export function ReportsScreen(): JSX.Element {
             <LinkButton primary to={routerPaths.tallyFullReport}>
               {statusPrefix} Full Election Tally Report
             </LinkButton>{' '}
-            {hasConverter && castVoteRecordFiles.wereAdded && (
-              <Button onPress={() => setIsExportResultsModalOpen(true)}>
-                Save Results File
-              </Button>
+            {castVoteRecordFiles.wereAdded && (
+              <React.Fragment>
+                {converterName !== '' && (
+                  <React.Fragment>
+                    <Button onPress={() => setIsExportResultsModalOpen(true)}>
+                      Save {converterName} Results
+                    </Button>{' '}
+                  </React.Fragment>
+                )}
+                <SaveResultsButton />
+              </React.Fragment>
             )}
           </p>
           {ballotPrintingSummaryText}
@@ -207,7 +215,7 @@ export function ReportsScreen(): JSX.Element {
         <SaveFileToUsb
           onClose={() => setIsExportResultsModalOpen(false)}
           generateFileContent={generateSemsResults}
-          defaultFilename={generateFinalExportDefaultFilename(
+          defaultFilename={generateSemsFinalExportDefaultFilename(
             fileMode === 'test',
             electionDefinition.election
           )}

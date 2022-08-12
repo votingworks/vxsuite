@@ -37,7 +37,7 @@ describe('Election Manager can create SEMS tallies', () => {
       cy.contains('4,530')
     );
     cy.contains('Reports').click();
-    cy.contains('Save Results File').click();
+    cy.contains('Save SEMS Results').click();
     cy.get('[data-testid="manual-export"]').click();
     cy.contains('Results Saved');
     cy.task('readMostRecentFile', 'cypress/downloads').then((fileContent) => {
