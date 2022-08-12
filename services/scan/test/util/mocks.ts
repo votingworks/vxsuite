@@ -213,5 +213,6 @@ export function makeMockPlustekClient(): jest.Mocked<ScannerClient> {
     scan: jest.fn(),
     waitForStatus: jest.fn(),
     calibrate: jest.fn(),
+    kill: jest.fn(),
   };
 }

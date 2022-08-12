@@ -9,7 +9,7 @@ import {
 import { v4 as uuid } from 'uuid';
 import { err, Id, ok, Result } from '@votingworks/types';
 import { assert, throwIllegalValue } from '@votingworks/utils';
-import { switchMap, timeout, timer } from 'rxjs';
+import { switchMap, throwError, timeout, timer } from 'rxjs';
 import {
   assign as xassign,
   Assigner,
@@ -31,9 +31,6 @@ import {
 } from './simple_interpreter';
 import { SheetOf } from './types';
 import { Store } from './store';
-
-const PAPER_STATUS_POLLING_INTERVAL = 500;
-const PAPER_STATUS_POLLING_TIMEOUT = 5_000;
 
 // 10 attempts is about the amount of time it takes for Plustek to stop trying
 // to grab the paper. Up until that point, if you reposition the paper so the
@@ -100,11 +97,15 @@ export type Event =
   | { type: 'SET_INTERPRETATION_MODE'; mode: InterpretationMode };
 
 export interface Delays {
-  DELAY_RECONNECT: number;
-  DELAY_RECONNECT_ON_UNEXPECTED_ERROR: number;
+  DELAY_PAPER_STATUS_POLLING_INTERVAL: number;
+  DELAY_PAPER_STATUS_POLLING_TIMEOUT: number;
+  DELAY_SCANNING_TIMEOUT: number;
   DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: number;
   DELAY_ACCEPTED_RESET_TO_NO_PAPER: number;
-  DELAY_SCANNING_TIMEOUT: number;
+  DELAY_WAIT_FOR_HOLD_AFTER_REJECT: number;
+  DELAY_RECONNECT: number;
+  DELAY_RECONNECT_ON_UNEXPECTED_ERROR: number;
+  DELAY_KILL_AFTER_DISCONNECT_TIMEOUT: number;
 }
 
 function connectToPlustek(createPlustekClient: CreatePlustekClient) {
@@ -177,27 +178,28 @@ function paperStatusErrorToEvent(
 
 // Create a paper status observable, then use internal transitions to avoid
 // changing state when paper status doesn't change
-function paperStatusObserver({ client }: Context) {
-  assert(client);
-  return timer(0, PAPER_STATUS_POLLING_INTERVAL).pipe(
-    switchMap(async () => {
-      const paperStatus = await client.getPaperStatus();
-      debugPaperStatus('Paper status: %s', paperStatus);
-      return paperStatus.isOk()
-        ? paperStatusToEvent(paperStatus.ok())
-        : paperStatusErrorToEvent(paperStatus.err());
-    }),
-    timeout(PAPER_STATUS_POLLING_TIMEOUT)
-  );
+function buildPaperStatusObserver(
+  pollingInterval: number,
+  pollingTimeout: number
+) {
+  return ({ client }: Context) => {
+    assert(client);
+    return timer(0, pollingInterval).pipe(
+      switchMap(async () => {
+        const paperStatus = await client.getPaperStatus();
+        debugPaperStatus('Paper status: %s', paperStatus);
+        return paperStatus.isOk()
+          ? paperStatusToEvent(paperStatus.ok())
+          : paperStatusErrorToEvent(paperStatus.err());
+      }),
+      timeout({
+        each: pollingTimeout,
+        with: () =>
+          throwError(() => new PrecinctScannerError('paper_status_timed_out')),
+      })
+    );
+  };
 }
-
-const pollPaperStatus: InvokeConfig<Context, Event> = {
-  src: paperStatusObserver,
-  onError: {
-    target: '#error',
-    actions: assign({ error: (_, event) => event.data }),
-  },
-};
 
 async function scan({ client }: Context): Promise<SheetOf<string>> {
   assert(client);
@@ -294,7 +296,58 @@ const clearError = assign({
   error: undefined,
 });
 
-function buildMachine(createPlustekClient: CreatePlustekClient) {
+const defaultDelays: Delays = {
+  // Time between calls to get paper status from the scanner.
+  DELAY_PAPER_STATUS_POLLING_INTERVAL: 500,
+  // How long to wait for a single paper status call to return before giving up.
+  DELAY_PAPER_STATUS_POLLING_TIMEOUT: 5_000,
+  // How long to attempt scanning before giving up and disconnecting and
+  // reconnecting to Plustek.
+  DELAY_SCANNING_TIMEOUT: 10_000,
+  // When in accepted state, how long to ignore any new ballot that is
+  // inserted (this ensures the user sees the accepted screen for a bit
+  // before starting a new scan).
+  DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 2_000,
+  // How long to wait on the accepted state before automatically going
+  // back to no_paper.
+  DELAY_ACCEPTED_RESET_TO_NO_PAPER: 5_000,
+  // How long to wait for Plustek to grab the paper and return paper
+  // status READY_TO_SCAN after rejecting. Needs to be greater than
+  // PAPER_STATUS_POLLING_INTERVAL otherwise we'll never have a chance to
+  // see the READY_TO_SCAN status. Experimentally, 1000ms seems to be a
+  // good amount. Don't change this delay lightly since it impacts the
+  // actual logic of the scanner.
+  DELAY_WAIT_FOR_HOLD_AFTER_REJECT: 1_000,
+  // When disconnected, how long to wait before trying to reconnect.
+  DELAY_RECONNECT: 500,
+  // When we run into an unexpected error (e.g. unexpected paper status),
+  // how long to wait before trying to reconnect. This should be pretty
+  // long in order to let Plustek finish whatever it's doing (yes, even
+  // after disconnecting, Plustek might keep scanning).
+  DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 5_000,
+  // When attempting to disconnect from Plustek after an unexpected error,
+  // how long to wait before giving up on disconnecting the "nice" way and
+  // just sending a kill signal.
+  DELAY_KILL_AFTER_DISCONNECT_TIMEOUT: 2_000,
+};
+
+function buildMachine(
+  createPlustekClient: CreatePlustekClient,
+  delayOverrides: Partial<Delays>
+) {
+  const delays: Delays = { ...defaultDelays, ...delayOverrides };
+
+  const pollPaperStatus: InvokeConfig<Context, Event> = {
+    src: buildPaperStatusObserver(
+      delays.DELAY_PAPER_STATUS_POLLING_INTERVAL,
+      delays.DELAY_PAPER_STATUS_POLLING_TIMEOUT
+    ),
+    onError: {
+      target: '#error',
+      actions: assign({ error: (_, event) => event.data }),
+    },
+  };
+
   return createMachine<Context, Event>(
     {
       id: 'precinct_scanner',
@@ -340,8 +393,6 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
           }),
         },
       },
-      // TODO should we close and reconnect to plustek after every scan finishes
-      // to avoid long-running process crashes?
       states: {
         connecting: {
           invoke: {
@@ -778,38 +829,7 @@ function buildMachine(createPlustekClient: CreatePlustekClient) {
         unrecoverable_error: { id: 'unrecoverable_error' },
       },
     },
-    {
-      delays: {
-        // How long to attempt scanning before giving up and disconnecting and
-        // reconnecting to Plustek.
-        DELAY_SCANNING_TIMEOUT: 10_000,
-        // When in accepted state, how long to ignore any new ballot that is
-        // inserted (this ensures the user sees the accepted screen for a bit
-        // before starting a new scan).
-        DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 2_000,
-        // How long to wait on the accepted state before automatically going
-        // back to no_paper.
-        DELAY_ACCEPTED_RESET_TO_NO_PAPER: 5_000,
-        // How long to wait for Plustek to grab the paper and return paper
-        // status READY_TO_SCAN after rejecting. Needs to be greater than
-        // PAPER_STATUS_POLLING_INTERVAL otherwise we'll never have a chance to
-        // see the READY_TO_SCAN status. Experimentally, 1000ms seems to be a
-        // good amount. Don't change this delay lightly since it impacts the
-        // actual logic of the scanner.
-        DELAY_WAIT_FOR_HOLD_AFTER_REJECT: 1_000,
-        // When disconnected, how long to wait before trying to reconnect.
-        DELAY_RECONNECT: 500,
-        // When we run into an unexpected error (e.g. unexpected paper status),
-        // how long to wait before trying to reconnect. This should be pretty
-        // long in order to let Plustek finish whatever it's doing (yes, even
-        // after disconnecting, Plustek might keep scanning).
-        DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 5_000,
-        // When attempting to disconnect from Plustek after an unexpected error,
-        // how long to wait before giving up on disconnecting the "nice" way and
-        // just sending a kill signal.
-        DELAY_KILL_AFTER_DISCONNECT_TIMEOUT: 2_000,
-      },
-    }
+    { delays: { ...delays } }
   );
 }
 
@@ -894,7 +914,7 @@ export function createPrecinctScannerStateMachine(
   logger: Logger,
   delays: Partial<Delays> = {}
 ): PrecinctScannerStateMachine {
-  const machine = buildMachine(createPlustekClient).withConfig({ delays });
+  const machine = buildMachine(createPlustekClient, delays);
   const machineService = interpret(machine).start();
   setupLogging(machineService, logger);
 
@@ -992,7 +1012,12 @@ export function createPrecinctScannerStateMachine(
         state: scannerState,
         interpretation: interpretationResult,
         error:
-          ['rejecting', 'rejected', 'error'].includes(scannerState) && error
+          [
+            'rejecting',
+            'rejected',
+            'recovering_from_error',
+            'unrecoverable_error',
+          ].includes(scannerState) && error
             ? errorToString(error)
             : undefined,
       };

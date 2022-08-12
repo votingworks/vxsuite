@@ -951,3 +951,27 @@ test('waitForStatus immediate timeout', async () => {
   const result = await resultPromise;
   expect(result).toBeUndefined();
 });
+
+test('kill', async () => {
+  const plustekctl = fakeChildProcess();
+  spawn.mockReturnValueOnce(plustekctl);
+
+  const client = (
+    await createClient(DEFAULT_CONFIG, {
+      onWaitingForHandshake: jest.fn(() => {
+        // simulate plustekctl indicating it is ready
+        plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n');
+      }),
+    })
+  ).unsafeUnwrap();
+
+  // kill unsuccessfully
+  (plustekctl.kill as jest.Mock).mockReturnValue(false);
+  expect(client.kill().isErr()).toBe(true);
+  expect(plustekctl.kill).toHaveBeenCalledWith();
+
+  // kill successfully
+  (plustekctl.kill as jest.Mock).mockReturnValue(true);
+  expect(client.kill().isOk()).toBe(true);
+  expect(plustekctl.kill).toHaveBeenCalledWith();
+});

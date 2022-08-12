@@ -2,6 +2,7 @@ import { MockScannerClient, ScannerClient } from '@votingworks/plustek-sdk';
 import {
   AdjudicationReason,
   CastVoteRecord,
+  err,
   ok,
   Result,
 } from '@votingworks/types';
@@ -651,7 +652,6 @@ test('scanner powered off after returning', async () => {
   await waitForStatus(app, {
     state: 'rejected',
     error: 'paper_in_front_after_reconnect',
-
     canUnconfigure: false,
   });
 });
@@ -1037,9 +1037,59 @@ test('scanning time out', async () => {
 
   await post(app, '/scanner/scan');
   await expectStatus(app, { state: 'scanning' });
-  await waitForStatus(app, { state: 'error', error: 'scanning_timed_out' });
+  await waitForStatus(app, {
+    state: 'recovering_from_error',
+    error: 'scanning_timed_out',
+  });
   await waitForStatus(app, { state: 'no_paper' });
 });
 
-// TODO
-// test('paper status time out', async () => {});
+test('kills plustekctl if it freezes', async () => {
+  const { app, mockPlustek } = await createApp({
+    DELAY_SCANNING_TIMEOUT: 50,
+    DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 500,
+    DELAY_KILL_AFTER_DISCONNECT_TIMEOUT: 500,
+    DELAY_PAPER_STATUS_POLLING_TIMEOUT: 1000,
+  });
+  await configureApp(app);
+
+  await waitForStatus(app, { state: 'no_paper' });
+  await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
+  await waitForStatus(app, { state: 'ready_to_scan' });
+
+  await post(app, '/scanner/scan');
+  await expectStatus(app, { state: 'scanning' });
+  mockPlustek.simulatePlustekctlFreeze();
+  await waitForStatus(app, {
+    state: 'recovering_from_error',
+    error: 'paper_status_timed_out',
+  });
+  await waitForStatus(app, { state: 'no_paper' });
+});
+
+test('stops completely if plustekctl freezes and cant be killed', async () => {
+  const { app, mockPlustek } = await createApp({
+    DELAY_SCANNING_TIMEOUT: 50,
+    DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 500,
+    DELAY_KILL_AFTER_DISCONNECT_TIMEOUT: 500,
+    DELAY_PAPER_STATUS_POLLING_TIMEOUT: 1000,
+  });
+  await configureApp(app);
+
+  await waitForStatus(app, { state: 'no_paper' });
+  await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
+  await waitForStatus(app, { state: 'ready_to_scan' });
+
+  await post(app, '/scanner/scan');
+  await expectStatus(app, { state: 'scanning' });
+  mockPlustek.kill = () => err(new Error('could not kill'));
+  mockPlustek.simulatePlustekctlFreeze();
+  await waitForStatus(app, {
+    state: 'recovering_from_error',
+    error: 'paper_status_timed_out',
+  });
+  await waitForStatus(app, {
+    state: 'unrecoverable_error',
+    error: 'paper_status_timed_out',
+  });
+});
