@@ -227,7 +227,7 @@ test('shows a specific error for file writer failure', async () => {
   );
   fireEvent.click(getByText('Save'));
   await waitFor(() => getByText('Failed to Save Backup'));
-  getByText(/Unable to write file to download location: backup.zip/);
+  getByText(/Unable to write file to save location: backup.zip/);
 
   fireEvent.click(getByText('Close'));
   expect(closeFn).toHaveBeenCalled();

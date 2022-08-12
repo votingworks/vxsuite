@@ -61,7 +61,7 @@ function renderScreen({
 }
 
 describe('shows Export Results button only when polls are closed and more than 0 ballots have been cast', () => {
-  const exportButtonText = 'Export Results to USB Drive';
+  const exportButtonText = 'Save Results to USB Drive';
 
   test('no ballots and polls closed should not show button', async () => {
     // eslint-disable-next-line @typescript-eslint/require-await
@@ -115,7 +115,7 @@ describe('shows Export Results button only when polls are closed and more than 0
     fireEvent.click(screen.getAllByText('No')[0]);
     await advanceTimersAndPromises(1);
     await advanceTimersAndPromises(1);
-    await screen.findByText('Export Results to USB Drive');
+    await screen.findByText('Save Results to USB Drive');
 
     expect(screen.queryByText(exportButtonText)).toBeTruthy();
   });

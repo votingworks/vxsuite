@@ -642,22 +642,22 @@ test('voter can cast a ballot that scans successfully ', async () => {
   card.insertCard(electionManagerCard, electionSampleDefinition.electionData);
   await authenticateElectionManagerCard();
   await screen.findByText('Election Manager Settings');
-  fireEvent.click(await screen.findByText('Export Results to USB Drive'));
+  fireEvent.click(await screen.findByText('Save Results to USB Drive'));
   await screen.findByText('No USB Drive Detected');
   fireEvent.click(await screen.findByText('Cancel'));
   expect(screen.queryByText('No USB Drive Detected')).toBeNull();
-  fireEvent.click(await screen.findByText('Export Results to USB Drive'));
+  fireEvent.click(await screen.findByText('Save Results to USB Drive'));
   await screen.findByText('No USB Drive Detected');
   fireEvent.click(await screen.findByText('Cancel'));
   expect(screen.queryByText('No USB Drive Detected')).toBeNull();
   // Insert usb drive
   kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
   await advanceTimersAndPromises(2);
-  fireEvent.click(await screen.findByText('Export Results to USB Drive'));
+  fireEvent.click(await screen.findByText('Save Results to USB Drive'));
 
-  await screen.findByText('Export Results');
-  fireEvent.click(await screen.findByText('Export'));
-  await screen.findByText('Results Exported to USB Drive');
+  await screen.findByText('Save Results');
+  fireEvent.click(await screen.findByText('Save'));
+  await screen.findByText('Results Saved to USB Drive');
   expect(kiosk.writeFile).toHaveBeenCalledTimes(2);
   expect(kiosk.writeFile).toHaveBeenNthCalledWith(
     2,
@@ -1024,7 +1024,7 @@ test('with printer: poll worker can open and close polls without scanning any ba
   await screen.findByText('Polls Closed');
 });
 
-test('no printer: open polls, scan ballot, close polls, export results', async () => {
+test('no printer: open polls, scan ballot, close polls, save results', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   hardware.setPrinterConnected(false);

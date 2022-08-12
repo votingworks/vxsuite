@@ -74,7 +74,7 @@ export function ExportResultsModal({
       <Modal
         content={
           <Prose>
-            <h1>Download Failed</h1>
+            <h1>Failed to Save Results</h1>
             <p>{errorMessage}</p>
           </Prose>
         }
@@ -103,7 +103,7 @@ export function ExportResultsModal({
       <Modal
         content={
           <Prose>
-            <h1>Results Exported to USB Drive</h1>
+            <h1>Results Saved to USB Drive</h1>
             <p>
               You may now eject the USB drive and take it to VxAdmin for
               tabulation.
@@ -149,7 +149,7 @@ export function ExportResultsModal({
             <Prose textCenter>
               <h1>No USB Drive Detected</h1>
               <p>
-                Please insert a USB drive in order to export results.
+                Please insert a USB drive in order to save results.
                 <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
               </p>
             </Prose>
@@ -163,7 +163,7 @@ export function ExportResultsModal({
                   data-testid="manual-export"
                   onPress={() => exportResults(true)}
                 >
-                  Export
+                  Save
                 </Button>
               )}{' '}
             </React.Fragment>
@@ -188,12 +188,12 @@ export function ExportResultsModal({
         <Modal
           content={
             <Prose>
-              <h1>Export Results</h1>
+              <h1>Save Results</h1>
               <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
               <p>
                 A CVR file will automatically be saved to the default location
-                on the mounted USB drive. Optionally, you may pick a custom
-                export location.
+                on the mounted USB drive. Optionally, you may pick a custom save
+                location.
               </p>
             </Prose>
           }
@@ -201,7 +201,7 @@ export function ExportResultsModal({
           actions={
             <React.Fragment>
               <Button primary onPress={() => exportResults(false)}>
-                Export
+                Save
               </Button>
               <Button onPress={onClose}>Cancel</Button>
               <Button onPress={() => exportResults(true)}>Custom</Button>

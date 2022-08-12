@@ -94,7 +94,7 @@ export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
 
           case DownloadErrorKind.OpenFailed:
             setErrorMessage(
-              `Unable to write file to download location: ${error.path}`
+              `Unable to write file to save location: ${error.path}`
             );
             break;
 
@@ -179,7 +179,7 @@ export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
     case usbstick.UsbDriveStatus.absent:
     case usbstick.UsbDriveStatus.notavailable:
     case usbstick.UsbDriveStatus.recentlyEjected:
-      // When run not through kiosk mode let the user download the file
+      // When run not through kiosk mode let the user save the file
       // on the machine for internal debugging use
       return (
         <Modal
