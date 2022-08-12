@@ -39,6 +39,7 @@ async function configureMachine(
     electionDefinition,
     ballotImagesPath: workspace.ballotImagesPath,
     testMode: store.getTestMode(),
+    markThresholdOverrides: store.getMarkThresholdOverrides(),
     layouts,
   });
 
