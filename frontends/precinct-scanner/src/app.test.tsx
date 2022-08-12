@@ -1280,6 +1280,9 @@ test('replace ballot bag flow', async () => {
     .get('/config/election', { body: electionSampleDefinition })
     .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
     .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
+    })
     .getOnce('/scanner/status', { body: statusNoPaper });
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
