@@ -798,7 +798,6 @@ test('voter can cast a rejected ballot', async () => {
   fetchMock.getOnce('/scanner/status', {
     body: scannerStatus({ state: 'no_paper' }),
   });
-  jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
   await screen.findByText('Insert Your Ballot Below');
   expect(fetchMock.done()).toBe(true);
 });

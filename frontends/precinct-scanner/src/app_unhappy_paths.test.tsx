@@ -363,6 +363,7 @@ test('removing card during calibration', async () => {
     electionSampleDefinition.electionHash
   );
   card.insertCard(pollWorkerCard);
+  await advanceTimersAndPromises(1);
   userEvent.click(
     await screen.findByRole('button', { name: 'Yes, Open the Polls' })
   );
