@@ -77,7 +77,7 @@ export function BallotSheetImage({
         src={imageUrl}
         alt="front"
         onLoad={recalculateScale}
-        style={{ maxWidth: '100%', maxHeight: '87vh' }}
+        style={{ maxWidth: '100%', maxHeight: '82vh' }}
       />
       {layout &&
         contestIds &&

@@ -30,43 +30,40 @@ exports[`calls out live ballot sheets in test mode 1`] = `
         </div>
         <div
           class="sc-pFZIQ fNwxur"
-        >
-          <button
-            class="sc-gsTCUz bQMNvi"
-            type="button"
-          >
-            Confirm Ballot Removed and Continue Scanning
-          </button>
-        </div>
+        />
       </nav>
     </div>
     <main
       class="sc-llYToB ckiwBe"
     >
       <div
-        class="sc-crrsfI cHUPes"
+        class="sc-iqHYGH jKykRi"
       >
         <div
           class="sc-kEjbxe kKkrsc"
         >
-          <div
-            class="sc-iqHYGH hIYxPX"
-          >
-            Live Ballot
-          </div>
+          <h1>
+            <span
+              style="font-size: 2em;"
+            >
+              Live Ballot
+            </span>
+          </h1>
           <p>
-            This ballot 
-            <strong>
-              has not yet been tabulated
-            </strong>
-            . What would you like to do?
+            The last scanned ballot was not tabulated.
           </p>
           <p>
             Remove the LIVE ballot before continuing.
           </p>
+          <button
+            class="sc-gsTCUz bjydpm"
+            type="button"
+          >
+            The ballot has been removed
+          </button>
         </div>
         <div
-          class="sc-dQppl ecRvSa"
+          class="sc-crrsfI TwdhN"
         >
           <div
             style="position: relative;"
@@ -74,7 +71,7 @@ exports[`calls out live ballot sheets in test mode 1`] = `
             <img
               alt="front"
               src="/front/url"
-              style="max-width: 100%; max-height: 87vh;"
+              style="max-width: 100%; max-height: 82vh;"
             />
           </div>
           <div
@@ -83,7 +80,7 @@ exports[`calls out live ballot sheets in test mode 1`] = `
             <img
               alt="front"
               src="/back/url"
-              style="max-width: 100%; max-height: 87vh;"
+              style="max-width: 100%; max-height: 82vh;"
             />
           </div>
         </div>
@@ -194,43 +191,40 @@ exports[`calls out test ballot sheets in live mode 1`] = `
         </div>
         <div
           class="sc-pFZIQ fNwxur"
-        >
-          <button
-            class="sc-gsTCUz bQMNvi"
-            type="button"
-          >
-            Confirm Ballot Removed and Continue Scanning
-          </button>
-        </div>
+        />
       </nav>
     </div>
     <main
       class="sc-llYToB ckiwBe"
     >
       <div
-        class="sc-crrsfI cHUPes"
+        class="sc-iqHYGH jKykRi"
       >
         <div
           class="sc-kEjbxe kKkrsc"
         >
-          <div
-            class="sc-iqHYGH hIYxPX"
-          >
-            Test Ballot
-          </div>
+          <h1>
+            <span
+              style="font-size: 2em;"
+            >
+              Test Ballot
+            </span>
+          </h1>
           <p>
-            This ballot 
-            <strong>
-              has not yet been tabulated
-            </strong>
-            . What would you like to do?
+            The last scanned ballot was not tabulated.
           </p>
           <p>
             Remove the TEST ballot before continuing.
           </p>
+          <button
+            class="sc-gsTCUz bjydpm"
+            type="button"
+          >
+            The ballot has been removed
+          </button>
         </div>
         <div
-          class="sc-dQppl ecRvSa"
+          class="sc-crrsfI TwdhN"
         >
           <div
             style="position: relative;"
@@ -238,7 +232,7 @@ exports[`calls out test ballot sheets in live mode 1`] = `
             <img
               alt="front"
               src="/front/url"
-              style="max-width: 100%; max-height: 87vh;"
+              style="max-width: 100%; max-height: 82vh;"
             />
           </div>
           <div
@@ -247,7 +241,7 @@ exports[`calls out test ballot sheets in live mode 1`] = `
             <img
               alt="front"
               src="/back/url"
-              style="max-width: 100%; max-height: 87vh;"
+              style="max-width: 100%; max-height: 82vh;"
             />
           </div>
         </div>
@@ -358,58 +352,47 @@ exports[`says the ballot sheet is blank if it is 1`] = `
         </div>
         <div
           class="sc-pFZIQ fNwxur"
-        >
-          <button
-            class="sc-gsTCUz iulVCQ"
-            disabled=""
-            type="button"
-          >
-            Continue Scanning
-          </button>
-        </div>
+        />
       </nav>
     </div>
     <main
       class="sc-llYToB ckiwBe"
     >
       <div
-        class="sc-crrsfI cHUPes"
+        class="sc-iqHYGH jKykRi"
       >
         <div
           class="sc-kEjbxe kKkrsc"
         >
-          <div
-            class="sc-iqHYGH hIYxPX"
-          >
-            Blank Ballot
-          </div>
+          <h1>
+            <span
+              style="font-size: 2em;"
+            >
+              Blank Ballot
+            </span>
+          </h1>
           <p>
-            This ballot 
-            <strong>
-              has not yet been tabulated
-            </strong>
-            . What would you like to do?
+            The last scanned ballot was not tabulated because no votes were detected.
           </p>
           <p>
             <button
-              class="sc-gsTCUz ftrorQ"
+              class="sc-gsTCUz bjydpm"
               type="button"
             >
-              Don't Count It
+              Remove to Adjudicate
             </button>
           </p>
           <p>
-            <br />
             <button
-              class="sc-gsTCUz ftrorQ"
+              class="sc-gsTCUz bjydpm"
               type="button"
             >
-              Count It As Is
+              Tabulate As Is
             </button>
           </p>
         </div>
         <div
-          class="sc-dQppl ecRvSa"
+          class="sc-crrsfI TwdhN"
         >
           <div
             style="position: relative;"
@@ -417,7 +400,7 @@ exports[`says the ballot sheet is blank if it is 1`] = `
             <img
               alt="front"
               src="/front/url"
-              style="max-width: 100%; max-height: 87vh;"
+              style="max-width: 100%; max-height: 82vh;"
             />
           </div>
           <div
@@ -426,7 +409,7 @@ exports[`says the ballot sheet is blank if it is 1`] = `
             <img
               alt="front"
               src="/back/url"
-              style="max-width: 100%; max-height: 87vh;"
+              style="max-width: 100%; max-height: 82vh;"
             />
           </div>
         </div>
@@ -537,58 +520,47 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
         </div>
         <div
           class="sc-pFZIQ fNwxur"
-        >
-          <button
-            class="sc-gsTCUz iulVCQ"
-            disabled=""
-            type="button"
-          >
-            Continue Scanning
-          </button>
-        </div>
+        />
       </nav>
     </div>
     <main
       class="sc-llYToB ckiwBe"
     >
       <div
-        class="sc-crrsfI cHUPes"
+        class="sc-iqHYGH jKykRi"
       >
         <div
           class="sc-kEjbxe kKkrsc"
         >
-          <div
-            class="sc-iqHYGH hIYxPX"
-          >
-            Overvote
-          </div>
+          <h1>
+            <span
+              style="font-size: 2em;"
+            >
+              Overvote
+            </span>
+          </h1>
           <p>
-            This ballot 
-            <strong>
-              has not yet been tabulated
-            </strong>
-            . What would you like to do?
+            The last scanned ballot was not tabulated because an overvote was detected.
           </p>
           <p>
             <button
-              class="sc-gsTCUz ftrorQ"
+              class="sc-gsTCUz bjydpm"
               type="button"
             >
-              Don't Count It
+              Remove to Adjudicate
             </button>
           </p>
           <p>
-            <br />
             <button
-              class="sc-gsTCUz ftrorQ"
+              class="sc-gsTCUz bjydpm"
               type="button"
             >
-              Count It As Is
+              Tabulate As Is
             </button>
           </p>
         </div>
         <div
-          class="sc-dQppl ecRvSa"
+          class="sc-crrsfI TwdhN"
         >
           <div
             style="position: relative;"
@@ -596,7 +568,7 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
             <img
               alt="front"
               src="/front/url"
-              style="max-width: 100%; max-height: 87vh;"
+              style="max-width: 100%; max-height: 82vh;"
             />
           </div>
           <div
@@ -605,7 +577,7 @@ exports[`says the ballot sheet is overvoted if it is 1`] = `
             <img
               alt="front"
               src="/back/url"
-              style="max-width: 100%; max-height: 87vh;"
+              style="max-width: 100%; max-height: 82vh;"
             />
           </div>
         </div>
@@ -716,58 +688,47 @@ exports[`says the ballot sheet is undervoted if it is 1`] = `
         </div>
         <div
           class="sc-pFZIQ fNwxur"
-        >
-          <button
-            class="sc-gsTCUz iulVCQ"
-            disabled=""
-            type="button"
-          >
-            Continue Scanning
-          </button>
-        </div>
+        />
       </nav>
     </div>
     <main
       class="sc-llYToB ckiwBe"
     >
       <div
-        class="sc-crrsfI cHUPes"
+        class="sc-iqHYGH jKykRi"
       >
         <div
           class="sc-kEjbxe kKkrsc"
         >
-          <div
-            class="sc-iqHYGH hIYxPX"
-          >
-            Undervote
-          </div>
+          <h1>
+            <span
+              style="font-size: 2em;"
+            >
+              Undervote
+            </span>
+          </h1>
           <p>
-            This ballot 
-            <strong>
-              has not yet been tabulated
-            </strong>
-            . What would you like to do?
+            The last scanned ballot was not tabulated because an undervote was detected.
           </p>
           <p>
             <button
-              class="sc-gsTCUz ftrorQ"
+              class="sc-gsTCUz bjydpm"
               type="button"
             >
-              Don't Count It
+              Remove to Adjudicate
             </button>
           </p>
           <p>
-            <br />
             <button
-              class="sc-gsTCUz ftrorQ"
+              class="sc-gsTCUz bjydpm"
               type="button"
             >
-              Count It As Is
+              Tabulate As Is
             </button>
           </p>
         </div>
         <div
-          class="sc-dQppl ecRvSa"
+          class="sc-crrsfI TwdhN"
         >
           <div
             style="position: relative;"
@@ -775,7 +736,7 @@ exports[`says the ballot sheet is undervoted if it is 1`] = `
             <img
               alt="front"
               src="/front/url"
-              style="max-width: 100%; max-height: 87vh;"
+              style="max-width: 100%; max-height: 82vh;"
             />
           </div>
           <div
@@ -784,7 +745,7 @@ exports[`says the ballot sheet is undervoted if it is 1`] = `
             <img
               alt="front"
               src="/back/url"
-              style="max-width: 100%; max-height: 87vh;"
+              style="max-width: 100%; max-height: 82vh;"
             />
           </div>
         </div>
@@ -895,36 +856,27 @@ exports[`says the sheet is unreadable if it is 1`] = `
         </div>
         <div
           class="sc-pFZIQ fNwxur"
-        >
-          <button
-            class="sc-gsTCUz bQMNvi"
-            type="button"
-          >
-            Confirm Ballot Removed and Continue Scanning
-          </button>
-        </div>
+        />
       </nav>
     </div>
     <main
       class="sc-llYToB ckiwBe"
     >
       <div
-        class="sc-crrsfI cHUPes"
+        class="sc-iqHYGH jKykRi"
       >
         <div
           class="sc-kEjbxe kKkrsc"
         >
-          <div
-            class="sc-iqHYGH hIYxPX"
-          >
-            Unreadable
-          </div>
+          <h1>
+            <span
+              style="font-size: 2em;"
+            >
+              Unreadable
+            </span>
+          </h1>
           <p>
-            This ballot 
-            <strong>
-              has not yet been tabulated
-            </strong>
-            . What would you like to do?
+            The last scanned ballot was not tabulated.
           </p>
           <p>
             There was a problem reading the ballot. Remove ballot and reload in the scanner to try again.
@@ -932,9 +884,15 @@ exports[`says the sheet is unreadable if it is 1`] = `
           <p>
             If the error persists remove ballot and create a duplicate ballot for the Resolution Board to review.
           </p>
+          <button
+            class="sc-gsTCUz bjydpm"
+            type="button"
+          >
+            The ballot has been removed
+          </button>
         </div>
         <div
-          class="sc-dQppl ecRvSa"
+          class="sc-crrsfI TwdhN"
         >
           <div
             style="position: relative;"
@@ -942,7 +900,7 @@ exports[`says the sheet is unreadable if it is 1`] = `
             <img
               alt="front"
               src="/front/url"
-              style="max-width: 100%; max-height: 87vh;"
+              style="max-width: 100%; max-height: 82vh;"
             />
           </div>
           <div
@@ -951,7 +909,7 @@ exports[`says the sheet is unreadable if it is 1`] = `
             <img
               alt="front"
               src="/back/url"
-              style="max-width: 100%; max-height: 87vh;"
+              style="max-width: 100%; max-height: 82vh;"
             />
           </div>
         </div>
