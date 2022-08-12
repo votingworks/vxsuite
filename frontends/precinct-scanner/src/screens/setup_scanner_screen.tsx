@@ -1,11 +1,10 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Text } from '@votingworks/ui';
 import {
   ScreenMainCenterChild,
   CenteredLargeProse,
 } from '../components/layout';
 import { ScannedBallotCount } from '../components/scanned_ballot_count';
-import { useSound } from '../hooks/use_sound';
 
 interface Props {
   batteryIsCharging: boolean;
@@ -16,9 +15,6 @@ export function SetupScannerScreen({
   batteryIsCharging,
   scannedBallotCount,
 }: Props): JSX.Element {
-  const playError = useSound('error');
-  useEffect(playError, [playError]);
-
   // If the power cord is plugged in, but we can't detect a scanner, it's an
   // internal wiring issue. Otherwise if we can't detect the scanner, the power
   // cord is likely not plugged in.
