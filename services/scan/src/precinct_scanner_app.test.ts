@@ -177,7 +177,7 @@ async function createApp(
   const workspace = await createWorkspace(dirSync().name);
   const mockPlustek = new MockScannerClient({
     toggleHoldDuration: 100,
-    passthroughDuration: 100,
+    passthroughDuration: 500,
   });
   async function createPlustekClient(): Promise<Result<ScannerClient, Error>> {
     await mockPlustek.connect();
