@@ -1,4 +1,4 @@
-import { fireEvent, waitFor } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { interpretTemplate } from '@votingworks/ballot-interpreter-vx';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { fakeKiosk, fakeUsbDrive, mockOf } from '@votingworks/test-utils';
@@ -124,31 +124,21 @@ test('Modal renders insert usb screen appropriately', async () => {
 
 test('Modal renders export confirmation screen when usb detected and manual link works as expected', async () => {
   const logger = fakeLogger();
-  const {
-    getByText,
-    findByText,
-    queryAllByText,
-    queryAllByAltText,
-    queryAllByTestId,
-  } = renderInAppContext(<ExportElectionBallotPackageModalButton />, {
+  renderInAppContext(<ExportElectionBallotPackageModalButton />, {
     usbDriveStatus: UsbDriveStatus.mounted,
     logger,
   });
-  fireEvent.click(getByText('Save Ballot Package'));
-  await findByText('Save Ballot Package');
-  expect(queryAllByAltText('Insert USB Image')).toHaveLength(1);
-  expect(queryAllByTestId('modal')).toHaveLength(1);
-  expect(
-    queryAllByText(
-      /A zip archive will automatically be saved to the default location on the mounted USB drive./
-    )
-  ).toHaveLength(1);
-  expect(
-    queryAllByText(/Optionally, you may pick a custom save location./)
-  ).toHaveLength(1);
+  fireEvent.click(screen.getByText('Save Ballot Package'));
+  const modal = await screen.findByRole('alertdialog');
+  within(modal).getByText('Save Ballot Package');
+  within(modal).getByAltText('Insert USB Image');
+  within(modal).getByText(
+    /A zip archive will automatically be saved to the default location on the mounted USB drive./
+  );
+  within(modal).getByText(/Optionally, you may pick a custom save location./);
 
-  fireEvent.click(getByText('Custom'));
-  await waitFor(() => getByText('Ballot Package Saved'));
+  fireEvent.click(within(modal).getByText('Custom'));
+  await waitFor(() => within(modal).getByText('Ballot Package Saved'));
   await waitFor(() => {
     expect(interpretTemplate).toHaveBeenCalledTimes(
       2 /* pages per ballot */ *
@@ -170,8 +160,8 @@ test('Modal renders export confirmation screen when usb detected and manual link
     expect.objectContaining({ disposition: 'success' })
   );
 
-  fireEvent.click(getByText('Close'));
-  expect(queryAllByTestId('modal')).toHaveLength(0);
+  fireEvent.click(within(modal).getByText('Close'));
+  expect(screen.queryAllByTestId('modal')).toHaveLength(0);
 });
 
 test('Modal renders loading screen when usb drive is mounting or ejecting', async () => {
