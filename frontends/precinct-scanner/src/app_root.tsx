@@ -363,15 +363,18 @@ export function AppRoot({
     await refreshConfig();
   }, [refreshConfig, isTestMode]);
 
-  const unconfigureServer = useCallback(async () => {
-    try {
-      await config.setElection(undefined);
-      dispatchAppState({ type: 'resetPollsToClosed' });
-      await refreshConfig();
-    } catch (error) {
-      debug('failed unconfigureServer()', error);
-    }
-  }, [refreshConfig]);
+  const unconfigureServer = useCallback(
+    async (options: { ignoreBackupRequirement?: boolean } = {}) => {
+      try {
+        await config.setElection(undefined, options);
+        dispatchAppState({ type: 'resetPollsToClosed' });
+        await refreshConfig();
+      } catch (error) {
+        debug('failed unconfigureServer()', error);
+      }
+    },
+    [refreshConfig]
+  );
 
   async function updatePrecinctId(precinctId: PrecinctId) {
     dispatchAppState({ type: 'updatePrecinctId', precinctId });
@@ -434,7 +437,9 @@ export function AppRoot({
               please insert an Election Manager or Poll Worker card.
             </React.Fragment>
           }
-          unconfigureMachine={unconfigureServer}
+          unconfigureMachine={() =>
+            unconfigureServer({ ignoreBackupRequirement: true })
+          }
           usbDriveStatus={usbDriveDisplayStatus}
         />
       </ScreenMainCenterChild>
