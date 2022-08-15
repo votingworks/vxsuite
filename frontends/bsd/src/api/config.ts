@@ -92,9 +92,16 @@ export async function getElectionDefinition(): Promise<
   );
 }
 
-export async function setElection(electionData?: string): Promise<void> {
+export async function setElection(
+  electionData?: string,
+  { ignoreBackupRequirement }: { ignoreBackupRequirement?: boolean } = {}
+): Promise<void> {
   if (typeof electionData === 'undefined') {
-    await del('/config/election');
+    let deletionUrl = '/config/election';
+    if (ignoreBackupRequirement) {
+      deletionUrl += '?ignoreBackupRequirement=true';
+    }
+    await del(deletionUrl);
   } else {
     await patch<Scan.PatchElectionConfigRequest>(
       '/config/election',
