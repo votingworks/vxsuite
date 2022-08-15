@@ -554,7 +554,6 @@ export function AppRoot({
     );
   }
 
-  assert(scannerStatus.state !== 'unconfigured');
   const voterScreen = (() => {
     switch (scannerStatus.state) {
       case 'connecting':

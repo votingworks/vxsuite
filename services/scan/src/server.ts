@@ -18,6 +18,7 @@ import {
 } from './precinct_scanner_state_machine';
 import { buildPrecinctScannerApp } from './precinct_scanner_app';
 import { buildCentralScannerApp } from './central_scanner_app';
+import { createInterpreter } from './precinct_scanner_interpreter';
 
 export interface StartOptions {
   port: number | string;
@@ -65,12 +66,16 @@ export async function start({
   let resolvedApp: express.Application;
 
   if (machineType === 'precinct-scanner') {
+    const precinctScannerInterpreter = createInterpreter();
     const precinctScannerMachine = createPrecinctScannerStateMachine(
       createPlustekClient,
+      resolvedWorkspace.store,
+      precinctScannerInterpreter,
       logger
     );
-    resolvedApp = buildPrecinctScannerApp(
+    resolvedApp = await buildPrecinctScannerApp(
       precinctScannerMachine,
+      precinctScannerInterpreter,
       resolvedWorkspace
     );
   } else {

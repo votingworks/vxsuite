@@ -14,11 +14,13 @@ import express, { Application } from 'express';
 import { readFile } from 'fs-extra';
 import multer from 'multer';
 import { z } from 'zod';
+import { interpretTemplate } from '@votingworks/ballot-interpreter-vx';
 import { PrecinctScannerStateMachine } from './precinct_scanner_state_machine';
 import { pdfToImages } from './util/pdf_to_images';
 import { Workspace } from './util/workspace';
-import { createInterpreter, loadLayouts } from './simple_interpreter';
 import { backup } from './backup';
+import { PrecinctScannerInterpreter } from './precinct_scanner_interpreter';
+import { Store } from './store';
 
 function sum(nums: number[]) {
   return nums.reduce((a, b) => a + b, 0);
@@ -26,8 +28,43 @@ function sum(nums: number[]) {
 
 type NoParams = never;
 
-async function configureMachine(
-  machine: PrecinctScannerStateMachine,
+/**
+ * Loads ballot layouts from the {@link Store} to be used by the interpreter.
+ * The results may be cached and used again as long as the underlying HMPB
+ * templates are not modified.
+ */
+async function loadLayouts(
+  store: Store
+): Promise<BallotPageLayoutWithImage[] | undefined> {
+  const electionDefinition = store.getElectionDefinition();
+  if (!electionDefinition) return;
+
+  const templates = store.getHmpbTemplates();
+  const loadedLayouts: BallotPageLayoutWithImage[] = [];
+
+  for (const [pdf, layouts] of templates) {
+    for await (const { page, pageNumber } of pdfToImages(pdf, { scale: 2 })) {
+      const ballotPageLayout = layouts[pageNumber - 1];
+      loadedLayouts.push(
+        await interpretTemplate({
+          electionDefinition,
+          imageData: page,
+          metadata: ballotPageLayout.metadata,
+        })
+      );
+    }
+  }
+
+  return loadedLayouts;
+}
+
+/**
+ * Loads all of the relevant configuration from the workspace store and
+ * configures the interpreter. Should be called anytime one of these config
+ * values is changed in order to update the interpreter's config.
+ */
+async function configureInterpreter(
+  interpreter: PrecinctScannerInterpreter,
   workspace: Workspace
 ) {
   const { store } = workspace;
@@ -35,22 +72,27 @@ async function configureMachine(
   assert(electionDefinition);
   const layouts = await loadLayouts(store);
   assert(layouts);
-  const interpreter = createInterpreter({
+  interpreter.configure({
     electionDefinition,
     ballotImagesPath: workspace.ballotImagesPath,
     testMode: store.getTestMode(),
     markThresholdOverrides: store.getMarkThresholdOverrides(),
     layouts,
   });
-
-  machine.configure(store, interpreter);
 }
 
-export function buildPrecinctScannerApp(
+export async function buildPrecinctScannerApp(
   machine: PrecinctScannerStateMachine,
+  interpreter: PrecinctScannerInterpreter,
   workspace: Workspace
-): Application {
+): Promise<Application> {
   const { store } = workspace;
+
+  // Load interpreter configuration from the store on startup
+  if (store.getElectionDefinition()) {
+    await configureInterpreter(interpreter, workspace);
+  }
+
   const app: Application = express();
   const upload = multer({ storage: multer.diskStorage({}) });
 
@@ -138,7 +180,7 @@ export function buildPrecinctScannerApp(
         return;
       }
 
-      machine.unconfigure();
+      interpreter.unconfigure();
       store.zero();
       fsExtra.emptyDirSync(workspace.ballotImagesPath);
       store.reset();
@@ -176,7 +218,7 @@ export function buildPrecinctScannerApp(
     store.zero();
     fsExtra.emptyDirSync(workspace.ballotImagesPath);
     store.setTestMode(bodyParseResult.ok().testMode);
-    await configureMachine(machine, workspace);
+    await configureInterpreter(interpreter, workspace);
     response.json({ status: 'ok' });
   });
 
@@ -231,7 +273,7 @@ export function buildPrecinctScannerApp(
     '/config/markThresholdOverrides',
     async (_request, response) => {
       store.setMarkThresholdOverrides(undefined);
-      await configureMachine(machine, workspace);
+      await configureInterpreter(interpreter, workspace);
       response.json({ status: 'ok' });
     }
   );
@@ -258,7 +300,7 @@ export function buildPrecinctScannerApp(
     store.setMarkThresholdOverrides(
       bodyParseResult.ok().markThresholdOverrides
     );
-    await configureMachine(machine, workspace);
+    await configureInterpreter(interpreter, workspace);
     response.json({ status: 'ok' });
   });
 
@@ -390,7 +432,7 @@ export function buildPrecinctScannerApp(
   );
 
   app.post('/scan/hmpb/doneTemplates', async (_request, response) => {
-    await configureMachine(machine, workspace);
+    await configureInterpreter(interpreter, workspace);
     response.json({ status: 'ok' });
   });
 
@@ -502,11 +544,6 @@ export function buildPrecinctScannerApp(
     url.port = '3000';
     response.redirect(301, url.toString());
   });
-
-  // Reload configuration from store on startup
-  if (store.getElectionDefinition()) {
-    void configureMachine(machine, workspace);
-  }
 
   return app;
 }
