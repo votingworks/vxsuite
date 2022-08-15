@@ -220,7 +220,7 @@ test('PATCH /config/election', async () => {
     });
 });
 
-test('DELETE /config/election error', async () => {
+test('DELETE /config/election no-backup error', async () => {
   importer.unconfigure.mockResolvedValue();
 
   // Add a new batch that hasn't been backed up yet
@@ -247,6 +247,19 @@ test('DELETE /config/election', async () => {
 
   await request(app)
     .delete('/config/election')
+    .set('Accept', 'application/json')
+    .expect(200, { status: 'ok' });
+  expect(importer.unconfigure).toBeCalled();
+});
+
+test('DELETE /config/election ignores lack of backup when ?ignoreBackupRequirement=true is specified', async () => {
+  importer.unconfigure.mockResolvedValue();
+
+  // Add a new batch that hasn't been backed up yet
+  workspace.store.addBatch();
+
+  await request(app)
+    .delete('/config/election?ignoreBackupRequirement=true')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' });
   expect(importer.unconfigure).toBeCalled();

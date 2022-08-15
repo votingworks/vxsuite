@@ -251,25 +251,28 @@ export function AppRoot({ card, hardware, logger }: AppRootProps): JSX.Element {
     }
   }, [setStatus]);
 
-  const unconfigureServer = useCallback(async () => {
-    try {
-      await config.setElection(undefined);
-      await refreshConfig();
-      await logger.log(LogEventId.ElectionUnconfigured, userRole, {
-        disposition: 'success',
-        message:
-          'User successfully unconfigured the machine to remove the current election and all current ballot data.',
-      });
-      history.replace('/');
-    } catch (error) {
-      console.log('failed unconfigureServer()', error); // eslint-disable-line no-console
-      await logger.log(LogEventId.ElectionUnconfigured, userRole, {
-        disposition: 'failure',
-        message: 'Error in unconfiguring the current election on the machine',
-        result: 'Election not changed.',
-      });
-    }
-  }, [history, refreshConfig, logger, userRole]);
+  const unconfigureServer = useCallback(
+    async (options: { ignoreBackupRequirement?: boolean } = {}) => {
+      try {
+        await config.setElection(undefined, options);
+        await refreshConfig();
+        await logger.log(LogEventId.ElectionUnconfigured, userRole, {
+          disposition: 'success',
+          message:
+            'User successfully unconfigured the machine to remove the current election and all current ballot data.',
+        });
+        history.replace('/');
+      } catch (error) {
+        console.log('failed unconfigureServer()', error); // eslint-disable-line no-console
+        await logger.log(LogEventId.ElectionUnconfigured, userRole, {
+          disposition: 'failure',
+          message: 'Error in unconfiguring the current election on the machine',
+          result: 'Election not changed.',
+        });
+      }
+    },
+    [history, refreshConfig, logger, userRole]
+  );
 
   const scanBatch = useCallback(async () => {
     setIsScanning(true);
@@ -547,7 +550,9 @@ export function AppRoot({ card, hardware, logger }: AppRootProps): JSX.Element {
                 Election Manager card.
               </React.Fragment>
             }
-            unconfigureMachine={unconfigureServer}
+            unconfigureMachine={() =>
+              unconfigureServer({ ignoreBackupRequirement: true })
+            }
             usbDriveStatus={displayUsbStatus}
           />
           <ElectionInfoBar
