@@ -1,6 +1,5 @@
 import { electionMultiPartyPrimaryFixtures } from '@votingworks/fixtures';
 import {
-  electionMultiPartyPrimaryCypressHash,
   enterPin,
   mockCardRemoval,
   mockElectionManagerCardInsertion,
@@ -9,28 +8,29 @@ import {
 
 describe('Election Manager can create SEMS tallies', () => {
   it('Election Manager can tally results properly', () => {
+    const { electionDefinition } = electionMultiPartyPrimaryFixtures;
     cy.visit('/');
     mockSystemAdministratorCardInsertion();
     enterPin();
     mockCardRemoval();
     cy.contains('Convert from SEMS files');
-    cy.get('input[type="file"]').attachFile(
-      'electionMultiPartyPrimarySample.json'
+    cy.get('input[type="file"]').selectFile(
+      { contents: Cypress.Buffer.from(electionDefinition.electionData) },
+      { force: true }
     );
     cy.contains('Election loading');
-    cy.contains(electionMultiPartyPrimaryCypressHash.slice(0, 10));
+    cy.contains(electionDefinition.electionHash.slice(0, 10));
     cy.contains('Lock Machine').click();
-    mockElectionManagerCardInsertion({
-      electionData:
-        electionMultiPartyPrimaryFixtures.electionDefinition.electionData,
-      electionHash: electionMultiPartyPrimaryCypressHash,
-    });
+    mockElectionManagerCardInsertion(
+      electionMultiPartyPrimaryFixtures.electionDefinition
+    );
     enterPin();
     mockCardRemoval();
     cy.contains('Tally').click();
     cy.contains('Load CVR Files').click();
-    cy.get('input[data-testid="manual-input"]').attachFile(
-      'multiPartyPrimaryCVRResults.jsonl'
+    cy.get('input[data-testid="manual-input"]').selectFile(
+      'cypress/fixtures/multiPartyPrimaryCVRResults.jsonl',
+      { force: true }
     );
     cy.contains('Close').click();
     cy.get('[data-testid="total-cvr-count"]').within(() =>

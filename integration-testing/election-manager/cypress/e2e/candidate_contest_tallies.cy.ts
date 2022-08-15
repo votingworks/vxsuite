@@ -9,7 +9,6 @@ import {
   assertExpectedResultsMatchTallyReport,
 } from '../support/assertions';
 import {
-  electionMultiPartyPrimaryCypressHash,
   enterPin,
   mockCardRemoval,
   mockElectionManagerCardInsertion,
@@ -19,7 +18,7 @@ import {
 describe('Election Manager can create SEMS tallies', () => {
   it('Tallies for candidate contests compute end to end as expected', () => {
     const { electionDefinition } = electionMultiPartyPrimaryFixtures;
-    const { election, electionData } = electionDefinition;
+    const { election } = electionDefinition;
     // Generate a CVR file with votes in the president contest.
     const fakeCvrFileContents = generateFileContentFromCvrs([
       generateCvr(
@@ -110,27 +109,27 @@ describe('Election Manager can create SEMS tallies', () => {
     enterPin();
     mockCardRemoval();
     cy.contains('Convert from SEMS files');
-    cy.get('input[type="file"]').attachFile(
-      'electionMultiPartyPrimarySample.json'
+    cy.get('input[type="file"]').selectFile(
+      { contents: Cypress.Buffer.from(electionDefinition.electionData) },
+      { force: true }
     );
     cy.contains('Election loading');
-    cy.contains(electionMultiPartyPrimaryCypressHash.slice(0, 10));
+    cy.contains(electionDefinition.electionHash.slice(0, 10));
     cy.pause();
     cy.contains('Lock Machine').click();
-    mockElectionManagerCardInsertion({
-      electionData,
-      electionHash: electionMultiPartyPrimaryCypressHash,
-    });
+    mockElectionManagerCardInsertion(electionDefinition);
     enterPin();
     mockCardRemoval();
     cy.contains('Tally').click();
     cy.contains('Load CVR Files').click();
-    cy.get('input[data-testid="manual-input"]').attachFile({
-      fileContent: new Blob([fakeCvrFileContents]),
-      fileName: 'cvrFile.jsonl',
-      mimeType: 'application/json',
-      encoding: 'utf-8',
-    });
+    cy.get('input[data-testid="manual-input"]').selectFile(
+      {
+        contents: Cypress.Buffer.from(fakeCvrFileContents),
+        fileName: 'cvrFile.jsonl',
+        mimeType: 'application/json',
+      },
+      { force: true }
+    );
     cy.contains('Close').click();
     cy.get('[data-testid="total-cvr-count"]').within(() => cy.contains('5'));
 

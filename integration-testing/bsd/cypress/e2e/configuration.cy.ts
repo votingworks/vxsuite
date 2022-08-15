@@ -46,16 +46,19 @@ describe('BSD and services/Scan', () => {
 
   it('BSD can be configured with services/scan with an election JSON file', () => {
     cy.contains('Load Election Configuration');
-    cy.get('input[type="file"]').attachFile('election.json');
+    cy.get('input[type="file"]').selectFile('cypress/fixtures/election.json', {
+      force: true,
+    });
     cy.contains('Close').click();
     cy.contains('No ballots have been scanned');
   });
 
   it('BSD can be configured with services/scan with a ZIP ballot package and can configure advanced options', () => {
     cy.contains('Load Election Configuration');
-    cy.get('input[type="file"]').attachFile({
-      filePath: 'ballot-package.zip',
-    });
+    cy.get('input[type="file"]').selectFile(
+      'cypress/fixtures/ballot-package.zip',
+      { force: true }
+    );
     cy.contains('Loading ballot package 1 of 8', { timeout: 10000 });
     cy.contains('Loading ballot package 2 of 8', { timeout: 10000 });
     cy.contains('Loading ballot package 3 of 8', { timeout: 10000 });

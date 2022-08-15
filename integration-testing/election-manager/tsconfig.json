@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.shared.json",
   "compilerOptions": {
-    "types": ["cypress", "cypress-file-upload"],
+    "types": ["cypress"],
     "isolatedModules": false,
     "allowJs": true,
     "allowSyntheticDefaultImports": true,
