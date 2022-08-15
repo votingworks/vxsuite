@@ -106,8 +106,11 @@ export async function buildCentralScannerApp({
 
   app.delete<NoParams, Scan.DeleteElectionConfigResponse>(
     '/config/election',
-    async (_request, response) => {
-      if (!store.getCanUnconfigure()) {
+    async (request, response) => {
+      if (
+        !store.getCanUnconfigure() &&
+        request.query['ignoreBackupRequirement'] !== 'true' // A backup is required by default
+      ) {
         response.status(400).json({
           status: 'error',
           errors: [

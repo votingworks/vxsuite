@@ -573,7 +573,9 @@ test('system administrator can log in and unconfigure machine', async () => {
     .get('/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesResponseBody,
     })
-    .delete('/config/election', { body: deleteElectionConfigResponseBody });
+    .delete('/config/election?ignoreBackupRequirement=true', {
+      body: deleteElectionConfigResponseBody,
+    });
 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
