@@ -32,6 +32,14 @@ test('DELETE /config/election to delete election', async () => {
   await config.setElection(undefined);
 });
 
+test('DELETE /config/election ?ignoreBackupRequirement query param', async () => {
+  fetchMock.deleteOnce(
+    '/config/election?ignoreBackupRequirement=true',
+    JSON.stringify({ status: 'ok' })
+  );
+  await config.setElection(undefined, { ignoreBackupRequirement: true });
+});
+
 test('DELETE /config/election to delete election with bad API response', async () => {
   fetchMock.deleteOnce(
     '/config/election',
