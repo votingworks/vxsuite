@@ -320,7 +320,7 @@ export class PlustekScanner implements Scanner {
 }
 
 const PutMockRequestSchema = z.object({
-  files: z.array(z.string()),
+  files: z.tuple([z.string(), z.string()]),
 });
 
 export function plustekMockServer(client: MockScannerClient): Application {

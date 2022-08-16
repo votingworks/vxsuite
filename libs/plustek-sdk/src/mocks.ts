@@ -29,7 +29,7 @@ import {
 const debug = makeDebug('plustek-sdk:mock-client');
 
 interface Context {
-  sheetFiles?: readonly string[];
+  sheetFiles?: readonly [string, string];
   holdAfterReject?: boolean;
   jamOnNextOperation: boolean;
 }
@@ -42,7 +42,7 @@ type Event =
   | { type: 'FREEZE' }
   | {
       type: 'LOAD_SHEET';
-      sheetFiles: readonly string[];
+      sheetFiles: readonly [string, string];
     }
   | { type: 'REMOVE_SHEET' }
   | { type: 'SCAN' }
@@ -279,7 +279,7 @@ export class MockScannerClient implements ScannerClient {
    * Loads a sheet with scan images from `files`.
    */
   async simulateLoadSheet(
-    files: readonly string[]
+    files: readonly [string, string]
   ): Promise<Result<void, Errors>> {
     debug('manualLoad files=%o', files);
 
@@ -545,7 +545,7 @@ export class MockScannerClient implements ScannerClient {
         const files = this.machine.state.context.sheetFiles;
         assert(files);
         debug('scanned files=%o', files);
-        return ok({ files: files.slice() });
+        return ok({ files: [...files] });
       }
       case 'ready_to_eject': {
         debug('cannot scan, paper is held at back');
