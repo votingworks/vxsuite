@@ -677,12 +677,6 @@ export async function buildCentralScannerApp({
       .pipe(response);
   });
 
-  app.get('/*', (request, response) => {
-    const url = new URL(`http://${request.get('host')}${request.originalUrl}`);
-    url.port = '3000';
-    response.redirect(301, url.toString());
-  });
-
   // NOTE: this appears to cause web requests to block until restoreConfig is done.
   // if restoreConfig ends up on a background thread, we'll want to explicitly
   // return a "status: notready" or something like it.

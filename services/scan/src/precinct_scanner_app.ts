@@ -542,11 +542,5 @@ export async function buildPrecinctScannerApp(
     }
   );
 
-  app.get('/*', (request, response) => {
-    const url = new URL(`http://${request.get('host')}${request.originalUrl}`);
-    url.port = '3000';
-    response.redirect(301, url.toString());
-  });
-
   return app;
 }
