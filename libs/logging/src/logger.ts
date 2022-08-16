@@ -95,7 +95,7 @@ export class Logger {
       }
     } else {
       // eslint-disable-next-line no-console
-      console.log(logLine);
+      console.log(JSON.stringify(logLine));
     }
   }
 
