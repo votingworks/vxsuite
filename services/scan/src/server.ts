@@ -45,6 +45,12 @@ export async function start({
   workspace,
   machineType = VX_MACHINE_TYPE,
 }: Partial<StartOptions> = {}): Promise<void> {
+  if (!VX_MACHINE_TYPE) {
+    throw new Error(
+      'Environment variable VX_MACHINE_TYPE must be set to "bsd" or "precinct-scanner"'
+    );
+  }
+
   let resolvedWorkspace: Workspace;
 
   if (workspace) {

@@ -41,11 +41,6 @@ export const VX_MACHINE_TYPE = safeParse(
   MachineTypeSchema,
   process.env.VX_MACHINE_TYPE
 ).ok();
-if (!VX_MACHINE_TYPE) {
-  throw new Error(
-    'Environment variable VX_MACHINE_TYPE must be set to "bsd" or "precinct-scanner"'
-  );
-}
 
 export enum ScannerLocation {
   Central = 'Central',
