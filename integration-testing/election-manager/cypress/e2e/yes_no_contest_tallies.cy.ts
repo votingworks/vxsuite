@@ -9,7 +9,6 @@ import {
   assertExpectedResultsMatchTallyReport,
 } from '../support/assertions';
 import {
-  electionWithMsEitherNeitherCypressHash,
   enterPin,
   mockCardRemoval,
   mockElectionManagerCardInsertion,
@@ -163,25 +162,34 @@ describe('Election Manager can create SEMS tallies', () => {
     enterPin();
     mockCardRemoval();
     cy.contains('Convert from SEMS files');
-    cy.get('input[type="file"]').attachFile('electionWithMsEitherNeither.json');
+    cy.get('input[type="file"]').selectFile(
+      {
+        contents: Cypress.Buffer.from(
+          electionWithMsEitherNeitherDefinition.electionData
+        ),
+        fileName: 'election.json',
+      },
+      { force: true }
+    );
     cy.contains('Election loading', { timeout: 8000 });
-    cy.contains(electionWithMsEitherNeitherCypressHash.slice(0, 10));
+    cy.contains(
+      electionWithMsEitherNeitherDefinition.electionHash.slice(0, 10)
+    );
     cy.pause();
     cy.contains('Lock Machine').click();
-    mockElectionManagerCardInsertion({
-      electionData: electionWithMsEitherNeitherDefinition.electionData,
-      electionHash: electionWithMsEitherNeitherCypressHash,
-    });
+    mockElectionManagerCardInsertion(electionWithMsEitherNeitherDefinition);
     enterPin();
     mockCardRemoval();
     cy.contains('Tally').click();
     cy.contains('Load CVR Files').click();
-    cy.get('input[data-testid="manual-input"]').attachFile({
-      fileContent: new Blob([fakeCvrFileContents]),
-      fileName: 'cvrFile.jsonl',
-      mimeType: 'text/plain',
-      encoding: 'utf-8',
-    });
+    cy.get('input[data-testid="manual-input"]').selectFile(
+      {
+        contents: Cypress.Buffer.from(fakeCvrFileContents),
+        fileName: 'cvrFile.jsonl',
+        mimeType: 'text/plain',
+      },
+      { force: true }
+    );
     cy.contains('Close').click();
     cy.get('[data-testid="total-cvr-count"]').within(() => cy.contains('8'));
 

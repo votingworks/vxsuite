@@ -43,7 +43,6 @@
     "@votingworks/test-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
     "cypress": "^10.3.1",
-    "cypress-file-upload": "^5.0.7",
     "start-server-and-test": "^1.12.5"
   },
   "devDependencies": {
