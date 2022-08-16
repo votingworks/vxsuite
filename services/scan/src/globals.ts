@@ -1,4 +1,4 @@
-import { unsafeParse } from '@votingworks/types';
+import { safeParse, unsafeParse } from '@votingworks/types';
 import { join } from 'path';
 import { z } from 'zod';
 
@@ -37,10 +37,10 @@ export const PORT = Number(process.env.PORT || 3002);
 /**
  * Which machine type is this?
  */
-export const VX_MACHINE_TYPE = unsafeParse(
+export const VX_MACHINE_TYPE = safeParse(
   MachineTypeSchema,
-  process.env.VX_MACHINE_TYPE ?? 'bsd'
-);
+  process.env.VX_MACHINE_TYPE
+).ok();
 
 export enum ScannerLocation {
   Central = 'Central',

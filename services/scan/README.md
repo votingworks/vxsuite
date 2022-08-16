@@ -12,7 +12,10 @@ then run the service like so:
 ```sh
 # in services/scan
 pnpm build:watch &
-pnpm dev
+# For central scanner
+VX_MACHINE_TYPE=bsd pnpm dev
+# For precinct scanner
+VX_MACHINE_TYPE=precinct-scanner pnpm dev
 ```
 
 The server will be available at http://localhost:3002/.
@@ -26,13 +29,13 @@ that's appropriate for you.
 
 ```sh
 # single batch with single sheet
-MOCK_SCANNER_FILES=front.jpeg,back.jpeg pnpm dev
+VX_MACHINE_TYPE=bsd MOCK_SCANNER_FILES=front.jpeg,back.jpeg pnpm dev
 
 # single batch with multiple sheets
-MOCK_SCANNER_FILES=front-01.jpeg,back-01.jpeg,front-02.jpeg,back-02.jpeg pnpm dev
+VX_MACHINE_TYPE=bsd MOCK_SCANNER_FILES=front-01.jpeg,back-01.jpeg,front-02.jpeg,back-02.jpeg pnpm dev
 
 # multiple batches with one sheet each (note ",," batch separator)
-MOCK_SCANNER_FILES=front-01.jpeg,back-01.jpeg,,front-02.jpeg,back-02.jpeg pnpm dev
+VX_MACHINE_TYPE=bsd MOCK_SCANNER_FILES=front-01.jpeg,back-01.jpeg,,front-02.jpeg,back-02.jpeg pnpm dev
 
 # use a manifest file
 cat <<EOS > manifest
@@ -44,11 +47,11 @@ back-01.jpeg
 front-02.jpeg
 back-02.jpeg
 EOS
-MOCK_SCANNER_FILES=@manifest pnpm dev
+VX_MACHINE_TYPE=bsd MOCK_SCANNER_FILES=@manifest pnpm dev
 
 # scanning from an election backup file
 ./bin/extract-backup /path/to/election-backup.zip
-MOCK_SCANNER_FILES=@/path/to/election-backup/manifest pnpm dev
+VX_MACHINE_TYPE=bsd MOCK_SCANNER_FILES=@/path/to/election-backup/manifest pnpm dev
 ```
 
 If you are seeing unhandled promise rejection errors you may have an issue with
