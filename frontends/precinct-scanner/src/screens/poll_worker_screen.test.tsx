@@ -19,7 +19,7 @@ MockDate.set('2020-10-31T00:00:00.000Z');
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
-  fetchMock.post('/scan/export', {});
+  fetchMock.post('/precinct-scanner/export', {});
 });
 
 afterEach(() => {

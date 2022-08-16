@@ -69,9 +69,9 @@ beforeEach(() => {
 
 test('when services/scan does not respond shows loading screen', async () => {
   fetchMock
-    .get('/config/election', { status: 404 })
+    .get('/precinct-scanner/config/election', { status: 404 })
     .get('/machine-config', { body: getMachineConfigBody })
-    .get('/scanner/status', { status: 404 });
+    .get('/precinct-scanner/scanner/status', { status: 404 });
 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
@@ -82,16 +82,20 @@ test('when services/scan does not respond shows loading screen', async () => {
 test('services/scan fails to unconfigure', async () => {
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
-    .get('/config/election', { body: electionSampleDefinition })
-    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
-    .get('/config/precinct', {
+    .get('/precinct-scanner/config/election', {
+      body: electionSampleDefinition,
+    })
+    .get('/precinct-scanner/config/testMode', {
+      body: getTestModeConfigTrueResponseBody,
+    })
+    .get('/precinct-scanner/config/precinct', {
       body: getPrecinctConfigNoPrecinctResponseBody,
     })
-    .get('/config/markThresholdOverrides', {
+    .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
     })
-    .get('/scanner/status', statusNoPaper)
-    .deleteOnce('/config/election', { status: 404 });
+    .get('/precinct-scanner/scanner/status', statusNoPaper)
+    .deleteOnce('/precinct-scanner/config/election', { status: 404 });
 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
@@ -122,16 +126,20 @@ test('services/scan fails to unconfigure', async () => {
 test('Show invalid card screen when unsupported cards are given', async () => {
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
-    .get('/config/election', { body: electionSampleDefinition })
-    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
-    .get('/config/precinct', {
+    .get('/precinct-scanner/config/election', {
+      body: electionSampleDefinition,
+    })
+    .get('/precinct-scanner/config/testMode', {
+      body: getTestModeConfigTrueResponseBody,
+    })
+    .get('/precinct-scanner/config/precinct', {
       body: getPrecinctConfigNoPrecinctResponseBody,
     })
-    .get('/config/markThresholdOverrides', {
+    .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
     })
-    .deleteOnce('/config/election', { status: 404 })
-    .get('/scanner/status', statusNoPaper);
+    .deleteOnce('/precinct-scanner/config/election', { status: 404 })
+    .get('/precinct-scanner/scanner/status', statusNoPaper);
 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
@@ -178,16 +186,20 @@ test('Show invalid card screen when unsupported cards are given', async () => {
 test('show card backwards screen when card connection error occurs', async () => {
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
-    .get('/config/election', { body: electionSampleDefinition })
-    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
-    .get('/config/precinct', {
+    .get('/precinct-scanner/config/election', {
+      body: electionSampleDefinition,
+    })
+    .get('/precinct-scanner/config/testMode', {
+      body: getTestModeConfigTrueResponseBody,
+    })
+    .get('/precinct-scanner/config/precinct', {
       body: getPrecinctConfigNoPrecinctResponseBody,
     })
-    .get('/config/markThresholdOverrides', {
+    .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
     })
-    .deleteOnce('/config/election', { status: 404 })
-    .get('/scanner/status', statusNoPaper);
+    .deleteOnce('/precinct-scanner/config/election', { status: 404 })
+    .get('/precinct-scanner/scanner/status', statusNoPaper);
 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
@@ -211,13 +223,22 @@ test('shows internal wiring message when there is no plustek scanner, but tablet
   hardware.setBatteryDischarging(false);
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
-    .get('/config/election', { body: electionSampleDefinition })
-    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
-    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/config/markThresholdOverrides', {
+    .get('/precinct-scanner/config/election', {
+      body: electionSampleDefinition,
+    })
+    .get('/precinct-scanner/config/testMode', {
+      body: getTestModeConfigTrueResponseBody,
+    })
+    .get('/precinct-scanner/config/precinct', {
+      body: getPrecinctConfigNoPrecinctResponseBody,
+    })
+    .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
     })
-    .get('/scanner/status', { ...statusNoPaper, state: 'disconnected' });
+    .get('/precinct-scanner/scanner/status', {
+      ...statusNoPaper,
+      state: 'disconnected',
+    });
   render(<App card={card} storage={storage} hardware={hardware} />);
   await screen.findByRole('heading', { name: 'Internal Connection Problem' });
   screen.getByText('Please ask a poll worker for help.');
@@ -231,26 +252,37 @@ test('shows power cable message when there is no plustek scanner and tablet is n
   hardware.setBatteryDischarging(true);
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
-    .get('/config/election', { body: electionSampleDefinition })
-    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
-    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/config/markThresholdOverrides', {
+    .get('/precinct-scanner/config/election', {
+      body: electionSampleDefinition,
+    })
+    .get('/precinct-scanner/config/testMode', {
+      body: getTestModeConfigTrueResponseBody,
+    })
+    .get('/precinct-scanner/config/precinct', {
+      body: getPrecinctConfigNoPrecinctResponseBody,
+    })
+    .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
     })
-    .get('/scanner/status', { ...statusNoPaper, state: 'disconnected' });
+    .get('/precinct-scanner/scanner/status', {
+      ...statusNoPaper,
+      state: 'disconnected',
+    });
   render(<App card={card} storage={storage} hardware={hardware} />);
   await screen.findByRole('heading', { name: 'No Power Detected' });
   screen.getByText('Please ask a poll worker to plug in the power cord.');
 
   fetchMock.get(
-    '/scanner/status',
+    '/precinct-scanner/scanner/status',
     { body: statusNoPaper },
     { overwriteRoutes: true }
   );
   act(() => hardware.setPrecinctScannerConnected(true));
   await screen.findByRole('heading', { name: 'Polls Closed' });
   await advanceTimersAndPromises(1);
-  await waitFor(() => expect(fetchMock.lastUrl()).toEqual('/scanner/status'));
+  await waitFor(() =>
+    expect(fetchMock.lastUrl()).toEqual('/precinct-scanner/scanner/status')
+  );
   expect(fetchMock.done()).toBe(true);
 });
 
@@ -266,15 +298,21 @@ test('App shows warning message to connect to power when disconnected', async ()
   window.kiosk = kiosk;
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
-    .get('/config/election', { body: electionSampleDefinition })
-    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
-    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/config/markThresholdOverrides', {
+    .get('/precinct-scanner/config/election', {
+      body: electionSampleDefinition,
+    })
+    .get('/precinct-scanner/config/testMode', {
+      body: getTestModeConfigTrueResponseBody,
+    })
+    .get('/precinct-scanner/config/precinct', {
+      body: getPrecinctConfigNoPrecinctResponseBody,
+    })
+    .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
     })
-    .get('/scanner/status', { body: statusNoPaper });
+    .get('/precinct-scanner/scanner/status', { body: statusNoPaper });
   render(<App card={card} hardware={hardware} storage={storage} />);
-  fetchMock.post('/scan/export', {});
+  fetchMock.post('/precinct-scanner/export', {});
   await advanceTimersAndPromises(1);
   await screen.findByText('Polls Closed');
   await screen.findByText('No Power Detected.');
@@ -322,14 +360,20 @@ test('removing card during calibration', async () => {
   window.kiosk = kiosk;
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
-    .get('/config/election', { body: electionSampleDefinition })
-    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
-    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/config/markThresholdOverrides', {
+    .get('/precinct-scanner/config/election', {
+      body: electionSampleDefinition,
+    })
+    .get('/precinct-scanner/config/testMode', {
+      body: getTestModeConfigTrueResponseBody,
+    })
+    .get('/precinct-scanner/config/precinct', {
+      body: getPrecinctConfigNoPrecinctResponseBody,
+    })
+    .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
     })
-    .get('/scanner/status', { body: statusNoPaper })
-    .post('/scan/export', {});
+    .get('/precinct-scanner/scanner/status', { body: statusNoPaper })
+    .post('/precinct-scanner/export', {});
   render(
     <App card={card} hardware={hardware} storage={storage} logger={logger} />
   );
@@ -355,31 +399,35 @@ test('removing card during calibration', async () => {
   await authenticateElectionManagerCard();
 
   const { promise, resolve } = deferred();
-  fetchMock.post('/scanner/calibrate', promise);
+  fetchMock.post('/precinct-scanner/scanner/calibrate', promise);
   userEvent.click(
     await screen.findByRole('button', { name: 'Calibrate Scanner' })
   );
   await screen.findByText('Waiting for Paper');
   fetchMock.getOnce(
-    '/scanner/status',
+    '/precinct-scanner/scanner/status',
     { body: scannerStatus({ state: 'ready_to_scan' }) },
     { overwriteRoutes: true }
   );
   userEvent.click(await screen.findByRole('button', { name: 'Calibrate' }));
-  expect(fetchMock.calls('/scanner/calibrate')).toHaveLength(1);
+  expect(fetchMock.calls('/precinct-scanner/scanner/calibrate')).toHaveLength(
+    1
+  );
   await screen.findByText(/Calibrating/);
 
   fetchMock.get(
-    '/scanner/status',
+    '/precinct-scanner/scanner/status',
     { body: scannerStatus({ state: 'calibrating' }) },
     { overwriteRoutes: true }
   );
   // Wait for status to update to calibrating (no way to tell on screen)
-  const statusCallCount = fetchMock.calls('/scanner/status').length;
+  const statusCallCount = fetchMock.calls(
+    '/precinct-scanner/scanner/status'
+  ).length;
   await waitFor(() =>
-    expect(fetchMock.calls('/scanner/status').length).toBeGreaterThan(
-      statusCallCount
-    )
+    expect(
+      fetchMock.calls('/precinct-scanner/scanner/status').length
+    ).toBeGreaterThan(statusCallCount)
   );
 
   // Removing card shouldn't crash the app - for now we just show a blank screen
@@ -389,7 +437,7 @@ test('removing card during calibration', async () => {
   });
 
   fetchMock.get(
-    '/scanner/status',
+    '/precinct-scanner/scanner/status',
     { body: statusNoPaper },
     { overwriteRoutes: true }
   );

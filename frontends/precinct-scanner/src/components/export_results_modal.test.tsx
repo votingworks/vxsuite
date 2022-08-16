@@ -89,7 +89,7 @@ test('render export modal when a usb drive is mounted as expected and allows cus
   mockKiosk.saveAs = saveAsFunction;
   mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
 
-  fetchMock.postOnce('/scan/export', {
+  fetchMock.postOnce('/precinct-scanner/export', {
     body: '',
   });
 
@@ -121,7 +121,7 @@ test('render export modal when a usb drive is mounted as expected and allows cus
   await waitFor(() => {
     expect(saveAsFunction).toHaveBeenCalledTimes(1);
   });
-  expect(fetchMock.called('/scan/export')).toBe(true);
+  expect(fetchMock.called('/precinct-scanner/export')).toBe(true);
 
   fireEvent.click(getByText('Cancel'));
   expect(closeFn).toHaveBeenCalled();
@@ -132,7 +132,7 @@ test('render export modal when a usb drive is mounted as expected and allows aut
   window.kiosk = mockKiosk;
   mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
 
-  fetchMock.postOnce('/scan/export', {
+  fetchMock.postOnce('/precinct-scanner/export', {
     body: '',
   });
 
@@ -178,7 +178,7 @@ test('render export modal when a usb drive is mounted as expected and allows aut
     ),
     expect.anything()
   );
-  expect(fetchMock.called('/scan/export')).toBe(true);
+  expect(fetchMock.called('/precinct-scanner/export')).toBe(true);
 
   fireEvent.click(getByText('Eject USB'));
   expect(ejectFn).toHaveBeenCalled();
@@ -209,7 +209,7 @@ test('render export modal with errors when appropriate', async () => {
   const mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
 
-  fetchMock.postOnce('/scan/export', {
+  fetchMock.postOnce('/precinct-scanner/export', {
     body: '',
   });
 

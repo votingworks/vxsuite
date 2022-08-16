@@ -69,9 +69,11 @@ export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
           SCANNER_BACKUPS_FOLDER,
           electionFolderName
         );
-        result = await download('/scan/backup', { into: pathToFolder });
+        result = await download('/precinct-scanner/backup', {
+          into: pathToFolder,
+        });
       } else {
-        result = await download('/scan/backup');
+        result = await download('/precinct-scanner/backup');
       }
 
       if (window.kiosk) {

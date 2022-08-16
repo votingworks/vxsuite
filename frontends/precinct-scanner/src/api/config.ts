@@ -73,7 +73,7 @@ export async function getElectionDefinition(): Promise<
   return (
     (safeParseJson(
       await (
-        await fetch('/config/election', {
+        await fetch('/precinct-scanner/config/election', {
           headers: { Accept: 'application/json' },
         })
       ).text(),
@@ -88,34 +88,37 @@ export async function setElection(
   { ignoreBackupRequirement }: { ignoreBackupRequirement?: boolean } = {}
 ): Promise<void> {
   if (typeof electionData === 'undefined') {
-    let deletionUrl = '/config/election';
+    let deletionUrl = '/precinct-scanner/config/election';
     if (ignoreBackupRequirement) {
       deletionUrl += '?ignoreBackupRequirement=true';
     }
     await del(deletionUrl);
   } else {
     // TODO(528) add proper typing here
-    await patch('/config/election', electionData);
+    await patch('/precinct-scanner/config/election', electionData);
   }
 }
 
 export async function getTestMode(): Promise<boolean> {
   return safeParseJson(
-    await (await fetch('/config/testMode')).text(),
+    await (await fetch('/precinct-scanner/config/testMode')).text(),
     Scan.GetTestModeConfigResponseSchema
   ).unsafeUnwrap().testMode;
 }
 
 export async function setTestMode(testMode: boolean): Promise<void> {
-  await patch<Scan.PatchTestModeConfigRequest>('/config/testMode', {
-    testMode,
-  });
+  await patch<Scan.PatchTestModeConfigRequest>(
+    '/precinct-scanner/config/testMode',
+    {
+      testMode,
+    }
+  );
 }
 
 export async function getMarkThresholds(): Promise<Optional<MarkThresholds>> {
   return safeParseJson(
     await (
-      await fetch('/config/markThresholdOverrides', {
+      await fetch('/precinct-scanner/config/markThresholdOverrides', {
         headers: { Accept: 'application/json' },
       })
     ).text(),
@@ -127,10 +130,10 @@ export async function setMarkThresholdOverrides(
   markThresholdOverrides?: MarkThresholds
 ): Promise<void> {
   if (typeof markThresholdOverrides === 'undefined') {
-    await del('/config/markThresholdOverrides');
+    await del('/precinct-scanner/config/markThresholdOverrides');
   } else {
     await patch<Scan.PatchMarkThresholdOverridesConfigRequest>(
-      '/config/markThresholdOverrides',
+      '/precinct-scanner/config/markThresholdOverrides',
       { markThresholdOverrides }
     );
   }
@@ -141,7 +144,7 @@ export async function getCurrentPrecinctId(): Promise<
 > {
   return safeParseJson(
     await (
-      await fetch('/config/precinct', {
+      await fetch('/precinct-scanner/config/precinct', {
         headers: { Accept: 'application/json' },
       })
     ).text(),
@@ -153,10 +156,13 @@ export async function setCurrentPrecinctId(
   precinctId?: Precinct['id']
 ): Promise<void> {
   if (!precinctId) {
-    await del('/config/precinct');
+    await del('/precinct-scanner/config/precinct');
   } else {
-    await put<Scan.PutCurrentPrecinctConfigRequest>('/config/precinct', {
-      precinctId,
-    });
+    await put<Scan.PutCurrentPrecinctConfigRequest>(
+      '/precinct-scanner/config/precinct',
+      {
+        precinctId,
+      }
+    );
   }
 }

@@ -60,7 +60,7 @@ test('scanner not available', async () => {
 
 test('calibrate success', async () => {
   const { promise, resolve } = deferred<{ body: Scan.CalibrateResponse }>();
-  fetchMock.postOnce('/scanner/calibrate', promise);
+  fetchMock.postOnce('/precinct-scanner/scanner/calibrate', promise);
   render(
     <CalibrateScannerModal
       // Note that in reality, scanner status would update as the scanner
@@ -83,7 +83,7 @@ test('calibrate success', async () => {
 
 test('calibrate error and cancel', async () => {
   const { promise, resolve } = deferred<{ body: Scan.CalibrateResponse }>();
-  fetchMock.postOnce('/scanner/calibrate', promise);
+  fetchMock.postOnce('/precinct-scanner/scanner/calibrate', promise);
   const onCancel = jest.fn();
   render(
     <CalibrateScannerModal
@@ -115,7 +115,7 @@ test('calibrate error and cancel', async () => {
 
 test('calibrate error and try again', async () => {
   const { promise, resolve } = deferred<{ body: Scan.CalibrateResponse }>();
-  fetchMock.postOnce('/scanner/calibrate', promise);
+  fetchMock.postOnce('/precinct-scanner/scanner/calibrate', promise);
   render(
     <CalibrateScannerModal
       // Note that in reality, scanner status would update as the scanner
@@ -148,7 +148,7 @@ test('calibrate error and try again', async () => {
 // "An update to CalibrateScannerModal inside a test was not wrapped in act(...)."
 test('unmount during calibration (e.g. if election manager card removed)', async () => {
   const { promise, resolve } = deferred<{ body: Scan.CalibrateResponse }>();
-  fetchMock.postOnce('/scanner/calibrate', promise);
+  fetchMock.postOnce('/precinct-scanner/scanner/calibrate', promise);
   const { unmount } = render(
     <CalibrateScannerModal
       scannerStatus={{ ...fakeScannerStatus, state: 'ready_to_scan' }}

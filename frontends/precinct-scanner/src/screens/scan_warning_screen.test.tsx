@@ -27,7 +27,9 @@ function renderScreen(props: Props) {
 }
 
 test('overvote', () => {
-  fetchMock.postOnce('/scanner/accept', { body: { status: 'ok' } });
+  fetchMock.postOnce('/precinct-scanner/scanner/accept', {
+    body: { status: 'ok' },
+  });
   const contest = electionSampleDefinition.election.contests.find(
     (c): c is CandidateContest => c.type === 'candidate'
   )!;
@@ -60,7 +62,9 @@ test('overvote', () => {
 });
 
 test('blank ballot', () => {
-  fetchMock.postOnce('/scanner/accept', { body: { status: 'ok' } });
+  fetchMock.postOnce('/precinct-scanner/scanner/accept', {
+    body: { status: 'ok' },
+  });
   renderScreen({
     adjudicationReasonInfo: [{ type: AdjudicationReason.BlankBallot }],
   });
@@ -79,7 +83,9 @@ test('blank ballot', () => {
 });
 
 test('undervote no votes', () => {
-  fetchMock.postOnce('/scanner/accept', { body: { status: 'ok' } });
+  fetchMock.postOnce('/precinct-scanner/scanner/accept', {
+    body: { status: 'ok' },
+  });
   const contest = electionSampleDefinition.election.contests.find(
     (c): c is CandidateContest => c.type === 'candidate'
   )!;
@@ -108,7 +114,9 @@ test('undervote no votes', () => {
 });
 
 test('undervote by 1', () => {
-  fetchMock.postOnce('/scanner/accept', { body: { status: 'ok' } });
+  fetchMock.postOnce('/precinct-scanner/scanner/accept', {
+    body: { status: 'ok' },
+  });
   const contest = electionSampleDefinition.election.contests.find(
     (c): c is CandidateContest => c.type === 'candidate' && c.seats > 1
   )!;
@@ -141,7 +149,9 @@ test('undervote by 1', () => {
 });
 
 test('multiple undervotes', () => {
-  fetchMock.postOnce('/scanner/accept', { body: { status: 'ok' } });
+  fetchMock.postOnce('/precinct-scanner/scanner/accept', {
+    body: { status: 'ok' },
+  });
   const contests = electionSampleDefinition.election.contests
     .filter((c): c is CandidateContest => c.type === 'candidate')
     .slice(0, 2);
@@ -170,7 +180,9 @@ test('multiple undervotes', () => {
 });
 
 test('unreadable', () => {
-  fetchMock.postOnce('/scanner/accept', { body: { status: 'ok' } });
+  fetchMock.postOnce('/precinct-scanner/scanner/accept', {
+    body: { status: 'ok' },
+  });
 
   renderScreen({
     adjudicationReasonInfo: [

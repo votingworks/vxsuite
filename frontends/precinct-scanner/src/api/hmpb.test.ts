@@ -26,8 +26,12 @@ test('configures the server with the contained election', async () => {
 });
 
 test('emits an event each time a ballot begins uploading', async () => {
-  fetchMock.patchOnce('/config/election', { body: { status: 'ok' } });
-  fetchMock.post('/scan/hmpb/addTemplates', { body: { status: 'ok' } });
+  fetchMock.patchOnce('/precinct-scanner/config/election', {
+    body: { status: 'ok' },
+  });
+  fetchMock.post('/precinct-scanner/config/addTemplates', {
+    body: { status: 'ok' },
+  });
 
   const uploading = jest.fn();
 
@@ -74,7 +78,9 @@ test('emits an event each time a ballot begins uploading', async () => {
       });
   });
 
-  expect(fetchMock.calls('/scan/hmpb/addTemplates').length).toEqual(2);
+  expect(
+    fetchMock.calls('/precinct-scanner/config/addTemplates').length
+  ).toEqual(2);
 });
 
 test('emits error on API failure', async () => {

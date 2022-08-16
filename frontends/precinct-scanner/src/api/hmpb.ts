@@ -82,7 +82,10 @@ export function addTemplates(pkg: BallotPackage): AddTemplatesEvents {
           );
         }
 
-        await fetch('/scan/hmpb/addTemplates', { method: 'POST', body });
+        await fetch('/precinct-scanner/config/addTemplates', {
+          method: 'POST',
+          body,
+        });
       }
 
       result.emit('completed', pkg);
@@ -96,5 +99,5 @@ export function addTemplates(pkg: BallotPackage): AddTemplatesEvents {
 }
 
 export async function doneTemplates(): Promise<void> {
-  await fetch('/scan/hmpb/doneTemplates', { method: 'POST' });
+  await fetch('/precinct-scanner/config/doneTemplates', { method: 'POST' });
 }
