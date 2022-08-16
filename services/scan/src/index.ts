@@ -38,7 +38,7 @@ const createPlustekClient =
     : undefined;
 
 function getScanner(): Scanner | undefined {
-  if (VX_MACHINE_TYPE === 'precinct-scanner') return undefined;
+  if (VX_MACHINE_TYPE !== 'bsd') return undefined;
 
   const mockScannerFiles = parseBatchesFromEnv(MOCK_SCANNER_FILES);
   if (!mockScannerFiles) return undefined;

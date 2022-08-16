@@ -6,6 +6,7 @@
 import { Logger, LogEventId, LogSource } from '@votingworks/logging';
 import express, { Application } from 'express';
 import { createClient } from '@votingworks/plustek-sdk';
+import { assert } from '@votingworks/utils';
 import { PORT, SCAN_WORKSPACE, VX_MACHINE_TYPE } from './globals';
 import { Importer } from './importer';
 import { FujitsuScanner, Scanner, ScannerMode } from './scanners';
@@ -79,6 +80,7 @@ export async function start({
       resolvedWorkspace
     );
   } else {
+    assert(machineType === 'bsd');
     let resolvedScanner: Scanner;
     if (scanner) {
       resolvedScanner = scanner;

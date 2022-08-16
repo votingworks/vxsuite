@@ -20,5 +20,6 @@ build: build-scan build-bsd build-smartcards
 
 run:
 	export NODE_ENV=production
+	export VX_MACHINE_TYPE=bsd
 	(trap 'kill 0' SIGINT SIGHUP; make -C $(SMARTCARDS) run & make -C $(SCAN) run & make -C $(BSD) run)
 
