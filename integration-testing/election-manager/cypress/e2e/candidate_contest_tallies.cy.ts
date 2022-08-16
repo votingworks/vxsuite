@@ -113,7 +113,7 @@ describe('Election Manager can create SEMS tallies', () => {
       { contents: Cypress.Buffer.from(electionDefinition.electionData) },
       { force: true }
     );
-    cy.contains('Election loading');
+    cy.contains('Election loading', { timeout: 8000 });
     cy.contains(electionDefinition.electionHash.slice(0, 10));
     cy.pause();
     cy.contains('Lock Machine').click();
@@ -232,7 +232,7 @@ describe('Election Manager can create SEMS tallies', () => {
     // Check that the exported SEMS result file as the correct tallies
     cy.contains('Save SEMS Results').click();
     cy.get('[data-testid="manual-export"]').click();
-    cy.contains('Results Saved');
+    cy.contains('Results Saved', { timeout: 8000 });
     cy.task<string>('readMostRecentFile', 'cypress/downloads').then(
       (fileContent) => {
         assertExpectedResultsMatchSEMsFile(

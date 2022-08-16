@@ -19,7 +19,7 @@ describe('Election Manager and Module Converter MS SEMS configuration', () => {
       'cypress/fixtures/semsCandidateMappingFile.txt',
       { force: true }
     );
-    cy.contains('Election loading');
+    cy.contains('Election loading', { timeout: 8000 });
     cy.contains('Special Election for Senate 15');
     cy.contains('0d610ab44c');
     // The page renders twice when first loaded, make sure that is done before we navigate.
