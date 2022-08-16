@@ -42,7 +42,7 @@ export async function buildCentralScannerApp({
   app.use(express.urlencoded({ extended: false }));
 
   app.get<NoParams, Scan.GetElectionConfigResponse>(
-    '/config/election',
+    '/central-scanner/config/election',
     (request, response) => {
       const electionDefinition = store.getElectionDefinition();
 
@@ -64,7 +64,7 @@ export async function buildCentralScannerApp({
     NoParams,
     Scan.PatchElectionConfigResponse,
     Scan.PatchElectionConfigRequest
-  >('/config/election', (request, response) => {
+  >('/central-scanner/config/election', (request, response) => {
     const { body } = request;
 
     if (!Buffer.isBuffer(body)) {
@@ -105,7 +105,7 @@ export async function buildCentralScannerApp({
   });
 
   app.delete<NoParams, Scan.DeleteElectionConfigResponse>(
-    '/config/election',
+    '/central-scanner/config/election',
     async (request, response) => {
       if (
         !store.getCanUnconfigure() &&
@@ -130,12 +130,12 @@ export async function buildCentralScannerApp({
   );
 
   app.put<
-    '/config/package',
+    '/central-scanner/config/package',
     NoParams,
     Scan.PutConfigPackageResponse,
     Scan.PutConfigPackageRequest
   >(
-    '/config/package',
+    '/central-scanner/config/package',
     upload.fields([{ name: 'package', maxCount: 1 }]),
     async (request, response) => {
       const file = !Array.isArray(request.files)
@@ -167,7 +167,7 @@ export async function buildCentralScannerApp({
   );
 
   app.get<NoParams, Scan.GetTestModeConfigResponse>(
-    '/config/testMode',
+    '/central-scanner/config/testMode',
     (_request, response) => {
       const testMode = store.getTestMode();
       response.json({ status: 'ok', testMode });
@@ -178,7 +178,7 @@ export async function buildCentralScannerApp({
     NoParams,
     Scan.PatchTestModeConfigResponse,
     Scan.PatchTestModeConfigRequest
-  >('/config/testMode', async (request, response) => {
+  >('/central-scanner/config/testMode', async (request, response) => {
     const bodyParseResult = safeParse(
       Scan.PatchTestModeConfigRequestSchema,
       request.body
@@ -198,7 +198,7 @@ export async function buildCentralScannerApp({
   });
 
   app.get<NoParams, Scan.GetCurrentPrecinctConfigResponse>(
-    '/config/precinct',
+    '/central-scanner/config/precinct',
     (_request, response) => {
       const precinctId = store.getCurrentPrecinctId();
       response.json({ status: 'ok', precinctId });
@@ -209,7 +209,7 @@ export async function buildCentralScannerApp({
     NoParams,
     Scan.PutCurrentPrecinctConfigResponse,
     Scan.PutCurrentPrecinctConfigRequest
-  >('/config/precinct', (request, response) => {
+  >('/central-scanner/config/precinct', (request, response) => {
     const bodyParseResult = safeParse(
       Scan.PutCurrentPrecinctConfigRequestSchema,
       request.body
@@ -229,7 +229,7 @@ export async function buildCentralScannerApp({
   });
 
   app.delete<NoParams, Scan.DeleteCurrentPrecinctConfigResponse>(
-    '/config/precinct',
+    '/central-scanner/config/precinct',
     (_request, response) => {
       store.setCurrentPrecinctId(undefined);
       response.json({ status: 'ok' });
@@ -237,7 +237,7 @@ export async function buildCentralScannerApp({
   );
 
   app.get<NoParams, Scan.GetMarkThresholdOverridesConfigResponse>(
-    '/config/markThresholdOverrides',
+    '/central-scanner/config/markThresholdOverrides',
     (_request, response) => {
       const markThresholdOverrides = store.getMarkThresholdOverrides();
       response.json({ status: 'ok', markThresholdOverrides });
@@ -245,7 +245,7 @@ export async function buildCentralScannerApp({
   );
 
   app.delete<NoParams, Scan.DeleteMarkThresholdOverridesConfigResponse>(
-    '/config/markThresholdOverrides',
+    '/central-scanner/config/markThresholdOverrides',
     async (_request, response) => {
       await importer.setMarkThresholdOverrides(undefined);
       response.json({ status: 'ok' });
@@ -256,32 +256,35 @@ export async function buildCentralScannerApp({
     NoParams,
     Scan.PatchMarkThresholdOverridesConfigResponse,
     Scan.PatchMarkThresholdOverridesConfigRequest
-  >('/config/markThresholdOverrides', async (request, response) => {
-    const bodyParseResult = safeParse(
-      Scan.PatchMarkThresholdOverridesConfigRequestSchema,
-      request.body
-    );
+  >(
+    '/central-scanner/config/markThresholdOverrides',
+    async (request, response) => {
+      const bodyParseResult = safeParse(
+        Scan.PatchMarkThresholdOverridesConfigRequestSchema,
+        request.body
+      );
 
-    if (bodyParseResult.isErr()) {
-      const error = bodyParseResult.err();
-      response.status(400).json({
-        status: 'error',
-        errors: [{ type: error.name, message: error.message }],
-      });
-      return;
+      if (bodyParseResult.isErr()) {
+        const error = bodyParseResult.err();
+        response.status(400).json({
+          status: 'error',
+          errors: [{ type: error.name, message: error.message }],
+        });
+        return;
+      }
+
+      await importer.setMarkThresholdOverrides(
+        bodyParseResult.ok().markThresholdOverrides
+      );
+      response.json({ status: 'ok' });
     }
-
-    await importer.setMarkThresholdOverrides(
-      bodyParseResult.ok().markThresholdOverrides
-    );
-    response.json({ status: 'ok' });
-  });
+  );
 
   app.patch<
     NoParams,
     Scan.PatchSkipElectionHashCheckConfigResponse,
     Scan.PatchSkipElectionHashCheckConfigRequest
-  >('/config/skipElectionHashCheck', (request, response) => {
+  >('/central-scanner/config/skipElectionHashCheck', (request, response) => {
     const bodyParseResult = safeParse(
       Scan.PatchSkipElectionHashCheckConfigRequestSchema,
       request.body
@@ -303,7 +306,7 @@ export async function buildCentralScannerApp({
   });
 
   app.post<NoParams, Scan.ScanBatchResponse, Scan.ScanBatchRequest>(
-    '/scan/scanBatch',
+    '/central-scanner/scan/scanBatch',
     async (_request, response) => {
       try {
         const batchId = await importer.startImport();
@@ -319,7 +322,7 @@ export async function buildCentralScannerApp({
   );
 
   app.post<NoParams, Scan.ScanContinueResponse, Scan.ScanContinueRequest>(
-    '/scan/scanContinue',
+    '/central-scanner/scan/scanContinue',
     async (request, response) => {
       const bodyParseResult = safeParse(
         Scan.ScanContinueRequestSchema,
@@ -355,7 +358,7 @@ export async function buildCentralScannerApp({
   );
 
   app.post<NoParams, Scan.AddTemplatesResponse, Scan.AddTemplatesRequest>(
-    '/scan/hmpb/addTemplates',
+    '/central-scanner/scan/hmpb/addTemplates',
     upload.fields([
       { name: 'ballots' },
       { name: 'metadatas' },
@@ -467,13 +470,16 @@ export async function buildCentralScannerApp({
     }
   );
 
-  app.post('/scan/hmpb/doneTemplates', async (_request, response) => {
-    await importer.doneHmpbTemplates();
-    response.json({ status: 'ok' });
-  });
+  app.post(
+    '/central-scanner/scan/hmpb/doneTemplates',
+    async (_request, response) => {
+      await importer.doneHmpbTemplates();
+      response.json({ status: 'ok' });
+    }
+  );
 
   app.post<NoParams, Scan.ExportResponse, Scan.ExportRequest>(
-    '/scan/export',
+    '/central-scanner/scan/export',
     (_request, response) => {
       const cvrs = importer.doExport();
       store.setCvrsAsBackedUp();
@@ -483,7 +489,7 @@ export async function buildCentralScannerApp({
   );
 
   app.get<NoParams, Scan.GetScanStatusResponse>(
-    '/scan/status',
+    '/central-scanner/scan/status',
     async (_request, response) => {
       const status = await importer.getStatus();
       response.json(status);
@@ -491,7 +497,7 @@ export async function buildCentralScannerApp({
   );
 
   app.post<NoParams, Scan.CalibrateResponse, Scan.CalibrateRequest>(
-    '/scan/calibrate',
+    '/central-scanner/scan/calibrate',
     async (_request, response) => {
       const success = await importer.doCalibrate();
       response.json(
@@ -512,22 +518,28 @@ export async function buildCentralScannerApp({
     }
   );
 
-  app.get('/scan/hmpb/ballot/:sheetId/:side/image', (request, response) => {
-    const { sheetId, side } = request.params;
+  app.get(
+    '/central-scanner/scan/hmpb/ballot/:sheetId/:side/image',
+    (request, response) => {
+      const { sheetId, side } = request.params;
 
-    if (typeof sheetId !== 'string' || (side !== 'front' && side !== 'back')) {
-      response.status(404);
-      return;
+      if (
+        typeof sheetId !== 'string' ||
+        (side !== 'front' && side !== 'back')
+      ) {
+        response.status(404);
+        return;
+      }
+
+      response.redirect(
+        301,
+        `/central-scanner/scan/hmpb/ballot/${sheetId}/${side}/image/normalized`
+      );
     }
-
-    response.redirect(
-      301,
-      `/scan/hmpb/ballot/${sheetId}/${side}/image/normalized`
-    );
-  });
+  );
 
   app.get(
-    '/scan/hmpb/ballot/:sheetId/:side/image/:version',
+    '/central-scanner/scan/hmpb/ballot/:sheetId/:side/image/:version',
     (request, response) => {
       const { sheetId, side, version } = request.params;
 
@@ -549,7 +561,7 @@ export async function buildCentralScannerApp({
     }
   );
 
-  app.delete('/scan/batch/:batchId', (request, response) => {
+  app.delete('/central-scanner/scan/batch/:batchId', (request, response) => {
     if (store.deleteBatch(request.params.batchId)) {
       response.json({ status: 'ok' });
     } else {
@@ -558,7 +570,7 @@ export async function buildCentralScannerApp({
   });
 
   app.get<NoParams, Scan.GetNextReviewSheetResponse>(
-    '/scan/hmpb/review/next-sheet',
+    '/central-scanner/scan/hmpb/review/next-sheet',
     (_request, response) => {
       const sheet = store.getNextAdjudicationSheet();
 
@@ -610,7 +622,7 @@ export async function buildCentralScannerApp({
   );
 
   app.post<NoParams, Scan.ZeroResponse, Scan.ZeroRequest>(
-    '/scan/zero',
+    '/central-scanner/scan/zero',
     async (_request, response) => {
       if (!store.getCanUnconfigure()) {
         response.status(400).json({
@@ -631,7 +643,7 @@ export async function buildCentralScannerApp({
     }
   );
 
-  app.get('/scan/backup', (_request, response) => {
+  app.get('/central-scanner/scan/backup', (_request, response) => {
     const electionDefinition = store.getElectionDefinition();
 
     if (!electionDefinition) {

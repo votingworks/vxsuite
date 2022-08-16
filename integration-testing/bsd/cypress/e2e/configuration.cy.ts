@@ -36,7 +36,7 @@ function removeCard() {
 describe('BSD and services/Scan', () => {
   beforeEach(() => {
     // Unconfigure services/scan
-    cy.request('DELETE', '/config/election');
+    cy.request('DELETE', '/central-scanner/config/election');
     mockElectionManagerCard();
     cy.visit('/');
     enterPin();

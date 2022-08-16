@@ -5,12 +5,12 @@ import { Scan } from '@votingworks/api';
 import * as config from './config';
 
 test('GET /config/election', async () => {
-  fetchMock.getOnce('/config/election', testElectionDefinition);
+  fetchMock.getOnce('/central-scanner/config/election', testElectionDefinition);
   expect(await config.getElectionDefinition()).toEqual(testElectionDefinition);
 });
 
 test('PATCH /config/election', async () => {
-  fetchMock.patchOnce('/config/election', {
+  fetchMock.patchOnce('/central-scanner/config/election', {
     body: typedAs<Scan.PatchElectionConfigResponse>({ status: 'ok' }),
   });
   await config.setElection(testElectionDefinition.electionData);
@@ -18,7 +18,7 @@ test('PATCH /config/election', async () => {
 
 test('PATCH /config/election fails', async () => {
   fetchMock.patchOnce(
-    '/config/election',
+    '/central-scanner/config/election',
     new Response(
       JSON.stringify(
         typedAs<Scan.PatchElectionConfigResponse>({
@@ -35,7 +35,7 @@ test('PATCH /config/election fails', async () => {
 });
 
 test('DELETE /config/election to delete election', async () => {
-  fetchMock.deleteOnce('/config/election', {
+  fetchMock.deleteOnce('/central-scanner/config/election', {
     body: typedAs<Scan.DeleteElectionConfigResponse>({ status: 'ok' }),
   });
   await config.setElection(undefined);

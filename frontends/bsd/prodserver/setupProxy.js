@@ -13,8 +13,7 @@ const { createProxyMiddleware: proxy } = require('http-proxy-middleware');
  */
 module.exports = function (app) {
   app.use(proxy('/card', { target: 'http://localhost:3001/' }));
-  app.use(proxy('/scan', { target: 'http://localhost:3002/' }));
-  app.use(proxy('/config', { target: 'http://localhost:3002/' }));
+  app.use(proxy('/central-scanner', { target: 'http://localhost:3002/' }));
 
   app.use('/machine-config', (req, res, next) => {
     if (req.method === 'GET') {

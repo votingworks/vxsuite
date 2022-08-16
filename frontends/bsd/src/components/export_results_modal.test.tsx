@@ -78,7 +78,7 @@ test('render export modal when a usb drive is mounted as expected and allows cus
   mockKiosk.saveAs = saveAsFunction;
   mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
 
-  fetchMock.postOnce('/scan/export', {
+  fetchMock.postOnce('/central-scanner/scan/export', {
     body: '',
   });
 
@@ -105,7 +105,7 @@ test('render export modal when a usb drive is mounted as expected and allows cus
   await waitFor(() => {
     expect(saveAsFunction).toHaveBeenCalledTimes(1);
   });
-  expect(fetchMock.called('/scan/export')).toBe(true);
+  expect(fetchMock.called('/central-scanner/scan/export')).toBe(true);
 
   fireEvent.click(getByText('Cancel'));
   expect(closeFn).toHaveBeenCalled();
@@ -116,7 +116,7 @@ test('render export modal when a usb drive is mounted as expected and allows aut
   window.kiosk = mockKiosk;
   mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
 
-  fetchMock.postOnce('/scan/export', {
+  fetchMock.postOnce('/central-scanner/scan/export', {
     body: '',
   });
 
@@ -146,7 +146,7 @@ test('render export modal when a usb drive is mounted as expected and allows aut
     { recursive: true }
   );
   expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
-  expect(fetchMock.called('/scan/export')).toBe(true);
+  expect(fetchMock.called('/central-scanner/scan/export')).toBe(true);
 
   getByText('Eject USB');
   fireEvent.click(getByText('Cancel'));
@@ -186,7 +186,7 @@ test('render export modal with errors when appropriate', async () => {
   const mockKiosk = fakeKiosk();
   window.kiosk = mockKiosk;
 
-  fetchMock.postOnce('/scan/export', {
+  fetchMock.postOnce('/central-scanner/scan/export', {
     body: '',
   });
 
