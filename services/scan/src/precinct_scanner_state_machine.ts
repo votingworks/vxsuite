@@ -407,6 +407,43 @@ function buildMachine(
     },
   };
 
+  function rejectingState(onDoneState: string): StateNodeConfig<
+    Context,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    any,
+    Event,
+    BaseActionObject
+  > {
+    return {
+      initial: 'starting',
+      states: {
+        starting: {
+          entry: (context) => recordRejectedSheet(store, context),
+          invoke: {
+            src: reject,
+            onDone: 'checking_completed',
+            onError: '#error_jammed',
+          },
+        },
+        // After rejecting, before the plustek grabs the paper to hold it, it sends
+        // NO_PAPER status for a bit before sending READY_TO_SCAN. So we need to
+        // wait for the READY_TO_SCAN.
+        checking_completed: {
+          invoke: pollPaperStatus,
+          on: {
+            SCANNER_NO_PAPER: { target: undefined },
+            SCANNER_READY_TO_SCAN: onDoneState,
+            SCANNER_READY_TO_EJECT: '#error_jammed',
+          },
+          // But, if you pull the paper out right after rejecting, we go straight to
+          // NO_PAPER, skipping READY_TO_SCAN completely. So we need to eventually
+          // timeout waiting for READY_TO_SCAN.
+          after: { DELAY_WAIT_FOR_HOLD_AFTER_REJECT: '#no_paper' },
+        },
+      },
+    };
+  }
+
   return createMachine<Context, Event>(
     {
       id: 'precinct_scanner',
@@ -679,33 +716,9 @@ function buildMachine(
           },
         },
         accepting_after_review: acceptingState,
-        returning: {
-          entry: (context) => recordRejectedSheet(store, context),
-          invoke: {
-            src: reject,
-            onDone: 'checking_returning_completed',
-            onError: 'error_jammed',
-          },
-        },
-        // After rejecting, before the plustek grabs the paper to hold it, it sends
-        // NO_PAPER status for a bit before sending READY_TO_SCAN. So we need to
-        // wait for the READY_TO_SCAN.
-        checking_returning_completed: {
-          invoke: pollPaperStatus,
-          on: {
-            SCANNER_NO_PAPER: {
-              target: 'checking_returning_completed',
-              internal: true,
-            },
-            SCANNER_READY_TO_SCAN: 'returned',
-            SCANNER_READY_TO_EJECT: 'error_jammed',
-          },
-          // But, if you pull the paper out right after rejecting, we go straight to
-          // NO_PAPER, skipping READY_TO_SCAN completely. So we need to eventually
-          // timeout waiting for READY_TO_SCAN.
-          after: { DELAY_WAIT_FOR_HOLD_AFTER_REJECT: 'no_paper' },
-        },
+        returning: { ...rejectingState('#returned') },
         returned: {
+          id: 'returned',
           invoke: pollPaperStatus,
           on: {
             SCANNER_READY_TO_SCAN: { target: 'returned', internal: true },
@@ -713,31 +726,8 @@ function buildMachine(
           },
         },
         rejecting: {
-          entry: (context) => recordRejectedSheet(store, context),
           id: 'rejecting',
-          invoke: {
-            src: reject,
-            onDone: 'checking_rejecting_completed',
-            onError: 'error_jammed',
-          },
-        },
-        // After rejecting, before the plustek grabs the paper to hold it, it sends
-        // NO_PAPER status for a bit before sending READY_TO_SCAN. So we need to
-        // wait for the READY_TO_SCAN.
-        checking_rejecting_completed: {
-          invoke: pollPaperStatus,
-          on: {
-            SCANNER_NO_PAPER: {
-              target: 'checking_rejecting_completed',
-              internal: true,
-            },
-            SCANNER_READY_TO_SCAN: 'rejected',
-            SCANNER_READY_TO_EJECT: 'error_jammed',
-          },
-          // But, if you pull the paper out right after rejecting, we go straight to
-          // NO_PAPER, skipping READY_TO_SCAN completely. So we need to eventually
-          // timeout waiting for READY_TO_SCAN.
-          after: { DELAY_WAIT_FOR_HOLD_AFTER_REJECT: 'no_paper' },
+          ...rejectingState('#rejected'),
         },
         // Paper has been rejected and is held in the front, waiting for removal.
         rejected: {
@@ -767,6 +757,7 @@ function buildMachine(
           },
         },
         error_jammed: {
+          id: 'error_jammed',
           invoke: pollPaperStatus,
           on: {
             SCANNER_NO_PAPER: 'no_paper',
@@ -980,13 +971,9 @@ export function createPrecinctScannerStateMachine(
             return 'accepting_after_review';
           case state.matches('returning'):
             return 'returning';
-          case state.matches('checking_returning_completed'):
-            return 'returning';
           case state.matches('returned'):
             return 'returned';
           case state.matches('rejecting'):
-            return 'rejecting';
-          case state.matches('checking_rejecting_completed'):
             return 'rejecting';
           case state.matches('rejected'):
             return 'rejected';
