@@ -1182,7 +1182,9 @@ test('system administrator can log in and unconfigure machine', async () => {
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
     })
     .get('/scanner/status', { body: statusNoPaper })
-    .delete('/config/election', { body: deleteElectionConfigResponseBody });
+    .delete('/config/election?ignoreBackupRequirement=true', {
+      body: deleteElectionConfigResponseBody,
+    });
   render(<App card={card} storage={storage} hardware={hardware} />);
 
   card.insertCard(makeSystemAdministratorCard());

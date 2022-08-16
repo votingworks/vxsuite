@@ -123,8 +123,11 @@ export function buildPrecinctScannerApp(
 
   app.delete<NoParams, Scan.DeleteElectionConfigResponse>(
     '/config/election',
-    (_request, response) => {
-      if (!store.getCanUnconfigure()) {
+    (request, response) => {
+      if (
+        !store.getCanUnconfigure() &&
+        request.query['ignoreBackupRequirement'] !== 'true'
+      ) {
         response.status(400).json({
           status: 'error',
           errors: [
