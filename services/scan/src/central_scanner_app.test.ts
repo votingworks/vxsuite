@@ -517,7 +517,7 @@ test('GET /scan/hmpb/ballot/:sheetId/image 404', async () => {
 });
 
 test('GET /', async () => {
-  await request(app).get('/').expect(301);
+  await request(app).get('/').expect(404);
 });
 
 test('POST /scan/hmpb/addTemplates bad template', async () => {
