@@ -1271,7 +1271,7 @@ test('system administrator can log in and unconfigure machine', async () => {
     .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
     })
-    .get('/scanner/status', { body: statusNoPaper })
+    .get('/precinct-scanner/scanner/status', { body: statusNoPaper })
     .delete('/precinct-scanner/config/election?ignoreBackupRequirement=true', {
       body: deleteElectionConfigResponseBody,
     });
