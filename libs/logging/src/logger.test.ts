@@ -27,15 +27,17 @@ test('logger logs server logs as expected', async () => {
     disposition: LogDispositionStandardTypes.Success,
     reputation: 'callitwhatyouwant',
   });
-  expect(console.log).toHaveBeenCalledWith({
-    source: LogSource.System,
-    eventId: LogEventId.MachineBootInit,
-    eventType: LogEventType.SystemAction,
-    user: 'system',
-    message: 'I come back stronger than a 90s trend',
-    disposition: LogDispositionStandardTypes.Success,
-    reputation: 'callitwhatyouwant',
-  });
+  expect(console.log).toHaveBeenCalledWith(
+    JSON.stringify({
+      source: LogSource.System,
+      eventId: LogEventId.MachineBootInit,
+      eventType: LogEventType.SystemAction,
+      user: 'system',
+      message: 'I come back stronger than a 90s trend',
+      disposition: LogDispositionStandardTypes.Success,
+      reputation: 'callitwhatyouwant',
+    })
+  );
 });
 
 test('logger logs client logs as expected through kiosk browser with overridden message', async () => {
@@ -93,17 +95,19 @@ test('logs unknown disposition as expected', async () => {
     ran: 'with',
     the: 'wolves',
   });
-  expect(console.log).toHaveBeenCalledWith({
-    source: LogSource.System,
-    eventId: LogEventId.MachineBootComplete,
-    eventType: LogEventType.SystemStatus,
-    user: 'system',
-    message: 'threw out our cloaks and our daggers now',
-    disposition: 'daylight',
-    maybe: 'you',
-    ran: 'with',
-    the: 'wolves',
-  });
+  expect(console.log).toHaveBeenCalledWith(
+    JSON.stringify({
+      source: LogSource.System,
+      eventId: LogEventId.MachineBootComplete,
+      eventType: LogEventType.SystemStatus,
+      user: 'system',
+      message: 'threw out our cloaks and our daggers now',
+      disposition: 'daylight',
+      maybe: 'you',
+      ran: 'with',
+      the: 'wolves',
+    })
+  );
 });
 
 test('logging from a client side app without sending window.kiosk does NOT log to console', async () => {
