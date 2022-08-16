@@ -27,10 +27,8 @@ import { waitFor } from 'xstate/lib/waitFor';
 import { LogEventId, Logger, LogLine } from '@votingworks/logging';
 import {
   SheetInterpretation,
-  SimpleInterpreter,
-  storeAcceptedSheet,
-  storeRejectedSheet,
-} from './simple_interpreter';
+  PrecinctScannerInterpreter,
+} from './precinct_scanner_interpreter';
 import { SheetOf } from './types';
 import { Store } from './store';
 
@@ -58,8 +56,6 @@ class PrecinctScannerError extends Error {
 type InterpretationResult = SheetInterpretation & { sheetId: Id };
 
 export interface Context {
-  store?: Store;
-  interpreter?: SimpleInterpreter;
   client?: ScannerClient;
   scannedSheet?: SheetOf<string>;
   interpretation?: InterpretationResult;
@@ -73,10 +69,6 @@ function assign(arg: Assigner<Context, any> | PropertyAssigner<Context, any>) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return xassign<Context, any>(arg);
 }
-
-type ConfigurationEvent =
-  | { type: 'CONFIGURE'; store: Store; interpreter: SimpleInterpreter }
-  | { type: 'UNCONFIGURE' };
 
 type ScannerStatusEvent =
   | { type: 'SCANNER_NO_PAPER' }
@@ -95,7 +87,6 @@ type CommandEvent =
 export type Event =
   | ScannerStatusEvent
   | CommandEvent
-  | ConfigurationEvent
   | { type: 'SET_INTERPRETATION_MODE'; mode: InterpretationMode };
 
 export interface Delays {
@@ -220,12 +211,10 @@ async function calibrate({ client }: Context) {
   return calibrateResult.unsafeUnwrap();
 }
 
-async function interpretSheet({
-  interpreter,
-  scannedSheet,
-  interpretationMode,
-}: Context): Promise<InterpretationResult> {
-  assert(interpreter);
+async function interpretSheet(
+  interpreter: PrecinctScannerInterpreter,
+  { scannedSheet, interpretationMode }: Context
+): Promise<InterpretationResult> {
   assert(scannedSheet);
 
   if (interpretationMode === 'skip') {
@@ -265,28 +254,53 @@ async function accept({ client }: Context) {
   return acceptResult.unsafeUnwrap();
 }
 
-function recordAcceptedSheet({ store, interpretation }: Context) {
-  assert(store);
-  assert(interpretation);
-  const { sheetId } = interpretation;
-  storeAcceptedSheet(store, sheetId, interpretation);
-  debug('Stored accepted sheet: %s', sheetId);
-}
-
-function recordRejectedSheet({ store, interpretation }: Context) {
-  assert(store);
-  if (!interpretation) return;
-  const { sheetId } = interpretation;
-  storeRejectedSheet(store, sheetId, interpretation);
-  debug('Stored rejected sheet: %s', sheetId);
-}
-
 async function reject({ client }: Context) {
   assert(client);
   debug('Rejecting');
   const rejectResult = await client.reject({ hold: true });
   debug('Reject result: %o', rejectResult);
   return rejectResult.unsafeUnwrap();
+}
+
+function storeInterpretedSheet(
+  store: Store,
+  sheetId: Id,
+  interpretation: SheetInterpretation
+): Id {
+  // For now, we create one batch per ballot, since we don't use the concept of
+  // batches for precinct scanning. In the future, it might make more sense to
+  // have one batch per scanning session (e.g. from polls open to polls close).
+  const batchId = store.addBatch();
+  const addedSheetId = store.addSheet(sheetId, batchId, interpretation.pages);
+  store.finishBatch({ batchId });
+  return addedSheetId;
+}
+
+function recordAcceptedSheet(store: Store, { interpretation }: Context) {
+  assert(store);
+  assert(interpretation);
+  const { sheetId } = interpretation;
+  storeInterpretedSheet(store, sheetId, interpretation);
+  // If we're storing an accepted sheet that needed review that means it was
+  // "adjudicated" (i.e. the voter said to count it without changing anything)
+  if (interpretation.type === 'NeedsReviewSheet') {
+    store.adjudicateSheet(sheetId, 'front', []);
+    store.adjudicateSheet(sheetId, 'back', []);
+  }
+  debug('Stored accepted sheet: %s', sheetId);
+}
+
+function recordRejectedSheet(store: Store, { interpretation }: Context) {
+  assert(store);
+  if (!interpretation) return;
+  const { sheetId } = interpretation;
+  storeInterpretedSheet(store, sheetId, interpretation);
+  // We want to keep rejected ballots in the store so we know what happened, but
+  // not count them. The way to do that is to "delete" them, which just marks
+  // them as deleted and currently is the way to indicate an interpreted ballot
+  // was not counted.
+  store.deleteSheet(sheetId);
+  debug('Stored rejected sheet: %s', sheetId);
 }
 
 const clearLastScan = assign({
@@ -335,6 +349,8 @@ const defaultDelays: Delays = {
 
 function buildMachine(
   createPlustekClient: CreatePlustekClient,
+  store: Store,
+  interpreter: PrecinctScannerInterpreter,
   delayOverrides: Partial<Delays>
 ) {
   const delays: Delays = { ...defaultDelays, ...delayOverrides };
@@ -401,16 +417,6 @@ function buildMachine(
         interpretationMode: 'interpret',
       },
       on: {
-        UNCONFIGURE: {
-          target: 'waiting_for_configuration',
-          actions: assign({ store: undefined }),
-        },
-        CONFIGURE: {
-          actions: assign({
-            store: (_, event) => event.store,
-            interpreter: (_, event) => event.interpreter,
-          }),
-        },
         SCANNER_DISCONNECTED: 'error_disconnected',
         SCANNER_BOTH_SIDES_HAVE_PAPER: 'error_both_sides_have_paper',
         SCANNER_JAM: 'error_jammed',
@@ -442,7 +448,7 @@ function buildMachine(
           invoke: {
             src: connectToPlustek(createPlustekClient),
             onDone: {
-              target: 'waiting_for_configuration',
+              target: 'checking_initial_paper_status',
               actions: assign((_context, event) => ({
                 client: event.data,
               })),
@@ -466,13 +472,6 @@ function buildMachine(
               }),
             },
             onError: 'error_disconnected',
-          },
-        },
-        waiting_for_configuration: {
-          always: {
-            target: 'checking_initial_paper_status',
-            cond: (context) =>
-              context.store !== undefined && context.interpreter !== undefined,
           },
         },
         checking_initial_paper_status: {
@@ -598,7 +597,7 @@ function buildMachine(
           states: {
             starting: {
               invoke: {
-                src: interpretSheet,
+                src: (context) => interpretSheet(interpreter, context),
                 onDone: {
                   target: 'routing_result',
                   actions: assign({
@@ -645,7 +644,7 @@ function buildMachine(
         accepting: acceptingState,
         accepted: {
           id: 'accepted',
-          entry: recordAcceptedSheet,
+          entry: (context) => recordAcceptedSheet(store, context),
           invoke: pollPaperStatus,
           initial: 'scanning_paused',
           on: { SCANNER_NO_PAPER: { target: undefined } }, // Do nothing
@@ -675,7 +674,7 @@ function buildMachine(
         },
         accepting_after_review: acceptingState,
         returning: {
-          entry: recordRejectedSheet,
+          entry: (context) => recordRejectedSheet(store, context),
           invoke: {
             src: reject,
             onDone: 'checking_returning_completed',
@@ -708,7 +707,7 @@ function buildMachine(
           },
         },
         rejecting: {
-          entry: recordRejectedSheet,
+          entry: (context) => recordRejectedSheet(store, context),
           id: 'rejecting',
           invoke: {
             src: reject,
@@ -919,8 +918,6 @@ function errorToString(error: NonNullable<Context['error']>) {
 }
 
 export interface PrecinctScannerStateMachine {
-  configure: (store: Store, interpreter: SimpleInterpreter) => void;
-  unconfigure: () => void;
   status: () => Scan.PrecinctScannerMachineStatus;
   // The commands are non-blocking and do not return a result. They just send an
   // event to the machine. The effects of the event (or any error) will show up
@@ -935,28 +932,20 @@ export interface PrecinctScannerStateMachine {
 
 export function createPrecinctScannerStateMachine(
   createPlustekClient: CreatePlustekClient,
+  store: Store,
+  interpreter: PrecinctScannerInterpreter,
   logger: Logger,
   delays: Partial<Delays> = {}
 ): PrecinctScannerStateMachine {
-  const machine = buildMachine(createPlustekClient, delays);
+  const machine = buildMachine(createPlustekClient, store, interpreter, delays);
   const machineService = interpret(machine).start();
   setupLogging(machineService, logger);
 
   return {
-    configure: (store: Store, interpreter: SimpleInterpreter) => {
-      machineService.send({ type: 'CONFIGURE', store, interpreter });
-    },
-
-    unconfigure: () => {
-      machineService.send({ type: 'UNCONFIGURE' });
-    },
-
     status: (): Scan.PrecinctScannerMachineStatus => {
       const { state } = machineService;
       const scannerState = (() => {
         switch (true) {
-          case state.matches('waiting_for_configuration'):
-            return 'unconfigured';
           case state.matches('connecting'):
             return 'connecting';
           case state.matches('checking_initial_paper_status'):

@@ -644,7 +644,6 @@ export const GetNextReviewSheetResponseSchema: z.ZodSchema<GetNextReviewSheetRes
 
 // Precinct Scanner API types
 export const PrecinctScannerStateSchema = z.enum([
-  'unconfigured',
   'connecting',
   'disconnected',
   'no_paper',

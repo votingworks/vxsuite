@@ -18,9 +18,9 @@ import * as choctaw2020Fixtures from '../test/fixtures/2020-choctaw';
 import * as stateOfHamiltonFixtures from '../test/fixtures/state-of-hamilton';
 import * as msDemoFixtures from '../test/fixtures/election-b0260b4e-mississippi-demo';
 import { Interpreter, sheetRequiresAdjudication } from './interpreter';
-import { createInterpreter } from './simple_interpreter';
 import { pdfToImages } from './util/pdf_to_images';
 import { detectQrcodeInFilePath } from './workers/qrcode';
+import { createInterpreter } from './precinct_scanner_interpreter';
 
 const sampleBallotImagesPath = join(__dirname, '..', 'sample-ballot-images/');
 const interpreterOutputPath = join(__dirname, '..', 'test-output-dir/');
@@ -86,7 +86,8 @@ test('extracts votes encoded in a QR code', async () => {
 
 test('properly scans a BMD ballot with a phantom QR code on back', async () => {
   const { electionDefinition, page1, page2 } = msDemoFixtures;
-  const interpreter = createInterpreter({
+  const interpreter = createInterpreter();
+  interpreter.configure({
     electionDefinition,
     testMode: true,
     layouts: [],

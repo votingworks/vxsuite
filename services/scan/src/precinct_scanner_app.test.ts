@@ -12,6 +12,7 @@ import { Application } from 'express';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
   BallotPackageEntry,
+  deferred,
   readBallotPackageFromBuffer,
 } from '@votingworks/utils';
 import { Buffer } from 'buffer';
@@ -26,6 +27,7 @@ import {
   MAX_FAILED_SCAN_ATTEMPTS,
 } from './precinct_scanner_state_machine';
 import { createWorkspace } from './util/workspace';
+import { createInterpreter } from './precinct_scanner_interpreter';
 
 jest.setTimeout(15_000);
 
@@ -182,16 +184,28 @@ async function createApp(
     toggleHoldDuration: 100,
     passthroughDuration: 500,
   });
+  const deferredConnect = deferred<void>();
   async function createPlustekClient(): Promise<Result<ScannerClient, Error>> {
     await mockPlustek.connect();
+    await deferredConnect.promise;
     return ok(mockPlustek);
   }
+  const interpreter = createInterpreter();
   const precinctScannerMachine = createPrecinctScannerStateMachine(
     createPlustekClient,
+    workspace.store,
+    interpreter,
     logger,
     delays
   );
-  const app = buildPrecinctScannerApp(precinctScannerMachine, workspace);
+  const app = await buildPrecinctScannerApp(
+    precinctScannerMachine,
+    interpreter,
+    workspace
+  );
+  await expectStatus(app, { state: 'connecting' });
+  deferredConnect.resolve();
+  await waitForStatus(app, { state: 'no_paper' });
   return {
     app,
     mockPlustek,
@@ -240,8 +254,6 @@ async function configureApp(
   const { ballots, electionDefinition } = await readBallotPackageFromBuffer(
     electionFamousNames2021Fixtures.ballotPackageAsBuffer()
   );
-  await expectStatus(app, { state: 'unconfigured' });
-
   await patch(app, '/config/election', electionDefinition.electionData);
   await patch(app, '/config/testMode', { testMode: false });
   if (addTemplates) {
@@ -251,7 +263,6 @@ async function configureApp(
     }
   }
   await post(app, '/scan/hmpb/doneTemplates');
-  await expectStatus(app, { state: 'no_paper' });
 }
 
 test('configure and scan hmpb', async () => {
