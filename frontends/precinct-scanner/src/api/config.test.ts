@@ -43,7 +43,7 @@ test('DELETE /config/election to delete election', async () => {
 
 test('DELETE /config/election ?ignoreBackupRequirement query param', async () => {
   fetchMock.deleteOnce(
-    '/config/election?ignoreBackupRequirement=true',
+    '/precinct-scanner/config/election?ignoreBackupRequirement=true',
     JSON.stringify({ status: 'ok' })
   );
   await config.setElection(undefined, { ignoreBackupRequirement: true });

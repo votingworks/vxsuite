@@ -261,7 +261,7 @@ test('DELETE /config/election ignores lack of backup when ?ignoreBackupRequireme
   workspace.store.addBatch();
 
   await request(app)
-    .delete('/config/election?ignoreBackupRequirement=true')
+    .delete('/central-scanner/config/election?ignoreBackupRequirement=true')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' });
   expect(importer.unconfigure).toBeCalled();
