@@ -171,13 +171,11 @@ export function ElectionManagerScreen({
           </SetClockButton>
         </p>
         <p>
-          <Button onPress={() => setIsExportingResults(true)}>
-            Save Results to USB Drive
-          </Button>
+          <Button onPress={() => setIsExportingResults(true)}>Save CVRs</Button>
         </p>
         <p>
           <Button onPress={() => setIsExportingBackup(true)}>
-            Save Backup to USB Drive
+            Save Backup
           </Button>
         </p>
         <p>
