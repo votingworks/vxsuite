@@ -13,8 +13,8 @@ import {
   SuccessOrErrorStatusMessage,
 } from './status_message';
 
-const StatusMessageProse = styled(Prose)`
-  margin-bottom: 1.5em;
+const StatusMessageContainer = styled.div`
+  margin-bottom: 2.5em;
 `;
 
 interface Props {
@@ -73,9 +73,11 @@ export function ProgramElectionCardView({
   return (
     <React.Fragment>
       {isSmartcardActionComplete(actionStatus) && (
-        <StatusMessageProse textCenter theme={fontSizeTheme.medium}>
-          <SuccessOrErrorStatusMessage actionStatus={actionStatus} />
-        </StatusMessageProse>
+        <StatusMessageContainer>
+          <Prose textCenter theme={fontSizeTheme.medium}>
+            <SuccessOrErrorStatusMessage actionStatus={actionStatus} />
+          </Prose>
+        </StatusMessageContainer>
       )}
 
       <Prose textCenter theme={fontSizeTheme.medium}>
