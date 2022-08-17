@@ -255,7 +255,6 @@ export function AppRoot({
     cardReader,
     computer,
     printer: printerInfo,
-    precinctScanner,
   } = useDevices({
     hardware,
     logger,
@@ -446,7 +445,7 @@ export function AppRoot({
     );
   }
 
-  if (!precinctScanner) {
+  if (scannerStatus?.state === 'disconnected') {
     return (
       <SetupScannerScreen
         batteryIsCharging={computer.batteryIsCharging}
@@ -563,10 +562,6 @@ export function AppRoot({
     switch (scannerStatus.state) {
       case 'connecting':
         return null;
-      case 'disconnected':
-        return (
-          <SetupScannerScreen batteryIsCharging={computer.batteryIsCharging} />
-        );
       case 'no_paper':
         return (
           <InsertBallotScreen
