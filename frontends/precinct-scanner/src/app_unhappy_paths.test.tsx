@@ -35,6 +35,7 @@ import {
   authenticateElectionManagerCard,
   scannerStatus,
 } from '../test/helpers/helpers';
+import { stateStorageKey } from './app_root';
 
 const getMachineConfigBody: MachineConfigResponse = {
   machineId: '0002',
@@ -251,6 +252,28 @@ test('shows power cable message when there is no plustek scanner and tablet is n
   await screen.findByRole('heading', { name: 'Polls Closed' });
   await advanceTimersAndPromises(1);
   await waitFor(() => expect(fetchMock.lastUrl()).toEqual('/scanner/status'));
+  expect(fetchMock.done()).toBe(true);
+});
+
+test('shows instructions to restart when the plustek crashed', async () => {
+  const card = new MemoryCard();
+  const storage = new MemoryStorage();
+  await storage.set(stateStorageKey, { isPollsOpen: true });
+  const hardware = MemoryHardware.buildStandard();
+  hardware.setPrecinctScannerConnected(false);
+  fetchMock
+    .get('/machine-config', { body: getMachineConfigBody })
+    .get('/config/election', { body: electionSampleDefinition })
+    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
+    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
+    .get('/config/markThresholdOverrides', {
+      body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
+    })
+    .get('/scanner/status', { ...statusNoPaper, state: 'unrecoverable_error' });
+  render(<App card={card} storage={storage} hardware={hardware} />);
+
+  await screen.findByRole('heading', { name: 'Ballot Not Counted' });
+  screen.getByText('Ask a poll worker to restart the scanner.');
   expect(fetchMock.done()).toBe(true);
 });
 
