@@ -162,7 +162,7 @@ test('addTemplates configures the server with the contained election', async () 
 
   await new Promise<void>((resolve, reject) => {
     config
-      .addTemplates({ testElectionDefinition, ballots: [] })
+      .addTemplates({ electionDefinition: testElectionDefinition, ballots: [] })
       .on('error', (error) => {
         reject(error);
       })
@@ -185,7 +185,7 @@ test('addTemplates emits an event each time a ballot begins uploading', async ()
   await new Promise<void>((resolve, reject) => {
     config
       .addTemplates({
-        testElectionDefinition,
+        electionDefinition: testElectionDefinition,
         ballots: [
           {
             ballotConfig: {
@@ -244,7 +244,10 @@ test('addTemplates emits error on API failure', async () => {
   await expect(
     new Promise<void>((resolve, reject) => {
       config
-        .addTemplates({ testElectionDefinition, ballots: [] })
+        .addTemplates({
+          electionDefinition: testElectionDefinition,
+          ballots: [],
+        })
         .on('error', (error) => {
           reject(error);
         })

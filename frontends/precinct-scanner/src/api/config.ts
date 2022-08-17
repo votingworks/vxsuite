@@ -7,7 +7,7 @@ import {
 } from '@votingworks/types';
 import { ErrorsResponse, OkResponse, Scan } from '@votingworks/api';
 import { BallotPackage, BallotPackageEntry, assert } from '@votingworks/utils';
-import EventEmitter from 'events';
+import { EventEmitter } from 'events';
 
 async function patch<Body extends string | ArrayBuffer | unknown>(
   url: string,
@@ -215,8 +215,8 @@ export function addTemplates(pkg: BallotPackage): AddTemplatesEvents {
 
   setImmediate(async () => {
     try {
-      result.emit('configuring', pkg, pkg.testElectionDefinition);
-      await setElection(pkg.testElectionDefinition.electionData);
+      result.emit('configuring', pkg, pkg.electionDefinition);
+      await setElection(pkg.electionDefinition.electionData);
 
       for (const ballot of pkg.ballots) {
         result.emit('uploading', pkg, ballot);

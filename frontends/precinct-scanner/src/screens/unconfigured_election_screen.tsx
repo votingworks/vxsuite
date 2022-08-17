@@ -6,7 +6,7 @@ import {
   readBallotPackageFromFilePointer,
   usbstick,
 } from '@votingworks/utils';
-import { addTemplates, doneTemplates } from '../api/hmpb';
+import { addTemplates, doneTemplates } from '../api/config';
 import { PRECINCT_SCANNER_FOLDER } from '../config/globals';
 import {
   CenteredLargeProse,
