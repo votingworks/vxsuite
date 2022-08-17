@@ -198,15 +198,3 @@ export async function main(
 
   return 0;
 }
-
-/* istanbul ignore next */
-if (require.main === module) {
-  void main(process.argv.slice(2))
-    .catch((error) => {
-      process.stderr.write(`CRASH: ${error}\n`);
-      return 1;
-    })
-    .then((code) => {
-      process.exitCode = code;
-    });
-}
