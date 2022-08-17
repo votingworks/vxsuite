@@ -20,8 +20,8 @@ import {
 } from './status_message';
 import { userRoleToReadableString } from './user_roles';
 
-const ErrorStatusMessageProse = styled(Prose)`
-  margin-bottom: 1.5em;
+const StatusMessageContainer = styled.div`
+  margin-bottom: 2.5em;
 `;
 
 function checkDoesCardElectionHashMatchMachineElectionHash(
@@ -189,9 +189,11 @@ export function CardDetailsView({
   return (
     <React.Fragment>
       {actionStatus?.status === 'Error' && (
-        <ErrorStatusMessageProse textCenter theme={fontSizeTheme.medium}>
-          <SuccessOrErrorStatusMessage actionStatus={actionStatus} />
-        </ErrorStatusMessageProse>
+        <StatusMessageContainer>
+          <Prose textCenter theme={fontSizeTheme.medium}>
+            <SuccessOrErrorStatusMessage actionStatus={actionStatus} />
+          </Prose>
+        </StatusMessageContainer>
       )}
 
       <Prose textCenter theme={fontSizeTheme.medium}>
