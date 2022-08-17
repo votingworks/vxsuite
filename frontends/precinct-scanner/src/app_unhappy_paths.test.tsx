@@ -295,13 +295,22 @@ test('shows instructions to restart when the plustek crashed', async () => {
   hardware.setPrecinctScannerConnected(false);
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
-    .get('/config/election', { body: electionSampleDefinition })
-    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
-    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/config/markThresholdOverrides', {
+    .get('/precinct-scanner/config/election', {
+      body: electionSampleDefinition,
+    })
+    .get('/precinct-scanner/config/testMode', {
+      body: getTestModeConfigTrueResponseBody,
+    })
+    .get('/precinct-scanner/config/precinct', {
+      body: getPrecinctConfigNoPrecinctResponseBody,
+    })
+    .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
     })
-    .get('/scanner/status', { ...statusNoPaper, state: 'unrecoverable_error' });
+    .get('/precinct-scanner/scanner/status', {
+      ...statusNoPaper,
+      state: 'unrecoverable_error',
+    });
   render(<App card={card} storage={storage} hardware={hardware} />);
 
   await screen.findByRole('heading', { name: 'Ballot Not Counted' });
