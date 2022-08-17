@@ -10,7 +10,7 @@ import {
   SuccessOrErrorStatusMessage,
 } from './status_message';
 
-const StatusMessageProse = styled(Prose)`
+const StatusMessageContainer = styled.div`
   margin-bottom: 1.5em;
 `;
 
@@ -45,9 +45,11 @@ export function ProgramSystemAdministratorCardView({
   return (
     <React.Fragment>
       {isSmartcardActionComplete(actionStatus) && (
-        <StatusMessageProse textCenter theme={fontSizeTheme.medium}>
-          <SuccessOrErrorStatusMessage actionStatus={actionStatus} />
-        </StatusMessageProse>
+        <StatusMessageContainer>
+          <Prose textCenter theme={fontSizeTheme.medium}>
+            <SuccessOrErrorStatusMessage actionStatus={actionStatus} />
+          </Prose>
+        </StatusMessageContainer>
       )}
 
       <Prose textCenter theme={fontSizeTheme.medium}>
