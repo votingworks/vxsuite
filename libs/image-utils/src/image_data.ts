@@ -69,6 +69,18 @@ export const RGB_CHANNEL_COUNT = 3;
 export const RGBA_CHANNEL_COUNT = 4;
 
 /**
+ * Ensures the image data is an instance of ImageData.
+ */
+export function ensureImageData(imageData: ImageData): ImageData {
+  if (imageData instanceof ImageData) {
+    return imageData;
+  }
+
+  const { data, width, height } = imageData as ImageData;
+  return createImageData(data, width, height);
+}
+
+/**
  * Determines the number of channels in an image.
  */
 export function getImageChannelCount(image: ImageData): int {
@@ -179,7 +191,7 @@ export function toRgba(
   imageData: ImageData
 ): Result<ImageData, ImageProcessingError> {
   if (isRgba(imageData)) {
-    return ok(imageData);
+    return ok(ensureImageData(imageData));
   }
 
   if (isGrayscale(imageData)) {

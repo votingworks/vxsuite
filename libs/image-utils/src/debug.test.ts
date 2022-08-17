@@ -150,6 +150,26 @@ test('imageData', async () => {
   expect([...imageData.data.slice(0, 4)]).toEqual([255, 0, 0, 255]);
 });
 
+test('imageData with non-ImageData object', async () => {
+  const writeFn = jest.fn();
+  const width = 10;
+  const height = 10;
+  const imdebug = canvasDebugger(width, height, {
+    write: writeFn,
+  });
+
+  imdebug.imageData(0, 0, {
+    data: Uint8ClampedArray.of(255, 0, 0, 255),
+    width: 1,
+    height: 1,
+  });
+
+  imdebug.write('test');
+  expect(writeFn).toHaveBeenNthCalledWith(1, ['test'], expect.any(Buffer));
+  const imageData = toImageData(await loadImage(writeFn.mock.calls[0][1]));
+  expect([...imageData.data.slice(0, 4)]).toEqual([255, 0, 0, 255]);
+});
+
 test('noDebug', () => {
   const imdebug = noDebug();
 
