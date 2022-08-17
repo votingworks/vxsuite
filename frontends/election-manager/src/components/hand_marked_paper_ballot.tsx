@@ -955,7 +955,7 @@ export function HandMarkedPaperBallot({
                     { lng: locales.primary }
                   )}
                 </Text>
-                <h4>{t('To correct a mistake', { lng: locales.primary })}</h4>
+                <h4>{t('To Correct a Mistake', { lng: locales.primary })}</h4>
                 <Text small>
                   {t(
                     'To make a correction, please ask for a replacement ballot. Any marks other than filled ovals may cause your ballot not to be counted.',
@@ -990,7 +990,7 @@ export function HandMarkedPaperBallot({
                       )}
                     </Text>
                     <h4>
-                      {t('To correct a mistake', {
+                      {t('To Correct a Mistake', {
                         lng: locales.secondary,
                       })}
                     </h4>

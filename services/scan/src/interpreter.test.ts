@@ -242,7 +242,7 @@ test('interprets marks on an upside-down HMPB', async () => {
   ).toMatchInlineSnapshot(`
     Object {
       "actualElectionHash": "602c9b551d08a348c3e1",
-      "expectedElectionHash": "965aa0b918b9bab9a2a4",
+      "expectedElectionHash": "261e09e5a4a3ddd16726",
       "type": "InvalidElectionHashPage",
     }
   `);
