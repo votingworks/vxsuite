@@ -64,12 +64,12 @@ def test_card():
     check_equal_bytes(short_bytes, observer.read()[0], "Short value")
     check_equal_bytes(long_bytes, observer.read_long(), "Long value")
 
-    print("Testing admin card")
-    with open("fixtures/admin/long.json", "r") as long_file:
+    print("Testing election manager card")
+    with open("fixtures/election_manager/long.json", "r") as long_file:
         long = json.loads(long_file.read())
         del long["seal"]
         long_bytes = json.dumps(long).encode('utf-8')
-    with open("fixtures/admin/short.json", "r") as short_file:
+    with open("fixtures/election_manager/short.json", "r") as short_file:
         short_bytes = re.sub(
             r"{{hash\(long\)}}",
             hashlib.sha256(long_bytes).hexdigest(),
