@@ -2,9 +2,9 @@ import { sleep } from '@votingworks/utils';
 import { ScannerError } from './errors';
 import { Errors, MockScannerClient } from './mocks';
 import { PaperStatus } from './paper_status';
-import { ClientDisconnectedError } from './scanner';
+import { ClientDisconnectedError, InvalidClientResponseError } from './scanner';
 
-const files: readonly string[] = ['/tmp/a.jpg', '/tmp/b.jpg'];
+const files: [string, string] = ['/tmp/a.jpg', '/tmp/b.jpg'];
 
 function expectNoPaper(status?: PaperStatus) {
   expect([PaperStatus.VtmDevReadyNoPaper, PaperStatus.NoPaperStatus]).toContain(
@@ -391,7 +391,7 @@ test('paper jam', async () => {
   expectNoPaper((await mock.getPaperStatus()).ok());
 });
 
-test('scanning error feeding', async () => {
+test('scanning errors', async () => {
   const mock = new MockScannerClient({
     toggleHoldDuration: 0,
     passthroughDuration: 0,
@@ -399,15 +399,26 @@ test('scanning error feeding', async () => {
   await mock.connect();
 
   (await mock.simulateLoadSheet(files)).unsafeUnwrap();
-  const scanResult = mock.scan();
-  mock.simulateErrorFeeding();
+  let scanResult = mock.scan();
+  mock.simulateScanError('error_feeding');
   expect([
     ScannerError.PaperStatusErrorFeeding,
     ScannerError.PaperStatusNoPaper,
   ]).toContain((await scanResult).err());
-
   expect((await mock.getPaperStatus()).ok()).toEqual(
     PaperStatus.VtmReadyToScan
+  );
+
+  (await mock.simulateRemoveSheet()).unsafeUnwrap();
+  expectNoPaper((await mock.getPaperStatus()).ok());
+  (await mock.simulateLoadSheet(files)).unsafeUnwrap();
+  scanResult = mock.scan();
+  mock.simulateScanError('bad_scan_result');
+  expect((await scanResult).err()).toEqual(
+    new InvalidClientResponseError('expected two files, got [ file1.jpg ]')
+  );
+  expect((await mock.getPaperStatus()).ok()).toEqual(
+    PaperStatus.VtmReadyToEject
   );
 });
 
