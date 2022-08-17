@@ -1,5 +1,5 @@
 import { err, ok, Result } from '@votingworks/types';
-import { assert, sleep } from '@votingworks/utils';
+import { assert, sleep, throwIllegalValue } from '@votingworks/utils';
 import makeDebug from 'debug';
 import {
   createMachine,
@@ -19,6 +19,7 @@ import {
   ClientError,
   CloseResult,
   GetPaperStatusResult,
+  InvalidClientResponseError,
   RejectResult,
   ScannerClient,
   ScanResult,
@@ -32,6 +33,7 @@ interface Context {
   sheetFiles?: readonly [string, string];
   holdAfterReject?: boolean;
   jamOnNextOperation: boolean;
+  scanError?: 'error_feeding' | 'bad_scan_result';
 }
 
 type Event =
@@ -49,7 +51,10 @@ type Event =
   | { type: 'ACCEPT' }
   | { type: 'REJECT'; hold: boolean }
   | { type: 'CALIBRATE' }
-  | { type: 'ERROR_FEEDING' }
+  | {
+      type: 'SCAN_ERROR';
+      error: 'error_feeding' | 'bad_scan_result';
+    }
   | { type: 'JAM_ON_NEXT_OPERATION' }
   | { type: 'CHECK_JAM_FLAG' };
 
@@ -116,7 +121,18 @@ const mockPlustekMachine = createMachine<Context, Event>({
       entry: send('CHECK_JAM_FLAG'),
       after: { SCANNING_DELAY: 'ready_to_eject' },
       on: {
-        ERROR_FEEDING: 'ready_to_scan',
+        SCAN_ERROR: [
+          {
+            target: 'ready_to_scan',
+            actions: assign({ scanError: (_context, event) => event.error }),
+            cond: (_context, event) => event.error === 'error_feeding',
+          },
+          {
+            target: 'ready_to_eject',
+            actions: assign({ scanError: (_context, event) => event.error }),
+            cond: (_context, event) => event.error === 'bad_scan_result',
+          },
+        ],
         LOAD_SHEET: 'both_sides_have_paper',
       },
     },
@@ -356,9 +372,9 @@ export class MockScannerClient implements ScannerClient {
   /**
    * Run during a scan operation to simulate an error pulling the paper into the scanner.
    */
-  simulateErrorFeeding(): void {
-    debug('simulating error feeding');
-    this.machine.send({ type: 'ERROR_FEEDING' });
+  simulateScanError(error: 'error_feeding' | 'bad_scan_result'): void {
+    debug('simulating scan error: %o', error);
+    this.machine.send({ type: 'SCAN_ERROR', error });
   }
 
   /**
@@ -521,24 +537,40 @@ export class MockScannerClient implements ScannerClient {
       case 'ready_to_scan': {
         this.machine.send({ type: 'SCAN' });
         await waitFor(this.machine, (state) => state.value !== 'scanning');
-        if ((this.machine.state.value as string) === 'jam') {
+        const {
+          value,
+          context: { scanError },
+        } = this.machine.state;
+        if (scanError) {
+          debug('scan failed, error');
+          switch (scanError) {
+            case 'error_feeding':
+              /* istanbul ignore next - randomness makes this hard to cover */
+              return err(
+                Math.random() > 0.5
+                  ? ScannerError.PaperStatusErrorFeeding
+                  : ScannerError.PaperStatusNoPaper
+              );
+            case 'bad_scan_result':
+              return err(
+                new InvalidClientResponseError(
+                  'expected two files, got [ file1.jpg ]'
+                )
+              );
+            /* istanbul ignore next - compile time check for completeness */
+            default:
+              throwIllegalValue(scanError);
+          }
+        }
+        if ((value as string) === 'jam') {
           debug('scan failed, jam');
           return err(ScannerError.PaperStatusJam);
         }
-        if ((this.machine.state.value as string) === 'ready_to_scan') {
-          debug('scan failed, error feeding');
-          /* istanbul ignore next - randomness makes this hard to cover */
-          return err(
-            Math.random() > 0.5
-              ? ScannerError.PaperStatusErrorFeeding
-              : ScannerError.PaperStatusNoPaper
-          );
-        }
-        if ((this.machine.state.value as string) === 'both_sides_have_paper') {
+        if ((value as string) === 'both_sides_have_paper') {
           debug('scan failed, both sides have paper');
           return err(ScannerError.PaperStatusErrorFeeding);
         }
-        if ((this.machine.state.value as string) === 'powered_off') {
+        if ((value as string) === 'powered_off') {
           debug('scan failed, powered off');
           return err(ScannerError.PaperStatusErrorFeeding);
         }
