@@ -21,7 +21,7 @@ import {
 import { userRoleToReadableString } from './user_roles';
 
 const StatusMessageContainer = styled.div`
-  margin-bottom: 1.5em;
+  margin-bottom: 2.5em;
 `;
 
 function checkDoesCardElectionHashMatchMachineElectionHash(

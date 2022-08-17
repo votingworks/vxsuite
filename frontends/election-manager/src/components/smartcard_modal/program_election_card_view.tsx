@@ -14,7 +14,7 @@ import {
 } from './status_message';
 
 const StatusMessageContainer = styled.div`
-  margin-bottom: 1.5em;
+  margin-bottom: 2.5em;
 `;
 
 interface Props {
