@@ -118,7 +118,7 @@ const mockPlustekMachine = createMachine<Context, Event>({
       },
     },
     scanning: {
-      entry: send('CHECK_JAM_FLAG'),
+      entry: [assign({ scanError: undefined }), send('CHECK_JAM_FLAG')],
       after: { SCANNING_DELAY: 'ready_to_eject' },
       on: {
         SCAN_ERROR: [

@@ -573,7 +573,8 @@ function buildMachine(
                         context.error === ScannerError.PaperStatusNoPaper;
                       const shouldRetry =
                         (!context.error || gotExpectedScanningError) &&
-                        context.failedScanAttempts < MAX_FAILED_SCAN_ATTEMPTS;
+                        context.failedScanAttempts <
+                          MAX_FAILED_SCAN_ATTEMPTS - 1;
                       return shouldRetry;
                     },
                     actions: assign({
