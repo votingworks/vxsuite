@@ -40,9 +40,7 @@ export function PickDateTimeModal({
 
   const updateTimePart: SelectChangeEventFunction = (event) => {
     const { name, value: stringValue } = event.currentTarget;
-    // This overly-aggressive directive is because BMD's react-scripts can't load
-    // our custom ESLint config properly. We need to update to react-scripts@4.
-    // eslint-disable-next-line
+    // eslint-disable-next-line vx/gts-safe-number-parse
     const partValue = parseInt(stringValue, 10);
     let { hour } = newValue;
     if (name === 'hour') {
