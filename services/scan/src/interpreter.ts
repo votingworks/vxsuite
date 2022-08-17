@@ -13,6 +13,7 @@ import {
   Interpreter as HmpbInterpreter,
   metadataFromBytes,
 } from '@votingworks/ballot-interpreter-vx';
+import { imageDebugger } from '@votingworks/image-utils';
 import {
   AdjudicationReason,
   AdjudicationReasonInfo,
@@ -291,7 +292,10 @@ export class Interpreter {
     }
 
     try {
-      const hmpbResult = await this.interpretHMPBFile(ballotImageData);
+      const hmpbResult = await this.interpretHMPBFile(
+        ballotImagePath,
+        ballotImageData
+      );
 
       if (hmpbResult) {
         timer.end();
@@ -374,16 +378,19 @@ export class Interpreter {
     };
   }
 
-  private async interpretHMPBFile({
-    image,
-    qrcode,
-  }: BallotImageData): Promise<InterpretFileResult | undefined> {
+  private async interpretHMPBFile(
+    ballotImagePath: string,
+    { image, qrcode }: BallotImageData
+  ): Promise<InterpretFileResult | undefined> {
     const hmpbInterpreter = this.getHmpbInterpreter();
     const { ballot, marks, mappedBallot, metadata } =
       await hmpbInterpreter.interpretBallot(
         image,
         metadataFromBytes(this.electionDefinition, Buffer.from(qrcode.data)),
-        { flipped: qrcode.position === 'top' }
+        {
+          flipped: qrcode.position === 'top',
+          imdebug: imageDebugger(ballotImagePath, image),
+        }
       );
     const { votes } = ballot;
 
