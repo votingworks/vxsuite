@@ -11,7 +11,7 @@ import { BallotEjectScreen } from './ballot_eject_screen';
 
 test('says the sheet is unreadable if it is', async () => {
   fetchMock.getOnce(
-    '/scan/hmpb/review/next-sheet',
+    '/central-scanner/scan/hmpb/review/next-sheet',
     typedAs<Scan.GetNextReviewSheetResponse>({
       interpreted: {
         id: 'mock-sheet-id',
@@ -57,7 +57,7 @@ test('says the sheet is unreadable if it is', async () => {
 
 test('says the ballot sheet is overvoted if it is', async () => {
   fetchMock.getOnce(
-    '/scan/hmpb/review/next-sheet',
+    '/central-scanner/scan/hmpb/review/next-sheet',
     typedAs<Scan.GetNextReviewSheetResponse>({
       interpreted: {
         id: 'mock-sheet-id',
@@ -167,7 +167,7 @@ test('says the ballot sheet is overvoted if it is', async () => {
 
 test('says the ballot sheet is undervoted if it is', async () => {
   fetchMock.getOnce(
-    '/scan/hmpb/review/next-sheet',
+    '/central-scanner/scan/hmpb/review/next-sheet',
     typedAs<Scan.GetNextReviewSheetResponse>({
       interpreted: {
         id: 'mock-sheet-id',
@@ -276,7 +276,7 @@ test('says the ballot sheet is undervoted if it is', async () => {
 
 test('says the ballot sheet is blank if it is', async () => {
   fetchMock.getOnce(
-    '/scan/hmpb/review/next-sheet',
+    '/central-scanner/scan/hmpb/review/next-sheet',
     typedAs<Scan.GetNextReviewSheetResponse>({
       interpreted: {
         id: 'mock-sheet-id',
@@ -392,7 +392,7 @@ test('says the ballot sheet is blank if it is', async () => {
 
 test('calls out live ballot sheets in test mode', async () => {
   fetchMock.getOnce(
-    '/scan/hmpb/review/next-sheet',
+    '/central-scanner/scan/hmpb/review/next-sheet',
     typedAs<Scan.GetNextReviewSheetResponse>({
       interpreted: {
         id: 'mock-sheet-id',
@@ -460,7 +460,7 @@ test('calls out live ballot sheets in test mode', async () => {
 
 test('calls out test ballot sheets in live mode', async () => {
   fetchMock.getOnce(
-    '/scan/hmpb/review/next-sheet',
+    '/central-scanner/scan/hmpb/review/next-sheet',
     typedAs<Scan.GetNextReviewSheetResponse>({
       interpreted: {
         id: 'mock-sheet-id',
@@ -531,7 +531,7 @@ test('calls out test ballot sheets in live mode', async () => {
 
 test('shows invalid election screen when appropriate', async () => {
   fetchMock.getOnce(
-    '/scan/hmpb/review/next-sheet',
+    '/central-scanner/scan/hmpb/review/next-sheet',
     typedAs<Scan.GetNextReviewSheetResponse>({
       interpreted: {
         id: 'mock-sheet-id',
@@ -586,7 +586,7 @@ test('shows invalid election screen when appropriate', async () => {
 
 test('shows invalid precinct screen when appropriate', async () => {
   fetchMock.getOnce(
-    '/scan/hmpb/review/next-sheet',
+    '/central-scanner/scan/hmpb/review/next-sheet',
     typedAs<Scan.GetNextReviewSheetResponse>({
       interpreted: {
         id: 'mock-sheet-id',

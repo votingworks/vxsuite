@@ -67,7 +67,7 @@ export function ExportResultsModal({
 
     try {
       await logger.log(LogEventId.SaveCvrInit, userRole);
-      const response = await fetch(`/scan/export`, {
+      const response = await fetch('/central-scanner/scan/export', {
         method: 'post',
       });
 

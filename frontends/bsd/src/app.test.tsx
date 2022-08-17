@@ -56,7 +56,7 @@ function disableVvsg2AuthFlows() {
 beforeEach(() => {
   fetchMock.config.fallbackToNetwork = true;
   fetchMock.get(
-    '/scan/status',
+    '/central-scanner/scan/status',
     typedAs<Scan.GetScanStatusResponse>({
       canUnconfigure: false,
       batches: [],
@@ -147,9 +147,13 @@ test('renders without crashing', async () => {
       status: 'ok',
     };
   fetchMock
-    .getOnce('/config/election', { body: getElectionResponseBody })
-    .getOnce('/config/testMode', { body: getTestModeResponseBody })
-    .getOnce('/config/markThresholdOverrides', {
+    .getOnce('/central-scanner/config/election', {
+      body: getElectionResponseBody,
+    })
+    .getOnce('/central-scanner/config/testMode', {
+      body: getTestModeResponseBody,
+    })
+    .getOnce('/central-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesResponseBody,
     });
 
@@ -171,9 +175,9 @@ test('shows a "Test mode" button if the app is in Live Mode', async () => {
       status: 'ok',
     };
   fetchMock
-    .get('/config/election', { body: getElectionResponseBody })
-    .get('/config/testMode', { body: getTestModeResponseBody })
-    .get('/config/markThresholdOverrides', {
+    .get('/central-scanner/config/election', { body: getElectionResponseBody })
+    .get('/central-scanner/config/testMode', { body: getTestModeResponseBody })
+    .get('/central-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesResponseBody,
     });
 
@@ -199,9 +203,9 @@ test('shows a "Live mode" button if the app is in Test Mode', async () => {
       status: 'ok',
     };
   fetchMock
-    .get('/config/election', { body: getElectionResponseBody })
-    .get('/config/testMode', { body: getTestModeResponseBody })
-    .get('/config/markThresholdOverrides', {
+    .get('/central-scanner/config/election', { body: getElectionResponseBody })
+    .get('/central-scanner/config/testMode', { body: getTestModeResponseBody })
+    .get('/central-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesResponseBody,
     });
 
@@ -241,12 +245,14 @@ test('clicking Scan Batch will scan a batch', async () => {
     errors: [{ type: 'scan-error', message: 'interpreter not ready' }],
   };
   fetchMock
-    .get('/config/election', { body: getElectionResponseBody })
-    .get('/config/testMode', { body: getTestModeResponseBody })
-    .get('/config/markThresholdOverrides', {
+    .get('/central-scanner/config/election', { body: getElectionResponseBody })
+    .get('/central-scanner/config/testMode', { body: getTestModeResponseBody })
+    .get('/central-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesResponseBody,
     })
-    .postOnce('/scan/scanBatch', { body: scanBatchResponseBody });
+    .postOnce('/central-scanner/scan/scanBatch', {
+      body: scanBatchResponseBody,
+    });
 
   const mockAlert = jest.fn();
   window.alert = mockAlert;
@@ -263,7 +269,7 @@ test('clicking Scan Batch will scan a batch', async () => {
   mockAlert.mockClear();
 
   fetchMock.postOnce(
-    '/scan/scanBatch',
+    '/central-scanner/scan/scanBatch',
     { body: { status: 'ok', batchId: 'foobar' } },
     { overwriteRoutes: true }
   );
@@ -296,17 +302,17 @@ test('clicking "Save Results" shows modal and makes a request to export', async 
     scanner: Scan.ScannerStatus.Unknown,
   };
   fetchMock
-    .get('/config/election', { body: getElectionResponseBody })
-    .get('/config/testMode', { body: getTestModeResponseBody })
-    .get('/config/markThresholdOverrides', {
+    .get('/central-scanner/config/election', { body: getElectionResponseBody })
+    .get('/central-scanner/config/testMode', { body: getTestModeResponseBody })
+    .get('/central-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesResponseBody,
     })
     .getOnce(
-      '/scan/status',
+      '/central-scanner/scan/status',
       { body: scanStatusResponseBody },
       { overwriteRoutes: true }
     )
-    .postOnce('/scan/export', {
+    .postOnce('/central-scanner/scan/export', {
       body: '',
     });
 
@@ -330,7 +336,7 @@ test('clicking "Save Results" shows modal and makes a request to export', async 
     fireEvent.click(getByText('Cancel'));
   });
 
-  expect(fetchMock.called('/scan/export')).toBe(true);
+  expect(fetchMock.called('/central-scanner/scan/export')).toBe(true);
   expect(queryByText(exportingModalText)).toBe(null);
   expect(fileDownload).toHaveBeenCalled();
 });
@@ -345,16 +351,18 @@ test('configuring election from usb ballot package works end to end', async () =
       status: 'ok',
     };
   fetchMock
-    .get('/config/election', { body: 'null' })
-    .get('/config/testMode', { body: getTestModeConfigResponse })
-    .get('/config/markThresholdOverrides', {
+    .get('/central-scanner/config/election', { body: 'null' })
+    .get('/central-scanner/config/testMode', {
+      body: getTestModeConfigResponse,
+    })
+    .get('/central-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesResponse,
     })
-    .patchOnce('/config/testMode', {
+    .patchOnce('/central-scanner/config/testMode', {
       body: '{"status": "ok"}',
       status: 200,
     })
-    .patchOnce('/config/election', {
+    .patchOnce('/central-scanner/config/election', {
       body: '{"status": "ok"}',
       status: 200,
     });
@@ -378,11 +386,11 @@ test('configuring election from usb ballot package works end to end', async () =
   });
 
   fetchMock
-    .get('/config/election', electionSampleDefinition, {
+    .get('/central-scanner/config/election', electionSampleDefinition, {
       overwriteRoutes: true,
     })
     .getOnce(
-      '/config/testMode',
+      '/central-scanner/config/testMode',
       { status: 'ok', testMode: true },
       { overwriteRoutes: true }
     );
@@ -407,10 +415,10 @@ test('configuring election from usb ballot package works end to end', async () =
 
   // Unconfigure Machine
   fetchMock
-    .getOnce('/config/election', new Response('null'), {
+    .getOnce('/central-scanner/config/election', new Response('null'), {
       overwriteRoutes: true,
     })
-    .deleteOnce('/config/election', {
+    .deleteOnce('/central-scanner/config/election', {
       body: '{"status": "ok"}',
       status: 200,
     });
@@ -444,9 +452,9 @@ test('authentication works', async () => {
     };
 
   fetchMock
-    .get('/config/election', { body: getElectionResponseBody })
-    .get('/config/testMode', { body: getTestModeResponseBody })
-    .get('/config/markThresholdOverrides', {
+    .get('/central-scanner/config/election', { body: getElectionResponseBody })
+    .get('/central-scanner/config/testMode', { body: getTestModeResponseBody })
+    .get('/central-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesResponseBody,
     });
 
@@ -568,12 +576,12 @@ test('system administrator can log in and unconfigure machine', async () => {
   };
 
   fetchMock
-    .get('/config/election', { body: getElectionResponseBody })
-    .get('/config/testMode', { body: getTestModeResponseBody })
-    .get('/config/markThresholdOverrides', {
+    .get('/central-scanner/config/election', { body: getElectionResponseBody })
+    .get('/central-scanner/config/testMode', { body: getTestModeResponseBody })
+    .get('/central-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesResponseBody,
     })
-    .delete('/config/election?ignoreBackupRequirement=true', {
+    .delete('/central-scanner/config/election?ignoreBackupRequirement=true', {
       body: deleteElectionConfigResponseBody,
     });
 
@@ -617,9 +625,9 @@ test('election manager cannot auth onto machine with different election hash whe
     { status: 'ok' };
 
   fetchMock
-    .get('/config/election', { body: getElectionResponseBody })
-    .get('/config/testMode', { body: getTestModeResponseBody })
-    .get('/config/markThresholdOverrides', {
+    .get('/central-scanner/config/election', { body: getElectionResponseBody })
+    .get('/central-scanner/config/testMode', { body: getTestModeResponseBody })
+    .get('/central-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesResponseBody,
     });
 

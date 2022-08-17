@@ -227,7 +227,7 @@ export function AppRoot({ card, hardware, logger }: AppRootProps): JSX.Element {
 
   const updateStatus = useCallback(async () => {
     try {
-      const body = await (await fetch('/scan/status')).text();
+      const body = await (await fetch('/central-scanner/scan/status')).text();
       const newStatus = safeParseJson(
         body,
         Scan.GetScanStatusResponseSchema
@@ -279,7 +279,7 @@ export function AppRoot({ card, hardware, logger }: AppRootProps): JSX.Element {
     try {
       const result = safeParseJson(
         await (
-          await fetch('/scan/scanBatch', {
+          await fetch('/central-scanner/scan/scanBatch', {
             method: 'post',
           })
         ).text(),
@@ -321,7 +321,7 @@ export function AppRoot({ card, hardware, logger }: AppRootProps): JSX.Element {
       try {
         const result = safeParseJson(
           await (
-            await fetch('/scan/scanContinue', {
+            await fetch('/central-scanner/scan/scanContinue', {
               method: 'post',
               body: JSON.stringify(request),
               headers: {
@@ -369,7 +369,7 @@ export function AppRoot({ card, hardware, logger }: AppRootProps): JSX.Element {
       });
       safeParseJson(
         await (
-          await fetch('/scan/zero', {
+          await fetch('/central-scanner/scan/zero', {
             method: 'post',
           })
         ).text(),
@@ -393,7 +393,7 @@ export function AppRoot({ card, hardware, logger }: AppRootProps): JSX.Element {
   }, [history, logger, userRole, currentNumberOfBallots, refreshConfig]);
 
   const backup = useCallback(async () => {
-    await download('/scan/backup');
+    await download('/central-scanner/scan/backup');
     if (window.kiosk) {
       // Backups can take several minutes. Ensure the data is flushed to the
       // usb before prompting the user to eject it.
@@ -447,7 +447,7 @@ export function AppRoot({ card, hardware, logger }: AppRootProps): JSX.Element {
           numberOfBallotsInBatch,
           batchId: id,
         });
-        await fetch(`/scan/batch/${id}`, {
+        await fetch(`/central-scanner/scan/batch/${id}`, {
           method: 'DELETE',
         });
         await logger.log(LogEventId.DeleteScanBatchComplete, userRole, {

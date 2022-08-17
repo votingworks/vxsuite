@@ -134,16 +134,20 @@ test('expected tally reports are printed for a primary election with all precinc
     electionMinimalExhaustiveSampleWithReportingUrlDefinition;
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
-    .get('/config/election', {
+    .get('/precinct-scanner/config/election', {
       body: electionMinimalExhaustiveSampleDefinition,
     })
-    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
-    .get('/config/markThresholdOverrides', {
+    .get('/precinct-scanner/config/testMode', {
+      body: getTestModeConfigTrueResponseBody,
+    })
+    .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
     })
-    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/scanner/status', { body: statusNoPaper })
-    .patchOnce('/config/testMode', {
+    .get('/precinct-scanner/config/precinct', {
+      body: getPrecinctConfigNoPrecinctResponseBody,
+    })
+    .get('/precinct-scanner/scanner/status', { body: statusNoPaper })
+    .patchOnce('/precinct-scanner/config/testMode', {
       body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
       status: 200,
     });
@@ -152,14 +156,14 @@ test('expected tally reports are printed for a primary election with all precinc
   await screen.findByText('Polls Closed');
 
   // Insert a pollworker card
-  fetchMock.post('/scan/export', {});
+  fetchMock.post('/precinct-scanner/export', {});
   const pollWorkerCard = makePollWorkerCard(
     electionMinimalExhaustiveSampleDefinition.electionHash
   );
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
   await screen.findByText('Do you want to open the polls?');
-  expect(fetchMock.calls('/scan/export')).toHaveLength(1);
+  expect(fetchMock.calls('/precinct-scanner/export')).toHaveLength(1);
 
   const NUMBER_REPORT_PURPOSES = 2;
   expect(
@@ -200,16 +204,22 @@ test('expected tally reports for a primary election with all precincts with CVRs
 
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
-    .get('/config/election', {
+    .get('/precinct-scanner/config/election', {
       body: electionMinimalExhaustiveSampleWithReportingUrlDefinition,
     })
-    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
-    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/config/markThresholdOverrides', {
+    .get('/precinct-scanner/config/testMode', {
+      body: getTestModeConfigTrueResponseBody,
+    })
+    .get('/precinct-scanner/config/precinct', {
+      body: getPrecinctConfigNoPrecinctResponseBody,
+    })
+    .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
     })
-    .get('/scanner/status', { body: { ...statusNoPaper, ballotsCounted: 3 } })
-    .patchOnce('/config/testMode', {
+    .get('/precinct-scanner/scanner/status', {
+      body: { ...statusNoPaper, ballotsCounted: 3 },
+    })
+    .patchOnce('/precinct-scanner/config/testMode', {
       body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
       status: 200,
     });
@@ -219,7 +229,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
 
   // Insert a pollworker card
   fetchMock.post(
-    '/scan/export',
+    '/precinct-scanner/export',
     generateFileContentFromCvrs([
       generateCvr(
         election,
@@ -270,7 +280,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
   await screen.findByText('Do you want to close the polls?');
-  expect(fetchMock.calls('/scan/export')).toHaveLength(1);
+  expect(fetchMock.calls('/precinct-scanner/export')).toHaveLength(1);
 
   const NUMBER_REPORT_PURPOSES = 2;
   expect(
@@ -571,16 +581,22 @@ test('expected tally reports for a primary election with a single precincts with
 
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
-    .get('/config/election', {
+    .get('/precinct-scanner/config/election', {
       body: electionMinimalExhaustiveSampleDefinition,
     })
-    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
-    .get('/config/precinct', { body: getPrecinctConfigPrecinct1ResponseBody })
-    .get('/config/markThresholdOverrides', {
+    .get('/precinct-scanner/config/testMode', {
+      body: getTestModeConfigTrueResponseBody,
+    })
+    .get('/precinct-scanner/config/precinct', {
+      body: getPrecinctConfigPrecinct1ResponseBody,
+    })
+    .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigResponseBody,
     })
-    .get('/scanner/status', { body: { ...statusNoPaper, ballotsCounted: 3 } })
-    .patchOnce('/config/testMode', {
+    .get('/precinct-scanner/scanner/status', {
+      body: { ...statusNoPaper, ballotsCounted: 3 },
+    })
+    .patchOnce('/precinct-scanner/config/testMode', {
       body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
       status: 200,
     });
@@ -590,7 +606,7 @@ test('expected tally reports for a primary election with a single precincts with
 
   // Insert a pollworker card
   fetchMock.post(
-    '/scan/export',
+    '/precinct-scanner/export',
     generateFileContentFromCvrs([
       generateCvr(
         election,
@@ -641,7 +657,7 @@ test('expected tally reports for a primary election with a single precincts with
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
   await screen.findByText('Do you want to close the polls?');
-  expect(fetchMock.calls('/scan/export')).toHaveLength(1);
+  expect(fetchMock.calls('/precinct-scanner/export')).toHaveLength(1);
 
   const NUMBER_REPORT_PURPOSES = 2;
   expect(
@@ -856,14 +872,22 @@ test('expected tally reports for a general election with all precincts with CVRs
 
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
-    .get('/config/election', { body: electionSample2Definition })
-    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
-    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/config/markThresholdOverrides', {
+    .get('/precinct-scanner/config/election', {
+      body: electionSample2Definition,
+    })
+    .get('/precinct-scanner/config/testMode', {
+      body: getTestModeConfigTrueResponseBody,
+    })
+    .get('/precinct-scanner/config/precinct', {
+      body: getPrecinctConfigNoPrecinctResponseBody,
+    })
+    .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
     })
-    .get('/scanner/status', { body: { ...statusNoPaper, ballotsCounted: 2 } })
-    .patchOnce('/config/testMode', {
+    .get('/precinct-scanner/scanner/status', {
+      body: { ...statusNoPaper, ballotsCounted: 2 },
+    })
+    .patchOnce('/precinct-scanner/config/testMode', {
       body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
       status: 200,
     });
@@ -873,7 +897,7 @@ test('expected tally reports for a general election with all precincts with CVRs
 
   // Insert a pollworker card
   fetchMock.post(
-    '/scan/export',
+    '/precinct-scanner/export',
     generateFileContentFromCvrs([
       generateCvr(
         election,
@@ -907,7 +931,7 @@ test('expected tally reports for a general election with all precincts with CVRs
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
   await screen.findByText('Do you want to close the polls?');
-  expect(fetchMock.calls('/scan/export')).toHaveLength(1);
+  expect(fetchMock.calls('/precinct-scanner/export')).toHaveLength(1);
 
   const NUMBER_REPORT_PURPOSES = 2;
   expect(
@@ -1107,14 +1131,22 @@ test('expected tally reports for a general election with a single precincts with
 
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
-    .get('/config/election', { body: electionSample2Definition })
-    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
-    .get('/config/precinct', { body: getPrecinctConfigPrecinct23ResponseBody })
-    .get('/config/markThresholdOverrides', {
+    .get('/precinct-scanner/config/election', {
+      body: electionSample2Definition,
+    })
+    .get('/precinct-scanner/config/testMode', {
+      body: getTestModeConfigTrueResponseBody,
+    })
+    .get('/precinct-scanner/config/precinct', {
+      body: getPrecinctConfigPrecinct23ResponseBody,
+    })
+    .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigResponseBody,
     })
-    .get('/scanner/status', { body: { ...statusNoPaper, ballotsCounted: 2 } })
-    .patchOnce('/config/testMode', {
+    .get('/precinct-scanner/scanner/status', {
+      body: { ...statusNoPaper, ballotsCounted: 2 },
+    })
+    .patchOnce('/precinct-scanner/config/testMode', {
       body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
       status: 200,
     });
@@ -1124,7 +1156,7 @@ test('expected tally reports for a general election with a single precincts with
 
   // Insert a pollworker card
   fetchMock.post(
-    '/scan/export',
+    '/precinct-scanner/export',
     generateFileContentFromCvrs([
       generateCvr(
         election,
@@ -1158,7 +1190,7 @@ test('expected tally reports for a general election with a single precincts with
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
   await screen.findByText('Do you want to close the polls?');
-  expect(fetchMock.calls('/scan/export')).toHaveLength(1);
+  expect(fetchMock.calls('/precinct-scanner/export')).toHaveLength(1);
 
   const NUMBER_REPORT_PURPOSES = 2;
   expect(

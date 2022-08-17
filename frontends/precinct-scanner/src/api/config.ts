@@ -6,6 +6,8 @@ import {
   safeParseJson,
 } from '@votingworks/types';
 import { ErrorsResponse, OkResponse, Scan } from '@votingworks/api';
+import { BallotPackage, BallotPackageEntry, assert } from '@votingworks/utils';
+import { EventEmitter } from 'events';
 
 async function patch<Body extends string | ArrayBuffer | unknown>(
   url: string,
@@ -73,7 +75,7 @@ export async function getElectionDefinition(): Promise<
   return (
     (safeParseJson(
       await (
-        await fetch('/config/election', {
+        await fetch('/precinct-scanner/config/election', {
           headers: { Accept: 'application/json' },
         })
       ).text(),
@@ -88,34 +90,37 @@ export async function setElection(
   { ignoreBackupRequirement }: { ignoreBackupRequirement?: boolean } = {}
 ): Promise<void> {
   if (typeof electionData === 'undefined') {
-    let deletionUrl = '/config/election';
+    let deletionUrl = '/precinct-scanner/config/election';
     if (ignoreBackupRequirement) {
       deletionUrl += '?ignoreBackupRequirement=true';
     }
     await del(deletionUrl);
   } else {
     // TODO(528) add proper typing here
-    await patch('/config/election', electionData);
+    await patch('/precinct-scanner/config/election', electionData);
   }
 }
 
 export async function getTestMode(): Promise<boolean> {
   return safeParseJson(
-    await (await fetch('/config/testMode')).text(),
+    await (await fetch('/precinct-scanner/config/testMode')).text(),
     Scan.GetTestModeConfigResponseSchema
   ).unsafeUnwrap().testMode;
 }
 
 export async function setTestMode(testMode: boolean): Promise<void> {
-  await patch<Scan.PatchTestModeConfigRequest>('/config/testMode', {
-    testMode,
-  });
+  await patch<Scan.PatchTestModeConfigRequest>(
+    '/precinct-scanner/config/testMode',
+    {
+      testMode,
+    }
+  );
 }
 
 export async function getMarkThresholds(): Promise<Optional<MarkThresholds>> {
   return safeParseJson(
     await (
-      await fetch('/config/markThresholdOverrides', {
+      await fetch('/precinct-scanner/config/markThresholdOverrides', {
         headers: { Accept: 'application/json' },
       })
     ).text(),
@@ -127,10 +132,10 @@ export async function setMarkThresholdOverrides(
   markThresholdOverrides?: MarkThresholds
 ): Promise<void> {
   if (typeof markThresholdOverrides === 'undefined') {
-    await del('/config/markThresholdOverrides');
+    await del('/precinct-scanner/config/markThresholdOverrides');
   } else {
     await patch<Scan.PatchMarkThresholdOverridesConfigRequest>(
-      '/config/markThresholdOverrides',
+      '/precinct-scanner/config/markThresholdOverrides',
       { markThresholdOverrides }
     );
   }
@@ -141,7 +146,7 @@ export async function getCurrentPrecinctId(): Promise<
 > {
   return safeParseJson(
     await (
-      await fetch('/config/precinct', {
+      await fetch('/precinct-scanner/config/precinct', {
         headers: { Accept: 'application/json' },
       })
     ).text(),
@@ -153,10 +158,111 @@ export async function setCurrentPrecinctId(
   precinctId?: Precinct['id']
 ): Promise<void> {
   if (!precinctId) {
-    await del('/config/precinct');
+    await del('/precinct-scanner/config/precinct');
   } else {
-    await put<Scan.PutCurrentPrecinctConfigRequest>('/config/precinct', {
-      precinctId,
-    });
+    await put<Scan.PutCurrentPrecinctConfigRequest>(
+      '/precinct-scanner/config/precinct',
+      {
+        precinctId,
+      }
+    );
   }
+}
+
+export interface AddTemplatesEvents extends EventEmitter {
+  on(
+    event: 'configuring',
+    callback: (
+      pkg: BallotPackage,
+      electionDefinition: ElectionDefinition
+    ) => void
+  ): this;
+  on(
+    event: 'uploading',
+    callback: (pkg: BallotPackage, entry: BallotPackageEntry) => void
+  ): this;
+  on(event: 'completed', callback: (pkg: BallotPackage) => void): this;
+  on(event: 'error', callback: (error: Error) => void): this;
+  off(
+    event: 'configuring',
+    callback: (
+      pkg: BallotPackage,
+      electionDefinition: ElectionDefinition
+    ) => void
+  ): this;
+  off(
+    event: 'uploading',
+    callback: (pkg: BallotPackage, entry: BallotPackageEntry) => void
+  ): this;
+  off(event: 'completed', callback: (pkg: BallotPackage) => void): this;
+  off(event: 'error', callback: (error: Error) => void): this;
+  emit(
+    event: 'configuring',
+    pkg: BallotPackage,
+    electionDefinition: ElectionDefinition
+  ): boolean;
+  emit(
+    event: 'uploading',
+    pkg: BallotPackage,
+    entry: BallotPackageEntry
+  ): boolean;
+  emit(event: 'completed', pkg: BallotPackage): boolean;
+  emit(event: 'error', error: Error): boolean;
+}
+
+export function addTemplates(pkg: BallotPackage): AddTemplatesEvents {
+  const result: AddTemplatesEvents = new EventEmitter();
+
+  setImmediate(async () => {
+    try {
+      result.emit('configuring', pkg, pkg.electionDefinition);
+      await setElection(pkg.electionDefinition.electionData);
+
+      for (const ballot of pkg.ballots) {
+        result.emit('uploading', pkg, ballot);
+
+        const body = new FormData();
+
+        body.append(
+          'ballots',
+          new Blob([ballot.pdf], { type: 'application/pdf' }),
+          ballot.ballotConfig.filename
+        );
+
+        body.append(
+          'metadatas',
+          new Blob([JSON.stringify(ballot.ballotConfig)], {
+            type: 'application/json',
+          }),
+          'ballot-config.json'
+        );
+
+        if (ballot.layout) {
+          body.append(
+            'layouts',
+            new Blob([JSON.stringify(ballot.layout)], {
+              type: 'application/json',
+            }),
+            ballot.ballotConfig.layoutFilename
+          );
+        }
+
+        await fetch('/precinct-scanner/config/addTemplates', {
+          method: 'POST',
+          body,
+        });
+      }
+
+      result.emit('completed', pkg);
+    } catch (error) {
+      assert(error instanceof Error);
+      result.emit('error', error);
+    }
+  });
+
+  return result;
+}
+
+export async function doneTemplates(): Promise<void> {
+  await fetch('/precinct-scanner/config/doneTemplates', { method: 'POST' });
 }

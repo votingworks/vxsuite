@@ -134,13 +134,19 @@ test('shows setup card reader screen when there is no card reader', async () => 
   hardware.setCardReaderConnected(false);
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
-    .get('/config/election', { body: electionSampleDefinition })
-    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
-    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/config/markThresholdOverrides', {
+    .get('/precinct-scanner/config/election', {
+      body: electionSampleDefinition,
+    })
+    .get('/precinct-scanner/config/testMode', {
+      body: getTestModeConfigTrueResponseBody,
+    })
+    .get('/precinct-scanner/config/precinct', {
+      body: getPrecinctConfigNoPrecinctResponseBody,
+    })
+    .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigResponseBody,
     })
-    .get('/scanner/status', { body: statusNoPaper });
+    .get('/precinct-scanner/scanner/status', { body: statusNoPaper });
   render(<App storage={storage} hardware={hardware} card={card} />);
   await screen.findByText('Card Reader Not Detected');
 });
@@ -156,14 +162,20 @@ test('initializes app with stored state', async () => {
   window.kiosk = kiosk;
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
-    .get('/config/election', { body: electionSampleDefinition })
-    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
-    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/config/markThresholdOverrides', {
+    .get('/precinct-scanner/config/election', {
+      body: electionSampleDefinition,
+    })
+    .get('/precinct-scanner/config/testMode', {
+      body: getTestModeConfigTrueResponseBody,
+    })
+    .get('/precinct-scanner/config/precinct', {
+      body: getPrecinctConfigNoPrecinctResponseBody,
+    })
+    .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
     })
-    .get('/scanner/status', { body: statusNoPaper })
-    .patchOnce('/config/testMode', {
+    .get('/precinct-scanner/scanner/status', { body: statusNoPaper })
+    .patchOnce('/precinct-scanner/config/testMode', {
       body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
       status: 200,
     });
@@ -176,7 +188,7 @@ test('initializes app with stored state', async () => {
   await advanceTimersAndPromises(1);
 
   // Insert a pollworker card
-  fetchMock.post('/scan/export', {});
+  fetchMock.post('/precinct-scanner/export', {});
   const pollWorkerCard = makePollWorkerCard(
     electionSampleDefinition.electionHash
   );
@@ -194,13 +206,17 @@ test('app can load and configure from a usb stick', async () => {
   window.kiosk = kiosk;
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
-    .getOnce('/config/election', new Response('null'))
-    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
-    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/config/markThresholdOverrides', {
+    .getOnce('/precinct-scanner/config/election', new Response('null'))
+    .get('/precinct-scanner/config/testMode', {
+      body: getTestModeConfigTrueResponseBody,
+    })
+    .get('/precinct-scanner/config/precinct', {
+      body: getPrecinctConfigNoPrecinctResponseBody,
+    })
+    .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
     })
-    .get('/scanner/status', { body: statusNoPaper });
+    .get('/precinct-scanner/scanner/status', { body: statusNoPaper });
   render(<App storage={storage} card={card} hardware={hardware} />);
   await screen.findByText('Loading Configuration…');
   await advanceTimersAndPromises(1);
@@ -268,23 +284,23 @@ test('app can load and configure from a usb stick', async () => {
   readBallotPackageFromFilePointerMock.mockResolvedValue(ballotPackage);
 
   fetchMock
-    .patchOnce('/config/testMode', {
+    .patchOnce('/precinct-scanner/config/testMode', {
       body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
       status: 200,
     })
-    .patchOnce('/config/election', {
+    .patchOnce('/precinct-scanner/config/election', {
       body: typedAs<Scan.PatchElectionConfigResponse>({ status: 'ok' }),
       status: 200,
     })
-    .post('/scan/hmpb/addTemplates', {
+    .post('/precinct-scanner/config/addTemplates', {
       body: '{"status": "ok"}',
       status: 200,
     })
-    .post('/scan/hmpb/doneTemplates', {
+    .post('/precinct-scanner/config/doneTemplates', {
       body: '{"status": "ok"}',
       status: 200,
     })
-    .get('/config/election', electionSampleDefinition, {
+    .get('/precinct-scanner/config/election', electionSampleDefinition, {
       overwriteRoutes: true,
     });
 
@@ -296,11 +312,15 @@ test('app can load and configure from a usb stick', async () => {
   expect(kiosk.getFileSystemEntries).toHaveBeenCalledWith(
     'fake mount point/ballot-packages'
   );
-  expect(fetchMock.calls('/config/election', { method: 'PATCH' })).toHaveLength(
-    1
+  expect(
+    fetchMock.calls('/precinct-scanner/config/election', { method: 'PATCH' })
+  ).toHaveLength(1);
+  expect(fetchMock.calls('/precinct-scanner/config/addTemplates')).toHaveLength(
+    16
   );
-  expect(fetchMock.calls('/scan/hmpb/addTemplates')).toHaveLength(16);
-  expect(fetchMock.calls('/scan/hmpb/doneTemplates')).toHaveLength(1);
+  expect(
+    fetchMock.calls('/precinct-scanner/config/doneTemplates')
+  ).toHaveLength(1);
 
   expect(readBallotPackageFromFilePointerMock).toHaveBeenCalledWith(
     expect.objectContaining({
@@ -321,14 +341,20 @@ test('election manager and poll worker configuration', async () => {
   window.kiosk = kiosk;
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
-    .get('/config/election', { body: electionSampleDefinition })
-    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
-    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/config/markThresholdOverrides', {
+    .get('/precinct-scanner/config/election', {
+      body: electionSampleDefinition,
+    })
+    .get('/precinct-scanner/config/testMode', {
+      body: getTestModeConfigTrueResponseBody,
+    })
+    .get('/precinct-scanner/config/precinct', {
+      body: getPrecinctConfigNoPrecinctResponseBody,
+    })
+    .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
     })
-    .get('/scanner/status', { body: statusNoPaper })
-    .patchOnce('/config/testMode', {
+    .get('/precinct-scanner/scanner/status', { body: statusNoPaper })
+    .patchOnce('/precinct-scanner/config/testMode', {
       body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
       status: 200,
     });
@@ -342,7 +368,7 @@ test('election manager and poll worker configuration', async () => {
   await screen.findByText('Polls Closed');
 
   // Insert a pollworker card
-  fetchMock.post('/scan/export', {});
+  fetchMock.post('/precinct-scanner/export', {});
   const pollWorkerCard = makePollWorkerCard(
     electionSampleDefinition.electionHash
   );
@@ -377,7 +403,7 @@ test('election manager and poll worker configuration', async () => {
       tally: getZeroCompressedTally(electionSampleDefinition.election),
     })
   );
-  expect(fetchMock.calls('/scan/export')).toHaveLength(1);
+  expect(fetchMock.calls('/precinct-scanner/export')).toHaveLength(1);
 
   // Remove poll worker card to see Insert Ballot Screen
   card.removeCard();
@@ -399,11 +425,13 @@ test('election manager and poll worker configuration', async () => {
   fireEvent.click(await screen.findByText('Live Election Mode'));
   await screen.findByText('Loading');
   await advanceTimersAndPromises(1);
-  expect(fetchMock.calls('/config/testMode', { method: 'PATCH' })).toHaveLength(
-    1
-  );
-  fetchMock.putOnce('/config/precinct', { body: { status: 'ok' } });
-  fetchMock.putOnce('/config/markThresholdOverrides', {
+  expect(
+    fetchMock.calls('/precinct-scanner/config/testMode', { method: 'PATCH' })
+  ).toHaveLength(1);
+  fetchMock.putOnce('/precinct-scanner/config/precinct', {
+    body: { status: 'ok' },
+  });
+  fetchMock.putOnce('/precinct-scanner/config/markThresholdOverrides', {
     body: { status: 'ok' },
   });
 
@@ -429,11 +457,11 @@ test('election manager and poll worker configuration', async () => {
   fireEvent.change(await screen.findByTestId('selectPrecinct'), {
     target: { value: '23' },
   });
-  expect(fetchMock.calls('/config/precinct', { method: 'PUT' })).toHaveLength(
-    1
-  );
+  expect(
+    fetchMock.calls('/precinct-scanner/config/precinct', { method: 'PUT' })
+  ).toHaveLength(1);
   fetchMock.patch(
-    '/config/testMode',
+    '/precinct-scanner/config/testMode',
     { body: { status: 'ok' } },
     { overwriteRoutes: true }
   );
@@ -453,20 +481,24 @@ test('election manager and poll worker configuration', async () => {
   await authenticateElectionManagerCard();
 
   // Calibrate scanner
-  fetchMock.post('/scanner/calibrate', { body: { status: 'ok' } });
+  fetchMock.post('/precinct-scanner/scanner/calibrate', {
+    body: { status: 'ok' },
+  });
   fireEvent.click(await screen.findByText('Calibrate Scanner'));
   await screen.findByText('Waiting for Paper');
   fireEvent.click(await screen.findByText('Cancel'));
   expect(screen.queryByText('Waiting for Paper')).toBeNull();
   fireEvent.click(await screen.findByText('Calibrate Scanner'));
   fetchMock.getOnce(
-    '/scanner/status',
+    '/precinct-scanner/scanner/status',
     { body: statusReadyToScan },
     { overwriteRoutes: true }
   );
   await advanceTimersAndPromises();
   fireEvent.click(await screen.findByText('Calibrate'));
-  expect(fetchMock.calls('/scanner/calibrate')).toHaveLength(1);
+  expect(fetchMock.calls('/precinct-scanner/scanner/calibrate')).toHaveLength(
+    1
+  );
   await advanceTimersAndPromises();
   await screen.findByText('Calibration succeeded!');
   fireEvent.click(screen.getByRole('button', { name: 'Close' }));
@@ -474,11 +506,11 @@ test('election manager and poll worker configuration', async () => {
   // Remove card and insert election manager card to unconfigure
   fetchMock
     .get(
-      '/scanner/status',
+      '/precinct-scanner/scanner/status',
       { body: { ...statusNoPaper, canUnconfigure: true } },
       { overwriteRoutes: true }
     )
-    .delete('./config/election', {
+    .delete('./precinct-scanner/config/election', {
       body: '{"status": "ok"}',
       status: 200,
     });
@@ -504,7 +536,11 @@ test('election manager and poll worker configuration', async () => {
   fireEvent.click(await screen.findByText('Yes, Delete All'));
   await screen.findByText('Loading');
   await waitFor(() =>
-    expect(fetchMock.calls('./config/election', { method: 'DELETE' }))
+    expect(
+      fetchMock.calls('./precinct-scanner/config/election', {
+        method: 'DELETE',
+      })
+    )
   );
   expect(window.kiosk.unmountUsbDrive).toHaveBeenCalledTimes(1);
 });
@@ -521,13 +557,19 @@ test('voter can cast a ballot that scans successfully ', async () => {
   window.kiosk = kiosk;
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
-    .get('/config/election', { body: electionSampleDefinition })
-    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
-    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/config/markThresholdOverrides', {
+    .get('/precinct-scanner/config/election', {
+      body: electionSampleDefinition,
+    })
+    .get('/precinct-scanner/config/testMode', {
+      body: getTestModeConfigTrueResponseBody,
+    })
+    .get('/precinct-scanner/config/precinct', {
+      body: getPrecinctConfigNoPrecinctResponseBody,
+    })
+    .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
     })
-    .getOnce('/scanner/status', { body: statusNoPaper });
+    .getOnce('/precinct-scanner/scanner/status', { body: statusNoPaper });
   render(<App card={card} hardware={hardware} storage={storage} />);
   await advanceTimersAndPromises(1);
   await screen.findByText('Insert Your Ballot Below');
@@ -539,21 +581,21 @@ test('voter can cast a ballot that scans successfully ', async () => {
   await screen.findByText('748dc61ad3');
 
   fetchMock
-    .getOnce('/scanner/status', {
+    .getOnce('/precinct-scanner/scanner/status', {
       body: scannerStatus({ state: 'ready_to_scan' }),
     })
-    .post('/scanner/scan', { body: { status: 'ok' } })
-    .getOnce('/scanner/status', {
+    .post('/precinct-scanner/scanner/scan', { body: { status: 'ok' } })
+    .getOnce('/precinct-scanner/scanner/status', {
       body: scannerStatus({ state: 'scanning' }),
     })
-    .getOnce('/scanner/status', {
+    .getOnce('/precinct-scanner/scanner/status', {
       body: scannerStatus({ state: 'ready_to_accept' }),
     })
-    .post('/scanner/accept', { body: { status: 'ok' } })
-    .getOnce('/scanner/status', {
+    .post('/precinct-scanner/scanner/accept', { body: { status: 'ok' } })
+    .getOnce('/precinct-scanner/scanner/status', {
       body: scannerStatus({ state: 'accepted' }),
     })
-    .get('/scanner/status', {
+    .get('/precinct-scanner/scanner/status', {
       body: scannerStatus({ state: 'no_paper', ballotsCounted: 1 }),
     });
 
@@ -570,7 +612,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
   expect(fetchMock.done()).toBe(true);
 
   // Insert a pollworker card
-  fetchMock.post('/scan/export', {
+  fetchMock.post('/precinct-scanner/export', {
     _precinctId: '23',
     _ballotStyleId: '12',
     president: ['cramer-vuocolo'],
@@ -619,7 +661,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
     ),
     expect.anything()
   );
-  expect(fetchMock.calls('/scan/export')).toHaveLength(2);
+  expect(fetchMock.calls('/precinct-scanner/export')).toHaveLength(2);
 
   // Simulate unmounted usb drive
   kiosk.getUsbDrives.mockResolvedValue([
@@ -669,7 +711,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
     ),
     expect.anything()
   );
-  expect(fetchMock.calls('/scan/export')).toHaveLength(3);
+  expect(fetchMock.calls('/precinct-scanner/export')).toHaveLength(3);
   fireEvent.click(await screen.findByText('Eject USB'));
   expect(screen.queryByText('Eject USB')).toBeNull();
   await advanceTimersAndPromises(1);
@@ -685,13 +727,19 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   window.kiosk = kiosk;
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
-    .get('/config/election', { body: electionSampleDefinition })
-    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
-    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/config/markThresholdOverrides', {
+    .get('/precinct-scanner/config/election', {
+      body: electionSampleDefinition,
+    })
+    .get('/precinct-scanner/config/testMode', {
+      body: getTestModeConfigTrueResponseBody,
+    })
+    .get('/precinct-scanner/config/precinct', {
+      body: getPrecinctConfigNoPrecinctResponseBody,
+    })
+    .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
     })
-    .getOnce('/scanner/status', { body: statusNoPaper });
+    .getOnce('/precinct-scanner/scanner/status', { body: statusNoPaper });
   render(<App storage={storage} card={card} hardware={hardware} />);
   await screen.findByText('Insert Your Ballot Below');
   await screen.findByText('Scan one ballot sheet at a time.');
@@ -706,14 +754,14 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
     reasons: [{ type: AdjudicationReason.BlankBallot }],
   };
   fetchMock
-    .getOnce('/scanner/status', {
+    .getOnce('/precinct-scanner/scanner/status', {
       body: scannerStatus({ state: 'ready_to_scan' }),
     })
-    .post('/scanner/scan', { body: { status: 'ok' } })
-    .getOnce('/scanner/status', {
+    .post('/precinct-scanner/scanner/scan', { body: { status: 'ok' } })
+    .getOnce('/precinct-scanner/scanner/status', {
       body: scannerStatus({ state: 'scanning' }),
     })
-    .getOnce('/scanner/status', {
+    .getOnce('/precinct-scanner/scanner/status', {
       body: scannerStatus({ state: 'needs_review', interpretation }),
     });
 
@@ -724,14 +772,14 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   await screen.findByText('No votes were found when scanning this ballot.');
 
   fetchMock
-    .post('/scanner/accept', { body: { status: 'ok' } })
-    .getOnce('/scanner/status', {
+    .post('/precinct-scanner/scanner/accept', { body: { status: 'ok' } })
+    .getOnce('/precinct-scanner/scanner/status', {
       body: scannerStatus({ state: 'accepting_after_review', interpretation }),
     })
-    .getOnce('/scanner/status', {
+    .getOnce('/precinct-scanner/scanner/status', {
       body: scannerStatus({ state: 'accepted', interpretation }),
     })
-    .get('/scanner/status', {
+    .get('/precinct-scanner/scanner/status', {
       body: scannerStatus({ state: 'no_paper', ballotsCounted: 1 }),
     });
 
@@ -757,13 +805,19 @@ test('voter can cast a rejected ballot', async () => {
   window.kiosk = kiosk;
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
-    .getOnce('/config/election', { body: electionSampleDefinition })
-    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
-    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/config/markThresholdOverrides', {
+    .getOnce('/precinct-scanner/config/election', {
+      body: electionSampleDefinition,
+    })
+    .get('/precinct-scanner/config/testMode', {
+      body: getTestModeConfigTrueResponseBody,
+    })
+    .get('/precinct-scanner/config/precinct', {
+      body: getPrecinctConfigNoPrecinctResponseBody,
+    })
+    .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
     })
-    .getOnce('/scanner/status', { body: statusNoPaper });
+    .getOnce('/precinct-scanner/scanner/status', { body: statusNoPaper });
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   render(<App storage={storage} card={card} hardware={hardware} />);
@@ -776,14 +830,14 @@ test('voter can cast a rejected ballot', async () => {
   await screen.findByText('748dc61ad3');
 
   fetchMock
-    .getOnce('/scanner/status', {
+    .getOnce('/precinct-scanner/scanner/status', {
       body: scannerStatus({ state: 'ready_to_scan' }),
     })
-    .post('/scanner/scan', { body: { status: 'ok' } })
-    .getOnce('/scanner/status', {
+    .post('/precinct-scanner/scanner/scan', { body: { status: 'ok' } })
+    .getOnce('/precinct-scanner/scanner/status', {
       body: scannerStatus({ state: 'scanning' }),
     })
-    .getOnce('/scanner/status', {
+    .getOnce('/precinct-scanner/scanner/status', {
       body: scannerStatus({
         state: 'rejected',
         interpretation: {
@@ -803,7 +857,7 @@ test('voter can cast a rejected ballot', async () => {
   expect(fetchMock.done()).toBe(true);
 
   // When the voter removes the ballot return to the insert ballot screen
-  fetchMock.getOnce('/scanner/status', {
+  fetchMock.getOnce('/precinct-scanner/scanner/status', {
     body: scannerStatus({ state: 'no_paper' }),
   });
   await screen.findByText('Insert Your Ballot Below');
@@ -820,13 +874,19 @@ test('voter can cast another ballot while the success screen is showing', async 
   window.kiosk = kiosk;
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
-    .get('/config/election', { body: electionSampleDefinition })
-    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
-    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/config/markThresholdOverrides', {
+    .get('/precinct-scanner/config/election', {
+      body: electionSampleDefinition,
+    })
+    .get('/precinct-scanner/config/testMode', {
+      body: getTestModeConfigTrueResponseBody,
+    })
+    .get('/precinct-scanner/config/precinct', {
+      body: getPrecinctConfigNoPrecinctResponseBody,
+    })
+    .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
     })
-    .getOnce('/scanner/status', {
+    .getOnce('/precinct-scanner/scanner/status', {
       body: scannerStatus({ state: 'accepted', ballotsCounted: 1 }),
     });
   render(<App storage={storage} card={card} hardware={hardware} />);
@@ -837,21 +897,21 @@ test('voter can cast another ballot while the success screen is showing', async 
   await screen.findByText('Election ID');
   await screen.findByText('748dc61ad3');
 
-  fetchMock.getOnce('/scanner/status', {
+  fetchMock.getOnce('/precinct-scanner/scanner/status', {
     body: scannerStatus({ state: 'accepted', ballotsCounted: 1 }),
   });
   screen.getByText('Your ballot was counted!');
   expect(screen.getByTestId('ballot-count').textContent).toBe('1');
 
   fetchMock
-    .getOnce('/scanner/status', {
+    .getOnce('/precinct-scanner/scanner/status', {
       body: scannerStatus({ state: 'ready_to_scan' }),
     })
-    .post('/scanner/scan', { body: { status: 'ok' } })
-    .getOnce('/scanner/status', {
+    .post('/precinct-scanner/scanner/scan', { body: { status: 'ok' } })
+    .getOnce('/precinct-scanner/scanner/status', {
       body: scannerStatus({ state: 'scanning' }),
     })
-    .get('/scanner/status', {
+    .get('/precinct-scanner/scanner/status', {
       body: scannerStatus({
         state: 'needs_review',
         interpretation: {
@@ -879,22 +939,28 @@ test('scanning is not triggered when polls closed or cards present', async () =>
   window.kiosk = kiosk;
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
-    .get('/config/election', { body: electionSampleDefinition })
-    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
-    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/config/markThresholdOverrides', {
+    .get('/precinct-scanner/config/election', {
+      body: electionSampleDefinition,
+    })
+    .get('/precinct-scanner/config/testMode', {
+      body: getTestModeConfigTrueResponseBody,
+    })
+    .get('/precinct-scanner/config/precinct', {
+      body: getPrecinctConfigNoPrecinctResponseBody,
+    })
+    .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
     })
     // Set up the status endpoint with 15 ballots scanned
-    .get('/scanner/status', {
+    .get('/precinct-scanner/scanner/status', {
       body: scannerStatus({ state: 'ready_to_scan', ballotsCounted: 15 }),
     })
     // Mock the scan endpoint just so we can check that we don't hit it
-    .post('/scanner/scan', { status: 500 });
+    .post('/precinct-scanner/scanner/scan', { status: 500 });
 
   render(<App storage={storage} card={card} hardware={hardware} />);
   await screen.findByText('Polls Closed');
-  fetchMock.post('/scan/export', {});
+  fetchMock.post('/precinct-scanner/export', {});
   const pollWorkerCard = makePollWorkerCard(
     electionSampleDefinition.electionHash
   );
@@ -910,7 +976,7 @@ test('scanning is not triggered when polls closed or cards present', async () =>
 
   // Once we remove the poll worker card, scanning should start
   fetchMock.post(
-    '/scanner/scan',
+    '/precinct-scanner/scanner/scan',
     { body: { status: 'ok' } },
     { overwriteRoutes: true }
   );
@@ -931,21 +997,27 @@ test('no printer: poll worker can open and close polls without scanning any ball
   window.kiosk = kiosk;
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
-    .get('/config/election', { body: electionSampleDefinition })
-    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
-    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/config/markThresholdOverrides', {
+    .get('/precinct-scanner/config/election', {
+      body: electionSampleDefinition,
+    })
+    .get('/precinct-scanner/config/testMode', {
+      body: getTestModeConfigTrueResponseBody,
+    })
+    .get('/precinct-scanner/config/precinct', {
+      body: getPrecinctConfigNoPrecinctResponseBody,
+    })
+    .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
     })
-    .get('/scanner/status', { body: statusNoPaper })
-    .patchOnce('/config/testMode', {
+    .get('/precinct-scanner/scanner/status', { body: statusNoPaper })
+    .patchOnce('/precinct-scanner/config/testMode', {
       body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
       status: 200,
     });
   render(<App card={card} hardware={hardware} storage={storage} />);
   await advanceTimersAndPromises(1);
   await screen.findByText('Polls Closed');
-  fetchMock.post('/scan/export', {});
+  fetchMock.post('/precinct-scanner/export', {});
   const pollWorkerCard = makePollWorkerCard(
     electionSampleDefinition.electionHash
   );
@@ -984,21 +1056,27 @@ test('with printer: poll worker can open and close polls without scanning any ba
   window.kiosk = kiosk;
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
-    .get('/config/election', { body: electionSampleDefinition })
-    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
-    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/config/markThresholdOverrides', {
+    .get('/precinct-scanner/config/election', {
+      body: electionSampleDefinition,
+    })
+    .get('/precinct-scanner/config/testMode', {
+      body: getTestModeConfigTrueResponseBody,
+    })
+    .get('/precinct-scanner/config/precinct', {
+      body: getPrecinctConfigNoPrecinctResponseBody,
+    })
+    .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
     })
-    .get('/scanner/status', { body: statusNoPaper })
-    .patchOnce('/config/testMode', {
+    .get('/precinct-scanner/scanner/status', { body: statusNoPaper })
+    .patchOnce('/precinct-scanner/config/testMode', {
       body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
       status: 200,
     });
   render(<App card={card} hardware={hardware} storage={storage} />);
   await advanceTimersAndPromises(1);
   await screen.findByText('Polls Closed');
-  fetchMock.post('/scan/export', {});
+  fetchMock.post('/precinct-scanner/export', {});
   const pollWorkerCard = makePollWorkerCard(
     electionSampleDefinition.electionHash
   );
@@ -1037,21 +1115,27 @@ test('no printer: open polls, scan ballot, close polls, save results', async () 
   window.kiosk = kiosk;
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
-    .get('/config/election', { body: electionSampleDefinition })
-    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
-    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/config/markThresholdOverrides', {
+    .get('/precinct-scanner/config/election', {
+      body: electionSampleDefinition,
+    })
+    .get('/precinct-scanner/config/testMode', {
+      body: getTestModeConfigTrueResponseBody,
+    })
+    .get('/precinct-scanner/config/precinct', {
+      body: getPrecinctConfigNoPrecinctResponseBody,
+    })
+    .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
     })
-    .get('/scanner/status', { body: statusNoPaper })
-    .patchOnce('/config/testMode', {
+    .get('/precinct-scanner/scanner/status', { body: statusNoPaper })
+    .patchOnce('/precinct-scanner/config/testMode', {
       body: typedAs<Scan.PatchTestModeConfigResponse>({ status: 'ok' }),
       status: 200,
     });
   render(<App card={card} hardware={hardware} storage={storage} />);
   await advanceTimersAndPromises(1);
   await screen.findByText('Polls Closed');
-  fetchMock.post('/scan/export', {});
+  fetchMock.post('/precinct-scanner/export', {});
   const pollWorkerCard = makePollWorkerCard(
     electionSampleDefinition.electionHash
   );
@@ -1071,22 +1155,22 @@ test('no printer: open polls, scan ballot, close polls, save results', async () 
   // Voter scans a ballot
   fetchMock
     .getOnce(
-      '/scanner/status',
+      '/precinct-scanner/scanner/status',
       { body: scannerStatus({ state: 'ready_to_scan' }) },
       { overwriteRoutes: true }
     )
-    .post('/scanner/scan', { body: { status: 'ok' } })
-    .getOnce('/scanner/status', {
+    .post('/precinct-scanner/scanner/scan', { body: { status: 'ok' } })
+    .getOnce('/precinct-scanner/scanner/status', {
       body: scannerStatus({ state: 'scanning' }),
     })
-    .getOnce('/scanner/status', {
+    .getOnce('/precinct-scanner/scanner/status', {
       body: scannerStatus({ state: 'ready_to_accept' }),
     })
-    .post('/scanner/accept', { body: { status: 'ok' } })
-    .getOnce('/scanner/status', {
+    .post('/precinct-scanner/scanner/accept', { body: { status: 'ok' } })
+    .getOnce('/precinct-scanner/scanner/status', {
       body: scannerStatus({ state: 'accepted' }),
     })
-    .get('/scanner/status', {
+    .get('/precinct-scanner/scanner/status', {
       body: scannerStatus({ state: 'no_paper', ballotsCounted: 1 }),
     });
 
@@ -1104,7 +1188,7 @@ test('no printer: open polls, scan ballot, close polls, save results', async () 
 
   // Close Polls
   fetchMock.post(
-    '/scan/export',
+    '/precinct-scanner/export',
     {
       _precinctId: '23',
       _ballotStyleId: '12',
@@ -1145,7 +1229,7 @@ test('no printer: open polls, scan ballot, close polls, save results', async () 
       ]),
     })
   );
-  expect(fetchMock.calls('/scan/export')).toHaveLength(3);
+  expect(fetchMock.calls('/precinct-scanner/export')).toHaveLength(3);
 
   expect(kiosk.writeFile).toHaveBeenCalledTimes(1);
   expect(kiosk.writeFile).toHaveBeenCalledWith(
@@ -1175,14 +1259,20 @@ test('system administrator can log in and unconfigure machine', async () => {
 
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
-    .get('/config/election', { body: electionSampleDefinition })
-    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
-    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/config/markThresholdOverrides', {
+    .get('/precinct-scanner/config/election', {
+      body: electionSampleDefinition,
+    })
+    .get('/precinct-scanner/config/testMode', {
+      body: getTestModeConfigTrueResponseBody,
+    })
+    .get('/precinct-scanner/config/precinct', {
+      body: getPrecinctConfigNoPrecinctResponseBody,
+    })
+    .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
     })
-    .get('/scanner/status', { body: statusNoPaper })
-    .delete('/config/election?ignoreBackupRequirement=true', {
+    .get('/precinct-scanner/scanner/status', { body: statusNoPaper })
+    .delete('/precinct-scanner/config/election?ignoreBackupRequirement=true', {
       body: deleteElectionConfigResponseBody,
     });
   render(<App card={card} storage={storage} hardware={hardware} />);
@@ -1228,13 +1318,17 @@ test('system administrator allowed to log in on unconfigured machine', async () 
 
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
-    .get('/config/election', { body: null })
-    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
-    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/config/markThresholdOverrides', {
+    .get('/precinct-scanner/config/election', { body: null })
+    .get('/precinct-scanner/config/testMode', {
+      body: getTestModeConfigTrueResponseBody,
+    })
+    .get('/precinct-scanner/config/precinct', {
+      body: getPrecinctConfigNoPrecinctResponseBody,
+    })
+    .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
     })
-    .get('/scanner/status', { body: statusNoPaper });
+    .get('/precinct-scanner/scanner/status', { body: statusNoPaper });
 
   render(<App card={card} storage={storage} hardware={hardware} />);
 
@@ -1256,13 +1350,19 @@ test('election manager cannot auth onto machine with different election hash whe
 
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
-    .get('/config/election', { body: electionSampleDefinition })
-    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
-    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/config/markThresholdOverrides', {
+    .get('/precinct-scanner/config/election', {
+      body: electionSampleDefinition,
+    })
+    .get('/precinct-scanner/config/testMode', {
+      body: getTestModeConfigTrueResponseBody,
+    })
+    .get('/precinct-scanner/config/precinct', {
+      body: getPrecinctConfigNoPrecinctResponseBody,
+    })
+    .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
     })
-    .get('/scanner/status', { body: statusNoPaper });
+    .get('/precinct-scanner/scanner/status', { body: statusNoPaper });
 
   render(<App card={card} storage={storage} hardware={hardware} />);
 
@@ -1280,13 +1380,19 @@ test('replace ballot bag flow', async () => {
   window.kiosk = kiosk;
   fetchMock
     .get('/machine-config', { body: getMachineConfigBody })
-    .get('/config/election', { body: electionSampleDefinition })
-    .get('/config/testMode', { body: getTestModeConfigTrueResponseBody })
-    .get('/config/precinct', { body: getPrecinctConfigNoPrecinctResponseBody })
-    .get('/config/markThresholdOverrides', {
+    .get('/precinct-scanner/config/election', {
+      body: electionSampleDefinition,
+    })
+    .get('/precinct-scanner/config/testMode', {
+      body: getTestModeConfigTrueResponseBody,
+    })
+    .get('/precinct-scanner/config/precinct', {
+      body: getPrecinctConfigNoPrecinctResponseBody,
+    })
+    .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
     })
-    .getOnce('/scanner/status', { body: statusNoPaper });
+    .getOnce('/precinct-scanner/scanner/status', { body: statusNoPaper });
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const pollWorkerCard = makePollWorkerCard(
@@ -1297,21 +1403,21 @@ test('replace ballot bag flow', async () => {
   await screen.findByText('Insert Your Ballot Below');
 
   fetchMock
-    .getOnce('/scanner/status', {
+    .getOnce('/precinct-scanner/scanner/status', {
       body: scannerStatus({ state: 'ready_to_scan' }),
     })
-    .post('/scanner/scan', { body: { status: 'ok' } })
-    .getOnce('/scanner/status', {
+    .post('/precinct-scanner/scanner/scan', { body: { status: 'ok' } })
+    .getOnce('/precinct-scanner/scanner/status', {
       body: scannerStatus({ state: 'scanning' }),
     })
-    .getOnce('/scanner/status', {
+    .getOnce('/precinct-scanner/scanner/status', {
       body: scannerStatus({ state: 'ready_to_accept' }),
     })
-    .post('/scanner/accept', { body: { status: 'ok' } })
-    .getOnce('/scanner/status', {
+    .post('/precinct-scanner/scanner/accept', { body: { status: 'ok' } })
+    .getOnce('/precinct-scanner/scanner/status', {
       body: scannerStatus({ state: 'accepted' }),
     })
-    .get('/scanner/status', {
+    .get('/precinct-scanner/scanner/status', {
       body: scannerStatus({
         state: 'no_paper',
         ballotsCounted: BALLOT_BAG_CAPACITY,
@@ -1359,7 +1465,7 @@ test('replace ballot bag flow', async () => {
 
   // Does not prompt again if new threshold hasn't been reached
   fetchMock.restore();
-  fetchMock.get('/scanner/status', {
+  fetchMock.get('/precinct-scanner/scanner/status', {
     body: scannerStatus({
       state: 'no_paper',
       ballotsCounted: BALLOT_BAG_CAPACITY * 2 - 1,
@@ -1370,7 +1476,7 @@ test('replace ballot bag flow', async () => {
 
   // Prompts again if new threshold has been reached
   fetchMock.restore();
-  fetchMock.get('/scanner/status', {
+  fetchMock.get('/precinct-scanner/scanner/status', {
     body: scannerStatus({
       state: 'no_paper',
       ballotsCounted: BALLOT_BAG_CAPACITY * 2,

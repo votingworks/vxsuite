@@ -101,7 +101,7 @@ export async function buildPrecinctScannerApp(
   app.use(express.urlencoded({ extended: false }));
 
   app.get<NoParams, Scan.GetElectionConfigResponse>(
-    '/config/election',
+    '/precinct-scanner/config/election',
     (request, response) => {
       const electionDefinition = store.getElectionDefinition();
 
@@ -123,7 +123,7 @@ export async function buildPrecinctScannerApp(
     NoParams,
     Scan.PatchElectionConfigResponse,
     Scan.PatchElectionConfigRequest
-  >('/config/election', (request, response) => {
+  >('/precinct-scanner/config/election', (request, response) => {
     const { body } = request;
 
     if (!Buffer.isBuffer(body)) {
@@ -164,7 +164,7 @@ export async function buildPrecinctScannerApp(
   });
 
   app.delete<NoParams, Scan.DeleteElectionConfigResponse>(
-    '/config/election',
+    '/precinct-scanner/config/election',
     (request, response) => {
       if (
         !store.getCanUnconfigure() &&
@@ -192,7 +192,7 @@ export async function buildPrecinctScannerApp(
   );
 
   app.get<NoParams, Scan.GetTestModeConfigResponse>(
-    '/config/testMode',
+    '/precinct-scanner/config/testMode',
     (_request, response) => {
       const testMode = store.getTestMode();
       response.json({ status: 'ok', testMode });
@@ -203,7 +203,7 @@ export async function buildPrecinctScannerApp(
     NoParams,
     Scan.PatchTestModeConfigResponse,
     Scan.PatchTestModeConfigRequest
-  >('/config/testMode', async (request, response) => {
+  >('/precinct-scanner/config/testMode', async (request, response) => {
     const bodyParseResult = safeParse(
       Scan.PatchTestModeConfigRequestSchema,
       request.body
@@ -226,7 +226,7 @@ export async function buildPrecinctScannerApp(
   });
 
   app.get<NoParams, Scan.GetCurrentPrecinctConfigResponse>(
-    '/config/precinct',
+    '/precinct-scanner/config/precinct',
     (_request, response) => {
       const precinctId = store.getCurrentPrecinctId();
       response.json({ status: 'ok', precinctId });
@@ -237,7 +237,7 @@ export async function buildPrecinctScannerApp(
     NoParams,
     Scan.PutCurrentPrecinctConfigResponse,
     Scan.PutCurrentPrecinctConfigRequest
-  >('/config/precinct', (request, response) => {
+  >('/precinct-scanner/config/precinct', (request, response) => {
     const bodyParseResult = safeParse(
       Scan.PutCurrentPrecinctConfigRequestSchema,
       request.body
@@ -257,7 +257,7 @@ export async function buildPrecinctScannerApp(
   });
 
   app.delete<NoParams, Scan.DeleteCurrentPrecinctConfigResponse>(
-    '/config/precinct',
+    '/precinct-scanner/config/precinct',
     (_request, response) => {
       store.setCurrentPrecinctId(undefined);
       response.json({ status: 'ok' });
@@ -265,7 +265,7 @@ export async function buildPrecinctScannerApp(
   );
 
   app.get<NoParams, Scan.GetMarkThresholdOverridesConfigResponse>(
-    '/config/markThresholdOverrides',
+    '/precinct-scanner/config/markThresholdOverrides',
     (_request, response) => {
       const markThresholdOverrides = store.getMarkThresholdOverrides();
       response.json({ status: 'ok', markThresholdOverrides });
@@ -273,7 +273,7 @@ export async function buildPrecinctScannerApp(
   );
 
   app.delete<NoParams, Scan.DeleteMarkThresholdOverridesConfigResponse>(
-    '/config/markThresholdOverrides',
+    '/precinct-scanner/config/markThresholdOverrides',
     async (_request, response) => {
       store.setMarkThresholdOverrides(undefined);
       await configureInterpreter(interpreter, workspace);
@@ -285,30 +285,33 @@ export async function buildPrecinctScannerApp(
     NoParams,
     Scan.PatchMarkThresholdOverridesConfigResponse,
     Scan.PatchMarkThresholdOverridesConfigRequest
-  >('/config/markThresholdOverrides', async (request, response) => {
-    const bodyParseResult = safeParse(
-      Scan.PatchMarkThresholdOverridesConfigRequestSchema,
-      request.body
-    );
+  >(
+    '/precinct-scanner/config/markThresholdOverrides',
+    async (request, response) => {
+      const bodyParseResult = safeParse(
+        Scan.PatchMarkThresholdOverridesConfigRequestSchema,
+        request.body
+      );
 
-    if (bodyParseResult.isErr()) {
-      const error = bodyParseResult.err();
-      response.status(400).json({
-        status: 'error',
-        errors: [{ type: error.name, message: error.message }],
-      });
-      return;
+      if (bodyParseResult.isErr()) {
+        const error = bodyParseResult.err();
+        response.status(400).json({
+          status: 'error',
+          errors: [{ type: error.name, message: error.message }],
+        });
+        return;
+      }
+
+      store.setMarkThresholdOverrides(
+        bodyParseResult.ok().markThresholdOverrides
+      );
+      await configureInterpreter(interpreter, workspace);
+      response.json({ status: 'ok' });
     }
-
-    store.setMarkThresholdOverrides(
-      bodyParseResult.ok().markThresholdOverrides
-    );
-    await configureInterpreter(interpreter, workspace);
-    response.json({ status: 'ok' });
-  });
+  );
 
   app.post<NoParams, Scan.AddTemplatesResponse, Scan.AddTemplatesRequest>(
-    '/scan/hmpb/addTemplates',
+    '/precinct-scanner/config/addTemplates',
     upload.fields([
       { name: 'ballots' },
       { name: 'metadatas' },
@@ -434,13 +437,16 @@ export async function buildPrecinctScannerApp(
     }
   );
 
-  app.post('/scan/hmpb/doneTemplates', async (_request, response) => {
-    await configureInterpreter(interpreter, workspace);
-    response.json({ status: 'ok' });
-  });
+  app.post(
+    '/precinct-scanner/config/doneTemplates',
+    async (_request, response) => {
+      await configureInterpreter(interpreter, workspace);
+      response.json({ status: 'ok' });
+    }
+  );
 
   app.post<NoParams, Scan.ExportResponse, Scan.ExportRequest>(
-    '/scan/export',
+    '/precinct-scanner/export',
     (_request, response) => {
       const outputStream = new streams.WritableStream();
       store.exportCvrs(outputStream);
@@ -451,7 +457,7 @@ export async function buildPrecinctScannerApp(
     }
   );
 
-  app.get('/scan/backup', (_request, response) => {
+  app.get('/precinct-scanner/backup', (_request, response) => {
     const electionDefinition = store.getElectionDefinition();
 
     if (!electionDefinition) {
@@ -498,7 +504,7 @@ export async function buildPrecinctScannerApp(
   });
 
   app.get<NoParams, Scan.GetPrecinctScannerStatusResponse>(
-    '/scanner/status',
+    '/precinct-scanner/scanner/status',
     (_request, response) => {
       const machineStatus = machine.status();
       const batches = store.batchStatus();
@@ -512,23 +518,32 @@ export async function buildPrecinctScannerApp(
     }
   );
 
-  app.post<NoParams, OkResponse>('/scanner/scan', (_request, response) => {
-    machine.scan();
-    response.json({ status: 'ok' });
-  });
+  app.post<NoParams, OkResponse>(
+    '/precinct-scanner/scanner/scan',
+    (_request, response) => {
+      machine.scan();
+      response.json({ status: 'ok' });
+    }
+  );
 
-  app.post<NoParams, OkResponse>('/scanner/accept', (_request, response) => {
-    machine.accept();
-    response.json({ status: 'ok' });
-  });
+  app.post<NoParams, OkResponse>(
+    '/precinct-scanner/scanner/accept',
+    (_request, response) => {
+      machine.accept();
+      response.json({ status: 'ok' });
+    }
+  );
 
-  app.post<NoParams, OkResponse>('/scanner/return', (_request, response) => {
-    machine.return();
-    response.json({ status: 'ok' });
-  });
+  app.post<NoParams, OkResponse>(
+    '/precinct-scanner/scanner/return',
+    (_request, response) => {
+      machine.return();
+      response.json({ status: 'ok' });
+    }
+  );
 
   app.post<NoParams, Scan.CalibrateResponse>(
-    '/scanner/calibrate',
+    '/precinct-scanner/scanner/calibrate',
     async (_request, response) => {
       const result = await machine.calibrate();
       if (result.isOk()) {

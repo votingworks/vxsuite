@@ -44,7 +44,7 @@ afterEach(async () => {
 test('going through the whole process works', async () => {
   // Do this first so interpreter workers get initialized with the right value.
   await request(app)
-    .patch('/config/skipElectionHashCheck')
+    .patch('/central-scanner/config/skipElectionHashCheck')
     .send({ skipElectionHashCheck: true })
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
@@ -53,21 +53,21 @@ test('going through the whole process works', async () => {
   {
     // try export before configure
     const response = await request(app)
-      .post('/scan/export')
+      .post('/central-scanner/scan/export')
       .set('Accept', 'application/json')
       .expect(200);
     expect(response.text).toBe('');
   }
 
   await request(app)
-    .patch('/config/election')
+    .patch('/central-scanner/config/election')
     .send(asElectionDefinition(election).electionData)
     .set('Content-Type', 'application/octet-stream')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' });
 
   await request(app)
-    .patch('/config/testMode')
+    .patch('/central-scanner/config/testMode')
     .send({ testMode: true })
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
@@ -91,7 +91,7 @@ test('going through the whole process works', async () => {
       ])
       .end();
     await request(app)
-      .post('/scan/scanBatch')
+      .post('/central-scanner/scan/scanBatch')
       .expect(200)
       .then((response) => {
         expect(response.body).toEqual({
@@ -104,7 +104,7 @@ test('going through the whole process works', async () => {
 
     // check the status
     const status = await request(app)
-      .get('/scan/status')
+      .get('/central-scanner/scan/status')
       .set('Accept', 'application/json')
       .expect(200);
 
@@ -113,7 +113,7 @@ test('going through the whole process works', async () => {
 
   {
     const exportResponse = await request(app)
-      .post('/scan/export')
+      .post('/central-scanner/scan/export')
       .set('Accept', 'application/json')
       .expect(200);
 
@@ -137,18 +137,18 @@ test('going through the whole process works', async () => {
   {
     // delete all batches
     const status = await request(app)
-      .get('/scan/status')
+      .get('/central-scanner/scan/status')
       .set('Accept', 'application/json')
       .expect(200);
     for (const { id } of JSON.parse(status.text).batches) {
       await request(app)
-        .delete(`/scan/batch/${id}`)
+        .delete(`/central-scanner/scan/batch/${id}`)
         .set('Accept', 'application/json')
         .expect(200);
 
       // can't delete it again
       await request(app)
-        .delete(`/scan/batch/${id}`)
+        .delete(`/central-scanner/scan/batch/${id}`)
         .set('Accept', 'application/json')
         .expect(404);
     }
@@ -157,7 +157,7 @@ test('going through the whole process works', async () => {
   {
     // expect that we have no batches
     const status = await request(app)
-      .get('/scan/status')
+      .get('/central-scanner/scan/status')
       .set('Accept', 'application/json')
       .expect(200);
     expect(JSON.parse(status.text).batches).toEqual([]);
@@ -165,10 +165,10 @@ test('going through the whole process works', async () => {
 
   // no CVRs!
   await request(app)
-    .post('/scan/export')
+    .post('/central-scanner/scan/export')
     .set('Accept', 'application/json')
     .expect(200, '');
 
   // clean up
-  await request(app).delete('/config/election');
+  await request(app).delete('/central-scanner/config/election');
 });

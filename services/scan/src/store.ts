@@ -625,14 +625,14 @@ export class Store {
         id: row.id,
         front: {
           image: {
-            url: `/scan/hmpb/ballot/${row.id}/front/image/normalized`,
+            url: `/central-scanner/scan/hmpb/ballot/${row.id}/front/image/normalized`,
           },
           interpretation: JSON.parse(row.frontInterpretationJson),
           adjudicationFinishedAt: row.frontFinishedAdjudicationAt ?? undefined,
         },
         back: {
           image: {
-            url: `/scan/hmpb/ballot/${row.id}/back/image/normalized`,
+            url: `/central-scanner/scan/hmpb/ballot/${row.id}/back/image/normalized`,
           },
           interpretation: JSON.parse(row.backInterpretationJson),
           adjudicationFinishedAt: row.backFinishedAdjudicationAt ?? undefined,

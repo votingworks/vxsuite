@@ -67,7 +67,7 @@ async function del(url: string): Promise<void> {
 }
 
 export async function getElection(): Promise<string | undefined> {
-  const response = await fetch('/config/election');
+  const response = await fetch('/central-scanner/config/election');
 
   if (response.status === 404) {
     return undefined;
@@ -82,7 +82,7 @@ export async function getElectionDefinition(): Promise<
   return (
     (safeParseJson(
       await (
-        await fetch('/config/election', {
+        await fetch('/central-scanner/config/election', {
           headers: { Accept: 'application/json' },
         })
       ).text(),
@@ -97,14 +97,14 @@ export async function setElection(
   { ignoreBackupRequirement }: { ignoreBackupRequirement?: boolean } = {}
 ): Promise<void> {
   if (typeof electionData === 'undefined') {
-    let deletionUrl = '/config/election';
+    let deletionUrl = '/central-scanner/config/election';
     if (ignoreBackupRequirement) {
       deletionUrl += '?ignoreBackupRequirement=true';
     }
     await del(deletionUrl);
   } else {
     await patch<Scan.PatchElectionConfigRequest>(
-      '/config/election',
+      '/central-scanner/config/election',
       new TextEncoder().encode(electionData)
     );
   }
@@ -112,15 +112,18 @@ export async function setElection(
 
 export async function getTestMode(): Promise<boolean> {
   return safeParseJson(
-    await (await fetch('/config/testMode')).text(),
+    await (await fetch('/central-scanner/config/testMode')).text(),
     Scan.GetTestModeConfigResponseSchema
   ).unsafeUnwrap().testMode;
 }
 
 export async function setTestMode(testMode: boolean): Promise<void> {
-  await patch<Scan.PatchTestModeConfigRequest>('/config/testMode', {
-    testMode,
-  });
+  await patch<Scan.PatchTestModeConfigRequest>(
+    '/central-scanner/config/testMode',
+    {
+      testMode,
+    }
+  );
   const newTestMode = await getTestMode();
   if (newTestMode !== testMode) {
     throw new Error('Error setting test mode, please try again');
@@ -132,7 +135,7 @@ export async function getMarkThresholdOverrides(): Promise<
 > {
   const { markThresholdOverrides } = unsafeParse(
     Scan.GetMarkThresholdOverridesConfigResponseSchema,
-    await fetchJson('/config/markThresholdOverrides')
+    await fetchJson('/central-scanner/config/markThresholdOverrides')
   );
   return markThresholdOverrides;
 }
@@ -141,10 +144,10 @@ export async function setMarkThresholdOverrides(
   markThresholdOverrides?: MarkThresholds
 ): Promise<void> {
   if (typeof markThresholdOverrides === 'undefined') {
-    await del('/config/markThresholdOverrides');
+    await del('/central-scanner/config/markThresholdOverrides');
   } else {
     await patch<Scan.PatchMarkThresholdOverridesConfigRequest>(
-      '/config/markThresholdOverrides',
+      '/central-scanner/config/markThresholdOverrides',
       { markThresholdOverrides }
     );
   }
@@ -155,7 +158,7 @@ export async function getCurrentPrecinctId(): Promise<
 > {
   return safeParseJson(
     await (
-      await fetch('/config/precinct', {
+      await fetch('/central-scanner/config/precinct', {
         headers: { Accept: 'application/json' },
       })
     ).text(),
@@ -166,7 +169,10 @@ export async function getCurrentPrecinctId(): Promise<
 export async function setCurrentPrecinctId(
   precinctId: Precinct['id']
 ): Promise<void> {
-  await put<Scan.PutCurrentPrecinctConfigRequest>('/config/precinct', {
-    precinctId,
-  });
+  await put<Scan.PutCurrentPrecinctConfigRequest>(
+    '/central-scanner/config/precinct',
+    {
+      precinctId,
+    }
+  );
 }

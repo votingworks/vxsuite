@@ -30,7 +30,7 @@ test('updates from /scanner/status', async () => {
   const { result } = renderHook(() => usePrecinctScannerStatus());
 
   // first update
-  fetchMock.getOnce('/scanner/status', {
+  fetchMock.getOnce('/precinct-scanner/scanner/status', {
     body: statusNoPaper,
   });
   await advanceTimersAndPromises(1);
@@ -38,7 +38,7 @@ test('updates from /scanner/status', async () => {
 
   // second update
   fetchMock.getOnce(
-    '/scanner/status',
+    '/precinct-scanner/scanner/status',
     { body: statusReadyToScan },
     { overwriteRoutes: false }
   );
@@ -49,7 +49,7 @@ test('updates from /scanner/status', async () => {
 test('disabling', async () => {
   const { result } = renderHook(() => usePrecinctScannerStatus(false));
 
-  fetchMock.getOnce('/scanner/status', {
+  fetchMock.getOnce('/precinct-scanner/scanner/status', {
     body: statusNoPaper,
   });
   await advanceTimersAndPromises(100);
@@ -70,7 +70,7 @@ test('issues one status check at a time', async () => {
 
   const { result } = renderHook(() => usePrecinctScannerStatus());
 
-  fetchMock.get('/scanner/status', statusEndpoint);
+  fetchMock.get('/precinct-scanner/scanner/status', statusEndpoint);
   expect(result.current).toBeUndefined();
 
   await advanceTimersAndPromises(6);

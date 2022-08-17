@@ -108,7 +108,7 @@ test('render export modal when a USB drive is mounted as expected and allows cus
 
   fireEvent.click(screen.getByText('Custom'));
   await screen.findByText('Backup Saved');
-  expect(download).toHaveBeenCalledWith('/scan/backup');
+  expect(download).toHaveBeenCalledWith('/precinct-scanner/backup');
 
   fireEvent.click(screen.getByText('Cancel'));
   expect(closeFn).toHaveBeenCalled();
@@ -155,7 +155,7 @@ test('render export modal when a USB drive is mounted as expected and allows aut
 
   fireEvent.click(screen.getByText('Save'));
   await screen.findByText('Backup Saved');
-  expect(download).toHaveBeenCalledWith('/scan/backup', {
+  expect(download).toHaveBeenCalledWith('/precinct-scanner/backup', {
     into: 'fake mount point/scanner-backups/franklin-county_general-election_748dc61ad3',
   });
   expect(mockKiosk.syncUsbDrive).toHaveBeenCalledWith('fake mount point');

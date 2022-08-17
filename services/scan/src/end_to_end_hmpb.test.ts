@@ -65,7 +65,7 @@ test('going through the whole process works', async () => {
 
   // Do this first so interpreter workers get initialized with the right value.
   await request(app)
-    .patch('/config/skipElectionHashCheck')
+    .patch('/central-scanner/config/skipElectionHashCheck')
     .send({ skipElectionHashCheck: true })
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
@@ -75,7 +75,7 @@ test('going through the whole process works', async () => {
   await importer.restoreConfig();
 
   await request(app)
-    .patch('/config/election')
+    .patch('/central-scanner/config/election')
     .send(asElectionDefinition(election).electionData)
     .set('Content-Type', 'application/octet-stream')
     .set('Accept', 'application/json')
@@ -83,7 +83,7 @@ test('going through the whole process works', async () => {
 
   // need to turn off test mode after election is loaded
   await request(app)
-    .patch('/config/testMode')
+    .patch('/central-scanner/config/testMode')
     .send({ testMode: false })
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
@@ -93,7 +93,9 @@ test('going through the whole process works', async () => {
     await fs.readFile(join(electionFixturesRoot, 'manifest.json'), 'utf8')
   );
 
-  const addTemplatesRequest = request(app).post('/scan/hmpb/addTemplates');
+  const addTemplatesRequest = request(app).post(
+    '/central-scanner/scan/hmpb/addTemplates'
+  );
 
   for (const config of manifest.ballots) {
     void addTemplatesRequest
@@ -109,7 +111,7 @@ test('going through the whole process works', async () => {
   await addTemplatesRequest.expect(200, { status: 'ok' });
 
   await request(app)
-    .post('/scan/scanBatch')
+    .post('/central-scanner/scan/scanBatch')
     .expect(200)
     .then((response) => {
       expect(response.body).toEqual({
@@ -118,7 +120,7 @@ test('going through the whole process works', async () => {
       });
     });
 
-  await request(app).post('/scan/hmpb/doneTemplates');
+  await request(app).post('/central-scanner/scan/hmpb/doneTemplates');
 
   {
     // define the next scanner session
@@ -133,7 +135,7 @@ test('going through the whole process works', async () => {
     nextSession.end();
 
     await request(app)
-      .post('/scan/scanBatch')
+      .post('/central-scanner/scan/scanBatch')
       .expect(200)
       .then((response) => {
         expect(response.body).toEqual({
@@ -146,7 +148,7 @@ test('going through the whole process works', async () => {
 
     // check the latest batch has the expected counts
     const status = await request(app)
-      .get('/scan/status')
+      .get('/central-scanner/scan/status')
       .set('Accept', 'application/json')
       .expect(200);
     expect(JSON.parse(status.text).batches.length).toBe(1);
@@ -155,7 +157,7 @@ test('going through the whole process works', async () => {
 
   {
     const exportResponse = await request(app)
-      .post('/scan/export')
+      .post('/central-scanner/scan/export')
       .set('Accept', 'application/json')
       .expect(200);
 
@@ -196,7 +198,7 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
 
   // Do this first so interpreter workers get initialized with the right value.
   await request(app)
-    .patch('/config/skipElectionHashCheck')
+    .patch('/central-scanner/config/skipElectionHashCheck')
     .send({ skipElectionHashCheck: true })
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
@@ -206,7 +208,7 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
   await importer.restoreConfig();
 
   await request(app)
-    .patch('/config/election')
+    .patch('/central-scanner/config/election')
     .send(asElectionDefinition(election).electionData)
     .set('Content-Type', 'application/octet-stream')
     .set('Accept', 'application/json')
@@ -214,7 +216,7 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
 
   // need to turn off test mode after election is loaded
   await request(app)
-    .patch('/config/testMode')
+    .patch('/central-scanner/config/testMode')
     .send({ testMode: false })
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
@@ -224,7 +226,9 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
     await fs.readFile(join(electionFixturesRoot, 'manifest.json'), 'utf8')
   );
 
-  const addTemplatesRequest = request(app).post('/scan/hmpb/addTemplates');
+  const addTemplatesRequest = request(app).post(
+    '/central-scanner/scan/hmpb/addTemplates'
+  );
 
   for (const config of manifest.ballots) {
     void addTemplatesRequest
@@ -239,7 +243,7 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
 
   await addTemplatesRequest.expect(200, { status: 'ok' });
 
-  await request(app).post('/scan/hmpb/doneTemplates');
+  await request(app).post('/central-scanner/scan/hmpb/doneTemplates');
 
   {
     const nextSession = scanner.withNextScannerSession();
@@ -252,7 +256,7 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
       .end();
 
     await request(app)
-      .post('/scan/scanBatch')
+      .post('/central-scanner/scan/scanBatch')
       .expect(200)
       .then((response) => {
         expect(response.body).toEqual({
@@ -265,7 +269,7 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
 
     // check the latest batch has the expected ballots
     const status = await request(app)
-      .get('/scan/status')
+      .get('/central-scanner/scan/status')
       .set('Accept', 'application/json')
       .expect(200);
     expect(JSON.parse(status.text).batches.length).toBe(1);
@@ -273,7 +277,7 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
   }
 
   await request(app)
-    .post(`/scan/scanContinue`)
+    .post(`/central-scanner/scan/scanContinue`)
     .send(
       typedAs<Scan.ScanContinueRequest>({
         forceAccept: true,
@@ -305,7 +309,7 @@ test('failed scan with QR code can be adjudicated and exported', async () => {
 
   {
     const exportResponse = await request(app)
-      .post('/scan/export')
+      .post('/central-scanner/scan/export')
       .set('Accept', 'application/json')
       .expect(200);
 
@@ -355,14 +359,14 @@ test('ms-either-neither end-to-end', async () => {
 
   // Do this first so interpreter workers get initialized with the right value.
   await request(app)
-    .patch('/config/skipElectionHashCheck')
+    .patch('/central-scanner/config/skipElectionHashCheck')
     .send({ skipElectionHashCheck: true })
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' });
 
   await request(app)
-    .patch('/config/election')
+    .patch('/central-scanner/config/election')
     .send(asElectionDefinition(election).electionData)
     .set('Content-Type', 'application/octet-stream')
     .set('Accept', 'application/json')
@@ -370,13 +374,15 @@ test('ms-either-neither end-to-end', async () => {
 
   // need to turn off test mode after election is loaded
   await request(app)
-    .patch('/config/testMode')
+    .patch('/central-scanner/config/testMode')
     .send({ testMode: false })
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' });
 
-  const addTemplatesRequest = request(app).post('/scan/hmpb/addTemplates');
+  const addTemplatesRequest = request(app).post(
+    '/central-scanner/scan/hmpb/addTemplates'
+  );
 
   for (const config of manifest.ballots) {
     void addTemplatesRequest
@@ -394,7 +400,7 @@ test('ms-either-neither end-to-end', async () => {
 
   await addTemplatesRequest.expect(200, { status: 'ok' });
 
-  await request(app).post('/scan/hmpb/doneTemplates');
+  await request(app).post('/central-scanner/scan/hmpb/doneTemplates');
 
   {
     const nextSession = scanner.withNextScannerSession();
@@ -402,7 +408,7 @@ test('ms-either-neither end-to-end', async () => {
     nextSession.sheet([filledInPage1, filledInPage2]).end();
 
     await request(app)
-      .post('/scan/scanBatch')
+      .post('/central-scanner/scan/scanBatch')
       .expect(200)
       .then((response) => {
         expect(response.body).toEqual({
@@ -415,7 +421,7 @@ test('ms-either-neither end-to-end', async () => {
 
     // check the latest batch has the expected ballots
     const status = await request(app)
-      .get('/scan/status')
+      .get('/central-scanner/scan/status')
       .set('Accept', 'application/json')
       .expect(200);
     expect(JSON.parse(status.text).batches.length).toBe(1);
@@ -424,7 +430,7 @@ test('ms-either-neither end-to-end', async () => {
 
   {
     const exportResponse = await request(app)
-      .post('/scan/export')
+      .post('/central-scanner/scan/export')
       .set('Accept', 'application/json')
       .expect(200);
 

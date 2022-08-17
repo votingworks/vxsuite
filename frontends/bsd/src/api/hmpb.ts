@@ -86,7 +86,10 @@ export function addTemplates(
         );
 
         try {
-          await fetch('/scan/hmpb/addTemplates', { method: 'POST', body });
+          await fetch('/central-scanner/scan/hmpb/addTemplates', {
+            method: 'POST',
+            body,
+          });
           await logger.log(
             LogEventId.BallotConfiguredOnMachine,
             currentUserType,
@@ -141,13 +144,13 @@ export function addTemplates(
 }
 
 export async function doneTemplates(): Promise<void> {
-  await fetch('/scan/hmpb/doneTemplates', { method: 'POST' });
+  await fetch('/central-scanner/scan/hmpb/doneTemplates', { method: 'POST' });
 }
 
 export async function fetchNextBallotSheetToReview(): Promise<
   Scan.GetNextReviewSheetResponse | undefined
 > {
-  const response = await fetch('/scan/hmpb/review/next-sheet');
+  const response = await fetch('/central-scanner/scan/hmpb/review/next-sheet');
 
   if (response.status === 404) {
     return undefined;

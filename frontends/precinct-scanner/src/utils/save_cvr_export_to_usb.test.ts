@@ -17,7 +17,7 @@ const machineConfig: MachineConfig = {
 };
 
 test('throws error when scan service errors', async () => {
-  fetchMock.postOnce('/scan/export', {
+  fetchMock.postOnce('/precinct-scanner/export', {
     status: 500,
     body: { status: 'error' },
   });
@@ -38,7 +38,7 @@ test('throws error when scan service errors', async () => {
 test('throws error when there is no usb mounted in kiosk mode', async () => {
   window.kiosk = fakeKiosk();
   fetchMock.postOnce(
-    '/scan/export',
+    '/precinct-scanner/export',
     electionMinimalExhaustiveSampleFixtures.cvrData
   );
   await expect(
@@ -57,7 +57,7 @@ test('throws error when there is no usb mounted in kiosk mode', async () => {
 
 test('calls kiosk saveAs when opening file picker dialog', async () => {
   fetchMock.postOnce(
-    '/scan/export',
+    '/precinct-scanner/export',
     electionMinimalExhaustiveSampleFixtures.cvrData
   );
   const mockKiosk = fakeKiosk();
@@ -81,7 +81,7 @@ test('calls kiosk saveAs when opening file picker dialog', async () => {
 
 test('throws error when no file is chosen in file picker', async () => {
   fetchMock.postOnce(
-    '/scan/export',
+    '/precinct-scanner/export',
     electionMinimalExhaustiveSampleFixtures.cvrData
   );
   const mockKiosk = fakeKiosk();
@@ -103,7 +103,7 @@ test('throws error when no file is chosen in file picker', async () => {
 
 test('saves file to default location when openFilePicker is false in kiosk mode', async () => {
   fetchMock.postOnce(
-    '/scan/export',
+    '/precinct-scanner/export',
     electionMinimalExhaustiveSampleFixtures.cvrData
   );
   const mockKiosk = fakeKiosk();
@@ -132,7 +132,7 @@ test('saves file to default location when openFilePicker is false in kiosk mode'
 test('calls fileDownload when not in kiosk mode', async () => {
   window.kiosk = undefined;
   fetchMock.postOnce(
-    '/scan/export',
+    '/precinct-scanner/export',
     electionMinimalExhaustiveSampleFixtures.cvrData
   );
   await saveCvrExportToUsb({

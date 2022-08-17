@@ -91,7 +91,7 @@ test('GET /scan/status', async () => {
   };
   importer.getStatus.mockResolvedValue(status);
   await request(app)
-    .get('/scan/status')
+    .get('/central-scanner/scan/status')
     .set('Accept', 'application/json')
     .expect(200, status);
   expect(importer.getStatus).toBeCalled();
@@ -102,7 +102,7 @@ test('GET /config/election (application/octet-stream)', async () => {
   workspace.store.setTestMode(true);
   workspace.store.setMarkThresholdOverrides(undefined);
   const response = await request(app)
-    .get('/config/election')
+    .get('/central-scanner/config/election')
     .accept('application/octet-stream')
     .expect(200);
   expect(new TextDecoder().decode(response.body)).toEqual(
@@ -111,7 +111,7 @@ test('GET /config/election (application/octet-stream)', async () => {
 
   workspace.store.setElection(undefined);
   await request(app)
-    .get('/config/election')
+    .get('/central-scanner/config/election')
     .accept('application/octet-stream')
     .expect(404);
 });
@@ -121,7 +121,7 @@ test('GET /config/election (application/json)', async () => {
   workspace.store.setTestMode(true);
   workspace.store.setMarkThresholdOverrides(undefined);
   const response = await request(app)
-    .get('/config/election')
+    .get('/central-scanner/config/election')
     .accept('application/json')
     .expect(200);
   // This mess of a comparison is due to `Store#getElectionDefinition` adding
@@ -138,7 +138,7 @@ test('GET /config/election (application/json)', async () => {
 
   workspace.store.setElection(undefined);
   await request(app)
-    .get('/config/election')
+    .get('/central-scanner/config/election')
     .accept('application/json')
     .expect(200, 'null');
 });
@@ -147,7 +147,9 @@ test('GET /config/testMode', async () => {
   workspace.store.setElection(testElectionDefinition);
   workspace.store.setTestMode(true);
   workspace.store.setMarkThresholdOverrides(undefined);
-  const response = await request(app).get('/config/testMode').expect(200);
+  const response = await request(app)
+    .get('/central-scanner/config/testMode')
+    .expect(200);
   expect(response.body).toEqual({
     status: 'ok',
     testMode: true,
@@ -162,7 +164,7 @@ test('GET /config/markThresholdOverrides', async () => {
     marginal: 0.4,
   });
   const response = await request(app)
-    .get('/config/markThresholdOverrides')
+    .get('/central-scanner/config/markThresholdOverrides')
     .expect(200);
 
   expect(response.body).toEqual({
@@ -173,7 +175,7 @@ test('GET /config/markThresholdOverrides', async () => {
 
 test('PATCH /config/election', async () => {
   await request(app)
-    .patch('/config/election')
+    .patch('/central-scanner/config/election')
     .send(testElectionDefinition.electionData)
     .set('Content-Type', 'application/octet-stream')
     .set('Accept', 'application/json')
@@ -188,7 +190,7 @@ test('PATCH /config/election', async () => {
 
   // bad content type
   await request(app)
-    .patch('/config/election')
+    .patch('/central-scanner/config/election')
     .send('gibberish')
     .set('Content-Type', 'text/plain')
     .set('Accept', 'application/json')
@@ -205,7 +207,7 @@ test('PATCH /config/election', async () => {
 
   // bad JSON
   await request(app)
-    .patch('/config/election')
+    .patch('/central-scanner/config/election')
     .send('gibberish')
     .set('Content-Type', 'application/octet-stream')
     .set('Accept', 'application/json')
@@ -227,7 +229,7 @@ test('DELETE /config/election no-backup error', async () => {
   workspace.store.addBatch();
 
   await request(app)
-    .delete('/config/election')
+    .delete('/central-scanner/config/election')
     .set('Accept', 'application/json')
     .expect(400, {
       status: 'error',
@@ -246,7 +248,7 @@ test('DELETE /config/election', async () => {
   workspace.store.setScannerAsBackedUp();
 
   await request(app)
-    .delete('/config/election')
+    .delete('/central-scanner/config/election')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' });
   expect(importer.unconfigure).toBeCalled();
@@ -259,7 +261,7 @@ test('DELETE /config/election ignores lack of backup when ?ignoreBackupRequireme
   workspace.store.addBatch();
 
   await request(app)
-    .delete('/config/election?ignoreBackupRequirement=true')
+    .delete('/central-scanner/config/election?ignoreBackupRequirement=true')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' });
   expect(importer.unconfigure).toBeCalled();
@@ -270,7 +272,7 @@ test('PUT /config/package', async () => {
   importer.addHmpbTemplates.mockResolvedValue([]);
 
   await request(app)
-    .put('/config/package')
+    .put('/central-scanner/config/package')
     .set('Accept', 'application/json')
     .attach(
       'package',
@@ -292,7 +294,7 @@ test('PUT /config/package', async () => {
 
 test('PUT /config/package missing package', async () => {
   await request(app)
-    .put('/config/package')
+    .put('/central-scanner/config/package')
     .set('Accept', 'application/json')
     .expect(400);
 });
@@ -301,7 +303,7 @@ test('PATCH /config/testMode', async () => {
   importer.setTestMode.mockResolvedValueOnce(undefined);
 
   await request(app)
-    .patch('/config/testMode')
+    .patch('/central-scanner/config/testMode')
     .send({ testMode: true })
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
@@ -310,7 +312,7 @@ test('PATCH /config/testMode', async () => {
   expect(importer.setTestMode).toHaveBeenNthCalledWith(1, true);
 
   await request(app)
-    .patch('/config/testMode')
+    .patch('/central-scanner/config/testMode')
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
     .send({ testMode: false })
@@ -323,7 +325,7 @@ test('PATCH /config/markThresholdOverrides', async () => {
   importer.setMarkThresholdOverrides.mockResolvedValue(undefined);
 
   await request(app)
-    .patch('/config/markThresholdOverrides')
+    .patch('/central-scanner/config/markThresholdOverrides')
     .send({ markThresholdOverrides: { marginal: 0.2, definite: 0.3 } })
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
@@ -335,7 +337,7 @@ test('PATCH /config/markThresholdOverrides', async () => {
   });
 
   await request(app)
-    .delete('/config/markThresholdOverrides')
+    .delete('/central-scanner/config/markThresholdOverrides')
     .set('Content-Type', 'application/json')
     .set('Accept', 'application/json')
     .expect(200);
@@ -349,7 +351,7 @@ test('PATCH /config/markThresholdOverrides', async () => {
 test('POST /scan/scanBatch', async () => {
   importer.startImport.mockResolvedValue('mock-batch-id');
   await request(app)
-    .post('/scan/scanBatch')
+    .post('/central-scanner/scan/scanBatch')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok', batchId: 'mock-batch-id' });
   expect(importer.startImport).toBeCalled();
@@ -358,7 +360,7 @@ test('POST /scan/scanBatch', async () => {
 test('POST /scan/scanContinue', async () => {
   importer.continueImport.mockResolvedValue(undefined);
   await request(app)
-    .post('/scan/scanContinue')
+    .post('/central-scanner/scan/scanContinue')
     .send(typedAs<Scan.ScanContinueRequest>({ forceAccept: false }))
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' });
@@ -368,7 +370,7 @@ test('POST /scan/scanContinue', async () => {
 test('POST /scan/scanBatch errors', async () => {
   importer.startImport.mockRejectedValue(new Error('scanner is a teapot'));
   await request(app)
-    .post('/scan/scanBatch')
+    .post('/central-scanner/scan/scanBatch')
     .set('Accept', 'application/json')
     .expect(200, {
       status: 'error',
@@ -381,7 +383,7 @@ test('POST /scan/export', async () => {
   importer.doExport.mockReturnValue('');
 
   await request(app)
-    .post('/scan/export')
+    .post('/central-scanner/scan/export')
     .set('Accept', 'application/json')
     .expect(200, '');
   expect(importer.doExport).toBeCalled();
@@ -394,7 +396,7 @@ test('POST /scan/zero error', async () => {
   workspace.store.addBatch();
 
   await request(app)
-    .post('/scan/zero')
+    .post('/central-scanner/scan/zero')
     .set('Accept', 'application/json')
     .expect(400, {
       status: 'error',
@@ -413,7 +415,7 @@ test('POST /scan/zero', async () => {
   workspace.store.setScannerAsBackedUp();
 
   await request(app)
-    .post('/scan/zero')
+    .post('/central-scanner/scan/zero')
     .set('Accept', 'application/json')
     .expect(200, { status: 'ok' });
   expect(importer.doZero).toBeCalled();
@@ -484,35 +486,41 @@ test('GET /scan/hmpb/ballot/:ballotId/:side/image', async () => {
   workspace.store.finishBatch({ batchId });
 
   await request(app)
-    .get(`/scan/hmpb/ballot/${sheetId}/front/image`)
+    .get(`/central-scanner/scan/hmpb/ballot/${sheetId}/front/image`)
     .expect(301)
-    .expect('Location', `/scan/hmpb/ballot/${sheetId}/front/image/normalized`);
+    .expect(
+      'Location',
+      `/central-scanner/scan/hmpb/ballot/${sheetId}/front/image/normalized`
+    );
 
   await request(app)
-    .get(`/scan/hmpb/ballot/${sheetId}/front/image/normalized`)
+    .get(`/central-scanner/scan/hmpb/ballot/${sheetId}/front/image/normalized`)
     .expect(200, await fs.readFile(frontNormalized));
 
   await request(app)
-    .get(`/scan/hmpb/ballot/${sheetId}/front/image/original`)
+    .get(`/central-scanner/scan/hmpb/ballot/${sheetId}/front/image/original`)
     .expect(200, await fs.readFile(frontOriginal));
 
   await request(app)
-    .get(`/scan/hmpb/ballot/${sheetId}/back/image`)
+    .get(`/central-scanner/scan/hmpb/ballot/${sheetId}/back/image`)
     .expect(301)
-    .expect('Location', `/scan/hmpb/ballot/${sheetId}/back/image/normalized`);
+    .expect(
+      'Location',
+      `/central-scanner/scan/hmpb/ballot/${sheetId}/back/image/normalized`
+    );
 
   await request(app)
-    .get(`/scan/hmpb/ballot/${sheetId}/back/image/normalized`)
+    .get(`/central-scanner/scan/hmpb/ballot/${sheetId}/back/image/normalized`)
     .expect(200, await fs.readFile(backNormalized));
 
   await request(app)
-    .get(`/scan/hmpb/ballot/${sheetId}/back/image/original`)
+    .get(`/central-scanner/scan/hmpb/ballot/${sheetId}/back/image/original`)
     .expect(200, await fs.readFile(backOriginal));
 });
 
 test('GET /scan/hmpb/ballot/:sheetId/image 404', async () => {
   await request(app)
-    .get(`/scan/hmpb/ballot/111/front/image/normalized`)
+    .get(`/central-scanner/scan/hmpb/ballot/111/front/image/normalized`)
     .expect(404);
 });
 
@@ -522,7 +530,7 @@ test('GET /', async () => {
 
 test('POST /scan/hmpb/addTemplates bad template', async () => {
   const response = await request(app)
-    .post('/scan/hmpb/addTemplates')
+    .post('/central-scanner/scan/hmpb/addTemplates')
     .attach('ballots', Buffer.of(), {
       filename: 'README.txt',
       contentType: 'text/plain',
@@ -542,7 +550,7 @@ test('POST /scan/hmpb/addTemplates bad template', async () => {
 
 test('POST /scan/hmpb/addTemplates bad metadata', async () => {
   const response = await request(app)
-    .post('/scan/hmpb/addTemplates')
+    .post('/central-scanner/scan/hmpb/addTemplates')
     .attach('ballots', Buffer.of(), {
       filename: 'ballot.pdf',
       contentType: 'application/pdf',
@@ -594,7 +602,7 @@ test('POST /scan/hmpb/addTemplates', async () => {
   importer.addHmpbTemplates.mockResolvedValueOnce([ballotPageLayoutWithImage]);
 
   const response = await request(app)
-    .post('/scan/hmpb/addTemplates')
+    .post('/central-scanner/scan/hmpb/addTemplates')
     .attach('ballots', Buffer.from('%PDF'), {
       filename: 'ballot.pdf',
       contentType: 'application/pdf',
@@ -635,7 +643,7 @@ test('get next sheet', async () => {
   });
 
   await request(app)
-    .get(`/scan/hmpb/review/next-sheet`)
+    .get(`/central-scanner/scan/hmpb/review/next-sheet`)
     .expect(
       200,
       typedAs<Scan.GetNextReviewSheetResponse>({
@@ -722,7 +730,7 @@ test('get next sheet layouts', async () => {
     .mockReturnValue([frontLayout, backLayout]);
 
   await request(app)
-    .get(`/scan/hmpb/review/next-sheet`)
+    .get(`/central-scanner/scan/hmpb/review/next-sheet`)
     .expect(
       200,
       typedAs<Scan.GetNextReviewSheetResponse>({
@@ -752,7 +760,7 @@ test('get next sheet layouts', async () => {
 test('calibrate success', async () => {
   importer.doCalibrate.mockResolvedValueOnce(true);
 
-  await request(app).post('/scan/calibrate').expect(200, {
+  await request(app).post('/central-scanner/scan/calibrate').expect(200, {
     status: 'ok',
   });
 });
@@ -761,7 +769,7 @@ test('calibrate error', async () => {
   importer.doCalibrate.mockResolvedValueOnce(false);
 
   await request(app)
-    .post('/scan/calibrate')
+    .post('/central-scanner/scan/calibrate')
     .expect(200, {
       status: 'error',
       errors: [

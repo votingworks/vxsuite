@@ -35,8 +35,12 @@ test('configures the server with the contained election', async () => {
 });
 
 test('emits an event each time a ballot begins uploading', async () => {
-  fetchMock.patchOnce('/config/election', { body: { status: 'ok' } });
-  fetchMock.post('/scan/hmpb/addTemplates', { body: { status: 'ok' } });
+  fetchMock.patchOnce('/central-scanner/config/election', {
+    body: { status: 'ok' },
+  });
+  fetchMock.post('/central-scanner/scan/hmpb/addTemplates', {
+    body: { status: 'ok' },
+  });
 
   const uploading = jest.fn();
   const logger = fakeLogger();
@@ -88,7 +92,9 @@ test('emits an event each time a ballot begins uploading', async () => {
       });
   });
 
-  expect(fetchMock.calls('/scan/hmpb/addTemplates').length).toEqual(2);
+  expect(
+    fetchMock.calls('/central-scanner/scan/hmpb/addTemplates').length
+  ).toEqual(2);
   expect(logger.log).toHaveBeenCalledTimes(2);
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.BallotConfiguredOnMachine,
@@ -153,7 +159,7 @@ test('can fetch the next ballot sheet needing review', async () => {
     layouts: {},
     definitions: {},
   };
-  fetchMock.getOnce('/scan/hmpb/review/next-sheet', {
+  fetchMock.getOnce('/central-scanner/scan/hmpb/review/next-sheet', {
     status: 200,
     body: response,
   });
@@ -161,6 +167,9 @@ test('can fetch the next ballot sheet needing review', async () => {
 });
 
 test('returns undefined if there are no ballot sheets to review', async () => {
-  fetchMock.getOnce('/scan/hmpb/review/next-sheet', { status: 404, body: '' });
+  fetchMock.getOnce('/central-scanner/scan/hmpb/review/next-sheet', {
+    status: 404,
+    body: '',
+  });
   await expect(fetchNextBallotSheetToReview()).resolves.toBeUndefined();
 });
