@@ -4,6 +4,7 @@ import { deferred, sleep, throwIllegalValue } from '@votingworks/utils';
 import { spawn } from 'child_process';
 import makeDebug from 'debug';
 import { createInterface } from 'readline';
+import { inspect } from 'util';
 import { Config, DEFAULT_CONFIG } from './config';
 import { parseScannerError, ScannerError } from './errors';
 import { PaperStatus, PaperStatusSchema } from './paper_status';
@@ -52,7 +53,10 @@ export type GetPaperStatusResult = Result<PaperStatus, ScannerError | Error>;
 /**
  * The return type of {@link ScannerClient.scan}.
  */
-export type ScanResult = Result<{ files: string[] }, ScannerError | Error>;
+export type ScanResult = Result<
+  { files: [string, string] },
+  ScannerError | Error
+>;
 
 /**
  * The return type of {@link ScannerClient.accept}.
@@ -402,7 +406,20 @@ export async function createClient(
               );
             }
           },
-          ok: (resolve) => resolve(ok({ files })),
+          ok: (resolve) => {
+            if (files.length === 2) {
+              const [front, back] = files;
+              resolve(ok({ files: [front, back] }));
+            } else {
+              resolve(
+                err(
+                  new InvalidClientResponseError(
+                    `expected two files, got: ${inspect(files)}`
+                  )
+                )
+              );
+            }
+          },
           error: (error, resolve) => resolve(err(error)),
           else: (line, resolve) =>
             resolve(
