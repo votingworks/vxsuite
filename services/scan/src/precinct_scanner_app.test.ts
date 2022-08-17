@@ -1004,7 +1004,7 @@ test('scan fails and retries', async () => {
 
   await post(app, '/scanner/scan');
   await expectStatus(app, { state: 'scanning' });
-  mockPlustek.simulateErrorFeeding();
+  mockPlustek.simulateScanError('error_feeding');
   await expectStatus(app, { state: 'scanning' });
   await waitForStatus(app, { state: 'ready_to_accept', interpretation });
 });
@@ -1023,9 +1023,23 @@ test('scan fails repeatedly and eventually gives up', async () => {
       expect(scanSpy).toHaveBeenCalledTimes(i + 1);
     });
     await expectStatus(app, { state: 'scanning' });
-    mockPlustek.simulateErrorFeeding();
+    mockPlustek.simulateScanError('error_feeding');
   }
   await waitForStatus(app, { state: 'rejected', error: 'scanning_failed' });
+});
+
+test('scan fails with the paper in the back afterwards', async () => {
+  const { app, mockPlustek } = await createApp();
+  await configureApp(app);
+
+  await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
+  await waitForStatus(app, { state: 'ready_to_scan' });
+
+  await post(app, '/scanner/scan');
+  await expectStatus(app, { state: 'scanning' });
+  mockPlustek.simulateScanError('bad_scan_result');
+  await waitForStatus(app, { state: 'rejecting', error: 'plustek_error' });
+  await waitForStatus(app, { state: 'rejected', error: 'plustek_error' });
 });
 
 test('scanning time out', async () => {

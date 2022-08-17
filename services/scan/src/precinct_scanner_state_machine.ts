@@ -208,8 +208,7 @@ async function scan({ client }: Context): Promise<SheetOf<string>> {
   debug('Scanning');
   const scanResult = await client.scan();
   debug('Scan result: %o', scanResult);
-  const [front, back] = scanResult.unsafeUnwrap().files;
-  return [front, back];
+  return scanResult.unsafeUnwrap().files;
 }
 
 async function calibrate({ client }: Context) {
@@ -557,35 +556,42 @@ function buildMachine(
                 SCANNER_READY_TO_SCAN: 'error_scanning',
               },
             },
-            // If scanning fails, we should retry if the paper is still ready to be
-            // scanned and scanning failed for a known reason. We only retry up to a
-            // certain number of attempts.
             error_scanning: {
-              entry: assign({
-                failedScanAttempts: (context) => {
-                  assert(context.failedScanAttempts !== undefined);
-                  return context.failedScanAttempts + 1;
-                },
-              }),
-              always: {
-                target: '#rejected',
-                actions: assign({
-                  error: new PrecinctScannerError('scanning_failed'),
-                }),
-                cond: (context) => {
-                  assert(context.failedScanAttempts !== undefined);
-                  const gotExpectedScanningError =
-                    context.error === ScannerError.PaperStatusErrorFeeding ||
-                    context.error === ScannerError.PaperStatusNoPaper;
-                  const shouldRetry =
-                    (!context.error || gotExpectedScanningError) &&
-                    context.failedScanAttempts < MAX_FAILED_SCAN_ATTEMPTS;
-                  return !shouldRetry;
-                },
-              },
               invoke: pollPaperStatus,
               on: {
-                SCANNER_READY_TO_SCAN: 'starting_scan',
+                SCANNER_READY_TO_SCAN: [
+                  // If the paper is still in the front due to an error that
+                  // indicates the paper wasn't grabbed or fed through the
+                  // scanner, retry (up to a certain number of attempts).
+                  {
+                    target: 'starting_scan',
+                    cond: (context) => {
+                      assert(context.failedScanAttempts !== undefined);
+                      const gotExpectedScanningError =
+                        context.error ===
+                          ScannerError.PaperStatusErrorFeeding ||
+                        context.error === ScannerError.PaperStatusNoPaper;
+                      const shouldRetry =
+                        (!context.error || gotExpectedScanningError) &&
+                        context.failedScanAttempts <
+                          MAX_FAILED_SCAN_ATTEMPTS - 1;
+                      return shouldRetry;
+                    },
+                    actions: assign({
+                      failedScanAttempts: (context) => {
+                        assert(context.failedScanAttempts !== undefined);
+                        return context.failedScanAttempts + 1;
+                      },
+                    }),
+                  },
+                  // Otherwise, give up and ask for the ballot to be removed.
+                  {
+                    target: '#rejected',
+                    actions: assign({
+                      error: new PrecinctScannerError('scanning_failed'),
+                    }),
+                  },
+                ],
                 SCANNER_NO_PAPER: '#no_paper',
                 SCANNER_READY_TO_EJECT: '#rejecting',
               },

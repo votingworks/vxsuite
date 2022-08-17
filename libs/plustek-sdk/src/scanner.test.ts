@@ -379,6 +379,31 @@ test('scan succeeds', async () => {
   });
 });
 
+test('scan returns error if less than two files produced', async () => {
+  const plustekctl = fakeChildProcess();
+  spawn.mockReturnValueOnce(plustekctl);
+
+  const client = (
+    await createClient(DEFAULT_CONFIG, {
+      onWaitingForHandshake: jest.fn(() => {
+        // simulate plustekctl indicating it is ready
+        plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n');
+      }),
+    })
+  ).unsafeUnwrap();
+
+  const resultPromise = client.scan();
+  await nextTick;
+  expect(plustekctl.stdin.toString()).toEqual('scan\n');
+  plustekctl.stdout.append(`<<<>>>\nscan: file=file01.jpg\n<<<>>>\n`);
+  plustekctl.stdout.append(`<<<>>>\nscan: ok\n<<<>>>\n`);
+  plustekctl.stdout.append('<<<>>>\nready\n<<<>>>\n');
+
+  expect(((await resultPromise).unsafeUnwrapErr() as Error).message).toEqual(
+    "expected two files, got: [ 'file01.jpg' ]"
+  );
+});
+
 test('scan responds with error', async () => {
   const plustekctl = fakeChildProcess();
   spawn.mockReturnValueOnce(plustekctl);
