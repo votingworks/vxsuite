@@ -642,22 +642,22 @@ test('voter can cast a ballot that scans successfully ', async () => {
   card.insertCard(electionManagerCard, electionSampleDefinition.electionData);
   await authenticateElectionManagerCard();
   await screen.findByText('Election Manager Settings');
-  fireEvent.click(await screen.findByText('Save Results to USB Drive'));
+  fireEvent.click(await screen.findByText('Save CVRs'));
   await screen.findByText('No USB Drive Detected');
   fireEvent.click(await screen.findByText('Cancel'));
   expect(screen.queryByText('No USB Drive Detected')).toBeNull();
-  fireEvent.click(await screen.findByText('Save Results to USB Drive'));
+  fireEvent.click(await screen.findByText('Save CVRs'));
   await screen.findByText('No USB Drive Detected');
   fireEvent.click(await screen.findByText('Cancel'));
   expect(screen.queryByText('No USB Drive Detected')).toBeNull();
   // Insert usb drive
   kiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
   await advanceTimersAndPromises(2);
-  fireEvent.click(await screen.findByText('Save Results to USB Drive'));
+  fireEvent.click(await screen.findByText('Save CVRs'));
 
-  await screen.findByText('Save Results');
+  expect(screen.getAllByText('Save CVRs')).toHaveLength(2);
   fireEvent.click(await screen.findByText('Save'));
-  await screen.findByText('Results Saved to USB Drive');
+  await screen.findByText('CVRs Saved to USB Drive');
   expect(kiosk.writeFile).toHaveBeenCalledTimes(2);
   expect(kiosk.writeFile).toHaveBeenNthCalledWith(
     2,

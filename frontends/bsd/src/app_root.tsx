@@ -670,7 +670,7 @@ export function AppRoot({ card, hardware, logger }: AppRootProps): JSX.Element {
                   }
                   title={exportButtonTitle}
                 >
-                  Save Results
+                  Save CVRs
                 </Button>
                 <ScanButton
                   onPress={scanBatch}

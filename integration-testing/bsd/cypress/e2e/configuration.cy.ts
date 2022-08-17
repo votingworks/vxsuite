@@ -75,7 +75,7 @@ describe('BSD and services/Scan', () => {
     cy.contains('No ballots have been scanned', { timeout: 30000 });
     cy.contains('Scan New Batch').click();
     cy.contains('A total of 1 ballot has been scanned in 1 batch.');
-    cy.contains('Save Results').click();
+    cy.contains('Save CVRs').click();
     cy.get('[data-testid="manual-export"]').click();
     cy.contains('Cancel').click();
     cy.contains('Admin').click();
