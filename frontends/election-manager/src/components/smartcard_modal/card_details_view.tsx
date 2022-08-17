@@ -58,7 +58,6 @@ export function CardDetailsView({
     );
 
   async function resetCardPin() {
-    assert(electionDefinition);
     assert(role === 'system_administrator' || role === 'election_manager');
 
     setActionStatus({
@@ -76,6 +75,7 @@ export function CardDetailsView({
         break;
       }
       case 'election_manager': {
+        assert(electionDefinition);
         result = await card.programUser({
           role: 'election_manager',
           electionData: electionDefinition.electionData,

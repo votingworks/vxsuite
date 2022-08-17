@@ -511,6 +511,51 @@ test('Resetting smartcard PINs', async () => {
   }
 });
 
+test('Resetting system administrator smartcard PINs when no election definition on machine', async () => {
+  const card = new MemoryCard();
+  const hardware = MemoryHardware.buildStandard();
+  const storage = new MemoryStorage();
+  render(<App card={card} hardware={hardware} storage={storage} />);
+  await authenticateWithSystemAdministratorCard(card);
+
+  const oldPin = '000000';
+  const newPin = '123456';
+  mockOf(generatePin).mockImplementation(() => newPin);
+
+  await screen.findByRole('heading', { name: 'Configure VxAdmin' });
+
+  card.insertCard(makeSystemAdministratorCard(oldPin));
+  const summaryBefore = await card.readSummary();
+  const shortValueBefore =
+    summaryBefore.status === 'ready' ? summaryBefore.shortValue : undefined;
+  expect(shortValueBefore).toContain(oldPin);
+  assert(shortValueBefore !== undefined);
+
+  const modal = await screen.findByRole('alertdialog');
+  within(modal).getByRole('heading', { name: 'System Administrator Card' });
+  userEvent.click(
+    within(modal).getByRole('button', { name: 'Reset Card PIN' })
+  );
+  await screen.findByText(/Resetting card PIN/);
+  await within(modal).findByText(/New card PIN is /);
+  await within(modal).findByText('123-456');
+  within(modal).getByText('Remove card to continue.');
+
+  // Verify that the card PIN and nothing else was changed under the hood
+  const summaryAfter = await card.readSummary();
+  const shortValueAfter =
+    summaryAfter.status === 'ready' ? summaryAfter.shortValue : undefined;
+  expect(shortValueAfter).toEqual(shortValueBefore.replace(oldPin, newPin));
+
+  card.removeCard();
+  await waitFor(() =>
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  );
+  // For some reason, finding by role doesn't work here, though 'Configure VxAdmin' is present in a
+  // heading
+  await screen.findByText('Configure VxAdmin');
+});
+
 test('Unprogramming smartcards', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
