@@ -453,7 +453,7 @@ function buildMachine(
         interpretationMode: 'interpret',
       },
       on: {
-        SCANNER_DISCONNECTED: 'error_disconnected',
+        SCANNER_DISCONNECTED: 'disconnected',
         SCANNER_BOTH_SIDES_HAVE_PAPER: 'error_both_sides_have_paper',
         SCANNER_JAM: 'error_jammed',
         // On unhandled commands, do nothing. This guards against any race
@@ -489,25 +489,29 @@ function buildMachine(
                 client: event.data,
               })),
             },
-            onError: 'error_disconnected',
+            onError: 'disconnected',
           },
         },
-        error_disconnected: {
+        disconnected: {
           entry: clearLastScan,
-          invoke: { src: closePlustekClient, onDone: {}, onError: {} },
-          after: { DELAY_RECONNECT: 'reconnecting' },
-        },
-        reconnecting: {
-          invoke: {
-            src: connectToPlustek(createPlustekClient),
-            onDone: {
-              target: 'checking_initial_paper_status',
-              actions: assign({
-                client: (_context, event) => event.data,
-                error: undefined,
-              }),
+          initial: 'waiting_to_retry_connecting',
+          states: {
+            waiting_to_retry_connecting: {
+              after: { DELAY_RECONNECT: 'reconnecting' },
             },
-            onError: 'error_disconnected',
+            reconnecting: {
+              invoke: {
+                src: connectToPlustek(createPlustekClient),
+                onDone: {
+                  target: '#checking_initial_paper_status',
+                  actions: assign({
+                    client: (_context, event) => event.data,
+                    error: undefined,
+                  }),
+                },
+                onError: 'waiting_to_retry_connecting',
+              },
+            },
           },
         },
         checking_initial_paper_status: {
@@ -947,9 +951,7 @@ export function createPrecinctScannerStateMachine(
             return 'connecting';
           case state.matches('checking_initial_paper_status'):
             return 'connecting';
-          case state.matches('error_disconnected'):
-            return 'disconnected';
-          case state.matches('reconnecting'):
+          case state.matches('disconnected'):
             return 'disconnected';
           case state.matches('no_paper'):
             return 'no_paper';
