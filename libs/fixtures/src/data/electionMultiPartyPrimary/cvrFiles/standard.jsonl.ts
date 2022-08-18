@@ -3,6 +3,9 @@
 /* istanbul ignore file */
 
 import { Buffer } from 'buffer';
+import { mkdtempSync, writeFileSync } from 'fs';
+import { tmpdir } from 'os';
+import { join, sep } from 'path';
 
 /**
  * Data of data/electionMultiPartyPrimary/cvrFiles/standard.jsonl encoded as base64.
@@ -17,11 +20,23 @@ const resourceDataBase64 = 'eyJfYmFsbG90SWQiOiJpZC0xIiwiX2JhbGxvdFR5cGUiOiJhYnNl
 export const mimeType = 'application/jsonlines';
 
 /**
+ * Path to a file containing this file's contents.
+ *
+ * SHA-256 hash of file data: d0ba950261f0f62ac8969caeeed55b8dc4d5a64997bcec1c8763b3e412271e77
+ */
+export function asFilePath(): string {
+  const directoryPath = mkdtempSync(tmpdir() + sep);
+  const filePath = join(directoryPath, 'standard.jsonl');
+  writeFileSync(filePath, asBuffer());
+  return filePath;
+}
+
+/**
  * Convert to a `data:` URL of data/electionMultiPartyPrimary/cvrFiles/standard.jsonl, suitable for embedding in HTML.
  *
  * SHA-256 hash of file data: d0ba950261f0f62ac8969caeeed55b8dc4d5a64997bcec1c8763b3e412271e77
  */
-export function asDataUrl() {
+export function asDataUrl(): string {
   return `data:${mimeType};base64,${resourceDataBase64}`;
 }
 

@@ -3,6 +3,9 @@
 /* istanbul ignore file */
 
 import { Buffer } from 'buffer';
+import { mkdtempSync, writeFileSync } from 'fs';
+import { tmpdir } from 'os';
+import { join, sep } from 'path';
 
 /**
  * Data of data/electionSample2/cvrFiles/small3.txt encoded as base64.
@@ -17,11 +20,23 @@ const resourceDataBase64 = 'eyJfcHJlY2luY3RJZCI6IjIzIiwiX2JhbGxvdFN0eWxlSWQiOiIx
 export const mimeType = 'text/plain';
 
 /**
+ * Path to a file containing this file's contents.
+ *
+ * SHA-256 hash of file data: 1fb5d95bbdf1347afe48fdef04dca29e5cba7035571788eeeab39877e64a3d66
+ */
+export function asFilePath(): string {
+  const directoryPath = mkdtempSync(tmpdir() + sep);
+  const filePath = join(directoryPath, 'small3.txt');
+  writeFileSync(filePath, asBuffer());
+  return filePath;
+}
+
+/**
  * Convert to a `data:` URL of data/electionSample2/cvrFiles/small3.txt, suitable for embedding in HTML.
  *
  * SHA-256 hash of file data: 1fb5d95bbdf1347afe48fdef04dca29e5cba7035571788eeeab39877e64a3d66
  */
-export function asDataUrl() {
+export function asDataUrl(): string {
   return `data:${mimeType};base64,${resourceDataBase64}`;
 }
 

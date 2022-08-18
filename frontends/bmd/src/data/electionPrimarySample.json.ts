@@ -3,6 +3,9 @@
 /* istanbul ignore file */
 
 import { Buffer } from 'buffer';
+import { mkdtempSync, writeFileSync } from 'fs';
+import { tmpdir } from 'os';
+import { join, sep } from 'path';
 import { safeParseElectionDefinition } from '@votingworks/types';
 
 /**
@@ -18,11 +21,23 @@ const resourceDataBase64 = 'ewogICJ0aXRsZSI6ICJQcmltYXJ5IEVsZWN0aW9uIiwKICAic3Rh
 export const mimeType = 'application/json';
 
 /**
+ * Path to a file containing this file's contents.
+ *
+ * SHA-256 hash of file data: 6eff7e9278a727717fbb03a1baf5412668e2b310acc82cab9f4b3d196f75928e
+ */
+export function asFilePath(): string {
+  const directoryPath = mkdtempSync(tmpdir() + sep);
+  const filePath = join(directoryPath, 'electionPrimarySample.json');
+  writeFileSync(filePath, asBuffer());
+  return filePath;
+}
+
+/**
  * Convert to a `data:` URL of data/electionPrimarySample.json, suitable for embedding in HTML.
  *
  * SHA-256 hash of file data: 6eff7e9278a727717fbb03a1baf5412668e2b310acc82cab9f4b3d196f75928e
  */
-export function asDataUrl() {
+export function asDataUrl(): string {
   return `data:${mimeType};base64,${resourceDataBase64}`;
 }
 

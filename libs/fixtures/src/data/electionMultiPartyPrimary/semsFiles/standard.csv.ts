@@ -3,6 +3,9 @@
 /* istanbul ignore file */
 
 import { Buffer } from 'buffer';
+import { mkdtempSync, writeFileSync } from 'fs';
+import { tmpdir } from 'os';
+import { join, sep } from 'path';
 
 /**
  * Data of data/electionMultiPartyPrimary/semsFiles/standard.csv encoded as base64.
@@ -17,11 +20,23 @@ const resourceDataBase64 = 'InNhbXBsZS1jb3VudHkiLCJwcmVjaW5jdC0xIiwiYXNzaXN0YW50
 export const mimeType = 'text/csv';
 
 /**
+ * Path to a file containing this file's contents.
+ *
+ * SHA-256 hash of file data: 2841e8daa7fb6d7a71256a151c87a186e88a1c93d32a062294c038c9847d6537
+ */
+export function asFilePath(): string {
+  const directoryPath = mkdtempSync(tmpdir() + sep);
+  const filePath = join(directoryPath, 'standard.csv');
+  writeFileSync(filePath, asBuffer());
+  return filePath;
+}
+
+/**
  * Convert to a `data:` URL of data/electionMultiPartyPrimary/semsFiles/standard.csv, suitable for embedding in HTML.
  *
  * SHA-256 hash of file data: 2841e8daa7fb6d7a71256a151c87a186e88a1c93d32a062294c038c9847d6537
  */
-export function asDataUrl() {
+export function asDataUrl(): string {
   return `data:${mimeType};base64,${resourceDataBase64}`;
 }
 

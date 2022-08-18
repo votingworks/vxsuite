@@ -3,6 +3,9 @@
 /* istanbul ignore file */
 
 import { Buffer } from 'buffer';
+import { mkdtempSync, writeFileSync } from 'fs';
+import { tmpdir } from 'os';
+import { join, sep } from 'path';
 import { createCanvas, Image, ImageData, loadImage } from 'canvas';
 
 
@@ -19,11 +22,23 @@ const resourceDataBase64 = 'iVBORw0KGgoAAAANSUhEUgAAACYAAAAZCAYAAABdEVzWAAAABmJL
 export const mimeType = 'image/png';
 
 /**
+ * Path to a file containing this file's contents.
+ *
+ * SHA-256 hash of file data: 5a6d0af80fddeb97cfa76dd656bae9fb89f49c48d350d543337e8c139e32397b
+ */
+export function asFilePath(): string {
+  const directoryPath = mkdtempSync(tmpdir() + sep);
+  const filePath = join(directoryPath, 'oval_scan.png');
+  writeFileSync(filePath, asBuffer());
+  return filePath;
+}
+
+/**
  * Convert to a `data:` URL of data/templates/oval_scan.png, suitable for embedding in HTML.
  *
  * SHA-256 hash of file data: 5a6d0af80fddeb97cfa76dd656bae9fb89f49c48d350d543337e8c139e32397b
  */
-export function asDataUrl() {
+export function asDataUrl(): string {
   return `data:${mimeType};base64,${resourceDataBase64}`;
 }
 

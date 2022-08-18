@@ -3,6 +3,9 @@
 /* istanbul ignore file */
 
 import { Buffer } from 'buffer';
+import { mkdtempSync, writeFileSync } from 'fs';
+import { tmpdir } from 'os';
+import { join, sep } from 'path';
 import { createCanvas, Image, ImageData, loadImage } from 'canvas';
 
 
@@ -19,11 +22,23 @@ const resourceDataBase64 = '/9j/4AAQSkZJRgABAQEBLAEsAAD/2wBDAAYEBQYFBAYGBQYHBwYI
 export const mimeType = 'image/jpeg';
 
 /**
+ * Path to a file containing this file's contents.
+ *
+ * SHA-256 hash of file data: f87dc1fb52946ee251f8fddaec4482405ec06c637a7722a8f4d00303d3e61213
+ */
+export function asFilePath(): string {
+  const directoryPath = mkdtempSync(tmpdir() + sep);
+  const filePath = join(directoryPath, 'marked-precinct-scanner-stretch-p1.jpeg');
+  writeFileSync(filePath, asBuffer());
+  return filePath;
+}
+
+/**
  * Convert to a `data:` URL of data/electionFamousNames2021/marked-precinct-scanner-stretch-p1.jpeg, suitable for embedding in HTML.
  *
  * SHA-256 hash of file data: f87dc1fb52946ee251f8fddaec4482405ec06c637a7722a8f4d00303d3e61213
  */
-export function asDataUrl() {
+export function asDataUrl(): string {
   return `data:${mimeType};base64,${resourceDataBase64}`;
 }
 
