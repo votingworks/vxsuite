@@ -571,6 +571,12 @@ function buildMachine(
               },
             },
             error_scanning: {
+              entry: assign({
+                failedScanAttempts: (context) => {
+                  assert(context.failedScanAttempts !== undefined);
+                  return context.failedScanAttempts + 1;
+                },
+              }),
               invoke: pollPaperStatus,
               on: {
                 SCANNER_READY_TO_SCAN: [
@@ -587,16 +593,9 @@ function buildMachine(
                         context.error === ScannerError.PaperStatusNoPaper;
                       const shouldRetry =
                         (!context.error || gotExpectedScanningError) &&
-                        context.failedScanAttempts <
-                          MAX_FAILED_SCAN_ATTEMPTS - 1;
+                        context.failedScanAttempts < MAX_FAILED_SCAN_ATTEMPTS;
                       return shouldRetry;
                     },
-                    actions: assign({
-                      failedScanAttempts: (context) => {
-                        assert(context.failedScanAttempts !== undefined);
-                        return context.failedScanAttempts + 1;
-                      },
-                    }),
                   },
                   // Otherwise, give up and ask for the ballot to be removed.
                   {
