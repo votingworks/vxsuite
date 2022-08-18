@@ -20,6 +20,7 @@ import {
   InvokeConfig,
   PropertyAssigner,
   StateNodeConfig,
+  TransitionConfig,
 } from 'xstate';
 import { Scan } from '@votingworks/api';
 import makeDebug from 'debug';
@@ -311,6 +312,8 @@ const clearError = assign({
   error: undefined,
 });
 
+const doNothing: TransitionConfig<Context, Event> = { target: undefined };
+
 const defaultDelays: Delays = {
   // Time between calls to get paper status from the scanner.
   DELAY_PAPER_STATUS_POLLING_INTERVAL: 500,
@@ -431,7 +434,7 @@ function buildMachine(
         checking_completed: {
           invoke: pollPaperStatus,
           on: {
-            SCANNER_NO_PAPER: { target: undefined },
+            SCANNER_NO_PAPER: doNothing,
             SCANNER_READY_TO_SCAN: onDoneState,
             SCANNER_READY_TO_EJECT: '#jammed',
           },
@@ -459,10 +462,10 @@ function buildMachine(
         // On unhandled commands, do nothing. This guards against any race
         // conditions where the frontend has an outdated scanner status and tries to
         // send a command.
-        SCAN: {},
-        ACCEPT: {},
-        RETURN: {},
-        CALIBRATE: {},
+        SCAN: doNothing,
+        ACCEPT: doNothing,
+        RETURN: doNothing,
+        CALIBRATE: doNothing,
         SET_INTERPRETATION_MODE: {
           actions: assign({ interpretationMode: (_, event) => event.mode }),
         },
@@ -542,7 +545,7 @@ function buildMachine(
           entry: [clearError, clearLastScan],
           invoke: pollPaperStatus,
           on: {
-            SCANNER_NO_PAPER: { target: 'no_paper', internal: true },
+            SCANNER_NO_PAPER: doNothing,
             SCANNER_READY_TO_SCAN: 'ready_to_scan',
           },
         },
@@ -554,7 +557,7 @@ function buildMachine(
             SCAN: 'scanning',
             CALIBRATE: 'calibrating',
             SCANNER_NO_PAPER: 'no_paper',
-            SCANNER_READY_TO_SCAN: { target: 'ready_to_scan', internal: true },
+            SCANNER_READY_TO_SCAN: doNothing,
           },
         },
         scanning: {
@@ -694,10 +697,10 @@ function buildMachine(
           entry: (context) => recordAcceptedSheet(store, context),
           invoke: pollPaperStatus,
           initial: 'scanning_paused',
-          on: { SCANNER_NO_PAPER: { target: undefined } }, // Do nothing
+          on: { SCANNER_NO_PAPER: doNothing },
           states: {
             scanning_paused: {
-              on: { SCANNER_READY_TO_SCAN: { target: undefined } }, // Do nothing
+              on: { SCANNER_READY_TO_SCAN: doNothing },
               after: {
                 DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 'ready_for_next_ballot',
               },
@@ -716,7 +719,7 @@ function buildMachine(
           on: {
             ACCEPT: 'accepting_after_review',
             RETURN: 'returning',
-            SCANNER_READY_TO_EJECT: { target: undefined }, // Do nothing
+            SCANNER_READY_TO_EJECT: doNothing,
           },
         },
         accepting_after_review: acceptingState,
@@ -725,7 +728,7 @@ function buildMachine(
           id: 'returned',
           invoke: pollPaperStatus,
           on: {
-            SCANNER_READY_TO_SCAN: { target: 'returned', internal: true },
+            SCANNER_READY_TO_SCAN: doNothing,
             SCANNER_NO_PAPER: 'no_paper',
           },
         },
@@ -738,7 +741,7 @@ function buildMachine(
           id: 'rejected',
           invoke: pollPaperStatus,
           on: {
-            SCANNER_READY_TO_SCAN: { target: 'rejected', internal: true },
+            SCANNER_READY_TO_SCAN: doNothing,
             SCANNER_NO_PAPER: 'no_paper',
           },
         },
@@ -770,18 +773,18 @@ function buildMachine(
           invoke: pollPaperStatus,
           on: {
             SCANNER_NO_PAPER: 'no_paper',
-            SCANNER_JAM: { target: 'jammed', internal: true },
-            SCANNER_READY_TO_SCAN: { target: 'jammed', internal: true },
-            SCANNER_READY_TO_EJECT: { target: 'jammed', internal: true },
+            SCANNER_JAM: doNothing,
+            SCANNER_READY_TO_SCAN: doNothing,
+            SCANNER_READY_TO_EJECT: doNothing,
           },
         },
         both_sides_have_paper: {
           entry: clearError,
           invoke: pollPaperStatus,
           on: {
-            SCANNER_BOTH_SIDES_HAVE_PAPER: { target: undefined }, // Do nothing
+            SCANNER_BOTH_SIDES_HAVE_PAPER: doNothing,
             // Sometimes we get a no_paper blip when removing the front paper quickly
-            SCANNER_NO_PAPER: { target: undefined }, // Do nothing
+            SCANNER_NO_PAPER: doNothing,
             // After the front paper is removed:
             SCANNER_READY_TO_EJECT: [
               // If we already interpreted the paper, go back to routing to the
