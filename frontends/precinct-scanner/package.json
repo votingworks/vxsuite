@@ -10,6 +10,7 @@
   "scripts": {
     "type-check": "tsc --build",
     "build": "vite build",
+    "build:stubs": "script/build-stubs fs:src/stubs/fs.ts os:src/stubs/os.ts",
     "build:watch": "tsc --build --watch",
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
     "lint": "pnpm type-check && eslint . && pnpm stylelint:run",
