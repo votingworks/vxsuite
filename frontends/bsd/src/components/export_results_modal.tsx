@@ -139,7 +139,7 @@ export function ExportResultsModal({
       }
     } catch (error) {
       assert(error instanceof Error);
-      setErrorMessage(`Failed to save results. ${error.message}`);
+      setErrorMessage(`Failed to save CVRs. ${error.message}`);
       setCurrentState(ModalState.ERROR);
       await logger.log(LogEventId.SaveCvrComplete, userRole, {
         message: 'Error saving CVR file.',
@@ -155,7 +155,7 @@ export function ExportResultsModal({
       <Modal
         content={
           <Prose>
-            <h1>Failed to Save Results</h1>
+            <h1>Failed to Save CVRs</h1>
             <p>{errorMessage}</p>
           </Prose>
         }
@@ -171,7 +171,7 @@ export function ExportResultsModal({
         <Modal
           content={
             <Prose>
-              <h1>Results Saved</h1>
+              <h1>CVRs Saved</h1>
               <p>
                 USB drive successfully ejected, you may now take it to VxAdmin
                 for tabulation.
@@ -187,10 +187,10 @@ export function ExportResultsModal({
       <Modal
         content={
           <Prose>
-            <h1>Results Saved</h1>
+            <h1>CVRs Saved</h1>
             <p>
-              CVR results file saved successfully! You may now eject the USB
-              drive and take it to VxAdmin for tabulation.
+              CVR file saved successfully! You may now eject the USB drive and
+              take it to VxAdmin for tabulation.
             </p>
           </Prose>
         }
@@ -235,7 +235,7 @@ export function ExportResultsModal({
                   alt="Insert USB Image"
                   onDoubleClick={() => exportResults(true)}
                 />
-                Please insert a USB drive in order to save the scanner results.
+                Please insert a USB drive in order to save CVRs.
               </p>
             </Prose>
           }
@@ -273,7 +273,7 @@ export function ExportResultsModal({
         <Modal
           content={
             <Prose>
-              <h1>Save Results</h1>
+              <h1>Save CVRs</h1>
               <UsbImage
                 src="/assets/usb-drive.svg"
                 alt="Insert USB Image"

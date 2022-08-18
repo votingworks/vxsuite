@@ -277,7 +277,7 @@ test('clicking Scan Batch will scan a batch', async () => {
   expect(mockAlert).not.toHaveBeenCalled();
 });
 
-test('clicking "Save Results" shows modal and makes a request to export', async () => {
+test('clicking "Save CVRs" shows modal and makes a request to export', async () => {
   const getElectionResponseBody: Scan.GetElectionConfigResponse =
     electionSampleDefinition;
   const getTestModeResponseBody: Scan.GetTestModeConfigResponse = {
@@ -329,10 +329,10 @@ test('clicking "Save Results" shows modal and makes a request to export', async 
     // wait for the config to load
     await sleep(500);
 
-    fireEvent.click(getByText('Save Results'));
+    fireEvent.click(getByText('Save CVRs'));
     await waitFor(() => getByText(exportingModalText));
     fireEvent.click(getByTestId('manual-export'));
-    await waitFor(() => getByText('Results Saved'));
+    await waitFor(() => getByText('CVRs Saved'));
     fireEvent.click(getByText('Cancel'));
   });
 

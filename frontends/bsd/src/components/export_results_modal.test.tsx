@@ -58,9 +58,7 @@ test('render no usb found screen when there is not a mounted usb drive', () => {
       { usbDriveStatus: status }
     );
     getByText('No USB Drive Detected');
-    getByText(
-      'Please insert a USB drive in order to save the scanner results.'
-    );
+    getByText('Please insert a USB drive in order to save CVRs.');
     getByAltText('Insert USB Image');
 
     fireEvent.click(getByText('Cancel'));
@@ -94,14 +92,14 @@ test('render export modal when a usb drive is mounted as expected and allows cus
     </Router>,
     { usbDriveStatus: UsbDriveStatus.mounted }
   );
-  getByText('Save Results');
+  getByText('Save CVRs');
   getByText(
     /A CVR file will automatically be saved to the default location on the mounted USB drive. /
   );
   getByAltText('Insert USB Image');
 
   fireEvent.click(getByText('Custom'));
-  await waitFor(() => getByText('Results Saved'));
+  await waitFor(() => getByText('CVRs Saved'));
   await waitFor(() => {
     expect(saveAsFunction).toHaveBeenCalledTimes(1);
   });
@@ -131,10 +129,10 @@ test('render export modal when a usb drive is mounted as expected and allows aut
     />,
     { usbDriveStatus: UsbDriveStatus.mounted, history }
   );
-  getByText('Save Results');
+  getByText('Save CVRs');
 
   fireEvent.click(getByText('Save'));
-  await waitFor(() => getByText('Results Saved'));
+  await waitFor(() => getByText('CVRs Saved'));
   await waitFor(() => {
     expect(mockKiosk.makeDirectory).toHaveBeenCalledTimes(1);
   });
@@ -202,12 +200,12 @@ test('render export modal with errors when appropriate', async () => {
     </Router>,
     { usbDriveStatus: UsbDriveStatus.mounted }
   );
-  getByText('Save Results');
+  getByText('Save CVRs');
 
   mockKiosk.getUsbDrives.mockRejectedValueOnce(new Error('NOPE'));
   fireEvent.click(getByText('Save'));
-  await waitFor(() => getByText('Failed to Save Results'));
-  getByText(/Failed to save results./);
+  await waitFor(() => getByText('Failed to Save CVRs'));
+  getByText(/Failed to save CVRs./);
   getByText(/NOPE/);
 
   fireEvent.click(getByText('Close'));

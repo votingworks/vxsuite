@@ -144,7 +144,7 @@ test('export from admin screen', () => {
     </AppContext.Provider>
   );
 
-  fireEvent.click(screen.getByText('Save Backup to USB Drive'));
+  fireEvent.click(screen.getByText('Save Backup'));
 });
 
 test('unconfigure ejects a usb drive when it is mounted', () => {

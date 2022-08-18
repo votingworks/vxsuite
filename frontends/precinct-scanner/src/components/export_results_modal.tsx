@@ -62,7 +62,7 @@ export function ExportResultsModal({
         setCurrentState(ModalState.DONE);
       } catch (error) {
         assert(error instanceof Error);
-        setErrorMessage(`Failed to save results. ${error.message}`);
+        setErrorMessage(`Failed to save CVRs. ${error.message}`);
         setCurrentState(ModalState.ERROR);
       }
     },
@@ -74,7 +74,7 @@ export function ExportResultsModal({
       <Modal
         content={
           <Prose>
-            <h1>Failed to Save Results</h1>
+            <h1>Failed to Save CVRs</h1>
             <p>{errorMessage}</p>
           </Prose>
         }
@@ -103,7 +103,7 @@ export function ExportResultsModal({
       <Modal
         content={
           <Prose>
-            <h1>Results Saved to USB Drive</h1>
+            <h1>CVRs Saved to USB Drive</h1>
             <p>
               You may now eject the USB drive and take it to VxAdmin for
               tabulation.
@@ -149,7 +149,7 @@ export function ExportResultsModal({
             <Prose textCenter>
               <h1>No USB Drive Detected</h1>
               <p>
-                Please insert a USB drive in order to save results.
+                Please insert a USB drive in order to save CVRs.
                 <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
               </p>
             </Prose>
@@ -188,7 +188,7 @@ export function ExportResultsModal({
         <Modal
           content={
             <Prose>
-              <h1>Save Results</h1>
+              <h1>Save CVRs</h1>
               <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
               <p>
                 A CVR file will automatically be saved to the default location
