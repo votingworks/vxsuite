@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "type-check": "tsc --build",
-    "build": "vite build",
+    "build": "pnpm type-check && vite build",
     "build:watch": "tsc --build --watch",
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
     "lint": "pnpm type-check && eslint . && pnpm stylelint:run",
