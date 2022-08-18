@@ -44,9 +44,6 @@ const debug = makeDebug('scan:precinct-scanner');
 const debugPaperStatus = debug.extend('paper-status');
 const debugEvents = debug.extend('events');
 
-// Temporary mode to control whether we interpreting ballots or not
-export type InterpretationMode = 'interpret' | 'skip';
-
 class PrecinctScannerError extends Error {
   // eslint-disable-next-line vx/gts-no-public-class-fields
   constructor(public type: Scan.PrecinctScannerErrorType, message?: string) {
@@ -61,7 +58,6 @@ export interface Context {
   scannedSheet?: SheetOf<string>;
   interpretation?: InterpretationResult;
   error?: Error | ScannerError;
-  interpretationMode: InterpretationMode;
   failedScanAttempts?: number;
 }
 
@@ -85,10 +81,7 @@ type CommandEvent =
   | { type: 'RETURN' }
   | { type: 'CALIBRATE' };
 
-export type Event =
-  | ScannerStatusEvent
-  | CommandEvent
-  | { type: 'SET_INTERPRETATION_MODE'; mode: InterpretationMode };
+export type Event = ScannerStatusEvent | CommandEvent;
 
 export interface Delays {
   DELAY_PAPER_STATUS_POLLING_INTERVAL: number;
@@ -213,29 +206,9 @@ async function calibrate({ client }: Context) {
 
 async function interpretSheet(
   interpreter: PrecinctScannerInterpreter,
-  { scannedSheet, interpretationMode }: Context
+  { scannedSheet }: Context
 ): Promise<InterpretationResult> {
   assert(scannedSheet);
-
-  if (interpretationMode === 'skip') {
-    return {
-      type: 'ValidSheet',
-      pages: [
-        {
-          originalFilename: '/front-original-mock',
-          normalizedFilename: '/front-normalized-mock',
-          interpretation: { type: 'BlankPage' },
-        },
-        {
-          originalFilename: '/back-original-mock',
-          normalizedFilename: '/back-normalized-mock',
-          interpretation: { type: 'BlankPage' },
-        },
-      ],
-      sheetId: 'mock-sheet-id',
-    };
-  }
-
   const sheetId = uuid();
   const interpretation = (
     await interpreter.interpret(sheetId, scannedSheet)
@@ -452,9 +425,7 @@ function buildMachine(
       id: 'precinct_scanner',
       initial: 'connecting',
       strict: true,
-      context: {
-        interpretationMode: 'interpret',
-      },
+      context: {},
       on: {
         SCANNER_DISCONNECTED: 'disconnected',
         SCANNER_BOTH_SIDES_HAVE_PAPER: 'both_sides_have_paper',
@@ -466,9 +437,6 @@ function buildMachine(
         ACCEPT: doNothing,
         RETURN: doNothing,
         CALIBRATE: doNothing,
-        SET_INTERPRETATION_MODE: {
-          actions: assign({ interpretationMode: (_, event) => event.mode }),
-        },
         // On events that are not handled by a specified transition (e.g. unhandled
         // paper status), return an error so we can figure out what happened
         '*': {
