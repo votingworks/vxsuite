@@ -999,6 +999,7 @@ export function createPrecinctScannerStateMachine(
         }
       })();
       const { error, interpretation } = state.context;
+
       // Remove interpretation details that are only used internally (e.g. sheetId, pages)
       const interpretationResult: Scan.SheetInterpretation | undefined =
         (() => {
@@ -1020,18 +1021,20 @@ export function createPrecinctScannerStateMachine(
               throwIllegalValue(interpretation, 'type');
           }
         })();
+
+      const stateNeedsErrorDetails = [
+        'rejecting',
+        'rejected',
+        'recovering_from_error',
+        'unrecoverable_error',
+      ].includes(scannerState);
+      const errorDetails =
+        error && stateNeedsErrorDetails ? errorToString(error) : undefined;
+
       return {
         state: scannerState,
         interpretation: interpretationResult,
-        error:
-          [
-            'rejecting',
-            'rejected',
-            'recovering_from_error',
-            'unrecoverable_error',
-          ].includes(scannerState) && error
-            ? errorToString(error)
-            : undefined,
+        error: errorDetails,
       };
     },
 
