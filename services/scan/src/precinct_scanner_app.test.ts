@@ -214,36 +214,32 @@ async function createApp(
   };
 }
 
-const famousNamesPath = join(
-  __dirname,
-  '../../../libs/fixtures/data/electionFamousNames2021/'
-);
 const sampleBallotImagesPath = join(__dirname, '../sample-ballot-images/');
 const ballotImages = {
   completeHmpb: [
-    join(famousNamesPath, 'hmpb-ballot-complete-p1.jpg'),
-    join(famousNamesPath, 'hmpb-ballot-complete-p2.jpg'),
+    electionFamousNames2021Fixtures.handMarkedBallotCompletePage1.asFilePath(),
+    electionFamousNames2021Fixtures.handMarkedBallotCompletePage2.asFilePath(),
   ],
   completeBmd: [
-    join(famousNamesPath, 'bmd-ballot-complete-p1.jpg'),
-    join(famousNamesPath, 'bmd-ballot-complete-p2.jpg'),
+    electionFamousNames2021Fixtures.machineMarkedBallotPage1.asFilePath(),
+    electionFamousNames2021Fixtures.machineMarkedBallotPage2.asFilePath(),
   ],
   unmarkedHmpb: [
-    join(famousNamesPath, 'hmpb-ballot-unmarked-p1.jpg'),
-    join(famousNamesPath, 'hmpb-ballot-unmarked-p2.jpg'),
+    electionFamousNames2021Fixtures.handMarkedBallotUnmarkedPage1.asFilePath(),
+    electionFamousNames2021Fixtures.handMarkedBallotUnmarkedPage2.asFilePath(),
   ],
   wrongElection: [
     // A BMD ballot front from a different election
     join(sampleBallotImagesPath, 'sample-batch-1-ballot-1.png'),
     // Blank BMD ballot back
-    join(famousNamesPath, 'bmd-ballot-complete-p2.jpg'),
+    electionFamousNames2021Fixtures.machineMarkedBallotPage2.asFilePath(),
   ],
   // The interpreter expects two different image files, so we use two
   // different blank page images
   blankSheet: [
     join(sampleBallotImagesPath, 'blank-page.png'),
     // Blank BMD ballot back
-    join(famousNamesPath, 'bmd-ballot-complete-p2.jpg'),
+    electionFamousNames2021Fixtures.machineMarkedBallotPage2.asFilePath(),
   ],
 } as const;
 
@@ -252,7 +248,7 @@ async function configureApp(
   { addTemplates } = { addTemplates: false }
 ) {
   const { ballots, electionDefinition } = await readBallotPackageFromBuffer(
-    electionFamousNames2021Fixtures.ballotPackageAsBuffer()
+    electionFamousNames2021Fixtures.ballotPackage.asBuffer()
   );
   await patch(
     app,

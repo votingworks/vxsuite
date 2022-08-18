@@ -276,7 +276,7 @@ test('PUT /config/package', async () => {
     .set('Accept', 'application/json')
     .attach(
       'package',
-      electionFamousNames2021Fixtures.ballotPackageAsBuffer(),
+      electionFamousNames2021Fixtures.ballotPackage.asBuffer(),
       'ballot-package.zip'
     )
     .expect(200, { status: 'ok' });
