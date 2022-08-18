@@ -3,6 +3,9 @@
 /* istanbul ignore file */
 
 import { Buffer } from 'buffer';
+import { mkdtempSync, writeFileSync } from 'fs';
+import { tmpdir } from 'os';
+import { join, sep } from 'path';
 
 /**
  * Data of data/electionFamousNames2021/ballot.pdf encoded as base64.
@@ -17,11 +20,23 @@ const resourceDataBase64 = 'JVBERi0xLjQKJdPr6eEKMSAwIG9iago8PC9DcmVhdG9yIChNb3pp
 export const mimeType = 'application/pdf';
 
 /**
+ * Path to a file containing this file's contents.
+ *
+ * SHA-256 hash of file data: 7807a6fe2167093e402aab0789517f337dc6305d41c014bd9255f19acef0f147
+ */
+export function asFilePath(): string {
+  const directoryPath = mkdtempSync(tmpdir() + sep);
+  const filePath = join(directoryPath, 'ballot.pdf');
+  writeFileSync(filePath, asBuffer());
+  return filePath;
+}
+
+/**
  * Convert to a `data:` URL of data/electionFamousNames2021/ballot.pdf, suitable for embedding in HTML.
  *
  * SHA-256 hash of file data: 7807a6fe2167093e402aab0789517f337dc6305d41c014bd9255f19acef0f147
  */
-export function asDataUrl() {
+export function asDataUrl(): string {
   return `data:${mimeType};base64,${resourceDataBase64}`;
 }
 

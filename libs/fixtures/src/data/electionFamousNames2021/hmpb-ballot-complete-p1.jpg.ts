@@ -3,6 +3,9 @@
 /* istanbul ignore file */
 
 import { Buffer } from 'buffer';
+import { mkdtempSync, writeFileSync } from 'fs';
+import { tmpdir } from 'os';
+import { join, sep } from 'path';
 import { createCanvas, Image, ImageData, loadImage } from 'canvas';
 
 
@@ -19,11 +22,23 @@ const resourceDataBase64 = '/9j/4AAQSkZJRgABAQEBLAEsAAD/2wBDAAYEBQYFBAYGBQYHBwYI
 export const mimeType = 'image/jpeg';
 
 /**
+ * Path to a file containing this file's contents.
+ *
+ * SHA-256 hash of file data: cccac14afb342f8312c806ed18ba60056e61b2f51a21c6108658272f4e107bcc
+ */
+export function asFilePath(): string {
+  const directoryPath = mkdtempSync(tmpdir() + sep);
+  const filePath = join(directoryPath, 'hmpb-ballot-complete-p1.jpg');
+  writeFileSync(filePath, asBuffer());
+  return filePath;
+}
+
+/**
  * Convert to a `data:` URL of data/electionFamousNames2021/hmpb-ballot-complete-p1.jpg, suitable for embedding in HTML.
  *
  * SHA-256 hash of file data: cccac14afb342f8312c806ed18ba60056e61b2f51a21c6108658272f4e107bcc
  */
-export function asDataUrl() {
+export function asDataUrl(): string {
   return `data:${mimeType};base64,${resourceDataBase64}`;
 }
 

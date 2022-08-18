@@ -3,6 +3,9 @@
 /* istanbul ignore file */
 
 import { Buffer } from 'buffer';
+import { mkdtempSync, writeFileSync } from 'fs';
+import { tmpdir } from 'os';
+import { join, sep } from 'path';
 
 /**
  * Data of data/electionFamousNames2021/ballot-package.zip encoded as base64.
@@ -17,11 +20,23 @@ const resourceDataBase64 = 'UEsDBBQACAgIACZM+1QAAAAAAAAAAAAAAAANAC0AZWxlY3Rpb24u
 export const mimeType = 'application/zip';
 
 /**
+ * Path to a file containing this file's contents.
+ *
+ * SHA-256 hash of file data: b0fb72cf59ac775096023905dd7b49ff481db1e04c0140dea9efe412c25defae
+ */
+export function asFilePath(): string {
+  const directoryPath = mkdtempSync(tmpdir() + sep);
+  const filePath = join(directoryPath, 'ballot-package.zip');
+  writeFileSync(filePath, asBuffer());
+  return filePath;
+}
+
+/**
  * Convert to a `data:` URL of data/electionFamousNames2021/ballot-package.zip, suitable for embedding in HTML.
  *
  * SHA-256 hash of file data: b0fb72cf59ac775096023905dd7b49ff481db1e04c0140dea9efe412c25defae
  */
-export function asDataUrl() {
+export function asDataUrl(): string {
   return `data:${mimeType};base64,${resourceDataBase64}`;
 }
 

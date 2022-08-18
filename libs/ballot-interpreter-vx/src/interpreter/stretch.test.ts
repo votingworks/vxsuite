@@ -7,16 +7,16 @@ test('stretched precinct scanner ballot', async () => {
   const interpreter = new Interpreter({ electionDefinition });
 
   interpreter.addTemplate(
-    await interpreter.interpretTemplate(await fixtures.blankPage1AsImageData())
+    await interpreter.interpretTemplate(await fixtures.blankPage1.asImageData())
   );
   interpreter.addTemplate(
-    await interpreter.interpretTemplate(await fixtures.blankPage2AsImageData())
+    await interpreter.interpretTemplate(await fixtures.blankPage2.asImageData())
   );
 
   expect(
     (
       await interpreter.interpretBallot(
-        await fixtures.markedPrecinctScannerStretchPage2AsImageData()
+        await fixtures.markedPrecinctScannerStretchPage2.asImageData()
       )
     ).ballot.votes
   ).toMatchInlineSnapshot(`
