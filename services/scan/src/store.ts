@@ -18,6 +18,7 @@ import {
   getBallotStyle,
   getContests,
   InlineBallotImage,
+  Iso8601Timestamp,
   MarkAdjudication,
   MarkAdjudicationsSchema,
   MarkThresholds,
@@ -30,7 +31,6 @@ import {
   unsafeParse,
 } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
-import { Iso8601Timestamp } from '@votingworks/types/src/api';
 import { assert } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import makeDebug from 'debug';
