@@ -1053,7 +1053,7 @@ test('scan fails with the paper in the back afterwards', async () => {
   await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
   await waitForStatus(app, { state: 'ready_to_scan' });
 
-  await post(app, '/scanner/scan');
+  await post(app, '/precinct-scanner/scanner/scan');
   await expectStatus(app, { state: 'scanning' });
   mockPlustek.simulateScanError('bad_scan_result');
   await waitForStatus(app, { state: 'rejecting', error: 'plustek_error' });
