@@ -743,21 +743,26 @@ function buildMachine(
           },
         },
         calibrating: {
-          entry: assign({ error: undefined }),
-          invoke: {
-            src: calibrate,
-            onDone: 'checking_calibration_completed',
-            onError: {
-              target: 'checking_calibration_completed',
-              actions: assign({ error: (_context, event) => event.data }),
+          initial: 'starting',
+          states: {
+            starting: {
+              entry: assign({ error: undefined }),
+              invoke: {
+                src: calibrate,
+                onDone: 'checking_completed',
+                onError: {
+                  target: 'checking_completed',
+                  actions: assign({ error: (_context, event) => event.data }),
+                },
+              },
             },
-          },
-        },
-        checking_calibration_completed: {
-          invoke: pollPaperStatus,
-          on: {
-            SCANNER_NO_PAPER: 'no_paper',
-            SCANNER_READY_TO_SCAN: 'ready_to_scan',
+            checking_completed: {
+              invoke: pollPaperStatus,
+              on: {
+                SCANNER_NO_PAPER: '#no_paper',
+                SCANNER_READY_TO_SCAN: '#ready_to_scan',
+              },
+            },
           },
         },
         jammed: {
