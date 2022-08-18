@@ -33,16 +33,16 @@ import {
 import { SheetOf } from './types';
 import { Store } from './store';
 
+const debug = makeDebug('scan:precinct-scanner');
+const debugPaperStatus = debug.extend('paper-status');
+const debugEvents = debug.extend('events');
+
 // 10 attempts is about the amount of time it takes for Plustek to stop trying
 // to grab the paper. Up until that point, if you reposition the paper so the
 // rollers grab it, it will get scanned successfully.
 export const MAX_FAILED_SCAN_ATTEMPTS = 10;
 
 export type CreatePlustekClient = typeof createClient;
-
-const debug = makeDebug('scan:precinct-scanner');
-const debugPaperStatus = debug.extend('paper-status');
-const debugEvents = debug.extend('events');
 
 class PrecinctScannerError extends Error {
   // eslint-disable-next-line vx/gts-no-public-class-fields
@@ -53,7 +53,7 @@ class PrecinctScannerError extends Error {
 
 type InterpretationResult = SheetInterpretation & { sheetId: Id };
 
-export interface Context {
+interface Context {
   client?: ScannerClient;
   scannedSheet?: SheetOf<string>;
   interpretation?: InterpretationResult;
@@ -163,8 +163,11 @@ function paperStatusErrorToEvent(
   }
 }
 
-// Create a paper status observable, then use internal transitions to avoid
-// changing state when paper status doesn't change
+/**
+ * Create an observable that polls the paper status and emits state machine
+ * events. Some known errors are converted into events, allowing polling to
+ * continue. Unexpected errors will end polling.
+ */
 function buildPaperStatusObserver(
   pollingInterval: number,
   pollingTimeout: number
@@ -894,6 +897,12 @@ function errorToString(error: NonNullable<Context['error']>) {
   return error instanceof PrecinctScannerError ? error.type : 'plustek_error';
 }
 
+/**
+ * The precinct scanner state machine can:
+ * - return its status
+ * - accept scanning commands
+ * - calibrate
+ */
 export interface PrecinctScannerStateMachine {
   status: () => Scan.PrecinctScannerMachineStatus;
   // The commands are non-blocking and do not return a result. They just send an
@@ -907,6 +916,19 @@ export interface PrecinctScannerStateMachine {
   calibrate: () => Promise<Result<void, string>>;
 }
 
+/**
+ * Creates the state machine for the precinct scanner.
+ *
+ * The machine tracks the state of the precinct scanner app, which adds a layer
+ * of logic for scanning and interpreting ballots on top of the Plustek scanner
+ * API (which is the source of truth for the actual hardware state).
+ *
+ * The machine transitions between states in response to commands (e.g. scan or
+ * accept) as well as in response to the paper status events from the scanner
+ * (e.g. paper inserted).
+ *
+ * It's implemented using XState (https://xstate.js.org/docs/).
+ */
 export function createPrecinctScannerStateMachine(
   createPlustekClient: CreatePlustekClient,
   store: Store,
@@ -922,6 +944,8 @@ export function createPrecinctScannerStateMachine(
     status: (): Scan.PrecinctScannerMachineStatus => {
       const { state } = machineService;
       const scannerState = (() => {
+        // We use state.matches as recommended by the XState docs. This allows
+        // us to add new substates to a state without breaking this switch.
         switch (true) {
           case state.matches('connecting'):
             return 'connecting';
