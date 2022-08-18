@@ -422,7 +422,7 @@ function buildMachine(
           invoke: {
             src: reject,
             onDone: 'checking_completed',
-            onError: '#error_jammed',
+            onError: '#jammed',
           },
         },
         // After rejecting, before the plustek grabs the paper to hold it, it sends
@@ -433,7 +433,7 @@ function buildMachine(
           on: {
             SCANNER_NO_PAPER: { target: undefined },
             SCANNER_READY_TO_SCAN: onDoneState,
-            SCANNER_READY_TO_EJECT: '#error_jammed',
+            SCANNER_READY_TO_EJECT: '#jammed',
           },
           // But, if you pull the paper out right after rejecting, we go straight to
           // NO_PAPER, skipping READY_TO_SCAN completely. So we need to eventually
@@ -454,8 +454,8 @@ function buildMachine(
       },
       on: {
         SCANNER_DISCONNECTED: 'disconnected',
-        SCANNER_BOTH_SIDES_HAVE_PAPER: 'error_both_sides_have_paper',
-        SCANNER_JAM: 'error_jammed',
+        SCANNER_BOTH_SIDES_HAVE_PAPER: 'both_sides_have_paper',
+        SCANNER_JAM: 'jammed',
         // On unhandled commands, do nothing. This guards against any race
         // conditions where the frontend has an outdated scanner status and tries to
         // send a command.
@@ -760,17 +760,17 @@ function buildMachine(
             SCANNER_READY_TO_SCAN: 'ready_to_scan',
           },
         },
-        error_jammed: {
-          id: 'error_jammed',
+        jammed: {
+          id: 'jammed',
           invoke: pollPaperStatus,
           on: {
             SCANNER_NO_PAPER: 'no_paper',
-            SCANNER_JAM: { target: 'error_jammed', internal: true },
-            SCANNER_READY_TO_SCAN: { target: 'error_jammed', internal: true },
-            SCANNER_READY_TO_EJECT: { target: 'error_jammed', internal: true },
+            SCANNER_JAM: { target: 'jammed', internal: true },
+            SCANNER_READY_TO_SCAN: { target: 'jammed', internal: true },
+            SCANNER_READY_TO_EJECT: { target: 'jammed', internal: true },
           },
         },
-        error_both_sides_have_paper: {
+        both_sides_have_paper: {
           entry: clearError,
           invoke: pollPaperStatus,
           on: {
@@ -981,9 +981,9 @@ export function createPrecinctScannerStateMachine(
             return 'rejected';
           case state.matches('calibrating'):
             return 'calibrating';
-          case state.matches('error_jammed'):
+          case state.matches('jammed'):
             return 'jammed';
-          case state.matches('error_both_sides_have_paper'):
+          case state.matches('both_sides_have_paper'):
             return 'both_sides_have_paper';
           case state.matches('error'):
             return 'recovering_from_error';
