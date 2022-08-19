@@ -19,19 +19,3 @@ export function isCardReaderCheckDisabled(): boolean {
     asBoolean(process.env.REACT_APP_VX_DISABLE_CARD_READER_CHECK)
   );
 }
-
-/**
- * Determines whether VVSG2 auth flows are enabled.
- *
- * Now enabled by default.
- *
- * To disable VVSG2 auth flows, add this line to the relevant frontend app's .env.local, e.g.
- * frontends/election-manager/.env.local:
- *
- *     REACT_APP_VX_ENABLE_VVSG2_AUTH_FLOWS=false
- *
- * @see https://create-react-app.dev/docs/adding-custom-environment-variables/
- */
-export function areVvsg2AuthFlowsEnabled(): boolean {
-  return asBoolean(process.env.REACT_APP_VX_ENABLE_VVSG2_AUTH_FLOWS);
-}

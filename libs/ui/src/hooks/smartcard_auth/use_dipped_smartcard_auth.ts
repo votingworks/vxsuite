@@ -22,7 +22,6 @@ import {
 import deepEqual from 'deep-eql';
 import { useEffect, useReducer } from 'react';
 import useInterval from 'use-interval';
-import { areVvsg2AuthFlowsEnabled } from '../../config/features';
 import { useLock } from '../use_lock';
 import { usePrevious } from '../use_previous';
 import {
@@ -79,9 +78,6 @@ function validateCardUser(
   }
 
   if (user.role === 'election_manager') {
-    if (!areVvsg2AuthFlowsEnabled()) {
-      return ok();
-    }
     if (!scope.electionDefinition) {
       return scope.allowElectionManagersToAccessUnconfiguredMachines
         ? ok()
