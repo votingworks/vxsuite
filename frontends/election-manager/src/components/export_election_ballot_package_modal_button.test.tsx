@@ -138,7 +138,9 @@ test('Modal renders export confirmation screen when usb detected and manual link
   within(modal).getByText(/Optionally, you may pick a custom save location./);
 
   fireEvent.click(within(modal).getByText('Custom'));
-  await waitFor(() => within(modal).getByText('Ballot Package Saved'));
+  await within(modal).findByText('Ballot Package Saved', undefined, {
+    timeout: 2000,
+  });
   await waitFor(() => {
     expect(interpretTemplate).toHaveBeenCalledTimes(
       2 /* pages per ballot */ *
@@ -231,7 +233,9 @@ test('Modal renders renders loading message while rendering ballots appropriatel
 
   fireEvent.click(getByText('Save'));
 
-  await waitFor(() => getByText('Ballot Package Saved'));
+  await screen.findByText('Ballot Package Saved', undefined, {
+    timeout: 2000,
+  });
   expect(window.kiosk!.writeFile).toHaveBeenCalledTimes(1);
   expect(window.kiosk!.makeDirectory).toHaveBeenCalledTimes(1);
 
