@@ -35,9 +35,29 @@ function get(app: Application, path: string) {
   return request(app).get(path).accept('application/json').expect(200);
 }
 
+function deleteRequest(app: Application, path: string) {
+  return request(app).delete(path).accept('application/json').expect(200);
+}
+
 function patch(app: Application, path: string, body?: object | string) {
   return request(app)
     .patch(path)
+    .accept('application/json')
+    .set(
+      'Content-Type',
+      typeof body === 'string' ? 'application/octet-stream' : 'application/json'
+    )
+    .send(body)
+    .expect((res) => {
+      // eslint-disable-next-line no-console
+      if (res.status !== 200) console.error(res.body);
+    })
+    .expect(200, { status: 'ok' });
+}
+
+function put(app: Application, path: string, body?: object | string) {
+  return request(app)
+    .put(path)
     .accept('application/json')
     .set(
       'Content-Type',
@@ -460,7 +480,159 @@ test('invalid ballot rejected', async () => {
   checkLogs(logger);
 });
 
-test('blank paper rejected', async () => {
+test('bmd ballot is rejected when scanned for wrong precinct', async () => {
+  const { app, mockPlustek } = await createApp();
+  await configureApp(app);
+  // Ballot should be rejected when configured for the wrong precinct
+  await put(app, '/precinct-scanner/config/precinct', { precinctId: '22' });
+
+  await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
+  await waitForStatus(app, { state: 'ready_to_scan' });
+
+  const interpretation: Scan.SheetInterpretation = {
+    type: 'InvalidSheet',
+    reason: 'invalid_precinct',
+  };
+
+  await post(app, '/precinct-scanner/scanner/scan');
+  await expectStatus(app, { state: 'scanning' });
+  await waitForStatus(app, {
+    state: 'rejecting',
+    interpretation,
+    canUnconfigure: false,
+  });
+  await waitForStatus(app, {
+    state: 'rejected',
+    interpretation,
+    canUnconfigure: false,
+  });
+
+  await mockPlustek.simulateRemoveSheet();
+  await waitForStatus(app, { state: 'no_paper', canUnconfigure: false });
+});
+
+test('bmd ballot is accepted if precinct settings are cleared', async () => {
+  const { app, mockPlustek } = await createApp();
+  await configureApp(app);
+  // Configure for the wrong precinct
+  await put(app, '/precinct-scanner/config/precinct', { precinctId: '22' });
+  // Re-Configure for all precincts and verify the ballot scans
+  await deleteRequest(app, '/precinct-scanner/config/precinct');
+
+  await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
+  await waitForStatus(app, { state: 'ready_to_scan' });
+
+  const validInterpretation: Scan.SheetInterpretation = {
+    type: 'ValidSheet',
+  };
+
+  await post(app, '/precinct-scanner/scanner/scan');
+  await expectStatus(app, { state: 'scanning' });
+  await waitForStatus(app, {
+    state: 'ready_to_accept',
+    interpretation: validInterpretation,
+  });
+});
+
+test('bmd ballot is accepted if precinct is set for the right precinct', async () => {
+  const { app, mockPlustek } = await createApp();
+  await configureApp(app);
+
+  // Configure for the proper precinct and verify the ballot scans
+  await put(app, '/precinct-scanner/config/precinct', { precinctId: '23' });
+
+  const validInterpretation: Scan.SheetInterpretation = {
+    type: 'ValidSheet',
+  };
+
+  await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
+  await waitForStatus(app, { state: 'ready_to_scan' });
+
+  await post(app, '/precinct-scanner/scanner/scan');
+  await expectStatus(app, { state: 'scanning' });
+  await waitForStatus(app, {
+    state: 'ready_to_accept',
+    interpretation: validInterpretation,
+  });
+});
+
+test('hmpb ballot is rejected when scanned for wrong precinct', async () => {
+  const { app, mockPlustek } = await createApp();
+  await configureApp(app, { addTemplates: true });
+  // Ballot should be rejected when configured for the wrong precinct
+  await put(app, '/precinct-scanner/config/precinct', { precinctId: '22' });
+
+  await mockPlustek.simulateLoadSheet(ballotImages.completeHmpb);
+  await waitForStatus(app, { state: 'ready_to_scan' });
+
+  const interpretation: Scan.SheetInterpretation = {
+    type: 'InvalidSheet',
+    reason: 'invalid_precinct',
+  };
+
+  await post(app, '/precinct-scanner/scanner/scan');
+  await expectStatus(app, { state: 'scanning' });
+  await waitForStatus(app, {
+    state: 'rejecting',
+    interpretation,
+    canUnconfigure: false,
+  });
+  await waitForStatus(app, {
+    state: 'rejected',
+    interpretation,
+    canUnconfigure: false,
+  });
+
+  await mockPlustek.simulateRemoveSheet();
+  await waitForStatus(app, { state: 'no_paper', canUnconfigure: false });
+});
+
+test('hmpb ballot is accepted if precinct settings are cleared', async () => {
+  const { app, mockPlustek } = await createApp();
+  await configureApp(app, { addTemplates: true });
+  // Configure for the wrong precinct
+  await put(app, '/precinct-scanner/config/precinct', { precinctId: '22' });
+  // Re-Configure for all precincts and verify the ballot scans
+  await deleteRequest(app, '/precinct-scanner/config/precinct');
+
+  await mockPlustek.simulateLoadSheet(ballotImages.completeHmpb);
+  await waitForStatus(app, { state: 'ready_to_scan' });
+
+  const validInterpretation: Scan.SheetInterpretation = {
+    type: 'ValidSheet',
+  };
+
+  await post(app, '/precinct-scanner/scanner/scan');
+  await expectStatus(app, { state: 'scanning' });
+  await waitForStatus(app, {
+    state: 'ready_to_accept',
+    interpretation: validInterpretation,
+  });
+});
+
+test('hmpb ballot is accepted if precinct is set for the right precinct', async () => {
+  const { app, mockPlustek } = await createApp();
+  await configureApp(app, { addTemplates: true });
+
+  // Configure for the proper precinct and verify the ballot scans
+  await put(app, '/precinct-scanner/config/precinct', { precinctId: '21' });
+
+  const validInterpretation: Scan.SheetInterpretation = {
+    type: 'ValidSheet',
+  };
+
+  await mockPlustek.simulateLoadSheet(ballotImages.completeHmpb);
+  await waitForStatus(app, { state: 'ready_to_scan' });
+
+  await post(app, '/precinct-scanner/scanner/scan');
+  await expectStatus(app, { state: 'scanning' });
+  await waitForStatus(app, {
+    state: 'ready_to_accept',
+    interpretation: validInterpretation,
+  });
+});
+
+test('blank sheet ballot rejected', async () => {
   const { app, mockPlustek } = await createApp();
   await configureApp(app);
 

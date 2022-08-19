@@ -133,6 +133,66 @@ test('properly detects test ballot in live mode', async () => {
   );
 });
 
+test('properly detects bmd ballot with wrong precinct', async () => {
+  const ballotImagePath = join(
+    sampleBallotImagesPath,
+    'sample-batch-1-ballot-1.png'
+  );
+  const interpretationResult = await new Interpreter({
+    electionDefinition: {
+      ...electionSampleDefinition,
+      election: {
+        ...electionSampleDefinition.election,
+        markThresholds: { definite: 0.2, marginal: 0.17 },
+      },
+    },
+    testMode: true,
+    // TODO: remove this once the QR code is fixed (https://github.com/votingworks/vxsuite/issues/1524)
+    skipElectionHashCheck: true,
+    currentPrecinctId: '20',
+    adjudicationReasons:
+      electionSampleDefinition.election.centralScanAdjudicationReasons ?? [],
+  }).interpretFile({
+    ballotImagePath,
+    ballotImageFile: await readFile(ballotImagePath),
+    detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
+  });
+
+  expect(interpretationResult.interpretation.type).toEqual(
+    'InvalidPrecinctPage'
+  );
+});
+
+test('properly detects bmd ballot with correct precinct', async () => {
+  const ballotImagePath = join(
+    sampleBallotImagesPath,
+    'sample-batch-1-ballot-1.png'
+  );
+  const interpretationResult = await new Interpreter({
+    electionDefinition: {
+      ...electionSampleDefinition,
+      election: {
+        ...electionSampleDefinition.election,
+        markThresholds: { definite: 0.2, marginal: 0.17 },
+      },
+    },
+    testMode: true,
+    // TODO: remove this once the QR code is fixed (https://github.com/votingworks/vxsuite/issues/1524)
+    skipElectionHashCheck: true,
+    currentPrecinctId: '23',
+    adjudicationReasons:
+      electionSampleDefinition.election.centralScanAdjudicationReasons ?? [],
+  }).interpretFile({
+    ballotImagePath,
+    ballotImageFile: await readFile(ballotImagePath),
+    detectQrcodeResult: await detectQrcodeInFilePath(ballotImagePath),
+  });
+
+  expect(interpretationResult.interpretation.type).toEqual(
+    'InterpretedBmdPage'
+  );
+});
+
 test('detects a blank page', async () => {
   const ballotImagePath = join(sampleBallotImagesPath, 'blank-page.png');
   const interpretationResult = await new Interpreter({
