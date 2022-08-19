@@ -53,7 +53,7 @@ function getScanner(): BatchScanner | undefined {
 }
 
 async function main(): Promise<number> {
-  await server.start({ scanner: getScanner(), createPlustekClient });
+  await server.start({ batchScanner: getScanner(), createPlustekClient });
   return 0;
 }
 

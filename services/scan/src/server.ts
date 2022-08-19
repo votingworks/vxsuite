@@ -23,7 +23,7 @@ import { createInterpreter } from './precinct_scanner_interpreter';
 
 export interface StartOptions {
   port: number | string;
-  scanner: BatchScanner;
+  batchScanner: BatchScanner;
   importer: Importer;
   app: Application;
   createPlustekClient: CreatePlustekClient;
@@ -37,7 +37,7 @@ export interface StartOptions {
  */
 export async function start({
   port = PORT,
-  scanner,
+  batchScanner,
   importer,
   createPlustekClient = createClient,
   app,
@@ -87,12 +87,8 @@ export async function start({
     );
   } else {
     assert(machineType === 'bsd');
-    let resolvedScanner: BatchScanner;
-    if (scanner) {
-      resolvedScanner = scanner;
-    } else {
-      resolvedScanner = new FujitsuScanner({ mode: ScannerMode.Gray, logger });
-    }
+    const resolvedBatchScanner =
+      batchScanner ?? new FujitsuScanner({ mode: ScannerMode.Gray, logger });
     let workerPool: WorkerPool<workers.Input, workers.Output> | undefined;
     // eslint-disable-next-line no-inner-declarations
     function workerPoolProvider(): WorkerPool<workers.Input, workers.Output> {
@@ -106,7 +102,7 @@ export async function start({
       importer ??
       new Importer({
         workspace: resolvedWorkspace,
-        scanner: resolvedScanner,
+        scanner: resolvedBatchScanner,
         workerPoolProvider,
       });
     resolvedApp =
@@ -123,9 +119,9 @@ export async function start({
       disposition: 'success',
     });
 
-    if (importer instanceof Importer) {
+    if (resolvedWorkspace) {
       await logger.log(LogEventId.ScanServiceConfigurationMessage, 'system', {
-        message: `Scanning ballots into ${workspace?.ballotImagesPath}`,
+        message: `Scanning ballots into ${resolvedWorkspace.ballotImagesPath}`,
       });
     }
   });
