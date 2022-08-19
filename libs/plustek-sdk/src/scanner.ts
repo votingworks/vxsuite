@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file */
 import { err, ok, Result, safeParse } from '@votingworks/types';
-import { deferred, sleep, throwIllegalValue } from '@votingworks/utils';
+import { deferred, throwIllegalValue } from '@votingworks/utils';
 import { spawn } from 'child_process';
 import makeDebug from 'debug';
 import { createInterface } from 'readline';
@@ -98,18 +98,6 @@ export interface ScannerClient {
    * Gets the scanner's current paper status.
    */
   getPaperStatus(): Promise<GetPaperStatusResult>;
-
-  /**
-   * Waits up to `timeout` milliseconds until the paper status becomes `status`,
-   * polling for updates every `interval` milliseconds.
-   *
-   * @returns the last status if it could be retrieved, undefined otherwise
-   */
-  waitForStatus(options: {
-    status: PaperStatus;
-    timeout?: number;
-    interval?: number;
-  }): Promise<GetPaperStatusResult | undefined>;
 
   /**
    * Scans the sheet fed into the scanner if one is present. Optionally provides
@@ -359,23 +347,6 @@ export async function createClient(
     isConnected: () => connected,
 
     getPaperStatus,
-
-    waitForStatus: async ({ status, interval = 50, timeout }) => {
-      const until =
-        typeof timeout === 'undefined' ? Infinity : Date.now() + timeout;
-      let result: GetPaperStatusResult | undefined;
-
-      while (Date.now() < until) {
-        result = await getPaperStatus();
-        if (result.ok() === status) {
-          break;
-        }
-
-        await sleep(interval);
-      }
-
-      return result;
-    },
 
     scan: async ({
       onScanAttemptStart,
