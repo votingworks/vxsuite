@@ -1,19 +1,11 @@
 import React, { useContext } from 'react';
 import { Switch, Route, Redirect } from 'react-router-dom';
 import {
-  fontSizeTheme,
-  ElectionInfoBar,
-  Main,
-  Prose,
-  RebootFromUsbButton,
-  RebootToBiosButton,
-  Screen,
   SetupCardReaderPage,
   isSystemAdministratorAuth,
   InvalidCardScreen,
   UnlockMachineScreen,
   RemoveCardScreen,
-  areVvsg2AuthFlowsEnabled,
 } from '@votingworks/ui';
 
 import { AppContext } from '../contexts/app_context';
@@ -31,10 +23,8 @@ import { DefinitionContestsScreen } from '../screens/definition_contests_screen'
 import { PrintedBallotsReportScreen } from '../screens/printed_ballots_report_screen';
 import { ManualDataImportIndexScreen } from '../screens/manual_data_import_index_screen';
 import { ManualDataImportPrecinctScreen } from '../screens/manual_data_import_precinct_screen';
-import { LegacySmartcardsScreen } from '../screens/legacy_smartcards_screen';
 import { SmartcardsScreen } from '../screens/smartcards_screen';
 import { MachineLockedScreen } from '../screens/machine_locked_screen';
-import { AdvancedScreen } from '../screens/advanced_screen';
 import { WriteInsScreen } from '../screens/write_ins_screen';
 import { LogicAndAccuracyScreen } from '../screens/logic_and_accuracy_screen';
 import { SettingsScreen } from '../screens/settings_screen';
@@ -45,15 +35,8 @@ import { SmartcardModal } from './smartcard_modal';
 import { isWriteInAdjudicationEnabled } from '../config/features';
 
 export function ElectionManager(): JSX.Element {
-  const {
-    electionDefinition,
-    configuredAt,
-    auth,
-    hasCardReaderAttached,
-    machineConfig,
-    usbDriveStatus,
-    logger,
-  } = useContext(AppContext);
+  const { electionDefinition, configuredAt, auth, hasCardReaderAttached } =
+    useContext(AppContext);
   const election = electionDefinition?.election;
 
   if (!hasCardReaderAttached) {
@@ -66,22 +49,6 @@ export function ElectionManager(): JSX.Element {
 
   if (auth.status === 'remove_card') {
     return <RemoveCardScreen />;
-  }
-
-  if (!areVvsg2AuthFlowsEnabled() && (!election || !configuredAt)) {
-    return (
-      <Switch>
-        <Route exact path={routerPaths.root}>
-          <UnconfiguredScreen />
-        </Route>
-        <Route exact path={routerPaths.electionDefinition}>
-          <UnconfiguredScreen />
-        </Route>
-        <Route exact path={routerPaths.advanced}>
-          <AdvancedScreen />
-        </Route>
-      </Switch>
-    );
   }
 
   if (auth.status === 'logged_out') {
@@ -100,29 +67,6 @@ export function ElectionManager(): JSX.Element {
   }
 
   if (isSystemAdministratorAuth(auth)) {
-    if (!areVvsg2AuthFlowsEnabled()) {
-      return (
-        <Screen>
-          <Main centerChild>
-            <Prose textCenter maxWidth={false} theme={fontSizeTheme.large}>
-              <RebootFromUsbButton
-                usbDriveStatus={usbDriveStatus}
-                logger={logger}
-              />
-              <br />
-              <RebootToBiosButton logger={logger} />
-            </Prose>
-          </Main>
-          <ElectionInfoBar
-            mode="admin"
-            electionDefinition={electionDefinition}
-            codeVersion={machineConfig.codeVersion}
-            machineId={machineConfig.machineId}
-          />
-        </Screen>
-      );
-    }
-
     if (!election || !configuredAt) {
       return (
         <React.Fragment>
@@ -203,36 +147,9 @@ export function ElectionManager(): JSX.Element {
     );
   }
 
+  // Election manager UI
   return (
     <Switch>
-      {!areVvsg2AuthFlowsEnabled() && (
-        <Route exact path={routerPaths.advanced}>
-          <AdvancedScreen />
-        </Route>
-      )}
-      {!areVvsg2AuthFlowsEnabled() && (
-        <Route exact path={routerPaths.electionDefinition}>
-          <DefinitionScreen />
-        </Route>
-      )}
-      {!areVvsg2AuthFlowsEnabled() && (
-        <Route exact path={routerPaths.definitionEditor}>
-          <DefinitionEditorScreen allowEditing={false} />
-        </Route>
-      )}
-      {!areVvsg2AuthFlowsEnabled() && (
-        <Route
-          exact
-          path={routerPaths.definitionContest({ contestId: ':contestId' })}
-        >
-          <DefinitionContestsScreen allowEditing={false} />
-        </Route>
-      )}
-      {!areVvsg2AuthFlowsEnabled() && (
-        <Route exact path={routerPaths.smartcards}>
-          <LegacySmartcardsScreen />
-        </Route>
-      )}
       <Route exact path={routerPaths.ballotsList}>
         <BallotListScreen />
       </Route>

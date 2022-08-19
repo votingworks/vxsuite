@@ -1,16 +1,11 @@
 import React, { useContext, useState, useEffect, useCallback } from 'react';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { safeParseElection } from '@votingworks/types';
 
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 
-import {
-  Modal,
-  useCancelablePromise,
-  Prose,
-  areVvsg2AuthFlowsEnabled,
-} from '@votingworks/ui';
+import { Modal, useCancelablePromise, Prose } from '@votingworks/ui';
 import { assert } from '@votingworks/utils';
 import {
   ConverterClient,
@@ -62,7 +57,6 @@ const demoElection =
 
 export function UnconfiguredScreen(): JSX.Element {
   const history = useHistory();
-  const location = useLocation();
   const makeCancelable = useCancelablePromise();
 
   const { converter, saveElection } = useContext(AppContext);
@@ -218,12 +212,6 @@ export function UnconfiguredScreen(): JSX.Element {
   useEffect(() => {
     void updateStatus();
   }, [updateStatus]);
-
-  useEffect(() => {
-    if (!areVvsg2AuthFlowsEnabled() && location.pathname !== '/') {
-      history.push(routerPaths.root);
-    }
-  }, [location, history]);
 
   if (isUploading || isLoading) {
     return (
