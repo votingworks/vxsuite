@@ -1,4 +1,3 @@
-import { ScannerClient } from '@votingworks/plustek-sdk';
 import {
   FakeReadable,
   fakeReadable,
@@ -192,18 +191,4 @@ export async function makeImageFile(): Promise<string> {
     height: 1,
   });
   return imageFile.name;
-}
-
-export function makeMockPlustekClient(): jest.Mocked<ScannerClient> {
-  return {
-    accept: jest.fn(),
-    close: jest.fn(),
-    getPaperStatus: jest.fn(),
-    isConnected: jest.fn(),
-    reject: jest.fn(),
-    scan: jest.fn(),
-    waitForStatus: jest.fn(),
-    calibrate: jest.fn(),
-    kill: jest.fn(),
-  };
 }
