@@ -27,6 +27,7 @@ export interface CreateInterpreterOptions {
   readonly ballotImagesPath: string;
   readonly markThresholdOverrides?: MarkThresholds;
   readonly testMode: boolean;
+  readonly currentPrecinctId?: string;
 }
 
 export type SheetInterpretation = Scan.SheetInterpretation & {
@@ -213,11 +214,13 @@ function createVxInterpreter({
   layouts,
   markThresholdOverrides,
   testMode,
+  currentPrecinctId,
 }: CreateInterpreterOptions): SimpleInterpreter {
   const vxInterpreter = new VxInterpreter({
     electionDefinition,
     testMode,
     markThresholdOverrides,
+    currentPrecinctId,
     adjudicationReasons:
       (SCANNER_LOCATION === ScannerLocation.Central
         ? electionDefinition.election.centralScanAdjudicationReasons
