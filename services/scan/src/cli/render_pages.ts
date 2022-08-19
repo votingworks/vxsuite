@@ -4,7 +4,7 @@ import { Buffer } from 'buffer';
 import chalk from 'chalk';
 import { promises as fs } from 'fs';
 import { basename, dirname, extname, join } from 'path';
-import { ScannerImageFormat } from '../scanners';
+import { ScannerImageFormat } from '../fujitsu_scanner';
 import { Store } from '../store';
 import { writeImageData } from '../util/images';
 import { pdfToImages } from '../util/pdf_to_images';

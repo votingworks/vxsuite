@@ -16,7 +16,7 @@ import { dirSync } from 'tmp';
 import { v4 as uuid } from 'uuid';
 import { makeImageFile, mockWorkerPoolProvider } from '../test/util/mocks';
 import { Importer } from './importer';
-import { BatchControl, BatchScanner } from './scanners';
+import { BatchControl, BatchScanner } from './fujitsu_scanner';
 import { createWorkspace, Workspace } from './util/workspace';
 import * as workers from './workers/combined';
 

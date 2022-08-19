@@ -1,11 +1,11 @@
 import { Logger, LogSource } from '@votingworks/logging';
 import { BallotPaperSize } from '@votingworks/types';
 import { ChildProcess } from 'child_process';
-import { FujitsuScanner, ScannerMode } from '.';
-import { makeMockChildProcess } from '../../test/util/mocks';
-import { streamExecFile } from '../exec';
+import { FujitsuScanner, ScannerMode } from './fujitsu_scanner';
+import { makeMockChildProcess } from '../test/util/mocks';
+import { streamExecFile } from './exec';
 
-jest.mock('../exec');
+jest.mock('./exec');
 
 const exec = streamExecFile as unknown as jest.MockedFunction<
   (file: string, args: readonly string[]) => ChildProcess

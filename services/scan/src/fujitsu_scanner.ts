@@ -4,18 +4,39 @@ import { join } from 'path';
 import { dirSync } from 'tmp';
 import { BallotPaperSize } from '@votingworks/types';
 import { LogEventId, Logger } from '@votingworks/logging';
-import {
-  BatchControl,
-  BatchScanner,
-  ScannerImageFormat,
-  ScannerMode,
-  ScanOptions,
-} from './types';
-import { streamExecFile } from '../exec';
-import { SheetOf } from '../types';
-import { StreamLines } from '../util/stream_lines';
+import { streamExecFile } from './exec';
+import { StreamLines } from './util/stream_lines';
+import { SheetOf } from './types';
 
 const debug = makeDebug('scan:scanner');
+
+export interface BatchControl {
+  scanSheet(): Promise<SheetOf<string> | undefined>;
+  acceptSheet(): Promise<boolean>;
+  reviewSheet(): Promise<boolean>;
+  rejectSheet(): Promise<boolean>;
+  endBatch(): Promise<void>;
+}
+
+export interface ScanOptions {
+  directory?: string;
+  pageSize?: BallotPaperSize;
+}
+
+export interface BatchScanner {
+  scanSheets(options?: ScanOptions): BatchControl;
+}
+
+export enum ScannerImageFormat {
+  JPEG = 'jpeg',
+  PNG = 'png',
+}
+
+export enum ScannerMode {
+  Lineart = 'lineart',
+  Gray = 'gray',
+  Color = 'color',
+}
 
 export interface Options {
   format?: ScannerImageFormat;

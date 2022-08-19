@@ -9,7 +9,7 @@ import {
   VX_MACHINE_TYPE,
 } from './globals';
 import { LoopScanner, parseBatchesFromEnv } from './loop_scanner';
-import { BatchScanner } from './scanners';
+import { BatchScanner } from './fujitsu_scanner';
 import * as server from './server';
 import { plustekMockServer } from './plustek_mock_server';
 

@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs-extra';
 import { join, resolve } from 'path';
-import { BatchControl, BatchScanner } from './scanners';
+import { BatchControl, BatchScanner } from './fujitsu_scanner';
 import { SheetOf } from './types';
 
 type Batch = ReadonlyArray<SheetOf<string>>;

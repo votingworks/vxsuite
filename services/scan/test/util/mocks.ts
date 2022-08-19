@@ -9,7 +9,7 @@ import { ChildProcess } from 'child_process';
 import { EventEmitter } from 'events';
 import { fileSync } from 'tmp';
 import { MaybeMocked, mocked } from 'ts-jest/dist/utils/testing';
-import { BatchControl, BatchScanner } from '../../src/scanners';
+import { BatchControl, BatchScanner } from '../../src/fujitsu_scanner';
 import { SheetOf } from '../../src/types';
 import { writeImageData } from '../../src/util/images';
 import { inlinePool, WorkerOps, WorkerPool } from '../../src/workers/pool';

@@ -18,7 +18,7 @@ import * as fsExtra from 'fs-extra';
 import * as streams from 'memory-streams';
 import { join } from 'path';
 import { v4 as uuid } from 'uuid';
-import { BatchControl, BatchScanner } from './scanners';
+import { BatchControl, BatchScanner } from './fujitsu_scanner';
 import { SheetOf } from './types';
 import { Castability, checkSheetCastability } from './util/castability';
 import { HmpbInterpretationError } from './util/hmpb_interpretation_error';

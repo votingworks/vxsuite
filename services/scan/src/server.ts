@@ -9,7 +9,7 @@ import { createClient } from '@votingworks/plustek-sdk';
 import { assert } from '@votingworks/utils';
 import { PORT, SCAN_WORKSPACE, VX_MACHINE_TYPE } from './globals';
 import { Importer } from './importer';
-import { FujitsuScanner, BatchScanner, ScannerMode } from './scanners';
+import { FujitsuScanner, BatchScanner, ScannerMode } from './fujitsu_scanner';
 import { createWorkspace, Workspace } from './util/workspace';
 import * as workers from './workers/combined';
 import { childProcessPool, WorkerPool } from './workers/pool';
