@@ -5,10 +5,9 @@ import {
 } from '@votingworks/plustek-sdk';
 import { err, ok } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
-import request from 'supertest';
 import { sleep } from '@votingworks/utils';
 import { makeMockPlustekClient } from '../../test/util/mocks';
-import { plustekMockServer, PlustekScanner, withReconnect } from './plustek';
+import { PlustekScanner, withReconnect } from './plustek';
 
 test('plustek scanner cannot get client', async () => {
   const scanner = new PlustekScanner({
@@ -202,45 +201,6 @@ test('plustek scanner calibrate', async () => {
     err(ScannerError.VtmPsDevReadyNoPaper)
   );
   expect(await scanner.calibrate()).toEqual(false);
-});
-
-test('mock server', async () => {
-  const client = new MockScannerClient({
-    passthroughDuration: 0,
-    toggleHoldDuration: 0,
-  });
-  const app = plustekMockServer(client);
-
-  // before connect fails
-  await request(app)
-    .put('/mock')
-    .set('Content-Type', 'application/json')
-    .send({ files: ['front.jpg', 'back.jpg'] })
-    .expect(400);
-
-  await client.connect();
-
-  // bad request
-  await request(app)
-    .put('/mock')
-    .set('Content-Type', 'application/json')
-    .send({
-      /* missing files */
-    })
-    .expect(400);
-
-  // successful
-  await request(app)
-    .put('/mock')
-    .set('Content-Type', 'application/json')
-    .send({ files: ['front.jpg', 'back.jpg'] })
-    .expect(200);
-
-  // removes mock
-  await request(app).delete('/mock').expect(200);
-
-  // fails because it's already removed
-  await request(app).delete('/mock').expect(400);
 });
 
 test('withReconnect', async () => {
