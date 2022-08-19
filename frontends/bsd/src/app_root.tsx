@@ -83,7 +83,6 @@ export function AppRoot({ card, hardware, logger }: AppRootProps): JSX.Element {
     canUnconfigure: true,
     batches: [],
     adjudication: { remaining: 0, adjudicated: 0 },
-    scanner: Scan.ScannerStatus.Unknown,
   });
   const currentNumberOfBallots = status.batches.reduce(
     (prev, next) => prev + next.count,

@@ -1,5 +1,4 @@
 import { BallotPaperSize } from '@votingworks/types';
-import { Scan } from '@votingworks/api';
 import { SheetOf } from '../types';
 
 export interface BatchControl {
@@ -16,7 +15,6 @@ export interface ScanOptions {
 }
 
 export interface Scanner {
-  getStatus(): Promise<Scan.ScannerStatus>;
   scanSheets(options?: ScanOptions): BatchControl;
   calibrate(): Promise<boolean>;
 }

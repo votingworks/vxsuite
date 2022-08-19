@@ -616,22 +616,17 @@ export class Importer {
   /**
    * Get the imported batches and current election info, if any.
    */
-  async getStatus(): Promise<Scan.ScanStatus> {
+  getStatus(): Scan.ScanStatus {
     const electionDefinition = this.workspace.store.getElectionDefinition();
     const canUnconfigure = this.workspace.store.getCanUnconfigure();
     const batches = this.workspace.store.batchStatus();
     const adjudication = this.workspace.store.adjudicationStatus();
-    const scanner = await this.scanner.getStatus();
 
     return {
       electionHash: electionDefinition?.electionHash,
       batches,
       canUnconfigure,
       adjudication,
-      scanner:
-        adjudication.remaining > 0 && scanner === Scan.ScannerStatus.ReadyToScan
-          ? Scan.ScannerStatus.Rejected
-          : scanner,
     };
   }
 

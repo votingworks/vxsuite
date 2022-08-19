@@ -61,7 +61,6 @@ beforeEach(() => {
       canUnconfigure: false,
       batches: [],
       adjudication: { adjudicated: 0, remaining: 0 },
-      scanner: Scan.ScannerStatus.Unknown,
     })
   );
   fetchMock.get(
@@ -299,7 +298,6 @@ test('clicking "Save CVRs" shows modal and makes a request to export', async () 
       },
     ],
     adjudication: { adjudicated: 0, remaining: 0 },
-    scanner: Scan.ScannerStatus.Unknown,
   };
   fetchMock
     .get('/central-scanner/config/election', { body: getElectionResponseBody })

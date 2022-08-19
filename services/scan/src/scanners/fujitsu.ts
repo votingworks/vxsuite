@@ -1,4 +1,3 @@
-import { Scan } from '@votingworks/api';
 import { assert, deferredQueue, throwIllegalValue } from '@votingworks/utils';
 import makeDebug from 'debug';
 import { join } from 'path';
@@ -48,11 +47,6 @@ export class FujitsuScanner implements Scanner {
     this.format = format;
     this.mode = mode;
     this.logger = logger;
-  }
-
-  // eslint-disable-next-line @typescript-eslint/require-await
-  async getStatus(): Promise<Scan.ScannerStatus> {
-    return Scan.ScannerStatus.Unknown;
   }
 
   scanSheets({

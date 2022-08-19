@@ -1,6 +1,5 @@
 import { Logger, LogSource } from '@votingworks/logging';
 import { BallotPaperSize } from '@votingworks/types';
-import { Scan } from '@votingworks/api';
 import { ChildProcess } from 'child_process';
 import { FujitsuScanner, ScannerMode } from '.';
 import { makeMockChildProcess } from '../../test/util/mocks';
@@ -251,13 +250,6 @@ test('fujitsu scanner fails if scanSheet fails', async () => {
 
   scanimage.emit('exit', 1, null);
   await expect(sheets.scanSheet()).rejects.toThrowError();
-});
-
-test('fujitsu scanner status is always unknown', async () => {
-  const scanner = new FujitsuScanner({
-    logger: new Logger(LogSource.VxScanService),
-  });
-  expect(await scanner.getStatus()).toEqual(Scan.ScannerStatus.Unknown);
 });
 
 test('fujitsu scanner accept/reject/review are no-ops', async () => {

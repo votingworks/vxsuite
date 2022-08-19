@@ -1,4 +1,3 @@
-import { Scan } from '@votingworks/api';
 import { readFileSync } from 'fs-extra';
 import { join, resolve } from 'path';
 import { BatchControl, Scanner } from './scanners';
@@ -84,10 +83,6 @@ export class LoopScanner implements Scanner {
    * @param batches lists of front/back pairs of sheets to scan
    */
   constructor(private readonly batches: readonly Batch[]) {}
-
-  async getStatus(): Promise<Scan.ScannerStatus> {
-    return Scan.ScannerStatus.Unknown;
-  }
 
   /**
    * "Scans" the next sheet by returning the paths for the next two images.
