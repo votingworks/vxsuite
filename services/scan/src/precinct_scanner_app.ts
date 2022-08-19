@@ -40,6 +40,7 @@ async function configureMachine(
     ballotImagesPath: workspace.ballotImagesPath,
     testMode: store.getTestMode(),
     markThresholdOverrides: store.getMarkThresholdOverrides(),
+    currentPrecinctId: store.getCurrentPrecinctId(),
     layouts,
   });
 
@@ -195,7 +196,7 @@ export function buildPrecinctScannerApp(
     NoParams,
     Scan.PutCurrentPrecinctConfigResponse,
     Scan.PutCurrentPrecinctConfigRequest
-  >('/config/precinct', (request, response) => {
+  >('/config/precinct', async (request, response) => {
     const bodyParseResult = safeParse(
       Scan.PutCurrentPrecinctConfigRequestSchema,
       request.body
@@ -209,15 +210,16 @@ export function buildPrecinctScannerApp(
       });
       return;
     }
-
     store.setCurrentPrecinctId(bodyParseResult.ok().precinctId);
+    await configureMachine(machine, workspace);
     response.json({ status: 'ok' });
   });
 
   app.delete<NoParams, Scan.DeleteCurrentPrecinctConfigResponse>(
     '/config/precinct',
-    (_request, response) => {
+    async (_request, response) => {
       store.setCurrentPrecinctId(undefined);
+      await configureMachine(machine, workspace);
       response.json({ status: 'ok' });
     }
   );
