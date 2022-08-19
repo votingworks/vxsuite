@@ -1,5 +1,4 @@
 import * as z from 'zod';
-import { Iso8601Timestamp, Iso8601TimestampSchema } from './api';
 import {
   AdjudicationInfo,
   AdjudicationInfoSchema,
@@ -16,7 +15,12 @@ import {
   VotesDict,
   VotesDictSchema,
 } from './election';
-import { Id, IdSchema } from './generic';
+import {
+  Id,
+  IdSchema,
+  Iso8601Timestamp,
+  Iso8601TimestampSchema,
+} from './generic';
 import { BallotPageLayout, BallotPageLayoutSchema } from './hmpb';
 
 export interface BlankPage {

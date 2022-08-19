@@ -10,6 +10,8 @@ import {
   ElectionDefinitionSchema,
   ElectionHash,
   IdSchema,
+  Iso8601Timestamp,
+  Iso8601TimestampSchema,
   MarkAdjudications,
   MarkAdjudicationsSchema,
   MarkThresholds,
@@ -21,8 +23,6 @@ import * as z from 'zod';
 import {
   ErrorsResponse,
   ErrorsResponseSchema,
-  Iso8601Timestamp,
-  Iso8601TimestampSchema,
   OkResponse,
   OkResponseSchema,
 } from '../../base';

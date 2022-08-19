@@ -125,9 +125,6 @@ export const ElectionHash: z.ZodSchema<string> = z
     (hash) => /^[0-9a-f]*$/i.test(hash),
     'Election hashes must be hex strings containing only 0-9 and a-f'
   );
-export const Iso8601Date = z
-  .string()
-  .refine(check8601, 'dates must be in ISO8601 format');
 export const MachineId = z
   .string()
   .nonempty()
@@ -135,3 +132,9 @@ export const MachineId = z
     (id) => /^[-A-Z\d]+$/.test(id),
     'Machine IDs may only contain numbers, uppercase letters, and dashes'
   );
+
+export const Iso8601Date = z
+  .string()
+  .refine(check8601, 'dates must be in ISO8601 format');
+export type Iso8601Timestamp = string;
+export const Iso8601TimestampSchema = Iso8601Date;

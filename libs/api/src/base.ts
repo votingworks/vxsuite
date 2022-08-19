@@ -1,9 +1,4 @@
 import * as z from 'zod';
-import { Iso8601Date } from '@votingworks/types';
-
-export type Iso8601Timestamp = string;
-
-export const Iso8601TimestampSchema = Iso8601Date;
 
 export type OkResponse<Props = Record<string, unknown>> = {
   status: 'ok';

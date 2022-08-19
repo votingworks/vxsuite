@@ -6,8 +6,7 @@ import {
   safeParseJson,
   unsafeParse,
 } from '@votingworks/types';
-import { Scan } from '@votingworks/api';
-import { ErrorsResponse, OkResponse } from '@votingworks/types/src/api';
+import { ErrorsResponse, OkResponse, Scan } from '@votingworks/api';
 import { fetchJson } from '@votingworks/utils';
 
 async function patch<Body extends string | ArrayBuffer | unknown>(
