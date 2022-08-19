@@ -17,6 +17,7 @@ import fetchMock from 'fetch-mock';
 import {
   electionWithMsEitherNeitherFixtures,
   electionSampleDefinition,
+  electionFamousNames2021Fixtures,
 } from '@votingworks/fixtures';
 import {
   MemoryStorage,
@@ -30,7 +31,6 @@ import {
   fakePrinterInfo,
   fakeUsbDrive,
   makeElectionManagerCard,
-  mockOf,
 } from '@votingworks/test-utils';
 import {
   ElectionManagerCardData,
@@ -39,7 +39,6 @@ import {
   VotingMethod,
 } from '@votingworks/types';
 import { LogEventId } from '@votingworks/logging';
-import { areVvsg2AuthFlowsEnabled } from '@votingworks/ui';
 
 import { externalVoteTalliesFileStorageKey } from './app_root';
 import { App } from './app';
@@ -83,24 +82,6 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
     randomBallotId: () => 'Asdf1234Asdf12',
   };
 });
-jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => {
-  const original: typeof import('@votingworks/ui') =
-    jest.requireActual('@votingworks/ui');
-  return {
-    ...original,
-    areVvsg2AuthFlowsEnabled: jest.fn(),
-  };
-});
-
-function enableVvsg2AuthFlows() {
-  mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => true);
-  process.env['REACT_APP_VX_ENABLE_VVSG2_AUTH_FLOWS'] = 'true';
-}
-
-function disableVvsg2AuthFlows() {
-  mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => false);
-  process.env['REACT_APP_VX_ENABLE_VVSG2_AUTH_FLOWS'] = undefined;
-}
 
 let mockKiosk!: jest.Mocked<KioskBrowser.Kiosk>;
 
@@ -142,7 +123,6 @@ beforeEach(() => {
     })
   );
   fetchMock.get('/admin/write-ins/cvrs/reset', { body: { status: 'ok ' } });
-  disableVvsg2AuthFlows();
 });
 
 afterEach(() => {
@@ -156,6 +136,7 @@ test('create election works', async () => {
   const { getByText, getAllByText, queryAllByText, getByTestId } = render(
     <App card={card} hardware={hardware} />
   );
+  await authenticateWithSystemAdministratorCard(card);
   await screen.findByText('Load Demo Election Definition');
   fireEvent.click(getByText('Load Demo Election Definition'));
 
@@ -167,8 +148,8 @@ test('create election works', async () => {
   fireEvent.click(getByText('Ballots'));
   fireEvent.click(getAllByText('View Ballot')[0]);
 
-  // You can view the advanced screen and save log files when there is an election.
-  fireEvent.click(screen.getByText('Advanced'));
+  // You can view the Logs screen and save log files when there is an election.
+  fireEvent.click(screen.getByText('Logs'));
   fireEvent.click(screen.getByText('Save Log File'));
   await screen.findByText('No Log File Present');
   fireEvent.click(screen.getByText('Close'));
@@ -191,8 +172,8 @@ test('create election works', async () => {
     expect.stringContaining(LogEventId.ElectionUnconfigured)
   );
 
-  // You can view the advanced screen and save log files when there is no election.
-  fireEvent.click(screen.getByText('Advanced'));
+  // You can view the Logs screen and save log files when there is no election.
+  fireEvent.click(screen.getByText('Logs'));
   fireEvent.click(screen.getByText('Save Log File'));
   await screen.findByText('No Log File Present');
   fireEvent.click(screen.getByText('Close'));
@@ -200,7 +181,7 @@ test('create election works', async () => {
   // You can not save as CDF when there is no election.
   expect(screen.queryAllByText('No Log File Present')).toHaveLength(0);
 
-  fireEvent.click(screen.getByText('Configure'));
+  fireEvent.click(screen.getByText('Definition'));
   await screen.findByText('Load Demo Election Definition');
 });
 
@@ -284,18 +265,18 @@ test('authentication works', async () => {
   // Machine is unlocked when card removed
   card.removeCard();
   await advanceTimersAndPromises(1);
-  await screen.findByText('Definition');
+  await screen.findByText('Ballots');
 
   // The card and other cards can be inserted with no impact.
   card.insertCard(electionManagerCard);
   await advanceTimersAndPromises(1);
-  await screen.findByText('Definition');
+  await screen.findByText('Ballots');
   card.removeCard();
   await advanceTimersAndPromises(1);
-  await screen.findByText('Definition');
+  await screen.findByText('Ballots');
   card.insertCard(pollWorkerCard);
   await advanceTimersAndPromises(1);
-  await screen.findByText('Definition');
+  await screen.findByText('Ballots');
   card.removeCard();
   await advanceTimersAndPromises(1);
 
@@ -990,12 +971,21 @@ test('changing election resets sems, cvr, and manual data files', async () => {
     expect(getByTestId('total-ballot-count').textContent).toEqual('300')
   );
 
+  userEvent.click(screen.getByText('Lock Machine'));
+  await authenticateWithSystemAdministratorCard(card);
+
   fireEvent.click(getByText('Definition'));
   fireEvent.click(getByText('Remove Election'));
   fireEvent.click(getByText('Remove Election Definition'));
   await waitFor(() => {
     fireEvent.click(getByText('Load Demo Election Definition'));
   });
+
+  userEvent.click(screen.getByText('Lock Machine'));
+  await authenticateWithElectionManagerCard(
+    card,
+    electionFamousNames2021Fixtures.electionDefinition
+  );
 
   fireEvent.click(getByText('Tally'));
   getByText('No CVR files loaded.');
@@ -1093,9 +1083,7 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
   getByText('No CVR files loaded.');
 });
 
-test('election manager UI has expected nav when VVSG2 auth flows are enabled', async () => {
-  enableVvsg2AuthFlows();
-
+test('election manager UI has expected nav', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const storage = await createMemoryStorageWith({
@@ -1124,9 +1112,7 @@ test('election manager UI has expected nav when VVSG2 auth flows are enabled', a
   expect(screen.queryByText('Advanced')).not.toBeInTheDocument();
 });
 
-test('system administrator UI has expected nav when VVSG2 auth flows are enabled', async () => {
-  enableVvsg2AuthFlows();
-
+test('system administrator UI has expected nav', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const storage = await createMemoryStorageWith({
@@ -1148,9 +1134,7 @@ test('system administrator UI has expected nav when VVSG2 auth flows are enabled
   screen.getByRole('button', { name: 'Lock Machine' });
 });
 
-test('system administrator UI has expected nav when no election and VVSG2 auth flows are enabled', async () => {
-  enableVvsg2AuthFlows();
-
+test('system administrator UI has expected nav when no election', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
@@ -1196,8 +1180,6 @@ test('system administrator UI has expected nav when no election and VVSG2 auth f
 });
 
 test('system administrator Smartcards screen navigation', async () => {
-  enableVvsg2AuthFlows();
-
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const storage = await createMemoryStorageWith({
@@ -1216,9 +1198,7 @@ test('system administrator Smartcards screen navigation', async () => {
   // The smartcard modal and smartcard programming flows are tested in smartcard_modal.test.tsx
 });
 
-test('election manager cannot auth onto unconfigured machine when VVSG2 auth flows are enabled', async () => {
-  enableVvsg2AuthFlows();
-
+test('election manager cannot auth onto unconfigured machine', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const storage = new MemoryStorage();
@@ -1236,9 +1216,7 @@ test('election manager cannot auth onto unconfigured machine when VVSG2 auth flo
   );
 });
 
-test('election manager cannot auth onto machine with different election hash when VVSG2 auth flows are enabled', async () => {
-  enableVvsg2AuthFlows();
-
+test('election manager cannot auth onto machine with different election hash', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const storage = await createMemoryStorageWith({
@@ -1262,8 +1240,6 @@ test('election manager cannot auth onto machine with different election hash whe
 });
 
 test('system administrator Ballots tab and election manager Ballots tab have expected differences', async () => {
-  enableVvsg2AuthFlows();
-
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const storage = await createMemoryStorageWith({

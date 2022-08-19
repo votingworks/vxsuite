@@ -35,20 +35,6 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           role="option"
           type="button"
         >
-          Definition
-        </button>
-        <button
-          class="sc-iBPRYJ fvkSI"
-          role="option"
-          type="button"
-        >
-          Smartcards
-        </button>
-        <button
-          class="sc-iBPRYJ fvkSI"
-          role="option"
-          type="button"
-        >
           Ballots
         </button>
         <button
@@ -71,13 +57,6 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           type="button"
         >
           Reports
-        </button>
-        <button
-          class="sc-iBPRYJ fvkSI"
-          role="option"
-          type="button"
-        >
-          Advanced
         </button>
       </div>
       <div
@@ -1483,20 +1462,6 @@ exports[`L&A (logic and accuracy) flow 2`] = `
           role="option"
           type="button"
         >
-          Definition
-        </button>
-        <button
-          class="sc-iBPRYJ fvkSI"
-          role="option"
-          type="button"
-        >
-          Smartcards
-        </button>
-        <button
-          class="sc-iBPRYJ fvkSI"
-          role="option"
-          type="button"
-        >
           Ballots
         </button>
         <button
@@ -1519,13 +1484,6 @@ exports[`L&A (logic and accuracy) flow 2`] = `
           type="button"
         >
           Reports
-        </button>
-        <button
-          class="sc-iBPRYJ fvkSI"
-          role="option"
-          type="button"
-        >
-          Advanced
         </button>
       </div>
       <div
@@ -2965,20 +2923,6 @@ exports[`L&A (logic and accuracy) flow 3`] = `
           role="option"
           type="button"
         >
-          Definition
-        </button>
-        <button
-          class="sc-iBPRYJ fvkSI"
-          role="option"
-          type="button"
-        >
-          Smartcards
-        </button>
-        <button
-          class="sc-iBPRYJ fvkSI"
-          role="option"
-          type="button"
-        >
           Ballots
         </button>
         <button
@@ -3001,13 +2945,6 @@ exports[`L&A (logic and accuracy) flow 3`] = `
           type="button"
         >
           Reports
-        </button>
-        <button
-          class="sc-iBPRYJ fvkSI"
-          role="option"
-          type="button"
-        >
-          Advanced
         </button>
       </div>
       <div
