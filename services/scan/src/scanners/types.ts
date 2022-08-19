@@ -14,7 +14,7 @@ export interface ScanOptions {
   pageSize?: BallotPaperSize;
 }
 
-export interface Scanner {
+export interface BatchScanner {
   scanSheets(options?: ScanOptions): BatchControl;
 }
 

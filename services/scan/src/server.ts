@@ -9,7 +9,7 @@ import { createClient } from '@votingworks/plustek-sdk';
 import { assert } from '@votingworks/utils';
 import { PORT, SCAN_WORKSPACE, VX_MACHINE_TYPE } from './globals';
 import { Importer } from './importer';
-import { FujitsuScanner, Scanner, ScannerMode } from './scanners';
+import { FujitsuScanner, BatchScanner, ScannerMode } from './scanners';
 import { createWorkspace, Workspace } from './util/workspace';
 import * as workers from './workers/combined';
 import { childProcessPool, WorkerPool } from './workers/pool';
@@ -23,7 +23,7 @@ import { createInterpreter } from './precinct_scanner_interpreter';
 
 export interface StartOptions {
   port: number | string;
-  scanner: Scanner;
+  scanner: BatchScanner;
   importer: Importer;
   app: Application;
   createPlustekClient: CreatePlustekClient;
@@ -87,7 +87,7 @@ export async function start({
     );
   } else {
     assert(machineType === 'bsd');
-    let resolvedScanner: Scanner;
+    let resolvedScanner: BatchScanner;
     if (scanner) {
       resolvedScanner = scanner;
     } else {

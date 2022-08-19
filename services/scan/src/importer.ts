@@ -18,7 +18,7 @@ import * as fsExtra from 'fs-extra';
 import * as streams from 'memory-streams';
 import { join } from 'path';
 import { v4 as uuid } from 'uuid';
-import { BatchControl, Scanner } from './scanners';
+import { BatchControl, BatchScanner } from './scanners';
 import { SheetOf } from './types';
 import { Castability, checkSheetCastability } from './util/castability';
 import { HmpbInterpretationError } from './util/hmpb_interpretation_error';
@@ -38,7 +38,7 @@ const debug = makeDebug('scan:importer');
 
 export interface Options {
   workspace: Workspace;
-  scanner: Scanner;
+  scanner: BatchScanner;
   workerPoolProvider?: () => WorkerPool<workers.Input, workers.Output>;
 }
 
@@ -47,7 +47,7 @@ export interface Options {
  */
 export class Importer {
   private readonly workspace: Workspace;
-  private readonly scanner: Scanner;
+  private readonly scanner: BatchScanner;
   private sheetGenerator?: BatchControl;
   private batchId?: string;
   private workerPool?: WorkerPool<workers.Input, workers.Output>;

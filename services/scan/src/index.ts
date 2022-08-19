@@ -9,7 +9,7 @@ import {
   VX_MACHINE_TYPE,
 } from './globals';
 import { LoopScanner, parseBatchesFromEnv } from './loop_scanner';
-import { Scanner } from './scanners';
+import { BatchScanner } from './scanners';
 import * as server from './server';
 import { plustekMockServer } from './plustek_mock_server';
 
@@ -38,7 +38,7 @@ const createPlustekClient =
     ? createMockPlustekClient
     : undefined;
 
-function getScanner(): Scanner | undefined {
+function getScanner(): BatchScanner | undefined {
   if (VX_MACHINE_TYPE !== 'bsd') return undefined;
 
   const mockScannerFiles = parseBatchesFromEnv(MOCK_SCANNER_FILES);

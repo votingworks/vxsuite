@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs-extra';
 import { join, resolve } from 'path';
-import { BatchControl, Scanner } from './scanners';
+import { BatchControl, BatchScanner } from './scanners';
 import { SheetOf } from './types';
 
 type Batch = ReadonlyArray<SheetOf<string>>;
@@ -76,7 +76,7 @@ export function parseBatchesFromEnv(env?: string): Batch[] | undefined {
  * Provides mock scanning services by copying the same set of images over and
  * over again on demand.
  */
-export class LoopScanner implements Scanner {
+export class LoopScanner implements BatchScanner {
   private nextBatchIndex = 0;
 
   /**

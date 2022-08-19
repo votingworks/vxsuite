@@ -6,7 +6,7 @@ import { BallotPaperSize } from '@votingworks/types';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
   BatchControl,
-  Scanner,
+  BatchScanner,
   ScannerImageFormat,
   ScannerMode,
   ScanOptions,
@@ -38,7 +38,7 @@ function dateStamp(date: Date = new Date()): string {
 /**
  * Scans duplex images in batch mode from a Fujitsu scanner.
  */
-export class FujitsuScanner implements Scanner {
+export class FujitsuScanner implements BatchScanner {
   private readonly format: ScannerImageFormat;
   private readonly mode?: ScannerMode;
   private readonly logger: Logger;

@@ -9,7 +9,7 @@ import { ChildProcess } from 'child_process';
 import { EventEmitter } from 'events';
 import { fileSync } from 'tmp';
 import { MaybeMocked, mocked } from 'ts-jest/dist/utils/testing';
-import { BatchControl, Scanner } from '../../src/scanners';
+import { BatchControl, BatchScanner } from '../../src/scanners';
 import { SheetOf } from '../../src/types';
 import { writeImageData } from '../../src/util/images';
 import { inlinePool, WorkerOps, WorkerPool } from '../../src/workers/pool';
@@ -90,7 +90,7 @@ class ScannerSessionPlan {
   }
 }
 
-export interface MockScanner extends Scanner {
+export interface MockScanner extends BatchScanner {
   withNextScannerSession(): ScannerSessionPlan;
 }
 
