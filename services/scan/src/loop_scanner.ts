@@ -116,8 +116,4 @@ export class LoopScanner implements Scanner {
       },
     };
   }
-
-  async calibrate(): Promise<boolean> {
-    return false;
-  }
 }

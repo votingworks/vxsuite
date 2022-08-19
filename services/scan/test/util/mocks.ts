@@ -152,11 +152,6 @@ export function makeMockScanner(): MockScanner {
       };
     },
 
-    // eslint-disable-next-line @typescript-eslint/require-await
-    async calibrate(): Promise<boolean> {
-      return true;
-    },
-
     /**
      * Gets the next scanner session to be used when `scanSheets` is called.
      */

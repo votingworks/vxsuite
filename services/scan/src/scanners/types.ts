@@ -16,7 +16,6 @@ export interface ScanOptions {
 
 export interface Scanner {
   scanSheets(options?: ScanOptions): BatchControl;
-  calibrate(): Promise<boolean>;
 }
 
 export enum ScannerImageFormat {

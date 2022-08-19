@@ -214,9 +214,4 @@ export class FujitsuScanner implements Scanner {
       },
     };
   }
-
-  // eslint-disable-next-line @typescript-eslint/require-await
-  async calibrate(): Promise<boolean> {
-    return false;
-  }
 }

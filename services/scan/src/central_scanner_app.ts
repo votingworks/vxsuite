@@ -496,28 +496,6 @@ export async function buildCentralScannerApp({
     }
   );
 
-  app.post<NoParams, Scan.CalibrateResponse, Scan.CalibrateRequest>(
-    '/central-scanner/scan/calibrate',
-    async (_request, response) => {
-      const success = await importer.doCalibrate();
-      response.json(
-        success
-          ? {
-              status: 'ok',
-            }
-          : {
-              status: 'error',
-              errors: [
-                {
-                  type: 'calibration-error',
-                  message: 'scanner could not be calibrated',
-                },
-              ],
-            }
-      );
-    }
-  );
-
   app.get(
     '/central-scanner/scan/hmpb/ballot/:sheetId/:side/image',
     (request, response) => {

@@ -264,10 +264,3 @@ test('fujitsu scanner accept/reject/review are no-ops', async () => {
   expect(await sheets.rejectSheet()).toEqual(false);
   expect(await sheets.reviewSheet()).toEqual(false);
 });
-
-test('fujitsu scanner calibrate is a no-op', async () => {
-  const scanner = new FujitsuScanner({
-    logger: new Logger(LogSource.VxScanService),
-  });
-  expect(await scanner.calibrate()).toEqual(false);
-});
