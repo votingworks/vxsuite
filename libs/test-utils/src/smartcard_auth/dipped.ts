@@ -54,7 +54,6 @@ export function fakeLoggedOutAuth(
   return {
     status: 'logged_out',
     reason: 'machine_locked',
-    bootstrapAuthenticatedElectionManagerSession: jest.fn(),
     ...props,
   };
 }

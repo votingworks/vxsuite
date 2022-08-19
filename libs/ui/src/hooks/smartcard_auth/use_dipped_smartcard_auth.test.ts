@@ -347,34 +347,6 @@ describe('useDippedSmartcardAuth', () => {
     );
   });
 
-  it('can bootstrap an election manager session', async () => {
-    const logger = fakeLogger();
-    const cardApi = new MemoryCard();
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useDippedSmartcardAuth({
-        cardApi,
-        logger,
-        scope: { electionDefinition },
-      })
-    );
-    act(() => {
-      assert(result.current.status === 'logged_out');
-      result.current.bootstrapAuthenticatedElectionManagerSession(electionHash);
-    });
-    await waitForNextUpdate();
-    expect(result.current).toMatchObject({
-      status: 'logged_in',
-      user: fakeElectionManagerUser({ electionHash, passcode: '000000' }),
-    });
-
-    expect(logger.log).toHaveBeenCalledTimes(1);
-    expect(logger.log).toHaveBeenLastCalledWith(
-      LogEventId.AuthLogin,
-      'election_manager',
-      expect.objectContaining({ disposition: 'success' })
-    );
-  });
-
   it('returns logged_out auth when the card is not programmed correctly', async () => {
     const logger = fakeLogger();
     const cardApi = new MemoryCard();

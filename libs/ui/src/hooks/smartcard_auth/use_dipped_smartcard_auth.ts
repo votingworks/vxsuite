@@ -62,8 +62,7 @@ type SmartcardAuthAction =
       cardSummary: CardSummary;
     }
   | { type: 'check_passcode'; passcode: string }
-  | { type: 'log_out' }
-  | { type: 'bootstrap_election_manager_session'; electionHash: string };
+  | { type: 'log_out' };
 
 function validateCardUser(
   user: Optional<User>,
@@ -182,19 +181,6 @@ function smartcardAuthReducer(scope: DippedSmartcardAuthScope) {
           auth: { status: 'logged_out', reason: 'machine_locked' },
         };
 
-      case 'bootstrap_election_manager_session':
-        return {
-          ...previousState,
-          auth: {
-            status: 'logged_in',
-            user: {
-              role: 'election_manager',
-              electionHash: action.electionHash,
-              passcode: '000000',
-            },
-          },
-        };
-
       /* istanbul ignore next - compile time check for completeness */
       default:
         throwIllegalValue(action, 'type');
@@ -228,14 +214,7 @@ function useDippedSmartcardAuthBase({
 
   switch (auth.status) {
     case 'logged_out':
-      return {
-        ...auth,
-        bootstrapAuthenticatedElectionManagerSession: (electionHash: string) =>
-          dispatch({
-            type: 'bootstrap_election_manager_session',
-            electionHash,
-          }),
-      };
+      return auth;
 
     case 'checking_passcode': {
       return {
@@ -302,18 +281,12 @@ async function logAuthEvents(
   previousAuth: DippedSmartcardAuth.Auth = {
     status: 'logged_out',
     reason: 'machine_locked',
-    bootstrapAuthenticatedElectionManagerSession:
-      /* istanbul ignore next */ () => undefined,
   },
   auth: DippedSmartcardAuth.Auth
 ) {
   switch (previousAuth.status) {
     case 'logged_out': {
-      if (auth.status === 'logged_in') {
-        await logger.log(LogEventId.AuthLogin, auth.user.role, {
-          disposition: LogDispositionStandardTypes.Success,
-        });
-      } else if (
+      if (
         previousAuth.reason === 'machine_locked' &&
         auth.status === 'logged_out' &&
         auth.reason !== 'machine_locked'
