@@ -13,12 +13,14 @@ export interface AppContextInterface {
   currentPrecinctId?: PrecinctId;
   currentMarkThresholds?: MarkThresholds;
   auth: InsertedSmartcardAuth.Auth;
+  isSoundMuted: boolean;
 }
 
 const appContext: AppContextInterface = {
   electionDefinition: undefined,
   currentPrecinctId: undefined,
   currentMarkThresholds: undefined,
+  isSoundMuted: false,
   machineConfig: {
     machineId: '0000',
     codeVersion: '',

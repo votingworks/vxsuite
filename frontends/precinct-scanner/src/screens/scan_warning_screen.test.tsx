@@ -19,6 +19,7 @@ function renderScreen(props: Props) {
         },
         electionDefinition: electionSampleDefinition,
         auth: Inserted.fakeLoggedOutAuth(),
+        isSoundMuted: false,
       }}
     >
       <ScanWarningScreen {...props} />
