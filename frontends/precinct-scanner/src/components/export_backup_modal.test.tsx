@@ -31,6 +31,7 @@ test('renders loading screen when USB drive is mounting or ejecting in export mo
         value={{
           electionDefinition: electionSampleDefinition,
           machineConfig,
+          isSoundMuted: false,
           auth,
         }}
       >
@@ -59,6 +60,7 @@ test('render no USB found screen when there is not a mounted USB drive', () => {
         value={{
           electionDefinition: electionSampleDefinition,
           machineConfig,
+          isSoundMuted: false,
           auth,
         }}
       >
@@ -91,6 +93,7 @@ test('render export modal when a USB drive is mounted as expected and allows cus
       value={{
         electionDefinition: electionSampleDefinition,
         machineConfig,
+        isSoundMuted: false,
         auth,
       }}
     >
@@ -117,6 +120,7 @@ test('render export modal when a USB drive is mounted as expected and allows cus
       value={{
         electionDefinition: electionSampleDefinition,
         machineConfig,
+        isSoundMuted: false,
         auth,
       }}
     >
@@ -141,6 +145,7 @@ test('render export modal when a USB drive is mounted as expected and allows aut
     <AppContext.Provider
       value={{
         electionDefinition: electionSampleDefinition,
+        isSoundMuted: false,
         machineConfig,
         auth,
       }}
@@ -175,6 +180,7 @@ test('handles no USB drives', async () => {
     <AppContext.Provider
       value={{
         electionDefinition: electionSampleDefinition,
+        isSoundMuted: false,
         machineConfig,
         auth,
       }}
@@ -207,6 +213,7 @@ test('shows a specific error for file writer failure', async () => {
         electionDefinition: electionSampleDefinition,
         machineConfig,
         auth,
+        isSoundMuted: false,
       }}
     >
       <ExportBackupModal
@@ -243,6 +250,7 @@ test('shows a specific error for fetch failure', async () => {
       value={{
         electionDefinition: electionSampleDefinition,
         machineConfig,
+        isSoundMuted: false,
         auth,
       }}
     >

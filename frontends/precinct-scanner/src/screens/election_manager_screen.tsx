@@ -34,6 +34,7 @@ interface Props {
   updateAppPrecinctId(appPrecinctId: PrecinctId): Promise<void>;
   setMarkThresholdOverrides: (markThresholds?: MarkThresholds) => Promise<void>;
   toggleLiveMode(): Promise<void>;
+  toggleIsSoundMuted(): void;
   unconfigure(): Promise<void>;
   usbDrive: UsbDrive;
 }
@@ -43,12 +44,18 @@ export function ElectionManagerScreen({
   isTestMode,
   updateAppPrecinctId,
   toggleLiveMode,
+  toggleIsSoundMuted,
   setMarkThresholdOverrides,
   unconfigure,
   usbDrive,
 }: Props): JSX.Element {
-  const { electionDefinition, currentPrecinctId, currentMarkThresholds, auth } =
-    useContext(AppContext);
+  const {
+    electionDefinition,
+    currentPrecinctId,
+    currentMarkThresholds,
+    auth,
+    isSoundMuted,
+  } = useContext(AppContext);
   assert(electionDefinition);
   const { election } = electionDefinition;
   assert(isElectionManagerAuth(auth));
@@ -171,9 +178,7 @@ export function ElectionManagerScreen({
           </SetClockButton>
         </p>
         <p>
-          <Button onPress={() => setIsExportingResults(true)}>Save CVRs</Button>
-        </p>
-        <p>
+          <Button onPress={() => setIsExportingResults(true)}>Save CVRs</Button>{' '}
           <Button onPress={() => setIsExportingBackup(true)}>
             Save Backup
           </Button>
@@ -187,6 +192,11 @@ export function ElectionManagerScreen({
         </p>
         <p>
           <Button onPress={openCalibrateScannerModal}>Calibrate Scanner</Button>
+        </p>
+        <p>
+          <Button onPress={toggleIsSoundMuted}>
+            {isSoundMuted ? 'Unmute' : 'Mute'} Sounds
+          </Button>
         </p>
         <p>
           <Button
@@ -296,6 +306,7 @@ export function ElectionManagerScreen({
 export function DefaultPreview(): JSX.Element {
   const { machineConfig, electionDefinition } = useContext(AppContext);
   const [isTestMode, setIsTestMode] = useState(false);
+  const [isSoundMuted, setIsSoundMuted] = useState(false);
   const [precinctId, setPrecinctId] = useState<Precinct['id']>();
   assert(electionDefinition);
   return (
@@ -305,6 +316,7 @@ export function DefaultPreview(): JSX.Element {
         electionDefinition,
         currentPrecinctId: precinctId,
         currentMarkThresholds: undefined,
+        isSoundMuted,
         auth: {
           status: 'logged_in',
           user: {
@@ -332,6 +344,7 @@ export function DefaultPreview(): JSX.Element {
         isTestMode={isTestMode}
         // eslint-disable-next-line @typescript-eslint/require-await
         toggleLiveMode={async () => setIsTestMode((prev) => !prev)}
+        toggleIsSoundMuted={() => setIsSoundMuted((prev) => !prev)}
         unconfigure={() => Promise.resolve()}
         setMarkThresholdOverrides={() => Promise.resolve()}
         // eslint-disable-next-line @typescript-eslint/require-await

@@ -27,6 +27,7 @@ test('renders livecheck screen', async () => {
       value={{
         electionDefinition,
         machineConfig,
+        isSoundMuted: false,
         auth,
       }}
     >

@@ -29,6 +29,7 @@ test('renders loading screen when usb drive is mounting or ejecting in export mo
         value={{
           electionDefinition: electionSampleDefinition,
           machineConfig,
+          isSoundMuted: false,
           auth,
         }}
       >
@@ -58,6 +59,7 @@ test('render no usb found screen when there is not a mounted usb drive', () => {
       <AppContext.Provider
         value={{
           electionDefinition: electionSampleDefinition,
+          isSoundMuted: false,
           machineConfig,
           auth,
         }}
@@ -99,6 +101,7 @@ test('render export modal when a usb drive is mounted as expected and allows cus
       value={{
         electionDefinition: electionSampleDefinition,
         machineConfig,
+        isSoundMuted: false,
         auth,
       }}
     >
@@ -142,6 +145,7 @@ test('render export modal when a usb drive is mounted as expected and allows aut
     <AppContext.Provider
       value={{
         electionDefinition: electionSampleDefinition,
+        isSoundMuted: false,
         machineConfig,
         auth,
       }}
@@ -189,6 +193,7 @@ test('render export modal when a usb drive is mounted as expected and allows aut
     <AppContext.Provider
       value={{
         electionDefinition: electionSampleDefinition,
+        isSoundMuted: false,
         machineConfig,
         auth,
       }}
@@ -219,6 +224,7 @@ test('render export modal with errors when appropriate', async () => {
       value={{
         electionDefinition: electionSampleDefinition,
         machineConfig,
+        isSoundMuted: false,
         auth,
       }}
     >
