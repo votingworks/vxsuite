@@ -1,17 +1,15 @@
-import { ScannerClient } from '@votingworks/plustek-sdk';
 import {
   FakeReadable,
   fakeReadable,
   FakeWritable,
   fakeWritable,
 } from '@votingworks/test-utils';
-import { Scan } from '@votingworks/api';
 import { throwIllegalValue } from '@votingworks/utils';
 import { ChildProcess } from 'child_process';
 import { EventEmitter } from 'events';
 import { fileSync } from 'tmp';
 import { MaybeMocked, mocked } from 'ts-jest/dist/utils/testing';
-import { BatchControl, Scanner } from '../../src/scanners';
+import { BatchControl, BatchScanner } from '../../src/fujitsu_scanner';
 import { SheetOf } from '../../src/types';
 import { writeImageData } from '../../src/util/images';
 import { inlinePool, WorkerOps, WorkerPool } from '../../src/workers/pool';
@@ -92,9 +90,8 @@ class ScannerSessionPlan {
   }
 }
 
-export interface MockScanner extends Scanner {
+export interface MockScanner extends BatchScanner {
   withNextScannerSession(): ScannerSessionPlan;
-  getStatus: jest.MockedFunction<Scanner['getStatus']>;
 }
 
 /**
@@ -114,8 +111,6 @@ export function makeMockScanner(): MockScanner {
   let nextScannerSession: ScannerSessionPlan | undefined;
 
   return {
-    getStatus: jest.fn().mockResolvedValue(Scan.ScannerStatus.Unknown),
-
     scanSheets(): BatchControl {
       const session = nextScannerSession;
       nextScannerSession = undefined;
@@ -154,11 +149,6 @@ export function makeMockScanner(): MockScanner {
           stepIndex = Infinity;
         },
       };
-    },
-
-    // eslint-disable-next-line @typescript-eslint/require-await
-    async calibrate(): Promise<boolean> {
-      return true;
     },
 
     /**
@@ -201,18 +191,4 @@ export async function makeImageFile(): Promise<string> {
     height: 1,
   });
   return imageFile.name;
-}
-
-export function makeMockPlustekClient(): jest.Mocked<ScannerClient> {
-  return {
-    accept: jest.fn(),
-    close: jest.fn(),
-    getPaperStatus: jest.fn(),
-    isConnected: jest.fn(),
-    reject: jest.fn(),
-    scan: jest.fn(),
-    waitForStatus: jest.fn(),
-    calibrate: jest.fn(),
-    kill: jest.fn(),
-  };
 }

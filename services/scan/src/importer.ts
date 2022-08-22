@@ -18,7 +18,7 @@ import * as fsExtra from 'fs-extra';
 import * as streams from 'memory-streams';
 import { join } from 'path';
 import { v4 as uuid } from 'uuid';
-import { BatchControl, Scanner } from './scanners';
+import { BatchControl, BatchScanner } from './fujitsu_scanner';
 import { SheetOf } from './types';
 import { Castability, checkSheetCastability } from './util/castability';
 import { HmpbInterpretationError } from './util/hmpb_interpretation_error';
@@ -38,7 +38,7 @@ const debug = makeDebug('scan:importer');
 
 export interface Options {
   workspace: Workspace;
-  scanner: Scanner;
+  scanner: BatchScanner;
   workerPoolProvider?: () => WorkerPool<workers.Input, workers.Output>;
 }
 
@@ -47,7 +47,7 @@ export interface Options {
  */
 export class Importer {
   private readonly workspace: Workspace;
-  private readonly scanner: Scanner;
+  private readonly scanner: BatchScanner;
   private sheetGenerator?: BatchControl;
   private batchId?: string;
   private workerPool?: WorkerPool<workers.Input, workers.Output>;
@@ -581,15 +581,6 @@ export class Importer {
   }
 
   /**
-   * Tell the scanner to calibrate itself.
-   *
-   * @returns whether the calibration succeeded
-   */
-  async doCalibrate(): Promise<boolean> {
-    return await this.scanner.calibrate();
-  }
-
-  /**
    * Export the current CVRs to a string.
    */
   doExport(): string {
@@ -616,22 +607,17 @@ export class Importer {
   /**
    * Get the imported batches and current election info, if any.
    */
-  async getStatus(): Promise<Scan.ScanStatus> {
+  getStatus(): Scan.ScanStatus {
     const electionDefinition = this.workspace.store.getElectionDefinition();
     const canUnconfigure = this.workspace.store.getCanUnconfigure();
     const batches = this.workspace.store.batchStatus();
     const adjudication = this.workspace.store.adjudicationStatus();
-    const scanner = await this.scanner.getStatus();
 
     return {
       electionHash: electionDefinition?.electionHash,
       batches,
       canUnconfigure,
       adjudication,
-      scanner:
-        adjudication.remaining > 0 && scanner === Scan.ScannerStatus.ReadyToScan
-          ? Scan.ScannerStatus.Rejected
-          : scanner,
     };
   }
 

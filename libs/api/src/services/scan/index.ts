@@ -59,27 +59,11 @@ export const BatchInfoSchema: z.ZodSchema<BatchInfo> = z.object({
   count: z.number().nonnegative(),
 });
 
-export enum ScannerStatus {
-  WaitingForPaper = 'WaitingForPaper',
-  ReadyToScan = 'ReadyToScan',
-  Scanning = 'Scanning',
-  Accepting = 'Accepting',
-  Rejecting = 'Rejecting',
-  ReadyToAccept = 'ReadyToAccept',
-  Rejected = 'Rejected',
-  Calibrating = 'Calibrating',
-  Error = 'Error',
-  Unknown = 'Unknown',
-}
-
-export const ScannerStatusSchema = z.nativeEnum(ScannerStatus);
-
 export interface ScanStatus {
   electionHash?: string;
   canUnconfigure: boolean;
   batches: BatchInfo[];
   adjudication: AdjudicationStatus;
-  scanner: ScannerStatus;
 }
 
 export const ScanStatusSchema: z.ZodSchema<ScanStatus> = z.object({
@@ -87,7 +71,6 @@ export const ScanStatusSchema: z.ZodSchema<ScanStatus> = z.object({
   canUnconfigure: z.boolean(),
   batches: z.array(BatchInfoSchema),
   adjudication: AdjudicationStatusSchema,
-  scanner: ScannerStatusSchema,
 });
 
 /**

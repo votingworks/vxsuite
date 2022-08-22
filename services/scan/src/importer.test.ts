@@ -16,7 +16,7 @@ import { dirSync } from 'tmp';
 import { v4 as uuid } from 'uuid';
 import { makeImageFile, mockWorkerPoolProvider } from '../test/util/mocks';
 import { Importer } from './importer';
-import { BatchControl, Scanner } from './scanners';
+import { BatchControl, BatchScanner } from './fujitsu_scanner';
 import { createWorkspace, Workspace } from './util/workspace';
 import * as workers from './workers/combined';
 
@@ -36,10 +36,8 @@ afterEach(async () => {
 jest.setTimeout(20000);
 
 test('startImport calls scanner.scanSheet', async () => {
-  const scanner: jest.Mocked<Scanner> = {
-    getStatus: jest.fn(),
+  const scanner: jest.Mocked<BatchScanner> = {
     scanSheets: jest.fn(),
-    calibrate: jest.fn(),
   };
   const importer = new Importer({
     workspace,
@@ -92,10 +90,8 @@ test('startImport calls scanner.scanSheet', async () => {
 });
 
 test('unconfigure clears all data.', async () => {
-  const scanner: jest.Mocked<Scanner> = {
-    getStatus: jest.fn(),
+  const scanner: jest.Mocked<BatchScanner> = {
     scanSheets: jest.fn(),
-    calibrate: jest.fn(),
   };
   const importer = new Importer({
     workspace,
@@ -109,10 +105,8 @@ test('unconfigure clears all data.', async () => {
 });
 
 test('setTestMode zeroes and sets test mode on the interpreter', async () => {
-  const scanner: jest.Mocked<Scanner> = {
-    getStatus: jest.fn(),
+  const scanner: jest.Mocked<BatchScanner> = {
     scanSheets: jest.fn(),
-    calibrate: jest.fn(),
   };
   const importer = new Importer({
     workspace,
@@ -152,18 +146,16 @@ test('setTestMode zeroes and sets test mode on the interpreter', async () => {
       },
     },
   ]);
-  expect((await importer.getStatus()).batches).toHaveLength(1);
+  expect(importer.getStatus().batches).toHaveLength(1);
 
   await importer.setTestMode(true);
-  expect((await importer.getStatus()).batches).toHaveLength(0);
+  expect(importer.getStatus().batches).toHaveLength(0);
   await importer.unconfigure();
 });
 
 test('restoreConfig reconfigures the interpreter worker', async () => {
-  const scanner: jest.Mocked<Scanner> = {
-    getStatus: jest.fn(),
+  const scanner: jest.Mocked<BatchScanner> = {
     scanSheets: jest.fn(),
-    calibrate: jest.fn(),
   };
   const workerCall = jest.fn();
   const workerPoolProvider = mockWorkerPoolProvider<
@@ -185,10 +177,8 @@ test('restoreConfig reconfigures the interpreter worker', async () => {
 });
 
 test('cannot add HMPB templates before configuring an election', async () => {
-  const scanner: jest.Mocked<Scanner> = {
-    getStatus: jest.fn(),
+  const scanner: jest.Mocked<BatchScanner> = {
     scanSheets: jest.fn(),
-    calibrate: jest.fn(),
   };
   const importer = new Importer({
     workspace,
@@ -201,10 +191,8 @@ test('cannot add HMPB templates before configuring an election', async () => {
 });
 
 test('manually importing files', async () => {
-  const scanner: jest.Mocked<Scanner> = {
-    getStatus: jest.fn(),
+  const scanner: jest.Mocked<BatchScanner> = {
     scanSheets: jest.fn(),
-    calibrate: jest.fn(),
   };
   const workerCall = jest.fn<Promise<workers.Output>, [workers.Input]>();
   const workerPoolProvider = mockWorkerPoolProvider<
@@ -315,10 +303,8 @@ test('manually importing files', async () => {
 });
 
 test('scanning pauses on adjudication then continues', async () => {
-  const scanner: jest.Mocked<Scanner> = {
-    getStatus: jest.fn(),
+  const scanner: jest.Mocked<BatchScanner> = {
     scanSheets: jest.fn(),
-    calibrate: jest.fn(),
   };
   function mockGetNextAdjudicationSheet(): BallotSheetInfo {
     return {
@@ -433,10 +419,8 @@ test('scanning pauses on adjudication then continues', async () => {
 });
 
 test('importing a sheet normalizes and orders HMPB pages', async () => {
-  const scanner: jest.Mocked<Scanner> = {
-    getStatus: jest.fn(),
+  const scanner: jest.Mocked<BatchScanner> = {
     scanSheets: jest.fn(),
-    calibrate: jest.fn(),
   };
   const workerCall = jest.fn<Promise<workers.Output>, [workers.Input]>();
   const workerPoolProvider = mockWorkerPoolProvider<
@@ -561,10 +545,8 @@ test('importing a sheet normalizes and orders HMPB pages', async () => {
 });
 
 test('rejects pages that do not match the current precinct', async () => {
-  const scanner: jest.Mocked<Scanner> = {
-    getStatus: jest.fn(),
+  const scanner: jest.Mocked<BatchScanner> = {
     scanSheets: jest.fn(),
-    calibrate: jest.fn(),
   };
   const workerCall = jest.fn<Promise<workers.Output>, [workers.Input]>();
   const workerPoolProvider = mockWorkerPoolProvider<
@@ -692,10 +674,8 @@ test('rejects pages that do not match the current precinct', async () => {
 });
 
 test('rejects sheets that would not produce a valid CVR', async () => {
-  const scanner: jest.Mocked<Scanner> = {
-    getStatus: jest.fn(),
+  const scanner: jest.Mocked<BatchScanner> = {
     scanSheets: jest.fn(),
-    calibrate: jest.fn(),
   };
   const workerCall = jest.fn<Promise<workers.Output>, [workers.Input]>();
   const workerPoolProvider = mockWorkerPoolProvider<
@@ -812,21 +792,4 @@ test('rejects sheets that would not produce a valid CVR', async () => {
       }),
     ]
   );
-});
-
-test('doCalibrate', async () => {
-  const scanner: jest.Mocked<Scanner> = {
-    getStatus: jest.fn(),
-    scanSheets: jest.fn(),
-    calibrate: jest.fn(),
-  };
-  const importer = new Importer({
-    workspace,
-    scanner,
-  });
-
-  scanner.calibrate.mockResolvedValueOnce(true);
-  expect(await importer.doCalibrate()).toEqual(true);
-  scanner.calibrate.mockResolvedValueOnce(false);
-  expect(await importer.doCalibrate()).toEqual(false);
 });

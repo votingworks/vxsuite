@@ -495,21 +495,6 @@ export class MockScannerClient implements ScannerClient {
   }
 
   /**
-   * Waits for a given `status` up to `timeout` milliseconds, checking every
-   * `interval` milliseconds.
-   */
-  /* istanbul ignore next */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async waitForStatus(_props: {
-    status: PaperStatus;
-    timeout?: number;
-    interval?: number;
-  }): Promise<GetPaperStatusResult | undefined> {
-    // TODO remove this method from ScannerClient
-    throw new Error('deprecated');
-  }
-
-  /**
    * Scans the currently-loaded sheet if any is present.
    */
   async scan(): Promise<ScanResult> {

@@ -17,7 +17,6 @@ test('null state', () => {
     canUnconfigure: false,
     batches: [],
     adjudication: noneLeftAdjudicationStatus,
-    scanner: Scan.ScannerStatus.Unknown,
   };
   const component = render(
     <Router history={createMemoryHistory()}>
@@ -55,7 +54,6 @@ test('shows scanned ballot count', () => {
       },
     ],
     adjudication: noneLeftAdjudicationStatus,
-    scanner: Scan.ScannerStatus.Unknown,
   };
   const component = render(
     <Router history={createMemoryHistory()}>
@@ -85,7 +83,6 @@ test('shows whether a batch is scanning', () => {
       },
     ],
     adjudication: noneLeftAdjudicationStatus,
-    scanner: Scan.ScannerStatus.Unknown,
   };
   const component = render(
     <Router history={createMemoryHistory()}>
@@ -117,7 +114,6 @@ test('allows deleting a batch', async () => {
       },
     ],
     adjudication: noneLeftAdjudicationStatus,
-    scanner: Scan.ScannerStatus.Unknown,
   };
   render(
     <Router history={createMemoryHistory()}>

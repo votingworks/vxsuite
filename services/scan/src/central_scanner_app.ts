@@ -490,31 +490,9 @@ export async function buildCentralScannerApp({
 
   app.get<NoParams, Scan.GetScanStatusResponse>(
     '/central-scanner/scan/status',
-    async (_request, response) => {
-      const status = await importer.getStatus();
+    (_request, response) => {
+      const status = importer.getStatus();
       response.json(status);
-    }
-  );
-
-  app.post<NoParams, Scan.CalibrateResponse, Scan.CalibrateRequest>(
-    '/central-scanner/scan/calibrate',
-    async (_request, response) => {
-      const success = await importer.doCalibrate();
-      response.json(
-        success
-          ? {
-              status: 'ok',
-            }
-          : {
-              status: 'error',
-              errors: [
-                {
-                  type: 'calibration-error',
-                  message: 'scanner could not be calibrated',
-                },
-              ],
-            }
-      );
     }
   );
 

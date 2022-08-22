@@ -1,22 +1,42 @@
-import { Scan } from '@votingworks/api';
 import { assert, deferredQueue, throwIllegalValue } from '@votingworks/utils';
 import makeDebug from 'debug';
 import { join } from 'path';
 import { dirSync } from 'tmp';
 import { BallotPaperSize } from '@votingworks/types';
 import { LogEventId, Logger } from '@votingworks/logging';
-import {
-  BatchControl,
-  Scanner,
-  ScannerImageFormat,
-  ScannerMode,
-  ScanOptions,
-} from './types';
-import { streamExecFile } from '../exec';
-import { SheetOf } from '../types';
-import { StreamLines } from '../util/stream_lines';
+import { streamExecFile } from './exec';
+import { StreamLines } from './util/stream_lines';
+import { SheetOf } from './types';
 
 const debug = makeDebug('scan:scanner');
+
+export interface BatchControl {
+  scanSheet(): Promise<SheetOf<string> | undefined>;
+  acceptSheet(): Promise<boolean>;
+  reviewSheet(): Promise<boolean>;
+  rejectSheet(): Promise<boolean>;
+  endBatch(): Promise<void>;
+}
+
+export interface ScanOptions {
+  directory?: string;
+  pageSize?: BallotPaperSize;
+}
+
+export interface BatchScanner {
+  scanSheets(options?: ScanOptions): BatchControl;
+}
+
+export enum ScannerImageFormat {
+  JPEG = 'jpeg',
+  PNG = 'png',
+}
+
+export enum ScannerMode {
+  Lineart = 'lineart',
+  Gray = 'gray',
+  Color = 'color',
+}
 
 export interface Options {
   format?: ScannerImageFormat;
@@ -39,7 +59,7 @@ function dateStamp(date: Date = new Date()): string {
 /**
  * Scans duplex images in batch mode from a Fujitsu scanner.
  */
-export class FujitsuScanner implements Scanner {
+export class FujitsuScanner implements BatchScanner {
   private readonly format: ScannerImageFormat;
   private readonly mode?: ScannerMode;
   private readonly logger: Logger;
@@ -48,11 +68,6 @@ export class FujitsuScanner implements Scanner {
     this.format = format;
     this.mode = mode;
     this.logger = logger;
-  }
-
-  // eslint-disable-next-line @typescript-eslint/require-await
-  async getStatus(): Promise<Scan.ScannerStatus> {
-    return Scan.ScannerStatus.Unknown;
   }
 
   scanSheets({
@@ -219,10 +234,5 @@ export class FujitsuScanner implements Scanner {
         }
       },
     };
-  }
-
-  // eslint-disable-next-line @typescript-eslint/require-await
-  async calibrate(): Promise<boolean> {
-    return false;
   }
 }

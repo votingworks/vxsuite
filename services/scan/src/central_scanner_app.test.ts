@@ -82,21 +82,6 @@ test('reloads configuration from the store', () => {
   expect(importer.restoreConfig).toHaveBeenCalled();
 });
 
-test('GET /scan/status', async () => {
-  const status: Scan.GetScanStatusResponse = {
-    canUnconfigure: false,
-    batches: [],
-    adjudication: { remaining: 0, adjudicated: 0 },
-    scanner: Scan.ScannerStatus.Unknown,
-  };
-  importer.getStatus.mockResolvedValue(status);
-  await request(app)
-    .get('/central-scanner/scan/status')
-    .set('Accept', 'application/json')
-    .expect(200, status);
-  expect(importer.getStatus).toBeCalled();
-});
-
 test('GET /config/election (application/octet-stream)', async () => {
   workspace.store.setElection(testElectionDefinition);
   workspace.store.setTestMode(true);
@@ -755,28 +740,4 @@ test('get next sheet layouts', async () => {
         },
       })
     );
-});
-
-test('calibrate success', async () => {
-  importer.doCalibrate.mockResolvedValueOnce(true);
-
-  await request(app).post('/central-scanner/scan/calibrate').expect(200, {
-    status: 'ok',
-  });
-});
-
-test('calibrate error', async () => {
-  importer.doCalibrate.mockResolvedValueOnce(false);
-
-  await request(app)
-    .post('/central-scanner/scan/calibrate')
-    .expect(200, {
-      status: 'error',
-      errors: [
-        {
-          type: 'calibration-error',
-          message: 'scanner could not be calibrated',
-        },
-      ],
-    });
 });

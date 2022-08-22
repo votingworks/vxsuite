@@ -1,7 +1,6 @@
-import { Scan } from '@votingworks/api';
 import { readFileSync } from 'fs-extra';
 import { join, resolve } from 'path';
-import { BatchControl, Scanner } from './scanners';
+import { BatchControl, BatchScanner } from './fujitsu_scanner';
 import { SheetOf } from './types';
 
 type Batch = ReadonlyArray<SheetOf<string>>;
@@ -77,17 +76,13 @@ export function parseBatchesFromEnv(env?: string): Batch[] | undefined {
  * Provides mock scanning services by copying the same set of images over and
  * over again on demand.
  */
-export class LoopScanner implements Scanner {
+export class LoopScanner implements BatchScanner {
   private nextBatchIndex = 0;
 
   /**
    * @param batches lists of front/back pairs of sheets to scan
    */
   constructor(private readonly batches: readonly Batch[]) {}
-
-  async getStatus(): Promise<Scan.ScannerStatus> {
-    return Scan.ScannerStatus.Unknown;
-  }
 
   /**
    * "Scans" the next sheet by returning the paths for the next two images.
@@ -120,9 +115,5 @@ export class LoopScanner implements Scanner {
         sheetIndex = Infinity;
       },
     };
-  }
-
-  async calibrate(): Promise<boolean> {
-    return false;
   }
 }

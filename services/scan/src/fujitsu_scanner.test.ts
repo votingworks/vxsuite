@@ -1,12 +1,11 @@
 import { Logger, LogSource } from '@votingworks/logging';
 import { BallotPaperSize } from '@votingworks/types';
-import { Scan } from '@votingworks/api';
 import { ChildProcess } from 'child_process';
-import { FujitsuScanner, ScannerMode } from '.';
-import { makeMockChildProcess } from '../../test/util/mocks';
-import { streamExecFile } from '../exec';
+import { FujitsuScanner, ScannerMode } from './fujitsu_scanner';
+import { makeMockChildProcess } from '../test/util/mocks';
+import { streamExecFile } from './exec';
 
-jest.mock('../exec');
+jest.mock('./exec');
 
 const exec = streamExecFile as unknown as jest.MockedFunction<
   (file: string, args: readonly string[]) => ChildProcess
@@ -253,13 +252,6 @@ test('fujitsu scanner fails if scanSheet fails', async () => {
   await expect(sheets.scanSheet()).rejects.toThrowError();
 });
 
-test('fujitsu scanner status is always unknown', async () => {
-  const scanner = new FujitsuScanner({
-    logger: new Logger(LogSource.VxScanService),
-  });
-  expect(await scanner.getStatus()).toEqual(Scan.ScannerStatus.Unknown);
-});
-
 test('fujitsu scanner accept/reject/review are no-ops', async () => {
   const scanimage = makeMockChildProcess();
   const scanner = new FujitsuScanner({
@@ -271,11 +263,4 @@ test('fujitsu scanner accept/reject/review are no-ops', async () => {
   expect(await sheets.acceptSheet()).toEqual(true);
   expect(await sheets.rejectSheet()).toEqual(false);
   expect(await sheets.reviewSheet()).toEqual(false);
-});
-
-test('fujitsu scanner calibrate is a no-op', async () => {
-  const scanner = new FujitsuScanner({
-    logger: new Logger(LogSource.VxScanService),
-  });
-  expect(await scanner.calibrate()).toEqual(false);
 });

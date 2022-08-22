@@ -9,8 +9,9 @@ import {
   VX_MACHINE_TYPE,
 } from './globals';
 import { LoopScanner, parseBatchesFromEnv } from './loop_scanner';
-import { plustekMockServer, Scanner } from './scanners';
+import { BatchScanner } from './fujitsu_scanner';
 import * as server from './server';
+import { plustekMockServer } from './plustek_mock_server';
 
 const logger = new Logger(LogSource.VxScanService);
 
@@ -37,7 +38,7 @@ const createPlustekClient =
     ? createMockPlustekClient
     : undefined;
 
-function getScanner(): Scanner | undefined {
+function getScanner(): BatchScanner | undefined {
   if (VX_MACHINE_TYPE !== 'bsd') return undefined;
 
   const mockScannerFiles = parseBatchesFromEnv(MOCK_SCANNER_FILES);
@@ -52,7 +53,7 @@ function getScanner(): Scanner | undefined {
 }
 
 async function main(): Promise<number> {
-  await server.start({ scanner: getScanner(), createPlustekClient });
+  await server.start({ batchScanner: getScanner(), createPlustekClient });
   return 0;
 }
 
