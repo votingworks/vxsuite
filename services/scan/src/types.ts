@@ -74,15 +74,6 @@ export function getMarkStatus(
     return MarkStatus.Marginal;
   }
 
-  if (
-    mark.type === 'candidate' &&
-    typeof mark.writeInTextScore === 'number' &&
-    typeof markThresholds.writeInText === 'number' &&
-    mark.writeInTextScore >= markThresholds.writeInText
-  ) {
-    return MarkStatus.UnmarkedWriteIn;
-  }
-
   return MarkStatus.Unmarked;
 }
 

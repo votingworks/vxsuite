@@ -165,9 +165,7 @@ export function BallotEjectScreen({
     const frontAdjudication = frontInterpretation.adjudicationInfo;
     const backAdjudication = backInterpretation.adjudicationInfo;
 
-    // A ballot is blank if both sides are marked blank
-    // and neither side contains an unmarked write in,
-    // because an unmarked write-in is a sign the page isn't blank.
+    // A ballot is blank if both sides are marked blank.
     //
     // One could argue that making this call is the server's job.
     // We leave that consideration to:
@@ -176,10 +174,9 @@ export function BallotEjectScreen({
       frontAdjudication.enabledReasonInfos.some(
         (info) => info.type === AdjudicationReason.BlankBallot
       ) &&
-      (backAdjudication.enabledReasonInfos.some(
+      backAdjudication.enabledReasonInfos.some(
         (info) => info.type === AdjudicationReason.BlankBallot
-      ) ||
-        backInterpretation.markInfo.marks.length === 0);
+      );
 
     if (!isBlank) {
       if (

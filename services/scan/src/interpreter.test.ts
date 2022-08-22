@@ -529,7 +529,6 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
               },
             },
             "type": "candidate",
-            "writeInTextScore": undefined,
           },
           Object {
             "bounds": Object {
@@ -560,7 +559,6 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
               },
             },
             "type": "candidate",
-            "writeInTextScore": undefined,
           },
           Object {
             "bounds": Object {
@@ -591,7 +589,6 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
               },
             },
             "type": "candidate",
-            "writeInTextScore": undefined,
           },
           Object {
             "bounds": Object {
@@ -622,7 +619,6 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
               },
             },
             "type": "candidate",
-            "writeInTextScore": undefined,
           },
           Object {
             "bounds": Object {
@@ -653,7 +649,6 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
               },
             },
             "type": "candidate",
-            "writeInTextScore": undefined,
           },
           Object {
             "bounds": Object {
@@ -684,7 +679,6 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
               },
             },
             "type": "candidate",
-            "writeInTextScore": undefined,
           },
           Object {
             "bounds": Object {
@@ -715,7 +709,6 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
               },
             },
             "type": "candidate",
-            "writeInTextScore": undefined,
           },
           Object {
             "bounds": Object {
@@ -746,7 +739,6 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
               },
             },
             "type": "candidate",
-            "writeInTextScore": undefined,
           },
           Object {
             "bounds": Object {
@@ -777,7 +769,6 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
               },
             },
             "type": "candidate",
-            "writeInTextScore": undefined,
           },
           Object {
             "bounds": Object {
@@ -808,7 +799,6 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
               },
             },
             "type": "candidate",
-            "writeInTextScore": undefined,
           },
           Object {
             "bounds": Object {
@@ -839,7 +829,6 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
               },
             },
             "type": "candidate",
-            "writeInTextScore": undefined,
           },
           Object {
             "bounds": Object {
@@ -870,7 +859,6 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
               },
             },
             "type": "candidate",
-            "writeInTextScore": 0,
           },
           Object {
             "bounds": Object {
@@ -901,7 +889,6 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
               },
             },
             "type": "candidate",
-            "writeInTextScore": 0,
           },
           Object {
             "bounds": Object {
@@ -932,7 +919,6 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
               },
             },
             "type": "candidate",
-            "writeInTextScore": 0.026644826644826643,
           },
           Object {
             "bounds": Object {
@@ -963,7 +949,6 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
               },
             },
             "type": "candidate",
-            "writeInTextScore": 0,
           },
           Object {
             "bounds": Object {
@@ -994,7 +979,6 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
               },
             },
             "type": "candidate",
-            "writeInTextScore": undefined,
           },
           Object {
             "bounds": Object {
@@ -1025,7 +1009,6 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
               },
             },
             "type": "candidate",
-            "writeInTextScore": 0,
           },
           Object {
             "bounds": Object {
@@ -1056,7 +1039,6 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
               },
             },
             "type": "candidate",
-            "writeInTextScore": undefined,
           },
           Object {
             "bounds": Object {
@@ -1087,7 +1069,6 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
               },
             },
             "type": "candidate",
-            "writeInTextScore": undefined,
           },
           Object {
             "bounds": Object {
@@ -1118,7 +1099,6 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
               },
             },
             "type": "candidate",
-            "writeInTextScore": 0,
           },
           Object {
             "bounds": Object {
@@ -1149,7 +1129,6 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
               },
             },
             "type": "candidate",
-            "writeInTextScore": undefined,
           },
           Object {
             "bounds": Object {
@@ -1180,7 +1159,6 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
               },
             },
             "type": "candidate",
-            "writeInTextScore": undefined,
           },
           Object {
             "bounds": Object {
@@ -1211,7 +1189,6 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
               },
             },
             "type": "candidate",
-            "writeInTextScore": undefined,
           },
           Object {
             "bounds": Object {
@@ -1242,7 +1219,6 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
               },
             },
             "type": "candidate",
-            "writeInTextScore": undefined,
           },
           Object {
             "bounds": Object {
@@ -1273,7 +1249,6 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
               },
             },
             "type": "candidate",
-            "writeInTextScore": undefined,
           },
           Object {
             "bounds": Object {
@@ -1304,7 +1279,6 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
               },
             },
             "type": "candidate",
-            "writeInTextScore": undefined,
           },
           Object {
             "bounds": Object {
@@ -1335,7 +1309,6 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
               },
             },
             "type": "candidate",
-            "writeInTextScore": 0,
           },
           Object {
             "bounds": Object {
@@ -1366,7 +1339,6 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
               },
             },
             "type": "candidate",
-            "writeInTextScore": 0,
           },
           Object {
             "bounds": Object {
@@ -1397,7 +1369,6 @@ test('returns metadata if the QR code is readable but the HMPB ballot is not', a
               },
             },
             "type": "candidate",
-            "writeInTextScore": 0.000044820940343328406,
           },
         ],
       },

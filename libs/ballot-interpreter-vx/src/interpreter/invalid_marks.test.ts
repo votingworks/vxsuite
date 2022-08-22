@@ -95,7 +95,6 @@ test('invalid marks', async () => {
           },
         },
         "type": "candidate",
-        "writeInTextScore": undefined,
       },
       Object {
         "bounds": Object {
@@ -126,7 +125,6 @@ test('invalid marks', async () => {
           },
         },
         "type": "candidate",
-        "writeInTextScore": undefined,
       },
       Object {
         "bounds": Object {
@@ -157,7 +155,6 @@ test('invalid marks', async () => {
           },
         },
         "type": "candidate",
-        "writeInTextScore": undefined,
       },
       Object {
         "bounds": Object {
@@ -188,7 +185,6 @@ test('invalid marks', async () => {
           },
         },
         "type": "candidate",
-        "writeInTextScore": 0.002881844380403458,
       },
       Object {
         "bounds": Object {
@@ -219,7 +215,6 @@ test('invalid marks', async () => {
           },
         },
         "type": "candidate",
-        "writeInTextScore": 0.002881844380403458,
       },
       Object {
         "bounds": Object {
@@ -370,7 +365,6 @@ test('invalid marks', async () => {
           },
         },
         "type": "candidate",
-        "writeInTextScore": undefined,
       },
       Object {
         "bounds": Object {
@@ -401,7 +395,6 @@ test('invalid marks', async () => {
           },
         },
         "type": "candidate",
-        "writeInTextScore": undefined,
       },
       Object {
         "bounds": Object {
@@ -432,7 +425,6 @@ test('invalid marks', async () => {
           },
         },
         "type": "candidate",
-        "writeInTextScore": undefined,
       },
       Object {
         "bounds": Object {
@@ -463,7 +455,6 @@ test('invalid marks', async () => {
           },
         },
         "type": "candidate",
-        "writeInTextScore": undefined,
       },
       Object {
         "bounds": Object {
@@ -494,7 +485,6 @@ test('invalid marks', async () => {
           },
         },
         "type": "candidate",
-        "writeInTextScore": undefined,
       },
       Object {
         "bounds": Object {
@@ -525,7 +515,6 @@ test('invalid marks', async () => {
           },
         },
         "type": "candidate",
-        "writeInTextScore": undefined,
       },
       Object {
         "bounds": Object {
@@ -556,7 +545,6 @@ test('invalid marks', async () => {
           },
         },
         "type": "candidate",
-        "writeInTextScore": 0.00005747126436781609,
       },
       Object {
         "bounds": Object {
@@ -587,7 +575,6 @@ test('invalid marks', async () => {
           },
         },
         "type": "candidate",
-        "writeInTextScore": 0.03637931034482759,
       },
       Object {
         "bounds": Object {
@@ -618,7 +605,6 @@ test('invalid marks', async () => {
           },
         },
         "type": "candidate",
-        "writeInTextScore": 0.00017241379310344826,
       },
       Object {
         "bounds": Object {
@@ -649,7 +635,6 @@ test('invalid marks', async () => {
           },
         },
         "type": "candidate",
-        "writeInTextScore": undefined,
       },
       Object {
         "bounds": Object {
@@ -680,7 +665,6 @@ test('invalid marks', async () => {
           },
         },
         "type": "candidate",
-        "writeInTextScore": undefined,
       },
       Object {
         "bounds": Object {
@@ -711,7 +695,6 @@ test('invalid marks', async () => {
           },
         },
         "type": "candidate",
-        "writeInTextScore": 0,
       },
     ]
   `);

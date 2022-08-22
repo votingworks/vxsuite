@@ -311,33 +311,6 @@ test('a ballot with just a write-in', () => {
   `);
 });
 
-test('a ballot with just an unmarked write-in', () => {
-  const reasons = [
-    ...ballotAdjudicationReasons([zooCouncilMammal], {
-      optionMarkStatus: (option) =>
-        option.contestId === zooCouncilMammal.id && option.id === 'write-in-0'
-          ? MarkStatus.UnmarkedWriteIn
-          : MarkStatus.Unmarked,
-    }),
-  ];
-
-  // in particular, no unmarked write-in adjudication reason anymore.
-  expect(reasons).toMatchInlineSnapshot(`
-    Array [
-      Object {
-        "contestId": "zoo-council-mammal",
-        "expected": 3,
-        "optionIds": Array [],
-        "optionIndexes": Array [],
-        "type": "Undervote",
-      },
-      Object {
-        "type": "BlankBallot",
-      },
-    ]
-  `);
-});
-
 test('a ballot with an ms-either-neither happy path', () => {
   const reasons = [
     ...ballotAdjudicationReasons([eitherNeitherQuestion], {

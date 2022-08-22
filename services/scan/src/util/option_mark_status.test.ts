@@ -92,33 +92,6 @@ test('a candidate mark', () => {
   expect(emptyResult).toBe(MarkStatus.Unmarked);
 });
 
-test('a candidate write-in mark', () => {
-  const contest = election.contests.find(
-    (c) => c.type === 'candidate' && c.allowWriteIns
-  ) as CandidateContest;
-  const optionId = 'write-in-0';
-  const result = optionMarkStatus({
-    contests: election.contests,
-    markThresholds,
-    marks: [
-      {
-        type: 'candidate',
-        bounds: defaultShape.bounds,
-        contestId: contest.id,
-        target: defaultShape,
-        optionId,
-        score: 0,
-        scoredOffset: { x: 0, y: 0 },
-        writeInTextScore: 0.05,
-      },
-    ],
-    contestId: contest.id,
-    optionId,
-  });
-
-  expect(result).toBe(MarkStatus.UnmarkedWriteIn);
-});
-
 test('a ms-either-neither mark', () => {
   const contest = eitherNeitherElection.contests.find(
     (c) => c.type === 'ms-either-neither'
