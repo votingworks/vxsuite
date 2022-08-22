@@ -195,7 +195,7 @@ export function ElectionManagerScreen({
         </p>
         <p>
           <Button onPress={toggleIsSoundMuted}>
-            {isSoundMuted ? 'Unmute' : 'Mute'} Sounds
+            {isSoundMuted ? 'Unmute Sounds' : 'Mute Sounds'}
           </Button>
         </p>
         <p>
