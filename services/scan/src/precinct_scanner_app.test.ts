@@ -1255,7 +1255,7 @@ test('scan fails due to plustek error', async () => {
     {
       message: 'Context updated',
       changedFields: expect.stringMatching(
-        /{"error":{"message":"expected two files, got \[ file1.jpg \]","stack":".*"},"failedScanAttempts":1}/
+        /{"error":{"message":"expected two files, got \[ file1.jpg \]","stack":".*"}}/
       ),
     },
     expect.any(Function)
