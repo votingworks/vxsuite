@@ -12,13 +12,13 @@ import { Logger, LogSource } from '@votingworks/logging';
 import {
   useCancelablePromise,
   useDevices,
-  useSmartcard,
   useStoredState,
 } from '@votingworks/ui';
 import { assert, Card, Hardware, sleep, Storage } from '@votingworks/utils';
 
 import { z } from 'zod';
 import { EventTargetFunction } from './config/types';
+import { useSmartcard } from './utils/use_smartcard';
 
 import { AdminScreen } from './screens/admin_screen';
 import { InsertCardScreen } from './screens/insert_card_screen';

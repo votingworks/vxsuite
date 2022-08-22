@@ -17,7 +17,7 @@ import {
   OmniKeyCardReaderProductId,
   OmniKeyCardReaderVendorId,
 } from '@votingworks/utils';
-import { CARD_POLLING_INTERVAL } from './smartcard_auth';
+import { CARD_POLLING_INTERVAL } from '@votingworks/ui';
 import { useSmartcard } from './use_smartcard';
 
 const cardReader: KioskBrowser.Device = {
@@ -31,7 +31,7 @@ const cardReader: KioskBrowser.Device = {
 };
 
 beforeEach(() => {
-  jest.useFakeTimers('legacy');
+  jest.useFakeTimers();
 });
 
 test('no card reader attached', async () => {
