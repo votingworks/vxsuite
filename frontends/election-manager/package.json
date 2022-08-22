@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "type-check": "tsc --build",
-    "build": "vite build",
+    "build": "pnpm type-check && vite build",
     "build:watch": "tsc --build --watch",
     "build:stubs": "script/build-stubs fs:src/stubs/fs.ts glob:src/stubs/glob.ts os:src/stubs/os.ts",
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",

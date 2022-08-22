@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "type-check": "tsc --build",
-    "build": "vite build",
+    "build": "pnpm type-check && vite build",
     "build:watch": "tsc --build --watch",
     "build:resources": "res-to-ts --rootDir data --outDir src/data 'data/**/*.json'",
     "cypress:open": "cypress open",
