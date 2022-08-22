@@ -995,7 +995,7 @@ test('jam on calibrate', async () => {
 });
 
 test('scan fails and retries', async () => {
-  const { app, mockPlustek } = await createApp();
+  const { app, mockPlustek, logger } = await createApp();
   await configureApp(app);
 
   await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
@@ -1010,6 +1010,19 @@ test('scan fails and retries', async () => {
   mockPlustek.simulateScanError('error_feeding');
   await expectStatus(app, { state: 'scanning' });
   await waitForStatus(app, { state: 'ready_to_accept', interpretation });
+
+  // Make sure the underlying error got logged correctly
+  expect(logger.log).toHaveBeenCalledWith(
+    'scanner-state-machine-transition',
+    'system',
+    {
+      message: 'Context updated',
+      changedFields: expect.stringMatching(
+        /{"error":"(PLKSS_ERRCODE_PAPER_STATUS_ERROR_FEEDING|PLKSS_ERRCODE_PAPER_STATUS_NO_PAPER)"}/
+      ),
+    },
+    expect.any(Function)
+  );
 });
 
 test('scan fails repeatedly and eventually gives up', async () => {
@@ -1032,7 +1045,7 @@ test('scan fails repeatedly and eventually gives up', async () => {
 });
 
 test('scan fails due to plustek error', async () => {
-  const { app, mockPlustek } = await createApp({
+  const { app, mockPlustek, logger } = await createApp({
     DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 500,
   });
   await configureApp(app);
@@ -1048,10 +1061,23 @@ test('scan fails due to plustek error', async () => {
     error: 'plustek_error',
   });
   await waitForStatus(app, { state: 'no_paper' });
+
+  // Make sure the underlying error got logged correctly
+  expect(logger.log).toHaveBeenCalledWith(
+    'scanner-state-machine-transition',
+    'system',
+    {
+      message: 'Context updated',
+      changedFields: expect.stringMatching(
+        /{"error":{"message":"expected two files, got \[ file1.jpg \]","stack":".*"}}/
+      ),
+    },
+    expect.any(Function)
+  );
 });
 
 test('scanning time out', async () => {
-  const { app, mockPlustek } = await createApp({
+  const { app, mockPlustek, logger } = await createApp({
     DELAY_SCANNING_TIMEOUT: 50,
     DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 500,
   });
@@ -1067,6 +1093,19 @@ test('scanning time out', async () => {
     error: 'scanning_timed_out',
   });
   await waitForStatus(app, { state: 'no_paper' });
+
+  // Make sure the underlying error got logged correctly
+  expect(logger.log).toHaveBeenCalledWith(
+    'scanner-state-machine-transition',
+    'system',
+    {
+      message: 'Context updated',
+      changedFields: expect.stringMatching(
+        /{"error":{"type":"scanning_timed_out","message":"scanning_timed_out","stack":".*"}}/
+      ),
+    },
+    expect.any(Function)
+  );
 });
 
 test('kills plustekctl if it freezes', async () => {
