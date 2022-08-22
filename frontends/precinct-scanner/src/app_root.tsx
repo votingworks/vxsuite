@@ -135,6 +135,7 @@ type AppAction =
       type: 'initializeAppState';
       isPollsOpen: boolean;
       ballotCountWhenBallotBagLastReplaced: number;
+      isSoundMuted: boolean;
     }
   | { type: 'resetPollsToClosed' }
   | {
@@ -173,6 +174,7 @@ function appReducer(state: State, action: AppAction): State {
         isPollsOpen: action.isPollsOpen,
         ballotCountWhenBallotBagLastReplaced:
           action.ballotCountWhenBallotBagLastReplaced,
+        isSoundMuted: action.isSoundMuted,
         initializedFromStorage: true,
       };
     case 'updateElectionDefinition':
@@ -254,6 +256,7 @@ export function AppRoot({
     initializedFromStorage,
     machineConfig,
     isSoundMuted,
+    ballotCountWhenBallotBagLastReplaced,
   } = appState;
 
   const usbDrive = useUsbDrive({ logger });
@@ -334,12 +337,14 @@ export function AppRoot({
         isPollsOpen: storedIsPollsOpen = initialAppState.isPollsOpen,
         ballotCountWhenBallotBagLastReplaced:
           storedBallotCountWhenBallotBagLastReplaced = initialAppState.ballotCountWhenBallotBagLastReplaced,
+        isSoundMuted: storedIsSoundMuted = initialAppState.isSoundMuted,
       } = storedAppState;
       dispatchAppState({
         type: 'initializeAppState',
         isPollsOpen: storedIsPollsOpen,
         ballotCountWhenBallotBagLastReplaced:
           storedBallotCountWhenBallotBagLastReplaced,
+        isSoundMuted: storedIsSoundMuted,
       });
     }
 
@@ -351,15 +356,23 @@ export function AppRoot({
     async function storeAppState() {
       // only store app state if we've first initialized from the stored state
       if (initializedFromStorage) {
+        // TODO: If possible, store all FrontendState with types rather than specify each field
         await storage.set(stateStorageKey, {
           isPollsOpen,
+          ballotCountWhenBallotBagLastReplaced,
+          isSoundMuted,
         });
       }
     }
 
     void storeAppState();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isPollsOpen, initializedFromStorage]);
+  }, [
+    isPollsOpen,
+    ballotCountWhenBallotBagLastReplaced,
+    initializedFromStorage,
+    isSoundMuted,
+  ]);
 
   const togglePollsOpen = useCallback(() => {
     dispatchAppState({ type: 'togglePollsOpen' });
@@ -403,7 +416,7 @@ export function AppRoot({
   const needsToReplaceBallotBag =
     scannerStatus &&
     scannerStatus.ballotsCounted >=
-      appState.ballotCountWhenBallotBagLastReplaced + BALLOT_BAG_CAPACITY;
+      ballotCountWhenBallotBagLastReplaced + BALLOT_BAG_CAPACITY;
 
   // The scan service waits to receive a command to scan or accept a ballot. The
   // frontend controls when this happens so that ensure we're only scanning when
