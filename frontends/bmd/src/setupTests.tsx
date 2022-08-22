@@ -4,6 +4,9 @@ import 'jest-styled-components';
 import '@testing-library/jest-dom/extend-expect';
 import fetchMock from 'fetch-mock';
 import { TextDecoder, TextEncoder } from 'util';
+import { configure } from '@testing-library/react';
+
+configure({ asyncUtilTimeout: 5_000 });
 
 beforeEach(() => {
   // react-gamepad calls this function which does not exist in JSDOM
