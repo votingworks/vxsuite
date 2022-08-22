@@ -1287,7 +1287,7 @@ test('scanning time out', async () => {
     {
       message: 'Context updated',
       changedFields: expect.stringMatching(
-        /{"error":{"message":"scanning_timed_out","stack":".*"}}/
+        /{"error":{"type":"scanning_timed_out","message":"scanning_timed_out","stack":".*"}}/
       ),
     },
     expect.any(Function)
