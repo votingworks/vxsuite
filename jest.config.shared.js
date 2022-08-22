@@ -19,6 +19,7 @@ module.exports = {
       functions: 100,
     },
   },
+  testTimeout: 10_000,
   watchPlugins: [
     'jest-watch-typeahead/filename',
     'jest-watch-typeahead/testname',
