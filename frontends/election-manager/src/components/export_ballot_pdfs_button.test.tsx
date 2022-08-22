@@ -1,4 +1,4 @@
-import { screen, within } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { fakeKiosk, fakeUsbDrive } from '@votingworks/test-utils';
@@ -50,7 +50,7 @@ test('modal renders insert usb screen appropriately', async () => {
     within(modal).getByAltText('Insert USB Image');
     userEvent.click(within(modal).getByText('Cancel'));
 
-    expect(screen.queryByRole('alertdialog')).toBeNull();
+    await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
     unmount();
   }
 });
@@ -102,7 +102,7 @@ test('modal happy path flow works', async () => {
   userEvent.click(within(modal).getByText('Eject USB'));
   expect(ejectFunction).toHaveBeenCalledTimes(1);
   userEvent.click(within(modal).getByText('Close'));
-  expect(screen.queryByRole('alertdialog')).toBeNull();
+  await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
 });
 
 test('can select options to save different ballots', async () => {
