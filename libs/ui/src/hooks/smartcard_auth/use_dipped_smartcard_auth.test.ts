@@ -10,31 +10,18 @@ import {
   makeElectionManagerCard,
   makePollWorkerCard,
   makeSystemAdministratorCard,
-  mockOf,
 } from '@votingworks/test-utils';
 import { assert, MemoryCard } from '@votingworks/utils';
 
-import { areVvsg2AuthFlowsEnabled } from '../../config/features';
 import { useDippedSmartcardAuth } from './use_dipped_smartcard_auth';
 
 const electionDefinition = electionSampleDefinition;
 const { electionHash } = electionDefinition;
 const otherElectionHash = electionSample2Definition.electionHash;
 
-jest.mock(
-  '../../config/features',
-  (): typeof import('../../config/features') => {
-    return {
-      ...jest.requireActual('../../config/features'),
-      areVvsg2AuthFlowsEnabled: jest.fn(),
-    };
-  }
-);
-
 describe('useDippedSmartcardAuth', () => {
   beforeEach(() => {
     jest.useFakeTimers();
-    mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => false);
   });
 
   it("when machine is locked, returns logged_out auth when there's no card or a card error", async () => {
@@ -360,34 +347,6 @@ describe('useDippedSmartcardAuth', () => {
     );
   });
 
-  it('can bootstrap an election manager session', async () => {
-    const logger = fakeLogger();
-    const cardApi = new MemoryCard();
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useDippedSmartcardAuth({
-        cardApi,
-        logger,
-        scope: { electionDefinition },
-      })
-    );
-    act(() => {
-      assert(result.current.status === 'logged_out');
-      result.current.bootstrapAuthenticatedElectionManagerSession(electionHash);
-    });
-    await waitForNextUpdate();
-    expect(result.current).toMatchObject({
-      status: 'logged_in',
-      user: fakeElectionManagerUser({ electionHash, passcode: '000000' }),
-    });
-
-    expect(logger.log).toHaveBeenCalledTimes(1);
-    expect(logger.log).toHaveBeenLastCalledWith(
-      LogEventId.AuthLogin,
-      'election_manager',
-      expect.objectContaining({ disposition: 'success' })
-    );
-  });
-
   it('returns logged_out auth when the card is not programmed correctly', async () => {
     const logger = fakeLogger();
     const cardApi = new MemoryCard();
@@ -455,7 +414,6 @@ describe('useDippedSmartcardAuth', () => {
   });
 
   it('returns logged_out auth when machine is not configured and election manager is not allowed to access unconfigured machines', async () => {
-    mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => true);
     const cardApi = new MemoryCard();
     const logger = fakeLogger();
 
@@ -485,7 +443,6 @@ describe('useDippedSmartcardAuth', () => {
   });
 
   it('allows election managers to access unconfigured machines when setting is enabled', async () => {
-    mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => true);
     const cardApi = new MemoryCard();
     const logger = fakeLogger();
 
@@ -509,7 +466,6 @@ describe('useDippedSmartcardAuth', () => {
   });
 
   it('returns logged_out auth when election manager card election hash does not match machine election hash', async () => {
-    mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => true);
     const cardApi = new MemoryCard();
     const logger = fakeLogger();
 

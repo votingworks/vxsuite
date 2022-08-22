@@ -19,7 +19,6 @@ import {
   hasTextAcrossElements,
   makeElectionManagerCard,
   makeSystemAdministratorCard,
-  mockOf,
 } from '@votingworks/test-utils';
 import { MemoryCard, MemoryHardware, sleep, typedAs } from '@votingworks/utils';
 import { Scan } from '@votingworks/api';
@@ -29,29 +28,10 @@ import {
 } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
-import { areVvsg2AuthFlowsEnabled } from '@votingworks/ui';
 import { App } from './app';
 import { MachineConfigResponse } from './config/types';
 
 jest.mock('js-file-download');
-jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => {
-  const original: typeof import('@votingworks/ui') =
-    jest.requireActual('@votingworks/ui');
-  return {
-    ...original,
-    areVvsg2AuthFlowsEnabled: jest.fn(),
-  };
-});
-
-function enableVvsg2AuthFlows() {
-  mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => true);
-  process.env['REACT_APP_VX_ENABLE_VVSG2_AUTH_FLOWS'] = 'true';
-}
-
-function disableVvsg2AuthFlows() {
-  mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => false);
-  process.env['REACT_APP_VX_ENABLE_VVSG2_AUTH_FLOWS'] = undefined;
-}
 
 beforeEach(() => {
   fetchMock.config.fallbackToNetwork = true;
@@ -79,8 +59,6 @@ beforeEach(() => {
     },
     configurable: true,
   });
-
-  disableVvsg2AuthFlows();
 });
 
 afterEach(() => {
@@ -610,9 +588,7 @@ test('system administrator can log in and unconfigure machine', async () => {
   await screen.findByText('VxCentralScan is Locked');
 });
 
-test('election manager cannot auth onto machine with different election hash when VVSG2 auth flows are enabled', async () => {
-  enableVvsg2AuthFlows();
-
+test('election manager cannot auth onto machine with different election hash', async () => {
   const getElectionResponseBody: Scan.GetElectionConfigResponse =
     electionSampleDefinition;
   const getTestModeResponseBody: Scan.GetTestModeConfigResponse = {

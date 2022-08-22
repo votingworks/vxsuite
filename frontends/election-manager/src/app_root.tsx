@@ -31,7 +31,6 @@ import {
   Hardware,
 } from '@votingworks/utils';
 import {
-  areVvsg2AuthFlowsEnabled,
   useUsbDrive,
   useDevices,
   useDippedSmartcardAuth,
@@ -499,10 +498,6 @@ export function AppRoot({
         const electionData = electionJson;
         const electionHash = sha256(electionData);
         const election = safeParseElection(electionData).unsafeUnwrap();
-
-        if (!areVvsg2AuthFlowsEnabled() && auth.status === 'logged_out') {
-          auth.bootstrapAuthenticatedElectionManagerSession(electionHash);
-        }
 
         setElectionDefinition({
           electionData,

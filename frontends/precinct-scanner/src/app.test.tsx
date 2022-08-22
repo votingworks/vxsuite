@@ -27,7 +27,6 @@ import {
   makeElectionManagerCard,
   makeSystemAdministratorCard,
   getZeroCompressedTally,
-  mockOf,
 } from '@votingworks/test-utils';
 import { join } from 'path';
 import {
@@ -38,7 +37,6 @@ import {
 import { AdjudicationReason, PrecinctSelectionKind } from '@votingworks/types';
 
 import { mocked } from 'ts-jest/utils';
-import { areVvsg2AuthFlowsEnabled } from '@votingworks/ui';
 import userEvent from '@testing-library/user-event';
 import { App } from './app';
 
@@ -69,29 +67,9 @@ jest.mock('@votingworks/utils/build/ballot_package', () => ({
 }));
 // End mocking `readBallotPackageFromFilePointer`.
 
-jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => {
-  const original: typeof import('@votingworks/ui') =
-    jest.requireActual('@votingworks/ui');
-  return {
-    ...original,
-    areVvsg2AuthFlowsEnabled: jest.fn(),
-  };
-});
-
-function enableVvsg2AuthFlows() {
-  mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => true);
-  process.env['REACT_APP_VX_ENABLE_VVSG2_AUTH_FLOWS'] = 'true';
-}
-
-function disableVvsg2AuthFlows() {
-  mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => false);
-  process.env['REACT_APP_VX_ENABLE_VVSG2_AUTH_FLOWS'] = undefined;
-}
-
 beforeEach(() => {
   jest.useFakeTimers();
   fetchMock.reset();
-  disableVvsg2AuthFlows();
 });
 
 const getMachineConfigBody: MachineConfigResponse = {
@@ -1336,9 +1314,7 @@ test('system administrator allowed to log in on unconfigured machine', async () 
   await screen.findByText('Enter the card security code to unlock.');
 });
 
-test('election manager cannot auth onto machine with different election hash when VVSG2 auth flows are enabled', async () => {
-  enableVvsg2AuthFlows();
-
+test('election manager cannot auth onto machine with different election hash', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   hardware.setCardReaderConnected(true);

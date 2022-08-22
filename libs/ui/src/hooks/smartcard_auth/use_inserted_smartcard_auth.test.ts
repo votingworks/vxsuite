@@ -15,7 +15,6 @@ import {
   makeVoterCard,
   fakeVoterUser,
   fakeCardlessVoterUser,
-  mockOf,
 } from '@votingworks/test-utils';
 import {
   PrecinctSelection,
@@ -24,7 +23,6 @@ import {
 } from '@votingworks/types';
 import { assert, MemoryCard, utcTimestamp } from '@votingworks/utils';
 
-import { areVvsg2AuthFlowsEnabled } from '../../config/features';
 import {
   isVoterAuth,
   isPollWorkerAuth,
@@ -52,20 +50,9 @@ const precinct: PrecinctSelection = {
 };
 const ballotStyle = election.ballotStyles[0];
 
-jest.mock(
-  '../../config/features',
-  (): typeof import('../../config/features') => {
-    return {
-      ...jest.requireActual('../../config/features'),
-      areVvsg2AuthFlowsEnabled: jest.fn(),
-    };
-  }
-);
-
 describe('useInsertedSmartcardAuth', () => {
   beforeEach(() => {
     jest.useFakeTimers();
-    mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => false);
   });
 
   it("returns logged_out auth when there's no card or a card error", async () => {
@@ -1020,7 +1007,6 @@ describe('useInsertedSmartcardAuth', () => {
   });
 
   it('allows election managers to access unconfigured machines', async () => {
-    mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => true);
     const cardApi = new MemoryCard();
     const logger = fakeLogger();
 
@@ -1042,7 +1028,6 @@ describe('useInsertedSmartcardAuth', () => {
   });
 
   it('returns logged_out auth when election manager card election hash does not match machine election hash', async () => {
-    mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => true);
     const cardApi = new MemoryCard();
     const logger = fakeLogger();
 
@@ -1073,7 +1058,6 @@ describe('useInsertedSmartcardAuth', () => {
   });
 
   it('allows election managers to access machines configured for other elections when setting is enabled', async () => {
-    mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => true);
     const cardApi = new MemoryCard();
     const logger = fakeLogger();
 

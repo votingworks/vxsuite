@@ -6,7 +6,6 @@ import {
   AnyCardData,
   PollWorkerUser,
 } from '@votingworks/types';
-import { areVvsg2AuthFlowsEnabled } from '@votingworks/ui';
 import {
   assert,
   MemoryCard,
@@ -35,23 +34,12 @@ import { generatePin } from './pins';
 import { MachineConfig } from '../../config/types';
 import { VxFiles } from '../../lib/converters';
 
-jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => {
-  return {
-    ...jest.requireActual('@votingworks/ui'),
-    areVvsg2AuthFlowsEnabled: jest.fn(),
-  };
-});
 jest.mock('./pins', (): typeof import('./pins') => {
   return {
     ...jest.requireActual('./pins'),
     generatePin: jest.fn(),
   };
 });
-
-function enableVvsg2AuthFlows() {
-  mockOf(areVvsg2AuthFlowsEnabled).mockImplementation(() => true);
-  process.env['REACT_APP_VX_ENABLE_VVSG2_AUTH_FLOWS'] = 'true';
-}
 
 const electionDefinition = electionSampleDefinition;
 const { election, electionData, electionHash } = electionDefinition;
@@ -68,7 +56,6 @@ beforeEach(() => {
     typedAs<MachineConfig>({ codeVersion: '', machineId: '' })
   );
 
-  enableVvsg2AuthFlows();
   mockOf(generatePin).mockImplementation(() => '123456');
 });
 

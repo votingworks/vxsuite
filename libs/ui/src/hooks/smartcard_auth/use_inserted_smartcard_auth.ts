@@ -42,7 +42,6 @@ import {
   parseUserFromCardSummary,
 } from './auth_helpers';
 import { usePrevious } from '../use_previous';
-import { areVvsg2AuthFlowsEnabled } from '../../config/features';
 
 export const VOTER_CARD_EXPIRATION_SECONDS = 60 * 60; // 1 hour
 
@@ -97,9 +96,6 @@ function validateCardUser(
   }
 
   if (user.role === 'election_manager') {
-    if (!areVvsg2AuthFlowsEnabled()) {
-      return ok();
-    }
     if (!scope.electionDefinition) {
       return ok();
     }

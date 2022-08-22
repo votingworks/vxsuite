@@ -16,9 +16,6 @@ export interface LoggedOut {
     | 'machine_not_configured'
     | 'election_manager_wrong_election';
   readonly cardUserRole?: UserRole;
-  readonly bootstrapAuthenticatedElectionManagerSession: (
-    electionHash: string
-  ) => void;
 }
 
 export interface CheckingPasscode {

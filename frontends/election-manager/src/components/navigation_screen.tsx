@@ -8,7 +8,6 @@ import {
   Main,
   Screen,
   UsbControllerButton,
-  areVvsg2AuthFlowsEnabled,
 } from '@votingworks/ui';
 import { isWriteInAdjudicationEnabled } from '../config/features';
 import { AppContext } from '../contexts/app_context';
@@ -64,40 +63,18 @@ export function NavigationScreen({
         ]
       : [{ label: 'Definition', routerPath: routerPaths.electionDefinition }];
   } else if (isElectionManagerAuth(auth)) {
-    let primaryNavItemsUnfiltered: Array<NavItem | false> = [];
-    if (areVvsg2AuthFlowsEnabled()) {
-      primaryNavItemsUnfiltered = election
-        ? [
-            { label: 'Ballots', routerPath: routerPaths.ballotsList },
-            { label: 'L&A', routerPath: routerPaths.logicAndAccuracy },
-            { label: 'Tally', routerPath: routerPaths.tally },
-            isWriteInAdjudicationEnabled() && {
-              label: 'Write-Ins',
-              routerPath: routerPaths.writeIns,
-            },
-            { label: 'Reports', routerPath: routerPaths.reports },
-          ]
-        : [];
-    } else {
-      primaryNavItemsUnfiltered = election
-        ? [
-            { label: 'Definition', routerPath: routerPaths.electionDefinition },
-            { label: 'Smartcards', routerPath: routerPaths.smartcards },
-            { label: 'Ballots', routerPath: routerPaths.ballotsList },
-            { label: 'L&A', routerPath: routerPaths.logicAndAccuracy },
-            { label: 'Tally', routerPath: routerPaths.tally },
-            isWriteInAdjudicationEnabled() && {
-              label: 'Write-Ins',
-              routerPath: routerPaths.writeIns,
-            },
-            { label: 'Reports', routerPath: routerPaths.reports },
-            { label: 'Advanced', routerPath: routerPaths.advanced },
-          ]
-        : [
-            { label: 'Configure', routerPath: routerPaths.root },
-            { label: 'Advanced', routerPath: routerPaths.advanced },
-          ];
-    }
+    const primaryNavItemsUnfiltered: Array<NavItem | false> = election
+      ? [
+          { label: 'Ballots', routerPath: routerPaths.ballotsList },
+          { label: 'L&A', routerPath: routerPaths.logicAndAccuracy },
+          { label: 'Tally', routerPath: routerPaths.tally },
+          isWriteInAdjudicationEnabled() && {
+            label: 'Write-Ins',
+            routerPath: routerPaths.writeIns,
+          },
+          { label: 'Reports', routerPath: routerPaths.reports },
+        ]
+      : [];
     primaryNavItems = primaryNavItemsUnfiltered.filter<NavItem>(
       (entry): entry is NavItem => Boolean(entry)
     );
