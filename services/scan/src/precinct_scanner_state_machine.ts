@@ -875,6 +875,12 @@ function setupLogging(
         .map(([key, value]) =>
           key === 'interpretation' ? [key, value?.type] : [key, value]
         )
+        // Make sure we log the important fields of an error
+        .map(([key, value]) =>
+          key === 'error' && value instanceof Error
+            ? [key, { message: value.message, stack: value.stack }]
+            : [key, value]
+        )
         .map(([key, value]) => [
           key,
           value === undefined ? 'undefined' : value,
