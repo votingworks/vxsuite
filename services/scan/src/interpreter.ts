@@ -153,6 +153,7 @@ export interface InterpreterOptions {
   markThresholdOverrides?: MarkThresholds;
   skipElectionHashCheck?: boolean;
   adjudicationReasons: readonly AdjudicationReason[];
+  currentPrecinctId?: string;
 }
 
 export class Interpreter {
@@ -161,17 +162,20 @@ export class Interpreter {
   private readonly testMode: boolean;
   private readonly markThresholds: MarkThresholds;
   private readonly skipElectionHashCheck?: boolean;
+  private readonly currentPrecinctId?: string;
   private readonly adjudicationReasons: readonly AdjudicationReason[];
 
   constructor({
     electionDefinition,
     testMode,
     markThresholdOverrides,
+    currentPrecinctId,
     skipElectionHashCheck,
     adjudicationReasons,
   }: InterpreterOptions) {
     this.electionDefinition = electionDefinition;
     this.testMode = testMode;
+    this.currentPrecinctId = currentPrecinctId;
 
     const markThresholds =
       markThresholdOverrides ?? electionDefinition.election.markThresholds;
@@ -277,18 +281,31 @@ export class Interpreter {
     if (bmdResult) {
       const bmdMetadata = (bmdResult.interpretation as InterpretedBmdPage)
         .metadata;
-      if (bmdMetadata.isTestMode === this.testMode) {
+      if (bmdMetadata.isTestMode !== this.testMode) {
         timer.end();
-        return bmdResult;
+        return {
+          interpretation: {
+            type: 'InvalidTestModePage',
+            metadata: bmdMetadata,
+          },
+        };
+      }
+
+      if (
+        this.currentPrecinctId &&
+        bmdMetadata.precinctId !== this.currentPrecinctId
+      ) {
+        timer.end();
+        return {
+          interpretation: {
+            type: 'InvalidPrecinctPage',
+            metadata: bmdMetadata,
+          },
+        };
       }
 
       timer.end();
-      return {
-        interpretation: {
-          type: 'InvalidTestModePage',
-          metadata: bmdMetadata,
-        },
-      };
+      return bmdResult;
     }
 
     try {
@@ -298,6 +315,21 @@ export class Interpreter {
       );
 
       if (hmpbResult) {
+        const { interpretation } = hmpbResult;
+        assert(interpretation && interpretation.type === 'InterpretedHmpbPage');
+
+        if (
+          this.currentPrecinctId &&
+          interpretation.metadata.precinctId !== this.currentPrecinctId
+        ) {
+          timer.end();
+          return {
+            interpretation: {
+              type: 'InvalidPrecinctPage',
+              metadata: interpretation.metadata,
+            },
+          };
+        }
         timer.end();
         return hmpbResult;
       }

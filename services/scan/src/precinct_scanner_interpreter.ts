@@ -26,6 +26,7 @@ export interface InterpreterConfig {
   readonly ballotImagesPath: string;
   readonly markThresholdOverrides?: MarkThresholds;
   readonly testMode: boolean;
+  readonly currentPrecinctId?: string;
 }
 
 /**
@@ -219,12 +220,14 @@ async function vxInterpret(
     ballotImagesPath,
     layouts,
     markThresholdOverrides,
+    currentPrecinctId,
     testMode,
   } = config;
   const vxInterpreter = new VxInterpreter({
     electionDefinition,
     testMode,
     markThresholdOverrides,
+    currentPrecinctId,
     adjudicationReasons:
       (SCANNER_LOCATION === ScannerLocation.Central
         ? electionDefinition.election.centralScanAdjudicationReasons
