@@ -945,7 +945,6 @@ export interface BallotCandidateTargetMark {
   optionId: CandidateId | WriteInId;
   score: number;
   scoredOffset: Offset;
-  writeInTextScore?: number;
 }
 export const BallotCandidateTargetMarkSchema: z.ZodSchema<BallotCandidateTargetMark> =
   z.object({
@@ -956,7 +955,6 @@ export const BallotCandidateTargetMarkSchema: z.ZodSchema<BallotCandidateTargetM
     optionId: z.union([CandidateIdSchema, WriteInIdSchema]),
     score: z.number().min(0).max(1),
     scoredOffset: OffsetSchema,
-    writeInTextScore: z.number().min(0).max(1).optional(),
   });
 
 export interface BallotYesNoTargetMark {

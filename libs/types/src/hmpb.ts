@@ -84,7 +84,6 @@ export enum MarkStatus {
   Marked = 'marked',
   Unmarked = 'unmarked',
   Marginal = 'marginal',
-  UnmarkedWriteIn = 'unmarkedWriteIn',
 }
 export const MarkStatusSchema: z.ZodSchema<MarkStatus> =
   z.nativeEnum(MarkStatus);

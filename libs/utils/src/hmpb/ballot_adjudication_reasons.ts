@@ -60,7 +60,6 @@ export function* ballotAdjudicationReasons(
 
             break;
 
-          case MarkStatus.UnmarkedWriteIn:
           case MarkStatus.Unmarked:
             break;
 
