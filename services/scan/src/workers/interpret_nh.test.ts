@@ -26,6 +26,7 @@ test('configure', async () => {
 });
 
 test('interpret', async () => {
+  jest.setTimeout(10_000);
   const dbPath = fileSync().name;
   const ballotImagesPath = dirSync().name;
   const store = Store.fileStore(dbPath);
