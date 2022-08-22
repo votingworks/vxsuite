@@ -93,6 +93,7 @@ interface FrontendState {
   isPollsOpen: boolean;
   ballotCountWhenBallotBagLastReplaced: number;
   initializedFromStorage: boolean;
+  isSoundMuted: boolean;
 }
 
 export interface State
@@ -119,6 +120,7 @@ const initialAppState: Readonly<FrontendState> = {
   isPollsOpen: false,
   ballotCountWhenBallotBagLastReplaced: 0,
   initializedFromStorage: false,
+  isSoundMuted: false,
 };
 
 const initialState: Readonly<State> = {
@@ -149,6 +151,7 @@ type AppAction =
   | { type: 'updatePrecinctId'; precinctId?: PrecinctId }
   | { type: 'updateMarkThresholds'; markThresholds?: MarkThresholds }
   | { type: 'togglePollsOpen' }
+  | { type: 'toggleIsSoundMuted' }
   | { type: 'ballotBagReplaced'; currentBallotCount: number }
   | { type: 'setMachineConfig'; machineConfig: MachineConfig };
 
@@ -211,6 +214,11 @@ function appReducer(state: State, action: AppAction): State {
         ...state,
         isPollsOpen: !state.isPollsOpen,
       };
+    case 'toggleIsSoundMuted':
+      return {
+        ...state,
+        isSoundMuted: !state.isSoundMuted,
+      };
     case 'ballotBagReplaced':
       return {
         ...state,
@@ -245,6 +253,7 @@ export function AppRoot({
     isPollsOpen,
     initializedFromStorage,
     machineConfig,
+    isSoundMuted,
   } = appState;
 
   const usbDrive = useUsbDrive({ logger });
@@ -361,6 +370,10 @@ export function AppRoot({
     dispatchAppState({ type: 'resetPollsToClosed' });
     await refreshConfig();
   }, [refreshConfig, isTestMode]);
+
+  const toggleIsSoundMuted = useCallback(() => {
+    dispatchAppState({ type: 'toggleIsSoundMuted' });
+  }, []);
 
   const unconfigureServer = useCallback(
     async (options: { ignoreBackupRequirement?: boolean } = {}) => {
@@ -483,6 +496,7 @@ export function AppRoot({
           currentMarkThresholds,
           machineConfig,
           auth,
+          isSoundMuted,
         }}
       >
         <ElectionManagerScreen
@@ -493,6 +507,7 @@ export function AppRoot({
           setMarkThresholdOverrides={updateMarkThresholds}
           unconfigure={unconfigureServer}
           usbDrive={usbDrive}
+          toggleIsSoundMuted={toggleIsSoundMuted}
         />
       </AppContext.Provider>
     );
@@ -526,6 +541,7 @@ export function AppRoot({
           currentMarkThresholds,
           machineConfig,
           auth,
+          isSoundMuted,
         }}
       >
         <PollWorkerScreen
@@ -640,6 +656,7 @@ export function AppRoot({
         currentMarkThresholds,
         machineConfig,
         auth,
+        isSoundMuted,
       }}
     >
       {voterScreen}

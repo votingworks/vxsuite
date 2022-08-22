@@ -143,6 +143,7 @@ export function PreviewDashboard({
         },
         electionDefinition,
         auth: { status: 'logged_out', reason: 'no_card' },
+        isSoundMuted: false,
       }}
     >
       <BrowserRouter>

@@ -41,6 +41,7 @@ function renderScreen({
       value={{
         electionDefinition: electionSampleDefinition,
         machineConfig: { machineId: '0000', codeVersion: 'TEST' },
+        isSoundMuted: false,
         auth,
       }}
     >

@@ -39,6 +39,7 @@ test('renders date and time settings modal', async () => {
     <AppContext.Provider
       value={{
         electionDefinition: electionSampleDefinition,
+        isSoundMuted: false,
         machineConfig: { machineId: '0000', codeVersion: 'TEST' },
         auth,
       }}
@@ -51,6 +52,7 @@ test('renders date and time settings modal', async () => {
         setMarkThresholdOverrides={jest.fn()}
         unconfigure={jest.fn()}
         usbDrive={{ status: usbstick.UsbDriveStatus.absent, eject: jest.fn() }}
+        toggleIsSoundMuted={jest.fn()}
       />
     </AppContext.Provider>
   );
@@ -92,6 +94,7 @@ test('setting and un-setting the precinct', async () => {
       value={{
         electionDefinition: electionSampleDefinition,
         machineConfig: { machineId: '0000', codeVersion: 'TEST' },
+        isSoundMuted: false,
         auth,
       }}
     >
@@ -102,6 +105,7 @@ test('setting and un-setting the precinct', async () => {
         toggleLiveMode={jest.fn()}
         setMarkThresholdOverrides={jest.fn()}
         unconfigure={jest.fn()}
+        toggleIsSoundMuted={jest.fn()}
         usbDrive={{ status: usbstick.UsbDriveStatus.absent, eject: jest.fn() }}
       />
     </AppContext.Provider>
@@ -129,6 +133,7 @@ test('export from admin screen', () => {
       value={{
         electionDefinition: electionSampleDefinition,
         machineConfig: { machineId: '0000', codeVersion: 'TEST' },
+        isSoundMuted: false,
         auth,
       }}
     >
@@ -139,6 +144,7 @@ test('export from admin screen', () => {
         toggleLiveMode={jest.fn()}
         setMarkThresholdOverrides={jest.fn()}
         unconfigure={jest.fn()}
+        toggleIsSoundMuted={jest.fn()}
         usbDrive={{ status: usbstick.UsbDriveStatus.absent, eject: jest.fn() }}
       />
     </AppContext.Provider>
@@ -155,6 +161,7 @@ test('unconfigure ejects a usb drive when it is mounted', () => {
       value={{
         electionDefinition: electionSampleDefinition,
         machineConfig: { machineId: '0000', codeVersion: 'TEST' },
+        isSoundMuted: false,
         auth,
       }}
     >
@@ -165,6 +172,7 @@ test('unconfigure ejects a usb drive when it is mounted', () => {
         toggleLiveMode={jest.fn()}
         setMarkThresholdOverrides={jest.fn()}
         unconfigure={unconfigureFn}
+        toggleIsSoundMuted={jest.fn()}
         usbDrive={{ status: usbstick.UsbDriveStatus.absent, eject: ejectFn }}
       />
     </AppContext.Provider>
@@ -184,6 +192,7 @@ test('unconfigure does not eject a usb drive that is not mounted', async () => {
       value={{
         electionDefinition: electionSampleDefinition,
         machineConfig: { machineId: '0000', codeVersion: 'TEST' },
+        isSoundMuted: false,
         auth,
       }}
     >
@@ -194,6 +203,7 @@ test('unconfigure does not eject a usb drive that is not mounted', async () => {
         toggleLiveMode={jest.fn()}
         setMarkThresholdOverrides={jest.fn()}
         unconfigure={unconfigureFn}
+        toggleIsSoundMuted={jest.fn()}
         usbDrive={{ status: usbstick.UsbDriveStatus.mounted, eject: ejectFn }}
       />
     </AppContext.Provider>
@@ -213,6 +223,7 @@ test('unconfigure button is disabled when the machine cannot be unconfigured', (
       value={{
         electionDefinition: electionSampleDefinition,
         machineConfig: { machineId: '0000', codeVersion: 'TEST' },
+        isSoundMuted: false,
         auth,
       }}
     >
@@ -223,6 +234,7 @@ test('unconfigure button is disabled when the machine cannot be unconfigured', (
         toggleLiveMode={jest.fn()}
         setMarkThresholdOverrides={jest.fn()}
         unconfigure={jest.fn()}
+        toggleIsSoundMuted={jest.fn()}
         usbDrive={{ status: usbstick.UsbDriveStatus.mounted, eject: jest.fn() }}
       />
     </AppContext.Provider>
@@ -240,6 +252,7 @@ test('cannot toggle to testing mode when the machine cannot be unconfigured', ()
       value={{
         electionDefinition: electionSampleDefinition,
         machineConfig: { machineId: '0000', codeVersion: 'TEST' },
+        isSoundMuted: false,
         auth,
       }}
     >
@@ -250,6 +263,7 @@ test('cannot toggle to testing mode when the machine cannot be unconfigured', ()
         toggleLiveMode={toggleLiveModeFn}
         setMarkThresholdOverrides={jest.fn()}
         unconfigure={jest.fn()}
+        toggleIsSoundMuted={jest.fn()}
         usbDrive={{ status: usbstick.UsbDriveStatus.mounted, eject: jest.fn() }}
       />
     </AppContext.Provider>
@@ -267,6 +281,7 @@ test('Allows overriding mark thresholds', () => {
     <AppContext.Provider
       value={{
         electionDefinition: electionSampleDefinition,
+        isSoundMuted: false,
         machineConfig: { machineId: '0000', codeVersion: 'TEST' },
         auth,
       }}
@@ -278,6 +293,7 @@ test('Allows overriding mark thresholds', () => {
         toggleLiveMode={jest.fn()}
         setMarkThresholdOverrides={setMarkThresholdOverridesFn}
         unconfigure={jest.fn()}
+        toggleIsSoundMuted={jest.fn()}
         usbDrive={{ status: usbstick.UsbDriveStatus.mounted, eject: jest.fn() }}
       />
     </AppContext.Provider>
