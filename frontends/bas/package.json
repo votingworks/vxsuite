@@ -58,7 +58,9 @@
     "extends": "react-app"
   },
   "dependencies": {
+    "@votingworks/fixtures": "workspace:*",
     "@votingworks/logging": "workspace:*",
+    "@votingworks/test-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/ui": "workspace:*",
     "@votingworks/utils": "workspace:*",
@@ -81,12 +83,14 @@
     "resolve": "1.18.1",
     "semver": "7.3.2",
     "styled-components": "^5.2.1",
+    "use-interval": "^1.4.0",
     "zod": "3.14.4"
   },
   "devDependencies": {
     "@babel/core": "7.12.3",
     "@jest/types": "^28.1.0",
     "@testing-library/jest-dom": "^5.16.4",
+    "@testing-library/react-hooks": "^8.0.1",
     "@types/connect": "^3.4.35",
     "@types/express": "^4.17.13",
     "@types/history": "^4.7.8",

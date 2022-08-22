@@ -8,6 +8,11 @@ import {
   safeParseJson,
 } from '@votingworks/types';
 import {
+  CARD_POLLING_INTERVAL,
+  Devices,
+  useCancelablePromise,
+} from '@votingworks/ui';
+import {
   assert,
   Card,
   CardSummary,
@@ -15,9 +20,6 @@ import {
 } from '@votingworks/utils';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import useInterval from 'use-interval';
-import { CARD_POLLING_INTERVAL } from './smartcard_auth';
-import { useCancelablePromise } from './use_cancelable_promise';
-import { Devices } from './use_devices';
 
 export interface UseSmartcardProps {
   card: Card;
@@ -54,8 +56,8 @@ const initialState: State = {
 };
 
 /**
- * TODO(https://github.com/votingworks/vxsuite/issues/2048): Delete this hook after migrating off
- * of it in frontends/bas
+ * TODO: If we do decide to bring VxEncode back, update useDippedSmartcardAuth in @votingworks/ui
+ * to support voter card programming by poll workers and use that instead of this one-off hook
  *
  * React hook for getting the current smartcard data.
  *

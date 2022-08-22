@@ -15,7 +15,6 @@ export * from './hooks/use_lock';
 export * from './hooks/use_mounted_state';
 export * from './hooks/use_now';
 export * from './hooks/use_previous';
-export * from './hooks/use_smartcard';
 export * from './hooks/smartcard_auth';
 export * from './hooks/use_stored_state';
 export * from './hooks/use_usb_drive';
