@@ -1277,9 +1277,7 @@ test('system administrator can log in and unconfigure machine', async () => {
       name: 'Yes, Delete Election Data',
     })
   );
-  await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull(), {
-    timeout: 2000,
-  });
+  await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
 
   card.removeCard();
 });

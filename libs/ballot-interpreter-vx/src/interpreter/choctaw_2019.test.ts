@@ -1,8 +1,6 @@
 import * as choctaw2019 from '../../test/fixtures/election-98f5203139-choctaw-general-2019';
 import { Interpreter } from '.';
 
-jest.setTimeout(10000);
-
 test('choctaw general 2019', async () => {
   const { electionDefinition } = choctaw2019;
   const interpreter = new Interpreter({ electionDefinition });

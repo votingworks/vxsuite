@@ -18,7 +18,7 @@ describe('Election Manager can create SEMS tallies', () => {
       { contents: Cypress.Buffer.from(electionDefinition.electionData) },
       { force: true }
     );
-    cy.contains('Election loading', { timeout: 8000 });
+    cy.contains('Election loading');
     cy.contains(electionDefinition.electionHash.slice(0, 10));
     cy.contains('Lock Machine').click();
     mockElectionManagerCardInsertion(
@@ -39,7 +39,7 @@ describe('Election Manager can create SEMS tallies', () => {
     cy.contains('Reports').click();
     cy.contains('Save SEMS Results').click();
     cy.get('[data-testid="manual-export"]').click();
-    cy.contains('Results Saved', { timeout: 8000 });
+    cy.contains('Results Saved');
     cy.task('readMostRecentFile', 'cypress/downloads').then((fileContent) => {
       const receivedLines = (fileContent as string).split('\r\n');
       for (const [i, expectedLine] of electionMultiPartyPrimaryFixtures.semsData

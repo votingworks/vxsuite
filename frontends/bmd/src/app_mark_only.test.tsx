@@ -25,8 +25,6 @@ import {
 import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
 import { enterPin } from '../test/test_utils';
 
-jest.setTimeout(10_000);
-
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';

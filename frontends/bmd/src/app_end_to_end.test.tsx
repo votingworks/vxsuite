@@ -468,9 +468,8 @@ it('MarkAndPrint end-to-end flow', async () => {
       name: 'Yes, Delete Election Data',
     })
   );
-  await waitFor(
-    () => expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument(),
-    { timeout: 2000 }
+  await waitFor(() =>
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
   card.removeCard();
   await advanceTimersAndPromises();

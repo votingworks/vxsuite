@@ -3,8 +3,6 @@ import { Interpreter } from '.';
 import * as choctaw2020LegalSize from '../../test/fixtures/choctaw-county-2020-general-election';
 import * as oaklawn from '../../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library';
 
-jest.setTimeout(10000);
-
 test('can interpret a template that is not in the same mode as the interpreter', async () => {
   const fixtures = oaklawn;
   const { electionDefinition } = fixtures;

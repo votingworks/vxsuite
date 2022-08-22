@@ -1,8 +1,6 @@
 import * as choctawMock2020 from '../../test/fixtures/choctaw-county-mock-general-election-choctaw-2020-a63f5c1f68';
 import { Interpreter } from '.';
 
-jest.setTimeout(10000);
-
 test('interpret two-column template', async () => {
   const { electionDefinition } = choctawMock2020;
   const interpreter = new Interpreter({ electionDefinition });

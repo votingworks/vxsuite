@@ -36,8 +36,6 @@ import { App } from './app';
 import { stateStorageKey } from './app_root';
 import { MachineConfigResponse } from './config/types';
 
-jest.setTimeout(10000);
-
 beforeEach(() => {
   jest.useFakeTimers();
   fetchMock.reset();

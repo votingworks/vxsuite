@@ -20,8 +20,6 @@ import {
 import { fakeMachineConfigProvider } from '../test/helpers/fake_machine_config';
 import { electionSampleDefinition } from './data';
 
-jest.setTimeout(10_000);
-
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
