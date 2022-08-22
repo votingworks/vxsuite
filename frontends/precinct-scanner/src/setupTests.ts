@@ -3,6 +3,10 @@ import jestFetchMock from 'jest-fetch-mock';
 import '@testing-library/jest-dom/extend-expect';
 import { TextDecoder, TextEncoder } from 'util';
 
+import { configure } from '@testing-library/react';
+
+configure({ asyncUtilTimeout: 5_000 });
+
 beforeEach(() => {
   jestFetchMock.enableMocks();
   fetchMock.reset();

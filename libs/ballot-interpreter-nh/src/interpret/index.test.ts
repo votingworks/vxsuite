@@ -6,10 +6,6 @@ import {
   readFixtureJson,
 } from '../../test/fixtures';
 
-if (process.env.CI) {
-  jest.setTimeout(10_000);
-}
-
 test('interpret marked', async () => {
   const electionDefinition = safeParseElectionDefinition(
     await readFixtureJson(HudsonFixtureName, 'election')

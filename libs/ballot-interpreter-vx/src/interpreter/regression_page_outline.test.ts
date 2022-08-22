@@ -1,8 +1,6 @@
 import * as oaklawn from '../../test/fixtures/election-4e31cb17d8-ballot-style-77-precinct-oaklawn-branch-library';
 import { Interpreter } from '.';
 
-jest.setTimeout(10000);
-
 test('regression: page outline', async () => {
   const fixtures = oaklawn;
   const { electionDefinition } = fixtures;

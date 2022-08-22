@@ -8,6 +8,7 @@ import { readMostRecentFile } from './cypress/support/read_most_recent_file';
 export default defineConfig({
   viewportHeight: 1080,
   viewportWidth: 1920,
+  defaultCommandTimeout: 8_000,
   e2e: {
     setupNodeEvents(on) {
       on('task', { readMostRecentFile });

@@ -26,8 +26,6 @@ const sampleBallotImagesPath = join(__dirname, '..', 'sample-ballot-images/');
 const interpreterOutputPath = join(__dirname, '..', 'test-output-dir/');
 emptyDirSync(interpreterOutputPath);
 
-jest.setTimeout(10000);
-
 test('extracts votes encoded in a QR code', async () => {
   const ballotImagePath = join(
     sampleBallotImagesPath,

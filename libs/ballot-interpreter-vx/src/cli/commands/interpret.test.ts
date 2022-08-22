@@ -14,8 +14,6 @@ import {
 import { runCli } from '../../../test/utils';
 import { OutputFormat, parseOptions } from './interpret';
 
-jest.setTimeout(10000);
-
 test('parse options: --election', async () => {
   for (const electionFlag of ['--election', '-e']) {
     expect(

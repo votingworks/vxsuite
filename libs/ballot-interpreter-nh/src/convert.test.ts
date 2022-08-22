@@ -32,10 +32,6 @@ import {
 } from './convert';
 import * as templates from './data/templates';
 
-if (process.env.CI) {
-  jest.setTimeout(10_000);
-}
-
 test('converting the Hudson ballot', async () => {
   const hudsonBallotCardDefinition = await readFixtureBallotCardDefinition(
     HudsonFixtureName,

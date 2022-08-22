@@ -1,8 +1,6 @@
 import * as m14Mock from '../../test/fixtures/election-60bfbea106-m14-mock';
 import { Interpreter } from '.';
 
-jest.setTimeout(5000);
-
 test('does not bail out with 7x7 jiggle', async () => {
   const fixtures = m14Mock;
   const { electionDefinition } = fixtures;

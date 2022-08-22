@@ -1,8 +1,6 @@
 import * as choctaw2020LegalSize from '../../test/fixtures/choctaw-county-2020-general-election';
 import { Interpreter } from '.';
 
-jest.setTimeout(10000);
-
 // disabling this test as we've disabled jsQR for now
 test.skip('regression: overvote on choctaw county p1-05', async () => {
   const fixtures = choctaw2020LegalSize;

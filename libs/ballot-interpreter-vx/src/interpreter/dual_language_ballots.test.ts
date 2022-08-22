@@ -1,8 +1,6 @@
 import * as hamilton from '../../test/fixtures/election-5c6e578acf-state-of-hamilton-2020';
 import { Interpreter } from '.';
 
-jest.setTimeout(10000);
-
 test('dual language ballot', async () => {
   const { electionDefinition } = hamilton;
   const interpreter = new Interpreter({ electionDefinition });
