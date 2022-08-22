@@ -294,10 +294,10 @@ const defaultDelays: Delays = {
   // Time between calls to get paper status from the scanner.
   DELAY_PAPER_STATUS_POLLING_INTERVAL: 500,
   // How long to wait for a single paper status call to return before giving up.
-  DELAY_PAPER_STATUS_POLLING_TIMEOUT: 5_000,
+  DELAY_PAPER_STATUS_POLLING_TIMEOUT: 2_000,
   // How long to attempt scanning before giving up and disconnecting and
   // reconnecting to Plustek.
-  DELAY_SCANNING_TIMEOUT: 10_000,
+  DELAY_SCANNING_TIMEOUT: 5_000,
   // When in accepted state, how long to ignore any new ballot that is
   // inserted (this ensures the user sees the accepted screen for a bit
   // before starting a new scan).
@@ -318,11 +318,11 @@ const defaultDelays: Delays = {
   // how long to wait before trying to reconnect. This should be pretty
   // long in order to let Plustek finish whatever it's doing (yes, even
   // after disconnecting, Plustek might keep scanning).
-  DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 5_000,
+  DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 3_000,
   // When attempting to disconnect from Plustek after an unexpected error,
   // how long to wait before giving up on disconnecting the "nice" way and
   // just sending a kill signal.
-  DELAY_KILL_AFTER_DISCONNECT_TIMEOUT: 2_000,
+  DELAY_KILL_AFTER_DISCONNECT_TIMEOUT: 1_000,
 };
 
 function buildMachine(
