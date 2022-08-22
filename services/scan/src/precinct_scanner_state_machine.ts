@@ -531,10 +531,26 @@ function buildMachine(
                     scannedSheet: event.data,
                   })),
                 },
-                onError: {
-                  target: 'error_scanning',
-                  actions: assign((_context, event) => ({ error: event.data })),
-                },
+                onError: [
+                  // If we got an error that indicates the paper wasn't grabbed
+                  // or fed through the scanner, retry.
+                  {
+                    cond: (_context, event) =>
+                      event.data === ScannerError.PaperStatusErrorFeeding ||
+                      event.data === ScannerError.PaperStatusNoPaper,
+                    target: 'retry_scanning',
+                    actions: assign((_context, event) => ({
+                      error: event.data,
+                    })),
+                  },
+                  // Otherwise, treat it as an unexpected error
+                  {
+                    target: '#error',
+                    actions: assign((_context, event) => ({
+                      error: event.data,
+                    })),
+                  },
+                ],
               },
               after: {
                 DELAY_SCANNING_TIMEOUT: {
@@ -552,29 +568,23 @@ function buildMachine(
               invoke: pollPaperStatus,
               on: {
                 SCANNER_READY_TO_EJECT: '#interpreting',
-                SCANNER_NO_PAPER: 'error_scanning',
-                SCANNER_READY_TO_SCAN: 'error_scanning',
+                SCANNER_NO_PAPER: 'retry_scanning',
+                SCANNER_READY_TO_SCAN: 'retry_scanning',
               },
             },
-            error_scanning: {
+            retry_scanning: {
               invoke: pollPaperStatus,
               on: {
                 SCANNER_READY_TO_SCAN: [
-                  // If the paper is still in the front due to an error that
-                  // indicates the paper wasn't grabbed or fed through the
-                  // scanner, retry (up to a certain number of attempts).
+                  // If the paper is still in the front, retry (up to a certain
+                  // number of attempts).
                   {
                     target: 'starting_scan',
                     cond: (context) => {
                       assert(context.failedScanAttempts !== undefined);
-                      const gotExpectedScanningError =
-                        context.error ===
-                          ScannerError.PaperStatusErrorFeeding ||
-                        context.error === ScannerError.PaperStatusNoPaper;
                       const shouldRetry =
-                        (!context.error || gotExpectedScanningError) &&
                         context.failedScanAttempts <
-                          MAX_FAILED_SCAN_ATTEMPTS - 1;
+                        MAX_FAILED_SCAN_ATTEMPTS - 1;
                       return shouldRetry;
                     },
                     actions: assign({

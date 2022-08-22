@@ -859,7 +859,9 @@ test('insert second ballot while first ballot is returning', async () => {
 });
 
 test('jam on scan', async () => {
-  const { app, mockPlustek } = await createApp();
+  const { app, mockPlustek } = await createApp({
+    DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 500,
+  });
   await configureApp(app);
 
   await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
@@ -867,9 +869,10 @@ test('jam on scan', async () => {
 
   mockPlustek.simulateJamOnNextOperation();
   await post(app, '/scanner/scan');
-  await waitForStatus(app, { state: 'jammed' });
-
-  await mockPlustek.simulateRemoveSheet();
+  await waitForStatus(app, {
+    state: 'recovering_from_error',
+    error: 'plustek_error',
+  });
   await waitForStatus(app, { state: 'no_paper' });
 });
 
@@ -1028,8 +1031,10 @@ test('scan fails repeatedly and eventually gives up', async () => {
   await waitForStatus(app, { state: 'rejected', error: 'scanning_failed' });
 });
 
-test('scan fails with the paper in the back afterwards', async () => {
-  const { app, mockPlustek } = await createApp();
+test('scan fails due to plustek error', async () => {
+  const { app, mockPlustek } = await createApp({
+    DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 500,
+  });
   await configureApp(app);
 
   await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
@@ -1038,8 +1043,11 @@ test('scan fails with the paper in the back afterwards', async () => {
   await post(app, '/scanner/scan');
   await expectStatus(app, { state: 'scanning' });
   mockPlustek.simulateScanError('bad_scan_result');
-  await waitForStatus(app, { state: 'rejecting', error: 'plustek_error' });
-  await waitForStatus(app, { state: 'rejected', error: 'plustek_error' });
+  await waitForStatus(app, {
+    state: 'recovering_from_error',
+    error: 'plustek_error',
+  });
+  await waitForStatus(app, { state: 'no_paper' });
 });
 
 test('scanning time out', async () => {
