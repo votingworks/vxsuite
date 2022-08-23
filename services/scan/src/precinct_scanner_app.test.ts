@@ -27,7 +27,10 @@ import {
   MAX_FAILED_SCAN_ATTEMPTS,
 } from './precinct_scanner_state_machine';
 import { createWorkspace } from './util/workspace';
-import { createInterpreter } from './precinct_scanner_interpreter';
+import {
+  createInterpreter,
+  PrecinctScannerInterpreter,
+} from './precinct_scanner_interpreter';
 
 jest.setTimeout(15_000);
 
@@ -194,15 +197,16 @@ function checkLogs(logger: Logger) {
 async function createApp(
   delays: Partial<Delays> = {
     DELAY_RECONNECT: 100,
-    DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 500,
-    DELAY_ACCEPTED_RESET_TO_NO_PAPER: 1000,
+    DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 100,
+    DELAY_ACCEPTED_RESET_TO_NO_PAPER: 200,
+    DELAY_PAPER_STATUS_POLLING_INTERVAL: 50,
   }
 ) {
   const logger = fakeLogger();
   const workspace = await createWorkspace(dirSync().name);
   const mockPlustek = new MockScannerClient({
     toggleHoldDuration: 100,
-    passthroughDuration: 500,
+    passthroughDuration: 100,
   });
   const deferredConnect = deferred<void>();
   async function createPlustekClient(): Promise<Result<ScannerClient, Error>> {
@@ -231,6 +235,7 @@ async function createApp(
     mockPlustek,
     workspace,
     logger,
+    interpreter,
   };
 }
 
@@ -262,6 +267,43 @@ const ballotImages = {
     electionFamousNames2021Fixtures.machineMarkedBallotPage2.asFilePath(),
   ],
 } as const;
+
+/**
+ * Interpretation is generally the slowest part of tests in this file. To speed
+ * up a test, you can use this function to mock interpretation. It should only
+ * be used when:
+ * - The test isn't meant to check that interpretation works correctly. There
+ *   should already be another test that covers the same interpretation case.
+ * - The test doesn't check the CVR export at the end. The interpreter stores
+ *   the ballot images which are used in the CVR, and mocking will forgo that
+ *   logic.
+ * - The test doesn't depend on the actual page interpretations. This function
+ *   adds fake page interpretations that don't actually match the passed in
+ *   ballot interpretation (because the state machine doesn't actually use those
+ *   page interpretations, they are just stored for the CVR).
+ */
+function mockInterpretation(
+  interpreter: PrecinctScannerInterpreter,
+  interpretation: Scan.SheetInterpretation
+) {
+  jest.spyOn(interpreter, 'interpret').mockResolvedValue(
+    ok({
+      ...interpretation,
+      pages: [
+        {
+          interpretation: { type: 'BlankPage' },
+          originalFilename: 'fake_original_filename',
+          normalizedFilename: 'fake_normalized_filename',
+        },
+        {
+          interpretation: { type: 'BlankPage' },
+          originalFilename: 'fake_original_filename',
+          normalizedFilename: 'fake_normalized_filename',
+        },
+      ],
+    })
+  );
+}
 
 async function configureApp(
   app: Application,
@@ -689,7 +731,7 @@ test('scanner powered off while scanning', async () => {
 });
 
 test('scanner powered off while accepting', async () => {
-  const { app, mockPlustek } = await createApp();
+  const { app, mockPlustek, interpreter } = await createApp();
   await configureApp(app);
 
   await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
@@ -698,6 +740,7 @@ test('scanner powered off while accepting', async () => {
   const interpretation: Scan.SheetInterpretation = {
     type: 'ValidSheet',
   };
+  mockInterpretation(interpreter, interpretation);
 
   await post(app, '/precinct-scanner/scanner/scan');
   await expectStatus(app, { state: 'scanning' });
@@ -718,7 +761,7 @@ test('scanner powered off while accepting', async () => {
 });
 
 test('scanner powered off after accepting', async () => {
-  const { app, mockPlustek } = await createApp();
+  const { app, mockPlustek, interpreter } = await createApp();
   await configureApp(app);
 
   await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
@@ -727,6 +770,7 @@ test('scanner powered off after accepting', async () => {
   const interpretation: Scan.SheetInterpretation = {
     type: 'ValidSheet',
   };
+  mockInterpretation(interpreter, interpretation);
 
   await post(app, '/precinct-scanner/scanner/scan');
   await expectStatus(app, { state: 'scanning' });
@@ -753,7 +797,7 @@ test('scanner powered off after accepting', async () => {
 });
 
 test('scanner powered off while rejecting', async () => {
-  const { app, mockPlustek } = await createApp();
+  const { app, mockPlustek, interpreter } = await createApp();
   await configureApp(app);
 
   await mockPlustek.simulateLoadSheet(ballotImages.wrongElection);
@@ -763,6 +807,7 @@ test('scanner powered off while rejecting', async () => {
     type: 'InvalidSheet',
     reason: 'invalid_election_hash',
   };
+  mockInterpretation(interpreter, interpretation);
 
   await post(app, '/precinct-scanner/scanner/scan');
   await expectStatus(app, { state: 'scanning' });
@@ -780,13 +825,14 @@ test('scanner powered off while rejecting', async () => {
 });
 
 test('scanner powered off while returning', async () => {
-  const { app, mockPlustek } = await createApp();
-  await configureApp(app, { addTemplates: true });
+  const { app, mockPlustek, interpreter } = await createApp();
+  await configureApp(app);
 
   await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb);
   await waitForStatus(app, { state: 'ready_to_scan' });
 
   const interpretation = needsReviewInterpretation;
+  mockInterpretation(interpreter, interpretation);
 
   await post(app, '/precinct-scanner/scanner/scan');
   await expectStatus(app, { state: 'scanning' });
@@ -807,13 +853,14 @@ test('scanner powered off while returning', async () => {
 });
 
 test('scanner powered off after returning', async () => {
-  const { app, mockPlustek } = await createApp();
-  await configureApp(app, { addTemplates: true });
+  const { app, mockPlustek, interpreter } = await createApp();
+  await configureApp(app);
 
   await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb);
   await waitForStatus(app, { state: 'ready_to_scan' });
 
   const interpretation = needsReviewInterpretation;
+  mockInterpretation(interpreter, interpretation);
 
   await post(app, '/precinct-scanner/scanner/scan');
   await expectStatus(app, { state: 'scanning' });
@@ -870,7 +917,7 @@ test('insert second ballot while first ballot is scanning', async () => {
 });
 
 test('insert second ballot before first ballot accept', async () => {
-  const { app, mockPlustek } = await createApp();
+  const { app, mockPlustek, interpreter } = await createApp();
   await configureApp(app);
 
   await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
@@ -879,6 +926,7 @@ test('insert second ballot before first ballot accept', async () => {
   const interpretation: Scan.SheetInterpretation = {
     type: 'ValidSheet',
   };
+  mockInterpretation(interpreter, interpretation);
 
   await post(app, '/precinct-scanner/scanner/scan');
   await expectStatus(app, { state: 'scanning' });
@@ -900,7 +948,7 @@ test('insert second ballot before first ballot accept', async () => {
 });
 
 test('insert second ballot while first ballot is accepting', async () => {
-  const { app, mockPlustek } = await createApp();
+  const { app, mockPlustek, interpreter } = await createApp();
   await configureApp(app);
 
   await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
@@ -909,6 +957,7 @@ test('insert second ballot while first ballot is accepting', async () => {
   const interpretation: Scan.SheetInterpretation = {
     type: 'ValidSheet',
   };
+  mockInterpretation(interpreter, interpretation);
 
   await post(app, '/precinct-scanner/scanner/scan');
   await expectStatus(app, { state: 'scanning' });
@@ -928,13 +977,14 @@ test('insert second ballot while first ballot is accepting', async () => {
 });
 
 test('insert second ballot while first ballot needs review', async () => {
-  const { app, mockPlustek } = await createApp();
-  await configureApp(app, { addTemplates: true });
+  const { app, mockPlustek, interpreter } = await createApp();
+  await configureApp(app);
 
   await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb);
   await waitForStatus(app, { state: 'ready_to_scan' });
 
   const interpretation = needsReviewInterpretation;
+  mockInterpretation(interpreter, interpretation);
 
   await post(app, '/precinct-scanner/scanner/scan');
   await expectStatus(app, { state: 'scanning' });
@@ -955,7 +1005,7 @@ test('insert second ballot while first ballot needs review', async () => {
 });
 
 test('insert second ballot while first ballot is rejecting', async () => {
-  const { app, mockPlustek } = await createApp();
+  const { app, mockPlustek, interpreter } = await createApp();
   await configureApp(app);
 
   await mockPlustek.simulateLoadSheet(ballotImages.wrongElection);
@@ -965,6 +1015,7 @@ test('insert second ballot while first ballot is rejecting', async () => {
     type: 'InvalidSheet',
     reason: 'invalid_election_hash',
   };
+  mockInterpretation(interpreter, interpretation);
 
   await post(app, '/precinct-scanner/scanner/scan');
   await expectStatus(app, { state: 'scanning' });
@@ -998,13 +1049,14 @@ test('insert second ballot while first ballot is rejecting', async () => {
 });
 
 test('insert second ballot while first ballot is returning', async () => {
-  const { app, mockPlustek } = await createApp();
-  await configureApp(app, { addTemplates: true });
+  const { app, mockPlustek, interpreter } = await createApp();
+  await configureApp(app);
 
   await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb);
   await waitForStatus(app, { state: 'ready_to_scan' });
 
   const interpretation = needsReviewInterpretation;
+  mockInterpretation(interpreter, interpretation);
 
   await post(app, '/precinct-scanner/scanner/scan');
   await expectStatus(app, { state: 'scanning' });
@@ -1060,7 +1112,7 @@ test('jam on scan', async () => {
 });
 
 test('jam on accept', async () => {
-  const { app, mockPlustek } = await createApp({
+  const { app, mockPlustek, interpreter } = await createApp({
     DELAY_ACCEPTING_TIMEOUT: 500,
   });
   await configureApp(app);
@@ -1071,6 +1123,7 @@ test('jam on accept', async () => {
   const interpretation: Scan.SheetInterpretation = {
     type: 'ValidSheet',
   };
+  mockInterpretation(interpreter, interpretation);
 
   await post(app, '/precinct-scanner/scanner/scan');
   await waitForStatus(app, { state: 'scanning' });
@@ -1099,13 +1152,14 @@ test('jam on accept', async () => {
 });
 
 test('jam on return', async () => {
-  const { app, mockPlustek } = await createApp();
-  await configureApp(app, { addTemplates: true });
+  const { app, mockPlustek, interpreter } = await createApp();
+  await configureApp(app);
 
   await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb);
   await waitForStatus(app, { state: 'ready_to_scan' });
 
   const interpretation = needsReviewInterpretation;
+  mockInterpretation(interpreter, interpretation);
 
   await post(app, '/precinct-scanner/scanner/scan');
   await expectStatus(app, { state: 'scanning' });
@@ -1124,7 +1178,7 @@ test('jam on return', async () => {
 });
 
 test('jam on reject', async () => {
-  const { app, mockPlustek } = await createApp();
+  const { app, mockPlustek, interpreter } = await createApp();
   await configureApp(app);
 
   await mockPlustek.simulateLoadSheet(ballotImages.wrongElection);
@@ -1134,6 +1188,7 @@ test('jam on reject', async () => {
     type: 'InvalidSheet',
     reason: 'invalid_election_hash',
   };
+  mockInterpretation(interpreter, interpretation);
 
   await post(app, '/precinct-scanner/scanner/scan');
   await expectStatus(app, { state: 'scanning' });
@@ -1184,7 +1239,7 @@ test('jam on calibrate', async () => {
 });
 
 test('scan fails and retries', async () => {
-  const { app, mockPlustek, logger } = await createApp();
+  const { app, mockPlustek, logger, interpreter } = await createApp();
   await configureApp(app);
 
   await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
@@ -1193,6 +1248,7 @@ test('scan fails and retries', async () => {
   const interpretation: Scan.SheetInterpretation = {
     type: 'ValidSheet',
   };
+  mockInterpretation(interpreter, interpretation);
 
   await post(app, '/precinct-scanner/scanner/scan');
   await expectStatus(app, { state: 'scanning' });
