@@ -53,6 +53,8 @@ export {
   election as electionSampleRotation,
 } from './data/electionSampleRotation.json';
 
+export { generateCvrs } from './generate_cvrs';
+
 export function asElectionDefinition(election: Election): ElectionDefinition {
   const electionData = JSON.stringify(election);
   return {
