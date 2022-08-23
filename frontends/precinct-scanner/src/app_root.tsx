@@ -78,7 +78,6 @@ interface HardwareState {
 }
 
 interface ScannerConfigState {
-  isScannerConfigLoaded: boolean;
   electionDefinition?: ElectionDefinition;
   currentPrecinctId?: PrecinctId;
   currentMarkThresholds?: MarkThresholds;
@@ -93,6 +92,7 @@ interface StoredFrontendState {
 
 interface FrontendState extends StoredFrontendState {
   initializedFromStorage: boolean;
+  isScannerConfigLoaded: boolean;
 }
 
 export interface State
@@ -108,7 +108,6 @@ const initialHardwareState: Readonly<HardwareState> = {
 };
 
 const initialScannerConfigState: Readonly<ScannerConfigState> = {
-  isScannerConfigLoaded: false,
   electionDefinition: undefined,
   isTestMode: false,
   currentMarkThresholds: undefined,
@@ -124,6 +123,7 @@ const initialStoredFrontendState: Readonly<StoredFrontendState> = {
 const initialFrontendState: Readonly<FrontendState> = {
   ...initialStoredFrontendState,
   initializedFromStorage: false,
+  isScannerConfigLoaded: false,
 };
 
 const initialState: Readonly<State> = {
@@ -145,10 +145,7 @@ type AppAction =
     }
   | {
       type: 'refreshConfigFromScanner';
-      electionDefinition?: ElectionDefinition;
-      isTestMode: boolean;
-      currentMarkThresholds?: MarkThresholds;
-      currentPrecinctId?: PrecinctId;
+      scannerConfig: ScannerConfigState;
     }
   | { type: 'updatePrecinctId'; precinctId?: PrecinctId }
   | { type: 'updateMarkThresholds'; markThresholds?: MarkThresholds }
@@ -191,10 +188,7 @@ function appReducer(state: State, action: AppAction): State {
     case 'refreshConfigFromScanner': {
       return {
         ...state,
-        electionDefinition: action.electionDefinition,
-        currentPrecinctId: action.currentPrecinctId,
-        currentMarkThresholds: action.currentMarkThresholds,
-        isTestMode: action.isTestMode,
+        ...action.scannerConfig,
         isScannerConfigLoaded: true,
       };
     }
@@ -291,12 +285,17 @@ export function AppRoot({
       config.getCurrentPrecinctId()
     );
     const newMarkThresholds = await makeCancelable(config.getMarkThresholds());
-    dispatchAppState({
-      type: 'refreshConfigFromScanner',
+
+    const scannerConfig: ScannerConfigState = {
       electionDefinition: newElectionDefinition,
       isTestMode: newIsTestMode,
       currentMarkThresholds: newMarkThresholds,
       currentPrecinctId: newCurrentPrecinctId,
+    };
+
+    dispatchAppState({
+      type: 'refreshConfigFromScanner',
+      scannerConfig,
     });
   }, [makeCancelable]);
 
