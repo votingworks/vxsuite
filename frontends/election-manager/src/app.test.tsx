@@ -122,7 +122,7 @@ beforeEach(() => {
       codeVersion: 'TEST',
     })
   );
-  fetchMock.get('/admin/write-ins/cvrs/reset', { body: { status: 'ok ' } });
+  fetchMock.delete('/admin/write-ins/cvrs', { body: { status: 'ok ' } });
 });
 
 afterEach(() => {
