@@ -33,7 +33,7 @@ interface Context {
   sheetFiles?: readonly [string, string];
   holdAfterReject?: boolean;
   jamOnNextOperation: boolean;
-  scanError?: 'error_feeding' | 'bad_scan_result';
+  scanError?: 'error_feeding' | 'only_one_file_returned';
 }
 
 type Event =
@@ -53,7 +53,7 @@ type Event =
   | { type: 'CALIBRATE' }
   | {
       type: 'SCAN_ERROR';
-      error: 'error_feeding' | 'bad_scan_result';
+      error: 'error_feeding' | 'only_one_file_returned';
     }
   | { type: 'JAM_ON_NEXT_OPERATION' }
   | { type: 'CHECK_JAM_FLAG' };
@@ -130,7 +130,7 @@ const mockPlustekMachine = createMachine<Context, Event>({
           {
             target: 'ready_to_eject',
             actions: assign({ scanError: (_context, event) => event.error }),
-            cond: (_context, event) => event.error === 'bad_scan_result',
+            cond: (_context, event) => event.error === 'only_one_file_returned',
           },
         ],
         LOAD_SHEET: 'both_sides_have_paper',
@@ -372,7 +372,7 @@ export class MockScannerClient implements ScannerClient {
   /**
    * Run during a scan operation to simulate an error pulling the paper into the scanner.
    */
-  simulateScanError(error: 'error_feeding' | 'bad_scan_result'): void {
+  simulateScanError(error: 'error_feeding' | 'only_one_file_returned'): void {
     debug('simulating scan error: %o', error);
     this.machine.send({ type: 'SCAN_ERROR', error });
   }
@@ -551,7 +551,7 @@ export class MockScannerClient implements ScannerClient {
                   ? ScannerError.PaperStatusErrorFeeding
                   : ScannerError.PaperStatusNoPaper
               );
-            case 'bad_scan_result':
+            case 'only_one_file_returned':
               return err(
                 new InvalidClientResponseError(
                   'expected two files, got [ file1.jpg ]'
