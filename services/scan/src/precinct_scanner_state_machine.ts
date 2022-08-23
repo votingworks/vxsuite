@@ -2,6 +2,7 @@ import {
   ClientDisconnectedError,
   createClient,
   DEFAULT_CONFIG,
+  InvalidClientResponseError,
   PaperStatus,
   ScannerClient,
   ScannerError,
@@ -562,6 +563,18 @@ function buildMachine(
                       event.data === ScannerError.PaperStatusErrorFeeding ||
                       event.data === ScannerError.PaperStatusNoPaper,
                     target: 'retry_scanning',
+                    actions: assign((_context, event) => ({
+                      error: event.data,
+                    })),
+                  },
+                  // Special case: sometimes Plustek only returns one image file
+                  // instead of two. It seems to not be able to recover even if
+                  // we disconnect/reconnect.
+                  {
+                    cond: (_context, event) =>
+                      event.data instanceof InvalidClientResponseError &&
+                      event.data.message.startsWith('expected two files'),
+                    target: '#unrecoverable_error',
                     actions: assign((_context, event) => ({
                       error: event.data,
                     })),

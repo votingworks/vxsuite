@@ -1289,10 +1289,8 @@ test('scan fails repeatedly and eventually gives up', async () => {
   await waitForStatus(app, { state: 'rejected', error: 'scanning_failed' });
 });
 
-test('scan fails due to plustek error', async () => {
-  const { app, mockPlustek, logger } = await createApp({
-    DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 500,
-  });
+test('scan fails due to plustek returning only one file instead of two', async () => {
+  const { app, mockPlustek, logger } = await createApp();
   await configureApp(app);
 
   await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
@@ -1300,12 +1298,11 @@ test('scan fails due to plustek error', async () => {
 
   await post(app, '/precinct-scanner/scanner/scan');
   await expectStatus(app, { state: 'scanning' });
-  mockPlustek.simulateScanError('bad_scan_result');
+  mockPlustek.simulateScanError('only_one_file_returned');
   await waitForStatus(app, {
-    state: 'recovering_from_error',
+    state: 'unrecoverable_error',
     error: 'plustek_error',
   });
-  await waitForStatus(app, { state: 'no_paper' });
 
   // Make sure the underlying error got logged correctly
   expect(logger.log).toHaveBeenCalledWith(
