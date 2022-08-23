@@ -102,6 +102,11 @@ const pollWorkerCard = makePollWorkerCard(
   electionSampleDefinition.electionHash
 );
 
+const electionManagerCard = makeElectionManagerCard(
+  electionSampleDefinition.electionHash,
+  '123456'
+);
+
 beforeEach(() => {
   jest.useFakeTimers();
 
@@ -346,10 +351,6 @@ test('election manager and poll worker configuration', async () => {
   await screen.findByText('748dc61ad3');
 
   // Insert election manager card to set precinct
-  const electionManagerCard = makeElectionManagerCard(
-    electionSampleDefinition.electionHash,
-    '123456'
-  );
   card.insertCard(electionManagerCard, electionSampleDefinition.electionData);
   await authenticateElectionManagerCard();
   fireEvent.click(await screen.findByText('Live Election Mode'));
@@ -585,10 +586,6 @@ test('voter can cast a ballot that scans successfully ', async () => {
   await advanceTimersAndPromises(1);
 
   // Insert Election Manager Card
-  const electionManagerCard = makeElectionManagerCard(
-    electionSampleDefinition.electionHash,
-    '123456'
-  );
   card.insertCard(electionManagerCard, electionSampleDefinition.electionData);
   await authenticateElectionManagerCard();
   await screen.findByText('Election Manager Settings');
@@ -1158,4 +1155,67 @@ test('replace ballot bag flow', async () => {
   });
   await advanceTimersAndPromises(1);
   await screen.findByText('Ballot Bag Full');
+});
+
+test('uses storage for frontend state', async () => {
+  await storage.set(stateStorageKey, {
+    isPollsOpen: true,
+    isSoundMuted: true,
+    ballotCountWhenBallotBagLastReplaced: BALLOT_BAG_CAPACITY,
+  });
+  fetchMock.get('/precinct-scanner/scanner/status', {
+    body: scannerStatus({
+      state: 'no_paper',
+      ballotsCounted: BALLOT_BAG_CAPACITY,
+    }),
+  });
+  render(<App card={card} hardware={hardware} storage={storage} />);
+  await advanceTimersAndPromises(1);
+
+  // Confirm polls status and ballot bag status loaded from storage
+  await screen.findByText('Insert Your Ballot Below');
+
+  // Confirm muted status loaded from storage
+  card.insertCard(electionManagerCard, electionSampleDefinition.electionData);
+  await authenticateElectionManagerCard();
+  await screen.findByText('Unmute Sounds');
+
+  // Confirm muted status is saved to storage
+  userEvent.click(screen.getByText('Unmute Sounds'));
+  await advanceTimersAndPromises(1);
+  expect(await storage.get(stateStorageKey)).toMatchObject({
+    isSoundMuted: false,
+  });
+  card.removeCard();
+
+  // Confirm ballot bag status is saved to storage
+  fetchMock.get(
+    '/precinct-scanner/scanner/status',
+    {
+      body: scannerStatus({
+        state: 'no_paper',
+        ballotsCounted: BALLOT_BAG_CAPACITY * 2,
+      }),
+    },
+    { overwriteRoutes: true }
+  );
+  await screen.findByText('Ballot Bag Full');
+  card.insertCard(pollWorkerCard);
+  userEvent.click(await screen.findByText('Yes, Resume Voting'));
+  card.removeCard();
+  await advanceTimersAndPromises(1);
+  expect(await storage.get(stateStorageKey)).toMatchObject({
+    ballotCountWhenBallotBagLastReplaced: BALLOT_BAG_CAPACITY * 2,
+  });
+
+  // Confirm polls status is saved to storage
+  fetchMock.post('/precinct-scanner/export', {});
+  card.insertCard(pollWorkerCard);
+  userEvent.click(await screen.findByText('Yes, Close the Polls'));
+  await screen.findByText('Polls are closed.');
+  card.removeCard();
+  await advanceTimersAndPromises(1);
+  expect(await storage.get(stateStorageKey)).toMatchObject({
+    isPollsOpen: false,
+  });
 });
