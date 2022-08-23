@@ -87,6 +87,7 @@ export interface Delays {
   DELAY_PAPER_STATUS_POLLING_INTERVAL: number;
   DELAY_PAPER_STATUS_POLLING_TIMEOUT: number;
   DELAY_SCANNING_TIMEOUT: number;
+  DELAY_ACCEPTING_TIMEOUT: number;
   DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: number;
   DELAY_ACCEPTED_RESET_TO_NO_PAPER: number;
   DELAY_WAIT_FOR_HOLD_AFTER_REJECT: number;
@@ -298,6 +299,8 @@ const defaultDelays: Delays = {
   // How long to attempt scanning before giving up and disconnecting and
   // reconnecting to Plustek.
   DELAY_SCANNING_TIMEOUT: 5_000,
+  // How long to attempt accepting before giving up and rejecting the ballot.
+  DELAY_ACCEPTING_TIMEOUT: 5_000,
   // When in accepted state, how long to ignore any new ballot that is
   // inserted (this ensures the user sees the accepted screen for a bit
   // before starting a new scan).
@@ -374,8 +377,14 @@ function buildMachine(
           // dropped but somebody quickly inserted a new ballot in front, so we
           // should count the first ballot as accepted.
           SCANNER_READY_TO_SCAN: '#accepted',
-          // If the paper didn't get dropped, it's an error
-          SCANNER_READY_TO_EJECT: {
+          // Sometimes the accept command will complete successfully even though
+          // the ballot hasn't been dropped yet (e.g. if it's stuck), so we wait
+          // a bit to see if it gets dropped.
+          SCANNER_READY_TO_EJECT: doNothing,
+        },
+        // If the paper eventually didn't get dropped, reject it.
+        after: {
+          DELAY_ACCEPTING_TIMEOUT: {
             target: '#rejecting',
             actions: assign({
               error: new PrecinctScannerError('paper_in_back_after_accept'),
