@@ -345,7 +345,7 @@ export function AppRoot({
     async function storeAppState() {
       // Only store app state if we've first initialized from the stored state
       if (initializedFromStorage) {
-        // We use an explicit type here to reminder ourselves to store any
+        // We use an explicit type here to remind ourselves to store any
         // new fields we add to StoredFrontendState.
         const frontendStateToStore: StoredFrontendState = {
           isPollsOpen,
