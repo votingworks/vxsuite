@@ -20,7 +20,7 @@ export function buildApp({ store }: { store: Store }): Application {
   app.use(express.json({ limit: '50mb', type: 'application/json' }));
   app.use(express.urlencoded({ extended: false }));
 
-  app.get<NoParams>('/admin/write-ins/cvrs/reset', (_, response) => {
+  app.delete<NoParams>('/admin/write-ins/cvrs', (_, response) => {
     store.deleteCvrsAndCvrFiles();
     response.status(200).json({ status: 'ok' });
   });

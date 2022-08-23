@@ -438,7 +438,7 @@ export function AppRoot({
       }
 
       if (newCvrFiles === CastVoteRecordFiles.empty) {
-        await fetch('/admin/write-ins/cvrs/reset', { method: 'GET' });
+        await fetch('/admin/write-ins/cvrs', { method: 'DELETE' });
         await removeStorageKeyAndLog(cvrsStorageKey, 'Cast vote records');
         await removeStorageKeyAndLog(
           isOfficialResultsKey,
@@ -451,7 +451,7 @@ export function AppRoot({
           newCvrFiles.export(),
           'Cast vote records'
         );
-        await fetch('/admin/write-ins/cvrs/', {
+        await fetch('/admin/write-ins/cvrs', {
           method: 'POST',
           body: newCvrFiles.export(),
           headers: {
