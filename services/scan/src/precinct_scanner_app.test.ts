@@ -1049,7 +1049,9 @@ test('jam on scan', async () => {
 });
 
 test('jam on accept', async () => {
-  const { app, mockPlustek } = await createApp();
+  const { app, mockPlustek } = await createApp({
+    DELAY_ACCEPTING_TIMEOUT: 500,
+  });
   await configureApp(app);
 
   await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
@@ -1065,9 +1067,10 @@ test('jam on accept', async () => {
 
   mockPlustek.simulateJamOnNextOperation();
   await post(app, '/scanner/accept');
+  await waitForStatus(app, { state: 'accepting', interpretation });
   // The paper can't get permanently jammed on accept - it just stays held in
   // the back and we can reject at that point
-  await expectStatus(app, {
+  await waitForStatus(app, {
     state: 'rejecting',
     interpretation,
     error: 'paper_in_back_after_accept',
