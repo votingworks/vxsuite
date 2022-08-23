@@ -1,3 +1,5 @@
+const shared = require('../../jest.config.shared');
+
 const nodeModulesNeedingTransform = [
   // `@zip.js/zip.js` uses ES modules and `import.meta.url`, but Babel does not
   // transform anything in `node_modules` by default.
@@ -12,6 +14,7 @@ function regexEscape(str) {
  * @type {import('@jest/types').Config.InitialOptions}
  */
 module.exports = {
+  ...shared,
   collectCoverageFrom: [
     'src/**/*.{js,jsx,ts,tsx}',
     '!src/config/*',
