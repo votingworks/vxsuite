@@ -413,7 +413,7 @@ test('scanning errors', async () => {
   expectNoPaper((await mock.getPaperStatus()).ok());
   (await mock.simulateLoadSheet(files)).unsafeUnwrap();
   scanResult = mock.scan();
-  mock.simulateScanError('bad_scan_result');
+  mock.simulateScanError('only_one_file_returned');
   expect((await scanResult).err()).toEqual(
     new InvalidClientResponseError('expected two files, got [ file1.jpg ]')
   );
