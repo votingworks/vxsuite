@@ -2,7 +2,6 @@ import {
   ClientDisconnectedError,
   createClient,
   DEFAULT_CONFIG,
-  InvalidClientResponseError,
   PaperStatus,
   ScannerClient,
   ScannerError,
@@ -109,7 +108,6 @@ export interface Delays {
   DELAY_WAIT_FOR_HOLD_AFTER_REJECT: number;
   DELAY_RECONNECT: number;
   DELAY_RECONNECT_ON_UNEXPECTED_ERROR: number;
-  DELAY_KILL_AFTER_DISCONNECT_TIMEOUT: number;
 }
 
 function connectToPlustek(createPlustekClient: CreatePlustekClient) {
@@ -330,10 +328,6 @@ const defaultDelays: Delays = {
   // long in order to let Plustek finish whatever it's doing (yes, even
   // after disconnecting, Plustek might keep scanning).
   DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 3_000,
-  // When attempting to disconnect from Plustek after an unexpected error,
-  // how long to wait before giving up on disconnecting the "nice" way and
-  // just sending a kill signal.
-  DELAY_KILL_AFTER_DISCONNECT_TIMEOUT: 1_000,
 };
 
 function buildMachine(
@@ -549,18 +543,6 @@ function buildMachine(
                       event.data === ScannerError.PaperStatusErrorFeeding ||
                       event.data === ScannerError.PaperStatusNoPaper,
                     target: 'retry_scanning',
-                    actions: assign((_context, event) => ({
-                      error: event.data,
-                    })),
-                  },
-                  // Special case: sometimes Plustek only returns one image file
-                  // instead of two. It seems to not be able to recover even if
-                  // we disconnect/reconnect.
-                  {
-                    cond: (_context, event) =>
-                      event.data instanceof InvalidClientResponseError &&
-                      event.data.message.startsWith('expected two files'),
-                    target: '#unrecoverable_error',
                     actions: assign((_context, event) => ({
                       error: event.data,
                     })),
@@ -838,21 +820,12 @@ function buildMachine(
             ],
           },
         },
-        // If we see an unexpected error, try disconnecting from Plustek and starting over.
+        // If we see an unexpected error, try killing Plustek and starting over.
         error: {
           id: 'error',
-          initial: 'disconnecting',
+          initial: 'killing',
           states: {
-            // First, try disconnecting the "nice" way
-            disconnecting: {
-              invoke: {
-                src: closePlustekClient,
-                onDone: 'cooling_off',
-                onError: 'killing',
-              },
-              after: { DELAY_KILL_AFTER_DISCONNECT_TIMEOUT: 'killing' },
-            },
-            // If that doesn't work or takes too long, send a kill signal
+            // Send a kill signal to plustekctl
             killing: {
               invoke: {
                 src: killPlustekClient,
@@ -860,8 +833,8 @@ function buildMachine(
                 onError: '#unrecoverable_error',
               },
             },
-            // Now that we've disconnected, wait a bit to give Plustek time to
-            // finish up anything it might be doing
+            // Wait a bit to give Plustek time to finish up anything it might be
+            // doing
             cooling_off: {
               after: { DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 'reconnecting' },
             },

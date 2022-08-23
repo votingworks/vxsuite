@@ -1220,7 +1220,9 @@ test('scan fails repeatedly and eventually gives up', async () => {
 });
 
 test('scan fails due to plustek returning only one file instead of two', async () => {
-  const { app, mockPlustek, logger } = await createApp();
+  const { app, mockPlustek, logger } = await createApp({
+    DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 500,
+  });
   await configureApp(app);
 
   await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
@@ -1230,9 +1232,12 @@ test('scan fails due to plustek returning only one file instead of two', async (
   await expectStatus(app, { state: 'scanning' });
   mockPlustek.simulateScanError('only_one_file_returned');
   await waitForStatus(app, {
-    state: 'unrecoverable_error',
+    state: 'recovering_from_error',
     error: 'plustek_error',
   });
+  // In reality, the paper would be in the back on restart, but we don't have an
+  // easy way to simulate that
+  await waitForStatus(app, { state: 'no_paper' });
 
   // Make sure the underlying error got logged correctly
   expect(logger.log).toHaveBeenCalledWith(
@@ -1284,7 +1289,6 @@ test('kills plustekctl if it freezes', async () => {
   const { app, mockPlustek } = await createApp({
     DELAY_SCANNING_TIMEOUT: 50,
     DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 500,
-    DELAY_KILL_AFTER_DISCONNECT_TIMEOUT: 500,
     DELAY_PAPER_STATUS_POLLING_TIMEOUT: 1000,
   });
   await configureApp(app);
@@ -1307,7 +1311,6 @@ test('stops completely if plustekctl freezes and cant be killed', async () => {
   const { app, mockPlustek } = await createApp({
     DELAY_SCANNING_TIMEOUT: 50,
     DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 500,
-    DELAY_KILL_AFTER_DISCONNECT_TIMEOUT: 500,
     DELAY_PAPER_STATUS_POLLING_TIMEOUT: 1000,
   });
   await configureApp(app);
@@ -1320,10 +1323,6 @@ test('stops completely if plustekctl freezes and cant be killed', async () => {
   await expectStatus(app, { state: 'scanning' });
   mockPlustek.kill = () => err(new Error('could not kill'));
   mockPlustek.simulatePlustekctlFreeze();
-  await waitForStatus(app, {
-    state: 'recovering_from_error',
-    error: 'paper_status_timed_out',
-  });
   await waitForStatus(app, {
     state: 'unrecoverable_error',
     error: 'paper_status_timed_out',
