@@ -62,10 +62,6 @@ import { BALLOT_BAG_CAPACITY } from './config/globals';
 
 const debug = makeDebug('precinct-scanner:app-root');
 
-export interface AppStorage {
-  state?: Partial<State>;
-}
-
 export const stateStorageKey = 'state';
 
 export interface Props {
@@ -82,18 +78,21 @@ interface HardwareState {
 }
 
 interface ScannerConfigState {
-  isScannerConfigLoaded: boolean;
   electionDefinition?: ElectionDefinition;
   currentPrecinctId?: PrecinctId;
   currentMarkThresholds?: MarkThresholds;
   isTestMode: boolean;
 }
 
-interface FrontendState {
+interface StoredFrontendState {
   isPollsOpen: boolean;
   ballotCountWhenBallotBagLastReplaced: number;
-  initializedFromStorage: boolean;
   isSoundMuted: boolean;
+}
+
+interface FrontendState extends StoredFrontendState {
+  initializedFromStorage: boolean;
+  isScannerConfigLoaded: boolean;
 }
 
 export interface State
@@ -109,33 +108,35 @@ const initialHardwareState: Readonly<HardwareState> = {
 };
 
 const initialScannerConfigState: Readonly<ScannerConfigState> = {
-  isScannerConfigLoaded: false,
   electionDefinition: undefined,
   isTestMode: false,
   currentMarkThresholds: undefined,
   currentPrecinctId: undefined,
 };
 
-const initialAppState: Readonly<FrontendState> = {
+const initialStoredFrontendState: Readonly<StoredFrontendState> = {
   isPollsOpen: false,
   ballotCountWhenBallotBagLastReplaced: 0,
-  initializedFromStorage: false,
   isSoundMuted: false,
+};
+
+const initialFrontendState: Readonly<FrontendState> = {
+  ...initialStoredFrontendState,
+  initializedFromStorage: false,
+  isScannerConfigLoaded: false,
 };
 
 const initialState: Readonly<State> = {
   ...initialHardwareState,
   ...initialScannerConfigState,
-  ...initialAppState,
+  ...initialFrontendState,
 };
 
 // Sets State.
 type AppAction =
   | {
       type: 'initializeAppState';
-      isPollsOpen: boolean;
-      ballotCountWhenBallotBagLastReplaced: number;
-      isSoundMuted: boolean;
+      storedFrontendState: StoredFrontendState;
     }
   | { type: 'resetPollsToClosed' }
   | {
@@ -144,10 +145,7 @@ type AppAction =
     }
   | {
       type: 'refreshConfigFromScanner';
-      electionDefinition?: ElectionDefinition;
-      isTestMode: boolean;
-      currentMarkThresholds?: MarkThresholds;
-      currentPrecinctId?: PrecinctId;
+      scannerConfig: ScannerConfigState;
     }
   | { type: 'updatePrecinctId'; precinctId?: PrecinctId }
   | { type: 'updateMarkThresholds'; markThresholds?: MarkThresholds }
@@ -171,10 +169,7 @@ function appReducer(state: State, action: AppAction): State {
     case 'initializeAppState':
       return {
         ...state,
-        isPollsOpen: action.isPollsOpen,
-        ballotCountWhenBallotBagLastReplaced:
-          action.ballotCountWhenBallotBagLastReplaced,
-        isSoundMuted: action.isSoundMuted,
+        ...action.storedFrontendState,
         initializedFromStorage: true,
       };
     case 'updateElectionDefinition':
@@ -193,10 +188,7 @@ function appReducer(state: State, action: AppAction): State {
     case 'refreshConfigFromScanner': {
       return {
         ...state,
-        electionDefinition: action.electionDefinition,
-        currentPrecinctId: action.currentPrecinctId,
-        currentMarkThresholds: action.currentMarkThresholds,
-        isTestMode: action.isTestMode,
+        ...action.scannerConfig,
         isScannerConfigLoaded: true,
       };
     }
@@ -293,12 +285,17 @@ export function AppRoot({
       config.getCurrentPrecinctId()
     );
     const newMarkThresholds = await makeCancelable(config.getMarkThresholds());
-    dispatchAppState({
-      type: 'refreshConfigFromScanner',
+
+    const scannerConfig: ScannerConfigState = {
       electionDefinition: newElectionDefinition,
       isTestMode: newIsTestMode,
       currentMarkThresholds: newMarkThresholds,
       currentPrecinctId: newCurrentPrecinctId,
+    };
+
+    dispatchAppState({
+      type: 'refreshConfigFromScanner',
+      scannerConfig,
     });
   }, [makeCancelable]);
 
@@ -330,21 +327,13 @@ export function AppRoot({
     }
 
     async function updateStateFromStorage() {
-      const storedAppState: Partial<State> =
-        ((await storage.get(stateStorageKey)) as Partial<State> | undefined) ||
-        {};
-      const {
-        isPollsOpen: storedIsPollsOpen = initialAppState.isPollsOpen,
-        ballotCountWhenBallotBagLastReplaced:
-          storedBallotCountWhenBallotBagLastReplaced = initialAppState.ballotCountWhenBallotBagLastReplaced,
-        isSoundMuted: storedIsSoundMuted = initialAppState.isSoundMuted,
-      } = storedAppState;
+      const storedFrontendState: StoredFrontendState =
+        ((await storage.get(stateStorageKey)) as
+          | StoredFrontendState
+          | undefined) || initialStoredFrontendState;
       dispatchAppState({
         type: 'initializeAppState',
-        isPollsOpen: storedIsPollsOpen,
-        ballotCountWhenBallotBagLastReplaced:
-          storedBallotCountWhenBallotBagLastReplaced,
-        isSoundMuted: storedIsSoundMuted,
+        storedFrontendState,
       });
     }
 
@@ -354,14 +343,16 @@ export function AppRoot({
 
   useEffect(() => {
     async function storeAppState() {
-      // only store app state if we've first initialized from the stored state
+      // Only store app state if we've first initialized from the stored state
       if (initializedFromStorage) {
-        // TODO: If possible, store all FrontendState with types rather than specify each field
-        await storage.set(stateStorageKey, {
+        // We use an explicit type here to remind ourselves to store any
+        // new fields we add to StoredFrontendState.
+        const frontendStateToStore: StoredFrontendState = {
           isPollsOpen,
           ballotCountWhenBallotBagLastReplaced,
           isSoundMuted,
-        });
+        };
+        await storage.set(stateStorageKey, frontendStateToStore);
       }
     }
 
