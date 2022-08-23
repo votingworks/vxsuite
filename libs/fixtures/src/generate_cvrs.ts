@@ -4,66 +4,10 @@ import {
   CandidateContest,
   CastVoteRecord,
   Election,
-  safeParseElection,
   unsafeParse,
   YesNoVote,
 } from '@votingworks/types';
-import * as fs from 'fs';
-import yargs from 'yargs/yargs';
-
-/**
- * Script to generate a cast vote record file for a given election.
- * Run from the command-line with:
- * pnpx esr --cache generate_sample_cvr_file.ts --help
- * To see more information and all possible arguments.
- */
-
-/**
- * Generate all combinations of an array.
- * @param sourceArray - Array of input elements.
- * @param comboLength - Desired length of combinations.
- * @returns Array of combination arrays.
- */
-function generateCombinations<T>(
-  sourceArray: readonly T[],
-  comboLength: number
-): Array<T[]> {
-  const sourceLength = sourceArray.length;
-  if (comboLength > sourceLength) return [];
-
-  const combos: Array<T[]> = []; // Stores valid combinations as they are generated.
-
-  // Accepts a partial combination, an index into sourceArray,
-  // and the number of elements required to be added to create a full-length combination.
-  // Called recursively to build combinations, adding subsequent elements at each call depth.
-  function makeNextCombos(
-    workingCombo: T[],
-    currentIndex: number,
-    remainingCount: number
-  ) {
-    const oneAwayFromComboLength = remainingCount === 1;
-
-    // For each element that remains to be added to the working combination.
-    for (
-      let sourceIndex = currentIndex;
-      sourceIndex < sourceLength;
-      sourceIndex += 1
-    ) {
-      // Get next (possibly partial) combination.
-      const next = [...workingCombo, sourceArray[sourceIndex]];
-
-      if (oneAwayFromComboLength) {
-        // Combo of right length found, save it.
-        combos.push(next);
-      } else {
-        // Otherwise go deeper to add more elements to the current partial combination.
-        makeNextCombos(next, sourceIndex + 1, remainingCount - 1);
-      }
-    }
-  }
-  makeNextCombos([], 0, comboLength);
-  return combos;
-}
+import { generateCombinations, throwIllegalValue } from './utils';
 
 // All valid contest choice options for a yes no contest
 const YES_NO_OPTIONS: YesNoVote[] = [['yes'], ['no'], ['yes', 'no'], []];
@@ -98,7 +42,7 @@ function getCandidateOptionsForContest(
     candidateOptions.push(candidates);
   }
 
-  // Add a write in vote if applicable
+  // Add a write-in vote if applicable
   if (contest.allowWriteIns) {
     const combinations = generateCombinations(candidateIds, numSeats - 1);
     for (const combo of combinations) {
@@ -131,7 +75,7 @@ function getVoteConfigurationsForCandidateOptions(
 ): Array<Map<string, readonly string[]>> {
   // Find the contest with the most vote combinations generated to determine the number of vote combinations to generate.
   const numOptionsToProduce = [...candidateOptionsForContest.values()].reduce(
-    (prev, options) => Math.max(prev, options?.length ?? 0),
+    (prev, options) => Math.max(prev, options.length),
     0
   );
   const voteOptions = [];
@@ -157,7 +101,7 @@ function getVoteConfigurationsForCandidateOptions(
  * @param testMode Generate CVRs for test ballots or live ballots
  * @returns Array of generated CastVoteRecords
  */
-function* generateCvrs(
+export function* generateCvrs(
   election: Election,
   scannerNames: readonly string[],
   testMode: boolean
@@ -213,9 +157,9 @@ function* generateCvrs(
                     YES_NO_OPTIONS
                   );
                   break;
+                // istanbul ignore next
                 default:
-                  // @ts-expect-error - contest.type should have `never` here type
-                  throw new Error(`unexpected contest type: ${contest.type}`);
+                  throwIllegalValue(contest);
               }
             }
           }
@@ -241,87 +185,3 @@ function* generateCvrs(
     }
   }
 }
-
-interface GenerateCvrFileArguments {
-  electionPath?: string;
-  outputPath?: string;
-  numBallots?: number;
-  scannerNames?: Array<string | number>;
-  liveBallots?: boolean;
-  help?: boolean;
-  [x: string]: unknown;
-}
-
-const args: GenerateCvrFileArguments = yargs(process.argv.slice(2)).options({
-  electionPath: {
-    type: 'string',
-    alias: 'e',
-    demandOption: true,
-    description: 'Path to the input election definition',
-  },
-  outputPath: {
-    type: 'string',
-    alias: 'o',
-    description: 'Path to write output file to',
-  },
-  numBallots: {
-    type: 'number',
-    description: 'Number of ballots to include in the output, default is 1000.',
-  },
-  liveBallots: {
-    type: 'boolean',
-    default: false,
-    description:
-      'Create live mode ballots when specified, by default test mode ballots are created.',
-  },
-  scannerNames: {
-    type: 'array',
-    description: 'Creates ballots for each scanner name specified.',
-  },
-}).argv as GenerateCvrFileArguments;
-
-if (args.electionPath === undefined) {
-  process.stderr.write(
-    'Specify an election path in order to generate CVR files. Run with --help for more information.\n'
-  );
-  process.exit(-1);
-}
-
-const outputPath = args.outputPath ?? 'output.jsonl';
-const { numBallots } = args;
-const testMode = !(args.liveBallots ?? false);
-const scannerNames = (args.scannerNames ?? ['scanner']).map((s) => `${s}`);
-
-const electionRawData = fs.readFileSync(args.electionPath, 'utf8');
-const election = safeParseElection(electionRawData).unsafeUnwrap();
-
-const castVoteRecords = [...generateCvrs(election, scannerNames, testMode)];
-
-// Modify results to match the desired number of ballots
-if (numBallots !== undefined && numBallots < castVoteRecords.length) {
-  process.stderr.write(
-    `WARNING: At least ${castVoteRecords.length} are suggested to be generated for maximum coverage of ballot metadata options and possible contest votes.\n`
-  );
-  // Remove random entries from the CVR list until the desired number of ballots is reach
-  while (numBallots < castVoteRecords.length) {
-    const i = Math.floor(Math.random() * castVoteRecords.length);
-    castVoteRecords.splice(i, 1);
-  }
-}
-
-let ballotId = castVoteRecords.length;
-// Duplicate random ballots until the desired number of ballots is reached.
-while (numBallots !== undefined && numBallots > castVoteRecords.length) {
-  const i = Math.floor(Math.random() * castVoteRecords.length);
-  castVoteRecords.push({
-    ...castVoteRecords[i],
-    _ballotId: unsafeParse(BallotIdSchema, `id-${ballotId}`),
-  });
-  ballotId += 1;
-}
-
-const stream = fs.createWriteStream(outputPath);
-for (const record of castVoteRecords) {
-  stream.write(`${JSON.stringify(record)}\n`);
-}
-stream.end();
