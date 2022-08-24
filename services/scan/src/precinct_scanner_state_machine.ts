@@ -233,12 +233,14 @@ async function interpretSheet(
   };
 }
 
+// eslint-disable-next-line @typescript-eslint/require-await
 async function accept({ client }: Context) {
   assert(client);
-  debug('Accepting');
-  const acceptResult = await client.accept();
-  debug('Accept result: %o', acceptResult);
-  return acceptResult.unsafeUnwrap();
+  debug('Faking accepting');
+  return ok();
+  // const acceptResult = await client.accept();
+  // debug('Accept result: %o', acceptResult);
+  // return acceptResult.unsafeUnwrap();
 }
 
 async function reject({ client }: Context) {
@@ -362,6 +364,43 @@ function buildMachine({
     },
   };
 
+  function rejectingState(onDoneState: string): StateNodeConfig<
+    Context,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    any,
+    Event,
+    BaseActionObject
+  > {
+    return {
+      initial: 'starting',
+      states: {
+        starting: {
+          // entry: (context) => recordRejectedSheet(store, context),
+          invoke: {
+            src: reject,
+            onDone: 'checking_completed',
+            onError: '#error_jammed',
+          },
+        },
+        // After rejecting, before the plustek grabs the paper to hold it, it sends
+        // NO_PAPER status for a bit before sending READY_TO_SCAN. So we need to
+        // wait for the READY_TO_SCAN.
+        checking_completed: {
+          invoke: pollPaperStatus,
+          on: {
+            SCANNER_NO_PAPER: { target: undefined },
+            SCANNER_READY_TO_SCAN: onDoneState,
+            SCANNER_READY_TO_EJECT: '#error_jammed',
+          },
+          // But, if you pull the paper out right after rejecting, we go straight to
+          // NO_PAPER, skipping READY_TO_SCAN completely. So we need to eventually
+          // timeout waiting for READY_TO_SCAN.
+          after: { DELAY_WAIT_FOR_HOLD_AFTER_REJECT: '#no_paper' },
+        },
+      },
+    };
+  }
+
   const acceptingState: StateNodeConfig<
     Context,
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -387,24 +426,9 @@ function buildMachine({
       checking_completed: {
         invoke: pollPaperStatus,
         on: {
-          SCANNER_NO_PAPER: '#accepted',
-          // If there's a paper in front, that means the ballot in back did get
-          // dropped but somebody quickly inserted a new ballot in front, so we
-          // should count the first ballot as accepted.
-          SCANNER_READY_TO_SCAN: '#accepted',
-          // Sometimes the accept command will complete successfully even though
-          // the ballot hasn't been dropped yet (e.g. if it's stuck), so we wait
-          // a bit to see if it gets dropped.
-          SCANNER_READY_TO_EJECT: doNothing,
-        },
-        // If the paper eventually didn't get dropped, reject it.
-        after: {
-          DELAY_ACCEPTING_TIMEOUT: {
-            target: '#rejecting',
-            actions: assign({
-              error: new PrecinctScannerError('paper_in_back_after_accept'),
-            }),
-          },
+          SCANNER_READY_TO_EJECT: '#accepted',
+          SCANNER_NO_PAPER: '#error',
+          SCANNER_READY_TO_SCAN: '#error',
         },
       },
     },
@@ -523,22 +547,8 @@ function buildMachine({
           invoke: pollPaperStatus,
           on: {
             SCANNER_NO_PAPER: 'no_paper',
-            SCANNER_READY_TO_SCAN: {
-              target: 'rejected',
-              actions: assign({
-                error: new PrecinctScannerError(
-                  'paper_in_front_after_reconnect'
-                ),
-              }),
-            },
-            SCANNER_READY_TO_EJECT: {
-              target: 'rejecting',
-              actions: assign({
-                error: new PrecinctScannerError(
-                  'paper_in_back_after_reconnect'
-                ),
-              }),
-            },
+            SCANNER_READY_TO_SCAN: 'ready_to_scan',
+            SCANNER_READY_TO_EJECT: 'resetting_ballot',
           },
         },
         no_paper: {
@@ -713,27 +723,14 @@ function buildMachine({
           id: 'ready_to_accept',
           on: { ACCEPT: 'accepting' },
         },
-        accepting: acceptingState,
+        accepting: { id: 'accepting', ...acceptingState },
         accepted: {
           id: 'accepted',
           entry: (context) => recordAcceptedSheet(workspace.store, context),
-          invoke: pollPaperStatus,
-          initial: 'scanning_paused',
-          on: { SCANNER_NO_PAPER: doNothing },
-          states: {
-            scanning_paused: {
-              on: { SCANNER_READY_TO_SCAN: doNothing },
-              after: {
-                DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 'ready_for_next_ballot',
-              },
-            },
-            ready_for_next_ballot: {
-              on: { SCANNER_READY_TO_SCAN: '#ready_to_scan' },
-            },
-          },
-          after: {
-            DELAY_ACCEPTED_RESET_TO_NO_PAPER: 'no_paper',
-          },
+          after: { 500: 'resetting_ballot' },
+        },
+        resetting_ballot: {
+          ...rejectingState('#ready_to_scan'),
         },
         needs_review: {
           id: 'needs_review',
@@ -1037,6 +1034,8 @@ export function createPrecinctScannerStateMachine({
           case state.matches('accepting'):
             return 'accepting';
           case state.matches('accepted'):
+            return 'accepted';
+          case state.matches('resetting_ballot'):
             return 'accepted';
           case state.matches('needs_review'):
             return 'needs_review';
