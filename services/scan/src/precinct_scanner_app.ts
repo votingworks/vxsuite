@@ -1,5 +1,6 @@
 import { OkResponse, Scan } from '@votingworks/api';
 import * as streams from 'memory-streams';
+import makeDebug from 'debug';
 import { Buffer } from 'buffer';
 import * as fsExtra from 'fs-extra';
 import {
@@ -19,6 +20,8 @@ import { pdfToImages } from './util/pdf_to_images';
 import { Workspace } from './util/workspace';
 import { createInterpreter, loadLayouts } from './simple_interpreter';
 import { backup } from './backup';
+
+const debug = makeDebug('precinct-scanner:app');
 
 function sum(nums: number[]) {
   return nums.reduce((a, b) => a + b, 0);
@@ -412,6 +415,7 @@ export function buildPrecinctScannerApp(
   );
 
   app.get('/scan/backup', (_request, response) => {
+    debug('creating backup');
     const electionDefinition = store.getElectionDefinition();
 
     if (!electionDefinition) {
@@ -441,7 +445,7 @@ export function buildPrecinctScannerApp(
 
     backup(store)
       .on('error', (error: Error) => {
-        // debug('backup error: %s', error.stack);
+        debug('backup error: %s', error);
         response.status(500).json({
           errors: [
             {
