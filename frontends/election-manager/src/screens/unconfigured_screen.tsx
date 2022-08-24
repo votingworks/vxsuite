@@ -5,7 +5,7 @@ import { safeParseElection } from '@votingworks/types';
 
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 
-import { Modal, useCancelablePromise, Prose } from '@votingworks/ui';
+import { Modal, Prose, useMountedState } from '@votingworks/ui';
 import { assert } from '@votingworks/utils';
 import {
   ConverterClient,
@@ -57,7 +57,7 @@ const demoElection =
 
 export function UnconfiguredScreen(): JSX.Element {
   const history = useHistory();
-  const makeCancelable = useCancelablePromise();
+  const isMounted = useMountedState();
 
   const { converter, saveElection } = useContext(AppContext);
 
@@ -156,7 +156,11 @@ export function UnconfiguredScreen(): JSX.Element {
   const updateStatus = useCallback(async () => {
     try {
       assert(client);
-      const files = await makeCancelable(client.getFiles());
+      const files = await client.getFiles();
+
+      if (!isMounted()) {
+        return;
+      }
 
       setIsLoading(true);
 
@@ -176,7 +180,7 @@ export function UnconfiguredScreen(): JSX.Element {
     } catch (error) {
       setIsLoading(false);
     }
-  }, [client, getOutputFile, makeCancelable, processInputFiles]);
+  }, [client, getOutputFile, isMounted, processInputFiles]);
 
   async function submitFile({ file, name }: InputFile) {
     try {

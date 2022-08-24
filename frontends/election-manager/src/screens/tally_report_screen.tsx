@@ -64,7 +64,7 @@ export function TallyReportScreen(): JSX.Element {
     castVoteRecordFiles,
     electionDefinition,
     isOfficialResults,
-    saveIsOfficialResults,
+    markResultsOfficial,
     fullElectionTally,
     fullElectionExternalTallies,
     isTabulationRunning,
@@ -197,7 +197,7 @@ export function TallyReportScreen(): JSX.Element {
   }
   async function markOfficial() {
     setIsMarkOfficialModalOpen(false);
-    await saveIsOfficialResults();
+    await markResultsOfficial();
   }
 
   if (isTabulationRunning) {

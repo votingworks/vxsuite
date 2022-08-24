@@ -33,19 +33,16 @@ export interface AppContextInterface {
   printBallotRef?: RefObject<HTMLElement>;
   saveCastVoteRecordFiles: SaveCastVoteRecordFiles;
   saveElection: SaveElection;
-  setCastVoteRecordFiles: React.Dispatch<
-    React.SetStateAction<CastVoteRecordFiles>
-  >;
-  saveIsOfficialResults: () => Promise<void>;
+  markResultsOfficial: () => Promise<void>;
   resetFiles: (fileType: ResultsFileType) => Promise<void>;
   usbDriveStatus: usbstick.UsbDriveStatus;
   usbDriveEject: (currentUserRole: LoggingUserRole) => Promise<void>;
   addPrintedBallot: (printedBallot: PrintedBallot) => void;
-  printedBallots: PrintedBallot[];
+  printedBallots: readonly PrintedBallot[];
   fullElectionTally: FullElectionTally;
-  fullElectionExternalTallies: FullElectionExternalTally[];
+  fullElectionExternalTallies: readonly FullElectionExternalTally[];
   isTabulationRunning: boolean;
-  setFullElectionTally: React.Dispatch<React.SetStateAction<FullElectionTally>>;
+  addExternalTally: (externalTally: FullElectionExternalTally) => Promise<void>;
   saveExternalTallies: (
     externalTallies: FullElectionExternalTally[]
   ) => Promise<void>;
@@ -72,8 +69,7 @@ const appContext: AppContextInterface = {
   printBallotRef: undefined,
   saveCastVoteRecordFiles: async () => undefined,
   saveElection: async () => undefined,
-  setCastVoteRecordFiles: () => undefined,
-  saveIsOfficialResults: async () => undefined,
+  markResultsOfficial: async () => undefined,
   resetFiles: async () => undefined,
   usbDriveStatus: usbstick.UsbDriveStatus.notavailable,
   usbDriveEject: async () => undefined,
@@ -81,7 +77,7 @@ const appContext: AppContextInterface = {
   printedBallots: [],
   fullElectionTally: getEmptyFullElectionTally(),
   fullElectionExternalTallies: [],
-  setFullElectionTally: () => undefined,
+  addExternalTally: async () => undefined,
   saveExternalTallies: async () => undefined,
   saveTranscribedValue: async () => undefined,
   isTabulationRunning: false,

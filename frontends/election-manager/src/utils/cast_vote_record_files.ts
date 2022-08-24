@@ -465,5 +465,5 @@ export class CastVoteRecordFiles {
 }
 
 export type SaveCastVoteRecordFiles = (
-  value?: CastVoteRecordFiles
+  value: CastVoteRecordFiles
 ) => Promise<void>;

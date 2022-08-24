@@ -1,14 +1,16 @@
 import {
+  BallotIdSchema,
   BallotLocales,
-  BallotStyle,
+  BallotLocaleSchema,
   BallotStyleId,
   CastVoteRecord,
   ContestTallyMeta,
   Dictionary,
+  Iso8601TimestampSchema,
   MachineId,
   Optional,
-  Precinct,
   PrecinctId,
+  PrecinctIdSchema,
   PromiseOr,
   VotingMethod,
 } from '@votingworks/types';
@@ -36,6 +38,11 @@ export const PrintableBallotType = {
 } as const;
 export type PrintableBallotType =
   typeof PrintableBallotType[keyof typeof PrintableBallotType];
+
+export const PrintableBallotTypeSchema = z.union([
+  z.literal('absentee'),
+  z.literal('standard'),
+]);
 
 export enum BallotMode {
   /** Real ballots to be used and scanned during an election */
@@ -70,13 +77,22 @@ export function ballotModeToReadableString(ballotMode: BallotMode): string {
 }
 
 export interface PrintedBallot {
-  ballotStyleId: BallotStyle['id'];
-  precinctId: Precinct['id'];
+  ballotStyleId: BallotStyleId;
+  precinctId: PrecinctId;
   locales: BallotLocales;
   numCopies: number;
   printedAt: Iso8601Timestamp;
   type: PrintableBallotType;
 }
+
+export const PrintedBallotSchema = z.object({
+  ballotStyleId: BallotIdSchema,
+  precinctId: PrecinctIdSchema,
+  locales: BallotLocaleSchema,
+  numCopies: z.number().int().nonnegative(),
+  printedAt: Iso8601TimestampSchema,
+  type: PrintableBallotTypeSchema,
+});
 
 export interface PrintOptions extends KioskBrowser.PrintOptions {
   sides: KioskBrowser.PrintSides;
@@ -158,7 +174,6 @@ export interface CastVoteRecordFilePreprocessedData {
   readonly fileImported: boolean;
   readonly fileContent: string;
 }
-export type CastVoteRecordFilesDictionary = Dictionary<CastVoteRecordFile>;
 
 export type VoteCounts = Dictionary<Dictionary<number>>;
 export type OptionalVoteCounts = Optional<Dictionary<Dictionary<number>>>;

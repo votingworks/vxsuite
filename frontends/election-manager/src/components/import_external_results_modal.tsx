@@ -29,10 +29,9 @@ export function ImportExternalResultsModal({
   selectedFile,
 }: Props): JSX.Element {
   const {
-    saveExternalTallies,
+    addExternalTally,
     setIsTabulationRunning,
     electionDefinition,
-    fullElectionExternalTallies,
     auth,
     logger,
   } = useContext(AppContext);
@@ -120,7 +119,7 @@ export function ImportExternalResultsModal({
         fileType: ExternalTallySourceType.SEMS,
         numberOfBallotsImported: tally.overallTally.numberOfBallotsCounted,
       });
-      await saveExternalTallies([...fullElectionExternalTallies, tally]);
+      await addExternalTally(tally);
       setIsTabulationRunning(false);
       onClose();
     }

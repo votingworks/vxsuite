@@ -28,7 +28,7 @@ export interface Props {
   batchId?: string;
   batchLabel?: string;
   election: Election;
-  fullElectionExternalTallies: FullElectionExternalTally[];
+  fullElectionExternalTallies: readonly FullElectionExternalTally[];
   fullElectionTally: FullElectionTally;
   generatedAtTime?: Date;
   isOfficialResults: boolean;

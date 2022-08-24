@@ -58,10 +58,10 @@ interface RenderInAppContextParams {
   printedBallots?: PrintedBallot[];
   fullElectionTally?: FullElectionTally;
   isTabulationRunning?: boolean;
-  setFullElectionTally?: React.Dispatch<
-    React.SetStateAction<FullElectionTally>
-  >;
   setIsTabulationRunning?: React.Dispatch<React.SetStateAction<boolean>>;
+  addExternalTally?: (
+    externalTally: FullElectionExternalTally
+  ) => Promise<void>;
   saveExternalTallies?: (
     externalTallies: FullElectionExternalTally[]
   ) => Promise<void>;
@@ -87,8 +87,7 @@ export function renderInAppContext(
     printBallotRef = undefined,
     saveCastVoteRecordFiles = jest.fn(),
     saveElection = jest.fn(),
-    setCastVoteRecordFiles = jest.fn(),
-    saveIsOfficialResults = jest.fn(),
+    saveIsOfficialResults: markResultsOfficial = jest.fn(),
     resetFiles = jest.fn(),
     usbDriveStatus = usbstick.UsbDriveStatus.absent,
     usbDriveEject = jest.fn(),
@@ -96,8 +95,8 @@ export function renderInAppContext(
     printedBallots = [],
     fullElectionTally = getEmptyFullElectionTally(),
     isTabulationRunning = false,
-    setFullElectionTally = jest.fn(),
     setIsTabulationRunning = jest.fn(),
+    addExternalTally = jest.fn(),
     saveExternalTallies = jest.fn(),
     fullElectionExternalTallies = [],
     saveTranscribedValue = jest.fn(),
@@ -124,8 +123,7 @@ export function renderInAppContext(
         printBallotRef,
         saveCastVoteRecordFiles,
         saveElection,
-        setCastVoteRecordFiles,
-        saveIsOfficialResults,
+        markResultsOfficial,
         resetFiles,
         usbDriveStatus,
         usbDriveEject,
@@ -133,8 +131,8 @@ export function renderInAppContext(
         printedBallots,
         fullElectionTally,
         isTabulationRunning,
-        setFullElectionTally,
         setIsTabulationRunning,
+        addExternalTally,
         saveExternalTallies,
         fullElectionExternalTallies,
         generateExportableTallies,

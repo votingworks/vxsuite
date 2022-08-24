@@ -155,7 +155,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
         setCurrentState(ModalState.DUPLICATE);
         await logger.log(LogEventId.CvrLoaded, userRole, {
           message:
-            'CVR file was not loaded as it is a duplicated of a previously loaded file.',
+            'CVR file was not loaded as it is a duplicate of a previously loaded file.',
           disposition: 'failure',
           filename,
           result: 'File not loaded, error shown to user.',

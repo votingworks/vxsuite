@@ -40,8 +40,8 @@ import {
 } from '@votingworks/types';
 import { LogEventId } from '@votingworks/logging';
 
-import { externalVoteTalliesFileStorageKey } from './app_root';
 import { App } from './app';
+import { externalVoteTalliesFileStorageKey } from './hooks/use_election_manager_store';
 import { fakePrinter } from '../test/helpers/fake_printer';
 import { loadBallotSealImages } from '../test/util/load_ballot_seal_images';
 import { eitherNeitherElectionDefinition } from '../test/render_in_app_context';
