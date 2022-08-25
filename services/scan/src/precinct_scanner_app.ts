@@ -18,7 +18,7 @@ import { interpretTemplate } from '@votingworks/ballot-interpreter-vx';
 import { PrecinctScannerStateMachine } from './precinct_scanner_state_machine';
 import { pdfToImages } from './util/pdf_to_images';
 import { Workspace } from './util/workspace';
-import { backup } from './backup';
+import { backup, parseScanImagesToIncludeQueryParam } from './backup';
 import { PrecinctScannerInterpreter } from './precinct_scanner_interpreter';
 import { Store } from './store';
 
@@ -459,7 +459,10 @@ export async function buildPrecinctScannerApp(
     }
   );
 
-  app.get('/precinct-scanner/backup', (_request, response) => {
+  app.get('/precinct-scanner/backup', (request, response) => {
+    const scanImagesToInclude = parseScanImagesToIncludeQueryParam(
+      request.query['scanImagesToInclude']
+    );
     const electionDefinition = store.getElectionDefinition();
 
     if (!electionDefinition) {
@@ -487,7 +490,7 @@ export async function buildPrecinctScannerApp(
       )
       .flushHeaders();
 
-    backup(store)
+    backup(store, { scanImagesToInclude })
       .on('error', (error: Error) => {
         // debug('backup error: %s', error.stack);
         response.status(500).json({
