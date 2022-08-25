@@ -11,7 +11,7 @@ import { basename } from 'path';
 import { fileSync, tmpNameSync } from 'tmp';
 import ZipStream from 'zip-stream';
 import { election, electionDefinition } from '../test/fixtures/2020-choctaw';
-import { backup, Backup } from './backup';
+import { backup, Backup, BackupOptions } from './backup';
 import { ConfigKey, Store } from './store';
 
 jest.mock('fs-extra', (): typeof import('fs-extra') => {
@@ -294,3 +294,78 @@ test('has vx-logs.log if file exists', async () => {
   const logsEntry = entries.find(({ name }) => name === 'vx-logs.log')!;
   expect(await readTextEntry(logsEntry)).toEqual('mock logs');
 });
+
+const scanImagesToIncludeOptions: Array<BackupOptions['scanImagesToInclude']> =
+  ['all', 'normalizedOnly', 'originalOnly'];
+
+test.each(scanImagesToIncludeOptions)(
+  'scanImagesToInclude = "%s" affects what is backed up as expected',
+  async (scanImagesToInclude) => {
+    const store = Store.memoryStore();
+    store.setElection(electionDefinition);
+    const batchId = store.addBatch();
+
+    const frontOriginalFile = fileSync();
+    await writeFile(frontOriginalFile.fd, 'front original');
+    const frontNormalizedFile = fileSync();
+    await writeFile(frontNormalizedFile.fd, 'front normalized');
+    const backOriginalFile = fileSync();
+    await writeFile(backOriginalFile.fd, 'back original');
+    const backNormalizedFile = fileSync();
+    await writeFile(backNormalizedFile.fd, 'back normalized');
+    store.addSheet('sheet-1', batchId, [
+      {
+        interpretation: { type: 'UnreadablePage' },
+        originalFilename: frontOriginalFile.name,
+        normalizedFilename: frontNormalizedFile.name,
+      },
+      {
+        interpretation: { type: 'UnreadablePage' },
+        originalFilename: backOriginalFile.name,
+        normalizedFilename: backNormalizedFile.name,
+      },
+    ]);
+
+    const output = new WritableStream();
+    await new Promise((resolve, reject) => {
+      backup(store, { scanImagesToInclude })
+        .on('error', reject)
+        .pipe(output)
+        .on('finish', resolve);
+    });
+    const zipfile = await openZip(output.toBuffer());
+    const entries = getEntries(zipfile);
+
+    let expectedScanImagesInBackup: string[] = [];
+    if (scanImagesToInclude === 'all') {
+      expectedScanImagesInBackup = [
+        frontOriginalFile.name,
+        frontNormalizedFile.name,
+        backOriginalFile.name,
+        backNormalizedFile.name,
+      ];
+    } else if (scanImagesToInclude === 'normalizedOnly') {
+      expectedScanImagesInBackup = [
+        frontNormalizedFile.name,
+        backNormalizedFile.name,
+      ];
+    } else if (scanImagesToInclude === 'originalOnly') {
+      expectedScanImagesInBackup = [
+        frontOriginalFile.name,
+        backOriginalFile.name,
+      ];
+    }
+    expect(
+      entries
+        .map((entry) => entry.name)
+        .filter(
+          (fileName) =>
+            fileName !== 'election.json' &&
+            fileName !== 'ballots.db' &&
+            fileName !== 'ballots.db.digest' &&
+            fileName !== 'cvrs.jsonl'
+        )
+        .sort()
+    ).toEqual(expectedScanImagesInBackup.map((name) => basename(name)).sort());
+  }
+);
