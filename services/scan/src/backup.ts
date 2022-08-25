@@ -7,9 +7,41 @@ import Database from 'better-sqlite3';
 import { fileSync } from 'tmp';
 import ZipStream from 'zip-stream';
 import { FULL_LOG_PATH } from '@votingworks/logging';
+import { throwIllegalValue } from '@votingworks/utils';
 import { Store } from './store';
 
 const debug = makeDebug('scan:backup');
+
+/**
+ * Specifies what to include in the backup
+ *
+ * @property scanImagesToInclude Specifies which scan images to include in the backup
+ */
+export interface BackupOptions {
+  scanImagesToInclude: 'all' | 'normalizedOnly' | 'originalOnly';
+}
+
+const defaultBackupOptions: BackupOptions = {
+  scanImagesToInclude: 'all',
+};
+
+/**
+ * Parses a query param as a BackupOptions['scanImagesToInclude']
+ */
+export function parseScanImagesToIncludeQueryParam(
+  param: qs.ParsedQs[string]
+): BackupOptions['scanImagesToInclude'] {
+  switch (param) {
+    case 'all':
+      return 'all';
+    case 'normalizedOnly':
+      return 'normalizedOnly';
+    case 'originalOnly':
+      return 'originalOnly';
+    default:
+      return defaultBackupOptions.scanImagesToInclude;
+  }
+}
 
 /**
  * Creates a backup of the database and all scanned files.
@@ -61,7 +93,7 @@ export class Backup {
   /**
    * Runs the backup.
    */
-  async backup(): Promise<void> {
+  async backup(options: BackupOptions = defaultBackupOptions): Promise<void> {
     debug('starting a backup');
 
     const electionDefinition = this.store.getElectionDefinition();
@@ -84,10 +116,21 @@ export class Backup {
     dbBackupFile.removeCallback();
 
     for (const sheet of this.store.getSheets()) {
-      await this.addFileEntry(sheet.front.original);
-      await this.addFileEntry(sheet.front.normalized);
-      await this.addFileEntry(sheet.back.original);
-      await this.addFileEntry(sheet.back.normalized);
+      if (options.scanImagesToInclude === 'all') {
+        await this.addFileEntry(sheet.front.original);
+        await this.addFileEntry(sheet.front.normalized);
+        await this.addFileEntry(sheet.back.original);
+        await this.addFileEntry(sheet.back.normalized);
+      } else if (options.scanImagesToInclude === 'normalizedOnly') {
+        await this.addFileEntry(sheet.front.normalized);
+        await this.addFileEntry(sheet.back.normalized);
+      } else if (options.scanImagesToInclude === 'originalOnly') {
+        await this.addFileEntry(sheet.front.original);
+        await this.addFileEntry(sheet.back.original);
+      } else {
+        /* istanbul ignore next */
+        throwIllegalValue(options.scanImagesToInclude);
+      }
     }
 
     if (existsSync(FULL_LOG_PATH)) {
@@ -142,11 +185,14 @@ export class Backup {
 /**
  * Backs up the store and all referenced files into a zip archive.
  */
-export function backup(store: Store): NodeJS.ReadableStream {
+export function backup(
+  store: Store,
+  options: BackupOptions = defaultBackupOptions
+): NodeJS.ReadableStream {
   const zip = new ZipStream();
 
   process.nextTick(() => {
-    new Backup(zip, store).backup().catch((error) => {
+    new Backup(zip, store).backup(options).catch((error) => {
       zip.emit('error', error);
       zip.destroy();
     });
