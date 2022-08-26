@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 
@@ -28,6 +29,8 @@ const defaultStorage = window.kiosk
   ? new KioskStorage(window.kiosk)
   : new LocalStorage();
 
+const queryClient = new QueryClient();
+
 export function App({
   hardware,
   card = new WebServiceCard(),
@@ -51,15 +54,17 @@ export function App({
   }
 
   return (
-    <BrowserRouter>
-      <AppRoot
-        storage={storage}
-        printer={printer}
-        hardware={internalHardware}
-        card={card}
-        machineConfigProvider={machineConfig}
-        converter={converter}
-      />
-    </BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <AppRoot
+          storage={storage}
+          printer={printer}
+          hardware={internalHardware}
+          card={card}
+          machineConfigProvider={machineConfig}
+          converter={converter}
+        />
+      </BrowserRouter>
+    </QueryClientProvider>
   );
 }

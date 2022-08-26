@@ -28,7 +28,7 @@ import {
 } from './election';
 
 export function convertExternalTalliesToStorageString(
-  tallies: FullElectionExternalTally[]
+  tallies: readonly FullElectionExternalTally[]
 ): string {
   return JSON.stringify(
     tallies.map((tally) => {

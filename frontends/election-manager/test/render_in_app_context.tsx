@@ -15,6 +15,7 @@ import { usbstick, NullPrinter, Printer } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
 
 import { Dipped } from '@votingworks/test-utils';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AppContext } from '../src/contexts/app_context';
 import {
   SaveElection,
@@ -72,6 +73,7 @@ interface RenderInAppContextParams {
   hasCardReaderAttached?: boolean;
   hasPrinterAttached?: boolean;
   logger?: Logger;
+  queryClient?: QueryClient;
 }
 
 export function renderInAppContext(
@@ -109,42 +111,45 @@ export function renderInAppContext(
     hasCardReaderAttached = true,
     hasPrinterAttached = true,
     logger = new Logger(LogSource.VxAdminFrontend),
+    queryClient = new QueryClient(),
   }: RenderInAppContextParams = {}
 ): RenderResult {
   return testRender(
-    <AppContext.Provider
-      value={{
-        castVoteRecordFiles,
-        electionDefinition:
-          electionDefinition === 'NONE' ? undefined : electionDefinition,
-        configuredAt,
-        isOfficialResults,
-        printer,
-        printBallotRef,
-        saveCastVoteRecordFiles,
-        saveElection,
-        markResultsOfficial,
-        resetFiles,
-        usbDriveStatus,
-        usbDriveEject,
-        addPrintedBallot,
-        printedBallots,
-        fullElectionTally,
-        isTabulationRunning,
-        setIsTabulationRunning,
-        addExternalTally,
-        saveExternalTallies,
-        fullElectionExternalTallies,
-        generateExportableTallies,
-        saveTranscribedValue,
-        auth,
-        machineConfig,
-        hasCardReaderAttached,
-        hasPrinterAttached,
-        logger,
-      }}
-    >
-      <Router history={history}>{component}</Router>
-    </AppContext.Provider>
+    <QueryClientProvider client={queryClient}>
+      <AppContext.Provider
+        value={{
+          castVoteRecordFiles,
+          electionDefinition:
+            electionDefinition === 'NONE' ? undefined : electionDefinition,
+          configuredAt,
+          isOfficialResults,
+          printer,
+          printBallotRef,
+          saveCastVoteRecordFiles,
+          saveElection,
+          markResultsOfficial,
+          resetFiles,
+          usbDriveStatus,
+          usbDriveEject,
+          addPrintedBallot,
+          printedBallots,
+          fullElectionTally,
+          isTabulationRunning,
+          setIsTabulationRunning,
+          addExternalTally,
+          saveExternalTallies,
+          fullElectionExternalTallies,
+          generateExportableTallies,
+          saveTranscribedValue,
+          auth,
+          machineConfig,
+          hasCardReaderAttached,
+          hasPrinterAttached,
+          logger,
+        }}
+      >
+        <Router history={history}>{component}</Router>
+      </AppContext.Provider>
+    </QueryClientProvider>
   );
 }
