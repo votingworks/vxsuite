@@ -15,7 +15,7 @@ import { readFile } from 'fs-extra';
 import { z } from 'zod';
 import { Store } from './store';
 import { Importer } from './importer';
-import { backup } from './backup';
+import { backup, parseScanImagesToIncludeQueryParam } from './backup';
 
 const debug = makeDebug('scan:central-scanner');
 
@@ -631,7 +631,10 @@ export async function buildCentralScannerApp({
     }
   );
 
-  app.get('/scan/backup', (_request, response) => {
+  app.get('/scan/backup', (request, response) => {
+    const scanImagesToInclude = parseScanImagesToIncludeQueryParam(
+      request.query['scanImagesToInclude']
+    );
     const electionDefinition = store.getElectionDefinition();
 
     if (!electionDefinition) {
@@ -659,7 +662,7 @@ export async function buildCentralScannerApp({
       )
       .flushHeaders();
 
-    backup(store)
+    backup(store, { scanImagesToInclude })
       .on('error', (error: Error) => {
         debug('backup error: %s', error.stack);
         response.status(500).json({

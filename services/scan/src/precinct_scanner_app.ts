@@ -19,7 +19,7 @@ import { PrecinctScannerStateMachine } from './precinct_scanner_state_machine';
 import { pdfToImages } from './util/pdf_to_images';
 import { Workspace } from './util/workspace';
 import { createInterpreter, loadLayouts } from './simple_interpreter';
-import { backup } from './backup';
+import { backup, parseScanImagesToIncludeQueryParam } from './backup';
 
 const debug = makeDebug('precinct-scanner:app');
 
@@ -414,8 +414,12 @@ export function buildPrecinctScannerApp(
     }
   );
 
-  app.get('/scan/backup', (_request, response) => {
+  app.get('/scan/backup', (request, response) => {
     debug('creating backup');
+
+    const scanImagesToInclude = parseScanImagesToIncludeQueryParam(
+      request.query['scanImagesToInclude']
+    );
     const electionDefinition = store.getElectionDefinition();
 
     if (!electionDefinition) {
@@ -443,7 +447,7 @@ export function buildPrecinctScannerApp(
       )
       .flushHeaders();
 
-    backup(store)
+    backup(store, { scanImagesToInclude })
       .on('error', (error: Error) => {
         debug('backup error: %s', error);
         response.status(500).json({

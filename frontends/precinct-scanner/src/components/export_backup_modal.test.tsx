@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { fakeKiosk, fakeUsbDrive, Inserted } from '@votingworks/test-utils';
 
@@ -9,7 +10,10 @@ import { mocked } from 'ts-jest/utils';
 import { MachineConfig } from '../config/types';
 import { AppContext } from '../contexts/app_context';
 import { download, DownloadErrorKind } from '../utils/download';
-import { ExportBackupModal } from './export_backup_modal';
+import {
+  ExportBackupModal,
+  MAX_BALLOT_COUNT_FOR_INCLUDING_ORIGINAL_SCAN_IMAGES,
+} from './export_backup_modal';
 
 jest.mock('../utils/download');
 
@@ -20,6 +24,8 @@ const machineConfig: MachineConfig = {
   codeVersion: 'TEST',
 };
 const auth = Inserted.fakeElectionManagerAuth();
+const scannedBallotCount =
+  MAX_BALLOT_COUNT_FOR_INCLUDING_ORIGINAL_SCAN_IMAGES - 1;
 
 test('renders loading screen when USB drive is mounting or ejecting in export modal', () => {
   const usbStatuses = [UsbDriveStatus.present, UsbDriveStatus.ejecting];
@@ -37,6 +43,7 @@ test('renders loading screen when USB drive is mounting or ejecting in export mo
       >
         <ExportBackupModal
           onClose={closeFn}
+          scannedBallotCount={scannedBallotCount}
           usbDrive={{ status, eject: jest.fn() }}
         />
       </AppContext.Provider>
@@ -66,6 +73,7 @@ test('render no USB found screen when there is not a mounted USB drive', () => {
       >
         <ExportBackupModal
           onClose={closeFn}
+          scannedBallotCount={scannedBallotCount}
           usbDrive={{ status, eject: jest.fn() }}
         />
       </AppContext.Provider>
@@ -99,6 +107,7 @@ test('render export modal when a USB drive is mounted as expected and allows cus
     >
       <ExportBackupModal
         onClose={closeFn}
+        scannedBallotCount={scannedBallotCount}
         usbDrive={{ status: UsbDriveStatus.mounted, eject: jest.fn() }}
       />
     </AppContext.Provider>
@@ -111,7 +120,9 @@ test('render export modal when a USB drive is mounted as expected and allows cus
 
   fireEvent.click(screen.getByText('Custom'));
   await screen.findByText('Backup Saved');
-  expect(download).toHaveBeenCalledWith('/scan/backup');
+  expect(download).toHaveBeenCalledWith(
+    '/scan/backup?scanImagesToInclude=originalOnly'
+  );
 
   fireEvent.click(screen.getByText('Cancel'));
   expect(closeFn).toHaveBeenCalled();
@@ -126,6 +137,7 @@ test('render export modal when a USB drive is mounted as expected and allows cus
     >
       <ExportBackupModal
         onClose={closeFn}
+        scannedBallotCount={scannedBallotCount}
         usbDrive={{ status: UsbDriveStatus.recentlyEjected, eject: jest.fn() }}
       />
     </AppContext.Provider>
@@ -152,6 +164,7 @@ test('render export modal when a USB drive is mounted as expected and allows aut
     >
       <ExportBackupModal
         onClose={closeFn}
+        scannedBallotCount={scannedBallotCount}
         usbDrive={{ status: UsbDriveStatus.mounted, eject: ejectFn }}
       />
     </AppContext.Provider>
@@ -160,9 +173,12 @@ test('render export modal when a USB drive is mounted as expected and allows aut
 
   fireEvent.click(screen.getByText('Save'));
   await screen.findByText('Backup Saved');
-  expect(download).toHaveBeenCalledWith('/scan/backup', {
-    into: 'fake mount point/scanner-backups/franklin-county_general-election_748dc61ad3',
-  });
+  expect(download).toHaveBeenCalledWith(
+    '/scan/backup?scanImagesToInclude=originalOnly',
+    {
+      into: 'fake mount point/scanner-backups/franklin-county_general-election_748dc61ad3',
+    }
+  );
   expect(mockKiosk.syncUsbDrive).toHaveBeenCalledWith('fake mount point');
 
   fireEvent.click(screen.getByText('Eject USB'));
@@ -187,6 +203,7 @@ test('handles no USB drives', async () => {
     >
       <ExportBackupModal
         onClose={closeFn}
+        scannedBallotCount={scannedBallotCount}
         usbDrive={{ status: UsbDriveStatus.mounted, eject: jest.fn() }}
       />
     </AppContext.Provider>
@@ -218,6 +235,7 @@ test('shows a specific error for file writer failure', async () => {
     >
       <ExportBackupModal
         onClose={closeFn}
+        scannedBallotCount={scannedBallotCount}
         usbDrive={{ status: UsbDriveStatus.mounted, eject: jest.fn() }}
       />
     </AppContext.Provider>
@@ -256,6 +274,7 @@ test('shows a specific error for fetch failure', async () => {
     >
       <ExportBackupModal
         onClose={closeFn}
+        scannedBallotCount={scannedBallotCount}
         usbDrive={{ status: UsbDriveStatus.mounted, eject: jest.fn() }}
       />
     </AppContext.Provider>
@@ -275,4 +294,40 @@ test('shows a specific error for fetch failure', async () => {
 
   fireEvent.click(screen.getByText('Close'));
   expect(closeFn).toHaveBeenCalled();
+});
+
+test('backs up only normalized scan images once scanned ballot count gets high enough', async () => {
+  const mockKiosk = fakeKiosk();
+  window.kiosk = mockKiosk;
+  mockKiosk.getUsbDrives.mockResolvedValue([fakeUsbDrive()]);
+  mocked(download).mockResolvedValueOnce(ok());
+
+  render(
+    <AppContext.Provider
+      value={{
+        auth,
+        electionDefinition: electionSampleDefinition,
+        isSoundMuted: false,
+        machineConfig,
+      }}
+    >
+      <ExportBackupModal
+        onClose={jest.fn()}
+        scannedBallotCount={
+          MAX_BALLOT_COUNT_FOR_INCLUDING_ORIGINAL_SCAN_IMAGES + 1
+        }
+        usbDrive={{ status: UsbDriveStatus.mounted, eject: jest.fn() }}
+      />
+    </AppContext.Provider>
+  );
+
+  await screen.findByRole('heading', { name: 'Save Backup' });
+  userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await screen.findByRole('heading', { name: 'Backup Saved' });
+  expect(download).toHaveBeenCalledWith(
+    '/scan/backup?scanImagesToInclude=normalizedOnly',
+    {
+      into: 'fake mount point/scanner-backups/franklin-county_general-election_748dc61ad3',
+    }
+  );
 });
