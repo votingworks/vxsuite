@@ -15,7 +15,7 @@ import { readFile } from 'fs-extra';
 import { z } from 'zod';
 import { Store } from './store';
 import { Importer } from './importer';
-import { backup, parseScanImagesToIncludeQueryParam } from './backup';
+import { backup } from './backup';
 
 const debug = makeDebug('scan:central-scanner');
 
@@ -621,10 +621,7 @@ export async function buildCentralScannerApp({
     }
   );
 
-  app.get('/central-scanner/scan/backup', (request, response) => {
-    const scanImagesToInclude = parseScanImagesToIncludeQueryParam(
-      request.query['scanImagesToInclude']
-    );
+  app.get('/central-scanner/scan/backup', (_request, response) => {
     const electionDefinition = store.getElectionDefinition();
 
     if (!electionDefinition) {
@@ -652,7 +649,14 @@ export async function buildCentralScannerApp({
       )
       .flushHeaders();
 
-    backup(store, { scanImagesToInclude })
+    backup(store, {
+      /**
+       * At greater than this number of scanned sheets, if we store original scan images, we run
+       * the risk of the central scanner backup zip being larger than 4GB, the max file size on
+       * FAT32 formatted USB drives
+       */
+      saveOnlyOriginalImagesThenOnlyNormalizedImagesAfterNumSheets: 6000,
+    })
       .on('error', (error: Error) => {
         debug('backup error: %s', error.stack);
         response.status(500).json({

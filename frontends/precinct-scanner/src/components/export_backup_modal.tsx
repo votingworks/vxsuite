@@ -27,16 +27,8 @@ const UsbImage = styled.img`
   height: 200px;
 `;
 
-/**
- * At greater than 1000 scanned ballots, if we store original scan images, we run the risk of the
- * precinct scanner backup zip being larger than 4GB, the max file size on FAT32 formatted USB
- * drives
- */
-export const MAX_BALLOT_COUNT_FOR_INCLUDING_ORIGINAL_SCAN_IMAGES = 1000;
-
 export interface Props {
   onClose: () => void;
-  scannedBallotCount: number;
   usbDrive: UsbDrive;
 }
 
@@ -47,11 +39,7 @@ enum ModalState {
   INIT = 'init',
 }
 
-export function ExportBackupModal({
-  onClose,
-  scannedBallotCount,
-  usbDrive,
-}: Props): JSX.Element {
+export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
   const [currentState, setCurrentState] = useState(ModalState.INIT);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -63,13 +51,6 @@ export function ExportBackupModal({
   const exportBackup = useCallback(
     async (openDialog: boolean) => {
       setCurrentState(ModalState.SAVING);
-
-      const scanImagesToInclude =
-        scannedBallotCount <=
-        MAX_BALLOT_COUNT_FOR_INCLUDING_ORIGINAL_SCAN_IMAGES
-          ? 'originalOnly'
-          : 'normalizedOnly';
-      const apiPath = `/precinct-scanner/backup?scanImagesToInclude=${scanImagesToInclude}`;
 
       let result: Result<void, DownloadError>;
       if (window.kiosk && !openDialog) {
@@ -88,11 +69,11 @@ export function ExportBackupModal({
           SCANNER_BACKUPS_FOLDER,
           electionFolderName
         );
-        result = await download(apiPath, {
+        result = await download('/precinct-scanner/backup', {
           into: pathToFolder,
         });
       } else {
-        result = await download(apiPath);
+        result = await download('/precinct-scanner/backup');
       }
 
       if (window.kiosk) {
@@ -126,11 +107,7 @@ export function ExportBackupModal({
         setCurrentState(ModalState.ERROR);
       }
     },
-    [
-      electionDefinition.election,
-      electionDefinition.electionHash,
-      scannedBallotCount,
-    ]
+    [electionDefinition.election, electionDefinition.electionHash]
   );
 
   if (currentState === ModalState.ERROR) {
