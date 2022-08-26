@@ -32,7 +32,7 @@ const UsbImage = styled.img`
  * precinct scanner backup zip being larger than 4GB, the max file size on FAT32 formatted USB
  * drives
  */
-export const MAX_BALLOT_COUNT_FOR_INCLUDING_ORIGINAL_SCAN_IMAGES = 1000;
+export const MAX_BALLOT_COUNT_FOR_INCLUDING_ORIGINAL_SCAN_IMAGES = 10;
 
 export interface Props {
   onClose: () => void;
