@@ -173,9 +173,12 @@ export function ReportsScreen(): JSX.Element {
   const ballotPrintingSummaryText = (
     <p>
       <strong>
-        {pluralize('official ballot', totalBallotsPrinted, true)}{' '}
+        {pluralize(
+          `${format.count(totalBallotsPrinted)} official ballots`,
+          totalBallotsPrinted
+        )}{' '}
       </strong>{' '}
-      have been printed.
+      {`${pluralize('have', totalBallotsPrinted)} been printed`}.
     </p>
   );
 

@@ -136,8 +136,8 @@ export function PrintedBallotsReportScreen(): JSX.Element {
       </p>
       <p>
         {pluralize('absentee ballot', totalAbsenteeBallotsPrinted, true)} and{' '}
-        {pluralize('precinct ballot', totalPrecinctBallotsPrinted, true)}{' '}
-        {pluralize('have', totalBallotsPrinted)} been printed.
+        {pluralize('precinct ballot', totalPrecinctBallotsPrinted, true)} have
+        been printed.
       </p>
       <p>
         <strong>
