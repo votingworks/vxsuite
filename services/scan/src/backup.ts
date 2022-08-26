@@ -7,7 +7,6 @@ import Database from 'better-sqlite3';
 import { fileSync } from 'tmp';
 import ZipStream from 'zip-stream';
 import { FULL_LOG_PATH } from '@votingworks/logging';
-import { throwIllegalValue } from '@votingworks/utils';
 import { Store } from './store';
 
 const debug = makeDebug('scan:backup');
@@ -15,32 +14,14 @@ const debug = makeDebug('scan:backup');
 /**
  * Specifies what to include in the backup
  *
- * @property scanImagesToInclude Specifies which scan images to include in the backup
+ * @property saveOnlyOriginalImagesThenOnlyNormalizedImagesAfterNumSheets If the number of sheets
+ * scanned by the machine is less than or equal to this, only original scan images will be included
+ * in the backup, and if the number of sheets scanned by the machine is greater, only normalized
+ * scan images will be included in the backup. If not specified, both original and normalized scan
+ * images will be included.
  */
 export interface BackupOptions {
-  scanImagesToInclude: 'all' | 'normalizedOnly' | 'originalOnly';
-}
-
-const defaultBackupOptions: BackupOptions = {
-  scanImagesToInclude: 'all',
-};
-
-/**
- * Parses a query param as a BackupOptions['scanImagesToInclude']
- */
-export function parseScanImagesToIncludeQueryParam(
-  param: qs.ParsedQs[string]
-): BackupOptions['scanImagesToInclude'] {
-  switch (param) {
-    case 'all':
-      return 'all';
-    case 'normalizedOnly':
-      return 'normalizedOnly';
-    case 'originalOnly':
-      return 'originalOnly';
-    default:
-      return defaultBackupOptions.scanImagesToInclude;
-  }
+  saveOnlyOriginalImagesThenOnlyNormalizedImagesAfterNumSheets?: number;
 }
 
 /**
@@ -93,7 +74,9 @@ export class Backup {
   /**
    * Runs the backup.
    */
-  async backup(options: BackupOptions = defaultBackupOptions): Promise<void> {
+  async backup({
+    saveOnlyOriginalImagesThenOnlyNormalizedImagesAfterNumSheets,
+  }: BackupOptions = {}): Promise<void> {
     debug('starting a backup');
 
     const electionDefinition = this.store.getElectionDefinition();
@@ -115,21 +98,32 @@ export class Backup {
     await this.addEntry('ballots.db.digest', Store.getSchemaDigest());
     dbBackupFile.removeCallback();
 
+    const sheets = [];
     for (const sheet of this.store.getSheets()) {
-      if (options.scanImagesToInclude === 'all') {
+      sheets.push(sheet);
+    }
+
+    if (
+      saveOnlyOriginalImagesThenOnlyNormalizedImagesAfterNumSheets !== undefined
+    ) {
+      for (const sheet of sheets) {
+        if (
+          sheets.length <=
+          saveOnlyOriginalImagesThenOnlyNormalizedImagesAfterNumSheets
+        ) {
+          await this.addFileEntry(sheet.front.original);
+          await this.addFileEntry(sheet.back.original);
+        } else {
+          await this.addFileEntry(sheet.front.normalized);
+          await this.addFileEntry(sheet.back.normalized);
+        }
+      }
+    } else {
+      for (const sheet of sheets) {
         await this.addFileEntry(sheet.front.original);
         await this.addFileEntry(sheet.front.normalized);
         await this.addFileEntry(sheet.back.original);
         await this.addFileEntry(sheet.back.normalized);
-      } else if (options.scanImagesToInclude === 'normalizedOnly') {
-        await this.addFileEntry(sheet.front.normalized);
-        await this.addFileEntry(sheet.back.normalized);
-      } else if (options.scanImagesToInclude === 'originalOnly') {
-        await this.addFileEntry(sheet.front.original);
-        await this.addFileEntry(sheet.back.original);
-      } else {
-        /* istanbul ignore next */
-        throwIllegalValue(options.scanImagesToInclude);
       }
     }
 
@@ -187,7 +181,7 @@ export class Backup {
  */
 export function backup(
   store: Store,
-  options: BackupOptions = defaultBackupOptions
+  options: BackupOptions = {}
 ): NodeJS.ReadableStream {
   const zip = new ZipStream();
 
