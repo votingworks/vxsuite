@@ -65,13 +65,6 @@ const Buttons = styled.div`
   }
 `;
 
-/**
- * At greater than 6000 scanned ballots, if we store original scan images, we run the risk of the
- * central scanner backup zip being larger than 4GB, the max file size on FAT32 formatted USB
- * drives
- */
-export const MAX_BALLOT_COUNT_FOR_INCLUDING_ORIGINAL_SCAN_IMAGES = 6000;
-
 export interface AppRootProps {
   card: Card;
   hardware: Hardware;
@@ -399,20 +392,13 @@ export function AppRoot({ card, hardware, logger }: AppRootProps): JSX.Element {
   }, [history, logger, userRole, currentNumberOfBallots, refreshConfig]);
 
   const backup = useCallback(async () => {
-    const scanImagesToInclude =
-      currentNumberOfBallots <=
-      MAX_BALLOT_COUNT_FOR_INCLUDING_ORIGINAL_SCAN_IMAGES
-        ? 'originalOnly'
-        : 'normalizedOnly';
-    await download(
-      `/central-scanner/scan/backup?scanImagesToInclude=${scanImagesToInclude}`
-    );
+    await download('/central-scanner/scan/backup');
     if (window.kiosk) {
       // Backups can take several minutes. Ensure the data is flushed to the
       // usb before prompting the user to eject it.
       await usbstick.doSync();
     }
-  }, [currentNumberOfBallots]);
+  }, []);
 
   const toggleTestMode = useCallback(async () => {
     try {

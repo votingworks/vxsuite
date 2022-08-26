@@ -295,7 +295,6 @@ export function ElectionManagerScreen({
       {isExportingBackup && (
         <ExportBackupModal
           onClose={() => setIsExportingBackup(false)}
-          scannedBallotCount={scannerStatus.ballotsCounted}
           usbDrive={usbDrive}
         />
       )}
