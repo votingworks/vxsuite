@@ -1,6 +1,7 @@
 import { asElectionDefinition } from '@votingworks/fixtures';
 import { mockOf } from '@votingworks/test-utils';
 import { BallotIdSchema, BallotType, unsafeParse } from '@votingworks/types';
+import { throwIllegalValue } from '@votingworks/utils';
 import Database from 'better-sqlite3';
 import { Buffer } from 'buffer';
 import { writeFileSync } from 'fs';
@@ -11,7 +12,7 @@ import { basename } from 'path';
 import { fileSync, tmpNameSync } from 'tmp';
 import ZipStream from 'zip-stream';
 import { election, electionDefinition } from '../test/fixtures/2020-choctaw';
-import { backup, Backup, BackupOptions } from './backup';
+import { backup, Backup } from './backup';
 import { ConfigKey, Store } from './store';
 
 jest.mock('fs-extra', (): typeof import('fs-extra') => {
@@ -295,40 +296,74 @@ test('has vx-logs.log if file exists', async () => {
   expect(await readTextEntry(logsEntry)).toEqual('mock logs');
 });
 
-const scanImagesToIncludeOptions: Array<BackupOptions['scanImagesToInclude']> =
-  ['all', 'normalizedOnly', 'originalOnly'];
+const spaceOptimizedBackupTestCases: Array<{
+  saveOnlyOriginalImagesThenOnlyNormalizedImagesAfterNumSheets?: number;
+  numSheets: number;
+  expectedScanImagesInBackup: 'All' | 'OriginalOnly' | 'NormalizedOnly';
+}> = [
+  {
+    saveOnlyOriginalImagesThenOnlyNormalizedImagesAfterNumSheets: undefined,
+    numSheets: 1,
+    expectedScanImagesInBackup: 'All',
+  },
+  {
+    saveOnlyOriginalImagesThenOnlyNormalizedImagesAfterNumSheets: 1,
+    numSheets: 1,
+    expectedScanImagesInBackup: 'OriginalOnly',
+  },
+  {
+    saveOnlyOriginalImagesThenOnlyNormalizedImagesAfterNumSheets: 1,
+    numSheets: 2,
+    expectedScanImagesInBackup: 'NormalizedOnly',
+  },
+];
 
-test.each(scanImagesToIncludeOptions)(
-  'scanImagesToInclude = "%s" affects what is backed up as expected',
-  async (scanImagesToInclude) => {
+test.each(spaceOptimizedBackupTestCases)(
+  'saveOnlyOriginalImagesThenOnlyNormalizedImagesAfterNumSheets affects what is backed up as expected (%s)',
+  async ({
+    saveOnlyOriginalImagesThenOnlyNormalizedImagesAfterNumSheets,
+    numSheets,
+    expectedScanImagesInBackup,
+  }) => {
     const store = Store.memoryStore();
     store.setElection(electionDefinition);
     const batchId = store.addBatch();
 
-    const frontOriginalFile = fileSync();
-    await writeFile(frontOriginalFile.fd, 'front original');
-    const frontNormalizedFile = fileSync();
-    await writeFile(frontNormalizedFile.fd, 'front normalized');
-    const backOriginalFile = fileSync();
-    await writeFile(backOriginalFile.fd, 'back original');
-    const backNormalizedFile = fileSync();
-    await writeFile(backNormalizedFile.fd, 'back normalized');
-    store.addSheet('sheet-1', batchId, [
-      {
-        interpretation: { type: 'UnreadablePage' },
-        originalFilename: frontOriginalFile.name,
-        normalizedFilename: frontNormalizedFile.name,
-      },
-      {
-        interpretation: { type: 'UnreadablePage' },
-        originalFilename: backOriginalFile.name,
-        normalizedFilename: backNormalizedFile.name,
-      },
-    ]);
+    const originalFileNames = [];
+    const normalizedFileNames = [];
+    for (let i = 0; i < numSheets; i += 1) {
+      const frontOriginalFile = fileSync();
+      await writeFile(frontOriginalFile.fd, 'front-original');
+      const frontNormalizedFile = fileSync();
+      await writeFile(frontNormalizedFile.fd, 'front-normalized');
+      const backOriginalFile = fileSync();
+      await writeFile(backOriginalFile.fd, 'back-original');
+      const backNormalizedFile = fileSync();
+      await writeFile(backNormalizedFile.fd, 'back-normalized');
+      originalFileNames.push(frontOriginalFile.name, backOriginalFile.name);
+      normalizedFileNames.push(
+        frontNormalizedFile.name,
+        backNormalizedFile.name
+      );
+      store.addSheet(`sheet-${i + 1}`, batchId, [
+        {
+          interpretation: { type: 'UnreadablePage' },
+          originalFilename: frontOriginalFile.name,
+          normalizedFilename: frontNormalizedFile.name,
+        },
+        {
+          interpretation: { type: 'UnreadablePage' },
+          originalFilename: backOriginalFile.name,
+          normalizedFilename: backNormalizedFile.name,
+        },
+      ]);
+    }
 
     const output = new WritableStream();
     await new Promise((resolve, reject) => {
-      backup(store, { scanImagesToInclude })
+      backup(store, {
+        saveOnlyOriginalImagesThenOnlyNormalizedImagesAfterNumSheets,
+      })
         .on('error', reject)
         .pipe(output)
         .on('finish', resolve);
@@ -336,24 +371,18 @@ test.each(scanImagesToIncludeOptions)(
     const zipfile = await openZip(output.toBuffer());
     const entries = getEntries(zipfile);
 
-    let expectedScanImagesInBackup: string[] = [];
-    if (scanImagesToInclude === 'all') {
-      expectedScanImagesInBackup = [
-        frontOriginalFile.name,
-        frontNormalizedFile.name,
-        backOriginalFile.name,
-        backNormalizedFile.name,
+    let expectedScanImageFileNamesInBackup: string[] = [];
+    if (expectedScanImagesInBackup === 'All') {
+      expectedScanImageFileNamesInBackup = [
+        ...originalFileNames,
+        ...normalizedFileNames,
       ];
-    } else if (scanImagesToInclude === 'normalizedOnly') {
-      expectedScanImagesInBackup = [
-        frontNormalizedFile.name,
-        backNormalizedFile.name,
-      ];
-    } else if (scanImagesToInclude === 'originalOnly') {
-      expectedScanImagesInBackup = [
-        frontOriginalFile.name,
-        backOriginalFile.name,
-      ];
+    } else if (expectedScanImagesInBackup === 'NormalizedOnly') {
+      expectedScanImageFileNamesInBackup = normalizedFileNames;
+    } else if (expectedScanImagesInBackup === 'OriginalOnly') {
+      expectedScanImageFileNamesInBackup = originalFileNames;
+    } else {
+      throwIllegalValue(expectedScanImagesInBackup);
     }
     expect(
       entries
@@ -366,6 +395,8 @@ test.each(scanImagesToIncludeOptions)(
             fileName !== 'cvrs.jsonl'
         )
         .sort()
-    ).toEqual(expectedScanImagesInBackup.map((name) => basename(name)).sort());
+    ).toEqual(
+      expectedScanImageFileNamesInBackup.map((name) => basename(name)).sort()
+    );
   }
 );
