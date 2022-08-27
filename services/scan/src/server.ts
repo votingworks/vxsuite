@@ -59,7 +59,10 @@ export async function start({
         'workspace path could not be determined; pass a workspace or run with SCAN_WORKSPACE'
       );
     }
-    resolvedWorkspace = await createWorkspace(workspacePath);
+    resolvedWorkspace = await createWorkspace(
+      workspacePath,
+      machineType === 'precinct-scanner'
+    );
   }
 
   let resolvedApp: express.Application;
@@ -67,6 +70,7 @@ export async function start({
   if (machineType === 'precinct-scanner') {
     const precinctScannerMachine = createPrecinctScannerStateMachine(
       createPlustekClient,
+      resolvedWorkspace,
       logger
     );
     resolvedApp = buildPrecinctScannerApp(
