@@ -34,6 +34,7 @@ import {
 } from './simple_interpreter';
 import { SheetOf } from './types';
 import { Store } from './store';
+import { Workspace } from './util/workspace';
 
 // 10 attempts is about the amount of time it takes for Plustek to stop trying
 // to grab the paper. Up until that point, if you reposition the paper so the
@@ -112,10 +113,16 @@ export interface Delays {
   DELAY_KILL_AFTER_DISCONNECT_TIMEOUT: number;
 }
 
-function connectToPlustek(createPlustekClient: CreatePlustekClient) {
+function connectToPlustek(
+  createPlustekClient: CreatePlustekClient,
+  plustekImagesPath?: string
+) {
   return async (): Promise<ScannerClient> => {
     debug('Connecting to plustek');
-    const plustekClient = await createPlustekClient(DEFAULT_CONFIG);
+    const plustekClient = await createPlustekClient({
+      ...DEFAULT_CONFIG,
+      savepath: plustekImagesPath,
+    });
     debug('Plustek client connected: %s', plustekClient.isOk());
     return plustekClient.unsafeUnwrap();
   };
@@ -338,6 +345,7 @@ const defaultDelays: Delays = {
 
 function buildMachine(
   createPlustekClient: CreatePlustekClient,
+  workspace: Workspace,
   delayOverrides: Partial<Delays>
 ) {
   const delays: Delays = { ...defaultDelays, ...delayOverrides };
@@ -449,7 +457,10 @@ function buildMachine(
       states: {
         connecting: {
           invoke: {
-            src: connectToPlustek(createPlustekClient),
+            src: connectToPlustek(
+              createPlustekClient,
+              workspace.plustekImagesPath
+            ),
             onDone: {
               target: 'waiting_for_configuration',
               actions: assign((_context, event) => ({
@@ -466,7 +477,10 @@ function buildMachine(
         },
         reconnecting: {
           invoke: {
-            src: connectToPlustek(createPlustekClient),
+            src: connectToPlustek(
+              createPlustekClient,
+              workspace.plustekImagesPath
+            ),
             onDone: {
               target: 'checking_initial_paper_status',
               actions: assign({
@@ -868,7 +882,10 @@ function buildMachine(
             // Finally, we're ready to try reconnecting
             reconnecting: {
               invoke: {
-                src: connectToPlustek(createPlustekClient),
+                src: connectToPlustek(
+                  createPlustekClient,
+                  workspace.plustekImagesPath
+                ),
                 onDone: {
                   target: '#checking_initial_paper_status',
                   actions: assign({
@@ -979,10 +996,11 @@ export interface PrecinctScannerStateMachine {
 
 export function createPrecinctScannerStateMachine(
   createPlustekClient: CreatePlustekClient,
+  workspace: Workspace,
   logger: Logger,
   delays: Partial<Delays> = {}
 ): PrecinctScannerStateMachine {
-  const machine = buildMachine(createPlustekClient, delays);
+  const machine = buildMachine(createPlustekClient, workspace, delays);
   const machineService = interpret(machine).start();
   setupLogging(machineService, logger);
 

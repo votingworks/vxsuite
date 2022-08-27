@@ -67,6 +67,7 @@ export async function start({
   if (machineType === 'precinct-scanner') {
     const precinctScannerMachine = createPrecinctScannerStateMachine(
       createPlustekClient,
+      resolvedWorkspace,
       logger
     );
     resolvedApp = buildPrecinctScannerApp(
