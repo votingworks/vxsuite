@@ -208,6 +208,7 @@ async function createApp(
   }
   const precinctScannerMachine = createPrecinctScannerStateMachine(
     createPlustekClient,
+    workspace,
     logger,
     delays
   );
