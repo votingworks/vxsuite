@@ -19,7 +19,7 @@ export function PollsClosedScreen({
   scannedBallotCount,
 }: Props): JSX.Element {
   return (
-    <ScreenMainCenterChild isLiveMode={isLiveMode}>
+    <ScreenMainCenterChild isLiveMode={isLiveMode} infoBarMode="pollworker">
       <DoNotEnter />
       <CenteredLargeProse>
         <h1>Polls Closed</h1>
