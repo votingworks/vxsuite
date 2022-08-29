@@ -36,7 +36,7 @@ export function UnconfigureMachineButton({
     setIsConfirmationModalOpen(false);
   }
 
-  async function doUnconfigureMachineFlow() {
+  async function unconfigureMachineAndDelay() {
     setIsUnconfiguringMachine(true);
 
     const start = new Date().getTime();
@@ -80,7 +80,7 @@ export function UnconfigureMachineButton({
           actions={
             !isUnconfiguringMachine && (
               <React.Fragment>
-                <Button onPress={doUnconfigureMachineFlow} danger>
+                <Button onPress={unconfigureMachineAndDelay} danger>
                   Yes, Delete Election Data
                 </Button>
                 <Button onPress={closeConfirmationModal}>Cancel</Button>
