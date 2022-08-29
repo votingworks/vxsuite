@@ -13,6 +13,7 @@ test('SystemAdministratorScreen renders expected contents', () => {
     <SystemAdministratorScreen
       logger={logger}
       unconfigureMachine={unconfigureMachine}
+      isMachineConfigured
       usbDriveStatus={usbstick.UsbDriveStatus.absent}
     />
   );

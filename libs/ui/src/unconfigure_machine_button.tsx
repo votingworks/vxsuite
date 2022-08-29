@@ -8,6 +8,7 @@ import { Prose } from './prose';
 
 interface Props {
   unconfigureMachine: () => Promise<void>;
+  isMachineConfigured: boolean;
 }
 
 /**
@@ -20,7 +21,10 @@ export const MIN_TIME_TO_UNCONFIGURE_MACHINE_MS = 1000;
 /**
  * A button with a confirmation modal for unconfiguring machines
  */
-export function UnconfigureMachineButton(props: Props): JSX.Element {
+export function UnconfigureMachineButton({
+  unconfigureMachine,
+  isMachineConfigured,
+}: Props): JSX.Element {
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
   const [isUnconfiguringMachine, setIsUnconfiguringMachine] = useState(false);
 
@@ -32,11 +36,11 @@ export function UnconfigureMachineButton(props: Props): JSX.Element {
     setIsConfirmationModalOpen(false);
   }
 
-  async function unconfigureMachine() {
+  async function unconfigureMachineAndDelay() {
     setIsUnconfiguringMachine(true);
 
     const start = new Date().getTime();
-    await props.unconfigureMachine();
+    await unconfigureMachine();
     const timeToUnconfigureMachineMs = new Date().getTime() - start;
 
     if (timeToUnconfigureMachineMs < MIN_TIME_TO_UNCONFIGURE_MACHINE_MS) {
@@ -51,7 +55,11 @@ export function UnconfigureMachineButton(props: Props): JSX.Element {
 
   return (
     <React.Fragment>
-      <Button danger onPress={openConfirmationModal}>
+      <Button
+        danger
+        onPress={openConfirmationModal}
+        disabled={!isMachineConfigured}
+      >
         Unconfigure Machine
       </Button>
       {isConfirmationModalOpen && (
@@ -72,7 +80,7 @@ export function UnconfigureMachineButton(props: Props): JSX.Element {
           actions={
             !isUnconfiguringMachine && (
               <React.Fragment>
-                <Button onPress={unconfigureMachine} danger>
+                <Button onPress={unconfigureMachineAndDelay} danger>
                   Yes, Delete Election Data
                 </Button>
                 <Button onPress={closeConfirmationModal}>Cancel</Button>

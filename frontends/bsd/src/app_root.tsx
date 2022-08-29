@@ -552,6 +552,7 @@ export function AppRoot({ card, hardware, logger }: AppRootProps): JSX.Element {
             unconfigureMachine={() =>
               unconfigureServer({ ignoreBackupRequirement: true })
             }
+            isMachineConfigured={Boolean(electionDefinition)}
             usbDriveStatus={displayUsbStatus}
           />
           <ElectionInfoBar

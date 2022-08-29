@@ -744,6 +744,7 @@ export function AppRoot({
       <SystemAdministratorScreen
         logger={logger}
         unconfigureMachine={unconfigure}
+        isMachineConfigured={Boolean(optionalElectionDefinition)}
         usbDriveStatus={displayUsbStatus}
       />
     );
