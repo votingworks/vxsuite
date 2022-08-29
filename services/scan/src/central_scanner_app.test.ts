@@ -32,7 +32,7 @@ let importer: jest.Mocked<Importer>;
 
 beforeEach(async () => {
   importer = makeMock(Importer);
-  workspace = await createWorkspace(dirSync().name);
+  workspace = createWorkspace(dirSync().name);
   workspace.store.setElection(stateOfHamilton.electionDefinition);
   workspace.store.setTestMode(false);
   workspace.store.addHmpbTemplate(

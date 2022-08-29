@@ -203,7 +203,7 @@ async function createApp(
   }
 ) {
   const logger = fakeLogger();
-  const workspace = await createWorkspace(dirSync().name);
+  const workspace = createWorkspace(dirSync().name);
   const mockPlustek = new MockScannerClient({
     toggleHoldDuration: 100,
     passthroughDuration: 100,
@@ -215,13 +215,13 @@ async function createApp(
     return ok(mockPlustek);
   }
   const interpreter = createInterpreter();
-  const precinctScannerMachine = createPrecinctScannerStateMachine(
+  const precinctScannerMachine = createPrecinctScannerStateMachine({
     createPlustekClient,
-    workspace.store,
+    workspace,
     interpreter,
     logger,
-    delays
-  );
+    delays,
+  });
   const app = await buildPrecinctScannerApp(
     precinctScannerMachine,
     interpreter,
