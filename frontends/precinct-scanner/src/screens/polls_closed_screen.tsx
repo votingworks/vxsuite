@@ -7,7 +7,7 @@ import {
 } from '../components/layout';
 import { ScannedBallotCount } from '../components/scanned_ballot_count';
 
-interface Props {
+export interface PollsClosedScreenProps {
   isLiveMode: boolean;
   showNoChargerWarning: boolean;
   scannedBallotCount: number;
@@ -17,7 +17,7 @@ export function PollsClosedScreen({
   isLiveMode,
   showNoChargerWarning,
   scannedBallotCount,
-}: Props): JSX.Element {
+}: PollsClosedScreenProps): JSX.Element {
   return (
     <ScreenMainCenterChild isLiveMode={isLiveMode} infoBarMode="pollworker">
       <DoNotEnter />
