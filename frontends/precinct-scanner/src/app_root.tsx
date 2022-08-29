@@ -570,11 +570,22 @@ export function AppRoot({
 
   if (!isPollsOpen) {
     return (
-      <PollsClosedScreen
-        isLiveMode={!isTestMode}
-        showNoChargerWarning={!computer.batteryIsCharging}
-        scannedBallotCount={scannerStatus.ballotsCounted}
-      />
+      <AppContext.Provider
+        value={{
+          electionDefinition,
+          currentPrecinctId,
+          currentMarkThresholds,
+          machineConfig,
+          auth,
+          isSoundMuted,
+        }}
+      >
+        <PollsClosedScreen
+          isLiveMode={!isTestMode}
+          showNoChargerWarning={!computer.batteryIsCharging}
+          scannedBallotCount={scannerStatus.ballotsCounted}
+        />
+      </AppContext.Provider>
     );
   }
 
