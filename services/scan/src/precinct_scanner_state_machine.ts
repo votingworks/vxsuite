@@ -33,6 +33,7 @@ import {
 } from './precinct_scanner_interpreter';
 import { SheetOf } from './types';
 import { Store } from './store';
+import { Workspace } from './util/workspace';
 
 const debug = makeDebug('scan:precinct-scanner');
 const debugPaperStatus = debug.extend('paper-status');
@@ -97,10 +98,16 @@ export interface Delays {
   DELAY_KILL_AFTER_DISCONNECT_TIMEOUT: number;
 }
 
-function connectToPlustek(createPlustekClient: CreatePlustekClient) {
+function connectToPlustek(
+  createPlustekClient: CreatePlustekClient,
+  scannedImagesPath?: string
+) {
   return async (): Promise<ScannerClient> => {
     debug('Connecting to plustek');
-    const plustekClient = await createPlustekClient(DEFAULT_CONFIG);
+    const plustekClient = await createPlustekClient({
+      ...DEFAULT_CONFIG,
+      savepath: scannedImagesPath,
+    });
     debug('Plustek client connected: %s', plustekClient.isOk());
     return plustekClient.unsafeUnwrap();
   };
@@ -329,12 +336,17 @@ const defaultDelays: Delays = {
   DELAY_KILL_AFTER_DISCONNECT_TIMEOUT: 1_000,
 };
 
-function buildMachine(
-  createPlustekClient: CreatePlustekClient,
-  store: Store,
-  interpreter: PrecinctScannerInterpreter,
-  delayOverrides: Partial<Delays>
-) {
+function buildMachine({
+  createPlustekClient,
+  workspace,
+  interpreter,
+  delayOverrides,
+}: {
+  createPlustekClient: CreatePlustekClient;
+  workspace: Workspace;
+  interpreter: PrecinctScannerInterpreter;
+  delayOverrides: Partial<Delays>;
+}) {
   const delays: Delays = { ...defaultDelays, ...delayOverrides };
 
   const pollPaperStatus: InvokeConfig<Context, Event> = {
@@ -407,7 +419,7 @@ function buildMachine(
       initial: 'starting',
       states: {
         starting: {
-          entry: (context) => recordRejectedSheet(store, context),
+          entry: (context) => recordRejectedSheet(workspace.store, context),
           invoke: {
             src: reject,
             onDone: 'checking_completed',
@@ -466,7 +478,10 @@ function buildMachine(
       states: {
         connecting: {
           invoke: {
-            src: connectToPlustek(createPlustekClient),
+            src: connectToPlustek(
+              createPlustekClient,
+              workspace.scannedImagesPath
+            ),
             onDone: {
               target: 'checking_initial_paper_status',
               actions: assign((_context, event) => ({
@@ -485,7 +500,10 @@ function buildMachine(
             },
             reconnecting: {
               invoke: {
-                src: connectToPlustek(createPlustekClient),
+                src: connectToPlustek(
+                  createPlustekClient,
+                  workspace.scannedImagesPath
+                ),
                 onDone: {
                   target: '#checking_initial_paper_status',
                   actions: assign({
@@ -696,7 +714,7 @@ function buildMachine(
         accepting: acceptingState,
         accepted: {
           id: 'accepted',
-          entry: (context) => recordAcceptedSheet(store, context),
+          entry: (context) => recordAcceptedSheet(workspace.store, context),
           invoke: pollPaperStatus,
           initial: 'scanning_paused',
           on: { SCANNER_NO_PAPER: doNothing },
@@ -840,7 +858,10 @@ function buildMachine(
             // Finally, we're ready to try reconnecting
             reconnecting: {
               invoke: {
-                src: connectToPlustek(createPlustekClient),
+                src: connectToPlustek(
+                  createPlustekClient,
+                  workspace.scannedImagesPath
+                ),
                 onDone: {
                   target: '#checking_initial_paper_status',
                   actions: assign({
@@ -966,14 +987,25 @@ export interface PrecinctScannerStateMachine {
  *
  * It's implemented using XState (https://xstate.js.org/docs/).
  */
-export function createPrecinctScannerStateMachine(
-  createPlustekClient: CreatePlustekClient,
-  store: Store,
-  interpreter: PrecinctScannerInterpreter,
-  logger: Logger,
-  delays: Partial<Delays> = {}
-): PrecinctScannerStateMachine {
-  const machine = buildMachine(createPlustekClient, store, interpreter, delays);
+export function createPrecinctScannerStateMachine({
+  createPlustekClient,
+  workspace,
+  interpreter,
+  logger,
+  delays = {},
+}: {
+  createPlustekClient: CreatePlustekClient;
+  workspace: Workspace;
+  interpreter: PrecinctScannerInterpreter;
+  logger: Logger;
+  delays?: Partial<Delays>;
+}): PrecinctScannerStateMachine {
+  const machine = buildMachine({
+    createPlustekClient,
+    workspace,
+    interpreter,
+    delayOverrides: delays,
+  });
   const machineService = interpret(machine).start();
   setupLogging(machineService, logger);
 

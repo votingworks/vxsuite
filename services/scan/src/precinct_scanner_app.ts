@@ -1,7 +1,6 @@
 import { OkResponse, Scan } from '@votingworks/api';
 import * as streams from 'memory-streams';
 import { Buffer } from 'buffer';
-import * as fsExtra from 'fs-extra';
 import {
   BallotPageLayoutSchema,
   BallotPageLayoutWithImage,
@@ -185,9 +184,7 @@ export async function buildPrecinctScannerApp(
       }
 
       interpreter.unconfigure();
-      store.zero();
-      fsExtra.emptyDirSync(workspace.ballotImagesPath);
-      store.reset();
+      workspace.reset();
       response.json({ status: 'ok' });
     }
   );
@@ -219,8 +216,7 @@ export async function buildPrecinctScannerApp(
       return;
     }
 
-    store.zero();
-    fsExtra.emptyDirSync(workspace.ballotImagesPath);
+    workspace.zero();
     store.setTestMode(bodyParseResult.ok().testMode);
     await configureInterpreter(interpreter, workspace);
     response.json({ status: 'ok' });

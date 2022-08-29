@@ -599,9 +599,8 @@ export class Importer {
    * Reset all the data, both in the store and the ballot images.
    */
   async doZero(): Promise<void> {
-    this.workspace.store.zero();
+    this.workspace.zero();
     await this.setMarkThresholdOverrides(undefined);
-    fsExtra.emptyDirSync(this.workspace.ballotImagesPath);
   }
 
   /**

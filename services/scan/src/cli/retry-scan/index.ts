@@ -88,12 +88,10 @@ export async function retryScan(
   options: Options,
   listeners?: RetryScanListeners
 ): Promise<void> {
-  const input = await createWorkspace(
+  const input = createWorkspace(
     options.inputWorkspace ?? join(__dirname, '../../../dev-workspace')
   );
-  const output = await createWorkspace(
-    options.outputWorkspace ?? dirSync().name
-  );
+  const output = createWorkspace(options.outputWorkspace ?? dirSync().name);
   const outputBatchId = output.store.addBatch();
 
   listeners?.configured?.({

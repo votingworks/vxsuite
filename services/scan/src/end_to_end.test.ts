@@ -29,7 +29,7 @@ let scanner: MockScanner;
 
 beforeEach(async () => {
   scanner = makeMockScanner();
-  workspace = await createWorkspace(dirSync().name);
+  workspace = createWorkspace(dirSync().name);
   importer = new Importer({
     workspace,
     scanner,

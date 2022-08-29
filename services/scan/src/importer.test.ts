@@ -24,8 +24,8 @@ const sampleBallotImagesPath = join(__dirname, '..', 'sample-ballot-images/');
 
 let workspace: Workspace;
 
-beforeEach(async () => {
-  workspace = await createWorkspace(dirSync().name);
+beforeEach(() => {
+  workspace = createWorkspace(dirSync().name);
 });
 
 afterEach(async () => {
