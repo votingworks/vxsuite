@@ -456,6 +456,7 @@ export function AppRoot({
           unconfigureMachine={() =>
             unconfigureServer({ ignoreBackupRequirement: true })
           }
+          isMachineConfigured={Boolean(electionDefinition)}
           usbDriveStatus={usbDriveDisplayStatus}
         />
       </ScreenMainCenterChild>

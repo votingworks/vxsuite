@@ -7,6 +7,7 @@ import { usbstick } from '@votingworks/utils';
 interface Props {
   logger: Logger;
   unconfigureMachine: () => Promise<void>;
+  isMachineConfigured: boolean;
   usbDriveStatus: usbstick.UsbDriveStatus;
 }
 
@@ -16,6 +17,7 @@ interface Props {
 export function SystemAdministratorScreen({
   logger,
   unconfigureMachine,
+  isMachineConfigured,
   usbDriveStatus,
 }: Props): JSX.Element {
   return (
@@ -31,6 +33,7 @@ export function SystemAdministratorScreen({
           </React.Fragment>
         }
         unconfigureMachine={unconfigureMachine}
+        isMachineConfigured={isMachineConfigured}
         usbDriveStatus={usbDriveStatus}
       />
     </Screen>

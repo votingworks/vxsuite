@@ -17,7 +17,12 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
 
 test('UnconfigureMachineButton interactions', async () => {
   const unconfigureMachine = jest.fn();
-  render(<UnconfigureMachineButton unconfigureMachine={unconfigureMachine} />);
+  render(
+    <UnconfigureMachineButton
+      unconfigureMachine={unconfigureMachine}
+      isMachineConfigured
+    />
+  );
 
   // Cancel the first time
   userEvent.click(screen.getByRole('button', { name: 'Unconfigure Machine' }));
@@ -58,7 +63,12 @@ test('UnconfigureMachineButton does not sleep when not necessary', async () => {
       setTimeout(resolve, MIN_TIME_TO_UNCONFIGURE_MACHINE_MS + bufferTimeMs);
     });
   });
-  render(<UnconfigureMachineButton unconfigureMachine={unconfigureMachine} />);
+  render(
+    <UnconfigureMachineButton
+      unconfigureMachine={unconfigureMachine}
+      isMachineConfigured
+    />
+  );
 
   userEvent.click(screen.getByRole('button', { name: 'Unconfigure Machine' }));
   const modal = await screen.findByRole('alertdialog');
@@ -74,4 +84,17 @@ test('UnconfigureMachineButton does not sleep when not necessary', async () => {
 
   expect(unconfigureMachine).toHaveBeenCalledTimes(1);
   expect(sleep).toHaveBeenCalledTimes(0);
+});
+
+test('UnconfigureMachineButton is disabled if machine not configured', () => {
+  render(
+    <UnconfigureMachineButton
+      unconfigureMachine={jest.fn()}
+      isMachineConfigured={false}
+    />
+  );
+
+  expect(
+    screen.getByRole('button', { name: 'Unconfigure Machine' })
+  ).toBeDisabled();
 });

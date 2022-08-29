@@ -73,6 +73,7 @@ test.each(renderTestCases)(
         logger={logger}
         primaryText="To adjust settings for the current election, please insert an Election Manager card."
         unconfigureMachine={unconfigureMachine}
+        isMachineConfigured
         usbDriveStatus={usbstick.UsbDriveStatus.mounted}
       />
     );
@@ -117,6 +118,7 @@ test('Quit button makes expected call', () => {
       logger={logger}
       primaryText="To adjust settings for the current election, please insert an Election Manager card."
       unconfigureMachine={unconfigureMachine}
+      isMachineConfigured
       usbDriveStatus={usbstick.UsbDriveStatus.mounted}
     />
   );
@@ -135,6 +137,7 @@ test('Quit button does nothing when kiosk is undefined', () => {
       logger={logger}
       primaryText="To adjust settings for the current election, please insert an Election Manager card."
       unconfigureMachine={unconfigureMachine}
+      isMachineConfigured
       usbDriveStatus={usbstick.UsbDriveStatus.mounted}
     />
   );

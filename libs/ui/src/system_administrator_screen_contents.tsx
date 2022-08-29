@@ -15,6 +15,7 @@ interface Props {
   logger: Logger;
   primaryText: React.ReactNode;
   unconfigureMachine: () => Promise<void>;
+  isMachineConfigured: boolean;
   usbDriveStatus: usbstick.UsbDriveStatus;
 }
 
@@ -27,6 +28,7 @@ export function SystemAdministratorScreenContents({
   logger,
   primaryText,
   unconfigureMachine,
+  isMachineConfigured,
   usbDriveStatus,
 }: Props): JSX.Element {
   return (
@@ -46,7 +48,10 @@ export function SystemAdministratorScreenContents({
           <RebootToBiosButton logger={logger} />
         </p>
         <p>
-          <UnconfigureMachineButton unconfigureMachine={unconfigureMachine} />
+          <UnconfigureMachineButton
+            unconfigureMachine={unconfigureMachine}
+            isMachineConfigured={isMachineConfigured}
+          />
         </p>
         {isVxDev() && (
           <p>
