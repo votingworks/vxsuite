@@ -11,9 +11,7 @@ export function UnconfiguredPrecinctScreen(): JSX.Element {
       <QuestionCircle />
       <CenteredLargeProse>
         <h1>No Precinct Selected</h1>
-        <p>
-          Insert an Election Manager card to select a precinct for this VxScan.
-        </p>
+        <p>Insert an Election Manager card to select a precinct.</p>
       </CenteredLargeProse>
     </ScreenMainCenterChild>
   );
