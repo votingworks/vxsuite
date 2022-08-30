@@ -1,7 +1,7 @@
 import { assert } from './assert';
 import { sleep } from './sleep';
 
-export const FLUSH_IO_DELAY_MS = 10_000;
+export const MIN_TIME_TO_UNMOUNT_USB = 1000;
 
 function isAvailable() {
   return !!window.kiosk;
@@ -57,9 +57,16 @@ export async function doUnmount(): Promise<void> {
   if (!device?.mountPoint) {
     return;
   }
+
+  const start = new Date().getTime();
   assert(window.kiosk);
+  await window.kiosk.syncUsbDrive(device.mountPoint);
   await window.kiosk.unmountUsbDrive(device.deviceName);
-  return await sleep(FLUSH_IO_DELAY_MS);
+  const timeToUnmount = new Date().getTime() - start;
+
+  if (timeToUnmount < MIN_TIME_TO_UNMOUNT_USB) {
+    await sleep(MIN_TIME_TO_UNMOUNT_USB - timeToUnmount);
+  }
 }
 
 // Triggers linux 'sync' command which forces any cached file data to be

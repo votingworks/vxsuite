@@ -65,6 +65,7 @@ test('can mount and unmount USB drive', async () => {
   expect(window.kiosk.mountUsbDrive).not.toBeCalled();
 
   await doUnmount();
+  expect(window.kiosk.syncUsbDrive).toBeCalledWith('/media/usb-drive-sdb');
   expect(window.kiosk.unmountUsbDrive).toBeCalledWith('sdb');
 });
 
