@@ -20,6 +20,8 @@ import pluralize from 'pluralize';
 
 import { LogEventId } from '@votingworks/logging';
 import {
+  Button,
+  SegmentedButton,
   isElectionManagerAuth,
   isSystemAdministratorAuth,
   Monospace,
@@ -32,7 +34,6 @@ import {
 } from '../config/types';
 import { AppContext } from '../contexts/app_context';
 
-import { Button, SegmentedButton } from '../components/button';
 import { PrintButton } from '../components/print_button';
 import { HandMarkedPaperBallot } from '../components/hand_marked_paper_ballot';
 import {

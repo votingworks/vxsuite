@@ -1,13 +1,9 @@
 import React, { RefObject } from 'react';
 import styled from 'styled-components';
 
-import { InputEventFunction } from '../config/types';
+import { LabelButton, ButtonInterface as ButtonProps } from '@votingworks/ui';
 
-import {
-  LabelButton,
-  buttonFocusStyle,
-  ButtonInterface as ButtonProps,
-} from './button';
+import { InputEventFunction } from '../config/types';
 
 const HiddenFileInput = styled.input`
   position: relative;
@@ -17,7 +13,7 @@ const HiddenFileInput = styled.input`
   height: 0.1px;
   overflow: hidden;
   &:focus + label {
-    ${buttonFocusStyle}/* stylelint-disable-line value-keyword-case */
+    outline: none;
   }
   &:hover + label,
   &:active + label {

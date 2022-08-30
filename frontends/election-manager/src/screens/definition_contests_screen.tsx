@@ -14,7 +14,7 @@ import {
   unsafeParse,
 } from '@votingworks/types';
 
-import { Prose, Text } from '@votingworks/ui';
+import { Button, SegmentedButton, Prose, Text } from '@votingworks/ui';
 import { readFileAsync } from '../lib/read_file_async';
 import {
   EventTargetFunction,
@@ -24,7 +24,6 @@ import {
 
 import { NavigationScreen } from '../components/navigation_screen';
 import { AppContext } from '../contexts/app_context';
-import { Button, SegmentedButton } from '../components/button';
 import {
   CandidateContestChoices,
   Contest,

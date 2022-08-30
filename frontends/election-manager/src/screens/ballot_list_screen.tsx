@@ -4,6 +4,8 @@ import pluralize from 'pluralize';
 
 import { assert, find } from '@votingworks/utils';
 import {
+  Button,
+  SegmentedButton,
   isElectionManagerAuth,
   isSystemAdministratorAuth,
   NoWrap,
@@ -14,7 +16,6 @@ import {
 import { AppContext } from '../contexts/app_context';
 
 import { routerPaths } from '../router_paths';
-import { Button, SegmentedButton } from '../components/button';
 import { LinkButton } from '../components/link_button';
 import {
   getBallotStylesData,

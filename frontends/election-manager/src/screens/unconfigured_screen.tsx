@@ -1,12 +1,12 @@
 import React, { useContext, useState, useEffect, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
+
 import { safeParseElection } from '@votingworks/types';
-
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-
-import { Modal, Prose, useMountedState } from '@votingworks/ui';
+import { Button, Modal, Prose, useMountedState } from '@votingworks/ui';
 import { assert } from '@votingworks/utils';
+
 import {
   ConverterClient,
   getElectionDefinitionConverterClient,
@@ -18,7 +18,6 @@ import { InputEventFunction } from '../config/types';
 
 import { AppContext } from '../contexts/app_context';
 
-import { Button } from '../components/button';
 import { routerPaths } from '../router_paths';
 import { FileInputButton } from '../components/file_input_button';
 import { HorizontalRule } from '../components/horizontal_rule';

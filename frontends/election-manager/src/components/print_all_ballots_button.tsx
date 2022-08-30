@@ -15,6 +15,7 @@ import {
   sleep,
 } from '@votingworks/utils';
 import {
+  Button,
   Modal,
   Prose,
   isElectionManagerAuth,
@@ -34,7 +35,6 @@ import {
 
 import { AppContext } from '../contexts/app_context';
 import { HandMarkedPaperBallot } from './hand_marked_paper_ballot';
-import { Button } from './button';
 import { LinkButton } from './link_button';
 
 import {

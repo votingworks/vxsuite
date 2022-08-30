@@ -7,6 +7,7 @@ import {
   format,
 } from '@votingworks/utils';
 import {
+  Button,
   Prose,
   useCancelablePromise,
   isElectionManagerAuth,
@@ -17,7 +18,6 @@ import { LogEventId } from '@votingworks/logging';
 import { AppContext } from '../contexts/app_context';
 import { MsSemsConverterClient } from '../lib/converters/ms_sems_converter_client';
 
-import { Button } from '../components/button';
 import { Loading } from '../components/loading';
 import { NavigationScreen } from '../components/navigation_screen';
 import { routerPaths } from '../router_paths';

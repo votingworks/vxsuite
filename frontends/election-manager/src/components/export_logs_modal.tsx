@@ -15,13 +15,13 @@ import {
   FULL_LOG_PATH,
 } from '@votingworks/logging';
 import {
+  Button,
   isElectionManagerAuth,
   isSystemAdministratorAuth,
   Modal,
   Prose,
 } from '@votingworks/ui';
 import { AppContext } from '../contexts/app_context';
-import { Button } from './button';
 import { LinkButton } from './link_button';
 import { Loading } from './loading';
 import { UsbImage } from './save_file_to_usb';
