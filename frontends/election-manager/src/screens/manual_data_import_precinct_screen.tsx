@@ -260,6 +260,7 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
     );
     // Add the new tally
     newTallies.push(externalTally);
+    // TODO: switch to `addExternalTally` if we can avoid the `filter` above
     await saveExternalTallies(newTallies);
     history.push(routerPaths.manualDataImport);
   }

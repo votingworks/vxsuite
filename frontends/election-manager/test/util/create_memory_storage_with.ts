@@ -6,7 +6,7 @@ import {
   configuredAtStorageKey,
   cvrsStorageKey,
   electionDefinitionStorageKey,
-} from '../../src/app_root';
+} from '../../src/hooks/use_election_manager_store';
 
 export async function createMemoryStorageWith({
   electionDefinition,

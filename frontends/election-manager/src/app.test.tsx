@@ -40,8 +40,8 @@ import {
 } from '@votingworks/types';
 import { LogEventId } from '@votingworks/logging';
 
-import { externalVoteTalliesFileStorageKey } from './app_root';
 import { App } from './app';
+import { externalVoteTalliesFileStorageKey } from './hooks/use_election_manager_store';
 import { fakePrinter } from '../test/helpers/fake_printer';
 import { loadBallotSealImages } from '../test/util/load_ballot_seal_images';
 import { eitherNeitherElectionDefinition } from '../test/render_in_app_context';
@@ -133,20 +133,24 @@ afterEach(() => {
 test('create election works', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
-  const { getByText, getAllByText, queryAllByText, getByTestId } = render(
+  const { getByText, queryAllByText, getByTestId } = render(
     <App card={card} hardware={hardware} />
   );
   await authenticateWithSystemAdministratorCard(card);
   await screen.findByText('Load Demo Election Definition');
   fireEvent.click(getByText('Load Demo Election Definition'));
 
+  await screen.findByText('Election Definition');
+
   await screen.findByText('Ballots');
   expect(mockKiosk.log).toHaveBeenCalledWith(
     expect.stringContaining(LogEventId.ElectionConfigured)
   );
 
-  fireEvent.click(getByText('Ballots'));
-  fireEvent.click(getAllByText('View Ballot')[0]);
+  fireEvent.click(await screen.findByText('Ballots'));
+  await waitFor(() => {
+    fireEvent.click(screen.getAllByText('View Ballot')[0]);
+  });
 
   // You can view the Logs screen and save log files when there is an election.
   fireEvent.click(screen.getByText('Logs'));
@@ -449,7 +453,7 @@ test('printing ballots and printed ballots report', async () => {
   await waitFor(() => !getByText('Printing'));
 
   fireEvent.click(getByText('Reports'));
-  getByText('3 official ballots', { exact: false });
+  await screen.findByText('3 official ballots', { exact: false });
   fireEvent.click(getByText('Printed Ballots Report'));
   expect(getAllByText(/2 absentee ballots/).length).toBe(2);
   expect(getAllByText(/1 precinct ballot/).length).toBe(2);
@@ -498,15 +502,19 @@ test('tabulating CVRs', async () => {
   getByText('Mark Unofficial Tally Results as Official Tally Results?');
   const modal = await screen.findByRole('alertdialog');
   fireEvent.click(within(modal).getByText('Mark Tally Results as Official'));
-  expect(mockKiosk.log).toHaveBeenCalledWith(
-    expect.stringContaining(LogEventId.MarkedTallyResultsOfficial)
-  );
+  await waitFor(() => {
+    expect(mockKiosk.log).toHaveBeenCalledWith(
+      expect.stringContaining(LogEventId.MarkedTallyResultsOfficial)
+    );
+  });
 
   // Report title should be rendered 3 times - app, preview, and printed
-  expect(
-    getAllByText('Official Mock General Election Choctaw 2020 Tally Report')
-      .length
-  ).toBe(3);
+  await waitFor(() => {
+    expect(
+      getAllByText('Official Mock General Election Choctaw 2020 Tally Report')
+        .length
+    ).toBe(3);
+  });
 
   // TODO: Snapshots without clear definition of what they are for cause future developers to have to figure out what the test is for each time this test breaks.
   const printableArea1 = getByTestId('printable-area');
@@ -633,8 +641,12 @@ test('tabulating CVRs', async () => {
   );
 
   fireEvent.click(getByText('Reports'));
-  expect(getByTestId('total-ballot-count').textContent).toEqual('0');
-  fireEvent.click(getByText('Unofficial Full Election Tally Report'));
+  await waitFor(() => {
+    expect(getByTestId('total-ballot-count').textContent).toEqual('0');
+  });
+  fireEvent.click(
+    await screen.findByText('Unofficial Full Election Tally Report')
+  );
   const printableArea3 = getByTestId('printable-area');
   expect(within(printableArea3).getAllByText('0').length).toBe(40);
 });
@@ -860,7 +872,7 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
   await advanceTimersAndPromises(0);
   // Change to another precinct
   fireEvent.click(getByText('Edit Absentee Results for Panhandle'));
-  getByText('Save Absentee Results for Panhandle');
+  await screen.findByText('Save Absentee Results for Panhandle');
   fireEvent.change(getByTestId('750000017-undervotes'), {
     target: { value: '17' },
   });
@@ -1044,7 +1056,9 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
   fireEvent.click(within(modal).getByText('Mark Tally Results as Official'));
 
   fireEvent.click(getByText('Reports'));
-  getByText('Official Full Election Tally Report');
+  await waitFor(() => {
+    getByText('Official Full Election Tally Report');
+  });
 
   fireEvent.click(getByText('Tally'));
   expect(getByText('Load CVR Files').closest('button')).toBeDisabled();
@@ -1067,9 +1081,11 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
   await waitFor(() => {
     expect(getByText('Load CVR Files').closest('button')).toBeEnabled();
   });
-  expect(
-    getByText('Add Manually Entered Results').closest('button')
-  ).toBeEnabled();
+  await waitFor(() => {
+    expect(
+      getByText('Add Manually Entered Results').closest('button')
+    ).toBeEnabled();
+  });
   expect(getByTestId('import-sems-button')).toBeEnabled();
 
   expect(getByText('Remove CVR Files').closest('button')).toBeDisabled();

@@ -15,6 +15,7 @@ import { usbstick, NullPrinter, Printer } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
 
 import { Dipped } from '@votingworks/test-utils';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AppContext } from '../src/contexts/app_context';
 import {
   SaveElection,
@@ -58,10 +59,10 @@ interface RenderInAppContextParams {
   printedBallots?: PrintedBallot[];
   fullElectionTally?: FullElectionTally;
   isTabulationRunning?: boolean;
-  setFullElectionTally?: React.Dispatch<
-    React.SetStateAction<FullElectionTally>
-  >;
   setIsTabulationRunning?: React.Dispatch<React.SetStateAction<boolean>>;
+  addExternalTally?: (
+    externalTally: FullElectionExternalTally
+  ) => Promise<void>;
   saveExternalTallies?: (
     externalTallies: FullElectionExternalTally[]
   ) => Promise<void>;
@@ -72,6 +73,7 @@ interface RenderInAppContextParams {
   hasCardReaderAttached?: boolean;
   hasPrinterAttached?: boolean;
   logger?: Logger;
+  queryClient?: QueryClient;
 }
 
 export function renderInAppContext(
@@ -87,8 +89,7 @@ export function renderInAppContext(
     printBallotRef = undefined,
     saveCastVoteRecordFiles = jest.fn(),
     saveElection = jest.fn(),
-    setCastVoteRecordFiles = jest.fn(),
-    saveIsOfficialResults = jest.fn(),
+    saveIsOfficialResults: markResultsOfficial = jest.fn(),
     resetFiles = jest.fn(),
     usbDriveStatus = usbstick.UsbDriveStatus.absent,
     usbDriveEject = jest.fn(),
@@ -96,8 +97,8 @@ export function renderInAppContext(
     printedBallots = [],
     fullElectionTally = getEmptyFullElectionTally(),
     isTabulationRunning = false,
-    setFullElectionTally = jest.fn(),
     setIsTabulationRunning = jest.fn(),
+    addExternalTally = jest.fn(),
     saveExternalTallies = jest.fn(),
     fullElectionExternalTallies = [],
     saveTranscribedValue = jest.fn(),
@@ -110,43 +111,45 @@ export function renderInAppContext(
     hasCardReaderAttached = true,
     hasPrinterAttached = true,
     logger = new Logger(LogSource.VxAdminFrontend),
+    queryClient = new QueryClient(),
   }: RenderInAppContextParams = {}
 ): RenderResult {
   return testRender(
-    <AppContext.Provider
-      value={{
-        castVoteRecordFiles,
-        electionDefinition:
-          electionDefinition === 'NONE' ? undefined : electionDefinition,
-        configuredAt,
-        isOfficialResults,
-        printer,
-        printBallotRef,
-        saveCastVoteRecordFiles,
-        saveElection,
-        setCastVoteRecordFiles,
-        saveIsOfficialResults,
-        resetFiles,
-        usbDriveStatus,
-        usbDriveEject,
-        addPrintedBallot,
-        printedBallots,
-        fullElectionTally,
-        isTabulationRunning,
-        setFullElectionTally,
-        setIsTabulationRunning,
-        saveExternalTallies,
-        fullElectionExternalTallies,
-        generateExportableTallies,
-        saveTranscribedValue,
-        auth,
-        machineConfig,
-        hasCardReaderAttached,
-        hasPrinterAttached,
-        logger,
-      }}
-    >
-      <Router history={history}>{component}</Router>
-    </AppContext.Provider>
+    <QueryClientProvider client={queryClient}>
+      <AppContext.Provider
+        value={{
+          castVoteRecordFiles,
+          electionDefinition:
+            electionDefinition === 'NONE' ? undefined : electionDefinition,
+          configuredAt,
+          isOfficialResults,
+          printer,
+          printBallotRef,
+          saveCastVoteRecordFiles,
+          saveElection,
+          markResultsOfficial,
+          resetFiles,
+          usbDriveStatus,
+          usbDriveEject,
+          addPrintedBallot,
+          printedBallots,
+          fullElectionTally,
+          isTabulationRunning,
+          setIsTabulationRunning,
+          addExternalTally,
+          saveExternalTallies,
+          fullElectionExternalTallies,
+          generateExportableTallies,
+          saveTranscribedValue,
+          auth,
+          machineConfig,
+          hasCardReaderAttached,
+          hasPrinterAttached,
+          logger,
+        }}
+      >
+        <Router history={history}>{component}</Router>
+      </AppContext.Provider>
+    </QueryClientProvider>
   );
 }

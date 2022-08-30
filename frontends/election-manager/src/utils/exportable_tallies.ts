@@ -56,7 +56,7 @@ export function getCombinedExportableContestTally(
 
 export function getExportableTallies(
   internalElectionTally: FullElectionTally,
-  externalElectionTallies: FullElectionExternalTally[],
+  externalElectionTallies: readonly FullElectionExternalTally[],
   election: Election
 ): ExportableTallies {
   const talliesByPrecinct = internalElectionTally.resultsByCategory.get(

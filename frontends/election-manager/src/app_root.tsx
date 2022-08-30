@@ -6,17 +6,8 @@ import React, {
   useMemo,
 } from 'react';
 import 'normalize.css';
-import { sha256 } from 'js-sha256';
+import { Logger, LogSource, LogEventId } from '@votingworks/logging';
 import {
-  Logger,
-  LogSource,
-  LogEventId,
-  LogDispositionStandardTypes,
-} from '@votingworks/logging';
-import {
-  CastVoteRecord,
-  ElectionDefinition,
-  safeParseElection,
   FullElectionExternalTally,
   ExternalTallySourceType,
   Provider,
@@ -41,33 +32,18 @@ import {
 } from './lib/votecounting';
 
 import { AppContext } from './contexts/app_context';
-import {
-  CastVoteRecordFiles,
-  SaveCastVoteRecordFiles,
-} from './utils/cast_vote_record_files';
+import { SaveCastVoteRecordFiles } from './utils/cast_vote_record_files';
 import { ElectionManager } from './components/election_manager';
 import {
   SaveElection,
   PrintedBallot,
-  Iso8601Timestamp,
   ResultsFileType,
   MachineConfig,
   ConverterClientType,
+  ExportableTallies,
 } from './config/types';
+import { useElectionManagerStore } from './hooks/use_election_manager_store';
 import { getExportableTallies } from './utils/exportable_tallies';
-import {
-  convertExternalTalliesToStorageString,
-  convertStorageStringToExternalTallies,
-} from './utils/external_tallies';
-
-export interface AppStorage {
-  electionDefinition?: ElectionDefinition;
-  cvrFiles?: string;
-  isOfficialResults?: boolean;
-  printedBallots?: PrintedBallot[];
-  configuredAt?: Iso8601Timestamp;
-  externalVoteTallies?: string;
-}
 
 export interface Props {
   storage: Storage;
@@ -77,13 +53,6 @@ export interface Props {
   machineConfigProvider: Provider<MachineConfig>;
   converter?: ConverterClientType;
 }
-
-export const electionDefinitionStorageKey = 'electionDefinition';
-export const cvrsStorageKey = 'cvrFiles';
-export const isOfficialResultsKey = 'isOfficialResults';
-export const printedBallotsStorageKey = 'printedBallots';
-export const configuredAtStorageKey = 'configuredAt';
-export const externalVoteTalliesFileStorageKey = 'externalVoteTallies';
 
 export function AppRoot({
   storage,
@@ -102,55 +71,18 @@ export function AppRoot({
 
   const { cardReader, printer: printerInfo } = useDevices({ hardware, logger });
 
-  const getElectionDefinition = useCallback(async (): Promise<
-    ElectionDefinition | undefined
-  > => {
-    // TODO: validate this with zod schema
-    const electionDefinition = (await storage.get(
-      electionDefinitionStorageKey
-    )) as ElectionDefinition | undefined;
-
-    if (electionDefinition) {
-      const { electionData, electionHash } = electionDefinition;
-      assert(sha256(electionData) === electionHash);
-      return electionDefinition;
-    }
-  }, [storage]);
-
-  const getCvrFiles = useCallback(
-    async (): Promise<string | undefined> =>
-      // TODO: validate this with zod schema
-      (await storage.get(cvrsStorageKey)) as string | undefined,
-    [storage]
-  );
-  const getExternalElectionTallies = useCallback(
-    async (): Promise<string | undefined> =>
-      // TODO: validate this with zod schema
-      (await storage.get(externalVoteTalliesFileStorageKey)) as
-        | string
-        | undefined,
-    [storage]
-  );
-  const getIsOfficialResults = useCallback(
-    async (): Promise<boolean | undefined> =>
-      // TODO: validate this with zod schema
-      (await storage.get(isOfficialResultsKey)) as boolean | undefined,
-    [storage]
-  );
-
-  const [electionDefinition, setElectionDefinition] =
-    useState<ElectionDefinition>();
-  const [configuredAt, setConfiguredAt] = useState<Iso8601Timestamp>();
-
-  const [castVoteRecordFiles, setCastVoteRecordFiles] = useState(
-    CastVoteRecordFiles.empty
-  );
   const [isTabulationRunning, setIsTabulationRunning] = useState(false);
-  const [isOfficialResults, setIsOfficialResults] = useState(false);
   const [machineConfig, setMachineConfig] = useState<MachineConfig>({
     machineId: '0000',
     codeVersion: '',
   });
+
+  const store = useElectionManagerStore({
+    logger,
+    storage,
+  });
+
+  const { electionDefinition } = store;
 
   const auth = useDippedSmartcardAuth({
     cardApi: card,
@@ -160,70 +92,23 @@ export function AppRoot({
   const currentUserRole =
     auth.status === 'logged_in' ? auth.user.role : 'unknown';
 
-  const setStorageKeyAndLog = useCallback(
-    async (storageKey: string, value: unknown, logDescription: string) => {
-      try {
-        await storage.set(storageKey, value);
-        await logger.log(LogEventId.SaveToStorage, currentUserRole, {
-          message: `${logDescription} successfully saved to storage.`,
-          storageKey,
-          disposition: 'success',
-        });
-      } catch (error) {
-        assert(error instanceof Error);
-        await logger.log(LogEventId.SaveToStorage, currentUserRole, {
-          message: `Failed to save ${logDescription} to storage.`,
-          storageKey,
-          error: error.message,
-          disposition: 'failure',
-        });
-      }
-    },
-    [currentUserRole, logger, storage]
-  );
+  store.setCurrentUserRole(currentUserRole);
 
-  const removeStorageKeyAndLog = useCallback(
-    async (storageKey: string, logDescription: string) => {
-      try {
-        await storage.remove(storageKey);
-        await logger.log(LogEventId.SaveToStorage, currentUserRole, {
-          message: `${logDescription} successfully cleared in storage.`,
-          storageKey,
-          disposition: 'success',
-        });
-      } catch (error) {
-        assert(error instanceof Error);
-        await logger.log(LogEventId.SaveToStorage, currentUserRole, {
-          message: `Failed to clear ${logDescription} in storage.`,
-          storageKey,
-          error: error.message,
-          disposition: 'failure',
-        });
-      }
-    },
-    [currentUserRole, logger, storage]
-  );
+  const markResultsOfficial = useCallback(async () => {
+    await store.markResultsOfficial();
+  }, [store]);
 
-  const saveIsOfficialResults = useCallback(async () => {
-    setIsOfficialResults(true);
-    await logger.log(LogEventId.MarkedTallyResultsOfficial, currentUserRole, {
-      message:
-        'User has marked the tally results as official, no more Cvr files can be loaded.',
-      disposition: 'success',
-    });
-    await setStorageKeyAndLog(
-      isOfficialResultsKey,
-      true,
-      'isOfficialResults flag'
+  // Recomputed as needed based on the cast vote record files. Uses `useMemo`
+  // because it can be slow with a lot of CVRs.
+  const fullElectionTally = useMemo(() => {
+    if (!electionDefinition) return getEmptyFullElectionTally();
+    void logger.log(LogEventId.RecomputingTally, currentUserRole);
+    const fullTally = computeFullElectionTally(
+      electionDefinition.election,
+      new Set(store.castVoteRecordFiles.castVoteRecords)
     );
-  }, [currentUserRole, logger, setStorageKeyAndLog]);
-
-  const [fullElectionTally, setFullElectionTally] = useState(
-    getEmptyFullElectionTally()
-  );
-
-  const [fullElectionExternalTallies, setFullElectionExternalTallies] =
-    useState<FullElectionExternalTally[]>([]);
+    return fullTally;
+  }, [currentUserRole, electionDefinition, logger, store]);
 
   // Handle Machine Config
   useEffect(() => {
@@ -239,38 +124,12 @@ export function AppRoot({
 
   const usbDrive = useUsbDrive({ logger });
   const displayUsbStatus = usbDrive.status ?? usbstick.UsbDriveStatus.absent;
-  const [printedBallots, setPrintedBallots] = useState<
-    PrintedBallot[] | undefined
-  >(undefined);
-
-  const getPrintedBallots = useCallback(async (): Promise<PrintedBallot[]> => {
-    // TODO: validate this with zod schema
-    return (
-      ((await storage.get(printedBallotsStorageKey)) as
-        | PrintedBallot[]
-        | undefined) || []
-    );
-  }, [storage]);
-
-  const savePrintedBallots = useCallback(
-    async (printedBallotsToStore: PrintedBallot[]) => {
-      await setStorageKeyAndLog(
-        printedBallotsStorageKey,
-        printedBallotsToStore,
-        'Printed ballot information'
-      );
-    },
-    [setStorageKeyAndLog]
-  );
 
   const addPrintedBallot = useCallback(
     async (printedBallot: PrintedBallot) => {
-      const ballots = await getPrintedBallots();
-      ballots.push(printedBallot);
-      await savePrintedBallots(ballots);
-      setPrintedBallots(ballots);
+      await store.addPrintedBallot(printedBallot);
     },
-    [getPrintedBallots, savePrintedBallots]
+    [store]
   );
 
   const saveTranscribedValue = useCallback(
@@ -295,89 +154,9 @@ export function AppRoot({
   );
 
   useEffect(() => {
-    void (async () => {
-      if (!printedBallots) {
-        setPrintedBallots(await getPrintedBallots());
-      }
-    })();
-  }, [getPrintedBallots, printedBallots]);
-
-  useEffect(() => {
-    void (async () => {
-      if (!electionDefinition) {
-        const storageElectionDefinition = await getElectionDefinition();
-        if (storageElectionDefinition) {
-          const configuredAtTime = (await storage.get(
-            // TODO: validate this with zod schema
-            configuredAtStorageKey
-          )) as string | undefined;
-          setElectionDefinition(storageElectionDefinition);
-          setConfiguredAt(configuredAtTime);
-          await logger.log(LogEventId.LoadFromStorage, 'system', {
-            message:
-              'Election definition automatically loaded into application from storage.',
-            disposition: 'success',
-            electionHash: storageElectionDefinition.electionHash,
-            electionConfiguredAt: configuredAtTime,
-          });
-        }
-
-        if (castVoteRecordFiles === CastVoteRecordFiles.empty) {
-          const storageCvrFiles = await getCvrFiles();
-          if (storageCvrFiles) {
-            const cvrs = CastVoteRecordFiles.import(storageCvrFiles);
-            const newIsOfficialResults =
-              (await getIsOfficialResults()) || false;
-            setCastVoteRecordFiles(cvrs);
-            setIsOfficialResults(newIsOfficialResults);
-            await logger.log(LogEventId.LoadFromStorage, 'system', {
-              message:
-                'Cast vote records automatically loaded into application from local storage.',
-              disposition: 'success',
-              numberOfCvrs: cvrs.fileList.length,
-              isOfficialResults: newIsOfficialResults,
-            });
-          }
-        }
-
-        if (
-          fullElectionExternalTallies.length === 0 &&
-          storageElectionDefinition
-        ) {
-          const storageExternalTalliesJson = await getExternalElectionTallies();
-          if (storageExternalTalliesJson) {
-            const importedData = convertStorageStringToExternalTallies(
-              storageExternalTalliesJson
-            );
-            setFullElectionExternalTallies(importedData);
-            await logger.log(LogEventId.LoadFromStorage, 'system', {
-              message:
-                'External file format vote tally data automatically loaded into application from local storage.',
-              disposition: 'success',
-              importedTallyFileNames: importedData
-                .map((d) => d.inputSourceName)
-                .join(', '),
-            });
-          }
-        }
-      }
-    })();
-  }, [
-    castVoteRecordFiles,
-    electionDefinition,
-    fullElectionExternalTallies.length,
-    getCvrFiles,
-    getElectionDefinition,
-    getExternalElectionTallies,
-    getIsOfficialResults,
-    storage,
-    logger,
-  ]);
-
-  useEffect(() => {
     const totalBallots =
       fullElectionTally.overallTally.numberOfBallotsCounted +
-      fullElectionExternalTallies.reduce(
+      store.fullElectionExternalTallies.reduce(
         (previous, tally) =>
           previous + tally.overallTally.numberOfBallotsCounted,
         0
@@ -387,167 +166,49 @@ export function AppRoot({
       disposition: 'success',
       totalBallots,
     });
-  }, [fullElectionTally, fullElectionExternalTallies, currentUserRole, logger]);
+  }, [
+    currentUserRole,
+    fullElectionTally.overallTally.numberOfBallotsCounted,
+    logger,
+    store.fullElectionExternalTallies,
+  ]);
 
-  const computeVoteCounts = useCallback(
-    (castVoteRecords: ReadonlySet<CastVoteRecord>) => {
-      void logger.log(LogEventId.RecomputingTally, currentUserRole);
-      assert(electionDefinition);
-      setIsTabulationRunning(true);
-      const fullTally = computeFullElectionTally(
-        electionDefinition.election,
-        castVoteRecords
-      );
-      setFullElectionTally(fullTally);
-      setIsTabulationRunning(false);
+  const addExternalTally = useCallback(
+    async (newFullElectionExternalTally: FullElectionExternalTally) => {
+      await store.addFullElectionExternalTally(newFullElectionExternalTally);
     },
-    [setFullElectionTally, electionDefinition, logger, currentUserRole]
+    [store]
   );
-
-  useEffect(() => {
-    if (electionDefinition) {
-      computeVoteCounts(new Set(castVoteRecordFiles.castVoteRecords));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [computeVoteCounts, castVoteRecordFiles]);
 
   const saveExternalTallies = useCallback(
     async (externalTallies: FullElectionExternalTally[]) => {
-      setFullElectionExternalTallies(externalTallies);
-      if (externalTallies.length > 0) {
-        await setStorageKeyAndLog(
-          externalVoteTalliesFileStorageKey,
-          convertExternalTalliesToStorageString(externalTallies),
-          'Loaded tally data from external file formats'
-        );
-      } else {
-        await removeStorageKeyAndLog(
-          externalVoteTalliesFileStorageKey,
-          'Loaded tally data from external files'
-        );
-      }
+      await store.setFullElectionExternalTallies(externalTallies);
     },
-    [removeStorageKeyAndLog, setStorageKeyAndLog]
+    [store]
   );
 
   const saveCastVoteRecordFiles: SaveCastVoteRecordFiles = useCallback(
-    async (newCvrFiles = CastVoteRecordFiles.empty) => {
-      setCastVoteRecordFiles(newCvrFiles);
-      if (newCvrFiles === CastVoteRecordFiles.empty) {
-        setIsOfficialResults(false);
-      }
-
-      if (newCvrFiles === CastVoteRecordFiles.empty) {
-        await fetch('/admin/write-ins/cvrs', { method: 'DELETE' });
-        await removeStorageKeyAndLog(cvrsStorageKey, 'Cast vote records');
-        await removeStorageKeyAndLog(
-          isOfficialResultsKey,
-          'isOfficialResults flag'
-        );
-        setIsOfficialResults(false);
-      } else {
-        await setStorageKeyAndLog(
-          cvrsStorageKey,
-          newCvrFiles.export(),
-          'Cast vote records'
-        );
-        await fetch('/admin/write-ins/cvrs', {
-          method: 'POST',
-          body: newCvrFiles.export(),
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-      }
+    async (newCvrFiles) => {
+      await store.setCastVoteRecordFiles(newCvrFiles);
     },
-    [removeStorageKeyAndLog, setStorageKeyAndLog]
+    [store]
   );
 
   const saveElection: SaveElection = useCallback(
     async (electionJson) => {
-      const previousElection = electionDefinition;
-      if (previousElection) {
-        void logger.log(LogEventId.ElectionUnconfigured, currentUserRole, {
-          disposition: LogDispositionStandardTypes.Success,
-          previousElectionHash: previousElection.electionHash,
-        });
-      }
-      // we set a new election definition, reset everything
-      try {
-        await storage.clear();
-        await logger.log(LogEventId.SaveToStorage, currentUserRole, {
-          message:
-            'All current data in storage, including election definition, cast vote records, tallies, and printed ballot information cleared.',
-          disposition: 'success',
-        });
-      } catch (error) {
-        assert(error instanceof Error);
-        await logger.log(LogEventId.SaveToStorage, currentUserRole, {
-          message: 'Failed clearing all current data in storage.',
-          disposition: 'failure',
-          error: error.message,
-        });
-      }
-      setIsOfficialResults(false);
-      setCastVoteRecordFiles(CastVoteRecordFiles.empty);
-      setFullElectionExternalTallies([]);
-      setPrintedBallots([]);
-      setElectionDefinition(undefined);
-
-      if (electionJson) {
-        const electionData = electionJson;
-        const electionHash = sha256(electionData);
-        const election = safeParseElection(electionData).unsafeUnwrap();
-
-        setElectionDefinition({
-          electionData,
-          electionHash,
-          election,
-        });
-
-        const newConfiguredAt = new Date().toISOString();
-        setConfiguredAt(newConfiguredAt);
-
-        await setStorageKeyAndLog(
-          configuredAtStorageKey,
-          newConfiguredAt,
-          'Election configured at time'
-        );
-        await setStorageKeyAndLog(
-          electionDefinitionStorageKey,
-          {
-            election,
-            electionData,
-            electionHash,
-          },
-          'Election Definition'
-        );
-        await logger.log(LogEventId.ElectionConfigured, currentUserRole, {
-          disposition: LogDispositionStandardTypes.Success,
-          newElectionHash: electionHash,
-        });
-      }
+      await store.configure(electionJson);
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [
-      electionDefinition,
-      storage,
-      setIsOfficialResults,
-      setCastVoteRecordFiles,
-      setPrintedBallots,
-      setElectionDefinition,
-      setConfiguredAt,
-    ]
+    [store]
   );
 
-  const generateExportableTallies = useCallback(() => {
+  const generateExportableTallies = useCallback((): ExportableTallies => {
     assert(electionDefinition);
     return getExportableTallies(
       fullElectionTally,
-      fullElectionExternalTallies,
+      store.fullElectionExternalTallies,
       electionDefinition.election
     );
-  }, [electionDefinition, fullElectionExternalTallies, fullElectionTally]);
+  }, [electionDefinition, store, fullElectionTally]);
 
   const resetFiles = useCallback(
     async (fileType: ResultsFileType) => {
@@ -558,10 +219,10 @@ export function AppRoot({
             fileType,
             disposition: 'success',
           });
-          await saveCastVoteRecordFiles();
+          await store.clearCastVoteRecordFiles();
           break;
         case ResultsFileType.SEMS: {
-          const newFiles = fullElectionExternalTallies.filter(
+          const newFiles = store.fullElectionExternalTallies.filter(
             (tally) => tally.source !== ExternalTallySourceType.SEMS
           );
           await logger.log(LogEventId.RemovedTallyFile, currentUserRole, {
@@ -573,7 +234,7 @@ export function AppRoot({
           break;
         }
         case ResultsFileType.Manual: {
-          const newFiles = fullElectionExternalTallies.filter(
+          const newFiles = store.fullElectionExternalTallies.filter(
             (tally) => tally.source !== ExternalTallySourceType.Manual
           );
           await logger.log(LogEventId.RemovedTallyFile, currentUserRole, {
@@ -590,44 +251,37 @@ export function AppRoot({
             fileType,
             disposition: 'success',
           });
-          await saveCastVoteRecordFiles();
+          await store.clearCastVoteRecordFiles();
           await saveExternalTallies([]);
           break;
         default:
           throwIllegalValue(fileType);
       }
     },
-    [
-      currentUserRole,
-      fullElectionExternalTallies,
-      logger,
-      saveCastVoteRecordFiles,
-      saveExternalTallies,
-    ]
+    [currentUserRole, store, logger, saveExternalTallies]
   );
 
   return (
     <AppContext.Provider
       value={{
-        castVoteRecordFiles,
+        castVoteRecordFiles: store.castVoteRecordFiles,
         electionDefinition,
-        configuredAt,
+        configuredAt: store.configuredAt,
         converter,
-        isOfficialResults,
+        isOfficialResults: store.isOfficialResults,
         printer,
         printBallotRef,
         saveCastVoteRecordFiles,
         saveElection,
-        saveIsOfficialResults,
-        setCastVoteRecordFiles,
+        markResultsOfficial,
         resetFiles,
         usbDriveStatus: displayUsbStatus,
         usbDriveEject: usbDrive.eject,
-        printedBallots: printedBallots || [],
+        printedBallots: store.printedBallots,
         addPrintedBallot,
         fullElectionTally,
-        setFullElectionTally,
-        fullElectionExternalTallies,
+        fullElectionExternalTallies: store.fullElectionExternalTallies,
+        addExternalTally,
         saveExternalTallies,
         saveTranscribedValue,
         isTabulationRunning,
