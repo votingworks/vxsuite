@@ -316,7 +316,7 @@ export function TallyReportScreen(): JSX.Element {
           fullElectionExternalTallies={fullElectionExternalTallies}
           fullElectionTally={fullElectionTally}
           generatedAtTime={generatedAtTime}
-          isOfficialResults={isOfficialResults}
+          tallyReportType={isOfficialResults ? 'Official' : 'Unofficial'}
           partyId={partyId}
           precinctId={precinctId}
           ref={printReportRef}

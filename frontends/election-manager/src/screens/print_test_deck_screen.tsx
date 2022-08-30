@@ -6,10 +6,8 @@ import {
   getPrecinctById,
   Precinct,
   PrecinctId,
-  Tally,
-  VotingMethod,
 } from '@votingworks/types';
-import { assert, sleep, tallyVotesByContest } from '@votingworks/utils';
+import { assert, sleep } from '@votingworks/utils';
 import { LogEventId } from '@votingworks/logging';
 import {
   BmdPaperBallot,
@@ -57,28 +55,17 @@ function PrecinctTallyReport({
   const ballots = generateTestDeckBallots({ election, precinctId });
   const votes = ballots.map((b) => b.votes);
 
-  // Precinct test deck tallies should be twice that of a single test
-  // deck because it counts scanning 2 test decks (BMD + HMPB)
-  const doubledVotes = [...votes, ...votes];
-  const testDeckTally: Tally = {
-    numberOfBallotsCounted: doubledVotes.length,
-    castVoteRecords: new Set(),
-    contestTallies: tallyVotesByContest({
-      election,
-      votes: doubledVotes,
-    }),
-    ballotCountsByVotingMethod: { [VotingMethod.Unknown]: doubledVotes.length },
-  };
-
   useEffect(() => {
     const parties = new Set(election.ballotStyles.map((bs) => bs.partyId));
     onRendered(Math.max(parties.size, 1));
   }, [election, precinctId, onRendered]);
 
+  // Precinct test deck tallies should be twice that of a single test
+  // deck because it counts scanning 2 test decks (BMD + HMPB)
   return (
     <TestDeckTallyReport
       election={election}
-      electionTally={testDeckTally}
+      votes={[...votes, ...votes]}
       precinctId={precinctId}
     />
   );

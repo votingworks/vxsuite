@@ -1,78 +1,63 @@
 import React from 'react';
 import {
-  ContestTally,
-  LogoMark,
-  Prose,
-  ReportSection,
-  TallyReport,
-  TallyReportColumns,
-  TallyReportMetadata,
-  TallyReportTitle,
-} from '@votingworks/ui';
-import { Election, getPrecinctById, Tally } from '@votingworks/types';
-import { filterTalliesByParty } from '@votingworks/utils';
+  Election,
+  FullElectionTally,
+  Tally,
+  TallyCategory,
+  VotesDict,
+  VotingMethod,
+} from '@votingworks/types';
+import { tallyVotesByContest } from '@votingworks/utils';
+import { ElectionManagerTallyReport } from './election_manager_tally_report';
 
 export interface TestDeckTallyReportProps {
   election: Election;
-  electionTally: Tally;
+  votes: VotesDict[];
   precinctId?: string;
 }
 
 export function TestDeckTallyReport({
   election,
-  electionTally,
+  votes,
   precinctId,
 }: TestDeckTallyReportProps): JSX.Element {
-  const ballotStylePartyIds = Array.from(
-    new Set(election.ballotStyles.map((bs) => bs.partyId))
-  );
+  const tally: Tally = {
+    numberOfBallotsCounted: votes.length,
+    castVoteRecords: new Set(),
+    contestTallies: tallyVotesByContest({
+      election,
+      votes,
+    }),
+    ballotCountsByVotingMethod: {
+      [VotingMethod.Precinct]: votes.length,
+      [VotingMethod.Absentee]: 0,
+    },
+  };
 
-  const precinct = precinctId
-    ? getPrecinctById({ election, precinctId })
-    : undefined;
-
-  const generatedAtTime = new Date();
+  const fullElectionTally: FullElectionTally = (() => {
+    if (precinctId) {
+      const resultsByCategory = new Map();
+      resultsByCategory.set(TallyCategory.Precinct, {
+        [precinctId]: tally,
+      });
+      return {
+        overallTally: tally,
+        resultsByCategory,
+      };
+    }
+    return {
+      overallTally: tally,
+      resultsByCategory: new Map(),
+    };
+  })();
 
   return (
-    <TallyReport>
-      {ballotStylePartyIds.map((partyId) => {
-        const party = election.parties.find((p) => p.id === partyId);
-        const electionTallyForParty = filterTalliesByParty({
-          election,
-          electionTally,
-          party,
-        });
-        const electionTitle = `${party ? party.fullName : ''} ${
-          election.title
-        }`;
-        return (
-          <ReportSection key={partyId || 'no-party'}>
-            <LogoMark />
-            <div>
-              <strong>Test Deck Tally Reports</strong> for {electionTitle}
-            </div>
-            <Prose maxWidth={false}>
-              <TallyReportTitle
-                style={{ marginBottom: '0.75em', marginTop: '0.25em' }}
-              >
-                {precinct ? 'Precinct' : ''} Tally Report for{' '}
-                <strong>{precinct ? precinct.name : 'All Precincts'}</strong>
-              </TallyReportTitle>
-              <TallyReportMetadata
-                generatedAtTime={generatedAtTime}
-                election={election}
-              />
-            </Prose>
-            <TallyReportColumns>
-              <ContestTally
-                election={election}
-                electionTally={electionTallyForParty}
-                externalTallies={[]}
-              />
-            </TallyReportColumns>
-          </ReportSection>
-        );
-      })}
-    </TallyReport>
+    <ElectionManagerTallyReport
+      precinctId={precinctId}
+      election={election}
+      tallyReportType="Test Deck"
+      fullElectionTally={fullElectionTally}
+      fullElectionExternalTallies={[]}
+    />
   );
 }

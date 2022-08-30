@@ -281,7 +281,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
     </div>
   </div>
   <div
-    class="sc-hiCivh bWrhyG"
+    class="sc-hiCivh bWrhyG print-only"
   >
     <section
       class="sc-kLwgWK fnXcLU"
@@ -291,27 +291,18 @@ exports[`L&A (logic and accuracy) flow 1`] = `
         class="sc-cxpRKc kqUdsO"
         src="/votingworks-wordmark-black.svg"
       />
-      <div>
-        <strong>
-          Test Deck Tally Reports
-        </strong>
-         for 
-         Mock General Election Choctaw 2020
-      </div>
       <div
         class="sc-jRQAMF foBEwC"
       >
-        <h1
-          class="sc-ikJzcn hrFjNm"
-          style="margin-bottom: 0.75em; margin-top: 0.25em;"
-        >
-          Precinct
-           Tally Report for
+        <h1>
+          Test Deck
+           Precinct Tally Report for:
            
-          <strong>
-            District 5
-          </strong>
+          District 5
         </h1>
+        <h2>
+          Mock General Election Choctaw 2020
+        </h2>
         <p>
           Wednesday, August 26, 2020
           , 
@@ -330,6 +321,66 @@ exports[`L&A (logic and accuracy) flow 1`] = `
       <div
         class="sc-jJoQpE Icimc"
       >
+        <div
+          class="sc-iAKVOt kfoWZP"
+        >
+          <h3>
+            Ballots by Voting Method
+          </h3>
+          <table
+            class="sc-ieebsP kIjWQX"
+            data-testid="voting-method-table"
+          >
+            <tbody>
+              <tr
+                data-testid="absentee"
+              >
+                <td
+                  class="sc-dJjZJu bbhgyU"
+                >
+                  Absentee
+                </td>
+                <td
+                  class="sc-dJjZJu BqrMg"
+                >
+                  0
+                </td>
+              </tr>
+              <tr
+                data-testid="standard"
+              >
+                <td
+                  class="sc-dJjZJu bbhgyU"
+                >
+                  Precinct
+                </td>
+                <td
+                  class="sc-dJjZJu BqrMg"
+                >
+                  8
+                </td>
+              </tr>
+              <tr
+                data-testid="total"
+              >
+                <td
+                  class="sc-dJjZJu bbhgyU"
+                >
+                  <strong>
+                    Total Ballots Cast
+                  </strong>
+                </td>
+                <td
+                  class="sc-dJjZJu BqrMg"
+                >
+                  <strong>
+                    8
+                  </strong>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
         <div
           class="sc-hGPAah dymfDz"
         >
@@ -683,7 +734,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           </div>
         </div>
         <div
-          class="sc-hGPAah dymfDz"
+          class="sc-hGPAah fGDelY"
         >
           <div
             class="sc-jRQAMF foBEwC"
@@ -732,9 +783,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
                   </td>
                   <td
                     class="sc-dJjZJu fKfTwY"
-                  >
-                    0
-                  </td>
+                  />
                 </tr>
                 <tr
                   data-testid="775020899-write-in"
@@ -744,16 +793,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
                   </td>
                   <td
                     class="sc-dJjZJu fKfTwY"
-                  >
-                    0
-                  </td>
+                  />
                 </tr>
               </tbody>
             </table>
           </div>
         </div>
         <div
-          class="sc-hGPAah dymfDz"
+          class="sc-hGPAah fGDelY"
         >
           <div
             class="sc-jRQAMF foBEwC"
@@ -802,9 +849,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
                   </td>
                   <td
                     class="sc-dJjZJu fKfTwY"
-                  >
-                    0
-                  </td>
+                  />
                 </tr>
                 <tr
                   data-testid="775020900-775032017"
@@ -814,9 +859,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
                   </td>
                   <td
                     class="sc-dJjZJu fKfTwY"
-                  >
-                    0
-                  </td>
+                  />
                 </tr>
                 <tr
                   data-testid="775020900-write-in"
@@ -826,16 +869,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
                   </td>
                   <td
                     class="sc-dJjZJu fKfTwY"
-                  >
-                    0
-                  </td>
+                  />
                 </tr>
               </tbody>
             </table>
           </div>
         </div>
         <div
-          class="sc-hGPAah dymfDz"
+          class="sc-hGPAah fGDelY"
         >
           <div
             class="sc-jRQAMF foBEwC"
@@ -884,9 +925,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
                   </td>
                   <td
                     class="sc-dJjZJu fKfTwY"
-                  >
-                    0
-                  </td>
+                  />
                 </tr>
                 <tr
                   data-testid="775020901-write-in"
@@ -896,16 +935,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
                   </td>
                   <td
                     class="sc-dJjZJu fKfTwY"
-                  >
-                    0
-                  </td>
+                  />
                 </tr>
               </tbody>
             </table>
           </div>
         </div>
         <div
-          class="sc-hGPAah dymfDz"
+          class="sc-hGPAah fGDelY"
         >
           <div
             class="sc-jRQAMF foBEwC"
@@ -954,9 +991,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
                   </td>
                   <td
                     class="sc-dJjZJu fKfTwY"
-                  >
-                    0
-                  </td>
+                  />
                 </tr>
                 <tr
                   data-testid="775020902-775032020"
@@ -966,9 +1001,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
                   </td>
                   <td
                     class="sc-dJjZJu fKfTwY"
-                  >
-                    0
-                  </td>
+                  />
                 </tr>
                 <tr
                   data-testid="775020902-write-in"
@@ -978,9 +1011,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
                   </td>
                   <td
                     class="sc-dJjZJu fKfTwY"
-                  >
-                    0
-                  </td>
+                  />
                 </tr>
               </tbody>
             </table>

@@ -1,7 +1,6 @@
 import React, { useContext, useCallback } from 'react';
-import { assert, tallyVotesByContest } from '@votingworks/utils';
+import { assert } from '@votingworks/utils';
 import { LogEventId } from '@votingworks/logging';
-import { Tally, VotingMethod } from '@votingworks/types';
 
 import { isElectionManagerAuth } from '@votingworks/ui';
 import { AppContext } from '../contexts/app_context';
@@ -19,21 +18,6 @@ export function FullTestDeckTallyReportButton(): JSX.Element {
 
   const ballots = generateTestDeckBallots({ election });
   const votes = ballots.map((b) => b.votes);
-
-  // Full test deck tallies should be 4 times that of a single test deck because
-  // it counts scanning 2 test decks (BMD + HMPB) twice (VxScan + VxCentralScan)
-  const quadrupledVotes = [...votes, ...votes, ...votes, ...votes];
-  const testDeckTally: Tally = {
-    numberOfBallotsCounted: quadrupledVotes.length,
-    castVoteRecords: new Set(),
-    contestTallies: tallyVotesByContest({
-      election,
-      votes: quadrupledVotes,
-    }),
-    ballotCountsByVotingMethod: {
-      [VotingMethod.Unknown]: quadrupledVotes.length,
-    },
-  };
 
   const afterPrint = useCallback(() => {
     void logger.log(LogEventId.TestDeckTallyReportPrinted, userRole, {
@@ -54,8 +38,13 @@ export function FullTestDeckTallyReportButton(): JSX.Element {
     [logger, userRole]
   );
 
+  // Full test deck tallies should be 4 times that of a single test deck because
+  // it counts scanning 2 test decks (BMD + HMPB) twice (VxScan + VxCentralScan)
   const fullTestDeckTallyReport = (
-    <TestDeckTallyReport election={election} electionTally={testDeckTally} />
+    <TestDeckTallyReport
+      election={election}
+      votes={[...votes, ...votes, ...votes, ...votes]}
+    />
   );
 
   return (
