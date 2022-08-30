@@ -13,6 +13,7 @@ import { assert, sleep, tallyVotesByContest } from '@votingworks/utils';
 import { LogEventId } from '@votingworks/logging';
 import {
   BmdPaperBallot,
+  Button,
   useCancelablePromise,
   Modal,
   Prose,
@@ -22,7 +23,6 @@ import {
 } from '@votingworks/ui';
 
 import { AppContext } from '../contexts/app_context';
-import { Button } from '../components/button';
 import { ButtonList } from '../components/button_list';
 import { Loading } from '../components/loading';
 import { NavigationScreen } from '../components/navigation_screen';

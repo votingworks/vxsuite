@@ -2,12 +2,10 @@ import React, { useContext } from 'react';
 import pluralize from 'pluralize';
 
 import { assert, throwIllegalValue } from '@votingworks/utils';
-import { Modal, Prose } from '@votingworks/ui';
+import { Modal, Prose, Button } from '@votingworks/ui';
 import { ExternalTallySourceType } from '@votingworks/types';
 import { AppContext } from '../contexts/app_context';
 import { ResultsFileType } from '../config/types';
-
-import { Button } from './button';
 
 export interface Props {
   onConfirm: (fileType: ResultsFileType) => void;

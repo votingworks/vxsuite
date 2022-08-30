@@ -3,7 +3,15 @@ import React, { ReactChild, useContext, useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 
-import { isElectionManagerAuth, Prose, Table, TD, Text } from '@votingworks/ui';
+import {
+  Button,
+  SegmentedButton,
+  isElectionManagerAuth,
+  Prose,
+  Table,
+  TD,
+  Text,
+} from '@votingworks/ui';
 import {
   ExternalTallySourceType,
   TallyCategory,
@@ -15,7 +23,6 @@ import { routerPaths } from '../router_paths';
 
 import { AppContext } from '../contexts/app_context';
 import { NavigationScreen } from '../components/navigation_screen';
-import { Button, SegmentedButton } from '../components/button';
 import {
   convertTalliesByPrecinctToFullExternalTally,
   getEmptyExternalTalliesByPrecinct,

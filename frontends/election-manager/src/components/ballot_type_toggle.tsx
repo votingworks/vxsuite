@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, SegmentedButton } from './button';
+import { Button, SegmentedButton } from '@votingworks/ui';
 
 interface Props {
   isAbsentee: boolean;

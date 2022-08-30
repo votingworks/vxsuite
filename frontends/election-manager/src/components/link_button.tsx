@@ -1,8 +1,7 @@
 import React from 'react';
 import { useHistory } from 'react-router-dom';
+import { Button, ButtonInterface } from '@votingworks/ui';
 import { EventTargetFunction } from '../config/types';
-
-import { Button, ButtonInterface } from './button';
 
 interface Props
   extends ButtonInterface,

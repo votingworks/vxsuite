@@ -1,12 +1,13 @@
 import React, { useContext, useState, useEffect, useCallback } from 'react';
 
 import {
+  Button,
+  StyledButtonProps,
   Modal,
   useCancelablePromise,
   useMountedState,
   Prose,
 } from '@votingworks/ui';
-import { Button, StyledButtonProps } from './button';
 import { Loading } from './loading';
 import { PrintOptions } from '../config/types';
 import { AppContext } from '../contexts/app_context';

@@ -5,6 +5,7 @@ import { assert, find } from '@votingworks/utils';
 import { LogEventId } from '@votingworks/logging';
 import { VotingMethod, getLabelForVotingMethod } from '@votingworks/types';
 import {
+  Button,
   isElectionManagerAuth,
   Modal,
   Prose,
@@ -27,7 +28,6 @@ import {
 import { AppContext } from '../contexts/app_context';
 
 import { PrintButton } from '../components/print_button';
-import { Button } from '../components/button';
 import { NavigationScreen } from '../components/navigation_screen';
 import { LinkButton } from '../components/link_button';
 

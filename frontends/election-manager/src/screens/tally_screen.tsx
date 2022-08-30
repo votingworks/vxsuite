@@ -2,14 +2,20 @@ import React, { useContext, useState, useRef } from 'react';
 import moment from 'moment';
 
 import { assert, format, find } from '@votingworks/utils';
-import { isElectionManagerAuth, Prose, Table, TD, Text } from '@votingworks/ui';
+import {
+  Button,
+  isElectionManagerAuth,
+  Prose,
+  Table,
+  TD,
+  Text,
+} from '@votingworks/ui';
 import { ExternalTallySourceType } from '@votingworks/types';
 import { InputEventFunction, ResultsFileType } from '../config/types';
 
 import { AppContext } from '../contexts/app_context';
 import { getPrecinctIdsInExternalTally } from '../utils/external_tallies';
 
-import { Button } from '../components/button';
 import { NavigationScreen } from '../components/navigation_screen';
 import { routerPaths } from '../router_paths';
 import { LinkButton } from '../components/link_button';

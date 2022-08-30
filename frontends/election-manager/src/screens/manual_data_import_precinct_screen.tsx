@@ -16,14 +16,20 @@ import {
   VotingMethod,
   ContestId,
 } from '@votingworks/types';
-import { isElectionManagerAuth, Prose, Table, TD, Text } from '@votingworks/ui';
+import {
+  Button,
+  isElectionManagerAuth,
+  Prose,
+  Table,
+  TD,
+  Text,
+} from '@votingworks/ui';
 
 import { LogEventId } from '@votingworks/logging';
 import { ManualDataPrecinctScreenProps } from '../config/types';
 import { routerPaths } from '../router_paths';
 
 import { AppContext } from '../contexts/app_context';
-import { Button } from '../components/button';
 import { LinkButton } from '../components/link_button';
 
 import { NavigationScreen } from '../components/navigation_screen';

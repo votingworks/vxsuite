@@ -1,6 +1,6 @@
 import React from 'react';
+import { Button, SegmentedButton } from '@votingworks/ui';
 import { BallotMode } from '../config/types';
-import { Button, SegmentedButton } from './button';
 
 interface Props {
   ballotMode: BallotMode;

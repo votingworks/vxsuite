@@ -5,6 +5,7 @@ import fileDownload from 'js-file-download';
 import { assert, usbstick, throwIllegalValue, sleep } from '@votingworks/utils';
 
 import {
+  Button,
   Modal,
   UsbControllerButton,
   Prose,
@@ -15,7 +16,6 @@ import {
 import { LogEventId } from '@votingworks/logging';
 import { PromiseOr } from '@votingworks/types';
 import { AppContext } from '../contexts/app_context';
-import { Button } from './button';
 import { LinkButton } from './link_button';
 import { Loading } from './loading';
 

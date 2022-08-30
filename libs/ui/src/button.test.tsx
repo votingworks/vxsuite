@@ -1,6 +1,6 @@
 import React from 'react';
-import { fireEvent, render } from '@testing-library/react';
-
+import { fireEvent, render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { Button, DecoyButton } from './button';
 
 function createTouchStartEventProperties(x: number, y: number) {
@@ -82,4 +82,23 @@ describe('renders Button', () => {
     fireEvent.click(button);
     expect(onPress).toHaveBeenCalledTimes(3);
   });
+});
+
+test('disabling works for both touch events and click events', () => {
+  const onPress = jest.fn();
+  render(
+    <Button onPress={onPress} disabled>
+      Disabled Button
+    </Button>
+  );
+  const button = screen.getByText('Disabled Button');
+
+  // Click is disabled
+  userEvent.click(button);
+  expect(onPress).toHaveBeenCalledTimes(0);
+
+  // Touch is disabled
+  fireEvent.touchStart(button, createTouchStartEventProperties(100, 100));
+  fireEvent.touchEnd(button, createTouchEndEventProperties(100, 100));
+  expect(onPress).toHaveBeenCalledTimes(0);
 });

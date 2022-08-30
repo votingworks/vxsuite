@@ -1,6 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react';
 
 import {
+  Button,
+  SegmentedButton,
   isElectionManagerAuth,
   isSystemAdministratorAuth,
   Modal,
@@ -17,7 +19,6 @@ import {
 } from '../utils/sems_tallies';
 import { LinkButton } from './link_button';
 import { Loading } from './loading';
-import { Button, SegmentedButton } from './button';
 
 export interface Props {
   onClose: () => void;

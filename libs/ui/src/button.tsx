@@ -76,7 +76,10 @@ export interface ButtonProps extends StyledButtonProps {
 }
 
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ component: Component = StyledButton, onPress, ...rest }, ref) => {
+  (
+    { component: Component = StyledButton, onPress, disabled, ...rest },
+    ref
+  ) => {
     const [startCoordinates, setStartCoordinates] = useState([0, 0]);
 
     function onTouchStart(event: React.TouchEvent) {
@@ -88,6 +91,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       const maxMove = 30;
       const { clientX, clientY } = event.changedTouches[0];
       if (
+        !disabled &&
         Math.abs(startCoordinates[0] - clientX) < maxMove &&
         Math.abs(startCoordinates[1] - clientY) < maxMove
       ) {
@@ -99,6 +103,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     return (
       <Component
         {...rest}
+        disabled={disabled}
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
         onClick={onPress}

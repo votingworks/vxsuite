@@ -12,6 +12,7 @@ import {
   BALLOT_PDFS_FOLDER,
 } from '@votingworks/utils';
 import {
+  Button,
   Modal,
   Prose,
   UsbControllerButton,
@@ -28,7 +29,6 @@ import {
 
 import { AppContext } from '../contexts/app_context';
 import { HandMarkedPaperBallot } from './hand_marked_paper_ballot';
-import { Button } from './button';
 import { LinkButton } from './link_button';
 import { Loading } from './loading';
 
