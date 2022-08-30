@@ -59,6 +59,7 @@ import { ScanJamScreen } from './screens/scan_jam_screen';
 import { ScanBusyScreen } from './screens/scan_busy_screen';
 import { ReplaceBallotBagScreen } from './components/replace_ballot_bag_screen';
 import { BALLOT_BAG_CAPACITY } from './config/globals';
+import { UnconfiguredPrecinctScreen } from './screens/unconfigured_precinct_screen';
 
 const debug = makeDebug('precinct-scanner:app-root');
 
@@ -517,6 +518,8 @@ export function AppRoot({
       </AppContext.Provider>
     );
   }
+
+  if (!currentPrecinctId) return <UnconfiguredPrecinctScreen />;
 
   if (window.kiosk && usbDrive.status !== usbstick.UsbDriveStatus.mounted) {
     return <InsertUsbScreen />;

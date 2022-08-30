@@ -35,6 +35,7 @@ import {
 import { App } from './app';
 import { stateStorageKey } from './app_root';
 import { MachineConfigResponse } from './config/types';
+import { ALL_PRECINCTS_OPTION_VALUE } from './screens/election_manager_screen';
 
 beforeEach(() => {
   jest.useFakeTimers();
@@ -51,9 +52,10 @@ const getTestModeConfigTrueResponseBody: Scan.GetTestModeConfigResponse = {
   testMode: true,
 };
 
-const getPrecinctConfigNoPrecinctResponseBody: Scan.GetCurrentPrecinctConfigResponse =
+const getPrecinctConfigAllPrecinctsResponseBody: Scan.GetCurrentPrecinctConfigResponse =
   {
     status: 'ok',
+    precinctId: ALL_PRECINCTS_OPTION_VALUE,
   };
 
 const getPrecinctConfigPrecinct1ResponseBody: Scan.GetCurrentPrecinctConfigResponse =
@@ -142,7 +144,7 @@ test('expected tally reports are printed for a primary election with all precinc
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
     })
     .get('/precinct-scanner/config/precinct', {
-      body: getPrecinctConfigNoPrecinctResponseBody,
+      body: getPrecinctConfigAllPrecinctsResponseBody,
     })
     .get('/precinct-scanner/scanner/status', { body: statusNoPaper })
     .patchOnce('/precinct-scanner/config/testMode', {
@@ -209,7 +211,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
       body: getTestModeConfigTrueResponseBody,
     })
     .get('/precinct-scanner/config/precinct', {
-      body: getPrecinctConfigNoPrecinctResponseBody,
+      body: getPrecinctConfigAllPrecinctsResponseBody,
     })
     .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
@@ -877,7 +879,7 @@ test('expected tally reports for a general election with all precincts with CVRs
       body: getTestModeConfigTrueResponseBody,
     })
     .get('/precinct-scanner/config/precinct', {
-      body: getPrecinctConfigNoPrecinctResponseBody,
+      body: getPrecinctConfigAllPrecinctsResponseBody,
     })
     .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,

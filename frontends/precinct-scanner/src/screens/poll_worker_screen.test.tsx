@@ -11,6 +11,7 @@ import { AppContext } from '../contexts/app_context';
 import { PollWorkerScreen } from './poll_worker_screen';
 
 import { isLiveCheckEnabled } from '../config/features';
+import { ALL_PRECINCTS_OPTION_VALUE } from './election_manager_screen';
 
 jest.mock('../config/features');
 
@@ -40,6 +41,7 @@ function renderScreen({
     <AppContext.Provider
       value={{
         electionDefinition: electionSampleDefinition,
+        currentPrecinctId: ALL_PRECINCTS_OPTION_VALUE,
         machineConfig: { machineId: '0000', codeVersion: 'TEST' },
         isSoundMuted: false,
         auth,

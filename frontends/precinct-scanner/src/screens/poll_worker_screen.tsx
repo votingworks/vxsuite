@@ -52,6 +52,7 @@ import { IndeterminateProgressBar } from '../components/graphics';
 import { ScannedBallotCount } from '../components/scanned_ballot_count';
 import { saveCvrExportToUsb } from '../utils/save_cvr_export_to_usb';
 import * as scan from '../api/scan';
+import { ALL_PRECINCTS_OPTION_VALUE } from './election_manager_screen';
 
 enum PollWorkerFlowState {
   OPEN_POLLS_FLOW__CONFIRM = 'open polls flow: confirm',
@@ -108,6 +109,8 @@ export function PollWorkerScreen({
   const { electionDefinition, currentPrecinctId, machineConfig, auth } =
     useContext(AppContext);
   assert(electionDefinition);
+  // Assert that a precinct was selected by the Election Manager
+  assert(typeof currentPrecinctId === 'string');
   assert(isPollWorkerAuth(auth));
   const [currentTally, setCurrentTally] = useState<FullElectionTally>();
   const [currentSubTallies, setCurrentSubTallies] = useState<
@@ -118,16 +121,23 @@ export function PollWorkerScreen({
   const hasPrinterAttached = printerFromProps || !window.kiosk;
   const { election } = electionDefinition;
 
-  const precinct = election.precincts.find((p) => p.id === currentPrecinctId);
+  const precinct =
+    currentPrecinctId === ALL_PRECINCTS_OPTION_VALUE
+      ? ALL_PRECINCTS_OPTION_VALUE
+      : election.precincts.find((p) => p.id === currentPrecinctId);
+
+  // Assert that the precinct id was found in the election
+  assert(typeof precinct !== 'undefined');
+
   const precinctSelection: PrecinctSelection = useMemo(
     () =>
-      precinct === undefined
+      currentPrecinctId === ALL_PRECINCTS_OPTION_VALUE
         ? { kind: PrecinctSelectionKind.AllPrecincts }
         : {
             kind: PrecinctSelectionKind.SinglePrecinct,
-            precinctId: precinct.id,
+            precinctId: currentPrecinctId,
           },
-    [precinct]
+    [currentPrecinctId]
   );
 
   const currentCompressedTally = useMemo(
@@ -319,7 +329,8 @@ export function PollWorkerScreen({
     setPollWorkerFlowState(PollWorkerFlowState.CLOSE_POLLS_FLOW__COMPLETE);
   }
 
-  const precinctName = precinct === undefined ? 'All Precincts' : precinct.name;
+  const precinctName =
+    precinct === ALL_PRECINCTS_OPTION_VALUE ? 'All Precincts' : precinct.name;
   const currentTime = Date.now();
 
   if (!currentTally) {

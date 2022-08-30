@@ -49,6 +49,7 @@ import {
   authenticateElectionManagerCard,
   scannerStatus,
 } from '../test/helpers/helpers';
+import { ALL_PRECINCTS_OPTION_VALUE } from './screens/election_manager_screen';
 
 jest.setTimeout(20000);
 
@@ -82,6 +83,12 @@ const deleteElectionConfigResponseBody: Scan.DeleteElectionConfigResponse = {
 
 const statusNoPaper = scannerStatus({ state: 'no_paper' });
 const statusReadyToScan = scannerStatus({ state: 'ready_to_scan' });
+
+const getPrecinctConfigAllPrecinctsResponseBody: Scan.GetCurrentPrecinctConfigResponse =
+  {
+    status: 'ok',
+    precinctId: ALL_PRECINCTS_OPTION_VALUE,
+  };
 
 const getPrecinctConfigNoPrecinctResponseBody: Scan.GetCurrentPrecinctConfigResponse =
   {
@@ -131,7 +138,7 @@ beforeEach(() => {
       body: getTestModeConfigTrueResponseBody,
     })
     .get('/precinct-scanner/config/precinct', {
-      body: getPrecinctConfigNoPrecinctResponseBody,
+      body: getPrecinctConfigAllPrecinctsResponseBody,
     })
     .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
@@ -289,6 +296,51 @@ test('app can load and configure from a usb stick', async () => {
   );
 });
 
+test('election manager must set precinct', async () => {
+  fetchMock
+    .get('/precinct-scanner/scanner/status', { body: statusNoPaper })
+    .get(
+      '/precinct-scanner/config/precinct',
+      {
+        body: getPrecinctConfigNoPrecinctResponseBody,
+      },
+      { overwriteRoutes: true }
+    )
+    .putOnce('/precinct-scanner/config/precinct', {
+      body: { status: 'ok' },
+    });
+  render(<App card={card} hardware={hardware} storage={storage} />);
+  await advanceTimersAndPromises(1);
+  await screen.findByText('No Precinct Selected');
+
+  // Poll Worker card does nothing
+  card.insertCard(pollWorkerCard);
+  await advanceTimersAndPromises(1);
+  await screen.findByText('No Precinct Selected');
+  card.removeCard();
+  await advanceTimersAndPromises(1);
+
+  // Insert Election Manager card and set precinct
+  card.insertCard(electionManagerCard, electionSampleDefinition.electionData);
+  await authenticateElectionManagerCard();
+  userEvent.selectOptions(await screen.findByTestId('selectPrecinct'), '23');
+  expect(
+    fetchMock.calls('/precinct-scanner/config/precinct', { method: 'PUT' })
+  ).toHaveLength(1);
+  card.removeCard();
+  await advanceTimersAndPromises(1);
+
+  // Confirm precinct is set and correct
+  await screen.findByText('Polls Closed');
+  screen.getByText('Center Springfield');
+
+  // Poll Worker card can be used to open polls now
+  fetchMock.post('/precinct-scanner/export', {});
+  card.insertCard(pollWorkerCard);
+  await advanceTimersAndPromises(1);
+  await screen.findByText('Do you want to open the polls?');
+});
+
 test('election manager and poll worker configuration', async () => {
   const logger = fakeLogger();
   const writeLongObjectMock = jest.spyOn(card, 'writeLongObject');
@@ -345,12 +397,13 @@ test('election manager and poll worker configuration', async () => {
   await screen.findByText('Insert Your Ballot Below');
   await screen.findByText('Scan one ballot sheet at a time.');
   await screen.findByText('General Election');
+  await screen.findByText('All Precincts');
   await screen.findByText(/Franklin County/);
   await screen.findByText(/State of Hamilton/);
   await screen.findByText('Election ID');
   await screen.findByText('748dc61ad3');
 
-  // Insert election manager card to set precinct
+  // Change mode with Election Manager card
   card.insertCard(electionManagerCard, electionSampleDefinition.electionData);
   await authenticateElectionManagerCard();
   fireEvent.click(await screen.findByText('Live Election Mode'));
@@ -359,12 +412,6 @@ test('election manager and poll worker configuration', async () => {
   expect(
     fetchMock.calls('/precinct-scanner/config/testMode', { method: 'PATCH' })
   ).toHaveLength(1);
-  fetchMock.putOnce('/precinct-scanner/config/precinct', {
-    body: { status: 'ok' },
-  });
-  fetchMock.putOnce('/precinct-scanner/config/markThresholdOverrides', {
-    body: { status: 'ok' },
-  });
 
   // Remove Card and check polls were reset to closed.
   card.removeCard();
@@ -378,43 +425,31 @@ test('election manager and poll worker configuration', async () => {
   await screen.findByText(
     'Insert poll worker card into VxMark to print the report.'
   );
-
-  // Switch back to election manager screen
   card.removeCard();
   await advanceTimersAndPromises(1);
+
+  // Change precinct with Election Manager card
+  fetchMock.putOnce('/precinct-scanner/config/precinct', {
+    body: { status: 'ok' },
+  });
   card.insertCard(electionManagerCard, electionSampleDefinition.electionData);
   await authenticateElectionManagerCard();
-  // Change precinct
   fireEvent.change(await screen.findByTestId('selectPrecinct'), {
     target: { value: '23' },
   });
-  expect(
-    fetchMock.calls('/precinct-scanner/config/precinct', { method: 'PUT' })
-  ).toHaveLength(1);
-  fetchMock.patch(
-    '/precinct-scanner/config/testMode',
-    { body: { status: 'ok' } },
-    { overwriteRoutes: true }
-  );
-
-  // Remove card and insert pollworker card, verify the right precinct was set
   card.removeCard();
   await advanceTimersAndPromises(1);
-  card.insertCard(pollWorkerCard);
-  await advanceTimersAndPromises(1);
-  // Polls should be reset to closed.
-  await screen.findByText('Yes, Open the Polls');
 
-  // Switch back to election manager screen
-  card.removeCard();
-  await advanceTimersAndPromises(1);
-  card.insertCard(electionManagerCard, electionSampleDefinition.electionData);
-  await authenticateElectionManagerCard();
+  // Verify polls were closed and the right precinct was set
+  await screen.findByText('Polls Closed');
+  await screen.findByText('Center Springfield');
 
-  // Calibrate scanner
+  // Calibrate scanner with Election Manager card
   fetchMock.post('/precinct-scanner/scanner/calibrate', {
     body: { status: 'ok' },
   });
+  card.insertCard(electionManagerCard, electionSampleDefinition.electionData);
+  await authenticateElectionManagerCard();
   fireEvent.click(await screen.findByText('Calibrate Scanner'));
   await screen.findByText('Waiting for Paper');
   fireEvent.click(await screen.findByText('Cancel'));
