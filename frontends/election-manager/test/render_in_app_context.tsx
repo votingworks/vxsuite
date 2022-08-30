@@ -23,6 +23,7 @@ import {
   Iso8601Timestamp,
   ExportableTallies,
   MachineConfig,
+  ResetElection,
 } from '../src/config/types';
 import {
   CastVoteRecordFiles,
@@ -44,6 +45,7 @@ interface RenderInAppContextParams {
   printBallotRef?: RefObject<HTMLElement>;
   saveCastVoteRecordFiles?: SaveCastVoteRecordFiles;
   saveElection?: SaveElection;
+  resetElection?: ResetElection;
   saveTranscribedValue?: (
     adjudicationId: AdjudicationId,
     transcribedValue: string
@@ -76,6 +78,15 @@ interface RenderInAppContextParams {
   queryClient?: QueryClient;
 }
 
+export function renderInQueryClientContext(
+  component: React.ReactNode,
+  { queryClient = new QueryClient() } = {}
+): RenderResult {
+  return testRender(
+    <QueryClientProvider client={queryClient}>{component}</QueryClientProvider>
+  );
+}
+
 export function renderInAppContext(
   component: React.ReactNode,
   {
@@ -89,6 +100,7 @@ export function renderInAppContext(
     printBallotRef = undefined,
     saveCastVoteRecordFiles = jest.fn(),
     saveElection = jest.fn(),
+    resetElection = jest.fn(),
     saveIsOfficialResults: markResultsOfficial = jest.fn(),
     resetFiles = jest.fn(),
     usbDriveStatus = usbstick.UsbDriveStatus.absent,
@@ -111,45 +123,45 @@ export function renderInAppContext(
     hasCardReaderAttached = true,
     hasPrinterAttached = true,
     logger = new Logger(LogSource.VxAdminFrontend),
-    queryClient = new QueryClient(),
+    queryClient,
   }: RenderInAppContextParams = {}
 ): RenderResult {
-  return testRender(
-    <QueryClientProvider client={queryClient}>
-      <AppContext.Provider
-        value={{
-          castVoteRecordFiles,
-          electionDefinition:
-            electionDefinition === 'NONE' ? undefined : electionDefinition,
-          configuredAt,
-          isOfficialResults,
-          printer,
-          printBallotRef,
-          saveCastVoteRecordFiles,
-          saveElection,
-          markResultsOfficial,
-          resetFiles,
-          usbDriveStatus,
-          usbDriveEject,
-          addPrintedBallot,
-          printedBallots,
-          fullElectionTally,
-          isTabulationRunning,
-          setIsTabulationRunning,
-          addExternalTally,
-          saveExternalTallies,
-          fullElectionExternalTallies,
-          generateExportableTallies,
-          saveTranscribedValue,
-          auth,
-          machineConfig,
-          hasCardReaderAttached,
-          hasPrinterAttached,
-          logger,
-        }}
-      >
-        <Router history={history}>{component}</Router>
-      </AppContext.Provider>
-    </QueryClientProvider>
+  return renderInQueryClientContext(
+    <AppContext.Provider
+      value={{
+        castVoteRecordFiles,
+        electionDefinition:
+          electionDefinition === 'NONE' ? undefined : electionDefinition,
+        configuredAt,
+        isOfficialResults,
+        printer,
+        printBallotRef,
+        saveCastVoteRecordFiles,
+        saveElection,
+        resetElection,
+        markResultsOfficial,
+        resetFiles,
+        usbDriveStatus,
+        usbDriveEject,
+        addPrintedBallot,
+        printedBallots,
+        fullElectionTally,
+        isTabulationRunning,
+        setIsTabulationRunning,
+        addExternalTally,
+        saveExternalTallies,
+        fullElectionExternalTallies,
+        generateExportableTallies,
+        saveTranscribedValue,
+        auth,
+        machineConfig,
+        hasCardReaderAttached,
+        hasPrinterAttached,
+        logger,
+      }}
+    >
+      <Router history={history}>{component}</Router>
+    </AppContext.Provider>,
+    { queryClient }
   );
 }

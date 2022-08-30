@@ -11,10 +11,10 @@ export interface Props {
 
 export function RemoveElectionModal({ onClose }: Props): JSX.Element {
   const history = useHistory();
-  const { saveElection } = useContext(AppContext);
+  const { resetElection } = useContext(AppContext);
 
   async function unconfigureElection() {
-    await saveElection(undefined);
+    await resetElection();
     history.push(routerPaths.root);
   }
 

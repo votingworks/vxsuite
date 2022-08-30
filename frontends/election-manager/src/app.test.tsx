@@ -2,7 +2,6 @@ import React from 'react';
 import MockDate from 'mockdate';
 import {
   fireEvent,
-  render,
   screen,
   waitFor,
   getByTestId as domGetByTestId,
@@ -19,12 +18,7 @@ import {
   electionSampleDefinition,
   electionFamousNames2021Fixtures,
 } from '@votingworks/fixtures';
-import {
-  MemoryStorage,
-  MemoryCard,
-  MemoryHardware,
-  typedAs,
-} from '@votingworks/utils';
+import { MemoryCard, MemoryHardware, typedAs } from '@votingworks/utils';
 import {
   advanceTimersAndPromises,
   fakeKiosk,
@@ -41,22 +35,22 @@ import {
 import { LogEventId } from '@votingworks/logging';
 
 import { App } from './app';
-import { externalVoteTalliesFileStorageKey } from './hooks/use_election_manager_store';
 import { fakePrinter } from '../test/helpers/fake_printer';
 import { loadBallotSealImages } from '../test/util/load_ballot_seal_images';
-import { eitherNeitherElectionDefinition } from '../test/render_in_app_context';
-import { convertSemsFileToExternalTally } from './utils/sems_tallies';
 import {
-  convertExternalTalliesToStorageString,
-  convertTalliesByPrecinctToFullExternalTally,
-} from './utils/external_tallies';
+  eitherNeitherElectionDefinition,
+  renderInQueryClientContext,
+} from '../test/render_in_app_context';
+import { convertSemsFileToExternalTally } from './utils/sems_tallies';
+import { convertTalliesByPrecinctToFullExternalTally } from './utils/external_tallies';
 import { MachineConfig } from './config/types';
 import { VxFiles } from './lib/converters';
-import { createMemoryStorageWith } from '../test/util/create_memory_storage_with';
 import {
   authenticateWithElectionManagerCard,
   authenticateWithSystemAdministratorCard,
 } from '../test/util/authenticate';
+import { ElectionManagerStoreMemoryBackend } from './lib/backends';
+import { CastVoteRecordFiles } from './utils/cast_vote_record_files';
 
 const EITHER_NEITHER_CVR_DATA = electionWithMsEitherNeitherFixtures.cvrData;
 const EITHER_NEITHER_CVR_FILE = new File([EITHER_NEITHER_CVR_DATA], 'cvrs.txt');
@@ -133,8 +127,9 @@ afterEach(() => {
 test('create election works', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
-  const { getByText, queryAllByText, getByTestId } = render(
-    <App card={card} hardware={hardware} />
+  const backend = new ElectionManagerStoreMemoryBackend();
+  const { getByText, queryAllByText, getByTestId } = renderInQueryClientContext(
+    <App card={card} hardware={hardware} backend={backend} />
   );
   await authenticateWithSystemAdministratorCard(card);
   await screen.findByText('Load Demo Election Definition');
@@ -192,10 +187,13 @@ test('create election works', async () => {
 test('authentication works', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
-  const storage = await createMemoryStorageWith({
+  const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
   });
-  render(<App card={card} hardware={hardware} storage={storage} />);
+
+  renderInQueryClientContext(
+    <App card={card} hardware={hardware} backend={backend} />
+  );
 
   await screen.findByText('VxAdmin is Locked');
   const electionManagerCard: ElectionManagerCardData = {
@@ -297,11 +295,11 @@ test('L&A (logic and accuracy) flow', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const printer = fakePrinter();
-  const storage = await createMemoryStorageWith({
+  const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
   });
-  const { container, getByTestId } = render(
-    <App card={card} hardware={hardware} printer={printer} storage={storage} />
+  const { container, getByTestId } = renderInQueryClientContext(
+    <App card={card} hardware={hardware} printer={printer} backend={backend} />
   );
   await authenticateWithElectionManagerCard(
     card,
@@ -388,11 +386,16 @@ test('L&A (logic and accuracy) flow', async () => {
 test('L&A features are available after test results are loaded', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
-  const storage = await createMemoryStorageWith({
+  const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
-    crvFile: EITHER_NEITHER_CVR_TEST_FILE,
+    castVoteRecordFiles: await CastVoteRecordFiles.empty.add(
+      EITHER_NEITHER_CVR_TEST_FILE,
+      eitherNeitherElectionDefinition.election
+    ),
   });
-  render(<App card={card} hardware={hardware} storage={storage} />);
+  renderInQueryClientContext(
+    <App card={card} hardware={hardware} backend={backend} />
+  );
 
   await authenticateWithElectionManagerCard(
     card,
@@ -401,7 +404,7 @@ test('L&A features are available after test results are loaded', async () => {
 
   // Confirm that test results are loaded
   userEvent.click(screen.getByText('Tally'));
-  screen.getByText('Currently tallying test ballots.', { exact: false });
+  await screen.findByText('Currently tallying test ballots.', { exact: false });
   expect(screen.getByTestId('total-cvr-count').textContent).toEqual('100');
 
   // Confirm that L&A materials are available
@@ -411,16 +414,22 @@ test('L&A features are available after test results are loaded', async () => {
 });
 
 test('printing ballots and printed ballots report', async () => {
-  const storage = await createMemoryStorageWith({
+  const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
   });
 
   const printer = fakePrinter();
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
-  const { getByText, getAllByText, queryAllByText, getAllByTestId } = render(
-    <App storage={storage} printer={printer} card={card} hardware={hardware} />
-  );
+  const { getByText, getAllByText, queryAllByText, getAllByTestId } =
+    renderInQueryClientContext(
+      <App
+        backend={backend}
+        printer={printer}
+        card={card}
+        hardware={hardware}
+      />
+    );
   jest.advanceTimersByTime(2000); // Cause the usb drive to be detected
   await authenticateWithElectionManagerCard(
     card,
@@ -473,17 +482,26 @@ test('printing ballots and printed ballots report', async () => {
 });
 
 test('tabulating CVRs', async () => {
-  const storage = await createMemoryStorageWith({
+  const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
-    crvFile: EITHER_NEITHER_CVR_FILE,
+    castVoteRecordFiles: await CastVoteRecordFiles.empty.add(
+      EITHER_NEITHER_CVR_FILE,
+      eitherNeitherElectionDefinition.election
+    ),
   });
 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const printer = fakePrinter();
-  const { getByText, getAllByText, getByTestId, queryByText } = render(
-    <App storage={storage} card={card} hardware={hardware} printer={printer} />
-  );
+  const { getByText, getAllByText, getByTestId, queryByText } =
+    renderInQueryClientContext(
+      <App
+        backend={backend}
+        card={card}
+        hardware={hardware}
+        printer={printer}
+      />
+    );
   jest.advanceTimersByTime(2000); // Cause the usb drive to be detected
   await authenticateWithElectionManagerCard(
     card,
@@ -529,8 +547,7 @@ test('tabulating CVRs', async () => {
   fireEvent.click(getByText('Save Batch Results as CSV'));
   jest.advanceTimersByTime(2000);
   getByText('Save Batch Results');
-  getByText(/Save the election batch results as /);
-  getByText(
+  await screen.findByText(
     'votingworks-live-batch-results_choctaw-county_mock-general-election-choctaw-2020_2020-11-03_22-22-00.csv'
   );
 
@@ -652,27 +669,30 @@ test('tabulating CVRs', async () => {
 });
 
 test('tabulating CVRs with SEMS file', async () => {
-  const storage = await createMemoryStorageWith({
+  const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
-    crvFile: EITHER_NEITHER_CVR_FILE,
   });
 
-  const semsFileStorageString = convertSemsFileToExternalTally(
+  await backend.setCastVoteRecordFiles(
+    await CastVoteRecordFiles.empty.add(
+      EITHER_NEITHER_CVR_FILE,
+      eitherNeitherElectionDefinition.election
+    )
+  );
+
+  const semsFileTally = convertSemsFileToExternalTally(
     EITHER_NEITHER_SEMS_DATA,
     eitherNeitherElectionDefinition.election,
     VotingMethod.Precinct,
     'sems-results.csv',
     new Date()
   );
-  await storage.set(
-    externalVoteTalliesFileStorageKey,
-    convertExternalTalliesToStorageString([semsFileStorageString])
-  );
+  await backend.addFullElectionExternalTally(semsFileTally);
 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
-  const { getByText, getByTestId, getAllByText } = render(
-    <App storage={storage} card={card} hardware={hardware} />
+  const { getByText, getByTestId, getAllByText } = renderInQueryClientContext(
+    <App backend={backend} card={card} hardware={hardware} />
   );
   jest.advanceTimersByTime(2000);
   await authenticateWithElectionManagerCard(
@@ -763,29 +783,32 @@ test('tabulating CVRs with SEMS file', async () => {
 });
 
 test('tabulating CVRs with SEMS file and manual data', async () => {
-  const storage = await createMemoryStorageWith({
+  const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
-    crvFile: EITHER_NEITHER_CVR_FILE,
   });
+  await backend.setCastVoteRecordFiles(
+    await CastVoteRecordFiles.empty.add(
+      EITHER_NEITHER_CVR_FILE,
+      eitherNeitherElectionDefinition.election
+    )
+  );
 
-  const semsFileStorageString = convertSemsFileToExternalTally(
+  const semsFileTally = convertSemsFileToExternalTally(
     EITHER_NEITHER_SEMS_DATA,
     eitherNeitherElectionDefinition.election,
     VotingMethod.Precinct,
     'sems-results.csv',
     new Date()
   );
-  await storage.set(
-    externalVoteTalliesFileStorageKey,
-    convertExternalTalliesToStorageString([semsFileStorageString])
-  );
+  await backend.addFullElectionExternalTally(semsFileTally);
 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
 
-  const { getByText, getByTestId, getAllByText, queryAllByText } = render(
-    <App storage={storage} card={card} hardware={hardware} />
-  );
+  const { getByText, getByTestId, getAllByText, queryAllByText } =
+    renderInQueryClientContext(
+      <App backend={backend} card={card} hardware={hardware} />
+    );
   await authenticateWithElectionManagerCard(
     card,
     eitherNeitherElectionDefinition
@@ -940,10 +963,15 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
 });
 
 test('changing election resets sems, cvr, and manual data files', async () => {
-  const storage = await createMemoryStorageWith({
+  const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
-    crvFile: EITHER_NEITHER_CVR_FILE,
   });
+  await backend.setCastVoteRecordFiles(
+    await CastVoteRecordFiles.empty.add(
+      EITHER_NEITHER_CVR_FILE,
+      eitherNeitherElectionDefinition.election
+    )
+  );
 
   const semsFileTally = convertSemsFileToExternalTally(
     EITHER_NEITHER_SEMS_DATA,
@@ -960,16 +988,14 @@ test('changing election resets sems, cvr, and manual data files', async () => {
     'Manually Added Data',
     new Date()
   );
-  await storage.set(
-    externalVoteTalliesFileStorageKey,
-    convertExternalTalliesToStorageString([semsFileTally, manualTally])
-  );
+  await backend.addFullElectionExternalTally(semsFileTally);
+  await backend.addFullElectionExternalTally(manualTally);
 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
 
-  const { getByText, getByTestId } = render(
-    <App storage={storage} card={card} hardware={hardware} />
+  const { getByText, getByTestId } = renderInQueryClientContext(
+    <App backend={backend} card={card} hardware={hardware} />
   );
 
   await authenticateWithElectionManagerCard(
@@ -999,15 +1025,20 @@ test('changing election resets sems, cvr, and manual data files', async () => {
     electionFamousNames2021Fixtures.electionDefinition
   );
 
-  fireEvent.click(getByText('Tally'));
+  fireEvent.click(await screen.findByText('Tally'));
   getByText('No CVR files loaded.');
 });
 
 test('clearing all files after marking as official clears SEMS, CVR, and manual file', async () => {
-  const storage = await createMemoryStorageWith({
+  const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
-    crvFile: EITHER_NEITHER_CVR_FILE,
   });
+  await backend.setCastVoteRecordFiles(
+    await CastVoteRecordFiles.empty.add(
+      EITHER_NEITHER_CVR_FILE,
+      eitherNeitherElectionDefinition.election
+    )
+  );
 
   const semsFileTally = convertSemsFileToExternalTally(
     EITHER_NEITHER_SEMS_DATA,
@@ -1024,16 +1055,14 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
     'Manually Added Data',
     new Date()
   );
-  await storage.set(
-    externalVoteTalliesFileStorageKey,
-    convertExternalTalliesToStorageString([semsFileTally, manualTally])
-  );
+  await backend.addFullElectionExternalTally(semsFileTally);
+  await backend.addFullElectionExternalTally(manualTally);
 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
-  const { getByText, getByTestId, queryByText } = render(
+  const { getByText, getByTestId, queryByText } = renderInQueryClientContext(
     <App
-      storage={storage}
+      backend={backend}
       card={card}
       hardware={hardware}
       converter="ms-sems"
@@ -1102,10 +1131,12 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
 test('election manager UI has expected nav', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
-  const storage = await createMemoryStorageWith({
+  const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
   });
-  render(<App card={card} hardware={hardware} storage={storage} />);
+  renderInQueryClientContext(
+    <App backend={backend} card={card} hardware={hardware} />
+  );
   await authenticateWithElectionManagerCard(
     card,
     eitherNeitherElectionDefinition
@@ -1131,10 +1162,12 @@ test('election manager UI has expected nav', async () => {
 test('system administrator UI has expected nav', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
-  const storage = await createMemoryStorageWith({
+  const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
   });
-  render(<App card={card} hardware={hardware} storage={storage} />);
+  renderInQueryClientContext(
+    <App backend={backend} card={card} hardware={hardware} />
+  );
   await authenticateWithSystemAdministratorCard(card);
 
   userEvent.click(screen.getByText('Definition'));
@@ -1153,8 +1186,10 @@ test('system administrator UI has expected nav', async () => {
 test('system administrator UI has expected nav when no election', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
-  const storage = new MemoryStorage();
-  render(<App card={card} hardware={hardware} storage={storage} />);
+  const backend = new ElectionManagerStoreMemoryBackend();
+  renderInQueryClientContext(
+    <App card={card} hardware={hardware} backend={backend} />
+  );
   await authenticateWithSystemAdministratorCard(card);
 
   userEvent.click(screen.getByText('Definition'));
@@ -1191,17 +1226,21 @@ test('system administrator UI has expected nav when no election', async () => {
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
-  expect(screen.queryByText('Ballots')).not.toBeInTheDocument();
+  await waitFor(() =>
+    expect(screen.queryByText('Ballots')).not.toBeInTheDocument()
+  );
   expect(screen.queryByText('Smartcards')).not.toBeInTheDocument();
 });
 
 test('system administrator Smartcards screen navigation', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
-  const storage = await createMemoryStorageWith({
+  const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
   });
-  render(<App card={card} hardware={hardware} storage={storage} />);
+  renderInQueryClientContext(
+    <App card={card} hardware={hardware} backend={backend} />
+  );
   await authenticateWithSystemAdministratorCard(card);
 
   userEvent.click(screen.getByText('Smartcards'));
@@ -1217,8 +1256,10 @@ test('system administrator Smartcards screen navigation', async () => {
 test('election manager cannot auth onto unconfigured machine', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
-  const storage = new MemoryStorage();
-  render(<App card={card} hardware={hardware} storage={storage} />);
+  const backend = new ElectionManagerStoreMemoryBackend();
+  renderInQueryClientContext(
+    <App card={card} hardware={hardware} backend={backend} />
+  );
 
   await screen.findByText('VxAdmin is Locked');
   screen.getByText('Insert System Administrator card to unlock.');
@@ -1235,13 +1276,15 @@ test('election manager cannot auth onto unconfigured machine', async () => {
 test('election manager cannot auth onto machine with different election hash', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
-  const storage = await createMemoryStorageWith({
+  const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
   });
-  render(<App card={card} hardware={hardware} storage={storage} />);
+  renderInQueryClientContext(
+    <App card={card} hardware={hardware} backend={backend} />
+  );
 
   await screen.findByText('VxAdmin is Locked');
-  screen.getByText(
+  await screen.findByText(
     'Insert System Administrator or Election Manager card to unlock.'
   );
   card.insertCard(
@@ -1258,10 +1301,13 @@ test('election manager cannot auth onto machine with different election hash', a
 test('system administrator Ballots tab and election manager Ballots tab have expected differences', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
-  const storage = await createMemoryStorageWith({
+  const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
   });
-  render(<App card={card} hardware={hardware} storage={storage} />);
+  renderInQueryClientContext(
+    <App card={card} hardware={hardware} backend={backend} />
+  );
+
   await authenticateWithSystemAdministratorCard(card);
 
   const numPrecinctBallots = 13;

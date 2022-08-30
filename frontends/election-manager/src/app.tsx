@@ -1,56 +1,42 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
+import { Logger, LogSource } from '@votingworks/logging';
+import { getHardware, getPrinter, WebServiceCard } from '@votingworks/utils';
+import React, { useMemo } from 'react';
 import { BrowserRouter } from 'react-router-dom';
-
 import './App.css';
-
-import {
-  LocalStorage,
-  KioskStorage,
-  getPrinter,
-  getHardware,
-  WebServiceCard,
-} from '@votingworks/utils';
-
 import { AppRoot, Props as AppRootProps } from './app_root';
-import { machineConfigProvider } from './utils/machine_config';
 import { getConverterClientType } from './config/features';
+import { ElectionManagerStoreBackend } from './lib/backends';
+import { machineConfigProvider as defaultMachineConfigProvider } from './utils/machine_config';
 
-export interface Props {
-  storage?: AppRootProps['storage'];
-  printer?: AppRootProps['printer'];
-  hardware?: AppRootProps['hardware'];
-  machineConfig?: AppRootProps['machineConfigProvider'];
-  card?: AppRootProps['card'];
-  converter?: AppRootProps['converter'];
+export interface Props extends Partial<AppRootProps> {
+  backend: ElectionManagerStoreBackend;
 }
 
-const defaultStorage = window.kiosk
-  ? new KioskStorage(window.kiosk)
-  : new LocalStorage();
-
-const queryClient = new QueryClient();
-
 export function App({
+  backend,
+  logger: loggerProp,
   hardware = getHardware(),
   card = new WebServiceCard(),
-  storage = defaultStorage,
   printer = getPrinter(),
-  machineConfig = machineConfigProvider,
+  machineConfigProvider = defaultMachineConfigProvider,
   converter = getConverterClientType(),
 }: Props): JSX.Element {
+  const logger = useMemo(
+    () => loggerProp ?? new Logger(LogSource.VxAdminFrontend, window.kiosk),
+    [loggerProp]
+  );
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <AppRoot
-          storage={storage}
-          printer={printer}
-          hardware={hardware}
-          card={card}
-          machineConfigProvider={machineConfig}
-          converter={converter}
-        />
-      </BrowserRouter>
-    </QueryClientProvider>
+    <BrowserRouter>
+      <AppRoot
+        logger={logger}
+        backend={backend}
+        printer={printer}
+        hardware={hardware}
+        card={card}
+        machineConfigProvider={machineConfigProvider}
+        converter={converter}
+      />
+    </BrowserRouter>
   );
 }

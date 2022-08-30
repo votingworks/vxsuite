@@ -6,7 +6,7 @@ import React, {
   useMemo,
 } from 'react';
 import 'normalize.css';
-import { Logger, LogSource, LogEventId } from '@votingworks/logging';
+import { Logger, LogEventId } from '@votingworks/logging';
 import {
   FullElectionExternalTally,
   ExternalTallySourceType,
@@ -14,7 +14,6 @@ import {
 } from '@votingworks/types';
 import {
   assert,
-  Storage,
   throwIllegalValue,
   usbstick,
   Printer,
@@ -41,12 +40,15 @@ import {
   MachineConfig,
   ConverterClientType,
   ExportableTallies,
+  ResetElection,
 } from './config/types';
 import { useElectionManagerStore } from './hooks/use_election_manager_store';
 import { getExportableTallies } from './utils/exportable_tallies';
+import { ElectionManagerStoreBackend } from './lib/backends/types';
 
 export interface Props {
-  storage: Storage;
+  logger: Logger;
+  backend: ElectionManagerStoreBackend;
   printer: Printer;
   hardware: Hardware;
   card: Card;
@@ -55,18 +57,14 @@ export interface Props {
 }
 
 export function AppRoot({
-  storage,
+  backend,
+  logger,
   printer,
   card,
   hardware,
   machineConfigProvider,
   converter,
 }: Props): JSX.Element {
-  const logger = useMemo(
-    () => new Logger(LogSource.VxAdminFrontend, window.kiosk),
-    []
-  );
-
   const printBallotRef = useRef<HTMLDivElement>(null);
 
   const { cardReader, printer: printerInfo } = useDevices({ hardware, logger });
@@ -79,7 +77,7 @@ export function AppRoot({
 
   const store = useElectionManagerStore({
     logger,
-    storage,
+    backend,
   });
 
   const { electionDefinition } = store;
@@ -201,6 +199,10 @@ export function AppRoot({
     [store]
   );
 
+  const resetElection: ResetElection = useCallback(async () => {
+    await store.reset();
+  }, [store]);
+
   const generateExportableTallies = useCallback((): ExportableTallies => {
     assert(electionDefinition);
     return getExportableTallies(
@@ -273,6 +275,7 @@ export function AppRoot({
         printBallotRef,
         saveCastVoteRecordFiles,
         saveElection,
+        resetElection,
         markResultsOfficial,
         resetFiles,
         usbDriveStatus: displayUsbStatus,
