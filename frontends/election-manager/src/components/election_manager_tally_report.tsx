@@ -24,6 +24,8 @@ import React, { forwardRef } from 'react';
 
 import { filterExternalTalliesByParams } from '../utils/external_tallies';
 
+export type TallyReportType = 'Official' | 'Unofficial' | 'Test Deck';
+
 export interface Props {
   batchId?: string;
   batchLabel?: string;
@@ -31,7 +33,7 @@ export interface Props {
   fullElectionExternalTallies: readonly FullElectionExternalTally[];
   fullElectionTally: FullElectionTally;
   generatedAtTime?: Date;
-  isOfficialResults: boolean;
+  tallyReportType: TallyReportType;
   partyId?: string;
   precinctId?: string;
   scannerId?: string;
@@ -47,7 +49,7 @@ export const ElectionManagerTallyReport = forwardRef<HTMLDivElement, Props>(
       fullElectionExternalTallies,
       fullElectionTally,
       generatedAtTime = new Date(),
-      isOfficialResults,
+      tallyReportType,
       partyId: partyIdFromProps,
       precinctId: precinctIdFromProps,
       scannerId,
@@ -55,8 +57,6 @@ export const ElectionManagerTallyReport = forwardRef<HTMLDivElement, Props>(
     },
     ref
   ) => {
-    const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial';
-
     const ballotStylePartyIds =
       partyIdFromProps !== undefined
         ? [unsafeParse(PartyIdSchema, partyIdFromProps)]
@@ -114,7 +114,7 @@ export const ElectionManagerTallyReport = forwardRef<HTMLDivElement, Props>(
                   <LogoMark />
                   <Prose maxWidth={false}>
                     <h1>
-                      {statusPrefix} Precinct Tally Report for:{' '}
+                      {tallyReportType} Precinct Tally Report for:{' '}
                       {currentPrecinctName}
                     </h1>
                     <h2>{electionTitle}</h2>
@@ -145,7 +145,7 @@ export const ElectionManagerTallyReport = forwardRef<HTMLDivElement, Props>(
                   <LogoMark />
                   <Prose maxWidth={false}>
                     <h1>
-                      {statusPrefix} Scanner Tally Report for Scanner:{' '}
+                      {tallyReportType} Scanner Tally Report for Scanner:{' '}
                       {scannerId}
                     </h1>
                     <h2>{electionTitle}</h2>
@@ -175,7 +175,7 @@ export const ElectionManagerTallyReport = forwardRef<HTMLDivElement, Props>(
                   <LogoMark />
                   <Prose maxWidth={false}>
                     <h1>
-                      {statusPrefix} Batch Tally Report for {batchLabel}:
+                      {tallyReportType} Batch Tally Report for {batchLabel}:
                     </h1>
                     <h2>{electionTitle}</h2>
                     <TallyReportMetadata
@@ -205,7 +205,7 @@ export const ElectionManagerTallyReport = forwardRef<HTMLDivElement, Props>(
                   <LogoMark />
                   <Prose maxWidth={false}>
                     <h1>
-                      {statusPrefix} “{label}” Ballot Tally Report
+                      {tallyReportType} “{label}” Ballot Tally Report
                     </h1>
                     <h2>{electionTitle}</h2>
                     <TallyReportMetadata
@@ -232,7 +232,7 @@ export const ElectionManagerTallyReport = forwardRef<HTMLDivElement, Props>(
                 <LogoMark />
                 <Prose maxWidth={false}>
                   <h1>
-                    {statusPrefix} {electionTitle} Tally Report
+                    {tallyReportType} {electionTitle} Tally Report
                   </h1>
                   <TallyReportMetadata
                     generatedAtTime={generatedAtTime}
