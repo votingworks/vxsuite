@@ -1,6 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { assert } from '@votingworks/utils';
-import { isSystemAdministratorAuth, Modal } from '@votingworks/ui';
+import {
+  InvalidCardScreen,
+  isSystemAdministratorAuth,
+  Modal,
+} from '@votingworks/ui';
 import { useLocation } from 'react-router-dom';
 
 import { AppContext } from '../../contexts/app_context';
@@ -22,14 +26,20 @@ export function SmartcardModal(): JSX.Element | null {
 
   useEffect(() => {
     // Clear the current status message when the card is removed
-    if (!auth.card) {
+    if (auth.card === 'no_card') {
       setActionStatus(undefined);
     }
   }, [auth.card]);
 
   // Auto-open the modal when a card is inserted, and auto-close the modal when a card is removed
-  if (!auth.card) {
+  if (auth.card === 'no_card') {
     return null;
+  }
+
+  if (auth.card === 'error') {
+    return (
+      <Modal fullscreen content={<InvalidCardScreen reason="card_error" />} />
+    );
   }
 
   const onSystemAdministratorSmartcardsScreen =

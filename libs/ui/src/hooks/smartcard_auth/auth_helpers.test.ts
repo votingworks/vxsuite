@@ -1,5 +1,5 @@
 import { act } from '@testing-library/react';
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook, RenderResult } from '@testing-library/react-hooks';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import {
@@ -8,7 +8,14 @@ import {
   makePollWorkerCard,
   makeSystemAdministratorCard,
 } from '@votingworks/test-utils';
-import { ElectionDefinitionSchema, err, UserRole } from '@votingworks/types';
+import {
+  CardProgramming,
+  CardStorage,
+  DippedSmartcardAuth,
+  ElectionDefinitionSchema,
+  err,
+  UserRole,
+} from '@votingworks/types';
 import { MemoryCard, assert } from '@votingworks/utils';
 import {
   isSystemAdministratorAuth,
@@ -29,6 +36,18 @@ const allowedUserRoles: UserRole[] = [
   'voter',
   'cardless_voter',
 ];
+
+function assertAndGetPostDipCard(
+  result: RenderResult<DippedSmartcardAuth.Auth>
+): CardStorage & CardProgramming {
+  assert(isSystemAdministratorAuth(result.current));
+  const { card } = result.current;
+  expect(card).not.toEqual('no_card');
+  assert(card !== 'no_card');
+  expect(card).not.toEqual('error');
+  assert(card !== 'error');
+  return card;
+}
 
 describe('Card interface', () => {
   beforeAll(() => jest.useFakeTimers());
@@ -219,11 +238,10 @@ describe('Card interface', () => {
     assert(isSystemAdministratorAuth(result.current));
 
     // Insert an unprogrammed card
-    expect(result.current.card).not.toBeDefined();
+    expect(result.current.card).toEqual('no_card');
     cardApi.insertCard();
     await waitForNextUpdate();
-    expect(result.current.card).toBeDefined();
-    let card = result.current.card!;
+    let card = assertAndGetPostDipCard(result);
     expect(card.programmedUser).not.toBeDefined();
     expect(card.programUser).toBeDefined();
     expect(card.unprogramUser).toBeDefined();
@@ -238,8 +256,7 @@ describe('Card interface', () => {
       ).isOk()
     ).toEqual(true);
     await waitForNextUpdate();
-    expect(result.current.card).toBeDefined();
-    card = result.current.card!;
+    card = assertAndGetPostDipCard(result);
     expect(card.programmedUser).toEqual({
       role: 'system_administrator',
       passcode: '123456',
@@ -268,8 +285,7 @@ describe('Card interface', () => {
     // Unprogram the card
     expect((await card.unprogramUser()).isOk()).toEqual(true);
     await waitForNextUpdate();
-    expect(result.current.card).toBeDefined();
-    card = result.current.card!;
+    card = assertAndGetPostDipCard(result);
     expect(card.programmedUser).not.toBeDefined();
     expect(card.hasStoredData).toEqual(false);
     expect(logger.log).toHaveBeenNthCalledWith(
@@ -304,8 +320,7 @@ describe('Card interface', () => {
       ).isOk()
     ).toEqual(true);
     await waitForNextUpdate();
-    expect(result.current.card).toBeDefined();
-    card = result.current.card!;
+    card = assertAndGetPostDipCard(result);
     expect(card.programmedUser).toEqual({
       role: 'election_manager',
       electionHash,
@@ -336,8 +351,7 @@ describe('Card interface', () => {
     // Unprogram the card
     expect((await card.unprogramUser()).isOk()).toEqual(true);
     await waitForNextUpdate();
-    expect(result.current.card).toBeDefined();
-    card = result.current.card!;
+    card = assertAndGetPostDipCard(result);
     expect(card.programmedUser).not.toBeDefined();
     expect(card.hasStoredData).toEqual(false);
     expect(logger.log).toHaveBeenNthCalledWith(
@@ -365,8 +379,7 @@ describe('Card interface', () => {
       (await card.programUser({ role: 'poll_worker', electionHash })).isOk()
     ).toEqual(true);
     await waitForNextUpdate();
-    expect(result.current.card).toBeDefined();
-    card = result.current.card!;
+    card = assertAndGetPostDipCard(result);
     expect(card.programmedUser).toEqual({
       role: 'poll_worker',
       electionHash,
@@ -395,8 +408,7 @@ describe('Card interface', () => {
     // Unprogram the card
     expect((await card.unprogramUser()).isOk()).toEqual(true);
     await waitForNextUpdate();
-    expect(result.current.card).toBeDefined();
-    card = result.current.card!;
+    card = assertAndGetPostDipCard(result);
     expect(card.programmedUser).not.toBeDefined();
     expect(card.hasStoredData).toEqual(false);
     expect(logger.log).toHaveBeenNthCalledWith(
@@ -423,8 +435,7 @@ describe('Card interface', () => {
     // doesn't cause problems
     expect((await card.unprogramUser()).isOk()).toEqual(true);
     await waitForNextUpdate();
-    expect(result.current.card).toBeDefined();
-    card = result.current.card!;
+    card = assertAndGetPostDipCard(result);
     expect(card.programmedUser).not.toBeDefined();
     expect(card.hasStoredData).toEqual(false);
     expect(logger.log).toHaveBeenNthCalledWith(
@@ -471,13 +482,11 @@ describe('Card interface', () => {
     expect(result.current.status).toEqual('remove_card');
     cardApi.removeCard();
     await waitForNextUpdate();
-    assert(isSystemAdministratorAuth(result.current));
 
     // Insert an unprogrammed card
     cardApi.insertCard();
     await waitForNextUpdate();
-    expect(result.current.card).toBeDefined();
-    let card = result.current.card!;
+    let card = assertAndGetPostDipCard(result);
 
     // Make concurrent programming requests
     const [write1, write2] = await Promise.all([
@@ -485,8 +494,7 @@ describe('Card interface', () => {
       card.programUser({ role: 'poll_worker', electionHash }),
     ]);
     await waitForNextUpdate();
-    expect(result.current.card).toBeDefined();
-    card = result.current.card!;
+    card = assertAndGetPostDipCard(result);
     expect(
       (write1.isErr() && !write2.isErr()) || (!write1.isErr() && write2.isErr())
     ).toEqual(true);
@@ -507,8 +515,7 @@ describe('Card interface', () => {
       card.unprogramUser(),
     ]);
     await waitForNextUpdate();
-    expect(result.current.card).toBeDefined();
-    card = result.current.card!;
+    card = assertAndGetPostDipCard(result);
     expect(
       (write3.isErr() && !write4.isErr()) || (!write3.isErr() && write4.isErr())
     ).toEqual(true);
@@ -533,8 +540,7 @@ describe('Card interface', () => {
       ).isOk()
     ).toEqual(true);
     await waitForNextUpdate();
-    expect(result.current.card).toBeDefined();
-    card = result.current.card!;
+    card = assertAndGetPostDipCard(result);
 
     // Make concurrent programming and unprogramming requests
     const [write5, write6] = await Promise.all([
@@ -574,13 +580,11 @@ describe('Card interface', () => {
     expect(result.current.status).toEqual('remove_card');
     cardApi.removeCard();
     await waitForNextUpdate();
-    assert(isSystemAdministratorAuth(result.current));
 
     // Insert an unprogrammed card
     cardApi.insertCard();
     await waitForNextUpdate();
-    expect(result.current.card).toBeDefined();
-    let card = result.current.card!;
+    let card = assertAndGetPostDipCard(result);
 
     // Verify that card programming errors are handled
     const error = new Error('Test error');
@@ -626,8 +630,7 @@ describe('Card interface', () => {
       ).isOk()
     ).toEqual(true);
     await waitForNextUpdate();
-    expect(result.current.card).toBeDefined();
-    card = result.current.card!;
+    card = assertAndGetPostDipCard(result);
 
     // Verify that card unprogramming errors are handled
     spy = jest
@@ -681,13 +684,11 @@ describe('Card interface', () => {
     expect(result.current.status).toEqual('remove_card');
     cardApi.removeCard();
     await waitForNextUpdate();
-    assert(isSystemAdministratorAuth(result.current));
 
     // Insert an unprogrammed card
     cardApi.insertCard();
     await waitForNextUpdate();
-    expect(result.current.card).toBeDefined();
-    let card = result.current.card!;
+    let card = assertAndGetPostDipCard(result);
 
     // Program a system administrator card
     expect(
@@ -699,8 +700,7 @@ describe('Card interface', () => {
       ).isOk()
     ).toEqual(true);
     await waitForNextUpdate();
-    expect(result.current.card).toBeDefined();
-    card = result.current.card!;
+    card = assertAndGetPostDipCard(result);
     expect(card.programmedUser).toEqual({
       role: 'system_administrator',
       passcode: '123456',
@@ -710,10 +710,37 @@ describe('Card interface', () => {
     // Unprogram the card
     expect((await card.unprogramUser()).isOk()).toEqual(true);
     await waitForNextUpdate();
-    expect(result.current.card).toBeDefined();
-    card = result.current.card!;
+    card = assertAndGetPostDipCard(result);
     expect(card.programmedUser).not.toBeDefined();
     expect(card.hasStoredData).toEqual(false);
+  });
+
+  it('can notice a backward card after logging in', async () => {
+    const cardApi = new MemoryCard();
+    const { result, waitForNextUpdate } = renderHook(() =>
+      useDippedSmartcardAuth({
+        cardApi,
+        logger: undefined,
+        scope: { electionDefinition },
+      })
+    );
+
+    // Auth as a system administrator
+    cardApi.insertCard(makeSystemAdministratorCard());
+    await waitForNextUpdate();
+    act(() => {
+      assert(result.current.status === 'checking_passcode');
+      result.current.checkPasscode('123456');
+    });
+    await waitForNextUpdate();
+    cardApi.removeCard();
+    await waitForNextUpdate();
+    assert(isSystemAdministratorAuth(result.current));
+
+    // Insert an card
+    cardApi.insertCard(undefined, undefined, 'error');
+    await waitForNextUpdate();
+    expect(result.current.card).toEqual('error');
   });
 });
 

@@ -247,7 +247,7 @@ function useDippedSmartcardAuthBase({
                       logger
                     ),
                   }
-                : undefined,
+                : cardSummary.status,
             logOut: () => dispatch({ type: 'log_out' }),
           };
         }
@@ -259,7 +259,7 @@ function useDippedSmartcardAuthBase({
             card:
               cardSummary.status === 'ready'
                 ? buildCardStorage(cardSummary, cardApi, cardWriteLock)
-                : undefined,
+                : cardSummary.status,
             logOut: () => dispatch({ type: 'log_out' }),
           };
         }

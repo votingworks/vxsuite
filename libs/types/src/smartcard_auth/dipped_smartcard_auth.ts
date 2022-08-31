@@ -30,17 +30,19 @@ export interface RemoveCard {
   readonly user: SystemAdministratorUser | ElectionManagerUser;
 }
 
+export type CardSummaryNotReadyStatus = 'no_card' | 'error';
+
 export interface SystemAdministratorLoggedIn {
   readonly status: 'logged_in';
   readonly user: SystemAdministratorUser;
-  readonly card?: CardStorage & CardProgramming;
+  readonly card: CardSummaryNotReadyStatus | (CardStorage & CardProgramming);
   readonly logOut: () => void;
 }
 
 export interface ElectionManagerLoggedIn {
   readonly status: 'logged_in';
   readonly user: ElectionManagerUser;
-  readonly card?: CardStorage;
+  readonly card: CardSummaryNotReadyStatus | CardStorage;
   readonly logOut: () => void;
 }
 
