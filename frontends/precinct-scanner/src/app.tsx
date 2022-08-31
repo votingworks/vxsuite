@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 
 import './App.css';
@@ -25,27 +25,18 @@ export interface Props {
 }
 
 export function App({
-  hardware,
+  hardware = getHardware(),
   card = new WebServiceCard(),
   storage = window.kiosk ? new KioskStorage(window.kiosk) : new LocalStorage(),
   printer = getPrinter(),
   machineConfig = machineConfigProvider,
   logger = new Logger(LogSource.VxPrecinctScanFrontend, window.kiosk),
 }: Props): JSX.Element {
-  const [internalHardware, setInternalHardware] = useState(hardware);
-  useEffect(() => {
-    const newInternalHardware = getHardware();
-    setInternalHardware((prev) => prev ?? newInternalHardware);
-  }, []);
-
-  if (!internalHardware) {
-    return <BrowserRouter />;
-  }
   return (
     <BrowserRouter>
       <AppRoot
         card={card}
-        hardware={internalHardware}
+        hardware={hardware}
         printer={printer}
         machineConfig={machineConfig}
         storage={storage}

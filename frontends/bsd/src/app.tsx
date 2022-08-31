@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { WebServiceCard, getHardware } from '@votingworks/utils';
 import { BrowserRouter } from 'react-router-dom';
 
@@ -14,23 +14,13 @@ export interface Props {
 }
 
 export function App({
-  hardware,
+  hardware = getHardware(),
   card = new WebServiceCard(),
   logger = new Logger(LogSource.VxCentralScanFrontend, window.kiosk),
 }: Props): JSX.Element {
-  const [internalHardware, setInternalHardware] = useState(hardware);
-  useEffect(() => {
-    const newInternalHardware = getHardware();
-    setInternalHardware((prev) => prev ?? newInternalHardware);
-  }, []);
-
-  if (!internalHardware) {
-    return <React.Fragment />;
-  }
-
   return (
     <BrowserRouter>
-      <AppRoot hardware={internalHardware} card={card} logger={logger} />
+      <AppRoot hardware={hardware} card={card} logger={logger} />
     </BrowserRouter>
   );
 }
