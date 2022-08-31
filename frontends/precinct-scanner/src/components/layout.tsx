@@ -34,7 +34,7 @@ export function ScreenMainCenterChild({
       {infoBar && (
         <ElectionInfoBar
           mode={infoBarMode}
-          showPrecinctInfo
+          showPrecinctInfo={Boolean(currentPrecinctId)}
           precinctId={currentPrecinctId}
           electionDefinition={electionDefinition}
           codeVersion={machineConfig.codeVersion}
