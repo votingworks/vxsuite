@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 
 import 'normalize.css';
@@ -51,33 +51,21 @@ export function App({
   card = new WebServiceCard(),
   storage = window.kiosk ? new KioskStorage(window.kiosk) : new LocalStorage(),
   printer = getPrinter(),
-  hardware,
+  hardware = getHardware(),
   machineConfig = machineConfigProvider,
   reload = () => window.location.reload(),
   logger = new Logger(LogSource.VxBallotMarkingDeviceFrontend, window.kiosk),
 }: Props): JSX.Element {
   screenReader.mute();
-  const [internalHardware, setInternalHardware] = useState(hardware);
-
-  useEffect(() => {
-    function updateHardware() {
-      const newInternalHardware = getHardware();
-      setInternalHardware((prev) => prev ?? newInternalHardware);
-    }
-    void updateHardware();
-  });
-
   /* istanbul ignore next - need to figure out how to test this */
   useEffect(() => {
-    if (internalHardware !== undefined) {
-      const unsubscribe = internalHardware.devices.subscribe((devices) =>
-        screenReader.toggleMuted(
-          !Array.from(devices).some(isAccessibleController)
-        )
-      );
-      return unsubscribe;
-    }
-  }, [internalHardware, screenReader]);
+    const unsubscribe = hardware.devices.subscribe((devices) =>
+      screenReader.toggleMuted(
+        !Array.from(devices).some(isAccessibleController)
+      )
+    );
+    return unsubscribe;
+  }, [hardware, screenReader]);
 
   const onKeyDown = useCallback(
     async (event: React.KeyboardEvent) => {
@@ -131,9 +119,6 @@ export function App({
     },
     [screenReader]
   );
-  if (internalHardware === undefined) {
-    return <BrowserRouter />;
-  }
   return (
     <BrowserRouter>
       <FocusManager
@@ -145,7 +130,7 @@ export function App({
         <AppRoot
           card={card}
           printer={printer}
-          hardware={internalHardware}
+          hardware={hardware}
           storage={storage}
           machineConfig={machineConfig}
           screenReader={screenReader}
