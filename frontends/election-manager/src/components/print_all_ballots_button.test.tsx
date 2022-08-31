@@ -1,17 +1,19 @@
 import fetchMock from 'fetch-mock';
-import { act, render, screen, waitFor, within } from '@testing-library/react';
+import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { electionMinimalExhaustiveSampleDefinition } from '@votingworks/fixtures';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import { MemoryCard, MemoryHardware, typedAs } from '@votingworks/utils';
 import React from 'react';
 import { fakeKiosk, hasTextAcrossElements } from '@votingworks/test-utils';
-import { renderInAppContext } from '../../test/render_in_app_context';
+import {
+  renderInAppContext,
+  renderInQueryClientContext,
+} from '../../test/render_in_app_context';
 import {
   authenticateWithElectionManagerCard,
   authenticateWithSystemAdministratorCard,
 } from '../../test/util/authenticate';
-import { createMemoryStorageWith } from '../../test/util/create_memory_storage_with';
 import { App } from '../app';
 import {
   PrintAllBallotsButton,
@@ -20,6 +22,7 @@ import {
 } from './print_all_ballots_button';
 import { MachineConfig } from '../config/types';
 import { fakePrinter } from '../../test/helpers/fake_printer';
+import { ElectionManagerStoreMemoryBackend } from '../lib/backends';
 
 jest.mock('../components/hand_marked_paper_ballot');
 
@@ -144,10 +147,12 @@ test('initial modal state toggles based on printer state', async () => {
   const hardware = MemoryHardware.build({
     connectCardReader: true,
   });
-  const storage = await createMemoryStorageWith({
+  const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
   });
-  render(<App card={card} hardware={hardware} storage={storage} />);
+  renderInQueryClientContext(
+    <App backend={backend} card={card} hardware={hardware} />
+  );
 
   await authenticateWithElectionManagerCard(
     card,
@@ -173,10 +178,12 @@ test('modal shows "Printer Disconnected" if printer disconnected while printing'
     connectCardReader: true,
     connectPrinter: true,
   });
-  const storage = await createMemoryStorageWith({
+  const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
   });
-  render(<App card={card} hardware={hardware} storage={storage} />);
+  renderInQueryClientContext(
+    <App backend={backend} card={card} hardware={hardware} />
+  );
 
   await authenticateWithElectionManagerCard(
     card,
@@ -206,10 +213,12 @@ test('modal is different for system administrators', async () => {
     connectCardReader: true,
     connectPrinter: true,
   });
-  const storage = await createMemoryStorageWith({
+  const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
   });
-  render(<App card={card} hardware={hardware} storage={storage} />);
+  renderInQueryClientContext(
+    <App backend={backend} card={card} hardware={hardware} />
+  );
 
   await authenticateWithElectionManagerCard(
     card,

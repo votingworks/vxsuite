@@ -15,6 +15,7 @@ import {
   ResultsFileType,
   MachineConfig,
   ConverterClientType,
+  ResetElection,
 } from '../config/types';
 import {
   CastVoteRecordFiles,
@@ -33,6 +34,7 @@ export interface AppContextInterface {
   printBallotRef?: RefObject<HTMLElement>;
   saveCastVoteRecordFiles: SaveCastVoteRecordFiles;
   saveElection: SaveElection;
+  resetElection: ResetElection;
   markResultsOfficial: () => Promise<void>;
   resetFiles: (fileType: ResultsFileType) => Promise<void>;
   usbDriveStatus: usbstick.UsbDriveStatus;
@@ -69,6 +71,7 @@ const appContext: AppContextInterface = {
   printBallotRef: undefined,
   saveCastVoteRecordFiles: async () => undefined,
   saveElection: async () => undefined,
+  resetElection: async () => undefined,
   markResultsOfficial: async () => undefined,
   resetFiles: async () => undefined,
   usbDriveStatus: usbstick.UsbDriveStatus.notavailable,

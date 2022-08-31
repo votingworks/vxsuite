@@ -30,7 +30,8 @@ export type ButtonEventFunction = (
 ) => PromiseOr<void>;
 
 // Election
-export type SaveElection = (electionJson?: string) => Promise<void>;
+export type SaveElection = (electionJson: string) => Promise<void>;
+export type ResetElection = () => Promise<void>;
 
 export const PrintableBallotType = {
   Absentee: 'absentee',
