@@ -19,6 +19,7 @@ import {
   compressTally,
   computeTallyWithPrecomputedCategories,
   filterTalliesByParams,
+  find,
   getTallyIdentifier,
   PrecinctScannerCardTally,
   PrecinctScannerCardTallySchema,
@@ -109,8 +110,7 @@ export function PollWorkerScreen({
   const { electionDefinition, currentPrecinctId, machineConfig, auth } =
     useContext(AppContext);
   assert(electionDefinition);
-  // Assert that a precinct was selected by the Election Manager
-  assert(typeof currentPrecinctId === 'string');
+  assert(typeof currentPrecinctId !== 'undefined');
   assert(isPollWorkerAuth(auth));
   const [currentTally, setCurrentTally] = useState<FullElectionTally>();
   const [currentSubTallies, setCurrentSubTallies] = useState<
@@ -124,10 +124,7 @@ export function PollWorkerScreen({
   const precinct =
     currentPrecinctId === ALL_PRECINCTS_OPTION_VALUE
       ? ALL_PRECINCTS_OPTION_VALUE
-      : election.precincts.find((p) => p.id === currentPrecinctId);
-
-  // Assert that the precinct id was found in the election
-  assert(typeof precinct !== 'undefined');
+      : find(election.precincts, (p) => p.id === currentPrecinctId);
 
   const precinctSelection: PrecinctSelection = useMemo(
     () =>
