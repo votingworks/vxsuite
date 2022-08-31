@@ -45,7 +45,7 @@ export function useUsbDrive({ logger }: UsbDriveProps): UsbDrive {
       setStatus(UsbDriveStatus.ejecting);
       await logger.log(LogEventId.UsbDriveEjectInit, currentUser);
       try {
-        await makeCancelable(usbstick.doUnmount());
+        await makeCancelable(usbstick.doEject());
         setRecentlyEjected(true);
         await logger.log(LogEventId.UsbDriveEjected, currentUser, {
           disposition: 'success',

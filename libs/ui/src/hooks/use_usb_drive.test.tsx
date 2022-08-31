@@ -21,8 +21,8 @@ async function waitForStatusUpdate(): Promise<void> {
   await advanceTimersAndPromises(POLLING_INTERVAL_FOR_USB / 1000);
 }
 
-async function waitForIoFlush(): Promise<void> {
-  await advanceTimersAndPromises(usbstick.FLUSH_IO_DELAY_MS / 1000);
+async function waitForUnmount(): Promise<void> {
+  await advanceTimersAndPromises(usbstick.MIN_TIME_TO_UNMOUNT_USB / 1000);
 }
 
 let logger: Logger;
@@ -170,7 +170,7 @@ test('full lifecycle with USBControllerButton', async () => {
   expect(kiosk.unmountUsbDrive).toHaveBeenCalled();
   await waitForStatusUpdate();
   await advanceTimersAndPromises();
-  await waitForIoFlush();
+  await waitForUnmount();
 
   await waitForStatusUpdate();
   screen.getByText('Ejected');
@@ -255,7 +255,7 @@ test('usb drive that is removed while being ejected is updated to absent', async
   await waitForStatusUpdate();
   await advanceTimersAndPromises();
   // Updates to No USB state as expected
-  await waitForIoFlush();
+  await waitForUnmount();
   await waitForStatusUpdate();
   screen.getByText('No USB');
 
