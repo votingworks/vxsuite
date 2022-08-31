@@ -52,7 +52,7 @@ export async function doMount(): Promise<void> {
   await window.kiosk.mountUsbDrive(device.deviceName);
 }
 
-export async function doUnmount(): Promise<void> {
+export async function doEject(): Promise<void> {
   const device = await getDevice();
   if (!device?.mountPoint) {
     return;

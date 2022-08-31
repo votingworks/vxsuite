@@ -3,7 +3,7 @@ import {
   UsbDriveStatus,
   getStatus,
   doMount,
-  doUnmount,
+  doEject,
   getDevicePath,
   doSync,
 } from './usbstick';
@@ -50,7 +50,7 @@ test('can mount and unmount USB drive', async () => {
   fKiosk.getUsbDrives.mockResolvedValue(unmountedDevices);
 
   // unmount should do nothing
-  await doUnmount();
+  await doEject();
   expect(window.kiosk.unmountUsbDrive).not.toBeCalled();
 
   await doMount();
@@ -64,7 +64,7 @@ test('can mount and unmount USB drive', async () => {
   await doMount();
   expect(window.kiosk.mountUsbDrive).not.toBeCalled();
 
-  await doUnmount();
+  await doEject();
   expect(window.kiosk.syncUsbDrive).toBeCalledWith('/media/usb-drive-sdb');
   expect(window.kiosk.unmountUsbDrive).toBeCalledWith('sdb');
 });
@@ -74,7 +74,7 @@ test('without a kiosk, calls do not crash', async () => {
   expect(await getStatus()).toBe(UsbDriveStatus.notavailable);
 
   await doMount();
-  await doUnmount();
+  await doEject();
   await doSync();
 });
 
