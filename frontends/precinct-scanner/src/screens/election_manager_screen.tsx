@@ -28,6 +28,8 @@ import { ScreenMainCenterChild } from '../components/layout';
 import { AppContext } from '../contexts/app_context';
 import { SetMarkThresholdsModal } from '../components/set_mark_thresholds_modal';
 
+export const ALL_PRECINCTS_OPTION_VALUE = 'ALL_PRECINCTS_OPTION_VALUE';
+
 interface Props {
   scannerStatus: Scan.PrecinctScannerStatus;
   isTestMode: boolean;
@@ -132,12 +134,15 @@ export function ElectionManagerScreen({
           <Select
             id="selectPrecinct"
             data-testid="selectPrecinct"
-            value={currentPrecinctId}
+            value={currentPrecinctId ?? ''}
             onBlur={changeAppPrecinctId}
             onChange={changeAppPrecinctId}
             large
           >
-            <option value="">All Precincts</option>
+            <option value="" disabled>
+              Select a precinct for this device…
+            </option>
+            <option value={ALL_PRECINCTS_OPTION_VALUE}>All Precincts</option>
             {[...election.precincts]
               .sort((a, b) =>
                 a.name.localeCompare(b.name, undefined, {

@@ -36,6 +36,7 @@ import {
   scannerStatus,
 } from '../test/helpers/helpers';
 import { stateStorageKey } from './app_root';
+import { ALL_PRECINCTS_OPTION_VALUE } from './screens/election_manager_screen';
 
 const getMachineConfigBody: MachineConfigResponse = {
   machineId: '0002',
@@ -53,9 +54,10 @@ const statusNoPaper: Scan.GetPrecinctScannerStatusResponse = {
   ballotsCounted: 0,
 };
 
-const getPrecinctConfigNoPrecinctResponseBody: Scan.GetCurrentPrecinctConfigResponse =
+const getPrecinctConfigAllPrecinctsResponseBody: Scan.GetCurrentPrecinctConfigResponse =
   {
     status: 'ok',
+    precinctId: ALL_PRECINCTS_OPTION_VALUE,
   };
 
 const getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody: Scan.GetMarkThresholdOverridesConfigResponse =
@@ -90,7 +92,7 @@ test('services/scan fails to unconfigure', async () => {
       body: getTestModeConfigTrueResponseBody,
     })
     .get('/precinct-scanner/config/precinct', {
-      body: getPrecinctConfigNoPrecinctResponseBody,
+      body: getPrecinctConfigAllPrecinctsResponseBody,
     })
     .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
@@ -134,7 +136,7 @@ test('Show invalid card screen when unsupported cards are given', async () => {
       body: getTestModeConfigTrueResponseBody,
     })
     .get('/precinct-scanner/config/precinct', {
-      body: getPrecinctConfigNoPrecinctResponseBody,
+      body: getPrecinctConfigAllPrecinctsResponseBody,
     })
     .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
@@ -194,7 +196,7 @@ test('show card backwards screen when card connection error occurs', async () =>
       body: getTestModeConfigTrueResponseBody,
     })
     .get('/precinct-scanner/config/precinct', {
-      body: getPrecinctConfigNoPrecinctResponseBody,
+      body: getPrecinctConfigAllPrecinctsResponseBody,
     })
     .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
@@ -231,7 +233,7 @@ test('shows internal wiring message when there is no plustek scanner, but tablet
       body: getTestModeConfigTrueResponseBody,
     })
     .get('/precinct-scanner/config/precinct', {
-      body: getPrecinctConfigNoPrecinctResponseBody,
+      body: getPrecinctConfigAllPrecinctsResponseBody,
     })
     .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
@@ -260,7 +262,7 @@ test('shows power cable message when there is no plustek scanner and tablet is n
       body: getTestModeConfigTrueResponseBody,
     })
     .get('/precinct-scanner/config/precinct', {
-      body: getPrecinctConfigNoPrecinctResponseBody,
+      body: getPrecinctConfigAllPrecinctsResponseBody,
     })
     .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
@@ -302,7 +304,7 @@ test('shows instructions to restart when the plustek crashed', async () => {
       body: getTestModeConfigTrueResponseBody,
     })
     .get('/precinct-scanner/config/precinct', {
-      body: getPrecinctConfigNoPrecinctResponseBody,
+      body: getPrecinctConfigAllPrecinctsResponseBody,
     })
     .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
@@ -337,7 +339,7 @@ test('App shows warning message to connect to power when disconnected', async ()
       body: getTestModeConfigTrueResponseBody,
     })
     .get('/precinct-scanner/config/precinct', {
-      body: getPrecinctConfigNoPrecinctResponseBody,
+      body: getPrecinctConfigAllPrecinctsResponseBody,
     })
     .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,
@@ -399,7 +401,7 @@ test('removing card during calibration', async () => {
       body: getTestModeConfigTrueResponseBody,
     })
     .get('/precinct-scanner/config/precinct', {
-      body: getPrecinctConfigNoPrecinctResponseBody,
+      body: getPrecinctConfigAllPrecinctsResponseBody,
     })
     .get('/precinct-scanner/config/markThresholdOverrides', {
       body: getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody,

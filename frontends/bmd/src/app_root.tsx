@@ -942,5 +942,9 @@ export function AppRoot({
       </IdleTimer>
     );
   }
-  return <UnconfiguredScreen />;
+  return (
+    <UnconfiguredScreen
+      hasElectionDefinition={Boolean(optionalElectionDefinition)}
+    />
+  );
 }
