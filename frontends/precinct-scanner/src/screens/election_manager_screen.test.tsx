@@ -274,7 +274,7 @@ test('cannot toggle to testing mode when the machine cannot be unconfigured', ()
   fireEvent.click(screen.getByText('Cancel'));
 });
 
-test('Allows overriding mark thresholds', () => {
+test('Allows overriding mark thresholds', async () => {
   const setMarkThresholdOverridesFn = jest.fn();
 
   render(
@@ -312,4 +312,6 @@ test('Allows overriding mark thresholds', () => {
     definite: 0.5,
     marginal: 0.25,
   });
+
+  await screen.findByText('Override Mark Thresholds');
 });
