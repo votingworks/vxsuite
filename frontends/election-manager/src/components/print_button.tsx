@@ -6,12 +6,12 @@ import {
   Modal,
   useCancelablePromise,
   useMountedState,
-  Prose,
 } from '@votingworks/ui';
 import { Loading } from './loading';
 import { PrintOptions } from '../config/types';
 import { AppContext } from '../contexts/app_context';
 import { PrintableArea } from './printable_area';
+import { PrinterNotConnectedModal } from './printer_not_connected_modal';
 
 interface ConfirmModal {
   content: React.ReactNode;
@@ -140,15 +140,7 @@ export function PrintButton({
         />
       )}
       {showPrintingError && (
-        <Modal
-          content={
-            <Prose>
-              <h2>The printer is not connected.</h2>
-              <p>Please connect the printer and try again.</p>
-            </Prose>
-          }
-          actions={<Button onPress={donePrintingError}>Okay</Button>}
-        />
+        <PrinterNotConnectedModal onClose={donePrintingError} />
       )}
       {printTarget && shouldRenderPrintTarget && (
         <PrintableArea data-testid={printTargetTestId}>
