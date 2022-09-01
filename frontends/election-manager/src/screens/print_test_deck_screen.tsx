@@ -36,6 +36,7 @@ import {
   getBallotLayoutPageSizeReadableString,
 } from '../utils/get_ballot_layout_page_size';
 import { BallotMode } from '../config/types';
+import { PrinterNotConnectedModal } from '../components/printer_not_connected_modal';
 
 export const ONE_SIDED_PAGE_PRINT_TIME_MS = 3000;
 export const TWO_SIDED_PAGE_PRINT_TIME_MS = 5000;
@@ -336,6 +337,7 @@ export function PrintTestDeckScreen(): JSX.Element {
   const { election, electionHash } = electionDefinition;
   const [precinctIds, setPrecinctIds] = useState<string[]>([]);
   const [printIndex, setPrintIndex] = useState<PrintIndex>();
+  const [showPrintingError, setShowPrintingError] = useState(false);
 
   const pageTitle = 'Precinct L&A Packages';
 
@@ -426,8 +428,7 @@ export function PrintTestDeckScreen(): JSX.Element {
         setPrecinctIds(generatePrecinctIds(precinctId));
         setPrintIndex({ precinctIndex: 0, component: 'TallyReport' });
       } else {
-        // eslint-disable-next-line no-alert
-        window.alert('Please connect the printer.');
+        setShowPrintingError(true);
         await logger.log(LogEventId.TestDeckPrinted, userRole, {
           disposition: 'failure',
           message: `Failed to print L&A Package: no printer connected.`,
@@ -628,6 +629,9 @@ export function PrintTestDeckScreen(): JSX.Element {
             onAllRendered={onAllHandMarkedPaperBallotsRendered}
           />
         )}
+      {showPrintingError && (
+        <PrinterNotConnectedModal onClose={() => setShowPrintingError(false)} />
+      )}
     </React.Fragment>
   );
 }
