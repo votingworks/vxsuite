@@ -1,6 +1,9 @@
 import {
   AnyCardData,
   AnyCardDataSchema,
+  Card,
+  CardSummary,
+  CardSummaryNotReady,
   err,
   ok,
   Optional,
@@ -12,12 +15,7 @@ import {
   Devices,
   useCancelablePromise,
 } from '@votingworks/ui';
-import {
-  assert,
-  Card,
-  CardSummary,
-  CardSummaryNotReady,
-} from '@votingworks/utils';
+import { assert } from '@votingworks/utils';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import useInterval from 'use-interval';
 

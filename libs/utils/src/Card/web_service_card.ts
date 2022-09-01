@@ -1,19 +1,17 @@
 import {
+  Card,
+  CardSummary,
+  CardSummarySchema,
   ok,
   Optional,
   Result,
   safeParseJson,
+  ShortAndLongValues,
   unsafeParse,
 } from '@votingworks/types';
 import { fromByteArray, toByteArray } from 'base64-js';
 import { z } from 'zod';
 import { fetchJson } from '../fetch_json';
-import {
-  Card,
-  CardSummary,
-  CardSummarySchema,
-  ShortAndLongValues,
-} from '../types';
 
 interface LongValueResponse {
   longValue?: string;

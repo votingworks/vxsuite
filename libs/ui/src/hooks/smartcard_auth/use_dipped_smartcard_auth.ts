@@ -4,6 +4,8 @@ import {
   Logger,
 } from '@votingworks/logging';
 import {
+  Card,
+  CardSummary,
   DippedSmartcardAuth,
   ElectionDefinition,
   err,
@@ -13,12 +15,7 @@ import {
   User,
 } from '@votingworks/types';
 import { LoggedOut } from '@votingworks/types/src/smartcard_auth/dipped_smartcard_auth';
-import {
-  assert,
-  Card,
-  CardSummary,
-  throwIllegalValue,
-} from '@votingworks/utils';
+import { assert, throwIllegalValue } from '@votingworks/utils';
 import deepEqual from 'deep-eql';
 import { useEffect, useReducer } from 'react';
 import useInterval from 'use-interval';

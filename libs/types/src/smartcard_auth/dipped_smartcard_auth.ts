@@ -1,3 +1,4 @@
+import { CardSummaryNotReady } from '../card';
 import {
   ElectionManagerUser,
   CardProgramming,
@@ -30,19 +31,19 @@ export interface RemoveCard {
   readonly user: SystemAdministratorUser | ElectionManagerUser;
 }
 
-export type CardSummaryNotReadyStatus = 'no_card' | 'error';
-
 export interface SystemAdministratorLoggedIn {
   readonly status: 'logged_in';
   readonly user: SystemAdministratorUser;
-  readonly card: CardSummaryNotReadyStatus | (CardStorage & CardProgramming);
+  readonly card:
+    | CardSummaryNotReady['status']
+    | (CardStorage & CardProgramming);
   readonly logOut: () => void;
 }
 
 export interface ElectionManagerLoggedIn {
   readonly status: 'logged_in';
   readonly user: ElectionManagerUser;
-  readonly card: CardSummaryNotReadyStatus | CardStorage;
+  readonly card: CardSummaryNotReady['status'] | CardStorage;
   readonly logOut: () => void;
 }
 

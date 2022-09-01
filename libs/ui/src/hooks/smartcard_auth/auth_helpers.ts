@@ -1,6 +1,8 @@
 import {
   ElectionManagerCardData,
   AnyCardDataSchema,
+  Card,
+  CardSummaryReady,
   CardProgramming,
   CardStorage,
   DippedSmartcardAuth,
@@ -14,7 +16,7 @@ import {
   User,
   wrapException,
 } from '@votingworks/types';
-import { Card, CardSummaryReady, throwIllegalValue } from '@votingworks/utils';
+import { throwIllegalValue } from '@votingworks/utils';
 import { LogEventId, Logger } from '@votingworks/logging';
 
 import { Lock } from '../use_lock';
@@ -66,7 +68,7 @@ export function buildCardStorage(
   return {
     hasStoredData: !!cardSummary.longValueExists,
 
-    readStoredObject: async (schema) => cardApi.readLongObject(schema),
+    readStoredObject: (schema) => cardApi.readLongObject(schema),
 
     readStoredString: async () => {
       try {

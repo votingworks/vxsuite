@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { Route, Switch, useHistory } from 'react-router-dom';
 import {
+  Card,
   ElectionDefinition,
   MarkThresholds,
   Optional,
@@ -13,7 +14,6 @@ import {
   usbstick,
   KioskStorage,
   LocalStorage,
-  Card,
   Hardware,
   assert,
 } from '@votingworks/utils';

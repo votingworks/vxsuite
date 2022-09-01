@@ -3,6 +3,7 @@ import 'normalize.css';
 import makeDebug from 'debug';
 
 import {
+  Card,
   OptionalElectionDefinition,
   Provider,
   PrecinctId,
@@ -23,7 +24,6 @@ import {
 } from '@votingworks/ui';
 import {
   throwIllegalValue,
-  Card,
   Hardware,
   Storage,
   usbstick,
