@@ -45,9 +45,7 @@ export function ReplaceBallotBagScreen({
       return (
         <CenteredLargeProse>
           <h1>Ready to Resume Voting?</h1>
-          <p>
-            Has the full ballot bag has been replaced with an empty ballot bag?
-          </p>
+          <p>Has the full ballot bag been replaced with an empty ballot bag?</p>
           <p>
             <Button primary onPress={() => setConfirmed(true)}>
               Yes, Resume Voting
