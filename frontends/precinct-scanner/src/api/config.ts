@@ -4,6 +4,7 @@ import {
   Precinct,
   MarkThresholds,
   safeParseJson,
+  PrecinctId,
 } from '@votingworks/types';
 import { ErrorsResponse, OkResponse, Scan } from '@votingworks/api';
 import { BallotPackage, BallotPackageEntry, assert } from '@votingworks/utils';
@@ -155,7 +156,7 @@ export async function getCurrentPrecinctId(): Promise<
 }
 
 export async function setCurrentPrecinctId(
-  precinctId?: Precinct['id']
+  precinctId?: PrecinctId
 ): Promise<void> {
   if (!precinctId) {
     await del('/precinct-scanner/config/precinct');

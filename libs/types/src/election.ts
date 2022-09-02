@@ -353,6 +353,10 @@ export const AllPrecinctsSchema: z.ZodSchema<AllPrecincts> = z.object({
   id: AllPrecinctsIdSchema,
   name: z.literal(ALL_PRECINCTS_NAME),
 });
+export const ALL_PRECINCTS: AllPrecincts = {
+  id: ALL_PRECINCTS_ID,
+  name: ALL_PRECINCTS_NAME,
+};
 export interface IndividualPrecinct {
   readonly id: IndividualPrecinctId;
   readonly name: string;

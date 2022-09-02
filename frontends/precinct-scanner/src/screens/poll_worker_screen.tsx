@@ -38,6 +38,8 @@ import {
   CompressedTally,
   getPartyIdsInBallotStyles,
   InsertedSmartcardAuth,
+  ALL_PRECINCTS_ID,
+  ALL_PRECINCTS,
 } from '@votingworks/types';
 import { isLiveCheckEnabled } from '../config/features';
 import {
@@ -53,7 +55,6 @@ import { IndeterminateProgressBar } from '../components/graphics';
 import { ScannedBallotCount } from '../components/scanned_ballot_count';
 import { saveCvrExportToUsb } from '../utils/save_cvr_export_to_usb';
 import * as scan from '../api/scan';
-import { ALL_PRECINCTS_OPTION_VALUE } from './election_manager_screen';
 
 enum PollWorkerFlowState {
   OPEN_POLLS_FLOW__CONFIRM = 'open polls flow: confirm',
@@ -122,13 +123,13 @@ export function PollWorkerScreen({
   const { election } = electionDefinition;
 
   const precinct =
-    currentPrecinctId === ALL_PRECINCTS_OPTION_VALUE
-      ? ALL_PRECINCTS_OPTION_VALUE
+    currentPrecinctId === ALL_PRECINCTS_ID
+      ? ALL_PRECINCTS
       : find(election.precincts, (p) => p.id === currentPrecinctId);
 
   const precinctSelection: PrecinctSelection = useMemo(
     () =>
-      currentPrecinctId === ALL_PRECINCTS_OPTION_VALUE
+      currentPrecinctId === ALL_PRECINCTS_ID
         ? { kind: PrecinctSelectionKind.AllPrecincts }
         : {
             kind: PrecinctSelectionKind.SinglePrecinct,
@@ -326,8 +327,6 @@ export function PollWorkerScreen({
     setPollWorkerFlowState(PollWorkerFlowState.CLOSE_POLLS_FLOW__COMPLETE);
   }
 
-  const precinctName =
-    precinct === ALL_PRECINCTS_OPTION_VALUE ? 'All Precincts' : precinct.name;
   const currentTime = Date.now();
 
   if (!currentTally) {
@@ -506,11 +505,11 @@ export function PollWorkerScreen({
           <p>
             {isPollsOpen ? (
               <Button primary large onPress={closePolls}>
-                Close Polls for {precinctName}
+                Close Polls for {precinct.name}
               </Button>
             ) : (
               <Button primary large onPress={openPolls}>
-                Open Polls for {precinctName}
+                Open Polls for {precinct.name}
               </Button>
             )}
           </p>

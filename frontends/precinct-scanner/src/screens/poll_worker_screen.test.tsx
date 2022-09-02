@@ -4,14 +4,13 @@ import { advanceTimersAndPromises, Inserted } from '@votingworks/test-utils';
 import { NullPrinter, usbstick } from '@votingworks/utils';
 import MockDate from 'mockdate';
 import React from 'react';
-import { InsertedSmartcardAuth } from '@votingworks/types';
+import { ALL_PRECINCTS_ID, InsertedSmartcardAuth } from '@votingworks/types';
 import { mocked } from 'ts-jest/utils';
 import fetchMock from 'fetch-mock';
 import { AppContext } from '../contexts/app_context';
 import { PollWorkerScreen } from './poll_worker_screen';
 
 import { isLiveCheckEnabled } from '../config/features';
-import { ALL_PRECINCTS_OPTION_VALUE } from './election_manager_screen';
 
 jest.mock('../config/features');
 
@@ -41,7 +40,7 @@ function renderScreen({
     <AppContext.Provider
       value={{
         electionDefinition: electionSampleDefinition,
-        currentPrecinctId: ALL_PRECINCTS_OPTION_VALUE,
+        currentPrecinctId: ALL_PRECINCTS_ID,
         machineConfig: { machineId: '0000', codeVersion: 'TEST' },
         isSoundMuted: false,
         auth,

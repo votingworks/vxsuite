@@ -4,6 +4,7 @@ import {
   PrecinctId,
   SelectChangeEventFunction,
   ok,
+  ALL_PRECINCTS,
 } from '@votingworks/types';
 import {
   Button,
@@ -27,8 +28,6 @@ import { ScannedBallotCount } from '../components/scanned_ballot_count';
 import { ScreenMainCenterChild } from '../components/layout';
 import { AppContext } from '../contexts/app_context';
 import { SetMarkThresholdsModal } from '../components/set_mark_thresholds_modal';
-
-export const ALL_PRECINCTS_OPTION_VALUE = 'ALL_PRECINCTS_OPTION_VALUE';
 
 interface Props {
   scannerStatus: Scan.PrecinctScannerStatus;
@@ -142,7 +141,7 @@ export function ElectionManagerScreen({
             <option value="" disabled>
               Select a precinct for this device…
             </option>
-            <option value={ALL_PRECINCTS_OPTION_VALUE}>All Precincts</option>
+            <option value={ALL_PRECINCTS.id}>{ALL_PRECINCTS.name}</option>
             {[...election.precincts]
               .sort((a, b) =>
                 a.name.localeCompare(b.name, undefined, {

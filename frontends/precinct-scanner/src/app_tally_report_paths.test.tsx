@@ -25,6 +25,7 @@ import {
   typedAs,
 } from '@votingworks/utils';
 import {
+  ALL_PRECINCTS_ID,
   CompressedTally,
   ContestId,
   Dictionary,
@@ -35,7 +36,6 @@ import {
 import { App } from './app';
 import { stateStorageKey } from './app_root';
 import { MachineConfigResponse } from './config/types';
-import { ALL_PRECINCTS_OPTION_VALUE } from './screens/election_manager_screen';
 
 beforeEach(() => {
   jest.useFakeTimers();
@@ -55,7 +55,7 @@ const getTestModeConfigTrueResponseBody: Scan.GetTestModeConfigResponse = {
 const getPrecinctConfigAllPrecinctsResponseBody: Scan.GetCurrentPrecinctConfigResponse =
   {
     status: 'ok',
-    precinctId: ALL_PRECINCTS_OPTION_VALUE,
+    precinctId: ALL_PRECINCTS_ID,
   };
 
 const getPrecinctConfigPrecinct1ResponseBody: Scan.GetCurrentPrecinctConfigResponse =

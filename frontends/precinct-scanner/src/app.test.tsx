@@ -33,7 +33,11 @@ import {
   electionSample2Definition,
 } from '@votingworks/fixtures';
 
-import { AdjudicationReason, PrecinctSelectionKind } from '@votingworks/types';
+import {
+  AdjudicationReason,
+  ALL_PRECINCTS_ID,
+  PrecinctSelectionKind,
+} from '@votingworks/types';
 
 import { mocked } from 'ts-jest/utils';
 import userEvent from '@testing-library/user-event';
@@ -49,7 +53,6 @@ import {
   authenticateElectionManagerCard,
   scannerStatus,
 } from '../test/helpers/helpers';
-import { ALL_PRECINCTS_OPTION_VALUE } from './screens/election_manager_screen';
 
 jest.setTimeout(20000);
 
@@ -87,7 +90,7 @@ const statusReadyToScan = scannerStatus({ state: 'ready_to_scan' });
 const getPrecinctConfigAllPrecinctsResponseBody: Scan.GetCurrentPrecinctConfigResponse =
   {
     status: 'ok',
-    precinctId: ALL_PRECINCTS_OPTION_VALUE,
+    precinctId: ALL_PRECINCTS_ID,
   };
 
 const getPrecinctConfigNoPrecinctResponseBody: Scan.GetCurrentPrecinctConfigResponse =
