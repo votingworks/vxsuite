@@ -19,6 +19,8 @@
     "lint": "pnpm type-check && eslint .",
     "lint:fix": "pnpm type-check && eslint . --fix",
     "start": "node ./build/index.js",
+    "start:precinct": "VX_MACHINE_TYPE=precinct-scanner node ./build/index.js",
+    "start:central": "VX_MACHINE_TYPE=bsd node ./build/index.js",
     "test": "is-ci test:coverage test:watch",
     "test:coverage": "jest --coverage",
     "test:debug": "node --inspect-brk $(which jest) --runInBand --no-cache",
