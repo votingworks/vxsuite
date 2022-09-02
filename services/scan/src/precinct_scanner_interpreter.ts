@@ -26,7 +26,7 @@ export interface InterpreterConfig {
   readonly ballotImagesPath: string;
   readonly markThresholdOverrides?: MarkThresholds;
   readonly testMode: boolean;
-  readonly currentPrecinctId?: string;
+  readonly currentPrecinctId: string;
 }
 
 /**

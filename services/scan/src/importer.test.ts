@@ -4,6 +4,7 @@ import {
   electionSampleDefinition as electionDefinition,
 } from '@votingworks/fixtures';
 import {
+  ALL_PRECINCTS_ID,
   BallotPageMetadata,
   BallotSheetInfo,
   BallotType,
@@ -26,6 +27,7 @@ let workspace: Workspace;
 
 beforeEach(() => {
   workspace = createWorkspace(dirSync().name);
+  workspace.store.setCurrentPrecinctId(ALL_PRECINCTS_ID);
 });
 
 afterEach(async () => {

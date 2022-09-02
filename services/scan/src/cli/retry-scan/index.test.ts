@@ -1,4 +1,5 @@
 import { dirSync } from 'tmp';
+import { ALL_PRECINCTS_ID } from '@votingworks/types';
 import * as fixtures from '../../../test/fixtures/choctaw-2020-09-22-f30480cc99';
 import { createWorkspace } from '../../util/workspace';
 import { queryFromOptions, retryScan } from '.';
@@ -144,6 +145,7 @@ test('query with sheet ids', () => {
   const { store } = inputWorkspace;
 
   store.setElection(fixtures.electionDefinition);
+  store.setCurrentPrecinctId(ALL_PRECINCTS_ID);
   store.setTestMode(false);
   store.setSkipElectionHashCheck(true);
 
@@ -230,6 +232,7 @@ test('query with sheet ids', () => {
     const inputDb = inputWorkspace.store;
 
     inputDb.setElection(fixtures.electionDefinition);
+    inputDb.setCurrentPrecinctId(ALL_PRECINCTS_ID);
     inputDb.setTestMode(false);
     inputDb.setSkipElectionHashCheck(true);
 

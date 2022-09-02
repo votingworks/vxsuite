@@ -1,6 +1,7 @@
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
+  ALL_PRECINCTS_ID,
   BallotIdSchema,
   BlankPage,
   ElectionDefinition,
@@ -41,6 +42,7 @@ test('extracts votes encoded in a QR code', async () => {
             markThresholds: { definite: 0.2, marginal: 0.17 },
           },
         },
+        currentPrecinctId: ALL_PRECINCTS_ID,
         testMode: true,
         // TODO: remove this once the QR code is fixed (https://github.com/votingworks/vxsuite/issues/1524)
         skipElectionHashCheck: true,
@@ -87,6 +89,7 @@ test('properly scans a BMD ballot with a phantom QR code on back', async () => {
   const interpreter = createInterpreter();
   interpreter.configure({
     electionDefinition,
+    currentPrecinctId: ALL_PRECINCTS_ID,
     testMode: true,
     layouts: [],
     ballotImagesPath: interpreterOutputPath,
@@ -115,6 +118,7 @@ test('properly detects test ballot in live mode', async () => {
         markThresholds: { definite: 0.2, marginal: 0.17 },
       },
     },
+    currentPrecinctId: ALL_PRECINCTS_ID,
     testMode: false, // this is the test mode
     // TODO: remove this once the QR code is fixed (https://github.com/votingworks/vxsuite/issues/1524)
     skipElectionHashCheck: true,
@@ -195,6 +199,7 @@ test('detects a blank page', async () => {
   const ballotImagePath = join(sampleBallotImagesPath, 'blank-page.png');
   const interpretationResult = await new Interpreter({
     electionDefinition: stateOfHamiltonFixtures.electionDefinition,
+    currentPrecinctId: ALL_PRECINCTS_ID,
     testMode: true,
     adjudicationReasons: [],
   }).interpretFile({
@@ -209,6 +214,7 @@ test('detects a blank page', async () => {
 test('interprets marks on a HMPB', async () => {
   const interpreter = new Interpreter({
     electionDefinition: stateOfHamiltonFixtures.electionDefinition,
+    currentPrecinctId: ALL_PRECINCTS_ID,
     testMode: false,
     adjudicationReasons:
       electionSampleDefinition.election.centralScanAdjudicationReasons ?? [],
@@ -272,6 +278,7 @@ test('interprets marks on a HMPB', async () => {
 test('interprets marks on an upside-down HMPB', async () => {
   const interpreter = new Interpreter({
     electionDefinition: stateOfHamiltonFixtures.electionDefinition,
+    currentPrecinctId: ALL_PRECINCTS_ID,
     testMode: false,
     adjudicationReasons:
       electionSampleDefinition.election.centralScanAdjudicationReasons ?? [],
@@ -318,6 +325,7 @@ test('interprets marks in ballots', async () => {
   };
   const interpreter = new Interpreter({
     electionDefinition,
+    currentPrecinctId: ALL_PRECINCTS_ID,
     testMode: false,
     adjudicationReasons:
       electionSampleDefinition.election.centralScanAdjudicationReasons ?? [],
@@ -419,6 +427,7 @@ test('interprets marks in ballots', async () => {
 test('returns metadata if the QR code is readable but the HMPB ballot is not', async () => {
   const interpreter = new Interpreter({
     electionDefinition: stateOfHamiltonFixtures.electionDefinition,
+    currentPrecinctId: ALL_PRECINCTS_ID,
     testMode: false,
     adjudicationReasons:
       electionSampleDefinition.election.centralScanAdjudicationReasons ?? [],

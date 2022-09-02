@@ -1,5 +1,6 @@
 import { Scan } from '@votingworks/api';
 import {
+  ALL_PRECINCTS_ID,
   BallotPageLayout,
   BallotPageLayoutWithImage,
   ElectionDefinition,
@@ -199,6 +200,9 @@ export class Importer {
       throw new Error('missing election definition');
     }
     const currentPrecinctId = this.workspace.store.getCurrentPrecinctId();
+    if (!currentPrecinctId) {
+      throw new Error('missing precinct selection');
+    }
     const interpretResult = await this.interpretSheet(sheetId, [
       frontImagePath,
       backImagePath,
@@ -237,7 +241,7 @@ export class Importer {
     );
 
     debug('currentPrecinctId=%s', currentPrecinctId);
-    if (currentPrecinctId) {
+    if (currentPrecinctId !== ALL_PRECINCTS_ID) {
       if (
         (frontInterpretation.type === 'InterpretedHmpbPage' ||
           frontInterpretation.type === 'InterpretedBmdPage') &&

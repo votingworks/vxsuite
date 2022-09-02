@@ -8,6 +8,7 @@ import {
   safeParseJson,
   BallotPageLayoutSchema,
   BallotPageLayout,
+  ALL_PRECINCTS_ID,
 } from '@votingworks/types';
 import { assert, readBallotPackageFromBuffer } from '@votingworks/utils';
 import makeDebug from 'debug';
@@ -34,6 +35,8 @@ export async function buildCentralScannerApp({
   store,
   importer,
 }: AppOptions): Promise<Application> {
+  store.setCurrentPrecinctId(ALL_PRECINCTS_ID);
+
   const app: Application = express();
   const upload = multer({ storage: multer.diskStorage({}) });
 

@@ -17,6 +17,7 @@ import { imageDebugger } from '@votingworks/image-utils';
 import {
   AdjudicationReason,
   AdjudicationReasonInfo,
+  ALL_PRECINCTS_ID,
   BallotPageLayoutWithImage,
   BallotPageMetadata,
   BallotType,
@@ -27,6 +28,7 @@ import {
   MarkThresholds,
   ok,
   PageInterpretation,
+  PrecinctId,
   Result,
 } from '@votingworks/types';
 import {
@@ -149,20 +151,20 @@ export function sheetRequiresAdjudication([
 
 export interface InterpreterOptions {
   electionDefinition: ElectionDefinition;
+  currentPrecinctId: PrecinctId;
   testMode: boolean;
   markThresholdOverrides?: MarkThresholds;
   skipElectionHashCheck?: boolean;
   adjudicationReasons: readonly AdjudicationReason[];
-  currentPrecinctId?: string;
 }
 
 export class Interpreter {
   private hmpbInterpreter?: HmpbInterpreter;
   private readonly electionDefinition: ElectionDefinition;
+  private readonly currentPrecinctId: PrecinctId;
   private readonly testMode: boolean;
   private readonly markThresholds: MarkThresholds;
   private readonly skipElectionHashCheck?: boolean;
-  private readonly currentPrecinctId?: string;
   private readonly adjudicationReasons: readonly AdjudicationReason[];
 
   constructor({
@@ -292,7 +294,7 @@ export class Interpreter {
       }
 
       if (
-        this.currentPrecinctId &&
+        this.currentPrecinctId !== ALL_PRECINCTS_ID &&
         bmdMetadata.precinctId !== this.currentPrecinctId
       ) {
         timer.end();
@@ -319,7 +321,7 @@ export class Interpreter {
         assert(interpretation && interpretation.type === 'InterpretedHmpbPage');
 
         if (
-          this.currentPrecinctId &&
+          this.currentPrecinctId !== ALL_PRECINCTS_ID &&
           interpretation.metadata.precinctId !== this.currentPrecinctId
         ) {
           timer.end();

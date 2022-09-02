@@ -27,6 +27,7 @@ import {
   PageInterpretation,
   PageInterpretationWithFiles,
   Precinct,
+  PrecinctId,
   safeParseJson,
   unsafeParse,
 } from '@votingworks/types';
@@ -273,8 +274,8 @@ export class Store {
 
   /**
    * Gets the current precinct `scan` is accepting ballots for. If set to
-   * `undefined`, ballots from all precincts will be accepted (this is the
-   * default).
+   * ALL_PRECINCTS_ID, ballots from all precincts will be accepted. If not set,
+   * no ballots will be accepted (the default).
    */
   getCurrentPrecinctId(): Optional<Precinct['id']> {
     return this.getConfig(ConfigKey.CurrentPrecinctId, z.string());
@@ -282,9 +283,9 @@ export class Store {
 
   /**
    * Sets the current precinct `scan` is accepting ballots for. Set to
-   * `undefined` to accept from all precincts (this is the default).
+   * ALL_PRECINCTS_ID to accept from all precincts. Defaults to unset.
    */
-  setCurrentPrecinctId(currentPrecinctId?: Precinct['id']): void {
+  setCurrentPrecinctId(currentPrecinctId?: PrecinctId): void {
     this.setConfig(ConfigKey.CurrentPrecinctId, currentPrecinctId);
   }
 

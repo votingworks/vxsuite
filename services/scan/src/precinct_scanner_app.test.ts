@@ -1,6 +1,7 @@
 import { MockScannerClient, ScannerClient } from '@votingworks/plustek-sdk';
 import {
   AdjudicationReason,
+  ALL_PRECINCTS_ID,
   CastVoteRecord,
   err,
   ok,
@@ -36,10 +37,6 @@ jest.setTimeout(15_000);
 
 function get(app: Application, path: string) {
   return request(app).get(path).accept('application/json').expect(200);
-}
-
-function deleteRequest(app: Application, path: string) {
-  return request(app).delete(path).accept('application/json').expect(200);
 }
 
 function patch(app: Application, path: string, body?: object | string) {
@@ -317,6 +314,9 @@ async function configureApp(
     '/precinct-scanner/config/election',
     electionDefinition.electionData
   );
+  await put(app, '/precinct-scanner/config/precinct', {
+    precinctId: ALL_PRECINCTS_ID,
+  });
   await patch(app, '/precinct-scanner/config/testMode', { testMode: false });
   if (addTemplates) {
     // It takes about a second per template, so we only do some
@@ -327,7 +327,7 @@ async function configureApp(
   await post(app, '/precinct-scanner/config/doneTemplates');
 }
 
-test('configure and scan hmpb', async () => {
+test('configure and scan hmpb in all precincts mode', async () => {
   const { app, mockPlustek, logger } = await createApp();
   await configureApp(app, { addTemplates: true });
 
@@ -364,7 +364,7 @@ test('configure and scan hmpb', async () => {
   checkLogs(logger);
 });
 
-test('configure and scan bmd ballot', async () => {
+test('configure and scan bmd ballot in all precincts mode', async () => {
   const { app, mockPlustek, logger } = await createApp();
   await configureApp(app);
 
@@ -553,29 +553,6 @@ test('bmd ballot is rejected when scanned for wrong precinct', async () => {
   await waitForStatus(app, { state: 'no_paper', canUnconfigure: false });
 });
 
-test('bmd ballot is accepted if precinct settings are cleared', async () => {
-  const { app, mockPlustek } = await createApp();
-  await configureApp(app);
-  // Configure for the wrong precinct
-  await put(app, '/precinct-scanner/config/precinct', { precinctId: '22' });
-  // Re-Configure for all precincts and verify the ballot scans
-  await deleteRequest(app, '/precinct-scanner/config/precinct');
-
-  await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
-  await waitForStatus(app, { state: 'ready_to_scan' });
-
-  const validInterpretation: Scan.SheetInterpretation = {
-    type: 'ValidSheet',
-  };
-
-  await post(app, '/precinct-scanner/scanner/scan');
-  await expectStatus(app, { state: 'scanning' });
-  await waitForStatus(app, {
-    state: 'ready_to_accept',
-    interpretation: validInterpretation,
-  });
-});
-
 test('bmd ballot is accepted if precinct is set for the right precinct', async () => {
   const { app, mockPlustek } = await createApp();
   await configureApp(app);
@@ -627,29 +604,6 @@ test('hmpb ballot is rejected when scanned for wrong precinct', async () => {
 
   await mockPlustek.simulateRemoveSheet();
   await waitForStatus(app, { state: 'no_paper', canUnconfigure: false });
-});
-
-test('hmpb ballot is accepted if precinct settings are cleared', async () => {
-  const { app, mockPlustek } = await createApp();
-  await configureApp(app, { addTemplates: true });
-  // Configure for the wrong precinct
-  await put(app, '/precinct-scanner/config/precinct', { precinctId: '22' });
-  // Re-Configure for all precincts and verify the ballot scans
-  await deleteRequest(app, '/precinct-scanner/config/precinct');
-
-  await mockPlustek.simulateLoadSheet(ballotImages.completeHmpb);
-  await waitForStatus(app, { state: 'ready_to_scan' });
-
-  const validInterpretation: Scan.SheetInterpretation = {
-    type: 'ValidSheet',
-  };
-
-  await post(app, '/precinct-scanner/scanner/scan');
-  await expectStatus(app, { state: 'scanning' });
-  await waitForStatus(app, {
-    state: 'ready_to_accept',
-    interpretation: validInterpretation,
-  });
 });
 
 test('hmpb ballot is accepted if precinct is set for the right precinct', async () => {

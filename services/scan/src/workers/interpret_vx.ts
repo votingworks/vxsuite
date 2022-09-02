@@ -40,21 +40,27 @@ export let interpreter: Interpreter | undefined;
  */
 export async function configure(store: Store): Promise<void> {
   interpreter = undefined;
-
   debug('configuring from %s', store.getDbPath());
-  const electionDefinition = store.getElectionDefinition();
 
+  const electionDefinition = store.getElectionDefinition();
   if (!electionDefinition) {
     debug('no election configured');
     return;
   }
-
   debug('election: %o', electionDefinition.election.title);
+
+  const currentPrecinctId = store.getCurrentPrecinctId();
+  if (!currentPrecinctId) {
+    debug('no precinct configured');
+    return;
+  }
+
   const templates = store.getHmpbTemplates();
 
   debug('creating a new interpreter');
   interpreter = new Interpreter({
     electionDefinition,
+    currentPrecinctId,
     skipElectionHashCheck: store.getSkipElectionHashCheck(),
     testMode: store.getTestMode(),
     markThresholdOverrides: store.getMarkThresholdOverrides(),

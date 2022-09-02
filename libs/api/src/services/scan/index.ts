@@ -236,7 +236,7 @@ export const GetCurrentPrecinctResponseSchema: z.ZodSchema<GetCurrentPrecinctCon
  * @method PUT
  */
 export interface PutCurrentPrecinctConfigRequest {
-  precinctId?: PrecinctId;
+  precinctId: PrecinctId;
 }
 
 /**
@@ -245,7 +245,7 @@ export interface PutCurrentPrecinctConfigRequest {
  */
 export const PutCurrentPrecinctConfigRequestSchema: z.ZodSchema<PutCurrentPrecinctConfigRequest> =
   z.object({
-    precinctId: z.optional(PrecinctIdSchema),
+    precinctId: PrecinctIdSchema,
   });
 
 /**
