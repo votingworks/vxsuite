@@ -1063,12 +1063,6 @@ test('insert second ballot while first ballot is returning', async () => {
   await waitForStatus(app, { state: 'needs_review', interpretation });
 
   await post(app, '/precinct-scanner/scanner/return');
-  await waitForStatus(app, {
-    state: 'returning',
-    interpretation,
-    canUnconfigure: false,
-  });
-
   await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb);
   await waitForStatus(app, {
     state: 'both_sides_have_paper',
