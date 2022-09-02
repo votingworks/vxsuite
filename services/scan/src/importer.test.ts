@@ -4,7 +4,6 @@ import {
   electionSampleDefinition as electionDefinition,
 } from '@votingworks/fixtures';
 import {
-  ALL_PRECINCTS_ID,
   BallotPageMetadata,
   BallotSheetInfo,
   BallotType,
@@ -27,7 +26,6 @@ let workspace: Workspace;
 
 beforeEach(() => {
   workspace = createWorkspace(dirSync().name);
-  workspace.store.setCurrentPrecinctId(ALL_PRECINCTS_ID);
 });
 
 afterEach(async () => {
@@ -220,7 +218,7 @@ test('manually importing files', async () => {
     ...frontMetadata,
     pageNumber: 2,
   };
-  workspace.store.setElection(electionDefinition);
+  importer.configure(electionDefinition);
 
   const frontImagePath = await makeImageFile();
   const backImagePath = await makeImageFile();
@@ -693,7 +691,6 @@ test('rejects sheets that would not produce a valid CVR', async () => {
 
   const currentPrecinctId = election.precincts[0].id;
   importer.configure(electionDefinition);
-  workspace.store.setCurrentPrecinctId(currentPrecinctId);
   jest.spyOn(workspace.store, 'addSheet').mockReturnValueOnce('sheet-id');
 
   // eslint-disable-next-line @typescript-eslint/require-await

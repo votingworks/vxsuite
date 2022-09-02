@@ -137,6 +137,7 @@ export class Importer {
    */
   configure(electionDefinition: ElectionDefinition): void {
     this.workspace.store.setElection(electionDefinition);
+    this.workspace.store.setCurrentPrecinctId(ALL_PRECINCTS_ID);
   }
 
   async setTestMode(testMode: boolean): Promise<void> {
