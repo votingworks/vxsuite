@@ -233,9 +233,10 @@ function useDippedSmartcardAuthBase({
           return {
             status,
             user,
-            card:
+            programmableCard:
               cardSummary.status === 'ready'
                 ? {
+                    status: 'ready',
                     ...buildCardStorage(cardSummary, cardApi, cardWriteLock),
                     ...buildCardProgramming(
                       cardSummary,
@@ -244,7 +245,7 @@ function useDippedSmartcardAuthBase({
                       logger
                     ),
                   }
-                : cardSummary.status,
+                : cardSummary,
             logOut: () => dispatch({ type: 'log_out' }),
           };
         }
@@ -253,10 +254,6 @@ function useDippedSmartcardAuthBase({
           return {
             status,
             user,
-            card:
-              cardSummary.status === 'ready'
-                ? buildCardStorage(cardSummary, cardApi, cardWriteLock)
-                : cardSummary.status,
             logOut: () => dispatch({ type: 'log_out' }),
           };
         }

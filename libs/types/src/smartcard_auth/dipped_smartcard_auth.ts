@@ -31,19 +31,20 @@ export interface RemoveCard {
   readonly user: SystemAdministratorUser | ElectionManagerUser;
 }
 
+export type ProgrammableCard =
+  | CardSummaryNotReady
+  | ({ status: 'ready' } & CardProgramming & CardStorage);
+
 export interface SystemAdministratorLoggedIn {
   readonly status: 'logged_in';
   readonly user: SystemAdministratorUser;
-  readonly card:
-    | CardSummaryNotReady['status']
-    | (CardStorage & CardProgramming);
+  readonly programmableCard: ProgrammableCard;
   readonly logOut: () => void;
 }
 
 export interface ElectionManagerLoggedIn {
   readonly status: 'logged_in';
   readonly user: ElectionManagerUser;
-  readonly card: CardSummaryNotReady['status'] | CardStorage;
   readonly logOut: () => void;
 }
 

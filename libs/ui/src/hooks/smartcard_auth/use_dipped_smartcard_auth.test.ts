@@ -130,7 +130,7 @@ describe('useDippedSmartcardAuth', () => {
     await waitForNextUpdate();
     expect(result.current).toEqual({
       status: 'logged_in',
-      card: 'no_card',
+      programmableCard: { status: 'no_card' },
       user,
       logOut: expect.any(Function),
     });
@@ -140,7 +140,6 @@ describe('useDippedSmartcardAuth', () => {
     await waitForNextUpdate();
     expect(result.current).toMatchObject({
       status: 'logged_in',
-      card: expect.any(Object),
       user,
     });
     cardApi.removeCard();
@@ -256,7 +255,6 @@ describe('useDippedSmartcardAuth', () => {
     await waitForNextUpdate();
     expect(result.current).toEqual({
       status: 'logged_in',
-      card: 'no_card',
       user,
       logOut: expect.any(Function),
     });
@@ -266,7 +264,6 @@ describe('useDippedSmartcardAuth', () => {
     await waitForNextUpdate();
     expect(result.current).toMatchObject({
       status: 'logged_in',
-      card: expect.any(Object),
       user,
     });
     cardApi.removeCard();
@@ -525,7 +522,7 @@ describe('useDippedSmartcardAuth', () => {
     await waitForNextUpdate();
     expect(result.current).toMatchObject({
       status: 'logged_in',
-      card: 'error',
+      programmableCard: { status: 'error' },
       user,
     });
   });
