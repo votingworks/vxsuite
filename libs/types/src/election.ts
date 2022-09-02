@@ -329,19 +329,42 @@ export const ContestsSchema = z
   });
 
 // Election
-export type PrecinctId = Id;
-export const PrecinctIdSchema: z.ZodSchema<PrecinctId> = IdSchema;
-export interface Precinct {
-  readonly id: PrecinctId;
+export const ALL_PRECINCTS_ID = '_all_precincts';
+export const ALL_PRECINCTS_NAME = 'All Precincts';
+export type AllPrecinctsId = '_all_precincts';
+export const AllPrecinctsIdSchema = z.literal(ALL_PRECINCTS_ID);
+export type IndividualPrecinctId = Id;
+export const IndividualPrecinctIdSchema: z.ZodSchema<IndividualPrecinctId> =
+  IdSchema.refine(
+    (id) => !id.startsWith(ALL_PRECINCTS_ID),
+    `Precinct IDs must not start with '${ALL_PRECINCTS_ID}'`
+  );
+export type PrecinctId = AllPrecinctsId | IndividualPrecinctId;
+export const PrecinctIdSchema: z.ZodSchema<PrecinctId> = z.union([
+  AllPrecinctsIdSchema,
+  IndividualPrecinctIdSchema,
+]);
+export interface AllPrecincts {
+  id: AllPrecinctsId;
+  name: 'All Precincts';
+}
+export const AllPrecinctsSchema: z.ZodSchema<AllPrecincts> = z.object({
+  _lang: TranslationsSchema.optional(),
+  id: AllPrecinctsIdSchema,
+  name: z.literal(ALL_PRECINCTS_NAME),
+});
+export interface IndividualPrecinct {
+  readonly id: IndividualPrecinctId;
   readonly name: string;
 }
-export const PrecinctSchema: z.ZodSchema<Precinct> = z.object({
-  _lang: TranslationsSchema.optional(),
-  id: PrecinctIdSchema,
-  name: z.string().nonempty(),
-});
-export const PrecinctsSchema = z
-  .array(PrecinctSchema)
+export const IndividualPrecinctSchema: z.ZodSchema<IndividualPrecinct> =
+  z.object({
+    _lang: TranslationsSchema.optional(),
+    id: IndividualPrecinctIdSchema,
+    name: z.string().nonempty(),
+  });
+export const IndividualPrecinctsSchema = z
+  .array(IndividualPrecinctSchema)
   .nonempty()
   .superRefine((precincts, ctx) => {
     for (const [index, id] of findDuplicateIds(precincts)) {
@@ -352,6 +375,7 @@ export const PrecinctsSchema = z
       });
     }
   });
+export type Precinct = IndividualPrecinct | AllPrecincts;
 
 export type BallotStyleId = Id;
 export const BallotStyleIdSchema: z.ZodSchema<BallotStyleId> = IdSchema;
@@ -565,7 +589,7 @@ export const ElectionSchema: z.ZodSchema<Election> = z
     precinctScanAdjudicationReasons: z
       .array(z.lazy(() => AdjudicationReasonSchema))
       .optional(),
-    precincts: PrecinctsSchema,
+    precincts: IndividualPrecinctsSchema,
     quickResultsReportingUrl: z
       .string()
       .url()
