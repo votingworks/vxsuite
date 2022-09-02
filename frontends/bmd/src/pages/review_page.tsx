@@ -13,6 +13,7 @@ import {
   OptionalYesNoVote,
   getPrecinctIndexById,
   getCandidatePartiesDescription,
+  getSinglePrecinctSelection,
 } from '@votingworks/types';
 import {
   Button,
@@ -35,7 +36,6 @@ import {
   CandidateContestResultInterface,
   EventTargetFunction,
   MsEitherNeitherContestResultInterface,
-  PrecinctSelectionKind,
   Scrollable,
   ScrollDirections,
   ScrollShadows,
@@ -526,10 +526,7 @@ export function ReviewPage(): JSX.Element {
             <ElectionInfo
               electionDefinition={electionDefinition}
               ballotStyleId={ballotStyleId}
-              precinctSelection={{
-                kind: PrecinctSelectionKind.SinglePrecinct,
-                precinctId,
-              }}
+              precinctSelection={getSinglePrecinctSelection(precinctId)}
               horizontal
             />
           </React.Fragment>

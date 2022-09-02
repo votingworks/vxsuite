@@ -4,13 +4,17 @@ import MockDate from 'mockdate';
 
 import { asElectionDefinition } from '@votingworks/fixtures';
 import { fakeKiosk } from '@votingworks/test-utils';
+import {
+  ALL_PRECINCTS_SELECTION,
+  getSinglePrecinctSelection,
+} from '@votingworks/types';
 import { render } from '../../test/test_utils';
 import { election, defaultPrecinctId } from '../../test/helpers/election';
 
 import { advanceTimers } from '../../test/helpers/smartcards';
 
 import { AdminScreen } from './admin_screen';
-import { PrintOnly, MarkOnly, PrecinctSelectionKind } from '../config/types';
+import { PrintOnly, MarkOnly } from '../config/types';
 import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
 import {
   AriaScreenReader,
@@ -32,10 +36,7 @@ afterEach(() => {
 test('renders AdminScreen for PrintOnly', () => {
   render(
     <AdminScreen
-      appPrecinct={{
-        kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: defaultPrecinctId,
-      }}
+      appPrecinct={getSinglePrecinctSelection(defaultPrecinctId)}
       ballotsPrintedCount={0}
       electionDefinition={asElectionDefinition(election)}
       fetchElection={jest.fn()}
@@ -67,10 +68,7 @@ test('renders AdminScreen for PrintOnly', () => {
 test('renders date and time settings modal', async () => {
   render(
     <AdminScreen
-      appPrecinct={{
-        kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: defaultPrecinctId,
-      }}
+      appPrecinct={getSinglePrecinctSelection(defaultPrecinctId)}
       ballotsPrintedCount={0}
       electionDefinition={asElectionDefinition(election)}
       fetchElection={jest.fn()}
@@ -141,9 +139,7 @@ test('select All Precincts', () => {
   fireEvent.change(precinctSelect, {
     target: { value: allPrecinctsOption.value },
   });
-  expect(updateAppPrecinct).toHaveBeenCalledWith({
-    kind: PrecinctSelectionKind.AllPrecincts,
-  });
+  expect(updateAppPrecinct).toHaveBeenCalledWith(ALL_PRECINCTS_SELECTION);
 });
 
 test('blur precinct selector without a selection', () => {
@@ -171,7 +167,7 @@ test('render All Precincts', () => {
   const updateAppPrecinct = jest.fn();
   render(
     <AdminScreen
-      appPrecinct={{ kind: PrecinctSelectionKind.AllPrecincts }}
+      appPrecinct={ALL_PRECINCTS_SELECTION}
       ballotsPrintedCount={0}
       electionDefinition={asElectionDefinition(election)}
       fetchElection={jest.fn()}

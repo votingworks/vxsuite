@@ -1,5 +1,6 @@
 import { Scan } from '@votingworks/api';
 import {
+  ALL_PRECINCTS_SELECTION,
   BallotPageLayout,
   BallotPageLayoutWithImage,
   ElectionDefinition,
@@ -136,6 +137,7 @@ export class Importer {
    */
   configure(electionDefinition: ElectionDefinition): void {
     this.workspace.store.setElection(electionDefinition);
+    this.workspace.store.setPrecinctSelection(ALL_PRECINCTS_SELECTION);
   }
 
   async setTestMode(testMode: boolean): Promise<void> {
@@ -198,7 +200,10 @@ export class Importer {
     if (!electionDefinition) {
       throw new Error('missing election definition');
     }
-    const currentPrecinctId = this.workspace.store.getCurrentPrecinctId();
+    const precinctSelection = this.workspace.store.getPrecinctSelection();
+    if (!precinctSelection) {
+      throw new Error('missing precinct selection');
+    }
     const interpretResult = await this.interpretSheet(sheetId, [
       frontImagePath,
       backImagePath,
@@ -236,17 +241,18 @@ export class Importer {
       backInterpretation
     );
 
-    debug('currentPrecinctId=%s', currentPrecinctId);
-    if (currentPrecinctId) {
+    debug('precinctSelection=%s', precinctSelection);
+    if (precinctSelection.kind !== 'AllPrecincts') {
+      const configuredPrecinctId = precinctSelection.precinctId;
       if (
         (frontInterpretation.type === 'InterpretedHmpbPage' ||
           frontInterpretation.type === 'InterpretedBmdPage') &&
-        frontInterpretation.metadata.precinctId !== currentPrecinctId
+        frontInterpretation.metadata.precinctId !== configuredPrecinctId
       ) {
         debug(
           'rejecting front page %s because it does not match the current precinct id: %s',
           frontImagePath,
-          currentPrecinctId
+          configuredPrecinctId
         );
         frontInterpretation = {
           type: 'InvalidPrecinctPage',
@@ -256,12 +262,12 @@ export class Importer {
       if (
         (backInterpretation.type === 'InterpretedHmpbPage' ||
           backInterpretation.type === 'InterpretedBmdPage') &&
-        backInterpretation.metadata.precinctId !== currentPrecinctId
+        backInterpretation.metadata.precinctId !== configuredPrecinctId
       ) {
         debug(
           'rejecting back page %s because it does not match the current precinct id: %s',
           frontImagePath,
-          currentPrecinctId
+          configuredPrecinctId
         );
         backInterpretation = {
           type: 'InvalidPrecinctPage',
@@ -312,9 +318,14 @@ export class Importer {
   ): Promise<Result<SheetOf<PageInterpretationWithFiles>, Error>> {
     const workerPool = await this.getWorkerPool();
     const electionDefinition = this.workspace.store.getElectionDefinition();
+    const precinctSelection = this.workspace.store.getPrecinctSelection();
 
     if (!electionDefinition) {
       return err(new Error('missing election definition'));
+    }
+
+    if (!precinctSelection) {
+      return err(new Error('missing precinct selection'));
     }
 
     // Carve-out for NH ballots, which are the only ones that use `gridLayouts`

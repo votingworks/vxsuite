@@ -2,7 +2,10 @@ import { assert } from '@votingworks/utils';
 import React, { useContext, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';
-import { getPartyPrimaryAdjectiveFromBallotStyle } from '@votingworks/types';
+import {
+  getPartyPrimaryAdjectiveFromBallotStyle,
+  getSinglePrecinctSelection,
+} from '@votingworks/types';
 import { LinkButton, Main, Screen, Prose } from '@votingworks/ui';
 
 import pluralize from 'pluralize';
@@ -12,7 +15,6 @@ import { Wobble } from '../components/animations';
 import { ElectionInfo } from '../components/election_info';
 import { Sidebar } from '../components/sidebar';
 import { SettingsTextSize } from '../components/settings_text_size';
-import { PrecinctSelectionKind } from '../config/types';
 
 const SidebarSpacer = styled.div`
   height: 90px;
@@ -92,10 +94,7 @@ export function StartPage(): JSX.Element {
             <ElectionInfo
               electionDefinition={electionDefinition}
               ballotStyleId={ballotStyleId}
-              precinctSelection={{
-                kind: PrecinctSelectionKind.SinglePrecinct,
-                precinctId,
-              }}
+              precinctSelection={getSinglePrecinctSelection(precinctId)}
               horizontal
             />
           </React.Fragment>

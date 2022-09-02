@@ -6,10 +6,11 @@ import {
   electionSampleDefinition,
 } from '@votingworks/fixtures';
 import {
+  ALL_PRECINCTS_SELECTION,
   BallotIdSchema,
   CastVoteRecord,
+  getSinglePrecinctSelection,
   PartyIdSchema,
-  PrecinctSelectionKind,
   unsafeParse,
 } from '@votingworks/types';
 import { calculateTallyForCastVoteRecords } from '@votingworks/utils';
@@ -42,7 +43,7 @@ test('renders as expected for all precincts in a general election', () => {
     <PrecinctScannerTallyReport
       reportSavedTime={time}
       electionDefinition={electionSampleDefinition}
-      precinctSelection={{ kind: PrecinctSelectionKind.AllPrecincts }}
+      precinctSelection={ALL_PRECINCTS_SELECTION}
       reportPurpose="Testing"
       isPollsOpen={false}
       tally={tally}
@@ -83,10 +84,9 @@ test('renders as expected for a single precinct in a general election', () => {
     <PrecinctScannerTallyReport
       reportSavedTime={time}
       electionDefinition={electionSampleDefinition}
-      precinctSelection={{
-        kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: electionSample.precincts[0].id,
-      }}
+      precinctSelection={getSinglePrecinctSelection(
+        electionSample.precincts[0].id
+      )}
       reportPurpose="Testing"
       isPollsOpen
       tally={tally}
@@ -144,9 +144,7 @@ test('renders as expected for all precincts in a primary election', () => {
     <PrecinctScannerTallyReport
       reportSavedTime={time}
       electionDefinition={electionMinimalExhaustiveSampleDefinition}
-      precinctSelection={{
-        kind: PrecinctSelectionKind.AllPrecincts,
-      }}
+      precinctSelection={ALL_PRECINCTS_SELECTION}
       reportPurpose="Testing"
       isPollsOpen
       tally={tally}
@@ -218,10 +216,7 @@ test('renders as expected for a single precincts in a primary election', () => {
     <PrecinctScannerTallyReport
       reportSavedTime={time}
       electionDefinition={electionMinimalExhaustiveSampleDefinition}
-      precinctSelection={{
-        kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: 'precinct-1',
-      }}
+      precinctSelection={getSinglePrecinctSelection('precinct-1')}
       reportPurpose="Testing"
       isPollsOpen={false}
       tally={tally}

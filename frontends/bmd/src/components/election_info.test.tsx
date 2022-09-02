@@ -1,17 +1,14 @@
 import React from 'react';
 import { render } from '@testing-library/react';
+import { getSinglePrecinctSelection } from '@votingworks/types';
 
 import { ElectionInfo } from './election_info';
 import { electionSampleWithSealDefinition as electionDefinition } from '../data';
-import { PrecinctSelectionKind } from '../config/types';
 
 it('renders horizontal ElectionInfo with hash when specified', () => {
   const { container } = render(
     <ElectionInfo
-      precinctSelection={{
-        kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: '23',
-      }}
+      precinctSelection={getSinglePrecinctSelection('23')}
       electionDefinition={electionDefinition}
       horizontal
     />
@@ -22,10 +19,7 @@ it('renders horizontal ElectionInfo with hash when specified', () => {
 it('renders horizontal ElectionInfo without hash by default', () => {
   const { container } = render(
     <ElectionInfo
-      precinctSelection={{
-        kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: '23',
-      }}
+      precinctSelection={getSinglePrecinctSelection('23')}
       electionDefinition={electionDefinition}
       horizontal
     />
@@ -36,10 +30,7 @@ it('renders horizontal ElectionInfo without hash by default', () => {
 it('renders vertical ElectionInfo with hash when specified', () => {
   const { container } = render(
     <ElectionInfo
-      precinctSelection={{
-        kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: '23',
-      }}
+      precinctSelection={getSinglePrecinctSelection('23')}
       electionDefinition={electionDefinition}
     />
   );
@@ -49,10 +40,7 @@ it('renders vertical ElectionInfo with hash when specified', () => {
 it('renders vertical ElectionInfo without hash by default', () => {
   const { container } = render(
     <ElectionInfo
-      precinctSelection={{
-        kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: '23',
-      }}
+      precinctSelection={getSinglePrecinctSelection('23')}
       electionDefinition={electionDefinition}
     />
   );

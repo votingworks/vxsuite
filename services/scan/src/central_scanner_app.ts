@@ -197,21 +197,21 @@ export async function buildCentralScannerApp({
     response.json({ status: 'ok' });
   });
 
-  app.get<NoParams, Scan.GetCurrentPrecinctConfigResponse>(
+  app.get<NoParams, Scan.GetPrecinctSelectionConfigResponse>(
     '/central-scanner/config/precinct',
     (_request, response) => {
-      const precinctId = store.getCurrentPrecinctId();
-      response.json({ status: 'ok', precinctId });
+      const precinctSelection = store.getPrecinctSelection();
+      response.json({ status: 'ok', precinctSelection });
     }
   );
 
   app.put<
     NoParams,
-    Scan.PutCurrentPrecinctConfigResponse,
-    Scan.PutCurrentPrecinctConfigRequest
+    Scan.PutPrecinctSelectionConfigResponse,
+    Scan.PutPrecinctSelectionConfigRequest
   >('/central-scanner/config/precinct', (request, response) => {
     const bodyParseResult = safeParse(
-      Scan.PutCurrentPrecinctConfigRequestSchema,
+      Scan.PutPrecinctSelectionConfigRequestSchema,
       request.body
     );
 
@@ -224,14 +224,14 @@ export async function buildCentralScannerApp({
       return;
     }
 
-    store.setCurrentPrecinctId(bodyParseResult.ok().precinctId);
+    store.setPrecinctSelection(bodyParseResult.ok().precinctSelection);
     response.json({ status: 'ok' });
   });
 
-  app.delete<NoParams, Scan.DeleteCurrentPrecinctConfigResponse>(
+  app.delete<NoParams, Scan.DeletePrecinctSelectionConfigResponse>(
     '/central-scanner/config/precinct',
     (_request, response) => {
-      store.setCurrentPrecinctId(undefined);
+      store.setPrecinctSelection(undefined);
       response.json({ status: 'ok' });
     }
   );

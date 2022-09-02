@@ -10,6 +10,9 @@ import {
   InsertedSmartcardAuth,
   PrecinctId,
   Tally,
+  getSinglePrecinctSelection,
+  PrecinctSelection,
+  getPrecinctSelectionName,
 } from '@votingworks/types';
 import {
   Button,
@@ -42,13 +45,7 @@ import {
   sleep,
 } from '@votingworks/utils';
 
-import {
-  MachineConfig,
-  PrecinctSelection,
-  PrecinctSelectionKind,
-  Printer,
-  ScreenReader,
-} from '../config/types';
+import { MachineConfig, Printer, ScreenReader } from '../config/types';
 
 import { Sidebar, SidebarProps } from '../components/sidebar';
 import { ElectionInfo } from '../components/election_info';
@@ -74,10 +71,7 @@ function parsePrecinctScannerTally(
       precinctScannerTally.talliesByPrecinct
     )) {
       assert(compressedTally);
-      precinctList.push({
-        kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId,
-      });
+      precinctList.push(getSinglePrecinctSelection(precinctId));
       // partyId may be undefined in the case of a ballot style without a party in the election
       for (const partyId of parties) {
         const key = getTallyIdentifier(partyId, precinctId);
@@ -94,8 +88,7 @@ function parsePrecinctScannerTally(
     for (const partyId of parties) {
       const key = getTallyIdentifier(
         partyId,
-        precinctScannerTally.precinctSelection.kind ===
-          PrecinctSelectionKind.SinglePrecinct
+        precinctScannerTally.precinctSelection.kind === 'SinglePrecinct'
           ? precinctScannerTally.precinctSelection.precinctId
           : undefined
       );
@@ -256,8 +249,7 @@ function PrecinctScannerTallyReportModal({
                   (precinctSel) =>
                     parties.map((partyId) => {
                       const precinctIdIfDefined =
-                        precinctSel.kind ===
-                        PrecinctSelectionKind.SinglePrecinct
+                        precinctSel.kind === 'SinglePrecinct'
                           ? precinctSel.precinctId
                           : undefined;
                       const tallyForReport =
@@ -349,16 +341,14 @@ export function PollWorkerScreen({
   const { election } = electionDefinition;
   const electionDate = DateTime.fromISO(electionDefinition.election.date);
   const isElectionDay = electionDate.hasSame(DateTime.now(), 'day');
-  const precinctName =
-    appPrecinct.kind === PrecinctSelectionKind.AllPrecincts
-      ? 'All Precincts'
-      : find(election.precincts, (p) => p.id === appPrecinct.precinctId).name;
+  const precinctName = getPrecinctSelectionName(
+    election.precincts,
+    appPrecinct
+  );
 
   const [selectedCardlessVoterPrecinctId, setSelectedCardlessVoterPrecinctId] =
     useState<PrecinctId | undefined>(
-      appPrecinct.kind === PrecinctSelectionKind.SinglePrecinct
-        ? appPrecinct.precinctId
-        : undefined
+      appPrecinct.kind === 'SinglePrecinct' ? appPrecinct.precinctId : undefined
     );
   const [isShowingVxScanPollsOpenModal, setIsShowingVxScanPollsOpenModal] =
     useState(false);
@@ -440,7 +430,7 @@ export function PollWorkerScreen({
         <Main centerChild>
           <Prose id="audiofocus">
             <h1>
-              {appPrecinct.kind === PrecinctSelectionKind.AllPrecincts
+              {appPrecinct.kind === 'AllPrecincts'
                 ? `Voter session activated: ${ballotStyleId} @ ${precinct.name}`
                 : `Voter session activated: ${ballotStyleId}`}
             </h1>
@@ -515,7 +505,7 @@ export function PollWorkerScreen({
           <br />
           {canSelectBallotStyle && !isHidingSelectBallotStyle ? (
             <Prose compact>
-              {appPrecinct.kind === PrecinctSelectionKind.AllPrecincts && (
+              {appPrecinct.kind === 'AllPrecincts' && (
                 <React.Fragment>
                   <h1>Select Precinct</h1>
                   <ButtonList data-testid="precincts">

@@ -1,6 +1,10 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 import { electionSampleDefinition } from '@votingworks/fixtures';
+import {
+  ALL_PRECINCTS_SELECTION,
+  getSinglePrecinctSelection,
+} from '@votingworks/types';
 import { ElectionInfoBar } from './election_info_bar';
 
 test('Renders nothing when there is no election', () => {
@@ -33,7 +37,7 @@ test('Renders ElectionInfoBar with all precincts wording', () => {
       electionDefinition={electionSampleDefinition}
       machineId="0000"
       codeVersion="DEV"
-      showPrecinctInfo
+      precinctSelection={ALL_PRECINCTS_SELECTION}
     />
   );
   expect(container).toMatchSnapshot();
@@ -46,8 +50,7 @@ test('Renders admin ElectionInfoBar with precinct set', () => {
       electionDefinition={electionSampleDefinition}
       machineId="0002"
       codeVersion="DEV"
-      showPrecinctInfo
-      precinctId="23"
+      precinctSelection={getSinglePrecinctSelection('23')}
     />
   );
   expect(container).toMatchSnapshot();

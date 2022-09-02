@@ -1,4 +1,8 @@
-import { CandidateVote, OptionalYesNoVote } from '@votingworks/types';
+import {
+  CandidateVote,
+  getSinglePrecinctSelection,
+  OptionalYesNoVote,
+} from '@votingworks/types';
 import { LinkButton, Screen, Prose, Text } from '@votingworks/ui';
 import { assert } from '@votingworks/utils';
 import pluralize from 'pluralize';
@@ -16,7 +20,6 @@ import { YesNoContest } from '../components/yes_no_contest';
 import { SettingsTextSize } from '../components/settings_text_size';
 import { TextIcon } from '../components/text_icon';
 import { MsEitherNeitherContest } from '../components/ms_either_neither_contest';
-import { PrecinctSelectionKind } from '../config/types';
 
 interface ContestParams {
   contestNumber: string;
@@ -118,10 +121,7 @@ export function ContestPage(): JSX.Element {
             <ElectionInfo
               electionDefinition={electionDefinition}
               ballotStyleId={ballotStyleId}
-              precinctSelection={{
-                kind: PrecinctSelectionKind.SinglePrecinct,
-                precinctId,
-              }}
+              precinctSelection={getSinglePrecinctSelection(precinctId)}
               horizontal
             />
           </React.Fragment>

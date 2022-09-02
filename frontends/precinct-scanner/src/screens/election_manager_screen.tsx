@@ -1,9 +1,10 @@
 import {
   MarkThresholds,
-  Precinct,
-  PrecinctId,
   SelectChangeEventFunction,
   ok,
+  PrecinctSelection,
+  ALL_PRECINCTS_SELECTION,
+  getSinglePrecinctSelection,
 } from '@votingworks/types';
 import {
   Button,
@@ -33,7 +34,7 @@ export const ALL_PRECINCTS_OPTION_VALUE = 'ALL_PRECINCTS_OPTION_VALUE';
 interface Props {
   scannerStatus: Scan.PrecinctScannerStatus;
   isTestMode: boolean;
-  updateAppPrecinctId(appPrecinctId: PrecinctId): Promise<void>;
+  updatePrecinctSelection(precinctSelection: PrecinctSelection): Promise<void>;
   setMarkThresholdOverrides: (markThresholds?: MarkThresholds) => Promise<void>;
   toggleLiveMode(): Promise<void>;
   toggleIsSoundMuted(): void;
@@ -44,7 +45,7 @@ interface Props {
 export function ElectionManagerScreen({
   scannerStatus,
   isTestMode,
-  updateAppPrecinctId,
+  updatePrecinctSelection,
   toggleLiveMode,
   toggleIsSoundMuted,
   setMarkThresholdOverrides,
@@ -53,7 +54,7 @@ export function ElectionManagerScreen({
 }: Props): JSX.Element {
   const {
     electionDefinition,
-    currentPrecinctId,
+    precinctSelection,
     currentMarkThresholds,
     auth,
     isSoundMuted,
@@ -103,8 +104,15 @@ export function ElectionManagerScreen({
   const [isMarkThresholdModalOpen, setIsMarkThresholdModalOpen] =
     useState(false);
 
-  const changeAppPrecinctId: SelectChangeEventFunction = async (event) => {
-    await updateAppPrecinctId(event.currentTarget.value);
+  const changeAppPrecinctSelection: SelectChangeEventFunction = async (
+    event
+  ) => {
+    const { value } = event.currentTarget;
+    await updatePrecinctSelection(
+      value === ALL_PRECINCTS_OPTION_VALUE
+        ? ALL_PRECINCTS_SELECTION
+        : getSinglePrecinctSelection(value)
+    );
   };
 
   async function handleTogglingLiveMode() {
@@ -126,6 +134,12 @@ export function ElectionManagerScreen({
     await unconfigure();
   }
 
+  const initialPrecinctValue = precinctSelection
+    ? precinctSelection.kind === 'AllPrecincts'
+      ? ALL_PRECINCTS_OPTION_VALUE
+      : precinctSelection.precinctId
+    : '';
+
   return (
     <ScreenMainCenterChild infoBarMode="admin">
       <Prose textCenter>
@@ -134,9 +148,9 @@ export function ElectionManagerScreen({
           <Select
             id="selectPrecinct"
             data-testid="selectPrecinct"
-            value={currentPrecinctId ?? ''}
-            onBlur={changeAppPrecinctId}
-            onChange={changeAppPrecinctId}
+            value={initialPrecinctValue}
+            onBlur={changeAppPrecinctSelection}
+            onChange={changeAppPrecinctSelection}
             large
           >
             <option value="" disabled>
@@ -312,14 +326,15 @@ export function DefaultPreview(): JSX.Element {
   const { machineConfig, electionDefinition } = useContext(AppContext);
   const [isTestMode, setIsTestMode] = useState(false);
   const [isSoundMuted, setIsSoundMuted] = useState(false);
-  const [precinctId, setPrecinctId] = useState<Precinct['id']>();
+  const [precinctSelection, setPrecinctSelection] =
+    useState<PrecinctSelection>();
   assert(electionDefinition);
   return (
     <AppContext.Provider
       value={{
         machineConfig,
         electionDefinition,
-        currentPrecinctId: precinctId,
+        precinctSelection,
         currentMarkThresholds: undefined,
         isSoundMuted,
         auth: {
@@ -353,8 +368,8 @@ export function DefaultPreview(): JSX.Element {
         unconfigure={() => Promise.resolve()}
         setMarkThresholdOverrides={() => Promise.resolve()}
         // eslint-disable-next-line @typescript-eslint/require-await
-        updateAppPrecinctId={async (newPrecinctId) =>
-          setPrecinctId(newPrecinctId)
+        updatePrecinctSelection={async (newPrecinctSelection) =>
+          setPrecinctSelection(newPrecinctSelection)
         }
         usbDrive={{
           status: usbstick.UsbDriveStatus.notavailable,

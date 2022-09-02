@@ -21,7 +21,6 @@ import {
   MemoryHardware,
   TallySourceMachineType,
 } from '@votingworks/utils';
-import { PrecinctSelectionKind } from '@votingworks/types';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
 import * as GLOBALS from './config/globals';
@@ -392,7 +391,7 @@ it('MarkAndPrint end-to-end flow', async () => {
       machineId: '0002',
       timeSaved: new Date('2020-10-31').getTime(),
       precinctSelection: {
-        kind: PrecinctSelectionKind.SinglePrecinct,
+        kind: 'SinglePrecinct',
         precinctId: '23',
       },
       totalBallotsScanned: 10,

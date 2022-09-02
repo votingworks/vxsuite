@@ -6,9 +6,9 @@ import {
   Card,
   OptionalElectionDefinition,
   Provider,
-  PrecinctId,
   MarkThresholds,
   ElectionDefinition,
+  PrecinctSelection,
 } from '@votingworks/types';
 import {
   useCancelablePromise,
@@ -80,7 +80,7 @@ interface HardwareState {
 
 interface ScannerConfigState {
   electionDefinition?: ElectionDefinition;
-  currentPrecinctId?: PrecinctId;
+  precinctSelection?: PrecinctSelection;
   currentMarkThresholds?: MarkThresholds;
   isTestMode: boolean;
 }
@@ -112,7 +112,7 @@ const initialScannerConfigState: Readonly<ScannerConfigState> = {
   electionDefinition: undefined,
   isTestMode: false,
   currentMarkThresholds: undefined,
-  currentPrecinctId: undefined,
+  precinctSelection: undefined,
 };
 
 const initialStoredFrontendState: Readonly<StoredFrontendState> = {
@@ -148,7 +148,7 @@ type AppAction =
       type: 'refreshConfigFromScanner';
       scannerConfig: ScannerConfigState;
     }
-  | { type: 'updatePrecinctId'; precinctId?: PrecinctId }
+  | { type: 'updatePrecinctSelection'; precinctSelection?: PrecinctSelection }
   | { type: 'updateMarkThresholds'; markThresholds?: MarkThresholds }
   | { type: 'togglePollsOpen' }
   | { type: 'toggleIsSoundMuted' }
@@ -193,10 +193,10 @@ function appReducer(state: State, action: AppAction): State {
         isScannerConfigLoaded: true,
       };
     }
-    case 'updatePrecinctId':
+    case 'updatePrecinctSelection':
       return {
         ...state,
-        currentPrecinctId: action.precinctId,
+        precinctSelection: action.precinctSelection,
         isPollsOpen: false,
       };
     case 'updateMarkThresholds':
@@ -243,7 +243,7 @@ export function AppRoot({
     electionDefinition,
     isScannerConfigLoaded,
     isTestMode,
-    currentPrecinctId,
+    precinctSelection,
     currentMarkThresholds,
     isPollsOpen,
     initializedFromStorage,
@@ -282,8 +282,8 @@ export function AppRoot({
       config.getElectionDefinition()
     );
     const newIsTestMode = await makeCancelable(config.getTestMode());
-    const newCurrentPrecinctId = await makeCancelable(
-      config.getCurrentPrecinctId()
+    const newPrecinctSelection = await makeCancelable(
+      config.getPrecinctSelection()
     );
     const newMarkThresholds = await makeCancelable(config.getMarkThresholds());
 
@@ -291,7 +291,7 @@ export function AppRoot({
       electionDefinition: newElectionDefinition,
       isTestMode: newIsTestMode,
       currentMarkThresholds: newMarkThresholds,
-      currentPrecinctId: newCurrentPrecinctId,
+      precinctSelection: newPrecinctSelection,
     };
 
     dispatchAppState({
@@ -393,9 +393,14 @@ export function AppRoot({
     [refreshConfig]
   );
 
-  async function updatePrecinctId(precinctId: PrecinctId) {
-    dispatchAppState({ type: 'updatePrecinctId', precinctId });
-    await config.setCurrentPrecinctId(precinctId);
+  async function updatePrecinctSelection(
+    newPrecinctSelection?: PrecinctSelection
+  ) {
+    dispatchAppState({
+      type: 'updatePrecinctSelection',
+      precinctSelection: newPrecinctSelection,
+    });
+    await config.setPrecinctSelection(newPrecinctSelection);
   }
 
   async function updateMarkThresholds(markThresholds?: MarkThresholds) {
@@ -498,7 +503,7 @@ export function AppRoot({
       <AppContext.Provider
         value={{
           electionDefinition,
-          currentPrecinctId,
+          precinctSelection,
           currentMarkThresholds,
           machineConfig,
           auth,
@@ -506,7 +511,7 @@ export function AppRoot({
         }}
       >
         <ElectionManagerScreen
-          updateAppPrecinctId={updatePrecinctId}
+          updatePrecinctSelection={updatePrecinctSelection}
           scannerStatus={scannerStatus}
           isTestMode={isTestMode}
           toggleLiveMode={toggleTestMode}
@@ -519,7 +524,7 @@ export function AppRoot({
     );
   }
 
-  if (!currentPrecinctId) return <UnconfiguredPrecinctScreen />;
+  if (!precinctSelection) return <UnconfiguredPrecinctScreen />;
 
   if (window.kiosk && usbDrive.status !== usbstick.UsbDriveStatus.mounted) {
     return <InsertUsbScreen />;
@@ -545,7 +550,7 @@ export function AppRoot({
       <AppContext.Provider
         value={{
           electionDefinition,
-          currentPrecinctId,
+          precinctSelection,
           currentMarkThresholds,
           machineConfig,
           auth,
@@ -577,7 +582,7 @@ export function AppRoot({
       <AppContext.Provider
         value={{
           electionDefinition,
-          currentPrecinctId,
+          precinctSelection,
           currentMarkThresholds,
           machineConfig,
           auth,
@@ -671,7 +676,7 @@ export function AppRoot({
     <AppContext.Provider
       value={{
         electionDefinition,
-        currentPrecinctId,
+        precinctSelection,
         currentMarkThresholds,
         machineConfig,
         auth,

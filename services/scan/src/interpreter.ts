@@ -27,6 +27,7 @@ import {
   MarkThresholds,
   ok,
   PageInterpretation,
+  PrecinctSelection,
   Result,
 } from '@votingworks/types';
 import {
@@ -149,33 +150,33 @@ export function sheetRequiresAdjudication([
 
 export interface InterpreterOptions {
   electionDefinition: ElectionDefinition;
+  precinctSelection: PrecinctSelection;
   testMode: boolean;
   markThresholdOverrides?: MarkThresholds;
   skipElectionHashCheck?: boolean;
   adjudicationReasons: readonly AdjudicationReason[];
-  currentPrecinctId?: string;
 }
 
 export class Interpreter {
   private hmpbInterpreter?: HmpbInterpreter;
   private readonly electionDefinition: ElectionDefinition;
+  private readonly precinctSelection: PrecinctSelection;
   private readonly testMode: boolean;
   private readonly markThresholds: MarkThresholds;
   private readonly skipElectionHashCheck?: boolean;
-  private readonly currentPrecinctId?: string;
   private readonly adjudicationReasons: readonly AdjudicationReason[];
 
   constructor({
     electionDefinition,
     testMode,
     markThresholdOverrides,
-    currentPrecinctId,
+    precinctSelection,
     skipElectionHashCheck,
     adjudicationReasons,
   }: InterpreterOptions) {
     this.electionDefinition = electionDefinition;
     this.testMode = testMode;
-    this.currentPrecinctId = currentPrecinctId;
+    this.precinctSelection = precinctSelection;
 
     const markThresholds =
       markThresholdOverrides ?? electionDefinition.election.markThresholds;
@@ -292,8 +293,8 @@ export class Interpreter {
       }
 
       if (
-        this.currentPrecinctId &&
-        bmdMetadata.precinctId !== this.currentPrecinctId
+        this.precinctSelection.kind !== 'AllPrecincts' &&
+        bmdMetadata.precinctId !== this.precinctSelection.precinctId
       ) {
         timer.end();
         return {
@@ -319,8 +320,9 @@ export class Interpreter {
         assert(interpretation && interpretation.type === 'InterpretedHmpbPage');
 
         if (
-          this.currentPrecinctId &&
-          interpretation.metadata.precinctId !== this.currentPrecinctId
+          this.precinctSelection.kind !== 'AllPrecincts' &&
+          interpretation.metadata.precinctId !==
+            this.precinctSelection.precinctId
         ) {
           timer.end();
           return {

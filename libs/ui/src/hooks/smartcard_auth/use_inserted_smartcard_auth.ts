@@ -12,7 +12,6 @@ import {
   wrapException,
   getBallotStyle,
   getPrecinctById,
-  PrecinctSelectionKind,
   PrecinctSelection,
   VoterCardData,
   VoterCardDataSchema,
@@ -139,7 +138,7 @@ function validateCardUser(
       return err('voter_wrong_election');
     }
     if (
-      scope.precinct.kind === PrecinctSelectionKind.SinglePrecinct &&
+      scope.precinct.kind === 'SinglePrecinct' &&
       precinct.id !== scope.precinct.precinctId
     ) {
       return err('voter_wrong_precinct');

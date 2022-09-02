@@ -1,4 +1,8 @@
-import { AdjudicationReason, PageInterpretation } from '@votingworks/types';
+import {
+  AdjudicationReason,
+  ALL_PRECINCTS_SELECTION,
+  PageInterpretation,
+} from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/utils';
 import makeDebug from 'debug';
 import { readFile } from 'fs-extra';
@@ -55,6 +59,7 @@ export async function configure(store: Store): Promise<void> {
   debug('creating a new interpreter');
   interpreter = new Interpreter({
     electionDefinition,
+    precinctSelection: ALL_PRECINCTS_SELECTION,
     skipElectionHashCheck: store.getSkipElectionHashCheck(),
     testMode: store.getTestMode(),
     markThresholdOverrides: store.getMarkThresholdOverrides(),

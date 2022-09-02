@@ -2,6 +2,7 @@ import { electionSampleDefinition as testElectionDefinition } from '@votingworks
 import { Scan } from '@votingworks/api';
 import fetchMock from 'fetch-mock';
 import { Buffer } from 'buffer';
+import { getSinglePrecinctSelection } from '@votingworks/types';
 import * as config from './config';
 
 test('GET /config/election', async () => {
@@ -94,36 +95,36 @@ test('PATCH /config/testMode', async () => {
   ).toHaveLength(1);
 });
 
-test('setCurrentPrecinctId updates', async () => {
+test('setPrecinctSelection updates', async () => {
   fetchMock.putOnce(
     '/precinct-scanner/config/precinct',
     JSON.stringify({ status: 'ok' })
   );
-  await config.setCurrentPrecinctId('23');
+  await config.setPrecinctSelection(getSinglePrecinctSelection('23'));
 
   expect(
     fetchMock.calls('/precinct-scanner/config/precinct', { method: 'PUT' })
   ).toHaveLength(1);
 });
 
-test('setCurrentPrecinctId deletes', async () => {
+test('setPrecinctSelection deletes', async () => {
   fetchMock.deleteOnce('/precinct-scanner/config/precinct', {
     body: { status: 'ok' },
   });
-  await config.setCurrentPrecinctId(undefined);
+  await config.setPrecinctSelection(undefined);
 
   expect(
     fetchMock.calls('/precinct-scanner/config/precinct', { method: 'DELETE' })
   ).toHaveLength(1);
 });
 
-test('setCurrentPrecinctId fails', async () => {
+test('setPrecinctSelection fails', async () => {
   fetchMock.putOnce(
     '/precinct-scanner/config/precinct',
     JSON.stringify({ status: 'error' })
   );
   await expect(
-    config.setCurrentPrecinctId('23')
+    config.setPrecinctSelection(getSinglePrecinctSelection('23'))
   ).rejects.toThrowErrorMatchingInlineSnapshot(
     '"PUT /precinct-scanner/config/precinct failed: undefined"'
   );

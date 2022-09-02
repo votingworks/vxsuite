@@ -7,6 +7,7 @@ import {
   BallotPageMetadata,
   BallotSheetInfo,
   BallotType,
+  getSinglePrecinctSelection,
 } from '@votingworks/types';
 import { assert, sleep } from '@votingworks/utils';
 import { Buffer } from 'buffer';
@@ -218,7 +219,7 @@ test('manually importing files', async () => {
     ...frontMetadata,
     pageNumber: 2,
   };
-  workspace.store.setElection(electionDefinition);
+  importer.configure(electionDefinition);
 
   const frontImagePath = await makeImageFile();
   const backImagePath = await makeImageFile();
@@ -561,7 +562,9 @@ test('rejects pages that do not match the current precinct', async () => {
   });
 
   importer.configure(electionDefinition);
-  workspace.store.setCurrentPrecinctId(election.precincts[1].id);
+  workspace.store.setPrecinctSelection(
+    getSinglePrecinctSelection(election.precincts[1].id)
+  );
   jest.spyOn(workspace.store, 'addSheet').mockReturnValueOnce('sheet-id');
 
   // eslint-disable-next-line @typescript-eslint/require-await
@@ -689,9 +692,11 @@ test('rejects sheets that would not produce a valid CVR', async () => {
     workerPoolProvider,
   });
 
-  const currentPrecinctId = election.precincts[0].id;
+  const configuredPrecinctId = election.precincts[0].id;
   importer.configure(electionDefinition);
-  workspace.store.setCurrentPrecinctId(currentPrecinctId);
+  workspace.store.setPrecinctSelection(
+    getSinglePrecinctSelection(configuredPrecinctId)
+  );
   jest.spyOn(workspace.store, 'addSheet').mockReturnValueOnce('sheet-id');
 
   // eslint-disable-next-line @typescript-eslint/require-await
@@ -701,7 +706,7 @@ test('rejects sheets that would not produce a valid CVR', async () => {
 
   const frontMetadata: BallotPageMetadata = {
     ballotStyleId: election.ballotStyles[0].id,
-    precinctId: currentPrecinctId,
+    precinctId: configuredPrecinctId,
     ballotType: BallotType.Standard,
     electionHash: electionDefinition.electionHash,
     isTestMode: false,

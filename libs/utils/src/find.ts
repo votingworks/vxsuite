@@ -19,7 +19,6 @@ export function find<T>(
   defaultValue?: T
 ): T {
   const result = array.find(predicate);
-
   if (result === undefined) {
     if (defaultValue === undefined) {
       throw new Error('unable to find an element matching a predicate');

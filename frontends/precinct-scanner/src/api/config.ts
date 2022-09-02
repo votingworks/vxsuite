@@ -1,9 +1,9 @@
 import {
   ElectionDefinition,
   Optional,
-  Precinct,
   MarkThresholds,
   safeParseJson,
+  PrecinctSelection,
 } from '@votingworks/types';
 import { ErrorsResponse, OkResponse, Scan } from '@votingworks/api';
 import { BallotPackage, BallotPackageEntry, assert } from '@votingworks/utils';
@@ -141,8 +141,8 @@ export async function setMarkThresholdOverrides(
   }
 }
 
-export async function getCurrentPrecinctId(): Promise<
-  Optional<Precinct['id']>
+export async function getPrecinctSelection(): Promise<
+  Optional<PrecinctSelection>
 > {
   return safeParseJson(
     await (
@@ -150,20 +150,20 @@ export async function getCurrentPrecinctId(): Promise<
         headers: { Accept: 'application/json' },
       })
     ).text(),
-    Scan.GetCurrentPrecinctResponseSchema
-  ).unsafeUnwrap().precinctId;
+    Scan.GetPrecinctSelectionConfigResponseSchema
+  ).unsafeUnwrap().precinctSelection;
 }
 
-export async function setCurrentPrecinctId(
-  precinctId?: Precinct['id']
+export async function setPrecinctSelection(
+  precinctSelection?: PrecinctSelection
 ): Promise<void> {
-  if (!precinctId) {
+  if (!precinctSelection) {
     await del('/precinct-scanner/config/precinct');
   } else {
-    await put<Scan.PutCurrentPrecinctConfigRequest>(
+    await put<Scan.PutPrecinctSelectionConfigRequest>(
       '/precinct-scanner/config/precinct',
       {
-        precinctId,
+        precinctSelection,
       }
     );
   }

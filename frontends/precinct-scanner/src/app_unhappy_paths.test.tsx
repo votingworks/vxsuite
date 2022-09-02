@@ -29,6 +29,7 @@ import {
 } from '@votingworks/utils';
 
 import userEvent from '@testing-library/user-event';
+import { ALL_PRECINCTS_SELECTION } from '@votingworks/types';
 import { App } from './app';
 import { MachineConfigResponse } from './config/types';
 import {
@@ -36,7 +37,6 @@ import {
   scannerStatus,
 } from '../test/helpers/helpers';
 import { stateStorageKey } from './app_root';
-import { ALL_PRECINCTS_OPTION_VALUE } from './screens/election_manager_screen';
 
 const getMachineConfigBody: MachineConfigResponse = {
   machineId: '0002',
@@ -54,10 +54,10 @@ const statusNoPaper: Scan.GetPrecinctScannerStatusResponse = {
   ballotsCounted: 0,
 };
 
-const getPrecinctConfigAllPrecinctsResponseBody: Scan.GetCurrentPrecinctConfigResponse =
+const getPrecinctConfigAllPrecinctsResponseBody: Scan.GetPrecinctSelectionConfigResponse =
   {
     status: 'ok',
-    precinctId: ALL_PRECINCTS_OPTION_VALUE,
+    precinctSelection: ALL_PRECINCTS_SELECTION,
   };
 
 const getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody: Scan.GetMarkThresholdOverridesConfigResponse =

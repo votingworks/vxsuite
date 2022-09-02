@@ -15,6 +15,7 @@ import {
   ContestId,
   PrecinctId,
   BallotStyleId,
+  PrecinctSelection,
 } from '@votingworks/types';
 import { decodeBallot, encodeBallot } from '@votingworks/ballot-encoder';
 import 'normalize.css';
@@ -56,7 +57,6 @@ import {
   MarkOnly,
   MachineConfig,
   PostVotingInstructions,
-  PrecinctSelection,
   Printer,
 } from './config/types';
 import { BallotContext } from './contexts/ballot_context';

@@ -1,4 +1,8 @@
-import { ElectionDefinition, Optional } from '@votingworks/types';
+import {
+  ElectionDefinition,
+  Optional,
+  PrecinctSelection,
+} from '@votingworks/types';
 import {
   Button,
   Main,
@@ -14,11 +18,7 @@ import React, { useEffect, useState } from 'react';
 import { ElectionInfo } from '../components/election_info';
 import { Sidebar } from '../components/sidebar';
 import { VersionsData } from '../components/versions_data';
-import {
-  MachineConfig,
-  PrecinctSelection,
-  ScreenReader,
-} from '../config/types';
+import { MachineConfig, ScreenReader } from '../config/types';
 
 interface Props {
   appPrecinct?: PrecinctSelection;

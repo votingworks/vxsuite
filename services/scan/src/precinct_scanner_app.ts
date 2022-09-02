@@ -69,6 +69,8 @@ async function configureInterpreter(
   const { store } = workspace;
   const electionDefinition = store.getElectionDefinition();
   assert(electionDefinition);
+  const precinctSelection = store.getPrecinctSelection();
+  assert(precinctSelection);
   const layouts = await loadLayouts(store);
   assert(layouts);
   interpreter.configure({
@@ -76,7 +78,7 @@ async function configureInterpreter(
     ballotImagesPath: workspace.ballotImagesPath,
     testMode: store.getTestMode(),
     markThresholdOverrides: store.getMarkThresholdOverrides(),
-    currentPrecinctId: store.getCurrentPrecinctId(),
+    precinctSelection,
     layouts,
   });
 }
@@ -222,21 +224,21 @@ export async function buildPrecinctScannerApp(
     response.json({ status: 'ok' });
   });
 
-  app.get<NoParams, Scan.GetCurrentPrecinctConfigResponse>(
+  app.get<NoParams, Scan.GetPrecinctSelectionConfigResponse>(
     '/precinct-scanner/config/precinct',
     (_request, response) => {
-      const precinctId = store.getCurrentPrecinctId();
-      response.json({ status: 'ok', precinctId });
+      const precinctSelection = store.getPrecinctSelection();
+      response.json({ status: 'ok', precinctSelection });
     }
   );
 
   app.put<
     NoParams,
-    Scan.PutCurrentPrecinctConfigResponse,
-    Scan.PutCurrentPrecinctConfigRequest
+    Scan.PutPrecinctSelectionConfigResponse,
+    Scan.PutPrecinctSelectionConfigRequest
   >('/precinct-scanner/config/precinct', async (request, response) => {
     const bodyParseResult = safeParse(
-      Scan.PutCurrentPrecinctConfigRequestSchema,
+      Scan.PutPrecinctSelectionConfigRequestSchema,
       request.body
     );
 
@@ -248,15 +250,15 @@ export async function buildPrecinctScannerApp(
       });
       return;
     }
-    store.setCurrentPrecinctId(bodyParseResult.ok().precinctId);
+    store.setPrecinctSelection(bodyParseResult.ok().precinctSelection);
     await configureInterpreter(interpreter, workspace);
     response.json({ status: 'ok' });
   });
 
-  app.delete<NoParams, Scan.DeleteCurrentPrecinctConfigResponse>(
+  app.delete<NoParams, Scan.DeletePrecinctSelectionConfigResponse>(
     '/precinct-scanner/config/precinct',
     async (_request, response) => {
-      store.setCurrentPrecinctId(undefined);
+      store.setPrecinctSelection(undefined);
       await configureInterpreter(interpreter, workspace);
       response.json({ status: 'ok' });
     }

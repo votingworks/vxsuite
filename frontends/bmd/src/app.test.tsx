@@ -1,5 +1,6 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { fakeKiosk, makePollWorkerCard } from '@votingworks/test-utils';
+import { ALL_PRECINCTS_SELECTION } from '@votingworks/types';
 import { MemoryCard, MemoryHardware, MemoryStorage } from '@votingworks/utils';
 import fetchMock from 'fetch-mock';
 import * as React from 'react';
@@ -12,7 +13,7 @@ import { fakeTts } from '../test/helpers/fake_tts';
 import { advanceTimersAndPromises } from '../test/helpers/smartcards';
 import { render } from '../test/test_utils';
 import { App } from './app';
-import { PrecinctSelectionKind, MarkAndPrint } from './config/types';
+import { MarkAndPrint } from './config/types';
 import { electionSampleDefinition } from './data';
 import { AriaScreenReader } from './utils/ScreenReader';
 
@@ -131,7 +132,7 @@ it('uses window.location.reload by default', async () => {
 
   await setElectionInStorage(storage, electionDefinition);
   await setStateInStorage(storage, {
-    appPrecinct: { kind: PrecinctSelectionKind.AllPrecincts },
+    appPrecinct: ALL_PRECINCTS_SELECTION,
     isPollsOpen: false,
   });
 

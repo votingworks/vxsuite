@@ -1,8 +1,8 @@
 import { safeParse } from '@votingworks/types';
-import { GetCurrentPrecinctResponseSchema } from '.';
+import { GetPrecinctSelectionConfigResponseSchema } from '.';
 
 test('sanity check', () => {
-  safeParse(GetCurrentPrecinctResponseSchema, {
+  safeParse(GetPrecinctSelectionConfigResponseSchema, {
     status: 'ok',
     precinctId: 'abc',
   }).unsafeUnwrap();

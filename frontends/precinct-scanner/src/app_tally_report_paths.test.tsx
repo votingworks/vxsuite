@@ -25,17 +25,17 @@ import {
   typedAs,
 } from '@votingworks/utils';
 import {
+  ALL_PRECINCTS_SELECTION,
   CompressedTally,
   ContestId,
   Dictionary,
   err,
-  PrecinctSelectionKind,
+  getSinglePrecinctSelection,
   VotingMethod,
 } from '@votingworks/types';
 import { App } from './app';
 import { stateStorageKey } from './app_root';
 import { MachineConfigResponse } from './config/types';
-import { ALL_PRECINCTS_OPTION_VALUE } from './screens/election_manager_screen';
 
 beforeEach(() => {
   jest.useFakeTimers();
@@ -52,22 +52,22 @@ const getTestModeConfigTrueResponseBody: Scan.GetTestModeConfigResponse = {
   testMode: true,
 };
 
-const getPrecinctConfigAllPrecinctsResponseBody: Scan.GetCurrentPrecinctConfigResponse =
+const getPrecinctConfigAllPrecinctsResponseBody: Scan.GetPrecinctSelectionConfigResponse =
   {
     status: 'ok',
-    precinctId: ALL_PRECINCTS_OPTION_VALUE,
+    precinctSelection: ALL_PRECINCTS_SELECTION,
   };
 
-const getPrecinctConfigPrecinct1ResponseBody: Scan.GetCurrentPrecinctConfigResponse =
+const getPrecinctConfigPrecinct1ResponseBody: Scan.GetPrecinctSelectionConfigResponse =
   {
     status: 'ok',
-    precinctId: 'precinct-1',
+    precinctSelection: getSinglePrecinctSelection('precinct-1'),
   };
 
-const getPrecinctConfigPrecinct23ResponseBody: Scan.GetCurrentPrecinctConfigResponse =
+const getPrecinctConfigPrecinct23ResponseBody: Scan.GetPrecinctSelectionConfigResponse =
   {
     status: 'ok',
-    precinctId: '23',
+    precinctSelection: getSinglePrecinctSelection('23'),
   };
 
 const getMarkThresholdOverridesConfigNoMarkThresholdOverridesResponseBody: Scan.GetMarkThresholdOverridesConfigResponse =
@@ -517,7 +517,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
       totalBallotsScanned: 3,
       machineId: '0002',
       timeSaved: expect.anything(),
-      precinctSelection: { kind: PrecinctSelectionKind.AllPrecincts },
+      precinctSelection: ALL_PRECINCTS_SELECTION,
       tally: expectedCombinedTally,
       talliesByPrecinct: expectedTalliesByPrecinct,
       ballotCounts: expectedBallotCounts,
@@ -543,7 +543,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
       totalBallotsScanned: 3,
       machineId: '0002',
       timeSaved: expect.anything(),
-      precinctSelection: { kind: PrecinctSelectionKind.AllPrecincts },
+      precinctSelection: ALL_PRECINCTS_SELECTION,
       tally: expectedCombinedTally,
       talliesByPrecinct: expectedTalliesByPrecinct,
       ballotCounts: expectedBallotCounts,
@@ -559,7 +559,7 @@ test('expected tally reports for a primary election with all precincts with CVRs
       totalBallotsScanned: 3,
       machineId: '0002',
       timeSaved: expect.anything(),
-      precinctSelection: { kind: PrecinctSelectionKind.AllPrecincts },
+      precinctSelection: ALL_PRECINCTS_SELECTION,
       tally: expectedCombinedTally,
       talliesByPrecinct: undefined,
       ballotCounts: expectedBallotCounts,
@@ -798,10 +798,7 @@ test('expected tally reports for a primary election with a single precincts with
       totalBallotsScanned: 3,
       machineId: '0002',
       timeSaved: expect.anything(),
-      precinctSelection: {
-        kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: 'precinct-1',
-      },
+      precinctSelection: getSinglePrecinctSelection('precinct-1'),
       tally: expectedCombinedTally,
       talliesByPrecinct: expectedTalliesByPrecinct,
       ballotCounts: expectedBallotCounts,
@@ -828,10 +825,7 @@ test('expected tally reports for a primary election with a single precincts with
       totalBallotsScanned: 3,
       machineId: '0002',
       timeSaved: expect.anything(),
-      precinctSelection: {
-        kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: 'precinct-1',
-      },
+      precinctSelection: getSinglePrecinctSelection('precinct-1'),
       tally: expectedCombinedTally,
       talliesByPrecinct: expectedTalliesByPrecinct,
       ballotCounts: expectedBallotCounts,
@@ -847,10 +841,7 @@ test('expected tally reports for a primary election with a single precincts with
       totalBallotsScanned: 3,
       machineId: '0002',
       timeSaved: expect.anything(),
-      precinctSelection: {
-        kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: 'precinct-1',
-      },
+      precinctSelection: getSinglePrecinctSelection('precinct-1'),
       tally: expectedCombinedTally,
       talliesByPrecinct: undefined,
       ballotCounts: expectedBallotCounts,
@@ -1068,7 +1059,7 @@ test('expected tally reports for a general election with all precincts with CVRs
       totalBallotsScanned: 2,
       machineId: '0002',
       timeSaved: expect.anything(),
-      precinctSelection: { kind: PrecinctSelectionKind.AllPrecincts },
+      precinctSelection: ALL_PRECINCTS_SELECTION,
       tally: expectedCombinedTally,
       talliesByPrecinct: expectedTalliesByPrecinct,
       ballotCounts: expectedBallotCounts,
@@ -1093,7 +1084,7 @@ test('expected tally reports for a general election with all precincts with CVRs
       totalBallotsScanned: 2,
       machineId: '0002',
       timeSaved: expect.anything(),
-      precinctSelection: { kind: PrecinctSelectionKind.AllPrecincts },
+      precinctSelection: ALL_PRECINCTS_SELECTION,
       tally: expectedCombinedTally,
       talliesByPrecinct: expectedTalliesByPrecinct,
       ballotCounts: expectedBallotCounts,
@@ -1109,7 +1100,7 @@ test('expected tally reports for a general election with all precincts with CVRs
       totalBallotsScanned: 2,
       machineId: '0002',
       timeSaved: expect.anything(),
-      precinctSelection: { kind: PrecinctSelectionKind.AllPrecincts },
+      precinctSelection: ALL_PRECINCTS_SELECTION,
       tally: expectedCombinedTally,
       talliesByPrecinct: undefined,
       ballotCounts: expectedBallotCounts,
@@ -1268,10 +1259,7 @@ test('expected tally reports for a general election with a single precincts with
       totalBallotsScanned: 2,
       machineId: '0002',
       timeSaved: expect.anything(),
-      precinctSelection: {
-        kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: '23',
-      },
+      precinctSelection: getSinglePrecinctSelection('23'),
       tally: expectedCombinedTally,
       talliesByPrecinct: expectedTalliesByPrecinct,
       ballotCounts: expectedBallotCounts,
@@ -1296,10 +1284,7 @@ test('expected tally reports for a general election with a single precincts with
       totalBallotsScanned: 2,
       machineId: '0002',
       timeSaved: expect.anything(),
-      precinctSelection: {
-        kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: '23',
-      },
+      precinctSelection: getSinglePrecinctSelection('23'),
       tally: expectedCombinedTally,
       talliesByPrecinct: expectedTalliesByPrecinct,
       ballotCounts: expectedBallotCounts,
@@ -1315,10 +1300,7 @@ test('expected tally reports for a general election with a single precincts with
       totalBallotsScanned: 2,
       machineId: '0002',
       timeSaved: expect.anything(),
-      precinctSelection: {
-        kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: '23',
-      },
+      precinctSelection: getSinglePrecinctSelection('23'),
       tally: expectedCombinedTally,
       talliesByPrecinct: undefined,
       ballotCounts: expectedBallotCounts,

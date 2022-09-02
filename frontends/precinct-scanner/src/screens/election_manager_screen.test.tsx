@@ -9,6 +9,7 @@ import {
 import { Scan } from '@votingworks/api';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { fakeKiosk, Inserted } from '@votingworks/test-utils';
+import { getSinglePrecinctSelection } from '@votingworks/types';
 import { usbstick } from '@votingworks/utils';
 import MockDate from 'mockdate';
 import React from 'react';
@@ -47,7 +48,7 @@ test('renders date and time settings modal', async () => {
       <ElectionManagerScreen
         scannerStatus={scannerStatus}
         isTestMode={false}
-        updateAppPrecinctId={jest.fn()}
+        updatePrecinctSelection={jest.fn()}
         toggleLiveMode={jest.fn()}
         setMarkThresholdOverrides={jest.fn()}
         unconfigure={jest.fn()}
@@ -87,7 +88,7 @@ test('renders date and time settings modal', async () => {
 });
 
 test('setting and un-setting the precinct', async () => {
-  const updateAppPrecinctId = jest.fn();
+  const updatePrecinctSelection = jest.fn();
 
   render(
     <AppContext.Provider
@@ -101,7 +102,7 @@ test('setting and un-setting the precinct', async () => {
       <ElectionManagerScreen
         scannerStatus={scannerStatus}
         isTestMode={false}
-        updateAppPrecinctId={updateAppPrecinctId}
+        updatePrecinctSelection={updatePrecinctSelection}
         toggleLiveMode={jest.fn()}
         setMarkThresholdOverrides={jest.fn()}
         unconfigure={jest.fn()}
@@ -118,13 +119,10 @@ test('setting and un-setting the precinct', async () => {
   fireEvent.change(selectPrecinct, {
     target: { value: electionSampleDefinition.election.precincts[0].id },
   });
-  expect(updateAppPrecinctId).toHaveBeenNthCalledWith(1, precinct.id);
-
-  // unset precinct
-  fireEvent.change(selectPrecinct, {
-    target: { value: '' },
-  });
-  expect(updateAppPrecinctId).toHaveBeenNthCalledWith(2, '');
+  expect(updatePrecinctSelection).toHaveBeenNthCalledWith(
+    1,
+    expect.objectContaining(getSinglePrecinctSelection(precinct.id))
+  );
 });
 
 test('export from admin screen', () => {
@@ -140,7 +138,7 @@ test('export from admin screen', () => {
       <ElectionManagerScreen
         scannerStatus={scannerStatus}
         isTestMode={false}
-        updateAppPrecinctId={jest.fn()}
+        updatePrecinctSelection={jest.fn()}
         toggleLiveMode={jest.fn()}
         setMarkThresholdOverrides={jest.fn()}
         unconfigure={jest.fn()}
@@ -168,7 +166,7 @@ test('unconfigure ejects a usb drive when it is mounted', () => {
       <ElectionManagerScreen
         scannerStatus={{ ...scannerStatus, canUnconfigure: true }}
         isTestMode={false}
-        updateAppPrecinctId={jest.fn()}
+        updatePrecinctSelection={jest.fn()}
         toggleLiveMode={jest.fn()}
         setMarkThresholdOverrides={jest.fn()}
         unconfigure={unconfigureFn}
@@ -199,7 +197,7 @@ test('unconfigure does not eject a usb drive that is not mounted', async () => {
       <ElectionManagerScreen
         scannerStatus={{ ...scannerStatus, canUnconfigure: true }}
         isTestMode={false}
-        updateAppPrecinctId={jest.fn()}
+        updatePrecinctSelection={jest.fn()}
         toggleLiveMode={jest.fn()}
         setMarkThresholdOverrides={jest.fn()}
         unconfigure={unconfigureFn}
@@ -230,7 +228,7 @@ test('unconfigure button is disabled when the machine cannot be unconfigured', (
       <ElectionManagerScreen
         scannerStatus={scannerStatus}
         isTestMode={false}
-        updateAppPrecinctId={jest.fn()}
+        updatePrecinctSelection={jest.fn()}
         toggleLiveMode={jest.fn()}
         setMarkThresholdOverrides={jest.fn()}
         unconfigure={jest.fn()}
@@ -259,7 +257,7 @@ test('cannot toggle to testing mode when the machine cannot be unconfigured', ()
       <ElectionManagerScreen
         scannerStatus={scannerStatus}
         isTestMode={false}
-        updateAppPrecinctId={jest.fn()}
+        updatePrecinctSelection={jest.fn()}
         toggleLiveMode={toggleLiveModeFn}
         setMarkThresholdOverrides={jest.fn()}
         unconfigure={jest.fn()}
@@ -289,7 +287,7 @@ test('Allows overriding mark thresholds', async () => {
       <ElectionManagerScreen
         scannerStatus={scannerStatus}
         isTestMode={false}
-        updateAppPrecinctId={jest.fn()}
+        updatePrecinctSelection={jest.fn()}
         toggleLiveMode={jest.fn()}
         setMarkThresholdOverrides={setMarkThresholdOverridesFn}
         unconfigure={jest.fn()}
