@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 
-import { ElectionDefinition } from '@votingworks/types';
+import { ALL_PRECINCTS_ID, ElectionDefinition } from '@votingworks/types';
 import {
   Button,
   CurrentDateAndTime,
@@ -38,8 +38,6 @@ interface Props {
   screenReader: ScreenReader;
 }
 
-const ALL_PRECINCTS_OPTION_VALUE = '_ALL';
-
 export function AdminScreen({
   appPrecinct,
   ballotsPrintedCount,
@@ -56,7 +54,7 @@ export function AdminScreen({
   const changeAppPrecinctId: SelectChangeEventFunction = (event) => {
     const precinctId = event.currentTarget.value;
 
-    if (precinctId === ALL_PRECINCTS_OPTION_VALUE) {
+    if (precinctId === ALL_PRECINCTS_ID) {
       updateAppPrecinct({ kind: PrecinctSelectionKind.AllPrecincts });
     } else if (precinctId) {
       updateAppPrecinct({
@@ -93,7 +91,7 @@ export function AdminScreen({
                   id="selectPrecinct"
                   value={
                     appPrecinct?.kind === PrecinctSelectionKind.AllPrecincts
-                      ? ALL_PRECINCTS_OPTION_VALUE
+                      ? ALL_PRECINCTS_ID
                       : appPrecinct?.precinctId ?? ''
                   }
                   onBlur={changeAppPrecinctId}
@@ -102,7 +100,7 @@ export function AdminScreen({
                   <option value="" disabled>
                     Select a precinct for this device…
                   </option>
-                  <option value={ALL_PRECINCTS_OPTION_VALUE}>
+                  <option value={ALL_PRECINCTS_ID}>
                     {AllPrecinctsDisplayName}
                   </option>
                   {[...election.precincts]
