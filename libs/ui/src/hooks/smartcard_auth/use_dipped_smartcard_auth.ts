@@ -4,6 +4,8 @@ import {
   Logger,
 } from '@votingworks/logging';
 import {
+  Card,
+  CardSummary,
   DippedSmartcardAuth,
   ElectionDefinition,
   err,
@@ -13,12 +15,7 @@ import {
   User,
 } from '@votingworks/types';
 import { LoggedOut } from '@votingworks/types/src/smartcard_auth/dipped_smartcard_auth';
-import {
-  assert,
-  Card,
-  CardSummary,
-  throwIllegalValue,
-} from '@votingworks/utils';
+import { assert, throwIllegalValue } from '@votingworks/utils';
 import deepEqual from 'deep-eql';
 import { useEffect, useReducer } from 'react';
 import useInterval from 'use-interval';
@@ -236,9 +233,10 @@ function useDippedSmartcardAuthBase({
           return {
             status,
             user,
-            card:
+            programmableCard:
               cardSummary.status === 'ready'
                 ? {
+                    status: 'ready',
                     ...buildCardStorage(cardSummary, cardApi, cardWriteLock),
                     ...buildCardProgramming(
                       cardSummary,
@@ -247,7 +245,7 @@ function useDippedSmartcardAuthBase({
                       logger
                     ),
                   }
-                : undefined,
+                : cardSummary,
             logOut: () => dispatch({ type: 'log_out' }),
           };
         }
@@ -256,10 +254,6 @@ function useDippedSmartcardAuthBase({
           return {
             status,
             user,
-            card:
-              cardSummary.status === 'ready'
-                ? buildCardStorage(cardSummary, cardApi, cardWriteLock)
-                : undefined,
             logOut: () => dispatch({ type: 'log_out' }),
           };
         }

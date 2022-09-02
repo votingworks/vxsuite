@@ -8,6 +8,7 @@ import React, {
 import 'normalize.css';
 import { Logger, LogEventId } from '@votingworks/logging';
 import {
+  Card,
   FullElectionExternalTally,
   ExternalTallySourceType,
   Provider,
@@ -17,7 +18,6 @@ import {
   throwIllegalValue,
   usbstick,
   Printer,
-  Card,
   Hardware,
 } from '@votingworks/utils';
 import {

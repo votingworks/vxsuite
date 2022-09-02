@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import {
   BallotStyle,
+  Card,
   ElectionSchema,
   PartyId,
   PartyIdSchema,
@@ -14,7 +15,7 @@ import {
   useDevices,
   useStoredState,
 } from '@votingworks/ui';
-import { assert, Card, Hardware, sleep, Storage } from '@votingworks/utils';
+import { assert, Hardware, sleep, Storage } from '@votingworks/utils';
 
 import { z } from 'zod';
 import { EventTargetFunction } from './config/types';

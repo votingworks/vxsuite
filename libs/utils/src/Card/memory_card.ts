@@ -1,6 +1,13 @@
-import { ok, Optional, Result, safeParseJson } from '@votingworks/types';
+import {
+  Card,
+  CardSummary,
+  ok,
+  Optional,
+  Result,
+  safeParseJson,
+  ShortAndLongValues,
+} from '@votingworks/types';
 import { z } from 'zod';
-import { Card, CardSummary, ShortAndLongValues } from '../types';
 
 /* eslint-disable @typescript-eslint/require-await */
 

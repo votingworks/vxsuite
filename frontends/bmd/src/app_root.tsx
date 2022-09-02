@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useReducer, useRef } from 'react';
 import {
   BallotType,
+  Card,
   CompletedBallot,
   ElectionDefinition,
   OptionalElectionDefinition,
@@ -25,7 +26,6 @@ import IdleTimer from 'react-idle-timer';
 import useInterval from '@rooks/use-interval';
 import {
   assert,
-  Card,
   Storage,
   Hardware,
   throwIllegalValue,

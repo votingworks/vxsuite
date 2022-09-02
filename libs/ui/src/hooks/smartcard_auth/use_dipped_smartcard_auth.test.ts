@@ -130,7 +130,7 @@ describe('useDippedSmartcardAuth', () => {
     await waitForNextUpdate();
     expect(result.current).toEqual({
       status: 'logged_in',
-      card: undefined,
+      programmableCard: { status: 'no_card' },
       user,
       logOut: expect.any(Function),
     });
@@ -140,7 +140,6 @@ describe('useDippedSmartcardAuth', () => {
     await waitForNextUpdate();
     expect(result.current).toMatchObject({
       status: 'logged_in',
-      card: expect.any(Object),
       user,
     });
     cardApi.removeCard();
@@ -256,7 +255,6 @@ describe('useDippedSmartcardAuth', () => {
     await waitForNextUpdate();
     expect(result.current).toEqual({
       status: 'logged_in',
-      card: undefined,
       user,
       logOut: expect.any(Function),
     });
@@ -266,7 +264,6 @@ describe('useDippedSmartcardAuth', () => {
     await waitForNextUpdate();
     expect(result.current).toMatchObject({
       status: 'logged_in',
-      card: expect.any(Object),
       user,
     });
     cardApi.removeCard();
@@ -492,5 +489,41 @@ describe('useDippedSmartcardAuth', () => {
         reason: 'election_manager_wrong_election',
       })
     );
+  });
+
+  it('recognizes card is inserted backwards while logged in', async () => {
+    const cardApi = new MemoryCard();
+    const { result, waitForNextUpdate } = renderHook(() =>
+      useDippedSmartcardAuth({
+        cardApi,
+        scope: { electionDefinition },
+      })
+    );
+    expect(result.current).toMatchObject({
+      status: 'logged_out',
+      reason: 'machine_locked',
+    });
+
+    // Log in with a system administrator card
+    const passcode = '123456';
+    const user = fakeSystemAdministratorUser({ passcode });
+    cardApi.insertCard(makeSystemAdministratorCard(passcode));
+    await waitForNextUpdate();
+    act(() => {
+      assert(result.current.status === 'checking_passcode');
+      result.current.checkPasscode(passcode);
+    });
+    await waitForNextUpdate();
+    cardApi.removeCard();
+    await waitForNextUpdate();
+
+    // Inserting a card backwards can be detected
+    cardApi.insertCard(undefined, undefined, 'error');
+    await waitForNextUpdate();
+    expect(result.current).toMatchObject({
+      status: 'logged_in',
+      programmableCard: { status: 'error' },
+      user,
+    });
   });
 });

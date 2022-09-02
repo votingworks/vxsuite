@@ -6,9 +6,9 @@ import {
 } from '@votingworks/types';
 import {
   fakeSystemAdministratorUser,
-  fakeCardStorage,
   fakeElectionManagerUser,
   fakeCardProgramming,
+  fakeCardStorage,
 } from './auth';
 
 export function fakeCheckingPasscodeAuth(
@@ -23,27 +23,26 @@ export function fakeCheckingPasscodeAuth(
 }
 
 export function fakeSystemAdministratorAuth(
-  card: Partial<CardStorage & CardProgramming> = {}
+  programmableCard: Partial<CardStorage & CardProgramming> = {}
 ): DippedSmartcardAuth.SystemAdministratorLoggedIn {
   return {
     status: 'logged_in',
     user: fakeSystemAdministratorUser(),
-    card: {
-      ...fakeCardStorage(card),
-      ...fakeCardProgramming(card),
+    programmableCard: {
+      status: 'ready',
+      ...fakeCardProgramming(programmableCard),
+      ...fakeCardStorage(programmableCard),
     },
     logOut: jest.fn(),
   };
 }
 
 export function fakeElectionManagerAuth(
-  user: Partial<ElectionManagerUser> = {},
-  card: Partial<CardStorage> = {}
+  user: Partial<ElectionManagerUser> = {}
 ): DippedSmartcardAuth.ElectionManagerLoggedIn {
   return {
     status: 'logged_in',
     user: fakeElectionManagerUser(user),
-    card: fakeCardStorage(card),
     logOut: jest.fn(),
   };
 }

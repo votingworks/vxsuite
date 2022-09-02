@@ -1,8 +1,9 @@
+import { CardSummaryReady } from '@votingworks/types';
 import { fromByteArray, toByteArray } from 'base64-js';
 import fetchMock, { MockRequest } from 'fetch-mock';
 import { z } from 'zod';
 import { WebServiceCard } from '.';
-import { CardSummaryReady, typedAs } from '../types';
+import { typedAs } from '../types';
 
 const AbSchema = z.object({ a: z.number(), b: z.number() });
 

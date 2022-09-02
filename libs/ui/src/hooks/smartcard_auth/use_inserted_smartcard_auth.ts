@@ -4,6 +4,9 @@ import {
   safeParseJson,
   ok,
   err,
+  Card,
+  CardSummary,
+  CardSummaryReady,
   ElectionDefinition,
   Result,
   wrapException,
@@ -19,14 +22,7 @@ import {
   InsertedSmartcardAuth,
   Optional,
 } from '@votingworks/types';
-import {
-  assert,
-  Card,
-  CardSummary,
-  CardSummaryReady,
-  throwIllegalValue,
-  utcTimestamp,
-} from '@votingworks/utils';
+import { assert, throwIllegalValue, utcTimestamp } from '@votingworks/utils';
 import { useEffect, useReducer, useState } from 'react';
 import useInterval from 'use-interval';
 import deepEqual from 'deep-eql';

@@ -715,3 +715,21 @@ test('Error handling', async () => {
     );
   }
 });
+
+test('Card inserted backwards is handled with message', async () => {
+  const card = new MemoryCard();
+  const hardware = MemoryHardware.buildStandard();
+  const backend = new ElectionManagerStoreMemoryBackend({ electionDefinition });
+  renderInQueryClientContext(
+    <App card={card} hardware={hardware} backend={backend} />
+  );
+  await authenticateWithSystemAdministratorCard(card);
+
+  card.insertCard(undefined, undefined, 'error');
+  await screen.findByText('Card is Backwards');
+
+  card.removeCard();
+  await waitFor(() =>
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
+  );
+});
