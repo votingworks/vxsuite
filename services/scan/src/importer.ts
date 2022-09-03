@@ -137,6 +137,7 @@ export class Importer {
    */
   configure(electionDefinition: ElectionDefinition): void {
     this.workspace.store.setElection(electionDefinition);
+    // Central scanner only uses all precinct mode, set on every configure
     this.workspace.store.setPrecinctSelection(ALL_PRECINCTS_SELECTION);
   }
 
