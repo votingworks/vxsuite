@@ -242,7 +242,7 @@ export class Importer {
       backInterpretation
     );
 
-    debug('precinctSelection=%s', precinctSelection);
+    debug('precinctSelection=%o', precinctSelection);
     if (precinctSelection.kind !== 'AllPrecincts') {
       const configuredPrecinctId = precinctSelection.precinctId;
       if (
