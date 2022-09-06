@@ -7,7 +7,8 @@ import {
   unsafeParse,
   YesNoVote,
 } from '@votingworks/types';
-import { generateCombinations, throwIllegalValue } from './utils';
+import { throwIllegalValue } from '@votingworks/utils';
+import { generateCombinations } from './utils';
 
 // All valid contest choice options for a yes no contest
 const YES_NO_OPTIONS: YesNoVote[] = [['yes'], ['no'], ['yes', 'no'], []];
@@ -26,20 +27,12 @@ function getCandidateOptionsForContest(
 
   // Generate a result for all possible number of undervotes
   for (let i = 0; i < numSeats && i < candidateIds.length; i += 1) {
-    const candidates = [];
-    for (let j = 0; j < i; j += 1) {
-      candidates.push(candidateIds[j]);
-    }
-    candidateOptions.push(candidates);
+    candidateOptions.push(candidateIds.slice(0, i));
   }
 
   // Generate a result for all possible number of overvotes
   for (let i = numSeats + 1; i <= candidateIds.length; i += 1) {
-    const candidates = [];
-    for (let j = 0; j < i; j += 1) {
-      candidates.push(candidateIds[j]);
-    }
-    candidateOptions.push(candidates);
+    candidateOptions.push(candidateIds.slice(0, i));
   }
 
   // Add a write-in vote if applicable
@@ -78,7 +71,7 @@ function getVoteConfigurationsForCandidateOptions(
     (prev, options) => Math.max(prev, options.length),
     0
   );
-  const voteOptions = [];
+  const voteOptions: Array<Map<string, readonly string[]>> = [];
   for (let i = 0; i < numOptionsToProduce; i += 1) {
     const voteOption = new Map<string, readonly string[]>();
     for (const [contest, optionsForContest] of candidateOptionsForContest) {
@@ -86,7 +79,9 @@ function getVoteConfigurationsForCandidateOptions(
       // If i is greater then the number of votes generated for this contest, vote for the final generated vote again.
       voteOption.set(
         contest,
-        optionsForContest[Math.min(i, optionsForContest.length - 1)]
+        optionsForContest[
+          Math.min(i, optionsForContest.length - 1)
+        ] as readonly string[]
       );
     }
     voteOptions.push(voteOption);

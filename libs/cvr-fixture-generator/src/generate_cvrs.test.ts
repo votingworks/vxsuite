@@ -1,7 +1,7 @@
+import { electionMinimalExhaustiveSample } from '@votingworks/fixtures';
 import { CandidateContest } from '@votingworks/types';
-import { electionMinimalExhaustiveSample } from '.';
+import { throwIllegalValue } from '@votingworks/utils';
 import { generateCvrs } from './generate_cvrs';
-import { throwIllegalValue } from './utils';
 
 test('has all ballot types', () => {
   let seenAbsentee = false;

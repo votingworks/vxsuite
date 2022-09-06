@@ -65,6 +65,10 @@
       "path": "libs/cdf-types-election-event-logging"
     },
     {
+      "name": "libs/cvr-fixture-generator",
+      "path": "libs/cvr-fixture-generator"
+    },
+    {
       "name": "libs/image-utils",
       "path": "libs/image-utils"
     },

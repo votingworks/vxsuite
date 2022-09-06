@@ -1,5 +1,6 @@
 import {
   BallotIdSchema,
+  CastVoteRecord,
   safeParseElection,
   unsafeParse,
 } from '@votingworks/types';
@@ -32,7 +33,13 @@ interface IO {
   stderr: NodeJS.WritableStream;
 }
 
-export function main(argv: readonly string[], { stdout, stderr }: IO): number {
+/**
+ * Command line interface for generating a cast vote record file.
+ */
+export async function main(
+  argv: readonly string[],
+  { stdout, stderr }: IO
+): Promise<number> {
   let exitCode: number | undefined;
   const optionParser = yargs()
     .strict()
@@ -77,7 +84,9 @@ export function main(argv: readonly string[], { stdout, stderr }: IO): number {
     return exitCode;
   }
 
-  const args: GenerateCvrFileArguments = optionParser.parse(argv.slice(2));
+  const args: GenerateCvrFileArguments = await optionParser.parse(
+    argv.slice(2)
+  );
 
   if (args.help) {
     optionParser.showHelp((out) => {
@@ -119,7 +128,7 @@ export function main(argv: readonly string[], { stdout, stderr }: IO): number {
   while (numBallots !== undefined && numBallots > castVoteRecords.length) {
     const i = Math.floor(Math.random() * castVoteRecords.length);
     castVoteRecords.push({
-      ...castVoteRecords[i],
+      ...(castVoteRecords[i] as CastVoteRecord),
       _ballotId: unsafeParse(BallotIdSchema, `id-${ballotId}`),
     });
     ballotId += 1;

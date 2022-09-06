@@ -1,8 +1,3 @@
-// duplicated from shared utils library in order to avoid creating a cyclical dependency
-export function throwIllegalValue(s: never): never {
-  throw new Error(`Illegal Value: ${s}`);
-}
-
 /**
  * Generate all combinations of an array.
  * @param sourceArray - Array of input elements.
@@ -35,7 +30,7 @@ export function generateCombinations<T>(
       sourceIndex += 1
     ) {
       // Get next (possibly partial) combination.
-      const next = [...workingCombo, sourceArray[sourceIndex]];
+      const next = [...workingCombo, sourceArray[sourceIndex] as T];
 
       if (oneAwayFromComboLength) {
         // Combo of right length found, save it.

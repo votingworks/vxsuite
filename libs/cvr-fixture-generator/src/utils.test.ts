@@ -1,8 +1,4 @@
-import { generateCombinations, throwIllegalValue } from './utils';
-
-test('throwIllegalValue', () => {
-  expect(() => throwIllegalValue('foo' as never)).toThrowError(/foo/);
-});
+import { generateCombinations } from './utils';
 
 test('generateCombinations', () => {
   expect(generateCombinations([1, 2, 3], 0)).toStrictEqual([]);
