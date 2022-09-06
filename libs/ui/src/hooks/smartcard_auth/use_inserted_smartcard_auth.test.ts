@@ -18,7 +18,7 @@ import {
 } from '@votingworks/test-utils';
 import {
   ALL_PRECINCTS_SELECTION,
-  getSinglePrecinctSelection,
+  singlePrecinctSelectionFor,
   PrecinctSelection,
   UserRole,
 } from '@votingworks/types';
@@ -45,7 +45,7 @@ const allowedUserRoles: UserRole[] = [
 const electionDefinition = electionSampleDefinition;
 const { electionHash, election } = electionDefinition;
 const otherElectionHash = electionSample2Definition.electionHash;
-const precinct: PrecinctSelection = getSinglePrecinctSelection(
+const precinct: PrecinctSelection = singlePrecinctSelectionFor(
   election.precincts[0].id
 );
 const ballotStyle = election.ballotStyles[0];

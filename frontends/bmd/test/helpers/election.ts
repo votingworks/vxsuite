@@ -2,7 +2,7 @@ import {
   CandidateContest,
   getBallotStyle,
   getContests,
-  getSinglePrecinctSelection,
+  singlePrecinctSelectionFor,
   MsEitherNeitherContest,
   YesNoContest,
 } from '@votingworks/types';
@@ -74,7 +74,7 @@ export async function setStateInStorage(
   state: Partial<State> = {}
 ): Promise<void> {
   const storedState: Partial<State> = {
-    appPrecinct: getSinglePrecinctSelection(defaultPrecinctId),
+    appPrecinct: singlePrecinctSelectionFor(defaultPrecinctId),
     ballotsPrintedCount: 0,
     isLiveMode: true,
     isPollsOpen: true,

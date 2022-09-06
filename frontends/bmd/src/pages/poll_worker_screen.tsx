@@ -10,7 +10,7 @@ import {
   InsertedSmartcardAuth,
   PrecinctId,
   Tally,
-  getSinglePrecinctSelection,
+  singlePrecinctSelectionFor,
   PrecinctSelection,
   getPrecinctSelectionName,
 } from '@votingworks/types';
@@ -71,7 +71,7 @@ function parsePrecinctScannerTally(
       precinctScannerTally.talliesByPrecinct
     )) {
       assert(compressedTally);
-      precinctList.push(getSinglePrecinctSelection(precinctId));
+      precinctList.push(singlePrecinctSelectionFor(precinctId));
       // partyId may be undefined in the case of a ballot style without a party in the election
       for (const partyId of parties) {
         const key = getTallyIdentifier(partyId, precinctId);

@@ -15,7 +15,7 @@ import {
   ok,
   InsertedSmartcardAuth,
   YesNoContestCompressedTally,
-  getSinglePrecinctSelection,
+  singlePrecinctSelectionFor,
   ALL_PRECINCTS_SELECTION,
 } from '@votingworks/types';
 
@@ -92,7 +92,7 @@ function renderScreen(
       pollworkerAuth={pollworkerAuth}
       activateCardlessVoterSession={jest.fn()}
       resetCardlessVoterSession={jest.fn()}
-      appPrecinct={getSinglePrecinctSelection(defaultPrecinctId)}
+      appPrecinct={singlePrecinctSelectionFor(defaultPrecinctId)}
       electionDefinition={electionDefinition}
       enableLiveMode={jest.fn()}
       hasVotes={false}
@@ -335,7 +335,7 @@ test('precinct scanner report populated as expected with single precinct data fo
     totalBallotsScanned: 25,
     machineId: '001',
     timeSaved: new Date('2020-10-31').getTime(),
-    precinctSelection: getSinglePrecinctSelection('23'),
+    precinctSelection: singlePrecinctSelectionFor('23'),
     isLiveMode: false,
     isPollsOpen: false,
     ballotCounts: {
@@ -430,7 +430,7 @@ test('precinct scanner report populated as expected with all precinct specific d
     totalBallotsScanned: 25,
     machineId: '001',
     timeSaved: new Date('2020-10-31').getTime(),
-    precinctSelection: getSinglePrecinctSelection('23'),
+    precinctSelection: singlePrecinctSelectionFor('23'),
     isLiveMode: false,
     isPollsOpen: false,
     ballotCounts: {
@@ -667,7 +667,7 @@ test('precinct scanner report populated as expected with all precinct specific d
   renderScreen({
     pollworkerAuth,
     electionDefinition,
-    appPrecinct: getSinglePrecinctSelection('precinct-1'),
+    appPrecinct: singlePrecinctSelectionFor('precinct-1'),
     isLiveMode: true,
     isPollsOpen: true,
     machineConfig: fakeMachineConfig({
@@ -931,7 +931,7 @@ test('precinct scanner report populated as expected with all precinct combined d
   renderScreen({
     pollworkerAuth,
     electionDefinition,
-    appPrecinct: getSinglePrecinctSelection('precinct-1'),
+    appPrecinct: singlePrecinctSelectionFor('precinct-1'),
     isLiveMode: true,
     isPollsOpen: true,
     machineConfig: fakeMachineConfig({
@@ -1088,7 +1088,7 @@ test('precinct scanner report populated as expected with a single precinct for p
     totalBallotsScanned: 3,
     machineId: '001',
     timeSaved: new Date('2020-10-31').getTime(),
-    precinctSelection: getSinglePrecinctSelection('precinct-1'),
+    precinctSelection: singlePrecinctSelectionFor('precinct-1'),
     isLiveMode: false,
     isPollsOpen: false,
     ballotCounts: {
@@ -1103,7 +1103,7 @@ test('precinct scanner report populated as expected with a single precinct for p
   renderScreen({
     pollworkerAuth,
     electionDefinition,
-    appPrecinct: getSinglePrecinctSelection('precinct-1'),
+    appPrecinct: singlePrecinctSelectionFor('precinct-1'),
     isLiveMode: true,
     isPollsOpen: true,
     machineConfig: fakeMachineConfig({

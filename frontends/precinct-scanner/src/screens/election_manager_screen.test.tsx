@@ -9,7 +9,7 @@ import {
 import { Scan } from '@votingworks/api';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { fakeKiosk, Inserted } from '@votingworks/test-utils';
-import { getSinglePrecinctSelection } from '@votingworks/types';
+import { singlePrecinctSelectionFor } from '@votingworks/types';
 import { usbstick } from '@votingworks/utils';
 import MockDate from 'mockdate';
 import React from 'react';
@@ -121,7 +121,7 @@ test('setting and un-setting the precinct', async () => {
   });
   expect(updatePrecinctSelection).toHaveBeenNthCalledWith(
     1,
-    expect.objectContaining(getSinglePrecinctSelection(precinct.id))
+    expect.objectContaining(singlePrecinctSelectionFor(precinct.id))
   );
 });
 

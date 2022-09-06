@@ -2,7 +2,7 @@ import { electionSampleDefinition as testElectionDefinition } from '@votingworks
 import { Scan } from '@votingworks/api';
 import fetchMock from 'fetch-mock';
 import { Buffer } from 'buffer';
-import { getSinglePrecinctSelection } from '@votingworks/types';
+import { singlePrecinctSelectionFor } from '@votingworks/types';
 import * as config from './config';
 
 test('GET /config/election', async () => {
@@ -100,7 +100,7 @@ test('setPrecinctSelection updates', async () => {
     '/precinct-scanner/config/precinct',
     JSON.stringify({ status: 'ok' })
   );
-  await config.setPrecinctSelection(getSinglePrecinctSelection('23'));
+  await config.setPrecinctSelection(singlePrecinctSelectionFor('23'));
 
   expect(
     fetchMock.calls('/precinct-scanner/config/precinct', { method: 'PUT' })
@@ -124,7 +124,7 @@ test('setPrecinctSelection fails', async () => {
     JSON.stringify({ status: 'error' })
   );
   await expect(
-    config.setPrecinctSelection(getSinglePrecinctSelection('23'))
+    config.setPrecinctSelection(singlePrecinctSelectionFor('23'))
   ).rejects.toThrowErrorMatchingInlineSnapshot(
     '"PUT /precinct-scanner/config/precinct failed: undefined"'
   );

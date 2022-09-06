@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import {
   ALL_PRECINCTS_SELECTION,
   ElectionDefinition,
-  getSinglePrecinctSelection,
+  singlePrecinctSelectionFor,
   PrecinctSelection,
 } from '@votingworks/types';
 import {
@@ -61,7 +61,7 @@ export function AdminScreen({
     if (precinctId === ALL_PRECINCTS_OPTION_VALUE) {
       updateAppPrecinct(ALL_PRECINCTS_SELECTION);
     } else if (precinctId) {
-      updateAppPrecinct(getSinglePrecinctSelection(precinctId));
+      updateAppPrecinct(singlePrecinctSelectionFor(precinctId));
     }
   };
 

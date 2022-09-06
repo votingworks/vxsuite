@@ -35,7 +35,7 @@ import {
   CompressedTally,
   getPartyIdsInBallotStyles,
   InsertedSmartcardAuth,
-  getSinglePrecinctSelection,
+  singlePrecinctSelectionFor,
   getPrecinctSelectionName,
 } from '@votingworks/types';
 import { isLiveCheckEnabled } from '../config/features';
@@ -355,7 +355,7 @@ export function PollWorkerScreen({
                       data-testid={getTallyIdentifier(partyId, precinctId)}
                       electionDefinition={electionDefinition}
                       tally={tallyForReport}
-                      precinctSelection={getSinglePrecinctSelection(precinctId)}
+                      precinctSelection={singlePrecinctSelectionFor(precinctId)}
                       partyId={partyId}
                       reportPurpose={reportPurpose}
                       isPollsOpen={!isPollsOpen}

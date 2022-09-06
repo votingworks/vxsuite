@@ -3,11 +3,11 @@ import {
   ALL_PRECINCTS_NAME,
   ALL_PRECINCTS_SELECTION,
   getPrecinctSelectionName,
-  getSinglePrecinctSelection,
+  singlePrecinctSelectionFor,
 } from './precinct_selection';
 
-test('getSinglePrecinctSelection', () => {
-  expect(getSinglePrecinctSelection('precinct-id')).toMatchObject({
+test('singlePrecinctSelectionFor', () => {
+  expect(singlePrecinctSelectionFor('precinct-id')).toMatchObject({
     kind: 'SinglePrecinct',
     precinctId: 'precinct-id',
   });

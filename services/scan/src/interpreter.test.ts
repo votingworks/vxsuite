@@ -5,7 +5,7 @@ import {
   BallotIdSchema,
   BlankPage,
   ElectionDefinition,
-  getSinglePrecinctSelection,
+  singlePrecinctSelectionFor,
   InterpretedBmdPage,
   InterpretedHmpbPage,
   PageInterpretation,
@@ -152,7 +152,7 @@ test('properly detects bmd ballot with wrong precinct', async () => {
     testMode: true,
     // TODO: remove this once the QR code is fixed (https://github.com/votingworks/vxsuite/issues/1524)
     skipElectionHashCheck: true,
-    precinctSelection: getSinglePrecinctSelection('20'),
+    precinctSelection: singlePrecinctSelectionFor('20'),
     adjudicationReasons:
       electionSampleDefinition.election.centralScanAdjudicationReasons ?? [],
   }).interpretFile({
@@ -182,7 +182,7 @@ test('properly detects bmd ballot with correct precinct', async () => {
     testMode: true,
     // TODO: remove this once the QR code is fixed (https://github.com/votingworks/vxsuite/issues/1524)
     skipElectionHashCheck: true,
-    precinctSelection: getSinglePrecinctSelection('23'),
+    precinctSelection: singlePrecinctSelectionFor('23'),
     adjudicationReasons:
       electionSampleDefinition.election.centralScanAdjudicationReasons ?? [],
   }).interpretFile({

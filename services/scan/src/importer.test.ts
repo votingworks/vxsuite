@@ -7,7 +7,7 @@ import {
   BallotPageMetadata,
   BallotSheetInfo,
   BallotType,
-  getSinglePrecinctSelection,
+  singlePrecinctSelectionFor,
 } from '@votingworks/types';
 import { assert, sleep } from '@votingworks/utils';
 import { Buffer } from 'buffer';
@@ -563,7 +563,7 @@ test('rejects pages that do not match the current precinct', async () => {
 
   importer.configure(electionDefinition);
   workspace.store.setPrecinctSelection(
-    getSinglePrecinctSelection(election.precincts[1].id)
+    singlePrecinctSelectionFor(election.precincts[1].id)
   );
   jest.spyOn(workspace.store, 'addSheet').mockReturnValueOnce('sheet-id');
 
@@ -695,7 +695,7 @@ test('rejects sheets that would not produce a valid CVR', async () => {
   const configuredPrecinctId = election.precincts[0].id;
   importer.configure(electionDefinition);
   workspace.store.setPrecinctSelection(
-    getSinglePrecinctSelection(configuredPrecinctId)
+    singlePrecinctSelectionFor(configuredPrecinctId)
   );
   jest.spyOn(workspace.store, 'addSheet').mockReturnValueOnce('sheet-id');
 

@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';
 import {
   getPartyPrimaryAdjectiveFromBallotStyle,
-  getSinglePrecinctSelection,
+  singlePrecinctSelectionFor,
 } from '@votingworks/types';
 import { LinkButton, Main, Screen, Prose } from '@votingworks/ui';
 
@@ -94,7 +94,7 @@ export function StartPage(): JSX.Element {
             <ElectionInfo
               electionDefinition={electionDefinition}
               ballotStyleId={ballotStyleId}
-              precinctSelection={getSinglePrecinctSelection(precinctId)}
+              precinctSelection={singlePrecinctSelectionFor(precinctId)}
               horizontal
             />
           </React.Fragment>

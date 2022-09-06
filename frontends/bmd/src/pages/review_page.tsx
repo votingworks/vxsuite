@@ -13,7 +13,7 @@ import {
   OptionalYesNoVote,
   getPrecinctIndexById,
   getCandidatePartiesDescription,
-  getSinglePrecinctSelection,
+  singlePrecinctSelectionFor,
 } from '@votingworks/types';
 import {
   Button,
@@ -526,7 +526,7 @@ export function ReviewPage(): JSX.Element {
             <ElectionInfo
               electionDefinition={electionDefinition}
               ballotStyleId={ballotStyleId}
-              precinctSelection={getSinglePrecinctSelection(precinctId)}
+              precinctSelection={singlePrecinctSelectionFor(precinctId)}
               horizontal
             />
           </React.Fragment>

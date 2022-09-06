@@ -4,7 +4,7 @@ import {
   ok,
   PrecinctSelection,
   ALL_PRECINCTS_SELECTION,
-  getSinglePrecinctSelection,
+  singlePrecinctSelectionFor,
 } from '@votingworks/types';
 import {
   Button,
@@ -111,7 +111,7 @@ export function ElectionManagerScreen({
     await updatePrecinctSelection(
       value === ALL_PRECINCTS_OPTION_VALUE
         ? ALL_PRECINCTS_SELECTION
-        : getSinglePrecinctSelection(value)
+        : singlePrecinctSelectionFor(value)
     );
   };
 

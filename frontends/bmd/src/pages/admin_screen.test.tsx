@@ -6,7 +6,7 @@ import { asElectionDefinition } from '@votingworks/fixtures';
 import { fakeKiosk } from '@votingworks/test-utils';
 import {
   ALL_PRECINCTS_SELECTION,
-  getSinglePrecinctSelection,
+  singlePrecinctSelectionFor,
 } from '@votingworks/types';
 import { render } from '../../test/test_utils';
 import { election, defaultPrecinctId } from '../../test/helpers/election';
@@ -36,7 +36,7 @@ afterEach(() => {
 test('renders AdminScreen for PrintOnly', () => {
   render(
     <AdminScreen
-      appPrecinct={getSinglePrecinctSelection(defaultPrecinctId)}
+      appPrecinct={singlePrecinctSelectionFor(defaultPrecinctId)}
       ballotsPrintedCount={0}
       electionDefinition={asElectionDefinition(election)}
       fetchElection={jest.fn()}
@@ -68,7 +68,7 @@ test('renders AdminScreen for PrintOnly', () => {
 test('renders date and time settings modal', async () => {
   render(
     <AdminScreen
-      appPrecinct={getSinglePrecinctSelection(defaultPrecinctId)}
+      appPrecinct={singlePrecinctSelectionFor(defaultPrecinctId)}
       ballotsPrintedCount={0}
       electionDefinition={asElectionDefinition(election)}
       fetchElection={jest.fn()}

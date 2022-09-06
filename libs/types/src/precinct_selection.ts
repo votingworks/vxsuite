@@ -30,7 +30,7 @@ export const PrecinctSelectionSchema: z.ZodSchema<PrecinctSelection> = z.union([
   AllPrecinctsSelectionSchema,
 ]);
 
-export function getSinglePrecinctSelection(
+export function singlePrecinctSelectionFor(
   precinctId: PrecinctId
 ): SinglePrecinctSelection {
   return {

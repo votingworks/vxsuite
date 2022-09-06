@@ -4,7 +4,7 @@ import {
   ALL_PRECINCTS_SELECTION,
   CastVoteRecord,
   err,
-  getSinglePrecinctSelection,
+  singlePrecinctSelectionFor,
   ok,
   PrecinctId,
   Result,
@@ -122,7 +122,7 @@ function postTemplate(
 async function setAppPrecinct(app: Application, precinctId?: PrecinctId) {
   await put(app, '/precinct-scanner/config/precinct', {
     precinctSelection: precinctId
-      ? getSinglePrecinctSelection(precinctId)
+      ? singlePrecinctSelectionFor(precinctId)
       : ALL_PRECINCTS_SELECTION,
   });
 }

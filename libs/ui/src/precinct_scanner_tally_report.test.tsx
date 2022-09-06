@@ -9,7 +9,7 @@ import {
   ALL_PRECINCTS_SELECTION,
   BallotIdSchema,
   CastVoteRecord,
-  getSinglePrecinctSelection,
+  singlePrecinctSelectionFor,
   PartyIdSchema,
   unsafeParse,
 } from '@votingworks/types';
@@ -84,7 +84,7 @@ test('renders as expected for a single precinct in a general election', () => {
     <PrecinctScannerTallyReport
       reportSavedTime={time}
       electionDefinition={electionSampleDefinition}
-      precinctSelection={getSinglePrecinctSelection(
+      precinctSelection={singlePrecinctSelectionFor(
         electionSample.precincts[0].id
       )}
       reportPurpose="Testing"
@@ -216,7 +216,7 @@ test('renders as expected for a single precincts in a primary election', () => {
     <PrecinctScannerTallyReport
       reportSavedTime={time}
       electionDefinition={electionMinimalExhaustiveSampleDefinition}
-      precinctSelection={getSinglePrecinctSelection('precinct-1')}
+      precinctSelection={singlePrecinctSelectionFor('precinct-1')}
       reportPurpose="Testing"
       isPollsOpen={false}
       tally={tally}

@@ -1,6 +1,6 @@
 import {
   CandidateVote,
-  getSinglePrecinctSelection,
+  singlePrecinctSelectionFor,
   OptionalYesNoVote,
 } from '@votingworks/types';
 import { LinkButton, Screen, Prose, Text } from '@votingworks/ui';
@@ -121,7 +121,7 @@ export function ContestPage(): JSX.Element {
             <ElectionInfo
               electionDefinition={electionDefinition}
               ballotStyleId={ballotStyleId}
-              precinctSelection={getSinglePrecinctSelection(precinctId)}
+              precinctSelection={singlePrecinctSelectionFor(precinctId)}
               horizontal
             />
           </React.Fragment>

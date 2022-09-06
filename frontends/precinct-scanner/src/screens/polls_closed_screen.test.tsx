@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { Inserted } from '@votingworks/test-utils';
 import { electionSampleDefinition } from '@votingworks/fixtures';
-import { getSinglePrecinctSelection } from '@votingworks/types';
+import { singlePrecinctSelectionFor } from '@votingworks/types';
 import { AppContext } from '../contexts/app_context';
 import {
   PollsClosedScreen,
@@ -17,7 +17,7 @@ function renderScreen(props: Partial<PollsClosedScreenProps> = {}) {
     <AppContext.Provider
       value={{
         electionDefinition: electionSampleDefinition,
-        precinctSelection: getSinglePrecinctSelection('23'),
+        precinctSelection: singlePrecinctSelectionFor('23'),
         currentMarkThresholds: { definite: 0.12, marginal: 0.12 },
         machineConfig: {
           machineId: MACHINE_ID,
