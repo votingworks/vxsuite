@@ -1,7 +1,7 @@
 import {
   BallotIdSchema,
   CastVoteRecord,
-  safeParseElection,
+  safeParseElectionDefinition,
   unsafeParse,
 } from '@votingworks/types';
 import * as fs from 'fs';
@@ -22,7 +22,7 @@ interface GenerateCvrFileArguments {
   outputPath?: string;
   numBallots?: number;
   scannerNames?: Array<string | number>;
-  liveBallots?: boolean;
+  liveBallots: boolean;
   help?: boolean;
   [x: string]: unknown;
 }
@@ -48,12 +48,12 @@ export async function main(
       electionPath: {
         type: 'string',
         alias: 'e',
-        description: 'Path to the input election definition',
+        description: 'Path to the input election definition.',
       },
       outputPath: {
         type: 'string',
         alias: 'o',
-        description: 'Path to write output file to',
+        description: 'Path to write output file to.',
       },
       numBallots: {
         type: 'number',
@@ -73,20 +73,18 @@ export async function main(
     .alias('-h', '--help')
     .help(false)
     .version(false)
-    .fail((msg, err) => {
-      if (err) {
-        stderr.write(`${err}\n`);
-      }
+    .fail((msg) => {
+      stderr.write(`${msg}\n`);
       exitCode = 1;
     });
-
-  if (typeof exitCode !== 'undefined') {
-    return exitCode;
-  }
 
   const args: GenerateCvrFileArguments = await optionParser.parse(
     argv.slice(2)
   );
+
+  if (typeof exitCode !== 'undefined') {
+    return exitCode;
+  }
 
   if (args.help) {
     optionParser.showHelp((out) => {
@@ -101,15 +99,17 @@ export async function main(
     return 1;
   }
 
-  const outputPath = args.outputPath ?? 'output.jsonl';
-  const { numBallots } = args;
-  const testMode = !(args.liveBallots ?? false);
+  const { outputPath, numBallots } = args;
+  const testMode = !args.liveBallots;
   const scannerNames = (args.scannerNames ?? ['scanner']).map((s) => `${s}`);
 
   const electionRawData = fs.readFileSync(args.electionPath, 'utf8');
-  const election = safeParseElection(electionRawData).unsafeUnwrap();
+  const electionDefinition =
+    safeParseElectionDefinition(electionRawData).unsafeUnwrap();
 
-  const castVoteRecords = [...generateCvrs(election, scannerNames, testMode)];
+  const castVoteRecords = [
+    ...generateCvrs(electionDefinition, scannerNames, testMode),
+  ];
 
   // Modify results to match the desired number of ballots
   if (numBallots !== undefined && numBallots < castVoteRecords.length) {
@@ -134,15 +134,19 @@ export async function main(
     ballotId += 1;
   }
 
-  const stream = fs.createWriteStream(outputPath);
+  const stream = outputPath ? fs.createWriteStream(outputPath) : stdout;
   for (const record of castVoteRecords) {
     stream.write(`${JSON.stringify(record)}\n`);
   }
-  stream.end();
+  await new Promise<void>((resolve) => {
+    stream.end(resolve);
+  });
 
-  stdout.write(
-    `Wrote ${castVoteRecords.length} cast vote records to ${outputPath}\n`
-  );
+  if (stream !== stdout) {
+    stdout.write(
+      `Wrote ${castVoteRecords.length} cast vote records to ${outputPath}\n`
+    );
+  }
 
   return 0;
 }

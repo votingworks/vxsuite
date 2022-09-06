@@ -5,9 +5,5 @@ const shared = require('../../jest.config.shared');
  */
 module.exports = {
   ...shared,
-  collectCoverageFrom: [
-    ...shared.collectCoverageFrom,
-    '!src/**/index.ts',
-    '!src/cli/generate-sample-cvr-file/**/*',
-  ],
+  collectCoverageFrom: [...shared.collectCoverageFrom, '!src/**/index.ts'],
 };

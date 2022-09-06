@@ -3,7 +3,7 @@ import {
   Candidate,
   CandidateContest,
   CastVoteRecord,
-  Election,
+  ElectionDefinition,
   unsafeParse,
   YesNoVote,
 } from '@votingworks/types';
@@ -91,22 +91,20 @@ function getVoteConfigurationsForCandidateOptions(
 
 /**
  * Generates a base set of CVRs for a given election that obtains maximum coverage of all the ballot metadata (precincts, scanners, etc.) and all possible votes on each contest.
- * @param election Election to generate CVRs for
+ * @param electionDefinition Election to generate CVRs for
  * @param scannerNames Scanners to include in the output CVRs
  * @param testMode Generate CVRs for test ballots or live ballots
  * @returns Array of generated CastVoteRecords
  */
 export function* generateCvrs(
-  election: Election,
+  electionDefinition: ElectionDefinition,
   scannerNames: readonly string[],
   testMode: boolean
 ): Generator<CastVoteRecord> {
-  const { ballotStyles } = election;
-  const { contests } = election;
+  const { ballotStyles, contests } = electionDefinition.election;
   let ballotId = 0;
   for (const ballotStyle of ballotStyles) {
-    const { precincts } = ballotStyle;
-    const { districts } = ballotStyle;
+    const { precincts, districts } = ballotStyle;
     for (const ballotType of ['absentee', 'provisional', 'standard'] as const) {
       for (const precinct of precincts) {
         for (const scanner of scannerNames) {

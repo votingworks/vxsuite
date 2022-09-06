@@ -1,4 +1,8 @@
-import { electionMinimalExhaustiveSample } from '@votingworks/fixtures';
+import {
+  asElectionDefinition,
+  electionMinimalExhaustiveSample,
+  electionMinimalExhaustiveSampleDefinition,
+} from '@votingworks/fixtures';
 import { CandidateContest } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/utils';
 import { generateCvrs } from './generate_cvrs';
@@ -9,7 +13,7 @@ test('has all ballot types', () => {
   let seenStandard = false;
 
   for (const cvr of generateCvrs(
-    electionMinimalExhaustiveSample,
+    electionMinimalExhaustiveSampleDefinition,
     ['scanner-1'],
     false
   )) {
@@ -44,7 +48,7 @@ test('uses all the scanners given', () => {
   const scanners = new Set<string>();
 
   for (const cvr of generateCvrs(
-    electionMinimalExhaustiveSample,
+    electionMinimalExhaustiveSampleDefinition,
     ['scanner-1', 'scanner-2'],
     false
   )) {
@@ -63,7 +67,7 @@ test('adds write-ins for contests that allow them', () => {
   let seenWriteIn = false;
 
   for (const cvr of generateCvrs(
-    electionMinimalExhaustiveSample,
+    electionMinimalExhaustiveSampleDefinition,
     ['scanner-1'],
     false
   )) {
@@ -86,7 +90,7 @@ test('adds write-ins even when there is only 1 seat', () => {
   let seenWriteIn = false;
 
   for (const cvr of generateCvrs(
-    {
+    asElectionDefinition({
       ...electionMinimalExhaustiveSample,
       contests: [
         ...electionMinimalExhaustiveSample.contests.filter(
@@ -94,7 +98,7 @@ test('adds write-ins even when there is only 1 seat', () => {
         ),
         { ...writeInContest, seats: 1 },
       ],
-    },
+    }),
     ['scanner-1'],
     false
   )) {
