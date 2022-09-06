@@ -1,11 +1,9 @@
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
-  ALL_PRECINCTS_SELECTION,
   BallotIdSchema,
   BlankPage,
   ElectionDefinition,
-  singlePrecinctSelectionFor,
   InterpretedBmdPage,
   InterpretedHmpbPage,
   PageInterpretation,
@@ -13,7 +11,11 @@ import {
   UnreadablePage,
   unsafeParse,
 } from '@votingworks/types';
-import { throwIllegalValue } from '@votingworks/utils';
+import {
+  ALL_PRECINCTS_SELECTION,
+  singlePrecinctSelectionFor,
+  throwIllegalValue,
+} from '@votingworks/utils';
 import { readFile, emptyDirSync } from 'fs-extra';
 import { join } from 'path';
 import * as choctaw2020Fixtures from '../test/fixtures/2020-choctaw';

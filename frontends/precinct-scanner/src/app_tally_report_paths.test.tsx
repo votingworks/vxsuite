@@ -17,20 +17,20 @@ import {
 } from '@votingworks/test-utils';
 import { Scan } from '@votingworks/api';
 import {
+  ALL_PRECINCTS_SELECTION,
   BallotCountDetails,
   MemoryCard,
   MemoryHardware,
   MemoryStorage,
+  singlePrecinctSelectionFor,
   TallySourceMachineType,
   typedAs,
 } from '@votingworks/utils';
 import {
-  ALL_PRECINCTS_SELECTION,
   CompressedTally,
   ContestId,
   Dictionary,
   err,
-  singlePrecinctSelectionFor,
   VotingMethod,
 } from '@votingworks/types';
 import { App } from './app';

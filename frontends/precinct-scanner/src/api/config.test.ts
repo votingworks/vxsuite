@@ -2,7 +2,7 @@ import { electionSampleDefinition as testElectionDefinition } from '@votingworks
 import { Scan } from '@votingworks/api';
 import fetchMock from 'fetch-mock';
 import { Buffer } from 'buffer';
-import { singlePrecinctSelectionFor } from '@votingworks/types';
+import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import * as config from './config';
 
 test('GET /config/election', async () => {

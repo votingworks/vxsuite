@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { Inserted } from '@votingworks/test-utils';
 import { electionSampleDefinition } from '@votingworks/fixtures';
-import { singlePrecinctSelectionFor } from '@votingworks/types';
+import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { AppContext } from '../contexts/app_context';
 import {
   PollsClosedScreen,

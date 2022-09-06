@@ -6,10 +6,9 @@ import {
   BallotStyleId,
   ElectionDefinition,
   getPartyPrimaryAdjectiveFromBallotStyle,
-  getPrecinctSelectionName,
   PrecinctSelection,
 } from '@votingworks/types';
-import { formatLongDate } from '@votingworks/utils';
+import { getPrecinctSelectionName, formatLongDate } from '@votingworks/utils';
 
 import { Prose, Text, NoWrap } from '@votingworks/ui';
 import { Seal } from './seal';

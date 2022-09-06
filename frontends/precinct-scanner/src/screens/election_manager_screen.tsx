@@ -3,8 +3,6 @@ import {
   SelectChangeEventFunction,
   ok,
   PrecinctSelection,
-  ALL_PRECINCTS_SELECTION,
-  singlePrecinctSelectionFor,
 } from '@votingworks/types';
 import {
   Button,
@@ -18,7 +16,12 @@ import {
   UsbDrive,
   isElectionManagerAuth,
 } from '@votingworks/ui';
-import { assert, usbstick } from '@votingworks/utils';
+import {
+  ALL_PRECINCTS_SELECTION,
+  assert,
+  singlePrecinctSelectionFor,
+  usbstick,
+} from '@votingworks/utils';
 import React, { useCallback, useContext, useState } from 'react';
 import { Scan } from '@votingworks/api';
 import { CalibrateScannerModal } from '../components/calibrate_scanner_modal';

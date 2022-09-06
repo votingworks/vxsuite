@@ -13,7 +13,6 @@ import {
   OptionalYesNoVote,
   getPrecinctIndexById,
   getCandidatePartiesDescription,
-  singlePrecinctSelectionFor,
 } from '@votingworks/types';
 import {
   Button,
@@ -31,6 +30,7 @@ import {
   assert,
   getSingleYesNoVote,
   getContestVoteInRotatedOrder,
+  singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import {
   CandidateContestResultInterface,

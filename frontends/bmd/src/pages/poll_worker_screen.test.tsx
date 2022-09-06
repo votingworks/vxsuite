@@ -15,8 +15,6 @@ import {
   ok,
   InsertedSmartcardAuth,
   YesNoContestCompressedTally,
-  singlePrecinctSelectionFor,
-  ALL_PRECINCTS_SELECTION,
 } from '@votingworks/types';
 
 import {
@@ -27,8 +25,10 @@ import {
   within,
 } from '@testing-library/react';
 import {
+  ALL_PRECINCTS_SELECTION,
   TallySourceMachineType,
   PrecinctScannerCardTally,
+  singlePrecinctSelectionFor,
   typedAs,
   MemoryHardware,
 } from '@votingworks/utils';

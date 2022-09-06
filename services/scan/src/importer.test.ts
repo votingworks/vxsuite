@@ -7,9 +7,8 @@ import {
   BallotPageMetadata,
   BallotSheetInfo,
   BallotType,
-  singlePrecinctSelectionFor,
 } from '@votingworks/types';
-import { assert, sleep } from '@votingworks/utils';
+import { assert, singlePrecinctSelectionFor, sleep } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import * as fs from 'fs-extra';
 import { join } from 'path';

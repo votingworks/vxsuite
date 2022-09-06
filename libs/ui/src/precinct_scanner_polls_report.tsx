@@ -1,9 +1,9 @@
+import { Election, PrecinctSelection } from '@votingworks/types';
 import {
-  Election,
+  formatFullDateTimeZone,
+  formatLongDate,
   getPrecinctSelectionName,
-  PrecinctSelection,
-} from '@votingworks/types';
-import { formatFullDateTimeZone, formatLongDate } from '@votingworks/utils';
+} from '@votingworks/utils';
 import { DateTime } from 'luxon';
 import React from 'react';
 import styled from 'styled-components';

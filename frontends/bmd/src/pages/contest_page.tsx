@@ -1,10 +1,6 @@
-import {
-  CandidateVote,
-  singlePrecinctSelectionFor,
-  OptionalYesNoVote,
-} from '@votingworks/types';
+import { CandidateVote, OptionalYesNoVote } from '@votingworks/types';
 import { LinkButton, Screen, Prose, Text } from '@votingworks/ui';
-import { assert } from '@votingworks/utils';
+import { assert, singlePrecinctSelectionFor } from '@votingworks/utils';
 import pluralize from 'pluralize';
 import React, { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';

@@ -4,7 +4,7 @@ import { electionSampleDefinition } from '@votingworks/fixtures';
 import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
-} from '@votingworks/types';
+} from '@votingworks/utils';
 import { ElectionInfoBar } from './election_info_bar';
 
 test('Renders nothing when there is no election', () => {

@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 
+import { ElectionDefinition, PrecinctSelection } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
-  ElectionDefinition,
   singlePrecinctSelectionFor,
-  PrecinctSelection,
-} from '@votingworks/types';
+} from '@votingworks/utils';
 import {
   Button,
   CurrentDateAndTime,

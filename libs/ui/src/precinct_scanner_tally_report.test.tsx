@@ -6,14 +6,16 @@ import {
   electionSampleDefinition,
 } from '@votingworks/fixtures';
 import {
-  ALL_PRECINCTS_SELECTION,
   BallotIdSchema,
   CastVoteRecord,
-  singlePrecinctSelectionFor,
   PartyIdSchema,
   unsafeParse,
 } from '@votingworks/types';
-import { calculateTallyForCastVoteRecords } from '@votingworks/utils';
+import {
+  ALL_PRECINCTS_SELECTION,
+  calculateTallyForCastVoteRecords,
+  singlePrecinctSelectionFor,
+} from '@votingworks/utils';
 
 import { PrecinctScannerTallyReport } from './precinct_scanner_tally_report';
 

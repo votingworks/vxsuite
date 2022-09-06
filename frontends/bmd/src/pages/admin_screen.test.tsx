@@ -7,7 +7,7 @@ import { fakeKiosk } from '@votingworks/test-utils';
 import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
-} from '@votingworks/types';
+} from '@votingworks/utils';
 import { render } from '../../test/test_utils';
 import { election, defaultPrecinctId } from '../../test/helpers/election';
 

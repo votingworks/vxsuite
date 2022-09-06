@@ -3,6 +3,7 @@ import fetchMock from 'fetch-mock';
 import { promises as fs } from 'fs';
 import { Scan } from '@votingworks/api';
 import {
+  ALL_PRECINCTS_SELECTION,
   TallySourceMachineType,
   MemoryCard,
   MemoryHardware,
@@ -33,10 +34,7 @@ import {
   electionSample2Definition,
 } from '@votingworks/fixtures';
 
-import {
-  AdjudicationReason,
-  ALL_PRECINCTS_SELECTION,
-} from '@votingworks/types';
+import { AdjudicationReason } from '@votingworks/types';
 
 import { mocked } from 'ts-jest/utils';
 import userEvent from '@testing-library/user-event';

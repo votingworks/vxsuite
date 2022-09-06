@@ -1,6 +1,6 @@
 import React from 'react';
 import { render } from '@testing-library/react';
-import { singlePrecinctSelectionFor } from '@votingworks/types';
+import { singlePrecinctSelectionFor } from '@votingworks/utils';
 
 import { ElectionInfo } from './election_info';
 import { electionSampleWithSealDefinition as electionDefinition } from '../data';

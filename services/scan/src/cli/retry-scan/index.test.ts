@@ -1,5 +1,5 @@
 import { dirSync } from 'tmp';
-import { ALL_PRECINCTS_SELECTION } from '@votingworks/types';
+import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import * as fixtures from '../../../test/fixtures/choctaw-2020-09-22-f30480cc99';
 import { createWorkspace } from '../../util/workspace';
 import { queryFromOptions, retryScan } from '.';

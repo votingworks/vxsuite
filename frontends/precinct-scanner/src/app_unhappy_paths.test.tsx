@@ -22,6 +22,7 @@ import {
 import { Scan } from '@votingworks/api';
 import fetchMock from 'fetch-mock';
 import {
+  ALL_PRECINCTS_SELECTION,
   MemoryCard,
   MemoryStorage,
   MemoryHardware,
@@ -29,7 +30,7 @@ import {
 } from '@votingworks/utils';
 
 import userEvent from '@testing-library/user-event';
-import { ALL_PRECINCTS_SELECTION } from '@votingworks/types';
+
 import { App } from './app';
 import { MachineConfigResponse } from './config/types';
 import {

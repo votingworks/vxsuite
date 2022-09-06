@@ -1,11 +1,7 @@
 import React from 'react';
 
-import {
-  ElectionDefinition,
-  getPrecinctSelectionName,
-  PrecinctSelection,
-} from '@votingworks/types';
-import { format } from '@votingworks/utils';
+import { ElectionDefinition, PrecinctSelection } from '@votingworks/types';
+import { format, getPrecinctSelectionName } from '@votingworks/utils';
 import { Prose } from './prose';
 import { Text, NoWrap } from './text';
 import { contrastTheme, Theme } from './themes';

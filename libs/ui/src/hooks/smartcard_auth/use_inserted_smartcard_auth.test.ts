@@ -16,13 +16,14 @@ import {
   fakeVoterUser,
   fakeCardlessVoterUser,
 } from '@votingworks/test-utils';
+import { PrecinctSelection, UserRole } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
+  assert,
+  MemoryCard,
   singlePrecinctSelectionFor,
-  PrecinctSelection,
-  UserRole,
-} from '@votingworks/types';
-import { assert, MemoryCard, utcTimestamp } from '@votingworks/utils';
+  utcTimestamp,
+} from '@votingworks/utils';
 
 import {
   isVoterAuth,

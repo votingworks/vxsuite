@@ -1,10 +1,8 @@
 import { MockScannerClient, ScannerClient } from '@votingworks/plustek-sdk';
 import {
   AdjudicationReason,
-  ALL_PRECINCTS_SELECTION,
   CastVoteRecord,
   err,
-  singlePrecinctSelectionFor,
   ok,
   PrecinctId,
   Result,
@@ -14,9 +12,11 @@ import request from 'supertest';
 import { Application } from 'express';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
+  ALL_PRECINCTS_SELECTION,
   BallotPackageEntry,
   deferred,
   readBallotPackageFromBuffer,
+  singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import waitForExpect from 'wait-for-expect';

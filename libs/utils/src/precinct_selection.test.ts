@@ -1,4 +1,4 @@
-import { election } from '../test/election';
+import { electionSample } from '@votingworks/fixtures';
 import {
   ALL_PRECINCTS_NAME,
   ALL_PRECINCTS_SELECTION,
@@ -16,22 +16,25 @@ test('singlePrecinctSelectionFor', () => {
 describe('getPrecinctSelectionName', () => {
   test('handles All Precinct case', () => {
     expect(
-      getPrecinctSelectionName(election.precincts, ALL_PRECINCTS_SELECTION)
+      getPrecinctSelectionName(
+        electionSample.precincts,
+        ALL_PRECINCTS_SELECTION
+      )
     ).toEqual(ALL_PRECINCTS_NAME);
   });
 
   test('handles Single Precinct case', () => {
     expect(
-      getPrecinctSelectionName(election.precincts, {
+      getPrecinctSelectionName(electionSample.precincts, {
         kind: 'SinglePrecinct',
-        precinctId: 'P',
+        precinctId: '23',
       })
-    ).toEqual('PRECINCT');
+    ).toEqual('Center Springfield');
   });
 
   test('throws error if precinct not found', () => {
     expect(() => {
-      getPrecinctSelectionName(election.precincts, {
+      getPrecinctSelectionName(electionSample.precincts, {
         kind: 'SinglePrecinct',
         precinctId: 'none',
       });

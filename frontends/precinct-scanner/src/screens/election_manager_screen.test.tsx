@@ -9,8 +9,7 @@ import {
 import { Scan } from '@votingworks/api';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { fakeKiosk, Inserted } from '@votingworks/test-utils';
-import { singlePrecinctSelectionFor } from '@votingworks/types';
-import { usbstick } from '@votingworks/utils';
+import { singlePrecinctSelectionFor, usbstick } from '@votingworks/utils';
 import MockDate from 'mockdate';
 import React from 'react';
 import { AppContext } from '../contexts/app_context';

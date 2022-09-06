@@ -1,6 +1,5 @@
 import { Scan } from '@votingworks/api';
 import {
-  ALL_PRECINCTS_SELECTION,
   BallotPageLayout,
   BallotPageLayoutWithImage,
   ElectionDefinition,
@@ -12,7 +11,7 @@ import {
   PageInterpretationWithFiles,
   Result,
 } from '@votingworks/types';
-import { find, sleep } from '@votingworks/utils';
+import { ALL_PRECINCTS_SELECTION, find, sleep } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import makeDebug from 'debug';
 import * as fsExtra from 'fs-extra';

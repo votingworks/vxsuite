@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { Precinct, PrecinctId, PrecinctIdSchema } from './election';
+import { PrecinctId, PrecinctIdSchema } from './election';
 
 export type PrecinctSelectionKind = 'SinglePrecinct' | 'AllPrecincts';
 export const PrecinctSelectionKindSchema: z.ZodSchema<PrecinctSelectionKind> =
@@ -29,37 +29,3 @@ export const PrecinctSelectionSchema: z.ZodSchema<PrecinctSelection> = z.union([
   SinglePrecinctSelectionSchema,
   AllPrecinctsSelectionSchema,
 ]);
-
-export function singlePrecinctSelectionFor(
-  precinctId: PrecinctId
-): SinglePrecinctSelection {
-  return {
-    kind: 'SinglePrecinct',
-    precinctId,
-  };
-}
-
-export const ALL_PRECINCTS_SELECTION: AllPrecinctsSelection = {
-  kind: 'AllPrecincts',
-};
-
-export const ALL_PRECINCTS_NAME = 'All Precincts';
-
-export function getPrecinctSelectionName(
-  precincts: readonly Precinct[],
-  precinctSelection: PrecinctSelection
-): string {
-  if (precinctSelection.kind === 'AllPrecincts') {
-    return ALL_PRECINCTS_NAME;
-  }
-
-  const precinct = precincts.find((p) => p.id === precinctSelection.precinctId);
-
-  if (!precinct) {
-    throw Error(
-      `precinct with ID ${precinctSelection.precinctId} was not found in election`
-    );
-  }
-
-  return precinct.name;
-}

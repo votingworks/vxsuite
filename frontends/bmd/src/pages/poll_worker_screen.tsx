@@ -10,9 +10,7 @@ import {
   InsertedSmartcardAuth,
   PrecinctId,
   Tally,
-  singlePrecinctSelectionFor,
   PrecinctSelection,
-  getPrecinctSelectionName,
 } from '@votingworks/types';
 import {
   Button,
@@ -38,10 +36,12 @@ import {
   TallySourceMachineType,
   find,
   readCompressedTally,
+  getPrecinctSelectionName,
   getTallyIdentifier,
   Hardware,
   PrecinctScannerCardTallySchema,
   PrecinctScannerCardTally,
+  singlePrecinctSelectionFor,
   sleep,
 } from '@votingworks/utils';
 

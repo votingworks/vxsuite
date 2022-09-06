@@ -1,11 +1,14 @@
 import {
   ElectionDefinition,
-  getPrecinctSelectionName,
   PartyId,
   PrecinctSelection,
   Tally,
 } from '@votingworks/types';
-import { format, formatFullDateTimeZone } from '@votingworks/utils';
+import {
+  format,
+  formatFullDateTimeZone,
+  getPrecinctSelectionName,
+} from '@votingworks/utils';
 import { DateTime } from 'luxon';
 import React from 'react';
 import { ContestTally } from './contest_tally';

@@ -1,13 +1,14 @@
 import { act, screen, render, fireEvent } from '@testing-library/react';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { advanceTimersAndPromises, Inserted } from '@votingworks/test-utils';
-import { NullPrinter, usbstick } from '@votingworks/utils';
-import MockDate from 'mockdate';
-import React from 'react';
 import {
   ALL_PRECINCTS_SELECTION,
-  InsertedSmartcardAuth,
-} from '@votingworks/types';
+  NullPrinter,
+  usbstick,
+} from '@votingworks/utils';
+import MockDate from 'mockdate';
+import React from 'react';
+import { InsertedSmartcardAuth } from '@votingworks/types';
 import { mocked } from 'ts-jest/utils';
 import fetchMock from 'fetch-mock';
 import { AppContext } from '../contexts/app_context';

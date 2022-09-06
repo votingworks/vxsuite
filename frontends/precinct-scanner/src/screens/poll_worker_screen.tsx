@@ -19,10 +19,12 @@ import {
   compressTally,
   computeTallyWithPrecomputedCategories,
   filterTalliesByParams,
+  getPrecinctSelectionName,
   getTallyIdentifier,
   PrecinctScannerCardTally,
   PrecinctScannerCardTallySchema,
   Printer,
+  singlePrecinctSelectionFor,
   TallySourceMachineType,
 } from '@votingworks/utils';
 import {
@@ -35,8 +37,6 @@ import {
   CompressedTally,
   getPartyIdsInBallotStyles,
   InsertedSmartcardAuth,
-  singlePrecinctSelectionFor,
-  getPrecinctSelectionName,
 } from '@votingworks/types';
 import { isLiveCheckEnabled } from '../config/features';
 import {

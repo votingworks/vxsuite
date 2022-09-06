@@ -1,7 +1,12 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react';
 import { fakeKiosk, makePollWorkerCard } from '@votingworks/test-utils';
-import { ALL_PRECINCTS_SELECTION } from '@votingworks/types';
-import { MemoryCard, MemoryHardware, MemoryStorage } from '@votingworks/utils';
+import {
+  ALL_PRECINCTS_SELECTION,
+  MemoryCard,
+  MemoryHardware,
+  MemoryStorage,
+} from '@votingworks/utils';
+
 import fetchMock from 'fetch-mock';
 import * as React from 'react';
 import {
