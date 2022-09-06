@@ -5,6 +5,7 @@ import {
   PrecinctSelection,
   SinglePrecinctSelection,
 } from '@votingworks/types';
+import { find } from './find';
 
 export function singlePrecinctSelectionFor(
   precinctId: PrecinctId
@@ -29,13 +30,5 @@ export function getPrecinctSelectionName(
     return ALL_PRECINCTS_NAME;
   }
 
-  const precinct = precincts.find((p) => p.id === precinctSelection.precinctId);
-
-  if (!precinct) {
-    throw Error(
-      `precinct with ID ${precinctSelection.precinctId} was not found in election`
-    );
-  }
-
-  return precinct.name;
+  return find(precincts, (p) => p.id === precinctSelection.precinctId).name;
 }
