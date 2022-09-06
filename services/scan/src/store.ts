@@ -26,7 +26,7 @@ import {
   Optional,
   PageInterpretation,
   PageInterpretationWithFiles,
-  PrecinctSelection,
+  PrecinctSelection as PrecinctSelectionType,
   PrecinctSelectionSchema,
   safeParseJson,
   unsafeParse,
@@ -58,7 +58,7 @@ export enum ConfigKey {
   MarkThresholdOverrides = 'markThresholdOverrides',
   // @deprecated
   SkipElectionHashCheck = 'skipElectionHashCheck',
-  PrecinctSelectionKey = 'precinctSelection',
+  PrecinctSelection = 'precinctSelection',
 }
 
 export enum BackupKey {
@@ -277,19 +277,16 @@ export class Store {
    * `undefined`, ballots from all precincts will be accepted (this is the
    * default).
    */
-  getPrecinctSelection(): Optional<PrecinctSelection> {
-    return this.getConfig(
-      ConfigKey.PrecinctSelectionKey,
-      PrecinctSelectionSchema
-    );
+  getPrecinctSelection(): Optional<PrecinctSelectionType> {
+    return this.getConfig(ConfigKey.PrecinctSelection, PrecinctSelectionSchema);
   }
 
   /**
    * Sets the current precinct `scan` is accepting ballots for. Set to
    * `undefined` to accept from all precincts (this is the default).
    */
-  setPrecinctSelection(precinctSelection?: PrecinctSelection): void {
-    this.setConfig(ConfigKey.PrecinctSelectionKey, precinctSelection);
+  setPrecinctSelection(precinctSelection?: PrecinctSelectionType): void {
+    this.setConfig(ConfigKey.PrecinctSelection, precinctSelection);
   }
 
   /**
