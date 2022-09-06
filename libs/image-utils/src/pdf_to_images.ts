@@ -1,7 +1,7 @@
 import { assert } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import { Canvas, createCanvas } from 'canvas';
-import { getDocument, CanvasFactory } from 'pdfjs-dist';
+import { getDocument, CanvasFactory, GlobalWorkerOptions } from 'pdfjs-dist';
 
 // Extend `pdfjs-dist`'s `render` function to include `canvasFactory`.
 declare module 'pdfjs-dist' {
@@ -30,7 +30,7 @@ declare module 'pdfjs-dist' {
 /**
  * @see https://github.com/mozilla/pdf.js/issues/9667#issuecomment-471159204
  */
-function buildNodeCanvasFactory(): CanvasFactory {
+function buildCanvasFactory(): CanvasFactory {
   return {
     create: (width, height) => {
       assert(width > 0 && height > 0, 'Invalid canvas size');
@@ -64,12 +64,21 @@ function buildNodeCanvasFactory(): CanvasFactory {
 /* eslint-enable no-param-reassign */
 
 /**
+ * A page of a PDF document.
+ */
+export interface PdfPage {
+  readonly pageNumber: number;
+  readonly pageCount: number;
+  readonly page: ImageData;
+}
+
+/**
  * Renders PDF pages as images.
  */
 export async function* pdfToImages(
   pdfBytes: Buffer,
   { scale = 1 } = {}
-): AsyncGenerator<{ pageNumber: number; pageCount: number; page: ImageData }> {
+): AsyncGenerator<PdfPage> {
   const canvas = createCanvas(0, 0);
   const context = canvas.getContext('2d');
   const pdf = await getDocument(pdfBytes).promise;
@@ -86,7 +95,7 @@ export async function* pdfToImages(
     await page.render({
       canvasContext: context,
       viewport,
-      canvasFactory: buildNodeCanvasFactory(),
+      canvasFactory: buildCanvasFactory(),
     }).promise;
 
     yield {
@@ -95,4 +104,12 @@ export async function* pdfToImages(
       page: context.getImageData(0, 0, canvas.width, canvas.height),
     };
   }
+}
+
+/**
+ * Allow setting the `workerSrc` option for `pdfjs-dist` for use in the browser.
+ */
+export function setPdfRenderWorkerSrc(workerSrc: string): void {
+  // See `setupProxy.js` for more details.
+  GlobalWorkerOptions.workerSrc = workerSrc;
 }

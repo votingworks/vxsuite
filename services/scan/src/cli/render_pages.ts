@@ -1,3 +1,4 @@
+import { pdfToImages } from '@votingworks/image-utils';
 import { BallotType, getPrecinctById } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/utils';
 import { Buffer } from 'buffer';
@@ -7,7 +8,6 @@ import { basename, dirname, extname, join } from 'path';
 import { ScannerImageFormat } from '../fujitsu_scanner';
 import { Store } from '../store';
 import { writeImageData } from '../util/images';
-import { pdfToImages } from '../util/pdf_to_images';
 
 export function printHelp(out: NodeJS.WritableStream): void {
   out.write(

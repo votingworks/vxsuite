@@ -1,6 +1,6 @@
 import { OkResponse, Scan } from '@votingworks/api';
-import * as streams from 'memory-streams';
-import { Buffer } from 'buffer';
+import { interpretTemplate } from '@votingworks/ballot-interpreter-vx';
+import { pdfToImages } from '@votingworks/image-utils';
 import {
   BallotPageLayoutSchema,
   BallotPageLayoutWithImage,
@@ -9,17 +9,17 @@ import {
   safeParseJson,
 } from '@votingworks/types';
 import { assert, find } from '@votingworks/utils';
+import { Buffer } from 'buffer';
 import express, { Application } from 'express';
 import { readFile } from 'fs-extra';
+import * as streams from 'memory-streams';
 import multer from 'multer';
 import { z } from 'zod';
-import { interpretTemplate } from '@votingworks/ballot-interpreter-vx';
-import { PrecinctScannerStateMachine } from './precinct_scanner_state_machine';
-import { pdfToImages } from './util/pdf_to_images';
-import { Workspace } from './util/workspace';
 import { backup } from './backup';
 import { PrecinctScannerInterpreter } from './precinct_scanner_interpreter';
+import { PrecinctScannerStateMachine } from './precinct_scanner_state_machine';
 import { Store } from './store';
+import { Workspace } from './util/workspace';
 
 function sum(nums: number[]) {
   return nums.reduce((a, b) => a + b, 0);

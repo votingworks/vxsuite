@@ -14,11 +14,11 @@ import {
 import { throwIllegalValue } from '@votingworks/utils';
 import { readFile, emptyDirSync } from 'fs-extra';
 import { join } from 'path';
+import { pdfToImages } from '@votingworks/image-utils';
 import * as choctaw2020Fixtures from '../test/fixtures/2020-choctaw';
 import * as stateOfHamiltonFixtures from '../test/fixtures/state-of-hamilton';
 import * as msDemoFixtures from '../test/fixtures/election-b0260b4e-mississippi-demo';
 import { Interpreter, sheetRequiresAdjudication } from './interpreter';
-import { pdfToImages } from './util/pdf_to_images';
 import { detectQrcodeInFilePath } from './workers/qrcode';
 import { createInterpreter } from './precinct_scanner_interpreter';
 

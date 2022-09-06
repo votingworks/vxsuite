@@ -1,4 +1,5 @@
 import { Scan } from '@votingworks/api';
+import { pdfToImages } from '@votingworks/image-utils';
 import {
   BallotPageLayout,
   BallotPageLayoutWithImage,
@@ -22,7 +23,6 @@ import { BatchControl, BatchScanner } from './fujitsu_scanner';
 import { SheetOf } from './types';
 import { Castability, checkSheetCastability } from './util/castability';
 import { HmpbInterpretationError } from './util/hmpb_interpretation_error';
-import { pdfToImages } from './util/pdf_to_images';
 import { Workspace } from './util/workspace';
 import {
   describeValidationError,

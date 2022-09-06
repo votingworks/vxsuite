@@ -726,6 +726,7 @@ importers:
       '@votingworks/ballot-interpreter-nh': link:../../libs/ballot-interpreter-nh
       '@votingworks/ballot-interpreter-vx': link:../../libs/ballot-interpreter-vx
       '@votingworks/fixtures': link:../../libs/fixtures
+      '@votingworks/image-utils': link:../../libs/image-utils
       '@votingworks/logging': link:../../libs/logging
       '@votingworks/types': link:../../libs/types
       '@votingworks/ui': link:../../libs/ui
@@ -770,7 +771,6 @@ importers:
       optimize-css-assets-webpack-plugin: 5.0.4_webpack@4.44.2
       pagedjs: 0.1.43
       path: 0.12.7
-      pdfjs-dist: 2.4.456
       pluralize: 8.0.0
       pnp-webpack-plugin: 1.6.4_typescript@4.6.3
       postcss-flexbugs-fixes: 4.2.1
@@ -818,7 +818,6 @@ importers:
       '@types/history': 4.7.8
       '@types/kiosk-browser': link:../../libs/@types/kiosk-browser
       '@types/lodash': 4.14.168
-      '@types/pdfjs-dist': 2.1.3
       '@types/readable-stream': 2.3.9
       '@types/testing-library__jest-dom': 5.14.3
       '@types/zip-stream': link:../../libs/@types/zip-stream
@@ -883,7 +882,6 @@ importers:
       '@types/kiosk-browser': workspace:*
       '@types/lodash': ^4.14.168
       '@types/node': 16.11.29
-      '@types/pdfjs-dist': ^2.1.3
       '@types/pluralize': ^0.0.29
       '@types/react': 17.0.39
       '@types/react-dom': ^17.0.0
@@ -899,6 +897,7 @@ importers:
       '@votingworks/ballot-interpreter-nh': workspace:*
       '@votingworks/ballot-interpreter-vx': workspace:*
       '@votingworks/fixtures': workspace:*
+      '@votingworks/image-utils': workspace:*
       '@votingworks/logging': workspace:*
       '@votingworks/test-utils': workspace:*
       '@votingworks/types': workspace:*
@@ -970,7 +969,6 @@ importers:
       optimize-css-assets-webpack-plugin: 5.0.4
       pagedjs: ^0.1.40
       path: ^0.12.7
-      pdfjs-dist: 2.4.456
       pluralize: ^8.0.0
       pnp-webpack-plugin: 1.6.4
       postcss-flexbugs-fixes: 4.2.1
@@ -1936,11 +1934,13 @@ importers:
       '@votingworks/utils': link:../utils
       canvas: 2.9.1
       debug: 4.3.4
+      pdfjs-dist: 2.3.200
     devDependencies:
       '@jest/types': 28.1.3
       '@types/debug': 4.1.7
       '@types/jest': 28.1.6
       '@types/node': 18.0.6
+      '@types/pdfjs-dist': 2.1.3
       '@types/tmp': 0.2.3
       '@typescript-eslint/eslint-plugin': 5.30.7_6c582e511910b5f65847e9f509b2ea9e
       '@typescript-eslint/parser': 5.30.7_typescript@4.6.3
@@ -1963,6 +1963,7 @@ importers:
       '@types/debug': ^4.1.7
       '@types/jest': ^28.1.5
       '@types/node': ^18.0.3
+      '@types/pdfjs-dist': 2.1.3
       '@types/tmp': ^0.2.3
       '@typescript-eslint/eslint-plugin': ^5.30.6
       '@typescript-eslint/parser': ^5.30.6
@@ -1980,6 +1981,7 @@ importers:
       is-ci-cli: ^2.2.0
       jest: ^28.1.3
       jest-watch-typeahead: 0.6.4
+      pdfjs-dist: 2.3.200
       prettier: ^2.7.1
       tmp: ^0.2.1
       ts-jest: ^28.0.5
@@ -2739,7 +2741,6 @@ importers:
       memory-streams: 0.1.3
       multer: 1.4.2
       ora: 5.2.0
-      pdfjs-dist: 2.3.200
       rxjs: 7.5.5
       tmp: 0.2.1
       uuid: 8.3.2
@@ -2759,7 +2760,6 @@ importers:
       '@types/luxon': 1.26.5
       '@types/multer': 1.4.7
       '@types/node': 16.11.29
-      '@types/pdfjs-dist': 2.1.7
       '@types/supertest': 2.0.10
       '@types/tmp': 0.2.0
       '@types/uuid': 8.3.0
@@ -2801,7 +2801,6 @@ importers:
       '@types/luxon': ^1.26.5
       '@types/multer': ^1.4.7
       '@types/node': 16.11.29
-      '@types/pdfjs-dist': ^2.1.3
       '@types/supertest': ^2.0.10
       '@types/tmp': ^0.2.0
       '@types/uuid': ^8.3.0
@@ -2853,7 +2852,6 @@ importers:
       multer: ^1.4.2
       nock: ^13.1.0
       ora: ^5.2.0
-      pdfjs-dist: 2.3.200
       prettier: ^2.6.2
       rxjs: ^7.5.5
       sort-package-json: ^1.50.0
@@ -10045,10 +10043,6 @@ packages:
     dev: true
     resolution:
       integrity: sha512-aGyFfB4Q8QjaSR3cBTiJfnFXBU6SXQaBVM7ADfBaZzq4L7EGbjuSoqXfHJofZmLFBfKzZ9b+9nXO2FfUIsw77w==
-  /@types/pdfjs-dist/2.1.7:
-    dev: true
-    resolution:
-      integrity: sha512-nQIwcPUhkAIyn7x9NS0lR/qxYfd5unRtfGkMjvpgF4Sh28IXftRymaNmFKTTdejDNY25NDGSIyjwj/BRwAPexg==
   /@types/pify/3.0.2:
     dev: true
     resolution:
@@ -27802,7 +27796,7 @@ packages:
   /node-ensure/0.0.0:
     dev: false
     resolution:
-      integrity: sha1-7K52QVDemYYexcgQ/V0Jaxg5Mqc=
+      integrity: sha512-DRI60hzo2oKN1ma0ckc6nQWlHU69RH6xN0sjQTjMpChPfTYvKZdcQFfdYK2RWbJcKyUizSIy/l8OTGxMAM1QDw==
   /node-fetch/2.6.1:
     engines:
       node: 4.x || >=6.0.0
@@ -28656,10 +28650,6 @@ packages:
       webpack: ^3.0.0 || ^4.0.0-alpha.0 || ^4.0.0
     resolution:
       integrity: sha512-+8wBjU5h8LPZOIvR9X2uCrp/8xWQG1DRDKMLg5lzGN1qyIAZlYUxA0KQyy12Nw5jN7ozulC6v97PMaDcLgAcFg==
-  /pdfjs-dist/2.4.456:
-    dev: false
-    resolution:
-      integrity: sha512-yckJEHq3F48hcp6wStEpbN9McOj328Ib09UrBlGAKxvN2k+qYPN5iq6TH6jD1C0pso7zTep+g/CKsYgdrQd5QA==
   /pend/1.2.0:
     resolution:
       integrity: sha512-F3asv42UuXchdzt+xXqfW1OGlVBe+mxa2mqI0pg5yAHZPvFmY3Y6drSf/GQ1A86WgWEN9Kzh/WrgKa6iGcHXLg==
