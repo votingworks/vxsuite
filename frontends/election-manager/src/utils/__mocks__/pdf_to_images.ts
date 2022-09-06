@@ -7,3 +7,5 @@ export const pdfToImages = jest.fn(
     // yield nothing
   }
 );
+
+export const setPdfRenderWorkerSrc = jest.fn();
