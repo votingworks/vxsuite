@@ -1,8 +1,4 @@
-import {
-  AdjudicationReason,
-  ALL_PRECINCTS_SELECTION,
-  PageInterpretation,
-} from '@votingworks/types';
+import { AdjudicationReason, PageInterpretation } from '@votingworks/types';
 import { throwIllegalValue } from '@votingworks/utils';
 import makeDebug from 'debug';
 import { readFile } from 'fs-extra';
@@ -46,20 +42,27 @@ export async function configure(store: Store): Promise<void> {
   interpreter = undefined;
 
   debug('configuring from %s', store.getDbPath());
-  const electionDefinition = store.getElectionDefinition();
 
+  const electionDefinition = store.getElectionDefinition();
   if (!electionDefinition) {
     debug('no election configured');
     return;
   }
+  debug('election: %s', electionDefinition.election.title);
 
-  debug('election: %o', electionDefinition.election.title);
+  const precinctSelection = store.getPrecinctSelection();
+  if (!precinctSelection) {
+    debug('no precinct selected');
+    return;
+  }
+  debug('precinctSelection: %o', precinctSelection);
+
   const templates = store.getHmpbTemplates();
 
   debug('creating a new interpreter');
   interpreter = new Interpreter({
     electionDefinition,
-    precinctSelection: ALL_PRECINCTS_SELECTION,
+    precinctSelection,
     skipElectionHashCheck: store.getSkipElectionHashCheck(),
     testMode: store.getTestMode(),
     markThresholdOverrides: store.getMarkThresholdOverrides(),
