@@ -1,3 +1,4 @@
+import { ensureDirSync } from 'fs-extra';
 import { join, resolve } from 'path';
 import { Store } from '../store';
 
@@ -15,6 +16,8 @@ export interface Workspace {
 export function createWorkspace(root: string): Workspace {
   const resolvedRoot = resolve(root);
   const dbPath = join(resolvedRoot, 'data.db');
+
+  ensureDirSync(resolvedRoot);
 
   return {
     path: resolvedRoot,

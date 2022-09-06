@@ -26,9 +26,9 @@ const externalVoteTalliesFileStorageKey = 'externalVoteTallies';
 export class ElectionManagerStoreStorageBackend
   implements ElectionManagerStoreBackend
 {
-  private readonly storage: Storage;
-  private readonly logger: Logger;
-  private readonly currentUserRole: LoggingUserRole;
+  protected readonly storage: Storage;
+  protected readonly logger: Logger;
+  protected readonly currentUserRole: LoggingUserRole;
 
   constructor({
     storage,
@@ -44,11 +44,11 @@ export class ElectionManagerStoreStorageBackend
     this.currentUserRole = currentUserRole;
   }
 
-  private async setStorageKeyAndLog(
+  protected async setStorageKeyAndLog(
     storageKey: string,
     value: unknown,
     logDescription: string
-  ) {
+  ): Promise<void> {
     try {
       await this.storage.set(storageKey, value);
       await this.logger.log(LogEventId.SaveToStorage, this.currentUserRole, {
@@ -67,10 +67,10 @@ export class ElectionManagerStoreStorageBackend
     }
   }
 
-  private async removeStorageKeyAndLog(
+  protected async removeStorageKeyAndLog(
     storageKey: string,
     logDescription: string
-  ) {
+  ): Promise<void> {
     try {
       await this.storage.remove(storageKey);
       await this.logger.log(LogEventId.SaveToStorage, this.currentUserRole, {

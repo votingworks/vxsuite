@@ -2,13 +2,23 @@
 // The durable datastore for election data, CVRs, and adjudication info.
 //
 
-import { Adjudication, ContestId } from '@votingworks/types';
-import { SqliteError } from 'better-sqlite3';
+import { Admin } from '@votingworks/api';
+import {
+  Id,
+  Iso8601Timestamp,
+  safeParseElectionDefinition,
+} from '@votingworks/types';
 import { join } from 'path';
 import { v4 as uuid } from 'uuid';
 import { DbClient } from './db_client';
 
 const SchemaPath = join(__dirname, '../schema.sql');
+
+function convertSqliteTimestampToIso8601(
+  sqliteTimestamp: string
+): Iso8601Timestamp {
+  return new Date(sqliteTimestamp).toISOString();
+}
 
 /**
  * Manages a data store for imported election data, cast vote records, and
@@ -36,214 +46,54 @@ export class Store {
   }
 
   /**
-   * Adds a CVR and returns its id.
+   * Creates an election record and returns its ID.
    */
-  addCvr(ballotId: string, fileId: string, data: string): string | null {
+  addElection(electionData: string): Id {
     const id = uuid();
-    try {
-      this.client.run(
-        'insert into cvrs (id, ballot_id, imported_by_file, data) values (?, ?, ?, ?)',
+    this.client.run(
+      'insert into elections (id, data) values (?, ?)',
+      id,
+      electionData
+    );
+    return id;
+  }
+
+  /**
+   * Gets all election records.
+   */
+  getElections(): Admin.ElectionRecord[] {
+    return (
+      this.client.all(`
+      select
         id,
-        ballotId,
-        fileId,
-        data
-      );
-    } catch (err) {
-      // Ignoring this because for some reason, instanceof SqliteError does not behave
-      // predictably in jest, which makes testing this block challenging.
-      /* istanbul ignore next */
-      if (
-        err instanceof SqliteError &&
-        err.code === 'SQLITE_CONSTRAINT_UNIQUE'
-      ) {
-        return null;
-      }
-      /* istanbul ignore next */
-      throw err;
-    }
-    return id;
-  }
-
-  /*
-   * Adds a CVR file.
-   */
-  addCvrFile(
-    signature: string,
-    filename: string,
-    exportTimestamp: string,
-    scannerIds: string[],
-    precinctIds: string[],
-    containsTestModeCvrs: boolean
-  ): string {
-    const id = uuid();
-    this.client.run(
-      'insert into cvr_files (id, signature, filename, timestamp, scanner_ids, precinct_ids, contains_test_mode_cvrs) values (?, ?, ?, ?, ?, ?, ?)',
-      id,
-      signature,
-      filename,
-      exportTimestamp,
-      scannerIds.join(','),
-      precinctIds.join(','),
-      containsTestModeCvrs.toString()
-    );
-    return id;
+        data as electionData,
+        created_at as createdAt,
+        updated_at as updatedAt
+      from elections
+      where deleted_at is null
+    `) as Array<{
+        id: Id;
+        electionData: string;
+        createdAt: string;
+        updatedAt: string;
+      }>
+    ).map((r) => ({
+      id: r.id,
+      electionDefinition: safeParseElectionDefinition(
+        r.electionData
+      ).unsafeUnwrap(),
+      createdAt: convertSqliteTimestampToIso8601(r.createdAt),
+      updatedAt: convertSqliteTimestampToIso8601(r.updatedAt),
+    }));
   }
 
   /**
-   * Gets all CVR file data
+   * Deletes an election record.
    */
-  getAllCvrFiles(): string[] {
-    const rows = this.client.all('select * from cvr_files');
-    return rows.map((r) => JSON.stringify(r));
-  }
-
-  updateCvrFileCounts(
-    id: string,
-    importedCvrCount: number,
-    duplicatedCvrCount: number
-  ): void {
+  deleteElection(id: Id): void {
     this.client.run(
-      'update cvr_files set imported_cvr_count = ?, duplicated_cvr_count = ? WHERE id = ?',
-      importedCvrCount,
-      duplicatedCvrCount,
+      'update elections set deleted_at = current_timestamp where id = ?',
       id
     );
-  }
-
-  /**
-   * Gets all CVRs
-   */
-  getAllCvrs(): string[] {
-    // TODO(CARO) remove image data?
-    const rows = this.client.all('select data from cvrs') as Array<{
-      data: string;
-    }>;
-    return rows.map((r) => r.data).filter(Boolean);
-  }
-
-  /**
-   * Gets CVR data by adjudication ID
-   */
-  getCvrByAdjudicationId(id: string): string | undefined {
-    const row = this.client.one(
-      'select data from cvrs inner join adjudications on adjudications.cvr_id = cvrs.id where adjudications.id = ? ',
-      id
-    ) as string | undefined;
-    return row;
-  }
-
-  getAllCvrBallotIds(): string[] {
-    const rows = this.client.all(
-      'select ballot_id as ballotId from cvrs'
-    ) as Array<{
-      ballotId: string;
-    }>;
-    return rows.map((r) => r.ballotId).filter(Boolean);
-  }
-
-  /**
-   * Delete all CVRs
-   */
-  deleteCvrsAndCvrFiles(): void {
-    this.client.run('delete from cvrs');
-    this.client.run('delete from cvr_files');
-  }
-
-  /**
-   * Adds an adjudication and returns its id.
-   */
-  addAdjudication(
-    contestId: ContestId,
-    cvrId: string,
-    transcribedValue = ''
-  ): string {
-    const id = uuid();
-    this.client.run(
-      'insert into adjudications (id, contest_id, cvr_id, transcribed_value) values (?, ?, ?, ?)',
-      id,
-      contestId,
-      cvrId,
-      transcribedValue
-    );
-    return id;
-  }
-
-  /** Updates an adjudication's transcribedValue. */
-  updateAdjudicationTranscribedValue(
-    adjudicationId: string,
-    transcribedValue: string
-  ): void {
-    this.client.run(
-      'update adjudications set transcribed_value = ? where id = ?',
-      transcribedValue,
-      adjudicationId
-    );
-  }
-
-  /**
-   * Gets an adjudication by its id.
-   */
-  getAdjudicationById(id: string): Adjudication | undefined {
-    const row = this.client.one(
-      'select id, contest_id as contestId, transcribed_value as transcribedValue from adjudications where id = ?',
-      id
-    ) as Adjudication | undefined;
-    return row;
-  }
-
-  /**
-   * Get adjudication counts grouped by contestId.
-   */
-  getAdjudicationCountsGroupedByContestId(): Array<{
-    contestId: ContestId;
-    adjudicationCount: number;
-  }> {
-    const rows = this.client.all(
-      'select contest_id as contestId, count(id) as adjudicationCount from adjudications group by contest_id'
-    ) as Array<{ contestId: ContestId; adjudicationCount: number }>;
-
-    return rows;
-  }
-
-  /**
-   * Get adjudications for a given contestId.
-   */
-  getAdjudicationsByContestId(contestId: ContestId): Adjudication[] {
-    const rows = this.client.all(
-      'select id, contest_id as contestId, cvr_id as cvrId, transcribed_value as transcribedValue from adjudications where contest_id = ?',
-      contestId
-    ) as Adjudication[];
-
-    return rows;
-  }
-
-  /**
-   * Get adjudications grouped by contestId and transcribedValue.
-   */
-  getAdjudicationCountsByContestIdAndTranscribedValue(): Array<{
-    contestId: ContestId;
-    transcribedValue: string;
-    adjudicationCount: number;
-  }> {
-    const rows = this.client.all(
-      'select contest_id as contestId, transcribed_value as transcribedValue, count(*) as adjudicationCount from adjudications group by contest_id, transcribed_value order by contest_id, count(*) desc'
-    ) as Array<{
-      contestId: ContestId;
-      transcribedValue: string;
-      adjudicationCount: number;
-    }>;
-
-    return rows;
-  }
-
-  /**
-   * Returns a unique list of values for adjudications.transcribed_values.
-   */
-  getAllTranscribedValues(): string[] {
-    const rows = this.client.all(
-      'select distinct transcribed_value as transcribedValue from adjudications order by transcribedValue asc'
-    ) as Array<{ transcribedValue: string }>;
-
-    return rows.map((r) => r.transcribedValue).filter(Boolean);
   }
 }

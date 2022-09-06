@@ -1,10 +1,10 @@
-import { LogEventId, Logger, LogSource } from '@votingworks/logging';
-import { ContestOptionId, safeParse } from '@votingworks/types';
 import { Admin } from '@votingworks/api';
+import { LogEventId, Logger, LogSource } from '@votingworks/logging';
+import { Id, safeParse } from '@votingworks/types';
 import express, { Application } from 'express';
+import { ADMIN_WORKSPACE, PORT } from './globals';
 import { Store } from './store';
 import { createWorkspace, Workspace } from './util/workspace';
-import { ADMIN_WORKSPACE, PORT } from './globals';
 
 type NoParams = never;
 
@@ -12,190 +12,47 @@ type NoParams = never;
  * Builds an express application.
  */
 export function buildApp({ store }: { store: Store }): Application {
-  // Here to satisfy linter temporarily
-  store.getDbPath();
   const app: Application = express();
 
   app.use(express.raw());
   app.use(express.json({ limit: '50mb', type: 'application/json' }));
   app.use(express.urlencoded({ extended: false }));
 
-  app.delete<NoParams>('/admin/write-ins/cvrs', (_, response) => {
-    store.deleteCvrsAndCvrFiles();
-    response.status(200).json({ status: 'ok' });
+  app.get<NoParams>('/admin/elections', (_request, response) => {
+    response.json(store.getElections());
   });
 
-  app.get<NoParams>('/admin/write-ins/cvr-files', (_, response) => {
-    const cvrFiles = store.getAllCvrFiles();
-    response.json(cvrFiles);
-  });
-
-  app.get<NoParams>('/admin/write-ins/cvr-ballot-ids', (_, response) => {
-    const ballotIds = store.getAllCvrBallotIds();
-    response.json(ballotIds);
-  });
-
-  app.get<NoParams>('/admin/write-ins/cvrs', (_, response) => {
-    const cvrs = store.getAllCvrs();
-    response.json(cvrs);
-  });
-
-  app.get('/admin/write-ins/adjudication/:id/cvr', (request, response) => {
-    const { id } = request.params;
-
-    const cvr = store.getCvrByAdjudicationId(id);
-    if (cvr) {
-      response.json(cvr);
-    } else {
-      response.status(404).end();
-    }
-  });
-
-  app.get('/admin/write-ins/adjudication/:id', (request, response) => {
-    const { id } = request.params;
-
-    const adjudication = store.getAdjudicationById(id);
-    if (adjudication) {
-      response.json(adjudication);
-    } else {
-      response.status(404).end();
-    }
-  });
-
-  /* TODO: #2153 */
-  /* istanbul ignore next */
-  app.post<NoParams, Admin.PostCvrsResponse, Admin.PostCvrsRequest>(
-    '/admin/write-ins/cvrs',
+  app.post<NoParams, Admin.PostElectionResponse, Admin.PostElectionRequest>(
+    '/admin/elections',
     (request, response) => {
-      const bodyParseResult = safeParse(
-        Admin.PostCvrsRequestSchema,
+      const parseResult = safeParse(
+        Admin.PostElectionRequestSchema,
         request.body
       );
 
-      /* TODO: this does not properly handle missing files on request body,
-       * need to figure out how to define schema for Dictionary type.
-       */
-      /* istanbul ignore if */
-      if (bodyParseResult.isErr()) {
-        const error = bodyParseResult.err();
+      if (parseResult.isErr()) {
         response.status(400).json({
           status: 'error',
-          errors: [{ type: error.name, message: error.message }],
+          errors: [
+            { type: 'ValidationError', message: parseResult.err().message },
+          ],
         });
         return;
       }
 
-      const {
-        signature,
-        name,
-        precinctIds,
-        scannerIds,
-        timestamp,
-        castVoteRecords,
-      } = bodyParseResult.ok();
-      const isTestMode = castVoteRecords.some(
-        (cvr: any) => cvr._testBallot === true
-      );
-      const fileId = store.addCvrFile(
-        signature,
-        name,
-        timestamp,
-        scannerIds,
-        precinctIds,
-        isTestMode
-      );
-      let duplicateCvrCount = 0;
-      for (const cvr of castVoteRecords) {
-        // This should never happen, we assume every CVR has a ballot ID.
-        // Maybe ultimately we should make CastVoteRecord._ballotId required?
-        if (!cvr._ballotId) {
-          return;
-        }
-        const cvrId = store.addCvr(cvr._ballotId, fileId, JSON.stringify(cvr));
-        if (cvrId === null) {
-          // This was a duplicate cvr.
-          duplicateCvrCount += 1;
-          continue;
-        }
-        for (const [key, value] of Object.entries(cvr)) {
-          if (Array.isArray(value) && !key.startsWith('_')) {
-            const contestId = key;
-            const votes = value as ContestOptionId[];
-            for (const vote of votes) {
-              if (vote.startsWith('write-in')) {
-                store.addAdjudication(contestId, cvrId);
-              }
-            }
-          }
-        }
-      }
-
-      store.updateCvrFileCounts(
-        fileId,
-        castVoteRecords.length - duplicateCvrCount,
-        duplicateCvrCount
-      );
-      response.json({
-        status: 'ok',
-        importedCvrCount: castVoteRecords.length - duplicateCvrCount,
-        duplicateCvrCount,
-        isTestMode,
-      });
+      const electionDefinition = parseResult.ok();
+      const electionId = store.addElection(electionDefinition.electionData);
+      response.json({ status: 'ok', id: electionId });
     }
   );
 
-  app.patch<
-    NoParams,
-    Admin.PatchAdjudicationTranscribedValueResponse,
-    Admin.PatchAdjudicationTranscribedValueRequest
-  >(
-    '/admin/write-ins/adjudications/:adjudicationId/transcription',
+  app.delete<{ electionId: Id }>(
+    '/admin/elections/:electionId',
     (request, response) => {
-      const { adjudicationId } = request.params;
-
-      const bodyParseResult = safeParse(
-        Admin.PatchAdjudicationTranscribedValueRequestSchema,
-        request.body
-      );
-
-      if (bodyParseResult.isErr()) {
-        const error = bodyParseResult.err();
-        response.status(400).json({
-          status: 'error',
-          errors: [{ type: error.name, message: error.message }],
-        });
-        return;
-      }
-
-      const { transcribedValue } = bodyParseResult.ok();
-      store.updateAdjudicationTranscribedValue(
-        adjudicationId,
-        transcribedValue
-      );
+      store.deleteElection(request.params.electionId);
       response.json({ status: 'ok' });
     }
   );
-
-  app.get<NoParams>(
-    '/admin/write-ins/adjudications/contestId/count',
-    (_, response) => {
-      response.json(store.getAdjudicationCountsGroupedByContestId());
-    }
-  );
-
-  app.get<NoParams>('/admin/write-ins/adjudications/counts', (_, response) => {
-    response.json(store.getAdjudicationCountsByContestIdAndTranscribedValue());
-  });
-
-  app.get('/admin/write-ins/adjudications/:contestId/', (request, response) => {
-    const { contestId } = request.params;
-    response.json(store.getAdjudicationsByContestId(contestId));
-  });
-
-  app.get<NoParams>('/admin/write-ins/transcribed-values', (_, response) => {
-    const transcribedValues = store.getAllTranscribedValues();
-    response.json(transcribedValues);
-  });
 
   return app;
 }

@@ -1,3 +1,11 @@
+create table elections (
+  id serial primary key,
+  data text not null,
+  created_at timestamp not null default current_timestamp,
+  updated_at timestamp not null default current_timestamp,
+  deleted_at timestamp
+);
+
 create table adjudications (
 	id varchar(36) primary key,
 	contest_id text,
@@ -20,6 +28,7 @@ create table cvrs (
 
 create table cvr_files (
 	id varchar(36) primary key,
+	election_id varchar(36) not null,
 	signature text,
 	filename text,
 	timestamp text,
@@ -27,5 +36,8 @@ create table cvr_files (
 	duplicated_cvr_count integer,
 	scanner_ids text,
 	precinct_ids text,
-	contains_test_mode_cvrs boolean
+	contains_test_mode_cvrs boolean,
+	foreign key (election_id) references elections(id)
+	  on update cascade
+	  on delete cascade
 );
