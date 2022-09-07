@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@votingworks/fixtures": "*",
+    "@votingworks/image-utils": "*",
     "@votingworks/types": "*",
     "@votingworks/utils": "*",
     "esbuild": "^0.15.7",

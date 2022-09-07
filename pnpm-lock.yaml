@@ -1807,6 +1807,7 @@ importers:
   libs/cvr-fixture-generator:
     dependencies:
       '@votingworks/fixtures': link:../fixtures
+      '@votingworks/image-utils': link:../image-utils
       '@votingworks/types': link:../types
       '@votingworks/utils': link:../utils
       esbuild: 0.15.7
@@ -1843,6 +1844,7 @@ importers:
       '@typescript-eslint/eslint-plugin': ^5.36.2
       '@typescript-eslint/parser': ^5.36.2
       '@votingworks/fixtures': '*'
+      '@votingworks/image-utils': '*'
       '@votingworks/test-utils': '*'
       '@votingworks/types': '*'
       '@votingworks/utils': '*'
@@ -27323,7 +27325,7 @@ packages:
     dependencies:
       ansi-escapes: 4.3.2
       chalk: 4.1.2
-      jest: 28.1.3_@types+node@18.7.15
+      jest: 28.1.3_@types+node@18.0.6
       jest-regex-util: 27.5.1
       jest-watcher: 27.5.1
       slash: 3.0.0

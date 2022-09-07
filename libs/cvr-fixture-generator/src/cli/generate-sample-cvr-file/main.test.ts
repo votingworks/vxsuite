@@ -1,8 +1,8 @@
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import { z } from 'zod';
 import { fakeReadable, fakeWritable } from '@votingworks/test-utils';
 import { safeParseJson } from '@votingworks/types';
-import { readFileSync, writeFileSync } from 'fs';
+import { readFileSync } from 'fs';
 import { resolve } from 'path';
 import { fileSync } from 'tmp';
 import { main } from './main';
@@ -29,7 +29,7 @@ async function run(
 test('--help', async () => {
   expect(await run(['--help'])).toEqual({
     exitCode: 0,
-    stdout: expect.stringContaining('--electionPath'),
+    stdout: expect.stringContaining('--ballotPackage'),
     stderr: '',
   });
 });
@@ -42,54 +42,46 @@ test('invalid option', async () => {
   });
 });
 
-test('missing election path', async () => {
+test('missing ballot package', async () => {
   expect(await run([])).toEqual({
     exitCode: 1,
     stdout: '',
-    stderr: expect.stringContaining('Missing election path'),
+    stderr: expect.stringContaining('Missing ballot package'),
   });
 });
 
 test('generate with defaults', async () => {
-  const electionFile = fileSync({ postfix: '.json' });
+  const ballotPackagePath =
+    electionMinimalExhaustiveSampleFixtures.ballotPackage.asFilePath();
   const outputFile = fileSync({ postfix: '.jsonl' });
-
-  writeFileSync(
-    electionFile.fd,
-    electionFamousNames2021Fixtures.electionDefinition.electionData
-  );
 
   expect(
     await run([
-      '--electionPath',
-      electionFile.name,
+      '--ballotPackage',
+      ballotPackagePath,
       '--outputPath',
       outputFile.name,
     ])
   ).toEqual({
     exitCode: 0,
-    stdout: `Wrote 2628 cast vote records to ${outputFile.name}\n`,
+    stdout: `Wrote 168 cast vote records to ${outputFile.name}\n`,
     stderr: '',
   });
 
   expect(
     readFileSync(outputFile.name, 'utf8').split('\n').filter(Boolean)
-  ).toHaveLength(2628);
+  ).toHaveLength(168);
 });
 
 test('generate with custom number of records below the suggested number', async () => {
-  const electionFile = fileSync({ postfix: '.json' });
+  const ballotPackagePath =
+    electionMinimalExhaustiveSampleFixtures.ballotPackage.asFilePath();
   const outputFile = fileSync({ postfix: '.jsonl' });
-
-  writeFileSync(
-    electionFile.fd,
-    electionFamousNames2021Fixtures.electionDefinition.electionData
-  );
 
   expect(
     await run([
-      '--electionPath',
-      electionFile.name,
+      '--ballotPackage',
+      ballotPackagePath,
       '--outputPath',
       outputFile.name,
       '--numBallots',
@@ -107,18 +99,14 @@ test('generate with custom number of records below the suggested number', async 
 });
 
 test('generate with custom number of records above the suggested number', async () => {
-  const electionFile = fileSync({ postfix: '.json' });
+  const ballotPackagePath =
+    electionMinimalExhaustiveSampleFixtures.ballotPackage.asFilePath();
   const outputFile = fileSync({ postfix: '.jsonl' });
-
-  writeFileSync(
-    electionFile.fd,
-    electionFamousNames2021Fixtures.electionDefinition.electionData
-  );
 
   expect(
     await run([
-      '--electionPath',
-      electionFile.name,
+      '--ballotPackage',
+      ballotPackagePath,
       '--outputPath',
       outputFile.name,
       '--numBallots',
@@ -136,17 +124,13 @@ test('generate with custom number of records above the suggested number', async 
 });
 
 test('generate live mode CVRs', async () => {
-  const electionFile = fileSync({ postfix: '.json' });
+  const ballotPackagePath =
+    electionMinimalExhaustiveSampleFixtures.ballotPackage.asFilePath();
   const outputFile = fileSync({ postfix: '.jsonl' });
 
-  writeFileSync(
-    electionFile.fd,
-    electionFamousNames2021Fixtures.electionDefinition.electionData
-  );
-
   await run([
-    '--electionPath',
-    electionFile.name,
+    '--ballotPackage',
+    ballotPackagePath,
     '--outputPath',
     outputFile.name,
     '--liveBallots',
@@ -167,16 +151,12 @@ test('generate live mode CVRs', async () => {
 });
 
 test('output to stdout', async () => {
-  const electionFile = fileSync({ postfix: '.json' });
-
-  writeFileSync(
-    electionFile.fd,
-    electionFamousNames2021Fixtures.electionDefinition.electionData
-  );
+  const ballotPackagePath =
+    electionMinimalExhaustiveSampleFixtures.ballotPackage.asFilePath();
 
   const { exitCode, stdout } = await run([
-    '--electionPath',
-    electionFile.name,
+    '--ballotPackage',
+    ballotPackagePath,
     '--numBallots',
     '10',
   ]);
@@ -186,17 +166,13 @@ test('output to stdout', async () => {
 });
 
 test('specifying scanner names', async () => {
-  const electionFile = fileSync({ postfix: '.json' });
+  const ballotPackagePath =
+    electionMinimalExhaustiveSampleFixtures.ballotPackage.asFilePath();
   const outputFile = fileSync({ postfix: '.jsonl' });
 
-  writeFileSync(
-    electionFile.fd,
-    electionFamousNames2021Fixtures.electionDefinition.electionData
-  );
-
   await run([
-    '--electionPath',
-    electionFile.name,
+    '--ballotPackage',
+    ballotPackagePath,
     '--outputPath',
     outputFile.name,
     '--scannerNames',

@@ -1,12 +1,12 @@
 import {
   BallotIdSchema,
   CastVoteRecord,
-  safeParseElectionDefinition,
   unsafeParse,
 } from '@votingworks/types';
+import { readBallotPackageFromBuffer, takeAsync } from '@votingworks/utils';
 import * as fs from 'fs';
 import yargs from 'yargs/yargs';
-import { generateCvrs } from '../../generate_cvrs';
+import { generateCvrs, IncludeBallotImagesOption } from '../../generate_cvrs';
 
 /**
  * Script to generate a cast vote record file for a given election.
@@ -18,11 +18,12 @@ import { generateCvrs } from '../../generate_cvrs';
  */
 
 interface GenerateCvrFileArguments {
-  electionPath?: string;
+  ballotPackage?: string;
   outputPath?: string;
   numBallots?: number;
   scannerNames?: Array<string | number>;
   liveBallots: boolean;
+  includeBallotImages: IncludeBallotImagesOption;
   help?: boolean;
   [x: string]: unknown;
 }
@@ -45,10 +46,10 @@ export async function main(
     .strict()
     .exitProcess(false)
     .options({
-      electionPath: {
+      ballotPackage: {
         type: 'string',
-        alias: 'e',
-        description: 'Path to the input election definition.',
+        alias: 'p',
+        description: 'Path to the election ballot package.',
       },
       outputPath: {
         type: 'string',
@@ -69,6 +70,11 @@ export async function main(
         type: 'array',
         description: 'Creates ballots for each scanner name specified.',
       },
+      includeBallotImages: {
+        choices: ['always', 'never', 'write-ins'] as const,
+        description: 'When to include ballot images in the output.',
+        default: 'never',
+      },
     })
     .alias('-h', '--help')
     .help(false)
@@ -78,9 +84,9 @@ export async function main(
       exitCode = 1;
     });
 
-  const args: GenerateCvrFileArguments = await optionParser.parse(
+  const args = (await optionParser.parse(
     argv.slice(2)
-  );
+  )) as GenerateCvrFileArguments;
 
   if (typeof exitCode !== 'undefined') {
     return exitCode;
@@ -94,23 +100,24 @@ export async function main(
     return 0;
   }
 
-  if (!args.electionPath) {
-    stderr.write('Missing election path\n');
+  if (!args.ballotPackage) {
+    stderr.write('Missing ballot package\n');
     return 1;
   }
 
   const { outputPath, numBallots } = args;
   const testMode = !args.liveBallots;
   const scannerNames = (args.scannerNames ?? ['scanner']).map((s) => `${s}`);
+  const { includeBallotImages } = args;
 
-  const electionRawData = fs.readFileSync(args.electionPath, 'utf8');
-  const electionDefinition =
-    safeParseElectionDefinition(electionRawData).unsafeUnwrap();
+  const ballotPackage = await readBallotPackageFromBuffer(
+    fs.readFileSync(args.ballotPackage)
+  );
 
-  const castVoteRecords = [
-    ...generateCvrs(electionDefinition, scannerNames, testMode),
-  ];
-
+  const castVoteRecords = await takeAsync(
+    Infinity,
+    generateCvrs({ ballotPackage, scannerNames, testMode, includeBallotImages })
+  );
   // Modify results to match the desired number of ballots
   if (numBallots !== undefined && numBallots < castVoteRecords.length) {
     stderr.write(
