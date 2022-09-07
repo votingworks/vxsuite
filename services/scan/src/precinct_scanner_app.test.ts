@@ -1,4 +1,8 @@
-import { MockScannerClient, ScannerClient } from '@votingworks/plustek-sdk';
+import {
+  MockScannerClient,
+  MockScannerClientOptions,
+  ScannerClient,
+} from '@votingworks/plustek-sdk';
 import {
   AdjudicationReason,
   CastVoteRecord,
@@ -195,18 +199,15 @@ function checkLogs(logger: Logger) {
 }
 
 async function createApp(
-  delays: Partial<Delays> = {
-    DELAY_RECONNECT: 100,
-    DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 100,
-    DELAY_ACCEPTED_RESET_TO_NO_PAPER: 200,
-    DELAY_PAPER_STATUS_POLLING_INTERVAL: 50,
-  }
+  delays: Partial<Delays> = {},
+  mockPlustekOptions: Partial<MockScannerClientOptions> = {}
 ) {
   const logger = fakeLogger();
   const workspace = createWorkspace(dirSync().name);
   const mockPlustek = new MockScannerClient({
     toggleHoldDuration: 100,
     passthroughDuration: 100,
+    ...mockPlustekOptions,
   });
   const deferredConnect = deferred<void>();
   async function createPlustekClient(): Promise<Result<ScannerClient, Error>> {
@@ -220,7 +221,13 @@ async function createApp(
     workspace,
     interpreter,
     logger,
-    delays,
+    delays: {
+      DELAY_RECONNECT: 100,
+      DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 100,
+      DELAY_ACCEPTED_RESET_TO_NO_PAPER: 200,
+      DELAY_PAPER_STATUS_POLLING_INTERVAL: 50,
+      ...delays,
+    },
   });
   const app = await buildPrecinctScannerApp(
     precinctScannerMachine,
@@ -1049,7 +1056,10 @@ test('insert second ballot while first ballot is rejecting', async () => {
 });
 
 test('insert second ballot while first ballot is returning', async () => {
-  const { app, mockPlustek, interpreter } = await createApp();
+  const { app, mockPlustek, interpreter } = await createApp(
+    {},
+    { passthroughDuration: 500 }
+  );
   await configureApp(app);
 
   await mockPlustek.simulateLoadSheet(ballotImages.unmarkedHmpb);

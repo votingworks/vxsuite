@@ -220,7 +220,7 @@ export enum Errors {
 /**
  * Configuration options for {@link MockScannerClient}.
  */
-export interface Options {
+export interface MockScannerClientOptions {
   /**
    * How long does it take to take or release a paper hold forward or backward?
    */
@@ -264,7 +264,7 @@ export class MockScannerClient implements ScannerClient {
     toggleHoldDuration = 100,
     passthroughDuration = 1000,
     frozenTimeout = 60_000,
-  }: Options = {}) {
+  }: MockScannerClientOptions = {}) {
     this.toggleHoldDuration = toggleHoldDuration;
     this.passthroughDuration = passthroughDuration;
     this.frozenTimeout = frozenTimeout;
