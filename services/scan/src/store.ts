@@ -929,10 +929,10 @@ export class Store {
             frontInterpretation.type === 'UninterpretedHmpbPage') &&
           (backInterpretation.type === 'InterpretedHmpbPage' ||
             backInterpretation.type === 'UninterpretedHmpbPage')
-          ? [
-              this.getBallotLayoutsForMetadata(frontInterpretation.metadata),
-              this.getBallotLayoutsForMetadata(backInterpretation.metadata),
-            ]
+          ? ([
+              this.getBallotPageLayoutForMetadata(frontInterpretation.metadata),
+              this.getBallotPageLayoutForMetadata(backInterpretation.metadata),
+            ] as SheetOf<BallotPageLayout>)
           : undefined
       );
 
@@ -1030,8 +1030,16 @@ export class Store {
     return results;
   }
 
-  getBallotLayoutsForMetadata(
+  getBallotPageLayoutForMetadata(
     metadata: BallotPageMetadata
+  ): BallotPageLayout | undefined {
+    return this.getBallotPageLayoutsForMetadata(metadata).find(
+      (layout) => layout.metadata.pageNumber === metadata.pageNumber
+    );
+  }
+
+  getBallotPageLayoutsForMetadata(
+    metadata: BallotMetadata
   ): BallotPageLayout[] {
     const electionDefinition = this.getElectionDefinition();
 
@@ -1092,7 +1100,7 @@ export class Store {
       throw new Error('no election configured');
     }
 
-    const layouts = this.getBallotLayoutsForMetadata(metadata);
+    const layouts = this.getBallotPageLayoutsForMetadata(metadata);
     let contestOffset = 0;
 
     for (const layout of layouts) {

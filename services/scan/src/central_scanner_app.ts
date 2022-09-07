@@ -564,7 +564,7 @@ export async function buildCentralScannerApp({
 
         if (sheet.front.interpretation.type === 'InterpretedHmpbPage') {
           const front = sheet.front.interpretation;
-          const layouts = store.getBallotLayoutsForMetadata(front.metadata);
+          const layouts = store.getBallotPageLayoutsForMetadata(front.metadata);
           const contestIds = store.getContestIdsForMetadata(front.metadata);
           frontLayout = layouts.find(
             ({ metadata }) => metadata.pageNumber === front.metadata.pageNumber
@@ -574,7 +574,7 @@ export async function buildCentralScannerApp({
 
         if (sheet.back.interpretation.type === 'InterpretedHmpbPage') {
           const back = sheet.back.interpretation;
-          const layouts = store.getBallotLayoutsForMetadata(back.metadata);
+          const layouts = store.getBallotPageLayoutsForMetadata(back.metadata);
           const contestIds = store.getContestIdsForMetadata(back.metadata);
           backLayout = layouts.find(
             ({ metadata }) => metadata.pageNumber === back.metadata.pageNumber
