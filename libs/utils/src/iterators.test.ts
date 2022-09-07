@@ -2,9 +2,11 @@ import {
   drop,
   integers,
   map,
+  mapAsync,
   naturals,
   reversed,
   take,
+  takeAsync,
   zip,
   zipMin,
 } from './iterators';
@@ -95,4 +97,27 @@ test('integers', () => {
   expect([...integers({ from: 1, through: 1 })]).toEqual([1]);
   expect([...integers({ from: 0, through: 5 })]).toEqual([0, 1, 2, 3, 4, 5]);
   expect([...integers({ from: -2, through: 0 })]).toEqual([-2, -1, 0]);
+});
+
+async function* asyncNumbers() {
+  await Promise.resolve();
+  yield 1;
+  yield 2;
+  yield 3;
+}
+
+test('mapAsync', async () => {
+  expect(await takeAsync(Infinity, mapAsync(asyncNumbers(), Boolean))).toEqual([
+    true,
+    true,
+    true,
+  ]);
+});
+
+test('takeAsync', async () => {
+  expect(await takeAsync(0, asyncNumbers())).toEqual([]);
+  expect(await takeAsync(1, asyncNumbers())).toEqual([1]);
+  expect(await takeAsync(2, asyncNumbers())).toEqual([1, 2]);
+  expect(await takeAsync(3, asyncNumbers())).toEqual([1, 2, 3]);
+  expect(await takeAsync(4, asyncNumbers())).toEqual([1, 2, 3]);
 });
