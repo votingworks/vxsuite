@@ -43,6 +43,7 @@
     "better-sqlite3": "^7.5.3",
     "debug": "^4.3.4",
     "express": "^4.18.0",
+    "fs-extra": "^10.1.0",
     "js-sha256": "^0.9.0",
     "uuid": "^8.3.2",
     "zod": "3.14.4"
@@ -71,7 +72,6 @@
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-vx": "workspace:*",
     "fast-check": "^2.23.2",
-    "fs-extra": "^10.1.0",
     "is-ci-cli": "^2.1.2",
     "jest": "^26.6.3",
     "jest-watch-typeahead": "^0.6.4",

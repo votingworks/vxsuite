@@ -1,21 +1,32 @@
+import { Admin } from '@votingworks/api';
 import {
   electionFamousNames2021Fixtures,
   electionWithMsEitherNeitherFixtures,
 } from '@votingworks/fixtures';
 import { fakeLogger } from '@votingworks/logging';
-import { ExternalTallySourceType, VotingMethod } from '@votingworks/types';
-import { MemoryStorage } from '@votingworks/utils';
+import {
+  ExternalTallySourceType,
+  safeParseJson,
+  VotingMethod,
+} from '@votingworks/types';
+import { MemoryStorage, typedAs } from '@votingworks/utils';
 import fetchMock from 'fetch-mock';
 import { eitherNeitherElectionDefinition } from '../../../test/render_in_app_context';
 import { PrintedBallot } from '../../config/types';
 import { CastVoteRecordFiles } from '../../utils/cast_vote_record_files';
 import { convertTalliesByPrecinctToFullExternalTally } from '../../utils/external_tallies';
+import { ElectionManagerStoreAdminBackend } from './admin_backend';
 import { ElectionManagerStoreMemoryBackend } from './memory_backend';
 import { ElectionManagerStoreStorageBackend } from './storage_backend';
 
 function makeStorageBackend(): ElectionManagerStoreStorageBackend {
   const storage = new MemoryStorage();
   const logger = fakeLogger();
+
+  // disallow network access for storage-based backend
+  fetchMock.reset().mock('*', (url) => {
+    throw new Error(`Unexpected fetch: ${url}`);
+  });
 
   return new ElectionManagerStoreStorageBackend({
     storage,
@@ -24,19 +35,58 @@ function makeStorageBackend(): ElectionManagerStoreStorageBackend {
 }
 
 function makeMemoryBackend(): ElectionManagerStoreMemoryBackend {
+  // disallow network access for in-memory backend
+  fetchMock.reset().mock('*', (url) => {
+    throw new Error(`Unexpected fetch: ${url}`);
+  });
+
   return new ElectionManagerStoreMemoryBackend();
+}
+
+function makeAdminBackend(): ElectionManagerStoreAdminBackend {
+  const storage = new MemoryStorage();
+  const logger = fakeLogger();
+
+  let nextElectionIndex = 1;
+  let elections: Admin.ElectionRecord[] = [];
+  fetchMock
+    .reset()
+    .get('/admin/elections', () => ({
+      body: typedAs<Admin.GetElectionsResponse>(elections),
+    }))
+    .post('/admin/elections', (url, request) => {
+      const id = `test-election-${nextElectionIndex}`;
+      nextElectionIndex += 1;
+      elections.push({
+        id,
+        electionDefinition: safeParseJson(
+          request.body as string,
+          Admin.PostElectionRequestSchema
+        ).unsafeUnwrap(),
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+      return {
+        body: typedAs<Admin.PostElectionResponse>({ status: 'ok', id }),
+      };
+    })
+    .delete('glob:/admin/elections/*', (url) => {
+      const match = url.match(/\/admin\/elections\/(.+)/);
+      elections = elections.filter((e) => e.id !== match?.[1]);
+      return { body: typedAs<Admin.DeleteElectionResponse>({ status: 'ok' }) };
+    });
+
+  return new ElectionManagerStoreAdminBackend({
+    storage,
+    logger,
+  });
 }
 
 describe.each([
   ['storage', makeStorageBackend],
   ['memory', makeMemoryBackend],
+  ['admin', makeAdminBackend],
 ])('%s backend', (_backendName, makeBackend) => {
-  beforeEach(() => {
-    fetchMock.reset().mock('*', (url) => {
-      throw new Error(`Unexpected fetch: ${url}`);
-    });
-  });
-
   test('configure', async () => {
     const backend = makeBackend();
     await backend.configure(

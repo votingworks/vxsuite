@@ -670,11 +670,22 @@ export interface ElectionDefinition {
   electionData: string;
   electionHash: string;
 }
-export const ElectionDefinitionSchema: z.ZodSchema<ElectionDefinition> =
-  z.object({
+export const ElectionDefinitionSchema: z.ZodSchema<ElectionDefinition> = z
+  .object({
     election: ElectionSchema,
     electionData: z.string().nonempty(),
     electionHash: ElectionHash,
+  })
+  .superRefine((electionDefinition, ctx) => {
+    const { electionData, electionHash } = electionDefinition;
+    const electionDataHash = sha256(electionData);
+    if (electionDataHash !== electionHash) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ['electionHash'],
+        message: `Election data hash '${electionDataHash}' does not match election hash '${electionHash}'.`,
+      });
+    }
   });
 export type OptionalElectionDefinition = Optional<ElectionDefinition>;
 export const OptionalElectionDefinitionSchema: z.ZodSchema<OptionalElectionDefinition> =

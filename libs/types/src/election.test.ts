@@ -1,4 +1,5 @@
 import * as fc from 'fast-check';
+import { sha256 } from 'js-sha256';
 import {
   BallotIdSchema,
   getDistrictIdsForPartyId,
@@ -16,6 +17,7 @@ import {
 import {
   CandidateContest,
   CandidateSchema,
+  ElectionDefinitionSchema,
   expandEitherNeitherContests,
   getCandidateParties,
   getCandidatePartiesDescription,
@@ -577,4 +579,24 @@ test('getCandidatePartiesDescription', () => {
       partyIds: [unsafeParse(PartyIdSchema, 'not-a-listed-party')],
     })
   ).toThrowError(/not-a-listed-party/);
+});
+
+test('ElectionDefinitionSchema', () => {
+  const electionData = JSON.stringify(election);
+
+  expect(() => {
+    unsafeParse(ElectionDefinitionSchema, {
+      electionHash: 'abc',
+      electionData,
+      election: electionMinimalExhaustive,
+    });
+  }).toThrowError(/hash/);
+
+  expect(
+    unsafeParse(ElectionDefinitionSchema, {
+      electionHash: sha256(electionData),
+      electionData,
+      election,
+    }).election
+  ).toEqual(election);
 });
