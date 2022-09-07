@@ -14,6 +14,7 @@ import {
   loadImage,
   RGBA_CHANNEL_COUNT,
   RGB_CHANNEL_COUNT,
+  toDataUrl,
   toImageData,
   toRgba,
   writeImageData,
@@ -120,6 +121,44 @@ test('toRgba', () => {
         } else {
           toRgba(imageData).unsafeUnwrapErr();
         }
+      }
+    )
+  );
+});
+
+test('toDataUrl image/png', async () => {
+  await fc.assert(
+    fc.asyncProperty(
+      arbitraryImageData({ width: 5, height: 5, channels: 4 }),
+      async (imageData) => {
+        const dataUrl = toDataUrl(imageData, 'image/png');
+        expect(dataUrl).toMatch(/^data:image\/png;base64,/);
+        const { width: decodedWidth, height: decodedHeight } = toImageData(
+          await loadImage(dataUrl)
+        );
+        expect({ width: decodedWidth, height: decodedHeight }).toStrictEqual({
+          width: imageData.width,
+          height: imageData.height,
+        });
+      }
+    )
+  );
+});
+
+test('toDataUrl image/jpeg', async () => {
+  await fc.assert(
+    fc.asyncProperty(
+      arbitraryImageData({ width: 5, height: 5, channels: 4 }),
+      async (imageData) => {
+        const dataUrl = toDataUrl(imageData, 'image/jpeg');
+        expect(dataUrl).toMatch(/^data:image\/jpeg;base64,/);
+        const { width: decodedWidth, height: decodedHeight } = toImageData(
+          await loadImage(dataUrl)
+        );
+        expect({ width: decodedWidth, height: decodedHeight }).toStrictEqual({
+          width: imageData.width,
+          height: imageData.height,
+        });
       }
     )
   );

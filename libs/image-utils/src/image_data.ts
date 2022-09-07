@@ -109,21 +109,54 @@ export async function loadImage(path: string): Promise<Image> {
 }
 
 /**
+ * Creates a PNG image stream from image data.
+ */
+export function createPngStream(image: ImageData): NodeJS.ReadableStream {
+  const { width, height } = image;
+  const canvas = createCanvas(width, height);
+  const context = canvas.getContext('2d');
+  context.putImageData(image, 0, 0);
+  return canvas.createPNGStream();
+}
+
+/**
+ * Creates a JPEG image stream from image data.
+ */
+export function createJpegStream(image: ImageData): NodeJS.ReadableStream {
+  const { width, height } = image;
+  const canvas = createCanvas(width, height);
+  const context = canvas.getContext('2d');
+  context.putImageData(image, 0, 0);
+  return canvas.createJPEGStream();
+}
+
+/**
+ * Creates a data URL from image data.
+ */
+export function toDataUrl(
+  image: ImageData,
+  mimeType: 'image/png' | 'image/jpeg'
+): string {
+  const { width, height } = image;
+  const canvas = createCanvas(width, height);
+  const context = canvas.getContext('2d');
+  context.putImageData(image, 0, 0);
+  return mimeType === 'image/jpeg'
+    ? canvas.toDataURL(mimeType)
+    : canvas.toDataURL(mimeType);
+}
+
+/**
  * Writes an image to a file.
  */
 export async function writeImageData(
   path: string,
   image: ImageData
 ): Promise<Result<void, ImageProcessingError>> {
-  const canvas = createCanvas(image.width, image.height);
-  const ctx = canvas.getContext('2d');
-  ctx.putImageData(image, 0, 0);
-
   const { promise, resolve } = deferred<Result<void, ImageProcessingError>>();
 
   if (path.endsWith('.png')) {
-    canvas
-      .createPNGStream()
+    createPngStream(image)
       .pipe(createWriteStream(path))
       .on('finish', () => resolve(ok()))
       .on('error', (error) =>
@@ -135,8 +168,7 @@ export async function writeImageData(
         )
       );
   } else if (path.endsWith('.jpg') || path.endsWith('.jpeg')) {
-    canvas
-      .createJPEGStream()
+    createJpegStream(image)
       .pipe(createWriteStream(path))
       .on('finish', () => resolve(ok()))
       .on('error', (error) =>
