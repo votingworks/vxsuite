@@ -327,6 +327,24 @@ jobs:
           command: |
             pnpm --dir libs/cdf-types-election-event-logging test
 
+  test-libs-cvr-fixture-generator:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/cvr-fixture-generator build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/cvr-fixture-generator lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/cvr-fixture-generator test
+
   test-libs-eslint-plugin-vx:
     executor: nodejs-browsers
     resource_class: xlarge
@@ -634,6 +652,7 @@ workflows:
       - test-libs-cdf-schema-builder
       - test-libs-cdf-types-cast-vote-records
       - test-libs-cdf-types-election-event-logging
+      - test-libs-cvr-fixture-generator
       - test-libs-eslint-plugin-vx
       - test-libs-fixtures
       - test-libs-image-utils

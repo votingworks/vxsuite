@@ -1,5 +1,4 @@
 import {
-  Adjudication,
   BallotId,
   BallotLocale,
   BallotStyleId,
@@ -12,18 +11,17 @@ import { Dictionary } from './generic';
 export interface CastVoteRecord
   extends Dictionary<
     | string
-    | string[]
+    | readonly string[]
     | boolean
     | number
-    | number[]
+    | readonly number[]
     | BallotLocale
-    | Adjudication[]
-    | InlineBallotImage[]
-    | Array<BallotPageLayout[]>
+    | readonly [InlineBallotImage, InlineBallotImage]
+    | readonly [BallotPageLayout, BallotPageLayout]
   > {
   readonly _precinctId: PrecinctId;
   readonly _ballotId?: BallotId;
-  readonly _ballotImages?: InlineBallotImage[];
+  readonly _ballotImages?: readonly [InlineBallotImage, InlineBallotImage];
   readonly _ballotStyleId: BallotStyleId;
   readonly _ballotType: 'absentee' | 'provisional' | 'standard';
   readonly _batchId: string;
@@ -31,7 +29,7 @@ export interface CastVoteRecord
   readonly _testBallot: boolean;
   readonly _scannerId: string;
   readonly _pageNumber?: number;
-  readonly _pageNumbers?: number[];
-  readonly _layouts?: Array<BallotPageLayout[]>;
+  readonly _pageNumbers?: readonly [number, number];
+  readonly _layouts?: readonly [BallotPageLayout, BallotPageLayout];
   readonly _locales?: BallotLocale;
 }

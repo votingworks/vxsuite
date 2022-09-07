@@ -225,8 +225,8 @@ function buildCastVoteRecordFromHmpbPage(
   [front, back]: SheetOf<
     BuildCastVoteRecordInput<InterpretedHmpbPage | UninterpretedHmpbPage>
   >,
-  [frontImages, backImages]: InlineBallotImage[],
-  [frontLayout, backLayout]: Array<BallotPageLayout[]>
+  ballotImages?: SheetOf<InlineBallotImage>,
+  ballotLayouts?: SheetOf<BallotPageLayout>
 ): CastVoteRecord {
   if (
     front.interpretation.metadata.pageNumber >
@@ -239,8 +239,8 @@ function buildCastVoteRecordFromHmpbPage(
       batchLabel,
       election,
       [back, front],
-      [backImages, frontImages],
-      [backLayout, frontLayout]
+      ballotImages,
+      ballotLayouts
     );
   }
 
@@ -290,8 +290,8 @@ function buildCastVoteRecordFromHmpbPage(
       back.interpretation.metadata.pageNumber,
     ],
     ...votesEntries,
-    _ballotImages: hasWriteIns ? [frontImages, backImages] : [],
-    _layouts: [frontLayout, backLayout],
+    _ballotImages: hasWriteIns ? ballotImages : undefined,
+    _layouts: ballotLayouts,
   };
 }
 
@@ -302,8 +302,8 @@ export function buildCastVoteRecord(
   ballotId: BallotId,
   election: Election,
   [front, back]: SheetOf<BuildCastVoteRecordInput>,
-  [frontImage, backImage]: InlineBallotImage[],
-  [frontLayout, backLayout]: Array<BallotPageLayout[]> = []
+  ballotImages?: SheetOf<InlineBallotImage>,
+  ballotLayouts?: SheetOf<BallotPageLayout>
 ): CastVoteRecord | undefined {
   const validationResult = validateSheetInterpretation([
     front.interpretation,
@@ -327,7 +327,7 @@ export function buildCastVoteRecord(
       ballotId,
       election,
       [back, front],
-      [frontImage, backImage]
+      ballotImages
     );
   }
 
@@ -354,8 +354,8 @@ export function buildCastVoteRecord(
       [front, back] as SheetOf<
         BuildCastVoteRecordInput<InterpretedHmpbPage | UninterpretedHmpbPage>
       >,
-      [frontImage, backImage],
-      [frontLayout, backLayout]
+      ballotImages,
+      ballotLayouts
     );
   }
 }

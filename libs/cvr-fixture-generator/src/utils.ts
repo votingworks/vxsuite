@@ -1,7 +1,4 @@
-// duplicated from shared utils library in order to avoid creating a cyclical dependency
-export function throwIllegalValue(s: never): never {
-  throw new Error(`Illegal Value: ${s}`);
-}
+import { CastVoteRecord } from '@votingworks/types';
 
 /**
  * Generate all combinations of an array.
@@ -35,7 +32,7 @@ export function generateCombinations<T>(
       sourceIndex += 1
     ) {
       // Get next (possibly partial) combination.
-      const next = [...workingCombo, sourceArray[sourceIndex]];
+      const next = [...workingCombo, sourceArray[sourceIndex] as T];
 
       if (oneAwayFromComboLength) {
         // Combo of right length found, save it.
@@ -48,4 +45,25 @@ export function generateCombinations<T>(
   }
   makeNextCombos([], 0, comboLength);
   return combos;
+}
+
+/**
+ * Determines whether a cast vote record has any write-in votes.
+ */
+export function castVoteRecordHasWriteIns(cvr: CastVoteRecord): boolean {
+  for (const [contestId, votes] of Object.entries(cvr)) {
+    if (contestId.startsWith('_')) {
+      continue;
+    }
+
+    if (
+      Array.isArray(votes) &&
+      votes.some(
+        (vote) => typeof vote === 'string' && vote.startsWith('write-in-')
+      )
+    ) {
+      return true;
+    }
+  }
+  return false;
 }

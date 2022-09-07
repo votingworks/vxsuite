@@ -1,11 +1,12 @@
 import {
   BallotIdSchema,
-  safeParseElection,
+  CastVoteRecord,
   unsafeParse,
 } from '@votingworks/types';
+import { readBallotPackageFromBuffer, takeAsync } from '@votingworks/utils';
 import * as fs from 'fs';
 import yargs from 'yargs/yargs';
-import { generateCvrs } from '../../generate_cvrs';
+import { generateCvrs, IncludeBallotImagesOption } from '../../generate_cvrs';
 
 /**
  * Script to generate a cast vote record file for a given election.
@@ -17,11 +18,12 @@ import { generateCvrs } from '../../generate_cvrs';
  */
 
 interface GenerateCvrFileArguments {
-  electionPath?: string;
+  ballotPackage?: string;
   outputPath?: string;
   numBallots?: number;
   scannerNames?: Array<string | number>;
-  liveBallots?: boolean;
+  liveBallots: boolean;
+  includeBallotImages: IncludeBallotImagesOption;
   help?: boolean;
   [x: string]: unknown;
 }
@@ -32,21 +34,27 @@ interface IO {
   stderr: NodeJS.WritableStream;
 }
 
-export function main(argv: readonly string[], { stdout, stderr }: IO): number {
+/**
+ * Command line interface for generating a cast vote record file.
+ */
+export async function main(
+  argv: readonly string[],
+  { stdout, stderr }: IO
+): Promise<number> {
   let exitCode: number | undefined;
   const optionParser = yargs()
     .strict()
     .exitProcess(false)
     .options({
-      electionPath: {
+      ballotPackage: {
         type: 'string',
-        alias: 'e',
-        description: 'Path to the input election definition',
+        alias: 'p',
+        description: 'Path to the election ballot package.',
       },
       outputPath: {
         type: 'string',
         alias: 'o',
-        description: 'Path to write output file to',
+        description: 'Path to write output file to.',
       },
       numBallots: {
         type: 'number',
@@ -62,22 +70,27 @@ export function main(argv: readonly string[], { stdout, stderr }: IO): number {
         type: 'array',
         description: 'Creates ballots for each scanner name specified.',
       },
+      includeBallotImages: {
+        choices: ['always', 'never', 'write-ins'] as const,
+        description: 'When to include ballot images in the output.',
+        default: 'never',
+      },
     })
     .alias('-h', '--help')
     .help(false)
     .version(false)
-    .fail((msg, err) => {
-      if (err) {
-        stderr.write(`${err}\n`);
-      }
+    .fail((msg) => {
+      stderr.write(`${msg}\n`);
       exitCode = 1;
     });
+
+  const args = (await optionParser.parse(
+    argv.slice(2)
+  )) as GenerateCvrFileArguments;
 
   if (typeof exitCode !== 'undefined') {
     return exitCode;
   }
-
-  const args: GenerateCvrFileArguments = optionParser.parse(argv.slice(2));
 
   if (args.help) {
     optionParser.showHelp((out) => {
@@ -87,21 +100,24 @@ export function main(argv: readonly string[], { stdout, stderr }: IO): number {
     return 0;
   }
 
-  if (!args.electionPath) {
-    stderr.write('Missing election path\n');
+  if (!args.ballotPackage) {
+    stderr.write('Missing ballot package\n');
     return 1;
   }
 
-  const outputPath = args.outputPath ?? 'output.jsonl';
-  const { numBallots } = args;
-  const testMode = !(args.liveBallots ?? false);
+  const { outputPath, numBallots } = args;
+  const testMode = !args.liveBallots;
   const scannerNames = (args.scannerNames ?? ['scanner']).map((s) => `${s}`);
+  const { includeBallotImages } = args;
 
-  const electionRawData = fs.readFileSync(args.electionPath, 'utf8');
-  const election = safeParseElection(electionRawData).unsafeUnwrap();
+  const ballotPackage = await readBallotPackageFromBuffer(
+    fs.readFileSync(args.ballotPackage)
+  );
 
-  const castVoteRecords = [...generateCvrs(election, scannerNames, testMode)];
-
+  const castVoteRecords = await takeAsync(
+    Infinity,
+    generateCvrs({ ballotPackage, scannerNames, testMode, includeBallotImages })
+  );
   // Modify results to match the desired number of ballots
   if (numBallots !== undefined && numBallots < castVoteRecords.length) {
     stderr.write(
@@ -119,21 +135,25 @@ export function main(argv: readonly string[], { stdout, stderr }: IO): number {
   while (numBallots !== undefined && numBallots > castVoteRecords.length) {
     const i = Math.floor(Math.random() * castVoteRecords.length);
     castVoteRecords.push({
-      ...castVoteRecords[i],
+      ...(castVoteRecords[i] as CastVoteRecord),
       _ballotId: unsafeParse(BallotIdSchema, `id-${ballotId}`),
     });
     ballotId += 1;
   }
 
-  const stream = fs.createWriteStream(outputPath);
+  const stream = outputPath ? fs.createWriteStream(outputPath) : stdout;
   for (const record of castVoteRecords) {
     stream.write(`${JSON.stringify(record)}\n`);
   }
-  stream.end();
+  await new Promise<void>((resolve) => {
+    stream.end(resolve);
+  });
 
-  stdout.write(
-    `Wrote ${castVoteRecords.length} cast vote records to ${outputPath}\n`
-  );
+  if (stream !== stdout) {
+    stdout.write(
+      `Wrote ${castVoteRecords.length} cast vote records to ${outputPath}\n`
+    );
+  }
 
   return 0;
 }

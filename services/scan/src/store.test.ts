@@ -614,14 +614,8 @@ test('exportCvrs', async () => {
       { normalized: 'YmFjayBub3JtYWxpemVk' },
     ],
     expect.arrayContaining([
-      expect.arrayContaining([
-        expect.objectContaining({ contests: [] }),
-        expect.objectContaining({ contests: [] }),
-      ]),
-      expect.arrayContaining([
-        expect.objectContaining({ contests: [] }),
-        expect.objectContaining({ contests: [] }),
-      ]),
+      expect.objectContaining({ contests: [] }),
+      expect.objectContaining({ contests: [] }),
     ])
   );
 

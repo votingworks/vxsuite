@@ -171,6 +171,20 @@ export function* map<T, U>(
 }
 
 /**
+ * Yields elements from `asyncIterable` after applying `mapfn`.
+ */
+export async function* mapAsync<T, U>(
+  asyncIterable: AsyncIterable<T>,
+  mapfn: (element: T, index: number) => Promise<U> | U
+): AsyncGenerator<U> {
+  let index = 0;
+  for await (const element of asyncIterable) {
+    yield await mapfn(element, index);
+    index += 1;
+  }
+}
+
+/**
  * Takes up to the first `count` elements from `iterable`.
  */
 export function take<T>(count: number, iterable: Iterable<T>): T[] {
@@ -179,6 +193,27 @@ export function take<T>(count: number, iterable: Iterable<T>): T[] {
 
   for (let i = 0; i < count; i += 1) {
     const { value, done } = iterator.next();
+    if (done) {
+      break;
+    }
+    result.push(value);
+  }
+
+  return result;
+}
+
+/**
+ * Takes up to the first `count` elements from `asyncIterable`.
+ */
+export async function takeAsync<T>(
+  count: number,
+  asyncIterable: AsyncIterable<T>
+): Promise<T[]> {
+  const iterator = asyncIterable[Symbol.asyncIterator]();
+  const result: T[] = [];
+
+  for (let i = 0; i < count; i += 1) {
+    const { value, done } = await iterator.next();
     if (done) {
       break;
     }

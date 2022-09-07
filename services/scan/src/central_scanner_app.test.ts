@@ -711,7 +711,7 @@ test('get next sheet layouts', async () => {
     contests: [],
   };
   jest
-    .spyOn(workspace.store, 'getBallotLayoutsForMetadata')
+    .spyOn(workspace.store, 'getBallotPageLayoutsForMetadata')
     .mockReturnValue([frontLayout, backLayout]);
 
   await request(app)
