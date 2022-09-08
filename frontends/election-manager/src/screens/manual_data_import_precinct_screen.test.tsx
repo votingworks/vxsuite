@@ -37,7 +37,7 @@ test('displays error screen for invalid precinct', () => {
 });
 
 test('displays correct contests for each precinct', () => {
-  const saveExternalTallies = jest.fn();
+  const updateExternalTally = jest.fn();
   const commissionerRaces = [
     'Election Commissioner 01',
     'Election Commissioner 02',
@@ -85,7 +85,7 @@ test('displays correct contests for each precinct', () => {
       {
         route: `/tally/manual-data-import/precinct/${precinctId}`,
         electionDefinition: electionWithMsEitherNeitherDefinition,
-        saveExternalTallies,
+        updateExternalTally,
       }
     );
     getByText('Manually Entered Precinct Results:');
@@ -105,7 +105,7 @@ test('displays correct contests for each precinct', () => {
 });
 
 test('can enter data for candidate contests as expected', async () => {
-  const saveExternalTallies = jest.fn();
+  const updateExternalTally = jest.fn();
   const logger = fakeLogger();
   const { getByText, queryAllByTestId, getByTestId } = renderInAppContext(
     <Route path="/tally/manual-data-import/precinct/:precinctId">
@@ -113,7 +113,7 @@ test('can enter data for candidate contests as expected', async () => {
     </Route>,
     {
       route: '/tally/manual-data-import/precinct/23',
-      saveExternalTallies,
+      updateExternalTally,
       electionDefinition: electionSampleDefinition,
       logger,
     }
@@ -165,8 +165,8 @@ test('can enter data for candidate contests as expected', async () => {
       expect.objectContaining({ disposition: 'success' })
     )
   );
-  expect(saveExternalTallies).toHaveBeenCalledTimes(1);
-  expect(saveExternalTallies).toHaveBeenCalledWith([
+  expect(updateExternalTally).toHaveBeenCalledTimes(1);
+  expect(updateExternalTally).toHaveBeenCalledWith(
     expect.objectContaining({
       overallTally: {
         numberOfBallotsCounted: 100,
@@ -184,12 +184,12 @@ test('can enter data for candidate contests as expected', async () => {
           }),
         }),
       },
-    }),
-  ]);
+    })
+  );
 });
 
 test('can enter data for candidate contest with a write in row as expected', async () => {
-  const saveExternalTallies = jest.fn();
+  const updateExternalTally = jest.fn();
   const logger = fakeLogger();
   const { getByText, getByTestId } = renderInAppContext(
     <Route path="/tally/manual-data-import/precinct/:precinctId">
@@ -197,7 +197,7 @@ test('can enter data for candidate contest with a write in row as expected', asy
     </Route>,
     {
       route: '/tally/manual-data-import/precinct/23',
-      saveExternalTallies,
+      updateExternalTally,
       electionDefinition: electionSampleDefinition,
       logger,
     }
@@ -227,8 +227,8 @@ test('can enter data for candidate contest with a write in row as expected', asy
       expect.objectContaining({ disposition: 'success' })
     )
   );
-  expect(saveExternalTallies).toHaveBeenCalledTimes(1);
-  expect(saveExternalTallies).toHaveBeenCalledWith([
+  expect(updateExternalTally).toHaveBeenCalledTimes(1);
+  expect(updateExternalTally).toHaveBeenCalledWith(
     expect.objectContaining({
       overallTally: {
         numberOfBallotsCounted: 10,
@@ -241,12 +241,12 @@ test('can enter data for candidate contest with a write in row as expected', asy
           }),
         }),
       },
-    }),
-  ]);
+    })
+  );
 });
 
 test('can enter data for yes no contests as expected', async () => {
-  const saveExternalTallies = jest.fn();
+  const updateExternalTally = jest.fn();
   const logger = fakeLogger();
   const { getByText, queryAllByTestId, getByTestId } = renderInAppContext(
     <Route path="/tally/manual-data-import/precinct/:precinctId">
@@ -254,7 +254,7 @@ test('can enter data for yes no contests as expected', async () => {
     </Route>,
     {
       route: '/tally/manual-data-import/precinct/23',
-      saveExternalTallies,
+      updateExternalTally,
       electionDefinition: electionSampleDefinition,
       logger,
     }
@@ -316,8 +316,8 @@ test('can enter data for yes no contests as expected', async () => {
       expect.objectContaining({ disposition: 'success' })
     )
   );
-  expect(saveExternalTallies).toHaveBeenCalledTimes(1);
-  expect(saveExternalTallies).toHaveBeenCalledWith([
+  expect(updateExternalTally).toHaveBeenCalledTimes(1);
+  expect(updateExternalTally).toHaveBeenCalledWith(
     expect.objectContaining({
       overallTally: {
         numberOfBallotsCounted: 100,
@@ -331,8 +331,8 @@ test('can enter data for yes no contests as expected', async () => {
           }),
         }),
       },
-    }),
-  ]);
+    })
+  );
 });
 
 test('loads prexisting manual data to edit', () => {
@@ -408,16 +408,18 @@ test('loads prexisting manual data to edit', () => {
     timestampCreated: new Date(),
   };
 
-  const saveExternalTallies = jest.fn();
+  const updateExternalTally = jest.fn();
   const centerSpringfield = renderInAppContext(
     <Route path="/tally/manual-data-import/precinct/:precinctId">
       <ManualDataImportPrecinctScreen />
     </Route>,
     {
       route: '/tally/manual-data-import/precinct/23',
-      saveExternalTallies,
+      updateExternalTally,
       electionDefinition: electionSampleDefinition,
-      fullElectionExternalTallies: [externalTally],
+      fullElectionExternalTallies: new Map([
+        [externalTally.source, externalTally],
+      ]),
     }
   );
   centerSpringfield.getByText('Manually Entered Absentee Results:');
@@ -489,9 +491,11 @@ test('loads prexisting manual data to edit', () => {
     </Route>,
     {
       route: '/tally/manual-data-import/precinct/20',
-      saveExternalTallies,
+      updateExternalTally,
       electionDefinition: electionSampleDefinition,
-      fullElectionExternalTallies: [externalTally],
+      fullElectionExternalTallies: new Map([
+        [externalTally.source, externalTally],
+      ]),
     }
   );
   southSpringfieldComponent.getByText('Manually Entered Absentee Results:');
@@ -530,9 +534,11 @@ test('loads prexisting manual data to edit', () => {
     </Route>,
     {
       route: '/tally/manual-data-import/precinct/21',
-      saveExternalTallies,
+      updateExternalTally,
       electionDefinition: electionSampleDefinition,
-      fullElectionExternalTallies: [externalTally],
+      fullElectionExternalTallies: new Map([
+        [externalTally.source, externalTally],
+      ]),
     }
   );
   northSpringfieldComponent.getByText('Manually Entered Absentee Results:');

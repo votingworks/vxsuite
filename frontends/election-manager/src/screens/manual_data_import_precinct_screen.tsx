@@ -142,7 +142,7 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
   const {
     electionDefinition,
     fullElectionExternalTallies,
-    saveExternalTallies,
+    updateExternalTally,
     auth,
     logger,
   } = useContext(AppContext);
@@ -166,13 +166,9 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
       </Prose>
     );
   }
-  const existingManualDataTallies = fullElectionExternalTallies.filter(
-    (t) => t.source === ExternalTallySourceType.Manual
+  const existingManualData = fullElectionExternalTallies.get(
+    ExternalTallySourceType.Manual
   );
-  const existingManualData =
-    existingManualDataTallies.length === 1
-      ? existingManualDataTallies[0]
-      : undefined;
   const existingTalliesByPrecinct = existingManualData?.resultsByCategory.get(
     TallyCategory.Precinct
   );
@@ -260,14 +256,7 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
       numberOfBallotsInPrecinct: currentPrecinctTally.numberOfBallotsCounted,
       precinctId: currentPrecinctId,
     });
-    // Don't modify any external tallies for non-manual data
-    const newTallies = fullElectionExternalTallies.filter(
-      (t) => t.source !== ExternalTallySourceType.Manual
-    );
-    // Add the new tally
-    newTallies.push(externalTally);
-    // TODO: switch to `addExternalTally` if we can avoid the `filter` above
-    await saveExternalTallies(newTallies);
+    await updateExternalTally(externalTally);
     history.push(routerPaths.manualDataImport);
   }
 

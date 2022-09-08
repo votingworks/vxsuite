@@ -464,6 +464,4 @@ export class CastVoteRecordFiles {
   }
 }
 
-export type SaveCastVoteRecordFiles = (
-  value: CastVoteRecordFiles
-) => Promise<void>;
+export type AddCastVoteRecordFile = (value: File) => Promise<void>;

@@ -13,7 +13,6 @@ import { MemoryStorage, typedAs } from '@votingworks/utils';
 import fetchMock from 'fetch-mock';
 import { eitherNeitherElectionDefinition } from '../../../test/render_in_app_context';
 import { PrintedBallot } from '../../config/types';
-import { CastVoteRecordFiles } from '../../utils/cast_vote_record_files';
 import { convertTalliesByPrecinctToFullExternalTally } from '../../utils/external_tallies';
 import { ElectionManagerStoreAdminBackend } from './admin_backend';
 import { ElectionManagerStoreMemoryBackend } from './memory_backend';
@@ -139,11 +138,8 @@ describe.each([
     const backend = makeBackend();
     await backend.configure(eitherNeitherElectionDefinition.electionData);
     expect(await backend.loadCastVoteRecordFiles()).toBeUndefined();
-    await backend.setCastVoteRecordFiles(
-      await CastVoteRecordFiles.empty.add(
-        new File([electionWithMsEitherNeitherFixtures.cvrData], 'cvrs.txt'),
-        electionWithMsEitherNeitherFixtures.election
-      )
+    await backend.addCastVoteRecordFile(
+      new File([electionWithMsEitherNeitherFixtures.cvrData], 'cvrs.txt')
     );
     expect((await backend.loadCastVoteRecordFiles())?.fileList).toHaveLength(1);
     await backend.clearCastVoteRecordFiles();
@@ -152,7 +148,9 @@ describe.each([
 
   test('full election tallies', async () => {
     const backend = makeBackend();
-    expect(await backend.loadFullElectionExternalTallies()).toBeUndefined();
+    expect(
+      (await backend.loadFullElectionExternalTallies()) ?? new Map()
+    ).toEqual(new Map());
     const manualTally = convertTalliesByPrecinctToFullExternalTally(
       { '6522': { contestTallies: {}, numberOfBallotsCounted: 100 } },
       electionWithMsEitherNeitherFixtures.election,
@@ -162,23 +160,37 @@ describe.each([
       new Date()
     );
 
-    await backend.addFullElectionExternalTally(manualTally);
-    expect(await backend.loadFullElectionExternalTallies()).toStrictEqual([
-      manualTally,
-    ]);
+    await backend.updateFullElectionExternalTally(
+      ExternalTallySourceType.Manual,
+      manualTally
+    );
+    expect(
+      Array.from((await backend.loadFullElectionExternalTallies())!.values())
+    ).toStrictEqual([manualTally]);
 
-    await backend.addFullElectionExternalTally(manualTally);
-    expect(await backend.loadFullElectionExternalTallies()).toStrictEqual([
-      manualTally,
-      manualTally,
-    ]);
+    await backend.removeFullElectionExternalTally(
+      ExternalTallySourceType.Manual
+    );
+    expect(
+      Array.from((await backend.loadFullElectionExternalTallies())!.values())
+    ).toStrictEqual([]);
 
-    await backend.setFullElectionExternalTallies([manualTally]);
-    expect(await backend.loadFullElectionExternalTallies()).toStrictEqual([
-      manualTally,
-    ]);
+    await backend.updateFullElectionExternalTally(
+      ExternalTallySourceType.Manual,
+      manualTally
+    );
+    expect(
+      Array.from((await backend.loadFullElectionExternalTallies())!.values())
+    ).toStrictEqual([manualTally]);
+
+    await backend.clearFullElectionExternalTallies();
+    expect(
+      (await backend.loadFullElectionExternalTallies()) ?? new Map()
+    ).toEqual(new Map());
 
     await backend.reset();
-    expect(await backend.loadFullElectionExternalTallies()).toBeUndefined();
+    expect(
+      (await backend.loadFullElectionExternalTallies()) ?? new Map()
+    ).toEqual(new Map());
   });
 });

@@ -57,7 +57,7 @@ export function TestDeckTallyReport({
       election={election}
       tallyReportType="Test Deck"
       fullElectionTally={fullElectionTally}
-      fullElectionExternalTallies={[]}
+      fullElectionExternalTallies={new Map()}
     />
   );
 }

@@ -5,9 +5,9 @@ import {
   expandEitherNeitherContests,
   ContestTally,
   ExternalTally,
-  FullElectionExternalTally,
   FullElectionTally,
   TallyCategory,
+  FullElectionExternalTallies,
 } from '@votingworks/types';
 import {
   ExportableContestTally,
@@ -56,13 +56,13 @@ export function getCombinedExportableContestTally(
 
 export function getExportableTallies(
   internalElectionTally: FullElectionTally,
-  externalElectionTallies: readonly FullElectionExternalTally[],
+  externalElectionTallies: FullElectionExternalTallies,
   election: Election
 ): ExportableTallies {
   const talliesByPrecinct = internalElectionTally.resultsByCategory.get(
     TallyCategory.Precinct
   );
-  const externalTalliesByPrecinct = externalElectionTallies
+  const externalTalliesByPrecinct = Array.from(externalElectionTallies.values())
     .map((t) => t.resultsByCategory.get(TallyCategory.Precinct))
     .filter((t): t is Dictionary<ExternalTally> => !!t);
 

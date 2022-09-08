@@ -7,10 +7,12 @@ import {
 } from '@votingworks/logging';
 import {
   ElectionDefinition,
+  ExternalTallySourceType,
+  FullElectionExternalTallies,
   FullElectionExternalTally,
   Iso8601Timestamp,
 } from '@votingworks/types';
-import { typedAs } from '@votingworks/utils';
+import { assert, typedAs } from '@votingworks/utils';
 import { useCallback, useMemo, useRef } from 'react';
 import { PrintedBallot } from '../config/types';
 import { ElectionManagerStoreBackend } from '../lib/backends/types';
@@ -45,7 +47,7 @@ export interface ElectionManagerStore {
   /**
    * Tallies from external sources, e.g. SEMS or manually entered tallies.
    */
-  readonly fullElectionExternalTallies: readonly FullElectionExternalTally[];
+  readonly fullElectionExternalTallies: FullElectionExternalTallies;
 
   /**
    * Resets all stored data, including the election definition and CVRs.
@@ -60,11 +62,9 @@ export interface ElectionManagerStore {
   configure(newElectionData: string): Promise<ElectionDefinition>;
 
   /**
-   * Overwrites the existing cast vote record files with the given ones.
+   * Adds a new cast vote record file.
    */
-  setCastVoteRecordFiles(
-    newCastVoteRecordFiles: CastVoteRecordFiles
-  ): Promise<void>;
+  addCastVoteRecordFile(newCastVoteRecordFile: File): Promise<void>;
 
   /**
    * Resets all cast vote record files.
@@ -72,18 +72,24 @@ export interface ElectionManagerStore {
   clearCastVoteRecordFiles(): Promise<void>;
 
   /**
-   * Adds an external tally to the list.
+   * Updates the external tally for a given source.
    */
-  addFullElectionExternalTally(
+  updateFullElectionExternalTally(
+    sourceType: ExternalTallySourceType,
     newFullElectionExternalTally: FullElectionExternalTally
   ): Promise<void>;
 
   /**
-   * Replaces all external tallies with the given ones.
+   * Removes the external tally for a given source.
    */
-  setFullElectionExternalTallies(
-    newFullElectionExternalTallies: readonly FullElectionExternalTally[]
+  removeFullElectionExternalTally(
+    sourceType: ExternalTallySourceType
   ): Promise<void>;
+
+  /**
+   * Clears all external tallies.
+   */
+  clearFullElectionExternalTallies(): Promise<void>;
 
   /**
    * Marks the results as official. No more tallies can be added after this.
@@ -177,10 +183,10 @@ export function useElectionManagerStore({
   );
   const castVoteRecordFiles = getCastVoteRecordFilesQuery.data;
 
-  const getExternalElectionTalliesQuery = useQuery<FullElectionExternalTally[]>(
+  const getExternalElectionTalliesQuery = useQuery<FullElectionExternalTallies>(
     [externalVoteTalliesFileStorageKey],
     async () => {
-      return (await backend.loadFullElectionExternalTallies()) ?? [];
+      return (await backend.loadFullElectionExternalTallies()) ?? new Map();
     }
   );
   const fullElectionExternalTallies = getExternalElectionTalliesQuery.data;
@@ -231,30 +237,39 @@ export function useElectionManagerStore({
     [backend, logger, queryClient, reset]
   );
 
-  const setCastVoteRecordFilesMutation = useMutation(
-    async (newCastVoteRecordFiles: CastVoteRecordFiles) => {
-      await backend.setCastVoteRecordFiles(newCastVoteRecordFiles);
+  const addCastVoteRecordFileMutation = useMutation(
+    async (newCastVoteRecordFile: File) => {
+      await backend.addCastVoteRecordFile(newCastVoteRecordFile);
     },
     {
-      onSuccess(data, newCastVoteRecordFiles) {
+      onSuccess() {
         void queryClient.invalidateQueries([cvrsStorageKey]);
-        if (newCastVoteRecordFiles === CastVoteRecordFiles.empty) {
-          void queryClient.invalidateQueries([isOfficialResultsKey]);
-        }
       },
     }
   );
 
-  const setCastVoteRecordFiles = useCallback(
-    async (newCastVoteRecordFiles: CastVoteRecordFiles) => {
-      await setCastVoteRecordFilesMutation.mutateAsync(newCastVoteRecordFiles);
+  const addCastVoteRecordFile = useCallback(
+    async (newCastVoteRecordFile: File) => {
+      await addCastVoteRecordFileMutation.mutateAsync(newCastVoteRecordFile);
     },
-    [setCastVoteRecordFilesMutation]
+    [addCastVoteRecordFileMutation]
+  );
+
+  const clearCastVoteRecordFilesMutation = useMutation(
+    async () => {
+      await backend.clearCastVoteRecordFiles();
+    },
+    {
+      onSuccess() {
+        void queryClient.invalidateQueries([cvrsStorageKey]);
+        void queryClient.invalidateQueries([isOfficialResultsKey]);
+      },
+    }
   );
 
   const clearCastVoteRecordFiles = useCallback(async () => {
-    await setCastVoteRecordFiles(CastVoteRecordFiles.empty);
-  }, [setCastVoteRecordFiles]);
+    await clearCastVoteRecordFilesMutation.mutateAsync();
+  }, [clearCastVoteRecordFilesMutation]);
 
   const markResultsOfficialMutation = useMutation(
     async () => {
@@ -298,33 +313,36 @@ export function useElectionManagerStore({
     [addPrintedBallotMutation]
   );
 
-  const addFullElectionExternalTallyMutation = useMutation(
+  const updateFullElectionExternalTallyMutation = useMutation(
     async (newFullElectionExternalTally: FullElectionExternalTally) => {
-      await backend.addFullElectionExternalTally(newFullElectionExternalTally);
-    },
-    {
-      onSuccess() {
-        void queryClient.invalidateQueries([externalVoteTalliesFileStorageKey]);
-      },
-    }
-  );
-
-  const addFullElectionExternalTally = useCallback(
-    async (newFullElectionExternalTally: FullElectionExternalTally) => {
-      await addFullElectionExternalTallyMutation.mutateAsync(
+      await backend.updateFullElectionExternalTally(
+        newFullElectionExternalTally.source,
         newFullElectionExternalTally
       );
     },
-    [addFullElectionExternalTallyMutation]
+    {
+      onSuccess() {
+        void queryClient.invalidateQueries([externalVoteTalliesFileStorageKey]);
+      },
+    }
   );
 
-  const setFullElectionExternalTalliesMutation = useMutation(
+  const updateFullElectionExternalTally = useCallback(
     async (
-      newFullElectionExternalTallies: readonly FullElectionExternalTally[]
+      sourceType: ExternalTallySourceType,
+      newFullElectionExternalTally: FullElectionExternalTally
     ) => {
-      await backend.setFullElectionExternalTallies(
-        newFullElectionExternalTallies
+      assert(newFullElectionExternalTally.source === sourceType);
+      await updateFullElectionExternalTallyMutation.mutateAsync(
+        newFullElectionExternalTally
       );
+    },
+    [updateFullElectionExternalTallyMutation]
+  );
+
+  const removeFullElectionExternalTallyMutation = useMutation(
+    async (sourceType: ExternalTallySourceType) => {
+      await backend.removeFullElectionExternalTally(sourceType);
     },
     {
       onSuccess() {
@@ -333,16 +351,27 @@ export function useElectionManagerStore({
     }
   );
 
-  const setFullElectionExternalTallies = useCallback(
-    async (
-      newFullElectionExternalTallies: readonly FullElectionExternalTally[]
-    ) => {
-      await setFullElectionExternalTalliesMutation.mutateAsync(
-        newFullElectionExternalTallies
-      );
+  const removeFullElectionExternalTally = useCallback(
+    async (sourceType: ExternalTallySourceType) => {
+      await removeFullElectionExternalTallyMutation.mutateAsync(sourceType);
     },
-    [setFullElectionExternalTalliesMutation]
+    [removeFullElectionExternalTallyMutation]
   );
+
+  const clearFullElectionExternalTalliesMutation = useMutation(
+    async () => {
+      await backend.clearFullElectionExternalTallies();
+    },
+    {
+      onSuccess() {
+        void queryClient.invalidateQueries([externalVoteTalliesFileStorageKey]);
+      },
+    }
+  );
+
+  const clearFullElectionExternalTallies = useCallback(async () => {
+    await clearFullElectionExternalTalliesMutation.mutateAsync();
+  }, [clearFullElectionExternalTalliesMutation]);
 
   const setCurrentUserRole = useCallback((newCurrentUserRole) => {
     currentUserRoleRef.current = newCurrentUserRole;
@@ -354,25 +383,27 @@ export function useElectionManagerStore({
         castVoteRecordFiles: castVoteRecordFiles ?? CastVoteRecordFiles.empty,
         configuredAt,
         electionDefinition,
-        fullElectionExternalTallies: fullElectionExternalTallies ?? [],
+        fullElectionExternalTallies: fullElectionExternalTallies ?? new Map(),
         isOfficialResults: isOfficialResults ?? false,
         printedBallots: printedBallots ?? [],
 
-        addFullElectionExternalTally,
+        addCastVoteRecordFile,
         addPrintedBallot,
         clearCastVoteRecordFiles,
+        clearFullElectionExternalTallies,
         configure,
         markResultsOfficial,
         reset,
-        setCastVoteRecordFiles,
         setCurrentUserRole,
-        setFullElectionExternalTallies,
+        updateFullElectionExternalTally,
+        removeFullElectionExternalTally,
       }),
     [
-      addFullElectionExternalTally,
+      addCastVoteRecordFile,
       addPrintedBallot,
       castVoteRecordFiles,
       clearCastVoteRecordFiles,
+      clearFullElectionExternalTallies,
       configure,
       configuredAt,
       electionDefinition,
@@ -380,10 +411,10 @@ export function useElectionManagerStore({
       isOfficialResults,
       markResultsOfficial,
       printedBallots,
+      removeFullElectionExternalTally,
       reset,
-      setCastVoteRecordFiles,
       setCurrentUserRole,
-      setFullElectionExternalTallies,
+      updateFullElectionExternalTally,
     ]
   );
 }

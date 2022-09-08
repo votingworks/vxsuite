@@ -31,7 +31,7 @@ import {
 } from './lib/votecounting';
 
 import { AppContext } from './contexts/app_context';
-import { SaveCastVoteRecordFiles } from './utils/cast_vote_record_files';
+import { AddCastVoteRecordFile } from './utils/cast_vote_record_files';
 import { ElectionManager } from './components/election_manager';
 import {
   SaveElection,
@@ -154,7 +154,7 @@ export function AppRoot({
   useEffect(() => {
     const totalBallots =
       fullElectionTally.overallTally.numberOfBallotsCounted +
-      store.fullElectionExternalTallies.reduce(
+      Array.from(store.fullElectionExternalTallies.values()).reduce(
         (previous, tally) =>
           previous + tally.overallTally.numberOfBallotsCounted,
         0
@@ -171,26 +171,26 @@ export function AppRoot({
     store.fullElectionExternalTallies,
   ]);
 
-  const addExternalTally = useCallback(
+  const updateExternalTally = useCallback(
     async (newFullElectionExternalTally: FullElectionExternalTally) => {
-      await store.addFullElectionExternalTally(newFullElectionExternalTally);
+      await store.updateFullElectionExternalTally(
+        newFullElectionExternalTally.source,
+        newFullElectionExternalTally
+      );
     },
     [store]
   );
 
-  const saveExternalTallies = useCallback(
-    async (externalTallies: FullElectionExternalTally[]) => {
-      await store.setFullElectionExternalTallies(externalTallies);
+  const addCastVoteRecordFile: AddCastVoteRecordFile = useCallback(
+    async (newCvrFile) => {
+      await store.addCastVoteRecordFile(newCvrFile);
     },
     [store]
   );
 
-  const saveCastVoteRecordFiles: SaveCastVoteRecordFiles = useCallback(
-    async (newCvrFiles) => {
-      await store.setCastVoteRecordFiles(newCvrFiles);
-    },
-    [store]
-  );
+  const clearCastVoteRecordFiles = useCallback(async () => {
+    await store.clearCastVoteRecordFiles();
+  }, [store]);
 
   const saveElection: SaveElection = useCallback(
     async (electionJson) => {
@@ -224,43 +224,41 @@ export function AppRoot({
           await store.clearCastVoteRecordFiles();
           break;
         case ResultsFileType.SEMS: {
-          const newFiles = store.fullElectionExternalTallies.filter(
-            (tally) => tally.source !== ExternalTallySourceType.SEMS
+          await store.removeFullElectionExternalTally(
+            ExternalTallySourceType.SEMS
           );
           await logger.log(LogEventId.RemovedTallyFile, currentUserRole, {
             message: 'User removed all SEMS external tally files.',
             fileType,
             disposition: 'success',
           });
-          await saveExternalTallies(newFiles);
           break;
         }
         case ResultsFileType.Manual: {
-          const newFiles = store.fullElectionExternalTallies.filter(
-            (tally) => tally.source !== ExternalTallySourceType.Manual
+          await store.removeFullElectionExternalTally(
+            ExternalTallySourceType.Manual
           );
           await logger.log(LogEventId.RemovedTallyFile, currentUserRole, {
             message: 'User removed all manually entered tally data.',
             fileType,
             disposition: 'success',
           });
-          await saveExternalTallies(newFiles);
           break;
         }
         case ResultsFileType.All:
+          await store.clearCastVoteRecordFiles();
+          await store.clearFullElectionExternalTallies();
           await logger.log(LogEventId.RemovedTallyFile, currentUserRole, {
             message: 'User removed all tally data.',
             fileType,
             disposition: 'success',
           });
-          await store.clearCastVoteRecordFiles();
-          await saveExternalTallies([]);
           break;
         default:
           throwIllegalValue(fileType);
       }
     },
-    [currentUserRole, store, logger, saveExternalTallies]
+    [currentUserRole, store, logger]
   );
 
   return (
@@ -273,7 +271,8 @@ export function AppRoot({
         isOfficialResults: store.isOfficialResults,
         printer,
         printBallotRef,
-        saveCastVoteRecordFiles,
+        addCastVoteRecordFile,
+        clearCastVoteRecordFiles,
         saveElection,
         resetElection,
         markResultsOfficial,
@@ -284,8 +283,7 @@ export function AppRoot({
         addPrintedBallot,
         fullElectionTally,
         fullElectionExternalTallies: store.fullElectionExternalTallies,
-        addExternalTally,
-        saveExternalTallies,
+        updateExternalTally,
         saveTranscribedValue,
         isTabulationRunning,
         setIsTabulationRunning,

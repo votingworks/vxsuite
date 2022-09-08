@@ -50,7 +50,7 @@ export function ManualDataImportIndexScreen(): JSX.Element {
   const {
     electionDefinition,
     fullElectionExternalTallies,
-    saveExternalTallies,
+    updateExternalTally,
     resetFiles,
     auth,
     logger,
@@ -61,13 +61,9 @@ export function ManualDataImportIndexScreen(): JSX.Element {
   const { election } = electionDefinition;
   const history = useHistory();
 
-  const existingManualDataTallies = fullElectionExternalTallies.filter(
-    (t) => t.source === ExternalTallySourceType.Manual
+  const existingManualData = fullElectionExternalTallies.get(
+    ExternalTallySourceType.Manual
   );
-  const existingManualData =
-    existingManualDataTallies.length === 1
-      ? existingManualDataTallies[0]
-      : undefined;
   const existingTalliesByPrecinct = existingManualData?.resultsByCategory.get(
     TallyCategory.Precinct
   );
@@ -102,13 +98,7 @@ export function ManualDataImportIndexScreen(): JSX.Element {
       newBallotType,
       message: `Ballot type for manually entered tally data changed to ${newBallotType}`,
     });
-    // Don't modify any external tallies for non-manual data
-    const newTallies = fullElectionExternalTallies.filter(
-      (t) => t.source !== ExternalTallySourceType.Manual
-    );
-    // Add the new tally
-    newTallies.push(externalTally);
-    await saveExternalTallies(newTallies);
+    await updateExternalTally(externalTally);
   }
 
   useEffect(() => {

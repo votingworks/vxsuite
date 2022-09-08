@@ -8,6 +8,7 @@ import {
   ElectionDefinition,
   FullElectionTally,
   FullElectionExternalTally,
+  FullElectionExternalTallies,
   AdjudicationId,
   DippedSmartcardAuth,
 } from '@votingworks/types';
@@ -26,8 +27,8 @@ import {
   ResetElection,
 } from '../src/config/types';
 import {
+  AddCastVoteRecordFile,
   CastVoteRecordFiles,
-  SaveCastVoteRecordFiles,
 } from '../src/utils/cast_vote_record_files';
 import { getEmptyFullElectionTally } from '../src/lib/votecounting';
 
@@ -43,16 +44,14 @@ interface RenderInAppContextParams {
   isOfficialResults?: boolean;
   printer?: Printer;
   printBallotRef?: RefObject<HTMLElement>;
-  saveCastVoteRecordFiles?: SaveCastVoteRecordFiles;
   saveElection?: SaveElection;
   resetElection?: ResetElection;
   saveTranscribedValue?: (
     adjudicationId: AdjudicationId,
     transcribedValue: string
   ) => Promise<void>;
-  setCastVoteRecordFiles?: React.Dispatch<
-    React.SetStateAction<CastVoteRecordFiles>
-  >;
+  addCastVoteRecordFile?: AddCastVoteRecordFile;
+  clearCastVoteRecordFiles?: () => Promise<void>;
   saveIsOfficialResults?: () => Promise<void>;
   resetFiles?: () => Promise<void>;
   usbDriveStatus?: usbstick.UsbDriveStatus;
@@ -62,13 +61,10 @@ interface RenderInAppContextParams {
   fullElectionTally?: FullElectionTally;
   isTabulationRunning?: boolean;
   setIsTabulationRunning?: React.Dispatch<React.SetStateAction<boolean>>;
-  addExternalTally?: (
-    externalTally: FullElectionExternalTally
+  updateExternalTally?: (
+    newExternalTally: FullElectionExternalTally
   ) => Promise<void>;
-  saveExternalTallies?: (
-    externalTallies: FullElectionExternalTally[]
-  ) => Promise<void>;
-  fullElectionExternalTallies?: FullElectionExternalTally[];
+  fullElectionExternalTallies?: FullElectionExternalTallies;
   generateExportableTallies?: () => ExportableTallies;
   auth?: DippedSmartcardAuth.Auth;
   machineConfig?: MachineConfig;
@@ -98,7 +94,8 @@ export function renderInAppContext(
     isOfficialResults = false,
     printer = new NullPrinter(),
     printBallotRef = undefined,
-    saveCastVoteRecordFiles = jest.fn(),
+    addCastVoteRecordFile = jest.fn(),
+    clearCastVoteRecordFiles = jest.fn(),
     saveElection = jest.fn(),
     resetElection = jest.fn(),
     saveIsOfficialResults: markResultsOfficial = jest.fn(),
@@ -110,9 +107,8 @@ export function renderInAppContext(
     fullElectionTally = getEmptyFullElectionTally(),
     isTabulationRunning = false,
     setIsTabulationRunning = jest.fn(),
-    addExternalTally = jest.fn(),
-    saveExternalTallies = jest.fn(),
-    fullElectionExternalTallies = [],
+    updateExternalTally = jest.fn(),
+    fullElectionExternalTallies = new Map(),
     saveTranscribedValue = jest.fn(),
     generateExportableTallies = jest.fn(),
     auth = Dipped.fakeElectionManagerAuth(),
@@ -136,7 +132,8 @@ export function renderInAppContext(
         isOfficialResults,
         printer,
         printBallotRef,
-        saveCastVoteRecordFiles,
+        addCastVoteRecordFile,
+        clearCastVoteRecordFiles,
         saveElection,
         resetElection,
         markResultsOfficial,
@@ -148,8 +145,7 @@ export function renderInAppContext(
         fullElectionTally,
         isTabulationRunning,
         setIsTabulationRunning,
-        addExternalTally,
-        saveExternalTallies,
+        updateExternalTally,
         fullElectionExternalTallies,
         generateExportableTallies,
         saveTranscribedValue,

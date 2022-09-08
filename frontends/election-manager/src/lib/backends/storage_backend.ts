@@ -1,6 +1,8 @@
 import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
 import {
   ElectionDefinition,
+  ExternalTallySourceType,
+  FullElectionExternalTallies,
   FullElectionExternalTally,
   Iso8601TimestampSchema,
   safeParse,
@@ -157,30 +159,39 @@ export class ElectionManagerStoreStorageBackend
     }
   }
 
-  async setCastVoteRecordFiles(
-    newCastVoteRecordFiles: CastVoteRecordFiles
-  ): Promise<void> {
-    if (newCastVoteRecordFiles === CastVoteRecordFiles.empty) {
-      await this.removeStorageKeyAndLog(cvrsStorageKey, 'Cast vote records');
-      await this.removeStorageKeyAndLog(
-        isOfficialResultsKey,
-        'isOfficialResults flag'
-      );
-    } else {
-      await this.setStorageKeyAndLog(
-        cvrsStorageKey,
-        newCastVoteRecordFiles.export(),
-        'Cast vote records'
-      );
+  async addCastVoteRecordFile(newCastVoteRecordFile: File): Promise<void> {
+    const loadElectionResult =
+      await this.loadElectionDefinitionAndConfiguredAt();
+
+    if (!loadElectionResult) {
+      throw new Error('Cannot add CVR files without an election definition.');
     }
+
+    const loadCastVoteRecordFilesResult =
+      (await this.loadCastVoteRecordFiles()) ?? CastVoteRecordFiles.empty;
+
+    const newCastVoteRecordFiles = await loadCastVoteRecordFilesResult.add(
+      newCastVoteRecordFile,
+      loadElectionResult.electionDefinition.election
+    );
+
+    await this.setStorageKeyAndLog(
+      cvrsStorageKey,
+      newCastVoteRecordFiles.export(),
+      'Cast vote records'
+    );
   }
 
   async clearCastVoteRecordFiles(): Promise<void> {
-    await this.setCastVoteRecordFiles(CastVoteRecordFiles.empty);
+    await this.removeStorageKeyAndLog(cvrsStorageKey, 'Cast vote records');
+    await this.removeStorageKeyAndLog(
+      isOfficialResultsKey,
+      'isOfficialResults flag'
+    );
   }
 
   async loadFullElectionExternalTallies(): Promise<
-    FullElectionExternalTally[] | undefined
+    FullElectionExternalTallies | undefined
   > {
     const serializedExternalTallies = safeParse(
       z.string().optional(),
@@ -199,46 +210,47 @@ export class ElectionManagerStoreStorageBackend
           .map((d) => d.inputSourceName)
           .join(', '),
       });
-      return importedData;
+      return new Map(importedData.map((d) => [d.source, d]));
     }
   }
 
-  async addFullElectionExternalTally(
+  async updateFullElectionExternalTally(
+    sourceType: ExternalTallySourceType,
     newFullElectionExternalTally: FullElectionExternalTally
   ): Promise<void> {
-    const newFullElectionExternalTallies = [
-      ...((await this.loadFullElectionExternalTallies()) ?? []),
-      newFullElectionExternalTally,
-    ];
-    if (newFullElectionExternalTallies.length > 0) {
-      await this.setStorageKeyAndLog(
-        externalVoteTalliesFileStorageKey,
-        convertExternalTalliesToStorageString(newFullElectionExternalTallies),
-        'Loaded tally data from external file formats'
-      );
-    } else {
-      await this.removeStorageKeyAndLog(
-        externalVoteTalliesFileStorageKey,
-        'Loaded tally data from external files'
-      );
-    }
+    const newFullElectionExternalTallies = new Map(
+      await this.loadFullElectionExternalTallies()
+    );
+    newFullElectionExternalTallies.set(
+      sourceType,
+      newFullElectionExternalTally
+    );
+    await this.setStorageKeyAndLog(
+      externalVoteTalliesFileStorageKey,
+      convertExternalTalliesToStorageString(newFullElectionExternalTallies),
+      `Updated external tally from source: ${newFullElectionExternalTally.source}`
+    );
   }
 
-  async setFullElectionExternalTallies(
-    newFullElectionExternalTallies: readonly FullElectionExternalTally[]
+  async removeFullElectionExternalTally(
+    sourceType: ExternalTallySourceType
   ): Promise<void> {
-    if (newFullElectionExternalTallies.length > 0) {
-      await this.setStorageKeyAndLog(
-        externalVoteTalliesFileStorageKey,
-        convertExternalTalliesToStorageString(newFullElectionExternalTallies),
-        'Loaded tally data from external file formats'
-      );
-    } else {
-      await this.removeStorageKeyAndLog(
-        externalVoteTalliesFileStorageKey,
-        'Loaded tally data from external files'
-      );
-    }
+    const newFullElectionExternalTallies = new Map(
+      await this.loadFullElectionExternalTallies()
+    );
+    newFullElectionExternalTallies.delete(sourceType);
+    await this.setStorageKeyAndLog(
+      externalVoteTalliesFileStorageKey,
+      convertExternalTalliesToStorageString(newFullElectionExternalTallies),
+      `Removed external tally from source: ${sourceType}`
+    );
+  }
+
+  async clearFullElectionExternalTallies(): Promise<void> {
+    await this.removeStorageKeyAndLog(
+      externalVoteTalliesFileStorageKey,
+      'Cleared all external tallies'
+    );
   }
 
   async loadIsOfficialResults(): Promise<boolean | undefined> {

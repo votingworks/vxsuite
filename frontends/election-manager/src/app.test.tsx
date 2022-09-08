@@ -673,12 +673,7 @@ test('tabulating CVRs with SEMS file', async () => {
     electionDefinition: eitherNeitherElectionDefinition,
   });
 
-  await backend.setCastVoteRecordFiles(
-    await CastVoteRecordFiles.empty.add(
-      EITHER_NEITHER_CVR_FILE,
-      eitherNeitherElectionDefinition.election
-    )
-  );
+  await backend.addCastVoteRecordFile(EITHER_NEITHER_CVR_FILE);
 
   const semsFileTally = convertSemsFileToExternalTally(
     EITHER_NEITHER_SEMS_DATA,
@@ -687,7 +682,10 @@ test('tabulating CVRs with SEMS file', async () => {
     'sems-results.csv',
     new Date()
   );
-  await backend.addFullElectionExternalTally(semsFileTally);
+  await backend.updateFullElectionExternalTally(
+    semsFileTally.source,
+    semsFileTally
+  );
 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
@@ -786,12 +784,7 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
   const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
   });
-  await backend.setCastVoteRecordFiles(
-    await CastVoteRecordFiles.empty.add(
-      EITHER_NEITHER_CVR_FILE,
-      eitherNeitherElectionDefinition.election
-    )
-  );
+  await backend.addCastVoteRecordFile(EITHER_NEITHER_CVR_FILE);
 
   const semsFileTally = convertSemsFileToExternalTally(
     EITHER_NEITHER_SEMS_DATA,
@@ -800,7 +793,10 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
     'sems-results.csv',
     new Date()
   );
-  await backend.addFullElectionExternalTally(semsFileTally);
+  await backend.updateFullElectionExternalTally(
+    semsFileTally.source,
+    semsFileTally
+  );
 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
@@ -966,12 +962,7 @@ test('changing election resets sems, cvr, and manual data files', async () => {
   const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
   });
-  await backend.setCastVoteRecordFiles(
-    await CastVoteRecordFiles.empty.add(
-      EITHER_NEITHER_CVR_FILE,
-      eitherNeitherElectionDefinition.election
-    )
-  );
+  await backend.addCastVoteRecordFile(EITHER_NEITHER_CVR_FILE);
 
   const semsFileTally = convertSemsFileToExternalTally(
     EITHER_NEITHER_SEMS_DATA,
@@ -988,8 +979,14 @@ test('changing election resets sems, cvr, and manual data files', async () => {
     'Manually Added Data',
     new Date()
   );
-  await backend.addFullElectionExternalTally(semsFileTally);
-  await backend.addFullElectionExternalTally(manualTally);
+  await backend.updateFullElectionExternalTally(
+    semsFileTally.source,
+    semsFileTally
+  );
+  await backend.updateFullElectionExternalTally(
+    manualTally.source,
+    manualTally
+  );
 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
@@ -1033,12 +1030,7 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
   const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
   });
-  await backend.setCastVoteRecordFiles(
-    await CastVoteRecordFiles.empty.add(
-      EITHER_NEITHER_CVR_FILE,
-      eitherNeitherElectionDefinition.election
-    )
-  );
+  await backend.addCastVoteRecordFile(EITHER_NEITHER_CVR_FILE);
 
   const semsFileTally = convertSemsFileToExternalTally(
     EITHER_NEITHER_SEMS_DATA,
@@ -1055,8 +1047,14 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
     'Manually Added Data',
     new Date()
   );
-  await backend.addFullElectionExternalTally(semsFileTally);
-  await backend.addFullElectionExternalTally(manualTally);
+  await backend.updateFullElectionExternalTally(
+    semsFileTally.source,
+    semsFileTally
+  );
+  await backend.updateFullElectionExternalTally(
+    manualTally.source,
+    manualTally
+  );
 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();

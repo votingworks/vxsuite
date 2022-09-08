@@ -1,12 +1,15 @@
 import {
   ElectionDefinition,
+  ExternalTallySourceType,
+  FullElectionExternalTallies,
   FullElectionExternalTally,
   Iso8601Timestamp,
   safeParseElectionDefinition,
 } from '@votingworks/types';
+import { assert } from '@votingworks/utils';
 import { PrintedBallot } from '../../config/types';
-import { ElectionManagerStoreBackend } from './types';
 import { CastVoteRecordFiles } from '../../utils/cast_vote_record_files';
+import { ElectionManagerStoreBackend } from './types';
 
 /**
  * An in-memory backend for ElectionManagerStore. Useful for tests or an
@@ -18,7 +21,10 @@ export class ElectionManagerStoreMemoryBackend
   private electionDefinition?: ElectionDefinition;
   private configuredAt?: Iso8601Timestamp;
   private printedBallots?: readonly PrintedBallot[];
-  private fullElectionExternalTallies?: readonly FullElectionExternalTally[];
+  private fullElectionExternalTallies: Map<
+    ExternalTallySourceType,
+    FullElectionExternalTally
+  >;
   private castVoteRecordFiles?: CastVoteRecordFiles;
   private isOfficialResults?: boolean;
 
@@ -33,7 +39,7 @@ export class ElectionManagerStoreMemoryBackend
     electionDefinition?: ElectionDefinition;
     configuredAt?: Iso8601Timestamp;
     printedBallots?: readonly PrintedBallot[];
-    fullElectionExternalTallies?: readonly FullElectionExternalTally[];
+    fullElectionExternalTallies?: FullElectionExternalTallies;
     castVoteRecordFiles?: CastVoteRecordFiles;
     isOfficialResults?: boolean;
   } = {}) {
@@ -42,7 +48,9 @@ export class ElectionManagerStoreMemoryBackend
       configuredAt ??
       (electionDefinition ? new Date().toISOString() : undefined);
     this.printedBallots = printedBallots;
-    this.fullElectionExternalTallies = fullElectionExternalTallies;
+    this.fullElectionExternalTallies = new Map([
+      ...(fullElectionExternalTallies ?? []),
+    ]);
     this.castVoteRecordFiles = castVoteRecordFiles;
     this.isOfficialResults = isOfficialResults;
   }
@@ -52,7 +60,7 @@ export class ElectionManagerStoreMemoryBackend
     this.electionDefinition = undefined;
     this.configuredAt = undefined;
     this.printedBallots = undefined;
-    this.fullElectionExternalTallies = undefined;
+    this.fullElectionExternalTallies = new Map();
     this.castVoteRecordFiles = undefined;
     this.isOfficialResults = undefined;
   }
@@ -88,42 +96,50 @@ export class ElectionManagerStoreMemoryBackend
     return Promise.resolve(this.castVoteRecordFiles);
   }
 
-  async setCastVoteRecordFiles(
-    newCastVoteRecordFiles: CastVoteRecordFiles
-  ): Promise<void> {
-    await Promise.resolve();
-    if (newCastVoteRecordFiles === CastVoteRecordFiles.empty) {
-      this.isOfficialResults = undefined;
-      this.castVoteRecordFiles = undefined;
-    } else {
-      this.castVoteRecordFiles = newCastVoteRecordFiles;
+  async addCastVoteRecordFile(newCastVoteRecordFile: File): Promise<void> {
+    if (!this.electionDefinition) {
+      throw new Error('Election definition must be configured first');
     }
+
+    this.castVoteRecordFiles = await (
+      this.castVoteRecordFiles ?? CastVoteRecordFiles.empty
+    ).add(newCastVoteRecordFile, this.electionDefinition.election);
   }
 
   async clearCastVoteRecordFiles(): Promise<void> {
-    await this.setCastVoteRecordFiles(CastVoteRecordFiles.empty);
+    await Promise.resolve();
+    this.isOfficialResults = undefined;
+    this.castVoteRecordFiles = undefined;
   }
 
   loadFullElectionExternalTallies(): Promise<
-    FullElectionExternalTally[] | undefined
+    FullElectionExternalTallies | undefined
   > {
-    return Promise.resolve(this.fullElectionExternalTallies?.slice());
+    return Promise.resolve(new Map(this.fullElectionExternalTallies));
   }
 
-  async addFullElectionExternalTally(
+  async updateFullElectionExternalTally(
+    sourceType: ExternalTallySourceType,
     newFullElectionExternalTally: FullElectionExternalTally
   ): Promise<void> {
-    await this.setFullElectionExternalTallies([
-      ...(this.fullElectionExternalTallies ?? []),
-      newFullElectionExternalTally,
-    ]);
+    await Promise.resolve();
+    assert(newFullElectionExternalTally.source === sourceType);
+    this.fullElectionExternalTallies.set(
+      sourceType,
+      newFullElectionExternalTally
+    );
   }
 
-  async setFullElectionExternalTallies(
-    newFullElectionExternalTallies: readonly FullElectionExternalTally[]
+  async removeFullElectionExternalTally(
+    sourceType: ExternalTallySourceType
   ): Promise<void> {
     await Promise.resolve();
-    this.fullElectionExternalTallies = newFullElectionExternalTallies;
+    this.fullElectionExternalTallies.delete(sourceType);
+  }
+
+  async clearFullElectionExternalTallies(): Promise<void> {
+    await Promise.resolve();
+    this.fullElectionExternalTallies = new Map();
   }
 
   loadIsOfficialResults(): Promise<boolean | undefined> {

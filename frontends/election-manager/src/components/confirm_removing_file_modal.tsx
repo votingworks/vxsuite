@@ -21,11 +21,11 @@ export function ConfirmRemovingFileModal({
   const { castVoteRecordFiles, fullElectionExternalTallies } =
     useContext(AppContext);
 
-  const semsFile = fullElectionExternalTallies.find(
-    (t) => t.source === ExternalTallySourceType.SEMS
+  const semsFile = fullElectionExternalTallies.get(
+    ExternalTallySourceType.SEMS
   );
-  const manualData = fullElectionExternalTallies.find(
-    (t) => t.source === ExternalTallySourceType.Manual
+  const manualData = fullElectionExternalTallies.get(
+    ExternalTallySourceType.Manual
   );
 
   let mainContent = null;
@@ -60,7 +60,7 @@ export function ConfirmRemovingFileModal({
       mainContent = (
         <p>
           Do you want to remove the external results{' '}
-          {pluralize('files', fullElectionExternalTallies.length)}{' '}
+          {pluralize('files', fullElectionExternalTallies.size)}{' '}
           {semsFile.inputSourceName}?
         </p>
       );
