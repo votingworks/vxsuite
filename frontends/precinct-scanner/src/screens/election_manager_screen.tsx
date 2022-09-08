@@ -137,7 +137,7 @@ export function ElectionManagerScreen({
     await unconfigure();
   }
 
-  const initialPrecinctValue = precinctSelection
+  const precinctSelectionValue = precinctSelection
     ? precinctSelection.kind === 'AllPrecincts'
       ? ALL_PRECINCTS_OPTION_VALUE
       : precinctSelection.precinctId
@@ -151,7 +151,7 @@ export function ElectionManagerScreen({
           <Select
             id="selectPrecinct"
             data-testid="selectPrecinct"
-            value={initialPrecinctValue}
+            value={precinctSelectionValue}
             onBlur={changeAppPrecinctSelection}
             onChange={changeAppPrecinctSelection}
             large
