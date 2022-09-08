@@ -10,7 +10,6 @@ import {
   MsEitherNeitherContest,
   OptionalVote,
   OptionalYesNoVote,
-  Precinct,
   PrecinctId,
   VotesDict,
   YesNoContest,
@@ -85,16 +84,6 @@ export type TextareaChangeEventFunction =
   React.ChangeEventHandler<HTMLTextAreaElement>;
 export type SelectChangeEventFunction =
   React.ChangeEventHandler<HTMLSelectElement>;
-
-// Election
-export enum PrecinctSelectionKind {
-  SinglePrecinct = 'SinglePrecinct',
-  AllPrecincts = 'AllPrecincts',
-}
-
-export type PrecinctSelection =
-  | { kind: PrecinctSelectionKind.AllPrecincts }
-  | { kind: PrecinctSelectionKind.SinglePrecinct; precinctId: Precinct['id'] };
 
 // Ballot
 export type UpdateVoteFunction = (

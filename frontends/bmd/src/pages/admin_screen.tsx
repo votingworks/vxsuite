@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from 'react';
 
-import { ElectionDefinition } from '@votingworks/types';
+import { ElectionDefinition, PrecinctSelection } from '@votingworks/types';
+import {
+  ALL_PRECINCTS_NAME,
+  ALL_PRECINCTS_SELECTION,
+  singlePrecinctSelectionFor,
+} from '@votingworks/utils';
 import {
   Button,
   CurrentDateAndTime,
@@ -13,8 +18,6 @@ import {
 } from '@votingworks/ui';
 import {
   MachineConfig,
-  PrecinctSelection,
-  PrecinctSelectionKind,
   ScreenReader,
   SelectChangeEventFunction,
 } from '../config/types';
@@ -23,7 +26,6 @@ import { Sidebar } from '../components/sidebar';
 import { ElectionInfo } from '../components/election_info';
 import { Select } from '../components/select';
 import { VersionsData } from '../components/versions_data';
-import { AllPrecinctsDisplayName } from '../utils/precinct_selection';
 
 interface Props {
   appPrecinct?: PrecinctSelection;
@@ -57,12 +59,9 @@ export function AdminScreen({
     const precinctId = event.currentTarget.value;
 
     if (precinctId === ALL_PRECINCTS_OPTION_VALUE) {
-      updateAppPrecinct({ kind: PrecinctSelectionKind.AllPrecincts });
+      updateAppPrecinct(ALL_PRECINCTS_SELECTION);
     } else if (precinctId) {
-      updateAppPrecinct({
-        kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId,
-      });
+      updateAppPrecinct(singlePrecinctSelectionFor(precinctId));
     }
   };
 
@@ -92,7 +91,7 @@ export function AdminScreen({
                 <Select
                   id="selectPrecinct"
                   value={
-                    appPrecinct?.kind === PrecinctSelectionKind.AllPrecincts
+                    appPrecinct?.kind === 'AllPrecincts'
                       ? ALL_PRECINCTS_OPTION_VALUE
                       : appPrecinct?.precinctId ?? ''
                   }
@@ -103,7 +102,7 @@ export function AdminScreen({
                     Select a precinct for this device…
                   </option>
                   <option value={ALL_PRECINCTS_OPTION_VALUE}>
-                    {AllPrecinctsDisplayName}
+                    {ALL_PRECINCTS_NAME}
                   </option>
                   {[...election.precincts]
                     .sort((a, b) =>

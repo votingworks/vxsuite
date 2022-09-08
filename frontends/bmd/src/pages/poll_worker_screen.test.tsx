@@ -25,8 +25,10 @@ import {
   within,
 } from '@testing-library/react';
 import {
+  ALL_PRECINCTS_SELECTION,
   TallySourceMachineType,
   PrecinctScannerCardTally,
+  singlePrecinctSelectionFor,
   typedAs,
   MemoryHardware,
 } from '@votingworks/utils';
@@ -39,12 +41,7 @@ import {
 } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 
-import {
-  PrecinctSelectionKind,
-  MarkOnly,
-  PrintOnly,
-  MarkAndPrint,
-} from '../config/types';
+import { MarkOnly, PrintOnly, MarkAndPrint } from '../config/types';
 
 import { render } from '../../test/test_utils';
 
@@ -95,10 +92,7 @@ function renderScreen(
       pollworkerAuth={pollworkerAuth}
       activateCardlessVoterSession={jest.fn()}
       resetCardlessVoterSession={jest.fn()}
-      appPrecinct={{
-        kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: defaultPrecinctId,
-      }}
+      appPrecinct={singlePrecinctSelectionFor(defaultPrecinctId)}
       electionDefinition={electionDefinition}
       enableLiveMode={jest.fn()}
       hasVotes={false}
@@ -223,7 +217,7 @@ test('precinct scanner report populated as expected with all precinct data for g
     totalBallotsScanned: 25,
     machineId: '001',
     timeSaved: new Date('2020-10-31').getTime(),
-    precinctSelection: { kind: PrecinctSelectionKind.AllPrecincts },
+    precinctSelection: ALL_PRECINCTS_SELECTION,
     isLiveMode: false,
     isPollsOpen: false,
     ballotCounts: { 'undefined,__ALL_PRECINCTS': [20, 5] },
@@ -292,7 +286,7 @@ test('precinct scanner report with quickresults reporting turned on', async () =
     totalBallotsScanned: 25,
     machineId: '001',
     timeSaved: new Date('2020-10-31').getTime(),
-    precinctSelection: { kind: PrecinctSelectionKind.AllPrecincts },
+    precinctSelection: ALL_PRECINCTS_SELECTION,
     isLiveMode: false,
     isPollsOpen: false,
     ballotCounts: { 'undefined,__ALL_PRECINCTS': [20, 5] },
@@ -341,10 +335,7 @@ test('precinct scanner report populated as expected with single precinct data fo
     totalBallotsScanned: 25,
     machineId: '001',
     timeSaved: new Date('2020-10-31').getTime(),
-    precinctSelection: {
-      kind: PrecinctSelectionKind.SinglePrecinct,
-      precinctId: '23',
-    },
+    precinctSelection: singlePrecinctSelectionFor('23'),
     isLiveMode: false,
     isPollsOpen: false,
     ballotCounts: {
@@ -439,10 +430,7 @@ test('precinct scanner report populated as expected with all precinct specific d
     totalBallotsScanned: 25,
     machineId: '001',
     timeSaved: new Date('2020-10-31').getTime(),
-    precinctSelection: {
-      kind: PrecinctSelectionKind.SinglePrecinct,
-      precinctId: '23',
-    },
+    precinctSelection: singlePrecinctSelectionFor('23'),
     isLiveMode: false,
     isPollsOpen: false,
     ballotCounts: {
@@ -662,9 +650,7 @@ test('precinct scanner report populated as expected with all precinct specific d
     totalBallotsScanned: 3,
     machineId: '001',
     timeSaved: new Date('2020-10-31').getTime(),
-    precinctSelection: {
-      kind: PrecinctSelectionKind.AllPrecincts,
-    },
+    precinctSelection: ALL_PRECINCTS_SELECTION,
     isLiveMode: false,
     isPollsOpen: false,
     ballotCounts: {
@@ -681,10 +667,7 @@ test('precinct scanner report populated as expected with all precinct specific d
   renderScreen({
     pollworkerAuth,
     electionDefinition,
-    appPrecinct: {
-      kind: PrecinctSelectionKind.SinglePrecinct,
-      precinctId: 'precinct-1',
-    },
+    appPrecinct: singlePrecinctSelectionFor('precinct-1'),
     isLiveMode: true,
     isPollsOpen: true,
     machineConfig: fakeMachineConfig({
@@ -931,9 +914,7 @@ test('precinct scanner report populated as expected with all precinct combined d
     totalBallotsScanned: 3,
     machineId: '001',
     timeSaved: new Date('2020-10-31').getTime(),
-    precinctSelection: {
-      kind: PrecinctSelectionKind.AllPrecincts,
-    },
+    precinctSelection: ALL_PRECINCTS_SELECTION,
     isLiveMode: false,
     isPollsOpen: false,
     ballotCounts: {
@@ -950,10 +931,7 @@ test('precinct scanner report populated as expected with all precinct combined d
   renderScreen({
     pollworkerAuth,
     electionDefinition,
-    appPrecinct: {
-      kind: PrecinctSelectionKind.SinglePrecinct,
-      precinctId: 'precinct-1',
-    },
+    appPrecinct: singlePrecinctSelectionFor('precinct-1'),
     isLiveMode: true,
     isPollsOpen: true,
     machineConfig: fakeMachineConfig({
@@ -1110,10 +1088,7 @@ test('precinct scanner report populated as expected with a single precinct for p
     totalBallotsScanned: 3,
     machineId: '001',
     timeSaved: new Date('2020-10-31').getTime(),
-    precinctSelection: {
-      kind: PrecinctSelectionKind.SinglePrecinct,
-      precinctId: 'precinct-1',
-    },
+    precinctSelection: singlePrecinctSelectionFor('precinct-1'),
     isLiveMode: false,
     isPollsOpen: false,
     ballotCounts: {
@@ -1128,10 +1103,7 @@ test('precinct scanner report populated as expected with a single precinct for p
   renderScreen({
     pollworkerAuth,
     electionDefinition,
-    appPrecinct: {
-      kind: PrecinctSelectionKind.SinglePrecinct,
-      precinctId: 'precinct-1',
-    },
+    appPrecinct: singlePrecinctSelectionFor('precinct-1'),
     isLiveMode: true,
     isPollsOpen: true,
     machineConfig: fakeMachineConfig({
@@ -1289,7 +1261,7 @@ test('printing polls opened report clears card and opens the polls', async () =>
     totalBallotsScanned: 0,
     machineId: '001',
     timeSaved: new Date('2020-10-31').getTime(),
-    precinctSelection: { kind: PrecinctSelectionKind.AllPrecincts },
+    precinctSelection: ALL_PRECINCTS_SELECTION,
     isLiveMode: false,
     isPollsOpen: true,
     ballotCounts: {},
@@ -1348,7 +1320,7 @@ test('printing polls closed report clears card and closes the polls', async () =
     totalBallotsScanned: 25,
     machineId: '001',
     timeSaved: new Date('2020-10-31').getTime(),
-    precinctSelection: { kind: PrecinctSelectionKind.AllPrecincts },
+    precinctSelection: ALL_PRECINCTS_SELECTION,
     isLiveMode: false,
     isPollsOpen: false,
     ballotCounts: { 'undefined,__ALL_PRECINCTS': [20, 5] },

@@ -2,10 +2,13 @@ import {
   ElectionDefinition,
   PartyId,
   PrecinctSelection,
-  PrecinctSelectionKind,
   Tally,
 } from '@votingworks/types';
-import { find, format, formatFullDateTimeZone } from '@votingworks/utils';
+import {
+  format,
+  formatFullDateTimeZone,
+  getPrecinctSelectionName,
+} from '@votingworks/utils';
 import { DateTime } from 'luxon';
 import React from 'react';
 import { ContestTally } from './contest_tally';
@@ -41,14 +44,13 @@ export function PrecinctScannerTallyReport({
 }: Props): JSX.Element {
   const { election } = electionDefinition;
   const precinctId =
-    precinctSelection.kind === PrecinctSelectionKind.SinglePrecinct
+    precinctSelection.kind === 'SinglePrecinct'
       ? precinctSelection.precinctId
       : undefined;
-  const precinctName =
-    precinctSelection.kind === PrecinctSelectionKind.AllPrecincts
-      ? 'All Precincts'
-      : find(election.precincts, (p) => p.id === precinctSelection.precinctId)
-          .name;
+  const precinctName = getPrecinctSelectionName(
+    election.precincts,
+    precinctSelection
+  );
   const pollsAction = isPollsOpen ? 'Opened' : 'Closed';
 
   const reportTitle = `${precinctName} Polls ${pollsAction} Tally Report`;

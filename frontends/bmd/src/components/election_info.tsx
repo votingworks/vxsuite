@@ -6,13 +6,12 @@ import {
   BallotStyleId,
   ElectionDefinition,
   getPartyPrimaryAdjectiveFromBallotStyle,
+  PrecinctSelection,
 } from '@votingworks/types';
-import { formatLongDate } from '@votingworks/utils';
+import { getPrecinctSelectionName, formatLongDate } from '@votingworks/utils';
 
 import { Prose, Text, NoWrap } from '@votingworks/ui';
 import { Seal } from './seal';
-import { PrecinctSelection } from '../config/types';
-import { precinctSelectionName } from '../utils/precinct_selection';
 
 const VerticalContainer = styled.div`
   display: block;
@@ -55,7 +54,7 @@ export function ElectionInfo({
   const { title: t, state, county, date, seal, sealUrl } = election;
   const precinctName =
     precinctSelection &&
-    precinctSelectionName(election.precincts, precinctSelection);
+    getPrecinctSelectionName(election.precincts, precinctSelection);
   const partyPrimaryAdjective = ballotStyleId
     ? getPartyPrimaryAdjectiveFromBallotStyle({
         election,

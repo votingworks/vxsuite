@@ -19,18 +19,17 @@ import {
   compressTally,
   computeTallyWithPrecomputedCategories,
   filterTalliesByParams,
-  find,
+  getPrecinctSelectionName,
   getTallyIdentifier,
   PrecinctScannerCardTally,
   PrecinctScannerCardTallySchema,
   Printer,
+  singlePrecinctSelectionFor,
   TallySourceMachineType,
 } from '@votingworks/utils';
 import {
   CastVoteRecord,
   VotingMethod,
-  PrecinctSelection,
-  PrecinctSelectionKind,
   TallyCategory,
   FullElectionTally,
   Tally,
@@ -53,7 +52,6 @@ import { IndeterminateProgressBar } from '../components/graphics';
 import { ScannedBallotCount } from '../components/scanned_ballot_count';
 import { saveCvrExportToUsb } from '../utils/save_cvr_export_to_usb';
 import * as scan from '../api/scan';
-import { ALL_PRECINCTS_OPTION_VALUE } from './election_manager_screen';
 
 enum PollWorkerFlowState {
   OPEN_POLLS_FLOW__CONFIRM = 'open polls flow: confirm',
@@ -107,10 +105,10 @@ export function PollWorkerScreen({
   printer,
   usbDrive,
 }: Props): JSX.Element {
-  const { electionDefinition, currentPrecinctId, machineConfig, auth } =
+  const { electionDefinition, precinctSelection, machineConfig, auth } =
     useContext(AppContext);
   assert(electionDefinition);
-  assert(typeof currentPrecinctId !== 'undefined');
+  assert(precinctSelection);
   assert(isPollWorkerAuth(auth));
   const [currentTally, setCurrentTally] = useState<FullElectionTally>();
   const [currentSubTallies, setCurrentSubTallies] = useState<
@@ -121,22 +119,6 @@ export function PollWorkerScreen({
   const hasPrinterAttached = printerFromProps || !window.kiosk;
   const { election } = electionDefinition;
 
-  const precinct =
-    currentPrecinctId === ALL_PRECINCTS_OPTION_VALUE
-      ? ALL_PRECINCTS_OPTION_VALUE
-      : find(election.precincts, (p) => p.id === currentPrecinctId);
-
-  const precinctSelection: PrecinctSelection = useMemo(
-    () =>
-      currentPrecinctId === ALL_PRECINCTS_OPTION_VALUE
-        ? { kind: PrecinctSelectionKind.AllPrecincts }
-        : {
-            kind: PrecinctSelectionKind.SinglePrecinct,
-            precinctId: currentPrecinctId,
-          },
-    [currentPrecinctId]
-  );
-
   const currentCompressedTally = useMemo(
     () => currentTally && compressTally(election, currentTally.overallTally),
     [election, currentTally]
@@ -144,7 +126,7 @@ export function PollWorkerScreen({
 
   const precinctList = useMemo(
     () =>
-      precinctSelection.kind === PrecinctSelectionKind.AllPrecincts
+      precinctSelection.kind === 'AllPrecincts'
         ? election.precincts.map(({ id }) => id)
         : [precinctSelection.precinctId],
     [precinctSelection, election.precincts]
@@ -193,13 +175,14 @@ export function PollWorkerScreen({
       setCurrentTally(tally);
     }
     void calculateTally();
-  }, [election, scannedBallotCount, precinctSelection, parties, precinctList]);
+  }, [election, scannedBallotCount, parties, precinctList]);
 
   async function saveTally() {
     assert(currentTally);
     let compressedTalliesByPrecinct: Dictionary<CompressedTally> = {};
     // We only need to save tallies by precinct if the precinct scanner is configured for all precincts
-    if (precinctSelection.kind === PrecinctSelectionKind.AllPrecincts) {
+    assert(precinctSelection);
+    if (precinctSelection.kind === 'AllPrecincts') {
       const talliesByPrecinct = currentTally.resultsByCategory.get(
         TallyCategory.Precinct
       );
@@ -326,8 +309,10 @@ export function PollWorkerScreen({
     setPollWorkerFlowState(PollWorkerFlowState.CLOSE_POLLS_FLOW__COMPLETE);
   }
 
-  const precinctName =
-    precinct === ALL_PRECINCTS_OPTION_VALUE ? 'All Precincts' : precinct.name;
+  const precinctName = getPrecinctSelectionName(
+    electionDefinition.election.precincts,
+    precinctSelection
+  );
   const currentTime = Date.now();
 
   if (!currentTally) {
@@ -370,10 +355,7 @@ export function PollWorkerScreen({
                       data-testid={getTallyIdentifier(partyId, precinctId)}
                       electionDefinition={electionDefinition}
                       tally={tallyForReport}
-                      precinctSelection={{
-                        kind: PrecinctSelectionKind.SinglePrecinct,
-                        precinctId,
-                      }}
+                      precinctSelection={singlePrecinctSelectionFor(precinctId)}
                       partyId={partyId}
                       reportPurpose={reportPurpose}
                       isPollsOpen={!isPollsOpen}

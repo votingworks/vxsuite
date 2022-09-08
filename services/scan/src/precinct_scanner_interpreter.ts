@@ -10,6 +10,7 @@ import {
   ok,
   Optional,
   PageInterpretationWithFiles,
+  PrecinctSelection,
   Result,
 } from '@votingworks/types';
 import { readFile } from 'fs/promises';
@@ -22,11 +23,11 @@ import { ScannerLocation, SCANNER_LOCATION } from './globals';
 
 export interface InterpreterConfig {
   readonly electionDefinition: ElectionDefinition;
+  readonly precinctSelection: PrecinctSelection;
   readonly layouts: readonly BallotPageLayoutWithImage[];
   readonly ballotImagesPath: string;
   readonly markThresholdOverrides?: MarkThresholds;
   readonly testMode: boolean;
-  readonly currentPrecinctId?: string;
 }
 
 /**
@@ -220,14 +221,14 @@ async function vxInterpret(
     ballotImagesPath,
     layouts,
     markThresholdOverrides,
-    currentPrecinctId,
+    precinctSelection,
     testMode,
   } = config;
   const vxInterpreter = new VxInterpreter({
     electionDefinition,
     testMode,
     markThresholdOverrides,
-    currentPrecinctId,
+    precinctSelection,
     adjudicationReasons:
       (SCANNER_LOCATION === ScannerLocation.Central
         ? electionDefinition.election.centralScanAdjudicationReasons

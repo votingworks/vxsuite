@@ -1,22 +1,31 @@
 import { z } from 'zod';
-import { Precinct } from './election';
-import { IdSchema } from './generic';
+import { PrecinctId, PrecinctIdSchema } from './election';
 
-export enum PrecinctSelectionKind {
-  SinglePrecinct = 'SinglePrecinct',
-  AllPrecincts = 'AllPrecincts',
+export type PrecinctSelectionKind = 'SinglePrecinct' | 'AllPrecincts';
+export const PrecinctSelectionKindSchema: z.ZodSchema<PrecinctSelectionKind> =
+  z.union([z.literal('SinglePrecinct'), z.literal('AllPrecincts')]);
+
+export interface SinglePrecinctSelection {
+  kind: 'SinglePrecinct';
+  precinctId: PrecinctId;
 }
+export const SinglePrecinctSelectionSchema: z.ZodSchema<SinglePrecinctSelection> =
+  z.object({
+    kind: z.literal('SinglePrecinct'),
+    precinctId: PrecinctIdSchema,
+  });
 
-export const PrecinctSelectionKindSchema = z.nativeEnum(PrecinctSelectionKind);
+export interface AllPrecinctsSelection {
+  kind: 'AllPrecincts';
+}
+export const AllPrecinctsSelectionSchema: z.ZodSchema<AllPrecinctsSelection> =
+  z.object({
+    kind: z.literal('AllPrecincts'),
+  });
 
-export type PrecinctSelection =
-  | { kind: PrecinctSelectionKind.AllPrecincts }
-  | { kind: PrecinctSelectionKind.SinglePrecinct; precinctId: Precinct['id'] };
+export type PrecinctSelection = SinglePrecinctSelection | AllPrecinctsSelection;
 
 export const PrecinctSelectionSchema: z.ZodSchema<PrecinctSelection> = z.union([
-  z.object({ kind: z.literal(PrecinctSelectionKind.AllPrecincts) }),
-  z.object({
-    kind: z.literal(PrecinctSelectionKind.SinglePrecinct),
-    precinctId: IdSchema,
-  }),
+  SinglePrecinctSelectionSchema,
+  AllPrecinctsSelectionSchema,
 ]);

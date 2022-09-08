@@ -12,7 +12,7 @@ import {
   PageInterpretationWithFiles,
   Result,
 } from '@votingworks/types';
-import { find, sleep } from '@votingworks/utils';
+import { ALL_PRECINCTS_SELECTION, find, sleep } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import makeDebug from 'debug';
 import * as fsExtra from 'fs-extra';
@@ -136,6 +136,8 @@ export class Importer {
    */
   configure(electionDefinition: ElectionDefinition): void {
     this.workspace.store.setElection(electionDefinition);
+    // Central scanner only uses all precinct mode, set on every configure
+    this.workspace.store.setPrecinctSelection(ALL_PRECINCTS_SELECTION);
   }
 
   async setTestMode(testMode: boolean): Promise<void> {
@@ -198,7 +200,6 @@ export class Importer {
     if (!electionDefinition) {
       throw new Error('missing election definition');
     }
-    const currentPrecinctId = this.workspace.store.getCurrentPrecinctId();
     const interpretResult = await this.interpretSheet(sheetId, [
       frontImagePath,
       backImagePath,
@@ -235,40 +236,6 @@ export class Importer {
       backInterpretation.type,
       backInterpretation
     );
-
-    debug('currentPrecinctId=%s', currentPrecinctId);
-    if (currentPrecinctId) {
-      if (
-        (frontInterpretation.type === 'InterpretedHmpbPage' ||
-          frontInterpretation.type === 'InterpretedBmdPage') &&
-        frontInterpretation.metadata.precinctId !== currentPrecinctId
-      ) {
-        debug(
-          'rejecting front page %s because it does not match the current precinct id: %s',
-          frontImagePath,
-          currentPrecinctId
-        );
-        frontInterpretation = {
-          type: 'InvalidPrecinctPage',
-          metadata: frontInterpretation.metadata,
-        };
-      }
-      if (
-        (backInterpretation.type === 'InterpretedHmpbPage' ||
-          backInterpretation.type === 'InterpretedBmdPage') &&
-        backInterpretation.metadata.precinctId !== currentPrecinctId
-      ) {
-        debug(
-          'rejecting back page %s because it does not match the current precinct id: %s',
-          frontImagePath,
-          currentPrecinctId
-        );
-        backInterpretation = {
-          type: 'InvalidPrecinctPage',
-          metadata: backInterpretation.metadata,
-        };
-      }
-    }
 
     const validationResult = validateSheetInterpretation([
       frontInterpretation,

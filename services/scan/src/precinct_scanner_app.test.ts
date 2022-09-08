@@ -8,6 +8,7 @@ import {
   CastVoteRecord,
   err,
   ok,
+  PrecinctId,
   Result,
 } from '@votingworks/types';
 import { dirSync } from 'tmp';
@@ -15,9 +16,11 @@ import request from 'supertest';
 import { Application } from 'express';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
+  ALL_PRECINCTS_SELECTION,
   BallotPackageEntry,
   deferred,
   readBallotPackageFromBuffer,
+  singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import waitForExpect from 'wait-for-expect';
@@ -40,10 +43,6 @@ jest.setTimeout(15_000);
 
 function get(app: Application, path: string) {
   return request(app).get(path).accept('application/json').expect(200);
-}
-
-function deleteRequest(app: Application, path: string) {
-  return request(app).delete(path).accept('application/json').expect(200);
 }
 
 function patch(app: Application, path: string, body?: object | string) {
@@ -122,6 +121,14 @@ function postTemplate(
       if (res.status !== 200) console.error(res.body);
     })
     .expect(200, { status: 'ok' });
+}
+
+async function setAppPrecinct(app: Application, precinctId?: PrecinctId) {
+  await put(app, '/precinct-scanner/config/precinct', {
+    precinctSelection: precinctId
+      ? singlePrecinctSelectionFor(precinctId)
+      : ALL_PRECINCTS_SELECTION,
+  });
 }
 
 async function postExportCvrs(app: Application) {
@@ -324,14 +331,14 @@ async function configureApp(
     '/precinct-scanner/config/election',
     electionDefinition.electionData
   );
-  await patch(app, '/precinct-scanner/config/testMode', { testMode: false });
   if (addTemplates) {
     // It takes about a second per template, so we only do some
     for (const ballot of ballots.slice(0, 2)) {
       await postTemplate(app, '/precinct-scanner/config/addTemplates', ballot);
     }
   }
-  await post(app, '/precinct-scanner/config/doneTemplates');
+  await setAppPrecinct(app);
+  await patch(app, '/precinct-scanner/config/testMode', { testMode: false });
 }
 
 test('configure and scan hmpb', async () => {
@@ -533,7 +540,7 @@ test('bmd ballot is rejected when scanned for wrong precinct', async () => {
   const { app, mockPlustek } = await createApp();
   await configureApp(app);
   // Ballot should be rejected when configured for the wrong precinct
-  await put(app, '/precinct-scanner/config/precinct', { precinctId: '22' });
+  await setAppPrecinct(app, '22');
 
   await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
   await waitForStatus(app, { state: 'ready_to_scan' });
@@ -560,35 +567,12 @@ test('bmd ballot is rejected when scanned for wrong precinct', async () => {
   await waitForStatus(app, { state: 'no_paper', canUnconfigure: false });
 });
 
-test('bmd ballot is accepted if precinct settings are cleared', async () => {
-  const { app, mockPlustek } = await createApp();
-  await configureApp(app);
-  // Configure for the wrong precinct
-  await put(app, '/precinct-scanner/config/precinct', { precinctId: '22' });
-  // Re-Configure for all precincts and verify the ballot scans
-  await deleteRequest(app, '/precinct-scanner/config/precinct');
-
-  await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
-  await waitForStatus(app, { state: 'ready_to_scan' });
-
-  const validInterpretation: Scan.SheetInterpretation = {
-    type: 'ValidSheet',
-  };
-
-  await post(app, '/precinct-scanner/scanner/scan');
-  await expectStatus(app, { state: 'scanning' });
-  await waitForStatus(app, {
-    state: 'ready_to_accept',
-    interpretation: validInterpretation,
-  });
-});
-
 test('bmd ballot is accepted if precinct is set for the right precinct', async () => {
   const { app, mockPlustek } = await createApp();
   await configureApp(app);
 
   // Configure for the proper precinct and verify the ballot scans
-  await put(app, '/precinct-scanner/config/precinct', { precinctId: '23' });
+  await setAppPrecinct(app, '23');
 
   const validInterpretation: Scan.SheetInterpretation = {
     type: 'ValidSheet',
@@ -609,7 +593,7 @@ test('hmpb ballot is rejected when scanned for wrong precinct', async () => {
   const { app, mockPlustek } = await createApp();
   await configureApp(app, { addTemplates: true });
   // Ballot should be rejected when configured for the wrong precinct
-  await put(app, '/precinct-scanner/config/precinct', { precinctId: '22' });
+  await setAppPrecinct(app, '22');
 
   await mockPlustek.simulateLoadSheet(ballotImages.completeHmpb);
   await waitForStatus(app, { state: 'ready_to_scan' });
@@ -636,35 +620,12 @@ test('hmpb ballot is rejected when scanned for wrong precinct', async () => {
   await waitForStatus(app, { state: 'no_paper', canUnconfigure: false });
 });
 
-test('hmpb ballot is accepted if precinct settings are cleared', async () => {
-  const { app, mockPlustek } = await createApp();
-  await configureApp(app, { addTemplates: true });
-  // Configure for the wrong precinct
-  await put(app, '/precinct-scanner/config/precinct', { precinctId: '22' });
-  // Re-Configure for all precincts and verify the ballot scans
-  await deleteRequest(app, '/precinct-scanner/config/precinct');
-
-  await mockPlustek.simulateLoadSheet(ballotImages.completeHmpb);
-  await waitForStatus(app, { state: 'ready_to_scan' });
-
-  const validInterpretation: Scan.SheetInterpretation = {
-    type: 'ValidSheet',
-  };
-
-  await post(app, '/precinct-scanner/scanner/scan');
-  await expectStatus(app, { state: 'scanning' });
-  await waitForStatus(app, {
-    state: 'ready_to_accept',
-    interpretation: validInterpretation,
-  });
-});
-
 test('hmpb ballot is accepted if precinct is set for the right precinct', async () => {
   const { app, mockPlustek } = await createApp();
   await configureApp(app, { addTemplates: true });
 
   // Configure for the proper precinct and verify the ballot scans
-  await put(app, '/precinct-scanner/config/precinct', { precinctId: '21' });
+  await setAppPrecinct(app, '21');
 
   const validInterpretation: Scan.SheetInterpretation = {
     type: 'ValidSheet',

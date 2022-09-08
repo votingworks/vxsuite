@@ -16,12 +16,14 @@ import {
   fakeVoterUser,
   fakeCardlessVoterUser,
 } from '@votingworks/test-utils';
+import { PrecinctSelection, UserRole } from '@votingworks/types';
 import {
-  PrecinctSelection,
-  PrecinctSelectionKind,
-  UserRole,
-} from '@votingworks/types';
-import { assert, MemoryCard, utcTimestamp } from '@votingworks/utils';
+  ALL_PRECINCTS_SELECTION,
+  assert,
+  MemoryCard,
+  singlePrecinctSelectionFor,
+  utcTimestamp,
+} from '@votingworks/utils';
 
 import {
   isVoterAuth,
@@ -44,10 +46,9 @@ const allowedUserRoles: UserRole[] = [
 const electionDefinition = electionSampleDefinition;
 const { electionHash, election } = electionDefinition;
 const otherElectionHash = electionSample2Definition.electionHash;
-const precinct: PrecinctSelection = {
-  kind: PrecinctSelectionKind.SinglePrecinct,
-  precinctId: election.precincts[0].id,
-};
+const precinct: PrecinctSelection = singlePrecinctSelectionFor(
+  election.precincts[0].id
+);
 const ballotStyle = election.ballotStyles[0];
 
 describe('useInsertedSmartcardAuth', () => {
@@ -392,7 +393,7 @@ describe('useInsertedSmartcardAuth', () => {
         allowedUserRoles,
         scope: {
           electionDefinition,
-          precinct: { kind: PrecinctSelectionKind.AllPrecincts },
+          precinct: ALL_PRECINCTS_SELECTION,
         },
       })
     );

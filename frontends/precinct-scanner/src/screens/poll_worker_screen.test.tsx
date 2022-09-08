@@ -1,7 +1,11 @@
 import { act, screen, render, fireEvent } from '@testing-library/react';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { advanceTimersAndPromises, Inserted } from '@votingworks/test-utils';
-import { NullPrinter, usbstick } from '@votingworks/utils';
+import {
+  ALL_PRECINCTS_SELECTION,
+  NullPrinter,
+  usbstick,
+} from '@votingworks/utils';
 import MockDate from 'mockdate';
 import React from 'react';
 import { InsertedSmartcardAuth } from '@votingworks/types';
@@ -11,7 +15,6 @@ import { AppContext } from '../contexts/app_context';
 import { PollWorkerScreen } from './poll_worker_screen';
 
 import { isLiveCheckEnabled } from '../config/features';
-import { ALL_PRECINCTS_OPTION_VALUE } from './election_manager_screen';
 
 jest.mock('../config/features');
 
@@ -41,7 +44,7 @@ function renderScreen({
     <AppContext.Provider
       value={{
         electionDefinition: electionSampleDefinition,
-        currentPrecinctId: ALL_PRECINCTS_OPTION_VALUE,
+        precinctSelection: ALL_PRECINCTS_SELECTION,
         machineConfig: { machineId: '0000', codeVersion: 'TEST' },
         isSoundMuted: false,
         auth,

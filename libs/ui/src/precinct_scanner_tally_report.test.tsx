@@ -9,10 +9,13 @@ import {
   BallotIdSchema,
   CastVoteRecord,
   PartyIdSchema,
-  PrecinctSelectionKind,
   unsafeParse,
 } from '@votingworks/types';
-import { calculateTallyForCastVoteRecords } from '@votingworks/utils';
+import {
+  ALL_PRECINCTS_SELECTION,
+  calculateTallyForCastVoteRecords,
+  singlePrecinctSelectionFor,
+} from '@votingworks/utils';
 
 import { PrecinctScannerTallyReport } from './precinct_scanner_tally_report';
 
@@ -42,7 +45,7 @@ test('renders as expected for all precincts in a general election', () => {
     <PrecinctScannerTallyReport
       reportSavedTime={time}
       electionDefinition={electionSampleDefinition}
-      precinctSelection={{ kind: PrecinctSelectionKind.AllPrecincts }}
+      precinctSelection={ALL_PRECINCTS_SELECTION}
       reportPurpose="Testing"
       isPollsOpen={false}
       tally={tally}
@@ -83,10 +86,9 @@ test('renders as expected for a single precinct in a general election', () => {
     <PrecinctScannerTallyReport
       reportSavedTime={time}
       electionDefinition={electionSampleDefinition}
-      precinctSelection={{
-        kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: electionSample.precincts[0].id,
-      }}
+      precinctSelection={singlePrecinctSelectionFor(
+        electionSample.precincts[0].id
+      )}
       reportPurpose="Testing"
       isPollsOpen
       tally={tally}
@@ -144,9 +146,7 @@ test('renders as expected for all precincts in a primary election', () => {
     <PrecinctScannerTallyReport
       reportSavedTime={time}
       electionDefinition={electionMinimalExhaustiveSampleDefinition}
-      precinctSelection={{
-        kind: PrecinctSelectionKind.AllPrecincts,
-      }}
+      precinctSelection={ALL_PRECINCTS_SELECTION}
       reportPurpose="Testing"
       isPollsOpen
       tally={tally}
@@ -218,10 +218,7 @@ test('renders as expected for a single precincts in a primary election', () => {
     <PrecinctScannerTallyReport
       reportSavedTime={time}
       electionDefinition={electionMinimalExhaustiveSampleDefinition}
-      precinctSelection={{
-        kind: PrecinctSelectionKind.SinglePrecinct,
-        precinctId: 'precinct-1',
-      }}
+      precinctSelection={singlePrecinctSelectionFor('precinct-1')}
       reportPurpose="Testing"
       isPollsOpen={false}
       tally={tally}

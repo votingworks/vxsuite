@@ -28,7 +28,8 @@ exports[`Renders ElectionInfoBar with all precincts wording 1`] = `
         >
           All Precincts
         </span>
-         —
+         
+        —
          
         <span
           class="sc-dkPtyc gbBfTJ"
@@ -163,7 +164,8 @@ exports[`Renders admin ElectionInfoBar with precinct set 1`] = `
         >
           Center Springfield
         </span>
-         —
+         
+        —
          
         <span
           class="sc-dkPtyc gbBfTJ"

@@ -26,7 +26,8 @@ import {
   Optional,
   PageInterpretation,
   PageInterpretationWithFiles,
-  Precinct,
+  PrecinctSelection as PrecinctSelectionType,
+  PrecinctSelectionSchema,
   safeParseJson,
   unsafeParse,
 } from '@votingworks/types';
@@ -57,7 +58,7 @@ export enum ConfigKey {
   MarkThresholdOverrides = 'markThresholdOverrides',
   // @deprecated
   SkipElectionHashCheck = 'skipElectionHashCheck',
-  CurrentPrecinctId = 'currentPrecinctId',
+  PrecinctSelection = 'precinctSelection',
 }
 
 export enum BackupKey {
@@ -276,16 +277,16 @@ export class Store {
    * `undefined`, ballots from all precincts will be accepted (this is the
    * default).
    */
-  getCurrentPrecinctId(): Optional<Precinct['id']> {
-    return this.getConfig(ConfigKey.CurrentPrecinctId, z.string());
+  getPrecinctSelection(): Optional<PrecinctSelectionType> {
+    return this.getConfig(ConfigKey.PrecinctSelection, PrecinctSelectionSchema);
   }
 
   /**
    * Sets the current precinct `scan` is accepting ballots for. Set to
    * `undefined` to accept from all precincts (this is the default).
    */
-  setCurrentPrecinctId(currentPrecinctId?: Precinct['id']): void {
-    this.setConfig(ConfigKey.CurrentPrecinctId, currentPrecinctId);
+  setPrecinctSelection(precinctSelection?: PrecinctSelectionType): void {
+    this.setConfig(ConfigKey.PrecinctSelection, precinctSelection);
   }
 
   /**

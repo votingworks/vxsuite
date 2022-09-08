@@ -1,12 +1,8 @@
+import { Election, PrecinctSelection } from '@votingworks/types';
 import {
-  Election,
-  PrecinctSelection,
-  PrecinctSelectionKind,
-} from '@votingworks/types';
-import {
-  find,
   formatFullDateTimeZone,
   formatLongDate,
+  getPrecinctSelectionName,
 } from '@votingworks/utils';
 import { DateTime } from 'luxon';
 import React from 'react';
@@ -93,10 +89,7 @@ export function PrecinctScannerPollsReport({
   reportPurpose,
 }: Props): JSX.Element {
   const { title, date, county, precincts, state, seal, sealUrl } = election;
-  const precinctName =
-    precinctSelection.kind === PrecinctSelectionKind.AllPrecincts
-      ? 'All Precincts'
-      : find(precincts, (p) => p.id === precinctSelection.precinctId).name;
+  const precinctName = getPrecinctSelectionName(precincts, precinctSelection);
   const machineSection = (
     <React.Fragment>
       <dt>Machine ID</dt>

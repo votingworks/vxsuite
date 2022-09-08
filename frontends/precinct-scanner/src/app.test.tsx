@@ -3,6 +3,7 @@ import fetchMock from 'fetch-mock';
 import { promises as fs } from 'fs';
 import { Scan } from '@votingworks/api';
 import {
+  ALL_PRECINCTS_SELECTION,
   TallySourceMachineType,
   MemoryCard,
   MemoryHardware,
@@ -33,7 +34,7 @@ import {
   electionSample2Definition,
 } from '@votingworks/fixtures';
 
-import { AdjudicationReason, PrecinctSelectionKind } from '@votingworks/types';
+import { AdjudicationReason } from '@votingworks/types';
 
 import { mocked } from 'ts-jest/utils';
 import userEvent from '@testing-library/user-event';
@@ -49,7 +50,6 @@ import {
   authenticateElectionManagerCard,
   scannerStatus,
 } from '../test/helpers/helpers';
-import { ALL_PRECINCTS_OPTION_VALUE } from './screens/election_manager_screen';
 
 jest.setTimeout(20000);
 
@@ -84,13 +84,13 @@ const deleteElectionConfigResponseBody: Scan.DeleteElectionConfigResponse = {
 const statusNoPaper = scannerStatus({ state: 'no_paper' });
 const statusReadyToScan = scannerStatus({ state: 'ready_to_scan' });
 
-const getPrecinctConfigAllPrecinctsResponseBody: Scan.GetCurrentPrecinctConfigResponse =
+const getPrecinctConfigAllPrecinctsResponseBody: Scan.GetPrecinctSelectionConfigResponse =
   {
     status: 'ok',
-    precinctId: ALL_PRECINCTS_OPTION_VALUE,
+    precinctSelection: ALL_PRECINCTS_SELECTION,
   };
 
-const getPrecinctConfigNoPrecinctResponseBody: Scan.GetCurrentPrecinctConfigResponse =
+const getPrecinctConfigNoPrecinctResponseBody: Scan.GetPrecinctSelectionConfigResponse =
   {
     status: 'ok',
   };
@@ -263,10 +263,6 @@ test('app can load and configure from a usb stick', async () => {
       body: '{"status": "ok"}',
       status: 200,
     })
-    .post('/precinct-scanner/config/doneTemplates', {
-      body: '{"status": "ok"}',
-      status: 200,
-    })
     .get('/precinct-scanner/config/election', electionSampleDefinition, {
       overwriteRoutes: true,
     });
@@ -285,9 +281,6 @@ test('app can load and configure from a usb stick', async () => {
   expect(fetchMock.calls('/precinct-scanner/config/addTemplates')).toHaveLength(
     16
   );
-  expect(
-    fetchMock.calls('/precinct-scanner/config/doneTemplates')
-  ).toHaveLength(1);
 
   expect(readBallotPackageFromFilePointerMock).toHaveBeenCalledWith(
     expect.objectContaining({
@@ -386,7 +379,7 @@ test('election manager and poll worker configuration', async () => {
       totalBallotsScanned: 0,
       machineId: '0002',
       timeSaved: expect.anything(),
-      precinctSelection: { kind: PrecinctSelectionKind.AllPrecincts },
+      precinctSelection: ALL_PRECINCTS_SELECTION,
       tally: getZeroCompressedTally(electionSampleDefinition.election),
     })
   );
@@ -584,7 +577,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
       totalBallotsScanned: 1,
       machineId: '0002',
       timeSaved: expect.anything(),
-      precinctSelection: { kind: PrecinctSelectionKind.AllPrecincts },
+      precinctSelection: ALL_PRECINCTS_SELECTION,
       // The export endpoint is mocked to return no CVR data so we still expect a zero tally
       tally: expect.arrayContaining([
         [0, 0, 1, 0, 1, 0, 0, 0, 0, 0], // President expected tally
@@ -1009,7 +1002,7 @@ test('no printer: open polls, scan ballot, close polls, save results', async () 
       totalBallotsScanned: 1,
       machineId: '0002',
       timeSaved: expect.anything(),
-      precinctSelection: { kind: PrecinctSelectionKind.AllPrecincts },
+      precinctSelection: ALL_PRECINCTS_SELECTION,
       // The export endpoint is mocked to return no CVR data so we still expect a zero tally
       tally: expect.arrayContaining([
         [0, 0, 1, 0, 1, 0, 0, 0, 0, 0], // President expected tally

@@ -1,4 +1,4 @@
-import { assert } from '@votingworks/utils';
+import { assert, singlePrecinctSelectionFor } from '@votingworks/utils';
 import React, { useContext, useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useHistory } from 'react-router-dom';
@@ -12,7 +12,6 @@ import { Wobble } from '../components/animations';
 import { ElectionInfo } from '../components/election_info';
 import { Sidebar } from '../components/sidebar';
 import { SettingsTextSize } from '../components/settings_text_size';
-import { PrecinctSelectionKind } from '../config/types';
 
 const SidebarSpacer = styled.div`
   height: 90px;
@@ -92,10 +91,7 @@ export function StartPage(): JSX.Element {
             <ElectionInfo
               electionDefinition={electionDefinition}
               ballotStyleId={ballotStyleId}
-              precinctSelection={{
-                kind: PrecinctSelectionKind.SinglePrecinct,
-                precinctId,
-              }}
+              precinctSelection={singlePrecinctSelectionFor(precinctId)}
               horizontal
             />
           </React.Fragment>

@@ -16,8 +16,8 @@ import {
   MarkAdjudicationsSchema,
   MarkThresholds,
   MarkThresholdsSchema,
-  PrecinctId,
-  PrecinctIdSchema,
+  PrecinctSelection,
+  PrecinctSelectionSchema,
 } from '@votingworks/types';
 import * as z from 'zod';
 import {
@@ -217,61 +217,61 @@ export const PatchTestModeConfigResponseSchema: z.ZodSchema<PatchTestModeConfigR
  * @url /config/precinct
  * @method GET
  */
-export type GetCurrentPrecinctConfigResponse = OkResponse<{
-  precinctId?: PrecinctId;
+export type GetPrecinctSelectionConfigResponse = OkResponse<{
+  precinctSelection?: PrecinctSelection;
 }>;
 
 /**
  * @url /config/precinct
  * @method GET
  */
-export const GetCurrentPrecinctResponseSchema: z.ZodSchema<GetCurrentPrecinctConfigResponse> =
+export const GetPrecinctSelectionConfigResponseSchema: z.ZodSchema<GetPrecinctSelectionConfigResponse> =
   z.object({
     status: z.literal('ok'),
-    precinctId: z.optional(PrecinctIdSchema),
+    precinctSelection: z.optional(PrecinctSelectionSchema),
   });
 
 /**
  * @url /config/precinct
  * @method PUT
  */
-export interface PutCurrentPrecinctConfigRequest {
-  precinctId?: PrecinctId;
+export interface PutPrecinctSelectionConfigRequest {
+  precinctSelection: PrecinctSelection;
 }
 
 /**
  * @url /config/precinct
  * @method PUT
  */
-export const PutCurrentPrecinctConfigRequestSchema: z.ZodSchema<PutCurrentPrecinctConfigRequest> =
+export const PutPrecinctSelectionConfigRequestSchema: z.ZodSchema<PutPrecinctSelectionConfigRequest> =
   z.object({
-    precinctId: z.optional(PrecinctIdSchema),
+    precinctSelection: PrecinctSelectionSchema,
   });
 
 /**
  * @url /config/precinct
  * @method PUT
  */
-export type PutCurrentPrecinctConfigResponse = OkResponse | ErrorsResponse;
+export type PutPrecinctSelectionConfigResponse = OkResponse | ErrorsResponse;
 
 /**
  * @url /config/precinct
  * @method PUT
  */
-export const PutCurrentPrecinctConfigResponseSchema: z.ZodSchema<PutCurrentPrecinctConfigResponse> =
+export const PutPrecinctSelectionConfigResponseSchema: z.ZodSchema<PutPrecinctSelectionConfigResponse> =
   z.union([OkResponseSchema, ErrorsResponseSchema]);
 
 /**
  * @url /config/precinct
  * @method DELETE
  */
-export type DeleteCurrentPrecinctConfigResponse = OkResponse;
+export type DeletePrecinctSelectionConfigResponse = OkResponse;
 
 /**
  * @url /config/precinct
  * @method DELETE
  */
-export const DeleteCurrentPrecinctConfigResponseSchema = OkResponseSchema;
+export const DeletePrecinctSelectionConfigResponseSchema = OkResponseSchema;
 
 /**
  * @url /config/markThresholdOverrides

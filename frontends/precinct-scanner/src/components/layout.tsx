@@ -23,7 +23,7 @@ export function ScreenMainCenterChild({
   infoBarMode,
   isLiveMode = true,
 }: CenteredScreenProps): JSX.Element {
-  const { electionDefinition, currentPrecinctId, machineConfig } =
+  const { electionDefinition, precinctSelection, machineConfig } =
     useContext(AppContext);
   return (
     <Screen>
@@ -34,8 +34,7 @@ export function ScreenMainCenterChild({
       {infoBar && (
         <ElectionInfoBar
           mode={infoBarMode}
-          showPrecinctInfo={Boolean(currentPrecinctId)}
-          precinctId={currentPrecinctId}
+          precinctSelection={precinctSelection}
           electionDefinition={electionDefinition}
           codeVersion={machineConfig.codeVersion}
           machineId={machineConfig.machineId}

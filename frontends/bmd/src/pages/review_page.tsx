@@ -30,12 +30,12 @@ import {
   assert,
   getSingleYesNoVote,
   getContestVoteInRotatedOrder,
+  singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import {
   CandidateContestResultInterface,
   EventTargetFunction,
   MsEitherNeitherContestResultInterface,
-  PrecinctSelectionKind,
   Scrollable,
   ScrollDirections,
   ScrollShadows,
@@ -526,10 +526,7 @@ export function ReviewPage(): JSX.Element {
             <ElectionInfo
               electionDefinition={electionDefinition}
               ballotStyleId={ballotStyleId}
-              precinctSelection={{
-                kind: PrecinctSelectionKind.SinglePrecinct,
-                precinctId,
-              }}
+              precinctSelection={singlePrecinctSelectionFor(precinctId)}
               horizontal
             />
           </React.Fragment>

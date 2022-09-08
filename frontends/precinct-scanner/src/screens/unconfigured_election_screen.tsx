@@ -6,7 +6,7 @@ import {
   readBallotPackageFromFilePointer,
   usbstick,
 } from '@votingworks/utils';
-import { addTemplates, doneTemplates } from '../api/config';
+import { addTemplates } from '../api/config';
 import { PRECINCT_SCANNER_FOLDER } from '../config/globals';
 import {
   CenteredLargeProse,
@@ -38,14 +38,12 @@ export function UnconfiguredElectionScreen({
     isLiveMode: boolean;
     locales?: string;
   }>();
-  const [isLoadingTemplates, setLoadingTemplates] = useState(false);
 
   useEffect(() => {
     async function attemptToLoadBallotPackageFromUsb() {
       if (usbDriveStatus !== usbstick.UsbDriveStatus.mounted) {
         setErrorMessage('');
         setIsLoadingBallotPackage(false);
-        setLoadingTemplates(false);
         setTotalTemplates(0);
         return;
       }
@@ -102,9 +100,6 @@ export function UnconfiguredElectionScreen({
             );
           })
           .on('completed', async () => {
-            setLoadingTemplates(true);
-            await doneTemplates();
-            setLoadingTemplates(false);
             await refreshConfig();
           });
       } catch (error) {
@@ -141,17 +136,6 @@ export function UnconfiguredElectionScreen({
         <IndeterminateProgressBar />
         <CenteredLargeProse>
           <h1>Searching USB for ballot package…</h1>
-        </CenteredLargeProse>
-      </React.Fragment>
-    );
-  }
-
-  if (isLoadingTemplates) {
-    content = (
-      <React.Fragment>
-        <IndeterminateProgressBar />
-        <CenteredLargeProse>
-          <h1>Preparing scanner…</h1>
         </CenteredLargeProse>
       </React.Fragment>
     );
