@@ -62,25 +62,27 @@ async function loadLayouts(
  * configures the interpreter. Should be called anytime one of these config
  * values is changed in order to update the interpreter's config.
  */
-async function configureInterpreter(
+async function updateInterpreterConfig(
   interpreter: PrecinctScannerInterpreter,
   workspace: Workspace
 ) {
   const { store } = workspace;
   const electionDefinition = store.getElectionDefinition();
-  assert(electionDefinition);
   const precinctSelection = store.getPrecinctSelection();
-  assert(precinctSelection);
-  const layouts = await loadLayouts(store);
-  assert(layouts);
-  interpreter.configure({
-    electionDefinition,
-    ballotImagesPath: workspace.ballotImagesPath,
-    testMode: store.getTestMode(),
-    markThresholdOverrides: store.getMarkThresholdOverrides(),
-    precinctSelection,
-    layouts,
-  });
+  if (!electionDefinition || !precinctSelection) {
+    interpreter.unconfigure();
+  } else {
+    const layouts = await loadLayouts(store);
+    assert(layouts);
+    interpreter.configure({
+      electionDefinition,
+      precinctSelection,
+      layouts,
+      testMode: store.getTestMode(),
+      markThresholdOverrides: store.getMarkThresholdOverrides(),
+      ballotImagesPath: workspace.ballotImagesPath,
+    });
+  }
 }
 
 export async function buildPrecinctScannerApp(
@@ -90,10 +92,8 @@ export async function buildPrecinctScannerApp(
 ): Promise<Application> {
   const { store } = workspace;
 
-  // Load interpreter configuration from the store on startup
-  if (store.getElectionDefinition() && store.getPrecinctSelection()) {
-    await configureInterpreter(interpreter, workspace);
-  }
+  // Try loading interpreter configuration from the store on startup
+  await updateInterpreterConfig(interpreter, workspace);
 
   const app: Application = express();
   const upload = multer({ storage: multer.diskStorage({}) });
@@ -220,9 +220,7 @@ export async function buildPrecinctScannerApp(
 
     workspace.zero();
     store.setTestMode(bodyParseResult.ok().testMode);
-    if (store.getPrecinctSelection()) {
-      await configureInterpreter(interpreter, workspace);
-    }
+    await updateInterpreterConfig(interpreter, workspace);
     response.json({ status: 'ok' });
   });
 
@@ -253,7 +251,7 @@ export async function buildPrecinctScannerApp(
       return;
     }
     store.setPrecinctSelection(bodyParseResult.ok().precinctSelection);
-    await configureInterpreter(interpreter, workspace);
+    await updateInterpreterConfig(interpreter, workspace);
     response.json({ status: 'ok' });
   });
 
@@ -269,9 +267,7 @@ export async function buildPrecinctScannerApp(
     '/precinct-scanner/config/markThresholdOverrides',
     async (_request, response) => {
       store.setMarkThresholdOverrides(undefined);
-      if (store.getPrecinctSelection()) {
-        await configureInterpreter(interpreter, workspace);
-      }
+      await updateInterpreterConfig(interpreter, workspace);
       response.json({ status: 'ok' });
     }
   );
@@ -300,9 +296,8 @@ export async function buildPrecinctScannerApp(
       store.setMarkThresholdOverrides(
         bodyParseResult.ok().markThresholdOverrides
       );
-      if (store.getPrecinctSelection()) {
-        await configureInterpreter(interpreter, workspace);
-      }
+      await updateInterpreterConfig(interpreter, workspace);
+
       response.json({ status: 'ok' });
     }
   );
