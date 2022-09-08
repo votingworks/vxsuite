@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 import { ElectionDefinition, PrecinctSelection } from '@votingworks/types';
 import {
+  ALL_PRECINCTS_NAME,
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
@@ -101,7 +102,7 @@ export function AdminScreen({
                     Select a precinct for this device…
                   </option>
                   <option value={ALL_PRECINCTS_OPTION_VALUE}>
-                    All Precincts
+                    {ALL_PRECINCTS_NAME}
                   </option>
                   {[...election.precincts]
                     .sort((a, b) =>
