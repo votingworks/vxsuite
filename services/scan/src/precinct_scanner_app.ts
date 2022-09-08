@@ -91,7 +91,7 @@ export async function buildPrecinctScannerApp(
   const { store } = workspace;
 
   // Load interpreter configuration from the store on startup
-  if (store.getElectionDefinition()) {
+  if (store.getElectionDefinition() && store.getPrecinctSelection()) {
     await configureInterpreter(interpreter, workspace);
   }
 
@@ -220,7 +220,9 @@ export async function buildPrecinctScannerApp(
 
     workspace.zero();
     store.setTestMode(bodyParseResult.ok().testMode);
-    await configureInterpreter(interpreter, workspace);
+    if (store.getPrecinctSelection()) {
+      await configureInterpreter(interpreter, workspace);
+    }
     response.json({ status: 'ok' });
   });
 
@@ -267,7 +269,9 @@ export async function buildPrecinctScannerApp(
     '/precinct-scanner/config/markThresholdOverrides',
     async (_request, response) => {
       store.setMarkThresholdOverrides(undefined);
-      await configureInterpreter(interpreter, workspace);
+      if (store.getPrecinctSelection()) {
+        await configureInterpreter(interpreter, workspace);
+      }
       response.json({ status: 'ok' });
     }
   );
@@ -296,7 +300,9 @@ export async function buildPrecinctScannerApp(
       store.setMarkThresholdOverrides(
         bodyParseResult.ok().markThresholdOverrides
       );
-      await configureInterpreter(interpreter, workspace);
+      if (store.getPrecinctSelection()) {
+        await configureInterpreter(interpreter, workspace);
+      }
       response.json({ status: 'ok' });
     }
   );
@@ -425,14 +431,6 @@ export async function buildPrecinctScannerApp(
           ],
         });
       }
-    }
-  );
-
-  app.post(
-    '/precinct-scanner/config/doneTemplates',
-    async (_request, response) => {
-      await configureInterpreter(interpreter, workspace);
-      response.json({ status: 'ok' });
     }
   );
 

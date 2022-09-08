@@ -324,15 +324,14 @@ async function configureApp(
     '/precinct-scanner/config/election',
     electionDefinition.electionData
   );
-  await setAppPrecinct(app);
-  await patch(app, '/precinct-scanner/config/testMode', { testMode: false });
   if (addTemplates) {
     // It takes about a second per template, so we only do some
     for (const ballot of ballots.slice(0, 2)) {
       await postTemplate(app, '/precinct-scanner/config/addTemplates', ballot);
     }
   }
-  await post(app, '/precinct-scanner/config/doneTemplates');
+  await setAppPrecinct(app);
+  await patch(app, '/precinct-scanner/config/testMode', { testMode: false });
 }
 
 test('configure and scan hmpb', async () => {

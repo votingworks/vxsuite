@@ -263,10 +263,6 @@ test('app can load and configure from a usb stick', async () => {
       body: '{"status": "ok"}',
       status: 200,
     })
-    .post('/precinct-scanner/config/doneTemplates', {
-      body: '{"status": "ok"}',
-      status: 200,
-    })
     .get('/precinct-scanner/config/election', electionSampleDefinition, {
       overwriteRoutes: true,
     });
@@ -285,9 +281,6 @@ test('app can load and configure from a usb stick', async () => {
   expect(fetchMock.calls('/precinct-scanner/config/addTemplates')).toHaveLength(
     16
   );
-  expect(
-    fetchMock.calls('/precinct-scanner/config/doneTemplates')
-  ).toHaveLength(1);
 
   expect(readBallotPackageFromFilePointerMock).toHaveBeenCalledWith(
     expect.objectContaining({

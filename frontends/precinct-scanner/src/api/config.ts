@@ -258,7 +258,3 @@ export function addTemplates(pkg: BallotPackage): AddTemplatesEvents {
 
   return result;
 }
-
-export async function doneTemplates(): Promise<void> {
-  await fetch('/precinct-scanner/config/doneTemplates', { method: 'POST' });
-}
