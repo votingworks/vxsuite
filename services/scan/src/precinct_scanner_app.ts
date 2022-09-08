@@ -255,15 +255,6 @@ export async function buildPrecinctScannerApp(
     response.json({ status: 'ok' });
   });
 
-  app.delete<NoParams, Scan.DeletePrecinctSelectionConfigResponse>(
-    '/precinct-scanner/config/precinct',
-    async (_request, response) => {
-      store.setPrecinctSelection(undefined);
-      await configureInterpreter(interpreter, workspace);
-      response.json({ status: 'ok' });
-    }
-  );
-
   app.get<NoParams, Scan.GetMarkThresholdOverridesConfigResponse>(
     '/precinct-scanner/config/markThresholdOverrides',
     (_request, response) => {

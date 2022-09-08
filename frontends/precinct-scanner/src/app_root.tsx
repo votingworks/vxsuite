@@ -148,7 +148,7 @@ type AppAction =
       type: 'refreshConfigFromScanner';
       scannerConfig: ScannerConfigState;
     }
-  | { type: 'updatePrecinctSelection'; precinctSelection?: PrecinctSelection }
+  | { type: 'updatePrecinctSelection'; precinctSelection: PrecinctSelection }
   | { type: 'updateMarkThresholds'; markThresholds?: MarkThresholds }
   | { type: 'togglePollsOpen' }
   | { type: 'toggleIsSoundMuted' }
@@ -394,7 +394,7 @@ export function AppRoot({
   );
 
   async function updatePrecinctSelection(
-    newPrecinctSelection?: PrecinctSelection
+    newPrecinctSelection: PrecinctSelection
   ) {
     dispatchAppState({
       type: 'updatePrecinctSelection',

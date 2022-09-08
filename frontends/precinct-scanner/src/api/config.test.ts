@@ -107,17 +107,6 @@ test('setPrecinctSelection updates', async () => {
   ).toHaveLength(1);
 });
 
-test('setPrecinctSelection deletes', async () => {
-  fetchMock.deleteOnce('/precinct-scanner/config/precinct', {
-    body: { status: 'ok' },
-  });
-  await config.setPrecinctSelection(undefined);
-
-  expect(
-    fetchMock.calls('/precinct-scanner/config/precinct', { method: 'DELETE' })
-  ).toHaveLength(1);
-});
-
 test('setPrecinctSelection fails', async () => {
   fetchMock.putOnce(
     '/precinct-scanner/config/precinct',

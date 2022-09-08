@@ -155,18 +155,14 @@ export async function getPrecinctSelection(): Promise<
 }
 
 export async function setPrecinctSelection(
-  precinctSelection?: PrecinctSelection
+  precinctSelection: PrecinctSelection
 ): Promise<void> {
-  if (!precinctSelection) {
-    await del('/precinct-scanner/config/precinct');
-  } else {
-    await put<Scan.PutPrecinctSelectionConfigRequest>(
-      '/precinct-scanner/config/precinct',
-      {
-        precinctSelection,
-      }
-    );
-  }
+  await put<Scan.PutPrecinctSelectionConfigRequest>(
+    '/precinct-scanner/config/precinct',
+    {
+      precinctSelection,
+    }
+  );
 }
 
 export interface AddTemplatesEvents extends EventEmitter {
