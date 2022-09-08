@@ -8,7 +8,7 @@ import {
   BallotSheetInfo,
   BallotType,
 } from '@votingworks/types';
-import { assert, singlePrecinctSelectionFor, sleep } from '@votingworks/utils';
+import { assert, sleep } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import * as fs from 'fs-extra';
 import { join } from 'path';
@@ -544,137 +544,6 @@ test('importing a sheet normalizes and orders HMPB pages', async () => {
   );
 });
 
-test('rejects pages that do not match the current precinct', async () => {
-  const scanner: jest.Mocked<BatchScanner> = {
-    scanSheets: jest.fn(),
-  };
-  const workerCall = jest.fn<Promise<workers.Output>, [workers.Input]>();
-  const workerPoolProvider = mockWorkerPoolProvider<
-    workers.Input,
-    workers.Output
-  >(workerCall);
-
-  const importer = new Importer({
-    workspace,
-    scanner,
-    workerPoolProvider,
-  });
-
-  importer.configure(electionDefinition);
-  workspace.store.setPrecinctSelection(
-    singlePrecinctSelectionFor(election.precincts[1].id)
-  );
-  jest.spyOn(workspace.store, 'addSheet').mockReturnValueOnce('sheet-id');
-
-  // eslint-disable-next-line @typescript-eslint/require-await
-  workerCall.mockImplementationOnce(async (input) => {
-    expect(input.action).toEqual('configure');
-  });
-
-  const frontMetadata: BallotPageMetadata = {
-    ballotStyleId: election.ballotStyles[0].id,
-    precinctId: election.precincts[0].id,
-    ballotType: BallotType.Standard,
-    electionHash: electionDefinition.electionHash,
-    isTestMode: false,
-    locales: { primary: 'en-US' },
-    pageNumber: 1,
-  };
-  const backMetadata: BallotPageMetadata = {
-    ...frontMetadata,
-    pageNumber: 2,
-  };
-
-  const frontImagePath = await makeImageFile();
-  const backImagePath = await makeImageFile();
-
-  // eslint-disable-next-line @typescript-eslint/require-await
-  workerCall.mockImplementation(async (input) => {
-    switch (input.action) {
-      case 'configure':
-        break;
-
-      case 'detect-qrcode':
-        if (
-          input.imagePath !== frontImagePath &&
-          input.imagePath !== backImagePath
-        ) {
-          throw new Error(`unexpected image path: ${input.imagePath}`);
-        }
-
-        return {
-          blank: false,
-          qrcode:
-            input.imagePath === frontImagePath
-              ? {
-                  data: encodeHmpbBallotPageMetadata(election, frontMetadata),
-                  position: 'bottom',
-                }
-              : // assume back fails to find QR code, then infers it
-                undefined,
-        };
-
-      case 'interpret':
-        assert(input.interpreter === 'vx');
-        if (
-          input.imagePath !== frontImagePath &&
-          input.imagePath !== backImagePath
-        ) {
-          throw new Error(`unexpected image path: ${input.imagePath}`);
-        }
-
-        return {
-          interpretation: {
-            type: 'InterpretedHmpbPage',
-            metadata:
-              input.imagePath === frontImagePath ? frontMetadata : backMetadata,
-            markInfo: {
-              marks: [],
-              ballotSize: { width: 1, height: 1 },
-            },
-            adjudicationInfo: {
-              requiresAdjudication: false,
-              ignoredReasonInfos: [],
-              enabledReasonInfos: [],
-              enabledReasons: [],
-            },
-            votes: {},
-          },
-          originalFilename: '/tmp/original.png',
-          normalizedFilename: '/tmp/normalized.png',
-        };
-
-      default:
-        throw new Error('unexpected action');
-    }
-  });
-
-  await importer.importSheet('batch-id', backImagePath, frontImagePath);
-
-  expect(workspace.store.addSheet).toHaveBeenCalledWith(
-    expect.any(String),
-    'batch-id',
-    [
-      expect.objectContaining({
-        interpretation: expect.objectContaining({
-          type: 'InvalidPrecinctPage',
-          metadata: expect.objectContaining({
-            pageNumber: 1,
-          }),
-        }),
-      }),
-      expect.objectContaining({
-        interpretation: expect.objectContaining({
-          type: 'InvalidPrecinctPage',
-          metadata: expect.objectContaining({
-            pageNumber: 2,
-          }),
-        }),
-      }),
-    ]
-  );
-});
-
 test('rejects sheets that would not produce a valid CVR', async () => {
   const scanner: jest.Mocked<BatchScanner> = {
     scanSheets: jest.fn(),
@@ -693,9 +562,6 @@ test('rejects sheets that would not produce a valid CVR', async () => {
 
   const configuredPrecinctId = election.precincts[0].id;
   importer.configure(electionDefinition);
-  workspace.store.setPrecinctSelection(
-    singlePrecinctSelectionFor(configuredPrecinctId)
-  );
   jest.spyOn(workspace.store, 'addSheet').mockReturnValueOnce('sheet-id');
 
   // eslint-disable-next-line @typescript-eslint/require-await

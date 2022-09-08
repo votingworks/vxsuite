@@ -200,10 +200,6 @@ export class Importer {
     if (!electionDefinition) {
       throw new Error('missing election definition');
     }
-    const precinctSelection = this.workspace.store.getPrecinctSelection();
-    if (!precinctSelection) {
-      throw new Error('missing precinct selection');
-    }
     const interpretResult = await this.interpretSheet(sheetId, [
       frontImagePath,
       backImagePath,
@@ -240,41 +236,6 @@ export class Importer {
       backInterpretation.type,
       backInterpretation
     );
-
-    debug('precinctSelection=%o', precinctSelection);
-    if (precinctSelection.kind !== 'AllPrecincts') {
-      const configuredPrecinctId = precinctSelection.precinctId;
-      if (
-        (frontInterpretation.type === 'InterpretedHmpbPage' ||
-          frontInterpretation.type === 'InterpretedBmdPage') &&
-        frontInterpretation.metadata.precinctId !== configuredPrecinctId
-      ) {
-        debug(
-          'rejecting front page %s because it does not match the current precinct id: %s',
-          frontImagePath,
-          configuredPrecinctId
-        );
-        frontInterpretation = {
-          type: 'InvalidPrecinctPage',
-          metadata: frontInterpretation.metadata,
-        };
-      }
-      if (
-        (backInterpretation.type === 'InterpretedHmpbPage' ||
-          backInterpretation.type === 'InterpretedBmdPage') &&
-        backInterpretation.metadata.precinctId !== configuredPrecinctId
-      ) {
-        debug(
-          'rejecting back page %s because it does not match the current precinct id: %s',
-          frontImagePath,
-          configuredPrecinctId
-        );
-        backInterpretation = {
-          type: 'InvalidPrecinctPage',
-          metadata: backInterpretation.metadata,
-        };
-      }
-    }
 
     const validationResult = validateSheetInterpretation([
       frontInterpretation,
@@ -318,14 +279,9 @@ export class Importer {
   ): Promise<Result<SheetOf<PageInterpretationWithFiles>, Error>> {
     const workerPool = await this.getWorkerPool();
     const electionDefinition = this.workspace.store.getElectionDefinition();
-    const precinctSelection = this.workspace.store.getPrecinctSelection();
 
     if (!electionDefinition) {
       return err(new Error('missing election definition'));
-    }
-
-    if (!precinctSelection) {
-      return err(new Error('missing precinct selection'));
     }
 
     // Carve-out for NH ballots, which are the only ones that use `gridLayouts`

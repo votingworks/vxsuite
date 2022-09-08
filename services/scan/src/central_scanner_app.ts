@@ -197,45 +197,6 @@ export async function buildCentralScannerApp({
     response.json({ status: 'ok' });
   });
 
-  app.get<NoParams, Scan.GetPrecinctSelectionConfigResponse>(
-    '/central-scanner/config/precinct',
-    (_request, response) => {
-      const precinctSelection = store.getPrecinctSelection();
-      response.json({ status: 'ok', precinctSelection });
-    }
-  );
-
-  app.put<
-    NoParams,
-    Scan.PutPrecinctSelectionConfigResponse,
-    Scan.PutPrecinctSelectionConfigRequest
-  >('/central-scanner/config/precinct', (request, response) => {
-    const bodyParseResult = safeParse(
-      Scan.PutPrecinctSelectionConfigRequestSchema,
-      request.body
-    );
-
-    if (bodyParseResult.isErr()) {
-      const error = bodyParseResult.err();
-      response.status(400).json({
-        status: 'error',
-        errors: [{ type: error.name, message: error.message }],
-      });
-      return;
-    }
-
-    store.setPrecinctSelection(bodyParseResult.ok().precinctSelection);
-    response.json({ status: 'ok' });
-  });
-
-  app.delete<NoParams, Scan.DeletePrecinctSelectionConfigResponse>(
-    '/central-scanner/config/precinct',
-    (_request, response) => {
-      store.setPrecinctSelection(undefined);
-      response.json({ status: 'ok' });
-    }
-  );
-
   app.get<NoParams, Scan.GetMarkThresholdOverridesConfigResponse>(
     '/central-scanner/config/markThresholdOverrides',
     (_request, response) => {

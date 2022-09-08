@@ -65,7 +65,6 @@ type EjectState = 'removeBallot' | 'acceptBallot';
 const SHEET_ADJUDICATION_ERRORS: ReadonlyArray<PageInterpretation['type']> = [
   'InvalidTestModePage',
   'InvalidElectionHashPage',
-  'InvalidPrecinctPage',
   'UninterpretedHmpbPage',
   'UnreadablePage',
   'BlankPage',
@@ -245,7 +244,6 @@ export function BallotEjectScreen({
   let isUnreadableSheet = false;
   let isInvalidTestModeSheet = false;
   let isInvalidElectionHashSheet = false;
-  let isInvalidPrecinctSheet = false;
 
   let actualElectionHash: string | undefined;
 
@@ -284,8 +282,6 @@ export function BallotEjectScreen({
     ) {
       isInvalidElectionHashSheet = true;
       actualElectionHash = reviewPageInfo.interpretation.actualElectionHash;
-    } else if (reviewPageInfo.interpretation.type === 'InvalidPrecinctPage') {
-      isInvalidPrecinctSheet = true;
     } else if (reviewPageInfo.interpretation.type === 'InterpretedHmpbPage') {
       if (reviewPageInfo.interpretation.adjudicationInfo.requiresAdjudication) {
         for (const adjudicationReason of reviewPageInfo.interpretation
@@ -315,7 +311,6 @@ export function BallotEjectScreen({
   const allowBallotDuplication =
     !isInvalidTestModeSheet &&
     !isInvalidElectionHashSheet &&
-    !isInvalidPrecinctSheet &&
     !isUnreadableSheet;
 
   const backInterpretation = reviewInfo.interpreted.back.interpretation;
@@ -340,8 +335,6 @@ export function BallotEjectScreen({
                       : 'Test Ballot'
                     : isInvalidElectionHashSheet
                     ? 'Wrong Election'
-                    : isInvalidPrecinctSheet
-                    ? 'Wrong Precinct'
                     : isUnreadableSheet
                     ? 'Unreadable'
                     : isOvervotedSheet
@@ -408,14 +401,6 @@ export function BallotEjectScreen({
                   <Text small>
                     Ballot Election Hash: {actualElectionHash?.slice(0, 10)}
                   </Text>
-                </React.Fragment>
-              ) : isInvalidPrecinctSheet ? (
-                <React.Fragment>
-                  <p>
-                    The scanned ballot does not match the precinct this scanner
-                    is configured for. Remove the invalid ballot before
-                    continuing.
-                  </p>
                 </React.Fragment>
               ) : (
                 // Unreadable
