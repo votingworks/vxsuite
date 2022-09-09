@@ -73,7 +73,7 @@ function throwBadStatus(s: never): never {
 export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
   const {
     usbDriveStatus,
-    saveCastVoteRecordFiles,
+    addCastVoteRecordFile,
     castVoteRecordFiles,
     electionDefinition,
     auth,
@@ -97,7 +97,9 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
       fileData,
       election
     );
-    await saveCastVoteRecordFiles(newCastVoteRecordFiles);
+    await addCastVoteRecordFile(
+      new File([fileData.fileContent], fileData.name)
+    );
 
     if (newCastVoteRecordFiles.duplicateFiles.includes(fileData.name)) {
       setCurrentState(ModalState.DUPLICATE);
@@ -146,7 +148,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
         files,
         election
       );
-      await saveCastVoteRecordFiles(newCastVoteRecordFiles);
+      await addCastVoteRecordFile(files[0]);
 
       input.value = '';
       const filename = files[0].name;

@@ -147,7 +147,9 @@ describe('Ballot Counts by Precinct', () => {
       <BallotCountsTable breakdownCategory={TallyCategory.Precinct} />,
       {
         fullElectionTally,
-        fullElectionExternalTallies: [fullElectionExternalTally],
+        fullElectionExternalTallies: new Map([
+          [fullElectionExternalTally.source, fullElectionExternalTally],
+        ]),
       }
     );
     for (const precinct of electionWithMsEitherNeither.precincts) {
@@ -268,7 +270,9 @@ describe('Ballot Counts by Scanner', () => {
       <BallotCountsTable breakdownCategory={TallyCategory.Scanner} />,
       {
         fullElectionTally,
-        fullElectionExternalTallies: [fullElectionExternalTally],
+        fullElectionExternalTallies: new Map([
+          [fullElectionExternalTally.source, fullElectionExternalTally],
+        ]),
       }
     );
 
@@ -451,7 +455,9 @@ describe('Ballots Counts by Party', () => {
           electionData: '',
         },
         fullElectionTally,
-        fullElectionExternalTallies: [fullElectionExternalTally],
+        fullElectionExternalTallies: new Map([
+          [fullElectionExternalTally.source, fullElectionExternalTally],
+        ]),
       }
     );
 
@@ -588,7 +594,9 @@ describe('Ballots Counts by VotingMethod', () => {
       <BallotCountsTable breakdownCategory={TallyCategory.VotingMethod} />,
       {
         fullElectionTally,
-        fullElectionExternalTallies: [fullElectionExternalTally],
+        fullElectionExternalTallies: new Map([
+          [fullElectionExternalTally.source, fullElectionExternalTally],
+        ]),
       }
     );
 
@@ -767,7 +775,9 @@ describe('Ballots Counts by Batch', () => {
       <BallotCountsTable breakdownCategory={TallyCategory.Batch} />,
       {
         fullElectionTally,
-        fullElectionExternalTallies: [fullElectionExternalTally],
+        fullElectionExternalTallies: new Map([
+          [fullElectionExternalTally.source, fullElectionExternalTally],
+        ]),
       }
     );
 

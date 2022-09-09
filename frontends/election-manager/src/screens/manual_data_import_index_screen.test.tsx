@@ -30,7 +30,7 @@ beforeEach(() => {
 });
 
 test('can toggle ballot types for data', async () => {
-  const saveExternalTallies = jest.fn();
+  const updateExternalTally = jest.fn();
   const { getByText, getByTestId } = renderInAppContext(
     <Route path="/tally/manual-data-import">
       <ManualDataImportIndexScreen />
@@ -38,7 +38,7 @@ test('can toggle ballot types for data', async () => {
     {
       route: '/tally/manual-data-import',
       electionDefinition: multiPartyPrimaryElectionDefinition,
-      saveExternalTallies,
+      updateExternalTally,
     }
   );
   getByText('Manually Entered Precinct Results');
@@ -57,27 +57,27 @@ test('can toggle ballot types for data', async () => {
   expect(getByTestId('ballottype-absentee').closest('button')).toBeDisabled();
   getByText('Edit Absentee Results for Precinct 5');
 
-  await waitFor(() => expect(saveExternalTallies).toHaveBeenCalled());
-  expect(saveExternalTallies).toHaveBeenCalledWith([
+  await waitFor(() => expect(updateExternalTally).toHaveBeenCalled());
+  expect(updateExternalTally).toHaveBeenCalledWith(
     expect.objectContaining({
       source: ExternalTallySourceType.Manual,
       votingMethod: VotingMethod.Absentee,
-    }),
-  ]);
+    })
+  );
 
   fireEvent.click(getByTestId('ballottype-precinct'));
-  await waitFor(() => expect(saveExternalTallies).toHaveBeenCalledTimes(2));
-  expect(saveExternalTallies).toHaveBeenCalledWith([
+  await waitFor(() => expect(updateExternalTally).toHaveBeenCalledTimes(2));
+  expect(updateExternalTally).toHaveBeenCalledWith(
     expect.objectContaining({
       source: ExternalTallySourceType.Manual,
       votingMethod: VotingMethod.Precinct,
-    }),
-  ]);
+    })
+  );
   getByText('Edit Precinct Results for Precinct 5');
 });
 
 test('precinct table renders properly when there is no data', () => {
-  const saveExternalTallies = jest.fn();
+  const updateExternalTally = jest.fn();
   const history = createMemoryHistory();
   const { getByText, getByTestId } = renderInAppContext(
     <Router history={history}>
@@ -86,7 +86,7 @@ test('precinct table renders properly when there is no data', () => {
     {
       route: '/tally/manual-data-import',
       electionDefinition: electionSampleDefinition,
-      saveExternalTallies,
+      updateExternalTally,
     }
   );
   getByText('Manually Entered Precinct Results');
@@ -206,7 +206,9 @@ test('loads prexisting manual data to edit', async () => {
       route: '/tally/manual-data-import',
       electionDefinition: electionSampleDefinition,
       resetFiles,
-      fullElectionExternalTallies: [externalTally],
+      fullElectionExternalTallies: new Map([
+        [externalTally.source, externalTally],
+      ]),
     }
   );
   getByText('Manually Entered Absentee Results');

@@ -39,7 +39,9 @@ export function BallotCountsTable({ breakdownCategory }: Props): JSX.Element {
 
   const totalBallotCountInternal =
     fullElectionTally?.overallTally.numberOfBallotsCounted ?? 0;
-  const totalBallotCountExternal = fullElectionExternalTallies.reduce(
+  const totalBallotCountExternal = Array.from(
+    fullElectionExternalTallies.values()
+  ).reduce(
     (prev, tally) => prev + tally.overallTally.numberOfBallotsCounted,
     0
   );
@@ -48,9 +50,9 @@ export function BallotCountsTable({ breakdownCategory }: Props): JSX.Element {
     case TallyCategory.Precinct: {
       const resultsByPrecinct =
         fullElectionTally?.resultsByCategory.get(TallyCategory.Precinct) || {};
-      const externalResultsByPrecinct = fullElectionExternalTallies.map(
-        (t) => t.resultsByCategory.get(TallyCategory.Precinct) || {}
-      );
+      const externalResultsByPrecinct = Array.from(
+        fullElectionExternalTallies.values()
+      ).map((t) => t.resultsByCategory.get(TallyCategory.Precinct) || {});
       return (
         <Table>
           <tbody>
@@ -177,7 +179,7 @@ export function BallotCountsTable({ breakdownCategory }: Props): JSX.Element {
                     </tr>
                   );
                 })}
-              {fullElectionExternalTallies.map((t) => (
+              {Array.from(fullElectionExternalTallies.values()).map((t) => (
                 <tr data-testid="table-row" key={t.inputSourceName}>
                   <TD narrow nowrap>
                     External Results ({t.inputSourceName})
@@ -207,9 +209,9 @@ export function BallotCountsTable({ breakdownCategory }: Props): JSX.Element {
     case TallyCategory.Party: {
       const resultsByParty =
         fullElectionTally?.resultsByCategory.get(TallyCategory.Party) || {};
-      const externalResultsByParty = fullElectionExternalTallies.map(
-        (t) => t.resultsByCategory.get(TallyCategory.Party) || {}
-      );
+      const externalResultsByParty = Array.from(
+        fullElectionExternalTallies.values()
+      ).map((t) => t.resultsByCategory.get(TallyCategory.Party) || {});
       const partiesForPrimaries = getPartiesWithPrimaryElections(election);
       if (partiesForPrimaries.length === 0) {
         return <React.Fragment />;
@@ -300,7 +302,7 @@ export function BallotCountsTable({ breakdownCategory }: Props): JSX.Element {
                 0;
               const votingMethodBallotsCount =
                 // Include external results as appropriate
-                fullElectionExternalTallies
+                Array.from(fullElectionExternalTallies.values())
                   .filter((t) => t.votingMethod === votingMethod)
                   .reduce(
                     (prev, t) => prev + t.overallTally.numberOfBallotsCounted,
@@ -391,7 +393,7 @@ export function BallotCountsTable({ breakdownCategory }: Props): JSX.Element {
                 </tr>
               );
             })}
-            {fullElectionExternalTallies.map((t) => (
+            {Array.from(fullElectionExternalTallies.values()).map((t) => (
               <tr data-testid="table-row" key={t.inputSourceName}>
                 <TD narrow nowrap data-testid="batch-external">
                   External Results ({t.inputSourceName})

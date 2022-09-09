@@ -75,13 +75,13 @@ describe('Screens display properly when USB is mounted', () => {
 
   test('No files found screen shows when mounted usb has no valid files', async () => {
     const closeFn = jest.fn();
-    const saveCvr = jest.fn();
+    const addCvr = jest.fn();
     const logger = fakeLogger();
     const { getByText, getByTestId } = renderInAppContext(
       <ImportCvrFilesModal onClose={closeFn} />,
       {
         usbDriveStatus: UsbDriveStatus.mounted,
-        saveCastVoteRecordFiles: saveCvr,
+        addCastVoteRecordFile: addCvr,
         logger,
       }
     );
@@ -99,7 +99,7 @@ describe('Screens display properly when USB is mounted', () => {
       target: { files: [new File([''], 'file.jsonl')] },
     });
     await waitFor(() => getByText('0 new CVRs Loaded'));
-    expect(saveCvr).toHaveBeenCalledTimes(1);
+    expect(addCvr).toHaveBeenCalledTimes(1);
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.CvrFilesReadFromUsb,
       'election_manager',
@@ -109,7 +109,7 @@ describe('Screens display properly when USB is mounted', () => {
 
   test('Load CVR files screen shows table with test and live CVRs', async () => {
     const closeFn = jest.fn();
-    const saveCvr = jest.fn();
+    const addCvr = jest.fn();
     const fileEntries = [
       {
         name: LIVE_FILE1,
@@ -135,7 +135,7 @@ describe('Screens display properly when USB is mounted', () => {
       <ImportCvrFilesModal onClose={closeFn} />,
       {
         usbDriveStatus: UsbDriveStatus.mounted,
-        saveCastVoteRecordFiles: saveCvr,
+        addCastVoteRecordFile: addCvr,
         logger,
       }
     );
@@ -174,7 +174,7 @@ describe('Screens display properly when USB is mounted', () => {
     fireEvent.click(domGetByText(tableRows[0], 'Load'));
     getByText('Loading');
     await waitFor(() => {
-      expect(saveCvr).toHaveBeenCalledTimes(1);
+      expect(addCvr).toHaveBeenCalledTimes(1);
       // We should not need to read the file another time since it was already read.
       expect(window.kiosk!.readFile).toHaveBeenCalledTimes(3);
       getByText('0 new CVRs Loaded');
@@ -188,7 +188,7 @@ describe('Screens display properly when USB is mounted', () => {
 
   test('Can handle errors appropriately', async () => {
     const closeFn = jest.fn();
-    const saveCvr = jest.fn();
+    const addCvr = jest.fn();
     const logger = fakeLogger();
     const fileEntries = [
       {
@@ -217,7 +217,7 @@ describe('Screens display properly when USB is mounted', () => {
       <ImportCvrFilesModal onClose={closeFn} />,
       {
         usbDriveStatus: UsbDriveStatus.mounted,
-        saveCastVoteRecordFiles: saveCvr,
+        addCastVoteRecordFile: addCvr,
         logger,
       }
     );
@@ -238,7 +238,7 @@ describe('Screens display properly when USB is mounted', () => {
     });
     getByText('Loading');
     await waitFor(() => {
-      expect(saveCvr).toHaveBeenCalledTimes(1);
+      expect(addCvr).toHaveBeenCalledTimes(1);
       // There should be an error loading the file.
       getByText('Error');
       getByText(/There was an error reading the content of the file/);
@@ -252,7 +252,7 @@ describe('Screens display properly when USB is mounted', () => {
 
   test('Load CVR files screen locks to test mode when test files have been loaded', async () => {
     const closeFn = jest.fn();
-    const saveCvr = jest.fn();
+    const addCvr = jest.fn();
     const logger = fakeLogger();
     const fileEntries = [
       {
@@ -304,7 +304,7 @@ describe('Screens display properly when USB is mounted', () => {
       {
         usbDriveStatus: UsbDriveStatus.mounted,
         castVoteRecordFiles: added,
-        saveCastVoteRecordFiles: saveCvr,
+        addCastVoteRecordFile: addCvr,
         logger,
       }
     );
@@ -346,7 +346,7 @@ describe('Screens display properly when USB is mounted', () => {
     fireEvent.click(domGetByText(tableRows[1], 'Load'));
     getByText('Loading');
     await waitFor(() => {
-      expect(saveCvr).toHaveBeenCalledTimes(1);
+      expect(addCvr).toHaveBeenCalledTimes(1);
       // There should be a message about loading a duplicate file displayed.
       getByText('Duplicate File');
       getByText(
@@ -362,7 +362,7 @@ describe('Screens display properly when USB is mounted', () => {
 
   test('Load CVR files screen locks to live mode when live files have been loaded', async () => {
     const closeFn = jest.fn();
-    const saveCvr = jest.fn();
+    const addCvr = jest.fn();
     const fileEntries = [
       {
         name: LIVE_FILE1,
@@ -403,7 +403,7 @@ describe('Screens display properly when USB is mounted', () => {
       {
         usbDriveStatus: UsbDriveStatus.mounted,
         castVoteRecordFiles: added,
-        saveCastVoteRecordFiles: saveCvr,
+        addCastVoteRecordFile: addCvr,
       }
     );
     await waitFor(() => getByText('Load Live Mode CVR Files'));
@@ -423,14 +423,14 @@ describe('Screens display properly when USB is mounted', () => {
     fireEvent.click(domGetByText(tableRows[0], 'Load'));
     getByText('Loading');
     await waitFor(() => {
-      expect(saveCvr).toHaveBeenCalledTimes(1);
+      expect(addCvr).toHaveBeenCalledTimes(1);
       getByText('0 new CVRs Loaded');
     });
   });
 
   test('Shows previously loaded files when all files have already been loaded', async () => {
     const closeFn = jest.fn();
-    const saveCvr = jest.fn();
+    const addCvr = jest.fn();
     const fileEntries = [
       {
         name: LIVE_FILE1,
@@ -461,7 +461,7 @@ describe('Screens display properly when USB is mounted', () => {
       {
         usbDriveStatus: UsbDriveStatus.mounted,
         castVoteRecordFiles: added,
-        saveCastVoteRecordFiles: saveCvr,
+        addCastVoteRecordFile: addCvr,
       }
     );
     await waitFor(() => getByText('Load Live Mode CVR Files'));

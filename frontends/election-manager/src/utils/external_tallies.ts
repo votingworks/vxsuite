@@ -15,6 +15,7 @@ import {
   writeInCandidate,
   PartyId,
   PrecinctId,
+  FullElectionExternalTallies,
 } from '@votingworks/types';
 import {
   assert,
@@ -28,10 +29,10 @@ import {
 } from './election';
 
 export function convertExternalTalliesToStorageString(
-  tallies: readonly FullElectionExternalTally[]
+  tallies: FullElectionExternalTallies
 ): string {
   return JSON.stringify(
-    tallies.map((tally) => {
+    Array.from(tallies.values()).map((tally) => {
       return {
         ...tally,
         resultsByCategory: Array.from(tally.resultsByCategory.entries()),

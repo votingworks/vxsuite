@@ -63,12 +63,12 @@ export function TallyScreen(): JSX.Element {
 
   const castVoteRecordFileList = castVoteRecordFiles.fileList;
   const hasAnyFiles =
-    castVoteRecordFiles.wereAdded || fullElectionExternalTallies.length > 0;
-  const hasExternalSemsFile = fullElectionExternalTallies.some(
-    (t) => t.source === ExternalTallySourceType.SEMS
+    castVoteRecordFiles.wereAdded || fullElectionExternalTallies.size > 0;
+  const hasExternalSemsFile = fullElectionExternalTallies.has(
+    ExternalTallySourceType.SEMS
   );
-  const hasExternalManualData = fullElectionExternalTallies.some(
-    (t) => t.source === ExternalTallySourceType.Manual
+  const hasExternalManualData = fullElectionExternalTallies.has(
+    ExternalTallySourceType.Manual
   );
 
   const [isImportExternalModalOpen, setIsImportExternalModalOpen] =
@@ -101,7 +101,9 @@ export function TallyScreen(): JSX.Element {
       ? 'Currently tallying live ballots.'
       : '';
 
-  const externalTallyRows = fullElectionExternalTallies.map((t) => {
+  const externalTallyRows = Array.from(
+    fullElectionExternalTallies.values()
+  ).map((t) => {
     const precinctsInExternalFile = getPrecinctIdsInExternalTally(t);
     return (
       <tr key={t.inputSourceName}>
@@ -116,7 +118,9 @@ export function TallyScreen(): JSX.Element {
       </tr>
     );
   });
-  const externalFileBallotCount = fullElectionExternalTallies.reduce(
+  const externalFileBallotCount = Array.from(
+    fullElectionExternalTallies.values()
+  ).reduce(
     (prev, tally) => prev + tally.overallTally.numberOfBallotsCounted,
     0
   );

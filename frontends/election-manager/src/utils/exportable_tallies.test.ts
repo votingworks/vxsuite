@@ -62,7 +62,7 @@ function assertTalliesAreIdenticalMultiples(
       expect(contestId in multipleForPrecinct!).toBeTruthy();
       const baseContestTally = baseForPrecinct![contestId]!;
       const multipleContestTally = multipleForPrecinct![contestId]!;
-      // Metadata should be mulitiplied
+      // Metadata should be multiplied
       expect(multipleContestTally.metadata).toEqual({
         ballots: baseContestTally.metadata.ballots * multiplier,
         overvotes: baseContestTally.metadata.overvotes * multiplier,
@@ -75,7 +75,7 @@ function assertTalliesAreIdenticalMultiples(
       );
 
       for (const optionId of Object.keys(baseContestTally.tallies)) {
-        // Candidate/yes/no tallies should be multipled
+        // Candidate/yes/no tallies should be multiplied
         expect(multipleContestTally.tallies[optionId]!).toEqual(
           multiplier * baseContestTally.tallies[optionId]!
         );
@@ -257,7 +257,7 @@ describe('getExportableTallies', () => {
     );
     const tally = getExportableTallies(
       fullInternalTally,
-      [],
+      new Map(),
       electionWithMsEitherNeither
     );
     expect(tally).toMatchSnapshot();
@@ -282,26 +282,18 @@ describe('getExportableTallies', () => {
     // Get tally with just CVR data
     const baseTally = getExportableTallies(
       fullInternalTally,
-      [],
+      new Map(),
       electionWithMsEitherNeither
     );
     // Get tally with CVR and SEMS data
     const doubleTally = getExportableTallies(
       fullInternalTally,
-      [fullExternalTally],
+      new Map([[fullExternalTally.source, fullExternalTally]]),
       electionWithMsEitherNeither
     );
 
     // doubleTally should be exactly 2 times everything in baseTally
     assertTalliesAreIdenticalMultiples(baseTally, doubleTally, 2);
-    // Get tally with SEMS data duplicated 3x
-    const quadrupleTally = getExportableTallies(
-      fullInternalTally,
-      [fullExternalTally, fullExternalTally, fullExternalTally],
-      electionWithMsEitherNeither
-    );
-    // quadrupleTally should be exactly 4 times everyhting in baseTally
-    assertTalliesAreIdenticalMultiples(baseTally, quadrupleTally, 4);
   });
 
   it('builds expected tally object for primary election with just internal data', () => {
@@ -315,7 +307,7 @@ describe('getExportableTallies', () => {
     );
     const tally = getExportableTallies(
       fullInternalTally,
-      [],
+      new Map(),
       multiPartyPrimaryElection
     );
     expect(tally).toMatchSnapshot();
@@ -340,25 +332,17 @@ describe('getExportableTallies', () => {
     // Get tally with just CVR data
     const baseTally = getExportableTallies(
       fullInternalTally,
-      [],
+      new Map(),
       multiPartyPrimaryElection
     );
     // Get tally with CVR and SEMS data
     const doubleTally = getExportableTallies(
       fullInternalTally,
-      [fullExternalTally],
+      new Map([[fullExternalTally.source, fullExternalTally]]),
       multiPartyPrimaryElection
     );
 
     // doubleTally should be exactly 2 times everything in baseTally
     assertTalliesAreIdenticalMultiples(baseTally, doubleTally, 2);
-    // Get tally with SEMS data duplicated 3x
-    const quadrupleTally = getExportableTallies(
-      fullInternalTally,
-      [fullExternalTally, fullExternalTally, fullExternalTally],
-      multiPartyPrimaryElection
-    );
-    // quadrupleTally should be exactly 4 times everyhting in baseTally
-    assertTalliesAreIdenticalMultiples(baseTally, quadrupleTally, 4);
   });
 });

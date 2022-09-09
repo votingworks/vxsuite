@@ -64,7 +64,9 @@ export function ReportsScreen(): JSX.Element {
 
   const totalBallotCountInternal =
     fullElectionTally?.overallTally.numberOfBallotsCounted ?? 0;
-  const totalBallotCountExternal = fullElectionExternalTallies.reduce(
+  const totalBallotCountExternal = Array.from(
+    fullElectionExternalTallies.values()
+  ).reduce(
     (prev, tally) => prev + tally.overallTally.numberOfBallotsCounted,
     0
   );

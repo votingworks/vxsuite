@@ -1,5 +1,7 @@
 import {
   ElectionDefinition,
+  ExternalTallySourceType,
+  FullElectionExternalTallies,
   FullElectionExternalTally,
   Iso8601Timestamp,
 } from '@votingworks/types';
@@ -33,11 +35,9 @@ export interface ElectionManagerStoreBackend {
   loadCastVoteRecordFiles(): Promise<CastVoteRecordFiles | undefined>;
 
   /**
-   * Overwrites the existing cast vote record files with the given ones.
+   * Adds a new cast vote record file.
    */
-  setCastVoteRecordFiles(
-    newCastVoteRecordFiles: CastVoteRecordFiles
-  ): Promise<void>;
+  addCastVoteRecordFile(newCastVoteRecordFile: File): Promise<void>;
 
   /**
    * Resets all cast vote record files.
@@ -48,22 +48,28 @@ export interface ElectionManagerStoreBackend {
    * Loads the existing external tallies.
    */
   loadFullElectionExternalTallies(): Promise<
-    FullElectionExternalTally[] | undefined
+    FullElectionExternalTallies | undefined
   >;
 
   /**
-   * Adds an external tally to the list.
+   * Updates the external tally for a given source.
    */
-  addFullElectionExternalTally(
+  updateFullElectionExternalTally(
+    sourceType: ExternalTallySourceType,
     newFullElectionExternalTally: FullElectionExternalTally
   ): Promise<void>;
 
   /**
-   * Replaces all external tallies with the given ones.
+   * Removes the external tally for a given source.
    */
-  setFullElectionExternalTallies(
-    newFullElectionExternalTallies: readonly FullElectionExternalTally[]
+  removeFullElectionExternalTally(
+    sourceType: ExternalTallySourceType
   ): Promise<void>;
+
+  /**
+   * Clears all external tallies.
+   */
+  clearFullElectionExternalTallies(): Promise<void>;
 
   /**
    * Loads the existing setting for whether the results are official.

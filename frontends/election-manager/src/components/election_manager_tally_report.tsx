@@ -11,7 +11,7 @@ import {
 import {
   Election,
   ExternalTally,
-  FullElectionExternalTally,
+  FullElectionExternalTallies,
   FullElectionTally,
   getLabelForVotingMethod,
   PartyIdSchema,
@@ -30,7 +30,7 @@ export interface Props {
   batchId?: string;
   batchLabel?: string;
   election: Election;
-  fullElectionExternalTallies: readonly FullElectionExternalTally[];
+  fullElectionExternalTallies: FullElectionExternalTallies;
   fullElectionTally: FullElectionTally;
   generatedAtTime?: Date;
   tallyReportType: TallyReportType;
@@ -87,7 +87,7 @@ export const ElectionManagerTallyReport = forwardRef<HTMLDivElement, Props>(
               };
             let reportBallotCount = tallyForReport.numberOfBallotsCounted;
             const externalTalliesForReport: ExternalTally[] = [];
-            for (const t of fullElectionExternalTallies) {
+            for (const t of fullElectionExternalTallies.values()) {
               const filteredTally = filterExternalTalliesByParams(t, election, {
                 precinctId,
                 partyId,

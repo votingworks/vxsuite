@@ -322,9 +322,9 @@ describe('convertExternalTalliesToStorageString, convertStorageStringToExternalT
       timestampCreated: new Date(1989, 11, 13),
     }; // Have information both in the main tally and results by category
 
-    const storageString = convertExternalTalliesToStorageString([
-      fullTallySems,
-    ]);
+    const storageString = convertExternalTalliesToStorageString(
+      new Map([[fullTallySems.source, fullTallySems]])
+    );
     const recreatedTallies =
       convertStorageStringToExternalTallies(storageString);
     expect(recreatedTallies).toStrictEqual([fullTallySems]);
@@ -339,10 +339,12 @@ describe('convertExternalTalliesToStorageString, convertStorageStringToExternalT
       timestampCreated: new Date(2013, 1, 3),
     };
 
-    const storageString2 = convertExternalTalliesToStorageString([
-      fullTallySems,
-      fullTallyManual,
-    ]);
+    const storageString2 = convertExternalTalliesToStorageString(
+      new Map([
+        [fullTallySems.source, fullTallySems],
+        [fullTallyManual.source, fullTallyManual],
+      ])
+    );
     const recreatedTallies2 =
       convertStorageStringToExternalTallies(storageString2);
     expect(recreatedTallies2).toStrictEqual([fullTallySems, fullTallyManual]);

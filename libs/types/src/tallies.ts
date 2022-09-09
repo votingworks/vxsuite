@@ -82,6 +82,11 @@ export interface FullElectionExternalTally {
   readonly timestampCreated: Date;
 }
 
+export type FullElectionExternalTallies = ReadonlyMap<
+  ExternalTallySourceType,
+  FullElectionExternalTally
+>;
+
 export type OptionalExternalTally = Optional<ExternalTally>;
 export type OptionalFullElectionTally = Optional<FullElectionTally>;
 export type OptionalFullElectionExternalTally =

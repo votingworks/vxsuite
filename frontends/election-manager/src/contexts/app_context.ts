@@ -4,6 +4,7 @@ import {
   FullElectionTally,
   FullElectionExternalTally,
   DippedSmartcardAuth,
+  FullElectionExternalTallies,
 } from '@votingworks/types';
 import { usbstick, NullPrinter, Printer } from '@votingworks/utils';
 import { Logger, LogSource, LoggingUserRole } from '@votingworks/logging';
@@ -17,10 +18,7 @@ import {
   ConverterClientType,
   ResetElection,
 } from '../config/types';
-import {
-  CastVoteRecordFiles,
-  SaveCastVoteRecordFiles,
-} from '../utils/cast_vote_record_files';
+import { CastVoteRecordFiles } from '../utils/cast_vote_record_files';
 import { getEmptyFullElectionTally } from '../lib/votecounting';
 import { getEmptyExportableTallies } from '../utils/exportable_tallies';
 
@@ -32,7 +30,8 @@ export interface AppContextInterface {
   isOfficialResults: boolean;
   printer: Printer;
   printBallotRef?: RefObject<HTMLElement>;
-  saveCastVoteRecordFiles: SaveCastVoteRecordFiles;
+  addCastVoteRecordFile: (newCastVoteRecordFile: File) => Promise<void>;
+  clearCastVoteRecordFiles: () => Promise<void>;
   saveElection: SaveElection;
   resetElection: ResetElection;
   markResultsOfficial: () => Promise<void>;
@@ -42,11 +41,10 @@ export interface AppContextInterface {
   addPrintedBallot: (printedBallot: PrintedBallot) => void;
   printedBallots: readonly PrintedBallot[];
   fullElectionTally: FullElectionTally;
-  fullElectionExternalTallies: readonly FullElectionExternalTally[];
+  fullElectionExternalTallies: FullElectionExternalTallies;
   isTabulationRunning: boolean;
-  addExternalTally: (externalTally: FullElectionExternalTally) => Promise<void>;
-  saveExternalTallies: (
-    externalTallies: FullElectionExternalTally[]
+  updateExternalTally: (
+    newExternalTally: FullElectionExternalTally
   ) => Promise<void>;
   saveTranscribedValue: (
     adjudicationId: string,
@@ -69,7 +67,8 @@ const appContext: AppContextInterface = {
   isOfficialResults: false,
   printer: new NullPrinter(),
   printBallotRef: undefined,
-  saveCastVoteRecordFiles: async () => undefined,
+  addCastVoteRecordFile: async () => undefined,
+  clearCastVoteRecordFiles: async () => undefined,
   saveElection: async () => undefined,
   resetElection: async () => undefined,
   markResultsOfficial: async () => undefined,
@@ -79,9 +78,8 @@ const appContext: AppContextInterface = {
   addPrintedBallot: () => undefined,
   printedBallots: [],
   fullElectionTally: getEmptyFullElectionTally(),
-  fullElectionExternalTallies: [],
-  addExternalTally: async () => undefined,
-  saveExternalTallies: async () => undefined,
+  fullElectionExternalTallies: new Map(),
+  updateExternalTally: async () => undefined,
   saveTranscribedValue: async () => undefined,
   isTabulationRunning: false,
   setIsTabulationRunning: () => undefined,
