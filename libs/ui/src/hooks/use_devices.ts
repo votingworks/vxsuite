@@ -1,9 +1,11 @@
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
+  EnvironmentFlagName,
   Hardware,
   isAccessibleController,
   isBatchScanner,
   isCardReader,
+  isFeatureFlagEnabled,
   isPrecinctScanner,
   OmniKeyCardReaderDeviceName,
   OmniKeyCardReaderManufacturer,
@@ -14,7 +16,6 @@ import { useEffect, useState } from 'react';
 import useInterval from 'use-interval';
 import { useCancelablePromise } from './use_cancelable_promise';
 import { usePrevious } from './use_previous';
-import { isCardReaderCheckDisabled } from '../config/features';
 
 export const LOW_BATTERY_THRESHOLD = 0.25;
 export const BATTERY_POLLING_INTERVAL = 3000;
@@ -183,7 +184,9 @@ export function useDevices({ hardware, logger }: Props): Devices {
 
   return {
     computer,
-    cardReader: isCardReaderCheckDisabled()
+    cardReader: isFeatureFlagEnabled(
+      EnvironmentFlagName.DISABLE_CARD_READER_CHECK
+    )
       ? fakeCardReader
       : allDevices.find(isCardReader),
     accessibleController: allDevices.find(isAccessibleController),

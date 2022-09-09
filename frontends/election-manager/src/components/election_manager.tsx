@@ -8,6 +8,7 @@ import {
   RemoveCardScreen,
 } from '@votingworks/ui';
 
+import { EnvironmentFlagName, isFeatureFlagEnabled } from '@votingworks/utils';
 import { AppContext } from '../contexts/app_context';
 import { routerPaths } from '../router_paths';
 import { DefinitionScreen } from '../screens/definition_screen';
@@ -32,7 +33,6 @@ import { LogsScreen } from '../screens/logs_screen';
 import { ReportsScreen } from '../screens/reports_screen';
 import { SmartcardTypeRegExPattern } from '../config/types';
 import { SmartcardModal } from './smartcard_modal';
-import { isWriteInAdjudicationEnabled } from '../config/features';
 
 export function ElectionManager(): JSX.Element {
   const { electionDefinition, configuredAt, auth, hasCardReaderAttached } =
@@ -159,7 +159,7 @@ export function ElectionManager(): JSX.Element {
       <Route exact path={routerPaths.manualDataImport}>
         <ManualDataImportIndexScreen />
       </Route>
-      {isWriteInAdjudicationEnabled() && (
+      {isFeatureFlagEnabled(EnvironmentFlagName.WRITE_IN_ADJUDICATION) && (
         <Route exact path={routerPaths.writeIns}>
           <WriteInsScreen />
         </Route>

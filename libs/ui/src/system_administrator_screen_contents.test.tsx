@@ -3,14 +3,13 @@ import userEvent from '@testing-library/user-event';
 import { fakeKiosk, mockOf } from '@votingworks/test-utils';
 import { fakeLogger } from '@votingworks/logging';
 import { render, screen } from '@testing-library/react';
-import { usbstick } from '@votingworks/utils';
+import { usbstick, isVxDev } from '@votingworks/utils';
 
-import { isVxDev } from './config/features';
 import { SystemAdministratorScreenContents } from './system_administrator_screen_contents';
 
-jest.mock('./config/features', (): typeof import('./config/features') => {
+jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   return {
-    ...jest.requireActual('./config/features'),
+    ...jest.requireActual('@votingworks/utils'),
     isVxDev: jest.fn(),
   };
 });

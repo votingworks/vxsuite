@@ -18,9 +18,11 @@ import {
   BallotCountDetails,
   compressTally,
   computeTallyWithPrecomputedCategories,
+  EnvironmentFlagName,
   filterTalliesByParams,
   getPrecinctSelectionName,
   getTallyIdentifier,
+  isFeatureFlagEnabled,
   PrecinctScannerCardTally,
   PrecinctScannerCardTallySchema,
   Printer,
@@ -38,7 +40,6 @@ import {
   getPartyIdsInBallotStyles,
   InsertedSmartcardAuth,
 } from '@votingworks/types';
-import { isLiveCheckEnabled } from '../config/features';
 import {
   CenteredLargeProse,
   ScreenMainCenterChild,
@@ -503,7 +504,7 @@ export function PollWorkerScreen({
               </Button>
             </p>
           )}
-          {isLiveCheckEnabled() && (
+          {isFeatureFlagEnabled(EnvironmentFlagName.LIVECHECK) && (
             <p>
               <Button onPress={() => setIsShowingLiveCheck(true)}>
                 Live Check

@@ -1,9 +1,8 @@
 import React from 'react';
 import { Logger } from '@votingworks/logging';
-import { usbstick } from '@votingworks/utils';
+import { usbstick, isVxDev } from '@votingworks/utils';
 
 import { Button } from './button';
-import { isVxDev } from './config/features';
 import { Main } from './main';
 import { Prose } from './prose';
 import { RebootFromUsbButton } from './reboot_from_usb_button';

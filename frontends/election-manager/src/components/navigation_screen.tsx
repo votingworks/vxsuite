@@ -9,7 +9,7 @@ import {
   Screen,
   UsbControllerButton,
 } from '@votingworks/ui';
-import { isWriteInAdjudicationEnabled } from '../config/features';
+import { EnvironmentFlagName, isFeatureFlagEnabled } from '@votingworks/utils';
 import { AppContext } from '../contexts/app_context';
 import { routerPaths } from '../router_paths';
 import { Navigation } from './navigation';
@@ -68,7 +68,7 @@ export function NavigationScreen({
           { label: 'Ballots', routerPath: routerPaths.ballotsList },
           { label: 'L&A', routerPath: routerPaths.logicAndAccuracy },
           { label: 'Tally', routerPath: routerPaths.tally },
-          isWriteInAdjudicationEnabled() && {
+          isFeatureFlagEnabled(EnvironmentFlagName.WRITE_IN_ADJUDICATION) && {
             label: 'Write-Ins',
             routerPath: routerPaths.writeIns,
           },

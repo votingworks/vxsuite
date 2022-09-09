@@ -1,4 +1,4 @@
-import { isAllZeroSmartcardPinGenerationEnabled } from '../../config/features';
+import { EnvironmentFlagName, isFeatureFlagEnabled } from '@votingworks/utils';
 
 /**
  * generatePin generates random numeric PINs of the specified length (default = 6).
@@ -13,7 +13,9 @@ export function generatePin(length = 6): string {
 
   let pin = '';
   for (let i = 0; i < length; i += 1) {
-    const nextDigit = isAllZeroSmartcardPinGenerationEnabled()
+    const nextDigit = isFeatureFlagEnabled(
+      EnvironmentFlagName.ALL_ZERO_SMARTCARD_PIN
+    )
       ? 0
       : Math.floor(Math.random() * 10);
     pin += `${nextDigit}`;
