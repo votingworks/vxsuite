@@ -23,7 +23,12 @@ const dotenvFiles = [
   NODE_ENV !== 'test' && `${paths.dotenv}.local`,
   `${paths.dotenv}.${NODE_ENV}`,
   paths.dotenv,
+  NODE_ENV !== 'test' && `../../${paths.dotenv}.local`,
+  `../../${paths.dotenv}`,
 ].filter(Boolean);
+
+console.log('YO');
+console.log(dotenvFiles);
 
 // Load environment variables from .env* files. Suppress warnings using silent
 // if this file is missing. dotenv will never modify any environment variables
