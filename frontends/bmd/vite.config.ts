@@ -10,8 +10,9 @@ export default defineConfig(async (env) => {
   );
 
   const envPrefix = 'REACT_APP_';
-  const dotenvValues = loadEnv(env.mode, __dirname, envPrefix);
-  const processEnvDefines = Object.entries(dotenvValues).reduce<
+  const rootDotenvValues = loadEnv(env.mode, join(__dirname, '../..'), envPrefix);
+  const coreDotenvValues = loadEnv(env.mode, __dirname, envPrefix)
+  const processEnvDefines = [...Object.entries(rootDotenvValues), ...Object.entries(coreDotenvValues)].reduce<
     Record<string, string>
   >(
     (acc, [key, value]) => ({
