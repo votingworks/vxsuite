@@ -2785,6 +2785,8 @@ importers:
       chalk: 4.1.0
       debug: 4.3.1
       deep-eql: 4.0.0
+      dotenv: 16.0.2
+      dotenv-expand: 9.0.0
       express: 4.18.0
       fs-extra: 9.0.1
       got: 11.8.2
@@ -2880,6 +2882,8 @@ importers:
       chalk: ^4.1.0
       debug: ^4.3.1
       deep-eql: ^4.0.0
+      dotenv: ^16.0.2
+      dotenv-expand: ^9.0.0
       esbuild: ^0.14.29
       esbuild-runner: ^2.2.1
       eslint: ^7.17.0
@@ -16387,6 +16391,18 @@ packages:
   /dotenv-expand/5.1.0:
     resolution:
       integrity: sha512-YXQl1DSa4/PQyRfgrv6aoNjhasp/p4qs9FjJ4q4cQk+8m4r6k4ZSiEyytKG8f8W9gi8WsQtIObNmKd+tMzNTmA==
+  /dotenv-expand/9.0.0:
+    dev: false
+    engines:
+      node: '>=12'
+    resolution:
+      integrity: sha512-uW8Hrhp5ammm9x7kBLR6jDfujgaDarNA02tprvZdyrJ7MpdzD1KyrIHG4l+YoC2fJ2UcdFdNWNWIjt+sexBHJw==
+  /dotenv/16.0.2:
+    dev: false
+    engines:
+      node: '>=12'
+    resolution:
+      integrity: sha512-JvpYKUmzQhYoIFgK2MOnF3bciIZoItIIoryihy0rIA+H4Jy0FmgyKYAHCTN98P5ybGSJcIFbh6QKeJdtZd1qhA==
   /dotenv/8.2.0:
     engines:
       node: '>=8'
