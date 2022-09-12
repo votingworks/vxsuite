@@ -31,6 +31,14 @@ legend {
   display: block;
 }
 
+select option {
+  background-color: #ffffff;
+  color: #000000;
+  &:disabled {
+    color: #999999;
+  }
+}
+
 :link,
 :visited {
   color: rgb(0, 0, 238);
