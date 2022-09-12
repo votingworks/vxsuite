@@ -1,22 +1,17 @@
 import { mockOf } from '@votingworks/test-utils';
 
+import { isFeatureFlagEnabled } from '@votingworks/utils';
 import { generatePin, hyphenatePin } from './pins';
-import { isAllZeroSmartcardPinGenerationEnabled } from '../../config/features';
 
-jest.mock(
-  '../../config/features',
-  (): typeof import('../../config/features') => {
-    return {
-      ...jest.requireActual('../../config/features'),
-      isAllZeroSmartcardPinGenerationEnabled: jest.fn(),
-    };
-  }
-);
+jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
+  return {
+    ...jest.requireActual('@votingworks/utils'),
+    isFeatureFlagEnabled: jest.fn(),
+  };
+});
 
 beforeEach(() => {
-  mockOf(isAllZeroSmartcardPinGenerationEnabled).mockImplementation(
-    () => false
-  );
+  mockOf(isFeatureFlagEnabled).mockImplementation(() => false);
 });
 
 test('generatePin generates PINs', () => {
@@ -33,7 +28,7 @@ test('generatePin generates PINs', () => {
 });
 
 test('generatePIN generates PINs with all zeros when all-zero smartcard PIN generation feature flag is enabled', () => {
-  mockOf(isAllZeroSmartcardPinGenerationEnabled).mockImplementation(() => true);
+  mockOf(isFeatureFlagEnabled).mockImplementation(() => true);
 
   expect(generatePin()).toEqual('000000');
   expect(generatePin(10)).toEqual('0000000000');

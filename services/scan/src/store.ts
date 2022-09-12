@@ -32,7 +32,11 @@ import {
   unsafeParse,
 } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
-import { assert } from '@votingworks/utils';
+import {
+  assert,
+  EnvironmentFlagName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import makeDebug from 'debug';
 import * as fs from 'fs-extra';
@@ -47,7 +51,7 @@ import { buildCastVoteRecord } from './build_cast_vote_record';
 import { Bindable, DbClient } from './db_client';
 import { sheetRequiresAdjudication } from './interpreter';
 import { SheetOf } from './types';
-import { isWriteInAdjudicationBallotImageAndLayoutExportEnabled } from './config/features';
+
 import { normalizeAndJoin } from './util/path';
 
 const debug = makeDebug('scan:store');
@@ -872,7 +876,7 @@ export class Store {
 
       const frontImage: InlineBallotImage = { normalized: '' };
       const backImage: InlineBallotImage = { normalized: '' };
-      if (isWriteInAdjudicationBallotImageAndLayoutExportEnabled()) {
+      if (isFeatureFlagEnabled(EnvironmentFlagName.WRITE_IN_ADJUDICATION)) {
         if (
           frontInterpretation.type === 'InterpretedHmpbPage' ||
           frontInterpretation.type === 'UninterpretedHmpbPage'
@@ -925,7 +929,7 @@ export class Store {
           },
         ],
         [frontImage, backImage],
-        isWriteInAdjudicationBallotImageAndLayoutExportEnabled() &&
+        isFeatureFlagEnabled(EnvironmentFlagName.WRITE_IN_ADJUDICATION) &&
           (frontInterpretation.type === 'InterpretedHmpbPage' ||
             frontInterpretation.type === 'UninterpretedHmpbPage') &&
           (backInterpretation.type === 'InterpretedHmpbPage' ||

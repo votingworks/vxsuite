@@ -1,8 +1,13 @@
 import { act, screen, render, fireEvent } from '@testing-library/react';
 import { electionSampleDefinition } from '@votingworks/fixtures';
-import { advanceTimersAndPromises, Inserted } from '@votingworks/test-utils';
+import {
+  advanceTimersAndPromises,
+  Inserted,
+  mockOf,
+} from '@votingworks/test-utils';
 import {
   ALL_PRECINCTS_SELECTION,
+  isFeatureFlagEnabled,
   NullPrinter,
   usbstick,
 } from '@votingworks/utils';
@@ -14,13 +19,17 @@ import fetchMock from 'fetch-mock';
 import { AppContext } from '../contexts/app_context';
 import { PollWorkerScreen } from './poll_worker_screen';
 
-import { isLiveCheckEnabled } from '../config/features';
-
-jest.mock('../config/features');
+jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
+  return {
+    ...jest.requireActual('@votingworks/utils'),
+    isFeatureFlagEnabled: jest.fn(),
+  };
+});
 
 MockDate.set('2020-10-31T00:00:00.000Z');
 
 beforeEach(() => {
+  mockOf(isFeatureFlagEnabled).mockImplementation(() => false);
   jest.useFakeTimers();
   window.location.href = '/';
   fetchMock.post('/precinct-scanner/export', {});
@@ -129,7 +138,7 @@ describe('shows Export Results button only when polls are closed and more than 0
 
 describe('shows Livecheck button only when enabled', () => {
   test('enable livecheck', async () => {
-    mocked(isLiveCheckEnabled).mockReturnValue(true);
+    mocked(isFeatureFlagEnabled).mockReturnValue(true);
 
     // eslint-disable-next-line @typescript-eslint/require-await
     await act(async () => {
@@ -151,7 +160,7 @@ describe('shows Livecheck button only when enabled', () => {
   });
 
   test('disable livecheck', async () => {
-    mocked(isLiveCheckEnabled).mockReturnValue(false);
+    mocked(isFeatureFlagEnabled).mockReturnValue(false);
 
     // eslint-disable-next-line @typescript-eslint/require-await
     await act(async () => {

@@ -1,11 +1,12 @@
 import { act, renderHook } from '@testing-library/react-hooks';
 import { LogEventId, fakeLogger } from '@votingworks/logging';
-import { fakeMarkerInfo } from '@votingworks/test-utils';
+import { fakeMarkerInfo, mockOf } from '@votingworks/test-utils';
 import {
   AccessibleControllerProductId,
   AccessibleControllerVendorId,
   FujitsuFi7160ScannerProductId,
   FujitsuScannerVendorId,
+  isFeatureFlagEnabled,
   MemoryHardware,
   OmniKeyCardReaderDeviceName,
   OmniKeyCardReaderManufacturer,
@@ -15,7 +16,17 @@ import {
   PlustekVtm300ScannerProductId,
 } from '@votingworks/utils';
 import { BATTERY_POLLING_INTERVAL, Devices, useDevices } from './use_devices';
-import * as features from '../config/features';
+
+jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
+  return {
+    ...jest.requireActual('@votingworks/utils'),
+    isFeatureFlagEnabled: jest.fn(),
+  };
+});
+
+beforeEach(() => {
+  mockOf(isFeatureFlagEnabled).mockImplementation(() => false);
+});
 
 const emptyDevices: Devices = {
   printer: undefined,
@@ -399,7 +410,7 @@ test('periodically polls for computer battery status', async () => {
 test('when card reader check is disabled, fake one returned even if no hardware detected.', async () => {
   const hardware = new MemoryHardware();
   const logger = fakeLogger();
-  jest.spyOn(features, 'isCardReaderCheckDisabled').mockReturnValue(true);
+  mockOf(isFeatureFlagEnabled).mockImplementation(() => true);
 
   const { result, waitForNextUpdate } = renderHook(() =>
     useDevices({ hardware, logger })
