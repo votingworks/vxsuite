@@ -31,7 +31,6 @@ import {
 } from './lib/votecounting';
 
 import { AppContext } from './contexts/app_context';
-import { AddCastVoteRecordFile } from './utils/cast_vote_record_files';
 import { ElectionManager } from './components/election_manager';
 import {
   SaveElection,
@@ -44,7 +43,10 @@ import {
 } from './config/types';
 import { useElectionManagerStore } from './hooks/use_election_manager_store';
 import { getExportableTallies } from './utils/exportable_tallies';
-import { ElectionManagerStoreBackend } from './lib/backends/types';
+import {
+  AddCastVoteRecordFileResult,
+  ElectionManagerStoreBackend,
+} from './lib/backends/types';
 
 export interface Props {
   logger: Logger;
@@ -181,9 +183,9 @@ export function AppRoot({
     [store]
   );
 
-  const addCastVoteRecordFile: AddCastVoteRecordFile = useCallback(
-    async (newCvrFile) => {
-      await store.addCastVoteRecordFile(newCvrFile);
+  const addCastVoteRecordFile = useCallback(
+    async (newCvrFile: File): Promise<AddCastVoteRecordFileResult> => {
+      return await store.addCastVoteRecordFile(newCvrFile);
     },
     [store]
   );

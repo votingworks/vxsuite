@@ -9,7 +9,10 @@ import {
 import { assert } from '@votingworks/utils';
 import { PrintedBallot } from '../../config/types';
 import { CastVoteRecordFiles } from '../../utils/cast_vote_record_files';
-import { ElectionManagerStoreBackend } from './types';
+import {
+  AddCastVoteRecordFileResult,
+  ElectionManagerStoreBackend,
+} from './types';
 
 /**
  * An in-memory backend for ElectionManagerStore. Useful for tests or an
@@ -96,7 +99,9 @@ export class ElectionManagerStoreMemoryBackend
     return Promise.resolve(this.castVoteRecordFiles);
   }
 
-  async addCastVoteRecordFile(newCastVoteRecordFile: File): Promise<void> {
+  async addCastVoteRecordFile(
+    newCastVoteRecordFile: File
+  ): Promise<AddCastVoteRecordFileResult> {
     if (!this.electionDefinition) {
       throw new Error('Election definition must be configured first');
     }
@@ -104,6 +109,21 @@ export class ElectionManagerStoreMemoryBackend
     this.castVoteRecordFiles = await (
       this.castVoteRecordFiles ?? CastVoteRecordFiles.empty
     ).add(newCastVoteRecordFile, this.electionDefinition.election);
+
+    const wasExistingFile = this.castVoteRecordFiles.duplicateFiles.includes(
+      newCastVoteRecordFile.name
+    );
+    const file = this.castVoteRecordFiles.fileList.find(
+      (f) => f.name === newCastVoteRecordFile.name
+    );
+    const newlyAdded = file?.importedCvrCount ?? 0;
+    const alreadyPresent = file?.duplicatedCvrCount ?? 0;
+
+    return {
+      wasExistingFile,
+      newlyAdded,
+      alreadyPresent,
+    };
   }
 
   async clearCastVoteRecordFiles(): Promise<void> {
