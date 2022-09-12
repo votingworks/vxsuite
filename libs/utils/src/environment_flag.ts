@@ -9,6 +9,8 @@ export enum EnvironmentFlagName {
   DISABLE_CARD_READER_CHECK = 'REACT_APP_VX_DISABLE_CARD_READER_CHECK',
   // Enables livecheck in VxScan.
   LIVECHECK = 'REACT_APP_VX_ENABLE_LIVECHECK',
+  // Whether overvotes can be cast (this exists entirely for NH special case right now).
+  DISALLOW_CASTING_OVERVOTES = 'REACT_APP_VX_DISALLOW_CASTING_OVERVOTES',
 }
 
 export interface EnvironmentFlag {
@@ -42,6 +44,12 @@ export function getFlagDetails(name: EnvironmentFlagName): EnvironmentFlag {
         name,
         allowInProduction: false,
         autoEnableInDevelopment: true,
+      };
+    case EnvironmentFlagName.DISALLOW_CASTING_OVERVOTES:
+      return {
+        name,
+        allowInProduction: true,
+        autoEnableInDevelopment: false,
       };
     /* istanbul ignore next compile time check */
     default:
