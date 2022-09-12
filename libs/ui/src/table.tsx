@@ -1,8 +1,9 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 interface TableProps {
   borderTop?: boolean;
   condensed?: boolean;
+  expanded?: boolean;
 }
 
 const borderColor = 'rgb(194, 200, 203)';
@@ -17,8 +18,12 @@ export const Table = styled.table<TableProps>`
   & th,
   & td {
     border-bottom: 1px solid ${borderColor};
-    padding: ${({ condensed }) =>
-      condensed ? '0.15rem 0.25rem' : '0.25rem 0.5rem'};
+    padding: ${({ condensed, expanded }) =>
+      condensed
+        ? '0.15rem 0.25rem'
+        : expanded
+        ? '0.25rem 1rem'
+        : '0.25rem 0.5rem'};
   }
   & th {
     border-top: 1px solid ${borderColor};
@@ -29,14 +34,23 @@ export const Table = styled.table<TableProps>`
   }
 `;
 
-interface TableDataProps {
+interface TableCellProps {
   narrow?: boolean;
   nowrap?: boolean;
   textAlign?: 'right' | 'left' | 'center';
 }
 
-export const TD = styled.td<TableDataProps>`
+const tableCellStyles = css<TableCellProps>`
   width: ${({ narrow = false }) => (narrow ? '1%' : undefined)};
   text-align: ${({ textAlign }) => textAlign};
+`;
+
+export const TD = styled.td<TableCellProps>`
   white-space: ${({ nowrap }) => (nowrap ? 'nowrap' : undefined)};
+  ${tableCellStyles}/* stylelint-disable-line value-keyword-case */
+`;
+
+export const TH = styled.th<TableCellProps>`
+  white-space: ${({ nowrap }) => (nowrap === false ? undefined : 'nowrap')};
+  ${tableCellStyles}/* stylelint-disable-line value-keyword-case */
 `;
