@@ -314,7 +314,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
             class="sc-dkPtyc dVpXhv"
           >
             This report was created on 
-            Tuesday, November 3, 2020, 10:22:00 PM UTC
+            Tuesday, November 3, 2020 at 10:22:00 PM UTC
           </span>
         </p>
       </div>
@@ -3350,7 +3350,7 @@ exports[`tabulating CVRs 1`] = `
         class="sc-dkPtyc dVpXhv"
       >
         This report was created on 
-        Tuesday, November 3, 2020, 10:22:00 PM UTC
+        Tuesday, November 3, 2020 at 10:22:00 PM UTC
       </span>
     </p>
   </div>
@@ -4541,7 +4541,7 @@ exports[`tabulating CVRs with SEMS file 1`] = `
         class="sc-dkPtyc dVpXhv"
       >
         This report was created on 
-        Tuesday, November 3, 2020, 10:22:00 PM UTC
+        Tuesday, November 3, 2020 at 10:22:00 PM UTC
       </span>
     </p>
   </div>
