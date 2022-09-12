@@ -272,6 +272,10 @@ help you contribute.
 
 ## Development Best Practices
 
+### Feature Flags
+Feature flags are defined in the libs/utils subrepo [here](https://github.com/votingworks/vxsuite/blob/main/libs/utils/src/environment_flag.ts). 
+To configure which flags you are using you can set them in an `.env.local` file. This file can live either at the root of vxsuite or in the subrepo you want that flag to apply to. Flag values set in subrepo files will override those set at the root. `.env.local` file will also override a default `.env` file at either a subrepo or root level. To generate a `.env.local` file properly run the `pnpm configure-dev` command. If you are using VxDev you can run the `pnpm configure-vxdev-env` command BEFORE running the update code program. 
+
 ### Use `zod` for validating/parsing JSON data
 
 [`zod`](https://github.com/colinhacks/zod) allows you to build a schema that
@@ -450,6 +454,7 @@ log in a single test file, add this above all the other code in the file:
 import { enable } from 'debug';
 enable('math:*'); // or whatever globs you want
 ```
+
 
 ## License
 
