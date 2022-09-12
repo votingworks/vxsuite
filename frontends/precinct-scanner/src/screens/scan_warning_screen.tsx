@@ -16,7 +16,14 @@ import {
   Prose,
   Text,
 } from '@votingworks/ui';
-import { assert, find, integers, take } from '@votingworks/utils';
+import {
+  assert,
+  find,
+  integers,
+  take,
+  isFeatureFlagEnabled,
+  EnvironmentFlagName,
+} from '@votingworks/utils';
 import pluralize from 'pluralize';
 import * as scanner from '../api/scan';
 
@@ -75,6 +82,9 @@ function OvervoteWarningScreen({
   electionDefinition,
   overvotes,
 }: OvervoteWarningScreenProps): JSX.Element {
+  const allowCastingOvervotes = !isFeatureFlagEnabled(
+    EnvironmentFlagName.DISALLOW_CASTING_OVERVOTES
+  );
   const [confirmTabulate, setConfirmTabulate] = useState(false);
   const contestNames = overvotes
     .map((overvote) =>
@@ -102,11 +112,16 @@ function OvervoteWarningScreen({
         <p>
           <Button primary onPress={scanner.returnBallot}>
             Return Ballot
-          </Button>{' '}
-          or{' '}
-          <Button onPress={() => setConfirmTabulate(true)}>
-            Cast Ballot As Is
           </Button>
+          {allowCastingOvervotes && (
+            <React.Fragment>
+              {' '}
+              or{' '}
+              <Button onPress={() => setConfirmTabulate(true)}>
+                Cast Ballot As Is
+              </Button>
+            </React.Fragment>
+          )}
         </p>
         <Text italic small>
           Ask a poll worker if you need help.

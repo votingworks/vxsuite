@@ -2,12 +2,24 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { electionSampleDefinition } from '@votingworks/fixtures';
 import { AdjudicationReason, CandidateContest } from '@votingworks/types';
-import { integers, take } from '@votingworks/utils';
+import {
+  integers,
+  take,
+  isFeatureFlagEnabled,
+  EnvironmentFlagName,
+} from '@votingworks/utils';
 import React from 'react';
 import fetchMock from 'fetch-mock';
-import { Inserted } from '@votingworks/test-utils';
+import { Inserted, mockOf } from '@votingworks/test-utils';
 import { ScanWarningScreen, Props } from './scan_warning_screen';
 import { AppContext } from '../contexts/app_context';
+
+jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
+  return {
+    ...jest.requireActual('@votingworks/utils'),
+    isFeatureFlagEnabled: jest.fn(),
+  };
+});
 
 function renderScreen(props: Props) {
   return render(
@@ -59,6 +71,46 @@ test('overvote', () => {
   });
   userEvent.click(confirmButton);
   expect(confirmButton).toBeDisabled();
+  expect(fetchMock.done()).toBe(true);
+});
+
+test('overvote when casting overvotes is disallowed', () => {
+  fetchMock.postOnce('/precinct-scanner/scanner/return', {
+    body: { status: 'ok' },
+  });
+  mockOf(isFeatureFlagEnabled).mockImplementation(
+    (flag: EnvironmentFlagName) => {
+      return flag === EnvironmentFlagName.DISALLOW_CASTING_OVERVOTES;
+    }
+  );
+
+  const contest = electionSampleDefinition.election.contests.find(
+    (c): c is CandidateContest => c.type === 'candidate'
+  )!;
+
+  renderScreen({
+    adjudicationReasonInfo: [
+      {
+        type: AdjudicationReason.Overvote,
+        contestId: contest.id,
+        optionIds: contest.candidates.map(({ id }) => id),
+        optionIndexes: contest.candidates.map((c, i) => i),
+        expected: 1,
+      },
+    ],
+  });
+
+  screen.getByRole('heading', { name: 'Too Many Votes' });
+  screen.getByText(
+    new RegExp(
+      `There are too many votes marked in the contest for: ${contest.title}.`
+    )
+  );
+  expect(
+    screen.queryByRole('button', { name: 'Cast Ballot As Is' })
+  ).not.toBeInTheDocument();
+
+  userEvent.click(screen.getByRole('button', { name: 'Return Ballot' }));
   expect(fetchMock.done()).toBe(true);
 });
 
