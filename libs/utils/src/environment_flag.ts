@@ -13,7 +13,9 @@ export enum EnvironmentFlagName {
 
 export interface EnvironmentFlag {
   name: EnvironmentFlagName;
+  // When false this flag will never be enabled when NODE_ENV is production.
   allowInProduction: boolean;
+  // When true the script that generates .env files will turn this flag on by default.
   autoEnableInDevelopment: boolean;
 }
 
