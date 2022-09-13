@@ -120,7 +120,7 @@ export function WriteInsTranscriptionScreen({
   return (
     <Screen>
       <Navigation
-        screenTitle="Write-In Adjudication"
+        screenTitle="Write-In Transcription"
         secondaryNav={
           <React.Fragment>
             <Button small onPress={onListAll}>
