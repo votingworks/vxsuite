@@ -5,7 +5,7 @@ exports[`renders InputGroup 1`] = `
   class="sc-bdvvaa bJmuVn"
 >
   <select
-    class="sc-gsDJrp qkOnw"
+    class="sc-gsDJrp fpsizK"
   >
     <option
       value="1"
@@ -14,7 +14,7 @@ exports[`renders InputGroup 1`] = `
     </option>
   </select>
   <select
-    class="sc-gsDJrp qkOnw"
+    class="sc-gsDJrp fpsizK"
   >
     <option
       value="2"
@@ -23,7 +23,7 @@ exports[`renders InputGroup 1`] = `
     </option>
   </select>
   <select
-    class="sc-gsDJrp qkOnw"
+    class="sc-gsDJrp fpsizK"
   >
     <option
       value="3"
