@@ -70,6 +70,11 @@ body,
   }
 }
 
+/* Hide scrollbars as Chrome on Linux displays them by default. This style also hides scrollbars when printing. */
+::-webkit-scrollbar {
+  display: none;
+}
+
 /* Typography */
 html {
   background: #edeff0;
@@ -107,13 +112,6 @@ html {
     display: block;
   }
   .no-print {
-    display: none;
-  }
-}
-
-@media print {
-  /* Chrome on Linux prints scrollbars */
-  ::-webkit-scrollbar {
     display: none;
   }
 }
