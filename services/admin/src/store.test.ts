@@ -1,10 +1,12 @@
 import { Admin } from '@votingworks/api';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
+import { CastVoteRecord } from '@votingworks/types';
 import { typedAs } from '@votingworks/utils';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { tmpNameSync } from 'tmp';
 import { AddCastVoteRecordError, Store } from './store';
+import { getWriteInsFromCastVoteRecord } from './util/cvrs';
 
 test('create a file store', async () => {
   const tmpDir = tmpNameSync();
@@ -54,6 +56,17 @@ test('add a CVR file', () => {
     newlyAdded: 3000,
     alreadyPresent: 0,
   });
+
+  const writeInCount = cvrFile.split('\n').reduce((acc, line) => {
+    if (line.trim().length === 0) {
+      return acc;
+    }
+
+    const cvr = JSON.parse(line) as CastVoteRecord;
+    return acc + [...getWriteInsFromCastVoteRecord(cvr).values()].flat().length;
+  }, 0);
+
+  expect(store.getWriteInRecords({ electionId })).toHaveLength(writeInCount);
 });
 
 test('add a duplicate CVR file', () => {
@@ -214,5 +227,281 @@ test('get CVR file', () => {
       createdAt: expect.any(String),
       updatedAt: expect.any(String),
     })
+  );
+});
+
+test('get write-in adjudication records', () => {
+  const store = Store.memoryStore();
+  const electionId = store.addElection(
+    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
+  );
+  const { cvrData } = electionMinimalExhaustiveSampleFixtures;
+
+  store
+    .addCastVoteRecordFile({
+      electionId,
+      filename: 'cvrs.jsonl',
+      // add the first two CVRs, which do not have write-ins
+      cvrFile: cvrData.slice(
+        0,
+        cvrData.indexOf('\n', cvrData.indexOf('\n') + 1) + 1
+      ),
+    })
+    .unsafeUnwrap();
+
+  const castVoteRecordId = store.getCastVoteRecordEntries(electionId)[0]!.id;
+  const writeInAdjudicationRecords = store.getWriteInRecords({
+    electionId,
+  });
+  expect(writeInAdjudicationRecords).toHaveLength(0);
+
+  const zooCouncilMammalWriteInAdjudicationId = store.addWriteIn({
+    castVoteRecordId,
+    contestId: 'zoo-council-mammal',
+    optionId: 'write-in-0',
+  });
+
+  expect(store.getWriteInRecords({ electionId })).toEqual(
+    typedAs<Admin.WriteInRecord[]>([
+      {
+        id: zooCouncilMammalWriteInAdjudicationId,
+        contestId: 'zoo-council-mammal',
+        optionId: 'write-in-0',
+        castVoteRecordId,
+        status: 'pending',
+      },
+    ])
+  );
+
+  // wrong contest
+  expect(
+    store.getWriteInRecords({
+      electionId,
+      contestId: 'aquarium-council-fish',
+    })
+  ).toHaveLength(0);
+
+  // right contest
+  expect(
+    store.getWriteInRecords({
+      electionId,
+      contestId: 'zoo-council-mammal',
+    })
+  ).toHaveLength(1);
+
+  // wrong status
+  expect(
+    store.getWriteInRecords({
+      electionId,
+      status: 'adjudicated',
+    })
+  ).toHaveLength(0);
+  expect(
+    store.getWriteInRecords({
+      electionId,
+      status: 'transcribed',
+    })
+  ).toHaveLength(0);
+
+  // right status
+  expect(
+    store.getWriteInRecords({
+      electionId,
+      status: 'pending',
+    })
+  ).toHaveLength(1);
+
+  const aquariumCouncilFishWriteInAdjudicationId = store.addWriteIn({
+    castVoteRecordId,
+    contestId: 'aquarium-council-fish',
+    optionId: 'write-in-0',
+  });
+
+  expect(
+    store
+      .getWriteInRecords({ electionId })
+      .map(({ id }) => id)
+      .sort()
+  ).toEqual(
+    [
+      zooCouncilMammalWriteInAdjudicationId,
+      aquariumCouncilFishWriteInAdjudicationId,
+    ].sort()
+  );
+
+  expect(
+    store.getWriteInRecords({
+      electionId,
+      limit: 1,
+    })
+  ).toHaveLength(1);
+});
+
+test('write-in adjudication lifecycle', () => {
+  const store = Store.memoryStore();
+  const electionId = store.addElection(
+    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
+  );
+  const { cvrData } = electionMinimalExhaustiveSampleFixtures;
+
+  store
+    .addCastVoteRecordFile({
+      electionId,
+      filename: 'cvrs.jsonl',
+      // add the first two CVRs, which do not have write-ins
+      cvrFile: cvrData.slice(
+        0,
+        cvrData.indexOf('\n', cvrData.indexOf('\n') + 1) + 1
+      ),
+    })
+    .unsafeUnwrap();
+
+  const castVoteRecordId = store.getCastVoteRecordEntries(electionId)[0]!.id;
+  const writeInId = store.addWriteIn({
+    castVoteRecordId,
+    contestId: 'zoo-council-mammal',
+    optionId: 'write-in-0',
+  });
+
+  expect(store.getWriteInAdjudicationSummary({ electionId })).toEqual(
+    typedAs<Admin.WriteInSummaryEntry[]>([
+      {
+        contestId: 'zoo-council-mammal',
+        writeInCount: 1,
+      },
+    ])
+  );
+
+  store.transcribeWriteIn(writeInId, 'Mickey Mouse');
+
+  expect(store.getWriteInAdjudicationSummary({ electionId })).toEqual(
+    typedAs<Admin.WriteInSummaryEntry[]>([
+      {
+        contestId: 'zoo-council-mammal',
+        transcribedValue: 'Mickey Mouse',
+        writeInCount: 1,
+      },
+    ])
+  );
+
+  expect(
+    store.getWriteInRecords({
+      electionId,
+      status: 'pending',
+    })
+  ).toHaveLength(0);
+  expect(
+    store.getWriteInRecords({
+      electionId,
+      status: 'transcribed',
+    })
+  ).toEqual([
+    {
+      id: writeInId,
+      contestId: 'zoo-council-mammal',
+      optionId: 'write-in-0',
+      castVoteRecordId,
+      status: 'transcribed',
+      transcribedValue: 'Mickey Mouse',
+    },
+  ]);
+
+  const firstWriteInAdjudicationId = store.createWriteInAdjudication({
+    electionId,
+    contestId: 'zoo-council-mammal',
+    transcribedValue: 'Mickey Mouse',
+    adjudicatedOptionId: 'zebra',
+  });
+
+  expect(
+    store.getWriteInRecords({
+      electionId,
+      status: 'transcribed',
+    })
+  ).toHaveLength(0);
+  expect(
+    store.getWriteInRecords({
+      electionId,
+      status: 'adjudicated',
+    })
+  ).toEqual(
+    typedAs<Admin.WriteInRecord[]>([
+      {
+        id: writeInId,
+        contestId: 'zoo-council-mammal',
+        optionId: 'write-in-0',
+        castVoteRecordId,
+        status: 'adjudicated',
+        transcribedValue: 'Mickey Mouse',
+        adjudicatedOptionId: 'zebra',
+      },
+    ])
+  );
+
+  expect(store.getWriteInAdjudicationSummary({ electionId })).toEqual(
+    typedAs<Admin.WriteInSummaryEntry[]>([
+      {
+        contestId: 'zoo-council-mammal',
+        transcribedValue: 'Mickey Mouse',
+        writeInCount: 1,
+        writeInAdjudication: {
+          id: firstWriteInAdjudicationId,
+          contestId: 'zoo-council-mammal',
+          transcribedValue: 'Mickey Mouse',
+          adjudicatedOptionId: 'zebra',
+        },
+      },
+    ])
+  );
+
+  const secondWriteInAdjudicationId = store.createWriteInAdjudication({
+    electionId,
+    contestId: 'zoo-council-mammal',
+    transcribedValue: 'Mickey Mouse',
+    adjudicatedValue: 'Mickey Mouse',
+  });
+
+  // the first adjudication is updated
+  expect(secondWriteInAdjudicationId).toEqual(firstWriteInAdjudicationId);
+
+  expect(
+    store.getWriteInRecords({
+      electionId,
+      status: 'transcribed',
+    })
+  ).toHaveLength(0);
+  expect(
+    store.getWriteInRecords({
+      electionId,
+      status: 'adjudicated',
+    })
+  ).toEqual(
+    typedAs<Admin.WriteInRecord[]>([
+      {
+        id: writeInId,
+        contestId: 'zoo-council-mammal',
+        optionId: 'write-in-0',
+        castVoteRecordId,
+        status: 'adjudicated',
+        transcribedValue: 'Mickey Mouse',
+        adjudicatedValue: 'Mickey Mouse',
+      },
+    ])
+  );
+
+  expect(store.getWriteInAdjudicationSummary({ electionId })).toEqual(
+    typedAs<Admin.WriteInSummaryEntry[]>([
+      {
+        contestId: 'zoo-council-mammal',
+        transcribedValue: 'Mickey Mouse',
+        writeInCount: 1,
+        writeInAdjudication: {
+          id: firstWriteInAdjudicationId,
+          contestId: 'zoo-council-mammal',
+          transcribedValue: 'Mickey Mouse',
+          adjudicatedValue: 'Mickey Mouse',
+        },
+      },
+    ])
   );
 });

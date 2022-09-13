@@ -263,6 +263,21 @@ test('POST /admin/elections/:electionId/cvr-files?analyzeOnly=true', async () =>
   expect(workspace.store.getCastVoteRecordEntries(electionId)).toHaveLength(0);
 });
 
+test('POST /admin/elections/:electionId/cvr-files bad query param', async () => {
+  const electionId = workspace.store.addElection(
+    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
+  );
+
+  await request(app)
+    .post(`/admin/elections/${electionId}/cvr-files?bad=query`)
+    .attach(
+      'cvrFile',
+      electionMinimalExhaustiveSampleFixtures.standardCvrFile.asBuffer(),
+      'cvrFile.json'
+    )
+    .expect(400);
+});
+
 test('POST /admin/elections/:electionId/cvr-files without a file', async () => {
   const electionId = workspace.store.addElection(
     electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
@@ -433,4 +448,166 @@ test('DELETE /admin/elections/:electionId/cvr-files', async () => {
     .expect(200);
 
   expect(workspace.store.getCastVoteRecordEntries(electionId)).toHaveLength(0);
+});
+
+test('GET /admin/elections/:electionId/write-ins', async () => {
+  const electionId = workspace.store.addElection(
+    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
+  );
+
+  const postCvrHttpResponse = await request(app)
+    .post(`/admin/elections/${electionId}/cvr-files`)
+    .attach(
+      'cvrFile',
+      electionMinimalExhaustiveSampleFixtures.standardCvrFile.asBuffer(),
+      'cvrFile.json'
+    )
+    .expect(200);
+  const postCvrResponse = unsafeParse(
+    Admin.PostCvrFileResponseSchema,
+    postCvrHttpResponse.body
+  );
+
+  assert(postCvrResponse.status === 'ok');
+
+  const getWriteInsHttpResponse = await request(app)
+    .get(`/admin/elections/${electionId}/write-ins`)
+    .expect(200);
+  const getWriteInsResponse = unsafeParse(
+    Admin.GetWriteInsResponseSchema,
+    getWriteInsHttpResponse.body
+  );
+
+  expect(getWriteInsResponse).toHaveLength(
+    workspace.store.getWriteInRecords({ electionId }).length
+  );
+
+  const getWriteInsHttpResponse2 = await request(app)
+    .get(
+      `/admin/elections/${electionId}/write-ins?contestId=zoo-council-mammal`
+    )
+    .expect(200);
+  const getWriteInsResponse2 = unsafeParse(
+    Admin.GetWriteInsResponseSchema,
+    getWriteInsHttpResponse2.body
+  );
+
+  expect(getWriteInsResponse2).toHaveLength(
+    workspace.store.getWriteInRecords({
+      electionId,
+      contestId: 'zoo-council-mammal',
+    }).length
+  );
+
+  const getWriteInsHttpResponse3 = await request(app)
+    .get(`/admin/elections/${electionId}/write-ins?limit=3`)
+    .expect(200);
+  const getWriteInsResponse3 = unsafeParse(
+    Admin.GetWriteInsResponseSchema,
+    getWriteInsHttpResponse3.body
+  );
+
+  expect(getWriteInsResponse3).toHaveLength(3);
+});
+
+test('GET /admin/elections/:electionId/write-ins invalid query', async () => {
+  const electionId = workspace.store.addElection(
+    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
+  );
+
+  await request(app)
+    .get(`/admin/elections/${electionId}/write-ins?bad=query`)
+    .expect(400);
+});
+
+test('PUT /admin/write-ins/:writeInId/transcription', async () => {
+  const electionId = workspace.store.addElection(
+    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
+  );
+
+  const postCvrHttpResponse = await request(app)
+    .post(`/admin/elections/${electionId}/cvr-files`)
+    .attach(
+      'cvrFile',
+      electionMinimalExhaustiveSampleFixtures.standardCvrFile.asBuffer(),
+      'cvrFile.json'
+    )
+    .expect(200);
+  const postCvrResponse = unsafeParse(
+    Admin.PostCvrFileResponseSchema,
+    postCvrHttpResponse.body
+  );
+
+  assert(postCvrResponse.status === 'ok');
+
+  const [writeInRecord] = workspace.store.getWriteInRecords({
+    electionId,
+    limit: 1,
+  });
+  assert(writeInRecord);
+
+  const getWriteInsHttpResponse = await request(app)
+    .get(`/admin/elections/${electionId}/write-ins`)
+    .expect(200);
+  const getWriteInsResponse = unsafeParse(
+    Admin.GetWriteInsResponseSchema,
+    getWriteInsHttpResponse.body
+  );
+  assert(Array.isArray(getWriteInsResponse));
+  expect(new Set(getWriteInsResponse.map(({ status }) => status))).toEqual(
+    new Set(['pending'])
+  );
+
+  await request(app)
+    .put(`/admin/write-ins/${writeInRecord.id}/transcription`)
+    .send(
+      typedAs<Admin.PutWriteInTranscriptionRequest>({
+        value: 'Mickey Mouse',
+      })
+    )
+    .expect(200);
+
+  const getWriteInsHttpResponse2 = await request(app)
+    .get(`/admin/elections/${electionId}/write-ins?status=transcribed`)
+    .expect(200);
+  const getWriteInsResponse2 = unsafeParse(
+    Admin.GetWriteInsResponseSchema,
+    getWriteInsHttpResponse2.body
+  );
+  assert(Array.isArray(getWriteInsResponse2));
+  expect(new Set(getWriteInsResponse2.map(({ status }) => status))).toEqual(
+    new Set(['transcribed'])
+  );
+});
+
+test('PUT /admin/write-ins/:writeInId/transcription missing value', async () => {
+  const electionId = workspace.store.addElection(
+    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
+  );
+
+  const postCvrHttpResponse = await request(app)
+    .post(`/admin/elections/${electionId}/cvr-files`)
+    .attach(
+      'cvrFile',
+      electionMinimalExhaustiveSampleFixtures.standardCvrFile.asBuffer(),
+      'cvrFile.json'
+    )
+    .expect(200);
+  const postCvrResponse = unsafeParse(
+    Admin.PostCvrFileResponseSchema,
+    postCvrHttpResponse.body
+  );
+
+  assert(postCvrResponse.status === 'ok');
+
+  const [writeInRecord] = workspace.store.getWriteInRecords({
+    electionId,
+    limit: 1,
+  });
+  assert(writeInRecord);
+
+  await request(app)
+    .put(`/admin/write-ins/${writeInRecord.id}/transcription`)
+    .send({})
+    .expect(400);
 });

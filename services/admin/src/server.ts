@@ -5,7 +5,6 @@ import multer from 'multer';
 import express, { Application } from 'express';
 import { readFileSync } from 'fs';
 import { basename } from 'path';
-import { asBoolean } from '@votingworks/utils';
 import { ADMIN_WORKSPACE, PORT } from './globals';
 import { Store } from './store';
 import { createWorkspace, Workspace } from './util/workspace';
@@ -92,9 +91,25 @@ export function buildApp({ store }: { store: Store }): Application {
         return;
       }
 
-      const analyzeOnlyQuery = request.query['analyzeOnly'];
-      const analyzeOnly =
-        typeof analyzeOnlyQuery === 'string' && asBoolean(analyzeOnlyQuery);
+      const parseQueryResult = safeParse(
+        Admin.PostCvrFileQueryParamsSchema,
+        request.query
+      );
+
+      if (parseQueryResult.isErr()) {
+        response.status(400).json({
+          status: 'error',
+          errors: [
+            {
+              type: 'ValidationError',
+              message: parseQueryResult.err().message,
+            },
+          ],
+        });
+        return;
+      }
+
+      const { analyzeOnly } = parseQueryResult.ok();
       const filename = basename(file.originalname);
       const cvrFile = readFileSync(file.path, 'utf8');
       const result = store.addCastVoteRecordFile({
@@ -138,6 +153,145 @@ export function buildApp({ store }: { store: Store }): Application {
     const { electionId } = request.params;
     store.deleteCastVoteRecordFiles(electionId);
     response.json({ status: 'ok' });
+  });
+
+  app.get<{ electionId: Id }, Admin.GetWriteInsResponse>(
+    '/admin/elections/:electionId/write-ins',
+    (request, response) => {
+      const parseQueryResult = safeParse(
+        Admin.GetWriteInAdjudicationsQueryParamsSchema,
+        request.query
+      );
+
+      if (parseQueryResult.isErr()) {
+        response.status(400).json({
+          status: 'error',
+          errors: [
+            {
+              type: 'ValidationError',
+              message: parseQueryResult.err().message,
+            },
+          ],
+        });
+        return;
+      }
+
+      const { contestId, status, limit } = parseQueryResult.ok();
+      const { electionId } = request.params;
+      response.json(
+        store.getWriteInRecords({
+          electionId,
+          contestId,
+          status,
+          limit,
+        })
+      );
+    }
+  );
+
+  app.put<
+    { writeInId: Id },
+    Admin.PutWriteInTranscriptionResponse,
+    Admin.PutWriteInTranscriptionRequest
+  >('/admin/write-ins/:writeInId/transcription', (request, response) => {
+    const { writeInId } = request.params;
+    const parseResult = safeParse(
+      Admin.PutWriteInTranscriptionRequestSchema,
+      request.body
+    );
+
+    if (parseResult.isErr()) {
+      response.status(400).json({
+        status: 'error',
+        errors: [
+          {
+            type: 'ValidationError',
+            message: parseResult.err().message,
+          },
+        ],
+      });
+      return;
+    }
+
+    store.transcribeWriteIn(writeInId, parseResult.ok().value);
+    response.json({ status: 'ok' });
+  });
+
+  app.post<
+    { electionId: Id },
+    Admin.PostWriteInAdjudicationResponse,
+    Admin.PostWriteInAdjudicationRequest
+  >(
+    '/admin/elections/:electionId/write-in-adjudications',
+    (request, response) => {
+      const { electionId } = request.params;
+      const parseResult = safeParse(
+        Admin.PostWriteInAdjudicationRequestSchema,
+        request.body
+      );
+
+      if (parseResult.isErr()) {
+        response.status(400).json({
+          status: 'error',
+          errors: [
+            {
+              type: 'ValidationError',
+              message: parseResult.err().message,
+            },
+          ],
+        });
+        return;
+      }
+
+      const {
+        contestId,
+        transcribedValue,
+        adjudicatedValue,
+        adjudicatedOptionId,
+      } = parseResult.ok();
+
+      const id = store.createWriteInAdjudication({
+        electionId,
+        contestId,
+        transcribedValue,
+        adjudicatedValue,
+        adjudicatedOptionId,
+      });
+
+      response.json({ status: 'ok', id });
+    }
+  );
+
+  app.get<
+    { electionId: Id },
+    Admin.GetWriteInSummaryResponse,
+    Admin.GetWriteInSummaryRequest,
+    Admin.GetWriteInSummaryQueryParams
+  >('/admin/elections/:electionId/write-in-summary', (request, response) => {
+    const { electionId } = request.params;
+    const parseQueryResult = safeParse(
+      Admin.GetWriteInSummaryQueryParamsSchema,
+      request.query
+    );
+
+    if (parseQueryResult.isErr()) {
+      response.status(400).json({
+        status: 'error',
+        errors: [
+          {
+            type: 'ValidationError',
+            message: parseQueryResult.err().message,
+          },
+        ],
+      });
+      return;
+    }
+
+    const { contestId } = parseQueryResult.ok();
+    store.getWriteInRecords({ electionId });
+    response.json(
+      store.getWriteInAdjudicationSummary({ electionId, contestId })
+    );
   });
 
   return app;

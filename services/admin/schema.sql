@@ -6,14 +6,32 @@ create table elections (
   deleted_at timestamp
 );
 
-create table adjudications (
+create table write_in_adjudications (
   id varchar(36) primary key,
+  election_id varchar(36) not null,
   contest_id text not null,
-  transcribed_value text,
+  transcribed_value text not null,
+  adjudicated_value text,
+  adjudicated_option_id text,
+  created_at timestamp not null default current_timestamp,
+  foreign key (election_id) references elections(id)
+    on update cascade
+    on delete cascade,
+  unique (election_id, contest_id, transcribed_value)
+);
+
+create table write_ins (
+  id varchar(36) primary key,
   cvr_id varchar(36) not null,
+  contest_id text not null,
+  option_id text not null,
+  transcribed_value text,
+  transcribed_at timestamp,
+  created_at timestamp not null default current_timestamp,
   foreign key (cvr_id) references cvrs(id)
     on update cascade
-    on delete cascade
+    on delete cascade,
+  unique (cvr_id, contest_id, option_id)
 );
 
 create table cvrs (
