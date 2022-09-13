@@ -6,7 +6,7 @@ import {
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import { fetchJson } from '@votingworks/utils';
-import { Admin } from '@votingworks/api';
+import { Admin, WriteInRecord } from '@votingworks/api';
 import { ElectionManagerStoreStorageBackend } from './storage_backend';
 import { AddCastVoteRecordFileResult } from './types';
 
@@ -160,5 +160,22 @@ export class ElectionManagerStoreAdminBackend extends ElectionManagerStoreStorag
         method: 'DELETE',
       });
     }
+  }
+
+  async loadWriteIns(): Promise<WriteInRecord[] | undefined> {
+    const activeElectionId = await this.loadActiveElectionId();
+
+    if (!activeElectionId) {
+      throw new Error('no election configured');
+    }
+    const writeInResponse = (await fetchJson(
+      `/admin/elections/${activeElectionId}/write-ins`,
+      { method: 'GET' }
+    )) as Admin.GetWriteInsResponse;
+    if (Array.isArray(writeInResponse)) {
+      return writeInResponse;
+    }
+    // How do we properly handle error responses?
+    throw new Error(writeInResponse.errors.map((e) => e.message).join(','));
   }
 }

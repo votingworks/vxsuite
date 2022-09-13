@@ -1,3 +1,4 @@
+import { WriteInRecord } from '@votingworks/api';
 import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
 import {
   ElectionDefinition,
@@ -425,5 +426,10 @@ export class ElectionManagerStoreStorageBackend
 
       return parsedElectionDefinition;
     }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/require-await
+  protected async loadWriteIns(): Promise<WriteInRecord[] | undefined> {
+    throw new Error('Not implemented');
   }
 }

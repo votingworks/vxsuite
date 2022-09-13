@@ -8,6 +8,7 @@ import {
 } from '@votingworks/types';
 import { usbstick, NullPrinter, Printer } from '@votingworks/utils';
 import { Logger, LogSource, LoggingUserRole } from '@votingworks/logging';
+import { WriteInRecord } from '@votingworks/api';
 import {
   SaveElection,
   PrintedBallot,
@@ -57,6 +58,7 @@ export interface AppContextInterface {
   machineConfig: MachineConfig;
   hasCardReaderAttached: boolean;
   hasPrinterAttached: boolean;
+  loadWriteIns: () => Promise<WriteInRecord[] | undefined>;
   logger: Logger;
 }
 
@@ -100,6 +102,7 @@ const appContext: AppContextInterface = {
   hasCardReaderAttached: true,
   hasPrinterAttached: true,
   logger: new Logger(LogSource.VxAdminFrontend),
+  loadWriteIns: async () => undefined,
 };
 /* eslint-enable @typescript-eslint/require-await */
 

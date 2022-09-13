@@ -1,3 +1,4 @@
+import { WriteInRecord } from '@votingworks/api';
 import {
   ElectionDefinition,
   ExternalTallySourceType,
@@ -98,4 +99,9 @@ export interface ElectionManagerStoreBackend {
    * Adds a new printed ballot to the list.
    */
   addPrintedBallot(printedBallot: PrintedBallot): Promise<void>;
+
+  /**
+   * Loads write in data.
+   */
+  loadWriteIns(): Promise<WriteInRecord[] | undefined>;
 }

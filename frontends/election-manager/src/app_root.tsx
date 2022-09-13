@@ -295,6 +295,7 @@ export function AppRoot({
         hasCardReaderAttached: !!cardReader,
         hasPrinterAttached: !!printerInfo,
         logger,
+        loadWriteIns: store.loadWriteIns,
       }}
     >
       <ElectionManager />

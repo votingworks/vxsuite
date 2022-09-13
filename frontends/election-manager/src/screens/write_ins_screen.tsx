@@ -96,10 +96,20 @@ interface ContestAdjudication {
   contestId: string;
   adjudications: ContestAdjudicationRecord[];
 }
+interface ContestWriteInCounts {
+  contestId: string;
+  pendingCount: number;
+  transcribedCount: number;
+  adjudicatedCount: number;
+}
 
 export function WriteInsScreen(): JSX.Element {
-  const { castVoteRecordFiles, electionDefinition, saveTranscribedValue } =
-    useContext(AppContext);
+  const {
+    castVoteRecordFiles,
+    electionDefinition,
+    loadWriteIns,
+    saveTranscribedValue,
+  } = useContext(AppContext);
   const [contestBeingTranscribed, setContestBeingTranscribed] = useState<
     CandidateContest | undefined
   >();
@@ -108,7 +118,7 @@ export function WriteInsScreen(): JSX.Element {
   >();
   const [paginationIdx, setPaginationIdx] = useState<number>(0);
   const [writeInCountsByContest, setWriteInCountsByContest] =
-    useState<Map<ContestId, number>>();
+    useState<Map<ContestId, ContestWriteInCounts>>();
   const [transcriptionsForCurrentContest, setTranscriptionsForCurrentContest] =
     useState<Adjudication[]>([]);
 
@@ -116,18 +126,33 @@ export function WriteInsScreen(): JSX.Element {
     initialTemporaryTranscriptions
   );
 
+  const election = electionDefinition?.election;
+
   // Get write-in counts grouped by contest
   useEffect(() => {
-    async function fetchAdjudicationCounts() {
-      const res = await fetch('/admin/write-ins/adjudications/contestId/count');
-      const map = new Map<ContestId, number>();
-      for (const { contestId, adjudicationCount } of await res.json()) {
-        map.set(contestId, adjudicationCount);
+    async function fetchWriteIns() {
+      const writeIns = await loadWriteIns();
+      const tempWriteInCountsByContest = new Map();
+      if (writeIns !== undefined && election !== undefined) {
+        for (const contest of election.contests) {
+          tempWriteInCountsByContest.set(contest.id, {
+            contestId: contest.id,
+            pendingCount: writeIns.filter(
+              (w) => w.contestId === contest.id && w.status === 'pending'
+            ).length,
+            transcribedCount: writeIns.filter(
+              (w) => w.contestId === contest.id && w.status === 'transcribed'
+            ).length,
+            adjudicatedCount: writeIns.filter(
+              (w) => w.contestId === contest.id && w.status === 'adjudicated'
+            ).length,
+          });
+        }
       }
-      setWriteInCountsByContest(map);
+      setWriteInCountsByContest(tempWriteInCountsByContest);
     }
-    void fetchAdjudicationCounts();
-  }, [castVoteRecordFiles]);
+    void fetchWriteIns();
+  }, [loadWriteIns, election]);
 
   // When we start adjudicating a new contest, reset pagination index and fetch adjudications
   useEffect(() => {
@@ -142,8 +167,6 @@ export function WriteInsScreen(): JSX.Element {
       setTranscriptionsForCurrentContest([]);
     }
   }, [contestBeingTranscribed]);
-
-  const election = electionDefinition?.election;
 
   if (!election) {
     return (
@@ -340,11 +363,10 @@ export function WriteInsScreen(): JSX.Element {
               <tbody>
                 {contestsWithWriteIns?.map((contest) => {
                   const transcriptionQueue =
-                    writeInCountsByContest?.get(contest.id) || 0;
+                    writeInCountsByContest?.get(contest.id)?.pendingCount || 0;
                   const adjudicationQueue =
-                    getAdjudicationsForContest(contest.id).find(
-                      (a) => a.value === ''
-                    )?.transcriptions.length || 0;
+                    writeInCountsByContest?.get(contest.id)?.transcribedCount ||
+                    0;
                   return (
                     <tr key={contest.id}>
                       <TD nowrap>

@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { WriteInRecord } from '@votingworks/api';
 import {
   LogDispositionStandardTypes,
   LogEventId,
@@ -110,6 +111,8 @@ export interface ElectionManagerStore {
    * Sets the current user's role, i.e. the person taking action.
    */
   setCurrentUserRole(newCurrentUserRole: LoggingUserRole): void;
+
+  loadWriteIns(): Promise<WriteInRecord[] | undefined>;
 }
 
 interface Props {
@@ -159,6 +162,12 @@ export function useElectionManagerStore({
     }
   );
   const electionDefinition = getElectionDefinitionQuery.data ?? undefined;
+
+  const loadWriteIns = useCallback(async (): Promise<
+    WriteInRecord[] | undefined
+  > => {
+    return await backend.loadWriteIns();
+  }, [backend]);
 
   const loadConfiguredAt = useCallback(async (): Promise<
     string | undefined
@@ -393,7 +402,7 @@ export function useElectionManagerStore({
         fullElectionExternalTallies: fullElectionExternalTallies ?? new Map(),
         isOfficialResults: isOfficialResults ?? false,
         printedBallots: printedBallots ?? [],
-
+        loadWriteIns,
         addCastVoteRecordFile,
         addPrintedBallot,
         clearCastVoteRecordFiles,
@@ -416,6 +425,7 @@ export function useElectionManagerStore({
       electionDefinition,
       fullElectionExternalTallies,
       isOfficialResults,
+      loadWriteIns,
       markResultsOfficial,
       printedBallots,
       removeFullElectionExternalTally,
