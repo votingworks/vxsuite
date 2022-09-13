@@ -919,7 +919,10 @@ test('insert second ballot before first ballot accept', async () => {
 });
 
 test('insert second ballot while first ballot is accepting', async () => {
-  const { app, mockPlustek, interpreter } = await createApp();
+  const { app, mockPlustek, interpreter } = await createApp(
+    {},
+    { toggleHoldDuration: 500 }
+  );
   await configureApp(app);
 
   await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
