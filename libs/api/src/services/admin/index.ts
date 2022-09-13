@@ -1,13 +1,15 @@
 import {
-  CastVoteRecord,
   ContestId,
   ContestIdSchema,
+  ContestOptionId,
+  ContestOptionIdSchema,
   ElectionDefinition,
   ElectionDefinitionSchema,
   Id,
   IdSchema,
   Iso8601Timestamp,
   Iso8601TimestampSchema,
+  safeParseNumber,
 } from '@votingworks/types';
 import * as z from 'zod';
 import {
@@ -21,21 +23,173 @@ import {
  * An election definition and associated DB metadata.
  */
 export interface ElectionRecord {
-  id: Id;
-  electionDefinition: ElectionDefinition;
-  createdAt: Iso8601Timestamp;
-  updatedAt: Iso8601Timestamp;
+  readonly id: Id;
+  readonly electionDefinition: ElectionDefinition;
+  readonly createdAt: Iso8601Timestamp;
 }
 
 /**
  * Schema for {@link ElectionRecord}.
  */
-export const ElectionRecordSchema = z.object({
+export const ElectionRecordSchema: z.ZodSchema<ElectionRecord> = z.object({
   id: IdSchema,
   electionDefinition: ElectionDefinitionSchema,
   createdAt: Iso8601TimestampSchema,
-  updatedAt: Iso8601TimestampSchema,
 });
+
+/**
+ * A cast vote record file's metadata.
+ */
+export interface CastVoteRecordFileMetadata {
+  readonly id: Id;
+  readonly electionId: Id;
+  readonly filename: string;
+  readonly sha256Hash: string;
+  readonly createdAt: Iso8601Timestamp;
+}
+
+/**
+ * Schema for {@link CastVoteRecordFileMetadata}.
+ */
+export const CastVoteRecordFileMetadataSchema: z.ZodSchema<CastVoteRecordFileMetadata> =
+  z.object({
+    id: IdSchema,
+    electionId: IdSchema,
+    filename: z.string().nonempty(),
+    sha256Hash: z.string().nonempty(),
+    createdAt: Iso8601TimestampSchema,
+  });
+
+/**
+ * A cast vote record file and associated DB metadata.
+ */
+export interface CastVoteRecordFileRecord extends CastVoteRecordFileMetadata {
+  readonly data: string;
+}
+
+/**
+ * Schema for {@link CastVoteRecordFileRecord}.
+ */
+export const CastVoteRecordFileRecordSchema: z.ZodSchema<CastVoteRecordFileRecord> =
+  z.object({
+    id: IdSchema,
+    electionId: IdSchema,
+    filename: z.string().nonempty(),
+    data: z.string(),
+    sha256Hash: z.string().nonempty(),
+    createdAt: Iso8601TimestampSchema,
+  });
+
+/**
+ * A Cast Vote Record's metadata.
+ */
+export interface CastVoteRecordFileEntryRecord {
+  readonly id: Id;
+  readonly electionId: Id;
+  readonly data: string;
+  readonly createdAt: Iso8601Timestamp;
+}
+
+/**
+ * Schema for {@link CastVoteRecordFileEntryRecord}.
+ */
+export const CastVoteRecordFileEntryRecordSchema: z.ZodSchema<CastVoteRecordFileEntryRecord> =
+  z.object({
+    id: IdSchema,
+    electionId: IdSchema,
+    data: z.string(),
+    createdAt: Iso8601TimestampSchema,
+  });
+
+/**
+ * Status values for a write-in adjudication.
+ */
+export type WriteInAdjudicationStatus =
+  | 'pending'
+  | 'transcribed'
+  | 'adjudicated';
+
+/**
+ * Schema for {@link WriteInAdjudicationStatus}.
+ */
+export const WriteInAdjudicationStatusSchema: z.ZodSchema<WriteInAdjudicationStatus> =
+  z.union([
+    z.literal('pending'),
+    z.literal('transcribed'),
+    z.literal('adjudicated'),
+  ]);
+
+/**
+ * Information about a write-in adjudication.
+ */
+export interface WriteInRecord {
+  readonly id: Id;
+  readonly contestId: ContestId;
+  readonly optionId: ContestOptionId;
+  readonly castVoteRecordId: Id;
+  readonly status: WriteInAdjudicationStatus;
+  readonly transcribedValue?: string;
+  readonly adjudicatedOptionId?: ContestOptionId;
+  readonly adjudicatedValue?: string;
+}
+
+/**
+ * Schema for {@link WriteInRecord}.
+ */
+export const WriteInsRecordSchema: z.ZodSchema<WriteInRecord> = z.object({
+  id: IdSchema,
+  contestId: ContestIdSchema,
+  optionId: ContestOptionIdSchema,
+  castVoteRecordId: IdSchema,
+  status: WriteInAdjudicationStatusSchema,
+  transcribedValue: z.string().nonempty().optional(),
+  adjudicatedOptionId: ContestOptionIdSchema.optional(),
+  adjudicatedValue: z.string().nonempty().optional(),
+});
+
+/**
+ * Write-in adjudication information.
+ */
+export interface WriteInAdjudicationRecord {
+  readonly id: Id;
+  readonly contestId: ContestId;
+  readonly transcribedValue: string;
+  readonly adjudicatedValue?: string;
+  readonly adjudicatedOptionId?: ContestOptionId;
+}
+
+/**
+ * Schema for {@link WriteInAdjudicationRecord}.
+ */
+export const WriteInAdjudicationRecordSchema: z.ZodSchema<WriteInAdjudicationRecord> =
+  z.object({
+    id: IdSchema,
+    contestId: ContestIdSchema,
+    transcribedValue: z.string().nonempty(),
+    adjudicatedValue: z.string().nonempty().optional(),
+    adjudicatedOptionId: ContestOptionIdSchema.optional(),
+  });
+
+/**
+ * Write-in summary information.
+ */
+export interface WriteInSummaryEntry {
+  readonly contestId: ContestId;
+  readonly transcribedValue?: string;
+  readonly writeInCount: number;
+  readonly writeInAdjudication?: WriteInAdjudicationRecord;
+}
+
+/**
+ * Schema for {@link WriteInSummaryEntry}.
+ */
+export const WriteInSummaryEntrySchema: z.ZodSchema<WriteInSummaryEntry> =
+  z.object({
+    contestId: ContestIdSchema,
+    transcribedValue: z.string().nonempty().optional(),
+    writeInCount: z.number().int().min(1),
+    writeInAdjudication: WriteInAdjudicationRecordSchema.optional(),
+  });
 
 /**
  * @url /admin/elections
@@ -119,120 +273,280 @@ export const DeleteElectionResponseSchema = z.union([
 ]);
 
 /**
- * @url /admin/elections/:electionId/cvrs
+ * @url /admin/elections/:electionId/cvr-files
  * @method POST
  */
-export interface PostCvrsRequest {
-  signature: string;
-  name: string;
-  precinctIds: string[];
-  scannerIds: string[];
-  timestamp: string;
-  castVoteRecords: CastVoteRecord[];
+export type PostCvrFileRequest = never;
+
+/**
+ * @url /admin/elections/:electionId/cvr-files
+ * @method POST
+ */
+export const PostCvrFileRequestSchema: z.ZodSchema<PostCvrFileRequest> =
+  z.never();
+
+/**
+ * @url /admin/elections/:electionId/cvr-files
+ * @method POST
+ */
+export type PostCvrFileResponse =
+  | OkResponse<{
+      id: Id;
+      wasExistingFile: boolean;
+      newlyAdded: number;
+      alreadyPresent: number;
+    }>
+  | ErrorsResponse;
+
+/**
+ * @url /admin/elections/:electionId/cvr-files
+ * @method POST
+ */
+export const PostCvrFileResponseSchema: z.ZodSchema<PostCvrFileResponse> =
+  z.union([
+    z.object({
+      status: z.literal('ok'),
+      id: IdSchema,
+      wasExistingFile: z.boolean(),
+      newlyAdded: z.number().int().nonnegative(),
+      alreadyPresent: z.number().int().nonnegative(),
+    }),
+    ErrorsResponseSchema,
+  ]);
+
+/**
+ * @url /admin/elections/:electionId/cvr-files
+ * @method POST
+ */
+export interface PostCvrFileQueryParams {
+  readonly analyzeOnly?: boolean;
 }
 
 /**
- * @url /admin/elections/:electionId/cvrs
- * @method POST
+ * Schema for {@link PostCvrFileQueryParams}.
  */
-export const PostCvrsRequestSchema: z.ZodSchema<PostCvrsRequest> = z.object({
-  signature: z.string(),
-  name: z.string(),
-  precinctIds: z.array(z.string()),
-  scannerIds: z.array(z.string()),
-  timestamp: z.string(),
-  castVoteRecords: z.array(z.any()), // TODO https://github.com/votingworks/vxsuite/issues/2168
-});
+export const PostCvrFileQueryParamsSchema: z.ZodSchema<PostCvrFileQueryParams> =
+  z
+    .object({
+      analyzeOnly: z
+        .preprocess((value: unknown) => value === 'true', z.boolean())
+        .optional(),
+    })
+    .strict();
+
+/**
+ * @url /admin/elections/:electionId/cvr-files
+ * @method DELETE
+ */
+export type DeleteCvrFileRequest = never;
+
+/**
+ * @url /admin/elections/:electionId/cvr-files
+ * @method DELETE
+ */
+export const DeleteCvrFileRequestSchema: z.ZodSchema<DeleteCvrFileRequest> =
+  z.never();
+
+/**
+ * @url /admin/elections/:electionId/cvr-files
+ * @method DELETE
+ */
+export type DeleteCvrFileResponse = OkResponse | ErrorsResponse;
 
 /**
  * @url /admin/elections/:electionId/cvrs
- * @method POST
+ * @method DELETE
  */
-export type PostCvrsResponse = OkResponse | ErrorsResponse;
+export const DeleteCvrFileResponseSchema: z.ZodSchema<DeleteCvrFileResponse> =
+  z.union([OkResponseSchema, ErrorsResponseSchema]);
 
 /**
- * @url /admin/elections/:electionId/cvrs
- * @method POST
+ * @url /admin/:electionId/cvr-files
+ * @method GET
  */
-export const PostCvrsResponseSchema: z.ZodSchema<PostCvrsResponse> = z.union([
+export type GetCvrFilesRequest = never;
+
+/**
+ * @url /admin/:electionId/cvr-files
+ * @method GET
+ */
+export const GetCvrFilesRequestSchema: z.ZodSchema<GetCvrFilesRequest> =
+  z.never();
+
+/**
+ * @url /admin/:electionId/cvr-files
+ * @method GET
+ */
+export type GetCvrFileResponse = CastVoteRecordFileMetadata[];
+
+/**
+ * @url /admin/:electionId/cvr-files
+ * @method GET
+ */
+export const GetCvrFileResponseSchema: z.ZodSchema<GetCvrFileResponse> =
+  z.array(CastVoteRecordFileRecordSchema);
+
+/**
+ * @url /admin/elections/:electionId/write-ins
+ * @method GET
+ */
+export type GetWriteInsRequest = never;
+
+/**
+ * @url /admin/elections/:electionId/write-ins
+ * @method GET
+ */
+export const GetWriteInsRequestSchema: z.ZodSchema<GetWriteInsRequest> =
+  z.never();
+
+/**
+ * @url /admin/elections/:electionId/write-ins
+ * @method GET
+ */
+export type GetWriteInsResponse = WriteInRecord[] | ErrorsResponse;
+
+/**
+ * @url /admin/elections/:electionId/write-ins
+ * @method GET
+ */
+export const GetWriteInsResponseSchema: z.ZodSchema<GetWriteInsResponse> =
+  z.union([z.array(WriteInsRecordSchema), ErrorsResponseSchema]);
+
+/**
+ * @url /admin/elections/:electionId/write-ins
+ * @method GET
+ */
+export interface GetWriteInAdjudicationsQueryParams {
+  readonly contestId?: ContestId;
+  readonly status?: WriteInAdjudicationStatus;
+  readonly limit?: number;
+}
+
+/**
+ * Schema for {@link GetWriteInAdjudicationsQueryParams}.
+ */
+export const GetWriteInAdjudicationsQueryParamsSchema: z.ZodSchema<GetWriteInAdjudicationsQueryParams> =
+  z
+    .object({
+      contestId: ContestIdSchema.optional(),
+      status: WriteInAdjudicationStatusSchema.optional(),
+      limit: z
+        .preprocess(
+          (value) => safeParseNumber(value).unsafeUnwrap(),
+          z.number().nonnegative().int()
+        )
+        .optional(),
+    })
+    .strict();
+
+/**
+ * @url /admin/write-ins/:writeInId/transcription
+ * @method PUT
+ */
+export interface PutWriteInTranscriptionRequest {
+  readonly value: string;
+}
+
+/**
+ * Schema for {@link PutWriteInTranscriptionRequest}.
+ */
+export const PutWriteInTranscriptionRequestSchema: z.ZodSchema<PutWriteInTranscriptionRequest> =
   z.object({
-    status: z.literal('ok'),
-  }),
-  ErrorsResponseSchema,
-]);
-//
+    value: z.string(),
+  });
 
 /**
- * @url /admin/elections/:electionId/adjudications
+ * @url /admin/write-ins/:writeInId/transcription
+ * @method PUT
+ */
+export type PutWriteInTranscriptionResponse = OkResponse | ErrorsResponse;
+
+/**
+ * Schema for {@link PutWriteInTranscriptionResponse}.
+ */
+export const PutWriteInTranscriptionResponseSchema: z.ZodSchema<PutWriteInTranscriptionResponse> =
+  z.union([OkResponseSchema, ErrorsResponseSchema]);
+
+/**
+ * @url /admin/elections/:electionId/write-in-adjudications
  * @method POST
  */
-export interface PostAdjudicationRequest {
-  contestId: ContestId;
+export interface PostWriteInAdjudicationRequest {
+  readonly contestId: ContestId;
+  readonly transcribedValue: string;
+  readonly adjudicatedValue?: string;
+  readonly adjudicatedOptionId?: ContestOptionId;
 }
 
 /**
- * @url /admin/elections/:electionId/adjudications
- * @method POST
+ * Schema for {@link PostWriteInAdjudicationRequest}.
  */
-export const PostAdjudicationRequestSchema: z.ZodSchema<PostAdjudicationRequest> =
+export const PostWriteInAdjudicationRequestSchema: z.ZodSchema<PostWriteInAdjudicationRequest> =
   z.object({
     contestId: ContestIdSchema,
+    transcribedValue: z.string(),
+    adjudicatedValue: z.string().optional(),
+    adjudicatedOptionId: ContestOptionIdSchema.optional(),
   });
 
 /**
- * @url /admin/elections/:electionId/adjudications
+ * @url /admin/elections/:electionId/write-in-adjudications
  * @method POST
  */
-export type PostAdjudicationResponse =
-  | OkResponse<{ id: string }>
+export type PostWriteInAdjudicationResponse =
+  | OkResponse<{ id: Id }>
   | ErrorsResponse;
 
 /**
- * @url /admin/elections/:electionId/adjudication
- * @method POST
+ * Schema for {@link PostWriteInAdjudicationResponse}.
  */
-export const PostAdjudicationResponseSchema: z.ZodSchema<PostAdjudicationResponse> =
+export const PostWriteInAdjudicationResponseSchema: z.ZodSchema<PostWriteInAdjudicationResponse> =
   z.union([
     z.object({
       status: z.literal('ok'),
-      id: z.string(),
+      id: IdSchema,
     }),
     ErrorsResponseSchema,
   ]);
 
 /**
- * @url /admin/elections/:electionId/adjudications/:adjudicationId/transcription
- * @method PATCH
+ * @url /admin/elections/:electionId/write-in-summary
+ * @method GET
  */
-export interface PatchAdjudicationTranscribedValueRequest {
-  transcribedValue: string;
+export type GetWriteInSummaryRequest = never;
+
+/**
+ * Schema for {@link GetWriteInSummaryRequest}.
+ */
+export const GetWriteInSummaryRequestSchema: z.ZodSchema<GetWriteInSummaryRequest> =
+  z.never();
+
+/**
+ * @url /admin/elections/:electionId/write-in-summary
+ * @method GET
+ */
+export type GetWriteInSummaryResponse = WriteInSummaryEntry[] | ErrorsResponse;
+
+/**
+ * Schema for {@link GetWriteInSummaryResponse}.
+ */
+export const GetWriteInSummaryResponseSchema: z.ZodSchema<GetWriteInSummaryResponse> =
+  z.array(WriteInSummaryEntrySchema);
+
+/**
+ * @url /admin/elections/:electionId/write-in-summary
+ * @method GET
+ */
+export interface GetWriteInSummaryQueryParams {
+  readonly contestId?: ContestId;
 }
 
 /**
- * @url /admin/elections/:electionId/adjudications/:adjudicationId/transcription
- * @method PATCH
+ * Schema for {@link GetWriteInSummaryQueryParams}.
  */
-export const PatchAdjudicationTranscribedValueRequestSchema: z.ZodSchema<PatchAdjudicationTranscribedValueRequest> =
-  z.object({
-    transcribedValue: z.string(),
-  });
-
-/**
- * @url /admin/elections/:electionId/adjudications/:adjudicationId/transcription
- * @method PATCH
- */
-export type PatchAdjudicationTranscribedValueResponse =
-  | OkResponse
-  | ErrorsResponse;
-
-/**
- * @url /admin/elections/:electionId/adjudications/:adjudicationId/transcription
- * @method PATCH
- */
-export const PatchAdjudicationTranscribedValueResponseSchema: z.ZodSchema<PatchAdjudicationTranscribedValueResponse> =
-  z.union([
-    z.object({
-      status: z.literal('ok'),
-    }),
-    ErrorsResponseSchema,
-  ]);
+export const GetWriteInSummaryQueryParamsSchema: z.ZodSchema<GetWriteInSummaryQueryParams> =
+  z
+    .object({
+      contestId: ContestIdSchema.optional(),
+    })
+    .strict();

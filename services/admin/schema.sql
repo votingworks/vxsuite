@@ -2,42 +2,62 @@ create table elections (
   id serial primary key,
   data text not null,
   created_at timestamp not null default current_timestamp,
-  updated_at timestamp not null default current_timestamp,
   deleted_at timestamp
 );
 
-create table adjudications (
-	id varchar(36) primary key,
-	contest_id text,
-	transcribed_value text,
-	cvr_id varchar(36),
-	foreign key (cvr_id) references cvrs(id)
-		on update cascade
-		on delete cascade
+create table write_in_adjudications (
+  id varchar(36) primary key,
+  election_id varchar(36) not null,
+  contest_id text not null,
+  transcribed_value text not null,
+  adjudicated_value text,
+  adjudicated_option_id text,
+  created_at timestamp not null default current_timestamp,
+  foreign key (election_id) references elections(id)
+    on delete cascade,
+  unique (election_id, contest_id, transcribed_value)
+);
+
+create table write_ins (
+  id varchar(36) primary key,
+  cvr_id varchar(36) not null,
+  contest_id text not null,
+  option_id text not null,
+  transcribed_value text,
+  transcribed_at timestamp,
+  created_at timestamp not null default current_timestamp,
+  foreign key (cvr_id) references cvrs(id)
+    on delete cascade,
+  unique (cvr_id, contest_id, option_id)
 );
 
 create table cvrs (
-	id varchar(36) primary key,
-	ballot_id varchar(36) unique,
-	imported_by_file varchar(36),
-	data text,
-	foreign key (imported_by_file) references cvr_files(id)
-	  on update cascade
-	  on delete cascade
+  id varchar(36) primary key,
+  election_id varchar(36) not null,
+  ballot_id varchar(36) not null,
+  data text not null,
+  created_at timestamp not null default current_timestamp,
+  foreign key (election_id) references elections(id)
+    on delete cascade
 );
 
 create table cvr_files (
-	id varchar(36) primary key,
-	election_id varchar(36) not null,
-	signature text,
-	filename text,
-	timestamp text,
-	imported_cvr_count integer,
-	duplicated_cvr_count integer,
-	scanner_ids text,
-	precinct_ids text,
-	contains_test_mode_cvrs boolean,
-	foreign key (election_id) references elections(id)
-	  on update cascade
-	  on delete cascade
+  id varchar(36) primary key,
+  election_id varchar(36) not null,
+  filename text not null,
+  data text not null,
+  sha256_hash text not null,
+  created_at timestamp not null default current_timestamp,
+  foreign key (election_id) references elections(id)
+    on delete cascade
+);
+
+create table cvr_file_entries (
+  cvr_file_id varchar(36) not null,
+  cvr_id varchar(36) not null,
+  primary key (cvr_file_id, cvr_id),
+  foreign key (cvr_file_id) references cvr_files(id)
+    on delete cascade,
+  foreign key (cvr_id) references cvrs(id)
+    on delete cascade
 );

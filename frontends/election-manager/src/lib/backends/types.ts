@@ -8,6 +8,12 @@ import {
 import { PrintedBallot } from '../../config/types';
 import { CastVoteRecordFiles } from '../../utils/cast_vote_record_files';
 
+export interface AddCastVoteRecordFileResult {
+  readonly wasExistingFile: boolean;
+  readonly newlyAdded: number;
+  readonly alreadyPresent: number;
+}
+
 export interface ElectionManagerStoreBackend {
   /**
    * Resets all stored data, including the election definition and CVRs.
@@ -37,7 +43,9 @@ export interface ElectionManagerStoreBackend {
   /**
    * Adds a new cast vote record file.
    */
-  addCastVoteRecordFile(newCastVoteRecordFile: File): Promise<void>;
+  addCastVoteRecordFile(
+    newCastVoteRecordFile: File
+  ): Promise<AddCastVoteRecordFileResult>;
 
   /**
    * Resets all cast vote record files.

@@ -16,7 +16,10 @@ import {
   convertExternalTalliesToStorageString,
   convertStorageStringToExternalTallies,
 } from '../../utils/external_tallies';
-import { ElectionManagerStoreBackend } from './types';
+import {
+  AddCastVoteRecordFileResult,
+  ElectionManagerStoreBackend,
+} from './types';
 
 const electionDefinitionStorageKey = 'electionDefinition';
 const cvrsStorageKey = 'cvrFiles';
@@ -159,7 +162,9 @@ export class ElectionManagerStoreStorageBackend
     }
   }
 
-  async addCastVoteRecordFile(newCastVoteRecordFile: File): Promise<void> {
+  async addCastVoteRecordFile(
+    newCastVoteRecordFile: File
+  ): Promise<AddCastVoteRecordFileResult> {
     const loadElectionResult =
       await this.loadElectionDefinitionAndConfiguredAt();
 
@@ -180,6 +185,21 @@ export class ElectionManagerStoreStorageBackend
       newCastVoteRecordFiles.export(),
       'Cast vote records'
     );
+
+    const wasExistingFile = newCastVoteRecordFiles.duplicateFiles.includes(
+      newCastVoteRecordFile.name
+    );
+    const file = newCastVoteRecordFiles.fileList.find(
+      (f) => f.name === newCastVoteRecordFile.name
+    );
+    const newlyAdded = file?.importedCvrCount ?? 0;
+    const alreadyPresent = file?.duplicatedCvrCount ?? 0;
+
+    return {
+      wasExistingFile,
+      newlyAdded,
+      alreadyPresent,
+    };
   }
 
   async clearCastVoteRecordFiles(): Promise<void> {

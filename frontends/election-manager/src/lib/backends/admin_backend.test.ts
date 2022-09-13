@@ -16,13 +16,11 @@ const getElectionsResponse: Admin.GetElectionsResponse = [
     id: 'test-election-1',
     electionDefinition: electionWithMsEitherNeitherDefinition,
     createdAt: '2021-01-01T00:00:00.000Z',
-    updatedAt: '2021-01-01T00:00:00.000Z',
   },
   {
     id: 'test-election-2',
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
     createdAt: '2022-01-01T00:00:00.000Z',
-    updatedAt: '2022-01-01T00:00:00.000Z',
   },
 ];
 

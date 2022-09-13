@@ -26,10 +26,8 @@ import {
   MachineConfig,
   ResetElection,
 } from '../src/config/types';
-import {
-  AddCastVoteRecordFile,
-  CastVoteRecordFiles,
-} from '../src/utils/cast_vote_record_files';
+import { CastVoteRecordFiles } from '../src/utils/cast_vote_record_files';
+import { AddCastVoteRecordFileResult } from '../src/lib/backends/types';
 import { getEmptyFullElectionTally } from '../src/lib/votecounting';
 
 export const eitherNeitherElectionDefinition =
@@ -50,7 +48,7 @@ interface RenderInAppContextParams {
     adjudicationId: AdjudicationId,
     transcribedValue: string
   ) => Promise<void>;
-  addCastVoteRecordFile?: AddCastVoteRecordFile;
+  addCastVoteRecordFile?: (file: File) => Promise<AddCastVoteRecordFileResult>;
   clearCastVoteRecordFiles?: () => Promise<void>;
   saveIsOfficialResults?: () => Promise<void>;
   resetFiles?: () => Promise<void>;

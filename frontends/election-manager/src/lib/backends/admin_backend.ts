@@ -8,6 +8,9 @@ import {
 import { fetchJson } from '@votingworks/utils';
 import { Admin } from '@votingworks/api';
 import { ElectionManagerStoreStorageBackend } from './storage_backend';
+import { AddCastVoteRecordFileResult } from './types';
+
+const CVR_FILE_ATTACHMENT_NAME = 'cvrFile';
 
 /** @visibleForTesting */
 export const activeElectionIdStorageKey = 'activeElectionId';
@@ -87,6 +90,57 @@ export class ElectionManagerStoreAdminBackend extends ElectionManagerStoreStorag
     await this.storage.set(activeElectionIdStorageKey, parsedResponse.id);
 
     return parsedElectionDefinition;
+  }
+
+  async addCastVoteRecordFile(
+    newCastVoteRecordFile: File
+  ): Promise<AddCastVoteRecordFileResult> {
+    await super.addCastVoteRecordFile(newCastVoteRecordFile);
+
+    const activeElectionId = await this.loadActiveElectionId();
+
+    if (!activeElectionId) {
+      throw new Error('no election configured');
+    }
+
+    const formData = new FormData();
+    formData.append(CVR_FILE_ATTACHMENT_NAME, newCastVoteRecordFile);
+
+    const addCastVoteRecordFileResponse = (await fetchJson(
+      `/admin/elections/${activeElectionId}/cvr-files`,
+      {
+        method: 'POST',
+        body: formData,
+      }
+    )) as Admin.PostCvrFileResponse;
+
+    if (addCastVoteRecordFileResponse.status !== 'ok') {
+      throw new Error(
+        `could not add cast vote record file: ${addCastVoteRecordFileResponse.errors
+          .map((e) => e.message)
+          .join(', ')}`
+      );
+    }
+
+    return {
+      wasExistingFile: addCastVoteRecordFileResponse.wasExistingFile,
+      newlyAdded: addCastVoteRecordFileResponse.newlyAdded,
+      alreadyPresent: addCastVoteRecordFileResponse.alreadyPresent,
+    };
+  }
+
+  async clearCastVoteRecordFiles(): Promise<void> {
+    await super.clearCastVoteRecordFiles();
+
+    const activeElectionId = await this.loadActiveElectionId();
+
+    if (!activeElectionId) {
+      throw new Error('no election configured');
+    }
+
+    await fetchJson(`/admin/elections/${activeElectionId}/cvr-files`, {
+      method: 'DELETE',
+    });
   }
 
   async reset(): Promise<void> {

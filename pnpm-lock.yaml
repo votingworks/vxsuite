@@ -2688,6 +2688,7 @@ importers:
       express: 4.18.0
       fs-extra: 10.1.0
       js-sha256: 0.9.0
+      multer: 1.4.5-lts.1
       uuid: 8.3.2
       zod: 3.14.4
     devDependencies:
@@ -2697,6 +2698,7 @@ importers:
       '@types/express': 4.17.13
       '@types/fs-extra': 9.0.13
       '@types/jest': 26.0.23
+      '@types/multer': 1.4.7
       '@types/node': 16.11.29
       '@types/supertest': 2.0.10
       '@types/tmp': 0.2.3
@@ -2731,6 +2733,7 @@ importers:
       '@types/express': ^4.17.13
       '@types/fs-extra': ^9.0.13
       '@types/jest': ^26.0.6
+      '@types/multer': ^1.4.7
       '@types/node': 16.11.29
       '@types/supertest': ^2.0.10
       '@types/tmp': ^0.2.3
@@ -2762,6 +2765,7 @@ importers:
       jest-watch-typeahead: ^0.6.4
       js-sha256: ^0.9.0
       lint-staged: ^10.5.3
+      multer: ^1.4.5-lts.1
       prettier: ^2.6.2
       sort-package-json: ^1.50.0
       supertest: ^6.0.1
@@ -13095,7 +13099,7 @@ packages:
   /append-field/1.0.0:
     dev: false
     resolution:
-      integrity: sha1-HjRA6RXwsSA9I3SOeO3XubW0PlY=
+      integrity: sha512-klpgFSWLW1ZEs8svjfb7g4qWY0YS5imI82dTg+QahUvJ8YqAY0P10Uk8tTyh9ZGuYEZEMaeJYCF5BFuX552hsw==
   /aproba/1.2.0:
     dev: false
     resolution:
@@ -14436,6 +14440,14 @@ packages:
       node: '>=4.5.0'
     resolution:
       integrity: sha512-y7tTxhGKXcyBxRKAni+awqx8uqaJKrSFSNFSeRG5CsWNdmy2BIK+6VGWEW7TZnIO/533mtMEA4rOevQV815YJw==
+  /busboy/1.6.0:
+    dependencies:
+      streamsearch: 1.1.0
+    dev: false
+    engines:
+      node: '>=10.16.0'
+    resolution:
+      integrity: sha512-8SFQbg/0hQ9xy3UNTB0YEnsNBbWfhf7RtnzpL7TkBiTBRfrQ9Fxcnz7VJsleJpyp6rVLvXiuORqjlHi5q+PYuA==
   /bytes/3.0.0:
     dev: false
     engines:
@@ -29113,6 +29125,13 @@ packages:
     hasBin: true
     resolution:
       integrity: sha512-NKmAlESf6jMGym1++R0Ra7wvhV+wFW63FaSOFPwRahvea0gMUcGUhVeAg/0BC0wiv9ih5NYPB1Wn1UEI1/L+xQ==
+  /mkdirp/0.5.6:
+    dependencies:
+      minimist: 1.2.6
+    dev: false
+    hasBin: true
+    resolution:
+      integrity: sha512-FP+p8RB8OWpF3YZBCrP5gtADmtXApB5AMLn+vdyA+PyxCjrCs00mjyUozssO33cwDeT3wNGdLxJ5M//YqtHAJw==
   /mkdirp/1.0.4:
     engines:
       node: '>=10'
@@ -29169,6 +29188,20 @@ packages:
       node: '>= 0.10.0'
     resolution:
       integrity: sha512-xY8pX7V+ybyUpbYMxtjM9KAiD9ixtg5/JkeKUTD6xilfDv0vzzOFcCp4Ljb1UU3tSOM3VTZtKo63OmzOrGi3Cg==
+  /multer/1.4.5-lts.1:
+    dependencies:
+      append-field: 1.0.0
+      busboy: 1.6.0
+      concat-stream: 1.6.2
+      mkdirp: 0.5.6
+      object-assign: 4.1.1
+      type-is: 1.6.18
+      xtend: 4.0.2
+    dev: false
+    engines:
+      node: '>= 6.0.0'
+    resolution:
+      integrity: sha512-ywPWvcDMeH+z9gQq5qYHCCy+ethsk4goepZ45GLD63fOu0YcNecQxi64nDs3qluZB+murG3/D4dJ7+dGctcCQQ==
   /multicast-dns-service-types/1.1.0:
     dev: false
     resolution:
@@ -33397,6 +33430,12 @@ packages:
       node: '>=0.8.0'
     resolution:
       integrity: sha1-gIudDlb8Jz2Am6VzOOkpkZoanxo=
+  /streamsearch/1.1.0:
+    dev: false
+    engines:
+      node: '>=10.0.0'
+    resolution:
+      integrity: sha512-Mcc5wHehp9aXz1ax6bZUyY5afg9u2rv5cqQI3mRrYkGC8rW2hM02jWuwjtL++LS5qinSyhj2QfLyNsuc+VsExg==
   /strict-uri-encode/1.1.0:
     dev: false
     engines:

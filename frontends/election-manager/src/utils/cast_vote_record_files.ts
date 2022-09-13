@@ -1,11 +1,11 @@
-import arrayUnique from 'array-unique';
-import { sha256 } from 'js-sha256';
 import { CastVoteRecord, Election } from '@votingworks/types';
 import { assert, parseCvrFileInfoFromFilename } from '@votingworks/utils';
+import arrayUnique from 'array-unique';
+import { sha256 } from 'js-sha256';
 import {
   CastVoteRecordFile,
-  CastVoteRecordFilePreprocessedData,
   CastVoteRecordFileMode,
+  CastVoteRecordFilePreprocessedData,
 } from '../config/types';
 import { readFileAsync } from '../lib/read_file_async';
 import { parseCvrs } from '../lib/votecounting';
@@ -463,5 +463,3 @@ export class CastVoteRecordFiles {
     return this.fileList.length > 0 || Boolean(this.lastError);
   }
 }
-
-export type AddCastVoteRecordFile = (value: File) => Promise<void>;

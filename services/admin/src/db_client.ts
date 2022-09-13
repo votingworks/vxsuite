@@ -11,7 +11,10 @@ const debug = makeDebug('admin:db-client');
 
 const MEMORY_DB_PATH = ':memory:';
 
-type Bindable = string | number | bigint | Buffer | null;
+/**
+ * Values that may be passed to the client as bindable parameters.
+ */
+export type Bindable = string | number | bigint | Buffer | null;
 
 /**
  * Manages a connection for a SQLite database.

@@ -20,6 +20,7 @@ import {
   eitherNeitherElectionDefinition,
 } from '../../test/render_in_app_context';
 import { CastVoteRecordFiles } from '../utils/cast_vote_record_files';
+import { AddCastVoteRecordFileResult } from '../lib/backends';
 
 const TEST_FILE1 = 'TEST__machine_0001__10_ballots__2020-12-09_15-49-32.jsonl';
 const TEST_FILE2 = 'TEST__machine_0003__5_ballots__2020-12-07_15-49-32.jsonl';
@@ -75,7 +76,7 @@ describe('Screens display properly when USB is mounted', () => {
 
   test('No files found screen shows when mounted usb has no valid files', async () => {
     const closeFn = jest.fn();
-    const addCvr = jest.fn();
+    const addCvr = jest.fn<Promise<AddCastVoteRecordFileResult>, [File]>();
     const logger = fakeLogger();
     const { getByText, getByTestId } = renderInAppContext(
       <ImportCvrFilesModal onClose={closeFn} />,
@@ -94,6 +95,12 @@ describe('Screens display properly when USB is mounted', () => {
     fireEvent.click(getByText('Cancel'));
     expect(closeFn).toHaveBeenCalledTimes(1);
 
+    addCvr.mockResolvedValueOnce({
+      wasExistingFile: false,
+      newlyAdded: 0,
+      alreadyPresent: 0,
+    });
+
     // You can still manually load files
     fireEvent.change(getByTestId('manual-input'), {
       target: { files: [new File([''], 'file.jsonl')] },
@@ -109,7 +116,7 @@ describe('Screens display properly when USB is mounted', () => {
 
   test('Load CVR files screen shows table with test and live CVRs', async () => {
     const closeFn = jest.fn();
-    const addCvr = jest.fn();
+    const addCvr = jest.fn<Promise<AddCastVoteRecordFileResult>, [File]>();
     const fileEntries = [
       {
         name: LIVE_FILE1,
@@ -171,6 +178,11 @@ describe('Screens display properly when USB is mounted', () => {
     fireEvent.click(getByText('Cancel'));
     expect(closeFn).toHaveBeenCalledTimes(1);
 
+    addCvr.mockResolvedValueOnce({
+      wasExistingFile: false,
+      newlyAdded: 0,
+      alreadyPresent: 0,
+    });
     fireEvent.click(domGetByText(tableRows[0], 'Load'));
     getByText('Loading');
     await waitFor(() => {
@@ -188,7 +200,7 @@ describe('Screens display properly when USB is mounted', () => {
 
   test('Can handle errors appropriately', async () => {
     const closeFn = jest.fn();
-    const addCvr = jest.fn();
+    const addCvr = jest.fn<Promise<AddCastVoteRecordFileResult>, [File]>();
     const logger = fakeLogger();
     const fileEntries = [
       {
@@ -233,6 +245,7 @@ describe('Screens display properly when USB is mounted', () => {
     );
     expect(window.kiosk!.readFile).toHaveBeenCalledTimes(3); // The files should have been read.
 
+    addCvr.mockRejectedValueOnce(new Error('test error'));
     fireEvent.change(getByTestId('manual-input'), {
       target: { files: [new File(['invalid-file-contents'], 'file.jsonl')] },
     });
@@ -252,7 +265,7 @@ describe('Screens display properly when USB is mounted', () => {
 
   test('Load CVR files screen locks to test mode when test files have been loaded', async () => {
     const closeFn = jest.fn();
-    const addCvr = jest.fn();
+    const addCvr = jest.fn<Promise<AddCastVoteRecordFileResult>, [File]>();
     const logger = fakeLogger();
     const fileEntries = [
       {
@@ -343,6 +356,11 @@ describe('Screens display properly when USB is mounted', () => {
     fireEvent.click(getByText('Cancel'));
     expect(closeFn).toHaveBeenCalledTimes(1);
 
+    addCvr.mockResolvedValueOnce({
+      wasExistingFile: true,
+      newlyAdded: 0,
+      alreadyPresent: 0,
+    });
     fireEvent.click(domGetByText(tableRows[1], 'Load'));
     getByText('Loading');
     await waitFor(() => {
@@ -362,7 +380,7 @@ describe('Screens display properly when USB is mounted', () => {
 
   test('Load CVR files screen locks to live mode when live files have been loaded', async () => {
     const closeFn = jest.fn();
-    const addCvr = jest.fn();
+    const addCvr = jest.fn<Promise<AddCastVoteRecordFileResult>, [File]>();
     const fileEntries = [
       {
         name: LIVE_FILE1,
@@ -412,6 +430,11 @@ describe('Screens display properly when USB is mounted', () => {
     expect(tableRows).toHaveLength(1);
     domGetByText(tableRows[0], '12/09/2020 03:59:32 PM');
     domGetByText(tableRows[0], '0002');
+    addCvr.mockResolvedValueOnce({
+      wasExistingFile: false,
+      newlyAdded: 0,
+      alreadyPresent: 0,
+    });
     expect(domGetByText(tableRows[0], 'Load').closest('button')!.disabled).toBe(
       false
     );
@@ -430,7 +453,7 @@ describe('Screens display properly when USB is mounted', () => {
 
   test('Shows previously loaded files when all files have already been loaded', async () => {
     const closeFn = jest.fn();
-    const addCvr = jest.fn();
+    const addCvr = jest.fn<Promise<AddCastVoteRecordFileResult>, [File]>();
     const fileEntries = [
       {
         name: LIVE_FILE1,

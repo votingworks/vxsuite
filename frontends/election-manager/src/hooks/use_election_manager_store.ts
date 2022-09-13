@@ -15,7 +15,10 @@ import {
 import { assert, typedAs } from '@votingworks/utils';
 import { useCallback, useMemo, useRef } from 'react';
 import { PrintedBallot } from '../config/types';
-import { ElectionManagerStoreBackend } from '../lib/backends/types';
+import {
+  AddCastVoteRecordFileResult,
+  ElectionManagerStoreBackend,
+} from '../lib/backends/types';
 import { CastVoteRecordFiles } from '../utils/cast_vote_record_files';
 
 export interface ElectionManagerStore {
@@ -64,7 +67,9 @@ export interface ElectionManagerStore {
   /**
    * Adds a new cast vote record file.
    */
-  addCastVoteRecordFile(newCastVoteRecordFile: File): Promise<void>;
+  addCastVoteRecordFile(
+    newCastVoteRecordFile: File
+  ): Promise<AddCastVoteRecordFileResult>;
 
   /**
    * Resets all cast vote record files.
@@ -239,7 +244,7 @@ export function useElectionManagerStore({
 
   const addCastVoteRecordFileMutation = useMutation(
     async (newCastVoteRecordFile: File) => {
-      await backend.addCastVoteRecordFile(newCastVoteRecordFile);
+      return await backend.addCastVoteRecordFile(newCastVoteRecordFile);
     },
     {
       onSuccess() {
@@ -250,7 +255,9 @@ export function useElectionManagerStore({
 
   const addCastVoteRecordFile = useCallback(
     async (newCastVoteRecordFile: File) => {
-      await addCastVoteRecordFileMutation.mutateAsync(newCastVoteRecordFile);
+      return await addCastVoteRecordFileMutation.mutateAsync(
+        newCastVoteRecordFile
+      );
     },
     [addCastVoteRecordFileMutation]
   );
