@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
 
+### Setup development environment
+###
+### Installs NodeJS and uses `corepack` to make `yarn` and `pnpm` available.
+###
+### Note: To update the version of NodeJS, update the `.node-version` file at
+### the root of the repository and add `hashes/node-v*.sha256` files for the
+### new version.
+
 set -euo pipefail
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -11,6 +19,13 @@ fi
 
 # get the node version to install
 NODE_VERSION=$(cat "${DIR}/../.node-version")
+
+if command node -v | grep -q "${NODE_VERSION}"; then
+  echo "Node version ${NODE_VERSION} already installed"
+  exit
+fi
+
+echo "Installing Node version ${NODE_VERSION}"
 
 case "$(arch)" in
   aarch64)
@@ -29,6 +44,14 @@ esac
 
 DOWNLOAD_URL="https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${ARCH}.tar.gz"
 
-curl -sLo- "${DOWNLOAD_URL}" | sudo tar -xz -C /usr/local --strip-components=1
+TMPDIR=$(mktemp -d -t node-tmp-XXXXXX)
+
+(
+  cd "${TMPDIR}"
+  curl -sSLO ${DOWNLOAD_URL}
+  set -x
+  sha256sum --check "${DIR}/hashes/$(basename "${DOWNLOAD_URL}").sha256"
+  cat "${TMPFILE}" | sudo tar -xz -C /usr/local --strip-components=1
+)
 
 corepack enable
