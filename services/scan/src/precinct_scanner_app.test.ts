@@ -858,7 +858,10 @@ test('scanner powered off after returning', async () => {
 });
 
 test('insert second ballot while first ballot is scanning', async () => {
-  const { app, mockPlustek } = await createApp();
+  const { app, mockPlustek } = await createApp(
+    {},
+    { passthroughDuration: 500 }
+  );
   await configureApp(app);
 
   await mockPlustek.simulateLoadSheet(ballotImages.completeBmd);
@@ -973,7 +976,10 @@ test('insert second ballot while first ballot needs review', async () => {
 });
 
 test('insert second ballot while first ballot is rejecting', async () => {
-  const { app, mockPlustek, interpreter } = await createApp();
+  const { app, mockPlustek, interpreter } = await createApp(
+    {},
+    { passthroughDuration: 500 }
+  );
   await configureApp(app);
 
   await mockPlustek.simulateLoadSheet(ballotImages.wrongElection);
