@@ -106,15 +106,13 @@ export class Store {
       select
         id,
         data as electionData,
-        created_at as createdAt,
-        updated_at as updatedAt
+        created_at as createdAt
       from elections
       where deleted_at is null
     `) as Array<{
         id: Id;
         electionData: string;
         createdAt: string;
-        updatedAt: string;
       }>
     ).map((r) => ({
       id: r.id,
@@ -122,7 +120,6 @@ export class Store {
         r.electionData
       ).unsafeUnwrap(),
       createdAt: convertSqliteTimestampToIso8601(r.createdAt),
-      updatedAt: convertSqliteTimestampToIso8601(r.updatedAt),
     }));
   }
 
@@ -179,7 +176,6 @@ export class Store {
     },
     AddCastVoteRecordError
   > {
-    this.assertElectionExists(electionId);
     this.client.run('begin transaction');
     let inTransaction = true;
 
@@ -399,8 +395,7 @@ export class Store {
         election_id as electionId,
         filename,
         sha256_hash as sha256Hash,
-        created_at as createdAt,
-        updated_at as updatedAt
+        created_at as createdAt
       from cvr_files
       where id = ?
     `,
@@ -411,7 +406,6 @@ export class Store {
           filename: string;
           sha256Hash: string;
           createdAt: string;
-          updatedAt: string;
         }
       | undefined;
 
@@ -425,7 +419,6 @@ export class Store {
       sha256Hash: result.sha256Hash,
       filename: result.filename,
       createdAt: convertSqliteTimestampToIso8601(result.createdAt),
-      updatedAt: convertSqliteTimestampToIso8601(result.updatedAt),
     };
   }
 
@@ -437,8 +430,7 @@ export class Store {
         filename,
         sha256_hash as sha256Hash,
         data,
-        created_at as createdAt,
-        updated_at as updatedAt
+        created_at as createdAt
       from cvr_files
       where id = ?
     `,
@@ -450,7 +442,6 @@ export class Store {
           sha256Hash: string;
           data: string;
           createdAt: string;
-          updatedAt: string;
         }
       | undefined;
 
@@ -465,7 +456,6 @@ export class Store {
       filename: result.filename,
       data: result.data,
       createdAt: convertSqliteTimestampToIso8601(result.createdAt),
-      updatedAt: convertSqliteTimestampToIso8601(result.updatedAt),
     };
   }
 
@@ -481,8 +471,7 @@ export class Store {
           id,
           ballot_id as ballotId,
           data,
-          created_at as createdAt,
-          updated_at as updatedAt
+          created_at as createdAt
         from cvrs
         where election_id = ?
       `,
@@ -492,7 +481,6 @@ export class Store {
       ballotId: string;
       data: string;
       createdAt: Iso8601Timestamp;
-      updatedAt: Iso8601Timestamp;
     }>;
 
     return entries.map((entry) => ({
@@ -501,7 +489,6 @@ export class Store {
       electionId,
       data: entry.data,
       createdAt: convertSqliteTimestampToIso8601(entry.createdAt),
-      updatedAt: convertSqliteTimestampToIso8601(entry.updatedAt),
     }));
   }
 

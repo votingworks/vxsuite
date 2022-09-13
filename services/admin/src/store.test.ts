@@ -194,7 +194,6 @@ test('get CVR file metadata', () => {
       filename: 'cvrs.jsonl',
       sha256Hash: expect.any(String),
       createdAt: expect.any(String),
-      updatedAt: expect.any(String),
     })
   );
 });
@@ -225,7 +224,6 @@ test('get CVR file', () => {
       data: cvrFile,
       sha256Hash: expect.any(String),
       createdAt: expect.any(String),
-      updatedAt: expect.any(String),
     })
   );
 });

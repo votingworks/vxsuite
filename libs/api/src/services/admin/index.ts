@@ -26,7 +26,6 @@ export interface ElectionRecord {
   readonly id: Id;
   readonly electionDefinition: ElectionDefinition;
   readonly createdAt: Iso8601Timestamp;
-  readonly updatedAt: Iso8601Timestamp;
 }
 
 /**
@@ -36,11 +35,10 @@ export const ElectionRecordSchema: z.ZodSchema<ElectionRecord> = z.object({
   id: IdSchema,
   electionDefinition: ElectionDefinitionSchema,
   createdAt: Iso8601TimestampSchema,
-  updatedAt: Iso8601TimestampSchema,
 });
 
 /**
- * A cast vote record's metadata.
+ * A cast vote record file's metadata.
  */
 export interface CastVoteRecordFileMetadata {
   readonly id: Id;
@@ -48,7 +46,6 @@ export interface CastVoteRecordFileMetadata {
   readonly filename: string;
   readonly sha256Hash: string;
   readonly createdAt: Iso8601Timestamp;
-  readonly updatedAt: Iso8601Timestamp;
 }
 
 /**
@@ -61,7 +58,6 @@ export const CastVoteRecordFileMetadataSchema: z.ZodSchema<CastVoteRecordFileMet
     filename: z.string().nonempty(),
     sha256Hash: z.string().nonempty(),
     createdAt: Iso8601TimestampSchema,
-    updatedAt: Iso8601TimestampSchema,
   });
 
 /**
@@ -82,7 +78,6 @@ export const CastVoteRecordFileRecordSchema: z.ZodSchema<CastVoteRecordFileRecor
     data: z.string(),
     sha256Hash: z.string().nonempty(),
     createdAt: Iso8601TimestampSchema,
-    updatedAt: Iso8601TimestampSchema,
   });
 
 /**
@@ -93,7 +88,6 @@ export interface CastVoteRecordFileEntryRecord {
   readonly electionId: Id;
   readonly data: string;
   readonly createdAt: Iso8601Timestamp;
-  readonly updatedAt: Iso8601Timestamp;
 }
 
 /**
@@ -105,7 +99,6 @@ export const CastVoteRecordFileEntryRecordSchema: z.ZodSchema<CastVoteRecordFile
     electionId: IdSchema,
     data: z.string(),
     createdAt: Iso8601TimestampSchema,
-    updatedAt: Iso8601TimestampSchema,
   });
 
 /**

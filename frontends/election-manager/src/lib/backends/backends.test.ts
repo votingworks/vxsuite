@@ -75,7 +75,6 @@ function makeAdminBackend(): ElectionManagerStoreAdminBackend {
             Admin.PostElectionRequestSchema
           ).unsafeUnwrap(),
           createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
         },
         castVoteRecordFiles: CastVoteRecordFiles.empty,
       });

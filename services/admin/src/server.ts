@@ -288,7 +288,6 @@ export function buildApp({ store }: { store: Store }): Application {
     }
 
     const { contestId } = parseQueryResult.ok();
-    store.getWriteInRecords({ electionId });
     response.json(
       store.getWriteInAdjudicationSummary({ electionId, contestId })
     );

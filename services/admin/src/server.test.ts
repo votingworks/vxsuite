@@ -93,7 +93,6 @@ test('GET /admin/elections', async () => {
         id: electionId,
         electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
         createdAt: expect.any(String),
-        updatedAt: expect.any(String),
       })
     ),
   ]);

@@ -2,7 +2,6 @@ create table elections (
   id serial primary key,
   data text not null,
   created_at timestamp not null default current_timestamp,
-  updated_at timestamp not null default current_timestamp,
   deleted_at timestamp
 );
 
@@ -15,7 +14,6 @@ create table write_in_adjudications (
   adjudicated_option_id text,
   created_at timestamp not null default current_timestamp,
   foreign key (election_id) references elections(id)
-    on update cascade
     on delete cascade,
   unique (election_id, contest_id, transcribed_value)
 );
@@ -29,7 +27,6 @@ create table write_ins (
   transcribed_at timestamp,
   created_at timestamp not null default current_timestamp,
   foreign key (cvr_id) references cvrs(id)
-    on update cascade
     on delete cascade,
   unique (cvr_id, contest_id, option_id)
 );
@@ -40,7 +37,8 @@ create table cvrs (
   ballot_id varchar(36) not null,
   data text not null,
   created_at timestamp not null default current_timestamp,
-  updated_at timestamp not null default current_timestamp
+  foreign key (election_id) references elections(id)
+    on delete cascade
 );
 
 create table cvr_files (
@@ -50,9 +48,7 @@ create table cvr_files (
   data text not null,
   sha256_hash text not null,
   created_at timestamp not null default current_timestamp,
-  updated_at timestamp not null default current_timestamp,
   foreign key (election_id) references elections(id)
-    on update cascade
     on delete cascade
 );
 
@@ -61,7 +57,7 @@ create table cvr_file_entries (
   cvr_id varchar(36) not null,
   primary key (cvr_file_id, cvr_id),
   foreign key (cvr_file_id) references cvr_files(id)
-    on update cascade,
+    on delete cascade,
   foreign key (cvr_id) references cvrs(id)
-    on update cascade
+    on delete cascade
 );
