@@ -22,6 +22,12 @@ describe('renders Screen', () => {
     expect(screen).toHaveStyleRule('background-color', 'white');
   });
 
+  test('with grey background', () => {
+    const { container } = render(<Screen grey>Screen</Screen>);
+    const screen = container.firstChild;
+    expect(screen).toHaveStyleRule('background-color', '#edeff0');
+  });
+
   test('with left nav', () => {
     const { container } = render(<Screen navLeft>Screen</Screen>);
     const screen = container.firstChild;
