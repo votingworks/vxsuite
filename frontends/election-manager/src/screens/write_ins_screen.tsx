@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { Button, Modal, Prose, Table, TD } from '@votingworks/ui';
@@ -9,6 +9,7 @@ import {
   getPartyAbbreviationByPartyId,
 } from '@votingworks/types';
 
+import { WriteInRecord } from '@votingworks/api';
 import { NavigationScreen } from '../components/navigation_screen';
 import { WriteInsTranscriptionScreen } from './write_ins_transcription_screen';
 import { AppContext } from '../contexts/app_context';
@@ -117,10 +118,11 @@ export function WriteInsScreen(): JSX.Element {
     CandidateContest | undefined
   >();
   const [paginationIdx, setPaginationIdx] = useState<number>(0);
+  const [allWriteIns, setAllWriteIns] = useState<WriteInRecord[]>();
   const [writeInCountsByContest, setWriteInCountsByContest] =
     useState<Map<ContestId, ContestWriteInCounts>>();
   const [transcriptionsForCurrentContest, setTranscriptionsForCurrentContest] =
-    useState<Adjudication[]>([]);
+    useState<WriteInRecord[]>([]);
 
   const [temporaryTranscriptions, setTemporaryTranscriptions] = useState(
     initialTemporaryTranscriptions
@@ -128,45 +130,54 @@ export function WriteInsScreen(): JSX.Element {
 
   const election = electionDefinition?.election;
 
+  const fetchWriteIns = useCallback(async () => {
+    const writeIns = await loadWriteIns();
+    if (writeIns !== undefined) {
+      setAllWriteIns(writeIns);
+    }
+  }, [loadWriteIns, setAllWriteIns]);
+
+  useEffect(() => {
+    void fetchWriteIns();
+  }, [fetchWriteIns]);
+
   // Get write-in counts grouped by contest
   useEffect(() => {
-    async function fetchWriteIns() {
-      const writeIns = await loadWriteIns();
-      const tempWriteInCountsByContest = new Map();
-      if (writeIns !== undefined && election !== undefined) {
-        for (const contest of election.contests) {
-          tempWriteInCountsByContest.set(contest.id, {
-            contestId: contest.id,
-            pendingCount: writeIns.filter(
-              (w) => w.contestId === contest.id && w.status === 'pending'
-            ).length,
-            transcribedCount: writeIns.filter(
-              (w) => w.contestId === contest.id && w.status === 'transcribed'
-            ).length,
-            adjudicatedCount: writeIns.filter(
-              (w) => w.contestId === contest.id && w.status === 'adjudicated'
-            ).length,
-          });
-        }
+    const tempWriteInCountsByContest = new Map();
+    if (allWriteIns !== undefined && election !== undefined) {
+      for (const contest of election.contests) {
+        tempWriteInCountsByContest.set(contest.id, {
+          contestId: contest.id,
+          pendingCount: allWriteIns.filter(
+            (w) => w.contestId === contest.id && w.status === 'pending'
+          ).length,
+          transcribedCount: allWriteIns.filter(
+            (w) => w.contestId === contest.id && w.status === 'transcribed'
+          ).length,
+          adjudicatedCount: allWriteIns.filter(
+            (w) => w.contestId === contest.id && w.status === 'adjudicated'
+          ).length,
+        });
       }
-      setWriteInCountsByContest(tempWriteInCountsByContest);
     }
-    void fetchWriteIns();
-  }, [loadWriteIns, election]);
+    setWriteInCountsByContest(tempWriteInCountsByContest);
+  }, [allWriteIns, election]);
 
   // When we start adjudicating a new contest, reset pagination index and fetch adjudications
   useEffect(() => {
-    async function fetchAdjudicationsForContest(contestId: ContestId) {
-      const res = await fetch(`/admin/write-ins/adjudications/${contestId}/`);
-      setTranscriptionsForCurrentContest(await res.json());
-    }
     if (contestBeingTranscribed) {
       setPaginationIdx(0);
-      void fetchAdjudicationsForContest(contestBeingTranscribed.id);
+      setTranscriptionsForCurrentContest(
+        allWriteIns
+          ? allWriteIns.filter(
+              (w) => w.contestId === contestBeingTranscribed.id
+            )
+          : []
+      );
     } else {
       setTranscriptionsForCurrentContest([]);
     }
-  }, [contestBeingTranscribed]);
+  }, [contestBeingTranscribed, allWriteIns]);
 
   if (!election) {
     return (
@@ -415,33 +426,35 @@ export function WriteInsScreen(): JSX.Element {
             </Table>
           </Prose>
         </ContentWrapper>
-        {contestBeingTranscribed &&
-          !!transcriptionsForCurrentContest.length && (
-            <Modal
-              content={
-                <WriteInsTranscriptionScreen
-                  election={election}
-                  contest={contestBeingTranscribed}
-                  adjudications={transcriptionsForCurrentContest}
-                  paginationIdx={paginationIdx}
-                  onClose={() => setContestBeingTranscribed(undefined)}
-                  onListAll={placeholderFn}
-                  onClickNext={
-                    paginationIdx < transcriptionsForCurrentContest.length - 1
-                      ? () => setPaginationIdx(paginationIdx + 1)
-                      : undefined
-                  }
-                  onClickPrevious={
-                    paginationIdx
-                      ? () => setPaginationIdx(paginationIdx - 1)
-                      : undefined
-                  }
-                  saveTranscribedValue={saveTranscribedValue}
-                />
-              }
-              fullscreen
-            />
-          )}
+        {contestBeingTranscribed && !!transcriptionsForCurrentContest.length && (
+          <Modal
+            content={
+              <WriteInsTranscriptionScreen
+                election={election}
+                contest={contestBeingTranscribed}
+                writeIns={transcriptionsForCurrentContest}
+                paginationIdx={paginationIdx}
+                onClose={async () => {
+                  await fetchWriteIns();
+                  setContestBeingTranscribed(undefined);
+                }}
+                onListAll={placeholderFn}
+                onClickNext={
+                  paginationIdx < transcriptionsForCurrentContest.length - 1
+                    ? () => setPaginationIdx(paginationIdx + 1)
+                    : undefined
+                }
+                onClickPrevious={
+                  paginationIdx
+                    ? () => setPaginationIdx(paginationIdx - 1)
+                    : undefined
+                }
+                saveTranscribedValue={saveTranscribedValue}
+              />
+            }
+            fullscreen
+          />
+        )}
         {contestBeingAdjudicated && (
           <Modal
             fullscreen

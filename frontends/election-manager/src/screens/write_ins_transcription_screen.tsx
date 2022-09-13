@@ -10,6 +10,7 @@ import {
 } from '@votingworks/types';
 import { Button, Main, Screen, Text } from '@votingworks/ui';
 import { assert } from '@votingworks/utils';
+import { WriteInRecord } from '@votingworks/api';
 import { Navigation } from '../components/navigation';
 import { TextInput } from '../components/text_input';
 
@@ -56,7 +57,7 @@ function noop() {
 export function WriteInsTranscriptionScreen({
   contest,
   election,
-  adjudications,
+  writeIns,
   paginationIdx,
   onClickNext,
   onClickPrevious,
@@ -66,7 +67,7 @@ export function WriteInsTranscriptionScreen({
 }: {
   contest: CandidateContest;
   election: Election;
-  adjudications: readonly Adjudication[];
+  writeIns: readonly WriteInRecord[];
   paginationIdx: number;
   onClickNext?: () => void;
   onClickPrevious?: () => void;
@@ -77,45 +78,35 @@ export function WriteInsTranscriptionScreen({
     transcribedValue: string
   ) => void;
 }): JSX.Element {
-  const [currentTranscribedValue, setCurrentTranscribedValue] = useState('');
+  const writeInsToTranscribe = writeIns.filter((w) => w.status === 'pending');
+  const currentAdjudication = writeInsToTranscribe[paginationIdx];
+  const [currentTranscribedValue, setCurrentTranscribedValue] = useState(
+    currentAdjudication.transcribedValue ?? ''
+  );
   const [isTranscribedValueInputVisible, setIsTranscribedValueInputVisible] =
     useState(false);
   const [previouslyTranscribedValues, setPreviouslyTranscribedValues] =
-    useState<string[]>([]);
+    useState(new Set<string>());
 
   const transcribedValueInput = useRef<HTMLInputElement>(null);
 
   assert(contest);
   assert(election);
 
-  const currentAdjudication = adjudications[paginationIdx];
   const adjudicationId = currentAdjudication.id;
 
   function onPressSetTranscribedValue(val: string): void {
     setCurrentTranscribedValue(val);
     saveTranscribedValue(adjudicationId, val);
+    previouslyTranscribedValues.add(val);
+
+    setPreviouslyTranscribedValues(previouslyTranscribedValues);
   }
-
   useEffect(() => {
-    async function getTranscribedValue(id: AdjudicationId): Promise<void> {
-      const res = await fetch(`/admin/write-ins/adjudication/${id}`);
-      try {
-        const { transcribedValue } = await res.json();
-        setCurrentTranscribedValue(transcribedValue);
-      } catch {
-        setCurrentTranscribedValue('');
-      }
-    }
-    void getTranscribedValue(adjudicationId || '');
-  }, [adjudicationId]);
-
-  useEffect(() => {
-    async function getPreviouslyTranscribedValues(): Promise<void> {
-      const res = await fetch('/admin/write-ins/transcribed-values');
-      setPreviouslyTranscribedValues(await res.json());
-    }
-    void getPreviouslyTranscribedValues();
-  }, []);
+    setPreviouslyTranscribedValues(
+      new Set(writeIns.map((a) => a.transcribedValue).filter(Boolean))
+    );
+  }, [writeIns, setPreviouslyTranscribedValues]);
 
   return (
     <Screen>
@@ -136,22 +127,22 @@ export function WriteInsTranscriptionScreen({
         <BallotPreviews>BALLOT IMAGES GO HERE</BallotPreviews>
         <TranscriptionContainer>
           <TranscriptionMainContentContainer>
-            {election && contest.partyId && (
+            {election && (
               <React.Fragment>
                 <Text bold>{contest.section}</Text>
                 <h1>
-                  {contest.title} (
-                  {getPartyAbbreviationByPartyId({
-                    partyId: contest.partyId,
-                    election,
-                  })}
-                  )
+                  {contest.title}{' '}
+                  {contest.partyId &&
+                    getPartyAbbreviationByPartyId({
+                      partyId: contest.partyId,
+                      election,
+                    })}
                 </h1>
                 <h2>Adjudication ID: {adjudicationId}</h2>
               </React.Fragment>
             )}
             <PreviouslyTranscribedValuesContainer>
-              {previouslyTranscribedValues.map((val) => (
+              {[...previouslyTranscribedValues].map((val) => (
                 <PreviouslyTranscribedValueButtonWrapper key={val}>
                   <Button
                     primary={val === currentTranscribedValue}
@@ -181,9 +172,6 @@ export function WriteInsTranscriptionScreen({
                   onPress={() => {
                     const val = transcribedValueInput.current?.value || '';
                     onPressSetTranscribedValue(val);
-                    setPreviouslyTranscribedValues(
-                      previouslyTranscribedValues.concat([val])
-                    );
                     setIsTranscribedValueInputVisible(false);
                   }}
                 >
@@ -200,7 +188,7 @@ export function WriteInsTranscriptionScreen({
               Previous
             </Button>
             <Text bold>
-              {paginationIdx + 1} of {adjudications.length}
+              {paginationIdx + 1} of {writeInsToTranscribe.length}
             </Text>
             <Button disabled={!onClickNext} onPress={onClickNext || noop}>
               Next

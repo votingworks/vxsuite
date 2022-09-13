@@ -19,6 +19,7 @@ import {
   usbstick,
   Printer,
   Hardware,
+  fetchJson,
 } from '@votingworks/utils';
 import {
   useUsbDrive,
@@ -133,18 +134,15 @@ export function AppRoot({
   );
 
   const saveTranscribedValue = useCallback(
-    async (adjudicationId: string, transcribedValue: string) => {
+    async (writeInId: string, transcribedValue: string) => {
       try {
-        await fetch(
-          `/admin/write-ins/adjudications/${adjudicationId}/transcription`,
-          {
-            method: 'PATCH',
-            body: JSON.stringify({ transcribedValue }),
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          }
-        );
+        await fetchJson(`/admin/write-ins/${writeInId}/transcription`, {
+          method: 'PUT',
+          body: JSON.stringify({ value: transcribedValue }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
       } catch (error) {
         assert(error instanceof Error);
         throw error;
