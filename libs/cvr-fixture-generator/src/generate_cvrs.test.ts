@@ -5,12 +5,12 @@ import {
 } from '@votingworks/fixtures';
 import { BallotType } from '@votingworks/types';
 import {
+  castVoteRecordHasWriteIns,
   readBallotPackageFromBuffer,
   takeAsync,
   throwIllegalValue,
 } from '@votingworks/utils';
 import { generateCvrs } from './generate_cvrs';
-import { castVoteRecordHasWriteIns } from './utils';
 
 test('fails on ballot package with more than one sheet', async () => {
   await expect(

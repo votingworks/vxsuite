@@ -1,5 +1,3 @@
-import { CastVoteRecord } from '@votingworks/types';
-
 /**
  * Generate all combinations of an array.
  * @param sourceArray - Array of input elements.
@@ -45,25 +43,4 @@ export function generateCombinations<T>(
   }
   makeNextCombos([], 0, comboLength);
   return combos;
-}
-
-/**
- * Determines whether a cast vote record has any write-in votes.
- */
-export function castVoteRecordHasWriteIns(cvr: CastVoteRecord): boolean {
-  for (const [contestId, votes] of Object.entries(cvr)) {
-    if (contestId.startsWith('_')) {
-      continue;
-    }
-
-    if (
-      Array.isArray(votes) &&
-      votes.some(
-        (vote) => typeof vote === 'string' && vote.startsWith('write-in-')
-      )
-    ) {
-      return true;
-    }
-  }
-  return false;
 }

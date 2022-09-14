@@ -14,11 +14,12 @@ import {
   assert,
   BallotPackage,
   BallotPackageEntry,
+  castVoteRecordHasWriteIns,
   mapAsync,
   takeAsync,
   throwIllegalValue,
 } from '@votingworks/utils';
-import { castVoteRecordHasWriteIns, generateCombinations } from './utils';
+import { generateCombinations } from './utils';
 
 // All valid contest choice options for a yes no contest
 const YES_NO_OPTIONS: YesNoVote[] = [['yes'], ['no'], ['yes', 'no'], []];
