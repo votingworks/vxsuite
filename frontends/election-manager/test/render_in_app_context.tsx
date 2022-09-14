@@ -5,23 +5,21 @@ import { render as testRender, RenderResult } from '@testing-library/react';
 
 import { electionWithMsEitherNeitherDefinition } from '@votingworks/fixtures';
 import {
-  ElectionDefinition,
   FullElectionTally,
   FullElectionExternalTally,
   FullElectionExternalTallies,
   AdjudicationId,
   DippedSmartcardAuth,
 } from '@votingworks/types';
-import { usbstick, NullPrinter, Printer } from '@votingworks/utils';
+import { usbstick, NullPrinter } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
 
 import { Dipped } from '@votingworks/test-utils';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AppContext } from '../src/contexts/app_context';
+import { AppContext, AppContextInterface } from '../src/contexts/app_context';
 import {
   SaveElection,
   PrintedBallot,
-  Iso8601Timestamp,
   ExportableTallies,
   MachineConfig,
   ResetElection,
@@ -33,14 +31,10 @@ import { getEmptyFullElectionTally } from '../src/lib/votecounting';
 export const eitherNeitherElectionDefinition =
   electionWithMsEitherNeitherDefinition;
 
-interface RenderInAppContextParams {
+interface RenderInAppContextParams extends Partial<AppContextInterface> {
   route?: string;
   history?: MemoryHistory;
-  castVoteRecordFiles?: CastVoteRecordFiles;
-  electionDefinition?: ElectionDefinition | 'NONE';
-  configuredAt?: Iso8601Timestamp;
-  isOfficialResults?: boolean;
-  printer?: Printer;
+  unconfigured?: boolean;
   printBallotRef?: RefObject<HTMLElement>;
   saveElection?: SaveElection;
   resetElection?: ResetElection;
@@ -64,6 +58,12 @@ interface RenderInAppContextParams {
   ) => Promise<void>;
   fullElectionExternalTallies?: FullElectionExternalTallies;
   generateExportableTallies?: () => ExportableTallies;
+  saveAdjudicatedValue?: (
+    contestId: string,
+    transcribedValue: string,
+    adjudicatedValue: string,
+    adjudicatedOptionId?: string
+  ) => Promise<void>;
   auth?: DippedSmartcardAuth.Auth;
   machineConfig?: MachineConfig;
   hasCardReaderAttached?: boolean;
@@ -86,8 +86,11 @@ export function renderInAppContext(
   {
     route = '/',
     history = createMemoryHistory({ initialEntries: [route] }),
+    unconfigured = false,
     castVoteRecordFiles = CastVoteRecordFiles.empty,
-    electionDefinition = eitherNeitherElectionDefinition,
+    electionDefinition = unconfigured
+      ? undefined
+      : eitherNeitherElectionDefinition,
     configuredAt = new Date().toISOString(),
     isOfficialResults = false,
     printer = new NullPrinter(),
@@ -109,6 +112,9 @@ export function renderInAppContext(
     fullElectionExternalTallies = new Map(),
     saveTranscribedValue = jest.fn(),
     generateExportableTallies = jest.fn(),
+    saveAdjudicatedValue = jest.fn(),
+    loadWriteIns = jest.fn(),
+    loadWriteInSummary = jest.fn(),
     auth = Dipped.fakeElectionManagerAuth(),
     machineConfig = {
       machineId: '0000',
@@ -124,8 +130,7 @@ export function renderInAppContext(
     <AppContext.Provider
       value={{
         castVoteRecordFiles,
-        electionDefinition:
-          electionDefinition === 'NONE' ? undefined : electionDefinition,
+        electionDefinition,
         configuredAt,
         isOfficialResults,
         printer,
@@ -147,6 +152,9 @@ export function renderInAppContext(
         fullElectionExternalTallies,
         generateExportableTallies,
         saveTranscribedValue,
+        saveAdjudicatedValue,
+        loadWriteIns,
+        loadWriteInSummary,
         auth,
         machineConfig,
         hasCardReaderAttached,

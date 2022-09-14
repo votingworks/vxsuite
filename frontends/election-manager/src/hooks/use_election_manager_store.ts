@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { WriteInRecord, WriteInSummaryEntry } from '@votingworks/api';
+import { Admin } from '@votingworks/api';
 import {
   LogDispositionStandardTypes,
   LogEventId,
@@ -7,6 +7,8 @@ import {
   LoggingUserRole,
 } from '@votingworks/logging';
 import {
+  ContestId,
+  ContestOptionId,
   ElectionDefinition,
   ExternalTallySourceType,
   FullElectionExternalTallies,
@@ -112,8 +114,10 @@ export interface ElectionManagerStore {
    */
   setCurrentUserRole(newCurrentUserRole: LoggingUserRole): void;
 
-  loadWriteIns(): Promise<WriteInRecord[] | undefined>;
-  loadWriteInSummary(): Promise<WriteInSummaryEntry[] | undefined>;
+  loadWriteIns(): Promise<Admin.WriteInRecord[] | undefined>;
+  loadWriteInSummary(
+    contestId?: ContestId
+  ): Promise<Admin.WriteInSummaryEntry[] | undefined>;
   saveAdjudicatedValue(
     contestId: string,
     transcribedValue: string,
@@ -171,14 +175,18 @@ export function useElectionManagerStore({
   const electionDefinition = getElectionDefinitionQuery.data ?? undefined;
 
   const loadWriteIns = useCallback(
-    async (contestId?: string): Promise<WriteInRecord[] | undefined> => {
+    async (
+      contestId?: ContestId
+    ): Promise<Admin.WriteInRecord[] | undefined> => {
       return await backend.loadWriteIns(contestId);
     },
     [backend]
   );
 
   const loadWriteInSummary = useCallback(
-    async (contestId?: string): Promise<WriteInRecord[] | undefined> => {
+    async (
+      contestId?: ContestId
+    ): Promise<Admin.WriteInSummaryEntry[] | undefined> => {
       return await backend.loadWriteInSummary(contestId);
     },
     [backend]
@@ -186,10 +194,10 @@ export function useElectionManagerStore({
 
   const saveAdjudicatedValue = useCallback(
     async (
-      contestId: string,
+      contestId: ContestId,
       transcribedValue: string,
       adjudicatedValue: string,
-      adjudicatedOptionId?: string
+      adjudicatedOptionId?: ContestOptionId
     ): Promise<void> => {
       return await backend.saveAdjudicatedValue(
         contestId,

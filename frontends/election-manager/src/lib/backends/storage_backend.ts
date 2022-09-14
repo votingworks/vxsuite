@@ -1,6 +1,8 @@
-import { WriteInRecord, WriteInSummaryEntry } from '@votingworks/api';
+import { Admin } from '@votingworks/api';
 import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
 import {
+  ContestId,
+  ContestOptionId,
   ElectionDefinition,
   ExternalTallySourceType,
   FullElectionExternalTallies,
@@ -428,14 +430,22 @@ export class ElectionManagerStoreStorageBackend
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/require-await
-  protected async loadWriteIns(): Promise<WriteInRecord[] | undefined> {
-    throw new Error('Not implemented');
+  loadWriteIns(): Promise<Admin.WriteInRecord[] | undefined> {
+    return Promise.reject(new Error('Not implemented'));
   }
-  // eslint-disable-next-line @typescript-eslint/require-await
-  protected async loadWriteInSummary(): Promise<
-    WriteInSummaryEntry[] | undefined
-  > {
-    throw new Error('Not implemented');
+
+  loadWriteInSummary(): Promise<Admin.WriteInSummaryEntry[] | undefined> {
+    return Promise.reject(new Error('Not implemented'));
+  }
+
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  saveAdjudicatedValue(
+    contestId: ContestId,
+    transcribedValue: string,
+    adjudicatedValue: string,
+    adjudicatedOptionId?: ContestOptionId
+  ): Promise<void> {
+    /* eslint-enable @typescript-eslint/no-unused-vars */
+    return Promise.reject(new Error('Not implemented'));
   }
 }

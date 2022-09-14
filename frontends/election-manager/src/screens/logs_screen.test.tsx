@@ -28,7 +28,7 @@ test('Exporting logs', async () => {
 });
 
 test('Exporting logs when no election definition', async () => {
-  renderInAppContext(<LogsScreen />, { electionDefinition: 'NONE' });
+  renderInAppContext(<LogsScreen />, { unconfigured: true });
 
   // Log saving is tested fully in src/components/export_logs_modal.test.tsx
   userEvent.click(screen.getByText('Save Log File'));

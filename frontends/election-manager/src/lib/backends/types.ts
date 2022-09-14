@@ -1,5 +1,7 @@
-import { WriteInRecord, WriteInSummaryEntry } from '@votingworks/api';
+import { Admin } from '@votingworks/api';
 import {
+  ContestId,
+  ContestOptionId,
   ElectionDefinition,
   ExternalTallySourceType,
   FullElectionExternalTallies,
@@ -101,16 +103,18 @@ export interface ElectionManagerStoreBackend {
   addPrintedBallot(printedBallot: PrintedBallot): Promise<void>;
 
   /**
-   * Loads write in data.
+   * Loads write-in data.
    */
-  loadWriteIns(contestId?: string): Promise<WriteInRecord[] | undefined>;
+  loadWriteIns(
+    contestId?: ContestId
+  ): Promise<Admin.WriteInRecord[] | undefined>;
   loadWriteInSummary(
-    contestId?: string
-  ): Promise<WriteInSummaryEntry[] | undefined>;
+    contestId?: ContestId
+  ): Promise<Admin.WriteInSummaryEntry[] | undefined>;
   saveAdjudicatedValue(
-    contestId: string,
+    contestId: ContestId,
     transcribedValue: string,
     adjudicatedValue: string,
-    adjudicatedOptionId?: string
+    adjudicatedOptionId?: ContestOptionId
   ): Promise<void>;
 }

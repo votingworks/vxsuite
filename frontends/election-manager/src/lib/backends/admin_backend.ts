@@ -1,12 +1,14 @@
 import {
+  ContestId,
+  ContestOptionId,
   ElectionDefinition,
   Id,
   IdSchema,
   safeParse,
   safeParseElectionDefinition,
 } from '@votingworks/types';
-import { fetchJson } from '@votingworks/utils';
-import { Admin, WriteInRecord, WriteInSummaryEntry } from '@votingworks/api';
+import { fetchJson, typedAs } from '@votingworks/utils';
+import { Admin } from '@votingworks/api';
 import { ElectionManagerStoreStorageBackend } from './storage_backend';
 import { AddCastVoteRecordFileResult } from './types';
 
@@ -162,7 +164,9 @@ export class ElectionManagerStoreAdminBackend extends ElectionManagerStoreStorag
     }
   }
 
-  async loadWriteIns(contestId?: string): Promise<WriteInRecord[] | undefined> {
+  async loadWriteIns(
+    contestId?: ContestId
+  ): Promise<Admin.WriteInRecord[] | undefined> {
     const activeElectionId = await this.loadActiveElectionId();
 
     if (!activeElectionId) {
@@ -182,8 +186,8 @@ export class ElectionManagerStoreAdminBackend extends ElectionManagerStoreStorag
   }
 
   async loadWriteInSummary(
-    contestId?: string
-  ): Promise<WriteInSummaryEntry[] | undefined> {
+    contestId?: ContestId
+  ): Promise<Admin.WriteInSummaryEntry[] | undefined> {
     const activeElectionId = await this.loadActiveElectionId();
 
     if (!activeElectionId) {
@@ -194,7 +198,7 @@ export class ElectionManagerStoreAdminBackend extends ElectionManagerStoreStorag
         contestId ? `?contestId=${contestId}` : ''
       }`,
       { method: 'GET' }
-    )) as Admin.GetWriteInsResponse;
+    )) as Admin.GetWriteInSummaryResponse;
     if (Array.isArray(writeInResponse)) {
       return writeInResponse;
     }
@@ -203,27 +207,28 @@ export class ElectionManagerStoreAdminBackend extends ElectionManagerStoreStorag
   }
 
   async saveAdjudicatedValue(
-    contestId: string,
+    contestId: ContestId,
     transcribedValue: string,
     adjudicatedValue: string,
-    adjudicatedOptionId?: string
+    adjudicatedOptionId?: ContestOptionId
   ): Promise<void> {
     const activeElectionId = await this.loadActiveElectionId();
 
     if (!activeElectionId) {
       throw new Error('no election configured');
     }
-    console.log('hi');
     await fetchJson(
       `/admin/elections/${activeElectionId}/write-in-adjudications`,
       {
         method: 'POST',
-        body: JSON.stringify({
-          contestId,
-          transcribedValue,
-          adjudicatedValue,
-          adjudicatedOptionId,
-        }),
+        body: JSON.stringify(
+          typedAs<Admin.PostWriteInAdjudicationRequest>({
+            contestId,
+            transcribedValue,
+            adjudicatedValue,
+            adjudicatedOptionId,
+          })
+        ),
         headers: {
           'Content-Type': 'application/json',
         },

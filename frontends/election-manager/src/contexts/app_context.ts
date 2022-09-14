@@ -1,5 +1,6 @@
 import { createContext, RefObject } from 'react';
 import {
+  ContestId,
   ElectionDefinition,
   FullElectionTally,
   FullElectionExternalTally,
@@ -8,7 +9,7 @@ import {
 } from '@votingworks/types';
 import { usbstick, NullPrinter, Printer } from '@votingworks/utils';
 import { Logger, LogSource, LoggingUserRole } from '@votingworks/logging';
-import { WriteInRecord, WriteInSummaryEntry } from '@votingworks/api';
+import { Admin } from '@votingworks/api';
 import {
   SaveElection,
   PrintedBallot,
@@ -64,10 +65,12 @@ export interface AppContextInterface {
   machineConfig: MachineConfig;
   hasCardReaderAttached: boolean;
   hasPrinterAttached: boolean;
-  loadWriteIns: (contestId?: string) => Promise<WriteInRecord[] | undefined>;
+  loadWriteIns: (
+    contestId?: ContestId
+  ) => Promise<Admin.WriteInRecord[] | undefined>;
   loadWriteInSummary: (
-    contestId?: string
-  ) => Promise<WriteInSummaryEntry[] | undefined>;
+    contestId?: ContestId
+  ) => Promise<Admin.WriteInSummaryEntry[] | undefined>;
   logger: Logger;
 }
 

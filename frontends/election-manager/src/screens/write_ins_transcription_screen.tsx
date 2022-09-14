@@ -8,7 +8,7 @@ import {
 } from '@votingworks/types';
 import { Button, Main, Screen, Text } from '@votingworks/ui';
 import { assert } from '@votingworks/utils';
-import { WriteInRecord } from '@votingworks/api';
+import { Admin } from '@votingworks/api';
 import { Navigation } from '../components/navigation';
 import { TextInput } from '../components/text_input';
 
@@ -65,7 +65,7 @@ export function WriteInsTranscriptionScreen({
 }: {
   contest: CandidateContest;
   election: Election;
-  writeIns: readonly WriteInRecord[];
+  writeIns: readonly Admin.WriteInRecord[];
   paginationIdx: number;
   onClickNext?: () => void;
   onClickPrevious?: () => void;
@@ -100,7 +100,9 @@ export function WriteInsTranscriptionScreen({
   }
   useEffect(() => {
     setPreviouslyTranscribedValues(
-      new Set(writeIns.map((a) => a.transcribedValue).filter(Boolean))
+      new Set(
+        writeIns.map((a) => a.transcribedValue).filter((v): v is string => !!v)
+      )
     );
   }, [writeIns, setPreviouslyTranscribedValues]);
   useEffect(() => {

@@ -8,7 +8,7 @@ import {
   getPartyAbbreviationByPartyId,
 } from '@votingworks/types';
 
-import { WriteInRecord } from '@votingworks/api';
+import { Admin } from '@votingworks/api';
 import { NavigationScreen } from '../components/navigation_screen';
 import { WriteInsTranscriptionScreen } from './write_ins_transcription_screen';
 import { AppContext } from '../contexts/app_context';
@@ -44,11 +44,11 @@ export function WriteInsScreen(): JSX.Element {
     CandidateContest | undefined
   >();
   const [paginationIdx, setPaginationIdx] = useState<number>(0);
-  const [allWriteIns, setAllWriteIns] = useState<WriteInRecord[]>();
+  const [allWriteIns, setAllWriteIns] = useState<Admin.WriteInRecord[]>();
   const [writeInCountsByContest, setWriteInCountsByContest] =
     useState<Map<ContestId, ContestWriteInCounts>>();
   const [transcriptionsForCurrentContest, setTranscriptionsForCurrentContest] =
-    useState<WriteInRecord[]>([]);
+    useState<Admin.WriteInRecord[]>([]);
   const [adjudicationsForCurrentContest, setAdjudicationsForCurrentContest] =
     useState<Adjudication[]>([]);
 
@@ -66,29 +66,29 @@ export function WriteInsScreen(): JSX.Element {
       const summary = await loadWriteInSummary(contestBeingAdjudicated.id);
       if (summary) {
         const adjudicatedValues = new Set(
-          summary.map((entry) =>
-            entry.writeInAdjudication
-              ? entry.writeInAdjudication.adjudicatedValue
-              : ''
+          summary.map(
+            (entry) => entry.writeInAdjudication?.adjudicatedValue ?? ''
           )
         );
-        const adjudications = [...adjudicatedValues].map((value) => {
-          return {
-            value,
-            transcriptions: summary
-              .filter(
-                (entry) =>
-                  entry.writeInAdjudication?.adjudicatedValue === value ||
-                  (!value && !entry.writeInAdjudication)
-              )
-              .map((entry) => {
-                return {
-                  value: entry.transcribedValue,
-                  count: entry.writeInCount,
-                };
-              }),
-          };
-        });
+        const adjudications = [...adjudicatedValues].map(
+          (value): Adjudication => {
+            return {
+              value,
+              transcriptions: summary
+                .filter(
+                  (entry) =>
+                    entry.writeInAdjudication?.adjudicatedValue === value ||
+                    (!value && !entry.writeInAdjudication)
+                )
+                .map((entry) => {
+                  return {
+                    value: entry.transcribedValue ?? '',
+                    count: entry.writeInCount,
+                  };
+                }),
+            };
+          }
+        );
         setAdjudicationsForCurrentContest(adjudications);
       }
     }

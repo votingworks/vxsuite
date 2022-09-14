@@ -1,4 +1,7 @@
+import { Admin } from '@votingworks/api';
 import {
+  ContestId,
+  ContestOptionId,
   ElectionDefinition,
   ExternalTallySourceType,
   FullElectionExternalTallies,
@@ -179,4 +182,27 @@ export class ElectionManagerStoreMemoryBackend
     await Promise.resolve();
     this.printedBallots = [...(this.printedBallots ?? []), printedBallot];
   }
+
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  loadWriteIns(
+    contestId?: ContestId
+  ): Promise<Admin.WriteInRecord[] | undefined> {
+    throw new Error('Method not implemented.');
+  }
+
+  loadWriteInSummary(
+    contestId?: ContestId
+  ): Promise<Admin.WriteInSummaryEntry[] | undefined> {
+    throw new Error('Method not implemented.');
+  }
+
+  saveAdjudicatedValue(
+    contestId: ContestId,
+    transcribedValue: string,
+    adjudicatedValue: string,
+    adjudicatedOptionId?: ContestOptionId
+  ): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+  /* eslint-enable @typescript-eslint/no-unused-vars */
 }
