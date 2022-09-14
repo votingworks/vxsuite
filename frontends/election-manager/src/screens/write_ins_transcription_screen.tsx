@@ -1,9 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import {
   Adjudication,
-  AdjudicationId,
   CandidateContest,
   Election,
   getPartyAbbreviationByPartyId,
@@ -48,74 +47,49 @@ const TranscriptionPaginationContainer = styled.div`
   padding: 0.5rem 1rem;
 `;
 
-/* istanbul ignore next */
-function noop() {
-  // nothing to do
-}
-
-export function WriteInsTranscriptionScreen({
-  contest,
-  election,
-  adjudications,
-  paginationIdx,
-  onClickNext,
-  onClickPrevious,
-  onClose,
-  onListAll,
-  saveTranscribedValue,
-}: {
+interface Props {
   contest: CandidateContest;
   election: Election;
   adjudications: readonly Adjudication[];
-  paginationIdx: number;
-  onClickNext?: () => void;
-  onClickPrevious?: () => void;
   onClose: () => void;
   onListAll: () => void;
   saveTranscribedValue: (
     adjudicationId: string,
     transcribedValue: string
   ) => void;
-}): JSX.Element {
-  const [currentTranscribedValue, setCurrentTranscribedValue] = useState('');
+}
+
+export function WriteInsTranscriptionScreen({
+  contest,
+  election,
+  adjudications,
+  onClose,
+  onListAll,
+  saveTranscribedValue,
+}: Props): JSX.Element {
   const [isTranscribedValueInputVisible, setIsTranscribedValueInputVisible] =
     useState(false);
-  const [previouslyTranscribedValues, setPreviouslyTranscribedValues] =
-    useState<string[]>([]);
+  const [offset, setOffset] = useState(0);
 
   const transcribedValueInput = useRef<HTMLInputElement>(null);
 
   assert(contest);
   assert(election);
 
-  const currentAdjudication = adjudications[paginationIdx];
+  const currentAdjudication = adjudications[offset];
+  const currentTranscribedValue = currentAdjudication.transcribedValue;
   const adjudicationId = currentAdjudication.id;
 
   function onPressSetTranscribedValue(val: string): void {
-    setCurrentTranscribedValue(val);
     saveTranscribedValue(adjudicationId, val);
   }
 
-  useEffect(() => {
-    async function getTranscribedValue(id: AdjudicationId): Promise<void> {
-      const res = await fetch(`/admin/write-ins/adjudication/${id}`);
-      try {
-        const { transcribedValue } = await res.json();
-        setCurrentTranscribedValue(transcribedValue);
-      } catch {
-        setCurrentTranscribedValue('');
-      }
-    }
-    void getTranscribedValue(adjudicationId || '');
-  }, [adjudicationId]);
-
-  useEffect(() => {
-    async function getPreviouslyTranscribedValues(): Promise<void> {
-      const res = await fetch('/admin/write-ins/transcribed-values');
-      setPreviouslyTranscribedValues(await res.json());
-    }
-    void getPreviouslyTranscribedValues();
-  }, []);
+  const previouslyTranscribedValues = new Set(
+    adjudications
+      .map(({ transcribedValue }) => transcribedValue)
+      .filter(Boolean)
+      .sort((a, b) => a.localeCompare(b))
+  );
 
   return (
     <Screen>
@@ -132,7 +106,7 @@ export function WriteInsTranscriptionScreen({
           </React.Fragment>
         }
       />
-      <Main flexRow>
+      <Main flexRow data-testid={`transcribe:${adjudicationId}`}>
         <BallotPreviews>BALLOT IMAGES GO HERE</BallotPreviews>
         <TranscriptionContainer>
           <TranscriptionMainContentContainer>
@@ -151,7 +125,7 @@ export function WriteInsTranscriptionScreen({
               </React.Fragment>
             )}
             <PreviouslyTranscribedValuesContainer>
-              {previouslyTranscribedValues.map((val) => (
+              {[...previouslyTranscribedValues].map((val) => (
                 <PreviouslyTranscribedValueButtonWrapper key={val}>
                   <Button
                     primary={val === currentTranscribedValue}
@@ -181,9 +155,6 @@ export function WriteInsTranscriptionScreen({
                   onPress={() => {
                     const val = transcribedValueInput.current?.value || '';
                     onPressSetTranscribedValue(val);
-                    setPreviouslyTranscribedValues(
-                      previouslyTranscribedValues.concat([val])
-                    );
                     setIsTranscribedValueInputVisible(false);
                   }}
                 >
@@ -194,15 +165,18 @@ export function WriteInsTranscriptionScreen({
           </TranscriptionMainContentContainer>
           <TranscriptionPaginationContainer>
             <Button
-              disabled={!onClickPrevious}
-              onPress={onClickPrevious || noop}
+              disabled={offset === 0}
+              onPress={() => setOffset((prevOffset) => prevOffset - 1)}
             >
               Previous
             </Button>
             <Text bold>
-              {paginationIdx + 1} of {adjudications.length}
+              {offset + 1} of {adjudications.length}
             </Text>
-            <Button disabled={!onClickNext} onPress={onClickNext || noop}>
+            <Button
+              disabled={offset >= adjudications.length - 1}
+              onPress={() => setOffset((prevOffset) => prevOffset + 1)}
+            >
               Next
             </Button>
           </TranscriptionPaginationContainer>

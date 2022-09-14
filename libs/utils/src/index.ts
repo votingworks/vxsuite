@@ -3,6 +3,7 @@ export * from './as_boolean';
 export * from './assert';
 export * from './ballot_package';
 export * from './Card';
+export * as collections from './collections';
 export * from './compressed_tallies';
 export * from './date';
 export * from './deferred';

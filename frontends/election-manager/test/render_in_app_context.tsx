@@ -30,7 +30,10 @@ import { CastVoteRecordFiles } from '../src/utils/cast_vote_record_files';
 import { AddCastVoteRecordFileResult } from '../src/lib/backends/types';
 import { getEmptyFullElectionTally } from '../src/lib/votecounting';
 import { ServicesContext } from '../src/contexts/services_context';
-import { ElectionManagerStoreMemoryBackend } from '../src/lib/backends';
+import {
+  ElectionManagerStoreBackend,
+  ElectionManagerStoreMemoryBackend,
+} from '../src/lib/backends';
 
 export const eitherNeitherElectionDefinition =
   electionWithMsEitherNeitherDefinition;
@@ -71,6 +74,7 @@ interface RenderInAppContextParams {
   hasCardReaderAttached?: boolean;
   hasPrinterAttached?: boolean;
   logger?: Logger;
+  backend?: ElectionManagerStoreBackend;
   queryClient?: QueryClient;
 }
 
@@ -80,6 +84,10 @@ export function renderRootElement(
     backend = new ElectionManagerStoreMemoryBackend(),
     logger = fakeLogger(),
     queryClient = new QueryClient(),
+  }: {
+    backend?: ElectionManagerStoreBackend;
+    logger?: Logger;
+    queryClient?: QueryClient;
   } = {}
 ): RenderResult {
   return testRender(
@@ -127,6 +135,7 @@ export function renderInAppContext(
     hasCardReaderAttached = true,
     hasPrinterAttached = true,
     logger = new Logger(LogSource.VxAdminFrontend),
+    backend,
     queryClient,
   }: RenderInAppContextParams = {}
 ): RenderResult {
@@ -166,6 +175,6 @@ export function renderInAppContext(
     >
       <Router history={history}>{component}</Router>
     </AppContext.Provider>,
-    { queryClient }
+    { backend, logger, queryClient }
   );
 }
