@@ -1,9 +1,10 @@
-import { screen, waitFor } from '@testing-library/react';
-import React from 'react';
-import fetchMock from 'fetch-mock';
+import { screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
+import fetchMock from 'fetch-mock';
+import React from 'react';
 import { renderInAppContext } from '../../test/render_in_app_context';
-import { CastVoteRecordFiles } from '../utils/cast_vote_record_files';
+import { ElectionManagerStoreMemoryBackend } from '../lib/backends';
 import { WriteInsScreen } from './write_ins_screen';
 
 const TEST_FILE1 = 'cvrs.jsonl';
@@ -37,63 +38,52 @@ describe('Write-in Adjudication screen', () => {
 
   const { electionDefinition, cvrData } =
     electionMinimalExhaustiveSampleFixtures;
+  const abbreviatedCvrData = cvrData.split('\n').slice(0, 20).join('\n');
 
   test('No CVRs loaded', async () => {
     renderInAppContext(<WriteInsScreen />, { electionDefinition });
-    await waitFor(() => {
-      screen.getByText(
-        'Load CVRs to begin transcribing and adjudicating write-in votes.'
-      );
-    });
-    expect(screen.getAllByText('Transcribe')[0]).toBeDisabled();
+    await screen.findByText(
+      'Load CVRs to begin transcribing and adjudicating write-in votes.'
+    );
+    expect((await screen.findAllByText('Transcribe'))[0]).toBeDisabled();
   });
 
   test('CVRs with write-ins loaded', async () => {
-    const mockFiles = CastVoteRecordFiles.empty;
-    const added = await mockFiles.addAll(
-      [new File([cvrData], TEST_FILE1)],
-      electionDefinition.election
+    const backend = new ElectionManagerStoreMemoryBackend({
+      electionDefinition,
+    });
+    await backend.addCastVoteRecordFile(
+      new File([abbreviatedCvrData], TEST_FILE1)
     );
 
     renderInAppContext(<WriteInsScreen />, {
-      castVoteRecordFiles: added,
+      backend,
       electionDefinition,
     });
 
-    renderInAppContext(<WriteInsScreen />, {
-      castVoteRecordFiles: added,
-      electionDefinition,
-    });
-
-    let adjudicateButtons;
-    await waitFor(() => {
-      adjudicateButtons = screen.getAllByText('Transcribe');
-    });
-    if (adjudicateButtons) {
-      expect(adjudicateButtons[0]).not.toBeDisabled();
-    }
+    const transcribeButton = await screen.findByText('Transcribe (8 new)');
+    expect(transcribeButton).not.toBeDisabled();
   });
 
   test('ballot pagination', async () => {
-    const mockFiles = CastVoteRecordFiles.empty;
-    const added = await mockFiles.addAll(
-      [new File([cvrData], TEST_FILE1)],
-      electionDefinition.election
+    const backend = new ElectionManagerStoreMemoryBackend({
+      electionDefinition,
+    });
+    await backend.addCastVoteRecordFile(
+      new File([abbreviatedCvrData], TEST_FILE1)
     );
 
     renderInAppContext(<WriteInsScreen />, {
-      castVoteRecordFiles: added,
       electionDefinition,
+      backend,
     });
 
-    await waitFor(() => {
-      screen.getByText('Transcribe (3 new)').click();
-    });
+    userEvent.click(await screen.findByText('Transcribe (8 new)'));
 
-    const previousButton = screen.getByText('Previous');
-    const nextButton = screen.getByText('Next');
+    const previousButton = await screen.findByText('Previous');
+    const nextButton = await screen.findByText('Next');
 
-    screen.getByText(/1 of 3/);
+    screen.getByText(/1 of 8/);
     expect(previousButton).toBeDisabled();
     expect(nextButton).not.toBeDisabled();
 
@@ -102,7 +92,7 @@ describe('Write-in Adjudication screen', () => {
         expect(nextButton).not.toBeDisabled();
         nextButton.click();
       } catch {
-        screen.getByText(/3 of 3/);
+        screen.getByText(/8 of 8/);
         expect(previousButton).not.toBeDisabled();
         expect(nextButton).toBeDisabled();
         break;
