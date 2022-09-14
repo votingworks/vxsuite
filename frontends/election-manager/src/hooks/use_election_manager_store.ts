@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { WriteInRecord } from '@votingworks/api';
+import { WriteInRecord, WriteInSummaryEntry } from '@votingworks/api';
 import {
   LogDispositionStandardTypes,
   LogEventId,
@@ -113,6 +113,13 @@ export interface ElectionManagerStore {
   setCurrentUserRole(newCurrentUserRole: LoggingUserRole): void;
 
   loadWriteIns(): Promise<WriteInRecord[] | undefined>;
+  loadWriteInSummary(): Promise<WriteInSummaryEntry[] | undefined>;
+  saveAdjudicatedValue(
+    contestId: string,
+    transcribedValue: string,
+    adjudicatedValue: string,
+    adjudicatedOptionId?: string
+  ): Promise<void>;
 }
 
 interface Props {
@@ -163,11 +170,36 @@ export function useElectionManagerStore({
   );
   const electionDefinition = getElectionDefinitionQuery.data ?? undefined;
 
-  const loadWriteIns = useCallback(async (): Promise<
-    WriteInRecord[] | undefined
-  > => {
-    return await backend.loadWriteIns();
-  }, [backend]);
+  const loadWriteIns = useCallback(
+    async (contestId?: string): Promise<WriteInRecord[] | undefined> => {
+      return await backend.loadWriteIns(contestId);
+    },
+    [backend]
+  );
+
+  const loadWriteInSummary = useCallback(
+    async (contestId?: string): Promise<WriteInRecord[] | undefined> => {
+      return await backend.loadWriteInSummary(contestId);
+    },
+    [backend]
+  );
+
+  const saveAdjudicatedValue = useCallback(
+    async (
+      contestId: string,
+      transcribedValue: string,
+      adjudicatedValue: string,
+      adjudicatedOptionId?: string
+    ): Promise<void> => {
+      return await backend.saveAdjudicatedValue(
+        contestId,
+        transcribedValue,
+        adjudicatedValue,
+        adjudicatedOptionId
+      );
+    },
+    [backend]
+  );
 
   const loadConfiguredAt = useCallback(async (): Promise<
     string | undefined
@@ -403,6 +435,8 @@ export function useElectionManagerStore({
         isOfficialResults: isOfficialResults ?? false,
         printedBallots: printedBallots ?? [],
         loadWriteIns,
+        loadWriteInSummary,
+        saveAdjudicatedValue,
         addCastVoteRecordFile,
         addPrintedBallot,
         clearCastVoteRecordFiles,
@@ -426,6 +460,8 @@ export function useElectionManagerStore({
       fullElectionExternalTallies,
       isOfficialResults,
       loadWriteIns,
+      loadWriteInSummary,
+      saveAdjudicatedValue,
       markResultsOfficial,
       printedBallots,
       removeFullElectionExternalTally,

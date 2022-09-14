@@ -8,7 +8,7 @@ import {
 } from '@votingworks/types';
 import { usbstick, NullPrinter, Printer } from '@votingworks/utils';
 import { Logger, LogSource, LoggingUserRole } from '@votingworks/logging';
-import { WriteInRecord } from '@votingworks/api';
+import { WriteInRecord, WriteInSummaryEntry } from '@votingworks/api';
 import {
   SaveElection,
   PrintedBallot,
@@ -52,13 +52,22 @@ export interface AppContextInterface {
     adjudicationId: string,
     transcribedValue: string
   ) => Promise<void>;
+  saveAdjudicatedValue: (
+    contestId: string,
+    transcribedValue: string,
+    adjudicatedValue: string,
+    adjudicatedOptionId?: string
+  ) => Promise<void>;
   setIsTabulationRunning: React.Dispatch<React.SetStateAction<boolean>>;
   generateExportableTallies: () => ExportableTallies;
   auth: DippedSmartcardAuth.Auth;
   machineConfig: MachineConfig;
   hasCardReaderAttached: boolean;
   hasPrinterAttached: boolean;
-  loadWriteIns: () => Promise<WriteInRecord[] | undefined>;
+  loadWriteIns: (contestId?: string) => Promise<WriteInRecord[] | undefined>;
+  loadWriteInSummary: (
+    contestId?: string
+  ) => Promise<WriteInSummaryEntry[] | undefined>;
   logger: Logger;
 }
 
@@ -88,6 +97,7 @@ const appContext: AppContextInterface = {
   fullElectionExternalTallies: new Map(),
   updateExternalTally: async () => undefined,
   saveTranscribedValue: async () => undefined,
+  saveAdjudicatedValue: async () => undefined,
   isTabulationRunning: false,
   setIsTabulationRunning: () => undefined,
   generateExportableTallies: getEmptyExportableTallies,
@@ -103,6 +113,7 @@ const appContext: AppContextInterface = {
   hasPrinterAttached: true,
   logger: new Logger(LogSource.VxAdminFrontend),
   loadWriteIns: async () => undefined,
+  loadWriteInSummary: async () => undefined,
 };
 /* eslint-enable @typescript-eslint/require-await */
 

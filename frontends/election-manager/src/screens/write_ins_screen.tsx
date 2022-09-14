@@ -3,7 +3,6 @@ import styled from 'styled-components';
 
 import { Button, Modal, Prose, Table, TD } from '@votingworks/ui';
 import {
-  Adjudication,
   CandidateContest,
   ContestId,
   getPartyAbbreviationByPartyId,
@@ -13,90 +12,15 @@ import { WriteInRecord } from '@votingworks/api';
 import { NavigationScreen } from '../components/navigation_screen';
 import { WriteInsTranscriptionScreen } from './write_ins_transcription_screen';
 import { AppContext } from '../contexts/app_context';
-import { WriteInsAdjudicationScreen } from './write_ins_adjudication_screen';
+import {
+  WriteInsAdjudicationScreen,
+  Adjudication,
+} from './write_ins_adjudication_screen';
 
 const ContentWrapper = styled.div`
   display: inline-block;
 `;
 
-const initialTemporaryTranscriptions = [
-  {
-    id: 'd1',
-    contest_id: 'zoo-council-mammal',
-    transcribed_value: 'Jumpy',
-    adjudicated_value: '',
-    cvr_id: 'asdf',
-  },
-  {
-    id: 'd2',
-    contest_id: 'zoo-council-mammal',
-    transcribed_value: 'Elephant',
-    adjudicated_value: '',
-    cvr_id: 'asdf',
-  },
-  {
-    id: 'd3',
-    contest_id: 'zoo-council-mammal',
-    transcribed_value: 'Long Trunk',
-    adjudicated_value: '',
-    cvr_id: 'asdf',
-  },
-  {
-    id: 'd4',
-    contest_id: 'zoo-council-mammal',
-    transcribed_value: 'Jumpy',
-    adjudicated_value: '',
-    cvr_id: 'asdf',
-  },
-  {
-    id: 'd5',
-    contest_id: 'zoo-council-mammal',
-    transcribed_value: 'Pink',
-    adjudicated_value: '',
-    cvr_id: 'asdf',
-  },
-  {
-    id: 'd6',
-    contest_id: 'zoo-council-mammal',
-    transcribed_value: 'Pink Flamingo',
-    adjudicated_value: '',
-    cvr_id: 'asdf',
-  },
-  {
-    id: 'd7',
-    contest_id: 'zoo-council-mammal',
-    transcribed_value: 'Flamingo',
-    adjudicated_value: '',
-    cvr_id: 'asdf',
-  },
-  {
-    id: 'd8',
-    contest_id: 'zoo-council-mammal',
-    transcribed_value: 'Flamingo',
-    adjudicated_value: '',
-    cvr_id: 'asdf',
-  },
-  {
-    id: 'd9',
-    contest_id: 'zoo-council-mammal',
-    transcribed_value: 'Flamingo',
-    adjudicated_value: '',
-    cvr_id: 'asdf',
-  },
-];
-
-interface AdjudicationTranscription {
-  value: string;
-  count: number;
-}
-interface ContestAdjudicationRecord {
-  value: string;
-  transcriptions: AdjudicationTranscription[];
-}
-interface ContestAdjudication {
-  contestId: string;
-  adjudications: ContestAdjudicationRecord[];
-}
 interface ContestWriteInCounts {
   contestId: string;
   pendingCount: number;
@@ -109,7 +33,9 @@ export function WriteInsScreen(): JSX.Element {
     castVoteRecordFiles,
     electionDefinition,
     loadWriteIns,
+    loadWriteInSummary,
     saveTranscribedValue,
+    saveAdjudicatedValue,
   } = useContext(AppContext);
   const [contestBeingTranscribed, setContestBeingTranscribed] = useState<
     CandidateContest | undefined
@@ -123,10 +49,8 @@ export function WriteInsScreen(): JSX.Element {
     useState<Map<ContestId, ContestWriteInCounts>>();
   const [transcriptionsForCurrentContest, setTranscriptionsForCurrentContest] =
     useState<WriteInRecord[]>([]);
-
-  const [temporaryTranscriptions, setTemporaryTranscriptions] = useState(
-    initialTemporaryTranscriptions
-  );
+  const [adjudicationsForCurrentContest, setAdjudicationsForCurrentContest] =
+    useState<Adjudication[]>([]);
 
   const election = electionDefinition?.election;
 
@@ -136,6 +60,64 @@ export function WriteInsScreen(): JSX.Element {
       setAllWriteIns(writeIns);
     }
   }, [loadWriteIns, setAllWriteIns]);
+
+  const fetchWriteInSummary = useCallback(async () => {
+    if (contestBeingAdjudicated) {
+      const summary = await loadWriteInSummary(contestBeingAdjudicated.id);
+      if (summary) {
+        const adjudicatedValues = new Set(
+          summary.map((entry) =>
+            entry.writeInAdjudication
+              ? entry.writeInAdjudication.adjudicatedValue
+              : ''
+          )
+        );
+        const adjudications = [...adjudicatedValues].map((value) => {
+          return {
+            value,
+            transcriptions: summary
+              .filter(
+                (entry) =>
+                  entry.writeInAdjudication?.adjudicatedValue === value ||
+                  (!value && !entry.writeInAdjudication)
+              )
+              .map((entry) => {
+                return {
+                  value: entry.transcribedValue,
+                  count: entry.writeInCount,
+                };
+              }),
+          };
+        });
+        setAdjudicationsForCurrentContest(adjudications);
+      }
+    }
+  }, [
+    loadWriteInSummary,
+    setAdjudicationsForCurrentContest,
+    contestBeingAdjudicated,
+  ]);
+
+  useEffect(() => {
+    if (contestBeingAdjudicated) {
+      void fetchWriteInSummary();
+    } else {
+      setAdjudicationsForCurrentContest([]);
+    }
+  }, [contestBeingAdjudicated, fetchWriteInSummary]);
+
+  const fetchWriteInsForTranscribedContest = useCallback(async () => {
+    if (contestBeingTranscribed) {
+      const writeIns = await loadWriteIns(contestBeingTranscribed.id);
+      if (writeIns !== undefined) {
+        setTranscriptionsForCurrentContest(writeIns ?? []);
+      }
+    }
+  }, [
+    loadWriteIns,
+    setTranscriptionsForCurrentContest,
+    contestBeingTranscribed,
+  ]);
 
   useEffect(() => {
     void fetchWriteIns();
@@ -165,19 +147,24 @@ export function WriteInsScreen(): JSX.Element {
 
   // When we start adjudicating a new contest, reset pagination index and fetch adjudications
   useEffect(() => {
-    if (contestBeingTranscribed) {
-      setPaginationIdx(0);
-      setTranscriptionsForCurrentContest(
-        allWriteIns
-          ? allWriteIns.filter(
-              (w) => w.contestId === contestBeingTranscribed.id
-            )
-          : []
-      );
-    } else {
-      setTranscriptionsForCurrentContest([]);
+    async function update() {
+      if (contestBeingTranscribed) {
+        const writeIns = await loadWriteIns(contestBeingTranscribed.id);
+        if (writeIns !== undefined) {
+          setTranscriptionsForCurrentContest(writeIns);
+          const firstPendingValue = writeIns.findIndex(
+            (w) => w.status === 'pending'
+          );
+          setPaginationIdx(
+            firstPendingValue && firstPendingValue > 0 ? firstPendingValue : 0
+          );
+        }
+      } else {
+        setTranscriptionsForCurrentContest([]);
+      }
     }
-  }, [contestBeingTranscribed, allWriteIns]);
+    void update();
+  }, [contestBeingTranscribed, loadWriteIns]);
 
   if (!election) {
     return (
@@ -189,131 +176,23 @@ export function WriteInsScreen(): JSX.Element {
     );
   }
 
-  const transcriptionContestIds = [
-    ...new Set(temporaryTranscriptions.map((t) => t.contest_id)),
-  ];
-  const contestsWithWritins = election.contests.filter((c) =>
-    transcriptionContestIds.includes(c.id)
-  );
-
-  function sortWithEmptyStringLast(a: string, b: string) {
-    if (a === b) {
-      return 0;
-    }
-    if (a === '') {
-      return 1;
-    }
-    if (b === '') {
-      return -1;
-    }
-    return a < b ? -1 : 1;
-  }
-
-  const contestAdjudications = temporaryTranscriptions.reduce<
-    ContestAdjudication[]
-  >(
-    (accumulator, currenTranscription) => {
-      const newContestAdjudications: ContestAdjudication[] = [...accumulator];
-      const contest: ContestAdjudication | undefined =
-        newContestAdjudications.find(
-          (c) => c.contestId === currenTranscription.contest_id
-        );
-      if (!contest) {
-        return newContestAdjudications;
-      }
-      const contestIndex = newContestAdjudications.findIndex(
-        (c) => c.contestId === currenTranscription.contest_id
-      );
-      const adjudication: AdjudicationZ | undefined =
-        contest.adjudications.find(
-          (a) => a.value === currenTranscription.adjudicated_value
-        );
-      const adjudicationIndex = contest.adjudications.findIndex(
-        (a) => a.value === currenTranscription.adjudicated_value
-      );
-      const transcription: AdjudicationTranscription | undefined =
-        adjudication?.transcriptions.find(
-          (t) => t.value === currenTranscription.transcribed_value
-        );
-      const transcriptionIndex =
-        adjudication?.transcriptions.findIndex(
-          (t) => t.value === currenTranscription.transcribed_value
-        ) ?? -1;
-      if (!adjudication) {
-        // Add new adjudication and first transcription
-        newContestAdjudications[contestIndex].adjudications = [
-          ...newContestAdjudications[contestIndex].adjudications,
-          {
-            value: currenTranscription.adjudicated_value,
-            transcriptions: [
-              {
-                value: currenTranscription.transcribed_value,
-                count: 1,
-              },
-            ],
-          },
-        ].sort((a, b) => sortWithEmptyStringLast(a.value, b.value));
-      } else if (transcription && transcriptionIndex >= 0) {
-        // Add duplicate transcription
-        // eslint-disable-next-line no-plusplus
-        newContestAdjudications[contestIndex].adjudications[adjudicationIndex]
-          .transcriptions[transcriptionIndex].count++;
-      } else if (!transcription) {
-        // Add new transcription
-        const newAdjudicationTranscriptions = [
-          ...newContestAdjudications[contestIndex].adjudications[
-            adjudicationIndex
-          ].transcriptions,
-          {
-            value: currenTranscription.transcribed_value,
-            count: 1,
-          },
-        ].sort((a, b) => a.value.localeCompare(b.value));
-        newContestAdjudications[contestIndex].adjudications[
-          adjudicationIndex
-        ].transcriptions = newAdjudicationTranscriptions;
-        newContestAdjudications[contestIndex].adjudications = [
-          ...newContestAdjudications[contestIndex].adjudications,
-        ].sort((a, b) => sortWithEmptyStringLast(a.value, b.value));
-      }
-      return newContestAdjudications;
-    },
-    (contestsWithWritins || []).map((c) => ({
-      contestId: c.id,
-      adjudications: [
-        {
-          value: '',
-          count: 0,
-          transcriptions: [],
-        },
-      ],
-    }))
-  );
-
-  function getAdjudicationsForContest(id: string): AdjudicationZ[] {
-    return (
-      contestAdjudications.find((a) => a.contestId === id)?.adjudications || []
-    );
-  }
-
   function updateTranscriptions(
     transcribedValue: string,
-    adjudicatedValue: string
+    adjudicatedValue: string,
+    adjudicatedOptionId?: string
   ) {
-    setTemporaryTranscriptions(
-      temporaryTranscriptions.map((t) => {
-        if (
-          t.transcribed_value === transcribedValue ||
-          t.transcribed_value === adjudicatedValue
-        ) {
-          return {
-            ...t,
-            adjudicated_value: adjudicatedValue,
-          };
-        }
-        return t;
-      })
-    );
+    async function update() {
+      if (contestBeingAdjudicated) {
+        await saveAdjudicatedValue(
+          contestBeingAdjudicated.id,
+          transcribedValue,
+          adjudicatedValue,
+          adjudicatedOptionId
+        );
+        await fetchWriteInSummary();
+      }
+    }
+    void update();
   }
 
   function adjudicateTranscription(transcribedValue: string) {
@@ -435,8 +314,8 @@ export function WriteInsScreen(): JSX.Element {
                 writeIns={transcriptionsForCurrentContest}
                 paginationIdx={paginationIdx}
                 onClose={async () => {
-                  await fetchWriteIns();
                   setContestBeingTranscribed(undefined);
+                  await fetchWriteIns();
                 }}
                 onListAll={placeholderFn}
                 onClickNext={
@@ -449,22 +328,29 @@ export function WriteInsScreen(): JSX.Element {
                     ? () => setPaginationIdx(paginationIdx - 1)
                     : undefined
                 }
-                saveTranscribedValue={saveTranscribedValue}
+                saveTranscribedValue={async (
+                  adjudicationId: string,
+                  value: string
+                ) => {
+                  await saveTranscribedValue(adjudicationId, value);
+                  await fetchWriteInsForTranscribedContest();
+                }}
               />
             }
             fullscreen
           />
         )}
-        {contestBeingAdjudicated && (
+        {contestBeingAdjudicated && adjudicationsForCurrentContest.length > 0 && (
           <Modal
             fullscreen
             content={
               <WriteInsAdjudicationScreen
                 contest={contestBeingAdjudicated}
-                contestAdjudications={getAdjudicationsForContest(
-                  contestBeingAdjudicated.id
-                )}
-                onClose={() => setContestBeingAdjudicated(undefined)}
+                contestAdjudications={adjudicationsForCurrentContest}
+                onClose={async () => {
+                  setContestBeingAdjudicated(undefined);
+                  await fetchWriteIns();
+                }}
                 adjudicateTranscription={adjudicateTranscription}
                 unadjudicateTranscription={unadjudicateTranscription}
               />

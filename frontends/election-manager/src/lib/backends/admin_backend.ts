@@ -6,7 +6,7 @@ import {
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import { fetchJson } from '@votingworks/utils';
-import { Admin, WriteInRecord } from '@votingworks/api';
+import { Admin, WriteInRecord, WriteInSummaryEntry } from '@votingworks/api';
 import { ElectionManagerStoreStorageBackend } from './storage_backend';
 import { AddCastVoteRecordFileResult } from './types';
 
@@ -162,14 +162,16 @@ export class ElectionManagerStoreAdminBackend extends ElectionManagerStoreStorag
     }
   }
 
-  async loadWriteIns(): Promise<WriteInRecord[] | undefined> {
+  async loadWriteIns(contestId?: string): Promise<WriteInRecord[] | undefined> {
     const activeElectionId = await this.loadActiveElectionId();
 
     if (!activeElectionId) {
       throw new Error('no election configured');
     }
     const writeInResponse = (await fetchJson(
-      `/admin/elections/${activeElectionId}/write-ins`,
+      `/admin/elections/${activeElectionId}/write-ins${
+        contestId ? `?contestId=${contestId}` : ''
+      }`,
       { method: 'GET' }
     )) as Admin.GetWriteInsResponse;
     if (Array.isArray(writeInResponse)) {
@@ -177,5 +179,55 @@ export class ElectionManagerStoreAdminBackend extends ElectionManagerStoreStorag
     }
     // How do we properly handle error responses?
     throw new Error(writeInResponse.errors.map((e) => e.message).join(','));
+  }
+
+  async loadWriteInSummary(
+    contestId?: string
+  ): Promise<WriteInSummaryEntry[] | undefined> {
+    const activeElectionId = await this.loadActiveElectionId();
+
+    if (!activeElectionId) {
+      throw new Error('no election configured');
+    }
+    const writeInResponse = (await fetchJson(
+      `/admin/elections/${activeElectionId}/write-in-summary${
+        contestId ? `?contestId=${contestId}` : ''
+      }`,
+      { method: 'GET' }
+    )) as Admin.GetWriteInsResponse;
+    if (Array.isArray(writeInResponse)) {
+      return writeInResponse;
+    }
+    // How do we properly handle error responses?
+    throw new Error(writeInResponse.errors.map((e) => e.message).join(','));
+  }
+
+  async saveAdjudicatedValue(
+    contestId: string,
+    transcribedValue: string,
+    adjudicatedValue: string,
+    adjudicatedOptionId?: string
+  ): Promise<void> {
+    const activeElectionId = await this.loadActiveElectionId();
+
+    if (!activeElectionId) {
+      throw new Error('no election configured');
+    }
+    console.log('hi');
+    await fetchJson(
+      `/admin/elections/${activeElectionId}/write-in-adjudications`,
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          contestId,
+          transcribedValue,
+          adjudicatedValue,
+          adjudicatedOptionId,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
   }
 }

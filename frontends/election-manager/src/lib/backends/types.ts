@@ -1,4 +1,4 @@
-import { WriteInRecord } from '@votingworks/api';
+import { WriteInRecord, WriteInSummaryEntry } from '@votingworks/api';
 import {
   ElectionDefinition,
   ExternalTallySourceType,
@@ -103,5 +103,14 @@ export interface ElectionManagerStoreBackend {
   /**
    * Loads write in data.
    */
-  loadWriteIns(): Promise<WriteInRecord[] | undefined>;
+  loadWriteIns(contestId?: string): Promise<WriteInRecord[] | undefined>;
+  loadWriteInSummary(
+    contestId?: string
+  ): Promise<WriteInSummaryEntry[] | undefined>;
+  saveAdjudicatedValue(
+    contestId: string,
+    transcribedValue: string,
+    adjudicatedValue: string,
+    adjudicatedOptionId?: string
+  ): Promise<void>;
 }

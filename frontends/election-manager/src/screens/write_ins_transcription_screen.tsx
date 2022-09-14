@@ -2,8 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import {
-  Adjudication,
-  AdjudicationId,
   CandidateContest,
   Election,
   getPartyAbbreviationByPartyId,
@@ -78,8 +76,7 @@ export function WriteInsTranscriptionScreen({
     transcribedValue: string
   ) => void;
 }): JSX.Element {
-  const writeInsToTranscribe = writeIns.filter((w) => w.status === 'pending');
-  const currentAdjudication = writeInsToTranscribe[paginationIdx];
+  const currentAdjudication = writeIns[paginationIdx];
   const [currentTranscribedValue, setCurrentTranscribedValue] = useState(
     currentAdjudication.transcribedValue ?? ''
   );
@@ -99,7 +96,6 @@ export function WriteInsTranscriptionScreen({
     setCurrentTranscribedValue(val);
     saveTranscribedValue(adjudicationId, val);
     previouslyTranscribedValues.add(val);
-
     setPreviouslyTranscribedValues(previouslyTranscribedValues);
   }
   useEffect(() => {
@@ -107,6 +103,9 @@ export function WriteInsTranscriptionScreen({
       new Set(writeIns.map((a) => a.transcribedValue).filter(Boolean))
     );
   }, [writeIns, setPreviouslyTranscribedValues]);
+  useEffect(() => {
+    setCurrentTranscribedValue(currentAdjudication.transcribedValue ?? '');
+  }, [currentAdjudication]);
 
   return (
     <Screen>
@@ -188,7 +187,7 @@ export function WriteInsTranscriptionScreen({
               Previous
             </Button>
             <Text bold>
-              {paginationIdx + 1} of {writeInsToTranscribe.length}
+              {paginationIdx + 1} of {writeIns.length}
             </Text>
             <Button disabled={!onClickNext} onPress={onClickNext || noop}>
               Next

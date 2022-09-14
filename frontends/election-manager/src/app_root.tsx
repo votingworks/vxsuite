@@ -294,6 +294,8 @@ export function AppRoot({
         hasPrinterAttached: !!printerInfo,
         logger,
         loadWriteIns: store.loadWriteIns,
+        loadWriteInSummary: store.loadWriteInSummary,
+        saveAdjudicatedValue: store.saveAdjudicatedValue,
       }}
     >
       <ElectionManager />

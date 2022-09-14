@@ -79,7 +79,7 @@ interface AdjudicationTranscription {
   value: string;
   count: number;
 }
-interface Adjudication {
+export interface Adjudication {
   value: string;
   transcriptions: AdjudicationTranscription[];
 }
@@ -105,6 +105,7 @@ export function WriteInsAdjudicationScreen({
   ) => (event: React.ChangeEvent<HTMLSelectElement>) => void;
   unadjudicateTranscription: (transcribedValue: string) => EventTargetFunction;
 }): JSX.Element {
+  console.log('adjudications', contestAdjudications);
   const adjudicationQueue =
     contestAdjudications.find((a) => a.value === '')?.transcriptions.length ||
     0;
@@ -241,7 +242,9 @@ export function WriteInsAdjudicationScreen({
                                   {adjudicationValues.map((v) => (
                                     <option
                                       key={v.name}
-                                      value={v.name}
+                                      value={
+                                        v.candidateId ? v.candidateId : v.name
+                                      }
                                       disabled={v.hasAdjudication}
                                     >
                                       {v.name}
