@@ -28,6 +28,7 @@ import { NavigationScreen } from '../components/navigation_screen';
 import { ExportElectionBallotPackageModalButton } from '../components/export_election_ballot_package_modal_button';
 import { ExportBallotPdfsButton } from '../components/export_ballot_pdfs_button';
 import { PrintAllBallotsButton } from '../components/print_all_ballots_button';
+import { canViewAndPrintBallotsWithConverter } from '../utils/can_view_and_print_ballots_with_converter';
 
 const Header = styled.div`
   display: flex;
@@ -36,9 +37,11 @@ const Header = styled.div`
 `;
 
 export function BallotListScreen(): JSX.Element {
-  const { auth, electionDefinition, configuredAt } = useContext(AppContext);
+  const { auth, converter, configuredAt, electionDefinition } =
+    useContext(AppContext);
   assert(electionDefinition && typeof configuredAt === 'string');
   const { election } = electionDefinition;
+  const canViewAndPrintBallots = canViewAndPrintBallotsWithConverter(converter);
 
   const allBallotStyles = getBallotStylesData(election);
   const ballotLists = [
@@ -59,6 +62,33 @@ export function BallotListScreen(): JSX.Element {
   }
 
   const ballots = ballotLists[ballotView];
+
+  if (!canViewAndPrintBallots) {
+    return (
+      <NavigationScreen>
+        <Header>
+          <Prose>
+            <p>This election uses custom ballots not produced by VxAdmin.</p>
+            <p>
+              The Ballot Package is still used to configure VxScan, the ballot
+              scanner.
+            </p>
+            {isElectionManagerAuth(auth) ? (
+              <p>
+                <ExportElectionBallotPackageModalButton />
+              </p>
+            ) : (
+              <p>
+                <em>
+                  Insert Election Manager card to save the Ballot Package.
+                </em>
+              </p>
+            )}
+          </Prose>
+        </Header>
+      </NavigationScreen>
+    );
+  }
 
   return (
     <NavigationScreen>

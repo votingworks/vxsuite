@@ -1126,6 +1126,42 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
   getByText('No CVR files loaded.');
 });
 
+test('Can not view or print ballots when using nh-accuvote converter', async () => {
+  const backend = new ElectionManagerStoreMemoryBackend({
+    // Not an election definition for NH, but doesn't matter for test.
+    electionDefinition: eitherNeitherElectionDefinition,
+  });
+
+  const card = new MemoryCard();
+  const hardware = MemoryHardware.buildStandard();
+  const { getByText, queryByText } = renderInQueryClientContext(
+    <App
+      backend={backend}
+      card={card}
+      hardware={hardware}
+      converter="nh-accuvote"
+    />
+  );
+
+  await authenticateWithSystemAdministratorCard(card);
+  fireEvent.click(getByText('Ballots'));
+  await screen.findByText(
+    'This election uses custom ballots not produced by VxAdmin.'
+  );
+  expect(queryByText('Save Ballot Package')).toBeNull();
+  fireEvent.click(getByText('Lock Machine'));
+
+  await authenticateWithElectionManagerCard(
+    card,
+    eitherNeitherElectionDefinition
+  );
+  fireEvent.click(getByText('Ballots'));
+  await screen.findByText(
+    'This election uses custom ballots not produced by VxAdmin.'
+  );
+  getByText('Save Ballot Package');
+});
+
 test('election manager UI has expected nav', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
