@@ -13,7 +13,7 @@ import {
   DippedSmartcardAuth,
 } from '@votingworks/types';
 import { usbstick, NullPrinter, Printer } from '@votingworks/utils';
-import { Logger, LogSource } from '@votingworks/logging';
+import { fakeLogger, Logger, LogSource } from '@votingworks/logging';
 
 import { Dipped } from '@votingworks/test-utils';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -29,6 +29,8 @@ import {
 import { CastVoteRecordFiles } from '../src/utils/cast_vote_record_files';
 import { AddCastVoteRecordFileResult } from '../src/lib/backends/types';
 import { getEmptyFullElectionTally } from '../src/lib/votecounting';
+import { ServicesContext } from '../src/contexts/services_context';
+import { ElectionManagerStoreMemoryBackend } from '../src/lib/backends';
 
 export const eitherNeitherElectionDefinition =
   electionWithMsEitherNeitherDefinition;
@@ -72,12 +74,20 @@ interface RenderInAppContextParams {
   queryClient?: QueryClient;
 }
 
-export function renderInQueryClientContext(
+export function renderRootElement(
   component: React.ReactNode,
-  { queryClient = new QueryClient() } = {}
+  {
+    backend = new ElectionManagerStoreMemoryBackend(),
+    logger = fakeLogger(),
+    queryClient = new QueryClient(),
+  } = {}
 ): RenderResult {
   return testRender(
-    <QueryClientProvider client={queryClient}>{component}</QueryClientProvider>
+    <ServicesContext.Provider value={{ backend, logger }}>
+      <QueryClientProvider client={queryClient}>
+        {component}
+      </QueryClientProvider>
+    </ServicesContext.Provider>
   );
 }
 
@@ -120,7 +130,7 @@ export function renderInAppContext(
     queryClient,
   }: RenderInAppContextParams = {}
 ): RenderResult {
-  return renderInQueryClientContext(
+  return renderRootElement(
     <AppContext.Provider
       value={{
         castVoteRecordFiles,

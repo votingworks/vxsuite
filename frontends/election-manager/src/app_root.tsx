@@ -4,9 +4,10 @@ import React, {
   useEffect,
   useCallback,
   useMemo,
+  useContext,
 } from 'react';
 import 'normalize.css';
-import { Logger, LogEventId } from '@votingworks/logging';
+import { LogEventId } from '@votingworks/logging';
 import {
   Card,
   FullElectionExternalTally,
@@ -43,14 +44,10 @@ import {
 } from './config/types';
 import { useElectionManagerStore } from './hooks/use_election_manager_store';
 import { getExportableTallies } from './utils/exportable_tallies';
-import {
-  AddCastVoteRecordFileResult,
-  ElectionManagerStoreBackend,
-} from './lib/backends/types';
+import { AddCastVoteRecordFileResult } from './lib/backends/types';
+import { ServicesContext } from './contexts/services_context';
 
 export interface Props {
-  logger: Logger;
-  backend: ElectionManagerStoreBackend;
   printer: Printer;
   hardware: Hardware;
   card: Card;
@@ -59,14 +56,13 @@ export interface Props {
 }
 
 export function AppRoot({
-  backend,
-  logger,
   printer,
   card,
   hardware,
   machineConfigProvider,
   converter,
 }: Props): JSX.Element {
+  const { logger } = useContext(ServicesContext);
   const printBallotRef = useRef<HTMLDivElement>(null);
 
   const { cardReader, printer: printerInfo } = useDevices({ hardware, logger });
@@ -77,10 +73,7 @@ export function AppRoot({
     codeVersion: '',
   });
 
-  const store = useElectionManagerStore({
-    logger,
-    backend,
-  });
+  const store = useElectionManagerStore();
 
   const { electionDefinition } = store;
 

@@ -31,7 +31,7 @@ import { authenticateWithSystemAdministratorCard } from '../../../test/util/auth
 import { generatePin } from './pins';
 import { MachineConfig } from '../../config/types';
 import { VxFiles } from '../../lib/converters';
-import { renderInQueryClientContext } from '../../../test/render_in_app_context';
+import { renderRootElement } from '../../../test/render_in_app_context';
 import { ElectionManagerStoreMemoryBackend } from '../../lib/backends';
 
 jest.mock('./pins', (): typeof import('./pins') => {
@@ -63,9 +63,7 @@ test('Smartcard modal displays card details', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const backend = new ElectionManagerStoreMemoryBackend({ electionDefinition });
-  renderInQueryClientContext(
-    <App backend={backend} card={card} hardware={hardware} />
-  );
+  renderRootElement(<App card={card} hardware={hardware} />, { backend });
   await authenticateWithSystemAdministratorCard(card);
 
   const testCases: Array<{
@@ -174,9 +172,7 @@ test('Smartcard modal displays card details when no election definition on machi
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const backend = new ElectionManagerStoreMemoryBackend();
-  renderInQueryClientContext(
-    <App backend={backend} card={card} hardware={hardware} />
-  );
+  renderRootElement(<App card={card} hardware={hardware} />, { backend });
   await authenticateWithSystemAdministratorCard(card);
 
   const testCases: Array<{
@@ -275,9 +271,7 @@ test('Programming election manager and poll worker smartcards', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const backend = new ElectionManagerStoreMemoryBackend({ electionDefinition });
-  renderInQueryClientContext(
-    <App backend={backend} card={card} hardware={hardware} />
-  );
+  renderRootElement(<App card={card} hardware={hardware} />, { backend });
   await authenticateWithSystemAdministratorCard(card);
 
   const testCases: Array<{
@@ -361,9 +355,7 @@ test('Programming system administrator smartcards', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const backend = new ElectionManagerStoreMemoryBackend({ electionDefinition });
-  renderInQueryClientContext(
-    <App backend={backend} card={card} hardware={hardware} />
-  );
+  renderRootElement(<App card={card} hardware={hardware} />, { backend });
   await authenticateWithSystemAdministratorCard(card);
 
   // Programming system administrator smartcards requires being on a specific screen
@@ -406,9 +398,7 @@ test('Programming smartcards when no election definition on machine', async () =
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const backend = new ElectionManagerStoreMemoryBackend();
-  renderInQueryClientContext(
-    <App backend={backend} card={card} hardware={hardware} />
-  );
+  renderRootElement(<App card={card} hardware={hardware} />, { backend });
   await authenticateWithSystemAdministratorCard(card);
 
   await screen.findByRole('heading', { name: 'Configure VxAdmin' });
@@ -438,9 +428,7 @@ test('Resetting smartcard PINs', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const backend = new ElectionManagerStoreMemoryBackend({ electionDefinition });
-  renderInQueryClientContext(
-    <App backend={backend} card={card} hardware={hardware} />
-  );
+  renderRootElement(<App card={card} hardware={hardware} />, { backend });
   await authenticateWithSystemAdministratorCard(card);
 
   const oldPin = '000000';
@@ -514,9 +502,7 @@ test('Resetting system administrator smartcard PINs when no election definition 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const backend = new ElectionManagerStoreMemoryBackend();
-  renderInQueryClientContext(
-    <App backend={backend} card={card} hardware={hardware} />
-  );
+  renderRootElement(<App card={card} hardware={hardware} />, { backend });
   await authenticateWithSystemAdministratorCard(card);
 
   const oldPin = '000000';
@@ -561,9 +547,7 @@ test('Unprogramming smartcards', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const backend = new ElectionManagerStoreMemoryBackend({ electionDefinition });
-  renderInQueryClientContext(
-    <App backend={backend} card={card} hardware={hardware} />
-  );
+  renderRootElement(<App card={card} hardware={hardware} />, { backend });
   await authenticateWithSystemAdministratorCard(card);
 
   // The smartcard modal should open on any screen, not just the Smartcards screen
@@ -622,9 +606,7 @@ test('Error handling', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const backend = new ElectionManagerStoreMemoryBackend({ electionDefinition });
-  renderInQueryClientContext(
-    <App backend={backend} card={card} hardware={hardware} />
-  );
+  renderRootElement(<App card={card} hardware={hardware} />, { backend });
   await authenticateWithSystemAdministratorCard(card);
 
   card.overrideWriteProtection = jest.fn();
@@ -720,9 +702,7 @@ test('Card inserted backwards is handled with message', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const backend = new ElectionManagerStoreMemoryBackend({ electionDefinition });
-  renderInQueryClientContext(
-    <App card={card} hardware={hardware} backend={backend} />
-  );
+  renderRootElement(<App card={card} hardware={hardware} />, { backend });
   await authenticateWithSystemAdministratorCard(card);
 
   card.insertCard(undefined, undefined, 'error');

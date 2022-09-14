@@ -7,6 +7,7 @@ import { KioskStorage, LocalStorage } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
 import { App } from './app';
 import { ElectionManagerStoreAdminBackend } from './lib/backends';
+import { ServicesContext } from './contexts/services_context';
 
 const queryClient = new QueryClient();
 const storage = window.kiosk
@@ -18,7 +19,9 @@ const backend = new ElectionManagerStoreAdminBackend({ storage, logger });
 ReactDom.render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <App backend={backend} logger={logger} />
+      <ServicesContext.Provider value={{ backend, logger }}>
+        <App />
+      </ServicesContext.Provider>
     </QueryClientProvider>
   </React.StrictMode>,
   document.getElementById('root')
