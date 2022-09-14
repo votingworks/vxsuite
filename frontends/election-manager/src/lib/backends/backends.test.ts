@@ -1,20 +1,20 @@
 import { Admin } from '@votingworks/api';
 import {
   electionFamousNames2021Fixtures,
+  electionMinimalExhaustiveSampleFixtures,
   electionWithMsEitherNeitherFixtures,
 } from '@votingworks/fixtures';
 import { fakeLogger } from '@votingworks/logging';
 import {
   ExternalTallySourceType,
   Id,
+  safeParse,
   safeParseJson,
   VotingMethod,
 } from '@votingworks/types';
 import { MemoryStorage, typedAs } from '@votingworks/utils';
 import fetchMock from 'fetch-mock';
-import { eitherNeitherElectionDefinition } from '../../../test/render_in_app_context';
 import { PrintedBallot } from '../../config/types';
-import { CastVoteRecordFiles } from '../../utils/cast_vote_record_files';
 import { convertTalliesByPrecinctToFullExternalTally } from '../../utils/external_tallies';
 import { ElectionManagerStoreAdminBackend } from './admin_backend';
 import { ElectionManagerStoreMemoryBackend } from './memory_backend';
@@ -53,7 +53,7 @@ function makeAdminBackend(): ElectionManagerStoreAdminBackend {
     Id,
     {
       electionRecord: Admin.ElectionRecord;
-      castVoteRecordFiles: CastVoteRecordFiles;
+      memoryBackend: ElectionManagerStoreMemoryBackend;
     }
   >();
 
@@ -67,16 +67,19 @@ function makeAdminBackend(): ElectionManagerStoreAdminBackend {
     .post('/admin/elections', (url, request) => {
       const id = `test-election-${nextElectionIndex}`;
       nextElectionIndex += 1;
+      const electionDefinition = safeParseJson(
+        request.body as string,
+        Admin.PostElectionRequestSchema
+      ).unsafeUnwrap();
       db.set(id, {
         electionRecord: {
           id,
-          electionDefinition: safeParseJson(
-            request.body as string,
-            Admin.PostElectionRequestSchema
-          ).unsafeUnwrap(),
+          electionDefinition,
           createdAt: new Date().toISOString(),
         },
-        castVoteRecordFiles: CastVoteRecordFiles.empty,
+        memoryBackend: new ElectionManagerStoreMemoryBackend({
+          electionDefinition,
+        }),
       });
       return {
         body: typedAs<Admin.PostElectionResponse>({ status: 'ok', id }),
@@ -99,24 +102,37 @@ function makeAdminBackend(): ElectionManagerStoreAdminBackend {
         return { status: 404 };
       }
 
-      const newCastVoteRecordFiles = await dbEntry.castVoteRecordFiles.add(
-        cvrFile,
-        dbEntry.electionRecord.electionDefinition.election
-      );
-      const addedFile = newCastVoteRecordFiles.fileList.find(
-        (f) => f.name === cvrFile.name
-      )!;
+      const result = await dbEntry.memoryBackend.addCastVoteRecordFile(cvrFile);
 
       return {
         body: typedAs<Admin.PostCvrFileResponse>({
           status: 'ok',
           id: `${electionId};${cvrFile.name}`,
-          wasExistingFile: newCastVoteRecordFiles.duplicateFiles.includes(
-            addedFile.name
-          ),
-          newlyAdded: addedFile.importedCvrCount,
-          alreadyPresent: addedFile.duplicatedCvrCount,
+          wasExistingFile: result.wasExistingFile,
+          newlyAdded: result.newlyAdded,
+          alreadyPresent: result.alreadyPresent,
         }),
+      };
+    })
+    .get('glob:/admin/elections/*/write-ins\\?*', async (url) => {
+      const match = url.match(/^\/admin\/elections\/(.+)\/write-ins(\?.*)?$/);
+      const electionId = match?.[1] as Id;
+      const dbEntry = electionId && db.get(electionId);
+      const query = new URLSearchParams(match?.[2] ?? '');
+
+      if (!dbEntry) {
+        return { status: 404 };
+      }
+
+      return {
+        body: typedAs<Admin.GetWriteInsResponse>(
+          (await dbEntry.memoryBackend.loadWriteIns(
+            safeParse(Admin.GetWriteInAdjudicationsQueryParamsSchema, {
+              contestId: query.get('contestId') ?? undefined,
+              status: query.get('status') ?? undefined,
+            }).unsafeUnwrap()
+          )) ?? []
+        ),
       };
     });
 
@@ -179,14 +195,23 @@ describe.each([
     expect(await backend.loadIsOfficialResults()).toBe(true);
   });
 
-  test('clearing cast vote record files', async () => {
+  test('cast vote record files', async () => {
     const backend = makeBackend();
-    await backend.configure(eitherNeitherElectionDefinition.electionData);
+    await backend.configure(
+      electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
+    );
     expect(await backend.loadCastVoteRecordFiles()).toBeUndefined();
     await backend.addCastVoteRecordFile(
-      new File([electionWithMsEitherNeitherFixtures.cvrData], 'cvrs.txt')
+      new File(
+        [electionMinimalExhaustiveSampleFixtures.standardCvrFile.asBuffer()],
+        'standard.jsonl'
+      )
     );
     expect((await backend.loadCastVoteRecordFiles())?.fileList).toHaveLength(1);
+    expect(await backend.loadWriteIns()).toHaveLength(1187);
+    expect(
+      await backend.loadWriteIns({ contestId: 'zoo-council-mammal' })
+    ).toHaveLength(649);
     await backend.clearCastVoteRecordFiles();
     expect(await backend.loadCastVoteRecordFiles()).toBeUndefined();
   });

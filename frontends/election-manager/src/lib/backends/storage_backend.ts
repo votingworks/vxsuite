@@ -1,5 +1,7 @@
+import { Admin } from '@votingworks/api';
 import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
 import {
+  ContestId,
   ElectionDefinition,
   ExternalTallySourceType,
   FullElectionExternalTallies,
@@ -16,10 +18,8 @@ import {
   convertExternalTalliesToStorageString,
   convertStorageStringToExternalTallies,
 } from '../../utils/external_tallies';
-import {
-  AddCastVoteRecordFileResult,
-  ElectionManagerStoreBackend,
-} from './types';
+import { ElectionManagerStoreMemoryBackend } from './memory_backend';
+import { AddCastVoteRecordFileResult } from './types';
 
 const electionDefinitionStorageKey = 'electionDefinition';
 const cvrsStorageKey = 'cvrFiles';
@@ -27,10 +27,9 @@ const isOfficialResultsKey = 'isOfficialResults';
 const printedBallotsStorageKey = 'printedBallots';
 const configuredAtStorageKey = 'configuredAt';
 const externalVoteTalliesFileStorageKey = 'externalVoteTallies';
+const writeInsStorageKey = 'writeIns';
 
-export class ElectionManagerStoreStorageBackend
-  implements ElectionManagerStoreBackend
-{
+export class ElectionManagerStoreStorageBackend extends ElectionManagerStoreMemoryBackend {
   protected readonly storage: Storage;
   protected readonly logger: Logger;
   protected readonly currentUserRole: LoggingUserRole;
@@ -44,6 +43,7 @@ export class ElectionManagerStoreStorageBackend
     logger: Logger;
     currentUserRole?: LoggingUserRole;
   }) {
+    super();
     this.storage = storage;
     this.logger = logger;
     this.currentUserRole = currentUserRole;
@@ -194,6 +194,11 @@ export class ElectionManagerStoreStorageBackend
     );
     const newlyAdded = file?.importedCvrCount ?? 0;
     const alreadyPresent = file?.duplicatedCvrCount ?? 0;
+
+    if (!wasExistingFile && file) {
+      const newWriteIns = this.getWriteInsFromCastVoteRecords(file);
+      await this.setWriteIns([...(await this.loadWriteIns()), ...newWriteIns]);
+    }
 
     return {
       wasExistingFile,
@@ -425,5 +430,28 @@ export class ElectionManagerStoreStorageBackend
 
       return parsedElectionDefinition;
     }
+  }
+
+  setWriteIns(writeIns?: readonly Admin.WriteInRecord[]): Promise<void> {
+    if (writeIns) {
+      return this.setStorageKeyAndLog(
+        writeInsStorageKey,
+        writeIns,
+        'Write-in records'
+      );
+    }
+    return this.removeStorageKeyAndLog(writeInsStorageKey, 'Write-in records');
+  }
+
+  async loadWriteIns(options?: {
+    contestId?: ContestId;
+    status?: Admin.WriteInAdjudicationStatus;
+  }): Promise<Admin.WriteInRecord[]> {
+    const writeIns =
+      safeParse(
+        z.array(Admin.WriteInsRecordSchema),
+        await this.storage.get(writeInsStorageKey)
+      ).ok() ?? [];
+    return this.filterWriteIns(writeIns, options);
   }
 }

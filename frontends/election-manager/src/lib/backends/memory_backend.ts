@@ -1,4 +1,6 @@
+import { Admin } from '@votingworks/api';
 import {
+  ContestId,
   ElectionDefinition,
   ExternalTallySourceType,
   FullElectionExternalTallies,
@@ -6,8 +8,13 @@ import {
   Iso8601Timestamp,
   safeParseElectionDefinition,
 } from '@votingworks/types';
-import { assert } from '@votingworks/utils';
-import { PrintedBallot } from '../../config/types';
+import {
+  assert,
+  castVoteRecordVoteIsWriteIn,
+  castVoteRecordVotes,
+} from '@votingworks/utils';
+import { v4 as uuid } from 'uuid';
+import { CastVoteRecordFile, PrintedBallot } from '../../config/types';
 import { CastVoteRecordFiles } from '../../utils/cast_vote_record_files';
 import {
   AddCastVoteRecordFileResult,
@@ -30,6 +37,7 @@ export class ElectionManagerStoreMemoryBackend
   >;
   private castVoteRecordFiles?: CastVoteRecordFiles;
   private isOfficialResults?: boolean;
+  private writeIns?: readonly Admin.WriteInRecord[];
 
   constructor({
     electionDefinition,
@@ -38,6 +46,7 @@ export class ElectionManagerStoreMemoryBackend
     fullElectionExternalTallies,
     castVoteRecordFiles,
     isOfficialResults,
+    writeIns,
   }: {
     electionDefinition?: ElectionDefinition;
     configuredAt?: Iso8601Timestamp;
@@ -45,6 +54,7 @@ export class ElectionManagerStoreMemoryBackend
     fullElectionExternalTallies?: FullElectionExternalTallies;
     castVoteRecordFiles?: CastVoteRecordFiles;
     isOfficialResults?: boolean;
+    writeIns?: readonly Admin.WriteInRecord[];
   } = {}) {
     this.electionDefinition = electionDefinition;
     this.configuredAt =
@@ -56,6 +66,7 @@ export class ElectionManagerStoreMemoryBackend
     ]);
     this.castVoteRecordFiles = castVoteRecordFiles;
     this.isOfficialResults = isOfficialResults;
+    this.writeIns = writeIns;
   }
 
   async reset(): Promise<void> {
@@ -66,6 +77,7 @@ export class ElectionManagerStoreMemoryBackend
     this.fullElectionExternalTallies = new Map();
     this.castVoteRecordFiles = undefined;
     this.isOfficialResults = undefined;
+    this.writeIns = undefined;
   }
 
   async loadElectionDefinitionAndConfiguredAt(): Promise<
@@ -99,6 +111,30 @@ export class ElectionManagerStoreMemoryBackend
     return Promise.resolve(this.castVoteRecordFiles);
   }
 
+  protected getWriteInsFromCastVoteRecords(
+    castVoteRecordFile: CastVoteRecordFile
+  ): Admin.WriteInRecord[] {
+    const newWriteIns: Admin.WriteInRecord[] = [];
+    for (const cvr of castVoteRecordFile.allCastVoteRecords) {
+      for (const [contestId, votes] of castVoteRecordVotes(cvr)) {
+        for (const vote of votes) {
+          if (castVoteRecordVoteIsWriteIn(vote)) {
+            assert(cvr._ballotId);
+
+            newWriteIns.push({
+              id: uuid(),
+              contestId,
+              castVoteRecordId: cvr._ballotId,
+              optionId: vote,
+              status: 'pending',
+            });
+          }
+        }
+      }
+    }
+    return newWriteIns;
+  }
+
   async addCastVoteRecordFile(
     newCastVoteRecordFile: File
   ): Promise<AddCastVoteRecordFileResult> {
@@ -119,6 +155,11 @@ export class ElectionManagerStoreMemoryBackend
     const newlyAdded = file?.importedCvrCount ?? 0;
     const alreadyPresent = file?.duplicatedCvrCount ?? 0;
 
+    if (!wasExistingFile && file) {
+      const newWriteIns = this.getWriteInsFromCastVoteRecords(file);
+      this.writeIns = [...(this.writeIns ?? []), ...newWriteIns];
+    }
+
     return {
       wasExistingFile,
       newlyAdded,
@@ -130,6 +171,7 @@ export class ElectionManagerStoreMemoryBackend
     await Promise.resolve();
     this.isOfficialResults = undefined;
     this.castVoteRecordFiles = undefined;
+    this.writeIns = undefined;
   }
 
   loadFullElectionExternalTallies(): Promise<
@@ -178,5 +220,30 @@ export class ElectionManagerStoreMemoryBackend
   async addPrintedBallot(printedBallot: PrintedBallot): Promise<void> {
     await Promise.resolve();
     this.printedBallots = [...(this.printedBallots ?? []), printedBallot];
+  }
+
+  protected filterWriteIns(
+    writeIns: readonly Admin.WriteInRecord[],
+    options?: {
+      contestId?: ContestId;
+      status?: Admin.WriteInAdjudicationStatus;
+    }
+  ): Admin.WriteInRecord[] {
+    return writeIns.filter((writeIn) => {
+      if (options?.contestId && writeIn.contestId !== options.contestId) {
+        return false;
+      }
+      if (options?.status && writeIn.status !== options.status) {
+        return false;
+      }
+      return true;
+    });
+  }
+
+  loadWriteIns(options?: {
+    contestId?: ContestId;
+    status?: Admin.WriteInAdjudicationStatus;
+  }): Promise<Admin.WriteInRecord[]> {
+    return Promise.resolve(this.filterWriteIns(this.writeIns ?? [], options));
   }
 }

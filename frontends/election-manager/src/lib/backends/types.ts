@@ -1,3 +1,4 @@
+import { Admin } from '@votingworks/api';
 import {
   ElectionDefinition,
   ExternalTallySourceType,
@@ -98,4 +99,12 @@ export interface ElectionManagerStoreBackend {
    * Adds a new printed ballot to the list.
    */
   addPrintedBallot(printedBallot: PrintedBallot): Promise<void>;
+
+  /**
+   * Loads all write-in records filtered appropriately.
+   */
+  loadWriteIns(options?: {
+    contestId?: string;
+    status?: Admin.WriteInAdjudicationStatus;
+  }): Promise<Admin.WriteInRecord[]>;
 }
