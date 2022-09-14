@@ -1,33 +1,35 @@
 import {
+  BatchTally,
   Candidate,
   CandidateContest,
+  CandidateId,
   CandidateVote,
   CastVoteRecord,
+  ContestId,
+  ContestOptionId,
   ContestOptionTally,
   ContestTally,
+  ContestTallyMeta,
   Dictionary,
   Election,
   expandEitherNeitherContests,
+  FullElectionTally,
   getDistrictIdsForPartyId,
   getEitherNeitherContests,
+  Party,
+  PartyId,
+  PartyIdSchema,
+  PrecinctId,
   Tally,
+  TallyCategory,
+  unsafeParse,
   VotesDict,
   VotingMethod,
+  writeInCandidate,
   YesNoContest,
   YesNoVote,
   YesNoVoteId,
   YesOrNo,
-  TallyCategory,
-  FullElectionTally,
-  BatchTally,
-  Party,
-  writeInCandidate,
-  PartyId,
-  PrecinctId,
-  CandidateId,
-  ContestTallyMeta,
-  unsafeParse,
-  PartyIdSchema,
 } from '@votingworks/types';
 import { assert, throwIllegalValue } from './assert';
 import { find } from './find';
@@ -590,4 +592,66 @@ export function filterTalliesByParams(
     numberOfBallotsCounted: allVotes.length,
     ballotCountsByVotingMethod,
   };
+}
+
+/**
+ * Enumerates the votes per contest in a CVR.
+ *
+ * @example
+ *
+ *   const cvr: CastVoteRecord = {
+ *     _ballotId: 'ballot-id',
+ *     _ballotStyleId: 'ballot-style-id',
+ *     _ballotType: 'standard',
+ *     _precinctId: 'precinct-id',
+ *     _testBallot: false,
+ *     _scannerId: 'scanner-id',
+ *     _batchId: 'batch-id',
+ *     _batchLabel: 'batch-label',
+ *     _pageNumbers: [1, 2],
+ *     mayor: ['seldon'],
+ *     'city-council': ['hugo', 'golan'],
+ *     'measure-1': ['yes'],
+ *   };
+ *
+ *   for (const [contestId, votes] of castVoteRecordVotes(cvr)) {
+ *     console.log(`${contestId}: ${votes.join(', ')}`);
+ *   }
+ *
+ *   // Output:
+ *   // mayor: seldon
+ *   // city-council: hugo, golan
+ *   // measure-1: yes
+ */
+export function* castVoteRecordVotes(
+  castVoteRecord: CastVoteRecord
+): Generator<[contestId: ContestId, vote: ContestOptionId[]]> {
+  for (const [contestId, votes] of Object.entries(castVoteRecord)) {
+    if (contestId.startsWith('_')) {
+      continue;
+    }
+
+    if (Array.isArray(votes)) {
+      yield [contestId, votes as ContestOptionId[]];
+    }
+  }
+}
+
+/**
+ * Determines whether a cast vote record vote is a write-in vote.
+ */
+export function castVoteRecordVoteIsWriteIn(vote: ContestOptionId): boolean {
+  return vote.startsWith('write-in');
+}
+
+/**
+ * Determines whether a cast vote record has any write-in votes.
+ */
+export function castVoteRecordHasWriteIns(cvr: CastVoteRecord): boolean {
+  for (const [, votes] of castVoteRecordVotes(cvr)) {
+    if (votes.some((vote) => castVoteRecordVoteIsWriteIn(vote))) {
+      return true;
+    }
+  }
+  return false;
 }

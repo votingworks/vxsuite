@@ -2,7 +2,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   LogDispositionStandardTypes,
   LogEventId,
-  Logger,
   LoggingUserRole,
 } from '@votingworks/logging';
 import {
@@ -13,12 +12,10 @@ import {
   Iso8601Timestamp,
 } from '@votingworks/types';
 import { assert, typedAs } from '@votingworks/utils';
-import { useCallback, useMemo, useRef } from 'react';
+import { useCallback, useContext, useMemo, useRef } from 'react';
 import { PrintedBallot } from '../config/types';
-import {
-  AddCastVoteRecordFileResult,
-  ElectionManagerStoreBackend,
-} from '../lib/backends/types';
+import { ServicesContext } from '../contexts/services_context';
+import { AddCastVoteRecordFileResult } from '../lib/backends/types';
 import { CastVoteRecordFiles } from '../utils/cast_vote_record_files';
 
 export interface ElectionManagerStore {
@@ -112,11 +109,6 @@ export interface ElectionManagerStore {
   setCurrentUserRole(newCurrentUserRole: LoggingUserRole): void;
 }
 
-interface Props {
-  logger: Logger;
-  backend: ElectionManagerStoreBackend;
-}
-
 export const electionDefinitionStorageKey = 'electionDefinition';
 export const cvrsStorageKey = 'cvrFiles';
 export const isOfficialResultsKey = 'isOfficialResults';
@@ -127,10 +119,8 @@ export const externalVoteTalliesFileStorageKey = 'externalVoteTallies';
 /**
  * Manages the stored data for VxAdmin.
  */
-export function useElectionManagerStore({
-  logger,
-  backend,
-}: Props): ElectionManagerStore {
+export function useElectionManagerStore(): ElectionManagerStore {
+  const { backend, logger } = useContext(ServicesContext);
   const queryClient = useQueryClient();
   const currentUserRoleRef = useRef<LoggingUserRole>('unknown');
 

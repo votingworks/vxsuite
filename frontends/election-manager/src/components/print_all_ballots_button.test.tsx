@@ -8,7 +8,7 @@ import React from 'react';
 import { fakeKiosk, hasTextAcrossElements } from '@votingworks/test-utils';
 import {
   renderInAppContext,
-  renderInQueryClientContext,
+  renderRootElement,
 } from '../../test/render_in_app_context';
 import {
   authenticateWithElectionManagerCard,
@@ -150,9 +150,7 @@ test('initial modal state toggles based on printer state', async () => {
   const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
   });
-  renderInQueryClientContext(
-    <App backend={backend} card={card} hardware={hardware} />
-  );
+  renderRootElement(<App card={card} hardware={hardware} />, { backend });
 
   await authenticateWithElectionManagerCard(
     card,
@@ -181,9 +179,11 @@ test('modal shows "Printer Disconnected" if printer disconnected while printing'
   const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
   });
-  renderInQueryClientContext(
-    <App backend={backend} card={card} hardware={hardware} />
-  );
+  const logger = fakeLogger();
+  renderRootElement(<App card={card} hardware={hardware} />, {
+    backend,
+    logger,
+  });
 
   await authenticateWithElectionManagerCard(
     card,
@@ -200,8 +200,12 @@ test('modal shows "Printer Disconnected" if printer disconnected while printing'
   act(() => hardware.setPrinterConnected(false));
   jest.advanceTimersByTime(TWO_SIDED_PRINT_TIME + PRINTER_WARMUP_TIME);
   await within(modal).findByText('Printer Disconnected');
-  expect(mockKiosk.log).toHaveBeenLastCalledWith(
-    expect.stringContaining('Failed to print ballots')
+  expect(logger.log).toHaveBeenLastCalledWith(
+    LogEventId.BallotPrinted,
+    'election_manager',
+    expect.objectContaining({
+      message: expect.stringContaining('Failed to print ballots'),
+    })
   );
 
   delete window.kiosk;
@@ -216,9 +220,7 @@ test('modal is different for system administrators', async () => {
   const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: electionMinimalExhaustiveSampleDefinition,
   });
-  renderInQueryClientContext(
-    <App backend={backend} card={card} hardware={hardware} />
-  );
+  renderRootElement(<App card={card} hardware={hardware} />, { backend });
 
   await authenticateWithElectionManagerCard(
     card,

@@ -32,14 +32,14 @@ import {
   PollWorkerCardData,
   VotingMethod,
 } from '@votingworks/types';
-import { LogEventId } from '@votingworks/logging';
+import { fakeLogger, LogEventId } from '@votingworks/logging';
 
 import { App } from './app';
 import { fakePrinter } from '../test/helpers/fake_printer';
 import { loadBallotSealImages } from '../test/util/load_ballot_seal_images';
 import {
   eitherNeitherElectionDefinition,
-  renderInQueryClientContext,
+  renderRootElement,
 } from '../test/render_in_app_context';
 import { convertSemsFileToExternalTally } from './utils/sems_tallies';
 import { convertTalliesByPrecinctToFullExternalTally } from './utils/external_tallies';
@@ -128,8 +128,10 @@ test('create election works', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const backend = new ElectionManagerStoreMemoryBackend();
-  const { getByText, queryAllByText, getByTestId } = renderInQueryClientContext(
-    <App card={card} hardware={hardware} backend={backend} />
+  const logger = fakeLogger();
+  const { getByText, queryAllByText, getByTestId } = renderRootElement(
+    <App card={card} hardware={hardware} />,
+    { backend, logger }
   );
   await authenticateWithSystemAdministratorCard(card);
   await screen.findByText('Load Demo Election Definition');
@@ -138,8 +140,10 @@ test('create election works', async () => {
   await screen.findByText('Election Definition');
 
   await screen.findByText('Ballots');
-  expect(mockKiosk.log).toHaveBeenCalledWith(
-    expect.stringContaining(LogEventId.ElectionConfigured)
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.ElectionConfigured,
+    'system_administrator',
+    expect.anything()
   );
 
   fireEvent.click(await screen.findByText('Ballots'));
@@ -167,8 +171,10 @@ test('create election works', async () => {
   fireEvent.click(getByText('Remove Election Definition'));
 
   await screen.findByText('Configure VxAdmin');
-  expect(mockKiosk.log).toHaveBeenCalledWith(
-    expect.stringContaining(LogEventId.ElectionUnconfigured)
+  expect(logger.log).toHaveBeenCalledWith(
+    expect.stringContaining(LogEventId.ElectionUnconfigured),
+    'system_administrator',
+    expect.anything()
   );
 
   // You can view the Logs screen and save log files when there is no election.
@@ -190,10 +196,12 @@ test('authentication works', async () => {
   const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
   });
+  const logger = fakeLogger();
 
-  renderInQueryClientContext(
-    <App card={card} hardware={hardware} backend={backend} />
-  );
+  renderRootElement(<App card={card} hardware={hardware} />, {
+    backend,
+    logger,
+  });
 
   await screen.findByText('VxAdmin is Locked');
   const electionManagerCard: ElectionManagerCardData = {
@@ -225,8 +233,12 @@ test('authentication works', async () => {
   fireEvent.click(screen.getByText('1'));
   fireEvent.click(screen.getByText('1'));
   await screen.findByText('Invalid code. Please try again.');
-  expect(mockKiosk.log).toHaveBeenLastCalledWith(
-    expect.stringMatching(/"auth-passcode-entry".*disposition":"failure"/)
+  expect(logger.log).toHaveBeenLastCalledWith(
+    LogEventId.AuthPasscodeEntry,
+    expect.any(String),
+    expect.objectContaining({
+      disposition: 'failure',
+    })
   );
 
   // Remove card and insert a pollworker card.
@@ -255,13 +267,19 @@ test('authentication works', async () => {
   card.removeCard();
   await screen.findByText('Lock Machine');
 
-  expect(mockKiosk.log).toHaveBeenCalledWith(
-    expect.stringMatching(/"auth-passcode-entry".*disposition":"success"/)
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.AuthPasscodeEntry,
+    expect.any(String),
+    expect.objectContaining({
+      disposition: 'success',
+    })
   );
-  expect(mockKiosk.log).toHaveBeenCalledWith(
-    expect.stringMatching(
-      /"auth-login".*"user":"election_manager".*disposition":"success"/
-    )
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.AuthLogin,
+    'election_manager',
+    expect.objectContaining({
+      disposition: 'success',
+    })
   );
 
   // Machine is unlocked when card removed
@@ -285,8 +303,10 @@ test('authentication works', async () => {
   // Lock the machine
   fireEvent.click(screen.getByText('Lock Machine'));
   await screen.findByText('VxAdmin is Locked');
-  expect(mockKiosk.log).toHaveBeenCalledWith(
-    expect.stringContaining(LogEventId.AuthLogout)
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.AuthLogout,
+    expect.any(String),
+    expect.anything()
   );
 });
 
@@ -298,8 +318,10 @@ test('L&A (logic and accuracy) flow', async () => {
   const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
   });
-  const { container, getByTestId } = renderInQueryClientContext(
-    <App card={card} hardware={hardware} printer={printer} backend={backend} />
+  const logger = fakeLogger();
+  const { container, getByTestId } = renderRootElement(
+    <App card={card} hardware={hardware} printer={printer} />,
+    { backend, logger }
   );
   await authenticateWithElectionManagerCard(
     card,
@@ -318,8 +340,10 @@ test('L&A (logic and accuracy) flow', async () => {
   });
   expect(printer.print).toHaveBeenCalledTimes(1);
   await waitFor(() =>
-    expect(mockKiosk.log).toHaveBeenCalledWith(
-      expect.stringContaining(LogEventId.TestDeckTallyReportPrinted)
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.TestDeckTallyReportPrinted,
+      expect.any(String),
+      expect.anything()
     )
   );
   expect(container).toMatchSnapshot();
@@ -332,12 +356,18 @@ test('L&A (logic and accuracy) flow', async () => {
   loadBallotSealImages();
   await waitFor(() => expect(printer.print).toHaveBeenCalledTimes(2));
   await waitFor(() =>
-    expect(mockKiosk.log).toHaveBeenCalledWith(
-      expect.stringContaining(LogEventId.TestDeckPrinted)
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.TestDeckPrinted,
+      expect.any(String),
+      expect.anything()
     )
   );
-  expect(mockKiosk.log).toHaveBeenCalledWith(
-    expect.stringContaining('BMD paper ballot test deck')
+  expect(logger.log).toHaveBeenCalledWith(
+    expect.any(String),
+    expect.any(String),
+    expect.objectContaining({
+      message: expect.stringContaining('BMD paper ballot test deck'),
+    })
   );
   expect(container).toMatchSnapshot();
   jest.advanceTimersByTime(30000);
@@ -348,12 +378,18 @@ test('L&A (logic and accuracy) flow', async () => {
   });
   expect(printer.print).toHaveBeenCalledTimes(3);
   await waitFor(() =>
-    expect(mockKiosk.log).toHaveBeenCalledWith(
-      expect.stringContaining(LogEventId.TestDeckPrinted)
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.TestDeckPrinted,
+      expect.any(String),
+      expect.anything()
     )
   );
-  expect(mockKiosk.log).toHaveBeenCalledWith(
-    expect.stringContaining('Hand-marked paper ballot test deck')
+  expect(logger.log).toHaveBeenCalledWith(
+    expect.any(String),
+    expect.any(String),
+    expect.objectContaining({
+      message: expect.stringContaining('Hand-marked paper ballot test deck'),
+    })
   );
   expect(container).toMatchSnapshot();
 
@@ -378,8 +414,10 @@ test('L&A (logic and accuracy) flow', async () => {
   });
   await screen.findByText('Printing');
   expect(printer.print).toHaveBeenCalledTimes(4);
-  expect(mockKiosk.log).toHaveBeenCalledWith(
-    expect.stringContaining(LogEventId.TestDeckTallyReportPrinted)
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.TestDeckTallyReportPrinted,
+    expect.any(String),
+    expect.anything()
   );
 });
 
@@ -393,9 +431,7 @@ test('L&A features are available after test results are loaded', async () => {
       eitherNeitherElectionDefinition.election
     ),
   });
-  renderInQueryClientContext(
-    <App card={card} hardware={hardware} backend={backend} />
-  );
+  renderRootElement(<App card={card} hardware={hardware} />, { backend });
 
   await authenticateWithElectionManagerCard(
     card,
@@ -421,14 +457,11 @@ test('printing ballots and printed ballots report', async () => {
   const printer = fakePrinter();
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
+  const logger = fakeLogger();
   const { getByText, getAllByText, queryAllByText, getAllByTestId } =
-    renderInQueryClientContext(
-      <App
-        backend={backend}
-        printer={printer}
-        card={card}
-        hardware={hardware}
-      />
+    renderRootElement(
+      <App printer={printer} card={card} hardware={hardware} />,
+      { backend, logger }
     );
   jest.advanceTimersByTime(2000); // Cause the usb drive to be detected
   await authenticateWithElectionManagerCard(
@@ -448,8 +481,10 @@ test('printing ballots and printed ballots report', async () => {
   fireEvent.click(getByText('Print 1', { exact: false }));
   await waitFor(() => getByText('Printing'));
   expect(printer.print).toHaveBeenCalledTimes(1);
-  expect(mockKiosk.log).toHaveBeenCalledWith(
-    expect.stringContaining(LogEventId.BallotPrinted)
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.BallotPrinted,
+    expect.any(String),
+    expect.anything()
   );
   fireEvent.click(getByText('Print 1', { exact: false }));
   await waitFor(() => getByText('Printing'));
@@ -476,8 +511,10 @@ test('printing ballots and printed ballots report', async () => {
 
   await waitFor(() => getByText('Printing'));
   expect(printer.print).toHaveBeenCalledTimes(4);
-  expect(mockKiosk.log).toHaveBeenCalledWith(
-    expect.stringContaining(LogEventId.PrintedBallotReportPrinted)
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.PrintedBallotReportPrinted,
+    expect.any(String),
+    expect.anything()
   );
 });
 
@@ -493,14 +530,11 @@ test('tabulating CVRs', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const printer = fakePrinter();
+  const logger = fakeLogger();
   const { getByText, getAllByText, getByTestId, queryByText } =
-    renderInQueryClientContext(
-      <App
-        backend={backend}
-        card={card}
-        hardware={hardware}
-        printer={printer}
-      />
+    renderRootElement(
+      <App card={card} hardware={hardware} printer={printer} />,
+      { backend, logger }
     );
   jest.advanceTimersByTime(2000); // Cause the usb drive to be detected
   await authenticateWithElectionManagerCard(
@@ -512,8 +546,10 @@ test('tabulating CVRs', async () => {
   expect(getByTestId('total-ballot-count').textContent).toEqual('100');
 
   fireEvent.click(getByText('Unofficial Full Election Tally Report'));
-  expect(mockKiosk.log).toHaveBeenCalledWith(
-    expect.stringContaining(LogEventId.TallyReportPreviewed)
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.TallyReportPreviewed,
+    expect.any(String),
+    expect.anything()
   );
 
   fireEvent.click(getByText('Mark Tally Results as Official'));
@@ -521,8 +557,10 @@ test('tabulating CVRs', async () => {
   const modal = await screen.findByRole('alertdialog');
   fireEvent.click(within(modal).getByText('Mark Tally Results as Official'));
   await waitFor(() => {
-    expect(mockKiosk.log).toHaveBeenCalledWith(
-      expect.stringContaining(LogEventId.MarkedTallyResultsOfficial)
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.MarkedTallyResultsOfficial,
+      expect.any(String),
+      expect.anything()
     );
   });
 
@@ -565,8 +603,10 @@ test('tabulating CVRs', async () => {
       )
     );
   });
-  expect(mockKiosk.log).toHaveBeenCalledWith(
-    expect.stringContaining(LogEventId.FileSaved)
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.FileSaved,
+    expect.any(String),
+    expect.anything()
   );
 
   fireEvent.click(getByText('Official Batch 2 Tally Report'));
@@ -626,8 +666,9 @@ test('tabulating CVRs', async () => {
       'test-content'
     );
   });
-  expect(mockKiosk.log).toHaveBeenCalledWith(
-    expect.stringContaining(LogEventId.ConvertingResultsToSemsFormat)
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.ConvertingResultsToSemsFormat,
+    expect.any(String)
   );
   expect(fetchMock.called('/convert/tallies/files')).toBe(true);
   expect(fetchMock.called('/convert/tallies/submitfile')).toBe(true);
@@ -653,8 +694,10 @@ test('tabulating CVRs', async () => {
   fireEvent.click(getByText('Clear All Tallies and Results'));
   fireEvent.click(getByText('Remove All Data'));
   await waitFor(() => expect(getByText('No CVR files loaded.')));
-  expect(mockKiosk.log).toHaveBeenCalledWith(
-    expect.stringContaining(LogEventId.RemovedTallyFile)
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.RemovedTallyFile,
+    expect.any(String),
+    expect.anything()
   );
 
   fireEvent.click(getByText('Reports'));
@@ -689,8 +732,9 @@ test('tabulating CVRs with SEMS file', async () => {
 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
-  const { getByText, getByTestId, getAllByText } = renderInQueryClientContext(
-    <App backend={backend} card={card} hardware={hardware} />
+  const { getByText, getByTestId, getAllByText } = renderRootElement(
+    <App card={card} hardware={hardware} />,
+    { backend }
   );
   jest.advanceTimersByTime(2000);
   await authenticateWithElectionManagerCard(
@@ -802,9 +846,7 @@ test('tabulating CVRs with SEMS file and manual data', async () => {
   const hardware = MemoryHardware.buildStandard();
 
   const { getByText, getByTestId, getAllByText, queryAllByText } =
-    renderInQueryClientContext(
-      <App backend={backend} card={card} hardware={hardware} />
-    );
+    renderRootElement(<App card={card} hardware={hardware} />, { backend });
   await authenticateWithElectionManagerCard(
     card,
     eitherNeitherElectionDefinition
@@ -991,8 +1033,9 @@ test('changing election resets sems, cvr, and manual data files', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
 
-  const { getByText, getByTestId } = renderInQueryClientContext(
-    <App backend={backend} card={card} hardware={hardware} />
+  const { getByText, getByTestId } = renderRootElement(
+    <App card={card} hardware={hardware} />,
+    { backend }
   );
 
   await authenticateWithElectionManagerCard(
@@ -1058,13 +1101,9 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
-  const { getByText, getByTestId, queryByText } = renderInQueryClientContext(
-    <App
-      backend={backend}
-      card={card}
-      hardware={hardware}
-      converter="ms-sems"
-    />
+  const { getByText, getByTestId, queryByText } = renderRootElement(
+    <App card={card} hardware={hardware} converter="ms-sems" />,
+    { backend }
   );
   await authenticateWithElectionManagerCard(
     card,
@@ -1134,13 +1173,9 @@ test('Can not view or print ballots when using nh-accuvote converter', async () 
 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
-  const { getByText, queryByText } = renderInQueryClientContext(
-    <App
-      backend={backend}
-      card={card}
-      hardware={hardware}
-      converter="nh-accuvote"
-    />
+  const { getByText, queryByText } = renderRootElement(
+    <App card={card} hardware={hardware} converter="nh-accuvote" />,
+    { backend }
   );
 
   await authenticateWithSystemAdministratorCard(card);
@@ -1168,9 +1203,7 @@ test('election manager UI has expected nav', async () => {
   const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
   });
-  renderInQueryClientContext(
-    <App backend={backend} card={card} hardware={hardware} />
-  );
+  renderRootElement(<App card={card} hardware={hardware} />, { backend });
   await authenticateWithElectionManagerCard(
     card,
     eitherNeitherElectionDefinition
@@ -1199,9 +1232,7 @@ test('system administrator UI has expected nav', async () => {
   const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
   });
-  renderInQueryClientContext(
-    <App backend={backend} card={card} hardware={hardware} />
-  );
+  renderRootElement(<App card={card} hardware={hardware} />, { backend });
   await authenticateWithSystemAdministratorCard(card);
 
   userEvent.click(screen.getByText('Definition'));
@@ -1221,9 +1252,7 @@ test('system administrator UI has expected nav when no election', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const backend = new ElectionManagerStoreMemoryBackend();
-  renderInQueryClientContext(
-    <App card={card} hardware={hardware} backend={backend} />
-  );
+  renderRootElement(<App card={card} hardware={hardware} />, { backend });
   await authenticateWithSystemAdministratorCard(card);
 
   userEvent.click(screen.getByText('Definition'));
@@ -1272,9 +1301,7 @@ test('system administrator Smartcards screen navigation', async () => {
   const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
   });
-  renderInQueryClientContext(
-    <App card={card} hardware={hardware} backend={backend} />
-  );
+  renderRootElement(<App card={card} hardware={hardware} />, { backend });
   await authenticateWithSystemAdministratorCard(card);
 
   userEvent.click(screen.getByText('Smartcards'));
@@ -1291,9 +1318,7 @@ test('election manager cannot auth onto unconfigured machine', async () => {
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const backend = new ElectionManagerStoreMemoryBackend();
-  renderInQueryClientContext(
-    <App card={card} hardware={hardware} backend={backend} />
-  );
+  renderRootElement(<App card={card} hardware={hardware} />, { backend });
 
   await screen.findByText('VxAdmin is Locked');
   screen.getByText('Insert System Administrator card to unlock.');
@@ -1313,9 +1338,7 @@ test('election manager cannot auth onto machine with different election hash', a
   const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
   });
-  renderInQueryClientContext(
-    <App card={card} hardware={hardware} backend={backend} />
-  );
+  renderRootElement(<App card={card} hardware={hardware} />, { backend });
 
   await screen.findByText('VxAdmin is Locked');
   await screen.findByText(
@@ -1338,9 +1361,7 @@ test('system administrator Ballots tab and election manager Ballots tab have exp
   const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition: eitherNeitherElectionDefinition,
   });
-  renderInQueryClientContext(
-    <App card={card} hardware={hardware} backend={backend} />
-  );
+  renderRootElement(<App card={card} hardware={hardware} />, { backend });
 
   await authenticateWithSystemAdministratorCard(card);
 

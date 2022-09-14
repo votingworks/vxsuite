@@ -23,23 +23,25 @@ import {
   writeInCandidate,
   YesNoContest,
 } from '@votingworks/types';
-import { assert } from './assert';
 import {
   calculateTallyForCastVoteRecords,
   filterTalliesByParty,
   getEmptyTally,
 } from '.';
+import { assert } from './assert';
 import { find } from './find';
 import {
+  buildVoteFromCvr,
+  castVoteRecordHasWriteIns,
+  castVoteRecordVotes,
+  computeTallyWithPrecomputedCategories,
+  filterTalliesByParams,
+  getContestVoteOptionsForCandidateContest,
+  getContestVoteOptionsForYesNoContest,
+  getPartyIdForCvr,
   getSingleYesNoVote,
   normalizeWriteInId,
-  buildVoteFromCvr,
-  getContestVoteOptionsForYesNoContest,
-  getContestVoteOptionsForCandidateContest,
   tallyVotesByContest,
-  filterTalliesByParams,
-  computeTallyWithPrecomputedCategories,
-  getPartyIdForCvr,
 } from './votes';
 
 const multiPartyPrimaryElection =
@@ -1162,4 +1164,78 @@ test('getPartyIdForCvr', () => {
   expect(
     getPartyIdForCvr({ ...cvr, _ballotStyleId: 'notaballotstyle' }, election)
   ).toBe(undefined);
+});
+
+test('castVoteRecordVotes with no votes', () => {
+  expect([
+    ...castVoteRecordVotes({
+      _ballotStyleId: '1',
+      _ballotType: 'standard',
+      _precinctId: '1',
+      _scannerId: '1',
+      _testBallot: false,
+      _batchId: '1',
+      _batchLabel: '1',
+    }),
+  ]).toEqual([]);
+});
+
+test('castVoteRecordVotes with votes', () => {
+  expect([
+    ...castVoteRecordVotes({
+      _ballotStyleId: '1',
+      _ballotType: 'standard',
+      _precinctId: '1',
+      _scannerId: '1',
+      _testBallot: false,
+      _batchId: '1',
+      _batchLabel: '1',
+      mayor: ['mickey'],
+    }),
+  ]).toEqual([['mayor', ['mickey']]]);
+});
+
+test('castVoteRecordHasWriteIns with no votes', () => {
+  expect(
+    castVoteRecordHasWriteIns({
+      _ballotStyleId: '1',
+      _ballotType: 'standard',
+      _precinctId: '1',
+      _scannerId: '1',
+      _testBallot: false,
+      _batchId: '1',
+      _batchLabel: '1',
+    })
+  ).toEqual(false);
+});
+
+test('castVoteRecordHasWriteIns with non-write-in votes', () => {
+  expect(
+    castVoteRecordHasWriteIns({
+      _ballotStyleId: '1',
+      _ballotType: 'standard',
+      _precinctId: '1',
+      _scannerId: '1',
+      _testBallot: false,
+      _batchId: '1',
+      _batchLabel: '1',
+      mayor: ['mickey'],
+    })
+  ).toEqual(false);
+});
+
+test('castVoteRecordHasWriteIns with write-in votes', () => {
+  expect(
+    castVoteRecordHasWriteIns({
+      _ballotStyleId: '1',
+      _ballotType: 'standard',
+      _precinctId: '1',
+      _scannerId: '1',
+      _testBallot: false,
+      _batchId: '1',
+      _batchLabel: '1',
+      mayor: ['mickey'],
+      council: ['donald', 'write-in-0'],
+    })
+  ).toEqual(true);
 });

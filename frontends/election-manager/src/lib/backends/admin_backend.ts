@@ -1,4 +1,5 @@
 import {
+  ContestId,
   ElectionDefinition,
   Id,
   IdSchema,
@@ -160,5 +161,34 @@ export class ElectionManagerStoreAdminBackend extends ElectionManagerStoreStorag
         method: 'DELETE',
       });
     }
+  }
+
+  async loadWriteIns(options?: {
+    contestId?: ContestId;
+    status?: Admin.WriteInAdjudicationStatus;
+  }): Promise<Admin.WriteInRecord[]> {
+    const activeElectionId = await this.loadActiveElectionId();
+
+    if (!activeElectionId) {
+      throw new Error('no election configured');
+    }
+
+    const query = new URLSearchParams();
+    if (options?.contestId) {
+      query.set('contestId', options.contestId);
+    }
+    if (options?.status) {
+      query.set('status', options.status);
+    }
+
+    const response = (await fetchJson(
+      `/admin/elections/${activeElectionId}/write-ins?${query}`
+    )) as Admin.GetWriteInsResponse;
+
+    if (!Array.isArray(response)) {
+      throw new Error(response.errors.map((e) => e.message).join(', '));
+    }
+
+    return response;
   }
 }
