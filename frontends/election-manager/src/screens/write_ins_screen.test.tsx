@@ -41,11 +41,11 @@ describe('Write-in Adjudication screen', () => {
   test('No CVRs loaded', async () => {
     renderInAppContext(<WriteInsScreen />, { electionDefinition });
     await waitFor(() => {
-      screen.getByText('Adjudication can begin once CVRs are loaded.');
+      screen.getByText(
+        'Load CVRs to begin transcribing and adjudicating write-in votes.'
+      );
     });
-    expect(
-      screen.getAllByText(/Adjudicate write-ins for “City Zoo Council”/)[0]
-    ).toBeDisabled();
+    expect(screen.getAllByText('Transcribe')[0]).toBeDisabled();
   });
 
   test('CVRs with write-ins loaded', async () => {
@@ -67,9 +67,7 @@ describe('Write-in Adjudication screen', () => {
 
     let adjudicateButtons;
     await waitFor(() => {
-      adjudicateButtons = screen.getAllByText(
-        /Adjudicate 3 write-ins for “City Zoo Council”/
-      );
+      adjudicateButtons = screen.getAllByText('Transcribe');
     });
     if (adjudicateButtons) {
       expect(adjudicateButtons[0]).not.toBeDisabled();
@@ -89,7 +87,7 @@ describe('Write-in Adjudication screen', () => {
     });
 
     await waitFor(() => {
-      screen.getByText(/Adjudicate 3 write-ins for “City Zoo Council”/).click();
+      screen.getByText('Transcribe (3 new)').click();
     });
 
     const previousButton = screen.getByText('Previous');
