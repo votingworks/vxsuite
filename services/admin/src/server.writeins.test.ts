@@ -125,6 +125,22 @@ test('write-in adjudication lifecycle', async () => {
     ])
   );
 
+  const getWriteInAdjudicationsAfterTranscriptionHttpResponse = await request(
+    app
+  )
+    .get(
+      `/admin/elections/${electionId}/write-in-adjudications?contestId=${contestId}`
+    )
+    .expect(200);
+  const getWriteInAdjudicationsAfterTranscriptionResponse = unsafeParse(
+    Admin.GetWriteInAdjudicationsResponseSchema,
+    getWriteInAdjudicationsAfterTranscriptionHttpResponse.body
+  );
+
+  expect(getWriteInAdjudicationsAfterTranscriptionResponse).toEqual(
+    typedAs<Admin.GetWriteInAdjudicationsResponse>([])
+  );
+
   // adjudicate all "Mickey Mouse" transcribed write-ins as "Mickey Mouse"
   await request(app)
     .post(`/admin/elections/${electionId}/write-in-adjudications`)
@@ -159,6 +175,29 @@ test('write-in adjudication lifecycle', async () => {
           transcribedValue: 'Mickey Mouse',
           adjudicatedValue: 'Mickey Mouse',
         },
+      },
+    ])
+  );
+
+  const getWriteInAdjudicationsAfterAdjudicationHttpResponse = await request(
+    app
+  )
+    .get(
+      `/admin/elections/${electionId}/write-in-adjudications?contestId=${contestId}`
+    )
+    .expect(200);
+  const getWriteInAdjudicationsAfterAdjudicationResponse = unsafeParse(
+    Admin.GetWriteInAdjudicationsResponseSchema,
+    getWriteInAdjudicationsAfterAdjudicationHttpResponse.body
+  );
+
+  expect(getWriteInAdjudicationsAfterAdjudicationResponse).toEqual(
+    typedAs<Admin.GetWriteInAdjudicationsResponse>([
+      {
+        id: expect.any(String),
+        contestId,
+        transcribedValue: 'Mickey Mouse',
+        adjudicatedValue: 'Mickey Mouse',
       },
     ])
   );

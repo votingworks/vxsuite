@@ -157,7 +157,7 @@ export interface WriteInAdjudicationRecord {
   readonly id: Id;
   readonly contestId: ContestId;
   readonly transcribedValue: string;
-  readonly adjudicatedValue?: string;
+  readonly adjudicatedValue: string;
   readonly adjudicatedOptionId?: ContestOptionId;
 }
 
@@ -169,7 +169,7 @@ export const WriteInAdjudicationRecordSchema: z.ZodSchema<WriteInAdjudicationRec
     id: IdSchema,
     contestId: ContestIdSchema,
     transcribedValue: z.string().nonempty(),
-    adjudicatedValue: z.string().nonempty().optional(),
+    adjudicatedValue: z.string().nonempty(),
     adjudicatedOptionId: ContestOptionIdSchema.optional(),
   });
 
@@ -452,16 +452,16 @@ export const GetWriteInsResponseSchema: z.ZodSchema<GetWriteInsResponse> =
  * @url /admin/elections/:electionId/write-ins
  * @method GET
  */
-export interface GetWriteInAdjudicationsQueryParams {
+export interface GetWriteInsQueryParams {
   readonly contestId?: ContestId;
   readonly status?: WriteInAdjudicationStatus;
   readonly limit?: number;
 }
 
 /**
- * Schema for {@link GetWriteInAdjudicationsQueryParams}.
+ * Schema for {@link GetWriteInsQueryParams}.
  */
-export const GetWriteInAdjudicationsQueryParamsSchema: z.ZodSchema<GetWriteInAdjudicationsQueryParams> =
+export const GetWriteInsQueryParamsSchema: z.ZodSchema<GetWriteInsQueryParams> =
   z
     .object({
       contestId: ContestIdSchema.optional(),
@@ -505,6 +505,50 @@ export const PutWriteInTranscriptionResponseSchema: z.ZodSchema<PutWriteInTransc
 
 /**
  * @url /admin/elections/:electionId/write-in-adjudications
+ * @method GET
+ */
+export type GetWriteInAdjudicationsRequest = never;
+
+/**
+ * Schema for {@link GetWriteInAdjudicationsRequest}.
+ */
+export const GetWriteInAdjudicationsRequestSchema: z.ZodSchema<GetWriteInAdjudicationsRequest> =
+  z.never();
+
+/**
+ * @url /admin/elections/:electionId/write-in-adjudications
+ * @method GET
+ */
+export type GetWriteInAdjudicationsResponse =
+  | WriteInAdjudicationRecord[]
+  | ErrorsResponse;
+
+/**
+ * Schema for {@link GetWriteInAdjudicationsResponse}.
+ */
+export const GetWriteInAdjudicationsResponseSchema: z.ZodSchema<GetWriteInAdjudicationsResponse> =
+  z.union([z.array(WriteInAdjudicationRecordSchema), ErrorsResponseSchema]);
+
+/**
+ * @url /admin/elections/:electionId/write-in-adjudications
+ * @method GET
+ */
+export interface GetWriteInAdjudicationsQueryParams {
+  readonly contestId?: ContestId;
+}
+
+/**
+ * Schema for {@link GetWriteInAdjudicationsQueryParams}.
+ */
+export const GetWriteInAdjudicationsQueryParamsSchema: z.ZodSchema<GetWriteInAdjudicationsQueryParams> =
+  z
+    .object({
+      contestId: ContestIdSchema.optional(),
+    })
+    .strict();
+
+/**
+ * @url /admin/elections/:electionId/write-in-adjudications
  * @method POST
  */
 export interface PostWriteInAdjudicationRequest {
@@ -544,6 +588,66 @@ export const PostWriteInAdjudicationResponseSchema: z.ZodSchema<PostWriteInAdjud
     }),
     ErrorsResponseSchema,
   ]);
+
+/**
+ * @url /admin/write-in-adjudications/:writeInAdjudicationId
+ * @method PUT
+ */
+export interface PutWriteInAdjudicationRequest {
+  readonly adjudicatedValue: string;
+  readonly adjudicatedOptionId?: ContestOptionId;
+}
+
+/**
+ * Schema for {@link PutWriteInAdjudicationRequest}.
+ */
+export const PutWriteInAdjudicationRequestSchema: z.ZodSchema<PutWriteInAdjudicationRequest> =
+  z.object({
+    adjudicatedValue: z.string().nonempty(),
+    adjudicatedOptionId: ContestOptionIdSchema.optional(),
+  });
+
+/**
+ * @url /admin/write-in-adjudications/:writeInAdjudicationId
+ * @method PUT
+ */
+export type PutWriteInAdjudicationResponse = OkResponse | ErrorsResponse;
+
+/**
+ * Schema for {@link PutWriteInAdjudicationResponse}.
+ */
+export const PutWriteInAdjudicationResponseSchema: z.ZodSchema<PutWriteInAdjudicationResponse> =
+  z.union([
+    z.object({
+      status: z.literal('ok'),
+      id: IdSchema,
+    }),
+    ErrorsResponseSchema,
+  ]);
+
+/**
+ * @url /admin/write-in-adjudications/:writeInAdjudicationId
+ * @method DELETE
+ */
+export type DeleteWriteInAdjudicationRequest = never;
+
+/**
+ * Schema for {@link DeleteWriteInAdjudicationRequest}.
+ */
+export const DeleteWriteInAdjudicationRequestSchema: z.ZodSchema<DeleteWriteInAdjudicationRequest> =
+  z.never();
+
+/**
+ * @url /admin/write-in-adjudications/:writeInAdjudicationId
+ * @method DELETE
+ */
+export type DeleteWriteInAdjudicationResponse = OkResponse;
+
+/**
+ * Schema for {@link DeleteWriteInAdjudicationResponse}.
+ */
+export const DeleteWriteInAdjudicationResponseSchema: z.ZodSchema<DeleteWriteInAdjudicationResponse> =
+  OkResponseSchema;
 
 /**
  * @url /admin/elections/:electionId/write-in-summary

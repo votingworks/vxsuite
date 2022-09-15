@@ -111,7 +111,7 @@ function makeAdminBackend(): ElectionManagerStoreAdminBackend {
       return {
         body: typedAs<Admin.GetWriteInsResponse>(
           (await dbEntry.memoryBackend.loadWriteIns(
-            safeParse(Admin.GetWriteInAdjudicationsQueryParamsSchema, {
+            safeParse(Admin.GetWriteInsQueryParamsSchema, {
               contestId: query.get('contestId') ?? undefined,
               status: query.get('status') ?? undefined,
             }).unsafeUnwrap()
@@ -173,7 +173,63 @@ function makeAdminBackend(): ElectionManagerStoreAdminBackend {
           }),
         };
       }
-    );
+    )
+    .put('glob:/admin/write-in-adjudications/*', async (url, request) => {
+      const match = url.match(/^\/admin\/write-in-adjudications\/(.+)$/);
+      const adjudicationId = match?.[1] as Id;
+      const body = safeParseJson(
+        request.body as string,
+        Admin.PutWriteInAdjudicationRequestSchema
+      ).unsafeUnwrap();
+
+      for (const dbEntry of db.values()) {
+        const writeInAdjudications =
+          await dbEntry.memoryBackend.loadWriteInAdjudications();
+
+        if (
+          writeInAdjudications.some(
+            (adjudication) => adjudication.id === adjudicationId
+          )
+        ) {
+          await dbEntry.memoryBackend.updateWriteInAdjudication(
+            adjudicationId,
+            body.adjudicatedValue,
+            body.adjudicatedOptionId
+          );
+          return {
+            body: typedAs<Admin.PutWriteInAdjudicationResponse>({
+              status: 'ok',
+            }),
+          };
+        }
+      }
+
+      return { status: 404 };
+    })
+    .delete('glob:/admin/write-in-adjudications/*', async (url) => {
+      const match = url.match(/^\/admin\/write-in-adjudications\/(.+)$/);
+      const adjudicationId = match?.[1] as Id;
+
+      for (const dbEntry of db.values()) {
+        const writeInAdjudications =
+          await dbEntry.memoryBackend.loadWriteInAdjudications();
+
+        if (
+          writeInAdjudications.some(
+            (adjudication) => adjudication.id === adjudicationId
+          )
+        ) {
+          await dbEntry.memoryBackend.deleteWriteInAdjudication(adjudicationId);
+          return {
+            body: typedAs<Admin.DeleteWriteInAdjudicationResponse>({
+              status: 'ok',
+            }),
+          };
+        }
+      }
+
+      return { status: 404 };
+    });
 
   return new ElectionManagerStoreAdminBackend({
     storage,
@@ -330,7 +386,7 @@ describe.each([
       })
     );
 
-    await backend.adjudicateWriteInTranscription(
+    const writeInAdjudicationId = await backend.adjudicateWriteInTranscription(
       transcribedWriteIn.contestId,
       'Mickey Mouse',
       'Richard Mouse'
@@ -345,6 +401,36 @@ describe.each([
         ...transcribedWriteIn,
         status: 'adjudicated',
         adjudicatedValue: 'Richard Mouse',
+      })
+    );
+
+    await backend.updateWriteInAdjudication(
+      writeInAdjudicationId,
+      'Bob Barker'
+    );
+
+    const [updatedWriteIn] = await backend.loadWriteIns({
+      status: 'adjudicated',
+    });
+
+    expect(updatedWriteIn).toEqual(
+      typedAs<Admin.WriteInRecord>({
+        ...adjudicatedWriteIn,
+        adjudicatedValue: 'Bob Barker',
+      })
+    );
+
+    await backend.deleteWriteInAdjudication(writeInAdjudicationId);
+
+    const [backToTranscribedWriteIn] = await backend.loadWriteIns({
+      status: 'transcribed',
+    });
+
+    expect(backToTranscribedWriteIn).toEqual(
+      typedAs<Admin.WriteInRecord>({
+        ...updatedWriteIn,
+        status: 'transcribed',
+        adjudicatedValue: undefined,
       })
     );
   });

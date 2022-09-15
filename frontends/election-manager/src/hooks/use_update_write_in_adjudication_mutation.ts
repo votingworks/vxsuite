@@ -3,46 +3,46 @@ import {
   UseMutationResult,
   useQueryClient,
 } from '@tanstack/react-query';
-import { ContestId, ContestOptionId, Id } from '@votingworks/types';
+import { ContestOptionId, Id } from '@votingworks/types';
 import { useContext } from 'react';
 import { ServicesContext } from '../contexts/services_context';
 import { getWriteInsQueryKey } from './use_write_ins_query';
 import { getWriteInSummaryQueryKey } from './use_write_in_summary_query';
 
+/**
+ * Values to pass to the update write-in adjudication mutation.
+ */
 export interface Props {
-  readonly contestId: ContestId;
-  readonly transcribedValue: string;
+  readonly writeInAdjudicationId: Id;
   readonly adjudicatedValue: string;
   readonly adjudicatedOptionId?: ContestOptionId;
 }
 
 /**
- * `useMutation` result for adjudicating a transcription.
+ * `useMutation` result for updating a write-in adjudication.
  */
-export type UseAdjudicateTranscriptionMutationResult = UseMutationResult<
-  Id,
+export type UseUpdateWriteInAdjudicationMutationResult = UseMutationResult<
+  void,
   unknown,
   Props,
   unknown
 >;
 
 /**
- * Provides a mutation function to adjudicate a transcription.
+ * Provides a mutation function to update a write-in adjudication.
  */
-export function useAdjudicateTranscriptionMutation(): UseAdjudicateTranscriptionMutationResult {
+export function useUpdateWriteInAdjudicationMutation(): UseUpdateWriteInAdjudicationMutationResult {
   const { backend } = useContext(ServicesContext);
   const queryClient = useQueryClient();
 
   return useMutation(
     async ({
-      contestId,
-      transcribedValue,
+      writeInAdjudicationId,
       adjudicatedValue,
       adjudicatedOptionId,
     }) => {
-      return await backend.adjudicateWriteInTranscription(
-        contestId,
-        transcribedValue,
+      await backend.updateWriteInAdjudication(
+        writeInAdjudicationId,
         adjudicatedValue,
         adjudicatedOptionId
       );

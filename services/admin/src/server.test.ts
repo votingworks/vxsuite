@@ -610,3 +610,96 @@ test('PUT /admin/write-ins/:writeInId/transcription missing value', async () => 
     .send({})
     .expect(400);
 });
+
+test('GET /admin/elections/:electionId/write-in-adjudications', async () => {
+  const electionId = workspace.store.addElection(
+    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
+  );
+
+  const getWriteInAdjudicationsInitialHttpResponse = await request(app)
+    .get(`/admin/elections/${electionId}/write-in-adjudications`)
+    .expect(200);
+
+  const getWriteInAdjudicationsInitialResponse = unsafeParse(
+    Admin.GetWriteInAdjudicationsResponseSchema,
+    getWriteInAdjudicationsInitialHttpResponse.body
+  );
+
+  expect(getWriteInAdjudicationsInitialResponse).toEqual(
+    typedAs<Admin.GetWriteInAdjudicationsResponse>([])
+  );
+
+  workspace.store.createWriteInAdjudication({
+    electionId,
+    contestId: 'zoo-council-mammal',
+    transcribedValue: 'Bob',
+    adjudicatedValue: 'Robert',
+  });
+
+  const getWriteInAdjudicationsHttpResponse = await request(app)
+    .get(`/admin/elections/${electionId}/write-in-adjudications`)
+    .expect(200);
+
+  const getWriteInAdjudicationsResponse = unsafeParse(
+    Admin.GetWriteInAdjudicationsResponseSchema,
+    getWriteInAdjudicationsHttpResponse.body
+  );
+
+  expect(getWriteInAdjudicationsResponse).toEqual(
+    typedAs<Admin.GetWriteInAdjudicationsResponse>([
+      {
+        id: expect.any(String),
+        contestId: 'zoo-council-mammal',
+        transcribedValue: 'Bob',
+        adjudicatedValue: 'Robert',
+      },
+    ])
+  );
+
+  const getWriteInAdjudicationsFilterMismatchHttpResponse = await request(app)
+    .get(
+      `/admin/elections/${electionId}/write-in-adjudications?contestId=zoo-council-fish`
+    )
+    .expect(200);
+
+  const getWriteInAdjudicationsFilterMismatchResponse = unsafeParse(
+    Admin.GetWriteInAdjudicationsResponseSchema,
+    getWriteInAdjudicationsFilterMismatchHttpResponse.body
+  );
+
+  expect(getWriteInAdjudicationsFilterMismatchResponse).toEqual(
+    typedAs<Admin.GetWriteInAdjudicationsResponse>([])
+  );
+
+  const getWriteInAdjudicationsFilterMatchHttpResponse = await request(app)
+    .get(
+      `/admin/elections/${electionId}/write-in-adjudications?contestId=zoo-council-mammal`
+    )
+    .expect(200);
+
+  const getWriteInAdjudicationsFilterMatchResponse = unsafeParse(
+    Admin.GetWriteInAdjudicationsResponseSchema,
+    getWriteInAdjudicationsFilterMatchHttpResponse.body
+  );
+
+  expect(getWriteInAdjudicationsFilterMatchResponse).toEqual(
+    typedAs<Admin.GetWriteInAdjudicationsResponse>([
+      {
+        id: expect.any(String),
+        contestId: 'zoo-council-mammal',
+        transcribedValue: 'Bob',
+        adjudicatedValue: 'Robert',
+      },
+    ])
+  );
+});
+
+test('GET /admin/elections/:electionId/write-in-adjudications bad query', async () => {
+  const electionId = workspace.store.addElection(
+    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
+  );
+
+  await request(app)
+    .get(`/admin/elections/${electionId}/write-in-adjudications?bad=query`)
+    .expect(400);
+});

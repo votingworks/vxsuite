@@ -122,6 +122,13 @@ export interface ElectionManagerStoreBackend {
   transcribeWriteIn(writeInId: Id, transcribedValue: string): Promise<void>;
 
   /**
+   * Gets all the write-in adjudications, optionally filtered by contest.
+   */
+  loadWriteInAdjudications(options?: {
+    contestId?: ContestId;
+  }): Promise<Admin.WriteInAdjudicationRecord[]>;
+
+  /**
    * Adjudicates a write-in transcription.
    */
   adjudicateWriteInTranscription(
@@ -130,4 +137,25 @@ export interface ElectionManagerStoreBackend {
     adjudicatedValue: string,
     adjudicatedOptionId?: ContestOptionId
   ): Promise<Id>;
+
+  /**
+   * Updates a write-in adjudication.
+   */
+  updateWriteInAdjudication(
+    writeInAdjudicationId: Id,
+    adjudicatedValue: string,
+    adjudicatedOptionId?: ContestOptionId
+  ): Promise<void>;
+
+  /**
+   * Deletes a write-in adjudication.
+   */
+  deleteWriteInAdjudication(writeInAdjudicationId: Id): Promise<void>;
+
+  /**
+   * Gets a summary of all the write-ins, optionally filtered by contest.
+   */
+  getWriteInSummary(options?: {
+    contestId?: ContestId;
+  }): Promise<Admin.WriteInSummaryEntry[]>;
 }

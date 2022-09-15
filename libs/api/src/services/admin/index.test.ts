@@ -1,8 +1,5 @@
 import { unsafeParse } from '@votingworks/types';
-import {
-  GetWriteInAdjudicationsQueryParamsSchema,
-  PostCvrFileQueryParamsSchema,
-} from '.';
+import { GetWriteInsQueryParamsSchema, PostCvrFileQueryParamsSchema } from '.';
 
 test('PostCvrFileQueryParamsSchema', () => {
   expect(unsafeParse(PostCvrFileQueryParamsSchema, {})).toEqual({});
@@ -15,8 +12,8 @@ test('PostCvrFileQueryParamsSchema', () => {
 });
 
 test('GetWriteInAdjudicationsQueryParamsSchema', () => {
-  expect(unsafeParse(GetWriteInAdjudicationsQueryParamsSchema, {})).toEqual({});
-  expect(
-    unsafeParse(GetWriteInAdjudicationsQueryParamsSchema, { limit: '1' })
-  ).toEqual({ limit: 1 });
+  expect(unsafeParse(GetWriteInsQueryParamsSchema, {})).toEqual({});
+  expect(unsafeParse(GetWriteInsQueryParamsSchema, { limit: '1' })).toEqual({
+    limit: 1,
+  });
 });
