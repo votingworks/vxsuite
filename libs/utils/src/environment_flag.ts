@@ -21,6 +21,24 @@ export interface EnvironmentFlag {
   autoEnableInDevelopment: boolean;
 }
 
+export function getFlag(name: EnvironmentFlagName): string | undefined {
+  switch (name) {
+    case EnvironmentFlagName.WRITE_IN_ADJUDICATION:
+      return process.env.REACT_APP_VX_ENABLE_WRITE_IN_ADJUDICATION;
+    case EnvironmentFlagName.ALL_ZERO_SMARTCARD_PIN:
+      return process.env.REACT_APP_VX_ENABLE_ALL_ZERO_SMARTCARD_PIN_GENERATION;
+    case EnvironmentFlagName.DISABLE_CARD_READER_CHECK:
+      return process.env.REACT_APP_VX_DISABLE_CARD_READER_CHECK;
+    case EnvironmentFlagName.LIVECHECK:
+      return process.env.REACT_APP_VX_ENABLE_LIVECHECK;
+    case EnvironmentFlagName.DISALLOW_CASTING_OVERVOTES:
+      return process.env.REACT_APP_VX_DISALLOW_CASTING_OVERVOTES;
+    /* istanbul ignore next compile time check */
+    default:
+      throwIllegalValue(name);
+  }
+}
+
 export function getFlagDetails(name: EnvironmentFlagName): EnvironmentFlag {
   switch (name) {
     case EnvironmentFlagName.WRITE_IN_ADJUDICATION:
