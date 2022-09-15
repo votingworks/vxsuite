@@ -5,7 +5,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
   aria-hidden="true"
 >
   <div
-    class="sc-bBHHQT hByWxc"
+    class="sc-cNKpQo ecBuSt"
   >
     <nav
       class="sc-bdfBwQ gqAMTS"
@@ -84,7 +84,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
       </div>
     </nav>
     <main
-      class="sc-iJKOzS dlPruf"
+      class="sc-giYgFv jOIlkZ"
     >
       <div
         class="sc-jRQAMF foBEwC"
@@ -96,7 +96,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           Print the L&A Packages for all precincts, or for a specific precinct, by selecting a button below.
         </p>
         <p
-          class="sc-fKVsgm kDHeZv"
+          class="sc-bBHwJV bHaIAi"
         />
         <p>
           Each Precinct L&A Package prints:
@@ -119,7 +119,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           </li>
         </ol>
         <p
-          class="sc-fKVsgm kDHeZv"
+          class="sc-bBHwJV bHaIAi"
         />
       </div>
       <p>
@@ -288,14 +288,14 @@ exports[`L&A (logic and accuracy) flow 1`] = `
     </div>
   </div>
   <div
-    class="sc-gWXaA-D eiVRdy print-only"
+    class="sc-cCcYRi ePpLdy print-only"
   >
     <section
-      class="sc-ikJzcn gFcHpk"
+      class="sc-jJoQpE jrcdmY"
     >
       <img
         alt="VotingWorks logo"
-        class="sc-llYToB cfUder"
+        class="sc-iJKOzS kMVWwh"
         src="/votingworks-wordmark-black.svg"
       />
       <div
@@ -322,14 +322,15 @@ exports[`L&A (logic and accuracy) flow 1`] = `
           >
             This report was created on 
             Tuesday, November 3, 2020, 10:22:00 PM UTC
+            .
           </span>
         </p>
       </div>
       <div
-        class="sc-hiCivh hqTCjy"
+        class="sc-gWXaA-D kNngbK"
       >
         <div
-          class="sc-efQUeY fyTYfm"
+          class="sc-cTApHj bQrcJt"
         >
           <h3>
             Ballots by Voting Method
@@ -813,11 +814,6 @@ exports[`L&A (logic and accuracy) flow 1`] = `
             class="sc-jRQAMF foBEwC"
             data-testid="results-table-775020900"
           >
-            <p
-              class="sc-dkPtyc dVpXhv"
-            >
-              Election Commissioner 02
-            </p>
             <h3>
               Election Commissioner 02
             </h3>
@@ -889,11 +885,6 @@ exports[`L&A (logic and accuracy) flow 1`] = `
             class="sc-jRQAMF foBEwC"
             data-testid="results-table-775020901"
           >
-            <p
-              class="sc-dkPtyc dVpXhv"
-            >
-              Election Commissioner 03
-            </p>
             <h3>
               Election Commissioner 03
             </h3>
@@ -955,11 +946,6 @@ exports[`L&A (logic and accuracy) flow 1`] = `
             class="sc-jRQAMF foBEwC"
             data-testid="results-table-775020902"
           >
-            <p
-              class="sc-dkPtyc dVpXhv"
-            >
-              Election Commissioner 04
-            </p>
             <h3>
               Election Commissioner 04
             </h3>
@@ -1031,11 +1017,6 @@ exports[`L&A (logic and accuracy) flow 1`] = `
             class="sc-jRQAMF foBEwC"
             data-testid="results-table-775020903"
           >
-            <p
-              class="sc-dkPtyc dVpXhv"
-            >
-              Election Commissioner 05
-            </p>
             <h3>
               Election Commissioner 05
             </h3>
@@ -1470,7 +1451,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
   aria-hidden="true"
 >
   <div
-    class="sc-bBHHQT hByWxc"
+    class="sc-cNKpQo ecBuSt"
   >
     <nav
       class="sc-bdfBwQ gqAMTS"
@@ -1549,7 +1530,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
       </div>
     </nav>
     <main
-      class="sc-iJKOzS dlPruf"
+      class="sc-giYgFv jOIlkZ"
     >
       <div
         class="sc-jRQAMF foBEwC"
@@ -1561,7 +1542,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
           Print the L&A Packages for all precincts, or for a specific precinct, by selecting a button below.
         </p>
         <p
-          class="sc-fKVsgm kDHeZv"
+          class="sc-bBHwJV bHaIAi"
         />
         <p>
           Each Precinct L&A Package prints:
@@ -1584,7 +1565,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
           </li>
         </ol>
         <p
-          class="sc-fKVsgm kDHeZv"
+          class="sc-bBHwJV bHaIAi"
         />
       </div>
       <p>
@@ -2938,7 +2919,7 @@ exports[`L&A (logic and accuracy) flow 3`] = `
   aria-hidden="true"
 >
   <div
-    class="sc-bBHHQT hByWxc"
+    class="sc-cNKpQo ecBuSt"
   >
     <nav
       class="sc-bdfBwQ gqAMTS"
@@ -3017,7 +2998,7 @@ exports[`L&A (logic and accuracy) flow 3`] = `
       </div>
     </nav>
     <main
-      class="sc-iJKOzS dlPruf"
+      class="sc-giYgFv jOIlkZ"
     >
       <div
         class="sc-jRQAMF foBEwC"
@@ -3029,7 +3010,7 @@ exports[`L&A (logic and accuracy) flow 3`] = `
           Print the L&A Packages for all precincts, or for a specific precinct, by selecting a button below.
         </p>
         <p
-          class="sc-fKVsgm kDHeZv"
+          class="sc-bBHwJV bHaIAi"
         />
         <p>
           Each Precinct L&A Package prints:
@@ -3052,7 +3033,7 @@ exports[`L&A (logic and accuracy) flow 3`] = `
           </li>
         </ol>
         <p
-          class="sc-fKVsgm kDHeZv"
+          class="sc-bBHwJV bHaIAi"
         />
       </div>
       <p>
@@ -3343,12 +3324,12 @@ exports[`L&A (logic and accuracy) flow 3`] = `
 
 exports[`tabulating CVRs 1`] = `
 <section
-  class="sc-ikJzcn gFcHpk"
+  class="sc-jJoQpE jrcdmY"
   data-testid="election-full-tally-report"
 >
   <img
     alt="VotingWorks logo"
-    class="sc-llYToB cfUder"
+    class="sc-iJKOzS kMVWwh"
     src="/votingworks-wordmark-black.svg"
   />
   <div
@@ -3372,14 +3353,15 @@ exports[`tabulating CVRs 1`] = `
       >
         This report was created on 
         Tuesday, November 3, 2020, 10:22:00 PM UTC
+        .
       </span>
     </p>
   </div>
   <div
-    class="sc-hiCivh hqTCjy"
+    class="sc-gWXaA-D kNngbK"
   >
     <div
-      class="sc-efQUeY fyTYfm"
+      class="sc-cTApHj bQrcJt"
     >
       <h3>
         Ballots by Voting Method
@@ -3867,11 +3849,6 @@ exports[`tabulating CVRs 1`] = `
         class="sc-jRQAMF foBEwC"
         data-testid="results-table-775020900"
       >
-        <p
-          class="sc-dkPtyc dVpXhv"
-        >
-          Election Commissioner 02
-        </p>
         <h3>
           Election Commissioner 02
         </h3>
@@ -3949,11 +3926,6 @@ exports[`tabulating CVRs 1`] = `
         class="sc-jRQAMF foBEwC"
         data-testid="results-table-775020901"
       >
-        <p
-          class="sc-dkPtyc dVpXhv"
-        >
-          Election Commissioner 03
-        </p>
         <h3>
           Election Commissioner 03
         </h3>
@@ -4019,11 +3991,6 @@ exports[`tabulating CVRs 1`] = `
         class="sc-jRQAMF foBEwC"
         data-testid="results-table-775020902"
       >
-        <p
-          class="sc-dkPtyc dVpXhv"
-        >
-          Election Commissioner 04
-        </p>
         <h3>
           Election Commissioner 04
         </h3>
@@ -4101,11 +4068,6 @@ exports[`tabulating CVRs 1`] = `
         class="sc-jRQAMF foBEwC"
         data-testid="results-table-775020903"
       >
-        <p
-          class="sc-dkPtyc dVpXhv"
-        >
-          Election Commissioner 05
-        </p>
         <h3>
           Election Commissioner 05
         </h3>
@@ -4534,12 +4496,12 @@ House Bill 1796 - Flag Referendum
 
 exports[`tabulating CVRs with SEMS file 1`] = `
 <section
-  class="sc-ikJzcn gFcHpk"
+  class="sc-jJoQpE jrcdmY"
   data-testid="election-full-tally-report"
 >
   <img
     alt="VotingWorks logo"
-    class="sc-llYToB cfUder"
+    class="sc-iJKOzS kMVWwh"
     src="/votingworks-wordmark-black.svg"
   />
   <div
@@ -4563,14 +4525,15 @@ exports[`tabulating CVRs with SEMS file 1`] = `
       >
         This report was created on 
         Tuesday, November 3, 2020, 10:22:00 PM UTC
+        .
       </span>
     </p>
   </div>
   <div
-    class="sc-hiCivh hqTCjy"
+    class="sc-gWXaA-D kNngbK"
   >
     <div
-      class="sc-efQUeY fyTYfm"
+      class="sc-cTApHj bQrcJt"
     >
       <h3>
         Ballots by Voting Method
@@ -5058,11 +5021,6 @@ exports[`tabulating CVRs with SEMS file 1`] = `
         class="sc-jRQAMF foBEwC"
         data-testid="results-table-775020900"
       >
-        <p
-          class="sc-dkPtyc dVpXhv"
-        >
-          Election Commissioner 02
-        </p>
         <h3>
           Election Commissioner 02
         </h3>
@@ -5140,11 +5098,6 @@ exports[`tabulating CVRs with SEMS file 1`] = `
         class="sc-jRQAMF foBEwC"
         data-testid="results-table-775020901"
       >
-        <p
-          class="sc-dkPtyc dVpXhv"
-        >
-          Election Commissioner 03
-        </p>
         <h3>
           Election Commissioner 03
         </h3>
@@ -5210,11 +5163,6 @@ exports[`tabulating CVRs with SEMS file 1`] = `
         class="sc-jRQAMF foBEwC"
         data-testid="results-table-775020902"
       >
-        <p
-          class="sc-dkPtyc dVpXhv"
-        >
-          Election Commissioner 04
-        </p>
         <h3>
           Election Commissioner 04
         </h3>
@@ -5292,11 +5240,6 @@ exports[`tabulating CVRs with SEMS file 1`] = `
         class="sc-jRQAMF foBEwC"
         data-testid="results-table-775020903"
       >
-        <p
-          class="sc-dkPtyc dVpXhv"
-        >
-          Election Commissioner 05
-        </p>
         <h3>
           Election Commissioner 05
         </h3>
