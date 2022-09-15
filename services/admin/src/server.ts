@@ -1,10 +1,20 @@
 import { Admin } from '@votingworks/api';
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
-import { Id, safeParse } from '@votingworks/types';
+import {
+  BallotPageLayout,
+  getBallotStyle,
+  getContests,
+  Id,
+  InlineBallotImage,
+  Rect,
+  safeParse,
+  safeParseNumber,
+} from '@votingworks/types';
 import multer from 'multer';
 import express, { Application } from 'express';
 import { readFileSync } from 'fs';
 import { basename } from 'path';
+import { zip } from '@votingworks/utils';
 import { ADMIN_WORKSPACE, PORT } from './globals';
 import { Store } from './store';
 import { createWorkspace, Workspace } from './util/workspace';
@@ -291,6 +301,139 @@ export function buildApp({ store }: { store: Store }): Application {
     response.json(
       store.getWriteInAdjudicationSummary({ electionId, contestId })
     );
+  });
+
+  /* istanbul ignore next */
+  app.get<
+    { writeInId: Id },
+    Admin.GetWriteInImageResponse,
+    Admin.GetWriteInImageRequest
+  >('/admin/write-in-image/:writeInId', (request, response) => {
+    const { writeInId } = request.params;
+
+    const castVoteRecordData = store.getCastVoteRecordForWriteIn(writeInId);
+    if (!castVoteRecordData) {
+      response.status(400).json({
+        status: 'error',
+        errors: [
+          {
+            type: 'invalid-value',
+            message: `invalid write in Id`,
+          },
+        ],
+      });
+      return;
+    }
+    const { contestId, optionId, electionId, cvr } = castVoteRecordData;
+
+    const electionRecord = store.getElection(electionId);
+    if (!electionRecord) {
+      response.status(400).json({
+        status: 'error',
+        errors: [
+          {
+            type: 'invalid-value',
+            message: `invalid election Id`,
+          },
+        ],
+      });
+      return;
+    }
+    const { election } = electionRecord.electionDefinition;
+
+    try {
+      const ballotStyle = getBallotStyle({
+        ballotStyleId: cvr._ballotStyleId,
+        election,
+      });
+      if (cvr._layouts === undefined || cvr._ballotImages === undefined) {
+        response.json([]); // The CVR does not have ballot images.
+        return;
+      }
+      if (!ballotStyle) {
+        throw new Error('unexpected types');
+      }
+      const allContestIdsForBallotStyle = getContests({
+        ballotStyle,
+        election,
+      }).map((c) => c.id);
+      const [layouts, ballotImages] = [
+        // eslint-disable-next-line no-underscore-dangle
+        ...zip(cvr._layouts, cvr._ballotImages),
+      ]
+        .sort(([a], [b]) => a.metadata.pageNumber - b.metadata.pageNumber)
+        .reduce<[BallotPageLayout[], InlineBallotImage[]]>(
+          ([layoutsAcc, ballotImagesAcc], [layout, ballotImage]) => [
+            [...layoutsAcc, layout],
+            [...ballotImagesAcc, ballotImage],
+          ],
+          [[], []]
+        );
+      let contestIdx = allContestIdsForBallotStyle.indexOf(contestId);
+      let currentLayoutOptionIdx = 0;
+      let currentLayout = layouts[currentLayoutOptionIdx];
+      while (currentLayout && contestIdx >= currentLayout.contests.length) {
+        currentLayoutOptionIdx += 1;
+        currentLayout = layouts[currentLayoutOptionIdx];
+        if (!currentLayout) {
+          throw new Error('unexpected types');
+        }
+        contestIdx -= currentLayout.contests.length;
+      }
+      currentLayout = layouts[currentLayoutOptionIdx];
+      if (!currentLayout) {
+        throw new Error('unexpected types');
+      }
+      const contestLayout =
+        layouts[currentLayoutOptionIdx]?.contests[contestIdx];
+
+      // Options are laid out from the bottom up, so we reverse write-ins to get the correct bounds
+      const writeInOptions = contestLayout?.options
+        .filter((option) => option.definition?.id.startsWith('write-in'))
+        .reverse();
+
+      const writeInOptionIndex = safeParseNumber(
+        optionId.slice('write-in-'.length)
+      );
+      if (
+        writeInOptionIndex.isErr() ||
+        writeInOptions === undefined ||
+        contestLayout === undefined
+      ) {
+        throw new Error('unexpected types');
+      }
+      const writeInLayout = writeInOptions[writeInOptionIndex.ok()];
+      const currentBallotImage = ballotImages[currentLayoutOptionIdx];
+      if (writeInLayout === undefined || currentBallotImage === undefined) {
+        throw new Error('unexpected types');
+      }
+      const writeInBounds = writeInLayout.bounds;
+      const contestBounds = contestLayout.bounds;
+      const fullBallotBounds: Rect = {
+        ...currentLayout.pageSize,
+        x: 0,
+        y: 0,
+      };
+      response.json([
+        {
+          image: currentBallotImage.normalized,
+          ballotCoordinates: fullBallotBounds,
+          contestCoordinates: contestBounds,
+          writeInCoordinates: writeInBounds,
+        },
+      ]);
+    } catch (error: unknown) {
+      response.status(400).json({
+        status: 'error',
+        errors: [
+          {
+            type: 'unexpected-error',
+            message:
+              error instanceof Error ? error.message : 'unexpected error',
+          },
+        ],
+      });
+    }
   });
 
   return app;

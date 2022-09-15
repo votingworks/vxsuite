@@ -1,4 +1,5 @@
 import {
+  CastVoteRecord,
   ContestId,
   ContestIdSchema,
   ContestOptionId,
@@ -9,6 +10,8 @@ import {
   IdSchema,
   Iso8601Timestamp,
   Iso8601TimestampSchema,
+  Rect,
+  RectSchema,
   safeParseNumber,
 } from '@votingworks/types';
 import * as z from 'zod';
@@ -190,6 +193,39 @@ export const WriteInSummaryEntrySchema: z.ZodSchema<WriteInSummaryEntry> =
     writeInCount: z.number().int().min(1),
     writeInAdjudication: WriteInAdjudicationRecordSchema.optional(),
   });
+
+/**
+ * Write-in image information.
+ */
+export interface WriteInImageEntry {
+  readonly image: string;
+  readonly ballotCoordinates: Rect;
+  readonly contestCoordinates: Rect;
+  readonly writeInCoordinates: Rect;
+}
+
+/**
+ * Schema for {@link WriteInImageEntry}.
+ */
+export const WriteInImageEntrySchema: z.ZodSchema<WriteInImageEntry> = z.object(
+  {
+    image: z.string().nonempty(),
+    ballotCoordinates: RectSchema,
+    contestCoordinates: RectSchema,
+    writeInCoordinates: RectSchema,
+  }
+);
+
+/**
+ * Cast vote record data for a given write in option.
+ */
+export interface CastVoteRecordData {
+  readonly cvr: CastVoteRecord;
+  readonly writeInId: Id;
+  readonly contestId: ContestId;
+  readonly optionId: ContestOptionId;
+  readonly electionId: Id;
+}
 
 /**
  * @url /admin/elections
@@ -550,3 +586,27 @@ export const GetWriteInSummaryQueryParamsSchema: z.ZodSchema<GetWriteInSummaryQu
       contestId: ContestIdSchema.optional(),
     })
     .strict();
+
+/**
+ * @url /admin/elections/:electionId/cvr-file/:cvrId/write-in-image
+ * @method GET
+ */
+export type GetWriteInImageRequest = never;
+
+/**
+ * Schema for {@link GetWriteInImageRequest}.
+ */
+export const GetWriteInImageRequestSchema: z.ZodSchema<GetWriteInImageRequest> =
+  z.never();
+
+/**
+ * @url /admin/elections/:electionId/cvr-file/:cvrId/write-in-image
+ * @method GET
+ */
+export type GetWriteInImageResponse = WriteInImageEntry[] | ErrorsResponse;
+
+/**
+ * Schema for {@link GetWriteInImageResponse}.
+ */
+export const GetWriteInImageResponseSchema: z.ZodSchema<GetWriteInImageResponse> =
+  z.array(WriteInImageEntrySchema);

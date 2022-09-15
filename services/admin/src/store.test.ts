@@ -31,6 +31,12 @@ test('add an election', () => {
   );
   store.assertElectionExists(electionId);
   expect(store.getElections().map((r) => r.id)).toContain(electionId);
+  expect(store.getElection(electionId)).toMatchObject({
+    electionDefinition: expect.anything(),
+    id: electionId,
+    createdAt: expect.anything(),
+  });
+  expect(store.getElection('not-an-id')).toBe(undefined);
 });
 
 test('assert election exists', () => {
@@ -403,6 +409,17 @@ test('write-in adjudication lifecycle', () => {
       transcribedValue: 'Mickey Mouse',
     },
   ]);
+
+  expect(store.getCastVoteRecordForWriteIn(writeInId)).toMatchObject({
+    writeInId,
+    contestId: 'zoo-council-mammal',
+    optionId: 'write-in-0',
+    cvr: expect.objectContaining({
+      _ballotId: 'id-0',
+    }),
+  });
+
+  expect(store.getCastVoteRecordForWriteIn('not-an-id')).toBe(undefined);
 
   const firstWriteInAdjudicationId = store.createWriteInAdjudication({
     electionId,

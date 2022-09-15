@@ -107,4 +107,9 @@ export interface ElectionManagerStoreBackend {
     contestId?: string;
     status?: Admin.WriteInAdjudicationStatus;
   }): Promise<Admin.WriteInRecord[]>;
+
+  /**
+   * Loads all write-in image for a CVR.
+   */
+  loadWriteInImage(cvrId: string): Promise<Admin.WriteInImageEntry[]>;
 }

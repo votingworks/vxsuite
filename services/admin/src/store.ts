@@ -124,6 +124,39 @@ export class Store {
   }
 
   /**
+   * Gets a specific election record.
+   */
+  getElection(electionId: string): Admin.ElectionRecord | undefined {
+    const result = this.client.one(
+      `
+      select
+        id,
+        data as electionData,
+        created_at as createdAt
+      from elections
+      where deleted_at is null AND id = ?
+    `,
+      electionId
+    ) as
+      | {
+          id: Id;
+          electionData: string;
+          createdAt: string;
+        }
+      | undefined;
+    if (!result) {
+      return undefined;
+    }
+    return {
+      id: result.id,
+      electionDefinition: safeParseElectionDefinition(
+        result.electionData
+      ).unsafeUnwrap(),
+      createdAt: convertSqliteTimestampToIso8601(result.createdAt),
+    };
+  }
+
+  /**
    * Deletes an election record.
    */
   deleteElection(id: Id): void {
@@ -264,6 +297,46 @@ export class Store {
       }
       throw error;
     }
+  }
+
+  getCastVoteRecordForWriteIn(
+    writeInId: Id
+  ): Admin.CastVoteRecordData | undefined {
+    const result = this.client.one(
+      `
+      select
+        write_ins.id as writeInId,
+        write_ins.contest_id as contestId,
+        write_ins.option_id as optionId,
+        cvrs.election_id as electionId,
+        cvrs.data as cvrData
+      from write_ins
+      inner join
+        cvrs on cvrs.id = write_ins.cvr_id
+      where write_ins.id = ?
+    `,
+      writeInId
+    ) as
+      | {
+          writeInId: Id;
+          contestId: ContestId;
+          optionId: ContestOptionId;
+          electionId: Id;
+          cvrData: string;
+        }
+      | undefined;
+
+    if (!result) {
+      return undefined;
+    }
+
+    return {
+      cvr: safeParseJson(result.cvrData).unsafeUnwrap() as CastVoteRecord,
+      writeInId: result.writeInId,
+      contestId: result.contestId,
+      optionId: result.optionId,
+      electionId: result.electionId,
+    };
   }
 
   /**
