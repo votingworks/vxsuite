@@ -1,10 +1,12 @@
 import { Admin } from '@votingworks/api';
 import {
   ContestId,
+  ContestOptionId,
   ElectionDefinition,
   ExternalTallySourceType,
   FullElectionExternalTallies,
   FullElectionExternalTally,
+  Id,
   Iso8601Timestamp,
   safeParseElectionDefinition,
 } from '@votingworks/types';
@@ -38,6 +40,7 @@ export class ElectionManagerStoreMemoryBackend
   private castVoteRecordFiles?: CastVoteRecordFiles;
   private isOfficialResults?: boolean;
   private writeIns?: readonly Admin.WriteInRecord[];
+  private writeInAdjudications?: readonly Admin.WriteInAdjudicationRecord[];
 
   constructor({
     electionDefinition,
@@ -47,6 +50,7 @@ export class ElectionManagerStoreMemoryBackend
     castVoteRecordFiles,
     isOfficialResults,
     writeIns,
+    writeInAdjudications,
   }: {
     electionDefinition?: ElectionDefinition;
     configuredAt?: Iso8601Timestamp;
@@ -55,6 +59,7 @@ export class ElectionManagerStoreMemoryBackend
     castVoteRecordFiles?: CastVoteRecordFiles;
     isOfficialResults?: boolean;
     writeIns?: readonly Admin.WriteInRecord[];
+    writeInAdjudications?: readonly Admin.WriteInAdjudicationRecord[];
   } = {}) {
     this.electionDefinition = electionDefinition;
     this.configuredAt =
@@ -67,6 +72,7 @@ export class ElectionManagerStoreMemoryBackend
     this.castVoteRecordFiles = castVoteRecordFiles;
     this.isOfficialResults = isOfficialResults;
     this.writeIns = writeIns;
+    this.writeInAdjudications = writeInAdjudications;
   }
 
   async reset(): Promise<void> {
@@ -250,5 +256,69 @@ export class ElectionManagerStoreMemoryBackend
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   loadWriteInImage(cvrId: string): Promise<Admin.WriteInImageEntry[]> {
     return Promise.resolve([]);
+  }
+
+  async transcribeWriteIn(
+    writeInId: Id,
+    transcribedValue: string
+  ): Promise<void> {
+    await Promise.resolve();
+
+    const { writeIns = [] } = this;
+
+    const writeInIndex = writeIns.findIndex((w) => w.id === writeInId);
+    if (writeInIndex < 0) {
+      throw new Error(`Write-in not found: ${writeInId}`);
+    }
+
+    this.writeIns = [
+      ...writeIns.slice(0, writeInIndex),
+      {
+        ...writeIns[writeInIndex],
+        status: 'transcribed',
+        transcribedValue,
+      },
+      ...writeIns.slice(writeInIndex + 1),
+    ];
+  }
+
+  async adjudicateWriteInTranscription(
+    contestId: ContestId,
+    transcribedValue: string,
+    adjudicatedValue: string,
+    adjudicatedOptionId?: ContestOptionId
+  ): Promise<Id> {
+    await Promise.resolve();
+
+    const id = uuid();
+
+    this.writeInAdjudications = [
+      ...(this.writeInAdjudications ?? []),
+      {
+        id,
+        contestId,
+        transcribedValue,
+        adjudicatedValue,
+        adjudicatedOptionId,
+      },
+    ];
+
+    this.writeIns = this.writeIns?.map((writeIn) => {
+      if (
+        writeIn.contestId === contestId &&
+        writeIn.transcribedValue === transcribedValue
+      ) {
+        return {
+          ...writeIn,
+          status: 'adjudicated',
+          adjudicatedValue,
+          adjudicatedOptionId,
+        };
+      }
+
+      return writeIn;
+    });
+
+    return id;
   }
 }

@@ -510,7 +510,7 @@ export const PutWriteInTranscriptionResponseSchema: z.ZodSchema<PutWriteInTransc
 export interface PostWriteInAdjudicationRequest {
   readonly contestId: ContestId;
   readonly transcribedValue: string;
-  readonly adjudicatedValue?: string;
+  readonly adjudicatedValue: string;
   readonly adjudicatedOptionId?: ContestOptionId;
 }
 
@@ -520,8 +520,8 @@ export interface PostWriteInAdjudicationRequest {
 export const PostWriteInAdjudicationRequestSchema: z.ZodSchema<PostWriteInAdjudicationRequest> =
   z.object({
     contestId: ContestIdSchema,
-    transcribedValue: z.string(),
-    adjudicatedValue: z.string().optional(),
+    transcribedValue: z.string().nonempty(),
+    adjudicatedValue: z.string().nonempty(),
     adjudicatedOptionId: ContestOptionIdSchema.optional(),
   });
 

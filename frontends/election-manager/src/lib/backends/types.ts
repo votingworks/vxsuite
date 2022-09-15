@@ -1,9 +1,12 @@
 import { Admin } from '@votingworks/api';
 import {
+  ContestId,
+  ContestOptionId,
   ElectionDefinition,
   ExternalTallySourceType,
   FullElectionExternalTallies,
   FullElectionExternalTally,
+  Id,
   Iso8601Timestamp,
 } from '@votingworks/types';
 import { PrintedBallot } from '../../config/types';
@@ -104,7 +107,7 @@ export interface ElectionManagerStoreBackend {
    * Loads all write-in records filtered appropriately.
    */
   loadWriteIns(options?: {
-    contestId?: string;
+    contestId?: ContestId;
     status?: Admin.WriteInAdjudicationStatus;
   }): Promise<Admin.WriteInRecord[]>;
 
@@ -112,4 +115,19 @@ export interface ElectionManagerStoreBackend {
    * Loads all write-in image for a CVR.
    */
   loadWriteInImage(cvrId: string): Promise<Admin.WriteInImageEntry[]>;
+
+  /**
+   * Transcribes a write-in record.
+   */
+  transcribeWriteIn(writeInId: Id, transcribedValue: string): Promise<void>;
+
+  /**
+   * Adjudicates a write-in transcription.
+   */
+  adjudicateWriteInTranscription(
+    contestId: ContestId,
+    transcribedValue: string,
+    adjudicatedValue: string,
+    adjudicatedOptionId?: ContestOptionId
+  ): Promise<Id>;
 }

@@ -18,22 +18,6 @@ import { PrintedBallot } from '../../config/types';
 import { convertTalliesByPrecinctToFullExternalTally } from '../../utils/external_tallies';
 import { ElectionManagerStoreAdminBackend } from './admin_backend';
 import { ElectionManagerStoreMemoryBackend } from './memory_backend';
-import { ElectionManagerStoreStorageBackend } from './storage_backend';
-
-function makeStorageBackend(): ElectionManagerStoreStorageBackend {
-  const storage = new MemoryStorage();
-  const logger = fakeLogger();
-
-  // disallow network access for storage-based backend
-  fetchMock.reset().mock('*', (url) => {
-    throw new Error(`Unexpected fetch: ${url}`);
-  });
-
-  return new ElectionManagerStoreStorageBackend({
-    storage,
-    logger,
-  });
-}
 
 function makeMemoryBackend(): ElectionManagerStoreMemoryBackend {
   // disallow network access for in-memory backend
@@ -134,7 +118,62 @@ function makeAdminBackend(): ElectionManagerStoreAdminBackend {
           )) ?? []
         ),
       };
-    });
+    })
+    .put('glob:/admin/write-ins/*/transcription', async (url, request) => {
+      const match = url.match(/^\/admin\/write-ins\/(.+)\/transcription$/);
+      const writeInId = match?.[1] as Id;
+      const body = safeParseJson(
+        request.body as string,
+        Admin.PutWriteInTranscriptionRequestSchema
+      ).unsafeUnwrap();
+
+      for (const dbEntry of db.values()) {
+        const writeIns = await dbEntry.memoryBackend.loadWriteIns();
+
+        if (writeIns.some((writeIn) => writeIn.id === writeInId)) {
+          await dbEntry.memoryBackend.transcribeWriteIn(writeInId, body.value);
+          return {
+            body: typedAs<Admin.PutWriteInTranscriptionResponse>({
+              status: 'ok',
+            }),
+          };
+        }
+      }
+
+      return { status: 404 };
+    })
+    .post(
+      'glob:/admin/elections/*/write-in-adjudications',
+      async (url, request) => {
+        const match = url.match(
+          /^\/admin\/elections\/(.+)\/write-in-adjudications$/
+        );
+        const electionId = match?.[1] as Id;
+        const dbEntry = electionId && db.get(electionId);
+        const body = safeParseJson(
+          request.body as string,
+          Admin.PostWriteInAdjudicationRequestSchema
+        ).unsafeUnwrap();
+
+        if (!dbEntry) {
+          return { status: 404 };
+        }
+
+        const id = await dbEntry.memoryBackend.adjudicateWriteInTranscription(
+          body.contestId,
+          body.transcribedValue,
+          body.adjudicatedValue,
+          body.adjudicatedOptionId
+        );
+
+        return {
+          body: typedAs<Admin.PostWriteInAdjudicationResponse>({
+            status: 'ok',
+            id,
+          }),
+        };
+      }
+    );
 
   return new ElectionManagerStoreAdminBackend({
     storage,
@@ -143,7 +182,6 @@ function makeAdminBackend(): ElectionManagerStoreAdminBackend {
 }
 
 describe.each([
-  ['storage', makeStorageBackend],
   ['memory', makeMemoryBackend],
   ['admin', makeAdminBackend],
 ])('%s backend', (_backendName, makeBackend) => {
@@ -262,5 +300,52 @@ describe.each([
     expect(
       (await backend.loadFullElectionExternalTallies()) ?? new Map()
     ).toEqual(new Map());
+  });
+
+  test('write-in transcription & adjudication', async () => {
+    const backend = makeBackend();
+    await backend.configure(
+      electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
+    );
+    expect(await backend.loadCastVoteRecordFiles()).toBeUndefined();
+    await backend.addCastVoteRecordFile(
+      new File(
+        [electionMinimalExhaustiveSampleFixtures.standardCvrFile.asBuffer()],
+        'standard.jsonl'
+      )
+    );
+    const [pendingWriteIn] = await backend.loadWriteIns({ status: 'pending' });
+
+    await backend.transcribeWriteIn(pendingWriteIn.id, 'Mickey Mouse');
+
+    const [transcribedWriteIn] = await backend.loadWriteIns({
+      status: 'transcribed',
+    });
+
+    expect(transcribedWriteIn).toEqual(
+      typedAs<Admin.WriteInRecord>({
+        ...pendingWriteIn,
+        status: 'transcribed',
+        transcribedValue: 'Mickey Mouse',
+      })
+    );
+
+    await backend.adjudicateWriteInTranscription(
+      transcribedWriteIn.contestId,
+      'Mickey Mouse',
+      'Richard Mouse'
+    );
+
+    const [adjudicatedWriteIn] = await backend.loadWriteIns({
+      status: 'adjudicated',
+    });
+
+    expect(adjudicatedWriteIn).toEqual(
+      typedAs<Admin.WriteInRecord>({
+        ...transcribedWriteIn,
+        status: 'adjudicated',
+        adjudicatedValue: 'Richard Mouse',
+      })
+    );
   });
 });
