@@ -172,18 +172,6 @@ export function ReportsScreen(): JSX.Element {
     </p>
   );
 
-  const ballotPrintingSummaryText = (
-    <p>
-      <strong>
-        {pluralize(
-          `${format.count(totalBallotsPrinted)} official ballots`,
-          totalBallotsPrinted
-        )}{' '}
-      </strong>{' '}
-      {`${pluralize('have', totalBallotsPrinted)} been printed`}.
-    </p>
-  );
-
   return (
     <React.Fragment>
       <NavigationScreen>
@@ -207,10 +195,23 @@ export function ReportsScreen(): JSX.Element {
               </React.Fragment>
             )}
           </p>
-          {ballotPrintingSummaryText}
           <p>
             <LinkButton to={routerPaths.printedBallotsReport}>
               Printed Ballots Report
+            </LinkButton>
+            <span style={{ marginLeft: '1em' }}>
+              <strong>
+                {pluralize(
+                  `${format.count(totalBallotsPrinted)} ballots`,
+                  totalBallotsPrinted
+                )}
+              </strong>{' '}
+              {`${pluralize('have', totalBallotsPrinted)} been printed`}.
+            </span>
+          </p>
+          <p>
+            <LinkButton to={routerPaths.tallyWriteInReport}>
+              {statusPrefix} Write-In Tally Report
             </LinkButton>
           </p>
           {tallyResultsInfo}
