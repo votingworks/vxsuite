@@ -85,7 +85,6 @@ interface Props {
   election: Election;
   adjudications: readonly Adjudication[];
   onClose: () => void;
-  onListAll: () => void;
   saveTranscribedValue: (
     adjudicationId: string,
     transcribedValue: string
@@ -97,7 +96,6 @@ export function WriteInsTranscriptionScreen({
   election,
   adjudications,
   onClose,
-  onListAll,
   saveTranscribedValue,
 }: Props): JSX.Element {
   const [isTranscribedValueInputVisible, setIsTranscribedValueInputVisible] =
@@ -135,9 +133,6 @@ export function WriteInsTranscriptionScreen({
         screenTitle="Write-In Transcription"
         secondaryNav={
           <React.Fragment>
-            <Button small onPress={onListAll}>
-              List All
-            </Button>
             <Button small onPress={onClose}>
               Exit
             </Button>

@@ -131,11 +131,6 @@ export function WriteInsScreen(): JSX.Element {
     });
   }
 
-  /* istanbul ignore next */
-  function placeholderFn() {
-    return null;
-  }
-
   return (
     <React.Fragment>
       <NavigationScreen>
@@ -235,7 +230,6 @@ export function WriteInsScreen(): JSX.Element {
                 contest={contestBeingTranscribed}
                 adjudications={transcriptionsForCurrentContest}
                 onClose={() => setContestBeingTranscribed(undefined)}
-                onListAll={placeholderFn}
                 saveTranscribedValue={(writeInId, transcribedValue) =>
                   transcribeWriteInMutation.mutate({
                     writeInId,
