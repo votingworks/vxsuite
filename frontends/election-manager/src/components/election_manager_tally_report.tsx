@@ -9,6 +9,7 @@ import {
   TallyReportSummary,
 } from '@votingworks/ui';
 import {
+  ContestId,
   Election,
   ExternalTally,
   FullElectionExternalTallies,
@@ -39,7 +40,7 @@ export interface Props {
   precinctId?: string;
   scannerId?: string;
   votingMethod?: VotingMethod;
-  officialCandidateWriteIns?: Map<string, Map<string, number>>; // Contest -> Candidate ID -> Count
+  officialCandidateWriteIns?: Map<ContestId, Map<string, number>>; // Contest -> Candidate ID -> Count
 }
 
 export const ElectionManagerTallyReport = forwardRef<HTMLDivElement, Props>(

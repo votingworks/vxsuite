@@ -22,6 +22,7 @@ import {
   Tally,
   ContestTally,
   ContestOptionTally,
+  ContestId,
 } from '@votingworks/types';
 import {
   assert,
@@ -411,7 +412,7 @@ function processCastVoteRecord({
 
 export function modifyTallyWithWriteInInfo(
   tally: Tally,
-  writeIns: Map<string, Map<string, number>>
+  writeIns: Map<ContestId, Map<string, number>>
 ): Tally {
   const oldContestTallies = tally.contestTallies;
   const newContestTallies: Dictionary<ContestTally> = {};
