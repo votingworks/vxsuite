@@ -127,6 +127,12 @@ export function WriteInsTranscriptionScreen({
   });
   const imageData = imageDataQuery.data ? imageDataQuery.data[0] : undefined;
 
+  function onSave() {
+    const val = transcribedValueInput.current?.value || '';
+    onPressSetTranscribedValue(val);
+    setIsTranscribedValueInputVisible(false);
+  }
+
   return (
     <Screen>
       <Navigation
@@ -214,17 +220,14 @@ export function WriteInsTranscriptionScreen({
                     ref={transcribedValueInput}
                     name="transcribed-value"
                     autoFocus
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter') {
+                        onSave();
+                      }
+                    }}
                   />
                 </Text>
-                <Button
-                  onPress={() => {
-                    const val = transcribedValueInput.current?.value || '';
-                    onPressSetTranscribedValue(val);
-                    setIsTranscribedValueInputVisible(false);
-                  }}
-                >
-                  Save
-                </Button>
+                <Button onPress={onSave}>Save</Button>
               </React.Fragment>
             )}
           </TranscriptionMainContentContainer>
