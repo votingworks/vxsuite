@@ -69,7 +69,8 @@ export function WriteInsScreen(): JSX.Element {
         .map((writeIn) => ({
           id: writeIn.id,
           contestId: writeIn.contestId,
-          transcribedValue: writeIn.transcribedValue ?? '',
+          transcribedValue:
+            writeIn.status !== 'pending' ? writeIn.transcribedValue : '',
         })),
     [contestBeingTranscribed?.id, writeInsQuery.data]
   );

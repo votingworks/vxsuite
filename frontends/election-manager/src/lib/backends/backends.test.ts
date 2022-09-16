@@ -370,13 +370,14 @@ describe.each([
         'standard.jsonl'
       )
     );
-    const [pendingWriteIn] = await backend.loadWriteIns({ status: 'pending' });
-
+    const [pendingWriteIn] = (await backend.loadWriteIns({
+      status: 'pending',
+    })) as Admin.WriteInRecordPendingTranscription[];
     await backend.transcribeWriteIn(pendingWriteIn.id, 'Mickey Mouse');
 
-    const [transcribedWriteIn] = await backend.loadWriteIns({
+    const [transcribedWriteIn] = (await backend.loadWriteIns({
       status: 'transcribed',
-    });
+    })) as Admin.WriteInRecordTranscribed[];
 
     expect(transcribedWriteIn).toEqual(
       typedAs<Admin.WriteInRecord>({
@@ -392,9 +393,9 @@ describe.each([
       'Richard Mouse'
     );
 
-    const [adjudicatedWriteIn] = await backend.loadWriteIns({
+    const [adjudicatedWriteIn] = (await backend.loadWriteIns({
       status: 'adjudicated',
-    });
+    })) as Admin.WriteInRecordAdjudicated[];
 
     expect(adjudicatedWriteIn).toEqual(
       typedAs<Admin.WriteInRecord>({
@@ -409,9 +410,9 @@ describe.each([
       'Bob Barker'
     );
 
-    const [updatedWriteIn] = await backend.loadWriteIns({
+    const [updatedWriteIn] = (await backend.loadWriteIns({
       status: 'adjudicated',
-    });
+    })) as Admin.WriteInRecordAdjudicated[];
 
     expect(updatedWriteIn).toEqual(
       typedAs<Admin.WriteInRecord>({
@@ -422,9 +423,9 @@ describe.each([
 
     await backend.deleteWriteInAdjudication(writeInAdjudicationId);
 
-    const [backToTranscribedWriteIn] = await backend.loadWriteIns({
+    const [backToTranscribedWriteIn] = (await backend.loadWriteIns({
       status: 'transcribed',
-    });
+    })) as Admin.WriteInRecordTranscribed[];
 
     expect(backToTranscribedWriteIn).toEqual(
       typedAs<Admin.WriteInRecord>({

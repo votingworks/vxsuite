@@ -15,7 +15,7 @@ import {
   safeParseElectionDefinition,
   safeParseJson,
 } from '@votingworks/types';
-import { assert } from '@votingworks/utils';
+import { typedAs } from '@votingworks/utils';
 import { sha256 } from 'js-sha256';
 import { join } from 'path';
 import { v4 as uuid } from 'uuid';
@@ -715,48 +715,43 @@ export class Store {
 
     return writeInRows
       .map((row) => {
+        if (!row.transcribedValue) {
+          return typedAs<Admin.WriteInRecordPendingTranscription>({
+            id: row.id,
+            status: 'pending',
+            castVoteRecordId: row.castVoteRecordId,
+            contestId: row.contestId,
+            optionId: row.optionId,
+          });
+        }
+
         const adjudication = adjudicationRows.find(
           (a) =>
             a.contestId === row.contestId &&
             a.transcribedValue === row.transcribedValue
         );
 
-        if (adjudication) {
-          assert(typeof row.transcribedValue === 'string');
-          const adjudicatedWriteIn: Admin.WriteInRecordAdjudicated = {
-            id: row.id,
-            castVoteRecordId: row.castVoteRecordId,
-            contestId: row.contestId,
-            optionId: row.optionId,
-            status: 'adjudicated',
-            transcribedValue: row.transcribedValue,
-            adjudicatedValue: adjudication.adjudicatedValue,
-            adjudicatedOptionId: adjudication.adjudicatedOptionId,
-          };
-          return adjudicatedWriteIn;
-        }
-
-        if (row.transcribedValue) {
-          const transcribedWriteIn: Admin.WriteInRecordTranscribed = {
+        if (!adjudication) {
+          return typedAs<Admin.WriteInRecordTranscribed>({
             id: row.id,
             castVoteRecordId: row.castVoteRecordId,
             contestId: row.contestId,
             optionId: row.optionId,
             status: 'transcribed',
             transcribedValue: row.transcribedValue,
-          };
-          return transcribedWriteIn;
+          });
         }
 
-        const pendingWriteIn: Admin.WriteInRecordPendingTranscription = {
+        return typedAs<Admin.WriteInRecordAdjudicated>({
           id: row.id,
-          status: 'pending',
           castVoteRecordId: row.castVoteRecordId,
           contestId: row.contestId,
           optionId: row.optionId,
-        };
-
-        return pendingWriteIn;
+          status: 'adjudicated',
+          transcribedValue: row.transcribedValue,
+          adjudicatedValue: adjudication.adjudicatedValue,
+          adjudicatedOptionId: adjudication.adjudicatedOptionId,
+        });
       })
       .filter((writeInRecord) => writeInRecord.status === status || !status);
   }

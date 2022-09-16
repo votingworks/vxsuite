@@ -15,6 +15,7 @@ import {
   castVoteRecordVoteIsWriteIn,
   castVoteRecordVotes,
   groupBy,
+  typedAs,
 } from '@votingworks/utils';
 import { v4 as uuid } from 'uuid';
 import { CastVoteRecordFile, PrintedBallot } from '../../config/types';
@@ -264,26 +265,43 @@ export class ElectionManagerStoreMemoryBackend
     return Promise.resolve(
       this.filterWriteIns(
         this.writeIns.map((writeIn) => {
+          if (!writeIn.transcribedValue) {
+            return {
+              id: writeIn.id,
+              castVoteRecordId: writeIn.castVoteRecordId,
+              contestId: writeIn.contestId,
+              optionId: writeIn.optionId,
+              status: 'pending',
+            };
+          }
+
           const adjudication = writeInAdjudications.find(
             (a) =>
               a.contestId === writeIn.contestId &&
               a.transcribedValue === writeIn.transcribedValue
           );
 
-          return {
+          if (!adjudication) {
+            return typedAs<Admin.WriteInRecordTranscribed>({
+              id: writeIn.id,
+              castVoteRecordId: writeIn.castVoteRecordId,
+              contestId: writeIn.contestId,
+              optionId: writeIn.optionId,
+              status: 'transcribed',
+              transcribedValue: writeIn.transcribedValue,
+            });
+          }
+
+          return typedAs<Admin.WriteInRecordAdjudicated>({
             id: writeIn.id,
             castVoteRecordId: writeIn.castVoteRecordId,
             contestId: writeIn.contestId,
             optionId: writeIn.optionId,
-            status: adjudication
-              ? 'adjudicated'
-              : writeIn.transcribedValue
-              ? 'transcribed'
-              : 'pending',
+            status: 'adjudicated',
             transcribedValue: writeIn.transcribedValue,
-            adjudicatedValue: adjudication?.adjudicatedValue,
-            adjudicatedOptionId: adjudication?.adjudicatedOptionId,
-          };
+            adjudicatedValue: adjudication.adjudicatedValue,
+            adjudicatedOptionId: adjudication.adjudicatedOptionId,
+          });
         }),
         options
       )
