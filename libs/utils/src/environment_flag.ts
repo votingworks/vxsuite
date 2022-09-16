@@ -44,7 +44,7 @@ export function getFlagDetails(name: EnvironmentFlagName): EnvironmentFlag {
     case EnvironmentFlagName.WRITE_IN_ADJUDICATION:
       return {
         name,
-        allowInProduction: false,
+        allowInProduction: true,
         autoEnableInDevelopment: true,
       };
     case EnvironmentFlagName.ALL_ZERO_SMARTCARD_PIN:
