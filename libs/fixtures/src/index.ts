@@ -52,6 +52,10 @@ export {
   electionDefinition as electionSampleRotationDefinition,
   election as electionSampleRotation,
 } from './data/electionSampleRotation.json';
+export {
+  electionDefinition as electionGridLayoutDefinition,
+  election as electionGridLayout,
+} from './data/electionGridLayout/election.json';
 
 export function asElectionDefinition(election: Election): ElectionDefinition {
   const electionData = JSON.stringify(election);
