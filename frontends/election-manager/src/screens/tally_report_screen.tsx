@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState, useMemo } from 'react';
 import styled from 'styled-components';
 import { useLocation, useParams } from 'react-router-dom';
-import { assert, find } from '@votingworks/utils';
+import { assert, collections, find, groupBy } from '@votingworks/utils';
 import { LogEventId } from '@votingworks/logging';
 import { VotingMethod, getLabelForVotingMethod } from '@votingworks/types';
 import {
@@ -33,6 +33,7 @@ import { LinkButton } from '../components/link_button';
 
 import { routerPaths } from '../router_paths';
 import { filterTalliesByParamsAndBatchId } from '../lib/votecounting';
+import { useWriteInSummaryQuery } from '../hooks/use_write_in_summary_query';
 
 import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';
 import { ElectionManagerTallyReport } from '../components/election_manager_tally_report';
@@ -74,6 +75,33 @@ export function TallyReportScreen(): JSX.Element {
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth)); // TODO(auth) check permissions for viewing tally reports.
   const userRole = auth.user.role;
+  const writeInSummaryQuery = useWriteInSummaryQuery();
+  const writeInsByContestAndCandidate = collections.map(
+    groupBy(writeInSummaryQuery.data ?? [], ({ contestId }) => contestId),
+    (writeInSummary) => {
+      return groupBy(
+        [...writeInSummary].filter(
+          (s) => s.writeInAdjudication?.adjudicatedOptionId !== undefined
+        ),
+        (s) => {
+          // we have already filtered for this
+          assert(s.writeInAdjudication?.adjudicatedOptionId !== undefined);
+          return s.writeInAdjudication.adjudicatedOptionId;
+        }
+      );
+    }
+  );
+  const writeInCountsByContestAndCandidate = collections.map(
+    writeInsByContestAndCandidate,
+    (byCandidate) =>
+      collections.map(byCandidate, (entries) =>
+        collections.reduce(
+          entries,
+          (sum, entry) => sum + entry.writeInCount ?? 0,
+          0
+        )
+      )
+  );
 
   const location = useLocation();
 
@@ -315,6 +343,7 @@ export function TallyReportScreen(): JSX.Element {
           election={election}
           fullElectionExternalTallies={fullElectionExternalTallies}
           fullElectionTally={fullElectionTally}
+          officialCandidateWriteIns={writeInCountsByContestAndCandidate}
           generatedAtTime={generatedAtTime}
           tallyReportType={isOfficialResults ? 'Official' : 'Unofficial'}
           partyId={partyId}

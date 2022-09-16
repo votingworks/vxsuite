@@ -23,6 +23,7 @@ import { filterTalliesByParams, find } from '@votingworks/utils';
 import React, { forwardRef } from 'react';
 
 import { filterExternalTalliesByParams } from '../utils/external_tallies';
+import { modifyTallyWithWriteInInfo } from '../lib/votecounting';
 
 export type TallyReportType = 'Official' | 'Unofficial' | 'Test Deck';
 
@@ -38,6 +39,7 @@ export interface Props {
   precinctId?: string;
   scannerId?: string;
   votingMethod?: VotingMethod;
+  officialCandidateWriteIns?: Map<string, Map<string, number>>; // Contest -> Candidate ID -> Count
 }
 
 export const ElectionManagerTallyReport = forwardRef<HTMLDivElement, Props>(
@@ -54,6 +56,7 @@ export const ElectionManagerTallyReport = forwardRef<HTMLDivElement, Props>(
       precinctId: precinctIdFromProps,
       scannerId,
       votingMethod,
+      officialCandidateWriteIns,
     },
     ref
   ) => {
@@ -76,11 +79,17 @@ export const ElectionManagerTallyReport = forwardRef<HTMLDivElement, Props>(
               ? `${party.fullName} ${election.title}`
               : election.title;
 
-            const tallyForReport = filterTalliesByParams(
+            const filteredTally = filterTalliesByParams(
               fullElectionTally,
               election,
               { precinctId, scannerId, partyId, votingMethod, batchId }
             );
+            const tallyForReport = officialCandidateWriteIns
+              ? modifyTallyWithWriteInInfo(
+                  filteredTally,
+                  officialCandidateWriteIns
+                )
+              : filteredTally;
             const ballotCountsByVotingMethod: Tally['ballotCountsByVotingMethod'] =
               {
                 ...tallyForReport.ballotCountsByVotingMethod,
@@ -88,19 +97,24 @@ export const ElectionManagerTallyReport = forwardRef<HTMLDivElement, Props>(
             let reportBallotCount = tallyForReport.numberOfBallotsCounted;
             const externalTalliesForReport: ExternalTally[] = [];
             for (const t of fullElectionExternalTallies.values()) {
-              const filteredTally = filterExternalTalliesByParams(t, election, {
-                precinctId,
-                partyId,
-                scannerId,
-                batchId,
-                votingMethod,
-              });
-              if (filteredTally !== undefined) {
-                externalTalliesForReport.push(filteredTally);
+              const filteredExternalTally = filterExternalTalliesByParams(
+                t,
+                election,
+                {
+                  precinctId,
+                  partyId,
+                  scannerId,
+                  batchId,
+                  votingMethod,
+                }
+              );
+              if (filteredExternalTally !== undefined) {
+                externalTalliesForReport.push(filteredExternalTally);
                 ballotCountsByVotingMethod[t.votingMethod] =
-                  filteredTally.numberOfBallotsCounted +
+                  filteredExternalTally.numberOfBallotsCounted +
                   (ballotCountsByVotingMethod[t.votingMethod] ?? 0);
-                reportBallotCount += filteredTally.numberOfBallotsCounted;
+                reportBallotCount +=
+                  filteredExternalTally.numberOfBallotsCounted;
               }
             }
 

@@ -19,6 +19,9 @@ import {
   writeInCandidate,
   PrecinctId,
   PartyId,
+  Tally,
+  ContestTally,
+  ContestOptionTally,
 } from '@votingworks/types';
 import {
   assert,
@@ -404,6 +407,56 @@ function processCastVoteRecord({
     if (castVoteRecord[key]) newCvr[key] = castVoteRecord[key];
   }
   return newCvr;
+}
+
+export function modifyTallyWithWriteInInfo(
+  tally: Tally,
+  writeIns: Map<string, Map<string, number>>
+): Tally {
+  const oldContestTallies = tally.contestTallies;
+  const newContestTallies: Dictionary<ContestTally> = {};
+  for (const contestId of Object.keys(oldContestTallies)) {
+    let totalOfficialWriteInsForContest = 0;
+    if (!writeIns.has(contestId)) {
+      newContestTallies[contestId] = oldContestTallies[contestId];
+      continue;
+    }
+    const writeInInfo = writeIns.get(contestId);
+    assert(writeInInfo);
+    const oldContestTally = oldContestTallies[contestId];
+    assert(oldContestTally);
+    const oldCandidateTallies = oldContestTally.tallies;
+    const newCandidateTallies: Dictionary<ContestOptionTally> = {};
+    for (const candidateId of Object.keys(oldCandidateTallies)) {
+      const oldCandidateTally = oldCandidateTallies[candidateId];
+      assert(oldCandidateTally);
+      if (!writeInInfo.has(candidateId)) {
+        newCandidateTallies[candidateId] = {
+          ...oldCandidateTally,
+        };
+      }
+      const writeInsForCandidate = writeInInfo.get(candidateId) ?? 0;
+      newCandidateTallies[candidateId] = {
+        option: oldCandidateTally.option,
+        tally: oldCandidateTally.tally + writeInsForCandidate,
+      };
+      totalOfficialWriteInsForContest += writeInsForCandidate;
+    }
+    const writeInCandidateTally = oldCandidateTallies[writeInCandidate.id];
+    assert(writeInCandidateTally);
+    newCandidateTallies[writeInCandidate.id] = {
+      option: writeInCandidateTally.option,
+      tally: writeInCandidateTally.tally - totalOfficialWriteInsForContest,
+    };
+    newContestTallies[contestId] = {
+      ...oldContestTally,
+      tallies: newCandidateTallies,
+    };
+  }
+  return {
+    ...tally,
+    contestTallies: newContestTallies,
+  };
 }
 
 interface FullTallyParams {
