@@ -5,10 +5,12 @@ import { Button, Modal, Prose, Table, TD } from '@votingworks/ui';
 import {
   CandidateContest,
   ContestId,
+  ContestOptionId,
   getPartyAbbreviationByPartyId,
+  Id,
 } from '@votingworks/types';
 
-import { collections, groupBy } from '@votingworks/utils';
+import { assert, collections, groupBy } from '@votingworks/utils';
 import { Admin } from '@votingworks/api';
 import { NavigationScreen } from '../components/navigation_screen';
 import { WriteInsTranscriptionScreen } from './write_ins_transcription_screen';
@@ -16,6 +18,9 @@ import { AppContext } from '../contexts/app_context';
 import { WriteInsAdjudicationScreen } from './write_ins_adjudication_screen';
 import { useWriteInsQuery } from '../hooks/use_write_ins_query';
 import { useTranscribeWriteInMutation } from '../hooks/use_transcribe_write_in_mutation';
+import { useAdjudicateTranscriptionMutation } from '../hooks/use_adjudicate_transcription_mutation';
+import { useWriteInSummaryQuery } from '../hooks/use_write_in_summary_query';
+import { useUpdateWriteInAdjudicationMutation } from '../hooks/use_update_write_in_adjudication_mutation';
 
 const ContentWrapper = styled.div`
   display: inline-block;
@@ -23,12 +28,10 @@ const ContentWrapper = styled.div`
 
 export function WriteInsScreen(): JSX.Element {
   const { castVoteRecordFiles, electionDefinition } = useContext(AppContext);
-  const [contestBeingTranscribed, setContestBeingTranscribed] = useState<
-    CandidateContest | undefined
-  >();
-  const [contestBeingAdjudicated, setContestBeingAdjudicated] = useState<
-    CandidateContest | undefined
-  >();
+  const [contestBeingTranscribed, setContestBeingTranscribed] =
+    useState<CandidateContest>();
+  const [contestBeingAdjudicated, setContestBeingAdjudicated] =
+    useState<CandidateContest>();
   const [writeInCountsByContest, setWriteInCountsByContest] =
     useState<
       ReadonlyMap<
@@ -38,6 +41,12 @@ export function WriteInsScreen(): JSX.Element {
     >();
 
   const transcribeWriteInMutation = useTranscribeWriteInMutation();
+  const adjudicateTranscriptionMutation = useAdjudicateTranscriptionMutation();
+  const updateWriteInAdjudicationMutation =
+    useUpdateWriteInAdjudicationMutation();
+  const writeInSummaryQuery = useWriteInSummaryQuery({
+    contestId: contestBeingAdjudicated?.id,
+  });
   const writeInsQuery = useWriteInsQuery();
 
   // Get write-in counts grouped by contest
@@ -60,7 +69,8 @@ export function WriteInsScreen(): JSX.Element {
         .map((writeIn) => ({
           id: writeIn.id,
           contestId: writeIn.contestId,
-          transcribedValue: writeIn.transcribedValue ?? '',
+          transcribedValue:
+            writeIn.status !== 'pending' ? writeIn.transcribedValue : '',
         })),
     [contestBeingTranscribed?.id, writeInsQuery.data]
   );
@@ -84,20 +94,41 @@ export function WriteInsScreen(): JSX.Element {
   const isPrimaryElection = contestsWithWriteIns.some((c) => c.partyId);
 
   function updateTranscriptions(
+    contestId: ContestId,
+    transcribedValue: string,
+    adjudicatedValue: string,
+    adjudicatedOptionId?: ContestOptionId
+  ) {
+    adjudicateTranscriptionMutation.mutate({
+      contestId,
+      transcribedValue,
+      adjudicatedValue,
+      adjudicatedOptionId,
+    });
+  }
+
+  function adjudicateTranscription(
     transcribedValue: string,
     adjudicatedValue: string
   ) {
-    console.log('updateTranscriptions', transcribedValue, adjudicatedValue);
+    assert(contestBeingAdjudicated);
+    updateTranscriptions(
+      contestBeingAdjudicated.id,
+      transcribedValue,
+      adjudicatedValue
+    );
   }
 
-  function adjudicateTranscription(transcribedValue: string) {
-    return (event: React.ChangeEvent<HTMLSelectElement>) => {
-      updateTranscriptions(transcribedValue, event.target.value);
-    };
-  }
-
-  function unadjudicateTranscription(transcribedValue: string) {
-    return () => updateTranscriptions(transcribedValue, '');
+  function updateAdjudication(
+    writeInAdjudicationId: Id,
+    adjudicatedValue: string,
+    adjudicatedOptionId?: ContestOptionId
+  ) {
+    updateWriteInAdjudicationMutation.mutate({
+      writeInAdjudicationId,
+      adjudicatedValue,
+      adjudicatedOptionId,
+    });
   }
 
   /* istanbul ignore next */
@@ -224,10 +255,10 @@ export function WriteInsScreen(): JSX.Element {
               <WriteInsAdjudicationScreen
                 key={contestBeingAdjudicated?.id}
                 contest={contestBeingAdjudicated}
-                contestAdjudications={[]} // TODO
+                writeInSummaryEntries={writeInSummaryQuery.data ?? []}
                 onClose={() => setContestBeingAdjudicated(undefined)}
                 adjudicateTranscription={adjudicateTranscription}
-                unadjudicateTranscription={unadjudicateTranscription}
+                updateAdjudication={updateAdjudication}
               />
             }
           />

@@ -2,10 +2,12 @@ import { Admin } from '@votingworks/api';
 import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
 import {
   ContestId,
+  ContestOptionId,
   ElectionDefinition,
   ExternalTallySourceType,
   FullElectionExternalTallies,
   FullElectionExternalTally,
+  Id,
   Iso8601TimestampSchema,
   safeParse,
   safeParseElectionDefinition,
@@ -443,7 +445,7 @@ export class ElectionManagerStoreStorageBackend extends ElectionManagerStoreMemo
     return this.removeStorageKeyAndLog(writeInsStorageKey, 'Write-in records');
   }
 
-  async loadWriteIns(options?: {
+  override async loadWriteIns(options?: {
     contestId?: ContestId;
     status?: Admin.WriteInAdjudicationStatus;
   }): Promise<Admin.WriteInRecord[]> {
@@ -459,4 +461,22 @@ export class ElectionManagerStoreStorageBackend extends ElectionManagerStoreMemo
   async loadWriteInImage(_cvrId: string): Promise<Admin.WriteInImageEntry[]> {
     return [];
   }
+
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  override async transcribeWriteIn(
+    writeInId: Id,
+    transcribedValue: string
+  ): Promise<void> {
+    return Promise.reject(new Error('Not implemented'));
+  }
+
+  override async adjudicateWriteInTranscription(
+    contestId: ContestId,
+    transcribedValue: string,
+    adjudicatedValue: string,
+    adjudicatedOptionId?: ContestOptionId
+  ): Promise<Id> {
+    return Promise.reject(new Error('Not implemented'));
+  }
+  /* eslint-enable @typescript-eslint/no-unused-vars */
 }

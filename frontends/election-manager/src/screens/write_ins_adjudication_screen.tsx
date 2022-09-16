@@ -1,29 +1,17 @@
+import { Admin } from '@votingworks/api';
+import { CandidateContest, ContestOptionId, Id } from '@votingworks/types';
+import { Button, Main, Prose, Screen, Text } from '@votingworks/ui';
+import { collections, format, groupBy } from '@votingworks/utils';
+import pluralize from 'pluralize';
 import React from 'react';
 import styled from 'styled-components';
-
-import {
-  Button,
-  Main,
-  Prose,
-  Screen,
-  Select,
-  Table as TableUI,
-  TD as TableDataUI,
-  TH,
-  Text,
-} from '@votingworks/ui';
-import {
-  CandidateContest,
-  EventTargetFunction,
-  PartyId,
-} from '@votingworks/types';
-
-import pluralize from 'pluralize';
 import { Navigation } from '../components/navigation';
-
-function add(a: number, b: number) {
-  return a + b;
-}
+import {
+  AdjudicationGroup,
+  AdjudicationOption,
+  PendingWriteInAdjudication,
+  WriteInAdjudicationTable,
+} from '../components/write_in_adjudication_table';
 
 const ContentWrapper = styled.div`
   display: flex;
@@ -43,105 +31,96 @@ const Header = styled.div`
   }
 `;
 
-const InvertedTableRow = styled.tr<{ primary?: boolean }>`
-  th,
-  td {
-    border-width: 1px 0;
-    border-color: ${({ primary }) => (primary ? 'rgb(57 132 59)' : '#ffffff')};
-    background: ${({ primary }) => (primary ? 'rgb(71, 167, 75)' : '#455a64')};
-    color: #ffffff;
-  }
-`;
-
-const AdjudicatedRow = styled.tr`
-  td {
-    background: #dce1e5;
-  }
-`;
-
-const Table = styled(TableUI)`
-  tr:last-child {
-    td,
-    th {
-      border-bottom: none;
-    }
-  }
-`;
-
-const TD = styled(TableDataUI)`
-  width: 1%;
-  .transcription-row &:nth-child(2) {
-    width: 100%;
-  }
-`;
-
-interface AdjudicationTranscription {
-  value: string;
-  count: number;
-}
-interface ContestAdjudicationRecord {
-  value: string;
-  transcriptions: AdjudicationTranscription[];
-}
-interface AdjudicationValue {
-  name: string;
-  candidateId?: string;
-  partyIds?: PartyId[];
-  hasAdjudication: boolean;
+export interface Props {
+  readonly contest: CandidateContest;
+  readonly writeInSummaryEntries: readonly Admin.WriteInSummaryEntry[];
+  readonly onClose: () => void;
+  readonly adjudicateTranscription: (
+    transcribedValue: string,
+    adjudicatedValue: string,
+    adjudicatedOptionId?: ContestOptionId
+  ) => void;
+  readonly updateAdjudication: (
+    id: Id,
+    adjudicatedValue: string,
+    adjudicatedOptionId?: ContestOptionId
+  ) => void;
 }
 
 export function WriteInsAdjudicationScreen({
   contest,
-  contestAdjudications,
+  writeInSummaryEntries,
   onClose,
   adjudicateTranscription,
-  unadjudicateTranscription,
-}: {
-  contest: CandidateContest;
-  contestAdjudications: ContestAdjudicationRecord[];
-  onClose: () => void;
-  adjudicateTranscription: (
-    transcribedValue: string
-  ) => (event: React.ChangeEvent<HTMLSelectElement>) => void;
-  unadjudicateTranscription: (transcribedValue: string) => EventTargetFunction;
-}): JSX.Element {
-  const adjudicationQueue =
-    contestAdjudications.find((a) => a.value === '')?.transcriptions.length ||
-    0;
+  updateAdjudication,
+}: Props): JSX.Element {
+  const contestWriteInCount = writeInSummaryEntries.reduce(
+    (acc, entry) => acc + entry.writeInCount,
+    0
+  );
 
-  const adjudicationQueuePhrase = `${pluralize(
-    'transcriptions',
-    adjudicationQueue,
-    true
-  )} to adjudicate`;
+  const adjudicatedGroups: AdjudicationGroup[] = [];
+  const pendingAdjudications: PendingWriteInAdjudication[] = [];
 
-  const contestWriteInCount = contestAdjudications
-    .map((a) =>
-      a.transcriptions
-        .map((t) => t.count)
-        .flat()
-        .reduce(add, 0)
-    )
-    .reduce(add, 0);
+  for (const [adjudicatedValue, entries] of groupBy(
+    writeInSummaryEntries,
+    (entry) => entry.writeInAdjudication?.adjudicatedValue
+  )) {
+    if (adjudicatedValue) {
+      adjudicatedGroups.push({
+        adjudicatedValue,
+        writeInCount: collections.reduce(
+          entries,
+          (acc, entry) => acc + entry.writeInCount,
+          0
+        ),
+        writeInAdjudications: Array.from(entries, (entry) => ({
+          id: entry.writeInAdjudication?.id as Id,
+          adjudicatedValue: entry.writeInAdjudication
+            ?.adjudicatedValue as string,
+          transcribedValue: entry.writeInAdjudication
+            ?.transcribedValue as string,
+          writeInCount: entry.writeInCount,
+        })),
+      });
+    } else {
+      for (const entry of entries) {
+        if (entry.transcribedValue) {
+          pendingAdjudications.push({
+            transcribedValue: entry.transcribedValue,
+            writeInCount: entry.writeInCount,
+          });
+        }
+      }
+    }
+  }
 
-  const adjudicationValues: AdjudicationValue[] = [
-    ...contestAdjudications
-      .map((a) =>
-        a.transcriptions.map((t) => ({
-          name: t.value,
-          hasAdjudication: a.value !== t.value && a.value !== '',
-        }))
-      )
-      .flat(),
-    ...contest.candidates.map((c) => ({
-      name: `${c.name} (official candidate)`,
-      candidateId: c.id,
-      partyIds: c.partyIds,
-      hasAdjudication: false,
-    })),
-  ].sort((a, b) => a.name.localeCompare(b.name));
+  const adjudicationQueuePhrase = `${format.count(
+    pendingAdjudications.length
+  )} ${pluralize('transcriptions', pendingAdjudications.length)} to adjudicate`;
 
-  const hasAdjudicatedTranscriptions = contestAdjudications[0].value !== '';
+  const adjudicationValues = [
+    ...pendingAdjudications.map(
+      (pendingAdjudication): AdjudicationOption => ({
+        adjudicatedValue: pendingAdjudication.transcribedValue,
+        hasAdjudication: false,
+      })
+    ),
+    // TODO: we want to include some of these, I think
+    // ...adjudicatedGroups.map(
+    //   (adjudicatedGroup): AdjudicationOption => ({
+    //     adjudicatedValue: adjudicatedGroup.adjudicatedValue,
+    //     hasAdjudication: true,
+    //   })
+    // ),
+    ...contest.candidates.map(
+      (c): AdjudicationOption => ({
+        adjudicatedValue: `${c.name} (official candidate)`,
+        adjudicatedOptionId: c.id,
+        hasAdjudication: false,
+      })
+    ),
+  ].sort((a, b) => a.adjudicatedValue.localeCompare(b.adjudicatedValue));
 
   return (
     <Screen grey>
@@ -149,10 +128,14 @@ export function WriteInsAdjudicationScreen({
         screenTitle="Write-In Adjudication"
         secondaryNav={
           <React.Fragment>
-            {!!adjudicationQueue && (
+            {pendingAdjudications.length > 0 && (
               <Text as="span">{adjudicationQueuePhrase}.</Text>
             )}
-            <Button small primary={!adjudicationQueue} onPress={onClose}>
+            <Button
+              small
+              primary={pendingAdjudications.length === 0}
+              onPress={onClose}
+            >
               Back to All Write-Ins
             </Button>
           </React.Fragment>
@@ -166,106 +149,17 @@ export function WriteInsAdjudicationScreen({
                 <Prose>
                   <p>{contest.section}</p>
                   <h2>{contest.title}</h2>
-                  <p>Total write-ins: {contestWriteInCount}</p>
+                  <p>Total write-ins: {format.count(contestWriteInCount)}</p>
                 </Prose>
               </Header>
-              <Table>
-                <thead>
-                  {hasAdjudicatedTranscriptions && (
-                    <InvertedTableRow>
-                      <TH>Adjudicated Transcriptions</TH>
-                      <TH>Count</TH>
-                      <TH>Action</TH>
-                    </InvertedTableRow>
-                  )}
-                </thead>
-                <tbody>
-                  {contestAdjudications.map((adjudication) => {
-                    const adjudicationCount =
-                      adjudication.transcriptions.reduce(
-                        (a, t) => a + t.count,
-                        0
-                      );
-                    return (
-                      <React.Fragment key={adjudication.value}>
-                        {adjudication.value ? (
-                          <AdjudicatedRow>
-                            <TD nowrap>
-                              <Prose>
-                                <h3>{adjudication.value}</h3>
-                              </Prose>
-                            </TD>
-                            <TD textAlign="center">
-                              <Prose>
-                                <h3>{adjudicationCount}</h3>
-                              </Prose>
-                            </TD>
-                            <TD> </TD>
-                          </AdjudicatedRow>
-                        ) : (
-                          adjudicationCount > 0 && (
-                            <InvertedTableRow primary>
-                              <TH>
-                                <Text as="span" normal>
-                                  {adjudicationQueuePhrase}…
-                                </Text>
-                              </TH>
-                              <TD as="th" nowrap>
-                                {!hasAdjudicatedTranscriptions && 'Count'}
-                              </TD>
-                              <TD as="th" nowrap>
-                                {!hasAdjudicatedTranscriptions && 'Action'}
-                              </TD>
-                            </InvertedTableRow>
-                          )
-                        )}
-                        {adjudication.transcriptions.map((transcription) => (
-                          <tr
-                            key={transcription.value}
-                            className="transcription-row"
-                          >
-                            <TD nowrap>{transcription.value}</TD>
-                            <TD textAlign="center">{transcription.count}</TD>
-                            <TD nowrap>
-                              {adjudication.value === '' ? (
-                                <Select
-                                  value={adjudication.value}
-                                  small={adjudication.value !== ''}
-                                  onChange={adjudicateTranscription(
-                                    transcription.value
-                                  )}
-                                >
-                                  <option disabled value="">
-                                    Select adjudicated candidate name…
-                                  </option>
-                                  {adjudicationValues.map((v) => (
-                                    <option
-                                      key={v.name}
-                                      value={v.name}
-                                      disabled={v.hasAdjudication}
-                                    >
-                                      {v.name}
-                                    </option>
-                                  ))}
-                                </Select>
-                              ) : (
-                                <Button
-                                  small
-                                  onPress={unadjudicateTranscription(
-                                    transcription.value
-                                  )}
-                                >
-                                  Change
-                                </Button>
-                              )}
-                            </TD>
-                          </tr>
-                        ))}
-                      </React.Fragment>
-                    );
-                  })}
-                </tbody>
-              </Table>
+              <WriteInAdjudicationTable
+                adjudicatedGroups={adjudicatedGroups}
+                pendingAdjudications={pendingAdjudications}
+                adjudicationQueuePhrase={adjudicationQueuePhrase}
+                adjudicationValues={adjudicationValues}
+                adjudicateTranscription={adjudicateTranscription}
+                updateAdjudication={updateAdjudication}
+              />
             </ContestAdjudication>
           </Prose>
         </ContentWrapper>

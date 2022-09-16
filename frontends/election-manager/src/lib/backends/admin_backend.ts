@@ -1,12 +1,13 @@
 import {
   ContestId,
+  ContestOptionId,
   ElectionDefinition,
   Id,
   IdSchema,
   safeParse,
   safeParseElectionDefinition,
 } from '@votingworks/types';
-import { fetchJson } from '@votingworks/utils';
+import { assert, fetchJson, typedAs } from '@votingworks/utils';
 import { Admin } from '@votingworks/api';
 import { ElectionManagerStoreStorageBackend } from './storage_backend';
 import { AddCastVoteRecordFileResult } from './types';
@@ -67,7 +68,9 @@ export class ElectionManagerStoreAdminBackend extends ElectionManagerStoreStorag
       Admin.PostElectionResponseSchema,
       await fetchJson('/admin/elections', {
         method: 'POST',
-        body: JSON.stringify(parsedElectionDefinition),
+        body: JSON.stringify(
+          typedAs<Admin.PostElectionRequest>(parsedElectionDefinition)
+        ),
         headers: {
           'Content-Type': 'application/json',
         },
@@ -100,6 +103,7 @@ export class ElectionManagerStoreAdminBackend extends ElectionManagerStoreStorag
 
     const activeElectionId = await this.loadActiveElectionId();
 
+    /* istanbul ignore next */
     if (!activeElectionId) {
       throw new Error('no election configured');
     }
@@ -135,6 +139,7 @@ export class ElectionManagerStoreAdminBackend extends ElectionManagerStoreStorag
 
     const activeElectionId = await this.loadActiveElectionId();
 
+    /* istanbul ignore next */
     if (!activeElectionId) {
       throw new Error('no election configured');
     }
@@ -169,6 +174,7 @@ export class ElectionManagerStoreAdminBackend extends ElectionManagerStoreStorag
   }): Promise<Admin.WriteInRecord[]> {
     const activeElectionId = await this.loadActiveElectionId();
 
+    /* istanbul ignore next */
     if (!activeElectionId) {
       throw new Error('no election configured');
     }
@@ -198,6 +204,158 @@ export class ElectionManagerStoreAdminBackend extends ElectionManagerStoreStorag
     const response = (await fetchJson(
       `/admin/write-in-image/${writeInId}`
     )) as Admin.GetWriteInImageResponse;
+
+    if (!Array.isArray(response)) {
+      throw new Error(response.errors.map((e) => e.message).join(', '));
+    }
+
+    return response;
+  }
+
+  override async transcribeWriteIn(
+    writeInId: Id,
+    transcribedValue: string
+  ): Promise<void> {
+    const response = (await fetchJson(
+      `/admin/write-ins/${writeInId}/transcription`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(
+          typedAs<Admin.PutWriteInTranscriptionRequest>({
+            value: transcribedValue,
+          })
+        ),
+      }
+    )) as Admin.PutWriteInTranscriptionResponse;
+
+    if (response.status !== 'ok') {
+      throw new Error(response.errors.map((e) => e.message).join(', '));
+    }
+  }
+
+  override async loadWriteInAdjudications(options?: {
+    contestId: ContestId;
+  }): Promise<Admin.WriteInAdjudicationRecord[]> {
+    const activeElectionId = await this.loadActiveElectionId();
+
+    /* istanbul ignore next */
+    if (!activeElectionId) {
+      throw new Error('no election configured');
+    }
+
+    const query = new URLSearchParams();
+    if (options?.contestId) {
+      query.set('contestId', options.contestId);
+    }
+
+    const response = (await fetchJson(
+      `/admin/elections/${activeElectionId}/write-in-adjudications?${query}`
+    )) as Admin.GetWriteInAdjudicationsResponse;
+
+    if (!Array.isArray(response)) {
+      throw new Error(response.errors.map((e) => e.message).join(', '));
+    }
+
+    return response;
+  }
+
+  async adjudicateWriteInTranscription(
+    contestId: ContestId,
+    transcribedValue: string,
+    adjudicatedValue: string,
+    adjudicatedOptionId?: ContestOptionId
+  ): Promise<Id> {
+    const activeElectionId = await this.loadActiveElectionId();
+
+    /* istanbul ignore next */
+    if (!activeElectionId) {
+      throw new Error('no election configured');
+    }
+
+    const response = (await fetchJson(
+      `/admin/elections/${activeElectionId}/write-in-adjudications`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(
+          typedAs<Admin.PostWriteInAdjudicationRequest>({
+            contestId,
+            transcribedValue,
+            adjudicatedValue,
+            adjudicatedOptionId,
+          })
+        ),
+      }
+    )) as Admin.PostWriteInAdjudicationResponse;
+
+    if (response.status !== 'ok') {
+      throw new Error(response.errors.map((e) => e.message).join(', '));
+    }
+
+    return response.id;
+  }
+
+  override async updateWriteInAdjudication(
+    writeInAdjudicationId: Id,
+    adjudicatedValue: string,
+    adjudicatedOptionId?: ContestOptionId
+  ): Promise<void> {
+    const response = (await fetchJson(
+      `/admin/write-in-adjudications/${writeInAdjudicationId}`,
+      {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(
+          typedAs<Admin.PutWriteInAdjudicationRequest>({
+            adjudicatedValue,
+            adjudicatedOptionId,
+          })
+        ),
+      }
+    )) as Admin.PutWriteInAdjudicationResponse;
+
+    if (response.status !== 'ok') {
+      throw new Error(response.errors.map((e) => e.message).join(', '));
+    }
+  }
+
+  override async deleteWriteInAdjudication(
+    writeInAdjudicationId: Id
+  ): Promise<void> {
+    const response = (await fetchJson(
+      `/admin/write-in-adjudications/${writeInAdjudicationId}`,
+      {
+        method: 'DELETE',
+      }
+    )) as Admin.DeleteWriteInAdjudicationResponse;
+
+    assert(response.status === 'ok');
+  }
+
+  override async getWriteInSummary(options?: {
+    contestId?: ContestId;
+  }): Promise<Admin.WriteInSummaryEntry[]> {
+    const activeElectionId = await this.loadActiveElectionId();
+
+    if (!activeElectionId) {
+      throw new Error('no election configured');
+    }
+
+    const query = new URLSearchParams();
+    if (options?.contestId) {
+      query.set('contestId', options.contestId);
+    }
+
+    const response = (await fetchJson(
+      `/admin/elections/${activeElectionId}/write-in-summary?${query}`
+    )) as Admin.GetWriteInSummaryResponse;
 
     if (!Array.isArray(response)) {
       throw new Error(response.errors.map((e) => e.message).join(', '));

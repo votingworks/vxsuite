@@ -169,7 +169,7 @@ export function buildApp({ store }: { store: Store }): Application {
     '/admin/elections/:electionId/write-ins',
     (request, response) => {
       const parseQueryResult = safeParse(
-        Admin.GetWriteInAdjudicationsQueryParamsSchema,
+        Admin.GetWriteInsQueryParamsSchema,
         request.query
       );
 
@@ -227,6 +227,44 @@ export function buildApp({ store }: { store: Store }): Application {
     response.json({ status: 'ok' });
   });
 
+  app.get<
+    { electionId: Id },
+    Admin.GetWriteInAdjudicationsResponse,
+    Admin.GetWriteInAdjudicationsRequest,
+    Admin.GetWriteInAdjudicationsQueryParams
+  >(
+    '/admin/elections/:electionId/write-in-adjudications',
+    (request, response) => {
+      const parseQueryResult = safeParse(
+        Admin.GetWriteInAdjudicationsQueryParamsSchema,
+        request.query
+      );
+
+      if (parseQueryResult.isErr()) {
+        response.status(400).json({
+          status: 'error',
+          errors: [
+            {
+              type: 'ValidationError',
+              message: parseQueryResult.err().message,
+            },
+          ],
+        });
+        return;
+      }
+
+      const { electionId } = request.params;
+      const { contestId } = parseQueryResult.ok();
+
+      const writeInAdjudications = store.getWriteInAdjudicationRecords({
+        electionId,
+        contestId,
+      });
+
+      response.json(writeInAdjudications);
+    }
+  );
+
   app.post<
     { electionId: Id },
     Admin.PostWriteInAdjudicationResponse,
@@ -269,6 +307,50 @@ export function buildApp({ store }: { store: Store }): Application {
       });
 
       response.json({ status: 'ok', id });
+    }
+  );
+
+  app.put<
+    { writeInAdjudicationId: Id },
+    Admin.PutWriteInAdjudicationResponse,
+    Admin.PutWriteInAdjudicationRequest
+  >(
+    '/admin/write-in-adjudications/:writeInAdjudicationId',
+    (request, response) => {
+      const { writeInAdjudicationId } = request.params;
+      const parseResult = safeParse(
+        Admin.PutWriteInAdjudicationRequestSchema,
+        request.body
+      );
+
+      if (parseResult.isErr()) {
+        response.status(400).json({
+          status: 'error',
+          errors: [
+            {
+              type: 'ValidationError',
+              message: parseResult.err().message,
+            },
+          ],
+        });
+        return;
+      }
+
+      store.updateWriteInAdjudication(writeInAdjudicationId, parseResult.ok());
+      response.json({ status: 'ok' });
+    }
+  );
+
+  app.delete<
+    { writeInAdjudicationId: Id },
+    Admin.DeleteWriteInAdjudicationResponse,
+    Admin.DeleteWriteInAdjudicationRequest
+  >(
+    '/admin/write-in-adjudications/:writeInAdjudicationId',
+    (request, response) => {
+      const { writeInAdjudicationId } = request.params;
+      store.deleteWriteInAdjudication(writeInAdjudicationId);
+      response.json({ status: 'ok' });
     }
   );
 

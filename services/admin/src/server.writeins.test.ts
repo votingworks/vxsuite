@@ -125,6 +125,22 @@ test('write-in adjudication lifecycle', async () => {
     ])
   );
 
+  const getWriteInAdjudicationsAfterTranscriptionHttpResponse = await request(
+    app
+  )
+    .get(
+      `/admin/elections/${electionId}/write-in-adjudications?contestId=${contestId}`
+    )
+    .expect(200);
+  const getWriteInAdjudicationsAfterTranscriptionResponse = unsafeParse(
+    Admin.GetWriteInAdjudicationsResponseSchema,
+    getWriteInAdjudicationsAfterTranscriptionHttpResponse.body
+  );
+
+  expect(getWriteInAdjudicationsAfterTranscriptionResponse).toEqual(
+    typedAs<Admin.GetWriteInAdjudicationsResponse>([])
+  );
+
   // adjudicate all "Mickey Mouse" transcribed write-ins as "Mickey Mouse"
   await request(app)
     .post(`/admin/elections/${electionId}/write-in-adjudications`)
@@ -162,6 +178,94 @@ test('write-in adjudication lifecycle', async () => {
       },
     ])
   );
+
+  const getWriteInAdjudicationsAfterAdjudicationHttpResponse = await request(
+    app
+  )
+    .get(
+      `/admin/elections/${electionId}/write-in-adjudications?contestId=${contestId}`
+    )
+    .expect(200);
+  const getWriteInAdjudicationsAfterAdjudicationResponse = unsafeParse(
+    Admin.GetWriteInAdjudicationsResponseSchema,
+    getWriteInAdjudicationsAfterAdjudicationHttpResponse.body
+  );
+
+  expect(getWriteInAdjudicationsAfterAdjudicationResponse).toEqual(
+    typedAs<Admin.GetWriteInAdjudicationsResponse>([
+      {
+        id: expect.any(String),
+        contestId,
+        transcribedValue: 'Mickey Mouse',
+        adjudicatedValue: 'Mickey Mouse',
+      },
+    ])
+  );
+
+  const writeInAdjudicationId = (
+    getWriteInSummaryAfterAdjudicationResponse as Admin.WriteInSummaryEntry[]
+  )[0]?.writeInAdjudication!.id;
+
+  // update the adjudication
+  await request(app)
+    .put(`/admin/write-in-adjudications/${writeInAdjudicationId}`)
+    .send(
+      typedAs<Admin.PutWriteInAdjudicationRequest>({
+        adjudicatedValue: 'Modest Mouse',
+      })
+    )
+    .expect(200);
+
+  // view the adjudication table
+  const getWriteInSummaryAfterUpdateHttpResponse = await request(app)
+    .get(
+      `/admin/elections/${electionId}/write-in-summary?contestId=${contestId}`
+    )
+    .expect(200);
+  const getWriteInSummaryAfterUpdateResponse = unsafeParse(
+    Admin.GetWriteInSummaryResponseSchema,
+    getWriteInSummaryAfterUpdateHttpResponse.body
+  );
+  expect(getWriteInSummaryAfterUpdateResponse).toEqual(
+    typedAs<Admin.GetWriteInSummaryResponse>([
+      {
+        contestId,
+        transcribedValue: 'Mickey Mouse',
+        writeInCount,
+        writeInAdjudication: {
+          id: expect.any(String),
+          contestId,
+          transcribedValue: 'Mickey Mouse',
+          adjudicatedValue: 'Modest Mouse',
+        },
+      },
+    ])
+  );
+
+  // delete the adjudication
+  await request(app)
+    .delete(`/admin/write-in-adjudications/${writeInAdjudicationId}`)
+    .expect(200);
+
+  // view the adjudication table
+  const getWriteInSummaryAfterDeleteHttpResponse = await request(app)
+    .get(
+      `/admin/elections/${electionId}/write-in-summary?contestId=${contestId}`
+    )
+    .expect(200);
+  const getWriteInSummaryAfterDeleteResponse = unsafeParse(
+    Admin.GetWriteInSummaryResponseSchema,
+    getWriteInSummaryAfterDeleteHttpResponse.body
+  );
+  expect(getWriteInSummaryAfterDeleteResponse).toEqual(
+    typedAs<Admin.GetWriteInSummaryResponse>([
+      {
+        contestId,
+        transcribedValue: 'Mickey Mouse',
+        writeInCount,
+      },
+    ])
+  );
 });
 
 test('create write-in adjudication with invalid request', async () => {
@@ -171,6 +275,24 @@ test('create write-in adjudication with invalid request', async () => {
 
   await request(app)
     .post(`/admin/elections/${electionId}/write-in-adjudications`)
+    .send({})
+    .expect(400);
+});
+
+test('update write-in adjudication with invalid request', async () => {
+  const electionId = workspace.store.addElection(
+    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
+  );
+
+  const writeInAdjudicationId = workspace.store.createWriteInAdjudication({
+    electionId,
+    contestId: 'contest-1',
+    transcribedValue: 'Mickey Mouse',
+    adjudicatedValue: 'Mickey Mouse',
+  });
+
+  await request(app)
+    .put(`/admin/write-in-adjudications/${writeInAdjudicationId}`)
     .send({})
     .expect(400);
 });

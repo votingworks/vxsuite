@@ -1,9 +1,12 @@
 import { Admin } from '@votingworks/api';
 import {
+  ContestId,
+  ContestOptionId,
   ElectionDefinition,
   ExternalTallySourceType,
   FullElectionExternalTallies,
   FullElectionExternalTally,
+  Id,
   Iso8601Timestamp,
 } from '@votingworks/types';
 import { PrintedBallot } from '../../config/types';
@@ -104,7 +107,7 @@ export interface ElectionManagerStoreBackend {
    * Loads all write-in records filtered appropriately.
    */
   loadWriteIns(options?: {
-    contestId?: string;
+    contestId?: ContestId;
     status?: Admin.WriteInAdjudicationStatus;
   }): Promise<Admin.WriteInRecord[]>;
 
@@ -112,4 +115,47 @@ export interface ElectionManagerStoreBackend {
    * Loads all write-in image for a CVR.
    */
   loadWriteInImage(cvrId: string): Promise<Admin.WriteInImageEntry[]>;
+
+  /**
+   * Transcribes a write-in record.
+   */
+  transcribeWriteIn(writeInId: Id, transcribedValue: string): Promise<void>;
+
+  /**
+   * Gets all the write-in adjudications, optionally filtered by contest.
+   */
+  loadWriteInAdjudications(options?: {
+    contestId?: ContestId;
+  }): Promise<Admin.WriteInAdjudicationRecord[]>;
+
+  /**
+   * Adjudicates a write-in transcription.
+   */
+  adjudicateWriteInTranscription(
+    contestId: ContestId,
+    transcribedValue: string,
+    adjudicatedValue: string,
+    adjudicatedOptionId?: ContestOptionId
+  ): Promise<Id>;
+
+  /**
+   * Updates a write-in adjudication.
+   */
+  updateWriteInAdjudication(
+    writeInAdjudicationId: Id,
+    adjudicatedValue: string,
+    adjudicatedOptionId?: ContestOptionId
+  ): Promise<void>;
+
+  /**
+   * Deletes a write-in adjudication.
+   */
+  deleteWriteInAdjudication(writeInAdjudicationId: Id): Promise<void>;
+
+  /**
+   * Gets a summary of all the write-ins, optionally filtered by contest.
+   */
+  getWriteInSummary(options?: {
+    contestId?: ContestId;
+  }): Promise<Admin.WriteInSummaryEntry[]>;
 }

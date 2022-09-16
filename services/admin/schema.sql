@@ -10,7 +10,7 @@ create table write_in_adjudications (
   election_id varchar(36) not null,
   contest_id text not null,
   transcribed_value text not null,
-  adjudicated_value text,
+  adjudicated_value text not null,
   adjudicated_option_id text,
   created_at timestamp not null default current_timestamp,
   foreign key (election_id) references elections(id)

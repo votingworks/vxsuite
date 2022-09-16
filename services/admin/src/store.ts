@@ -15,6 +15,7 @@ import {
   safeParseElectionDefinition,
   safeParseJson,
 } from '@votingworks/types';
+import { typedAs } from '@votingworks/utils';
 import { sha256 } from 'js-sha256';
 import { join } from 'path';
 import { v4 as uuid } from 'uuid';
@@ -714,28 +715,43 @@ export class Store {
 
     return writeInRows
       .map((row) => {
+        if (!row.transcribedValue) {
+          return typedAs<Admin.WriteInRecordPendingTranscription>({
+            id: row.id,
+            status: 'pending',
+            castVoteRecordId: row.castVoteRecordId,
+            contestId: row.contestId,
+            optionId: row.optionId,
+          });
+        }
+
         const adjudication = adjudicationRows.find(
           (a) =>
             a.contestId === row.contestId &&
             a.transcribedValue === row.transcribedValue
         );
 
-        const writeInRecord: Admin.WriteInRecord = {
+        if (!adjudication) {
+          return typedAs<Admin.WriteInRecordTranscribed>({
+            id: row.id,
+            castVoteRecordId: row.castVoteRecordId,
+            contestId: row.contestId,
+            optionId: row.optionId,
+            status: 'transcribed',
+            transcribedValue: row.transcribedValue,
+          });
+        }
+
+        return typedAs<Admin.WriteInRecordAdjudicated>({
           id: row.id,
-          status: adjudication
-            ? 'adjudicated'
-            : typeof row.transcribedValue === 'string'
-            ? 'transcribed'
-            : 'pending',
           castVoteRecordId: row.castVoteRecordId,
           contestId: row.contestId,
           optionId: row.optionId,
-          transcribedValue: row.transcribedValue ?? undefined,
-          adjudicatedOptionId: adjudication?.adjudicatedOptionId ?? undefined,
-          adjudicatedValue: adjudication?.adjudicatedValue ?? undefined,
-        };
-
-        return writeInRecord;
+          status: 'adjudicated',
+          transcribedValue: row.transcribedValue,
+          adjudicatedValue: adjudication.adjudicatedValue,
+          adjudicatedOptionId: adjudication.adjudicatedOptionId,
+        });
       })
       .filter((writeInRecord) => writeInRecord.status === status || !status);
   }
@@ -771,12 +787,10 @@ export class Store {
     electionId: Id;
     contestId: ContestId;
     transcribedValue: string;
-    adjudicatedValue?: string;
+    adjudicatedValue: string;
     adjudicatedOptionId?: ContestOptionId;
   }): Id {
     const id = uuid();
-    const adjudicatedValueForDb = adjudicatedValue ?? null;
-    const adjudicatedOptionIdForDb = adjudicatedOptionId ?? null;
 
     try {
       this.client.run(
@@ -796,8 +810,8 @@ export class Store {
         electionId,
         contestId,
         transcribedValue,
-        adjudicatedValueForDb,
-        adjudicatedOptionIdForDb
+        adjudicatedValue,
+        adjudicatedOptionId ?? null
       );
     } catch (error) {
       const { id: writeInAdjudicationId } = this.client.one(
@@ -821,8 +835,9 @@ export class Store {
           adjudicated_option_id = ?
         where id = ?
       `,
-        adjudicatedValueForDb,
-        adjudicatedOptionIdForDb,
+        adjudicatedValue,
+        /* istanbul ignore next */
+        adjudicatedOptionId ?? null,
         writeInAdjudicationId
       );
 
@@ -833,13 +848,61 @@ export class Store {
   }
 
   /**
-   * Gets all write-in adjudications for an election.
+   * Updates a write-in adjudication by ID.
+   */
+  updateWriteInAdjudication(
+    id: Id,
+    {
+      adjudicatedValue,
+      adjudicatedOptionId,
+    }: { adjudicatedValue: string; adjudicatedOptionId?: ContestOptionId }
+  ): void {
+    this.client.run(
+      `
+        update write_in_adjudications
+        set
+          adjudicated_value = ?,
+          adjudicated_option_id = ?
+        where id = ?
+      `,
+      adjudicatedValue,
+      adjudicatedOptionId ?? null,
+      id
+    );
+  }
+
+  /**
+   * Deletes a write-in adjudication by ID.
+   */
+  deleteWriteInAdjudication(id: Id): void {
+    this.client.run(
+      `
+        delete from write_in_adjudications
+        where id = ?
+      `,
+      id
+    );
+  }
+
+  /**
+   * Gets all write-in adjudications for an election, optionally filtered by
+   * contest.
    */
   getWriteInAdjudicationRecords({
     electionId,
+    contestId,
   }: {
     electionId: Id;
+    contestId?: ContestId;
   }): Admin.WriteInAdjudicationRecord[] {
+    const whereParts: string[] = ['election_id = ?'];
+    const params: Bindable[] = [electionId];
+
+    if (contestId) {
+      whereParts.push('contest_id = ?');
+      params.push(contestId);
+    }
+
     return (
       this.client.all(
         `
@@ -850,21 +913,21 @@ export class Store {
           adjudicated_value as adjudicatedValue,
           adjudicated_option_id as adjudicatedOptionId
         from write_in_adjudications
-        where election_id = ?
+        where ${whereParts.join(' and ')}
       `,
-        electionId
+        ...params
       ) as Array<{
         id: Id;
         contestId: ContestId;
         transcribedValue: string;
-        adjudicatedValue: string | null;
+        adjudicatedValue: string;
         adjudicatedOptionId: ContestOptionId | null;
       }>
     ).map((row) => ({
       id: row.id,
       contestId: row.contestId,
       transcribedValue: row.transcribedValue,
-      adjudicatedValue: row.adjudicatedValue ?? undefined,
+      adjudicatedValue: row.adjudicatedValue,
       adjudicatedOptionId: row.adjudicatedOptionId ?? undefined,
     }));
   }

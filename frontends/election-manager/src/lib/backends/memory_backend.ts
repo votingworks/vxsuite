@@ -1,10 +1,12 @@
 import { Admin } from '@votingworks/api';
 import {
   ContestId,
+  ContestOptionId,
   ElectionDefinition,
   ExternalTallySourceType,
   FullElectionExternalTallies,
   FullElectionExternalTally,
+  Id,
   Iso8601Timestamp,
   safeParseElectionDefinition,
 } from '@votingworks/types';
@@ -12,6 +14,8 @@ import {
   assert,
   castVoteRecordVoteIsWriteIn,
   castVoteRecordVotes,
+  groupBy,
+  typedAs,
 } from '@votingworks/utils';
 import { v4 as uuid } from 'uuid';
 import { CastVoteRecordFile, PrintedBallot } from '../../config/types';
@@ -20,6 +24,15 @@ import {
   AddCastVoteRecordFileResult,
   ElectionManagerStoreBackend,
 } from './types';
+
+interface MemoryWriteInRecord {
+  readonly id: Id;
+  readonly castVoteRecordId: Id;
+  readonly contestId: ContestId;
+  readonly optionId: ContestOptionId;
+  readonly transcribedValue?: string;
+  readonly adjudicatedValue?: string;
+}
 
 /**
  * An in-memory backend for ElectionManagerStore. Useful for tests or an
@@ -37,7 +50,8 @@ export class ElectionManagerStoreMemoryBackend
   >;
   private castVoteRecordFiles?: CastVoteRecordFiles;
   private isOfficialResults?: boolean;
-  private writeIns?: readonly Admin.WriteInRecord[];
+  private writeIns: readonly MemoryWriteInRecord[];
+  private writeInAdjudications: readonly Admin.WriteInAdjudicationRecord[];
 
   constructor({
     electionDefinition,
@@ -46,7 +60,7 @@ export class ElectionManagerStoreMemoryBackend
     fullElectionExternalTallies,
     castVoteRecordFiles,
     isOfficialResults,
-    writeIns,
+    writeInAdjudications = [],
   }: {
     electionDefinition?: ElectionDefinition;
     configuredAt?: Iso8601Timestamp;
@@ -54,7 +68,7 @@ export class ElectionManagerStoreMemoryBackend
     fullElectionExternalTallies?: FullElectionExternalTallies;
     castVoteRecordFiles?: CastVoteRecordFiles;
     isOfficialResults?: boolean;
-    writeIns?: readonly Admin.WriteInRecord[];
+    writeInAdjudications?: readonly Admin.WriteInAdjudicationRecord[];
   } = {}) {
     this.electionDefinition = electionDefinition;
     this.configuredAt =
@@ -66,7 +80,8 @@ export class ElectionManagerStoreMemoryBackend
     ]);
     this.castVoteRecordFiles = castVoteRecordFiles;
     this.isOfficialResults = isOfficialResults;
-    this.writeIns = writeIns;
+    this.writeIns = [];
+    this.writeInAdjudications = writeInAdjudications;
   }
 
   async reset(): Promise<void> {
@@ -77,7 +92,8 @@ export class ElectionManagerStoreMemoryBackend
     this.fullElectionExternalTallies = new Map();
     this.castVoteRecordFiles = undefined;
     this.isOfficialResults = undefined;
-    this.writeIns = undefined;
+    this.writeIns = [];
+    this.writeInAdjudications = [];
   }
 
   async loadElectionDefinitionAndConfiguredAt(): Promise<
@@ -171,7 +187,8 @@ export class ElectionManagerStoreMemoryBackend
     await Promise.resolve();
     this.isOfficialResults = undefined;
     this.castVoteRecordFiles = undefined;
-    this.writeIns = undefined;
+    this.writeIns = [];
+    this.writeInAdjudications = [];
   }
 
   loadFullElectionExternalTallies(): Promise<
@@ -244,11 +261,195 @@ export class ElectionManagerStoreMemoryBackend
     contestId?: ContestId;
     status?: Admin.WriteInAdjudicationStatus;
   }): Promise<Admin.WriteInRecord[]> {
-    return Promise.resolve(this.filterWriteIns(this.writeIns ?? [], options));
+    const { writeInAdjudications } = this;
+    return Promise.resolve(
+      this.filterWriteIns(
+        this.writeIns.map((writeIn) => {
+          if (!writeIn.transcribedValue) {
+            return {
+              id: writeIn.id,
+              castVoteRecordId: writeIn.castVoteRecordId,
+              contestId: writeIn.contestId,
+              optionId: writeIn.optionId,
+              status: 'pending',
+            };
+          }
+
+          const adjudication = writeInAdjudications.find(
+            (a) =>
+              a.contestId === writeIn.contestId &&
+              a.transcribedValue === writeIn.transcribedValue
+          );
+
+          if (!adjudication) {
+            return typedAs<Admin.WriteInRecordTranscribed>({
+              id: writeIn.id,
+              castVoteRecordId: writeIn.castVoteRecordId,
+              contestId: writeIn.contestId,
+              optionId: writeIn.optionId,
+              status: 'transcribed',
+              transcribedValue: writeIn.transcribedValue,
+            });
+          }
+
+          return typedAs<Admin.WriteInRecordAdjudicated>({
+            id: writeIn.id,
+            castVoteRecordId: writeIn.castVoteRecordId,
+            contestId: writeIn.contestId,
+            optionId: writeIn.optionId,
+            status: 'adjudicated',
+            transcribedValue: writeIn.transcribedValue,
+            adjudicatedValue: adjudication.adjudicatedValue,
+            adjudicatedOptionId: adjudication.adjudicatedOptionId,
+          });
+        }),
+        options
+      )
+    );
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   loadWriteInImage(cvrId: string): Promise<Admin.WriteInImageEntry[]> {
     return Promise.resolve([]);
+  }
+
+  async transcribeWriteIn(
+    writeInId: Id,
+    transcribedValue: string
+  ): Promise<void> {
+    await Promise.resolve();
+
+    const { writeIns = [] } = this;
+
+    const writeInIndex = writeIns.findIndex((w) => w.id === writeInId);
+    if (writeInIndex < 0) {
+      throw new Error(`Write-in not found: ${writeInId}`);
+    }
+
+    this.writeIns = [
+      ...writeIns.slice(0, writeInIndex),
+      {
+        ...writeIns[writeInIndex],
+        transcribedValue,
+      },
+      ...writeIns.slice(writeInIndex + 1),
+    ];
+  }
+
+  async loadWriteInAdjudications(options?: {
+    contestId: ContestId;
+  }): Promise<Admin.WriteInAdjudicationRecord[]> {
+    await Promise.resolve();
+    return (
+      this.writeInAdjudications.filter(
+        (writeInAdjudication) =>
+          !options?.contestId ||
+          writeInAdjudication.contestId === options.contestId
+      ) ?? []
+    );
+  }
+
+  async adjudicateWriteInTranscription(
+    contestId: ContestId,
+    transcribedValue: string,
+    adjudicatedValue: string,
+    adjudicatedOptionId?: ContestOptionId
+  ): Promise<Id> {
+    await Promise.resolve();
+
+    const id = uuid();
+
+    this.writeInAdjudications = [
+      ...(this.writeInAdjudications ?? []),
+      {
+        id,
+        contestId,
+        transcribedValue,
+        adjudicatedValue,
+        adjudicatedOptionId,
+      },
+    ];
+
+    return id;
+  }
+
+  async updateWriteInAdjudication(
+    writeInAdjudicationId: Id,
+    adjudicatedValue: string,
+    adjudicatedOptionId?: ContestOptionId
+  ): Promise<void> {
+    await Promise.resolve();
+
+    const { writeInAdjudications } = this;
+    const writeInAdjudicationIndex = writeInAdjudications.findIndex(
+      ({ id }) => id === writeInAdjudicationId
+    );
+
+    if (writeInAdjudicationIndex < 0) {
+      throw new Error(
+        `Write-in adjudication not found: ${writeInAdjudicationId}`
+      );
+    }
+
+    this.writeInAdjudications = [
+      ...writeInAdjudications.slice(0, writeInAdjudicationIndex),
+      {
+        ...writeInAdjudications[writeInAdjudicationIndex],
+        adjudicatedValue,
+        adjudicatedOptionId,
+      },
+      ...writeInAdjudications.slice(writeInAdjudicationIndex + 1),
+    ];
+  }
+
+  async deleteWriteInAdjudication(writeInAdjudicationId: Id): Promise<void> {
+    await Promise.resolve();
+
+    const { writeInAdjudications } = this;
+    const writeInAdjudicationIndex = writeInAdjudications.findIndex(
+      ({ id }) => id === writeInAdjudicationId
+    );
+
+    if (writeInAdjudicationIndex < 0) {
+      throw new Error(
+        `Write-in adjudication not found: ${writeInAdjudicationId}`
+      );
+    }
+
+    this.writeInAdjudications = [
+      ...writeInAdjudications.slice(0, writeInAdjudicationIndex),
+      ...writeInAdjudications.slice(writeInAdjudicationIndex + 1),
+    ];
+  }
+
+  async getWriteInSummary({
+    contestId,
+  }: {
+    contestId?: ContestId;
+  } = {}): Promise<Admin.WriteInSummaryEntry[]> {
+    await Promise.resolve();
+
+    return Array.from(
+      groupBy(this.writeIns ?? [], (writeIn) => writeIn.contestId)
+    ).flatMap(([writeInContestId, writeInsByContest]) =>
+      !contestId || contestId === writeInContestId
+        ? Array.from(
+            groupBy(writeInsByContest, (writeIn) => writeIn.transcribedValue),
+            ([
+              transcribedValue,
+              writeInsByContestAndTranscribedValue,
+            ]): Admin.WriteInSummaryEntry => ({
+              contestId: writeInContestId,
+              transcribedValue,
+              writeInCount: writeInsByContestAndTranscribedValue.size,
+              writeInAdjudication: this.writeInAdjudications.find(
+                (writeInAdjudication) =>
+                  writeInAdjudication.contestId === contestId &&
+                  writeInAdjudication.transcribedValue === transcribedValue
+              ),
+            })
+          )
+        : []
+    );
   }
 }

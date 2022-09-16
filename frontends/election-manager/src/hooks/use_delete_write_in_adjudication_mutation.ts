@@ -10,17 +10,16 @@ import { getWriteInsQueryKey } from './use_write_ins_query';
 import { getWriteInSummaryQueryKey } from './use_write_in_summary_query';
 
 /**
- * Values to pass to the transcription mutation.
+ * Values to pass to the delete write-in adjudication mutation.
  */
 export interface Props {
-  readonly writeInId: Id;
-  readonly transcribedValue: string;
+  readonly writeInAdjudicationId: Id;
 }
 
 /**
- * `useMutation` result for transcribing a write-in value.
+ * `useMutation` result for deleting a write-in adjudication.
  */
-export type UseTranscribeWriteInMutationResult = UseMutationResult<
+export type UseDeleteWriteInAdjudicationMutationResult = UseMutationResult<
   void,
   unknown,
   Props,
@@ -28,15 +27,15 @@ export type UseTranscribeWriteInMutationResult = UseMutationResult<
 >;
 
 /**
- * Provides a mutation function to transcribe a write-in value.
+ * Provides a mutation function to delete a write-in adjudication.
  */
-export function useTranscribeWriteInMutation(): UseTranscribeWriteInMutationResult {
+export function useDeleteWriteInAdjudicationMutation(): UseDeleteWriteInAdjudicationMutationResult {
   const { backend } = useContext(ServicesContext);
   const queryClient = useQueryClient();
 
   return useMutation(
-    async ({ writeInId, transcribedValue }) => {
-      await backend.transcribeWriteIn(writeInId, transcribedValue);
+    async ({ writeInAdjudicationId }) => {
+      await backend.deleteWriteInAdjudication(writeInAdjudicationId);
     },
     {
       onSuccess: () => {
