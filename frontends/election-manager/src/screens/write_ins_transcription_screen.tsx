@@ -218,6 +218,7 @@ export function WriteInsTranscriptionScreen({
                     id="transcribed-value"
                     ref={transcribedValueInput}
                     name="transcribed-value"
+                    autoFocus
                   />
                 </Text>
                 <Button
