@@ -439,10 +439,7 @@ export function buildApp({ store }: { store: Store }): Application {
         ballotStyle,
         election,
       }).map((c) => c.id);
-      const [layouts, ballotImages] = [
-        // eslint-disable-next-line no-underscore-dangle
-        ...zip(cvr._layouts, cvr._ballotImages),
-      ]
+      const [layouts, ballotImages] = [...zip(cvr._layouts, cvr._ballotImages)]
         .sort(([a], [b]) => a.metadata.pageNumber - b.metadata.pageNumber)
         .reduce<[BallotPageLayout[], InlineBallotImage[]]>(
           ([layoutsAcc, ballotImagesAcc], [layout, ballotImage]) => [
