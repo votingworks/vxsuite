@@ -85,7 +85,6 @@ interface Props {
   election: Election;
   adjudications: readonly Adjudication[];
   onClose: () => void;
-  onListAll: () => void;
   saveTranscribedValue: (
     adjudicationId: string,
     transcribedValue: string
@@ -97,7 +96,6 @@ export function WriteInsTranscriptionScreen({
   election,
   adjudications,
   onClose,
-  onListAll,
   saveTranscribedValue,
 }: Props): JSX.Element {
   const [isTranscribedValueInputVisible, setIsTranscribedValueInputVisible] =
@@ -129,15 +127,18 @@ export function WriteInsTranscriptionScreen({
   });
   const imageData = imageDataQuery.data ? imageDataQuery.data[0] : undefined;
 
+  function onSave() {
+    const val = transcribedValueInput.current?.value || '';
+    onPressSetTranscribedValue(val);
+    setIsTranscribedValueInputVisible(false);
+  }
+
   return (
     <Screen>
       <Navigation
         screenTitle="Write-In Transcription"
         secondaryNav={
           <React.Fragment>
-            <Button small onPress={onListAll}>
-              List All
-            </Button>
             <Button small onPress={onClose}>
               Exit
             </Button>
@@ -218,17 +219,15 @@ export function WriteInsTranscriptionScreen({
                     id="transcribed-value"
                     ref={transcribedValueInput}
                     name="transcribed-value"
+                    autoFocus
+                    onKeyDown={(event) => {
+                      if (event.key === 'Enter') {
+                        onSave();
+                      }
+                    }}
                   />
                 </Text>
-                <Button
-                  onPress={() => {
-                    const val = transcribedValueInput.current?.value || '';
-                    onPressSetTranscribedValue(val);
-                    setIsTranscribedValueInputVisible(false);
-                  }}
-                >
-                  Save
-                </Button>
+                <Button onPress={onSave}>Save</Button>
               </React.Fragment>
             )}
           </TranscriptionMainContentContainer>

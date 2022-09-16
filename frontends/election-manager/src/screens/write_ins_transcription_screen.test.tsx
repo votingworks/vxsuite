@@ -10,7 +10,6 @@ import { ElectionManagerStoreMemoryBackend } from '../lib/backends';
 
 const contest = electionDefinition.election.contests[0] as CandidateContest;
 const onClose = jest.fn();
-const onListAll = jest.fn();
 const saveTranscribedValue = jest.fn();
 
 beforeEach(() => {
@@ -39,7 +38,6 @@ test('clicking a previously-saved value', async () => {
         },
       ]}
       onClose={onClose}
-      onListAll={onListAll}
       saveTranscribedValue={saveTranscribedValue}
     />,
     { backend, electionDefinition }
@@ -48,9 +46,6 @@ test('clicking a previously-saved value', async () => {
   // Click a previously-saved transcription
   userEvent.click(await screen.findByText('Mickey Mouse'));
   expect(saveTranscribedValue).toHaveBeenCalledWith('id-174', 'Mickey Mouse');
-
-  userEvent.click(await screen.findByText('List All'));
-  expect(onListAll).toHaveBeenCalledTimes(1);
 
   await screen.findByTestId('transcribe:id-174');
   userEvent.click(await screen.findByText('Next'));

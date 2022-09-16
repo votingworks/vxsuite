@@ -17,6 +17,9 @@ import { PrintedBallot } from '../config/types';
 import { ServicesContext } from '../contexts/services_context';
 import { AddCastVoteRecordFileResult } from '../lib/backends/types';
 import { CastVoteRecordFiles } from '../utils/cast_vote_record_files';
+import { getWriteInsQueryKey } from './use_write_ins_query';
+import { getWriteInImageQueryKey } from './use_write_in_images_query';
+import { getWriteInSummaryQueryKey } from './use_write_in_summary_query';
 
 export interface ElectionManagerStore {
   /**
@@ -211,6 +214,9 @@ export function useElectionManagerStore(): ElectionManagerStore {
     await queryClient.invalidateQueries([externalVoteTalliesFileStorageKey]);
     await queryClient.invalidateQueries([isOfficialResultsKey]);
     await queryClient.invalidateQueries([printedBallotsStorageKey]);
+    await queryClient.invalidateQueries(getWriteInImageQueryKey());
+    await queryClient.invalidateQueries(getWriteInsQueryKey());
+    await queryClient.invalidateQueries(getWriteInSummaryQueryKey());
   }, [backend, electionDefinition, logger, queryClient]);
 
   const configure = useCallback(
@@ -260,6 +266,9 @@ export function useElectionManagerStore(): ElectionManagerStore {
       onSuccess() {
         void queryClient.invalidateQueries([cvrsStorageKey]);
         void queryClient.invalidateQueries([isOfficialResultsKey]);
+        void queryClient.invalidateQueries(getWriteInImageQueryKey());
+        void queryClient.invalidateQueries(getWriteInsQueryKey());
+        void queryClient.invalidateQueries(getWriteInSummaryQueryKey());
       },
     }
   );
