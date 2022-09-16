@@ -7,6 +7,7 @@ import { Id } from '@votingworks/types';
 import { useContext } from 'react';
 import { ServicesContext } from '../contexts/services_context';
 import { getWriteInsQueryKey } from './use_write_ins_query';
+import { getWriteInSummaryQueryKey } from './use_write_in_summary_query';
 
 /**
  * Values to pass to the transcription mutation.
@@ -40,6 +41,7 @@ export function useTranscribeWriteInMutation(): UseTranscribeWriteInMutationResu
     {
       onSuccess: () => {
         void queryClient.invalidateQueries(getWriteInsQueryKey());
+        void queryClient.invalidateQueries(getWriteInSummaryQueryKey());
       },
     }
   );
