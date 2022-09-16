@@ -15,6 +15,7 @@ import {
   safeParseElectionDefinition,
   safeParseJson,
 } from '@votingworks/types';
+import { assert } from '@votingworks/utils';
 import { sha256 } from 'js-sha256';
 import { join } from 'path';
 import { v4 as uuid } from 'uuid';
@@ -720,22 +721,42 @@ export class Store {
             a.transcribedValue === row.transcribedValue
         );
 
-        const writeInRecord: Admin.WriteInRecord = {
+        if (adjudication) {
+          assert(typeof row.transcribedValue === 'string');
+          const adjudicatedWriteIn: Admin.WriteInRecordAdjudicated = {
+            id: row.id,
+            castVoteRecordId: row.castVoteRecordId,
+            contestId: row.contestId,
+            optionId: row.optionId,
+            status: 'adjudicated',
+            transcribedValue: row.transcribedValue,
+            adjudicatedValue: adjudication.adjudicatedValue,
+            adjudicatedOptionId: adjudication.adjudicatedOptionId,
+          };
+          return adjudicatedWriteIn;
+        }
+
+        if (row.transcribedValue) {
+          const transcribedWriteIn: Admin.WriteInRecordTranscribed = {
+            id: row.id,
+            castVoteRecordId: row.castVoteRecordId,
+            contestId: row.contestId,
+            optionId: row.optionId,
+            status: 'transcribed',
+            transcribedValue: row.transcribedValue,
+          };
+          return transcribedWriteIn;
+        }
+
+        const pendingWriteIn: Admin.WriteInRecordPendingTranscription = {
           id: row.id,
-          status: adjudication
-            ? 'adjudicated'
-            : typeof row.transcribedValue === 'string'
-            ? 'transcribed'
-            : 'pending',
+          status: 'pending',
           castVoteRecordId: row.castVoteRecordId,
           contestId: row.contestId,
           optionId: row.optionId,
-          transcribedValue: row.transcribedValue ?? undefined,
-          adjudicatedOptionId: adjudication?.adjudicatedOptionId ?? undefined,
-          adjudicatedValue: adjudication?.adjudicatedValue ?? undefined,
         };
 
-        return writeInRecord;
+        return pendingWriteIn;
       })
       .filter((writeInRecord) => writeInRecord.status === status || !status);
   }
@@ -820,6 +841,7 @@ export class Store {
         where id = ?
       `,
         adjudicatedValue,
+        /* istanbul ignore next */
         adjudicatedOptionId ?? null,
         writeInAdjudicationId
       );

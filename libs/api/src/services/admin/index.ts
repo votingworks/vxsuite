@@ -123,32 +123,98 @@ export const WriteInAdjudicationStatusSchema: z.ZodSchema<WriteInAdjudicationSta
   ]);
 
 /**
- * Information about a write-in adjudication.
+ * A write-in that has no transcription yet.
  */
-export interface WriteInRecord {
+export interface WriteInRecordPendingTranscription {
+  readonly id: Id;
+  readonly contestId: ContestId;
+  readonly optionId: ContestOptionId;
+  readonly castVoteRecordId: Id;
+  readonly status: 'pending';
+}
+
+/**
+ * Schema for {@link WriteInRecordPendingTranscription}.
+ */
+export const WriteInRecordPendingTranscriptionSchema: z.ZodSchema<WriteInRecordPendingTranscription> =
+  z.object({
+    id: IdSchema,
+    contestId: ContestIdSchema,
+    optionId: ContestOptionIdSchema,
+    castVoteRecordId: IdSchema,
+    status: z.literal('pending'),
+  });
+
+/**
+ * A write-in that has a transcription but no adjudication yet.
+ */
+export interface WriteInRecordTranscribed {
+  readonly id: Id;
+  readonly contestId: ContestId;
+  readonly optionId: ContestOptionId;
+  readonly castVoteRecordId: Id;
+  readonly status: 'transcribed';
+  readonly transcribedValue: string;
+}
+
+/**
+ * Schema for {@link WriteInRecordTranscribed}.
+ */
+export const WriteInRecordTranscribedSchema: z.ZodSchema<WriteInRecordTranscribed> =
+  z.object({
+    id: IdSchema,
+    contestId: ContestIdSchema,
+    optionId: ContestOptionIdSchema,
+    castVoteRecordId: IdSchema,
+    status: z.literal('transcribed'),
+    transcribedValue: z.string().nonempty(),
+  });
+
+/**
+ * A write-in that has been adjudicated.
+ */
+export interface WriteInRecordAdjudicated {
   readonly id: Id;
   readonly contestId: ContestId;
   readonly optionId: ContestOptionId;
   readonly castVoteRecordId: Id;
   readonly status: WriteInAdjudicationStatus;
-  readonly transcribedValue?: string;
+  readonly transcribedValue: string;
+  readonly adjudicatedValue: string;
   readonly adjudicatedOptionId?: ContestOptionId;
-  readonly adjudicatedValue?: string;
 }
+
+/**
+ * Schema for {@link WriteInRecordAdjudicated}.
+ */
+export const WriteInRecordAdjudicatedSchema: z.ZodSchema<WriteInRecordAdjudicated> =
+  z.object({
+    id: IdSchema,
+    contestId: ContestIdSchema,
+    optionId: ContestOptionIdSchema,
+    castVoteRecordId: IdSchema,
+    status: z.literal('transcribed'),
+    transcribedValue: z.string().nonempty(),
+    adjudicatedValue: z.string().nonempty(),
+    adjudicatedOptionId: ContestOptionIdSchema.optional(),
+  });
+
+/**
+ * Information about a write-in in one of the adjudication states.
+ */
+export type WriteInRecord =
+  | WriteInRecordPendingTranscription
+  | WriteInRecordTranscribed
+  | WriteInRecordAdjudicated;
 
 /**
  * Schema for {@link WriteInRecord}.
  */
-export const WriteInsRecordSchema: z.ZodSchema<WriteInRecord> = z.object({
-  id: IdSchema,
-  contestId: ContestIdSchema,
-  optionId: ContestOptionIdSchema,
-  castVoteRecordId: IdSchema,
-  status: WriteInAdjudicationStatusSchema,
-  transcribedValue: z.string().nonempty().optional(),
-  adjudicatedOptionId: ContestOptionIdSchema.optional(),
-  adjudicatedValue: z.string().nonempty().optional(),
-});
+export const WriteInsRecordSchema: z.ZodSchema<WriteInRecord> = z.union([
+  WriteInRecordPendingTranscriptionSchema,
+  WriteInRecordTranscribedSchema,
+  WriteInRecordAdjudicatedSchema,
+]);
 
 /**
  * Write-in adjudication information.

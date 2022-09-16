@@ -425,6 +425,7 @@ test('write-in adjudication lifecycle', () => {
     electionId,
     contestId: 'zoo-council-mammal',
     transcribedValue: 'Mickey Mouse',
+    adjudicatedValue: 'Zebra',
     adjudicatedOptionId: 'zebra',
   });
 
@@ -448,6 +449,7 @@ test('write-in adjudication lifecycle', () => {
         castVoteRecordId,
         status: 'adjudicated',
         transcribedValue: 'Mickey Mouse',
+        adjudicatedValue: 'Zebra',
         adjudicatedOptionId: 'zebra',
       },
     ])
@@ -463,6 +465,7 @@ test('write-in adjudication lifecycle', () => {
           id: firstWriteInAdjudicationId,
           contestId: 'zoo-council-mammal',
           transcribedValue: 'Mickey Mouse',
+          adjudicatedValue: 'Zebra',
           adjudicatedOptionId: 'zebra',
         },
       },
@@ -516,6 +519,57 @@ test('write-in adjudication lifecycle', () => {
           transcribedValue: 'Mickey Mouse',
           adjudicatedValue: 'Mickey Mouse',
         },
+      },
+    ])
+  );
+
+  store.updateWriteInAdjudication(firstWriteInAdjudicationId, {
+    adjudicatedValue: 'Modest Mouse',
+    adjudicatedOptionId: 'modest-mouse',
+  });
+
+  expect(
+    store.getWriteInRecords({
+      electionId,
+      status: 'transcribed',
+    })
+  ).toHaveLength(0);
+  expect(
+    store.getWriteInRecords({
+      electionId,
+      status: 'adjudicated',
+    })
+  ).toEqual(
+    typedAs<Admin.WriteInRecord[]>([
+      {
+        id: writeInId,
+        contestId: 'zoo-council-mammal',
+        optionId: 'write-in-0',
+        castVoteRecordId,
+        status: 'adjudicated',
+        transcribedValue: 'Mickey Mouse',
+        adjudicatedValue: 'Modest Mouse',
+        adjudicatedOptionId: 'modest-mouse',
+      },
+    ])
+  );
+
+  store.deleteWriteInAdjudication(firstWriteInAdjudicationId);
+
+  expect(
+    store.getWriteInRecords({
+      electionId,
+      status: 'transcribed',
+    })
+  ).toEqual(
+    typedAs<Admin.WriteInRecord[]>([
+      {
+        id: writeInId,
+        contestId: 'zoo-council-mammal',
+        optionId: 'write-in-0',
+        castVoteRecordId,
+        status: 'transcribed',
+        transcribedValue: 'Mickey Mouse',
       },
     ])
   );
