@@ -37,11 +37,10 @@ const Header = styled.div`
 `;
 
 export function BallotListScreen(): JSX.Element {
-  const { auth, converter, configuredAt, electionDefinition } =
-    useContext(AppContext);
+  const { auth, configuredAt, electionDefinition } = useContext(AppContext);
   assert(electionDefinition && typeof configuredAt === 'string');
   const { election } = electionDefinition;
-  const canViewAndPrintBallots = canViewAndPrintBallotsWithConverter(converter);
+  const canViewAndPrintBallots = canViewAndPrintBallotsWithConverter(election);
 
   const allBallotStyles = getBallotStylesData(election);
   const ballotLists = [
@@ -69,18 +68,21 @@ export function BallotListScreen(): JSX.Element {
         <Header>
           <Prose>
             <p>This election uses custom ballots not produced by VxAdmin.</p>
-            <p>
-              The Ballot Package is still used to configure VxScan, the ballot
-              scanner.
-            </p>
             {isElectionManagerAuth(auth) ? (
-              <p>
-                <ExportElectionBallotPackageModalButton />
-              </p>
+              <React.Fragment>
+                <p>
+                  Save the Ballot Package to USB to configure VxCentralScan or
+                  VxScan.
+                </p>
+                <p>
+                  <ExportElectionBallotPackageModalButton />
+                </p>
+              </React.Fragment>
             ) : (
               <p>
                 <em>
-                  Insert Election Manager card to save the Ballot Package.
+                  Lock machine, then insert Election Manager card to save the
+                  Ballot Package.
                 </em>
               </p>
             )}

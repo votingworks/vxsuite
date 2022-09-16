@@ -17,6 +17,7 @@ import {
   electionWithMsEitherNeitherFixtures,
   electionSampleDefinition,
   electionFamousNames2021Fixtures,
+  electionGridLayoutDefinition,
 } from '@votingworks/fixtures';
 import { MemoryCard, MemoryHardware, typedAs } from '@votingworks/utils';
 import {
@@ -1177,16 +1178,17 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
   getByText('No CVR files loaded.');
 });
 
-test('Can not view or print ballots when using nh-accuvote converter', async () => {
+test('Can not view or print ballots when using an election with gridlayouts (like NH)', async () => {
+  const electionDefinition = electionGridLayoutDefinition;
+
   const backend = new ElectionManagerStoreMemoryBackend({
-    // Not an election definition for NH, but doesn't matter for test.
-    electionDefinition: eitherNeitherElectionDefinition,
+    electionDefinition,
   });
 
   const card = new MemoryCard();
   const hardware = MemoryHardware.buildStandard();
   const { getByText, queryByText } = renderRootElement(
-    <App card={card} hardware={hardware} converter="nh-accuvote" />,
+    <App card={card} hardware={hardware} />,
     { backend }
   );
 
@@ -1198,10 +1200,7 @@ test('Can not view or print ballots when using nh-accuvote converter', async () 
   expect(queryByText('Save Ballot Package')).toBeNull();
   fireEvent.click(getByText('Lock Machine'));
 
-  await authenticateWithElectionManagerCard(
-    card,
-    eitherNeitherElectionDefinition
-  );
+  await authenticateWithElectionManagerCard(card, electionDefinition);
   fireEvent.click(getByText('Ballots'));
   await screen.findByText(
     'This election uses custom ballots not produced by VxAdmin.'

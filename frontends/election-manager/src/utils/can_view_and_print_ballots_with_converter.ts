@@ -1,5 +1,7 @@
+import { Election } from '@votingworks/types';
+
 export function canViewAndPrintBallotsWithConverter(
-  converter?: string
+  election: Election
 ): boolean {
-  return converter !== 'nh-accuvote';
+  return !election.gridLayouts;
 }
