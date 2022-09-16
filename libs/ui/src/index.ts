@@ -4,6 +4,7 @@ export * from './bmd_paper_ballot';
 export * from './button';
 export * from './button_bar';
 export * from './button_list';
+export * from './cropped_image';
 export * from './contest_tally';
 export * from './election_info_bar';
 export * from './globals';

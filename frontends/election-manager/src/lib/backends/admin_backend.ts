@@ -191,4 +191,18 @@ export class ElectionManagerStoreAdminBackend extends ElectionManagerStoreStorag
 
     return response;
   }
+
+  async loadWriteInImage(
+    writeInId: string
+  ): Promise<Admin.WriteInImageEntry[]> {
+    const response = (await fetchJson(
+      `/admin/write-in-image/${writeInId}`
+    )) as Admin.GetWriteInImageResponse;
+
+    if (!Array.isArray(response)) {
+      throw new Error(response.errors.map((e) => e.message).join(', '));
+    }
+
+    return response;
+  }
 }

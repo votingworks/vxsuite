@@ -246,4 +246,9 @@ export class ElectionManagerStoreMemoryBackend
   }): Promise<Admin.WriteInRecord[]> {
     return Promise.resolve(this.filterWriteIns(this.writeIns ?? [], options));
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  loadWriteInImage(cvrId: string): Promise<Admin.WriteInImageEntry[]> {
+    return Promise.resolve([]);
+  }
 }

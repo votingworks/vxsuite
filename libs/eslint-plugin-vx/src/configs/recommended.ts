@@ -120,6 +120,8 @@ export = {
           '_pageNumber',
           '_pageNumbers',
           '_locales',
+          '_ballotImages',
+          '_layouts',
         ],
       },
     ],

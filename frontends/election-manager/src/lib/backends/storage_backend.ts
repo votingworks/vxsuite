@@ -454,4 +454,9 @@ export class ElectionManagerStoreStorageBackend extends ElectionManagerStoreMemo
       ).ok() ?? [];
     return this.filterWriteIns(writeIns, options);
   }
+
+  // eslint-disable-next-line @typescript-eslint/require-await, @typescript-eslint/no-unused-vars
+  async loadWriteInImage(_cvrId: string): Promise<Admin.WriteInImageEntry[]> {
+    return [];
+  }
 }

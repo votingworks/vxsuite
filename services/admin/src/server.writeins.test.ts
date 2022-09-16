@@ -80,6 +80,17 @@ test('write-in adjudication lifecycle', async () => {
 
     const writeInRecord = getWriteInsResponse[0]!;
 
+    // get the ballot image data for the write in
+    const getImageHttpResponse = await request(app)
+      .get(`/admin/write-in-image/${writeInRecord.id}`)
+      .expect(200);
+    const getImageResponse = unsafeParse(
+      Admin.GetWriteInImageResponseSchema,
+      getImageHttpResponse.body
+    );
+    assert(Array.isArray(getImageResponse));
+    expect(getImageResponse).toHaveLength(0); // the fixtures do not have ballot images
+
     // transcribe it
     await request(app)
       .put(`/admin/write-ins/${writeInRecord.id}/transcription`)

@@ -44,7 +44,6 @@ test('clicking a previously-saved value', async () => {
     />,
     { backend, electionDefinition }
   );
-  await screen.findByText('BALLOT IMAGES GO HERE');
 
   // Click a previously-saved transcription
   userEvent.click(await screen.findByText('Mickey Mouse'));
