@@ -211,8 +211,7 @@ export function WriteInsScreen(): JSX.Element {
                       </TD>
                       <TD nowrap>
                         <Button
-                          // Adjudication should be disabled if there are no transcriptions.
-                          // disabled={!transcriptionQueue}
+                          disabled={adjudicationQueue === 0}
                           primary={!!adjudicationQueue}
                           onPress={() => setContestBeingAdjudicated(contest)}
                         >
