@@ -4,11 +4,7 @@ import styled from 'styled-components';
 import { useParams } from 'react-router-dom';
 import { assert, find } from '@votingworks/utils';
 import { LogEventId } from '@votingworks/logging';
-import {
-  VotingMethod,
-  getLabelForVotingMethod,
-  ContestId,
-} from '@votingworks/types';
+import { VotingMethod, getLabelForVotingMethod } from '@votingworks/types';
 import {
   isElectionManagerAuth,
   Prose,
@@ -42,6 +38,9 @@ import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';
 import { ElectionManagerWriteInTallyReport } from '../components/election_manager_writein_tally_report';
 import { PrintableArea } from '../components/printable_area';
 
+import { useWriteInSummaryQuery } from '../hooks/use_write_in_summary_query';
+import { getWriteInCountsByContestAndCandidate } from '../utils/write_ins';
+
 const TallyReportPreview = styled(TallyReport)`
   section {
     margin: 1rem 0 2rem;
@@ -52,59 +51,10 @@ const TallyReportPreview = styled(TallyReport)`
   }
 `;
 
-const initialWriteInCounts = new Map<ContestId, Map<string, number>>([
-  [
-    'Governor-061a401b',
-    new Map([
-      ['Betty Mary', 12],
-      ['Charles Foo', 4],
-      ['Doug Dough', 7],
-      ['Fanny May', 17],
-      ['Guy Fair', 17],
-      ['Harold Humperdink', 17],
-    ]),
-  ],
-  [
-    'United-States-Senator-d3f1c75b',
-    new Map([
-      ['Bob Mayfield', 4],
-      ['Chuck Rathburger', 4],
-      ['Doug Dough', 7],
-    ]),
-  ],
-  [
-    'Representative-in-Congress-24683b44',
-    new Map([
-      ['Fred Wilson', 4],
-      ['Doug Dough', 7],
-      ['Fanny May', 17],
-    ]),
-  ],
-  [
-    'Executive-Councilor-bb22557f',
-    new Map([
-      ['Fred Wilson', 4],
-      ['Charles Foo', 4],
-      ['Fanny May', 17],
-    ]),
-  ],
-  [
-    'State-Representatives-Hillsborough-District-34-b1012d38',
-    new Map([['Fanny May', 31]]),
-  ],
-]);
-
-console.log({
-  'Governor-061a401b': initialWriteInCounts.get('Governor-061a401b'),
-});
-
 export function TallyWriteInReportScreen(): JSX.Element {
   const printReportRef = useRef<HTMLDivElement>(null);
   const previewReportRef = useRef<HTMLDivElement>(null);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
-  const [writeInCounts, setWriteInCounts] =
-    useState<Map<ContestId, Map<string, number>>>(initialWriteInCounts);
-
   const { precinctId } = useParams<PrecinctReportScreenProps>();
   const { scannerId } = useParams<ScannerReportScreenProps>();
   const { batchId } = useParams<BatchReportScreenProps>();
@@ -126,31 +76,14 @@ export function TallyWriteInReportScreen(): JSX.Element {
 
   const { election } = electionDefinition;
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial';
-
+  const writeInSummaryQuery = useWriteInSummaryQuery();
+  const writeInCountsByContestAndCandidate =
+    getWriteInCountsByContestAndCandidate(writeInSummaryQuery.data ?? []);
   useEffect(() => {
     if (previewReportRef?.current && printReportRef?.current) {
       previewReportRef.current.innerHTML = printReportRef.current.innerHTML;
     }
-  }, [previewReportRef, printReportRef, writeInCounts]);
-
-  // Get write-in tallies
-  useEffect(() => {
-    async function fetchAdjudicationCounts() {
-      const res = await fetch('/admin/write-ins/adjudications/counts');
-      const map = new Map<ContestId, Map<string, number>>();
-      for (const {
-        contestId,
-        transcribedValue,
-        adjudicationCount,
-      } of await res.json()) {
-        const innerMap = map.get(contestId) || new Map<string, number>();
-        innerMap.set(transcribedValue, adjudicationCount);
-        map.set(contestId, innerMap);
-      }
-      setWriteInCounts(map);
-    }
-    void fetchAdjudicationCounts();
-  }, [setWriteInCounts]);
+  }, [previewReportRef, printReportRef, writeInCountsByContestAndCandidate]);
 
   const precinctName =
     (precinctId &&
@@ -261,28 +194,16 @@ export function TallyWriteInReportScreen(): JSX.Element {
 
   const generatedAtTime = new Date();
 
-  console.log({
-    isTabulationRunning,
-    writeInCounts,
-    batchId,
-    batchLabel,
-    generatedAtTime,
-    partyId,
-    precinctId,
-    scannerId,
-    votingMethod,
-  });
-
-  // if (isTabulationRunning || !writeInCounts) {
-  //   return (
-  //     <NavigationScreen centerChild>
-  //       <Prose textCenter>
-  //         <h1>Building Tabulation Report...</h1>
-  //         <p>This may take a few seconds.</p>
-  //       </Prose>
-  //     </NavigationScreen>
-  //   );
-  // }
+  if (isTabulationRunning || !writeInCountsByContestAndCandidate) {
+    return (
+      <NavigationScreen centerChild>
+        <Prose textCenter>
+          <h1>Building Tabulation Report...</h1>
+          <p>This may take a few seconds.</p>
+        </Prose>
+      </NavigationScreen>
+    );
+  }
 
   return (
     <React.Fragment>
@@ -336,7 +257,7 @@ export function TallyWriteInReportScreen(): JSX.Element {
           batchId={batchId}
           batchLabel={batchLabel}
           election={election}
-          writeInCounts={writeInCounts}
+          writeInCounts={writeInCountsByContestAndCandidate}
           generatedAtTime={generatedAtTime}
           isOfficialResults={isOfficialResults}
           partyId={partyId}
