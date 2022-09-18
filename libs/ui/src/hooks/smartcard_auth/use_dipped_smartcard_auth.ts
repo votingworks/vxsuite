@@ -272,11 +272,11 @@ function useDippedSmartcardAuthBase({
 
 async function logAuthEvents(
   logger: Logger,
+  auth: DippedSmartcardAuth.Auth,
   previousAuth: DippedSmartcardAuth.Auth = {
     status: 'logged_out',
     reason: 'machine_locked',
-  },
-  auth: DippedSmartcardAuth.Auth
+  }
 ) {
   switch (previousAuth.status) {
     case 'logged_out': {
@@ -365,7 +365,7 @@ export function useDippedSmartcardAuth(
 
   useEffect(() => {
     if (logger) {
-      void logAuthEvents(logger, previousAuth, auth);
+      void logAuthEvents(logger, auth, previousAuth);
     }
   }, [logger, auth, previousAuth]);
 

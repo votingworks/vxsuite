@@ -50,12 +50,14 @@ export function extractDocumentation(element: Element): string | undefined {
     element,
     'xsd:annotation'
   )) {
-    for (const documentationElements of getChildrenOfType(
+    const documentationElements = getChildrenOfType(
       annotationElements,
       'xsd:documentation'
-    )) {
+    );
+
+    if (documentationElements.length > 0) {
       return (
-        documentationElements.textContent ??
+        (documentationElements[0] as Element).textContent ??
         /* istanbul ignore next - in practice textContent never seems to be `null` */ undefined
       );
     }

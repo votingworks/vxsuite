@@ -1,8 +1,4 @@
-import {
-  AST_NODE_TYPES,
-  TSESLint,
-  TSESTree,
-} from '@typescript-eslint/experimental-utils';
+import { AST_NODE_TYPES, TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { strict as assert } from 'assert';
 import { createRule } from '../util';
 
@@ -12,10 +8,12 @@ const rule: TSESLint.RuleModule<
   | 'convertToTypeAnnotation'
   | 'useTypedAs'
   | 'removeTypeAssertion'
-  | 'castToUnknownFirst'
+  | 'castToUnknownFirst',
+  readonly unknown[]
 > = createRule({
   name: 'gts-object-literal-types',
   meta: {
+    hasSuggestions: true,
     docs: {
       description:
         'Requires type annotations instead of type assertions on object literals',

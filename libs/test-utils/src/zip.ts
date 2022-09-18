@@ -31,7 +31,7 @@ export async function zipFile(files: {
     zip.on('end', () => resolve(Buffer.concat(chunks)));
     zip.on('error', reject);
 
-    return Object.entries(files)
+    void Object.entries(files)
       .reduce(
         (last, [name, data]) => last.then(() => addFile(zip, name, data)),
         Promise.resolve()

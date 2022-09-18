@@ -1,8 +1,4 @@
-import {
-  AST_NODE_TYPES,
-  TSESLint,
-  TSESTree,
-} from '@typescript-eslint/experimental-utils';
+import { AST_NODE_TYPES, TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { createRule } from '../util';
 
 function getParamName(param: TSESTree.Parameter): string | undefined {
@@ -38,7 +34,8 @@ function isPropertyInitializerAssignment(
 }
 
 const rule: TSESLint.RuleModule<
-  'useParameterProperties' | 'noRedundantAssignment'
+  'useParameterProperties' | 'noRedundantAssignment',
+  readonly unknown[]
 > = createRule({
   name: 'gts-parameter-properties',
   meta: {

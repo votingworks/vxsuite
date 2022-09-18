@@ -53,9 +53,7 @@ export function InsertCardScreen({
             />
           </p>
           {isPollsOpen ? (
-            <React.Fragment>
-              <h1>Insert Card</h1>
-            </React.Fragment>
+            <h1>Insert Card</h1>
           ) : (
             <React.Fragment>
               <h1>Polls Closed</h1>

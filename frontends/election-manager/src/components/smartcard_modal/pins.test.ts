@@ -15,7 +15,7 @@ beforeEach(() => {
 });
 
 test('generatePin generates PINs', () => {
-  const digitRegex = new RegExp('^[0-9]+$');
+  const digitRegex = /^[0-9]+$/;
 
   expect(generatePin().length).toEqual(6);
   expect(generatePin().match(digitRegex)).toBeTruthy();

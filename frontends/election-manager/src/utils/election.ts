@@ -376,7 +376,8 @@ export function generateOvervoteBallot({
       }
     }
 
-    for (const otherContest of otherContests) {
+    if (otherContests.length > 0) {
+      const otherContest = otherContests[0];
       if (otherContest.type === 'yesno') {
         votes[otherContest.id] = ['yes', 'no'];
       } else if (otherContest.type === 'ms-either-neither') {

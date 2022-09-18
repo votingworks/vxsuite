@@ -24,7 +24,7 @@ export function ElectionInfoBar({
   precinctSelection,
 }: Props): JSX.Element {
   if (!electionDefinition) {
-    return <React.Fragment />;
+    return <React.Fragment>{null}</React.Fragment>;
   }
   const electionDate = format.localeWeekdayAndDate(
     new Date(electionDefinition.election.date)

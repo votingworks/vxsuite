@@ -1,8 +1,4 @@
-import {
-  AST_NODE_TYPES,
-  TSESLint,
-  TSESTree,
-} from '@typescript-eslint/experimental-utils';
+import { AST_NODE_TYPES, TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { createRule } from '../util';
 
 function isDirectAccess(node: TSESTree.Node): boolean {
@@ -17,7 +13,7 @@ function isDirectAccess(node: TSESTree.Node): boolean {
   return false;
 }
 
-const rule: TSESLint.RuleModule<'badSort'> = createRule({
+const rule: TSESLint.RuleModule<'badSort', readonly unknown[]> = createRule({
   name: 'no-array-sort-mutation',
   meta: {
     docs: {

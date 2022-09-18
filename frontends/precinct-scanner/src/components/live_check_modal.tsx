@@ -62,11 +62,7 @@ export function LiveCheckModal({ onClose }: Props): JSX.Element {
         </Prose>
       }
       onOverlayClick={onClose}
-      actions={
-        <React.Fragment>
-          <Button onPress={onClose}>Done</Button>
-        </React.Fragment>
-      }
+      actions={<Button onPress={onClose}>Done</Button>}
     />
   );
 }

@@ -111,9 +111,7 @@ export function PrecinctScannerPollsReport({
               // eslint-disable-next-line react/no-danger
               dangerouslySetInnerHTML={{ __html: seal }}
             />
-          ) : (
-            <React.Fragment />
-          )
+          ) : null
         }
         {
           /* istanbul ignore next */
@@ -121,9 +119,7 @@ export function PrecinctScannerPollsReport({
             <div className="seal">
               <SealImage src={sealUrl} alt="" />
             </div>
-          ) : (
-            <React.Fragment />
-          )
+          ) : null
         }
         <Prose className="ballot-header-content">
           <h2>

@@ -3,7 +3,7 @@ import {
   ESLintUtils,
   TSESLint,
   TSESTree,
-} from '@typescript-eslint/experimental-utils';
+} from '@typescript-eslint/utils';
 import * as ts from 'typescript';
 import { createRule } from '../util';
 
@@ -44,11 +44,12 @@ function typeIsBoolean(type: ts.Type): boolean {
 
 const rule: TSESLint.RuleModule<
   'assertStringOrNumber' | 'assertObject',
-  [{ objects: boolean; asserts: string[] }]
+  Array<{ objects: boolean; asserts: string[] }>
 > = createRule({
   name: 'no-assert-truthiness',
   meta: {
     fixable: 'code',
+    hasSuggestions: true,
     docs: {
       description: 'Forbids truthiness checks in `assert`',
       recommended: 'error',

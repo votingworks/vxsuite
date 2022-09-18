@@ -1,8 +1,4 @@
-import {
-  AST_NODE_TYPES,
-  TSESLint,
-  TSESTree,
-} from '@typescript-eslint/experimental-utils';
+import { AST_NODE_TYPES, TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { strict as assert } from 'assert';
 import { createRule, isBindingName } from '../util';
 
@@ -44,7 +40,8 @@ function getOptionalTypeReference(
 const rule: TSESLint.RuleModule<
   | 'useOptionalInterfaceProperties'
   | 'useOptionalClassFields'
-  | 'useOptionalParams'
+  | 'useOptionalParams',
+  readonly unknown[]
 > = createRule({
   name: 'gts-use-optionals',
   meta: {

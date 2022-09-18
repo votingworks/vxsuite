@@ -362,130 +362,128 @@ export function ManualDataImportPrecinctScreen(): JSX.Element {
     ballotType === VotingMethod.Absentee ? 'Absentee' : 'Precinct';
 
   return (
-    <React.Fragment>
-      <NavigationScreen>
-        <Prose>
-          <h1>
-            <small>Manually Entered {votingMethodName} Results:</small>
-            <br />
-            {currentPrecinct.name}
-          </h1>
-          <p>Enter the number of votes for each contest option.</p>
-          {currentContests.map((contest) => {
-            let contestTitle = contest.title;
-            if (contest.partyId) {
-              const party = election.parties.find(
-                (p) => p.id === contest.partyId
-              );
-              if (party) {
-                contestTitle = `${contestTitle} - ${party.fullName}`;
-              }
-            }
-            return (
-              <ContestData key={contest.id}>
-                <Text small>{contest.section}</Text>
-                <h3>{contestTitle}</h3>
-                <Table borderTop condensed>
-                  <tbody>
-                    {contest.type === 'candidate' &&
-                      getAllPossibleCandidatesForCandidateContest(contest).map(
-                        (candidate) => (
-                          <ContestDataRow
-                            key={candidate.id}
-                            label={candidate.name}
-                          >
-                            <TallyInput
-                              name={`${contest.id}-${candidate.id}`}
-                              data-testid={`${contest.id}-${candidate.id}`}
-                              value={getValueForInput(contest.id, candidate.id)}
-                              onChange={(e) =>
-                                updateContestData(contest.id, candidate.id, e)
-                              }
-                            />
-                          </ContestDataRow>
-                        )
-                      )}
-                    {contest.type === 'yesno' && (
-                      <React.Fragment>
-                        <ContestDataRow label="Yes">
-                          <TallyInput
-                            name={`${contest.id}-yes`}
-                            data-testid={`${contest.id}-yes`}
-                            value={getValueForInput(contest.id, 'yes')}
-                            onChange={(e) =>
-                              updateContestData(contest.id, 'yes', e)
-                            }
-                          />
-                        </ContestDataRow>
-                        <ContestDataRow label="No">
-                          <TallyInput
-                            name={`${contest.id}-no`}
-                            data-testid={`${contest.id}-no`}
-                            value={getValueForInput(contest.id, 'no')}
-                            onChange={(e) =>
-                              updateContestData(contest.id, 'no', e)
-                            }
-                          />
-                        </ContestDataRow>
-                      </React.Fragment>
-                    )}
-                    <ContestDataRow
-                      label={
-                        <Text as="span" small bold>
-                          undervotes
-                        </Text>
-                      }
-                    >
-                      <TallyInput
-                        name={`${contest.id}-undervotes`}
-                        data-testid={`${contest.id}-undervotes`}
-                        value={getValueForInput(contest.id, 'undervotes')}
-                        onChange={(e) =>
-                          updateContestData(contest.id, 'undervotes', e)
-                        }
-                      />
-                    </ContestDataRow>
-                    <ContestDataRow
-                      label={
-                        <Text as="span" small bold>
-                          overvotes
-                        </Text>
-                      }
-                    >
-                      <TallyInput
-                        name={`${contest.id}-overvotes`}
-                        data-testid={`${contest.id}-overvotes`}
-                        value={getValueForInput(contest.id, 'overvotes')}
-                        onChange={(e) =>
-                          updateContestData(contest.id, 'overvotes', e)
-                        }
-                      />
-                    </ContestDataRow>
-                  </tbody>
-                  <tfoot>
-                    <tr>
-                      <TD textAlign="center">
-                        <strong data-testid={`${contest.id}-numBallots`}>
-                          {getValueForInput(contest.id, 'numBallots')}
-                        </strong>
-                      </TD>
-                      <TD>
-                        <strong>Total Ballots Cast</strong>
-                      </TD>
-                    </tr>
-                  </tfoot>
-                </Table>
-              </ContestData>
+    <NavigationScreen>
+      <Prose>
+        <h1>
+          <small>Manually Entered {votingMethodName} Results:</small>
+          <br />
+          {currentPrecinct.name}
+        </h1>
+        <p>Enter the number of votes for each contest option.</p>
+        {currentContests.map((contest) => {
+          let contestTitle = contest.title;
+          if (contest.partyId) {
+            const party = election.parties.find(
+              (p) => p.id === contest.partyId
             );
-          })}
-          <p>
-            <LinkButton to={routerPaths.manualDataImport}>Cancel</LinkButton>{' '}
-            <Button primary onPress={handleImportingData}>
-              Save {votingMethodName} Results for {currentPrecinct.name}
-            </Button>
-          </p>
-        </Prose>
-      </NavigationScreen>
-    </React.Fragment>
+            if (party) {
+              contestTitle = `${contestTitle} - ${party.fullName}`;
+            }
+          }
+          return (
+            <ContestData key={contest.id}>
+              <Text small>{contest.section}</Text>
+              <h3>{contestTitle}</h3>
+              <Table borderTop condensed>
+                <tbody>
+                  {contest.type === 'candidate' &&
+                    getAllPossibleCandidatesForCandidateContest(contest).map(
+                      (candidate) => (
+                        <ContestDataRow
+                          key={candidate.id}
+                          label={candidate.name}
+                        >
+                          <TallyInput
+                            name={`${contest.id}-${candidate.id}`}
+                            data-testid={`${contest.id}-${candidate.id}`}
+                            value={getValueForInput(contest.id, candidate.id)}
+                            onChange={(e) =>
+                              updateContestData(contest.id, candidate.id, e)
+                            }
+                          />
+                        </ContestDataRow>
+                      )
+                    )}
+                  {contest.type === 'yesno' && (
+                    <React.Fragment>
+                      <ContestDataRow label="Yes">
+                        <TallyInput
+                          name={`${contest.id}-yes`}
+                          data-testid={`${contest.id}-yes`}
+                          value={getValueForInput(contest.id, 'yes')}
+                          onChange={(e) =>
+                            updateContestData(contest.id, 'yes', e)
+                          }
+                        />
+                      </ContestDataRow>
+                      <ContestDataRow label="No">
+                        <TallyInput
+                          name={`${contest.id}-no`}
+                          data-testid={`${contest.id}-no`}
+                          value={getValueForInput(contest.id, 'no')}
+                          onChange={(e) =>
+                            updateContestData(contest.id, 'no', e)
+                          }
+                        />
+                      </ContestDataRow>
+                    </React.Fragment>
+                  )}
+                  <ContestDataRow
+                    label={
+                      <Text as="span" small bold>
+                        undervotes
+                      </Text>
+                    }
+                  >
+                    <TallyInput
+                      name={`${contest.id}-undervotes`}
+                      data-testid={`${contest.id}-undervotes`}
+                      value={getValueForInput(contest.id, 'undervotes')}
+                      onChange={(e) =>
+                        updateContestData(contest.id, 'undervotes', e)
+                      }
+                    />
+                  </ContestDataRow>
+                  <ContestDataRow
+                    label={
+                      <Text as="span" small bold>
+                        overvotes
+                      </Text>
+                    }
+                  >
+                    <TallyInput
+                      name={`${contest.id}-overvotes`}
+                      data-testid={`${contest.id}-overvotes`}
+                      value={getValueForInput(contest.id, 'overvotes')}
+                      onChange={(e) =>
+                        updateContestData(contest.id, 'overvotes', e)
+                      }
+                    />
+                  </ContestDataRow>
+                </tbody>
+                <tfoot>
+                  <tr>
+                    <TD textAlign="center">
+                      <strong data-testid={`${contest.id}-numBallots`}>
+                        {getValueForInput(contest.id, 'numBallots')}
+                      </strong>
+                    </TD>
+                    <TD>
+                      <strong>Total Ballots Cast</strong>
+                    </TD>
+                  </tr>
+                </tfoot>
+              </Table>
+            </ContestData>
+          );
+        })}
+        <p>
+          <LinkButton to={routerPaths.manualDataImport}>Cancel</LinkButton>{' '}
+          <Button primary onPress={handleImportingData}>
+            Save {votingMethodName} Results for {currentPrecinct.name}
+          </Button>
+        </p>
+      </Prose>
+    </NavigationScreen>
   );
 }

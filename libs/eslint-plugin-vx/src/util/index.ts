@@ -3,7 +3,7 @@ import {
   ESLintUtils,
   TSESLint,
   TSESTree,
-} from '@typescript-eslint/experimental-utils';
+} from '@typescript-eslint/utils';
 import { strict as assert } from 'assert';
 import * as ts from 'typescript';
 

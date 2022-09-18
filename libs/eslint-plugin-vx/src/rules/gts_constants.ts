@@ -1,12 +1,11 @@
-import {
-  AST_NODE_TYPES,
-  TSESLint,
-  TSESTree,
-} from '@typescript-eslint/experimental-utils';
+import { AST_NODE_TYPES, TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { strict as assert } from 'assert';
 import { createRule } from '../util';
 
-const rule: TSESLint.RuleModule<'useConstVariableDeclaration'> = createRule({
+const rule: TSESLint.RuleModule<
+  'useConstVariableDeclaration',
+  readonly unknown[]
+> = createRule({
   name: 'gts-jsdoc',
   meta: {
     docs: {

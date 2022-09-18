@@ -57,7 +57,7 @@ export class Logger {
   async log(
     eventId: LogEventId,
     user: LoggingUserRole,
-    logData: LogData = {},
+    logData?: LogData,
     outerDebug?: (logLine: LogLine) => void
   ): Promise<void> {
     const eventSpecificDetails = getDetailsForEventId(eventId);
@@ -65,7 +65,7 @@ export class Logger {
       message = eventSpecificDetails.defaultMessage,
       disposition = LogDispositionStandardTypes.NotApplicable,
       ...additionalData
-    } = logData;
+    } = logData ?? {};
     const logLine: LogLine = {
       source: this.source,
       eventId,

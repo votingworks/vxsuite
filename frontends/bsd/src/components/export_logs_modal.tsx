@@ -11,6 +11,7 @@ import {
   throwIllegalValue,
   generateLogFilename,
   LogFileType,
+  sleep,
 } from '@votingworks/utils';
 
 import {
@@ -131,7 +132,7 @@ export function ExportLogsModal({ onClose, logFileType }: Props): JSX.Element {
       }
 
       setSavedFilename(filenameLocation);
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await sleep(2000);
       await logger.log(LogEventId.FileSaved, userRole, {
         disposition: 'success',
         message: `Successfully saved log file to ${filenameLocation} on the usb drive.`,

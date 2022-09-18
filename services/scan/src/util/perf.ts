@@ -22,7 +22,7 @@ export function formatDurationNs(nanoseconds: bigint): string {
 }
 
 export interface Timer {
-  end(): BigInt;
+  end(): bigint;
 }
 
 export function time(label: string): Timer {
@@ -30,7 +30,7 @@ export function time(label: string): Timer {
   const start = process.hrtime.bigint();
 
   return {
-    end(): BigInt {
+    end(): bigint {
       const end = process.hrtime.bigint();
       const duration = end - start;
       debug('%s END (took %s)', label, formatDurationNs(duration));

@@ -410,11 +410,11 @@ function useInsertedSmartcardAuthBase({
 
 async function logAuthEvents(
   logger: Logger,
+  auth: InsertedSmartcardAuth.Auth,
   previousAuth: InsertedSmartcardAuth.Auth = {
     status: 'logged_out',
     reason: 'no_card',
-  },
-  auth: InsertedSmartcardAuth.Auth
+  }
 ) {
   switch (previousAuth.status) {
     case 'logged_out': {
@@ -511,7 +511,7 @@ export function useInsertedSmartcardAuth(
 
   useEffect(() => {
     if (logger) {
-      void logAuthEvents(logger, previousAuth, auth);
+      void logAuthEvents(logger, auth, previousAuth);
     }
   }, [logger, previousAuth, auth]);
 

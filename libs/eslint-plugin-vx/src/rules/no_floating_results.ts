@@ -4,7 +4,7 @@ import {
   ParserServices,
   TSESLint,
   TSESTree,
-} from '@typescript-eslint/experimental-utils';
+} from '@typescript-eslint/utils';
 import * as ts from 'typescript';
 import { createRule } from '../util';
 
@@ -53,10 +53,11 @@ function isUnhandledResult(
 
 const rule: TSESLint.RuleModule<
   'floating' | 'floatingVoid' | 'floatingFixVoid',
-  [{ ignoreVoid: boolean }]
+  Array<{ ignoreVoid: boolean }>
 > = createRule({
   name: 'no-floating-results',
   meta: {
+    hasSuggestions: true,
     docs: {
       description: 'Requires `Result` values to be handled appropriately',
       recommended: 'error',

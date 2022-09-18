@@ -140,9 +140,7 @@ export function DashboardScreen({
                         <Scanning>Scanning…</Scanning>
                       ) : batch.endedAt ? (
                         <small>{shortDateTime(batch.endedAt)}</small>
-                      ) : (
-                        <React.Fragment />
-                      )}
+                      ) : null}
                     </TD>
                     <TD narrow>
                       <Button

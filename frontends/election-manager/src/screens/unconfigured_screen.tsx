@@ -169,8 +169,8 @@ export function UnconfiguredScreen(): JSX.Element {
       }
 
       setInputConversionFiles(files.inputFiles);
-    } catch (error) {
-      // eslint-disable-line no-empty
+    } catch {
+      // ignore error
     }
   }, [client, getOutputFile, isMounted, processInputFiles]);
 

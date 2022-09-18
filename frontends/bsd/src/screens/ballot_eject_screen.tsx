@@ -234,7 +234,7 @@ export function BallotEjectScreen({
   ]);
 
   if (!reviewInfo) {
-    return <React.Fragment />;
+    return <React.Fragment>{null}</React.Fragment>;
   }
 
   let isOvervotedSheet = false;

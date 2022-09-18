@@ -1,4 +1,4 @@
-import { ESLintUtils } from '@typescript-eslint/experimental-utils';
+import { ESLintUtils } from '@typescript-eslint/utils';
 import * as ts from 'typescript';
 import { join } from 'path';
 import rule from '../../src/rules/gts_jsdoc';

@@ -1,14 +1,14 @@
-import {
-  AST_NODE_TYPES,
-  TSESLint,
-  TSESTree,
-} from '@typescript-eslint/experimental-utils';
+import { AST_NODE_TYPES, TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { strict as assert } from 'assert';
 import { createRule } from '../util';
 
-const rule: TSESLint.RuleModule<'noReturnTypeOnlyGenerics'> = createRule({
+const rule: TSESLint.RuleModule<
+  'noReturnTypeOnlyGenerics',
+  readonly unknown[]
+> = createRule({
   name: 'gts-no-return-type-only-generics',
   meta: {
+    hasSuggestions: true,
     docs: {
       description:
         'Disallows generics in functions where the only use is in the return type',

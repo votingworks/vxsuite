@@ -138,72 +138,70 @@ export function BallotCountsTable({ breakdownCategory }: Props): JSX.Element {
         fullElectionTally?.resultsByCategory.get(TallyCategory.Scanner) || {};
 
       return (
-        <React.Fragment>
-          <Table>
-            <tbody>
-              <tr data-testid="table-row">
-                <TD as="th" narrow>
-                  Scanner ID
-                </TD>
-                <TD as="th">Ballot Count</TD>
-                <TD as="th">Report</TD>
-              </tr>
-              {Object.keys(resultsByScanner)
-                .sort((a, b) =>
-                  a.localeCompare(b, 'en', {
-                    numeric: true,
-                    ignorePunctuation: true,
-                  })
-                )
-                .map((scannerId) => {
-                  const scannerBallotsCount =
-                    resultsByScanner[scannerId]?.numberOfBallotsCounted ?? 0;
-                  return (
-                    <tr key={scannerId} data-testid="table-row">
-                      <TD narrow nowrap>
-                        {scannerId}
-                      </TD>
-                      <TD>{format.count(scannerBallotsCount)}</TD>
-                      <TD>
-                        {scannerBallotsCount > 0 && (
-                          <LinkButton
-                            small
-                            to={routerPaths.tallyScannerReport({
-                              scannerId,
-                            })}
-                          >
-                            {statusPrefix} Scanner {scannerId} Tally Report
-                          </LinkButton>
-                        )}
-                      </TD>
-                    </tr>
-                  );
-                })}
-              {Array.from(fullElectionExternalTallies.values()).map((t) => (
-                <tr data-testid="table-row" key={t.inputSourceName}>
-                  <TD narrow nowrap>
-                    External Results ({t.inputSourceName})
-                  </TD>
-                  <TD>{format.count(t.overallTally.numberOfBallotsCounted)}</TD>
-                  <TD />
-                </tr>
-              ))}
-              <tr data-testid="table-row">
+        <Table>
+          <tbody>
+            <tr data-testid="table-row">
+              <TD as="th" narrow>
+                Scanner ID
+              </TD>
+              <TD as="th">Ballot Count</TD>
+              <TD as="th">Report</TD>
+            </tr>
+            {Object.keys(resultsByScanner)
+              .sort((a, b) =>
+                a.localeCompare(b, 'en', {
+                  numeric: true,
+                  ignorePunctuation: true,
+                })
+              )
+              .map((scannerId) => {
+                const scannerBallotsCount =
+                  resultsByScanner[scannerId]?.numberOfBallotsCounted ?? 0;
+                return (
+                  <tr key={scannerId} data-testid="table-row">
+                    <TD narrow nowrap>
+                      {scannerId}
+                    </TD>
+                    <TD>{format.count(scannerBallotsCount)}</TD>
+                    <TD>
+                      {scannerBallotsCount > 0 && (
+                        <LinkButton
+                          small
+                          to={routerPaths.tallyScannerReport({
+                            scannerId,
+                          })}
+                        >
+                          {statusPrefix} Scanner {scannerId} Tally Report
+                        </LinkButton>
+                      )}
+                    </TD>
+                  </tr>
+                );
+              })}
+            {Array.from(fullElectionExternalTallies.values()).map((t) => (
+              <tr data-testid="table-row" key={t.inputSourceName}>
                 <TD narrow nowrap>
-                  <strong>Total Ballot Count</strong>
+                  External Results ({t.inputSourceName})
                 </TD>
-                <TD>
-                  <strong>
-                    {format.count(
-                      totalBallotCountInternal + totalBallotCountExternal
-                    )}
-                  </strong>
-                </TD>
+                <TD>{format.count(t.overallTally.numberOfBallotsCounted)}</TD>
                 <TD />
               </tr>
-            </tbody>
-          </Table>
-        </React.Fragment>
+            ))}
+            <tr data-testid="table-row">
+              <TD narrow nowrap>
+                <strong>Total Ballot Count</strong>
+              </TD>
+              <TD>
+                <strong>
+                  {format.count(
+                    totalBallotCountInternal + totalBallotCountExternal
+                  )}
+                </strong>
+              </TD>
+              <TD />
+            </tr>
+          </tbody>
+        </Table>
       );
     }
     case TallyCategory.Party: {
@@ -214,7 +212,7 @@ export function BallotCountsTable({ breakdownCategory }: Props): JSX.Element {
       ).map((t) => t.resultsByCategory.get(TallyCategory.Party) || {});
       const partiesForPrimaries = getPartiesWithPrimaryElections(election);
       if (partiesForPrimaries.length === 0) {
-        return <React.Fragment />;
+        return <React.Fragment>{null}</React.Fragment>;
       }
 
       return (

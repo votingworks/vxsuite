@@ -220,11 +220,7 @@ export function ExportBackupModal({ onClose, usbDrive }: Props): JSX.Element {
         <Modal
           content={<Loading />}
           onOverlayClick={onClose}
-          actions={
-            <React.Fragment>
-              <Button onPress={onClose}>Cancel</Button>
-            </React.Fragment>
-          }
+          actions={<Button onPress={onClose}>Cancel</Button>}
         />
       );
     case usbstick.UsbDriveStatus.mounted:

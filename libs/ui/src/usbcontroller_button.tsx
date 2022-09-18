@@ -23,7 +23,7 @@ export function UsbControllerButton({
   small = true,
 }: Props): JSX.Element {
   if (usbDriveStatus === UsbDriveStatus.notavailable) {
-    return <React.Fragment />;
+    return <React.Fragment>{null}</React.Fragment>;
   }
 
   if (usbDriveStatus === UsbDriveStatus.absent) {

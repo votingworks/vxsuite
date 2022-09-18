@@ -123,7 +123,9 @@ async function closePlustekClient({ client }: Context) {
 async function killPlustekClient({ client }: Context) {
   if (!client) return;
   debug('Killing plustek client');
-  await new Promise((resolve) => resolve(client.kill().unsafeUnwrap()));
+  await new Promise((resolve) => {
+    resolve(client.kill().unsafeUnwrap());
+  });
   debug('Plustek client killed');
 }
 

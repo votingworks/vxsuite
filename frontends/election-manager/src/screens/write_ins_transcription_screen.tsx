@@ -138,11 +138,9 @@ export function WriteInsTranscriptionScreen({
       <Navigation
         screenTitle="Write-In Transcription"
         secondaryNav={
-          <React.Fragment>
-            <Button small onPress={onClose}>
-              Exit
-            </Button>
-          </React.Fragment>
+          <Button small onPress={onClose}>
+            Exit
+          </Button>
         }
       />
       <Main flexRow data-testid={`transcribe:${adjudicationId}`}>
