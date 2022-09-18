@@ -225,8 +225,8 @@ export function PrintAllBallotsButton(): JSX.Element {
     onPrintError,
   ]);
 
-  let mainContent = null;
-  let actions = null;
+  let mainContent: React.ReactNode = null;
+  let actions: React.ReactNode = null;
   let onOverlayClick: VoidFunction | undefined = closeModal;
 
   switch (modalState) {

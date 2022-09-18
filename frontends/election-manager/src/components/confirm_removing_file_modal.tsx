@@ -28,7 +28,7 @@ export function ConfirmRemovingFileModal({
     ExternalTallySourceType.Manual
   );
 
-  let mainContent = null;
+  let mainContent: React.ReactNode = null;
   let fileTypeName = '';
   let singleFileRemoval = true;
   switch (fileType) {

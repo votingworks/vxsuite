@@ -184,8 +184,8 @@ export function ExportBallotPdfsButton(): JSX.Element {
     }
   }
 
-  let mainContent = null;
-  let actions = null;
+  let mainContent: React.ReactNode = null;
+  let actions: React.ReactNode = null;
 
   switch (modalState) {
     case 'BeforeExport':
