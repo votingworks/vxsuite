@@ -555,12 +555,14 @@ export function AppRoot({ card, hardware, logger }: AppRootProps): JSX.Element {
             isMachineConfigured={Boolean(electionDefinition)}
             usbDriveStatus={displayUsbStatus}
           />
-          <ElectionInfoBar
-            mode="admin"
-            electionDefinition={electionDefinition}
-            codeVersion={machineConfig.codeVersion}
-            machineId={machineConfig.machineId}
-          />
+          {electionDefinition && (
+            <ElectionInfoBar
+              mode="admin"
+              electionDefinition={electionDefinition}
+              codeVersion={machineConfig.codeVersion}
+              machineId={machineConfig.machineId}
+            />
+          )}
           <MainNav>
             <Button small onPress={() => auth.logOut()}>
               Lock Machine

@@ -12,6 +12,7 @@ import {
   isElectionManagerAuth,
   Main,
   Modal,
+  Nothing,
   Screen,
   Text,
 } from '@votingworks/ui';
@@ -234,7 +235,7 @@ export function BallotEjectScreen({
   ]);
 
   if (!reviewInfo) {
-    return <React.Fragment>{null}</React.Fragment>;
+    return <Nothing />;
   }
 
   let isOvervotedSheet = false;
@@ -441,12 +442,14 @@ export function BallotEjectScreen({
             </RectoVerso>
           </MainChildFlexRow>
         </Main>
-        <ElectionInfoBar
-          mode="admin"
-          electionDefinition={electionDefinition}
-          codeVersion={machineConfig.codeVersion}
-          machineId={machineConfig.machineId}
-        />
+        {electionDefinition && (
+          <ElectionInfoBar
+            mode="admin"
+            electionDefinition={electionDefinition}
+            codeVersion={machineConfig.codeVersion}
+            machineId={machineConfig.machineId}
+          />
+        )}
       </Screen>
       {ballotState === 'removeBallot' && (
         <Modal

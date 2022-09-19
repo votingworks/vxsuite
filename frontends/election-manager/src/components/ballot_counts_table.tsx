@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { assert, throwIllegalValue, format } from '@votingworks/utils';
-import { Table, TD } from '@votingworks/ui';
+import { Nothing, Table, TD } from '@votingworks/ui';
 import {
   BatchTally,
   TallyCategory,
@@ -212,7 +212,7 @@ export function BallotCountsTable({ breakdownCategory }: Props): JSX.Element {
       ).map((t) => t.resultsByCategory.get(TallyCategory.Party) || {});
       const partiesForPrimaries = getPartiesWithPrimaryElections(election);
       if (partiesForPrimaries.length === 0) {
-        return <React.Fragment>{null}</React.Fragment>;
+        return <Nothing />;
       }
 
       return (
