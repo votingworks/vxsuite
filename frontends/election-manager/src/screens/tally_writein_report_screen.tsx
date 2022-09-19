@@ -1,17 +1,17 @@
 import React, { useContext, useEffect, useRef, useState, useMemo } from 'react';
 import styled from 'styled-components';
-import { useLocation, useParams } from 'react-router-dom';
+
+import { useParams } from 'react-router-dom';
 import { assert, find } from '@votingworks/utils';
 import { LogEventId } from '@votingworks/logging';
 import { VotingMethod, getLabelForVotingMethod } from '@votingworks/types';
 import {
-  Button,
   isElectionManagerAuth,
-  Modal,
   Prose,
   TallyReport,
   TallyReportMetadata,
   Text,
+  Button,
 } from '@votingworks/ui';
 import {
   generateDefaultReportFilename,
@@ -33,11 +33,12 @@ import { LinkButton } from '../components/link_button';
 
 import { routerPaths } from '../router_paths';
 import { filterTalliesByParamsAndBatchId } from '../lib/votecounting';
-import { useWriteInSummaryQuery } from '../hooks/use_write_in_summary_query';
 
 import { SaveFileToUsb, FileType } from '../components/save_file_to_usb';
-import { ElectionManagerTallyReport } from '../components/election_manager_tally_report';
+import { ElectionManagerWriteInTallyReport } from '../components/election_manager_writein_tally_report';
 import { PrintableArea } from '../components/printable_area';
+
+import { useWriteInSummaryQuery } from '../hooks/use_write_in_summary_query';
 import { getWriteInCountsByContestAndCandidate } from '../utils/write_ins';
 
 const TallyReportPreview = styled(TallyReport)`
@@ -50,11 +51,10 @@ const TallyReportPreview = styled(TallyReport)`
   }
 `;
 
-export function TallyReportScreen(): JSX.Element {
+export function TallyWriteInReportScreen(): JSX.Element {
   const printReportRef = useRef<HTMLDivElement>(null);
   const previewReportRef = useRef<HTMLDivElement>(null);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
-  const [isMarkOfficialModalOpen, setIsMarkOfficialModalOpen] = useState(false);
   const { precinctId } = useParams<PrecinctReportScreenProps>();
   const { scannerId } = useParams<ScannerReportScreenProps>();
   const { batchId } = useParams<BatchReportScreenProps>();
@@ -63,12 +63,9 @@ export function TallyReportScreen(): JSX.Element {
     useParams<VotingMethodReportScreenProps>();
   const votingMethod = votingMethodFromProps as VotingMethod;
   const {
-    castVoteRecordFiles,
     electionDefinition,
     isOfficialResults,
-    markResultsOfficial,
     fullElectionTally,
-    fullElectionExternalTallies,
     isTabulationRunning,
     auth,
     logger,
@@ -76,14 +73,17 @@ export function TallyReportScreen(): JSX.Element {
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth)); // TODO(auth) check permissions for viewing tally reports.
   const userRole = auth.user.role;
-  const writeInSummaryQuery = useWriteInSummaryQuery();
-  const writeInCountsByContestAndCandidate =
-    getWriteInCountsByContestAndCandidate(writeInSummaryQuery.data ?? [], true);
-
-  const location = useLocation();
 
   const { election } = electionDefinition;
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial';
+  const writeInSummaryQuery = useWriteInSummaryQuery();
+  const writeInCountsByContestAndCandidate =
+    getWriteInCountsByContestAndCandidate(writeInSummaryQuery.data ?? []);
+  useEffect(() => {
+    if (previewReportRef?.current && printReportRef?.current) {
+      previewReportRef.current.innerHTML = printReportRef.current.innerHTML;
+    }
+  }, [previewReportRef, printReportRef, writeInCountsByContestAndCandidate]);
 
   const precinctName =
     (precinctId &&
@@ -136,26 +136,26 @@ export function TallyReportScreen(): JSX.Element {
   }, [batchId, fullElectionTally, election]);
   const reportDisplayTitle = useMemo(() => {
     if (precinctName) {
-      return `${statusPrefix} Precinct Tally Report for ${precinctName}`;
+      return `${statusPrefix} Precinct Write-In Tally Report for ${precinctName}`;
     }
     if (scannerId) {
-      return `${statusPrefix} Scanner Tally Report for Scanner ${scannerId}`;
+      return `${statusPrefix} Scanner Write-In Tally Report for Scanner ${scannerId}`;
     }
     if (batchId) {
-      return `${statusPrefix} Batch Tally Report for ${batchLabel}`;
+      return `${statusPrefix} Batch Write-In Tally Report for ${batchLabel}`;
     }
     if (precinctId === 'all') {
-      return `${statusPrefix} ${election.title} Tally Reports for All Precincts`;
+      return `${statusPrefix} ${election.title} Write-In Tally Reports for All Precincts`;
     }
     if (partyId) {
       const party = find(election.parties, (p) => p.id === partyId);
-      return `${statusPrefix} Tally Report for ${party.fullName}`;
+      return `${statusPrefix} Write-In Tally Report for ${party.fullName}`;
     }
     if (votingMethod) {
       const label = getLabelForVotingMethod(votingMethod);
-      return `${statusPrefix} ${label} Ballot Tally Report`;
+      return `${statusPrefix} ${label} Ballot Write-In Tally Report`;
     }
-    return `${statusPrefix} ${election.title} Tally Report`;
+    return `${statusPrefix} ${election.title} Write-In Tally Report`;
   }, [
     batchId,
     scannerId,
@@ -167,14 +167,6 @@ export function TallyReportScreen(): JSX.Element {
     election,
     precinctName,
   ]);
-
-  useEffect(() => {
-    void logger.log(LogEventId.TallyReportPreviewed, userRole, {
-      message: `User previewed the ${reportDisplayTitle}.`,
-      disposition: 'success',
-      tallyReportTitle: reportDisplayTitle,
-    });
-  }, [logger, reportDisplayTitle, userRole]);
 
   function afterPrint() {
     void logger.log(LogEventId.TallyReportPrinted, userRole, {
@@ -194,18 +186,15 @@ export function TallyReportScreen(): JSX.Element {
     });
   }
 
-  function closeMarkOfficialModal() {
-    setIsMarkOfficialModalOpen(false);
-  }
-  function openMarkOfficialModal() {
-    setIsMarkOfficialModalOpen(true);
-  }
-  async function markOfficial() {
-    setIsMarkOfficialModalOpen(false);
-    await markResultsOfficial();
-  }
+  const defaultReportFilename = generateDefaultReportFilename(
+    'tabulation-writein-report',
+    election,
+    fileSuffix
+  );
 
-  if (isTabulationRunning) {
+  const generatedAtTime = new Date();
+
+  if (isTabulationRunning || !writeInCountsByContestAndCandidate) {
     return (
       <NavigationScreen centerChild>
         <Prose textCenter>
@@ -215,21 +204,6 @@ export function TallyReportScreen(): JSX.Element {
       </NavigationScreen>
     );
   }
-
-  const defaultReportFilename = generateDefaultReportFilename(
-    'tabulation-report',
-    election,
-    fileSuffix
-  );
-
-  const generatedAtTime = new Date();
-
-  // eslint-disable-next-line react-hooks/rules-of-hooks
-  useEffect(() => {
-    if (previewReportRef?.current && printReportRef?.current) {
-      previewReportRef.current.innerHTML = printReportRef.current.innerHTML;
-    }
-  }, [previewReportRef, printReportRef, isOfficialResults]);
 
   return (
     <React.Fragment>
@@ -255,19 +229,9 @@ export function TallyReportScreen(): JSX.Element {
               </Button>
             )}
           </p>
-          {location.pathname === routerPaths.tallyFullReport && (
-            <p>
-              <Button
-                disabled={!castVoteRecordFiles.wereAdded || isOfficialResults}
-                onPress={openMarkOfficialModal}
-              >
-                Mark Tally Results as Official
-              </Button>
-            </p>
-          )}
           <p>
-            <LinkButton small to={routerPaths.reports}>
-              Back to Reports
+            <LinkButton small to={routerPaths.tally}>
+              Back to Tally Index
             </LinkButton>
           </p>
           <React.Fragment>
@@ -288,41 +252,14 @@ export function TallyReportScreen(): JSX.Element {
           fileType={FileType.TallyReport}
         />
       )}
-      {isMarkOfficialModalOpen && (
-        <Modal
-          centerContent
-          content={
-            <Prose textCenter>
-              <h1>Mark Unofficial Tally Results as Official Tally Results?</h1>
-              <p>
-                Have all CVR and external results files been loaded? Once
-                results are marked as official, no additional CVR or external
-                files can be loaded.
-              </p>
-              <p>Have all unofficial tally reports been reviewed?</p>
-            </Prose>
-          }
-          actions={
-            <React.Fragment>
-              <Button primary onPress={markOfficial}>
-                Mark Tally Results as Official
-              </Button>
-              <Button onPress={closeMarkOfficialModal}>Cancel</Button>
-            </React.Fragment>
-          }
-          onOverlayClick={closeMarkOfficialModal}
-        />
-      )}
       <PrintableArea data-testid="printable-area">
-        <ElectionManagerTallyReport
+        <ElectionManagerWriteInTallyReport
           batchId={batchId}
           batchLabel={batchLabel}
           election={election}
-          fullElectionExternalTallies={fullElectionExternalTallies}
-          fullElectionTally={fullElectionTally}
-          officialCandidateWriteIns={writeInCountsByContestAndCandidate}
+          writeInCounts={writeInCountsByContestAndCandidate}
           generatedAtTime={generatedAtTime}
-          tallyReportType={isOfficialResults ? 'Official' : 'Unofficial'}
+          isOfficialResults={isOfficialResults}
           partyId={partyId}
           precinctId={precinctId}
           ref={printReportRef}

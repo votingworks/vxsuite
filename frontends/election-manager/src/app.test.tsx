@@ -470,7 +470,10 @@ test('printing ballots and printed ballots report', async () => {
   );
 
   fireEvent.click(getByText('Reports'));
-  await screen.findByText('0 official ballots');
+  await screen.findAllByText('0 ballots');
+  expect(screen.getByTestId('printed-ballots-summary')).toHaveTextContent(
+    '0 ballots have been printed.'
+  );
 
   fireEvent.click(getByText('Ballots'));
   fireEvent.click(getAllByText('View Ballot')[0]);
@@ -497,7 +500,10 @@ test('printing ballots and printed ballots report', async () => {
   await waitFor(() => !getByText('Printing'));
 
   fireEvent.click(getByText('Reports'));
-  await screen.findByText('3 official ballots', { exact: false });
+  await screen.findByText('3 ballots', { exact: false });
+  expect(screen.getByTestId('printed-ballots-summary')).toHaveTextContent(
+    '3 ballots have been printed.'
+  );
   fireEvent.click(getByText('Printed Ballots Report'));
   expect(getAllByText(/2 absentee ballots/).length).toBe(2);
   expect(getAllByText(/1 precinct ballot/).length).toBe(2);
@@ -1044,7 +1050,10 @@ test('changing election resets sems, cvr, and manual data files', async () => {
   );
 
   fireEvent.click(getByText('Reports'));
-  await screen.findByText('0 official ballots');
+  await screen.findByText('0 ballots');
+  expect(screen.getByTestId('printed-ballots-summary')).toHaveTextContent(
+    '0 ballots have been printed.'
+  );
   await waitFor(() =>
     expect(getByTestId('total-ballot-count').textContent).toEqual('300')
   );
@@ -1111,7 +1120,10 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
   );
 
   fireEvent.click(getByText('Reports'));
-  await screen.findByText('0 official ballots');
+  await screen.findByText('0 ballots');
+  expect(screen.getByTestId('printed-ballots-summary')).toHaveTextContent(
+    '0 ballots have been printed.'
+  );
   await waitFor(() =>
     expect(getByTestId('total-ballot-count').textContent).toEqual('300')
   );
