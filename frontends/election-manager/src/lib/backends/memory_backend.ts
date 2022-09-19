@@ -337,7 +337,7 @@ export class ElectionManagerStoreMemoryBackend
   }
 
   async loadWriteInAdjudications(options?: {
-    contestId: ContestId;
+    contestId?: ContestId;
   }): Promise<Admin.WriteInAdjudicationRecord[]> {
     await Promise.resolve();
     return (
