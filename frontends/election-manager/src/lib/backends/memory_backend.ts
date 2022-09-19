@@ -337,7 +337,7 @@ export class ElectionManagerStoreMemoryBackend
   }
 
   async loadWriteInAdjudications(options?: {
-    contestId: ContestId;
+    contestId?: ContestId;
   }): Promise<Admin.WriteInAdjudicationRecord[]> {
     await Promise.resolve();
     return (
@@ -427,7 +427,9 @@ export class ElectionManagerStoreMemoryBackend
   }: {
     contestId?: ContestId;
   } = {}): Promise<Admin.WriteInSummaryEntry[]> {
-    await Promise.resolve();
+    const writeInAdjudications = await this.loadWriteInAdjudications({
+      contestId,
+    });
 
     return Array.from(
       groupBy(this.writeIns ?? [], (writeIn) => writeIn.contestId)
@@ -442,9 +444,8 @@ export class ElectionManagerStoreMemoryBackend
               contestId: writeInContestId,
               transcribedValue,
               writeInCount: writeInsByContestAndTranscribedValue.size,
-              writeInAdjudication: this.writeInAdjudications.find(
+              writeInAdjudication: writeInAdjudications.find(
                 (writeInAdjudication) =>
-                  writeInAdjudication.contestId === contestId &&
                   writeInAdjudication.transcribedValue === transcribedValue
               ),
             })

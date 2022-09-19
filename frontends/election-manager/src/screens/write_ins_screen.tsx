@@ -109,13 +109,15 @@ export function WriteInsScreen(): JSX.Element {
 
   function adjudicateTranscription(
     transcribedValue: string,
-    adjudicatedValue: string
+    adjudicatedValue: string,
+    adjudicatedOptionId?: ContestOptionId
   ) {
     assert(contestBeingAdjudicated);
     updateTranscriptions(
       contestBeingAdjudicated.id,
       transcribedValue,
-      adjudicatedValue
+      adjudicatedValue,
+      adjudicatedOptionId
     );
   }
 

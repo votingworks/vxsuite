@@ -242,6 +242,44 @@ test('write-in adjudication lifecycle', async () => {
     ])
   );
 
+  // update the adjudication again to an official candidate
+  await request(app)
+    .put(`/admin/write-in-adjudications/${writeInAdjudicationId}`)
+    .send(
+      typedAs<Admin.PutWriteInAdjudicationRequest>({
+        adjudicatedValue: 'Zebra',
+        adjudicatedOptionId: 'zebra',
+      })
+    )
+    .expect(200);
+
+  // view the adjudication table
+  const getWriteInSummaryAfterUpdateAgainHttpResponse = await request(app)
+    .get(
+      `/admin/elections/${electionId}/write-in-summary?contestId=${contestId}`
+    )
+    .expect(200);
+  const getWriteInSummaryAfterUpdateAgainResponse = unsafeParse(
+    Admin.GetWriteInSummaryResponseSchema,
+    getWriteInSummaryAfterUpdateAgainHttpResponse.body
+  );
+  expect(getWriteInSummaryAfterUpdateAgainResponse).toEqual(
+    typedAs<Admin.GetWriteInSummaryResponse>([
+      {
+        contestId,
+        transcribedValue: 'Mickey Mouse',
+        writeInCount,
+        writeInAdjudication: {
+          id: expect.any(String),
+          contestId,
+          transcribedValue: 'Mickey Mouse',
+          adjudicatedValue: 'Zebra',
+          adjudicatedOptionId: 'zebra',
+        },
+      },
+    ])
+  );
+
   // delete the adjudication
   await request(app)
     .delete(`/admin/write-in-adjudications/${writeInAdjudicationId}`)
@@ -263,6 +301,64 @@ test('write-in adjudication lifecycle', async () => {
         contestId,
         transcribedValue: 'Mickey Mouse',
         writeInCount,
+      },
+    ])
+  );
+});
+
+test('create write-in adjudication for an unlisted candidate', async () => {
+  const electionId = workspace.store.addElection(
+    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
+  );
+
+  await request(app)
+    .post(`/admin/elections/${electionId}/write-in-adjudications`)
+    .send(
+      typedAs<Admin.PostWriteInAdjudicationRequest>({
+        contestId: 'zoo-council-mammal',
+        transcribedValue: 'Zebra',
+        adjudicatedValue: 'Cyclops',
+      })
+    )
+    .expect(200);
+
+  expect(workspace.store.getWriteInAdjudicationRecords({ electionId })).toEqual(
+    typedAs<Admin.WriteInAdjudicationRecord[]>([
+      {
+        id: expect.any(String),
+        contestId: 'zoo-council-mammal',
+        transcribedValue: 'Zebra',
+        adjudicatedValue: 'Cyclops',
+      },
+    ])
+  );
+});
+
+test('create write-in adjudication for an official candidate', async () => {
+  const electionId = workspace.store.addElection(
+    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
+  );
+
+  await request(app)
+    .post(`/admin/elections/${electionId}/write-in-adjudications`)
+    .send(
+      typedAs<Admin.PostWriteInAdjudicationRequest>({
+        contestId: 'zoo-council-mammal',
+        transcribedValue: 'Zebra',
+        adjudicatedValue: 'Zebra',
+        adjudicatedOptionId: 'zebra',
+      })
+    )
+    .expect(200);
+
+  expect(workspace.store.getWriteInAdjudicationRecords({ electionId })).toEqual(
+    typedAs<Admin.WriteInAdjudicationRecord[]>([
+      {
+        id: expect.any(String),
+        contestId: 'zoo-council-mammal',
+        transcribedValue: 'Zebra',
+        adjudicatedValue: 'Zebra',
+        adjudicatedOptionId: 'zebra',
       },
     ])
   );

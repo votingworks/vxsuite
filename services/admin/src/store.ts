@@ -22,6 +22,9 @@ import { v4 as uuid } from 'uuid';
 import { Bindable, DbClient } from './db_client';
 import { getWriteInsFromCastVoteRecord } from './util/cvrs';
 
+/**
+ * Path to the store's schema file, i.e. the file that defines the database.
+ */
 const SchemaPath = join(__dirname, '../schema.sql');
 
 function convertSqliteTimestampToIso8601(
@@ -595,6 +598,13 @@ export class Store {
           )
         `
       );
+      this.client.run(
+        `
+          delete from write_in_adjudications
+          where election_id = ?
+        `,
+        electionId
+      );
     });
   }
 
@@ -930,5 +940,28 @@ export class Store {
       adjudicatedValue: row.adjudicatedValue,
       adjudicatedOptionId: row.adjudicatedOptionId ?? undefined,
     }));
+  }
+
+  /**
+   * Gets a summary of tables and their counts for debug purposes.
+   */
+  getDebugSummary(): Map<string, number> {
+    const tableNameRows = this.client.all(
+      `select name from sqlite_schema where type='table' order by name;`
+    ) as Array<{ name: string }>;
+
+    return new Map<string, number>(
+      tableNameRows.map(
+        (row) =>
+          [
+            row.name,
+            (
+              this.client.one(`select count(*) as count from ${row.name}`) as {
+                count: number;
+              }
+            ).count,
+          ] as const
+      )
+    );
   }
 }

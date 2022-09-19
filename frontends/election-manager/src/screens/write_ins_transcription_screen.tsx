@@ -216,9 +216,8 @@ export function WriteInsTranscriptionScreen({
                 <Text>
                   <label htmlFor="transcription-value">Transcribed Value</label>
                   <TextInput
-                    id="transcribed-value"
+                    id="transcription-value"
                     ref={transcribedValueInput}
-                    name="transcribed-value"
                     autoFocus
                     onKeyDown={(event) => {
                       if (event.key === 'Enter') {

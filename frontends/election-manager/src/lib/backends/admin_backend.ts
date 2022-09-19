@@ -237,7 +237,7 @@ export class ElectionManagerStoreAdminBackend extends ElectionManagerStoreStorag
   }
 
   override async loadWriteInAdjudications(options?: {
-    contestId: ContestId;
+    contestId?: ContestId;
   }): Promise<Admin.WriteInAdjudicationRecord[]> {
     const activeElectionId = await this.loadActiveElectionId();
 
