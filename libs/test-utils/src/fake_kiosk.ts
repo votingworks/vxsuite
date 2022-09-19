@@ -102,7 +102,6 @@ export function fakeKiosk({
     cancelSpeak: jest.fn().mockResolvedValue(undefined),
     log: jest.fn(),
     reboot: jest.fn(),
-    // eslint-disable-next-line vx/gts-identifiers
     rebootToBios: jest.fn(),
     prepareToBootFromUsb: jest.fn(),
   };

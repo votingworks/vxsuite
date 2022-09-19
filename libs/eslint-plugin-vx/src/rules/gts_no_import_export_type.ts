@@ -1,14 +1,10 @@
-import {
-  AST_NODE_TYPES,
-  TSESLint,
-  TSESTree,
-} from '@typescript-eslint/experimental-utils';
+import { AST_NODE_TYPES, TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { strict as assert } from 'assert';
 import { createRule } from '../util';
 
 const rule: TSESLint.RuleModule<
   'noImportType' | 'noExportType',
-  [{ allowReexport: boolean }]
+  Array<{ allowReexport: boolean }>
 > = createRule({
   name: 'gts-no-import-export-type',
   meta: {

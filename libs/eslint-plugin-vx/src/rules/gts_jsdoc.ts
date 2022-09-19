@@ -3,7 +3,7 @@ import {
   AST_TOKEN_TYPES,
   TSESLint,
   TSESTree,
-} from '@typescript-eslint/experimental-utils';
+} from '@typescript-eslint/utils';
 import { strict as assert } from 'assert';
 import { parse } from 'comment-parser';
 import { createRule } from '../util';
@@ -22,7 +22,8 @@ const rule: TSESLint.RuleModule<
   | 'noJsDocEnum'
   | 'noJsDocPrivate'
   | 'noJsDocProtected'
-  | 'noJsDocType'
+  | 'noJsDocType',
+  readonly unknown[]
 > = createRule({
   name: 'gts-jsdoc',
   meta: {

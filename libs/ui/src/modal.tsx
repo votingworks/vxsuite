@@ -151,6 +151,7 @@ export function Modal({
       onAfterOpen={onAfterOpen}
       onRequestClose={onOverlayClick}
       testId="modal"
+      // eslint-disable-next-line react/no-unstable-nested-components
       contentElement={(props, children) => (
         <ReactModalContent
           modalWidth={modalWidth}
@@ -161,6 +162,7 @@ export function Modal({
           {children}
         </ReactModalContent>
       )}
+      // eslint-disable-next-line react/no-unstable-nested-components
       overlayElement={(props, contentElement) => (
         <ReactModalOverlay fullscreen={fullscreen} {...props}>
           {contentElement}

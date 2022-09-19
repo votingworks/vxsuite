@@ -39,12 +39,14 @@ export function MachineLockedScreen(): JSX.Element {
           </Prose>
         </div>
       </Main>
-      <ElectionInfoBar
-        mode="admin"
-        electionDefinition={electionDefinition}
-        codeVersion={machineConfig.codeVersion}
-        machineId={machineConfig.machineId}
-      />
+      {electionDefinition && (
+        <ElectionInfoBar
+          mode="admin"
+          electionDefinition={electionDefinition}
+          codeVersion={machineConfig.codeVersion}
+          machineId={machineConfig.machineId}
+        />
+      )}
     </Screen>
   );
 }

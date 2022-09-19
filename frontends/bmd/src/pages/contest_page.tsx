@@ -129,20 +129,18 @@ export function ContestPage(): JSX.Element {
             {pluralize('contest', contests.length, true)}.
           </Text>
           {isReviewMode ? (
-            <React.Fragment>
-              <p>
-                <LinkButton
-                  large
-                  primary={isVoteComplete}
-                  to={`/review#contest-${contest.id}`}
-                  id="next"
-                >
-                  <TextIcon arrowRight white={isVoteComplete}>
-                    Review
-                  </TextIcon>
-                </LinkButton>
-              </p>
-            </React.Fragment>
+            <p>
+              <LinkButton
+                large
+                primary={isVoteComplete}
+                to={`/review#contest-${contest.id}`}
+                id="next"
+              >
+                <TextIcon arrowRight white={isVoteComplete}>
+                  Review
+                </TextIcon>
+              </LinkButton>
+            </p>
           ) : (
             <React.Fragment>
               <p>

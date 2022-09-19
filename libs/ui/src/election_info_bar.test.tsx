@@ -7,18 +7,6 @@ import {
 } from '@votingworks/utils';
 import { ElectionInfoBar } from './election_info_bar';
 
-test('Renders nothing when there is no election', () => {
-  const { container } = render(
-    <ElectionInfoBar
-      electionDefinition={undefined}
-      machineId="0000"
-      codeVersion="DEV"
-      mode="admin"
-    />
-  );
-  expect(container).toMatchSnapshot();
-});
-
 test('Renders ElectionInfoBar without precinct information by default', () => {
   const { container } = render(
     <ElectionInfoBar

@@ -3,7 +3,7 @@ import {
   ESLintUtils,
   TSESLint,
   TSESTree,
-} from '@typescript-eslint/experimental-utils';
+} from '@typescript-eslint/utils';
 import { strict as assert } from 'assert';
 import {
   CollectionType,
@@ -83,7 +83,7 @@ interface TransformableForEach extends ForEach {
   fixable: boolean;
 }
 
-const rule: TSESLint.RuleModule<'noForEach'> = createRule({
+const rule: TSESLint.RuleModule<'noForEach', readonly unknown[]> = createRule({
   name: 'gts-no-foreach',
   meta: {
     docs: {
@@ -223,7 +223,7 @@ const rule: TSESLint.RuleModule<'noForEach'> = createRule({
       ReturnStatement(node: TSESTree.ReturnStatement): void {
         const currentForEach = forEachStack[forEachStack.length - 1];
 
-        if (currentForEach?.functionLevel + 1 !== functionLevel) {
+        if (currentForEach?.functionLevel !== functionLevel - 1) {
           return;
         }
 

@@ -1,4 +1,4 @@
-const { AST_NODE_TYPES } = require('@typescript-eslint/experimental-utils');
+const { AST_NODE_TYPES } = require('@typescript-eslint/utils');
 
 module.exports = {
   extends: [require.resolve('./build/configs/recommended')],

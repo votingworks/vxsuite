@@ -1,8 +1,4 @@
-import {
-  AST_NODE_TYPES,
-  TSESLint,
-  TSESTree,
-} from '@typescript-eslint/experimental-utils';
+import { AST_NODE_TYPES, TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { createRule } from '../util';
 
 function convertToCamelCase(name: string): string {
@@ -25,10 +21,11 @@ const rule: TSESLint.RuleModule<
   | 'identifiersAllowedCharacters'
   | 'noDollarSign'
   | 'useCamelCase',
-  [{ allowedNames: string[] }]
+  Array<{ allowedNames: string[] }>
 > = createRule({
   name: 'gts-identifiers',
   meta: {
+    hasSuggestions: true,
     docs: {
       description:
         'Disallows use of $ in identifiers, except when aligning with naming conventions for third party frameworks.',

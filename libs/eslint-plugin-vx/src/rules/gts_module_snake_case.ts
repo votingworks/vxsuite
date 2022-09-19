@@ -1,4 +1,4 @@
-import { TSESLint, TSESTree } from '@typescript-eslint/experimental-utils';
+import { TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { basename } from 'path';
 import { createRule } from '../util';
 
@@ -18,49 +18,50 @@ function shouldBeSnakeCase(filePath: string): boolean {
   );
 }
 
-const rule: TSESLint.RuleModule<'useSnakeCase'> = createRule({
-  name: 'gts-module-snake-case',
-  meta: {
-    docs: {
-      description: 'Requires the use of `snake_case` for module file names.',
-      recommended: 'error',
-      suggestion: false,
-      requiresTypeChecking: false,
-    },
-    messages: {
-      useSnakeCase:
-        'Module must be named using `snake_case`, i.e. {{snakeCaseFileName}}.',
-    },
-    schema: [],
-    type: 'problem',
-  },
-  defaultOptions: [],
-
-  create(context) {
-    const sourceCode = context.getSourceCode();
-
-    return {
-      Program(node: TSESTree.Program): void {
-        const filePath = context.getFilename();
-
-        if (!shouldBeSnakeCase(filePath)) {
-          return;
-        }
-
-        const fileName = basename(filePath);
-        const snakeCaseFileName = convertFileNameToSnakeCase(fileName);
-        const firstToken = sourceCode.getFirstToken(node);
-
-        if (snakeCaseFileName !== fileName && firstToken) {
-          context.report({
-            messageId: 'useSnakeCase',
-            node: firstToken,
-            data: { snakeCaseFileName },
-          });
-        }
+const rule: TSESLint.RuleModule<'useSnakeCase', readonly unknown[]> =
+  createRule({
+    name: 'gts-module-snake-case',
+    meta: {
+      docs: {
+        description: 'Requires the use of `snake_case` for module file names.',
+        recommended: 'error',
+        suggestion: false,
+        requiresTypeChecking: false,
       },
-    };
-  },
-});
+      messages: {
+        useSnakeCase:
+          'Module must be named using `snake_case`, i.e. {{snakeCaseFileName}}.',
+      },
+      schema: [],
+      type: 'problem',
+    },
+    defaultOptions: [],
+
+    create(context) {
+      const sourceCode = context.getSourceCode();
+
+      return {
+        Program(node: TSESTree.Program): void {
+          const filePath = context.getFilename();
+
+          if (!shouldBeSnakeCase(filePath)) {
+            return;
+          }
+
+          const fileName = basename(filePath);
+          const snakeCaseFileName = convertFileNameToSnakeCase(fileName);
+          const firstToken = sourceCode.getFirstToken(node);
+
+          if (snakeCaseFileName !== fileName && firstToken) {
+            context.report({
+              messageId: 'useSnakeCase',
+              node: firstToken,
+              data: { snakeCaseFileName },
+            });
+          }
+        },
+      };
+    },
+  });
 
 export default rule;

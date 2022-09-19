@@ -304,15 +304,13 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element {
           <Prose>
             <h1>{currentState.result.newlyAdded} new CVRs Loaded</h1>
             {currentState.result.alreadyPresent > 0 && (
-              <React.Fragment>
-                <p>
-                  Of the{' '}
-                  {currentState.result.newlyAdded +
-                    currentState.result.alreadyPresent}{' '}
-                  total CVRs in this file, {currentState.result.alreadyPresent}{' '}
-                  were previously loaded.
-                </p>
-              </React.Fragment>
+              <p>
+                Of the{' '}
+                {currentState.result.newlyAdded +
+                  currentState.result.alreadyPresent}{' '}
+                total CVRs in this file, {currentState.result.alreadyPresent}{' '}
+                were previously loaded.
+              </p>
             )}
           </Prose>
         }

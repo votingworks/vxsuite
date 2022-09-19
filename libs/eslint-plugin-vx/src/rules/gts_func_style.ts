@@ -1,8 +1,4 @@
-import {
-  AST_NODE_TYPES,
-  TSESLint,
-  TSESTree,
-} from '@typescript-eslint/experimental-utils';
+import { AST_NODE_TYPES, TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { strict as assert } from 'assert';
 import { createRule } from '../util';
 
@@ -15,182 +11,185 @@ interface PendingReport {
   usesThis: boolean;
 }
 
-const rule: TSESLint.RuleModule<'useFunctionDeclaration'> = createRule({
-  name: 'gts-func-style',
-  meta: {
-    docs: {
-      description:
-        'Use `function foo() { ... }` to declare named functions, including functions in nested scopes, e.g. within another function.',
-      recommended: 'error',
-      suggestion: false,
-      requiresTypeChecking: false,
+const rule: TSESLint.RuleModule<'useFunctionDeclaration', readonly unknown[]> =
+  createRule({
+    name: 'gts-func-style',
+    meta: {
+      docs: {
+        description:
+          'Use `function foo() { ... }` to declare named functions, including functions in nested scopes, e.g. within another function.',
+        recommended: 'error',
+        suggestion: false,
+        requiresTypeChecking: false,
+      },
+      fixable: 'code',
+      messages: {
+        useFunctionDeclaration:
+          'Use function declarations instead of assigning a function expression into a local variable',
+      },
+      schema: [],
+      type: 'problem',
     },
-    fixable: 'code',
-    messages: {
-      useFunctionDeclaration:
-        'Use function declarations instead of assigning a function expression into a local variable',
-    },
-    schema: [],
-    type: 'problem',
-  },
-  defaultOptions: [],
+    defaultOptions: [],
 
-  create(context) {
-    const sourceCode = context.getSourceCode();
-    let functionLevel = 0;
-    const pendingReports: PendingReport[] = [];
+    create(context) {
+      const sourceCode = context.getSourceCode();
+      let functionLevel = 0;
+      const pendingReports: PendingReport[] = [];
 
-    return {
-      VariableDeclarator(node: TSESTree.VariableDeclarator): void {
-        const declaration = node.parent as TSESTree.VariableDeclaration;
-        const declarator = node;
-        const { id, init } = node;
+      return {
+        VariableDeclarator(node: TSESTree.VariableDeclarator): void {
+          const declaration = node.parent as TSESTree.VariableDeclaration;
+          const declarator = node;
+          const { id, init } = node;
 
-        if (
-          // Function declarations must be named
-          id.type !== AST_NODE_TYPES.Identifier ||
-          // Top level arrow functions may be used to explicitly declare that a
-          // function implements an interface.
-          id.typeAnnotation ||
-          (init?.type !== AST_NODE_TYPES.ArrowFunctionExpression &&
-            init?.type !== AST_NODE_TYPES.FunctionExpression)
-        ) {
-          return;
-        }
-
-        pendingReports.push({
-          declaration,
-          declarator,
-          id,
-          init,
-          functionLevel,
-          usesThis: false,
-        });
-      },
-
-      FunctionExpression(): void {
-        functionLevel += 1;
-      },
-
-      FunctionDeclaration(): void {
-        functionLevel += 1;
-      },
-
-      ThisExpression(): void {
-        const pendingReport = pendingReports[pendingReports.length - 1];
-
-        if (pendingReport?.functionLevel === functionLevel) {
-          pendingReport.usesThis = true;
-        }
-      },
-
-      'FunctionExpression:exit': (): void => {
-        functionLevel -= 1;
-      },
-
-      'FunctionDeclaration:exit': (): void => {
-        functionLevel -= 1;
-      },
-
-      'VariableDeclarator:exit': (node: TSESTree.VariableDeclarator): void => {
-        if (pendingReports[pendingReports.length - 1]?.declarator === node) {
-          const { declaration, id, init, usesThis } =
-            pendingReports.pop() as PendingReport;
-
-          if (usesThis) {
-            // Use arrow functions assigned to variables instead of function
-            // declarations if the function accesses the outer scope's this.
+          if (
+            // Function declarations must be named
+            id.type !== AST_NODE_TYPES.Identifier ||
+            // Top level arrow functions may be used to explicitly declare that a
+            // function implements an interface.
+            id.typeAnnotation ||
+            (init?.type !== AST_NODE_TYPES.ArrowFunctionExpression &&
+              init?.type !== AST_NODE_TYPES.FunctionExpression)
+          ) {
             return;
           }
 
-          context.report({
-            messageId: 'useFunctionDeclaration',
-            node: init,
-            fix:
-              declaration.declarations.length !== 1
-                ? undefined
-                : function* getFixes(fixer) {
-                    // `const foo = () => {}`
-                    //  ^^^^^
-                    const declarationToken =
-                      sourceCode.getFirstToken(declaration);
-                    assert(
-                      declarationToken &&
-                        declarationToken.value === declaration.kind
-                    );
+          pendingReports.push({
+            declaration,
+            declarator,
+            id,
+            init,
+            functionLevel,
+            usesThis: false,
+          });
+        },
 
-                    // `const foo = () => {}`
-                    //            ^
-                    const equalToken = sourceCode.getTokenAfter(id);
-                    assert(equalToken && equalToken.value === '=');
+        FunctionExpression(): void {
+          functionLevel += 1;
+        },
 
-                    if (init.async) {
-                      // `const foo = async () => {}`
-                      //              ^^^^^
-                      const asyncToken = sourceCode.getTokenAfter(equalToken);
-                      assert(asyncToken && asyncToken.value === 'async');
+        FunctionDeclaration(): void {
+          functionLevel += 1;
+        },
 
-                      // `const foo = async () => {}`
-                      //                    ^
-                      const paramsStartParenToken =
-                        sourceCode.getTokenAfter(asyncToken);
+        ThisExpression(): void {
+          const pendingReport = pendingReports[pendingReports.length - 1];
+
+          if (pendingReport?.functionLevel === functionLevel) {
+            pendingReport.usesThis = true;
+          }
+        },
+
+        'FunctionExpression:exit': (): void => {
+          functionLevel -= 1;
+        },
+
+        'FunctionDeclaration:exit': (): void => {
+          functionLevel -= 1;
+        },
+
+        'VariableDeclarator:exit': (
+          node: TSESTree.VariableDeclarator
+        ): void => {
+          if (pendingReports[pendingReports.length - 1]?.declarator === node) {
+            const { declaration, id, init, usesThis } =
+              pendingReports.pop() as PendingReport;
+
+            if (usesThis) {
+              // Use arrow functions assigned to variables instead of function
+              // declarations if the function accesses the outer scope's this.
+              return;
+            }
+
+            context.report({
+              messageId: 'useFunctionDeclaration',
+              node: init,
+              fix:
+                declaration.declarations.length !== 1
+                  ? undefined
+                  : function* getFixes(fixer) {
+                      // `const foo = () => {}`
+                      //  ^^^^^
+                      const declarationToken =
+                        sourceCode.getFirstToken(declaration);
                       assert(
-                        paramsStartParenToken &&
-                          paramsStartParenToken.value === '('
+                        declarationToken &&
+                          declarationToken.value === declaration.kind
                       );
 
-                      // `const foo = async () => {}` → `const foo = () => {}`
-                      //              ^^^^^^
-                      yield fixer.removeRange([
-                        asyncToken.range[0],
-                        paramsStartParenToken.range[0],
-                      ]);
-                    }
+                      // `const foo = () => {}`
+                      //            ^
+                      const equalToken = sourceCode.getTokenAfter(id);
+                      assert(equalToken && equalToken.value === '=');
 
-                    // `const foo = () => {}`
-                    //                 ^^
-                    const arrowToken = sourceCode.getTokenBefore(init.body, {
-                      filter: (t) => t.value === '=>',
-                    });
-                    assert(arrowToken && arrowToken.value === '=>');
+                      if (init.async) {
+                        // `const foo = async () => {}`
+                        //              ^^^^^
+                        const asyncToken = sourceCode.getTokenAfter(equalToken);
+                        assert(asyncToken && asyncToken.value === 'async');
 
-                    // `const foo = () => {}` → `function foo = () => {}`
-                    //  ^^^^^                    ^^^^^^^^
-                    yield fixer.replaceText(
-                      declarationToken,
-                      init.async ? 'async function' : 'function'
-                    );
+                        // `const foo = async () => {}`
+                        //                    ^
+                        const paramsStartParenToken =
+                          sourceCode.getTokenAfter(asyncToken);
+                        assert(
+                          paramsStartParenToken &&
+                            paramsStartParenToken.value === '('
+                        );
 
-                    // `function foo = () => {}` → `function foo() => {}`
-                    //              ^^^
-                    yield fixer.removeRange([id.range[1], init.range[0]]);
+                        // `const foo = async () => {}` → `const foo = () => {}`
+                        //              ^^^^^^
+                        yield fixer.removeRange([
+                          asyncToken.range[0],
+                          paramsStartParenToken.range[0],
+                        ]);
+                      }
 
-                    // `function foo() => {}`
-                    //                    ^
-                    const afterArrowToken =
-                      sourceCode.getTokenAfter(arrowToken);
-                    assert(afterArrowToken);
+                      // `const foo = () => {}`
+                      //                 ^^
+                      const arrowToken = sourceCode.getTokenBefore(init.body, {
+                        filter: (t) => t.value === '=>',
+                      });
+                      assert(arrowToken && arrowToken.value === '=>');
 
-                    // `function foo() => {}` → `function foo() {}`
-                    //                 ^^^
-                    yield fixer.replaceTextRange(
-                      [arrowToken.range[0], afterArrowToken.range[0]],
-                      init.body.type !== AST_NODE_TYPES.BlockStatement
-                        ? '{ return '
-                        : ''
-                    );
+                      // `const foo = () => {}` → `function foo = () => {}`
+                      //  ^^^^^                    ^^^^^^^^
+                      yield fixer.replaceText(
+                        declarationToken,
+                        init.async ? 'async function' : 'function'
+                      );
 
-                    if (init.body.type !== AST_NODE_TYPES.BlockStatement) {
-                      // `function foo() { return 1` → `function foo() { return 1 }`
-                      //                                                         ^^
-                      yield fixer.insertTextAfter(init, ' }');
-                    }
-                  },
-          });
-        }
-      },
-    };
-  },
-});
+                      // `function foo = () => {}` → `function foo() => {}`
+                      //              ^^^
+                      yield fixer.removeRange([id.range[1], init.range[0]]);
+
+                      // `function foo() => {}`
+                      //                    ^
+                      const afterArrowToken =
+                        sourceCode.getTokenAfter(arrowToken);
+                      assert(afterArrowToken);
+
+                      // `function foo() => {}` → `function foo() {}`
+                      //                 ^^^
+                      yield fixer.replaceTextRange(
+                        [arrowToken.range[0], afterArrowToken.range[0]],
+                        init.body.type !== AST_NODE_TYPES.BlockStatement
+                          ? '{ return '
+                          : ''
+                      );
+
+                      if (init.body.type !== AST_NODE_TYPES.BlockStatement) {
+                        // `function foo() { return 1` → `function foo() { return 1 }`
+                        //                                                         ^^
+                        yield fixer.insertTextAfter(init, ' }');
+                      }
+                    },
+            });
+          }
+        },
+      };
+    },
+  });
 
 export default rule;

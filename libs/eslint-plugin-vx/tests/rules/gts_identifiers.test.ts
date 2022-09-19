@@ -1,4 +1,4 @@
-import { ESLintUtils } from '@typescript-eslint/experimental-utils';
+import { ESLintUtils } from '@typescript-eslint/utils';
 import { join } from 'path';
 import rule from '../../src/rules/gts_identifiers';
 
@@ -26,7 +26,7 @@ ruleTester.run('gts-identifiers', rule, {
     `new XMLHttpRequest()`,
     `function BallotSheetImage() {}`,
     `const ONE = 1`,
-    `import { TSESTree } from '@typescript-eslint/experimental-utils'`,
+    `import { TSESTree } from '@typescript-eslint/utils'`,
     `interface A { imageUrl: string }`,
     `interface A { [keyNAME: string]: string }`,
     `interface A { [propNAME]: string }`,

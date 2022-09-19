@@ -51,18 +51,16 @@ export function FileInputButton({
     input?.blur();
   };
   return (
-    <React.Fragment>
-      <LabelButton {...buttonProps} disabled={disabled}>
-        <HiddenFileInput
-          {...rest}
-          accept={accept}
-          disabled={disabled}
-          onBlur={onBlur}
-          onChange={onChange}
-          type="file"
-        />
-        {children}
-      </LabelButton>
-    </React.Fragment>
+    <LabelButton {...buttonProps} disabled={disabled}>
+      <HiddenFileInput
+        {...rest}
+        accept={accept}
+        disabled={disabled}
+        onBlur={onBlur}
+        onChange={onChange}
+        type="file"
+      />
+      {children}
+    </LabelButton>
   );
 }

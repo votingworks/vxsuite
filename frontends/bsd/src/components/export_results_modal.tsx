@@ -261,11 +261,7 @@ export function ExportResultsModal({
         <Modal
           content={<Loading />}
           onOverlayClick={onClose}
-          actions={
-            <React.Fragment>
-              <LinkButton onPress={onClose}>Cancel</LinkButton>
-            </React.Fragment>
-          }
+          actions={<LinkButton onPress={onClose}>Cancel</LinkButton>}
         />
       );
     case usbstick.UsbDriveStatus.mounted:

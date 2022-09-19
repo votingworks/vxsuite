@@ -887,9 +887,7 @@ export function HandMarkedPaperBallot({
                 <div className="seal">
                   <SealImage src={sealUrl} alt="" />
                 </div>
-              ) : (
-                <React.Fragment />
-              )}
+              ) : null}
               <HandMarkedPaperBallotProse>
                 <h2>
                   {t(ballotModeToBallotTitle(ballotMode), {

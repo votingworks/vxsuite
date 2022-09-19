@@ -2,6 +2,7 @@ import React from 'react';
 import { usbstick } from '@votingworks/utils';
 
 import { Button } from './button';
+import { Nothing } from './nothing';
 
 const { UsbDriveStatus } = usbstick;
 
@@ -23,7 +24,7 @@ export function UsbControllerButton({
   small = true,
 }: Props): JSX.Element {
   if (usbDriveStatus === UsbDriveStatus.notavailable) {
-    return <React.Fragment />;
+    return <Nothing />;
   }
 
   if (usbDriveStatus === UsbDriveStatus.absent) {

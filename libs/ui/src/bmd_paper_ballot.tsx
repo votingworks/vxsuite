@@ -321,9 +321,7 @@ export function BmdPaperBallot({
               onLoad={() => setSealLoaded(true)}
             />
           </div>
-        ) : (
-          <React.Fragment />
-        )}
+        ) : null}
         <Prose className="ballot-header-content">
           <h2>{isLiveMode ? 'Official Ballot' : 'Unofficial TEST Ballot'}</h2>
           <h3>

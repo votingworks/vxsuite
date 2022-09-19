@@ -156,7 +156,7 @@ export function ReportsScreen(): JSX.Element {
       </React.Fragment>
     );
 
-    tallyResultsInfo = <React.Fragment>{resultTables}</React.Fragment>;
+    tallyResultsInfo = resultTables;
   }
 
   const fileMode = castVoteRecordFiles?.fileMode;

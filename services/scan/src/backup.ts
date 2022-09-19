@@ -47,15 +47,15 @@ export class Backup {
     this.entries.add(name);
 
     debug('adding %s to backup archive', name);
-    await new Promise((resolve, reject) =>
+    await new Promise((resolve, reject) => {
       this.zip.entry(data, { name }, (error, entry) => {
         if (error) {
           reject(error);
         } else {
           resolve(entry);
         }
-      })
-    );
+      });
+    });
   }
 
   /**

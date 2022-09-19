@@ -134,131 +134,126 @@ export function WriteInsScreen(): JSX.Element {
   }
 
   return (
-    <React.Fragment>
-      <NavigationScreen>
-        <ContentWrapper>
-          <Prose maxWidth={false}>
-            <h1>Write-Ins Transcription and Adjudication</h1>
-            {!castVoteRecordFiles.wereAdded && (
-              <p>
-                Load CVRs to begin transcribing and adjudicating write-in votes.
-              </p>
-            )}
+    <NavigationScreen>
+      <ContentWrapper>
+        <Prose maxWidth={false}>
+          <h1>Write-Ins Transcription and Adjudication</h1>
+          {!castVoteRecordFiles.wereAdded && (
             <p>
-              Transcribe all write-in values, then map the transcriptions to
-              adjudicated candidates.
+              Load CVRs to begin transcribing and adjudicating write-in votes.
             </p>
-            <Table>
-              <thead>
-                <tr>
+          )}
+          <p>
+            Transcribe all write-in values, then map the transcriptions to
+            adjudicated candidates.
+          </p>
+          <Table>
+            <thead>
+              <tr>
+                <TD as="th" nowrap>
+                  Contest
+                </TD>
+                {isPrimaryElection && (
                   <TD as="th" nowrap>
-                    Contest
+                    Party
                   </TD>
-                  {isPrimaryElection && (
-                    <TD as="th" nowrap>
-                      Party
+                )}
+                <TD as="th" nowrap>
+                  Transcribe Write-Ins
+                </TD>
+                <TD as="th" nowrap>
+                  Adjudicate Transcriptions
+                </TD>
+              </tr>
+            </thead>
+            <tbody>
+              {contestsWithWriteIns.map((contest) => {
+                const transcriptionQueue =
+                  writeInCountsByContest?.get(contest.id)?.get('pending') ?? 0;
+                const adjudicationQueue =
+                  writeInCountsByContest?.get(contest.id)?.get('transcribed') ??
+                  0;
+                return (
+                  <tr key={contest.id}>
+                    <TD nowrap>
+                      {contest.section}, <strong>{contest.title}</strong>
                     </TD>
-                  )}
-                  <TD as="th" nowrap>
-                    Transcribe Write-Ins
-                  </TD>
-                  <TD as="th" nowrap>
-                    Adjudicate Transcriptions
-                  </TD>
-                </tr>
-              </thead>
-              <tbody>
-                {contestsWithWriteIns.map((contest) => {
-                  const transcriptionQueue =
-                    writeInCountsByContest?.get(contest.id)?.get('pending') ??
-                    0;
-                  const adjudicationQueue =
-                    writeInCountsByContest
-                      ?.get(contest.id)
-                      ?.get('transcribed') ?? 0;
-                  return (
-                    <tr key={contest.id}>
+                    {isPrimaryElection && (
                       <TD nowrap>
-                        {contest.section}, <strong>{contest.title}</strong>
+                        {contest.partyId && (
+                          <React.Fragment>
+                            {' '}
+                            (
+                            {getPartyAbbreviationByPartyId({
+                              partyId: contest.partyId,
+                              election,
+                            })}
+                            )
+                          </React.Fragment>
+                        )}
                       </TD>
-                      {isPrimaryElection && (
-                        <TD nowrap>
-                          {contest.partyId && (
-                            <React.Fragment>
-                              {' '}
-                              (
-                              {getPartyAbbreviationByPartyId({
-                                partyId: contest.partyId,
-                                election,
-                              })}
-                              )
-                            </React.Fragment>
-                          )}
-                        </TD>
-                      )}
-                      <TD nowrap>
-                        <Button
-                          disabled={!transcriptionQueue}
-                          onPress={() => setContestBeingTranscribed(contest)}
-                        >
-                          Transcribe{' '}
-                          {!!transcriptionQueue &&
-                            `(${transcriptionQueue} new)`}
-                        </Button>
-                      </TD>
-                      <TD nowrap>
-                        <Button
-                          disabled={adjudicationQueue === 0}
-                          primary={!!adjudicationQueue}
-                          onPress={() => setContestBeingAdjudicated(contest)}
-                        >
-                          Adjudicate{' '}
-                          {!!adjudicationQueue && `(${adjudicationQueue} new)`}
-                        </Button>
-                      </TD>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </Table>
-          </Prose>
-        </ContentWrapper>
-        {contestBeingTranscribed && !!transcriptionsForCurrentContest.length && (
-          <Modal
-            content={
-              <WriteInsTranscriptionScreen
-                key={contestBeingAdjudicated?.id}
-                election={election}
-                contest={contestBeingTranscribed}
-                adjudications={transcriptionsForCurrentContest}
-                onClose={() => setContestBeingTranscribed(undefined)}
-                saveTranscribedValue={(writeInId, transcribedValue) =>
-                  transcribeWriteInMutation.mutate({
-                    writeInId,
-                    transcribedValue,
-                  })
-                }
-              />
-            }
-            fullscreen
-          />
-        )}
-        {contestBeingAdjudicated && (
-          <Modal
-            fullscreen
-            content={
-              <WriteInsAdjudicationScreen
-                key={contestBeingAdjudicated?.id}
-                contest={contestBeingAdjudicated}
-                writeInSummaryEntries={writeInSummaryQuery.data ?? []}
-                onClose={() => setContestBeingAdjudicated(undefined)}
-                adjudicateTranscription={adjudicateTranscription}
-                updateAdjudication={updateAdjudication}
-              />
-            }
-          />
-        )}
-      </NavigationScreen>
-    </React.Fragment>
+                    )}
+                    <TD nowrap>
+                      <Button
+                        disabled={!transcriptionQueue}
+                        onPress={() => setContestBeingTranscribed(contest)}
+                      >
+                        Transcribe{' '}
+                        {!!transcriptionQueue && `(${transcriptionQueue} new)`}
+                      </Button>
+                    </TD>
+                    <TD nowrap>
+                      <Button
+                        disabled={adjudicationQueue === 0}
+                        primary={!!adjudicationQueue}
+                        onPress={() => setContestBeingAdjudicated(contest)}
+                      >
+                        Adjudicate{' '}
+                        {!!adjudicationQueue && `(${adjudicationQueue} new)`}
+                      </Button>
+                    </TD>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </Table>
+        </Prose>
+      </ContentWrapper>
+      {contestBeingTranscribed && !!transcriptionsForCurrentContest.length && (
+        <Modal
+          content={
+            <WriteInsTranscriptionScreen
+              key={contestBeingAdjudicated?.id}
+              election={election}
+              contest={contestBeingTranscribed}
+              adjudications={transcriptionsForCurrentContest}
+              onClose={() => setContestBeingTranscribed(undefined)}
+              saveTranscribedValue={(writeInId, transcribedValue) =>
+                transcribeWriteInMutation.mutate({
+                  writeInId,
+                  transcribedValue,
+                })
+              }
+            />
+          }
+          fullscreen
+        />
+      )}
+      {contestBeingAdjudicated && (
+        <Modal
+          fullscreen
+          content={
+            <WriteInsAdjudicationScreen
+              key={contestBeingAdjudicated?.id}
+              contest={contestBeingAdjudicated}
+              writeInSummaryEntries={writeInSummaryQuery.data ?? []}
+              onClose={() => setContestBeingAdjudicated(undefined)}
+              adjudicateTranscription={adjudicateTranscription}
+              updateAdjudication={updateAdjudication}
+            />
+          }
+        />
+      )}
+    </NavigationScreen>
   );
 }

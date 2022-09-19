@@ -150,10 +150,8 @@ test('#each', () => {
   client.run('insert into muppets (name) values (?)', 'Kermit');
   client.run('insert into muppets (name) values (?)', 'Fozzie');
 
-  for (const row of client.each('select * from muppets')) {
-    expect(row).toEqual({ name: 'Kermit' });
-    break;
-  }
+  const row = client.each('select * from muppets').next().value;
+  expect(row).toEqual({ name: 'Kermit' });
 });
 
 test('connect errors', () => {

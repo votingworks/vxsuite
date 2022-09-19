@@ -4,7 +4,7 @@ import {
   ESLintUtils,
   TSESLint,
   TSESTree,
-} from '@typescript-eslint/experimental-utils';
+} from '@typescript-eslint/utils';
 import { strict as assert } from 'assert';
 import * as ts from 'typescript';
 import { createRule, getCollectionType } from '../util';
@@ -43,7 +43,8 @@ function isObjectType(type: ts.Type): boolean {
 const rule: TSESLint.RuleModule<
   | 'requireIterablesInArraySpread'
   | 'requireObjectsInObjectSpread'
-  | 'requireIterablesInCallSpread'
+  | 'requireIterablesInCallSpread',
+  readonly unknown[]
 > = createRule({
   name: 'gts-spread-like-types',
   meta: {
