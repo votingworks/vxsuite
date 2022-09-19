@@ -188,8 +188,8 @@ export function ExportElectionBallotPackageModalButton(): JSX.Element {
     }
   }
 
-  let mainContent = null;
-  let actions = null;
+  let mainContent: React.ReactNode = null;
+  let actions: React.ReactNode = null;
 
   switch (state.type) {
     case 'Init': {
