@@ -573,4 +573,35 @@ test('write-in adjudication lifecycle', () => {
       },
     ])
   );
+
+  store.createWriteInAdjudication({
+    electionId,
+    contestId: 'zoo-council-mammal',
+    transcribedValue: 'Mickey Mouse',
+    adjudicatedValue: 'Mickey Mouse',
+  });
+
+  expect(store.getDebugSummary()).toMatchInlineSnapshot(`
+    Map {
+      "cvr_file_entries" => 2,
+      "cvr_files" => 1,
+      "cvrs" => 2,
+      "elections" => 1,
+      "write_in_adjudications" => 1,
+      "write_ins" => 1,
+    }
+  `);
+
+  store.deleteCastVoteRecordFiles(electionId);
+
+  expect(store.getDebugSummary()).toMatchInlineSnapshot(`
+    Map {
+      "cvr_file_entries" => 0,
+      "cvr_files" => 0,
+      "cvrs" => 0,
+      "elections" => 1,
+      "write_in_adjudications" => 0,
+      "write_ins" => 0,
+    }
+  `);
 });
