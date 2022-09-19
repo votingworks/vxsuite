@@ -11,7 +11,7 @@ export type InfoBarMode = 'voter' | 'pollworker' | 'admin';
 
 interface Props {
   mode?: InfoBarMode;
-  electionDefinition?: ElectionDefinition;
+  electionDefinition: ElectionDefinition;
   codeVersion: string;
   machineId: string;
   precinctSelection?: PrecinctSelection;
@@ -23,9 +23,6 @@ export function ElectionInfoBar({
   machineId,
   precinctSelection,
 }: Props): JSX.Element {
-  if (!electionDefinition) {
-    return <React.Fragment>{null}</React.Fragment>;
-  }
   const electionDate = format.localeWeekdayAndDate(
     new Date(electionDefinition.election.date)
   );

@@ -31,7 +31,7 @@ export function ScreenMainCenterChild({
       <Main padded centerChild style={{ position: 'relative' }}>
         {children}
       </Main>
-      {infoBar && (
+      {infoBar && electionDefinition && (
         <ElectionInfoBar
           mode={infoBarMode}
           precinctSelection={precinctSelection}
