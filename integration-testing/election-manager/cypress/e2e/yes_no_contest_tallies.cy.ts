@@ -171,7 +171,6 @@ describe('Election Manager can create SEMS tallies', () => {
       },
       { force: true }
     );
-    cy.contains('Election loading');
     cy.contains(
       electionWithMsEitherNeitherDefinition.electionHash.slice(0, 10)
     );

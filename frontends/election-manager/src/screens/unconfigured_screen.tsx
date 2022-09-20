@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 import { safeParseElection } from '@votingworks/types';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import { Button, Modal, Prose, useMountedState } from '@votingworks/ui';
+import { Button, Prose, useMountedState } from '@votingworks/ui';
 import { assert } from '@votingworks/utils';
 
 import {
@@ -61,7 +61,6 @@ export function UnconfiguredScreen(): JSX.Element {
   const { converter, saveElection } = useContext(AppContext);
 
   const [isUploading, setIsUploading] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
 
   const [inputConversionFiles, setInputConversionFiles] = useState<VxFile[]>(
     []
@@ -80,16 +79,12 @@ export function UnconfiguredScreen(): JSX.Element {
     history.push(routerPaths.electionDefinition);
   }
 
-  const saveElectionAndShowSuccess = useCallback(
-    (electionJson: string) => {
+  const validateAndSaveElection = useCallback(
+    async (electionJson: string) => {
       safeParseElection(electionJson).unsafeUnwrap();
-      setShowSuccess(true);
-      setTimeout(async () => {
-        await saveElection(electionJson);
-        setShowSuccess(false);
-      }, 3000);
+      await saveElection(electionJson);
     },
-    [saveElection, setShowSuccess]
+    [saveElection]
   );
 
   const handleVxElectionFile: InputEventFunction = async (event) => {
@@ -101,7 +96,7 @@ export function UnconfiguredScreen(): JSX.Element {
       setVxElectionFileIsInvalid(false);
       try {
         const fileContent = await readFileAsync(file);
-        saveElectionAndShowSuccess(fileContent);
+        await validateAndSaveElection(fileContent);
       } catch (error) {
         setVxElectionFileIsInvalid(true);
         console.error('handleVxElectionFile failed', error); // eslint-disable-line no-console
@@ -128,14 +123,14 @@ export function UnconfiguredScreen(): JSX.Element {
         const blob = await client.getOutputFile(electionFileName);
         await resetServerFiles();
         const electionJson = await new Response(blob).text();
-        saveElectionAndShowSuccess(electionJson);
+        await validateAndSaveElection(electionJson);
       } catch (error) {
         console.log('failed getOutputFile()', error); // eslint-disable-line no-console
       } finally {
         setIsLoading(false);
       }
     },
-    [client, resetServerFiles, saveElectionAndShowSuccess]
+    [client, resetServerFiles, validateAndSaveElection]
   );
 
   const processInputFiles = useCallback(
@@ -157,7 +152,10 @@ export function UnconfiguredScreen(): JSX.Element {
 
   const updateStatus = useCallback(async () => {
     try {
-      assert(client);
+      if (!client) {
+        return;
+      }
+
       const files = await client.getFiles();
 
       if (!isMounted()) {
@@ -177,7 +175,7 @@ export function UnconfiguredScreen(): JSX.Element {
 
       setInputConversionFiles(files.inputFiles);
     } catch (error) {
-      // ignore error
+      console.log('failed updateStatus()', error); // eslint-disable-line no-console
     }
   }, [client, getOutputFile, isMounted, processInputFiles]);
 
@@ -218,23 +216,8 @@ export function UnconfiguredScreen(): JSX.Element {
 
   if (isUploading || isLoading) {
     return (
-      <NavigationScreen>
+      <NavigationScreen centerChild>
         <Loading isFullscreen />
-      </NavigationScreen>
-    );
-  }
-
-  if (showSuccess) {
-    return (
-      <NavigationScreen>
-        <Modal
-          centerContent
-          content={
-            <Prose textCenter>
-              <Loading as="h1">Election loading</Loading>
-            </Prose>
-          }
-        />
       </NavigationScreen>
     );
   }

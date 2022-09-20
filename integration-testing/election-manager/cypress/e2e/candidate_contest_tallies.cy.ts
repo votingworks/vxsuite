@@ -113,7 +113,6 @@ describe('Election Manager can create SEMS tallies', () => {
       { contents: Cypress.Buffer.from(electionDefinition.electionData) },
       { force: true }
     );
-    cy.contains('Election loading');
     cy.contains(electionDefinition.electionHash.slice(0, 10));
     cy.pause();
     cy.contains('Lock Machine').click();
