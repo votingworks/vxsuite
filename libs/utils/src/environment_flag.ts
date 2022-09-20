@@ -11,6 +11,8 @@ export enum EnvironmentFlagName {
   LIVECHECK = 'REACT_APP_VX_ENABLE_LIVECHECK',
   // Whether overvotes can be cast (this exists entirely for NH special case right now).
   DISALLOW_CASTING_OVERVOTES = 'REACT_APP_VX_DISALLOW_CASTING_OVERVOTES',
+  // Enables the React Query Devtools in development.
+  ENABLE_REACT_QUERY_DEVTOOLS = 'REACT_APP_VX_ENABLE_REACT_QUERY_DEVTOOLS',
 }
 
 export interface EnvironmentFlag {
@@ -33,6 +35,8 @@ export function getFlag(name: EnvironmentFlagName): string | undefined {
       return process.env.REACT_APP_VX_ENABLE_LIVECHECK;
     case EnvironmentFlagName.DISALLOW_CASTING_OVERVOTES:
       return process.env.REACT_APP_VX_DISALLOW_CASTING_OVERVOTES;
+    case EnvironmentFlagName.ENABLE_REACT_QUERY_DEVTOOLS:
+      return process.env.REACT_APP_VX_ENABLE_REACT_QUERY_DEVTOOLS;
     /* istanbul ignore next compile time check */
     default:
       throwIllegalValue(name);
@@ -69,6 +73,12 @@ export function getFlagDetails(name: EnvironmentFlagName): EnvironmentFlag {
       return {
         name,
         allowInProduction: true,
+        autoEnableInDevelopment: false,
+      };
+    case EnvironmentFlagName.ENABLE_REACT_QUERY_DEVTOOLS:
+      return {
+        name,
+        allowInProduction: false,
         autoEnableInDevelopment: false,
       };
     /* istanbul ignore next compile time check */
