@@ -66,7 +66,7 @@ export function UnconfiguredScreen(): JSX.Element {
   const [inputConversionFiles, setInputConversionFiles] = useState<VxFile[]>(
     []
   );
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [vxElectionFileIsInvalid, setVxElectionFileIsInvalid] = useState(false);
   const [client, setClient] = useState<ConverterClient>();
   const [isUsingConverter, setIsUsingConverter] = useState(false);
@@ -85,8 +85,8 @@ export function UnconfiguredScreen(): JSX.Element {
       safeParseElection(electionJson).unsafeUnwrap();
       setShowSuccess(true);
       setTimeout(async () => {
-        setShowSuccess(false);
         await saveElection(electionJson);
+        setShowSuccess(false);
       }, 3000);
     },
     [saveElection, setShowSuccess]
@@ -124,6 +124,7 @@ export function UnconfiguredScreen(): JSX.Element {
     async (electionFileName: string) => {
       assert(client);
       try {
+        setIsLoading(true);
         const blob = await client.getOutputFile(electionFileName);
         await resetServerFiles();
         const electionJson = await new Response(blob).text();
@@ -141,11 +142,13 @@ export function UnconfiguredScreen(): JSX.Element {
     async (electionFileName: string) => {
       assert(client);
       try {
+        setIsLoading(true);
         await client.process();
         await getOutputFile(electionFileName);
       } catch (error) {
         console.log('failed processInputFiles()', error); // eslint-disable-line no-console
         await client.reset();
+      } finally {
         setIsLoading(false);
       }
     },
@@ -161,8 +164,6 @@ export function UnconfiguredScreen(): JSX.Element {
         return;
       }
 
-      setIsLoading(true);
-
       const electionFile = files.outputFiles[0];
       if (electionFile.path) {
         await getOutputFile(electionFile.name);
@@ -175,9 +176,8 @@ export function UnconfiguredScreen(): JSX.Element {
       }
 
       setInputConversionFiles(files.inputFiles);
-      setIsLoading(false);
     } catch (error) {
-      setIsLoading(false);
+      // ignore error
     }
   }, [client, getOutputFile, isMounted, processInputFiles]);
 
