@@ -66,6 +66,7 @@ export function UnconfiguredScreen(): JSX.Element {
   const [inputConversionFiles, setInputConversionFiles] = useState<VxFile[]>(
     []
   );
+  const [isLoading, setIsLoading] = useState(true);
   const [vxElectionFileIsInvalid, setVxElectionFileIsInvalid] = useState(false);
   const [client, setClient] = useState<ConverterClient>();
   const [isUsingConverter, setIsUsingConverter] = useState(false);
@@ -129,6 +130,8 @@ export function UnconfiguredScreen(): JSX.Element {
         saveElectionAndShowSuccess(electionJson);
       } catch (error) {
         console.log('failed getOutputFile()', error); // eslint-disable-line no-console
+      } finally {
+        setIsLoading(false);
       }
     },
     [client, resetServerFiles, saveElectionAndShowSuccess]
@@ -143,9 +146,10 @@ export function UnconfiguredScreen(): JSX.Element {
       } catch (error) {
         console.log('failed processInputFiles()', error); // eslint-disable-line no-console
         await client.reset();
+        setIsLoading(false);
       }
     },
-    [client, getOutputFile]
+    [client, getOutputFile, setIsLoading]
   );
 
   const updateStatus = useCallback(async () => {
@@ -156,6 +160,8 @@ export function UnconfiguredScreen(): JSX.Element {
       if (!isMounted()) {
         return;
       }
+
+      setIsLoading(true);
 
       const electionFile = files.outputFiles[0];
       if (electionFile.path) {
@@ -169,8 +175,9 @@ export function UnconfiguredScreen(): JSX.Element {
       }
 
       setInputConversionFiles(files.inputFiles);
-    } catch {
-      // ignore error
+      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
     }
   }, [client, getOutputFile, isMounted, processInputFiles]);
 
@@ -209,7 +216,7 @@ export function UnconfiguredScreen(): JSX.Element {
     void updateStatus();
   }, [updateStatus]);
 
-  if (isUploading) {
+  if (isUploading || isLoading) {
     return (
       <NavigationScreen>
         <Loading isFullscreen />
