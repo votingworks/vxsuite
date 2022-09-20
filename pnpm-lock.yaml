@@ -707,6 +707,7 @@ importers:
       '@pmmmwh/react-refresh-webpack-plugin': 0.4.2_d00fcc46a48175a4e289da7534b00e9a
       '@svgr/webpack': 5.4.0
       '@tanstack/react-query': 4.2.3_react-dom@17.0.1+react@17.0.1
+      '@tanstack/react-query-devtools': 4.3.9_c35f85980f456f36adab49b5c175683e
       '@testing-library/react': 12.1.5_react-dom@17.0.1+react@17.0.1
       '@testing-library/user-event': 12.6.0
       '@types/array-unique': 0.3.0
@@ -871,6 +872,7 @@ importers:
       '@pmmmwh/react-refresh-webpack-plugin': 0.4.2
       '@svgr/webpack': 5.4.0
       '@tanstack/react-query': ^4.2.3
+      '@tanstack/react-query-devtools': ^4.3.9
       '@testing-library/jest-dom': ^5.16.4
       '@testing-library/react': ^12.1.5
       '@testing-library/react-hooks': ^8.0.1
@@ -10563,10 +10565,32 @@ packages:
       node: '>=10'
     resolution:
       integrity: sha512-PyRA9sm1Yayuj5OIoJ1hGt2YISX45w9WcFbh6ddT0Z/0yaFxOtGLInr4jUfU1EAFVs0Yfyfev4RNwBlUaHdlDQ==
+  /@tanstack/match-sorter-utils/8.1.1:
+    dependencies:
+      remove-accents: 0.4.2
+    dev: false
+    engines:
+      node: '>=12'
+    resolution:
+      integrity: sha512-IdmEekEYxQsoLOR0XQyw3jD1GujBpRRYaGJYQUw1eOT1eUugWxdc7jomh1VQ1EKHcdwDLpLaCz/8y4KraU4T9A==
   /@tanstack/query-core/4.2.3:
     dev: false
     resolution:
       integrity: sha512-zdt5lYWs1dZaA3IxJbCgtAfHZJScRZONpiLL7YkeOkrme5MfjQqTpjq7LYbzpyuwPOh2Jx68le0PLl57JFv5hQ==
+  /@tanstack/react-query-devtools/4.3.9_c35f85980f456f36adab49b5c175683e:
+    dependencies:
+      '@tanstack/match-sorter-utils': 8.1.1
+      '@tanstack/react-query': 4.2.3_react-dom@17.0.1+react@17.0.1
+      react: 17.0.1
+      react-dom: 17.0.1_react@17.0.1
+      use-sync-external-store: 1.2.0_react@17.0.1
+    dev: false
+    peerDependencies:
+      '@tanstack/react-query': 4.3.9
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+    resolution:
+      integrity: sha512-N+nMBwrxAYsC5oEmexCuo4OZqBpR97pfy8r8tuvekFNYlA0pYlCnsxiqkZoZzF6ewk7w8KPkkDhClx0kSlW3qw==
   /@tanstack/react-query/4.2.3_react-dom@17.0.1+react@17.0.1:
     dependencies:
       '@tanstack/query-core': 4.2.3
@@ -29420,6 +29444,9 @@ packages:
     dev: true
     resolution:
       integrity: sha512-HDz1+IKGtOyWN+QgBiAT0kn+2s6ovOxHyPAFGKVE81VSzJ+mq7RwHFledEvB5F1p4iJvOah/LOKdFuzvRnNLCA==
+  /remove-accents/0.4.2:
+    resolution:
+      integrity: sha512-7pXIJqJOq5tFgG1A2Zxti3Ht8jJF337m4sowbuHsW30ZnkQFnDzy9qBNhgzX8ZLW4+UBcXiiR7SwR6pokHsxiA==
   /remove-trailing-separator/1.1.0:
     resolution:
       integrity: sha512-/hS+Y0u3aOfIETiaiirUFwDBDzmXPvO+jAfKTitUngIPzdKc6Z0LoFjM/CK5PL4C+eKwHohlHAb6H0VFfmmUsw==

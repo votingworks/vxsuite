@@ -363,4 +363,24 @@ export class ElectionManagerStoreAdminBackend extends ElectionManagerStoreStorag
 
     return response;
   }
+
+  async getWriteInAdjudicationTable(
+    contestId: string
+  ): Promise<Admin.WriteInAdjudicationTable> {
+    const activeElectionId = await this.loadActiveElectionId();
+
+    if (!activeElectionId) {
+      throw new Error('no election configured');
+    }
+
+    const response = (await fetchJson(
+      `/admin/elections/${activeElectionId}/contests/${contestId}/write-in-adjudication-table`
+    )) as Admin.GetWriteInAdjudicationTableResponse;
+
+    if (response.status === 'error') {
+      throw new Error(response.errors.map((e) => e.message).join(', '));
+    }
+
+    return response.table;
+  }
 }

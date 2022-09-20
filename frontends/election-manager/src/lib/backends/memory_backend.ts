@@ -440,17 +440,46 @@ export class ElectionManagerStoreMemoryBackend
             ([
               transcribedValue,
               writeInsByContestAndTranscribedValue,
-            ]): Admin.WriteInSummaryEntry => ({
-              contestId: writeInContestId,
-              transcribedValue,
-              writeInCount: writeInsByContestAndTranscribedValue.size,
-              writeInAdjudication: writeInAdjudications.find(
-                (writeInAdjudication) =>
-                  writeInAdjudication.transcribedValue === transcribedValue
-              ),
-            })
+            ]): Admin.WriteInSummaryEntry => {
+              const writeInAdjudication = writeInAdjudications.find(
+                (adjudication) =>
+                  adjudication.transcribedValue === transcribedValue
+              );
+
+              if (writeInAdjudication && transcribedValue) {
+                return {
+                  status: 'adjudicated',
+                  contestId: writeInContestId,
+                  transcribedValue,
+                  writeInCount: writeInsByContestAndTranscribedValue.size,
+                  writeInAdjudication,
+                };
+              }
+
+              if (transcribedValue) {
+                return {
+                  status: 'transcribed',
+                  contestId: writeInContestId,
+                  transcribedValue,
+                  writeInCount: writeInsByContestAndTranscribedValue.size,
+                };
+              }
+
+              return {
+                status: 'pending',
+                contestId: writeInContestId,
+                writeInCount: writeInsByContestAndTranscribedValue.size,
+              };
+            }
           )
         : []
     );
+  }
+
+  getWriteInAdjudicationTable(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    contestId: string
+  ): Promise<Admin.WriteInAdjudicationTable> {
+    return Promise.reject(new Error('Not implemented'));
   }
 }

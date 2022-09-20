@@ -7,6 +7,7 @@ import { ContestId, ContestOptionId, Id } from '@votingworks/types';
 import { useContext } from 'react';
 import { ServicesContext } from '../contexts/services_context';
 import { getWriteInsQueryKey } from './use_write_ins_query';
+import { getWriteInAdjudicationTableQueryKey } from './use_write_in_adjudication_table_query';
 import { getWriteInSummaryQueryKey } from './use_write_in_summary_query';
 
 export interface Props {
@@ -51,6 +52,9 @@ export function useAdjudicateTranscriptionMutation(): UseAdjudicateTranscription
       onSuccess: () => {
         void queryClient.invalidateQueries(getWriteInsQueryKey());
         void queryClient.invalidateQueries(getWriteInSummaryQueryKey());
+        void queryClient.invalidateQueries(
+          getWriteInAdjudicationTableQueryKey()
+        );
       },
     }
   );

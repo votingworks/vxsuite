@@ -55,6 +55,7 @@
     "@pmmmwh/react-refresh-webpack-plugin": "0.4.2",
     "@svgr/webpack": "5.4.0",
     "@tanstack/react-query": "^4.2.3",
+    "@tanstack/react-query-devtools": "^4.3.9",
     "@testing-library/react": "^12.1.5",
     "@testing-library/user-event": "^12.6.0",
     "@types/array-unique": "^0.3.0",

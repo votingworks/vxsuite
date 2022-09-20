@@ -42,22 +42,28 @@ test('write-in adjudication lifecycle', async () => {
   const contestId = 'zoo-council-mammal';
 
   // view the adjudication table
-  const getWriteInSummaryHttpResponse = await request(app)
+  const getWriteInAdjudicationTableHttpResponse = await request(app)
     .get(
-      `/admin/elections/${electionId}/write-in-summary?contestId=${contestId}`
+      `/admin/elections/${electionId}/contests/${contestId}/write-in-adjudication-table`
     )
     .expect(200);
-  const getWriteInSummaryResponse = unsafeParse(
-    Admin.GetWriteInSummaryResponseSchema,
-    getWriteInSummaryHttpResponse.body
+  const getWriteInAdjudicationTableResponse = unsafeParse(
+    Admin.GetWriteInAdjudicationTableResponseSchema,
+    getWriteInAdjudicationTableHttpResponse.body
   );
-  expect(getWriteInSummaryResponse).toEqual(
-    typedAs<Admin.WriteInSummaryEntry[]>([
-      {
+  expect(getWriteInAdjudicationTableResponse).toEqual(
+    typedAs<Admin.GetWriteInAdjudicationTableResponse>({
+      status: 'ok',
+      table: {
         contestId,
-        writeInCount: expect.any(Number),
+        writeInCount: 0,
+        adjudicated: [],
+        transcribed: {
+          writeInCount: 0,
+          rows: [],
+        },
       },
-    ])
+    })
   );
 
   // process all the write-ins for the contest we're going to adjudicate
@@ -118,9 +124,10 @@ test('write-in adjudication lifecycle', async () => {
   expect(getWriteInSummaryAfterTranscriptionResponse).toEqual(
     typedAs<Admin.GetWriteInSummaryResponse>([
       {
+        status: 'transcribed',
         contestId,
-        transcribedValue: 'Mickey Mouse',
         writeInCount,
+        transcribedValue: 'Mickey Mouse',
       },
     ])
   );
@@ -166,9 +173,10 @@ test('write-in adjudication lifecycle', async () => {
   expect(getWriteInSummaryAfterAdjudicationResponse).toEqual(
     typedAs<Admin.GetWriteInSummaryResponse>([
       {
+        status: 'adjudicated',
         contestId,
-        transcribedValue: 'Mickey Mouse',
         writeInCount,
+        transcribedValue: 'Mickey Mouse',
         writeInAdjudication: {
           id: expect.any(String),
           contestId,
@@ -203,8 +211,8 @@ test('write-in adjudication lifecycle', async () => {
   );
 
   const writeInAdjudicationId = (
-    getWriteInSummaryAfterAdjudicationResponse as Admin.WriteInSummaryEntry[]
-  )[0]?.writeInAdjudication!.id;
+    getWriteInSummaryAfterAdjudicationResponse as Admin.WriteInSummaryEntryAdjudicated[]
+  )[0]?.writeInAdjudication.id;
 
   // update the adjudication
   await request(app)
@@ -229,9 +237,10 @@ test('write-in adjudication lifecycle', async () => {
   expect(getWriteInSummaryAfterUpdateResponse).toEqual(
     typedAs<Admin.GetWriteInSummaryResponse>([
       {
+        status: 'adjudicated',
         contestId,
-        transcribedValue: 'Mickey Mouse',
         writeInCount,
+        transcribedValue: 'Mickey Mouse',
         writeInAdjudication: {
           id: expect.any(String),
           contestId,
@@ -266,9 +275,10 @@ test('write-in adjudication lifecycle', async () => {
   expect(getWriteInSummaryAfterUpdateAgainResponse).toEqual(
     typedAs<Admin.GetWriteInSummaryResponse>([
       {
+        status: 'adjudicated',
         contestId,
-        transcribedValue: 'Mickey Mouse',
         writeInCount,
+        transcribedValue: 'Mickey Mouse',
         writeInAdjudication: {
           id: expect.any(String),
           contestId,
@@ -298,12 +308,79 @@ test('write-in adjudication lifecycle', async () => {
   expect(getWriteInSummaryAfterDeleteResponse).toEqual(
     typedAs<Admin.GetWriteInSummaryResponse>([
       {
+        status: 'transcribed',
         contestId,
-        transcribedValue: 'Mickey Mouse',
         writeInCount,
+        transcribedValue: 'Mickey Mouse',
       },
     ])
   );
+});
+
+test('write-in summary filtered by contestId & status', async () => {
+  const electionId = workspace.store.addElection(
+    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
+  );
+
+  // upload the CVR file
+  const postCvrHttpResponse = await request(app)
+    .post(`/admin/elections/${electionId}/cvr-files`)
+    .attach(
+      'cvrFile',
+      electionMinimalExhaustiveSampleFixtures.standardCvrFile.asBuffer(),
+      'cvrFile.json'
+    )
+    .expect(200);
+  const postCvrResponse = unsafeParse(
+    Admin.PostCvrFileResponseSchema,
+    postCvrHttpResponse.body
+  );
+
+  assert(postCvrResponse.status === 'ok');
+
+  // focus on this contest
+  const contestId = 'zoo-council-mammal';
+
+  const getWriteInSummaryPendingHttpResponse = await request(app)
+    .get(
+      `/admin/elections/${electionId}/write-in-summary?contestId=${contestId}&status=pending`
+    )
+    .expect(200);
+  const getWriteInSummaryPendingResponse = unsafeParse(
+    Admin.GetWriteInSummaryResponseSchema,
+    getWriteInSummaryPendingHttpResponse.body
+  );
+  expect(getWriteInSummaryPendingResponse).toHaveLength(1);
+
+  const getWriteInSummaryTranscribedHttpResponse = await request(app)
+    .get(
+      `/admin/elections/${electionId}/write-in-summary?contestId=${contestId}&status=transcribed`
+    )
+    .expect(200);
+  const getWriteInSummaryTranscribedResponse = unsafeParse(
+    Admin.GetWriteInSummaryResponseSchema,
+    getWriteInSummaryTranscribedHttpResponse.body
+  );
+  expect(getWriteInSummaryTranscribedResponse).toHaveLength(0);
+
+  const getWriteInSummaryAdjudicatedHttpResponse = await request(app)
+    .get(
+      `/admin/elections/${electionId}/write-in-summary?contestId=${contestId}&status=adjudicated`
+    )
+    .expect(200);
+  const getWriteInSummaryAdjudicatedResponse = unsafeParse(
+    Admin.GetWriteInSummaryResponseSchema,
+    getWriteInSummaryAdjudicatedHttpResponse.body
+  );
+  expect(getWriteInSummaryAdjudicatedResponse).toHaveLength(0);
+});
+
+test('write-in adjudication table with a bad electionId', async () => {
+  await request(app)
+    .get(
+      `/admin/elections/invalid/contests/contest-1/write-in-adjudication-table`
+    )
+    .expect(404);
 });
 
 test('create write-in adjudication for an unlisted candidate', async () => {

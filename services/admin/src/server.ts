@@ -10,14 +10,15 @@ import {
   safeParse,
   safeParseNumber,
 } from '@votingworks/types';
-import multer from 'multer';
+import { zip } from '@votingworks/utils';
 import express, { Application } from 'express';
 import { readFileSync } from 'fs';
+import multer from 'multer';
 import { basename } from 'path';
-import { zip } from '@votingworks/utils';
 import { ADMIN_WORKSPACE, PORT } from './globals';
 import { Store } from './store';
 import { createWorkspace, Workspace } from './util/workspace';
+import * as writeInAdjudicationTableView from './views/write_in_adjudication_table';
 
 type NoParams = never;
 
@@ -379,11 +380,37 @@ export function buildApp({ store }: { store: Store }): Application {
       return;
     }
 
-    const { contestId } = parseQueryResult.ok();
+    const { contestId, status } = parseQueryResult.ok();
     response.json(
-      store.getWriteInAdjudicationSummary({ electionId, contestId })
+      store.getWriteInAdjudicationSummary({
+        electionId,
+        contestId,
+        status,
+      })
     );
   });
+
+  app.get<
+    Admin.GetWriteInAdjudicationTableUrlParams,
+    Admin.GetWriteInAdjudicationTableResponse,
+    Admin.GetWriteInAdjudicationTableRequest
+  >(
+    '/admin/elections/:electionId/contests/:contestId/write-in-adjudication-table',
+    (request, response) => {
+      const { electionId, contestId } = request.params;
+      const table = writeInAdjudicationTableView.render(store, {
+        electionId,
+        contestId,
+      });
+
+      if (!table) {
+        response.status(404).end();
+        return;
+      }
+
+      response.json({ status: 'ok', table });
+    }
+  );
 
   /* istanbul ignore next */
   app.get<
