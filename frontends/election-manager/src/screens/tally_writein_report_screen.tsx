@@ -76,7 +76,7 @@ export function TallyWriteInReportScreen(): JSX.Element {
 
   const { election } = electionDefinition;
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial';
-  const writeInSummaryQuery = useWriteInSummaryQuery();
+  const writeInSummaryQuery = useWriteInSummaryQuery({ status: 'adjudicated' });
   const writeInCountsByContestAndCandidate =
     getWriteInCountsByContestAndCandidate(writeInSummaryQuery.data ?? []);
   useEffect(() => {

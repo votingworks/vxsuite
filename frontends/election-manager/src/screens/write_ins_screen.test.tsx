@@ -121,12 +121,13 @@ test('adjudication', async () => {
                 {
                   adjudicatedValue: 'Zebra',
                   adjudicatedOptionId: 'zebra',
+                  enabled: true,
                 },
               ],
             },
             {
               title: 'Original Transcription',
-              options: [{ adjudicatedValue: 'Dark Helmet' }],
+              options: [{ adjudicatedValue: 'Dark Helmet', enabled: true }],
             },
           ],
         },
@@ -153,6 +154,7 @@ test('adjudication', async () => {
             transcribedValue: 'Dark Helmet',
             writeInCount: 1,
             writeInAdjudicationId: 'test-id',
+            editable: true,
             adjudicationOptionGroups: [
               {
                 title: 'Official Candidates',
@@ -160,12 +162,13 @@ test('adjudication', async () => {
                   {
                     adjudicatedValue: 'Zebra',
                     adjudicatedOptionId: 'zebra',
+                    enabled: true,
                   },
                 ],
               },
               {
                 title: 'Original Transcription',
-                options: [{ adjudicatedValue: 'Dark Helmet' }],
+                options: [{ adjudicatedValue: 'Dark Helmet', enabled: true }],
               },
             ],
           },

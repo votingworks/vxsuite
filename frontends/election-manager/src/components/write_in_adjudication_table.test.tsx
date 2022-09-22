@@ -23,6 +23,7 @@ test('adjudicated groups and pending adjudications', async () => {
                 transcribedValue: 'Baby Yoda',
                 writeInCount: 1,
                 writeInAdjudicationId: 'baby-yoda-adjudication-id',
+                editable: true,
                 adjudicationOptionGroups: [
                   {
                     title: 'Official Candidates',
@@ -30,6 +31,7 @@ test('adjudicated groups and pending adjudications', async () => {
                       {
                         adjudicatedValue: 'Leah Organa',
                         adjudicatedOptionId: 'leah-organa',
+                        enabled: true,
                       },
                     ],
                   },
@@ -39,6 +41,7 @@ test('adjudicated groups and pending adjudications', async () => {
                 transcribedValue: 'Yogurt',
                 writeInCount: 2,
                 writeInAdjudicationId: 'yogurt-adjudication-id',
+                editable: true,
                 adjudicationOptionGroups: [
                   {
                     title: 'Official Candidates',
@@ -46,6 +49,7 @@ test('adjudicated groups and pending adjudications', async () => {
                       {
                         adjudicatedValue: 'Leah Organa',
                         adjudicatedOptionId: 'leah-organa',
+                        enabled: true,
                       },
                     ],
                   },
@@ -67,16 +71,17 @@ test('adjudicated groups and pending adjudications', async () => {
                     {
                       adjudicatedValue: 'Leah Organa',
                       adjudicatedOptionId: 'leah-organa',
+                      enabled: true,
                     },
                   ],
                 },
                 {
                   title: 'Write-In Candidates',
-                  options: [{ adjudicatedValue: 'Yoda' }],
+                  options: [{ adjudicatedValue: 'Yoda', enabled: true }],
                 },
                 {
                   title: 'Original Transcription',
-                  options: [{ adjudicatedValue: 'Dark Helmet' }],
+                  options: [{ adjudicatedValue: 'Dark Helmet', enabled: true }],
                 },
               ],
             },
