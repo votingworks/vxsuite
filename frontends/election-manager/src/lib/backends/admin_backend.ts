@@ -341,6 +341,7 @@ export class ElectionManagerStoreAdminBackend extends ElectionManagerStoreStorag
 
   override async getWriteInSummary(options?: {
     contestId?: ContestId;
+    status?: Admin.WriteInAdjudicationStatus;
   }): Promise<Admin.WriteInSummaryEntry[]> {
     const activeElectionId = await this.loadActiveElectionId();
 
@@ -351,6 +352,10 @@ export class ElectionManagerStoreAdminBackend extends ElectionManagerStoreStorag
     const query = new URLSearchParams();
     if (options?.contestId) {
       query.set('contestId', options.contestId);
+    }
+
+    if (options?.status) {
+      query.set('status', options.status);
     }
 
     const response = (await fetchJson(
