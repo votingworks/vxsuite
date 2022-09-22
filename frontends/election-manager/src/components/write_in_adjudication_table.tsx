@@ -71,7 +71,9 @@ function AdjudicatedGroupHeaderRow({
         <Prose>
           <h3>
             {adjudicatedGroup.adjudicatedValue}
-            {adjudicatedGroup.adjudicatedOptionId && ' (official candidate)'}
+            {adjudicatedGroup.adjudicatedOptionId && (
+              <React.Fragment> (official candidate)</React.Fragment>
+            )}
           </h3>
         </Prose>
       </TD>
@@ -121,6 +123,7 @@ function AdjudicationSelect({
             <option
               key={option.adjudicatedValue}
               value={option.adjudicatedValue}
+              disabled={!option.enabled}
             >
               {option.adjudicatedValue}
             </option>
@@ -168,7 +171,11 @@ function AdjudicationRow({
             onBlur={() => setIsChanging(false)}
           />
         ) : (
-          <Button small onPress={() => setIsChanging(true)}>
+          <Button
+            small
+            onPress={() => setIsChanging(true)}
+            disabled={!rowData.editable}
+          >
             Change
           </Button>
         )}

@@ -327,6 +327,7 @@ export const WriteInSummaryEntrySchema: z.ZodSchema<WriteInSummaryEntry> =
 export interface WriteInAdjudicationTableOption {
   readonly adjudicatedValue: string;
   readonly adjudicatedOptionId?: ContestOptionId;
+  readonly enabled: boolean;
 }
 
 /**
@@ -336,6 +337,7 @@ export const WriteInAdjudicationTableOptionSchema: z.ZodSchema<WriteInAdjudicati
   z.object({
     adjudicatedValue: z.string().nonempty(),
     adjudicatedOptionId: ContestOptionIdSchema.optional(),
+    enabled: z.boolean(),
   });
 
 /**
@@ -363,6 +365,7 @@ export interface WriteInAdjudicationTableAdjudicatedRow {
   readonly writeInCount: number;
   readonly transcribedValue: string;
   readonly writeInAdjudicationId: Id;
+  readonly editable: boolean;
   readonly adjudicationOptionGroups: readonly WriteInAdjudicationTableOptionGroup[];
 }
 
@@ -374,6 +377,7 @@ export const WriteInAdjudicationTableAdjudicatedRowSchema: z.ZodSchema<WriteInAd
     writeInCount: z.number().int().nonnegative(),
     transcribedValue: z.string().nonempty(),
     writeInAdjudicationId: IdSchema,
+    editable: z.boolean(),
     adjudicationOptionGroups: z.array(
       WriteInAdjudicationTableOptionGroupSchema
     ),
@@ -460,6 +464,22 @@ export const WriteInAdjudicationTableSchema: z.ZodSchema<WriteInAdjudicationTabl
     adjudicated: z.array(WriteInAdjudicationTableAdjudicatedRowGroupSchema),
     transcribed: WriteInAdjudicationTableTranscribedRowGroupSchema,
   });
+
+/**
+ * A non-pending write-in summary entry.
+ */
+export type WriteInSummaryEntryNonPending =
+  | WriteInSummaryEntryTranscribed
+  | WriteInSummaryEntryAdjudicated;
+
+/**
+ * Schema for {@link WriteInSummaryEntryNonPending}.
+ */
+export const WriteInSummaryEntryNonPendingSchema: z.ZodSchema<WriteInSummaryEntryNonPending> =
+  z.union([
+    WriteInSummaryEntryTranscribedSchema,
+    WriteInSummaryEntryAdjudicatedSchema,
+  ]);
 
 /**
  * Write-in image information.

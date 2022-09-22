@@ -653,6 +653,12 @@ test('GET /admin/elections/:electionId/write-in-adjudications', async () => {
         transcribedValue: 'Bob',
         adjudicatedValue: 'Robert',
       },
+      {
+        id: expect.any(String),
+        contestId: 'zoo-council-mammal',
+        transcribedValue: 'Robert',
+        adjudicatedValue: 'Robert',
+      },
     ])
   );
 
@@ -688,6 +694,12 @@ test('GET /admin/elections/:electionId/write-in-adjudications', async () => {
         id: expect.any(String),
         contestId: 'zoo-council-mammal',
         transcribedValue: 'Bob',
+        adjudicatedValue: 'Robert',
+      },
+      {
+        id: expect.any(String),
+        contestId: 'zoo-council-mammal',
+        transcribedValue: 'Robert',
         adjudicatedValue: 'Robert',
       },
     ])

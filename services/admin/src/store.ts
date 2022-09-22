@@ -870,6 +870,27 @@ export class Store {
         adjudicatedValue,
         adjudicatedOptionId ?? null
       );
+
+      if (adjudicatedValue !== transcribedValue && !adjudicatedOptionId) {
+        this.client.run(
+          `
+          insert into write_in_adjudications (
+            id,
+            election_id,
+            contest_id,
+            transcribed_value,
+            adjudicated_value
+          ) values (
+            ?, ?, ?, ?, ?
+          )
+          `,
+          uuid(),
+          electionId,
+          contestId,
+          adjudicatedValue,
+          adjudicatedValue
+        );
+      }
     } catch (error) {
       const { id: writeInAdjudicationId } = this.client.one(
         `

@@ -2,6 +2,7 @@ import { Admin } from '@votingworks/api';
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
 import {
   BallotPageLayout,
+  CandidateContest,
   getBallotStyle,
   getContests,
   Id,
@@ -398,15 +399,35 @@ export function buildApp({ store }: { store: Store }): Application {
     '/admin/elections/:electionId/contests/:contestId/write-in-adjudication-table',
     (request, response) => {
       const { electionId, contestId } = request.params;
-      const table = writeInAdjudicationTableView.render(store, {
-        electionId,
-        contestId,
-      });
+      const electionRecord = store.getElection(electionId);
 
-      if (!table) {
-        response.status(404).end();
-        return;
+      if (!electionRecord) {
+        return response.status(404).end();
       }
+
+      const contest = electionRecord.electionDefinition.election.contests.find(
+        (c): c is CandidateContest =>
+          c.type === 'candidate' && c.id === contestId
+      );
+
+      if (!contest) {
+        return response.status(404).end();
+      }
+
+      const writeInSummaries = store
+        .getWriteInAdjudicationSummary({
+          electionId,
+          contestId,
+        })
+        .filter(
+          (s): s is Admin.WriteInSummaryEntryNonPending =>
+            s.status !== 'pending'
+        );
+
+      const table = writeInAdjudicationTableView.render(
+        contest,
+        writeInSummaries
+      );
 
       response.json({ status: 'ok', table });
     }

@@ -1,85 +1,17 @@
 import { Admin } from '@votingworks/api';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
-import { assert, typedAs } from '@votingworks/utils';
+import { CandidateContest } from '@votingworks/types';
+import { assert, find, typedAs } from '@votingworks/utils';
+import { buildOfficialCandidatesWriteInAdjudicationOptionGroup } from '../../test/utils';
 import { Store } from '../store';
 import * as view from './write_in_adjudication_table';
 
-const officialCandidateAdjudicationOptionGroup: Admin.WriteInAdjudicationTableOptionGroup =
-  {
-    title: 'Official Candidates',
-
-    options: [
-      {
-        adjudicatedValue: 'Elephant',
-        adjudicatedOptionId: 'elephant',
-      },
-      {
-        adjudicatedValue: 'Kangaroo',
-        adjudicatedOptionId: 'kangaroo',
-      },
-      {
-        adjudicatedValue: 'Lion',
-        adjudicatedOptionId: 'lion',
-      },
-      {
-        adjudicatedValue: 'Zebra',
-        adjudicatedOptionId: 'zebra',
-      },
-    ],
-  };
-
-test('invalid election ID', () => {
-  const store = Store.memoryStore();
-  expect(
-    view.render(store, { electionId: 'invalid', contestId: 'contest-1' })
-  ).toBeUndefined();
-});
-
-test('invalid contest ID', () => {
-  const store = Store.memoryStore();
-  const electionId = store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
-  expect(
-    view.render(store, { electionId, contestId: 'invalid' })
-  ).toBeUndefined();
-});
-
-test('no CVRs', () => {
-  const store = Store.memoryStore();
-  const electionId = store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
-  expect(
-    view.render(store, { electionId, contestId: 'zoo-council-mammal' })
-  ).toEqual(
-    typedAs<Admin.WriteInAdjudicationTable>({
-      contestId: 'zoo-council-mammal',
-      writeInCount: 0,
-      adjudicated: [],
-      transcribed: {
-        writeInCount: 0,
-        rows: [],
-      },
-    })
-  );
-});
-
-test('with CVRs but no transcriptions', () => {
-  const store = Store.memoryStore();
-  const electionId = store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
-  store
-    .addCastVoteRecordFile({
-      electionId,
-      cvrFile: electionMinimalExhaustiveSampleFixtures.cvrData,
-      filename: 'cvrs.jsonl',
-    })
-    .unsafeUnwrap();
-  expect(
-    view.render(store, { electionId, contestId: 'zoo-council-mammal' })
-  ).toEqual(
+test('no transcribed or adjudicated write-ins', () => {
+  const contest =
+    electionMinimalExhaustiveSampleFixtures.election.contests.find(
+      ({ id }) => id === 'zoo-council-mammal'
+    ) as CandidateContest;
+  expect(view.render(contest, [])).toEqual(
     typedAs<Admin.WriteInAdjudicationTable>({
       contestId: 'zoo-council-mammal',
       writeInCount: 0,
@@ -98,6 +30,11 @@ test('end-to-end adjudication & update', () => {
     electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
   );
   const contestId = 'zoo-council-mammal';
+  const contest = find(
+    electionMinimalExhaustiveSampleFixtures.election.contests,
+    ({ id }) => id === contestId
+  ) as CandidateContest;
+
   store
     .addCastVoteRecordFile({
       electionId,
@@ -109,28 +46,40 @@ test('end-to-end adjudication & update', () => {
     electionId,
     contestId,
   });
-  const [firstWriteIn, secondWriteIn] = writeIns;
-  assert(firstWriteIn && secondWriteIn);
+  const [firstWriteIn, secondWriteIn, thirdWriteIn] = writeIns;
+  assert(firstWriteIn && secondWriteIn && thirdWriteIn);
 
   store.transcribeWriteIn(firstWriteIn.id, 'Gibbon');
   store.transcribeWriteIn(secondWriteIn.id, 'Hyena');
+  store.transcribeWriteIn(thirdWriteIn.id, 'Polar Bear');
 
-  expect(view.render(store, { electionId, contestId })).toEqual(
+  const summariesAfterTranscription = store
+    .getWriteInAdjudicationSummary({ electionId, contestId })
+    .filter(
+      (entry): entry is Admin.WriteInSummaryEntryNonPending =>
+        entry.status !== 'pending'
+    );
+
+  expect(view.render(contest, summariesAfterTranscription)).toEqual(
     typedAs<Admin.WriteInAdjudicationTable>({
       contestId,
-      writeInCount: 2,
+      writeInCount: 3,
       adjudicated: [],
       transcribed: {
-        writeInCount: 2,
+        writeInCount: 3,
         rows: [
           {
             transcribedValue: 'Gibbon',
             writeInCount: 1,
             adjudicationOptionGroups: [
-              officialCandidateAdjudicationOptionGroup,
+              buildOfficialCandidatesWriteInAdjudicationOptionGroup(contest),
               {
-                title: 'Original Transcription',
-                options: [{ adjudicatedValue: 'Gibbon' }],
+                title: 'Write-In Candidates',
+                options: [
+                  { adjudicatedValue: 'Gibbon', enabled: true },
+                  { adjudicatedValue: 'Hyena', enabled: true },
+                  { adjudicatedValue: 'Polar Bear', enabled: true },
+                ],
               },
             ],
           },
@@ -138,10 +87,29 @@ test('end-to-end adjudication & update', () => {
             transcribedValue: 'Hyena',
             writeInCount: 1,
             adjudicationOptionGroups: [
-              officialCandidateAdjudicationOptionGroup,
+              buildOfficialCandidatesWriteInAdjudicationOptionGroup(contest),
               {
-                title: 'Original Transcription',
-                options: [{ adjudicatedValue: 'Hyena' }],
+                title: 'Write-In Candidates',
+                options: [
+                  { adjudicatedValue: 'Gibbon', enabled: true },
+                  { adjudicatedValue: 'Hyena', enabled: true },
+                  { adjudicatedValue: 'Polar Bear', enabled: true },
+                ],
+              },
+            ],
+          },
+          {
+            transcribedValue: 'Polar Bear',
+            writeInCount: 1,
+            adjudicationOptionGroups: [
+              buildOfficialCandidatesWriteInAdjudicationOptionGroup(contest),
+              {
+                title: 'Write-In Candidates',
+                options: [
+                  { adjudicatedValue: 'Gibbon', enabled: true },
+                  { adjudicatedValue: 'Hyena', enabled: true },
+                  { adjudicatedValue: 'Polar Bear', enabled: true },
+                ],
               },
             ],
           },
@@ -150,32 +118,61 @@ test('end-to-end adjudication & update', () => {
     })
   );
 
-  // adjudicate the first write-in
-  const firstWriteInAdjudicationId = store.createWriteInAdjudication({
+  // adjudicate "Hyena" and "Gibbon" together
+  store.createWriteInAdjudication({
     electionId,
     contestId,
-    transcribedValue: 'Gibbon',
+    transcribedValue: 'Hyena',
     adjudicatedValue: 'Gibbon',
   });
 
-  expect(view.render(store, { electionId, contestId })).toEqual(
+  const summariesAfterAdjudication = store
+    .getWriteInAdjudicationSummary({ electionId, contestId })
+    .filter(
+      (entry): entry is Admin.WriteInSummaryEntryNonPending =>
+        entry.status !== 'pending'
+    );
+
+  expect(view.render(contest, summariesAfterAdjudication)).toEqual(
     typedAs<Admin.WriteInAdjudicationTable>({
       contestId,
-      writeInCount: 2,
+      writeInCount: 3,
       adjudicated: [
         {
           adjudicatedValue: 'Gibbon',
-          writeInCount: 1,
+          writeInCount: 2,
           rows: [
             {
               transcribedValue: 'Gibbon',
-              writeInAdjudicationId: firstWriteInAdjudicationId,
+              writeInAdjudicationId: expect.any(String),
               writeInCount: 1,
+              editable: false,
               adjudicationOptionGroups: [
-                officialCandidateAdjudicationOptionGroup,
+                buildOfficialCandidatesWriteInAdjudicationOptionGroup(contest),
                 {
-                  title: 'Original Transcription',
-                  options: [{ adjudicatedValue: 'Gibbon' }],
+                  title: 'Write-In Candidates',
+                  options: [
+                    { adjudicatedValue: 'Gibbon', enabled: true },
+                    { adjudicatedValue: 'Hyena', enabled: false },
+                    { adjudicatedValue: 'Polar Bear', enabled: true },
+                  ],
+                },
+              ],
+            },
+            {
+              transcribedValue: 'Hyena',
+              writeInAdjudicationId: expect.any(String),
+              writeInCount: 1,
+              editable: true,
+              adjudicationOptionGroups: [
+                buildOfficialCandidatesWriteInAdjudicationOptionGroup(contest),
+                {
+                  title: 'Write-In Candidates',
+                  options: [
+                    { adjudicatedValue: 'Gibbon', enabled: true },
+                    { adjudicatedValue: 'Hyena', enabled: true },
+                    { adjudicatedValue: 'Polar Bear', enabled: true },
+                  ],
                 },
               ],
             },
@@ -186,67 +183,17 @@ test('end-to-end adjudication & update', () => {
         writeInCount: 1,
         rows: [
           {
-            transcribedValue: 'Hyena',
+            transcribedValue: 'Polar Bear',
             writeInCount: 1,
             adjudicationOptionGroups: [
-              officialCandidateAdjudicationOptionGroup,
+              buildOfficialCandidatesWriteInAdjudicationOptionGroup(contest),
               {
                 title: 'Write-In Candidates',
-                options: [{ adjudicatedValue: 'Gibbon' }],
-              },
-              {
-                title: 'Original Transcription',
-                options: [{ adjudicatedValue: 'Hyena' }],
-              },
-            ],
-          },
-        ],
-      },
-    })
-  );
-
-  // change the adjudication to an official candidate
-  store.updateWriteInAdjudication(firstWriteInAdjudicationId, {
-    adjudicatedValue: 'Kangaroo',
-    adjudicatedOptionId: 'kangaroo',
-  });
-
-  expect(view.render(store, { electionId, contestId })).toEqual(
-    typedAs<Admin.WriteInAdjudicationTable>({
-      contestId,
-      writeInCount: 2,
-      adjudicated: [
-        {
-          adjudicatedValue: 'Kangaroo',
-          adjudicatedOptionId: 'kangaroo',
-          writeInCount: 1,
-          rows: [
-            {
-              transcribedValue: 'Gibbon',
-              writeInAdjudicationId: firstWriteInAdjudicationId,
-              writeInCount: 1,
-              adjudicationOptionGroups: [
-                officialCandidateAdjudicationOptionGroup,
-                {
-                  title: 'Original Transcription',
-                  options: [{ adjudicatedValue: 'Gibbon' }],
-                },
-              ],
-            },
-          ],
-        },
-      ],
-      transcribed: {
-        writeInCount: 1,
-        rows: [
-          {
-            transcribedValue: 'Hyena',
-            writeInCount: 1,
-            adjudicationOptionGroups: [
-              officialCandidateAdjudicationOptionGroup,
-              {
-                title: 'Original Transcription',
-                options: [{ adjudicatedValue: 'Hyena' }],
+                options: [
+                  { adjudicatedValue: 'Gibbon', enabled: true },
+                  { adjudicatedValue: 'Hyena', enabled: false },
+                  { adjudicatedValue: 'Polar Bear', enabled: true },
+                ],
               },
             ],
           },

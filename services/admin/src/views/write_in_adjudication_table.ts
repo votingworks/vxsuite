@@ -1,7 +1,6 @@
 import { Admin } from '@votingworks/api';
 import { CandidateContest } from '@votingworks/types';
 import { collections, groupBy, take } from '@votingworks/utils';
-import { Store } from '../store';
 
 /**
  * Sorts the adjudication options by the adjudicated value.
@@ -40,6 +39,7 @@ function renderOfficialCandidatesOptionGroup(
     options: contest.candidates.map((candidate) => ({
       adjudicatedValue: candidate.name,
       adjudicatedOptionId: candidate.id,
+      enabled: true,
     })),
   };
 }
@@ -49,18 +49,19 @@ function renderOfficialCandidatesOptionGroup(
  * candidates that have been adjudicated but are not official candidates.
  */
 function renderWriteInCandidatesOptionGroup(
-  adjudicatedWriteInSummaries: readonly Admin.WriteInSummaryEntryAdjudicated[]
+  forSummary: Admin.WriteInSummaryEntryNonPending,
+  writeInSummaries: readonly Admin.WriteInSummaryEntryNonPending[]
 ): Admin.WriteInAdjudicationTableOptionGroup {
   return {
     title: 'Write-In Candidates',
-    options: Array.from(
-      new Set(
-        adjudicatedWriteInSummaries
-          .filter((s) => !s.writeInAdjudication.adjudicatedOptionId)
-          .map((s) => s.writeInAdjudication.adjudicatedValue)
-      ),
-      (adjudicatedValue) => ({ adjudicatedValue })
-    ),
+    options: writeInSummaries.map((summary) => ({
+      adjudicatedValue: summary.transcribedValue,
+      enabled:
+        forSummary === summary ||
+        summary.status === 'transcribed' ||
+        summary.writeInAdjudication.adjudicatedValue ===
+          summary.transcribedValue,
+    })),
   };
 }
 
@@ -70,13 +71,10 @@ function renderWriteInCandidatesOptionGroup(
  */
 function renderTranscribedTableRowGroup(
   contest: CandidateContest,
-  writeInSummaries: readonly Admin.WriteInSummaryEntry[]
+  writeInSummaries: Admin.WriteInSummaryEntryNonPending[]
 ): Admin.WriteInAdjudicationTableTranscribedRowGroup {
   const transcribedWriteInSummaries = writeInSummaries.filter(
     (s): s is Admin.WriteInSummaryEntryTranscribed => s.status === 'transcribed'
-  );
-  const adjudicatedWriteInSummaries = writeInSummaries.filter(
-    (s): s is Admin.WriteInSummaryEntryAdjudicated => s.status === 'adjudicated'
   );
   const writeInCount = transcribedWriteInSummaries.reduce(
     (sum, s) => sum + s.writeInCount,
@@ -90,11 +88,7 @@ function renderTranscribedTableRowGroup(
       writeInCount: summary.writeInCount,
       adjudicationOptionGroups: normalizeAdjudicationOptionGroups([
         renderOfficialCandidatesOptionGroup(contest),
-        renderWriteInCandidatesOptionGroup(adjudicatedWriteInSummaries),
-        {
-          title: 'Original Transcription',
-          options: [{ adjudicatedValue: summary.transcribedValue }],
-        },
+        renderWriteInCandidatesOptionGroup(summary, writeInSummaries),
       ]),
     })),
   };
@@ -106,14 +100,13 @@ function renderTranscribedTableRowGroup(
  */
 function renderAdjudicatedTableRowGroup(
   contest: CandidateContest,
-  writeInSummaries: readonly Admin.WriteInSummaryEntryAdjudicated[]
+  writeInSummaries: Admin.WriteInSummaryEntryNonPending[]
 ): Admin.WriteInAdjudicationTableAdjudicatedRowGroup[] {
-  const adjudicatedWriteInSummaries = writeInSummaries.filter(
-    (s): s is Admin.WriteInSummaryEntryAdjudicated => s.status === 'adjudicated'
-  );
-
   const writeInSummariesByAdjudicatedValue = groupBy(
-    writeInSummaries,
+    writeInSummaries.filter(
+      (s): s is Admin.WriteInSummaryEntryAdjudicated =>
+        s.status === 'adjudicated'
+    ),
     (s) => s.writeInAdjudication.adjudicatedValue
   );
 
@@ -143,16 +136,15 @@ function renderAdjudicatedTableRowGroup(
             writeInAdjudicationId: summary.writeInAdjudication.id,
             adjudicationOptionGroups: normalizeAdjudicationOptionGroups([
               renderOfficialCandidatesOptionGroup(contest),
-              renderWriteInCandidatesOptionGroup(
-                adjudicatedWriteInSummaries.filter(
-                  (s) => s.transcribedValue !== summary.transcribedValue
-                )
-              ),
-              {
-                title: 'Original Transcription',
-                options: [{ adjudicatedValue: summary.transcribedValue }],
-              },
+              renderWriteInCandidatesOptionGroup(summary, writeInSummaries),
             ]),
+            editable: writeInSummaries.every(
+              (s) =>
+                s === summary ||
+                s.status !== 'adjudicated' ||
+                s.writeInAdjudication.adjudicatedValue !==
+                  summary.transcribedValue
+            ),
           })
         ),
       };
@@ -164,36 +156,11 @@ function renderAdjudicatedTableRowGroup(
  * Renders the write-in adjudication table view.
  */
 export function render(
-  store: Store,
-  { electionId, contestId }: Admin.GetWriteInAdjudicationTableUrlParams
-): Admin.WriteInAdjudicationTable | undefined {
-  const electionRecord = store.getElection(electionId);
-
-  if (!electionRecord) {
-    return undefined;
-  }
-
-  const contest = electionRecord.electionDefinition.election.contests.find(
-    (c): c is CandidateContest => c.type === 'candidate' && c.id === contestId
-  );
-
-  if (!contest) {
-    return undefined;
-  }
-
-  const writeInSummaries = store.getWriteInAdjudicationSummary({
-    electionId,
-    contestId,
-  });
-
+  contest: CandidateContest,
+  writeInSummaries: Admin.WriteInSummaryEntryNonPending[]
+): Admin.WriteInAdjudicationTable {
   const transcribed = renderTranscribedTableRowGroup(contest, writeInSummaries);
-  const adjudicated = renderAdjudicatedTableRowGroup(
-    contest,
-    writeInSummaries.filter(
-      (s): s is Admin.WriteInSummaryEntryAdjudicated =>
-        s.status === 'adjudicated'
-    )
-  );
+  const adjudicated = renderAdjudicatedTableRowGroup(contest, writeInSummaries);
 
   const writeInCount = [...adjudicated, transcribed].reduce(
     (sum, group) => sum + group.writeInCount,
@@ -201,7 +168,7 @@ export function render(
   );
 
   return {
-    contestId,
+    contestId: contest.id,
     writeInCount,
     transcribed,
     adjudicated,
