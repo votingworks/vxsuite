@@ -1356,7 +1356,9 @@ importers:
       '@types/compress-commons': workspace:*
   libs/api:
     dependencies:
+      '@votingworks/fixtures': link:../fixtures
       '@votingworks/types': link:../types
+      '@votingworks/utils': link:../utils
       zod: 3.14.4
     devDependencies:
       '@types/jest': 27.4.1
@@ -1381,7 +1383,9 @@ importers:
       '@types/jest': ^27.0.3
       '@typescript-eslint/eslint-plugin': ^5.37.0
       '@typescript-eslint/parser': ^5.37.0
+      '@votingworks/fixtures': workspace:*
       '@votingworks/types': workspace:*
+      '@votingworks/utils': '*'
       eslint: ^8.23.1
       eslint-config-prettier: ^8.5.0
       eslint-import-resolver-node: ^0.3.6
@@ -29445,6 +29449,7 @@ packages:
     resolution:
       integrity: sha512-HDz1+IKGtOyWN+QgBiAT0kn+2s6ovOxHyPAFGKVE81VSzJ+mq7RwHFledEvB5F1p4iJvOah/LOKdFuzvRnNLCA==
   /remove-accents/0.4.2:
+    dev: false
     resolution:
       integrity: sha512-7pXIJqJOq5tFgG1A2Zxti3Ht8jJF337m4sowbuHsW30ZnkQFnDzy9qBNhgzX8ZLW4+UBcXiiR7SwR6pokHsxiA==
   /remove-trailing-separator/1.1.0:

@@ -1,5 +1,8 @@
 import { unsafeParse } from '@votingworks/types';
-import { GetWriteInsQueryParamsSchema, PostCvrFileQueryParamsSchema } from '.';
+import {
+  GetWriteInsQueryParamsSchema,
+  PostCvrFileQueryParamsSchema,
+} from './endpoints';
 
 test('PostCvrFileQueryParamsSchema', () => {
   expect(unsafeParse(PostCvrFileQueryParamsSchema, {})).toEqual({});

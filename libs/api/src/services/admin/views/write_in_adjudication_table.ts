@@ -1,13 +1,23 @@
-import { Admin } from '@votingworks/api';
 import { CandidateContest } from '@votingworks/types';
 import { collections, groupBy, take } from '@votingworks/utils';
+import {
+  WriteInAdjudicationTable,
+  WriteInAdjudicationTableAdjudicatedRow,
+  WriteInAdjudicationTableAdjudicatedRowGroup,
+  WriteInAdjudicationTableOption,
+  WriteInAdjudicationTableOptionGroup,
+  WriteInAdjudicationTableTranscribedRowGroup,
+  WriteInSummaryEntryAdjudicated,
+  WriteInSummaryEntryNonPending,
+  WriteInSummaryEntryTranscribed,
+} from '../types';
 
 /**
  * Sorts the adjudication options by the adjudicated value.
  */
 function sortAdjudicationOptions(
-  options: Iterable<Admin.WriteInAdjudicationTableOption>
-): Admin.WriteInAdjudicationTableOption[] {
+  options: Iterable<WriteInAdjudicationTableOption>
+): WriteInAdjudicationTableOption[] {
   return [...options].sort((a, b) =>
     a.adjudicatedValue.localeCompare(b.adjudicatedValue)
   );
@@ -17,8 +27,8 @@ function sortAdjudicationOptions(
  * Normalizes the adjudication option groups for display.
  */
 function normalizeAdjudicationOptionGroups(
-  adjudicationOptionGroups: Iterable<Admin.WriteInAdjudicationTableOptionGroup>
-): Admin.WriteInAdjudicationTableOptionGroup[] {
+  adjudicationOptionGroups: Iterable<WriteInAdjudicationTableOptionGroup>
+): WriteInAdjudicationTableOptionGroup[] {
   return [...adjudicationOptionGroups]
     .filter((group) => group.options.length > 0)
     .map((group) => ({
@@ -33,7 +43,7 @@ function normalizeAdjudicationOptionGroups(
  */
 function renderOfficialCandidatesOptionGroup(
   contest: CandidateContest
-): Admin.WriteInAdjudicationTableOptionGroup {
+): WriteInAdjudicationTableOptionGroup {
   return {
     title: 'Official Candidates',
     options: contest.candidates.map((candidate) => ({
@@ -49,9 +59,9 @@ function renderOfficialCandidatesOptionGroup(
  * candidates that have been adjudicated but are not official candidates.
  */
 function renderWriteInCandidatesOptionGroup(
-  forSummary: Admin.WriteInSummaryEntryNonPending,
-  writeInSummaries: readonly Admin.WriteInSummaryEntryNonPending[]
-): Admin.WriteInAdjudicationTableOptionGroup {
+  forSummary: WriteInSummaryEntryNonPending,
+  writeInSummaries: readonly WriteInSummaryEntryNonPending[]
+): WriteInAdjudicationTableOptionGroup {
   return {
     title: 'Write-In Candidates',
     options: writeInSummaries.map((summary) => ({
@@ -71,10 +81,10 @@ function renderWriteInCandidatesOptionGroup(
  */
 function renderTranscribedTableRowGroup(
   contest: CandidateContest,
-  writeInSummaries: Admin.WriteInSummaryEntryNonPending[]
-): Admin.WriteInAdjudicationTableTranscribedRowGroup {
+  writeInSummaries: WriteInSummaryEntryNonPending[]
+): WriteInAdjudicationTableTranscribedRowGroup {
   const transcribedWriteInSummaries = writeInSummaries.filter(
-    (s): s is Admin.WriteInSummaryEntryTranscribed => s.status === 'transcribed'
+    (s): s is WriteInSummaryEntryTranscribed => s.status === 'transcribed'
   );
   const writeInCount = transcribedWriteInSummaries.reduce(
     (sum, s) => sum + s.writeInCount,
@@ -100,12 +110,11 @@ function renderTranscribedTableRowGroup(
  */
 function renderAdjudicatedTableRowGroup(
   contest: CandidateContest,
-  writeInSummaries: Admin.WriteInSummaryEntryNonPending[]
-): Admin.WriteInAdjudicationTableAdjudicatedRowGroup[] {
+  writeInSummaries: WriteInSummaryEntryNonPending[]
+): WriteInAdjudicationTableAdjudicatedRowGroup[] {
   const writeInSummariesByAdjudicatedValue = groupBy(
     writeInSummaries.filter(
-      (s): s is Admin.WriteInSummaryEntryAdjudicated =>
-        s.status === 'adjudicated'
+      (s): s is WriteInSummaryEntryAdjudicated => s.status === 'adjudicated'
     ),
     (s) => s.writeInAdjudication.adjudicatedValue
   );
@@ -121,7 +130,7 @@ function renderAdjudicatedTableRowGroup(
       const firstSummary = take(
         1,
         summaries
-      )[0] as Admin.WriteInSummaryEntryAdjudicated;
+      )[0] as WriteInSummaryEntryAdjudicated;
       const { adjudicatedOptionId } = firstSummary.writeInAdjudication;
 
       return {
@@ -130,7 +139,7 @@ function renderAdjudicatedTableRowGroup(
         writeInCount,
         rows: Array.from(
           summaries,
-          (summary): Admin.WriteInAdjudicationTableAdjudicatedRow => ({
+          (summary): WriteInAdjudicationTableAdjudicatedRow => ({
             transcribedValue: summary.transcribedValue,
             writeInCount: summary.writeInCount,
             writeInAdjudicationId: summary.writeInAdjudication.id,
@@ -157,8 +166,8 @@ function renderAdjudicatedTableRowGroup(
  */
 export function render(
   contest: CandidateContest,
-  writeInSummaries: Admin.WriteInSummaryEntryNonPending[]
-): Admin.WriteInAdjudicationTable {
+  writeInSummaries: WriteInSummaryEntryNonPending[]
+): WriteInAdjudicationTable {
   const transcribed = renderTranscribedTableRowGroup(contest, writeInSummaries);
   const adjudicated = renderAdjudicatedTableRowGroup(contest, writeInSummaries);
 

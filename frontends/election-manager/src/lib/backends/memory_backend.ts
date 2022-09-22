@@ -1,5 +1,6 @@
 import { Admin } from '@votingworks/api';
 import {
+  CandidateContest,
   ContestId,
   ContestOptionId,
   ElectionDefinition,
@@ -14,6 +15,7 @@ import {
   assert,
   castVoteRecordVoteIsWriteIn,
   castVoteRecordVotes,
+  find,
   groupBy,
   typedAs,
 } from '@votingworks/utils';
@@ -424,8 +426,10 @@ export class ElectionManagerStoreMemoryBackend
 
   async getWriteInSummary({
     contestId,
+    status,
   }: {
     contestId?: ContestId;
+    status?: Admin.WriteInAdjudicationStatus;
   } = {}): Promise<Admin.WriteInSummaryEntry[]> {
     const writeInAdjudications = await this.loadWriteInAdjudications({
       contestId,
@@ -433,53 +437,62 @@ export class ElectionManagerStoreMemoryBackend
 
     return Array.from(
       groupBy(this.writeIns ?? [], (writeIn) => writeIn.contestId)
-    ).flatMap(([writeInContestId, writeInsByContest]) =>
-      !contestId || contestId === writeInContestId
-        ? Array.from(
-            groupBy(writeInsByContest, (writeIn) => writeIn.transcribedValue),
-            ([
-              transcribedValue,
-              writeInsByContestAndTranscribedValue,
-            ]): Admin.WriteInSummaryEntry => {
-              const writeInAdjudication = writeInAdjudications.find(
-                (adjudication) =>
-                  adjudication.transcribedValue === transcribedValue
-              );
+    )
+      .flatMap(([writeInContestId, writeInsByContest]) =>
+        !contestId || contestId === writeInContestId
+          ? Array.from(
+              groupBy(writeInsByContest, (writeIn) => writeIn.transcribedValue),
+              ([
+                transcribedValue,
+                writeInsByContestAndTranscribedValue,
+              ]): Admin.WriteInSummaryEntry => {
+                const writeInAdjudication = writeInAdjudications.find(
+                  (adjudication) =>
+                    adjudication.transcribedValue === transcribedValue
+                );
 
-              if (writeInAdjudication && transcribedValue) {
+                if (writeInAdjudication && transcribedValue) {
+                  return {
+                    status: 'adjudicated',
+                    contestId: writeInContestId,
+                    transcribedValue,
+                    writeInCount: writeInsByContestAndTranscribedValue.size,
+                    writeInAdjudication,
+                  };
+                }
+
+                if (transcribedValue) {
+                  return {
+                    status: 'transcribed',
+                    contestId: writeInContestId,
+                    transcribedValue,
+                    writeInCount: writeInsByContestAndTranscribedValue.size,
+                  };
+                }
+
                 return {
-                  status: 'adjudicated',
+                  status: 'pending',
                   contestId: writeInContestId,
-                  transcribedValue,
                   writeInCount: writeInsByContestAndTranscribedValue.size,
-                  writeInAdjudication,
                 };
               }
-
-              if (transcribedValue) {
-                return {
-                  status: 'transcribed',
-                  contestId: writeInContestId,
-                  transcribedValue,
-                  writeInCount: writeInsByContestAndTranscribedValue.size,
-                };
-              }
-
-              return {
-                status: 'pending',
-                contestId: writeInContestId,
-                writeInCount: writeInsByContestAndTranscribedValue.size,
-              };
-            }
-          )
-        : []
-    );
+            )
+          : []
+      )
+      .filter((entry) => !status || entry.status === status);
   }
 
-  getWriteInAdjudicationTable(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async getWriteInAdjudicationTable(
     contestId: string
   ): Promise<Admin.WriteInAdjudicationTable> {
-    return Promise.reject(new Error('Not implemented'));
+    const contest = find(
+      this.electionDefinition?.election.contests ?? [],
+      (c): c is CandidateContest => c.id === contestId && c.type === 'candidate'
+    );
+    const summaries = (await this.getWriteInSummary({ contestId })).filter(
+      (summary): summary is Admin.WriteInSummaryEntryNonPending =>
+        summary.status !== 'pending'
+    );
+    return Admin.Views.writeInAdjudicationTable.render(contest, summaries);
   }
 }

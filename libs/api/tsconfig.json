@@ -12,6 +12,8 @@
   },
   "references": [
     { "path": "../eslint-plugin-vx/tsconfig.build.json" },
-    { "path": "../types/tsconfig.build.json" }
+    { "path": "../fixtures/tsconfig.build.json" },
+    { "path": "../types/tsconfig.build.json" },
+    { "path": "../utils/tsconfig.build.json" }
   ]
 }

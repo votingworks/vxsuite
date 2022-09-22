@@ -19,7 +19,6 @@ import { basename } from 'path';
 import { ADMIN_WORKSPACE, PORT } from './globals';
 import { Store } from './store';
 import { createWorkspace, Workspace } from './util/workspace';
-import * as writeInAdjudicationTableView from './views/write_in_adjudication_table';
 
 type NoParams = never;
 
@@ -424,7 +423,7 @@ export function buildApp({ store }: { store: Store }): Application {
             s.status !== 'pending'
         );
 
-      const table = writeInAdjudicationTableView.render(
+      const table = Admin.Views.writeInAdjudicationTable.render(
         contest,
         writeInSummaries
       );

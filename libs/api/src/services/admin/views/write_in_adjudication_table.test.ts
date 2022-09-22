@@ -1,10 +1,35 @@
-import { Admin } from '@votingworks/api';
 import { electionMinimalExhaustiveSampleFixtures } from '@votingworks/fixtures';
 import { CandidateContest } from '@votingworks/types';
-import { assert, find, typedAs } from '@votingworks/utils';
-import { buildOfficialCandidatesWriteInAdjudicationOptionGroup } from '../../test/utils';
-import { Store } from '../store';
+import { find, typedAs } from '@votingworks/utils';
+import * as Admin from '../index';
 import * as view from './write_in_adjudication_table';
+
+const officialCandidatesOptionGroup: Admin.WriteInAdjudicationTableOptionGroup =
+  {
+    title: 'Official Candidates',
+    options: [
+      {
+        adjudicatedValue: 'Elephant',
+        adjudicatedOptionId: 'elephant',
+        enabled: true,
+      },
+      {
+        adjudicatedValue: 'Kangaroo',
+        adjudicatedOptionId: 'kangaroo',
+        enabled: true,
+      },
+      {
+        adjudicatedValue: 'Lion',
+        adjudicatedOptionId: 'lion',
+        enabled: true,
+      },
+      {
+        adjudicatedValue: 'Zebra',
+        adjudicatedOptionId: 'zebra',
+        enabled: true,
+      },
+    ],
+  };
 
 test('no transcribed or adjudicated write-ins', () => {
   const contest =
@@ -25,40 +50,32 @@ test('no transcribed or adjudicated write-ins', () => {
 });
 
 test('end-to-end adjudication & update', () => {
-  const store = Store.memoryStore();
-  const electionId = store.addElection(
-    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
-  );
   const contestId = 'zoo-council-mammal';
   const contest = find(
     electionMinimalExhaustiveSampleFixtures.election.contests,
     ({ id }) => id === contestId
   ) as CandidateContest;
 
-  store
-    .addCastVoteRecordFile({
-      electionId,
-      cvrFile: electionMinimalExhaustiveSampleFixtures.cvrData,
-      filename: 'cvrs.jsonl',
-    })
-    .unsafeUnwrap();
-  const writeIns = store.getWriteInRecords({
-    electionId,
-    contestId,
-  });
-  const [firstWriteIn, secondWriteIn, thirdWriteIn] = writeIns;
-  assert(firstWriteIn && secondWriteIn && thirdWriteIn);
-
-  store.transcribeWriteIn(firstWriteIn.id, 'Gibbon');
-  store.transcribeWriteIn(secondWriteIn.id, 'Hyena');
-  store.transcribeWriteIn(thirdWriteIn.id, 'Polar Bear');
-
-  const summariesAfterTranscription = store
-    .getWriteInAdjudicationSummary({ electionId, contestId })
-    .filter(
-      (entry): entry is Admin.WriteInSummaryEntryNonPending =>
-        entry.status !== 'pending'
-    );
+  const summariesAfterTranscription: Admin.WriteInSummaryEntryNonPending[] = [
+    {
+      status: 'transcribed',
+      contestId: 'zoo-council-mammal',
+      transcribedValue: 'Gibbon',
+      writeInCount: 1,
+    },
+    {
+      status: 'transcribed',
+      contestId: 'zoo-council-mammal',
+      transcribedValue: 'Hyena',
+      writeInCount: 1,
+    },
+    {
+      status: 'transcribed',
+      contestId: 'zoo-council-mammal',
+      transcribedValue: 'Polar Bear',
+      writeInCount: 1,
+    },
+  ];
 
   expect(view.render(contest, summariesAfterTranscription)).toEqual(
     typedAs<Admin.WriteInAdjudicationTable>({
@@ -72,7 +89,7 @@ test('end-to-end adjudication & update', () => {
             transcribedValue: 'Gibbon',
             writeInCount: 1,
             adjudicationOptionGroups: [
-              buildOfficialCandidatesWriteInAdjudicationOptionGroup(contest),
+              officialCandidatesOptionGroup,
               {
                 title: 'Write-In Candidates',
                 options: [
@@ -87,7 +104,7 @@ test('end-to-end adjudication & update', () => {
             transcribedValue: 'Hyena',
             writeInCount: 1,
             adjudicationOptionGroups: [
-              buildOfficialCandidatesWriteInAdjudicationOptionGroup(contest),
+              officialCandidatesOptionGroup,
               {
                 title: 'Write-In Candidates',
                 options: [
@@ -102,7 +119,7 @@ test('end-to-end adjudication & update', () => {
             transcribedValue: 'Polar Bear',
             writeInCount: 1,
             adjudicationOptionGroups: [
-              buildOfficialCandidatesWriteInAdjudicationOptionGroup(contest),
+              officialCandidatesOptionGroup,
               {
                 title: 'Write-In Candidates',
                 options: [
@@ -119,19 +136,38 @@ test('end-to-end adjudication & update', () => {
   );
 
   // adjudicate "Hyena" and "Gibbon" together
-  store.createWriteInAdjudication({
-    electionId,
-    contestId,
-    transcribedValue: 'Hyena',
-    adjudicatedValue: 'Gibbon',
-  });
-
-  const summariesAfterAdjudication = store
-    .getWriteInAdjudicationSummary({ electionId, contestId })
-    .filter(
-      (entry): entry is Admin.WriteInSummaryEntryNonPending =>
-        entry.status !== 'pending'
-    );
+  const summariesAfterAdjudication: Admin.WriteInSummaryEntryNonPending[] = [
+    {
+      status: 'adjudicated',
+      contestId: 'zoo-council-mammal',
+      writeInCount: 1,
+      transcribedValue: 'Gibbon',
+      writeInAdjudication: {
+        id: 'gibbon-adjudication-id',
+        contestId: 'zoo-council-mammal',
+        transcribedValue: 'Gibbon',
+        adjudicatedValue: 'Gibbon',
+      },
+    },
+    {
+      status: 'adjudicated',
+      contestId: 'zoo-council-mammal',
+      writeInCount: 1,
+      transcribedValue: 'Hyena',
+      writeInAdjudication: {
+        id: 'hyena-adjudication-id',
+        contestId: 'zoo-council-mammal',
+        transcribedValue: 'Hyena',
+        adjudicatedValue: 'Gibbon',
+      },
+    },
+    {
+      status: 'transcribed',
+      contestId: 'zoo-council-mammal',
+      transcribedValue: 'Polar Bear',
+      writeInCount: 1,
+    },
+  ];
 
   expect(view.render(contest, summariesAfterAdjudication)).toEqual(
     typedAs<Admin.WriteInAdjudicationTable>({
@@ -148,7 +184,7 @@ test('end-to-end adjudication & update', () => {
               writeInCount: 1,
               editable: false,
               adjudicationOptionGroups: [
-                buildOfficialCandidatesWriteInAdjudicationOptionGroup(contest),
+                officialCandidatesOptionGroup,
                 {
                   title: 'Write-In Candidates',
                   options: [
@@ -165,7 +201,7 @@ test('end-to-end adjudication & update', () => {
               writeInCount: 1,
               editable: true,
               adjudicationOptionGroups: [
-                buildOfficialCandidatesWriteInAdjudicationOptionGroup(contest),
+                officialCandidatesOptionGroup,
                 {
                   title: 'Write-In Candidates',
                   options: [
@@ -186,7 +222,7 @@ test('end-to-end adjudication & update', () => {
             transcribedValue: 'Polar Bear',
             writeInCount: 1,
             adjudicationOptionGroups: [
-              buildOfficialCandidatesWriteInAdjudicationOptionGroup(contest),
+              officialCandidatesOptionGroup,
               {
                 title: 'Write-In Candidates',
                 options: [
