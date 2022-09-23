@@ -5,14 +5,16 @@ import { NavigationScreen } from '../components/navigation_screen';
 import { routerPaths } from '../router_paths';
 import { FullTestDeckTallyReportButton } from '../components/full_test_deck_tally_report_button';
 import { AppContext } from '../contexts/app_context';
-import { canViewAndPrintBallotsWithConverter } from '../utils/can_view_and_print_ballots_with_converter';
+import { canViewAndPrintBallots } from '../utils/can_view_and_print_ballots';
 
 export function LogicAndAccuracyScreen(): JSX.Element {
-  const { castVoteRecordFiles, converter } = useContext(AppContext);
+  const { castVoteRecordFiles, electionDefinition } = useContext(AppContext);
   const isLiveMode = castVoteRecordFiles?.fileMode === 'live';
-  const canViewAndPrintBallots = canViewAndPrintBallotsWithConverter(converter);
 
-  if (!canViewAndPrintBallots) {
+  if (
+    electionDefinition &&
+    !canViewAndPrintBallots(electionDefinition.election)
+  ) {
     return (
       <NavigationScreen>
         <Prose>
