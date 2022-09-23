@@ -182,7 +182,7 @@ export function WriteInsTranscriptionScreen({
     onPressSetTranscribedValue(val);
     if (val !== '') {
       setCannedTranscriptions(
-        (prev) => new Set([...prev.add(val)].sort((a, b) => a.localeCompare(b)))
+        (prev) => new Set([...prev, val].sort((a, b) => a.localeCompare(b)))
       );
     }
 

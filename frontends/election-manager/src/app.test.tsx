@@ -1201,7 +1201,6 @@ test('Can not view or print ballots when using an election with gridlayouts (lik
   fireEvent.click(getByText('Lock Machine'));
 
   await authenticateWithElectionManagerCard(card, electionDefinition);
-  fireEvent.click(getByText('Ballots'));
   await screen.findByText(
     'This election uses custom ballots not produced by VxAdmin.'
   );

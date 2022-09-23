@@ -14,7 +14,7 @@ test('No CVRs loaded', async () => {
   await screen.findByText(
     'Load CVRs to begin transcribing and adjudicating write-in votes.'
   );
-  expect((await screen.findAllByText('Transcribe'))[0]).toBeDisabled();
+  expect(screen.queryByText('Transcribe')).not.toBeInTheDocument();
 });
 
 test('CVRs with write-ins loaded', async () => {
@@ -47,24 +47,25 @@ test('ballot pagination', async () => {
     backend,
   });
 
-  userEvent.click(await screen.findByText('Transcribe 8'));
+  const pageCount = 8;
+  userEvent.click(await screen.findByText(`Transcribe ${pageCount}`));
 
-  const previousButton = await screen.findByText('Previous');
-  const nextButton = await screen.findByText('Next');
+  for (let pageNumber = 1; pageNumber <= pageCount; pageNumber += 1) {
+    await screen.findByText(new RegExp(`${pageNumber} of ${pageCount}`));
+    const previousButton = await screen.findByText<HTMLButtonElement>(
+      'Previous'
+    );
+    expect(previousButton.disabled).toBe(pageNumber === 1);
 
-  screen.getByText(/1 of 8/);
-  expect(previousButton).toBeDisabled();
-  expect(nextButton).not.toBeDisabled();
-
-  while (nextButton) {
-    try {
+    if (pageNumber === pageCount) {
+      const doneButtons = await screen.findAllByText<HTMLButtonElement>('Done');
+      expect(doneButtons).toHaveLength(2);
+      const [doneButton] = doneButtons;
+      doneButton.click();
+    } else {
+      const nextButton = await screen.findByText<HTMLButtonElement>('Next');
       expect(nextButton).not.toBeDisabled();
       nextButton.click();
-    } catch {
-      screen.getByText(/8 of 8/);
-      expect(previousButton).not.toBeDisabled();
-      expect(nextButton).toBeDisabled();
-      break;
     }
   }
 });
@@ -84,14 +85,13 @@ test('adjudication', async () => {
 
   // transcribe
   userEvent.click(await screen.findByText('Transcribe 8'));
-  userEvent.click(await screen.findByText('Add new +'));
   userEvent.type(
-    await screen.findByLabelText('Transcribed Value'),
+    await screen.findByPlaceholderText('transcribed write-in'),
     'Dark Helmet'
   );
 
   jest.spyOn(backend, 'transcribeWriteIn');
-  userEvent.click(await screen.findByText('Save'));
+  userEvent.click(await screen.findByText('Add'));
   await waitFor(() => {
     expect(backend.transcribeWriteIn).toHaveBeenCalledWith(
       expect.any(String),
@@ -101,7 +101,7 @@ test('adjudication', async () => {
 
   expect(await screen.findByText('Dark Helmet')).toBeInTheDocument();
 
-  userEvent.click(await screen.findByText('Exit'));
+  userEvent.click(await screen.findByText('Done'));
 
   // set up the table for a single transcribed value
   jest.spyOn(backend, 'getWriteInAdjudicationTable').mockResolvedValue({

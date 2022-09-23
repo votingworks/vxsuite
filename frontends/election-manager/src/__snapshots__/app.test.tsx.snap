@@ -31,35 +31,35 @@ exports[`L&A (logic and accuracy) flow 1`] = `
         class="sc-eCssSg kiVrGp"
       >
         <button
-          class="sc-ksdxAp gPNRbf"
+          class="sc-ksdxAp gfVRPE"
           role="option"
           type="button"
         >
           Ballots
         </button>
         <button
-          class="sc-ksdxAp gPNRbf active-section"
+          class="sc-ksdxAp gfVRPE active-section"
           role="option"
           type="button"
         >
           L&A
         </button>
         <button
-          class="sc-ksdxAp gPNRbf"
+          class="sc-ksdxAp gfVRPE"
           role="option"
           type="button"
         >
           Tally
         </button>
         <button
-          class="sc-ksdxAp gPNRbf"
+          class="sc-ksdxAp gfVRPE"
           role="option"
           type="button"
         >
           Write-Ins
         </button>
         <button
-          class="sc-ksdxAp gPNRbf"
+          class="sc-ksdxAp gfVRPE"
           role="option"
           type="button"
         >
@@ -70,13 +70,13 @@ exports[`L&A (logic and accuracy) flow 1`] = `
         class="sc-jSgupP eMSuCK"
       >
         <button
-          class="sc-ksdxAp ctUtNB"
+          class="sc-ksdxAp cHnWTy"
           type="button"
         >
           Lock Machine
         </button>
         <button
-          class="sc-ksdxAp ctUtNB"
+          class="sc-ksdxAp cHnWTy"
           type="button"
         >
           Eject USB
@@ -124,7 +124,7 @@ exports[`L&A (logic and accuracy) flow 1`] = `
       </div>
       <p>
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           <strong>
@@ -133,82 +133,82 @@ exports[`L&A (logic and accuracy) flow 1`] = `
         </button>
       </p>
       <div
-        class="sc-fodVxV fgVDUW"
+        class="sc-fFubgz exWqux"
       >
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           Bywy
         </button>
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           Chester
         </button>
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           District 5
         </button>
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           East Weir
         </button>
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           Fentress
         </button>
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           French Camp
         </button>
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           Hebron
         </button>
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           Kenego
         </button>
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           Panhandle
         </button>
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           Reform
         </button>
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           Sherwood
         </button>
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           Southwest Ackerman
         </button>
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           West Weir
@@ -1477,35 +1477,35 @@ exports[`L&A (logic and accuracy) flow 2`] = `
         class="sc-eCssSg kiVrGp"
       >
         <button
-          class="sc-ksdxAp gPNRbf"
+          class="sc-ksdxAp gfVRPE"
           role="option"
           type="button"
         >
           Ballots
         </button>
         <button
-          class="sc-ksdxAp gPNRbf active-section"
+          class="sc-ksdxAp gfVRPE active-section"
           role="option"
           type="button"
         >
           L&A
         </button>
         <button
-          class="sc-ksdxAp gPNRbf"
+          class="sc-ksdxAp gfVRPE"
           role="option"
           type="button"
         >
           Tally
         </button>
         <button
-          class="sc-ksdxAp gPNRbf"
+          class="sc-ksdxAp gfVRPE"
           role="option"
           type="button"
         >
           Write-Ins
         </button>
         <button
-          class="sc-ksdxAp gPNRbf"
+          class="sc-ksdxAp gfVRPE"
           role="option"
           type="button"
         >
@@ -1516,13 +1516,13 @@ exports[`L&A (logic and accuracy) flow 2`] = `
         class="sc-jSgupP eMSuCK"
       >
         <button
-          class="sc-ksdxAp ctUtNB"
+          class="sc-ksdxAp cHnWTy"
           type="button"
         >
           Lock Machine
         </button>
         <button
-          class="sc-ksdxAp ctUtNB"
+          class="sc-ksdxAp cHnWTy"
           type="button"
         >
           Eject USB
@@ -1570,7 +1570,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
       </div>
       <p>
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           <strong>
@@ -1579,82 +1579,82 @@ exports[`L&A (logic and accuracy) flow 2`] = `
         </button>
       </p>
       <div
-        class="sc-fodVxV fgVDUW"
+        class="sc-fFubgz exWqux"
       >
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           Bywy
         </button>
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           Chester
         </button>
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           District 5
         </button>
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           East Weir
         </button>
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           Fentress
         </button>
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           French Camp
         </button>
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           Hebron
         </button>
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           Kenego
         </button>
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           Panhandle
         </button>
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           Reform
         </button>
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           Sherwood
         </button>
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           Southwest Ackerman
         </button>
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           West Weir
@@ -2945,35 +2945,35 @@ exports[`L&A (logic and accuracy) flow 3`] = `
         class="sc-eCssSg kiVrGp"
       >
         <button
-          class="sc-ksdxAp gPNRbf"
+          class="sc-ksdxAp gfVRPE"
           role="option"
           type="button"
         >
           Ballots
         </button>
         <button
-          class="sc-ksdxAp gPNRbf active-section"
+          class="sc-ksdxAp gfVRPE active-section"
           role="option"
           type="button"
         >
           L&A
         </button>
         <button
-          class="sc-ksdxAp gPNRbf"
+          class="sc-ksdxAp gfVRPE"
           role="option"
           type="button"
         >
           Tally
         </button>
         <button
-          class="sc-ksdxAp gPNRbf"
+          class="sc-ksdxAp gfVRPE"
           role="option"
           type="button"
         >
           Write-Ins
         </button>
         <button
-          class="sc-ksdxAp gPNRbf"
+          class="sc-ksdxAp gfVRPE"
           role="option"
           type="button"
         >
@@ -2984,13 +2984,13 @@ exports[`L&A (logic and accuracy) flow 3`] = `
         class="sc-jSgupP eMSuCK"
       >
         <button
-          class="sc-ksdxAp ctUtNB"
+          class="sc-ksdxAp cHnWTy"
           type="button"
         >
           Lock Machine
         </button>
         <button
-          class="sc-ksdxAp ctUtNB"
+          class="sc-ksdxAp cHnWTy"
           type="button"
         >
           Eject USB
@@ -3038,7 +3038,7 @@ exports[`L&A (logic and accuracy) flow 3`] = `
       </div>
       <p>
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           <strong>
@@ -3047,82 +3047,82 @@ exports[`L&A (logic and accuracy) flow 3`] = `
         </button>
       </p>
       <div
-        class="sc-fodVxV fgVDUW"
+        class="sc-fFubgz exWqux"
       >
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           Bywy
         </button>
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           Chester
         </button>
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           District 5
         </button>
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           East Weir
         </button>
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           Fentress
         </button>
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           French Camp
         </button>
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           Hebron
         </button>
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           Kenego
         </button>
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           Panhandle
         </button>
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           Reform
         </button>
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           Sherwood
         </button>
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           Southwest Ackerman
         </button>
         <button
-          class="sc-ksdxAp cCOdPz"
+          class="sc-ksdxAp bLfJPs"
           type="button"
         >
           West Weir
