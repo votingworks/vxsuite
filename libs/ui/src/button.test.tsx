@@ -1,4 +1,5 @@
 import React from 'react';
+import 'jest-styled-components';
 import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { Button, DecoyButton } from './button';
@@ -13,8 +14,14 @@ function createTouchEndEventProperties(x: number, y: number) {
 
 describe('renders Button', () => {
   test('with defaults', () => {
-    const { container } = render(<Button onPress={jest.fn()}>foo</Button>);
-    expect(container.firstChild).toMatchSnapshot();
+    render(<Button onPress={jest.fn()}>default</Button>);
+    const button = screen.getByText('default');
+    expect(button).toHaveStyleRule('background', 'rgb(211,211,211)');
+    expect(button).toHaveStyleRule('cursor', 'pointer');
+    expect(button).toHaveStyleRule('padding', '0.75em 1em');
+    expect(button).toHaveStyleRule('text-align', 'center');
+    expect(button).toHaveStyleRule('color', 'black');
+    expect(button).toHaveStyleRule('color', 'black');
   });
 
   test('with options: primary noFocus', () => {

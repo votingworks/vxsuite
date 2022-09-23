@@ -21,7 +21,7 @@ test('renders without a USB drive as expected.', async () => {
   expect(container).toMatchInlineSnapshot(`
     <div>
       <button
-        class="sc-gsDJrp dmKzwC"
+        class="sc-gsDJrp eHDFnB"
         type="button"
       >
         Reboot from USB
