@@ -50,7 +50,7 @@ test('converting the Hudson ballot', async () => {
   //   (
   //     await import('../test/fixtures')
   //   ).getFixturePath(HudsonFixtureName, 'election.json'),
-  //   JSON.stringify(electionDefinition, null, 2),
+  //   JSON.stringify(convertResult.election, null, 2),
   //   'utf8'
   // );
 
@@ -450,6 +450,17 @@ test('constitutional question ovals get placed on the grid correctly', async () 
   const convertResult = convertElectionDefinition(amherstBallotCardDefinition, {
     ovalTemplate: await templates.getOvalTemplate(),
   });
+
+  // uncomment this to update the fixture
+  // await (
+  //   await import('fs/promises')
+  // ).writeFile(
+  //   (
+  //     await import('../test/fixtures')
+  //   ).getFixturePath(AmherstFixtureName, 'election.json'),
+  //   JSON.stringify(convertResult.election, null, 2),
+  //   'utf8'
+  // );
 
   expect(convertResult).toEqual(
     typedAs<ConvertResult>({
