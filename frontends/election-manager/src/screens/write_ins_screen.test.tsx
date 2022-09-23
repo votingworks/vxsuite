@@ -30,7 +30,7 @@ test('CVRs with write-ins loaded', async () => {
     electionDefinition,
   });
 
-  const transcribeButton = await screen.findByText('Transcribe (8 new)');
+  const transcribeButton = await screen.findByText('Transcribe 8');
   expect(transcribeButton).not.toBeDisabled();
 });
 
@@ -47,7 +47,7 @@ test('ballot pagination', async () => {
     backend,
   });
 
-  userEvent.click(await screen.findByText('Transcribe (8 new)'));
+  userEvent.click(await screen.findByText('Transcribe 8'));
 
   const previousButton = await screen.findByText('Previous');
   const nextButton = await screen.findByText('Next');
@@ -83,7 +83,7 @@ test('adjudication', async () => {
   });
 
   // transcribe
-  userEvent.click(await screen.findByText('Transcribe (8 new)'));
+  userEvent.click(await screen.findByText('Transcribe 8'));
   userEvent.click(await screen.findByText('Add new +'));
   userEvent.type(
     await screen.findByLabelText('Transcribed Value'),
@@ -136,7 +136,7 @@ test('adjudication', async () => {
   });
 
   // adjudicate
-  userEvent.click(await screen.findByText('Adjudicate (1 new)'));
+  userEvent.click(await screen.findByText('Adjudicate 1'));
   expect(await screen.findAllByText('Dark Helmet')).toHaveLength(2); // 1 in the table, 1 in the adjudication list
 
   userEvent.selectOptions(await screen.findByRole('combobox'), 'Zebra');

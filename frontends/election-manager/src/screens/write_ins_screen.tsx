@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
-import { Button, Modal, Prose, Table, TD } from '@votingworks/ui';
+import { Button, Modal, Prose, Table, TD, Text, TH } from '@votingworks/ui';
 import {
   CandidateContest,
   ContestId,
@@ -10,7 +10,7 @@ import {
   Id,
 } from '@votingworks/types';
 
-import { assert, collections, groupBy } from '@votingworks/utils';
+import { assert, collections, format, groupBy } from '@votingworks/utils';
 import { Admin } from '@votingworks/api';
 import { NavigationScreen } from '../components/navigation_screen';
 import { WriteInsTranscriptionScreen } from './write_ins_transcription_screen';
@@ -23,6 +23,9 @@ import { useUpdateWriteInAdjudicationMutation } from '../hooks/use_update_write_
 
 const ContentWrapper = styled.div`
   display: inline-block;
+  button {
+    min-width: 9rem;
+  }
 `;
 
 export function WriteInsScreen(): JSX.Element {
@@ -146,67 +149,87 @@ export function WriteInsScreen(): JSX.Element {
           <Table>
             <thead>
               <tr>
-                <TD as="th" nowrap>
-                  Contest
-                </TD>
-                {isPrimaryElection && (
-                  <TD as="th" nowrap>
-                    Party
-                  </TD>
-                )}
-                <TD as="th" nowrap>
-                  Transcribe Write-Ins
-                </TD>
-                <TD as="th" nowrap>
-                  Adjudicate Transcriptions
-                </TD>
+                <TH>Contest</TH>
+                {isPrimaryElection && <TH>Party</TH>}
+                <TH textAlign="center">Transcription Queue</TH>
+                <TH textAlign="center">Adjudication Queue</TH>
+                <TH textAlign="center">Completed</TH>
               </tr>
             </thead>
             <tbody>
               {contestsWithWriteIns.map((contest) => {
+                const contestWriteInsCount = writeInCountsByContest?.get(
+                  contest.id
+                );
+                const hasWriteIns = !!contestWriteInsCount;
                 const transcriptionQueue =
-                  writeInCountsByContest?.get(contest.id)?.get('pending') ?? 0;
+                  contestWriteInsCount?.get('pending') ?? 0;
                 const adjudicationQueue =
-                  writeInCountsByContest?.get(contest.id)?.get('transcribed') ??
-                  0;
+                  contestWriteInsCount?.get('transcribed') ?? 0;
+                const completedCount =
+                  contestWriteInsCount?.get('adjudicated') ?? 0;
                 return (
                   <tr key={contest.id}>
                     <TD nowrap>
-                      {contest.section}, <strong>{contest.title}</strong>
+                      <Text as="span" muted={!hasWriteIns}>
+                        {contest.section === contest.title ? (
+                          contest.title
+                        ) : (
+                          <React.Fragment>
+                            {contest.section}, <strong>{contest.title}</strong>
+                          </React.Fragment>
+                        )}
+                      </Text>
                     </TD>
                     {isPrimaryElection && (
                       <TD nowrap>
-                        {contest.partyId && (
-                          <React.Fragment>
-                            {' '}
-                            (
-                            {getPartyAbbreviationByPartyId({
-                              partyId: contest.partyId,
-                              election,
-                            })}
-                            )
-                          </React.Fragment>
-                        )}
+                        {contest.partyId &&
+                          `(${getPartyAbbreviationByPartyId({
+                            partyId: contest.partyId,
+                            election,
+                          })})`}
                       </TD>
                     )}
-                    <TD nowrap>
-                      <Button
-                        disabled={!transcriptionQueue}
-                        onPress={() => setContestBeingTranscribed(contest)}
-                      >
-                        Transcribe{' '}
-                        {!!transcriptionQueue && `(${transcriptionQueue} new)`}
-                      </Button>
+                    <TD nowrap textAlign="center">
+                      {!hasWriteIns ? (
+                        <Text as="span" muted>
+                          –
+                        </Text>
+                      ) : (
+                        <Button
+                          primary={!!transcriptionQueue}
+                          onPress={() => setContestBeingTranscribed(contest)}
+                        >
+                          Transcribe
+                          {!!transcriptionQueue &&
+                            ` ${format.count(transcriptionQueue)}`}
+                        </Button>
+                      )}
                     </TD>
-                    <TD nowrap>
-                      <Button
-                        disabled={adjudicationQueue === 0}
-                        primary={!!adjudicationQueue}
-                        onPress={() => setContestBeingAdjudicated(contest)}
-                      >
-                        Adjudicate{' '}
-                        {!!adjudicationQueue && `(${adjudicationQueue} new)`}
-                      </Button>
+                    <TD nowrap textAlign="center">
+                      {!hasWriteIns ? (
+                        <Text as="span" muted>
+                          –
+                        </Text>
+                      ) : (
+                        <Button
+                          primary={!!adjudicationQueue}
+                          onPress={() => setContestBeingAdjudicated(contest)}
+                        >
+                          Adjudicate
+                          {!!adjudicationQueue &&
+                            ` ${format.count(adjudicationQueue)}`}
+                        </Button>
+                      )}
+                    </TD>
+                    <TD nowrap textAlign="center">
+                      {!hasWriteIns ? (
+                        <Text as="span" muted>
+                          –
+                        </Text>
+                      ) : (
+                        format.count(completedCount)
+                      )}
                     </TD>
                   </tr>
                 );
