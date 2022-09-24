@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
+import React, { useContext, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
 import { Button, Modal, Prose, Table, TD, Text, TH } from '@votingworks/ui';
@@ -11,7 +11,6 @@ import {
 } from '@votingworks/types';
 
 import { assert, collections, format, groupBy } from '@votingworks/utils';
-import { Admin } from '@votingworks/api';
 import { NavigationScreen } from '../components/navigation_screen';
 import { WriteInsTranscriptionScreen } from './write_ins_transcription_screen';
 import { AppContext } from '../contexts/app_context';
@@ -34,13 +33,6 @@ export function WriteInsScreen(): JSX.Element {
     useState<CandidateContest>();
   const [contestBeingAdjudicated, setContestBeingAdjudicated] =
     useState<CandidateContest>();
-  const [writeInCountsByContest, setWriteInCountsByContest] =
-    useState<
-      ReadonlyMap<
-        ContestId,
-        ReadonlyMap<Admin.WriteInAdjudicationStatus, number>
-      >
-    >();
 
   const transcribeWriteInMutation = useTranscribeWriteInMutation();
   const adjudicateTranscriptionMutation = useAdjudicateTranscriptionMutation();
@@ -49,8 +41,8 @@ export function WriteInsScreen(): JSX.Element {
   const writeInsQuery = useWriteInsQuery();
 
   // Get write-in counts grouped by contest
-  useEffect(() => {
-    const map = collections.map(
+  const writeInCountsByContest = useMemo(() => {
+    return collections.map(
       groupBy(writeInsQuery.data ?? [], ({ contestId }) => contestId),
       (writeIns) =>
         collections.map(
@@ -58,7 +50,6 @@ export function WriteInsScreen(): JSX.Element {
           (group) => group.size
         )
     );
-    setWriteInCountsByContest(map);
   }, [writeInsQuery.data]);
 
   const transcriptionsForCurrentContest = useMemo(

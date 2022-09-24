@@ -134,6 +134,7 @@ export function WriteInsTranscriptionScreen({
         .sort((a, b) => a.localeCompare(b))
     );
   }
+
   const previouslyTranscribedValues = getTranscribedValues(adjudications);
   const [cannedTranscriptions, setCannedTranscriptions] = useState(
     previouslyTranscribedValues
