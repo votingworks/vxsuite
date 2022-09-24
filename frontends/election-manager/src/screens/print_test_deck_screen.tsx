@@ -96,12 +96,12 @@ function BmdPaperBallots({
 
   return (
     <div className="print-only">
-      {ballots.map((ballot, i) => (
+      {ballots.map((ballot) => (
         <BmdPaperBallot
           ballotStyleId={ballot.ballotStyleId}
           electionDefinition={electionDefinition}
           isLiveMode={false}
-          key={`ballot-${i}`} // eslint-disable-line react/no-array-index-key
+          key={`ballot-${ballot.precinctId}-${ballot.ballotStyleId}`}
           precinctId={ballot.precinctId}
           votes={ballot.votes}
           onRendered={onRendered}
