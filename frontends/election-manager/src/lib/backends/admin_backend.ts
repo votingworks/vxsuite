@@ -341,6 +341,7 @@ export class ElectionManagerStoreAdminBackend extends ElectionManagerStoreStorag
 
   override async getWriteInSummary(options?: {
     contestId?: ContestId;
+    status?: Admin.WriteInAdjudicationStatus;
   }): Promise<Admin.WriteInSummaryEntry[]> {
     const activeElectionId = await this.loadActiveElectionId();
 
@@ -353,6 +354,10 @@ export class ElectionManagerStoreAdminBackend extends ElectionManagerStoreStorag
       query.set('contestId', options.contestId);
     }
 
+    if (options?.status) {
+      query.set('status', options.status);
+    }
+
     const response = (await fetchJson(
       `/admin/elections/${activeElectionId}/write-in-summary?${query}`
     )) as Admin.GetWriteInSummaryResponse;
@@ -362,5 +367,25 @@ export class ElectionManagerStoreAdminBackend extends ElectionManagerStoreStorag
     }
 
     return response;
+  }
+
+  async getWriteInAdjudicationTable(
+    contestId: string
+  ): Promise<Admin.WriteInAdjudicationTable> {
+    const activeElectionId = await this.loadActiveElectionId();
+
+    if (!activeElectionId) {
+      throw new Error('no election configured');
+    }
+
+    const response = (await fetchJson(
+      `/admin/elections/${activeElectionId}/contests/${contestId}/write-in-adjudication-table`
+    )) as Admin.GetWriteInAdjudicationTableResponse;
+
+    if (response.status === 'error') {
+      throw new Error(response.errors.map((e) => e.message).join(', '));
+    }
+
+    return response.table;
   }
 }

@@ -3,13 +3,28 @@ import React from 'react';
 import ReactDom from 'react-dom';
 import './i18n';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { KioskStorage, LocalStorage } from '@votingworks/utils';
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
+import {
+  EnvironmentFlagName,
+  isFeatureFlagEnabled,
+  KioskStorage,
+  LocalStorage,
+} from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
 import { App } from './app';
 import { ElectionManagerStoreAdminBackend } from './lib/backends';
 import { ServicesContext } from './contexts/services_context';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      networkMode: 'always',
+    },
+    mutations: {
+      networkMode: 'always',
+    },
+  },
+});
 const storage = window.kiosk
   ? new KioskStorage(window.kiosk)
   : new LocalStorage();
@@ -22,6 +37,9 @@ ReactDom.render(
       <ServicesContext.Provider value={{ backend, logger }}>
         <App />
       </ServicesContext.Provider>
+      {isFeatureFlagEnabled(
+        EnvironmentFlagName.ENABLE_REACT_QUERY_DEVTOOLS
+      ) && <ReactQueryDevtools initialIsOpen={false} position="top-left" />}
     </QueryClientProvider>
   </React.StrictMode>,
   document.getElementById('root')

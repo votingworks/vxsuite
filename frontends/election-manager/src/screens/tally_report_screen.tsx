@@ -76,7 +76,7 @@ export function TallyReportScreen(): JSX.Element {
   assert(electionDefinition);
   assert(isElectionManagerAuth(auth)); // TODO(auth) check permissions for viewing tally reports.
   const userRole = auth.user.role;
-  const writeInSummaryQuery = useWriteInSummaryQuery();
+  const writeInSummaryQuery = useWriteInSummaryQuery({ status: 'adjudicated' });
   const writeInCountsByContestAndCandidate =
     getWriteInCountsByContestAndCandidate(writeInSummaryQuery.data ?? [], true);
 

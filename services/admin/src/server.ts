@@ -2,6 +2,7 @@ import { Admin } from '@votingworks/api';
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
 import {
   BallotPageLayout,
+  CandidateContest,
   getBallotStyle,
   getContests,
   Id,
@@ -10,11 +11,11 @@ import {
   safeParse,
   safeParseNumber,
 } from '@votingworks/types';
-import multer from 'multer';
+import { zip } from '@votingworks/utils';
 import express, { Application } from 'express';
 import { readFileSync } from 'fs';
+import multer from 'multer';
 import { basename } from 'path';
-import { zip } from '@votingworks/utils';
 import { ADMIN_WORKSPACE, PORT } from './globals';
 import { Store } from './store';
 import { createWorkspace, Workspace } from './util/workspace';
@@ -379,11 +380,57 @@ export function buildApp({ store }: { store: Store }): Application {
       return;
     }
 
-    const { contestId } = parseQueryResult.ok();
+    const { contestId, status } = parseQueryResult.ok();
     response.json(
-      store.getWriteInAdjudicationSummary({ electionId, contestId })
+      store.getWriteInAdjudicationSummary({
+        electionId,
+        contestId,
+        status,
+      })
     );
   });
+
+  app.get<
+    Admin.GetWriteInAdjudicationTableUrlParams,
+    Admin.GetWriteInAdjudicationTableResponse,
+    Admin.GetWriteInAdjudicationTableRequest
+  >(
+    '/admin/elections/:electionId/contests/:contestId/write-in-adjudication-table',
+    (request, response) => {
+      const { electionId, contestId } = request.params;
+      const electionRecord = store.getElection(electionId);
+
+      if (!electionRecord) {
+        return response.status(404).end();
+      }
+
+      const contest = electionRecord.electionDefinition.election.contests.find(
+        (c): c is CandidateContest =>
+          c.type === 'candidate' && c.id === contestId
+      );
+
+      if (!contest) {
+        return response.status(404).end();
+      }
+
+      const writeInSummaries = store
+        .getWriteInAdjudicationSummary({
+          electionId,
+          contestId,
+        })
+        .filter(
+          (s): s is Admin.WriteInSummaryEntryNonPending =>
+            s.status !== 'pending'
+        );
+
+      const table = Admin.Views.writeInAdjudicationTable.render(
+        contest,
+        writeInSummaries
+      );
+
+      response.json({ status: 'ok', table });
+    }
+  );
 
   /* istanbul ignore next */
   app.get<

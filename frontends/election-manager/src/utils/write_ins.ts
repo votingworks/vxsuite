@@ -1,9 +1,9 @@
 import { Admin } from '@votingworks/api';
-import { ContestId } from '@votingworks/types';
-import { assert, collections, groupBy } from '@votingworks/utils';
+import { ContestId, ContestOptionId } from '@votingworks/types';
+import { collections, groupBy } from '@votingworks/utils';
 
 export function getWriteInCountsByContestAndCandidate(
-  writeInSummaryData: Admin.WriteInSummaryEntry[],
+  writeInSummaryData: Admin.WriteInSummaryEntryAdjudicated[],
   onlyOfficialCandidates = false
 ): Map<ContestId, Map<string, number>> {
   const writeInsByContestAndCandidate = collections.map(
@@ -12,25 +12,15 @@ export function getWriteInCountsByContestAndCandidate(
       return onlyOfficialCandidates
         ? groupBy(
             [...writeInSummary].filter(
-              (s) => s.writeInAdjudication?.adjudicatedOptionId !== undefined
+              (s) => s.writeInAdjudication.adjudicatedOptionId !== undefined
             ),
-            (s) => {
-              // we have already filtered for this
-              assert(s.writeInAdjudication?.adjudicatedOptionId !== undefined);
-              return s.writeInAdjudication.adjudicatedOptionId;
-            }
+            (s) => s.writeInAdjudication.adjudicatedOptionId as ContestOptionId
           )
         : groupBy(
             [...writeInSummary].filter(
-              (s) =>
-                s.writeInAdjudication?.adjudicatedValue !== undefined &&
-                s.writeInAdjudication?.adjudicatedOptionId === undefined
+              (s) => s.writeInAdjudication.adjudicatedOptionId === undefined
             ),
-            (s) => {
-              // we have already filtered for this
-              assert(s.writeInAdjudication?.adjudicatedValue !== undefined);
-              return s.writeInAdjudication.adjudicatedValue;
-            }
+            (s) => s.writeInAdjudication.adjudicatedValue
           );
     }
   );

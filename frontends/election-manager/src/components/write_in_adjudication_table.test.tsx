@@ -1,61 +1,95 @@
 import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { assert } from '@votingworks/utils';
 import React from 'react';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { WriteInAdjudicationTable } from './write_in_adjudication_table';
 
-test('render', () => {
-  renderInAppContext(
-    <WriteInAdjudicationTable
-      adjudicatedGroups={[]}
-      pendingAdjudications={[]}
-      adjudicationValues={[]}
-      adjudicationQueuePhrase="adjudication queue"
-      adjudicateTranscription={jest.fn()}
-      updateAdjudication={jest.fn()}
-    />
-  );
-});
-
-test('adjudicated groups', async () => {
+test('adjudicated groups and pending adjudications', async () => {
+  const adjudicateTranscription = jest.fn();
   const updateAdjudication = jest.fn();
 
   renderInAppContext(
     <WriteInAdjudicationTable
-      adjudicatedGroups={[
-        {
-          adjudicatedValue: 'Yoda',
-          writeInAdjudications: [
+      adjudicationTable={{
+        contestId: 'contest-id',
+        writeInCount: 3,
+        adjudicated: [
+          {
+            adjudicatedValue: 'Yoda',
+            writeInCount: 3,
+            rows: [
+              {
+                transcribedValue: 'Baby Yoda',
+                writeInCount: 1,
+                writeInAdjudicationId: 'baby-yoda-adjudication-id',
+                editable: true,
+                adjudicationOptionGroups: [
+                  {
+                    title: 'Official Candidates',
+                    options: [
+                      {
+                        adjudicatedValue: 'Leah Organa',
+                        adjudicatedOptionId: 'leah-organa',
+                        enabled: true,
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                transcribedValue: 'Yogurt',
+                writeInCount: 2,
+                writeInAdjudicationId: 'yogurt-adjudication-id',
+                editable: true,
+                adjudicationOptionGroups: [
+                  {
+                    title: 'Official Candidates',
+                    options: [
+                      {
+                        adjudicatedValue: 'Leah Organa',
+                        adjudicatedOptionId: 'leah-organa',
+                        enabled: true,
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        transcribed: {
+          writeInCount: 4,
+          rows: [
             {
-              id: '1',
-              adjudicatedValue: 'Yoda',
-              transcribedValue: 'Baby Yoda',
-              writeInCount: 1,
-            },
-            {
-              id: '2',
-              adjudicatedValue: 'Yoda',
-              transcribedValue: 'Yogurt',
-              writeInCount: 2,
+              transcribedValue: 'Dark Helmet',
+              writeInCount: 4,
+              adjudicationOptionGroups: [
+                {
+                  title: 'Official Candidates',
+                  options: [
+                    {
+                      adjudicatedValue: 'Leah Organa',
+                      adjudicatedOptionId: 'leah-organa',
+                      enabled: true,
+                    },
+                  ],
+                },
+                {
+                  title: 'Write-In Candidates',
+                  options: [{ adjudicatedValue: 'Yoda', enabled: true }],
+                },
+                {
+                  title: 'Original Transcription',
+                  options: [{ adjudicatedValue: 'Dark Helmet', enabled: true }],
+                },
+              ],
             },
           ],
-          writeInCount: 3,
         },
-      ]}
-      pendingAdjudications={[]}
-      adjudicationValues={[
-        {
-          adjudicatedValue: 'Yoda',
-          hasAdjudication: false,
-          adjudicatedOptionId: 'yoda',
-        },
-        {
-          adjudicatedValue: 'Baby Yoda',
-          hasAdjudication: false,
-        },
-      ]}
+      }}
       adjudicationQueuePhrase="adjudication queue"
-      adjudicateTranscription={jest.fn()}
+      adjudicateTranscription={adjudicateTranscription}
       updateAdjudication={updateAdjudication}
     />
   );
@@ -69,125 +103,32 @@ test('adjudicated groups', async () => {
   expect(await screen.findByText('2')).toBeInTheDocument();
 
   // "Yoda" adjudicated group
-  expect(await screen.findByText('Yoda')).toBeInTheDocument();
+  expect(await screen.findAllByText('Yoda')).toHaveLength(2);
   expect(await screen.findByText('3')).toBeInTheDocument();
-
-  const changeButtons = await screen.findAllByText('Change');
-  const babyYodaChangeButton = changeButtons[0];
-
-  userEvent.click(babyYodaChangeButton);
-  userEvent.selectOptions(screen.getByRole('combobox'), 'Yoda');
-
-  expect(updateAdjudication).toHaveBeenNthCalledWith(1, '1', 'Yoda', 'yoda');
-});
-
-test('pending adjudications', async () => {
-  const adjudicateTranscription = jest.fn();
-
-  renderInAppContext(
-    <WriteInAdjudicationTable
-      adjudicatedGroups={[]}
-      pendingAdjudications={[
-        {
-          transcribedValue: 'Baby Yoda',
-          writeInCount: 1,
-        },
-        {
-          transcribedValue: 'Yogurt',
-          writeInCount: 2,
-        },
-      ]}
-      adjudicationValues={[
-        {
-          adjudicatedValue: 'Yoda',
-          hasAdjudication: false,
-          adjudicatedOptionId: 'yoda',
-        },
-      ]}
-      adjudicationQueuePhrase="adjudication queue"
-      adjudicateTranscription={adjudicateTranscription}
-      updateAdjudication={jest.fn()}
-    />
-  );
-
-  // "Baby Yoda" transcription
-  expect(await screen.findByText('Baby Yoda')).toBeInTheDocument();
-  expect(await screen.findByText('1')).toBeInTheDocument();
-
-  // "Yogurt" transcription
-  expect(await screen.findByText('Yogurt')).toBeInTheDocument();
-  expect(await screen.findByText('2')).toBeInTheDocument();
-
-  const adjudicationSelects = await screen.findAllByRole('combobox');
-  const babyYodaAdjudicationSelect = adjudicationSelects[0];
-
-  userEvent.selectOptions(babyYodaAdjudicationSelect, 'Yoda');
-
-  expect(adjudicateTranscription).toHaveBeenNthCalledWith(
-    1,
-    'Baby Yoda',
-    'Yoda',
-    'yoda'
-  );
-});
-
-test('adjudicated groups and pending adjudications', async () => {
-  renderInAppContext(
-    <WriteInAdjudicationTable
-      adjudicatedGroups={[
-        {
-          adjudicatedValue: 'Yoda',
-          writeInAdjudications: [
-            {
-              id: '1',
-              adjudicatedValue: 'Yoda',
-              transcribedValue: 'Baby Yoda',
-              writeInCount: 1,
-            },
-            {
-              id: '2',
-              adjudicatedValue: 'Yoda',
-              transcribedValue: 'Yogurt',
-              writeInCount: 2,
-            },
-          ],
-          writeInCount: 3,
-        },
-      ]}
-      pendingAdjudications={[
-        {
-          transcribedValue: 'Darth Vader',
-          writeInCount: 4,
-        },
-        {
-          transcribedValue: 'Dark Helmet',
-          writeInCount: 5,
-        },
-      ]}
-      adjudicationValues={[]}
-      adjudicationQueuePhrase="adjudication queue"
-      adjudicateTranscription={jest.fn()}
-      updateAdjudication={jest.fn()}
-    />
-  );
-
-  // "Baby Yoda" transcription
-  expect(await screen.findByText('Baby Yoda')).toBeInTheDocument();
-  expect(await screen.findByText('1')).toBeInTheDocument();
-
-  // "Yogurt" transcription
-  expect(await screen.findByText('Yogurt')).toBeInTheDocument();
-  expect(await screen.findByText('2')).toBeInTheDocument();
-
-  // "Yoda" adjudicated group
-  expect(await screen.findByText('Yoda')).toBeInTheDocument();
-  expect(await screen.findByText('3')).toBeInTheDocument();
-
-  // "Darth Vader" adjudicated group
-  expect(await screen.findByText('Darth Vader')).toBeInTheDocument();
-  expect(await screen.findByText('4')).toBeInTheDocument();
 
   // "Dark Helmet" adjudicated group
-  expect(await screen.findByText('Dark Helmet')).toBeInTheDocument();
-  expect(await screen.findByText('5')).toBeInTheDocument();
+  expect(await screen.findAllByText('Dark Helmet')).toHaveLength(2);
+  expect(await screen.findByText('4')).toBeInTheDocument();
+
+  // begin changing "Baby Yoda" adjudication
+  userEvent.click((await screen.findAllByText('Change'))[0]);
+
+  const comboboxes = await screen.findAllByRole('combobox');
+  const [babyYodaCombobox, darkHelmetCombobox] = comboboxes;
+  assert(babyYodaCombobox);
+  assert(darkHelmetCombobox);
+
+  userEvent.selectOptions(babyYodaCombobox, 'Leah Organa');
+  expect(updateAdjudication).toHaveBeenCalledWith(
+    'baby-yoda-adjudication-id',
+    'Leah Organa',
+    'leah-organa'
+  );
+
+  userEvent.selectOptions(darkHelmetCombobox, 'Leah Organa');
+  expect(adjudicateTranscription).toHaveBeenCalledWith(
+    'Dark Helmet',
+    'Leah Organa',
+    'leah-organa'
+  );
 });

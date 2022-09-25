@@ -614,47 +614,94 @@ export class Store {
   getWriteInAdjudicationSummary({
     electionId,
     contestId,
+    status,
   }: {
     electionId: Id;
     contestId?: ContestId;
+    status?: Admin.WriteInAdjudicationStatus;
   }): Admin.WriteInSummaryEntry[] {
+    const whereParts: string[] = ['cvrs.election_id = ?'];
+    const params: Bindable[] = [electionId];
+
+    if (contestId) {
+      whereParts.push('contest_id = ?');
+      params.push(contestId);
+    }
+
+    if (status === 'adjudicated') {
+      whereParts.push('writeInAdjudicationId is not null');
+    }
+
+    if (status === 'transcribed') {
+      whereParts.push('write_ins.transcribed_value is not null');
+    }
+
+    if (status === 'pending') {
+      whereParts.push(
+        'writeInAdjudicationId is null and write_ins.transcribed_value is null'
+      );
+    }
+
     const rows = this.client.all(
       `
         select
-          contest_id as contestId,
-          transcribed_value as transcribedValue,
-          count(write_ins.id) as writeInCount
+          write_ins.contest_id as contestId,
+          write_ins.transcribed_value as transcribedValue,
+          count(write_ins.id) as writeInCount,
+          (
+            select write_in_adjudications.id from write_in_adjudications
+            where write_in_adjudications.election_id = cvrs.election_id
+              and write_in_adjudications.contest_id = write_ins.contest_id
+              and write_in_adjudications.transcribed_value = write_ins.transcribed_value
+            limit 1
+          ) as writeInAdjudicationId
         from write_ins
         inner join
           cvrs on cvrs.id = write_ins.cvr_id
-        where cvrs.election_id = ?
-          ${typeof contestId === 'string' ? 'and contest_id = ?' : ''}
+        where ${whereParts.join(' and ')}
         group by contest_id, transcribed_value
       `,
-      electionId,
-      ...(typeof contestId === 'string' ? [contestId] : [])
+      ...params
     ) as Array<{
       contestId: ContestId;
       transcribedValue: string | null;
       writeInCount: number;
+      writeInAdjudicationId: Id | null;
     }>;
 
     const writeInAdjudications = this.getWriteInAdjudicationRecords({
       electionId,
+      contestId,
     });
 
     return rows.map((row): Admin.WriteInSummaryEntry => {
       const adjudication = writeInAdjudications.find(
-        (a) =>
-          a.contestId === row.contestId &&
-          a.transcribedValue === row.transcribedValue
+        (a) => a.id === row.writeInAdjudicationId
       );
 
+      if (adjudication && row.transcribedValue) {
+        return {
+          status: 'adjudicated',
+          contestId: row.contestId,
+          writeInCount: row.writeInCount,
+          transcribedValue: row.transcribedValue,
+          writeInAdjudication: adjudication,
+        };
+      }
+
+      if (row.transcribedValue) {
+        return {
+          status: 'transcribed',
+          contestId: row.contestId,
+          writeInCount: row.writeInCount,
+          transcribedValue: row.transcribedValue,
+        };
+      }
+
       return {
+        status: 'pending',
         contestId: row.contestId,
-        transcribedValue: row.transcribedValue ?? undefined,
         writeInCount: row.writeInCount,
-        writeInAdjudication: adjudication,
       };
     });
   }
@@ -823,6 +870,27 @@ export class Store {
         adjudicatedValue,
         adjudicatedOptionId ?? null
       );
+
+      if (adjudicatedValue !== transcribedValue && !adjudicatedOptionId) {
+        this.client.run(
+          `
+          insert into write_in_adjudications (
+            id,
+            election_id,
+            contest_id,
+            transcribed_value,
+            adjudicated_value
+          ) values (
+            ?, ?, ?, ?, ?
+          )
+          `,
+          uuid(),
+          electionId,
+          contestId,
+          adjudicatedValue,
+          adjudicatedValue
+        );
+      }
     } catch (error) {
       const { id: writeInAdjudicationId } = this.client.one(
         `

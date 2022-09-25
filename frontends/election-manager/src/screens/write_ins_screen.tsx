@@ -19,7 +19,6 @@ import { WriteInsAdjudicationScreen } from './write_ins_adjudication_screen';
 import { useWriteInsQuery } from '../hooks/use_write_ins_query';
 import { useTranscribeWriteInMutation } from '../hooks/use_transcribe_write_in_mutation';
 import { useAdjudicateTranscriptionMutation } from '../hooks/use_adjudicate_transcription_mutation';
-import { useWriteInSummaryQuery } from '../hooks/use_write_in_summary_query';
 import { useUpdateWriteInAdjudicationMutation } from '../hooks/use_update_write_in_adjudication_mutation';
 
 const ContentWrapper = styled.div`
@@ -44,9 +43,6 @@ export function WriteInsScreen(): JSX.Element {
   const adjudicateTranscriptionMutation = useAdjudicateTranscriptionMutation();
   const updateWriteInAdjudicationMutation =
     useUpdateWriteInAdjudicationMutation();
-  const writeInSummaryQuery = useWriteInSummaryQuery({
-    contestId: contestBeingAdjudicated?.id,
-  });
   const writeInsQuery = useWriteInsQuery();
 
   // Get write-in counts grouped by contest
@@ -246,7 +242,6 @@ export function WriteInsScreen(): JSX.Element {
             <WriteInsAdjudicationScreen
               key={contestBeingAdjudicated?.id}
               contest={contestBeingAdjudicated}
-              writeInSummaryEntries={writeInSummaryQuery.data ?? []}
               onClose={() => setContestBeingAdjudicated(undefined)}
               adjudicateTranscription={adjudicateTranscription}
               updateAdjudication={updateAdjudication}

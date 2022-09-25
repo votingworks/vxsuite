@@ -157,5 +157,13 @@ export interface ElectionManagerStoreBackend {
    */
   getWriteInSummary(options?: {
     contestId?: ContestId;
+    status?: Admin.WriteInAdjudicationStatus;
   }): Promise<Admin.WriteInSummaryEntry[]>;
+
+  /**
+   * Gets the write-in adjudication table for a given contest.
+   */
+  getWriteInAdjudicationTable(
+    contestId: ContestId
+  ): Promise<Admin.WriteInAdjudicationTable>;
 }

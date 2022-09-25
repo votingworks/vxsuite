@@ -1,17 +1,12 @@
-import { Admin } from '@votingworks/api';
 import { CandidateContest, ContestOptionId, Id } from '@votingworks/types';
-import { Button, Main, Prose, Screen, Text } from '@votingworks/ui';
-import { collections, format, groupBy } from '@votingworks/utils';
+import { Button, Loading, Main, Prose, Screen, Text } from '@votingworks/ui';
+import { format } from '@votingworks/utils';
 import pluralize from 'pluralize';
 import React from 'react';
 import styled from 'styled-components';
 import { Navigation } from '../components/navigation';
-import {
-  AdjudicationGroup,
-  AdjudicationOption,
-  PendingWriteInAdjudication,
-  WriteInAdjudicationTable,
-} from '../components/write_in_adjudication_table';
+import { WriteInAdjudicationTable } from '../components/write_in_adjudication_table';
+import { useWriteInAdjudicationTableQuery } from '../hooks/use_write_in_adjudication_table_query';
 
 const ContentWrapper = styled.div`
   display: flex;
@@ -33,7 +28,6 @@ const Header = styled.div`
 
 export interface Props {
   readonly contest: CandidateContest;
-  readonly writeInSummaryEntries: readonly Admin.WriteInSummaryEntry[];
   readonly onClose: () => void;
   readonly adjudicateTranscription: (
     transcribedValue: string,
@@ -49,96 +43,45 @@ export interface Props {
 
 export function WriteInsAdjudicationScreen({
   contest,
-  writeInSummaryEntries,
   onClose,
   adjudicateTranscription,
   updateAdjudication,
 }: Props): JSX.Element {
-  const contestWriteInCount = writeInSummaryEntries.reduce(
-    (acc, entry) => acc + entry.writeInCount,
-    0
-  );
+  const writeInAdjudicationTableQuery = useWriteInAdjudicationTableQuery({
+    contestId: contest.id,
+  });
+  const { isLoading } = writeInAdjudicationTableQuery;
 
-  const adjudicatedGroups: AdjudicationGroup[] = [];
-  const pendingAdjudications: PendingWriteInAdjudication[] = [];
-
-  for (const [adjudicatedValue, entries] of groupBy(
-    writeInSummaryEntries,
-    (entry) => entry.writeInAdjudication?.adjudicatedValue
-  )) {
-    if (adjudicatedValue) {
-      adjudicatedGroups.push({
-        adjudicatedValue,
-        writeInCount: collections.reduce(
-          entries,
-          (acc, entry) => acc + entry.writeInCount,
-          0
-        ),
-        writeInAdjudications: Array.from(entries, (entry) => ({
-          id: entry.writeInAdjudication?.id as Id,
-          adjudicatedValue: entry.writeInAdjudication
-            ?.adjudicatedValue as string,
-          transcribedValue: entry.writeInAdjudication
-            ?.transcribedValue as string,
-          writeInCount: entry.writeInCount,
-        })),
-      });
-    } else {
-      for (const entry of entries) {
-        if (entry.transcribedValue) {
-          pendingAdjudications.push({
-            transcribedValue: entry.transcribedValue,
-            writeInCount: entry.writeInCount,
-          });
-        }
-      }
-    }
-  }
-
-  const adjudicationQueuePhrase = `${format.count(
-    pendingAdjudications.length
-  )} ${pluralize('transcriptions', pendingAdjudications.length)} to adjudicate`;
-
-  const adjudicationValues = [
-    ...pendingAdjudications.map(
-      (pendingAdjudication): AdjudicationOption => ({
-        adjudicatedValue: pendingAdjudication.transcribedValue,
-        hasAdjudication: false,
-      })
-    ),
-    // TODO: we want to include some of these, I think
-    // ...adjudicatedGroups.map(
-    //   (adjudicatedGroup): AdjudicationOption => ({
-    //     adjudicatedValue: adjudicatedGroup.adjudicatedValue,
-    //     hasAdjudication: true,
-    //   })
-    // ),
-    ...contest.candidates.map(
-      (c): AdjudicationOption => ({
-        adjudicatedValue: `${c.name} (official candidate)`,
-        adjudicatedOptionId: c.id,
-        hasAdjudication: false,
-      })
-    ),
-  ].sort((a, b) => a.adjudicatedValue.localeCompare(b.adjudicatedValue));
+  const contestWriteInCount =
+    writeInAdjudicationTableQuery.data?.writeInCount ?? 0;
+  const transcriptionsToAdjudicateCount =
+    writeInAdjudicationTableQuery.data?.transcribed.rows.length ?? 0;
+  const adjudicationQueuePhrase = writeInAdjudicationTableQuery.data
+    ? `${format.count(transcriptionsToAdjudicateCount)} ${pluralize(
+        'transcriptions',
+        transcriptionsToAdjudicateCount
+      )} to adjudicate`
+    : '';
 
   return (
     <Screen grey>
       <Navigation
         screenTitle="Write-In Adjudication"
         secondaryNav={
-          <React.Fragment>
-            {pendingAdjudications.length > 0 && (
-              <Text as="span">{adjudicationQueuePhrase}.</Text>
-            )}
-            <Button
-              small
-              primary={pendingAdjudications.length === 0}
-              onPress={onClose}
-            >
-              Back to All Write-Ins
-            </Button>
-          </React.Fragment>
+          !isLoading && (
+            <React.Fragment>
+              {transcriptionsToAdjudicateCount > 0 && (
+                <Text as="span">{adjudicationQueuePhrase}.</Text>
+              )}
+              <Button
+                small
+                primary={transcriptionsToAdjudicateCount === 0}
+                onPress={onClose}
+              >
+                Back to All Write-Ins
+              </Button>
+            </React.Fragment>
+          )
         }
       />
       <Main padded>
@@ -152,14 +95,16 @@ export function WriteInsAdjudicationScreen({
                   <p>Total write-ins: {format.count(contestWriteInCount)}</p>
                 </Prose>
               </Header>
-              <WriteInAdjudicationTable
-                adjudicatedGroups={adjudicatedGroups}
-                pendingAdjudications={pendingAdjudications}
-                adjudicationQueuePhrase={adjudicationQueuePhrase}
-                adjudicationValues={adjudicationValues}
-                adjudicateTranscription={adjudicateTranscription}
-                updateAdjudication={updateAdjudication}
-              />
+              {writeInAdjudicationTableQuery.data ? (
+                <WriteInAdjudicationTable
+                  adjudicationTable={writeInAdjudicationTableQuery.data}
+                  adjudicationQueuePhrase={adjudicationQueuePhrase}
+                  adjudicateTranscription={adjudicateTranscription}
+                  updateAdjudication={updateAdjudication}
+                />
+              ) : (
+                <Loading />
+              )}
             </ContestAdjudication>
           </Prose>
         </ContentWrapper>

@@ -1,3 +1,4 @@
+import { Admin } from '@votingworks/api';
 import { ContestOptionId, Id } from '@votingworks/types';
 import {
   Button,
@@ -12,35 +13,9 @@ import { find, format } from '@votingworks/utils';
 import React, { useState } from 'react';
 import styled from 'styled-components';
 
-export interface WriteInAdjudication {
-  readonly id: Id;
-  readonly adjudicatedValue: string;
-  readonly transcribedValue: string;
-  readonly writeInCount: number;
-}
-
-export interface AdjudicationGroup {
-  readonly adjudicatedValue: string;
-  readonly writeInCount: number;
-  readonly writeInAdjudications: WriteInAdjudication[];
-}
-
-export interface PendingWriteInAdjudication {
-  readonly transcribedValue: string;
-  readonly writeInCount: number;
-}
-
-export interface AdjudicationOption {
-  adjudicatedValue: string;
-  adjudicatedOptionId?: ContestOptionId;
-  hasAdjudication: boolean;
-}
-
 export interface Props {
-  readonly adjudicatedGroups: readonly AdjudicationGroup[];
-  readonly pendingAdjudications: readonly PendingWriteInAdjudication[];
+  readonly adjudicationTable: Admin.WriteInAdjudicationTable;
   readonly adjudicationQueuePhrase: string;
-  readonly adjudicationValues: readonly AdjudicationOption[];
   readonly adjudicateTranscription: (
     transcribedValue: string,
     adjudicatedValue: string,
@@ -88,13 +63,18 @@ const TD = styled(TableDataUI)`
 function AdjudicatedGroupHeaderRow({
   adjudicatedGroup,
 }: {
-  adjudicatedGroup: AdjudicationGroup;
+  adjudicatedGroup: Admin.WriteInAdjudicationTableAdjudicatedRowGroup;
 }): JSX.Element {
   return (
     <StyledAdjudicatedRow>
       <TD nowrap>
         <Prose>
-          <h3>{adjudicatedGroup.adjudicatedValue}</h3>
+          <h3>
+            {adjudicatedGroup.adjudicatedValue}
+            {adjudicatedGroup.adjudicatedOptionId && (
+              <React.Fragment> (official candidate)</React.Fragment>
+            )}
+          </h3>
         </Prose>
       </TD>
       <TD textAlign="center">
@@ -108,15 +88,17 @@ function AdjudicatedGroupHeaderRow({
 }
 
 function AdjudicationSelect({
-  options,
+  groups,
   defaultValue,
   small,
   onChange,
+  onBlur,
 }: {
-  options: readonly AdjudicationOption[];
-  defaultValue?: AdjudicationOption;
+  groups: readonly Admin.WriteInAdjudicationTableOptionGroup[];
+  defaultValue?: Admin.WriteInAdjudicationTableOption;
   small?: boolean;
-  onChange: (option: AdjudicationOption) => void;
+  onChange: (option: Admin.WriteInAdjudicationTableOption) => void;
+  onBlur?: () => void;
 }): JSX.Element {
   return (
     <Select
@@ -125,63 +107,75 @@ function AdjudicationSelect({
       onChange={(event) =>
         onChange(
           find(
-            options,
-            ({ adjudicatedValue: name }) => name === event.target.value
+            groups.flatMap((g) => g.options),
+            ({ adjudicatedValue }) => adjudicatedValue === event.target.value
           )
         )
       }
+      onBlur={onBlur}
     >
       <option disabled value="">
         Select adjudicated candidate name…
       </option>
-      {options.map((option) => (
-        <option
-          key={option.adjudicatedValue}
-          value={option.adjudicatedValue}
-          disabled={option.hasAdjudication}
-        >
-          {option.adjudicatedValue}
-        </option>
+      {groups.map((group) => (
+        <optgroup key={group.title} label={group.title}>
+          {group.options.map((option) => (
+            <option
+              key={option.adjudicatedValue}
+              value={option.adjudicatedValue}
+              disabled={!option.enabled}
+            >
+              {option.adjudicatedValue}
+            </option>
+          ))}
+        </optgroup>
       ))}
     </Select>
   );
 }
 
 function AdjudicationRow({
-  adjudication,
+  rowData,
+  groupData,
   updateAdjudication,
-  adjudicationValues,
 }: {
-  adjudication: WriteInAdjudication;
+  rowData: Admin.WriteInAdjudicationTableAdjudicatedRow;
+  groupData: Admin.WriteInAdjudicationTableAdjudicatedRowGroup;
   updateAdjudication: Props['updateAdjudication'];
-  adjudicationValues: Props['adjudicationValues'];
 }): JSX.Element {
   const [isChanging, setIsChanging] = useState(false);
 
   return (
-    <tr key={adjudication.transcribedValue} className="transcription-row">
-      <TD nowrap>{adjudication.transcribedValue}</TD>
-      <TD textAlign="center">{format.count(adjudication.writeInCount)}</TD>
+    <tr key={rowData.transcribedValue} className="transcription-row">
+      <TD nowrap>{rowData.transcribedValue}</TD>
+      <TD textAlign="center">{format.count(rowData.writeInCount)}</TD>
       <TD nowrap>
         {isChanging ? (
           <AdjudicationSelect
-            defaultValue={adjudicationValues.find(
-              (option) =>
-                option.adjudicatedValue === adjudication.adjudicatedValue
-            )}
-            small={!!adjudication.transcribedValue}
-            options={adjudicationValues}
+            defaultValue={rowData.adjudicationOptionGroups
+              .flatMap((group) => group.options)
+              .find(
+                (option) =>
+                  option.adjudicatedValue === groupData.adjudicatedValue
+              )}
+            small={!!rowData.transcribedValue}
+            groups={rowData.adjudicationOptionGroups}
             onChange={(option) => {
               updateAdjudication(
-                adjudication.id,
+                rowData.writeInAdjudicationId,
                 option.adjudicatedValue,
                 option.adjudicatedOptionId
               );
               setIsChanging(false);
             }}
+            onBlur={() => setIsChanging(false)}
           />
         ) : (
-          <Button small onPress={() => setIsChanging(true)}>
+          <Button
+            small
+            onPress={() => setIsChanging(true)}
+            disabled={!rowData.editable}
+          >
             Change
           </Button>
         )}
@@ -190,30 +184,23 @@ function AdjudicationRow({
   );
 }
 
-function PendingAdjudicationRow({
-  pendingAdjudication,
+function TranscriptionRow({
+  rowData,
   adjudicateTranscription,
-  adjudicationValues,
 }: {
-  pendingAdjudication: PendingWriteInAdjudication;
+  rowData: Admin.WriteInAdjudicationTableTranscribedRow;
   adjudicateTranscription: Props['adjudicateTranscription'];
-  adjudicationValues: Props['adjudicationValues'];
 }): JSX.Element {
   return (
-    <tr
-      key={pendingAdjudication.transcribedValue}
-      className="transcription-row"
-    >
-      <TD nowrap>{pendingAdjudication.transcribedValue}</TD>
-      <TD textAlign="center">
-        {format.count(pendingAdjudication.writeInCount)}
-      </TD>
+    <tr key={rowData.transcribedValue} className="transcription-row">
+      <TD nowrap>{rowData.transcribedValue}</TD>
+      <TD textAlign="center">{format.count(rowData.writeInCount)}</TD>
       <TD nowrap>
         <AdjudicationSelect
-          options={adjudicationValues}
+          groups={rowData.adjudicationOptionGroups}
           onChange={(option) =>
             adjudicateTranscription(
-              pendingAdjudication.transcribedValue,
+              rowData.transcribedValue,
               option.adjudicatedValue,
               option.adjudicatedOptionId
             )
@@ -225,14 +212,12 @@ function PendingAdjudicationRow({
 }
 
 export function WriteInAdjudicationTable({
-  adjudicatedGroups,
-  pendingAdjudications,
+  adjudicationTable,
   adjudicationQueuePhrase,
-  adjudicationValues,
   adjudicateTranscription,
   updateAdjudication,
 }: Props): JSX.Element {
-  const hasAdjudicatedTranscriptions = adjudicatedGroups.length > 0;
+  const hasAdjudicatedTranscriptions = adjudicationTable.adjudicated.length > 0;
   return (
     <Table>
       <thead>
@@ -245,22 +230,22 @@ export function WriteInAdjudicationTable({
         )}
       </thead>
       <tbody>
-        {adjudicatedGroups.map((adjudicatedGroup) => {
+        {adjudicationTable.adjudicated.map((adjudicatedGroup) => {
           return (
             <React.Fragment key={adjudicatedGroup.adjudicatedValue}>
               <AdjudicatedGroupHeaderRow adjudicatedGroup={adjudicatedGroup} />
-              {adjudicatedGroup.writeInAdjudications.map((adjudication) => (
+              {adjudicatedGroup.rows.map((rowData) => (
                 <AdjudicationRow
-                  key={adjudication.id}
-                  adjudication={adjudication}
+                  key={rowData.writeInAdjudicationId}
+                  rowData={rowData}
+                  groupData={adjudicatedGroup}
                   updateAdjudication={updateAdjudication}
-                  adjudicationValues={adjudicationValues}
                 />
               ))}
             </React.Fragment>
           );
         })}
-        {pendingAdjudications.length > 0 && (
+        {adjudicationTable.transcribed.rows.length > 0 && (
           <InvertedTableRow primary>
             <TH>
               <Text as="span" normal>
@@ -275,12 +260,11 @@ export function WriteInAdjudicationTable({
             </TD>
           </InvertedTableRow>
         )}
-        {pendingAdjudications.map((pendingAdjudication) => (
-          <PendingAdjudicationRow
-            key={pendingAdjudication.transcribedValue}
-            pendingAdjudication={pendingAdjudication}
+        {adjudicationTable.transcribed.rows.map((rowData) => (
+          <TranscriptionRow
+            key={rowData.transcribedValue}
+            rowData={rowData}
             adjudicateTranscription={adjudicateTranscription}
-            adjudicationValues={adjudicationValues}
           />
         ))}
       </tbody>

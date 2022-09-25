@@ -42,22 +42,28 @@ test('write-in adjudication lifecycle', async () => {
   const contestId = 'zoo-council-mammal';
 
   // view the adjudication table
-  const getWriteInSummaryHttpResponse = await request(app)
+  const getWriteInAdjudicationTableHttpResponse = await request(app)
     .get(
-      `/admin/elections/${electionId}/write-in-summary?contestId=${contestId}`
+      `/admin/elections/${electionId}/contests/${contestId}/write-in-adjudication-table`
     )
     .expect(200);
-  const getWriteInSummaryResponse = unsafeParse(
-    Admin.GetWriteInSummaryResponseSchema,
-    getWriteInSummaryHttpResponse.body
+  const getWriteInAdjudicationTableResponse = unsafeParse(
+    Admin.GetWriteInAdjudicationTableResponseSchema,
+    getWriteInAdjudicationTableHttpResponse.body
   );
-  expect(getWriteInSummaryResponse).toEqual(
-    typedAs<Admin.WriteInSummaryEntry[]>([
-      {
+  expect(getWriteInAdjudicationTableResponse).toEqual(
+    typedAs<Admin.GetWriteInAdjudicationTableResponse>({
+      status: 'ok',
+      table: {
         contestId,
-        writeInCount: expect.any(Number),
+        writeInCount: 0,
+        adjudicated: [],
+        transcribed: {
+          writeInCount: 0,
+          rows: [],
+        },
       },
-    ])
+    })
   );
 
   // process all the write-ins for the contest we're going to adjudicate
@@ -105,24 +111,50 @@ test('write-in adjudication lifecycle', async () => {
   }
 
   // view the adjudication table
-  const getWriteInSummaryAfterTranscriptionHttpResponse = await request(app)
+  const getWriteInTableAfterTranscriptionHttpResponse = await request(app)
     .get(
-      `/admin/elections/${electionId}/write-in-summary?contestId=${contestId}`
+      `/admin/elections/${electionId}/contests/${contestId}/write-in-adjudication-table`
     )
     .expect(200);
-  const getWriteInSummaryAfterTranscriptionResponse = unsafeParse(
-    Admin.GetWriteInSummaryResponseSchema,
-    getWriteInSummaryAfterTranscriptionHttpResponse.body
+  const getWriteInTableAfterTranscriptionResponse = unsafeParse(
+    Admin.GetWriteInAdjudicationTableResponseSchema,
+    getWriteInTableAfterTranscriptionHttpResponse.body
   );
 
-  expect(getWriteInSummaryAfterTranscriptionResponse).toEqual(
-    typedAs<Admin.GetWriteInSummaryResponse>([
-      {
+  expect(getWriteInTableAfterTranscriptionResponse).toEqual(
+    typedAs<Admin.GetWriteInAdjudicationTableResponse>({
+      status: 'ok',
+      table: {
         contestId,
-        transcribedValue: 'Mickey Mouse',
         writeInCount,
+        adjudicated: [],
+        transcribed: {
+          writeInCount,
+          rows: [
+            {
+              transcribedValue: 'Mickey Mouse',
+              writeInCount,
+              adjudicationOptionGroups: [
+                expect.objectContaining(
+                  typedAs<Partial<Admin.WriteInAdjudicationTableOptionGroup>>({
+                    title: 'Official Candidates',
+                  })
+                ),
+                {
+                  title: 'Write-In Candidates',
+                  options: [
+                    {
+                      adjudicatedValue: 'Mickey Mouse',
+                      enabled: true,
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
       },
-    ])
+    })
   );
 
   const getWriteInAdjudicationsAfterTranscriptionHttpResponse = await request(
@@ -154,29 +186,58 @@ test('write-in adjudication lifecycle', async () => {
     .expect(200);
 
   // view the adjudication table
-  const getWriteInSummaryAfterAdjudicationHttpResponse = await request(app)
-    .get(
-      `/admin/elections/${electionId}/write-in-summary?contestId=${contestId}`
-    )
-    .expect(200);
-  const getWriteInSummaryAfterAdjudicationResponse = unsafeParse(
-    Admin.GetWriteInSummaryResponseSchema,
-    getWriteInSummaryAfterAdjudicationHttpResponse.body
+  const getWriteInAdjudicationTableAfterAdjudicationHttpResponse =
+    await request(app)
+      .get(
+        `/admin/elections/${electionId}/contests/${contestId}/write-in-adjudication-table`
+      )
+      .expect(200);
+  const getWriteInAdjudicationTableAfterAdjudicationResponse = unsafeParse(
+    Admin.GetWriteInAdjudicationTableResponseSchema,
+    getWriteInAdjudicationTableAfterAdjudicationHttpResponse.body
   );
-  expect(getWriteInSummaryAfterAdjudicationResponse).toEqual(
-    typedAs<Admin.GetWriteInSummaryResponse>([
-      {
+  expect(getWriteInAdjudicationTableAfterAdjudicationResponse).toEqual(
+    typedAs<Admin.GetWriteInAdjudicationTableResponse>({
+      status: 'ok',
+      table: {
         contestId,
-        transcribedValue: 'Mickey Mouse',
         writeInCount,
-        writeInAdjudication: {
-          id: expect.any(String),
-          contestId,
-          transcribedValue: 'Mickey Mouse',
-          adjudicatedValue: 'Mickey Mouse',
+        adjudicated: [
+          {
+            adjudicatedValue: 'Mickey Mouse',
+            writeInCount,
+            rows: [
+              {
+                transcribedValue: 'Mickey Mouse',
+                writeInAdjudicationId: expect.any(String),
+                writeInCount,
+                editable: true,
+                adjudicationOptionGroups: [
+                  expect.objectContaining(
+                    typedAs<Partial<Admin.WriteInAdjudicationTableOptionGroup>>(
+                      { title: 'Official Candidates' }
+                    )
+                  ),
+                  {
+                    title: 'Write-In Candidates',
+                    options: [
+                      {
+                        adjudicatedValue: 'Mickey Mouse',
+                        enabled: true,
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+        transcribed: {
+          writeInCount: 0,
+          rows: [],
         },
       },
-    ])
+    })
   );
 
   const getWriteInAdjudicationsAfterAdjudicationHttpResponse = await request(
@@ -202,9 +263,10 @@ test('write-in adjudication lifecycle', async () => {
     ])
   );
 
-  const writeInAdjudicationId = (
-    getWriteInSummaryAfterAdjudicationResponse as Admin.WriteInSummaryEntry[]
-  )[0]?.writeInAdjudication!.id;
+  assert(getWriteInAdjudicationTableAfterAdjudicationResponse.status === 'ok');
+  const writeInAdjudicationId =
+    getWriteInAdjudicationTableAfterAdjudicationResponse.table.adjudicated[0]
+      ?.rows[0]?.writeInAdjudicationId;
 
   // update the adjudication
   await request(app)
@@ -217,29 +279,34 @@ test('write-in adjudication lifecycle', async () => {
     .expect(200);
 
   // view the adjudication table
-  const getWriteInSummaryAfterUpdateHttpResponse = await request(app)
+  const getWriteInAdjudicationTableAfterUpdateHttpResponse = await request(app)
     .get(
-      `/admin/elections/${electionId}/write-in-summary?contestId=${contestId}`
+      `/admin/elections/${electionId}/contests/${contestId}/write-in-adjudication-table`
     )
     .expect(200);
-  const getWriteInSummaryAfterUpdateResponse = unsafeParse(
-    Admin.GetWriteInSummaryResponseSchema,
-    getWriteInSummaryAfterUpdateHttpResponse.body
+  const getWriteInAdjudicationTableAfterUpdateResponse = unsafeParse(
+    Admin.GetWriteInAdjudicationTableResponseSchema,
+    getWriteInAdjudicationTableAfterUpdateHttpResponse.body
   );
-  expect(getWriteInSummaryAfterUpdateResponse).toEqual(
-    typedAs<Admin.GetWriteInSummaryResponse>([
-      {
+  expect(getWriteInAdjudicationTableAfterUpdateResponse).toEqual(
+    typedAs<Admin.GetWriteInAdjudicationTableResponse>({
+      status: 'ok',
+      table: {
         contestId,
-        transcribedValue: 'Mickey Mouse',
         writeInCount,
-        writeInAdjudication: {
-          id: expect.any(String),
-          contestId,
-          transcribedValue: 'Mickey Mouse',
-          adjudicatedValue: 'Modest Mouse',
+        adjudicated: [
+          expect.objectContaining(
+            typedAs<Partial<Admin.WriteInAdjudicationTableAdjudicatedRowGroup>>(
+              { adjudicatedValue: 'Modest Mouse' }
+            )
+          ),
+        ],
+        transcribed: {
+          writeInCount: 0,
+          rows: [],
         },
       },
-    ])
+    })
   );
 
   // update the adjudication again to an official candidate
@@ -254,30 +321,36 @@ test('write-in adjudication lifecycle', async () => {
     .expect(200);
 
   // view the adjudication table
-  const getWriteInSummaryAfterUpdateAgainHttpResponse = await request(app)
+  const getWriteInAdjudicationTableAfterUpdateAgainHttpResponse = await request(
+    app
+  )
     .get(
-      `/admin/elections/${electionId}/write-in-summary?contestId=${contestId}`
+      `/admin/elections/${electionId}/contests/${contestId}/write-in-adjudication-table`
     )
     .expect(200);
-  const getWriteInSummaryAfterUpdateAgainResponse = unsafeParse(
-    Admin.GetWriteInSummaryResponseSchema,
-    getWriteInSummaryAfterUpdateAgainHttpResponse.body
+  const getWriteInAdjudicationTableAfterUpdateAgainResponse = unsafeParse(
+    Admin.GetWriteInAdjudicationTableResponseSchema,
+    getWriteInAdjudicationTableAfterUpdateAgainHttpResponse.body
   );
-  expect(getWriteInSummaryAfterUpdateAgainResponse).toEqual(
-    typedAs<Admin.GetWriteInSummaryResponse>([
-      {
+  expect(getWriteInAdjudicationTableAfterUpdateAgainResponse).toEqual(
+    typedAs<Admin.GetWriteInAdjudicationTableResponse>({
+      status: 'ok',
+      table: {
         contestId,
-        transcribedValue: 'Mickey Mouse',
         writeInCount,
-        writeInAdjudication: {
-          id: expect.any(String),
-          contestId,
-          transcribedValue: 'Mickey Mouse',
-          adjudicatedValue: 'Zebra',
-          adjudicatedOptionId: 'zebra',
+        adjudicated: [
+          expect.objectContaining(
+            typedAs<Partial<Admin.WriteInAdjudicationTableAdjudicatedRowGroup>>(
+              { adjudicatedValue: 'Zebra', adjudicatedOptionId: 'zebra' }
+            )
+          ),
+        ],
+        transcribed: {
+          writeInCount: 0,
+          rows: [],
         },
       },
-    ])
+    })
   );
 
   // delete the adjudication
@@ -286,24 +359,114 @@ test('write-in adjudication lifecycle', async () => {
     .expect(200);
 
   // view the adjudication table
-  const getWriteInSummaryAfterDeleteHttpResponse = await request(app)
+  const getWriteInAdjudicationTableAfterDeleteHttpResponse = await request(app)
     .get(
-      `/admin/elections/${electionId}/write-in-summary?contestId=${contestId}`
+      `/admin/elections/${electionId}/contests/${contestId}/write-in-adjudication-table`
     )
     .expect(200);
-  const getWriteInSummaryAfterDeleteResponse = unsafeParse(
-    Admin.GetWriteInSummaryResponseSchema,
-    getWriteInSummaryAfterDeleteHttpResponse.body
+  const getWriteInAdjudicationTableAfterDeleteResponse = unsafeParse(
+    Admin.GetWriteInAdjudicationTableResponseSchema,
+    getWriteInAdjudicationTableAfterDeleteHttpResponse.body
   );
-  expect(getWriteInSummaryAfterDeleteResponse).toEqual(
-    typedAs<Admin.GetWriteInSummaryResponse>([
-      {
+  expect(getWriteInAdjudicationTableAfterDeleteResponse).toEqual(
+    typedAs<Admin.GetWriteInAdjudicationTableResponse>({
+      status: 'ok',
+      table: {
         contestId,
-        transcribedValue: 'Mickey Mouse',
         writeInCount,
+        adjudicated: [],
+        transcribed: {
+          writeInCount,
+          rows: [
+            expect.objectContaining(
+              typedAs<Partial<Admin.WriteInAdjudicationTableTranscribedRow>>({
+                transcribedValue: 'Mickey Mouse',
+                writeInCount,
+              })
+            ),
+          ],
+        },
       },
-    ])
+    })
   );
+});
+
+test('write-in summary filtered by contestId & status', async () => {
+  const electionId = workspace.store.addElection(
+    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
+  );
+
+  // upload the CVR file
+  const postCvrHttpResponse = await request(app)
+    .post(`/admin/elections/${electionId}/cvr-files`)
+    .attach(
+      'cvrFile',
+      electionMinimalExhaustiveSampleFixtures.standardCvrFile.asBuffer(),
+      'cvrFile.json'
+    )
+    .expect(200);
+  const postCvrResponse = unsafeParse(
+    Admin.PostCvrFileResponseSchema,
+    postCvrHttpResponse.body
+  );
+
+  assert(postCvrResponse.status === 'ok');
+
+  // focus on this contest
+  const contestId = 'zoo-council-mammal';
+
+  const getWriteInSummaryPendingHttpResponse = await request(app)
+    .get(
+      `/admin/elections/${electionId}/write-in-summary?contestId=${contestId}&status=pending`
+    )
+    .expect(200);
+  const getWriteInSummaryPendingResponse = unsafeParse(
+    Admin.GetWriteInSummaryResponseSchema,
+    getWriteInSummaryPendingHttpResponse.body
+  );
+  expect(getWriteInSummaryPendingResponse).toHaveLength(1);
+
+  const getWriteInSummaryTranscribedHttpResponse = await request(app)
+    .get(
+      `/admin/elections/${electionId}/write-in-summary?contestId=${contestId}&status=transcribed`
+    )
+    .expect(200);
+  const getWriteInSummaryTranscribedResponse = unsafeParse(
+    Admin.GetWriteInSummaryResponseSchema,
+    getWriteInSummaryTranscribedHttpResponse.body
+  );
+  expect(getWriteInSummaryTranscribedResponse).toHaveLength(0);
+
+  const getWriteInSummaryAdjudicatedHttpResponse = await request(app)
+    .get(
+      `/admin/elections/${electionId}/write-in-summary?contestId=${contestId}&status=adjudicated`
+    )
+    .expect(200);
+  const getWriteInSummaryAdjudicatedResponse = unsafeParse(
+    Admin.GetWriteInSummaryResponseSchema,
+    getWriteInSummaryAdjudicatedHttpResponse.body
+  );
+  expect(getWriteInSummaryAdjudicatedResponse).toHaveLength(0);
+});
+
+test('write-in adjudication table with a bad electionId', async () => {
+  await request(app)
+    .get(
+      `/admin/elections/invalid/contests/contest-1/write-in-adjudication-table`
+    )
+    .expect(404);
+});
+
+test('write-in adjudication table with a bad contestId', async () => {
+  const electionId = workspace.store.addElection(
+    electionMinimalExhaustiveSampleFixtures.electionDefinition.electionData
+  );
+
+  await request(app)
+    .get(
+      `/admin/elections/${electionId}/contests/invalid-contest-id/write-in-adjudication-table`
+    )
+    .expect(404);
 });
 
 test('create write-in adjudication for an unlisted candidate', async () => {
@@ -324,6 +487,12 @@ test('create write-in adjudication for an unlisted candidate', async () => {
 
   expect(workspace.store.getWriteInAdjudicationRecords({ electionId })).toEqual(
     typedAs<Admin.WriteInAdjudicationRecord[]>([
+      {
+        id: expect.any(String),
+        contestId: 'zoo-council-mammal',
+        transcribedValue: 'Cyclops',
+        adjudicatedValue: 'Cyclops',
+      },
       {
         id: expect.any(String),
         contestId: 'zoo-council-mammal',

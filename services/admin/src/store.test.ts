@@ -370,23 +370,49 @@ test('write-in adjudication lifecycle', () => {
   expect(store.getWriteInAdjudicationSummary({ electionId })).toEqual(
     typedAs<Admin.WriteInSummaryEntry[]>([
       {
+        status: 'pending',
         contestId: 'zoo-council-mammal',
         writeInCount: 1,
       },
     ])
   );
+
+  expect(
+    store.getWriteInAdjudicationSummary({ electionId, status: 'pending' })
+  ).toHaveLength(1);
+
+  expect(
+    store.getWriteInAdjudicationSummary({ electionId, status: 'transcribed' })
+  ).toHaveLength(0);
+
+  expect(
+    store.getWriteInAdjudicationSummary({ electionId, status: 'adjudicated' })
+  ).toHaveLength(0);
 
   store.transcribeWriteIn(writeInId, 'Mickey Mouse');
 
   expect(store.getWriteInAdjudicationSummary({ electionId })).toEqual(
     typedAs<Admin.WriteInSummaryEntry[]>([
       {
+        status: 'transcribed',
         contestId: 'zoo-council-mammal',
-        transcribedValue: 'Mickey Mouse',
         writeInCount: 1,
+        transcribedValue: 'Mickey Mouse',
       },
     ])
   );
+
+  expect(
+    store.getWriteInAdjudicationSummary({ electionId, status: 'pending' })
+  ).toHaveLength(0);
+
+  expect(
+    store.getWriteInAdjudicationSummary({ electionId, status: 'transcribed' })
+  ).toHaveLength(1);
+
+  expect(
+    store.getWriteInAdjudicationSummary({ electionId, status: 'adjudicated' })
+  ).toHaveLength(0);
 
   expect(
     store.getWriteInRecords({
@@ -458,9 +484,10 @@ test('write-in adjudication lifecycle', () => {
   expect(store.getWriteInAdjudicationSummary({ electionId })).toEqual(
     typedAs<Admin.WriteInSummaryEntry[]>([
       {
+        status: 'adjudicated',
         contestId: 'zoo-council-mammal',
-        transcribedValue: 'Mickey Mouse',
         writeInCount: 1,
+        transcribedValue: 'Mickey Mouse',
         writeInAdjudication: {
           id: firstWriteInAdjudicationId,
           contestId: 'zoo-council-mammal',
@@ -510,9 +537,10 @@ test('write-in adjudication lifecycle', () => {
   expect(store.getWriteInAdjudicationSummary({ electionId })).toEqual(
     typedAs<Admin.WriteInSummaryEntry[]>([
       {
+        status: 'adjudicated',
         contestId: 'zoo-council-mammal',
-        transcribedValue: 'Mickey Mouse',
         writeInCount: 1,
+        transcribedValue: 'Mickey Mouse',
         writeInAdjudication: {
           id: firstWriteInAdjudicationId,
           contestId: 'zoo-council-mammal',

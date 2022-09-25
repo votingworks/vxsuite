@@ -12,7 +12,6 @@ import {
   isElectionManagerAuth,
   Main,
   Modal,
-  Nothing,
   Screen,
   Text,
 } from '@votingworks/ui';
@@ -74,7 +73,7 @@ const SHEET_ADJUDICATION_ERRORS: ReadonlyArray<PageInterpretation['type']> = [
 export function BallotEjectScreen({
   continueScanning,
   isTestMode,
-}: Props): JSX.Element {
+}: Props): JSX.Element | null {
   const { auth, logger, electionDefinition, machineConfig } =
     useContext(AppContext);
   const [reviewInfo, setReviewInfo] =
@@ -235,7 +234,7 @@ export function BallotEjectScreen({
   ]);
 
   if (!reviewInfo) {
-    return <Nothing />;
+    return null;
   }
 
   let isOvervotedSheet = false;

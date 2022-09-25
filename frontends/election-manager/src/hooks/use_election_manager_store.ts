@@ -18,6 +18,7 @@ import { ServicesContext } from '../contexts/services_context';
 import { AddCastVoteRecordFileResult } from '../lib/backends/types';
 import { CastVoteRecordFiles } from '../utils/cast_vote_record_files';
 import { getWriteInsQueryKey } from './use_write_ins_query';
+import { getWriteInAdjudicationTableQueryKey } from './use_write_in_adjudication_table_query';
 import { getWriteInImageQueryKey } from './use_write_in_images_query';
 import { getWriteInSummaryQueryKey } from './use_write_in_summary_query';
 
@@ -217,6 +218,7 @@ export function useElectionManagerStore(): ElectionManagerStore {
     await queryClient.invalidateQueries(getWriteInImageQueryKey());
     await queryClient.invalidateQueries(getWriteInsQueryKey());
     await queryClient.invalidateQueries(getWriteInSummaryQueryKey());
+    await queryClient.invalidateQueries(getWriteInAdjudicationTableQueryKey());
   }, [backend, electionDefinition, logger, queryClient]);
 
   const configure = useCallback(
@@ -269,6 +271,9 @@ export function useElectionManagerStore(): ElectionManagerStore {
         void queryClient.invalidateQueries(getWriteInImageQueryKey());
         void queryClient.invalidateQueries(getWriteInsQueryKey());
         void queryClient.invalidateQueries(getWriteInSummaryQueryKey());
+        void queryClient.invalidateQueries(
+          getWriteInAdjudicationTableQueryKey()
+        );
       },
     }
   );
