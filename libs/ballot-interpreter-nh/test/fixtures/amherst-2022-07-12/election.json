@@ -16,8 +16,7 @@
   ],
   "centralScanAdjudicationReasons": [
     "UninterpretableBallot",
-    "Overvote",
-    "BlankBallot"
+    "Overvote"
   ],
   "contests": [
     {
@@ -874,8 +873,7 @@
   ],
   "precinctScanAdjudicationReasons": [
     "UninterpretableBallot",
-    "Overvote",
-    "BlankBallot"
+    "Overvote"
   ],
   "precincts": [
     {
