@@ -174,7 +174,6 @@ describe('Election Manager can create SEMS tallies', () => {
     cy.contains(
       electionWithMsEitherNeitherDefinition.electionHash.slice(0, 10)
     );
-    cy.pause();
     cy.contains('Lock Machine').click();
     mockElectionManagerCardInsertion(electionWithMsEitherNeitherDefinition);
     enterPin();
