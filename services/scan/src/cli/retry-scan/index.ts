@@ -3,9 +3,11 @@ import { zip } from '@votingworks/utils';
 import { cpus } from 'os';
 import { isAbsolute, join, resolve } from 'path';
 import { dirSync } from 'tmp';
+import { mapSheet } from '../../types';
 import { createWorkspace } from '../../util/workspace';
 import * as workers from '../../workers/combined';
-import { InterpretOutput } from '../../workers/interpret_vx';
+import * as nhWorker from '../../workers/interpret_nh';
+import * as vxWorker from '../../workers/interpret_vx';
 import { childProcessPool, WorkerPool } from '../../workers/pool';
 import * as qrcodeWorker from '../../workers/qrcode';
 import { Options } from './options';
@@ -116,6 +118,11 @@ export async function retryScan(
     throw new Error('no configured election');
   }
 
+  const ballotInterpreterType = electionDefinition.election.gridLayouts
+    ? 'nh'
+    : 'vx';
+  const ballotsHaveQrCodes = ballotInterpreterType === 'vx';
+
   listeners?.sheetsLoaded?.(sheets.length, electionDefinition);
 
   listeners?.interpreterLoading?.();
@@ -167,53 +174,82 @@ export async function retryScan(
           },
         ];
 
-        const [frontDetectQrcodeOutput, backDetectQrcodeOutput] =
-          qrcodeWorker.normalizeSheetOutput(
-            electionDefinition,
-            await Promise.all(
-              originalScans.map(
-                async (scan) =>
-                  await pool.call({
-                    action: 'detect-qrcode',
-                    imagePath: scan.originalFilename,
-                  })
-              ) as [Promise<qrcodeWorker.Output>, Promise<qrcodeWorker.Output>]
-            )
+        if (ballotsHaveQrCodes) {
+          const [frontDetectQrcodeOutput, backDetectQrcodeOutput] =
+            qrcodeWorker.normalizeSheetOutput(
+              electionDefinition,
+              await Promise.all(
+                originalScans.map(
+                  async (scan) =>
+                    await pool.call({
+                      action: 'detect-qrcode',
+                      imagePath: scan.originalFilename,
+                    })
+                ) as [
+                  Promise<qrcodeWorker.Output>,
+                  Promise<qrcodeWorker.Output>
+                ]
+              )
+            );
+
+          const [front, back] = await Promise.all(
+            [
+              ...zip(originalScans, [
+                frontDetectQrcodeOutput,
+                backDetectQrcodeOutput,
+              ]),
+            ].map(async ([scan, qrcode], i) => {
+              const imagePath = isAbsolute(scan.originalFilename)
+                ? scan.originalFilename
+                : resolve(input.store.getDbPath(), '..', scan.originalFilename);
+              const rescan = (await pool.call({
+                action: 'interpret',
+                interpreter: 'vx',
+                sheetId: id,
+                imagePath,
+                detectQrcodeResult: qrcode,
+                ballotImagesPath: output.ballotImagesPath,
+              })) as vxWorker.InterpretOutput;
+
+              if (rescan) {
+                listeners?.pageInterpreted?.(
+                  id,
+                  i === 0 ? 'front' : 'back',
+                  scan,
+                  rescan
+                );
+              }
+
+              return rescan;
+            })
           );
 
-        const [front, back] = await Promise.all(
-          [
-            ...zip(originalScans, [
-              frontDetectQrcodeOutput,
-              backDetectQrcodeOutput,
-            ]),
-          ].map(async ([scan, qrcode], i) => {
-            const imagePath = isAbsolute(scan.originalFilename)
-              ? scan.originalFilename
-              : resolve(input.store.getDbPath(), '..', scan.originalFilename);
-            const rescan = (await pool.call({
+          if (front && back) {
+            output.store.addSheet(id, outputBatchId, [front, back]);
+          }
+        } else {
+          const [originalFront, originalBack] = originalScans;
+          const [frontImagePath, backImagePath] = mapSheet(
+            originalScans,
+            (scan) =>
+              isAbsolute(scan.originalFilename)
+                ? scan.originalFilename
+                : resolve(input.store.getDbPath(), '..', scan.originalFilename)
+          );
+          const [front, back] = (
+            (await pool.call({
               action: 'interpret',
-              interpreter: 'vx',
+              interpreter: 'nh',
               sheetId: id,
-              imagePath,
-              detectQrcodeResult: qrcode,
               ballotImagesPath: output.ballotImagesPath,
-            })) as InterpretOutput;
+              frontImagePath,
+              backImagePath,
+            })) as nhWorker.InterpretOutput
+          ).unsafeUnwrap();
 
-            if (rescan) {
-              listeners?.pageInterpreted?.(
-                id,
-                i === 0 ? 'front' : 'back',
-                scan,
-                rescan
-              );
-            }
+          listeners?.pageInterpreted?.(id, 'front', originalFront, front);
+          listeners?.pageInterpreted?.(id, 'back', originalBack, back);
 
-            return rescan;
-          })
-        );
-
-        if (front && back) {
           output.store.addSheet(id, outputBatchId, [front, back]);
         }
       }

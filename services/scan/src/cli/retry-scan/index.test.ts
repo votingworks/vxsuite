@@ -1,9 +1,18 @@
 import { dirSync } from 'tmp';
-import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
+import { ALL_PRECINCTS_SELECTION, typedAs } from '@votingworks/utils';
+import { electionGridLayoutNewHampshireHudsonFixtures } from '@votingworks/fixtures';
+import {
+  PageInterpretation,
+  PageInterpretationWithFiles,
+} from '@votingworks/types';
 import * as fixtures from '../../../test/fixtures/choctaw-2020-09-22-f30480cc99';
 import { createWorkspace } from '../../util/workspace';
 import { queryFromOptions, retryScan } from '.';
 import { parseOptions } from './options';
+import {
+  createInterpreter,
+  SheetInterpretation,
+} from '../../precinct_scanner_interpreter';
 
 jest.setTimeout(20000);
 
@@ -318,3 +327,103 @@ test('query with sheet ids', () => {
   `);
   }
 );
+
+(process.env.CI ? test.skip : test)('NH interpreter', async () => {
+  const inputWorkspace = createWorkspace(dirSync().name);
+  const outputWorkspace = createWorkspace(dirSync().name);
+  const { store } = inputWorkspace;
+
+  store.setElection(
+    electionGridLayoutNewHampshireHudsonFixtures.electionDefinition
+  );
+  store.setPrecinctSelection(ALL_PRECINCTS_SELECTION);
+  store.setTestMode(false);
+
+  const interpreter = createInterpreter();
+  interpreter.configure({
+    electionDefinition:
+      electionGridLayoutNewHampshireHudsonFixtures.electionDefinition,
+    ballotImagesPath: inputWorkspace.ballotImagesPath,
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    layouts: [],
+    testMode: false,
+  });
+
+  const result = await interpreter.interpret('a-test-sheet-id', [
+    electionGridLayoutNewHampshireHudsonFixtures.scanMarkedFront.asFilePath(),
+    electionGridLayoutNewHampshireHudsonFixtures.scanMarkedBack.asFilePath(),
+  ]);
+
+  const interpretation = result.unsafeUnwrap();
+
+  expect(interpretation).toEqual(
+    expect.objectContaining(
+      typedAs<Partial<SheetInterpretation>>({
+        type: 'NeedsReviewSheet',
+      })
+    )
+  );
+
+  const batchId = store.addBatch();
+  store.addSheet('a-test-sheet-id', batchId, interpretation.pages);
+
+  const pageInterpreted = jest.fn();
+  await retryScan(
+    parseOptions([
+      '--input-workspace',
+      inputWorkspace.path,
+      '--output-workspace',
+      outputWorkspace.path,
+      '--all',
+    ]),
+    { pageInterpreted }
+  );
+
+  expect(pageInterpreted).toHaveBeenCalledTimes(2);
+  expect(pageInterpreted).toHaveBeenNthCalledWith(
+    1,
+    'a-test-sheet-id',
+    'front',
+    expect.objectContaining(
+      typedAs<Partial<PageInterpretationWithFiles>>({
+        interpretation: expect.objectContaining(
+          typedAs<Partial<PageInterpretation>>({
+            type: 'InterpretedHmpbPage',
+          })
+        ),
+      })
+    ),
+    expect.objectContaining(
+      typedAs<Partial<PageInterpretationWithFiles>>({
+        interpretation: expect.objectContaining(
+          typedAs<Partial<PageInterpretation>>({
+            type: 'InterpretedHmpbPage',
+          })
+        ),
+      })
+    )
+  );
+  expect(pageInterpreted).toHaveBeenNthCalledWith(
+    2,
+    'a-test-sheet-id',
+    'back',
+    expect.objectContaining(
+      typedAs<Partial<PageInterpretationWithFiles>>({
+        interpretation: expect.objectContaining(
+          typedAs<Partial<PageInterpretation>>({
+            type: 'InterpretedHmpbPage',
+          })
+        ),
+      })
+    ),
+    expect.objectContaining(
+      typedAs<Partial<PageInterpretationWithFiles>>({
+        interpretation: expect.objectContaining(
+          typedAs<Partial<PageInterpretation>>({
+            type: 'InterpretedHmpbPage',
+          })
+        ),
+      })
+    )
+  );
+});
