@@ -883,12 +883,10 @@ export function convertElectionDefinitionHeader(
     centralScanAdjudicationReasons: [
       AdjudicationReason.UninterpretableBallot,
       AdjudicationReason.Overvote,
-      AdjudicationReason.BlankBallot,
     ],
     precinctScanAdjudicationReasons: [
       AdjudicationReason.UninterpretableBallot,
       AdjudicationReason.Overvote,
-      AdjudicationReason.BlankBallot,
     ],
     sealUrl: '/seals/Seal_of_New_Hampshire.svg',
   };
