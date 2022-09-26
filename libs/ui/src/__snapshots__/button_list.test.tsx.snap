@@ -5,19 +5,19 @@ exports[`Renders ButtonList with defaults 1`] = `
   class="sc-eCImvq hflinM"
 >
   <button
-    class="sc-gsDJrp dmKzwC"
+    class="sc-gsDJrp eHDFnB"
     type="button"
   >
     foo
   </button>
   <button
-    class="sc-gsDJrp dmKzwC"
+    class="sc-gsDJrp eHDFnB"
     type="button"
   >
     foo
   </button>
   <button
-    class="sc-gsDJrp dmKzwC"
+    class="sc-gsDJrp eHDFnB"
     type="button"
   >
     foo

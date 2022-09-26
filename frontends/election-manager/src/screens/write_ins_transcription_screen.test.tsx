@@ -53,6 +53,6 @@ test('clicking a previously-saved value', async () => {
   userEvent.click(await screen.findByText('Previous'));
   await screen.findByTestId('transcribe:id-174');
 
-  userEvent.click(await screen.findByText('Exit'));
+  userEvent.click(await screen.findByText('Done'));
   expect(onClose).toHaveBeenCalledTimes(1);
 });

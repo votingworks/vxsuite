@@ -2,7 +2,7 @@
 
 exports[`navigates back 1`] = `
 <button
-  class="sc-gsDJrp dmKzwC"
+  class="sc-gsDJrp eHDFnB"
   role="option"
   type="button"
 >
@@ -12,7 +12,7 @@ exports[`navigates back 1`] = `
 
 exports[`navigates to page 1`] = `
 <button
-  class="sc-gsDJrp dmKzwC"
+  class="sc-gsDJrp eHDFnB"
   role="option"
   type="button"
 >
@@ -22,7 +22,7 @@ exports[`navigates to page 1`] = `
 
 exports[`renders LinkButton with onClick and disabled props 1`] = `
 <button
-  class="sc-gsDJrp iBtdnL"
+  class="sc-gsDJrp kMrBFw"
   disabled=""
   role="option"
   type="button"
@@ -33,7 +33,7 @@ exports[`renders LinkButton with onClick and disabled props 1`] = `
 
 exports[`renders LinkButton with onClick prop 1`] = `
 <button
-  class="sc-gsDJrp dmKzwC"
+  class="sc-gsDJrp eHDFnB"
   role="option"
   type="button"
 >

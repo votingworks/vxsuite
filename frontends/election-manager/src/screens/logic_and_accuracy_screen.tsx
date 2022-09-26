@@ -5,10 +5,29 @@ import { NavigationScreen } from '../components/navigation_screen';
 import { routerPaths } from '../router_paths';
 import { FullTestDeckTallyReportButton } from '../components/full_test_deck_tally_report_button';
 import { AppContext } from '../contexts/app_context';
+import { canViewAndPrintBallots } from '../utils/can_view_and_print_ballots';
 
 export function LogicAndAccuracyScreen(): JSX.Element {
-  const { castVoteRecordFiles } = useContext(AppContext);
+  const { castVoteRecordFiles, electionDefinition } = useContext(AppContext);
   const isLiveMode = castVoteRecordFiles?.fileMode === 'live';
+
+  if (
+    electionDefinition &&
+    !canViewAndPrintBallots(electionDefinition.election)
+  ) {
+    return (
+      <NavigationScreen>
+        <Prose>
+          <h1>L&A Testing Documents</h1>
+          <p>This election uses custom ballots not produced by VxAdmin.</p>
+          <p>
+            Thus VxAdmin does not coordinate Logic and Accuracy testing for this
+            election.
+          </p>
+        </Prose>
+      </NavigationScreen>
+    );
+  }
 
   return (
     <NavigationScreen>

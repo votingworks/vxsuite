@@ -461,7 +461,7 @@ exports[`Renders ContestPage 1`] = `
           </p>
           <p>
             <button
-              class="sc-ksdxAp huXYXe"
+              class="sc-ksdxAp kHIrtN"
               id="next"
               role="option"
               type="button"
@@ -475,7 +475,7 @@ exports[`Renders ContestPage 1`] = `
           </p>
           <p>
             <button
-              class="sc-ksdxAp ctUtNB"
+              class="sc-ksdxAp cHnWTy"
               id="previous"
               role="option"
               type="button"
@@ -513,7 +513,7 @@ exports[`Renders ContestPage 1`] = `
                   data-testid="change-text-size-buttons"
                 >
                   <button
-                    class="sc-ksdxAp ctUtNB"
+                    class="sc-ksdxAp cHnWTy"
                     data-size="0"
                     type="button"
                     value="0"
@@ -521,7 +521,7 @@ exports[`Renders ContestPage 1`] = `
                     A
                   </button>
                   <button
-                    class="sc-ksdxAp fKeQwD"
+                    class="sc-ksdxAp iaAkxY"
                     data-size="1"
                     type="button"
                     value="1"
@@ -529,7 +529,7 @@ exports[`Renders ContestPage 1`] = `
                     A
                   </button>
                   <button
-                    class="sc-ksdxAp ctUtNB"
+                    class="sc-ksdxAp cHnWTy"
                     data-size="2"
                     type="button"
                     value="2"
