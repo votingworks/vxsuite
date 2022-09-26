@@ -1,7 +1,9 @@
+import { err, ok } from '@votingworks/types';
 import { Buffer } from 'buffer';
 import { EventEmitter } from 'events';
 import { makeMockWorkerOps } from '../../test/util/mocks';
 import { workerPath } from './echo';
+import * as json from './json_serialization';
 import { childProcessPool, WorkerPool } from './pool';
 import { WorkerOps } from './pool/types';
 
@@ -92,7 +94,7 @@ test('call sends a message to a worker', async () => {
   await Promise.resolve();
 
   // respond to the call
-  worker.emit('message', { output: 16 });
+  worker.emit('message', json.serialize(ok(16)));
 
   expect(await callPromise).toEqual(16);
   expect(ops.send).toHaveBeenCalledWith(worker, 4);
@@ -113,17 +115,36 @@ test('call gets the next available worker and sends a message to it', async () =
   await Promise.resolve();
 
   // respond to call 1
-  worker.emit('message', { output: 16 });
+  worker.emit('message', json.serialize(ok(16)));
 
   expect(await call1Promise).toEqual(16);
 
   // respond to call 2
-  worker.emit('message', { output: 25 });
+  worker.emit('message', json.serialize(ok(25)));
 
   expect(await call2Promise).toEqual(25);
 
   expect(ops.send).toHaveBeenNthCalledWith(1, worker, 4);
   expect(ops.send).toHaveBeenNthCalledWith(2, worker, 5);
+});
+
+test('call returns an error if the worker returns an error', async () => {
+  const ops = makeMockWorkerOps() as jest.Mocked<WorkerOps<number>>;
+  const worker = new EventEmitter();
+  ops.start.mockReturnValueOnce(worker);
+
+  const pool = new WorkerPool(ops, 1);
+  pool.start();
+
+  const callPromise = pool.call(4);
+
+  // wait for worker to be claimed
+  await Promise.resolve();
+
+  // respond to the call
+  worker.emit('message', json.serialize(err(new Error('bad'))));
+
+  await expect(callPromise).rejects.toThrowError('bad');
 });
 
 test('callAll sends a message to all workers', async () => {
@@ -141,13 +162,13 @@ test('callAll sends a message to all workers', async () => {
   await Promise.resolve();
 
   // respond to callAll
-  w1.emit('message', { output: 1 });
+  w1.emit('message', json.serialize(ok(1)));
 
   // wait for worker 2 to be claimed
   await Promise.resolve();
 
   // respond to callAll
-  w2.emit('message', { output: 2 });
+  w2.emit('message', json.serialize(ok(2)));
 
   expect(await callAllPromise).toEqual([1, 2]);
 });
@@ -169,21 +190,21 @@ test('callAll sends a message to all workers, even if they are busy at first', a
   await Promise.resolve();
 
   // respond to call 1
-  w1.emit('message', { output: -1 });
+  w1.emit('message', json.serialize(ok(-1)));
   expect(await call1Promise).toEqual(-1);
 
   // respond to call 2
-  w2.emit('message', { output: -2 });
+  w2.emit('message', json.serialize(ok(-2)));
   expect(await call2Promise).toEqual(-2);
 
   // respond to callAll
-  w1.emit('message', { output: -99 });
+  w1.emit('message', json.serialize(ok(-99)));
 
   // wait for worker 2 to be claimed for callAll
   await Promise.resolve();
 
   // respond to callAll
-  w2.emit('message', { output: -98 });
+  w2.emit('message', json.serialize(ok(-98)));
 
   expect(await callAllPromise).toEqual([-99, -98]);
 });
