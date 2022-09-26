@@ -1,3 +1,4 @@
+import { electionGridLayoutNewHampshireHudsonFixtures } from '@votingworks/fixtures';
 import { fakeReadable, fakeWritable, mockOf } from '@votingworks/test-utils';
 import {
   BallotType,
@@ -12,7 +13,6 @@ import { typedAs } from '@votingworks/utils';
 import { z } from 'zod';
 import { main } from '.';
 import { Stdio } from '..';
-import { getFixturePath, HudsonFixtureName } from '../../../test/fixtures';
 import { interpret } from '../../interpret';
 import { makeRect } from '../../utils';
 
@@ -163,7 +163,8 @@ test('--mark-thresholds DEFINITE', async () => {
     ])
   );
 
-  const electionPath = getFixturePath(HudsonFixtureName, 'election', '.json');
+  const electionPath =
+    electionGridLayoutNewHampshireHudsonFixtures.electionJson.asFilePath();
   const exitCode = await main(
     ['--mark-thresholds', '10%', electionPath, 'front.jpeg', 'back.jpeg'],
     io
@@ -213,7 +214,8 @@ test('--mark-thresholds MARGINAL,DEFINITE', async () => {
     ])
   );
 
-  const electionPath = getFixturePath(HudsonFixtureName, 'election', '.json');
+  const electionPath =
+    electionGridLayoutNewHampshireHudsonFixtures.electionJson.asFilePath();
   const exitCode = await main(
     ['--mark-thresholds', '5%,10%', electionPath, 'front.jpeg', 'back.jpeg'],
     io
@@ -348,7 +350,8 @@ test('interpret', async () => {
     ])
   );
 
-  const electionPath = getFixturePath(HudsonFixtureName, 'election', '.json');
+  const electionPath =
+    electionGridLayoutNewHampshireHudsonFixtures.electionJson.asFilePath();
 
   {
     const io: Stdio = {

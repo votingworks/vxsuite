@@ -11,7 +11,7 @@ const ballotNotRequiringPdfjsIntermediateCanvasPath = join(
 );
 const ballotRequiringPdfjsIntermediateCanvasPath = join(
   __dirname,
-  '../../ballot-interpreter-nh/test/fixtures/hudson-2020-11-03/template.pdf'
+  '../../fixtures/data/electionGridLayoutNewHampshireHudson/template.pdf'
 );
 
 function assertHasPageCountAndSize(

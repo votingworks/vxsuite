@@ -1,9 +1,8 @@
-import { loadImage, toImageData } from '@votingworks/image-utils';
+import { toImageData } from '@votingworks/image-utils';
 import { BallotPaperSize } from '@votingworks/types';
 import { assert, throwIllegalValue } from '@votingworks/utils';
 import { DOMParser } from '@xmldom/xmldom';
-import { promises as fs } from 'fs';
-import { join } from 'path';
+import { Image } from 'canvas';
 import { BallotCardTemplateMargins } from '../../src/accuvote';
 import { NewHampshireBallotCardDefinition } from '../../src/convert';
 import {
@@ -292,76 +291,37 @@ export const Hudson03Nov2020BackPageBottomTimingMarkBits: ThirtyTwoBits = [
 ];
 
 /**
- * The filename prefix for the Hudson fixture files.
+ * Returns a parsed XML document for the given fixture data.
  */
-export const HudsonFixtureName = 'hudson-2020-11-03';
-
-/**
- * The filename prefix for the Amherst fixture files.
- */
-export const AmherstFixtureName = 'amherst-2022-07-12';
-
-/**
- * Gets the path of a fixture file.
- */
-export function getFixturePath(
-  fixture: string,
-  name: string,
-  ext = ''
-): string {
-  return join(__dirname, `../../test/fixtures/${fixture}/${name}${ext}`);
-}
-
-/**
- * Reads the XML data from the given fixture and returns the parsed XML document.
- */
-export async function readFixtureDefinition(
-  fixture: string,
-  variant = 'definition'
-): Promise<Element> {
-  const xml = await fs.readFile(
-    getFixturePath(fixture, variant, '.xml'),
-    'utf8'
-  );
+export function readFixtureDefinition(xml: string): Element {
   return new DOMParser().parseFromString(xml).documentElement;
 }
 
 /**
  * Reads a grayscale image from the given path.
  */
-export async function readFixtureImage(
-  fixture: string,
-  name: string,
-  geometry: BallotCardGeometry,
-  ext = '.jpeg'
-): Promise<ImageData> {
-  return toImageData(await loadImage(getFixturePath(fixture, name, ext)), {
+export function readFixtureImage(
+  image: Image,
+  geometry: BallotCardGeometry
+): ImageData {
+  return toImageData(image, {
     maxWidth: geometry.canvasSize.width,
     maxHeight: geometry.canvasSize.height,
   });
 }
 
 /**
- * Reads a JSON fixture file.
+ * Reads the XML definition and image data for a fixture.
  */
-export async function readFixtureJson(
-  fixture: string,
-  name: string
-): Promise<string> {
-  return await fs.readFile(getFixturePath(fixture, name, '.json'), 'utf8');
-}
-
-/**
- * Reads the XML definition and image data for a given fixture.
- */
-export async function readFixtureBallotCardDefinition(
-  fixture: string,
-  geometry: BallotCardGeometry,
-  variant?: string
-): Promise<NewHampshireBallotCardDefinition> {
+export function readFixtureBallotCardDefinition(
+  xml: string,
+  frontImage: Image,
+  backImage: Image,
+  geometry: BallotCardGeometry
+): NewHampshireBallotCardDefinition {
   return {
-    definition: await readFixtureDefinition(fixture, variant),
-    front: await readFixtureImage(fixture, 'template-front', geometry),
-    back: await readFixtureImage(fixture, 'template-back', geometry),
+    definition: readFixtureDefinition(xml),
+    front: readFixtureImage(frontImage, geometry),
+    back: readFixtureImage(backImage, geometry),
   };
 }

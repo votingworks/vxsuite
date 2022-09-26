@@ -1,24 +1,9 @@
-import { dirSync, fileSync } from 'tmp';
+import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
+import { readdir } from 'fs/promises';
 import { join } from 'path';
-import { safeParseElectionDefinition } from '@votingworks/types';
-import { readdir, readFile } from 'fs/promises';
-import { call, InterpretOutput } from './interpret_nh';
+import { dirSync, fileSync } from 'tmp';
 import { Store } from '../store';
-
-const AMHERST_ELECTION = join(
-  __dirname,
-  '../../../../libs/ballot-interpreter-nh/test/fixtures/amherst-2022-07-12/election.json'
-);
-
-const AMHERST_FRONT = join(
-  __dirname,
-  '../../../../libs/ballot-interpreter-nh/test/fixtures/amherst-2022-07-12/scan-marked-front.jpeg'
-);
-
-const AMHERST_BACK = join(
-  __dirname,
-  '../../../../libs/ballot-interpreter-nh/test/fixtures/amherst-2022-07-12/scan-marked-back.jpeg'
-);
+import { call, InterpretOutput } from './interpret_nh';
 
 test('configure', async () => {
   const dbPath = fileSync().name;
@@ -30,16 +15,16 @@ test('interpret', async () => {
   const ballotImagesPath = dirSync().name;
   const store = Store.fileStore(dbPath);
 
-  const electionDefinition = safeParseElectionDefinition(
-    await readFile(AMHERST_ELECTION, 'utf8')
-  ).unsafeUnwrap();
+  const { electionDefinition } = electionGridLayoutNewHampshireAmherstFixtures;
   store.setElection(electionDefinition);
   await call({ action: 'configure', dbPath });
 
   const result = (await call({
     action: 'interpret',
-    frontImagePath: AMHERST_FRONT,
-    backImagePath: AMHERST_BACK,
+    frontImagePath:
+      electionGridLayoutNewHampshireAmherstFixtures.scanMarkedFront.asFilePath(),
+    backImagePath:
+      electionGridLayoutNewHampshireAmherstFixtures.scanMarkedBack.asFilePath(),
     ballotImagesPath,
     interpreter: 'nh',
     sheetId: 'test-sheet',

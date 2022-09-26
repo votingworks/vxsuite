@@ -1,6 +1,7 @@
+import { electionGridLayoutNewHampshireHudsonFixtures } from '@votingworks/fixtures';
 import { typedAs } from '@votingworks/utils';
 import { ImageData } from 'canvas';
-import { HudsonFixtureName, readFixtureImage } from '../../../test/fixtures';
+import { readFixtureImage } from '../../../test/fixtures';
 import { testImageDebugger } from '../../../test/utils';
 import { ScannedBallotCardGeometry8pt5x14 } from '../../accuvote';
 import {
@@ -9,17 +10,25 @@ import {
 } from '../interpret_ballot_card_layout';
 
 test.each([
-  'scan-unmarked-front',
-  'scan-marked-front',
-  'scan-marked-front-300dpi',
-  'scan-marked-rotated-front',
-])('%s', async (name) => {
+  [
+    'scan-unmarked-front',
+    electionGridLayoutNewHampshireHudsonFixtures.scanUnmarkedFront.asImage(),
+  ],
+  [
+    'scan-marked-front',
+    electionGridLayoutNewHampshireHudsonFixtures.scanMarkedFront.asImage(),
+  ],
+  [
+    'scan-marked-front-300dpi',
+    electionGridLayoutNewHampshireHudsonFixtures.scanMarkedFront300dpi.asImage(),
+  ],
+  [
+    'scan-marked-rotated-front',
+    electionGridLayoutNewHampshireHudsonFixtures.scanMarkedRotatedFront.asImage(),
+  ],
+])('%s', async (name, frontImagePromise) => {
   const geometry = ScannedBallotCardGeometry8pt5x14;
-  const frontImageData = await readFixtureImage(
-    HudsonFixtureName,
-    name,
-    geometry
-  );
+  const frontImageData = readFixtureImage(await frontImagePromise, geometry);
   const { imageData, ...frontLayout } = interpretBallotCardLayout(
     frontImageData,
     { geometry, debug: testImageDebugger(frontImageData) }
@@ -48,17 +57,25 @@ test.each([
 });
 
 test.each([
-  'scan-unmarked-back',
-  'scan-marked-back',
-  'scan-marked-back-300dpi',
-  'scan-marked-rotated-back',
-])('%s', async (name) => {
+  [
+    'scan-unmarked-back',
+    electionGridLayoutNewHampshireHudsonFixtures.scanUnmarkedBack.asImage(),
+  ],
+  [
+    'scan-marked-back',
+    electionGridLayoutNewHampshireHudsonFixtures.scanMarkedBack.asImage(),
+  ],
+  [
+    'scan-marked-back-300dpi',
+    electionGridLayoutNewHampshireHudsonFixtures.scanMarkedBack300dpi.asImage(),
+  ],
+  [
+    'scan-marked-rotated-back',
+    electionGridLayoutNewHampshireHudsonFixtures.scanMarkedRotatedBack.asImage(),
+  ],
+])('%s', async (name, backImagePromise) => {
   const geometry = ScannedBallotCardGeometry8pt5x14;
-  const backImageData = await readFixtureImage(
-    HudsonFixtureName,
-    name,
-    geometry
-  );
+  const backImageData = readFixtureImage(await backImagePromise, geometry);
   const { imageData, ...backLayout } = interpretBallotCardLayout(
     backImageData,
     { geometry, debug: testImageDebugger(backImageData) }

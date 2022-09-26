@@ -1,6 +1,7 @@
+import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import { typedAs } from '@votingworks/utils';
 import { ImageData } from 'canvas';
-import { AmherstFixtureName, readFixtureImage } from '../../../test/fixtures';
+import { readFixtureImage } from '../../../test/fixtures';
 import { testImageDebugger } from '../../../test/utils';
 import { ScannedBallotCardGeometry8pt5x11 } from '../../accuvote';
 import {
@@ -9,21 +10,41 @@ import {
 } from '../interpret_ballot_card_layout';
 
 test.each([
-  'scan-unmarked-front',
-  'scan-marked-front',
-  'scan-marked-stretch-front',
-  'scan-marked-stretch-mid-front',
-  'scan-marked-timing-mark-hole-front',
-  'scan-marked-uneven-crop-front',
-  'scan-marked-stretch-mark-front',
-  'scan-marked-stretch-extra-front',
-])('%s', async (name) => {
+  [
+    'scan-unmarked-front',
+    electionGridLayoutNewHampshireAmherstFixtures.scanUnmarkedFront.asImage(),
+  ],
+  [
+    'scan-marked-front',
+    electionGridLayoutNewHampshireAmherstFixtures.scanMarkedFront.asImage(),
+  ],
+  [
+    'scan-marked-stretch-front',
+    electionGridLayoutNewHampshireAmherstFixtures.scanMarkedStretchFront.asImage(),
+  ],
+  [
+    'scan-marked-stretch-mid-front',
+    electionGridLayoutNewHampshireAmherstFixtures.scanMarkedStretchMidFront.asImage(),
+  ],
+  [
+    'scan-marked-timing-mark-hole-front',
+    electionGridLayoutNewHampshireAmherstFixtures.scanMarkedTimingMarkHoleFront.asImage(),
+  ],
+  [
+    'scan-marked-uneven-crop-front',
+    electionGridLayoutNewHampshireAmherstFixtures.scanMarkedUnevenCropFront.asImage(),
+  ],
+  [
+    'scan-marked-stretch-mark-front',
+    electionGridLayoutNewHampshireAmherstFixtures.scanMarkedStretchMarkFront.asImage(),
+  ],
+  [
+    'scan-marked-stretch-extra-front',
+    electionGridLayoutNewHampshireAmherstFixtures.scanMarkedStretchExtraFront.asImage(),
+  ],
+])('%s', async (name, frontImagePromise) => {
   const geometry = ScannedBallotCardGeometry8pt5x11;
-  const frontImageData = await readFixtureImage(
-    AmherstFixtureName,
-    name,
-    geometry
-  );
+  const frontImageData = readFixtureImage(await frontImagePromise, geometry);
   const { imageData, ...frontLayout } = interpretBallotCardLayout(
     frontImageData,
     {
@@ -67,21 +88,41 @@ test.each([
 });
 
 test.each([
-  'scan-unmarked-back',
-  'scan-marked-back',
-  'scan-marked-stretch-back',
-  'scan-marked-stretch-mid-back',
-  'scan-marked-timing-mark-hole-back',
-  'scan-marked-uneven-crop-back',
-  'scan-marked-stretch-mark-back',
-  'scan-marked-stretch-extra-back',
-])('%s', async (name) => {
+  [
+    'scan-unmarked-back',
+    electionGridLayoutNewHampshireAmherstFixtures.scanUnmarkedBack.asImage(),
+  ],
+  [
+    'scan-marked-back',
+    electionGridLayoutNewHampshireAmherstFixtures.scanMarkedBack.asImage(),
+  ],
+  [
+    'scan-marked-stretch-back',
+    electionGridLayoutNewHampshireAmherstFixtures.scanMarkedStretchBack.asImage(),
+  ],
+  [
+    'scan-marked-stretch-mid-back',
+    electionGridLayoutNewHampshireAmherstFixtures.scanMarkedStretchMidBack.asImage(),
+  ],
+  [
+    'scan-marked-timing-mark-hole-back',
+    electionGridLayoutNewHampshireAmherstFixtures.scanMarkedTimingMarkHoleBack.asImage(),
+  ],
+  [
+    'scan-marked-uneven-crop-back',
+    electionGridLayoutNewHampshireAmherstFixtures.scanMarkedUnevenCropBack.asImage(),
+  ],
+  [
+    'scan-marked-stretch-mark-back',
+    electionGridLayoutNewHampshireAmherstFixtures.scanMarkedStretchMarkBack.asImage(),
+  ],
+  [
+    'scan-marked-stretch-extra-back',
+    electionGridLayoutNewHampshireAmherstFixtures.scanMarkedStretchExtraBack.asImage(),
+  ],
+])('%s', async (name, backImagePromise) => {
   const geometry = ScannedBallotCardGeometry8pt5x11;
-  const backImageData = await readFixtureImage(
-    AmherstFixtureName,
-    name,
-    geometry
-  );
+  const backImageData = readFixtureImage(await backImagePromise, geometry);
   const { imageData, ...backLayout } = interpretBallotCardLayout(
     backImageData,
     {

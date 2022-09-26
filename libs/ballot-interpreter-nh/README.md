@@ -47,9 +47,9 @@ for clarity.
 ```sh
 # use the default mark thresholds
 $ ./bin/interpret \
-    test/fixtures/hudson-2020-11-03/election.json \
-    test/fixtures/hudson-2020-11-03/scan-marked-{front,back}.jpeg
-test/fixtures/hudson-2020-11-03/scan-marked-front.jpeg:
+    ../fixtures/data/electionGridLayoutNewHampshireHudson/election.json \
+    ../fixtures/data/electionGridLayoutNewHampshireHudson/scan-marked-{front,back}.jpeg
+../fixtures/data/electionGridLayoutNewHampshireHudson/scan-marked-front.jpeg:
 President and Vice-President of the United States
 ✅ (44.47%) Donald J. Trump  and Michael R. Pence
 ❓ (10.81%) Joseph R. Biden  and Kamala D. Harris
@@ -62,8 +62,8 @@ Governor
 
 # customize the mark threshold to 5% for both marginal & definite
 $ ./bin/interpret \
-    test/fixtures/hudson-2020-11-03/election.json \
-    test/fixtures/hudson-2020-11-03/scan-marked-{front,back}.jpeg \
+    ../fixtures/data/electionGridLayoutNewHampshireHudson/election.json \
+    ../fixtures/data/electionGridLayoutNewHampshireHudson/scan-marked-{front,back}.jpeg \
     -t 5%
 …
 State Representatives
@@ -80,8 +80,8 @@ State Representatives
 
 # customize the mark thresholds to 4% for marginal & 7% for definite
 $ ./bin/interpret \
-    test/fixtures/hudson-2020-11-03/election.json \
-    test/fixtures/hudson-2020-11-03/scan-marked-{front,back}.jpeg \
+    ../fixtures/data/electionGridLayoutNewHampshireHudson/election.json \
+    ../fixtures/data/electionGridLayoutNewHampshireHudson/scan-marked-{front,back}.jpeg \
     -t 4%,7%
 …
 Representative in Congress
