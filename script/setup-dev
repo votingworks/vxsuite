@@ -45,11 +45,11 @@ esac
 DOWNLOAD_URL="https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${ARCH}.tar.gz"
 
 TMPDIR=$(mktemp -d -t node-tmp-XXXXXX)
+TMPFILE="${TMPDIR}/$(basename "${DOWNLOAD_URL}")"
 
 (
   cd "${TMPDIR}"
   curl -sSLO ${DOWNLOAD_URL}
-  set -x
   sha256sum --check "${DIR}/hashes/$(basename "${DOWNLOAD_URL}").sha256"
   cat "${TMPFILE}" | sudo tar -xz -C /usr/local --strip-components=1
 )
