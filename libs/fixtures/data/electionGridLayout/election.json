@@ -1,13 +1,13 @@
 {
   "ballotLayout": {
-    "paperSize": "legal",
+    "paperSize": "letter",
     "targetMarkPosition": "right"
   },
   "ballotStyles": [
     {
-      "id": "card-number-54",
-      "precincts": ["town-id-12101-precinct-id-"],
-      "districts": ["town-id-12101-precinct-id-"]
+      "id": "card-number-3",
+      "precincts": ["town-id-00701-precinct-id-"],
+      "districts": ["town-id-00701-precinct-id-"]
     }
   ],
   "centralScanAdjudicationReasons": [
@@ -17,52 +17,26 @@
   ],
   "contests": [
     {
-      "id": "President-and-Vice-President-of-the-United-States-18d1a55a",
-      "districtId": "town-id-12101-precinct-id-",
-      "section": "President and Vice-President of the United States",
-      "title": "President and Vice-President of the United States",
-      "type": "candidate",
-      "seats": 1,
-      "candidates": [
-        {
-          "id": "Donald-J-Trump-and-Michael-R-Pence-3e3f31a7",
-          "name": "Donald J. Trump  and Michael R. Pence",
-          "partyIds": ["Republican-f0167ce7"]
-        },
-        {
-          "id": "Joseph-R-Biden-and-Kamala-D-Harris-346756c0",
-          "name": "Joseph R. Biden  and Kamala D. Harris",
-          "partyIds": ["Democratic-aea20adb"]
-        },
-        {
-          "id": "Jo-Jorgensen-and-Jeremy-Cohen-7e981234",
-          "name": "Jo Jorgensen  and Jeremy Cohen",
-          "partyIds": ["OC-3a386d2b"]
-        }
-      ],
-      "allowWriteIns": true
-    },
-    {
       "id": "Governor-061a401b",
-      "districtId": "town-id-12101-precinct-id-",
+      "districtId": "town-id-00701-precinct-id-",
       "section": "Governor",
       "title": "Governor",
       "type": "candidate",
       "seats": 1,
       "candidates": [
         {
-          "id": "Chris-Sununu-130124f7",
-          "name": "Chris Sununu",
-          "partyIds": ["Republican-f0167ce7"]
-        },
-        {
-          "id": "Dan-Feltes-3fadf798",
-          "name": "Dan Feltes",
+          "id": "Josiah-Bartlett-1bb99985",
+          "name": "Josiah Bartlett",
           "partyIds": ["Democratic-aea20adb"]
         },
         {
-          "id": "Darryl-W-Perry-2f07c455",
-          "name": "Darryl W. Perry",
+          "id": "Hannah-Dustin-ab4ef7c8",
+          "name": "Hannah Dustin",
+          "partyIds": ["Republican-f0167ce7"]
+        },
+        {
+          "id": "John-Spencer-9ffb5970",
+          "name": "John Spencer",
           "partyIds": ["OC-3a386d2b"]
         }
       ],
@@ -70,51 +44,46 @@
     },
     {
       "id": "United-States-Senator-d3f1c75b",
-      "districtId": "town-id-12101-precinct-id-",
+      "districtId": "town-id-00701-precinct-id-",
       "section": "United States Senator",
       "title": "United States Senator",
       "type": "candidate",
       "seats": 1,
       "candidates": [
         {
-          "id": "Corky-Messner-b6eb216d",
-          "name": "Corky Messner",
-          "partyIds": ["Republican-f0167ce7"]
-        },
-        {
-          "id": "Jeanne-Shaheen-6e19622d",
-          "name": "Jeanne Shaheen",
+          "id": "John-Langdon-5951c8e1",
+          "name": "John Langdon",
           "partyIds": ["Democratic-aea20adb"]
         },
         {
-          "id": "Justin-O-Donnell-ec71760c",
-          "name": "Justin O'Donnell",
-          "partyIds": ["OC-3a386d2b"]
+          "id": "William-Preston-3778fcd5",
+          "name": "William Preston",
+          "partyIds": ["Republican-f0167ce7"]
         }
       ],
       "allowWriteIns": true
     },
     {
       "id": "Representative-in-Congress-24683b44",
-      "districtId": "town-id-12101-precinct-id-",
+      "districtId": "town-id-00701-precinct-id-",
       "section": "Representative in Congress",
       "title": "Representative in Congress",
       "type": "candidate",
       "seats": 1,
       "candidates": [
         {
-          "id": "Steven-Negron-5d482d72",
-          "name": "Steven Negron",
-          "partyIds": ["Republican-f0167ce7"]
-        },
-        {
-          "id": "Ann-McLane-Kuster-67fdf060",
-          "name": "Ann McLane Kuster",
+          "id": "Jeremiah-Smith-469560c9",
+          "name": "Jeremiah Smith",
           "partyIds": ["Democratic-aea20adb"]
         },
         {
-          "id": "Andrew-Olding-bed33f08",
-          "name": "Andrew Olding",
+          "id": "Nicholas-Gilman-1791aed7",
+          "name": "Nicholas Gilman",
+          "partyIds": ["Republican-f0167ce7"]
+        },
+        {
+          "id": "Richard-Coote-b9095636",
+          "name": "Richard Coote",
           "partyIds": ["OC-3a386d2b"]
         }
       ],
@@ -122,308 +91,257 @@
     },
     {
       "id": "Executive-Councilor-bb22557f",
-      "districtId": "town-id-12101-precinct-id-",
+      "districtId": "town-id-00701-precinct-id-",
       "section": "Executive Councilor",
       "title": "Executive Councilor",
       "type": "candidate",
       "seats": 1,
       "candidates": [
         {
-          "id": "Dave-Wheeler-de2242ee",
-          "name": "Dave Wheeler",
-          "partyIds": ["Republican-f0167ce7"]
+          "id": "Anne-Waldron-ee0cbc85",
+          "name": "Anne Waldron",
+          "partyIds": ["Democratic-aea20adb"]
         },
         {
-          "id": "Debora-B-Pignatelli-8c4cc1d3",
-          "name": "Debora B. Pignatelli",
-          "partyIds": ["Democratic-aea20adb"]
+          "id": "Daniel-Webster-13f77b2d",
+          "name": "Daniel Webster",
+          "partyIds": ["Republican-f0167ce7"]
         }
       ],
       "allowWriteIns": true
     },
     {
       "id": "State-Senator-391381f8",
-      "districtId": "town-id-12101-precinct-id-",
+      "districtId": "town-id-00701-precinct-id-",
       "section": "State Senator",
       "title": "State Senator",
       "type": "candidate",
       "seats": 1,
       "candidates": [
         {
-          "id": "Sharon-M-Carson-0316308e",
-          "name": "Sharon M. Carson",
-          "partyIds": ["Republican-f0167ce7"]
+          "id": "James-Poole-db5ef4bd",
+          "name": "James Poole",
+          "partyIds": ["Democratic-aea20adb"]
         },
         {
-          "id": "Nancy-Hendricks-d330559d",
-          "name": "Nancy Hendricks",
-          "partyIds": ["Democratic-aea20adb"]
+          "id": "Matthew-Thornton-f66fec5e",
+          "name": "Matthew Thornton",
+          "partyIds": ["Republican-f0167ce7"]
         }
       ],
       "allowWriteIns": true
     },
     {
-      "id": "State-Representatives-7d3a8821",
-      "districtId": "town-id-12101-precinct-id-",
-      "section": "State Representatives",
-      "title": "State Representatives",
+      "id": "State-Representatives-Hillsborough-District-34-b1012d38",
+      "districtId": "town-id-00701-precinct-id-",
+      "section": "State Representatives  Hillsborough District 34",
+      "title": "State Representatives  Hillsborough District 34",
       "type": "candidate",
-      "seats": 11,
+      "seats": 3,
       "candidates": [
         {
-          "id": "Tony-Lekas-a06f7364",
-          "name": "Tony Lekas",
-          "partyIds": ["Republican-f0167ce7"]
-        },
-        {
-          "id": "Hershel-Nunez-6862315f",
-          "name": "Hershel Nunez",
-          "partyIds": ["Republican-f0167ce7"]
-        },
-        {
-          "id": "Lynne-Ober-f704df17",
-          "name": "Lynne Ober",
-          "partyIds": ["Republican-f0167ce7"]
-        },
-        {
-          "id": "Russell-Ober-e433afea",
-          "name": "Russell Ober",
-          "partyIds": ["Republican-f0167ce7"]
-        },
-        {
-          "id": "Andrew-Prout-1cd243e0",
-          "name": "Andrew Prout",
-          "partyIds": ["Republican-f0167ce7"]
-        },
-        {
-          "id": "Andrew-Renzullo-b0428370",
-          "name": "Andrew Renzullo",
-          "partyIds": ["Republican-f0167ce7"]
-        },
-        {
-          "id": "Kimberly-Rice-faaed16a",
-          "name": "Kimberly Rice",
-          "partyIds": ["Republican-f0167ce7"]
-        },
-        {
-          "id": "Denise-Smith-0a6359c3",
-          "name": "Denise Smith",
-          "partyIds": ["Republican-f0167ce7"]
-        },
-        {
-          "id": "Jordan-Ulery-28553627",
-          "name": "Jordan Ulery",
-          "partyIds": ["Republican-f0167ce7"]
-        },
-        {
-          "id": "Bob-Greene-c006a3bd",
-          "name": "Bob Greene",
-          "partyIds": ["Republican-f0167ce7"]
-        },
-        {
-          "id": "Alicia-Lekas-271048d8",
-          "name": "Alicia Lekas",
-          "partyIds": ["Republican-f0167ce7"]
-        },
-        {
-          "id": "Brett-Gagnon-7a8c9838",
-          "name": "Brett Gagnon",
+          "id": "Obadiah-Carrigan-5c95145a",
+          "name": "Obadiah Carrigan",
           "partyIds": ["Democratic-aea20adb"]
         },
         {
-          "id": "David-Hennessey-f1343f4f",
-          "name": "David Hennessey",
+          "id": "Mary-Baker-Eddy-350785d5",
+          "name": "Mary Baker Eddy",
           "partyIds": ["Democratic-aea20adb"]
         },
         {
-          "id": "Beatriz-Jauregui-11b83653",
-          "name": "Beatriz Jauregui",
+          "id": "Samuel-Bell-17973275",
+          "name": "Samuel Bell",
           "partyIds": ["Democratic-aea20adb"]
         },
         {
-          "id": "Steven-Katsos-077584b8",
-          "name": "Steven Katsos",
+          "id": "Samuel-Livermore-f927fef1",
+          "name": "Samuel Livermore",
+          "partyIds": ["Republican-f0167ce7"]
+        },
+        {
+          "id": "Elijah-Miller-a52e6988",
+          "name": "Elijah Miller",
+          "partyIds": ["Republican-f0167ce7"]
+        },
+        {
+          "id": "Isaac-Hill-d6c9deeb",
+          "name": "Isaac Hill",
+          "partyIds": ["Republican-f0167ce7"]
+        },
+        {
+          "id": "Abigail-Bartlett-4e46c9d4",
+          "name": "Abigail Bartlett",
+          "partyIds": ["OC-3a386d2b"]
+        },
+        {
+          "id": "Jacob-Freese-b5146505",
+          "name": "Jacob Freese",
+          "partyIds": ["OC-3a386d2b"]
+        }
+      ],
+      "allowWriteIns": true
+    },
+    {
+      "id": "State-Representative-Hillsborough-District-37-f3bde894",
+      "districtId": "town-id-00701-precinct-id-",
+      "section": "State Representative  Hillsborough District 37",
+      "title": "State Representative  Hillsborough District 37",
+      "type": "candidate",
+      "seats": 1,
+      "candidates": [
+        {
+          "id": "Abeil-Foster-ded38e36",
+          "name": "Abeil Foster",
           "partyIds": ["Democratic-aea20adb"]
         },
         {
-          "id": "Harold-Lynde-a54df7d7",
-          "name": "Harold Lynde",
-          "partyIds": ["Democratic-aea20adb"]
+          "id": "Charles-H-Hersey-096286a4",
+          "name": "Charles H. Hersey",
+          "partyIds": ["Republican-f0167ce7"]
         },
         {
-          "id": "Lana-Paliy-595b276a",
-          "name": "Lana Paliy",
-          "partyIds": ["Democratic-aea20adb"]
-        },
-        {
-          "id": "Robert-S-Sherman-f10f4a3f",
-          "name": "Robert S. Sherman",
-          "partyIds": ["Democratic-aea20adb"]
-        },
-        {
-          "id": "Alejandro-Urrutia-1b574b86",
-          "name": "Alejandro Urrutia",
-          "partyIds": ["Democratic-aea20adb"]
-        },
-        {
-          "id": "Timothy-Wyatt-0105b8de",
-          "name": "Timothy Wyatt",
-          "partyIds": ["Democratic-aea20adb"]
-        },
-        {
-          "id": "Barbara-A-Blue-14608463",
-          "name": "Barbara A. Blue",
-          "partyIds": ["Democratic-aea20adb"]
-        },
-        {
-          "id": "Nancy-S-Brucker-4471faf7",
-          "name": "Nancy S. Brucker",
-          "partyIds": ["Democratic-aea20adb"]
+          "id": "William-Lovejoy-fde3c2df",
+          "name": "William Lovejoy",
+          "partyIds": ["OC-3a386d2b"]
         }
       ],
       "allowWriteIns": true
     },
     {
       "id": "Sheriff-4243fe0b",
-      "districtId": "town-id-12101-precinct-id-",
+      "districtId": "town-id-00701-precinct-id-",
       "section": "Sheriff",
       "title": "Sheriff",
       "type": "candidate",
       "seats": 1,
       "candidates": [
         {
-          "id": "Christopher-Connelly-970b2364",
-          "name": "Christopher Connelly",
-          "partyIds": ["Republican-f0167ce7"]
-        },
-        {
-          "id": "Bill-Barry-0e677ca6",
-          "name": "Bill Barry",
-          "partyIds": ["Democratic-aea20adb"]
+          "id": "Edward-Randolph-bf4c848a",
+          "name": "Edward Randolph",
+          "partyIds": ["Democratic-aea20adb", "Republican-f0167ce7"]
         }
       ],
       "allowWriteIns": true
     },
     {
       "id": "County-Attorney-133f910f",
-      "districtId": "town-id-12101-precinct-id-",
+      "districtId": "town-id-00701-precinct-id-",
       "section": "County Attorney",
       "title": "County Attorney",
       "type": "candidate",
       "seats": 1,
       "candidates": [
         {
-          "id": "John-J-Coughlin-0e7bf93c",
-          "name": "John J. Coughlin",
-          "partyIds": ["Republican-f0167ce7"]
-        },
-        {
-          "id": "Michael-Conlon-1a61fa16",
-          "name": "Michael Conlon",
+          "id": "Ezra-Bartlett-8f95223c",
+          "name": "Ezra Bartlett",
           "partyIds": ["Democratic-aea20adb"]
         },
         {
-          "id": "Nicholas-Sarwark-c8f115e2",
-          "name": "Nicholas Sarwark",
-          "partyIds": ["OC-3a386d2b"]
+          "id": "Mary-Woolson-dc0b854a",
+          "name": "Mary Woolson",
+          "partyIds": ["Republican-f0167ce7"]
         }
       ],
       "allowWriteIns": true
     },
     {
       "id": "County-Treasurer-87d25a31",
-      "districtId": "town-id-12101-precinct-id-",
+      "districtId": "town-id-00701-precinct-id-",
       "section": "County Treasurer",
       "title": "County Treasurer",
       "type": "candidate",
       "seats": 1,
       "candidates": [
         {
-          "id": "David-G-Fredette-687f01ae",
-          "name": "David G. Fredette",
-          "partyIds": ["Republican-f0167ce7"]
-        },
-        {
-          "id": "William-Bryk-eaf936ec",
-          "name": "William Bryk",
+          "id": "John-Smith-ef61a579",
+          "name": "John Smith",
           "partyIds": ["Democratic-aea20adb"]
         },
         {
-          "id": "Richard-Manzo-c5fcc876",
-          "name": "Richard Manzo",
-          "partyIds": ["OC-3a386d2b"]
+          "id": "Jane-Jones-9caa141f",
+          "name": "Jane Jones",
+          "partyIds": ["Republican-f0167ce7"]
         }
       ],
       "allowWriteIns": true
     },
     {
       "id": "Register-of-Deeds-a1278df2",
-      "districtId": "town-id-12101-precinct-id-",
+      "districtId": "town-id-00701-precinct-id-",
       "section": "Register of Deeds",
       "title": "Register of Deeds",
       "type": "candidate",
       "seats": 1,
       "candidates": [
         {
-          "id": "Jack-Flanagan-78e24cab",
-          "name": "Jack Flanagan",
-          "partyIds": ["Republican-f0167ce7"]
+          "id": "John-Mann-b56bbdd3",
+          "name": "John Mann",
+          "partyIds": ["Democratic-aea20adb"]
         },
         {
-          "id": "Mary-Ann-Crowell-e1ff59b9",
-          "name": "Mary Ann Crowell",
-          "partyIds": ["Democratic-aea20adb"]
+          "id": "Ellen-A-Stileman-14408737",
+          "name": "Ellen A. Stileman",
+          "partyIds": ["Republican-f0167ce7"]
         }
       ],
       "allowWriteIns": true
     },
     {
       "id": "Register-of-Probate-a4117da8",
-      "districtId": "town-id-12101-precinct-id-",
+      "districtId": "town-id-00701-precinct-id-",
       "section": "Register of Probate",
       "title": "Register of Probate",
       "type": "candidate",
       "seats": 1,
       "candidates": [
         {
-          "id": "Elizabeth-Ann-Moreau-aec07bb4",
-          "name": "Elizabeth Ann Moreau",
-          "partyIds": ["Republican-f0167ce7"]
+          "id": "Nathaniel-Parker-56a06c29",
+          "name": "Nathaniel Parker",
+          "partyIds": ["Democratic-aea20adb"]
         },
         {
-          "id": "Elizabeth-Ropp-4035eed1",
-          "name": "Elizabeth Ropp",
-          "partyIds": ["Democratic-aea20adb"]
+          "id": "Claire-Cutts-07a436e7",
+          "name": "Claire Cutts",
+          "partyIds": ["Republican-f0167ce7"]
         }
       ],
       "allowWriteIns": true
     },
     {
       "id": "County-Commissioner-d6feed25",
-      "districtId": "town-id-12101-precinct-id-",
+      "districtId": "town-id-00701-precinct-id-",
       "section": "County Commissioner",
       "title": "County Commissioner",
       "type": "candidate",
       "seats": 1,
       "candidates": [
         {
-          "id": "Michael-Soucy-b23f7c2d",
-          "name": "Michael Soucy",
-          "partyIds": ["Republican-f0167ce7"]
+          "id": "Ichabod-Goodwin-55e8de1f",
+          "name": "Ichabod Goodwin",
+          "partyIds": ["Democratic-aea20adb"]
         },
         {
-          "id": "Daniel-C-Hansberry-8c0291ec",
-          "name": "Daniel C. Hansberry",
-          "partyIds": ["Democratic-aea20adb"]
+          "id": "Valbe-Cady-ba3af3af",
+          "name": "Valbe Cady",
+          "partyIds": ["Republican-f0167ce7"]
         }
       ],
       "allowWriteIns": true
+    },
+    {
+      "id": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc",
+      "districtId": "town-id-00701-precinct-id-",
+      "section": "Constitutional Amendment Question",
+      "title": "Constitutional Amendment Question",
+      "type": "yesno",
+      "description": "Shall there be a convention to amend or revise the constitution?"
     }
   ],
   "gridLayouts": [
     {
-      "precinctId": "town-id-12101-precinct-id-",
-      "ballotStyleId": "card-number-54",
+      "precinctId": "town-id-00701-precinct-id-",
+      "ballotStyleId": "card-number-3",
       "columns": 34,
       "rows": 53,
       "gridPositions": [
@@ -431,137 +349,73 @@
           "type": "option",
           "side": "front",
           "column": 12,
-          "row": 9,
-          "contestId": "President-and-Vice-President-of-the-United-States-18d1a55a",
-          "optionId": "Donald-J-Trump-and-Michael-R-Pence-3e3f31a7"
-        },
-        {
-          "type": "option",
-          "side": "front",
-          "column": 12,
-          "row": 13,
+          "row": 8,
           "contestId": "Governor-061a401b",
-          "optionId": "Chris-Sununu-130124f7"
+          "optionId": "Josiah-Bartlett-1bb99985"
         },
         {
           "type": "option",
           "side": "front",
           "column": 12,
-          "row": 16,
+          "row": 11,
           "contestId": "United-States-Senator-d3f1c75b",
-          "optionId": "Corky-Messner-b6eb216d"
+          "optionId": "John-Langdon-5951c8e1"
         },
         {
           "type": "option",
           "side": "front",
           "column": 12,
-          "row": 19,
+          "row": 14,
           "contestId": "Representative-in-Congress-24683b44",
-          "optionId": "Steven-Negron-5d482d72"
+          "optionId": "Jeremiah-Smith-469560c9"
         },
         {
           "type": "option",
           "side": "front",
           "column": 12,
-          "row": 22,
+          "row": 17,
           "contestId": "Executive-Councilor-bb22557f",
-          "optionId": "Dave-Wheeler-de2242ee"
+          "optionId": "Anne-Waldron-ee0cbc85"
         },
         {
           "type": "option",
           "side": "front",
           "column": 12,
-          "row": 25,
+          "row": 20,
           "contestId": "State-Senator-391381f8",
-          "optionId": "Sharon-M-Carson-0316308e"
+          "optionId": "James-Poole-db5ef4bd"
         },
         {
           "type": "option",
           "side": "front",
           "column": 12,
-          "row": 29,
-          "contestId": "State-Representatives-7d3a8821",
-          "optionId": "Tony-Lekas-a06f7364"
+          "row": 24,
+          "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+          "optionId": "Obadiah-Carrigan-5c95145a"
         },
         {
           "type": "option",
           "side": "front",
           "column": 12,
-          "row": 31,
-          "contestId": "State-Representatives-7d3a8821",
-          "optionId": "Hershel-Nunez-6862315f"
+          "row": 26,
+          "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+          "optionId": "Mary-Baker-Eddy-350785d5"
         },
         {
           "type": "option",
           "side": "front",
           "column": 12,
-          "row": 33,
-          "contestId": "State-Representatives-7d3a8821",
-          "optionId": "Lynne-Ober-f704df17"
+          "row": 28,
+          "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+          "optionId": "Samuel-Bell-17973275"
         },
         {
           "type": "option",
           "side": "front",
           "column": 12,
-          "row": 35,
-          "contestId": "State-Representatives-7d3a8821",
-          "optionId": "Russell-Ober-e433afea"
-        },
-        {
-          "type": "option",
-          "side": "front",
-          "column": 12,
-          "row": 37,
-          "contestId": "State-Representatives-7d3a8821",
-          "optionId": "Andrew-Prout-1cd243e0"
-        },
-        {
-          "type": "option",
-          "side": "front",
-          "column": 12,
-          "row": 39,
-          "contestId": "State-Representatives-7d3a8821",
-          "optionId": "Andrew-Renzullo-b0428370"
-        },
-        {
-          "type": "option",
-          "side": "front",
-          "column": 12,
-          "row": 41,
-          "contestId": "State-Representatives-7d3a8821",
-          "optionId": "Kimberly-Rice-faaed16a"
-        },
-        {
-          "type": "option",
-          "side": "front",
-          "column": 12,
-          "row": 43,
-          "contestId": "State-Representatives-7d3a8821",
-          "optionId": "Denise-Smith-0a6359c3"
-        },
-        {
-          "type": "option",
-          "side": "front",
-          "column": 12,
-          "row": 45,
-          "contestId": "State-Representatives-7d3a8821",
-          "optionId": "Jordan-Ulery-28553627"
-        },
-        {
-          "type": "option",
-          "side": "front",
-          "column": 12,
-          "row": 47,
-          "contestId": "State-Representatives-7d3a8821",
-          "optionId": "Bob-Greene-c006a3bd"
-        },
-        {
-          "type": "option",
-          "side": "front",
-          "column": 12,
-          "row": 49,
-          "contestId": "State-Representatives-7d3a8821",
-          "optionId": "Alicia-Lekas-271048d8"
+          "row": 32,
+          "contestId": "State-Representative-Hillsborough-District-37-f3bde894",
+          "optionId": "Abeil-Foster-ded38e36"
         },
         {
           "type": "option",
@@ -569,7 +423,7 @@
           "column": 12,
           "row": 4,
           "contestId": "Sheriff-4243fe0b",
-          "optionId": "Christopher-Connelly-970b2364"
+          "optionId": "Edward-Randolph-bf4c848a"
         },
         {
           "type": "option",
@@ -577,7 +431,7 @@
           "column": 12,
           "row": 7,
           "contestId": "County-Attorney-133f910f",
-          "optionId": "John-J-Coughlin-0e7bf93c"
+          "optionId": "Ezra-Bartlett-8f95223c"
         },
         {
           "type": "option",
@@ -585,7 +439,7 @@
           "column": 12,
           "row": 10,
           "contestId": "County-Treasurer-87d25a31",
-          "optionId": "David-G-Fredette-687f01ae"
+          "optionId": "John-Smith-ef61a579"
         },
         {
           "type": "option",
@@ -593,7 +447,7 @@
           "column": 12,
           "row": 13,
           "contestId": "Register-of-Deeds-a1278df2",
-          "optionId": "Jack-Flanagan-78e24cab"
+          "optionId": "John-Mann-b56bbdd3"
         },
         {
           "type": "option",
@@ -601,7 +455,7 @@
           "column": 12,
           "row": 16,
           "contestId": "Register-of-Probate-a4117da8",
-          "optionId": "Elizabeth-Ann-Moreau-aec07bb4"
+          "optionId": "Nathaniel-Parker-56a06c29"
         },
         {
           "type": "option",
@@ -609,143 +463,79 @@
           "column": 12,
           "row": 19,
           "contestId": "County-Commissioner-d6feed25",
-          "optionId": "Michael-Soucy-b23f7c2d"
+          "optionId": "Ichabod-Goodwin-55e8de1f"
         },
         {
           "type": "option",
           "side": "front",
           "column": 19,
-          "row": 9,
-          "contestId": "President-and-Vice-President-of-the-United-States-18d1a55a",
-          "optionId": "Joseph-R-Biden-and-Kamala-D-Harris-346756c0"
-        },
-        {
-          "type": "option",
-          "side": "front",
-          "column": 19,
-          "row": 13,
+          "row": 8,
           "contestId": "Governor-061a401b",
-          "optionId": "Dan-Feltes-3fadf798"
+          "optionId": "Hannah-Dustin-ab4ef7c8"
         },
         {
           "type": "option",
           "side": "front",
           "column": 19,
-          "row": 16,
+          "row": 11,
           "contestId": "United-States-Senator-d3f1c75b",
-          "optionId": "Jeanne-Shaheen-6e19622d"
+          "optionId": "William-Preston-3778fcd5"
         },
         {
           "type": "option",
           "side": "front",
           "column": 19,
-          "row": 19,
+          "row": 14,
           "contestId": "Representative-in-Congress-24683b44",
-          "optionId": "Ann-McLane-Kuster-67fdf060"
+          "optionId": "Nicholas-Gilman-1791aed7"
         },
         {
           "type": "option",
           "side": "front",
           "column": 19,
-          "row": 22,
+          "row": 17,
           "contestId": "Executive-Councilor-bb22557f",
-          "optionId": "Debora-B-Pignatelli-8c4cc1d3"
+          "optionId": "Daniel-Webster-13f77b2d"
+        },
+        {
+          "type": "option",
+          "side": "front",
+          "column": 19,
+          "row": 20,
+          "contestId": "State-Senator-391381f8",
+          "optionId": "Matthew-Thornton-f66fec5e"
+        },
+        {
+          "type": "option",
+          "side": "front",
+          "column": 19,
+          "row": 23,
+          "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+          "optionId": "Samuel-Livermore-f927fef1"
         },
         {
           "type": "option",
           "side": "front",
           "column": 19,
           "row": 25,
-          "contestId": "State-Senator-391381f8",
-          "optionId": "Nancy-Hendricks-d330559d"
+          "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+          "optionId": "Elijah-Miller-a52e6988"
         },
         {
           "type": "option",
           "side": "front",
           "column": 19,
-          "row": 28,
-          "contestId": "State-Representatives-7d3a8821",
-          "optionId": "Brett-Gagnon-7a8c9838"
-        },
-        {
-          "type": "option",
-          "side": "front",
-          "column": 19,
-          "row": 30,
-          "contestId": "State-Representatives-7d3a8821",
-          "optionId": "David-Hennessey-f1343f4f"
+          "row": 27,
+          "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+          "optionId": "Isaac-Hill-d6c9deeb"
         },
         {
           "type": "option",
           "side": "front",
           "column": 19,
           "row": 32,
-          "contestId": "State-Representatives-7d3a8821",
-          "optionId": "Beatriz-Jauregui-11b83653"
-        },
-        {
-          "type": "option",
-          "side": "front",
-          "column": 19,
-          "row": 34,
-          "contestId": "State-Representatives-7d3a8821",
-          "optionId": "Steven-Katsos-077584b8"
-        },
-        {
-          "type": "option",
-          "side": "front",
-          "column": 19,
-          "row": 36,
-          "contestId": "State-Representatives-7d3a8821",
-          "optionId": "Harold-Lynde-a54df7d7"
-        },
-        {
-          "type": "option",
-          "side": "front",
-          "column": 19,
-          "row": 38,
-          "contestId": "State-Representatives-7d3a8821",
-          "optionId": "Lana-Paliy-595b276a"
-        },
-        {
-          "type": "option",
-          "side": "front",
-          "column": 19,
-          "row": 40,
-          "contestId": "State-Representatives-7d3a8821",
-          "optionId": "Robert-S-Sherman-f10f4a3f"
-        },
-        {
-          "type": "option",
-          "side": "front",
-          "column": 19,
-          "row": 42,
-          "contestId": "State-Representatives-7d3a8821",
-          "optionId": "Alejandro-Urrutia-1b574b86"
-        },
-        {
-          "type": "option",
-          "side": "front",
-          "column": 19,
-          "row": 44,
-          "contestId": "State-Representatives-7d3a8821",
-          "optionId": "Timothy-Wyatt-0105b8de"
-        },
-        {
-          "type": "option",
-          "side": "front",
-          "column": 19,
-          "row": 46,
-          "contestId": "State-Representatives-7d3a8821",
-          "optionId": "Barbara-A-Blue-14608463"
-        },
-        {
-          "type": "option",
-          "side": "front",
-          "column": 19,
-          "row": 48,
-          "contestId": "State-Representatives-7d3a8821",
-          "optionId": "Nancy-S-Brucker-4471faf7"
+          "contestId": "State-Representative-Hillsborough-District-37-f3bde894",
+          "optionId": "Charles-H-Hersey-096286a4"
         },
         {
           "type": "option",
@@ -753,7 +543,7 @@
           "column": 19,
           "row": 4,
           "contestId": "Sheriff-4243fe0b",
-          "optionId": "Bill-Barry-0e677ca6"
+          "optionId": "Edward-Randolph-bf4c848a"
         },
         {
           "type": "option",
@@ -761,7 +551,7 @@
           "column": 19,
           "row": 7,
           "contestId": "County-Attorney-133f910f",
-          "optionId": "Michael-Conlon-1a61fa16"
+          "optionId": "Mary-Woolson-dc0b854a"
         },
         {
           "type": "option",
@@ -769,7 +559,7 @@
           "column": 19,
           "row": 10,
           "contestId": "County-Treasurer-87d25a31",
-          "optionId": "William-Bryk-eaf936ec"
+          "optionId": "Jane-Jones-9caa141f"
         },
         {
           "type": "option",
@@ -777,7 +567,7 @@
           "column": 19,
           "row": 13,
           "contestId": "Register-of-Deeds-a1278df2",
-          "optionId": "Mary-Ann-Crowell-e1ff59b9"
+          "optionId": "Ellen-A-Stileman-14408737"
         },
         {
           "type": "option",
@@ -785,7 +575,7 @@
           "column": 19,
           "row": 16,
           "contestId": "Register-of-Probate-a4117da8",
-          "optionId": "Elizabeth-Ropp-4035eed1"
+          "optionId": "Claire-Cutts-07a436e7"
         },
         {
           "type": "option",
@@ -793,69 +583,53 @@
           "column": 19,
           "row": 19,
           "contestId": "County-Commissioner-d6feed25",
-          "optionId": "Daniel-C-Hansberry-8c0291ec"
+          "optionId": "Valbe-Cady-ba3af3af"
         },
         {
           "type": "option",
           "side": "front",
           "column": 26,
-          "row": 9,
-          "contestId": "President-and-Vice-President-of-the-United-States-18d1a55a",
-          "optionId": "Jo-Jorgensen-and-Jeremy-Cohen-7e981234"
-        },
-        {
-          "type": "option",
-          "side": "front",
-          "column": 26,
-          "row": 13,
+          "row": 8,
           "contestId": "Governor-061a401b",
-          "optionId": "Darryl-W-Perry-2f07c455"
+          "optionId": "John-Spencer-9ffb5970"
         },
         {
           "type": "option",
           "side": "front",
           "column": 26,
-          "row": 16,
-          "contestId": "United-States-Senator-d3f1c75b",
-          "optionId": "Justin-O-Donnell-ec71760c"
-        },
-        {
-          "type": "option",
-          "side": "front",
-          "column": 26,
-          "row": 19,
+          "row": 14,
           "contestId": "Representative-in-Congress-24683b44",
-          "optionId": "Andrew-Olding-bed33f08"
+          "optionId": "Richard-Coote-b9095636"
         },
         {
           "type": "option",
-          "side": "back",
+          "side": "front",
           "column": 26,
-          "row": 7,
-          "contestId": "County-Attorney-133f910f",
-          "optionId": "Nicholas-Sarwark-c8f115e2"
+          "row": 24,
+          "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+          "optionId": "Abigail-Bartlett-4e46c9d4"
         },
         {
           "type": "option",
-          "side": "back",
+          "side": "front",
           "column": 26,
-          "row": 10,
-          "contestId": "County-Treasurer-87d25a31",
-          "optionId": "Richard-Manzo-c5fcc876"
+          "row": 26,
+          "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+          "optionId": "Jacob-Freese-b5146505"
+        },
+        {
+          "type": "option",
+          "side": "front",
+          "column": 26,
+          "row": 32,
+          "contestId": "State-Representative-Hillsborough-District-37-f3bde894",
+          "optionId": "William-Lovejoy-fde3c2df"
         },
         {
           "type": "write-in",
           "side": "front",
           "column": 32,
-          "row": 9,
-          "contestId": "President-and-Vice-President-of-the-United-States-18d1a55a",
-          "writeInIndex": 0
-        },
-        {
-          "type": "write-in",
-          "side": "front",
-          "column": 32,
-          "row": 13,
+          "row": 8,
           "contestId": "Governor-061a401b",
           "writeInIndex": 0
         },
@@ -863,7 +637,7 @@
           "type": "write-in",
           "side": "front",
           "column": 32,
-          "row": 16,
+          "row": 11,
           "contestId": "United-States-Senator-d3f1c75b",
           "writeInIndex": 0
         },
@@ -871,7 +645,7 @@
           "type": "write-in",
           "side": "front",
           "column": 32,
-          "row": 19,
+          "row": 14,
           "contestId": "Representative-in-Congress-24683b44",
           "writeInIndex": 0
         },
@@ -879,7 +653,7 @@
           "type": "write-in",
           "side": "front",
           "column": 32,
-          "row": 22,
+          "row": 17,
           "contestId": "Executive-Councilor-bb22557f",
           "writeInIndex": 0
         },
@@ -887,7 +661,7 @@
           "type": "write-in",
           "side": "front",
           "column": 32,
-          "row": 25,
+          "row": 20,
           "contestId": "State-Senator-391381f8",
           "writeInIndex": 0
         },
@@ -895,88 +669,32 @@
           "type": "write-in",
           "side": "front",
           "column": 32,
-          "row": 28,
-          "contestId": "State-Representatives-7d3a8821",
-          "writeInIndex": 10
-        },
-        {
-          "type": "write-in",
-          "side": "front",
-          "column": 32,
-          "row": 30,
-          "contestId": "State-Representatives-7d3a8821",
-          "writeInIndex": 9
-        },
-        {
-          "type": "write-in",
-          "side": "front",
-          "column": 32,
-          "row": 32,
-          "contestId": "State-Representatives-7d3a8821",
-          "writeInIndex": 8
-        },
-        {
-          "type": "write-in",
-          "side": "front",
-          "column": 32,
-          "row": 34,
-          "contestId": "State-Representatives-7d3a8821",
-          "writeInIndex": 7
-        },
-        {
-          "type": "write-in",
-          "side": "front",
-          "column": 32,
-          "row": 36,
-          "contestId": "State-Representatives-7d3a8821",
-          "writeInIndex": 6
-        },
-        {
-          "type": "write-in",
-          "side": "front",
-          "column": 32,
-          "row": 38,
-          "contestId": "State-Representatives-7d3a8821",
-          "writeInIndex": 5
-        },
-        {
-          "type": "write-in",
-          "side": "front",
-          "column": 32,
-          "row": 40,
-          "contestId": "State-Representatives-7d3a8821",
-          "writeInIndex": 4
-        },
-        {
-          "type": "write-in",
-          "side": "front",
-          "column": 32,
-          "row": 42,
-          "contestId": "State-Representatives-7d3a8821",
-          "writeInIndex": 3
-        },
-        {
-          "type": "write-in",
-          "side": "front",
-          "column": 32,
-          "row": 44,
-          "contestId": "State-Representatives-7d3a8821",
+          "row": 23,
+          "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
           "writeInIndex": 2
         },
         {
           "type": "write-in",
           "side": "front",
           "column": 32,
-          "row": 46,
-          "contestId": "State-Representatives-7d3a8821",
+          "row": 25,
+          "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
           "writeInIndex": 1
         },
         {
           "type": "write-in",
           "side": "front",
           "column": 32,
-          "row": 48,
-          "contestId": "State-Representatives-7d3a8821",
+          "row": 27,
+          "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+          "writeInIndex": 0
+        },
+        {
+          "type": "write-in",
+          "side": "front",
+          "column": 32,
+          "row": 32,
+          "contestId": "State-Representative-Hillsborough-District-37-f3bde894",
           "writeInIndex": 0
         },
         {
@@ -1026,19 +744,35 @@
           "row": 19,
           "contestId": "County-Commissioner-d6feed25",
           "writeInIndex": 0
+        },
+        {
+          "type": "option",
+          "contestId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc",
+          "optionId": "yes",
+          "side": "back",
+          "column": 26,
+          "row": 24
+        },
+        {
+          "type": "option",
+          "contestId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc",
+          "optionId": "no",
+          "side": "back",
+          "column": 32,
+          "row": 24
         }
       ]
     }
   ],
   "county": {
-    "id": "12101",
-    "name": "Hudson"
+    "id": "00701",
+    "name": "Test Ballot"
   },
-  "date": "2020-11-03T12:00:00.000-05:00",
+  "date": "2022-07-12T12:00:00.000-04:00",
   "districts": [
     {
-      "id": "town-id-12101-precinct-id-",
-      "name": "Hudson"
+      "id": "town-id-00701-precinct-id-",
+      "name": "Test Ballot"
     }
   ],
   "markThresholds": {
@@ -1047,16 +781,16 @@
   },
   "parties": [
     {
-      "id": "Republican-f0167ce7",
-      "name": "Republican",
-      "fullName": "Republican",
-      "abbrev": "Republican"
-    },
-    {
       "id": "Democratic-aea20adb",
       "name": "Democratic",
       "fullName": "Democratic",
       "abbrev": "Democratic"
+    },
+    {
+      "id": "Republican-f0167ce7",
+      "name": "Republican",
+      "fullName": "Republican",
+      "abbrev": "Republican"
     },
     {
       "id": "OC-3a386d2b",
@@ -1072,8 +806,8 @@
   ],
   "precincts": [
     {
-      "id": "town-id-12101-precinct-id-",
-      "name": "Hudson"
+      "id": "town-id-00701-precinct-id-",
+      "name": "Test Ballot"
     }
   ],
   "sealUrl": "/seals/Seal_of_New_Hampshire.svg",

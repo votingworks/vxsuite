@@ -11,6 +11,7 @@ test('has various election definitions', () => {
       "electionFamousNames2021Fixtures",
       "electionGridLayout",
       "electionGridLayoutDefinition",
+      "electionGridLayoutFixtures",
       "electionMinimalExhaustiveSample",
       "electionMinimalExhaustiveSampleDefinition",
       "electionMinimalExhaustiveSampleFixtures",
