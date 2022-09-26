@@ -1,3 +1,4 @@
+import assert from 'assert';
 import { interpret as interpretNh } from '@votingworks/ballot-interpreter-nh';
 import {
   AdjudicationReason,
@@ -176,6 +177,8 @@ async function nhInterpret(
     config;
   const result = await interpretNh(electionDefinition, sheet, {
     markThresholds: markThresholdOverrides,
+    adjudicationReasons:
+      electionDefinition.election.precinctScanAdjudicationReasons ?? [],
   });
 
   if (result.isErr()) {
@@ -230,9 +233,7 @@ async function vxInterpret(
     markThresholdOverrides,
     precinctSelection,
     adjudicationReasons:
-      (SCANNER_LOCATION === ScannerLocation.Central
-        ? electionDefinition.election.centralScanAdjudicationReasons
-        : electionDefinition.election.precinctScanAdjudicationReasons) ?? [],
+      electionDefinition.election.precinctScanAdjudicationReasons ?? [],
   });
 
   for (const layout of layouts) {
@@ -283,6 +284,8 @@ async function vxInterpret(
  * configured and unconfigured with different election settings.
  */
 export function createInterpreter(): PrecinctScannerInterpreter {
+  assert(SCANNER_LOCATION === ScannerLocation.Precinct);
+
   let config: Optional<InterpreterConfig>;
 
   return {
