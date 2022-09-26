@@ -252,6 +252,10 @@ function initMachine(toggleHoldDuration: number, passthroughDuration: number) {
   );
 }
 
+function oneOf<T>(...array: T[]): T {
+  return array[Math.floor(Math.random() * array.length)];
+}
+
 /**
  * Provides a mock `ScannerClient` that acts like the plustek VTM 300.
  */
@@ -468,9 +472,7 @@ export class MockScannerClient implements ScannerClient {
       case 'no_paper_before_hold':
         debug('no paper');
         return ok(
-          Math.random() > 0.5
-            ? PaperStatus.VtmDevReadyNoPaper
-            : PaperStatus.NoPaperStatus
+          oneOf(PaperStatus.VtmDevReadyNoPaper, PaperStatus.NoPaperStatus)
         );
       case 'ready_to_scan':
         debug('ready to scan');
@@ -481,9 +483,10 @@ export class MockScannerClient implements ScannerClient {
       case 'jam':
         debug('jam');
         return ok(
-          Math.random() > 0.5
-            ? PaperStatus.VtmFrontAndBackSensorHavePaperReady
-            : PaperStatus.Jam
+          oneOf(
+            PaperStatus.VtmFrontAndBackSensorHavePaperReady,
+            PaperStatus.Jam
+          )
         );
       case 'both_sides_have_paper':
         debug('both sides have paper');
