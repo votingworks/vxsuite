@@ -24,7 +24,9 @@ export function getMimeType(path: string): string {
  */
 export function isTextMimeType(mimeType: string): boolean {
   return (
-    mimeType.startsWith('text/') || mimeType.startsWith('application/json')
+    mimeType.startsWith('text/') ||
+    mimeType.startsWith('application/json') ||
+    mimeType === 'application/xml'
   );
 }
 

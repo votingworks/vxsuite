@@ -27,6 +27,7 @@ test('image types', () => {
 test('text types', () => {
   expect(isTextMimeType('text/plain')).toBe(true);
   expect(isTextMimeType('text/csv')).toBe(true);
+  expect(isTextMimeType('application/xml')).toBe(true);
   expect(isTextMimeType('application/json')).toBe(true);
   expect(isTextMimeType('application/jsonlines')).toBe(true);
   expect(isTextMimeType('image/png')).toBe(false);
