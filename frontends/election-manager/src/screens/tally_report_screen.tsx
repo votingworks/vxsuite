@@ -229,7 +229,12 @@ export function TallyReportScreen(): JSX.Element {
     if (previewReportRef?.current && printReportRef?.current) {
       previewReportRef.current.innerHTML = printReportRef.current.innerHTML;
     }
-  }, [previewReportRef, printReportRef, isOfficialResults]);
+  }, [
+    previewReportRef,
+    printReportRef,
+    isOfficialResults,
+    writeInCountsByContestAndCandidate,
+  ]);
 
   return (
     <React.Fragment>
