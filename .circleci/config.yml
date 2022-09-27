@@ -29,6 +29,10 @@ jobs:
           name: Test
           command: |
             pnpm --dir codemods test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: codemods/reports/
 
   test-frontends-bas:
     executor: nodejs-browsers
@@ -47,6 +51,10 @@ jobs:
           name: Test
           command: |
             pnpm --dir frontends/bas test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: frontends/bas/reports/
 
   test-frontends-bmd:
     executor: nodejs-browsers
@@ -65,6 +73,10 @@ jobs:
           name: Test
           command: |
             pnpm --dir frontends/bmd test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: frontends/bmd/reports/
       - store_artifacts:
           path: frontends/bmd/cypress/screenshots
       - store_artifacts:
@@ -87,6 +99,10 @@ jobs:
           name: Test
           command: |
             pnpm --dir frontends/bsd test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: frontends/bsd/reports/
       - store_artifacts:
           path: frontends/bsd/cypress/screenshots
       - store_artifacts:
@@ -109,6 +125,10 @@ jobs:
           name: Test
           command: |
             pnpm --dir frontends/election-manager test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: frontends/election-manager/reports/
       - store_artifacts:
           path: frontends/election-manager/cypress/screenshots
       - store_artifacts:
@@ -131,6 +151,10 @@ jobs:
           name: Test
           command: |
             pnpm --dir frontends/precinct-scanner test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: frontends/precinct-scanner/reports/
 
   test-integration-testing-bmd:
     executor: nodejs-browsers
@@ -150,6 +174,10 @@ jobs:
           name: Test
           command: |
             pnpm --dir frontends/bmd test:e2e
+          environment:
+            MOCHA_FILE: ./reports/junit.xml
+      - store_test_results:
+          path: frontends/bmd/reports/
       - store_artifacts:
           path: frontends/bmd/cypress/screenshots
       - store_artifacts:
@@ -173,6 +201,10 @@ jobs:
           name: Test
           command: |
             pnpm --dir integration-testing/bsd test
+          environment:
+            MOCHA_FILE: ./reports/junit.xml
+      - store_test_results:
+          path: integration-testing/bsd/reports/
       - store_artifacts:
           path: integration-testing/bsd/cypress/screenshots
       - store_artifacts:
@@ -196,6 +228,10 @@ jobs:
           name: Test
           command: |
             pnpm --dir integration-testing/election-manager test
+          environment:
+            MOCHA_FILE: ./reports/junit.xml
+      - store_test_results:
+          path: integration-testing/election-manager/reports/
       - store_artifacts:
           path: integration-testing/election-manager/cypress/screenshots
       - store_artifacts:
@@ -218,6 +254,10 @@ jobs:
           name: Test
           command: |
             pnpm --dir libs/api test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/api/reports/
 
   test-libs-ballot-encoder:
     executor: nodejs
@@ -236,6 +276,10 @@ jobs:
           name: Test
           command: |
             pnpm --dir libs/ballot-encoder test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/ballot-encoder/reports/
 
   test-libs-ballot-interpreter-nh:
     executor: nodejs
@@ -254,6 +298,10 @@ jobs:
           name: Test
           command: |
             pnpm --dir libs/ballot-interpreter-nh test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/ballot-interpreter-nh/reports/
 
   test-libs-ballot-interpreter-vx:
     executor: nodejs
@@ -272,6 +320,10 @@ jobs:
           name: Test
           command: |
             pnpm --dir libs/ballot-interpreter-vx test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/ballot-interpreter-vx/reports/
 
   test-libs-cdf-schema-builder:
     executor: nodejs
@@ -290,6 +342,10 @@ jobs:
           name: Test
           command: |
             pnpm --dir libs/cdf-schema-builder test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/cdf-schema-builder/reports/
 
   test-libs-cdf-types-cast-vote-records:
     executor: nodejs
@@ -308,6 +364,10 @@ jobs:
           name: Test
           command: |
             pnpm --dir libs/cdf-types-cast-vote-records test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/cdf-types-cast-vote-records/reports/
 
   test-libs-cdf-types-election-event-logging:
     executor: nodejs
@@ -326,6 +386,10 @@ jobs:
           name: Test
           command: |
             pnpm --dir libs/cdf-types-election-event-logging test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/cdf-types-election-event-logging/reports/
 
   test-libs-cvr-fixture-generator:
     executor: nodejs
@@ -344,6 +408,10 @@ jobs:
           name: Test
           command: |
             pnpm --dir libs/cvr-fixture-generator test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/cvr-fixture-generator/reports/
 
   test-libs-eslint-plugin-vx:
     executor: nodejs-browsers
@@ -362,6 +430,10 @@ jobs:
           name: Test
           command: |
             pnpm --dir libs/eslint-plugin-vx test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/eslint-plugin-vx/reports/
 
   test-libs-fixtures:
     executor: nodejs
@@ -380,6 +452,10 @@ jobs:
           name: Test
           command: |
             pnpm --dir libs/fixtures test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/fixtures/reports/
 
   test-libs-image-utils:
     executor: nodejs
@@ -398,6 +474,10 @@ jobs:
           name: Test
           command: |
             pnpm --dir libs/image-utils test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/image-utils/reports/
 
   test-libs-logging:
     executor: nodejs
@@ -416,6 +496,10 @@ jobs:
           name: Test
           command: |
             pnpm --dir libs/logging test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/logging/reports/
 
   test-libs-lsd:
     executor: nodejs
@@ -434,6 +518,10 @@ jobs:
           name: Test
           command: |
             pnpm --dir libs/lsd test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/lsd/reports/
 
   test-libs-plustek-sdk:
     executor: nodejs
@@ -452,6 +540,10 @@ jobs:
           name: Test
           command: |
             pnpm --dir libs/plustek-sdk test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/plustek-sdk/reports/
 
   test-libs-res-to-ts:
     executor: nodejs
@@ -470,6 +562,10 @@ jobs:
           name: Test
           command: |
             pnpm --dir libs/res-to-ts test:ci
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/res-to-ts/reports/
 
   test-libs-test-utils:
     executor: nodejs-browsers
@@ -488,6 +584,10 @@ jobs:
           name: Test
           command: |
             pnpm --dir libs/test-utils test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/test-utils/reports/
 
   test-libs-types:
     executor: nodejs
@@ -506,6 +606,10 @@ jobs:
           name: Test
           command: |
             pnpm --dir libs/types test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/types/reports/
 
   test-libs-ui:
     executor: nodejs-browsers
@@ -524,6 +628,10 @@ jobs:
           name: Test
           command: |
             pnpm --dir libs/ui test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/ui/reports/
 
   test-libs-utils:
     executor: nodejs-browsers
@@ -542,6 +650,10 @@ jobs:
           name: Test
           command: |
             pnpm --dir libs/utils test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/utils/reports/
 
   test-services-admin:
     executor: nodejs
@@ -560,6 +672,10 @@ jobs:
           name: Test
           command: |
             pnpm --dir services/admin test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: services/admin/reports/
 
   test-services-converter-ms-sems:
     docker:
@@ -598,6 +714,10 @@ jobs:
           name: Test
           command: |
             pnpm --dir services/scan test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: services/scan/reports/
 
   test-services-smartcards:
     docker:

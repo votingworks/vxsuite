@@ -17,7 +17,7 @@
     "test": "is-ci test:ci test:watch",
     "test:coverage": "jest --coverage",
     "test:watch": "jest --watch",
-    "test:ci": "jest --coverage --ci",
+    "test:ci": "jest --coverage --ci --reporters=default --reporters=jest-junit",
     "pre-commit": "lint-staged"
   },
   "dependencies": {
@@ -46,6 +46,7 @@
     "eslint-plugin-vx": "*",
     "is-ci-cli": "^2.2.0",
     "jest": "^28.1.3",
+    "jest-junit": "^14.0.1",
     "jest-watch-typeahead": "0.6.4",
     "prettier": "^2.7.1",
     "tmp": "^0.2.1",

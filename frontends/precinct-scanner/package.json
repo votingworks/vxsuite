@@ -18,9 +18,10 @@
     "start": "vite",
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}' && stylelint 'src/**/*.css' --config .stylelintrc-css.js",
     "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix && stylelint 'src/**/*.css' --config .stylelintrc-css.js --fix",
-    "test": "is-ci test:coverage test:watch",
+    "test": "is-ci test:ci test:watch",
     "test:watch": "TZ=UTC node scripts/test.js --env=jest-environment-jsdom-sixteen",
     "test:coverage": "TZ=UTC node scripts/test.js --coverage --watchAll=false",
+    "test:ci": "TZ=UTC node scripts/test.js --coverage --watchAll=false --reporters=default --reporters=jest-junit",
     "pre-commit": "lint-staged"
   },
   "lint-staged": {
@@ -131,6 +132,7 @@
     "is-ci-cli": "^2.1.2",
     "jest": "^26.6.0",
     "jest-environment-jsdom-sixteen": "^1.0.3",
+    "jest-junit": "^14.0.1",
     "jest-watch-typeahead": "0.6.4",
     "lint-staged": "^10.5.4",
     "prettier": "^2.6.2",
