@@ -8,7 +8,7 @@ require('../src/cli/retry-scan/main')
     stderr: process.stderr,
   })
   .catch((error) => {
-    process.stderr.write(`CRASH: ${error}\n`);
+    process.stderr.write(`CRASH: ${error.stack}\n`);
     return 1;
   })
   .then((code) => {

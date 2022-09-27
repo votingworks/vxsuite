@@ -6,6 +6,7 @@ if (process.env.NODE_ENV !== 'production') {
   require('esbuild-runner/register');
 }
 
+const { err, ok } = require('@votingworks/types');
 const { assert } = require('@votingworks/utils');
 const { resolve } = require('path');
 const { parentPort, workerData } = require('worker_threads');
@@ -23,12 +24,12 @@ if (pp) {
     let output;
 
     try {
-      output = await call(json.deserialize(input));
+      output = ok(await call(json.deserialize(input)));
     } catch (error) {
       assert(error instanceof Error);
-      output = { type: 'error', error: `${error.stack}` };
+      output = err(error);
     }
 
-    pp.postMessage({ output: json.serialize(output) });
+    pp.postMessage(json.serialize(output));
   });
 }

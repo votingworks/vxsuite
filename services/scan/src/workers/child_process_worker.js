@@ -6,6 +6,7 @@ if (process.env.NODE_ENV !== 'production') {
   require('esbuild-runner/register');
 }
 
+const { ok, err } = require('@votingworks/types');
 const { assert } = require('@votingworks/utils');
 const { resolve } = require('path');
 const json = require('./json_serialization');
@@ -26,13 +27,15 @@ process.on(
 
     try {
       output = await call(json.deserialize(input));
+
+      if (process.send) {
+        process.send(json.serialize(ok(output)));
+      }
     } catch (error) {
       assert(error instanceof Error);
-      output = { type: 'error', error: `${error.stack}` };
-    }
-
-    if (process.send) {
-      process.send({ output: json.serialize(output) });
+      if (process.send) {
+        process.send(json.serialize(err(error)));
+      }
     }
   }
 );

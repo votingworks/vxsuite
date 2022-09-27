@@ -1,3 +1,4 @@
+import { Result } from '@votingworks/types';
 import { deferred, Deferred } from '@votingworks/utils';
 import makeDebug from 'debug';
 import { EventEmitter } from 'events';
@@ -216,21 +217,21 @@ export class WorkerPool<I, O, W extends EventEmitter = EventEmitter> {
   }
 
   private async callWorker(worker: W, input: I, traceId: string): Promise<O> {
-    const { promise, resolve, reject } = deferred<{
-      output: json.SerializedMessage;
-    }>();
+    const { promise, resolve, reject } = deferred<json.SerializedResult>();
 
     try {
       worker.on('message', resolve);
       worker.on('error', reject);
       this.workerOps.send(worker, input);
-      const { output } = await promise;
+      const serializedResult = await promise;
       debug(
         '[%s] call returned: output=%s',
         traceId,
-        inspect(output, undefined, undefined, true)
+        inspect(serializedResult, undefined, undefined, true)
       );
-      return json.deserialize(output) as O;
+      return (
+        json.deserialize(serializedResult) as Result<O, Error>
+      ).unsafeUnwrap();
     } catch (error) {
       debug(
         '[%s] call failed: error=%s',

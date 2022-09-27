@@ -1,3 +1,4 @@
+import { err, ok, Result } from '@votingworks/types';
 import { assert } from '@votingworks/utils';
 import { EventEmitter } from 'events';
 import * as json from '../json_serialization';
@@ -19,14 +20,18 @@ export class InlineWorkerOps<I, O> implements WorkerOps<I, EventEmitter> {
 
   async send(worker: EventEmitter, message: I): Promise<void> {
     assert(worker === this.workerInstance);
+    let output: Result<O, Error>;
+
     try {
-      const output = await this.call(
-        json.deserialize(json.serialize(message)) as I
+      output = ok(
+        await this.call(json.deserialize(json.serialize(message)) as I)
       );
-      worker.emit('message', { output: json.serialize(output) });
     } catch (error) {
-      worker.emit('error', error);
+      assert(error instanceof Error);
+      output = err(error);
     }
+
+    worker.emit('message', json.serialize(output));
   }
 
   describe(): string {
