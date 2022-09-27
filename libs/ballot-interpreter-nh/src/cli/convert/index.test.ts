@@ -1,15 +1,10 @@
+import { electionGridLayoutNewHampshireHudsonFixtures } from '@votingworks/fixtures';
 import { fakeReadable, fakeWritable, mockOf } from '@votingworks/test-utils';
-import { safeParseElection } from '@votingworks/types';
 import { createImageData } from 'canvas';
 import { readFileSync } from 'fs';
 import { fileSync } from 'tmp';
 import { main } from '.';
 import { Stdio } from '..';
-import {
-  getFixturePath,
-  HudsonFixtureName,
-  readFixtureJson,
-} from '../../../test/fixtures';
 import { convertElectionDefinition, ConvertIssueKind } from '../../convert';
 
 jest.mock('../../convert');
@@ -68,7 +63,7 @@ test('missing output after --output', async () => {
 
   const exitCode = await main(
     [
-      getFixturePath(HudsonFixtureName, 'definition', '.xml'),
+      electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asFilePath(),
       'front.jpeg',
       'back.jpeg',
       '--output',
@@ -173,9 +168,7 @@ test('convert to stdout', async () => {
     stderr: fakeWritable(),
   };
 
-  const election = safeParseElection(
-    await readFixtureJson(HudsonFixtureName, 'election')
-  ).unsafeUnwrap();
+  const { election } = electionGridLayoutNewHampshireHudsonFixtures;
 
   mockOf(convertElectionDefinition).mockReturnValue({
     success: true,
@@ -185,7 +178,7 @@ test('convert to stdout', async () => {
 
   const exitCode = await main(
     [
-      getFixturePath(HudsonFixtureName, 'definition', '.xml'),
+      electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asFilePath(),
       'front.jpeg',
       'back.jpeg',
       '-o',
@@ -212,9 +205,7 @@ test('convert to file', async () => {
     stderr: fakeWritable(),
   };
 
-  const election = safeParseElection(
-    await readFixtureJson(HudsonFixtureName, 'election')
-  ).unsafeUnwrap();
+  const { election } = electionGridLayoutNewHampshireHudsonFixtures;
 
   mockOf(convertElectionDefinition).mockReturnValue({
     success: true,
@@ -225,7 +216,7 @@ test('convert to file', async () => {
   const outputFile = fileSync();
   const exitCode = await main(
     [
-      getFixturePath(HudsonFixtureName, 'definition', '.xml'),
+      electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asFilePath(),
       'front.jpeg',
       'back.jpeg',
       '-o',
@@ -269,7 +260,7 @@ test('convert fails', async () => {
 
   const exitCode = await main(
     [
-      getFixturePath(HudsonFixtureName, 'definition', '.xml'),
+      electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asFilePath(),
       'front.jpeg',
       'back.jpeg',
       '-o',

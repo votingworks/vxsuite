@@ -1,14 +1,11 @@
-import {
-  electionGridLayoutDefinition,
-  electionGridLayoutFixtures,
-} from '@votingworks/fixtures';
+import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { createInterpreter } from './precinct_scanner_interpreter';
 
 const ballotImages = {
   overvoteBallot: [
-    electionGridLayoutFixtures.ballotPage1.asFilePath(),
-    electionGridLayoutFixtures.ballotPage2.asFilePath(),
+    electionGridLayoutNewHampshireAmherstFixtures.scanMarkedOvervoteFront.asFilePath(),
+    electionGridLayoutNewHampshireAmherstFixtures.scanMarkedOvervoteBack.asFilePath(),
   ],
 } as const;
 
@@ -16,7 +13,8 @@ test('NH interpreter of overvote yields a sheet that needs to be reviewed', asyn
   const interpreter = createInterpreter();
 
   interpreter.configure({
-    electionDefinition: electionGridLayoutDefinition,
+    electionDefinition:
+      electionGridLayoutNewHampshireAmherstFixtures.electionDefinition,
     precinctSelection: ALL_PRECINCTS_SELECTION,
     layouts: [],
     ballotImagesPath: '',

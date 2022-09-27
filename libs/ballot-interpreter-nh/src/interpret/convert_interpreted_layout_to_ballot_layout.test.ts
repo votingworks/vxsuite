@@ -1,3 +1,4 @@
+import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import {
   BallotType,
   getBallotStyle,
@@ -5,11 +6,7 @@ import {
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import { assert, zip } from '@votingworks/utils';
-import {
-  AmherstFixtureName,
-  readFixtureImage,
-  readFixtureJson,
-} from '../../test/fixtures';
+import { readFixtureImage } from '../../test/fixtures';
 import {
   getScannedBallotCardGeometry,
   ScannedBallotCardGeometry8pt5x14,
@@ -18,12 +15,12 @@ import { convertInterpretedLayoutToBallotLayout } from './convert_interpreted_la
 import { interpretBallotCardLayout } from './interpret_ballot_card_layout';
 
 test('contains layout information for each contest option', async () => {
-  const imageData = await readFixtureImage(
-    AmherstFixtureName,
-    'scan-unmarked-front',
+  const imageData = readFixtureImage(
+    await electionGridLayoutNewHampshireAmherstFixtures.scanUnmarkedFront.asImage(),
     ScannedBallotCardGeometry8pt5x14
   );
-  const electionData = await readFixtureJson(AmherstFixtureName, 'election');
+  const { electionData } =
+    electionGridLayoutNewHampshireAmherstFixtures.electionDefinition;
   const electionDefinition =
     safeParseElectionDefinition(electionData).unsafeUnwrap();
   const geometry = getScannedBallotCardGeometry(

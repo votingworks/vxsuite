@@ -1,21 +1,21 @@
 import {
+  electionGridLayoutNewHampshireAmherstFixtures,
+  electionGridLayoutNewHampshireHudsonFixtures,
+} from '@votingworks/fixtures';
+import {
   AdjudicationReason,
   BallotPaperSize,
   CandidateContest,
   DistrictIdSchema,
   GridPosition,
   PartyIdSchema,
-  safeParseElection,
   unsafeParse,
   YesNoContest,
 } from '@votingworks/types';
 import { typedAs } from '@votingworks/utils';
 import {
-  AmherstFixtureName,
-  HudsonFixtureName,
   readFixtureBallotCardDefinition,
   readFixtureDefinition,
-  readFixtureJson,
 } from '../test/fixtures';
 import { asciiOvalGrid, testImageDebugger } from '../test/utils';
 import {
@@ -33,8 +33,10 @@ import {
 import * as templates from './data/templates';
 
 test('converting the Hudson ballot', async () => {
-  const hudsonBallotCardDefinition = await readFixtureBallotCardDefinition(
-    HudsonFixtureName,
+  const hudsonBallotCardDefinition = readFixtureBallotCardDefinition(
+    electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asText(),
+    await electionGridLayoutNewHampshireHudsonFixtures.templateFront.asImage(),
+    await electionGridLayoutNewHampshireHudsonFixtures.templateBack.asImage(),
     TemplateBallotCardGeometry8pt5x14
   );
   const debug = testImageDebugger(hudsonBallotCardDefinition.front);
@@ -44,29 +46,30 @@ test('converting the Hudson ballot', async () => {
   });
 
   // uncomment this to update the fixture
-  // await (
-  //   await import('fs/promises')
-  // ).writeFile(
-  //   (
-  //     await import('../test/fixtures')
-  //   ).getFixturePath(HudsonFixtureName, 'election.json'),
+  // require('fs').writeFileSync(
+  //   require('path').join(
+  //     __dirname,
+  //     '../../fixtures/data/electionGridLayoutNewHampshireHudson/election.json'
+  //   ),
   //   JSON.stringify(convertResult.election, null, 2),
   //   'utf8'
   // );
 
-  const election = safeParseElection(
-    await readFixtureJson(HudsonFixtureName, 'election')
-  ).unsafeUnwrap();
+  const { election } = electionGridLayoutNewHampshireHudsonFixtures;
   expect(convertResult).toEqual({
     success: true,
     election,
     issues: [],
   });
+
+  expect(JSON.stringify(convertResult.election, null, 2)).toEqual(
+    electionGridLayoutNewHampshireHudsonFixtures.electionDefinition.electionData
+  );
 });
 
-test('letter-size card definition', async () => {
-  const hudsonBallotCardDefinition = await readFixtureDefinition(
-    HudsonFixtureName
+test('letter-size card definition', () => {
+  const hudsonBallotCardDefinition = readFixtureDefinition(
+    electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asText()
   );
 
   hudsonBallotCardDefinition.getElementsByTagName(
@@ -83,8 +86,10 @@ test('letter-size card definition', async () => {
 });
 
 test('mismatched ballot image size', async () => {
-  const hudsonBallotCardDefinition = await readFixtureBallotCardDefinition(
-    HudsonFixtureName,
+  const hudsonBallotCardDefinition = readFixtureBallotCardDefinition(
+    electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asText(),
+    await electionGridLayoutNewHampshireHudsonFixtures.templateFront.asImage(),
+    await electionGridLayoutNewHampshireHudsonFixtures.templateBack.asImage(),
     TemplateBallotCardGeometry8pt5x14
   );
 
@@ -111,9 +116,9 @@ test('mismatched ballot image size', async () => {
   );
 });
 
-test('missing ElectionID', async () => {
-  const hudsonBallotCardDefinition = await readFixtureDefinition(
-    HudsonFixtureName
+test('missing ElectionID', () => {
+  const hudsonBallotCardDefinition = readFixtureDefinition(
+    electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asText()
   );
 
   const electionIdElement =
@@ -131,9 +136,9 @@ test('missing ElectionID', async () => {
   ]);
 });
 
-test('missing ElectionName', async () => {
-  const hudsonBallotCardDefinition = await readFixtureDefinition(
-    HudsonFixtureName
+test('missing ElectionName', () => {
+  const hudsonBallotCardDefinition = readFixtureDefinition(
+    electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asText()
   );
 
   const electionNameElement =
@@ -151,9 +156,9 @@ test('missing ElectionName', async () => {
   ]);
 });
 
-test('missing TownName', async () => {
-  const hudsonBallotCardDefinition = await readFixtureDefinition(
-    HudsonFixtureName
+test('missing TownName', () => {
+  const hudsonBallotCardDefinition = readFixtureDefinition(
+    electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asText()
   );
 
   const townNameElement =
@@ -171,9 +176,9 @@ test('missing TownName', async () => {
   ]);
 });
 
-test('missing TownID', async () => {
-  const hudsonBallotCardDefinition = await readFixtureDefinition(
-    HudsonFixtureName
+test('missing TownID', () => {
+  const hudsonBallotCardDefinition = readFixtureDefinition(
+    electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asText()
   );
 
   const townIdElement =
@@ -191,9 +196,9 @@ test('missing TownID', async () => {
   ]);
 });
 
-test('missing ElectionDate', async () => {
-  const hudsonBallotCardDefinition = await readFixtureDefinition(
-    HudsonFixtureName
+test('missing ElectionDate', () => {
+  const hudsonBallotCardDefinition = readFixtureDefinition(
+    electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asText()
   );
 
   const electionDateElement =
@@ -211,9 +216,9 @@ test('missing ElectionDate', async () => {
   ]);
 });
 
-test('missing PrecinctID', async () => {
-  const hudsonBallotCardDefinition = await readFixtureDefinition(
-    HudsonFixtureName
+test('missing PrecinctID', () => {
+  const hudsonBallotCardDefinition = readFixtureDefinition(
+    electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asText()
   );
 
   const precinctIdElement =
@@ -231,9 +236,9 @@ test('missing PrecinctID', async () => {
   ]);
 });
 
-test('multi-party endorsement', async () => {
-  const amherstBallotCardDefinition = await readFixtureDefinition(
-    AmherstFixtureName
+test('multi-party endorsement', () => {
+  const amherstBallotCardDefinition = readFixtureDefinition(
+    electionGridLayoutNewHampshireAmherstFixtures.definitionXml.asText()
   );
 
   expect(
@@ -261,9 +266,9 @@ test('multi-party endorsement', async () => {
   );
 });
 
-test('missing Party on multi-party endorsement', async () => {
-  const amherstBallotCardDefinition = await readFixtureDefinition(
-    AmherstFixtureName
+test('missing Party on multi-party endorsement', () => {
+  const amherstBallotCardDefinition = readFixtureDefinition(
+    electionGridLayoutNewHampshireAmherstFixtures.definitionXml.asText()
   );
 
   const sheriffElement = Array.from(
@@ -297,10 +302,9 @@ test('missing Party on multi-party endorsement', async () => {
   ]);
 });
 
-test('readGridFromElectionDefinition', async () => {
-  const definition = await readFixtureDefinition(
-    HudsonFixtureName,
-    'definition'
+test('readGridFromElectionDefinition', () => {
+  const definition = readFixtureDefinition(
+    electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asText()
   );
   const grid = readGridFromElectionDefinition(definition);
   expect(asciiOvalGrid(grid)).toMatchInlineSnapshot(`
@@ -391,8 +395,10 @@ test('readGridFromElectionDefinition', async () => {
 });
 
 test('default adjudication reasons', async () => {
-  const hudsonBallotCardDefinition = await readFixtureBallotCardDefinition(
-    HudsonFixtureName,
+  const hudsonBallotCardDefinition = readFixtureBallotCardDefinition(
+    electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asText(),
+    await electionGridLayoutNewHampshireHudsonFixtures.templateFront.asImage(),
+    await electionGridLayoutNewHampshireHudsonFixtures.templateBack.asImage(),
     TemplateBallotCardGeometry8pt5x14
   );
   const debug = testImageDebugger(hudsonBallotCardDefinition.front);
@@ -415,8 +421,10 @@ test('default adjudication reasons', async () => {
 });
 
 test('constitutional questions become yesno contests', async () => {
-  const amherstBallotCardDefinition = await readFixtureBallotCardDefinition(
-    AmherstFixtureName,
+  const amherstBallotCardDefinition = readFixtureBallotCardDefinition(
+    electionGridLayoutNewHampshireAmherstFixtures.definitionXml.asText(),
+    await electionGridLayoutNewHampshireAmherstFixtures.templateFront.asImage(),
+    await electionGridLayoutNewHampshireAmherstFixtures.templateBack.asImage(),
     TemplateBallotCardGeometry8pt5x11
   );
   const convertResult = convertElectionDefinitionHeader(
@@ -441,8 +449,10 @@ test('constitutional questions become yesno contests', async () => {
 });
 
 test('constitutional question ovals get placed on the grid correctly', async () => {
-  const amherstBallotCardDefinition = await readFixtureBallotCardDefinition(
-    AmherstFixtureName,
+  const amherstBallotCardDefinition = readFixtureBallotCardDefinition(
+    electionGridLayoutNewHampshireAmherstFixtures.definitionXml.asText(),
+    await electionGridLayoutNewHampshireAmherstFixtures.templateFront.asImage(),
+    await electionGridLayoutNewHampshireAmherstFixtures.templateBack.asImage(),
     TemplateBallotCardGeometry8pt5x11
   );
   const convertResult = convertElectionDefinition(amherstBallotCardDefinition, {
@@ -450,12 +460,11 @@ test('constitutional question ovals get placed on the grid correctly', async () 
   });
 
   // uncomment this to update the fixture
-  // await (
-  //   await import('fs/promises')
-  // ).writeFile(
-  //   (
-  //     await import('../test/fixtures')
-  //   ).getFixturePath(AmherstFixtureName, 'election.json'),
+  // require('fs').writeFileSync(
+  //   require('path').join(
+  //     __dirname,
+  //     '../../fixtures/data/electionGridLayoutNewHampshireAmherst/election.json'
+  //   ),
   //   JSON.stringify(convertResult.election, null, 2),
   //   'utf8'
   // );
@@ -514,4 +523,9 @@ test('constitutional question ovals get placed on the grid correctly', async () 
       kind: ConvertIssueKind.MismatchedOvalGrids,
     });
   }
+
+  expect(JSON.stringify(convertResult.election, null, 2)).toEqual(
+    electionGridLayoutNewHampshireAmherstFixtures.electionDefinition
+      .electionData
+  );
 });

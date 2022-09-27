@@ -17,7 +17,7 @@ import {
   electionWithMsEitherNeitherFixtures,
   electionSampleDefinition,
   electionFamousNames2021Fixtures,
-  electionGridLayoutDefinition,
+  electionGridLayoutNewHampshireHudsonFixtures,
 } from '@votingworks/fixtures';
 import { MemoryCard, MemoryHardware, typedAs } from '@votingworks/utils';
 import {
@@ -1179,7 +1179,7 @@ test('clearing all files after marking as official clears SEMS, CVR, and manual 
 });
 
 test('Can not view or print ballots when using an election with gridlayouts (like NH)', async () => {
-  const electionDefinition = electionGridLayoutDefinition;
+  const { electionDefinition } = electionGridLayoutNewHampshireHudsonFixtures;
 
   const backend = new ElectionManagerStoreMemoryBackend({
     electionDefinition,

@@ -1,7 +1,7 @@
+import { electionGridLayoutNewHampshireHudsonFixtures } from '@votingworks/fixtures';
 import { unsafeParse } from '@votingworks/types';
 import { assert, typedAs } from '@votingworks/utils';
 import {
-  HudsonFixtureName,
   readFixtureBallotCardDefinition,
   readFixtureImage,
 } from '../test/fixtures';
@@ -29,10 +29,11 @@ import {
 } from './types';
 
 test('hudson template', async () => {
-  const hudson = await readFixtureBallotCardDefinition(
-    HudsonFixtureName,
-    TemplateBallotCardGeometry8pt5x14,
-    'definition'
+  const hudson = readFixtureBallotCardDefinition(
+    electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asText(),
+    await electionGridLayoutNewHampshireHudsonFixtures.templateFront.asImage(),
+    await electionGridLayoutNewHampshireHudsonFixtures.templateBack.asImage(),
+    TemplateBallotCardGeometry8pt5x14
   );
   const frontDebug = testImageDebugger(hudson.front);
   const backDebug = testImageDebugger(hudson.back);
@@ -244,9 +245,8 @@ test('hudson template', async () => {
 });
 
 test('scanned front', async () => {
-  const imageData = await readFixtureImage(
-    HudsonFixtureName,
-    'scan-unmarked-front',
+  const imageData = readFixtureImage(
+    await electionGridLayoutNewHampshireHudsonFixtures.scanUnmarkedFront.asImage(),
     ScannedBallotCardGeometry8pt5x14
   );
   const debug = testImageDebugger(imageData);

@@ -1,10 +1,6 @@
-import { safeParseElectionDefinition } from '@votingworks/types';
+import { electionGridLayoutNewHampshireHudsonFixtures } from '@votingworks/fixtures';
 import { assert } from '@votingworks/utils';
-import {
-  HudsonFixtureName,
-  readFixtureImage,
-  readFixtureJson,
-} from '../../test/fixtures';
+import { readFixtureImage } from '../../test/fixtures';
 import { testImageDebugger } from '../../test/utils';
 import {
   getScannedBallotCardGeometry,
@@ -15,20 +11,16 @@ import { interpretBallotCardLayout } from './interpret_ballot_card_layout';
 import { interpretOvalMarks } from './interpret_oval_marks';
 
 test('interpretOvalMarks unmarked sheet', async () => {
-  const electionDefinition = safeParseElectionDefinition(
-    await readFixtureJson(HudsonFixtureName, 'election')
-  ).unsafeUnwrap();
+  const { electionDefinition } = electionGridLayoutNewHampshireHudsonFixtures;
   const geometry = getScannedBallotCardGeometry(
     electionDefinition.election.ballotLayout!.paperSize
   );
-  const frontImageData = await readFixtureImage(
-    HudsonFixtureName,
-    'scan-unmarked-front',
+  const frontImageData = readFixtureImage(
+    await electionGridLayoutNewHampshireHudsonFixtures.scanUnmarkedFront.asImage(),
     ScannedBallotCardGeometry8pt5x14
   );
-  const backImageData = await readFixtureImage(
-    HudsonFixtureName,
-    'scan-unmarked-back',
+  const backImageData = readFixtureImage(
+    await electionGridLayoutNewHampshireHudsonFixtures.scanUnmarkedBack.asImage(),
     ScannedBallotCardGeometry8pt5x14
   );
   const frontDebug = testImageDebugger(frontImageData);
@@ -130,20 +122,16 @@ test('interpretOvalMarks unmarked sheet', async () => {
 });
 
 test('interpretOvalMarks marked front', async () => {
-  const electionDefinition = safeParseElectionDefinition(
-    await readFixtureJson(HudsonFixtureName, 'election')
-  ).unsafeUnwrap();
+  const { electionDefinition } = electionGridLayoutNewHampshireHudsonFixtures;
   const geometry = getScannedBallotCardGeometry(
     electionDefinition.election.ballotLayout!.paperSize
   );
-  const frontImageData = await readFixtureImage(
-    HudsonFixtureName,
-    'scan-marked-front',
+  const frontImageData = readFixtureImage(
+    await electionGridLayoutNewHampshireHudsonFixtures.scanMarkedFront.asImage(),
     ScannedBallotCardGeometry8pt5x14
   );
-  const backImageData = await readFixtureImage(
-    HudsonFixtureName,
-    'scan-marked-back',
+  const backImageData = readFixtureImage(
+    await electionGridLayoutNewHampshireHudsonFixtures.scanMarkedBack.asImage(),
     ScannedBallotCardGeometry8pt5x14
   );
   const frontDebug = testImageDebugger(frontImageData);
@@ -241,20 +229,16 @@ test('interpretOvalMarks marked front', async () => {
 });
 
 test('interpretOvalMarks marked rotated front', async () => {
-  const electionDefinition = safeParseElectionDefinition(
-    await readFixtureJson(HudsonFixtureName, 'election')
-  ).unsafeUnwrap();
+  const { electionDefinition } = electionGridLayoutNewHampshireHudsonFixtures;
   const geometry = getScannedBallotCardGeometry(
     electionDefinition.election.ballotLayout!.paperSize
   );
-  const frontImageData = await readFixtureImage(
-    HudsonFixtureName,
-    'scan-marked-rotated-front',
+  const frontImageData = readFixtureImage(
+    await electionGridLayoutNewHampshireHudsonFixtures.scanMarkedRotatedFront.asImage(),
     ScannedBallotCardGeometry8pt5x14
   );
-  const backImageData = await readFixtureImage(
-    HudsonFixtureName,
-    'scan-marked-rotated-back',
+  const backImageData = readFixtureImage(
+    await electionGridLayoutNewHampshireHudsonFixtures.scanMarkedRotatedBack.asImage(),
     ScannedBallotCardGeometry8pt5x14
   );
   const frontDebug = testImageDebugger(frontImageData);

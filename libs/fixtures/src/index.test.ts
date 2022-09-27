@@ -9,9 +9,8 @@ test('has various election definitions', () => {
   ).toMatchInlineSnapshot(`
     Array [
       "electionFamousNames2021Fixtures",
-      "electionGridLayout",
-      "electionGridLayoutDefinition",
-      "electionGridLayoutFixtures",
+      "electionGridLayoutNewHampshireAmherstFixtures",
+      "electionGridLayoutNewHampshireHudsonFixtures",
       "electionMinimalExhaustiveSample",
       "electionMinimalExhaustiveSampleDefinition",
       "electionMinimalExhaustiveSampleFixtures",

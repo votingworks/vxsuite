@@ -1,6 +1,8 @@
 import { Election, ElectionDefinition } from '@votingworks/types';
 import { sha256 } from 'js-sha256';
 
+export * as electionGridLayoutNewHampshireAmherstFixtures from './data/electionGridLayoutNewHampshireAmherst';
+export * as electionGridLayoutNewHampshireHudsonFixtures from './data/electionGridLayoutNewHampshireHudson';
 export * as electionFamousNames2021Fixtures from './data/electionFamousNames2021';
 export * as electionSample2Fixtures from './data/electionSample2';
 export * as electionMultiPartyPrimaryFixtures from './data/electionMultiPartyPrimary';
@@ -52,12 +54,6 @@ export {
   electionDefinition as electionSampleRotationDefinition,
   election as electionSampleRotation,
 } from './data/electionSampleRotation.json';
-
-export {
-  electionDefinition as electionGridLayoutDefinition,
-  election as electionGridLayout,
-} from './data/electionGridLayout/election.json';
-export * as electionGridLayoutFixtures from './data/electionGridLayout';
 
 export function asElectionDefinition(election: Election): ElectionDefinition {
   const electionData = JSON.stringify(election);

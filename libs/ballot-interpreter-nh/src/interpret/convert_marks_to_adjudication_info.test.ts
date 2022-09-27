@@ -1,18 +1,15 @@
+import { electionGridLayoutNewHampshireAmherstFixtures } from '@votingworks/fixtures';
 import {
   AdjudicationInfo,
   AdjudicationReason,
   GridPosition,
-  safeParseElection,
 } from '@votingworks/types';
 import { assert, typedAs } from '@votingworks/utils';
-import { AmherstFixtureName, readFixtureJson } from '../../test/fixtures';
 import { makeRect, vec } from '../utils';
 import { convertMarksToAdjudicationInfo } from './convert_marks_to_adjudication_info';
 
-test('multi-party endorsement', async () => {
-  const election = safeParseElection(
-    await readFixtureJson(AmherstFixtureName, 'election')
-  ).unsafeUnwrap();
+test('multi-party endorsement', () => {
+  const { election } = electionGridLayoutNewHampshireAmherstFixtures;
   const multiPartyContestId = 'Sheriff-4243fe0b';
   const multiPartyContest = election.contests.find(
     (contest) => contest.id === multiPartyContestId

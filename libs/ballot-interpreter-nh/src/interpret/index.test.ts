@@ -1,23 +1,12 @@
-import { safeParseElectionDefinition } from '@votingworks/types';
+import { electionGridLayoutNewHampshireHudsonFixtures } from '@votingworks/fixtures';
 import { interpret } from '.';
-import {
-  getFixturePath,
-  HudsonFixtureName,
-  readFixtureJson,
-} from '../../test/fixtures';
 
 test('interpret marked', async () => {
-  const electionDefinition = safeParseElectionDefinition(
-    await readFixtureJson(HudsonFixtureName, 'election')
-  ).unsafeUnwrap();
-  const frontImagePath = getFixturePath(
-    HudsonFixtureName,
-    'scan-marked-front.jpeg'
-  );
-  const backImagePath = getFixturePath(
-    HudsonFixtureName,
-    'scan-marked-back.jpeg'
-  );
+  const { electionDefinition } = electionGridLayoutNewHampshireHudsonFixtures;
+  const frontImagePath =
+    electionGridLayoutNewHampshireHudsonFixtures.scanMarkedFront.asFilePath();
+  const backImagePath =
+    electionGridLayoutNewHampshireHudsonFixtures.scanMarkedBack.asFilePath();
   const interpretResult = await interpret(electionDefinition, [
     frontImagePath,
     backImagePath,
@@ -5958,17 +5947,11 @@ test('interpret marked', async () => {
 });
 
 test('interpret unmarked', async () => {
-  const electionDefinition = safeParseElectionDefinition(
-    await readFixtureJson(HudsonFixtureName, 'election')
-  ).unsafeUnwrap();
-  const frontImagePath = getFixturePath(
-    HudsonFixtureName,
-    'scan-unmarked-front.jpeg'
-  );
-  const backImagePath = getFixturePath(
-    HudsonFixtureName,
-    'scan-unmarked-back.jpeg'
-  );
+  const { electionDefinition } = electionGridLayoutNewHampshireHudsonFixtures;
+  const frontImagePath =
+    electionGridLayoutNewHampshireHudsonFixtures.scanUnmarkedFront.asFilePath();
+  const backImagePath =
+    electionGridLayoutNewHampshireHudsonFixtures.scanUnmarkedBack.asFilePath();
   const interpretResult = await interpret(electionDefinition, [
     frontImagePath,
     backImagePath,
@@ -11353,18 +11336,12 @@ test('interpret unmarked', async () => {
   `);
 });
 
-test('interpret unmarked 300dpi', async () => {
-  const electionDefinition = safeParseElectionDefinition(
-    await readFixtureJson(HudsonFixtureName, 'election')
-  ).unsafeUnwrap();
-  const frontImagePath = getFixturePath(
-    HudsonFixtureName,
-    'scan-marked-front-300dpi.jpeg'
-  );
-  const backImagePath = getFixturePath(
-    HudsonFixtureName,
-    'scan-marked-back-300dpi.jpeg'
-  );
+test('interpret marked 300dpi', async () => {
+  const { electionDefinition } = electionGridLayoutNewHampshireHudsonFixtures;
+  const frontImagePath =
+    electionGridLayoutNewHampshireHudsonFixtures.scanMarkedFront300dpi.asFilePath();
+  const backImagePath =
+    electionGridLayoutNewHampshireHudsonFixtures.scanMarkedBack300dpi.asFilePath();
   const interpretResult = await interpret(electionDefinition, [
     frontImagePath,
     backImagePath,
