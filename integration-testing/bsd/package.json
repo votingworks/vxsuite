@@ -11,7 +11,7 @@
     "test": "is-ci test:ci test:watch",
     "test:ci": "start-server-and-test start http://localhost:3000 cypress:run",
     "test:watch": "cypress open",
-    "cypress:run": "cypress run --browser chrome",
+    "cypress:run": "cypress run --browser chrome --reporter junit",
     "pre-commit": "lint-staged"
   },
   "lint-staged": {

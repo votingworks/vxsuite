@@ -21,8 +21,9 @@
     "start": "node ./build/index.js",
     "start:precinct": "VX_MACHINE_TYPE=precinct-scanner node ./build/index.js",
     "start:central": "VX_MACHINE_TYPE=bsd node ./build/index.js",
-    "test": "is-ci test:coverage test:watch",
+    "test": "is-ci test:ci test:watch",
     "test:coverage": "jest --coverage",
+    "test:ci": "jest --coverage --reporters=default --reporters=jest-junit",
     "test:debug": "node --inspect-brk $(which jest) --runInBand --no-cache",
     "test:watch": "jest --watch",
     "pre-commit": "lint-staged"
@@ -109,6 +110,7 @@
     "fast-check": "^2.23.2",
     "is-ci-cli": "^2.1.2",
     "jest": "^26.6.3",
+    "jest-junit": "^14.0.1",
     "jest-watch-typeahead": "^0.6.4",
     "lint-staged": "^10.5.3",
     "nock": "^13.1.0",
