@@ -22,8 +22,7 @@ describe('Election Manager and Module Converter MS SEMS configuration', () => {
     cy.contains('Special Election for Senate 15');
     cy.contains('0d610ab44c');
     // The page renders twice when first loaded, make sure that is done before we navigate.
-    // eslint-disable-next-line cypress/no-unnecessary-waiting
-    cy.wait(500);
+    cy.contains('h1', 'Election Definition');
     cy.contains('Definition').click();
     cy.contains('State Senate 15');
     cy.contains('District 15');
