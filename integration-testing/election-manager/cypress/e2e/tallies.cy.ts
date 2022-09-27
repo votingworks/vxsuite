@@ -19,6 +19,10 @@ describe('Election Manager can create SEMS tallies', () => {
       { force: true }
     );
     cy.contains(electionDefinition.electionHash.slice(0, 10));
+
+    // wait until the loading screen goes away
+    cy.contains('h1', 'Election Definition');
+
     cy.contains('Lock Machine').click();
     mockElectionManagerCardInsertion(
       electionMultiPartyPrimaryFixtures.electionDefinition
